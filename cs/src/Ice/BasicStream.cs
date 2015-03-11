@@ -137,13 +137,13 @@ namespace IceInternal
         // This function allows this object to be reused, rather than
         // reallocated.
         //
-        public virtual void reset()
+        public void reset()
         {
             _buf.reset();
             clear();
         }
 
-        public virtual void clear()
+        public void clear()
         {
             if(_readEncapsStack != null)
             {
@@ -173,27 +173,27 @@ namespace IceInternal
             _sliceObjects = true;
         }
 
-        public virtual Instance instance()
+        public Instance instance()
         {
             return instance_;
         }
 
-        public virtual object closure()
+        public object closure()
         {
             return _closure;
         }
 
-        public virtual object closure(object p)
+        public object closure(object p)
         {
             object prev = _closure;
             _closure = p;
             return prev;
         }
 
-        public virtual void swap(BasicStream other)
+        public void swap(BasicStream other)
         {
             Debug.Assert(instance_ == other.instance_);
-            
+
             object tmpClosure = other._closure;
             other._closure = _closure;
             _closure = tmpClosure;
@@ -243,7 +243,7 @@ namespace IceInternal
             _unlimited = tmpUnlimited;
         }
 
-        public virtual void resize(int sz, bool reading)
+        public void resize(int sz, bool reading)
         {
             //
             // Check memory limit if stream is not unlimited.
@@ -257,19 +257,19 @@ namespace IceInternal
             _buf.b.position(sz);
         }
 
-        public virtual Buffer prepareWrite()
+        public Buffer prepareWrite()
         {
             _buf.b.limit(_buf.size());
             _buf.b.position(0);
             return _buf;
         }
 
-        public virtual Buffer getBuffer()
+        public Buffer getBuffer()
         {
             return _buf;
         }
 
-        public virtual void startWriteEncaps()
+        public void startWriteEncaps()
         {
             {
                 WriteEncaps curr = _writeEncapsCache;
@@ -292,7 +292,7 @@ namespace IceInternal
             writeByte(Protocol.encodingMinor);
         }
 
-        public virtual void endWriteEncaps()
+        public void endWriteEncaps()
         {
             Debug.Assert(_writeEncapsStack != null);
             int start = _writeEncapsStack.start;
@@ -306,7 +306,7 @@ namespace IceInternal
             _writeEncapsCache.reset();
         }
 
-        public virtual void endWriteEncapsChecked()
+        public void endWriteEncapsChecked()
         {
             if(_writeEncapsStack == null)
             {
@@ -316,7 +316,7 @@ namespace IceInternal
             endWriteEncaps();
         }
 
-        public virtual void startReadEncaps()
+        public void startReadEncaps()
         {
             {
                 ReadEncaps curr = _readEncapsCache;
@@ -370,7 +370,7 @@ namespace IceInternal
             // _readEncapsStack.encodingMinor = eMinor; // Currently unused
         }
 
-        public virtual void endReadEncaps()
+        public void endReadEncaps()
         {
             Debug.Assert(_readEncapsStack != null);
             if(_buf.b.position() != _readEncapsStack.start + _readEncapsStack.sz)
@@ -403,7 +403,7 @@ namespace IceInternal
             _readEncapsCache.reset();
         }
 
-        public virtual void skipEmptyEncaps()
+        public void skipEmptyEncaps()
         {
             int sz = readInt();
             if(sz != 6)
@@ -421,7 +421,7 @@ namespace IceInternal
             }
         }
 
-        public virtual void endReadEncapsChecked()
+        public void endReadEncapsChecked()
         {
             if(_readEncapsStack == null)
             {
@@ -431,13 +431,13 @@ namespace IceInternal
             endReadEncaps();
         }
 
-        public virtual int getReadEncapsSize()
+        public int getReadEncapsSize()
         {
             Debug.Assert(_readEncapsStack != null);
             return _readEncapsStack.sz - 6;
         }
 
-        public virtual void skipEncaps()
+        public void skipEncaps()
         {
             int sz = readInt();
             if(sz < 6)
@@ -454,19 +454,19 @@ namespace IceInternal
             }
         }
 
-        public virtual void startWriteSlice()
+        public void startWriteSlice()
         {
             writeInt(0); // Placeholder for the slice length.
             _writeSlice = _buf.size();
         }
 
-        public virtual void endWriteSlice()
+        public void endWriteSlice()
         {
             int sz = _buf.size() - _writeSlice + 4;
             _buf.b.putInt(_writeSlice - 4, sz);
         }
 
-        public virtual void startReadSlice()
+        public void startReadSlice()
         {
             int sz = readInt();
             if(sz < 4)
@@ -476,11 +476,11 @@ namespace IceInternal
             _readSlice = _buf.b.position();
         }
 
-        public virtual void endReadSlice()
+        public void endReadSlice()
         {
         }
 
-        public virtual void skipSlice()
+        public void skipSlice()
         {
             int sz = readInt();
             if(sz < 4)
@@ -500,7 +500,7 @@ namespace IceInternal
         public int readAndCheckSeqSize(int minSize)
         {
             int sz = readSize();
-            
+
             if(sz == 0)
             {
                 return 0;
@@ -510,8 +510,8 @@ namespace IceInternal
             // The _startSeq variable points to the start of the sequence for which
             // we expect to read at least _minSeqSize bytes from the stream.
             //
-            // If not initialized or if we already read more data than _minSeqSize, 
-            // we reset _startSeq and _minSeqSize for this sequence (possibly a 
+            // If not initialized or if we already read more data than _minSeqSize,
+            // we reset _startSeq and _minSeqSize for this sequence (possibly a
             // top-level sequence or enclosed sequence it doesn't really matter).
             //
             // Otherwise, we are reading an enclosed sequence and we have to bump
@@ -520,7 +520,7 @@ namespace IceInternal
             //
             // The goal of this check is to ensure that when we start un-marshalling
             // a new sequence, we check the minimal size of this new sequence against
-            // the estimated remaining buffer size. This estimatation is based on 
+            // the estimated remaining buffer size. This estimatation is based on
             // the minimum size of the enclosing sequences, it's _minSeqSize.
             //
             if(_startSeq == -1 || _buf.b.position() > (_startSeq + _minSeqSize))
@@ -535,7 +535,7 @@ namespace IceInternal
 
             //
             // If there isn't enough data to read on the stream for the sequence (and
-            // possibly enclosed sequences), something is wrong with the marshalled 
+            // possibly enclosed sequences), something is wrong with the marshalled
             // data: it's claiming having more data that what is possible to read.
             //
             if(_startSeq + _minSeqSize > _buf.size())
@@ -546,7 +546,7 @@ namespace IceInternal
             return sz;
         }
 
-        public virtual void writeSize(int v)
+        public void writeSize(int v)
         {
             if(v > 254)
             {
@@ -561,7 +561,7 @@ namespace IceInternal
             }
         }
 
-        public virtual int readSize()
+        public int readSize()
         {
             try
             {
@@ -590,7 +590,7 @@ namespace IceInternal
             }
         }
 
-        public virtual void writeTypeId(string id)
+        public void writeTypeId(string id)
         {
             if(_writeEncapsStack == null || _writeEncapsStack.typeIdMap == null)
             {
@@ -612,7 +612,7 @@ namespace IceInternal
             }
         }
 
-        public virtual string readTypeId()
+        public string readTypeId()
         {
             if(_readEncapsStack == null || _readEncapsStack.typeIdMap == null)
             {
@@ -640,7 +640,7 @@ namespace IceInternal
             return id;
         }
 
-        public virtual void writeBlob(byte[] v)
+        public void writeBlob(byte[] v)
         {
             if(v == null)
             {
@@ -650,7 +650,7 @@ namespace IceInternal
             _buf.b.put(v);
         }
 
-        public virtual void readBlob(byte[] v)
+        public void readBlob(byte[] v)
         {
             try
             {
@@ -662,7 +662,7 @@ namespace IceInternal
             }
         }
 
-        public virtual byte[] readBlob(int sz)
+        public byte[] readBlob(int sz)
         {
             if(_buf.b.remaining() < sz)
             {
@@ -680,13 +680,13 @@ namespace IceInternal
             }
         }
 
-        public virtual void writeByte(byte v)
+        public void writeByte(byte v)
         {
             expand(1);
             _buf.b.put(v);
         }
 
-        public virtual void writeByte(byte v, int end)
+        public void writeByte(byte v, int end)
         {
             if(v < 0 || v >= end)
             {
@@ -695,7 +695,7 @@ namespace IceInternal
             writeByte(v);
         }
 
-        public virtual void writeByteSeq(byte[] v)
+        public void writeByteSeq(byte[] v)
         {
             if(v == null)
             {
@@ -709,7 +709,7 @@ namespace IceInternal
             }
         }
 
-        public virtual void writeByteSeq(int count, IEnumerable<byte> v)
+        public void writeByteSeq(int count, IEnumerable<byte> v)
         {
             if(count == 0)
             {
@@ -767,7 +767,7 @@ namespace IceInternal
             }
         }
 
-        public virtual void writeSerializable(object o)
+        public void writeSerializable(object o)
         {
 #if !COMPACT
             if(o == null)
@@ -791,7 +791,7 @@ namespace IceInternal
 #endif
         }
 
-        public virtual byte readByte()
+        public byte readByte()
         {
             try
             {
@@ -803,7 +803,7 @@ namespace IceInternal
             }
         }
 
-        public virtual byte readByte(int end)
+        public byte readByte(int end)
         {
             byte v = readByte();
             if(v < 0 || v >= end)
@@ -812,8 +812,8 @@ namespace IceInternal
             }
             return v;
         }
-        
-        public virtual byte[] readByteSeq()
+
+        public byte[] readByteSeq()
         {
             try
             {
@@ -828,7 +828,7 @@ namespace IceInternal
             }
         }
 
-        public virtual void readByteSeq(out List<byte> l)
+        public void readByteSeq(out List<byte> l)
         {
             //
             // Reading into an array and copy-constructing the
@@ -838,7 +838,7 @@ namespace IceInternal
             l = new List<byte>(readByteSeq());
         }
 
-        public virtual void readByteSeq(out LinkedList<byte> l)
+        public void readByteSeq(out LinkedList<byte> l)
         {
             //
             // Reading into an array and copy-constructing the
@@ -848,7 +848,7 @@ namespace IceInternal
             l = new LinkedList<byte>(readByteSeq());
         }
 
-        public virtual void readByteSeq(out Queue<byte> l)
+        public void readByteSeq(out Queue<byte> l)
         {
             //
             // Reading into an array and copy-constructing the
@@ -858,7 +858,7 @@ namespace IceInternal
             l = new Queue<byte>(readByteSeq());
         }
 
-        public virtual void readByteSeq(out Stack<byte> l)
+        public void readByteSeq(out Stack<byte> l)
         {
             //
             // Reverse the contents by copying into an array first
@@ -872,7 +872,7 @@ namespace IceInternal
             }
         }
 
-        public virtual object readSerializable()
+        public object readSerializable()
         {
 #if !COMPACT
             int sz = readAndCheckSeqSize(1);
@@ -895,13 +895,13 @@ namespace IceInternal
 #endif
         }
 
-        public virtual void writeBool(bool v)
+        public void writeBool(bool v)
         {
             expand(1);
             _buf.b.put(v ? (byte)1 : (byte)0);
         }
 
-        public virtual void writeBoolSeq(bool[] v)
+        public void writeBoolSeq(bool[] v)
         {
             if(v == null)
             {
@@ -915,7 +915,7 @@ namespace IceInternal
             }
         }
 
-        public virtual void writeBoolSeq(int count, IEnumerable<bool> v)
+        public void writeBoolSeq(int count, IEnumerable<bool> v)
         {
             if(count == 0)
             {
@@ -973,7 +973,7 @@ namespace IceInternal
             }
         }
 
-        public virtual bool readBool()
+        public bool readBool()
         {
             try
             {
@@ -985,7 +985,7 @@ namespace IceInternal
             }
         }
 
-        public virtual bool[] readBoolSeq()
+        public bool[] readBoolSeq()
         {
             try
             {
@@ -1000,7 +1000,7 @@ namespace IceInternal
             }
         }
 
-        public virtual void readBoolSeq(out List<bool> l)
+        public void readBoolSeq(out List<bool> l)
         {
             //
             // Reading into an array and copy-constructing the
@@ -1010,7 +1010,7 @@ namespace IceInternal
             l = new List<bool>(readBoolSeq());
         }
 
-        public virtual void readBoolSeq(out LinkedList<bool> l)
+        public void readBoolSeq(out LinkedList<bool> l)
         {
             //
             // Reading into an array and copy-constructing the
@@ -1020,7 +1020,7 @@ namespace IceInternal
             l = new LinkedList<bool>(readBoolSeq());
         }
 
-        public virtual void readBoolSeq(out Queue<bool> l)
+        public void readBoolSeq(out Queue<bool> l)
         {
             //
             // Reading into an array and copy-constructing the
@@ -1030,7 +1030,7 @@ namespace IceInternal
             l = new Queue<bool>(readBoolSeq());
         }
 
-        public virtual void readBoolSeq(out Stack<bool> l)
+        public void readBoolSeq(out Stack<bool> l)
         {
             //
             // Reverse the contents by copying into an array first
@@ -1044,13 +1044,13 @@ namespace IceInternal
             }
         }
 
-        public virtual void writeShort(short v)
+        public void writeShort(short v)
         {
             expand(2);
             _buf.b.putShort(v);
         }
 
-        public virtual void writeShort(short v, int end)
+        public void writeShort(short v, int end)
         {
             if(v < 0 || v >= end)
             {
@@ -1059,7 +1059,7 @@ namespace IceInternal
             writeShort(v);
         }
 
-        public virtual void writeShortSeq(short[] v)
+        public void writeShortSeq(short[] v)
         {
             if(v == null)
             {
@@ -1073,14 +1073,14 @@ namespace IceInternal
             }
         }
 
-        public virtual void writeShortSeq(int count, IEnumerable<short> v)
+        public void writeShortSeq(int count, IEnumerable<short> v)
         {
             if(count == 0)
             {
                 writeSize(0);
                 return;
             }
-            
+
             {
                 List<short> value = v as List<short>;
                 if(value != null)
@@ -1131,7 +1131,7 @@ namespace IceInternal
             }
         }
 
-        public virtual short readShort()
+        public short readShort()
         {
             try
             {
@@ -1143,7 +1143,7 @@ namespace IceInternal
             }
         }
 
-        public virtual short readShort(int end)
+        public short readShort(int end)
         {
             short v = readShort();
             if(v < 0 || v >= end)
@@ -1153,7 +1153,7 @@ namespace IceInternal
             return v;
         }
 
-        public virtual short[] readShortSeq()
+        public short[] readShortSeq()
         {
             try
             {
@@ -1168,7 +1168,7 @@ namespace IceInternal
             }
         }
 
-        public virtual void readShortSeq(out List<short> l)
+        public void readShortSeq(out List<short> l)
         {
             //
             // Reading into an array and copy-constructing the
@@ -1178,7 +1178,7 @@ namespace IceInternal
             l = new List<short>(readShortSeq());
         }
 
-        public virtual void readShortSeq(out LinkedList<short> l)
+        public void readShortSeq(out LinkedList<short> l)
         {
             //
             // Reading into an array and copy-constructing the
@@ -1188,7 +1188,7 @@ namespace IceInternal
             l = new LinkedList<short>(readShortSeq());
         }
 
-        public virtual void readShortSeq(out Queue<short> l)
+        public void readShortSeq(out Queue<short> l)
         {
             //
             // Reading into an array and copy-constructing the
@@ -1198,7 +1198,7 @@ namespace IceInternal
             l = new Queue<short>(readShortSeq());
         }
 
-        public virtual void readShortSeq(out Stack<short> l)
+        public void readShortSeq(out Stack<short> l)
         {
             //
             // Reverse the contents by copying into an array first
@@ -1212,13 +1212,13 @@ namespace IceInternal
             }
         }
 
-        public virtual void writeInt(int v)
+        public void writeInt(int v)
         {
             expand(4);
             _buf.b.putInt(v);
         }
 
-        public virtual void writeInt(int v, int end)
+        public void writeInt(int v, int end)
         {
             if(v < 0 || v >= end)
             {
@@ -1227,7 +1227,7 @@ namespace IceInternal
             writeInt(v);
         }
 
-        public virtual void writeIntSeq(int[] v)
+        public void writeIntSeq(int[] v)
         {
             if(v == null)
             {
@@ -1241,7 +1241,7 @@ namespace IceInternal
             }
         }
 
-        public virtual void writeIntSeq(int count, IEnumerable<int> v)
+        public void writeIntSeq(int count, IEnumerable<int> v)
         {
             if(count == 0)
             {
@@ -1281,7 +1281,7 @@ namespace IceInternal
                     return;
                 }
             }
-    
+
             {
                 Stack<int> value = v as Stack<int>;
                 if(value != null)
@@ -1299,7 +1299,7 @@ namespace IceInternal
             }
         }
 
-        public virtual int readInt()
+        public int readInt()
         {
             try
             {
@@ -1311,7 +1311,7 @@ namespace IceInternal
             }
         }
 
-        public virtual int readInt(int end)
+        public int readInt(int end)
         {
             int v = readInt();
             if(v < 0 || v >= end)
@@ -1321,7 +1321,7 @@ namespace IceInternal
             return v;
         }
 
-        public virtual int[] readIntSeq()
+        public int[] readIntSeq()
         {
             try
             {
@@ -1336,7 +1336,7 @@ namespace IceInternal
             }
         }
 
-        public virtual void readIntSeq(out List<int> l)
+        public void readIntSeq(out List<int> l)
         {
             //
             // Reading into an array and copy-constructing the
@@ -1346,7 +1346,7 @@ namespace IceInternal
             l = new List<int>(readIntSeq());
         }
 
-        public virtual void readIntSeq(out LinkedList<int> l)
+        public void readIntSeq(out LinkedList<int> l)
         {
             try
             {
@@ -1363,7 +1363,7 @@ namespace IceInternal
             }
         }
 
-        public virtual void readIntSeq(out Queue<int> l)
+        public void readIntSeq(out Queue<int> l)
         {
             //
             // Reading into an array and copy-constructing the
@@ -1386,7 +1386,7 @@ namespace IceInternal
             }
         }
 
-        public virtual void readIntSeq(out Stack<int> l)
+        public void readIntSeq(out Stack<int> l)
         {
             //
             // Reverse the contents by copying into an array first
@@ -1400,13 +1400,13 @@ namespace IceInternal
             }
         }
 
-        public virtual void writeLong(long v)
+        public void writeLong(long v)
         {
             expand(8);
             _buf.b.putLong(v);
         }
 
-        public virtual void writeLongSeq(long[] v)
+        public void writeLongSeq(long[] v)
         {
             if(v == null)
             {
@@ -1420,7 +1420,7 @@ namespace IceInternal
             }
         }
 
-        public virtual void writeLongSeq(int count, IEnumerable<long> v)
+        public void writeLongSeq(int count, IEnumerable<long> v)
         {
             if(count == 0)
             {
@@ -1478,7 +1478,7 @@ namespace IceInternal
             }
         }
 
-        public virtual long readLong()
+        public long readLong()
         {
             try
             {
@@ -1490,7 +1490,7 @@ namespace IceInternal
             }
         }
 
-        public virtual long[] readLongSeq()
+        public long[] readLongSeq()
         {
             try
             {
@@ -1505,7 +1505,7 @@ namespace IceInternal
             }
         }
 
-        public virtual void readLongSeq(out List<long> l)
+        public void readLongSeq(out List<long> l)
         {
             //
             // Reading into an array and copy-constructing the
@@ -1515,7 +1515,7 @@ namespace IceInternal
             l = new List<long>(readLongSeq());
         }
 
-        public virtual void readLongSeq(out LinkedList<long> l)
+        public void readLongSeq(out LinkedList<long> l)
         {
             try
             {
@@ -1532,7 +1532,7 @@ namespace IceInternal
             }
         }
 
-        public virtual void readLongSeq(out Queue<long> l)
+        public void readLongSeq(out Queue<long> l)
         {
             //
             // Reading into an array and copy-constructing the
@@ -1555,7 +1555,7 @@ namespace IceInternal
             }
         }
 
-        public virtual void readLongSeq(out Stack<long> l)
+        public void readLongSeq(out Stack<long> l)
         {
             //
             // Reverse the contents by copying into an array first
@@ -1569,13 +1569,13 @@ namespace IceInternal
             }
         }
 
-        public virtual void writeFloat(float v)
+        public void writeFloat(float v)
         {
             expand(4);
             _buf.b.putFloat(v);
         }
 
-        public virtual void writeFloatSeq(float[] v)
+        public void writeFloatSeq(float[] v)
         {
             if(v == null)
             {
@@ -1589,7 +1589,7 @@ namespace IceInternal
             }
         }
 
-        public virtual void writeFloatSeq(int count, IEnumerable<float> v)
+        public void writeFloatSeq(int count, IEnumerable<float> v)
         {
             if(count == 0)
             {
@@ -1629,7 +1629,7 @@ namespace IceInternal
                     return;
                 }
             }
-            
+
             {
                 Stack<float> value = v as Stack<float>;
                 if(value != null)
@@ -1647,7 +1647,7 @@ namespace IceInternal
             }
         }
 
-        public virtual float readFloat()
+        public float readFloat()
         {
             try
             {
@@ -1659,7 +1659,7 @@ namespace IceInternal
             }
         }
 
-        public virtual float[] readFloatSeq()
+        public float[] readFloatSeq()
         {
             try
             {
@@ -1674,7 +1674,7 @@ namespace IceInternal
             }
         }
 
-        public virtual void readFloatSeq(out List<float> l)
+        public void readFloatSeq(out List<float> l)
         {
             //
             // Reading into an array and copy-constructing the
@@ -1684,7 +1684,7 @@ namespace IceInternal
             l = new List<float>(readFloatSeq());
         }
 
-        public virtual void readFloatSeq(out LinkedList<float> l)
+        public void readFloatSeq(out LinkedList<float> l)
         {
             try
             {
@@ -1701,7 +1701,7 @@ namespace IceInternal
             }
         }
 
-        public virtual void readFloatSeq(out Queue<float> l)
+        public void readFloatSeq(out Queue<float> l)
         {
             //
             // Reading into an array and copy-constructing the
@@ -1724,7 +1724,7 @@ namespace IceInternal
             }
         }
 
-        public virtual void readFloatSeq(out Stack<float> l)
+        public void readFloatSeq(out Stack<float> l)
         {
             //
             // Reverse the contents by copying into an array first
@@ -1738,13 +1738,13 @@ namespace IceInternal
             }
         }
 
-        public virtual void writeDouble(double v)
+        public void writeDouble(double v)
         {
             expand(8);
             _buf.b.putDouble(v);
         }
 
-        public virtual void writeDoubleSeq(double[] v)
+        public void writeDoubleSeq(double[] v)
         {
             if(v == null)
             {
@@ -1758,7 +1758,7 @@ namespace IceInternal
             }
         }
 
-        public virtual void writeDoubleSeq(int count, IEnumerable<double> v)
+        public void writeDoubleSeq(int count, IEnumerable<double> v)
         {
             if(count == 0)
             {
@@ -1798,7 +1798,7 @@ namespace IceInternal
                     return;
                 }
             }
-            
+
             {
                 Stack<double> value = v as Stack<double>;
                 if (value != null)
@@ -1816,7 +1816,7 @@ namespace IceInternal
             }
         }
 
-        public virtual double readDouble()
+        public double readDouble()
         {
             try
             {
@@ -1828,7 +1828,7 @@ namespace IceInternal
             }
         }
 
-        public virtual double[] readDoubleSeq()
+        public double[] readDoubleSeq()
         {
             try
             {
@@ -1843,7 +1843,7 @@ namespace IceInternal
             }
         }
 
-        public virtual void readDoubleSeq(out List<double> l)
+        public void readDoubleSeq(out List<double> l)
         {
             //
             // Reading into an array and copy-constructing the
@@ -1853,7 +1853,7 @@ namespace IceInternal
             l = new List<double>(readDoubleSeq());
         }
 
-        public virtual void readDoubleSeq(out LinkedList<double> l)
+        public void readDoubleSeq(out LinkedList<double> l)
         {
             try
             {
@@ -1870,7 +1870,7 @@ namespace IceInternal
             }
         }
 
-        public virtual void readDoubleSeq(out Queue<double> l)
+        public void readDoubleSeq(out Queue<double> l)
         {
             //
             // Reading into an array and copy-constructing the
@@ -1893,7 +1893,7 @@ namespace IceInternal
             }
         }
 
-        public virtual void readDoubleSeq(out Stack<double> l)
+        public void readDoubleSeq(out Stack<double> l)
         {
             //
             // Reverse the contents by copying into an array first
@@ -1909,7 +1909,7 @@ namespace IceInternal
 
         private static System.Text.UTF8Encoding utf8 = new System.Text.UTF8Encoding(false, true);
 
-        public virtual void writeString(string v)
+        public void writeString(string v)
         {
             if(v == null || v.Length == 0)
             {
@@ -1922,7 +1922,7 @@ namespace IceInternal
             _buf.b.put(arr);
         }
 
-        public virtual void writeStringSeq(string[] v)
+        public void writeStringSeq(string[] v)
         {
             if(v == null)
             {
@@ -1938,7 +1938,7 @@ namespace IceInternal
             }
         }
 
-        public virtual void writeStringSeq(int size, IEnumerable<string> e)
+        public void writeStringSeq(int size, IEnumerable<string> e)
         {
             writeSize(size);
             if(size != 0)
@@ -1950,7 +1950,7 @@ namespace IceInternal
             }
         }
 
-        public virtual string readString()
+        public string readString()
         {
             int len = readSize();
 
@@ -1979,7 +1979,7 @@ namespace IceInternal
                 }
                 _buf.b.get(_stringBytes, 0, len);
                 return utf8.GetString(_stringBytes, 0, len);
-            }    
+            }
             catch(InvalidOperationException ex)
             {
                 throw new Ice.UnmarshalOutOfBoundsException(ex);
@@ -1990,7 +1990,7 @@ namespace IceInternal
             }
         }
 
-        public virtual string[] readStringSeq()
+        public string[] readStringSeq()
         {
             int sz = readAndCheckSeqSize(1);
             string[] v = new string[sz];
@@ -2001,7 +2001,7 @@ namespace IceInternal
             return v;
         }
 
-        public virtual void readStringSeq(out List<string> l)
+        public void readStringSeq(out List<string> l)
         {
             //
             // Reading into an array and copy-constructing the
@@ -2016,7 +2016,7 @@ namespace IceInternal
             }
         }
 
-        public virtual void readStringSeq(out LinkedList<string> l)
+        public void readStringSeq(out LinkedList<string> l)
         {
             //
             // Reading into an array and copy-constructing the
@@ -2031,7 +2031,7 @@ namespace IceInternal
             }
         }
 
-        public virtual void readStringSeq(out Queue<string> l)
+        public void readStringSeq(out Queue<string> l)
         {
             //
             // Reading into an array and copy-constructing the
@@ -2046,7 +2046,7 @@ namespace IceInternal
             }
         }
 
-        public virtual void readStringSeq(out Stack<string> l)
+        public void readStringSeq(out Stack<string> l)
         {
             //
             // Reverse the contents by copying into an array first
@@ -2060,17 +2060,17 @@ namespace IceInternal
             }
         }
 
-        public virtual void writeProxy(Ice.ObjectPrx v)
+        public void writeProxy(Ice.ObjectPrx v)
         {
             instance_.proxyFactory().proxyToStream(v, this);
         }
 
-        public virtual Ice.ObjectPrx readProxy()
+        public Ice.ObjectPrx readProxy()
         {
             return instance_.proxyFactory().streamToProxy(this);
         }
 
-        public virtual void writeObject(Ice.Object v)
+        public void writeObject(Ice.Object v)
         {
             if(_writeEncapsStack == null) // Lazy initialization
             {
@@ -2123,7 +2123,7 @@ namespace IceInternal
             }
         }
 
-        public virtual void readObject(IPatcher patcher)
+        public void readObject(IPatcher patcher)
         {
             Ice.Object v = null;
 
@@ -2289,7 +2289,7 @@ namespace IceInternal
             }
         }
 
-        public virtual void writeUserException(Ice.UserException v)
+        public void writeUserException(Ice.UserException v)
         {
             writeBool(v.usesClasses__());
             v.write__(this);
@@ -2299,7 +2299,7 @@ namespace IceInternal
             }
         }
 
-        public virtual void throwException()
+        public void throwException()
         {
             bool usesClasses = readBool();
 
@@ -2378,7 +2378,7 @@ namespace IceInternal
             //
         }
 
-        public virtual void writePendingObjects()
+        public void writePendingObjects()
         {
             if(_writeEncapsStack != null && _writeEncapsStack.toBeMarshaledMap != null)
             {
@@ -2414,10 +2414,10 @@ namespace IceInternal
             writeSize(0); // Zero marker indicates end of sequence of sequences of instances.
         }
 
-        public virtual void readPendingObjects()
+        public void readPendingObjects()
         {
             int num;
-            do 
+            do
             {
                 num = readSize();
                 for(int k = num; k > 0; --k)
@@ -2466,7 +2466,7 @@ namespace IceInternal
             _sliceObjects = b;
         }
 
-        internal virtual void writeInstance(Ice.Object v, int index)
+        internal void writeInstance(Ice.Object v, int index)
         {
             writeInt(index);
             try
@@ -2480,7 +2480,7 @@ namespace IceInternal
             v.write__(this);
         }
 
-        internal virtual void patchReferences(object instanceIndex, object patchIndex)
+        internal void patchReferences(object instanceIndex, object patchIndex)
         {
             //
             // Called whenever we have unmarshaled a new instance or
@@ -2644,7 +2644,7 @@ namespace IceInternal
             int compressedLen = (int)(uncompressedLen * 1.01 + 600);
             byte[] compressed = new byte[compressedLen];
 
-            int rc = NativeMethods.BZ2_bzBuffToBuffCompress(compressed, ref compressedLen, uncompressed, 
+            int rc = NativeMethods.BZ2_bzBuffToBuffCompress(compressed, ref compressedLen, uncompressed,
                                                             uncompressedLen, compressionLevel, 0, 0);
             if(rc == BZ_OUTBUFF_FULL)
             {
@@ -2713,7 +2713,7 @@ namespace IceInternal
             byte[] compressed = _buf.b.rawBytes(headerSize + 4, compressedLen);
             int uncompressedLen = uncompressedSize - headerSize;
             byte[] uncompressed = new byte[uncompressedLen];
-            int rc = NativeMethods.BZ2_bzBuffToBuffDecompress(uncompressed, ref uncompressedLen, compressed, 
+            int rc = NativeMethods.BZ2_bzBuffToBuffDecompress(uncompressed, ref uncompressedLen, compressed,
                                                               compressedLen, 0, 0);
             if(rc < 0)
             {
@@ -2730,22 +2730,22 @@ namespace IceInternal
 #endif
         }
 
-        internal virtual int pos()
+        internal int pos()
         {
             return _buf.b.position();
         }
 
-        internal virtual void pos(int n)
+        internal void pos(int n)
         {
             _buf.b.position(n);
         }
 
-        public virtual int size()
+        public int size()
         {
             return _buf.size();
         }
 
-        public virtual bool isEmpty()
+        public bool isEmpty()
         {
             return _buf.empty();
         }
@@ -2753,7 +2753,7 @@ namespace IceInternal
         public void expand(int n)
         {
             if(!_unlimited && _buf.b != null && _buf.b.position() + n > _messageSizeMax)
-            {   
+            {
                 Ex.throwMemoryLimitException(_buf.b.position() + n, _messageSizeMax);
             }
             _buf.expand(n);

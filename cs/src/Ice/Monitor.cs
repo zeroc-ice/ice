@@ -40,7 +40,7 @@ namespace IceUtilInternal
     {
         public Monitor()
         {
-            _waitQueue = new LinkedList<System.Threading.EventWaitHandle>();
+            _eventPool = null;
             _mutex = new System.Threading.Mutex();
             _lockCount = 0;
         }
@@ -69,12 +69,13 @@ namespace IceUtilInternal
 
         public void Wait()
         {
-            //
-            // Push an event onto the wait queue. Eventually, a call to Notify or NotifyAll
-            // will remove the event from the wait queue and signal it.
-            //
-            System.Threading.EventWaitHandle e = new System.Threading.AutoResetEvent(false);
-            _waitQueue.AddLast(e);
+            if(_waitQueue == null)
+            {
+                _waitQueue = new Queue<LockerEvent>();
+            }
+
+            LockerEvent e = acquireEvent();
+            _waitQueue.Enqueue(e);
 
             //
             // Preserve the lock count until we reaquire the lock.
@@ -93,7 +94,7 @@ namespace IceUtilInternal
             //
             // Wait for the event to be set.
             //
-            e.WaitOne();
+            e.ev.WaitOne();
 
             //
             // Reacquire the lock the same number of times.
@@ -105,24 +106,19 @@ namespace IceUtilInternal
 
             _lockCount = lockCount;
 
-            //
-            // It is safe to close the event now because no other thread will use it (Notify
-            // or NotifyAll has already removed the event from the wait queue).
-            //
-            e.Close();
+            Debug.Assert(e.notified);
+            releaseEvent(e);
         }
 
         public bool TimedWait(int timeout)
         {
-            //
-            // Push an event onto the wait queue. The event is removed from the queue if
-            // Notify or NotifyAll is called, otherwise we have to remove it explicitly.
-            // We use a LinkedListNode here because we can remove it in O(1) time.
-            //
-            System.Threading.EventWaitHandle e = new System.Threading.AutoResetEvent(false);
-            LinkedListNode<System.Threading.EventWaitHandle> node =
-                new LinkedListNode<System.Threading.EventWaitHandle>(e);
-            _waitQueue.AddLast(node);
+            if(_waitQueue == null)
+            {
+                _waitQueue = new Queue<LockerEvent>();
+            }
+
+            LockerEvent e = acquireEvent();
+            _waitQueue.Enqueue(e);
 
             //
             // Preserve the lock count until we reaquire the lock.
@@ -141,21 +137,7 @@ namespace IceUtilInternal
             //
             // Wait for the event to be set or the timeout to expire.
             //
-            bool b = e.WaitOne(timeout, false);
-
-            //
-            // NOTE: There's a race here if the timeout expired: another thread could
-            // acquire the lock and call Notify. In turn, Notify could remove this event
-            // from the wait queue and set it. Now we have a situation where the timeout
-            // technically expired but the event was actually set. If we still treat this
-            // as an expired timeout then the Notify will have been lost.
-            //
-            // The timeout isn't precise because we also have to wait an indeterminate
-            // time to reacquire the lock. The simplest solution therefore is to check
-            // the event one more time after acquiring the lock - if it's set now, we
-            // act as if the wait succeeded. This might be an issue for a general-purpose
-            // monitor implementation, but for Ice it shouldn't cause any problems.
-            //
+            e.ev.WaitOne(timeout, false);
 
             //
             // Reacquire the lock the same number of times.
@@ -167,58 +149,110 @@ namespace IceUtilInternal
 
             _lockCount = lockCount;
 
-            //
-            // In the case of a timeout, check the event one more time to work around the
-            // race condition described above.
-            //
-            if(!b)
+            if(e.notified)
             {
-                b = e.WaitOne(0, false);
+                releaseEvent(e);
+                return true;
             }
-
-            //
-            // If our event was not signaled, we need to remove it from the wait queue.
-            //
-            if(!b)
+            else
             {
-                Debug.Assert(node.List != null); // The node must still be in the wait queue.
-                _waitQueue.Remove(node);
+                e.timedOut = true;
+                return false;
             }
-
-            //
-            // It is safe to close the event now because no other thread will use it.
-            //
-            e.Close();
-
-            return b;
         }
 
         public void Notify()
         {
-            if(_waitQueue.Count > 0)
+            if(_waitQueue != null)
             {
-                //
-                // Set the first event in the wait queue.
-                //
-                System.Threading.EventWaitHandle h = _waitQueue.First.Value;
-                _waitQueue.RemoveFirst();
-                h.Set();
+                while(_waitQueue.Count > 0)
+                {
+                    //
+                    // Set the first event in the wait queue.
+                    //
+                    LockerEvent h = _waitQueue.Dequeue();
+                    if(!h.timedOut)
+                    {
+                        h.notified = true;
+                        h.ev.Set();
+                        break;
+                    }
+                    else
+                    {
+                        releaseEvent(h);
+                    }
+                }
             }
         }
 
         public void NotifyAll()
         {
-            //
-            // Set all the events in the wait queue.
-            //
-            foreach(System.Threading.EventWaitHandle h in _waitQueue)
+            if(_waitQueue != null)
             {
-                h.Set();
+                //
+                // Set all the events in the wait queue.
+                //
+                foreach(LockerEvent h in _waitQueue)
+                {
+                    if(!h.timedOut)
+                    {
+                        h.notified = true;
+                        h.ev.Set();
+                    }
+                    else
+                    {
+                        releaseEvent(h);
+                    }
+                }
+                _waitQueue.Clear();
             }
-            _waitQueue.Clear();
         }
 
-        private LinkedList<System.Threading.EventWaitHandle> _waitQueue;
+        private LockerEvent acquireEvent() 
+        {
+            if(_eventPool == null)
+            {
+                return new LockerEvent();
+            }
+            else
+            {
+                LockerEvent l = _eventPool;
+                _eventPool = _eventPool.next;
+                l.Reset();
+                l.next = null;
+                return l;
+            }
+        }
+
+        private void releaseEvent(LockerEvent e)
+        {
+            e.next = _eventPool;
+            _eventPool = e;
+        }
+
+        internal class LockerEvent
+        {
+            internal System.Threading.EventWaitHandle ev;
+            internal bool timedOut;
+            internal bool notified;
+            internal LockerEvent next;
+
+            internal LockerEvent()
+            {
+                ev = new System.Threading.ManualResetEvent(false);
+                next = null;
+            }
+
+            internal void Reset()
+            {
+                ev.Reset();
+                timedOut = false;
+                notified = false;
+            }
+        }
+
+        private Queue<LockerEvent> _waitQueue;
+        private LockerEvent _eventPool;
         private System.Threading.Mutex _mutex;
         private int _lockCount;
     }
