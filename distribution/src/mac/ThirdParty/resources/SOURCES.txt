@@ -1,7 +1,0 @@
-Source Code
------------
-
-The source distributions of Berkeley DB and MCPP used to build
-this distribution can be downloaded at no cost from
-
-  https://www.zeroc.com/download.html
