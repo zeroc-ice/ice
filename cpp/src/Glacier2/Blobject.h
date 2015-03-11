@@ -24,6 +24,8 @@ public:
     Blobject(const InstancePtr&, const Ice::ConnectionPtr&, const Ice::Context&);
     virtual ~Blobject();
 
+    void destroy();
+
 protected:
 
     void invoke(Ice::ObjectPrx&, const Ice::AMD_Object_ice_invokePtr&, 

@@ -98,6 +98,12 @@ Glacier2::RouterI::destroy(const AMI_Session_destroyPtr& amiCB)
             _session->destroy_async(amiCB);
         }
     }
+
+    _clientBlobject->destroy();
+    if(_serverBlobject)
+    {
+        _serverBlobject->destroy();
+    }
 }
 
 ObjectPrx

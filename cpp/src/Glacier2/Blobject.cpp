@@ -171,6 +171,15 @@ Glacier2::Blobject::~Blobject()
 }
 
 void
+Glacier2::Blobject::destroy()
+{
+    if(_requestQueue)
+    {
+        _requestQueue->destroy();
+    }
+}
+
+void
 Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amdCB, 
                            const std::pair<const Ice::Byte*, const Ice::Byte*>& inParams, const Current& current)
 {
