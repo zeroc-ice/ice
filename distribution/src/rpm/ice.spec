@@ -165,6 +165,7 @@ Slice files for the Ice run time.
 Summary: Java-based Ice utilities and admin tools.
 Group: Applications/System
 Obsoletes: ice-utils < 3.6
+Requires: java
 %description -n ice-utils-java
 Graphical IceGrid administrative tool and command-line
 certificate authority utility.
@@ -751,6 +752,7 @@ cp -p $RPM_BUILD_DIR/Ice-%{version}/man/man1/iceca.1 $RPM_BUILD_ROOT%{_mandir}/m
 mkdir -p $RPM_BUILD_ROOT%{_javadir}
 cp -p $RPM_BUILD_DIR/Ice-%{version}/java/lib/icegridgui.jar $RPM_BUILD_ROOT%{_javadir}/icegridgui.jar
 cp -p $RPM_BUILD_DIR/Ice-%{version}/java/bin/icegridgui.rpm $RPM_BUILD_ROOT%{_bindir}/icegridgui
+jarsigner -keystore $JARSIGNER_KEYSTORE -storepass "$JARSIGNER_KEYSTORE_PASSWORD" $RPM_BUILD_ROOT%{_javadir}/icegridgui.jar zeroc.com -tsa http://timestamp.digicert.com
 
 #
 # Slice files
