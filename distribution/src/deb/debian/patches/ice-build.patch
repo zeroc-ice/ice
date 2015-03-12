@@ -1,6 +1,6 @@
 --- a/config/Make.common.rules
 +++ b/config/Make.common.rules
-@@ -95,7 +95,10 @@
+@@ -121,7 +121,10 @@
          cpp11libsuffix		= ++11
          cpp11sonamedir		= ../
          binsuffix 		:= $(binsuffix)$(cpp11libsuffix)
@@ -11,7 +11,7 @@
  endif
  
  ifneq ($(findstring MINGW,$(UNAME)),)
-@@ -165,16 +168,16 @@
+@@ -189,16 +192,16 @@
  		ifneq ($(shell test -f $(ICE_HOME)/$(binsubdir)/$(slice_translator) && echo 0), 0)
  $(error Unable to find $(slice_translator) in $(ICE_HOME)/$(binsubdir), please verify ICE_HOME is properly configured and Ice is correctly installed.)
  		endif
@@ -32,7 +32,7 @@
  	endif
  
      endif
-@@ -193,16 +196,16 @@
+@@ -217,16 +220,16 @@
  		ifneq ($(shell test -f $(ICE_HOME)/$(binsubdir)/$(slice_translator) && echo 0), 0)
  $(error Unable to find $(slice_translator) in $(ICE_HOME)/$(binsubdir), please verify ICE_HOME is properly configured and Ice is correctly installed.)
  		endif
@@ -53,22 +53,6 @@
  	endif
      endif
  endif
---- a/cpp/Makefile
-+++ b/cpp/Makefile
-@@ -13,13 +13,6 @@
- 
- SUBDIRS		= config src include
- 
--ifneq ($(MAKECMDGOALS),install)
--    SUBDIRS		:= $(SUBDIRS) test
--    ifeq ($(shell uname | grep MINGW),)
--        SUBDIRS		:= $(SUBDIRS) demo
--    endif
--endif
--
- INSTALL_SUBDIRS	= $(install_bindir) $(install_libdir)$(cpp11libdirsuffix) $(install_includedir) \
- 	$(install_configdir) $(install_mandir)
- 
 --- a/php/Makefile
 +++ b/php/Makefile
 @@ -13,10 +13,6 @@
@@ -115,10 +99,11 @@
  
 -SUBDIRS			= cpp java js py rb php
 -CLEAN_SUBDIRS	= js java py rb php cpp
+-DEPEND_SUBDIRS	= cpp py rb php
+-INSTALL_SUBDIRS	= cpp java py rb php js
 +SUBDIRS			= cpp java php
 +CLEAN_SUBDIRS	= java php cpp
- DEPEND_SUBDIRS	= cpp py rb php
--INSTALL_SUBDIRS	= cpp java py rb php js
++DEPEND_SUBDIRS	= cpp php
 +INSTALL_SUBDIRS	= cpp java php
  
  ifeq ($(shell uname),Darwin)

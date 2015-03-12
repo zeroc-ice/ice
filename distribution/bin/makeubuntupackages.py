@@ -110,10 +110,11 @@ runCommand("tar zxf %s " % (distFile), verbose)
 shutil.copy(distFile, buildDir)
 
 os.chdir(sourceDir)
-runCommand("tar zxf %s distfiles-" + iceVersion + "/src/deb/debian --strip-components 3" % distFiles, verbose)
+runCommand("tar zxf %s distfiles-%s/src/deb/debian --strip-components 3" % (distFiles, iceVersion), verbose)
+
 os.chdir(os.path.join(sourceDir, "debian"))
-runCommand("tar zxf %s distfiles-" + iceVersion + "/src/unix/README.Linux --strip-components 3" % distFiles, verbose)
-runCommand("tar zxf %s distfiles-" + iceVersion + "/src/unix/JGOODIES_LICENSE --strip-components 3" % distFiles, verbose)
+runCommand("tar zxf %s distfiles-%s/src/unix/README.Linux --strip-components 3" % (distFiles, iceVersion), verbose)
+runCommand("tar zxf %s distfiles-%s/src/unix/JGOODIES_LICENSE --strip-components 3" % (distFiles, iceVersion), verbose)
 
 os.chdir(sourceDir)
 runCommand("dpkg-buildpackage %s -j8" % buildpackageOps, verbose)

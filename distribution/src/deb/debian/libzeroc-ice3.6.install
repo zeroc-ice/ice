@@ -4,6 +4,7 @@ usr/lib/*/libIce.so.*
 usr/lib/*/libIceBox.so.*
 usr/lib/*/libIceDiscovery.so.*
 usr/lib/*/libIceGrid.so.*
+usr/lib/*/libIceLocatorDiscovery.so.*
 usr/lib/*/libIcePatch2.so.*
 usr/lib/*/libIceSSL.so.*
 usr/lib/*/libIceStorm.so.*
@@ -15,6 +16,7 @@ usr/lib/*/libIce++11.so.*
 usr/lib/*/libIceBox++11.so.*
 usr/lib/*/libIceDiscovery++11.so.*
 usr/lib/*/libIceGrid++11.so.*
+usr/lib/*/libIceLocatorDiscovery++11.so.*
 usr/lib/*/libIcePatch2++11.so.*
 usr/lib/*/libIceSSL++11.so.*
 usr/lib/*/libIceStorm++11.so.*

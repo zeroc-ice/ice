@@ -22,6 +22,9 @@ usr/share/java/icediscovery-3.6.0-source.jar usr/share/java/icediscovery-source.
 usr/share/java/icegrid-3.6.0.jar usr/share/java/icegrid.jar
 usr/share/java/icegrid-3.6.0-source.jar usr/share/java/icegrid-source.jar
 
+usr/share/java/icelocatordiscovery-3.6.0.jar usr/share/java/icelocatordiscovery.jar
+usr/share/java/icelocatordiscovery-3.6.0-source.jar usr/share/java/icelocatordiscovery-source.jar
+
 usr/share/java/icepatch2-3.6.0.jar usr/share/java/icepatch2.jar
 usr/share/java/icepatch2-3.6.0-source.jar usr/share/java/icepatch2-source.jar
 
