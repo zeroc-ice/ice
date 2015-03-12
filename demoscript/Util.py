@@ -282,9 +282,8 @@ def configurePaths():
             addenv("PATH", os.path.join(thirdPartyHome, "bin\\x64" if x64 else "bin"))
             if getCppCompiler() == "VC110":
                 addenv("PATH", os.path.join(thirdPartyHome, "bin\\vc110\\x64" if x64 else "bin\\vc110"))
-        elif isDarwin():
-            addenv("PATH", os.path.join(thirdPartyHome, "bin"))
-    elif isWin32() or isDarwin():
+
+    elif isWin32():
         print("warning: could not detect Ice Third Party installation")
 
     if binDir != os.path.join(getIceDir("cpp"), "bin"):
@@ -393,10 +392,10 @@ def isSparc():
         return False
 
 def isAIX():
-   return sys.platform in ['aix4', 'aix5']
+    return sys.platform in ['aix4', 'aix5']
 
 def isDarwin():
-   return sys.platform == "darwin"
+    return sys.platform == "darwin"
 
 def isLinux():
     return sys.platform.startswith("linux")
@@ -793,10 +792,10 @@ def getJavaLibraryPath():
         elif thirdPartyHome:
             return "-Djava.library.path=\"%s\" " % os.path.join(thirdPartyHome, "bin\\x64" if x64 else "bin")
     elif isDarwin():
-        if iceHome:
-            return "-Djava.library.path=%s " % os.path.join(iceHome, "lib")
-        elif thirdPartyHome:
-            return "-Djava.library.path=%s " % os.path.join(thirdPartyHome, "lib")
+        if os.path.exists('/usr/local/opt/ice/libexec/lib'):
+            return "-Djava.library.path=/usr/local/opt/ice/libexec/lib "
+        else:
+            return "-Djava.library.path=/usr/local/opt/berkeley-db53/lib "
     elif isRhel() or isSles():
         libpath = ("/usr/lib64" if x64 else "/usr/lib")
         if "LD_LIBRARY_PATH" in os.environ:

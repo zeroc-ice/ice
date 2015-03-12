@@ -174,7 +174,7 @@ CasinoClient::run(int argc, char*[])
             }
         }
     }
-    cout << " ok" << endl;
+    cout << "ok" << endl;
 
     cout << "Live bets: " << bank->getLiveBetCount() << endl;
     cout << "Sleep for 10 seconds" << endl;
