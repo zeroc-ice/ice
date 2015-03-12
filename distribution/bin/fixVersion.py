@@ -149,6 +149,11 @@ FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "deb", 
 nbmmver = FixUtil.majorVersion(version) + "." + FixUtil.minorVersion(version)
 nbmmverMatch = "([0-9]+\.[0-9]+)"
 
+for f in ["control", "rules"]:
+    for pkg in ["ice", "freeze", "icestorm"]:
+        FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "deb", "debian", f),
+                                    [("zeroc-" + pkg + nbmmverMatch, nbmmver)])
+
 FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "unix", "README.Darwin"),
                             [("Ice\+" + nbmmverMatch + "\+Manual", nbmmver)])
 
@@ -164,7 +169,7 @@ if FixUtil.patchVersion(version) != "51":
 else:
     debVersion += "0"
 
-for f in ["makeubuntupackages.py", "makeubunturepo.py"]:
+for f in ["makeubuntupackages.py", "makeubunturepo.py", "makejspackages.py"]:
     FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "bin", f),
                                 [("mmVersion[\t\s]*= \"" + nbmmverMatch, nbmmver)])
     FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "bin", f),

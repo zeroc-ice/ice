@@ -19,13 +19,13 @@ export CLOSURE_COMPILER=/usr/share/java/closure-compiler.jar
 PACKAGE_NAMES = zeroc-ice \
 	zeroc-ice-dev \
 	zeroc-ice-slice \
-	libzeroc-ice@debmmver@ \
-	libzeroc-freeze@debmmver@ \
+	libzeroc-ice3.6 \
+	libzeroc-freeze3.6 \
 	php5-zeroc-ice \
 	zeroc-glacier2 \
 	zeroc-icebox \
 	zeroc-icegrid \
-	libzeroc-icestorm@debmmver@ \
+	libzeroc-icestorm3.6 \
 	zeroc-icepatch2 \
 	zeroc-ice-utils \
 	zeroc-ice-utils-java \

@@ -32,6 +32,7 @@ def runCommand(cmd):
         sys.exit(1)
 
 iceVersion = "3.6.0"
+mmVersion = "3.6"
 
 os.chdir(os.path.join(os.path.dirname(__file__), "..", ".."))
 if not os.path.isfile("Ice-" + iceVersion + ".tar.gz"):
@@ -39,10 +40,10 @@ if not os.path.isfile("Ice-" + iceVersion + ".tar.gz"):
     sys.exit(1)
 
 thirdPartyPackage = "ThirdParty-Sources-" + iceVersion
-downloadUrl = "http://www.zeroc.com/download/Ice/@debmmver@/"
+downloadUrl = "http://www.zeroc.com/download/Ice/" + mmVersion + "/"
 
 if not os.path.isfile(os.path.expanduser("~/Downloads/%s.tar.gz" % thirdPartyPackage)):
-    runCommand(os.path.expanduser("cd ~/Downloads && wget http://www.zeroc.com/download/Ice/@debmmver@/%s.tar.gz" % thirdPartyPackage))
+    runCommand(os.path.expanduser("cd ~/Downloads && wget http://www.zeroc.com/download/Ice/" + mmVersion + "/%s.tar.gz" % thirdPartyPackage))
 
 runCommand(os.path.expanduser(
            "rm -rf %(thirdParty)s && tar zxf ~/Downloads/%(thirdParty)s.tar.gz && cd %(thirdParty)s && tar zxf mcpp-2.7.2.tar.gz && "
