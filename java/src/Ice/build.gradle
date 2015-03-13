@@ -29,21 +29,10 @@ apply from: "$rootProject.projectDir/gradle/library.gradle"
 
 // We install the gradle plugin from here because a install task cannot be added
 // to the buildSrc gradle file.
-task installSlicePlugin(type: Copy) {
-    from "${rootProject.projectDir}/buildSrc/build/libs/buildSrc.jar"
+task installPlugin(type: Copy) {
+    from "${libDir}/ice-gradle-plugin-${project.version}.pom"
+    from "${libDir}/ice-gradle-plugin-${project.version}.jar"
+    from "${libDir}/ice-gradle-plugin-${project.version}-source.jar"
     into "${DESTDIR}${jarDir}"
-    rename { "ice-gradle-plugin-${project.version}.jar" }
 }
-task installSlicePluginSources(type: Copy) {
-    from "${rootProject.projectDir}/buildSrc/build/libs/buildSrc-source.jar"
-    into "${DESTDIR}${jarDir}"
-    rename { "ice-gradle-plugin-${project.version}-source.jar" }
-}
-task installSlicePluginPom(type: Copy) {
-    from "${rootProject.projectDir}/buildSrc/buildSrc.pom"
-    into "${DESTDIR}${jarDir}"
-    rename { "ice-gradle-plugin-${project.version}.pom" }
-}
-install.dependsOn(installSlicePlugin)
-install.dependsOn(installSlicePluginSources)
-install.dependsOn(installSlicePluginPom)
+install.dependsOn(installPlugin)

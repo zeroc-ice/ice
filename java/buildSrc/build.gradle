@@ -3,6 +3,8 @@ targetCompatibility = 1.7
 
 apply plugin: 'maven'
 
+def iceVersion = "3.6.0"
+
 def pomName = "buildSrc.pom"
 task writeNewPom {
     outputs.file file(pomName)
@@ -13,7 +15,7 @@ task writeNewPom {
             packaging 'jar'
             groupId 'com.zeroc.gradle.plugins'
             artifactId 'ice-gradle-plugin'
-            version '3.6.0'
+            version iceVersion
             // TODO: Extend with licensing information.
         }
     }.writeTo(pomName)
@@ -25,3 +27,26 @@ task jarSources(type:Jar, dependsOn: jar){
     classifier = 'source'
 }
 build.dependsOn(jarSources)
+
+
+
+task copyPlugin(type: Copy, dependsOn: jar) {
+    from "build/libs/buildSrc.jar"
+    into "../lib"
+    rename { "ice-gradle-plugin-${iceVersion}.jar" }
+}
+build.dependsOn(copyPlugin)
+
+task copySources(type: Copy, dependsOn: jarSources) {
+    from "build/libs/buildSrc-source.jar"
+    into "../lib"
+    rename { "ice-gradle-plugin-${iceVersion}-source.jar" }
+}
+build.dependsOn(copySources)
+
+task copyPom(type: Copy, dependsOn: writeNewPom) {
+    from pomName
+    into "../lib"
+    rename { "ice-gradle-plugin-${iceVersion}.pom" }
+}
+build.dependsOn(copyPom)

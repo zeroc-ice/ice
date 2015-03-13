@@ -277,7 +277,7 @@ FixUtil.fileMatchAndReplace(os.path.join(icej_home, "gradle.properties"),
                             [("iceVersion[\t\s]*= " + FixUtil.vpatMatch, version)])
 
 FixUtil.fileMatchAndReplace(os.path.join(icej_home, "buildSrc", "build.gradle"),
-                            [("version[\t\s]* '" + FixUtil.vpatMatch + "'", version)])
+                            [("iceVersion[\t\s]* \"" + FixUtil.vpatMatch, version)])
 
 FixUtil.fileMatchAndReplace(os.path.join(icej_home, "src", "Ice", "src", "main", "java", "Ice", "Util.java"),
                             [("return \"" + FixUtil.vpatMatch +"\".*A=major", version),
