@@ -249,10 +249,11 @@ for d in repoLayout:
 for host in [i386BuildHost, amd64BuildHost]:
     packages = i386Packages + noarchPackages if host == i386BuildHost else amd64Packages
     for package in packages:
-        runCommand("cd ubuntu && %(scpCommand)s %(sshUser)s@%(sshBuildHost)s:/home/%(sshUser)s/%(buildDir)s/%(codename)s/%(package)s pool/%(codename)s/main/i/ice" + mmVersion + "/" %
+        runCommand("cd ubuntu && %(scpCommand)s %(sshUser)s@%(sshBuildHost)s:/home/%(sshUser)s/%(buildDir)s/%(codename)s/%(package)s pool/%(codename)s/main/i/ice%(mmVersion)s/" %
                 {"scpCommand": scpCommand,
                  "sshUser": sshUser,
                  "sshBuildHost": host,
+                 "mmVersion": mmVersion,
                  "buildDir": buildDir,
                  "codename": codename,
                  "package": package}, verbose)
