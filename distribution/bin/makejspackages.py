@@ -35,24 +35,25 @@ iceVersion = "3.6.0"
 mmVersion = "3.6"
 
 os.chdir(os.path.join(os.path.dirname(__file__), "..", ".."))
-if not os.path.isfile("Ice-" + iceVersion + ".tar.gz"):
-    print("Could not find Ice-" + iceVersion + ".tar.gz")
+if not os.path.isfile("Ice-%s.tar.gz" % iceVersion):
+    print("Could not find Ice-%s.tar.gz" % iceVersion)
     sys.exit(1)
 
-thirdPartyPackage = "ThirdParty-Sources-" + iceVersion
-downloadUrl = "http://www.zeroc.com/download/Ice/" + mmVersion + "/"
+thirdPartyPackage = "ThirdParty-Sources-%s" % iceVersion
+downloadUrl = "http://www.zeroc.com/download/Ice/%s/" % mmVersion
 
 if not os.path.isfile(os.path.expanduser("~/Downloads/%s.tar.gz" % thirdPartyPackage)):
-    runCommand(os.path.expanduser("cd ~/Downloads && wget http://www.zeroc.com/download/Ice/" + mmVersion + "/%s.tar.gz" % thirdPartyPackage))
+    runCommand(os.path.expanduser("cd ~/Downloads && wget http://www.zeroc.com/download/Ice/%(mmver)s/%(thirdParty)s.tar.gz" %
+                                  {"thirdParty": thirdPartyPackage, "mmver": mmVersion}))
 
 runCommand(os.path.expanduser(
            "rm -rf %(thirdParty)s && tar zxf ~/Downloads/%(thirdParty)s.tar.gz && cd %(thirdParty)s && tar zxf mcpp-2.7.2.tar.gz && "
            "cd mcpp-2.7.2 && patch -p0 < ../mcpp/patch.mcpp.2.7.2" % {"thirdParty": thirdPartyPackage}))
 
-runCommand("tar zxf Ice-" + iceVersion + ".tar.gz")
+runCommand("tar zxf Ice-%s.tar.gz" % iceVersion)
 for d in ["IceUtil", "Slice", "slice2js"]:
-    runCommand("cd Ice-" + iceVersion + "/cpp/src/%s && make -j8" % d)
-runCommand("cd Ice-" + iceVersion + "/js && npm install && npm run gulp:dist")
+    runCommand("cd Ice-%(version)s/cpp/src/%(dir)s && make -j8" % { "dir": d, "version": iceVersion })
+runCommand("cd Ice-%s/js && npm install && npm run gulp:dist" % iceVersion)
 
 
 packages = ["zeroc-icejs", "icejs-demos", "zeroc-slice2js", "gulp-zeroc-slice2js"]
@@ -71,14 +72,15 @@ for package in packages:
     #
     # copy dist files to repositories
     #
-    runCommand("cp -rf distfiles-" + iceVersion + "/src/js/%(package)s/* packages/%(package)s/" % {"package": package})
+    runCommand("cp -rf distfiles-%(version)s/src/js/%(package)s/* packages/%(package)s/" %
+               { "package": package, "version": iceVersion })
 
     #
     # copy license files to each package
     #
     for f in ["LICENSE", "ICE_LICENSE"]:
-        copy("Ice-" + iceVersion + "/%(file)s" % {"file": f},
-             "packages/%(package)s/%(file)s" % {"package": package, "file": f})
+        copy("Ice-%(version)s/%(file)s" % { "file": f, "version": iceVersion },
+             "packages/%(package)s/%(file)s" % { "package": package, "file": f })
 
 
 #
@@ -87,48 +89,51 @@ for package in packages:
 copy("%s/mcpp-2.7.2/src" % thirdPartyPackage, "packages/zeroc-slice2js/mcpp/src")
 
 for d in ["IceUtil", "Slice", "slice2js"]:
-    copyMatchingFiles(os.path.join("Ice-" + iceVersion + "/cpp/src", d), os.path.join("packages/zeroc-slice2js/src", d), ["*.cpp", "*.h"])
+    copyMatchingFiles(os.path.join("Ice-%s/cpp/src" % iceVersion, d),
+                      os.path.join("packages/zeroc-slice2js/src", d), ["*.cpp", "*.h"])
 
 for d in ["IceUtil", "Slice"]:
-    copyMatchingFiles(os.path.join("Ice-" + iceVersion + "/cpp/include", d), os.path.join("packages/zeroc-slice2js/include", d), ["*.h"])
+    copyMatchingFiles(os.path.join("Ice-%s/cpp/include" % iceVersion, d),
+                      os.path.join("packages/zeroc-slice2js/include", d), ["*.h"])
 
 for d in ["Glacier2", "Ice", "IceGrid", "IceSSL", "IceStorm"]:
-    copyMatchingFiles(os.path.join("Ice-" + iceVersion + "/slice", d), os.path.join("packages/zeroc-slice2js/slice", d), ["*.ice"])
+    copyMatchingFiles(os.path.join("Ice-%s/slice" % iceVersion, d),
+                      os.path.join("packages/zeroc-slice2js/slice", d), ["*.ice"])
 
-copy("distfiles-" + iceVersion + "/src/unix/MCPP_LICENSE", "packages/zeroc-slice2js/MCPP_LICENSE")
+copy("distfiles-%s/src/unix/MCPP_LICENSE" % iceVersion, "packages/zeroc-slice2js/MCPP_LICENSE")
 
 #
 # gulp-zeroc-slice2js package
 #
-copy("Ice-" + iceVersion + "/js/gulp/gulp-slice2js/index.js", "packages/gulp-zeroc-slice2js/index.js")
+copy("Ice-%s/js/gulp/gulp-slice2js/index.js", "packages/gulp-zeroc-slice2js/index.js")
 
 #
 # zeroc-icejs package
 #
-copy("Ice-" + iceVersion + "/js/src", "packages/zeroc-icejs/src")
-copyMatchingFiles("Ice-" + iceVersion + "/js/gulp", "packages/zeroc-icejs/gulp", ['bundle.js', 'libTasks.js'])
-copyMatchingFiles("Ice-" + iceVersion + "/js/lib", "packages/zeroc-icejs/lib", ["*.js", "*.gz"])
+copy("Ice-%s/js/src", "packages/zeroc-icejs/src" % iceVersion)
+copyMatchingFiles("Ice-%s/js/gulp" % iceVersion, "packages/zeroc-icejs/gulp", ['bundle.js', 'libTasks.js'])
+copyMatchingFiles("Ice-%s/js/lib" % iceVersion, "packages/zeroc-icejs/lib", ["*.js", "*.gz"])
 
 #
 # zeroc-icejs-demo package
 #
-for f in os.listdir("Ice-" + iceVersion + "/js/demo"):
+for f in os.listdir("Ice-%s/js/demo" % iceVersion):
     if f == "README":
         continue
-    copy(os.path.join("Ice-" + iceVersion + "/js/demo", f), os.path.join("packages/icejs-demos", f))
-copy("Ice-" + iceVersion + "/js/bin", "packages/icejs-demos/bin")
-copy("Ice-" + iceVersion + "/certs", "packages/icejs-demos/certs")
-copy("Ice-" + iceVersion + "/js/assets", "packages/icejs-demos/assets")
-copy("Ice-" + iceVersion + "/js/.jshintrc", "packages/icejs-demos/.jshintrc")
+    copy(os.path.join("Ice-%s/js/demo" % iceVersion, f), os.path.join("packages/icejs-demos", f))
+copy("Ice-%s/js/bin" % iceVersion, "packages/icejs-demos/bin")
+copy("Ice-%s/certs" % iceVersion, "packages/icejs-demos/certs")
+copy("Ice-%s/js/assets" % iceVersion, "packages/icejs-demos/assets")
+copy("Ice-%s/js/.jshintrc" % iceVersion, "packages/icejs-demos/.jshintrc")
 
-jshint = json.load(open("Ice-" + iceVersion + "/js/.jshintrc_browser", "r"))
-jshintDemo = json.load(open("Ice-" + iceVersion + "/js/demo/.jshintrc_browser", "r"))
+jshint = json.load(open("Ice-%s/js/.jshintrc_browser" % iceVersion, "r"))
+jshintDemo = json.load(open("Ice-%s/js/demo/.jshintrc_browser" % iceVersion, "r"))
 
 for key, value in jshintDemo["globals"].iteritems():
     jshint["globals"][key] = value
 json.dump(jshint, open("packages/icejs-demos/.jshintrc_browser", "w"), indent = 4, separators=(',', ': '))
 
 for package in packages:
-    runCommand("cd packages/%(package)s && git add . && git commit . -m '%(package)s version " + iceVersion + "'" %
-               {"package": package})
+    runCommand("cd packages/%(package)s && git add . && git commit . -m '%(package)s version %(version)s'" %
+               { "package": package, "version": iceVersion })
 

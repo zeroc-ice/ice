@@ -77,12 +77,12 @@ print "Building Ice " + iceVersion + " gem"
 #
 # Ensure that the source archive or directory exists and create the build directory.
 #
-buildRootDir = os.path.join(distDir, "..", os.path.join("build-gem-" + iceVersion))
+buildRootDir = os.path.join(distDir, "..", "build-gem-" + iceVersion)
 srcDir = os.path.join(buildRootDir, "Ice-" + iceVersion + "-src")
 
 if forceclean or not os.path.exists(srcDir):
     if os.path.exists(buildRootDir):
-        print "Removing previous build from " + os.path.join("build-gem-" + iceVersion) + "...",
+        print "Removing previous build from build-gem-" + iceVersion + "...",
         sys.stdout.flush()
         shutil.rmtree(buildRootDir)
         print "ok"

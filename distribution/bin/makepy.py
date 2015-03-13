@@ -78,12 +78,12 @@ print "Building Ice " + iceVersion
 #
 # Ensure that the source archive or directory exists and create the build directory.
 #
-buildRootDir = os.path.join(distDir, "..", os.path.join("build-py-" + iceVersion))
+buildRootDir = os.path.join(distDir, "..", "build-py-" + iceVersion)
 srcDir = os.path.join(buildRootDir, "Ice-" + iceVersion + "-src")
 
 if forceclean or not os.path.exists(srcDir):
     if os.path.exists(buildRootDir):
-        print "Removing previous build from " + os.path.join("build-py-" + iceVersion) + "...",
+        print "Removing previous build from build-py-" + iceVersion + "...",
         sys.stdout.flush()
         shutil.rmtree(buildRootDir)
         print "ok"

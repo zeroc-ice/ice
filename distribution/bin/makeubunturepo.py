@@ -15,43 +15,43 @@ debVersion = "3.6.0"
 mmVersion = "3.6"
 
 i386Packages = [
-    "libzeroc-freeze" + mmVersion + "_" + debVersion + "-1000_i386.deb",
-    "libzeroc-ice" + mmVersion + "_" + debVersion + "-1000_i386.deb",
-    "libzeroc-ice-dev_" + debVersion + "-1000_i386.deb",
-    "libzeroc-ice-java_" + debVersion + "-1000_i386.deb",
-    "libzeroc-icestorm" + mmVersion + "_" + debVersion + "-1000_i386.deb",
-    "php5-zeroc-ice_" + debVersion + "-1000_i386.deb",
-    "php5-zeroc-ice-dev_" + debVersion + "-1000_i386.deb",
-    "zeroc-glacier2_" + debVersion + "-1000_i386.deb",
-    "zeroc-ice" + mmVersion + "_" + debVersion + "-1000_i386.changes",
-    "zeroc-icebox_" + debVersion + "-1000_i386.deb",
-    "zeroc-icegrid_" + debVersion + "-1000_i386.deb",
-    "zeroc-icepatch2_" + debVersion + "-1000_i386.deb",
-    "zeroc-ice-utils_" + debVersion + "-1000_i386.deb"]
+    "libzeroc-freeze%(mmver)s_%(debver)s-1000_i386.deb" % { "mmver": mmVersion, "debver": debVersion },
+    "libzeroc-ice%(mmver)s_%(debver)s-1000_i386.deb" % { "mmver": mmVersion, "debver": debVersion },
+    "libzeroc-ice-dev_%(debver)s-1000_i386.deb" % { "debver": debVersion },
+    "libzeroc-ice-java_%(debver)s-1000_i386.deb" % { "debver": debVersion },
+    "libzeroc-icestorm%(mmver)s_%(debver)s-1000_i386.deb" % { "mmver": mmVersion, "debver": debVersion },
+    "php5-zeroc-ice_%(debver)s-1000_i386.deb" % { "debver": debVersion },
+    "php5-zeroc-ice-dev_%(debver)s-1000_i386.deb" % { "debver": debVersion },
+    "zeroc-glacier2_%(debver)s-1000_i386.deb" % { "debver": debVersion },
+    "zeroc-ice%(mmver)s_%(debver)s-1000_i386.changes" % { "mmver": mmVersion, "debver": debVersion },
+    "zeroc-icebox_%(debver)s-1000_i386.deb" % { "debver": debVersion },
+    "zeroc-icegrid_%(debver)s-1000_i386.deb" % { "debver": debVersion },
+    "zeroc-icepatch2_%(debver)s-1000_i386.deb" % { "debver": debVersion },
+    "zeroc-ice-utils_%(debver)s-1000_i386.deb" % { "debver": debVersion }]
 
 amd64Packages = [
-    "libzeroc-freeze" + mmVersion + "_" + debVersion + "-1000_amd64.deb",
-    "libzeroc-ice" + mmVersion + "_" + debVersion + "-1000_amd64.deb",
-    "libzeroc-ice-dev_" + debVersion + "-1000_amd64.deb",
-    "libzeroc-ice-java_" + debVersion + "-1000_amd64.deb",
-    "libzeroc-icestorm" + mmVersion + "_" + debVersion + "-1000_amd64.deb",
-    "php5-zeroc-ice_" + debVersion + "-1000_amd64.deb",
-    "php5-zeroc-ice-dev_" + debVersion + "-1000_amd64.deb",
-    "zeroc-glacier2_" + debVersion + "-1000_amd64.deb",
-    "zeroc-ice" + mmVersion + "_" + debVersion + "-1000_amd64.changes",
-    "zeroc-icebox_" + debVersion + "-1000_amd64.deb",
-    "zeroc-icegrid_" + debVersion + "-1000_amd64.deb",
-    "zeroc-icepatch2_" + debVersion + "-1000_amd64.deb",
-    "zeroc-ice-utils_" + debVersion + "-1000_amd64.deb"]
+    "libzeroc-freeze%(mmver)s_%(debver)s-1000_amd64.deb" % { "mmver": mmVersion, "debver": debVersion },
+    "libzeroc-ice%(mmver)s_%(debver)s-1000_amd64.deb" % { "mmver": mmVersion, "debver": debVersion },
+    "libzeroc-ice-dev_%(debver)s-1000_amd64.deb" % { "debver": debVersion },
+    "libzeroc-ice-java_%(debver)s-1000_amd64.deb" % { "debver": debVersion },
+    "libzeroc-icestorm%(mmver)s_%(debver)s-1000_amd64.deb" % { "mmver": mmVersion, "debver": debVersion },
+    "php5-zeroc-ice_%(debver)s-1000_amd64.deb" % { "debver": debVersion },
+    "php5-zeroc-ice-dev_%(debver)s-1000_amd64.deb" % { "debver": debVersion },
+    "zeroc-glacier2_%(debver)s-1000_amd64.deb" % { "debver": debVersion },
+    "zeroc-ice%(mmver)s_%(debver)s-1000_amd64.changes" % { "mmver": mmVersion, "debver": debVersion },
+    "zeroc-icebox_%(debver)s-1000_amd64.deb" % { "debver": debVersion },
+    "zeroc-icegrid_%(debver)s-1000_amd64.deb" % { "debver": debVersion },
+    "zeroc-icepatch2_%(debver)s-1000_amd64.deb" % { "debver": debVersion },
+    "zeroc-ice-utils_%(debver)s-1000_amd64.deb" % { "debver": debVersion }]
 
 noarchPackages = [
-    "zeroc-ice" + mmVersion + "_" + debVersion + "-1000.debian.tar.gz",
-    "zeroc-ice" + mmVersion + "_" + debVersion + "-1000.dsc",
-    "zeroc-ice" + mmVersion + "_" + debVersion + ".orig.tar.gz",
-    "zeroc-ice-utils-java_" + debVersion + "-1000_all.deb",
-    "zeroc-ice-slice_" + debVersion + "-1000_all.deb",
-    "zeroc-ice-all-runtime_" + debVersion + "-1000_all.deb",
-    "zeroc-ice-all-dev_" + debVersion + "-1000_all.deb"]
+    "zeroc-ice%(mmver)s_%(debver)s-1000.debian.tar.gz" % { "mmver": mmVersion, "debver": debVersion },
+    "zeroc-ice%(mmver)s_%(debver)s-1000.dsc" % { "mmver": mmVersion, "debver": debVersion },
+    "zeroc-ice%(mmver)s_%(debver)s.orig.tar.gz" % { "mmver": mmVersion, "debver": debVersion },
+    "zeroc-ice-utils-java_%(debver)s-1000_all.deb" % { "debver": debVersion },
+    "zeroc-ice-slice_%(debver)s-1000_all.deb" % { "debver": debVersion },
+    "zeroc-ice-all-runtime_%(debver)s-1000_all.deb" % { "mmver": mmVersion, "debver": debVersion },
+    "zeroc-ice-all-dev_%(debver)s-1000_all.deb" % { "debver": debVersion }]
 
 
 def runCommand(cmd, verbose = False):
@@ -107,7 +107,7 @@ buildCommand = """
 %(scpCommand)s %(sourceDist)s %(sshUser)s@%(sshBuildHost)s:/home/%(sshUser)s/%(buildDir)s && \\
 %(scpCommand)s %(keystore)s %(sshUser)s@%(sshBuildHost)s:/home/%(sshUser)s/%(buildDir)s/keystore.jks && \\
 %(sshCommand)s %(sshUser)s@%(sshBuildHost)s \\
-    'cd %(buildDir)s && tar zxf %(distFiles)s && SIGNJARS=yes JARSIGNER_KEYSTORE=/home/%(sshUser)s/%(buildDir)s/keystore.jks JARSIGNER_KEYSTORE_PASSWORD="%(storepass)s" python distfiles-' + iceVersion + '/bin/makeubuntupackages.py -b %(codename)s -d . > build-log.txt 2>&1 && rm /home/%(sshUser)s/%(buildDir)s/keystore.jks'
+    'cd %(buildDir)s && tar zxf %(distFiles)s && SIGNJARS=yes JARSIGNER_KEYSTORE=/home/%(sshUser)s/%(buildDir)s/keystore.jks JARSIGNER_KEYSTORE_PASSWORD="%(storepass)s" python distfiles-%(version)s/bin/makeubuntupackages.py -b %(codename)s -d . > build-log.txt 2>&1 && rm /home/%(sshUser)s/%(buildDir)s/keystore.jks'
 """
 
 class Builder(threading.Thread):
@@ -127,7 +127,7 @@ class Builder(threading.Thread):
 #
 codename = "trusty"
 sourceDist = "zeroc-ice" + mmVersion + "_" + debVersion + ".orig.tar.gz"
-distFiles = "distfiles-" + iceVersion + ".tar.gz"
+distFiles = "distfiles-%s.tar.gz" % iceVersion
 signKey = "A62B38F8" if iceVersion.endswith("b") else "53A473EE"
 sshKey = None
 sshUser = os.environ.get('USER')
@@ -232,7 +232,8 @@ if not skipBuild:
                                          "distFiles": distFiles,
                                          "sourceDist": sourceDist,
                                          "keystore": keystore,
-                                         "storepass": storepass})
+                                         "storepass": storepass,
+                                         "version": iceVersion})
         thread.start()
         buildThreads.append(thread)
 
@@ -259,8 +260,8 @@ for host in [i386BuildHost, amd64BuildHost]:
 #
 # Sign the source package
 #
-for command in ["cd ubuntu && echo \"y\" | debsign -k %(signKey)s pool/%(codename)s/main/i/ice" + mmVersion + "/zeroc-ice" + mmVersion + "_" + debVersion + "-1000.dsc"]:
-    runCommand(command % {"signKey": signKey, "codename": codename}, verbose)
+for command in ["cd ubuntu && echo \"y\" | debsign -k %(signKey)s pool/%(codename)s/main/i/ice%(mmver)s/zeroc-ice%(mmver)s_%(debver)s-1000.dsc"]:
+    runCommand(command % {"signKey": signKey, "codename": codename, "mmver": mmVersion, "debver": debVersion}, verbose)
 
 f = open('ubuntu/aptftp.conf', 'w')
 f.write(aptftpConf % {"codename": codename})
@@ -277,10 +278,10 @@ runCommand("cd ubuntu && apt-ftparchive release -c=aptftp.conf dists/%(codename)
 #
 # Sign changes and release files
 #
-for command in ["cd ubuntu && echo \"y\" | debsign -k %(signKey)s pool/%(codename)s/main/i/ice" + mmVersion + "/zeroc-ice" + mmVersion + "_" + debVersion + "-1000_i386.changes",
-                "cd ubuntu && echo \"y\" | debsign -k %(signKey)s pool/%(codename)s/main/i/ice" + mmVersion + "/zeroc-ice" + mmVersion + "_" + debVersion + "-1000_amd64.changes",
+for command in ["cd ubuntu && echo \"y\" | debsign -k %(signKey)s pool/%(codename)s/main/i/ice%(mmver)s/zeroc-ice%(mmver)s_%(debver)s-1000_i386.changes",
+                "cd ubuntu && echo \"y\" | debsign -k %(signKey)s pool/%(codename)s/main/i/ice%(mmver)s/zeroc-ice%(mmver)s_%(debver)s-1000_amd64.changes",
                 "cd ubuntu && gpg --yes -u %(signKey)s -bao dists/%(codename)s/Release.gpg dists/%(codename)s/Release"]:
-    runCommand(command % {"signKey": signKey, "codename": codename}, verbose)
+    runCommand(command % {"signKey": signKey, "codename": codename, "mmver": mmVersion, "debver": debVersion}, verbose)
 
 runCommand("rm -f ubuntu/aptftp.conf ubuntu/aptgenerate.conf", verbose)
 runCommand("tar cjf ubuntu.tar.bz2 ubuntu", verbose)

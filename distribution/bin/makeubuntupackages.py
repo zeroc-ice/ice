@@ -71,9 +71,9 @@ if distributionDir == None:
 
 buildpackageOps = ("-k%s" % keyid) if keyid != None else "-us -uc"
 
-sourceDir = "zeroc-ice" + mmVersion + "-" + debVersion
-distFile = "zeroc-ice" + mmVersion + "_" + debVersion + ".orig.tar.gz"
-distFiles = "distfiles-" + iceVersion + ".tar.gz"
+sourceDir = "zeroc-ice%(mmver)s-%(debver)s" % { "mmver": mmVersion, "debver": debVersion }
+distFile = "zeroc-ice%(mmver)s_%(debver)s.orig.tar.gz" % { "mmver": mmVersion, "debver": debVersion }
+distFiles = "distfiles-%s.tar.gz" % iceVersion
 
 buildDir = os.path.abspath(os.path.join(os.getcwd(), buildDir))
 sourceDir = os.path.abspath(os.path.join(buildDir, sourceDir))

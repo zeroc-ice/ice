@@ -17,6 +17,7 @@ from stat import *
 #
 
 iceVersion = "3.6.0"
+
 distDir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(os.path.join(distDir, "lib"))
 import DistUtils

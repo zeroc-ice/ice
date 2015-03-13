@@ -802,8 +802,8 @@ class Darwin(Platform):
 
         print("Fixing python location")
         move(buildDir + '/python', buildDir + '/../python')
-        runCommand("install_name_tool -rpath %s/lib /Library/Developer/Ice-" + iceVersion + "/lib %s/../python/IcePy.so" %
-                    (buildDir, buildDir))
+        runCommand("install_name_tool -rpath %s/lib /Library/Developer/Ice-%s/lib %s/../python/IcePy.so" %
+                    (buildDir, iceVersion, buildDir))
         print("ok")
 
         print("Fixing IceGrid Admin.app location")
@@ -811,8 +811,8 @@ class Darwin(Platform):
         print("ok")
 
         print("Fixing Freeze RPATH")
-        for name in ["lib/libFreeze." + iceVersion + ".dylib", "bin/transformdb", "bin/dumpdb"]:
-            runCommand("install_name_tool -delete_rpath /Library/Developer/Ice-" + iceVersion + "-ThirdParty/lib %s/%s" % (buildDir, name))
+        for name in ["lib/libFreeze.%s.dylib" % iceVersion, "bin/transformdb", "bin/dumpdb"]:
+            runCommand("install_name_tool -delete_rpath /Library/Developer/Ice-%s-ThirdParty/lib %s/%s" % (iceVersion, buildDir, name))
 
     def createArchive(self, cwd, buildRootDir, distDir, version, quiet):
 
@@ -829,7 +829,7 @@ class Darwin(Platform):
             shutil.rmtree(packagesDir)
         os.mkdir(packagesDir)
 
-        iceRootDir = ("%s/Ice-" + iceVersion) % buildRootDir
+        iceRootDir = "%s/Ice-%s" % (buildRootDir, iceVersion)
         for name in ["freeze", "glacier2", "ice", "icebox", "icediscovery", "icegrid", "icepatch2", "icestorm", "ice-gradle-plugin", "ant-ice"]:
             runCommand("cd %s/lib && rm -f %s.jar" % (iceRootDir, name))
             runCommand("cd %s/lib && ln -s %s-%s.jar %s.jar" % (iceRootDir, name, iceVersion, name))
@@ -839,25 +839,25 @@ class Darwin(Platform):
             runCommand("cd %s/lib && ln -s %s-%s-source.jar %s-source.jar" % (iceRootDir, name, iceVersion, name))
 
         package = "com.zeroc.ice"
-        packageRoot = os.path.join(buildRootDir, "Ice-" + iceVersion)
-        packageInstallLocation = "/Library/Developer/Ice-" + iceVersion
+        packageRoot = os.path.join(buildRootDir, "Ice-%s" % iceVersion)
+        packageInstallLocation = "/Library/Developer/Ice-%s" % iceVersion
 
-        runCommand("pkgbuild --root %s --identifier=%s --install-location=%s --version " + iceVersion + " %s/%s.pkg" %
-                  (packageRoot, package, packageInstallLocation, packagesDir, package))
+        runCommand("pkgbuild --root %s --identifier=%s --install-location=%s --version %s %s/%s.pkg" %
+                  (packageRoot, package, packageInstallLocation, iceVersion, packagesDir, package))
 
         package = "com.zeroc.icepython"
         packageRoot = os.path.join(buildRootDir, "python")
         packageInstallLocation = "/Library/Python/2.7/site-packages"
 
-        runCommand("pkgbuild --root %s --identifier=%s --install-location=%s --version " + iceVersion + " %s/%s.pkg" %
-                  (packageRoot, package, packageInstallLocation, packagesDir, package))
+        runCommand("pkgbuild --root %s --identifier=%s --install-location=%s --version %s %s/%s.pkg" %
+                  (packageRoot, package, packageInstallLocation, iceVersion, packagesDir, package))
 
         package = "com.zeroc.icegridadmin"
         packageRoot = os.path.join(buildRootDir, "IceGrid Admin.app")
         packageInstallLocation = "/Applications/IceGrid Admin.app"
 
-        runCommand("pkgbuild --root \"%s\" --identifier=%s --install-location=\"%s\" --version " + iceVersion + " %s/%s.pkg" %
-                  (packageRoot, package, packageInstallLocation, packagesDir, package))
+        runCommand("pkgbuild --root \"%s\" --identifier=%s --install-location=\"%s\" --version %s %s/%s.pkg" %
+                  (packageRoot, package, packageInstallLocation, iceVersion, packagesDir, package))
 
 
         distribution = os.path.join(distDir, "src", "mac", "Ice", "distribution.xml")
@@ -865,8 +865,8 @@ class Darwin(Platform):
         scripts = os.path.join(distDir, "src", "mac", "Ice", "scripts")
 
 
-        runCommand("productbuild --distribution=%s --resources=%s --scripts=%s --package-path=%s %s/Ice-" + iceVersion + ".pkg" %
-                  (distribution, resources, scripts, packagesDir, installerDir))
+        runCommand("productbuild --distribution=%s --resources=%s --scripts=%s --package-path=%s %s/Ice-%s.pkg" %
+                  (distribution, resources, scripts, packagesDir, installerDir, iceVersion))
 
 
         copy(os.path.join(distDir, "src", "mac", "Ice", "README.txt"), installerDir)
