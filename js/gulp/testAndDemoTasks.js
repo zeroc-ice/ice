@@ -29,8 +29,7 @@ module.exports = function(gulp) {
         "Ice/inheritanceBidir", "Ice/location", "Ice/objects", "Ice/operations", "Ice/operationsBidir",
         "Ice/optional", "Ice/optionalBidir", "Ice/promise", "Ice/properties", "Ice/proxy", "Ice/retry",
         "Ice/slicing/exceptions", "Ice/slicing/objects", "Ice/timeout", "Ice/number", "Glacier2/router"],
-        demo: ["Ice/hello", "Ice/throughput", "Ice/minimal", "Ice/latency", "Ice/bidir", "Glacier2/chat",
-        "ChatDemo"]
+        demo: ["Ice/hello", "Ice/throughput", "Ice/minimal", "Ice/latency", "Ice/bidir", "Glacier2/chat"]
     };
 
     var minDemos =
@@ -42,16 +41,6 @@ module.exports = function(gulp) {
             "demo/Ice/minimal/Hello.js",
             "demo/Ice/minimal/browser/Client.js"],
             dest: "demo/Ice/minimal/browser/"
-        },
-        "ChatDemo":
-        {
-            srcs: [
-            "lib/Ice.min.js",
-            "lib/Glacier2.min.js",
-            "demo/ChatDemo/Chat.js",
-            "demo/ChatDemo/ChatSession.js",
-            "demo/ChatDemo/Client.js"],
-            dest: "demo/ChatDemo"
         }
     };
 
@@ -131,7 +120,7 @@ module.exports = function(gulp) {
 
     gulp.task(group, subprojects[group].map(groupGenerateTask).concat(
         group == "test" ? ["common:slice", "common:js", "common:css"].concat(subprojects.test.map(testHtmlTask)) :
-        ["common:slice", "common:js", "common:css", "demo_Ice_minimal:min", "demo_ChatDemo:min"]));
+        ["common:slice", "common:js", "common:css", "demo_Ice_minimal:min"]));
 
     gulp.task(group + ":watch", subprojects[group].map(groupWatchTask).concat(
         group == "test" ? ["common:slice:watch", "common:css:watch", "common:js:watch", "html:watch"] :
@@ -139,7 +128,7 @@ module.exports = function(gulp) {
 
     gulp.task(group + ":clean", subprojects[group].map(groupCleanTask).concat(
         group == "test" ? subprojects.test.map(testHtmlCleanTask).concat(["common:slice:clean"]) :
-        ["demo_Ice_minimal:min:clean", "demo_ChatDemo:min:clean"]));
+        ["demo_Ice_minimal:min:clean"]));
     });
 
     function demoTaskName(name) { return "demo_" + name.replace("/", "_"); }
