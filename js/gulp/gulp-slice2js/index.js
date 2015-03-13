@@ -92,6 +92,15 @@ function isBuildRequired(inputFile, outputFile, dependFile)
 
 function compile(slice2js, file, args, cb)
 {
+    //
+    // Let non Slice files pass-through
+    //
+    if(path.extname(file.path) != ".ice")
+    {
+        cb(null, file);
+        return;
+    }
+
     var p  = slice2js(args.concat(defaultCompileArgs).concat([file.path]));
 
     var buffer = new Buffer(0);
