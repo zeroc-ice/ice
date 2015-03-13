@@ -11,7 +11,6 @@ task testSliceTask {
     slice {
         java {
             set1 {
-                include = ["${sliceDir}"]
                 files = fileTree(dir: testDir, includes:['Ice/adapterDeactivation/*.ice',
                                                      'Ice/ami/*.ice',
                                                      'Ice/admin/*.ice',
@@ -61,13 +60,11 @@ task testSliceTask {
                                                      'Slice/structure/*.ice'])
             }
             set2 {
-                include = ["${sliceDir}"]
                 args = "--tie"
                 files = fileTree(dir: testDir, includes:['Ice/operations/*.ice',
                                                      'Freeze/evictor/*.ice'])
             }
             set3 {
-                include = ["${sliceDir}"]
                 args = "--stream"
                 files = fileTree(dir: testDir, includes:['Ice/objects/*.ice',
                                                      'Ice/optional/*.ice',
@@ -75,17 +72,15 @@ task testSliceTask {
                                                      'Ice/enums/*.ice'])
             }
             set4 {
-                include = ["${sliceDir}"]
                 args = "--checksum test.Ice.checksum.Test.SliceChecksums"
                 files = fileTree(dir: testDir, includes:['Ice/checksum/Test.ice',
                                                      'Ice/checksum/Types.ice'])
             }
             set5 {
-                include = ["${sliceDir}", "${testDir}/Ice/packagemd"]
+                include = ["${testDir}/Ice/packagemd"]
                 files = fileTree(dir: testDir, includes:['Ice/packagemd/*.ice'])
             }
             set6 {
-                include = ["${sliceDir}"]
                 args = "--checksum test.Ice.checksum.server.Test.SliceChecksums"
                 files = fileTree(dir: testDir, includes:['Ice/checksum/TestServer.ice',
                                                      'Ice/checksum/TypesServer.ice'])
@@ -94,7 +89,6 @@ task testSliceTask {
         freezej {
             files = [file("${testDir}/Freeze/complex/Complex.ice"),
                      file("${sliceDir}/Ice/Identity.ice")]
-            include = ["${sliceDir}"]
             args = "--ice"
             dict {
                 ComplexDict {

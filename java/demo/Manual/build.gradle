@@ -13,7 +13,7 @@
     project(":demoManual${name}") {
         slice {
             java {
-                include = ["${projectDir}", "${sliceDir}"]
+                include = ["${projectDir}"]
                 srcDir = '.'
             }
         }

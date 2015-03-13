@@ -15,7 +15,7 @@
     project(":demoIce${it.capitalize()}") {
         slice {
             java {
-                include = ["${projectDir}", "${sliceDir}"]
+                include = ["${projectDir}"]
                 srcDir = '.'
             }
         }

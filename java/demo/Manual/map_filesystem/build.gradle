@@ -9,13 +9,13 @@
 
 slice {
     java {
-        include = ["${projectDir}", "${sliceDir}"]
+        include = ["${projectDir}"]
         srcDir = '.'
     }
     freezej {
         files = [file("FilesystemDB.ice"),
                  file("${sliceDir}/Ice/Identity.ice")]
-        include = ["${projectDir}", "${sliceDir}"]
+        include = ["${projectDir}"]
         args = "--ice"
         dict {
             IdentityFileEntryMap {

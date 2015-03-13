@@ -9,12 +9,11 @@
 
 slice {
     java {
-        include = ["${projectDir}", "${sliceDir}"]
+        include = ["${projectDir}"]
         srcDir = '.'
     }
     freezej {
         files = [file("Test.ice")]
-        include = ["${sliceDir}"]
         args = "--ice"
         dict {
             IntIntMap {

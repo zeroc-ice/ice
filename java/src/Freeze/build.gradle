@@ -12,7 +12,6 @@ targetCompatibility = iceTargetCompatibility
 
 slice {
     java {
-        include = ["${sliceDir}"]
         args = "--ice"
         files = files(fileTree(dir: "$sliceDir/Freeze", includes:['*.ice'], excludes:["*F.ice"]),
                       file("./src/main/java/Freeze/PingObject.ice"))

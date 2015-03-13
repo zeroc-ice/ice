@@ -252,6 +252,7 @@ class SliceTask extends DefaultTask {
         def command = []
         command.add(getSlice2FreezeJ());
     	command.add("--output-dir=" + project.slice.output.getAbsolutePath())
+        command.add('-I' + getIceSliceDir())
         freezej.include.each {
             command.add('-I' + it)
         }
@@ -493,6 +494,7 @@ class SliceTask extends DefaultTask {
         command.add(slice2java);
         command.add("--list-generated")
         command.add("--output-dir=" + project.slice.output.getAbsolutePath())
+        command.add('-I' + getIceSliceDir())
         java.include.each {
             command.add('-I' + it)
         }
@@ -527,7 +529,7 @@ class SliceTask extends DefaultTask {
         def command = []
         command.add(slice2java);
         command.add("--depend-xml")
-        //command.add("--output-dir=" + project.slice.output.getAbsolutePath())
+        command.add('-I' + getIceSliceDir())
         java.include.each {
             command.add('-I' + it)
         }
@@ -701,94 +703,140 @@ class SliceTask extends DefaultTask {
     }
 
     def getSlice2Java() {
-        def slice2java = project.slice.slice2java
-        if (slice2java == null) {
-            def iceHome = project.slice.iceHome
-            if (iceHome == null) {
-                slice2java = "slice2java"
-            } else {
-                slice2java = iceHome + File.separator + "bin" + File.separator + "slice2java"
-            }
+        def slice2java = "slice2java"
+        def iceHome = getIceHome()
+        if (iceHome != null) {
+            slice2java = iceHome + File.separator + "bin" + File.separator + "slice2java"
         }
         return slice2java
     }
 
     def getSlice2FreezeJ() {
-        def slice2freezej = project.slice.slice2freezej
-        if (slice2freezej == null) {
-            def iceHome = project.slice.iceHome
-            if (iceHome == null) {
-                slice2freezej = "slice2freezej"
-            } else {
-                slice2freezej = iceHome + File.separator + "bin" + File.separator + "slice2freezej"
-            }
+        def slice2freezej = "slice2freezej"
+        def iceHome = getIceHome()
+        if (iceHome != null) {
+            slice2freezej = iceHome + File.separator + "bin" + File.separator + "slice2freezej"
         }
         return slice2freezej
     }
 
-    def addLdLibraryPath() {
-        def newEnv = [:]
-
-        def env = System.getenv()
-        def iceInstall = project.slice.iceHome
-        if (iceInstall == null) {
-            iceInstall = env['ICE_HOME']
+    def getIceHome() {
+        // Check if plugin property is set
+        def iceHome = project.slice.iceHome
+        if (iceHome != null) {
+            return iceHome
         }
 
-        def srcdist = project.slice.srcDist
-        if(iceInstall != null) {
-            def ldLibPathEnv = null
-            def ldLib64PathEnv = null
-            def libPath = new File(iceInstall + File.separator + "lib").toString()
-            def lib64Path = null
+        // Check if environment variable is set
+        if (iceHome == null) {
+            def env = System.getenv()
+            iceHome = env['ICE_HOME']
+            if (iceHome != null) {
+                return iceHome
+            }
+        }
 
+        // Check default install locations
+        if (iceHome == null) {
             def os = System.properties['os.name']
             if(os == "Mac OS X") {
-                ldLibPathEnv = "DYLD_LIBRARY_PATH"
+                iceHome = "/usr/local"
             } else if(os.contains("Windows")) {
-                //
-                // No need to change the PATH environment variable on Windows, the DLLs should be found
-                // in the translator local directory.
-                //
+                def arch1 = env['PROCESSOR_ARCHITECTURE']
+                def arch2 = env['PROCESSOR_ARCHITEW6432']
+                if (arch1 == "AMD64" || arch1 == "IA64" || arch2 == "AMD64" || arch2 == "IA64") {
+                    programFiles = System.getenv('ProgramFiles(x86)')
+                } else {
+                    programFiles = System.getenv('ProgramFiles')
+                }
+                iceHome = programFiles + File.separator + "ZeroC" + File.separator + "Ice-3.6.0"
             } else {
-                ldLibPathEnv = "LD_LIBRARY_PATH"
-                ldLib64PathEnv = "LD_LIBRARY_PATH"
-                lib64Path = new File(iceInstall + File.separator + "lib64").toString()
-                
-                if(new File(iceInstall + File.separator + "lib" + File.separator + "i386-linux-gnu").exists())
-                {
-                    libPath = new File(iceInstall + File.separator + 
-                                       "lib" + File.separator + 
-                                       "i386-linux-gnu").toString()
-                }
-                
-                if(new File(iceInstall + File.separator + "lib" + File.separator + "x86_64-linux-gnu").exists())
-                {
-                    lib64Path = new File(iceInstall + File.separator + 
-                                         "lib" + File.separator + 
-                                         "x86_64-linux-gnu").toString();
-                }
+                iceHome = "/usr"
             }
-            
-            if(ldLibPathEnv != null) {
-                if(ldLibPathEnv.equals(ldLib64PathEnv)) {
-                    libPath = libPath + File.pathSeparator + lib64Path;
-                }
+        }
 
-                def envLibPath = env[ldLibPathEnv]
-                if(envLibPath != null) {
-                    libPath = libPath + File.pathSeparator + envLibPath
-                }
-                newEnv[ldLibPathEnv] = libPath
+        if (!File(iceHome + File.separator + "bin" + File.separator + "slice2java").exists() ||
+            !File(iceHome + File.separator + "bin" + File.separator + "slice2java.exe").exists())
+        {
+            throw new GradleException("Could not find Ice installation");
+        }
+
+        return iceHome
+    }
+
+    def getIceSliceDir() {
+        def iceHome = getIceHome()
+        if (project.slice.srcDist) {
+            return iceHome + File.separator + ".." + File.separator + "slice"
+        }
+
+        def os = System.properties['os.name']
+        if (os == "Mac OS X") {
+            if (iceHome == "/usr/local") {
+                return "/usr/local/share/slice"
+            }
+        } else if (iceHome == "/usr") {
+            return "/usr/share/Ice-3.6.0/slice"
+        }
+        return iceHome + File.separator + "slice"
+    }
+
+    def addLdLibraryPath() {
+        def iceInstall = getIceHome()
+        def env = System.getenv()
+
+        def ldLibPathEnv = null
+        def ldLib64PathEnv = null
+        def libPath = new File(iceInstall + File.separator + "lib").toString()
+        def lib64Path = null
+
+        def os = System.properties['os.name']
+        if(os == "Mac OS X") {
+            ldLibPathEnv = "DYLD_LIBRARY_PATH"
+        } else if(os.contains("Windows")) {
+            //
+            // No need to change the PATH environment variable on Windows, the DLLs should be found
+            // in the translator local directory.
+            //
+        } else {
+            ldLibPathEnv = "LD_LIBRARY_PATH"
+            ldLib64PathEnv = "LD_LIBRARY_PATH"
+            lib64Path = new File(iceInstall + File.separator + "lib64").toString()
+
+            if(new File(iceInstall + File.separator + "lib" + File.separator + "i386-linux-gnu").exists())
+            {
+                libPath = new File(iceInstall + File.separator +
+                                   "lib" + File.separator +
+                                   "i386-linux-gnu").toString()
             }
 
-            if(ldLib64PathEnv != null && !ldLib64PathEnv.equals(ldLibPathEnv)) {
-                def envLib64Path = env[ldLib64PathEnv]
-                if(envLib64Path != null) {
-                    lib64Path = lib64Path + File.pathSeparator + envLib64Path
-                }
-                newEnv[ldLib64PathEnv] = lib64Path
+            if(new File(iceInstall + File.separator + "lib" + File.separator + "x86_64-linux-gnu").exists())
+            {
+                lib64Path = new File(iceInstall + File.separator +
+                                     "lib" + File.separator +
+                                     "x86_64-linux-gnu").toString();
             }
+        }
+
+        def newEnv = [:]
+        if(ldLibPathEnv != null) {
+            if(ldLibPathEnv.equals(ldLib64PathEnv)) {
+                libPath = libPath + File.pathSeparator + lib64Path;
+            }
+
+            def envLibPath = env[ldLibPathEnv]
+            if(envLibPath != null) {
+                libPath = libPath + File.pathSeparator + envLibPath
+            }
+            newEnv[ldLibPathEnv] = libPath
+        }
+
+        if(ldLib64PathEnv != null && !ldLib64PathEnv.equals(ldLibPathEnv)) {
+            def envLib64Path = env[ldLib64PathEnv]
+            if(envLib64Path != null) {
+                lib64Path = lib64Path + File.pathSeparator + envLib64Path
+            }
+            newEnv[ldLib64PathEnv] = lib64Path
         }
 
         return newEnv.collect { k, v -> "$k=$v" }

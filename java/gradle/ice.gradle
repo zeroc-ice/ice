@@ -119,9 +119,9 @@ if (!iceDir) {
     }
 
     if (iceDir == null) {
-        def f1 = new File("/Library/Developer/Ice-${project.version}/bin/${slice2java}")
+        def f1 = new File("/usr/local/bin/${slice2java}")
         if (f1.exists()) {
-            iceDir = "/Library/Developer/Ice-${project.version}"
+            iceDir = "/usr/local"
         }
     }
 
@@ -145,6 +145,9 @@ if (!iceDir) {
 // Set the slice and java jar directory
 if (iceDir == "/usr") {
     ext.sliceDir = "/usr/share/Ice-${project.version}/slice"
+    ext.distJarDir = "/usr/share/java"
+} else if (iceDir == "/usr/local") {
+    ext.sliceDir = "/usr/local/share/slice"
     ext.distJarDir = "/usr/share/java"
 } else {
     ext.sliceDir = "${iceDir}/slice"

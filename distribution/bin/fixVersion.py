@@ -289,6 +289,10 @@ FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "java", "bin", "icegridgui.deb
 FixUtil.fileMatchAndReplace(os.path.join(icej_home, "demo", "Database", "library", "README"),
                             [("ice-" + FixUtil.vpatMatch, version)])
 
+FixUtil.fileMatchAndReplace(os.path.join(icej_home, "buildSrc", "src", "main", "groovy", "com", "zeroc", "gradle",
+                                         "plugins", "slice", "SliceTask.groovy"),
+                            [("Ice-" + FixUtil.vpatMatch, version)])
+
 #
 # Android Files
 #

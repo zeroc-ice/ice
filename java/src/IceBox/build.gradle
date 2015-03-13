@@ -13,7 +13,6 @@ targetCompatibility = iceTargetCompatibility
 slice {
     java {
         set1 {
-            include = ["${sliceDir}"]
             args = "--ice --tie --checksum IceBox.SliceChecksums"
             files = fileTree(dir: "$sliceDir/IceBox", includes:['*.ice'], excludes:["*F.ice"])
         }
