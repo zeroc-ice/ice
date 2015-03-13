@@ -52,7 +52,10 @@ if (prefix == null || prefix.length() == 0) {
 }
 
 // Installation location for jar/pom & executables.
-if (prefix.startsWith("/usr") || prefix.startsWith("/usr/local")) {
+//
+// Note that we exclude /usr/src/packages because it's the RPM build directory on SLES.
+//
+if ((prefix.startsWith("/usr") || prefix.startsWith("/usr/local")) && !prefix.startsWith("/usr/src/packages")) {
     ext.jarDir = prefix + "/share/java"
     ext.binDir = prefix + "/bin"
 } else {
