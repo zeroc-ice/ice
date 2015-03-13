@@ -718,7 +718,6 @@ rm -rf $RPM_BUILD_ROOT/node_modules
 %ifarch noarch
 
 cd $RPM_BUILD_DIR/Ice-%{version}/java
-make prefix=$RPM_BUILD_ROOT install
 
 #
 # Doc & license files
@@ -759,12 +758,6 @@ jarsigner -keystore $JARSIGNER_KEYSTORE -storepass "$JARSIGNER_KEYSTORE_PASSWORD
 #
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/Ice-%{version}
 cp -rp $RPM_BUILD_DIR/Ice-%{version}/slice $RPM_BUILD_ROOT%{_datadir}/Ice-%{version}
-
-#
-# Cleanup extra files
-#
-rm -f $RPM_BUILD_ROOT/lib/*.jar
-rm -f $RPM_BUILD_ROOT/lib/*.pom
 
 %else # %ifarch noarch
 
