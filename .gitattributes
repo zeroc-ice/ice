@@ -12,6 +12,16 @@
 /ndk export-ignore
 /perf export-ignore
 /eclipse export-ignore
+/protobuf export-ignore
+/distribution export-ignore
+
+/certs/cakey.pem export-ignore
+/vsaddin/*.sln export-ignore
+/vsaddin/src/*.csproj export-ignore
+
+*.iml export-ignore
+expect.py export-ignore
+allDemos.py export-ignore
 
 .gitignore export-ignore
 .gitattributes export-ignore

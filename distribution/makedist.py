@@ -15,65 +15,6 @@ from DistUtils import *
 import FixUtil
 
 #
-# Files that will be excluded from all source distributions.
-#
-excludeFiles = [ \
-    "/certs/cakey.pem",
-    "/distribution",
-    "/protobuf",
-    "*.iml",
-    "/vsaddin/*.sln",
-    "/vsaddin/src/*.csproj"
-]
-
-#
-# Windows files that will be excluded from Unix source distributions.
-#
-excludeWindowsFiles = [ \
-    "/vsaddin/",
-    "*.rc",
-    "*.sln",
-    "*.csproj",
-    "*.vbproj",
-    "*.vcproj",
-    "*.vcxproj",
-    "*.vcxproj.filters",
-    "Make*mak*",
-    "Make.rules.msvc",
-    ".depend.mak",
-    "*.exe.config",
-    "MSG00001.bin",
-    "/cpp/test/WinRT",
-    "/cpp/demo/**/generated",
-    "/cpp/demo/**/MFC",
-    "/**/winrt",
-    "/cs/**/compact",
-    "/cs/**/cf",
-    "/cs/**/sl"
-]
-
-#
-# Unix files that will be excluded from Windows source distributions.
-#
-# Don't remove C++ source Makefile from the Windows distribution since
-# the mingw build requires it.
-#
-excludeUnixFiles = [ \
-    "/Makefile",
-]
-for l in ["/java", "/py", "/php", "/cs", "/cpp/demo", "/js"]:
-    excludeUnixFiles += [
-        l + "/**/Makefile",
-        l + "/**/Make.rules",
-        l + "/**/Make.rules.cs",
-        l + "/**/Make.rules.php",
-        l + "/**/Make.rules",
-        l + "/**/Make.rules.Darwin",
-        l + "/**/Make.rules.Linux",
-        l + "/**/.depend"
-    ]
-
-#
 # Files from the top-level, cpp, java, cs and js config directories to include in the demo
 # source distribution config directory.
 #
@@ -147,7 +88,6 @@ gitRepoDir = os.path.join(os.getcwd(), os.path.dirname(__file__), "..")
 # Restore git attributes and core.autocrlf on exit.
 def restore():
     os.chdir(gitRepoDir)
-    os.system("git config --unset core.autocrlf")
     os.system("git checkout .gitattributes")
 
 atexit.register(restore)
@@ -190,7 +130,6 @@ winDemoscriptDir = os.path.join(distDir, "demo-scripts")
 demoDir = os.path.join(distDir, "Ice-" + version + "-demos")
 winDemoDir = os.path.join(distDir, "demos")
 srcDir = os.path.join(distDir, "Ice-" + version)
-winSrcDir = os.path.join(distDir, "Ice")
 rpmBuildDir = os.path.join(distDir, "Ice-rpmbuild-" + version)
 debSrcDir = os.path.join(distDir, "zeroc-ice%s-%s" % (debmmversion, debversion))
 distFilesDir = os.path.join(distDir, "distfiles-" + version)
@@ -199,114 +138,6 @@ os.mkdir(demoscriptDir)
 os.mkdir(demoDir)
 os.mkdir(winDemoDir)
 os.mkdir(rpmBuildDir)
-
-def createDistfilesDist(platform, whichDestDir):
-    print "Creating " + platform + " distfiles git archive using " + tag + "...",
-    sys.stdout.flush()
-    os.mkdir(whichDestDir)
-    os.system("git archive --worktree-attributes " + tag + ":distribution/ | ( cd " + whichDestDir + " && tar xfm - )")
-    print "ok"
-
-    os.chdir(whichDestDir)
-
-    print "Walking through distribution to fix permissions, versions, etc...",
-    sys.stdout.flush()
-
-    fixVersion(os.path.join("bin", "makebindist.py"), *versions)
-    fixVersion(os.path.join("lib", "DistUtils.py"), *versions)
-    fixVersion(os.path.join("bin", "makeubuntupackages.py"), *versions)
-    fixVersion(os.path.join("bin", "makeubunturepo.py"), *versions)
-    fixVersion(os.path.join("bin", "makejspackages.py"), *versions)
-    if platform == "UNIX":
-        fixVersion(os.path.join("src", "rpm", "icegridregistry.conf"), *versions)
-        fixVersion(os.path.join("src", "rpm", "RPM_README"), *versions)
-
-        for root, dirnames, filenames in os.walk('src/deb'):
-            for f in filenames:
-                fixVersion(os.path.join(root, f), *versions)
-
-    with open(os.path.join(srcDir, "ICE_LICENSE"), "r") as license:
-        FixUtil.fileMatchAndReplace(os.path.join("src", "deb", "debian", "copyright"),
-                                [(re.compile("@ice-license@"), license.read().replace("\n", "\n "))],
-                                False)
-    #
-    # Fix OS X installer files.
-    #
-    for root, dirnames, filenames in os.walk('src/mac/'):
-        for f in filenames:
-            if (fnmatch.fnmatch(f, "*.txt") or
-                fnmatch.fnmatch(f, "*.xml") or
-                fnmatch.fnmatch(f, "*.sh") or
-                fnmatch.fnmatch(f, "*.py")):
-                filepath = os.path.join(root, f)
-                fixVersion(filepath, *versions)
-
-    for root, dirnames, filenames in os.walk('.'):
-        for f in filenames:
-            filepath = os.path.join(root, f)
-            # Fix version of README files
-            if fnmatch.fnmatch(f, "README*"):
-                fixVersion(filepath, *versions)
-            # Fix version of JSON files
-            if fnmatch.fnmatch(f, "*.json"):
-                fixVersion(filepath, *versions)
-            fixFilePermission(filepath, verbose)
-
-        for d in dirnames:
-            os.chmod(os.path.join(root, d), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) # rwxr-xr-x
-
-    print "ok"
-
-def createSourceDist(platform, destDir):
-    if platform == "UNIX":
-        prefix = "Ice-" + version
-    else:
-        prefix = "Ice"
-
-    print "Creating " + platform + " git archive using " + tag + "...",
-    sys.stdout.flush()
-    os.system("git archive --worktree-attributes --prefix=" + prefix + "/ " + tag +
-              " | ( cd " + destDir + " && tar xfm - )")
-    print "ok"
-
-    print "Walking through distribution to fix permissions, versions, etc...",
-    sys.stdout.flush()
-
-    current = os.getcwd()
-    os.chdir(os.path.join(destDir, prefix))
-
-    if os.path.exists("vsaddin"):
-        fixVersion(os.path.join("vsaddin", "config", "Ice-VS2012.AddIn"), *versions)
-        fixVersion(os.path.join("vsaddin", "config", "Ice-VS2013.AddIn"), *versions)
-        fixVersion(os.path.join("vsaddin", "config", "Ice.props"), *versions)
-
-    for root, dirnames, filenames in os.walk('.'):
-        for f in filenames:
-            filepath = os.path.join(root, f)
-            if f == "expect.py":
-                move(filepath, os.path.join(distDir, demoscriptDir, filepath))
-                continue
-            elif fnmatch.fnmatch(f, "README*") or fnmatch.fnmatch(f, "*.Addin"):
-                fixVersion(filepath, *versions)
-            elif f == "Grammar.cpp":
-                checkBisonVersion(filepath)
-            elif f == "Scanner.cpp":
-                checkFlexVersion(filepath)
-
-            if platform == "Windows":
-                for name in ["README", "CHANGES", "LICENSE", "ICE_LICENSE"]:
-                    if fnmatch.fnmatch(f, name) and not fnmatch.fnmatch(f, name + ".txt"):
-                        os.rename(filepath, filepath + ".txt")
-                        filepath = filepath + ".txt"
-                        f = f + ".txt"
-
-            fixFilePermission(filepath, verbose)
-
-        for d in dirnames:
-            os.chmod(os.path.join(root, d), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) # rwxr-xr-x
-
-    os.chdir(current)
-    print "ok"
 
 def checkBisonVersion(filename):
     f = open(filename, "r")
@@ -332,71 +163,63 @@ def checkFlexVersion(filename):
             print "Found " + line
             sys.exit(1)
 
-def fixGitAttributes(checkout, autocrlf, excludes):
-    os.chdir(gitRepoDir)
-    if checkout:
-        os.system("git checkout .gitattributes")
-    if autocrlf:
-        os.system("git config core.autocrlf true")
-    else:
-        os.system("git config --unset core.autocrlf")
+###### Master distributions.
+print "Creating master distributions using " + tag + "...",
+sys.stdout.flush()
+os.unlink(".gitattributes")
+f = open(".gitattributes", "w")
+f.write(".gitignore export-ignore\n")
+f.write("/certs/cakey.pem export-ignore\n")
+f.close()
+os.system("git archive --worktree-attributes --prefix=Ice-" + version + "/ " + tag +
+          " | ( cd " + distDir + " && tar xfm - )")
+os.system("git checkout .gitattributes")
 
-    file = ".gitattributes"
+print "Processing distribution...",
+sys.stdout.flush()
 
-    origfile = file + ".orig"
-    os.rename(file, origfile)
+os.chdir(srcDir)
+for root, dirnames, filenames in os.walk('.'):
+    for f in filenames:
+        filepath = os.path.join(root, f)
+        if f == "expect.py":
+            move(filepath, os.path.join(distDir, demoscriptDir, filepath))
+            continue
+        elif f == "Grammar.cpp":
+            checkBisonVersion(filepath)
+        elif f == "Scanner.cpp":
+            checkFlexVersion(filepath)
+os.chdir(gitRepoDir)
 
-    oldFile = open(origfile, "r")
-    newFile = open(file, "w")
-    origLines = oldFile.readlines()
-
-    doComment = 0
-    doCheck = 0
-    newLines = []
-    for x in origLines:
-        #
-        # If the rule contains the target string, then
-        # comment out this rule.
-        #
-        if autocrlf and x.find("text=auto") != -1:
-            x = "#" + x
-        newLines.append(x)
-
-    if len(excludes) > 0:
-        newLines.append("""
-# THE FOLLOWING LINES WERE ADDED BY makedist.py
-# DO NOT COMMIT
-""")
-
-        for e in excludes:
-            newLines.append(e + " export-ignore\n")
-
-    newFile.writelines(newLines)
-    newFile.close()
-    oldFile.close()
-    os.remove(origfile)
+print "ok"
 
 ###### UNIX source code distribution
-fixGitAttributes(True, False, excludeFiles + excludeWindowsFiles)
-createSourceDist("UNIX", distDir)
+print "Creating UNIX source code distribution using " + tag + "...",
+sys.stdout.flush()
+os.system("git archive --format=tar --worktree-attributes --prefix=Ice-" + version + "/ " + tag + " | gzip > " + os.path.join(distDir, "Ice-" + version + ".tar.gz"))
+print "ok"
+
+###### Windows source code distribution
+print "Creating Windows source code distribution using " + tag + "...",
+sys.stdout.flush()
+os.system("git archive --format=zip --worktree-attributes --prefix=Ice-" + version + "/ " + tag + " > " + os.path.join(distDir, "Ice-" + version + ".zip"))
+print "ok"
 
 ###### UNIX distfiles
-excludeForDistFiles = [ "fixCopyright.py", "fixVersion.py", "makedist.py" ]
-fixGitAttributes(True, False, excludeForDistFiles)
-createDistfilesDist("UNIX", distFilesDir)
+copy(os.path.join(srcDir, "distribution"), distFilesDir)
+os.unlink(os.path.join(distFilesDir, "makedist.py"))
+os.unlink(os.path.join(distFilesDir, "bin", "fixVersion.py"))
+os.unlink(os.path.join(distFilesDir, "bin", "fixCopyright.py"))
 
-###### Windows distfiles
-fixGitAttributes(False, True, []) # No copy this time. Use the same .gitattributes file as the UNIX distfiles dist
-createDistfilesDist("Windows", winDistFilesDir)
+copy(os.path.join(srcDir, "distribution"), winDistFilesDir)
+os.unlink(os.path.join(winDistFilesDir, "makedist.py"))
+os.unlink(os.path.join(winDistFilesDir, "bin", "fixVersion.py"))
+os.unlink(os.path.join(winDistFilesDir, "bin", "fixCopyright.py"))
 
 # Move the demoscript directory and the associated top level demo script.
 os.chdir(srcDir)
 move("demoscript", os.path.join(demoscriptDir, "demoscript"))
 move("allDemos.py", os.path.join(demoscriptDir, "demoscript", "allDemos.py"))
-
-###### Windows source code distribution
-fixGitAttributes(True, True, excludeFiles + excludeUnixFiles + ["/demoscript", "expect.py", "allDemos.py"])
-createSourceDist("Windows", distDir)
 
 #
 # Consolidate demo, demo scripts distributions.
@@ -502,20 +325,20 @@ shutil.rmtree(os.path.join(demoscriptDir, "vb"))
 
 copy(os.path.join(winDistFilesDir, "src", "common", "README.DEMOS.txt"), os.path.join(winDemoDir, "README.txt"))
 
-copyMatchingFiles(os.path.join(winSrcDir, "certs"), os.path.join(winDemoDir, "certs"), demoCertsFiles)
+copyMatchingFiles(os.path.join(srcDir, "certs"), os.path.join(winDemoDir, "certs"), demoCertsFiles)
 
 os.mkdir(os.path.join(winDemoDir, "config"))
 
-copy(os.path.join(winSrcDir, "config", "Make.common.rules.mak"), os.path.join(winDemoDir, "config"), False)
-copy(os.path.join(winSrcDir, "cpp", "config", "Make.rules.msvc"), os.path.join(winDemoDir, "config"), False)
+copy(os.path.join(srcDir, "config", "Make.common.rules.mak"), os.path.join(winDemoDir, "config"), False)
+copy(os.path.join(srcDir, "cpp", "config", "Make.rules.msvc"), os.path.join(winDemoDir, "config"), False)
 
 copy(os.path.join(winDistFilesDir, "src", "common", "Make.rules.mak.php"), os.path.join(winDemoDir, "config"), False)
 
 # Consolidate demo distribution with files from each language mapping
-for sd in os.listdir(winSrcDir):
+for sd in os.listdir(srcDir):
     if sd == "android":
         continue
-    d = os.path.join(winSrcDir, sd)
+    d = os.path.join(srcDir, sd)
     if os.path.isdir(d) and os.path.exists(os.path.join(d, "demo")):
         copy(os.path.join(d, "demo"), os.path.join(winDemoDir, sd))
 
@@ -554,17 +377,16 @@ for d in ["cpp", "cs", "vb"]:
 
 for f in rmFiles: remove(os.path.join(winDemoDir, f))
 
-
 #
 # JS demos
 #
-copy(os.path.join(winSrcDir, "js", "bin"), os.path.join(winDemoDir, "js", "bin"))
+copy(os.path.join(srcDir, "js", "bin"), os.path.join(winDemoDir, "js", "bin"))
 for f in ["bower.json", "gulpfile.js", "package.json"]:
     copy(os.path.join(winDistFilesDir, "src", "js", "icejs-demos", f), os.path.join(winDemoDir, "js", f), False)
 
-copy(os.path.join(winSrcDir, "js", ".jshintrc"), os.path.join(winDemoDir, "js", ".jshintrc"))
-jshint = json.load(open(os.path.join(winSrcDir, "js", ".jshintrc_browser"), "r"))
-jshintDemo = json.load(open(os.path.join(winSrcDir, "js", "demo", ".jshintrc_browser"), "r"))
+copy(os.path.join(srcDir, "js", ".jshintrc"), os.path.join(winDemoDir, "js", ".jshintrc"))
+jshint = json.load(open(os.path.join(srcDir, "js", ".jshintrc_browser"), "r"))
+jshintDemo = json.load(open(os.path.join(srcDir, "js", "demo", ".jshintrc_browser"), "r"))
 
 for key, value in jshintDemo["globals"].iteritems():
     jshint["globals"][key] = value
@@ -572,9 +394,9 @@ json.dump(jshint, open(os.path.join(winDemoDir, "js", ".jshintrc_browser"), "w")
 
 # Fix up the Java build files
 os.mkdir(os.path.join(winDemoDir, "java", "gradle"))
-copy(os.path.join(winSrcDir, "java", "gradlew.bat"), os.path.join(winDemoDir, "java"), False)
-copy(os.path.join(winSrcDir, "java", "gradle", "wrapper"), os.path.join(winDemoDir, "java", "gradle", "wrapper"), False)
-copy(os.path.join(winSrcDir, "java", "gradle", "GRADLE_LICENSE"), os.path.join(winDemoDir, "java", "gradle", "GRADLE_LICENSE"), False)
+copy(os.path.join(srcDir, "java", "gradlew.bat"), os.path.join(winDemoDir, "java"), False)
+copy(os.path.join(srcDir, "java", "gradle", "wrapper"), os.path.join(winDemoDir, "java", "gradle", "wrapper"), False)
+copy(os.path.join(srcDir, "java", "gradle", "GRADLE_LICENSE"), os.path.join(winDemoDir, "java", "gradle", "GRADLE_LICENSE"), False)
 copy(os.path.join(winDistFilesDir, "src", "common", "ice.gradle"), os.path.join(winDemoDir, "java", "gradle"), False)
 copy(os.path.join(winDistFilesDir, "src", "common", "gradle.properties"), os.path.join(winDemoDir, "java"), False)
 copy(os.path.join(winDistFilesDir, "src", "common", "build.gradle"), os.path.join(winDemoDir, "java"), False)
@@ -589,10 +411,10 @@ for root, dirnames, filesnames in os.walk(os.path.join(winDemoDir, "java")):
 
 # Fix up the Android build files
 os.mkdir(os.path.join(winDemoDir, "java", "android", "gradle"))
-copy(os.path.join(winSrcDir, "android", "gradlew.bat"), os.path.join(winDemoDir, "java", "android"), False)
-copy(os.path.join(winSrcDir, "android", "gradle", "wrapper"), os.path.join(winDemoDir, "java", "android", "gradle", "wrapper"), False)
-copy(os.path.join(winSrcDir, "android", "gradle", "GRADLE_LICENSE"), os.path.join(winDemoDir, "java", "android", "gradle", "GRADLE_LICENSE"), False)
-copy(os.path.join(winSrcDir, "android", "build.gradle"), os.path.join(winDemoDir, "java", "android"), False)
+copy(os.path.join(srcDir, "android", "gradlew.bat"), os.path.join(winDemoDir, "java", "android"), False)
+copy(os.path.join(srcDir, "android", "gradle", "wrapper"), os.path.join(winDemoDir, "java", "android", "gradle", "wrapper"), False)
+copy(os.path.join(srcDir, "android", "gradle", "GRADLE_LICENSE"), os.path.join(winDemoDir, "java", "android", "gradle", "GRADLE_LICENSE"), False)
+copy(os.path.join(srcDir, "android", "build.gradle"), os.path.join(winDemoDir, "java", "android"), False)
 copy(os.path.join(winDistFilesDir, "src", "common", "gradle.properties.android"), os.path.join(winDemoDir, "java", "android", "gradle.properties"), False)
 copy(os.path.join(winDistFilesDir, "src", "common", "settings.gradle.android"), os.path.join(winDemoDir, "java", "android", "settings.gradle"), False)
 copy(os.path.join(winDistFilesDir, "src", "common", "props.gradle"), os.path.join(winDemoDir, "java", "android", "gradle"), False)
@@ -635,12 +457,41 @@ copy(os.path.join(distFilesDir, "src", "deb", "DEB_README"), \
         os.path.join(distDir, "Ice-" + version + "-DEB_README"))
 
 #
+# CRLF conversion for Windows demos.
+#
+print "Processing Windows demos...",
+sys.stdout.flush()
+
+os.chdir(winDemoDir)
+files = []
+for root, dirnames, filenames in os.walk('.'):
+    for f in filenames:
+        filepath = os.path.join(root, f)
+        if os.system("file %s | grep text > /dev/null" % (filepath)) == 0:
+            files.append(filepath)
+os.system("unix2dos -q %s" % (" ".join(files)))
+print "ok"
+
+print "Processing Windows dist files...",
+sys.stdout.flush()
+
+os.chdir(winDistFilesDir)
+files = []
+for root, dirnames, filenames in os.walk('.'):
+    for f in filenames:
+        filepath = os.path.join(root, f)
+        if os.system("file %s | grep text > /dev/null" % (filepath)) == 0:
+            files.append(filepath)
+os.system("unix2dos -q %s" % (" ".join(files)))
+print "ok"
+
+#
 # Everything should be clean now, we can create the source distributions archives
 #
 print "Archiving..."
 sys.stdout.flush()
 os.chdir(distDir)
-for d in [srcDir, demoDir, distFilesDir, rpmBuildDir, debSrcDir]:
+for d in [demoDir, distFilesDir, rpmBuildDir, debSrcDir]:
     tarArchive(d, verbose)
 
 move(os.path.join(distDir, "zeroc-ice" + debmmversion + "-" + debversion + ".tar.gz"), \
@@ -657,10 +508,6 @@ for (dir, archiveDir) in [(winDistFilesDir, "distfiles-" + version)]:
     zipArchive(dir, verbose, archiveDir)
 os.rename(os.path.join(distDir, "distfiles.zip"), os.path.join(distDir, "distfiles-" + version + ".zip"))
 
-for (dir, archiveDir) in [(winSrcDir, "Ice-" + version)]:
-    zipArchive(dir, verbose, archiveDir)
-os.rename(os.path.join(distDir, "Ice.zip"), os.path.join(distDir, "Ice-" + version + ".zip"))
-
 for (dir, archiveDir) in [(winDemoDir, "Ice-" + version + "-demos")]:
     zipArchive(dir, verbose, archiveDir)
 os.rename(os.path.join(distDir, "demos.zip"), os.path.join(distDir, "Ice-" + version + "-demos.zip"))
@@ -675,7 +522,7 @@ writeSrcDistReport("Ice", version, tag, gitRepoDir, compareToDir,
                     ("zeroc-ice" + debmmversion + "_" + debversion + ".orig.tar.gz", debSrcDir),
                     (demoscriptDir + ".tar.gz", demoscriptDir),
                     (os.path.join(distDir, "distfiles-" + version + ".zip"), winDistFilesDir),
-                    (os.path.join(distDir, "Ice-" + version + ".zip"), winSrcDir),
+                    (os.path.join(distDir, "Ice-" + version + ".zip"), srcDir),
                     (os.path.join(distDir, "Ice-" + version + "-demos.zip"), winDemoDir),
                     ])
 
@@ -685,7 +532,6 @@ writeSrcDistReport("Ice", version, tag, gitRepoDir, compareToDir,
 print "Cleaning up...",
 sys.stdout.flush()
 remove(srcDir)
-remove(winSrcDir)
 remove(demoDir)
 remove(winDemoDir)
 remove(demoscriptDir)
