@@ -451,10 +451,6 @@ copy(srcDir, debSrcDir, False)
 # Copy CHANGES
 #
 copy(os.path.join(srcDir, "CHANGES"), os.path.join(distDir, "Ice-" + version + "-CHANGES"))
-copy(os.path.join(distFilesDir, "src", "rpm", "RPM_README"), \
-        os.path.join(distDir, "Ice-" + version + "-RPM_README"))
-copy(os.path.join(distFilesDir, "src", "deb", "DEB_README"), \
-        os.path.join(distDir, "Ice-" + version + "-DEB_README"))
 
 #
 # CRLF conversion for Windows demos.
