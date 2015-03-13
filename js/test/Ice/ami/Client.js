@@ -48,11 +48,11 @@
             ).then(
                 function(c)
                 {
-                    test(p.ice_getCachedConnection() === c)
+                    test(p.ice_getCachedConnection() === c);
                     return p;
                 }
             );
-        }
+        };
 
         var result = null;
         var p = Test.TestIntfPrx.uncheckedCast(communicator.stringToProxy("test:default -p 12010"));
@@ -110,7 +110,7 @@
                             function(prx)
                             {
                                 b1 = prx;
-                                connection = b1.ice_getCachedConnection();
+                                var connection = b1.ice_getCachedConnection();
                                 test(b1.opBatch().completed());
                                 test(b1.opBatch().completed());
                                 return connection.flushBatchRequests();

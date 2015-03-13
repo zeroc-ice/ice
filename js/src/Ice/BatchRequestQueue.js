@@ -108,7 +108,7 @@ var BatchRequestQueue = Class({
         this._batchRequestNum = 0;
         this._batchStream.writeBlob(Protocol.requestBatchHdr);
         this._batchMarker = this._batchStream.size;
-        if(lastRequest != null)
+        if(lastRequest !== null)
         {
             this._batchStream.writeBlob(lastRequest);
         }

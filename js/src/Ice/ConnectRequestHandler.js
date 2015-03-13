@@ -68,7 +68,7 @@ var ConnectRequestHandler = Ice.Class({
             // it died after being established, we allow the caller to
             // retry the connection establishment by not throwing here.
             //
-            if(_connection == null)
+            if(this._connection === null)
             {
                 throw ex;
             }
@@ -263,9 +263,9 @@ var ConnectRequestHandler = Ice.Class({
         if(this._reference.getCacheConnection() && exception === null)
         {
             this._requestHandler = new ConnectionRequestHandler(this._reference, this._connection, this._compress);
-            for(var i in this._proxies)
+            for(var k in this._proxies)
             {
-                this._proxies[i].__updateRequestHandler(this, this._requestHandler);
+                this._proxies[k].__updateRequestHandler(this, this._requestHandler);
             }
         }
 
