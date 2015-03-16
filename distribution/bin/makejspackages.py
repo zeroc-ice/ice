@@ -56,7 +56,7 @@ for d in ["IceUtil", "Slice", "slice2js"]:
 runCommand("cd Ice-%s/js && npm install && npm run gulp:dist" % iceVersion)
 
 
-packages = ["zeroc-icejs", "icejs-demos", "zeroc-slice2js", "gulp-zeroc-slice2js"]
+packages = ["zeroc-icejs", "zeroc-slice2js", "gulp-zeroc-slice2js"]
 #
 # Clone package git repositories
 #
@@ -105,33 +105,14 @@ copy("distfiles-%s/src/unix/MCPP_LICENSE" % iceVersion, "packages/zeroc-slice2js
 #
 # gulp-zeroc-slice2js package
 #
-copy("Ice-%s/js/gulp/gulp-slice2js/index.js", "packages/gulp-zeroc-slice2js/index.js")
+copy("Ice-%s/js/gulp/gulp-slice2js/index.js" % iceVersion, "packages/gulp-zeroc-slice2js/index.js")
 
 #
 # zeroc-icejs package
 #
-copy("Ice-%s/js/src", "packages/zeroc-icejs/src" % iceVersion)
+copy("Ice-%s/js/src" % iceVersion, "packages/zeroc-icejs/src")
 copyMatchingFiles("Ice-%s/js/gulp" % iceVersion, "packages/zeroc-icejs/gulp", ['bundle.js', 'libTasks.js'])
 copyMatchingFiles("Ice-%s/js/lib" % iceVersion, "packages/zeroc-icejs/lib", ["*.js", "*.gz"])
-
-#
-# zeroc-icejs-demo package
-#
-for f in os.listdir("Ice-%s/js/demo" % iceVersion):
-    if f == "README":
-        continue
-    copy(os.path.join("Ice-%s/js/demo" % iceVersion, f), os.path.join("packages/icejs-demos", f))
-copy("Ice-%s/js/bin" % iceVersion, "packages/icejs-demos/bin")
-copy("Ice-%s/certs" % iceVersion, "packages/icejs-demos/certs")
-copy("Ice-%s/js/assets" % iceVersion, "packages/icejs-demos/assets")
-copy("Ice-%s/js/.jshintrc" % iceVersion, "packages/icejs-demos/.jshintrc")
-
-jshint = json.load(open("Ice-%s/js/.jshintrc_browser" % iceVersion, "r"))
-jshintDemo = json.load(open("Ice-%s/js/demo/.jshintrc_browser" % iceVersion, "r"))
-
-for key, value in jshintDemo["globals"].iteritems():
-    jshint["globals"][key] = value
-json.dump(jshint, open("packages/icejs-demos/.jshintrc_browser", "w"), indent = 4, separators=(',', ': '))
 
 for package in packages:
     runCommand("cd packages/%(package)s && git add . && git commit . -m '%(package)s version %(version)s'" %
