@@ -73,11 +73,11 @@
     <DebugType>none</DebugType>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Ice, Version=3.6.0.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL" />
-    <Reference Include="IceBox, Version=3.6.0.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
+    <Reference Include="Ice, Version=3.6.0.0, Culture=neutral, processorArchitecture=MSIL" />
+    <Reference Include="IceBox, Version=3.6.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
     </Reference>
-    <Reference Include="IceSSL, Version=3.6.0.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL" />
+    <Reference Include="IceSSL, Version=3.6.0.0, Culture=neutral, processorArchitecture=MSIL" />
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
