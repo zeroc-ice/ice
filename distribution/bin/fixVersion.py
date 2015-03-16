@@ -343,7 +343,7 @@ FixUtil.fileMatchAndReplace(os.path.join(icecs_home, "src", "Ice", "Util.cs"),
 # Fix C# and VB projects
 #
 for f in FixUtil.find(["*.csproj", "*.vbproj"]):
-    for c in ["Ice", "IceBox", "IceGrid", "IcePatch2", "IceSSL", "IceStorm", "Glacier2"]:
+    for c in ["Ice", "IceBox", "IceGrid", "IcePatch2", "IceSSL", "IceStorm", "Glacier2", "IceDiscovery"]:
         FixUtil.fileMatchAndReplace(f, [( c + ", Version=" + FixUtil.vpatMatch, newVersion)], False)
 
 # Eclipse plug-in
