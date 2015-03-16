@@ -6,7 +6,7 @@
   "author": "Zeroc, Inc.",
   "homepage": "https://www.zeroc.com",
   "repository": "https://github.com/zeroc-inc/gulp-zeroc-slice2js.git",
-  "license": "GPL-2.0+",
+  "license": "GPL-2.0",
   "keywords": [
     "gulp",
     "slice2js",
