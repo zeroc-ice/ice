@@ -121,15 +121,6 @@ namespace Ice.VisualStudio
             if(_connectMode != ext_ConnectMode.ext_cm_CommandLine)
             {
                 beginTrackDocumentEvents();
-                //
-                // Ensure DEVPATH isn't empty, if there is a project in development mode and DEVPATH is
-                // empty vshosting process will crash.
-                //
-                string devPath = Environment.GetEnvironmentVariable("DEVPATH");
-                if(String.IsNullOrEmpty(devPath))
-                {
-                    setDotNetDevPath(Util.getIceHome() + "\\bin\\");
-                }
 
                 //
                 // Subscribe to command events.
@@ -247,9 +238,6 @@ namespace Ice.VisualStudio
                 {
                     Util.fix(p);
 
-                    Util.getCurrentDTE().StatusBar.Text = "Ice Add-in: checking/updating settings for project '" + p.FullName + "'";
-                    Util.verifyProjectSettings(p);
-                    Util.getCurrentDTE().StatusBar.Text = "Ice Add-in: loading project '" + p.FullName + "'";
                     if(!Util.isVBProject(p))
                     {
                         dependenciesMap[p.FullName] = new Dictionary<string, List<string>>();
@@ -550,10 +538,6 @@ namespace Ice.VisualStudio
                             Util.addIceCppEnvironment((VCDebugSettings)conf.DebugSettings, project);
                         }
                     }
-                    else if(Util.isCSharpProject(project) || Util.isVBProject(project))
-                    {
-                        setDotNetDebugEnvironment(project);
-                    }
                 }
             }
             catch(Exception ex)
@@ -561,67 +545,6 @@ namespace Ice.VisualStudio
                 Util.unexpectedExceptionWarning(ex);
                 throw;
             }
-        }
-
-        //
-        // Set DEVPATH if .NET development mode is enabled and project type is C# or VB,
-        // otherwise do nothing.
-        //
-        // NOTE: for Silverlight projects we don't need to set DEVPATH.
-        //
-        private void setDotNetDebugEnvironment(Project project)
-        {
-            //
-            // If development mode isn't enabled then don't set DEVPATH.
-            //
-            if(!Util.developmentMode(project))
-            {
-                return;
-            }
-
-            //
-            // Check if vshosting process is enabled, if so disable it before updating
-            // environment variables. If it is running it will be stopped.
-            //
-            bool vsHosting = false;
-            if(Util.useVSHostingProcess(project))
-            {
-                Util.setVsHostingProcess(project, false);
-                vsHosting = true;
-            }
-
-            setDotNetDevPath(Util.getCsBinDir(project));
-
-            //
-            // Re-enable the vshosting process if it was previously enabled, 
-            // so it reads the new environment when it is started by Visual Studio.
-            //
-            if(vsHosting)
-            {
-                Util.setVsHostingProcess(project, true);
-            }
-        }
-
-        private static void setDotNetDevPath(string csBinPath)
-        {
-            string devPath = Environment.GetEnvironmentVariable("DEVPATH");
-
-            if(String.IsNullOrEmpty(devPath))
-            {
-                Environment.SetEnvironmentVariable("DEVPATH", csBinPath);
-                return;
-            }
-
-            if(devPath.Contains(csBinPath))
-            {
-                ComponentList list = new ComponentList(csBinPath.Split(Path.PathSeparator));
-                list.Remove(csBinPath);
-                devPath = list.ToString(Path.PathSeparator);
-            }
-
-            devPath = csBinPath + Path.PathSeparator + devPath;
-            devPath = devPath.Trim(Path.PathSeparator);
-            Environment.SetEnvironmentVariable("DEVPATH", devPath);
         }
         
         public void disconnect()
@@ -783,12 +706,26 @@ namespace Ice.VisualStudio
         //
         public void addBuilderToProject(Project project, ComponentList components)
         {
+            string iceHome = Util.getIceHome();
+            if(!Directory.Exists(iceHome))
+            {
+                string message = "Ice installation not detected.\n";
+                Util.write(project, Util.msgLevel.msgError, message);
+                MessageBox.Show("Ice Visual Studio Add-in Error:\n" +
+                                message,
+                                "Ice Visual Studio Add-in", MessageBoxButtons.OK,
+                                MessageBoxIcon.Error,
+                                MessageBoxDefaultButton.Button1,
+                                (MessageBoxOptions)0);
+                return;
+            }
+
             if(Util.isCppProject(project))
             {
                 Util.addIceCppConfigurations(project);
             }
             else
-            {                
+            {
                 if(Util.isCSharpProject(project))
                 {
                     bool development = Util.developmentMode(project);                        
@@ -801,7 +738,7 @@ namespace Ice.VisualStudio
                     {
                         components.Add("Ice");
                     }
-                    string iceHome = Util.getIceHome();
+                    
                     foreach(string component in components)
                     {
                         Util.addDotNetReference(project, component, development);
@@ -809,7 +746,6 @@ namespace Ice.VisualStudio
                 }
                 else if(Util.isVBProject(project))
                 {
-                    string iceHome = Util.getIceHome();
                     bool development = Util.developmentMode(project);
                     if(components.Count == 0)
                     {
@@ -953,7 +889,6 @@ namespace Ice.VisualStudio
             {
                 if(Util.isSliceBuilderEnabled(project))
                 {
-                    Util.verifyProjectSettings(project);
                     updateDependencies(project);
                     Util.solutionExplorerRefresh();
                 }
@@ -1670,30 +1605,18 @@ namespace Ice.VisualStudio
         
         public static string getSliceCompilerPath(Project project)
         {
-            string compiler = Util.slice2cpp;
-            if(Util.isCSharpProject(project))
+            string compiler = Util.isCSharpProject(project) ? Util.slice2cs : Util.slice2cpp;
+            string iceHome = Util.getIceHome();            
+            if(File.Exists(Path.Combine(iceHome, "cpp", "bin", compiler)))
             {
-                compiler = Util.slice2cs;
+                return Path.Combine(iceHome, "cpp", "bin", compiler);
             }
 
-            if(!String.IsNullOrEmpty(Environment.GetEnvironmentVariable("IceSourceHome")))
+            if(File.Exists(Path.Combine(iceHome, "bin", compiler)))
             {
-                return Path.Combine(Environment.GetEnvironmentVariable("IceSourceHome"), 
-                                                                    Path.Combine("cpp", Path.Combine("bin", compiler)));
+                return Path.Combine(iceHome, "bin", compiler);
             }
-
-            string iceHome = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            if(iceHome.EndsWith("\\vsaddin", StringComparison.CurrentCultureIgnoreCase))
-            {
-                return Path.Combine(iceHome.Substring(0, iceHome.Length - "\\vsaddin".Length), 
-                                                                                        Path.Combine("bin", compiler));
-            }
-            if(iceHome.EndsWith("\\vsaddin\\bin", StringComparison.CurrentCultureIgnoreCase))
-            {
-                return Path.Combine(iceHome.Substring(0, iceHome.Length - "\\vsaddin\\bin".Length), 
-                                                                    Path.Combine("cpp", Path.Combine("bin", compiler)));
-            }
-            throw new ArgumentException("Unable to determite Slice compiler location");
+            return compiler;
         }
 
         private static string getSliceCompilerArgs(Project project, string file, bool depend)
@@ -2036,7 +1959,7 @@ namespace Ice.VisualStudio
                 // Cpp project item events.
                 _vcProjectItemsEvents =
                     (VCProjectEngineEvents)_applicationObject.Events.GetObject("VCProjectEngineEventsObject");
-                if (_vcProjectItemsEvents != null)
+                if(_vcProjectItemsEvents != null)
                 {
                     _vcProjectItemsEvents.ItemAdded +=
                         new _dispVCProjectEngineEvents_ItemAddedEventHandler(cppItemAdded);
@@ -2048,6 +1971,7 @@ namespace Ice.VisualStudio
             {
                 // Can happen if the Visual Studio install don't support C++
             }
+
             // Visual Studio document events.
             _docEvents = _applicationObject.Events.get_DocumentEvents(null);
             if(_docEvents != null)

@@ -364,25 +364,23 @@ namespace Ice.VisualStudio
 
         public static string getIceHome()
         {
-            string iceSourceHome = System.Environment.GetEnvironmentVariable("IceSourceHome");
-            if (iceSourceHome != null && System.IO.Directory.Exists(iceSourceHome) &&
-               System.IO.File.Exists(Path.Combine(iceSourceHome, Path.Combine("cpp", Path.Combine("bin", slice2cpp)))))
+            string iceHome = System.Environment.GetEnvironmentVariable("ICE_HOME");
+            if(iceHome != null)
             {
-                return iceSourceHome;
+                return iceHome;
             }
-            else
+
+            iceHome = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            if(iceHome.EndsWith("\\vsaddin", StringComparison.CurrentCultureIgnoreCase))
             {
-                string defaultIceHome = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-                if (defaultIceHome.EndsWith("\\vsaddin", StringComparison.CurrentCultureIgnoreCase))
-                {
-                    defaultIceHome = defaultIceHome.Substring(0, defaultIceHome.Length - "\\vsaddin".Length);
-                }
-                else if (defaultIceHome.EndsWith("\\vsaddin\\bin", StringComparison.CurrentCultureIgnoreCase))
-                {
-                    defaultIceHome = defaultIceHome.Substring(0, defaultIceHome.Length - "\\vsaddin\bin".Length);
-                }
-                return defaultIceHome;
+                return iceHome.Substring(0, iceHome.Length - "\\vsaddin".Length);
             }
+
+            if(iceHome.EndsWith("\\vsaddin\\bin", StringComparison.CurrentCultureIgnoreCase))
+            {
+                return iceHome.Substring(0, iceHome.Length - "\\vsaddin\bin".Length);
+            }
+            return "";
         }
 
         public static string getProjectOutputDirRaw(Project project)
@@ -477,20 +475,6 @@ namespace Ice.VisualStudio
                     newSheet = vcConfig.AddPropertySheet(propSheetFileName);
                 }
             }
-        }
-
-        public static string getCsBinDir(Project project)
-        {
-            string binDir = "";
-            if(isSilverlightProject(project))
-            {
-                binDir = _slBinDirs;
-            }
-            else
-            {
-                binDir = _csBinDirs;
-            }
-            return Path.Combine(Util.getIceHome(), binDir);
         }
 
         public static string getPathRelativeToProject(ProjectItem item)
@@ -615,9 +599,6 @@ namespace Ice.VisualStudio
                 configuration.RemovePropertySheet(sheet);
             }
         }
-
-        private static readonly string _csBinDirs = "\\Assemblies\\";
-        private static readonly string _slBinDirs = "\\Assemblies\\sl\\";
 
         public static bool addDotNetReference(Project project, string component, bool development)
         {
@@ -2064,16 +2045,12 @@ namespace Ice.VisualStudio
                 return;
             }
 
-            Util.addCppIncludes(project);
-            bool winrt = isWinRTProject(project);
-            if(!winrt)
+            Util.addCppIncludes(project);        
+            Util.addIcePropertySheet(project);
+
+            if(isWinRTProject(project))
             {
-                Util.addIcePropertySheet(project);
-            }
-            if(winrt)
-            {
-                VCProject vcProject = (VCProject)project.Object;
-                addSdkReference(vcProject, "Ice");
+                addSdkReference((VCProject)project.Object, "Ice");
             }
         }
 
@@ -2083,23 +2060,17 @@ namespace Ice.VisualStudio
             {
                 return;
             }
-        
             VCProject vcProject = (VCProject)project.Object;
             IVCCollection configurations = (IVCCollection)vcProject.Configurations;
-            bool winrt = isWinRTProject(project);
             foreach(VCConfiguration conf in configurations)
             {
                 if(conf == null)
                 {
                     continue;
                 }
-
-                if(!winrt)
-                {
-                    Util.removeIcePropertySheet(conf);
-                }
+                Util.removeIcePropertySheet(conf);
             }
-            if(winrt)
+            if(isWinRTProject(project))
             {
                 Util.removeSdkReference((VCProject)project.Object, "Ice");
             }
@@ -2238,14 +2209,6 @@ namespace Ice.VisualStudio
                 return "\"\"";
             }
             return "\"" + arg + "\"";
-        }
-
-        public static void verifyProjectSettings(Project project)
-        {
-            if(isCppProject(project))
-            {
-                addIceCppConfigurations(project);
-            }
         }
 
         public static bool addBuilderToProject(Project project, ComponentList components)

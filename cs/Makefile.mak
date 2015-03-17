@@ -53,8 +53,3 @@ install::
 	@echo Adding key "$(registrykey)" in Windows registry && \
 	@reg ADD "$(registrykey)" /ve /d "$(installpath)" /f || \
 	echo Could not add registry keyword "$(registrykey)" && exit 1
-
-register-assemblies::
-	@echo Adding key "$(registrykey)" in Windows registry && \
-	@reg ADD "$(registrykey)" /ve /d "$(registerpath)" /f || \
-	echo Could not add registry keyword "$(registrykey)" && exit 1

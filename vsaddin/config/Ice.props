@@ -1,10 +1,23 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">  
 
-    <PropertyGroup Condition="!Exists('$(IceSourceHome)')">
+    <PropertyGroup Condition="Exists('$(ICE_HOME)')">
+        <IceHome>$(ICE_HOME)</IceHome>
+    </PropertyGroup>
+  
+    <!-- If IceHome isn't set use the default value -->
+    <PropertyGroup Condition="!Exists('$(IceHome)')">
         <IceHome>$(Registry:HKEY_LOCAL_MACHINE\Software\ZeroC\Ice 3.6.0@InstallDir)</IceHome>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="Exists('$(IceHome)\cpp\bin')">
+        <IceSourceHome>$(IceHome)</IceSourceHome>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="!Exists('$(IceSourceHome)')">
         <IceInclude>$(IceHome)\include</IceInclude>
         <IceToolsBin>$(IceHome)\bin</IceToolsBin>
+        <SDKDirectory>$(IceHome)\SDKs</SDKDirectory>
     </PropertyGroup>
     
     <PropertyGroup Condition="!Exists('$(IceSourceHome)') And '$(Platform)' == 'Win32' And '$(PlatformToolset)' == 'v110'">
@@ -28,11 +41,11 @@
     </PropertyGroup>
 
     <PropertyGroup Condition="Exists('$(IceSourceHome)')">
-        <IceHome>$(IceSourceHome)</IceHome>
-        <IceInclude>$(IceSourceHome)\cpp\include</IceInclude>
-        <IceLib>$(IceSourceHome)\cpp\lib</IceLib>
-        <IceBin>$(IceSourceHome)\cpp\bin</IceBin>
-        <IceToolsBin>$(IceSourceHome)\cpp\bin</IceToolsBin>
+        <IceInclude>$(IceHome)\cpp\include</IceInclude>
+        <IceLib>$(IceHome)\cpp\lib</IceLib>
+        <IceBin>$(IceHome)\cpp\bin</IceBin>
+        <IceToolsBin>$(IceHome)\cpp\bin</IceToolsBin>
+        <SDKDirectory>$(IceHome)\cpp\SDKs</SDKDirectory>
     </PropertyGroup>
     
     <ItemGroup>
@@ -58,9 +71,13 @@
         </BuildMacro>
     </ItemGroup>
 
-    <PropertyGroup>
+    <PropertyGroup Condition="$(ApplicationType) != 'Windows Store'">
         <IncludePath>$(IceInclude);$(IncludePath)</IncludePath>
         <LibraryPath>$(IceLib);$(LibraryPath)</LibraryPath> 
         <ExecutablePath>$(IceBin);$(ExecutablePath)</ExecutablePath>
+    </PropertyGroup>
+    
+    <PropertyGroup Condition="$(ApplicationType) == 'Windows Store'">
+        <SDKReferenceDirectoryRoot>$(SDKDirectory);$(SDKReferenceDirectoryRoot)</SDKReferenceDirectoryRoot>
     </PropertyGroup>
 </Project>

@@ -51,6 +51,16 @@ MCSFLAGS	= $(MCSFLAGS) -out:$(TARGETS)
 $(TARGETS):: $(SRCS)
 	$(MCS) $(MCSFLAGS) $(RESOURCES) $(SRCS)
 
+SRC_FULL_PATH	= $(MAKEDIR:\.\=\)
+
+register-addin:
+	copy ..\config\Ice-$(VS).AddIn $(ADDIN_PREFIX)
+	cscript ..\config\fixinstalldir.vbs "$(SRC_FULL_PATH)\..\bin\" "$(ADDIN_PREFIX)\Ice-$(VS).AddIn"
+	@if not exist $(ALLUSERSPROFILE)\ZeroC \
+	    @echo "Creating $(ALLUSERSPROFILE)\ZeroC ..." && \
+	    mkdir $(ALLUSERSPROFILE)\ZeroC
+	copy ..\config\Ice.props $(ALLUSERSPROFILE)\ZeroC\Ice.props
+
 install::$(TARGETS)
 	@if not exist $(prefix) \
 	    @echo "Creating $(prefix) ..." && \
@@ -67,7 +77,7 @@ install::
 	    @echo "Creating $(ADDIN_PREFIX) ..." && \
 	    mkdir $(ADDIN_PREFIX)
 	copy ..\config\Ice-$(VS).AddIn $(ADDIN_PREFIX)
-	cscript ..\config\fixinstalldir.vbs "$(prefix)\" "$(ADDIN_PREFIX)\Ice-$(VS).AddIn"
+	cscript ..\config\fixinstalldir.vbs "$(prefix)\vsaddin\" "$(ADDIN_PREFIX)\Ice-$(VS).AddIn"
 
 	@if exist "$(VSINSTALLDIR)\ItemTemplates\CSharp\1033" \
 	copy ..\templates\Slice.zip "$(VSINSTALLDIR)\ItemTemplates\CSharp\1033\"
@@ -105,7 +115,7 @@ install::
 
 	@echo Adding key "$(INSTALL_KEY)" in Windows registry
 	@reg ADD "$(INSTALL_KEY)" /v InstallDir /d "$(prefix)" /f || \
-	echo "Could not add registry keyword $(SDK_KEY)" && exit 1
+	echo "Could not add registry keyword $(INSTALL_KEY)" && exit 1
 !endif
 
 clean::

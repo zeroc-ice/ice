@@ -32,7 +32,7 @@ OPTIMIZE		= yes
 # Version.
 #
 #VS             = VS2012
- 
+
 #
 # Set the key file used to sign assemblies.
 #
@@ -57,7 +57,7 @@ ice_language     = cs
 !include $(top_srcdir)\config\Make.common.rules.mak
 !endif
 
-EVERYTHING      = all install clean
+EVERYTHING      = all install clean register-addin
 
 #
 # Registry keywords required by Visual Studio and Ice Visual Studio Add-in.
