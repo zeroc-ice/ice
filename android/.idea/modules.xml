@@ -3,16 +3,13 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/android.iml" filepath="$PROJECT_DIR$/android.iml" />
-      <module fileurl="file://$PROJECT_DIR$/demo/chat/chat.iml" filepath="$PROJECT_DIR$/demo/chat/chat.iml" />
       <module fileurl="file://$PROJECT_DIR$/src/Freeze/freeze.iml" filepath="$PROJECT_DIR$/src/Freeze/freeze.iml" />
       <module fileurl="file://$PROJECT_DIR$/src/Glacier2/glacier2.iml" filepath="$PROJECT_DIR$/src/Glacier2/glacier2.iml" />
-      <module fileurl="file://$PROJECT_DIR$/demo/hello/hello.iml" filepath="$PROJECT_DIR$/demo/hello/hello.iml" />
       <module fileurl="file://$PROJECT_DIR$/src/Ice/ice.iml" filepath="$PROJECT_DIR$/src/Ice/ice.iml" />
       <module fileurl="file://$PROJECT_DIR$/src/IceBox/icebox.iml" filepath="$PROJECT_DIR$/src/IceBox/icebox.iml" />
       <module fileurl="file://$PROJECT_DIR$/src/IceGrid/icegrid.iml" filepath="$PROJECT_DIR$/src/IceGrid/icegrid.iml" />
       <module fileurl="file://$PROJECT_DIR$/src/IcePatch2/icepatch2.iml" filepath="$PROJECT_DIR$/src/IcePatch2/icepatch2.iml" />
       <module fileurl="file://$PROJECT_DIR$/src/IceStorm/icestorm.iml" filepath="$PROJECT_DIR$/src/IceStorm/icestorm.iml" />
-      <module fileurl="file://$PROJECT_DIR$/demo/library/library.iml" filepath="$PROJECT_DIR$/demo/library/library.iml" />
       <module fileurl="file://$PROJECT_DIR$/test/test.iml" filepath="$PROJECT_DIR$/test/test.iml" />
       <module fileurl="file://$PROJECT_DIR$/test/android/testApp.iml" filepath="$PROJECT_DIR$/test/android/testApp.iml" />
       <module fileurl="file://$PROJECT_DIR$/test/plugins/testPlugins.iml" filepath="$PROJECT_DIR$/test/plugins/testPlugins.iml" />

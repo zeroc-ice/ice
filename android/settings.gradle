@@ -30,7 +30,7 @@ project(':icestorm').projectDir = new File('src/IceStorm')
 include	':icegrid'
 project(':icegrid').projectDir = new File('src/IceGrid')
 
-include ':hello', ':chat', ':library', ':test', ':testPlugins', ':testApp'
+include ':test', ':testPlugins', ':testApp'
 
 project(':test').projectDir = new File('test')
 project(':testPlugins').projectDir = new File('test/plugins')
