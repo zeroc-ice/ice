@@ -1,2 +1,0 @@
-Directory("\Windows"):-Directory("Start Menu")
-Directory("\Windows\Start Menu"):-File("hello.lnk","\Windows\hello.lnk")

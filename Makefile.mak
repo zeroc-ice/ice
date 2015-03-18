@@ -18,9 +18,9 @@ DEPEND_SUBDIRS		= cpp py
 INSTALL_SUBDIRS		= cpp py
 TEST_SUBDIRS		= cpp py
 !else
-SUBDIRS			= cpp java js cs vb vsaddin
-CLEAN_SUBDIRS		= vsaddin vb cs js java cpp
-DEPEND_SUBDIRS		= cpp java js cs vb
+SUBDIRS			= cpp java js cs  vsaddin
+CLEAN_SUBDIRS		= vsaddin cs js java cpp
+DEPEND_SUBDIRS		= cpp java js cs
 INSTALL_SUBDIRS		= cpp java js cs
 TEST_SUBDIRS		= cpp java js cs
 !endif
@@ -69,10 +69,6 @@ java::
 cs::
 	@echo "making all in cs" && \
 	cmd /c "cd cs && $(MAKE) -nologo -f Makefile.mak $(MAKEFLAGS) all" || exit 1
-
-vb::
-	@echo "making all in vb" && \
-	cmd /c "cd vb && $(MAKE) -nologo -f Makefile.mak $(MAKEFLAGS) all" || exit 1
 
 py::
 	@echo "making all in py" && \

@@ -15,7 +15,7 @@ top_srcdir	= .
 
 SUBDIRS		= config src include test 
 !if "$(CPP_COMPILER)" != "VC100"
-SUBDIRS		= $(SUBDIRS) demo
+SUBDIRS		= $(SUBDIRS)
 !endif
 
 INSTALL_SUBDIRS	= "$(install_bindir)" "$(install_libdir)" "$(install_includedir)" "$(install_configdir)"

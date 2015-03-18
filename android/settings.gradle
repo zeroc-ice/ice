@@ -32,9 +32,6 @@ project(':icegrid').projectDir = new File('src/IceGrid')
 
 include ':hello', ':chat', ':library', ':test', ':testPlugins', ':testApp'
 
-project(':hello').projectDir = new File('demo/hello')
-project(':chat').projectDir = new File('demo/chat')
-project(':library').projectDir = new File('demo/library')
 project(':test').projectDir = new File('test')
 project(':testPlugins').projectDir = new File('test/plugins')
 project(':testApp').projectDir = new File('test/android')

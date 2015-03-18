@@ -43,12 +43,6 @@ subprojects {
     }
 }
 
-apply from: "$rootProject.projectDir/demo/Ice/build.gradle"
-apply from: "$rootProject.projectDir/demo/IceDiscovery/build.gradle"
-apply from: "$rootProject.projectDir/demo/Glacier2/build.gradle"
-apply from: "$rootProject.projectDir/demo/IceGrid/build.gradle"
-apply from: "$rootProject.projectDir/demo/Manual/build.gradle"
-
 //
 // Used to build the gradle wrapper to automatically download and install
 // the version of gradle needed to build Ice.

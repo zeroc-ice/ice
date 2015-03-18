@@ -1,3 +1,0 @@
-
-Printer.cs: \
-    .\Printer.ice

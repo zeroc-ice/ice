@@ -1,3 +1,0 @@
-
-Nested.cs: \
-    .\Nested.ice

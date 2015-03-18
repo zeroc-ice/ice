@@ -1,5 +1,0 @@
-#
-# The client reads this property to create the reference to an
-# "item" object in the server.
-#
-Item.Proxy="P\/N 5":tcp -h localhost -p 10000

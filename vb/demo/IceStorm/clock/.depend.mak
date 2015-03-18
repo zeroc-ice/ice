@@ -1,3 +1,0 @@
-
-Clock.cs: \
-    .\Clock.ice

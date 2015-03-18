@@ -39,36 +39,3 @@ include ':testPlugins'
 project(':testPlugins').projectDir = new File('test/plugins')
 include ':testController'
 project(':testController').projectDir = new File('test/controller')
-
-// Map of dir->subdir for each of the demos.
-def demos = [
-    'Ice' : ['async', 'bidir', 'callback', 'hello', 'invoke',
-             'interrupt', 'latency', 'minimal', 'multicast', 'nested',
-             'plugin', 'properties', 'serialize','session', 'swing',
-             'throughput', 'value', 'optional','context'],
-    'IceDiscovery' : ['hello', 'replication'],
-    'Database' : ['library'],
-    'Freeze' : ['bench', 'casino', 'library', 'phonebook', 'transform'],
-    'IceBox' : ['hello'],
-    'Glacier2' : ['callback', 'chat', 'voip'],
-    'IceStorm' : ['clock'],
-    'IceGrid' : ['icebox', 'simple'],
-    'Manual' : ['evictor_filesystem', 'lifecycle', 'map_filesystem', 'printer', 'simple_filesystem']
-]
-
-demos.each {
-    def dir = it.key
-    def subdirs = it.value
-
-    subdirs.each {
-        // abc_def -> AbcDef
-        def name = it.split('_').collect { it.capitalize() }.join()
-
-        // A project in directory xyz is demoXyzAbcDef
-        def projectName = ":demo${dir.capitalize()}${name}"
-        include projectName
-
-        // The directory is demo/<dir>/<name>.
-        project("${projectName}").projectDir = new File("demo/${dir}/${it}")
-    }
-}

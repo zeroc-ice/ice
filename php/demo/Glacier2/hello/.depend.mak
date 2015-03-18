@@ -1,3 +1,0 @@
-
-Hello.php: \
-    Hello.ice

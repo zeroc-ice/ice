@@ -1,7 +1,0 @@
-HR.Endpoints=tcp -h localhost -p 12000
-
-Ice.ThreadPool.Server.Size=5
-
-Oracle.ConnectInfo=scott/tiger@orcl
-
-

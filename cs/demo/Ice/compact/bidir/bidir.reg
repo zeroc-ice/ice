@@ -1,8 +1,0 @@
-
-;MinShell Menu Registry Entries;==============================
-
-; Run Menu for bidir
-[HKEY_LOCAL_MACHINE\Software\Compact13Tools\Shell\Minshell\bidir]
-    "App"="bidir.exe"
-    "Param"=""
-

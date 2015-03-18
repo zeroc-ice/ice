@@ -14,7 +14,7 @@ include $(top_srcdir)/config/Make.rules.cs
 SUBDIRS		= src
 
 ifneq ($(MAKECMDGOALS),install)
-SUBDIRS		:= $(SUBDIRS) test demo
+SUBDIRS		:= $(SUBDIRS) test
 endif
 
 INSTALL_SUBDIRS	= $(install_bindir) $(install_assembliesdir) $(install_mandir)

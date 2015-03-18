@@ -14,7 +14,7 @@ include $(top_srcdir)/config/Make.rules.php
 SUBDIRS		= src lib
 
 ifneq ($(MAKECMDGOALS),install)
-SUBDIRS		:= $(SUBDIRS) test demo
+SUBDIRS		:= $(SUBDIRS) test
 endif
 
 INSTALL_SUBDIRS = $(install_phpdir) $(install_libdir)

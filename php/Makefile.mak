@@ -11,7 +11,7 @@ top_srcdir	= .
 
 !include $(top_srcdir)\config\Make.rules.mak.php
 
-SUBDIRS		= src lib demo test
+SUBDIRS		= src lib test
 
 install:: install-common
 	@if not exist "$(install_libdir)" \

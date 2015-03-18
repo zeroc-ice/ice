@@ -1,3 +1,0 @@
-
-Latency.cs: \
-    .\Latency.ice

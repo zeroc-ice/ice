@@ -1,3 +1,0 @@
-
-Greet.cs: \
-    .\Greet.ice

@@ -1,3 +1,0 @@
-
-Session.cs: \
-    .\Session.ice

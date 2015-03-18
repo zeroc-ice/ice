@@ -1,3 +1,0 @@
-
-Contact.cs: \
-    .\Contact.ice

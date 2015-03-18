@@ -1,3 +1,0 @@
-
-Hello.cs: \
-    .\Hello.ice

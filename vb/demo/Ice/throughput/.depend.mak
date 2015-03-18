@@ -1,3 +1,0 @@
-
-Throughput.cs: \
-    .\Throughput.ice

@@ -1,8 +1,0 @@
-
-;MinShell Menu Registry Entries;==============================
-
-; Run Menu for hello
-[HKEY_LOCAL_MACHINE\Software\Compact13Tools\Shell\Minshell\hello]
-    "App"="hello.exe"
-    "Param"=""
-

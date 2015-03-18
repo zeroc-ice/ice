@@ -1,9 +1,0 @@
-#
-# Enable the Ice discovery plugin
-#
-Ice.Plugin.IceDiscovery=IceDiscovery:IceDiscovery.PluginFactory
-
-#
-# Ensure connection establishment doesn't take too long.
-#
-Ice.Override.ConnectTimeout=1000

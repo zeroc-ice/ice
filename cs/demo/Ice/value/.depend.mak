@@ -1,3 +1,0 @@
-
-Value.cs: \
-    .\Value.ice

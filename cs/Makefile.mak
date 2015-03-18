@@ -14,7 +14,7 @@ top_srcdir	= .
 SUBDIRS		= src
 
 !if "$(SILVERLIGHT)" != "yes"
-SUBDIRS		= $(SUBDIRS) test demo config
+SUBDIRS		= $(SUBDIRS) test config
 !endif
 
 INSTALL_SUBDIRS	= "$(install_bindir)" "$(install_assembliesdir)" "$(install_configdir)"
