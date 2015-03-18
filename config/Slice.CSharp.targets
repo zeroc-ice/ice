@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup Condition="Exists('$(ICE_HOME)\cs\Assemblies\')">
+        <ReferencePath>$(ICE_HOME)\cs\Assemblies\</ReferencePath>
+    </PropertyGroup>
+    <PropertyGroup Condition="Exists('$(ICE_HOME)\Assemblies\')">
+        <ReferencePath>$(ICE_HOME)\Assemblies\</ReferencePath>
+    </PropertyGroup>
+</Project>

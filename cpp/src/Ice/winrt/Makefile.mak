@@ -373,6 +373,8 @@ clean::
 	-del /q EndpointInfo.cpp $(headerdir)\IceSSL\EndpointInfo.h
 	-del /q ConnectionInfo.cpp $(headerdir)\IceSSL\ConnectionInfo.h
 	-del /q $(ARCH)\$(CONFIG)\*.obj
+	-del /q $(ARCH)\$(CONFIG)\IceDiscovery\*.obj
+	-del /q $(ARCH)\$(CONFIG)\IceLocatorDiscovery\*.obj
 	-del /q $(PDBNAME)
 
 install:: all

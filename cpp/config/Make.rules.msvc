@@ -65,7 +65,6 @@ CONFIG		= Retail
 CPPFLAGS        = $(CPPFLAGS) -Zi -Oy-
 !endif
 
-
 !else
 
 CPPFLAGS	= $(CPPFLAGS) -Zi -Od -D_DEBUG -MDd -RTC1
@@ -102,7 +101,6 @@ LDFLAGS         = $(LDFLAGS) /pdb:none
 LDFLAGS         = $(LDFLAGS) /debug /incremental:no
 !endif
 
-
 LD_DLLFLAGS	= $(LDFLAGS) /dll
 LD_EXEFLAGS	= $(LDFLAGS)
 
@@ -116,47 +114,26 @@ LIBS            =
 
 SDK_NAME		= Ice
 SDK_VERSION		= $(SHORT_VERSION)
-SDK_REG_FILE		= $(SDK_NAME).reg
 SDK_MANIFEST		= SDKManifest.xml
 
 !if "$(CPP_COMPILER)" == "VC110"
 TARGET_PLATFORM_VERSION = 8.0
 MIN_VS_VERSION = 11.0
-SDK_PREFIX = \8.0
 !elseif "$(CPP_COMPILER)" == "VC120"
 TARGET_PLATFORM_VERSION = 8.1
 MIN_VS_VERSION = 12.0
-SDK_PREFIX = \8.1
 !endif
 
 !if "$(ice_src_dist)" != ""
-SDK_BASE_PATH		= $(top_srcdir)\SDKs$(SDK_PREFIX)\$(SDK_NAME)\$(SDK_VERSION)
+SDK_BASE_PATH		= $(top_srcdir)\SDKs\Windows\v$(TARGET_PLATFORM_VERSION)\ExtensionSDKs\$(SDK_NAME)\$(SDK_VERSION)
 !else
-SDK_BASE_PATH		= $(ice_dir)\SDKs$(SDK_PREFIX)\$(SDK_NAME)\$(SDK_VERSION)
+SDK_BASE_PATH		= $(ice_dir)\SDKs\Windows\v$(TARGET_PLATFORM_VERSION)\ExtensionSDKs\$(SDK_NAME)\$(SDK_VERSION)
 !endif
 
 SDK_INCLUDE_PATH	= $(SDK_BASE_PATH)\DesignTime\CommonConfiguration\Neutral\include
 SDK_LIBRARY_PATH	= $(SDK_BASE_PATH)\DesignTime\$(CONFIG)\$(ARCH)
 SDK_REFERENCES_PATH	= $(SDK_BASE_PATH)\References\$(CONFIG)\$(ARCH)
 SDK_REDIST_PATH		= $(SDK_BASE_PATH)\Redist\$(CONFIG)\$(ARCH)
-SDK_PROPS_PATH		= $(SDK_BASE_PATH)\DesignTime\CommonConfiguration\Neutral
-SDK_PROPS_FILE		= $(SDK_NAME).props
-SDK_LICENSE		= $(SDK_BASE_PATH)\LICENSE.txt
-SDK_ICE_LICENSE		= $(SDK_BASE_PATH)\ICE_LICENSE.txt
-
-
-#
-# Copy License files to SDK Root and fix line ends.
-#
-!if exist ($(top_srcdir)\..\ICE_LICENSE.txt)
-$(SDK_LICENSE) $(SDK_ICE_LICENSE):
-	copy $(top_srcdir)\..\LICENSE.txt $(SDK_BASE_PATH)
-	copy $(top_srcdir)\..\ICE_LICENSE.txt $(SDK_BASE_PATH)
-!else
-$(SDK_LICENSE) $(SDK_ICE_LICENSE):
-	type $(top_srcdir)\..\LICENSE | find "" /v > $(SDK_LICENSE)
-	type $(top_srcdir)\..\ICE_LICENSE | find "" /v > $(SDK_ICE_LICENSE)
-!endif
 
 $(SDK_BASE_PATH):
 	mkdir $(SDK_BASE_PATH)
@@ -169,9 +146,6 @@ $(SDK_REDIST_PATH):
 
 $(SDK_REFERENCES_PATH):
 	mkdir $(SDK_REFERENCES_PATH)
-
-$(SDK_PROPS_PATH):
-	mkdir $(SDK_PROPS_PATH)
 
 $(SDK_INCLUDE_PATH):
 	mkdir $(SDK_INCLUDE_PATH)
@@ -192,35 +166,11 @@ $(SDK_BASE_PATH)\$(SDK_MANIFEST): $(SDK_BASE_PATH)
 <<KEEP
 	move $(SDK_MANIFEST) $(SDK_BASE_PATH)
 
-$(SDK_PROPS_PATH)\$(SDK_PROPS_FILE): $(SDK_PROPS_PATH)
-	@echo <<$(SDK_PROPS_FILE)
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-	<PropertyGroup Condition="'$$(Configuration)' == 'Debug'">
-		<ConfigurationPrefix>Debug</ConfigurationPrefix>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$$(Configuration)' == 'Release'">
-		<ConfigurationPrefix>Retail</ConfigurationPrefix>
-	</PropertyGroup>
-	<ItemGroup>
-		<BuildMacro Include="ConfigurationPrefix">
-			<Value>$(ConfigurationPrefix)</Value>
-			<EnvironmentVariable>true</EnvironmentVariable>
-		</BuildMacro>
-	</ItemGroup>
-	<PropertyGroup>
-		<IceWinRTHome>$$(Registry:HKEY_LOCAL_MACHINE\Software\Microsoft\Microsoft SDKs\Windows\v$(TARGET_PLATFORM_VERSION)\ExtensionSDKS\$(SDK_NAME)\$(SDK_VERSION)@)</IceWinRTHome>
-		<IncludePath>$$(IceWinRTHome)\Designtime\CommonConfiguration\Neutral\include;$$(IncludePath)</IncludePath>
-		<LibraryPath>$$(IceWinRTHome)\Designtime\$$(ConfigurationPrefix)\$$(PlatformTarget);$$(LibraryPath)</LibraryPath>
- </PropertyGroup>
-</Project>
-<<KEEP
-	move $(SDK_PROPS_FILE) $(SDK_PROPS_PATH)
-
 $(ARCH)\$(CONFIG):
 	mkdir $(ARCH)\$(CONFIG)
 
 sdks: $(SDK_LIBRARY_PATH) $(SDK_REDIST_PATH) $(SDK_REFERENCES_PATH) $(SDK_BASE_PATH)\$(SDK_MANIFEST) \
-	$(SDK_PROPS_PATH)\$(SDK_PROPS_FILE) $(SDK_INCLUDE_PATH) $(ARCH)\$(CONFIG) $(SDK_LICENSE) $(SDK_ICE_LICENSE)
+	$(SDK_INCLUDE_PATH) $(ARCH)\$(CONFIG)
 
 
 !endif

@@ -68,6 +68,10 @@ js/node_modules
 js/bower_components
 js/npm-debug.log
 
+# Windows build files
+/cpp/test/*/*/build.txt
+/cs/test/*/*/build.txt
+
 # OS X Keychain
 *.keychain
 .fl????????
@@ -79,3 +83,6 @@ cpp/src/Ice/EventLoggerMsg.rc
 cpp/src/Ice/EventLoggerMsg.res
 *.bin
 
+# WinRT
+
+cpp/SDKs
