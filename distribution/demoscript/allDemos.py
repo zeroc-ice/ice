@@ -15,7 +15,7 @@ from demoscript import *
 
 demoGroups = []
 
-subdirs = [ "cpp", "java", "cs", "py", "rb", "js"]
+subdirs = [ "cpp", "java", "csharp", "python", "ruby", "js"]
 
 for d in subdirs:
 
