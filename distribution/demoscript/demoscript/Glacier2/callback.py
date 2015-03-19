@@ -9,7 +9,7 @@
 # **********************************************************************
 
 import sys, time, signal
-from scripts import Expect
+import Expect
 
 def run(client, server, glacier2):
     sys.stdout.write("testing ")

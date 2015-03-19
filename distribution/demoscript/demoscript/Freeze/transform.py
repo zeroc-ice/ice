@@ -9,7 +9,7 @@
 # **********************************************************************
 
 import sys, demoscript, time
-from scripts import Expect
+import Expect
 
 def run(createCmd, recreateCmd, readCmd, readnewCmd):
     sys.stdout.write("cleaning databases... ")
