@@ -37,15 +37,6 @@ prefix			= C:\Ice-$(VERSION)
 #WINRT		        = yes
 
 #
-# Is the MFC library available?
-# Set to no if MFC is not installed
-# A few Ice demos use MFC
-#
-!if "$(HAS_MFC)" == ""
-HAS_MFC                 = yes
-!endif
-
-#
 # If third party libraries are not installed in the default location
 # or THIRDPARTY_HOME is not set in your environment variables then
 # change the following setting to reflect the installation location.
