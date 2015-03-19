@@ -393,7 +393,6 @@ function bundle(args)
                             continue;
                         }
 
-
                         //
                         // Get rid of __M.module statements, in browser top level modules are
                         // global.
