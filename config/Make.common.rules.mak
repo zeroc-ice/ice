@@ -84,7 +84,7 @@ ice_bin_dist_dir = $(PROGRAMFILES)\ZeroC\Ice-$(VERSION)
 #
 
 #
-# First, check if we're building a source distribution. 
+# First, check if we're building a source distribution.
 #
 # If building from a source distribution, ice_dir is defined to the
 # top-level directory of the source distribution and ice_cpp_dir is
@@ -97,12 +97,19 @@ ice_dir = $(top_srcdir)\..
 ice_src_dist = 1
 
 #
-# When building a source distribution, if ICE_HOME is specified, it takes precedence over 
-# the source tree for building the language mappings. For example, this can be used to 
+# When building a source distribution, if ICE_HOME is specified, it takes precedence over
+# the source tree for building the language mappings. For example, this can be used to
 # build the Python language mapping using the translators from the distribution specified
 # by ICE_HOME.
 #
 !if "$(ICE_HOME)" != ""
+
+!if exist ("$(ICE_HOME)\cpp\bin")
+
+# ICE_HOME is pointing at the source distribution, so we just ignore it.
+ice_cpp_dir = $(ice_dir)\cpp
+
+!else
 
 !if "$(slice_translator)" != ""
 !if !exist ("$(ICE_HOME)\bin$(x64suffix)\$(slice_translator)")
@@ -115,6 +122,8 @@ ice_cpp_dir = $(ICE_HOME)
 !else
 !message Ignoring ICE_HOME environment variable to build current source tree.
 ice_cpp_dir = $(ice_dir)\cpp
+!endif
+
 !endif
 
 !else

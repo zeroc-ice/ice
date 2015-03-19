@@ -185,17 +185,24 @@ ifndef ice_bin_dist
         # by ICE_HOME.
         #
 	ifneq ($(ICE_HOME),)
-	    ifdef slice_translator
-		ifneq ($(shell test -f $(ICE_HOME)/$(binsubdir)/$(slice_translator) && echo 0), 0)
-$(error Unable to find $(slice_translator) in $(ICE_HOME)/$(binsubdir), please verify ICE_HOME is properly configured and Ice is correctly installed.)
-		endif
-		ifeq ($(shell test -f $(ice_dir)/cpp/bin/$(slice_translator) && echo 0), 0)
-$(warning Found $(slice_translator) in both ICE_HOME/bin and $(ice_dir)/cpp/bin, ICE_HOME/bin/$(slice_translator) will be used!)
-		endif
-		ice_cpp_dir = $(ICE_HOME)
+	    ifeq ($(shell test -d $(ICE_HOME)/cpp/bin && echo 0), 0)
+	        #
+		# ICE_HOME is pointing at the source distribution, so we just ignore it.
+		#
+	        ice_cpp_dir = $(ice_dir)/cpp
 	    else
+	        ifdef slice_translator
+		    ifneq ($(shell test -f $(ICE_HOME)/$(binsubdir)/$(slice_translator) && echo 0), 0)
+$(error Unable to find $(slice_translator) in $(ICE_HOME)/$(binsubdir), please verify ICE_HOME is properly configured and Ice is correctly installed.)
+		    endif
+		    ifeq ($(shell test -f $(ice_dir)/cpp/bin/$(slice_translator) && echo 0), 0)
+$(warning Found $(slice_translator) in both ICE_HOME/bin and $(ice_dir)/cpp/bin, ICE_HOME/bin/$(slice_translator) will be used!)
+		    endif
+		    ice_cpp_dir = $(ICE_HOME)
+	        else
 $(warning Ignoring ICE_HOME environment variable to build current source tree.)
-		ice_cpp_dir = $(ice_dir)/cpp
+		    ice_cpp_dir = $(ice_dir)/cpp
+	        endif
 	    endif
 	else
 	    ice_cpp_dir = $(ice_dir)/cpp
