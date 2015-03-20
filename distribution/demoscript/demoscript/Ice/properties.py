@@ -10,7 +10,6 @@
 
 import sys
 from demoscript import *
-import Expect
 
 def runtests(client, server):
     sys.stdout.write("testing setProperties...")

@@ -9,7 +9,7 @@
 # **********************************************************************
 
 import sys
-import Expect
+from demoscript import Expect
 
 def runtests(client, server, secure, datagram):
     sys.stdout.write("testing twoway ")

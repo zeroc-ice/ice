@@ -9,8 +9,7 @@
 # **********************************************************************
 
 import sys, os
-from demoscript import Util
-import Expect
+from demoscript import Util, Expect
 
 def run(clientCmd):
     sys.stdout.write("cleaning databases... ")

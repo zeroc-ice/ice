@@ -9,7 +9,7 @@
 # **********************************************************************
 
 import sys
-import Expect
+from demoscript import Expect
 
 def runDemo(client, server):
     sys.stdout.write("testing request contexts ")

@@ -943,10 +943,7 @@ else:
 #
 iceVersion = None
 try:
-    if isWin32():
-        config = open(os.path.join(toplevel, "config", "Make.common.rules.mak"), "r")
-    else:
-        config = open(os.path.join(toplevel, "config", "Make.common.rules"), "r")
+    config = open(os.path.join(toplevel, "cpp", "Make", "Make.rules"), "r")
     iceVersion = re.search("VERSION[\t\s]*= ([0-9]+\.[0-9]+(\.[0-9]+|b[0-9]*))", config.read()).group(1)
     config.close()
 except:

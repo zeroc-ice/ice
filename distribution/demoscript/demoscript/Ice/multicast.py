@@ -9,8 +9,7 @@
 # **********************************************************************
 
 import sys, signal
-from demoscript import Util
-import Expect
+from demoscript import Util, Expect
 
 def runClient(clientCmd, server1, server2):
     client = Util.spawn(clientCmd)

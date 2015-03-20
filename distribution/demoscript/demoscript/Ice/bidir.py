@@ -9,8 +9,7 @@
 # **********************************************************************
 
 import sys, signal
-from demoscript import Util
-import Expect
+from demoscript import Util, Expect
 
 def run(clientStr, server):
     sys.stdout.write("adding client 1... ")

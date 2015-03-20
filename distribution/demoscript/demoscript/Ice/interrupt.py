@@ -9,7 +9,7 @@
 # **********************************************************************
 
 import sys, time
-import Expect
+from demoscript import Expect
 
 def runtests(client, server):
     sys.stdout.write("testing interrupts... ")

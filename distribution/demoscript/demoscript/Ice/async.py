@@ -9,7 +9,7 @@
 # **********************************************************************
 
 import sys
-import Expect
+from demoscript import Expect
 
 def run(client, server):
     sys.stdout.write("testing client... ")

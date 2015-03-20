@@ -9,7 +9,7 @@
 # **********************************************************************
 
 import sys
-import Expect
+from demoscript import Expect
 
 def runtests(client, serverCount):
     sys.stdout.write("testing " + str(serverCount) + " server(s)...")

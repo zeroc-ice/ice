@@ -8,8 +8,8 @@
 #
 # **********************************************************************
 
-import sys, demoscript
-import Expect
+import sys
+from demoscript import Util, Expect
 
 def runtests(client, server, secure):
     sys.stdout.write("testing twoway ")
@@ -55,7 +55,7 @@ def runtests(client, server, secure):
 def run(client, server):
     runtests(client, server, False)
 
-    if not demoscript.Util.isMono():
+    if not Util.isMono():
         print("repeating tests with SSL")
 
         client.sendline('S')
@@ -65,7 +65,7 @@ def run(client, server):
     client.sendline('x')
     client.waitTestSuccess()
 
-    admin = demoscript.Util.spawn('iceboxadmin --IceBoxAdmin.ServiceManager.Proxy="DemoIceBox/admin -f IceBox.ServiceManager:tcp -p 9996 -h 127.0.0.1" shutdown')
+    admin = Util.spawn('iceboxadmin --IceBoxAdmin.ServiceManager.Proxy="DemoIceBox/admin -f IceBox.ServiceManager:tcp -p 9996 -h 127.0.0.1" shutdown')
 
     admin.waitTestSuccess()
     server.waitTestSuccess()
