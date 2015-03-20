@@ -1,4 +1,0 @@
-# This file belongs in the "site-packages" directory of a Python
-# installation. It causes the interpreter to add the subdirectory
-# listed below to the default module search path.
-Ice
