@@ -32,8 +32,7 @@ if os.path.isdir(os.path.join(toplevel, "cpp", "demo")):
 else:
     sourcedist = False
 
-sys.path.append(os.path.join(path[0], "scripts"))
-import Expect
+from demoscript import Expect
 
 keepGoing = False
 iceHome = None
@@ -290,8 +289,7 @@ def configurePaths():
             libDir = libDir + "64"
         addLdPath(libDir)
 
-    if not iceHome:
-        addenv("PATH", os.path.join(getIceDir("cs"), "bin"))
+    addenv("PATH", os.path.join(getIceDir("cs"), "bin"))
 
     #
     # On Windows, C# assemblies are found thanks to the .exe.config files.
