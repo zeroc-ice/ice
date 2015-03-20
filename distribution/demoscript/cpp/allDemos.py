@@ -65,9 +65,9 @@ demos = [
     "Freeze/library",
     "Freeze/transform",
     "Freeze/casino",
-    "Manual/map_filesystem",
-    "Manual/evictor_filesystem",
-    "Manual/simple_filesystem",
+    "Manual/mapFilesystem",
+    "Manual/evictorFilesystem",
+    "Manual/simpleFilesystem",
     "Manual/printer",
     "Manual/lifecycle"]
 

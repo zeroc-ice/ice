@@ -38,7 +38,7 @@ demos = [
     "Ice/value",
     "IceDiscovery/hello",
     "Manual/printer",
-    "Manual/simple_filesystem"
+    "Manual/simpleFilesystem"
 ]
 
 #

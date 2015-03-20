@@ -47,7 +47,7 @@ demos = [
     "IceGrid/simple",
     "IceGrid/icebox",
     "Glacier2/callback",
-    "Manual/simple_filesystem",
+    "Manual/simpleFilesystem",
     "Manual/printer",
     "Manual/lifecycle",
     ]

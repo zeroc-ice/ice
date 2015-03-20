@@ -27,7 +27,7 @@ demos = [
     "Ice/hello",
     "Ice/minimal",
     "IceDiscovery/hello",
-    "Manual/simple_filesystem",
+    "Manual/simpleFilesystem",
     "Manual/printer"]
 
 if __name__ == "__main__":

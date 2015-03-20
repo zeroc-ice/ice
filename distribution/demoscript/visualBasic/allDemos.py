@@ -39,7 +39,7 @@ demos = [
     "IceStorm/clock",
     "IceGrid/simple",
     "Glacier2/callback",
-    "manual/simple_filesystem",
+    "manual/simpleFilesystem",
     "manual/printer",
     ]
 
