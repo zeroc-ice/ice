@@ -9,7 +9,6 @@
 # **********************************************************************
 
 import os, sys, getopt
-sys.path.append(os.path.join(os.path.dirname(__file__), "..", "lib"))
 import FixUtil
 
 def usage():
