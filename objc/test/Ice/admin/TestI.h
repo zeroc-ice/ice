@@ -12,8 +12,8 @@
 
 #import <Foundation/Foundation.h>
 
-@interface RemoteCommunicatorI : TestAdminRemoteCommunicator<TestAdminRemoteCommunicator,
-                                                             ICEPropertiesAdminUpdateCallback>
+@interface TestAdminRemoteCommunicatorI : TestAdminRemoteCommunicator<TestAdminRemoteCommunicator,
+                                                                      ICEPropertiesAdminUpdateCallback>
 {
     id<ICECommunicator> _communicator;
     ICEMutablePropertyDict* _changes;
@@ -23,8 +23,8 @@
 +(id) remoteCommunicator:(id<ICECommunicator>)communicator;
 @end
 
-@interface RemoteCommunicatorFactoryI : TestAdminRemoteCommunicatorFactory<TestAdminRemoteCommunicatorFactory>
+@interface TestAdminRemoteCommunicatorFactoryI : TestAdminRemoteCommunicatorFactory<TestAdminRemoteCommunicatorFactory>
 @end
 
-@interface TestFacetI : TestAdminTestFacet<TestAdminTestFacet>
+@interface TestAdminTestFacetI : TestAdminTestFacet<TestAdminTestFacet>
 @end

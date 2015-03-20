@@ -406,6 +406,7 @@ generated from the section label.
         <property name="Warn.UnusedProperties" />
         <property name="CacheMessageBuffers" />
         <property name="ThreadInterruptSafe" />
+        <property name="Voip" />
     </section>
 
     <section name="IceMX">

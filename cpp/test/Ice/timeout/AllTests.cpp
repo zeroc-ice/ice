@@ -296,7 +296,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         initData.properties->setProperty("Ice.Override.Timeout", "100");
         Ice::CommunicatorPtr comm = Ice::initialize(initData);
         TimeoutPrx to = TimeoutPrx::checkedCast(comm->stringToProxy(sref));
-        timeout->holdAdapter(500);
+        timeout->holdAdapter(700);
         try
         {
             to->sendData(seq);
@@ -306,6 +306,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             // Expected.
         }
+
         //
         // Calling ice_timeout() should have no effect.
         //

@@ -28,6 +28,16 @@
 #include <IceUtil/Random.h>
 #include <iterator>
 
+#if TARGET_OS_IPHONE != 0
+namespace IceInternal
+{
+
+bool registerForBackgroundNotification(IceInternal::IncomingConnectionFactory*);
+void unregisterForBackgroundNotification(IceInternal::IncomingConnectionFactory*);
+
+}
+#endif
+
 using namespace std;
 using namespace Ice;
 using namespace Ice::Instrumentation;
@@ -1361,6 +1371,23 @@ void
 IceInternal::IncomingConnectionFactory::finished(ThreadPoolCurrent&, bool close)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+
+#if TARGET_OS_IPHONE != 0
+    if(_state < StateClosed)
+    {
+        //
+        // Finished has been called by stopAcceptor if the state isn't
+        // closed.
+        //
+        if(_acceptorStarted && close)
+        {
+            _acceptorStarted = false;
+            closeAcceptor();
+        }
+        return;
+    }
+#endif
+
     assert(_state == StateClosed);
     setState(StateFinished);
 
@@ -1368,6 +1395,11 @@ IceInternal::IncomingConnectionFactory::finished(ThreadPoolCurrent&, bool close)
     {
         closeAcceptor();
     }
+
+#if TARGET_OS_IPHONE != 0
+    sync.release();
+    unregisterForBackgroundNotification(this);
+#endif
 }
 
 string
@@ -1441,6 +1473,48 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
 {
 }
 
+#if TARGET_OS_IPHONE != 0
+void
+IceInternal::IncomingConnectionFactory::startAcceptor()
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    if(_state >= StateClosed || _acceptorStarted)
+    {
+        return;
+    }
+
+    try
+    {
+        createAcceptor();
+        _acceptorStarted = true;
+    }
+    catch(const Ice::Exception& ex)
+    {
+        if(_warn)
+        {
+            Warning out(_instance->initializationData().logger);
+            out << "unable to create acceptor:\n" << ex;
+        }
+    }
+}
+
+void
+IceInternal::IncomingConnectionFactory::stopAcceptor()
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    if(_state >= StateClosed || !_acceptorStarted)
+    {
+        return;
+    }
+
+    if(_adapter->getThreadPool()->finish(this, true))
+    {
+        _acceptorStarted = false;
+        closeAcceptor();
+    }
+}
+#endif
+
 void
 IceInternal::IncomingConnectionFactory::initialize()
 {
@@ -1473,7 +1547,16 @@ IceInternal::IncomingConnectionFactory::initialize()
         }
         else
         {
+#if TARGET_OS_IPHONE != 0
+            //
+            // The notification center will call back on the factory to
+            // start the acceptor if necessary.
+            //
+            _acceptorStarted = false;
+            registerForBackgroundNotification(this);
+#else
             createAcceptor();
+#endif
         }
     }
     catch(const Ice::Exception&)

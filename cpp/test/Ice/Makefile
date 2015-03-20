@@ -51,7 +51,8 @@ SUBDIRS		= proxy \
                   enums \
                   echo \
                   logger \
-                  networkProxy
+                  networkProxy \
+				  services
 
 .PHONY: $(EVERYTHING) $(SUBDIRS)
 

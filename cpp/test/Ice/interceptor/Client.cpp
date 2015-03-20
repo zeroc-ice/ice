@@ -27,7 +27,58 @@ DEFINE_TEST("client")
 
 using namespace std;
 
-class Client : public Ice::Application
+#ifdef __APPLE__
+namespace
+{
+
+class App
+{
+public:
+
+    ~App()
+    {
+        if(_communicator)
+        {
+            try
+            {
+                _communicator->destroy();
+            }
+            catch(const Ice::Exception& ex)
+            {
+                cout << ex << endl;
+            }
+        }
+    }
+
+    Ice::CommunicatorPtr communicator()
+    {
+        return _communicator;
+    }
+
+    virtual int _main(int argc, char** argv)
+    {
+        Ice::InitializationData initData;
+        initData.properties = Ice::createProperties(argc, argv);
+        initData.properties->setProperty("Ice.Warn.Dispatch", "0");
+        _communicator = Ice::initialize(initData);
+        return run(argc, argv);
+    }
+    virtual int run(int argc, char** argv) = 0;
+
+private:
+
+    Ice::CommunicatorPtr _communicator;
+};
+
+}
+#else
+namespace
+{
+typedef Ice::Application App;
+}
+#endif
+
+class Client : public App
 {
 public:
 
@@ -61,7 +112,11 @@ main(int argc, char* argv[])
 #endif
 
     Client app;
+#if __APPLE__
+    int result = app._main(argc, argv);
+#else
     int result = app.main(argc, argv);
+#endif
 
 #ifndef _WIN32
 //

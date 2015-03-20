@@ -12,7 +12,6 @@ top_srcdir	= ..
 include $(top_srcdir)/config/Make.rules
 
 all::
-	echo ""
 
 install::
 	$(call installdata,templates.xml,$(DESTDIR)$(install_configdir))

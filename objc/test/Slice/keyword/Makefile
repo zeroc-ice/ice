@@ -15,8 +15,7 @@ TARGETS		= $(CLIENT)
 
 SLICE_OBJS	= Key.o Inherit.o
 
-OBJS		= Key.o \
-			  Inherit.o \
+OBJS		= $(SLICE_OBJS) \
 			  Client.o
 
 include $(top_srcdir)/config/Make.rules
@@ -25,5 +24,4 @@ CPPFLAGS	:= -I. -I.. -I../../include $(CPPFLAGS)
 
 $(CLIENT): $(OBJS)
 	rm -f $@
-	$(CC) $(LDFLAGS) $(LDEXEFLAGS) $(STATICLIBSTDFLAG) -o $@ $(OBJS) $(TEST_LIBS)
-
+	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(OBJS) $(TEST_LIBS)

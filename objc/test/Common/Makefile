@@ -16,7 +16,6 @@ TARGETS		= ../../lib/$(LIBNAME)
 OBJS		= TestCommon.o
 
 SRCS		:= $(OBJS:.o=.m)
-DEPENDFLAGS	= --obj-dir
 
 include $(top_srcdir)/config/Make.rules
 
@@ -41,4 +40,3 @@ else
 	$(call mkshlib,$@,$(LIBNAME),$(OBJS),$(LIBS))
 
 endif
-

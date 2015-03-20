@@ -706,7 +706,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
         // Ice doesn't do any endpoint lookup with WinRT, the WinRT
         // runtime takes care of if.
         //
-#ifndef ICE_OS_WINRT
+#if !defined(ICE_OS_WINRT) && TARGET_OS_IPHONE==0
         cout << "testing endpoint lookup metrics... " << flush;
 
         props["IceMX.Metrics.View.Map.ConnectionEstablishment.GroupBy"] = "id";
@@ -1169,7 +1169,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
     {
         test(obsv->connectionObserver->getTotal() > 0);
         test(obsv->connectionEstablishmentObserver->getTotal() > 0);
-#ifndef ICE_OS_WINRT
+#if !defined(ICE_OS_WINRT) && TARGET_OS_IPHONE==0
         test(obsv->endpointLookupObserver->getTotal() > 0);
 #endif
         test(obsv->invocationObserver->remoteObserver->getTotal() > 0);
@@ -1186,7 +1186,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
     {
         test(obsv->connectionObserver->getCurrent() > 0);
         test(obsv->connectionEstablishmentObserver->getCurrent() == 0);
-#ifndef ICE_OS_WINRT
+#if !defined(ICE_OS_WINRT) && TARGET_OS_IPHONE==0
         test(obsv->endpointLookupObserver->getCurrent() == 0);
 #endif
         test(obsv->invocationObserver->remoteObserver->getCurrent() == 0);
@@ -1214,7 +1214,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
     {
         test(obsv->connectionObserver->getFailedCount() > 0);
         test(obsv->connectionEstablishmentObserver->getFailedCount() > 0);
-#ifndef ICE_OS_WINRT
+#if !defined(ICE_OS_WINRT) && TARGET_OS_IPHONE==0
         test(obsv->endpointLookupObserver->getFailedCount() > 0);
 #endif
     }

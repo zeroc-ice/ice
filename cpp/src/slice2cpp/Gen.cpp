@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <IceUtil/DisableWarnings.h>
-#include <Gen.h>
+#include "Gen.h"
 #include <Slice/Util.h>
 #include <Slice/CPlusPlusUtil.h>
 #include <IceUtil/Functional.h>

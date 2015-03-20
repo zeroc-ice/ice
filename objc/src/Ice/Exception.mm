@@ -954,3 +954,24 @@ localExceptionToString(const Ice::LocalException& ex)
     throw Ice::ResponseSentException(file, line);
 }
 @end
+
+#ifdef ICE_USE_CFSTREAM
+@implementation ICECFNetworkException (ICEInternal)
+-(id)initWithLocalException:(const Ice::LocalException&)ex
+{
+    self = [super initWithLocalException:ex];
+    if(!self)
+    {
+        return nil;
+    }
+    NSAssert(dynamic_cast<const Ice::CFNetworkException*>(&ex), @"invalid local exception type");
+    const Ice::CFNetworkException& localEx = dynamic_cast<const Ice::CFNetworkException&>(ex);
+    domain = toNSString(localEx.domain);
+    return self;
+}
+-(void) rethrowCxx
+{
+    throw Ice::CFNetworkException(file, line, fromNSString(domain));
+}
+@end
+#endif

@@ -71,6 +71,9 @@ protected:
     friend class ThreadPool;
     friend class ThreadPoolCurrent;
     friend class Selector;
+#ifdef ICE_USE_CFSTREAM
+    friend class EventHandlerWrapper;
+#endif
 };
 
 }

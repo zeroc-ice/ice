@@ -11,7 +11,8 @@
 #define TEST_COMMON_H
 
 #include <IceUtil/IceUtil.h>
-#ifdef ICE_OS_WINRT
+
+#if defined(ICE_OS_WINRT) || (TARGET_OS_IPHONE)
 #   include <Ice/Initialize.h>
 #   include <Ice/Logger.h>
 #   include <Ice/LocalException.h>
@@ -19,7 +20,7 @@
 
 #include <cstdlib>
 
-void 
+void
 inline print(const std::string& msg)
 {
     std::cout << msg << std::flush;
@@ -31,7 +32,7 @@ inline println(const std::string& msg)
     std::cout << msg << std::endl;
 }
 
-#ifndef ICE_OS_WINRT
+#if !defined(ICE_OS_WINRT) && (TARGET_OS_IPHONE == 0)
 
 void
 inline testFailed(const char* expr, const char* file, unsigned int line)
@@ -130,10 +131,10 @@ public:
         {
             _previousLogger = Ice::getProcessLogger();
             Ice::setProcessLogger(Ice::getProcessLogger()->cloneWithPrefix(name));
-            
+
             _previousCoutBuffer = std::cout.rdbuf();
             std::cout.rdbuf(r);
-            
+
             _previousCerrBuffer = std::cerr.rdbuf();
             std::cerr.rdbuf(r);
         }
@@ -168,7 +169,7 @@ class TestFailedException : public ::Ice::LocalException
 {
 public:
 
-    TestFailedException(const char* file, int line) : 
+    TestFailedException(const char* file, int line) :
         LocalException(file, line)
     {
     }
@@ -213,7 +214,7 @@ inline testFailed(const char* expr, const char* file, unsigned int line)
    Test::MainHelper* Test::helper; \
    Ice::CommunicatorPtr communicatorInstance; \
    extern "C" { \
-      _declspec(dllexport) void dllTestShutdown(); \
+      ICE_DECLSPEC_EXPORT void dllTestShutdown(); \
       void dllTestShutdown() \
       { \
           try \
@@ -224,6 +225,7 @@ inline testFailed(const char* expr, const char* file, unsigned int line)
           { \
           } \
       } \
+      ICE_DECLSPEC_EXPORT int dllMain(int, char**, Test::MainHelper*); \
       int dllMain(int argc, char** argv, Test::MainHelper* helper) \
       { \
           Test::MainHelperInit init(helper, name, helper->redirect());  \
@@ -239,4 +241,3 @@ inline testFailed(const char* expr, const char* file, unsigned int line)
 #define test(ex) ((ex) ? ((void)0) : testFailed(#ex, __FILE__, __LINE__))
 
 #endif
-

@@ -22,7 +22,7 @@
 
 #if defined(__i386)     || defined(_M_IX86) || defined(__x86_64)  || \
     defined(_M_X64)     || defined(_M_IA64) || defined(__alpha__) || \
-    defined(__ARMEL__) || defined(_M_ARM_FP) || \
+    defined(__ARMEL__) || defined(_M_ARM_FP) || defined(__arm64) || \
     defined(__MIPSEL__) || (defined(__BYTE_ORDER) && (__BYTE_ORDER == __LITTLE_ENDIAN))
 #   define ICE_LITTLE_ENDIAN
 #elif defined(__sparc) || defined(__sparc__) || defined(__hppa)      || \
@@ -168,6 +168,10 @@
 #ifndef _WIN32
 #   include <pthread.h>
 #   include <errno.h>
+#endif
+
+#ifdef __APPLE__
+#   include <TargetConditionals.h>
 #endif
 
 #if defined(_MSC_VER) && !defined(ICE_NO_PRAGMA_COMMENT)

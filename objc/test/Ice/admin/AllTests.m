@@ -24,9 +24,9 @@ testFacets(id<ICECommunicator> com, BOOL builtInFacets)
         test([com findAdminFacet:@"Metrics"]);
     }
     
-    TestAdminTestFacet* f1 = [TestFacetI testFacet];
-    TestAdminTestFacet* f2 = [TestFacetI testFacet];
-    TestAdminTestFacet* f3 = [TestFacetI testFacet];
+    TestAdminTestFacet* f1 = [TestAdminTestFacetI testFacet];
+    TestAdminTestFacet* f2 = [TestAdminTestFacetI testFacet];
+    TestAdminTestFacet* f3 = [TestAdminTestFacetI testFacet];
     
     [com addAdminFacet:f1 facet:@"Facet1"];
     [com addAdminFacet:f2 facet:@"Facet2"];

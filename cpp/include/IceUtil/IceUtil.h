@@ -21,7 +21,7 @@
 #include <IceUtil/AbstractMutex.h>
 #include <IceUtil/Cache.h>
 #include <IceUtil/Cond.h>
-#ifndef ICE_OS_WINRT
+#if !defined(__APPLE__) && !defined(ICE_OS_WINRT)
 #   include <IceUtil/CtrlCHandler.h>
 #endif
 #include <IceUtil/Exception.h>

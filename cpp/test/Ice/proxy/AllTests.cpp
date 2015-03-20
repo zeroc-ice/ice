@@ -984,7 +984,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         bool ssl;
         try
         {
-            Ice::ObjectPrx prx = communicator->stringToProxy("dummy:ssl");
+            communicator->stringToProxy("dummy:ssl");
             ssl = true;
         }
         catch(const Ice::EndpointParseException&)

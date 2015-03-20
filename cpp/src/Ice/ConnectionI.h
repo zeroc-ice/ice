@@ -41,7 +41,7 @@
 
 #include <deque>
 
-#if !defined(ICE_OS_WINRT)
+#if TARGET_OS_IPHONE == 0 && !defined(ICE_OS_WINRT)
 #    ifndef ICE_HAS_BZIP2
 #        define ICE_HAS_BZIP2
 #    endif
@@ -275,9 +275,11 @@ private:
     void doCompress(IceInternal::BasicStream&, IceInternal::BasicStream&);
     void doUncompress(IceInternal::BasicStream&, IceInternal::BasicStream&);
 #endif
+
     IceInternal::SocketOperation parseMessage(IceInternal::BasicStream&, Int&, Int&, Byte&,
                                               IceInternal::ServantManagerPtr&, ObjectAdapterPtr&,
                                               IceInternal::OutgoingAsyncBasePtr&, ConnectionCallbackPtr&, int&);
+
     void invokeAll(IceInternal::BasicStream&, Int, Int, Byte,
                    const IceInternal::ServantManagerPtr&, const ObjectAdapterPtr&);
 

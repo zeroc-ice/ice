@@ -125,8 +125,7 @@ defaultClientProperties(int* argc, char** argv)
         @"IceSSL.CheckCertName", @"0",
         @"IceSSL.CertAuthFile", @"cacert.der",
         @"IceSSL.CertFile", @"c_rsa1024.pfx",
-        @"IceSSL.Password", @"password",
-        @"IceSSL.TrustOnly.Client", @"25 9D 03 60 D5 6D 46 3C 32 EE FE 54 48 7A 76 68 FF 6A 87 1D"
+        @"IceSSL.Password", @"password"
     };
 
     int i;

@@ -38,11 +38,11 @@
 }
 @end
 
-@implementation RemoteCommunicatorI
+@implementation TestAdminRemoteCommunicatorI
 
 +(id) remoteCommunicator:(id<ICECommunicator>)communicator
 {
-    RemoteCommunicatorI* obj = [RemoteCommunicatorI remoteCommunicator];
+    TestAdminRemoteCommunicatorI* obj = [TestAdminRemoteCommunicatorI remoteCommunicator];
     obj->_communicator = ICE_RETAIN(communicator);
     obj->_called = NO;
     obj->_cond = [[NSCondition alloc] init];
@@ -53,6 +53,7 @@
 {
     [_communicator release];
     [_cond release];
+    [_changes release];
     [super dealloc];
 }
 #endif
@@ -122,7 +123,7 @@
     [_cond lock];
     @try
     {
-        _changes = changes;
+        _changes = ICE_RETAIN(changes);
         _called = YES;
         [_cond signal];
     }
@@ -133,7 +134,7 @@
 }
 @end
 
-@implementation RemoteCommunicatorFactoryI
+@implementation TestAdminRemoteCommunicatorFactoryI
 -(id<TestAdminRemoteCommunicatorPrx>) createCommunicator:(ICEMutablePropertyDict*)props current:(ICECurrent*)current
 {
     //
@@ -159,13 +160,13 @@
     //
     // Install a custom admin facet.
     //
-    [communicator addAdminFacet:[TestFacetI testFacet] facet:@"TestFacet"];
+    [communicator addAdminFacet:[TestAdminTestFacetI testFacet] facet:@"TestFacet"];
 
     //
     // The RemoteCommunicator servant also implements PropertiesAdminUpdateCallback.
     // Set the callback on the admin facet.
     //
-    RemoteCommunicatorI* servant = [RemoteCommunicatorI remoteCommunicator:communicator];
+    TestAdminRemoteCommunicatorI* servant = [TestAdminRemoteCommunicatorI remoteCommunicator:communicator];
     ICEObject* propFacet = [communicator findAdminFacet:@"Properties"];
     if(propFacet != nil)
     {
@@ -184,7 +185,7 @@
 }
 @end
 
-@implementation TestFacetI
+@implementation TestAdminTestFacetI
 -(void) op:(ICECurrent*)current
 {
 }

@@ -54,6 +54,7 @@ tests = [
      ("Ice/hash", ["core"]),
      ("Ice/info", ["core", "noipv6", "nocompress"]),
      ("Ice/enums", ["once"]),
+     ("Ice/services", ["once"]),
      ("Ice/acm", ["core"]),
     ]
 

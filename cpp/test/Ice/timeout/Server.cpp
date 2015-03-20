@@ -39,6 +39,14 @@ main(int argc, char* argv[])
         Ice::InitializationData initData;
         initData.properties = Ice::createProperties(argc, argv);
 
+#if TARGET_OS_IPHONE != 0
+        //
+        // COMPILERFIX: Disable connect timeout introduced for
+        // workaround to iOS device hangs when using SSL
+        //
+        initData.properties->setProperty("Ice.Override.ConnectTimeout", "");
+#endif
+
         //
         // This test kills connections, so we don't want warnings.
         //

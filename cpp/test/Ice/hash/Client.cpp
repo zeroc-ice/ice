@@ -33,7 +33,7 @@ int main(int argc, char** argv)
 
     Ice::InitializationData id;
     id.properties = Ice::createProperties(argc, argv);
-#ifndef ICE_OS_WINRT
+#if !defined(ICE_OS_WINRT) && TARGET_OS_IPHONE==0
     //
     // In Ice for WinRT IceSSL is part of Ice core.
     //
@@ -47,7 +47,7 @@ int main(int argc, char** argv)
         ostringstream os;
         os << i << ":tcp -p " << IceUtilInternal::random(65536) << " -t 10" << IceUtilInternal::random(1000000)
                 << ":udp -p " << IceUtilInternal::random(65536) << " -h " << IceUtilInternal::random(100);
-                
+
         Ice::ObjectPrx obj = communicator->stringToProxy(os.str());
         Ice::EndpointSeq endpoints = obj->ice_getEndpoints();
         if(!seenProxy.insert(make_pair(obj->__hash(), obj)).second)
@@ -57,7 +57,7 @@ int main(int argc, char** argv)
         test(obj->__hash() == obj->__hash());
     }
     test(proxyCollisions < maxCollisions);
-    
+
     //
     // Check the same proxy produce the same hash, even when we recreate the proxy.
     //
@@ -94,9 +94,9 @@ int main(int argc, char** argv)
     test( communicator->stringToProxy("Glacier2/router:ssl -p 10011 -t 10000")->__hash() == proxyMap["prx8"]);
     test( communicator->stringToProxy("Glacier2/router:tcp -h zeroc.com -p 10010 -t 10000")->__hash() == proxyMap["prx9"]);
     test( communicator->stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011 -t 10000")->__hash() == proxyMap["prx10"]);
-    
+
     cerr << "ok" << endl;
-    
+
     if(communicator)
     {
         try

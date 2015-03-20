@@ -10,7 +10,7 @@
 
 import os, sys
 
-path = [ ".", "..", "../..", "../../..", "../../../.." ]
+path = [ ".", "..", "../..", "../../..", "../../../..", "../../../../.." ]
 head = os.path.dirname(sys.argv[0])
 if len(head) > 0:
     path = [os.path.join(head, p) for p in path]
@@ -22,4 +22,3 @@ import TestUtil
 
 client = os.path.join(os.getcwd(), "client")
 TestUtil.simpleTest(client)
-

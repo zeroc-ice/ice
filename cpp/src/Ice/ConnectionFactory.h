@@ -170,6 +170,11 @@ public:
     void hold();
     void destroy();
 
+#if TARGET_OS_IPHONE != 0
+    void startAcceptor();
+    void stopAcceptor();
+#endif
+
     void updateConnectionObservers();
 
     void waitUntilHolding() const;
@@ -222,6 +227,10 @@ private:
     AcceptorPtr _acceptor;
     const TransceiverPtr _transceiver;
     EndpointIPtr _endpoint;
+
+#if TARGET_OS_IPHONE != 0
+    bool _acceptorStarted;
+#endif
 
     Ice::ObjectAdapterIPtr _adapter;
 

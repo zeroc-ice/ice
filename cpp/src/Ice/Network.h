@@ -45,8 +45,10 @@ typedef int ssize_t;
 
 #if defined(__linux) && !defined(ICE_NO_EPOLL)
 #   define ICE_USE_EPOLL 1
-#elif (defined(__APPLE__) || defined(__FreeBSD__)) && !defined(ICE_NO_KQUEUE)
+#elif (defined(__APPLE__) || defined(__FreeBSD__)) && TARGET_OS_IPHONE == 0 && !defined(ICE_NO_KQUEUE)
 #   define ICE_USE_KQUEUE 1
+#elif defined(__APPLE__) && !defined(ICE_NO_CFSTREAM)
+#   define ICE_USE_CFSTREAM 1
 #elif defined(_WIN32)
 #  if defined(ICE_OS_WINRT)
 #  elif !defined(ICE_NO_IOCP)
@@ -142,7 +144,11 @@ enum SocketOperation
     // With BSD sockets, write and connect readiness are the same so
     // we use the same value for both.
     SocketOperationWrite = 2,
+#ifdef ICE_USE_CFSTREAM
+    SocketOperationConnect = 4
+#else
     SocketOperationConnect = 2
+#endif
 };
 
 //

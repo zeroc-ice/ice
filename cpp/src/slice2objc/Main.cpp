@@ -14,7 +14,7 @@
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
 #include <Slice/Util.h>
-#include <Gen.h>
+#include "Gen.h"
 
 using namespace std;
 using namespace Slice;

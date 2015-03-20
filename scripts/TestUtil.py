@@ -877,7 +877,7 @@ def getDefaultMapping():
     here = os.getcwd().split(os.sep)
     here.reverse()
     for i in range(0, len(here)):
-        if here[i] in ["cpp", "cs", "java", "js", "php", "py", "rb", "objc", "cppe", "javae", "tmp"]:
+        if here[i] in ["cpp", "cs", "java", "js", "php", "py", "rb", "objc", "cppe", "javae", "icetouch", "tmp"]:
             return here[i]
     raise RuntimeError("cannot determine mapping")
 

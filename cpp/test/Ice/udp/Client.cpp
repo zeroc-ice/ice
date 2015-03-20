@@ -69,5 +69,13 @@ main(int argc, char* argv[])
         }
     }
 
+#if TARGET_OS_IPHONE != 0
+    //
+    // iOS WORKAROUND: without a sleep before the communicator
+    // destroy, the close on the UDP socket hangs.
+    //
+    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
+#endif
+
     return status;
 }
