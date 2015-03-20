@@ -191,31 +191,20 @@ def getCppCompiler():
     if os.environ.get("CPP_COMPILER", "") != "":
         compiler = os.environ["CPP_COMPILER"]
     else:
-        config = None
-        if os.path.exists(os.path.join(toplevel, "cpp", "config", "Make.rules.mak")):
-            config = open(os.path.join(toplevel, "cpp", "config", "Make.rules.mak"), "r")
-        elif os.path.exists(os.path.join(toplevel, "config", "Make.rules.mak")):
-            config = open(os.path.join(toplevel, "config", "Make.rules.mak"), "r")
-        if config != None:
-            compiler = re.search("CPP_COMPILER[\t\s]*= ([A-Z0-9]*)", config.read()).group(1)
-            if compiler != "VC100" and compiler != "VC110" and compiler != "VC120":
-                compiler = ""
-
-        if compiler == "":
-            p = subprocess.Popen("cl", stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
-            if not p or not p.stdout:
-                print("Cannot detect C++ compiler")
-                sys.exit(1)
-            l = p.stdout.readline().decode("utf-8").strip()
-            if l.find("Version 16") != -1:
-                compiler = "VC100"
-            elif l.find("Version 17") != -1:
-                compiler = "VC110"
-            elif l.find("Version 18") != -1:
-                compiler = "VC120"
-            else:
-                print("Cannot detect C++ compiler")
-                sys.exit(1)
+        p = subprocess.Popen("cl", stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+        if not p or not p.stdout:
+            print("Cannot detect C++ compiler")
+            sys.exit(1)
+        l = p.stdout.readline().decode("utf-8").strip()
+        if l.find("Version 16") != -1:
+            compiler = "VC100"
+        elif l.find("Version 17") != -1:
+            compiler = "VC110"
+        elif l.find("Version 18") != -1:
+            compiler = "VC120"
+        else:
+            print("Cannot detect C++ compiler")
+            sys.exit(1)
     return compiler
 
 origenv = {}
@@ -320,8 +309,7 @@ def configurePaths():
     else:
         addenv("PYTHONPATH", os.path.join(getIceDir("py"), "python"))
 
-    if not iceHome:
-        addenv("RUBYLIB", os.path.join(getIceDir("rb"), "ruby"))
+    addenv("RUBYLIB", os.path.join(getIceDir("rb"), "ruby"))
 
     if getMapping() == "js":
         addenv("NODE_PATH", os.path.join(getIceDir("js"), "node_modules" if iceHome else "src"))
@@ -330,10 +318,19 @@ def configurePaths():
 def getMappingDir(mapping):
     """Get the directory containing the demos for the given mapping."""
     # In the source tree
-    if sourcedist:
-        return os.path.join(mapping, "demo")
+    if mapping == "cs":
+        return "csharp"
+    elif mapping == "objc":
+        return "objective-c"
+    elif mapping == "py":
+        return "python"
+    elif mapping == "rb":
+        return "ruby"
+    elif mapping == "vb":
+        return "visualbasic"
     else:
         return mapping
+
 
 def getMirrorDir(mapping = None):
     """Get the mirror directory for the current demo in the given mapping."""
@@ -358,7 +355,10 @@ def getIceDir(subdir = None):
        source distribution."""
     global iceHome
     if iceHome:
-        return iceHome
+        if subdir and os.path.exists(os.path.join(iceHome, "cpp")):
+            return os.path.join(iceHome, subdir)
+        else:
+            return iceHome
     elif subdir:
         return os.path.join(toplevel, subdir)
     else:
@@ -448,7 +448,19 @@ def getMapping():
     """Determine the current mapping based on the cwd."""
     here = os.path.abspath(os.getcwd())
     assert os.path.normcase(here[:len(toplevel)]) == os.path.normcase(toplevel)
-    return here[len(toplevel)+1:].split(os.sep)[0]
+    mapping = here[len(toplevel)+1:].split(os.sep)[0]
+    if mapping == "csharp":
+        return "cs"
+    elif mapping == "objective-c":
+        return "objc"
+    elif mapping == "python":
+        return "py"
+    elif mapping == "ruby":
+        return "rb"
+    elif mapping == "visualbasic":
+        return "vb"
+    else:
+        return mapping
 
 def runDemos(start, args, demos, num = 0, script = False, root = False):
     global demoErrors
