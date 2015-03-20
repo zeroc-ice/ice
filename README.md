@@ -1,4 +1,3 @@
-======================================================================
 The Internet Communications Engine
 ======================================================================
 
@@ -28,16 +27,18 @@ About this Source Distribution
 This archive contains the source code for Ice language mappings and
 components in the following subdirectories:
 
-  android   Android sample programs and test suite
-  cpp       C++ language mapping
-  cs        C# language mapping
-  eclipse   Eclipse plug-in
-  java      Java language mapping
-  js        JavaScript language mapping
-  php       PHP language mapping
-  py        Python language mapping
-  rb        Ruby language mapping
-  vsaddin   Visual Studio add-in
+Directory | Language
+--------- | --------
+android   | Android sample programs and test suite
+cpp       | C++ language mapping
+cs        | C# language mapping
+eclipse   | Eclipse plug-in
+java      | Java language mapping
+js        | JavaScript language mapping
+php       | PHP language mapping
+py        | Python language mapping
+rb        | Ruby language mapping
+vsaddin   | Visual Studio add-in
 
 
 Documentation
