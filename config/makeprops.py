@@ -521,7 +521,7 @@ class CSPropertyHandler(PropertyHandler):
         self.srcFile.write("\n")
 
     def moveFiles(self, location):
-        dest = os.path.join(location, "cs", "src", "Ice")
+        dest = os.path.join(location, "csharp", "src", "Ice")
         if os.path.exists(os.path.join(dest, self.className + ".cs")):
             os.remove(os.path.join(dest, self.className + ".cs"))
         shutil.move(self.className + ".cs", dest)
@@ -677,8 +677,8 @@ def main():
             lang = "cpp"
         elif option == "--java":
             lang = "java"
-        elif option == "--cs":
-            lang = "cs"
+        elif option == "--csharp":
+            lang = "csharp"
         elif option == "--js":
             lang = "js"
         elif option in ["-h", "--help", "-?"]:
@@ -702,7 +702,7 @@ def main():
             contentHandler = CppPropertyHandler(infile, className)
         elif lang == "java":
             contentHandler = JavaPropertyHandler(infile, className)
-        elif lang == "cs":
+        elif lang == "csharp":
             contentHandler = CSPropertyHandler(infile, className)
         elif lang == "js":
             contentHandler = JSPropertyHandler(infile, className)

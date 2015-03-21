@@ -15,9 +15,9 @@ import TestUtil
 
 testGroups = []
 
-languages = [ "cpp", "java", "cs", "py", "rb", "php", "js" ]
+languages = [ "cpp", "java", "csharp", "python", "ruby", "php", "js" ]
 if TestUtil.isDarwin():
-    languages.append("objc")
+    languages.append("objective-c")
 
 for d in languages:
 

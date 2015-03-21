@@ -234,11 +234,11 @@ def dumpenv(env, lang):
         pass
     elif lang == "java":
         vars.append("CLASSPATH")
-    elif lang == "cs":
+    elif lang == "csharp":
         vars.extend(["MONO_PATH", "DEVPATH"])
-    elif lang == "py":
+    elif lang == "python":
         vars.append("PYTHONPATH")
-    elif lang == "rb":
+    elif lang == "ruby":
         vars.append("RUBYLIB")
     elif lang == "js":
         vars.append("NODE_PATH")
@@ -488,8 +488,8 @@ def run(tests, root = False):
                 filters.append((testFilter, False))
         elif o == "--cross":
             global cross
-            if a not in ["cpp", "cs", "java", "js", "py", "rb", "objc" ]:
-                print("cross must be one of cpp, cs, java, js, py, rb or objc")
+            if a not in ["cpp", "csharp", "java", "js", "python", "ruby", "objective-c" ]:
+                print("cross must be one of cpp, csharp, java, js, python, ruby or objective-c")
                 sys.exit(1)
             cross.append(a)
         elif o == "--all" :
@@ -510,7 +510,7 @@ def run(tests, root = False):
         elif o == "--protocol":
             if a not in ( "ws", "wss", "ssl", "tcp"):
                 usage()
-            if not root and getDefaultMapping() == "cs" and (a == "ssl" or a == "wss"):
+            if not root and getDefaultMapping() == "csharp" and (a == "ssl" or a == "wss"):
                 if mono:
                     print("SSL is not supported with mono")
                     sys.exit(1)
@@ -588,9 +588,9 @@ def run(tests, root = False):
 
     if allCross:
         if len(cross) == 0:
-            cross = ["cpp", "java", "js", "cs" ]
+            cross = ["cpp", "java", "js", "csharp" ]
         if root:
-            allLang = ["cpp", "java", "js", "cs" ]
+            allLang = ["cpp", "java", "js", "csharp" ]
         else:
             allLang = [ getDefaultMapping() ]
         for lang in allLang:
@@ -608,7 +608,7 @@ def run(tests, root = False):
                     expanded.append([(name, a, testConfig(name, tests))])
 
                 # Add ssl & compress for the operations test.
-                if ((compact or mono or silverlight) and c == "cs") or (c == "js"): # Don't add the ssl tests.
+                if ((compact or mono or silverlight) and c == "csharp") or (c == "js"): # Don't add the ssl tests.
                     continue
                 a = "--cross=%s --protocol=ssl --compress %s" % (c, arg)
                 expanded.append([("%s/test/Ice/operations" % lang, a, [])])
@@ -784,11 +784,11 @@ def getIceBox():
         iceBox = os.path.join(getCppBinDir(lang), iceBox)
     elif lang == "java":
         iceBox = "IceBox.Server"
-    elif lang == "cs":
+    elif lang == "csharp":
         if compact:
-            iceBox = os.path.join(getIceDir("cs"), "bin", "cf", "iceboxnet")
+            iceBox = os.path.join(getIceDir("csharp"), "bin", "cf", "iceboxnet")
         else:
-            iceBox = os.path.join(getIceDir("cs"), "bin", "iceboxnet")
+            iceBox = os.path.join(getIceDir("csharp"), "bin", "iceboxnet")
 
     return iceBox
 
@@ -846,7 +846,7 @@ sslConfigTree = {
             "server" : " --IceSSL.Keystore=server.jks",
             "colloc" : " --IceSSL.Keystore=client.jks"
             },
-        "cs" : {
+        "csharp" : {
             "plugin" : " --Ice.Plugin.IceSSL=%(icesslcs)s:IceSSL.PluginFactory --IceSSL.CertAuthFile=cacert.pem " +
             "--IceSSL.Password=password --IceSSL.DefaultDir=%(certsdir)s --IceSSL.VerifyPeer=%(verifyPeer)s",
             "client" : " --IceSSL.CertFile=c_rsa1024.pfx --IceSSL.CheckCertName=0",
@@ -867,17 +867,17 @@ if isDarwin():
     sslConfigTree["cpp"]["colloc"] += " --IceSSL.Keychain=colloc.keychain --IceSSL.KeychainPassword=password"
 
 
-sslConfigTree["py"] = sslConfigTree["cpp"]
-sslConfigTree["rb"] = sslConfigTree["cpp"]
+sslConfigTree["python"] = sslConfigTree["cpp"]
+sslConfigTree["ruby"] = sslConfigTree["cpp"]
 sslConfigTree["php"] = sslConfigTree["cpp"]
-sslConfigTree["objc"] = sslConfigTree["cpp"]
+sslConfigTree["objective-c"] = sslConfigTree["cpp"]
 
 def getDefaultMapping():
     """Try and guess the language mapping out of the current path"""
     here = os.getcwd().split(os.sep)
     here.reverse()
     for i in range(0, len(here)):
-        if here[i] in ["cpp", "cs", "java", "js", "php", "py", "rb", "objc", "cppe", "javae", "icetouch", "tmp"]:
+        if here[i] in ["cpp", "csharp", "java", "js", "php", "python", "ruby", "objective-c", "icetouch", "tmp"]:
             return here[i]
     raise RuntimeError("cannot determine mapping")
 
@@ -988,7 +988,7 @@ def getCommandLineProperties(exe, config):
     #
     if config.protocol == "ssl" or config.protocol == "wss":
         sslenv = {}
-        sslenv["icesslcs"] = quoteArgument("\\\"" + os.path.join(getIceDir("cs"), "Assemblies", "IceSSL.dll") + "\\\"")
+        sslenv["icesslcs"] = quoteArgument("\\\"" + os.path.join(getIceDir("csharp"), "Assemblies", "IceSSL.dll") + "\\\"")
         sslenv["certsdir"] = quoteArgument(os.path.abspath(os.path.join(toplevel, "certs")))
         if winrt or config.protocol == "wss":
             sslenv["verifyPeer"] = "0"
@@ -1005,7 +1005,7 @@ def getCommandLineProperties(exe, config):
     if config.serialize:
         components.append("--Ice.ThreadPool.Server.Serialize=1")
 
-    if config.type == "server" or config.type == "colloc" and config.lang == "py":
+    if config.type == "server" or config.type == "colloc" and config.lang == "python":
         components.append("--Ice.ThreadPool.Server.Size=1")
         components.append("--Ice.ThreadPool.Server.SizeMax=3")
         components.append("--Ice.ThreadPool.Server.SizeWarn=0")
@@ -1070,14 +1070,14 @@ def getCommandLineProperties(exe, config):
 def getCommandLine(exe, config, options = "", interpreterOptions = ""):
     output = getStringIO()
 
-    if config.mono and config.lang == "cs":
+    if config.mono and config.lang == "csharp":
         output.write("mono --debug '%s.exe' " % exe)
-    elif config.lang == "rb" and config.type == "client":
+    elif config.lang == "ruby" and config.type == "client":
         output.write("ruby")
         if interpreterOptions:
             output.write(" " + interpreterOptions)
         output.write(' "%s" ' % exe)
-    elif config.silverlight and config.lang == "cs" and config.type == "client":
+    elif config.silverlight and config.lang == "csharp" and config.type == "client":
         xap = "obj/sl/%s.xap" % os.path.basename(os.getcwd())
         if os.environ.get("PROCESSOR_ARCHITECTURE") == "AMD64" or os.environ.get("PROCESSOR_ARCHITEW6432") == "":
             output.write('"%s (x86)\Microsoft Silverlight\sllauncher.exe" /emulate:%s ' % ( os.environ["PROGRAMFILES"], xap))
@@ -1093,7 +1093,7 @@ def getCommandLine(exe, config, options = "", interpreterOptions = ""):
         if interpreterOptions:
             output.write(" " + interpreterOptions)
         output.write(" " + exe + " ")
-    elif config.lang == "py":
+    elif config.lang == "python":
         output.write(sys.executable)
         if interpreterOptions:
             output.write(" " + interpreterOptions)
@@ -1156,9 +1156,9 @@ def directoryToPackage():
 
 def getDefaultServerFile():
     lang = getDefaultMapping()
-    if lang in ["js", "rb", "php", "cpp", "cs", "objc", "cppe"]:
+    if lang in ["js", "ruby", "php", "cpp", "csharp", "objective-c"]:
         return "server"
-    if lang == "py":
+    if lang == "python":
         return "Server.py"
     if lang in ["java", "javae"]:
         pkg = directoryToPackage()
@@ -1170,13 +1170,13 @@ def getDefaultServerFile():
 def getDefaultClientFile(lang = None):
     if lang is None:
         lang = getDefaultMapping()
-    if lang == "rb":
+    if lang == "ruby":
         return "Client.rb"
     if lang == "php":
         return "Client.php"
-    if lang in ["cpp", "cs", "objc", "cppe"]:
+    if lang in ["cpp", "csharp", "objective-c"]:
         return "client"
-    if lang == "py":
+    if lang == "python":
         return "Client.py"
     if lang in ["java", "javae"]:
         pkg = directoryToPackage()
@@ -1189,13 +1189,13 @@ def getDefaultClientFile(lang = None):
 
 def getDefaultCollocatedFile():
     lang = getDefaultMapping()
-    if lang == "rb":
+    if lang == "ruby":
         return "Collocated.rb"
     if lang == "php":
         return "Collocated.php"
-    if lang in ["cpp", "cs", "cppe", "objc"]:
+    if lang in ["cpp", "csharp", "objective-c"]:
         return "collocated"
-    if lang == "py":
+    if lang == "python":
         return "Collocated.py"
     if lang in ["java", "javae"]:
         return directoryToPackage() + ".Collocated"
@@ -1407,7 +1407,7 @@ def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
     testdir = os.getcwd()
 
     # Setup the server.
-    if lang in ["rb", "php", "js"]:
+    if lang in ["ruby", "php", "js"]:
         serverdir = getMirrorDir(testdir, "cpp")
     else:
         serverdir = testdir
@@ -1415,7 +1415,7 @@ def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
         server = os.path.join(serverdir, server)
 
     if serverenv is None:
-        if lang in ["rb", "php", "js"]:
+        if lang in ["ruby", "php", "js"]:
             serverenv = getTestEnv("cpp", serverdir)
         else:
             serverenv = getTestEnv(lang, serverdir)
@@ -1472,7 +1472,7 @@ def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
         sys.stdout.write("starting " + serverDesc + "... ")
         sys.stdout.flush()
         serverCfg = DriverConfig("server")
-        if lang in ["rb", "php", "js"]:
+        if lang in ["ruby", "php", "js"]:
             serverCfg.lang = "cpp"
         server = getCommandLine(server, serverCfg, additionalServerOptions, interpreterOptions)
         serverProc = spawnServer(server, env = serverenv, lang=serverCfg.lang, mx=serverCfg.mx)
@@ -1546,7 +1546,7 @@ def clientEchoTest(additionalServerOptions = "", additionalClientOptions = "",
     testdir = os.getcwd()
 
     # Setup the server.
-    if lang in ["rb", "php", "js"]:
+    if lang in ["ruby", "php", "js"]:
         serverdir = getMappingDir(testdir, "cpp", ["test", "Ice", "echo"])
     else:
         serverdir = testdir
@@ -1554,7 +1554,7 @@ def clientEchoTest(additionalServerOptions = "", additionalClientOptions = "",
         server = os.path.join(serverdir, server)
 
     if serverenv is None:
-        if lang in ["rb", "php", "js"]:
+        if lang in ["ruby", "php", "js"]:
             serverenv = getTestEnv("cpp", serverdir)
         else:
             serverenv = getTestEnv(lang, serverdir)
@@ -1607,7 +1607,7 @@ def clientEchoTest(additionalServerOptions = "", additionalClientOptions = "",
         sys.stdout.write("starting " + serverDesc + "... ")
         sys.stdout.flush()
         serverCfg = DriverConfig("server")
-        if lang in ["rb", "php", "js"]:
+        if lang in ["ruby", "php", "js"]:
             serverCfg.lang = "cpp"
         server = getCommandLine(server, serverCfg, additionalServerOptions)
         serverProc = spawnServer(server, env = serverenv, lang=serverCfg.lang, mx=serverCfg.mx)
@@ -1709,7 +1709,7 @@ def getCppBinDir(lang = None):
     if iceHome:
         if lang == None:
             lang = getDefaultMapping()
-        if isVC110() and lang != "py":
+        if isVC110() and lang != "python":
             binDir = os.path.join(binDir, "vc110")
         if x64:
             if isSolaris():
@@ -1793,8 +1793,8 @@ def getTestEnv(lang, testdir):
     env["CLASSPATH"] = sanitize(os.getenv("CLASSPATH", ""))
 
     # Make sure bzip2 can be found by x86 C# builds on x64 platforms
-    if lang == "cs" and not x64:
-        addPathToEnv("PATH", os.path.join(getCppBinDir("cs"), "x64"), env)
+    if lang == "csharp" and not x64:
+        addPathToEnv("PATH", os.path.join(getCppBinDir("csharp"), "x64"), env)
 
     # Add test directory to env
     if lang == "cpp":
@@ -1844,7 +1844,7 @@ def getTestEnv(lang, testdir):
     #
     if isWin32():
         addLdPath(getCppLibDir(lang), env)
-    elif lang in ["py", "rb", "php", "js", "objc"]:
+    elif lang in ["python", "ruby", "php", "js", "objective-c"]:
         addLdPath(getCppLibDir(lang), env)
 
     if lang == "javae":
@@ -1861,19 +1861,19 @@ def getTestEnv(lang, testdir):
     #
     # On Windows, C# assemblies are found thanks to the .exe.config files.
     #
-    if lang == "cs":
+    if lang == "csharp":
         if compact:
-            addPathToEnv("DEVPATH", os.path.join(getIceDir("cs", testdir), "Assemblies", "cf"), env)
+            addPathToEnv("DEVPATH", os.path.join(getIceDir("csharp", testdir), "Assemblies", "cf"), env)
         elif isWin32():
-            addPathToEnv("DEVPATH", os.path.join(getIceDir("cs", testdir), "Assemblies"), env)
+            addPathToEnv("DEVPATH", os.path.join(getIceDir("csharp", testdir), "Assemblies"), env)
         else:
-            addPathToEnv("MONO_PATH", os.path.join(getIceDir("cs", testdir), "Assemblies"), env)
+            addPathToEnv("MONO_PATH", os.path.join(getIceDir("csharp", testdir), "Assemblies"), env)
 
     #
     # On Windows x64, set PYTHONPATH to python/x64.
     #
-    if lang == "py":
-        pythonDir = os.path.join(getIceDir("py", testdir), "python")
+    if lang == "python":
+        pythonDir = os.path.join(getIceDir("python", testdir), "python")
         if isWin32() and x64:
             addPathToEnv("PYTHONPATH", os.path.join(pythonDir, "x64"), env)
         else:
@@ -1882,8 +1882,8 @@ def getTestEnv(lang, testdir):
     #
     # If testing with source dist we need to set RUBYLIB
     #
-    if lang == "rb" and not iceHome:
-        addPathToEnv("RUBYLIB", os.path.join(getIceDir("rb", testdir), "ruby"), env)
+    if lang == "ruby" and not iceHome:
+        addPathToEnv("RUBYLIB", os.path.join(getIceDir("ruby", testdir), "ruby"), env)
 
     if lang == "js":
         if os.environ.get("USE_BIN_DIST", "no") != "yes":
@@ -2014,8 +2014,8 @@ def processCmdLine():
         elif o == "--cross":
             global cross
             cross.append(a)
-            if not a in ["cpp", "cs", "java", "js", "py", "rb", "objc" ]:
-                print("cross must be one of cpp, cs, java, js, py, rb or objc")
+            if not a in ["cpp", "csharp", "java", "js", "python", "ruby", "objective-c" ]:
+                print("cross must be one of cpp, csharp, java, js, python, ruby or objective-c")
                 sys.exit(1)
             if getTestName() not in crossTests:
                 print("*** This test does not support cross language testing")
@@ -2073,7 +2073,7 @@ def processCmdLine():
             if a not in ( "ws", "wss", "ssl", "tcp"):
                 usage()
             # ssl protocol isn't directly supported with mono.
-            if mono and getDefaultMapping() == "cs" and (a == "ssl" or a == "wss"):
+            if mono and getDefaultMapping() == "csharp" and (a == "ssl" or a == "wss"):
                 print("SSL is not supported with mono")
                 sys.exit(1)
             global protocol
@@ -2240,7 +2240,7 @@ def runTests(start, expanded, num = 0, script = False):
 
             # If this is mono and we're running ssl protocol tests
             # then skip. This occurs when using --all.
-            if mono and ("nomono" in config or (i.find(os.path.join("cs","test")) != -1 and
+            if mono and ("nomono" in config or (i.find(os.path.join("csharp", "test")) != -1 and
                                                 (args.find("ssl") != -1 or args.find("wss") != -1))):
                 print("%s*** test not supported with mono%s" % (prefix, suffix))
                 continue

@@ -123,13 +123,13 @@ if len(args) != 0:
 #
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.abspath(toplevel)
-    if os.path.exists(os.path.join(toplevel, "objc", "config", "makegitignore.py")):
+    if os.path.exists(os.path.join(toplevel, "objective-c", "config", "makegitignore.py")):
         break
 else:
     print("cannot find top-level directory")
     sys.exit(1)
 
-makefiles = find(os.path.join(toplevel, "objc"), "Makefile")
+makefiles = find(os.path.join(toplevel, "objective-c"), "Makefile")
 cwd = os.getcwd()
 gitIgnoreFiles = { }
 for i in makefiles:
@@ -146,7 +146,7 @@ for i in makefiles:
     
 os.chdir(cwd)
 
-excludePath = [ os.path.join(toplevel, "objc", "bin"), os.path.join(toplevel, "objc", "lib") ]
+excludePath = [ os.path.join(toplevel, "objective-c", "bin"), os.path.join(toplevel, "objective-c", "lib") ]
 for (path, files) in gitIgnoreFiles.iteritems():
     if os.path.dirname(path) in excludePath:
         continue

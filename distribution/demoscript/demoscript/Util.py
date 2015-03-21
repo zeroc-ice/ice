@@ -250,7 +250,7 @@ def configurePaths():
         # Add compiler sub-directory
         if isWin32():
             subdir = None
-            if getCppCompiler() == "VC110" and getMapping() != "py":
+            if getCppCompiler() == "VC110" and getMapping() != "python":
                 subdir = "vc110"
 
             if subdir:
@@ -281,7 +281,7 @@ def configurePaths():
     # Setting the library path is necessary for interpreters to find
     # the IceSSL library.
     #
-    if not isWin32() and iceHome != "/usr" and getMapping() in ["py", "rb", "php", "objc"]:
+    if not isWin32() and iceHome != "/usr" and getMapping() in ["python", "ruby", "php", "objective-c"]:
         libDir = os.path.join(getIceDir("cpp"), "lib")
         if isUbuntu():
             libDir = os.path.join(libDir, "x86_64-linux-gnu" if x64 else "i386-linux-gnu")
@@ -289,25 +289,25 @@ def configurePaths():
             libDir = libDir + "64"
         addLdPath(libDir)
 
-    addenv("PATH", os.path.join(getIceDir("cs"), "bin"))
+    addenv("PATH", os.path.join(getIceDir("csharp"), "bin"))
 
     #
     # On Windows, C# assemblies are found thanks to the .exe.config files.
     #
     if isWin32():
-        addenv("DEVPATH", os.path.join(getIceDir("cs"), "Assemblies"))
+        addenv("DEVPATH", os.path.join(getIceDir("csharp"), "Assemblies"))
     else:
-        addenv("MONO_PATH", os.path.join(getIceDir("cs"), "Assemblies"))
+        addenv("MONO_PATH", os.path.join(getIceDir("csharp"), "Assemblies"))
 
     #
     # On Windows x64, set PYTHONPATH to python/x64.
     #
     if isWin32() and x64:
-        addenv("PYTHONPATH", os.path.join(getIceDir("py"), "python", "x64"))
+        addenv("PYTHONPATH", os.path.join(getIceDir("python"), "python", "x64"))
     else:
-        addenv("PYTHONPATH", os.path.join(getIceDir("py"), "python"))
+        addenv("PYTHONPATH", os.path.join(getIceDir("python"), "python"))
 
-    addenv("RUBYLIB", os.path.join(getIceDir("rb"), "ruby"))
+    addenv("RUBYLIB", os.path.join(getIceDir("ruby"), "ruby"))
 
     if getMapping() == "js":
         addenv("NODE_PATH", os.path.join(getIceDir("js"), "node_modules" if iceHome else "src"))
@@ -316,13 +316,13 @@ def configurePaths():
 def getMappingDir(mapping):
     """Get the directory containing the demos for the given mapping."""
     # In the source tree
-    if mapping == "cs":
+    if mapping == "csharp":
         return "csharp"
-    elif mapping == "objc":
+    elif mapping == "objective-c":
         return "objective-c"
-    elif mapping == "py":
+    elif mapping == "python":
         return "python"
-    elif mapping == "rb":
+    elif mapping == "ruby":
         return "ruby"
     elif mapping == "vb":
         return "visualbasic"
@@ -448,13 +448,13 @@ def getMapping():
     assert os.path.normcase(here[:len(toplevel)]) == os.path.normcase(toplevel)
     mapping = here[len(toplevel)+1:].split(os.sep)[0]
     if mapping == "csharp":
-        return "cs"
+        return "csharp"
     elif mapping == "objective-c":
-        return "objc"
+        return "objective-c"
     elif mapping == "python":
-        return "py"
+        return "python"
     elif mapping == "ruby":
-        return "rb"
+        return "ruby"
     elif mapping == "visualbasic":
         return "vb"
     else:
@@ -692,10 +692,10 @@ def getIceBox(mapping = "cpp"):
             if cpp11:
                 iceBox += "++11"
         return iceBox
-    elif mapping == "cs":
+    elif mapping == "csharp":
         if isMono():
             # Mono cannot locate icebox in the PATH. This is wrong for a demo dist.
-            return os.path.join(getIceDir("cs"), "bin", "iceboxnet.exe")
+            return os.path.join(getIceDir("csharp"), "bin", "iceboxnet.exe")
         else:
             return "iceboxnet.exe"
     assert False
@@ -746,12 +746,12 @@ def spawn(command, cwd = None, mapping = None):
         else:
             mapping = getMapping()
 
-    if mapping == "cs":
+    if mapping == "csharp":
         if isMono():
             command = "mono " + command
         else:
             command = "./" + command
-    elif mapping == "py":
+    elif mapping == "python":
         command = sys.executable + " -u " + command
     elif mapping == "vb":
         command = "./" + command
@@ -765,7 +765,7 @@ def spawn(command, cwd = None, mapping = None):
             command = command.replace("java", "java -d64", 1)
         if javaCmd != "java":
             command = command.replace("java", javaCmd, 1)
-    elif (mapping == "cpp" or mapping == "objc"):
+    elif (mapping == "cpp" or mapping == "objective-c"):
         if cwd != None:
             desc = os.path.join(cwd, desc)
         if isWin32():

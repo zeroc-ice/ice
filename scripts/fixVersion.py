@@ -320,7 +320,7 @@ FixUtil.fileMatchAndReplace(os.path.join(icejs_home, "bower.json"),
 #
 # C# specific files
 #
-icecs_home = os.path.join(ice_dir, "cs")
+icecs_home = os.path.join(ice_dir, "csharp")
 
 FixUtil.fileMatchAndReplace(os.path.join(icecs_home, "src", "IceBox", "Makefile.mak"),
                       [("codeBase version=\"" + FixUtil.vpatMatch + "\.0\"", newVersion)])

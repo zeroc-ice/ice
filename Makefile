@@ -7,16 +7,16 @@
 #
 # **********************************************************************
 
-SUBDIRS			= cpp java js py rb php
-CLEAN_SUBDIRS	= js java py rb php cpp
-DEPEND_SUBDIRS	= cpp py rb php
-INSTALL_SUBDIRS	= cpp java py rb php js
+SUBDIRS			= cpp java js python ruby php
+CLEAN_SUBDIRS	= js java python ruby php cpp
+DEPEND_SUBDIRS	= cpp python ruby php
+INSTALL_SUBDIRS	= cpp java python ruby php js
 
 ifeq ($(shell uname),Darwin)
-SUBDIRS			+= objc
-CLEAN_SUBDIRS	+= objc
-DEPEND_SUBDIRS	+= objc
-INSTALL_SUBDIRS	+= objc
+SUBDIRS			+= objective-c
+CLEAN_SUBDIRS	+= objective-c
+DEPEND_SUBDIRS	+= objective-c
+INSTALL_SUBDIRS	+= objective-c
 endif
 
 all::
@@ -66,13 +66,13 @@ cs::
 	echo "making all in cs";
 	( cd cs && $(MAKE) all ) || exit 1;
 
-py::
-	echo "making all in py";
-	( cd py && $(MAKE) all ) || exit 1;
+python::
+	echo "making all in python";
+	( cd python && $(MAKE) all ) || exit 1;
 
-rb::
-	echo "making all in rb";
-	( cd rb && $(MAKE) all ) || exit 1;
+ruby::
+	echo "making all in ruby";
+	( cd ruby && $(MAKE) all ) || exit 1;
 
 php::
 	echo "making all in php";

@@ -12,22 +12,22 @@ top_srcdir = cpp
 
 
 !if "$(CPP_COMPILER)" == "VC100"
-SUBDIRS			= cpp py
-CLEAN_SUBDIRS		= py cpp
-DEPEND_SUBDIRS		= cpp py
-INSTALL_SUBDIRS		= cpp py
-TEST_SUBDIRS		= cpp py
+SUBDIRS			= cpp python
+CLEAN_SUBDIRS		= cpp python
+DEPEND_SUBDIRS		= cpp python
+INSTALL_SUBDIRS		= cpp python
+TEST_SUBDIRS		= cpp python
 !else
-SUBDIRS			= cpp java js cs  vsaddin
-CLEAN_SUBDIRS		= vsaddin cs js java cpp
-DEPEND_SUBDIRS		= cpp java js cs
-INSTALL_SUBDIRS		= cpp java js cs
-TEST_SUBDIRS		= cpp java js cs
+SUBDIRS			= cpp java js csharp vsaddin
+CLEAN_SUBDIRS		= cpp java js csharp vsaddin
+DEPEND_SUBDIRS		= cpp java js csharp
+INSTALL_SUBDIRS		= cpp java js csharp
+TEST_SUBDIRS		= cpp java js csharp
 !endif
 
 !if "$(CPP_COMPILER)" == "VC110"
 SUBDIRS			= $(SUBDIRS) php
-CLEAN_SUBDIRS		= php $(SUBDIRS)
+CLEAN_SUBDIRS		= $(SUBDIRS) php
 DEPEND_SUBDIRS		= $(SUBDIRS) php
 INSTALL_SUBDIRS		= $(SUBDIRS) php
 TEST_SUBDIRS		= $(SUBDIRS) php
@@ -66,13 +66,13 @@ java::
 	@echo "making all in java" && \
 	cmd /c "cd java && $(MAKE) -nologo -f Makefile.mak $(MAKEFLAGS) all" || exit 1
 
-cs::
-	@echo "making all in cs" && \
-	cmd /c "cd cs && $(MAKE) -nologo -f Makefile.mak $(MAKEFLAGS) all" || exit 1
+csharp::
+	@echo "making all in csharp" && \
+	cmd /c "cd csharp && $(MAKE) -nologo -f Makefile.mak $(MAKEFLAGS) all" || exit 1
 
-py::
-	@echo "making all in py" && \
-	cmd /c "cd py && $(MAKE) -nologo -f Makefile.mak $(MAKEFLAGS) all" || exit 1
+python::
+	@echo "making all in python" && \
+	cmd /c "cd python && $(MAKE) -nologo -f Makefile.mak $(MAKEFLAGS) all" || exit 1
 
 php::
 	@echo "making all in php" && \

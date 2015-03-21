@@ -55,7 +55,7 @@ embedded_runpath ?= yes
 #
 # Common definitions
 #
-ice_language     = objc
+ice_language     = objective-c
 slice_translator = slice2objc
 
 ifeq ($(shell test -f $(top_srcdir)/config/Make.common.rules && echo 0),0)

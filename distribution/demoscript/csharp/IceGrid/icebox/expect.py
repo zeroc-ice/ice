@@ -29,7 +29,7 @@ if Util.isMono():
     fo = open(desc, "w")
     for l in fi:
         if l.find('<icebox') != -1:
-            l = '<icebox id="IceBox" exe="mono" activation="on-demand"><option>%s</option>' % Util.getIceBox("cs")
+            l = '<icebox id="IceBox" exe="mono" activation="on-demand"><option>%s</option>' % Util.getIceBox("csharp")
         fo.write(l)
     fi.close()
     fo.close()

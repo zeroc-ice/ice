@@ -82,7 +82,7 @@ PYTHON_LIBS	    ?= -L$(PYTHON_LIB_DIR) -l$(PYTHON_LIB_NAME)
 #
 # Common definitions
 #
-ice_language     = py
+ice_language     = python
 ice_require_cpp  = yes
 slice_translator = slice2py
 

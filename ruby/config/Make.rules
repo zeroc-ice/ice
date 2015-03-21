@@ -130,7 +130,7 @@ endif
 #
 # Common definitions
 #
-ice_language     = rb
+ice_language     = ruby
 ice_require_cpp  = yes
 slice_translator = slice2rb
 
