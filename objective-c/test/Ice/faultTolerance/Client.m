@@ -9,7 +9,7 @@
 
 #import <objc/Ice.h>
 #import <TestCommon.h>
-#import <faultTolerance/Test.h>
+#import <FaultToleranceTest.h>
 #import <stdio.h>
 
 void

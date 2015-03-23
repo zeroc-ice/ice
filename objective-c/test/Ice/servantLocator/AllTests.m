@@ -9,7 +9,7 @@
 
 #import <objc/Ice.h>
 #import <TestCommon.h>
-#import <servantLocator/ServantLocatorTest.h>
+#import <ServantLocatorTest.h>
 
 void
 testExceptions(id<TestServantLocatorTestIntfPrx> obj)

@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#import <servantLocator/ServantLocatorTest.h>
+#import <ServantLocatorTest.h>
 #import <servantLocator/ServantLocatorI.h>
 #import <TestCommon.h>
 

@@ -9,7 +9,7 @@
 
 #import <objc/Ice.h>
 #import <TestCommon.h>
-#import <faultTolerance/Test.h>
+#import <FaultToleranceTest.h>
 
 #import <Foundation/Foundation.h>
 
@@ -281,4 +281,3 @@ allTests(id<ICECommunicator> communicator, NSArray* ports)
         tprintf("ok\n");
     }
 }
-
