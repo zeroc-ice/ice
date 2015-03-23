@@ -313,23 +313,6 @@ def configurePaths():
         addenv("NODE_PATH", os.path.join(getIceDir("js"), "node_modules" if iceHome else "src"))
         addenv("NODE_PATH", ".")
 
-def getMappingDir(mapping):
-    """Get the directory containing the demos for the given mapping."""
-    # In the source tree
-    if mapping == "csharp":
-        return "csharp"
-    elif mapping == "objective-c":
-        return "objective-c"
-    elif mapping == "python":
-        return "python"
-    elif mapping == "ruby":
-        return "ruby"
-    elif mapping == "vb":
-        return "visualbasic"
-    else:
-        return mapping
-
-
 def getMirrorDir(mapping = None):
     """Get the mirror directory for the current demo in the given mapping."""
     here = os.path.abspath(os.getcwd())
@@ -344,7 +327,7 @@ def getMirrorDir(mapping = None):
         scriptPath = os.sep.join(post.split(os.sep)[2:])
     else:
         scriptPath = os.sep.join(post.split(os.sep)[1:])
-    return os.path.join(pref, getMappingDir(mapping), scriptPath)
+    return os.path.join(pref, mapping, scriptPath)
 
 def getIceDir(subdir = None):
     """Get the top level directory of the ice distribution. If ICE_HOME
@@ -446,19 +429,7 @@ def getMapping():
     """Determine the current mapping based on the cwd."""
     here = os.path.abspath(os.getcwd())
     assert os.path.normcase(here[:len(toplevel)]) == os.path.normcase(toplevel)
-    mapping = here[len(toplevel)+1:].split(os.sep)[0]
-    if mapping == "csharp":
-        return "csharp"
-    elif mapping == "objective-c":
-        return "objective-c"
-    elif mapping == "python":
-        return "python"
-    elif mapping == "ruby":
-        return "ruby"
-    elif mapping == "visualbasic":
-        return "vb"
-    else:
-        return mapping
+    return here[len(toplevel)+1:].split(os.sep)[0]
 
 def runDemos(start, args, demos, num = 0, script = False, root = False):
     global demoErrors
@@ -479,7 +450,7 @@ def runDemos(start, args, demos, num = 0, script = False, root = False):
         if root:
             dir = os.path.join(toplevel, i)
         else:
-            dir = os.path.join(toplevel, getMappingDir(getMapping()), i)
+            dir = os.path.join(toplevel, getMapping(), i)
 
         if script:
             prefix = "echo \""
