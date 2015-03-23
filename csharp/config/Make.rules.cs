@@ -71,7 +71,7 @@ KEYFILE                 ?= $(top_srcdir)/../config/IceDevKey.snk
 #
 # Common definitions
 #
-ice_language = cs
+ice_language = csharp
 slice_translator = slice2cs
 
 ifeq ($(shell test -f $(top_srcdir)/config/Make.common.rules && echo 0),0)
