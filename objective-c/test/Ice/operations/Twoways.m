@@ -1679,6 +1679,33 @@ twoways(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
 
     [p opNonmutating];
 
+    test([p opByte1:0xFF] == 0xFF);
+    test([p opShort1:0x7FFF] == 0x7FFF);
+    test([p opInt1:0x7FFFFFFF] == 0x7FFFFFFF);
+    test([p opLong1:0x7FFFFFFFFFFFFFFF] == 0x7FFFFFFFFFFFFFFF);
+    test([p opFloat1:1.0] == 1.0);
+    test([p opDouble1:1.0] == 1.0);
+    test([[p opString1:@"opString1"] isEqualToString:@"opString1"]);
+
+    id<TestOperationsMyDerivedClassPrx> d = [TestOperationsMyDerivedClassPrx uncheckedCast:p];
+
+    TestOperationsMyStruct1* s =
+        [TestOperationsMyStruct1 myStruct1:@"Test::MyStruct1::s" myClass:nil myStruct1:@"Test::MyStruct1::myStruct1"];
+    s = [d opMyStruct1:s];
+    test([s.tesT isEqualToString:@"Test::MyStruct1::s"]);
+    test(s.myClass == 0);
+    test([s.myStruct1 isEqualToString:@"Test::MyStruct1::myStruct1"]);
+
+    TestOperationsMyClass1* c =
+        [TestOperationsMyClass1 myClass1:@"Test::MyClass1::testT" myClass:nil myClass1:@"Test::MyClass1::myClass1"];
+    c = [d opMyClass1:c];
+    test([c.tesT isEqualToString:@"Test::MyClass1::testT"]);
+    test(c.myClass == nil);
+    test([c.myClass1 isEqualToString:@"Test::MyClass1::myClass1"]);
+
+    [p opStringS1:[TestOperationsStringS array]];
+    [p opByteBoolD1:[TestOperationsByteBoolD dictionary]];
+
     //
     // TestOperationss below are for Objective-C only. They test that we do the right thing if NSNull
     // is passed as part of the sequence or dictionary.

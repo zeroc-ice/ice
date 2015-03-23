@@ -1649,9 +1649,9 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
     test(p->opFloat1(1.0) == 1.0);
     test(p->opDouble1(1.0) == 1.0);
     test(p->opString1("opString1") == "opString1");
-    
+
     Test::MyDerivedClassPrx d = Test::MyDerivedClassPrx::uncheckedCast(p);
-    
+
     Test::MyStruct1 s;
     s.tesT = "Test::MyStruct1::s";
     s.myClass = 0;
@@ -1660,7 +1660,7 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
     test(s.tesT == "Test::MyStruct1::s");
     test(s.myClass == 0);
     test(s.myStruct1 == "Test::MyStruct1::myStruct1");
-    
+
     Test::MyClass1Ptr c = new Test::MyClass1();
     c->tesT = "Test::MyClass1::testT";
     c->myClass = 0;
@@ -1669,12 +1669,12 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
     test(c->tesT == "Test::MyClass1::testT");
     test(c->myClass == 0);
     test(c->myClass1 == "Test::MyClass1::myClass1");
-    
+
     Test::StringS seq;
     p->opStringS1(seq);
 
     Test::ByteBoolD dict;
     p->opByteBoolD1(dict);
-    
-    
+
+
 }

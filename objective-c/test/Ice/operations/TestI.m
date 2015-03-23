@@ -663,6 +663,72 @@
     test([current mode] == ICENonmutating);
 }
 
+-(ICEByte) opByte1:(ICEByte)p current:(ICECurrent*)current
+{
+    return p;
+}
+
+-(ICEShort) opShort1:(ICEShort)p current:(ICECurrent*)current
+{
+    return p;
+}
+
+-(ICEInt) opInt1:(ICEInt)p current:(ICECurrent*)current
+{
+    return p;
+}
+
+-(ICELong) opLong1:(ICELong)p current:(ICECurrent*)current
+{
+    return p;
+}
+
+
+-(ICEFloat) opFloat1:(ICEFloat)p current:(ICECurrent*)current
+{
+    return p;
+}
+
+-(ICEDouble) opDouble1:(ICEDouble)p current:(ICECurrent*)current
+{
+    return p;
+}
+
+-(NSString*) opString1:(NSString*)p current:(ICECurrent*)current
+{
+    return p;
+}
+
+-(TestOperationsStringS*) opStringS1:(TestOperationsStringS*)p current:(ICECurrent*)current
+{
+    return p;
+}
+
+-(TestOperationsByteBoolD*) opByteBoolD1:(TestOperationsByteBoolD*)p current:(ICECurrent*)current
+{
+    return p;
+}
+
+-(TestOperationsStringS*) opStringS2:(TestOperationsStringS*)p current:(ICECurrent*)current
+{
+    return p;
+}
+
+-(TestOperationsByteBoolD*) opByteBoolD2:(TestOperationsByteBoolD*)p current:(ICECurrent*)current
+{
+    return p;
+}
+
+-(TestOperationsMyClass1*) opMyClass1:(TestOperationsMyClass1*)p current:(ICECurrent*)current
+{
+    return p;
+}
+
+-(TestOperationsMyStruct1*) opMyStruct1:(TestOperationsMyStruct1*)p current:(ICECurrent*)current
+{
+    return p;
+}
+
 -(TestOperationsStringS *) getNSNullStringSeq:(ICECurrent *)current
 {
     return [NSArray arrayWithObjects:@"first", [NSNull null], nil];
