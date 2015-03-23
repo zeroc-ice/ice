@@ -280,11 +280,12 @@ defaultMapping = None
 testErrors = []
 toplevel = None
 
-path = [ "ice", ".", "..", "../..", "../../..", "../../../..", "../../../../..", "../../../../../..",
+path = [ ".", "..", "../..", "../../..", "../../../..", "../../../../..", "../../../../../..",
          "../../../../../../..", "../../../../../../../..", "../../../../../../../../.." ]
 head = os.path.dirname(sys.argv[0])
 if len(head) > 0:
-    path = [os.path.join(head, p) for p in path]
+    # Try to find scripts/TestUtil.py or ice/scripts/TestUtil.py in parent directories
+    path = [os.path.join(head, p) for p in path] + [os.path.join(head, p, "ice") for p in path]
 path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "scripts", "TestUtil.py")) ]
 if len(path) == 0:
     raise RuntimeError("can't find toplevel directory!")
