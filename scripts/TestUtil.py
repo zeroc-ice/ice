@@ -280,7 +280,7 @@ defaultMapping = None
 testErrors = []
 toplevel = None
 
-path = [ ".", "..", "../..", "../../..", "../../../..", "../../../../..", "../../../../../..",
+path = [ "ice", ".", "..", "../..", "../../..", "../../../..", "../../../../..", "../../../../../..",
          "../../../../../../..", "../../../../../../../..", "../../../../../../../../.." ]
 head = os.path.dirname(sys.argv[0])
 if len(head) > 0:
@@ -2137,6 +2137,7 @@ def runTests(start, expanded, num = 0, script = False):
                 dir = os.path.join(toplevel, "java", "test", "src", "main", i)
             else:
                 dir = os.path.join(toplevel, i)
+            dir = os.path.normpath(dir)
 
             sys.stdout.write("\n")
             if num > 0:
