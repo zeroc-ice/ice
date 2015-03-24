@@ -1,54 +1,41 @@
-The Internet Communications Engine
-======================================================================
+The Internet Communications Engine (Ice)
+========================================
 
-Ice is a modern object-oriented toolkit that enables you to build
-distributed applications with minimal effort. Ice allows you to focus
-your efforts on your application logic while it takes care of all
-interactions with low-level network programming interfaces. With Ice,
-there is no need to worry about details such as opening network
-connections, serializing and deserializing data for network
-transmission, or retrying failed connection attempts (to name but a
-few of dozens of such low-level details).
+Ice is a comprehensive RPC framework that helps you build distributed applications with minimal effort. Ice takes care of all interactions with low-level network programming interfaces and allows you to focus your efforts on your application logic. When using Ice, there is no need to worry about details such as opening network connections, serializing and deserializing data for network transmission, or retrying failed connection attempts (to name just a few of dozens of such low-level details).
 
-In addition to fully-featured and high-performance RPC, Ice also
-provides a number of services. These services supply functionality
-that most distributed applications require, such as event distribution
-or server management.
+Feature highlights:
+- Efficient, high-performance binary protocol
+- Supports a wide range of programming languages and platforms
+- Easy to use and type-safe API, with your own interfaces and types defined in a programming language neutral IDL, Slice
+- Supports secure, encrypted communications by taking advantage of your platform's native SSL/TLS stack
+- Familiar object-oriented programming model, with the ability to transmit proxies (references to remote objects) to remote applications
+- Supports synchronous and asynchronous calls, for both client-side invocations and server-side dispatches
+- Automatic discovery of remote objects through UDP multicast
+- Comes with a number of reusable (and optional) services, including:
+   - IceGrid, the nerve-center of any large-scale application, with support for server deployment, replication, monitoring, load-balancing and more
+   - IceStorm, a lightweight topic-based pub-sub service
+   - Freeze, a low-friction embedded database for Ice objects
+   - Glacier2, a sysadmin-friendly solution for routing Ice communications through firewalls
+   
+Copyright and License
+---------------------
+Ice is a single-copyright project: all the source code in this ice repository is Copyright (c) ZeroC, Inc., with very few exceptions.
 
-Ice is available under the terms and conditions of the GNU General
-Public License v2 (see the ICE_LICENSE file). Commercial licenses are
-available for customers who wish to use Ice in proprietary products.
-Please contact sales@zeroc.com for more information on licensing Ice.
+As copyright owner, ZeroC can license Ice under different license terms, and offers the following licenses for Ice:
+- GPL v2, a well-known open-source license with strong copyleft conditions (the default license)
+- Commercial or closed-source licenses
 
+If you license Ice under GPL v2, there is no license fee or signed license agreement: you just need to comply with the GPL v2 terms and conditions. See [ICE_LICENSE](./ICE_LICENSE) and [LICENSE](./LICENSE) for further information.  
 
-About this Source Distribution
-------------------------------
+If you purchased a commercial or closed-source license for Ice, you must comply with the terms and conditions listed in the associated license agreement; the GPL v2 terms and conditions do not apply.
 
-This archive contains the source code for Ice language mappings and
-components in the following subdirectories:
+The Ice software itself remains the same: the only difference between an open-source Ice and a commercial Ice are the license terms.
 
-Directory    | Language
----------    | --------
-cpp          | C++ language mapping
-csharp       | C# language mapping
-java         | Java language mapping
-js           | JavaScript language mapping
-php          | PHP language mapping
-python       | Python language mapping
-ruby         | Ruby language mapping
-objective-c  | Objective-c language mapping
-android      | Android sample programs and test suite
-eclipse      | Eclipse plug-in
-vsaddin      | Visual Studio add-in
-
+Contributions
+-------------
+See [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 Documentation
 -------------
-
-Release notes for Ice 3.6.0 are available online:
-
-  https://doc.zeroc.com/display/Rel/Ice+3.6.0+Release+Notes
-
-The manual also provides instructions for building and installing Ice:
-
-  https://doc.zeroc.com/display/Rel/Ice+3.6.0+Build+Instructions
+- [Ice Release Notes](https://doc.zeroc.com/display/Rel/Ice+3.6.0+Release+Notes)
+- [Ice Manual](https://doc.zeroc.com/display/Ice36/Home)
