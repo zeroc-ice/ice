@@ -14,8 +14,6 @@ dependencies {
     compile project(':ice')
 }
 
-apply plugin: 'slice'
-
 jar {
     manifest {
         attributes("Main-Class": "Test.Common.ControllerServer")

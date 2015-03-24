@@ -38,8 +38,8 @@ sgenerated
 /javae/midp/lib
 /cppe/bin
 /cppe/lib
-/cs/bin
-/cs/Assemblies
+/csharp/bin
+/csharp/Assemblies
 *#
 .#*
 *~
@@ -70,7 +70,7 @@ js/npm-debug.log
 
 # Windows build files
 /cpp/test/*/*/build.txt
-/cs/test/*/*/build.txt
+/csharp/test/*/*/build.txt
 
 # OS X Keychain
 *.keychain

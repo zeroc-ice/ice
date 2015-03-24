@@ -7,7 +7,20 @@
 //
 // **********************************************************************
 
-apply plugin: 'slice'
+buildscript {
+    repositories {
+        maven {
+            url 'https://repo.zeroc.com/nexus/content/repositories/releases'
+        }
+    }
+    dependencies {
+        classpath group: 'com.zeroc.gradle.plugins', name: 'ice-gradle-plugin', version: '1.0'
+    }
+}
+
+if (!project.plugins.findPlugin(com.zeroc.gradle.plugins.slice.SlicePlugin)) {
+    project.apply(plugin: com.zeroc.gradle.plugins.slice.SlicePlugin)
+}
 
 ext.generatedDir = "$project.buildDir/generated"
 ext.useLocalOnly = false
