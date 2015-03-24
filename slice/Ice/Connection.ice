@@ -201,9 +201,9 @@ local interface Connection
 
     /**
      *
-     * Flush any pending batch requests for this connection. This
-     * causes all batch requests that were sent via proxies that use
-     * this connection to be sent to the server.
+     * Flush any pending batch requests for this connection.
+     * This means all batch requests invoked on fixed proxies
+     * associated with the connection.
      *
      **/
     ["async"] void flushBatchRequests();

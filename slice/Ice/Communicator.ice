@@ -153,9 +153,8 @@ local interface Communicator
      **/
     ["cpp:const"] string proxyToString(Object* obj);
 
-
     /**
-     * 
+     *
      * Convert a set of proxy properties into a proxy. The "base"
      * name supplied in the <tt>property</tt> argument refers to a
      * property containing a stringified proxy, such as
@@ -173,13 +172,13 @@ local interface Communicator
     ["cpp:const"] Object* propertyToProxy(string property);
 
     /**
-     * 
+     *
      * Convert a proxy to a set of proxy properties.
      *
      * @param proxy The proxy.
      *
      * @param property The base property name.
-     * 
+     *
      * @return The property set.
      *
      **/
@@ -245,7 +244,7 @@ local interface Communicator
      *
      * <p>Calling this operation with an empty name will result in a
      * UUID being generated for the name.
-     * 
+     *
      * @param name The object adapter name.
      *
      * @param endpoints The endpoints for the object adapter.
@@ -263,7 +262,7 @@ local interface Communicator
      *
      * Create a new object adapter with a router. This operation
      * creates a routed object adapter.</p>
-     * 
+     *
      * <p>Calling this operation with an empty name will result in a
      * UUID being generated for the name.
      *
@@ -282,8 +281,8 @@ local interface Communicator
 
     /**
      *
-     * <p>Add an object factory to this communicator. Installing a 
-     * factory with an id for which a factory is already registered 
+     * <p>Add an object factory to this communicator. Installing a
+     * factory with an id for which a factory is already registered
      * throws {@link AlreadyRegisteredException}.</p>
      *
      * <p>When unmarshaling an Ice object, the Ice run time reads the
@@ -346,7 +345,6 @@ local interface Communicator
      *
      **/
     ["cpp:const"] ObjectFactory findObjectFactory(string id);
-
 
     /**
      * Get the implicit context associated with this communicator.
@@ -468,12 +466,12 @@ local interface Communicator
     /**
      *
      * Flush any pending batch requests for this communicator.
-     * This causes all batch requests that were sent via proxies
-     * obtained via this communicator to be sent to the server.
+     * This means all batch requests invoked on fixed proxies
+     * for all connections associated with the communicator.
+     * Any errors that occur while flushing a connection are ignored.
      *
      **/
     ["async"] void flushBatchRequests();
-
 
     /**
      *
@@ -500,15 +498,15 @@ local interface Communicator
      *
      * Get a proxy to the main facet of the Admin object.
      *
-     * getAdmin also creates the Admin object and creates and activates the Ice.Admin object 
-     * adapter to host this Admin object if Ice.Admin.Enpoints is set. The identity of the Admin 
-     * object created by getAdmin is <value of Ice.Admin.InstanceName>/admin, or <UUID>/admin 
+     * getAdmin also creates the Admin object and creates and activates the Ice.Admin object
+     * adapter to host this Admin object if Ice.Admin.Enpoints is set. The identity of the Admin
+     * object created by getAdmin is <value of Ice.Admin.InstanceName>/admin, or <UUID>/admin
      * when Ice.Admin.InstanceName is not set.
      *
      * <p>If Ice.Admin.DelayCreation is 0 or not set, getAdmin is called by the communicator
      * initialization, after initialization of all plugins.</p>
 
-     * @return A proxy to the main ("") facet of the Admin object, or a null proxy if no 
+     * @return A proxy to the main ("") facet of the Admin object, or a null proxy if no
      * Admin object is configured.
      *
      * @see #createAdmin
@@ -518,7 +516,7 @@ local interface Communicator
     /**
      *
      * Add a new facet to the Admin object.
-     * Adding a servant with a facet that is already registered 
+     * Adding a servant with a facet that is already registered
      * throws {@link AlreadyRegisteredException}.
      *
      * @param servant The servant that implements the new Admin facet.
@@ -530,7 +528,7 @@ local interface Communicator
     /**
      *
      * Remove the following facet to the Admin object.
-     * Removing a facet that was not previously registered throws 
+     * Removing a facet that was not previously registered throws
      * {@link NotRegisteredException}.
      *
      * @param facet The name of the Admin facet.
@@ -549,7 +547,7 @@ local interface Communicator
      *
      **/
     Object findAdminFacet(string facet);
-   
+
     /**
      *
      * Returns a map of all facets of the Admin object.
@@ -561,8 +559,6 @@ local interface Communicator
      *
      **/
     FacetMap findAllAdminFacets();
-
 };
 
 };
-
