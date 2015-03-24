@@ -14,7 +14,7 @@ Feature highlights:
 - Comes with a number of reusable (and optional) services, including:
    - IceGrid, the nerve-center of any large-scale application, with support for server deployment, replication, monitoring, load-balancing and more
    - IceStorm, a lightweight topic-based pub-sub service
-   - Freeze, a low-friction embedded database for Ice objects
+   - Freeze, an embedded, transactional database for Ice datatypes
    - Glacier2, a sysadmin-friendly solution for routing Ice communications through firewalls
    
 Copyright and License
