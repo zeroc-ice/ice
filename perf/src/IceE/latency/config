@@ -1,7 +1,0 @@
-Latency.Latency=latency:tcp -p 10000
-Latency.Endpoints=tcp -p 10000
-
-Ice.MonitorConnections=0
-Ice.ACM.Client.Timeout=0
-Ice.ACM.Server.Timeout=0
-Ice.PrintAdapterReady=1
