@@ -21,7 +21,7 @@ prefix			?= /opt/Ice-$(VERSION)
 
 #
 # The "root directory" for runpath embedded in executables. Can be set
-# to change the runpath added to Ice executables. The default is 
+# to change the runpath added to Ice executables. The default is
 # platform dependent.
 #
 #embedded_runpath_prefix ?= /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
@@ -74,7 +74,7 @@ else
 endif
 headerdir		= $(top_srcdir)/include
 
-install_includedir  := $(prefix)/include
+install_includedir  := $(prefix)/include/objc
 install_libdir	:= $(prefix)/$(libsubdir)
 install_bindir	:= $(prefix)/$(binsubdir)
 
@@ -88,7 +88,7 @@ SLICE2OBJCFLAGS	= $(ICECPPFLAGS)
 FLEXFLAGS		=
 BISONFLAGS		= -dvt
 CPPFLAGS		+= -I$(includedir)
-LDFLAGS			= $(OBJCFLAGS) -L$(libdir) 
+LDFLAGS			= $(OBJCFLAGS) -L$(libdir)
 
 ifdef ice_src_dist
     ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
@@ -102,7 +102,7 @@ endif
 
 # This cannot use .cpp:.o as we have multiple types of source files.
 
-EVERYTHING		= all clean install 
+EVERYTHING		= all clean install
 EVERYTHING_EXCEPT_ALL   = clean install
 
 .SUFFIXES:
