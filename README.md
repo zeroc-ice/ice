@@ -1,3 +1,5 @@
+[![Build Status](https://magnum.travis-ci.com/ZeroC-Inc/ice-dev.svg?token=icxd1yE9Nf6WLivZz2vF&branch=master)](https://magnum.travis-ci.com/ZeroC-Inc/ice-dev)
+
 The Internet Communications Engine (Ice)
 ========================================
 
@@ -28,7 +30,7 @@ Feature highlights:
    - Freeze, an embedded, transactional database for Ice datatypes
    - Glacier2, a sysadmin-friendly solution for routing Ice communications
      through firewalls
-   
+
 Copyright and License
 ---------------------
 Ice is a single-copyright project: all the source code in this ice repository
