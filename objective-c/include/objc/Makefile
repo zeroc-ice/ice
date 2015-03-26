@@ -19,3 +19,10 @@ $(EVERYTHING)::
 	    echo "making $@ in $$subdir"; \
 	    ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
 	done
+
+	@for i in *.h ; \
+	do \
+	    echo "Installing $$i" ; \
+	    $(INSTALL_DATA) $$i $(DESTDIR)$(install_includedir)/$$i ; \
+	    chmod a+r $(DESTDIR)$(install_includedir)/$$i ; \
+	done
