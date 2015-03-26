@@ -4,5 +4,5 @@
 client
 server
 .depend
-Test.m
-Test.h
+FaultToleranceTest.m
+FaultToleranceTest.h

@@ -4,7 +4,6 @@
 .depend
 Admin.m
 Descriptor.m
-Discovery.m
 Exception.m
 FileParser.m
 Locator.m
@@ -16,7 +15,6 @@ Session.m
 UserAccountMapper.m
 Admin.h
 Descriptor.h
-Discovery.h
 Exception.h
 FileParser.h
 Locator.h
