@@ -8,7 +8,6 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <Ice/SliceChecksums.h>
 #include <TestCommon.h>
 #include <Test.h>
 
