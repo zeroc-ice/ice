@@ -20,6 +20,7 @@ $(EVERYTHING)::
 	    ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
 	done
 
+install::
 	@for i in *.h ; \
 	do \
 	    echo "Installing $$i" ; \
