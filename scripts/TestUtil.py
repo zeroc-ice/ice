@@ -2301,7 +2301,7 @@ def runTests(start, expanded, num = 0, script = False):
                     print("  exit 1")
                 print("fi")
             else:
-                status = os.system(sys.executable + " " +  quoteArgument(os.path.join(dir, "run.py")) + " " + args)
+                status = os.system(sys.executable + " " +  quoteArgument(os.path.join(dir, "run.py")) + " " + args) >> 8
 
                 if status:
                     if(num > 0):
