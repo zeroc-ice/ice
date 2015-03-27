@@ -283,9 +283,10 @@ toplevel = None
 path = [ ".", "..", "../..", "../../..", "../../../..", "../../../../..", "../../../../../..",
          "../../../../../../..", "../../../../../../../..", "../../../../../../../../.." ]
 head = os.path.dirname(sys.argv[0])
-if len(head) > 0:
-    # Try to find scripts/TestUtil.py or ice/scripts/TestUtil.py in parent directories
-    path = [os.path.join(head, p) for p in path] + [os.path.join(head, p, "ice") for p in path]
+if len(head) == 0:
+    head = "."
+# Try to find scripts/TestUtil.py or ice/scripts/TestUtil.py in parent directories
+path = [os.path.join(head, p) for p in path] + [os.path.join(head, p, "ice") for p in path]
 path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "scripts", "TestUtil.py")) ]
 if len(path) == 0:
     raise RuntimeError("can't find toplevel directory!")
