@@ -7,5 +7,5 @@ before_script:
  - sudo update-alternatives --set gcc /usr/bin/gcc-4.8
  - sudo apt-get install libmcpp-dev libdb++-dev libdb-dev libdb-java libdb-java-dev ruby-dev python-dev php5-dev
 script:
- - make
- - python allTests.py
+ - make -j3
+ - python allTests.py --rfilter='java/test/Ice/udp'
