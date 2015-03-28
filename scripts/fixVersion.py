@@ -350,11 +350,6 @@ FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "eclipse", "java", "Slice2java
                                          "com", "zeroc", "slice2javaplugin", "preferences", "messages.properties"),
                             [("IceStringVersion=" + FixUtil.vpatMatch, version)])
 
-# VS addin Ice.props
-FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "vsaddin", "config", "Ice.props"),
-                            [("Ice\s" + FixUtil.vpatMatch, version)])
-
-
 # man pages
 for f in FixUtil.find(["*.1"]):
     FixUtil.fileMatchAndReplace(f, [("/Ice([0-9]+[0-9]+)/", FixUtil.majorVersion(version) + FixUtil.minorVersion(version))], False)

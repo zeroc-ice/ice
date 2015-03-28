@@ -18,8 +18,8 @@ DEPEND_SUBDIRS		= cpp python
 INSTALL_SUBDIRS		= cpp python
 TEST_SUBDIRS		= cpp python
 !else
-SUBDIRS			= cpp java js csharp vsaddin
-CLEAN_SUBDIRS		= cpp java js csharp vsaddin
+SUBDIRS			= cpp java js csharp
+CLEAN_SUBDIRS		= cpp java js csharp
 DEPEND_SUBDIRS		= cpp java js csharp
 INSTALL_SUBDIRS		= cpp java js csharp
 TEST_SUBDIRS		= cpp java js csharp
@@ -78,6 +78,3 @@ php::
 	@echo "making all in php" && \
 	cmd /c "cd php && $(MAKE) -nologo -f Makefile.mak $(MAKEFLAGS) all" || exit 1
 
-vsaddin::
-	@echo "making all in vsaddin" && \
-	cmd /c "cd vsaddin && $(MAKE) -nologo -f Makefile.mak $(MAKEFLAGS) all" || exit 1
