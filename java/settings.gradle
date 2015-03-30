@@ -29,10 +29,6 @@ project(':icegrid').projectDir = new File('src/IceGrid')
 include ':IceGridGUI'
 project(':IceGridGUI').projectDir = new File('src/IceGridGUI')
 
-
-include ':ant-ice'
-project(':ant-ice').projectDir = new File('src/ant-ice')
-
 // Tests
 include ':test'
 include ':testPlugins'
