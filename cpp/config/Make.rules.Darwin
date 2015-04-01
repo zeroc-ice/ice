@@ -100,8 +100,8 @@ ICONV_LIB		= -liconv
 
 ICEUTIL_OS_LIBS         =
 ICE_OS_LIBS             = -ldl
-
-SSL_OS_LIBS             = -framework Security -framework CoreFoundation
+CRYPT_OS_LIBS           = -framework Security -framework CoreFoundation
+SSL_OS_LIBS             = $(CRYPT_OS_LIBS)
 
 PLATFORM_HAS_READLINE   := yes
 

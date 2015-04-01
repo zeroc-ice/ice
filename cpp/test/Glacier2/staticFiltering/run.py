@@ -29,6 +29,11 @@ router = TestUtil.getGlacier2Router()
 clientCmd = os.path.join(os.getcwd(), 'client')
 serverCmd = os.path.join(os.getcwd(), 'server')
 
+#
+# Generate the crypt passwords file
+#
+TestUtil.cryptPasswords(os.path.join(os.getcwd(), "passwords"), {"userid": "abc123"})
+
 targets = []
 if TestUtil.appverifier:
     targets = [serverCmd, clientCmd, router]

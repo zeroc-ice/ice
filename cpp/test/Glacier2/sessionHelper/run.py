@@ -22,6 +22,11 @@ import TestUtil
 
 router = os.path.join(TestUtil.getCppBinDir(), "glacier2router")
 
+#
+# Generate the crypt passwords file
+#
+TestUtil.cryptPasswords(os.path.join(os.getcwd(), "passwords"), {"userid": "abc123"})
+
 args =  ' --Ice.Warn.Dispatch=0' + \
         ' --Ice.Warn.Connections=0' + \
         ' --Glacier2.SessionTimeout="30"' + \

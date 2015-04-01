@@ -203,6 +203,7 @@ endif
 ICESSL_LIBS     = $(OPENSSL_RPATH_LINK) -lIceSSL
 LIBS			= $(BZIP2_RPATH_LINK) -lIce $(BASELIBS)
 
+CRYPT_OS_LIBS   = -lcrypt
 ICEUTIL_OS_LIBS = -lrt $(OPENSSL_RPATH_LINK) -lcrypto
 ICE_OS_LIBS     = -ldl
 

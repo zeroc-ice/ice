@@ -24,7 +24,7 @@ include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I.. $(CPPFLAGS)
 
-LINKWITH        := $(BZIP2_RPATH_LINK) -lIce -lIceUtil -lGlacier2 $(ICEUTIL_OS_LIBS) $(CXXLIBS)
+LINKWITH        := $(BZIP2_RPATH_LINK) -lIce -lIceUtil -lGlacier2 $(CRYPT_OS_LIBS) $(CXXLIBS)
 
 $(libdir)/$(LIBFILENAME): $(OBJS)
 	@mkdir -p $(dir $@)

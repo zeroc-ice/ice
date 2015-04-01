@@ -20,6 +20,11 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0], "scripts"))
 import TestUtil
 
+#
+# Generate the crypt passwords file
+#
+TestUtil.cryptPasswords(os.path.join(os.getcwd(), "passwords"), {"userid": "abc123"})
+
 router = os.path.join(TestUtil.getCppBinDir(), "glacier2router")
 
 args =  ' --Ice.Warn.Dispatch=0' + \
