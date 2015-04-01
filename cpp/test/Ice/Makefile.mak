@@ -60,9 +60,10 @@ SUBDIRS		= $(SUBDIRS) \
 		  slicing \
 		  stringConverter \
 		  threadPoolPriority \
-  		  checksum \
-  		  defaultServant \
-  		  interceptor \
+		  checksum \
+		  defaultServant \
+		  interceptor \
+		  services
 !endif
 
 

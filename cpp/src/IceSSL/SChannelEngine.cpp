@@ -189,7 +189,7 @@ SChannelEngine::initialize()
     defaultProtocols.push_back("tls1_0");
     defaultProtocols.push_back("tls1_1");
     defaultProtocols.push_back("tls1_2");
-    const_cast<DWORD&>(_protocols) = 
+    const_cast<DWORD&>(_protocols) =
                     parseProtocols(properties->getPropertyAsListWithDefault(prefix + "Protocols", defaultProtocols));
 
     //
@@ -363,11 +363,43 @@ SChannelEngine::initialize()
             if(store)
             {
                 _stores.push_back(store);
-                cert = CertFindCertificateInStore(store, X509_ASN_ENCODING, 0, CERT_FIND_ANY, 0, cert);
+
+                //
+                // Try to find a certificate chain.
+                //
+                CERT_CHAIN_FIND_BY_ISSUER_PARA para;
+                memset(&para, 0, sizeof(CERT_CHAIN_FIND_BY_ISSUER_PARA));
+                para.cbSize = sizeof(CERT_CHAIN_FIND_BY_ISSUER_PARA);
+
+                DWORD ff = CERT_CHAIN_FIND_BY_ISSUER_CACHE_ONLY_URL_FLAG; // Don't fetch anything from the Internet
+                PCCERT_CHAIN_CONTEXT chain = 0;
+                while(!cert)
+                {
+                    chain = CertFindChainInStore(store, X509_ASN_ENCODING, ff, CERT_CHAIN_FIND_BY_ISSUER, &para, chain);
+                    if(!chain)
+                    {
+                        break; // No more chains found in the store.
+                    }
+
+                    if(chain->cChain > 0 && chain->rgpChain[0]->cElement > 0)
+                    {
+                        cert = CertDuplicateCertificateContext(chain->rgpChain[0]->rgpElement[0]->pCertContext);
+                    }
+                    CertFreeCertificateChain(chain);
+                }
+
+                //
+                // Check if we can find a certificate if we couldn't find a chain.
+                //
+                if(!cert)
+                {
+                    cert = CertFindCertificateInStore(store, X509_ASN_ENCODING, 0, CERT_FIND_ANY, 0, cert);
+                }
+
                 if(!cert)
                 {
                     throw PluginInitializationException(__FILE__, __LINE__,
-                                            "IceSSL: certificate error:\n" + lastErrorToString());
+                                                        "IceSSL: certificate error:\n" + lastErrorToString());
                 }
                 _certs.push_back(cert);
                 continue;
@@ -646,9 +678,9 @@ SChannelEngine::newCredentialsHandle(bool incoming)
     CredHandle credHandle;
     memset(&credHandle, 0, sizeof(credHandle));
 
-    SECURITY_STATUS err =
-        AcquireCredentialsHandle(0, const_cast<char*>(UNISP_NAME), (incoming ? SECPKG_CRED_INBOUND : SECPKG_CRED_OUTBOUND), 0, &cred, 0,
-                                 0, &credHandle, 0);
+    SECURITY_STATUS err = AcquireCredentialsHandle(0, const_cast<char*>(UNISP_NAME),
+                                                   (incoming ? SECPKG_CRED_INBOUND : SECPKG_CRED_OUTBOUND),
+                                                   0, &cred, 0, 0, &credHandle, 0);
 
     if(err != SEC_E_OK)
     {

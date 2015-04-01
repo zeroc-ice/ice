@@ -35,8 +35,8 @@ class SessionCallbackI : public Glacier2::SessionCallback
 {
 
 public:
-    
-    virtual void 
+
+    virtual void
     connected(const Glacier2::SessionHelperPtr&)
     {
     }
@@ -54,7 +54,7 @@ public:
     virtual void
     createdCommunicator(const Glacier2::SessionHelperPtr& session)
     {
-    }    
+    }
 };
 
 class SessionHelperClient
@@ -68,7 +68,7 @@ public:
     }
 
 private:
-    
+
     Glacier2::SessionHelperPtr _session;
     Glacier2::SessionFactoryHelperPtr _factory;
     Ice::InitializationData _initData;
@@ -90,7 +90,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
         cout << "Testing IceStorm stub... " << flush;
-        IceStorm::TopicManagerPrx manager = 
+        IceStorm::TopicManagerPrx manager =
                     IceStorm::TopicManagerPrx::uncheckedCast(communicator->stringToProxy("test:default -p 12010"));
 
         IceStorm::QoS qos;
@@ -98,7 +98,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         string topicName = "time";
 
         try
-        {  
+        {
             topic = manager->retrieve(topicName);
             test(false);
         }
@@ -132,17 +132,17 @@ allTests(const Ice::CommunicatorPtr& communicator)
         cout << "Testing IceGrid stub... " << flush;
 
         Ice::ObjectPrx base = communicator->stringToProxy("test:default -p 12010");
-        IceGrid::RegistryPrx registry = IceGrid::RegistryPrx::uncheckedCast(base); 
+        IceGrid::RegistryPrx registry = IceGrid::RegistryPrx::uncheckedCast(base);
         IceGrid::AdminSessionPrx session;
         IceGrid::AdminPrx admin;
         try
-        { 
+        {
             session = registry->createAdminSession("username", "password");
             test(false);
         }
-        catch(const IceGrid::PermissionDeniedException & ex)
+        catch(const IceGrid::PermissionDeniedException&)
         {
-            test(false); 
+            test(false);
         }
         catch(const Ice::LocalException&)
         {

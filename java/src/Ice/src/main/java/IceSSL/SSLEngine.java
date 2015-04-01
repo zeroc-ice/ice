@@ -43,7 +43,7 @@ class SSLEngine
         {
             parseCiphers(ciphers);
         }
-        
+
         String[] protocols = properties.getPropertyAsList(prefix + "Protocols");
         if(protocols.length != 0)
         {
@@ -351,9 +351,9 @@ class SSLEngine
                         {
                             passwordChars = _passwordCallback.getKeystorePassword();
                         }
-                        else if(keystoreType.equals("BKS"))
+                        else if(keystoreType.equals("BKS") || keystoreType.equals("PKCS12"))
                         {
-                            // Bouncy Castle does not permit null passwords.
+                            // Bouncy Castle or PKCS12 does not permit null passwords.
                             passwordChars = new char[0];
                         }
 
@@ -471,9 +471,9 @@ class SSLEngine
                             {
                                 passwordChars = _passwordCallback.getTruststorePassword();
                             }
-                            else if(truststoreType.equals("BKS"))
+                            else if(truststoreType.equals("BKS") || truststoreType.equals("PKCS12"))
                             {
-                                // Bouncy Castle does not permit null passwords.
+                                // Bouncy Castle or PKCS12 does not permit null passwords.
                                 passwordChars = new char[0];
                             }
 
@@ -690,7 +690,7 @@ class SSLEngine
             protocols.remove("SSLv3");
             engine.setEnabledProtocols(protocols.toArray(new String[protocols.size()]));
         }
-        
+
 
         if(incoming)
         {
