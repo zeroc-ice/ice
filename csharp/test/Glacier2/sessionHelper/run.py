@@ -23,7 +23,7 @@ import TestUtil
 #
 # Generate the crypt passwords file
 #
-TestUtil.cryptPasswords(os.path.join(os.getcwd(), "passwords"), {"userid": "abc123"})
+TestUtil.hashPasswords(os.path.join(os.getcwd(), "passwords"), {"userid": "abc123"})
 
 router = os.path.join(TestUtil.getCppBinDir(), "glacier2router")
 

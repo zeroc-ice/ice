@@ -20,20 +20,20 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0], "scripts"))
 import TestUtil
 
-cryptpasswd = os.path.join(path[0], "scripts", "cryptpasswd.py")
+hashpassword = os.path.join(path[0], "scripts", "hashpassword.py")
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
-def cryptPasswords(password, args = ""):
-    p = subprocess.Popen("%s %s %s" % (sys.executable, cryptpasswd, args), shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+def hashPasswords(password, args = ""):
+    p = subprocess.Popen("%s %s %s" % (sys.executable, hashpassword, args), shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                          stdin=subprocess.PIPE)
     p.stdin.write(password.encode('UTF-8'))
     p.stdin.write('\r\n'.encode('UTF-8'))
     p.stdin.flush()
     if(p.wait() != 0):
-        print("cryptpasswd.py failed:\n" + p.stdout.read().decode('UTF-8').strip())
+        print("hashpassword.py failed:\n" + p.stdout.read().decode('UTF-8').strip())
         sys.exit(1)
     hash = p.stdout.readline().decode('UTF-8').strip()
     return hash
@@ -47,29 +47,29 @@ if usePBKDF2:
     sys.stdout.write("Testing PBKDF2 crypt passwords...")
     sys.stdout.flush()
     
-    test(passlib.hash.pbkdf2_sha256.verify("abc123", cryptPasswords("abc123")))
-    test(not passlib.hash.pbkdf2_sha256.verify("abc123", cryptPasswords("abc")))
+    test(passlib.hash.pbkdf2_sha256.verify("abc123", hashPasswords("abc123")))
+    test(not passlib.hash.pbkdf2_sha256.verify("abc123", hashPasswords("abc")))
 
-    test(passlib.hash.pbkdf2_sha1.verify("abc123", cryptPasswords("abc123", "-d sha1")))
-    test(not passlib.hash.pbkdf2_sha1.verify("abc123", cryptPasswords("abc", "-d sha1")))
+    test(passlib.hash.pbkdf2_sha1.verify("abc123", hashPasswords("abc123", "-d sha1")))
+    test(not passlib.hash.pbkdf2_sha1.verify("abc123", hashPasswords("abc", "-d sha1")))
     
-    test(passlib.hash.pbkdf2_sha512.verify("abc123", cryptPasswords("abc123", "-d sha512")))
-    test(not passlib.hash.pbkdf2_sha512.verify("abc123", cryptPasswords("abc", "-d sha512")))
+    test(passlib.hash.pbkdf2_sha512.verify("abc123", hashPasswords("abc123", "-d sha512")))
+    test(not passlib.hash.pbkdf2_sha512.verify("abc123", hashPasswords("abc", "-d sha512")))
 
     #
     # Now use custom rounds, md5 digest doesn't support
     #
-    hash = cryptPasswords("abc123", "-r 1000")
+    hash = hashPasswords("abc123", "-r 1000")
     if hash.find("$pbkdf2-sha256$1000$") == -1:
         test(False)
     test(passlib.hash.pbkdf2_sha256.verify("abc123", hash))
 
-    hash = cryptPasswords("abc123", "-r 1000 -d sha1")
+    hash = hashPasswords("abc123", "-r 1000 -d sha1")
     if hash.find("$pbkdf2$1000$") == -1:
         test(False)
     test(passlib.hash.pbkdf2_sha1.verify("abc123", hash))
 
-    hash = cryptPasswords("abc123", "-r 1000 -d sha512")
+    hash = hashPasswords("abc123", "-r 1000 -d sha512")
     if hash.find("$pbkdf2-sha512$1000$") == -1:
         test(False)
     test(passlib.hash.pbkdf2_sha512.verify("abc123", hash))
@@ -81,35 +81,32 @@ elif useCryptExt:
     sys.stdout.write("Testing Linux crypt passwords...")
     sys.stdout.flush()
     
-    test(passlib.hash.sha512_crypt.verify("abc123", cryptPasswords("abc123")))
-    test(not passlib.hash.sha512_crypt.verify("abc123", cryptPasswords("abc")))
+    test(passlib.hash.sha512_crypt.verify("abc123", hashPasswords("abc123")))
+    test(not passlib.hash.sha512_crypt.verify("abc123", hashPasswords("abc")))
 
-    test(passlib.hash.sha256_crypt.verify("abc123", cryptPasswords("abc123", "-d sha256")))
-    test(not passlib.hash.sha256_crypt.verify("abc123", cryptPasswords("abc", "-d sha256")))
+    test(passlib.hash.sha256_crypt.verify("abc123", hashPasswords("abc123", "-d sha256")))
+    test(not passlib.hash.sha256_crypt.verify("abc123", hashPasswords("abc", "-d sha256")))
     
-    test(passlib.hash.md5_crypt.verify("abc123", cryptPasswords("abc123", "-d md5")))
-    test(not passlib.hash.md5_crypt.verify("abc123", cryptPasswords("abc", "-d md5")))
-
-    test(passlib.hash.des_crypt.verify("abc123", cryptPasswords("abc123", "-d des")))
-    test(not passlib.hash.des_crypt.verify("abc123", cryptPasswords("abc", "-d des")))
+    test(passlib.hash.md5_crypt.verify("abc123", hashPasswords("abc123", "-d md5")))
+    test(not passlib.hash.md5_crypt.verify("abc123", hashPasswords("abc", "-d md5")))
 
     #
-    # Now use custom rounds, des and md5 digest doesn't support custom rounds
+    # Now use custom rounds, md5 digest doesn't support custom rounds
     #
-    hash = cryptPasswords("abc123", "-r 5000")
+    hash = hashPasswords("abc123", "-r 5000")
     if hash.find("rounds=") != -1:
         test(False)
     test(passlib.hash.sha512_crypt.verify("abc123", hash))
-    hash = cryptPasswords("abc123", "-d sha256 -r 5000")
+    hash = hashPasswords("abc123", "-d sha256 -r 5000")
     if hash.find("rounds=") != -1:
         test(False)
     test(passlib.hash.sha256_crypt.verify("abc123", hash))
 
-    hash = cryptPasswords("abc123", "-r 10000")
+    hash = hashPasswords("abc123", "-r 10000")
     if hash.find("$rounds=10000$") == -1:
         test(False)
     test(passlib.hash.sha512_crypt.verify("abc123", hash))
-    hash = cryptPasswords("abc123", "-d sha256 -r 10000")
+    hash = hashPasswords("abc123", "-d sha256 -r 10000")
     if hash.find("$rounds=10000$") == -1:
         test(False)
     test(passlib.hash.sha256_crypt.verify("abc123", hash))

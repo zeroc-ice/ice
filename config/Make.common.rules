@@ -497,3 +497,13 @@ install-common::
 	then \
 		$(call installdata,$(top_srcdir)/../CHANGES$(TEXT_EXTENSION),$(DESTDIR)$(install_docdir)) ; \
 	fi
+	
+	@if test ! -f $(DESTDIR)$(install_bindir)/hashpassword.py ; \
+    then \
+        if test ! -d $(DESTDIR)$(install_bindir) ; \
+        then \
+            echo "Creating $(DESTDIR)$(install_bindir)..." ; \
+            $(call mkdir, $(DESTDIR)$(install_bindir), -p) ; \
+        fi ; \
+        $(call installprogram,$(top_srcdir)/../scripts/hashpassword.py,$(DESTDIR)$(install_bindir)) ; \
+    fi

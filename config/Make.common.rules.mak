@@ -197,10 +197,17 @@ install-common::
 
 !if "$(WINRT)" != "yes" && "$(install_slicedir)" != ""
 	@if not exist "$(install_slicedir)" \
-	    @echo "Creating $(install_slicedir)..." && \
-	    mkdir "$(install_slicedir)" && \
-	    @echo "Copying slice files..." && \
-	    cmd /c "xcopy /s /y $(top_srcdir)\..\slice "$(install_slicedir)"" || exit 1
+        @echo "Creating $(install_slicedir)..." && \
+        mkdir "$(install_slicedir)" && \
+        @echo "Copying slice files..." && \
+        cmd /c "xcopy /s /y $(top_srcdir)\..\slice "$(install_slicedir)"" || exit 1
+        
+    @if not exist "$(install_bindir)" \
+        @echo "Creating $(install_bindir)..." && \
+        mkdir "$(install_bindir)"
+        
+    @if not exist "$(install_bindir)\hashpassword.py" \
+        copy $(top_srcdir)\..\scripts\hashpassword.py "$(install_bindir)""
 
 	@if not exist "$(prefix)\ICE_LICENSE$(TEXT_EXT)" \
 	    @copy $(top_srcdir)\..\ICE_LICENSE$(TEXT_EXT) "$(prefix)"

@@ -29,7 +29,7 @@ if TestUtil.appverifier:
 #
 # Generate the crypt passwords file
 #
-TestUtil.cryptPasswords(os.path.join(os.getcwd(), "passwords"), {"userid": "abc123"})
+TestUtil.hashPasswords(os.path.join(os.getcwd(), "passwords"), {"userid": "abc123"})
 
 args = ' --Glacier2.RoutingTable.MaxSize=10' + \
        ' --Glacier2.Client.Endpoints="default -p 12347"' + \

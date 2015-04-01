@@ -24,8 +24,6 @@
 #elif defined(_WIN32)
 #   include <Bcrypt.h>
 #   include <Wincrypt.h>
-#else
-#   include <openssl/des.h>
 #endif
 
 using namespace std;
@@ -35,7 +33,7 @@ using namespace Glacier2;
 namespace
 {
 
-class CryptPermissionsVerifierI : public PermissionsVerifier, public IceUtil::Mutex
+class CryptPermissionsVerifierI : public PermissionsVerifier
 {
 public:
 
@@ -112,9 +110,9 @@ const string padBytes1 = "=";
 const string padBytes2 = "==";
 
 inline string
-paddingBytes(int lenght)
+paddingBytes(int length)
 {
-    switch(lenght % 4)
+    switch(length % 4)
     {
         case 2:
         {
@@ -136,8 +134,6 @@ paddingBytes(int lenght)
 bool
 CryptPermissionsVerifierI::checkPermissions(const string& userId, const string& password, string&, const Current&) const
 {
-    IceUtil::Mutex::Lock sync(*this);
-
     map<string, string>::const_iterator p = _passwords.find(userId);
 
     if(p == _passwords.end())
@@ -145,27 +141,21 @@ CryptPermissionsVerifierI::checkPermissions(const string& userId, const string& 
         return false;
     }
 #if defined(__GLIBC__)
-    string salt;
     size_t i = p->second.rfind('$');
     if(i == string::npos)
     {
         //
-        // Crypt DES
+        // Crypt DES not supported
         //
-        if(p->second.size() != 13) // Crypt DES passwords are 13 characters long.
-        {
-            return false;
-        }
-        salt = p->second.substr(0, 2);
+        return false;
     }
-    else
+
+    string salt = p->second.substr(0, i + 1);
+    if(salt.empty())
     {
-        salt = p->second.substr(0, i + 1);
-        if(salt.empty())
-        {
-            return false;
-        }
+        return false;
     }
+
     struct crypt_data data;
     data.initialized = 0;
     return p->second == crypt_r(password.c_str(), salt.c_str(), &data);
@@ -399,20 +389,7 @@ CryptPermissionsVerifierI::checkPermissions(const string& userId, const string& 
     return checksumBuffer1 == checksumBuffer2;
 #   endif
 #else
-
-    if(p->second.size() != 13) // Crypt passwords are 13 characters long.
-    {
-        return false;
-    }
-
-    char buff[14];
-    string salt = p->second.substr(0, 2);
-#   if OPENSSL_VERSION_NUMBER >= 0x0090700fL
-    DES_fcrypt(password.c_str(), salt.c_str(), buff);
-#   else
-    des_fcrypt(password.c_str(), salt.c_str(), buff);
-#   endif
-    return p->second == buff;
+#   error CryptPermissionsVerifierI not supported
 #endif
 }
 

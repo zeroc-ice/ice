@@ -13,22 +13,26 @@ import sys, getopt, passlib.hash, getpass
 usePBKDF2 = sys.platform == "win32" or sys.platform == "darwin"
 useCryptExt = sys.platform.startswith("linux")
 
+if not usePBKDF2 and not useCryptExt:
+    print("platform not supported")
+    sys.exit(1)
+
 def usage():
-    print("cryptpasswd [options]")
+    print("hashpassword [options]")
     print("")
     print("OPTIONS")
     print("")
     if usePBKDF2:
         print("")
-        print("  -d DIGEST_ALGORITHM, --digest=DIGEST_ALGORITHM")
-        print("      The digest algorithm to use with PBKDF2, valid values are (sha1, sha256, sha512).")
+        print("  -d MESSAGE_DIGEST_ALGORITHM, --digest=MESSAGE_DIGEST_ALGORITHM")
+        print("      The message digest algorithm to use with PBKDF2, valid values are (sha1, sha256, sha512).")
         print("")
         print("  -s SALT_SIZE, --salt=SALT_SIZE")
         print("      Optional number of bytes to use when generating new salts.")
         print("")
     elif useCryptExt:
-        print("  -d DIGEST_ALGORITHM, --digest=DIGEST_ALGORITHM")
-        print("      The digest algorithm to use with crypt function, valid values are (des, md5, sha256, sha512).")
+        print("  -d MESSAGE_DIGEST_ALGORITHM, --digest=MESSAGE_DIGEST_ALGORITHM")
+        print("      The message digest algorithm to use with crypt function, valid values are (md5, sha256, sha512).")
         print("")
     if usePBKDF2 or useCryptExt:
         print("  -r ROUNDS, --rounds=ROUNDS")
@@ -50,7 +54,7 @@ def encrypt():
     elif useCryptExt:
         shortArgs += "d:r:"
         longArgs += ["digest=", "rounds="]
-        digestAlgorithms = ("des", "md5", "sha256", "sha512")
+        digestAlgorithms = ("md5", "sha256", "sha512")
     
     try:
         opts, args = getopt.getopt(sys.argv[1:], shortArgs, longArgs)
@@ -106,13 +110,7 @@ def encrypt():
             encryptfn = passlib.hash.pbkdf2_sha512.encrypt
     elif useCryptExt:
         encryptfn = passlib.hash.sha512_crypt.encrypt
-        if digest == "des":
-            if rounds:
-                print("Custom rounds not allowed with des digest")
-                usage()
-                sys.exit(2)
-            encryptfn = passlib.hash.des_crypt.encrypt
-        elif digest == "md5":
+        if digest == "md5":
             if rounds:
                 print("Custom rounds not allowed with md5 digest")
                 usage()
@@ -120,8 +118,6 @@ def encrypt():
             encryptfn = passlib.hash.md5_crypt.encrypt
         elif digest == "sha256":
             encryptfn = passlib.hash.sha256_crypt.encrypt
-    else:
-        encryptfn = passlib.hash.des_crypt.encrypt
     
     args = []
     if sys.stdout.isatty():

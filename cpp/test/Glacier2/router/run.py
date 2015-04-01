@@ -57,7 +57,7 @@ name = os.path.join("Glacier2", "router")
 #
 # Generate the crypt passwords file
 #
-TestUtil.cryptPasswords(os.path.join(os.getcwd(), "passwords"),
+TestUtil.hashPasswords(os.path.join(os.getcwd(), "passwords"),
                         {"userid": "abc123", "userid-0": "abc123", "userid-1": "abc123",
                          "userid-2": "abc123", "userid-3": "abc123","userid-4": "abc123"})
 #
