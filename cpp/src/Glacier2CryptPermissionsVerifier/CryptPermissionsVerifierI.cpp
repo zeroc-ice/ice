@@ -142,6 +142,7 @@ CryptPermissionsVerifierI::checkPermissions(const string& userId, const string& 
     }
 #if defined(__GLIBC__)
     size_t i = p->second.rfind('$');
+    string salt;
     if(i == string::npos)
     {
         //
