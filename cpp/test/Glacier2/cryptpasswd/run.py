@@ -90,8 +90,11 @@ elif useCryptExt:
     test(passlib.hash.md5_crypt.verify("abc123", cryptPasswords("abc123", "-d md5")))
     test(not passlib.hash.md5_crypt.verify("abc123", cryptPasswords("abc", "-d md5")))
 
+    test(passlib.hash.des_crypt.verify("abc123", cryptPasswords("abc123", "-d des")))
+    test(not passlib.hash.des_crypt.verify("abc123", cryptPasswords("abc", "-d des")))
+
     #
-    # Now use custom rounds, md5 digest doesn't support
+    # Now use custom rounds, des and md5 digest doesn't support custom rounds
     #
     hash = cryptPasswords("abc123", "-r 5000")
     if hash.find("rounds=") != -1:

@@ -145,15 +145,26 @@ CryptPermissionsVerifierI::checkPermissions(const string& userId, const string& 
         return false;
     }
 #if defined(__GLIBC__)
+    string salt;
     size_t i = p->second.rfind('$');
     if(i == string::npos)
     {
-        return false;
+        //
+        // Crypt DES
+        //
+        if(p->second.size() != 13) // Crypt DES passwords are 13 characters long.
+        {
+            return false;
+        }
+        salt = p->second.substr(0, 2);
     }
-    string salt = p->second.substr(0, i + 1);
-    if(salt.empty())
+    else
     {
-        return false;
+        salt = p->second.substr(0, i + 1);
+        if(salt.empty())
+        {
+            return false;
+        }
     }
     struct crypt_data data;
     data.initialized = 0;
@@ -165,11 +176,9 @@ CryptPermissionsVerifierI::checkPermissions(const string& userId, const string& 
     // $pbkdf2-digest$rounds$salt$checksum
     // $pbkdf2$rounds$salt$checksum (SHA1 digest)
     //
-
     size_t beg = 0;
     size_t end = 0;
-
-
+    
     //
     // Determine the digest algorithm
     //

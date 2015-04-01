@@ -28,7 +28,7 @@ def usage():
         print("")
     elif useCryptExt:
         print("  -d DIGEST_ALGORITHM, --digest=DIGEST_ALGORITHM")
-        print("      The digest algorithm to use with crypt function, valid values are (md5, sha256, sha512).")
+        print("      The digest algorithm to use with crypt function, valid values are (des, md5, sha256, sha512).")
         print("")
     if usePBKDF2 or useCryptExt:
         print("  -r ROUNDS, --rounds=ROUNDS")
@@ -50,7 +50,7 @@ def encrypt():
     elif useCryptExt:
         shortArgs += "d:r:"
         longArgs += ["digest=", "rounds="]
-        digestAlgorithms = ("md5", "sha256", "sha512")
+        digestAlgorithms = ("des", "md5", "sha256", "sha512")
     
     try:
         opts, args = getopt.getopt(sys.argv[1:], shortArgs, longArgs)
@@ -106,7 +106,13 @@ def encrypt():
             encryptfn = passlib.hash.pbkdf2_sha512.encrypt
     elif useCryptExt:
         encryptfn = passlib.hash.sha512_crypt.encrypt
-        if digest == "md5":
+        if digest == "des":
+            if rounds:
+                print("Custom rounds not allowed with des digest")
+                usage()
+                sys.exit(2)
+            encryptfn = passlib.hash.des_crypt.encrypt
+        elif digest == "md5":
             if rounds:
                 print("Custom rounds not allowed with md5 digest")
                 usage()
