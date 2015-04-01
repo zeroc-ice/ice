@@ -145,21 +145,26 @@ CryptPermissionsVerifierI::checkPermissions(const string& userId, const string& 
     if(i == string::npos)
     {
         //
-        // Crypt DES not supported
+        // Crypt DES
         //
-        return false;
+        if(p->second.size() != 13) // DES passwords are 13 characters long.
+        {
+            return false;
+        }
+        salt = p->second.substr(0, 2);
     }
-
-    string salt = p->second.substr(0, i + 1);
-    if(salt.empty())
+    else
     {
-        return false;
+        salt = p->second.substr(0, i + 1);
+        if(salt.empty())
+        {
+            return false;
+        }
     }
-
     struct crypt_data data;
     data.initialized = 0;
     return p->second == crypt_r(password.c_str(), salt.c_str(), &data);
-#elif defined(__APPLE__) || defined(_WIN32)
+#elif defined(__APPLE__) || defined(_WIN32)    
     //
     // Pbkdf2 string format:
     //
@@ -389,7 +394,7 @@ CryptPermissionsVerifierI::checkPermissions(const string& userId, const string& 
     return checksumBuffer1 == checksumBuffer2;
 #   endif
 #else
-#   error CryptPermissionsVerifierI not supported
+#   error Password hashing not implemented
 #endif
 }
 
