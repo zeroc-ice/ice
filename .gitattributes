@@ -9,7 +9,7 @@
 *.utf8 text eol=lf
 
 # Files which are never exported.
-/distribution export-ignore
+/distribution/demoscript export-ignore
 
 /certs/cakey.pem export-ignore
 
