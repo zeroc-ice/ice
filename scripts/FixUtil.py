@@ -8,8 +8,8 @@
 #
 # **********************************************************************
 
-import os, sys, shutil, fnmatch, re, glob, getopt
-from stat import *
+from __future__ import print_function
+import os, sys, fnmatch, re, stat
 
 def getTrackedFiles():
     files = []
@@ -27,18 +27,18 @@ def fnmatchlist(x, l):
 #
 # Version patterns
 #
-vpatCheck = "[0-9]+\.[0-9]+(\.[0-9]+|b[0-9]*)$"
-vpatParse = "([0-9]+)\.([0-9]+)(\.[0-9]+|b[0-9]*)"
-vpatMatch = "([0-9]+\.[0-9]+(\.[0-9]+|b[0-9]*))"
+VPAT_CHECK = r"[0-9]+\.[0-9]+(\.[0-9]+|b[0-9]*)$"
+VPAT_PARSE = r"([0-9]+)\.([0-9]+)(\.[0-9]+|b[0-9]*)"
+VPAT_MATCH = r"([0-9]+\.[0-9]+(\.[0-9]+|b[0-9]*))"
 
 def commaVersion(version):
     major = majorVersion(version)
     minor = minorVersion(version)
     patch = patchVersion(version)
-    return ("%s,%s,%s" % (major, minor, patch))
+    return "%s,%s,%s" % (major, minor, patch)
 
 def intVersion(version):
-    r = re.search(vpatParse, version)
+    r = re.search(VPAT_PARSE, version)
     major = int(r.group(1))
     minor = int(r.group(2))
     gr3 = r.group(3)
@@ -53,14 +53,14 @@ def intVersion(version):
     return ("%2d%02d%02d" % (major, minor, patch)).strip()
 
 def betaVersion(version):
-    r = re.search(vpatParse, version)
+    r = re.search(VPAT_PARSE, version)
     if r.group(3).startswith("b"):
         return "b"
     else:
         return ""
 
 def soVersion(version):
-    r = re.search(vpatParse, version)
+    r = re.search(VPAT_PARSE, version)
     major = int(r.group(1))
     minor = int(r.group(2))
     v = ("%d%d" % (major, minor)).strip()
@@ -70,23 +70,23 @@ def soVersion(version):
         return v
 
 def majorVersion(version):
-    r = re.search(vpatParse, version)
+    r = re.search(VPAT_PARSE, version)
     major = int(r.group(1))
     return ("%d" % (major)).strip()
 
 def minorVersion(version):
-    r = re.search(vpatParse, version)
+    r = re.search(VPAT_PARSE, version)
     minor = int(r.group(2))
     return ("%d" % (minor)).strip()
 
 def shortVersion(version):
-    r = re.search(vpatParse, version)
+    r = re.search(VPAT_PARSE, version)
     major = int(r.group(1))
     minor = int(r.group(2))
     return ("%d.%d" % (major, minor)).strip()
 
 def patchVersion(version):
-    r = re.search(vpatParse, version)
+    r = re.search(VPAT_PARSE, version)
 
     gr3 = r.group(3)
     patch = -1
@@ -101,7 +101,7 @@ def patchVersion(version):
     return ("%d" % (patch)).strip()
 
 def jsonVersion(version):
-    r = re.search(vpatParse, version)
+    r = re.search(VPAT_PARSE, version)
     major = int(r.group(1))
     minor = int(r.group(2))
     v = ("%d.%d" % (major, minor)).strip()
@@ -116,11 +116,11 @@ def jsonVersion(version):
 def find(patt):
     if type(patt) != type([]):
         patt = [patt]
-    result = [ ]
+    result = []
     for fullpath in getTrackedFiles():
         x = os.path.basename(fullpath)
         if os.path.isdir(fullpath):
-            continue;
+            continue
         for p in patt:
             if fnmatch.fnmatch(x, p):
                 result.append(fullpath)
@@ -146,7 +146,7 @@ def fileMatchAndReplace(filename, matchAndReplaceExps, verbose=True):
     #
     # Compile the regular expressions
     #
-    regexps = [ ]
+    regexps = []
     for (regexp, replace) in matchAndReplaceExps:
         regexps.append((re.compile(regexp), replace))
 
@@ -177,7 +177,7 @@ def fileMatchAndReplace(filename, matchAndReplaceExps, verbose=True):
             print("updated " + filename)
         os.remove(filename)
         os.rename(filename + ".new", filename)
-        os.chmod(filename, S_IMODE(mode))
+        os.chmod(filename, stat.S_IMODE(mode))
     else:
         if verbose:
             print("warning: " + filename + " didn't contain any match")
@@ -195,7 +195,7 @@ def fileMatchAllAndReplace(filename, matchAndReplaceExps, verbose=True):
     #
     # Compile the regular expressions
     #
-    regexps = [ ]
+    regexps = []
     for (regexp, replace) in matchAndReplaceExps:
         regexps.append((re.compile(regexp), replace))
 
@@ -224,14 +224,14 @@ def fileMatchAllAndReplace(filename, matchAndReplaceExps, verbose=True):
             print("updated " + filename)
         os.remove(filename)
         os.rename(filename + ".new", filename)
-        os.chmod(filename, S_IMODE(mode))
+        os.chmod(filename, stat.S_IMODE(mode))
     else:
         if verbose:
             print("warning: " + filename + " didn't contain any match")
         os.unlink(filename + ".new")
 
 def checkVersion(version):
-    if not re.match(vpatCheck, version):
+    if not re.match(VPAT_CHECK, version):
         print("invalid version number: " + version + " (it should have the form 3.2.1 or 3.2b or 3.2b2)")
         sys.exit(0)
 
@@ -272,10 +272,10 @@ def fixLineEnd():
                 dos = True
                 break
 
-        file = open(filename, "r")
+        f = open(filename, "r")
 
         convert = False
-        for line in file:
+        for line in f:
             if dos:
                 if line.endswith("\n") and not line.endswith("\r\n"):
                     convert = True
@@ -285,10 +285,10 @@ def fixLineEnd():
                     convert = True
                     break
 
-        file.close()
-        file = open(filename, "r")
-        text = file.read()
-        file.close()
+        f.close()
+        f = open(filename, "r")
+        text = f.read()
+        f.close()
 
         eol = None
         if len(text) > 0: # Ignore empty files
@@ -302,9 +302,9 @@ def fixLineEnd():
                     eol = "\n"
 
         if eol:
-            file = open(filename, "w")
-            file.write(text + eol)
-            file.close()
+            f = open(filename, "w")
+            f.write(text + eol)
+            f.close()
             print("Added EOL to file " + filename)
 
         if convert:
