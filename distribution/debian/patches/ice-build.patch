@@ -11,20 +11,22 @@
  endif
  
  ifneq ($(findstring MINGW,$(UNAME)),)
-@@ -189,16 +192,16 @@
- 		ifneq ($(shell test -f $(ICE_HOME)/$(binsubdir)/$(slice_translator) && echo 0), 0)
- $(error Unable to find $(slice_translator) in $(ICE_HOME)/$(binsubdir), please verify ICE_HOME is properly configured and Ice is correctly installed.)
- 		endif
--		ifeq ($(shell test -f $(ice_dir)/cpp/bin/$(slice_translator) && echo 0), 0)
--$(warning Found $(slice_translator) in both ICE_HOME/bin and $(ice_dir)/cpp/bin, ICE_HOME/bin/$(slice_translator) will be used!)
-+		ifeq ($(shell test -f $(ice_dir)/$(cppsubdir)/bin/$(slice_translator) && echo 0), 0)
-+$(warning Found $(slice_translator) in both ICE_HOME/bin and $(ice_dir)/$(cppsubdir)/bin, ICE_HOME/bin/$(slice_translator) will be used!)
- 		endif
- 		ice_cpp_dir = $(ICE_HOME)
+@@ -189,7 +192,7 @@
+ 	        #
+ 		# ICE_HOME is pointing at the source distribution, so we just ignore it.
+ 		#
+-	        ice_cpp_dir = $(ice_dir)/cpp
++	        ice_cpp_dir = $(ice_dir)/$(cppsubdir)
  	    else
+ 	        ifdef slice_translator
+ 		    ifneq ($(shell test -f $(ICE_HOME)/$(binsubdir)/$(slice_translator) && echo 0), 0)
+@@ -201,11 +204,11 @@
+ 		    ice_cpp_dir = $(ICE_HOME)
+ 	        else
  $(warning Ignoring ICE_HOME environment variable to build current source tree.)
--		ice_cpp_dir = $(ice_dir)/cpp
-+		ice_cpp_dir = $(ice_dir)/$(cppsubdir)
+-		    ice_cpp_dir = $(ice_dir)/cpp
++		    ice_cpp_dir = $(ice_dir)/$(cppsubdir)
+ 	        endif
  	    endif
  	else
 -	    ice_cpp_dir = $(ice_dir)/cpp
@@ -32,7 +34,7 @@
  	endif
  
      endif
-@@ -217,16 +220,16 @@
+@@ -224,16 +227,16 @@
  		ifneq ($(shell test -f $(ICE_HOME)/$(binsubdir)/$(slice_translator) && echo 0), 0)
  $(error Unable to find $(slice_translator) in $(ICE_HOME)/$(binsubdir), please verify ICE_HOME is properly configured and Ice is correctly installed.)
  		endif
@@ -53,32 +55,15 @@
  	endif
      endif
  endif
---- a/php/Makefile
-+++ b/php/Makefile
-@@ -13,10 +13,6 @@
- 
- SUBDIRS		= src lib
- 
--ifneq ($(MAKECMDGOALS),install)
--SUBDIRS		:= $(SUBDIRS) test demo
--endif
--
- INSTALL_SUBDIRS = $(install_phpdir) $(install_libdir)
- 
- install:: install-common
---- a/py/Makefile
-+++ b/py/Makefile
-@@ -13,10 +13,6 @@
- 
- SUBDIRS		= modules python
- 
--ifneq ($(MAKECMDGOALS),install)
--SUBDIRS		:= $(SUBDIRS) test
--endif
--
- INSTALL_SUBDIRS = $(install_pythondir) $(install_libdir)
- 
- install:: install-common
+@@ -327,7 +330,7 @@
+ #
+ # Set environment variables for the Slice translator.
+ #
+-ifneq ($(ice_dir), $(usr_dir))
++ifneq ($(ice_dir),$(usr_dir))
+     ifdef ice_src_dist
+         ice_lib_dir = $(ice_cpp_dir)/$(libsubdir)
+     else
 --- a/java/Makefile
 +++ b/java/Makefile
 @@ -20,9 +20,6 @@
@@ -97,14 +82,24 @@
  #
  # **********************************************************************
  
--SUBDIRS			= cpp java js py rb php
--CLEAN_SUBDIRS	= js java py rb php cpp
--DEPEND_SUBDIRS	= cpp py rb php
--INSTALL_SUBDIRS	= cpp java py rb php js
-+SUBDIRS			= cpp java php
-+CLEAN_SUBDIRS	= java php cpp
+-SUBDIRS			= cpp java js python ruby php
+-CLEAN_SUBDIRS	= js java python ruby php cpp
+-DEPEND_SUBDIRS	= cpp python ruby php
+-INSTALL_SUBDIRS	= cpp java python ruby php js
++SUBDIRS			= cpp java js php
++CLEAN_SUBDIRS	= js java php cpp
 +DEPEND_SUBDIRS	= cpp php
-+INSTALL_SUBDIRS	= cpp java php
++INSTALL_SUBDIRS	= cpp java php js
  
  ifeq ($(shell uname),Darwin)
- SUBDIRS			+= objc
+ SUBDIRS			+= objective-c
+--- a/js/Makefile
++++ b/js/Makefile
+@@ -19,6 +19,7 @@
+ 
+ clean: npminstall
+ 	$(NPM) run gulp:clean
++	rm -rf node_modules
+ 
+ install: npminstall
+ 	$(NPM) run gulp:install
