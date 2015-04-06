@@ -63,7 +63,6 @@ GENPIC          = no
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS) -DSTRING_VIEW_IGNORE_STRING_CONVERTER
-SLICE2CPPFLAGS	:= --stream $(SLICE2CPPFLAGS)
 
 #
 # Disables optimization when building with Solaris CC:

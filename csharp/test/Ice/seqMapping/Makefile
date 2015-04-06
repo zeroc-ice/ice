@@ -28,8 +28,6 @@ include $(top_srcdir)/config/Make.rules.cs
 
 MCSFLAGS	:= $(MCSFLAGS) -target:exe
 
-SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) --stream
-
 client.exe: $(C_SRCS) $(GEN_SRCS) Serializable.dll
 	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) -r:Serializable.dll $(C_SRCS) $(GEN_SRCS)
 

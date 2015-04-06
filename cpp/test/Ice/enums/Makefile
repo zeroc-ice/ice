@@ -30,7 +30,7 @@ OBJS		= $(COBJS) \
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
-SLICE2CPPFLAGS	:= --stream $(SLICE2CPPFLAGS)
+SLICE2CPPFLAGS	:= $(SLICE2CPPFLAGS)
 
 $(CLIENT): $(COBJS)
 	rm -f $@
