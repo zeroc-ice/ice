@@ -1,5 +1,3 @@
-**Table of Contents**
-
 - [Changes in Ice 3.6.0](#changes-in-ice-360)
   - [General Changes](#general-changes)
   - [C++ Changes](#c-changes)
@@ -318,7 +316,7 @@ These are the changes since Ice 3.5.1.
 
 * Fixed a bug in the Slice-to-Python translator that eliminates the use of implicit relative imports for nested Slice modules.
 
-* Added ice_staticId() to generated proxy classes.
+* Added `ice_staticId()` to generated proxy classes.
 
 ## Ruby Changes
 
