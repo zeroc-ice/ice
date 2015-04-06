@@ -104,7 +104,7 @@ KEYFILE                 = $(top_srcdir)\..\config\IceDevKey.snk
 #
 # Common definitions
 #
-ice_language = cs
+ice_language = csharp
 slice_translator = slice2cs.exe
 
 !if exist ($(top_srcdir)\..\config\Make.common.rules.mak)
