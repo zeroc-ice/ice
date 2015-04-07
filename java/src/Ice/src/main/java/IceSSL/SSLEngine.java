@@ -1096,12 +1096,25 @@ class SSLEngine
     private java.io.InputStream openResource(String path)
         throws java.io.IOException
     {
-        //
-        // This method wraps a call to IceInternal.Util.openResource. If the first call fails and
-        // IceSSL.DefaultDir is defined, prepend the default directory and try again.
-        //
+        boolean isAbsolute = false;
+        try
+        {
+            new java.net.URL(path);
+            isAbsolute = true;
+        }
+        catch(java.net.MalformedURLException ex)
+        {
+            java.io.File f = new java.io.File(path);
+            isAbsolute = f.isAbsolute();
+        }
+
         java.io.InputStream stream = IceInternal.Util.openResource(getClass().getClassLoader(), path);
-        if(stream == null && _defaultDir.length() > 0)
+
+        //
+        // If the first attempt fails and IceSSL.DefaultDir is defined and the original path is relative,
+        // we prepend the default directory and try again.
+        //
+        if(stream == null && _defaultDir.length() > 0 && !isAbsolute)
         {
             stream = IceInternal.Util.openResource(getClass().getClassLoader(),
                                                    _defaultDir + java.io.File.separator + path);

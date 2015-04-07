@@ -734,6 +734,35 @@ namespace IceSSL
             }
         }
 
+        private static bool isAbsolutePath(string path)
+        {
+            //
+            // Skip whitespace
+            //
+            path = path.Trim();
+
+            //
+            // We need at least 3 non-whitespace characters to have an absolute path
+            //
+            if(path.Length < 3)
+            {
+                return false;
+            }
+
+            //
+            // Check for X:\ path ('\' may have been converted to '/')
+            //
+            if((path[0] >= 'A' && path[0] <= 'Z') || (path[0] >= 'a' && path[0] <= 'z'))
+            {
+                return path[1] == ':' && (path[2] == '\\' || path[2] == '/');
+            }
+
+            //
+            // Check for UNC path
+            //
+            return (path[0] == '\\' && path[1] == '\\') || path[0] == '/';
+        }
+
         private bool checkPath(ref string path)
         {
             if(File.Exists(path))
@@ -741,7 +770,7 @@ namespace IceSSL
                 return true;
             }
 
-            if(_defaultDir.Length > 0)
+            if(_defaultDir.Length > 0 && !isAbsolutePath(path))
             {
                 string s = _defaultDir + Path.DirectorySeparatorChar + path;
                 if(File.Exists(s))

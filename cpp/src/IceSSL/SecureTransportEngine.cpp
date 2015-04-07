@@ -58,13 +58,13 @@ Init init;
 class RegExp : public IceUtil::Shared
 {
 public:
-    
+
     RegExp(const string&);
     ~RegExp();
     bool match(const string&);
-    
+
 private:
-    
+
     regex_t _preg;
 };
 typedef IceUtil::Handle<RegExp> RegExpPtr;
@@ -99,14 +99,14 @@ struct CipherExpression
 class CiphersHelper
 {
 public:
-    
+
     static void initialize();
     static SSLCipherSuite cipherForName(const string& name);
     static string cipherName(SSLCipherSuite cipher);
     static map<string, SSLCipherSuite> ciphers();
 
 private:
-    
+
     static map<string, SSLCipherSuite> _ciphers;
 };
 
@@ -237,7 +237,7 @@ CiphersHelper::initialize()
         //_ciphers["DH_anon_WITH_3DES_EDE_CBC_SHA"] = TLS_DH_anon_WITH_3DES_EDE_CBC_SHA;
         _ciphers["DH_anon_WITH_AES_128_CBC_SHA256"] = TLS_DH_anon_WITH_AES_128_CBC_SHA256;
         _ciphers["DH_anon_WITH_AES_256_CBC_SHA256"] = TLS_DH_anon_WITH_AES_256_CBC_SHA256;
-            
+
         //
         // Addendum from RFC 4279, TLS PSK
         //
@@ -286,17 +286,17 @@ CiphersHelper::initialize()
         _ciphers["DHE_PSK_WITH_AES_256_GCM_SHA384"] = TLS_DHE_PSK_WITH_AES_256_GCM_SHA384;
         _ciphers["RSA_PSK_WITH_AES_128_GCM_SHA256"] = TLS_RSA_PSK_WITH_AES_128_GCM_SHA256;
         _ciphers["RSA_PSK_WITH_AES_256_GCM_SHA384"] = TLS_RSA_PSK_WITH_AES_256_GCM_SHA384;
-            
+
         _ciphers["PSK_WITH_AES_128_CBC_SHA256"] = TLS_PSK_WITH_AES_128_CBC_SHA256;
         _ciphers["PSK_WITH_AES_256_CBC_SHA384"] = TLS_PSK_WITH_AES_256_CBC_SHA384;
         _ciphers["PSK_WITH_NULL_SHA256"] = TLS_PSK_WITH_NULL_SHA256;
         _ciphers["PSK_WITH_NULL_SHA384"] = TLS_PSK_WITH_NULL_SHA384;
-            
+
         _ciphers["DHE_PSK_WITH_AES_128_CBC_SHA256"] = TLS_DHE_PSK_WITH_AES_128_CBC_SHA256;
         _ciphers["DHE_PSK_WITH_AES_256_CBC_SHA384"] = TLS_DHE_PSK_WITH_AES_256_CBC_SHA384;
         _ciphers["DHE_PSK_WITH_NULL_SHA256"] = TLS_DHE_PSK_WITH_NULL_SHA256;
         _ciphers["DHE_PSK_WITH_NULL_SHA384"] = TLS_DHE_PSK_WITH_NULL_SHA384;
-            
+
         _ciphers["RSA_PSK_WITH_AES_128_CBC_SHA256"] = TLS_RSA_PSK_WITH_AES_128_CBC_SHA256;
         _ciphers["RSA_PSK_WITH_AES_256_CBC_SHA384"] = TLS_RSA_PSK_WITH_AES_256_CBC_SHA384;
         _ciphers["RSA_PSK_WITH_NULL_SHA256"] = TLS_RSA_PSK_WITH_NULL_SHA256;
@@ -358,23 +358,23 @@ CiphersHelper::cipherForName(const string& name)
 // protocol ciphers, for example SSL_RSA_WITH_RC4_128_MD5/TLS_RSA_WITH_RC4_128_MD5
 // are represeted by the same SSLCipherSuite value, the names return by this method
 // doesn't include a protocol prefix.
-// 
+//
 string
 CiphersHelper::cipherName(SSLCipherSuite cipher)
 {
     switch(cipher)
     {
-        case SSL_NULL_WITH_NULL_NULL: 
+        case SSL_NULL_WITH_NULL_NULL:
             return "NULL_WITH_NULL_NULL";
         case SSL_RSA_WITH_NULL_MD5:
             return "RSA_WITH_NULL_MD5";
         case SSL_RSA_WITH_NULL_SHA:
             return "RSA_WITH_NULL_SHA";
-        case SSL_RSA_EXPORT_WITH_RC4_40_MD5: 
+        case SSL_RSA_EXPORT_WITH_RC4_40_MD5:
             return "RSA_EXPORT_WITH_RC4_40_MD5";
-        case SSL_RSA_WITH_RC4_128_MD5: 
+        case SSL_RSA_WITH_RC4_128_MD5:
             return "RSA_WITH_RC4_128_MD5";
-        case SSL_RSA_WITH_RC4_128_SHA: 
+        case SSL_RSA_WITH_RC4_128_SHA:
             return "RSA_WITH_RC4_128_SHA";
         case SSL_RSA_EXPORT_WITH_RC2_CBC_40_MD5:
             return "RSA_EXPORT_WITH_RC2_CBC_40_MD5";
@@ -382,7 +382,7 @@ CiphersHelper::cipherName(SSLCipherSuite cipher)
             return "RSA_WITH_IDEA_CBC_SHA";
         case SSL_RSA_EXPORT_WITH_DES40_CBC_SHA:
             return "RSA_EXPORT_WITH_DES40_CBC_SHA";
-        case SSL_RSA_WITH_DES_CBC_SHA: 
+        case SSL_RSA_WITH_DES_CBC_SHA:
             return "RSA_WITH_DES_CBC_SHA";
         case SSL_RSA_WITH_3DES_EDE_CBC_SHA:
             return "RSA_WITH_3DES_EDE_CBC_SHA";
@@ -796,6 +796,7 @@ IceSSL::SecureTransportEngine::initialized() const
     IceUtil::Mutex::Lock lock(_mutex);
     return _initialized;
 }
+
 //
 // Setup the engine.
 //
@@ -807,34 +808,34 @@ IceSSL::SecureTransportEngine::initialize()
     {
         return;
     }
-    
+
     SSLEngine::initialize();
-    
+
     const string propPrefix = "IceSSL.";
     const PropertiesPtr properties = communicator()->getProperties();
-    
+
     //
     // Check for a default directory. We look in this directory for
     // files mentioned in the configuration.
     //
-    string defaultDir = properties->getProperty(propPrefix + "DefaultDir");
-    
+    const string defaultDir = properties->getProperty(propPrefix + "DefaultDir");
+
     //
     // Open the application KeyChain or create it if the keychain doesn't exists
     //
     string keychainPath = properties->getProperty("IceSSL.Keychain");
     string keychainPassword = properties->getProperty("IceSSL.KeychainPassword");
-    
-    bool usePassword = !keychainPassword.empty();
+
+    const bool usePassword = !keychainPassword.empty();
     size_t size = keychainPassword.size();
     const char* password = usePassword ? keychainPassword.c_str() : 0;
-    
+
     CFDataRef hash = 0;
     SecKeychainRef keychain = 0;
     SecCertificateRef cert = 0;
     SecKeyRef key = 0;
     SecIdentityRef identity = 0;
-    
+
     try
     {
         OSStatus err = 0;
@@ -842,7 +843,7 @@ IceSSL::SecureTransportEngine::initialize()
         {
             if((err = SecKeychainCopyDefault(&keychain)))
             {
-                throw PluginInitializationException(__FILE__, __LINE__, 
+                throw PluginInitializationException(__FILE__, __LINE__,
                                             "IceSSL: unable to retrieve default keychain:\n" + errorToString(err));
             }
         }
@@ -859,14 +860,14 @@ IceSSL::SecureTransportEngine::initialize()
                     keychainPath = string(cwd) + '/' + keychainPath;
                 }
             }
-        
+
             if((err = SecKeychainOpen(keychainPath.c_str(),  &keychain)))
             {
-                throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: unable to open keychain: `" + 
+                throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: unable to open keychain: `" +
                                                     keychainPath + "'\n" + errorToString(err));
             }
         }
-        
+
         SecKeychainStatus status;
         err = SecKeychainGetStatus(keychain, &status);
 
@@ -874,7 +875,7 @@ IceSSL::SecureTransportEngine::initialize()
         {
             if((err = SecKeychainUnlock(keychain, size, password, usePassword)))
             {
-                throw PluginInitializationException(__FILE__, __LINE__, 
+                throw PluginInitializationException(__FILE__, __LINE__,
                                                     "IceSSL: unable to unlock keychain:\n" + errorToString(err));
             }
         }
@@ -882,16 +883,16 @@ IceSSL::SecureTransportEngine::initialize()
         {
             if((err = SecKeychainCreate(keychainPath.c_str(), size, password, keychainPassword.empty(), 0, &keychain)))
             {
-                throw PluginInitializationException(__FILE__, __LINE__, 
+                throw PluginInitializationException(__FILE__, __LINE__,
                                                     "IceSSL: unable to create keychain:\n" + errorToString(err));
             }
         }
         else
         {
-            throw PluginInitializationException(__FILE__, __LINE__, 
+            throw PluginInitializationException(__FILE__, __LINE__,
                                                 "IceSSL: unable to open keychain:\n" + errorToString(err));
         }
-        
+
         //
         // Set keychain settings to avoid keychain lock.
         //
@@ -900,18 +901,18 @@ IceSSL::SecureTransportEngine::initialize()
         settings.lockOnSleep = FALSE;
         settings.useLockInterval = FALSE;
         settings.lockInterval = INT_MAX;
-        
+
         if((err = SecKeychainSetSettings(keychain, &settings)))
         {
-            throw PluginInitializationException(__FILE__, __LINE__, 
+            throw PluginInitializationException(__FILE__, __LINE__,
                                                 "IceSSL: error setting keychain settings:\n" + errorToString(err));
         }
-        
-        int passwordRetryMax = properties->getPropertyAsIntWithDefault(propPrefix + "PasswordRetryMax", 3);
+
+        const int passwordRetryMax = properties->getPropertyAsIntWithDefault(propPrefix + "PasswordRetryMax", 3);
         PasswordPromptPtr passwordPrompt = getPasswordPrompt();
-        
+
         //
-        // Load the CA certificates used to authenticate peers into 
+        // Load the CA certificates used to authenticate peers into
         // _certificateAuthorities array.
         //
         {
@@ -922,7 +923,7 @@ IceSSL::SecureTransportEngine::initialize()
                 {
                     if(!checkPath(caFile, defaultDir, false))
                     {
-                        throw PluginInitializationException(__FILE__, __LINE__, 
+                        throw PluginInitializationException(__FILE__, __LINE__,
                                                             "IceSSL: CA certificate file not found:\n" + caFile);
                     }
                     _certificateAuthorities = loadCACertificates(caFile);
@@ -937,7 +938,7 @@ IceSSL::SecureTransportEngine::initialize()
                 throw PluginInitializationException(__FILE__, __LINE__, ce.reason);
             }
         }
-        
+
         //
         // Import the application certificate and private keys into the application
         // keychain.
@@ -961,14 +962,14 @@ IceSSL::SecureTransportEngine::initialize()
                     string file = *p;
                     if(!checkPath(file, defaultDir, false))
                     {
-                        throw PluginInitializationException(__FILE__, __LINE__, 
+                        throw PluginInitializationException(__FILE__, __LINE__,
                                                             "IceSSL: certificate file not found:\n" + file);
                     }
-                    
+
                     try
                     {
                         loadCertificate(&cert, &hash, &key, keychain, file,
-                                        properties->getProperty(propPrefix + "Password"), passwordPrompt, 
+                                        properties->getProperty(propPrefix + "Password"), passwordPrompt,
                                         passwordRetryMax);
                         break;
                     }
@@ -985,7 +986,7 @@ IceSSL::SecureTransportEngine::initialize()
                     }
                 }
             }
-            
+
             if(!key && !keyFile.empty())
             {
                 vector<string> files;
@@ -1004,14 +1005,14 @@ IceSSL::SecureTransportEngine::initialize()
                     string file = *p;
                     if(!checkPath(file, defaultDir, false))
                     {
-                        throw PluginInitializationException(__FILE__, __LINE__, 
+                        throw PluginInitializationException(__FILE__, __LINE__,
                                                             "IceSSL: key file not found:\n" + file);
                     }
 
                     try
                     {
-                        loadPrivateKey(&key, keyLabel(cert), hash, keychain, file, 
-                                       properties->getProperty(propPrefix + "Password"), 
+                        loadPrivateKey(&key, keyLabel(cert), hash, keychain, file,
+                                       properties->getProperty(propPrefix + "Password"),
                                        passwordPrompt, passwordRetryMax);
                         break;
                     }
@@ -1042,7 +1043,7 @@ IceSSL::SecureTransportEngine::initialize()
                     }
                 }
             }
-            
+
             if(cert)
             {
                 if((err = SecIdentityCreateWithCertificate(keychain, cert, &identity)) != noErr)
@@ -1051,7 +1052,7 @@ IceSSL::SecureTransportEngine::initialize()
                                                 "IceSSL: error creating certificate identity:\n" + errorToString(err));
                 }
             }
-            
+
             if(identity)
             {
                 SecTrustRef trust = 0;
@@ -1065,23 +1066,23 @@ IceSSL::SecureTransportEngine::initialize()
                     CFRelease(policy);
                     if(err || !trust)
                     {
-                        throw PluginInitializationException(__FILE__, __LINE__, 
+                        throw PluginInitializationException(__FILE__, __LINE__,
                                     "IceSSL: error creating trust object" + (err ? ":\n" + errorToString(err) : ""));
                     }
-                    
+
                     if((err = SecTrustSetAnchorCertificates(trust, _certificateAuthorities)))
                     {
-                        throw PluginInitializationException(__FILE__, __LINE__, 
+                        throw PluginInitializationException(__FILE__, __LINE__,
                                     "IceSSL: error while establish the anchor certificates:\n" + errorToString(err));
                     }
-                    
+
                     SecTrustResultType trustResult;
                     if((err = SecTrustEvaluate(trust, &trustResult)))
                     {
-                        throw PluginInitializationException(__FILE__, __LINE__, 
+                        throw PluginInitializationException(__FILE__, __LINE__,
                                                             "IceSSL: error evaluating trust:\n" + errorToString(err));
                     }
-                    
+
                     int chainLength = SecTrustGetCertificateCount(trust);
                     _chain = CFArrayCreateMutable(kCFAllocatorDefault, chainLength, &kCFTypeArrayCallBacks);
                     CFArrayAppendValue(_chain, identity);
@@ -1100,27 +1101,27 @@ IceSSL::SecureTransportEngine::initialize()
                     throw;
                 }
             }
-            
+
             if(hash)
             {
                 CFRelease(hash);
             }
-            
+
             if(keychain)
             {
                 CFRelease(keychain);
             }
-            
+
             if(cert)
             {
                 CFRelease(cert);
             }
-            
+
             if(key)
             {
                 CFRelease(key);
             }
-            
+
             if(identity)
             {
                 CFRelease(identity);
@@ -1128,32 +1129,32 @@ IceSSL::SecureTransportEngine::initialize()
         }
     }
     catch(...)
-    {    
+    {
         if(hash)
         {
             CFRelease(hash);
         }
-        
+
         if(keychain)
         {
             CFRelease(keychain);
         }
-        
+
         if(cert)
         {
             CFRelease(cert);
         }
-        
+
         if(key)
         {
             CFRelease(key);
         }
-        
+
         if(identity)
         {
             CFRelease(identity);
         }
-        
+
         throw;
     }
     //
@@ -1166,26 +1167,26 @@ IceSSL::SecureTransportEngine::initialize()
         {
             throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: DH params file not found:\n" + dhFile);
         }
-        
+
         readFile(dhFile, _dhParams);
     }
-    
+
     //
     // Establish the cipher list.
     //
-    string ciphers = properties->getProperty(propPrefix + "Ciphers");
+    const string ciphers = properties->getProperty(propPrefix + "Ciphers");
     CiphersHelper::initialize();
-    
+
     if(!ciphers.empty())
     {
         parseCiphers(ciphers);
     }
-    
+
     if(securityTraceLevel() >= 1)
     {
         ostringstream os;
         os << "enabling SSL ciphersuites:";
-        
+
         if(_ciphers.empty())
         {
             map<string, SSLCipherSuite> enabled = CiphersHelper::ciphers();
@@ -1203,7 +1204,7 @@ IceSSL::SecureTransportEngine::initialize()
         }
         getLogger()->trace(securityTraceCategory(), os.str());
     }
-    
+
     //
     // Parse protocols
     //
@@ -1212,10 +1213,10 @@ IceSSL::SecureTransportEngine::initialize()
     {
         _protocolVersionMax = parseProtocol(protocolVersionMax);
     }
-    
+
     //
     // The default min protocol version is set to TLS1.0 to avoid security issues with SSLv3
-    // 
+    //
     const string protocolVersionMin = properties->getPropertyWithDefault(propPrefix + "ProtocolVersionMin", "tls1_0");
     if(!protocolVersionMin.empty())
     {
@@ -1235,7 +1236,7 @@ IceSSL::SecureTransportEngine::destroy()
         CFRelease(_certificateAuthorities);
         _certificateAuthorities = 0;
     }
-    
+
     if(_chain)
     {
         CFRelease(_chain);
@@ -1246,13 +1247,13 @@ IceSSL::SecureTransportEngine::destroy()
 SSLContextRef
 IceSSL::SecureTransportEngine::newContext(bool incoming)
 {
-    SSLContextRef ssl = SSLCreateContext(kCFAllocatorDefault, incoming ? kSSLServerSide : kSSLClientSide, 
+    SSLContextRef ssl = SSLCreateContext(kCFAllocatorDefault, incoming ? kSSLServerSide : kSSLClientSide,
                                          kSSLStreamType);
     if(!ssl)
     {
         throw SecurityException(__FILE__, __LINE__, "IceSSL: unable to create SSL context");
     }
-    
+
     OSStatus err = noErr;
     if(incoming)
     {
@@ -1279,23 +1280,23 @@ IceSSL::SecureTransportEngine::newContext(bool incoming)
                 break;
             }
         }
-        
+
         if(!_dhParams.empty())
         {
             if((err = SSLSetDiffieHellmanParams(ssl, &_dhParams[0], _dhParams.size())))
             {
-                throw SecurityException(__FILE__, __LINE__, 
+                throw SecurityException(__FILE__, __LINE__,
                                         "IceSSL: unable to create the trust object:\n" + errorToString(err));
             }
         }
     }
-    
+
     if(_chain && (err = SSLSetCertificate(ssl, _chain)))
-    {        
-        throw SecurityException(__FILE__, __LINE__, 
+    {
+        throw SecurityException(__FILE__, __LINE__,
                                 "IceSSL: error while setting the SSL context certificate:\n" + errorToString(err));
     }
-    
+
 
     if(!_ciphers.empty())
     {
@@ -1304,32 +1305,32 @@ IceSSL::SecureTransportEngine::newContext(bool incoming)
             throw SecurityException(__FILE__, __LINE__, "IceSSL: error while setting ciphers:\n" + errorToString(err));
         }
     }
-    
-    if((err = SSLSetSessionOption(ssl, incoming ? kSSLSessionOptionBreakOnClientAuth : 
+
+    if((err = SSLSetSessionOption(ssl, incoming ? kSSLSessionOptionBreakOnClientAuth :
                                                   kSSLSessionOptionBreakOnServerAuth,
                                   true)))
     {
         throw SecurityException(__FILE__, __LINE__, "IceSSL: error while setting SSL option:\n" + errorToString(err));
     }
-    
+
     if(_protocolVersionMax != kSSLProtocolUnknown)
     {
         if((err = SSLSetProtocolVersionMax(ssl, _protocolVersionMax)))
         {
-            throw SecurityException(__FILE__, __LINE__, 
+            throw SecurityException(__FILE__, __LINE__,
                                     "IceSSL: error while setting SSL protocol version max:\n" + errorToString(err));
         }
     }
-    
+
     if(_protocolVersionMin != kSSLProtocolUnknown)
     {
         if((err = SSLSetProtocolVersionMin(ssl, _protocolVersionMin)))
         {
-            throw SecurityException(__FILE__, __LINE__, 
+            throw SecurityException(__FILE__, __LINE__,
                                     "IceSSL: error while setting SSL protocol version min:\n" + errorToString(err));
         }
     }
-    
+
     return ssl;
 }
 
@@ -1350,7 +1351,7 @@ IceSSL::SecureTransportEngine::parseCiphers(const string& ciphers)
 {
     vector<string> tokens;
     vector<CipherExpression> cipherExpressions;
-    
+
     bool allCiphers = false;
     IceUtilInternal::splitString(ciphers, " \t", tokens);
     for(vector<string>::const_iterator i = tokens.begin(); i != tokens.end(); ++i)
@@ -1360,7 +1361,7 @@ IceSSL::SecureTransportEngine::parseCiphers(const string& ciphers)
         {
             if(i != tokens.begin())
             {
-                throw PluginInitializationException(__FILE__, __LINE__, 
+                throw PluginInitializationException(__FILE__, __LINE__,
                                                     "IceSSL: `ALL' must be first in cipher list `" + ciphers + "'");
             }
             allCiphers = true;
@@ -1369,7 +1370,7 @@ IceSSL::SecureTransportEngine::parseCiphers(const string& ciphers)
         {
             if(i != tokens.begin())
             {
-                throw PluginInitializationException(__FILE__, __LINE__, 
+                throw PluginInitializationException(__FILE__, __LINE__,
                                                     "IceSSL: `NONE' must be first in cipher list `" + ciphers + "'");
             }
         }
@@ -1385,7 +1386,7 @@ IceSSL::SecureTransportEngine::parseCiphers(const string& ciphers)
                 }
                 else
                 {
-                    throw PluginInitializationException(__FILE__, __LINE__, 
+                    throw PluginInitializationException(__FILE__, __LINE__,
                                                         "IceSSL: invalid cipher expression `" + token + "'");
                 }
             }
@@ -1393,12 +1394,12 @@ IceSSL::SecureTransportEngine::parseCiphers(const string& ciphers)
             {
                 ce.negation = false;
             }
-            
+
             if(token.find('(') == 0)
             {
                 if(token.rfind(')') != token.size() - 1)
                 {
-                    throw PluginInitializationException(__FILE__, __LINE__, 
+                    throw PluginInitializationException(__FILE__, __LINE__,
                                                         "IceSSL: invalid cipher expression `" + token + "'");
                 }
 
@@ -1408,7 +1409,7 @@ IceSSL::SecureTransportEngine::parseCiphers(const string& ciphers)
                 }
                 catch(const Ice::SyscallException&)
                 {
-                    throw PluginInitializationException(__FILE__, __LINE__, 
+                    throw PluginInitializationException(__FILE__, __LINE__,
                                                         "IceSSL: invalid cipher expression `" + token + "'");
                 }
             }
@@ -1416,34 +1417,34 @@ IceSSL::SecureTransportEngine::parseCiphers(const string& ciphers)
             {
                 ce.cipher = token;
             }
-            
+
             cipherExpressions.push_back(ce);
         }
     }
-    
+
     //
     // Context used to get the cipher list
     //
     SSLContextRef ctx = SSLCreateContext(kCFAllocatorDefault, kSSLServerSide, kSSLStreamType);
     size_t numSupportedCiphers = 0;
     SSLGetNumberSupportedCiphers(ctx, &numSupportedCiphers);
-    
+
     vector<SSLCipherSuite> supported;
     supported.resize(numSupportedCiphers);
-    
+
     OSStatus err = SSLGetSupportedCiphers(ctx, &supported[0], &numSupportedCiphers);
     if(err)
     {
-        throw PluginInitializationException(__FILE__, __LINE__, 
+        throw PluginInitializationException(__FILE__, __LINE__,
                                             "IceSSL: unable to get supported ciphers list:\n" + errorToString(err));
     }
-    
+
     vector<SSLCipherSuite> enabled;
     if(allCiphers)
     {
         enabled = supported;
     }
-    
+
     for(vector<CipherExpression>::const_iterator i = cipherExpressions.begin(); i != cipherExpressions.end(); ++i)
     {
         CipherExpression ce = *i;
@@ -1453,7 +1454,7 @@ IceSSL::SecureTransportEngine::parseCiphers(const string& ciphers)
             {
                 SSLCipherSuite cipher = *j;
                 string name = CiphersHelper::cipherName(cipher);
-                
+
                 if(ce.cipher.empty())
                 {
                     if(ce.re->match(name))

@@ -46,11 +46,13 @@ IceSSL::readFile(const string& file, vector<char>& buffer)
     buffer.resize(static_cast<int>(is.tellg()));
     is.seekg(0, is.beg);
     
-    is.read(&buffer[0], buffer.size());
-    
-    if(!is.good())
+    if(!buffer.empty())
     {
-        throw CertificateReadException(__FILE__, __LINE__, "error reading file " + file);
+        is.read(&buffer[0], buffer.size());
+        if(!is.good())
+        {
+            throw CertificateReadException(__FILE__, __LINE__, "error reading file " + file);
+        }
     }
 }
 
@@ -1395,29 +1397,18 @@ IceSSL::findCertificates(const string& prop, const string& storeSpec, const stri
 bool
 IceSSL::checkPath(string& path, const string& defaultDir, bool dir)
 {
-    //
-    // Check if file exists. If not, try prepending the default
-    // directory and check again. If the path exists, the string
-    // argument is modified and true is returned. Otherwise
-    // false is returned.
-    //
-    IceUtilInternal::structstat st;
-    int err = IceUtilInternal::stat(path, &st);
-    if(err == 0)
+    if(IceUtilInternal::isAbsolutePath(path))
     {
-        return dir ? S_ISDIR(st.st_mode) != 0 : S_ISREG(st.st_mode) != 0;
+        return dir ? IceUtilInternal::directoryExists(path) : IceUtilInternal::fileExists(path);
     }
 
+    //
+    // If a default directory is provided, the given path is relative to the default directory.
+    //
     if(!defaultDir.empty())
     {
-        string s = defaultDir + IceUtilInternal::separator + path;
-        err = ::IceUtilInternal::stat(s.c_str(), &st);
-        if(err == 0 && ((!dir && S_ISREG(st.st_mode)) || (dir && S_ISDIR(st.st_mode))))
-        {
-            path = s;
-            return true;
-        }
+        path = defaultDir + IceUtilInternal::separator + path;
     }
 
-    return false;
+    return dir ? IceUtilInternal::directoryExists(path) : IceUtilInternal::fileExists(path);
 }

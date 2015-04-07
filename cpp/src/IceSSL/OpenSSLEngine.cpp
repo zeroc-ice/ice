@@ -243,7 +243,7 @@ OpenSSLEngine::OpenSSLEngine(const CommunicatorPtr& communicator) :
             if(!randFiles.empty())
             {
                 vector<string> files;
-                string defaultDir = properties->getProperty("IceSSL.DefaultDir");
+                const string defaultDir = properties->getProperty("IceSSL.DefaultDir");
 
                 if(!IceUtilInternal::splitString(randFiles, IceUtilInternal::pathsep, files))
                 {
@@ -379,7 +379,7 @@ OpenSSLEngine::initialize()
             // Check for a default directory. We look in this directory for
             // files mentioned in the configuration.
             //
-            string defaultDir = properties->getProperty(propPrefix + "DefaultDir");
+            const string defaultDir = properties->getProperty(propPrefix + "DefaultDir");
 
             //
             // If the configuration defines a password, or the application has supplied
@@ -657,12 +657,10 @@ OpenSSLEngine::initialize()
                     string file = *p;
                     if(!checkPath(file, defaultDir, false))
                     {
-                        throw PluginInitializationException(__FILE__, __LINE__,
-                                                            "IceSSL: key file not found:\n" + file);
+                        throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: key file not found:\n" + file);
                     }
                     //
-                    // The private key may be stored in an encrypted file, so handle
-                    // password retries.
+                    // The private key may be stored in an encrypted file, so handle password retries.
                     //
                     int count = 0;
                     int err = 0;

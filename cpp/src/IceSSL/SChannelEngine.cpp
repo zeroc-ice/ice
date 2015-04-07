@@ -60,6 +60,11 @@ addCertificateToStore(const string& file, HCERTSTORE store, PCCERT_CONTEXT* cert
 {
     vector<char> buffer;
     readFile(file, buffer);
+    if(buffer.empty())
+    {
+        throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: certificate file is empty:\n" + file);
+    }
+
     vector<BYTE> outBuffer;
     outBuffer.resize(buffer.size());
     DWORD outLength = static_cast<DWORD>(outBuffer.size());
@@ -190,15 +195,15 @@ SChannelEngine::initialize()
     defaultProtocols.push_back("tls1_1");
     defaultProtocols.push_back("tls1_2");
     const_cast<DWORD&>(_protocols) =
-                    parseProtocols(properties->getPropertyAsListWithDefault(prefix + "Protocols", defaultProtocols));
+        parseProtocols(properties->getPropertyAsListWithDefault(prefix + "Protocols", defaultProtocols));
 
     //
     // Check for a default directory. We look in this directory for
     // files mentioned in the configuration.
     //
-    string defaultDir = properties->getProperty(prefix + "DefaultDir");
+    const string defaultDir = properties->getProperty(prefix + "DefaultDir");
 
-    int passwordRetryMax = properties->getPropertyAsIntWithDefault(prefix + "PasswordRetryMax", 3);
+    const int passwordRetryMax = properties->getPropertyAsIntWithDefault(prefix + "PasswordRetryMax", 3);
     PasswordPromptPtr passwordPrompt = getPasswordPrompt();
     setPassword(properties->getProperty(prefix + "Password"));
 
@@ -343,6 +348,11 @@ SChannelEngine::initialize()
 
             vector<char> buffer;
             readFile(certFile, buffer);
+            if(buffer.empty())
+            {
+                throw PluginInitializationException(__FILE__, __LINE__,
+                                                    "IceSSL: certificate file is empty:\n" + certFile);
+            }
 
             CRYPT_DATA_BLOB pfxBlob;
             pfxBlob.cbData = static_cast<DWORD>(buffer.size());
@@ -424,6 +434,10 @@ SChannelEngine::initialize()
             }
 
             readFile(keyFile, buffer);
+            if(buffer.empty())
+            {
+                throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: key file is empty:\n" + keyFile);
+            }
 
             vector<BYTE> outBuffer;
             outBuffer.resize(buffer.size());

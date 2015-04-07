@@ -289,6 +289,10 @@ loadCertificate(PCERT_SIGNED_CONTENT_INFO* cert, const string& file)
 {
     vector<char> buffer;
     readFile(file, buffer);
+    if(buffer.empty())
+    {
+        throw CertificateReadException(__FILE__, __LINE__, "certificate file " + file + " is empty");
+    }
     loadCertificate(cert, &buffer[0], static_cast<DWORD>(buffer.size()));
 }
 
