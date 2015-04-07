@@ -237,8 +237,7 @@ function Init()
         }
         var options = {
             passphrase: "password",
-            key: fs.readFileSync(path.join(baseDir, "s_rsa1024_priv.pem")),
-            cert: fs.readFileSync(path.join(baseDir, "s_rsa1024_pub.pem"))
+            pfx: fs.readFileSync(path.join(baseDir, "server.p12")),
         };
 
         var httpServer = http.createServer();

@@ -21,6 +21,18 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0], "scripts"))
 import TestUtil
 
+def removeTrustSettings():
+    serverCert = os.path.join(path[0], "certs", "server.pem")
+    if os.system("security verify-cert -c " + serverCert + " >& /dev/null") == 0:
+        sys.stdout.write("removing trust settings for the HTTP server certificate... ")
+        sys.stdout.flush()
+        if os.system("security remove-trusted-cert " + serverCert) != 0:
+            print("\nerror: couldn't remove trust settings for the HTTP server certificate")
+        else:
+            print("ok")
+    else:
+        print("trust settings already removed")
+
 #
 # On OS X, provide an option to allow removing the trust settings
 #
@@ -28,15 +40,7 @@ if TestUtil.isDarwin():
     try:
         opts, args = getopt.getopt(sys.argv[1:], "", ["clean"])
         if ("--clean", "") in opts:
-            serverCert = os.path.join(path[0], "certs", "s_rsa1024_pub.pem")
-            if os.system("security verify-cert -c " + serverCert + " >& /dev/null") == 0:
-                sys.stdout.write("removing trust settings for the HTTP server certificate... ")
-                sys.stdout.flush()
-                if os.system("security remove-trusted-cert " + serverCert) != 0:
-                    print("error: couldn't remove trust settings for the HTTP server certificate")
-                print("ok")
-            else:
-                print("trust settings already removed")
+            removeTrustSettings()
             sys.exit(0)
     except getopt.GetoptError:
         pass
@@ -44,7 +48,10 @@ if TestUtil.isDarwin():
 version = "3.6.0"
 jar = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..",
                    "java/test/controller/build/libs/testController-%(version)s.jar" % {"version": version})
-command = ["%s/bin/java" % os.environ.get("JAVA_HOME"), "-jar", jar]
+
+javaHome = os.environ.get("JAVA_HOME", "")
+javaCmd = '"%s"' % os.path.join(javaHome, "bin", "java") if javaHome else "java"
+command = [javaCmd, "-jar", jar]
 
 p = subprocess.Popen(command, shell = False, stdin = subprocess.PIPE, stdout = subprocess.PIPE,
                      stderr = subprocess.STDOUT, bufsize = 0)
@@ -54,6 +61,22 @@ def signal_handler(signal, frame):
         p.terminate()
     sys.exit(0)
 signal.signal(signal.SIGINT, signal_handler)
+
+if TestUtil.isDarwin():
+    #
+    # On OS X, we set the trust settings on the certificate to prevent
+    # the Web browsers from prompting the user about the unstrusted
+    # certificate. Some browsers such as Chrome don't provide the
+    # option to set this trust settings.
+    #
+    serverCert = os.path.join(TestUtil.toplevel, "certs", "server.pem")
+    if os.system("security verify-cert -c " + serverCert + " >& /dev/null") != 0:
+        sys.stdout.write("adding trust settings for the HTTP server certificate... ")
+        sys.stdout.flush()
+        if os.system("security add-trusted-cert -r trustAsRoot " + serverCert) != 0:
+            print("error: couldn't add trust settings for the HTTP server certificate")
+        print("ok")
+        print("run " + sys.argv[0] + " --clean to remove the trust setting")
 
 while(True):
 
@@ -67,18 +90,3 @@ while(True):
         c = c.decode()
     sys.stdout.write(c)
     sys.stdout.flush()
-
-if TestUtil.isDarwin():
-    #
-    # On OS X, we set the trust settings on the certificate to prevent
-    # the Web browsers from prompting the user about the unstrusted
-    # certificate. Some browsers such as Chrome don't provide the
-    # option to set this trust settings.
-    #
-    serverCert = os.path.join(TestUtil.toplevel, "certs", "s_rsa1024_pub.pem")
-    if os.system("security verify-cert -c " + serverCert + " >& /dev/null") != 0:
-        sys.stdout.write("adding trust settings for the HTTP server certificate... ")
-        sys.stdout.flush()
-        if os.system("security add-trusted-cert -r trustAsRoot " + serverCert) != 0:
-            print("error: couldn't add trust settings for the HTTP server certificate")
-        print("ok")

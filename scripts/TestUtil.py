@@ -858,9 +858,9 @@ sslConfigTree = {
         "cpp" : {
             "plugin" : " --Ice.Plugin.IceSSL=IceSSL:createIceSSL --IceSSL.Password=password " +
             "--IceSSL.DefaultDir=%(certsdir)s --IceSSL.CertAuthFile=cacert.pem --IceSSL.VerifyPeer=%(verifyPeer)s",
-            "client" : " --IceSSL.CertFile=c_rsa1024.pfx",
-            "server" : " --IceSSL.CertFile=s_rsa1024.pfx",
-            "colloc" : " --IceSSL.CertFile=c_rsa1024.pfx"
+            "client" : " --IceSSL.CertFile=client.p12",
+            "server" : " --IceSSL.CertFile=server.p12",
+            "colloc" : " --IceSSL.CertFile=client.p12"
             },
         "java" : {
             "plugin" : " --Ice.Plugin.IceSSL=IceSSL.PluginFactory " +
@@ -872,9 +872,9 @@ sslConfigTree = {
         "csharp" : {
             "plugin" : " --Ice.Plugin.IceSSL=%(icesslcs)s:IceSSL.PluginFactory --IceSSL.CertAuthFile=cacert.pem " +
             "--IceSSL.Password=password --IceSSL.DefaultDir=%(certsdir)s --IceSSL.VerifyPeer=%(verifyPeer)s",
-            "client" : " --IceSSL.CertFile=c_rsa1024.pfx --IceSSL.CheckCertName=0",
-            "server" : " --IceSSL.CertFile=s_rsa1024.pfx",
-            "colloc" : " --IceSSL.CertFile=c_rsa1024.pfx --IceSSL.CheckCertName=0"
+            "client" : " --IceSSL.CertFile=client.p12 --IceSSL.CheckCertName=0",
+            "server" : " --IceSSL.CertFile=server.p12",
+            "colloc" : " --IceSSL.CertFile=client.p12 --IceSSL.CheckCertName=0"
             },
         }
 

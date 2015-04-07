@@ -55,8 +55,7 @@ endif
 			  IceStormLib \
 			  IceGridLib \
 			  IceStorm \
-			  IceGrid \
-			  ca
+			  IceGrid
 endif
 
 .PHONY: $(EVERYTHING) $(SUBDIRS)

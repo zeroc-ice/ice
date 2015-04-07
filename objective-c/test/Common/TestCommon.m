@@ -70,7 +70,7 @@ defaultServerProperties(int *argc, char** argv)
         @"Ice.Override.ConnectTimeout", @"10000", // COMPILERFIX: Workaround for SSL hang on iOS devices
         @"IceSSL.CertAuthFile", @"cacert.der",
         @"IceSSL.CheckCertName", @"0",
-        @"IceSSL.CertFile", @"s_rsa1024.pfx",
+        @"IceSSL.CertFile", @"server.p12",
         @"IceSSL.Password", @"password"
     };
 
@@ -87,7 +87,7 @@ defaultServerProperties(int *argc, char** argv)
             [properties setProperty:ssldefaults[i] value:ssldefaults[i+1]];
         }
     }
-    
+
     if(sliced)
     {
         [properties setProperty:@"Ice.Default.SlicedFormat" value:@"1"];
@@ -124,7 +124,7 @@ defaultClientProperties(int* argc, char** argv)
         @"Ice.Override.ConnectTimeout", @"10000", // COMPILERFIX: Workaround for SSL hang on iOS devices
         @"IceSSL.CheckCertName", @"0",
         @"IceSSL.CertAuthFile", @"cacert.der",
-        @"IceSSL.CertFile", @"c_rsa1024.pfx",
+        @"IceSSL.CertFile", @"client.p12",
         @"IceSSL.Password", @"password"
     };
 
@@ -195,7 +195,7 @@ tprintf(const char* fmt, ...)
 {
     va_list va;
     va_start(va, fmt);
-    NSString* s = ICE_AUTORELEASE([[NSString alloc] initWithFormat:[NSString stringWithCString:fmt 
+    NSString* s = ICE_AUTORELEASE([[NSString alloc] initWithFormat:[NSString stringWithCString:fmt
                                                                                       encoding:NSUTF8StringEncoding]
                                                          arguments:va]);
     va_end(va);
@@ -219,7 +219,7 @@ tprintf(const char* fmt, ...)
 {
     va_list va;
     va_start(va, fmt);
-    NSString* s = ICE_AUTORELEASE([[NSString alloc] initWithFormat:[NSString stringWithCString:fmt 
+    NSString* s = ICE_AUTORELEASE([[NSString alloc] initWithFormat:[NSString stringWithCString:fmt
                                                                                       encoding:NSUTF8StringEncoding]
                                                          arguments:va]);
     va_end(va);
