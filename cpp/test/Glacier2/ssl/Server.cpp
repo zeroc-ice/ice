@@ -61,10 +61,9 @@ public:
 
         IceSSL::CertificatePtr cert = IceSSL::Certificate::decode(info.certs[0]);
         test(cert->getIssuerDN() == IceSSL::DistinguishedName(
-            "emailAddress=info@zeroc.com,CN=ZeroC Test CA,OU=Ice,O=ZeroC\\, Inc.,"
-             "L=Palm Beach Gardens,ST=Florida,C=US"));
+             "C=US,ST=Florida,L=Jupiter,O=ZeroC\\, Inc.,OU=Ice,CN=ZeroC IceCertUtils CA"));
         test(cert->getSubjectDN() == IceSSL::DistinguishedName(
-            "CN=Client,emailAddress=info@zeroc.com,OU=Ice,O=ZeroC\\, Inc.,ST=Florida,C=US"));
+             "C=US,ST=Florida,L=Jupiter,O=ZeroC\\, Inc.,OU=Ice,CN=client"));
         test(cert->checkValidity());
 
         return true;
@@ -134,10 +133,9 @@ public:
         {
             IceSSL::CertificatePtr cert = IceSSL::Certificate::decode(info.certs[0]);
             test(cert->getIssuerDN() == IceSSL::DistinguishedName(
-                "emailAddress=info@zeroc.com,CN=ZeroC Test CA,OU=Ice,O=ZeroC\\, Inc.,L=Palm Beach Gardens,"
-                "ST=Florida,C=US"));
+                     "C=US,ST=Florida,L=Jupiter,O=ZeroC\\, Inc.,OU=Ice,CN=ZeroC IceCertUtils CA"));
             test(cert->getSubjectDN() == IceSSL::DistinguishedName(
-                "CN=Client,emailAddress=info@zeroc.com,OU=Ice,O=ZeroC\\, Inc.,ST=Florida,C=US"));
+                     "C=US,ST=Florida,L=Jupiter,O=ZeroC\\, Inc.,OU=Ice,CN=client"));
             test(cert->checkValidity());
         }
         catch(const IceSSL::CertificateReadException&)
