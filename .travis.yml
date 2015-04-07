@@ -1,13 +1,15 @@
-before_script:
+before_install:
   - yes | sudo add-apt-repository ppa:ubuntu-toolchain-r/test
   - sudo apt-get -qq update
+install:
   - sudo apt-get install gcc-4.8 g++-4.8
+  - sudo apt-get install libmcpp-dev libdb++-dev libdb-dev libdb-java libdb-java-dev ruby-dev python-dev php5-dev php5-cli python-passlib
   - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 60 --slave /usr/bin/g++ g++ /usr/bin/g++-4.8
   - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.6 40 --slave /usr/bin/g++ g++ /usr/bin/g++-4.6
   - sudo update-alternatives --set gcc /usr/bin/gcc-4.8
-  - sudo apt-get install libmcpp-dev libdb++-dev libdb-dev libdb-java libdb-java-dev ruby-dev python-dev php5-dev php5-cli python-passlib
-script:
+before_script:
   - make -j3
+script:
   - python allTests.py --debug --env --protocol=ssl --rfilter='java/test/Ice/udp'
 notifications:
   email: travis-ci@zeroc.com
