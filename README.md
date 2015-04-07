@@ -1,4 +1,4 @@
-[![Build Status](https://magnum.travis-ci.com/ZeroC-Inc/ice-dev.svg?token=icxd1yE9Nf6WLivZz2vF&branch=master)](https://magnum.travis-ci.com/ZeroC-Inc/ice-dev)
+[![Build Status](https://magnum.travis-ci.com/zeroc-ice/ice-dev.svg?token=icxd1yE9Nf6WLivZz2vF&branch=master)](https://magnum.travis-ci.com/zeroc-ice/ice-dev)
 
 The Internet Communications Engine (Ice)
 ========================================
