@@ -86,8 +86,9 @@ if not dns:
 
 cn = dns if usedns else ip
 
+dn = IceCertUtils.DistinguishedName("Ice Tests CA", default=IceCertUtils.defaultDN)
 CertificateFactory = vars(IceCertUtils)[impl + "CertificateFactory"]
-factory = CertificateFactory(debug=debug)
+factory = CertificateFactory(debug=debug, dn=dn)
 
 # CA certificate
 factory.getCA().save("cacert.pem").save("cacert.der")
