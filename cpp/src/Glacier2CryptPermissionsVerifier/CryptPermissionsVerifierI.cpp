@@ -110,7 +110,7 @@ const string padBytes1 = "=";
 const string padBytes2 = "==";
 
 inline string
-paddingBytes(int length)
+paddingBytes(size_t length)
 {
     switch(length % 4)
     {
@@ -354,10 +354,10 @@ CryptPermissionsVerifierI::checkPermissions(const string& userId, const string& 
 
     return checksumBuffer1 == checksumBuffer2;
 #   else
-    DWORD saltLength = salt.size();
+    DWORD saltLength = static_cast<DWORD>(salt.size());
     vector<BYTE> saltBuffer(saltLength);
 
-    if(!CryptStringToBinary(salt.c_str(), salt.size(), CRYPT_STRING_BASE64, &saltBuffer[0], &saltLength, 0, 0))
+    if(!CryptStringToBinary(salt.c_str(), static_cast<DWORD>(salt.size()), CRYPT_STRING_BASE64, &saltBuffer[0], &saltLength, 0, 0))
     {
         return false;
     }
@@ -373,9 +373,10 @@ CryptPermissionsVerifierI::checkPermissions(const string& userId, const string& 
 
     vector<BYTE> passwordBuffer(password.begin(), password.end());
 
-    DWORD status = BCryptDeriveKeyPBKDF2(algorithmHandle, &passwordBuffer[0], passwordBuffer.size(),
+    DWORD status = BCryptDeriveKeyPBKDF2(algorithmHandle, &passwordBuffer[0], 
+                                         static_cast<DWORD>(passwordBuffer.size()),
                                          &saltBuffer[0], saltLength, rounds,
-                                         &checksumBuffer1[0], checksumLength, 0);
+                                         &checksumBuffer1[0], static_cast<DWORD>(checksumLength), 0);
 
     BCryptCloseAlgorithmProvider(algorithmHandle, 0);
 
@@ -387,7 +388,8 @@ CryptPermissionsVerifierI::checkPermissions(const string& userId, const string& 
     DWORD checksumBuffer2Length = checksumLength;
     vector<BYTE> checksumBuffer2(checksumLength);
 
-    if(!CryptStringToBinary(checksum.c_str(), checksum.size(), CRYPT_STRING_BASE64, &checksumBuffer2[0],
+    if(!CryptStringToBinary(checksum.c_str(), static_cast<DWORD>(checksum.size()), 
+                            CRYPT_STRING_BASE64, &checksumBuffer2[0],
                             &checksumBuffer2Length, 0, 0))
     {
         return false;
