@@ -20,7 +20,7 @@ if len(path) == 0:
 sys.path.append(path[0])
 
 from demoscript import Util
-from demoscript.manual import evictor_filesystem
+from demoscript.manual import evictorFilesystem
 
 sys.stdout.write("cleaning databases... ")
 sys.stdout.flush()
@@ -31,4 +31,4 @@ server = Util.spawn('java -jar build/libs/server.jar --Ice.PrintAdapterReady')
 server.expect('.* ready')
 client = Util.spawn('java -jar build/libs/client.jar')
 
-evictor_filesystem.run(client, server)
+evictorFilesystem.run(client, server)

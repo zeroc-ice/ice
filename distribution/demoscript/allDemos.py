@@ -24,7 +24,7 @@ for d in subdirs:
     current_mod = imp.load_module("allDemos", f, filename, (".py", "r", imp.PY_SOURCE))
     f.close()
 
-    demos = [ os.path.join(d, "demo", x) for x in current_mod.demos ]
+    demos = [ os.path.join(d, x) for x in current_mod.demos ]
     demoGroups.extend(demos)
 
 Util.run(demoGroups, root=True)
