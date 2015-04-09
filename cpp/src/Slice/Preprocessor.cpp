@@ -447,7 +447,7 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
                 result += "\n    <dependsOn name=\"" + file + "\"/>";
             }
         }
-        if(lang == JavaScriptJSON)
+        else if(lang == JavaScriptJSON)
         {
             if(sourceFile.empty())
             {
