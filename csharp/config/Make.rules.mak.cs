@@ -169,7 +169,7 @@ MCSFLAGS = $(MCSFLAGS) /noconfig /nostdlib+ /define:DOTNET3_5
 MCSFLAGS = $(MCSFLAGS) /reference:"$(FRAMEWORKDIR)\v2.0.50727\mscorlib.dll"
 MCSFLAGS = $(MCSFLAGS) /reference:"$(FRAMEWORKDIR)\v2.0.50727\System.dll"
 MCSFLAGS = $(MCSFLAGS) /reference:"$(FRAMEWORKDIR)\v2.0.50727\System.Data.dll"
-MCSFLAGS = $(MCSFLAGS) /reference:"$(PROGRAMFILES)\Reference Assemblies\Microsoft\Framework\v3.5\System.Core.dll"  
+MCSFLAGS = $(MCSFLAGS) /reference:"$(PROGRAMFILES)\Reference Assemblies\Microsoft\Framework\v3.5\System.Core.dll"
 MCSFLAGS = $(MCSFLAGS) /reference:"$(PROGRAMFILES)\Reference Assemblies\Microsoft\Framework\v3.0\System.Runtime.Serialization.dll"
 !elseif "$(COMPACT)" == "yes"
 NETCF_HOME		= $(PROGRAMFILES)\Reference Assemblies\Microsoft\Framework\WindowsEmbeddedCompact\v3.9
@@ -189,6 +189,7 @@ UNITY_LIBS 		= "/r:$(UNITY_LIBDIR)\mscorlib.dll" \
 			  "/r:$(UNITY_LIBDIR)\System.dll" \
 			  "/r:$(UNITY_LIBDIR)\System.Core.dll"
 MCSFLAGS 		= $(MCSFLAGS) -noconfig -nostdlib $(UNITY_LIBS)
+!endif
 
 !if "$(ice_src_dist)" != ""
 !if "$(ice_cpp_dir)" == "$(ice_dir)\cpp"
@@ -352,7 +353,6 @@ clean::
 !endif
 
 install::
-
 
 #
 # Registry keywords required by Visual Studio and Ice Visual Studio Add-in.
