@@ -71,7 +71,7 @@ Group: System Environment/Libraries
 Vendor: ZeroC, Inc.
 URL: https://www.zeroc.com/
 Source0: Ice-%{version}.tar.gz
-Source1: Ice-rpmbuild-%{version}.tar.gz
+#Source1: Ice-rpmbuild-%{version}.tar.gz
 
 BuildRoot: %{_tmppath}/ice-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -377,7 +377,7 @@ Tools for developing Ice applications in PHP.
 
 %if %{buildall}
 %setup -n Ice-%{version} -q
-%setup -q -n Ice-rpmbuild-%{version} -T -b 1
+#%setup -q -n Ice-rpmbuild-%{version} -T -b 1
 %endif
 
 %build
@@ -539,8 +539,7 @@ rm -rf $RPM_BUILD_ROOT/include/*
 for i in ice-all-runtime icebox ice-all-devel libfreeze3.6-c++ libice3.6-c++ libice-c++-devel libicestorm3.6
 do
   mkdir -p $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}
-  cp -p $RPM_BUILD_DIR/Ice-%{version}/CHANGES $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}/CHANGES
-  cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/README.Linux $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}/README
+  cp -p $RPM_BUILD_DIR/Ice-%{version}/distribution/rpm/README.Linux $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}/README
   cp -p $RPM_BUILD_DIR/Ice-%{version}/ICE_LICENSE $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}
   cp -p $RPM_BUILD_DIR/Ice-%{version}/LICENSE $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}
 done
@@ -555,7 +554,7 @@ make prefix=$RPM_BUILD_ROOT install
 
 %if "%{dist}" == ".el6"
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/php.d
-cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/ice.ini $RPM_BUILD_ROOT%{_sysconfdir}/php.d
+cp -p $RPM_BUILD_DIR/Ice-%{version}/distribution/rpm/ice.ini $RPM_BUILD_ROOT%{_sysconfdir}/php.d
 mkdir -p $RPM_BUILD_ROOT%{_libdir}/php/modules
 mv $RPM_BUILD_ROOT/php/IcePHP.so $RPM_BUILD_ROOT%{_libdir}/php/modules
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/php
@@ -564,7 +563,7 @@ mv $RPM_BUILD_ROOT/php/* $RPM_BUILD_ROOT%{_datadir}/php
 
 %if "%{dist}" == ".el7"
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/php.d
-cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/ice.ini $RPM_BUILD_ROOT%{_sysconfdir}/php.d
+cp -p $RPM_BUILD_DIR/Ice-%{version}/distribution/rpm/ice.ini $RPM_BUILD_ROOT%{_sysconfdir}/php.d
 mkdir -p $RPM_BUILD_ROOT%{_libdir}/php/modules
 mv $RPM_BUILD_ROOT/php/IcePHP.so $RPM_BUILD_ROOT%{_libdir}/php/modules
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/php
@@ -573,7 +572,7 @@ mv $RPM_BUILD_ROOT/php/* $RPM_BUILD_ROOT%{_datadir}/php
 
 %if "%{dist}" == ".amzn1"
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/php.d
-cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/ice.ini $RPM_BUILD_ROOT%{_sysconfdir}/php.d
+cp -p $RPM_BUILD_DIR/Ice-%{version}/distribution/rpm/ice.ini $RPM_BUILD_ROOT%{_sysconfdir}/php.d
 mkdir -p $RPM_BUILD_ROOT%{_libdir}/php/modules
 mv $RPM_BUILD_ROOT/php/IcePHP.so $RPM_BUILD_ROOT%{_libdir}/php/modules
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/php
@@ -582,7 +581,7 @@ mv $RPM_BUILD_ROOT/php/* $RPM_BUILD_ROOT%{_datadir}/php
 
 %if "%{dist}" == ".sles11"
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/php5/conf.d
-cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/ice.ini $RPM_BUILD_ROOT%{_sysconfdir}/php5/conf.d
+cp -p $RPM_BUILD_DIR/Ice-%{version}/distribution/rpm/ice.ini $RPM_BUILD_ROOT%{_sysconfdir}/php5/conf.d
 mkdir -p $RPM_BUILD_ROOT%{_libdir}/php5/extensions
 mv $RPM_BUILD_ROOT/php/IcePHP.so $RPM_BUILD_ROOT%{_libdir}/php5/extensions
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/php5
@@ -591,7 +590,7 @@ mv $RPM_BUILD_ROOT/php/* $RPM_BUILD_ROOT%{_datadir}/php5
 
 %if "%{dist}" == ".sles12"
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/php5/conf.d
-cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/ice.ini $RPM_BUILD_ROOT%{_sysconfdir}/php5/conf.d
+cp -p $RPM_BUILD_DIR/Ice-%{version}/distribution/rpm/ice.ini $RPM_BUILD_ROOT%{_sysconfdir}/php5/conf.d
 mkdir -p $RPM_BUILD_ROOT%{_libdir}/php5/extensions
 mv $RPM_BUILD_ROOT/php/IcePHP.so $RPM_BUILD_ROOT%{_libdir}/php5/extensions
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/php5
@@ -606,7 +605,7 @@ make prefix=$RPM_BUILD_ROOT install
 
 mkdir -p $RPM_BUILD_ROOT%{_javadir}
 
-for i in ant-ice freeze glacier2 ice icebox icediscovery icelocatordiscovery icegrid icepatch2 icestorm ice-gradle-plugin
+for i in freeze glacier2 ice icebox icediscovery icelocatordiscovery icegrid icepatch2 icestorm
 do
   mv $RPM_BUILD_ROOT/lib/$i-%{version}.jar $RPM_BUILD_ROOT%{_javadir}
   ln -s $i-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/$i.jar
@@ -618,14 +617,14 @@ done
 # initrd files (for servers)
 #
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}
-cp $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/*.conf $RPM_BUILD_ROOT%{_sysconfdir}
+cp $RPM_BUILD_DIR/Ice-%{version}/distribution/rpm/*.conf $RPM_BUILD_ROOT%{_sysconfdir}
 
 for i in icegridregistry icegridnode glacier2router
 do
 %if %{systemd}
-  install -p -D $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/$i.service $RPM_BUILD_ROOT%{_unitdir}/$i.service
+  install -p -D $RPM_BUILD_DIR/Ice-%{version}/distribution/rpm/$i.service $RPM_BUILD_ROOT%{_unitdir}/$i.service
 %else
-  install -p -D  $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/$i.%{_vendor} $RPM_BUILD_ROOT%{_initrddir}/$i
+  install -p -D $RPM_BUILD_DIR/Ice-%{version}/distribution/rpm/$i.%{_vendor} $RPM_BUILD_ROOT%{_initrddir}/$i
 %endif
 done
 
@@ -664,20 +663,19 @@ PACKAGES="glacier2 ice-all-runtime icebox ice-all-devel icegrid icepatch2 ice-ut
 for i in $PACKAGES
 do
   mkdir -p $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}
-  cp -p $RPM_BUILD_DIR/Ice-%{version}/CHANGES $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}/CHANGES
-  cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/README.Linux $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}/README
+  cp -p $RPM_BUILD_DIR/Ice-%{version}/distribution/rpm/README.Linux $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}/README
   cp -p $RPM_BUILD_DIR/Ice-%{version}/ICE_LICENSE $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}
   cp -p $RPM_BUILD_DIR/Ice-%{version}/LICENSE $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}
 done
 
-cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/MCPP_LICENSE $RPM_BUILD_ROOT%{_defaultdocdir}/libice3.6-c++-%{version}
+cp -p $RPM_BUILD_DIR/Ice-%{version}/distribution/rpm/MCPP_LICENSE $RPM_BUILD_ROOT%{_defaultdocdir}/libice3.6-c++-%{version}
 
 %endif # ! cppx86
 
 #
 # Cleanup extra files
 #
-rm -f $RPM_BUILD_ROOT/CHANGES
+rm -f $RPM_BUILD_ROOT/bin/*
 rm -f $RPM_BUILD_ROOT/ICE_LICENSE
 rm -f $RPM_BUILD_ROOT/LICENSE
 rm -fr $RPM_BUILD_ROOT/doc/reference
@@ -706,7 +704,7 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/libSlice.so*
 
 rm -f $RPM_BUILD_ROOT/lib/icegridgui.jar
 rm -f $RPM_BUILD_ROOT/lib/*.pom
-rm -rf $RPM_BUILD_ROOT/node_modules
+#rm -rf $RPM_BUILD_ROOT/node_modules
 
 %endif # cppx86
 
@@ -725,23 +723,12 @@ cd $RPM_BUILD_DIR/Ice-%{version}/java
 for i in ice-utils-java ice-slice
 do
   mkdir -p $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}
-  cp -p $RPM_BUILD_DIR/Ice-%{version}/CHANGES $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}/CHANGES
-  cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/README.Linux $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}/README
+  cp -p $RPM_BUILD_DIR/Ice-%{version}/distribution/rpm/README.Linux $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}/README
   cp -p $RPM_BUILD_DIR/Ice-%{version}/ICE_LICENSE $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}
   cp -p $RPM_BUILD_DIR/Ice-%{version}/LICENSE $RPM_BUILD_ROOT%{_defaultdocdir}/$i-%{version}
 done
 
-cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/JGOODIES_LICENSE $RPM_BUILD_ROOT%{_defaultdocdir}/ice-utils-java-%{version}
-
-#
-# iceca
-#
-mkdir -p $RPM_BUILD_ROOT%{_bindir}
-cp -p $RPM_BUILD_DIR/Ice-%{version}/cpp/src/ca/iceca $RPM_BUILD_ROOT%{_bindir}
-mkdir -p $RPM_BUILD_ROOT%{_datadir}/Ice-%{version}
-cp -p $RPM_BUILD_DIR/Ice-%{version}/cpp/src/ca/ImportKey.class $RPM_BUILD_ROOT%{_datadir}/Ice-%{version}
-mkdir -p $RPM_BUILD_ROOT%{_mandir}/man1
-cp -p $RPM_BUILD_DIR/Ice-%{version}/man/man1/iceca.1 $RPM_BUILD_ROOT%{_mandir}/man1
+cp -p $RPM_BUILD_DIR/Ice-%{version}/distribution/rpm/JGOODIES_LICENSE $RPM_BUILD_ROOT%{_defaultdocdir}/ice-utils-java-%{version}
 
 #
 # IceGridGUI
@@ -749,6 +736,7 @@ cp -p $RPM_BUILD_DIR/Ice-%{version}/man/man1/iceca.1 $RPM_BUILD_ROOT%{_mandir}/m
 # We do not keep the version in the file name for icegridgui.jar in the RPM distribution.
 #
 mkdir -p $RPM_BUILD_ROOT%{_javadir}
+mkdir -p $RPM_BUILD_ROOT%{_bindir}
 cp -p $RPM_BUILD_DIR/Ice-%{version}/java/lib/icegridgui.jar $RPM_BUILD_ROOT%{_javadir}/icegridgui.jar
 cp -p $RPM_BUILD_DIR/Ice-%{version}/java/bin/icegridgui.rpm $RPM_BUILD_ROOT%{_bindir}/icegridgui
 jarsigner -keystore $JARSIGNER_KEYSTORE -storepass "$JARSIGNER_KEYSTORE_PASSWORD" $RPM_BUILD_ROOT%{_javadir}/icegridgui.jar zeroc.com -tsa http://timestamp.digicert.com
@@ -758,13 +746,6 @@ jarsigner -keystore $JARSIGNER_KEYSTORE -storepass "$JARSIGNER_KEYSTORE_PASSWORD
 #
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/Ice-%{version}
 cp -rp $RPM_BUILD_DIR/Ice-%{version}/slice $RPM_BUILD_ROOT%{_datadir}/Ice-%{version}
-
-%else # %ifarch noarch
-
-rm -f $RPM_BUILD_ROOT/lib/ImportKey.class
-rm -f $RPM_BUILD_ROOT%{_libdir}/ImportKey.class
-rm -f $RPM_BUILD_ROOT%{_bindir}/iceca
-rm -f $RPM_BUILD_ROOT%{_mandir}/man1/iceca.1
 
 %endif
 
@@ -784,12 +765,8 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n ice-utils-java
 %defattr(-, root, root, -)
-%{_bindir}/iceca
-%{_mandir}/man1/iceca.1.gz
 %{_bindir}/icegridgui
 %{_javadir}/icegridgui.jar
-%dir %{_datadir}/Ice-%{version}
-%{_datadir}/Ice-%{version}/ImportKey.class
 %{_defaultdocdir}/ice-utils-java-%{version}
 
 %endif
@@ -907,10 +884,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/slice2java.1.gz
 %{_bindir}/slice2freezej
 %{_mandir}/man1/slice2freezej.1.gz
-%{_javadir}/ant-ice-%{version}.jar
-%{_javadir}/ant-ice.jar
-%{_javadir}/ant-ice-%{version}-source.jar
-%{_javadir}/ant-ice-source.jar
 %{_javadir}/ice-%{version}.jar
 %{_javadir}/ice.jar
 %{_javadir}/ice-%{version}-source.jar
@@ -947,10 +920,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_javadir}/freeze.jar
 %{_javadir}/freeze-%{version}-source.jar
 %{_javadir}/freeze-source.jar
-%{_javadir}/ice-gradle-plugin-%{version}.jar
-%{_javadir}/ice-gradle-plugin.jar
-%{_javadir}/ice-gradle-plugin-%{version}-source.jar
-%{_javadir}/ice-gradle-plugin-source.jar
 %{_defaultdocdir}/libice-java-%{version}
 
 %files -n ice-utils
@@ -973,6 +942,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/slice2html.1.gz
 %{_bindir}/icegridadmin
 %{_mandir}/man1/icegridadmin.1.gz
+%{_bindir}/hashpassword.py
 %{_defaultdocdir}/ice-utils-%{version}
 
 %post -n ice-utils -p /sbin/ldconfig
