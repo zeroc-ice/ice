@@ -96,6 +96,8 @@ ifndef usr_dir_install
 RPATH_DIR	= $(prefix)/$(libsubdir)
 endif
 
+install_bindir          = $(prefix)/$(binsubdir)
+
 #
 # Platform specific definitions
 #

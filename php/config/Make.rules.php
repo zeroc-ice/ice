@@ -122,6 +122,8 @@ else
 	RPATH_DIR	= $(ice_dir)/$(libdir)
 endif
 
+install_bindir          = $(prefix)/$(binsubdir)
+
 #
 # Platform specific definitions
 #
