@@ -64,6 +64,9 @@ ifeq ($(embedded_runpath),yes)
 
     ifneq ($(RPATH_DIR),)
         LDEXEFLAGS		= -Wl,-rpath,$(RPATH_DIR)
+        ifndef ice_src_dist
+            LDEXEFLAGS += -Wl,-rpath,@loader_path/$(testlibdir)
+        endif
     endif
 endif
 

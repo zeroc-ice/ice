@@ -70,7 +70,8 @@ ifdef ice_src_dist
     includedir	= $(top_srcdir)/include
 else
     libdir		= $(ice_dir)/$(libsubdir)
-    includedir	= $(ice_dir)/include
+    testlibdir  = $(top_srcdir)/lib
+    includedir	= $(ice_dir)/includemak
 endif
 headerdir		= $(top_srcdir)/include
 
@@ -89,6 +90,9 @@ FLEXFLAGS		=
 BISONFLAGS		= -dvt
 CPPFLAGS		+= -I$(includedir)
 LDFLAGS			= $(OBJCFLAGS) -L$(libdir)
+ifndef ice_src_dist
+    LDFLAGS += -L$(testlibdir)
+endif
 
 ifdef ice_src_dist
     ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
