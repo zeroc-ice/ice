@@ -493,11 +493,6 @@ install-common::
         $(call installdata,$(top_srcdir)/../LICENSE$(TEXT_EXTENSION),$(DESTDIR)$(install_docdir)) ; \
     fi
 
-	@if test ! -f $(DESTDIR)$(install_docdir)/CHANGES$(TEXT_EXTENSION) ; \
-	then \
-		$(call installdata,$(top_srcdir)/../CHANGES$(TEXT_EXTENSION),$(DESTDIR)$(install_docdir)) ; \
-	fi
-	
 	@if test ! -f $(DESTDIR)$(install_bindir)/hashpassword.py ; \
     then \
         if test ! -d $(DESTDIR)$(install_bindir) ; \
