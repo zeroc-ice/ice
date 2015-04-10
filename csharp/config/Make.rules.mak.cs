@@ -53,24 +53,6 @@ prefix			= C:\Ice-$(VERSION)
 #UNITY			= yes
 
 #
-# Enable support for Silverlight.This setting disables the following
-# features:
-#
-# - Protocol compression
-# - Ice.Application and Glacier2.Application classes
-# - Dynamic loading of Slice-generated class and exception factories
-# - IceSSL
-# - ICE_CONFIG environment variable
-# - Dynamic loading of Slice checksums
-# - Thread priorities
-# - Ice.StdOut and Ice.StdErr
-# - Ice.PrintProcessId
-# - Ice.LogFile
-# - Load properties for Windows registry
-#
-#SILVERLIGHT		= yes
-
-#
 # Define DEBUG as yes if you want to build with debug information and
 # assertions enabled.
 #
@@ -115,9 +97,6 @@ slice_translator = slice2cs.exe
 
 bindir			= $(top_srcdir)\bin
 assembliesdir   = $(top_srcdir)\Assemblies
-!if "$(SILVERLIGHT)" == "yes"
-assembliesdir   = $(assembliesdir)\sl
-!endif
 
 !if "$(COMPACT)" == "yes"
 bindir			= $(top_srcdir)\bin\cf
@@ -131,11 +110,6 @@ install_configdir   = $(prefix)\config
 !if "$(COMPACT)" == "yes"
 install_bindir          = $(install_bindir)\cf
 install_assembliesdir   = $(install_assembliesdir)\cf
-!endif
-
-!if "$(SILVERLIGHT)" == "yes"
-install_bindir          = $(install_bindir)\sl
-install_assembliesdir   = $(install_assembliesdir)\sl
 !endif
 
 install_libdir		    = $(prefix)\lib
@@ -215,78 +189,6 @@ UNITY_LIBS 		= "/r:$(UNITY_LIBDIR)\mscorlib.dll" \
 			  "/r:$(UNITY_LIBDIR)\System.dll" \
 			  "/r:$(UNITY_LIBDIR)\System.Core.dll"
 MCSFLAGS 		= $(MCSFLAGS) -noconfig -nostdlib $(UNITY_LIBS)
-!elseif "$(SILVERLIGHT)" == "yes"
-
-!if "$(PROCESSOR_ARCHITECTURE)" == "AMD64"
-SILVERLIGHT_BASE_PATH = $(PROGRAMFILES) (x86)\Microsoft Silverlight
-!else
-SILVERLIGHT_BASE_PATH = $(PROGRAMFILES)\Microsoft Silverlight
-!endif
-
-#
-# Silverlight 5.1
-#
-!if "$(SILVERLIGHT_VERSION)" == ""
-!if exist ("$(SILVERLIGHT_BASE_PATH)\5.1.30514.0")
-SILVERLIGHT_VERSION	= 5.1.30514.0
-!endif
-!endif
-
-!if "$(SILVERLIGHT_VERSION)" == ""
-!if exist ("$(SILVERLIGHT_BASE_PATH)\5.1.30214.0")
-SILVERLIGHT_VERSION	= 5.1.30214.0
-!endif
-!endif
-
-!if "$(SILVERLIGHT_VERSION)" == ""
-!if exist ("$(SILVERLIGHT_BASE_PATH)\5.1.20913.0")
-SILVERLIGHT_VERSION	= 5.1.20913.0
-!endif
-!endif
-
-!if "$(SILVERLIGHT_VERSION)" == ""
-!if exist ("$(SILVERLIGHT_BASE_PATH)\5.1.20513.0")
-SILVERLIGHT_VERSION	= 5.1.20513.0
-!endif
-!endif
-
-!if "$(SILVERLIGHT_VERSION)" == ""
-!if exist ("$(SILVERLIGHT_BASE_PATH)\5.1.20125.0")
-SILVERLIGHT_VERSION	= 5.1.20125.0
-!endif
-!endif
-
-!if "$(SILVERLIGHT_VERSION)" == ""
-!if exist ("$(SILVERLIGHT_BASE_PATH)\5.1.10411.0")
-SILVERLIGHT_VERSION	= 5.1.10411.0
-!endif
-!endif
-
-#
-# Silverlight 5.0
-#
-!if "$(SILVERLIGHT_VERSION)" == ""
-!if exist ("$(SILVERLIGHT_BASE_PATH)\5.0.61118.0")
-SILVERLIGHT_VERSION	= 5.0.61118.0
-!endif
-!endif
-
-!if "$(SILVERLIGHT_VERSION)" == ""
-!error Could not detect a supported Silverlight version
-!endif
-
-SILVERLIGHT_HOME	= $(SILVERLIGHT_BASE_PATH)\$(SILVERLIGHT_VERSION)
-
-SILVERLIGHT_REFS		= "/r:$(SILVERLIGHT_HOME)\mscorlib.dll" \
-					"/r:$(SILVERLIGHT_HOME)\System.Core.dll" \
-					"/r:$(SILVERLIGHT_HOME)\system.dll" \
-					"/r:$(SILVERLIGHT_HOME)\System.Windows.dll" \
-					"/r:$(SILVERLIGHT_HOME)\System.Net.dll" \
-					"/r:$(SILVERLIGHT_HOME)\System.Windows.Browser.dll"
-MCSFLAGS 		= $(MCSFLAGS) -noconfig -nostdlib -define:SILVERLIGHT $(SILVERLIGHT_REFS)
-bindir			= $(top_srcdir)\bin\sl
-install_bindir		= $(prefix)\bin\sl
-!endif
 
 !if "$(ice_src_dist)" != ""
 !if "$(ice_cpp_dir)" == "$(ice_dir)\cpp"

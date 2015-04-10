@@ -11,11 +11,7 @@ top_srcdir	= .
 
 !include $(top_srcdir)/config/Make.rules.mak.cs
 
-SUBDIRS		= src
-
-!if "$(SILVERLIGHT)" != "yes"
-SUBDIRS		= $(SUBDIRS) test config
-!endif
+SUBDIRS		= src test config
 
 INSTALL_SUBDIRS	= "$(install_bindir)" "$(install_assembliesdir)" "$(install_configdir)"
 
@@ -36,17 +32,10 @@ test::
 
 SRC_FULL_PATH	= $(MAKEDIR:\.\=\)
 
-!if "$(SILVERLIGHT)" == "yes"
-targetsFile=../config/Slice.Silverlight.targets
-registrykey=$(SILVERLIGHT_ASSEMBLIES_KEY)
-registerpath=$(SRC_FULL_PATH)\Assemblies\sl
-installpath=$(prefix)\Assemblies\sl
-!else
 targetsFile=../config/Slice.CSharp.targets
 registrykey=$(DOTNET_ASSEMBLIES_KEY)
 registerpath=$(SRC_FULL_PATH)\Assemblies
 installpath=$(prefix)\Assemblies
-!endif
 
 install::
 	@for %i in ( src config ) do \

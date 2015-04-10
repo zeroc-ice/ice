@@ -41,7 +41,6 @@ watchDog = None
 clientHome = None
 serviceDir = None
 compact = False
-silverlight = False
 global winrt
 winrt = False
 global serverOnly
@@ -440,7 +439,6 @@ def run(tests, root = False):
           --env                       Print important environment variables.
           --service-dir=<dir>         Where to locate services for builds without service support.
           --compact                   Ice for .NET uses the Compact Framework.
-          --silverlight               Ice for .NET uses Silverlight.
           --winrt                     Run server with configuration suited for WinRT client.
           --server                    Run only the server.
           --mx                        Enable IceMX when running the tests.
@@ -454,7 +452,7 @@ def run(tests, root = False):
                                     "debug", "protocol=", "compress", "valgrind", "host=", "serialize", "continue",
                                     "ipv6", "no-ipv6", "socks", "ice-home=", "cross=", "client-home=", "x64", "x86",
                                     "script", "env", "arg=",
-                                    "service-dir=", "appverifier", "compact", "silverlight", "winrt", "server", "mx",
+                                    "service-dir=", "appverifier", "compact", "winrt", "server", "mx",
                                     "c++11"])
     except getopt.GetoptError:
         usage()
@@ -470,7 +468,6 @@ def run(tests, root = False):
     script = False
     noipv6 = False
     compact = "--compact" in opts
-    silverlight = "--silverlight" in opts
     winrt = "--winrt" in opts
     serverOnly = "--server" in opts
     mx = "--mx" in opts
@@ -519,9 +516,6 @@ def run(tests, root = False):
                 if compact:
                     print("SSL is not supported with the Compact Framework")
                     sys.exit(1)
-                if silverlight:
-                    print("SSL is not supported with Silverlight")
-                    sys.exit(1)
         elif o == "--c++11":
             global cpp11
             cpp11 = True
@@ -533,7 +527,7 @@ def run(tests, root = False):
             x64 = True
         if o in ( "--cross", "--protocol", "--host", "--debug", "--compress", "--valgrind", "--serialize", "--ipv6", \
                   "--socks", "--ice-home", "--x86", "--x64", "--c++11", "--env", \
-                  "--service-dir", "--appverifier", "--compact", "--silverlight", "--winrt", \
+                  "--service-dir", "--appverifier", "--compact", "--winrt", \
                   "--server", "--mx", "--client-home"):
             arg += " " + o
             if len(a) > 0:
@@ -610,7 +604,7 @@ def run(tests, root = False):
                     expanded.append([(name, a, testConfig(name, tests))])
 
                 # Add ssl & compress for the operations test.
-                if ((compact or mono or silverlight) and c == "csharp") or (c == "js"): # Don't add the ssl tests.
+                if ((compact or mono) and c == "csharp") or (c == "js"): # Don't add the ssl tests.
                     continue
                 a = "--cross=%s --protocol=ssl --compress %s" % (c, arg)
                 expanded.append([("%s/test/Ice/operations" % lang, a, [])])
@@ -947,7 +941,6 @@ class DriverConfig:
         global cpp11
         global serviceDir
         global compact
-        global silverlight
         global mx
         global extraArgs
         self.lang = getDefaultMapping()
@@ -966,7 +959,6 @@ class DriverConfig:
         self.cpp11 = cpp11
         self.serviceDir = serviceDir
         self.compact = compact
-        self.silverlight = silverlight
         self.mx = mx
         self.extraArgs = extraArgs
 
@@ -1100,12 +1092,6 @@ def getCommandLine(exe, config, options = "", interpreterOptions = ""):
         if interpreterOptions:
             output.write(" " + interpreterOptions)
         output.write(' "%s" ' % exe)
-    elif config.silverlight and config.lang == "csharp" and config.type == "client":
-        xap = "obj/sl/%s.xap" % os.path.basename(os.getcwd())
-        if os.environ.get("PROCESSOR_ARCHITECTURE") == "AMD64" or os.environ.get("PROCESSOR_ARCHITEW6432") == "":
-            output.write('"%s (x86)\Microsoft Silverlight\sllauncher.exe" /emulate:%s ' % ( os.environ["PROGRAMFILES"], xap))
-        else:
-            output.write('"%s\Microsoft Silverlight\sllauncher.exe" /emulate:%s ' % ( os.environ["PROGRAMFILES"], xap))
     elif config.lang == "java" or config.lang == "javae":
         output.write("%s -ea " % javaCmd)
         if isSolaris() and config.x64:
@@ -1142,19 +1128,10 @@ def getCommandLine(exe, config, options = "", interpreterOptions = ""):
         else:
             output.write(exe + " ")
 
-    if (config.silverlight and config.type == "client"):
-        properties = getCommandLineProperties(exe, config) + ' ' + options
-        props = ""
-        for p in properties.split(' '):
-            if props != "":
-                props = props + ";"
-            props = props + p.strip().replace("--", "")
-        output.write("/origin:http://localhost?%s" % props)
+    if exe.find("IceUtil\\") != -1 or exe.find("IceUtil/") != -1:
+        output.write(' ' + options)
     else:
-        if exe.find("IceUtil\\") != -1 or exe.find("IceUtil/") != -1:
-            output.write(' ' + options)
-        else:
-            output.write(getCommandLineProperties(exe, config) + ' ' + options)
+        output.write(getCommandLineProperties(exe, config) + ' ' + options)
 
     commandline = output.getvalue()
     output.close()
@@ -1528,9 +1505,6 @@ def collocatedTest(additionalOptions = ""):
     lang = getDefaultMapping()
     if len(cross) > 0 and cross[0] != lang:
         print("** skipping cross test")
-        return
-    if silverlight:
-        print("** skipping collocated test")
         return
     testdir = os.getcwd()
 
@@ -2008,7 +1982,6 @@ def processCmdLine():
           --client-home=<dir>         Run cross test clients from the given Ice source distribution.
           --service-dir=<dir>         Where to locate services for builds without service support.
           --compact                   Ice for .NET uses the Compact Framework.
-          --silverlight               Ice for .NET uses Silverlight.
           --winrt                     Run server with configuration suited for WinRT client.
           --server                    Run only the server.
           --mx                        Enable IceMX when running the tests.
@@ -2021,7 +1994,7 @@ def processCmdLine():
             sys.argv[1:], "", ["debug", "trace=", "protocol=", "compress", "valgrind", "host=", "serialize", "ipv6", \
                                "socks", "ice-home=", "x86", "x64", "cross=", "client-home=", "env", \
                                "service-dir=", "appverifier", "arg=", \
-                               "compact", "silverlight", "winrt", "server", "mx", "c++11"])
+                               "compact", "winrt", "server", "mx", "c++11"])
     except getopt.GetoptError:
         usage()
 
@@ -2107,9 +2080,6 @@ def processCmdLine():
         elif o == "--compact":
             global compact
             compact = True
-        elif o == "--silverlight":
-            global silverlight
-            silverlight = True
         elif o == "--winrt":
             winrt = True
             serverOnly = True
@@ -2210,24 +2180,12 @@ def runTests(start, expanded, num = 0, script = False):
                 print("%s*** test not supported with Compact Framework%s" % (prefix, suffix))
                 continue
 
-            if args.find("silverlight") != -1 and \
-                         ("nosilverlight" in config or \
-                          args.find("ssl") != -1 or \
-                          args.find("mx") != -1 or \
-                          args.find("compress") != -1):
-                print("%s*** test not supported with Silverlight%s" % (prefix, suffix))
-                continue
-
             if args.find("mx") != -1 and "nomx" in config:
                 print("%s*** test not supported with IceMX enabled%s" % (prefix, suffix))
                 continue
 
             if args.find("compact") == -1 and "compact" in config:
                 print("%s*** test requires Compact Framework%s" % (prefix, suffix))
-                continue
-
-            if args.find("silverlight") == -1 and "silverlight" in config:
-                print("%s*** test requires Silverlight%s" % (prefix, suffix))
                 continue
 
             if isVista() and "novista" in config:
