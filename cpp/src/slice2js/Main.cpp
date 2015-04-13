@@ -70,6 +70,8 @@ usage(const char* n)
         "--output-dir DIR        Create files in the directory DIR.\n"
         "--depend                Generate Makefile dependencies.\n"
         "--depend-json           Generate Makefile dependencies in JSON format.\n"
+        "--depend-xml            Generate dependencies in XML format.\n"
+        "--depend-file FILE      Write dependencies to FILE instead of standard output.\n"
         "-d, --debug             Print debug messages.\n"
         "--ice                   Permit `Ice' prefix (for building Ice source code only).\n"
         "--underscore            Permit underscores in Slice identifiers.\n"
@@ -91,6 +93,8 @@ compile(int argc, char* argv[])
     opts.addOpt("", "output-dir", IceUtilInternal::Options::NeedArg);
     opts.addOpt("", "depend");
     opts.addOpt("", "depend-json");
+    opts.addOpt("", "depend-xml");
+    opts.addOpt("", "depend-file", IceUtilInternal::Options::NeedArg, "");
     opts.addOpt("d", "debug");
     opts.addOpt("", "ice");
     opts.addOpt("", "underscore");
@@ -149,6 +153,10 @@ compile(int argc, char* argv[])
     
     bool dependJSON = opts.isSet("depend-json");
 
+    bool dependxml = opts.isSet("depend-xml");
+
+    string dependFile = opts.optArg("depend-file");
+
     bool debug = opts.isSet("debug");
 
     bool ice = opts.isSet("ice");
@@ -164,14 +172,40 @@ compile(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
+    if(depend && dependJSON)
+    {
+        getErrorStream() << argv[0] << ": error: cannot specify both --depend and --depend-json" << endl;
+        usage(argv[0]);
+        return EXIT_FAILURE;
+    }
+
+    if(depend && dependxml)
+    {
+        getErrorStream() << argv[0] << ": error: cannot specify both --depend and --dependxml" << endl;
+        usage(argv[0]);
+        return EXIT_FAILURE;
+    }
+
+    if(dependxml && dependJSON)
+    {
+        getErrorStream() << argv[0] << ": error: cannot specify both --dependxml and --depend-json" << endl;
+        usage(argv[0]);
+        return EXIT_FAILURE;
+    }
+
     int status = EXIT_SUCCESS;
 
     IceUtil::CtrlCHandler ctrlCHandler;
     ctrlCHandler.setCallback(interruptedCallback);
 
+    DependOutputUtil out(dependFile);
     if(dependJSON)
     {
-        cout << "{" << endl;
+        out.os() << "{" << endl;
+    }
+    else if(dependxml)
+    {
+        out.os() << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<dependencies>" << endl;
     }
     
     //
@@ -189,13 +223,14 @@ compile(int argc, char* argv[])
     
     for(vector<string>::const_iterator i = sources.begin(); i != sources.end();)
     {        
-        if(depend || dependJSON)
+        if(depend || dependJSON || dependxml)
         {
             PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
             FILE* cppHandle = icecpp->preprocess(false, "-D__SLICE2JS__");
 
             if(cppHandle == 0)
             {
+                out.cleanup();
                 return EXIT_FAILURE;
             }
 
@@ -205,19 +240,24 @@ compile(int argc, char* argv[])
 
             if(parseStatus == EXIT_FAILURE)
             {
+                out.cleanup();
                 return EXIT_FAILURE;
             }
             
             bool last = (++i == sources.end());
             
-            if(!icecpp->printMakefileDependencies(depend ? Preprocessor::JavaScript : Preprocessor::JavaScriptJSON, includePaths,
-                                                  "-D__SLICE2JS__"))
+            if(!icecpp->printMakefileDependencies(out.os(),
+                    depend ? Preprocessor::JavaScript : (dependJSON ? Preprocessor::JavaScriptJSON : Preprocessor::SliceXML),
+                    includePaths,
+                    "-D__SLICE2JS__"))
             {
+                out.cleanup();
                 return EXIT_FAILURE;
             }
 
             if(!icecpp->close())
             {
+                out.cleanup();
                 return EXIT_FAILURE;
             }
             
@@ -225,9 +265,9 @@ compile(int argc, char* argv[])
             {
                 if(!last)
                 {
-                    cout << ",";
+                    out.os() << ",";
                 }
-                cout << "\n";
+                out.os() << "\n";
             }
         }
         else
@@ -306,6 +346,7 @@ compile(int argc, char* argv[])
 
             if(interrupted)
             {
+                out.cleanup();
                 FileTracker::instance()->cleanup();
                 return EXIT_FAILURE;
             }
@@ -314,7 +355,11 @@ compile(int argc, char* argv[])
     
     if(dependJSON)
     {
-        cout << "}" << endl;
+        out.os() << "}" << endl;
+    }
+    else if(dependxml)
+    {
+        out.os() << "</dependencies>\n";
     }
 
     return status;

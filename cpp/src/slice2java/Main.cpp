@@ -73,6 +73,7 @@ usage(const char* n)
         "--impl-tie              Generate sample TIE implementations.\n"
         "--depend                Generate Makefile dependencies.\n"
         "--depend-xml            Generate dependencies in XML format.\n"
+        "--depend-file FILE      Write dependencies to FILE instead of standard output.\n"
         "--list-generated        Emit list of generated files in XML format.\n"
         "-d, --debug             Print debug messages.\n"
         "--ice                   Permit `Ice' prefix (for building Ice source code only).\n"
@@ -99,6 +100,7 @@ compile(int argc, char* argv[])
     opts.addOpt("", "impl-tie");
     opts.addOpt("", "depend");
     opts.addOpt("", "depend-xml");
+    opts.addOpt("", "depend-file", IceUtilInternal::Options::NeedArg, "");
     opts.addOpt("", "list-generated");
     opts.addOpt("d", "debug");
     opts.addOpt("", "ice");
@@ -162,6 +164,7 @@ compile(int argc, char* argv[])
 
     bool depend = opts.isSet("depend");
     bool dependxml = opts.isSet("depend-xml");
+    string dependFile = opts.optArg("depend-file");
 
     bool debug = opts.isSet("debug");
 
@@ -200,9 +203,10 @@ compile(int argc, char* argv[])
     IceUtil::CtrlCHandler ctrlCHandler;
     ctrlCHandler.setCallback(interruptedCallback);
 
+    DependOutputUtil out(dependFile);
     if(dependxml)
     {
-        cout << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<dependencies>" << endl;
+        out.os() << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<dependencies>" << endl;
     }
 
     for(vector<string>::const_iterator i = args.begin(); i != args.end(); ++i)
@@ -223,6 +227,7 @@ compile(int argc, char* argv[])
 
             if(cppHandle == 0)
             {
+                out.cleanup();
                 return EXIT_FAILURE;
             }
 
@@ -232,18 +237,20 @@ compile(int argc, char* argv[])
 
             if(parseStatus == EXIT_FAILURE)
             {
+                out.cleanup();
                 return EXIT_FAILURE;
             }
 
-            if(!icecpp->printMakefileDependencies(depend ? Preprocessor::Java : Preprocessor::JavaXML, includePaths,
-                                                  "-D__SLICE2JAVA__"
-            ))
+            if(!icecpp->printMakefileDependencies(out.os(), depend ? Preprocessor::Java : Preprocessor::SliceXML, includePaths,
+                                                  "-D__SLICE2JAVA__"))
             {
+                out.cleanup();
                 return EXIT_FAILURE;
             }
 
             if(!icecpp->close())
             {
+                out.cleanup();
                 return EXIT_FAILURE;
             }
         }
@@ -361,6 +368,7 @@ compile(int argc, char* argv[])
 
             if(interrupted)
             {
+                out.cleanup();
                 //
                 // If the translator was interrupted then cleanup any files we've already created.
                 //
@@ -372,7 +380,7 @@ compile(int argc, char* argv[])
 
     if(dependxml)
     {
-        cout << "</dependencies>\n";
+        out.os() << "</dependencies>\n";
     }
 
     if(status == EXIT_SUCCESS && !checksumClass.empty() && !dependxml)

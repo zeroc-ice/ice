@@ -395,3 +395,38 @@ Slice::printGeneratedHeader(IceUtilInternal::Output& out, const string& path, co
     out << comment << " </auto-generated>\n";
     out << comment << "\n";
 }
+
+Slice::DependOutputUtil::DependOutputUtil(string& file) : _file(file)
+{
+    if(!_file.empty())
+    {
+        _os.open(file, ios::out);
+    }
+}
+
+Slice::DependOutputUtil::~DependOutputUtil()
+{
+    if(!_file.empty() && _os.is_open())
+    {
+        _os.close();
+    }
+}
+
+void
+Slice::DependOutputUtil::cleanup()
+{
+    if(!_file.empty())
+    {
+        if(_os.is_open())
+        {
+            _os.close();
+        }
+        IceUtilInternal::unlink(_file);
+    }
+}
+
+ostream&
+Slice::DependOutputUtil::os()
+{
+    return _file.empty() ? cout : _os;
+}

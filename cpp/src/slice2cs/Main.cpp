@@ -71,6 +71,8 @@ usage(const char* n)
         "--impl                  Generate sample implementations.\n"
         "--impl-tie              Generate sample TIE implementations.\n"
         "--depend                Generate Makefile dependencies.\n"
+        "--depend-xml            Generate dependencies in XML format.\n"
+        "--depend-file FILE      Write dependencies to FILE instead of standard output.\n"
         "-d, --debug             Print debug messages.\n"
         "--ice                   Permit `Ice' prefix (for building Ice source code only).\n"
         "--underscore            Permit underscores in Slice identifiers.\n"
@@ -94,6 +96,8 @@ compile(int argc, char* argv[])
     opts.addOpt("", "impl");
     opts.addOpt("", "impl-tie");
     opts.addOpt("", "depend");
+    opts.addOpt("", "depend-xml");
+    opts.addOpt("", "depend-file", IceUtilInternal::Options::NeedArg, "");
     opts.addOpt("d", "debug");
     opts.addOpt("", "ice");
     opts.addOpt("", "underscore");
@@ -155,6 +159,10 @@ compile(int argc, char* argv[])
 
     bool depend = opts.isSet("depend");
 
+    bool dependxml = opts.isSet("depend-xml");
+
+    string dependFile = opts.optArg("depend-file");
+
     bool debug = opts.isSet("debug");
 
     bool ice = opts.isSet("ice");
@@ -179,10 +187,23 @@ compile(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
+    if(depend && dependxml)
+    {
+        getErrorStream() << argv[0] << ": error: cannot specify both --depend and --dependxml" << endl;
+        usage(argv[0]);
+        return EXIT_FAILURE;
+    }
+
     int status = EXIT_SUCCESS;
 
     IceUtil::CtrlCHandler ctrlCHandler;
     ctrlCHandler.setCallback(interruptedCallback);
+
+    DependOutputUtil out(dependFile);
+    if(dependxml)
+    {
+        out.os() << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<dependencies>" << endl;
+    }
 
     for(vector<string>::const_iterator i = args.begin(); i != args.end(); ++i)
     {
@@ -195,13 +216,14 @@ compile(int argc, char* argv[])
             continue;
         }
 
-        if(depend)
+        if(depend || dependxml)
         {
             PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
             FILE* cppHandle = icecpp->preprocess(false, "-D__SLICE2CS__");
 
             if(cppHandle == 0)
             {
+                out.cleanup();
                 return EXIT_FAILURE;
             }
 
@@ -211,17 +233,20 @@ compile(int argc, char* argv[])
 
             if(parseStatus == EXIT_FAILURE)
             {
+                out.cleanup();
                 return EXIT_FAILURE;
             }
 
-            if(!icecpp->printMakefileDependencies(Preprocessor::CSharp, includePaths, 
+            if(!icecpp->printMakefileDependencies(out.os(), depend ? Preprocessor::CSharp : Preprocessor::SliceXML, includePaths, 
                                                   "-D__SLICE2CS__"))
             {
+                out.cleanup();
                 return EXIT_FAILURE;
             }
 
             if(!icecpp->close())
             {
+                out.cleanup();
                 return EXIT_FAILURE;
             }
         }
@@ -307,10 +332,16 @@ compile(int argc, char* argv[])
 
             if(interrupted)
             {
+                out.cleanup();
                 FileTracker::instance()->cleanup();
                 return EXIT_FAILURE;
             }
         }
+    }
+
+    if(dependxml)
+    {
+        out.os() << "</dependencies>\n";
     }
 
     return status;

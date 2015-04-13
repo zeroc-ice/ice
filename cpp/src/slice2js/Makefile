@@ -21,7 +21,7 @@ RPATH_DIR	= $(LOADER_PATH)/../$(libsubdir)
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I. $(CPPFLAGS)
+CPPFLAGS	:= -I. -I.. $(CPPFLAGS)
 
 $(NAME): $(OBJS)
 	rm -f $@

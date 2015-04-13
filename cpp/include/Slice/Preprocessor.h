@@ -39,10 +39,10 @@ public:
     FILE* preprocess(bool, const std::string& = "");
     bool close();
 
-    enum Language { CPlusPlus, Java, JavaXML, CSharp, Python, Ruby, PHP, JavaScript, JavaScriptJSON, ObjC };
+    enum Language { CPlusPlus, Java, CSharp, Python, Ruby, PHP, JavaScript, JavaScriptJSON, ObjC, SliceXML };
 
-    bool printMakefileDependencies(Language, const std::vector<std::string>&, const std::string& = "", const std::string& = "cpp",
-                                   const std::string& = "");
+    bool printMakefileDependencies(std::ostream&, Language, const std::vector<std::string>&, const std::string& = "",
+                                   const std::string& = "cpp", const std::string& = "");
 
     std::string getBaseName();
 

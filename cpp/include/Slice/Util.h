@@ -12,6 +12,9 @@
 
 #include <Slice/Parser.h>
 #include <IceUtil/OutputUtil.h>
+#include <IceUtil/FileUtil.h>
+
+#include <ostream>
 
 namespace Slice
 {
@@ -27,6 +30,21 @@ SLICE_API void emitWarning(const std::string&, const std::string&, const std::st
 SLICE_API void emitRaw(const char*);
 SLICE_API std::vector<std::string> filterMcppWarnings(const std::string&);
 SLICE_API void printGeneratedHeader(IceUtilInternal::Output& out, const std::string&, const std::string& commentStyle = "//");
+
+class SLICE_API DependOutputUtil : IceUtil::noncopyable
+{
+public:
+
+    DependOutputUtil(std::string& file);
+    ~DependOutputUtil();
+    void cleanup();
+    std::ostream& os();
+
+private:
+
+    const std::string _file;
+    IceUtilInternal::ofstream _os;
+};
 
 }
 

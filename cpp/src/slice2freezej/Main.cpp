@@ -1445,6 +1445,7 @@ usage(const char* n)
         "--output-dir DIR          Create files in the directory DIR.\n"
         "--depend                  Generate Makefile dependencies.\n"
         "--depend-xml              Generate dependencies in XML format.\n"
+        "--depend-file FILE        Write dependencies to FILE instead of standard output.\n"
         "-d, --debug               Print debug messages.\n"
         "--ice                     Permit `Ice' prefix (for building Ice source code only).\n"
         "--underscore              Permit underscores in Slice identifiers.\n"
@@ -1725,6 +1726,8 @@ compile(int argc, char* argv[])
     bool depend = opts.isSet("depend");
     bool dependxml = opts.isSet("depend-xml");
 
+    string dependFile = opts.optArg("depend-file");
+
     bool debug = opts.isSet("debug");
 
     bool ice = opts.isSet("ice");
@@ -1749,9 +1752,10 @@ compile(int argc, char* argv[])
     IceUtil::CtrlCHandler ctrlCHandler;
     ctrlCHandler.setCallback(interruptedCallback);
 
+    DependOutputUtil out(dependFile);
     if(dependxml)
     {
-        cout << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<dependencies>" << endl;
+        out.os() << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<dependencies>" << endl;
     }
 
     for(vector<string>::size_type idx = 0; idx < args.size(); ++idx)
@@ -1763,6 +1767,7 @@ compile(int argc, char* argv[])
 
             if(cppHandle == 0)
             {
+                out.cleanup();
                 u->destroy();
                 return EXIT_FAILURE;
             }
@@ -1771,19 +1776,22 @@ compile(int argc, char* argv[])
 
             if(status == EXIT_FAILURE)
             {
+                out.cleanup();
                 u->destroy();
                 return EXIT_FAILURE;
             }
 
-            if(!icecpp->printMakefileDependencies(depend ? Preprocessor::Java : Preprocessor::JavaXML, includePaths,
+            if(!icecpp->printMakefileDependencies(out.os(), depend ? Preprocessor::Java : Preprocessor::SliceXML, includePaths,
                                                   "-D__SLICE2FREEZEJ__"))
             {
+                out.cleanup();
                 u->destroy();
                 return EXIT_FAILURE;
             }
 
             if(!icecpp->close())
             {
+                out.cleanup();
                 u->destroy();
                 return EXIT_FAILURE;
             }
@@ -1828,6 +1836,7 @@ compile(int argc, char* argv[])
 
             if(interrupted)
             {
+                out.cleanup();
                 return EXIT_FAILURE;
             }
         }
@@ -1835,7 +1844,7 @@ compile(int argc, char* argv[])
 
     if(dependxml)
     {
-        cout << "</dependencies>\n";
+        out.os() << "</dependencies>\n";
     }
 
     if(depend || dependxml)

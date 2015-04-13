@@ -287,8 +287,8 @@ Slice::Preprocessor::preprocess(bool keepComments, const string& extraArgs)
 }
 
 bool
-Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<string>& includePaths,
-                                               const std::string& extraArgs, const string& cppSourceExt,
+Slice::Preprocessor::printMakefileDependencies(ostream& out, Language lang, const vector<string>& includePaths,
+                                               const string& extraArgs, const string& cppSourceExt,
                                                const string& optValue)
 {
     if(!checkInputFile())
@@ -384,7 +384,7 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
 #endif
     pos = unprocessed.find(suffix) + suffix.size();
     string result;
-    if(lang != JavaXML)
+    if(lang != SliceXML)
     {
         result = unprocessed.substr(0, pos);
     }
@@ -436,7 +436,7 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
             }
         }
 
-        if(lang == JavaXML)
+        if(lang == SliceXML)
         {
             if(result.size() == 0)
             {
@@ -477,7 +477,7 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
         }
         pos = end;
     }
-    if(lang == JavaXML)
+    if(lang == SliceXML)
     {
         result += "\n  </source>\n";
     }
@@ -549,7 +549,7 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
             }
             break;
         }
-        case JavaXML:
+        case SliceXML:
             break;
         case Java:
         {
@@ -684,7 +684,7 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
     //
     // Output result
     //
-    fputs(result.c_str(), stdout);
+    out << result;
     return true;
 }
 

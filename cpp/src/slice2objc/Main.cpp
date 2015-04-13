@@ -70,6 +70,7 @@ usage(const char* n)
         "--dll-export SYMBOL     Use SYMBOL for DLL exports.\n"
         "--depend                Generate Makefile dependencies.\n"
         "--depend-xml            Generate dependencies in XML format.\n"
+        "--depend-file FILE      Write dependencies to FILE instead of standard output.\n"
         "-d, --debug             Print debug messages.\n"
         "--ice                   Permit `Ice' prefix (for building Ice source code only)\n"
         "--underscore            Permit underscores in Slice identifiers.\n"
@@ -92,6 +93,7 @@ main(int argc, char* argv[])
     opts.addOpt("", "dll-export", IceUtilInternal::Options::NeedArg);
     opts.addOpt("", "depend");
     opts.addOpt("", "depend-xml");
+    opts.addOpt("", "depend-file", IceUtilInternal::Options::NeedArg, "");
     opts.addOpt("d", "debug");
     opts.addOpt("", "ice");
     opts.addOpt("", "underscore");
@@ -151,6 +153,7 @@ main(int argc, char* argv[])
 
     bool depend = opts.isSet("depend");
     bool dependxml = opts.isSet("depend-xml");
+    string dependFile = opts.optArg("depend-file");
 
     bool debug = opts.isSet("debug");
 
@@ -165,11 +168,19 @@ main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
+    if(depend && dependxml)
+    {
+        getErrorStream() << argv[0] << ": error: cannot specify both --depend and --dependxml" << endl;
+        usage(argv[0]);
+        return EXIT_FAILURE;
+    }
+
     int status = EXIT_SUCCESS;
 
+    DependOutputUtil out(dependFile);
     if(dependxml)
     {
-        cout << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<dependencies>" << endl;
+        out.os() << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<dependencies>" << endl;
     }
 
     IceUtil::CtrlCHandler ctrlCHandler;
@@ -184,6 +195,7 @@ main(int argc, char* argv[])
 
             if(cppHandle == 0)
             {
+                out.cleanup();
                 return EXIT_FAILURE;
             }
             
@@ -193,17 +205,20 @@ main(int argc, char* argv[])
 
             if(parseStatus == EXIT_FAILURE)
             {
+                out.cleanup();
                 return EXIT_FAILURE;
             }
 
-            if(!icecpp->printMakefileDependencies(depend ? Preprocessor::ObjC : Preprocessor::JavaXML, 
+            if(!icecpp->printMakefileDependencies(out.os(), depend ? Preprocessor::ObjC : Preprocessor::SliceXML, 
                                                   includePaths, "-D__SLICE2OBJC__"))
             {
+                out.cleanup();
                 return EXIT_FAILURE;
             }
 
             if(!icecpp->close())
             {
+                out.cleanup();
                 return EXIT_FAILURE;
             }
         }
@@ -279,6 +294,7 @@ main(int argc, char* argv[])
 
             if(interrupted)
             {
+                out.cleanup();
                 FileTracker::instance()->cleanup();
                 return EXIT_FAILURE;
             }
@@ -287,7 +303,7 @@ main(int argc, char* argv[])
 
     if(dependxml)
     {
-        cout << "</dependencies>\n";
+        out.os() << "</dependencies>\n";
     }
 
     return status;

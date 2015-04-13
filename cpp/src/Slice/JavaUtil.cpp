@@ -232,7 +232,7 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix, const stri
 #ifdef _WIN32
             result = _mkdir(path.c_str());
 #else
-            result = mkdir(path.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
+            result = ::mkdir(path.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
 #endif
             if(result != 0)
             {
