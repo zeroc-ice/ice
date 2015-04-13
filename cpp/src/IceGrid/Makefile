@@ -16,7 +16,7 @@ REGISTRY_SERVER	= $(bindir)/icegridregistry
 TARGETS         = $(NODE_SERVER) $(REGISTRY_SERVER) $(ADMIN)
 
 SLICE_OBJS      = Internal.o \
-				  IceLocatorDiscovery.o
+		  IceLocatorDiscovery.o
 
 ADMIN_OBJS	= Client.o \
 		  DescriptorBuilder.o \

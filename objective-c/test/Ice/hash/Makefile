@@ -16,7 +16,7 @@ TARGETS		= $(CLIENT)
 SLICE_OBJS	= HashTest.o
 
 COBJS		= Client.o \
-			  AllTests.o
+		  AllTests.o
 
 OBJS		= $(COBJS) $(SLICE_OBJS)
 

@@ -9,7 +9,7 @@
 
 top_srcdir	= ..\..\..
 
-SLICE_SRCS		= Key.ice
+SLICE_SRCS	= Key.ice
 SLICE2PHPFLAGS  = --underscore
 
 !include $(top_srcdir)\config\Make.rules.mak.php

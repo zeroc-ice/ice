@@ -16,7 +16,6 @@ DLLNAME		= testtransport$(SOVERSION)$(LIBSUFFIX).dll
 
 TARGETS		= $(CLIENT) $(SERVER) $(LIBNAME) $(DLLNAME)
 
-
 SLICE_OBJS 	= .\Test.obj
 
 COBJS		= $(SLICE_OBJS) \

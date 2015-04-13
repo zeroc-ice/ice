@@ -11,14 +11,14 @@
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
 
-SHELL			= /bin/sh
-VERSION                 = 3.6.0
-INTVERSION              = 3.6.0
-SHORT_VERSION           = 3.6
-PATCH_VERSION           = 0
-SOVERSION               = 36
+SHELL		= /bin/sh
+VERSION         = 3.6.0
+INTVERSION      = 3.6.0
+SHORT_VERSION   = 3.6
+PATCH_VERSION   = 0
+SOVERSION       = 36
 
-OBJEXT			= .obj
+OBJEXT		= .obj
 
 #
 # Ensure ice_language has been set by the file that includes this one.
@@ -184,6 +184,8 @@ slicedir		= $(ice_dir)\slice
 install_slicedir    	= $(prefix)\slice
 !endif
 
+install_bindir		= $(prefix)\bin$(x64suffix)
+
 all::
 
 !if exist ($(top_srcdir)\..\ICE_LICENSE.txt)
@@ -197,20 +199,21 @@ install-common::
 
 !if "$(WINRT)" != "yes" && "$(install_slicedir)" != ""
 	@if not exist "$(install_slicedir)" \
-        @echo "Creating $(install_slicedir)..." && \
-        mkdir "$(install_slicedir)" && \
-        @echo "Copying slice files..." && \
-        cmd /c "xcopy /s /y $(top_srcdir)\..\slice "$(install_slicedir)"" || exit 1
-        
-    @if not exist "$(install_bindir)" \
-        @echo "Creating $(install_bindir)..." && \
-        mkdir "$(install_bindir)"
-        
-    @if not exist "$(install_bindir)\hashpassword.py" \
-        copy $(top_srcdir)\..\scripts\hashpassword.py "$(install_bindir)""
+            @echo "Creating $(install_slicedir)..." && \
+            mkdir "$(install_slicedir)" && \
+	    @echo "Copying slice files..." && \
+            cmd /c "xcopy /s /y $(top_srcdir)\..\slice "$(install_slicedir)"" || exit 1
+!endif
+
+	@if not exist "$(install_bindir)" \
+            @echo "Creating $(install_bindir)..." && \
+            mkdir "$(install_bindir)"
+
+	@if not exist "$(install_bindir)\hashpassword.py" \
+            @copy $(top_srcdir)\..\scripts\hashpassword.py "$(install_bindir)""
 
 	@if not exist "$(prefix)\ICE_LICENSE$(TEXT_EXT)" \
 	    @copy $(top_srcdir)\..\ICE_LICENSE$(TEXT_EXT) "$(prefix)"
 	@if not exist "$(prefix)\LICENSE$(TEXT_EXT)" \
 	    @copy $(top_srcdir)\..\LICENSE$(TEXT_EXT) "$(prefix)"
-!endif
+

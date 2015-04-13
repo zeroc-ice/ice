@@ -9,9 +9,9 @@
 
 top_srcdir	= ../..
 
-LIBFILENAME  = $(call mklibfilename,IceStormService,$(VERSION))
-SONAME       = $(call mksoname,IceStormService,$(SOVERSION))
-LIBNAME	     = $(call mklibname,IceStormService)
+LIBFILENAME  	= $(call mklibfilename,IceStormService,$(VERSION))
+SONAME       	= $(call mksoname,IceStormService,$(SOVERSION))
+LIBNAME	     	= $(call mklibname,IceStormService)
 
 ADMIN		= $(bindir)/icestormadmin
 MIGRATE		= $(bindir)/icestormmigrate

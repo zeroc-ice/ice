@@ -25,7 +25,7 @@ prefix			?= /opt/Ice-$(VERSION)
 # Define embedded_runpath as no if you don't want any RPATH added to
 # the executables.
 #
-embedded_runpath ?= yes
+embedded_runpath 	?= yes
 
 #
 # Define OPTIMIZE as yes if you want to build with optimization.
@@ -45,7 +45,7 @@ embedded_runpath ?= yes
 # you have installed the Ice for C++ development kit in a
 # non-standard location, set the ICE_HOME to the installation directory.
 #
-#ICE_HOME	= C:\Program Files\ZeroC\Ice-$(VERSION)
+#ICE_HOME		= C:\Program Files\ZeroC\Ice-$(VERSION)
 
 #
 # If the Ruby interpreter is in your PATH, the settings below will
@@ -135,9 +135,9 @@ ice_require_cpp  = yes
 slice_translator = slice2rb
 
 ifeq ($(shell test -f $(top_srcdir)/config/Make.common.rules && echo 0),0)
-		include $(top_srcdir)/config/Make.common.rules
+    include $(top_srcdir)/config/Make.common.rules
 else
-		include $(top_srcdir)/../config/Make.common.rules
+    include $(top_srcdir)/../config/Make.common.rules
 endif
 
 libdir			= $(top_srcdir)/ruby
@@ -165,23 +165,23 @@ install_bindir		= $(prefix)/$(binsubdir)
 # Platform specific definitions
 #
 ifeq ($(shell test -f $(top_srcdir)/config/Make.rules.$(UNAME) && echo 0),0)
-	configdir = $(top_srcdir)/config
+    configdir = $(top_srcdir)/config
 else
-	configdir = $(top_srcdir)/../cpp/config
+    configdir = $(top_srcdir)/../cpp/config
 endif
 
 ifndef usr_dir_install
-RPATH_DIR   = $(prefix)/$(libsubdir)
+    RPATH_DIR   = $(prefix)/$(libsubdir)
 endif
 
 include	 $(configdir)/Make.rules.$(UNAME)
 
 ifdef ice_src_dist
-	ICE_LIB_DIR = -L$(ice_cpp_dir)/$(libsubdir)
-	ICE_FLAGS = -I$(ice_cpp_dir)/include
+    ICE_LIB_DIR = -L$(ice_cpp_dir)/$(libsubdir)
+    ICE_FLAGS 	= -I$(ice_cpp_dir)/include
 else
-	ICE_LIB_DIR = -L$(ice_dir)/$(libsubdir)
-	ICE_FLAGS = -I$(ice_dir)/include
+    ICE_LIB_DIR	= -L$(ice_dir)/$(libsubdir)
+    ICE_FLAGS	= -I$(ice_dir)/include
 endif
 ICE_LIBS = $(ICE_LIB_DIR) -lIceDiscovery -lIce -lIceSSL -lSlice -lIceUtil
 
@@ -191,11 +191,11 @@ SLICE2RBFLAGS		= $(ICECPPFLAGS)
 LDFLAGS			= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir)
 
 ifdef ice_src_dist
-	SLICEPARSERLIB	= $(ice_cpp_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
-	SLICE2RB	= $(ice_cpp_dir)/$(binsubdir)/$(slice_translator)
+    SLICEPARSERLIB	= $(ice_cpp_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
+    SLICE2RB		= $(ice_cpp_dir)/$(binsubdir)/$(slice_translator)
 else
-	SLICEPARSERLIB	= $(ice_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
-	SLICE2RB	= $(ice_dir)/$(binsubdir)/$(slice_translator)
+    SLICEPARSERLIB	= $(ice_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
+     SLICE2RB		= $(ice_dir)/$(binsubdir)/$(slice_translator)
 endif
 
 EVERYTHING		= all depend clean install

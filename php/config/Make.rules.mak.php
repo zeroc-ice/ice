@@ -25,7 +25,7 @@ OPTIMIZE		= yes
 # Specify your C++ compiler. The only value currently supported to
 # build IcePHP is VC110. Leave unset for auto-detection.
 #
-#CPP_COMPILER	= VCxxx
+#CPP_COMPILER		= VCxxx
 
 #
 # Determines whether the extension uses PHP namespaces (requires
@@ -87,9 +87,9 @@ slice_translator = slice2php.exe
 !include $(top_srcdir)\config\Make.common.rules.mak
 !endif
 
-libdir			= $(top_srcdir)\lib
-install_phpdir		= $(prefix)\php
-install_libdir		= $(prefix)\php
+libdir		= $(top_srcdir)\lib
+install_phpdir	= $(prefix)\php
+install_libdir	= $(prefix)\php
 
 !if exist ($(top_srcdir)\..\cpp\config\Make.rules.msvc)
 !include $(top_srcdir)\..\cpp\config\Make.rules.msvc
@@ -107,75 +107,75 @@ RCFLAGS		= -D_DEBUG
 #
 # Import libraries are located automatically
 #
-ICE_LIBS		= 
+ICE_LIBS	=
 
 !if "$(ice_src_dist)" != ""
-ICE_CPPFLAGS            = -I"$(ice_cpp_dir)\include"
+ICE_CPPFLAGS    = -I"$(ice_cpp_dir)\include"
 !if "$(ice_cpp_dir)" == "$(ice_dir)\cpp"
-ICE_LDFLAGS             = /LIBPATH:"$(ice_cpp_dir)\lib"
+ICE_LDFLAGS	= /LIBPATH:"$(ice_cpp_dir)\lib"
 !else
-ICE_LDFLAGS             = /LIBPATH:"$(ice_cpp_dir)\lib$(libsuff)"
+ICE_LDFLAGS	= /LIBPATH:"$(ice_cpp_dir)\lib$(libsuff)"
 !endif
 !else
-ICE_CPPFLAGS            = -I"$(ice_dir)\include"
-ICE_LDFLAGS             = /LIBPATH:"$(ice_dir)\lib$(libsuff)"
+ICE_CPPFLAGS    = -I"$(ice_dir)\include"
+ICE_LDFLAGS     = /LIBPATH:"$(ice_dir)\lib$(libsuff)"
 !endif
 
-slicedir                = $(ice_dir)\slice
+slicedir        = $(ice_dir)\slice
 
 !if "$(PHP_ZTS)" == "yes"
-PHP_LIB_PREFIX		= php5ts
+PHP_LIB_PREFIX	= php5ts
 !else
-PHP_LIB_PREFIX		= php5
+PHP_LIB_PREFIX	= php5
 !endif
 
 !if "$(OPTIMIZE)" != "yes"
-PHP_LDFLAGS		= /LIBPATH:"$(PHP_BIN_HOME)"
-PHP_LIBS		= $(PHP_LIB_PREFIX)_debug.lib
-PHP_ZEND_DEBUG		= 1
+PHP_LDFLAGS	= /LIBPATH:"$(PHP_BIN_HOME)"
+PHP_LIBS	= $(PHP_LIB_PREFIX)_debug.lib
+PHP_ZEND_DEBUG	= 1
 !else
-PHP_LDFLAGS		= /LIBPATH:"$(PHP_BIN_HOME)\dev"
-PHP_LIBS		= $(PHP_LIB_PREFIX).lib
-PHP_ZEND_DEBUG		= 0
+PHP_LDFLAGS	= /LIBPATH:"$(PHP_BIN_HOME)\dev"
+PHP_LIBS	= $(PHP_LIB_PREFIX).lib
+PHP_ZEND_DEBUG	= 0
 !endif
 
-PHP_CPPFLAGS		= -I"$(PHP_HOME)" -I"$(PHP_HOME)\main" -I"$(PHP_HOME)\TSRM" -I"$(PHP_HOME)\Zend" -DPHP_WIN32 -DZEND_WIN32 -DZEND_DEBUG=$(PHP_ZEND_DEBUG) -DWIN32
+PHP_CPPFLAGS	= -I"$(PHP_HOME)" -I"$(PHP_HOME)\main" -I"$(PHP_HOME)\TSRM" -I"$(PHP_HOME)\Zend" -DPHP_WIN32 -DZEND_WIN32 -DZEND_DEBUG=$(PHP_ZEND_DEBUG) -DWIN32
 !if "$(PHP_ZTS)" == "yes"
-PHP_CPPFLAGS		= $(PHP_CPPFLAGS) -DZTS
+PHP_CPPFLAGS	= $(PHP_CPPFLAGS) -DZTS
 !endif
 
-ICECPPFLAGS		= -I"$(slicedir)"
-SLICE2PHPFLAGS		= $(ICECPPFLAGS) $(SLICE2PHPFLAGS)
+ICECPPFLAGS	= -I"$(slicedir)"
+SLICE2PHPFLAGS	= $(ICECPPFLAGS) $(SLICE2PHPFLAGS)
 
 !if "$(USE_NAMESPACES)" == "yes"
-CPPFLAGS		= $(CPPFLAGS) -DICEPHP_USE_NAMESPACES
-SLICE2PHPFLAGS		= $(SLICE2PHPFLAGS) -n
+CPPFLAGS	= $(CPPFLAGS) -DICEPHP_USE_NAMESPACES
+SLICE2PHPFLAGS	= $(SLICE2PHPFLAGS) -n
 !endif
 
 !if "$(ice_src_dist)" != ""
 !if "$(ice_cpp_dir)" == "$(ice_dir)\cpp"
-SLICE2PHP		= $(ice_cpp_dir)\bin\slice2php.exe
-SLICEPARSERLIB		= $(ice_cpp_dir)\lib\slice.lib
+SLICE2PHP	= $(ice_cpp_dir)\bin\slice2php.exe
+SLICEPARSERLIB	= $(ice_cpp_dir)\lib\slice.lib
 !if !exist ("$(SLICEPARSERLIB)")
-SLICEPARSERLIB		= $(ice_cpp_dir)\lib\sliced.lib
+SLICEPARSERLIB	= $(ice_cpp_dir)\lib\sliced.lib
 !endif
 !else
-SLICE2PHP		= $(ice_cpp_dir)\bin$(x64suffix)\slice2php.exe
-SLICEPARSERLIB		= $(ice_cpp_dir)\lib$(x64suffix)\slice.lib
+SLICE2PHP	= $(ice_cpp_dir)\bin$(x64suffix)\slice2php.exe
+SLICEPARSERLIB	= $(ice_cpp_dir)\lib$(x64suffix)\slice.lib
 !if !exist ("$(SLICEPARSERLIB)")
-SLICEPARSERLIB		= $(ice_cpp_dir)\lib$(x64suffix)\sliced.lib
+SLICEPARSERLIB	= $(ice_cpp_dir)\lib$(x64suffix)\sliced.lib
 !endif
 !endif
 !else
-SLICE2PHP		= $(ice_dir)\bin\slice2php.exe
-SLICEPARSERLIB		= $(ice_dir)\lib\slice.lib
+SLICE2PHP	= $(ice_dir)\bin\slice2php.exe
+SLICEPARSERLIB	= $(ice_dir)\lib\slice.lib
 !endif
 
-EVERYTHING		= all clean install depend
+EVERYTHING	= all clean install depend
 EVERYTHING_EXCEPT_INSTALL = all clean depend
 
 .SUFFIXES:
-.SUFFIXES:		.cpp .obj .php .res .rc .d .ice
+.SUFFIXES:	.cpp .obj .php .res .rc .d .ice
 
 DEPEND_DIR = .depend.mak
 

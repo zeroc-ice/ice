@@ -16,7 +16,6 @@ COLLOCATED	= collocated.exe
 
 TARGETS		= $(CLIENT) $(SERVER) $(SERVERAMD) $(COLLOCATED)
 
-
 SLICE_OBJS	= .\Test.obj \
 		  .\TestAMD.obj \
 		  .\Wstring.obj \
@@ -27,7 +26,7 @@ COBJS           = .\Test.obj \
 		  .\Client.obj \
 		  .\AllTests.obj \
 		  .\MyByteSeq.obj \
-		  .\StringConverterI.obj 
+		  .\StringConverterI.obj
 
 SOBJS           = .\Test.obj \
 		  .\Wstring.obj \

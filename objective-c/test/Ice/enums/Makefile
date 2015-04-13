@@ -17,10 +17,10 @@ TARGETS		= $(CLIENT) $(SERVER)
 SLICE_OBJS	= EnumTest.o
 
 COBJS		= Client.o \
-			  AllTests.o
+		  AllTests.o
 
 SOBJS		= TestI.o \
-			  Server.o
+		  Server.o
 
 OBJS		= $(COBJS) $(SOBJS) $(SLICE_OBJS)
 

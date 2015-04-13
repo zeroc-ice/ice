@@ -14,16 +14,16 @@ TARGETS		= client.exe plugins/Plugin.dll
 C_SRCS		= Client.cs
 
 P_SRCS		= BasePlugin.cs \
-		PluginFactory.cs \
-		PluginInitializeFailException.cs \
-		BasePluginFail.cs \
-		PluginInitializeFailFactory.cs \
-		PluginOneFactory.cs \
-		PluginOneFailFactory.cs \
-		PluginThreeFactory.cs \
-		PluginThreeFailFactory.cs \
-		PluginTwoFactory.cs \
-		PluginTwoFailFactory.cs
+		  PluginFactory.cs \
+		  PluginInitializeFailException.cs \
+		  BasePluginFail.cs \
+		  PluginInitializeFailFactory.cs \
+		  PluginOneFactory.cs \
+		  PluginOneFailFactory.cs \
+		  PluginThreeFactory.cs \
+		  PluginThreeFailFactory.cs \
+		  PluginTwoFactory.cs \
+		  PluginTwoFailFactory.cs
 
 SDIR		= .
 

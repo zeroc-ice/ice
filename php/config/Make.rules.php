@@ -16,7 +16,7 @@ prefix			?= /opt/Ice-$(VERSION)
 
 #
 # The "root directory" for runpath embedded in executables. Can be set
-# to change the runpath added to Ice executables. The default is 
+# to change the runpath added to Ice executables. The default is
 # platform dependent.
 #
 #embedded_runpath_prefix ?= /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
@@ -25,7 +25,7 @@ prefix			?= /opt/Ice-$(VERSION)
 # Define embedded_runpath as no if you don't want any RPATH added to
 # the executables.
 #
-embedded_runpath ?= yes
+embedded_runpath 	?= yes
 
 #
 # Define OPTIMIZE as yes if you want to build with optimization.
@@ -69,21 +69,21 @@ PHP_HOME		?= /opt/php
 # php.
 #
 ifeq ($(shell test -d $(PHP_HOME) && echo 0),0)
-	ifeq ($(shell test -d $(PHP_HOME)/include/php5 && echo 0),0)
-		PHP_INCLUDE_DIR	= $(PHP_HOME)/include/php5
-		PHP_LIB_DIR	= $(PHP_HOME)/lib$(lp64suffix)/php5
-	else
-		PHP_INCLUDE_DIR	= $(PHP_HOME)/include/php
-		PHP_LIB_DIR	= $(PHP_HOME)/lib$(lp64suffix)/php
-	endif
+    ifeq ($(shell test -d $(PHP_HOME)/include/php5 && echo 0),0)
+	PHP_INCLUDE_DIR	= $(PHP_HOME)/include/php5
+	PHP_LIB_DIR	= $(PHP_HOME)/lib$(lp64suffix)/php5
+    else
+	PHP_INCLUDE_DIR	= $(PHP_HOME)/include/php
+	PHP_LIB_DIR	= $(PHP_HOME)/lib$(lp64suffix)/php
+    endif
 else
-	ifeq ($(shell test -d /usr/include/php5 && echo 0),0)
-		PHP_INCLUDE_DIR	= /usr/include/php5
-		PHP_LIB_DIR	= /usr/lib$(lp64suffix)/php5
-	else
-		PHP_INCLUDE_DIR	= /usr/include/php
-		PHP_LIB_DIR	= /usr/lib$(lp64suffix)/php
-	endif
+    ifeq ($(shell test -d /usr/include/php5 && echo 0),0)
+	PHP_INCLUDE_DIR	= /usr/include/php5
+	PHP_LIB_DIR	= /usr/lib$(lp64suffix)/php5
+    else
+	PHP_INCLUDE_DIR	= /usr/include/php
+	PHP_LIB_DIR	= /usr/lib$(lp64suffix)/php
+    endif
 endif
 
 PHP_FLAGS ?= -I$(PHP_INCLUDE_DIR) -I$(PHP_INCLUDE_DIR)/main -I$(PHP_INCLUDE_DIR)/Zend -I$(PHP_INCLUDE_DIR)/TSRM
@@ -101,25 +101,25 @@ ice_require_cpp  = yes
 slice_translator = slice2php
 
 ifeq ($(shell test -f $(top_srcdir)/config/Make.common.rules && echo 0),0)
-	include $(top_srcdir)/config/Make.common.rules
+    include $(top_srcdir)/config/Make.common.rules
 else
-	include $(top_srcdir)/../config/Make.common.rules
+    include $(top_srcdir)/../config/Make.common.rules
 endif
 
-libdir			= $(top_srcdir)/lib
+libdir		= $(top_srcdir)/lib
 
 ifndef usr_dir_install
-install_phpdir      = $(prefix)/php
-install_libdir      = $(prefix)/php
+    install_phpdir	= $(prefix)/php
+    install_libdir  	= $(prefix)/php
 else
-install_phpdir      = $(prefix)/share/php
-install_libdir      = $(shell php -r "echo(ini_get('extension_dir'));")
+    install_phpdir  	= $(prefix)/share/php
+    install_libdir  	= $(shell php -r "echo(ini_get('extension_dir'));")
 endif
 
 ifdef ice_src_dist
-	RPATH_DIR	= $(LOADER_PATH)/../../cpp/$(libsubdir)
+    RPATH_DIR	= $(LOADER_PATH)/../../cpp/$(libsubdir)
 else
-	RPATH_DIR	= $(ice_dir)/$(libdir)
+    RPATH_DIR	= $(ice_dir)/$(libdir)
 endif
 
 install_bindir          = $(prefix)/$(binsubdir)
@@ -128,23 +128,23 @@ install_bindir          = $(prefix)/$(binsubdir)
 # Platform specific definitions
 #
 ifeq ($(shell test -f $(top_srcdir)/config/Make.rules.$(UNAME) && echo 0),0)
-	configdir = $(top_srcdir)/config
+    configdir = $(top_srcdir)/config
 else
-	configdir = $(top_srcdir)/../cpp/config
+    configdir = $(top_srcdir)/../cpp/config
 endif
 include	$(configdir)/Make.rules.$(UNAME)
 
 ifdef ice_src_dist
-	ICE_LIB_DIR = -L$(ice_cpp_dir)/$(libsubdir)
-	ICE_FLAGS 	= -I$(ice_cpp_dir)/include
+    ICE_LIB_DIR = -L$(ice_cpp_dir)/$(libsubdir)
+    ICE_FLAGS 	= -I$(ice_cpp_dir)/include
 else
-	ICE_LIB_DIR = -L$(ice_dir)/lib$(lp64suffix)
-	ICE_FLAGS	= -I$(ice_dir)/include
+    ICE_LIB_DIR = -L$(ice_dir)/lib$(lp64suffix)
+    ICE_FLAGS	= -I$(ice_dir)/include
 endif
 ICE_LIBS = $(ICE_LIB_DIR) -lIce -lSlice -lIceUtil
 
 ifneq ($(embedded_runpath_prefix),)
-	runpath_libdir      := $(embedded_runpath_prefix)/lib$(lp64suffix)
+    runpath_libdir      := $(embedded_runpath_prefix)/lib$(lp64suffix)
 endif
 
 CPPFLAGS		=
@@ -153,26 +153,26 @@ SLICE2PHPFLAGS		:= $(SLICE2PHPFLAGS) $(ICECPPFLAGS)
 LDFLAGS			= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir)
 
 ifeq ("$(USE_NAMESPACES)","yes")
-	CPPFLAGS            := $(CPPFLAGS) -DICEPHP_USE_NAMESPACES
-	SLICE2PHPFLAGS      := $(SLICE2PHPFLAGS) -n
+    CPPFLAGS            := $(CPPFLAGS) -DICEPHP_USE_NAMESPACES
+    SLICE2PHPFLAGS      := $(SLICE2PHPFLAGS) -n
 endif
 
 ifdef ice_src_dist
-	SLICE2PHP 	= $(ice_cpp_dir)/$(binsubdir)/slice2php
-	SLICEPARSERLIB	= $(ice_cpp_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
-        ifeq ($(wildcard $(SLICEPARSERLIB)),)
-                SLICEPARSERLIB  = $(ice_cpp_dir)/$(lib64subdir)/$(call mklibfilename,Slice,$(VERSION))
-        endif
+    SLICE2PHP 	= $(ice_cpp_dir)/$(binsubdir)/slice2php
+    SLICEPARSERLIB	= $(ice_cpp_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
+    ifeq ($(wildcard $(SLICEPARSERLIB)),)
+        SLICEPARSERLIB  = $(ice_cpp_dir)/$(lib64subdir)/$(call mklibfilename,Slice,$(VERSION))
+    endif
 else
-	SLICE2PHP 	= $(ice_dir)/$(binsubdir)/slice2php
-	SLICEPARSERLIB	= $(ice_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
-	ifeq ($(wildcard $(SLICEPARSERLIB)),)
-                SLICEPARSERLIB  = $(ice_dir)/$(lib64subdir)/$(call mklibfilename,Slice,$(VERSION))
-        endif
+    SLICE2PHP 	= $(ice_dir)/$(binsubdir)/slice2php
+    SLICEPARSERLIB	= $(ice_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
+    ifeq ($(wildcard $(SLICEPARSERLIB)),)
+        SLICEPARSERLIB  = $(ice_dir)/$(lib64subdir)/$(call mklibfilename,Slice,$(VERSION))
+    endif
 endif
 
 ifeq ($(installphplib),)
-	installphplib	= $(INSTALL) $(1) $(2); \
+    installphplib	= $(INSTALL) $(1) $(2); \
 			  chmod a+rx $(2)/$(notdir $(1))
 endif
 

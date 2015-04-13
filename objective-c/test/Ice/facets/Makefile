@@ -18,14 +18,14 @@ TARGETS		= $(CLIENT) $(SERVER) $(COLLOCATED)
 SLICE_OBJS	= FacetsTest.o
 
 COBJS		= Client.o \
-			  AllTests.o
+		  AllTests.o
 
 SOBJS		= TestI.o \
-			  Server.o
+		  Server.o
 
 COLOBJS		= Collocated.o \
-			  TestI.o \
-			  AllTests.o
+		  TestI.o \
+		  AllTests.o
 
 OBJS		= $(COBJS) $(SOBJS) $(COLOBJS) $(SLICE_OBJS)
 

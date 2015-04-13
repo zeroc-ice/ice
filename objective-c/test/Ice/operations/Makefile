@@ -18,31 +18,31 @@ TARGETS		= $(CLIENT) $(SERVER) $(COLLOCATED)
 SLICE_OBJS	= OperationsTest.o
 
 COBJS		= Client.o \
-			  AllTests.o \
+		  AllTests.o \
 	          Twoways.o \
-              TwowaysNewAMI.o \
-              Oneways.o \
-              OnewaysNewAMI.o \
-              BatchOneways.o \
-		      BatchOnewaysAMI.o
+		  TwowaysNewAMI.o \
+		  Oneways.o \
+		  OnewaysNewAMI.o \
+		  BatchOneways.o \
+		  BatchOnewaysAMI.o
 
 SOBJS		= TestI.o \
-			  Server.o
+		  Server.o
 
 COLOBJS		= Collocated.o \
-			  TestI.o \
-			  AllTests.o \
+		  TestI.o \
+		  AllTests.o \
 	          Twoways.o \
-              TwowaysNewAMI.o \
-              Oneways.o \
-              OnewaysNewAMI.o \
-              BatchOneways.o \
-		      BatchOnewaysAMI.o
+		  TwowaysNewAMI.o \
+		  Oneways.o \
+		  OnewaysNewAMI.o \
+		  BatchOneways.o \
+		  BatchOnewaysAMI.o
 
 OBJS		= $(COBJS) \
-			  $(SOBJS) \
-			  $(COLOBJS) \
-			  $(SLICE_OBJS)
+		  $(SOBJS) \
+		  $(COLOBJS) \
+		  $(SLICE_OBJS)
 
 include $(top_srcdir)/config/Make.rules
 

@@ -20,7 +20,7 @@ SRCS		= Application.cs \
 		  SessionFactoryHelper.cs \
 		  SessionHelper.cs
 
-SLICE_SRCS	=  $(SDIR)/Metrics.ice \
+SLICE_SRCS	= $(SDIR)/Metrics.ice \
 		  $(SDIR)/PermissionsVerifier.ice \
 		  $(SDIR)/Router.ice \
 		  $(SDIR)/Session.ice \

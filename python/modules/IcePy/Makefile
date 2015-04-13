@@ -16,7 +16,7 @@ LIBNAME		= $(call mkpylibname,IcePy)
 TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 
 OBJS		= BatchRequestInterceptor.o \
-	      Communicator.o \
+	      	  Communicator.o \
 		  Connection.o \
 		  ConnectionInfo.o \
 		  Current.o \

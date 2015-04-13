@@ -14,7 +14,7 @@ SERVER		= $(call mktestname,server)
 
 TARGETS		= $(CLIENT) $(SERVER)
 
-SLICE_OBJS	= Test.o \
+SLICE_OBJS	= Test.o
 
 COBJS		= $(SLICE_OBJS) \
 		  Client.o \

@@ -9,8 +9,8 @@
 
 top_srcdir	= ..\..\..\..
 
-SLICE_SRCS		= ClientPrivate.ice Forward.ice Test.ice
+SLICE_SRCS	= ClientPrivate.ice Forward.ice Test.ice
 
-SLICE2PHPFLAGS = -I.
+SLICE2PHPFLAGS 	= -I.
 
 !include $(top_srcdir)\config\Make.rules.mak.php

@@ -7,13 +7,13 @@
 #
 # **********************************************************************
 
-SUBDIRS			= cpp java js python ruby php
+SUBDIRS		= cpp java js python ruby php
 CLEAN_SUBDIRS	= js java python ruby php cpp
 DEPEND_SUBDIRS	= cpp python ruby php
 INSTALL_SUBDIRS	= cpp java python ruby php js
 
 ifeq ($(shell uname),Darwin)
-SUBDIRS			+= objective-c
+SUBDIRS		+= objective-c
 CLEAN_SUBDIRS	+= objective-c
 DEPEND_SUBDIRS	+= objective-c
 INSTALL_SUBDIRS	+= objective-c

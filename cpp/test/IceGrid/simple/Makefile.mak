@@ -16,7 +16,7 @@ TARGETS		= $(CLIENT) $(SERVER)
 
 SLICE_OBJS	= .\Test.obj
 
-COBJS		=  $(SLICE_OBJS) \
+COBJS		= $(SLICE_OBJS) \
 		  .\Client.obj \
 		  .\AllTests.obj
 
@@ -30,7 +30,7 @@ OBJS		= $(COBJS) \
 !include $(top_srcdir)/config/Make.rules.mak
 
 CPPFLAGS	= -I. -I../../include $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
-LINKWITH	= $(LIBS)  
+LINKWITH	= $(LIBS)
 
 !if "$(GENERATE_PDB)" == "yes"
 CPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
@@ -50,8 +50,8 @@ $(SERVER): $(SOBJS)
 clean::
 	del /q build.txt
 	del /q Test.cpp Test.h
-	if exist db\node rmdir /s /q db\node 
-	if exist db\registry rmdir /s /q db\registry 
+	if exist db\node rmdir /s /q db\node
+	if exist db\registry rmdir /s /q db\registry
 	if exist db\replica-1 rmdir /s /q db\replica-1
 
 !if "$(OPTIMIZE)" == "yes"

@@ -13,17 +13,17 @@ top_srcdir	= ..\..
 
 
 SUBDIRS		= activation \
-		admin \
-		allocation \
-		deployer \
-		distribution \
-		fileLock \
-		noRestartUpdate \
-		replicaGroup \
-		replication \
-		session \
-		simple \
-		update
+		  admin \
+		  allocation \
+		  deployer \
+		  distribution \
+		  fileLock \
+		  noRestartUpdate \
+		  replicaGroup \
+		  replication \
+		  session \
+		  simple \
+		  update
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

@@ -14,7 +14,7 @@ SUBSCRIBER	= subscriber.exe
 
 TARGETS		= $(PUBLISHER) $(SUBSCRIBER)
 
-SLICE_OBJS		= .\Event.obj
+SLICE_OBJS	= .\Event.obj
 
 POBJS		= $(SLICE_OBJS) \
 		  .\Publisher.obj

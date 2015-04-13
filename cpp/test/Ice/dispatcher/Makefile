@@ -15,7 +15,7 @@ COLLOCATED	= $(call mktestname,collocated)
 
 TARGETS		= $(CLIENT) $(SERVER) $(COLLOCATED)
 
-SLICE_OBJS		= Test.o
+SLICE_OBJS	= Test.o
 
 COBJS		= $(SLICE_OBJS) \
 		  Dispatcher.o \

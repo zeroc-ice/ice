@@ -8,7 +8,7 @@
 # **********************************************************************
 
 top_srcdir	= ..\..
- 
+
 LIBNAME		= $(top_srcdir)\lib\icexml$(LIBSUFFIX).lib
 DLLNAME		= $(top_srcdir)\bin\icexml$(SOVERSION)$(LIBSUFFIX)$(COMPSUFFIX).dll
 

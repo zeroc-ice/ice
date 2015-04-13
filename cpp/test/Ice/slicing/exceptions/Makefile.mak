@@ -27,7 +27,7 @@ COBJS		= .\Test.obj \
 		  .\AllTests.obj
 
 SOBJS		= .\Test.obj \
- 		  .\ServerPrivate.obj \
+		  .\ServerPrivate.obj \
 		  .\TestI.obj \
 		  .\Server.obj
 

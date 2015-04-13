@@ -41,12 +41,12 @@ $(CLIENT1): $(C1OBJS)
 	$(LINK) $(LD_EXEFLAGS) $(C1PDBFLAGS) $(SETARGV) $(C1OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
-	    
+
 $(CLIENT2): $(C2OBJS)
 	$(LINK) $(LD_EXEFLAGS) $(C2PDBFLAGS) $(SETARGV) $(C2OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
-	    
+
 $(CLIENT3): $(C3OBJS)
 	$(LINK) $(LD_EXEFLAGS) $(C3PDBFLAGS) $(SETARGV) $(C3OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \

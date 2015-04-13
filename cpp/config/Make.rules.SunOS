@@ -12,7 +12,7 @@
 #
 
 #
-# If CXX is not defined anywhere, the default (from gmake) is g++. 
+# If CXX is not defined anywhere, the default (from gmake) is g++.
 #
 CXX = CC
 
@@ -27,13 +27,12 @@ ifeq ($(CXX),CC)
     #
     # Recent version of Sun CC
     #
-    
     ifeq ($(LP64),yes)
          CXXARCHFLAGS   += -m64
     else
 	 CXXARCHFLAGS   += -m32
     endif
-          
+
     #
     # wvarhidenmem,wvarhidemem: various name hiding
     # notemsource: Could not find source for <template name>
@@ -53,14 +52,12 @@ ifeq ($(CXX),CC)
     else
         CXXFLAGS     += -g
     endif
-    
+
     mkshlib          = $(CXX) -G $(LDFLAGS) -o $(1) -h $(2) $(3) $(4)
 
     mklib            = $(CXX) -xar -o $(1) $(2)
 
-    
     CXXLIBS          = -lCrun -lCstd
-
 
     ifneq ($(embedded_runpath_prefix),)
          LDPLATFORMFLAGS    = -norunpath -R $(runpath_libdir) -z text $(PLATFORMLIBDIRS)
@@ -93,7 +90,7 @@ ifeq ($(CXX),g++)
     else
         CXXFLAGS	    += -g
     endif
-    
+
     mkshlib		    = $(CXX) -shared $(LDFLAGS) -o $(1) -h $(2) $(3) $(4)
 
     mklib		    = ar cr $(1) $(2)
@@ -116,4 +113,3 @@ LIBS			    = $(BZIP2_RPATH_LINK) -lIce $(BASELIBS)
 
 ICEUTIL_OS_LIBS		    = -lpthread -lrt -lcrypto
 ICE_OS_LIBS		    = -ldl -lsocket
-

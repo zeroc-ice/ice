@@ -25,7 +25,7 @@ COMMON_OBJS	= AssignVisitor.o \
 		  Util.o \
 		  Grammar.o
 
-TRANSFORM_OBJS = TransformAnalyzer.o \
+TRANSFORM_OBJS 	= TransformAnalyzer.o \
 		  TransformVisitor.o \
 		  Transformer.o \
 		  transformdb.o

@@ -16,8 +16,8 @@ TARGETS		= $(CLIENT)
 SLICE_OBJS	= Test.o
 
 COBJS		= Client.o \
-			  AllTests.o \
-			  $(SLICE_OBJS)
+		  AllTests.o \
+		  $(SLICE_OBJS)
 
 OBJS		= $(COBJS)
 

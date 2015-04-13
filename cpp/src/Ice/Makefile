@@ -54,7 +54,7 @@ SLICE_OBJS	= BuiltinSequences.o \
 		  SliceChecksumDict.o \
 		  Version.o
 
-OBJS	= Acceptor.o \
+OBJS		= Acceptor.o \
 		  ACM.o \
 		  Application.o \
 	 	  AsyncResult.o \

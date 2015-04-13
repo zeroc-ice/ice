@@ -14,7 +14,7 @@ SERVER		= server
 
 TARGETS		= $(CLIENT) $(SERVER)
 
-SLICE_OBJS		= Callback.o
+SLICE_OBJS	= Callback.o
 
 COBJS		= $(SLICE_OBJS) \
 		  CallbackI.o \

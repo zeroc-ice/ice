@@ -17,10 +17,10 @@ TARGETS		= $(CLIENT) $(SERVER)
 SLICE_OBJS	= InvokeTest.o
 
 COBJS		= Client.o \
-			  AllTests.o
+		  AllTests.o
 
 SOBJS		= BlobjectI.o \
-			  Server.o
+		  Server.o
 
 OBJS		= $(COBJS) $(SOBJS) $(SLICE_OBJS)
 

@@ -18,16 +18,16 @@ TARGETS		= $(CLIENT) $(SERVER) $(COLLOCATED)
 SLICE_OBJS	= ServantLocatorTest.o
 
 COBJS		= Client.o \
-			  AllTests.o
+		  AllTests.o
 
 SOBJS		= TestI.o \
-			  ServantLocatorI.o \
-			  Server.o
+		  ServantLocatorI.o \
+		  Server.o
 
 COLOBJS		= TestI.o \
-			  ServantLocatorI.o \
-			  AllTests.o \
-			  Collocated.o
+		  ServantLocatorI.o \
+		  AllTests.o \
+		  Collocated.o
 
 OBJS		= $(COBJS) $(SOBJS) $(SLICE_OBJS)
 

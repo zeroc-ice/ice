@@ -25,7 +25,7 @@ OPTIMIZE		= yes
 # Specify your C++ compiler, or leave unset for auto-detection. The
 # only value currently supported to build IcePy is VC100.
 #
-#CPP_COMPILER 	= VCxxx
+#CPP_COMPILER 		= VCxxx
 
 #
 # Set PYTHON_HOME to your Python installation directory.
@@ -51,7 +51,7 @@ slice_translator = slice2py.exe
 !include $(top_srcdir)\config\Make.common.rules.mak
 !endif
 
-libdir				= $(top_srcdir)\python
+libdir			= $(top_srcdir)\python
 install_pythondir	= $(prefix)\python$(x64suffix)
 install_libdir		= $(prefix)\python$(x64suffix)
 
@@ -68,7 +68,7 @@ RCFLAGS		= -D_DEBUG
 #
 # Import libraries are located automatically
 #
-ICE_LIBS		= 
+ICE_LIBS		=
 
 !if "$(ice_src_dist)" != ""
 ICE_CPPFLAGS		= -I"$(ice_cpp_dir)\include"

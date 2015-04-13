@@ -54,7 +54,7 @@ DEBUG			= yes
 # Define FRAMEWORK as 3.5 to force a .NET 3.5 build with Visual Studio 2010.
 #
 
-#FRAMEWORK = 3.5
+#FRAMEWORK 		= 3.5
 
 #
 # Set the key file used to sign assemblies.
@@ -86,7 +86,7 @@ assembliesdir   = $(top_srcdir)\Assemblies
 install_bindir          = $(prefix)\bin
 install_assembliesdir   = $(prefix)\Assemblies
 install_configdir   	= $(prefix)\config
-install_libdir		    = $(prefix)\lib
+install_libdir		= $(prefix)\lib
 
 !if "$(ice_src_dist)" != ""
 refdir = $(assembliesdir)
@@ -98,13 +98,13 @@ refdir = $(ice_dir)\Assemblies
 generate_policies   = yes
 !endif
 
-MCS			= csc -nologo
+MCS = csc -nologo
 
 #
 # UNITY implies MANAGED.
 #
 !if "$(UNITY)" == "yes"
-MANAGED			= yes
+MANAGED	= yes
 !endif
 
 MCSFLAGS = -warnaserror

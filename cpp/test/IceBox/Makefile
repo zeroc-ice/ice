@@ -11,7 +11,6 @@ top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules
 
-
 SUBDIRS		= admin configuration
 
 .PHONY: $(EVERYTHING) $(SUBDIRS)

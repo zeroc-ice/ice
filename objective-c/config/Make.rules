@@ -37,7 +37,7 @@ create_runpath_symlink  ?= no
 # Define embedded_runpath as no if you don't want any RPATH added to
 # the executables.
 #
-embedded_runpath ?= yes
+embedded_runpath 	?= yes
 
 #
 # The build architectures for gcc/llvm based builds. The format of
@@ -46,7 +46,7 @@ embedded_runpath ?= yes
 # "-arch i386 -arch x86_64".  The default is OS version dependent. Be
 # aware that this value may conflict with the setting of LP64 above.
 #
-#OBJCARCHFLAGS		     = -arch i386 -arch x86_64
+#OBJCARCHFLAGS		= -arch i386 -arch x86_64
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!

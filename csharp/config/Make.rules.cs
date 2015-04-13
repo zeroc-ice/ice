@@ -84,9 +84,9 @@ DSEP = /
 
 bindir = $(top_srcdir)/bin
 
-assembliesdir           = $(top_srcdir)/Assemblies
+assembliesdir	= $(top_srcdir)/Assemblies
 
-install_bindir		    = $(prefix)/bin
+install_bindir 	= $(prefix)/bin
 
 ifeq ($(GACINSTALL),yes)
     ifeq ($(GAC_ROOT),)
@@ -143,9 +143,9 @@ ifeq ($(GACINSTALL),yes)
     endif
 else
     installassembly 	= $(INSTALL_LIBRARY) $(1) $(DESTDIR)$(install_assembliesdir); \
-    			  chmod a+rx $(DESTDIR)$(install_assembliesdir)/$(notdir $(1))
+			  chmod a+rx $(DESTDIR)$(install_assembliesdir)/$(notdir $(1))
     installpolicy 	= $(INSTALL_LIBRARY) $(1).dll $(install_assembliesdir); \
-    			  chmod a+rx $(install_assembliesdir)/$(notdir $(1).dll)
+			  chmod a+rx $(install_assembliesdir)/$(notdir $(1).dll)
     ifeq ($(DEBUG),yes)
         installmdb      = $(INSTALL_LIBRARY) $(1) $(DESTDIR)$(install_assembliesdir); \
                           chmod a+rx $(DESTDIR)$(install_assembliesdir)/$(notdir $(1))
@@ -182,11 +182,11 @@ ifeq ($(UNITY),yes)
 endif
 
 ifdef ice_src_dist
-	SLICE2CS 	= $(ice_cpp_dir)/$(binsubdir)/slice2cs
-	SLICEPARSERLIB 	= $(ice_cpp_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
+    SLICE2CS 		= $(ice_cpp_dir)/$(binsubdir)/slice2cs
+    SLICEPARSERLIB 	= $(ice_cpp_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
 else
-	SLICE2CS 	= $(ice_dir)/$(binsubdir)/slice2cs
-	SLICEPARSERLIB 	= $(ice_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
+    SLICE2CS 		= $(ice_dir)/$(binsubdir)/slice2cs
+    SLICEPARSERLIB 	= $(ice_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
 endif
 
 AL              = al
@@ -240,7 +240,6 @@ CGEN_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_C_SRCS))))
 SGEN_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_S_SRCS))))
 GEN_AMD_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_AMD_SRCS))))
 SAMD_GEN_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_SAMD_SRCS))))
-
 
 EVERYTHING		= all depend clean install
 

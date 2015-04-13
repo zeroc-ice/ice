@@ -15,15 +15,15 @@ SERVER		= server
 TARGETS		= $(CLIENT) $(SERVER)
 
 SLICE_OBJS	= SlicingExceptionsTestClient.o \
-			  SlicingExceptionsTestServer.o
+		  SlicingExceptionsTestServer.o
 
 COBJS		= Client.o \
-			  AllTests.o \
-			  SlicingExceptionsTestClient.o
+		  AllTests.o \
+		  SlicingExceptionsTestClient.o
 
 SOBJS		= TestI.o \
-			  Server.o \
-			  SlicingExceptionsTestServer.o
+		  Server.o \
+		  SlicingExceptionsTestServer.o
 
 OBJS		= $(COBJS) $(SOBJS)
 

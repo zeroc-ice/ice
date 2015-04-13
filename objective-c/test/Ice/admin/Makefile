@@ -17,11 +17,11 @@ TARGETS		= $(CLIENT) $(SERVER)
 SLICE_OBJS	= AdminTest.o
 
 COBJS		= Client.o \
-			  TestI.o \
-			  AllTests.o
+		  TestI.o \
+		  AllTests.o
 
 SOBJS		= TestI.o \
-			  Server.o
+		  Server.o
 
 OBJS		= $(COBJS) $(SOBJS) $(SLICE_OBJS)
 

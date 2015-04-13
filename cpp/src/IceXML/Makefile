@@ -8,9 +8,9 @@
 # **********************************************************************
 
 top_srcdir	= ../..
- 
+
 LIBFILENAME     = $(call mklibfilename,IceXML,$(VERSION))
-SONAME          = $(call mksoname,IceXML,$(SOVERSION))  
+SONAME          = $(call mksoname,IceXML,$(SOVERSION))
 LIBNAME		= $(call mklibname,IceXML)
 
 TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)$(cpp11libdirsuffix)/$(LIBNAME))

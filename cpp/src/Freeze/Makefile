@@ -15,7 +15,7 @@ LIBNAME		= $(call mklibname,Freeze)
 
 TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)$(cpp11libdirsuffix)/$(LIBNAME))
 
-SLICE_OBJS     = BackgroundSaveEvictor.o \
+SLICE_OBJS      = BackgroundSaveEvictor.o \
 		  CatalogData.o \
 		  Connection.o \
 		  ConnectionF.o \

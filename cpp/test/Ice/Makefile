@@ -52,7 +52,7 @@ SUBDIRS		= proxy \
                   echo \
                   logger \
                   networkProxy \
-				  services
+		  services
 
 .PHONY: $(EVERYTHING) $(SUBDIRS)
 

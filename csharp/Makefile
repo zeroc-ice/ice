@@ -45,8 +45,6 @@ install:: install-common
 
 endif
 
-
-
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
 	do \

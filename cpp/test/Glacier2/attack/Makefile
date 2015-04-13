@@ -12,9 +12,9 @@ top_srcdir	= ../../..
 CLIENT		= client
 SERVER		= server
 
-TARGETS		= $(CLIENT) $(SERVER) 
+TARGETS		= $(CLIENT) $(SERVER)
 
-SLICE_OBJS		= Backend.o
+SLICE_OBJS	= Backend.o
 
 COBJS		= $(SLICE_OBJS) \
 		  BackendI.o \

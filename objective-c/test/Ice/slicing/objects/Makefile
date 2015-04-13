@@ -15,19 +15,19 @@ SERVER		= server
 TARGETS		= $(CLIENT) $(SERVER)
 
 SLICE_OBJS	= SlicingObjectsTestClient.o \
-			  SlicingObjectsForwardClient.o \
-			  SlicingObjectsTestServer.o \
-			  SlicingObjectsForwardServer.o
+		  SlicingObjectsForwardClient.o \
+		  SlicingObjectsTestServer.o \
+		  SlicingObjectsForwardServer.o
 
 COBJS		= SlicingObjectsTestClient.o \
-			  SlicingObjectsForwardClient.o \
-			  Client.o \
-			  AllTests.o
+		  SlicingObjectsForwardClient.o \
+		  Client.o \
+		  AllTests.o
 
 SOBJS		= SlicingObjectsTestServer.o \
-			  SlicingObjectsForwardServer.o \
-			  TestI.o \
-			  Server.o
+		  SlicingObjectsForwardServer.o \
+		  TestI.o \
+		  Server.o
 
 OBJS		= $(COBJS) $(SOBJS)
 

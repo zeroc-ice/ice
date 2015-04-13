@@ -114,7 +114,6 @@ includedir		= $(top_srcdir)\include
 includedir		= $(ice_dir)\include
 !endif
 
-install_bindir		= $(prefix)\bin$(x64suffix)
 install_libdir	  	= $(prefix)\lib$(x64suffix)
 install_includedir	= $(prefix)\include
 install_configdir	= $(prefix)\config

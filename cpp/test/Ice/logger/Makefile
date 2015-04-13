@@ -35,15 +35,15 @@ LINKWITH	:= $(LIBS) $(ICONV_LIBS)
 $(CLIENT1): $(C1OBJS)
 	rm -f $@
 	$(call mktest,$@,$(C1OBJS),$(LINKWITH))
-	
+
 $(CLIENT2): $(C2OBJS)
 	rm -f $@
 	$(call mktest,$@,$(C2OBJS),$(LINKWITH))
-	
+
 $(CLIENT3): $(C3OBJS)
 	rm -f $@
 	$(call mktest,$@,$(C3OBJS),$(LINKWITH))
-	
+
 $(CLIENT4): $(C4OBJS)
 	rm -f $@
 	$(call mktest,$@,$(C4OBJS),$(LINKWITH))

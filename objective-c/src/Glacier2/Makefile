@@ -15,13 +15,13 @@ LIBNAME		= $(call mklibname,Glacier2ObjC)
 
 TARGETS 	= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 
-SLICE_OBJS  = Metrics.o \
-			  PermissionsVerifierF.o \
-			  PermissionsVerifier.o \
-			  Router.o \
-			  RouterF.o \
-			  Session.o \
-			  SSLInfo.o
+SLICE_OBJS  	= Metrics.o \
+		  PermissionsVerifierF.o \
+		  PermissionsVerifier.o \
+		  Router.o \
+		  RouterF.o \
+		  Session.o \
+		  SSLInfo.o
 
 OBJS		= $(SLICE_OBJS)
 

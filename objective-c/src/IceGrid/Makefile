@@ -16,16 +16,16 @@ LIBNAME		= $(call mklibname,IceGridObjC)
 TARGETS 	= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 
 SLICE_OBJS	= Admin.o \
-			  Descriptor.o \
-			  Exception.o \
-			  FileParser.o \
-			  Locator.o \
-			  Observer.o \
-			  PluginFacade.o \
-			  Query.o \
-			  Registry.o \
-			  Session.o \
-			  UserAccountMapper.o
+		  Descriptor.o \
+		  Exception.o \
+		  FileParser.o \
+		  Locator.o \
+		  Observer.o \
+		  PluginFacade.o \
+		  Query.o \
+		  Registry.o \
+		  Session.o \
+		  UserAccountMapper.o
 
 OBJS		= $(SLICE_OBJS)
 

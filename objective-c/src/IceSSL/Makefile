@@ -16,10 +16,10 @@ LIBNAME		= $(call mklibname,IceSSLObjC)
 TARGETS 	= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 
 SLICE_OBJS	= EndpointInfo.o \
-			  ConnectionInfo.o
+		  ConnectionInfo.o
 
 OBJCXX_OBJS	= EndpointInfoI.o \
-			  ConnectionInfoI.o
+		  ConnectionInfoI.o
 
 OBJS		= $(SLICE_OBJS) $(OBJCXX_OBJS)
 

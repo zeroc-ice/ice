@@ -15,8 +15,8 @@ LIBNAME		= $(call mklibname,IceStormObjC)
 
 TARGETS 	= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 
-SLICE_OBJS  = Metrics.o \
-			  IceStorm.o
+SLICE_OBJS  	= Metrics.o \
+		  IceStorm.o
 
 OBJS		= $(SLICE_OBJS)
 

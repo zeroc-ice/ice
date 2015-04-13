@@ -24,4 +24,4 @@ ifeq ($(CXX),g++)
    endif
 endif
 
-mkshlib			= $(CXX) -shared $(LDFLAGS) $(LDEXEFLAGS) -o $(1) -Wl,-h,$(2) $(3) $(4) -lpthread
+mkshlib	= $(CXX) -shared $(LDFLAGS) $(LDEXEFLAGS) -o $(1) -Wl,-h,$(2) $(3) $(4) -lpthread

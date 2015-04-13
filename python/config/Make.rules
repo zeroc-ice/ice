@@ -15,7 +15,7 @@ prefix			?= /opt/Ice-$(VERSION)
 
 #
 # The "root directory" for runpath embedded in executables. Can be set
-# to change the runpath added to Ice executables. The default is 
+# to change the runpath added to Ice executables. The default is
 # platform dependent.
 #
 #embedded_runpath_prefix ?= /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
@@ -24,7 +24,7 @@ prefix			?= /opt/Ice-$(VERSION)
 # Define embedded_runpath as no if you don't want any RPATH added to
 # the executables.
 #
-embedded_runpath ?= yes
+embedded_runpath 	?= yes
 
 #
 # Define OPTIMIZE as yes if you want to build with optimization.
@@ -87,9 +87,9 @@ ice_require_cpp  = yes
 slice_translator = slice2py
 
 ifeq ($(shell test -f $(top_srcdir)/config/Make.common.rules && echo 0),0)
-	include $(top_srcdir)/config/Make.common.rules
+    include $(top_srcdir)/config/Make.common.rules
 else
-	include $(top_srcdir)/../config/Make.common.rules
+    include $(top_srcdir)/../config/Make.common.rules
 endif
 
 ifndef usr_dir_install
@@ -102,9 +102,9 @@ install_bindir          = $(prefix)/$(binsubdir)
 # Platform specific definitions
 #
 ifeq ($(shell test -f $(top_srcdir)/config/Make.rules.$(UNAME) && echo 0),0)
-	include $(top_srcdir)/config/Make.rules.$(UNAME)
+    include $(top_srcdir)/config/Make.rules.$(UNAME)
 else
-	include $(top_srcdir)/../cpp/config/Make.rules.$(UNAME)
+    include $(top_srcdir)/../cpp/config/Make.rules.$(UNAME)
 endif
 
 libdir                  = $(top_srcdir)/python
@@ -122,18 +122,18 @@ else
 endif
 
 ifeq ($(UNAME),SunOS)
-   ifeq ($(LP64),yes)
-	  libdir            = $(top_srcdir)/python$(lp64suffix)
-	  install_libdir    = $(prefix)/python$(lp64suffix)
-   endif
+    ifeq ($(LP64),yes)
+	libdir            = $(top_srcdir)/python$(lp64suffix)
+	install_libdir    = $(prefix)/python$(lp64suffix)
+    endif
 endif
 
 ifdef ice_src_dist
-	ICE_LIB_DIR = -L$(ice_cpp_dir)/$(libsubdir)
-	ICE_FLAGS 	= -I$(ice_cpp_dir)/include
+    ICE_LIB_DIR = -L$(ice_cpp_dir)/$(libsubdir)
+    ICE_FLAGS 	= -I$(ice_cpp_dir)/include
 else
-	ICE_LIB_DIR = -L$(ice_dir)/$(libsubdir)
-	ICE_FLAGS	= -I$(ice_dir)/include
+    ICE_LIB_DIR = -L$(ice_dir)/$(libsubdir)
+    ICE_FLAGS	= -I$(ice_dir)/include
 endif
 ICE_LIBS = $(ICE_LIB_DIR) -lIce -lSlice -lIceUtil
 
@@ -143,31 +143,31 @@ SLICE2PYFLAGS		= $(ICECPPFLAGS)
 LDFLAGS			= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir)
 
 ifdef ice_src_dist
-	SLICE2PY 	= $(ice_cpp_dir)/bin/slice2py
-	SLICEPARSERLIB	= $(ice_cpp_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
-        ifeq ($(wildcard $(SLICEPARSERLIB)),)
-                SLICEPARSERLIB  = $(ice_cpp_dir)/$(lib64subdir)/$(call mklibfilename,Slice,$(VERSION))
-        endif
+    SLICE2PY 	= $(ice_cpp_dir)/bin/slice2py
+    SLICEPARSERLIB	= $(ice_cpp_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
+    ifeq ($(wildcard $(SLICEPARSERLIB)),)
+	SLICEPARSERLIB  = $(ice_cpp_dir)/$(lib64subdir)/$(call mklibfilename,Slice,$(VERSION))
+    endif
 else
-	SLICE2PY 		= $(ice_dir)/$(binsubdir)/slice2py
-	SLICEPARSERLIB	= $(ice_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
-	ifeq ($(wildcard $(SLICEPARSERLIB)),)
-                SLICEPARSERLIB  = $(ice_dir)/$(lib64subdir)/$(call mklibfilename,Slice,$(VERSION))
-        endif
+    SLICE2PY 		= $(ice_dir)/$(binsubdir)/slice2py
+    SLICEPARSERLIB	= $(ice_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
+    ifeq ($(wildcard $(SLICEPARSERLIB)),)
+	SLICEPARSERLIB  = $(ice_dir)/$(lib64subdir)/$(call mklibfilename,Slice,$(VERSION))
+    endif
 endif
 
 #
 # A Python extension library cannot have a "lib" prefix, so Python-specific
 # functions are defined that strip "lib" from the regular library name.
 #
-mkpylibfilename     = $(subst dy,dylib,$(subst lib,,$(call mklibfilename,$(1),$(2))))
+mkpylibfilename = $(subst dy,dylib,$(subst lib,,$(call mklibfilename,$(1),$(2))))
 mkpysoname      = $(subst dy,dylib,$(subst lib,,$(call mksoname,$(1),$(2))))
 mkpylibname     = $(subst dy,dylib,$(subst lib,,$(call mklibname,$(1))))
 
-EVERYTHING		= all depend clean install
+EVERYTHING	= all depend clean install
 
 .SUFFIXES:
-.SUFFIXES:		.cpp .o .py
+.SUFFIXES:	.cpp .o .py
 
 all:: $(SRCS)
 

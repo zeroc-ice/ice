@@ -22,7 +22,7 @@ clean: npminstall
 
 install:: npminstall
     $(NPM) run gulp:install
-    
+
 lint:: npminstall
     $(NPM) run gulp:lint
 

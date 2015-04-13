@@ -13,49 +13,49 @@ include $(top_srcdir)/config/Make.rules
 
 ifneq ($(findstring MINGW,$(UNAME)),)
     SUBDIRS	= IceUtil \
-			  Slice \
-			  slice2cpp \
-			  slice2rb \
-			  Ice \
-			  IceSSL \
-			  IceDiscovery \
-			  IceLocatorDiscovery
+		  Slice \
+		  slice2cpp \
+		  slice2rb \
+		  Ice \
+		  IceSSL \
+		  IceDiscovery \
+		  IceLocatorDiscovery
 else
     SUBDIRS	= IceUtil \
-			  Slice \
-			  slice2cpp \
-			  slice2cs \
-			  slice2freeze \
-			  slice2freezej \
-			  slice2java \
-			  slice2php \
-			  slice2py \
-			  slice2rb \
-			  slice2html \
-			  slice2js
+		  Slice \
+		  slice2cpp \
+		  slice2cs \
+		  slice2freeze \
+		  slice2freezej \
+		  slice2java \
+		  slice2php \
+		  slice2py \
+		  slice2rb \
+		  slice2html \
+		  slice2js
 
 ifeq ($(UNAME),Darwin)
-	SUBDIRS	:= $(SUBDIRS) slice2objc
+    SUBDIRS	:= $(SUBDIRS) slice2objc
 endif
 
-	SUBDIRS	:= $(SUBDIRS) \
-			  Ice \
-			  IceXML \
-			  IceSSL \
-			  IceDiscovery \
-			  IceLocatorDiscovery \
-			  Freeze \
-			  FreezeScript \
-			  IceBox \
-			  Glacier2Lib \
-			  Glacier2CryptPermissionsVerifier \
-			  Glacier2 \
-			  IcePatch2Lib \
-			  IcePatch2 \
-			  IceStormLib \
-			  IceGridLib \
-			  IceStorm \
-			  IceGrid
+    SUBDIRS	:= $(SUBDIRS) \
+		   Ice \
+		   IceXML \
+		   IceSSL \
+		   IceDiscovery \
+		   IceLocatorDiscovery \
+		   Freeze \
+		   FreezeScript \
+		   IceBox \
+		   Glacier2Lib \
+		   Glacier2CryptPermissionsVerifier \
+		   Glacier2 \
+		   IcePatch2Lib \
+		   IcePatch2 \
+		   IceStormLib \
+		   IceGridLib \
+		   IceStorm \
+		   IceGrid
 endif
 
 .PHONY: $(EVERYTHING) $(SUBDIRS)

@@ -28,7 +28,7 @@ install::
 all::
         @echo SDK_HEADERS       =  \> .headers
         @for /f %i in ('dir /b *.h') do \
-                @echo ^ $$(SDK_INCLUDE_PATH)\$$(INCLUDE_DIR)\%i \>> .headers
+            @echo ^ $$(SDK_INCLUDE_PATH)\$$(INCLUDE_DIR)\%i \>> .headers
 
 
 !include .headers

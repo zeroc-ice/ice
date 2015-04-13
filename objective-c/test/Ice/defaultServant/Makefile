@@ -16,7 +16,7 @@ TARGETS		= $(CLIENT)
 SLICE_OBJS	= DefaultServantTest.o
 
 COBJS		= Client.o \
-			  MyObjectI.o
+		  MyObjectI.o
 
 OBJS		= $(COBJS) $(SLICE_OBJS)
 

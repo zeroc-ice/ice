@@ -9,6 +9,6 @@
 
 top_srcdir	= ..\..\..\..
 
-SLICE_SRCS		= Test.ice
+SLICE_SRCS	= Test.ice
 
 !include $(top_srcdir)\config\Make.rules.mak.php

@@ -16,8 +16,8 @@ TARGETS		= $(CLIENT)
 SLICE_OBJS	= InterceptorTest.o
 
 COBJS		= Client.o \
-			  InterceptorI.o \
-			  MyObjectI.o \
+		  InterceptorI.o \
+		  MyObjectI.o \
 
 OBJS		= $(COBJS) $(SLICE_OBJS)
 

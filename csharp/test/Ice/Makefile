@@ -26,7 +26,7 @@ SUBDIRS		= application \
 		  objects \
 		  binding \
 		  proxy \
-			properties \
+		  properties \
 		  operations \
 		  ami \
 		  dispatcher \

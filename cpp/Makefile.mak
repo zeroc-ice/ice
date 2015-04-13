@@ -14,25 +14,23 @@ top_srcdir	= .
 !if "$(WINRT)" != "yes"
 
 SUBDIRS		= config src include test 
-!if "$(CPP_COMPILER)" != "VC100"
-SUBDIRS		= $(SUBDIRS)
-!endif
 
 INSTALL_SUBDIRS	= "$(install_bindir)" "$(install_libdir)" "$(install_includedir)" "$(install_configdir)"
 
 install:: install-common
 	@for %i in ( $(INSTALL_SUBDIRS) ) do \
-		@if not exist %i \
-		@echo "Creating %i..." && \
-		mkdir %i
+	    @if not exist %i \
+	        @echo "Creating %i..." && \
+	        mkdir %i
 
 	@for %i in ( config src include ) do \
-		@echo "making $@ in %i" && \
-		cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $@" || exit 1
+	    @echo "making $@ in %i" && \
+	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $@" || exit 1
 test::
 	@python $(top_srcdir)/allTests.py
 
 !else
+
 SUBDIRS		= src include test
 
 INSTALL_SUBDIRS	= $(prefix)\SDKs

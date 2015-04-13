@@ -33,17 +33,17 @@ OBJS		= AcceptorI.o \
 
 ifneq ($(findstring MINGW,$(shell uname)),)
 OBJS		:= $(OBJS) \
-		SChannelEngine.o \
-		SChannelTransceiverI.o
+		   SChannelEngine.o \
+		   SChannelTransceiverI.o
 else
 ifeq ($(shell uname),Darwin)
 OBJS		:= $(OBJS) \
-		SecureTransportEngine.o \
-		SecureTransportTransceiverI.o
+		   SecureTransportEngine.o \
+		   SecureTransportTransceiverI.o
 else
 OBJS		:= $(OBJS) \
-		OpenSSLEngine.o \
-		OpenSSLTransceiverI.o
+		   OpenSSLEngine.o \
+		   OpenSSLTransceiverI.o
 endif
 endif
 

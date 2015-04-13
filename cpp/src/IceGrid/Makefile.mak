@@ -17,8 +17,8 @@ NODE_SERVER_R	= $(top_srcdir)\bin\icegridnode.exe
 NODE_SERVER	= $(top_srcdir)\bin\icegridnode$(LIBSUFFIX).exe
 
 
-REGISTRY_SERVER_D	= $(top_srcdir)\bin\icegridregistryd.exe
-REGISTRY_SERVER_R	= $(top_srcdir)\bin\icegridregistry.exe
+REGISTRY_SERVER_D = $(top_srcdir)\bin\icegridregistryd.exe
+REGISTRY_SERVER_R = $(top_srcdir)\bin\icegridregistry.exe
 
 REGISTRY_SERVER	= $(top_srcdir)\bin\icegridregistry$(LIBSUFFIX).exe
 

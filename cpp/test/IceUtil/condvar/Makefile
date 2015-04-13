@@ -16,6 +16,7 @@ TARGETS		= $(WQ) $(MATCH)
 
 OBJS		= WorkQueue.o \
 		  Match.o
+
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)

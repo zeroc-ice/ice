@@ -15,9 +15,9 @@ S_SRCS    = Server.cs BlobjectI.cs
 
 GEN_SRCS  = $(GDIR)\Test.cs
 
-SDIR    = .
+SDIR      = .
 
-GDIR    = generated
+GDIR      = generated
 
 !include $(top_srcdir)\config\Make.rules.mak.cs
 
