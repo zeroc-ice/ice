@@ -400,7 +400,7 @@ Slice::DependOutputUtil::DependOutputUtil(string& file) : _file(file)
 {
     if(!_file.empty())
     {
-        _os.open(file, ios::out);
+        _os.open(file.c_str(), ios::out);
     }
 }
 
