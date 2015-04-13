@@ -27,21 +27,6 @@ prefix			= C:\Ice-$(VERSION)
 #MANAGED		= yes
 
 #
-# Enable support for the .NET Compact Framework. This setting disables the
-# following features:
-#
-# - Protocol compression
-# - Signal processing in the Ice.Application class
-# - Dynamic loading of Slice-generated class and exception factories
-# - IceSSL
-# - ICE_CONFIG environment variable
-# - Dynamic loading of Slice checksums
-# - Ice.TCP.SndSize and Ice.TCP.RcvSize
-#
-
-#COMPACT			= yes
-
-#
 # Enable the UNITY flag to build for the Unity3D Web player. Enabling this
 # setting also implies MANAGED. In addition to the features removed by
 # MANAGED, this flag removes the following:
@@ -98,31 +83,15 @@ slice_translator = slice2cs.exe
 bindir			= $(top_srcdir)\bin
 assembliesdir   = $(top_srcdir)\Assemblies
 
-!if "$(COMPACT)" == "yes"
-bindir			= $(top_srcdir)\bin\cf
-assembliesdir   = $(assembliesdir)\cf
-!endif
-
 install_bindir          = $(prefix)\bin
 install_assembliesdir   = $(prefix)\Assemblies
-install_configdir   = $(prefix)\config
-
-!if "$(COMPACT)" == "yes"
-install_bindir          = $(install_bindir)\cf
-install_assembliesdir   = $(install_assembliesdir)\cf
-!endif
-
+install_configdir   	= $(prefix)\config
 install_libdir		    = $(prefix)\lib
 
 !if "$(ice_src_dist)" != ""
 refdir = $(assembliesdir)
 !else
 refdir = $(ice_dir)\Assemblies
-
-!if "$(COMPACT)" == "yes"
-refdir    = $(refdir)\cf
-!endif
-
 !endif
 
 !if "$(PATCH_VERSION)" != "0" && "$(PATCH_VERSION)" != "51"
@@ -171,14 +140,6 @@ MCSFLAGS = $(MCSFLAGS) /reference:"$(FRAMEWORKDIR)\v2.0.50727\System.dll"
 MCSFLAGS = $(MCSFLAGS) /reference:"$(FRAMEWORKDIR)\v2.0.50727\System.Data.dll"
 MCSFLAGS = $(MCSFLAGS) /reference:"$(PROGRAMFILES)\Reference Assemblies\Microsoft\Framework\v3.5\System.Core.dll"
 MCSFLAGS = $(MCSFLAGS) /reference:"$(PROGRAMFILES)\Reference Assemblies\Microsoft\Framework\v3.0\System.Runtime.Serialization.dll"
-!elseif "$(COMPACT)" == "yes"
-NETCF_HOME		= $(PROGRAMFILES)\Reference Assemblies\Microsoft\Framework\WindowsEmbeddedCompact\v3.9
-NETCF_REFS		= "/r:$(NETCF_HOME)\mscorlib.dll" \
-			  "/r:$(NETCF_HOME)\System.dll" \
-			  "/r:$(NETCF_HOME)\System.Runtime.Serialization.dll"
-MCSFLAGS 		= $(MCSFLAGS) -noconfig -nostdlib -define:COMPACT $(NETCF_REFS)
-# For testing COMPACT with  regular .NET.
-#MCSFLAGS 		= $(MCSFLAGS) -define:COMPACT
 !elseif "$(UNITY)" == "yes"
 #
 # You can compile against the WebPlayer assemblies by enabling the MCSFLAGS line below.

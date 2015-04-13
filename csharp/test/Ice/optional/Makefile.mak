@@ -25,18 +25,12 @@ GDIR		= generated
 
 !include $(top_srcdir)\config\Make.rules.mak.cs
 
-!if "$(COMPACT)" != "yes"
 SERIAL_DLL	= Serializable.dll
 SERIAL_REF	= -r:$(SERIAL_DLL)
-!endif
 
 MCSFLAGS	= $(MCSFLAGS) -target:exe
 
 SLICE2CSFLAGS	= $(SLICE2CSFLAGS) -I. -I"$(slicedir)" --stream
-
-!if "$(COMPACT)" == "yes"
-SLICE2CSFLAGS	= $(SLICE2CSFLAGS) -DCOMPACT
-!endif
 
 client.exe: $(C_SRCS) $(GEN_SRCS) $(SERIAL_DLL)
 	$(MCS) $(MCSFLAGS) -out:$@ -r:"$(refdir)\Ice.dll" $(SERIAL_REF) $(C_SRCS) $(GEN_SRCS)
@@ -47,10 +41,8 @@ server.exe: $(S_SRCS) $(GEN_SRCS) $(SERIAL_DLL)
 serveramd.exe: $(SAMD_SRCS) $(GEN_AMD_SRCS) $(SERIAL_DLL)
 	$(MCS) $(MCSFLAGS) -out:$@ -r:"$(refdir)\Ice.dll" $(SERIAL_REF) $(SAMD_SRCS) $(GEN_AMD_SRCS)
 
-!if "$(COMPACT)" != "yes"
 $(SERIAL_DLL): SerializableClass.cs
 	$(MCS) $(MCSFLAGS) -target:library -out:$(SERIAL_DLL) /keyfile:"$(KEYFILE)" SerializableClass.cs
 
 clean::
 	del /q $(SERIAL_DLL)
-!endif

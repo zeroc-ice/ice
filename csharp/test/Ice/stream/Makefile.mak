@@ -25,10 +25,6 @@ MCSFLAGS	= $(MCSFLAGS) -target:exe
 
 SLICE2CSFLAGS	= $(SLICE2CSFLAGS) --stream -I. -I"$(slicedir)"
 
-!if "$(COMPACT)" == "yes"
-SLICE2CSFLAGS	= $(SLICE2CSFLAGS) -DCOMPACT
-!endif
-
 client.exe: $(C_SRCS) $(GEN_SRCS) Serializable.dll
 	$(MCS) $(MCSFLAGS) -out:$@ -r:"$(refdir)\Ice.dll" -r:Serializable.dll $(C_SRCS) $(GEN_SRCS)
 

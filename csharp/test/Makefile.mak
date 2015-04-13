@@ -11,11 +11,14 @@ top_srcdir	= ..
 
 !include $(top_srcdir)\config\Make.rules.mak.cs
 
-SUBDIRS		= Slice IceUtil Ice IceBox Glacier2 IceGrid
-!if "$(COMPACT)" == ""
-SUBDIRS		= $(SUBDIRS) IceSSL IceDiscovery
-!endif
-
+SUBDIRS		= Slice \
+		  IceUtil \
+		  Ice \
+		  IceBox \
+		  Glacier2 \
+		  IceGrid \
+		  IceSSL \
+		  IceDiscovery
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

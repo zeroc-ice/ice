@@ -25,9 +25,5 @@ MCSFLAGS	= $(MCSFLAGS) -target:exe
 
 SLICE2CSFLAGS	= $(SLICE2CSFLAGS) -I. -I"$(slicedir)"
 
-!if "$(COMPACT)" == "yes"
-SLICE2CSFLAGS	= $(SLICE2CSFLAGS) -DCOMPACT
-!endif
-
 client.exe: $(C_SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ -r:"$(refdir)\Ice.dll" $(C_SRCS) $(GEN_SRCS)
