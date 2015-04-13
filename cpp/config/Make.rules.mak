@@ -37,6 +37,12 @@ prefix			= C:\Ice-$(VERSION)
 #WINRT		        = yes
 
 #
+# If MCPP is not installed in a standard location where the compiler
+# can find it, set MCPP_HOME to the Mcpp installation directory.
+#
+MCPP_HOME		= d:/mcpp
+
+#
 # If third party libraries are not installed in the default location
 # or THIRDPARTY_HOME is not set in your environment variables then
 # change the following setting to reflect the installation location.
@@ -164,7 +170,12 @@ SSL_OS_LIBS             = advapi32.lib secur32.lib crypt32.lib ws2_32.lib
 
 BZIP2_LIBS              = libbz2$(LIBSUFFIX).lib
 DB_LIBS                 = libdb53$(LIBSUFFIX).lib
+!if "$(MCPP_HOME)" != ""
+MCPP_LIBS               = $(MCPP_HOME)/mcpp$(LIBSUFFIX).lib
+!else
 MCPP_LIBS               = mcpp$(LIBSUFFIX).lib
+!endif
+
 EXPAT_LIBS              = libexpat.lib
 !endif
 
