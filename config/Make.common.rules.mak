@@ -205,12 +205,12 @@ install-common::
             cmd /c "xcopy /s /y $(top_srcdir)\..\slice "$(install_slicedir)"" || exit 1
 !endif
 
-	@if not exist "$(install_bindir)" \
+	@if not exist "$(prefix)\bin" \
             @echo "Creating $(install_bindir)..." && \
-            mkdir "$(install_bindir)"
+            mkdir "$(prefix)\bin"
 
-	@if not exist "$(install_bindir)\hashpassword.py" \
-            @copy $(top_srcdir)\..\scripts\hashpassword.py "$(install_bindir)""
+	@if not exist "$(prefix)\bin\hashpassword.py" \
+            @copy $(top_srcdir)\..\scripts\hashpassword.py "$(prefix)\bin""
 
 	@if not exist "$(prefix)\ICE_LICENSE$(TEXT_EXT)" \
 	    @copy $(top_srcdir)\..\ICE_LICENSE$(TEXT_EXT) "$(prefix)"

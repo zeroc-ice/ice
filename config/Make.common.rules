@@ -492,12 +492,12 @@ install-common::
 	    $(call installdata,$(top_srcdir)/../LICENSE$(TEXT_EXTENSION),$(DESTDIR)$(install_docdir)) ; \
 	fi
 
-	@if test ! -f $(DESTDIR)$(install_bindir)/hashpassword.py ; \
+	@if test ! -f $(DESTDIR)$(prefix)/bin/hashpassword.py ; \
 	then \
-            if test ! -d $(DESTDIR)$(install_bindir) ; \
+            if test ! -d $(DESTDIR)$(prefix)/bin ; \
             then \
-                echo "Creating $(DESTDIR)$(install_bindir)..." ; \
-                $(call mkdir, $(DESTDIR)$(install_bindir), -p) ; \
+                echo "Creating $(DESTDIR)$(prefix)/bin..." ; \
+                $(call mkdir, $(DESTDIR)$(prefix)/bin, -p) ; \
             fi ; \
-            $(call installprogram,$(top_srcdir)/../scripts/hashpassword.py,$(DESTDIR)$(install_bindir)) ; \
+            $(call installprogram,$(top_srcdir)/../scripts/hashpassword.py,$(DESTDIR)$(prefix)/bin) ; \
         fi

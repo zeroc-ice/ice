@@ -32,7 +32,6 @@ test::
 
 SRC_FULL_PATH	= $(MAKEDIR:\.\=\)
 
-targetsFile=../config/Slice.CSharp.targets
 registrykey=$(DOTNET_ASSEMBLIES_KEY)
 registerpath=$(SRC_FULL_PATH)\Assemblies
 installpath=$(prefix)\Assemblies
@@ -41,7 +40,6 @@ install::
 	@for %i in ( src config ) do \
 	    @echo "making $@ in %i" && \
 	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $@" || exit 1
-	copy $(targetsFile) "$(install_configdir)"
 	@echo Adding key "$(registrykey)" in Windows registry && \
 	@reg ADD "$(registrykey)" /ve /d "$(installpath)" /f || \
 	echo Could not add registry keyword "$(registrykey)" && exit 1
