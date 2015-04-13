@@ -811,14 +811,13 @@ IceSSL::SecureTransportEngine::initialize()
 
     SSLEngine::initialize();
 
-    const string propPrefix = "IceSSL.";
     const PropertiesPtr properties = communicator()->getProperties();
 
     //
     // Check for a default directory. We look in this directory for
     // files mentioned in the configuration.
     //
-    const string defaultDir = properties->getProperty(propPrefix + "DefaultDir");
+    const string defaultDir = properties->getProperty("IceSSL.DefaultDir");
 
     //
     // Open the application KeyChain or create it if the keychain doesn't exists
@@ -826,341 +825,217 @@ IceSSL::SecureTransportEngine::initialize()
     string keychainPath = properties->getProperty("IceSSL.Keychain");
     string keychainPassword = properties->getProperty("IceSSL.KeychainPassword");
 
-    const bool usePassword = !keychainPassword.empty();
-    size_t size = keychainPassword.size();
-    const char* password = usePassword ? keychainPassword.c_str() : 0;
-
-    CFDataRef hash = 0;
     SecKeychainRef keychain = 0;
-    SecCertificateRef cert = 0;
-    SecKeyRef key = 0;
-    SecIdentityRef identity = 0;
+    OSStatus err = 0;
+    if(keychainPath.empty())
+    {
+        if((err = SecKeychainCopyDefault(&keychain)))
+        {
+            throw PluginInitializationException(__FILE__, __LINE__,
+                                                "IceSSL: unable to retrieve default keychain:\n" + errorToString(err));
+        }
+    }
+    else
+    {
+        //
+        // KeyChain path is relative to the current working directory.
+        //
+        if(!IceUtilInternal::isAbsolutePath(keychainPath))
+        {
+            string cwd;
+            if(IceUtilInternal::getcwd(cwd) == 0)
+            {
+                keychainPath = string(cwd) + '/' + keychainPath;
+            }
+        }
 
+        if((err = SecKeychainOpen(keychainPath.c_str(), &keychain)))
+        {
+            throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: unable to open keychain: `" +
+                                                keychainPath + "'\n" + errorToString(err));
+        }
+    }
+
+    UniqueRef<SecKeychainRef> k(keychain);
+
+    SecKeychainStatus status;
+    err = SecKeychainGetStatus(keychain, &status);
+    if(err == noErr)
+    {
+        const char* pass = keychainPassword.empty() ? 0 : keychainPassword.c_str();
+        if((err = SecKeychainUnlock(keychain, keychainPassword.size(), pass, pass != 0)))
+        {
+            throw PluginInitializationException(__FILE__, __LINE__,
+                                                "IceSSL: unable to unlock keychain:\n" + errorToString(err));
+        }
+    }
+    else if(err == errSecNoSuchKeychain)
+    {
+        const char* pass = keychainPassword.empty() ? 0 : keychainPassword.c_str();
+        if((err = SecKeychainCreate(keychainPath.c_str(), keychainPassword.size(), pass, pass == 0, 0, &keychain)))
+        {
+            throw PluginInitializationException(__FILE__, __LINE__,
+                                                "IceSSL: unable to create keychain:\n" + errorToString(err));
+        }
+        k.reset(keychain);
+    }
+    else
+    {
+        throw PluginInitializationException(__FILE__, __LINE__,
+                                            "IceSSL: unable to open keychain:\n" + errorToString(err));
+    }
+
+    //
+    // Set keychain settings to avoid keychain lock.
+    //
+    SecKeychainSettings settings;
+    settings.version = SEC_KEYCHAIN_SETTINGS_VERS1;
+    settings.lockOnSleep = FALSE;
+    settings.useLockInterval = FALSE;
+    settings.lockInterval = INT_MAX;
+    if((err = SecKeychainSetSettings(keychain, &settings)))
+    {
+        throw PluginInitializationException(__FILE__, __LINE__,
+                                            "IceSSL: error setting keychain settings:\n" + errorToString(err));
+    }
+
+    //
+    // Load the CA certificates used to authenticate peers into
+    // _certificateAuthorities array.
+    //
     try
     {
-        OSStatus err = 0;
-        if(keychainPath.empty())
+        string caFile = properties->getProperty("IceSSL.CertAuthFile");
+        if(!caFile.empty())
         {
-            if((err = SecKeychainCopyDefault(&keychain)))
+            if(!checkPath(caFile, defaultDir, false))
             {
                 throw PluginInitializationException(__FILE__, __LINE__,
-                                            "IceSSL: unable to retrieve default keychain:\n" + errorToString(err));
+                                                    "IceSSL: CA certificate file not found:\n" + caFile);
             }
+            _certificateAuthorities = loadCACertificates(caFile);
         }
-        else
-        {
-            //
-            // KeyChain path is relative to the current working directory.
-            //
-            if(!IceUtilInternal::isAbsolutePath(keychainPath))
-            {
-                string cwd;
-                if(IceUtilInternal::getcwd(cwd) == 0)
-                {
-                    keychainPath = string(cwd) + '/' + keychainPath;
-                }
-            }
+    }
+    catch(const CertificateReadException& ce)
+    {
+        throw PluginInitializationException(__FILE__, __LINE__, ce.reason);
+    }
 
-            if((err = SecKeychainOpen(keychainPath.c_str(),  &keychain)))
-            {
-                throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: unable to open keychain: `" +
-                                                    keychainPath + "'\n" + errorToString(err));
-            }
-        }
+    const string password = properties->getProperty("IceSSL.Password");
+    const int passwordRetryMax = properties->getPropertyAsIntWithDefault("IceSSL.PasswordRetryMax", 3);
+    PasswordPromptPtr passwordPrompt = getPasswordPrompt();
 
-        SecKeychainStatus status;
-        err = SecKeychainGetStatus(keychain, &status);
-
-        if(err == noErr)
-        {
-            if((err = SecKeychainUnlock(keychain, size, password, usePassword)))
-            {
-                throw PluginInitializationException(__FILE__, __LINE__,
-                                                    "IceSSL: unable to unlock keychain:\n" + errorToString(err));
-            }
-        }
-        else if(err == errSecNoSuchKeychain)
-        {
-            if((err = SecKeychainCreate(keychainPath.c_str(), size, password, keychainPassword.empty(), 0, &keychain)))
-            {
-                throw PluginInitializationException(__FILE__, __LINE__,
-                                                    "IceSSL: unable to create keychain:\n" + errorToString(err));
-            }
-        }
-        else
+    string certFile = properties->getProperty("IceSSL.CertFile");
+    string keyFile = properties->getProperty("IceSSL.KeyFile");
+    string findCert = properties->getProperty("IceSSL.FindCert");
+    if(!certFile.empty())
+    {
+        vector<string> files;
+        if(!IceUtilInternal::splitString(certFile, IceUtilInternal::pathsep, files) || files.size() > 2)
         {
             throw PluginInitializationException(__FILE__, __LINE__,
-                                                "IceSSL: unable to open keychain:\n" + errorToString(err));
+                                                "IceSSL: invalid value for IceSSL.CertFile:\n" + certFile);
+        }
+        vector<string> keyFiles;
+        if(!keyFile.empty())
+        {
+            if(!IceUtilInternal::splitString(keyFile, IceUtilInternal::pathsep, keyFiles) || keyFiles.size() > 2)
+            {
+                throw PluginInitializationException(__FILE__, __LINE__,
+                                                    "IceSSL: invalid value for IceSSL.KeyFile:\n" + keyFile);
+            }
+            if(files.size() != keyFiles.size())
+            {
+                throw PluginInitializationException(__FILE__, __LINE__,
+                                                    "IceSSL: IceSSL.KeyFile does not agree with IceSSL.CertFile");
+            }
         }
 
-        //
-        // Set keychain settings to avoid keychain lock.
-        //
-        SecKeychainSettings settings;
-        settings.version = SEC_KEYCHAIN_SETTINGS_VERS1;
-        settings.lockOnSleep = FALSE;
-        settings.useLockInterval = FALSE;
-        settings.lockInterval = INT_MAX;
-
-        if((err = SecKeychainSetSettings(keychain, &settings)))
+        for(int i = 0; i < files.size(); ++i)
         {
-            throw PluginInitializationException(__FILE__, __LINE__,
-                                                "IceSSL: error setting keychain settings:\n" + errorToString(err));
-        }
+            string file = files[i];
+            string keyFile = keyFiles.empty() ? "" : keyFiles[i];
 
-        const int passwordRetryMax = properties->getPropertyAsIntWithDefault(propPrefix + "PasswordRetryMax", 3);
-        PasswordPromptPtr passwordPrompt = getPasswordPrompt();
+            if(!checkPath(file, defaultDir, false))
+            {
+                throw PluginInitializationException(__FILE__, __LINE__,
+                                                    "IceSSL: certificate file not found:\n" + file);
+            }
+            if(!keyFile.empty() && !checkPath(keyFile, defaultDir, false))
+            {
+                throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: key file not found:\n" + file);
+            }
 
-        //
-        // Load the CA certificates used to authenticate peers into
-        // _certificateAuthorities array.
-        //
-        {
             try
             {
-                string caFile = properties->getProperty(propPrefix + "CertAuthFile");
-                if(!caFile.empty())
-                {
-                    if(!checkPath(caFile, defaultDir, false))
-                    {
-                        throw PluginInitializationException(__FILE__, __LINE__,
-                                                            "IceSSL: CA certificate file not found:\n" + caFile);
-                    }
-                    _certificateAuthorities = loadCACertificates(caFile);
-                }
+                _chain = loadCertificateChain(file, keyFile, keychain, password, passwordPrompt, passwordRetryMax);
+                break;
             }
             catch(const CertificateReadException& ce)
             {
-                throw PluginInitializationException(__FILE__, __LINE__, ce.reason);
-            }
-            catch(const CertificateEncodingException& ce)
-            {
-                throw PluginInitializationException(__FILE__, __LINE__, ce.reason);
-            }
-        }
-
-        //
-        // Import the application certificate and private keys into the application
-        // keychain.
-        //
-        {
-            string certFile = properties->getProperty(propPrefix + "CertFile");
-            string keyFile = properties->getPropertyWithDefault(propPrefix + "KeyFile", certFile);
-            vector<string>::size_type numCerts = 0;
-
-            if(!certFile.empty())
-            {
-                vector<string> files;
-                if(!IceUtilInternal::splitString(certFile, IceUtilInternal::pathsep, files) || files.size() > 2)
+                //
+                // If this is the last certificate rethrow the exception as PluginInitializationException,
+                // otherwise try the next certificate.
+                //
+                if(i == files.size() - 1)
                 {
-                    throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: invalid value for " + propPrefix +
-                                                        "CertFile:\n" + certFile);
+                    throw PluginInitializationException(__FILE__, __LINE__, ce.reason);
                 }
-                numCerts = files.size();
-                for(vector<string>::iterator p = files.begin(); p != files.end();)
-                {
-                    string file = *p;
-                    if(!checkPath(file, defaultDir, false))
-                    {
-                        throw PluginInitializationException(__FILE__, __LINE__,
-                                                            "IceSSL: certificate file not found:\n" + file);
-                    }
-
-                    try
-                    {
-                        loadCertificate(&cert, &hash, &key, keychain, file,
-                                        properties->getProperty(propPrefix + "Password"), passwordPrompt,
-                                        passwordRetryMax);
-                        break;
-                    }
-                    catch(const CertificateReadException& ce)
-                    {
-                        //
-                        // If this is the last certificate rethrow the exception as PluginInitializationException,
-                        // otherwise try the next certificate.
-                        //
-                        if(++p == files.end())
-                        {
-                            throw PluginInitializationException(__FILE__, __LINE__, ce.reason);
-                        }
-                    }
-                }
-            }
-
-            if(!key && !keyFile.empty())
-            {
-                vector<string> files;
-                if(!IceUtilInternal::splitString(keyFile, IceUtilInternal::pathsep, files) || files.size() > 2)
-                {
-                    throw PluginInitializationException(__FILE__, __LINE__,
-                                                "IceSSL: invalid value for " + propPrefix + "KeyFile:\n" + keyFile);
-                }
-                if(files.size() != numCerts)
-                {
-                    throw PluginInitializationException(__FILE__, __LINE__,
-                                                        "IceSSL: IceSSL.KeyFile does not agree with IceSSL.CertFile");
-                }
-                for(vector<string>::iterator p = files.begin(); p != files.end();)
-                {
-                    string file = *p;
-                    if(!checkPath(file, defaultDir, false))
-                    {
-                        throw PluginInitializationException(__FILE__, __LINE__,
-                                                            "IceSSL: key file not found:\n" + file);
-                    }
-
-                    try
-                    {
-                        loadPrivateKey(&key, keyLabel(cert), hash, keychain, file,
-                                       properties->getProperty(propPrefix + "Password"),
-                                       passwordPrompt, passwordRetryMax);
-                        break;
-                    }
-                    catch(const CertificateReadException& ce)
-                    {
-                        //
-                        // If this is the last key rethrow the exception as PluginInitializationException,
-                        // otherwise try the next certificate.
-                        //
-                        if(++p == files.end())
-                        {
-                            PluginInitializationException ex(__FILE__, __LINE__, ce.reason);
-                            throw ex;
-                        }
-                    }
-                }
-            }
-
-            if(!cert)
-            {
-                const string prop = propPrefix + "FindCert";
-                string val = properties->getProperty(prop);
-                if(!val.empty())
-                {
-                    if(!(cert = findCertificates(keychain, prop, val)))
-                    {
-                        throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: no certificates found");
-                    }
-                }
-            }
-
-            if(cert)
-            {
-                if((err = SecIdentityCreateWithCertificate(keychain, cert, &identity)) != noErr)
-                {
-                    throw PluginInitializationException(__FILE__, __LINE__,
-                                                "IceSSL: error creating certificate identity:\n" + errorToString(err));
-                }
-            }
-
-            if(identity)
-            {
-                SecTrustRef trust = 0;
-                try
-                {
-                    //
-                    // Retrieve the certificate chain
-                    //
-                    SecPolicyRef policy = SecPolicyCreateSSL(true, 0);
-                    err = SecTrustCreateWithCertificates((CFArrayRef)cert, policy, &trust);
-                    CFRelease(policy);
-                    if(err || !trust)
-                    {
-                        throw PluginInitializationException(__FILE__, __LINE__,
-                                    "IceSSL: error creating trust object" + (err ? ":\n" + errorToString(err) : ""));
-                    }
-
-                    if((err = SecTrustSetAnchorCertificates(trust, _certificateAuthorities)))
-                    {
-                        throw PluginInitializationException(__FILE__, __LINE__,
-                                    "IceSSL: error while establish the anchor certificates:\n" + errorToString(err));
-                    }
-
-                    SecTrustResultType trustResult;
-                    if((err = SecTrustEvaluate(trust, &trustResult)))
-                    {
-                        throw PluginInitializationException(__FILE__, __LINE__,
-                                                            "IceSSL: error evaluating trust:\n" + errorToString(err));
-                    }
-
-                    int chainLength = SecTrustGetCertificateCount(trust);
-                    _chain = CFArrayCreateMutable(kCFAllocatorDefault, chainLength, &kCFTypeArrayCallBacks);
-                    CFArrayAppendValue(_chain, identity);
-                    for(int i = 1; i < chainLength; ++i)
-                    {
-                        CFArrayAppendValue(_chain, SecTrustGetCertificateAtIndex(trust, i));
-                    }
-                    CFRelease(trust);
-                }
-                catch(...)
-                {
-                    if(trust)
-                    {
-                        CFRelease(trust);
-                    }
-                    throw;
-                }
-            }
-
-            if(hash)
-            {
-                CFRelease(hash);
-            }
-
-            if(keychain)
-            {
-                CFRelease(keychain);
-            }
-
-            if(cert)
-            {
-                CFRelease(cert);
-            }
-
-            if(key)
-            {
-                CFRelease(key);
-            }
-
-            if(identity)
-            {
-                CFRelease(identity);
             }
         }
     }
-    catch(...)
+    else if(!findCert.empty())
     {
-        if(hash)
+        UniqueRef<SecCertificateRef> cert(findCertificate(keychain, findCert));
+
+        //
+        // Retrieve the certificate chain
+        //
+        UniqueRef<SecPolicyRef> policy(SecPolicyCreateSSL(true, 0));
+        SecTrustRef trust = 0;
+        err = SecTrustCreateWithCertificates((CFArrayRef)cert.get(), policy.get(), &trust);
+        if(err || !trust)
         {
-            CFRelease(hash);
+            throw PluginInitializationException(__FILE__, __LINE__,
+                                                "IceSSL: error creating trust object" +
+                                                (err ? ":\n" + errorToString(err) : ""));
+        }
+        UniqueRef<SecTrustRef> v(trust);
+
+        SecTrustResultType trustResult;
+        if((err = SecTrustEvaluate(trust, &trustResult)))
+        {
+            throw PluginInitializationException(__FILE__, __LINE__,
+                                                "IceSSL: error evaluating trust:\n" + errorToString(err));
         }
 
-        if(keychain)
+        int chainLength = SecTrustGetCertificateCount(trust);
+        CFMutableArrayRef items = CFArrayCreateMutable(kCFAllocatorDefault, chainLength, &kCFTypeArrayCallBacks);
+        for(int i = 0; i < chainLength; ++i)
         {
-            CFRelease(keychain);
+            CFArrayAppendValue(items, SecTrustGetCertificateAtIndex(trust, i));
         }
 
-        if(cert)
+        //
+        // Replace the first certificate in the chain with the
+        // identity.
+        //
+        SecIdentityRef identity;
+        err = SecIdentityCreateWithCertificate(keychain, cert.get(), &identity);
+        if(err != noErr)
         {
-            CFRelease(cert);
+            ostringstream os;
+            os << "IceSSL: couldn't create identity for certificate found in the keychain:\n" << errorToString(err);
+            throw PluginInitializationException(__FILE__, __LINE__, os.str());
         }
-
-        if(key)
-        {
-            CFRelease(key);
-        }
-
-        if(identity)
-        {
-            CFRelease(identity);
-        }
-
-        throw;
+        CFArraySetValueAtIndex(items, 0, identity);
+        _chain = items;
     }
+
     //
     // DiffieHellmanParams in DER format.
     //
-    string dhFile = properties->getProperty(propPrefix + "DHParams");
+    string dhFile = properties->getProperty("IceSSL.DHParams");
     if(!dhFile.empty())
     {
         if(!checkPath(dhFile, defaultDir, false))
@@ -1174,7 +1049,7 @@ IceSSL::SecureTransportEngine::initialize()
     //
     // Establish the cipher list.
     //
-    const string ciphers = properties->getProperty(propPrefix + "Ciphers");
+    const string ciphers = properties->getProperty("IceSSL.Ciphers");
     CiphersHelper::initialize();
 
     if(!ciphers.empty())
@@ -1208,7 +1083,7 @@ IceSSL::SecureTransportEngine::initialize()
     //
     // Parse protocols
     //
-    const string protocolVersionMax = properties->getProperty(propPrefix + "ProtocolVersionMax");
+    const string protocolVersionMax = properties->getProperty("IceSSL.ProtocolVersionMax");
     if(!protocolVersionMax.empty())
     {
         _protocolVersionMax = parseProtocol(protocolVersionMax);
@@ -1217,7 +1092,7 @@ IceSSL::SecureTransportEngine::initialize()
     //
     // The default min protocol version is set to TLS1.0 to avoid security issues with SSLv3
     //
-    const string protocolVersionMin = properties->getPropertyWithDefault(propPrefix + "ProtocolVersionMin", "tls1_0");
+    const string protocolVersionMin = properties->getPropertyWithDefault("IceSSL.ProtocolVersionMin", "tls1_0");
     if(!protocolVersionMin.empty())
     {
         _protocolVersionMin = parseProtocol(protocolVersionMin);
@@ -1296,7 +1171,6 @@ IceSSL::SecureTransportEngine::newContext(bool incoming)
         throw SecurityException(__FILE__, __LINE__,
                                 "IceSSL: error while setting the SSL context certificate:\n" + errorToString(err));
     }
-
 
     if(!_ciphers.empty())
     {

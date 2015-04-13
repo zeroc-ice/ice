@@ -61,14 +61,14 @@ public:
     // Setup the engine.
     //
     virtual void initialize() = 0;
-    
+
     virtual bool initialized() const = 0;
 
     //
     // Destroy the engine.
     //
     virtual void destroy() = 0;
-    
+
     //
     // Verify peer certificate
     //
@@ -79,21 +79,21 @@ public:
 
     std::string getPassword() const;
     void setPassword(const std::string& password);
-    
+
     int getVerifyPeer() const { return _verifyPeer; }
     int securityTraceLevel() const { return _securityTraceLevel; }
     std::string securityTraceCategory() const { return _securityTraceCategory; }
-    
+
 private:
-    
+
     const Ice::CommunicatorPtr _communicator;
     const Ice::LoggerPtr _logger;
     const TrustManagerPtr _trustManager;
-    
+
     std::string _password;
     CertificateVerifierPtr _verifier;
     PasswordPromptPtr _prompt;
-    
+
     bool _checkCertName;
     int _verifyDepthMax;
     int _verifyPeer;
@@ -106,32 +106,32 @@ private:
 class SecureTransportEngine : public SSLEngine
 {
 public:
-    
+
     SecureTransportEngine(const Ice::CommunicatorPtr&);
-    
+
     virtual void initialize();
     virtual bool initialized() const;
     virtual void destroy();
-    
+
     SSLContextRef newContext(bool);
     CFArrayRef getCertificateAuthorities() const;
     std::string getCipherName(SSLCipherSuite) const;
-    
+
 private:
-    
+
     void parseCiphers(const std::string&);
-    
+
     bool _initialized;
-    CFArrayRef _certificateAuthorities;    
-    CFMutableArrayRef _chain;
-    
+    CFArrayRef _certificateAuthorities;
+    CFArrayRef _chain;
+
     SSLProtocol _protocolVersionMax;
     SSLProtocol _protocolVersionMin;
-    
+
     std::string _defaultDir;
-       
+
     std::vector<char> _dhParams;
-    
+
     std::vector<SSLCipherSuite> _ciphers;
     IceUtil::Mutex _mutex;
 };
@@ -181,21 +181,21 @@ private:
 class SChannelEngine : public SSLEngine
 {
 public:
-    
+
     SChannelEngine(const Ice::CommunicatorPtr&);
-    
+
     //
     // Setup the engine.
     //
     virtual void initialize();
-    
+
     virtual bool initialized() const;
 
     //
     // Destroy the engine.
     //
     virtual void destroy();
-    
+
     std::string getCipherName(ALG_ID) const;
 
     CredHandle newCredentialsHandle(bool);
@@ -205,7 +205,7 @@ public:
 private:
 
     void parseCiphers(const std::string&);
-    
+
     bool _initialized;
     std::vector<PCCERT_CONTEXT> _allCerts;
     std::vector<PCCERT_CONTEXT> _certs;
@@ -223,14 +223,14 @@ private:
 class OpenSSLEngine : public SSLEngine
 {
 public:
-    
+
     OpenSSLEngine(const Ice::CommunicatorPtr&);
     ~OpenSSLEngine();
-    
+
     virtual void initialize();
     virtual bool initialized() const;
     virtual void destroy();
-    
+
     int verifyCallback(int , SSL*, X509_STORE_CTX*);
 #   ifndef OPENSSL_NO_DH
     DH* dhParams(int);
@@ -238,9 +238,9 @@ public:
     SSL_CTX* context() const;
     void context(SSL_CTX*);
     std::string sslErrors() const;
-    
+
 private:
-    
+
     SSL_METHOD* getMethod(int);
     void setOptions(int);
     enum Protocols { SSLv3 = 0x01, TLSv1_0 = 0x02, TLSv1_1 = 0x04, TLSv1_2 = 0x08 };

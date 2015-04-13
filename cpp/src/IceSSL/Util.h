@@ -28,9 +28,9 @@
 
 namespace IceSSL
 {
-    
+
 //
-// Constants for X509 certificate alt names (AltNameOther, AltNameORAddress, AltNameEDIPartyName and 
+// Constants for X509 certificate alt names (AltNameOther, AltNameORAddress, AltNameEDIPartyName and
 // AltNameObjectIdentifier) are not supported.
 //
 
@@ -78,6 +78,63 @@ std::string getSslErrors(bool);
 
 #elif defined(ICE_USE_SECURE_TRANSPORT)
 
+template<typename T>
+class UniqueRef
+{
+public:
+
+    explicit UniqueRef(CFTypeRef ptr = 0) : _ptr((T)ptr)
+    {
+    }
+
+    ~UniqueRef()
+    {
+        if(_ptr != 0)
+        {
+            CFRelease(_ptr);
+        }
+    }
+
+    T release()
+    {
+        T r = _ptr;
+        _ptr = 0;
+        return r;
+    }
+
+    void reset(CFTypeRef ptr = 0)
+    {
+        if(_ptr == ptr)
+        {
+            return;
+        }
+        if(_ptr != 0)
+        {
+            CFRelease(_ptr);
+        }
+        _ptr = (T)ptr;
+    }
+
+    void retain(CFTypeRef ptr)
+    {
+        reset(ptr ? CFRetain(ptr) : ptr);
+    }
+
+    T get() const
+    {
+        return _ptr;
+    }
+
+    operator bool() const
+    {
+        return _ptr != 0;
+    }
+
+private:
+
+    T _ptr;
+};
+
 //
 // Helper functions to use by Secure Transport.
 //
@@ -98,23 +155,23 @@ std::string errorToString(OSStatus);
 //
 CFDictionaryRef getCertificateProperty(SecCertificateRef, CFTypeRef);
 
-std::string keyLabel(SecCertificateRef);
+//
+// Read a private key from an file and associate it to the given certificate.
+//
+SecIdentityRef loadPrivateKey(const std::string&, SecCertificateRef, SecKeychainRef, const std::string&,
+                              const PasswordPromptPtr&, int);
 
 //
-// Read a private key from an file and optionaly import into a keychain.
+// Read certificate from a file.
 //
-void loadPrivateKey(SecKeyRef*, const std::string&, CFDataRef, SecKeychainRef, const std::string&, const std::string&, 
-                    const PasswordPromptPtr&, int);
+CFArrayRef loadCertificateChain(const std::string&, const std::string&, SecKeychainRef, const std::string&,
+                                const PasswordPromptPtr&, int);
 
-//
-// Read a certificate and key from an file and optionaly import then
-// into a keychain.
-//
-void loadCertificate(SecCertificateRef*, CFDataRef*, SecKeyRef*, SecKeychainRef, const std::string&, 
-                     const std::string& = "", const PasswordPromptPtr& = 0, int = 0);
+SecCertificateRef loadCertificate(const std::string&);
+CFArrayRef loadCACertificates(const std::string&);
 
-CFArrayRef loadCACertificates(const std::string&, const std::string& = "", const PasswordPromptPtr& = 0, int = 0);
-SecCertificateRef findCertificates(SecKeychainRef, const std::string&, const std::string&);
+SecCertificateRef findCertificate(SecKeychainRef, const std::string&);
+
 #elif defined(ICE_USE_SCHANNEL)
 std::vector<PCCERT_CONTEXT>
 findCertificates(const std::string&, const std::string&, const std::string&, std::vector<HCERTSTORE>&);

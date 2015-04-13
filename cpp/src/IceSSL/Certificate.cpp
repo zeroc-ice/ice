@@ -21,7 +21,7 @@
 #  include <openssl/pem.h>
 //
 // Avoid old style cast warnings from OpenSSL macros
-// 
+//
 #  pragma GCC diagnostic ignored "-Wold-style-cast"
 #elif defined(ICE_USE_SECURE_TRANSPORT)
 #  include <Security/Security.h>
@@ -59,7 +59,7 @@ struct CertificateOID
     const char* alias;
 };
 
-const CertificateOID certificateOIDS[] = 
+const CertificateOID certificateOIDS[] =
 {
     {"2.5.4.3", "CN"},
     {"2.5.4.4", "SN"},
@@ -103,7 +103,7 @@ certificateOIDAlias(const string& name)
 //
 // Map alternative name alias to its types.
 //
-const char* certificateAlternativeNameTypes[] = {"", "Email Address", "DNS Name", "", "Directory Name", "", "URI", 
+const char* certificateAlternativeNameTypes[] = {"", "Email Address", "DNS Name", "", "Directory Name", "", "URI",
                                                  "IP Address"};
 const int certificateAlternativeNameTypesSize = sizeof(certificateAlternativeNameTypes) / sizeof(char*);
 
@@ -178,17 +178,17 @@ getX509AltName(SecCertificateRef cert, CFTypeRef key)
 {
     assert(key == kSecOIDIssuerAltName || key == kSecOIDSubjectAltName);
     CFDictionaryRef property = getCertificateProperty(cert, key);
-    
+
     vector<pair<int, string> > pairs;
     if(property)
     {
         CFArrayRef names = (CFArrayRef)CFDictionaryGetValue(property, kSecPropertyKeyValue);
         int size = CFArrayGetCount(names);
-        
+
         for(int i = 0; i < size; ++i)
         {
             CFDictionaryRef dict = (CFDictionaryRef)CFArrayGetValueAtIndex(names, i);
-            
+
             int type = certificateAlternativeNameType(fromCFString(
                                                     (CFStringRef)CFDictionaryGetValue(dict, kSecPropertyKeyLabel)));
             if(type != -1)
@@ -210,10 +210,10 @@ getX509AltName(SecCertificateRef cert, CFTypeRef key)
                     for(int i = 0, count = CFArrayGetCount(section); i < count;)
                     {
                         CFDictionaryRef d = (CFDictionaryRef)CFArrayGetValueAtIndex(section, i);
-                        
+
                         CFStringRef sectionLabel = (CFStringRef)CFDictionaryGetValue(d, kSecPropertyKeyLabel);
                         CFStringRef sectionValue = (CFStringRef)CFDictionaryGetValue(d, kSecPropertyKeyValue);
-                        
+
                         os << certificateOIDAlias(fromCFString(sectionLabel)) << "=" << fromCFString(sectionValue);
                         if(++i < count)
                         {
@@ -266,7 +266,7 @@ loadCertificate(PCERT_SIGNED_CONTENT_INFO* cert, const char* buffer, DWORD lengt
     DWORD outLength = length;
     vector<BYTE> outBuffer;
     outBuffer.resize(outLength);
-    
+
     if(!CryptStringToBinary(buffer, length, CRYPT_STRING_BASE64HEADER, &outBuffer[0], &outLength, 0, 0))
     {
         //
@@ -275,9 +275,9 @@ loadCertificate(PCERT_SIGNED_CONTENT_INFO* cert, const char* buffer, DWORD lengt
         assert(GetLastError() != ERROR_MORE_DATA);
         throw CertificateEncodingException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
     }
-    
+
     DWORD decodedLeng = 0;
-    if(!CryptDecodeObjectEx(X509_ASN_ENCODING, X509_CERT, &outBuffer[0], outLength, CRYPT_DECODE_ALLOC_FLAG, 0, 
+    if(!CryptDecodeObjectEx(X509_ASN_ENCODING, X509_CERT, &outBuffer[0], outLength, CRYPT_DECODE_ALLOC_FLAG, 0,
                             cert, &decodedLeng))
     {
         throw CertificateEncodingException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
@@ -318,13 +318,13 @@ certNameToString(CERT_NAME_BLOB* name)
     {
         throw CertificateEncodingException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
     }
-    
+
     vector<char> buffer(length);
     if(!CertNameToStr(X509_ASN_ENCODING, name, CERT_OID_NAME_STR|CERT_NAME_STR_REVERSE_FLAG, &buffer[0], length))
     {
         throw CertificateEncodingException(__FILE__, __LINE__,  IceUtilInternal::lastErrorToString());
     }
-    
+
     string s(&buffer[0]);
     for(int i = 0; i < certificateOIDSSize; ++i)
     {
@@ -439,7 +439,7 @@ CertificateReadException::ice_name() const
     return _name;
 }
 
-CertificateReadException* 
+CertificateReadException*
 CertificateReadException::ice_clone() const
 {
     return new CertificateReadException(*this);
@@ -479,7 +479,7 @@ CertificateEncodingException::ice_name() const
     return _name;
 }
 
-CertificateEncodingException* 
+CertificateEncodingException*
 CertificateEncodingException::ice_clone() const
 {
     return new CertificateEncodingException(*this);
@@ -523,9 +523,9 @@ ASMUtcTimeToIceUtilTime(const ASN1_UTCTIME* s)
 {
     struct tm tm;
     int offset;
-    
+
     memset(&tm, '\0', sizeof tm);
-    
+
 #  define g2(p) (((p)[0]-'0')*10+(p)[1]-'0')
     tm.tm_year = g2(s->data);
     if(tm.tm_year < 50)
@@ -681,7 +681,7 @@ ParseException::ice_name() const
     return _name;
 }
 
-ParseException* 
+ParseException*
 ParseException::ice_clone() const
 {
     return new ParseException(*this);
@@ -836,7 +836,7 @@ Certificate::Certificate(X509CertificateRef cert) : _cert(cert)
         //
         // Decode certificate info
         //
-        DWORD length = 0;    
+        DWORD length = 0;
         if(!CryptDecodeObjectEx(X509_ASN_ENCODING, X509_CERT_TO_BE_SIGNED, _cert->ToBeSigned.pbData,
                                 _cert->ToBeSigned.cbData, CRYPT_DECODE_ALLOC_FLAG, 0, &_certInfo, &length))
         {
@@ -861,7 +861,7 @@ Certificate::~Certificate()
 #elif defined(ICE_USE_SCHANNEL)
         LocalFree(_cert);
         if(_certInfo)
-        {        
+        {
             LocalFree(_certInfo);
         }
 #else
@@ -874,9 +874,7 @@ CertificatePtr
 Certificate::load(const string& file)
 {
 #if defined(ICE_USE_SECURE_TRANSPORT)
-    SecCertificateRef cert = 0;
-    loadCertificate(&cert, 0, 0, 0, file);
-    return new Certificate(cert);
+    return new Certificate(loadCertificate(file));
 #elif defined(ICE_USE_SCHANNEL)
     CERT_SIGNED_CONTENT_INFO* cert;
     loadCertificate(&cert, file);
@@ -888,7 +886,7 @@ Certificate::load(const string& file)
         BIO_free(cert);
         throw CertificateReadException(__FILE__, __LINE__, "error opening file");
     }
-    
+
     X509CertificateRef x = PEM_read_bio_X509_AUX(cert, NULL, NULL, NULL);
     if(x == NULL)
     {
@@ -906,26 +904,26 @@ Certificate::decode(const string& encoding)
 #if defined(ICE_USE_SECURE_TRANSPORT)
     CFDataRef data = CFDataCreateWithBytesNoCopy(kCFAllocatorDefault, reinterpret_cast<const UInt8*>(encoding.c_str()),
                                                  encoding.size(), kCFAllocatorNull);
-    
+
     SecExternalFormat format = kSecFormatUnknown;
     SecExternalItemType type = kSecItemTypeCertificate;
-    
+
     SecItemImportExportKeyParameters params;
     memset(&params, 0, sizeof(params));
     params.version =  SEC_KEY_IMPORT_EXPORT_PARAMS_VERSION;
-    
-    CFArrayRef items = 0;    
+
+    CFArrayRef items = 0;
     OSStatus err = SecItemImport(data, 0, &format, &type, 0, &params, 0, &items);
     CFRelease(data);
     if(err)
     {
         throw CertificateEncodingException(__FILE__, __LINE__, errorToString(err));
     }
-    
+
     SecKeychainItemRef item = (SecKeychainItemRef)CFArrayGetValueAtIndex(items, 0);
     CFRetain(item);
     CFRelease(items);
-    
+
     assert(SecCertificateGetTypeID() == CFGetTypeID(item));
     return new Certificate((SecCertificateRef)item);
 #elif defined(ICE_USE_SCHANNEL)
@@ -998,11 +996,11 @@ Certificate::verify(const CertificatePtr& cert) const
     // that is valid.
     //
     bool valid = false;
-    
+
     CFErrorRef error = 0;
     CFDataRef issuer = 0;
     CFDataRef subject = 0;
-    
+
     try
     {
         issuer = SecCertificateCopyNormalizedIssuerContent(_cert, &error);
@@ -1010,7 +1008,7 @@ Certificate::verify(const CertificatePtr& cert) const
         {
             throw CertificateEncodingException(__FILE__, __LINE__, error);
         }
-        
+
         subject = SecCertificateCopyNormalizedSubjectContent(cert->getCert(), &error);
         if(error)
         {
@@ -1023,7 +1021,7 @@ Certificate::verify(const CertificatePtr& cert) const
         {
             CFRelease(issuer);
         }
-        
+
         if(subject)
         {
             CFRelease(subject);
@@ -1035,10 +1033,10 @@ Certificate::verify(const CertificatePtr& cert) const
     // The certificate issuer must match the CA subject.
     //
     valid = CFEqual(issuer, subject);
-    
+
     CFRelease(issuer);
     CFRelease(subject);
-    
+
     if(valid)
     {
         SecPolicyRef policy = 0;
@@ -1054,26 +1052,26 @@ Certificate::verify(const CertificatePtr& cert) const
             {
                 throw CertificateEncodingException(__FILE__, __LINE__, errorToString(err));
             }
-            
+
             SecCertificateRef certs[1] = { cert->getCert() };
-            
-            CFArrayRef anchorCertificates = CFArrayCreate(kCFAllocatorDefault, (const void**)&certs, 1, 
+
+            CFArrayRef anchorCertificates = CFArrayCreate(kCFAllocatorDefault, (const void**)&certs, 1,
                                                           &kCFTypeArrayCallBacks);
             err = SecTrustSetAnchorCertificates(trust, anchorCertificates);
             CFRelease(anchorCertificates);
-            
+
             if(err)
             {
                 throw CertificateEncodingException(__FILE__, __LINE__,  errorToString(err));
             }
-            
+
             if((err = SecTrustEvaluate(trust, &trustResult)))
             {
                 throw CertificateEncodingException(__FILE__, __LINE__,  errorToString(err));
             }
-            
+
             valid = trustResult == kSecTrustResultUnspecified;
-            
+
             CFRelease(policy);
             CFRelease(trust);
         }
@@ -1083,7 +1081,7 @@ Certificate::verify(const CertificatePtr& cert) const
             {
                 CFRelease(policy);
             }
-            
+
             if(trust)
             {
                 CFRelease(trust);
@@ -1099,7 +1097,7 @@ Certificate::verify(const CertificatePtr& cert) const
     {
         throw CertificateEncodingException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
     }
-    
+
     bool result = CryptVerifyCertificateSignature(0, X509_ASN_ENCODING, buffer, length, cert->getPublicKey()->key());
     LocalFree(buffer);
     return result;
@@ -1148,7 +1146,7 @@ Certificate::encode() const
 
         std::vector<char> encoded;
         encoded.resize(encodedLength);
-        if(!CryptBinaryToString(buffer, length, CRYPT_STRING_BASE64HEADER | CRYPT_STRING_NOCR, &encoded[0], 
+        if(!CryptBinaryToString(buffer, length, CRYPT_STRING_BASE64HEADER | CRYPT_STRING_NOCR, &encoded[0],
                                 &encodedLength))
         {
             throw CertificateEncodingException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());

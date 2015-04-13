@@ -25,13 +25,13 @@ readFile(const string& file, vector<char>& buffer)
     {
         throw "error opening file " + file;
     }
-    
+
     is.seekg(0, is.end);
     buffer.resize(static_cast<int>(is.tellg()));
     is.seekg(0, is.beg);
-    
+
     is.read(&buffer[0], buffer.size());
-    
+
     if(!is.good())
     {
         throw "error reading file " + file;
@@ -47,7 +47,7 @@ findCertsCleanup(HCERTSTORE store, const vector<HCERTSTORE>& stores, const vecto
         PCCERT_CONTEXT cert = *i;
 
 
-        DWORD size = 0;        
+        DWORD size = 0;
         //
         // Retrieve the certificate CERT_KEY_PROV_INFO_PROP_ID property, we use the CRYPT_KEY_PROV_INFO
         // data to then remove the key set associated with the certificate.
@@ -59,10 +59,10 @@ findCertsCleanup(HCERTSTORE store, const vector<HCERTSTORE>& stores, const vecto
             {
                 CRYPT_KEY_PROV_INFO* keyProvInfo = reinterpret_cast<CRYPT_KEY_PROV_INFO*>(&buf[0]);
                 HCRYPTPROV cryptProv = 0;
-                if(CryptAcquireContextW(&cryptProv, keyProvInfo->pwszContainerName, keyProvInfo->pwszProvName, 
+                if(CryptAcquireContextW(&cryptProv, keyProvInfo->pwszContainerName, keyProvInfo->pwszProvName,
                                         keyProvInfo->dwProvType, 0))
                 {
-                    CryptAcquireContextW(&cryptProv, keyProvInfo->pwszContainerName, keyProvInfo->pwszProvName, 
+                    CryptAcquireContextW(&cryptProv, keyProvInfo->pwszContainerName, keyProvInfo->pwszProvName,
                                          keyProvInfo->dwProvType, CRYPT_DELETEKEYSET);
                 }
             }
@@ -88,7 +88,7 @@ public:
 
     virtual string getPassword()
     {
-        ++_count; 
+        ++_count;
         return _password;
     }
 
@@ -319,7 +319,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
 //
 // Anonymous cipher are not supported with SChannel
 //
-#ifndef ICE_USE_SCHANNEL 
+#ifndef ICE_USE_SCHANNEL
     {
         InitializationData initData;
         initData.properties = createClientProps(defaultProperties, defaultDir, defaultHost, pfx);
@@ -375,7 +375,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
         CommunicatorPtr comm = initialize(initData);
         Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
         test(fact);
-        
+
         Test::Properties d = createServerProps(defaultProperties, defaultDir, defaultHost, pfx);
         d["IceSSL.CertAuthFile"] = "cacert1.pem";
 
@@ -404,9 +404,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
         //
         try
         {
-            IceSSL::NativeConnectionInfoPtr info = 
+            IceSSL::NativeConnectionInfoPtr info =
                 IceSSL::NativeConnectionInfoPtr::dynamicCast(server->ice_getConnection()->getInfo());
-#ifdef ICE_USE_SCHANNEL
+#if defined(ICE_USE_SCHANNEL) || defined(ICE_USE_SECURE_TRANSPORT)
             //
             // SChannel doesn't seem to send the root certificate
             //
@@ -501,7 +501,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
             initData.properties->setProperty("IceSSL.CertFile", "c_rsa_nopass_ca1_pub.pem");
             initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca1_priv.pem");
         }
-        
+
         initData.properties->setProperty("IceSSL.VerifyPeer", "0");
         comm = initialize(initData);
         fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
@@ -523,8 +523,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
 
         try
         {
-            IceSSL::CertificatePtr clientCert =
-                IceSSL::Certificate::load(defaultDir + "/c_rsa_nopass_ca1_pub.pem");
+            IceSSL::CertificatePtr clientCert = IceSSL::Certificate::load(defaultDir + "/c_rsa_nopass_ca1_pub.pem");
             server->checkCert(clientCert->getSubjectDN(), clientCert->getIssuerDN());
 
             //
@@ -533,8 +532,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
             //
             // Validate some aspects of the Certificate class.
             //
-            IceSSL::CertificatePtr serverCert =
-                IceSSL::Certificate::load(defaultDir + "/s_rsa_nopass_ca1_pub.pem");
+            IceSSL::CertificatePtr serverCert = IceSSL::Certificate::load(defaultDir + "/s_rsa_nopass_ca1_pub.pem");
             test(IceSSL::Certificate::decode(serverCert->encode()) == serverCert);
             test(serverCert == serverCert);
             test(serverCert->checkValidity());
@@ -549,7 +547,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
             test(serverCert->verify(caCert));
             test(caCert->verify(caCert));
 
-            IceSSL::NativeConnectionInfoPtr info = 
+            IceSSL::NativeConnectionInfoPtr info =
                 IceSSL::NativeConnectionInfoPtr::dynamicCast(server->ice_getConnection()->getInfo());
 
             test(info->nativeCerts.size() == 2);
@@ -593,8 +591,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
         server = fact->createServer(d);
         try
         {
-            IceSSL::CertificatePtr clientCert =
-                IceSSL::Certificate::load(defaultDir + "/c_rsa_nopass_ca1_pub.pem");
+            IceSSL::CertificatePtr clientCert = IceSSL::Certificate::load(defaultDir + "/c_rsa_nopass_ca1_pub.pem");
             server->checkCert(clientCert->getSubjectDN(), clientCert->getIssuerDN());
         }
         catch(const LocalException&)
@@ -632,7 +629,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
         try
         {
             server->ice_ping();
-            test(false); 
+            test(false);
         }
         catch(const ProtocolException&)
         {
@@ -743,11 +740,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
         fact->destroyServer(server);
 
         comm->destroy();
-        
+
         //
         // This should fail because the self signed certificate used by the server is not
-        // trusted.  The IceSSL.DefaultDir setting in the client allows OpenSSL to find 
-        // the server's CA certificate. We have to disable IceSSL.DefaultDir in the client 
+        // trusted.  The IceSSL.DefaultDir setting in the client allows OpenSSL to find
+        // the server's CA certificate. We have to disable IceSSL.DefaultDir in the client
         // so that it can't find the server's CA certificate.
         //
         initData.properties = createClientProps(defaultProperties, defaultDir, defaultHost, pfx);
@@ -1013,7 +1010,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
         try
         {
             server->checkCipher(cipherSub);
-            IceSSL::NativeConnectionInfoPtr info = 
+            IceSSL::NativeConnectionInfoPtr info =
                 IceSSL::NativeConnectionInfoPtr::dynamicCast(server->ice_getConnection()->getInfo());
             test(info->cipher.compare(0, cipherSub.size(), cipherSub) == 0);
         }
@@ -1130,9 +1127,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
             initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca1_priv.pem");
         }
         initData.properties->setProperty("IceSSL.VerifyPeer", "0");
-        initData.properties->setProperty("IceSSL.Protocols", "ssl3");        
+        initData.properties->setProperty("IceSSL.Protocols", "ssl3");
         CommunicatorPtr comm = initialize(initData);
-        
+
         Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProperties, defaultDir, defaultHost, pfx);
@@ -1219,9 +1216,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
                 initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca1_priv.pem");
             }
             initData.properties->setProperty("IceSSL.VerifyPeer", "0");
-            initData.properties->setProperty("IceSSL.Protocols", "ssl3");        
+            initData.properties->setProperty("IceSSL.Protocols", "ssl3");
             CommunicatorPtr comm = initialize(initData);
-            
+
             Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
             test(fact);
             Test::Properties d = createServerProps(defaultProperties, defaultDir, defaultHost, pfx);
@@ -1265,9 +1262,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
             InitializationData initData;
             initData.properties = createClientProps(defaultProperties, defaultDir, defaultHost, pfx);
             initData.properties->setProperty("IceSSL.CertAuthFile", "cacert1.pem");
-            initData.properties->setProperty("IceSSL.Protocols", "ssl3");        
+            initData.properties->setProperty("IceSSL.Protocols", "ssl3");
             CommunicatorPtr comm = initialize(initData);
-            
+
             Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
             test(fact);
             Test::Properties d = createServerProps(defaultProperties, defaultDir, defaultHost, pfx);
@@ -1335,7 +1332,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
         }
         fact->destroyServer(server);
         comm->destroy();
-        
+
         //
         // This should succeed.
         //
@@ -1378,9 +1375,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
             }
             initData.properties->setProperty("IceSSL.VerifyPeer", "0");
             initData.properties->setProperty("IceSSL.ProtocolVersionMin", "ssl3");
-            initData.properties->setProperty("IceSSL.ProtocolVersionMax", "ssl3");     
+            initData.properties->setProperty("IceSSL.ProtocolVersionMax", "ssl3");
             CommunicatorPtr comm = initialize(initData);
-            
+
             Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
             test(fact);
             Test::Properties d = createServerProps(defaultProperties, defaultDir, defaultHost, pfx);
@@ -1435,9 +1432,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
             }
             initData.properties->setProperty("IceSSL.VerifyPeer", "0");
             initData.properties->setProperty("IceSSL.ProtocolVersionMin", "ssl3");
-            initData.properties->setProperty("IceSSL.ProtocolVersionMax", "ssl3");        
+            initData.properties->setProperty("IceSSL.ProtocolVersionMax", "ssl3");
             CommunicatorPtr comm = initialize(initData);
-            
+
             Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
             test(fact);
             Test::Properties d = createServerProps(defaultProperties, defaultDir, defaultHost, pfx);
@@ -1468,15 +1465,14 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
 #endif
     }
     cout << "ok" << endl;
-    
+
     cout << "testing expired certificates... " << flush;
     {
         //
         // This should fail because the server's certificate is expired.
         //
         {
-            IceSSL::CertificatePtr cert =
-                IceSSL::Certificate::load(defaultDir + "/s_rsa_nopass_ca1_exp_pub.pem");
+            IceSSL::CertificatePtr cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_nopass_ca1_exp_pub.pem");
             test(!cert->checkValidity());
         }
 
@@ -1534,8 +1530,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
         // This should fail because the client's certificate is expired.
         //
         {
-            IceSSL::CertificatePtr cert =
-                IceSSL::Certificate::load(defaultDir + "/c_rsa_nopass_ca1_exp_pub.pem");
+            IceSSL::CertificatePtr cert = IceSSL::Certificate::load(defaultDir + "/c_rsa_nopass_ca1_exp_pub.pem");
             test(!cert->checkValidity());
         }
 
@@ -1636,7 +1631,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
     }
     cout << "ok" << endl;
 #endif
-    
+
     //
     // SChannel doesn't support PCKS8 certificates (PEM Password protected certificates)
     //
@@ -1695,7 +1690,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
         }
         fact->destroyServer(server);
         comm->destroy();
-        
+
         //
         // Use an incorrect password and check that retries are attempted.
         //
@@ -1772,7 +1767,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
         try
         {
             server->checkCipher(cipherSub);
-            IceSSL::NativeConnectionInfoPtr info = 
+            IceSSL::NativeConnectionInfoPtr info =
                 IceSSL::NativeConnectionInfoPtr::dynamicCast(server->ice_getConnection()->getInfo());
             test(info->cipher.compare(0, cipherSub.size(), cipherSub) == 0);
         }
@@ -1790,7 +1785,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
         fact->destroyServer(server);
         comm->destroy();
     }
-    
+
     {
         //
         // This should fail because we disabled all anonymous ciphers and the server doesn't
@@ -1816,12 +1811,12 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
         }
         catch(const ProtocolException&)
         {
-            
+
         }
 #  if defined(_WIN32) || defined(ICE_USE_SECURE_TRANSPORT)
         catch(const ConnectionLostException&)
         {
-            
+
         }
 #  endif
         catch(const LocalException& ex)
@@ -1832,7 +1827,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
         fact->destroyServer(server);
         comm->destroy();
     }
-    
+
 #  ifdef ICE_USE_SECURE_TRANSPORT
     {
         //
@@ -1886,7 +1881,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
         fact->destroyServer(server);
         comm->destroy();
     }
-    
+
     {
         //
         // Test IceSSL.DHParams
@@ -1937,7 +1932,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
         CommunicatorPtr comm = initialize(initData);
         Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
         test(fact);
-        
+
         Test::Properties d = createServerProps(defaultProperties, defaultDir, defaultHost, pfx);
         d["IceSSL.CertAuthFile"] = "cacert1.pem";
         if(pfx)
@@ -1955,7 +1950,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
         try
         {
             server->checkCipher("3DES");
-            IceSSL::NativeConnectionInfoPtr info = 
+            IceSSL::NativeConnectionInfoPtr info =
                 IceSSL::NativeConnectionInfoPtr::dynamicCast(server->ice_getConnection()->getInfo());
             test(info->cipher.compare(0, 4, "3DES") == 0);
         }
@@ -1988,7 +1983,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
         CommunicatorPtr comm = initialize(initData);
         Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
         test(fact);
-        
+
         Test::Properties d = createServerProps(defaultProperties, defaultDir, defaultHost, pfx);
         d["IceSSL.CertAuthFile"] = "cacert1.pem";
         if(pfx)
@@ -2020,13 +2015,13 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
         fact->destroyServer(server);
         comm->destroy();
     }
-#endif    
+#endif
 //
 // No DSA support in Secure Transport.
 //
 #ifndef ICE_USE_SECURE_TRANSPORT
     {
-        
+
     //
     // DSA PEM certificates are not supported with SChannel.
     //
@@ -2379,8 +2374,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
             d["IceSSL.CertFile"] = "s_rsa_nopass_ca1_pub.pem";
             d["IceSSL.KeyFile"] = "s_rsa_nopass_ca1_priv.pem";
         }
-        d["IceSSL.TrustOnly"] = "C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com,"
-                                "CN=Client";
+        d["IceSSL.TrustOnly"] = "C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com,CN=Client";
         Test::ServerPrx server = fact->createServer(d);
         try
         {
@@ -3121,7 +3115,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
         // Should have no effect.
         d["IceSSL.TrustOnly.Client"] = "C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com,"
                                        "CN=Server";
-        
+
         Test::ServerPrx server = fact->createServer(d);
         try
         {
@@ -3336,7 +3330,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
         }
         d["IceSSL.TrustOnly.Server"] = "C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com,"
                                        "CN=Client";
-        
+
         Test::ServerPrx server = fact->createServer(d);
         try
         {
@@ -3686,7 +3680,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
         comm->destroy();
     }
     cout << "ok" << endl;
-    
+
     {
 #if defined(ICE_USE_SCHANNEL)
         cerr << "testing IceSSL.FindCert... " << flush;
@@ -3714,6 +3708,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
 
         const char* failFindCertProperties[] =
         {
+            "nolabel",
+            "unknownlabel:foo",
+            "LABEL:",
             "SUBJECTDN:'CN = Client, E = infox@zeroc.com, OU = Ice, O = \"ZeroC, Inc.\", S = Florida, C = US'",
             "ISSUER:'ZeroC, Inc.' SUBJECT:Client SERIAL:'02 02'",
             "ISSUERDN:'E = info@zeroc.com, CN = \"ZeroC Test CA 1\", OU = Ice, O = \"ZeroC, Inc.\","
@@ -3738,7 +3735,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
         {
             vector<char> buffer;
             readFile(defaultDir + certificates[i], buffer);
-        
+
             CRYPT_DATA_BLOB pfxBlob;
             pfxBlob.cbData = static_cast<DWORD>(buffer.size());
             pfxBlob.pbData = reinterpret_cast<BYTE*>(&buffer[0]);
@@ -3749,7 +3746,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
             PCCERT_CONTEXT newCert = 0;
             do
             {
-                if((next = CertFindCertificateInStore(pfx, X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, 0, 
+                if((next = CertFindCertificateInStore(pfx, X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, 0,
                                                       CERT_FIND_ANY, 0, next)))
                 {
                     if(CertAddCertificateContextToStore(store, next, CERT_STORE_ADD_ALWAYS, &newCert))
@@ -3818,7 +3815,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
             }
             catch(const PluginInitializationException&)
             {
-                //expected
+                // expected
             }
             catch(const Ice::LocalException& ex)
             {
@@ -3879,6 +3876,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
 
         const char* failFindCertProperties[] =
         {
+            "nolabel",
+            "unknownlabel:foo",
+            "LABEL:",
             "SUBJECT:ServerX",
             "LABEL:'ServerX'",
             "SUBJECTKEYID:'a6 42 aa 17 04 41 86 56 67 e4 04 64 59 34 30 c7 4c 6b ef ff'",

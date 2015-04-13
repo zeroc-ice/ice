@@ -1069,6 +1069,12 @@ namespace IceSSL
             {
                 if(value != "*")
                 {
+                    if(value.IndexOf(':') == -1)
+                    {
+                        Ice.PluginInitializationException e = new Ice.PluginInitializationException();
+                        e.reason = "IceSSL: no key in `" + value + "'";
+                        throw e;
+                    }
                     int start = 0;
                     int pos;
                     while((pos = value.IndexOf(':', start)) != -1)
