@@ -40,7 +40,7 @@ prefix			= C:\Ice-$(VERSION)
 # If MCPP is not installed in a standard location where the compiler
 # can find it, set MCPP_HOME to the Mcpp installation directory.
 #
-MCPP_HOME		= d:/mcpp
+# MCPP_HOME		= C:\mcpp
 
 #
 # If third party libraries are not installed in the default location
