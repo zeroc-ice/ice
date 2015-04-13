@@ -12,9 +12,9 @@
 
 #include <Slice/Parser.h>
 #include <IceUtil/OutputUtil.h>
-#include <IceUtil/FileUtil.h>
 
 #include <ostream>
+#include <fstream>
 
 namespace Slice
 {
@@ -43,7 +43,7 @@ public:
 private:
 
     const std::string _file;
-    IceUtilInternal::ofstream _os;
+    std::ofstream _os;
 };
 
 }

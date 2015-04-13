@@ -11,14 +11,10 @@
 #include <IceUtil/CtrlCHandler.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
-#include <IceUtil/FileUtil.h>
 #include <Slice/Preprocessor.h>
 #include <Slice/FileTracker.h>
 #include <Slice/Util.h>
 #include "Gen.h"
-
-#include <iostream>
-#include <fstream>
 
 using namespace std;
 using namespace Slice;
