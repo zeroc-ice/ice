@@ -6,7 +6,7 @@
   "homepage": "https://zeroc.com",
   "repository": {
     "type": "git",
-    "url": "https://github.com/zeroc-inc/bower-icejs.git"
+    "url": "https://github.com/zeroc-ice/bower-ice.git"
   },
   "license": "GPL-2.0",
   "main": [
