@@ -665,6 +665,22 @@ def getIceDir(subdir = None, testdir = None):
     else:
         return toplevel
 
+def getSliceDir():
+    #
+    # If ICE_HOME is set we're running the test against a binary distribution. Otherwise,
+    # we're running the test against a source distribution.
+    #
+    global iceHome
+    if iceHome:
+        if isDarwin() and iceHome == "/usr/local":
+            return "/usr/local/share/slice"
+        elif isLinux() and iceHome == "/usr":
+            return "/usr/share/Ice-" + iceVersion + "/slice"
+        else:
+            return os.path.join(iceHome, "slice")
+    else:
+        return os.path.join(toplevel, "slice")
+
 def phpCleanup():
     if os.path.exists("tmp.ini"):
         os.remove("tmp.ini")

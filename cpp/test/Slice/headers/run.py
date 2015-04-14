@@ -21,15 +21,15 @@ sys.path.append(os.path.join(path[0], "scripts"))
 import TestUtil
 
 def clean():
-    for f in ["iceslices", 
-              "linktoslices", 
-              os.path.join("slices", "linktodir2"), 
+    for f in ["iceslices",
+              "linktoslices",
+              os.path.join("slices", "linktodir2"),
               os.path.join("slices", "linktodir1"),
               os.path.join("slices", "dir1", "linktoa3.ice")]:
         if os.path.exists(f):
             os.unlink(f)
     os.system("rm -rf project1 tmp")
-    
+
 clean()
 os.symlink("slices", "linktoslices")
 os.symlink("dir1", os.path.join("slices", "linktodir1"))
@@ -39,7 +39,7 @@ os.symlink("dir2", os.path.join("slices", "linktodir2"))
 slice2cpp = TestUtil.getSliceTranslator()
 
 basedir = os.path.dirname(os.path.abspath(__file__))
-slicedir = os.path.join(TestUtil.getIceDir(), "slice")
+slicedir = TestUtil.getSliceDir()
 os.symlink(slicedir, "iceslices")
 
 def runTest(cmd):
@@ -67,7 +67,7 @@ runTest("%s -I%s -Ilinktoslices linktoslices/linktodir2/b.ice" % (slice2cpp, sli
 if os.path.exists("SLICES"):
     runTest("%s -IICESLICES -ISLICES SLICES/DIR2/B.ice" % (slice2cpp))
     runTest("%s -IICESLICES -ILINKTOSLICES LINKTOSLICES/LINKTODIR2/B.ice" % (slice2cpp))
-    
+
 #
 # Slice files are symlinks, include dir is a regular directory
 #
@@ -95,7 +95,7 @@ clean()
 # Slice file is regular file, include dir is a symlink to a second symlink
 #
 os.system("mkdir -p tmp/Ice-x.y.z/share")
-os.system("cd tmp/Ice-x.y.z/share && ln -s %s" % TestUtil.getIceDir("slice"))
+os.system("cd tmp/Ice-x.y.z/share && ln -s %s" % slicedir)
 
 
 os.system("mkdir -p project1/share")
