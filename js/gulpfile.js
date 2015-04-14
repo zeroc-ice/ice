@@ -16,6 +16,7 @@ var bower       = require("bower"),
     fs          = require("fs"),
     gulp        = require("gulp"),
     gzip        = require('gulp-gzip'),
+    iceBuilder  = require('gulp-ice-builder'),
     jshint      = require('gulp-jshint'),
     minifycss   = require('gulp-minify-css'),
     newer       = require('gulp-newer'),
@@ -39,7 +40,7 @@ function slice2js(options) {
     defaults.exe = useBinDist ? undefined : (opts.exe || path.resolve(
             path.join("../cpp/bin", process.platform == "win32" ? "slice2js.exe" : "slice2js")));
     defaults.args = defaults.args.concat(useBinDist ? [] : ["-I" + sliceDir]);
-    return require("./gulp/gulp-slice2js").compile(defaults);
+    return iceBuilder.compile(defaults);
 }
 
 //

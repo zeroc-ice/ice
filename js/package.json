@@ -18,6 +18,7 @@
     "gulp-ext-replace": "^0.1.0",
     "gulp-gzip": "1.0.0",
     "gulp-jshint": "^1.9.2",
+    "gulp-ice-builder": "git+ssh://github.com:zeroc-ice/gulp-ice-builder.git",
     "gulp-minify-css": "^0.5.1",
     "gulp-newer": "^0.5.0",
     "gulp-open": "^0.3.2",
