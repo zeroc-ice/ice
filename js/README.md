@@ -1,18 +1,13 @@
-# ice
-Ice for JavaScript runtime
+# Internet Communications Engine (Ice) 
+Ice is a comprehensive RPC framework with support for C++, .NET, Java, Python, JavaScript and more.
 
 ## Install
 
-You can install Ice for JavaScript with either `npm` or `bower`.
-
-### npm
 ```bash
 $ npm install ice --save
 ```
 
 ## Usage
-
-### npm
 
 ```js
 var Ice      = require('ice').Ice;
