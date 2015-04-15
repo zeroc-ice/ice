@@ -1,7 +1,7 @@
 Contributing to the Ice
 =======================
 
-Thank you for your interest in contributing to the Ice Builder for Ant!
+Thank you for your interest in contributing to the Ice!
 
 How to Contribute
 -----------------
@@ -33,7 +33,7 @@ Our Favorite Contributions
 
 We prefer small contributions as they are easier to review and integrate. If you want to contribute but don't know where to start, consider one of these areas:
 
- * New sample programs (in the [ice-demos](https://github.com/zeroc-inc/ice-demos) repository)
+ * New sample programs (in the [ice-demos](https://github.com/zeroc-ice/ice-demos) repository)
 
  * Small bug fixes that affect only one or a few source files
 
