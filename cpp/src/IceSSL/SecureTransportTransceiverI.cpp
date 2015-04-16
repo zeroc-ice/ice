@@ -112,7 +112,7 @@ checkTrustResult(SecTrustRef trust, const SecureTransportEnginePtr& engine, cons
         //
         if((err = SecTrustSetNetworkFetchAllowed(trust, false)))
         {
-            throw ProtocolException(__FILE__, __LINE__, "IceSSL: handshake failure:\n" + errorToString(err));
+            throw SecurityException(__FILE__, __LINE__, "IceSSL: handshake failure:\n" + errorToString(err));
         }
 
         //
@@ -120,7 +120,7 @@ checkTrustResult(SecTrustRef trust, const SecureTransportEnginePtr& engine, cons
         //
         if((err = SecTrustEvaluate(trust, &trustResult)))
         {
-            throw ProtocolException(__FILE__, __LINE__, "IceSSL: handshake failure:\n" + errorToString(err));
+            throw SecurityException(__FILE__, __LINE__, "IceSSL: handshake failure:\n" + errorToString(err));
         }
     }
 
@@ -160,7 +160,7 @@ checkTrustResult(SecTrustRef trust, const SecureTransportEnginePtr& engine, cons
             {
                 instance->logger()->trace(instance->traceCategory(), msg);
             }
-            throw ProtocolException(__FILE__, __LINE__, msg);
+            throw SecurityException(__FILE__, __LINE__, msg);
         }
     }
     }
@@ -226,9 +226,12 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
             err = SSLCopyPeerTrust(_ssl, &_trust);
             if(_incoming && err == errSSLBadCert && _engine->getVerifyPeer() == 1)
             {
-                // This happens in 10.10 when the client doesn't provide
-                // a certificate and the server is configured to try
-                // authenticate
+                //
+                // This is expected if the client doesn't provide a
+                // certificate (occurs since 10.10). The server is
+                // configured to verify to not require the client
+                // certificate so we ignore the failure.
+                //
                 continue;
             }
             if(err == noErr)

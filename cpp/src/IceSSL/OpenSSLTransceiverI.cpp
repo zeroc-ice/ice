@@ -125,7 +125,6 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
 #if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x100000bfL
         sync.release();
 #endif
-
         if(ret <= 0)
         {
             switch(SSL_get_error(_ssl, ret))

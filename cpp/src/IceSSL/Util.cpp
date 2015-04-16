@@ -579,7 +579,7 @@ loadKeychainItems(const string& file, SecExternalItemType type, SecKeychainRef k
         throw CertificateReadException(__FILE__, __LINE__, os.str());
     }
 
-    if(type != kSecItemTypeUnknown && importType != type)
+    if(type != kSecItemTypeUnknown && importType != kSecItemTypeAggregate && importType != type)
     {
         CFRelease(items);
         ostringstream os;

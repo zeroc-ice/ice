@@ -72,39 +72,69 @@ ca1.getCA().save("cacert1.pem")
 ca2.getCA().save("cacert2.pem")
 
 # Also export the ca2 self-signed certificate, it's used by the tests to test self-signed certificates
-ca2.getCA().saveKey("cakey2.pem").save("cacert2.p12", addkey=True)
+ca2.getCA().save("cacert2_pub.pem").saveKey("cacert2_priv.pem").save("cacert2.p12", addkey=True)
+
+# Create intermediate CAs
+cai1 = ca1.getIntermediateFactory("intermediate1")
+if not cai1:
+    cai1 = ca1.createIntermediateFactory("intermediate1", cn = "ZeroC Test Intermediate CA 1")
+cai2 = cai1.getIntermediateFactory("intermediate1")
+if not cai2:
+    cai2 = cai1.createIntermediateFactory("intermediate1", cn = "ZeroC Test Intermediate CA 2")
+
+cai1.getCA().save("cacert_int1.pem")
+cai2.getCA().save("cacert_int2.pem")
 
 #
-# Generate certificates (CA, alias, { creation parameters passed to ca.create(...) }, password)
+# Create certificates (CA, alias, { creation parameters passed to ca.create(...) })
 #
 certs = [
-    (ca1, "s_rsa_ca1",      { "cn": "Server", "ip": "127.0.0.1", "dns": "server", "serial": 1 }, None),
-    (ca1, "c_rsa_ca1",      { "cn": "Client", "ip": "127.0.0.1", "dns": "client", "serial": 2 }, None),
-    (ca1, "s_rsa_pass_ca1", { "cn": "Server", "ip": "127.0.0.1", "dns": "server", "serial": 1 }, "server"),
-    (ca1, "c_rsa_pass_ca1", { "cn": "Client", "ip": "127.0.0.1", "dns": "client", "serial": 2 }, "client"),
-    (ca1, "s_rsa_ca1_exp",  { "cn": "Server", "validity": -1 }, None), # Expired certificate
-    (ca1, "c_rsa_ca1_exp",  { "cn": "Client", "validity": -1 }, None), # Expired certificate
-    (ca1, "s_rsa_ca1_cn1",  { "cn": "127.0.0.1" }, None),  # No subjectAltName, CN=127.0.0.1
-    (ca1, "s_rsa_ca1_cn2",  { "cn": "127.0.0.11" }, None), # No subjectAltName, CN=127.0.0.11
-    (ca2, "s_rsa_ca2",      { "cn": "Server", "ip": "127.0.0.1", "dns": "server" }, None),
-    (ca2, "c_rsa_ca2",      { "cn": "Client", "ip": "127.0.0.1", "dns": "client" }, None),
-    (dsaca, "s_dsa_ca1",    { "cn": "Server", "ip": "127.0.0.1", "dns": "server" }, None), # DSA
-    (dsaca, "c_dsa_ca1",    { "cn": "Client", "ip": "127.0.0.1", "dns": "client" }, None), # DSA
+    (ca1, "s_rsa_ca1",       { "cn": "Server", "ip": "127.0.0.1", "dns": "server", "serial": 1 }),
+    (ca1, "c_rsa_ca1",       { "cn": "Client", "ip": "127.0.0.1", "dns": "client", "serial": 2 }),
+    (ca1, "s_rsa_ca1_exp",   { "cn": "Server", "validity": -1 }), # Expired certificate
+    (ca1, "c_rsa_ca1_exp",   { "cn": "Client", "validity": -1 }), # Expired certificate
+    (ca1, "s_rsa_ca1_cn1",   { "cn": "127.0.0.1" }),  # No subjectAltName, CN=127.0.0.1
+    (ca1, "s_rsa_ca1_cn2",   { "cn": "127.0.0.11" }), # No subjectAltName, CN=127.0.0.11
+    (ca2, "s_rsa_ca2",       { "cn": "Server", "ip": "127.0.0.1", "dns": "server" }),
+    (ca2, "c_rsa_ca2",       { "cn": "Client", "ip": "127.0.0.1", "dns": "client" }),
+    (dsaca, "s_dsa_ca1",     { "cn": "Server", "ip": "127.0.0.1", "dns": "server" }), # DSA
+    (dsaca, "c_dsa_ca1",     { "cn": "Client", "ip": "127.0.0.1", "dns": "client" }), # DSA
+    (cai1, "s_rsa_cai1",     { "cn": "Server", "ip": "127.0.0.1", "dns": "server" }),
+    (cai2, "s_rsa_cai2",     { "cn": "Server", "ip": "127.0.0.1", "dns": "server" }),
+]
+
+#
+# Create the certificates
+#
+for (ca, alias, args) in certs:
+    if not ca.get(alias):
+        ca.create(alias, **args)
+
+savecerts = [
+    (ca1, "s_rsa_ca1",     None,              {}),
+    (ca1, "c_rsa_ca1",     None,              {}),
+    (ca1, "s_rsa_ca1_exp", None,              {}),
+    (ca1, "c_rsa_ca1_exp", None,              {}),
+    (ca1, "s_rsa_ca1_cn1", None,              {}),
+    (ca1, "s_rsa_ca1_cn2", None,              {}),
+    (ca2, "s_rsa_ca2",     None,              {}),
+    (ca2, "c_rsa_ca2",     None,              {}),
+    (dsaca, "s_dsa_ca1",   None,              {}),
+    (dsaca, "c_dsa_ca1",   None,              {}),
+    (cai1, "s_rsa_cai1",   None,              {}),
+    (cai2, "s_rsa_cai2",   None,              {}),
+    (ca1, "s_rsa_ca1",     "s_rsa_wroot_ca1", { "root": True }),
+    (ca1, "s_rsa_ca1",     "s_rsa_pass_ca1",  { "password": "server" }),
+    (ca1, "c_rsa_ca1",     "c_rsa_pass_ca1",  { "password": "client" }),
 ]
 
 #
 # Save the certificates in PEM and PKCS12 format.
 #
-for (ca, alias, args, password) in certs:
-    #
-    # Get or create the certificate
-    #
-    cert = ca.get(alias) or ca.create(alias, **args)
-
-    #
-    # Save it as PEM and PKCS12
-    #
-    cert.save(alias + "_pub.pem").saveKey(alias + "_priv.pem", password).save(alias + ".p12", password)
+for (ca, alias, path, args) in savecerts:
+    if not path: path = alias
+    password = args.get("password", None)
+    ca.get(alias).save(path + "_pub.pem").saveKey(path + "_priv.pem", password).save(path + ".p12", **args)
 
 #
 # Create DH parameters to use with OS X Secure Transport.

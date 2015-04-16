@@ -29,7 +29,7 @@ def cleanup():
     elif TestUtil.isLinux():
         for c in ["cacert1.pem", "cacert2.pem"]:
             pem = os.path.join(certsPath, c)
-            os.system("rm {dir}/`openssl x509 -subject_hash -noout -in {pem}`.0".format(pem=pem, dir=certsPath))
+            os.system("rm -f {dir}/`openssl x509 -subject_hash -noout -in {pem}`.0".format(pem=pem, dir=certsPath))
 
 cleanup()
 atexit.register(cleanup)

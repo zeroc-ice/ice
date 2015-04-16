@@ -812,7 +812,7 @@ OpenSSLEngine::initialize()
         // Determine whether a certificate is required from the peer.
         //
         {
-            int sslVerifyMode = SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT;;
+            int sslVerifyMode = SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT;
             switch(getVerifyPeer())
             {
                 case 0:
@@ -899,7 +899,14 @@ OpenSSLEngine::verifyCallback(int ok, SSL* ssl, X509_STORE_CTX* c)
         out << "error = " << X509_verify_cert_error_string(err) << '\n';
         out << IceInternal::fdToString(SSL_get_fd(ssl));
     }
-    return ok;
+
+    //
+    // Always return 1 to prevent SSL_connect/SSL_accept from
+    // returning SSL_ERROR_SSL for verification failures. This ensure
+    // that we can raise SecurityException for verification failures
+    // rather than a ProtocolException.
+    //
+    return 1;
 }
 
 #  ifndef OPENSSL_NO_DH

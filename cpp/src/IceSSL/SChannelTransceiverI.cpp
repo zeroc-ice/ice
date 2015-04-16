@@ -645,7 +645,7 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
         SECURITY_STATUS err = QueryContextAttributes(&_ssl, SECPKG_ATTR_REMOTE_CERT_CONTEXT, &cert);
         if(err && err != SEC_E_NO_CREDENTIALS)
         {
-            throw ProtocolException(__FILE__, __LINE__, "IceSSL: certificate verification failure:" +
+            throw SecurityException(__FILE__, __LINE__, "IceSSL: certificate verification failure:" +
                                     IceUtilInternal::lastErrorToString());
         }
 
@@ -653,7 +653,7 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
         {
             // Clients require server certificate if VerifyPeer > 0
             // and servers require client certificate if VerifyPeer == 2
-            throw ProtocolException(__FILE__, __LINE__, "IceSSL: certificate required:" +
+            throw SecurityException(__FILE__, __LINE__, "IceSSL: certificate required:" +
                                     IceUtilInternal::lastErrorToString());
         }
         else if(cert) // Verify the remote certificate
@@ -706,7 +706,7 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
                     {
                         _instance->logger()->trace(_instance->traceCategory(), msg);
                     }
-                    throw ProtocolException(__FILE__, __LINE__, msg);
+                    throw SecurityException(__FILE__, __LINE__, msg);
                 }
             }
         }
