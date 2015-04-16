@@ -18,10 +18,9 @@ if not usePBKDF2 and not useCryptExt:
     sys.exit(1)
 
 def usage():
-    print("hashpassword [options]")
+    print("Usage: icehashpassword [options]")
     print("")
     print("OPTIONS")
-    print("")
     if usePBKDF2:
         print("")
         print("  -d MESSAGE_DIGEST_ALGORITHM, --digest=MESSAGE_DIGEST_ALGORITHM")
@@ -36,7 +35,7 @@ def usage():
         print("")
     if usePBKDF2 or useCryptExt:
         print("  -r ROUNDS, --rounds=ROUNDS")
-        print("      Optional number of rounds to use.")    
+        print("      Optional number of rounds to use.")
         print("")
     print("  -h, --help" )
     print("      Show this message.")
@@ -55,7 +54,7 @@ def encrypt():
         shortArgs += "d:r:"
         longArgs += ["digest=", "rounds="]
         digestAlgorithms = ("md5", "sha256", "sha512")
-    
+
     try:
         opts, args = getopt.getopt(sys.argv[1:], shortArgs, longArgs)
     except getopt.GetoptError as err:
@@ -72,7 +71,7 @@ def encrypt():
         if o in ("-h", "--help"):
             usage()
             sys.exit(0)
-        elif o in ("-d", "--digest"):                
+        elif o in ("-d", "--digest"):
             if a in digestAlgorithms:
                 digest = a
             else:
@@ -81,44 +80,51 @@ def encrypt():
         elif o in ("-s", "--salt"):
             try:
                 salt = int(a)
-                if salt < 0 or salt > 1024:
-                    print("Invalid salt value it must be an integer between 0 and 1024")
-                    usage()
-                    sys.exit(2) 
             except ValueError as err:
-                print("Invalid salt value it must be an integer between 0 and 1024")
+                print("Invalid salt size. Value must be an integer")
                 usage()
                 sys.exit(2)
         elif o in ("-r", "--rounds"):
             try:
                 rounds = int(a)
-                if rounds < 1 or rounds > sys.maxsize:
-                    print("Invalid rounds value it must be an integer between 1 and %s" % sys.maxsize)
-                    usage()
-                    sys.exit(2) 
             except ValueError as err:
-                print("Invalid rounds value it must be an integer between 1 and %s" % sys.maxsize)
+                print("Invalid number of rounds. Value must be an integer")
                 usage()
                 sys.exit(2)
 
-    encryptfn = None
+    passScheme = None
     if usePBKDF2:
-        encryptfn = passlib.hash.pbkdf2_sha256.encrypt
+        passScheme = passlib.hash.pbkdf2_sha256
         if digest == "sha1":
-            encryptfn = passlib.hash.pbkdf2_sha1.encrypt
+            passScheme = passlib.hash.pbkdf2_sha1
         elif digest == "sha512":
-            encryptfn = passlib.hash.pbkdf2_sha512.encrypt
+            passScheme = passlib.hash.pbkdf2_sha512
     elif useCryptExt:
-        encryptfn = passlib.hash.sha512_crypt.encrypt
+        passScheme = passlib.hash.sha512_crypt
         if digest == "md5":
             if rounds:
                 print("Custom rounds not allowed with md5 digest")
                 usage()
                 sys.exit(2)
-            encryptfn = passlib.hash.md5_crypt.encrypt
+            passScheme = passlib.hash.md5_crypt
         elif digest == "sha256":
-            encryptfn = passlib.hash.sha256_crypt.encrypt
-    
+            passScheme = passlib.hash.sha256_crypt
+
+    if rounds:
+        if not passScheme.min_rounds <= rounds <= passScheme.max_rounds:
+            print("Invalid number rounds for the digest algorithm. Value must be an integer between %s and %s" %
+                (passScheme.min_rounds, passScheme.max_rounds))
+            usage()
+            sys.exit(2)
+    if salt:
+        if not passScheme.min_salt_size <= salt <= passScheme.max_salt_size:
+            print("Invalid salt size for the digest algorithm. Value must be an integer between %s and %s" %
+                (passScheme.min_salt_size, passScheme.max_salt_size))
+            usage()
+            sys.exit(2)
+
+    encryptfn = passScheme.encrypt
+
     args = []
     if sys.stdout.isatty():
         args.append(getpass.getpass("Password: "))

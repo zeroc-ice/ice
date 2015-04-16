@@ -20,7 +20,7 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0], "scripts"))
 import TestUtil
 
-hashpassword = os.path.join(path[0], "scripts", "hashpassword.py")
+hashpassword = os.path.join(path[0], "scripts", "icehashpassword.py")
 
 def test(b):
     if not b:
@@ -33,7 +33,7 @@ def hashPasswords(password, args = ""):
     p.stdin.write('\r\n'.encode('UTF-8'))
     p.stdin.flush()
     if(p.wait() != 0):
-        print("hashpassword.py failed:\n" + p.stdout.read().decode('UTF-8').strip())
+        print("icehashpassword.py failed:\n" + p.stdout.read().decode('UTF-8').strip())
         sys.exit(1)
     hash = p.stdout.readline().decode('UTF-8').strip()
     return hash
@@ -43,16 +43,16 @@ usePBKDF2 = sys.platform == "win32" or sys.platform == "darwin"
 useCryptExt = sys.platform.startswith("linux")
 
 if usePBKDF2:
-    
+
     sys.stdout.write("Testing PBKDF2 crypt passwords...")
     sys.stdout.flush()
-    
+
     test(passlib.hash.pbkdf2_sha256.verify("abc123", hashPasswords("abc123")))
     test(not passlib.hash.pbkdf2_sha256.verify("abc123", hashPasswords("abc")))
 
     test(passlib.hash.pbkdf2_sha1.verify("abc123", hashPasswords("abc123", "-d sha1")))
     test(not passlib.hash.pbkdf2_sha1.verify("abc123", hashPasswords("abc", "-d sha1")))
-    
+
     test(passlib.hash.pbkdf2_sha512.verify("abc123", hashPasswords("abc123", "-d sha512")))
     test(not passlib.hash.pbkdf2_sha512.verify("abc123", hashPasswords("abc", "-d sha512")))
 
@@ -73,20 +73,20 @@ if usePBKDF2:
     if hash.find("$pbkdf2-sha512$1000$") == -1:
         test(False)
     test(passlib.hash.pbkdf2_sha512.verify("abc123", hash))
-    
+
     print("ok")
 
 elif useCryptExt:
-    
+
     sys.stdout.write("Testing Linux crypt passwords...")
     sys.stdout.flush()
-    
+
     test(passlib.hash.sha512_crypt.verify("abc123", hashPasswords("abc123")))
     test(not passlib.hash.sha512_crypt.verify("abc123", hashPasswords("abc")))
 
     test(passlib.hash.sha256_crypt.verify("abc123", hashPasswords("abc123", "-d sha256")))
     test(not passlib.hash.sha256_crypt.verify("abc123", hashPasswords("abc", "-d sha256")))
-    
+
     test(passlib.hash.md5_crypt.verify("abc123", hashPasswords("abc123", "-d md5")))
     test(not passlib.hash.md5_crypt.verify("abc123", hashPasswords("abc", "-d md5")))
 

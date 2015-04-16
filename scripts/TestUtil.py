@@ -838,7 +838,7 @@ def getNodeCommand():
     return nodeCmd
 
 #
-# Create a passwords file that contains the given users/passwords using hashpassword.py
+# Create a passwords file that contains the given users/passwords using icehashpassword.py
 #
 def hashPasswords(filePath, entries):
     if os.path.exists(filePath):
@@ -846,13 +846,13 @@ def hashPasswords(filePath, entries):
     passwords = open(filePath, "a")
     for user, password in entries.items():
         p = subprocess.Popen(
-            "%s %s" % (sys.executable, os.path.abspath(os.path.join(os.path.dirname(__file__), "hashpassword.py"))),
+            "%s %s" % (sys.executable, os.path.abspath(os.path.join(os.path.dirname(__file__), "icehashpassword.py"))),
             shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.PIPE)
         p.stdin.write(password.encode('UTF-8'))
         p.stdin.write('\r\n'.encode('UTF-8'))
         p.stdin.flush()
         if(p.wait() != 0):
-            print("hashpassword.py failed:\n" + p.stdout.read().decode('UTF-8').strip())
+            print("icehashpassword.py failed:\n" + p.stdout.read().decode('UTF-8').strip())
             passwords.close()
             sys.exit(1)
         passwords.write("%s %s\n" % (user, p.stdout.readline().decode('UTF-8').strip()))
