@@ -1,156 +1,74 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2015 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2015 ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
-import os, sys, shutil
+import os, sys, socket, getopt
 
-for toplevel in [".", "..", "../..", "../../..", "../../../..", "../../../../.."]:
-    toplevel = os.path.normpath(toplevel)
+try:
+    import IceCertUtils
+except:
+    print("error: couldn't find IceCertUtils, install `zeroc-ice-certutils' package "
+          "from Python package repository")
+    sys.exit(1)
+
+toplevel="."
+while(toplevel != "/"):
+    toplevel = os.path.normpath(os.path.join("..", toplevel))
     if os.path.exists(os.path.join(toplevel, "scripts", "TestUtil.py")):
         break
 else:
     raise RuntimeError("can't find toplevel directory!")
 
-sys.path.append(toplevel)
-from scripts import *
+cppcerts = os.path.join(toplevel, "cpp", "test", "IceSSL", "certs")
+if not os.path.exists(os.path.join(cppcerts, "db", "ca1", "ca.pem")):
+    print("error: CA database is not initialized in `" + os.path.join(cppcerts, "db") + "',"
+          " run makecerts.py in `" + cppcerts + "' first")
+    sys.exit(1)
 
-#
-# Show usage information.
-#
-def usage():
-    print "Usage: " + sys.argv[0] + " [options]"
-    print
-    print "Options:"
-    print "-h    Show this message."
-    print "-f    Force an update to the Java files."
+ca1 = IceCertUtils.CertificateFactory(home=os.path.join(cppcerts, "db", "ca1"))
+ca2 = IceCertUtils.CertificateFactory(home=os.path.join(cppcerts, "db", "ca2"))
 
-#
-# Check arguments
-#
-force = 0
-for x in sys.argv[1:]:
-    if x == "-h":
-        usage()
-        sys.exit(0)
-    elif x == "-f":
-        force = 1
-    elif x.startswith("-"):
-        print sys.argv[0] + ": unknown option `" + x + "'"
-        print
-        usage()
-        sys.exit(1)
-    else:
-        usage()
-        sys.exit(1)
+ca1.getCA().save("cacert1.jks")
+ca2.getCA().save("cacert2.jks")
 
-cppcerts = os.path.join(TestUtil.getIceDir("cpp"), "test", "IceSSL", "certs")
-
-certs = [\
-    "c_dsa_nopass_ca1", \
-    "c_rsa_nopass_ca1_exp", \
-    "c_rsa_nopass_ca1", \
-    "c_rsa_nopass_ca2", \
-    "s_dsa_nopass_ca1", \
-    "s_rsa_nopass_ca1_exp", \
-    "s_rsa_nopass_ca1", \
-    "s_rsa_nopass_ca2", \
-    "s_rsa_nopass_ca1_cn1", \
-    "s_rsa_nopass_ca1_cn2", \
+certs = [
+    (ca1, "s_rsa_ca1"),
+    (ca1, "c_rsa_ca1"),
+    (ca1, "s_rsa_ca1_exp"), # Expired certificate
+    (ca1, "c_rsa_ca1_exp"), # Expired certificate
+    (ca1, "s_rsa_ca1_cn1"), # No subjectAltName, CN=127.0.0.1
+    (ca1, "s_rsa_ca1_cn2"), # No subjectAltName, CN=127.0.0.11
+    (ca2, "s_rsa_ca2"),
+    (ca2, "c_rsa_ca2"),
+    (ca1, "s_dsa_ca1"),
+    (ca1, "c_dsa_ca1"),
 ]
 
 #
-# Create truststores from the CA certificates.
+# Save the certificate Java certificate to JKS files that contain both
+# the certificate and the CA certificate. We also ensure the certificate
+# chain contains the root certficiate.
 #
-for x in ("cacert1", "cacert2"):
-    ts = x + ".jks"
-    os.system("openssl x509 -in " + os.path.join(cppcerts, x) + ".pem -outform DER -out " + x + ".der")
-    if force or not os.path.exists(ts):
-        if os.path.exists(ts):
-            os.remove(ts)
-        os.system("keytool -import -alias cacert -file " + x + ".der -keystore " + ts + \
-                  " -storepass password -noprompt")
-        print "Created " + ts
+for (ca, alias) in certs:
+    cert = ca.get(alias) or ca.create(alias, **args)
+    cert.save(alias + ".jks", alias="cert", caalias="cacert", root=True)
 
 #
-# Create a truststore containing both CA certificates.
+# Create a cacerts.jks truststore that contains both CA certs.
 #
-if force or not os.path.exists("cacerts.jks"):
-    if os.path.exists("cacerts.jks"):
-        os.remove("cacerts.jks")
-    os.system("keytool -import -alias cacert1 -file cacert1.der -keystore cacerts.jks -storepass password -noprompt")
-    os.system("keytool -import -alias cacert2 -file cacert2.der -keystore cacerts.jks -storepass password -noprompt")
-    print "Created cacerts.jks"
+if os.path.exists("cacerts.jks"): os.remove("cacerts.jks")
+ca1.getCA().exportToKeyStore("cacerts.jks", alias="cacert1")
+ca2.getCA().exportToKeyStore("cacerts.jks", alias="cacert2")
+
+ca2.getCA().saveJKS("s_cacert2.jks", addkey=True)
 
 #
-# Convert key/certificate pairs into PKCS12 format and then import them
-# into keystores.
+# Create a client/server certificate that contains both the DSA and
+# RSA certs.
 #
-for x in certs:
-    p12 = x.replace("nopass_", "") + ".p12"
-    ks = x.replace("nopass_", "") + ".jks"
-    if x.find("1") > 0:
-        cacert = "cacert1"
-    else:
-        cacert = "cacert2"
-    if force or not os.path.exists(ks):
-        if os.path.exists(ks):
-            os.remove(ks)
-        cert = os.path.join(cppcerts, x)
-        ca = os.path.join(cppcerts, cacert) + ".pem"
-        os.system("openssl pkcs12 -in " + cert + "_pub.pem -inkey " + cert + "_priv.pem -export -out " + p12 + \
-                  " -name cert -passout pass:password -certfile " + ca)
-        os.system("java -classpath ../../../../certs ImportKey " + p12  + " cert " + cacert + ".der " + ks + " password")
-        os.remove(p12)
-        print "Created " + ks
-        
-p12 = "cacert2.pfx"
-ks = "s_cacert2.jks"
-if force or not os.path.exists(ks):
-    cert = os.path.join(cppcerts, "cacert2.pem")
-    key = os.path.join(cppcerts, "cakey2.pem")
-    os.system("openssl pkcs12 -in " + cert + " -inkey " + key + " -export -out " + p12 + \
-              " -name cert -passout pass:password -certfile " + cert)
-    os.system("java -classpath ../../../../certs ImportKey " + p12  + " cert cacert2.der " + ks + " password")
-    os.remove(p12)
-    print "Created " + ks
-
-#
-# Create a keystore that contains both RSA and DSS certificates.
-#
-ks = "s_rsa_dsa_ca1.jks"
-if force or not os.path.exists(ks):
-    if os.path.exists(ks):
-        os.remove(ks)
-    cacert = "cacert1"
-    ca = os.path.join(cppcerts, cacert) + ".pem"
-    p12 = "s_dsa_nopass_ca1.p12"
-    cert = os.path.join(cppcerts, "s_dsa_nopass_ca1")
-    os.system("openssl pkcs12 -in " + cert + "_pub.pem -inkey " + cert + "_priv.pem -export -out " + p12 + \
-              " -name dsacert -passout pass:password -certfile " + ca)
-    os.system("java -classpath ../../../../certs ImportKey " + p12  + " dsacert " + cacert + ".der " + ks + " password")
-    os.remove(p12)
-    p12 = "s_rsa_nopass_ca1.p12"
-    cert = os.path.join(cppcerts, "s_rsa_nopass_ca1")
-    os.system("openssl pkcs12 -in " + cert + "_pub.pem -inkey " + cert + "_priv.pem -export -out " + p12 + \
-              " -name rsacert -passout pass:password -certfile " + ca)
-    os.system("java -classpath ../../../../certs ImportKey " + p12  + " rsacert " + cacert + ".der " + ks + " password")
-    os.remove(p12)
-    print "Created " + ks
-
-#
-# Clean up.
-#
-for x in ("cacert1", "cacert2"):
-    cert = x + ".der"
-    if os.path.exists(cert):
-        os.remove(cert)
-#
-# Done.
-#
-print "Done."
+if os.path.exists("s_rsa_dsa_ca1.jks"): os.remove("s_rsa_dsa_ca1.jks")
+ca1.get("s_rsa_ca1").exportToKeyStore("s_rsa_dsa_ca1.jks", alias="rsacert")
+ca1.get("s_dsa_ca1").exportToKeyStore("s_rsa_dsa_ca1.jks", alias="dsacert")

@@ -449,8 +449,8 @@ SChannelEngine::initialize()
             if(!CryptStringToBinary(&buffer[0], static_cast<DWORD>(buffer.size()), CRYPT_STRING_BASE64HEADER,
                                     &outBuffer[0], &outLength, 0, 0))
             {
-                throw PluginInitializationException(__FILE__, __LINE__,
-                                            "IceSSL: error decoding key:\n" + lastErrorToString());
+                throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: error decoding key `" + keyFile +
+                                                    "':\n" + lastErrorToString());
             }
 
             PCRYPT_PRIVATE_KEY_INFO keyInfo = 0;
@@ -459,21 +459,47 @@ SChannelEngine::initialize()
 
             try
             {
+                //
+                // First try to decode as a PKCS#8 key, if that fails try PKCS#1.
+                //
                 DWORD decodedLength = 0;
-                if(!CryptDecodeObjectEx(X509_ASN_ENCODING, PKCS_PRIVATE_KEY_INFO, &outBuffer[0], outLength,
-                                        CRYPT_DECODE_ALLOC_FLAG, 0, &keyInfo, &decodedLength))
+                if(CryptDecodeObjectEx(X509_ASN_ENCODING, PKCS_PRIVATE_KEY_INFO, &outBuffer[0], outLength,
+                                       CRYPT_DECODE_ALLOC_FLAG, 0, &keyInfo, &decodedLength))
                 {
-                    throw PluginInitializationException(__FILE__, __LINE__,
-                                            "IceSSL: error decoding key:\n" + lastErrorToString());
-                }
+                    //
+                    // Check that we are using a RSA Key
+                    //
+                    if(strcmp(keyInfo->Algorithm.pszObjId, szOID_RSA_RSA))
+                    {
+                        throw PluginInitializationException(__FILE__, __LINE__,
+                                                        string("IceSSL: error unknow key algorithm: `") +
+                                                            keyInfo->Algorithm.pszObjId + "'");
+                    }
 
-                //
-                // Check that we are using a RSA Key
-                //
-                if(strcmp(keyInfo->Algorithm.pszObjId, szOID_RSA_RSA))
+                    //
+                    // Decode the private key BLOB
+                    //
+                    if(!CryptDecodeObjectEx(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, PKCS_RSA_PRIVATE_KEY,
+                                            keyInfo->PrivateKey.pbData, keyInfo->PrivateKey.cbData,
+                                            CRYPT_DECODE_ALLOC_FLAG, 0, &key, &outLength))
+                    {
+                        throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: error decoding key `" +
+                                                            keyFile + "':\n" + lastErrorToString());
+                    }
+                    LocalFree(keyInfo);
+                    keyInfo = 0;
+                }
+                else
                 {
-                    throw PluginInitializationException(__FILE__, __LINE__,
-                                string("IceSSL: error unknow key algorithm: `") + keyInfo->Algorithm.pszObjId + "'");
+                    //
+                    // Decode the private key BLOB
+                    //
+                    if(!CryptDecodeObjectEx(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, PKCS_RSA_PRIVATE_KEY,
+                                            &outBuffer[0], outLength, CRYPT_DECODE_ALLOC_FLAG, 0, &key, &outLength))
+                    {
+                        throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: error decoding key `" +
+                                                            keyFile + "':\n" + lastErrorToString());
+                    }
                 }
 
                 //
@@ -485,32 +511,20 @@ SChannelEngine::initialize()
                 DWORD contextFlags = (keySet == "MachineKeySet") ? CRYPT_MACHINE_KEYSET | CRYPT_NEWKEYSET :
                                                                    CRYPT_NEWKEYSET;
 
-                if(!CryptAcquireContextW(&cryptProv, keySetName.c_str(), MS_DEF_PROV_W, PROV_RSA_FULL, contextFlags))
+                if(!CryptAcquireContextW(&cryptProv, keySetName.c_str(), MS_ENHANCED_PROV_W, PROV_RSA_FULL,
+                                         contextFlags))
                 {
-                    throw PluginInitializationException(__FILE__, __LINE__,
-                            "IceSSL: error acquiring cryptographic context:\n" + lastErrorToString());
+                    throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: error acquiring cryptographic "
+                                                        "context:\n" + lastErrorToString());
                 }
-
-                //
-                // Decode the private key BLOB
-                //
-                if(!CryptDecodeObjectEx(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, PKCS_RSA_PRIVATE_KEY,
-                                        keyInfo->PrivateKey.pbData, keyInfo->PrivateKey.cbData,
-                                        CRYPT_DECODE_ALLOC_FLAG, 0, &key, &outLength))
-                {
-                    throw PluginInitializationException(__FILE__, __LINE__,
-                                            "IceSSL: error decoding key:\n" + lastErrorToString());
-                }
-                LocalFree(keyInfo);
-                keyInfo = 0;
 
                 //
                 // Import the private key
                 //
                 if(!CryptImportKey(cryptProv, key, outLength, 0, 0, &hKey))
                 {
-                    throw PluginInitializationException(__FILE__, __LINE__,
-                                            "IceSSL: error importing key:\n" + lastErrorToString());
+                    throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: error importing key `" + keyFile +
+                                                        "':\n" + lastErrorToString());
                 }
                 LocalFree(key);
                 key = 0;
@@ -524,8 +538,8 @@ SChannelEngine::initialize()
                 store = CertOpenStore(CERT_STORE_PROV_MEMORY, 0, 0, 0, 0);
                 if(!store)
                 {
-                    throw PluginInitializationException(__FILE__, __LINE__,
-                                "IceSSL: error creating certificate store:\n" + lastErrorToString());
+                    throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: error creating certificate "
+                                                        "store:\n" + lastErrorToString());
                 }
 
                 addCertificateToStore(certFile, store, &cert);
@@ -542,8 +556,8 @@ SChannelEngine::initialize()
 
                 if(!CertSetCertificateContextProperty(cert, CERT_KEY_PROV_INFO_PROP_ID, 0, &keyProvInfo))
                 {
-                    throw PluginInitializationException(__FILE__, __LINE__,
-                                "IceSSL: error seting certificate property:\n" + lastErrorToString());
+                    throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: error seting certificate "
+                                                        "property:\n" + lastErrorToString());
                 }
 
                 _certs.push_back(cert);

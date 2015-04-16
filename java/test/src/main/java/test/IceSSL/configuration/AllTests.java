@@ -281,7 +281,7 @@ public class AllTests
             }
             fact.destroyServer(server);
             comm.destroy();
-            
+
             //
             // This should succeed because the self signed certificate used by the server is
             // trusted.
@@ -303,11 +303,12 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
             comm.destroy();
-            
+
             //
             // This should fail because the self signed certificate used by the server is not
             // trusted.
@@ -382,6 +383,7 @@ public class AllTests
             }
             catch(Exception ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);

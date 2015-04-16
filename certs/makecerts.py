@@ -84,25 +84,26 @@ if not dns:
     dns = request("The DNS name used for the server certificate will be: " + dns + "\n"
                   "Do you want to keep this DNS name? (y/n) [y]", "DNS : ", dns)
 
-cn = dns if usedns else ip
-
-dn = IceCertUtils.DistinguishedName("Ice Tests CA", default=IceCertUtils.defaultDN)
 CertificateFactory = vars(IceCertUtils)[impl + "CertificateFactory"]
-factory = CertificateFactory(debug=debug, dn=dn)
+factory = CertificateFactory(debug=debug, cn="Ice Tests CA")
 
+#
 # CA certificate
+#
 factory.getCA().save("cacert.pem").save("cacert.der")
 
 #
 # Client certificate
 #
-factory.create("client").save("client.p12").save("client.jks").save("client.bks")
+client = factory.create("client")
+client.save("client.p12").save("client.jks", caalias="cacert").save("client.bks")
 
 #
 # Server certificate
 #
 # NOTE: server.pem is used by scripts/TestController.py
 #
-factory.create("server", cn, ip=ip, dns=dns).save("server.p12").save("server.jks").save("server.bks").save("server.pem")
+server = factory.create("server", cn = (dns if usedns else ip), ip=ip, dns=dns)
+server.save("server.p12").save("server.jks", caalias="cacert").save("server.bks").save("server.pem")
 
 factory.destroy()

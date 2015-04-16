@@ -1,83 +1,56 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2015 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2015 ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
-import os, sys, shutil
+import os, sys, socket, getopt
 
-for toplevel in [".", "..", "../..", "../../..", "../../../..", "../../../../.."]:
-    toplevel = os.path.normpath(toplevel)
+try:
+    import IceCertUtils
+except Exception as ex:
+    print("error: couldn't find IceCertUtils, install `zeroc-ice-certutils' package "
+          "from Python package repository:\n" + str(ex))
+    sys.exit(1)
+
+toplevel="."
+while(toplevel != "/"):
+    toplevel = os.path.normpath(os.path.join("..", toplevel))
     if os.path.exists(os.path.join(toplevel, "scripts", "TestUtil.py")):
         break
 else:
     raise RuntimeError("can't find toplevel directory!")
 
-sys.path.append(toplevel)
-from scripts import *
+cppcerts = os.path.join(toplevel, "cpp", "test", "IceSSL", "certs")
+if not os.path.exists(os.path.join(cppcerts, "db", "ca1", "ca.pem")):
+    print("error: CA database is not initialized in `" + os.path.join(cppcerts, "db") + "',"
+          " run makecerts.py in `" + cppcerts + "' first")
+    sys.exit(1)
 
-#
-# Show usage information.
-#
-def usage():
-    print("Usage: " + sys.argv[0] + " [options]")
-    print("")
-    print("Options:")
-    print("-h    Show this message.")
-    print("-f    Force an update to the C# files.")
+ca1 = IceCertUtils.CertificateFactory(home=os.path.join(cppcerts, "db", "ca1"))
+ca2 = IceCertUtils.CertificateFactory(home=os.path.join(cppcerts, "db", "ca2"))
 
-#
-# Check arguments
-#
-force = 0
-for x in sys.argv[1:]:
-    if x == "-h":
-        usage()
-        sys.exit(0)
-    elif x == "-f":
-        force = 1
-    elif x.startswith("-"):
-        print(sys.argv[0] + ": unknown option `" + x + "'")
-        print("")
-        usage()
-        sys.exit(1)
-    else:
-        usage()
-        sys.exit(1)
+ca1.getCA().save("cacert1.pem")
+ca2.getCA().save("cacert2.pem")
 
-cppcerts = os.path.join(TestUtil.getIceDir("cpp"), "test", "IceSSL", "certs")
-
-for x in ("cacert1.pem", "cacert2.pem"):
-    if force or not os.path.exists(x):
-        shutil.copyfile(os.path.join(cppcerts, x), x)
-
-certs = [\
-    "c_rsa_nopass_ca1_exp", \
-    "c_rsa_nopass_ca1", \
-    "c_rsa_nopass_ca2", \
-    "s_rsa_nopass_ca1_exp", \
-    "s_rsa_nopass_ca1", \
-    "s_rsa_nopass_ca2", \
-    "s_rsa_nopass_ca1_cn1", \
-    "s_rsa_nopass_ca1_cn2", \
+certs = [
+    (ca1, "s_rsa_ca1"),
+    (ca1, "c_rsa_ca1"),
+    (ca1, "s_rsa_ca1_exp"), # Expired certificate
+    (ca1, "c_rsa_ca1_exp"), # Expired certificate
+    (ca1, "s_rsa_ca1_cn1"), # No subjectAltName, CN=127.0.0.1
+    (ca1, "s_rsa_ca1_cn2"), # No subjectAltName, CN=127.0.0.11
+    (ca2, "s_rsa_ca2"),
+    (ca2, "c_rsa_ca2"),
 ]
 
-for x in certs:
-    if force or not os.path.exists(x + ".pfx"):
-        cert = os.path.join(cppcerts, x)
-        os.system("openssl pkcs12 -in " + cert + "_pub.pem -inkey " + cert + "_priv.pem -export -out " + x + \
-                  ".pfx -passout pass:password")
-        print("Created " + x + ".pfx")
+#
+# Save the certificate as PKCS12 files.
+#
+for (ca, alias) in certs:
+    cert = ca.get(alias) or ca.create(alias, **args)
+    cert.save(alias + ".p12")
 
-if force or not os.path.exists("cacert2.pfx"):
-    cert = os.path.join(cppcerts, "cacert2.pem")
-    key = os.path.join(cppcerts, "cakey2.pem")
-    os.system("openssl pkcs12 -in " + cert + " -inkey " + key + " -export -out cacert2.pfx -passout pass:password")
-#
-# Done.
-#
-print("Done.")
+# Also export the ca2 self-signed certificate, it's used by the tests to test self-signed certificates
+ca2.getCA().save("cacert2.p12", addkey=True)

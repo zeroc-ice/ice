@@ -1110,27 +1110,37 @@ IceSSL::findCertificates(const string& prop, const string& storeSpec, const stri
                 else if(field == "SUBJECTDN" || field == "ISSUERDN")
                 {
                     const wstring argW = stringToWstring(arg);
-                    DWORD length = 0;
-                    if(!CertStrToNameW(X509_ASN_ENCODING, argW.c_str(), CERT_OID_NAME_STR | CERT_NAME_STR_REVERSE_FLAG,
-                                       0, 0, &length, 0))
+                    DWORD flags[] = {
+                        CERT_OID_NAME_STR,
+                        CERT_OID_NAME_STR | CERT_NAME_STR_REVERSE_FLAG,
+                        CERT_OID_NAME_STR | CERT_NAME_STR_FORCE_UTF8_DIR_STR_FLAG,
+                        CERT_OID_NAME_STR | CERT_NAME_STR_FORCE_UTF8_DIR_STR_FLAG | CERT_NAME_STR_REVERSE_FLAG
+                    };
+                    for(int i = 0; i < sizeof(flags) / sizeof(DWORD); ++i)
                     {
-                        throw PluginInitializationException(__FILE__, __LINE__,
-                                                "IceSSL: invalid value `" + value + "' for property `" + prop + "'\n" +
-                                                IceUtilInternal::lastErrorToString());
-                    }
+                        DWORD length = 0;
+                        if(!CertStrToNameW(X509_ASN_ENCODING, argW.c_str(), flags[i], 0, 0, &length, 0))
+                        {
+                            throw PluginInitializationException(
+                                __FILE__, __LINE__,
+                                "IceSSL: invalid value `" + value + "' for property `" + prop + "'\n" +
+                                IceUtilInternal::lastErrorToString());
+                        }
 
-                    vector<BYTE> buffer(length);
-                    if(!CertStrToNameW(X509_ASN_ENCODING, argW.c_str(), CERT_OID_NAME_STR | CERT_NAME_STR_REVERSE_FLAG,
-                                       0, &buffer[0], &length, 0))
-                    {
-                        throw PluginInitializationException(__FILE__, __LINE__,
-                                                "IceSSL: invalid value `" + value + "' for property `" + prop + "'\n" +
-                                                IceUtilInternal::lastErrorToString());
-                    }
+                        vector<BYTE> buffer(length);
+                        if(!CertStrToNameW(X509_ASN_ENCODING, argW.c_str(), flags[i], 0, &buffer[0], &length, 0))
+                        {
+                            throw PluginInitializationException(
+                                __FILE__, __LINE__,
+                                "IceSSL: invalid value `" + value + "' for property `" + prop + "'\n" +
+                                IceUtilInternal::lastErrorToString());
+                        }
 
-                    CERT_NAME_BLOB name = { length, &buffer[0] };
-                    DWORD findType = field == "SUBJECTDN" ? CERT_FIND_SUBJECT_NAME : CERT_FIND_ISSUER_NAME;
-                    addMatchingCertificates(store, tmpStore, findType, &name);
+                        CERT_NAME_BLOB name { length, &buffer[0] };
+
+                        DWORD findType = field == "SUBJECTDN" ? CERT_FIND_SUBJECT_NAME : CERT_FIND_ISSUER_NAME;
+                        addMatchingCertificates(store, tmpStore, findType, &name);
+                    }
                 }
                 else if(field == "THUMBPRINT" || field == "SUBJECTKEYID")
                 {

@@ -113,7 +113,7 @@ namespace IceSSL
             // TLS1.1 and TLS1.2 to avoid security issues with SSLv3
             //
             _protocols = parseProtocols(
-                properties.getPropertyAsListWithDefault(prefix + "Protocols", 
+                properties.getPropertyAsListWithDefault(prefix + "Protocols",
 #if UNITY
                                                         new string[]{"TLS1_0"}));
 #else
@@ -1179,7 +1179,29 @@ namespace IceSSL
                         // TODO: allow user to specify a value for validOnly?
                         //
                         bool validOnly = false;
-                        result = result.Find(findType, arg, validOnly);
+                        if(findType == X509FindType.FindBySubjectDistinguishedName ||
+                           findType == X509FindType.FindByIssuerDistinguishedName)
+                        {
+                            X500DistinguishedNameFlags[] flags = {
+                                X500DistinguishedNameFlags.None,
+                                X500DistinguishedNameFlags.Reversed,
+                            };
+                            X500DistinguishedName dn = new X500DistinguishedName(arg);
+                            X509Certificate2Collection r = result;
+                            for(int i = 0; i < flags.Length; ++i)
+                            {
+                                r = result.Find(findType, dn.Decode(flags[i]), validOnly);
+                                if(r.Count > 0)
+                                {
+                                    break;
+                                }
+                            }
+                            result = r;
+                        }
+                        else
+                        {
+                            result = result.Find(findType, arg, validOnly);
+                        }
                     }
                 }
             }

@@ -963,7 +963,7 @@ IceSSL::SecureTransportEngine::initialize()
             }
             if(!keyFile.empty() && !checkPath(keyFile, defaultDir, false))
             {
-                throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: key file not found:\n" + file);
+                throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: key file not found:\n" + keyFile);
             }
 
             try

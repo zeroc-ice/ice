@@ -23,17 +23,30 @@ import TestUtil
 certsPath = os.path.abspath(os.path.join(os.getcwd(), "..", "certs"))
 keychainPath = os.path.abspath(os.path.join(certsPath, "Find.keychain"))
 
+def cleanup():
+    if TestUtil.isDarwin():
+        os.system("rm -rf %s ../certs/keychain" % keychainPath)
+    elif TestUtil.isLinux():
+        for c in ["cacert1.pem", "cacert2.pem"]:
+            pem = os.path.join(certsPath, c)
+            os.system("rm {dir}/`openssl x509 -subject_hash -noout -in {pem}`.0".format(pem=pem, dir=certsPath))
 
-def keychainCleanup():
-    os.system("rm -rf %s ../certs/keychain" % keychainPath)
+cleanup()
+atexit.register(cleanup)
 
 if TestUtil.isDarwin():
-    atexit.register(keychainCleanup)
-    keychainCleanup()
     os.system("mkdir -p ../certs/keychain")
-
     os.system("security create-keychain -p password %s" % keychainPath)
-    for cert in ["s_rsa_ca1.pfx", "c_rsa_ca1.pfx"]:
+    for cert in ["s_rsa_ca1.p12", "c_rsa_ca1.p12"]:
         os.system("security import %s -f pkcs12 -A -P password -k %s" % (os.path.join(certsPath, cert), keychainPath))
+elif TestUtil.isLinux():
+    #
+    # Create copies of the CA certificates named after the subject
+    # hash. This is used by the tests to find the CA certificates in
+    # the IceSSL.DefaultDir
+    #
+    for c in ["cacert1.pem", "cacert2.pem"]:
+        pem = os.path.join(certsPath, c)
+        os.system("cp {pem} {dir}/`openssl x509 -subject_hash -noout -in {pem}`.0".format(pem=pem, dir=certsPath))
 
 TestUtil.clientServerTest(additionalClientOptions = '"%s"' % os.getcwd())
