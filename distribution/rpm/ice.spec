@@ -69,7 +69,7 @@ Release: 1%{?dist}
 License: GPL v2 with exceptions
 Group: System Environment/Libraries
 Vendor: ZeroC, Inc.
-URL: https://www.zeroc.com/
+URL: https://zeroc.com/
 Source0: Ice-%{version}.tar.gz
 #Source1: Ice-rpmbuild-%{version}.tar.gz
 

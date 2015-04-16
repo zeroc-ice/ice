@@ -29,7 +29,7 @@ reference/index.html: $(SLICEFILES)
 	$(MAKE) clean
 	$(bindir)/slice2html --ice -I$(slicedir) --hdr=htmlHeader --ftr=htmlFooter \
 	    --indexhdr=indexHeader --indexftr=indexFooter \
-	    --image-dir=images --logo-url="https://www.zeroc.com" --search="/cgi-bin/swish.cgi" \
+	    --image-dir=images --logo-url="https://zeroc.com" --search="/cgi-bin/swish.cgi" \
 	    --output-dir=reference --index=3 --summary=120 $(SLICEFILES)
 	mkdir reference/$(IMAGES)
 	cp $(IMAGES)/*.gif reference/$(IMAGES)

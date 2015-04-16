@@ -15,7 +15,7 @@ task writeNewPom {
 } << {
     pom {
         project {
-            url 'https://www.zeroc.com'
+            url 'https://zeroc.com'
             packaging 'jar'
             // TODO: Extend with licensing information.
         }
