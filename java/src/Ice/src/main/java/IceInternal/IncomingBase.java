@@ -304,6 +304,10 @@ class IncomingBase
         {
             __handleException(ex, amd);
         }
+        catch(java.lang.Error ex)
+        {
+            __handleError(ex, amd); // Always throws.
+        }
         return false;
     }
 
@@ -590,6 +594,54 @@ class IncomingBase
             _observer = null;
         }
         _responseHandler = null;
+    }
+
+    final protected void
+    __handleError(java.lang.Error exc, boolean amd)
+    {
+        assert(_responseHandler != null);
+
+        Ice.UnknownException uex = new Ice.UnknownException(exc);
+        java.io.StringWriter sw = new java.io.StringWriter();
+        java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+        exc.printStackTrace(pw);
+        pw.flush();
+        uex.unknown = sw.toString();
+
+        if(_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+        {
+            __warning(uex);
+        }
+
+        if(_observer != null)
+        {
+            _observer.failed(uex.ice_name());
+        }
+
+        if(_response)
+        {
+            _os.resize(Protocol.headerSize + 4, false); // Reply status position.
+            _os.writeByte(ReplyStatus.replyUnknownException);
+            _os.writeString(uex.unknown);
+            if(_observer != null)
+            {
+                _observer.reply(_os.size() - Protocol.headerSize - 4);
+            }
+            _responseHandler.sendResponse(_current.requestId, _os, _compress, amd);
+        }
+        else
+        {
+            _responseHandler.sendNoResponse();
+        }
+
+        if(_observer != null)
+        {
+            _observer.detach();
+            _observer = null;
+        }
+        _responseHandler = null;
+
+        throw new ServantError(exc);
     }
 
     protected Instance _instance;

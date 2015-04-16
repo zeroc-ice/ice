@@ -2522,20 +2522,30 @@ public final class ConnectionI extends IceInternal.EventHandler
         {
             invokeException(requestId, ex, invokeNum, false);
         }
-        catch(java.lang.AssertionError ex) // Upon assertion, we print the stack
-                                           // trace.
+        catch(IceInternal.ServantError ex)
         {
-            UnknownException uex = new UnknownException(ex);
-            java.io.StringWriter sw = new java.io.StringWriter();
-            java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-            ex.printStackTrace(pw);
-            pw.flush();
-            uex.unknown = sw.toString();
-            _logger.error(uex.unknown);
-            invokeException(requestId, uex, invokeNum, false);
+            //
+            // ServantError is thrown when an Error has been raised by servant (or servant locator)
+            // code. We've already attempted to complete the invocation and send a response.
+            //
+            Throwable t = ex.getCause();
+            //
+            // Suppress AssertionError and OutOfMemoryError, rethrow everything else.
+            //
+            if(!(t instanceof java.lang.AssertionError || t instanceof java.lang.OutOfMemoryError))
+            {
+                throw (java.lang.Error)t;
+            }
         }
-        catch(java.lang.OutOfMemoryError ex)
+        catch(java.lang.Error ex)
         {
+            //
+            // An Error was raised outside of servant code (i.e., by Ice code).
+            // Attempt to log the error and clean up. This may still fail
+            // depending on the severity of the error.
+            //
+            // Note that this does NOT send a response to the client.
+            //
             UnknownException uex = new UnknownException(ex);
             java.io.StringWriter sw = new java.io.StringWriter();
             java.io.PrintWriter pw = new java.io.PrintWriter(sw);
@@ -2544,6 +2554,13 @@ public final class ConnectionI extends IceInternal.EventHandler
             uex.unknown = sw.toString();
             _logger.error(uex.unknown);
             invokeException(requestId, uex, invokeNum, false);
+            //
+            // Suppress AssertionError and OutOfMemoryError, rethrow everything else.
+            //
+            if(!(ex instanceof java.lang.AssertionError || ex instanceof java.lang.OutOfMemoryError))
+            {
+                throw ex;
+            }
         }
         finally
         {

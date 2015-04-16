@@ -194,6 +194,11 @@ final public class Incoming extends IncomingBase implements Ice.Request
                         __handleException(ex, false);
                         return;
                     }
+                    catch(java.lang.Error ex)
+                    {
+                        _is.skipEncaps(); // Required for batch requests.
+                        __handleError(ex, false); // Always throws.
+                    }
                 }
             }
         }
@@ -260,6 +265,14 @@ final public class Incoming extends IncomingBase implements Ice.Request
             }
             __handleException(ex, false);
             return;
+        }
+        catch(java.lang.Error ex)
+        {
+            if(_servant != null && _locator != null && !__servantLocatorFinished(false))
+            {
+                return;
+            }
+            __handleError(ex, false); // Always throws.
         }
 
         //

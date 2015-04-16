@@ -141,17 +141,17 @@ public class AsyncResultI implements AsyncResult
         {
             _callback.__sent(this);
         }
-        catch(RuntimeException ex)
+        catch(java.lang.RuntimeException ex)
         {
             warning(ex);
         }
-        catch(AssertionError exc)
+        catch(java.lang.Error exc)
         {
             error(exc);
-        }
-        catch(OutOfMemoryError exc)
-        {
-            error(exc);
+            if(!(exc instanceof java.lang.AssertionError || exc instanceof java.lang.OutOfMemoryError))
+            {
+                throw exc;
+            }
         }
         finally
         {
