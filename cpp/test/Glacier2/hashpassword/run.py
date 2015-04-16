@@ -57,7 +57,7 @@ if usePBKDF2:
     test(not passlib.hash.pbkdf2_sha512.verify("abc123", hashPasswords("abc", "-d sha512")))
 
     #
-    # Now use custom rounds, md5 digest doesn't support
+    # Now use custom rounds
     #
     hash = hashPasswords("abc123", "-r 1000")
     if hash.find("$pbkdf2-sha256$1000$") == -1:
@@ -87,11 +87,8 @@ elif useCryptExt:
     test(passlib.hash.sha256_crypt.verify("abc123", hashPasswords("abc123", "-d sha256")))
     test(not passlib.hash.sha256_crypt.verify("abc123", hashPasswords("abc", "-d sha256")))
 
-    test(passlib.hash.md5_crypt.verify("abc123", hashPasswords("abc123", "-d md5")))
-    test(not passlib.hash.md5_crypt.verify("abc123", hashPasswords("abc", "-d md5")))
-
     #
-    # Now use custom rounds, md5 digest doesn't support custom rounds
+    # Now use custom rounds
     #
     hash = hashPasswords("abc123", "-r 5000")
     if hash.find("rounds=") != -1:
