@@ -1,7 +1,7 @@
-Contributing to the Ice
-=======================
+Contributing to Ice
+====================
 
-Thank you for your interest in contributing to the Ice!
+Thank you for your interest in contributing to Ice!
 
 How to Contribute
 -----------------
