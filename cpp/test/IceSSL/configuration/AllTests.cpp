@@ -893,11 +893,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             try
             {
                 info = IceSSL::NativeConnectionInfoPtr::dynamicCast(server->ice_getConnection()->getInfo());
-#ifdef ICE_USE_OPENSSL
-		test(info->nativeCerts.size() == 1); // TODO: Fix OpenSSL
-#else
                 test(info->nativeCerts.size() == 2);
-#endif
             }
             catch(const Ice::LocalException& ex)
             {
@@ -914,9 +910,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             try
             {
                 IceSSL::NativeConnectionInfoPtr::dynamicCast(server->ice_getConnection()->getInfo());
-#ifndef ICE_USE_OPENSSL // TODO: FIX
                 test(false);
-#endif
             }
             catch(const Ice::SecurityException&)
             {
@@ -949,9 +943,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             try
             {
                 info = IceSSL::NativeConnectionInfoPtr::dynamicCast(server->ice_getConnection()->getInfo());
-#ifndef ICE_USE_OPENSSL // TODO: FIX
                 test(info->nativeCerts.size() == 3);
-#endif
             }
             catch(const Ice::LocalException&)
             {
@@ -967,9 +959,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             try
             {
                 IceSSL::NativeConnectionInfoPtr::dynamicCast(server->ice_getConnection()->getInfo());
-#ifndef ICE_USE_OPENSSL // TODO: FIX
                 test(false);
-#endif
             }
             catch(const Ice::SecurityException&)
             {
@@ -997,11 +987,60 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             try
             {
                 info = IceSSL::NativeConnectionInfoPtr::dynamicCast(server->ice_getConnection()->getInfo());
-#ifdef ICE_USE_OPENSSL // TODO: FIX
-                test(info->nativeCerts.size() == 3);
-#else
                 test(info->nativeCerts.size() == 4);
-#endif
+            }
+            catch(const Ice::LocalException&)
+            {
+                test(false);
+            }
+            fact->destroyServer(server);
+        }
+
+        comm->destroy();
+
+        //
+        // Increase VerifyDepthMax to 4
+        //
+        initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_cai2", "cacert1");
+        initData.properties->setProperty("IceSSL.VerifyPeer", "1");
+        initData.properties->setProperty("IceSSL.VerifyDepthMax", "4");
+        comm = initialize(initData);
+
+        fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        test(fact);
+
+        {
+            Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_cai2", "cacert1");
+            d["IceSSL.VerifyPeer"] = "2";
+            Test::ServerPrx server = fact->createServer(d);
+            try
+            {
+                server->ice_getConnection();
+                test(false);
+            }
+            catch(const Ice::ProtocolException&)
+            {
+                // Expected
+            }
+            catch(const Ice::ConnectionLostException&)
+            {
+                // Expected
+            }
+            catch(const Ice::LocalException&)
+            {
+                test(false);
+            }
+            fact->destroyServer(server);
+        }
+
+        {
+            Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_cai2", "cacert1");
+            d["IceSSL.VerifyPeer"] = "2";
+            d["IceSSL.VerifyDepthMax"] = "4";
+            Test::ServerPrx server = fact->createServer(d);
+            try
+            {
+                server->ice_getConnection();
             }
             catch(const Ice::LocalException&)
             {

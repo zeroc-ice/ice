@@ -231,7 +231,6 @@ public:
     virtual bool initialized() const;
     virtual void destroy();
 
-    int verifyCallback(int , SSL*, X509_STORE_CTX*);
 #   ifndef OPENSSL_NO_DH
     DH* dhParams(int);
 #   endif

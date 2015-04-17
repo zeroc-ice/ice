@@ -11,6 +11,7 @@
 #define ICE_SSL_TRANSCEIVER_I_H
 
 #include <IceSSL/Config.h>
+#include <IceSSL/Util.h>
 #include <IceSSL/InstanceF.h>
 #include <IceSSL/Plugin.h>
 #include <IceSSL/SSLEngineF.h>
@@ -48,12 +49,15 @@ public:
     virtual void checkSendSize(const IceInternal::Buffer&);
     virtual void setBufferSize(int rcvSize, int sndSize);
 
+    int verifyCallback(int , X509_STORE_CTX*);
+
 private:
 
     TransceiverI(const InstancePtr&, const IceInternal::StreamSocketPtr&, const std::string&, bool);
     virtual ~TransceiverI();
 
     virtual NativeConnectionInfoPtr getNativeConnectionInfo() const;
+    NativeConnectionInfoPtr initNativeConnectionInfo(X509_STORE_CTX*) const;
 
     friend class ConnectorI;
     friend class AcceptorI;
@@ -64,6 +68,7 @@ private:
     const std::string _adapterName;
     const bool _incoming;
     const IceInternal::StreamSocketPtr _stream;
+    NativeConnectionInfoPtr _info;
 
     SSL* _ssl;
 };

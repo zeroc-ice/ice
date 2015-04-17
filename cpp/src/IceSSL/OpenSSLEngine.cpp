@@ -145,14 +145,6 @@ IceSSL_opensslDHCallback(SSL* ssl, int /*isExport*/, int keyLength)
 }
 #  endif
 
-int
-IceSSL_opensslVerifyCallback(int ok, X509_STORE_CTX* ctx)
-{
-    SSL* ssl = reinterpret_cast<SSL*>(X509_STORE_CTX_get_ex_data(ctx, SSL_get_ex_data_X509_STORE_CTX_idx()));
-    OpenSSLEngine* p = reinterpret_cast<OpenSSLEngine*>(SSL_CTX_get_ex_data(ssl->ctx, 0));
-    return p->verifyCallback(ok, ssl, ctx);
-}
-
 }
 
 namespace
@@ -807,30 +799,6 @@ OpenSSLEngine::initialize()
             SSL_free(ssl);
             getLogger()->trace(securityTraceCategory(), os.str());
         }
-
-        //
-        // Determine whether a certificate is required from the peer.
-        //
-        {
-            int sslVerifyMode = SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT;
-            switch(getVerifyPeer())
-            {
-                case 0:
-                    sslVerifyMode = SSL_VERIFY_NONE;
-                    break;
-                case 1:
-                    sslVerifyMode = SSL_VERIFY_PEER;
-                    break;
-                case 2:
-                    sslVerifyMode = SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT;
-                    break;
-                default:
-                {
-                    assert(false);
-                }
-            }
-            SSL_CTX_set_verify(_ctx, sslVerifyMode, IceSSL_opensslVerifyCallback);
-        }
     }
     catch(...)
     {
@@ -877,36 +845,6 @@ OpenSSLEngine::destroy()
     {
         SSL_CTX_free(_ctx);
     }
-}
-
-int
-OpenSSLEngine::verifyCallback(int ok, SSL* ssl, X509_STORE_CTX* c)
-{
-    if(!ok && securityTraceLevel() >= 1)
-    {
-        X509* cert = X509_STORE_CTX_get_current_cert(c);
-        int err = X509_STORE_CTX_get_error(c);
-        char buf[256];
-
-        Trace out(getLogger(), securityTraceCategory());
-        out << "certificate verification failure\n";
-
-        X509_NAME_oneline(X509_get_issuer_name(cert), buf, static_cast<int>(sizeof(buf)));
-        out << "issuer = " << buf << '\n';
-        X509_NAME_oneline(X509_get_subject_name(cert), buf, static_cast<int>(sizeof(buf)));
-        out << "subject = " << buf << '\n';
-        out << "depth = " << X509_STORE_CTX_get_error_depth(c) << '\n';
-        out << "error = " << X509_verify_cert_error_string(err) << '\n';
-        out << IceInternal::fdToString(SSL_get_fd(ssl));
-    }
-
-    //
-    // Always return 1 to prevent SSL_connect/SSL_accept from
-    // returning SSL_ERROR_SSL for verification failures. This ensure
-    // that we can raise SecurityException for verification failures
-    // rather than a ProtocolException.
-    //
-    return 1;
 }
 
 #  ifndef OPENSSL_NO_DH
