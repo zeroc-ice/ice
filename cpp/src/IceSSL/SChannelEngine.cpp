@@ -372,8 +372,6 @@ SChannelEngine::initialize()
 
             if(store)
             {
-                _stores.push_back(store);
-
                 //
                 // Try to find a certificate chain.
                 //
@@ -411,7 +409,27 @@ SChannelEngine::initialize()
                     throw PluginInitializationException(__FILE__, __LINE__,
                                                         "IceSSL: certificate error:\n" + lastErrorToString());
                 }
-                _certs.push_back(cert);
+
+                //
+                // If we found a certificate, add it to a new memory store. We
+                // can't use directly the certificate context from the PFX
+                // store: while it works for certificates without
+                // intermediates, it doesn't if the certificate has
+                // intermediates, the intermediates certificates aren't being
+                // sent.
+                //
+                HCERTSTORE newStore = CertOpenStore(CERT_STORE_PROV_MEMORY, 0, 0, 0, 0);
+                PCCERT_CONTEXT newCert;
+                if(!CertAddCertificateContextToStore(newStore, cert, CERT_STORE_ADD_ALWAYS, &newCert))
+                {
+                    CertCloseStore(newStore, 0);
+                    throw PluginInitializationException(__FILE__, __LINE__,
+                                                        "IceSSL: certificate error:\n" + lastErrorToString());
+                }
+                _certs.push_back(newCert);
+                _stores.push_back(newStore);
+                CertFreeCertificateContext(cert);
+                CertCloseStore(store, 0);
                 continue;
             }
 

@@ -953,12 +953,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
                 test(info->nativeCerts.size() == 3);
 #endif
             }
-            catch(const Ice::LocalException& ex)
+            catch(const Ice::LocalException&)
             {
-                cerr << ex << endl;
-#ifndef ICE_USE_SCHANNEL // TODO: FIX
                 test(false);
-#endif
             }
             fact->destroyServer(server);
         }
@@ -1006,12 +1003,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
                 test(info->nativeCerts.size() == 4);
 #endif
             }
-            catch(const Ice::LocalException& ex)
+            catch(const Ice::LocalException&)
             {
-                cerr << ex << endl;
-#ifndef ICE_USE_SCHANNEL // TODO: FIX
                 test(false);
-#endif
             }
             fact->destroyServer(server);
         }
