@@ -62,7 +62,7 @@ jar {
 buildscript {
     repositories {
         maven {
-            url 'https://repo.zeroc.com/nexus/content/repositories/thirdparty'
+            url "https://${iceMavenRepo}/nexus/content/repositories/thirdparty"
         }
     }
     dependencies {
