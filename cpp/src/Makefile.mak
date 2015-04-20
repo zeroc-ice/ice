@@ -21,7 +21,6 @@ SUBDIRS		= IceUtil\winrt \
 SUBDIRS		= IceUtil \
 		  Slice \
 		  slice2cpp \
-		  slice2py \
 		  Ice \
 		  IceSSL \
 		  IceDiscovery \
@@ -34,10 +33,8 @@ SUBDIRS		= IceUtil \
 		  slice2cs \
 		  slice2freezej \
 		  slice2java \
-		  slice2py \
 		  slice2html \
 		  slice2php \
-		  slice2rb \
 		  slice2js \
 		  Ice \
 		  IceSSL \

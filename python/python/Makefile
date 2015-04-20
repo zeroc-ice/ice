@@ -101,6 +101,7 @@ PACKAGES	= IceBox IceGrid IcePatch2 IceStorm IceMX
 
 all:: $(ALL_SRCS)
 
+SLICE2PY         = ../config/slice2py.py
 SLICE2PYFLAGS	+= --ice
 
 Ice_%_ice.py: $(slicedir)/Ice/%.ice $(SLICE2PY) $(SLICEPARSERLIB)

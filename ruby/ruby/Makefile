@@ -115,6 +115,7 @@ MODULES		= Glacier2 Ice IceBox IceGrid IcePatch2 IceStorm
 
 all:: $(ALL_SRCS)
 
+SLICE2RB	= ../config/slice2rb.rb
 SLICE2RBFLAGS	+= --ice
 
 Ice/%.rb: $(slicedir)/Ice/%.ice $(SLICE2RB) $(SLICEPARSERLIB)
