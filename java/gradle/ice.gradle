@@ -20,7 +20,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath group: 'com.zeroc.gradle.plugins', name: 'ice-gradle-plugin', version: '1.0'
+        classpath group: 'com.zeroc.gradle', name: 'ice-builder', version: '1.0.0'
     }
 }
 
