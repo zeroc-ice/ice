@@ -241,7 +241,7 @@ These are the changes since Ice 3.5.1.
 
 - Added the metadata tag `clr:implements:Base`, which adds the specified base type to the generated code for a Slice structure, class or interface.
 
-- Most Slice data types now support .NET serialization, which allows Ice exceptions to cross AppDomain boundaries. The only limitation is that data members whose types are proxies cannot be serialized; these members will be set to null after deserialization.
+- Most Slice data types now support .NET serialization, which allows Ice exceptions to cross AppDomain boundaries. The only limitation is that data members whose types are proxies cannot be serialized; these members will be set to null after deserialization. Note that the `Ice.Optional` type now implements `ISerializable` and the .NET serialization format in Ice 3.6 is not backward-compatible with Ice 3.5.
 
 - It is now possible for users to provide a base class for a Slice-generated class with .NET partial classes.
 
