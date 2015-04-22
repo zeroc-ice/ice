@@ -41,9 +41,9 @@ PYTHON_HOME		= C:\Python34
 #
 # Common definitions
 #
-ice_language     = py
+ice_language     = python
 ice_require_cpp  = yes
-slice_translator = slice2py.exe
+slice_translator = slice2py
 
 !if exist ($(top_srcdir)\..\config\Make.common.rules.mak)
 !include $(top_srcdir)\..\config\Make.common.rules.mak

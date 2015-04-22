@@ -17,7 +17,7 @@ prefix			= C:\Ice-$(VERSION)
 # Define OPTIMIZE as yes if you want to build with
 # optimization. Otherwise Ice is build with debug information.
 #
-#OPTIMIZE		= yes
+OPTIMIZE		= yes
 
 #
 # Define if you want pdb files to be generated for optimized/release

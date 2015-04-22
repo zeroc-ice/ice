@@ -1136,7 +1136,7 @@ IceSSL::findCertificates(const string& prop, const string& storeSpec, const stri
                                 IceUtilInternal::lastErrorToString());
                         }
 
-                        CERT_NAME_BLOB name { length, &buffer[0] };
+                        CERT_NAME_BLOB name = { length, &buffer[0] };
 
                         DWORD findType = field == "SUBJECTDN" ? CERT_FIND_SUBJECT_NAME : CERT_FIND_ISSUER_NAME;
                         addMatchingCertificates(store, tmpStore, findType, &name);

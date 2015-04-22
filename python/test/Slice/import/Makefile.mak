@@ -14,12 +14,16 @@ top_srcdir	= ..\..\..
 SRCS		= Test1_ice.py \
                   Test2_ice.py
 
+!if "$(ice_src_dist)" != ""
+SLICE2PY        = $(PYTHON_HOME)\python $(top_srcdir)\config\slice2py.py
+!endif
+
 all:: $(SRCS)
 
-Test1_ice.py: "Test1.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
+Test1_ice.py: "Test1.ice" "$(SLICEPARSERLIB)"
 	"$(SLICE2PY)" $(SLICE2PYFLAGS) "Test1.ice"
 
-Test2_ice.py: "Test2.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
+Test2_ice.py: "Test2.ice" "$(SLICEPARSERLIB)"
 	"$(SLICE2PY)" $(SLICE2PYFLAGS) "Test2.ice"
 
 clean::
