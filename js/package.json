@@ -14,7 +14,7 @@
     "IceJS",
     "rpc"
   ],
-  "main": "src/zeroc-icejs.js",
+  "main": "src/index.js",
   "devDependencies": {
     "bower": "^1.4.1",
     "browser-sync": "^2.6.4",

@@ -370,7 +370,7 @@ gulp.task("bower", [],
 
 gulp.task("dist:libs", ["bower"],
     function(){
-        return gulp.src(["bower_components/zeroc-icejs/lib/*"])
+        return gulp.src(["bower_components/ice/lib/*"])
             .pipe(gulp.dest("lib"));
     });
 

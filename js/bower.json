@@ -1,24 +1,6 @@
 {
-  "name": "zeroc-icejs",
-  "version": "3.6.0",
-  "description": "Ice for JavaScript runtime",
-  "author": "Zeroc, Inc.",
-  "homepage": "https://zeroc.com",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/zeroc-ice/bower-ice.git"
-  },
-  "license": "GPL-2.0",
-  "main": [
-    "lib/Glacier2.js",
-    "lib/Ice.js",
-    "lib/IceStorm.js",
-    "lib/IceGrid.js"
-  ],
-  "keywords": [
-    "Ice",
-    "IceJS"
-  ],
+  "name": "ice",
+  "private": true,
   "dependencies": {
     "foundation": "~5.5.0",
     "jquery": "~2.1.3",

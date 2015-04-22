@@ -9,7 +9,7 @@
 
 (function(module, require, exports)
 {
-    var Ice = require("zeroc-icejs").Ice;
+    var Ice = require("ice").Ice;
     var TestAMD = require("TestAMD").TestAMD;
     var Class = Ice.Class;
 

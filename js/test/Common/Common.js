@@ -7,26 +7,26 @@
 //
 // **********************************************************************
 
-(function(module, require, exports){   
-    var Ice = require("zeroc-icejs").Ice;
+(function(module, require, exports){
+    var Ice = require("ice").Ice;
 
     var write = function(msg)
     {
-        process.stdout.write(msg); 
+        process.stdout.write(msg);
     };
 
     var writeLine = function(msg)
     {
         this.write(msg + "\n");
     };
-    
+
     var run = function(m)
     {
         var id = new Ice.InitializationData();
         id.properties = Ice.createProperties(process.argv);
-        
+
         var test = m.require("./Client").__test__;
-        
+
         test({write: write, writeLine: writeLine}, id).exception(
             function(ex, r)
             {
