@@ -123,42 +123,42 @@ Ice/%.rb: $(slicedir)/Ice/%.ice $(SLICE2RB) $(SLICEPARSERLIB)
 	$(SLICE2RB) --output-dir $(notdir $(<D)) $(SLICE2RBFLAGS) $<
 	@mkdir -p .depend
 	@$(SLICE2RB) --output-dir $(notdir $(<D)) $(SLICE2RBFLAGS) --depend $< | \
-		$(top_srcdir)/../config/makedepend.py "Ice/" > .depend/Ice_$(*F).ice.d
+		sed 's/\(.*: \\\)/Ice\/\1/' > .depend/Ice_$(*F).ice.d
 
 Glacier2/%.rb: $(slicedir)/Glacier2/%.ice $(SLICE2RB) $(SLICEPARSERLIB)
 	@mkdir -p $(notdir $(<D))
 	$(SLICE2RB) --output-dir $(notdir $(<D)) $(SLICE2RBFLAGS) $<
 	@mkdir -p .depend
 	@$(SLICE2RB) --output-dir $(notdir $(<D)) $(SLICE2RBFLAGS) --depend $< | \
-		$(top_srcdir)/../config/makedepend.py "Glacier2/" > .depend/Glacier2_$(*F).ice.d
+		sed 's/\(.*: \\\)/Glacier2\/\1/' > .depend/Glacier2_$(*F).ice.d
 
 IceBox/%.rb: $(slicedir)/IceBox/%.ice $(SLICE2RB) $(SLICEPARSERLIB)
 	@mkdir -p $(notdir $(<D))
 	$(SLICE2RB) --output-dir $(notdir $(<D)) $(SLICE2RBFLAGS) $<
 	@mkdir -p .depend
 	@$(SLICE2RB) --output-dir $(notdir $(<D)) $(SLICE2RBFLAGS) --depend $< | \
-		$(top_srcdir)/../config/makedepend.py "IceBox/" > .depend/IceBox_$(*F).ice.d
+		sed 's/\(.*: \\\)/IceBox\/\1/' > .depend/IceBox_$(*F).ice.d
 
 IceGrid/%.rb: $(slicedir)/IceGrid/%.ice $(SLICE2RB) $(SLICEPARSERLIB)
 	@mkdir -p $(notdir $(<D))
 	$(SLICE2RB) --output-dir $(notdir $(<D)) $(SLICE2RBFLAGS) $<
 	@mkdir -p .depend
 	@$(SLICE2RB) --output-dir $(notdir $(<D)) $(SLICE2RBFLAGS) --depend $< | \
-		$(top_srcdir)/../config/makedepend.py "IceGrid/" > .depend/IceGrid_$(*F).ice.d
+		sed 's/\(.*: \\\)/IceGrid\/\1/' > .depend/IceGrid_$(*F).ice.d
 
 IcePatch2/%.rb: $(slicedir)/IcePatch2/%.ice $(SLICE2RB) $(SLICEPARSERLIB)
 	@mkdir -p $(notdir $(<D))
 	$(SLICE2RB) --output-dir $(notdir $(<D)) $(SLICE2RBFLAGS) $<
 	@mkdir -p .depend
 	@$(SLICE2RB) --output-dir $(notdir $(<D)) $(SLICE2RBFLAGS) --depend $< | \
-		$(top_srcdir)/../config/makedepend.py "IcePatch2/" > .depend/IcePatch2_$(*F).ice.d
+		sed 's/\(.*: \\\)/IcePatch2\/\1/' > .depend/IcePatch2_$(*F).ice.d
 
 IceStorm/%.rb: $(slicedir)/IceStorm/%.ice $(SLICE2RB) $(SLICEPARSERLIB)
 	@mkdir -p $(notdir $(<D))
 	$(SLICE2RB) --output-dir $(notdir $(<D)) $(SLICE2RBFLAGS) $<
 	@mkdir -p .depend
 	@$(SLICE2RB) --output-dir $(notdir $(<D)) $(SLICE2RBFLAGS) --depend $< | \
-		$(top_srcdir)/../config/makedepend.py "IceStorm/" > .depend/IceStorm_$(*F).ice.d
+		sed 's/\(.*: \\\)/IceStorm\/\1/' > .depend/IceStorm_$(*F).ice.d
 
 install:: $(ALL_SRCS)
 	@echo "Installing generated code"

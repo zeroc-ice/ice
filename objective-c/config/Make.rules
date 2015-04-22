@@ -146,7 +146,7 @@ $(HDIR)/%F.h: $(SDIR)/%F.ice $(SLICE2OBJC)
 	mv $(*F)F.h $(HDIR)
 	@touch $(*F)F.m
 	@mkdir -p .depend
-	@$(SLICE2OBJC) $(SLICE2OBJCFLAGS) --depend $< | $(ice_dir)/config/makedepend.py "\$$(HDIR)/" > .depend/$(*F)F.ice.d
+	@$(SLICE2OBJC) $(SLICE2OBJCFLAGS) --depend $< | sed 's/\(.*: \\\)/\$$(HDIR)\/\1/' > .depend/$(*F)F.ice.d
 
 $(HDIR)/%.h %.m: $(SDIR)/%.ice $(SLICE2OBJC)
 	rm -f $(HDIR)/$(*F).h $(*F).m
@@ -154,7 +154,7 @@ $(HDIR)/%.h %.m: $(SDIR)/%.ice $(SLICE2OBJC)
 	mv $(*F).h $(HDIR)
 	@touch $(*F).m
 	@mkdir -p .depend
-	@$(SLICE2OBJC) $(SLICE2OBJCFLAGS) --depend $< | $(ice_dir)/config/makedepend.py "\$$(HDIR)/" > .depend/$(*F).ice.d
+	@$(SLICE2OBJC) $(SLICE2OBJCFLAGS) --depend $< | sed 's/\(.*: \\\)/\$$(HDIR)\/\1/' > .depend/$(*F).ice.d
 
 %.h %.m: %.ice $(SLICE2OBJC)
 	rm -f $(*F).h $(*F).m

@@ -251,7 +251,7 @@ include $(wildcard .depend/*.d)
 $(GDIR)/%.cs: $(SDIR)/%.ice
 	$(SLICE2CS) --output-dir $(GDIR) $(SLICE2CSFLAGS) $<
 	@mkdir -p .depend
-	@$(SLICE2CS) --output-dir $(GDIR) $(SLICE2CSFLAGS) --depend $< | $(top_srcdir)/../config/makedepend.py "generated/" > .depend/$(*F).ice.d
+	@$(SLICE2CS) --output-dir $(GDIR) $(SLICE2CSFLAGS) --depend $< | sed 's/\(.*: \\\)/generated\/\1/' > .depend/$(*F).ice.d
 
 all:: $(TARGETS)
 
