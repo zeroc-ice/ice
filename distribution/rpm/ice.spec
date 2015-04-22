@@ -942,7 +942,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/slice2html.1.gz
 %{_bindir}/icegridadmin
 %{_mandir}/man1/icegridadmin.1.gz
-%{_bindir}/hashpassword.py
+%{_bindir}/icehashpassword.py
 %{_defaultdocdir}/ice-utils-%{version}
 
 %post -n ice-utils -p /sbin/ldconfig

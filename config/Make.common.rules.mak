@@ -209,8 +209,8 @@ install-common::
             @echo "Creating $(install_bindir)..." && \
             mkdir "$(prefix)\bin"
 
-	@if not exist "$(prefix)\bin\hashpassword.py" \
-            @copy $(top_srcdir)\..\scripts\hashpassword.py "$(prefix)\bin""
+	@if not exist "$(prefix)\bin\icehashpassword.py" \
+            @copy $(top_srcdir)\..\scripts\icehashpassword.py "$(prefix)\bin""
 
 	@if not exist "$(prefix)\ICE_LICENSE$(TEXT_EXT)" \
 	    @copy $(top_srcdir)\..\ICE_LICENSE$(TEXT_EXT) "$(prefix)"
