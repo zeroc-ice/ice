@@ -1116,7 +1116,7 @@ IceSSL::findCertificates(const string& prop, const string& storeSpec, const stri
                         CERT_OID_NAME_STR | CERT_NAME_STR_FORCE_UTF8_DIR_STR_FLAG,
                         CERT_OID_NAME_STR | CERT_NAME_STR_FORCE_UTF8_DIR_STR_FLAG | CERT_NAME_STR_REVERSE_FLAG
                     };
-                    for(int i = 0; i < sizeof(flags) / sizeof(DWORD); ++i)
+                    for(size_t i = 0; i < sizeof(flags) / sizeof(DWORD); ++i)
                     {
                         DWORD length = 0;
                         if(!CertStrToNameW(X509_ASN_ENCODING, argW.c_str(), flags[i], 0, 0, &length, 0))

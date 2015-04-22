@@ -11,17 +11,22 @@
 import sys, os, platform
 sys.path.append(os.path.join(os.path.dirname(sys.argv[0]), "..", "python"))
 if sys.platform == "win32":
-	path = os.getenv('PATH')
-	path = path + ';' + os.path.join(os.path.dirname(sys.argv[0]), "..", "..", "cpp", "bin")
-	if os.getenv("PLATFORM") == "X64":
-		bit, name = platform.architecture()
-		if bit == "64bit":
-			path = path + ";c:/Program Files (x86)/ZeroC/Ice-3.6.0-ThirdParty/bin/x64"
-		else:
-			path = path + ";c:/Program Files (x86)/ZeroC/Ice-3.6.0-ThirdParty/bin"
-	else:
-		path = path + ";c:/Program Files/ZeroC/Ice-3.6.0-ThirdParty/bin"
-	os.putenv('PATH', path)
+        path = os.getenv('PATH')
+        path = path + ';' + os.path.join(os.path.dirname(sys.argv[0]), "..", "..", "cpp", "bin")
+
+        programFiles = "ProgramFiles"
+        arch1 = os.getenv('PROCESSOR_ARCHITECTURE')
+        arch2 = os.getenv('PROCESSOR_ARCHITEW6432')
+        
+        # 64 bit windows machine?
+        if arch1 == "AMD64" or arch1 == "IA64" or arch2 == "AMD64" or arch2 == "IA64":
+            programFiles += "(x86)"
+            bit, name = platform.architecture()
+            # 64 bit python?
+            if bit == "64bit":
+                suffix = "x64"
+        path = path + ";" + os.path.join(os.getenv(programFiles), "ZeroC", "Ice-3.6.0-ThirdParty","bin", suffix)
+        os.putenv('PATH', path)
 
 import IcePy
 
