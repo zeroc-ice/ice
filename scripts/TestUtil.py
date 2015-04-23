@@ -1004,9 +1004,7 @@ def getCommandLineProperties(exe, config):
     # sequence, which is initialized with command line options common to
     # all test drivers.
     #
-    components = ["--Ice.NullHandleAbort=1"]
-    if getDefaultMapping() != "javae":
-        components += ["--Ice.Warn.Connections=1"]
+    components = ["--Ice.NullHandleAbort=1", "--Ice.Warn.Connections=1"]
 
     #
     # Turn on network tracing.
@@ -1108,7 +1106,7 @@ def getCommandLine(exe, config, options = "", interpreterOptions = ""):
         if interpreterOptions:
             output.write(" " + interpreterOptions)
         output.write(' "%s" ' % exe)
-    elif config.lang == "java" or config.lang == "javae":
+    elif config.lang == "java":
         output.write("%s -ea " % javaCmd)
         if isSolaris() and config.x64:
             output.write("-d64 ")
@@ -1176,7 +1174,7 @@ def getDefaultServerFile():
         return "server"
     if lang == "python":
         return "Server.py"
-    if lang in ["java", "javae"]:
+    if lang == "java":
         pkg = directoryToPackage()
         if len(pkg) > 0:
             pkg = pkg + "."
@@ -1194,7 +1192,7 @@ def getDefaultClientFile(lang = None):
         return "client"
     if lang == "python":
         return "Client.py"
-    if lang in ["java", "javae"]:
+    if lang == "java":
         pkg = directoryToPackage()
         if len(pkg) > 0:
             pkg = pkg + "."
@@ -1213,7 +1211,7 @@ def getDefaultCollocatedFile():
         return "collocated"
     if lang == "python":
         return "Collocated.py"
-    if lang in ["java", "javae"]:
+    if lang == "java":
         return directoryToPackage() + ".Collocated"
 
 def isDebug():
@@ -1525,7 +1523,7 @@ def collocatedTest(additionalOptions = ""):
     testdir = os.getcwd()
 
     collocated = getDefaultCollocatedFile()
-    if lang != "java" and lang != "javae":
+    if lang != "java":
         collocated = os.path.join(testdir, collocated)
 
     exe = collocated
@@ -1823,12 +1821,14 @@ def getTestEnv(lang, testdir):
         if iceHome:
             addClasspath(os.path.join(getIceDir("java", testdir), "lib", "db.jar"), env)
         elif thirdPartyHome:
+            if x64:
+                suffix = "x64"
             #
             # Add third party home to PATH, to use db_xx tools
             #
-            addPathToEnv("PATH", os.path.join(thirdPartyHome, "bin\\x64" if x64 else "bin"), env)
+            addPathToEnv("PATH", os.path.join(thirdPartyHome, "bin", suffix), env)
             if getCppCompiler() == "VC110":
-                addPathToEnv("PATH", os.path.join(thirdPartyHome, "bin\\vc110\\x64" if x64 else "bin\\vc110"), env)
+                addPathToEnv("PATH", os.path.join(thirdPartyHome, "bin", "vc110", suffix), env)
             addClasspath(os.path.join(thirdPartyHome, "lib", "db.jar"), env)
         else:
             print("warning: could not detect Ice Third Party installation")
@@ -1860,11 +1860,7 @@ def getTestEnv(lang, testdir):
     elif lang in ["python", "ruby", "php", "js", "objective-c"]:
         addLdPath(getCppLibDir(lang), env)
 
-    if lang == "javae":
-        javaDir = os.path.join(getIceDir("javae", testdir), "jdk", "lib")
-        addClasspath(os.path.join(javaDir, "IceE.jar"), env)
-        addClasspath(os.path.join(javaDir), env)
-    elif lang == "java":
+    if lang == "java":
         # The Ice.jar and Freeze.jar comes from the installation
         # directory or the toplevel dir.
         javaDir = os.path.join(getIceDir("java", testdir), "lib")
@@ -1887,10 +1883,9 @@ def getTestEnv(lang, testdir):
     #
     if lang == "python":
         pythonDir = os.path.join(getIceDir("python", testdir), "python")
-        if isWin32() and x64:
-            addPathToEnv("PYTHONPATH", os.path.join(pythonDir, "x64"), env)
-        else:
-            addPathToEnv("PYTHONPATH", pythonDir, env)
+        if isWin32() and x64 and os.path.exists(os.path.join(pythonDir, "x64")):
+            pythonDir = os.path.join(pythonDir, "x64")
+        addPathToEnv("PYTHONPATH", pythonDir, env)
 
     #
     # If testing with source dist we need to set RUBYLIB
