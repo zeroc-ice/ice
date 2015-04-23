@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h", "objc:header-dir:objc"]]
+[["cpp:header-ext:h", "objc:header-dir:objc", "js:ice-build"]]
 [["cpp:include:IceGrid/Config.h"]]
 
 #include <Glacier2/Session.ice>
@@ -28,27 +28,27 @@ module IceGrid
  **/
 struct ServerDynamicInfo
 {
-    /** 
+    /**
      *
      * The id of the server.
      *
      **/
     string id;
-    
-    /** 
+
+    /**
      *
      * The state of the server.
      *
      **/
     ServerState state;
 
-    /** 
+    /**
      *
      * The process id of the server.
      *
-     **/    
+     **/
     int pid;
-    
+
     /**
      *
      * Indicates whether the server is enabled.
@@ -60,18 +60,18 @@ struct ServerDynamicInfo
 /**
  *
  * A sequence of server dynamic information structures.
- * 
+ *
  **/
 ["java:type:java.util.LinkedList<ServerDynamicInfo>"] sequence<ServerDynamicInfo> ServerDynamicInfoSeq;
 
 /**
  *
  * Dynamic information about the state of an adapter.
- * 
+ *
  **/
 struct AdapterDynamicInfo
 {
-    /** 
+    /**
      *
      * The id of the adapter.
      *
@@ -134,7 +134,7 @@ sequence<NodeDynamicInfo> NodeDynamicInfoSeq;
  * The node observer interface. Observers should implement this
  * interface to receive information about the state of the IceGrid
  * nodes.
- * 
+ *
  **/
 interface NodeObserver
 {
@@ -152,7 +152,7 @@ interface NodeObserver
      *
      * The <tt>nodeUp</tt> operation is called to notify an observer that a node
      * came up.
-     * 
+     *
      * @param node The node state.
      *
      **/
@@ -162,7 +162,7 @@ interface NodeObserver
      *
      * The <tt>nodeDown</tt> operation is called to notify an observer that a node
      * went down.
-     * 
+     *
      * @param name The node name.
      *
      **/
@@ -174,9 +174,9 @@ interface NodeObserver
      * the state of a server changed.
      *
      * @param node The node hosting the server.
-     * 
+     *
      * @param updatedInfo The new server state.
-     * 
+     *
      **/
     void updateServer(string node, ServerDynamicInfo updatedInfo);
 
@@ -184,11 +184,11 @@ interface NodeObserver
      *
      * The <tt>updateAdapter</tt> operation is called to notify an observer that
      * the state of an adapter changed.
-     * 
+     *
      * @param node The node hosting the adapter.
-     * 
+     *
      * @param updatedInfo The new adapter state.
-     * 
+     *
      **/
      void updateAdapter(string node, AdapterDynamicInfo updatedInfo);
 };
@@ -198,7 +198,7 @@ interface NodeObserver
  * The database observer interface. Observers should implement this
  * interface to receive information about the state of the IceGrid
  * registry database.
- * 
+ *
  **/
 interface ApplicationObserver
 {
@@ -218,14 +218,14 @@ interface ApplicationObserver
     void applicationInit(int serial, ApplicationInfoSeq applications);
 
     /**
-     * 
+     *
      * The <tt>applicationAdded</tt> operation is called to notify an observer
      * that an application was added.
      *
      * @param serial The new serial number of the registry database.
      *
      * @param desc The descriptor of the new application.
-     * 
+     *
      **/
     void applicationAdded(int serial, ApplicationInfo desc);
 
@@ -237,19 +237,19 @@ interface ApplicationObserver
      * @param serial The new serial number of the registry database.
      *
      * @param name The name of the application that was removed.
-     * 
+     *
      **/
     void applicationRemoved(int serial, string name);
 
     /**
-     * 
+     *
      * The <tt>applicationUpdated</tt> operation is called to notify an observer
      * that an application was updated.
      *
      * @param serial The new serial number of the registry database.
      *
      * @param desc The descriptor of the update.
-     * 
+     *
      **/
     void applicationUpdated(int serial, ApplicationUpdateInfo desc);
 };
@@ -374,7 +374,7 @@ interface RegistryObserver
      *
      * The <tt>nodeUp</tt> operation is called to notify an observer that a node
      * came up.
-     * 
+     *
      * @param node The node state.
      *
      **/
@@ -384,7 +384,7 @@ interface RegistryObserver
      *
      * The <tt>nodeDown</tt> operation is called to notify an observer that a node
      * went down.
-     * 
+     *
      * @param name The node name.
      *
      **/

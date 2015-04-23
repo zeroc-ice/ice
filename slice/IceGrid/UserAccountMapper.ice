@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h", "objc:header-dir:objc"]]
+[["cpp:header-ext:h", "objc:header-dir:objc", "js:ice-build"]]
 [["cpp:include:IceGrid/Config.h"]]
 
 ["objc:prefix:ICEGRID"]
@@ -49,7 +49,7 @@ interface UserAccountMapper
      *
      * @throws UserAccountNotFoundException Raised if no user account
      * is found for the given user.
-     * 
+     *
      **/
     string getUserAccount(string user)
         throws UserAccountNotFoundException;

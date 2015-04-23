@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h", "objc:header-dir:objc"]]
+[["cpp:header-ext:h", "objc:header-dir:objc", "js:ice-build"]]
 [["cpp:include:Glacier2/Config.h"]]
 
 #include <Ice/Router.ice>
@@ -53,7 +53,7 @@ interface Router extends Ice::Router
      * This category must be used in the identities of all of the client's
      * callback objects. This is necessary in order for the router to
      * forward callback requests to the intended client. If the Glacier2
-     * server endpoints are not set, the returned category is an empty 
+     * server endpoints are not set, the returned category is an empty
      * string.
      *
      * @return The category.

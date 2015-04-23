@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h", "objc:header-dir:objc"]]
+[["cpp:header-ext:h", "objc:header-dir:objc", "js:ice-build"]]
 [["cpp:include:Glacier2/Config.h"]]
 
 #include <Ice/Metrics.ice>
@@ -38,14 +38,14 @@ class SessionMetrics extends Metrics
      *
      **/
     int forwardedServer = 0;
- 
+
     /**
      *
      * The size of the routing table.
-     * 
+     *
      **/
     int routingTableSize = 0;
- 
+
     /**
      *
      * Number of client requests queued.
@@ -59,7 +59,7 @@ class SessionMetrics extends Metrics
      *
      **/
     int queuedServer = 0;
- 
+
     /**
      *
      * Number of client requests overridden.

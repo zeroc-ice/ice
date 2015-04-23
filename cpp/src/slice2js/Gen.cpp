@@ -617,9 +617,8 @@ Slice::JsVisitor::writeDocComment(const ContainedPtr& p, const string& deprecate
     _out << nl << " **/";
 }
 
-Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const string& dir, bool icejs) :
+Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const string& dir) :
     _includePaths(includePaths),
-    _icejs(icejs),
     _useStdout(false)
 {
     _fileBase = base;
@@ -650,10 +649,9 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
     printGeneratedHeader(_out, _fileBase + ".ice");
 }
 
-Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const string& dir, bool icejs, ostream& out) :
+Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const string& dir, ostream& out) :
     _out(out),
     _includePaths(includePaths),
-    _icejs(icejs),
     _useStdout(true)
 {
     _fileBase = base;
@@ -678,7 +676,16 @@ Slice::Gen::~Gen()
 void
 Slice::Gen::generate(const UnitPtr& p)
 {
-    if(_icejs)
+    //
+    // Check for global "js:ice-build" metadata.
+    // If this is set then we are building Ice.
+    //
+    DefinitionContextPtr dc = p->findDefinitionContext(p->topLevelFile());
+    assert(dc);
+    StringList globalMetaData = dc->getMetaData();
+    bool icejs = find(globalMetaData.begin(), globalMetaData.end(), "js:ice-build") != globalMetaData.end();
+
+    if(icejs)
     {
         _out.zeroIndent();
         _out << nl << "/* slice2js browser-bundle-skip */";
@@ -686,26 +693,26 @@ Slice::Gen::generate(const UnitPtr& p)
     }
     _out << nl << "(function(module, require, exports)";
     _out << sb;
-    if(_icejs)
+    if(icejs)
     {
         _out.zeroIndent();
         _out << nl << "/* slice2js browser-bundle-skip-end */";
         _out.restoreIndent();
     }
-    RequireVisitor requireVisitor(_out, _includePaths, _icejs);
+    RequireVisitor requireVisitor(_out, _includePaths, icejs);
     p->visit(&requireVisitor, false);
     vector<string> seenModules = requireVisitor.writeRequires(p);
 
-    TypesVisitor typesVisitor(_out, seenModules, _icejs);
+    TypesVisitor typesVisitor(_out, seenModules, icejs);
     p->visit(&typesVisitor, false);
 
     //
     // Export the top-level modules.
     //
-    ExportVisitor exportVisitor(_out, _icejs);
+    ExportVisitor exportVisitor(_out, icejs);
     p->visit(&exportVisitor, false);
 
-    if(_icejs)
+    if(icejs)
     {
         _out.zeroIndent();
         _out << nl << "/* slice2js browser-bundle-skip */";
@@ -717,7 +724,7 @@ Slice::Gen::generate(const UnitPtr& p)
          << nl << " typeof(global) !== \"undefined\" && typeof(global.process) !== \"undefined\" ? require : window.Ice.__require,"
          << nl << " typeof(global) !== \"undefined\" && typeof(global.process) !== \"undefined\" ? exports : window));";
 
-    if(_icejs)
+    if(icejs)
     {
         _out.zeroIndent();
         _out << nl << "/* slice2js browser-bundle-skip-end */";

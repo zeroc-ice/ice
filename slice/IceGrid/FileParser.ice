@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h", "objc:header-dir:objc"]]
+[["cpp:header-ext:h", "objc:header-dir:objc", "js:ice-build"]]
 [["cpp:include:IceGrid/Config.h"]]
 
 #include <IceGrid/Admin.ice>
@@ -28,7 +28,7 @@ exception ParseException
     /** The reason for the failure. */
     string reason;
 };
-    
+
 /**
  *
  * <tt>icegridadmin</tt> provides a {@link FileParser}

@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h", "objc:header-dir:objc"]]
+[["cpp:header-ext:h", "objc:header-dir:objc", "js:ice-build"]]
 [["cpp:include:Glacier2/Config.h"]]
 
 #include <Glacier2/SSLInfo.ice>
@@ -97,7 +97,7 @@ interface SSLPermissionsVerifier
      * @see SSLInfo
      *
      **/
-    ["nonmutating", "cpp:const", "format:sliced"] 
+    ["nonmutating", "cpp:const", "format:sliced"]
     idempotent bool authorize(SSLInfo info, out string reason)
         throws PermissionDeniedException;
 };

@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h", "objc:header-dir:objc"]]
+[["cpp:header-ext:h", "objc:header-dir:objc", "js:ice-build"]]
 [["cpp:include:IceGrid/Config.h"]]
 
 #include <Glacier2/Session.ice>
@@ -28,7 +28,7 @@ module IceGrid
  *
  * @see Registry
  * @see Glacier2.SessionManager
- * 
+ *
  **/
 interface Session extends Glacier2::Session
 {
@@ -47,7 +47,7 @@ interface Session extends Glacier2::Session
      * Allocate an object. Depending on the allocation timeout, this
      * operation might hang until the object is available or until the
      * timeout is reached.
-     * 
+     *
      * @param id The identity of the object to allocate.
      *
      * @return The proxy of the allocated object.
@@ -64,7 +64,7 @@ interface Session extends Glacier2::Session
      **/
     ["amd"] Object* allocateObjectById(Ice::Identity id)
         throws ObjectNotRegisteredException, AllocationException;
-    
+
     /**
      *
      * Allocate an object with the given type. Depending on the
@@ -85,7 +85,7 @@ interface Session extends Glacier2::Session
      **/
     ["amd"] Object* allocateObjectByType(string type)
         throws AllocationException;
-    
+
     /**
      *
      * Release an object.
@@ -105,11 +105,11 @@ interface Session extends Glacier2::Session
      **/
     void releaseObject(Ice::Identity id)
         throws ObjectNotRegisteredException, AllocationException;
-    
+
     /**
      *
      * Set the allocation timeout. If no objects are available for an
-     * allocation request, the request will hang for the duration of 
+     * allocation request, the request will hang for the duration of
      * this timeout.
      *
      * @param timeout The timeout in milliseconds.

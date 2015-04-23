@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h", "objc:header-dir:objc"]]
+[["cpp:header-ext:h", "objc:header-dir:objc", "js:ice-build"]]
 [["cpp:include:IceGrid/Config.h"]]
 
 #include <Ice/Locator.ice>
@@ -28,7 +28,7 @@ interface Query;
  *
  * @see Query
  * @see Registry
- * 
+ *
  **/
 interface Locator extends Ice::Locator
 {

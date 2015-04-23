@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h", "objc:header-dir:objc"]]
+[["cpp:header-ext:h", "objc:header-dir:objc", "js:ice-build"]]
 [["cpp:include:IceGrid/Config.h"]]
 
 #include <Ice/Identity.ice>
@@ -62,7 +62,7 @@ exception ServerStartException
      *
      **/
     string id;
-    
+
     /**
      *
      * The reason for the failure.
@@ -259,9 +259,9 @@ exception RegistryUnreachableException
 exception BadSignalException
 {
     /**
-     * 
+     *
      * The details of the unknown signal.
-     * 
+     *
      **/
     string reason;
 };

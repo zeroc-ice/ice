@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h", "objc:header-dir:objc"]]
+[["cpp:header-ext:h", "objc:header-dir:objc", "js:ice-build"]]
 [["cpp:include:Glacier2/Config.h"]]
 
 #include <Ice/BuiltinSequences.ice>
@@ -66,7 +66,7 @@ interface Session
  *
  * An object for managing the set of identity constraints for specific
  * parts of object identity on a
- * {@link Session}. 
+ * {@link Session}.
  *
  * @see Session
  * @see SessionControl
@@ -99,7 +99,7 @@ interface StringSet
      * Returns a sequence of strings describing the constraints in this
      * set.
      *
-     * @return The sequence of strings for this set. 
+     * @return The sequence of strings for this set.
      *
      **/
     idempotent Ice::StringSeq get();
@@ -108,7 +108,7 @@ interface StringSet
 /**
  *
  * An object for managing the set of object identity constraints on a
- * {@link Session}. 
+ * {@link Session}.
  *
  * @see Session
  * @see SessionControl
@@ -141,7 +141,7 @@ interface IdentitySet
      * Returns a sequence of identities describing the constraints in this
      * set.
      *
-     * @return The sequence of Ice identities for this set. 
+     * @return The sequence of Ice identities for this set.
      *
      **/
     idempotent Ice::IdentitySeq get();
@@ -160,7 +160,7 @@ interface SessionControl
     /**
      *
      * Access the object that manages the allowable categories
-     * for object identities for this session. 
+     * for object identities for this session.
      *
      * @return A StringSet object.
      *
@@ -170,7 +170,7 @@ interface SessionControl
     /**
      *
      * Access the object that manages the allowable adapter identities
-     * for objects for this session. 
+     * for objects for this session.
      *
      * @return A StringSet object.
      *
@@ -180,7 +180,7 @@ interface SessionControl
     /**
      *
      * Access the object that manages the allowable object identities
-     * for this session. 
+     * for this session.
      *
      * @return An IdentitySet object.
      *
@@ -195,7 +195,7 @@ interface SessionControl
      *
      **/
     idempotent int getSessionTimeout();
-    
+
     /**
      *
      * Destroy the associated session.
@@ -265,7 +265,7 @@ interface SSLSessionManager
      * cannot be created.
      *
      **/
-    ["format:sliced"] 
+    ["format:sliced"]
     Session* create(SSLInfo info, SessionControl* control)
         throws CannotCreateSessionException;
 };

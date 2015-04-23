@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h", "objc:header-dir:objc"]]
+[["cpp:header-ext:h", "objc:header-dir:objc", "js:ice-build"]]
 
 
 #include <Ice/Identity.ice>
@@ -105,7 +105,7 @@ interface Locator
      * @param id The adapter id.
      *
      * @return The adapter proxy, or null if the adapter is not active.
-     * 
+     *
      * @throws AdapterNotFoundException Raised if the adapter cannot be
      * found.
      *

@@ -75,7 +75,6 @@ usage(const char* n)
         "-d, --debug             Print debug messages.\n"
         "--ice                   Permit `Ice' prefix (for building Ice source code only).\n"
         "--underscore            Permit underscores in Slice identifiers.\n"
-        "--icejs                 Build icejs module\n"
         ;
 }
 
@@ -98,7 +97,6 @@ compile(int argc, char* argv[])
     opts.addOpt("d", "debug");
     opts.addOpt("", "ice");
     opts.addOpt("", "underscore");
-    opts.addOpt("", "icejs");
 
     vector<string> args;
     try
@@ -146,11 +144,11 @@ compile(int argc, char* argv[])
     bool preprocess = opts.isSet("E");
 
     bool useStdout = opts.isSet("stdout");
-    
+
     string output = opts.optArg("output-dir");
 
     bool depend = opts.isSet("depend");
-    
+
     bool dependJSON = opts.isSet("depend-json");
 
     bool dependxml = opts.isSet("depend-xml");
@@ -163,8 +161,6 @@ compile(int argc, char* argv[])
 
     bool underscore = opts.isSet("underscore");
 
-    bool icejs = opts.isSet("icejs");
-    
     if(args.empty())
     {
         getErrorStream() << argv[0] << ": error: no input file" << endl;
@@ -207,7 +203,7 @@ compile(int argc, char* argv[])
     {
         out.os() << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<dependencies>" << endl;
     }
-    
+
     //
     // Create a copy of args without the duplicates.
     //
@@ -220,9 +216,9 @@ compile(int argc, char* argv[])
             sources.push_back(*i);
         }
     }
-    
+
     for(vector<string>::const_iterator i = sources.begin(); i != sources.end();)
-    {        
+    {
         if(depend || dependJSON || dependxml)
         {
             PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
@@ -243,9 +239,9 @@ compile(int argc, char* argv[])
                 out.cleanup();
                 return EXIT_FAILURE;
             }
-            
+
             bool last = (++i == sources.end());
-            
+
             if(!icecpp->printMakefileDependencies(out.os(),
                     depend ? Preprocessor::JavaScript : (dependJSON ? Preprocessor::JavaScriptJSON : Preprocessor::SliceXML),
                     includePaths,
@@ -260,7 +256,7 @@ compile(int argc, char* argv[])
                 out.cleanup();
                 return EXIT_FAILURE;
             }
-            
+
             if(dependJSON)
             {
                 if(!last)
@@ -315,12 +311,12 @@ compile(int argc, char* argv[])
                     {
                         if(useStdout)
                         {
-                            Gen gen(icecpp->getBaseName(), includePaths, output, icejs, cout);
+                            Gen gen(icecpp->getBaseName(), includePaths, output, cout);
                             gen.generate(p);
                         }
                         else
                         {
-                            Gen gen(icecpp->getBaseName(), includePaths, output, icejs);
+                            Gen gen(icecpp->getBaseName(), includePaths, output);
                             gen.generate(p);
                         }
                     }
@@ -352,7 +348,7 @@ compile(int argc, char* argv[])
             }
         }
     }
-    
+
     if(dependJSON)
     {
         out.os() << "}" << endl;

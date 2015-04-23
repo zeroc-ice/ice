@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h", "objc:header-dir:objc"]]
+[["cpp:header-ext:h", "objc:header-dir:objc", "js:ice-build"]]
 [["cpp:include:IceGrid/Config.h"]]
 
 #include <Ice/Identity.ice>
@@ -62,7 +62,7 @@ enum ServerState
      *
      **/
     Active,
-    
+
     /**
      *
      * The server is being deactivated.
@@ -102,14 +102,14 @@ struct ObjectInfo
 {
     /**
      *
-     * The proxy of the object. 
+     * The proxy of the object.
      *
      **/
     Object* proxy;
 
-    /** 
+    /**
      *
-     * The type of the object. 
+     * The type of the object.
      *
      **/
     string type;
@@ -130,7 +130,7 @@ sequence<ObjectInfo> ObjectInfoSeq;
 ["cpp:comparable"]
 struct AdapterInfo
 {
-    /** 
+    /**
      *
      * The id of the adapter.
      *
@@ -139,12 +139,12 @@ struct AdapterInfo
 
     /**
      *
-     * A dummy direct proxy that contains the adapter endpoints. 
+     * A dummy direct proxy that contains the adapter endpoints.
      *
      **/
     Object* proxy;
 
-    /** 
+    /**
      *
      * The replica group id of the object adapter, or empty if the
      * adapter doesn't belong to a replica group.
@@ -169,7 +169,7 @@ struct ServerInfo
 {
     /**
      *
-     * The server application. 
+     * The server application.
      *
      **/
     string application;
@@ -180,7 +180,7 @@ struct ServerInfo
      *
      **/
     string uuid;
-    
+
     /**
      *
      * The application revision.
@@ -188,16 +188,16 @@ struct ServerInfo
      **/
     int revision;
 
-    /** 
+    /**
      *
-     * The server node. 
+     * The server node.
      *
      **/
     string node;
-       
+
     /**
      *
-     * The server descriptor. 
+     * The server descriptor.
      *
      **/
     ServerDescriptor descriptor;
@@ -242,7 +242,7 @@ struct NodeInfo
     /**
      *
      * The operation system release level (as defined in uname()).
-     * 
+     *
      **/
     string release;
 
@@ -258,7 +258,7 @@ struct NodeInfo
      * The machine hardware type (as defined in uname()).
      *
      **/
-    string machine;    
+    string machine;
 
     /**
      *
@@ -268,7 +268,7 @@ struct NodeInfo
      *
      **/
     int nProcessors;
-    
+
     /**
      *
      * The path to the node data directory.
@@ -336,7 +336,7 @@ struct ApplicationInfo
 
     /** The creation time. */
     long createTime;
-    
+
     /** The user who created the application. */
     string createUser;
 
@@ -345,7 +345,7 @@ struct ApplicationInfo
 
     /** The user who updated the application. */
     string updateUser;
-    
+
     /** The application revision number. */
     int revision;
 
@@ -523,12 +523,12 @@ interface Admin
      * node.
      *
      * @param application The application name.
-     * 
+     *
      * @param node The name of the node where the server will be
      * deployed.
      *
      * @param desc The descriptor of the server instance to deploy.
-     * 
+     *
      * @throws AccessDeniedException Raised if the session doesn't
      * hold the exclusive lock or if another session is holding the
      * lock.
@@ -617,7 +617,7 @@ interface Admin
      * @param id The server id.
      *
      * @return The server state.
-     * 
+     *
      * @throws ServerNotExistException Raised if the server doesn't exist.
      *
      * @throws NodeUnreachableException Raised if the node could not be
@@ -629,7 +629,7 @@ interface Admin
      **/
     ["nonmutating", "cpp:const"] idempotent ServerState getServerState(string id)
         throws ServerNotExistException, NodeUnreachableException, DeploymentException;
-    
+
     /**
      *
      * Get a server's system process id. The process id is operating
@@ -638,7 +638,7 @@ interface Admin
      * @param id The server id.
      *
      * @return The server's process id.
-     * 
+     *
      * @throws ServerNotExistException Raised if the server doesn't exist.
      *
      * @throws NodeUnreachableException Raised if the node could not be
@@ -660,7 +660,7 @@ interface Admin
      * @return The category for server admin objects.
      *
      **/
-    ["cpp:const"] 
+    ["cpp:const"]
     idempotent string getServerAdminCategory();
 
     /**
@@ -680,7 +680,7 @@ interface Admin
      * deployed on the node.
      *
      **/
-    ["cpp:const"] 
+    ["cpp:const"]
     idempotent Object* getServerAdmin(string id)
         throws ServerNotExistException, NodeUnreachableException, DeploymentException;
 
@@ -719,7 +719,7 @@ interface Admin
      *
      * @throws NodeUnreachableException Raised if the node could not
      * be reached.
-     * 
+     *
      * @throws DeploymentException Raised if the server couldn't be
      * deployed on the node.
      *
@@ -812,7 +812,7 @@ interface Admin
      * @throws DeploymentException Raised if the server couldn't be
      * deployed on the node.
      *
-     * @throws BadSignalException Raised if the signal is not recognized 
+     * @throws BadSignalException Raised if the signal is not recognized
      * by the target server.
      *
      **/
@@ -942,7 +942,7 @@ interface Admin
      * deployment descriptor.
      *
      **/
-    void removeObject(Ice::Identity id) 
+    void removeObject(Ice::Identity id)
         throws ObjectNotRegisteredException, DeploymentException;
 
     /**
@@ -986,7 +986,7 @@ interface Admin
      *
      **/
     ["nonmutating", "cpp:const"] idempotent ObjectInfoSeq getAllObjectInfos(string expr);
-    
+
     /**
      *
      * Ping an IceGrid node to see if it is active.
@@ -994,7 +994,7 @@ interface Admin
      * @param name The node name.
      *
      * @return true if the node ping succeeded, false otherwise.
-     * 
+     *
      * @throws NodeNotExistException Raised if the node doesn't exist.
      *
      **/
@@ -1008,7 +1008,7 @@ interface Admin
      * @param name The node name.
      *
      * @return The node load information.
-     * 
+     *
      * @throws NodeNotExistException Raised if the node doesn't exist.
      *
      * @throws NodeUnreachableException Raised if the node could not be
@@ -1025,7 +1025,7 @@ interface Admin
      * @param name The node name.
      *
      * @return The node information.
-     * 
+     *
      * @throws NodeNotExistException Raised if the node doesn't exist.
      *
      * @throws NodeUnreachableException Raised if the node could not be
@@ -1056,7 +1056,7 @@ interface Admin
     /**
      *
      * Get the number of physical processor sockets for the machine
-     * running the node with the given name. 
+     * running the node with the given name.
      *
      * Note that this method will return 1 on operating systems where
      * this can't be automatically determined and where the
@@ -1067,20 +1067,20 @@ interface Admin
      *
      * @return The number of processor sockets or 1 if the number of
      * sockets can't determined.
-     * 
+     *
      * @throws NodeNotExistException Raised if the node doesn't exist.
      *
      * @throws NodeUnreachableException Raised if the node could not be
      * reached.
      *
-     **/    
+     **/
     ["nonmutating", "cpp:const"] idempotent int getNodeProcessorSocketCount(string name)
         throws NodeNotExistException, NodeUnreachableException;
-    
+
     /**
      *
      * Shutdown an IceGrid node.
-     * 
+     *
      * @param name The node name.
      *
      * @throws NodeNotExistException Raised if the node doesn't exist.
@@ -1125,7 +1125,7 @@ interface Admin
      * @param name The registry name.
      *
      * @return true if the registry ping succeeded, false otherwise.
-     * 
+     *
      * @throws RegistryNotExistException Raised if the registry doesn't exist.
      *
      **/
@@ -1139,7 +1139,7 @@ interface Admin
      * @param name The registry name.
      *
      * @return The registry information.
-     * 
+     *
      * @throws RegistryNotExistException Raised if the registry doesn't exist.
      *
      * @throws RegistryUnreachableException Raised if the registry could not be
@@ -1148,7 +1148,7 @@ interface Admin
      **/
     ["cpp:const"] idempotent RegistryInfo getRegistryInfo(string name)
         throws RegistryNotExistException, RegistryUnreachableException;
-    
+
     /**
      *
      * Get a proxy to the IceGrid registry's admin object.
@@ -1160,13 +1160,13 @@ interface Admin
      * @throws RegistryNotExistException Raised if the registry doesn't exist.
      *
      **/
-    ["cpp:const"] idempotent Object* getRegistryAdmin(string name) 
+    ["cpp:const"] idempotent Object* getRegistryAdmin(string name)
         throws RegistryNotExistException;
 
     /**
      *
      * Shutdown an IceGrid registry.
-     * 
+     *
      * @param name The registry name.
      *
      * @throws RegistryNotExistException Raised if the registry doesn't exist.
@@ -1218,7 +1218,7 @@ interface FileIterator
      * @param size Specifies the maximum number of bytes to be
      * received. The server will ensure that the returned message
      * doesn't exceed the given size.
-     * 
+     *
      * @param lines The lines read from the file. If there was nothing to
      * read from the file since the last call to read, an empty
      * sequence is returned. The last line of the sequence is always
@@ -1254,7 +1254,7 @@ interface ObjectObserver;
  * update, and receive observer updates from the IceGrid
  * registry. Admin sessions are created either with the {@link Registry}
  * object or the registry admin {@link Glacier2.SessionManager} object.
- * 
+ *
  * @see Registry
  * @see Glacier2.SessionManager
  *
@@ -1351,7 +1351,7 @@ interface AdminSession extends Glacier2::Session
      * Acquires an exclusive lock to start updating the registry applications.
      *
      * @return The current serial.
-     * 
+     *
      * @throws AccessDeniedException Raised if the exclusive lock can't be
      * acquired. This might happen if the lock is currently acquired by
      * another session.
@@ -1359,7 +1359,7 @@ interface AdminSession extends Glacier2::Session
      **/
     int startUpdate()
         throws AccessDeniedException;
-    
+
     /**
      *
      * Finish updating the registry and release the exclusive lock.

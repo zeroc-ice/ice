@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h", "objc:header-dir:objc"]]
+[["cpp:header-ext:h", "objc:header-dir:objc", "js:ice-build"]]
 
 #include <Ice/ObjectAdapterF.ice>
 #include <Ice/ConnectionF.ice>
@@ -97,7 +97,7 @@ local struct Current
      *
      **/
     ObjectAdapter adapter;
-    
+
     /**
      *
      * Information about the connection over which the current method

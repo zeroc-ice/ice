@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h", "objc:header-dir:objc"]]
+[["cpp:header-ext:h", "objc:header-dir:objc", "js:ice-build"]]
 [["cpp:include:IceGrid/Config.h"]]
 
 #include <IceGrid/Exception.ice>
@@ -27,7 +27,7 @@ module IceGrid
  *
  * @see Session
  * @see AdminSession
- * 
+ *
  **/
 interface Registry
 {

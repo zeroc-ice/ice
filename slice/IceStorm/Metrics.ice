@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h", "objc:header-dir:objc"]]
+[["cpp:header-ext:h", "objc:header-dir:objc", "js:ice-build"]]
 [["cpp:include:IceStorm/Config.h"]]
 
 #include <Ice/Metrics.ice>
@@ -59,7 +59,7 @@ class SubscriberMetrics extends Metrics
      * Number of outstanding events.
      *
      **/
-    int outstanding = 0; 
+    int outstanding = 0;
 
     /**
      *

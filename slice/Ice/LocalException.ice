@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h", "objc:header-dir:objc"]]
+[["cpp:header-ext:h", "objc:header-dir:objc", "js:ice-build"]]
 
 #include <Ice/Identity.ice>
 #include <Ice/Version.ice>
@@ -100,7 +100,7 @@ local exception AlreadyRegisteredException
  * registered with the Ice run time or Ice locator.
  *
  * This exception is raised if an attempt is made to remove a servant,
- * servant locator, facet, object factory, plug-in, object adapter, 
+ * servant locator, facet, object factory, plug-in, object adapter,
  * object, or user exception factory that is not currently registered.
  *
  * It's also raised if the Ice locator can't find an object or object
@@ -114,7 +114,7 @@ local exception NotRegisteredException
     /**
      *
      * The kind of object that could not be removed: "servant",
-     * "servant locator", "object factory", "plug-in", 
+     * "servant locator", "object factory", "plug-in",
      * "object adapter", "object", or "user exception factory".
      *
      **/
@@ -179,13 +179,13 @@ local exception UnknownException
 {
     /**
      *
-     * This field is set to the textual representation of the unknown 
+     * This field is set to the textual representation of the unknown
      * exception if available.
      *
      **/
     string unknown;
 };
-    
+
 /**
  *
  * This exception is raised if an operation call on a server raises a
@@ -258,7 +258,7 @@ local exception CommunicatorDestroyedException
 local exception ObjectAdapterDeactivatedException
 {
     /**
-     * 
+     *
      * Name of the adapter.
      *
      **/
@@ -293,7 +293,7 @@ local exception ObjectAdapterIdInUseException
 local exception NoEndpointException
 {
     /**
-     * 
+     *
      * The stringified proxy for which no suitable endpoint is
      * available.
      *
@@ -1008,7 +1008,7 @@ local exception SecurityException
 };
 
 /**
- * 
+ *
  * This exception indicates that an attempt has been made to
  * change the connection properties of a fixed proxy.
  *
@@ -1019,7 +1019,7 @@ local exception FixedProxyException
 };
 
 /**
- * 
+ *
  * Indicates that the response to a request has already been sent;
  * re-dispatching such a request is not possible.
  *
