@@ -197,7 +197,7 @@ all:: $(SLICE_SRCS:.ice=.php)
 .cpp.o:
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
 	@mkdir -p .depend
-	@$(CXX) -DMAKEDEPEND -M $(CXXFLAGS) $(CPPFLAGS) $< > .depend/$(*F).d
+	@$(CXX) -DMAKEDEPEND -MM $(CXXFLAGS) $(CPPFLAGS) $< > .depend/$(*F).d
 
 clean::
 	-rm -f $(TARGETS)
