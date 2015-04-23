@@ -20,12 +20,12 @@ buildscript {
         }
     }
     dependencies {
-        classpath group: 'com.zeroc.gradle', name: 'ice-builder', version: '1.0.0'
+        classpath group: 'com.zeroc.gradle.ice-builder', name: 'slice', version: '1.0.0'
     }
 }
 
-if (!project.plugins.findPlugin(com.zeroc.gradle.plugins.slice.SlicePlugin)) {
-    project.apply(plugin: com.zeroc.gradle.plugins.slice.SlicePlugin)
+if (!project.plugins.findPlugin(com.zeroc.gradle.icebuilder.slice.SlicePlugin)) {
+    project.apply(plugin: com.zeroc.gradle.icebuilder.slice.SlicePlugin)
 }
 
 ext.generatedDir = "$project.buildDir/generated"
