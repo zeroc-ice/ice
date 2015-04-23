@@ -42,6 +42,7 @@ ServerI::checkCert(const string& subjectDN, const string& issuerDN, const Ice::C
     try
     {
         IceSSL::NativeConnectionInfoPtr info = IceSSL::NativeConnectionInfoPtr::dynamicCast(c.con->getInfo());
+        test(info->verified);
         test(info->nativeCerts.size() == 2 &&
              info->nativeCerts[0]->getSubjectDN() == IceSSL::DistinguishedName(subjectDN) &&
              info->nativeCerts[0]->getIssuerDN() == IceSSL::DistinguishedName(issuerDN));

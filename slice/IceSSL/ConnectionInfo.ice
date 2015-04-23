@@ -29,6 +29,9 @@ local class ConnectionInfo extends Ice::IPConnectionInfo
 
     /** The certificate chain. */
     Ice::StringSeq certs;
+
+    /** The certificate chain verification status. */
+    bool verified;
 };
 
 };

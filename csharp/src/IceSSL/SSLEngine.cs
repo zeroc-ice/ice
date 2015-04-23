@@ -131,7 +131,7 @@ namespace IceSSL
             // chain, including the peer's certificate. A value of 0 means there is
             // no maximum.
             //
-            _verifyDepthMax = properties.getPropertyAsIntWithDefault(prefix + "VerifyDepthMax", 2);
+            _verifyDepthMax = properties.getPropertyAsIntWithDefault(prefix + "VerifyDepthMax", 3);
 
             //
             // CheckCRL determines whether the certificate revocation list is checked, and how strictly.

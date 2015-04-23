@@ -40,6 +40,7 @@ class ServerI extends _ServerDisp
         {
             IceSSL.NativeConnectionInfo info = (IceSSL.NativeConnectionInfo)current.con.getInfo();
             java.security.cert.X509Certificate cert = (java.security.cert.X509Certificate)info.nativeCerts[0];
+            test(info.verified);
             test(info.nativeCerts.length == 2 &&
                  cert.getSubjectDN().toString().equals(subjectDN) &&
                  cert.getIssuerDN().toString().equals(issuerDN));

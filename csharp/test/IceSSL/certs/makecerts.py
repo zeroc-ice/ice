@@ -9,9 +9,9 @@ import os, sys, socket, getopt
 
 try:
     import IceCertUtils
-except Exception as ex:
+except:
     print("error: couldn't find IceCertUtils, install `zeroc-ice-certutils' package "
-          "from Python package repository:\n" + str(ex))
+          "from Python package repository")
     sys.exit(1)
 
 toplevel="."
@@ -28,29 +28,68 @@ if not os.path.exists(os.path.join(cppcerts, "db", "ca1", "ca.pem")):
           " run makecerts.py in `" + cppcerts + "' first")
     sys.exit(1)
 
-ca1 = IceCertUtils.CertificateFactory(home=os.path.join(cppcerts, "db", "ca1"))
-ca2 = IceCertUtils.CertificateFactory(home=os.path.join(cppcerts, "db", "ca2"))
+def usage():
+    print("Usage: " + sys.argv[0] + " [options]")
+    print("")
+    print("Options:")
+    print("-h               Show this message.")
+    print("-d | --debug     Debugging output.")
+    print("--clean          Clean the CA database first.")
+    print("--force          Re-save all the files even if they already exists.")
+    sys.exit(1)
 
-ca1.getCA().save("cacert1.pem")
-ca2.getCA().save("cacert2.pem")
+#
+# Check arguments
+#
+debug = False
+force = False
+try:
+    opts, args = getopt.getopt(sys.argv[1:], "hd", ["help", "debug", "force"])
+except getopt.GetoptError as e:
+    print("Error %s " % e)
+    usage()
+    sys.exit(1)
+
+for (o, a) in opts:
+    if o == "-h" or o == "--help":
+        usage()
+        sys.exit(0)
+    elif o == "-d" or o == "--debug":
+        debug = True
+    elif o == "--force":
+        force = True
+
+ca1 = IceCertUtils.CertificateFactory(home=os.path.join(cppcerts, "db", "ca1"), debug=debug)
+ca2 = IceCertUtils.CertificateFactory(home=os.path.join(cppcerts, "db", "ca2"), debug=debug)
+cai1 = ca1.getIntermediateFactory("intermediate1")
+cai2 = cai1.getIntermediateFactory("intermediate1")
+
+if force or not os.path.exists("cacert1.pem"): ca1.getCA().save("cacert1.pem")
+if force or not os.path.exists("cacert2.pem"): ca2.getCA().save("cacert2.pem")
 
 certs = [
-    (ca1, "s_rsa_ca1"),
-    (ca1, "c_rsa_ca1"),
-    (ca1, "s_rsa_ca1_exp"), # Expired certificate
-    (ca1, "c_rsa_ca1_exp"), # Expired certificate
-    (ca1, "s_rsa_ca1_cn1"), # No subjectAltName, CN=127.0.0.1
-    (ca1, "s_rsa_ca1_cn2"), # No subjectAltName, CN=127.0.0.11
-    (ca2, "s_rsa_ca2"),
-    (ca2, "c_rsa_ca2"),
+    (ca1, "s_rsa_ca1", None, {}),
+    (ca1, "c_rsa_ca1", None, {}),
+    (ca1, "s_rsa_ca1_exp", None, {}), # Expired certificate
+    (ca1, "c_rsa_ca1_exp", None, {}), # Expired certificate
+    (ca1, "s_rsa_ca1_cn1", None, {}), # No subjectAltName, CN=127.0.0.1
+    (ca1, "s_rsa_ca1_cn2", None, {}), # No subjectAltName, CN=127.0.0.11
+    (ca2, "s_rsa_ca2", None, {}),
+    (ca2, "c_rsa_ca2", None, {}),
+    (cai1, "s_rsa_cai1", None, {}),
+    (cai2, "s_rsa_cai2", None, {}),
+    (cai2, "c_rsa_cai2", None, {}),
+    (ca1, "s_rsa_ca1", "s_rsa_wroot_ca1", { "root": True }),
 ]
 
 #
-# Save the certificate as PKCS12 files.
+# Save the certificate PKCS12 files.
 #
-for (ca, alias) in certs:
-    cert = ca.get(alias) or ca.create(alias, **args)
-    cert.save(alias + ".p12")
+for (ca, alias, path, args) in certs:
+    if not path: path = alias
+    cert = ca.get(alias)
+    if force or not os.path.exists(path + ".p12"): 
+        cert.save(path + ".p12", **args)
 
 # Also export the ca2 self-signed certificate, it's used by the tests to test self-signed certificates
-ca2.getCA().save("cacert2.p12", addkey=True)
+if force or not os.path.exists("cacert2.p12"): ca2.getCA().save("cacert2.p12", addkey=True)

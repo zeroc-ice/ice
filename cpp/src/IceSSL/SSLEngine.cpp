@@ -109,7 +109,7 @@ IceSSL::SSLEngine::initialize()
     // chain, including the peer's certificate. A value of 0 means there is
     // no maximum.
     //
-    _verifyDepthMax = properties->getPropertyAsIntWithDefault(propPrefix + "VerifyDepthMax", 2);
+    _verifyDepthMax = properties->getPropertyAsIntWithDefault(propPrefix + "VerifyDepthMax", 3);
 
     //
     // VerifyPeer determines whether certificate validation failures abort a connection.

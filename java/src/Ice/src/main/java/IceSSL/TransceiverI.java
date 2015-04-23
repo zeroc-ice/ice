@@ -37,26 +37,6 @@ final class TransceiverI implements IceInternal.Transceiver
         }
 
         //
-        // IceSSL.VerifyPeer is translated into the proper SSLEngine configuration
-        // for a server, but we have to do it ourselves for a client.
-        //
-        if(!_incoming)
-        {
-            int verifyPeer = _instance.properties().getPropertyAsIntWithDefault("IceSSL.VerifyPeer", 2);
-            if(verifyPeer > 0)
-            {
-                try
-                {
-                    _engine.getSession().getPeerCertificates();
-                }
-                catch(javax.net.ssl.SSLPeerUnverifiedException ex)
-                {
-                    throw new Ice.SecurityException("IceSSL: server did not supply a certificate", ex);
-                }
-            }
-        }
-
-        //
         // Additional verification.
         //
         _instance.verifyPeer(getNativeConnectionInfo(), _stream.fd(), _host);
@@ -322,8 +302,12 @@ final class TransceiverI implements IceInternal.Transceiver
             info.cipher = session.getCipherSuite();
             try
             {
+                java.security.cert.Certificate[] pcerts = session.getPeerCertificates();
+                java.security.cert.Certificate[] vcerts = _instance.engine().getVerifiedCertificateChain(pcerts);
+                info.verified = vcerts != null;
+                info.nativeCerts = vcerts != null ? vcerts : pcerts;
+
                 java.util.ArrayList<String> certs = new java.util.ArrayList<String>();
-                info.nativeCerts = session.getPeerCertificates();
                 for(java.security.cert.Certificate c : info.nativeCerts)
                 {
                     StringBuilder s = new StringBuilder("-----BEGIN CERTIFICATE-----\n");
@@ -331,14 +315,14 @@ final class TransceiverI implements IceInternal.Transceiver
                     s.append("\n-----END CERTIFICATE-----");
                     certs.add(s.toString());
                 }
-                info.certs = certs.toArray(new String[0]);
-            }
-            catch(java.security.cert.CertificateEncodingException ex)
-            {
+                info.certs = certs.toArray(new String[certs.size()]);
             }
             catch(javax.net.ssl.SSLPeerUnverifiedException ex)
             {
                 // No peer certificates.
+            }
+            catch(java.security.cert.CertificateEncodingException ex)
+            {
             }
         }
         info.adapterName = _adapterName;

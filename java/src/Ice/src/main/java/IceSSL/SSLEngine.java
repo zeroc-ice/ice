@@ -12,6 +12,7 @@ package IceSSL;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.security.cert.*;
 
 class SSLEngine
 {
@@ -90,7 +91,7 @@ class SSLEngine
         // chain, including the peer's certificate. A value of 0 means there is
         // no maximum.
         //
-        _verifyDepthMax = properties.getPropertyAsIntWithDefault(prefix + "VerifyDepthMax", 2);
+        _verifyDepthMax = properties.getPropertyAsIntWithDefault(prefix + "VerifyDepthMax", 3);
 
         //
         // VerifyPeer determines whether certificate validation failures abort a connection.
@@ -524,6 +525,25 @@ class SSLEngine
                 }
 
                 //
+                // Create a certificate path validator to build the full
+                // certificate chain of the peer certificate. NOTE: this must
+                // be done before wrapping the trust manager since our wrappers
+                // return an empty list of accepted issuers.
+                //
+                _validator = CertPathValidator.getInstance("PKIX");
+                java.util.Set<TrustAnchor> anchors = new java.util.HashSet<TrustAnchor>();
+                for(javax.net.ssl.TrustManager tm : trustManagers)
+                {
+                    X509Certificate[] certs = ((javax.net.ssl.X509TrustManager)tm).getAcceptedIssuers();
+                    for(X509Certificate cert : certs)
+                    {
+                        anchors.add(new TrustAnchor(cert, null));
+                    }
+                }
+                _validatorParams = new PKIXParameters(anchors);
+                _validatorParams.setRevocationEnabled(false);
+
+                //
                 // Wrap each trust manager.
                 //
                 for(int i = 0; i < trustManagers.length; ++i)
@@ -551,6 +571,26 @@ class SSLEngine
         _truststoreStream = null;
 
         _initialized = true;
+    }
+
+    Certificate[] getVerifiedCertificateChain(Certificate[] chain)
+    {
+        List<Certificate> certs = new ArrayList<Certificate>(java.util.Arrays.asList(chain));
+        try
+        {
+            CertPath path = CertificateFactory.getInstance("X.509").generateCertPath(certs);
+            CertPathValidatorResult result = _validator.validate(path, _validatorParams);
+            Certificate root = ((PKIXCertPathValidatorResult)result).getTrustAnchor().getTrustedCert();
+            if(!root.equals(chain[chain.length - 1])) // Only add the root certificate if it's not already in the chain
+            {
+                certs.add(root);
+            }
+            return certs.toArray(new Certificate[certs.size()]);
+        }
+        catch(Exception ex)
+        {
+            return null; // Couldn't validate the given certificate chain.
+        }
     }
 
     void context(javax.net.ssl.SSLContext context)
@@ -817,12 +857,24 @@ class SSLEngine
     void verifyPeer(NativeConnectionInfo info, java.nio.channels.SelectableChannel fd, String address)
     {
         //
+        // IceSSL.VerifyPeer is translated into the proper SSLEngine configuration
+        // for a server, but we have to do it ourselves for a client.
+        //
+        if(!info.incoming)
+        {
+            if(_verifyPeer > 0 && !info.verified)
+            {
+                throw new Ice.SecurityException("IceSSL: server did not supply a certificate");
+            }
+        }
+
+        //
         // For an outgoing connection, we compare the proxy address (if any) against
         // fields in the server's certificate (if any).
         //
         if(info.nativeCerts != null && info.nativeCerts.length > 0 && address.length() > 0)
         {
-            java.security.cert.X509Certificate cert = (java.security.cert.X509Certificate)info.nativeCerts[0];
+            X509Certificate cert = (X509Certificate)info.nativeCerts[0];
 
             //
             // Extract the IP addresses and the DNS names from the subject
@@ -850,7 +902,7 @@ class SSLEngine
                     }
                 }
             }
-            catch(java.security.cert.CertificateParsingException ex)
+            catch(CertificateParsingException ex)
             {
                 assert(false);
             }
@@ -992,8 +1044,8 @@ class SSLEngine
         }
     }
 
-    void trustManagerFailure(boolean incoming, java.security.cert.CertificateException ex)
-        throws java.security.cert.CertificateException
+    void trustManagerFailure(boolean incoming, CertificateException ex)
+        throws CertificateException
     {
         if(_verifyPeer == 0)
         {
@@ -1157,4 +1209,7 @@ class SSLEngine
     private InputStream _keystoreStream;
     private InputStream _truststoreStream;
     private List<InputStream> _seeds = new ArrayList<InputStream>();
+
+    private CertPathValidator _validator;
+    private PKIXParameters _validatorParams;
 }

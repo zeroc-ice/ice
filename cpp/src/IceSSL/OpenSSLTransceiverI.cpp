@@ -258,8 +258,7 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
             if(_engine->securityTraceLevel() >= 1)
             {
                 ostringstream ostr;
-                ostr << "IceSSL: ignoring certificate verification failure:\n"
-                     << X509_verify_cert_error_string(result);
+                ostr << "IceSSL: ignoring certificate verification failure:\n" << X509_verify_cert_error_string(result);
                 _instance->logger()->trace(_instance->traceCategory(), ostr.str());
             }
         }
@@ -276,6 +275,10 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
             ex.reason = msg;
             throw ex;
         }
+    }
+    else if(_info)
+    {
+        _info->verified = true;
     }
     _engine->verifyPeer(_stream->fd(), _host, getNativeConnectionInfo());
 
@@ -667,12 +670,18 @@ IceSSL::TransceiverI::initNativeConnectionInfo(X509_STORE_CTX* ctx) const
     }
     info->adapterName = _adapterName;
     info->incoming = _incoming;
+    info->verified = false;
 
     STACK_OF(X509)* chain = 0; 
     if(ctx)
     {
+        //
+        // This is called from the verify callback where OpenSSL provides the verified 
+        // certificate chain.
+        //
         chain = X509_STORE_CTX_get1_chain(ctx);
     }
+
     if(chain == 0 && _ssl != 0)
     {
         //
@@ -685,37 +694,37 @@ IceSSL::TransceiverI::initNativeConnectionInfo(X509_STORE_CTX* ctx) const
         //
         X509* cert = SSL_get_peer_certificate(_ssl);
         chain = SSL_get_peer_cert_chain(_ssl);
-	if(cert != 0 && (chain == 0 || sk_X509_num(chain) == 0 || cert != sk_X509_value(chain, 0)))
-	{
-	    CertificatePtr certificate = new Certificate(cert);
+        if(cert != 0 && (chain == 0 || sk_X509_num(chain) == 0 || cert != sk_X509_value(chain, 0)))
+        {
+            CertificatePtr certificate = new Certificate(cert);
             info->nativeCerts.push_back(certificate);
             info->certs.push_back(certificate->encode());
-	}
-	else
-	{
-	    X509_free(cert);
-	}
+        }
+        else
+        {
+            X509_free(cert);
+        }
     }
 
     if(chain != 0)
     {
-	for(int i = 0; i < sk_X509_num(chain); ++i)
-	{
-	    //
-	    // Duplicate the certificate since the stack comes straight from the SSL connection.
-	    //
-	    CertificatePtr certificate = new Certificate(X509_dup(sk_X509_value(chain, i)));
-	    info->nativeCerts.push_back(certificate);
-	    info->certs.push_back(certificate->encode());
-	}
-	if(ctx)
-	{
-	    sk_X509_pop_free(chain, X509_free);
-	}
+        for(int i = 0; i < sk_X509_num(chain); ++i)
+        {
+            //
+            // Duplicate the certificate since the stack comes straight from the SSL connection.
+            //
+            CertificatePtr certificate = new Certificate(X509_dup(sk_X509_value(chain, i)));
+            info->nativeCerts.push_back(certificate);
+            info->certs.push_back(certificate->encode());
+        }
+        if(ctx)
+        {
+            sk_X509_pop_free(chain, X509_free);
+        }
     }
     if(_ssl != 0)
     {
-	info->cipher = SSL_get_cipher_name(_ssl); // Nothing needs to be free'd.
+        info->cipher = SSL_get_cipher_name(_ssl); // Nothing needs to be free'd.
     }
     info->adapterName = _adapterName;
     info->incoming = _incoming;

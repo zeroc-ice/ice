@@ -121,6 +121,7 @@ private:
     CredHandle _credentials;
     bool _credentialsInitialized;
     SecPkgContext_StreamSizes _sizes;
+    bool _verified;
 };
 typedef IceUtil::Handle<TransceiverI> TransceiverIPtr;
 

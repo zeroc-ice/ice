@@ -71,7 +71,8 @@ private:
 
     SSLContextRef _ssl;
     SecTrustRef _trust;
-
+    bool _verified;
+    
     size_t _buffered;
     enum SSLWantFlags
     {

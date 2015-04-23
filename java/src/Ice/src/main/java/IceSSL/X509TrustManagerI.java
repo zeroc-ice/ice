@@ -67,9 +67,16 @@ final class X509TrustManagerI implements javax.net.ssl.X509TrustManager
     public java.security.cert.X509Certificate[]
     getAcceptedIssuers()
     {
-        return _delegate.getAcceptedIssuers();
+        //
+        // This method is used to send CA names to the client as part of the CertificateRequest
+        // message sent by the server to request a client certificate. We want the client to always
+        // send its certificate so we don't provide any CAs here.
+        //
+        //return _delegate.getAcceptedIssuers();
+        return EMPTY;
     }
 
     private SSLEngine _engine;
     private javax.net.ssl.X509TrustManager _delegate;
+    private java.security.cert.X509Certificate[] EMPTY = new java.security.cert.X509Certificate[0];
 }

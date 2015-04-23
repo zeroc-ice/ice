@@ -19,6 +19,12 @@ These are the changes since Ice 3.5.1.
 
 ## General Changes
 
+- The default value of the IceSSL.VerifyDepthMax property is now 3 (it was previously 2). This allows certificate chains of 3 certificates (e.g: a Peer, CA and Root certificate chain).
+
+- The certificate chain provided in the `IceSSL::ConnectionInfo` should now always include the root certificate if the chain could successfully be verified.
+
+- Added `verified` member to the `IceSSL::ConnectionInfo` class. This member indicates whether or not the peer certificate was successfully verified. This member is useful for clients which set IceSSL.VerifyPeer=0 to check if the server certificate could be verified or not. For server connections, the member should always be `true` since servers always reject invalid client certificates.
+
 - The Ice distribution now supports the Objective-C mapping on OS X.
 
 - The Glacier2 `SessionHelper` class now creates the callback object adapter automatically unless the application calls `SessionFactoryHelper.setUseCallbacks(false)`.
@@ -197,6 +203,8 @@ These are the changes since Ice 3.5.1.
 
 ## Java Changes
 
+- Fixed the Java IceSSL implementation to behave like the C++ and C# implementation when `IceSSL.VerifyPeer=1` is set for servers. The server will now reject the connection if the client provides a certificate and this certificate can't be verified.
+
 - Passing null for a Slice structure or enumerator is now tolerated. Ice marshals an empty structure or the first enumerator value.
 
 - The default constructor for a Slice structure, exception or class now initializes string, structure or enumerator data members. A string data member is initialized to the empty string, a structure data member is initialized with a new default-constructed structure, and an enumerator is initialized with the first enumerator value.
@@ -222,6 +230,8 @@ These are the changes since Ice 3.5.1.
 - Removed deprecated `IceUtil.Version` class.
 
 ## C# Changes
+
+- Fixed the Java IceSSL implementation to behave like the C++ and Java implementation when `IceSSL.VerifyPeer=1` is set for servers. The server will now request a certificate to the client and not abort the connection if the client doesn't provide a certificate.
 
 - The default constructor for a Slice structure, exception or class now initializes string, structure or enumerator data members. A string data member is initialized to the empty string, a structure data member is initialized with a new default-constructed structure, and an enumerator is initialized with the first enumerator value.
 

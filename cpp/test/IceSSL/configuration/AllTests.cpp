@@ -439,7 +439,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
     {
         //
         // Test IceSSL.VerifyPeer=0. Client does not have a certificate,
-        // but it still verifies the server's.
+        // and doesn't trust the server certificate.
         //
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "", "");
@@ -454,10 +454,34 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         try
         {
             server->noCert();
+            test(!IceSSL::ConnectionInfoPtr::dynamicCast(server->ice_getConnection()->getInfo())->verified);
         }
-        catch(const LocalException& ex)
+        catch(const LocalException&)
         {
-            cerr << ex << endl;
+            test(false);
+        }
+        fact->destroyServer(server);
+        comm->destroy();
+
+        //
+        // Test IceSSL.VerifyPeer=0. Client does not have a certificate,
+        // but it still verifies the server's.
+        //
+        initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "", "cacert1");
+        comm = initialize(initData);
+        fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        test(fact);
+
+        d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "");
+        d["IceSSL.VerifyPeer"] = "0";
+        server = fact->createServer(d);
+        try
+        {
+            server->noCert();
+            test(IceSSL::ConnectionInfoPtr::dynamicCast(server->ice_getConnection()->getInfo())->verified);
+        }
+        catch(const LocalException&)
+        {
             test(false);
         }
         fact->destroyServer(server);
@@ -465,7 +489,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         //
         // Test IceSSL.VerifyPeer=1. Client does not have a certificate.
         //
-        d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
+        d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "");
         d["IceSSL.VerifyPeer"] = "1";
         server = fact->createServer(d);
         try
@@ -482,7 +506,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         // Test IceSSL.VerifyPeer=2. This should fail because the client
         // does not supply a certificate.
         //
-        d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
+        d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "");
         d["IceSSL.VerifyPeer"] = "2";
         server = fact->createServer(d);
         try
@@ -513,7 +537,6 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         // able to provide the certificate chain).
         //
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_ca1", "cacert1");
-        initData.properties->setProperty("IceSSL.VerifyPeer", "0");
         comm = initialize(initData);
         fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
         test(fact);
@@ -549,6 +572,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
 
             info = IceSSL::NativeConnectionInfoPtr::dynamicCast(server->ice_getConnection()->getInfo());
             test(info->nativeCerts.size() == 2);
+            test(info->verified);
 
             test(caCert == info->nativeCerts[1]);
             test(serverCert == info->nativeCerts[0]);
@@ -817,6 +841,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         {
             info = IceSSL::NativeConnectionInfoPtr::dynamicCast(server->ice_getConnection()->getInfo());
             test(info->nativeCerts.size() == 1);
+            test(!info->verified);
         }
         catch(const Ice::LocalException& ex)
         {
@@ -840,6 +865,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
 #else
             test(info->nativeCerts.size() == 1);
 #endif
+            test(!info->verified);
         }
         catch(const Ice::LocalException& ex)
         {
@@ -866,6 +892,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
 #else
                 test(info->nativeCerts.size() == 2);
 #endif
+                test(!info->verified);
             }
             catch(const Ice::LocalException& ex)
             {
@@ -894,6 +921,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             {
                 info = IceSSL::NativeConnectionInfoPtr::dynamicCast(server->ice_getConnection()->getInfo());
                 test(info->nativeCerts.size() == 2);
+                test(info->verified);
             }
             catch(const Ice::LocalException& ex)
             {
@@ -902,6 +930,18 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             }
             fact->destroyServer(server);
         }
+        comm->destroy();
+
+        //
+        // Try certificate with one intermediate and VerifyDepthMax=2
+        //
+        initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "", "cacert1");
+        initData.properties->setProperty("IceSSL.VerifyPeer", "1");
+        initData.properties->setProperty("IceSSL.VerifyDepthMax", "2");
+        comm = initialize(initData);
+
+        fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        test(fact);
 
         {
             Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_cai1", "");
@@ -926,11 +966,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         comm->destroy();
 
         //
-        // Increase VerifyDepthMax to 3
+        // Try with VerifyDepthMax set to 3 (the default)
         //
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "", "cacert1");
         initData.properties->setProperty("IceSSL.VerifyPeer", "1");
-        initData.properties->setProperty("IceSSL.VerifyDepthMax", "3");
+        //initData.properties->setProperty("IceSSL.VerifyDepthMax", "3");
         comm = initialize(initData);
 
         fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
@@ -944,6 +984,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             {
                 info = IceSSL::NativeConnectionInfoPtr::dynamicCast(server->ice_getConnection()->getInfo());
                 test(info->nativeCerts.size() == 3);
+                test(info->verified);
             }
             catch(const Ice::LocalException&)
             {
@@ -988,6 +1029,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             {
                 info = IceSSL::NativeConnectionInfoPtr::dynamicCast(server->ice_getConnection()->getInfo());
                 test(info->nativeCerts.size() == 4);
+                test(info->verified);
             }
             catch(const Ice::LocalException&)
             {

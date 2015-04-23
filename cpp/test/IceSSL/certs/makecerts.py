@@ -88,9 +88,6 @@ cai2 = cai1.getIntermediateFactory("intermediate1")
 if not cai2:
     cai2 = cai1.createIntermediateFactory("intermediate1", cn = "ZeroC Test Intermediate CA 2")
 
-cai1.getCA().save("cacert_int1.pem")
-cai2.getCA().save("cacert_int2.pem")
-
 #
 # Create certificates (CA, alias, { creation parameters passed to ca.create(...) })
 #

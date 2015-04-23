@@ -95,7 +95,7 @@ socketRead(SSLConnectionRef connection, void* data, size_t* length)
     return transceiver->readRaw(reinterpret_cast<char*>(data), length);
 }
 
-void
+bool
 checkTrustResult(SecTrustRef trust, const SecureTransportEnginePtr& engine, const InstancePtr& instance)
 {
     OSStatus err = noErr;
@@ -132,14 +132,15 @@ checkTrustResult(SecTrustRef trust, const SecureTransportEnginePtr& engine, cons
         //
         // Trust verify success.
         //
-        break;
+        return true;
     }
-    case kSecTrustResultInvalid:
-    //case kSecTrustResultConfirm: // Used in old OS X versions
-    case kSecTrustResultDeny:
-    case kSecTrustResultRecoverableTrustFailure:
-    case kSecTrustResultFatalTrustFailure:
-    case kSecTrustResultOtherError:
+    default:
+    // case kSecTrustResultInvalid:
+    // //case kSecTrustResultConfirm: // Used in old OS X versions
+    // case kSecTrustResultDeny:
+    // case kSecTrustResultRecoverableTrustFailure:
+    // case kSecTrustResultFatalTrustFailure:
+    // case kSecTrustResultOtherError:
     {
         if(engine->getVerifyPeer() == 0)
         {
@@ -149,7 +150,7 @@ checkTrustResult(SecTrustRef trust, const SecureTransportEnginePtr& engine, cons
                 os << "IceSSL: ignoring certificate verification failure\n" << trustResultDescription(trustResult);
                 instance->logger()->trace(instance->traceCategory(), os.str());
             }
-            break;
+            return false;
         }
         else
         {
@@ -236,7 +237,7 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
             }
             if(err == noErr)
             {
-                checkTrustResult(_trust, _engine, _instance);
+                _verified = checkTrustResult(_trust, _engine, _instance);
                 continue; // Call SSLHandshake to resume the handsake.
             }
             // Let it fall through, this will raise a SecurityException with the SSLCopyPeerTrust error.
@@ -510,6 +511,7 @@ IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance,
     _stream(stream),
     _ssl(0),
     _trust(0),
+    _verified(false),
     _buffered(0)
 {
     //
@@ -551,6 +553,11 @@ IceSSL::TransceiverI::getNativeConnectionInfo() const
         SSLCipherSuite cipher;
         SSLGetNegotiatedCipher(_ssl, &cipher);
         info->cipher = _engine->getCipherName(cipher);
+        info->verified = _verified;
+    }
+    else
+    {
+        info->verified = false;
     }
 
     info->adapterName = _adapterName;

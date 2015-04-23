@@ -636,81 +636,85 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
         return op;
     }
 
-    if(!_incoming || _engine->getVerifyPeer() > 0)
+    //
+    // Build the peer certificate chain and verify it.
+    //
+    PCCERT_CONTEXT cert = 0;
+    SECURITY_STATUS err = QueryContextAttributes(&_ssl, SECPKG_ATTR_REMOTE_CERT_CONTEXT, &cert);
+    if(err && err != SEC_E_NO_CREDENTIALS)
+    {
+        throw SecurityException(__FILE__, __LINE__, "IceSSL: certificate verification failure:" +
+                                IceUtilInternal::lastErrorToString());
+    }
+
+    if(!cert && ((!_incoming && _engine->getVerifyPeer() > 0) || (_incoming && _engine->getVerifyPeer() == 2)))
     {
         //
-        // Build the peer certificate chain and verify it.
+        // Clients require server certificate if VerifyPeer > 0 and servers require client
+        // certificate if VerifyPeer == 2
         //
-        PCCERT_CONTEXT cert = 0;
-        SECURITY_STATUS err = QueryContextAttributes(&_ssl, SECPKG_ATTR_REMOTE_CERT_CONTEXT, &cert);
-        if(err && err != SEC_E_NO_CREDENTIALS)
+        throw SecurityException(__FILE__, __LINE__, "IceSSL: certificate required:" +
+                                IceUtilInternal::lastErrorToString());
+    }
+    else if(cert) // Verify the remote certificate
+    {
+        try
         {
-            throw SecurityException(__FILE__, __LINE__, "IceSSL: certificate verification failure:" +
-                                    IceUtilInternal::lastErrorToString());
-        }
+            CERT_CHAIN_PARA chainP;
+            memset(&chainP, 0, sizeof(chainP));
+            chainP.cbSize = sizeof(chainP);
 
-        if(!cert && (!_incoming || _engine->getVerifyPeer() == 2))
-        {
-            // Clients require server certificate if VerifyPeer > 0
-            // and servers require client certificate if VerifyPeer == 2
-            throw SecurityException(__FILE__, __LINE__, "IceSSL: certificate required:" +
-                                    IceUtilInternal::lastErrorToString());
-        }
-        else if(cert) // Verify the remote certificate
-        {
-            try
+            PCCERT_CHAIN_CONTEXT certChain;
+            if(!CertGetCertificateChain(_engine->chainEngine(), cert, 0, 0, &chainP,
+                                        CERT_CHAIN_REVOCATION_CHECK_CACHE_ONLY, 0, &certChain))
             {
-                CERT_CHAIN_PARA chainP;
-                memset(&chainP, 0, sizeof(chainP));
-                chainP.cbSize = sizeof(chainP);
-
-                PCCERT_CHAIN_CONTEXT certChain;
-                if(!CertGetCertificateChain(_engine->chainEngine(), cert, 0, 0, &chainP,
-                                            CERT_CHAIN_REVOCATION_CHECK_CACHE_ONLY, 0, &certChain))
-                {
-                    CertFreeCertificateContext(cert);
-                    throw IceUtilInternal::lastErrorToString();
-                }
-
-                CERT_SIMPLE_CHAIN* simpleChain = certChain->rgpChain[0];
-
-                string trustError;
-                if(simpleChain->TrustStatus.dwErrorStatus != CERT_TRUST_NO_ERROR)
-                {
-                    trustError = trustStatusToString(certChain->TrustStatus.dwErrorStatus);
-                }
-
-                CertFreeCertificateChain(certChain);
                 CertFreeCertificateContext(cert);
-                if(!trustError.empty())
+                throw IceUtilInternal::lastErrorToString();
+            }
+
+            CERT_SIMPLE_CHAIN* simpleChain = certChain->rgpChain[0];
+
+            string trustError;
+            if(simpleChain->TrustStatus.dwErrorStatus != CERT_TRUST_NO_ERROR)
+            {
+                trustError = trustStatusToString(certChain->TrustStatus.dwErrorStatus);
+            }
+            else
+            {
+                _verified = true;
+            }
+
+            CertFreeCertificateChain(certChain);
+            CertFreeCertificateContext(cert);
+            if(!trustError.empty())
+            {
+                throw trustError;
+            }
+        }
+        catch(const string& reason)
+        {
+            if(_engine->getVerifyPeer() == 0)
+            {
+                if(_instance->traceLevel() >= 1)
                 {
-                    throw trustError;
+                    _instance->logger()->trace(_instance->traceCategory(),
+                                               "IceSSL: ignoring certificate verification failure\n" + reason);
                 }
             }
-            catch(const string& reason)
+            else
             {
-                if(_engine->getVerifyPeer() == 0)
+                ostringstream os;
+                os << "IceSSL: certificate verification failure\n" << reason;
+                string msg = os.str();
+                if(_instance->traceLevel() >= 1)
                 {
-                    if(_instance->traceLevel() >= 1)
-                    {
-                        _instance->logger()->trace(_instance->traceCategory(),
-                                                   "IceSSL: ignoring certificate verification failure\n" + reason);
-                    }
+                    _instance->logger()->trace(_instance->traceCategory(), msg);
                 }
-                else
-                {
-                    ostringstream os;
-                    os << "IceSSL: certificate verification failure\n" << reason;
-                    string msg = os.str();
-                    if(_instance->traceLevel() >= 1)
-                    {
-                        _instance->logger()->trace(_instance->traceCategory(), msg);
-                    }
-                    throw SecurityException(__FILE__, __LINE__, msg);
-                }
+                throw SecurityException(__FILE__, __LINE__, msg);
             }
         }
     }
+
     _engine->verifyPeer(_stream->fd(), _host, getNativeConnectionInfo());
     _state = StateHandshakeComplete;
 
@@ -971,7 +975,8 @@ IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance,
     _state(StateHandshakeNotStarted),
     _bufferedW(0),
     _sslInitialized(false),
-    _credentialsInitialized(false)
+    _credentialsInitialized(false),
+    _verified(false)
 {
 }
 
@@ -990,6 +995,8 @@ IceSSL::TransceiverI::getNativeConnectionInfo() const
         info->rcvSize = IceInternal::getRecvBufferSize(_stream->fd());
         info->sndSize = IceInternal::getSendBufferSize(_stream->fd());
     }
+
+    info->verified = _verified;
 
     if(_sslInitialized)
     {

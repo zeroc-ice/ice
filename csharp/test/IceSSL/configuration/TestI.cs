@@ -39,6 +39,7 @@ internal sealed class ServerI : ServerDisp_
         try
         {
             IceSSL.NativeConnectionInfo info = (IceSSL.NativeConnectionInfo)current.con.getInfo();
+            test(info.verified);
             test(info.nativeCerts.Length == 2 &&
                  info.nativeCerts[0].Subject.Equals(subjectDN) &&
                  info.nativeCerts[0].Issuer.Equals(issuerDN));

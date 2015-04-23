@@ -342,17 +342,7 @@ namespace IceSSL
             }
             _sslStream = null;
 
-            if(_incoming)
-            {
-                //
-                // Determine whether a certificate is required from the peer.
-                //
-                _verifyPeer = _instance.properties().getPropertyAsIntWithDefault("IceSSL.VerifyPeer", 2);
-            }
-            else
-            {
-                _verifyPeer = 0;
-            }
+            _verifyPeer = _instance.properties().getPropertyAsIntWithDefault("IceSSL.VerifyPeer", 2);
 
             _chain = new X509Chain(_instance.engine().certStore() == "LocalMachine");
 
@@ -370,7 +360,6 @@ namespace IceSSL
                 //
                 _chain.ChainPolicy.VerificationFlags = X509VerificationFlags.AllowUnknownCertificateAuthority;
 #endif
-
                 foreach(X509Certificate2 cert in caCerts)
                 {
                     _chain.ChainPolicy.ExtraStore.Add(cert);
@@ -426,6 +415,7 @@ namespace IceSSL
                 }
 #endif
                 info.certs = certs.ToArray();
+                info.verified = _verified;
             }
             info.adapterName = _adapterName;
             info.incoming = _incoming;
@@ -467,7 +457,7 @@ namespace IceSSL
                     }
 
                     _writeResult = _sslStream.BeginAuthenticateAsServer(cert,
-                                                                        _verifyPeer > 1,
+                                                                        _verifyPeer > 0,
                                                                         _instance.protocols(),
                                                                         _instance.checkCRL() > 0,
                                                                         writeCompleted,
@@ -548,16 +538,23 @@ namespace IceSSL
         private X509Certificate selectCertificate(
             object sender,
             string targetHost,
-            X509CertificateCollection localCertificates,
+            X509CertificateCollection certs,
             X509Certificate remoteCertificate,
             string[] acceptableIssuers)
         {
-            X509Certificate2Collection certs = _instance.engine().certs();
+            if(certs == null || certs.Count == 0)
+            {
+                return null;
+            }
+            else if(certs.Count == 1)
+            {
+                return certs[0];
+            }
 
             //
             // Use the first certificate that match the acceptable issuers.
             //
-            if(acceptableIssuers != null && acceptableIssuers.Length > 0 && certs != null && certs.Count > 0)
+            if(acceptableIssuers != null && acceptableIssuers.Length > 0)
             {
                 foreach(X509Certificate certificate in certs)
                 {
@@ -567,15 +564,7 @@ namespace IceSSL
                     }
                 }
             }
-
-            //
-            // Send first certificate
-            //
-            if(certs.Count > 0)
-            {
-                return certs[0];
-            }
-            return null;
+            return certs[0];
         }
 
         private bool validationCallback(object sender, X509Certificate certificate, X509Chain chainEngine,
@@ -583,11 +572,10 @@ namespace IceSSL
         {
 #if !UNITY
             SslPolicyErrors sslPolicyErrors = policyErrors;
-            bool valid = false;
             if(certificate != null)
             {
                 sslPolicyErrors = SslPolicyErrors.None;
-                valid = _chain.Build(new X509Certificate2(certificate));
+                _verified = _chain.Build(new X509Certificate2(certificate));
                 if(_chain.ChainStatus.Length > 0)
                 {
                     sslPolicyErrors = SslPolicyErrors.RemoteCertificateChainErrors;
@@ -629,6 +617,7 @@ namespace IceSSL
                 errors ^= (int)SslPolicyErrors.RemoteCertificateNameMismatch;
             }
 
+
             if((errors & (int)SslPolicyErrors.RemoteCertificateChainErrors) > 0)
             {
                 if(_chain.ChainStatus != null)
@@ -637,7 +626,7 @@ namespace IceSSL
                     foreach(X509ChainStatus status in _chain.ChainStatus)
                     {
                         if(status.Status == X509ChainStatusFlags.UntrustedRoot &&
-                           _instance.engine().caCerts() != null && valid)
+                           _instance.engine().caCerts() != null && _verified)
                         {
                             //
                             // Untrusted root is OK when using our custom chain engine if
@@ -674,6 +663,18 @@ namespace IceSSL
                             else
                             {
                                 message = message + "\ncertificate revocation status unknown (ignored)";
+                                --errorCount;
+                            }
+                        }
+                        else if(status.Status == X509ChainStatusFlags.PartialChain)
+                        {
+                            if(_verifyPeer > 0)
+                            {
+                                message = message + "\npartial certificate chain";
+                            }
+                            else
+                            {
+                                message = message + "\npartial certificate chain (ignored)";
                                 --errorCount;
                             }
                         }
@@ -750,5 +751,6 @@ namespace IceSSL
         private IceInternal.AsyncCallback _readCallback;
         private IceInternal.AsyncCallback _writeCallback;
         private X509Chain _chain;
+        private bool _verified;
     }
 }
