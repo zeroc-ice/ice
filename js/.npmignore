@@ -1,2 +1,12 @@
+.depend
+allTests.py
+assets
+bin
+bower.json
+bower_components
+gulp
+gulpfile.js
+index.html
 Makefile
 Makefile.mak
+test
