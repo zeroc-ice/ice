@@ -1823,6 +1823,8 @@ def getTestEnv(lang, testdir):
         elif thirdPartyHome:
             if x64:
                 suffix = "x64"
+            else:
+                suffix = ""
             #
             # Add third party home to PATH, to use db_xx tools
             #
