@@ -261,16 +261,9 @@ $(error Unable to find $(slice_translator) in $(ICE_HOME)/$(binsubdir), please v
                 ifeq ($(shell test -f /opt/Ice-$(VERSION)/bin/$(slice_translator) && echo 0), 0)
                    $(warning Found $(slice_translator) in both $(usr_dir)/bin and /opt/Ice-$(VERSION)/bin, $(usr_dir)/bin/$(slice_translator) will be used!)
                 endif
-                ifeq ($(shell test -f /Library/Developer/Ice-$(VERSION)/bin/$(slice_translator) && echo 0), 0)
-                   $(warning Found $(slice_translator) in both $(usr_dir)/bin and /Library/Developer/Ice-$(VERSION)/bin, $(usr_dir)/bin/$(slice_translator) will be used!)
-                endif
             else
-                ifeq ($(shell test -f /Library/Developer/Ice-$(VERSION)/$(binsubdir)/$(slice_translator) && echo 0), 0)
-                    ice_dir = /Library/Developer/Ice-$(VERSION)
-                else
-                    ifeq ($(shell test -f /opt/Ice-$(VERSION)/$(binsubdir)/$(slice_translator) && echo 0), 0)
-                        ice_dir = /opt/Ice-$(VERSION)
-                    endif
+                ifeq ($(shell test -f /opt/Ice-$(VERSION)/$(binsubdir)/$(slice_translator) && echo 0), 0)
+                    ice_dir = /opt/Ice-$(VERSION)
                 endif
             endif
         endif
@@ -400,7 +393,7 @@ ifeq ($(mksoname),)
     ifeq ($(UNAME),Darwin)
         mksoname    = $(if $(2),lib$(1)$(cpp11libsuffix).$(2).dylib,lib$(1).dylib)
     else
-        mksoname	= $(if $(2),lib$(1)$(cpp11libsuffix).so.$(2),lib$(1).so)
+        mksoname    = $(if $(2),lib$(1)$(cpp11libsuffix).so.$(2),lib$(1).so)
     endif
 endif
 
@@ -443,7 +436,7 @@ endif
 
 ifeq ($(installprogram),)
     installprogram	= $(INSTALL_PROGRAM) $(1) $(2); \
-				chmod a+rx $(2)/$(notdir $(1))
+			 chmod a+rx $(2)/$(notdir $(1))
 endif
 
 ifeq ($(mkdir),)
