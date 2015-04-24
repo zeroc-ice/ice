@@ -32,6 +32,21 @@ class Activator : public IceUtil::Monitor< IceUtil::Mutex>, public IceUtil::Shar
 {
 public:
 
+    struct Process
+    {
+#ifdef _WIN32
+        Activator* activator;
+        DWORD pid;
+        HANDLE hnd;
+        HANDLE waithnd;
+#else
+        pid_t pid;
+        int pipeFd;
+        std::string msg;
+#endif
+        ServerIPtr server;
+    };
+
     Activator(const TraceLevelsPtr&);
     virtual ~Activator();
 
@@ -56,6 +71,10 @@ public:
     void sendSignal(const std::string&, int);
     void runTerminationListener();
 
+#ifdef _WIN32
+    void processTerminated(Process*);
+#endif
+
 private:
 
     void terminationListener();
@@ -66,25 +85,13 @@ private:
     int waitPid(pid_t);
 #endif
 
-    struct Process
-    {
-#ifdef _WIN32
-        DWORD pid;
-        HANDLE hnd;
-#else
-        pid_t pid;
-        int pipeFd;
-        std::string msg;
-#endif
-        ServerIPtr server;
-    };
-
     TraceLevelsPtr _traceLevels;
     std::map<std::string, Process> _processes;
     bool _deactivating;
 
 #ifdef _WIN32
     HANDLE _hIntr;
+    std::vector<Process*> _terminated;
 #else
     int _fdIntrRead;
     int _fdIntrWrite;
