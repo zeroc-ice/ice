@@ -1739,7 +1739,7 @@ compile(int argc, char* argv[])
     vector<string> v = opts.argVec("meta");
     copy(v.begin(), v.end(), back_inserter(globalMetadata));
 
-    if(dicts.empty() && indices.empty())
+    if(dicts.empty() && indices.empty() && !(depend || dependxml))
     {
         getErrorStream() << argv[0] << ": error: no Freeze types specified" << endl;
         usage(argv[0]);

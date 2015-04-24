@@ -200,13 +200,15 @@ usage(const char* n)
         "--header-ext EXT      Use EXT instead of the default `h' extension.\n"
         "--source-ext EXT      Use EXT instead of the default `cpp' extension.\n"
         "--add-header HDR[,GUARD]\n"
-        "                      Add #include for HDR (with guard GUARD) to generated source file.\n"
+        "                      Add #include for HDR (with guard GUARD) to\n"
+        "                      generated source file.\n"
         "-DNAME                Define NAME as 1.\n"
         "-DNAME=DEF            Define NAME as DEF.\n"
         "-UNAME                Remove any definition for NAME.\n"
         "-IDIR                 Put DIR in the include file search path.\n"
         "-E                    Print preprocessor output on stdout.\n"
-        "--include-dir DIR     Use DIR as the header include directory in source files.\n"
+        "--include-dir DIR     Use DIR as the header include directory in\n"
+        "                      source files.\n"
         "--dll-export SYMBOL   Use SYMBOL for DLL exports.\n"
         "--dict NAME,KEY,VALUE[,sort[,COMPARE]]\n"
         "                      Create a Freeze dictionary with the name NAME,\n"
@@ -238,6 +240,9 @@ usage(const char* n)
         "                      with the COMPARE functor class. COMPARE's default\n"
         "                      value is std::less<secondary key type>.\n"
         "--output-dir DIR      Create files in the directory DIR.\n"
+        "--depend              Generate dependencies for input Slice files.\n"
+        "--depend-xml          Generate dependencies in XML format.\n"
+        "--depend-file FILE    Write dependencies to FILE instead of standard output.\n"
         "-d, --debug           Print debug messages.\n"
         "--ice                 Permit `Ice' prefix (for building Ice source code only).\n"
         "--underscore          Permit underscores in Slice identifiers.\n"
@@ -1442,6 +1447,9 @@ compile(int argc, char* argv[])
     opts.addOpt("", "index", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
     opts.addOpt("", "dict-index", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
     opts.addOpt("", "output-dir", IceUtilInternal::Options::NeedArg);
+    opts.addOpt("", "depend");
+    opts.addOpt("", "depend-xml");
+    opts.addOpt("", "depend-file", IceUtilInternal::Options::NeedArg, "");
     opts.addOpt("d", "debug");
     opts.addOpt("", "ice");
     opts.addOpt("", "underscore");
@@ -1836,13 +1844,18 @@ compile(int argc, char* argv[])
 
     string output = opts.optArg("output-dir");
 
+    bool depend = opts.isSet("depend");
+    bool dependxml = opts.isSet("depend-xml");
+
+    string dependFile = opts.optArg("depend-file");
+
     bool debug = opts.isSet("debug");
 
     bool ice = opts.isSet("ice");
 
     bool underscore = opts.isSet("underscore");
 
-    if(dicts.empty() && indices.empty())
+    if(dicts.empty() && indices.empty() && !(depend || dependxml))
     {
         getErrorStream() << argv[0] << ": error: no Freeze types specified" << endl;
         usage(argv[0]);
@@ -1865,53 +1878,98 @@ compile(int argc, char* argv[])
     IceUtil::CtrlCHandler ctrlCHandler;
     ctrlCHandler.setCallback(interruptedCallback);
 
+    DependOutputUtil out(dependFile);
+    if(dependxml)
+    {
+        out.os() << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<dependencies>" << endl;
+    }
+
     for(vector<string>::size_type idx = 1; idx < args.size(); ++idx)
     {
-        PreprocessorPtr icecpp = Preprocessor::create(argv[0], args[idx], cppArgs);
-
-        //
-        // Add an include file for each Slice file. Note that the .h extension
-        // is replaced with headerExtension later.
-        //
-        includes.push_back(icecpp->getBaseName() + ".h");
-
-        FILE* cppHandle = icecpp->preprocess(false, "-D__SLICE2FREEZE__");
-
-        if(cppHandle == 0)
+        if(depend || dependxml)
         {
-            u->destroy();
-            return EXIT_FAILURE;
-        }
+            PreprocessorPtr icecpp = Preprocessor::create(argv[0], args[idx], cppArgs);
+            FILE* cppHandle = icecpp->preprocess(false, "-D__SLICE2FREEZE__");
 
-        if(preprocess)
-        {
-            char buf[4096];
-            while(fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != NULL)
+            if(cppHandle == 0)
             {
-                if(fputs(buf, stdout) == EOF)
-                {
-                    u->destroy();
-                    return EXIT_FAILURE;
-                }
+                out.cleanup();
+                u->destroy();
+                return EXIT_FAILURE;
+            }
+
+            status = u->parse(args[idx], cppHandle, debug);
+
+            if(status == EXIT_FAILURE)
+            {
+                out.cleanup();
+                u->destroy();
+                return EXIT_FAILURE;
+            }
+
+            if(!icecpp->printMakefileDependencies(out.os(), depend ? Preprocessor::CPlusPlus : Preprocessor::SliceXML, includePaths,
+                                                  "-D__SLICE2FREEZE__",  sourceExtension, headerExtension))
+            {
+                out.cleanup();
+                u->destroy();
+                return EXIT_FAILURE;
+            }
+
+            if(!icecpp->close())
+            {
+                out.cleanup();
+                u->destroy();
+                return EXIT_FAILURE;
             }
         }
         else
         {
-            status = u->parse(args[idx], cppHandle, debug);
-
-            MetaDataVisitor visitor;
-            u->visit(&visitor, false);
+            PreprocessorPtr icecpp = Preprocessor::create(argv[0], args[idx], cppArgs);
+            
+            //
+            // Add an include file for each Slice file. Note that the .h extension
+            // is replaced with headerExtension later.
+            //
+            includes.push_back(icecpp->getBaseName() + ".h");
+            
+            FILE* cppHandle = icecpp->preprocess(false, "-D__SLICE2FREEZE__");
+            
+            if(cppHandle == 0)
+            {
+                u->destroy();
+                return EXIT_FAILURE;
+            }
+            
+            if(preprocess)
+            {
+                char buf[4096];
+                while(fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != NULL)
+                {
+                    if(fputs(buf, stdout) == EOF)
+                    {
+                        u->destroy();
+                        return EXIT_FAILURE;
+                    }
+                }
+            }
+            else
+            {
+                status = u->parse(args[idx], cppHandle, debug);
+                
+                MetaDataVisitor visitor;
+                u->visit(&visitor, false);
+            }
+            
+            if(!icecpp->close())
+            {
+                u->destroy();
+                return EXIT_FAILURE;
+            }
         }
-
-        if(!icecpp->close())
-        {
-            u->destroy();
-            return EXIT_FAILURE;
-        }
-
+            
         {
             IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(globalMutex);
-
+            
             if(interrupted)
             {
                 return EXIT_FAILURE;
@@ -1919,6 +1977,16 @@ compile(int argc, char* argv[])
         }
     }
 
+    if(dependxml)
+    {
+        out.os() << "</dependencies>\n";
+    }
+
+    if(depend || dependxml)
+    {
+        u->destroy();
+        return EXIT_SUCCESS;
+    }
 
     if(status == EXIT_SUCCESS && !preprocess)
     {
