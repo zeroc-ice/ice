@@ -1,10 +1,8 @@
-Contributing to Ice
-====================
+# Contributing to Ice
 
 Thank you for your interest in contributing to Ice!
 
-How to Contribute
------------------
+## How to Contribute
 
 Follow these steps to contribute code or documentation to this project:
 
@@ -27,9 +25,7 @@ Follow these steps to contribute code or documentation to this project:
 
 We review carefully any contribution that we accept, and these reviews may take some time. Please keep in mind there is no guarantee your contribution will be accepted: we may reject a pull request for any reason, or no reason.
 
-
-Our Favorite Contributions
---------------------------
+## Our Favorite Contributions
 
 We prefer small contributions as they are easier to review and integrate. If you want to contribute but don't know where to start, consider one of these areas:
 
@@ -41,9 +37,7 @@ We prefer small contributions as they are easier to review and integrate. If you
 
  * Ports to new platforms and compilers
 
-
-Large Contributions
--------------------
+## Large Contributions
 
 Please don't spend weeks or months on a new feature without checking with us first!
 
@@ -57,9 +51,7 @@ Some contributions are troublesome and therefore difficult to accept:
 
  * Any update that breaks source compatibility with the most recent release
 
-
-Contact
--------
+## Contact
 
  * Community Forums: https://zeroc.com/forums
  * Twitter: https://twitter.com/zeroc_inc
