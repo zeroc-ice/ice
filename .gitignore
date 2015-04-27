@@ -63,11 +63,6 @@ cpp/demo/Debug
 
 cpp/test/IceBox/configuration/build.txt
 
-js/lib
-js/node_modules
-js/bower_components
-js/npm-debug.log
-
 # Windows build files
 /cpp/test/*/*/build.txt
 /csharp/test/*/*/build.txt

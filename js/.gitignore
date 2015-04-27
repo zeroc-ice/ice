@@ -1,0 +1,8 @@
+bower_components
+lib
+node_modules
+npm-debug.log
+
+# Licnese files which are coppied in during prepublish
+ICE_LICENSE
+LICENSE
