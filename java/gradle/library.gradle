@@ -17,7 +17,13 @@ task writeNewPom {
         project {
             url 'https://zeroc.com'
             packaging 'jar'
-            // TODO: Extend with licensing information.
+            licenses {
+                license {
+                    name 'GNU General Public License, version 2'
+                    url 'https://www.gnu.org/licenses/gpl-2.0.html'
+                    distribution 'repo'
+                }
+            }
         }
     }.writeTo(pomName)
 }
