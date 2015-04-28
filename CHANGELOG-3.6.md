@@ -19,7 +19,7 @@ These are the changes since Ice 3.5.1.
 
 ## General Changes
 
-- Deprecated the `IceSSL.PersisteKeySet` which is now only used when importing certificates with the deprecated `IceSSL.ImportCert` property.
+- Deprecated the `IceSSL.PersistKeySet` which is now only used when importing certificates with the deprecated `IceSSL.ImportCert` property.
 
 - Deprecated the `IceSSL.KeySet` property, use the `IceSSL.CertStoreLocation` property instead.
 
