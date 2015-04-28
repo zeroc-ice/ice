@@ -1,6 +1,7 @@
 # Ignore generated files
 BuiltinSequences.js
 Connection.js
+ConnectionInfo.js
 Current.js
 Endpoint.js
 EndpointInfo.js

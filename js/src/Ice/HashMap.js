@@ -9,7 +9,7 @@
 
 var Ice = require("../Ice/ModuleRegistry").Ice;
 var __M = Ice.__M;
-__M.require(module, ["../Ice/Class", "../Ice/StringUtil"]);
+__M.require(module, ["../Ice/Class", "../Ice/StringUtil", "../Ice/UUID"]);
 var StringUtil = Ice.StringUtil;
 
 function setInternal(map, key, value, hash, index)
@@ -109,26 +109,28 @@ var HashMap = Ice.Class({
     },
     set: function(key, value)
     {
-        var hash = this.computeHash(key);
+        var r = this.computeHash(key); // Returns an object with key,hash members.
 
-        var index = this.hashIndex(hash, this._table.length);
+        var index = this.hashIndex(r.hash, this._table.length);
 
-        return setInternal(this, key, value, hash, index);
+        return setInternal(this, r.key, value, r.hash, index);
     },
     get: function(key)
     {
-        var e = this.findEntry(key, this.computeHash(key));
+        var r = this.computeHash(key); // Returns an object with key,hash members.
+        var e = this.findEntry(r.key, r.hash);
         return e !== undefined ? e._value : undefined;
     },
     has: function(key)
     {
-        return this.findEntry(key, this.computeHash(key)) !== undefined;
+        var r = this.computeHash(key); // Returns an object with key,hash members.
+        return this.findEntry(r.key, r.hash) !== undefined;
     },
     delete: function(key)
     {
-        var hash = this.computeHash(key);
+        var r = this.computeHash(key); // Returns an object with key,hash members.
 
-        var index = this.hashIndex(hash, this._table.length);
+        var index = this.hashIndex(r.hash, this._table.length);
 
         //
         // Search for an entry with the same key.
@@ -136,7 +138,7 @@ var HashMap = Ice.Class({
         var prev = null;
         for(var e = this._table[index]; e !== null; e = e._nextInBucket)
         {
-            if(e._hash === hash && this.keysEqual(key, e._key))
+            if(e._hash === r.hash && this.keysEqual(r.key, e._key))
             {
                 //
                 // Found a match.
@@ -197,6 +199,26 @@ var HashMap = Ice.Class({
             fn.call(obj, e._key, e._value);
         }
     },
+    keys: function()
+    {
+        var k = [];
+        var i = 0;
+        for(var e = this._head; e !== null; e = e._next)
+        {
+            k[i++] = e._key;
+        }
+        return k;
+    },
+    values: function()
+    {
+        var v = [];
+        var i = 0;
+        for(var e = this._head; e !== null; e = e._next)
+        {
+            v[i++] = e._value;
+        }
+        return v;
+    },
     equals: function(other, valuesEqual)
     {
         if(other === null || !(other instanceof HashMap) || this._size !== other._size)
@@ -237,16 +259,6 @@ var HashMap = Ice.Class({
         //
         // Create a new table entry.
         //
-        /*
-        var e =
-        {
-            key: key,
-            value: value,
-            prev: null,
-            next: null,
-            _hash: hash
-        }
-        */
         var e = Object.create(null, {
             "key": {
                 enumerable: true,
@@ -352,30 +364,55 @@ var HashMap = Ice.Class({
     },
     computeHash: function(v)
     {
-        if(typeof(v.hashCode) === "function")
+        if(v === 0 || v === -0)
         {
-            return v.hashCode();
+            return {key:0, hash:0};
         }
 
-        var hash = 0;
+        if(v === null)
+        {
+            if(HashMap._null === null)
+            {
+                var uuid = Ice.generateUUID();
+                HashMap._null = {key:uuid, hash:StringUtil.hashCode(uuid)};
+            }
+            return HashMap._null;
+        }
+
+        if(v === undefined)
+        {
+            throw new Error("cannot compute hash for undefined value");
+        }
+
+        if(typeof(v.hashCode) === "function")
+        {
+            return {key:v, hash:v.hashCode()};
+        }
+
         var type = typeof(v);
         if(type === "string" || v instanceof String)
         {
-            hash = StringUtil.hashCode(v);
+            return {key:v, hash:StringUtil.hashCode(v)};
         }
         else if(type === "number" || v instanceof Number)
         {
-            hash = v.toFixed(0);
+            if(isNaN(v))
+            {
+                if(HashMap._nan === null)
+                {
+                    var uuid = Ice.generateUUID();
+                    HashMap._nan = {key:uuid, hash:StringUtil.hashCode(uuid)};
+                }
+                return HashMap._nan;
+            }
+            return {key:v, hash:v.toFixed(0)};
         }
         else if(type === "boolean" || v instanceof Boolean)
         {
-            hash = v ? 1 : 0;
+            return {key:v, hash:v ? 1 : 0};
         }
-        else if(v !== null)
-        {
-            throw "cannot compute hash for value of type " + type;
-        }
-        return hash;
+
+        throw new Error("cannot compute hash for value of type " + type);
     },
     keysEqual: function(k1, k2)
     {
@@ -386,6 +423,8 @@ Ice.HashMap = HashMap;
 
 HashMap.compareEquals = compareEquals;
 HashMap.compareIdentity = compareIdentity;
+HashMap._null = null;
+HashMap._nan = null;
 
 var prototype = HashMap.prototype;
 
