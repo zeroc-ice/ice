@@ -13,7 +13,7 @@ import java.nio.*;
 import javax.net.ssl.*;
 import javax.net.ssl.SSLEngineResult.*;
 
-final class TransceiverI implements IceInternal.Transceiver
+final class TransceiverI implements IceInternal.Transceiver, IceInternal.WSTransceiverDelegate
 {
     @Override
     public java.nio.channels.SelectableChannel fd()
@@ -39,7 +39,7 @@ final class TransceiverI implements IceInternal.Transceiver
         //
         // Additional verification.
         //
-        _instance.verifyPeer(getNativeConnectionInfo(), _stream.fd(), _host);
+        _instance.verifyPeer((NativeConnectionInfo)getInfo(), _stream.fd(), _host);
 
         if(_instance.securityTraceLevel() >= 1)
         {
@@ -233,7 +233,18 @@ final class TransceiverI implements IceInternal.Transceiver
     @Override
     public Ice.ConnectionInfo getInfo()
     {
-        return getNativeConnectionInfo();
+        NativeConnectionInfo info = new NativeConnectionInfo();
+        info.nativeCerts = fillConnectionInfo(info);
+        return info;
+    }
+
+    @Override
+    public Ice.ConnectionInfo getWSInfo(java.util.Map<String, String> headers)
+    {
+        WSSNativeConnectionInfo info = new WSSNativeConnectionInfo();
+        info.nativeCerts = fillConnectionInfo(info);
+        info.headers = headers; // Provided header is a copy so no need to clone here.
+        return info;
     }
 
     @Override
@@ -267,12 +278,12 @@ final class TransceiverI implements IceInternal.Transceiver
         }
     }
 
-    private NativeConnectionInfo getNativeConnectionInfo()
+    private java.security.cert.Certificate[] fillConnectionInfo(ConnectionInfo info)
     {
         //
         // This can only be called on an open transceiver.
         //
-        NativeConnectionInfo info = new NativeConnectionInfo();
+        java.security.cert.Certificate[] nativeCerts = null;
         if(_stream.fd() != null)
         {
             java.net.Socket socket = _stream.fd().socket();
@@ -305,10 +316,9 @@ final class TransceiverI implements IceInternal.Transceiver
                 java.security.cert.Certificate[] pcerts = session.getPeerCertificates();
                 java.security.cert.Certificate[] vcerts = _instance.engine().getVerifiedCertificateChain(pcerts);
                 info.verified = vcerts != null;
-                info.nativeCerts = vcerts != null ? vcerts : pcerts;
-
+                nativeCerts = vcerts != null ? vcerts : pcerts;
                 java.util.ArrayList<String> certs = new java.util.ArrayList<String>();
-                for(java.security.cert.Certificate c : info.nativeCerts)
+                for(java.security.cert.Certificate c : nativeCerts)
                 {
                     StringBuilder s = new StringBuilder("-----BEGIN CERTIFICATE-----\n");
                     s.append(IceUtilInternal.Base64.encode(c.getEncoded()));
@@ -327,7 +337,7 @@ final class TransceiverI implements IceInternal.Transceiver
         }
         info.adapterName = _adapterName;
         info.incoming = _incoming;
-        return info;
+        return nativeCerts;
     }
 
     private int handshakeNonBlocking()

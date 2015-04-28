@@ -715,7 +715,7 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
         }
     }
 
-    _engine->verifyPeer(_stream->fd(), _host, getNativeConnectionInfo());
+    _engine->verifyPeer(_stream->fd(), _host, NativeConnectionInfoPtr::dynamicCast(getInfo()));
     _state = StateHandshakeComplete;
 
     if(_instance->engine()->securityTraceLevel() >= 1)
@@ -948,7 +948,18 @@ IceSSL::TransceiverI::toDetailedString() const
 Ice::ConnectionInfoPtr
 IceSSL::TransceiverI::getInfo() const
 {
-    return getNativeConnectionInfo();
+    NativeConnectionInfoPtr info = new NativeConnectionInfo();
+    fillConnectionInfo(info, info->nativeCerts);
+    return info;
+}
+
+Ice::ConnectionInfoPtr
+IceSSL::TransceiverI::getWSInfo(const Ice::HeaderDict& headers) const
+{
+    WSSNativeConnectionInfoPtr info = new WSSNativeConnectionInfo();
+    fillConnectionInfo(info, info->nativeCerts);
+    info->headers = headers;
+    return info;
 }
 
 void
@@ -984,10 +995,9 @@ IceSSL::TransceiverI::~TransceiverI()
 {
 }
 
-NativeConnectionInfoPtr
-IceSSL::TransceiverI::getNativeConnectionInfo() const
+void
+IceSSL::TransceiverI::fillConnectionInfo(const ConnectionInfoPtr& info, vector<CertificatePtr>& nativeCerts) const
 {
-    NativeConnectionInfoPtr info = new NativeConnectionInfo();
     IceInternal::fdToAddressAndPort(_stream->fd(), info->localAddress, info->localPort, info->remoteAddress,
                                     info->remotePort);
     if(_stream->fd() != INVALID_SOCKET)
@@ -1032,7 +1042,7 @@ IceSSL::TransceiverI::getNativeConnectionInfo() const
                     }
 
                     CertificatePtr certificate = new Certificate(cc);
-                    info->nativeCerts.push_back(certificate);
+                    nativeCerts.push_back(certificate);
                     info->certs.push_back(certificate->encode());
                 }
                 CertFreeCertificateChain(certChain);
@@ -1059,7 +1069,6 @@ IceSSL::TransceiverI::getNativeConnectionInfo() const
 
     info->adapterName = _adapterName;
     info->incoming = _incoming;
-    return info;
 }
 
 bool

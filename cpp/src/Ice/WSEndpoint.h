@@ -20,6 +20,17 @@
 namespace IceInternal
 {
 
+//
+// Delegate interface implemented by TcpEndpoint or IceSSL::Endpoint or any endpoint that WS can
+// delegate to.
+//
+class ICE_API WSEndpointDelegate : virtual public IceUtil::Shared
+{
+public:
+
+    virtual Ice::EndpointInfoPtr getWSInfo(const std::string&) const = 0;
+};
+
 class WSEndpoint : public EndpointI
 {
 public:

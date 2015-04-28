@@ -69,7 +69,7 @@ public class AllTests : TestCommon.TestApp
             test(ipEndpoint.type() == Ice.TCPEndpointType.value && ipEndpoint is Ice.TCPEndpointInfo ||
                  ipEndpoint.type() == IceSSL.EndpointType.value && ipEndpoint is IceSSL.EndpointInfo ||
                  ipEndpoint.type() == Ice.WSEndpointType.value && ipEndpoint is Ice.WSEndpointInfo ||
-                 ipEndpoint.type() == Ice.WSSEndpointType.value && ipEndpoint is Ice.WSEndpointInfo);
+                 ipEndpoint.type() == Ice.WSSEndpointType.value && ipEndpoint is IceSSL.WSSEndpointInfo);
 #endif
 
             Ice.UDPEndpointInfo udpEndpoint = (Ice.UDPEndpointInfo)endps[1].getInfo();
@@ -209,12 +209,19 @@ public class AllTests : TestCommon.TestApp
 
             if(@base.ice_getConnection().type().Equals("ws") || @base.ice_getConnection().type().Equals("wss"))
             {
-                test(info is Ice.WSConnectionInfo);
-                Ice.WSConnectionInfo wsinfo = (Ice.WSConnectionInfo)info;
-                test(wsinfo.headers["Upgrade"].Equals("websocket"));
-                test(wsinfo.headers["Connection"].Equals("Upgrade"));
-                test(wsinfo.headers["Sec-WebSocket-Protocol"].Equals("ice.zeroc.com"));
-                test(wsinfo.headers["Sec-WebSocket-Accept"] != null);
+                Dictionary<string, string> headers;
+                if(info is Ice.WSConnectionInfo)
+                {
+                    headers = ((Ice.WSConnectionInfo)info).headers;
+                }
+                else
+                {
+                    headers = ((IceSSL.WSSConnectionInfo)info).headers;
+                }
+                test(headers["Upgrade"].Equals("websocket"));
+                test(headers["Connection"].Equals("Upgrade"));
+                test(headers["Sec-WebSocket-Protocol"].Equals("ice.zeroc.com"));
+                test(headers["Sec-WebSocket-Accept"] != null);
 
                 test(ctx["ws.Upgrade"].Equals("websocket"));
                 test(ctx["ws.Connection"].Equals("Upgrade"));

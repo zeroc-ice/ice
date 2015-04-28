@@ -10,6 +10,7 @@
 (function(module, require, exports)
 {
     var Ice = require("ice").Ice;
+    var IceSSL = require("ice").IceSSL;
     var Test = require("Test").Test;
     var Promise = Ice.Promise;
 
@@ -916,7 +917,7 @@
                 }
 
                 var p1, pstr;
-                
+
                 // Legal TCP endpoint expressed as opaque endpoint
                 p1 = communicator.stringToProxy("test -e 1.1:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
                 pstr = communicator.proxyToString(p1);
@@ -1014,6 +1015,40 @@
                             var pstr = communicator.proxyToString(p2);
                             test(pstr === "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch");
                         });
+                }
+            }
+        ).then(
+            function()
+            {
+                var p = communicator.stringToProxy("test:default -p 12010");
+                if(defaultProtocol === "tcp")
+                {
+                    test(p.ice_getEndpoints()[0].getInfo() instanceof Ice.TCPEndpointInfo);
+                }
+                else if(defaultProtocol === "ws")
+                {
+                    test(p.ice_getEndpoints()[0].getInfo() instanceof Ice.WSEndpointInfo);
+                }
+                else if(defaultProtocol === "wss")
+                {
+                    test(p.ice_getEndpoints()[0].getInfo() instanceof IceSSL.WSSEndpointInfo);
+                }
+                return p.ice_getConnection()
+            }
+        ).then(
+            function(con)
+            {
+                if(defaultProtocol === "tcp")
+                {
+                    test(con.getInfo() instanceof Ice.TCPConnectionInfo);
+                }
+                else if(defaultProtocol === "ws")
+                {
+                    test(con.getInfo() instanceof Ice.WSConnectionInfo);
+                }
+                else if(defaultProtocol === "wss")
+                {
+                    test(con.getInfo() instanceof IceSSL.WSSConnectionInfo);
                 }
             }
         ).then(

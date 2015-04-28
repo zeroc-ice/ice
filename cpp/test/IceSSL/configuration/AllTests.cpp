@@ -39,43 +39,113 @@ readFile(const string& file, vector<char>& buffer)
 }
 
 #ifdef ICE_USE_SCHANNEL
-void
-findCertsCleanup(HCERTSTORE store, const vector<HCERTSTORE>& stores, const vector<PCCERT_CONTEXT>& certs)
+class ImportCerts
 {
-    for(vector<PCCERT_CONTEXT>::const_iterator i = certs.begin(); i != certs.end(); ++i)
+public:
+
+    ImportCerts(const string& defaultDir, const char* certificates[])
     {
-        PCCERT_CONTEXT cert = *i;
-
-
-        DWORD size = 0;
         //
-        // Retrieve the certificate CERT_KEY_PROV_INFO_PROP_ID property, we use the CRYPT_KEY_PROV_INFO
-        // data to then remove the key set associated with the certificate.
+        // First we need to import some certificates in the user store.
         //
-        if(CertGetCertificateContextProperty(cert, CERT_KEY_PROV_INFO_PROP_ID, 0, &size))
+        _store = CertOpenStore(CERT_STORE_PROV_SYSTEM, 0, 0, CERT_SYSTEM_STORE_CURRENT_USER, L"MY");
+        test(_store);
+
+        for(int i = 0; certificates[i] != 0; ++i)
         {
-            vector<char> buf(size);
-            if(CertGetCertificateContextProperty(cert, CERT_KEY_PROV_INFO_PROP_ID, &buf[0], &size))
+            vector<char> buffer;
+            readFile(defaultDir + certificates[i], buffer);
+
+            CRYPT_DATA_BLOB p12Blob;
+            p12Blob.cbData = static_cast<DWORD>(buffer.size());
+            p12Blob.pbData = reinterpret_cast<BYTE*>(&buffer[0]);
+
+            HCERTSTORE p12 = PFXImportCertStore(&p12Blob, L"password", CRYPT_USER_KEYSET);
+            _stores.push_back(p12);
+
+            PCCERT_CONTEXT next = 0;
+            PCCERT_CONTEXT newCert = 0;
+            do
             {
-                CRYPT_KEY_PROV_INFO* keyProvInfo = reinterpret_cast<CRYPT_KEY_PROV_INFO*>(&buf[0]);
-                HCRYPTPROV cryptProv = 0;
-                if(CryptAcquireContextW(&cryptProv, keyProvInfo->pwszContainerName, keyProvInfo->pwszProvName,
-                                        keyProvInfo->dwProvType, 0))
+                if((next = CertFindCertificateInStore(p12, X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, 0,
+                                                      CERT_FIND_ANY, 0, next)))
                 {
-                    CryptAcquireContextW(&cryptProv, keyProvInfo->pwszContainerName, keyProvInfo->pwszProvName,
-                                         keyProvInfo->dwProvType, CRYPT_DELETEKEYSET);
+                    if(CertAddCertificateContextToStore(_store, next, CERT_STORE_ADD_ALWAYS, &newCert))
+                    {
+                        _certs.push_back(newCert);
+                    }
+                }
+            }
+            while(next);
+        }
+    }
+
+    ~ImportCerts()
+    {
+        cleanup();
+    }
+
+    void cleanup()
+    {
+        for(vector<PCCERT_CONTEXT>::const_iterator i = _certs.begin(); i != _certs.end(); ++i)
+        {
+            PCCERT_CONTEXT cert = *i;
+
+            // Retrieve the certificate CERT_KEY_PROV_INFO_PROP_ID property, we use the CRYPT_KEY_PROV_INFO
+            // data to then remove the key set associated with the certificate.
+            //
+            DWORD size = 0;
+            if(CertGetCertificateContextProperty(cert, CERT_KEY_PROV_INFO_PROP_ID, 0, &size))
+            {
+                vector<char> buf(size);
+                if(CertGetCertificateContextProperty(cert, CERT_KEY_PROV_INFO_PROP_ID, &buf[0], &size))
+                {
+                    CRYPT_KEY_PROV_INFO* keyProvInfo = reinterpret_cast<CRYPT_KEY_PROV_INFO*>(&buf[0]);
+                    HCRYPTPROV cryptProv = 0;
+                    if(CryptAcquireContextW(&cryptProv, keyProvInfo->pwszContainerName, keyProvInfo->pwszProvName,
+                                            keyProvInfo->dwProvType, 0))
+                    {
+                        CryptAcquireContextW(&cryptProv, keyProvInfo->pwszContainerName, keyProvInfo->pwszProvName,
+                                             keyProvInfo->dwProvType, CRYPT_DELETEKEYSET);
+                    }
                 }
             }
             CertDeleteCertificateFromStore(cert);
         }
-
-
+	_certs.clear();
+        for(vector<HCERTSTORE>::const_iterator i = _stores.begin(); i != _stores.end(); ++i)
+        {
+            CertCloseStore(*i, 0);
+        }
+	_stores.clear();
+	if(_store)
+	{
+	    CertCloseStore(_store, 0);
+	    _store = 0;
+	}
     }
-    for(vector<HCERTSTORE>::const_iterator i = stores.begin(); i != stores.end(); ++i)
+
+private:
+
+    HCERTSTORE _store;
+    vector<HCERTSTORE> _stores;
+    vector<PCCERT_CONTEXT> _certs;
+};
+
+#else
+class ImportCerts
+{
+public:
+
+    ImportCerts(const string& defaultDir, const char* certificates[])
     {
-        CertCloseStore(*i, 0);
+        // Nothing to do.
     }
-}
+
+    void cleanup()
+    {
+    }
+};
 #endif
 
 class PasswordPromptI : public IceSSL::PasswordPrompt
@@ -240,7 +310,10 @@ createServerProps(const Ice::PropertiesPtr& defaultProps, const string& defaultD
 {
     Test::Properties result;
     result["Ice.Plugin.IceSSL"] = "IceSSL:createIceSSL";
-    result["IceSSL.DefaultDir"] = defaultDir;
+    if(!defaultDir.empty())
+    {
+        result["IceSSL.DefaultDir"] = defaultDir;
+    }
     if(!defaultProps->getProperty("Ice.IPv6").empty())
     {
         result["Ice.IPv6"] = defaultProps->getProperty("Ice.IPv6");
@@ -273,28 +346,22 @@ createServerProps(const Ice::PropertiesPtr& defaultProps, const string& defaultD
     // If no CA is specified, we don't set IceSSL.DefaultDir since
     // with OpenSSL the CAs might still be found.
     //
-    string pfx;
-    if(ca.empty())
+    d = createServerProps(defaultProps, defaultDir, defaultHost, p12);
+    if(!ca.empty())
     {
-        d = createServerProps(defaultProps, "", defaultHost, p12);
-        pfx = defaultDir + "/";
-    }
-    else
-    {
-        d = createServerProps(defaultProps, defaultDir, defaultHost, p12);
-        d["IceSSL.CertAuthFile"] = ca + ".pem";
+        d["IceSSL.CAs"] = ca + ".pem";
     }
 
     if(!cert.empty())
     {
         if(p12)
         {
-            d["IceSSL.CertFile"] = pfx + cert + ".p12";
+            d["IceSSL.CertFile"] = cert + ".p12";
         }
         else
         {
-            d["IceSSL.CertFile"] = pfx + cert + "_pub.pem";
-            d["IceSSL.KeyFile"] = pfx + cert + "_priv.pem";
+            d["IceSSL.CertFile"] = cert + "_pub.pem";
+            d["IceSSL.KeyFile"] = cert + "_priv.pem";
         }
     }
     return d;
@@ -306,32 +373,22 @@ createClientProps(const Ice::PropertiesPtr& defaultProps, const string& defaultD
 {
     Ice::PropertiesPtr properties;
 
-    //
-    // If no CA is specified, we don't set IceSSL.DefaultDir since
-    // with OpenSSL the CAs might still be found.
-    //
-    string pfx;
-    if(ca.empty())
+    properties = createClientProps(defaultProps, defaultDir, defaultHost, p12);
+    if(!ca.empty())
     {
-        properties = createClientProps(defaultProps, "", defaultHost, p12);
-        pfx = defaultDir + "/";
-    }
-    else
-    {
-        properties = createClientProps(defaultProps, defaultDir, defaultHost, p12);
-        properties->setProperty("IceSSL.CertAuthFile", ca + ".pem");
+        properties->setProperty("IceSSL.CAs", ca + ".pem");
     }
 
     if(!cert.empty())
     {
         if(p12)
         {
-            properties->setProperty("IceSSL.CertFile", pfx + cert + ".p12");
+            properties->setProperty("IceSSL.CertFile", cert + ".p12");
         }
         else
         {
-            properties->setProperty("IceSSL.CertFile", pfx + cert + "_pub.pem");
-            properties->setProperty("IceSSL.KeyFile", pfx + cert + "_priv.pem");
+            properties->setProperty("IceSSL.CertFile", cert + "_pub.pem");
+            properties->setProperty("IceSSL.KeyFile", cert + "_priv.pem");
         }
     }
     return properties;
@@ -456,8 +513,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             server->noCert();
             test(!IceSSL::ConnectionInfoPtr::dynamicCast(server->ice_getConnection()->getInfo())->verified);
         }
-        catch(const LocalException&)
+        catch(const LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
         fact->destroyServer(server);
@@ -821,6 +879,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
 
     cout << "testing certificate chains... " << flush;
     {
+        const char* certificates[] = {"/s_rsa_cai2.p12", 0};
+        ImportCerts import(defaultDir, certificates);
+
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "", "");
         initData.properties->setProperty("IceSSL.VerifyPeer", "0");
@@ -843,9 +904,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             test(info->nativeCerts.size() == 1);
             test(!info->verified);
         }
-        catch(const Ice::LocalException& ex)
+        catch(const Ice::LocalException&)
         {
-            cerr << ex << endl;
+            import.cleanup();
             test(false);
         }
         fact->destroyServer(server);
@@ -870,6 +931,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         catch(const Ice::LocalException& ex)
         {
             cerr << ex << endl;
+            import.cleanup();
             test(false);
         }
         fact->destroyServer(server);
@@ -897,6 +959,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             catch(const Ice::LocalException& ex)
             {
                 cerr << ex << endl;
+                import.cleanup();
                 test(false);
             }
             fact->destroyServer(server);
@@ -926,6 +989,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             catch(const Ice::LocalException& ex)
             {
                 cerr << ex << endl;
+                import.cleanup();
                 test(false);
             }
             fact->destroyServer(server);
@@ -950,6 +1014,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             try
             {
                 IceSSL::NativeConnectionInfoPtr::dynamicCast(server->ice_getConnection()->getInfo());
+                import.cleanup();
                 test(false);
             }
             catch(const Ice::SecurityException&)
@@ -959,6 +1024,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             catch(const Ice::LocalException& ex)
             {
                 cerr << ex << endl;
+                import.cleanup();
                 test(false);
             }
             fact->destroyServer(server);
@@ -988,6 +1054,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             }
             catch(const Ice::LocalException&)
             {
+                import.cleanup();
                 test(false);
             }
             fact->destroyServer(server);
@@ -1000,6 +1067,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             try
             {
                 IceSSL::NativeConnectionInfoPtr::dynamicCast(server->ice_getConnection()->getInfo());
+                import.cleanup();
                 test(false);
             }
             catch(const Ice::SecurityException&)
@@ -1033,6 +1101,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             }
             catch(const Ice::LocalException&)
             {
+                import.cleanup();
                 test(false);
             }
             fact->destroyServer(server);
@@ -1058,6 +1127,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             try
             {
                 server->ice_getConnection();
+                import.cleanup();
                 test(false);
             }
             catch(const Ice::ProtocolException&)
@@ -1070,6 +1140,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             }
             catch(const Ice::LocalException&)
             {
+                import.cleanup();
                 test(false);
             }
             fact->destroyServer(server);
@@ -1086,12 +1157,14 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             }
             catch(const Ice::LocalException&)
             {
+                import.cleanup();
                 test(false);
             }
             fact->destroyServer(server);
         }
 
         comm->destroy();
+        import.cleanup();
     }
     cout << "ok" << endl;
 
@@ -1538,17 +1611,17 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
     cout << "testing CA certificate directory... " << flush;
     {
         //
-        // Don't specify CertAuthFile explicitly; we let OpenSSL find the CA
+        // Don't specify CAs explicitly; we let OpenSSL find the CA
         // certificate in the default directory.
         //
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_ca1", "");
-        initData.properties->setProperty("IceSSL.DefaultDir", defaultDir);
+        initData.properties->setProperty("IceSSL.CAs", defaultDir);
         CommunicatorPtr comm = initialize(initData);
         Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "");
-        d["IceSSL.DefaultDir"] = defaultDir;
+        d["IceSSL.CAs"] = defaultDir;
         Test::ServerPrx server = fact->createServer(d);
         try
         {
@@ -1557,6 +1630,56 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         catch(const LocalException& ex)
         {
             cerr << ex << endl;
+            test(false);
+        }
+        fact->destroyServer(server);
+        comm->destroy();
+    }
+    cout << "ok" << endl;
+#endif
+
+    cout << "testing multiple CA certificates... " << flush;
+    {
+        InitializationData initData;
+        initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_ca1", "cacerts");
+        CommunicatorPtr comm = initialize(initData);
+        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        test(fact);
+        Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca2", "cacerts");
+        d["IceSSL.VerifyPeer"] = "2";
+        Test::ServerPrx server = fact->createServer(d);
+        try
+        {
+            server->ice_ping();
+        }
+        catch(const Ice::LocalException&)
+        {
+            test(false);
+        }
+        fact->destroyServer(server);
+        comm->destroy();
+    }
+    cout << "ok" << endl;
+
+#ifndef ICE_USE_OPENSSL
+    cout << "testing DER CA certificate... " << flush;
+    {
+        InitializationData initData;
+        initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_ca1", "");
+        initData.properties->setProperty("IceSSL.CAs", "cacert1.der");
+        CommunicatorPtr comm = initialize(initData);
+        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        test(fact);
+        Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "");
+        d["IceSSL.VerifyPeer"] = "2";
+        d["IceSSL.CAs"] = "cacert1.der";
+        Test::ServerPrx server = fact->createServer(d);
+        try
+        {
+            server->ice_ping();
+        }
+        catch(const Ice::LocalException&)
+        {
             test(false);
         }
         fact->destroyServer(server);
@@ -2806,7 +2929,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
 
     {
 #if defined(ICE_USE_SCHANNEL)
-        cerr << "testing IceSSL.FindCert... " << flush;
+        cout << "testing IceSSL.FindCert... " << flush;
         const char* clientFindCertProperties[] =
         {
             "SUBJECTDN:'CN=Client, OU=Ice, O=\"ZeroC, Inc.\", L=Jupiter, S=Florida, C=US, E=info@zeroc.com'",
@@ -2842,50 +2965,13 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         };
 
         const char* certificates[] = {"/s_rsa_ca1.p12", "/c_rsa_ca1.p12", 0};
-
-        //
-        // First we need to import some certificates in the user store.
-        //
-        HCERTSTORE store = CertOpenStore(CERT_STORE_PROV_SYSTEM, 0, 0, CERT_SYSTEM_STORE_CURRENT_USER, L"MY");
-        test(store);
-
-        vector<HCERTSTORE> stores;
-        vector<PCCERT_CONTEXT> certs;
-
-        for(int i = 0; certificates[i] != 0; ++i)
-        {
-            vector<char> buffer;
-            readFile(defaultDir + certificates[i], buffer);
-
-            CRYPT_DATA_BLOB p12Blob;
-            p12Blob.cbData = static_cast<DWORD>(buffer.size());
-            p12Blob.pbData = reinterpret_cast<BYTE*>(&buffer[0]);
-
-            HCERTSTORE p12 = PFXImportCertStore(&p12Blob, L"password", CRYPT_USER_KEYSET);
-
-            PCCERT_CONTEXT next = 0;
-            PCCERT_CONTEXT newCert = 0;
-            do
-            {
-                if((next = CertFindCertificateInStore(p12, X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, 0,
-                                                      CERT_FIND_ANY, 0, next)))
-                {
-                    if(CertAddCertificateContextToStore(store, next, CERT_STORE_ADD_ALWAYS, &newCert))
-                    {
-                        certs.push_back(newCert);
-                    }
-                }
-            }
-            while(next);
-
-            stores.push_back(p12);
-        }
+        ImportCerts import(defaultDir, certificates);
 
         for(int i = 0; clientFindCertProperties[i] != 0; i++)
         {
             InitializationData initData;
             initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12);
-            initData.properties->setProperty("IceSSL.CertAuthFile", "cacert1.pem");
+            initData.properties->setProperty("IceSSL.CAs", "cacert1.pem");
             initData.properties->setProperty("IceSSL.FindCert.CurrentUser.My", clientFindCertProperties[i]);
             //
             // Use TrustOnly to ensure the peer has pick the expected certificate.
@@ -2897,7 +2983,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
             test(fact);
             Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
-            d["IceSSL.CertAuthFile"] = "cacert1.pem";
+            d["IceSSL.CAs"] = "cacert1.pem";
             d["IceSSL.FindCert.CurrentUser.My"] = serverFindCertProperties[i];
             //
             // Use TrustOnly to ensure the peer has pick the expected certificate.
@@ -2912,7 +2998,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             catch(const LocalException& ex)
             {
                 cerr << ex << endl;
-                findCertsCleanup(store, stores, certs);
+                import.cleanup();
                 test(false);
             }
             fact->destroyServer(server);
@@ -2926,12 +3012,12 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         {
             InitializationData initData;
             initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12);
-            initData.properties->setProperty("IceSSL.CertAuthFile", "cacert1.pem");
+            initData.properties->setProperty("IceSSL.CAs", "cacert1.pem");
             initData.properties->setProperty("IceSSL.FindCert.CurrentUser.My", failFindCertProperties[i]);
             try
             {
                 CommunicatorPtr comm = initialize(initData);
-                findCertsCleanup(store, stores, certs);
+                import.cleanup();
                 test(false);
             }
             catch(const PluginInitializationException&)
@@ -2941,12 +3027,12 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             catch(const Ice::LocalException& ex)
             {
                 cerr << ex << endl;
-                findCertsCleanup(store, stores, certs);
+                import.cleanup();
                 test(false);
             }
         }
 
-        findCertsCleanup(store, stores, certs);
+        import.cleanup();
 
         //
         // These must fail because we have already remove the certificates.
@@ -2955,7 +3041,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         {
             InitializationData initData;
             initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12);
-            initData.properties->setProperty("IceSSL.CertAuthFile", "cacert1.pem");
+            initData.properties->setProperty("IceSSL.CAs", "cacert1.pem");
             initData.properties->setProperty("IceSSL.FindCert.CurrentUser.My", clientFindCertProperties[i]);
             try
             {
@@ -2972,9 +3058,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
                 test(false);
             }
         }
-        cerr << "ok" << endl;
+        cout << "ok" << endl;
 #elif defined(ICE_USE_SECURE_TRANSPORT)
-        cerr << "testing IceSSL.FindCert... " << flush;
+        cout << "testing IceSSL.FindCert... " << flush;
         const char* clientFindCertProperties[] =
         {
             "SUBJECT:Client",
@@ -3012,7 +3098,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         {
             InitializationData initData;
             initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12);
-            initData.properties->setProperty("IceSSL.CertAuthFile", "cacert1.pem");
+            initData.properties->setProperty("IceSSL.CAs", "cacert1.pem");
             initData.properties->setProperty("IceSSL.Keychain", "../certs/Find.keychain");
             initData.properties->setProperty("IceSSL.KeychainPassword", "password");
             initData.properties->setProperty("IceSSL.FindCert", clientFindCertProperties[i]);
@@ -3026,7 +3112,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
             test(fact);
             Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12);
-            d["IceSSL.CertAuthFile"] = "cacert1.pem";
+            d["IceSSL.CAs"] = "cacert1.pem";
             d["IceSSL.Keychain"] = "../certs/Find.keychain";
             d["IceSSL.KeychainPassword"] = "password";
             d["IceSSL.FindCert"] = serverFindCertProperties[i];
@@ -3071,9 +3157,54 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
                 test(false);
             }
         }
-        cerr << "ok" << endl;
+        cout << "ok" << endl;
 #endif
     }
+
+    cout << "testing system CAs... " << flush;
+    {
+        InitializationData initData;
+        initData.properties = createClientProps(defaultProps, "", defaultHost, false);
+        initData.properties->setProperty("IceSSL.VerifyDepthMax", "4");
+        initData.properties->setProperty("Ice.Override.Timeout", "5000"); // 5s timeout
+        CommunicatorPtr comm = initialize(initData);
+        Ice::ObjectPrx p = comm->stringToProxy("dummy:wss -h demo.zeroc.com -p 5064");
+        try
+        {
+            p->ice_ping();
+            test(false);
+        }
+        catch(const Ice::SecurityException&)
+        {
+            // Expected, by default we don't check for system CAs.
+        }
+        catch(const Ice::LocalException& ex)
+        {
+            cerr << "warning: unable to connect to demo.zeroc.com to check system CA:\n" << ex << endl;
+        }
+        comm->destroy();
+
+        initData.properties = createClientProps(defaultProps, "", defaultHost, false);
+        initData.properties->setProperty("IceSSL.VerifyDepthMax", "4");
+        initData.properties->setProperty("Ice.Override.Timeout", "5000"); // 5s timeout
+        initData.properties->setProperty("IceSSL.UsePlatformCAs", "1");
+        comm = initialize(initData);
+        p = comm->stringToProxy("dummy:wss -h demo.zeroc.com -p 5064");
+
+        IceSSL::WSSConnectionInfoPtr info;
+        try
+        {
+            info = IceSSL::WSSConnectionInfoPtr::dynamicCast(p->ice_getConnection()->getInfo());
+            test(info->verified);
+        }
+        catch(const Ice::LocalException& ex)
+        {
+            cerr << ex << endl;
+            test(false);
+        }
+        comm->destroy();
+    }
+    cout << "ok" << endl;
 
     if(shutdown)
     {

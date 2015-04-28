@@ -560,8 +560,9 @@ generated from the section label.
 
     <section name="IceSSL">
         <property name="Alias" />
-        <property name="CertAuthDir" />
-        <property name="CertAuthFile" />
+        <property name="CAs"/>
+        <property name="CertAuthDir" deprecated="true"/>
+        <property name="CertAuthFile" deprecated="true"/>
         <property name="CertStore" />
         <property name="CertFile" />
         <property name="CertVerifier" />
@@ -573,10 +574,10 @@ generated from the section label.
         <property name="DHParams" />
         <property name="EntropyDaemon" />
         <property name="FindCert" />
-        <property name="FindCert.[any]" />
+        <property name="FindCert.[any]" deprecated="true"/>
         <property name="ImportCert.[any]" deprecated="true"/>
         <property name="InitOpenSSL" />
-        <property name="KeyFile" />
+        <property name="KeyFile" deprecated="true"/>
         <property name="KeySet"/>
         <property name="Keychain"/>
         <property name="KeychainPassword"/>
@@ -599,6 +600,7 @@ generated from the section label.
         <property name="Truststore" />
         <property name="TruststorePassword" />
         <property name="TruststoreType" />
+        <property name="UsePlatformCAs" />
         <property name="VerifyDepthMax" />
         <property name="VerifyPeer" />
     </section>

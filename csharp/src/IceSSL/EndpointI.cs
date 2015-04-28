@@ -15,7 +15,7 @@ namespace IceSSL
     using System.Net;
     using System.Globalization;
 
-    sealed class EndpointI : IceInternal.IPEndpointI
+    sealed class EndpointI : IceInternal.IPEndpointI, IceInternal.WSEndpointDelegate
     {
         internal EndpointI(Instance instance, string ho, int po, EndPoint sourceAddr, int ti, string conId, bool co) :
             base(instance, ho, po, sourceAddr, conId)
@@ -73,6 +73,42 @@ namespace IceSSL
         {
             InfoI info = new InfoI(this);
             fillEndpointInfo(info);
+            return info;
+        }
+
+        private sealed class WSSInfoI : IceSSL.WSSEndpointInfo
+        {
+            public WSSInfoI(EndpointI e)
+            {
+                _endpoint = e;
+            }
+
+            override public short type()
+            {
+                return _endpoint.type();
+            }
+
+            override public bool datagram()
+            {
+                return _endpoint.datagram();
+            }
+
+            override public bool secure()
+            {
+                return _endpoint.secure();
+            }
+
+            private EndpointI _endpoint;
+        }
+
+        //
+        // Return the endpoint information.
+        //
+        public Ice.EndpointInfo getWSInfo(string resource)
+        {
+            WSSInfoI info = new WSSInfoI(this);
+            fillEndpointInfo(info);
+            info.resource = resource;
             return info;
         }
 

@@ -12,6 +12,7 @@
 
 #include <Ice/IPEndpointI.h>
 #include <Ice/EndpointFactory.h>
+#include <Ice/WSEndpoint.h>
 #include <IceSSL/InstanceF.h>
 #include <IceSSL/EndpointInfo.h>
 #include <Ice/Network.h>
@@ -19,7 +20,7 @@
 namespace IceSSL
 {
 
-class EndpointI : public IceInternal::IPEndpointI
+class EndpointI : public IceInternal::IPEndpointI, public IceInternal::WSEndpointDelegate
 {
 public:
 
@@ -29,6 +30,7 @@ public:
     EndpointI(const InstancePtr&, IceInternal::BasicStream*);
 
     virtual Ice::EndpointInfoPtr getInfo() const;
+    virtual Ice::EndpointInfoPtr getWSInfo(const std::string&) const;
 
     virtual Ice::Int timeout() const;
     virtual IceInternal::EndpointIPtr timeout(Ice::Int) const;

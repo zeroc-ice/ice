@@ -105,13 +105,17 @@ IceInternal::TcpTransceiver::toDetailedString() const
 Ice::ConnectionInfoPtr
 IceInternal::TcpTransceiver::getInfo() const
 {
-    Ice::TCPConnectionInfoPtr info = new Ice::TCPConnectionInfo();
-    fdToAddressAndPort(_stream->fd(), info->localAddress, info->localPort, info->remoteAddress, info->remotePort);
-    if(_stream->fd() != INVALID_SOCKET)
-    {
-        info->rcvSize = getRecvBufferSize(_stream->fd());
-        info->sndSize = getSendBufferSize(_stream->fd());
-    }
+    TCPConnectionInfoPtr info = new TCPConnectionInfo();
+    fillConnectionInfo(info);
+    return info;
+}
+
+Ice::ConnectionInfoPtr
+IceInternal::TcpTransceiver::getWSInfo(const Ice::HeaderDict& headers) const
+{
+    WSConnectionInfoPtr info = new WSConnectionInfo();
+    fillConnectionInfo(info);
+    info->headers = headers;
     return info;
 }
 
@@ -136,3 +140,13 @@ IceInternal::TcpTransceiver::~TcpTransceiver()
 {
 }
 
+void
+IceInternal::TcpTransceiver::fillConnectionInfo(const TCPConnectionInfoPtr& info) const
+{
+    fdToAddressAndPort(_stream->fd(), info->localAddress, info->localPort, info->remoteAddress, info->remotePort);
+    if(_stream->fd() != INVALID_SOCKET)
+    {
+        info->rcvSize = getRecvBufferSize(_stream->fd());
+        info->sndSize = getSendBufferSize(_stream->fd());
+    }
+}

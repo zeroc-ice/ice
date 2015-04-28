@@ -15,7 +15,7 @@ namespace IceInternal
     using System;
     using System.Globalization;
 
-    sealed class TcpEndpointI : IPEndpointI
+    sealed class TcpEndpointI : IPEndpointI, WSEndpointDelegate
     {
         public TcpEndpointI(ProtocolInstance instance, string ho, int po, EndPoint sourceAddr, int ti, string conId,
                             bool co) :
@@ -68,6 +68,39 @@ namespace IceInternal
         {
             InfoI info = new InfoI(this);
             fillEndpointInfo(info);
+            return info;
+        }
+
+        private sealed class WSInfoI : Ice.WSEndpointInfo
+        {
+            public WSInfoI(IPEndpointI e)
+            {
+                _endpoint = e;
+            }
+
+            public override short type()
+            {
+                return _endpoint.type();
+            }
+
+            public override bool datagram()
+            {
+                return _endpoint.datagram();
+            }
+
+            public override bool secure()
+            {
+                return _endpoint.secure();
+            }
+
+            private IPEndpointI _endpoint;
+        }
+
+        public Ice.EndpointInfo getWSInfo(string resource)
+        {
+            WSInfoI info = new WSInfoI(this);
+            fillEndpointInfo(info);
+            info.resource = resource;
             return info;
         }
 

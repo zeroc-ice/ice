@@ -34,5 +34,16 @@ local class ConnectionInfo extends Ice::IPConnectionInfo
     bool verified;
 };
 
+/**
+ *
+ * Provides access to the connection details of a secure WebSocket connection
+ *
+ **/
+local class WSSConnectionInfo extends ConnectionInfo
+{
+    /** The headers from the HTTP upgrade request. */
+    Ice::HeaderDict headers;
+};
+
 };
 

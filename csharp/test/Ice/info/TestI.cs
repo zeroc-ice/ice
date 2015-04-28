@@ -63,6 +63,15 @@ public class TestI : TestIntfDisp_
             }
         }
 
+        if(info is IceSSL.WSSConnectionInfo)
+        {
+            IceSSL.WSSConnectionInfo wssinfo = (IceSSL.WSSConnectionInfo)info;
+            foreach(KeyValuePair<string, string> e in wssinfo.headers)
+            {
+                ctx["ws." + e.Key] = e.Value;
+            }
+        }
+
         return ctx;
     }
 }

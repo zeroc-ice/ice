@@ -19,6 +19,7 @@
 #include <Ice/Network.h>
 #include <Ice/Buffer.h>
 #include <Ice/StreamSocket.h>
+#include <Ice/WSTransceiver.h>
 
 #ifdef ICE_USE_SCHANNEL
 
@@ -42,7 +43,7 @@ namespace IceSSL
 class ConnectorI;
 class AcceptorI;
 
-class TransceiverI : public IceInternal::Transceiver
+class TransceiverI : public IceInternal::Transceiver, public IceInternal::WSTransceiverDelegate
 {
 public:
 
@@ -63,6 +64,7 @@ public:
     virtual std::string toString() const;
     virtual std::string toDetailedString() const;
     virtual Ice::ConnectionInfoPtr getInfo() const;
+    virtual Ice::ConnectionInfoPtr getWSInfo(const Ice::HeaderDict&) const;
     virtual void checkSendSize(const IceInternal::Buffer&);
     virtual void setBufferSize(int rcvSize, int sndSize);
 
@@ -71,7 +73,7 @@ private:
     TransceiverI(const InstancePtr&, const IceInternal::StreamSocketPtr&, const std::string&, bool);
     virtual ~TransceiverI();
 
-    virtual NativeConnectionInfoPtr getNativeConnectionInfo() const;
+    void fillConnectionInfo(const ConnectionInfoPtr&, std::vector<CertificatePtr>&) const;
 
     IceInternal::SocketOperation sslHandshake();
 

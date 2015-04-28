@@ -305,7 +305,15 @@ namespace IceSSL
 
             if(_caCerts == null)
             {
-                string certAuthFile = properties.getProperty(prefix + "CertAuthFile");
+                string certAuthFile = properties.getProperty(prefix + "CAs");
+                if(certAuthFile.Length == 0)
+                {
+                    certAuthFile = properties.getProperty(prefix + "CertAuthFile");
+                }
+                if(certAuthFile.Length > 0 || properties.getPropertyAsInt(prefix + "UsePlatformCAs") <= 0)
+                {
+                    _caCerts = new X509Certificate2Collection();
+                }
                 if(certAuthFile.Length > 0)
                 {
                     if(!checkPath(ref certAuthFile))
@@ -315,12 +323,59 @@ namespace IceSSL
                         throw e;
                     }
 
-                    _caCerts = new X509Certificate2Collection();
                     try
                     {
-                        _caCerts.Add(new X509Certificate2(certAuthFile));
+                        using(System.IO.FileStream fs = System.IO.File.OpenRead(certAuthFile))
+                        {
+                            byte[] data = new byte[fs.Length];
+                            fs.Read(data, 0, data.Length);
+
+                            string strbuf = "";
+                            try
+                            {
+                                strbuf = System.Text.Encoding.UTF8.GetString(data);
+                            }
+                            catch(Exception)
+                            {
+                                // Ignore
+                            }
+
+                            if(strbuf.Length == data.Length)
+                            {
+                                int size, startpos, endpos = 0;
+                                bool first = true;
+                                while(true)
+                                {
+                                    startpos = strbuf.IndexOf("-----BEGIN CERTIFICATE-----", endpos);
+                                    if(startpos != -1)
+                                    {
+                                        endpos = strbuf.IndexOf("-----END CERTIFICATE-----", startpos);
+                                        size = endpos - startpos + "-----END CERTIFICATE-----".Length;
+                                    }
+                                    else if(first)
+                                    {
+                                        startpos = 0;
+                                        endpos = strbuf.Length;
+                                        size = strbuf.Length;
+                                    }
+                                    else
+                                    {
+                                        break;
+                                    }
+
+                                    byte[] cert = new byte[size];
+                                    System.Buffer.BlockCopy(data, startpos, cert, 0, size);
+                                    _caCerts.Import(cert);
+                                    first = false;
+                                }
+                            }
+                            else
+                            {
+                                _caCerts.Import(data);
+                            }
+                        }
                     }
-                    catch(CryptographicException ex)
+                    catch(Exception ex)
                     {
                         Ice.PluginInitializationException e = new Ice.PluginInitializationException(ex);
                         e.reason = "IceSSL: error while attempting to load CA certificate from " + certAuthFile;

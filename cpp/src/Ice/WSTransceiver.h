@@ -24,6 +24,17 @@ namespace IceInternal
 class ConnectorI;
 class AcceptorI;
 
+//
+// Delegate interface implemented by TcpTransceiver or IceSSL::Transceiver or any transport that WS can
+// delegate to.
+//
+class ICE_API WSTransceiverDelegate : virtual public IceUtil::Shared
+{
+public:
+
+    virtual Ice::ConnectionInfoPtr getWSInfo(const Ice::HeaderDict&) const = 0;
+};
+
 class WSTransceiver : public Transceiver
 {
 public:

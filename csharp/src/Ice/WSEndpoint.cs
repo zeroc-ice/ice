@@ -14,6 +14,15 @@ namespace IceInternal
     using System.Collections.Generic;
     using System.Globalization;
 
+    //
+    // Delegate interface implemented by TcpEndpoint or IceSSL.EndpointI or any endpoint that WS can
+    // delegate to.
+    //
+    public interface WSEndpointDelegate
+    {
+        Ice.EndpointInfo getWSInfo(string resource);
+    };
+
     sealed class WSEndpoint : EndpointI
     {
         internal WSEndpoint(ProtocolInstance instance, EndpointI del, string res)
@@ -71,10 +80,8 @@ namespace IceInternal
 
         public override Ice.EndpointInfo getInfo()
         {
-            InfoI info = new InfoI(this);
-            _delegate.fillEndpointInfo(info);
-            info.resource = _resource;
-            return info;
+            Debug.Assert(_delegate is WSEndpointDelegate);
+            return ((WSEndpointDelegate)_delegate).getWSInfo(_resource);
         }
 
         public override short type()

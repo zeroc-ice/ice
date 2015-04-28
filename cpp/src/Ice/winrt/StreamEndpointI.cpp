@@ -44,43 +44,6 @@ createIceSSL(const CommunicatorPtr& com, const string&, const StringSeq&)
 
 }
 
-namespace
-{
-
-template<class T> class InfoI : public T
-{
-public:
-
-    InfoI(const ProtocolInstancePtr& instance, Ice::Int to, bool comp, const string& host, Ice::Int port) :
-        T(to, comp, host, port, ""), _instance(instance)
-    {
-    }
-
-    virtual Ice::Short
-    type() const
-    {
-        return _instance->type();
-    }
-
-    virtual bool
-    datagram() const
-    {
-        return false;
-    }
-
-    virtual bool
-    secure() const
-    {
-        return _instance->secure();
-    }
-
-private:
-
-    ProtocolInstancePtr _instance;
-};
-
-}
-
 IceUtil::Shared* IceInternal::upCast(StreamEndpointI* p) { return p; }
 
 IceInternal::StreamEndpointI::StreamEndpointI(const ProtocolInstancePtr& instance, const string& ho, Int po, Int ti,
@@ -110,14 +73,37 @@ IceInternal::StreamEndpointI::StreamEndpointI(const ProtocolInstancePtr& instanc
 EndpointInfoPtr
 IceInternal::StreamEndpointI::getInfo() const
 {
+    IPEndpointInfoPtr info;
     if(_instance->secure())
     {
-        return new InfoI<IceSSL::EndpointInfo>(_instance, _timeout, _compress, _host, _port);
+        info = new InfoI<IceSSL::EndpointInfo>(const_cast<StreamEndpointI*>(this));
     }
     else
     {
-        return new InfoI<Ice::TCPEndpointInfo>(_instance, _timeout, _compress, _host, _port);
+        info = new InfoI<Ice::TCPEndpointInfo>(const_cast<StreamEndpointI*>(this));
     }
+    fillEndpointInfo(info.get());
+    return info;
+}
+
+EndpointInfoPtr
+IceInternal::StreamEndpointI::getWSInfo(const string& resource) const
+{
+    IPEndpointInfoPtr info;
+    if(_instance->secure())
+    {
+        IceSSL::WSSEndpointInfoPtr i = new InfoI<IceSSL::WSSEndpointInfo>(const_cast<StreamEndpointI*>(this));
+        i->resource = resource;
+        info = i;
+    }
+    else
+    {
+        Ice::WSEndpointInfoPtr i = new InfoI<Ice::WSEndpointInfo>(const_cast<StreamEndpointI*>(this));
+        i->resource = resource;
+        info = i;
+    }
+    fillEndpointInfo(info.get());
+    return info;
 }
 
 Int
@@ -180,8 +166,7 @@ IceInternal::StreamEndpointI::datagram() const
 bool
 IceInternal::StreamEndpointI::secure() const
 {
-    return _instance->type() == IceSSL::EndpointType ||
-           _instance->type() == WSSEndpointType;
+    return _instance->type() == IceSSL::EndpointType || _instance->type() == WSSEndpointType;
 }
 
 TransceiverPtr

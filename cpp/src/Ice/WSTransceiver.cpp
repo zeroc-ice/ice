@@ -803,17 +803,8 @@ IceInternal::WSTransceiver::toDetailedString() const
 Ice::ConnectionInfoPtr
 IceInternal::WSTransceiver::getInfo() const
 {
-    IPConnectionInfoPtr di = IPConnectionInfoPtr::dynamicCast(_delegate->getInfo());
-    assert(di);
-    WSConnectionInfoPtr info = new WSConnectionInfo();
-    info->localAddress = di->localAddress;
-    info->localPort = di->localPort;
-    info->remoteAddress = di->remoteAddress;
-    info->remotePort = di->remotePort;
-    info->rcvSize = di->rcvSize;
-    info->sndSize = di->sndSize;
-    info->headers = _parser->getHeaders();
-    return info;
+    assert(dynamic_cast<WSTransceiverDelegate*>(_delegate.get()));
+    return dynamic_cast<WSTransceiverDelegate*>(_delegate.get())->getWSInfo(_parser->getHeaders());
 }
 
 void

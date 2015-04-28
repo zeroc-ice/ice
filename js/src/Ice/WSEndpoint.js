@@ -16,7 +16,8 @@ Ice.__M.require(module,
         "../Ice/StringUtil",
         "../Ice/EndpointI",
         "../Ice/LocalException",
-        "../Ice/WSTransceiver"
+        "../Ice/WSTransceiver",
+        "../Ice/EndpointInfo"
     ]);
 
 var HashUtil = Ice.HashUtil;
@@ -33,7 +34,7 @@ var WSEndpoint = Class(EndpointI, {
     },
     getInfo: function()
     {
-        var info = new Ice.WSEndpointInfo();
+        var info = this._delegate.secure() ? new IceSSL.WSSEndpointInfo() : new Ice.WSEndpointInfo();
         info.resource = this._resource;
         this._delegate.fillEndpointInfo(info);
         return info;

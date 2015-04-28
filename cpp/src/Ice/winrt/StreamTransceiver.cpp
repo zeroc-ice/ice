@@ -302,10 +302,27 @@ IceInternal::StreamTransceiver::getInfo() const
     {
         info = new Ice::TCPConnectionInfo();
     }
-    fdToAddressAndPort(_fd, info->localAddress, info->localPort, info->remoteAddress, info->remotePort);
-    info->rcvSize = getRecvBufferSize(_fd);
-    info->sndSize = getSendBufferSize(_fd);
+    fillConnectionInfo(info);
     return info;
+}
+
+Ice::ConnectionInfoPtr
+IceInternal::StreamTransceiver::getWSInfo(const Ice::HeaderDict& headers) const
+{
+    if(_instance->secure())
+    {
+        IceSSL::WSSConnectionInfoPtr info = new IceSSL::WSSConnectionInfo();
+        fillConnectionInfo(info);
+        info->headers = headers;
+        return info;
+    }
+    else
+    {
+        Ice::WSConnectionInfoPtr info = new Ice::WSConnectionInfo();
+        fillConnectionInfo(info);
+        info->headers = headers;
+        return info;
+    }
 }
 
 void
@@ -387,3 +404,12 @@ IceInternal::StreamTransceiver::checkIfErrorOrCompleted(SocketOperation op, IAsy
         return true; // Prevent compiler warning.
     }
 }
+
+void
+IceInternal::StreamTransceiver::fillConnectionInfo(const Ice::IPConnectionInfoPtr& info) const
+{
+    fdToAddressAndPort(_fd, info->localAddress, info->localPort, info->remoteAddress, info->remotePort);
+    info->rcvSize = getRecvBufferSize(_fd);
+    info->sndSize = getSendBufferSize(_fd);
+}
+

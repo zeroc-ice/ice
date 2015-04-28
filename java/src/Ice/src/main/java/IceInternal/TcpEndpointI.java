@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-final class TcpEndpointI extends IPEndpointI
+final class TcpEndpointI extends IPEndpointI implements WSEndpointDelegate
 {
     public TcpEndpointI(ProtocolInstance instance, String ho, int po, java.net.InetSocketAddress sourceAddr, int ti,
                         String conId, boolean co)
@@ -40,27 +40,57 @@ final class TcpEndpointI extends IPEndpointI
     public Ice.EndpointInfo getInfo()
     {
         Ice.TCPEndpointInfo info = new Ice.TCPEndpointInfo()
+        {
+            @Override
+            public short type()
             {
-                @Override
-                public short type()
-                {
-                    return TcpEndpointI.this.type();
-                }
+                return TcpEndpointI.this.type();
+            }
 
-                @Override
-                public boolean datagram()
-                {
-                    return TcpEndpointI.this.datagram();
-                }
+            @Override
+            public boolean datagram()
+            {
+                return TcpEndpointI.this.datagram();
+            }
 
-                @Override
-                public boolean secure()
-                {
-                    return TcpEndpointI.this.secure();
-                }
-            };
-
+            @Override
+            public boolean secure()
+            {
+                return TcpEndpointI.this.secure();
+            }
+        };
         fillEndpointInfo(info);
+        return info;
+    }
+
+    //
+    // Return the WebSocket endpoint information.
+    //
+    @Override
+    public Ice.EndpointInfo getWSInfo(String resource)
+    {
+        Ice.WSEndpointInfo info = new Ice.WSEndpointInfo()
+        {
+            @Override
+            public short type()
+            {
+                return TcpEndpointI.this.type();
+            }
+
+            @Override
+            public boolean datagram()
+            {
+                return TcpEndpointI.this.datagram();
+            }
+
+            @Override
+            public boolean secure()
+            {
+                return TcpEndpointI.this.secure();
+            }
+        };
+        fillEndpointInfo(info);
+        info.resource = resource;
         return info;
     }
 

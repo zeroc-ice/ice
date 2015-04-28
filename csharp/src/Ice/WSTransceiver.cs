@@ -16,6 +16,15 @@ namespace IceInternal
     using System.Security.Cryptography;
     using System.Text;
 
+    //
+    // Delegate interface implemented by TcpTransceiver or IceSSL.TransceiverI or any endpoint that WS can
+    // delegate to.
+    //
+    public interface WSTransceiverDelegate
+    {
+        Ice.ConnectionInfo getWSInfo(Dictionary<string, string> headers);
+    };
+
     sealed class WSTransceiver : Transceiver
     {
         public Socket fd()
@@ -629,16 +638,8 @@ namespace IceInternal
 
         public Ice.ConnectionInfo getInfo()
         {
-            Ice.IPConnectionInfo di = (Ice.IPConnectionInfo)_delegate.getInfo();
-            Ice.WSConnectionInfo info = new Ice.WSConnectionInfo();
-            info.localAddress = di.localAddress;
-            info.localPort = di.localPort;
-            info.remoteAddress = di.remoteAddress;
-            info.remotePort = di.remotePort;
-            info.rcvSize = di.rcvSize;
-            info.sndSize = di.sndSize;
-            info.headers = _parser.getHeaders();
-            return info;
+            Debug.Assert(_delegate is WSTransceiverDelegate);
+            return ((WSTransceiverDelegate)_delegate).getWSInfo(_parser.getHeaders());
         }
 
         public void checkSendSize(Buffer buf)

@@ -56,11 +56,11 @@ IceInternal::OpaqueEndpointI::OpaqueEndpointI(Short type, BasicStream* s) : _typ
 namespace
 {
 
-class InfoI : public Ice::OpaqueEndpointInfo
+class OpaqueEndpointInfoI : public Ice::OpaqueEndpointInfo
 {
 public:
 
-    InfoI(Ice::Short type, const Ice::EncodingVersion& rawEncoding, const Ice::ByteSeq& rawByes);
+    OpaqueEndpointInfoI(Ice::Short type, const Ice::EncodingVersion& rawEncoding, const Ice::ByteSeq& rawByes);
 
     virtual Ice::Short
     type() const
@@ -89,7 +89,8 @@ private:
 //
 // COMPILERFIX: inlining this constructor causes crashes with gcc 4.0.1.
 //
-InfoI::InfoI(Ice::Short type, const Ice::EncodingVersion& rawEncoding, const Ice::ByteSeq& rawBytes) :
+OpaqueEndpointInfoI::OpaqueEndpointInfoI(Ice::Short type, const Ice::EncodingVersion& rawEncoding,
+                                         const Ice::ByteSeq& rawBytes) :
     Ice::OpaqueEndpointInfo(-1, false, rawEncoding, rawBytes),
     _type(type)
 {
@@ -106,7 +107,7 @@ IceInternal::OpaqueEndpointI::streamWrite(BasicStream* s) const
 Ice::EndpointInfoPtr
 IceInternal::OpaqueEndpointI::getInfo() const
 {
-    return new InfoI(_type, _rawEncoding, _rawBytes);
+    return new OpaqueEndpointInfoI(_type, _rawEncoding, _rawBytes);
 }
 
 Short

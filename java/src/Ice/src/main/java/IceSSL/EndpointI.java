@@ -9,7 +9,7 @@
 
 package IceSSL;
 
-final class EndpointI extends IceInternal.IPEndpointI
+final class EndpointI extends IceInternal.IPEndpointI implements IceInternal.WSEndpointDelegate
 {
     public EndpointI(Instance instance, String ho, int po, java.net.InetSocketAddress sourceAddr, int ti, String conId,
                      boolean co)
@@ -43,27 +43,57 @@ final class EndpointI extends IceInternal.IPEndpointI
     public Ice.EndpointInfo getInfo()
     {
         Ice.IPEndpointInfo info = new IceSSL.EndpointInfo()
+        {
+            @Override
+            public short type()
             {
-                @Override
-                public short type()
-                {
-                    return EndpointI.this.type();
-                }
+                return EndpointI.this.type();
+            }
 
-                @Override
-                public boolean datagram()
-                {
-                    return EndpointI.this.datagram();
-                }
+            @Override
+            public boolean datagram()
+            {
+                return EndpointI.this.datagram();
+            }
 
-                @Override
-                public boolean secure()
-                {
-                    return EndpointI.this.secure();
-                }
-            };
-
+            @Override
+            public boolean secure()
+            {
+                return EndpointI.this.secure();
+            }
+        };
         fillEndpointInfo(info);
+        return info;
+    }
+
+    //
+    // Return the secure WebSocket endpoint information.
+    //
+    @Override
+    public Ice.EndpointInfo getWSInfo(String resource)
+    {
+        IceSSL.WSSEndpointInfo info = new IceSSL.WSSEndpointInfo()
+        {
+            @Override
+            public short type()
+            {
+                return EndpointI.this.type();
+            }
+
+            @Override
+            public boolean datagram()
+            {
+                return EndpointI.this.datagram();
+            }
+
+            @Override
+            public boolean secure()
+            {
+                return EndpointI.this.secure();
+            }
+        };
+        fillEndpointInfo(info);
+        info.resource = resource;
         return info;
     }
 

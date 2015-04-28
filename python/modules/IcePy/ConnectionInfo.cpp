@@ -14,7 +14,6 @@
 #include <EndpointInfo.h>
 #include <Util.h>
 #include <Ice/Object.h>
-
 using namespace std;
 using namespace IcePy;
 

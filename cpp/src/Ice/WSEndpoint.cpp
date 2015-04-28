@@ -47,41 +47,8 @@ IceInternal::WSEndpoint::WSEndpoint(const ProtocolInstancePtr& instance, const E
 Ice::EndpointInfoPtr
 IceInternal::WSEndpoint::getInfo() const
 {
-    class InfoI : public WSEndpointInfo
-    {
-    public:
-
-        InfoI(const EndpointIPtr& e) : _endpoint(e)
-        {
-        }
-
-        virtual Short
-        type() const
-        {
-            return _endpoint->type();
-        }
-
-        virtual bool
-        datagram() const
-        {
-            return _endpoint->datagram();
-        }
-
-        virtual bool
-        secure() const
-        {
-            return _endpoint->secure();
-        }
-
-    private:
-
-        const EndpointIPtr _endpoint;
-    };
-
-    WSEndpointInfoPtr info = new InfoI(const_cast<WSEndpoint*>(this));
-    _delegate->fillEndpointInfo(info.get());
-    info->resource = _resource;
-    return info;
+    assert(dynamic_cast<WSEndpointDelegate*>(_delegate.get()));
+    return dynamic_cast<WSEndpointDelegate*>(_delegate.get())->getWSInfo(_resource);
 }
 
 Ice::Short

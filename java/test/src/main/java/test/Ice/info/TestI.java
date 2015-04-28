@@ -70,6 +70,15 @@ public class TestI extends _TestIntfDisp
             }
         }
 
+        if(info instanceof IceSSL.WSSConnectionInfo)
+        {
+            IceSSL.WSSConnectionInfo wssinfo = (IceSSL.WSSConnectionInfo)info;
+            for(java.util.Map.Entry<String, String> e : wssinfo.headers.entrySet())
+            {
+                ctx.put("ws." + e.getKey(), e.getValue());
+            }
+        }
+
         return ctx;
     }
 }

@@ -19,11 +19,23 @@ These are the changes since Ice 3.5.1.
 
 ## General Changes
 
-- The default value of the IceSSL.VerifyDepthMax property is now 3 (it was previously 2). This allows certificate chains of 3 certificates (e.g: a Peer, CA and Root certificate chain).
+- Added `IceSSL::WSSConnectionInfo` local Slice class to provide information on a WSS connection. This class extends the `IceSSL::ConnectionInfo` class. The `IceSSL::WSSNativeConnectionInfo` was also added to provide the language mapping specific certificates associated with the SSL connection.
+
+- Added `IceSSL::WSSEndpointInfo` local Slice class to provide WSS endpoint information. This class extends the `IceSSL::EndpointInfo` class.
+
+- Updated `Ice::WSEndpointInfo` to extend `Ice::TCPEndpointInfo` and `Ice::WSConnectionInfo` to extend `Ice::TCPConnectionInfo`
+
+- IceSSL now supports using the platform Root Certificate Authorities to validate remote certificates. The use of the platform Root CAs can be enabled with the `IceSSL.UsePlatformCAs` property. The platform Root CAs are only checked if `Ice.CAs` is not set.
+
+- The `IceSSL.CertAuthFile` and `IceSSL.CertAuthDir` properties have been deprecated. You should now use the `Ice.CAs` property to configure the path of the PEM file containing the Root Certificate Authorities or the path of a directory containing the certificates (OpenSSL only).
+
+- The `IceSSL.KeyFile` property has been deprecated. You should instead use `Ice.CertFile` and PKCS12 files to configure the IceSSL identity.
+
+- The default value of the `IceSSL.VerifyDepthMax` property is now 3 (it was previously 2). This allows certificate chains of 3 certificates (e.g: a Peer, CA and Root certificate chain).
 
 - The certificate chain provided in the `IceSSL::ConnectionInfo` should now always include the root certificate if the chain could successfully be verified.
 
-- Added `verified` member to the `IceSSL::ConnectionInfo` class. This member indicates whether or not the peer certificate was successfully verified. This member is useful for clients which set IceSSL.VerifyPeer=0 to check if the server certificate could be verified or not. For server connections, the member should always be `true` since servers always reject invalid client certificates.
+- Added `verified` member to the `IceSSL::ConnectionInfo` class. This member indicates whether or not the peer certificate was successfully verified. This member is useful for clients which set `IceSSL.VerifyPeer=0` to check if the server certificate could be verified or not. For server connections, the member should always be `true` since servers always reject invalid client certificates.
 
 - The Ice distribution now supports the Objective-C mapping on OS X.
 

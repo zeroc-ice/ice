@@ -18,6 +18,7 @@ import sys
 import threading
 import time
 import traceback
+import types
 
 __all__ = ["Expect", "EOF", "TIMEOUT" ]
 
@@ -133,7 +134,9 @@ class reader(threading.Thread):
                     content = self._tbuf.getvalue()
                     suppress = False
                     for p in self._tracesuppress:
-                        if p.search(content):
+                        if isinstance(p, types.LambdaType) or isinstance(p, types.FunctionType):
+                            content = p(content)
+                        elif p.search(content):
                             suppress = True
                             break
                     if not suppress:

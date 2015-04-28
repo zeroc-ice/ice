@@ -13,13 +13,14 @@
 #include <IceUtil/Config.h>
 #include <Ice/IPEndpointI.h>
 #include <Ice/EndpointFactory.h>
+#include <Ice/WSEndpoint.h>
 #include <Ice/Network.h> // for IceIternal::Address
 #include <Ice/winrt/StreamF.h>
 
 namespace IceInternal
 {
 
-class StreamEndpointI : public IPEndpointI
+class StreamEndpointI : public IPEndpointI, WSEndpointDelegate
 {
 public:
 
@@ -28,6 +29,7 @@ public:
     StreamEndpointI(const ProtocolInstancePtr&, BasicStream*);
 
     virtual Ice::EndpointInfoPtr getInfo() const;
+    virtual Ice::EndpointInfoPtr getWSInfo(const std::string&) const;
 
     virtual Ice::Int timeout() const;
     virtual EndpointIPtr timeout(Ice::Int) const;

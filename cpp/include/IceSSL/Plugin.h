@@ -55,14 +55,14 @@
 #ifdef ICE_USE_OPENSSL
 
 //
-// Pointer to an opaque SSL session context object. ssl_ctx_st is the 
+// Pointer to an opaque SSL session context object. ssl_ctx_st is the
 // OpenSSL type that holds configuration settings for all SSL
 // connections.
 //
 typedef struct ssl_ctx_st SSL_CTX;
 
 //
-// Pointer to an opaque certificate object. X509_st is the OpenSSL 
+// Pointer to an opaque certificate object. X509_st is the OpenSSL
 // type that represents a certificate.
 //
 typedef struct x509_st* X509CertificateRef;
@@ -185,7 +185,7 @@ class ICE_SSL_API PublicKey : public IceUtil::Shared
 public:
 
     ~PublicKey();
-    
+
     //
     // Retrieve the native public key value wrapped by this object.
     //
@@ -202,7 +202,7 @@ private:
 
     CertificatePtr _cert;
     KeyRef _key;
-    
+
 };
 typedef IceUtil::Handle<PublicKey> PublicKeyPtr;
 
@@ -282,7 +282,7 @@ class ICE_SSL_API Certificate : public IceUtil::Shared
 public:
 
     //
-    // Construct a certificate using a native certificate. 
+    // Construct a certificate using a native certificate.
     //
     // The Certificate class assumes ownership of the given native
     // certificate.
@@ -321,7 +321,7 @@ public:
     // public key. Returns true if signed, false otherwise.
     //
     bool verify(const CertificatePtr&) const;
-    
+
 #ifdef ICE_USE_OPENSSL
     //
     // Verify that this certificate was signed by the given public
@@ -331,10 +331,10 @@ public:
     // engines that require a certificate and not just a public key to
     // verify the certificate signature.
     //
-    ICE_DEPRECATED_API("verify(const PublicKeyPtr&) is deprecated, use verify(const CertificatePtr&) instead") 
+    ICE_DEPRECATED_API("verify(const PublicKeyPtr&) is deprecated, use verify(const CertificatePtr&) instead")
     bool verify(const PublicKeyPtr&) const;
 #endif
-    
+
     //
     // Return a string encoding of the certificate in PEM format.
     // Raises CertificateEncodingException if an error occurs.
@@ -433,7 +433,7 @@ public:
 
     //
     // Retrieve the native X509 certificate value wrapped by this
-    // object. 
+    // object.
     //
     // The returned reference is only valid for the lifetime of this
     // object. With SecureTransport you can increment the reference
@@ -468,6 +468,23 @@ public:
     std::vector<CertificatePtr> nativeCerts;
 };
 typedef IceUtil::Handle<NativeConnectionInfo> NativeConnectionInfoPtr;
+
+//
+// WSSNativeConnectionInfo is an extension of IceSSL::WSSConnectionInfo
+// that provides access to native certificates.
+//
+class ICE_SSL_API WSSNativeConnectionInfo : public WSSConnectionInfo
+{
+public:
+
+    //
+    // The certificate chain. This may be empty if the peer did not
+    // supply a certificate. The peer's certificate (if any) is the
+    // first one in the chain.
+    //
+    std::vector<CertificatePtr> nativeCerts;
+};
+typedef IceUtil::Handle<WSSNativeConnectionInfo> WSSNativeConnectionInfoPtr;
 
 //
 // An application can customize the certificate verification process
@@ -528,7 +545,7 @@ public:
     // the plug-in is initialized.
     //
     virtual void setPasswordPrompt(const PasswordPromptPtr&) = 0;
-    
+
 #ifdef ICE_USE_OPENSSL
     //
     // Establish the OpenSSL context. This must be done before the
@@ -539,7 +556,7 @@ public:
     // When the application supplies its own OpenSSL context, the
     // plug-in ignores configuration properties related to certificates,
     // keys, and passwords.
-    // 
+    //
     // Note that the plugin assumes ownership of the given context.
     //
     virtual void setContext(SSL_CTX*) = 0;
@@ -548,7 +565,7 @@ public:
     // Obtain the SSL context. Use caution when modifying this value.
     // Changes made to this value have no effect on existing connections.
     //
-    virtual SSL_CTX* getContext() = 0;    
+    virtual SSL_CTX* getContext() = 0;
 #endif
 };
 typedef IceUtil::Handle<Plugin> PluginPtr;

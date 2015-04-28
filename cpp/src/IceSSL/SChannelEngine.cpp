@@ -56,7 +56,7 @@ struct CertChainEngineConfig
 #   endif
 
 void
-addCertificateToStore(const string& file, HCERTSTORE store, PCCERT_CONTEXT* cert = 0)
+addCertificatesToStore(const string& file, HCERTSTORE store, PCCERT_CONTEXT* cert = 0)
 {
     vector<char> buffer;
     readFile(file, buffer);
@@ -65,29 +65,50 @@ addCertificateToStore(const string& file, HCERTSTORE store, PCCERT_CONTEXT* cert
         throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: certificate file is empty:\n" + file);
     }
 
-    vector<BYTE> outBuffer;
-    outBuffer.resize(buffer.size());
-    DWORD outLength = static_cast<DWORD>(outBuffer.size());
-
-    if(!CryptStringToBinary(&buffer[0], static_cast<DWORD>(buffer.size()), CRYPT_STRING_BASE64HEADER,
-                            &outBuffer[0], &outLength, 0, 0))
+    string strbuf(buffer.begin(), buffer.end());
+    string::size_type size, startpos, endpos = 0;
+    bool first = true;
+    while(true)
     {
-        //
-        // Base64 data should always be bigger than binary
-        //
-        assert(GetLastError() != ERROR_MORE_DATA);
-        throw PluginInitializationException(__FILE__, __LINE__,
-                                "IceSSL: error decoding certificate:\n" + lastErrorToString());
-    }
-
-    if(!CertAddEncodedCertificateToStore(store, X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, &outBuffer[0],
-                                         outLength, CERT_STORE_ADD_NEW, cert))
-    {
-        if(GetLastError() != static_cast<DWORD>(CRYPT_E_EXISTS))
+        startpos = strbuf.find("-----BEGIN CERTIFICATE-----", endpos);
+        if(startpos != string::npos)
         {
-            throw PluginInitializationException(__FILE__, __LINE__,
-                                "IceSSL: error decoding certificate:\n" + lastErrorToString());
+            endpos = strbuf.find("-----END CERTIFICATE-----", startpos);
+            size = endpos - startpos + sizeof("-----END CERTIFICATE-----");
         }
+        else if(first)
+        {
+            startpos = 0;
+            endpos = string::npos;
+            size = strbuf.size();
+        }
+        else
+        {
+            break;
+        }
+
+        vector<BYTE> outBuffer;
+        outBuffer.resize(size);
+        DWORD outLength = static_cast<DWORD>(outBuffer.size());
+        if(!CryptStringToBinary(&buffer[startpos], static_cast<DWORD>(size), CRYPT_STRING_ANY, &outBuffer[0],
+                                &outLength, 0, 0))
+        {
+            assert(GetLastError() != ERROR_MORE_DATA); // Base64 data should always be bigger than binary
+            throw PluginInitializationException(__FILE__, __LINE__,
+                                                "IceSSL: error decoding certificate:\n" + lastErrorToString());
+        }
+
+        if(!CertAddEncodedCertificateToStore(store, X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, &outBuffer[0],
+                                             outLength, CERT_STORE_ADD_NEW, first ? cert : 0))
+        {
+            if(GetLastError() != static_cast<DWORD>(CRYPT_E_EXISTS))
+            {
+                throw PluginInitializationException(__FILE__, __LINE__,
+                                                    "IceSSL: error decoding certificate:\n" + lastErrorToString());
+            }
+        }
+
+        first = false;
     }
 }
 
@@ -244,8 +265,12 @@ SChannelEngine::initialize()
     //
     // Create trusted CA store with contents of CertAuthFile
     //
-    string caFile = properties->getProperty(prefix + "CertAuthFile");
-    if(!caFile.empty())
+    string caFile = properties->getProperty(prefix + "CAs");
+    if(caFile.empty())
+    {
+        caFile = properties->getProperty(prefix + "CertAuthFile");
+    }
+    if(!caFile.empty() || properties->getPropertyAsInt("IceSSL.UsePlatformCAs") <= 0)
     {
         _rootStore = CertOpenStore(CERT_STORE_PROV_MEMORY, 0, 0, 0, 0);
         if(!_rootStore)
@@ -253,15 +278,20 @@ SChannelEngine::initialize()
             throw PluginInitializationException(__FILE__, __LINE__,
                     "IceSSL: error creating in memory certificate store:\n" + lastErrorToString());
         }
-
+    }
+    if(!caFile.empty())
+    {
         if(!checkPath(caFile, defaultDir, false))
         {
             throw PluginInitializationException(__FILE__, __LINE__,
                                                 "IceSSL: CA certificate file not found:\n" + caFile);
         }
 
-        addCertificateToStore(caFile, _rootStore);
+        addCertificatesToStore(caFile, _rootStore);
+    }
 
+    if(_rootStore)
+    {
         //
         // Create a chain engine that uses our Trusted Root Store
         //
@@ -410,26 +440,8 @@ SChannelEngine::initialize()
                                                         "IceSSL: certificate error:\n" + lastErrorToString());
                 }
 
-                //
-                // If we found a certificate, add it to a new memory store. We
-                // can't use directly the certificate context from the PFX
-                // store: while it works for certificates without
-                // intermediates, it doesn't if the certificate has
-                // intermediates, the intermediates certificates aren't being
-                // sent.
-                //
-                HCERTSTORE newStore = CertOpenStore(CERT_STORE_PROV_MEMORY, 0, 0, 0, 0);
-                PCCERT_CONTEXT newCert;
-                if(!CertAddCertificateContextToStore(newStore, cert, CERT_STORE_ADD_ALWAYS, &newCert))
-                {
-                    CertCloseStore(newStore, 0);
-                    throw PluginInitializationException(__FILE__, __LINE__,
-                                                        "IceSSL: certificate error:\n" + lastErrorToString());
-                }
-                _certs.push_back(newCert);
-                _stores.push_back(newStore);
-                CertFreeCertificateContext(cert);
-                CertCloseStore(store, 0);
+                _certs.push_back(cert);
+                _stores.push_back(store);
                 continue;
             }
 
@@ -560,7 +572,7 @@ SChannelEngine::initialize()
                                                         "store:\n" + lastErrorToString());
                 }
 
-                addCertificateToStore(certFile, store, &cert);
+                addCertificatesToStore(certFile, store, &cert);
 
                 //
                 // Associate key & certificate
@@ -705,6 +717,17 @@ SChannelEngine::newCredentialsHandle(bool incoming)
         // the root certificate either way.
         //
         cred.dwFlags = SCH_CRED_NO_SYSTEM_MAPPER;
+
+        //
+        // There's no way to prevent SChannel from sending "CA names" to the
+        // client. Recent Windows versions don't CA names but older ones do
+        // send all the trusted root CA names. We provide the root store to
+        // ensure that for these older Windows versions, we also include the
+        // CA names of your trusted roots. IceSSL for Java will only send a
+        // client certificate if the client certificate CA matches one of the
+        // CA names sent by the server.
+        //
+        cred.hRootStore = _rootStore;
     }
     else
     {

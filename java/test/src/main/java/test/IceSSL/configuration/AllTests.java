@@ -204,6 +204,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -682,7 +683,7 @@ public class AllTests
                 }
                 fact.destroyServer(server);
             }
-            
+
             comm.destroy();
 
             //
@@ -2220,6 +2221,48 @@ public class AllTests
                 test(false);
             }
             fact.destroyServer(server);
+            comm.destroy();
+        }
+        out.println("ok");
+
+        out.print("testing system CAs... ");
+        out.flush();
+        {
+            initData = createClientProps(defaultProperties, defaultDir, defaultHost);
+            initData.properties.setProperty("IceSSL.VerifyDepthMax", "4");
+            initData.properties.setProperty("Ice.Override.Timeout", "5000"); // 5s timeout
+            Ice.Communicator comm = Ice.Util.initialize(initData);
+            Ice.ObjectPrx p = comm.stringToProxy("dummy:wss -h demo.zeroc.com -p 5064");
+            try
+            {
+                p.ice_ping();
+                test(false);
+            }
+            catch(Ice.SecurityException ex)
+            {
+                // Expected, by default we don't check for system CAs.
+            }
+            catch(Ice.LocalException ex)
+            {
+                test(false);
+            }
+
+            initData = createClientProps(defaultProperties, defaultDir, defaultHost);
+            initData.properties.setProperty("IceSSL.VerifyDepthMax", "4");
+            initData.properties.setProperty("Ice.Override.Timeout", "5000"); // 5s timeout
+            initData.properties.setProperty("IceSSL.UsePlatformCAs", "1");
+            comm = Ice.Util.initialize(initData);
+            p = comm.stringToProxy("dummy:wss -h demo.zeroc.com -p 5064");
+            IceSSL.WSSConnectionInfo info;
+            try
+            {
+                info = (IceSSL.WSSConnectionInfo)p.ice_getConnection().getInfo();
+                test(info.verified);
+            }
+            catch(Ice.LocalException ex)
+            {
+                test(false);
+            }
             comm.destroy();
         }
         out.println("ok");

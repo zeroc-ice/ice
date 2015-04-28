@@ -41,29 +41,8 @@ final class WSEndpoint extends IceInternal.EndpointI
     @Override
     public Ice.EndpointInfo getInfo()
     {
-        Ice.WSEndpointInfo info = new Ice.WSEndpointInfo()
-            {
-                @Override
-                public short type()
-                {
-                    return WSEndpoint.this.type();
-                }
-
-                @Override
-                public boolean datagram()
-                {
-                    return WSEndpoint.this.datagram();
-                }
-
-                @Override
-                public boolean secure()
-                {
-                    return WSEndpoint.this.secure();
-                }
-            };
-        _delegate.fillEndpointInfo(info);
-        info.resource = _resource;
-        return info;
+        assert(_delegate instanceof WSEndpointDelegate);
+        return ((WSEndpointDelegate)_delegate).getWSInfo(_resource);
     }
 
     @Override

@@ -18,7 +18,8 @@ Ice.__M.require(module,
         "../Ice/Connection",
         "../Ice/Exception",
         "../Ice/LocalException",
-        "../Ice/Timer"
+        "../Ice/Timer",
+        "../Ice/ConnectionInfo"
     ]);
 
 var Debug = Ice.Debug;
@@ -284,7 +285,7 @@ var WSTransceiver = Ice.Class({
     getInfo: function()
     {
         Debug.assert(this._fd !== null);
-        var info = new Ice.WSConnectionInfo();
+        var info = this._secure ? new IceSSL.WSSConnectionInfo() : new Ice.WSConnectionInfo();
 
         //
         // The WebSocket API doens't provide this info

@@ -40,5 +40,20 @@ local class EndpointInfo extends Ice::IPEndpointInfo
 {
 };
 
+/**
+ *
+ * Provides access to a secure WebSocket endpoint information.
+ *
+ **/
+local class WSSEndpointInfo extends EndpointInfo
+{
+    /**
+     *
+     * The URI configured with the endpoint.
+     *
+     **/
+    string resource;
+};
+
 };
 

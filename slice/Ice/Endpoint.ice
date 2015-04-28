@@ -196,7 +196,7 @@ local class UDPEndpointInfo extends IPEndpointInfo
  * Provides access to a WebSocket endpoint information.
  *
  **/
-local class WSEndpointInfo extends IPEndpointInfo
+local class WSEndpointInfo extends TCPEndpointInfo
 {
     /**
      *

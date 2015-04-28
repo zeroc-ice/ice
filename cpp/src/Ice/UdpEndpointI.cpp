@@ -76,38 +76,7 @@ IceInternal::UdpEndpointI::UdpEndpointI(const ProtocolInstancePtr& instance, Bas
 EndpointInfoPtr
 IceInternal::UdpEndpointI::getInfo() const
 {
-    class InfoI : public Ice::UDPEndpointInfo
-    {
-    public:
-
-        InfoI(const EndpointIPtr& endpoint) : _endpoint(endpoint)
-        {
-        }
-
-        virtual Ice::Short
-        type() const
-        {
-            return _endpoint->type();
-        }
-
-        virtual bool
-        datagram() const
-        {
-            return _endpoint->datagram();
-        }
-
-        virtual bool
-        secure() const
-        {
-            return _endpoint->secure();
-        }
-
-    private:
-
-        const EndpointIPtr _endpoint;
-    };
-
-    Ice::UDPEndpointInfoPtr info = new InfoI(const_cast<UdpEndpointI*>(this));
+    Ice::UDPEndpointInfoPtr info = new InfoI<Ice::UDPEndpointInfo>(const_cast<UdpEndpointI*>(this));
     fillEndpointInfo(info.get());
     return info;
 }

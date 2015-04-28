@@ -89,7 +89,7 @@ public class AllTests
         }
         if(ca.Length > 0)
         {
-            d["IceSSL.CertAuthFile"] = ca + ".pem";
+            d["IceSSL.CAs"] = ca + ".pem";
         }
         d["IceSSL.Password"] = "password";
         return d;
@@ -105,7 +105,7 @@ public class AllTests
         }
         if(ca.Length > 0)
         {
-            initData.properties.setProperty("IceSSL.CertAuthFile", ca + ".pem");
+            initData.properties.setProperty("IceSSL.CAs", ca + ".pem");
         }
         initData.properties.setProperty("IceSSL.Password", "password");
         return initData;
@@ -208,7 +208,7 @@ public class AllTests
                 coll.Add(cert);
                 initData = createClientProps(defaultProperties, defaultDir, defaultHost);
                 initData.properties.setProperty("Ice.InitPlugins", "0");
-                initData.properties.setProperty("IceSSL.CertAuthFile", caCert1File);
+                initData.properties.setProperty("IceSSL.CAs", caCert1File);
                 Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
                 Ice.PluginManager pm = comm.getPluginManager();
                 IceSSL.Plugin plugin = (IceSSL.Plugin)pm.getPlugin("IceSSL");
@@ -289,7 +289,7 @@ public class AllTests
                     test(!((IceSSL.ConnectionInfo)server.ice_getConnection().getInfo()).verified);
                 }
                 catch(Ice.LocalException ex)
-                {   
+                {
                     Console.WriteLine(ex.ToString());
                     test(false);
                 }
@@ -314,7 +314,7 @@ public class AllTests
                     test(((IceSSL.ConnectionInfo)server.ice_getConnection().getInfo()).verified);
                 }
                 catch(Ice.LocalException ex)
-                {   
+                {
                     Console.WriteLine(ex.ToString());
                     test(false);
                 }
@@ -336,7 +336,7 @@ public class AllTests
                     server.noCert();
                 }
                 catch(Ice.LocalException)
-                {  
+                {
                     test(false);
                 }
                 fact.destroyServer(server);
@@ -652,260 +652,278 @@ public class AllTests
             Console.Out.Write("testing certificate chains... ");
             Console.Out.Flush();
             {
-                IceSSL.NativeConnectionInfo info;
-
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "", "");
-                initData.properties.setProperty("IceSSL.VerifyPeer", "0");
-                Ice.Communicator comm = Ice.Util.initialize(initData);
-
-                Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                test(fact != null);
-
-                //
-                // The client can't verify the server certificate but it should
-                // still provide it. "s_rsa_ca1" doesn't include the root so the
-                // cert size should be 1.
-                //
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "");
-                d["IceSSL.VerifyPeer"] = "0";
-                Test.ServerPrx server = fact.createServer(d);
+                X509Store certStore = new X509Store("My", StoreLocation.CurrentUser);
+                certStore.Open(OpenFlags.ReadWrite);
+                X509Certificate2Collection certs = new X509Certificate2Collection();
+                certs.Import(defaultDir + "/s_rsa_cai2.p12", "password", X509KeyStorageFlags.DefaultKeySet);
+                foreach(X509Certificate2 cert in certs)
+                {
+                    certStore.Add(cert);
+                }
                 try
                 {
-                    info = (IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
-                    test(info.nativeCerts.Length == 1);
-                    test(!info.verified);
-                }
-                catch(Ice.LocalException)
-                {
-                    test(false);
-                }
-                fact.destroyServer(server);
+                    IceSSL.NativeConnectionInfo info;
 
-                //
-                // Setting the CA for the server shouldn't change anything, it
-                // shouldn't modify the cert chain sent to the client.
-                //
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
-                d["IceSSL.VerifyPeer"] = "0";
-                server = fact.createServer(d);
-                try
-                {
-                    info = (IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
-                    test(info.nativeCerts.Length == 1);
-                    test(!info.verified);
-                }
-                catch(Ice.LocalException)
-                {
-                    test(false);
-                }
-                fact.destroyServer(server);
+                    initData = createClientProps(defaultProperties, defaultDir, defaultHost, "", "");
+                    initData.properties.setProperty("IceSSL.VerifyPeer", "0");
+                    Ice.Communicator comm = Ice.Util.initialize(initData);
 
-                //
-                // The client can't verify the server certificate but should
-                // still provide it. "s_rsa_wroot_ca1" includes the root so
-                // the cert size should be 2.
-                //
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_wroot_ca1", "");
-                d["IceSSL.VerifyPeer"] = "0";;
-                server = fact.createServer(d);
-                try
-                {
-                    info = (IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
-                    test(info.nativeCerts.Length == 1); // Like the SChannel transport, .NET never sends the root.
-                }
-                catch(Ice.LocalException)
-                {
-                    test(false);
-                }
-                fact.destroyServer(server);
-                comm.destroy();
+                    Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                    test(fact != null);
 
-                //
-                // Now the client verifies the server certificate
-                //
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "", "cacert1");
-                initData.properties.setProperty("IceSSL.VerifyPeer", "1");
-                comm = Ice.Util.initialize(initData);
-
-                fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                test(fact != null);
-
-                {
+                    //
+                    // The client can't verify the server certificate but it should
+                    // still provide it. "s_rsa_ca1" doesn't include the root so the
+                    // cert size should be 1.
+                    //
                     d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "");
+                    d["IceSSL.VerifyPeer"] = "0";
+                    Test.ServerPrx server = fact.createServer(d);
+                    try
+                    {
+                        info = (IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
+                        test(info.nativeCerts.Length == 1);
+                        test(!info.verified);
+                    }
+                    catch(Ice.LocalException)
+                    {
+                        test(false);
+                    }
+                    fact.destroyServer(server);
+
+                    //
+                    // Setting the CA for the server shouldn't change anything, it
+                    // shouldn't modify the cert chain sent to the client.
+                    //
+                    d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                    d["IceSSL.VerifyPeer"] = "0";
+                    server = fact.createServer(d);
+                    try
+                    {
+                        info = (IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
+                        test(info.nativeCerts.Length == 1);
+                        test(!info.verified);
+                    }
+                    catch(Ice.LocalException)
+                    {
+                        test(false);
+                    }
+                    fact.destroyServer(server);
+
+                    //
+                    // The client can't verify the server certificate but should
+                    // still provide it. "s_rsa_wroot_ca1" includes the root so
+                    // the cert size should be 2.
+                    //
+                    d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_wroot_ca1", "");
                     d["IceSSL.VerifyPeer"] = "0";;
                     server = fact.createServer(d);
                     try
                     {
                         info = (IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
-                        test(info.nativeCerts.Length == 2);
-                        test(info.verified);
+                        test(info.nativeCerts.Length == 1); // Like the SChannel transport, .NET never sends the root.
                     }
                     catch(Ice.LocalException)
                     {
                         test(false);
                     }
                     fact.destroyServer(server);
+                    comm.destroy();
+
+                    //
+                    // Now the client verifies the server certificate
+                    //
+                    initData = createClientProps(defaultProperties, defaultDir, defaultHost, "", "cacert1");
+                    initData.properties.setProperty("IceSSL.VerifyPeer", "1");
+                    comm = Ice.Util.initialize(initData);
+
+                    fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                    test(fact != null);
+
+                    {
+                        d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "");
+                        d["IceSSL.VerifyPeer"] = "0";;
+                        server = fact.createServer(d);
+                        try
+                        {
+                            info = (IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
+                            test(info.nativeCerts.Length == 2);
+                            test(info.verified);
+                        }
+                        catch(Ice.LocalException)
+                        {
+                            test(false);
+                        }
+                        fact.destroyServer(server);
+                    }
+
+                    //
+                    // Try certificate with one intermediate and VerifyDepthMax=2
+                    //
+                    initData = createClientProps(defaultProperties, defaultDir, defaultHost, "", "cacert1");
+                    initData.properties.setProperty("IceSSL.VerifyPeer", "1");
+                    initData.properties.setProperty("IceSSL.VerifyDepthMax", "2");
+                    comm = Ice.Util.initialize(initData);
+
+                    fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                    test(fact != null);
+
+                    {
+                        d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_cai1", "");
+                        d["IceSSL.VerifyPeer"] = "0";;
+                        server = fact.createServer(d);
+                        try
+                        {
+                            server.ice_getConnection().getInfo();
+                            test(false);
+                        }
+                        catch(Ice.SecurityException)
+                        {
+                            // Chain length too long
+                        }
+                        catch(Ice.LocalException)
+                        {
+                            test(false);
+                        }
+                        fact.destroyServer(server);
+                    }
+                    comm.destroy();
+
+                    //
+                    // Set VerifyDepthMax to 3 (the default)
+                    //
+                    initData = createClientProps(defaultProperties, defaultDir, defaultHost, "", "cacert1");
+                    initData.properties.setProperty("IceSSL.VerifyPeer", "1");
+                    //initData.properties.setProperty("IceSSL.VerifyDepthMax", "3");
+                    comm = Ice.Util.initialize(initData);
+
+                    fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                    test(fact != null);
+
+                    {
+                        d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_cai1", "");
+                        d["IceSSL.VerifyPeer"] = "0";;
+                        server = fact.createServer(d);
+                        try
+                        {
+                            info = (IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
+                            test(info.nativeCerts.Length == 3);
+                            test(info.verified);
+                        }
+                        catch(Ice.LocalException)
+                        {
+                            test(false);
+                        }
+                        fact.destroyServer(server);
+                    }
+
+                    {
+                        d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_cai2", "");
+                        d["IceSSL.VerifyPeer"] = "0";;
+                        server = fact.createServer(d);
+                        try
+                        {
+                            server.ice_getConnection().getInfo();
+                            test(false);
+                        }
+                        catch(Ice.SecurityException)
+                        {
+                            // Chain length too long
+                        }
+                        fact.destroyServer(server);
+                    }
+                    comm.destroy();
+
+                    //
+                    // Increase VerifyDepthMax to 4
+                    //
+                    initData = createClientProps(defaultProperties, defaultDir, defaultHost, "", "cacert1");
+                    initData.properties.setProperty("IceSSL.VerifyPeer", "1");
+                    initData.properties.setProperty("IceSSL.VerifyDepthMax", "4");
+                    comm = Ice.Util.initialize(initData);
+
+                    fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                    test(fact != null);
+
+                    {
+                        d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_cai2", "");
+                        d["IceSSL.VerifyPeer"] = "0";;
+                        server = fact.createServer(d);
+                        try
+                        {
+                            info = (IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
+                            test(info.nativeCerts.Length == 4);
+                            test(info.verified);
+                        }
+                        catch(Ice.LocalException)
+                        {
+                            test(false);
+                        }
+                        fact.destroyServer(server);
+                    }
+
+                    comm.destroy();
+
+                    //
+                    // Increase VerifyDepthMax to 4
+                    //
+                    initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_cai2", "cacert1");
+                    initData.properties.setProperty("IceSSL.VerifyPeer", "1");
+                    initData.properties.setProperty("IceSSL.VerifyDepthMax", "4");
+                    comm = Ice.Util.initialize(initData);
+
+                    fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                    test(fact != null);
+
+                    {
+                        d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_cai2", "cacert1");
+                        d["IceSSL.VerifyPeer"] = "2";
+                        server = fact.createServer(d);
+                        try
+                        {
+                            server.ice_getConnection();
+                            test(false);
+                        }
+                        catch(Ice.ProtocolException)
+                        {
+                            // Expected
+                        }
+                        catch(Ice.ConnectionLostException)
+                        {
+                            // Expected
+                        }
+                        catch(Ice.LocalException)
+                        {
+                            test(false);
+                        }
+                        fact.destroyServer(server);
+                    }
+
+                    {
+                        d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_cai2", "cacert1");
+                        d["IceSSL.VerifyPeer"] = "2";
+                        d["IceSSL.VerifyDepthMax"] = "4";
+                        server = fact.createServer(d);
+                        try
+                        {
+                            server.ice_getConnection();
+                        }
+                        catch(Ice.LocalException)
+                        {
+                            test(false);
+                        }
+                        fact.destroyServer(server);
+                    }
+
+                    comm.destroy();
                 }
-
-                //
-                // Try certificate with one intermediate and VerifyDepthMax=2
-                //
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "", "cacert1");
-                initData.properties.setProperty("IceSSL.VerifyPeer", "1");
-                initData.properties.setProperty("IceSSL.VerifyDepthMax", "2");
-                comm = Ice.Util.initialize(initData);
-
-                fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                test(fact != null);
-
+                finally
                 {
-                    d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_cai1", "");
-                    d["IceSSL.VerifyPeer"] = "0";;
-                    server = fact.createServer(d);
-                    try
+                    foreach(X509Certificate2 cert in certs)
                     {
-                        server.ice_getConnection().getInfo();
-                        test(false);
+                        certStore.Remove(cert);
                     }
-                    catch(Ice.SecurityException)
-                    {
-                        // Chain length too long
-                    }
-                    catch(Ice.LocalException)
-                    {
-                        test(false);
-                    }
-                    fact.destroyServer(server);
                 }
-                comm.destroy();
-
-                //
-                // Set VerifyDepthMax to 3 (the default)
-                //
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "", "cacert1");
-                initData.properties.setProperty("IceSSL.VerifyPeer", "1");
-                //initData.properties.setProperty("IceSSL.VerifyDepthMax", "3");
-                comm = Ice.Util.initialize(initData);
-
-                fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                test(fact != null);
-
-                {
-                    d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_cai1", "");
-                    d["IceSSL.VerifyPeer"] = "0";;
-                    server = fact.createServer(d);
-                    try
-                    {
-                        info = (IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
-                        test(info.nativeCerts.Length == 3);
-                        test(info.verified);
-                    }
-                    catch(Ice.LocalException)
-                    {
-                        test(false);
-                    }
-                    fact.destroyServer(server);
-                }
-
-                {
-                    d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_cai2", "");
-                    d["IceSSL.VerifyPeer"] = "0";;
-                    server = fact.createServer(d);
-                    try
-                    {
-                        server.ice_getConnection().getInfo();
-                        test(false);
-                    }
-                    catch(Ice.SecurityException)
-                    {
-                        // Chain length too long
-                    }
-                    fact.destroyServer(server);
-                }
-                comm.destroy();
-
-                //
-                // Increase VerifyDepthMax to 4
-                //
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "", "cacert1");
-                initData.properties.setProperty("IceSSL.VerifyPeer", "1");
-                initData.properties.setProperty("IceSSL.VerifyDepthMax", "4");
-                comm = Ice.Util.initialize(initData);
-
-                fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                test(fact != null);
-
-                {
-                    d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_cai2", "");
-                    d["IceSSL.VerifyPeer"] = "0";;
-                    server = fact.createServer(d);
-                    try
-                    {
-                        info = (IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
-                        test(info.nativeCerts.Length == 4);
-                        test(info.verified);
-                    }
-                    catch(Ice.LocalException)
-                    {
-                        test(false);
-                    }
-                    fact.destroyServer(server);
-                }
-
-                comm.destroy();
-
-                //
-                // Increase VerifyDepthMax to 4
-                //
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_cai2", "cacert1");
-                initData.properties.setProperty("IceSSL.VerifyPeer", "1");
-                initData.properties.setProperty("IceSSL.VerifyDepthMax", "4");
-                comm = Ice.Util.initialize(initData);
-
-                fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                test(fact != null);
-
-                {
-                    d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_cai2", "cacert1");
-                    d["IceSSL.VerifyPeer"] = "2";
-                    server = fact.createServer(d);
-                    try
-                    {
-                        server.ice_getConnection();
-                        test(false);
-                    }
-                    catch(Ice.ProtocolException)
-                    {
-                        // Expected
-                    }
-                    catch(Ice.ConnectionLostException)
-                    {
-                        // Expected
-                    }
-                    catch(Ice.LocalException)
-                    {
-                        test(false);
-                    }
-                    fact.destroyServer(server);
-                }
-
-                {
-                    d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_cai2", "cacert1");
-                    d["IceSSL.VerifyPeer"] = "2";
-                    d["IceSSL.VerifyDepthMax"] = "4";
-                    server = fact.createServer(d);
-                    try
-                    {
-                        server.ice_getConnection();
-                    }
-                    catch(Ice.LocalException)
-                    {
-                        test(false);
-                    }
-                    fact.destroyServer(server);
-                }
-
-                comm.destroy();
             }
             Console.Out.WriteLine("ok");
 
@@ -1210,6 +1228,55 @@ public class AllTests
                 }
                 Console.Out.WriteLine("ok");
             }
+
+            Console.Out.Write("testing multiple CA certificates... ");
+            Console.Out.Flush();
+            {
+                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacerts");
+                Ice.Communicator comm = Ice.Util.initialize(initData);
+                Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                test(fact != null);
+                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca2", "cacerts");
+                d["IceSSL.VerifyPeer"] = "2";
+                Test.ServerPrx server = fact.createServer(d);
+                try
+                {
+                    server.ice_ping();
+                }
+                catch(Ice.LocalException)
+                {
+                    test(false);
+                }
+                fact.destroyServer(server);
+                comm.destroy();
+            }
+            Console.Out.WriteLine("ok");
+
+            Console.Out.Write("testing DER CA certificate... ");
+            Console.Out.Flush();
+            {
+                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "");
+                initData.properties.setProperty("IceSSL.CAs", "cacert1.der");
+                Ice.Communicator comm = Ice.Util.initialize(initData);
+                Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                test(fact != null);
+                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "");
+                d["IceSSL.VerifyPeer"] = "2";
+                d["IceSSL.CAs"] = "cacert1.der";
+                Test.ServerPrx server = fact.createServer(d);
+                try
+                {
+                    server.ice_ping();
+                }
+                catch(Ice.LocalException)
+                {
+                    test(false);
+                }
+                fact.destroyServer(server);
+                comm.destroy();
+            }
+            Console.Out.WriteLine("ok");
+
             Console.Out.Write("testing passwords... ");
             Console.Out.Flush();
             {
@@ -2163,6 +2230,48 @@ public class AllTests
                         test(false);
                     }
                 }
+            }
+            Console.Out.WriteLine("ok");
+
+            Console.Out.Write("testing system CAs... ");
+            Console.Out.Flush();
+            {
+                initData = createClientProps(defaultProperties, defaultDir, defaultHost);
+                initData.properties.setProperty("IceSSL.VerifyDepthMax", "4");
+                initData.properties.setProperty("Ice.Override.Timeout", "5000"); // 5s timeout
+                Ice.Communicator comm = Ice.Util.initialize(initData);
+                Ice.ObjectPrx p = comm.stringToProxy("dummy:wss -h demo.zeroc.com -p 5064");
+                try
+                {
+                    p.ice_ping();
+                    test(false);
+                }
+                catch(Ice.SecurityException)
+                {
+                    // Expected, by default we don't check for system CAs.
+                }
+                catch(Ice.LocalException)
+                {
+                    test(false);
+                }
+
+                initData = createClientProps(defaultProperties, defaultDir, defaultHost);
+                initData.properties.setProperty("IceSSL.VerifyDepthMax", "4");
+                initData.properties.setProperty("Ice.Override.Timeout", "5000"); // 5s timeout
+                initData.properties.setProperty("IceSSL.UsePlatformCAs", "1");
+                comm = Ice.Util.initialize(initData);
+                p = comm.stringToProxy("dummy:wss -h demo.zeroc.com -p 5064");
+                IceSSL.WSSConnectionInfo info;
+                try
+                {
+                    info = (IceSSL.WSSConnectionInfo)p.ice_getConnection().getInfo();
+                    test(info.verified);
+                }
+                catch(Ice.LocalException)
+                {
+                    test(false);
+                }
+                comm.destroy();
             }
             Console.Out.WriteLine("ok");
         }

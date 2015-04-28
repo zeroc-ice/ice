@@ -395,8 +395,22 @@ OpenSSLEngine::initialize()
             // Establish the location of CA certificates.
             //
             {
-                string caFile = properties->getProperty(propPrefix + "CertAuthFile");
-                string caDir = properties->getPropertyWithDefault(propPrefix + "CertAuthDir", defaultDir);
+                string caFile = properties->getProperty(propPrefix + "CAs");
+                string caDir;
+                if(!caFile.empty())
+                {
+                    if(!checkPath(caFile, defaultDir, false) && checkPath(caFile, defaultDir, true))
+                    {
+                        caDir = caFile;
+                        caFile = "";
+                    }
+                }
+                else
+                {
+                    // Deprecated properties
+                    caFile = properties->getProperty(propPrefix + "CertAuthFile");
+                    caDir = properties->getProperty(propPrefix + "CertAuthDir");
+                }
                 const char* file = 0;
                 const char* dir = 0;
                 if(!caFile.empty())
@@ -451,6 +465,10 @@ OpenSSLEngine::initialize()
                         }
                         throw PluginInitializationException(__FILE__, __LINE__, msg);
                     }
+                }
+                else if(properties->getPropertyAsInt("IceSSL.UsePlatformCAs") > 0)
+                {
+                    SSL_CTX_set_default_verify_paths(_ctx);
                 }
             }
 

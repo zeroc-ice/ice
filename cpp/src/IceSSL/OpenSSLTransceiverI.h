@@ -19,6 +19,7 @@
 #include <Ice/Transceiver.h>
 #include <Ice/Network.h>
 #include <Ice/StreamSocket.h>
+#include <Ice/WSTransceiver.h>
 
 #ifdef ICE_USE_OPENSSL
 
@@ -31,7 +32,7 @@ namespace IceSSL
 class ConnectorI;
 class AcceptorI;
 
-class TransceiverI : public IceInternal::Transceiver
+class TransceiverI : public IceInternal::Transceiver, public IceInternal::WSTransceiverDelegate
 {
 public:
 
@@ -46,6 +47,7 @@ public:
     virtual std::string toString() const;
     virtual std::string toDetailedString() const;
     virtual Ice::ConnectionInfoPtr getInfo() const;
+    virtual Ice::ConnectionInfoPtr getWSInfo(const Ice::HeaderDict&) const;
     virtual void checkSendSize(const IceInternal::Buffer&);
     virtual void setBufferSize(int rcvSize, int sndSize);
 
@@ -56,8 +58,7 @@ private:
     TransceiverI(const InstancePtr&, const IceInternal::StreamSocketPtr&, const std::string&, bool);
     virtual ~TransceiverI();
 
-    virtual NativeConnectionInfoPtr getNativeConnectionInfo() const;
-    NativeConnectionInfoPtr initNativeConnectionInfo(X509_STORE_CTX*) const;
+    void fillConnectionInfo(const ConnectionInfoPtr&, std::vector<CertificatePtr>&) const;
 
     friend class ConnectorI;
     friend class AcceptorI;
@@ -68,7 +69,8 @@ private:
     const std::string _adapterName;
     const bool _incoming;
     const IceInternal::StreamSocketPtr _stream;
-    NativeConnectionInfoPtr _info;
+    bool _verified;
+    std::vector<CertificatePtr> _nativeCerts;
 
     SSL* _ssl;
 };

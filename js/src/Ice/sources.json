@@ -20,7 +20,8 @@
         "Ice/Router.ice",
         "Ice/SliceChecksumDict.ice",
         "Ice/Version.ice",
-        "IceSSL/EndpointInfo.ice"],
+        "IceSSL/EndpointInfo.ice",
+        "IceSSL/ConnectionInfo.ice"],
 
     "common": [
         "ACM.js",

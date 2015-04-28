@@ -22,8 +22,7 @@ module Ice
 
 /**
  *
- * Base class providing access to the connection details.
- *
+ * Base class providing access to the connection details. *
  **/
 local class ConnectionInfo
 {
@@ -343,7 +342,7 @@ dictionary<string, string> HeaderDict;
  * Provides access to the connection details of a WebSocket connection
  *
  **/
-local class WSConnectionInfo extends IPConnectionInfo
+local class WSConnectionInfo extends TCPConnectionInfo
 {
     /** The headers from the HTTP upgrade request. */
     HeaderDict headers;

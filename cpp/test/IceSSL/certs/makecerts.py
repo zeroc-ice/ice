@@ -74,6 +74,12 @@ dsaca = IceCertUtils.OpenSSLCertificateFactory(home=ca1.home, keyalg="dsa", keys
 #
 if force or not os.path.exists("cacert1.pem"): ca1.getCA().save("cacert1.pem")
 if force or not os.path.exists("cacert2.pem"): ca2.getCA().save("cacert2.pem")
+if force or not os.path.exists("cacert1.der"): ca1.getCA().save("cacert1.der")
+if force or not os.path.exists("cacerts.pem"):
+    pem = ""
+    with open("cacert1.pem", "r") as f: pem += f.read()
+    with open("cacert2.pem", "r") as f: pem += f.read()
+    with open("cacerts.pem", "w") as f: f.write(pem);
 
 # Also export the ca2 self-signed certificate, it's used by the tests to test self-signed certificates
 if force or not os.path.exists("cacert2_pub.pem"): ca2.getCA().save("cacert2_pub.pem")

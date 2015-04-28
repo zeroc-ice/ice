@@ -160,6 +160,38 @@ inline bool operator<(const EndpointI& l, const EndpointI& r)
     return static_cast<const ::Ice::LocalObject&>(l) < static_cast<const ::Ice::LocalObject&>(r);
 }
 
+template<typename T> class InfoI : public T
+{
+public:
+
+    InfoI(const EndpointIPtr& endpoint) : _endpoint(endpoint)
+    {
+    }
+
+    virtual Ice::Short
+    type() const
+    {
+        return _endpoint->type();
+    }
+
+    virtual bool
+    datagram() const
+    {
+        return _endpoint->datagram();
+    }
+
+    virtual bool
+    secure() const
+    {
+        return _endpoint->secure();
+    }
+
+private:
+
+    const EndpointIPtr _endpoint;
+};
+
+
 }
 
 #endif

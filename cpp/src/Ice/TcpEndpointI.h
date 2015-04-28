@@ -14,11 +14,12 @@
 #include <Ice/IPEndpointI.h>
 #include <Ice/EndpointFactory.h>
 #include <Ice/Network.h> // for IceIternal::Address
+#include <Ice/WSEndpoint.h>
 
 namespace IceInternal
 {
 
-class TcpEndpointI : public IPEndpointI
+class TcpEndpointI : public IPEndpointI, public WSEndpointDelegate
 {
 public:
 
@@ -28,6 +29,7 @@ public:
     TcpEndpointI(const ProtocolInstancePtr&, BasicStream*);
 
     virtual Ice::EndpointInfoPtr getInfo() const;
+    virtual Ice::EndpointInfoPtr getWSInfo(const std::string&) const;
 
     virtual Ice::Int timeout() const;
     virtual EndpointIPtr timeout(Ice::Int) const;

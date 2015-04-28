@@ -507,20 +507,70 @@ class SSLEngine
                         }
                     }
                 }
-                else
-                {
-                    ts = keys;
-                }
 
                 //
-                // Collect the trust managers.
+                // Collect the trust managers. Use IceSSL.Truststore if
+                // specified, otherwise use the Java root CAs if
+                // Ice.Use.PlatformCAs is enabled. If none of these are enabled,
+                // use the keystore or a dummy trust manager which rejects any
+                // certificate.
                 //
                 javax.net.ssl.TrustManager[] trustManagers = null;
                 {
                     String algorithm = javax.net.ssl.TrustManagerFactory.getDefaultAlgorithm();
                     javax.net.ssl.TrustManagerFactory tmf = javax.net.ssl.TrustManagerFactory.getInstance(algorithm);
-                    tmf.init(ts);
-                    trustManagers = tmf.getTrustManagers();
+                    java.security.KeyStore trustStore = null;
+                    if(ts != null)
+                    {
+                        trustStore = ts;
+                    }
+                    else if(properties.getPropertyAsInt("IceSSL.UsePlatformCAs") <= 0)
+                    {
+                        if(keys != null)
+                        {
+                            trustStore = keys;
+                        }
+                        else
+                        {
+                            trustManagers = new javax.net.ssl.TrustManager[]
+                            {
+                                new javax.net.ssl.X509TrustManager()
+                                {
+                                    @Override
+                                    public void
+                                    checkClientTrusted(X509Certificate[] chain, String authType)
+                                        throws CertificateException
+                                    {
+                                        throw new CertificateException("no trust anchors");
+                                    }
+
+                                    @Override
+                                    public void
+                                    checkServerTrusted(X509Certificate[] chain, String authType)
+                                        throws CertificateException
+                                    {
+                                        throw new CertificateException("no trust anchors");
+                                    }
+
+                                    @Override
+                                    public X509Certificate[]
+                                    getAcceptedIssuers()
+                                    {
+                                        return new X509Certificate[0];
+                                    }
+                                }
+                            };
+                        }
+                    }
+                    else
+                    {
+                        trustStore = null;
+                    }
+                    if(trustManagers == null)
+                    {
+                        tmf.init(trustStore);
+                        trustManagers = tmf.getTrustManagers();
+                    }
                     assert(trustManagers != null);
                 }
 
@@ -537,11 +587,17 @@ class SSLEngine
                     X509Certificate[] certs = ((javax.net.ssl.X509TrustManager)tm).getAcceptedIssuers();
                     for(X509Certificate cert : certs)
                     {
-                        anchors.add(new TrustAnchor(cert, null));
+                        if(cert.getBasicConstraints() >= 0) // Only add CAs
+                        {
+                            anchors.add(new TrustAnchor(cert, null));
+                        }
                     }
                 }
-                _validatorParams = new PKIXParameters(anchors);
-                _validatorParams.setRevocationEnabled(false);
+                if(!anchors.isEmpty())
+                {
+                    _validatorParams = new PKIXParameters(anchors);
+                    _validatorParams.setRevocationEnabled(false);
+                }
 
                 //
                 // Wrap each trust manager.
@@ -575,6 +631,11 @@ class SSLEngine
 
     Certificate[] getVerifiedCertificateChain(Certificate[] chain)
     {
+        if(_validatorParams == null)
+        {
+            return null; // Couldn't validate the given certificate chain.
+        }
+
         List<Certificate> certs = new ArrayList<Certificate>(java.util.Arrays.asList(chain));
         try
         {

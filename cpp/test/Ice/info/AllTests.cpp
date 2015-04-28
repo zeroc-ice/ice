@@ -44,7 +44,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test((ipEndpoint->type() == Ice::TCPEndpointType && Ice::TCPEndpointInfoPtr::dynamicCast(ipEndpoint)) ||
              (ipEndpoint->type() == IceSSL::EndpointType && IceSSL::EndpointInfoPtr::dynamicCast(ipEndpoint)) ||
              (ipEndpoint->type() == Ice::WSEndpointType && Ice::WSEndpointInfoPtr::dynamicCast(ipEndpoint)) ||
-             (ipEndpoint->type() == Ice::WSSEndpointType && Ice::WSEndpointInfoPtr::dynamicCast(ipEndpoint)));
+             (ipEndpoint->type() == Ice::WSSEndpointType && IceSSL::WSSEndpointInfoPtr::dynamicCast(ipEndpoint)));
 
         Ice::UDPEndpointInfoPtr udpEndpoint = Ice::UDPEndpointInfoPtr::dynamicCast(endps[1]->getInfo());
         test(udpEndpoint);
@@ -184,13 +184,26 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         if(base->ice_getConnection()->type() == "ws" || base->ice_getConnection()->type() == "wss")
         {
-            Ice::WSConnectionInfoPtr wsinfo = Ice::WSConnectionInfoPtr::dynamicCast(info);
-            test(wsinfo);
+            Ice::HeaderDict headers;
 
-            test(wsinfo->headers["Upgrade"] == "websocket");
-            test(wsinfo->headers["Connection"] == "Upgrade");
-            test(wsinfo->headers["Sec-WebSocket-Protocol"] == "ice.zeroc.com");
-            test(wsinfo->headers.find("Sec-WebSocket-Accept") != wsinfo->headers.end());
+            Ice::WSConnectionInfoPtr wsinfo = Ice::WSConnectionInfoPtr::dynamicCast(info);
+            if(wsinfo)
+            {
+                headers = wsinfo->headers;
+            }
+
+            IceSSL::WSSConnectionInfoPtr wssinfo = IceSSL::WSSConnectionInfoPtr::dynamicCast(info);
+            if(wssinfo)
+            {
+                headers = wssinfo->headers;
+                test(wssinfo->verified);
+                test(!wssinfo->certs.empty());
+            }
+
+            test(headers["Upgrade"] == "websocket");
+            test(headers["Connection"] == "Upgrade");
+            test(headers["Sec-WebSocket-Protocol"] == "ice.zeroc.com");
+            test(headers.find("Sec-WebSocket-Accept") != headers.end());
 
             test(ctx["ws.Upgrade"] == "websocket");
             test(ctx["ws.Connection"] == "Upgrade");

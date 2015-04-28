@@ -53,7 +53,7 @@ public class AllTests
             test(ipEndpoint.type() == Ice.TCPEndpointType.value && ipEndpoint instanceof Ice.TCPEndpointInfo ||
                  ipEndpoint.type() == IceSSL.EndpointType.value && ipEndpoint instanceof IceSSL.EndpointInfo ||
                  ipEndpoint.type() == Ice.WSEndpointType.value && ipEndpoint instanceof Ice.WSEndpointInfo ||
-                 ipEndpoint.type() == Ice.WSSEndpointType.value && ipEndpoint instanceof Ice.WSEndpointInfo);
+                 ipEndpoint.type() == Ice.WSSEndpointType.value && ipEndpoint instanceof IceSSL.WSSEndpointInfo);
 
             Ice.UDPEndpointInfo udpEndpoint = (Ice.UDPEndpointInfo)endps[1].getInfo();
             test(udpEndpoint.host.equals("udphost"));
@@ -175,12 +175,19 @@ public class AllTests
 
             if(base.ice_getConnection().type().equals("ws") || base.ice_getConnection().type().equals("wss"))
             {
-                test(info instanceof Ice.WSConnectionInfo);
-                Ice.WSConnectionInfo wsinfo = (Ice.WSConnectionInfo)info;
-                test(wsinfo.headers.get("Upgrade").equals("websocket"));
-                test(wsinfo.headers.get("Connection").equals("Upgrade"));
-                test(wsinfo.headers.get("Sec-WebSocket-Protocol").equals("ice.zeroc.com"));
-                test(wsinfo.headers.get("Sec-WebSocket-Accept") != null);
+                java.util.Map<String, String> headers;
+                if(info instanceof Ice.WSConnectionInfo)
+                {
+                    headers = ((Ice.WSConnectionInfo)info).headers;
+                }
+                else
+                {
+                    headers = ((IceSSL.WSSConnectionInfo)info).headers;
+                }
+                test(headers.get("Upgrade").equals("websocket"));
+                test(headers.get("Connection").equals("Upgrade"));
+                test(headers.get("Sec-WebSocket-Protocol").equals("ice.zeroc.com"));
+                test(headers.get("Sec-WebSocket-Accept") != null);
 
                 test(ctx.get("ws.Upgrade").equals("websocket"));
                 test(ctx.get("ws.Connection").equals("Upgrade"));

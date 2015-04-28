@@ -258,7 +258,7 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
            << "remote address = " << desc << "\n" << errorToString(err);
         throw ProtocolException(__FILE__, __LINE__, os.str());
     }
-    _engine->verifyPeer(_stream->fd(), _host, getNativeConnectionInfo());
+    _engine->verifyPeer(_stream->fd(), _host, NativeConnectionInfoPtr::dynamicCast(getInfo()));
 
     if(_instance->engine()->securityTraceLevel() >= 1)
     {
@@ -485,7 +485,18 @@ IceSSL::TransceiverI::toDetailedString() const
 Ice::ConnectionInfoPtr
 IceSSL::TransceiverI::getInfo() const
 {
-    return getNativeConnectionInfo();
+    NativeConnectionInfoPtr info = new NativeConnectionInfo();
+    fillConnectionInfo(info, info->nativeCerts);
+    return info;
+}
+
+Ice::ConnectionInfoPtr
+IceSSL::TransceiverI::getWSInfo(const Ice::HeaderDict& headers) const
+{
+    WSSNativeConnectionInfoPtr info = new WSSNativeConnectionInfo();
+    fillConnectionInfo(info, info->nativeCerts);
+    info->headers = headers;
+    return info;
 }
 
 void
@@ -526,10 +537,9 @@ IceSSL::TransceiverI::~TransceiverI()
 {
 }
 
-NativeConnectionInfoPtr
-IceSSL::TransceiverI::getNativeConnectionInfo() const
+void
+IceSSL::TransceiverI::fillConnectionInfo(const ConnectionInfoPtr& info, std::vector<CertificatePtr>& nativeCerts) const
 {
-    NativeConnectionInfoPtr info = new NativeConnectionInfo();
     IceInternal::fdToAddressAndPort(_stream->fd(), info->localAddress, info->localPort, info->remoteAddress,
                                     info->remotePort);
     if(_stream->fd() != INVALID_SOCKET)
@@ -546,7 +556,7 @@ IceSSL::TransceiverI::getNativeConnectionInfo() const
             CFRetain(cert);
 
             CertificatePtr certificate = new Certificate(cert);
-            info->nativeCerts.push_back(certificate);
+            nativeCerts.push_back(certificate);
             info->certs.push_back(certificate->encode());
         }
 
@@ -562,7 +572,6 @@ IceSSL::TransceiverI::getNativeConnectionInfo() const
 
     info->adapterName = _adapterName;
     info->incoming = _incoming;
-    return info;
 }
 
 OSStatus

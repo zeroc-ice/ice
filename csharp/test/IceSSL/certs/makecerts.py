@@ -66,6 +66,12 @@ cai2 = cai1.getIntermediateFactory("intermediate1")
 
 if force or not os.path.exists("cacert1.pem"): ca1.getCA().save("cacert1.pem")
 if force or not os.path.exists("cacert2.pem"): ca2.getCA().save("cacert2.pem")
+if force or not os.path.exists("cacert1.der"): ca1.getCA().save("cacert1.der")
+if force or not os.path.exists("cacerts.pem"):
+    pem = ""
+    with open("cacert1.pem", "r") as f: pem += f.read()
+    with open("cacert2.pem", "r") as f: pem += f.read()
+    with open("cacerts.pem", "w") as f: f.write(pem);
 
 certs = [
     (ca1, "s_rsa_ca1", None, {}),
@@ -88,7 +94,7 @@ certs = [
 for (ca, alias, path, args) in certs:
     if not path: path = alias
     cert = ca.get(alias)
-    if force or not os.path.exists(path + ".p12"): 
+    if force or not os.path.exists(path + ".p12"):
         cert.save(path + ".p12", **args)
 
 # Also export the ca2 self-signed certificate, it's used by the tests to test self-signed certificates

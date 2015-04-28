@@ -53,39 +53,17 @@ IceSSL::EndpointI::EndpointI(const InstancePtr& instance, IceInternal::BasicStre
 Ice::EndpointInfoPtr
 IceSSL::EndpointI::getInfo() const
 {
-    class InfoI : public EndpointInfo
-    {
-    public:
-
-        InfoI(const IceInternal::EndpointIPtr& endpoint) : _endpoint(endpoint)
-        {
-        }
-
-        virtual Ice::Short
-        type() const
-        {
-            return _endpoint->type();
-        }
-
-        virtual bool
-        datagram() const
-        {
-            return _endpoint->datagram();
-        }
-
-        virtual bool
-        secure() const
-        {
-            return _endpoint->secure();
-        }
-
-    private:
-
-        const IceInternal::EndpointIPtr _endpoint;
-    };
-
-    IPEndpointInfoPtr info = new InfoI(const_cast<EndpointI*>(this));
+    EndpointInfoPtr info = new IceInternal::InfoI<EndpointInfo>(const_cast<EndpointI*>(this));
     fillEndpointInfo(info.get());
+    return info;
+}
+
+Ice::EndpointInfoPtr
+IceSSL::EndpointI::getWSInfo(const string& resource) const
+{
+    WSSEndpointInfoPtr info = new IceInternal::InfoI<WSSEndpointInfo>(const_cast<EndpointI*>(this));
+    fillEndpointInfo(info.get());
+    info->resource = resource;
     return info;
 }
 

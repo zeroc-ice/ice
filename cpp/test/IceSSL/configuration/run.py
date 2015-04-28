@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import os, sys, atexit
+import os, sys, atexit, re
 
 path = [ ".", "..", "../..", "../../..", "../../../.." ]
 head = os.path.dirname(sys.argv[0])
@@ -19,6 +19,10 @@ if len(path) == 0:
     raise RuntimeError("can't find toplevel directory!")
 sys.path.append(os.path.join(path[0], "scripts"))
 import TestUtil
+
+# Filter-out the deprecated property warnings
+TestUtil.clientTraceFilters = [ lambda x: re.sub("-! .* warning: deprecated property: IceSSL.KeyFile\n", "", x) ]
+TestUtil.serverTraceFilters = [ lambda x: re.sub("-! .* warning: deprecated property: IceSSL.KeyFile\n", "", x) ]
 
 certsPath = os.path.abspath(os.path.join(os.getcwd(), "..", "certs"))
 keychainPath = os.path.abspath(os.path.join(certsPath, "Find.keychain"))

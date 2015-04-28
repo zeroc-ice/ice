@@ -905,7 +905,11 @@ IceSSL::SecureTransportEngine::initialize()
     //
     try
     {
-        string caFile = properties->getProperty("IceSSL.CertAuthFile");
+        string caFile = properties->getProperty("IceSSL.CAs");
+        if(caFile.empty())
+        {
+            caFile = properties->getProperty("IceSSL.CertAuthFile");
+        }
         if(!caFile.empty())
         {
             if(!checkPath(caFile, defaultDir, false))
@@ -914,6 +918,11 @@ IceSSL::SecureTransportEngine::initialize()
                                                     "IceSSL: CA certificate file not found:\n" + caFile);
             }
             _certificateAuthorities = loadCACertificates(caFile);
+        }
+        else if(properties->getPropertyAsInt("IceSSL.UsePlatformCAs") <= 0)
+        {
+            // Setup an empty list of Root CAs to not use the system root CAs.
+            _certificateAuthorities = CFArrayCreate(0, 0, 0, 0);
         }
     }
     catch(const CertificateReadException& ce)

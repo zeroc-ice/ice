@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-final class TcpTransceiver implements Transceiver
+final class TcpTransceiver implements Transceiver, WSTransceiverDelegate
 {
     @Override
     public java.nio.channels.SelectableChannel fd()
@@ -79,22 +79,16 @@ final class TcpTransceiver implements Transceiver
     public Ice.ConnectionInfo getInfo()
     {
         Ice.TCPConnectionInfo info = new Ice.TCPConnectionInfo();
-        if(_stream.fd() != null)
-        {
-            java.net.Socket socket = _stream.fd().socket();
-            info.localAddress = socket.getLocalAddress().getHostAddress();
-            info.localPort = socket.getLocalPort();
-            if(socket.getInetAddress() != null)
-            {
-                info.remoteAddress = socket.getInetAddress().getHostAddress();
-                info.remotePort = socket.getPort();
-            }
-            if(!socket.isClosed())
-            {
-                info.rcvSize = Network.getRecvBufferSize(_stream.fd());
-                info.sndSize = Network.getSendBufferSize(_stream.fd());
-            }
-        }
+        fillConnectionInfo(info);
+        return info;
+    }
+
+    @Override
+    public Ice.ConnectionInfo getWSInfo(java.util.Map<String, String> headers)
+    {
+        Ice.WSConnectionInfo info = new Ice.WSConnectionInfo();
+        fillConnectionInfo(info);
+        info.headers = headers; // Provided header is a copy so no need to clone here.
         return info;
     }
 
@@ -113,6 +107,26 @@ final class TcpTransceiver implements Transceiver
     {
         _instance = instance;
         _stream = stream;
+    }
+
+    private void fillConnectionInfo(Ice.IPConnectionInfo info)
+    {
+        if(_stream.fd() != null)
+        {
+            java.net.Socket socket = _stream.fd().socket();
+            info.localAddress = socket.getLocalAddress().getHostAddress();
+            info.localPort = socket.getLocalPort();
+            if(socket.getInetAddress() != null)
+            {
+                info.remoteAddress = socket.getInetAddress().getHostAddress();
+                info.remotePort = socket.getPort();
+            }
+            if(!socket.isClosed())
+            {
+                info.rcvSize = Network.getRecvBufferSize(_stream.fd());
+                info.sndSize = Network.getSendBufferSize(_stream.fd());
+            }
+        }
     }
 
     final private ProtocolInstance _instance;

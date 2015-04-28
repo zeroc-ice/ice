@@ -25,7 +25,8 @@ global x86
 x86 = False                     # Binary distribution is 32-bit
 cpp11 = False                   # Binary distribution is c++11
 extraArgs = []
-
+clientTraceFilters = []
+serverTraceFilters = []
 
 # Default java loader
 
@@ -867,7 +868,7 @@ class InvalidSelectorString(Exception):
 sslConfigTree = {
         "cpp" : {
             "plugin" : " --Ice.Plugin.IceSSL=IceSSL:createIceSSL --IceSSL.Password=password " +
-            "--IceSSL.DefaultDir=%(certsdir)s --IceSSL.CertAuthFile=cacert.pem --IceSSL.VerifyPeer=%(verifyPeer)s",
+            "--IceSSL.DefaultDir=%(certsdir)s --IceSSL.CAs=cacert.pem --IceSSL.VerifyPeer=%(verifyPeer)s",
             "client" : " --IceSSL.CertFile=client.p12",
             "server" : " --IceSSL.CertFile=server.p12",
             "colloc" : " --IceSSL.CertFile=client.p12"
@@ -880,7 +881,7 @@ sslConfigTree = {
             "colloc" : " --IceSSL.Keystore=client.jks"
             },
         "csharp" : {
-            "plugin" : " --Ice.Plugin.IceSSL=%(icesslcs)s:IceSSL.PluginFactory --IceSSL.CertAuthFile=cacert.pem " +
+            "plugin" : " --Ice.Plugin.IceSSL=%(icesslcs)s:IceSSL.PluginFactory --IceSSL.CAs=cacert.pem " +
             "--IceSSL.Password=password --IceSSL.DefaultDir=%(certsdir)s --IceSSL.VerifyPeer=%(verifyPeer)s",
             "client" : " --IceSSL.CertFile=client.p12 --IceSSL.CheckCertName=0",
             "server" : " --IceSSL.CertFile=server.p12",
@@ -1261,7 +1262,7 @@ def spawn(cmd, cwd=None):
 def spawnClient(cmd, env=None, cwd=None, echo=True, startReader=True, lang=None):
     client = _spawn(cmd, env, cwd, startReader=startReader, lang=lang)
     if echo:
-        client.trace()
+        client.trace(clientTraceFilters)
     return client
 
 def spawnServer(cmd, env=None, cwd=None, count=1, adapter=None, echo=True, lang=None, mx=False, timeout=60):
@@ -1278,7 +1279,7 @@ def spawnServer(cmd, env=None, cwd=None, count=1, adapter=None, echo=True, lang=
             server.expect("[^\n]+ ready\n", timeout = timeout)
             count = count - 1
     if echo:
-        server.trace([re.compile("[^\n]+ ready")])
+        server.trace([re.compile("[^\n]+ ready")] + serverTraceFilters)
     return server
 
 import subprocess
@@ -1821,6 +1822,7 @@ def getTestEnv(lang, testdir):
         if iceHome:
             addClasspath(os.path.join(getIceDir("java", testdir), "lib", "db.jar"), env)
         elif thirdPartyHome:
+            suffix = ""
             if x64:
                 suffix = "x64"
             else:

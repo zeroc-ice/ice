@@ -478,16 +478,8 @@ final class WSTransceiver implements Transceiver
     @Override
     public Ice.ConnectionInfo getInfo()
     {
-        Ice.IPConnectionInfo di = (Ice.IPConnectionInfo)_delegate.getInfo();
-        Ice.WSConnectionInfo info = new Ice.WSConnectionInfo();
-        info.localAddress = di.localAddress;
-        info.localPort = di.localPort;
-        info.remoteAddress = di.remoteAddress;
-        info.remotePort = di.remotePort;
-        info.rcvSize = di.rcvSize;
-        info.sndSize = di.sndSize;
-        info.headers = _parser.getHeaders();
-        return info;
+        assert(_delegate instanceof WSTransceiverDelegate);
+        return ((WSTransceiverDelegate)_delegate).getWSInfo(_parser.getHeaders());
     }
 
     @Override

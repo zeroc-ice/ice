@@ -13,6 +13,7 @@
 #include <Ice/ProtocolInstanceF.h>
 #include <Ice/Transceiver.h>
 #include <Ice/Network.h>
+#include <Ice/WSTransceiver.h>
 
 namespace IceInternal
 {
@@ -20,7 +21,7 @@ namespace IceInternal
 class StreamConnector;
 class StreamAcceptor;
 
-class StreamTransceiver : public Transceiver, public NativeInfo
+class StreamTransceiver : public Transceiver, public NativeInfo, public WSTransceiverDelegate
 {
     enum State
     {
@@ -49,6 +50,7 @@ public:
     virtual std::string toString() const;
     virtual std::string toDetailedString() const;
     virtual Ice::ConnectionInfoPtr getInfo() const;
+    virtual Ice::ConnectionInfoPtr getWSInfo(const Ice::HeaderDict&) const;
     virtual void checkSendSize(const Buffer&);
     virtual void setBufferSize(int rcvSize, int sndSize);
 
@@ -58,8 +60,8 @@ private:
     virtual ~StreamTransceiver();
 
     void connect(const Address&);
-
     bool checkIfErrorOrCompleted(SocketOperation, Windows::Foundation::IAsyncInfo^, int = 0);
+    void fillConnectionInfo(const Ice::IPConnectionInfoPtr&) const;
 
     friend class StreamConnector;
     friend class StreamAcceptor;

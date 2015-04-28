@@ -84,5 +84,14 @@ TestI::getConnectionInfoAsContext(const Ice::Current& c)
         }
     }
 
+    IceSSL::WSSConnectionInfoPtr wssinfo = IceSSL::WSSConnectionInfoPtr::dynamicCast(info);
+    if(wssinfo)
+    {
+        for(Ice::HeaderDict::const_iterator p = wssinfo->headers.begin(); p != wssinfo->headers.end(); ++p)
+        {
+            ctx["ws." + p->first] = p->second;
+        }
+    }
+
     return ctx;
 }
