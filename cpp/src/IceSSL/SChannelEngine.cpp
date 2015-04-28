@@ -255,11 +255,12 @@ SChannelEngine::initialize()
         getLogger()->trace(securityTraceCategory(), os.str());
     }
 
-    string certStore = properties->getPropertyWithDefault(prefix + "CertStore", "CurrentUser");
-    if(certStore != "CurrentUser" && certStore != "LocalMachine")
+    string certStoreLocation = properties->getPropertyWithDefault(prefix + "CertStoreLocation", "CurrentUser");
+    if(certStoreLocation != "CurrentUser" && certStoreLocation != "LocalMachine")
     {
-        getLogger()->warning("Invalid IceSSL.CertStore value `" + certStore + "' adjusted to `CurrentUser'");
-        certStore = "CurrentUser";
+        getLogger()->warning("invalid IceSSL.CertStoreLocation value `" + certStoreLocation +
+                             "' adjusted to `CurrentUser'");
+        certStoreLocation = "CurrentUser";
     }
 
     //
@@ -276,7 +277,8 @@ SChannelEngine::initialize()
         if(!_rootStore)
         {
             throw PluginInitializationException(__FILE__, __LINE__,
-                    "IceSSL: error creating in memory certificate store:\n" + lastErrorToString());
+                                                "IceSSL: error creating in memory certificate store:\n" +
+                                                lastErrorToString());
         }
     }
     if(!caFile.empty())
@@ -310,7 +312,7 @@ SChannelEngine::initialize()
         // Build the chain using the LocalMachine registry location as opposed
         // to the CurrentUser location.
         //
-        if(certStore == "LocalMachine")
+        if(certStoreLocation == "LocalMachine")
         {
             config.dwFlags = CERT_CHAIN_USE_LOCAL_MACHINE_STORE;
         }
@@ -322,28 +324,18 @@ SChannelEngine::initialize()
 #endif
         {
             throw PluginInitializationException(__FILE__, __LINE__,
-                    "IceSSL: error creating certificate chain engine:\n" + lastErrorToString());
+                                                "IceSSL: error creating certificate chain engine:\n" +
+                                                lastErrorToString());
         }
     }
     else
     {
-        _chainEngine = (certStore == "LocalMachine") ? HCCE_LOCAL_MACHINE : HCCE_CURRENT_USER;
+        _chainEngine = (certStoreLocation == "LocalMachine") ? HCCE_LOCAL_MACHINE : HCCE_CURRENT_USER;
     }
-
-    //
-    // Import the application certificate and private keys.
-    //
-    string keySet = properties->getPropertyWithDefault(prefix + "KeySet", "DefaultKeySet");
-    if(keySet != "DefaultKeySet" && keySet != "UserKeySet" && keySet != "MachineKeySet")
-    {
-        getLogger()->warning("Invalid IceSSL.KeySet value `" + keySet + "' adjusted to `DefaultKeySet'");
-        keySet = "DefaultKeySet";
-    }
-
-    DWORD importFlags = (keySet == "MachineKeySet") ? CRYPT_MACHINE_KEYSET : CRYPT_USER_KEYSET;
 
     string certFile = properties->getProperty(prefix + "CertFile");
-    string keyFile = properties->getPropertyWithDefault(prefix + "KeyFile", certFile);
+    string keyFile = properties->getProperty(prefix + "KeyFile");
+    string findCert = properties->getProperty("IceSSL.FindCert");
 
     if(!certFile.empty())
     {
@@ -355,16 +347,19 @@ SChannelEngine::initialize()
         }
 
         vector<string> keyFiles;
-        if(!splitString(keyFile, IceUtilInternal::pathsep, keyFiles) || keyFiles.size() > 2)
+        if(!keyFile.empty())
         {
-            throw PluginInitializationException(__FILE__, __LINE__,
-                                                "IceSSL: invalid value for " + prefix + "KeyFile:\n" + keyFile);
-        }
+            if(!splitString(keyFile, IceUtilInternal::pathsep, keyFiles) || keyFiles.size() > 2)
+            {
+                throw PluginInitializationException(__FILE__, __LINE__,
+                                                    "IceSSL: invalid value for " + prefix + "KeyFile:\n" + keyFile);
+            }
 
-        if(certFiles.size() != keyFiles.size())
-        {
-            throw PluginInitializationException(__FILE__, __LINE__,
-                                        "IceSSL: " + prefix + "KeyFile does not agree with " + prefix + "CertFile");
+            if(certFiles.size() != keyFiles.size())
+            {
+                throw PluginInitializationException(__FILE__, __LINE__,
+                                            "IceSSL: " + prefix + "KeyFile does not agree with " + prefix + "CertFile");
+            }
         }
 
         for(size_t i = 0; i < certFiles.size(); ++i)
@@ -392,6 +387,7 @@ SChannelEngine::initialize()
             PCCERT_CONTEXT cert = 0;
             int err = 0;
             int count = 0;
+            DWORD importFlags = (certStoreLocation == "LocalMachine") ? CRYPT_MACHINE_KEYSET : CRYPT_USER_KEYSET;
             do
             {
                 string s = password(false);
@@ -433,20 +429,17 @@ SChannelEngine::initialize()
                 {
                     cert = CertFindCertificateInStore(store, X509_ASN_ENCODING, 0, CERT_FIND_ANY, 0, cert);
                 }
-
                 if(!cert)
                 {
                     throw PluginInitializationException(__FILE__, __LINE__,
                                                         "IceSSL: certificate error:\n" + lastErrorToString());
                 }
-
-                _certs.push_back(cert);
+                _allCerts.push_back(cert);
                 _stores.push_back(store);
                 continue;
             }
 
             assert(err);
-
             if(err != CRYPT_E_BAD_ENCODE)
             {
                 throw PluginInitializationException(__FILE__, __LINE__,
@@ -456,6 +449,11 @@ SChannelEngine::initialize()
             //
             // Try to load certificate & key as PEM files.
             //
+            if(keyFiles.empty())
+            {
+                throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: no key file specified");
+            }
+
             err = 0;
             keyFile = keyFiles[i];
             if(!checkPath(keyFile, defaultDir, false))
@@ -486,7 +484,6 @@ SChannelEngine::initialize()
             PCRYPT_PRIVATE_KEY_INFO keyInfo = 0;
             BYTE* key = 0;
             HCRYPTKEY hKey = 0;
-
             try
             {
                 //
@@ -538,8 +535,11 @@ SChannelEngine::initialize()
                 const wstring keySetName = stringToWstring(generateUUID());
                 HCRYPTPROV cryptProv = 0;
 
-                DWORD contextFlags = (keySet == "MachineKeySet") ? CRYPT_MACHINE_KEYSET | CRYPT_NEWKEYSET :
-                                                                   CRYPT_NEWKEYSET;
+                DWORD contextFlags = CRYPT_NEWKEYSET;
+                if(certStoreLocation == "LocalMachine")
+                {
+                    contextFlags |= CRYPT_MACHINE_KEYSET;
+                }                                                                   ;
 
                 if(!CryptAcquireContextW(&cryptProv, keySetName.c_str(), MS_ENHANCED_PROV_W, PROV_RSA_FULL,
                                          contextFlags))
@@ -583,14 +583,14 @@ SChannelEngine::initialize()
                 keyProvInfo.pwszProvName = const_cast<wchar_t*>(MS_DEF_PROV_W);
                 keyProvInfo.dwProvType = PROV_RSA_FULL;
                 keyProvInfo.dwKeySpec = AT_KEYEXCHANGE;
-
                 if(!CertSetCertificateContextProperty(cert, CERT_KEY_PROV_INFO_PROP_ID, 0, &keyProvInfo))
                 {
                     throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: error seting certificate "
                                                         "property:\n" + lastErrorToString());
                 }
 
-                _certs.push_back(cert);
+                _importedCerts.push_back(cert);
+                _allCerts.push_back(cert);
                 _stores.push_back(store);
             }
             catch(...)
@@ -622,31 +622,16 @@ SChannelEngine::initialize()
                 throw;
             }
         }
-
-        _allCerts.insert(_allCerts.end(), _certs.begin(), _certs.end());
     }
-
-    const string findPrefix = prefix + "FindCert.";
-    map<string, string> certProps = properties->getPropertiesForPrefix(findPrefix);
-    if(!certProps.empty())
+    else if(!findCert.empty())
     {
-        for(map<string, string>::const_iterator i = certProps.begin(); i != certProps.end(); ++i)
-        {
-            const string name = i->first;
-            const string val = i->second;
-
-            if(!val.empty())
-            {
-                string storeSpec = name.substr(findPrefix.size());
-                vector<PCCERT_CONTEXT> certs = findCertificates(name, storeSpec, val, _stores);
-                _allCerts.insert(_allCerts.end(), certs.begin(), certs.end());
-            }
-        }
-
-        if(_allCerts.empty())
+        string certStore = properties->getPropertyWithDefault(prefix + "CertStore", "My");
+        vector<PCCERT_CONTEXT> certs = findCertificates(certStoreLocation, certStore, findCert, _stores);
+        if(certs.empty())
         {
             throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: no certificates found");
         }
+        _allCerts.insert(_allCerts.end(), certs.begin(), certs.end());
     }
     _initialized = true;
 }
@@ -789,33 +774,30 @@ SChannelEngine::destroy()
         CertCloseStore(_rootStore, 0);
     }
 
+    for(vector<PCCERT_CONTEXT>::const_iterator i = _importedCerts.begin(); i != _importedCerts.end(); ++i)
+    {
+        //
+        // Retrieve the certificate CERT_KEY_PROV_INFO_PROP_ID property, we use the CRYPT_KEY_PROV_INFO
+        // data to remove the key set associated with the certificate.
+        //
+        DWORD length = 0;
+        if(!CertGetCertificateContextProperty(*i, CERT_KEY_PROV_INFO_PROP_ID, 0, &length))
+        {
+            continue;
+        }
+        vector<char> buf(length);
+        if(!CertGetCertificateContextProperty(*i, CERT_KEY_PROV_INFO_PROP_ID, &buf[0], &length))
+        {
+            continue;
+        }
+        CRYPT_KEY_PROV_INFO* key = reinterpret_cast<CRYPT_KEY_PROV_INFO*>(&buf[0]);
+        HCRYPTPROV prov = 0;
+        CryptAcquireContextW(&prov, key->pwszContainerName, key->pwszProvName, key->dwProvType, CRYPT_DELETEKEYSET);
+    }
+
     for(vector<PCCERT_CONTEXT>::const_iterator i = _allCerts.begin(); i != _allCerts.end(); ++i)
     {
-        PCCERT_CONTEXT cert = *i;
-
-        //
-        // Only remove the keysets we create.
-        //
-        if(find(_certs.begin(), _certs.end(), cert) != _certs.end())
-        {
-            //
-            // Retrieve the certificate CERT_KEY_PROV_INFO_PROP_ID property, we use the CRYPT_KEY_PROV_INFO
-            // data to then remove the key set associated with the certificate.
-            //
-            DWORD length = 0;
-            if(CertGetCertificateContextProperty(cert, CERT_KEY_PROV_INFO_PROP_ID, 0, &length))
-            {
-                vector<char> buf(length);
-                if(CertGetCertificateContextProperty(cert, CERT_KEY_PROV_INFO_PROP_ID, &buf[0], &length))
-                {
-                    CRYPT_KEY_PROV_INFO* keyProvInfo = reinterpret_cast<CRYPT_KEY_PROV_INFO*>(&buf[0]);
-                    HCRYPTPROV cryptProv = 0;
-                    CryptAcquireContextW(&cryptProv, keyProvInfo->pwszContainerName, keyProvInfo->pwszProvName,
-                                         keyProvInfo->dwProvType, CRYPT_DELETEKEYSET);
-                }
-                CertFreeCertificateContext(cert);
-            }
-        }
+        CertFreeCertificateContext(*i);
     }
 
     for(vector<HCERTSTORE>::const_iterator i = _stores.begin(); i != _stores.end(); ++i)

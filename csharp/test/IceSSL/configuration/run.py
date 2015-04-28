@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import os, sys, getopt
+import os, sys, getopt, re
 
 path = [ ".", "..", "../..", "../../..", "../../../.." ]
 head = os.path.dirname(sys.argv[0])
@@ -20,6 +20,9 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0], "scripts"))
 import TestUtil
 
+# Filter-out the deprecated property warnings
+TestUtil.clientTraceFilters = [ lambda x: re.sub("-! .* warning: deprecated property: IceSSL.FindCert.*\n", "", x) ]
+TestUtil.serverTraceFilters = [ lambda x: re.sub("-! .* warning: deprecated property: IceSSL.FindCert.*\n", "", x) ]
 #
 # The drive letter needs to be removed on Windows or loading the SSL
 # plug-in will not work.

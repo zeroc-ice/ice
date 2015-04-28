@@ -61,34 +61,57 @@ namespace IceSSL
             //
             _defaultDir = properties.getProperty(prefix + "DefaultDir");
 
-#if UNITY
-            _certStore = null;
-#else
-            string keySet = properties.getPropertyWithDefault(prefix + "KeySet", "DefaultKeySet");
-            if(!keySet.Equals("DefaultKeySet") && !keySet.Equals("UserKeySet") && !keySet.Equals("MachineKeySet"))
+            string certStoreLocation = properties.getPropertyWithDefault(prefix + "CertStoreLocation", "CurrentUser");
+            StoreLocation storeLocation;
+            if(certStoreLocation == "CurrentUser")
             {
-                _logger.warning("Invalid IceSSL.KeySet value `" + keySet + "' adjusted to `DefaultKeySet'");
-                keySet = "DefaultKeySet";
+                storeLocation = StoreLocation.CurrentUser;
             }
+            else if(certStoreLocation == "LocalMachine")
+            {
+                storeLocation = StoreLocation.LocalMachine;
+            }
+            else
+            {
+                _logger.warning("Invalid IceSSL.CertStore value `" + certStoreLocation + "' adjusted to `CurrentUser'");
+                storeLocation = StoreLocation.CurrentUser;
+            }
+            _useMachineContext = certStoreLocation == "LocalMachine";
 
-            _certStore = properties.getPropertyWithDefault(prefix + "CertStore", "CurrentUser");
-            if(_certStore != "CurrentUser" && _certStore != "LocalMachine")
-            {
-                _logger.warning("Invalid IceSSL.CertStore value `" + _certStore + "' adjusted to `CurrentUser'");
-                _certStore = "CurrentUser";
-            }
-
-            X509KeyStorageFlags keyStorageFlags = X509KeyStorageFlags.DefaultKeySet;
-            if(keySet.Equals("UserKeySet"))
-            {
-                keyStorageFlags = X509KeyStorageFlags.UserKeySet;
-            }
-            else if(keySet.Equals("MachineKeySet"))
+#if !UNITY
+            X509KeyStorageFlags keyStorageFlags;
+            if(_useMachineContext)
             {
                 keyStorageFlags = X509KeyStorageFlags.MachineKeySet;
             }
+            else
+            {
+                keyStorageFlags = X509KeyStorageFlags.UserKeySet;
+            }
 
-            if(properties.getPropertyAsIntWithDefault(prefix + "PersistKeySet", 0) > 0)
+            string keySet = properties.getProperty(prefix + "KeySet"); // Deprecated property
+            if(keySet.Length > 0)
+            {
+                if(keySet.Equals("DefaultKeySet"))
+                {
+                    keyStorageFlags = X509KeyStorageFlags.DefaultKeySet;
+                }
+                else if(keySet.Equals("UserKeySet"))
+                {
+                    keyStorageFlags = X509KeyStorageFlags.UserKeySet;
+                }
+                else if(keySet.Equals("MachineKeySet"))
+                {
+                    keyStorageFlags = X509KeyStorageFlags.MachineKeySet;
+                }
+                else
+                {
+                    _logger.warning("Invalid IceSSL.KeySet value `" + keySet + "' adjusted to `DefaultKeySet'");
+                    keyStorageFlags = X509KeyStorageFlags.DefaultKeySet;
+                }
+            }
+
+            if(properties.getPropertyAsIntWithDefault(prefix + "PersistKeySet", 0) > 0) // Deprecated property
             {
                 keyStorageFlags |= X509KeyStorageFlags.PersistKeySet;
             }
@@ -233,6 +256,9 @@ namespace IceSSL
                 _certs = new X509Certificate2Collection();
                 string certFile = properties.getProperty(prefix + "CertFile");
                 string passwordStr = properties.getProperty(prefix + "Password");
+                string findCert = properties.getProperty(prefix + "FindCert");
+                const string findPrefix = prefix + "FindCert.";
+                Dictionary<string, string> findCertProps = properties.getPropertiesForPrefix(findPrefix);
 
                 if(certFile.Length > 0)
                 {
@@ -256,13 +282,23 @@ namespace IceSSL
                     try
                     {
                         X509Certificate2 cert;
-                        if(password != null)
+                        X509KeyStorageFlags importFlags;
+                        if(_useMachineContext)
                         {
-                            cert = new X509Certificate2(certFile, password, keyStorageFlags);
+                            importFlags = X509KeyStorageFlags.MachineKeySet;
                         }
                         else
                         {
-                            cert = new X509Certificate2(certFile, "", keyStorageFlags);
+                            importFlags = X509KeyStorageFlags.UserKeySet;
+                        }
+
+                        if(password != null)
+                        {
+                            cert = new X509Certificate2(certFile, password, importFlags);
+                        }
+                        else
+                        {
+                            cert = new X509Certificate2(certFile, "", importFlags);
                         }
                         _certs.Add(cert);
                     }
@@ -273,24 +309,37 @@ namespace IceSSL
                         throw e;
                     }
                 }
-
-                //
-                // If IceSSL.FindCert.* properties are defined, add the selected certificates
-                // to the collection.
-                //
-                // TODO: tracing?
-                const string findPrefix = prefix + "FindCert.";
-                Dictionary<string, string> certProps = properties.getPropertiesForPrefix(findPrefix);
-                if(certProps.Count > 0)
+                else if(findCert.Length > 0)
                 {
-                    foreach(KeyValuePair<string, string> entry in certProps)
+                    string certStore = properties.getPropertyWithDefault("IceSSL.CertStore", "My");
+                    _certs.AddRange(findCertificates("IceSSL.FindCert", storeLocation, certStore, findCert));
+                    if(_certs.Count == 0)
+                    {
+                        throw new Ice.PluginInitializationException("IceSSL: no certificates found");
+                    }
+                }
+                else if(findCertProps.Count > 0)
+                {
+                    //
+                    // If IceSSL.FindCert.* properties are defined, add the selected certificates
+                    // to the collection.
+                    //
+                    foreach(KeyValuePair<string, string> entry in findCertProps)
                     {
                         string name = entry.Key;
                         string val = entry.Value;
                         if(val.Length > 0)
                         {
                             string storeSpec = name.Substring(findPrefix.Length);
-                            X509Certificate2Collection coll = findCertificates(name, storeSpec, val);
+                            StoreLocation storeLoc = 0;
+                            StoreName storeName = 0;
+                            string sname = null;
+                            parseStore(name, storeSpec, ref storeLoc, ref storeName, ref sname);
+                            if(sname == null)
+                            {
+                                sname = storeName.ToString();
+                            }
+                            X509Certificate2Collection coll = findCertificates(name, storeLoc, sname, val);
                             _certs.AddRange(coll);
                         }
                     }
@@ -388,9 +437,9 @@ namespace IceSSL
             _initialized = true;
         }
 
-        internal string certStore()
+        internal bool useMachineContext()
         {
-            return _certStore;
+            return _useMachineContext;
         }
 
         internal X509Certificate2Collection caCerts()
@@ -1072,26 +1121,22 @@ namespace IceSSL
         }
 
 #if !UNITY
-        private static X509Certificate2Collection findCertificates(string prop, string storeSpec, string value)
+        private static X509Certificate2Collection findCertificates(string prop, StoreLocation storeLocation,
+                                                                   string name, string value)
         {
-            StoreLocation storeLoc = 0;
-            StoreName storeName = 0;
-            string storeNameStr = null;
-            parseStore(prop, storeSpec, ref storeLoc, ref storeName, ref storeNameStr);
-
             //
             // Open the X509 certificate store.
             //
             X509Store store = null;
             try
             {
-                if(storeNameStr != null)
+                try
                 {
-                    store = new X509Store(storeNameStr, storeLoc);
+                    store = new X509Store((StoreName)Enum.Parse(typeof(StoreName), name, true), storeLocation);
                 }
-                else
+                catch(ArgumentException)
                 {
-                    store = new X509Store(storeName, storeLoc);
+                    store = new X509Store(name, storeLocation);
                 }
                 store.Open(OpenFlags.ReadOnly);
             }
@@ -1326,7 +1371,7 @@ namespace IceSSL
         private int _verifyDepthMax;
         private int _checkCRL;
         private X509Certificate2Collection _certs;
-        private string _certStore;
+        private bool _useMachineContext;
         private X509Certificate2Collection _caCerts;
         private CertificateVerifier _verifier;
         private PasswordCallback _passwordCallback;

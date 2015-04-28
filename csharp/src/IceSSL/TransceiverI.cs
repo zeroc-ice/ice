@@ -354,7 +354,7 @@ namespace IceSSL
 
             _verifyPeer = _instance.properties().getPropertyAsIntWithDefault("IceSSL.VerifyPeer", 2);
 
-            _chain = new X509Chain(_instance.engine().certStore() == "LocalMachine");
+            _chain = new X509Chain(_instance.engine().useMachineContext());
 
             if(_instance.checkCRL() == 0)
             {

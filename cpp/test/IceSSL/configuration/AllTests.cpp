@@ -2972,7 +2972,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             InitializationData initData;
             initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12);
             initData.properties->setProperty("IceSSL.CAs", "cacert1.pem");
-            initData.properties->setProperty("IceSSL.FindCert.CurrentUser.My", clientFindCertProperties[i]);
+            initData.properties->setProperty("IceSSL.CertStore", "My");
+            initData.properties->setProperty("IceSSL.CertStoreLocation", "CurrentUser");
+            initData.properties->setProperty("IceSSL.FindCert", clientFindCertProperties[i]);
             //
             // Use TrustOnly to ensure the peer has pick the expected certificate.
             //
@@ -2984,7 +2986,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             test(fact);
             Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
             d["IceSSL.CAs"] = "cacert1.pem";
-            d["IceSSL.FindCert.CurrentUser.My"] = serverFindCertProperties[i];
+            d["IceSSL.FindCert"] = serverFindCertProperties[i];
             //
             // Use TrustOnly to ensure the peer has pick the expected certificate.
             //
@@ -3013,10 +3015,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             InitializationData initData;
             initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12);
             initData.properties->setProperty("IceSSL.CAs", "cacert1.pem");
-            initData.properties->setProperty("IceSSL.FindCert.CurrentUser.My", failFindCertProperties[i]);
+            initData.properties->setProperty("IceSSL.FindCert", failFindCertProperties[i]);
             try
             {
                 CommunicatorPtr comm = initialize(initData);
+                cerr << failFindCertProperties[i] << endl;
                 import.cleanup();
                 test(false);
             }
@@ -3042,7 +3045,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             InitializationData initData;
             initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12);
             initData.properties->setProperty("IceSSL.CAs", "cacert1.pem");
-            initData.properties->setProperty("IceSSL.FindCert.CurrentUser.My", clientFindCertProperties[i]);
+            initData.properties->setProperty("IceSSL.FindCert", clientFindCertProperties[i]);
             try
             {
                 CommunicatorPtr comm = initialize(initData);

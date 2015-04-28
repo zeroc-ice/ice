@@ -19,6 +19,12 @@ These are the changes since Ice 3.5.1.
 
 ## General Changes
 
+- Deprecated the `IceSSL.PersisteKeySet` which is now only used when importing certificates with the deprecated `IceSSL.ImportCert` property.
+
+- Deprecated the `IceSSL.KeySet` property, use the `IceSSL.CertStoreLocation` property instead.
+
+- Added `IceSSL.CertStoreLocation` property. This is a Windows specific property to specify the location of the certificate store or key set for IceSSL operation. The LocalMachine and CurrentUser locations are supported.
+
 - Added `IceSSL::WSSConnectionInfo` local Slice class to provide information on a WSS connection. This class extends the `IceSSL::ConnectionInfo` class. The `IceSSL::WSSNativeConnectionInfo` was also added to provide the language mapping specific certificates associated with the SSL connection.
 
 - Added `IceSSL::WSSEndpointInfo` local Slice class to provide WSS endpoint information. This class extends the `IceSSL::EndpointInfo` class.

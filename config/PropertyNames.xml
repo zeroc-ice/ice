@@ -561,9 +561,10 @@ generated from the section label.
     <section name="IceSSL">
         <property name="Alias" />
         <property name="CAs"/>
-        <property name="CertAuthDir" deprecated="true"/>
-        <property name="CertAuthFile" deprecated="true"/>
+        <property name="CertAuthDir" deprecatedBy="IceSSL.CAs"/>
+        <property name="CertAuthFile" deprecatedBy="IceSSL.CAs"/>
         <property name="CertStore" />
+        <property name="CertStoreLocation" />
         <property name="CertFile" />
         <property name="CertVerifier" />
         <property name="CheckCertName" />
@@ -574,11 +575,11 @@ generated from the section label.
         <property name="DHParams" />
         <property name="EntropyDaemon" />
         <property name="FindCert" />
-        <property name="FindCert.[any]" deprecated="true"/>
+        <property name="FindCert.[any]" deprecatedBy="IceSSL.FindCert"/>
         <property name="ImportCert.[any]" deprecated="true"/>
         <property name="InitOpenSSL" />
         <property name="KeyFile" deprecated="true"/>
-        <property name="KeySet"/>
+        <property name="KeySet" deprecatedBy="IceSSL.CertStoreLocation" />
         <property name="Keychain"/>
         <property name="KeychainPassword"/>
         <property name="Keystore" />
@@ -587,7 +588,7 @@ generated from the section label.
         <property name="Password" />
         <property name="PasswordCallback" />
         <property name="PasswordRetryMax" />
-        <property name="PersistKeySet"/>
+        <property name="PersistKeySet" deprecated="true"/>
         <property name="Protocols" />
         <property name="ProtocolVersionMax" />
         <property name="ProtocolVersionMin" />

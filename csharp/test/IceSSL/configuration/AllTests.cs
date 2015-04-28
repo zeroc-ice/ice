@@ -2149,7 +2149,9 @@ public class AllTests
                     for(int i = 0; i < clientFindCertProperties.Length; ++i)
                     {
                         initData = createClientProps(defaultProperties, defaultDir, defaultHost, "", "cacert1");
-                        initData.properties.setProperty("IceSSL.FindCert.CurrentUser.My", clientFindCertProperties[i]);
+                        initData.properties.setProperty("IceSSL.CertStore", "My");
+                        initData.properties.setProperty("IceSSL.CertStoreLocation", "CurrentUser");
+                        initData.properties.setProperty("IceSSL.FindCert", clientFindCertProperties[i]);
                         //
                         // Use TrustOnly to ensure the peer has pick the expected certificate.
                         //
@@ -2158,6 +2160,7 @@ public class AllTests
 
                         Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                         d = createServerProps(defaultProperties, defaultDir, defaultHost, "", "cacert1");
+                        // Use deprecated property here to test it
                         d["IceSSL.FindCert.CurrentUser.My"] = serverFindCertProperties[i];
                         //
                         // Use TrustOnly to ensure the peer has pick the expected certificate.
@@ -2185,7 +2188,7 @@ public class AllTests
                         try
                         {
                             initData = createClientProps(defaultProperties, defaultDir, defaultHost);
-                            initData.properties.setProperty("IceSSL.FindCert.CurrentUser.My", s);
+                            initData.properties.setProperty("IceSSL.FindCert", s);
                             Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
                             test(false);
                         }

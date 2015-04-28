@@ -337,6 +337,9 @@ atexit.register(cleanup)
 def signal_handler(signal, frame):
     cleanup()
     sys.exit(0)
+
+if win32:
+    signal.signal(signal.SIGINT, signal_handler)
 signal.signal(signal.SIGTERM, signal_handler)
 
 class Expect (object):

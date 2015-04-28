@@ -208,12 +208,11 @@ private:
 
     bool _initialized;
     std::vector<PCCERT_CONTEXT> _allCerts;
-    std::vector<PCCERT_CONTEXT> _certs;
+    std::vector<PCCERT_CONTEXT> _importedCerts;
     DWORD _protocols;
     IceUtil::Mutex _mutex;
 
     std::vector<HCERTSTORE> _stores;
-
     HCERTSTORE _rootStore;
 
     HCERTCHAINENGINE _chainEngine;

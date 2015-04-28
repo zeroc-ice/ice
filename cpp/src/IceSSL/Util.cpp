@@ -940,40 +940,6 @@ IceSSL::findCertificate(SecKeychainRef keychain, const string& value)
 namespace
 {
 
-//
-// Parse a string of the form "location.name" into two parts.
-//
-void
-parseStore(const string& prop, const string& store, DWORD& loc, string& sname)
-{
-    size_t pos = store.find('.');
-    if(pos == string::npos)
-    {
-        throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: property `" + prop + "' has invalid format");
-    }
-
-    const string sloc = IceUtilInternal::toUpper(store.substr(0, pos));
-    if(sloc == "CURRENTUSER")
-    {
-        loc = CERT_SYSTEM_STORE_CURRENT_USER;
-    }
-    else if(sloc == "LOCALMACHINE")
-    {
-        loc = CERT_SYSTEM_STORE_LOCAL_MACHINE;
-    }
-    else
-    {
-        throw PluginInitializationException(__FILE__, __LINE__,
-                                            "IceSSL: unknown store location `" + sloc + "' in " + prop);
-    }
-
-    sname = store.substr(pos + 1);
-    if(sname.empty())
-    {
-        throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: invalid store name in " + prop);
-    }
-}
-
 void
 addMatchingCertificates(HCERTSTORE source, HCERTSTORE target, DWORD findType, const void* findParam)
 {
@@ -996,17 +962,23 @@ addMatchingCertificates(HCERTSTORE source, HCERTSTORE target, DWORD findType, co
 }
 
 vector<PCCERT_CONTEXT>
-IceSSL::findCertificates(const string& prop, const string& storeSpec, const string& value, vector<HCERTSTORE>& stores)
+IceSSL::findCertificates(const string& location, const string& name, const string& value, vector<HCERTSTORE>& stores)
 {
-    DWORD storeLoc = 0;
-    string storeName;
-    parseStore(prop, storeSpec, storeLoc, storeName);
+    DWORD storeLoc;
+    if(location == "CurrentUser")
+    {
+        storeLoc = CERT_SYSTEM_STORE_CURRENT_USER;
+    }
+    else
+    {
+        storeLoc = CERT_SYSTEM_STORE_LOCAL_MACHINE;
+    }
 
-    HCERTSTORE store = CertOpenStore(CERT_STORE_PROV_SYSTEM, 0, 0, storeLoc, stringToWstring(storeName).c_str());
+    HCERTSTORE store = CertOpenStore(CERT_STORE_PROV_SYSTEM, 0, 0, storeLoc, stringToWstring(name).c_str());
     if(!store)
     {
-        throw PluginInitializationException(__FILE__, __LINE__,
-            "IceSSL: failure while opening store specified by " + prop + ":\n" + IceUtilInternal::lastErrorToString());
+        throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: failed to open certificate store `" + name +
+                                            "':\n" + IceUtilInternal::lastErrorToString());
     }
 
     //
@@ -1123,7 +1095,7 @@ IceSSL::findCertificates(const string& prop, const string& storeSpec, const stri
                         {
                             throw PluginInitializationException(
                                 __FILE__, __LINE__,
-                                "IceSSL: invalid value `" + value + "' for property `" + prop + "'\n" +
+                                "IceSSL: invalid value `" + value + "' for `IceSSL.FindCert' property:\n" +
                                 IceUtilInternal::lastErrorToString());
                         }
 
@@ -1132,7 +1104,7 @@ IceSSL::findCertificates(const string& prop, const string& storeSpec, const stri
                         {
                             throw PluginInitializationException(
                                 __FILE__, __LINE__,
-                                "IceSSL: invalid value `" + value + "' for property `" + prop + "'\n" +
+                                "IceSSL: invalid value `" + value + "' for `IceSSL.FindCert' property:\n" +
                                 IceUtilInternal::lastErrorToString());
                         }
 
@@ -1148,7 +1120,7 @@ IceSSL::findCertificates(const string& prop, const string& storeSpec, const stri
                     if(!parseBytes(arg, buffer))
                     {
                         throw PluginInitializationException(__FILE__, __LINE__,
-                                                "IceSSL: invalid value `" + value + "' for property `" + prop + "'");
+                                                "IceSSL: invalid `IceSSL.FindCert' property: can't decode the value");
                     }
 
                     CRYPT_HASH_BLOB hash = { static_cast<DWORD>(buffer.size()), &buffer[0] };
@@ -1161,7 +1133,7 @@ IceSSL::findCertificates(const string& prop, const string& storeSpec, const stri
                     if(!parseBytes(arg, buffer))
                     {
                         throw PluginInitializationException(__FILE__, __LINE__,
-                                                "IceSSL: invalid value `" + value + "' for property `" + prop + "'");
+                                                "IceSSL: invalid value `" + value + "' for `IceSSL.FindCert' property");
                     }
 
                     CRYPT_INTEGER_BLOB serial = { static_cast<DWORD>(buffer.size()), &buffer[0] };
