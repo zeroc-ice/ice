@@ -76,7 +76,7 @@ usage(const char* n)
         "--depend-file FILE      Write dependencies to FILE instead of standard output.\n"
         "--list-generated        Emit list of generated files in XML format.\n"
         "-d, --debug             Print debug messages.\n"
-        "--ice                   Allowed reserved Ice prefix in Slice identifiers.\n"
+        "--ice                   Allow reserved Ice prefix in Slice identifiers.\n"
         "--underscore            Allow underscores in Slice identifiers.\n"
         "--checksum CLASS        Generate checksums for Slice definitions into CLASS.\n"
         "--stream                Generate marshaling support for public stream API.\n"
