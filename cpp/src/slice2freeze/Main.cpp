@@ -244,8 +244,8 @@ usage(const char* n)
         "--depend-xml          Generate dependencies in XML format.\n"
         "--depend-file FILE    Write dependencies to FILE instead of standard output.\n"
         "-d, --debug           Print debug messages.\n"
-        "--ice                 Permit `Ice' prefix (for building Ice source code only).\n"
-        "--underscore          Permit underscores in Slice identifiers.\n"
+        "--ice                 Allowed reserved Ice prefix in Slice identifiers.\n"
+        "--underscore          Allow underscores in Slice identifiers.\n"
         ;
 }
 
@@ -1389,7 +1389,7 @@ gen(const string& name, const UnitPtr& u, const vector<string>& includePaths, co
         H << "\n#include <" << changeInclude(*p, includePaths) << "." + headerExtension + ">";
     }
 
-    
+
     CPP << "\n#include <IceUtil/PushDisableWarnings.h>";
     CPP << "\n#include <Ice/BasicStream.h>";
     CPP << "\n#include <IceUtil/StringUtil.h>";
@@ -1925,21 +1925,21 @@ compile(int argc, char* argv[])
         else
         {
             PreprocessorPtr icecpp = Preprocessor::create(argv[0], args[idx], cppArgs);
-            
+
             //
             // Add an include file for each Slice file. Note that the .h extension
             // is replaced with headerExtension later.
             //
             includes.push_back(icecpp->getBaseName() + ".h");
-            
+
             FILE* cppHandle = icecpp->preprocess(false, "-D__SLICE2FREEZE__");
-            
+
             if(cppHandle == 0)
             {
                 u->destroy();
                 return EXIT_FAILURE;
             }
-            
+
             if(preprocess)
             {
                 char buf[4096];
@@ -1955,21 +1955,21 @@ compile(int argc, char* argv[])
             else
             {
                 status = u->parse(args[idx], cppHandle, debug);
-                
+
                 MetaDataVisitor visitor;
                 u->visit(&visitor, false);
             }
-            
+
             if(!icecpp->close())
             {
                 u->destroy();
                 return EXIT_FAILURE;
             }
         }
-            
+
         {
             IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(globalMutex);
-            
+
             if(interrupted)
             {
                 return EXIT_FAILURE;

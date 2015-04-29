@@ -54,18 +54,18 @@ splitCommas(string& str)
     size_t oldPos = 0;
     size_t commaPos = str.find(",");
     string token;
-    
+
     while (commaPos != string::npos)
     {
         token = str.substr(oldPos, commaPos-oldPos);
         strings.push_back(token);
-        
+
         oldPos = commaPos+1;
         commaPos = str.find(",", oldPos);
     }
     token = str.substr(oldPos);
     strings.push_back(token);
-    
+
     return strings;
 }
 
@@ -102,8 +102,8 @@ usage(const char* n)
         "--index NUM          Generate subindex if it has at least NUM entries (0 for no index, default=1).\n"
         "--summary NUM        Print a warning if a summary sentence exceeds NUM characters.\n"
         "-d, --debug          Print debug messages.\n"
-        "--ice                Permit `Ice' prefix (for building Ice source code only).\n"
-        "--ice                Permit underscores in Slice identifiers.\n"
+        "--ice                Allowed reserved Ice prefix in Slice identifiers.\n"
+        "--underscore         Allow underscores in Slice identifiers.\n"
         ;
 }
 
@@ -177,9 +177,9 @@ compile(int argc, char* argv[])
     }
 
     bool preprocess = opts.isSet("E");
-    
+
     string output = opts.optArg("output-dir");
-    
+
     string sortorderstring = opts.optArg("sort-order");
     vector<string> sort_order = splitCommas(sortorderstring);
 

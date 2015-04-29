@@ -57,7 +57,7 @@ void
 usage(const char* n)
 {
     getErrorStream() << "Usage: " << n << " [options] slice-files...\n";
-    getErrorStream() <<        
+    getErrorStream() <<
         "Options:\n"
         "-h, --help              Show this message.\n"
         "-v, --version           Display the Ice version.\n"
@@ -74,8 +74,8 @@ usage(const char* n)
         "--depend-xml            Generate dependencies in XML format.\n"
         "--depend-file FILE      Write dependencies to FILE instead of standard output.\n"
         "-d, --debug             Print debug messages.\n"
-        "--ice                   Permit `Ice' prefix (for building Ice source code only).\n"
-        "--underscore            Permit underscores in Slice identifiers.\n"
+        "--ice                   Allowed reserved Ice prefix in Slice identifiers.\n"
+        "--underscore            Allow underscores in Slice identifiers.\n"
         "--checksum              Generate checksums for Slice definitions.\n"
         "--stream                Generate marshaling support for public stream API.\n"
         ;
@@ -237,7 +237,7 @@ compile(int argc, char* argv[])
                 return EXIT_FAILURE;
             }
 
-            if(!icecpp->printMakefileDependencies(out.os(), depend ? Preprocessor::CSharp : Preprocessor::SliceXML, includePaths, 
+            if(!icecpp->printMakefileDependencies(out.os(), depend ? Preprocessor::CSharp : Preprocessor::SliceXML, includePaths,
                                                   "-D__SLICE2CS__"))
             {
                 out.cleanup();
@@ -272,7 +272,7 @@ compile(int argc, char* argv[])
                 if(!icecpp->close())
                 {
                     return EXIT_FAILURE;
-                }           
+                }
             }
             else
             {
@@ -283,8 +283,8 @@ compile(int argc, char* argv[])
                 {
                     p->destroy();
                     return EXIT_FAILURE;
-                }           
-                
+                }
+
                 if(parseStatus == EXIT_FAILURE)
                 {
                     status = EXIT_FAILURE;

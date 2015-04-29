@@ -56,7 +56,7 @@ void
 usage(const char* n)
 {
     cerr << "Usage: " << n << " [options] slice-files...\n";
-    cerr <<        
+    cerr <<
         "Options:\n"
         "-h, --help              Show this message.\n"
         "-v, --version           Display the Ice version.\n"
@@ -72,8 +72,8 @@ usage(const char* n)
         "--depend-xml            Generate dependencies in XML format.\n"
         "--depend-file FILE      Write dependencies to FILE instead of standard output.\n"
         "-d, --debug             Print debug messages.\n"
-        "--ice                   Permit `Ice' prefix (for building Ice source code only)\n"
-        "--underscore            Permit underscores in Slice identifiers.\n"
+        "--ice                   Allowed reserved Ice prefix in Slice identifiers.\n"
+        "--underscore            Allow underscores in Slice identifiers.\n"
         ;
     // Note: --case-sensitive is intentionally not shown here!
 }
@@ -198,7 +198,7 @@ main(int argc, char* argv[])
                 out.cleanup();
                 return EXIT_FAILURE;
             }
-            
+
             UnitPtr u = Unit::createUnit(false, false, ice, underscore);
             int parseStatus = u->parse(*i, cppHandle, debug);
             u->destroy();
@@ -209,7 +209,7 @@ main(int argc, char* argv[])
                 return EXIT_FAILURE;
             }
 
-            if(!icecpp->printMakefileDependencies(out.os(), depend ? Preprocessor::ObjC : Preprocessor::SliceXML, 
+            if(!icecpp->printMakefileDependencies(out.os(), depend ? Preprocessor::ObjC : Preprocessor::SliceXML,
                                                   includePaths, "-D__SLICE2OBJC__"))
             {
                 out.cleanup();
@@ -245,7 +245,7 @@ main(int argc, char* argv[])
                 if(!icecpp->close())
                 {
                     return EXIT_FAILURE;
-                }           
+                }
             }
             else
             {
@@ -256,8 +256,8 @@ main(int argc, char* argv[])
                 {
                     u->destroy();
                     return EXIT_FAILURE;
-                }           
-                
+                }
+
                 if(parseStatus == EXIT_FAILURE)
                 {
                     status = EXIT_FAILURE;

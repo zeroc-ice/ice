@@ -57,7 +57,7 @@ void
 usage(const char* n)
 {
     getErrorStream() << "Usage: " << n << " [options] slice-files...\n";
-    getErrorStream() <<     
+    getErrorStream() <<
         "Options:\n"
         "-h, --help               Show this message.\n"
         "-v, --version            Display the Ice version.\n"
@@ -77,8 +77,8 @@ usage(const char* n)
         "--depend-xml             Generate dependencies in XML format.\n"
         "--depend-file FILE       Write dependencies to FILE instead of standard output.\n"
         "-d, --debug              Print debug messages.\n"
-        "--ice                    Permit `Ice' prefix (for building Ice source code only).\n"
-        "--underscore             Permit underscores in Slice identifiers.\n"
+        "--ice                    Allowed reserved Ice prefix in Slice identifiers.\n"
+        "--underscore             Allow underscores in Slice identifiers.\n"
         "--checksum               Generate checksums for Slice definitions.\n"
         "--stream                 Generate marshaling support for public stream API.\n"
         ;
@@ -136,7 +136,7 @@ compile(int argc, char* argv[])
 
     string headerExtension = opts.optArg("header-ext");
     string sourceExtension = opts.optArg("source-ext");
-    
+
     vector<string> extraHeaders = opts.argVec("add-header");
 
     vector<string> cppArgs;
@@ -231,7 +231,7 @@ compile(int argc, char* argv[])
                 out.cleanup();
                 return EXIT_FAILURE;
             }
-            
+
             UnitPtr u = Unit::createUnit(false, false, ice, underscore);
             int parseStatus = u->parse(*i, cppHandle, debug);
             u->destroy();
@@ -284,7 +284,7 @@ compile(int argc, char* argv[])
             {
                 UnitPtr u = Unit::createUnit(false, false, ice, underscore);
                 int parseStatus = u->parse(*i, cppHandle, debug);
-            
+
                 if(!icecpp->close())
                 {
                     u->destroy();

@@ -73,8 +73,8 @@ usage(const char* n)
         "--depend-xml            Generate dependencies in XML format.\n"
         "--depend-file FILE      Write dependencies to FILE instead of standard output.\n"
         "-d, --debug             Print debug messages.\n"
-        "--ice                   Permit `Ice' prefix (for building Ice source code only).\n"
-        "--underscore            Permit underscores in Slice identifiers.\n"
+        "--ice                   Allowed reserved Ice prefix in Slice identifiers.\n"
+        "--underscore            Allow underscores in Slice identifiers.\n"
         ;
 }
 

@@ -79,8 +79,8 @@ usage(const char* n)
         "--index NUM          Generate subindex if it has at least NUM entries (0 for no index, default=1).\n"
         "--summary NUM        Print a warning if a summary sentence exceeds NUM characters.\n"
         "-d, --debug          Print debug messages.\n"
-        "--ice                Permit `Ice' prefix (for building Ice source code only).\n"
-        "--ice                Permit underscores in Slice identifiers.\n"
+        "--ice                Allowed reserved Ice prefix in Slice identifiers.\n"
+        "--underscore         Allow underscores in Slice identifiers.\n"
         ;
 }
 
