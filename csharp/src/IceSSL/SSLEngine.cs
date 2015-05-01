@@ -73,7 +73,8 @@ namespace IceSSL
             }
             else
             {
-                _logger.warning("Invalid IceSSL.CertStore value `" + certStoreLocation + "' adjusted to `CurrentUser'");
+                _logger.warning("Invalid IceSSL.CertStoreLocation value `" + certStoreLocation +
+                                "' adjusted to `CurrentUser'");
                 storeLocation = StoreLocation.CurrentUser;
             }
             _useMachineContext = certStoreLocation == "LocalMachine";
