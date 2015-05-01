@@ -566,6 +566,19 @@ class SSLEngine
                     {
                         trustStore = null;
                     }
+
+                    //
+                    // Attempting to establish an outgoing connection with an empty truststore can
+                    // cause hangs that eventually result in an exception such as:
+                    //
+                    // java.security.InvalidAlgorithmParameterException: the trustAnchors parameter
+                    //     must be non-empty
+                    //
+                    if(trustStore != null && trustStore.size() == 0)
+                    {
+                        throw new Ice.PluginInitializationException("IceSSL: truststore is empty");
+                    }
+
                     if(trustManagers == null)
                     {
                         tmf.init(trustStore);
