@@ -55,11 +55,11 @@ endif
 
 ../IceDiscovery/IceDiscovery.h IceDiscovery.cpp: \
 	$(slicedir)/IceDiscovery/IceDiscovery.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	rm -f $(*F).h $(*F).cpp
+	rm -f IceDiscovery.h IceDiscovery.cpp
 	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(slicedir)/IceDiscovery/IceDiscovery.ice
-	@touch $(*F).cpp
+	@touch IceDiscovery.cpp
 	@mkdir -p .depend
-	@$(SLICE2CPP) $(SLICE2CPPFLAGS) --depend $(slicedir)/IceDiscovery/IceDiscovery.ice > .depend/$(*F).ice.d
+	@$(SLICE2CPP) $(SLICE2CPPFLAGS) --depend $(slicedir)/IceDiscovery/IceDiscovery.ice > .depend/IceDiscovery.ice.d
 
 install:: all
 	$(call installlib,$(DESTDIR)$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
