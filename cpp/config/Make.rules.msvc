@@ -29,7 +29,8 @@ GENERATE_PDB	= yes
 
 CPPFLAGS	= $(CPPFLAGS) -nologo -GR -EHsc -WX
 !if "$(MAXWARN)" != "yes"
-CPPFLAGS	= $(CPPFLAGS) -W3 -wd4250 -wd4251
+# Added for VS2015 RC: -wd4275
+CPPFLAGS	= $(CPPFLAGS) -W3 -wd4250 -wd4251 -wd4275
 !else
 CPPFLAGS	= $(CPPFLAGS) -W4
 !endif

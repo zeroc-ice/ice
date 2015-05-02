@@ -47,13 +47,15 @@ ARCH			= x86
 
 !if "$(VISUALSTUDIOVERSION)" == "11.0"
 CPP_COMPILER            = VC110
-!elseif ([cl 2>&1 | findstr "Version\ 16" > nul] == 0)
+!elseif ([cl 2>&1 | findstr "Version\ 16." > nul] == 0)
 CPP_COMPILER            = VC100
-!elseif ([cl 2>&1 | findstr "Version\ 17" > nul] == 0)
+!elseif ([cl 2>&1 | findstr "Version\ 17." > nul] == 0)
 CPP_COMPILER            = VC110
-!elseif ([cl 2>&1 | findstr "Version\ 18" > nul] == 0)
+!elseif ([cl 2>&1 | findstr "Version\ 18." > nul] == 0)
 CPP_COMPILER            = VC120
-!elseif ([cl 2>&1 | findstr "Version\ 15" > nul] == 0)
+!elseif ([cl 2>&1 | findstr "Version\ 19." > nul] == 0)
+CPP_COMPILER            = VC140
+!elseif ([cl 2>&1 | findstr "Version\ 15." > nul] == 0)
 !error Detected VC90
 !else
 !error Cannot detect C++ compiler
@@ -62,8 +64,10 @@ CPP_COMPILER            = VC120
 #!message CPP_COMPILER set to $(CPP_COMPILER)
 !endif
 
-!if "$(CPP_COMPILER)" != "" && "$(CPP_COMPILER)" != "VC100" && "$(CPP_COMPILER)" != "VC110" && "$(CPP_COMPILER)" != "VC120"
-!error Invalid CPP_COMPILER setting: $(CPP_COMPILER). Must be one of: VC100, VC110 or VC120.
+!if "$(CPP_COMPILER)" != "" && "$(CPP_COMPILER)" != "VC100"  && \
+    "$(CPP_COMPILER)" != "VC110" && "$(CPP_COMPILER)" != "VC120" && \
+    "$(CPP_COMPILER)" != "VC140" 
+!error Invalid CPP_COMPILER setting: $(CPP_COMPILER). Must be one of: VC100, VC110, VC120, VC140
 !endif
 
 !if "$(PROCESSOR_ARCHITECTURE)" == "AMD64"

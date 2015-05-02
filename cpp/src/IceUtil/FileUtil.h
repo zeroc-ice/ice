@@ -129,6 +129,10 @@ public:
     using std::ifstream::open;
 #endif
 
+#if defined(_MSC_VER) && (_MSC_VER >= 1900)
+    ifstream(const ifstream&) = delete;
+#endif 
+
 private:
 
     // Hide const char* definitions since they shouldn't be used.
@@ -147,6 +151,10 @@ public:
 #ifdef __SUNPRO_CC
     using std::ofstream::open;
 #endif
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1900)
+    ofstream(const ofstream&) = delete;
+#endif 
 
 private:
 

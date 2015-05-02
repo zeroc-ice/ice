@@ -40,6 +40,10 @@
 #  if defined(_MSC_VER) && _MSC_VER >= 1700
 #    define DBGHELP_TRANSLATE_TCHAR
 #    include <IceUtil/StringConverter.h>
+#    if _MSC_VER >= 1900
+#       // VS 2015 RC issues this warning for code in DbgHelp.h
+#       pragma warning(disable:4091)
+#    endif
 #  endif
 #  include <DbgHelp.h>
 #  include <tchar.h>

@@ -129,7 +129,7 @@ def getCppCompiler():
     else:
         config = open(os.path.join(toplevel, "cpp", "config", "Make.rules.mak"), "r")
         compiler = re.search("CPP_COMPILER[\t\s]*= ([A-Z0-9]*)", config.read()).group(1)
-        if compiler != "VC100" and compiler != "VC110" and compiler != "VC120":
+        if compiler != "VC100" and compiler != "VC110" and compiler != "VC120" and compiler != "VC140":
             compiler = ""
 
         if compiler == "":
@@ -139,12 +139,14 @@ def getCppCompiler():
                 compiler = VC120
             else:
                 l = p.stdout.readline().decode("utf-8").strip()
-                if l.find("Version 16") != -1:
+                if l.find("Version 16.") != -1:
                     compiler = "VC100"
-                elif l.find("Version 17") != -1:
+                elif l.find("Version 17.") != -1:
                     compiler = "VC110"
-                elif l.find("Version 18") != -1:
+                elif l.find("Version 18.") != -1:
                     compiler = "VC120"
+                elif l.find("Version 19.") != -1:
+                    compiler = "VC140"
                 else:
                     #
                     # Cannot detect C++ compiler use default
@@ -173,6 +175,11 @@ def isVC120():
     if not isWin32():
         return False
     return getCppCompiler() == "VC120"
+
+def isVC140():
+    if not isWin32():
+        return False
+    return getCppCompiler() == "VC140"
 
 def getIceSoVersion():
     config = open(os.path.join(toplevel, "cpp", "include", "IceUtil", "Config.h"), "r")
@@ -1723,6 +1730,8 @@ def getCppBinDir(lang = None):
             lang = getDefaultMapping()
         if isVC110() and lang != "python":
             binDir = os.path.join(binDir, "vc110")
+        elif isVC140():
+            binDir = os.path.join(binDir, "vc140")
         if x64:
             if isSolaris():
                 if isSparc():
@@ -1831,8 +1840,10 @@ def getTestEnv(lang, testdir):
             # Add third party home to PATH, to use db_xx tools
             #
             addPathToEnv("PATH", os.path.join(thirdPartyHome, "bin", suffix), env)
-            if getCppCompiler() == "VC110":
+            if isVC110():
                 addPathToEnv("PATH", os.path.join(thirdPartyHome, "bin", "vc110", suffix), env)
+            elif isVC140():
+                addPathToEnv("PATH", os.path.join(thirdPartyHome, "bin", "vc140", suffix), env)
             addClasspath(os.path.join(thirdPartyHome, "lib", "db.jar"), env)
         else:
             print("warning: could not detect Ice Third Party installation")

@@ -61,8 +61,7 @@
 #endif
 
 
-#if defined(ICE_CPP11) && !defined(_MSC_VER)
-// Visual Studio does not support noexcept yet
+#if defined(ICE_CPP11) && (!defined(_MSC_VER) || (_MSC_VER >= 1900))
 #   define ICE_NOEXCEPT noexcept
 #   define ICE_NOEXCEPT_FALSE noexcept(false)
 #else

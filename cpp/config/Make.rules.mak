@@ -129,7 +129,9 @@ SETARGV			= setargv.obj
 !error CPP_COMPILER: $(CPP_COMPILER) not supported to build Ice for WinRT
 !endif
 
-!if "$(CPP_COMPILER)" == "VC110"
+!if "$(CPP_COMPILER)" == "VC140"
+libsuff                 = \vc140$(x64suffix)
+!elseif "$(CPP_COMPILER)" == "VC110"
 libsuff                 = \vc110$(x64suffix)
 !elseif "$(CPP_COMPILER)" == "VC100"
 libsuff                 = \vc100$(x64suffix)
@@ -152,6 +154,8 @@ COMPSUFFIX	= _vc100
 COMPSUFFIX  = _vc110
 !elseif "$(CPP_COMPILER)" == "VC120"
 COMPSUFFIX  = _vc120
+!elseif "$(CPP_COMPILER)" == "VC140"
+COMPSUFFIX  = _vc140
 !endif
 !endif
 
