@@ -25,6 +25,10 @@
     <Filter Include="Tests">
       <UniqueIdentifier>{16bb0b82-e8f7-47c8-8ab9-25814f65a3c0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Slice Files">
+      <UniqueIdentifier>{a0f32232-9e67-427a-bab0-9659037ab6b9}</UniqueIdentifier>
+      <Extensions>ice</Extensions>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml" />
@@ -33,14 +37,14 @@
     <ClCompile Include="App.xaml.cpp" />
     <ClCompile Include="MainPage.xaml.cpp" />
     <ClCompile Include="pch.cpp" />
-    <ClCompile Include="Controller.cpp" />
+    <ClCompile Include="generated\Controller.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
     <ClInclude Include="App.xaml.h" />
     <ClInclude Include="MainPage.xaml.h" />
     <ClInclude Include="..\..\include\TestCommon.h" />
-    <ClInclude Include="Controller.h" />
+    <ClInclude Include="generated\Controller.h" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest" />
@@ -234,9 +238,13 @@
     <None Include="..\..\Ice\acm\Ice_acm_server.dll">
       <Filter>Tests</Filter>
     </None>
-    <None Include="Controller.ice" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="MainPage.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <IceBuilder Include="Controller.ice">
+      <Filter>Slice Files</Filter>
+    </IceBuilder>
   </ItemGroup>
 </Project>
