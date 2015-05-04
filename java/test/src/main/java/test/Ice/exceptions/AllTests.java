@@ -1129,6 +1129,10 @@ public class AllTests
             catch(Ice.ConnectionLostException ex)
             {
             }
+            catch(Ice.SocketException ex)
+            {
+                // This can be raised if the connection is closed during the client's call to write().
+            }
             catch(Throwable ex)
             {
                 ex.printStackTrace();
