@@ -87,13 +87,13 @@ def iceHome = env['ICE_HOME']
 if (iceHome != null && iceHome.length() > 0) {
     def translator = new File("$iceHome/bin/$slice2java")
     if (!translator.exists()) {
-		//
-		// Make sure ICE_HOME is not just pointing to the source distribution
-		//
-		translator = new File("$iceHome/cpp/bin/$slice2java")
-		if (!translator.exists()) {
-			throw new GradleException("Unable to find $slice2java in $iceHome, please verify ICE_HOME is " +
-									  "properly configured and Ice is correctly installed.")
+        //
+        // Make sure ICE_HOME is not just pointing to the source distribution
+        //
+        translator = new File("$iceHome/cpp/bin/$slice2java")
+        if (!translator.exists()) {
+            throw new GradleException("Unable to find $slice2java in $iceHome, please verify ICE_HOME is " +
+                                      "properly configured and Ice is correctly installed.")
         }
         iceHome = null
     }
@@ -256,6 +256,9 @@ if (!android) {
     //
     if(dbHome) {
         ext.dbJar = "${dbHome}/db.jar"
+    } else if(env['DB_HOME']) {
+        dbHomeDir = env['DB_HOME']
+        ext.dbJar = "#{dbHomeDir}/lib/db.jar"
     } else {
         def subdirs
         if (isWindows) {
