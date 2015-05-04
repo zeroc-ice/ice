@@ -258,7 +258,7 @@ if (!android) {
         ext.dbJar = "${dbHome}/db.jar"
     } else if(env['DB_HOME']) {
         def dbHomeDir = env['DB_HOME']
-        ext.dbJar = "#{dbHomeDir}/lib/db.jar"
+        ext.dbJar = "${dbHomeDir}/lib/db.jar"
     } else {
         def subdirs
         if (isWindows) {
