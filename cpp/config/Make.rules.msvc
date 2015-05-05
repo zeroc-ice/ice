@@ -36,8 +36,46 @@ CPPFLAGS	= $(CPPFLAGS) -W4
 !endif
 ARFLAGS	        = $(ARFLAGS) -nologo -WX
 
+!if "$(PROCESSOR_ARCHITECTURE)" == "AMD64"
+WINDOWS_SDK_DIR = $(PROGRAMFILES) (x86)\Microsoft SDKs
+!else
+WINDOWS_SDK_DIR = $(PROGRAMFILES)\Microsoft SDKs
+!endif
+
+!if "$(CPP_COMPILER)" == "VC110"
+TARGET_PLATFORM_VERSION = 8.0
+MIN_VS_VERSION = 11.0
+!elseif "$(CPP_COMPILER)" == "VC120"
+TARGET_PLATFORM_VERSION = 8.1
+MIN_VS_VERSION = 12.0
+!elseif "$(CPP_COMPILER)" == "VC140"
+
+!if "$(TARGET_PLATFORM_VERSION)" == ""
+TARGET_PLATFORM_VERSION = 10.0
+!endif
+
+!if "$(TARGET_PLATFORM_VERSION)" == "8.1"
+MIN_VS_VERSION = 12.0
+!elseif "$(TARGET_PLATFORM_VERSION)" == "10.0"
+MIN_VS_VERSION = 14.0
+!else
+!error TARGET_PLATFORM_VERSION: $(TARGET_PLATFORM_VERSION) not supported to build Ice for WinRT
+!endif
+
+!endif
+
 !if "$(WINRT)" == "yes"
 CPPFLAGS	= $(CPPFLAGS) -DWINAPI_FAMILY=2 -Gm- -Oy- -Gd -ZW -D_UNICODE -DUNICODE
+
+!if "$(CPP_COMPILER)" == "VC140"
+!if "$(TARGET_PLATFORM_VERSION)" == "8.1"
+CPPFLAGS	= $(CPPFLAGS) /AI "$(WINDOWS_SDK_DIR)\Windows\v8.1\ExtensionSDKs\Microsoft.VCLibs\12.0\References\CommonConfiguration\neutral"
+!elseif "$(TARGET_PLATFORM_VERSION)" == "10.0"
+CPPFLAGS	= $(CPPFLAGS) /AI "$(WINDOWS_SDK_DIR)\Windows Kits\10\ExtensionSDKs\Microsoft.VCLibs\14.0\References\CommonConfiguration\neutral"
+!endif
+
+!endif
+
 #
 # We ignore these two warnings
 # 4264 http://msdn.microsoft.com/en-us/library/windows/apps/hh771041(v=vs.110).aspx
@@ -81,7 +119,9 @@ LDFLAGS		= $(LDFLAGS) /nologo
 
 !if "$(WINRT)" == "yes"
 LDFLAGS		= $(LDFLAGS) /NXCOMPAT /MANIFEST:NO /APPCONTAINER /NOLOGO
-!if "$(CPP_COMPILER)" == "VC120"
+!if "$(CPP_COMPILER)" == "VC140"
+
+!elseif "$(CPP_COMPILER)" == "VC120"
 !if "$(ARCH)" == "x86"
 LDFLAGS		= $(LDFLAGS) /LIBPATH:"$(VCINSTALLDIR)\lib\store"
 !else
@@ -116,14 +156,6 @@ LIBS            =
 SDK_NAME		= Ice
 SDK_VERSION		= $(SHORT_VERSION)
 SDK_MANIFEST		= SDKManifest.xml
-
-!if "$(CPP_COMPILER)" == "VC110"
-TARGET_PLATFORM_VERSION = 8.0
-MIN_VS_VERSION = 11.0
-!elseif "$(CPP_COMPILER)" == "VC120"
-TARGET_PLATFORM_VERSION = 8.1
-MIN_VS_VERSION = 12.0
-!endif
 
 !if "$(ice_src_dist)" != ""
 SDK_BASE_PATH		= $(top_srcdir)\SDKs\Windows\v$(TARGET_PLATFORM_VERSION)\ExtensionSDKs\$(SDK_NAME)\$(SDK_VERSION)

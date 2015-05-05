@@ -125,7 +125,7 @@ SETARGV			= setargv.obj
 #
 !include        $(top_srcdir)/config/Make.rules.msvc
 
-!if "$(WINRT)" == "yes" && "$(CPP_COMPILER)" != "VC110" && "$(CPP_COMPILER)" != "VC120"
+!if "$(WINRT)" == "yes" && "$(CPP_COMPILER)" != "VC110" && "$(CPP_COMPILER)" != "VC120" && "$(CPP_COMPILER)" != "VC140"
 !error CPP_COMPILER: $(CPP_COMPILER) not supported to build Ice for WinRT
 !endif
 
