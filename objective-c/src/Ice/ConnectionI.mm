@@ -331,16 +331,16 @@ private:
             return [[[ICEUDPConnectionInfo alloc] initWithUDPConnectionInfo:udpInfo.get()] autorelease];
         }
 
-        Ice::TCPConnectionInfoPtr tcpInfo = Ice::TCPConnectionInfoPtr::dynamicCast(info);
-        if(tcpInfo)
-        {
-            return [[[ICETCPConnectionInfo alloc] initWithTCPConnectionInfo:tcpInfo.get()] autorelease];
-        }
-
         Ice::WSConnectionInfoPtr wsInfo = Ice::WSConnectionInfoPtr::dynamicCast(info);
         if(wsInfo)
         {
             return [[[ICEWSConnectionInfo alloc] initWithWSConnectionInfo:wsInfo.get()] autorelease];
+        }
+
+        Ice::TCPConnectionInfoPtr tcpInfo = Ice::TCPConnectionInfoPtr::dynamicCast(info);
+        if(tcpInfo)
+        {
+            return [[[ICETCPConnectionInfo alloc] initWithTCPConnectionInfo:tcpInfo.get()] autorelease];
         }
 
         std::ostringstream os;

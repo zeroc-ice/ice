@@ -41,7 +41,7 @@ infoAllTests(id<ICECommunicator> communicator)
         test(([ipEndpoint type] == ICETCPEndpointType && [ipEndpoint isKindOfClass:[ICETCPEndpointInfo class]]) ||
              ([ipEndpoint type] == ICESSLEndpointType && [ipEndpoint isKindOfClass:[ICESSLEndpointInfo class]]) ||
              ([ipEndpoint type] == ICEWSEndpointType && [ipEndpoint isKindOfClass:[ICEWSEndpointInfo class]]) ||
-             ([ipEndpoint type] == ICEWSSEndpointType && [ipEndpoint isKindOfClass:[ICEWSEndpointInfo class]]));
+             ([ipEndpoint type] == ICEWSSEndpointType && [ipEndpoint isKindOfClass:[ICESSLWSSEndpointInfo class]]));
 
 
         endpoint = [endps objectAtIndex:1];

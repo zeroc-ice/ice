@@ -23,6 +23,7 @@
     {
         self->cipher = [[NSString alloc] initWithUTF8String:sslConnectionInfo->cipher.c_str()];
         self->certs = toNSArray(sslConnectionInfo->certs);
+        self->verified = sslConnectionInfo->verified;
     }
     return self;
 }
@@ -37,7 +38,7 @@
     {
         return nil;
     }
-    
+
     IceUtil::Shared* shared = reinterpret_cast<IceUtil::Shared*>([connectionInfo pointerValue]);
     IceSSL::ConnectionInfo* obj = dynamic_cast<IceSSL::ConnectionInfo*>(shared);
     if(obj)
@@ -49,3 +50,36 @@
 
 @end
 
+@implementation ICESSLWSSConnectionInfo (IceSSL)
+
+-(id) initWithWSSConnectionInfo:(IceSSL::WSSConnectionInfo*)wssConnectionInfo
+{
+    self = [super initWithSSLConnectionInfo:wssConnectionInfo];
+    if(self)
+    {
+        self->headers = toNSDictionary(wssConnectionInfo->headers);
+    }
+    return self;
+}
+
+@end
+
+@implementation ICEConnectionInfo (IceSSLWSS)
+
++(id) connectionInfoWithType_wss:(NSValue*)connectionInfo
+{
+    if(!connectionInfo)
+    {
+        return nil;
+    }
+
+    IceUtil::Shared* shared = reinterpret_cast<IceUtil::Shared*>([connectionInfo pointerValue]);
+    IceSSL::WSSConnectionInfo* obj = dynamic_cast<IceSSL::WSSConnectionInfo*>(shared);
+    if(obj)
+    {
+        return [[[ICESSLWSSConnectionInfo alloc] initWithWSSConnectionInfo:obj] autorelease];
+    }
+    return nil;
+}
+
+@end

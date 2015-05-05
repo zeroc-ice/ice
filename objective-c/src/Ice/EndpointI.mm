@@ -45,16 +45,16 @@
             return [[[ICEUDPEndpointInfo alloc] initWithUDPEndpointInfo:udpInfo.get()] autorelease];
         }
 
-        Ice::TCPEndpointInfoPtr tcpInfo = Ice::TCPEndpointInfoPtr::dynamicCast(info);
-        if(tcpInfo)
-        {
-            return [[[ICETCPEndpointInfo alloc] initWithTCPEndpointInfo:tcpInfo.get()] autorelease];
-        }
-
         Ice::WSEndpointInfoPtr wsInfo = Ice::WSEndpointInfoPtr::dynamicCast(info);
         if(wsInfo)
         {
             return [[[ICEWSEndpointInfo alloc] initWithWSEndpointInfo:wsInfo.get()] autorelease];
+        }
+
+        Ice::TCPEndpointInfoPtr tcpInfo = Ice::TCPEndpointInfoPtr::dynamicCast(info);
+        if(tcpInfo)
+        {
+            return [[[ICETCPEndpointInfo alloc] initWithTCPEndpointInfo:tcpInfo.get()] autorelease];
         }
 
         Ice::OpaqueEndpointInfoPtr opaqueInfo = Ice::OpaqueEndpointInfoPtr::dynamicCast(info);
