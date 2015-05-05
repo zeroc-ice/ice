@@ -97,7 +97,8 @@ IceInternal::BasicStream::BasicStream(Instance* instance, const EncodingVersion&
     _sliceObjects(true),
     _stringConverter(instance->getStringConverter()),
     _wstringConverter(instance->getWstringConverter()),
-    _startSeq(-1)
+    _startSeq(-1),
+    _minSeqSize(0)
 {
     //
     // Initialize the encoding members of our pre-allocated encapsulations, in case
@@ -118,7 +119,8 @@ IceInternal::BasicStream::BasicStream(Instance* instance, const EncodingVersion&
     _sliceObjects(true),
     _stringConverter(instance->getStringConverter()),
     _wstringConverter(instance->getWstringConverter()),
-    _startSeq(-1)
+    _startSeq(-1),
+    _minSeqSize(0)
 {
     //
     // Initialize the encoding members of our pre-allocated encapsulations, in case

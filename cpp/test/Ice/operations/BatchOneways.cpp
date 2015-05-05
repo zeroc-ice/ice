@@ -70,6 +70,7 @@ private:
     int _size;
     int _lastRequestSize;
 };
+typedef IceUtil::Handle<BatchRequestInterceptorI> BatchRequestInterceptorIPtr;
 
 }
 
@@ -140,7 +141,7 @@ batchOneways(const Test::MyClassPrx& p)
     {
         Ice::InitializationData initData;
         initData.properties = p->ice_getCommunicator()->getProperties()->clone();
-        BatchRequestInterceptorI* interceptor = new BatchRequestInterceptorI;
+        BatchRequestInterceptorIPtr interceptor = new BatchRequestInterceptorI;
 
 #ifdef ICE_CPP11
         // Ensure lambda factory method works.
