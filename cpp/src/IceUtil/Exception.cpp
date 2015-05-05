@@ -54,8 +54,8 @@ using namespace std;
 namespace IceUtilInternal
 {
 
-bool ICE_DECLSPEC_EXPORT printStackTraces = false;
-bool ICE_DECLSPEC_EXPORT nullHandleAbort = false;
+bool ICE_UTIL_API printStackTraces = false;
+bool ICE_UTIL_API nullHandleAbort = false;
 
 }
 

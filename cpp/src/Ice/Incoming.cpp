@@ -33,7 +33,7 @@ using namespace IceInternal;
 namespace IceUtilInternal
 {
 
-extern bool ICE_DECLSPEC_IMPORT printStackTraces;
+extern bool ICE_UTIL_API printStackTraces;
 
 }
 

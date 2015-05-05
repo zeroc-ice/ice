@@ -23,11 +23,14 @@
 //
 // Automatically link Slice[D].lib with Visual C++
 //
-#if defined(_MSC_VER) && !defined(ICE_NO_PRAGMA_COMMENT)
-#   if defined(ICE_STATIC_LIBS)
-#      pragma comment(lib, "Slice.lib")
-#   elif !defined(SLICE_API_EXPORTS)
-#      if defined(_DEBUG)
+
+#if !defined(ICE_BUILDING_SLICE) && defined(SLICE_API_EXPORTS)
+#   define ICE_BUILDING_SLICE
+#endif
+
+#if defined(_MSC_VER)
+#   if !defined(ICE_BUILDING_SLICE)
+#      if defined(_DEBUG) && !defined(ICE_OS_WINRT)
 #          pragma comment(lib, "SliceD.lib")
 #      else
 #          pragma comment(lib, "Slice.lib")
@@ -38,6 +41,8 @@
 #ifndef SLICE_API
 #   ifdef SLICE_API_EXPORTS
 #       define SLICE_API ICE_DECLSPEC_EXPORT
+#   elif defined(ICE_STATIC_LIBS)
+#       define SLICE_API /**/
 #   else
 #       define SLICE_API ICE_DECLSPEC_IMPORT
 #   endif

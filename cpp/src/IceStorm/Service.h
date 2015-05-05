@@ -13,14 +13,17 @@
 #include <IceBox/IceBox.h>
 #include <IceStorm/IceStorm.h>
 
-#ifdef _MSC_VER
 //
 // Automatically link with IceStormService[D].lib
 //
-#   if defined(ICE_STATIC_LIBS)
-#      pragma comment(lib, "IceStormService.lib")
-#   elif !defined(ICE_STORM_SERVICE_API_EXPORTS)
-#      if defined(_DEBUG)
+
+#if !defined(ICE_BUILDING_ICE_STORM_SERVICE) && defined(ICE_STORM_SERVICE_API_EXPORTS)
+#   define ICE_BUILDING_ICE_STORM_SERVICE
+#endif
+
+#ifdef _MSC_VER
+#   if !defined(ICE_BUILDING_ICE_STORM_SERVICE)
+#      if defined(_DEBUG) && !defined(ICE_OS_WINRT)
 #          pragma comment(lib, "IceStormServiceD.lib")
 #      else
 #          pragma comment(lib, "IceStormService.lib")
@@ -31,6 +34,8 @@
 #ifndef ICE_STORM_SERVICE_API
 #   ifdef ICE_STORM_SERVICE_API_EXPORTS
 #       define ICE_STORM_SERVICE_API ICE_DECLSPEC_EXPORT
+#   elif defined(ICE_STATIC_LIBS)
+#       define ICE_STORM_SERVICE_API /**/
 #   else
 #       define ICE_STORM_SERVICE_API ICE_DECLSPEC_IMPORT
 #   endif

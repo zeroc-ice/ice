@@ -1474,14 +1474,13 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
         // To export the virtual table
         //
         C << nl << "#ifdef __SUNPRO_CC";
-        C << nl << "class "
-            << (_dllExport.empty() ? "" : "ICE_DECLSPEC_EXPORT ")
-            << "IceProxy" << scoped << ";";
+        C << nl << "class " << _dllExport
+          << "IceProxy" << scoped << ";";
         C << nl << "#endif";
     }
 
     C << nl
-      << (_dllExport.empty() ? "" : "ICE_DECLSPEC_EXPORT ")
+      << _dllExport
       << "::IceProxy::Ice::Object* ::IceProxy" << scope << "upCast(::IceProxy" << scoped
       << "* p) { return p; }";
 
@@ -2789,7 +2788,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     if(!p->isLocal())
     {
         C << sp << nl
-          << (_dllExport.empty() ? "" : "ICE_DECLSPEC_EXPORT ")
+          << _dllExport
           << "::Ice::Object* " << scope.substr(2) << "upCast(" << scoped << "* p) { return p; }";
 
         //
@@ -2917,7 +2916,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     else
     {
         C << sp << nl
-          << (_dllExport.empty() ? "" : "ICE_DECLSPEC_EXPORT ")
+          << _dllExport
           << "::Ice::LocalObject* " << scope.substr(2) << "upCast(" << scoped << "* p) { return p; }";
     }
 
@@ -3340,8 +3339,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
     }
     else
     {
-        C << sp << nl << "void "
-          << (_dllExport.empty() ? "" : "ICE_DECLSPEC_EXPORT ");
+        C << sp << nl << "void " << _dllExport;
         C << nl << scope.substr(2) << "__patch(" << p->name() << "Ptr& handle, const ::Ice::ObjectPtr& v)";
         C << sb;
         C << nl << "handle = " << scope << p->name() << "Ptr::dynamicCast(v);";

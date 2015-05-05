@@ -21,9 +21,14 @@
 //
 // Automatically link IceSSL[D].lib with Visual C++
 //
-#if defined(_MSC_VER) && !defined(ICE_NO_PRAGMA_COMMENT)
-#   if !defined(ICE_STATIC_LIBS) && !defined(ICE_SSL_API_EXPORTS)
-#      if defined(_DEBUG)
+
+#if !defined(ICE_BUILDING_ICE_SSL) && defined(ICE_SSL_API_EXPORTS)
+#   define ICE_BUILDING_ICE_SSL
+#endif
+
+#if defined(_MSC_VER)
+#   if !defined(ICE_BUILDING_ICE_SSL)
+#      if defined(_DEBUG) && !defined(ICE_OS_WINRT)
 #          pragma comment(lib, "IceSSLD.lib")
 #      else
 #          pragma comment(lib, "IceSSL.lib")
@@ -47,6 +52,8 @@
 #ifndef ICE_SSL_API
 #   ifdef ICE_SSL_API_EXPORTS
 #       define ICE_SSL_API ICE_DECLSPEC_EXPORT
+#   elif defined(ICE_STATIC_LIBS)
+#       define ICE_SSL_API /**/
 #   else
 #       define ICE_SSL_API ICE_DECLSPEC_IMPORT
 #   endif

@@ -22,7 +22,7 @@ SRCS		= $(OBJS:.o=.cpp)
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I.. $(CPPFLAGS)
+CPPFLAGS	:= -I.. $(CPPFLAGS) -DCRYPT_PERMISSIONS_VERIFIER_API_EXPORTS
 
 LINKWITH        := $(BZIP2_RPATH_LINK) -lIce -lIceUtil -lGlacier2 $(CRYPT_OS_LIBS) $(CXXLIBS)
 

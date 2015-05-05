@@ -20,6 +20,8 @@
 #ifndef ICE_XML_API
 #   ifdef ICE_XML_API_EXPORTS
 #       define ICE_XML_API ICE_DECLSPEC_EXPORT
+#    elif defined(ICE_STATIC_LIBS)
+#       define ICE_XML_API /**/
 #    else
 #       define ICE_XML_API ICE_DECLSPEC_IMPORT
 #    endif
@@ -28,11 +30,14 @@
 //
 // Automatically link IceXML[D].lib with Visual C++
 //
+
+#if !defined(ICE_BUILDING_ICE_XML) && defined(ICE_XML_API_EXPORTS)
+#   define ICE_BUILDING_ICE_XML
+#endif
+
 #ifdef _MSC_VER
-#   if defined(ICE_STATIC_LIBS)
-#      pragma comment(lib, "IceXML.lib")
-#   elif !defined(ICE_XML_API_EXPORTS)
-#      if defined(_DEBUG)
+#   if !defined(ICE_BUILDING_ICE_XML)
+#      if defined(_DEBUG) && !defined(ICE_OS_WINRT)
 #          pragma comment(lib, "IceXMLD.lib")
 #      else
 #          pragma comment(lib, "IceXML.lib")

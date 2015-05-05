@@ -35,11 +35,14 @@
 //
 // Automatically link Ice[D].lib with Visual C++
 //
-#if defined(_MSC_VER) && !defined(ICE_NO_PRAGMA_COMMENT)
-#   if defined(ICE_STATIC_LIBS)
-#      pragma comment(lib, "Ice.lib")
-#   elif !defined(ICE_API_EXPORTS)
-#      if defined(_DEBUG)
+
+#if !defined(ICE_BUILDING_ICE) && defined(ICE_API_EXPORTS)
+#   define ICE_BUILDING_ICE
+#endif
+
+#if defined(_MSC_VER)
+#   if !defined(ICE_BUILDING_ICE)
+#      if defined(_DEBUG) && !defined(ICE_OS_WINRT)
 #          pragma comment(lib, "IceD.lib")
 #      else
 #          pragma comment(lib, "Ice.lib")
@@ -65,9 +68,11 @@ namespace IceInternal
 #ifndef ICE_API
 #   ifdef ICE_API_EXPORTS
 #       define ICE_API ICE_DECLSPEC_EXPORT
-#    else
+#   elif defined(ICE_STATIC_LIBS)
+#       define ICE_API /**/
+#   else
 #       define ICE_API ICE_DECLSPEC_IMPORT
-#    endif
+#   endif
 #endif
 
 namespace Ice

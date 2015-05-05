@@ -24,7 +24,7 @@ OBJS		= .\LocatorI.obj \
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-CPPFLAGS	= -I.. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
+CPPFLAGS	= -I.. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN -DICE_DISCOVERY_API_EXPORTS
 SLICE2CPPFLAGS	= --ice --include-dir IceDiscovery $(SLICE2CPPFLAGS)
 
 LINKWITH        = $(LIBS)

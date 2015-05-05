@@ -18,7 +18,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-ICE_DECLSPEC_EXPORT IceUtil::Shared* IceInternal::upCast(ServantManager* p) { return p; }
+ICE_API IceUtil::Shared* IceInternal::upCast(ServantManager* p) { return p; }
 
 void
 IceInternal::ServantManager::addServant(const ObjectPtr& object, const Identity& ident, const string& facet)

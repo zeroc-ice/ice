@@ -10,14 +10,17 @@
 #ifndef GLACIER2_CONFIG_H
 #define GLACIER2_CONFIG_H
 
-#ifdef _MSC_VER
 //
 // Automatically link with Glacier2[D].lib
 //
-#   if defined(ICE_STATIC_LIBS)
-#      pragma comment(lib, "Glacier2.lib")
-#   elif !defined(GLACIER2_API_EXPORTS)
-#      if defined(_DEBUG)
+
+#if !defined(ICE_BUILDING_GLACIER2) && defined(GLACIER2_API_EXPORTS)
+#   define ICE_BUILDING_GLACIER2
+#endif
+
+#ifdef _MSC_VER
+#   if !defined(ICE_BUILDING_GLACIER2)
+#      if defined(_DEBUG) && !defined(ICE_OS_WINRT)
 #          pragma comment(lib, "Glacier2D.lib")
 #      else
 #          pragma comment(lib, "Glacier2.lib")

@@ -95,7 +95,7 @@ private:
 extern "C"
 {
 
-ICE_DECLSPEC_EXPORT ::IceBox::Service*
+ICE_STORM_SERVICE_API ::IceBox::Service*
 createIceStorm(CommunicatorPtr communicator)
 {
     return new ServiceI;

@@ -97,7 +97,7 @@
 // Compiler extensions to export and import symbols: see the documentation 
 // for Visual Studio, Solaris Studio and GCC.
 //
-#if defined(_WIN32) && !defined(ICE_STATIC_LIBS)
+#if defined(_WIN32)
 #   define ICE_DECLSPEC_EXPORT __declspec(dllexport)
 #   define ICE_DECLSPEC_IMPORT __declspec(dllimport)
 //
@@ -118,8 +118,10 @@
 //
 // Let's use these extensions with IceUtil:
 //
-#ifdef ICE_UTIL_API_EXPORTS
+#if defined(ICE_UTIL_API_EXPORTS)
 #   define ICE_UTIL_API ICE_DECLSPEC_EXPORT
+#elif defined(ICE_STATIC_LIBS)
+#   define ICE_UTIL_API /**/
 #else
 #   define ICE_UTIL_API ICE_DECLSPEC_IMPORT
 #endif
@@ -173,17 +175,19 @@
 #   include <TargetConditionals.h>
 #endif
 
-#if defined(_MSC_VER) && !defined(ICE_NO_PRAGMA_COMMENT)
+#if !defined(ICE_BUILDING_ICE_UTIL) && defined(ICE_UTIL_API_EXPORTS)
+#   define ICE_BUILDING_ICE_UTIL
+#endif
+
+#if defined(_MSC_VER)
 #   if !defined(ICE_STATIC_LIBS) && (!defined(_DLL) || !defined(_MT))
 #       error "Only multi-threaded DLL libraries can be used with Ice!"
 #   endif
 //
 //  Automatically link with IceUtil[D].lib
 //
-#   if defined(ICE_STATIC_LIBS)
-#      pragma comment(lib, "IceUtil.lib")
-#   elif !defined(ICE_UTIL_API_EXPORTS)
-#      if defined(_DEBUG)
+#   if !defined(ICE_BUILDING_ICE_UTIL)
+#      if defined(_DEBUG) && !defined(ICE_OS_WINRT)
 #          pragma comment(lib, "IceUtilD.lib")
 #      else
 #          pragma comment(lib, "IceUtil.lib")

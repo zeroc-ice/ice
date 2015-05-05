@@ -27,7 +27,7 @@ SDIR		= $(slicedir)/IceDiscovery
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I.. $(CPPFLAGS)
+CPPFLAGS	:= -I.. $(CPPFLAGS) -DICE_DISCOVERY_API_EXPORTS
 SLICE2CPPFLAGS	:= --ice --include-dir IceDiscovery $(SLICE2CPPFLAGS)
 
 LINKWITH        := -lIce -lIceUtil $(CXXLIBS)

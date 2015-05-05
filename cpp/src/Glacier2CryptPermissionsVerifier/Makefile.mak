@@ -18,7 +18,7 @@ OBJS		= .\CryptPermissionsVerifierI.obj
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-CPPFLAGS	= -I.. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
+CPPFLAGS	= -I.. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN -DCRYPT_PERMISSIONS_VERIFIER_API_EXPORTS
 
 LINKWITH	= $(LIBS) crypt32.lib bcrypt.lib
 

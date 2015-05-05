@@ -16,6 +16,8 @@
 #ifndef TEST_API
 #   ifdef TEST_API_EXPORTS
 #       define TEST_API ICE_DECLSPEC_EXPORT
+#   elif defined(ICE_STATIC_LIBS)
+#       define TEST_API /**/
 #   else
 #       define TEST_API ICE_DECLSPEC_IMPORT
 #   endif

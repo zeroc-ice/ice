@@ -10,14 +10,17 @@
 #ifndef ICE_PATCH2_CONFIG_H
 #define ICE_PATCH2_CONFIG_H
 
-#ifdef _MSC_VER
 //
 // Automatically link with IcePatch2[D].lib
 //
-#   if defined(ICE_STATIC_LIBS)
-#      pragma comment(lib, "IcePatch2.lib")
-#   elif !defined(ICE_PATCH2_API_EXPORTS)
-#      if defined(_DEBUG)
+
+#if !defined(ICE_BUILDING_ICE_PATCH2) && defined(ICE_PATCH2_API_EXPORTS)
+#   define ICE_BUILDING_ICE_PATCH2
+#endif
+
+#ifdef _MSC_VER
+#   if !defined(ICE_BUILDING_ICE_PATCH2)
+#      if defined(_DEBUG) && !defined(ICE_OS_WINRT)
 #          pragma comment(lib, "IcePatch2D.lib")
 #      else
 #          pragma comment(lib, "IcePatch2.lib")

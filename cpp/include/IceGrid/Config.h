@@ -10,14 +10,17 @@
 #ifndef ICE_GRID_CONFIG_H
 #define ICE_GRID_CONFIG_H
 
-#ifdef _MSC_VER
 //
 // Automatically link with IceGrid[D].lib
 //
-#   if defined(ICE_STATIC_LIBS)
-#      pragma comment(lib, "IceGrid.lib")
-#   elif !defined(ICE_GRID_API_EXPORTS)
-#      if defined(_DEBUG)
+
+#if !defined(ICE_BUILDING_ICE_GRID) && defined(ICE_GRID_API_EXPORTS)
+#   define ICE_BUILDING_ICE_GRID
+#endif
+
+#ifdef _MSC_VER
+#   if !defined(ICE_BUILDING_ICE_GRID)
+#      if defined(_DEBUG) && !defined(ICE_OS_WINRT)
 #          pragma comment(lib, "IceGridD.lib")
 #      else
 #          pragma comment(lib, "IceGrid.lib")

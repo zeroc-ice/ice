@@ -10,14 +10,17 @@
 #ifndef ICE_STORM_CONFIG_H
 #define ICE_STORM_CONFIG_H
 
-#ifdef _MSC_VER
 //
 // Automatically link with IceStorm[D].lib
 //
-#   if defined(ICE_STATIC_LIBS)
-#      pragma comment(lib, "IceStorm.lib")
-#   elif !defined(ICE_STORM_LIB_API_EXPORTS)
-#      if defined(_DEBUG)
+
+#if !defined(ICE_BUILDING_ICE_STORM_LIB) && defined(ICE_STORM_LIB_API_EXPORTS)
+#   define ICE_BUILDING_ICE_STORM_LIB
+#endif
+
+#ifdef _MSC_VER
+#   if !defined(ICE_BUILDING_ICE_STORM_LIB)
+#      if defined(_DEBUG) && !defined(ICE_OS_WINRT)
 #          pragma comment(lib, "IceStormD.lib")
 #      else
 #          pragma comment(lib, "IceStorm.lib")

@@ -19,11 +19,13 @@
 //
 // Automatically link Freeze[D].lib with Visual C++
 //
+#if !defined(ICE_BUILDING_FREEZE) && defined(FREEZE_API_EXPORTS)
+#   define ICE_BUILDING_FREEZE
+#endif
+
 #ifdef _MSC_VER
-#   if defined(ICE_STATIC_LIBS)
-#      pragma comment(lib, "Freeze.lib")
-#   elif !defined(FREEZE_API_EXPORTS)
-#      if defined(_DEBUG)
+#   if !defined(ICE_BUILDING_FREEZE)
+#      if defined(_DEBUG) && !defined(ICE_OS_WINRT)
 #          pragma comment(lib, "FreezeD.lib")
 #      else
 #          pragma comment(lib, "Freeze.lib")

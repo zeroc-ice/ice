@@ -16,13 +16,21 @@
 using namespace std;
 using namespace IceLocatorDiscovery;
 
+#ifndef ICE_LOCATOR_DISCOVERY_API
+#   ifdef ICE_LOCATOR_DISCOVERY_API_EXPORTS
+#       define ICE_LOCATOR_DISCOVERY_API ICE_DECLSPEC_EXPORT
+#   else
+#       define ICE_LOCATOR_DISCOVERY_API /**/
+#   endif
+#endif
+
 //
 // Plugin factory function.
 //
 extern "C"
 {
 
-ICE_DECLSPEC_EXPORT Ice::Plugin*
+ICE_LOCATOR_DISCOVERY_API Ice::Plugin*
 createIceLocatorDiscovery(const Ice::CommunicatorPtr& communicator, const string&, const Ice::StringSeq&)
 {
     return new PluginI(communicator);

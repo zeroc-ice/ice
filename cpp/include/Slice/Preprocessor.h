@@ -17,6 +17,8 @@
 #ifndef SLICE_API
 #   ifdef SLICE_API_EXPORTS
 #       define SLICE_API ICE_DECLSPEC_EXPORT
+#   elif defined(ICE_STATIC_LIBS)
+#       define SLICE_API /**/
 #   else
 #       define SLICE_API ICE_DECLSPEC_IMPORT
 #   endif

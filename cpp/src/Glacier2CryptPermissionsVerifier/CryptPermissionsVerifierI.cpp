@@ -440,13 +440,21 @@ CryptPermissionsVerifierPlugin::destroy()
 
 }
 
+#ifndef CRYPT_PERMISSIONS_VERIFIER_API
+#   ifdef CRYPT_PERMISSIONS_VERIFIER_API_EXPORTS
+#       define CRYPT_PERMISSIONS_VERIFIER_API ICE_DECLSPEC_EXPORT
+#   else
+#       define CRYPT_PERMISSIONS_VERIFIER_API /**/
+#   endif
+#endif
+
 //
 // Plug-in factory function.
 //
 extern "C"
 {
 
-ICE_DECLSPEC_EXPORT Ice::Plugin*
+CRYPT_PERMISSIONS_VERIFIER_API Ice::Plugin*
 createCryptPermissionsVerifier(const CommunicatorPtr& communicator, const string& name, const StringSeq& args)
 {
     if(args.size() > 0)

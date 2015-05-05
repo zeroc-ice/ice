@@ -19,7 +19,7 @@ namespace IceInternal
 // Single global instance of the factory table for non-local
 // exceptions and non-abstract classes.
 //
-ICE_DECLSPEC_EXPORT FactoryTable* factoryTable;
+ICE_API FactoryTable* factoryTable;
 
 }
 

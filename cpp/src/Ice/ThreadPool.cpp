@@ -28,7 +28,7 @@ using namespace Ice;
 using namespace Ice::Instrumentation;
 using namespace IceInternal;
 
-ICE_DECLSPEC_EXPORT IceUtil::Shared* IceInternal::upCast(ThreadPool* p) { return p; }
+ICE_API IceUtil::Shared* IceInternal::upCast(ThreadPool* p) { return p; }
 
 namespace
 {
