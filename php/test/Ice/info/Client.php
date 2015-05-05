@@ -38,10 +38,12 @@ function allTests($communicator)
     $tcpEndpointInfoClass = $NS ? "Ice\\TCPEndpointInfo" : "Ice_TCPEndpointInfo";
     $udpEndpointType = $NS ? constant("Ice\\UDPEndpointType") : constant("Ice_UDPEndpointType");
     $udpEndpointInfoClass = $NS ? "Ice\\UDPEndpointInfo" : "Ice_UDPEndpointInfo";
-    $sslEndpointType = 2;
+    $sslEndpointType = $NS ? constant("Ice\\SSLEndpointType") : constant("Ice_SSLEndpointType");
+    $sslEndpointInfoClass = $NS ? "Ice\\SSLEndpointInfo" : "Ice_SSLEndpointInfo";
     $wsEndpointType = $NS ? constant("Ice\\WSEndpointType") : constant("Ice_WSEndpointType");
     $wsEndpointInfoClass = $NS ? "Ice\\WSEndpointInfo" : "Ice_WSEndpointInfo";
     $wssEndpointType = $NS ? constant("Ice\\WSSEndpointType") : constant("Ice_WSSEndpointType");
+    $wssEndpointInfoClass = $NS ? "Ice\\WSSEndpointInfo" : "Ice_WSSEndpointInfo";
     $protocolVersionClass = $NS ? "Ice\\ProtocolVersion" : "Ice_ProtocolVersion";
     $encodingVersionClass = $NS ? "Ice\\EncodingVersion" : "Ice_EncodingVersion";
 
@@ -68,9 +70,9 @@ function allTests($communicator)
              ($ipEndpoint->type() == $wsEndpointType && !$ipEndpoint->secure()) ||
              ($ipEndpoint->type() == $wssEndpointType && $ipEndpoint->secure()));
         test(($ipEndpoint->type() == $tcpEndpointType && ($ipEndpoint instanceof $tcpEndpointInfoClass)) ||
-             ($ipEndpoint->type() == $sslEndpointType && ($ipEndpoint instanceof $ipEndpointInfoClass)) ||
+             ($ipEndpoint->type() == $sslEndpointType && ($ipEndpoint instanceof $sslEndpointInfoClass)) ||
              ($ipEndpoint->type() == $wsEndpointType && ($ipEndpoint instanceof $wsEndpointInfoClass)) ||
-             ($ipEndpoint->type() == $wssEndpointType && ($ipEndpoint instanceof $ipEndpointInfoClass)));
+             ($ipEndpoint->type() == $wssEndpointType && ($ipEndpoint instanceof $wssEndpointInfoClass)));
 
         $udpEndpoint = $endps[1]->getInfo();
         test($udpEndpoint instanceof $udpEndpointInfoClass);
@@ -120,6 +122,7 @@ function allTests($communicator)
     {
         $ipConnectionInfoClass = $NS ? "Ice\\IPConnectionInfo" : "Ice_IPConnectionInfo";
         $wsConnectionInfoClass = $NS ? "Ice\\WSConnectionInfo" : "Ice_WSConnectionInfo";
+        $wssConnectionInfoClass = $NS ? "Ice\\WSSConnectionInfo" : "Ice_WSSConnectionInfo";
 
         $connection = $base->ice_getConnection();
         $connection->setBufferSize(1024, 2048);
@@ -145,9 +148,10 @@ function allTests($communicator)
         test($ctx["remotePort"] == $info->localPort);
         test($ctx["localPort"] == $info->remotePort);
 
-        if($base->ice_getConnection()->type() == "ws")
+        if($base->ice_getConnection()->type() == "ws" || $base->ice_getConnection()->type() == "wss")
         {
-            test($info instanceof $wsConnectionInfoClass);
+            test(($base->ice_getConnection()->type() == "ws" && $info instanceof $wsConnectionInfoClass) ||
+                 ($base->ice_getConnection()->type() == "wss" && $info instanceof $wssConnectionInfoClass));
 
             test($info->headers["Upgrade"] == "websocket");
             test($info->headers["Connection"] == "Upgrade");

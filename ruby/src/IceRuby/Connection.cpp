@@ -12,6 +12,7 @@
 #include <Types.h>
 #include <Util.h>
 #include <Ice/Object.h>
+#include <IceSSL/ConnectionInfo.h>
 
 using namespace std;
 using namespace IceRuby;
@@ -23,6 +24,8 @@ static VALUE _ipConnectionInfoClass;
 static VALUE _tcpConnectionInfoClass;
 static VALUE _udpConnectionInfoClass;
 static VALUE _wsConnectionInfoClass;
+static VALUE _sslConnectionInfoClass;
+static VALUE _wssConnectionInfoClass;
 
 // **********************************************************************
 // Connection
@@ -332,6 +335,41 @@ IceRuby::createConnectionInfo(const Ice::ConnectionInfoPtr& p)
         rb_ivar_set(info, rb_intern("@mcastAddress"), createString(udp->mcastAddress));
         rb_ivar_set(info, rb_intern("@mcastPort"), INT2FIX(udp->mcastPort));
     }
+    else if(IceSSL::WSSConnectionInfoPtr::dynamicCast(p))
+    {
+        info = Data_Wrap_Struct(_wssConnectionInfoClass, 0, IceRuby_ConnectionInfo_free, new Ice::ConnectionInfoPtr(p));
+
+        IceSSL::WSSConnectionInfoPtr wss = IceSSL::WSSConnectionInfoPtr::dynamicCast(p);
+        rb_ivar_set(info, rb_intern("@localAddress"), createString(wss->localAddress));
+        rb_ivar_set(info, rb_intern("@localPort"), INT2FIX(wss->localPort));
+        rb_ivar_set(info, rb_intern("@remoteAddress"), createString(wss->remoteAddress));
+        rb_ivar_set(info, rb_intern("@remotePort"), INT2FIX(wss->remotePort));
+        rb_ivar_set(info, rb_intern("@cipher"), createString(wss->cipher));
+        rb_ivar_set(info, rb_intern("@certs"), stringSeqToArray(wss->certs));
+        rb_ivar_set(info, rb_intern("@verified"), wss->verified ? Qtrue : Qfalse);
+
+        volatile VALUE result = callRuby(rb_hash_new);
+        for(Ice::HeaderDict::const_iterator q = wss->headers.begin(); q != wss->headers.end(); ++q)
+        {
+            volatile VALUE key = createString(q->first);
+            volatile VALUE value = createString(q->second);
+            callRuby(rb_hash_aset, result, key, value);
+        }
+        rb_ivar_set(info, rb_intern("@headers"), result);
+    }
+    else if(IceSSL::ConnectionInfoPtr::dynamicCast(p))
+    {
+        info = Data_Wrap_Struct(_sslConnectionInfoClass, 0, IceRuby_ConnectionInfo_free, new Ice::ConnectionInfoPtr(p));
+
+        IceSSL::ConnectionInfoPtr ssl = IceSSL::ConnectionInfoPtr::dynamicCast(p);
+        rb_ivar_set(info, rb_intern("@localAddress"), createString(ssl->localAddress));
+        rb_ivar_set(info, rb_intern("@localPort"), INT2FIX(ssl->localPort));
+        rb_ivar_set(info, rb_intern("@remoteAddress"), createString(ssl->remoteAddress));
+        rb_ivar_set(info, rb_intern("@remotePort"), INT2FIX(ssl->remotePort));
+        rb_ivar_set(info, rb_intern("@cipher"), createString(ssl->cipher));
+        rb_ivar_set(info, rb_intern("@certs"), stringSeqToArray(ssl->certs));
+        rb_ivar_set(info, rb_intern("@verified"), ssl->verified ? Qtrue : Qfalse);
+    }
     else if(Ice::IPConnectionInfoPtr::dynamicCast(p))
     {
         info = Data_Wrap_Struct(_ipConnectionInfoClass, 0, IceRuby_ConnectionInfo_free, new Ice::ConnectionInfoPtr(p));
@@ -429,5 +467,27 @@ IceRuby::initConnection(VALUE iceModule)
     //
     // Instance members.
     //
-    //rb_define_attr(_wsConnectionInfoClass, "headers", 1, 0);
+    rb_define_attr(_wsConnectionInfoClass, "headers", 1, 0);
+
+    //
+    // SSLConnectionInfo
+    //
+    _sslConnectionInfoClass = rb_define_class_under(iceModule, "SSLConnectionInfo", _ipConnectionInfoClass);
+
+    //
+    // Instance members.
+    //
+    rb_define_attr(_wsConnectionInfoClass, "cipher", 1, 0);
+    rb_define_attr(_wsConnectionInfoClass, "certs", 1, 0);
+    rb_define_attr(_wsConnectionInfoClass, "verified", 1, 0);
+
+    //
+    // WSSConnectionInfo
+    //
+    _wssConnectionInfoClass = rb_define_class_under(iceModule, "WSSConnectionInfo", _sslConnectionInfoClass);
+
+    //
+    // Instance members.
+    //
+    rb_define_attr(_wssConnectionInfoClass, "headers", 1, 0);
 }

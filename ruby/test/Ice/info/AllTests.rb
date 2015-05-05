@@ -30,9 +30,9 @@ def allTests(communicator)
          (ipEndpoint.type() == Ice::WSEndpointType && !ipEndpoint.secure()) ||
          (ipEndpoint.type() == Ice::WSSEndpointType && ipEndpoint.secure()))
     test((ipEndpoint.type() == Ice::TCPEndpointType && ipEndpoint.is_a?(Ice::TCPEndpointInfo)) ||
-         (ipEndpoint.type() == Ice::SSLEndpointType) ||
+         (ipEndpoint.type() == Ice::SSLEndpointType && ipEndpoint.is_a?(Ice::SSLEndpointInfo)) ||
          (ipEndpoint.type() == Ice::WSEndpointType && ipEndpoint.is_a?(Ice::WSEndpointInfo)) ||
-         (ipEndpoint.type() == Ice::WSSEndpointType))
+         (ipEndpoint.type() == Ice::WSSEndpointType && ipEndpoint.is_a?(Ice::WSSEndpointInfo)))
 
     udpEndpoint = endps[1].getInfo()
     test(udpEndpoint.is_a?(Ice::UDPEndpointInfo));
@@ -102,8 +102,9 @@ def allTests(communicator)
     test(ctx["remotePort"] == info.localPort.to_s())
     test(ctx["localPort"] == info.remotePort.to_s())
 
-    if base.ice_getConnection().type() == "ws"
-        test(info.is_a?(Ice::WSConnectionInfo))
+    if base.ice_getConnection().type() == "ws" || base.ice_getConnection().type() == "wss"
+        test((base.ice_getConnection().type() == "ws" && info.is_a?(Ice::WSConnectionInfo)) ||
+             (base.ice_getConnection().type() == "wss" && info.is_a?(Ice::WSSConnectionInfo)))
 
         test(info.headers["Upgrade"] == "websocket")
         test(info.headers["Connection"] == "Upgrade")

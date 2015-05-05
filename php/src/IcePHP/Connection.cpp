@@ -11,6 +11,7 @@
 #include <Endpoint.h>
 #include <Types.h>
 #include <Util.h>
+#include <IceSSL/ConnectionInfo.h>
 
 using namespace std;
 using namespace IcePHP;
@@ -27,6 +28,8 @@ static zend_class_entry* ipConnectionInfoClassEntry = 0;
 static zend_class_entry* tcpConnectionInfoClassEntry = 0;
 static zend_class_entry* udpConnectionInfoClassEntry = 0;
 static zend_class_entry* wsConnectionInfoClassEntry = 0;
+static zend_class_entry* sslConnectionInfoClassEntry = 0;
+static zend_class_entry* wssConnectionInfoClassEntry = 0;
 
 //
 // Ice::Connection support.
@@ -572,6 +575,37 @@ IcePHP::connectionInit(TSRMLS_D)
     zend_declare_property_string(wsConnectionInfoClassEntry, STRCAST("headers"), sizeof("headers") - 1,
                                  STRCAST(""), ZEND_ACC_PUBLIC TSRMLS_CC);
 
+    //
+    // Register the SSLConnectionInfo class.
+    //
+#ifdef ICEPHP_USE_NAMESPACES
+    INIT_NS_CLASS_ENTRY(ce, "Ice", "SSLConnectionInfo", NULL);
+#else
+    INIT_CLASS_ENTRY(ce, "Ice_SSLConnectionInfo", NULL);
+#endif
+    ce.create_object = handleConnectionInfoAlloc;
+    sslConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, ipConnectionInfoClassEntry, NULL TSRMLS_CC);
+    zend_declare_property_string(sslConnectionInfoClassEntry, STRCAST("cipher"), sizeof("cipher") - 1,
+                                 STRCAST(""), ZEND_ACC_PUBLIC TSRMLS_CC);
+    zend_declare_property_string(sslConnectionInfoClassEntry, STRCAST("certs"), sizeof("certs") - 1,
+                                 STRCAST(""), ZEND_ACC_PUBLIC TSRMLS_CC);
+    zend_declare_property_bool(sslConnectionInfoClassEntry, STRCAST("verified"), sizeof("verified") - 1, 0,
+                               ZEND_ACC_PUBLIC TSRMLS_CC);
+
+    //
+    // Register the WSConnectionInfo class.
+    //
+#ifdef ICEPHP_USE_NAMESPACES
+    INIT_NS_CLASS_ENTRY(ce, "Ice", "WSSConnectionInfo", NULL);
+#else
+    INIT_CLASS_ENTRY(ce, "Ice_WSSConnectionInfo", NULL);
+#endif
+    ce.create_object = handleConnectionInfoAlloc;
+    wssConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, sslConnectionInfoClassEntry, NULL TSRMLS_CC);
+    zend_declare_property_string(wssConnectionInfoClassEntry, STRCAST("headers"), sizeof("headers") - 1,
+                                 STRCAST(""), ZEND_ACC_PUBLIC TSRMLS_CC);
+
+
     return true;
 }
 
@@ -651,6 +685,28 @@ IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p TSRMLS_DC
             add_property_long(zv, STRCAST("mcastPort"), static_cast<long>(info->mcastPort));
         }
     }
+    else if(IceSSL::WSSConnectionInfoPtr::dynamicCast(p))
+    {
+        IceSSL::WSSConnectionInfoPtr info = IceSSL::WSSConnectionInfoPtr::dynamicCast(p);
+        if((status = object_init_ex(zv, wssConnectionInfoClassEntry)) == SUCCESS)
+        {
+            zval* zmap;
+            MAKE_STD_ZVAL(zmap);
+            AutoDestroy mapDestroyer(zmap);
+            if(createStringMap(zmap, info->headers TSRMLS_CC))
+            {
+                add_property_zval(zv, STRCAST("headers"), zmap);
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
+    else if(IceSSL::ConnectionInfoPtr::dynamicCast(p))
+    {
+        status = object_init_ex(zv, sslConnectionInfoClassEntry);
+    }
     else if(Ice::IPConnectionInfoPtr::dynamicCast(p))
     {
         status = object_init_ex(zv, ipConnectionInfoClassEntry);
@@ -664,6 +720,25 @@ IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p TSRMLS_DC
     {
         runtimeError("unable to initialize connection info" TSRMLS_CC);
         return false;
+    }
+
+    if(IceSSL::ConnectionInfoPtr::dynamicCast(p))
+    {
+        IceSSL::ConnectionInfoPtr info = IceSSL::ConnectionInfoPtr::dynamicCast(p);
+        add_property_string(zv, STRCAST("cipher"), const_cast<char*>(info->cipher.c_str()), 1);
+        add_property_bool(zv, STRCAST("verified"), info->verified ? 1 : 0);
+
+        zval* zarr;
+        MAKE_STD_ZVAL(zarr);
+        AutoDestroy listDestroyer(zarr);
+        if(createStringArray(zarr, info->certs TSRMLS_CC))
+        {
+            add_property_zval(zv, STRCAST("certs"), zarr);
+        }
+        else
+        {
+            return false;
+        }
     }
 
     if(Ice::IPConnectionInfoPtr::dynamicCast(p))

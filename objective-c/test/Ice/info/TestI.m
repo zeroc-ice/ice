@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #import <objc/Ice.h>
+#import <objc/IceSSL.h>
 #import <info/TestI.h>
 #import <TestCommon.h>
 
@@ -50,17 +51,28 @@
     ICEConnectionInfo* info = [[current con] getInfo];
     ICEMutableContext* ctx = [ICEMutableContext dictionaryWithObject:[info adapterName] forKey:@"adapterName"];
     [ctx setObject:info.incoming ? @"true" : @"false" forKey:@"incoming"];
+
     ICEIPConnectionInfo* ipinfo = (ICEIPConnectionInfo*)info;
     [ctx setObject:ipinfo.localAddress forKey:@"localAddress"];
     [ctx setObject:[NSString stringWithFormat:@"%d", ipinfo.localPort] forKey:@"localPort"];
     [ctx setObject:ipinfo.remoteAddress forKey:@"remoteAddress"];
     [ctx setObject:[NSString stringWithFormat:@"%d", ipinfo.remotePort] forKey:@"remotePort"];
+
     if([info isKindOfClass:[ICEWSConnectionInfo class]])
     {
         ICEWSConnectionInfo* wsinfo = (ICEWSConnectionInfo*)info;
         for(NSString* key in wsinfo.headers)
         {
             [ctx setObject:[wsinfo.headers objectForKey:key] forKey:[NSString stringWithFormat:@"ws.%@", key]];
+        }
+    }
+
+    if([info isKindOfClass:[ICESSLWSSConnectionInfo class]])
+    {
+        ICESSLWSSConnectionInfo* wssinfo = (ICESSLWSSConnectionInfo*)info;
+        for(NSString* key in wssinfo.headers)
+        {
+            [ctx setObject:[wssinfo.headers objectForKey:key] forKey:[NSString stringWithFormat:@"ws.%@", key]];
         }
     }
     return ctx;

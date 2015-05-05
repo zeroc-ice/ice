@@ -171,13 +171,25 @@ infoAllTests(id<ICECommunicator> communicator)
         test([[ctx objectForKey:@"remotePort"] intValue] == info.localPort);
         test([[ctx objectForKey:@"localPort"] intValue] == info.remotePort);
 
-        if([info isKindOfClass:[ICEWSConnectionInfo class]])
+        if([info isKindOfClass:[ICEWSConnectionInfo class]] || [info isKindOfClass:[ICESSLWSSConnectionInfo class]])
         {
-            ICEWSConnectionInfo* wsinfo = (ICEWSConnectionInfo*)info;
-            test([[wsinfo.headers objectForKey:@"Upgrade"] isEqualToString:@"websocket"]);
-            test([[wsinfo.headers objectForKey:@"Connection"] isEqualToString:@"Upgrade"]);
-            test([[wsinfo.headers objectForKey:@"Sec-WebSocket-Protocol"] isEqualToString:@"ice.zeroc.com"]);
-            test([wsinfo.headers objectForKey:@"Sec-WebSocket-Accept"] != nil);
+            ICEHeaderDict* headers;
+            if([info isKindOfClass:[ICEWSConnectionInfo class]])
+            {
+                ICEWSConnectionInfo* wsinfo = (ICEWSConnectionInfo*)info;
+                headers = wsinfo.headers;
+            }
+
+            if([info isKindOfClass:[ICESSLWSSConnectionInfo class]])
+            {
+                ICESSLWSSConnectionInfo* wssinfo = (ICESSLWSSConnectionInfo*)info;
+                headers = wssinfo.headers;
+            }
+
+            test([[headers objectForKey:@"Upgrade"] isEqualToString:@"websocket"]);
+            test([[headers objectForKey:@"Connection"] isEqualToString:@"Upgrade"]);
+            test([[headers objectForKey:@"Sec-WebSocket-Protocol"] isEqualToString:@"ice.zeroc.com"]);
+            test([headers objectForKey:@"Sec-WebSocket-Accept"] != nil);
 
             test([[ctx objectForKey:@"ws.Upgrade"] isEqualToString:@"websocket"]);
             test([[ctx objectForKey:@"ws.Connection"] isEqualToString:@"Upgrade"]);

@@ -10,6 +10,7 @@
 #include <Endpoint.h>
 #include <Util.h>
 #include <Ice/Object.h>
+#include <IceSSL/EndpointInfo.h>
 
 using namespace std;
 using namespace IceRuby;
@@ -22,6 +23,8 @@ static VALUE _tcpEndpointInfoClass;
 static VALUE _udpEndpointInfoClass;
 static VALUE _wsEndpointInfoClass;
 static VALUE _opaqueEndpointInfoClass;
+static VALUE _sslEndpointInfoClass;
+static VALUE _wssEndpointInfoClass;
 
 // **********************************************************************
 // Endpoint
@@ -170,6 +173,25 @@ IceRuby::createEndpointInfo(const Ice::EndpointInfoPtr& p)
         rb_ivar_set(info, rb_intern("@rawBytes"), v);
         rb_ivar_set(info, rb_intern("@rawEncoding"), createEncodingVersion(opaque->rawEncoding));
     }
+    else if(IceSSL::WSSEndpointInfoPtr::dynamicCast(p))
+    {
+        info = Data_Wrap_Struct(_wssEndpointInfoClass, 0, IceRuby_EndpointInfo_free, new Ice::EndpointInfoPtr(p));
+
+        IceSSL::WSSEndpointInfoPtr wss = IceSSL::WSSEndpointInfoPtr::dynamicCast(p);
+        rb_ivar_set(info, rb_intern("@host"), createString(wss->host));
+        rb_ivar_set(info, rb_intern("@port"), INT2FIX(wss->port));
+        rb_ivar_set(info, rb_intern("@sourceAddress"), createString(wss->sourceAddress));
+        rb_ivar_set(info, rb_intern("@resource"), createString(wss->resource));
+    }
+    else if(IceSSL::EndpointInfoPtr::dynamicCast(p))
+    {
+        info = Data_Wrap_Struct(_sslEndpointInfoClass, 0, IceRuby_EndpointInfo_free, new Ice::EndpointInfoPtr(p));
+
+        IceSSL::EndpointInfoPtr ssl = IceSSL::EndpointInfoPtr::dynamicCast(p);
+        rb_ivar_set(info, rb_intern("@host"), createString(ssl->host));
+        rb_ivar_set(info, rb_intern("@port"), INT2FIX(ssl->port));
+        rb_ivar_set(info, rb_intern("@sourceAddress"), createString(ssl->sourceAddress));
+    }
     else if(Ice::IPEndpointInfoPtr::dynamicCast(p))
     {
         info = Data_Wrap_Struct(_ipEndpointInfoClass, 0, IceRuby_EndpointInfo_free, new Ice::EndpointInfoPtr(p));
@@ -183,6 +205,7 @@ IceRuby::createEndpointInfo(const Ice::EndpointInfoPtr& p)
     {
         info = Data_Wrap_Struct(_endpointInfoClass, 0, IceRuby_EndpointInfo_free, new Ice::EndpointInfoPtr(p));
     }
+
     rb_ivar_set(info, rb_intern("@timeout"), INT2FIX(p->timeout));
     rb_ivar_set(info, rb_intern("@compress"), p->compress ? Qtrue : Qfalse);
     return info;
@@ -306,7 +329,7 @@ IceRuby::initEndpoint(VALUE iceModule)
     //
     // WSEndpointInfo
     //
-    _wsEndpointInfoClass = rb_define_class_under(iceModule, "WSEndpointInfo", _ipEndpointInfoClass);
+    _wsEndpointInfoClass = rb_define_class_under(iceModule, "WSEndpointInfo", _tcpEndpointInfoClass);
 
     //
     // Instance members.
@@ -323,6 +346,21 @@ IceRuby::initEndpoint(VALUE iceModule)
     //
     rb_define_attr(_opaqueEndpointInfoClass, "rawBytes", 1, 0);
     rb_define_attr(_opaqueEndpointInfoClass, "rawEncoding", 1, 0);
+
+    //
+    // SSLEndpointInfo
+    //
+    _sslEndpointInfoClass = rb_define_class_under(iceModule, "SSLEndpointInfo", _ipEndpointInfoClass);
+
+    //
+    // WSSEndpointInfo
+    //
+    _wssEndpointInfoClass = rb_define_class_under(iceModule, "WSSEndpointInfo", _sslEndpointInfoClass);
+
+    //
+    // Instance members.
+    //
+    rb_define_attr(_wssEndpointInfoClass, "resource", 1, 0);
 }
 
 bool

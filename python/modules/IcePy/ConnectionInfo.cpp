@@ -14,6 +14,8 @@
 #include <EndpointInfo.h>
 #include <Util.h>
 #include <Ice/Object.h>
+#include <IceSSL/ConnectionInfo.h>
+
 using namespace std;
 using namespace IcePy;
 
@@ -178,6 +180,69 @@ wsConnectionInfoGetHeaders(ConnectionInfoObject* self)
     return result.release();
 }
 
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+sslConnectionInfoGetCipher(ConnectionInfoObject* self)
+{
+    IceSSL::ConnectionInfoPtr info = IceSSL::ConnectionInfoPtr::dynamicCast(*self->connectionInfo);
+    assert(info);
+    return createString(info->cipher);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+sslConnectionInfoGetCerts(ConnectionInfoObject* self)
+{
+    IceSSL::ConnectionInfoPtr info = IceSSL::ConnectionInfoPtr::dynamicCast(*self->connectionInfo);
+    assert(info);
+    PyObject* certs = PyList_New(0);
+    stringSeqToList(info->certs, certs);
+    return certs;
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+sslConnectionInfoGetVerified(ConnectionInfoObject* self)
+{
+    IceSSL::ConnectionInfoPtr info = IceSSL::ConnectionInfoPtr::dynamicCast(*self->connectionInfo);
+    assert(info);
+    PyObject* result = info->incoming ? getTrue() : getFalse();
+    Py_INCREF(result);
+    return result;
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+wssConnectionInfoGetHeaders(ConnectionInfoObject* self)
+{
+    IceSSL::WSSConnectionInfoPtr info = IceSSL::WSSConnectionInfoPtr::dynamicCast(*self->connectionInfo);
+    assert(info);
+
+    PyObjectHandle result = PyDict_New();
+    if(result.get())
+    {
+        for(Ice::HeaderDict::iterator p = info->headers.begin(); p != info->headers.end(); ++p)
+        {
+            PyObjectHandle key = createString(p->first);
+            PyObjectHandle val = createString(p->second);
+            if(!val.get() || PyDict_SetItem(result.get(), key.get(), val.get()) < 0)
+            {
+                return 0;
+            }
+        }
+    }
+
+    return result.release();
+}
+
 static PyGetSetDef ConnectionInfoGetters[] =
 {
     { STRCAST("incoming"), reinterpret_cast<getter>(connectionInfoGetIncoming), 0,
@@ -216,6 +281,24 @@ static PyGetSetDef UDPConnectionInfoGetters[] =
 static PyGetSetDef WSConnectionInfoGetters[] =
 {
     { STRCAST("headers"), reinterpret_cast<getter>(wsConnectionInfoGetHeaders), 0,
+        PyDoc_STR(STRCAST("request headers")), 0 },
+    { 0, 0 } /* sentinel */
+};
+
+static PyGetSetDef SSLConnectionInfoGetters[] =
+{
+    { STRCAST("cipher"), reinterpret_cast<getter>(sslConnectionInfoGetCipher), 0,
+        PyDoc_STR(STRCAST("negotiated cipher suite")), 0 },
+    { STRCAST("certs"), reinterpret_cast<getter>(sslConnectionInfoGetCerts), 0,
+        PyDoc_STR(STRCAST("certificate chain")), 0 },
+    { STRCAST("verified"), reinterpret_cast<getter>(sslConnectionInfoGetVerified), 0,
+        PyDoc_STR(STRCAST("certificate chain verification status")), 0 },
+    { 0, 0 } /* sentinel */
+};
+
+static PyGetSetDef WSSConnectionInfoGetters[] =
+{
+    { STRCAST("headers"), reinterpret_cast<getter>(wssConnectionInfoGetHeaders), 0,
         PyDoc_STR(STRCAST("request headers")), 0 },
     { 0, 0 } /* sentinel */
 };
@@ -458,6 +541,100 @@ PyTypeObject WSConnectionInfoType =
     0,                               /* tp_is_gc */
 };
 
+PyTypeObject SSLConnectionInfoType =
+{
+    /* The ob_type field must be initialized in the module init function
+     * to be portable to Windows without using C++. */
+    PyVarObject_HEAD_INIT(0, 0)
+    STRCAST("IcePy.SSLConnectionInfo"),/* tp_name */
+    sizeof(ConnectionInfoObject),    /* tp_basicsize */
+    0,                               /* tp_itemsize */
+    /* methods */
+    (destructor)connectionInfoDealloc, /* tp_dealloc */
+    0,                               /* tp_print */
+    0,                               /* tp_getattr */
+    0,                               /* tp_setattr */
+    0,                               /* tp_reserved */
+    0,                               /* tp_repr */
+    0,                               /* tp_as_number */
+    0,                               /* tp_as_sequence */
+    0,                               /* tp_as_mapping */
+    0,                               /* tp_hash */
+    0,                               /* tp_call */
+    0,                               /* tp_str */
+    0,                               /* tp_getattro */
+    0,                               /* tp_setattro */
+    0,                               /* tp_as_buffer */
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
+    0,                               /* tp_doc */
+    0,                               /* tp_traverse */
+    0,                               /* tp_clear */
+    0,                               /* tp_richcompare */
+    0,                               /* tp_weaklistoffset */
+    0,                               /* tp_iter */
+    0,                               /* tp_iternext */
+    0,                               /* tp_methods */
+    0,                               /* tp_members */
+    SSLConnectionInfoGetters,        /* tp_getset */
+    0,                               /* tp_base */
+    0,                               /* tp_dict */
+    0,                               /* tp_descr_get */
+    0,                               /* tp_descr_set */
+    0,                               /* tp_dictoffset */
+    0,                               /* tp_init */
+    0,                               /* tp_alloc */
+    (newfunc)connectionInfoNew,      /* tp_new */
+    0,                               /* tp_free */
+    0,                               /* tp_is_gc */
+};
+
+PyTypeObject WSSConnectionInfoType =
+{
+    /* The ob_type field must be initialized in the module init function
+     * to be portable to Windows without using C++. */
+    PyVarObject_HEAD_INIT(0, 0)
+    STRCAST("IcePy.WSSConnectionInfo"),/* tp_name */
+    sizeof(ConnectionInfoObject),    /* tp_basicsize */
+    0,                               /* tp_itemsize */
+    /* methods */
+    (destructor)connectionInfoDealloc, /* tp_dealloc */
+    0,                               /* tp_print */
+    0,                               /* tp_getattr */
+    0,                               /* tp_setattr */
+    0,                               /* tp_reserved */
+    0,                               /* tp_repr */
+    0,                               /* tp_as_number */
+    0,                               /* tp_as_sequence */
+    0,                               /* tp_as_mapping */
+    0,                               /* tp_hash */
+    0,                               /* tp_call */
+    0,                               /* tp_str */
+    0,                               /* tp_getattro */
+    0,                               /* tp_setattro */
+    0,                               /* tp_as_buffer */
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
+    0,                               /* tp_doc */
+    0,                               /* tp_traverse */
+    0,                               /* tp_clear */
+    0,                               /* tp_richcompare */
+    0,                               /* tp_weaklistoffset */
+    0,                               /* tp_iter */
+    0,                               /* tp_iternext */
+    0,                               /* tp_methods */
+    0,                               /* tp_members */
+    WSSConnectionInfoGetters,        /* tp_getset */
+    0,                               /* tp_base */
+    0,                               /* tp_dict */
+    0,                               /* tp_descr_get */
+    0,                               /* tp_descr_set */
+    0,                               /* tp_dictoffset */
+    0,                               /* tp_init */
+    0,                               /* tp_alloc */
+    (newfunc)connectionInfoNew,      /* tp_new */
+    0,                               /* tp_free */
+    0,                               /* tp_is_gc */
+};
+
 }
 
 bool
@@ -517,6 +694,28 @@ IcePy::initConnectionInfo(PyObject* module)
         return false;
     }
 
+    SSLConnectionInfoType.tp_base = &IPConnectionInfoType; // Force inheritance from IPConnectionInfoType.
+    if(PyType_Ready(&SSLConnectionInfoType) < 0)
+    {
+        return false;
+    }
+    type = &SSLConnectionInfoType; // Necessary to prevent GCC's strict-alias warnings.
+    if(PyModule_AddObject(module, STRCAST("SSLConnectionInfo"), reinterpret_cast<PyObject*>(type)) < 0)
+    {
+        return false;
+    }
+
+    WSSConnectionInfoType.tp_base = &SSLConnectionInfoType; // Force inheritance from IPConnectionType.
+    if(PyType_Ready(&WSSConnectionInfoType) < 0)
+    {
+        return false;
+    }
+    type = &WSSConnectionInfoType; // Necessary to prevent GCC's strict-alias warnings.
+    if(PyModule_AddObject(module, STRCAST("WSSConnectionInfo"), reinterpret_cast<PyObject*>(type)) < 0)
+    {
+        return false;
+    }
+
     return true;
 }
 
@@ -543,6 +742,14 @@ IcePy::createConnectionInfo(const Ice::ConnectionInfoPtr& connectionInfo)
     else if(Ice::UDPConnectionInfoPtr::dynamicCast(connectionInfo))
     {
         type = &UDPConnectionInfoType;
+    }
+    else if(IceSSL::WSSConnectionInfoPtr::dynamicCast(connectionInfo))
+    {
+        type = &WSSConnectionInfoType;
+    }
+    else if(IceSSL::ConnectionInfoPtr::dynamicCast(connectionInfo))
+    {
+        type = &SSLConnectionInfoType;
     }
     else if(Ice::IPConnectionInfoPtr::dynamicCast(connectionInfo))
     {
