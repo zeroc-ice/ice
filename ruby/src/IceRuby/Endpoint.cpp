@@ -130,7 +130,17 @@ VALUE
 IceRuby::createEndpointInfo(const Ice::EndpointInfoPtr& p)
 {
     VALUE info;
-    if(Ice::TCPEndpointInfoPtr::dynamicCast(p))
+    if(Ice::WSEndpointInfoPtr::dynamicCast(p))
+    {
+        info = Data_Wrap_Struct(_wsEndpointInfoClass, 0, IceRuby_EndpointInfo_free, new Ice::EndpointInfoPtr(p));
+
+        Ice::WSEndpointInfoPtr ws = Ice::WSEndpointInfoPtr::dynamicCast(p);
+        rb_ivar_set(info, rb_intern("@host"), createString(ws->host));
+        rb_ivar_set(info, rb_intern("@port"), INT2FIX(ws->port));
+        rb_ivar_set(info, rb_intern("@sourceAddress"), createString(ws->sourceAddress));
+        rb_ivar_set(info, rb_intern("@resource"), createString(ws->resource));
+    }
+    else if(Ice::TCPEndpointInfoPtr::dynamicCast(p))
     {
         info = Data_Wrap_Struct(_tcpEndpointInfoClass, 0, IceRuby_EndpointInfo_free, new Ice::EndpointInfoPtr(p));
 
@@ -149,16 +159,6 @@ IceRuby::createEndpointInfo(const Ice::EndpointInfoPtr& p)
         rb_ivar_set(info, rb_intern("@sourceAddress"), createString(udp->sourceAddress));
         rb_ivar_set(info, rb_intern("@mcastInterface"), createString(udp->mcastInterface));
         rb_ivar_set(info, rb_intern("@mcastTtl"), INT2FIX(udp->mcastTtl));
-    }
-    else if(Ice::WSEndpointInfoPtr::dynamicCast(p))
-    {
-        info = Data_Wrap_Struct(_wsEndpointInfoClass, 0, IceRuby_EndpointInfo_free, new Ice::EndpointInfoPtr(p));
-
-        Ice::WSEndpointInfoPtr ws = Ice::WSEndpointInfoPtr::dynamicCast(p);
-        rb_ivar_set(info, rb_intern("@host"), createString(ws->host));
-        rb_ivar_set(info, rb_intern("@port"), INT2FIX(ws->port));
-        rb_ivar_set(info, rb_intern("@sourceAddress"), createString(ws->sourceAddress));
-        rb_ivar_set(info, rb_intern("@resource"), createString(ws->resource));
     }
     else if(Ice::OpaqueEndpointInfoPtr::dynamicCast(p))
     {

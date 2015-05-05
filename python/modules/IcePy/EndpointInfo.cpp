@@ -659,17 +659,17 @@ PyObject*
 IcePy::createEndpointInfo(const Ice::EndpointInfoPtr& endpointInfo)
 {
     PyTypeObject* type;
-    if(Ice::TCPEndpointInfoPtr::dynamicCast(endpointInfo))
+    if(Ice::WSEndpointInfoPtr::dynamicCast(endpointInfo))
+    {
+        type = &WSEndpointInfoType;
+    }
+    else if(Ice::TCPEndpointInfoPtr::dynamicCast(endpointInfo))
     {
         type = &TCPEndpointInfoType;
     }
     else if(Ice::UDPEndpointInfoPtr::dynamicCast(endpointInfo))
     {
         type = &UDPEndpointInfoType;
-    }
-    else if(Ice::WSEndpointInfoPtr::dynamicCast(endpointInfo))
-    {
-        type = &WSEndpointInfoType;
     }
     else if(Ice::OpaqueEndpointInfoPtr::dynamicCast(endpointInfo))
     {

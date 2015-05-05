@@ -70,7 +70,7 @@ function allTests($communicator)
         test(($ipEndpoint->type() == $tcpEndpointType && ($ipEndpoint instanceof $tcpEndpointInfoClass)) ||
              ($ipEndpoint->type() == $sslEndpointType && ($ipEndpoint instanceof $ipEndpointInfoClass)) ||
              ($ipEndpoint->type() == $wsEndpointType && ($ipEndpoint instanceof $wsEndpointInfoClass)) ||
-             ($ipEndpoint->type() == $wssEndpointType && ($ipEndpoint instanceof $wsEndpointInfoClass)));
+             ($ipEndpoint->type() == $wssEndpointType && ($ipEndpoint instanceof $ipEndpointInfoClass)));
 
         $udpEndpoint = $endps[1]->getInfo();
         test($udpEndpoint instanceof $udpEndpointInfoClass);
@@ -145,7 +145,7 @@ function allTests($communicator)
         test($ctx["remotePort"] == $info->localPort);
         test($ctx["localPort"] == $info->remotePort);
 
-        if($base->ice_getConnection()->type() == "ws" || $base->ice_getConnection()->type() == "wss")
+        if($base->ice_getConnection()->type() == "ws")
         {
             test($info instanceof $wsConnectionInfoClass);
 

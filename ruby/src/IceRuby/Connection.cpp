@@ -291,7 +291,26 @@ VALUE
 IceRuby::createConnectionInfo(const Ice::ConnectionInfoPtr& p)
 {
     VALUE info;
-    if(Ice::TCPConnectionInfoPtr::dynamicCast(p))
+    if(Ice::WSConnectionInfoPtr::dynamicCast(p))
+    {
+        info = Data_Wrap_Struct(_wsConnectionInfoClass, 0, IceRuby_ConnectionInfo_free, new Ice::ConnectionInfoPtr(p));
+
+        Ice::WSConnectionInfoPtr ws = Ice::WSConnectionInfoPtr::dynamicCast(p);
+        rb_ivar_set(info, rb_intern("@localAddress"), createString(ws->localAddress));
+        rb_ivar_set(info, rb_intern("@localPort"), INT2FIX(ws->localPort));
+        rb_ivar_set(info, rb_intern("@remoteAddress"), createString(ws->remoteAddress));
+        rb_ivar_set(info, rb_intern("@remotePort"), INT2FIX(ws->remotePort));
+
+        volatile VALUE result = callRuby(rb_hash_new);
+        for(Ice::HeaderDict::const_iterator q = ws->headers.begin(); q != ws->headers.end(); ++q)
+        {
+            volatile VALUE key = createString(q->first);
+            volatile VALUE value = createString(q->second);
+            callRuby(rb_hash_aset, result, key, value);
+        }
+        rb_ivar_set(info, rb_intern("@headers"), result);
+    }
+    else if(Ice::TCPConnectionInfoPtr::dynamicCast(p))
     {
         info = Data_Wrap_Struct(_tcpConnectionInfoClass, 0, IceRuby_ConnectionInfo_free, new Ice::ConnectionInfoPtr(p));
 
@@ -312,25 +331,6 @@ IceRuby::createConnectionInfo(const Ice::ConnectionInfoPtr& p)
         rb_ivar_set(info, rb_intern("@remotePort"), INT2FIX(udp->remotePort));
         rb_ivar_set(info, rb_intern("@mcastAddress"), createString(udp->mcastAddress));
         rb_ivar_set(info, rb_intern("@mcastPort"), INT2FIX(udp->mcastPort));
-    }
-    else if(Ice::WSConnectionInfoPtr::dynamicCast(p))
-    {
-        info = Data_Wrap_Struct(_wsConnectionInfoClass, 0, IceRuby_ConnectionInfo_free, new Ice::ConnectionInfoPtr(p));
-
-        Ice::WSConnectionInfoPtr ws = Ice::WSConnectionInfoPtr::dynamicCast(p);
-        rb_ivar_set(info, rb_intern("@localAddress"), createString(ws->localAddress));
-        rb_ivar_set(info, rb_intern("@localPort"), INT2FIX(ws->localPort));
-        rb_ivar_set(info, rb_intern("@remoteAddress"), createString(ws->remoteAddress));
-        rb_ivar_set(info, rb_intern("@remotePort"), INT2FIX(ws->remotePort));
-
-        volatile VALUE result = callRuby(rb_hash_new);
-        for(Ice::HeaderDict::const_iterator q = ws->headers.begin(); q != ws->headers.end(); ++q)
-        {
-            volatile VALUE key = createString(q->first);
-            volatile VALUE value = createString(q->second);
-            callRuby(rb_hash_aset, result, key, value);
-        }
-        rb_ivar_set(info, rb_intern("@headers"), result);
     }
     else if(Ice::IPConnectionInfoPtr::dynamicCast(p))
     {

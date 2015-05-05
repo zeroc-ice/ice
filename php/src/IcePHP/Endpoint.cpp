@@ -428,7 +428,15 @@ bool
 IcePHP::createEndpointInfo(zval* zv, const Ice::EndpointInfoPtr& p TSRMLS_DC)
 {
     int status;
-    if(Ice::TCPEndpointInfoPtr::dynamicCast(p))
+    if(Ice::WSEndpointInfoPtr::dynamicCast(p))
+    {
+        Ice::WSEndpointInfoPtr info = Ice::WSEndpointInfoPtr::dynamicCast(p);
+        if((status = object_init_ex(zv, wsEndpointInfoClassEntry)) == SUCCESS)
+        {
+            add_property_string(zv, STRCAST("resource"), const_cast<char*>(info->resource.c_str()), 1);
+        }
+    }
+    else if(Ice::TCPEndpointInfoPtr::dynamicCast(p))
     {
         status = object_init_ex(zv, tcpEndpointInfoClassEntry);
     }
@@ -439,14 +447,6 @@ IcePHP::createEndpointInfo(zval* zv, const Ice::EndpointInfoPtr& p TSRMLS_DC)
         {
             add_property_string(zv, STRCAST("mcastInterface"), const_cast<char*>(info->mcastInterface.c_str()), 1);
             add_property_long(zv, STRCAST("mcastTtl"), static_cast<long>(info->mcastTtl));
-        }
-    }
-    else if(Ice::WSEndpointInfoPtr::dynamicCast(p))
-    {
-        Ice::WSEndpointInfoPtr info = Ice::WSEndpointInfoPtr::dynamicCast(p);
-        if((status = object_init_ex(zv, wsEndpointInfoClassEntry)) == SUCCESS)
-        {
-            add_property_string(zv, STRCAST("resource"), const_cast<char*>(info->resource.c_str()), 1);
         }
     }
     else if(Ice::OpaqueEndpointInfoPtr::dynamicCast(p))

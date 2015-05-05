@@ -532,17 +532,17 @@ PyObject*
 IcePy::createConnectionInfo(const Ice::ConnectionInfoPtr& connectionInfo)
 {
     PyTypeObject* type;
-    if(Ice::TCPConnectionInfoPtr::dynamicCast(connectionInfo))
+    if(Ice::WSConnectionInfoPtr::dynamicCast(connectionInfo))
+    {
+        type = &WSConnectionInfoType;
+    }
+    else if(Ice::TCPConnectionInfoPtr::dynamicCast(connectionInfo))
     {
         type = &TCPConnectionInfoType;
     }
     else if(Ice::UDPConnectionInfoPtr::dynamicCast(connectionInfo))
     {
         type = &UDPConnectionInfoType;
-    }
-    else if(Ice::WSConnectionInfoPtr::dynamicCast(connectionInfo))
-    {
-        type = &WSConnectionInfoType;
     }
     else if(Ice::IPConnectionInfoPtr::dynamicCast(connectionInfo))
     {

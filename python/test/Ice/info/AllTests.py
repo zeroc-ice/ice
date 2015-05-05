@@ -38,7 +38,7 @@ def allTests(communicator):
     test((ipEndpoint.type() == Ice.TCPEndpointType and isinstance(ipEndpoint, Ice.TCPEndpointInfo)) or
          (ipEndpoint.type() == Ice.SSLEndpointType) or
          (ipEndpoint.type() == Ice.WSEndpointType and isinstance(ipEndpoint, Ice.WSEndpointInfo)) or
-         (ipEndpoint.type() == Ice.WSSEndpointType and isinstance(ipEndpoint, Ice.WSEndpointInfo)))
+         (ipEndpoint.type() == Ice.WSSEndpointType))
 
     udpEndpoint = endps[1].getInfo()
     test(isinstance(udpEndpoint, Ice.UDPEndpointInfo))
@@ -153,7 +153,7 @@ def allTests(communicator):
     test(ctx["remotePort"] == str(info.localPort))
     test(ctx["localPort"] == str(info.remotePort))
 
-    if(base.ice_getConnection().type() == "ws" or base.ice_getConnection().type() == "wss"):
+    if(base.ice_getConnection().type() == "ws"):
         test(isinstance(info, Ice.WSConnectionInfo))
 
         test(info.headers["Upgrade"] == "websocket")

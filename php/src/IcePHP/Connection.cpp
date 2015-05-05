@@ -620,20 +620,7 @@ bool
 IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p TSRMLS_DC)
 {
     int status;
-    if(Ice::TCPConnectionInfoPtr::dynamicCast(p))
-    {
-        status = object_init_ex(zv, tcpConnectionInfoClassEntry);
-    }
-    else if(Ice::UDPConnectionInfoPtr::dynamicCast(p))
-    {
-        Ice::UDPConnectionInfoPtr info = Ice::UDPConnectionInfoPtr::dynamicCast(p);
-        if((status = object_init_ex(zv, udpConnectionInfoClassEntry)) == SUCCESS)
-        {
-            add_property_string(zv, STRCAST("mcastAddress"), const_cast<char*>(info->mcastAddress.c_str()), 1);
-            add_property_long(zv, STRCAST("mcastPort"), static_cast<long>(info->mcastPort));
-        }
-    }
-    else if(Ice::WSConnectionInfoPtr::dynamicCast(p))
+    if(Ice::WSConnectionInfoPtr::dynamicCast(p))
     {
         Ice::WSConnectionInfoPtr info = Ice::WSConnectionInfoPtr::dynamicCast(p);
         if((status = object_init_ex(zv, wsConnectionInfoClassEntry)) == SUCCESS)
@@ -649,6 +636,19 @@ IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p TSRMLS_DC
             {
                 return false;
             }
+        }
+    }
+    else if(Ice::TCPConnectionInfoPtr::dynamicCast(p))
+    {
+        status = object_init_ex(zv, tcpConnectionInfoClassEntry);
+    }
+    else if(Ice::UDPConnectionInfoPtr::dynamicCast(p))
+    {
+        Ice::UDPConnectionInfoPtr info = Ice::UDPConnectionInfoPtr::dynamicCast(p);
+        if((status = object_init_ex(zv, udpConnectionInfoClassEntry)) == SUCCESS)
+        {
+            add_property_string(zv, STRCAST("mcastAddress"), const_cast<char*>(info->mcastAddress.c_str()), 1);
+            add_property_long(zv, STRCAST("mcastPort"), static_cast<long>(info->mcastPort));
         }
     }
     else if(Ice::IPConnectionInfoPtr::dynamicCast(p))
