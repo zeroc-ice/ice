@@ -145,6 +145,12 @@ LDFLAGS         = $(LDFLAGS) /debug /incremental:no
 LD_DLLFLAGS	= $(LDFLAGS) /dll
 LD_EXEFLAGS	= $(LDFLAGS)
 
+!if "$(WINRT)" != "yes"
+LD_TESTFLAGS	= $(LD_EXEFLAGS) $(SETARGV)
+!else
+LD_TESTFLAGS	= $(LD_DLLFLAGS)
+!endif
+
 #
 # With MSVC, we link automatically all Ice libraries using pragma comment
 #

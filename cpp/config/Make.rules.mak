@@ -108,10 +108,14 @@ bindir			= $(top_srcdir)\bin
 libdir			= $(top_srcdir)\lib
 headerdir		= $(top_srcdir)\include
 
+!if "$(WINRT)" == "yes"
+includedir      = $(SDK_INCLUDE_PATH)
+!else
 !if "$(ice_src_dist)" != ""
 includedir		= $(top_srcdir)\include
 !else
 includedir		= $(ice_dir)\include
+!endif
 !endif
 
 install_libdir	  	= $(prefix)\lib$(x64suffix)

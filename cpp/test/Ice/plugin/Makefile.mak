@@ -10,7 +10,7 @@
 top_srcdir	= ..\..\..
 
 !if "$(WINRT)" != "yes"
-NAME_PREFIX	= 
+NAME_PREFIX	=
 EXT		= .exe
 OBJDIR		= .
 !else
@@ -42,16 +42,10 @@ CPDBFLAGS        = /pdb:$(CLIENT).pdb
 PPDBFLAGS       = /pdb:$(DLLNAME:.dll=.pdb)
 !endif
 
-!if "$(WINRT)" != "yes"
-LD_TESTFLAGS	= $(LD_EXEFLAGS) $(SETARGV)
-!else
-LD_TESTFLAGS	= $(LD_DLLFLAGS) /export:dllMain
-!endif
-
 LINKWITH        = $(LIBS)
 
 $(PLUGINDIR)\$(LIBNAME): $(PLUGINDIR)\$(DLLNAME)
-	    
+
 $(PLUGINDIR)\$(DLLNAME): $(POBJS)
 	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(POBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
 	@if exist $(PLUGINDIR)\$(DLLNAME:.dll=.lib) move $(PLUGINDIR)\$(DLLNAME:.dll=.lib) $(PLUGINDIR)\$(LIBNAME)

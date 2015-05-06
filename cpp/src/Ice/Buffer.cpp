@@ -9,6 +9,7 @@
 
 #include <Ice/Buffer.h>
 #include <Ice/LocalException.h>
+#include <Ice/BasicStream.h>
 
 using namespace std;
 using namespace Ice;
@@ -18,7 +19,7 @@ void
 IceInternal::Buffer::swapBuffer(Buffer& other)
 {
     b.swap(other.b);
-    std::swap(i, other.i); 
+    std::swap(i, other.i);
 }
 
 IceInternal::Buffer::Container::Container() :
@@ -87,7 +88,7 @@ IceInternal::Buffer::Container::reserve(size_type n)
     {
         return;
     }
-    
+
     pointer p = reinterpret_cast<pointer>(::realloc(_buf, _capacity));
     if(!p)
     {

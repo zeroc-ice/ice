@@ -10,7 +10,7 @@
 top_srcdir	= ..\..\..
 
 !if "$(WINRT)" != "yes"
-NAME_PREFIX	= 
+NAME_PREFIX	=
 EXT		= .exe
 OBJDIR		= .
 !else
@@ -30,14 +30,8 @@ OBJS		= $(SLICE_OBJS) \
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-SLICE2CPPFLAGS	= --stream $(SLICE2CPPFLAGS) 
+SLICE2CPPFLAGS	= --stream $(SLICE2CPPFLAGS)
 CPPFLAGS	= -I. -I../../include $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
-
-!if "$(WINRT)" != "yes"
-LD_TESTFLAGS	= $(LD_EXEFLAGS) $(SETARGV)
-!else
-LD_TESTFLAGS	= $(LD_DLLFLAGS) /export:dllMain
-!endif
 
 !if "$(GENERATE_PDB)" == "yes"
 CPDBFLAGS        = /pdb:$(CLIENT).pdb

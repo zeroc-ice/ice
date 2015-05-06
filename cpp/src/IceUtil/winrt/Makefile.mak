@@ -45,7 +45,7 @@ SRCS		= $(SRCS:Retail\=..\)
 SRCS		= $(SRCS:Debug\=..\)
 
 PDBNAME		= $(LIBNAME:.lib=.pdb)
-CPPFLAGS        = /Fd$(PDBNAME) $(CPPFLAGS) -DICE_UTIL_API_EXPORTS -I..\..\ -DWIN32_LEAN_AND_MEAN
+CPPFLAGS        = /Fd$(PDBNAME) $(CPPFLAGS) -I..\..\ -DICE_BUILDING_ICEUTIL -DWIN32_LEAN_AND_MEAN
 
 !include $(top_srcdir)/config/Make.rules.mak
 

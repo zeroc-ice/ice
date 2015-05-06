@@ -213,10 +213,9 @@ HDIR		= $(headerdir)\Ice
 SDIR		= $(slicedir)\Ice
 
 PDBNAME			= $(LIBNAME:.lib=.pdb)
-CPPFLAGS		= /Fd$(PDBNAME) -I. -I..\.. $(CPPFLAGS) -DICE_API_EXPORTS -DWIN32_LEAN_AND_MEAN
-SLICE2CPPFLAGS		= --ice $(SLICE2CPPFLAGS)
-CORE_SLICE2CPPFLAGS	= --include-dir Ice --dll-export ICE_API $(SLICE2CPPFLAGS)
-SSL_SLICE2CPPFLAGS 	= --include-dir IceSSL --dll-export ICE_SSL_API $(SLICE2CPPFLAGS)
+CPPFLAGS		= /Fd$(PDBNAME) -I. -I..\.. -DICE_BUILDING_ICE -DICE_BUILDING_ICESSL -DWIN32_LEAN_AND_MEAN $(CPPFLAGS)
+CORE_SLICE2CPPFLAGS	= --ice --include-dir Ice $(SLICE2CPPFLAGS)
+SSL_SLICE2CPPFLAGS 	= --ice --include-dir IceSSL $(SLICE2CPPFLAGS)
 
 !include $(top_srcdir)\config\Make.rules.mak
 
@@ -238,7 +237,7 @@ $(LIBNAME): $(LOCAL_OBJS) $(OBJS) sdks
 	@if not exist "$(ARCH)\$(CONFIG)" mkdir $(ARCH)\$(CONFIG)
 	$(CXX) /c /Fo$(ARCH)\$(CONFIG)\ $(CPPFLAGS) $(CXXFLAGS) $<
 
-.cpp{$(ARCH)\$(CONFIG)\IceDiscovery\}.obj:: 
+.cpp{$(ARCH)\$(CONFIG)\IceDiscovery\}.obj::
 	@if not exist "$(ARCH)\$(CONFIG)\IceDiscovery" mkdir $(ARCH)\$(CONFIG)\IceDiscovery
 	$(CXX) /c /Fo$(ARCH)\$(CONFIG)\IceDiscovery\ $(CPPFLAGS) $(CXXFLAGS) $<
 

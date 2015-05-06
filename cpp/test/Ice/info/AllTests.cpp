@@ -165,8 +165,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(info->remoteAddress == defaultHost);
             test(info->localAddress == defaultHost);
         }
+#if !defined(ICE_OS_WINRT)
         test(info->rcvSize >= 1024);
         test(info->sndSize >= 2048);
+#endif
 
         ostringstream os;
 
@@ -225,8 +227,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(info->remoteAddress == defaultHost);
             test(info->localAddress == defaultHost);
         }
+
+#if !defined(ICE_OS_WINRT)
         test(info->rcvSize >= 2048);
         test(info->sndSize >= 1024);
+#endif
     }
     cout << "ok" << endl;
 

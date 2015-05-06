@@ -28,4 +28,14 @@
 #   endif
 #endif
 
+#ifndef GLACIER2_API
+#   ifdef GLACIER2_API_EXPORTS
+#       define GLACIER2_API ICE_DECLSPEC_EXPORT
+#   elif defined(ICE_STATIC_LIBS)
+#       define GLACIER2_API /**/
+#   else
+#       define GLACIER2_API ICE_DECLSPEC_IMPORT
+#   endif
+#endif
+
 #endif

@@ -31,9 +31,9 @@ HDIR		= $(headerdir)\IceStorm
 SDIR		= $(slicedir)\IceStorm
 
 PDBNAME		= $(LIBNAME:.lib=.pdb)
-CPPFLAGS	= /Fd$(PDBNAME) -I..\.. -DWIN32_LEAN_AND_MEAN 
+CPPFLAGS	= /Fd$(PDBNAME) -I..\.. -DICE_BUILDING_ICESTORM -DWIN32_LEAN_AND_MEAN
 ICECPPFLAGS	= -I..
-SLICE2CPPFLAGS	= --ice --include-dir IceStorm --checksum --dll-export ICE_STORM_LIB_API
+SLICE2CPPFLAGS	= --ice --include-dir IceStorm --checksum
 
 !include $(top_srcdir)\config\Make.rules.mak
 

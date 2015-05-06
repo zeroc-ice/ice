@@ -12,11 +12,13 @@ top_srcdir	= ..
 !include $(top_srcdir)/config/Make.rules.mak
 
 !if "$(WINRT)" == "yes"
-SUBDIRS		= IceUtil\winrt \
+SUBDIRS		= IceUtil Slice slice2cpp
+SUBDIRS_WINRT = IceUtil\winrt \
 		  Ice\winrt \
 		  Glacier2Lib\winrt \
 		  IceStormLib\winrt \
 		  IceGridLib\winrt
+
 !elseif "$(CPP_COMPILER)" == "VC100"
 SUBDIRS		= IceUtil \
 		  Slice \
@@ -56,8 +58,20 @@ SUBDIRS		= IceUtil \
 		  iceserviceinstall
 !endif
 
+!if "$(WINRT)" == "yes"
+$(EVERYTHING)::
+	@for %i in ( $(SUBDIRS) ) do \
+	    @if exist %i \
+	        @echo "making $@ in %i" && \
+	        cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak WINRT=no $@" || exit 1
+	@for %i in ( $(SUBDIRS_WINRT) ) do \
+	    @if exist %i \
+	        @echo "making $@ in %i" && \
+	        cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $@" || exit 1
+!else
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \
 	    @if exist %i \
 	        @echo "making $@ in %i" && \
 	        cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $@" || exit 1
+!endif

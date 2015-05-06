@@ -18,6 +18,7 @@
 #endif
 
 #include <Ice/LocalException.h>
+#include <Ice/BasicStream.h>
 
 using namespace std;
 using namespace Ice;
@@ -48,7 +49,7 @@ Init init;
 
 }
 
-Ice::LoggerI::LoggerI(const string& prefix, const string& file, 
+Ice::LoggerI::LoggerI(const string& prefix, const string& file,
                       bool convert, const IceUtil::StringConverterPtr& converter) :
     _prefix(prefix),
     _convert(convert),
@@ -153,7 +154,7 @@ Ice::LoggerI::write(const string& message, bool indent)
 #elif defined(_WIN32)
         //
         // Convert the message from the native narrow string encoding to the console
-        // code page encoding for printing. If the _convert member is set to false 
+        // code page encoding for printing. If the _convert member is set to false
         // we don't do any conversion.
         //
         if(!_convert)
@@ -172,11 +173,11 @@ Ice::LoggerI::write(const string& message, bool indent)
             {
                 // Convert message to UTF-8
                 string u8s = IceUtil::nativeToUTF8(s, _converter);
-                
+
                 // Then from UTF-8 to console CP
                 string consoleString;
                 _consoleConverter->fromUTF8(reinterpret_cast<const Byte*>(u8s.data()),
-                                            reinterpret_cast<const Byte*>(u8s.data() + u8s.size()), 
+                                            reinterpret_cast<const Byte*>(u8s.data() + u8s.size()),
                                             consoleString);
 
                 // We cannot use cerr here as writing to console using cerr

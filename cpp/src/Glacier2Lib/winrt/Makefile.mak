@@ -43,11 +43,11 @@ SLICE_SRCS	= Glacier2\Metrics.ice \
 		  Glacier2\SSLInfo.ice
 
 PDBNAME		= $(LIBNAME:.lib=.pdb)
-CPPFLAGS	= /Fd$(PDBNAME) -I..\.. $(CPPFLAGS) -DGLACIER2_API_EXPORTS -DWIN32_LEAN_AND_MEAN
+CPPFLAGS	= /Fd$(PDBNAME) -I..\.. $(CPPFLAGS) -DICE_BUILDING_GLACIER2 -DWIN32_LEAN_AND_MEAN
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-SLICE2CPPFLAGS	= --ice --include-dir Glacier2 --dll-export GLACIER2_API $(SLICE2CPPFLAGS)
+SLICE2CPPFLAGS	= --ice --include-dir Glacier2 $(SLICE2CPPFLAGS)
 
 $(LIBNAME): $(OBJS) $(HDIR)\PermissionsVerifierF.h $(HDIR)\RouterF.h sdks
 	$(AR) $(ARFLAGS) $(OBJS) /out:$(LIBNAME)

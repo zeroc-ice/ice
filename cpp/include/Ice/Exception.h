@@ -59,10 +59,10 @@ public:
 
     virtual void __write(::IceInternal::BasicStream*) const;
     virtual void __read(::IceInternal::BasicStream*);
-    
+
     virtual void __write(const OutputStreamPtr&) const;
     virtual void __read(const InputStreamPtr&);
-  
+
     virtual bool __usesClasses() const;
 
 protected:

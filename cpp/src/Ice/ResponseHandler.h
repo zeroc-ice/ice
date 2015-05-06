@@ -15,6 +15,7 @@
 
 #include <Ice/Config.h>
 #include <Ice/LocalException.h>
+#include <Ice/BasicStream.h>
 #include <Ice/ResponseHandlerF.h>
 
 namespace IceInternal
@@ -25,9 +26,9 @@ class BasicStream;
 class ResponseHandler : virtual public ::IceUtil::Shared
 {
 public:
-    
+
     virtual ~ResponseHandler();
-    
+
     virtual void sendResponse(Ice::Int, BasicStream*, Ice::Byte, bool) = 0;
     virtual void sendNoResponse() = 0;
     virtual bool systemException(Ice::Int, const Ice::SystemException&, bool) = 0;

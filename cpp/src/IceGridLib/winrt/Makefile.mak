@@ -47,8 +47,8 @@ HDIR		= $(headerdir)\IceGrid
 SDIR		= $(slicedir)\IceGrid
 
 PDBNAME		= $(LIBNAME:.lib=.pdb)
-CPPFLAGS        = /Fd$(PDBNAME) -I..\.. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
-SLICE2CPPFLAGS	= --checksum --ice --include-dir IceGrid --dll-export ICE_GRID_API
+CPPFLAGS        = /Fd$(PDBNAME) -I..\.. $(CPPFLAGS) -DICE_BUILDING_ICEGRID -DWIN32_LEAN_AND_MEAN
+SLICE2CPPFLAGS	= --checksum --ice --include-dir IceGrid
 
 !include $(top_srcdir)\config\Make.rules.mak
 

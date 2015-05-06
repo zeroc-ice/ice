@@ -20,7 +20,7 @@
 namespace IceInternal
 {
 
-class StreamEndpointI : public IPEndpointI, WSEndpointDelegate
+class StreamEndpointI : public IPEndpointI, public WSEndpointDelegate
 {
 public:
 

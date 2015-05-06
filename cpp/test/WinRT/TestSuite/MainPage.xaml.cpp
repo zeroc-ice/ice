@@ -952,7 +952,7 @@ TestSuite::MainPage::selectedProtocol()
 std::string
 TestSuite::MainPage::selectedLanguage()
 {
-    static const char* languages[] = {"winrt", "cpp", "cs", "java"};
+    static const char* languages[] = {"winrt", "cpp", "csharp", "java"};
     assert(_language->SelectedIndex < sizeof(languages) / sizeof(const char*));
     return languages[_language->SelectedIndex];
 }
