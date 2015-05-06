@@ -96,7 +96,7 @@ factory.getCA().save("cacert.pem").save("cacert.der")
 # Client certificate
 #
 client = factory.create("client")
-client.save("client.p12").save("client.jks", caalias="cacert").save("client.bks")
+client.save("client.p12").save("client.jks", caalias="cacert")
 
 #
 # Server certificate
@@ -104,6 +104,12 @@ client.save("client.p12").save("client.jks", caalias="cacert").save("client.bks"
 # NOTE: server.pem is used by scripts/TestController.py
 #
 server = factory.create("server", cn = (dns if usedns else ip), ip=ip, dns=dns)
-server.save("server.p12").save("server.jks", caalias="cacert").save("server.bks").save("server.pem")
+server.save("server.p12").save("server.jks", caalias="cacert").save("server.pem")
+
+try:
+    server.save("server.bks")
+    client.save("client.bks")
+except Exception as ex:
+    print("warning: couldn't generate BKS certificates:\n" + str(ex))
 
 factory.destroy()
