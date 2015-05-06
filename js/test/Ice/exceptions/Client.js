@@ -125,7 +125,8 @@
                                     failCB,
                                     function(ex)
                                     {
-                                        test(ex instanceof Ice.ConnectionLostException);
+                                        test(ex instanceof Ice.ConnectionLostException ||
+                                             ex instanceof Ice.UnknownException);
                                         out.writeLine("ok");
                                     }
                                 );
