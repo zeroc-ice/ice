@@ -54,10 +54,10 @@ typedef std::atomic<int> Atomic;
 // volatile here is required by InterlockedExchangeXXX
 // family functions.
 //
-#  if defined(__MINGW32__)
-typedef volatile long int ATOMIC_T;
+#  if defined(__MINGW32__) || (defined(_MSC_VER) && (_MSC_VER <= 1500))
+typedef volatile LONG ATOMIC_T;
 #  else
-typedef volatile unsigned int ATOMIC_T;
+typedef unsigned int ATOMIC_T;
 #  endif
 #else
 typedef int ATOMIC_T;
@@ -71,17 +71,17 @@ typedef int ATOMIC_T;
 class ICE_UTIL_API Atomic : public IceUtil::noncopyable
 {
 public:
-    
+
     Atomic() :
         _ref(0)
     {
     }
-    
+
     Atomic(int desired) :
         _ref(desired)
     {
     }
-    
+
     inline int fetch_add(int value)
     {
 #if defined(_WIN32)
@@ -95,11 +95,11 @@ public:
         return tmp;
 #endif
     }
-    
+
     inline int fetch_sub(int value)
     {
 #if defined(_WIN32)
-#  if defined(__MINGW32__)
+#  if defined(__MINGW32__) || (defined(_MSC_VER) && (_MSC_VER <= 1500))
         return InterlockedExchangeAdd(&_ref, -value);
 #  else
         return InterlockedExchangeSubtract(&_ref, value);
@@ -113,7 +113,7 @@ public:
         return tmp;
 #endif
     }
-    
+
     inline int load() const
     {
 #if defined(_WIN32)
@@ -125,7 +125,7 @@ public:
         return _ref;
 #endif
     }
-    
+
     inline int exchange(int value)
     {
 #if defined(_WIN32)
@@ -140,39 +140,39 @@ public:
         return _ref;
 #endif
     }
-    
+
     inline int operator++()
     {
         return fetch_add(1) + 1;
     }
-    
+
     inline int operator--()
     {
         return fetch_sub(1) - 1;
     }
-    
+
     inline int operator++(int)
     {
         return fetch_add(1);
     }
-    
+
     inline int operator--(int)
     {
         return fetch_sub(1);
     }
-    
+
     inline operator int()
     {
         return load();
     }
-    
+
     inline operator int() const
     {
         return load();
     }
 
 private:
-    
+
     ATOMIC_T _ref;
 #if !defined(_WIN32) && !defined(ICE_HAS_GCC_BUILTINS)
     IceUtil::Mutex _mutex;
