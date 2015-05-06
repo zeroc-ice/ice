@@ -73,7 +73,7 @@
                                       SelectionChanged="Language_SelectionChanged">
                                 <ComboBoxItem Name="winrt">winrt</ComboBoxItem>
                                 <ComboBoxItem Name="cpp">C++</ComboBoxItem>
-                                <ComboBoxItem Name="cs">C#</ComboBoxItem>
+                                <ComboBoxItem Name="csharp">C#</ComboBoxItem>
                                 <ComboBoxItem Name="java">Java</ComboBoxItem>
                             </ComboBox>
                             <TextBlock Margin="5" 

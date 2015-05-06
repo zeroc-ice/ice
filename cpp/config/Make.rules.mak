@@ -109,7 +109,12 @@ libdir			= $(top_srcdir)\lib
 headerdir		= $(top_srcdir)\include
 
 !if "$(WINRT)" == "yes"
+!if "$(SOURCE_DIR)" != ""
+includedir      = $(top_srcdir)\include
+!else
+# To build the tests against the SDK headers
 includedir      = $(SDK_INCLUDE_PATH)
+!endif
 !else
 !if "$(ice_src_dist)" != ""
 includedir		= $(top_srcdir)\include

@@ -5177,7 +5177,8 @@ Slice::Gen::StreamVisitor::visitStructStart(const StructPtr& p)
             //
             // We tell "importers" that the implementation exports these instantiations
             //
-            H << nl << "#if defined(ICE_HAS_DECLSPEC_IMPORT_EXPORT) && !defined(" << _dllExport.substr(0, _dllExport.size() - 1) + "_EXPORTS)";
+            H << nl << "#if defined(ICE_HAS_DECLSPEC_IMPORT_EXPORT) && !defined(";
+            H << _dllExport.substr(0, _dllExport.size() - 1) + "_EXPORTS) && !defined(ICE_STATIC_LIBS)";
             H << nl << "template struct " << _dllExport << "StreamWriter< " << fullStructName << ", ::IceInternal::BasicStream>;";
             H << nl << "template struct " << _dllExport << "StreamReader< " << fullStructName << ", ::IceInternal::BasicStream>;";
             H << nl << "#endif" << nl;
@@ -5185,7 +5186,7 @@ Slice::Gen::StreamVisitor::visitStructStart(const StructPtr& p)
             //
             // The instantations:
             //
-            C << nl << "#ifdef ICE_HAS_DECLSPEC_IMPORT_EXPORT";
+            C << nl << "#if defined(ICE_HAS_DECLSPEC_IMPORT_EXPORT) && !defined(ICE_STATIC_LIBS)";
             C << nl << "template struct " << _dllExport << "StreamWriter< " << fullStructName << ", ::IceInternal::BasicStream>;";
             C << nl << "template struct " << _dllExport << "StreamReader< " << fullStructName << ", ::IceInternal::BasicStream>;";
             C << nl << "#endif";

@@ -369,6 +369,7 @@ clean::
 	-del /q $(SOURCE_DIR)\ServantLocatorF.cpp $(HDIR)\ServantLocatorF.h
 	-del /q $(SOURCE_DIR)\ServantLocator.cpp $(HDIR)\ServantLocator.h
 	-del /q $(SOURCE_DIR)\SliceChecksumDict.cpp $(HDIR)\SliceChecksumDict.h
+	-del /q $(SOURCE_DIR)\Version.cpp $(HDIR)\Version.h
 	-del /q EndpointInfo.cpp $(headerdir)\IceSSL\EndpointInfo.h
 	-del /q ConnectionInfo.cpp $(headerdir)\IceSSL\ConnectionInfo.h
 	-del /q $(ARCH)\$(CONFIG)\*.obj

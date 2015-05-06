@@ -11,7 +11,6 @@
 #define ICE_ENDPOINT_I_H
 
 #include <Ice/EndpointIF.h>
-#include <Ice/BasicStream.h>
 #include <Ice/Endpoint.h>
 #include <Ice/EndpointTypes.h>
 #include <Ice/TransceiverF.h>

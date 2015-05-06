@@ -9,7 +9,6 @@
 
 #include <Ice/Buffer.h>
 #include <Ice/LocalException.h>
-#include <Ice/BasicStream.h>
 
 using namespace std;
 using namespace Ice;

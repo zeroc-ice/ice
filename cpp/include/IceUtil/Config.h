@@ -50,7 +50,7 @@
 
 //
 // Check for C++ 11 support
-// 
+//
 // For GCC, we recognize --std=c++0x only for GCC version 4.5 and greater,
 // as C++11 support in prior releases was too limited.
 //
@@ -86,7 +86,7 @@
 #endif
 
 //
-// Support for thread-safe function local static initialization 
+// Support for thread-safe function local static initialization
 // (a.k.a. "magic statics")
 //
 #if defined(__GNUC__) || defined(__clang__)
@@ -94,7 +94,7 @@
 #endif
 
 //
-// Compiler extensions to export and import symbols: see the documentation 
+// Compiler extensions to export and import symbols: see the documentation
 // for Visual Studio, Solaris Studio and GCC.
 //
 #if defined(_WIN32)
@@ -131,14 +131,14 @@
 #   define ICE_DEPRECATED_API(msg) __declspec(deprecated(msg))
 #elif defined(__clang__)
 #   if __has_extension(attribute_deprecated_with_message)
-#       define ICE_DEPRECATED_API(msg) __attribute__((deprecated(msg)))          
+#       define ICE_DEPRECATED_API(msg) __attribute__((deprecated(msg)))
 #   else
 #       define ICE_DEPRECATED_API(msg) __attribute__((deprecated))
 #   endif
 #elif defined(__GNUC__)
 #   if (__GNUC__ > 4 || (__GNUC__ == 4 &&  __GNUC_MINOR__ >= 5))
 // The message option was introduced in GCC 4.5
-#      define ICE_DEPRECATED_API(msg) __attribute__((deprecated(msg)))          
+#      define ICE_DEPRECATED_API(msg) __attribute__((deprecated(msg)))
 #   else
 #      define ICE_DEPRECATED_API(msg) __attribute__((deprecated))
 #   endif
@@ -156,7 +156,7 @@
 #      ifndef ICE_HAS_WIN32_CONDVAR
 #          define ICE_HAS_WIN32_CONDVAR
 #      endif
-#   endif   
+#   endif
 #endif
 
 //
@@ -206,7 +206,7 @@ class ICE_UTIL_API noncopyable
 protected:
 
     noncopyable() { }
-    ~noncopyable() { } // May not be virtual! Classes without virtual 
+    ~noncopyable() { } // May not be virtual! Classes without virtual
                        // operations also derive from noncopyable.
 
 private:

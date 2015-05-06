@@ -146,9 +146,9 @@ vector<TestCasePtr> allTest(bool remoteserver)
     all.push_back(test);
 
     test.reset(new TestCase("Ice", "invoke", "client.dll", "server.dll"));
-    addConfiguration(test, "Blobject server", {}, { "cpp", "java", "C#" });
+    addConfiguration(test, "Blobject server", {}, { "cpp", "java", "csharp" });
     addConfiguration(test, "BlobjectArray server", {}, { "cpp" });
-    addConfiguration(test, "BlobjectAsync server", {}, { "cpp", "java", "C#" });
+    addConfiguration(test, "BlobjectAsync server", {}, { "cpp", "java", "csharp" });
     addConfiguration(test, "BlobjectAsyncArray server", {}, { "cpp" });
     all.push_back(test);
 
@@ -164,8 +164,8 @@ vector<TestCasePtr> allTest(bool remoteserver)
     test.reset(new TestCase("Ice", "operations", "client.dll", "server.dll", "serveramd.dll", "collocated.dll"));
     addConfiguration(test, "regular server");
     addConfiguration(test, "AMD server");
-    addConfiguration(test, "TIE server", {}, {"java", "C#"});
-    addConfiguration(test, "AMD TIE server", {}, { "java", "C#" });
+    addConfiguration(test, "TIE server", {}, {"java", "csharp"});
+    addConfiguration(test, "AMD TIE server", {}, { "java", "csharp" });
     all.push_back(test);
 
     test.reset(new TestCase("Ice", "proxy", "client.dll", "server.dll", "serveramd.dll", "collocated.dll"));

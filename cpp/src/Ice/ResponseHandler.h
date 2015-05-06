@@ -15,7 +15,6 @@
 
 #include <Ice/Config.h>
 #include <Ice/LocalException.h>
-#include <Ice/BasicStream.h>
 #include <Ice/ResponseHandlerF.h>
 
 namespace IceInternal

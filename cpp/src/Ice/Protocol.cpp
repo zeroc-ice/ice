@@ -9,7 +9,6 @@
 
 #include <Ice/Protocol.h>
 #include <Ice/LocalException.h>
-#include <Ice/BasicStream.h>
 
 namespace IceInternal
 {

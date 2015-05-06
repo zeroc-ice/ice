@@ -11,7 +11,6 @@
 #define ICE_GC_OBJECT_H
 
 #include <Ice/Object.h>
-#include <Ice/BasicStream.h>
 
 #include <IceUtil/MutexPtrLock.h>
 #include <IceUtil/Mutex.h>
