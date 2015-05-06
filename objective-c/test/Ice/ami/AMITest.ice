@@ -30,6 +30,8 @@ interface TestIntf
     int opBatchCount();
     bool waitForBatch(int count);
     void shutdown();
+
+    bool supportsFunctionalTests();
 };
 
 interface TestIntfController

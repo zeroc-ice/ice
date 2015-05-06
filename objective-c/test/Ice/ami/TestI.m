@@ -90,6 +90,10 @@
     }
     return NO;
 }
+-(BOOL) supportsFunctionalTests:(ICECurrent *)current
+{
+    return NO;
+}
 @end
 
 @implementation TestAMITestIntfControllerI

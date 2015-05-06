@@ -395,7 +395,7 @@ if not iceHome:
 crossTests = [ "Ice/adapterDeactivation",
                #"Ice/background",
                "Ice/binding",
-               "Ice/checksum",
+               #"Ice/checksum",
                #"Ice/custom",
                "Ice/ami",
                "Ice/info",
@@ -592,9 +592,17 @@ def run(tests, root = False):
 
     if allCross:
         if len(cross) == 0:
-            cross = ["cpp", "java", "js", "csharp" ]
+            cross = ["cpp", "java", "js"]
+            if isWin32():
+                cross.append("csharp")
+            if isDarwin():
+                cross.append("objective-c")
         if root:
-            allLang = ["cpp", "java", "js", "csharp" ]
+            allLang = ["cpp", "java", "js"]
+            if isWin32():
+                allLang.append("csharp")
+            if isDarwin():
+                allLang.append("objective-c")
         else:
             allLang = [ getDefaultMapping() ]
         for lang in allLang:
