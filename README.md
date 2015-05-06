@@ -1,16 +1,37 @@
-[![Build Status](https://magnum.travis-ci.com/zeroc-ice/ice-dev.svg?token=icxd1yE9Nf6WLivZz2vF&branch=master)](https://magnum.travis-ci.com/zeroc-ice/ice-dev)
+# Internet Communications Engine (Ice)
 
-# The Internet Communications Engine (Ice)
+Ice is a comprehensive RPC framework that helps you build distributed applications with minimal effort. Ice takes care of all interactions with low-level network programming interfaces and allows you to focus your efforts on your application logic. When using Ice, there is no need to worry about details such as opening network connections, serializing and deserializing data for network transmission, or retrying failed connection attempts (to name just a few of dozens of such low-level details).
 
-Ice is a comprehensive RPC framework that helps you build distributed
-applications with minimal effort. Ice takes care of all interactions with
-low-level network programming interfaces and allows you to focus your efforts
-on your application logic. When using Ice, there is no need to worry about
-details such as opening network connections, serializing and deserializing
-data for network transmission, or retrying failed connection attempts (to
-name just a few of dozens of such low-level details).
+You can find download instructions for the latest release of Ice [here](https://zeroc.com/download.html). Otherwise you can use this GitHub repository to build from source. See [branches](#branches) for more information.
 
-Feature highlights:
+## Languages
+
+Ice is available for the following programming languages:
+
+- C#
+- C++
+- Java
+- JavaScript
+- Objective-C
+- PHP
+- Python
+- Ruby
+
+## Platforms
+
+Ice runs on a wide range of platforms:
+
+- Android
+- iOS ([Ice Touch](https://github.com/zeroc-ice/icetouch))
+- Linux
+- Node.js
+- OS X
+- Web Browser
+- Windows
+- WinRT
+
+## Features
+
 - Efficient, high-performance binary protocol
 - Supports a wide range of programming languages and platforms
 - Easy to use and type-safe API, with your own interfaces and types defined in
@@ -22,35 +43,38 @@ Feature highlights:
 - Supports synchronous and asynchronous calls, for both client-side invocations
   and server-side dispatches
 - Automatic discovery of remote objects through UDP multicast
-- Comes with a number of reusable (and optional) services, including:
-   - IceGrid, the nerve-center of any large-scale application, with support for
-     server deployment, replication, monitoring, load-balancing and more
-   - IceStorm, a lightweight topic-based pub-sub service
-   - Freeze, an embedded, transactional database for Ice datatypes
-   - Glacier2, a sysadmin-friendly solution for routing Ice communications
-     through firewalls
+- Comes with a number of optional services:
+    - [IceGrid](https://zeroc.com/icegrid/index.html) - the nerve-center of any large-scale application, with support for server deployment, replication, monitoring, load-balancing and more
+    - [IceStorm]() - a lightweight topic-based pub-sub service
+    - [Freeze]() - an embedded, transactional database for Ice datatypes
+    - [Glacier2]() - a sysadmin-friendly solution for routing Ice communications through firewalls
+    - [IcePatch2]() - an efficient software distribution and patching service
+
+## Branches
+
+- `master`
+  Primary development branch
+
+- `3.4`
+  Source distribution for Ice 3.4.2 plus various patches
+
+- `3.5`
+  Source distribution for Ice 3.5.1 plus various patches
+
 
 ## Copyright and License
 
-Ice is a single-copyright project: all the source code in this ice repository
-is Copyright &copy; ZeroC, Inc., with very few exceptions.
+Ice is a single-copyright project: all the source code in this [ice repository](https://github.com/zeroc-ice/ice) is Copyright &copy; ZeroC, Inc., with very few exceptions.
 
-As copyright owner, ZeroC can license Ice under different license terms, and
-offers the following licenses for Ice:
-- GPL v2, a popular open-source license with strong [copyleft](http://en.wikipedia.org/wiki/Copyleft) conditions
-  (the default license)
+As copyright owner, ZeroC can license Ice under different license terms, and offers the following licenses for Ice:
+- GPL v2, a popular open-source license with strong [copyleft](http://en.wikipedia.org/wiki/Copyleft) conditions (the default license)
 - Commercial or closed-source licenses
 
-If you license Ice under GPL v2, there is no license fee or signed license
-agreement: you just need to comply with the GPL v2 terms and conditions. See
-[ICE_LICENSE](./ICE_LICENSE) and [LICENSE](./LICENSE) for further information.
+If you license Ice under GPL v2, there is no license fee or signed license agreement: you just need to comply with the GPL v2 terms and conditions. See [ICE_LICENSE](./ICE_LICENSE) and [LICENSE](./LICENSE) for further information.
 
-If you purchase a commercial or closed-source license for Ice, you must comply
-with the terms and conditions listed in the associated license agreement; the
-GPL v2 terms and conditions do not apply.
+If you purchase a commercial or closed-source license for Ice, you must comply with the terms and conditions listed in the associated license agreement; the GPL v2 terms and conditions do not apply.
 
-The Ice software itself remains the same: the only difference between an
-open-source Ice and a commercial Ice are the license terms.
+The Ice software itself remains the same: the only difference between an open-source Ice and a commercial Ice are the license terms.
 
 ## Documentation
 
