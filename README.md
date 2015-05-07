@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/zeroc-ice/ice.svg?branch=master)](https://travis-ci.org/zeroc-ice/ice)
+
 # Internet Communications Engine (Ice)
 
 Ice is a comprehensive RPC framework that helps you build distributed applications with minimal effort. Ice takes care of all interactions with low-level network programming interfaces and allows you to focus your efforts on your application logic. When using Ice, there is no need to worry about details such as opening network connections, serializing and deserializing data for network transmission, or retrying failed connection attempts (to name just a few of dozens of such low-level details).
