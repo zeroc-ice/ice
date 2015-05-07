@@ -247,6 +247,26 @@
     return (TestObjectsCompact*)[TestObjectsCompactExt compactExt];
 }
 
+-(TestInnerA*) getInnerA:(ICECurrent *)current
+{
+    return [TestInnerA a:_b1];
+}
+
+-(TestInnerSubA*) getInnerSubA:(ICECurrent *)current
+{
+    return [TestInnerSubA a:[TestInnerA a:_b1]];
+}
+
+-(void) throwInnerEx:(ICECurrent *)current
+{
+    @throw [TestInnerEx ex:@"Inner::Ex"];
+}
+
+-(void) throwInnerSubEx:(ICECurrent *)current
+{
+    @throw [TestInnerSubEx ex:@"Inner::Sub::Ex"];
+}
+
 -(void) setI:(TestObjectsI*)i current:(ICECurrent*)current
 {
 }

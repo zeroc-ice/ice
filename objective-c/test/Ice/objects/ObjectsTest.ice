@@ -99,6 +99,36 @@ class CompactExt(CompactExtId) extends Compact
 {
 };
 
+module Inner
+{
+
+class A
+{
+    ::Test::A theA;
+};
+
+exception Ex
+{
+    string reason;
+};
+
+module Sub
+{
+
+class A
+{
+    ::Test::Inner::A theA;
+};
+
+exception Ex
+{
+    string reason;
+};
+
+};
+
+};
+
 sequence<Object> ObjectSeq;			// For Objective-C only
 sequence<Object*> ObjectPrxSeq;			// For Objective-C only
 sequence<Base> BaseSeq;				// For Objective-C only
@@ -130,6 +160,12 @@ class Initial
     BaseSeq opBaseSeq(BaseSeq inSeq, out BaseSeq outSeq);
 
     Compact getCompact();
+
+    Inner::A getInnerA();
+    Inner::Sub::A getInnerSubA();
+
+    void throwInnerEx() throws Inner::Ex;
+    void throwInnerSubEx() throws Inner::Sub::Ex;
 
     //
     // Remaining operations are here only for Objective-C and are not implemented by other language mappings.
