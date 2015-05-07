@@ -302,6 +302,16 @@ function printReply(s, stream)
         break;
     }
     }
+
+    if(replyStatus === Protocol.replyOK || replyStatus === Protocol.replyUserException)
+    {
+        var ver = stream.skipEncaps();
+        if(!ver.equals(Ice.Encoding_1_0))
+        {
+            s.push("\nencoding = ");
+            s.push(Ice.encodingVersionToString(ver));
+        }
+    }
 }
 
 function printRequestHeader(s, stream)
