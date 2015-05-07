@@ -2664,8 +2664,8 @@ IceInternal::BasicStream::EncapsDecoder11::skipSlice()
     {
         if(_current->sliceType == ObjectSlice)
         {
-            throw NoObjectFactoryException(__FILE__, __LINE__, 
-                                           "no object factory found and compact format prevents "  
+            throw NoObjectFactoryException(__FILE__, __LINE__,
+                                           "no object factory found and compact format prevents "
                                            "slicing (the sender should use the sliced format instead)",
                                            _current->typeId);
         }

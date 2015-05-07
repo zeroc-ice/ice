@@ -86,7 +86,7 @@ namespace IceInternal
         }
 
         public static void dumpStream(BasicStream stream)
-        {       
+        {
             int pos = stream.pos();
             stream.pos(0);
 
@@ -210,43 +210,43 @@ namespace IceInternal
 
             switch(replyStatus)
             {
-            case ReplyStatus.replyOK: 
+            case ReplyStatus.replyOK:
             {
                 s.Write("(ok)");
                 break;
             }
 
-            case ReplyStatus.replyUserException: 
+            case ReplyStatus.replyUserException:
             {
                 s.Write("(user exception)");
                 break;
             }
 
-            case ReplyStatus.replyObjectNotExist: 
-            case ReplyStatus.replyFacetNotExist: 
-            case ReplyStatus.replyOperationNotExist: 
+            case ReplyStatus.replyObjectNotExist:
+            case ReplyStatus.replyFacetNotExist:
+            case ReplyStatus.replyOperationNotExist:
             {
                 switch(replyStatus)
                 {
-                case ReplyStatus.replyObjectNotExist: 
+                case ReplyStatus.replyObjectNotExist:
                 {
                     s.Write("(object not exist)");
                     break;
                 }
 
-                case ReplyStatus.replyFacetNotExist: 
+                case ReplyStatus.replyFacetNotExist:
                 {
                     s.Write("(facet not exist)");
                     break;
                 }
 
-                case ReplyStatus.replyOperationNotExist: 
+                case ReplyStatus.replyOperationNotExist:
                 {
                     s.Write("(operation not exist)");
                     break;
                 }
 
-                default: 
+                default:
                 {
                     Debug.Assert(false);
                     break;
@@ -257,31 +257,31 @@ namespace IceInternal
                 break;
             }
 
-            case ReplyStatus.replyUnknownException: 
-            case ReplyStatus.replyUnknownLocalException: 
-            case ReplyStatus.replyUnknownUserException: 
+            case ReplyStatus.replyUnknownException:
+            case ReplyStatus.replyUnknownLocalException:
+            case ReplyStatus.replyUnknownUserException:
             {
                 switch(replyStatus)
                 {
-                case ReplyStatus.replyUnknownException: 
+                case ReplyStatus.replyUnknownException:
                 {
                     s.Write("(unknown exception)");
                     break;
                 }
 
-                case ReplyStatus.replyUnknownLocalException: 
+                case ReplyStatus.replyUnknownLocalException:
                 {
                     s.Write("(unknown local exception)");
                     break;
                 }
 
-                case ReplyStatus.replyUnknownUserException: 
+                case ReplyStatus.replyUnknownUserException:
                 {
                     s.Write("(unknown user exception)");
                     break;
                 }
 
-                default: 
+                default:
                 {
                     Debug.Assert(false);
                     break;
@@ -293,11 +293,21 @@ namespace IceInternal
                 break;
             }
 
-            default: 
+            default:
             {
                 s.Write("(unknown)");
                 break;
             }
+            }
+
+            if(replyStatus == ReplyStatus.replyOK || replyStatus == ReplyStatus.replyUserException)
+            {
+                Ice.EncodingVersion v = str.skipEncaps();
+                if(!v.Equals(Ice.Util.Encoding_1_0))
+                {
+                    s.Write("\nencoding = ");
+                    s.Write(Ice.Util.encodingVersionToString(v));
+                }
             }
         }
 
@@ -386,25 +396,25 @@ namespace IceInternal
                 s.Write("\ncompression status = " + (int)compress + ' ');
                 switch(compress)
                 {
-                case (byte)0: 
+                case (byte)0:
                 {
                     s.Write("(not compressed; do not compress response, if any)");
                     break;
                 }
 
-                case (byte)1: 
+                case (byte)1:
                 {
                     s.Write("(not compressed; compress response, if any)");
                     break;
                 }
 
-                case (byte)2: 
+                case (byte)2:
                 {
                     s.Write("(compressed; compress response, if any)");
                     break;
                 }
 
-                default: 
+                default:
                 {
                     s.Write("(unknown)");
                     break;
@@ -428,32 +438,32 @@ namespace IceInternal
 
             switch(type)
             {
-            case Protocol.closeConnectionMsg: 
-            case Protocol.validateConnectionMsg: 
+            case Protocol.closeConnectionMsg:
+            case Protocol.validateConnectionMsg:
             {
                 // We're done.
                 break;
             }
 
-            case Protocol.requestMsg: 
+            case Protocol.requestMsg:
             {
                 printRequest(s, str);
                 break;
             }
 
-            case Protocol.requestBatchMsg: 
+            case Protocol.requestBatchMsg:
             {
                 printBatchRequest(s, str);
                 break;
             }
 
-            case Protocol.replyMsg: 
+            case Protocol.replyMsg:
             {
                 printReply(s, str);
                 break;
             }
 
-            default: 
+            default:
             {
                 s.Write("(unknown)");
                 break;
@@ -482,7 +492,7 @@ namespace IceInternal
         }
 
         private static string getMessageTypeAsString(byte type)
-        {   
+        {
             switch(type)
             {
             case Protocol.requestMsg:

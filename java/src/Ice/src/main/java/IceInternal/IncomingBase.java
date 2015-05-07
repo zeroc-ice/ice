@@ -279,7 +279,7 @@ class IncomingBase
             {
                 _os.resize(Protocol.headerSize + 4, false); // Reply status position.
                 _os.writeByte(ReplyStatus.replyUserException);
-                _os.startWriteEncaps();
+                _os.startWriteEncaps(_current.encoding, Ice.FormatType.DefaultFormat);
                 _os.writeUserException(ex);
                 _os.endWriteEncaps();
                 if(_observer != null)

@@ -293,6 +293,16 @@ public final class TraceUtil
             break;
         }
         }
+
+        if(replyStatus == ReplyStatus.replyOK || replyStatus == ReplyStatus.replyUserException)
+        {
+            Ice.EncodingVersion v = str.skipEncaps();
+            if(!v.equals(Ice.Util.Encoding_1_0))
+            {
+                s.write("\nencoding = ");
+                s.write(Ice.Util.encodingVersionToString(v));
+            }
+        }
     }
 
     private static void
