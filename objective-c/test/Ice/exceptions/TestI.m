@@ -145,5 +145,6 @@
 -(void) throwAfterException:(ICECurrent*)current
 {
     // Only relevant for AMD
+    @throw [TestExceptionsA a:12345];
 }
 @end
