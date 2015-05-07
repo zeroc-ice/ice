@@ -265,7 +265,7 @@ namespace IceInternal
                 {
                     os_.resize(Protocol.headerSize + 4, false); // Reply status position.
                     os_.writeByte(ReplyStatus.replyUserException);
-                    os_.startWriteEncaps();
+                    os_.startWriteEncaps(current_.encoding, Ice.FormatType.DefaultFormat);
                     os_.writeUserException(ex);
                     os_.endWriteEncaps();
                     if(observer_ != null)
