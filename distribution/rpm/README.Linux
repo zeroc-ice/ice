@@ -24,7 +24,7 @@ Feature highlights:
 - Supports synchronous and asynchronous calls, for both client-side
   invocations and server-side dispatches
 - Automatic discovery of remote objects through UDP multicast
-- Comes with a number of reusable (and optional) services, including:
+- Comes with a number of optional services:
    - IceGrid, the nerve-center of any large-scale application, with
      support for server deployment, replication, monitoring,
      load-balancing and more
@@ -32,53 +32,24 @@ Feature highlights:
    - Freeze, an embedded, transactional database for Ice datatypes
    - Glacier2, a sysadmin-friendly solution for routing Ice
      communications through firewalls
-
-
-Copyright and License
----------------------
-
-Ice is a single-copyright project: all the source code in this ice
-repository is Copyright (c) ZeroC, Inc., with very few exceptions.
-
-As copyright owner, ZeroC can license Ice under different license
-terms, and offers the following licenses for Ice:
-- GPL v2, a well-known open-source license with strong copyleft
-  conditions (the default license)
-- Commercial or closed-source licenses
-
-If you license Ice under GPL v2, there is no license fee or signed
-license agreement: you just need to comply with the GPL v2 terms and
-conditions. See ICE_LICENSE and LICENSE for further information.
-
-If you purchased a commercial or closed-source license for Ice, you
-must comply with the terms and conditions listed in the associated
-license agreement; the GPL v2 terms and conditions do not apply.
-
-The Ice software itself remains the same: the only difference between
-an open-source Ice and a commercial Ice are the license terms.
-
+   - IcePatch2, an efficient software distribution and patching service
 
 Getting Started with Ice on Linux
 ---------------------------------
-
 Please visit the 'Using the Linux Binary Distributions' section in the
 Ice 3.6.0 release notes:
 
 https://doc.zeroc.com/display/Rel/Ice+3.6.0+Release+Notes
 
-
 Documentation
 -------------
-
 The full documentation for Ice is available online:
 
 https://doc.zeroc.com/display/Rel/Ice+3.6+Manual
 
-
 Source Code
------------
+------------
+The source code for Ice 3.6.0 is on GitHub:
 
-The source distributions of Ice and all third-party packages included
-in this binary distribution can be downloaded at no cost from:
+https://github.com/zeroc-ice/ice/releases/tag/v3.6.0
 
-https://zeroc.com/download.html
