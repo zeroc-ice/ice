@@ -867,69 +867,20 @@ private:
 
 -(NSMutableData*) newEnumSeq:(ICEInt)min max:(ICEInt)max
 {
-    int minWireSize;
-    if(max <= 0x7f)
-    {
-        minWireSize = 1;
-    }
-    else if(max <= 0x7fff)
-    {
-    	minWireSize = 2;
-    }
-    else
-    {
-        minWireSize = 4;
-    }
-
     NSException* nsex = nil;
     NSMutableData* ret = 0;
     try
     {
-        int count = is_->readAndCheckSeqSize(minWireSize);
+        int count = is_->readSize();
         if((ret = [[NSMutableData alloc] initWithLength:(count * ENUM_SIZE)]) == 0)
         {
             return ret;
         }
 
         ICEInt *v = (ICEInt *)[ret bytes];
-        if(max <= 0x7f)
+        while(count-- > 0)
         {
-            while(count-- > 0)
-            {
-                *v = [self readByte];
-                if(*v > max || *v < min)
-                {
-                    @throw [ICEMarshalException marshalException:__FILE__ line:__LINE__
-                                                reason:@"enumerator out of range"];
-                }
-                ++v;
-            }
-        }
-        else if(max <= 0x7fff)
-        {
-            while(count-- > 0)
-            {
-                *v = [self readShort];
-                if(*v > max || *v < min)
-                {
-                    @throw [ICEMarshalException marshalException:__FILE__ line:__LINE__
-                                                         reason:@"enumerator out of range"];
-                }
-                ++v;
-            }
-        }
-        else
-        {
-            while(count-- > 0)
-            {
-                *v = [self readInt];
-                if(*v > max || *v < min)
-                {
-                    @throw [ICEMarshalException marshalException:__FILE__ line:__LINE__
-                                                         reason:@"enumerator out of range"];
-                }
-                ++v;
-            }
+            *v++ = [self readEnumerator:min max:max];
         }
     }
     catch(const std::exception& ex)
@@ -1910,41 +1861,9 @@ private:
         }
 
         const ICEInt* p = (const ICEInt*)[v bytes];
-        if(max <= 0x7f)
+        while(count-- > 0)
         {
-            while(count-- > 0)
-            {
-                if(*p > max || *p < min)
-                {
-                    @throw [ICEMarshalException marshalException:__FILE__ line:__LINE__
-                                                          reason:@"enumerator out of range"];
-                }
-                [self writeByte:*p++];
-            }
-        }
-        else if(max <= 0x7fff)
-        {
-            while(count-- > 0)
-            {
-                if(*p > max || *p < min)
-                {
-                    @throw [ICEMarshalException marshalException:__FILE__ line:__LINE__
-                                                reason:@"enumerator out of range"];
-                }
-                [self writeShort:*p++];
-            }
-        }
-        else
-        {
-            while(count-- > 0)
-            {
-                if(*p > max || *p < min)
-                {
-                    @throw [ICEMarshalException marshalException:__FILE__ line:__LINE__
-                                                reason:@"enumerator out of range"];
-                }
-                [self writeInt:*p++];
-            }
+            [self writeEnumerator:*p++ min:min max:max];
         }
     }
     catch(const std::exception& ex)
