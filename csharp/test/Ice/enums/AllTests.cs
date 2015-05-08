@@ -139,6 +139,73 @@ public class AllTests : TestCommon.TestApp
 
         Console.Out.WriteLine("ok");
 
+        Console.Out.Write("testing enum sequences operations... ");
+        Console.Out.Flush();
+
+        {
+            ByteEnum[] b1 = new ByteEnum[11]
+                    { ByteEnum.benum1, ByteEnum.benum2, ByteEnum.benum3, ByteEnum.benum4, ByteEnum.benum5,
+                      ByteEnum.benum6, ByteEnum.benum7, ByteEnum.benum8, ByteEnum.benum9, ByteEnum.benum10,
+                      ByteEnum.benum11};
+
+            ByteEnum[] b2;
+            ByteEnum[] b3 = proxy.opByteSeq(b1, out b2);
+
+            for(int i = 0; i < b1.Length; ++i)
+            {
+                test(b1[i] == b2[i]);
+                test(b1[i] == b3[i]);
+            }
+        }
+
+        {
+            ShortEnum[] s1 = new ShortEnum[11]
+                    { ShortEnum.senum1, ShortEnum.senum2, ShortEnum.senum3, ShortEnum.senum4, ShortEnum.senum5,
+                      ShortEnum.senum6, ShortEnum.senum7, ShortEnum.senum8, ShortEnum.senum9, ShortEnum.senum10,
+                      ShortEnum.senum11};
+
+            ShortEnum[] s2;
+            ShortEnum[] s3 = proxy.opShortSeq(s1, out s2);
+
+            for(int i = 0; i < s1.Length; ++i)
+            {
+                test(s1[i] == s2[i]);
+                test(s1[i] == s3[i]);
+            }
+        }
+
+        {
+            IntEnum[] i1 = new IntEnum[11]
+                    { IntEnum.ienum1, IntEnum.ienum2, IntEnum.ienum3, IntEnum.ienum4, IntEnum.ienum5,
+                      IntEnum.ienum6, IntEnum.ienum7, IntEnum.ienum8, IntEnum.ienum9, IntEnum.ienum10,
+                      IntEnum.ienum11};
+
+            IntEnum[] i2;
+            IntEnum[] i3 = proxy.opIntSeq(i1, out i2);
+
+            for(int i = 0; i < i1.Length; ++i)
+            {
+                test(i1[i] == i2[i]);
+                test(i1[i] == i3[i]);
+            }
+        }
+
+        {
+            SimpleEnum[] s1 = new SimpleEnum[3]
+                    { SimpleEnum.red, SimpleEnum.green, SimpleEnum.blue };
+
+            SimpleEnum[] s2;
+            SimpleEnum[] s3 = proxy.opSimpleSeq(s1, out s2);
+
+            for(int i = 0; i < s1.Length; ++i)
+            {
+                test(s1[i] == s2[i]);
+                test(s1[i] == s3[i]);
+            }
+        }
+
+        Console.Out.WriteLine("ok");
+
         Console.Out.Write("testing enum exceptions... ");
         Console.Out.Flush();
 

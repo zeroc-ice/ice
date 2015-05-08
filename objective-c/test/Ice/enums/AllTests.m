@@ -123,7 +123,6 @@ enumAllTests(id<ICECommunicator> communicator)
     }
 
     {
-
         TestEnumShortEnum values[] = {TestEnumsenum1, TestEnumsenum2, TestEnumsenum3, TestEnumsenum4, TestEnumsenum5,
                                      TestEnumsenum6, TestEnumsenum7, TestEnumsenum8, TestEnumsenum9, TestEnumsenum10,
                                      TestEnumsenum11};

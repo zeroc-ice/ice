@@ -31,6 +31,18 @@ class TestIntfI(Test.TestIntf):
     def opSimple(self, s1, current=None):
         return (s1, s1)
 
+    def opByteSeq(self, b1, current=None):
+        return (b1, b1)
+
+    def opShortSeq(self, s1, current=None):
+        return (s1, s1)
+
+    def opIntSeq(self, i1, current=None):
+        return (i1, i1)
+
+    def opSimpleSeq(self, s1, current=None):
+        return (s1, s1)
+
     def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()
 

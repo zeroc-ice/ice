@@ -125,4 +125,46 @@ def allTests(communicator):
 
     print("ok")
 
+    sys.stdout.write("testing enum sequences operations... ")
+    sys.stdout.flush()
+
+    b1 = [ Test.ByteEnum.benum1, Test.ByteEnum.benum2, Test.ByteEnum.benum3, Test.ByteEnum.benum4, Test.ByteEnum.benum5,
+           Test.ByteEnum.benum6, Test.ByteEnum.benum7, Test.ByteEnum.benum8, Test.ByteEnum.benum9, Test.ByteEnum.benum10,
+           Test.ByteEnum.benum11 ]
+
+    (b2, b3) = proxy.opByteSeq(b1)
+
+    for i in range(len(b1)):
+        test(b1[i] == b2[i])
+        test(b1[i] == b3[i])
+
+    s1 = [ Test.ShortEnum.senum1, Test.ShortEnum.senum2, Test.ShortEnum.senum3, Test.ShortEnum.senum4,
+           Test.ShortEnum.senum5, Test.ShortEnum.senum6, Test.ShortEnum.senum7, Test.ShortEnum.senum8,
+           Test.ShortEnum.senum9, Test.ShortEnum.senum10, Test.ShortEnum.senum11 ]
+
+    (s2, s3) = proxy.opShortSeq(s1)
+
+    for i in range(len(s1)):
+        test(s1[i] == s2[i])
+        test(s1[i] == s3[i])
+
+    i1 = [ Test.IntEnum.ienum1, Test.IntEnum.ienum2, Test.IntEnum.ienum3, Test.IntEnum.ienum4,
+           Test.IntEnum.ienum5, Test.IntEnum.ienum6, Test.IntEnum.ienum7, Test.IntEnum.ienum8,
+           Test.IntEnum.ienum9, Test.IntEnum.ienum10, Test.IntEnum.ienum11 ]
+
+    (i2, i3) = proxy.opIntSeq(i1)
+
+    for i in range(len(i1)):
+        test(i1[i] == i2[i])
+        test(i1[i] == i3[i])
+
+    s1 = [ Test.SimpleEnum.red, Test.SimpleEnum.green, Test.SimpleEnum.blue ]
+
+    (s2, s3) = proxy.opSimpleSeq(s1)
+
+    for i in range(len(s1)):
+        test(s1[i] == s2[i])
+        test(s1[i] == s3[i])
+    print("ok")
+
     return proxy

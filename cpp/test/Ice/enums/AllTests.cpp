@@ -126,6 +126,66 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "ok" << endl;
 
+    cout << "testing enum sequences operations... " << flush;
+
+    {
+        ByteEnum values[] = { benum1, benum2, benum3, benum4, benum5, benum6, benum7, benum8, benum9, benum10, benum11};
+        ByteEnumSeq b1(&values[0], &values[0] + sizeof(values) / sizeof(ByteEnum));
+
+        ByteEnumSeq b2;
+        ByteEnumSeq b3 = proxy->opByteSeq(b1, b2);
+
+        for(int i = 0; i < b1.size(); ++i)
+        {
+            test(b1[i] == b2[i]);
+            test(b1[i] == b3[i]);
+        }
+    }
+
+    {
+        ShortEnum values[] = { senum1, senum2, senum3, senum4, senum5, senum6, senum7, senum8, senum9, senum10, senum11};
+        ShortEnumSeq s1(&values[0], &values[0] + sizeof(values) / sizeof(ShortEnum));
+
+        ShortEnumSeq s2;
+        ShortEnumSeq s3 = proxy->opShortSeq(s1, s2);
+
+        for(int i = 0; i < s1.size(); ++i)
+        {
+            test(s1[i] == s2[i]);
+            test(s1[i] == s3[i]);
+        }
+    }
+
+    {
+        IntEnum values[] = { ienum1, ienum2, ienum3, ienum4, ienum5, ienum6, ienum7, ienum8, ienum9, ienum10, ienum11};
+        IntEnumSeq i1(&values[0], &values[0] + sizeof(values) / sizeof(IntEnum));
+
+        IntEnumSeq i2;
+        IntEnumSeq i3 = proxy->opIntSeq(i1, i2);
+
+        for(int i = 0; i < i1.size(); ++i)
+        {
+            test(i1[i] == i2[i]);
+            test(i1[i] == i3[i]);
+        }
+    }
+
+    {
+        SimpleEnum values[] = { red, green, blue };
+        SimpleEnumSeq s1(&values[0], &values[0] + sizeof(values) / sizeof(SimpleEnum));
+
+        SimpleEnumSeq s2;
+        SimpleEnumSeq s3 = proxy->opSimpleSeq(s1, s2);
+
+        for(int i = 0; i < s1.size(); ++i)
+        {
+            test(s1[i] == s2[i]);
+            test(s1[i] == s3[i]);
+        }
+    }
+
+    cout << "ok" << endl;
+
     cout << "testing enum exceptions... " << flush;
 
     try

@@ -37,6 +37,7 @@ enum ByteEnum
     benum10,
     benum11 = ByteConst2
 };
+sequence<ByteEnum> ByteEnumSeq;
 
 enum ShortEnum
 {
@@ -52,6 +53,7 @@ enum ShortEnum
     senum10,
     senum11 = ShortConst2
 };
+sequence<ShortEnum> ShortEnumSeq;
 
 enum IntEnum
 {
@@ -68,6 +70,7 @@ enum IntEnum
     ienum11 = IntConst2,
     ienum12 = LongConst2
 };
+sequence<IntEnum> IntEnumSeq;
 
 enum SimpleEnum
 {
@@ -75,6 +78,7 @@ enum SimpleEnum
     green,
     blue
 };
+sequence<SimpleEnum> SimpleEnumSeq;
 
 interface TestIntf
 {
@@ -82,6 +86,11 @@ interface TestIntf
     ShortEnum opShort(ShortEnum s1, out ShortEnum s2);
     IntEnum opInt(IntEnum i1, out IntEnum i2);
     SimpleEnum opSimple(SimpleEnum s1, out SimpleEnum s2);
+
+    ByteEnumSeq opByteSeq(ByteEnumSeq b1, out ByteEnumSeq b2);
+    ShortEnumSeq opShortSeq(ShortEnumSeq s1, out ShortEnumSeq s2);
+    IntEnumSeq opIntSeq(IntEnumSeq i1, out IntEnumSeq i2);
+    SimpleEnumSeq opSimpleSeq(SimpleEnumSeq s1, out SimpleEnumSeq s2);
 
     void shutdown();
 };
