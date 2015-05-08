@@ -135,7 +135,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         ByteEnumSeq b2;
         ByteEnumSeq b3 = proxy->opByteSeq(b1, b2);
 
-        for(int i = 0; i < b1.size(); ++i)
+        for(size_t i = 0; i < b1.size(); ++i)
         {
             test(b1[i] == b2[i]);
             test(b1[i] == b3[i]);
@@ -149,7 +149,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         ShortEnumSeq s2;
         ShortEnumSeq s3 = proxy->opShortSeq(s1, s2);
 
-        for(int i = 0; i < s1.size(); ++i)
+        for(size_t i = 0; i < s1.size(); ++i)
         {
             test(s1[i] == s2[i]);
             test(s1[i] == s3[i]);
@@ -163,7 +163,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         IntEnumSeq i2;
         IntEnumSeq i3 = proxy->opIntSeq(i1, i2);
 
-        for(int i = 0; i < i1.size(); ++i)
+        for(size_t i = 0; i < i1.size(); ++i)
         {
             test(i1[i] == i2[i]);
             test(i1[i] == i3[i]);
@@ -177,7 +177,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         SimpleEnumSeq s2;
         SimpleEnumSeq s3 = proxy->opSimpleSeq(s1, s2);
 
-        for(int i = 0; i < s1.size(); ++i)
+        for(size_t i = 0; i < s1.size(); ++i)
         {
             test(s1[i] == s2[i]);
             test(s1[i] == s3[i]);
