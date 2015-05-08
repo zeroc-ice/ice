@@ -912,12 +912,13 @@ IceSSL::SecureTransportEngine::initialize()
         }
         if(!caFile.empty())
         {
-            if(!checkPath(caFile, defaultDir, false))
+            string resolved;
+            if(!checkPath(caFile, defaultDir, false, resolved))
             {
                 throw PluginInitializationException(__FILE__, __LINE__,
                                                     "IceSSL: CA certificate file not found:\n" + caFile);
             }
-            _certificateAuthorities = loadCACertificates(caFile);
+            _certificateAuthorities = loadCACertificates(resolved);
         }
         else if(properties->getPropertyAsInt("IceSSL.UsePlatformCAs") <= 0)
         {
@@ -964,15 +965,22 @@ IceSSL::SecureTransportEngine::initialize()
         {
             string file = files[i];
             string keyFile = keyFiles.empty() ? "" : keyFiles[i];
+            string resolved;
 
-            if(!checkPath(file, defaultDir, false))
+            if(!checkPath(file, defaultDir, false, resolved))
             {
                 throw PluginInitializationException(__FILE__, __LINE__,
                                                     "IceSSL: certificate file not found:\n" + file);
             }
-            if(!keyFile.empty() && !checkPath(keyFile, defaultDir, false))
+            file = resolved;
+
+            if(!keyFile.empty())
             {
-                throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: key file not found:\n" + keyFile);
+                if(!checkPath(keyFile, defaultDir, false, resolved))
+                {
+                    throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: key file not found:\n" + keyFile);
+                }
+                keyFile = resolved;
             }
 
             try
@@ -1047,12 +1055,13 @@ IceSSL::SecureTransportEngine::initialize()
     string dhFile = properties->getProperty("IceSSL.DHParams");
     if(!dhFile.empty())
     {
-        if(!checkPath(dhFile, defaultDir, false))
+        string resolved;
+        if(!checkPath(dhFile, defaultDir, false, resolved))
         {
             throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: DH params file not found:\n" + dhFile);
         }
 
-        readFile(dhFile, _dhParams);
+        readFile(resolved, _dhParams);
     }
 
     //

@@ -245,15 +245,16 @@ OpenSSLEngine::OpenSSLEngine(const CommunicatorPtr& communicator) :
                 for(vector<string>::iterator p = files.begin(); p != files.end(); ++p)
                 {
                     string file = *p;
-                    if(!checkPath(file, defaultDir, false))
+                    string resolved;
+                    if(!checkPath(file, defaultDir, false, resolved))
                     {
                         throw PluginInitializationException(__FILE__, __LINE__,
                                                             "IceSSL: entropy data file not found:\n" + file);
                     }
-                    if(!RAND_load_file(file.c_str(), 1024))
+                    if(!RAND_load_file(resolved.c_str(), 1024))
                     {
                         throw PluginInitializationException(__FILE__, __LINE__,
-                                                            "IceSSL: unable to load entropy data from " + file);
+                                                            "IceSSL: unable to load entropy data from " + resolved);
                     }
                 }
             }
@@ -395,42 +396,65 @@ OpenSSLEngine::initialize()
             // Establish the location of CA certificates.
             //
             {
-                string caFile = properties->getProperty(propPrefix + "CAs");
-                string caDir;
-                if(!caFile.empty())
-                {
-                    if(!checkPath(caFile, defaultDir, false) && checkPath(caFile, defaultDir, true))
-                    {
-                        caDir = caFile;
-                        caFile = "";
-                    }
-                }
-                else
-                {
-                    // Deprecated properties
-                    caFile = properties->getProperty(propPrefix + "CertAuthFile");
-                    caDir = properties->getProperty(propPrefix + "CertAuthDir");
-                }
+                string path = properties->getProperty(propPrefix + "CAs");
+                string resolved;
                 const char* file = 0;
                 const char* dir = 0;
-                if(!caFile.empty())
+                if(!path.empty())
                 {
-                    if(!checkPath(caFile, defaultDir, false))
+                    if(checkPath(path, defaultDir, false, resolved))
+                    {
+                        path = resolved;
+                        file = path.c_str();
+                    }
+
+                    if(!file)
+                    {
+                        if(checkPath(path, defaultDir, true, resolved))
+                        {
+                            path = resolved;
+                            dir = path.c_str();
+                        }
+                    }
+
+                    if(!file && !dir)
                     {
                         throw PluginInitializationException(__FILE__, __LINE__,
-                                                            "IceSSL: CA certificate file not found:\n" + caFile);
+                                                            "IceSSL: CA certificate path not found:\n" + path);
                     }
-                    file = caFile.c_str();
                 }
-                if(!caDir.empty())
+
+                if(!file && !dir)
                 {
-                    if(!checkPath(caDir, defaultDir, true))
+                    // Deprecated properties
+                    path = properties->getProperty(propPrefix + "CertAuthFile");
+                    if(!path.empty())
                     {
-                        throw PluginInitializationException(__FILE__, __LINE__,
-                                                            "IceSSL: CA certificate directory not found:\n" + caDir);
+                        if(!checkPath(path, defaultDir, false, resolved))
+                        {
+                            throw PluginInitializationException(__FILE__, __LINE__,
+                                                                "IceSSL: CA certificate file not found:\n" + path);
+                        }
+                        path = resolved;
+                        file = path.c_str();
                     }
-                    dir = caDir.c_str();
+                    else
+                    {
+                        path = properties->getProperty(propPrefix + "CertAuthDir");
+                        if(!path.empty())
+                        {
+                            if(!checkPath(path, defaultDir, true, resolved))
+                            {
+                                throw PluginInitializationException(__FILE__, __LINE__,
+                                                                    "IceSSL: CA certificate directory not found:\n" +
+                                                                    path);
+                            }
+                            path = resolved;
+                            dir = path.c_str();
+                        }
+                    }
                 }
+
                 if(file || dir)
                 {
                     //
@@ -442,7 +466,7 @@ OpenSSLEngine::initialize()
                     while(count < passwordRetryMax)
                     {
                         ERR_clear_error();
-                        if((success = SSL_CTX_load_verify_locations(_ctx, file, dir))|| !passwordError())
+                        if((success = SSL_CTX_load_verify_locations(_ctx, file, dir)) || !passwordError())
                         {
                             break;
                         }
@@ -493,11 +517,13 @@ OpenSSLEngine::initialize()
                 for(vector<string>::iterator p = files.begin(); p != files.end(); ++p)
                 {
                     string file = *p;
-                    if(!checkPath(file, defaultDir, false))
+                    string resolved;
+                    if(!checkPath(file, defaultDir, false, resolved))
                     {
                         PluginInitializationException ex(__FILE__, __LINE__,
                                                          "IceSSL: certificate file not found:\n" + file);
                     }
+                    file = resolved;
                     //
                     // First we try to load the certificate using PKCS12 format if that fails
                     // we fallback to PEM format.
@@ -665,10 +691,12 @@ OpenSSLEngine::initialize()
                 for(vector<string>::iterator p = files.begin(); p != files.end(); ++p)
                 {
                     string file = *p;
-                    if(!checkPath(file, defaultDir, false))
+                    string resolved;
+                    if(!checkPath(file, defaultDir, false, resolved))
                     {
                         throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: key file not found:\n" + file);
                     }
+                    file = resolved;
                     //
                     // The private key may be stored in an encrypted file, so handle password retries.
                     //
@@ -739,11 +767,13 @@ OpenSSLEngine::initialize()
                         if(keyLength > 0)
                         {
                             string file = p->second;
-                            if(!checkPath(file, defaultDir, false))
+                            string resolved;
+                            if(!checkPath(file, defaultDir, false, resolved))
                             {
                                 throw PluginInitializationException(__FILE__, __LINE__,
                                                                     "IceSSL: DH parameter file not found:\n" + file);
                             }
+                            file = resolved;
                             if(!_dhParams->add(keyLength, file))
                             {
                                 throw PluginInitializationException(__FILE__, __LINE__,

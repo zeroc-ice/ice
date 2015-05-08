@@ -1196,20 +1196,35 @@ IceSSL::findCertificates(const string& location, const string& name, const strin
 #endif
 
 bool
-IceSSL::checkPath(string& path, const string& defaultDir, bool dir)
+IceSSL::checkPath(const string& path, const string& defaultDir, bool dir, string& resolved)
 {
     if(IceUtilInternal::isAbsolutePath(path))
     {
-        return dir ? IceUtilInternal::directoryExists(path) : IceUtilInternal::fileExists(path);
+        if((dir && IceUtilInternal::directoryExists(path)) || (!dir && IceUtilInternal::fileExists(path)))
+        {
+            resolved = path;
+            return true;
+        }
+        return false;
     }
 
     //
     // If a default directory is provided, the given path is relative to the default directory.
     //
+    string tmp;
     if(!defaultDir.empty())
     {
-        path = defaultDir + IceUtilInternal::separator + path;
+        tmp = defaultDir + IceUtilInternal::separator + path;
+    }
+    else
+    {
+        tmp = path;
     }
 
-    return dir ? IceUtilInternal::directoryExists(path) : IceUtilInternal::fileExists(path);
+    if((dir && IceUtilInternal::directoryExists(tmp)) || (!dir && IceUtilInternal::fileExists(tmp)))
+    {
+        resolved = tmp;
+        return true;
+    }
+    return false;
 }

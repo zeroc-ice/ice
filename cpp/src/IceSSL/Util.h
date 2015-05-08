@@ -186,7 +186,7 @@ void readFile(const std::string&, std::vector<char>&);
 // Determine if a file or directory exists, with an optional default
 // directory.
 //
-bool checkPath(std::string&, const std::string&, bool);
+bool checkPath(const std::string&, const std::string&, bool, std::string&);
 
 }
 

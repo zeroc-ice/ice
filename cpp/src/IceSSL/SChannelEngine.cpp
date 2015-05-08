@@ -290,13 +290,14 @@ SChannelEngine::initialize()
     }
     if(!caFile.empty())
     {
-        if(!checkPath(caFile, defaultDir, false))
+        string resolved;
+        if(!checkPath(caFile, defaultDir, false, resolved))
         {
             throw PluginInitializationException(__FILE__, __LINE__,
                                                 "IceSSL: CA certificate file not found:\n" + caFile);
         }
 
-        addCertificatesToStore(caFile, _rootStore);
+        addCertificatesToStore(resolved, _rootStore);
     }
 
     if(_rootStore)
@@ -372,11 +373,13 @@ SChannelEngine::initialize()
         for(size_t i = 0; i < certFiles.size(); ++i)
         {
             string certFile = certFiles[i];
-            if(!checkPath(certFile, defaultDir, false))
+            string resolved;
+            if(!checkPath(certFile, defaultDir, false, resolved))
             {
                 throw PluginInitializationException(__FILE__, __LINE__,
                                                     "IceSSL: certificate file not found:\n" + certFile);
             }
+            certFile = resolved;
 
             vector<char> buffer;
             readFile(certFile, buffer);
@@ -463,10 +466,11 @@ SChannelEngine::initialize()
 
             err = 0;
             keyFile = keyFiles[i];
-            if(!checkPath(keyFile, defaultDir, false))
+            if(!checkPath(keyFile, defaultDir, false, resolved))
             {
                 throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: key file not found:\n" + keyFile);
             }
+            keyFile = resolved;
 
             readFile(keyFile, buffer);
             if(buffer.empty())
