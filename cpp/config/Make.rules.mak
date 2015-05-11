@@ -350,6 +350,7 @@ all:: $(SLICE_SRCS)
 
 !if "$(SRCS)" != ""
 OBJS_DEPEND = $(SRCS:.cpp=.d)
+OBJS_DEPEND = $(OBJS_DEPEND:..\..\=.depend.mak\)
 OBJS_DEPEND = $(OBJS_DEPEND:..\=.depend.mak\)
 depend:: $(SRCS) $(OBJS_DEPEND)
 !endif
@@ -367,7 +368,7 @@ depend:: $(SRCS) $(OBJS_DEPEND)
 
 .cpp{$(OBJDIR)\}.obj::
 	@if not exist "$(OBJDIR)" mkdir $(OBJDIR)
-	$(CXX) /c /Fo$(OBJDIR)\ $(CPPFLAGS) $(CXXFLAGS) $<
+	$(CXX) /c /Fd$(OBJDIR)\ /Fo$(OBJDIR)\ $(CPPFLAGS) $(CXXFLAGS) $<
 
 {$(slicedir)\Glacier2\}.ice{Glacier2\}.d:
 	@echo Generating dependencies for $<

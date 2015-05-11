@@ -21,6 +21,7 @@ $(ARCH)\$(CONFIG)\ConvertUTF.obj: \
     "$(includedir)\IceUtil\StringConverter.h" \
     "$(includedir)\IceUtil\Exception.h" \
     "$(includedir)\IceUtil\Shared.h" \
+    "$(includedir)\IceUtil\Atomic.h" \
     "$(includedir)\IceUtil\Handle.h" \
 
 $(ARCH)\$(CONFIG)\CountDownLatch.obj: \
@@ -49,6 +50,7 @@ $(ARCH)\$(CONFIG)\FileUtil.obj: \
     "..\..\..\src\IceUtil\FileUtil.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\Shared.h" \
+    "$(includedir)\IceUtil\Atomic.h" \
     "$(includedir)\IceUtil\Handle.h" \
     "$(includedir)\IceUtil\Exception.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
@@ -74,6 +76,7 @@ $(ARCH)\$(CONFIG)\Options.obj: \
     "$(includedir)\IceUtil\Time.h" \
     "$(includedir)\IceUtil\MutexProtocol.h" \
     "$(includedir)\IceUtil\Shared.h" \
+    "$(includedir)\IceUtil\Atomic.h" \
     "$(includedir)\IceUtil\Handle.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
 
@@ -83,6 +86,7 @@ $(ARCH)\$(CONFIG)\OutputUtil.obj: \
     "$(includedir)\IceUtil\Config.h" \
     "..\..\..\src\IceUtil\FileUtil.h" \
     "$(includedir)\IceUtil\Shared.h" \
+    "$(includedir)\IceUtil\Atomic.h" \
     "$(includedir)\IceUtil\Handle.h" \
     "$(includedir)\IceUtil\Exception.h" \
 
@@ -113,11 +117,13 @@ $(ARCH)\$(CONFIG)\SHA1.obj: \
 	..\SHA1.cpp \
     "$(includedir)\IceUtil\SHA1.h" \
     "$(includedir)\IceUtil\Config.h" \
+    "$(includedir)\IceUtil\UniquePtr.h" \
 
 $(ARCH)\$(CONFIG)\Shared.obj: \
 	..\Shared.cpp \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
+    "$(includedir)\IceUtil\Atomic.h" \
 
 $(ARCH)\$(CONFIG)\StringConverter.obj: \
 	..\StringConverter.cpp \
@@ -125,6 +131,7 @@ $(ARCH)\$(CONFIG)\StringConverter.obj: \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\Exception.h" \
     "$(includedir)\IceUtil\Shared.h" \
+    "$(includedir)\IceUtil\Atomic.h" \
     "$(includedir)\IceUtil\Handle.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
     "$(includedir)\IceUtil\ThreadException.h" \
@@ -143,6 +150,7 @@ $(ARCH)\$(CONFIG)\StringUtil.obj: \
     "$(includedir)\IceUtil\StringConverter.h" \
     "$(includedir)\IceUtil\Exception.h" \
     "$(includedir)\IceUtil\Shared.h" \
+    "$(includedir)\IceUtil\Atomic.h" \
     "$(includedir)\IceUtil\Handle.h" \
     "$(includedir)\IceUtil\ScopedArray.h" \
 
@@ -151,6 +159,7 @@ $(ARCH)\$(CONFIG)\Thread.obj: \
     "$(includedir)\IceUtil\Thread.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\Shared.h" \
+    "$(includedir)\IceUtil\Atomic.h" \
     "$(includedir)\IceUtil\Handle.h" \
     "$(includedir)\IceUtil\Exception.h" \
     "$(includedir)\IceUtil\Mutex.h" \
@@ -178,6 +187,7 @@ $(ARCH)\$(CONFIG)\Timer.obj: \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
+    "$(includedir)\IceUtil\Atomic.h" \
     "$(includedir)\IceUtil\Thread.h" \
     "$(includedir)\IceUtil\Handle.h" \
     "$(includedir)\IceUtil\Exception.h" \
@@ -196,6 +206,7 @@ $(ARCH)\$(CONFIG)\Unicode.obj: \
     "$(includedir)\IceUtil\StringConverter.h" \
     "$(includedir)\IceUtil\Exception.h" \
     "$(includedir)\IceUtil\Shared.h" \
+    "$(includedir)\IceUtil\Atomic.h" \
     "$(includedir)\IceUtil\Handle.h" \
     "..\..\..\src\IceUtil\ConvertUTF.h" \
 

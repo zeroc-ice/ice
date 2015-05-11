@@ -1,45 +1,47 @@
 
-..\Metrics.cpp: \
-    $(slicedir)\Glacier2\Metrics.ice \
-    $(slicedir)/Ice/Metrics.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice
+..\Metrics.h: \
+    "$(slicedir)\Glacier2\Metrics.ice" \
+    "$(slicedir)/Ice/Metrics.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice"
 
-..\PermissionsVerifier.cpp: \
-    $(slicedir)\Glacier2\PermissionsVerifier.ice \
-    $(slicedir)/Glacier2/SSLInfo.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice
+..\PermissionsVerifier.h: \
+    "$(slicedir)\Glacier2\PermissionsVerifier.ice" \
+    "$(slicedir)/Glacier2/SSLInfo.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice"
 
-..\PermissionsVerifierF.cpp: \
-    $(slicedir)\Glacier2\PermissionsVerifierF.ice
+..\PermissionsVerifierF.h: \
+    "$(slicedir)\Glacier2\PermissionsVerifierF.ice"
 
-..\Router.cpp: \
-    $(slicedir)\Glacier2\Router.ice \
-    $(slicedir)/Ice/Router.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice \
-    $(slicedir)/Glacier2/Session.ice \
-    $(slicedir)/Ice/Identity.ice \
-    $(slicedir)/Glacier2/SSLInfo.ice \
-    $(slicedir)/Glacier2/PermissionsVerifier.ice
+..\Router.h: \
+    "$(slicedir)\Glacier2\Router.ice" \
+    "$(slicedir)/Ice/Router.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice" \
+    "$(slicedir)/Glacier2/Session.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Glacier2/SSLInfo.ice" \
+    "$(slicedir)/Glacier2/PermissionsVerifier.ice"
 
-..\RouterF.cpp: \
-    $(slicedir)\Glacier2\RouterF.ice
+..\RouterF.h: \
+    "$(slicedir)\Glacier2\RouterF.ice"
 
-..\Session.cpp: \
-    $(slicedir)\Glacier2\Session.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice \
-    $(slicedir)/Ice/Identity.ice \
-    $(slicedir)/Glacier2/SSLInfo.ice
+..\Session.h: \
+    "$(slicedir)\Glacier2\Session.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice" \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/Glacier2/SSLInfo.ice"
 
-..\SSLInfo.cpp: \
-    $(slicedir)\Glacier2\SSLInfo.ice \
-    $(slicedir)/Ice/BuiltinSequences.ice
+..\SSLInfo.h: \
+    "$(slicedir)\Glacier2\SSLInfo.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice"
 
 $(ARCH)\$(CONFIG)\Metrics.obj: \
 	..\Metrics.cpp \
     "$(includedir)\Glacier2\Metrics.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
+    "$(includedir)\IceUtil\Atomic.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\IceUtil\Handle.h" \
@@ -66,20 +68,22 @@ $(ARCH)\$(CONFIG)\Metrics.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
-    "$(includedir)\Ice\OutgoingAsync.h" \
+    "$(includedir)\Ice\BatchRequestQueueF.h" \
+    "$(includedir)\Ice\AsyncResult.h" \
     "$(includedir)\IceUtil\Monitor.h" \
     "$(includedir)\IceUtil\Cond.h" \
-    "$(includedir)\IceUtil\Timer.h" \
-    "$(includedir)\IceUtil\Thread.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
-    "$(includedir)\Ice\OutgoingAsyncF.h" \
-    "$(includedir)\Ice\InstanceF.h" \
     "$(includedir)\Ice\CommunicatorF.h" \
-    "$(includedir)\Ice\Current.h" \
     "$(includedir)\Ice\ConnectionF.h" \
+    "$(includedir)\Ice\InstanceF.h" \
+    "$(includedir)\Ice\AsyncResultF.h" \
+    "$(includedir)\Ice\ObserverHelper.h" \
+    "$(includedir)\Ice\Instrumentation.h" \
+    "$(includedir)\Ice\Current.h" \
     "$(includedir)\Ice\Identity.h" \
     "$(includedir)\Ice\Version.h" \
     "$(includedir)\Ice\BasicStream.h" \
@@ -93,12 +97,8 @@ $(ARCH)\$(CONFIG)\Metrics.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
-    "$(includedir)\Ice\ObserverHelper.h" \
-    "$(includedir)\Ice\Instrumentation.h" \
-    "$(includedir)\Ice\ThreadPoolF.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
-    "$(includedir)\Ice\Outgoing.h" \
     "$(includedir)\Ice\Incoming.h" \
     "$(includedir)\Ice\ServantLocatorF.h" \
     "$(includedir)\Ice\ServantManagerF.h" \
@@ -108,15 +108,22 @@ $(ARCH)\$(CONFIG)\Metrics.obj: \
     "$(includedir)\Ice\ObjectFactory.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\Ice\LocalException.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
+    "$(includedir)\Ice\Outgoing.h" \
+    "$(includedir)\Ice\OutgoingAsync.h" \
+    "$(includedir)\IceUtil\Timer.h" \
+    "$(includedir)\IceUtil\Thread.h" \
+    "$(includedir)\Ice\OutgoingAsyncF.h" \
 
 $(ARCH)\$(CONFIG)\PermissionsVerifier.obj: \
 	..\PermissionsVerifier.cpp \
     "$(includedir)\Glacier2\PermissionsVerifier.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
+    "$(includedir)\IceUtil\Atomic.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\IceUtil\Handle.h" \
@@ -143,20 +150,22 @@ $(ARCH)\$(CONFIG)\PermissionsVerifier.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
-    "$(includedir)\Ice\OutgoingAsync.h" \
+    "$(includedir)\Ice\BatchRequestQueueF.h" \
+    "$(includedir)\Ice\AsyncResult.h" \
     "$(includedir)\IceUtil\Monitor.h" \
     "$(includedir)\IceUtil\Cond.h" \
-    "$(includedir)\IceUtil\Timer.h" \
-    "$(includedir)\IceUtil\Thread.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
-    "$(includedir)\Ice\OutgoingAsyncF.h" \
-    "$(includedir)\Ice\InstanceF.h" \
     "$(includedir)\Ice\CommunicatorF.h" \
-    "$(includedir)\Ice\Current.h" \
     "$(includedir)\Ice\ConnectionF.h" \
+    "$(includedir)\Ice\InstanceF.h" \
+    "$(includedir)\Ice\AsyncResultF.h" \
+    "$(includedir)\Ice\ObserverHelper.h" \
+    "$(includedir)\Ice\Instrumentation.h" \
+    "$(includedir)\Ice\Current.h" \
     "$(includedir)\Ice\Identity.h" \
     "$(includedir)\Ice\Version.h" \
     "$(includedir)\Ice\BasicStream.h" \
@@ -170,12 +179,8 @@ $(ARCH)\$(CONFIG)\PermissionsVerifier.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
-    "$(includedir)\Ice\ObserverHelper.h" \
-    "$(includedir)\Ice\Instrumentation.h" \
-    "$(includedir)\Ice\ThreadPoolF.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
-    "$(includedir)\Ice\Outgoing.h" \
     "$(includedir)\Ice\Incoming.h" \
     "$(includedir)\Ice\ServantLocatorF.h" \
     "$(includedir)\Ice\ServantManagerF.h" \
@@ -185,16 +190,23 @@ $(ARCH)\$(CONFIG)\PermissionsVerifier.obj: \
     "$(includedir)\Ice\ObjectFactory.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\Ice\LocalException.h" \
+    "$(includedir)\Ice\Outgoing.h" \
+    "$(includedir)\Ice\OutgoingAsync.h" \
+    "$(includedir)\IceUtil\Timer.h" \
+    "$(includedir)\IceUtil\Thread.h" \
+    "$(includedir)\Ice\OutgoingAsyncF.h" \
     "$(includedir)\Ice\SlicedData.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\Router.obj: \
 	..\Router.cpp \
     "$(includedir)\Glacier2\Router.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
+    "$(includedir)\IceUtil\Atomic.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\IceUtil\Handle.h" \
@@ -221,20 +233,22 @@ $(ARCH)\$(CONFIG)\Router.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
-    "$(includedir)\Ice\OutgoingAsync.h" \
+    "$(includedir)\Ice\BatchRequestQueueF.h" \
+    "$(includedir)\Ice\AsyncResult.h" \
     "$(includedir)\IceUtil\Monitor.h" \
     "$(includedir)\IceUtil\Cond.h" \
-    "$(includedir)\IceUtil\Timer.h" \
-    "$(includedir)\IceUtil\Thread.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
-    "$(includedir)\Ice\OutgoingAsyncF.h" \
-    "$(includedir)\Ice\InstanceF.h" \
     "$(includedir)\Ice\CommunicatorF.h" \
-    "$(includedir)\Ice\Current.h" \
     "$(includedir)\Ice\ConnectionF.h" \
+    "$(includedir)\Ice\InstanceF.h" \
+    "$(includedir)\Ice\AsyncResultF.h" \
+    "$(includedir)\Ice\ObserverHelper.h" \
+    "$(includedir)\Ice\Instrumentation.h" \
+    "$(includedir)\Ice\Current.h" \
     "$(includedir)\Ice\Identity.h" \
     "$(includedir)\Ice\Version.h" \
     "$(includedir)\Ice\BasicStream.h" \
@@ -248,12 +262,8 @@ $(ARCH)\$(CONFIG)\Router.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
-    "$(includedir)\Ice\ObserverHelper.h" \
-    "$(includedir)\Ice\Instrumentation.h" \
-    "$(includedir)\Ice\ThreadPoolF.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
-    "$(includedir)\Ice\Outgoing.h" \
     "$(includedir)\Ice\Incoming.h" \
     "$(includedir)\Ice\ServantLocatorF.h" \
     "$(includedir)\Ice\ServantManagerF.h" \
@@ -266,17 +276,24 @@ $(ARCH)\$(CONFIG)\Router.obj: \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\Glacier2\PermissionsVerifier.h" \
     "$(includedir)\Ice\LocalException.h" \
+    "$(includedir)\Ice\Outgoing.h" \
+    "$(includedir)\Ice\OutgoingAsync.h" \
+    "$(includedir)\IceUtil\Timer.h" \
+    "$(includedir)\IceUtil\Thread.h" \
+    "$(includedir)\Ice\OutgoingAsyncF.h" \
     "$(includedir)\Ice\SlicedData.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\Session.obj: \
 	..\Session.cpp \
     "$(includedir)\Glacier2\Session.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
+    "$(includedir)\IceUtil\Atomic.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\IceUtil\Handle.h" \
@@ -303,20 +320,22 @@ $(ARCH)\$(CONFIG)\Session.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
-    "$(includedir)\Ice\OutgoingAsync.h" \
+    "$(includedir)\Ice\BatchRequestQueueF.h" \
+    "$(includedir)\Ice\AsyncResult.h" \
     "$(includedir)\IceUtil\Monitor.h" \
     "$(includedir)\IceUtil\Cond.h" \
-    "$(includedir)\IceUtil\Timer.h" \
-    "$(includedir)\IceUtil\Thread.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
-    "$(includedir)\Ice\OutgoingAsyncF.h" \
-    "$(includedir)\Ice\InstanceF.h" \
     "$(includedir)\Ice\CommunicatorF.h" \
-    "$(includedir)\Ice\Current.h" \
     "$(includedir)\Ice\ConnectionF.h" \
+    "$(includedir)\Ice\InstanceF.h" \
+    "$(includedir)\Ice\AsyncResultF.h" \
+    "$(includedir)\Ice\ObserverHelper.h" \
+    "$(includedir)\Ice\Instrumentation.h" \
+    "$(includedir)\Ice\Current.h" \
     "$(includedir)\Ice\Identity.h" \
     "$(includedir)\Ice\Version.h" \
     "$(includedir)\Ice\BasicStream.h" \
@@ -330,12 +349,8 @@ $(ARCH)\$(CONFIG)\Session.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
-    "$(includedir)\Ice\ObserverHelper.h" \
-    "$(includedir)\Ice\Instrumentation.h" \
-    "$(includedir)\Ice\ThreadPoolF.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
-    "$(includedir)\Ice\Outgoing.h" \
     "$(includedir)\Ice\Incoming.h" \
     "$(includedir)\Ice\ServantLocatorF.h" \
     "$(includedir)\Ice\ServantManagerF.h" \
@@ -345,9 +360,14 @@ $(ARCH)\$(CONFIG)\Session.obj: \
     "$(includedir)\Ice\ObjectFactory.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\Ice\LocalException.h" \
+    "$(includedir)\Ice\Outgoing.h" \
+    "$(includedir)\Ice\OutgoingAsync.h" \
+    "$(includedir)\IceUtil\Timer.h" \
+    "$(includedir)\IceUtil\Thread.h" \
+    "$(includedir)\Ice\OutgoingAsyncF.h" \
     "$(includedir)\Ice\SlicedData.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\SessionHelper.obj: \
 	..\SessionHelper.cpp \
@@ -355,6 +375,7 @@ $(ARCH)\$(CONFIG)\SessionHelper.obj: \
     "$(includedir)\Glacier2\SessionHelper.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
+    "$(includedir)\IceUtil\Atomic.h" \
     "$(includedir)\IceUtil\Handle.h" \
     "$(includedir)\IceUtil\Exception.h" \
     "$(includedir)\IceUtil\Thread.h" \
@@ -364,7 +385,11 @@ $(ARCH)\$(CONFIG)\SessionHelper.obj: \
     "$(includedir)\IceUtil\Time.h" \
     "$(includedir)\IceUtil\MutexProtocol.h" \
     "$(includedir)\Ice\Initialize.h" \
+    "$(includedir)\IceUtil\Timer.h" \
+    "$(includedir)\IceUtil\Monitor.h" \
+    "$(includedir)\IceUtil\Cond.h" \
     "$(includedir)\Ice\CommunicatorF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
@@ -380,6 +405,7 @@ $(ARCH)\$(CONFIG)\SessionHelper.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\PropertiesF.h" \
     "$(includedir)\Ice\Proxy.h" \
     "$(includedir)\Ice\ProxyFactoryF.h" \
@@ -389,15 +415,15 @@ $(ARCH)\$(CONFIG)\SessionHelper.obj: \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
-    "$(includedir)\Ice\OutgoingAsync.h" \
-    "$(includedir)\IceUtil\Monitor.h" \
-    "$(includedir)\IceUtil\Cond.h" \
-    "$(includedir)\IceUtil\Timer.h" \
+    "$(includedir)\Ice\BatchRequestQueueF.h" \
+    "$(includedir)\Ice\AsyncResult.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
-    "$(includedir)\Ice\OutgoingAsyncF.h" \
-    "$(includedir)\Ice\InstanceF.h" \
-    "$(includedir)\Ice\Current.h" \
     "$(includedir)\Ice\ConnectionF.h" \
+    "$(includedir)\Ice\InstanceF.h" \
+    "$(includedir)\Ice\AsyncResultF.h" \
+    "$(includedir)\Ice\ObserverHelper.h" \
+    "$(includedir)\Ice\Instrumentation.h" \
+    "$(includedir)\Ice\Current.h" \
     "$(includedir)\Ice\Identity.h" \
     "$(includedir)\Ice\Version.h" \
     "$(includedir)\Ice\BasicStream.h" \
@@ -411,18 +437,15 @@ $(ARCH)\$(CONFIG)\SessionHelper.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
-    "$(includedir)\Ice\ObserverHelper.h" \
-    "$(includedir)\Ice\Instrumentation.h" \
-    "$(includedir)\Ice\ThreadPoolF.h" \
     "$(includedir)\Ice\LoggerF.h" \
     "$(includedir)\Ice\InstrumentationF.h" \
     "$(includedir)\Ice\Dispatcher.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\Plugin.h" \
+    "$(includedir)\Ice\BatchRequestInterceptor.h" \
     "$(includedir)\Ice\Properties.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
-    "$(includedir)\Ice\Outgoing.h" \
     "$(includedir)\Ice\Incoming.h" \
     "$(includedir)\Ice\ServantLocatorF.h" \
     "$(includedir)\Ice\ServantManagerF.h" \
@@ -449,6 +472,8 @@ $(ARCH)\$(CONFIG)\SessionHelper.obj: \
     "$(includedir)\Ice\CommunicatorAsync.h" \
     "$(includedir)\Ice\ServantLocator.h" \
     "$(includedir)\Ice\SlicedData.h" \
+    "$(includedir)\Ice\OutgoingAsync.h" \
+    "$(includedir)\Ice\OutgoingAsyncF.h" \
     "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\Connection.h" \
     "$(includedir)\Ice\ConnectionAsync.h" \
@@ -462,8 +487,11 @@ $(ARCH)\$(CONFIG)\SessionHelper.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\Glacier2\Router.h" \
     "$(includedir)\Glacier2\PermissionsVerifier.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
@@ -476,9 +504,11 @@ $(ARCH)\$(CONFIG)\SessionHelper.obj: \
 $(ARCH)\$(CONFIG)\SSLInfo.obj: \
 	..\SSLInfo.cpp \
     "$(includedir)\Glacier2\SSLInfo.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
+    "$(includedir)\IceUtil\Atomic.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\IceUtil\Handle.h" \
@@ -496,6 +526,8 @@ $(ARCH)\$(CONFIG)\SSLInfo.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
+    "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\Ice\BasicStream.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
     "$(includedir)\Ice\InstanceF.h" \
@@ -518,14 +550,15 @@ $(ARCH)\$(CONFIG)\SSLInfo.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\RouterF.obj: \
 	..\RouterF.cpp \
     "$(includedir)\Glacier2\RouterF.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
+    "$(includedir)\IceUtil\Atomic.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\IceUtil\Handle.h" \
@@ -552,20 +585,22 @@ $(ARCH)\$(CONFIG)\RouterF.obj: \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Ice\EndpointTypes.h" \
     "$(includedir)\Ice\ObjectAdapterF.h" \
     "$(includedir)\Ice\ReferenceF.h" \
-    "$(includedir)\Ice\OutgoingAsync.h" \
+    "$(includedir)\Ice\BatchRequestQueueF.h" \
+    "$(includedir)\Ice\AsyncResult.h" \
     "$(includedir)\IceUtil\Monitor.h" \
     "$(includedir)\IceUtil\Cond.h" \
-    "$(includedir)\IceUtil\Timer.h" \
-    "$(includedir)\IceUtil\Thread.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
-    "$(includedir)\Ice\OutgoingAsyncF.h" \
-    "$(includedir)\Ice\InstanceF.h" \
     "$(includedir)\Ice\CommunicatorF.h" \
-    "$(includedir)\Ice\Current.h" \
     "$(includedir)\Ice\ConnectionF.h" \
+    "$(includedir)\Ice\InstanceF.h" \
+    "$(includedir)\Ice\AsyncResultF.h" \
+    "$(includedir)\Ice\ObserverHelper.h" \
+    "$(includedir)\Ice\Instrumentation.h" \
+    "$(includedir)\Ice\Current.h" \
     "$(includedir)\Ice\Identity.h" \
     "$(includedir)\Ice\Version.h" \
     "$(includedir)\Ice\BasicStream.h" \
@@ -579,7 +614,3 @@ $(ARCH)\$(CONFIG)\RouterF.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
-    "$(includedir)\Ice\ObserverHelper.h" \
-    "$(includedir)\Ice\Instrumentation.h" \
-    "$(includedir)\Ice\ThreadPoolF.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \

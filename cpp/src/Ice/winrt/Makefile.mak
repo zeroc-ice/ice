@@ -121,11 +121,9 @@ OBJS		= $(ARCH)\$(CONFIG)\Acceptor.obj \
 		  $(ARCH)\$(CONFIG)\WSEndpoint.obj \
 		  $(ARCH)\$(CONFIG)\WSTransceiver.obj \
 		  $(ARCH)\$(CONFIG)\HttpParser.obj \
-		  $(ARCH)\$(CONFIG)\IceDiscovery\IceDiscovery.obj \
 		  $(ARCH)\$(CONFIG)\IceDiscovery\LookupI.obj \
 		  $(ARCH)\$(CONFIG)\IceDiscovery\LocatorI.obj \
 		  $(ARCH)\$(CONFIG)\IceDiscovery\PluginI.obj \
-		  $(ARCH)\$(CONFIG)\IceLocatorDiscovery\IceLocatorDiscovery.obj \
 		  $(ARCH)\$(CONFIG)\IceLocatorDiscovery\PluginI.obj
 
 LOCAL_OBJS	= $(ARCH)\$(CONFIG)\RegisterPlugins.obj \
@@ -135,6 +133,8 @@ LOCAL_OBJS	= $(ARCH)\$(CONFIG)\RegisterPlugins.obj \
 		  $(ARCH)\$(CONFIG)\StreamTransceiver.obj \
 		  $(ARCH)\$(CONFIG)\EndpointInfo.obj \
 		  $(ARCH)\$(CONFIG)\ConnectionInfo.obj \
+		  $(ARCH)\$(CONFIG)\IceDiscovery.obj \
+		  $(ARCH)\$(CONFIG)\IceLocatorDiscovery.obj
 
 SLICE_SRCS	= Ice\BuiltinSequences.ice \
 		  Ice\CommunicatorF.ice \
@@ -185,6 +185,8 @@ SRCS		= $(SRCS:x64\=)
 SRCS		= $(SRCS:arm\=)
 SRCS		= $(SRCS:Retail\=..\)
 SRCS		= $(SRCS:Debug\=..\)
+SRCS		= $(SRCS:..\IceDiscovery\=..\..\IceDiscovery\)
+SRCS		= $(SRCS:..\IceLocatorDiscovery\=..\..\IceLocatorDiscovery\)
 
 LOCAL_SRCS	= $(LOCAL_OBJS:.obj=.cpp)
 LOCAL_SRCS	= $(LOCAL_SRCS:x86\=)
@@ -214,14 +216,11 @@ SDIR		= $(slicedir)\Ice
 
 PDBNAME			= $(LIBNAME:.lib=.pdb)
 CPPFLAGS		= /Fd$(PDBNAME) -I. -I..\.. -DICE_BUILDING_ICE -DICE_BUILDING_ICESSL -DWIN32_LEAN_AND_MEAN $(CPPFLAGS)
-CORE_SLICE2CPPFLAGS	= --ice --include-dir Ice $(SLICE2CPPFLAGS)
-SSL_SLICE2CPPFLAGS 	= --ice --include-dir IceSSL $(SLICE2CPPFLAGS)
+SLICE2CPPFLAGS		= --ice $(SLICE2CPPFLAGS)
+CORE_SLICE2CPPFLAGS	= --include-dir Ice $(SLICE2CPPFLAGS)
+SSL_SLICE2CPPFLAGS 	= --include-dir IceSSL $(SLICE2CPPFLAGS)
 
 !include $(top_srcdir)\config\Make.rules.mak
-
-depend:: $(SLICE_CORE_SRCS:.ice=.d)
-
-depend:: $(SLICE_SSL_SRCS:.ice=.d)
 
 $(LIBNAME): $(LOCAL_OBJS) $(OBJS) sdks
 	$(AR) $(ARFLAGS) $(OBJS) $(LOCAL_OBJS) /out:$(LIBNAME)
@@ -253,16 +252,30 @@ $(LIBNAME): $(LOCAL_OBJS) $(OBJS) sdks
 	@if not exist "$(ARCH)\$(CONFIG)\IceLocatorDiscovery" mkdir $(ARCH)\$(CONFIG)\IceLocatorDiscovery
 	$(CXX) /c /Fo$(ARCH)\$(CONFIG)\IceLocatorDiscovery\ $(CPPFLAGS) $(CXXFLAGS) $<
 
-.cpp{$(DEPEND_DIR)\IceDiscovery}.d:
+.cpp{$(DEPEND_DIR)\IceDiscovery\}.d:
 	@echo Generating dependencies for $<
-	@$(CXX) /E $(CPPFLAGS) $(CXXFLAGS) /showIncludes $< 1>$(*F).i 2>$(*F).d && \
+	@$(CXX) /E $(CPPFLAGS) $(CXXFLAGS) /showIncludes $< 1>$(*F).i 2>IceDiscovery\$(*F).d && \
 	cscript /NoLogo $(top_srcdir)\..\config\makedepend.vbs $(*F).cpp $(top_srcdir)
 	@del /q $(*F).d $(*F).i
 
-.cpp{$(DEPEND_DIR)\IceLocatorDiscovery}.d:
+.cpp{$(DEPEND_DIR)\IceLocatorDiscovery\}.d:
 	@echo Generating dependencies for $<
-	@$(CXX) /E $(CPPFLAGS) $(CXXFLAGS) /showIncludes $< 1>$(*F).i 2>$(*F).d && \
+	@$(CXX) /E $(CPPFLAGS) $(CXXFLAGS) /showIncludes $< 1>$(*F).i 2>IceLocatorDiscovery\$(*F).d && \
 	cscript /NoLogo $(top_srcdir)\..\config\makedepend.vbs $(*F).cpp $(top_srcdir)
+	@del /q $(*F).d $(*F).i
+
+{..\..\IceDiscovery\}.cpp{$(DEPEND_DIR)\IceDiscovery\}.d:
+	@if not exist "$(ARCH)\$(CONFIG)" mkdir $(ARCH)\$(CONFIG)
+	@echo Generating dependencies for $<
+	@$(CXX) /E /Fo$(ARCH)\$(CONFIG)\ $(CPPFLAGS) $(CXXFLAGS) /showIncludes $< 1>$(*F).i 2>IceDiscovery\$(*F).d && \
+	cscript /NoLogo $(top_srcdir)\..\config\makedepend.vbs $< $(top_srcdir)
+	@del /q $(*F).d $(*F).i
+
+{..\..\IceLocatorDiscovery\}.cpp{$(DEPEND_DIR)\IceLocatorDiscovery\}.d:
+	@if not exist "$(ARCH)\$(CONFIG)" mkdir $(ARCH)\$(CONFIG)
+	@echo Generating dependencies for $<
+	@$(CXX) /E /Fo$(ARCH)\$(CONFIG)\ $(CPPFLAGS) $(CXXFLAGS) /showIncludes $< 1>$(*F).i 2>IceLocatorDiscovery\$(*F).d && \
+	cscript /NoLogo $(top_srcdir)\..\config\makedepend.vbs $< $(top_srcdir)
 	@del /q $(*F).d $(*F).i
 
 {$(slicedir)\Ice\}.ice{Ice\}.d:

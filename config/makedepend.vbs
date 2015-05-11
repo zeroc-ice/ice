@@ -26,6 +26,8 @@ iceCppIncludeDir = fs.GetAbsolutePathName(WScript.Arguments(1) & "\..\cpp\includ
 objPrefix = ""
 
 If InStr(1, shell.ExpandEnvironmentStrings("%WINRT%"), "yes") Then
+    baseName = Replace(baseName, "..\..\IceDiscovery\", "IceDiscovery\")
+    baseName = Replace(baseName, "..\..\IceLocatorDiscovery\", "IceLocatorDiscovery\")
     baseName = Replace(baseName, "..\", "")
     objPrefix = "$(ARCH)\$(CONFIG)\"
 End If
@@ -64,7 +66,7 @@ Do While Not stream.AtEndOfStream
 
             line = "    """ & line & """ \"
             If Not depends.Exists(line) Then
-                depends.Add line, "" 
+                depends.Add line, ""
                 outFile.WriteLine(line)
             End If
         End If
