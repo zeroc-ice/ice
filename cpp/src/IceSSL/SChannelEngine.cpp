@@ -54,12 +54,6 @@ struct CertChainEngineConfig
     HCERTSTORE hExclusiveTrustedPeople;
 };
 
-#   if defined(_MSC_VER) && (_MSC_VER <= 1500)
-#       define     SP_PROT_TLS1_2_CLIENT   0x00000800
-#       define     SP_PROT_TLS1_2_SERVER   0x00000400
-#       define     SP_PROT_TLS1_1_CLIENT   0x00000200
-#       define     SP_PROT_TLS1_1_SERVER   0x00000100
-#   endif
 #endif
 
 void

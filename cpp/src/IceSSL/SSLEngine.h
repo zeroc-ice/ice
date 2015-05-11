@@ -139,7 +139,7 @@ private:
 #elif defined(ICE_USE_SCHANNEL)
 
 
-#ifdef __MINGW32__
+#if defined(__MINGW32__) || (defined(_MSC_VER) && (_MSC_VER <= 1500))
 
 //
 // Add some definitions missing from MinGW headers.
