@@ -9,7 +9,7 @@
 # **********************************************************************
 
 import sys, os, platform
-sys.path.append(os.path.join(os.path.dirname(sys.argv[0]), "..", "python"))
+sys.path.insert(1, os.path.join(os.path.dirname(sys.argv[0]), "..", "python"))
 if sys.platform == "win32":
         path = os.getenv('PATH')
         path = path + ';' + os.path.join(os.path.dirname(sys.argv[0]), "..", "..", "cpp", "bin")
