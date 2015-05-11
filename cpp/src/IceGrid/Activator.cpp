@@ -289,6 +289,14 @@ operator()(const wstring& lhs, const wstring& rhs) const
 
 }
 
+#ifdef _WIN32
+extern "C" void CALLBACK activatorWaitCallback(PVOID data, BOOLEAN)
+{
+    Activator::Process* process = reinterpret_cast<Activator::Process*>(data);
+    process->activator->processTerminated(process);
+}
+#endif
+
 Activator::Activator(const TraceLevelsPtr& traceLevels) :
     _traceLevels(traceLevels),
     _deactivating(false)
@@ -582,16 +590,21 @@ Activator::activate(const string& name,
     // keep the thread handle, so we close it now. The process handle will be closed later.
     //
     CloseHandle(pi.hThread);
-    
+    process.activator = this;
     process.pid = pi.dwProcessId;
     process.hnd = pi.hProcess;
     process.server = server;
-    _processes.insert(make_pair(name, process));
+    map<string, Process>::iterator it = _processes.insert(make_pair(name, process)).first;
     
-    setInterrupt();
+    Process* pp = &it->second;
+    if(!RegisterWaitForSingleObject(&pp->waithnd, pp->hnd, activatorWaitCallback, pp, INFINITE, 
+                                    WT_EXECUTEDEFAULT | WT_EXECUTEONLYONCE))
+    {
+        throw IceUtilInternal::lastErrorToString();
+    }
 
     //  
-    // Don't print the following trace, this might interfere with the
+    // Don't print the following trace, this might interfer with the
     // output of the started process if it fails with an error message.
     //
 //     if(_traceLevels->activator > 0)
@@ -1129,51 +1142,30 @@ Activator::terminationListener()
 #ifdef _WIN32
     while(true)
     {
-        vector<HANDLE> handles;
-
         //
-        // Lock while we collect the process handles.
+        // Wait for the interrupt event to be signaled.
         //
-        {
-            IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
-
-            for(map<string, Process>::iterator p = _processes.begin(); p != _processes.end(); ++p)
-            {
-                handles.push_back(p->second.hnd);
-            }
-        }
-
-        handles.push_back(_hIntr);
-
-        //
-        // Wait for a child to terminate, or the interrupt event to be signaled.
-        //
-        DWORD ret = WaitForMultipleObjects(static_cast<DWORD>(handles.size()), &handles[0], FALSE, INFINITE);
+        DWORD ret = WaitForSingleObject(_hIntr, INFINITE);
         if(ret == WAIT_FAILED)
         {
             SyscallException ex(__FILE__, __LINE__);
             ex.error = getSystemErrno();
             throw ex;
         }
+		clearInterrupt();
 
-        vector<HANDLE>::size_type pos = ret - WAIT_OBJECT_0;
-        assert(pos < handles.size());
-        HANDLE hnd = handles[pos];
-
+        //
+        // Collect terminated processes
+        //
         vector<Process> terminated;
         bool deactivated = false;
         {
             IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
-            
-            if(hnd == _hIntr)
-            {
-                clearInterrupt();
-            }
-            else
+            for(vector<Process*>::const_iterator q = _terminated.begin(); q != _terminated.end(); ++q)
             {
                 for(map<string, Process>::iterator p = _processes.begin(); p != _processes.end(); ++p)
                 {
-                    if(p->second.hnd == hnd)
+                    if(&p->second == *q)
                     {
                         terminated.push_back(p->second);
                         _processes.erase(p);
@@ -1181,14 +1173,17 @@ Activator::terminationListener()
                     }
                 }
             }
-
+            _terminated.clear();
             deactivated = _deactivating && _processes.empty();
         }
         
         for(vector<Process>::const_iterator p = terminated.begin(); p != terminated.end(); ++p)
         {
+            UnregisterWait(p->waithnd);
+
             DWORD status;
             GetExitCodeProcess(p->hnd, &status);
+
             CloseHandle(p->hnd);
             assert(status != STILL_ACTIVE);
 
@@ -1459,5 +1454,13 @@ Activator::waitPid(pid_t processPid)
         out << "unable to get process status:\n" << ex;
         return -1;
     }
+}
+#else
+void
+Activator::processTerminated(Activator::Process* process)
+{
+    IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
+    setInterrupt();
+    _terminated.push_back(process);
 }
 #endif
