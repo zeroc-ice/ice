@@ -670,6 +670,47 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
+    cout << "testing large number of servers... " << flush;
+    {
+        IceGrid::ApplicationInfo info = admin->getApplicationInfo("Test");
+        IceGrid::ApplicationDescriptor testApp;
+        testApp.name = "TestApp";
+        testApp.serverTemplates = info.descriptor.serverTemplates;
+        testApp.variables = info.descriptor.variables;
+        for(int i = 0; i < 100; ++i)
+        {
+            ostringstream id;
+            id << "server-" << i;
+            IceGrid::ServerInstanceDescriptor server;
+            server._cpp_template = "Server";
+            server.parameterValues["id"] = id.str();
+            testApp.nodes["localnode"].serverInstances.push_back(server);
+        }
+        try
+        {
+            admin->addApplication(testApp);            
+        }
+        catch(const IceGrid::DeploymentException& ex)
+        {
+            cerr << ex.reason << endl;
+            test(false);
+        }
+        for(int i = 0; i < 100; ++i)
+        {
+            ostringstream id;
+            id << "server-" << i;
+            admin->startServer(id.str());
+        }
+        for(int i = 0; i < 100; ++i)
+        {
+            ostringstream id;
+            id << "server-" << i;
+            admin->stopServer(id.str());
+        }
+        admin->removeApplication("TestApp");
+    }
+    cout << "ok" << endl;
+
     admin->stopServer("node-1");
     admin->stopServer("node-2");
     
