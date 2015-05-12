@@ -11,11 +11,11 @@ top_srcdir	= .
 
 !include $(top_srcdir)/config/Make.rules.mak
 
+INSTALL_SUBDIRS	= "$(install_bindir)" "$(install_libdir)" "$(install_includedir)" "$(install_configdir)"
+
 !if "$(WINRT)" != "yes"
 
 SUBDIRS		= config src include test 
-
-INSTALL_SUBDIRS	= "$(install_bindir)" "$(install_libdir)" "$(install_includedir)" "$(install_configdir)"
 
 install:: install-common
 	@for %i in ( $(INSTALL_SUBDIRS) ) do \
@@ -33,7 +33,7 @@ test::
 
 SUBDIRS		= src include test
 
-INSTALL_SUBDIRS	= $(prefix)\SDKs
+INSTALL_SUBDIRS	= $(INSTALL_SUBDIRS) $(prefix)\SDKs
 
 install:: install-common
 	@for %i in ( $(INSTALL_SUBDIRS) ) do \
