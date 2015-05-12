@@ -15,15 +15,23 @@ ifneq ($(DESTDIR),)
 INSTALL_FLAGS += -Dorg.gradle.project.DESTDIR=$(DESTDIR)
 endif
 
+ifneq ($(JARSIGNER_KEYSTORE),)
+BUILD_FLAGS += -Dorg.gradle.project.keystore="$(JARSIGNER_KEYSTORE)"
+endif
+
+ifneq ($(JARSIGNER_KEYSTORE_PASSWORD),)
+BUILD_FLAGS += -Dorg.gradle.project.keystore_password="$(JARSIGNER_KEYSTORE_PASSWORD)"
+endif
+
 ifeq ($(GRADLE),)
 GRADLE = ./gradlew
 endif
 
 all:
-	$(GRADLE) build
+	$(GRADLE) $(BUILD_FLAGS) build
 
 dist:
-	$(GRADLE) :Ice:assemble :Freeze:assemble :Glacier2:assemble :IceGrid:assemble \
+	$(GRADLE) $(BUILD_FLAGS) :Ice:assemble :Freeze:assemble :Glacier2:assemble :IceGrid:assemble \
 		:IceBox:assemble :IceDiscovery:assemble :IcePatch2:assemble :IceStorm:assemble :IceGridGUI:assemble
 
 clean:

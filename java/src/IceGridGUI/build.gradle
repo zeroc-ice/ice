@@ -101,7 +101,15 @@ task updateManifest(dependsOn: proguardJar) << {
         }
     }
 }
-assemble.dependsOn(updateManifest)
+task signjar(dependsOn: updateManifest) << {
+    if(keystore != "") {
+        ant.signjar(jar: "${libDir}/${jarName}",
+                    alias: 'zeroc.com',
+                    keystore:"${keystore}",
+                    storepass:"${keystore_password}")
+    }
+}
+assemble.dependsOn(signjar)
 
 if(macosx)
 {

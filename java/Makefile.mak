@@ -11,11 +11,19 @@
 GRADLE = gradlew.bat
 !endif
 
+!if "$(JARSIGNER_KEYSTORE)" != ""
+BUILD_FLAGS = -Dorg.gradle.project.keystore="$(JARSIGNER_KEYSTORE)"
+!endif
+
+!if "$(JARSIGNER_KEYSTORE_PASSWORD)" != ""
+BUILD_FLAGS = -Dorg.gradle.project.keystore_password="$(JARSIGNER_KEYSTORE_PASSWORD)"
+!endif
+
 all:
-	$(GRADLE) build
+	$(GRADLE) $(BUILD_FLAGS) build
 
 dist:
-	$(GRADLE) :Ice:assemble :Freeze:assemble :Glacier2:assemble :IceGrid:assemble :ant:assemble \
+	$(GRADLE) $(BUILD_FLAGS) :Ice:assemble :Freeze:assemble :Glacier2:assemble :IceGrid:assemble :ant:assemble \
 		:IceBox:assemble :IceDiscovery:assemble :IcePatch2:assemble :IceStorm:assemble :IceGridGUI:assemble
 
 clean:
