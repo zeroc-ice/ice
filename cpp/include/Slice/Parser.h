@@ -444,7 +444,7 @@ public:
     virtual void destroy();
     ModulePtr createModule(const std::string&);
     ClassDefPtr createClassDef(const std::string&, int, bool, const ClassList&, bool);
-    ClassDeclPtr createClassDecl(const std::string&, bool, bool);
+    ClassDeclPtr createClassDecl(const std::string&, bool, bool, bool = true);
     ExceptionPtr createException(const std::string&, const ExceptionPtr&, bool, NodeType = Real);
     StructPtr createStruct(const std::string&, bool, NodeType = Real);
     SequencePtr createSequence(const std::string&, const TypePtr&, const StringList&, bool, NodeType = Real);

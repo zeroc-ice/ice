@@ -593,6 +593,7 @@ ClassDefPtr
 Slice::Container::createClassDef(const string& name, int id, bool intf, const ClassList& bases, bool local)
 {
     checkIdentifier(name);
+
     ContainedList matches = _unit->findContents(thisScope() + name);
     for(ContainedList::const_iterator p = matches.begin(); p != matches.end(); ++p)
     {
@@ -673,16 +674,19 @@ Slice::Container::createClassDef(const string& name, int id, bool intf, const Cl
     // definition. This way the code generator can rely on always
     // having a class declaration available for lookup.
     //
-    ClassDeclPtr decl = createClassDecl(name, intf, local);
+    ClassDeclPtr decl = createClassDecl(name, intf, local, false);
     def->_declaration = decl;
 
     return def;
 }
 
 ClassDeclPtr
-Slice::Container::createClassDecl(const string& name, bool intf, bool local)
+Slice::Container::createClassDecl(const string& name, bool intf, bool local, bool checkName)
 {
-    checkIdentifier(name);
+    if (checkName)
+    {
+        checkIdentifier(name);
+    }
 
     ClassDefPtr def;
 
@@ -2137,21 +2141,21 @@ Slice::Container::checkIntroduced(const string& scoped, ContainedPtr namedThing)
             //
             // Parameter are in its own scope.
             //
-            if((ParamDeclPtr::dynamicCast(it->second) && !ParamDeclPtr::dynamicCast(namedThing)) || 
+            if((ParamDeclPtr::dynamicCast(it->second) && !ParamDeclPtr::dynamicCast(namedThing)) ||
                (!ParamDeclPtr::dynamicCast(it->second) && ParamDeclPtr::dynamicCast(namedThing)))
             {
                 return true;
             }
-            
+
             //
             // Data members are in its own scope.
             //
-            if((DataMemberPtr::dynamicCast(it->second) && !DataMemberPtr::dynamicCast(namedThing)) || 
+            if((DataMemberPtr::dynamicCast(it->second) && !DataMemberPtr::dynamicCast(namedThing)) ||
                (!DataMemberPtr::dynamicCast(it->second) && DataMemberPtr::dynamicCast(namedThing)))
             {
                 return true;
             }
-            
+
             _unit->error("`" + firstComponent + "' has changed meaning");
             return false;
         }
