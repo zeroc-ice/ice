@@ -73,7 +73,7 @@ class BatchOneways
     };
 
     static void
-    batchOneways(MyClassPrx p, PrintWriter out)
+    batchOneways(test.Util.Application app, MyClassPrx p, PrintWriter out)
     {
         final byte[] bs1 = new byte[10  * 1024];
 
@@ -142,11 +142,11 @@ class BatchOneways
 
         if(batch.ice_getConnection() != null)
         {
-            Ice.InitializationData initData = new Ice.InitializationData();
+            Ice.InitializationData initData = app.createInitializationData();
             initData.properties = p.ice_getCommunicator().getProperties()._clone();
             BatchRequestInterceptorI interceptor = new BatchRequestInterceptorI();
             initData.batchRequestInterceptor = interceptor;
-            Ice.Communicator ic = Ice.Util.initialize(initData);
+            Ice.Communicator ic = app.initialize(initData);
 
             batch = MyClassPrxHelper.uncheckedCast(ic.stringToProxy(p.toString()).ice_batchOneway());
 

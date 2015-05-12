@@ -43,17 +43,17 @@ public class AllTests
         TwowaysAMI.twowaysAMI(app, cl);
         TwowaysAMI.twowaysAMI(app, derived);
         out.println("ok");
-        
+
         //
         // Use reflection to load TwowaysLambdaAMI as that is only supported with Java >= 1.8
-        // 
+        //
         try
         {
             Class<?> cls = IceInternal.Util.findClass("test.Ice.operations.lambda.TwowaysLambdaAMI", null);
             if(cls != null)
             {
-                java.lang.reflect.Method twowaysLambdaAMI = 
-                    cls.getDeclaredMethod("twowaysLambdaAMI", 
+                java.lang.reflect.Method twowaysLambdaAMI =
+                    cls.getDeclaredMethod("twowaysLambdaAMI",
                                           new Class<?>[]{test.Util.Application.class, MyClassPrx.class});
                 out.print("testing twoway operations with lambda AMI mapping... ");
                 out.flush();
@@ -74,22 +74,22 @@ public class AllTests
         {
             throw new RuntimeException(ex);
         }
-            
+
         out.print("testing oneway operations with AMI... ");
         out.flush();
         OnewaysAMI.onewaysAMI(app, cl);
         out.println("ok");
-            
+
         //
         // Use reflection to load OnewaysLambdaAMI as that is only supported with Java >= 1.8
-        // 
+        //
         try
         {
             Class<?> cls = IceInternal.Util.findClass("test.Ice.operations.lambda.OnewaysLambdaAMI", null);
             if(cls != null)
             {
-                java.lang.reflect.Method onewaysLambdaAMI = 
-                    cls.getDeclaredMethod("onewaysLambdaAMI", 
+                java.lang.reflect.Method onewaysLambdaAMI =
+                    cls.getDeclaredMethod("onewaysLambdaAMI",
                                           new Class<?>[]{test.Util.Application.class, MyClassPrx.class});
                 out.print("testing twoway operations with lambda AMI mapping... ");
                 out.flush();
@@ -113,8 +113,8 @@ public class AllTests
 
         out.print("testing batch oneway operations... ");
         out.flush();
-        BatchOneways.batchOneways(cl, out);
-        BatchOneways.batchOneways(derived, out);
+        BatchOneways.batchOneways(app, cl, out);
+        BatchOneways.batchOneways(app, derived, out);
         out.println("ok");
 
         out.print("testing batch AMI oneway operations... ");

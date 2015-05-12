@@ -644,9 +644,14 @@ class SSLEngine
 
     Certificate[] getVerifiedCertificateChain(Certificate[] chain)
     {
+        if(_validator == null)
+        {
+            return chain; // The user provided a custom SSLContext
+        }
+
         if(_validatorParams == null)
         {
-            return null; // Couldn't validate the given certificate chain.
+            return null; // Couldn't validate the given certificate chain, no trust anchors configured.
         }
 
         List<Certificate> certs = new ArrayList<Certificate>(java.util.Arrays.asList(chain));

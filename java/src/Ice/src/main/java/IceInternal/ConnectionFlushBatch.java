@@ -59,7 +59,7 @@ public class ConnectionFlushBatch extends OutgoingAsyncBase
             }
             else if(_instance.queueRequests())
             {
-                status = _instance.getQueueExecutor().executeNoThrow(new Callable<Integer>()
+                status = _instance.getQueueExecutor().execute(new Callable<Integer>()
                 {
                     @Override
                     public Integer call() throws RetryException
