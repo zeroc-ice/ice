@@ -2,3 +2,11 @@ build
 .gradle
 local.properties
 *.bks
+
+.idea/libraries
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/misc.xml
+.idea/gradle.xml
+
+test/src/
