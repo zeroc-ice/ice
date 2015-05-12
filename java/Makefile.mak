@@ -12,11 +12,11 @@ GRADLE = gradlew.bat
 !endif
 
 !if "$(JARSIGNER_KEYSTORE)" != ""
-BUILD_FLAGS = -Dorg.gradle.project.keystore="$(JARSIGNER_KEYSTORE)"
+BUILD_FLAGS = $(BUILD_FLAGS) -Dorg.gradle.project.keystore="$(JARSIGNER_KEYSTORE)"
 !endif
 
 !if "$(JARSIGNER_KEYSTORE_PASSWORD)" != ""
-BUILD_FLAGS = -Dorg.gradle.project.keystore_password="$(JARSIGNER_KEYSTORE_PASSWORD)"
+BUILD_FLAGS = $(BUILD_FLAGS) -Dorg.gradle.project.keystore_password="$(JARSIGNER_KEYSTORE_PASSWORD)"
 !endif
 
 all:
