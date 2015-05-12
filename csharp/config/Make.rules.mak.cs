@@ -12,7 +12,11 @@
 # if it does not exist.
 #
 
+!if "$(PREFIX)" == ""
 prefix			= C:\Ice-$(VERSION)
+!else
+prefix			= $(PREFIX)
+!endif
 
 #
 # Ice invokes unmanaged code to implement the following features:

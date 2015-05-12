@@ -22,8 +22,8 @@ clean:
 	$(GRADLE) clean
 
 install::
-!if "$(prefix)" != ""
-	$(GRADLE) -Dorg.gradle.project.prefix="$(prefix)" install
+!if "$(PREFIX)" != ""
+	$(GRADLE) -Dorg.gradle.project.prefix="$(PREFIX)" install
 !else
 	$(GRADLE) install
 !endif

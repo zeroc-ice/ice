@@ -12,7 +12,11 @@
 # if it does not exist.
 #
 
+!if "$(PREFIX)" == ""
 prefix			= C:\Ice-$(VERSION)
+!else
+prefix			= $(PREFIX)
+!endif
 
 #
 # Define OPTIMIZE as yes if you want to build with optimization.
