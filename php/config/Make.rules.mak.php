@@ -50,7 +50,11 @@ PHP_HOME		= C:\php-5.6.6
 # Set PHP_BIN_HOME to your PHP binary installation directory.
 #
 !if "$(PHP_BIN_HOME)" == ""
-PHP_BIN_HOME		= C:\Program Files\PHP
+!if "$(PROCESSOR_ARCHITECTURE)" == "AMD64"
+PHP_BIN_HOME	 = $(PROGRAMFILES) (x86)\PHP
+!else
+PHP_BIN_HOME	 = $(PROGRAMFILES)\PHP
+!endif
 !endif
 
 #
