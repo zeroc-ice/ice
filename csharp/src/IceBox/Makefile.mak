@@ -38,9 +38,13 @@ SLICE2CSFLAGS	= $(SLICE2CSFLAGS) --checksum --ice -I. -I$(slicedir)
 
 $(ICEBOXNET): $(I_SRCS) $(LIBNAME)
 	$(MCS) $(EXE_MCSFLAGS) -out:$@ -r:$(LIBNAME) -r:$(refdir)\Ice.dll $(I_SRCS)
+	@if defined SIGN_CERTIFICATE echo ^ ^ ^ Signing $@ && \
+		signtool sign /f "$(SIGN_CERTIFICATE)" /p $(SIGN_PASSWORD) /t $(SIGN_TIMESTAMPSERVER) $@
 
 $(LIBNAME): $(L_SRCS) $(GEN_SRCS)
 	$(MCS) /baseaddress:0x25000000 $(LIB_MCSFLAGS) -r:$(refdir)\Ice.dll $(L_SRCS) $(GEN_SRCS)
+	@if defined SIGN_CERTIFICATE echo ^ ^ ^ Signing $@ && \
+		signtool sign /f "$(SIGN_CERTIFICATE)" /p $(SIGN_PASSWORD) /t $(SIGN_TIMESTAMPSERVER) $@
 
 !if "$(DEBUG)" == "yes"
 clean::

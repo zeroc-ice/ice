@@ -174,6 +174,8 @@ SLICE2CSFLAGS	= $(SLICE2CSFLAGS) --ice -I"$(slicedir)"
 
 $(TARGETS):: $(SRCS) $(GEN_SRCS)
 	$(MCS) /baseaddress:0x20000000 $(MCSFLAGS) $(SRCS) $(GEN_SRCS)
+	@if defined SIGN_CERTIFICATE echo ^ ^ ^ Signing $@ && \
+		signtool sign /f "$(SIGN_CERTIFICATE)" /p $(SIGN_PASSWORD) /t $(SIGN_TIMESTAMPSERVER) $@
 
 !if "$(DEBUG)" == "yes"
 clean::

@@ -59,12 +59,16 @@ $(TRANSFORMDB): $(TRANSFORM_OBJS) $(COMMON_OBJS) TransformDB.res
 		$(PRELIBS)$(LINKWITH) $(TRES_FILE)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
+    @if defined SIGN_CERTIFICATE echo ^ ^ ^ Signing $@ && \
+		signtool sign /f "$(SIGN_CERTIFICATE)" /p $(SIGN_PASSWORD) /t $(SIGN_TIMESTAMPSERVER) $@
 
 $(DUMPDB): $(DUMP_OBJS) $(COMMON_OBJS) DumpDB.res
 	$(LINK) $(LD_EXEFLAGS) $(DPDBFLAGS) $(DUMP_OBJS) $(COMMON_OBJS) $(SETARGV) $(PREOUT)$@ \
 		$(PRELIBS)$(LINKWITH) $(DRES_FILE)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
+    @if defined SIGN_CERTIFICATE echo ^ ^ ^ Signing $@ && \
+		signtool sign /f "$(SIGN_CERTIFICATE)" /p $(SIGN_PASSWORD) /t $(SIGN_TIMESTAMPSERVER) $@
 
 clean::
 	-del /q $(TRANSFORMDB:.exe=.*)

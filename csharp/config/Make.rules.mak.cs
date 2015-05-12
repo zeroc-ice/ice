@@ -61,12 +61,18 @@ DEBUG			= yes
 #FRAMEWORK 		= 3.5
 
 #
-# Set the key file used to sign assemblies.
+# Set the key file used for strong name signing of assemblies.
 #
-
 !if "$(KEYFILE)" == ""
 KEYFILE                 = $(top_srcdir)\..\config\IceDevKey.snk
 !endif
+
+#
+# Define if you want the Ice assemblies to be authenticode signed.
+#
+#SIGN_CERTIFICATE	= MyCertFile.pfx
+#SIGN_PASSWORD		= MyCertPassword
+#SIGN_TIMESTAMPSERVER	= http://timestamp.verisign.com/scripts/timstamp.dll
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!

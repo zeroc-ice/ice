@@ -66,6 +66,13 @@ THIRDPARTY_HOME = $(PROGRAMFILES)\ZeroC\Ice-$(VERSION)-ThirdParty
 #
 #UNIQUE_DLL_NAMES       = yes
 
+#
+# Define if you want the Ice DLLs and executable files to be authenticode
+# signed.
+#
+#SIGN_CERTIFICATE	= MyCertFile.pfx
+#SIGN_PASSWORD		= MyCertPassword
+#SIGN_TIMESTAMPSERVER	= http://timestamp.verisign.com/scripts/timstamp.dll
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
