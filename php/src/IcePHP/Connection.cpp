@@ -11,7 +11,7 @@
 #include <Endpoint.h>
 #include <Types.h>
 #include <Util.h>
-#include <IceSSL/ConnectionInfo.h>
+#include <IceSSL/IceSSL.h>
 
 using namespace std;
 using namespace IcePHP;
