@@ -868,15 +868,19 @@ namespace IceInternal
                 setBufSize(-1, -1);
 #if !SILVERLIGHT
                 Network.setBlock(_fd, false);
-                if(AssemblyUtil.osx_)
+                if(Network.isMulticast((IPEndPoint)_addr))
                 {
-                    //
-                    // On Windows, we delay the join for the mcast group after the connection
-                    // establishment succeeds. This is necessary for older Windows versions
-                    // where joining the group fails if the socket isn't bound. See ICE-5113.
-                    //
-                    if(Network.isMulticast((IPEndPoint)_addr))
+                    if(_mcastInterface.Length > 0)
                     {
+                        Network.setMcastInterface(_fd, _mcastInterface, _addr.AddressFamily);
+                    }
+                    if(AssemblyUtil.osx_)
+                    {
+                        //
+                        // On Windows, we delay the join for the mcast group after the connection
+                        // establishment succeeds. This is necessary for older Windows versions
+                        // where joining the group fails if the socket isn't bound. See ICE-5113.
+                        //
                         Network.setMcastGroup(_fd, ((IPEndPoint)_addr).Address, _mcastInterface);
                         if(_mcastTtl != -1)
                         {

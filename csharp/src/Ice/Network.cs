@@ -532,6 +532,41 @@ namespace IceInternal
             }
         }
 
+        public static void setMcastInterface(Socket socket, string iface, AddressFamily family)
+        {
+            try
+            {
+                int ifaceIndex = getInterfaceIndex(iface, family);
+                if(ifaceIndex == -1)
+                {
+                    try
+                    {
+                        ifaceIndex = System.Int32.Parse(iface, CultureInfo.InvariantCulture);
+                    }
+                    catch(System.FormatException ex)
+                    {
+                        closeSocketNoThrow(socket);
+                        throw new Ice.SocketException(ex);
+                    }
+                }
+
+                if(family == AddressFamily.InterNetwork)
+                {
+                    ifaceIndex = (int)IPAddress.HostToNetworkOrder(ifaceIndex);
+                    socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastInterface, ifaceIndex);
+                }
+                else
+                {
+                    socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.MulticastInterface, ifaceIndex);
+                }
+            }
+            catch(SocketException ex)
+            {
+                closeSocketNoThrow(socket);
+                throw new Ice.SocketException(ex);
+            }
+        }
+
         public static void setMcastGroup(Socket s, IPAddress group, string iface)
         {
             try
