@@ -32,13 +32,13 @@ Run these commands to build the libraries and tests:
 
 Python is required to run the test suite with Node.js. To start the tests simply run:
 
-    $ npm run gulp:test:run-with-node
+    > npm run gulp:test:run-with-node
 
 If everything worked out, you should see lots of ```ok``` messages. In case of a failure, the tests abort with ```failed```.
 
 To start the browser tests run:
 
-    $ npm run gulp:test:run-with-browser
+    > npm run gulp:test:run-with-browser
 
 This script requires Ice for Python to be installed. Follow the instructions from your Ice distribution to set up the environment for Ice for Python. 
 
@@ -64,3 +64,15 @@ The browser-based tests allow you to choose whether to run the tests over non-se
 #### Windows 8
 
 On Windows 8 and Windows 8.1, network isolation prevents Internet Explorer from connecting to 127.0.0.1. To work around this limitation, you'll need to disable Internet Explorer's "Protected Mode". Open the "Internet Options" dialog and in the "Security" settings tab, deselect the "Enable Protected Mode" checkbox.
+
+## Installing a Source Build
+
+After a successful build, you can generate an npm package by running the following command:
+
+    > npm pack
+
+This will generate the file ```ice-3.6.0.tgz```, which can be installed by running:
+
+    > npm install <path_to_file>/ice-3.6.0.tgz
+
+To use Ice for JavaScript with a browser, copy the appropriate JavaScript library files located in the ```lib``` directory to your web server.

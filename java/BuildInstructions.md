@@ -40,7 +40,9 @@ On an x86_64 system with a 64-bit JVM, the 64-bit Berkeley DB libraries are inst
 
 ### Gradle
 
-Ice for Java uses the [Gradle](http://gradle.org) build system, and includes the Gradle wrapper version 2.4 in the distribution. You cannot build the Ice for Java source distribution without an Internet connection. Except for Berkeley DB, Gradle will download all required packages automatically. These packages are listed below. Gradle will automatically download any necessary build artifacts from ZeroC's Maven repository located at http://repo.zeroc.com/nexus/content/repositories/thirdparty.
+Ice for Java uses the [Gradle](http://gradle.org) build system, and includes the Gradle wrapper version 2.4 in the distribution. You cannot build the Ice for Java source distribution without an Internet connection. Except for Berkeley DB, Gradle will download all required packages automatically. These packages are listed below. Gradle will automatically download any necessary build artifacts from ZeroC's Maven repository located at
+
+    http://repo.zeroc.com/nexus/content/repositories/thirdparty
 
 ### Bzip2 Compression
 
@@ -121,11 +123,11 @@ If at any time you wish to discard the current build and start a new one, use th
 
 ## Installing Ice for Java
 
-To install Ice for Java in the directory specified by the prefix variable in ```gradle.properties``` run the following command
+To install Ice for Java in the directory specified by the ```prefix``` variable in ```gradle.properties``` run the following command
 
     > ./gradlew install
 
-The installation installs the following jar files to ```prefix/lib```.
+The installation installs the following JAR files to ```<prefix>/lib```.
 
     freeze-3.6.0.jar
     glacier2-3.6.0.jar
