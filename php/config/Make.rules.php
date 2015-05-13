@@ -141,7 +141,7 @@ else
     ICE_LIB_DIR = -L$(ice_dir)/lib$(lp64suffix)
     ICE_FLAGS	= -I$(ice_dir)/include
 endif
-ICE_LIBS = $(ICE_LIB_DIR) -lIce -lSlice -lIceUtil
+ICE_LIBS = $(ICE_LIB_DIR) -lIce -lIceSSL -lSlice -lIceUtil
 
 ifneq ($(embedded_runpath_prefix),)
     runpath_libdir      := $(embedded_runpath_prefix)/lib$(lp64suffix)
