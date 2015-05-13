@@ -102,7 +102,7 @@ throwMarshalException(const char* file, int line, const string& reason)
 }
 }
 
-void 
+void
 Ice::UserException::__write(::IceInternal::BasicStream* os) const
 {
     os->startWriteException(0);
@@ -110,7 +110,7 @@ Ice::UserException::__write(::IceInternal::BasicStream* os) const
     os->endWriteException();
 }
 
-void 
+void
 Ice::UserException::__read(::IceInternal::BasicStream* is)
 {
     is->startReadException();
@@ -118,7 +118,7 @@ Ice::UserException::__read(::IceInternal::BasicStream* is)
     is->endReadException(false);
 }
 
-void 
+void
 Ice::UserException::__write(const Ice::OutputStreamPtr& os) const
 {
     os->startException(0);
@@ -126,7 +126,7 @@ Ice::UserException::__write(const Ice::OutputStreamPtr& os) const
     os->endException();
 }
 
-void 
+void
 Ice::UserException::__read(const Ice::InputStreamPtr& is)
 {
     is->startException();
@@ -134,13 +134,13 @@ Ice::UserException::__read(const Ice::InputStreamPtr& is)
     is->endException(false);
 }
 
-void 
+void
 Ice::UserException::__writeImpl(const Ice::OutputStreamPtr&) const
 {
     throw MarshalException(__FILE__, __LINE__, "user exception was not generated with stream support");
 }
 
-void 
+void
 Ice::UserException::__readImpl(const Ice::InputStreamPtr&)
 {
     throw MarshalException(__FILE__, __LINE__, "user exception was not generated with stream support");
@@ -557,7 +557,7 @@ void
 Ice::UnsupportedEncodingException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nprotocol error: unsupported encoding version: " << bad;
+    out << ":\nencoding error: unsupported encoding version: " << bad;
     out << "\n(can only support encodings compatible with version " << supported << ")";
     if(!reason.empty())
     {
@@ -706,19 +706,19 @@ Ice::NoObjectFactoryException::ice_print(ostream& out) const
     {
         out << ":\n" << reason;
     }
-}       
+}
 
 void
 Ice::UnexpectedObjectException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nunexpected class instance of type `" << type << 
+    out << ":\nunexpected class instance of type `" << type <<
         "'; expected instance of type `" << expectedType << "'";
     if(!reason.empty())
     {
         out << ":\n" << reason;
     }
-}       
+}
 
 void
 Ice::MemoryLimitException::ice_print(ostream& out) const
