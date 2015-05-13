@@ -30,16 +30,8 @@ test::
 	@python $(top_srcdir)/allTests.py
 
 
-SRC_FULL_PATH	= $(MAKEDIR:\.\=\)
-
-registrykey=$(DOTNET_ASSEMBLIES_KEY)
-registerpath=$(SRC_FULL_PATH)\Assemblies
-installpath=$(prefix)\Assemblies
 
 install::
-	@for %i in ( src config ) do \
+	@for %i in ( src ) do \
 	    @echo "making $@ in %i" && \
 	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $@" || exit 1
-	@echo Adding key "$(registrykey)" in Windows registry && \
-	@reg ADD "$(registrykey)" /ve /d "$(installpath)" /f || \
-	echo Could not add registry keyword "$(registrykey)" && exit 1
