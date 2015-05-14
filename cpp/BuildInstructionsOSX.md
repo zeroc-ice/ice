@@ -22,10 +22,10 @@ Expat, OpenSSL and bzip are included with your system. For Berkeley DB and mcpp,
 
 - Using [Homebrew](http://brew.sh), install Berkeley DB and mcpp with these commands:
 
-        $ brew tap zeroc-inc/ice```
-        $ brew install berkeley-db53 [--without-java]```
-        $ brew install mcpp```
-    
+        $ brew tap zeroc-ice/tap
+        $ brew install berkeley-db53 [--without-java]
+        $ brew install mcpp
+
    The ```berkeley-db53``` package is a pre-compiled bottle that includes Java support by default; you can exclude Java support using the ```--without-java``` option.
 - Download the Berkeley DB and mcpp source distributions and build them yourself.
 

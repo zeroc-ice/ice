@@ -338,7 +338,7 @@ if "NODE" in os.environ:
 else:
     for path in os.environ["PATH"].split(os.pathsep):
         #
-        # Stop if we find "php" in the PATH first.
+        # Stop if we find "node" in the PATH first.
         #
         if os.path.exists(os.path.join(path, "node")):
             break
