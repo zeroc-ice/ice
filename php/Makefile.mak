@@ -16,7 +16,7 @@ SUBDIRS		= src lib test
 install:: install-common
 	@if not exist "$(install_libdir)" \
 	    @echo "Creating $(install_libdir)..." && \
-	    mkdir "$(install_libdir)"
+	    $(MKDIR) "$(install_libdir)"
 
 $(EVERYTHING_EXCEPT_INSTALL)::
 	@for %i in ( $(SUBDIRS) ) do \

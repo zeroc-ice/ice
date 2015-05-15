@@ -17,7 +17,7 @@ INCLUDE_DIR	= IceSSL
 install::
 	@if not exist "$(install_includedir)\IceSSL" \
 	    @echo "Creating $(install_includedir)\IceSSL..." && \
-	    mkdir "$(install_includedir)\IceSSL"
+	    $(MKDIR) "$(install_includedir)\IceSSL"
 
 	@for %i in ( *.h ) do \
 	    @echo Installing %i && \

@@ -19,7 +19,7 @@ install:: install-common
 	@for %i in ( $(INSTALL_SUBDIRS) ) do \
 	    @if not exist %i \
 		@echo "Creating %i..." && \
-		mkdir %i
+		$(MKDIR) %i
 
 $(EVERYTHING_EXCEPT_INSTALL)::
 	@for %i in ( $(SUBDIRS) ) do \

@@ -14,7 +14,7 @@ top_srcdir	= ..\..
 install::
 	@if not exist "$(install_includedir)\Slice" \
 	    @echo "Creating $(install_includedir)\Slice..." && \
-	    mkdir "$(install_includedir)\Slice"
+	    $(MKDIR) "$(install_includedir)\Slice"
 
 	@for %i in ( *.h ) do \
 	    @echo Installing %i && \

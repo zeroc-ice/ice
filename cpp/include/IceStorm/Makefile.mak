@@ -17,7 +17,7 @@ INCLUDE_DIR	= IceStorm
 install::
 	@if not exist "$(install_includedir)\IceStorm" \
 	    @echo "Creating $(install_includedir)\IceStorm..." && \
-	    mkdir "$(install_includedir)\IceStorm"
+	    $(MKDIR) "$(install_includedir)\IceStorm"
 
 	@for %i in ( *.h ) do \
 	    @echo Installing %i && \

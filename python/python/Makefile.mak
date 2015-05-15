@@ -347,7 +347,7 @@ install:: $(ALL_SRCS)
 	copy *.py "$(install_pythondir)"
 	@for %i in ( $(PACKAGES) ) do \
 	    @if not exist "$(install_pythondir)\%i" \
-	        mkdir "$(install_pythondir)\%i"
+	        $(MKDIR) "$(install_pythondir)\%i"
 	@for %i in ( $(PACKAGES) ) do \
 	    copy %i\* "$(install_pythondir)\%i"
 

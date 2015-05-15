@@ -17,7 +17,7 @@ INCLUDE_DIR	= IceGrid
 install::
 	@if not exist "$(install_includedir)\IceGrid" \
 	    @echo "Creating $(install_includedir)\IceGrid..." && \
-	    mkdir "$(install_includedir)\IceGrid"
+	    $(MKDIR) "$(install_includedir)\IceGrid"
 
 	@for %i in ( *.h ) do \
 	    @echo Installing %i && \

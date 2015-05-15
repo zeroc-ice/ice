@@ -367,18 +367,18 @@ depend:: $(SRCS) $(OBJS_DEPEND)
 !endif
 
 {..}.cpp{$(DEPEND_DIR)}.d:
-	@if not exist "$(ARCH)\$(CONFIG)" mkdir $(ARCH)\$(CONFIG)
+	@if not exist "$(ARCH)\$(CONFIG)" $(MKDIR) $(ARCH)\$(CONFIG)
 	@echo Generating dependencies for $<
 	@$(CXX) /E /Fo$(ARCH)\$(CONFIG)\ $(CPPFLAGS) $(CXXFLAGS) /showIncludes $< 1>$(*F).i 2>$(*F).d && \
 	cscript /NoLogo $(top_srcdir)\..\config\makedepend.vbs $< $(top_srcdir)
 	@del /q $(*F).d $(*F).i
 
 {..}.cpp{$(ARCH)\$(CONFIG)\}.obj::
-	@if not exist "$(ARCH)\$(CONFIG)" mkdir $(ARCH)\$(CONFIG)
+	@if not exist "$(ARCH)\$(CONFIG)" $(MKDIR) $(ARCH)\$(CONFIG)
 	$(CXX) /c /Fo$(ARCH)\$(CONFIG)\ $(CPPFLAGS) $(CXXFLAGS) $<
 
 .cpp{$(OBJDIR)\}.obj::
-	@if not exist "$(OBJDIR)" mkdir $(OBJDIR)
+	@if not exist "$(OBJDIR)" $(MKDIR) $(OBJDIR)
 	$(CXX) /c /Fd$(OBJDIR)\ /Fo$(OBJDIR)\ $(CPPFLAGS) $(CXXFLAGS) $<
 
 {$(slicedir)\Glacier2\}.ice{Glacier2\}.d:
@@ -430,7 +430,7 @@ depend:: $(SRCS) $(OBJS_DEPEND)
 	copy $(*F).h $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)
 
 $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR):
-	mkdir $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)
+	$(MKDIR) $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)
 
 all:: $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)
 !endif

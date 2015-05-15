@@ -20,6 +20,12 @@ SOVERSION       = 36
 
 OBJEXT		= .obj
 
+
+#
+# MKDIR
+#
+MKDIR = md
+
 #
 # Ensure ice_language has been set by the file that includes this one.
 #
@@ -199,19 +205,19 @@ TEXT_EXT	= .txt
 install-common::
 	@if not exist "$(prefix)" \
 	    @echo "Creating $(prefix)..." && \
-	    mkdir "$(prefix)"
+	    $(MKDIR) "$(prefix)"
 
 !if "$(WINRT)" != "yes" && "$(install_slicedir)" != ""
 	@if not exist "$(install_slicedir)" \
             @echo "Creating $(install_slicedir)..." && \
-            mkdir "$(install_slicedir)" && \
+            $(MKDIR) "$(install_slicedir)" && \
 	    @echo "Copying slice files..." && \
             cmd /c "xcopy /s /y $(top_srcdir)\..\slice "$(install_slicedir)"" || exit 1
 !endif
 
 	@if not exist "$(prefix)\bin" \
             @echo "Creating $(install_bindir)..." && \
-            mkdir "$(prefix)\bin"
+            $(MKDIR) "$(prefix)\bin"
 
 	@if not exist "$(prefix)\bin\icehashpassword.py" \
             @copy $(top_srcdir)\..\scripts\icehashpassword.py "$(prefix)\bin""

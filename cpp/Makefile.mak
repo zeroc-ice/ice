@@ -21,7 +21,7 @@ install:: install-common
 	@for %i in ( $(INSTALL_SUBDIRS) ) do \
 	    @if not exist %i \
 	        @echo "Creating %i..." && \
-	        mkdir %i
+	        $(MKDIR) %i
 
 	@for %i in ( config src include ) do \
 	    @echo "making $@ in %i" && \
@@ -39,7 +39,7 @@ install:: install-common
 	@for %i in ( $(INSTALL_SUBDIRS) ) do \
 		@if not exist %i \
 		@echo "Creating %i..." && \
-		mkdir %i
+		$(MKDIR) %i
 !endif
 
 $(EVERYTHING_EXCEPT_INSTALL)::

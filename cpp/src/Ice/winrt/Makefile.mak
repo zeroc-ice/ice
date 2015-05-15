@@ -226,30 +226,30 @@ $(LIBNAME): $(LOCAL_OBJS) $(OBJS) sdks
 	$(AR) $(ARFLAGS) $(OBJS) $(LOCAL_OBJS) /out:$(LIBNAME)
 
 .cpp.d:
-	@if not exist "$(ARCH)\$(CONFIG)" mkdir $(ARCH)\$(CONFIG)
+	@if not exist "$(ARCH)\$(CONFIG)" $(MKDIR) $(ARCH)\$(CONFIG)
 	@echo Generating dependencies for $<
 	@$(CXX) /E /Fo$(ARCH)\$(CONFIG)\ $(CPPFLAGS) $(CXXFLAGS) /showIncludes $< 1>$(*F).i 2>$(*F).d && \
 	cscript /NoLogo $(top_srcdir)\..\config\makedepend.vbs $(*F).cpp $(top_srcdir)
 	@del /q $(*F).d $(*F).i
 
 .cpp{$(ARCH)\$(CONFIG)\}.obj::
-	@if not exist "$(ARCH)\$(CONFIG)" mkdir $(ARCH)\$(CONFIG)
+	@if not exist "$(ARCH)\$(CONFIG)" $(MKDIR) $(ARCH)\$(CONFIG)
 	$(CXX) /c /Fo$(ARCH)\$(CONFIG)\ $(CPPFLAGS) $(CXXFLAGS) $<
 
 .cpp{$(ARCH)\$(CONFIG)\IceDiscovery\}.obj::
-	@if not exist "$(ARCH)\$(CONFIG)\IceDiscovery" mkdir $(ARCH)\$(CONFIG)\IceDiscovery
+	@if not exist "$(ARCH)\$(CONFIG)\IceDiscovery" $(MKDIR) $(ARCH)\$(CONFIG)\IceDiscovery
 	$(CXX) /c /Fo$(ARCH)\$(CONFIG)\IceDiscovery\ $(CPPFLAGS) $(CXXFLAGS) $<
 
 .cpp{$(ARCH)\$(CONFIG)\IceLocatorDiscovery\}.obj::
-	@if not exist "$(ARCH)\$(CONFIG)\IceLocatorDiscovery" mkdir $(ARCH)\$(CONFIG)\IceLocatorDiscovery
+	@if not exist "$(ARCH)\$(CONFIG)\IceLocatorDiscovery" $(MKDIR) $(ARCH)\$(CONFIG)\IceLocatorDiscovery
 	$(CXX) /c /Fo$(ARCH)\$(CONFIG)\IceLocatorDiscovery\ $(CPPFLAGS) $(CXXFLAGS) $<
 
 {..\..\IceDiscovery\}.cpp{$(ARCH)\$(CONFIG)\IceDiscovery\}.obj::
-	@if not exist "$(ARCH)\$(CONFIG)\IceDiscovery" mkdir $(ARCH)\$(CONFIG)\IceDiscovery
+	@if not exist "$(ARCH)\$(CONFIG)\IceDiscovery" $(MKDIR) $(ARCH)\$(CONFIG)\IceDiscovery
 	$(CXX) /c /Fo$(ARCH)\$(CONFIG)\IceDiscovery\ $(CPPFLAGS) $(CXXFLAGS) $<
 
 {..\..\IceLocatorDiscovery\}.cpp{$(ARCH)\$(CONFIG)\IceLocatorDiscovery\}.obj::
-	@if not exist "$(ARCH)\$(CONFIG)\IceLocatorDiscovery" mkdir $(ARCH)\$(CONFIG)\IceLocatorDiscovery
+	@if not exist "$(ARCH)\$(CONFIG)\IceLocatorDiscovery" $(MKDIR) $(ARCH)\$(CONFIG)\IceLocatorDiscovery
 	$(CXX) /c /Fo$(ARCH)\$(CONFIG)\IceLocatorDiscovery\ $(CPPFLAGS) $(CXXFLAGS) $<
 
 .cpp{$(DEPEND_DIR)\IceDiscovery\}.d:
@@ -265,14 +265,14 @@ $(LIBNAME): $(LOCAL_OBJS) $(OBJS) sdks
 	@del /q $(*F).d $(*F).i
 
 {..\..\IceDiscovery\}.cpp{$(DEPEND_DIR)\IceDiscovery\}.d:
-	@if not exist "$(ARCH)\$(CONFIG)" mkdir $(ARCH)\$(CONFIG)
+	@if not exist "$(ARCH)\$(CONFIG)" $(MKDIR) $(ARCH)\$(CONFIG)
 	@echo Generating dependencies for $<
 	@$(CXX) /E /Fo$(ARCH)\$(CONFIG)\ $(CPPFLAGS) $(CXXFLAGS) /showIncludes $< 1>$(*F).i 2>IceDiscovery\$(*F).d && \
 	cscript /NoLogo $(top_srcdir)\..\config\makedepend.vbs $< $(top_srcdir)
 	@del /q $(*F).d $(*F).i
 
 {..\..\IceLocatorDiscovery\}.cpp{$(DEPEND_DIR)\IceLocatorDiscovery\}.d:
-	@if not exist "$(ARCH)\$(CONFIG)" mkdir $(ARCH)\$(CONFIG)
+	@if not exist "$(ARCH)\$(CONFIG)" $(MKDIR) $(ARCH)\$(CONFIG)
 	@echo Generating dependencies for $<
 	@$(CXX) /E /Fo$(ARCH)\$(CONFIG)\ $(CPPFLAGS) $(CXXFLAGS) /showIncludes $< 1>$(*F).i 2>IceLocatorDiscovery\$(*F).d && \
 	cscript /NoLogo $(top_srcdir)\..\config\makedepend.vbs $< $(top_srcdir)
@@ -316,13 +316,13 @@ $(LIBNAME): $(LOCAL_OBJS) $(OBJS) sdks
 	cscript /NoLogo $(top_srcdir)\..\config\makedepend-slice.vbs $(*F).ice "..\"
 
 {$(slicedir)\IceDiscovery}.ice.cpp:
-	@if not exist "IceDiscovery" mkdir IceDiscovery
+	@if not exist "IceDiscovery" $(MKDIR) IceDiscovery
 	del /q IceDiscovery\$(*F).h $(*F).cpp
 	"$(SLICE2CPP)" --include-dir IceDiscovery $(SLICE2CPPFLAGS) $<
 	move $(*F).h IceDiscovery
 
 {$(slicedir)\IceDiscovery}.ice{IceDiscovery}.h:
-	@if not exist "IceDiscovery" mkdir IceDiscovery
+	@if not exist "IceDiscovery" $(MKDIR) IceDiscovery
 	del /q IceDiscovery\$(*F).h $(*F).cpp
 	"$(SLICE2CPP)" --include-dir IceDiscovery $(SLICE2CPPFLAGS) $<
 	move $(*F).h IceDiscovery
@@ -333,13 +333,13 @@ $(LIBNAME): $(LOCAL_OBJS) $(OBJS) sdks
 	cscript /NoLogo $(top_srcdir)\..\config\makedepend-slice.vbs $(*F).ice "..\"
 
 {$(slicedir)\IceLocatorDiscovery}.ice.cpp:
-	@if not exist "IceLocatorDiscovery" mkdir IceLocatorDiscovery
+	@if not exist "IceLocatorDiscovery" $(MKDIR) IceLocatorDiscovery
 	del /q IceLocatorDiscovery\$(*F).h $(*F).cpp
 	"$(SLICE2CPP)" --include-dir IceLocatorDiscovery $(SLICE2CPPFLAGS) $<
 	move $(*F).h IceLocatorDiscovery
 
 {$(slicedir)\IceLocatorDiscovery}.ice{IceLocatorDiscovery}.h:
-	@if not exist "IceLocatorDiscovery" mkdir IceLocatorDiscovery
+	@if not exist "IceLocatorDiscovery" $(MKDIR) IceLocatorDiscovery
 	del /q IceLocatorDiscovery\$(*F).h $(*F).cpp
 	"$(SLICE2CPP)" --include-dir IceLocatorDiscovery $(SLICE2CPPFLAGS) $<
 	move $(*F).h IceLocatorDiscovery

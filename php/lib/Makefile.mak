@@ -113,7 +113,7 @@ SLICE2PHPFLAGS	= $(SLICE2PHPFLAGS) --ice
 all:: $(ALL_SRCS)
 
 $(MODULES):
-	-mkdir $@
+	-$(MKDIR) $@
 
 $(ALL_SRCS): $(MODULES) {$(slicedir)}$*.ice "$(SLICE2PHP)" "$(SLICEPARSERLIB)"
 	-"$(SLICE2PHP)" $(SLICE2PHPFLAGS) --output-dir $(*D) "$(slicedir)\$*.ice"
@@ -154,7 +154,7 @@ install:: $(ALL_SRCS)
 	@echo "Installing generated code"
 	@for %i in ( $(MODULES) ) do \
 	    @if not exist "$(install_phpdir)\%i" \
-	        mkdir "$(install_phpdir)\%i"
+	        $(MKDIR) "$(install_phpdir)\%i"
 	@for %i in ( $(MODULES) ) do \
 	    copy %i\* "$(install_phpdir)\%i"
 	@for %i in ( $(MODULE_SRCS) ) do \

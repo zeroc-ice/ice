@@ -17,7 +17,7 @@ INCLUDE_DIR	= Ice
 install::
 	@if not exist "$(install_includedir)\Ice" \
 	    @echo "Creating $(install_includedir)\Ice..." && \
-	    mkdir "$(install_includedir)\Ice"
+	    $(MKDIR) "$(install_includedir)\Ice"
 
 	@for %i in ( *.h ) do \
 	    @echo Installing %i && \

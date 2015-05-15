@@ -14,7 +14,7 @@ top_srcdir	= ..\..
 install::
 	@if not exist "$(install_includedir)\IceBox" \
 	    @echo "Creating $(install_includedir)\IceBox..." && \
-	    mkdir "$(install_includedir)\IceBox"
+	    $(MKDIR) "$(install_includedir)\IceBox"
 
 	@for %i in ( *.h ) do \
 	    @echo Installing %i && \

@@ -16,7 +16,7 @@ SUBDIRS		= modules python test
 install:: install-common
 	@if not exist "$(install_pythondir)" \
 	    @echo "Creating $(install_pythondir)..." && \
-	    mkdir "$(install_pythondir)"
+	    $(MKDIR) "$(install_pythondir)"
 
 $(EVERYTHING_EXCEPT_INSTALL)::
 	@for %i in ( $(SUBDIRS) ) do \
