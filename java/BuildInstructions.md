@@ -142,20 +142,6 @@ The installation installs the following JAR files to ```<prefix>/lib```.
 
 POM files are also installed for ease of deployment to a maven-based distribution system.
 
-## Gradle Plug-in and IntelliJ Development
-
-ZeroC provides a [plug-in](https://github.com/zeroc-ice/ice-builder-gradle) to automate the translation of Slice definitions when using the [Gradle](http://gradle.org) build system.
-
-IntelliJ supports Gradle well, and we recommend using our Gradle Slice plug-in with your IntelliJ-based projects.
-
-## Ant Tasks
-
-ZeroC provides [Ant tasks](https://github.com/zeroc-ice/ice-builder-ant) that help you integrate the Slice compilers into your existing Ant project.
-
-## Eclipse Development
-
-ZeroC provides an [Eclipse plug-in](https://github.com/zeroc-ice/ice-builder-eclipse) that automates the translation of your Slice files. If you use Eclipse, we strongly recommend installing this plug-in to simplify your Ice projects.
-
 ## Ice for Android
 
 Ice requires Android 4.2 or later. The JAR files created and installed by the standard Java build as detailed above fully support Android. However, for ease of development and testing of Ice itself, an Android Studio project is bundled in the source distribution which itself builds all required Ice JAR files. This is not necessary for your own projects as it considerably complicates the project configuration.
