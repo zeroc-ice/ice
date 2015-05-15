@@ -108,9 +108,13 @@ There are two ways to solve this problem:
 
 - Change the default security context for the Ice extension using the following command:
 
-   ```$ chcon -t texrel_shlib_t /opt/Ice/ruby/IceRuby.so```
+   ```
+   $ chcon -t texrel_shlib_t /opt/Ice/ruby/IceRuby.so
+   ```
 
     Replace ```/opt/Ice``` with your installation directory.
 - Disable SELinux completely by adding the following line to your ```/etc/sysconfig/selinux``` file:
 
-   ```SELINUX=disabled```
+   ```
+   SELINUX=disabled
+   ```

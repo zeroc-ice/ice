@@ -42,12 +42,16 @@ If you are building for Windows 32-bit:
 
 1. Add mingw 4.7.3 to your PATH, before the mingw 4.7.2 included in the Ruby development kit:
 
-   ```> set PATH=C:\mingw-4.7.3\bin;%PATH%```
+    ```
+    > set PATH=C:\mingw-4.7.3\bin;%PATH%
+    ```
 
 1. Then double-check the desired version of g++ is in your PATH:
 
-   ```> g++ -dumpversion```
-   ```4.7.3```
+    ```
+    > g++ -dumpversion
+    4.7.3
+    ```
 
 Change to the Ice for Ruby source directory:
 
