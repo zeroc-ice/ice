@@ -187,45 +187,6 @@ The installation installs the following JAR files to `<prefix>/lib`.
 POM files are also installed for ease of deployment to a maven-based distribution
 system.
 
-## Ice for Android
-
-Ice requires Android 4.2 or later. The JAR files created and installed by the
-standard Java build as detailed above fully support Android. However, for ease
-of development and testing of Ice itself, an Android Studio project is bundled
-in the source distribution which itself builds all required Ice JAR files.
-This is not necessary for your own projects as it considerably complicates the
-project configuration.
-
-Building any Ice application for Android requires Android Studio and the Android
-SDK build tools. We tested the following:
-
-- Android Studio 1.0.0.
-- Android SDK Build-tools 21.1.1
-
-Ice requires at minimum API level 17:
-
-- Android 4.2.2 (API17)
-
-The bundled project builds Ice and a test suite application.
-
-If you want to target a later version of the Android API level for the test
-suite, edit `android/gradle.properties` and change the following variables:
-
-    ice_compileSdkVersion
-    ice_minSdkVersion
-    ice_targetSdkVersion
-
-To import the Ice for Android project into Android Studio follow these steps
-
-1. Start Android studio
-2. Select Open Project
-3. Navigate to the android subdirectory
-4. You should now have an "Import Project from Gradle" dialog
-5. Ensure "Use default gradle wrapper" is selected and press OK 
-
-The Android Studio project contains a `testApp` application to run the Ice test
-suite. To run the application, select it in the configuration pull down and run it.
-
 ## Running the Java Tests
 
 Some of the Ice for Java tests employ applications that are part of the Ice for
