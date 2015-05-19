@@ -38,7 +38,14 @@
 // GCC
 //
 #if defined(__GNUC__)
-#   pragma GCC diagnostic warning "-Wdeprecated-declarations"
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
+//
+// Clang
+//
+#if defined(__clang__)
+#   pragma clang diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
 
