@@ -177,7 +177,7 @@ if (iceDir == "/usr") {
     ext.distJarDir = "/usr/share/java"
 } else if (iceDir == "/usr/local") {
     ext.sliceDir = "/usr/local/share/slice"
-    ext.distJarDir = "/usr/share/java"
+    ext.distJarDir = "/usr/local/share/java"
 } else {
     ext.sliceDir = "${iceDir}/slice"
     ext.distJarDir = iceSrcDist ? null : "${iceDir}/lib"
