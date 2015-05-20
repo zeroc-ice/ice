@@ -1645,7 +1645,7 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
     test(p->opByte1(0xFF) == 0xFF);
     test(p->opShort1(0x7FFF) == 0x7FFF);
     test(p->opInt1(0x7FFFFFFF) == 0x7FFFFFFF);
-    test(p->opLong1(0x7FFFFFFFFFFFFFFF) == 0x7FFFFFFFFFFFFFFF);
+    test(p->opLong1(0x7FFFFFFFFFFFFFFFLL) == 0x7FFFFFFFFFFFFFFFLL);
     test(p->opFloat1(1.0) == 1.0);
     test(p->opDouble1(1.0) == 1.0);
     test(p->opString1("opString1") == "opString1");
