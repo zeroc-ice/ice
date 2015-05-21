@@ -13,7 +13,7 @@
     "Ice",
     "rpc"
   ],
-  "main": "src/index.js",
+  "main": "src/ice.js",
   "devDependencies": {
     "bower": "^1.4.1",
     "browser-sync": "^2.6.5",
