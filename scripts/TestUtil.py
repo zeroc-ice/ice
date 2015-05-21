@@ -1830,6 +1830,8 @@ def getTestEnv(lang, testdir):
         addLdPath(os.path.join(testdir), env)
     elif lang == "java":
         addClasspath(os.path.join(toplevel, "java", "lib", "test.jar"), env)
+    elif lang == "js":
+        addPathToEnv("NODE_PATH", os.path.join(testdir), env)
 
     #
     # DB CLASSPATH, in Windows db.jar come from Ice home or
@@ -1856,7 +1858,10 @@ def getTestEnv(lang, testdir):
         else:
             print("warning: could not detect Ice Third Party installation")
     elif isDarwin():
-        addClasspath(os.path.join("/", "usr", "local", "lib", "db.jar"), env)
+        if os.path.exists('/usr/local/opt/ice/libexec/lib'):
+            addClasspath(os.path.join("/", "usr", "local", "opt", "ice", "libexec", "lib", "db.jar"), env)
+        else:
+            addClasspath(os.path.join("/", "usr", "local", "opt", "berkeley-db53", "db.jar"), env)
     else:
         addClasspath(os.path.join("/", "usr", "share", "java", "db.jar"), env)
 
@@ -1864,13 +1869,11 @@ def getTestEnv(lang, testdir):
     # If Ice is installed from RPMs, set the CLASSPATH for Java and
     # NODE_PATH for JavaScript
     #
-    if iceHome == "/usr":
+    if iceHome in ["/usr", "/usr/local"]:
         if lang == "java":
-            javaDir = os.path.join("/", "usr", "share", "java")
+            javaDir = os.path.join(iceHome, "share", "java")
             for jar in iceJARs:
                 addClasspath(os.path.join(javaDir, jar + jarSuffix), env)
-        if lang == "js":
-            addPathToEnv("NODE_PATH", os.path.join(testdir), env)
         return env # That's it, we're done!
 
     #
@@ -1901,25 +1904,24 @@ def getTestEnv(lang, testdir):
         else:
             addPathToEnv("MONO_PATH", os.path.join(getIceDir("csharp", testdir), "Assemblies"), env)
 
-    #
-    # On Windows x64, set PYTHONPATH to python/x64.
-    #
-    if lang == "python":
-        pythonDir = os.path.join(getIceDir("python", testdir), "python")
-        if isWin32() and x64 and os.path.exists(os.path.join(pythonDir, "x64")):
-            pythonDir = os.path.join(pythonDir, "x64")
-        addPathToEnv("PYTHONPATH", pythonDir, env)
+    if os.environ.get("USE_BIN_DIST", "no") != "yes":
+        #
+        # On Windows x64, set PYTHONPATH to python/x64.
+        #
+        if lang == "python":
+            pythonDir = os.path.join(getIceDir("python", testdir), "python")
+            if isWin32() and x64 and os.path.exists(os.path.join(pythonDir, "x64")):
+                pythonDir = os.path.join(pythonDir, "x64")
+            addPathToEnv("PYTHONPATH", pythonDir, env)
 
-    #
-    # If testing with source dist we need to set RUBYLIB
-    #
-    if lang == "ruby" and not iceHome:
-        addPathToEnv("RUBYLIB", os.path.join(getIceDir("ruby", testdir), "ruby"), env)
+        #
+        # If testing with source dist we need to set RUBYLIB
+        #
+        if lang == "ruby":
+            addPathToEnv("RUBYLIB", os.path.join(getIceDir("ruby", testdir), "ruby"), env)
 
-    if lang == "js":
-        if os.environ.get("USE_BIN_DIST", "no") != "yes":
+        if lang == "js":
             addPathToEnv("NODE_PATH", os.path.join(getIceDir("js", testdir), "src"), env)
-        addPathToEnv("NODE_PATH", os.path.join(testdir), env)
 
     return env;
 
