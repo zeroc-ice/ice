@@ -1833,40 +1833,47 @@ def getTestEnv(lang, testdir):
     elif lang == "js":
         addPathToEnv("NODE_PATH", os.path.join(testdir), env)
 
+        # NodeJS is always installed locally even when testing against a binary installation
+        if os.environ.get("USE_BIN_DIST", "no") != "yes":
+            addPathToEnv("NODE_PATH", os.path.join(getIceDir("js", testdir), "src"), env)
+        else:
+            addPathToEnv("NODE_PATH", os.path.join(getIceDir("js", testdir), "node_modules"), env)
+
     #
     # DB CLASSPATH, in Windows db.jar come from Ice home or
     # from Third Party Home
     #
-    if isWin32():
-        if iceHome:
-            addClasspath(os.path.join(getIceDir("java", testdir), "lib", "db.jar"), env)
-        elif thirdPartyHome:
-            suffix = ""
-            if x64:
-                suffix = "x64"
-            else:
+    if lang in ["cpp", "java", "csharp"]:
+        if isWin32():
+            if iceHome:
+                addClasspath(os.path.join(getIceDir("java", testdir), "lib", "db.jar"), env)
+            elif thirdPartyHome:
                 suffix = ""
-            #
-            # Add third party home to PATH, to use db_xx tools
-            #
-            addPathToEnv("PATH", os.path.join(thirdPartyHome, "bin", suffix), env)
-            if isVC110():
-                addPathToEnv("PATH", os.path.join(thirdPartyHome, "bin", "vc110", suffix), env)
-            elif isVC140():
-                addPathToEnv("PATH", os.path.join(thirdPartyHome, "bin", "vc140", suffix), env)
-            addClasspath(os.path.join(thirdPartyHome, "lib", "db.jar"), env)
+                if x64:
+                    suffix = "x64"
+                else:
+                    suffix = ""
+                #
+                # Add third party home to PATH, to use db_xx tools
+                #
+                addPathToEnv("PATH", os.path.join(thirdPartyHome, "bin", suffix), env)
+                if isVC110():
+                    addPathToEnv("PATH", os.path.join(thirdPartyHome, "bin", "vc110", suffix), env)
+                elif isVC140():
+                    addPathToEnv("PATH", os.path.join(thirdPartyHome, "bin", "vc140", suffix), env)
+                addClasspath(os.path.join(thirdPartyHome, "lib", "db.jar"), env)
+            else:
+                print("warning: could not detect Ice Third Party installation")
+        elif isDarwin():
+            if os.path.exists('/usr/local/opt/ice/libexec/lib'):
+                addClasspath(os.path.join("/", "usr", "local", "opt", "ice", "libexec", "lib", "db.jar"), env)
+            else:
+                addClasspath(os.path.join("/", "usr", "local", "opt", "berkeley-db53", "db.jar"), env)
         else:
-            print("warning: could not detect Ice Third Party installation")
-    elif isDarwin():
-        if os.path.exists('/usr/local/opt/ice/libexec/lib'):
-            addClasspath(os.path.join("/", "usr", "local", "opt", "ice", "libexec", "lib", "db.jar"), env)
-        else:
-            addClasspath(os.path.join("/", "usr", "local", "opt", "berkeley-db53", "db.jar"), env)
-    else:
-        addClasspath(os.path.join("/", "usr", "share", "java", "db.jar"), env)
+            addClasspath(os.path.join("/", "usr", "share", "java", "db.jar"), env)
 
     #
-    # If Ice is installed from RPMs, set the CLASSPATH for Java and
+    # If Ice is installed on the system, set the CLASSPATH for Java and
     # NODE_PATH for JavaScript
     #
     if iceHome in ["/usr", "/usr/local"]:
@@ -1919,9 +1926,6 @@ def getTestEnv(lang, testdir):
         #
         if lang == "ruby":
             addPathToEnv("RUBYLIB", os.path.join(getIceDir("ruby", testdir), "ruby"), env)
-
-        if lang == "js":
-            addPathToEnv("NODE_PATH", os.path.join(getIceDir("js", testdir), "src"), env)
 
     return env;
 
