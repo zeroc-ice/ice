@@ -67,7 +67,7 @@ Run nmake to build the test libraries:
 
 In Visual Studio, open this solution file:
 
-    cpp/test/WinRT/TestSuite.sln
+    cpp\test\WinRT\TestSuite.sln
 
 Now select the configuration that matches the settings in `config\Make.rules.mak`
 that you used to build the dynamic libraries. For example, if you built the test
