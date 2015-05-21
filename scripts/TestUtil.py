@@ -1836,8 +1836,6 @@ def getTestEnv(lang, testdir):
         # NodeJS is always installed locally even when testing against a binary installation
         if os.environ.get("USE_BIN_DIST", "no") != "yes":
             addPathToEnv("NODE_PATH", os.path.join(getIceDir("js", testdir), "src"), env)
-        else:
-            addPathToEnv("NODE_PATH", os.path.join(getIceDir("js", testdir), "node_modules"), env)
 
     #
     # DB CLASSPATH, in Windows db.jar come from Ice home or
