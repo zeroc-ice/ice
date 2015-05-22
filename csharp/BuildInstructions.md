@@ -106,21 +106,8 @@ Once installed in the cache, the assemblies will always be located correctly
 without having to set environment variables or copy them into the same directory
 as an executable.
 
-If you want line numbers for stack traces, you must also install the PDB (`.pdb`)
-files in the GAC. Unfortunately, you cannot do this using Explorer, so you have
-to do it from the command line. Open a command shell window and navigate to
-`C:\WINDOWS\assembly\Microsoft.NET\GAC_MSIL\Ice` (assuming `C:\WINDOWS` is your
-system root). Doing a directory listing there, you will find a directory named
-`v4.0_3.5.0.0__<UUID>`, for example:
-
-    v4.0_3.5.0.0__cdd571ade22f2f16
-
-Change to that directory (making sure that you use the correct version number
-for this release of Ice). In this directory, you will see the file `Ice.dll`
-that you installed into the GAC in the preceding step. Now copy the `Ice.pdb`
-file into this directory:
-
-    > copy path_to_ice.pdb .
+If you want line numbers for stack traces, you will also need to deploy the Ice
+PDB files alongside the assemblies or configure Visual Studio to locate them.
 
 ## Targeting Managed Code
 
@@ -141,3 +128,4 @@ Unity API, open `config\Make.rules.mak.cs` and set `UNITY=yes`. Run nmake as bef
 
 [1]: https://zeroc.com/download.html
 [2]: https://zeroc.com/platforms_3_6_0.html
+[3]: https://msdn.microsoft.com/en-us/library/ms241613.aspx
