@@ -24,8 +24,6 @@ def usage():
     print("--dns <dns>      The DNS name for the server ceritificate.")
     print("--use-dns        Use the DNS name for the server certificate common")
     print("                 name (default is to use the IP)." )
-    print("--impl <impl>    The implementation to use to generate certificates,")
-    print("                 supported values: PyOpenSSL, KeyTool and OpenSSL.")
     sys.exit(1)
 
 #
