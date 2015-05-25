@@ -84,7 +84,6 @@ PYTHON_LIBS	    ?= -L$(PYTHON_LIB_DIR) -l$(PYTHON_LIB_NAME)
 #
 ice_language     = python
 ice_require_cpp  = yes
-slice_translator = slice2py
 
 ifeq ($(shell test -f $(top_srcdir)/config/Make.common.rules && echo 0),0)
     include $(top_srcdir)/config/Make.common.rules
@@ -139,21 +138,18 @@ ICE_LIBS = $(ICE_LIB_DIR) -lIceSSL -lIce -lSlice -lIceUtil
 
 CPPFLAGS		=
 ICECPPFLAGS		= -I$(slicedir)
-SLICE2PYFLAGS		= $(ICECPPFLAGS)
+SLICE2PYFLAGS	= $(ICECPPFLAGS)
 LDFLAGS			= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir)
 
 ifdef ice_src_dist
-    SLICE2PY 	= $(ice_cpp_dir)/bin/slice2py
+	SLICE2PY    = $(top_srcdir)/config/s2py.py
     SLICEPARSERLIB	= $(ice_cpp_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
     ifeq ($(wildcard $(SLICEPARSERLIB)),)
-	SLICEPARSERLIB  = $(ice_cpp_dir)/$(lib64subdir)/$(call mklibfilename,Slice,$(VERSION))
+		SLICEPARSERLIB  = $(ice_cpp_dir)/$(lib64subdir)/$(call mklibfilename,Slice,$(VERSION))
     endif
 else
-    SLICE2PY 		= $(ice_dir)/$(binsubdir)/slice2py
-    SLICEPARSERLIB	= $(ice_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
-    ifeq ($(wildcard $(SLICEPARSERLIB)),)
-	SLICEPARSERLIB  = $(ice_dir)/$(lib64subdir)/$(call mklibfilename,Slice,$(VERSION))
-    endif
+    SLICE2PY 		= $(ice_dir)/bin/slice2py
+    SLICEPARSERLIB	=
 endif
 
 #

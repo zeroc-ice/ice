@@ -150,7 +150,7 @@ ice_cpp_dir = $(ice_dir)\cpp
 !if "$(ice_src_dist)" == ""
 
 !if "$(slice_translator)" == ""
-!error slice_translator must be defined
+slice_translator = slice2cpp.exe
 !endif
 
 !if "$(ICE_HOME)" != ""

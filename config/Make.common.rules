@@ -244,7 +244,7 @@ endif
 ifndef ice_src_dist
 
     ifndef slice_translator
-$(error slice_translator must be defined)
+        slice_translator = slice2cpp
     endif
 
     ifneq ($(ICE_HOME),)

@@ -20,7 +20,6 @@ include $(top_srcdir)/config/Make.rules
 SRCS	= Test1_ice.py \
           Test2_ice.py
 
-SLICE2PY         = $(top_srcdir)/config/s2py.py
 all:: $(SRCS)
 
 Test1_ice.py: Test1.ice $(SLICE2PY) $(SLICEPARSERLIB)

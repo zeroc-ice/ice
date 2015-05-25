@@ -132,7 +132,6 @@ endif
 #
 ice_language     = ruby
 ice_require_cpp  = yes
-slice_translator = slice2rb
 
 ifeq ($(shell test -f $(top_srcdir)/config/Make.common.rules && echo 0),0)
     include $(top_srcdir)/config/Make.common.rules
@@ -192,10 +191,10 @@ LDFLAGS			= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir)
 
 ifdef ice_src_dist
     SLICEPARSERLIB	= $(ice_cpp_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
-    SLICE2RB		= $(ice_cpp_dir)/$(binsubdir)/$(slice_translator)
+	SLICE2RB	= $(top_srcdir)/config/s2rb.rb
 else
-    SLICEPARSERLIB	= $(ice_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
-     SLICE2RB		= $(ice_dir)/$(binsubdir)/$(slice_translator)
+    SLICEPARSERLIB	=
+    SLICE2RB		= slice2rb
 endif
 
 EVERYTHING		= all depend clean install

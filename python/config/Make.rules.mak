@@ -47,7 +47,6 @@ PYTHON_HOME		= C:\Python34
 #
 ice_language     = python
 ice_require_cpp  = yes
-slice_translator = slice2py
 
 !if exist ($(top_srcdir)\..\config\Make.common.rules.mak)
 !include $(top_srcdir)\..\config\Make.common.rules.mak
@@ -95,22 +94,14 @@ ICECPPFLAGS		= -I"$(slicedir)"
 SLICE2PYFLAGS		= $(ICECPPFLAGS)
 
 !if "$(ice_src_dist)" != ""
-!if "$(ice_cpp_dir)" == "$(ice_dir)\cpp"
-SLICE2PY                = $(ice_cpp_dir)\bin\slice2py.exe
+SLICE2PY                = $(PYTHON_HOME)\python $(top_srcdir)\config\s2py.py
 SLICEPARSERLIB          = $(ice_cpp_dir)\lib\slice.lib
 !if !exist ("$(SLICEPARSERLIB)")
 SLICEPARSERLIB          = $(ice_cpp_dir)\lib\sliced.lib
 !endif
 !else
-SLICE2PY                = $(ice_cpp_dir)\bin$(x64suffix)\slice2py.exe
-SLICEPARSERLIB          = $(ice_cpp_dir)\lib$(x64suffix)\slice.lib
-!if !exist ("$(SLICEPARSERLIB)")
-SLICEPARSERLIB          = $(ice_cpp_dir)\lib$(x64suffix)\sliced.lib
-!endif
-!endif
-!else
-SLICE2PY                = $(ice_dir)\bin\slice2py.exe
-SLICEPARSERLIB          = $(ice_dir)\lib\slice.lib
+SLICE2PY                = $(PYTHON_HOME)\Scripts\slice2py.exe
+SLICEPARSERLIB          = $(PYTHON_HOME)\Scripts\slice2py.exe
 !endif
 
 MT			= mt.exe

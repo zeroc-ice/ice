@@ -122,7 +122,6 @@ ALL_SRCS	= $(ICE_SRCS) \
 
 PACKAGES	= IceBox IceGrid IcePatch2 IceStorm IceMX
 
-SLICE2PY        = $(PYTHON_HOME)\python $(top_srcdir)\config\s2py.py
 SLICE2PYFLAGS   = $(SLICE2PYFLAGS) --ice
 
 all:: $(ALL_SRCS)
