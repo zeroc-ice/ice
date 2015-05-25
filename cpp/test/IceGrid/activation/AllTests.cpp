@@ -648,7 +648,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
         testApp.name = "TestApp";
         testApp.serverTemplates = info.descriptor.serverTemplates;
         testApp.variables = info.descriptor.variables;
-        for(int i = 0; i < 100; ++i)
+        const int nServers = 75;
+        for(int i = 0; i < nServers; ++i)
         {
             ostringstream id;
             id << "server-" << i;
@@ -666,13 +667,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
             cerr << ex.reason << endl;
             test(false);
         }
-        for(int i = 0; i < 100; ++i)
+        for(int i = 0; i < nServers; ++i)
         {
             ostringstream id;
             id << "server-" << i;
             admin->startServer(id.str());
         }
-        for(int i = 0; i < 100; ++i)
+        for(int i = 0; i < nServers; ++i)
         {
             ostringstream id;
             id << "server-" << i;
