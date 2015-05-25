@@ -72,7 +72,7 @@ CPP_COMPILER            = VC140
 
 !if "$(CPP_COMPILER)" != "" && "$(CPP_COMPILER)" != "VC100"  && \
     "$(CPP_COMPILER)" != "VC110" && "$(CPP_COMPILER)" != "VC120" && \
-    "$(CPP_COMPILER)" != "VC140" 
+    "$(CPP_COMPILER)" != "VC140"
 !error Invalid CPP_COMPILER setting: $(CPP_COMPILER). Must be one of: VC100, VC110, VC120, VC140
 !endif
 
@@ -219,11 +219,7 @@ install-common::
             @echo "Creating $(install_bindir)..." && \
             $(MKDIR) "$(prefix)\bin"
 
-	@if not exist "$(prefix)\bin\icehashpassword.py" \
-            @copy $(top_srcdir)\..\scripts\icehashpassword.py "$(prefix)\bin""
-
 	@if not exist "$(prefix)\ICE_LICENSE$(TEXT_EXT)" \
 	    @copy $(top_srcdir)\..\ICE_LICENSE$(TEXT_EXT) "$(prefix)"
 	@if not exist "$(prefix)\LICENSE$(TEXT_EXT)" \
 	    @copy $(top_srcdir)\..\LICENSE$(TEXT_EXT) "$(prefix)"
-

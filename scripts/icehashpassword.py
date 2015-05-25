@@ -41,7 +41,7 @@ def usage():
     print("      Show this message.")
     print("")
 
-def encrypt():
+def main():
 
     digestAlgorithms = ()
     shortArgs = "h"
@@ -61,7 +61,7 @@ def encrypt():
         print("")
         print(str(err))
         usage()
-        sys.exit(2)
+        return 2
 
     digest = None
     salt = None
@@ -70,27 +70,27 @@ def encrypt():
     for o, a in opts:
         if o in ("-h", "--help"):
             usage()
-            sys.exit(0)
+            return 0
         elif o in ("-d", "--digest"):
             if a in digestAlgorithms:
                 digest = a
             else:
                 print("Unknown digest algorithm `" + a + "'")
-                sys.exit(2)
+                return 2
         elif o in ("-s", "--salt"):
             try:
                 salt = int(a)
             except ValueError as err:
                 print("Invalid salt size. Value must be an integer")
                 usage()
-                sys.exit(2)
+                return 2
         elif o in ("-r", "--rounds"):
             try:
                 rounds = int(a)
             except ValueError as err:
                 print("Invalid number of rounds. Value must be an integer")
                 usage()
-                sys.exit(2)
+                return 2
 
     passScheme = None
     if usePBKDF2:
@@ -109,13 +109,13 @@ def encrypt():
             print("Invalid number rounds for the digest algorithm. Value must be an integer between %s and %s" %
                 (passScheme.min_rounds, passScheme.max_rounds))
             usage()
-            sys.exit(2)
+            return 2
     if salt:
         if not passScheme.min_salt_size <= salt <= passScheme.max_salt_size:
             print("Invalid salt size for the digest algorithm. Value must be an integer between %s and %s" %
                 (passScheme.min_salt_size, passScheme.max_salt_size))
             usage()
-            sys.exit(2)
+            return 2
 
     encryptfn = passScheme.encrypt
 
@@ -134,4 +134,7 @@ def encrypt():
 
     print(encryptfn(*args, **opts))
 
-encrypt()
+    return 0
+
+if __name__ == '__main__':
+    sys.exit(main())

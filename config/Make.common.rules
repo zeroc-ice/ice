@@ -484,13 +484,3 @@ install-common::
 	then \
 	    $(call installdata,$(top_srcdir)/../LICENSE$(TEXT_EXTENSION),$(DESTDIR)$(install_docdir)) ; \
 	fi
-
-	@if test ! -f $(DESTDIR)$(prefix)/bin/icehashpassword.py ; \
-	then \
-            if test ! -d $(DESTDIR)$(prefix)/bin ; \
-            then \
-                echo "Creating $(DESTDIR)$(prefix)/bin..." ; \
-                $(call mkdir, $(DESTDIR)$(prefix)/bin, -p) ; \
-            fi ; \
-            $(call installprogram,$(top_srcdir)/../scripts/icehashpassword.py,$(DESTDIR)$(prefix)/bin) ; \
-        fi
