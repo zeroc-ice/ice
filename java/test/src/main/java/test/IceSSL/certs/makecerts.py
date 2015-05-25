@@ -10,7 +10,7 @@ import os, sys, socket, getopt
 try:
     import IceCertUtils
 except:
-    print("error: couldn't find IceCertUtils, install `zeroc-ice-certutils' package "
+    print("error: couldn't find IceCertUtils, install `zeroc-icecertutils' package "
           "from Python package repository")
     sys.exit(1)
 
@@ -90,7 +90,7 @@ certs = [
 for (ca, alias, path, args) in certs:
     if not path: path = alias
     cert = ca.get(alias)
-    if force or not os.path.exists(path + ".jks"): 
+    if force or not os.path.exists(path + ".jks"):
         cert.save(path + ".jks", alias="cert", **args)
 
 #

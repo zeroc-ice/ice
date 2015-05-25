@@ -10,7 +10,7 @@ import os, sys, socket, getopt
 try:
     import IceCertUtils
 except:
-    print("error: couldn't find IceCertUtils, install `zeroc-ice-certutils' package "
+    print("error: couldn't find IceCertUtils, install `zeroc-icecertutils' package "
           "from Python package repository")
     sys.exit(1)
 
