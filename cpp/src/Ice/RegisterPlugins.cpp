@@ -16,6 +16,7 @@ extern "C"
 
 Ice::Plugin* createIceUDP(const Ice::CommunicatorPtr&, const std::string&, const Ice::StringSeq&);
 Ice::Plugin* createIceTCP(const Ice::CommunicatorPtr&, const std::string&, const Ice::StringSeq&);
+Ice::Plugin* createStringConverter(const Ice::CommunicatorPtr&, const std::string&, const Ice::StringSeq&);
 
 };
 
@@ -23,4 +24,5 @@ IceInternal::RegisterPluginsInit::RegisterPluginsInit()
 {
     Ice::registerPluginFactory("IceUDP", createIceUDP, true);
     Ice::registerPluginFactory("IceTCP", createIceTCP, true);
+    Ice::registerPluginFactory("IceStringConverter", createStringConverter, false);
 }
