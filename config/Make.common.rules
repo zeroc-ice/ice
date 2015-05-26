@@ -144,13 +144,7 @@ else
     # directory and libsubdir to the x86 lib directory.
     #
     ifeq ($(MACHINE_TYPE),x86_64)
-	ifeq ($(UNAME),Linux)
-	    ifeq ($(shell test -d $(usr_dir)/lib/x86_64-linux-gnu && echo 0),0)
-		lib64subdir               = lib/x86_64-linux-gnu
-	    else
-		lib64subdir               = lib$(lp64suffix)
-	    endif
-	endif
+	lib64subdir               = lib$(lp64suffix)
     endif
 endif
 
