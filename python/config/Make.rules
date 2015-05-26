@@ -148,7 +148,7 @@ ifdef ice_src_dist
 		SLICEPARSERLIB  = $(ice_cpp_dir)/$(lib64subdir)/$(call mklibfilename,Slice,$(VERSION))
     endif
 else
-    SLICE2PY 		= $(ice_dir)/bin/slice2py
+    SLICE2PY 		= /usr/local/bin/slice2py
     SLICEPARSERLIB	=
 endif
 
