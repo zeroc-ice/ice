@@ -137,7 +137,7 @@ public:
         IceUtil::Mutex::Lock sync(_mutex);
         int tmp = _ref;
         _ref = value;
-        return _ref;
+        return tmp;
 #endif
     }
 
