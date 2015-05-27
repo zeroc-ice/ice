@@ -142,18 +142,18 @@ SLICE2PYFLAGS	= $(ICECPPFLAGS)
 LDFLAGS			= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir)
 
 ifdef ice_src_dist
-	SLICE2PY    = $(top_srcdir)/config/s2py.py
+    SLICE2PY    = $(top_srcdir)/config/s2py.py
     SLICEPARSERLIB	= $(ice_cpp_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
     ifeq ($(wildcard $(SLICEPARSERLIB)),)
-		SLICEPARSERLIB  = $(ice_cpp_dir)/$(lib64subdir)/$(call mklibfilename,Slice,$(VERSION))
+        SLICEPARSERLIB  = $(ice_cpp_dir)/$(lib64subdir)/$(call mklibfilename,Slice,$(VERSION))
     endif
 else
     ifeq ($(UNAME),Darwin)
-    	SLICE2PY 		= /usr/local/bin/slice2py
+        SLICE2PY = /usr/local/bin/slice2py
     else
-    	SLICE2PY 		= /usr/bin/slice2py
+        SLICE2PY = $(shell $(PYTHON) -c "import os, sys, slice2py; sys.stdout.write(os.path.normpath(os.path.join(slice2py.__file__, '..', '..', '..', '..', 'bin', 'slice2py')))")
     endif
-    SLICEPARSERLIB	=
+    SLICEPARSERLIB =
 endif
 
 #
