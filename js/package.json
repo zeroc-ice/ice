@@ -38,7 +38,6 @@
     "vinyl-paths": "^1.0.0"
   },
   "scripts": {
-    "prepublish": "cp ../ICE_LICENSE ../LICENSE .",
     "gulp:build": "gulp",
     "gulp:dist": "gulp dist",
     "gulp:watch": "gulp watch",
