@@ -392,9 +392,9 @@ if not iceHome:
             thirdPartyHome = path[0]
 
 # List of supported cross languages test.
-crossTests = [ "Ice/adapterDeactivation",
+crossTests = [ #"Ice/adapterDeactivation",
                #"Ice/background",
-               "Ice/binding",
+               #"Ice/binding",
                #"Ice/checksum",
                #"Ice/custom",
                "Ice/ami",
@@ -402,16 +402,16 @@ crossTests = [ "Ice/adapterDeactivation",
                "Ice/exceptions",
                "Ice/enums",
                "Ice/facets",
-               "Ice/hold",
+               #"Ice/hold",
                "Ice/inheritance",
                "Ice/invoke",
-               "Ice/location",
+               #"Ice/location",
                "Ice/objects",
                "Ice/operations",
                "Ice/proxy",
-               "Ice/retry",
+               #"Ice/retry",
                "Ice/servantLocator",
-               "Ice/timeout",
+               #"Ice/timeout",
                "Ice/slicing/exceptions",
                "Ice/slicing/objects",
                "Ice/optional",
@@ -558,34 +558,16 @@ def run(tests, root = False):
         a = '--protocol=ws %s'  % arg
         expanded.append([ (test, a, config) for test,config in tests if "core" in config])
 
-        a = '--protocol=tcp --compress %s'  % arg
-        expanded.append([ (test, a, config) for test,config in tests if "core" in config])
-
-        a = '--mx %s'  % arg
-        expanded.append([ (test, a, config) for test,config in tests if "core" in config])
-
         if not noipv6:
-            a = "--ipv6 --protocol=tcp %s" % arg
-            expanded.append([ (test, a, config) for test,config in tests if "core" in config])
-
-            a = "--ipv6 --protocol=ssl %s" % arg
-            expanded.append([ (test, a, config) for test,config in tests if "core" in config])
-
-            a = "--ipv6 --protocol=ws %s" % arg
+            a = "--ipv6 --protocol=wss --compress --mx --serialize %s" % arg
             expanded.append([ (test, a, config) for test,config in tests if "core" in config])
 
         a = "--protocol=tcp %s" % arg
         expanded.append([ (test, a, config) for test,config in tests if "service" in config])
 
-        a = '--mx %s'  % arg
-        expanded.append([ (test, a, config) for test,config in tests if "service" in config])
-
         if not noipv6:
-            a = "--protocol=ssl --ipv6 %s" % arg
+            a = "--ipv6 --protocol=wss --compress --mx --serialize %s" % arg
             expanded.append([ (test, a, config) for test,config in tests if "service" in config])
-
-        a = "--protocol=tcp --serialize %s" % arg
-        expanded.append([ (test, a, config) for test,config in tests if "stress" in config])
 
     elif not allCross:
         expanded.append([ (test, arg, config) for test,config in tests])
