@@ -152,6 +152,11 @@ public class ControllerServer extends Ice.Application
     
     public class ControllerI extends _ControllerDisp
     {
+        public ControllerI(String[] args)
+        {
+            _args = args;
+        }
+
         @Override
         public ServerPrx runServer(String lang, final String name, String protocol, String host, 
                                    boolean winrt, String[] options, Ice.Current current)
@@ -188,6 +193,11 @@ public class ControllerServer extends Ice.Application
                 args.add("--arg");
                 args.add(option);
             }
+
+            for(String a : _args)
+            {
+                args.add(a);
+            }
             
             try
             {
@@ -208,6 +218,7 @@ public class ControllerServer extends Ice.Application
         }
         
         private ServerPrx _server;
+        private String[] _args;
     }
     
     @Override
@@ -215,7 +226,7 @@ public class ControllerServer extends Ice.Application
     run(String[] args)
     {
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("ControllerAdapter");
-        adapter.add(new ControllerI(), communicator().stringToIdentity("controller"));
+        adapter.add(new ControllerI(args), communicator().stringToIdentity("controller"));
         adapter.activate();
         communicator().waitForShutdown();
         return 0;

@@ -50,8 +50,10 @@ jar = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..",
                    "java/test/controller/build/libs/testController-%(version)s.jar" % {"version": version})
 
 javaHome = os.environ.get("JAVA_HOME", "")
-javaCmd = '"%s"' % os.path.join(javaHome, "bin", "java") if javaHome else "java"
+javaCmd = '%s' % os.path.join(javaHome, "bin", "java") if javaHome else "java"
 command = [javaCmd, "-jar", jar]
+if len(sys.argv) > 1:
+    command += sys.argv[1:]
 
 p = subprocess.Popen(command, shell = False, stdin = subprocess.PIPE, stdout = subprocess.PIPE,
                      stderr = subprocess.STDOUT, bufsize = 0)
