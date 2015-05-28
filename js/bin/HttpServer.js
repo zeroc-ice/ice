@@ -10,7 +10,6 @@
 var crypto    = require("crypto");
 var fs        = require("fs");
 var http      = require("http");
-var httpProxy = require("http-proxy");
 var https     = require("https");
 var path      = require("path");
 var url       = require("url");
@@ -57,15 +56,13 @@ function Init()
 
     HttpServer.prototype.processRequest = function(req, res)
     {
-        var filePath;
-
         var iceLib = libraries.indexOf(req.url.pathname) !== -1;
         var iceLibMap = libraryMaps.indexOf(req.url.pathname) !== -1;
         
         var basePath = (process.env.USE_BIN_DIST == "yes" && (iceLib || iceLibMap)) ? 
             path.resolve(path.join(require.resolve("ice"), "..", "..")) : this._basePath;
 
-        filePath = path.resolve(path.join(basePath, req.url.pathname));
+        var filePath = path.resolve(path.join(basePath, req.url.pathname));
 
         //
         // If OPTIMIZE is set resolve Ice libraries to the corresponding minified
@@ -206,48 +203,13 @@ function Init()
         };
     };
 
-    //
-    // Proxy configuration for the different demos.
-    //
-    var proxyConfig = [
-        {resource: "/demows", target: "http://localhost:10002", protocol: "ws"},
-        {resource: "/demowss", target: "https://localhost:10003", protocol: "wss"},
-        {resource: "/chatws", target: "http://localhost:5063", protocol: "ws"},
-        {resource: "/chatwss", target: "https://localhost:5064", protocol: "wss"}
-    ];
-
-    var proxies = {};
-
     HttpServer.prototype.start = function()
     {
-        var baseDir;
-        if(!["../../certs", "../certs"].some(
-            function(p)
-            {
-                return fs.existsSync(baseDir = path.join(__dirname, p));
-            }))
-        {
-            console.error("Cannot find wss certificates directory");
-            process.exit(1);
-        }
-        var options = {
-            passphrase: "password",
-            pfx: fs.readFileSync(path.join(baseDir, "server.p12")),
-        };
-
         var httpServer = http.createServer();
-        var httpsServer = https.createServer(options);
-
-        if(httpProxy)
-        {
-            proxyConfig.forEach(
-                function(conf)
-                {
-                    proxies[conf.resource] = {
-                        server: httpProxy.createProxyServer({target : conf.target, secure : false}),
-                        protocol: conf.protocol };
-                });
-        }
+        var httpsServer = https.createServer({
+            passphrase: "password",
+            pfx: fs.readFileSync(path.join("..", "certs", "server.p12")),
+        });
 
         var self = this;
         [httpServer, httpsServer].forEach(function(server)
@@ -271,32 +233,6 @@ function Init()
                                             req.on("end", endCB);
                                     });
                         });
-
-        if(httpProxy)
-        {
-            var requestCB = function(protocols)
-            {
-                return function(req, socket, head)
-                {
-                    var errCB = function(err)
-                    {
-                        socket.end();
-                    };
-                    var proxy = proxies[req.url];
-                    if(proxy && protocols.indexOf(proxy.protocol) !== -1)
-                    {
-                        proxy.server.ws(req, socket, head, errCB);
-                    }
-                    else
-                    {
-                        socket.end();
-                    }
-                };
-            };
-
-            httpServer.on("upgrade", requestCB(["ws"]));
-            httpsServer.on("upgrade", requestCB(["ws", "wss"]));
-        }
 
         httpServer.listen(8080, this._host);
         httpsServer.listen(9090, this._host);
