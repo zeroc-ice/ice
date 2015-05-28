@@ -566,7 +566,7 @@ def run(tests, root = False):
         expanded.append([ (test, a, config) for test,config in tests if "service" in config])
 
         if not noipv6:
-            a = "--ipv6 --protocol=wss --compress --mx --serialize %s" % arg
+            a = "--ipv6 --protocol=ssl --compress --mx --serialize %s" % arg
             expanded.append([ (test, a, config) for test,config in tests if "service" in config])
 
     elif not allCross:

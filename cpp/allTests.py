@@ -24,7 +24,7 @@ import TestUtil
 #
 # List of all basic tests.
 #
-tests = [ 
+tests = [
     ("IceUtil/condvar", ["once", "win32only"]),
     ("IceUtil/thread",  ["once"]),
     ("IceUtil/unicode", ["once"]),
@@ -98,7 +98,7 @@ tests = [
     ("IceGrid/simple", ["service", "novc100", "nomingw"]),
     ("IceGrid/fileLock", ["service", "novc100", "nomingw"]),
     ("IceGrid/deployer", ["service", "novc100", "nomingw"]),
-    ("IceGrid/session", ["service", "novc100", "nomingw"]),
+    ("IceGrid/session", ["service", "novc100", "nomingw", "nows"]),
     ("IceGrid/update", ["service", "novc100", "nomingw"]),
     ("IceGrid/noRestartUpdate", ["service", "novc100", "nomingw"]),
     ("IceGrid/activation", ["service", "novc100", "nomingw"]),

@@ -41,7 +41,7 @@ public:
         {
             throw Test::ExtendedPermissionDeniedException("reason");
         }
-
+        test(info.certs.size() > 0);
         IceSSL::CertificatePtr cert = IceSSL::Certificate::decode(info.certs[0]);
         test(cert->getIssuerDN() == IceSSL::DistinguishedName(
              "emailAddress=info@zeroc.com,C=US,ST=Florida,L=Jupiter,O=ZeroC\\, Inc.,OU=Ice,CN=Ice Tests CA"));

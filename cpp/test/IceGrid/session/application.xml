@@ -12,7 +12,7 @@
       <server id="${id}" exe="${ice.bindir}/glacier2router">
         <property name="Glacier2.Client.Endpoints" value="${endpoints}"/>
         <property name="Glacier2.Server.Endpoints" value="tcp -h 127.0.0.1"/>
-       
+
         <property name="Glacier2.SessionManager" value="${manager}"/>
         <property name="Glacier2.SSLSessionManager" value="${ssl-manager}"/>
         <property name="Glacier2.PermissionsVerifier" value="${verifier}"/>
@@ -33,7 +33,7 @@
                        verifier="AdminPermissionsVerifier:tcp -p 12002"
                        manager="TestIceGrid/AdminSessionManager"
                        ssl-manager="TestIceGrid/AdminSSLSessionManager"/>
-    
+
       <server id="PermissionsVerifierServer" exe="${test.dir}/server" activation="on-demand">
         <adapter name="Server" endpoints="default -h 127.0.0.1">
           <object identity="ClientPermissionsVerifier"/>
