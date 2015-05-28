@@ -374,7 +374,7 @@ gulp.task("dist:libs", ["bower"],
             .pipe(gulp.dest("lib"));
     });
 
-gulp.task("dist", useBinDist ? ["dist:libs"] : libs.map(libTask));
+gulp.task("dist", useBinDist ? ["dist:libs"] : libs.map(minLibTask));
 gulp.task("dist:watch", libs.map(libWatchTask));
 gulp.task("dist:clean", libs.map(libCleanTask));
 gulp.task("watch", ["test:watch"].concat(useBinDist ? [] : ["dist:watch"]));
