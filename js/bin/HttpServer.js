@@ -37,12 +37,6 @@ function Init()
         js: "text/javascript",
     };
 
-    var demoDist = !isdir(path.join(__dirname, "..", "lib"));
-
-    //
-    // If using a demo distribution or USE_BIN_DIST was set,
-    // resolve libraries in bower_components/zeroc-icejs directory.
-    //
     var libraries = ["/lib/Ice.js", "/lib/Ice.min.js",
                     "/lib/Glacier2.js", "/lib/Glacier2.min.js",
                     "/lib/IceStorm.js", "/lib/IceStorm.min.js",
@@ -67,10 +61,11 @@ function Init()
 
         var iceLib = libraries.indexOf(req.url.pathname) !== -1;
         var iceLibMap = libraryMaps.indexOf(req.url.pathname) !== -1;
-        //
-        // If ICE_HOME has been set resolve Ice libraries paths into ICE_HOME.
-        //
-        filePath = path.resolve(path.join(this._basePath, req.url.pathname));
+        
+        var basePath = (process.env.USE_BIN_DIST == "yes" && (iceLib || iceLibMap)) ? 
+            path.resolve(path.join(require.resolve("ice"), "..", "..")) : this._basePath;
+
+        filePath = path.resolve(path.join(basePath, req.url.pathname));
 
         //
         // If OPTIMIZE is set resolve Ice libraries to the corresponding minified
