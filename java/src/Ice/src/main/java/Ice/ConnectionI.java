@@ -1317,7 +1317,24 @@ public final class ConnectionI extends IceInternal.EventHandler
 
         if(_startCallback != null)
         {
-            _startCallback.connectionStartFailed(this, _exception);
+            if(_instance.queueRequests())
+            {
+                // The connectStartFailed method might try to connect with another
+                // connector.
+                _instance.getQueueExecutor().executeNoThrow(new Callable<Void>()
+                {
+                    @Override
+                    public Void call() throws Exception
+                    {
+                        _startCallback.connectionStartFailed(ConnectionI.this, _exception);
+                        return null;
+                    }
+                });
+            }
+            else
+            {
+                _startCallback.connectionStartFailed(this, _exception);
+            }
             _startCallback = null;
         }
 
