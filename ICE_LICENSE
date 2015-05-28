@@ -23,19 +23,13 @@ such shall be licensed under the terms of the GNU General Public License
 version 2. This includes the situation where Ice is only being used 
 through an abstraction layer.
 
-As a special exception to the above, ZeroC grants to the contributors for
-the following projects the permission to license their Ice-based software 
-under the terms of the GNU Lesser General Public License (LGPL) version 
-2.1 or of the BSD license:
-
- - Orca Robotics (http://orca-robotics.sourceforge.net)
- 
- - Mumble (http://mumble.sourceforge.net)
-
-This exception does not extend to the parts of Ice used by these 
-projects, or to any other derived work: as a whole, any work based on Ice
-shall be licensed under the terms and conditions of the GNU General
-Public License version 2.
+As a special exception to the above, ZeroC grants to the copyright 
+holders and contributors of the Mumble project (http://www.mumble.info) 
+the permission to license the Ice-based software they contribute to 
+Mumble under the terms of the BSD license. This exception does not extend
+to the parts of Ice used by Mumble, or to any other derived work: as a 
+whole, any work based on Ice shall be licensed under the terms and 
+conditions of the GNU General Public License version 2.
 
 You may also combine Ice with any software not derived from Ice, provided
 the license of such software is compatible with the GNU General Public 
