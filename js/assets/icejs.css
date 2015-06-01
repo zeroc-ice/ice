@@ -24,7 +24,7 @@ body { height:100%;}
 #body {padding:10px; padding-top: 100px /* Height of the header */; padding-bottom:80px;   /* Height of the footer */}
 #console { height: 150px; }
 
-#chat-form #output { height: 300px; } 
+#chat-form #output { height: 300px; }
 
 #source-modal .tabs-content{ max-height:500px; overflow:hidden; }
 #source-modal .content{ max-height:500px; overflow:auto; width:100%; }

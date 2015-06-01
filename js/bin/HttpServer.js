@@ -58,8 +58,8 @@ function Init()
     {
         var iceLib = libraries.indexOf(req.url.pathname) !== -1;
         var iceLibMap = libraryMaps.indexOf(req.url.pathname) !== -1;
-        
-        var basePath = (process.env.USE_BIN_DIST == "yes" && (iceLib || iceLibMap)) ? 
+
+        var basePath = (process.env.USE_BIN_DIST == "yes" && (iceLib || iceLibMap)) ?
             path.resolve(path.join(require.resolve("ice"), "..", "..")) : this._basePath;
 
         var filePath = path.resolve(path.join(basePath, req.url.pathname));
@@ -134,7 +134,17 @@ function Init()
             }
             else
             {
-                if(!stats.isFile())
+                if(req.url.pathname === '/')
+                {
+                    res.writeHead(302,
+                    {
+                        "Location": "test/Ice/acm/index.html"
+                    });
+                    res.end();
+                    console.log("HTTP/302 (Found) " + req.method + " " + req.url.pathname + " -> " +
+                                "test/Ice/acm/index.html");
+                }
+                else if(!stats.isFile())
                 {
                     res.writeHead(403);
                     res.end("403 Forbiden");

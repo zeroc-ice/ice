@@ -385,16 +385,17 @@ gulp.task("test:run-with-browser", ["watch"].concat(useBinDist ? ["test"] : ["bu
         require("./bin/HttpServer")();
 
         var p  = require("child_process").spawn("python", ["../scripts/TestController.py"], {stdio: "inherit"});
-        process.on("SIGINT", function() { p.kill()});
-        process.on("exit", function() { p.kill() });
-        return gulp.src("./index.html").pipe(open("", {url: "http://127.0.0.1:8080/test/Ice/acm/index.html"}));
+        process.on("SIGINT", function() { p.kill(); });
+        process.on("exit", function() { p.kill(); });
+        return gulp.src("./test/Ice/acm/index.html")
+                   .pipe(open("", {url: "http://127.0.0.1:8080/test/Ice/acm/index.html"}));
     });
 
 gulp.task("test:run-with-node", (useBinDist ? ["test"] : ["build"]),
     function(){
         var p  = require("child_process").spawn("python", ["allTests.py", "--all"], {stdio: "inherit"});
-        process.on("SIGINT", function() { p.kill()});
-        process.on("exit", function() { p.kill() });
+        process.on("SIGINT", function() { p.kill(); });
+        process.on("exit", function() { p.kill(); });
     });
 
 gulp.task("lint:html", ["build"],

@@ -44,7 +44,6 @@
     "gulp:clean": "gulp clean",
     "gulp:test": "gulp test",
     "gulp:lint": "gulp lint",
-    "gulp:demo:run": "gulp demo:run",
     "gulp:test:run-with-browser": "gulp test:run-with-browser",
     "gulp:test:run-with-node": "gulp test:run-with-node"
   }
