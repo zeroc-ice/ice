@@ -744,6 +744,9 @@ def phpSetup(clientConfig = False, iceOptions = None, iceProfile = None):
                         incDir = "/usr/share/php5"
                     else:
                         incDir = None
+                elif iceHome == "/usr/local" and isDarwin():
+                    extDir = "/usr/local/lib/php/extensions"
+                    incDir = "/usr/local/share/php"
                 else:
                     print("unable to find IcePHP extension!")
                     sys.exit(1)
@@ -1869,6 +1872,8 @@ def getTestEnv(lang, testdir):
     # C++ extensions (py, ruby, php)
     #
     if isWin32():
+        if lang == "java":
+            addLdPath(os.path.join(getIceDir("cpp"), "bin"), env) # Always add bin for db53_vc100.dll
         addLdPath(getCppLibDir(lang), env)
     elif lang in ["python", "ruby", "php", "js", "objective-c"]:
         addLdPath(getCppLibDir(lang), env)
