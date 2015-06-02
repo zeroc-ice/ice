@@ -13,16 +13,17 @@ top_srcdir	= ..\..\..
 NAME_PREFIX	=
 EXT		= .exe
 OBJDIR		= .
+PLUGINDIR	= plugins
 !else
 NAME_PREFIX	= Ice_plugin_
 EXT		= .dll
 OBJDIR		= winrt
+PLUGINDIR	= plugins\winrt
 !endif
 
 CLIENT		= $(NAME_PREFIX)client
 LIBNAME		= TestPlugin$(LIBSUFFIX).lib
 DLLNAME		= TestPlugin$(SOVERSION)$(LIBSUFFIX).dll
-PLUGINDIR	= plugins
 
 TARGETS		= $(CLIENT)$(EXT) $(PLUGINDIR)\$(LIBNAME) $(PLUGINDIR)\$(DLLNAME)
 

@@ -126,12 +126,18 @@ main(int argc, char* argv[])
     }
     cout << "ok" << endl;
 
+#ifdef ICE_OS_WINRT
+    string pluginDir = "plugins/winrt/";
+#else
+    string pluginDir = "plugins/";
+#endif
+
     cout << "testing a simple plug-in... " << flush;
     try
     {
         Ice::InitializationData initData;
         initData.properties = Ice::createProperties(argc, argv);
-        initData.properties->setProperty("Ice.Plugin.Test", "plugins/TestPlugin:createPlugin");
+        initData.properties->setProperty("Ice.Plugin.Test", pluginDir + "TestPlugin:createPlugin");
         communicator = Ice::initialize(argc, argv, initData);
         communicator->destroy();
     }
@@ -145,7 +151,7 @@ main(int argc, char* argv[])
         int majorVersion = (ICE_INT_VERSION / 10000);
         int minorVersion = (ICE_INT_VERSION / 100) - majorVersion * 100;
         ostringstream os;
-        os << "plugins/TestPlugin,";
+        os << << pluginDir << "TestPlugin,";
         os << majorVersion * 10 + minorVersion;
         int patchVersion = ICE_INT_VERSION % 100;
         if(patchVersion > 50)
@@ -172,7 +178,7 @@ main(int argc, char* argv[])
     {
         Ice::InitializationData initData;
         initData.properties = Ice::createProperties(argc, argv);
-        initData.properties->setProperty("Ice.Plugin.Test", "plugins/TestPlugin,10:createPlugin");
+        initData.properties->setProperty("Ice.Plugin.Test", pluginDir + "TestPlugin,10:createPlugin");
         communicator = Ice::initialize(argc, argv, initData);
         test(false);
     }
@@ -195,7 +201,7 @@ main(int argc, char* argv[])
         Ice::InitializationData initData;
         initData.properties = Ice::createProperties(argc, argv);
         initData.properties->setProperty("Ice.Plugin.Test",
-            "plugins/TestPlugin:createPluginWithArgs 'C:\\Program Files\\' --DatabasePath "
+            pluginDir + "TestPlugin:createPluginWithArgs 'C:\\Program Files\\' --DatabasePath "
             "'C:\\Program Files\\Application\\db'" );
         communicator = Ice::initialize(argc, argv, initData);
         communicator->destroy();
@@ -213,7 +219,7 @@ main(int argc, char* argv[])
     {
         Ice::InitializationData initData;
         initData.properties = Ice::createProperties(argc, argv);
-        initData.properties->setProperty("Ice.Plugin.Test", "plugins/TestPlugin:createPluginInitializeFail");
+        initData.properties->setProperty("Ice.Plugin.Test", pluginDir + "TestPlugin:createPluginInitializeFail");
         communicator = Ice::initialize(argc, argv, initData);
         test(false);
     }
@@ -229,9 +235,9 @@ main(int argc, char* argv[])
     {
         Ice::InitializationData initData;
         initData.properties = Ice::createProperties(argc, argv);
-        initData.properties->setProperty("Ice.Plugin.PluginOne", "plugins/TestPlugin:createPluginOne");
-        initData.properties->setProperty("Ice.Plugin.PluginTwo", "plugins/TestPlugin:createPluginTwo");
-        initData.properties->setProperty("Ice.Plugin.PluginThree", "plugins/TestPlugin:createPluginThree");
+        initData.properties->setProperty("Ice.Plugin.PluginOne", pluginDir + "TestPlugin:createPluginOne");
+        initData.properties->setProperty("Ice.Plugin.PluginTwo", pluginDir + "TestPlugin:createPluginTwo");
+        initData.properties->setProperty("Ice.Plugin.PluginThree", pluginDir + "TestPlugin:createPluginThree");
         initData.properties->setProperty("Ice.PluginLoadOrder", "PluginOne, PluginTwo"); // Exclude PluginThree
         communicator = Ice::initialize(argc, argv, initData);
         communicator->destroy();
@@ -248,9 +254,9 @@ main(int argc, char* argv[])
     {
         Ice::InitializationData initData;
         initData.properties = Ice::createProperties(argc, argv);
-        initData.properties->setProperty("Ice.Plugin.PluginOne", "plugins/TestPlugin:createPluginOne");
-        initData.properties->setProperty("Ice.Plugin.PluginTwo", "plugins/TestPlugin:createPluginTwo");
-        initData.properties->setProperty("Ice.Plugin.PluginThree", "plugins/TestPlugin:createPluginThree");
+        initData.properties->setProperty("Ice.Plugin.PluginOne", pluginDir + "TestPlugin:createPluginOne");
+        initData.properties->setProperty("Ice.Plugin.PluginTwo", pluginDir + "TestPlugin:createPluginTwo");
+        initData.properties->setProperty("Ice.Plugin.PluginThree", pluginDir + "TestPlugin:createPluginThree");
         initData.properties->setProperty("Ice.PluginLoadOrder", "PluginOne, PluginTwo");
         initData.properties->setProperty("Ice.InitPlugins", "0");
         communicator = Ice::initialize(argc, argv, initData);
@@ -285,9 +291,9 @@ main(int argc, char* argv[])
     {
         Ice::InitializationData initData;
         initData.properties = Ice::createProperties(argc, argv);
-        initData.properties->setProperty("Ice.Plugin.PluginOneFail", "plugins/TestPlugin:createPluginOneFail");
-        initData.properties->setProperty("Ice.Plugin.PluginTwoFail", "plugins/TestPlugin:createPluginTwoFail");
-        initData.properties->setProperty("Ice.Plugin.PluginThreeFail", "plugins/TestPlugin:createPluginThreeFail");
+        initData.properties->setProperty("Ice.Plugin.PluginOneFail", pluginDir + "TestPlugin:createPluginOneFail");
+        initData.properties->setProperty("Ice.Plugin.PluginTwoFail", pluginDir + "TestPlugin:createPluginTwoFail");
+        initData.properties->setProperty("Ice.Plugin.PluginThreeFail", pluginDir + "TestPlugin:createPluginThreeFail");
         initData.properties->setProperty("Ice.PluginLoadOrder", "PluginOneFail, PluginTwoFail, PluginThreeFail");
         communicator = Ice::initialize(argc, argv, initData);
         test(false);
