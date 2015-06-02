@@ -151,7 +151,7 @@ main(int argc, char* argv[])
         int majorVersion = (ICE_INT_VERSION / 10000);
         int minorVersion = (ICE_INT_VERSION / 100) - majorVersion * 100;
         ostringstream os;
-        os << << pluginDir << "TestPlugin,";
+        os << pluginDir << "TestPlugin,";
         os << majorVersion * 10 + minorVersion;
         int patchVersion = ICE_INT_VERSION % 100;
         if(patchVersion > 50)
