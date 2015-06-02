@@ -35,7 +35,7 @@ class App
 {
 public:
 
-    ~App()
+    virtual ~App()
     {
         if(_communicator)
         {
@@ -83,11 +83,11 @@ class Client : public App
 public:
 
     virtual int run(int, char*[]);
-    
+
 private:
 
     int run(const Test::MyObjectPrx&, const InterceptorIPtr&);
-    int runAmd(const Test::MyObjectPrx&, const AMDInterceptorIPtr&); 
+    int runAmd(const Test::MyObjectPrx&, const AMDInterceptorIPtr&);
 };
 
 #ifndef _WIN32
@@ -144,17 +144,17 @@ Client::run(int, char*[])
 #endif
 
     //
-    // Create OA and servants  
-    //  
+    // Create OA and servants
+    //
     Ice::ObjectAdapterPtr oa = communicator()->createObjectAdapterWithEndpoints("MyOA", "tcp -h localhost");
-    
+
     Ice::ObjectPtr servant = new MyObjectI;
     InterceptorIPtr interceptor = new InterceptorI(servant);
     AMDInterceptorIPtr amdInterceptor = new AMDInterceptorI(servant);
-    
+
     Test::MyObjectPrx prx = Test::MyObjectPrx::uncheckedCast(oa->addWithUUID(interceptor));
     Test::MyObjectPrx prxForAMD = Test::MyObjectPrx::uncheckedCast(oa->addWithUUID(amdInterceptor));
-    
+
     cout << "Collocation optimization on" << endl;
     int rs = run(prx, interceptor);
     if(rs != 0)
@@ -170,7 +170,7 @@ Client::run(int, char*[])
     }
 
     oa->activate(); // Only necessary for non-collocation optimized tests
-       
+
     cout << "Collocation optimization off" << endl;
     interceptor->clear();
     prx = Test::MyObjectPrx::uncheckedCast(prx->ice_collocationOptimized(false));
@@ -179,7 +179,7 @@ Client::run(int, char*[])
     {
         return rs;
     }
-        
+
     cout << "Now with AMD" << endl;
     amdInterceptor->clear();
     prxForAMD = Test::MyObjectPrx::uncheckedCast(prxForAMD->ice_collocationOptimized(false));
@@ -226,7 +226,7 @@ Client::run(const Test::MyObjectPrx& prx, const InterceptorIPtr& interceptor)
     test(interceptor->getLastStatus() == Ice::DispatchUserException);
     cout << "ok" << endl;
     cout << "testing ONE... " << flush;
-    
+
     interceptor->clear();
     try
     {

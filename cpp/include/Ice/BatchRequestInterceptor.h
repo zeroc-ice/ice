@@ -24,6 +24,10 @@ class BatchRequest
 {
 public:
 
+    virtual ~BatchRequest()
+    {
+    }
+
     virtual void enqueue() const = 0;
     virtual int getSize() const = 0;
     virtual const std::string& getOperation() const = 0;

@@ -30,6 +30,10 @@ template<typename T> class MetricsHelperT
 {
 public:
 
+    virtual ~MetricsHelperT()
+    {
+    }
+
     virtual std::string operator()(const std::string&) const = 0;
 
     virtual void initMetrics(const IceInternal::Handle<T>&) const
@@ -49,7 +53,7 @@ protected:
             {
             }
 
-            virtual ~Resolver() 
+            virtual ~Resolver()
             {
             }
 
@@ -91,7 +95,7 @@ protected:
             }
             return (*p->second)(helper);
         }
-        
+
         void
         setDefault(std::string (Helper::*memberFn)(const std::string&) const)
         {
@@ -108,7 +112,7 @@ protected:
         template<typename Y> void
         add(const std::string& name, Y (Helper::*memberFn)() const)
         {
-            _attributes.insert(typename std::map<std::string, 
+            _attributes.insert(typename std::map<std::string,
                                Resolver*>::value_type(name, new HelperMemberFunctionResolver<Y>(name, memberFn)));
         }
 
@@ -122,13 +126,13 @@ protected:
         template<typename I, typename O, typename Y> void
         add(const std::string& name, O (Helper::*getFn)() const, Y (I::*memberFn)() const)
         {
-            _attributes.insert(typename std::map<std::string, 
-                               Resolver*>::value_type(name, new MemberFunctionResolver<I, O, Y>(name, getFn, 
+            _attributes.insert(typename std::map<std::string,
+                               Resolver*>::value_type(name, new MemberFunctionResolver<I, O, Y>(name, getFn,
                                                                                                 memberFn)));
         }
 
     private:
-            
+
         template<typename Y> class HelperMemberResolver : public Resolver
         {
         public:
@@ -171,7 +175,7 @@ protected:
         {
         public:
 
-            MemberResolver(const std::string& name, O (Helper::*getFn)() const, Y I::*member) : 
+            MemberResolver(const std::string& name, O (Helper::*getFn)() const, Y I::*member) :
                 Resolver(name), _getFn(getFn), _member(member)
             {
             }
@@ -273,19 +277,19 @@ typedef IceUtil::Handle<Updater> UpdaterPtr;
 template<typename T> class UpdaterT : public Updater
 {
 public:
-    
-    UpdaterT(T* updater, void (T::*fn)()) : 
+
+    UpdaterT(T* updater, void (T::*fn)()) :
         _updater(updater), _fn(fn)
     {
     }
-        
+
     virtual void update()
     {
         (_updater.get()->*_fn)();
     }
-    
-private: 
-    
+
+private:
+
     const IceUtil::Handle<T> _updater;
     void (T::*_fn)();
 };
@@ -314,8 +318,8 @@ public:
     ObserverT() : _previousDelay(0)
     {
     }
-    
-    virtual void 
+
+    virtual void
     attach()
     {
         if(!_watch.isStarted())
@@ -324,7 +328,7 @@ public:
         }
     }
 
-    virtual void 
+    virtual void
     detach()
     {
         ::Ice::Long lifetime = _previousDelay + _watch.stop();
@@ -351,7 +355,7 @@ public:
             (*p)->execute(func);
         }
     }
-    
+
     void
     init(const MetricsHelperT<MetricsType>& /*helper*/, EntrySeqType& objects, ObserverT* previous = 0)
     {
@@ -412,7 +416,7 @@ public:
         obsv->init(helper, metricsObjects);
         return obsv;
     }
-    
+
 private:
 
     EntrySeqType _objects;
@@ -420,7 +424,7 @@ private:
     IceUtil::Int64 _previousDelay;
 };
 
-template<typename ObserverImplType> 
+template<typename ObserverImplType>
 class ObserverFactoryT : public Updater, private IceUtil::Mutex
 {
 public:
@@ -430,7 +434,7 @@ public:
 
     typedef std::vector<IceUtil::Handle<IceInternal::MetricsMapT<MetricsType> > > MetricsMapSeqType;
 
-    ObserverFactoryT(const IceInternal::MetricsAdminIPtr& metrics, const std::string& name) : 
+    ObserverFactoryT(const IceInternal::MetricsAdminIPtr& metrics, const std::string& name) :
         _metrics(metrics), _name(name), _enabled(0)
     {
         _metrics->registerMap<MetricsType>(name, this);
@@ -509,7 +513,7 @@ public:
         return obsv;
     }
 
-    template<typename SubMapMetricsType> void 
+    template<typename SubMapMetricsType> void
     registerSubMap(const std::string& subMap, MetricsMap MetricsType::* member)
     {
         assert(_metrics);
@@ -541,7 +545,7 @@ public:
             _enabled.exchange(_maps.empty() ? 0 : 1);
             updater = _updater;
         }
-        
+
         if(updater)
         {
             updater->update();

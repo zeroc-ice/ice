@@ -29,6 +29,10 @@ class Notify
 {
 public:
 
+    virtual ~Notify()
+    {
+    }
+
     virtual void notify() = 0;
 };
 

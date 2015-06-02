@@ -24,6 +24,10 @@ class GCVisitor
 {
 public:
 
+    virtual ~GCVisitor()
+    {
+    }
+
     virtual bool visit(GCObject*) = 0;
 };
 
