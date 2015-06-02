@@ -159,6 +159,7 @@ IceInternal::StreamTransceiver::startWrite(Buffer& buf)
                         else
                         {
                             _write.count = 0;
+                            _verified = true;
                         }
                         _completedHandler(SocketOperationConnect);
                     });
@@ -296,7 +297,9 @@ IceInternal::StreamTransceiver::getInfo() const
     Ice::IPConnectionInfoPtr info;
     if(_instance->secure())
     {
-        info = new IceSSL::ConnectionInfo();
+        IceSSL::ConnectionInfoPtr sslInfo = new IceSSL::ConnectionInfo();
+        sslInfo->verified = _verified;
+        info = sslInfo;
     }
     else
     {
@@ -312,6 +315,7 @@ IceInternal::StreamTransceiver::getWSInfo(const Ice::HeaderDict& headers) const
     if(_instance->secure())
     {
         IceSSL::WSSConnectionInfoPtr info = new IceSSL::WSSConnectionInfo();
+        info->verified = _verified;
         fillConnectionInfo(info);
         info->headers = headers;
         return info;
@@ -340,7 +344,8 @@ IceInternal::StreamTransceiver::StreamTransceiver(const ProtocolInstancePtr& ins
     NativeInfo(fd),
     _instance(instance),
     _state(connected ? StateConnected : StateNeedConnect),
-    _desc(connected ? fdToString(_fd) : string())
+    _desc(connected ? fdToString(_fd) : string()),
+    _verified(false)
 {
     StreamSocket^ streamSocket = safe_cast<StreamSocket^>(_fd);
     _writer = ref new DataWriter(streamSocket->OutputStream);

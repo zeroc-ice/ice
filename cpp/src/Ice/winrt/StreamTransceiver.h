@@ -70,6 +70,7 @@ private:
 
     State _state;
     std::string _desc;
+    bool _verified;
     Address _connectAddr;
 
     AsyncInfo _read;

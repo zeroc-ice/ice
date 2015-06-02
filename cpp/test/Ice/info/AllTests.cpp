@@ -199,7 +199,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
             {
                 headers = wssinfo->headers;
                 test(wssinfo->verified);
+#if !defined(ICE_OS_WINRT) && TARGET_OS_IPHONE==0
                 test(!wssinfo->certs.empty());
+#endif
             }
 
             test(headers["Upgrade"] == "websocket");
