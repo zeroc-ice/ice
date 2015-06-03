@@ -68,7 +68,7 @@ defaultServerProperties(int *argc, char** argv)
     static NSString* ssldefaults[] =
     {
         @"Ice.Override.ConnectTimeout", @"10000", // COMPILERFIX: Workaround for SSL hang on iOS devices
-        @"IceSSL.CertAuthFile", @"cacert.der",
+        @"IceSSL.CAs", @"cacert.der",
         @"IceSSL.CheckCertName", @"0",
         @"IceSSL.CertFile", @"server.p12",
         @"IceSSL.Password", @"password"
@@ -123,7 +123,7 @@ defaultClientProperties(int* argc, char** argv)
     {
         @"Ice.Override.ConnectTimeout", @"10000", // COMPILERFIX: Workaround for SSL hang on iOS devices
         @"IceSSL.CheckCertName", @"0",
-        @"IceSSL.CertAuthFile", @"cacert.der",
+        @"IceSSL.CAs", @"cacert.der",
         @"IceSSL.CertFile", @"client.p12",
         @"IceSSL.Password", @"password"
     };
