@@ -2661,20 +2661,23 @@ namespace Ice
 
         private ConnectionInfo initConnectionInfo()
         {
-            if(_info != null)
+            if(_state > StateNotInitialized && _info != null) // Update the connection info until it's initialized
             {
                 return _info;
             }
 
-            ConnectionInfo info = _transceiver.getInfo();
-            info.connectionId = _endpoint.connectionId();
-            info.adapterName = _adapter != null ? _adapter.getName() : "";
-            info.incoming = _connector == null;
-            if(_state > StateNotInitialized)
+            try
             {
-                _info = info; // Cache the connection information only if initialized.
+                _info = _transceiver.getInfo();
             }
-            return info;
+            catch(Ice.LocalException)
+            {
+                _info = new ConnectionInfo();
+            }
+            _info.connectionId = _endpoint.connectionId();
+            _info.adapterName = _adapter != null ? _adapter.getName() : "";
+            _info.incoming = _connector == null;
+            return _info;
         }
 
         private void reap()

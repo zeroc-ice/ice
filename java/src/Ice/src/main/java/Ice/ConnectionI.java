@@ -2672,21 +2672,23 @@ public final class ConnectionI extends IceInternal.EventHandler
 
     private ConnectionInfo initConnectionInfo()
     {
-        if(_info != null)
+        if(_state > StateNotInitialized && _info != null) // Update the connection information until it's initialized
         {
             return _info;
         }
 
-        ConnectionInfo info = _transceiver.getInfo();
-        info.connectionId = _endpoint.connectionId();
-        info.adapterName = _adapter != null ? _adapter.getName() : "";
-        info.incoming = _connector == null;
-        if(_state > StateNotInitialized)
+        try
         {
-            _info = info; // Cache the connection information only if
-                          // initialized.
+            _info = _transceiver.getInfo();
         }
-        return info;
+        catch(Ice.LocalException ex)
+        {
+            _info = new ConnectionInfo();
+        }
+        _info.connectionId = _endpoint.connectionId();
+        _info.adapterName = _adapter != null ? _adapter.getName() : "";
+        _info.incoming = _connector == null;
+        return _info;
     }
 
     private Ice.Instrumentation.ConnectionState toConnectionState(int state)

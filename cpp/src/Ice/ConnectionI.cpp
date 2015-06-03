@@ -3511,20 +3511,23 @@ Ice::ConnectionI::unscheduleTimeout(SocketOperation status)
 Ice::ConnectionInfoPtr
 Ice::ConnectionI::initConnectionInfo() const
 {
-    if(_info)
+    if(_state > StateNotInitialized && _info) // Update the connection information until it's initialized
     {
         return _info;
     }
 
-    ConnectionInfoPtr info = _transceiver->getInfo();
-    info->connectionId = _endpoint->connectionId();
-    info->incoming = _connector == 0;
-    info->adapterName = _adapter ? _adapter->getName() : string();
-    if(_state > StateNotInitialized)
+    try
     {
-        _info = info; // Cache the connection information only if initialized.
+        _info = _transceiver->getInfo();
     }
-    return info;
+    catch(const Ice::LocalException&)
+    {
+        _info = new ConnectionInfo();
+    }
+    _info->connectionId = _endpoint->connectionId();
+    _info->incoming = _connector == 0;
+    _info->adapterName = _adapter ? _adapter->getName() : string();
+    return _info;
 }
 
 ConnectionState
