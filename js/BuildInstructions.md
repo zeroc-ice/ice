@@ -95,29 +95,29 @@ the "Security" settings tab, deselect the "Enable Protected Mode" checkbox.
 #### Secure WebSockets on iOS and Android
 
 To use WSS on iOS and Android it may be required (depending on browser and
-platform) that the server certificate's common name mathces the computer hosting
+platform) that the server certificate's common name matches the computer hosting
 the tests, and that the test certificate authority be installed on your device.
 
-First you'll need to generate a new certifcates to match the IP address of the
-computer hosting the tests.
+First you'll need to generate new certificates to match the IP address of the
+computer hosting the tests:
 
-    > certs/makecerts.py [ip address]
+    > certs/makecerts.py [IP address]
 
-Next you must install the certificate authority on your device. The
-simplest way is to email the CA certificate (`certs/cacert.pem`) to yourself
-then follow the instructions below to install the certificate on your device.
+Next you must install the certificate authority on your device. The simplest way
+is to email the CA certificate (`certs/cacert.pem`) to yourself and then follow
+the instructions below to install the certificate on your device.
 
-Once installed you connected to the server using the same ip address used to
+Once installed, you connect to the server using the same IP address used to
 create the certificates.
 
-##### Installing certificates on iOS
+##### Installing Certificates on iOS
 
 Open the certificate (`cacert.pem`) from the device's email client. You
-will be promped to create a configuration profile containing this certificate.
+will be prompted to create a configuration profile containing this certificate.
 
-##### Installing certificates on Android
+##### Installing Certificates on Android
 
-Download the certifcate (`cacert.pem`) to the device from an email client.
+Download the certificate (`cacert.pem`) to the device from an email client.
 Next go to _Settings -> Security -> Install from storage_, and choose
 `cacert.pem`. Enter a name and press OK.
 
