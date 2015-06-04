@@ -18,7 +18,7 @@ module IceLocatorDiscovery
 /**
  *
  * The Ice lookup reply interface must be implemented by clients which
- * are searching for Ice locators. Ice locator implemenations invoke
+ * are searching for Ice locators. Ice locator implementations invoke
  * on this interface to provide their locator proxy.
  *
  * @see Locator
