@@ -48,6 +48,12 @@ main(int argc, char* argv[])
             [initData.properties setProperty:@"Ice.Override.ConnectTimeout" value:@""];
 
             //
+            // Limit the send buffer size, this test relies on the socket
+            // send() blocking after sending a given amount of data.
+            //
+            [initData.properties setProperty:@"Ice.TCP.SndSize" value:@"50000"];
+
+            //
             // This test kills connections, so we don't want warnings.
             //
             [initData.properties setProperty:@"Ice.Warn.Connections" value:@"0"];

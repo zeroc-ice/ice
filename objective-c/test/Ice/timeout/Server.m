@@ -52,6 +52,13 @@ main(int argc, char* argv[])
             // This test kills connections, so we don't want warnings.
             //
             [initData.properties setProperty:@"Ice.Warn.Connections" value:@"0"];
+
+            //
+            // Limit the send buffer size, this test relies on the socket
+            // send() blocking after sending a given amount of data.
+            //
+            [initData.properties setProperty:@"Ice.TCP.RcvSize" value:@"50000"];
+
 #if TARGET_OS_IPHONE
             initData.prefixTable__ = [NSDictionary dictionaryWithObjectsAndKeys:
                                       @"TestTimeout", @"::Test",
