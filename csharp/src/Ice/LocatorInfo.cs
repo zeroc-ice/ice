@@ -24,7 +24,7 @@ namespace IceInternal
 
         private class RequestCallback
         {
-            public void 
+            public void
             response(LocatorInfo locatorInfo, Ice.ObjectPrx proxy)
             {
                 EndpointI[] endpoints = null;
@@ -47,7 +47,7 @@ namespace IceInternal
                     {
                         //
                         // We're resolving the endpoints of a well-known object and the proxy returned
-                        // by the locator is an indirect proxy. We now need to resolve the endpoints 
+                        // by the locator is an indirect proxy. We now need to resolve the endpoints
                         // of this indirect proxy.
                         //
                         locatorInfo.getEndpoints(r, _ref, _ttl, _callback);
@@ -65,7 +65,7 @@ namespace IceInternal
                 }
             }
 
-            public void 
+            public void
             exception(LocatorInfo locatorInfo, Ice.Exception exc)
             {
                 try
@@ -81,14 +81,14 @@ namespace IceInternal
                 }
             }
 
-            public 
+            public
             RequestCallback(Reference @ref, int ttl, GetEndpointsCallback cb)
             {
                 _ref = @ref;
                 _ttl = ttl;
                 _callback = cb;
             }
-            
+
             readonly Reference _ref;
             readonly int _ttl;
             readonly GetEndpointsCallback _callback;
@@ -96,24 +96,16 @@ namespace IceInternal
 
         private abstract class Request
         {
-            public void 
+            public void
             addCallback(Reference @ref, Reference wellKnownRef, int ttl, GetEndpointsCallback cb)
             {
+                RequestCallback callback = new RequestCallback(@ref, ttl, cb);
                 lock(this)
                 {
-                    RequestCallback callback = new RequestCallback(@ref, ttl, cb);
-                    if(_response)
-                    {
-                        callback.response(_locatorInfo, _proxy);
-                    }
-                    else if(_exception != null)
-                    {
-                        callback.exception(_locatorInfo, _exception);
-                    }
-                    else
+                    if(!_response && _exception == null)
                     {
                         _callbacks.Add(callback);
-                        if(wellKnownRef != null) 
+                        if(wellKnownRef != null)
                         {
                             // This request is to resolve the endpoints of a cached well-known object ref
                             _wellKnownRefs.Add(wellKnownRef);
@@ -123,10 +115,21 @@ namespace IceInternal
                             _sent = true;
                             send();
                         }
+                        return;
                     }
                 }
+
+                if(_response)
+                {
+                    callback.response(_locatorInfo, _proxy);
+                }
+                else
+                {
+                    Debug.Assert(_exception != null);
+                    callback.exception(_locatorInfo, _exception);
+                }
             }
-        
+
             public EndpointI[]
             getEndpoints(Reference @ref, Reference wellKnownRef, int ttl, out bool cached)
             {
@@ -144,18 +147,18 @@ namespace IceInternal
                             _sent = true;
                             send();
                         }
-                
+
                         while(!_response && _exception == null)
                         {
                             System.Threading.Monitor.Wait(this);
                         }
                     }
-            
+
                     if(_exception != null)
                     {
                         _locatorInfo.getEndpointsException(@ref, _exception); // This throws.
                     }
-            
+
                     Debug.Assert(_response);
                     EndpointI[] endpoints = null;
                     if(_proxy != null)
@@ -169,13 +172,13 @@ namespace IceInternal
                         {
                             //
                             // We're resolving the endpoints of a well-known object and the proxy returned
-                            // by the locator is an indirect proxy. We now need to resolve the endpoints 
+                            // by the locator is an indirect proxy. We now need to resolve the endpoints
                             // of this indirect proxy.
                             //
                             return _locatorInfo.getEndpoints(r, @ref, ttl, out cached);
                         }
                     }
-            
+
                     cached = false;
                     if(_ref.getInstance().traceLevels().location >= 1)
                     {
@@ -184,16 +187,16 @@ namespace IceInternal
                     return endpoints == null ? new EndpointI[0] : endpoints;
                 }
             }
-        
+
             public Request(LocatorInfo locatorInfo, Reference @ref)
             {
                 _locatorInfo = locatorInfo;
-                _ref = @ref; 
-                _sent = false; 
+                _ref = @ref;
+                _sent = false;
                 _response = false;
             }
 
-            public void 
+            public void
             response(Ice.ObjectPrx proxy)
             {
                 lock(this)
@@ -201,26 +204,26 @@ namespace IceInternal
                     _locatorInfo.finishRequest(_ref, _wellKnownRefs, proxy, false);
                     _response = true;
                     _proxy = proxy;
-                    foreach(RequestCallback callback in _callbacks)
-                    {
-                        callback.response(_locatorInfo, proxy);
-                    }
                     System.Threading.Monitor.PulseAll(this);
                 }
+                foreach(RequestCallback callback in _callbacks)
+                {
+                    callback.response(_locatorInfo, proxy);
+                }
             }
-            
-            public void 
+
+            public void
             exception(Ice.Exception ex)
             {
                 lock(this)
                 {
                     _locatorInfo.finishRequest(_ref, _wellKnownRefs, null, ex is Ice.UserException);
                     _exception = ex;
-                    foreach(RequestCallback callback in _callbacks)
-                    {
-                        callback.exception(_locatorInfo, ex);
-                    }
                     System.Threading.Monitor.PulseAll(this);
+                }
+                foreach(RequestCallback callback in _callbacks)
+                {
+                    callback.exception(_locatorInfo, ex);
                 }
             }
 
@@ -243,7 +246,7 @@ namespace IceInternal
             {
             }
 
-            override protected void 
+            override protected void
             send()
             {
                 try
@@ -285,7 +288,7 @@ namespace IceInternal
             _table = table;
             _background = background;
         }
-        
+
         public void destroy()
         {
             lock(this)
@@ -294,7 +297,7 @@ namespace IceInternal
                 _table.clear();
             }
         }
-        
+
         public override bool Equals(object obj)
         {
             if(object.ReferenceEquals(this, obj))
@@ -310,7 +313,7 @@ namespace IceInternal
         {
             return _locator.GetHashCode();
         }
-        
+
         public Ice.LocatorPrx getLocator()
         {
             //
@@ -356,7 +359,7 @@ namespace IceInternal
         {
             return getEndpoints(@ref, null, ttl, out cached);
         }
-        
+
         public EndpointI[]
         getEndpoints(Reference @ref, Reference wellKnownRef, int ttl, out bool cached)
         {
@@ -392,7 +395,7 @@ namespace IceInternal
                         return getObjectRequest(@ref).getEndpoints(@ref, null, ttl, out cached);
                     }
                 }
-            
+
                 if(!r.isIndirect())
                 {
                     endpoints = r.getEndpoints();
@@ -402,7 +405,7 @@ namespace IceInternal
                     return getEndpoints(r, @ref, ttl, out cached);
                 }
             }
-        
+
             Debug.Assert(endpoints != null);
             cached = true;
             if(@ref.getInstance().traceLevels().location >= 1)
@@ -417,7 +420,7 @@ namespace IceInternal
         {
             getEndpoints(@ref, null, ttl, callback);
         }
-        
+
         public void
         getEndpoints(Reference @ref, Reference wellKnownRef, int ttl, GetEndpointsCallback callback)
         {
@@ -455,7 +458,7 @@ namespace IceInternal
                         return;
                     }
                 }
-                
+
                 if(!r.isIndirect())
                 {
                     endpoints = r.getEndpoints();
@@ -466,7 +469,7 @@ namespace IceInternal
                     return;
                 }
             }
-            
+
             Debug.Assert(endpoints != null);
             if(@ref.getInstance().traceLevels().location >= 1)
             {
@@ -484,7 +487,7 @@ namespace IceInternal
             if(!rf.isWellKnown())
             {
                 EndpointI[] endpoints = _table.removeAdapterEndpoints(rf.getAdapterId());
-                
+
                 if(endpoints != null && rf.getInstance().traceLevels().location >= 2)
                 {
                     trace("removed endpoints from locator table\n", rf, endpoints);
@@ -509,7 +512,7 @@ namespace IceInternal
                 }
             }
         }
-        
+
         private void trace(string msg, Reference r, EndpointI[] endpoints)
         {
             System.Text.StringBuilder s = new System.Text.StringBuilder();
@@ -522,7 +525,7 @@ namespace IceInternal
             {
                 s.Append("object = " + r.getInstance().identityToString(r.getIdentity()) + "\n");
             }
-            
+
             s.Append("endpoints = ");
             int sz = endpoints.Length;
             for (int i = 0; i < sz; i++)
@@ -533,7 +536,7 @@ namespace IceInternal
                     s.Append(":");
                 }
             }
-            
+
             r.getInstance().initializationData().logger.trace(r.getInstance().traceLevels().locationCat, s.ToString());
         }
 
@@ -656,7 +659,7 @@ namespace IceInternal
                 {
                     return request;
                 }
-                
+
                 request = new AdapterRequest(this, @ref);
                 _adapterRequests.Add(@ref.getAdapterId(), request);
                 return request;
@@ -682,7 +685,7 @@ namespace IceInternal
                 {
                     return request;
                 }
-                
+
                 request = new ObjectRequest(this, @ref);
                 _objectRequests.Add(@ref.getIdentity(), request);
                 return request;
@@ -704,7 +707,7 @@ namespace IceInternal
                     _table.removeObjectReference(r.getIdentity());
                 }
             }
-    
+
             if(!@ref.isWellKnown())
             {
                 if(proxy != null && !@base.reference__().isIndirect())
@@ -716,7 +719,7 @@ namespace IceInternal
                 {
                     _table.removeAdapterEndpoints(@ref.getAdapterId());
                 }
-            
+
                 lock(this)
                 {
                     Debug.Assert(_adapterRequests.ContainsKey(@ref.getAdapterId()));
@@ -725,7 +728,7 @@ namespace IceInternal
             }
             else
             {
-                if(proxy != null && !@base.reference__().isWellKnown()) 
+                if(proxy != null && !@base.reference__().isWellKnown())
                 {
                     // Cache the well-known object reference.
                     _table.addObjectReference(@ref.getIdentity(), @base.reference__());
@@ -747,7 +750,7 @@ namespace IceInternal
         private Ice.LocatorRegistryPrx _locatorRegistry;
         private readonly LocatorTable _table;
         private readonly bool _background;
-        
+
         private Dictionary<string, Request> _adapterRequests = new Dictionary<string, Request>();
         private Dictionary<Ice.Identity, Request> _objectRequests = new Dictionary<Ice.Identity, Request>();
     }
@@ -795,7 +798,7 @@ namespace IceInternal
             _locatorTables = new Dictionary<LocatorKey, LocatorTable>();
             _background = properties.getPropertyAsInt("Ice.BackgroundLocatorCacheUpdates") > 0;
         }
-        
+
         internal void destroy()
         {
             lock(this)
@@ -808,7 +811,7 @@ namespace IceInternal
                 _locatorTables.Clear();
             }
         }
-        
+
         //
         // Returns locator info for a given locator. Automatically creates
         // the locator info if it doesn't exist yet.
@@ -819,7 +822,7 @@ namespace IceInternal
             {
                 return null;
             }
-            
+
             //
             // The locator can't be located.
             //
@@ -828,7 +831,7 @@ namespace IceInternal
             //
             // TODO: reap unused locator info objects?
             //
-            
+
             lock(this)
             {
                 LocatorInfo info = null;
@@ -846,15 +849,15 @@ namespace IceInternal
                         table = new LocatorTable();
                         _locatorTables[key] = table;
                     }
-                    
+
                     info = new LocatorInfo(locator, table, _background);
                     _table[locator] = info;
                 }
-                
+
                 return info;
             }
         }
-        
+
         private Dictionary<Ice.LocatorPrx, LocatorInfo> _table;
         private Dictionary<LocatorKey, LocatorTable> _locatorTables;
         private readonly bool _background;
@@ -867,7 +870,7 @@ namespace IceInternal
             _adapterEndpointsTable = new Dictionary<string, EndpointTableEntry>();
             _objectTable = new Dictionary<Ice.Identity, ReferenceTableEntry>();
         }
-        
+
         internal void clear()
         {
             lock(this)
@@ -876,7 +879,7 @@ namespace IceInternal
                 _objectTable.Clear();
             }
         }
-        
+
         internal IceInternal.EndpointI[] getAdapterEndpoints(string adapter, int ttl, out bool cached)
         {
             if(ttl == 0) // Locator cache disabled.
@@ -898,7 +901,7 @@ namespace IceInternal
                 return null;
             }
         }
-        
+
         internal void addAdapterEndpoints(string adapter, IceInternal.EndpointI[] endpoints)
         {
             lock(this)
@@ -907,7 +910,7 @@ namespace IceInternal
                     new EndpointTableEntry(Time.currentMonotonicTimeMillis(), endpoints);
             }
         }
-        
+
         internal IceInternal.EndpointI[] removeAdapterEndpoints(string adapter)
         {
             lock(this)
@@ -921,7 +924,7 @@ namespace IceInternal
                 return null;
             }
         }
-        
+
         internal Reference getObjectReference(Ice.Identity id, int ttl, out bool cached)
         {
             if(ttl == 0) // Locator cache disabled.
@@ -942,7 +945,7 @@ namespace IceInternal
                 return null;
             }
         }
-        
+
         internal void addObjectReference(Ice.Identity id, Reference reference)
         {
             lock(this)
@@ -950,7 +953,7 @@ namespace IceInternal
                 _objectTable[id] = new ReferenceTableEntry(Time.currentMonotonicTimeMillis(), reference);
             }
         }
-        
+
         internal Reference removeObjectReference(Ice.Identity id)
         {
             lock(this)
@@ -964,7 +967,7 @@ namespace IceInternal
                 return null;
             }
         }
-        
+
         private bool checkTTL(long time, int ttl)
         {
             Debug.Assert(ttl != 0);
@@ -977,7 +980,7 @@ namespace IceInternal
                 return Time.currentMonotonicTimeMillis() - time <= ((long)ttl * 1000);
             }
         }
-        
+
         sealed private class EndpointTableEntry
         {
             public EndpointTableEntry(long time, IceInternal.EndpointI[] endpoints)

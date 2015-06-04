@@ -90,30 +90,36 @@ public final class LocatorInfo
 
     private abstract class Request
     {
-        synchronized public void
+        public void
         addCallback(Reference ref, Reference wellKnownRef, int ttl, GetEndpointsCallback cb)
         {
             RequestCallback callback = new RequestCallback(ref, ttl, cb);
+            synchronized(this)
+            {
+                if(!_response && _exception == null)
+                {
+                    _callbacks.add(callback);
+                    if(wellKnownRef != null) // This request is to resolve the endpoints of a cached well-known object ref
+                    {
+                        _wellKnownRefs.add(wellKnownRef);
+                    }
+                    if(!_sent)
+                    {
+                        _sent = true;
+                        send();
+                    }
+                    return;
+                }
+            }
+
             if(_response)
             {
                 callback.response(_locatorInfo, _proxy);
             }
-            else if(_exception != null)
-            {
-                callback.exception(_locatorInfo, _exception);
-            }
             else
             {
-                _callbacks.add(callback);
-                if(wellKnownRef != null) // This request is to resolve the endpoints of a cached well-known object ref
-                {
-                    _wellKnownRefs.add(wellKnownRef);
-                }
-                if(!_sent)
-                {
-                    _sent = true;
-                    send();
-                }
+                assert(_exception != null);
+                callback.exception(_locatorInfo, _exception);
             }
         }
 
@@ -125,17 +131,20 @@ public final class LocatorInfo
             _response = false;
         }
 
-        synchronized protected void
+        protected void
         response(Ice.ObjectPrx proxy)
         {
-            _locatorInfo.finishRequest(_ref, _wellKnownRefs, proxy, false);
-            _response = true;
-            _proxy = proxy;
+            synchronized(this)
+            {
+                _locatorInfo.finishRequest(_ref, _wellKnownRefs, proxy, false);
+                _response = true;
+                _proxy = proxy;
+                notifyAll();
+            }
             for(RequestCallback callback : _callbacks)
             {
                 callback.response(_locatorInfo, proxy);
             }
-            notifyAll();
         }
 
         protected void
@@ -145,11 +154,11 @@ public final class LocatorInfo
             {
                 _locatorInfo.finishRequest(_ref, _wellKnownRefs, null, ex instanceof Ice.UserException);
                 _exception = ex;
-                for(RequestCallback callback : _callbacks)
-                {
-                    callback.exception(_locatorInfo, ex);
-                }
                 notifyAll();
+            }
+            for(RequestCallback callback : _callbacks)
+            {
+                callback.exception(_locatorInfo, ex);
             }
         }
 
