@@ -349,6 +349,7 @@ public class ConnectRequestHandler
         //
         if(_reference.getCacheConnection() && exception == null)
         {
+            RequestHandler previous = _requestHandler;
             _requestHandler = new ConnectionRequestHandler(_reference, _connection, _compress);
             if(_reference.getInstance().queueRequests())
             {
@@ -356,7 +357,7 @@ public class ConnectRequestHandler
             }
             for(Ice.ObjectPrxHelperBase proxy : _proxies)
             {
-                proxy.__updateRequestHandler(this, _requestHandler);
+                proxy.__updateRequestHandler(previous, _requestHandler);
             }
         }
 

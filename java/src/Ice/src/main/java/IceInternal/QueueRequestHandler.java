@@ -30,16 +30,20 @@ public class QueueRequestHandler implements RequestHandler
         //
         // Only update to new handler if the previous handler matches this one.
         //
-        if(previousHandler == this || previousHandler == _delegate)
+        try
         {
-            if(newHandler != null)
+            if(previousHandler == this || previousHandler == _delegate)
             {
-                return new QueueRequestHandler(_delegate.getReference().getInstance(), newHandler);
+                return newHandler;
             }
-            else
+            else if(previousHandler.getConnection() == _delegate.getConnection())
             {
-                return null;
+                return newHandler;
             }
+        }
+        catch(Ice.Exception ex)
+        {
+            // Ignore
         }
         return this;
     }
