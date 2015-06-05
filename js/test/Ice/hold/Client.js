@@ -36,6 +36,7 @@
         var hold, holdOneway, holdSerialized, holdSerializedOneway;
         var condition = { value: true };
         var value = 0;
+        var all = [];
 
         var p = new Promise();
         var test = function(b)
@@ -112,6 +113,7 @@
                 out.write("testing without serialize mode... ");
                 var result = null;
                 condition.value = true;
+                all = []
                 return loop(function()
                             {
                                 var expected = value;
@@ -122,6 +124,7 @@
                                                                                  condition.value = false;
                                                                              }
                                                                          });
+                                all.push(result);
                                 ++value;
                                 if(value % 100 === 0)
                                 {
@@ -135,9 +138,15 @@
             {
                 test(!condition.value || value >= 100000);
                 out.writeLine("ok");
-
+                return Promise.all(all);
+            }
+        ).then(
+            function()
+            {
+                all = [];
                 out.write("testing with serialize mode... ");
                 value = 0;
+
                 condition.value = true;
                 var result;
                 return loop(
@@ -151,6 +160,7 @@
                                                                                condition.value = false;
                                                                            }
                                                                        });
+                        all.push(result);
                         ++value;
                         if(value % 100 === 0)
                         {
@@ -163,13 +173,19 @@
             function()
             {
                 test(condition.value);
+                return Promise.all(all);
+            }
+        ).then(
+            function()
+            {
+                all = [];
                 return loop(function()
                             {
-                                holdSerializedOneway.setOneway(value + 1, value);
+                                all.push(holdSerializedOneway.setOneway(value + 1, value));
                                 ++value;
                                 if((value % 100) === 0)
                                 {
-                                    holdSerializedOneway.putOnHold(1);
+                                    all.push(holdSerializedOneway.putOnHold(1));
                                 }
                             }, 3000);
             }
@@ -177,7 +193,11 @@
             function()
             {
                 out.writeLine("ok");
-
+                return Promise.all(all);
+            }
+        ).then(
+            function()
+            {
                 out.write("testing serialization... ");
 
                 condition.value = true;
@@ -187,11 +207,13 @@
         ).then(
             function()
             {
+                all = [];
                 return loop(
                     function()
                     {
                         // Create a new proxy for each request
                         var result = holdSerialized.ice_oneway().setOneway(value + 1, value);
+                        all.push(result);
                         ++value;
                         if((value % 100) === 0)
                         {
@@ -219,7 +241,12 @@
             function()
             {
                 out.writeLine("ok");
-
+                return Promise.all(all);
+            }
+        ).then(
+            function()
+            {
+                all = [];
                 out.write("testing waitForHold... ");
 
                 return hold.waitForHold().then(
@@ -233,12 +260,18 @@
                         return loop(function(i)
                                     {
                                         var r = hold.ice_oneway().ice_ping();
+                                        all.push(r);
                                         if((i % 20) === 0)
                                         {
                                             r = r.then(function() { return hold.putOnHold(0); });
                                         }
                                         return r;
                                     }, 100);
+                    }
+                ).then(
+                    function()
+                    {
+                        Promise.all(all);
                     }
                 ).then(
                     function()
