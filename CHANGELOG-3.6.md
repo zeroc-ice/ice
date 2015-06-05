@@ -35,7 +35,7 @@ These are the changes since Ice 3.5.1.
 
 - The `IceSSL.CertAuthFile` and `IceSSL.CertAuthDir` properties have been deprecated. You should now use the `Ice.CAs` property to configure the path of the PEM file containing the Root Certificate Authorities or the path of a directory containing the certificates (OpenSSL only).
 
-- The `IceSSL.KeyFile` property has been deprecated. You should instead use `Ice.CertFile` and PKCS12 files to configure the IceSSL identity.
+- The `IceSSL.KeyFile` property has been deprecated. You should instead use `IceSSL.CertFile` and PKCS12 files to configure the IceSSL identity.
 
 - The default value of the `IceSSL.VerifyDepthMax` property is now 3 (it was previously 2). This allows certificate chains of 3 certificates (e.g: a Peer, CA and Root certificate chain).
 
