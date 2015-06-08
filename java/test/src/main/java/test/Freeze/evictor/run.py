@@ -26,7 +26,4 @@ TestUtil.cleanDbDir(dbdir)
 
 testOptions = ' --Freeze.Warn.Deadlocks=0 --Freeze.DbEnv.db.DbHome="%s/db" --Ice.Config="%s/config" ' % (os.getcwd(), os.getcwd())
 
-#
-# BUGFIX: pass "-Xint" to Java JVM to workaround a bug in Java 1.8 64 bit JVM
-#
-TestUtil.clientServerTest(testOptions, testOptions, interpreterOptions = "-Xint")
+TestUtil.clientServerTest(testOptions, testOptions)
