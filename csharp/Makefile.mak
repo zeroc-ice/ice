@@ -11,7 +11,7 @@ top_srcdir	= .
 
 !include $(top_srcdir)/config/Make.rules.mak.cs
 
-SUBDIRS		= src test config
+SUBDIRS		= src test
 
 INSTALL_SUBDIRS	= "$(install_bindir)" "$(install_assembliesdir)" "$(install_configdir)"
 
