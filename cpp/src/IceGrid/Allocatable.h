@@ -35,13 +35,13 @@ class AllocationRequest : public IceUtil::Mutex, public IceUtil::TimerTask
 public:
 
     virtual ~AllocationRequest();
-    
+
     virtual void allocated(const AllocatablePtr&, const SessionIPtr&) = 0;
-    virtual void canceled(const AllocationException&) = 0;
-    
+    virtual void canceled(const Ice::UserException&) = 0;
+
     bool pending();
     bool allocate(const AllocatablePtr&, const SessionIPtr&);
-    void cancel(const AllocationException&);
+    void cancel(const Ice::UserException&);
     void runTimerTask(); // Implementation of IceUtil::TimerTask::runTimerTask()
 
     int getTimeout() const { return _timeout; }
@@ -99,13 +99,13 @@ protected:
     bool allocate(const AllocationRequestPtr&, bool, bool);
     void queueAllocationAttemptFromChild(const AllocatablePtr&);
     bool allocateFromChild(const AllocationRequestPtr&, const AllocatablePtr&, bool, bool);
-    
+
     void queueAllocationAttempt(const AllocatablePtr&, const AllocationRequestPtr&, bool);
     AllocatablePtr dequeueAllocationAttempt(AllocationRequestPtr&);
 
     bool _allocatable;
     const AllocatablePtr _parent;
-    
+
     std::list<std::pair<AllocatablePtr, AllocationRequestPtr> > _requests;
     SessionIPtr _session;
     int _count;

@@ -19,6 +19,8 @@ These are the changes since Ice 3.5.1.
 
 ## General Changes
 
+- Fixed IceGrid bug where an application update could fail and leave the registry in an invalid state if some allocation requests were pending while the application was updated.
+
 - Deprecated the `IceSSL.PersistKeySet` which is now only used when importing certificates with the deprecated `IceSSL.ImportCert` property.
 
 - Deprecated the `IceSSL.KeySet` property, use the `IceSSL.CertStoreLocation` property instead.

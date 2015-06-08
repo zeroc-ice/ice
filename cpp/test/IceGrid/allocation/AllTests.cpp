@@ -81,8 +81,8 @@ typedef IceUtil::Handle<Callback> CallbackPtr;
 class StressClient : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
-    
-    StressClient(int id, const RegistryPrx& registry, bool destroySession) : 
+
+    StressClient(int id, const RegistryPrx& registry, bool destroySession) :
         _communicator(registry->ice_getCommunicator()),
         _id(id),
         _registry(registry),
@@ -92,7 +92,7 @@ public:
     {
     }
 
-    StressClient(int id, const SessionPrx& session) : 
+    StressClient(int id, const SessionPrx& session) :
         _communicator(session->ice_getCommunicator()),
         _id(id),
         _session(session),
@@ -102,7 +102,7 @@ public:
     {
     }
 
-    virtual 
+    virtual
     void run()
     {
         {
@@ -112,7 +112,7 @@ public:
                 wait();
             }
         }
-        
+
         SessionPrx session;
         while(true)
         {
@@ -127,7 +127,7 @@ public:
                     return;
                 }
             }
-            
+
             if(!session)
             {
                 ostringstream os;
@@ -199,7 +199,7 @@ public:
         }
         catch(const AllocationException&)
         {
-            // This can only happen if we are using the common session 
+            // This can only happen if we are using the common session
             // and the object is already allocated.
             test(_session);
         }
@@ -269,7 +269,7 @@ protected:
 };
 typedef IceUtil::Handle<StressClient> StressClientPtr;
 
-void 
+void
 allTests(const Ice::CommunicatorPtr& communicator)
 {
     IceGrid::RegistryPrx registry = IceGrid::RegistryPrx::checkedCast(
@@ -427,14 +427,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
         }
         session2->releaseObject(allocatablebis);
-    
+
         session2->setAllocationTimeout(allocationTimeout);
-        
+
         CallbackPtr asyncCB1 = new Callback();
-        IceGrid::Callback_Session_allocateObjectByIdPtr cb1 = IceGrid::newCallback_Session_allocateObjectById(asyncCB1, 
-                                                 &Callback::response, 
+        IceGrid::Callback_Session_allocateObjectByIdPtr cb1 = IceGrid::newCallback_Session_allocateObjectById(asyncCB1,
+                                                 &Callback::response,
                                                  &Callback::exception);
-        
+
         session2->begin_allocateObjectById(allocatable, cb1);
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
         test(!asyncCB1->hasResponse(dummy));
@@ -461,8 +461,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         session1->setAllocationTimeout(allocationTimeout);
         asyncCB1 = new Callback();
-        cb1 = IceGrid::newCallback_Session_allocateObjectById(asyncCB1, 
-                                                 &Callback::response, 
+        cb1 = IceGrid::newCallback_Session_allocateObjectById(asyncCB1,
+                                                 &Callback::response,
                                                  &Callback::exception);
         session1->begin_allocateObjectById(allocatable, cb1);
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
@@ -476,7 +476,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         cout << "ok" << endl;
 
         cout << "testing allocate object by type... " << flush;
-    
+
         session1->setAllocationTimeout(0);
         session2->setAllocationTimeout(0);
 
@@ -585,7 +585,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         CallbackPtr asyncCB3 = new Callback();
         IceGrid::Callback_Session_allocateObjectByTypePtr cb3 =
             IceGrid::newCallback_Session_allocateObjectByType(asyncCB3, &Callback::response, &Callback::exception);
-        
+
         session1->begin_allocateObjectByType("::Test", cb3);
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
         test(!asyncCB3->hasResponse(dummy));
@@ -594,10 +594,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(asyncCB3->hasResponse(obj));
 
         session1->releaseObject(obj->ice_getIdentity());
-    
+
         cout << "ok" << endl;
 
-        cout << "testing object allocation timeout... " << flush;    
+        cout << "testing object allocation timeout... " << flush;
 
         session1->allocateObjectById(allocatable);
         IceUtil::Time time = IceUtil::Time::now();
@@ -763,7 +763,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         session2->releaseObject(allocatable3);
         asyncCB3->waitResponse(__FILE__, __LINE__);
         test(asyncCB3->hasResponse(dummy));
-        session1->releaseObject(allocatable4);    
+        session1->releaseObject(allocatable4);
 
         session1->setAllocationTimeout(0);
         session2->setAllocationTimeout(0);
@@ -811,7 +811,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         catch(const AllocationTimeoutException&)
         {
-        }       
+        }
         session1->releaseObject(obj1->ice_getIdentity());
         obj1 = session2->allocateObjectByType("::TestMultipleServer");
         session2->releaseObject(obj1->ice_getIdentity());
@@ -953,7 +953,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         session1->begin_allocateObjectByType("::Test", cb3);
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
         test(!asyncCB3->hasResponse(dummy));
-        session2->destroy();    
+        session2->destroy();
         asyncCB3->waitResponse(__FILE__, __LINE__);
         test(asyncCB3->hasResponse(obj));
         session1->destroy();
@@ -964,12 +964,98 @@ allTests(const Ice::CommunicatorPtr& communicator)
         session2->destroy();
 
         cout << "ok" << endl;
+        cout << "testing application updates with allocated objects... " << flush;
+        {
+            SessionPrx session1 = registry->createSession("Client1", "");
+            SessionPrx session2 = registry->createSession("Client2", "");
+
+            ServerDescriptorPtr objectAllocOriginal = admin->getServerInfo("ObjectAllocation").descriptor;
+            ServerDescriptorPtr objectAllocUpdate = ServerDescriptorPtr::dynamicCast(objectAllocOriginal->ice_clone());
+
+            ServerDescriptorPtr serverAllocOriginal = admin->getServerInfo("ServerAllocation").descriptor;
+            ServerDescriptorPtr serverAllocUpdate = ServerDescriptorPtr::dynamicCast(serverAllocOriginal->ice_clone());
+
+            NodeUpdateDescriptor nodeUpdate;
+            nodeUpdate.name = "localnode";
+            nodeUpdate.servers.push_back(objectAllocUpdate);
+            nodeUpdate.servers.push_back(serverAllocUpdate);
+
+            ApplicationUpdateDescriptor appUpdate;
+            appUpdate.name = "Test";
+            appUpdate.nodes.push_back(nodeUpdate);
+
+            {
+                session1->allocateObjectById(allocatable3);
+                Ice::AsyncResultPtr r2 = session2->begin_allocateObjectById(allocatable4);
+
+                session1->allocateObjectById(allocatable4);
+                session1->releaseObject(allocatable4);
+                test(!r2->isCompleted());
+
+                serverAllocUpdate->allocatable = false;
+                admin->updateApplication(appUpdate);
+
+                test(!r2->isCompleted());
+
+                session1->releaseObject(allocatable3);
+                session2->end_allocateObjectById(r2);
+                session2->releaseObject(allocatable4);
+
+                serverAllocUpdate->allocatable = true;
+                admin->updateApplication(appUpdate);
+            }
+
+            {
+                session1->allocateObjectById(allocatable);
+                Ice::AsyncResultPtr r2 = session2->begin_allocateObjectById(allocatable);
+
+                objectAllocUpdate->deactivationTimeout = "23";
+                admin->updateApplication(appUpdate);
+
+                session1->releaseObject(allocatable);
+                session2->end_allocateObjectById(r2);
+                session2->releaseObject(allocatable);
+            }
+
+            {
+                session1->allocateObjectById(allocatable);
+                Ice::AsyncResultPtr r2 = session2->begin_allocateObjectById(allocatable);
+
+                vector<ObjectDescriptor> allocatables = objectAllocUpdate->adapters[0].allocatables;
+                objectAllocUpdate->adapters[0].allocatables.clear(); // Remove the allocatable object
+                admin->updateApplication(appUpdate);
+
+                try
+                {
+                    session2->end_allocateObjectById(r2);
+                    test(false);
+                }
+                catch(const ObjectNotRegisteredException&)
+                {
+                }
+                try
+                {
+                    session1->releaseObject(allocatable);
+                    test(false);
+                }
+                catch(const ObjectNotRegisteredException&)
+                {
+                }
+
+                objectAllocUpdate->adapters[0].allocatables = allocatables;
+                admin->updateApplication(appUpdate);
+            }
+
+            session1->destroy();
+            session2->destroy();
+        }
+        cout << "ok" << endl;
 
         cout << "testing allocation with Glacier2 session... " << flush;
         Ice::ObjectPrx routerBase = communicator->stringToProxy("Glacier2/router:default -p 12347");
         Glacier2::RouterPrx router1 = Glacier2::RouterPrx::checkedCast(routerBase->ice_connectionId("client1"));
         test(router1);
-        
+
         Glacier2::SessionPrx sessionBase = router1->createSession("test1", "abc123");
         try
         {
@@ -1019,7 +1105,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         cout << "stress test... " << flush;
 
-        SessionPrx stressSession = registry->createSession("StressSession", "");        
+        SessionPrx stressSession = registry->createSession("StressSession", "");
 
         const int nClients = 10;
         int i;
@@ -1040,7 +1126,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         clients.back()->start();
         clients.push_back(new StressClient(i++, registry, true));
         clients.back()->start();
-        
+
         for(vector<StressClientPtr>::const_iterator p = clients.begin(); p != clients.end(); ++p)
         {
             (*p)->notifyThread();
@@ -1063,6 +1149,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         stressSession->destroy();
 
         cout << "ok" << endl;
+
     }
     catch(const AllocationTimeoutException& ex)
     {
@@ -1070,6 +1157,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(false);
     }
     catch(const AllocationException& ex)
+    {
+        cerr << ex.reason << endl;
+        test(false);
+    }
+    catch(const DeploymentException& ex)
     {
         cerr << ex.reason << endl;
         test(false);
