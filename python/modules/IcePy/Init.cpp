@@ -128,9 +128,12 @@ Ice::Plugin* createIceLocatorDiscovery(const Ice::CommunicatorPtr&, const string
 }
 #endif
 
+#if defined(__GNUC__) && PY_VERSION_HEX >= 0x03000000
+extern "C" __attribute__((visibility ("default"))) PyObject *
+#elif defined(_WIN32) // On Windows, PyMoDINIT_FUNC already defines dllexport
 PyMODINIT_FUNC
-#ifndef _WIN32 // On Windows, PyMODINIT_FUNC already defines dllexport
-ICE_DECLSPEC_EXPORT
+#else
+PyMODINIT_FUNC ICE_DECLSPEC_EXPORT
 #endif
 #if PY_VERSION_HEX >= 0x03000000
 PyInit_IcePy(void)
