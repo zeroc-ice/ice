@@ -106,7 +106,7 @@ gulp.task("common:slice", [],
 
 gulp.task("common:slice:clean", [],
     function(){
-        del(["test/Common/Controller.js"]);
+        del(["test/Common/Controller.js", "test/Common/.depend"]);
     });
 
 gulp.task("common:slice:watch", ["common:slice"],
@@ -171,6 +171,7 @@ gulp.task("common:clean", [],
 
 function testTask(name) { return name.replace("/", "_"); }
 function testWatchTask(name) { return testTask(name) + ":watch"; }
+function testCleanDependTask(name) { return testTask(name) + "-depend:clean"; }
 function testCleanTask(name) { return testTask(name) + ":clean"; }
 function testHtmlTask(name) { return testTask(name) + ":html"; }
 function testHtmlCleanTask(name) { return testTask(name) + ":html:clean"; }
@@ -222,7 +223,13 @@ tests.forEach(
                     function(e){ browserSync.reload(e.path); });
             });
 
-        gulp.task(testCleanTask(name), [],
+        gulp.task(testCleanDependTask(name), [],
+            function(){
+                return gulp.src(path.join(name, ".depend"))
+                    .pipe(paths(del));
+            });
+        
+        gulp.task(testCleanTask(name), [testCleanDependTask(name)],
             function(){
                 return gulp.src(path.join(name, "*.ice"))
                     .pipe(extreplace(".js"))
