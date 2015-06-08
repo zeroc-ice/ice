@@ -1,0 +1,5 @@
+*.utf16be text eol=lf
+*.utf16le text eol=lf
+*.utf32be text eol=lf
+*.utf32le text eol=lf
+*.utf8 text eol=lf
