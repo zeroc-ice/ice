@@ -142,7 +142,7 @@ SLICE2PYFLAGS	= $(ICECPPFLAGS)
 LDFLAGS			= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir)
 
 ifdef ice_src_dist
-    SLICE2PY    = $(top_srcdir)/config/s2py.py
+    SLICE2PY    = $(PYTHON) $(top_srcdir)/config/s2py.py
     SLICEPARSERLIB	= $(ice_cpp_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
     ifeq ($(wildcard $(SLICEPARSERLIB)),)
         SLICEPARSERLIB  = $(ice_cpp_dir)/$(lib64subdir)/$(call mklibfilename,Slice,$(VERSION))

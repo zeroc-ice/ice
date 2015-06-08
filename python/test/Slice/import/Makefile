@@ -22,10 +22,10 @@ SRCS	= Test1_ice.py \
 
 all:: $(SRCS)
 
-Test1_ice.py: Test1.ice $(SLICE2PY) $(SLICEPARSERLIB)
+Test1_ice.py: Test1.ice $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) $<
 
-Test2_ice.py: Test2.ice $(SLICE2PY) $(SLICEPARSERLIB)
+Test2_ice.py: Test2.ice $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) $<
 
 clean::

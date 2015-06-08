@@ -103,42 +103,42 @@ all:: $(ALL_SRCS)
 
 SLICE2PYFLAGS	+= --ice
 
-Ice_%_ice.py: $(slicedir)/Ice/%.ice $(SLICE2PY) $(SLICEPARSERLIB)
+Ice_%_ice.py: $(slicedir)/Ice/%.ice $(SLICEPARSERLIB)
 	$(SLICE2PY) --prefix Ice_ --no-package $(SLICE2PYFLAGS) $<
 	@mkdir -p .depend
 	@$(SLICE2PY) --prefix Ice_ --no-package $(SLICE2PYFLAGS) --depend $< > .depend/$(*F).ice.d
 
-Ice_Metrics_ice.py: $(slicedir)/Ice/Metrics.ice $(SLICE2PY) $(SLICEPARSERLIB)
+Ice_Metrics_ice.py: $(slicedir)/Ice/Metrics.ice $(SLICEPARSERLIB)
 	$(SLICE2PY) --prefix Ice_ --checksum $(SLICE2PYFLAGS) $<
 	@mkdir -p .depend
 	@$(SLICE2PY) --prefix Ice_ --checksum $(SLICE2PYFLAGS) --depend $< > .depend/$(*F).ice.d
 
-Glacier2_%_ice.py: $(slicedir)/Glacier2/%.ice $(SLICE2PY) $(SLICEPARSERLIB)
+Glacier2_%_ice.py: $(slicedir)/Glacier2/%.ice $(SLICEPARSERLIB)
 	$(SLICE2PY) --prefix Glacier2_ --no-package --checksum $(SLICE2PYFLAGS) $<
 	@mkdir -p .depend
 	@$(SLICE2PY) --prefix Glacier2_ --no-package --checksum $(SLICE2PYFLAGS) --depend $< > .depend/$(*F).ice.d
 
-Glacier2_Metrics_ice.py: $(slicedir)/Glacier2/Metrics.ice $(SLICE2PY) $(SLICEPARSERLIB)
+Glacier2_Metrics_ice.py: $(slicedir)/Glacier2/Metrics.ice $(SLICEPARSERLIB)
 	$(SLICE2PY) --prefix Glacier2_ --checksum $(SLICE2PYFLAGS) $<
 	@mkdir -p .depend
 	@$(SLICE2PY) --prefix Glacier2_ --checksum $(SLICE2PYFLAGS) --depend $< > .depend/$(*F).ice.d
 
-IceBox_%_ice.py: $(slicedir)/IceBox/%.ice $(SLICE2PY) $(SLICEPARSERLIB)
+IceBox_%_ice.py: $(slicedir)/IceBox/%.ice $(SLICEPARSERLIB)
 	$(SLICE2PY) --prefix IceBox_ --checksum $(SLICE2PYFLAGS) $<
 	@mkdir -p .depend
 	@$(SLICE2PY) --prefix IceBox_ --checksum $(SLICE2PYFLAGS) --depend $< > .depend/$(*F).ice.d
 
-IceGrid_%_ice.py: $(slicedir)/IceGrid/%.ice $(SLICE2PY) $(SLICEPARSERLIB)
+IceGrid_%_ice.py: $(slicedir)/IceGrid/%.ice $(SLICEPARSERLIB)
 	$(SLICE2PY) --prefix IceGrid_ --checksum $(SLICE2PYFLAGS) $<
 	@mkdir -p .depend
 	@$(SLICE2PY) --prefix IceGrid_ --checksum $(SLICE2PYFLAGS) --depend $< > .depend/$(*F).ice.d
 
-IcePatch2_%_ice.py: $(slicedir)/IcePatch2/%.ice $(SLICE2PY) $(SLICEPARSERLIB)
+IcePatch2_%_ice.py: $(slicedir)/IcePatch2/%.ice $(SLICEPARSERLIB)
 	$(SLICE2PY) --prefix IcePatch2_ --checksum $(SLICE2PYFLAGS) $<
 	@mkdir -p .depend
 	@$(SLICE2PY) --prefix IcePatch2_ --checksum $(SLICE2PYFLAGS) --depend $< > .depend/$(*F).ice.d
 
-IceStorm_%_ice.py: $(slicedir)/IceStorm/%.ice $(SLICE2PY) $(SLICEPARSERLIB)
+IceStorm_%_ice.py: $(slicedir)/IceStorm/%.ice $(SLICEPARSERLIB)
 	$(SLICE2PY) --prefix IceStorm_ --checksum $(SLICE2PYFLAGS) $<
 	@mkdir -p .depend
 	@$(SLICE2PY) --prefix IceStorm_ --checksum $(SLICE2PYFLAGS) --depend $< > .depend/$(*F).ice.d
