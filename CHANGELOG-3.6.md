@@ -33,9 +33,9 @@ These are the changes since Ice 3.5.1.
 
 - Updated `Ice::WSEndpointInfo` to extend `Ice::TCPEndpointInfo` and `Ice::WSConnectionInfo` to extend `Ice::TCPConnectionInfo`
 
-- IceSSL now supports using the platform Root Certificate Authorities to validate remote certificates. The use of the platform Root CAs can be enabled with the `IceSSL.UsePlatformCAs` property. The platform Root CAs are only checked if `Ice.CAs` is not set.
+- IceSSL now supports using the platform Root Certificate Authorities to validate remote certificates. The use of the platform Root CAs can be enabled with the `IceSSL.UsePlatformCAs` property. The platform Root CAs are only checked if `IceSSL.CAs` is not set.
 
-- The `IceSSL.CertAuthFile` and `IceSSL.CertAuthDir` properties have been deprecated. You should now use the `Ice.CAs` property to configure the path of the PEM file containing the Root Certificate Authorities or the path of a directory containing the certificates (OpenSSL only).
+- The `IceSSL.CertAuthFile` and `IceSSL.CertAuthDir` properties have been deprecated. You should now use the `IceSSL.CAs` property to configure the path of the PEM file containing the Root Certificate Authorities or the path of a directory containing the certificates (OpenSSL only).
 
 - The `IceSSL.KeyFile` property has been deprecated. You should instead use `IceSSL.CertFile` and PKCS12 files to configure the IceSSL identity.
 
