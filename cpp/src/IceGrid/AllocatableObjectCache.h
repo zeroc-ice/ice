@@ -24,7 +24,7 @@ class AllocatableObjectCache;
 class AllocatableObjectEntry : public Allocatable
 {
 public:
-    
+
     AllocatableObjectEntry(AllocatableObjectCache&, const ObjectInfo&, const AllocatablePtr&);
     Ice::ObjectPrx getProxy() const;
     std::string getType() const;
@@ -51,9 +51,9 @@ class ObjectAllocationRequest : public AllocationRequest
 public:
 
     ObjectAllocationRequest(const SessionIPtr& session) : AllocationRequest(session) { }
-    
+
     virtual void response(const Ice::ObjectPrx&) = 0;
-    virtual void exception(const AllocationException&) = 0;
+    virtual void exception(const Ice::UserException&) = 0;
 
 private:
 
@@ -62,7 +62,7 @@ private:
         response(AllocatableObjectEntryPtr::dynamicCast(allocatable)->getProxy());
     }
 
-    virtual void canceled(const AllocationException& ex)
+    virtual void canceled(const Ice::UserException& ex)
     {
         exception(ex);
     }
@@ -87,7 +87,7 @@ public:
     const Ice::CommunicatorPtr& getCommunicator() const { return _communicator; }
 
 private:
-    
+
     class TypeEntry
     {
     public:
@@ -96,14 +96,14 @@ private:
 
         void add(const AllocatableObjectEntryPtr&);
         bool remove(const AllocatableObjectEntryPtr&);
-        
+
         void addAllocationRequest(const ObjectAllocationRequestPtr&);
         bool canTryAllocate(const AllocatableObjectEntryPtr&, bool);
 
         const std::vector<AllocatableObjectEntryPtr>& getObjects() const { return _objects; }
 
     private:
-        
+
         std::vector<AllocatableObjectEntryPtr> _objects;
         std::list<ObjectAllocationRequestPtr> _requests;
     };

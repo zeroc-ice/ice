@@ -55,7 +55,7 @@ AllocatableObjectCache::TypeEntry::remove(const AllocatableObjectEntryPtr& obj)
     //
     // No mutex protection here, this is called with the cache locked.
     //
-    vector<AllocatableObjectEntryPtr>::iterator q; 
+    vector<AllocatableObjectEntryPtr>::iterator q;
     q = lower_bound(_objects.begin(), _objects.end(), obj, AllocatableObjectEntryCI());
     assert(q->get() == obj.get());
     _objects.erase(q);
@@ -151,8 +151,8 @@ AllocatableObjectCache::add(const ObjectInfo& info, const AllocatablePtr& parent
     if(_traceLevels && _traceLevels->object > 0)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
-        out << "added allocatable object `" << _communicator->identityToString(id) << "'";      
-    }    
+        out << "added allocatable object `" << _communicator->identityToString(id) << "'";
+    }
 }
 
 AllocatableObjectEntryPtr
@@ -184,15 +184,15 @@ AllocatableObjectCache::remove(const Ice::Identity& id)
         map<string, TypeEntry>::iterator p = _types.find(entry->getType());
         assert(p != _types.end());
         if(p->second.remove(entry))
-        {       
+        {
             _types.erase(p);
         }
 
         if(_traceLevels && _traceLevels->object > 0)
         {
             Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
-            out << "removed allocatable object `" << _communicator->identityToString(id) << "'";        
-        }    
+            out << "removed allocatable object `" << _communicator->identityToString(id) << "'";
+        }
     }
 
     //
@@ -250,8 +250,8 @@ AllocatableObjectCache::canTryAllocate(const AllocatableObjectEntryPtr& entry)
     return p->second.canTryAllocate(entry, true);
 }
 
-AllocatableObjectEntry::AllocatableObjectEntry(AllocatableObjectCache& cache, 
-                                               const ObjectInfo& info, 
+AllocatableObjectEntry::AllocatableObjectEntry(AllocatableObjectCache& cache,
+                                               const ObjectInfo& info,
                                                const AllocatablePtr& parent) :
     Allocatable(true, parent),
     _cache(cache),
@@ -291,9 +291,9 @@ AllocatableObjectEntry::allocated(const SessionIPtr& session)
     if(traceLevels && traceLevels->object > 1)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->objectCat);
-        out << "object `" << _info.proxy->ice_toString() << "' allocated by `" << session->getId() << "' (" << _count 
+        out << "object `" << _info.proxy->ice_toString() << "' allocated by `" << session->getId() << "' (" << _count
             << ")";
-    }    
+    }
 
     Glacier2::IdentitySetPrx identities = session->getGlacier2IdentitySet();
     if(identities)
@@ -311,7 +311,7 @@ AllocatableObjectEntry::allocated(const SessionIPtr& session)
                 Ice::Trace out(traceLevels->logger, traceLevels->objectCat);
                 out << "couldn't add Glacier2 filter for object `" << _info.proxy->ice_toString();
                 out << "' allocated by `" << session->getId() << "':\n" << ex;
-            }    
+            }
         }
     }
 }
@@ -342,16 +342,16 @@ AllocatableObjectEntry::released(const SessionIPtr& session)
                 Ice::Trace out(traceLevels->logger, traceLevels->objectCat);
                 out << "couldn't remove Glacier2 filter for object `" << _info.proxy->ice_toString();
                 out << "' allocated by `" << session->getId() << "':\n" << ex;
-            }    
+            }
         }
     }
 
     if(traceLevels && traceLevels->object > 1)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->objectCat);
-        out << "object `" << _info.proxy->ice_toString() << "' released by `" << session->getId() << "' (" << _count 
+        out << "object `" << _info.proxy->ice_toString() << "' released by `" << session->getId() << "' (" << _count
             << ")";
-    }    
+    }
 }
 
 void

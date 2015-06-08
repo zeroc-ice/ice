@@ -44,7 +44,7 @@ public:
     }
 
     virtual void
-    exception(const AllocationException& ex)
+    exception(const Ice::UserException& ex)
     {
         assert(_cb);
         _cb->ice_exception(ex);
@@ -65,7 +65,7 @@ newAllocateObject(const SessionIPtr& session, const IceUtil::Handle<T>& cb)
 }
 
 BaseSessionI::BaseSessionI(const string& id, const string& prefix, const DatabasePtr& database) :
-    _id(id), 
+    _id(id),
     _prefix(prefix),
     _traceLevels(database->getTraceLevels()),
     _database(database),
@@ -174,14 +174,14 @@ SessionI::_register(const SessionServantManagerPtr& servantManager, const Ice::C
 
 void
 SessionI::allocateObjectById_async(const AMD_Session_allocateObjectByIdPtr& cb,
-                                   const Ice::Identity& id, 
+                                   const Ice::Identity& id,
                                    const Ice::Current&)
 {
     _database->getAllocatableObject(id)->allocate(newAllocateObject(this, cb));
 }
 
 void
-SessionI::allocateObjectByType_async(const AMD_Session_allocateObjectByTypePtr& cb, 
+SessionI::allocateObjectByType_async(const AMD_Session_allocateObjectByTypePtr& cb,
                                      const string& type,
                                      const Ice::Current&)
 {
@@ -292,11 +292,11 @@ SessionI::destroyImpl(bool shutdown)
 }
 
 ClientSessionFactory::ClientSessionFactory(const SessionServantManagerPtr& servantManager,
-                                           const DatabasePtr& database, 
+                                           const DatabasePtr& database,
                                            const IceUtil::TimerPtr& timer,
                                            const ReapThreadPtr& reaper) :
     _servantManager(servantManager),
-    _database(database), 
+    _database(database),
     _timer(timer),
     _reaper(reaper),
     _filters(false)
@@ -359,7 +359,7 @@ ClientSessionFactory::createSessionServant(const string& userId, const Glacier2:
 const TraceLevelsPtr&
 ClientSessionFactory::getTraceLevels() const
 {
-    return _database->getTraceLevels(); 
+    return _database->getTraceLevels();
 }
 
 ClientSessionManagerI::ClientSessionManagerI(const ClientSessionFactoryPtr& factory) : _factory(factory)
@@ -378,7 +378,7 @@ ClientSSLSessionManagerI::ClientSSLSessionManagerI(const ClientSessionFactoryPtr
 
 Glacier2::SessionPrx
 ClientSSLSessionManagerI::create(const Glacier2::SSLInfo& info,
-                                 const Glacier2::SessionControlPrx& ctl, 
+                                 const Glacier2::SessionControlPrx& ctl,
                                  const Ice::Current&)
 {
     string userDN;
@@ -400,7 +400,7 @@ ClientSSLSessionManagerI::create(const Glacier2::SSLInfo& info,
             throw ex;
         }
     }
-        
+
     return _factory->createGlacier2Session(userDN, ctl);
 }
 
