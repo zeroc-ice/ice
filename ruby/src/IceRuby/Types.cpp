@@ -2417,11 +2417,21 @@ IceRuby::ProxyInfo::destroy()
 IceRuby::ObjectWriter::ObjectWriter(VALUE object, ObjectMap* objectMap) :
     _object(object), _map(objectMap)
 {
+    //
+    // Mark the object as in use for the lifetime of this wrapper.
+    //
+    rb_gc_register_address(&_object);
+
     volatile VALUE cls = CLASS_OF(object);
     volatile VALUE type = callRuby(rb_const_get, cls, rb_intern("ICE_TYPE"));
     assert(!NIL_P(type));
     _info = ClassInfoPtr::dynamicCast(getType(type));
     assert(_info);
+}
+
+IceRuby::ObjectWriter::~ObjectWriter()
+{
+    rb_gc_unregister_address(&_object);
 }
 
 void
@@ -2498,6 +2508,15 @@ IceRuby::ObjectWriter::writeMembers(const Ice::OutputStreamPtr& os, const DataMe
 IceRuby::ObjectReader::ObjectReader(VALUE object, const ClassInfoPtr& info) :
     _object(object), _info(info)
 {
+    //
+    // Mark the object as in use for the lifetime of this wrapper.
+    //
+    rb_gc_register_address(&_object);
+}
+
+IceRuby::ObjectReader::~ObjectReader()
+{
+    rb_gc_unregister_address(&_object);
 }
 
 void

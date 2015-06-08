@@ -453,6 +453,7 @@ class ObjectWriter : public Ice::ObjectWriter
 public:
 
     ObjectWriter(VALUE, ObjectMap*);
+    virtual ~ObjectWriter();
 
     virtual void ice_preMarshal();
 
@@ -475,6 +476,7 @@ class ObjectReader : public Ice::ObjectReader
 public:
 
     ObjectReader(VALUE, const ClassInfoPtr&);
+    virtual ~ObjectReader();
 
     virtual void ice_postUnmarshal();
 
