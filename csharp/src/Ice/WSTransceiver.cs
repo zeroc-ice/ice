@@ -1234,9 +1234,13 @@ namespace IceInternal
                         return false;
                     }
 
-                    if(_readBufferPos < _readBuffer.b.position())
+                    int n = Math.Min(_readBuffer.b.position() - _readBufferPos, buf.b.remaining());
+                    if(n > _readPayloadLength)
                     {
-                        int n = Math.Min(_readBuffer.b.position() - _readBufferPos, buf.b.remaining());
+                        n = _readPayloadLength;
+                    }
+                    if(n > 0)
+                    {                            
                         System.Buffer.BlockCopy(_readBuffer.b.rawBytes(), _readBufferPos, buf.b.rawBytes(),
                                                 buf.b.position(), n);
                         buf.b.position(buf.b.position() + n);
@@ -1247,7 +1251,7 @@ namespace IceInternal
                     // Continue reading if we didn't read the full message, otherwise give back
                     // the control to the connection
                     //
-                    return buf.b.hasRemaining();
+                    return buf.b.hasRemaining() && n < _readPayloadLength;
                 }
             }
         }

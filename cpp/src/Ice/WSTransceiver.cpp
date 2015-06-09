@@ -1370,19 +1370,23 @@ IceInternal::WSTransceiver::preRead(Buffer& buf)
                 return false;
             }
 
-            if(_readI < _readBuffer.i)
+            size_t n = min(_readBuffer.i - _readI, buf.b.end() - buf.i);
+
+            if(n > _readPayloadLength)
             {
-                size_t n = min(_readBuffer.i - _readI, buf.b.end() - buf.i);
+                n = _readPayloadLength;
+            }
+            if(n > 0)
+            {
                 memcpy(buf.i, _readI, n);
                 buf.i += n;
                 _readI += n;
             }
-
             //
             // Continue reading if we didn't read the full message, otherwise give back
             // the control to the connection
             //
-            return buf.i < buf.b.end();
+            return buf.i < buf.b.end() && n < _readPayloadLength;
         }
     }
 }

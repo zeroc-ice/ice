@@ -856,7 +856,7 @@ final class WSTransceiver implements Transceiver
                 {
                     ch += 256;
                 }
-
+                
                 //
                 // Check the MASK bit. Messages sent by a client must be masked;
                 // messages sent by a server must not be masked.
@@ -1084,13 +1084,17 @@ final class WSTransceiver implements Transceiver
                     return false;
                 }
 
-                if(_readBufferPos < _readBuffer.b.position())
+                int n = Math.min(_readBuffer.b.position() - _readBufferPos, buf.b.remaining());
+                if(n > _readPayloadLength)
                 {
-                    final int n = Math.min(_readBuffer.b.position() - _readBufferPos, buf.b.remaining());
+                    n = _readPayloadLength;
+                }
+                if(n > 0)
+                {
                     if(buf.b.hasArray() && _readBuffer.b.hasArray())
                     {
                         System.arraycopy(_readBuffer.b.array(), _readBuffer.b.arrayOffset() + _readBufferPos,
-                                         buf.b.array(), buf.b.arrayOffset() + buf.b.position(), n);
+                                        buf.b.array(), buf.b.arrayOffset() + buf.b.position(), n);
                         buf.b.position(buf.b.position() + n);
                     }
                     else
@@ -1104,10 +1108,9 @@ final class WSTransceiver implements Transceiver
                 }
 
                 //
-                // Continue reading if we didn't read the full message, otherwise give back
-                // the control to the connection
+                // Continue reading if we didn't read the full message or there's more payload data to read.
                 //
-                return buf.b.hasRemaining();
+                return buf.b.hasRemaining() && n < _readPayloadLength;
             }
         }
     }
