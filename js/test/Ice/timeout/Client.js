@@ -311,7 +311,7 @@
                 }
                 else
                 {
-                    initData.properties.setProperty("Ice.Override.ConnectTimeout", "4000");
+                    initData.properties.setProperty("Ice.Override.ConnectTimeout", "1000");
                 }
                 comm = Ice.initialize(initData);
                 to = Test.TimeoutPrx.uncheckedCast(comm.stringToProxy(ref));
