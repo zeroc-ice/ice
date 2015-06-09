@@ -1143,7 +1143,7 @@ def getCommandLine(exe, config, options = "", interpreterOptions = ""):
         # --child-silent-after-fork=yes is required for the IceGrid/activator test where the node
         # forks a process with execv failing (invalid exe name).
         output.write("valgrind -q --child-silent-after-fork=yes --leak-check=full ")
-        output.write('--suppressions="' + os.path.join(toplevel, "config", "valgrind.sup") + '" ' + exe + '" ')
+        output.write('--suppressions="' + os.path.join(toplevel, "config", "valgrind.sup") + '" "' + exe + '" ')
     else:
         if exe.find(" ") != -1:
             output.write('"' + exe + '" ')
