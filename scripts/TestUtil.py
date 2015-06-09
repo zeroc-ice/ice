@@ -1006,6 +1006,9 @@ def getCommandLineProperties(exe, config):
     # all test drivers.
     #
     components = ["--Ice.NullHandleAbort=1", "--Ice.Warn.Connections=1"]
+    
+    if config.lang == "cpp":
+        components.append("--Ice.CollectObjects=1")
 
     #
     # Turn on network tracing.
