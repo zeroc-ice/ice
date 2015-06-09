@@ -586,9 +586,12 @@ OpenSSLEngine::initialize()
 
                                 if(chain && sk_X509_num(chain))
                                 {
-                                    for(int i = 0; i < sk_X509_num(chain); i++)
+                                    // Pop each cert from the stack so we can free the stack later.
+                                    // The CTX destruction will take care of the certificates
+                                    X509 *c = 0;
+                                    while((c = sk_X509_pop(chain)) != 0)
                                     {
-                                        if(!SSL_CTX_add_extra_chain_cert(_ctx, sk_X509_value(chain, i)))
+                                        if(!SSL_CTX_add_extra_chain_cert(_ctx, c))
                                         {
                                             throw PluginInitializationException(__FILE__, __LINE__,
                                                     "IceSSL: unable to add extra SSL certificate:\n" + sslErrors());
@@ -596,12 +599,11 @@ OpenSSLEngine::initialize()
                                     }
                                 }
 
-                                // Don't free the certificate chain, the CTX destruction will take
-                                // care of it, see SSL_CTX_add_extra_chain_cert's documentation.
-                                //if(chain)
-                                //{
-                                //    sk_X509_pop_free(chain, X509_free);
-                                //}
+                                if(chain)
+                                {
+                                    // This chain should now be empty. No need to call sk_X509_pop_free()
+                                    sk_X509_free(chain);
+                                }
                                 assert(key && cert);
                                 EVP_PKEY_free(key);
                                 X509_free(cert);
