@@ -186,7 +186,7 @@ var WSTransceiver = Ice.Class({
         var transceiver = this;
         if(this._fd.bufferedAmount > 1024)
         {
-            setTimeout(function() { transceiver._bytesWrittenCallback(0, 0); }, 50);
+            Timer.setTimeout(function() { transceiver._bytesWrittenCallback(0, 0); }, 50);
             return false;
         }
 
@@ -197,10 +197,6 @@ var WSTransceiver = Ice.Class({
         if(this._maxSendPacketSize > 0 && packetSize > this._maxSendPacketSize)
         {
             packetSize = this._maxSendPacketSize;
-        }
-
-        function timeoutCb(transceiver) {
-            transceiver._bytesWrittenCallback(0, 0);
         }
 
         while(packetSize > 0)
@@ -220,7 +216,7 @@ var WSTransceiver = Ice.Class({
 
             if(this._fd.bufferedAmount > 0 && packetSize > 0)
             {
-                Timer.setTimeout(timeoutCb(transceiver), 50);
+                Timer.setTimeout(function() { transceiver._bytesWrittenCallback(0, 0); }, 50);
                 return false;
             }
         }
