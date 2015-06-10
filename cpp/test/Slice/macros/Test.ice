@@ -34,12 +34,6 @@ class Default
     int y DEFAULT(10);
 };
 
-class NoDefault
-{
-    int x NODEFAULT(10);
-    int y NODEFAULT(10);
-};
-
 //
 // This class is only defined when compiling with slice2cpp.
 //

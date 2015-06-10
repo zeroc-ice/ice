@@ -25,10 +25,6 @@ main(int argc, char* argv[])
         test(d->x == 10);
         test(d->y == 10);
 
-        NoDefaultPtr nd = new NoDefault();
-        test(nd->x != 10);
-        test(nd->y != 10);
-
         CppOnlyPtr c = new CppOnly();
         test(c->lang == "cpp");
         test(c->version == ICE_INT_VERSION);
