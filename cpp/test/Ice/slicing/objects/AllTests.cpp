@@ -1129,6 +1129,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             d3->pd3 = d1;
             d1->pb = d3;
             d1->pd1 = d3;
+            d1->ice_collectable(true);
 
             BPtr b1 = test->returnTest3(d1, d3);
 
@@ -1174,7 +1175,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
             d3->pd3 = d1;
             d1->pb = d3;
             d1->pd1 = d3;
-
+            d1->ice_collectable(true);
+            
             CallbackPtr cb = new Callback;
             test->begin_returnTest3(d1, d3,
                 newCallback_TestIntf_returnTest3(cb, &Callback::response_returnTest3, &Callback::exception));
@@ -1223,7 +1225,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
             d3->pd3 = d1;
             d1->pb = d3;
             d1->pd1 = d3;
-
+            d1->ice_collectable(true);
+            
             BPtr b1 = test->returnTest3(d3, d1);
 
             test(b1);
@@ -1268,7 +1271,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
             d3->pd3 = d1;
             d1->pb = d3;
             d1->pd1 = d3;
-
+            d1->ice_collectable(true);
+            
             CallbackPtr cb = new Callback;
             test->begin_returnTest3(d3, d1, 
                 newCallback_TestIntf_returnTest3(cb, &Callback::response_returnTest3, &Callback::exception));
@@ -1388,6 +1392,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             d3->pb = d3;
             d3->sd3 = "D3.sd3";
             d3->pd3 = b1;
+            d3->ice_collectable(true);
 
             BPtr b2 = new B;
             b2->sb = "B.sb(2)";
@@ -1420,6 +1425,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             d3->pb = d3;
             d3->sd3 = "D3.sd3";
             d3->pd3 = b1;
+            d3->ice_collectable(true);
 
             BPtr b2 = new B;
             b2->sb = "B.sb(2)";
@@ -1458,13 +1464,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
             d3->pb = d3;
             d3->sd3 = "D3.sd3";
             d3->pd3 = d11;
-
+            d3->ice_collectable(true);
+            
             D1Ptr d12 = new D1;
             d12->sb = "D1.sb(2)";
             d12->pb = d12;
             d12->sd1 = "D1.sd1(2)";
             d12->pd1 = d11;
-
+            d12->ice_collectable(true);
+            
             BPtr r = test->returnTest3(d3, d12);
             test(r);
             test(r->ice_id() == "::Test::B");
@@ -1493,12 +1501,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
             d3->pb = d3;
             d3->sd3 = "D3.sd3";
             d3->pd3 = d11;
-
+            d3->ice_collectable(true);
+            
             D1Ptr d12 = new D1;
             d12->sb = "D1.sb(2)";
             d12->pb = d12;
             d12->sd1 = "D1.sd1(2)";
             d12->pd1 = d11;
+            d12->ice_collectable(true);
 
             CallbackPtr cb = new Callback;
             test->begin_returnTest3(d3, d12,
@@ -1536,7 +1546,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 ss1d3->sb = "D3.sb";
                 ss1d3->sd3 = "D3.sd3";
                 ss1d3->pb = ss1b;
-
+                ss1d3->ice_collectable(true);
+                
                 BPtr ss2b = new B;
                 ss2b->sb = "B.sb";
                 ss2b->pb = ss1b;
@@ -1566,6 +1577,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 ss2->s.push_back(ss2b);
                 ss2->s.push_back(ss2d1);
                 ss2->s.push_back(ss2d3);
+                
+                ss1->ice_collectable(true);
+                ss2->ice_collectable(true);
 
                 ss = test->sequenceTest(ss1, ss2);
             }
@@ -1623,6 +1637,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 ss1d3->sb = "D3.sb";
                 ss1d3->sd3 = "D3.sd3";
                 ss1d3->pb = ss1b;
+                ss1d3->ice_collectable(true);
 
                 BPtr ss2b = new B;
                 ss2b->sb = "B.sb";
@@ -1653,6 +1668,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 ss2->s.push_back(ss2b);
                 ss2->s.push_back(ss2d1);
                 ss2->s.push_back(ss2d3);
+                
+                ss1->ice_collectable(true);
+                ss2->ice_collectable(true);
 
                 CallbackPtr cb = new Callback;
                 test->begin_sequenceTest(ss1, ss2,
@@ -1712,6 +1730,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 d1->pb = d1;
                 d1->sd1 = s.str();
                 bin[i] = d1;
+                d1->ice_collectable(true);
             }
 
             r = test->dictionaryTest(bin, bout);
@@ -1769,6 +1788,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 d1->pb = d1;
                 d1->sd1 = s.str();
                 bin[i] = d1;
+                d1->ice_collectable(true);
             }
 
             CallbackPtr cb = new Callback;
@@ -1986,6 +2006,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         pd->pi = 3;
         pd->ps = "preserved";
         pd->pb = pd;
+        pd->ice_collectable(true);
 
         PBasePtr r = test->exchangePBase(pd);
         PDerivedPtr p2 = PDerivedPtr::dynamicCast(r);
@@ -2025,6 +2046,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         PCDerivedPtr pcd = new PCDerived;
         pcd->pi = 3;
         pcd->pbs.push_back(pcd);
+        pcd->ice_collectable(true);
 
         PBasePtr r = test->exchangePBase(pcd);
         PCDerivedPtr p2 = PCDerivedPtr::dynamicCast(r);
@@ -2053,6 +2075,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         CompactPCDerivedPtr pcd = new CompactPCDerived;
         pcd->pi = 3;
         pcd->pbs.push_back(pcd);
+        pcd->ice_collectable(true);
 
         PBasePtr r = test->exchangePBase(pcd);
         CompactPCDerivedPtr p2 = CompactPCDerivedPtr::dynamicCast(r);
@@ -2153,7 +2176,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
         pd->ps = "preserved";
         pd->ps = "preserved";
         pd->pb = pd;
-
+        pd->ice_collectable(true);
+        
         CallbackPtr cb = new Callback;
         test->begin_exchangePBase(
             pd, newCallback_TestIntf_exchangePBase(cb, &Callback::response_preserved1, &Callback::exception));
@@ -2182,6 +2206,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         PCDerivedPtr pcd = new PCDerived;
         pcd->pi = 3;
         pcd->pbs.push_back(pcd);
+        pcd->ice_collectable(true);
 
         CallbackPtr cb = new Callback;
         if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
@@ -2205,7 +2230,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
         CompactPCDerivedPtr pcd = new CompactPCDerived;
         pcd->pi = 3;
         pcd->pbs.push_back(pcd);
-
+        pcd->ice_collectable(true);
+        
         CallbackPtr cb = new Callback;
         if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
         {

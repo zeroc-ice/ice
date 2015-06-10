@@ -98,6 +98,7 @@ TestI::oneElementCycle(const ::Ice::Current&)
     BPtr b = new B;
     b->sb = "B1.sb";
     b->pb = b;
+    b->ice_collectable(true);
     return b;
 }
 
@@ -110,6 +111,7 @@ TestI::twoElementCycle(const ::Ice::Current&)
     b2->sb = "B2.sb";
     b2->pb = b1;
     b1->pb = b2;
+    b1->ice_collectable(true);
     return b1;
 }
 
@@ -126,6 +128,7 @@ TestI::D1AsB(const ::Ice::Current&)
     d2->pd2 = d1;
     d1->pb = d2;
     d1->pd1 = d2;
+    d1->ice_collectable(true);
     return d1;
 }
 
@@ -142,6 +145,7 @@ TestI::D1AsD1(const ::Ice::Current&)
     d2->pd2 = d1;
     d1->pb = d2;
     d1->pd1 = d2;
+    d1->ice_collectable(true);
     return d1;
 }
 
@@ -158,6 +162,7 @@ TestI::D2AsB(const ::Ice::Current&)
     d1->pd1 = d2;
     d2->pb = d1;
     d2->pd2 = d1;
+    d1->ice_collectable(true);
     return d2;
 }
 
@@ -176,6 +181,7 @@ TestI::paramTest1(BPtr& p1, BPtr& p2, const ::Ice::Current&)
     d1->pd1 = d2;
     p1 = d1;
     p2 = d2;
+    d1->ice_collectable(true);
 }
 
 void
@@ -274,6 +280,7 @@ TestI::dictionaryTest(const BDict& bin, BDict& bout, const ::Ice::Current&)
         d2->pb = b->pb;
         d2->sd2 = "D2";
         d2->pd2 = d2;
+        d2->ice_collectable(true);
         bout[i * 10] = d2;
     }
     BDict r;
@@ -286,6 +293,7 @@ TestI::dictionaryTest(const BDict& bin, BDict& bout, const ::Ice::Current&)
         d1->pb = (i == 0 ? BPtr(0) : r.find((i - 1) * 20)->second);
         d1->sd1 = s.str();
         d1->pd1 = d1;
+        d1->ice_collectable(true);
         r[i * 20] = d1;
     }
     return r;
@@ -422,6 +430,7 @@ TestI::throwBaseAsBase(const ::Ice::Current&)
     be.pb = new B;
     be.pb->sb = "sb";
     be.pb->pb = be.pb;
+    be.pb->ice_collectable(true);
     throw be;
 }
 
@@ -439,6 +448,8 @@ TestI::throwDerivedAsBase(const ::Ice::Current&)
     de.pd1->pb = de.pd1;
     de.pd1->sd1 = "sd2";
     de.pd1->pd1 = de.pd1;
+    de.pb->ice_collectable(true);
+    de.pd1->ice_collectable(true);
     throw de;
 }
 
@@ -456,6 +467,8 @@ TestI::throwDerivedAsDerived(const ::Ice::Current&)
     de.pd1->pb = de.pd1;
     de.pd1->sd1 = "sd2";
     de.pd1->pd1 = de.pd1;
+    de.pb->ice_collectable(true);
+    de.pd1->ice_collectable(true);
     throw de;
 }
 
@@ -467,7 +480,8 @@ TestI::throwUnknownDerivedAsBase(const ::Ice::Current&)
     d2->pb = d2;
     d2->sd2 = "sd2 d2";
     d2->pd2 = d2;
-
+    d2->ice_collectable(true);
+    
     UnknownDerivedException ude;
     ude.sbe = "sbe";
     ude.pb = d2;
@@ -494,6 +508,7 @@ TestI::useForward(ForwardPtr& f, const ::Ice::Current&)
     f = new Forward;
     f->h = new Hidden;
     f->h->f = f;
+    f->ice_collectable(true);
 }
 
 void
