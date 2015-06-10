@@ -85,23 +85,23 @@
                         };
                         return wait(0);
                     }
-                ).then(
-                    function()
-                    {
-                        return prx;
-                    });
-            }
-        ).then(
-            function(prx)
-            {
-                batch2 = prx.ice_batchOneway();
-
-                return Promise.all(batch.ice_ping(), batch2.ice_ping());
+                );
             }
         ).then(
             function()
             {
+                batch2 = prx.ice_batchOneway();
+                return Promise.all(batch.ice_ping(), batch2.ice_ping());
+            }
+        ).then(
+            function(count)
+            {
                 return batch.ice_flushBatchRequests();
+            }
+        ).then(
+            function()
+            {
+                return prx.opByteSOnewayCallCount();
             }
         ).then(
             function()
@@ -111,7 +111,10 @@
         ).then(
             function(con)
             {
-                return con.close(false);
+                if(!bidir)
+                {
+                    return con.close(false);
+                }
             }
         ).then(
             function()
@@ -143,6 +146,11 @@
             }
         ).then(
             function()
+            {
+                return prx.opByteSOnewayCallCount();
+            }
+        ).then(
+            function(count)
             {
                 p.succeed();
             },

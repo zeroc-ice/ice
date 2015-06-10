@@ -19,7 +19,10 @@ path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "scri
 if len(path) == 0:
     raise RuntimeError("can't find toplevel directory!")
 sys.path.append(os.path.join(path[0], "scripts"))
+
+operations = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "operations")
+
 import TestUtil
 
-TestUtil.addPathToEnv("NODE_PATH", os.path.join(os.path.dirname(__file__), "..", "operations"))
+TestUtil.addPathToEnv("NODE_PATH", operations)
 TestUtil.clientEchoTest()
