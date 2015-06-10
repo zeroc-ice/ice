@@ -918,12 +918,12 @@ IceSSL::SecureTransportEngine::initialize()
                 throw PluginInitializationException(__FILE__, __LINE__,
                                                     "IceSSL: CA certificate file not found:\n" + caFile);
             }
-            _certificateAuthorities = loadCACertificates(resolved);
+            _certificateAuthorities.reset(loadCACertificates(resolved));
         }
         else if(properties->getPropertyAsInt("IceSSL.UsePlatformCAs") <= 0)
         {
             // Setup an empty list of Root CAs to not use the system root CAs.
-            _certificateAuthorities = CFArrayCreate(0, 0, 0, 0);
+            _certificateAuthorities.reset(CFArrayCreate(0, 0, 0, 0));
         }
     }
     catch(const CertificateReadException& ce)
@@ -985,7 +985,7 @@ IceSSL::SecureTransportEngine::initialize()
 
             try
             {
-                _chain = loadCertificateChain(file, keyFile, keychain, password, passwordPrompt, passwordRetryMax);
+                _chain.reset(loadCertificateChain(file, keyFile, keychain, password, passwordPrompt, passwordRetryMax));
                 break;
             }
             catch(const CertificateReadException& ce)
@@ -1046,7 +1046,8 @@ IceSSL::SecureTransportEngine::initialize()
             throw PluginInitializationException(__FILE__, __LINE__, os.str());
         }
         CFArraySetValueAtIndex(items, 0, identity);
-        _chain = items;
+        CFRelease(identity);
+        _chain.reset(items);
     }
 
     //
@@ -1124,17 +1125,6 @@ IceSSL::SecureTransportEngine::initialize()
 void
 IceSSL::SecureTransportEngine::destroy()
 {
-    if(_certificateAuthorities)
-    {
-        CFRelease(_certificateAuthorities);
-        _certificateAuthorities = 0;
-    }
-
-    if(_chain)
-    {
-        CFRelease(_chain);
-        _chain = 0;
-    }
 }
 
 SSLContextRef
@@ -1184,7 +1174,7 @@ IceSSL::SecureTransportEngine::newContext(bool incoming)
         }
     }
 
-    if(_chain && (err = SSLSetCertificate(ssl, _chain)))
+    if(_chain && (err = SSLSetCertificate(ssl, _chain.get())))
     {
         throw SecurityException(__FILE__, __LINE__,
                                 "IceSSL: error while setting the SSL context certificate:\n" + errorToString(err));
@@ -1229,7 +1219,7 @@ IceSSL::SecureTransportEngine::newContext(bool incoming)
 CFArrayRef
 IceSSL::SecureTransportEngine::getCertificateAuthorities() const
 {
-    return _certificateAuthorities;
+    return _certificateAuthorities.get();
 }
 
 string
@@ -1325,6 +1315,7 @@ IceSSL::SecureTransportEngine::parseCiphers(const string& ciphers)
     supported.resize(numSupportedCiphers);
 
     OSStatus err = SSLGetSupportedCiphers(ctx, &supported[0], &numSupportedCiphers);
+    CFRelease(ctx);
     if(err)
     {
         throw PluginInitializationException(__FILE__, __LINE__,

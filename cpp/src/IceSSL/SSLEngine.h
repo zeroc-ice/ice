@@ -122,8 +122,8 @@ private:
     void parseCiphers(const std::string&);
 
     bool _initialized;
-    CFArrayRef _certificateAuthorities;
-    CFArrayRef _chain;
+    UniqueRef<CFArrayRef> _certificateAuthorities;
+    UniqueRef<CFArrayRef> _chain;
 
     SSLProtocol _protocolVersionMax;
     SSLProtocol _protocolVersionMin;
