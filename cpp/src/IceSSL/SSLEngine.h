@@ -245,7 +245,6 @@ private:
     int parseProtocols(const Ice::StringSeq&) const;
 
 
-    bool _initOpenSSL;
     bool _initialized;
     SSL_CTX* _ctx;
     std::string _defaultDir;

@@ -41,6 +41,7 @@ namespace
 
 IceUtil::Mutex* staticMutex = 0;
 int instanceCount = 0;
+bool initOpenSSL = false;
 IceUtil::Mutex* locks = 0;
 
 class Init
@@ -189,8 +190,8 @@ OpenSSLEngine::OpenSSLEngine(const CommunicatorPtr& communicator) :
         // application should disable OpenSSL initialization in those components and
         // perform the initialization itself.
         //
-        _initOpenSSL = properties->getPropertyAsIntWithDefault("IceSSL.InitOpenSSL", 1) > 0;
-        if(_initOpenSSL)
+        initOpenSSL = properties->getPropertyAsIntWithDefault("IceSSL.InitOpenSSL", 1) > 0;
+        if(initOpenSSL)
         {
             //
             // Create the mutexes and set the callbacks.
@@ -302,7 +303,7 @@ OpenSSLEngine::~OpenSSLEngine()
     //
     IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(staticMutex);
 
-    if(--instanceCount == 0 && _initOpenSSL)
+    if(--instanceCount == 0 && initOpenSSL)
     {
         //
         // NOTE: We can't destroy the locks here: threads which might have called openssl methods
