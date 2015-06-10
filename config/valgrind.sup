@@ -27,13 +27,6 @@
    fun:__log_put
 }
 {
-   pthread
-   Memcheck:Leak
-   fun:calloc
-   fun:_dl_allocate_tls
-}
-
-{
     std::string::_Rep::_S_create
     Memcheck:Leak
     ...

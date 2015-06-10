@@ -144,11 +144,12 @@ public:
     virtual void run()
     {
         _session->destroyInternal(_disconnected);
+        _session = 0;
     }
 
 private:
 
-    const SessionHelperIPtr _session;
+    SessionHelperIPtr _session;
     const Ice::DispatcherCallPtr _disconnected;
 };
 
@@ -549,12 +550,13 @@ public:
 
             _session->dispatchCallback(new ConnectFailed(_callback, _session, ex), 0);
         }
+        _session = 0;
     }
 
 private:
 
     const Glacier2::SessionCallbackPtr _callback;
-    const SessionHelperIPtr _session;
+    SessionHelperIPtr _session;
     const ConnectStrategyPtr _factory;
     const Ice::CommunicatorPtr _communicator;
     const string _finder;
@@ -577,11 +579,12 @@ public:
     virtual void run()
     {
         _session->dispatchCallback(_call, _conn);
+        _session = 0;
     }
 
 private:
 
-    const SessionHelperIPtr _session;
+    SessionHelperIPtr _session;
     const Ice::DispatcherCallPtr _call;
     const Ice::ConnectionPtr _conn;
 };
@@ -867,7 +870,16 @@ Glacier2::SessionFactoryHelper::addThread(const SessionHelper* session, const Ic
     // we just replace it.
     //
     IceUtil::Mutex::Lock sync(_mutex);
-    _threads.insert(make_pair(session, thread));
+    map<const SessionHelper*, IceUtil::ThreadPtr>::iterator p = _threads.find(session);
+    if(p != _threads.end())
+    {
+        p->second->getThreadControl().join();
+        p->second = thread;
+    }
+    else
+    {
+        _threads.insert(make_pair(session, thread));
+    }
 }
 
 void
