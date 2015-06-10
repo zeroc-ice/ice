@@ -269,6 +269,8 @@ var ServantManager = Ice.Class({
         var logger = this._instance.initializationData().logger;
         this._servantMapMap.clear();
 
+        this._defaultServantMap.clear();
+
         var locatorMap = this._locatorMap.clone();
         this._locatorMap.clear();
         this._instance = null;

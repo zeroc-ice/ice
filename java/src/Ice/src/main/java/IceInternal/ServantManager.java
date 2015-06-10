@@ -286,10 +286,14 @@ public final class ServantManager
             }
 
             logger = _instance.initializationData().logger;
+
             _servantMapMap.clear();
+
+            _defaultServantMap.clear();
 
             locatorMap.putAll(_locatorMap);
             _locatorMap.clear();
+
             _instance = null;
         }
 
