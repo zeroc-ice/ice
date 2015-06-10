@@ -116,6 +116,11 @@ InitialI::InitialI(const Ice::ObjectAdapterPtr& adapter) :
     _e(new EI),
     _f(new FI(_e))
 {
+    _b1->ice_collectable(true);
+    _b2->ice_collectable(true);
+    _c->ice_collectable(true);
+    _d->ice_collectable(true);
+
     _b1->theA = _b2; // Cyclic reference to another B
     _b1->theB = _b1; // Self reference.
     _b1->theC = 0; // Null reference.
