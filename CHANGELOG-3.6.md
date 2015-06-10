@@ -169,6 +169,8 @@ These are the changes since Ice 3.5.1.
 
 ## C++ Changes
 
+- Fixed a bug where the object adapter default servant map wasn't cleared on object adapter destruction. This could potential lead to leaks if the default servant had a reference to the object adapter.
+
 - IceStorm is now faster when creating persistent topics and subscribers.
 
 - Ice for C++ now supports the GCC and clang symbol visibility options: we build by default with `-fvisibility=hidden` and we define `ICE_DECLSPEC_EXPORT` and `ICE_DECLSPEC_IMPORT` for these compilers.
