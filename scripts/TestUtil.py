@@ -1006,7 +1006,7 @@ def getCommandLineProperties(exe, config):
     # all test drivers.
     #
     components = ["--Ice.NullHandleAbort=1", "--Ice.Warn.Connections=1"]
-    
+
     if config.lang == "cpp":
         components.append("--Ice.CollectObjects=1")
 
@@ -1107,7 +1107,7 @@ def getCommandLine(exe, config, options = "", interpreterOptions = ""):
         output.write("mono --debug '%s.exe' " % exe)
     elif config.lang == "ruby" and config.type == "client":
         #
-        # If running with a binary distribution ensure rubygems 
+        # If running with a binary distribution ensure rubygems
         # are enabled
         #
         if iceHome:
@@ -1883,7 +1883,7 @@ def getTestEnv(lang, testdir):
     #
     if isWin32():
         if lang == "java":
-            addLdPath(os.path.join(getIceDir("cpp"), "bin"), env) # Always add bin for db53_vc100.dll
+            addLdPath(os.path.join(getIceDir("cpp"), "bin", "x64" if x64 else ""), env) # Add bin for db53_vc100.dll
         addLdPath(getCppLibDir(lang), env)
     elif lang in ["python", "ruby", "php", "js", "objective-c"]:
         addLdPath(getCppLibDir(lang), env)
