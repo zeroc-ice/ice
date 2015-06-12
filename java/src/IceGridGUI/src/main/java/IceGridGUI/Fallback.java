@@ -23,7 +23,7 @@ public class Fallback extends javax.swing.JApplet
             java.util.List<String> command = new java.util.ArrayList<String>();
             command.add("java");
             command.add("-cp");
-            command.add(jar.getPath());
+            command.add(jar.toURI().getPath());
             command.add("IceGridGUI.Main");
             
             String[] args = MainProxy.args();

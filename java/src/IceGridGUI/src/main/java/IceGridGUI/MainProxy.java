@@ -23,7 +23,7 @@ public class MainProxy
         String version =  System.getProperty("java.version");
         
         Class<?> cls = IceInternal.Util.findClass("com.javafx.main.Main", null);
-        if(cls != null)
+        if(cls != null && version.indexOf("1.7") == 0)
         {
             try
             {
