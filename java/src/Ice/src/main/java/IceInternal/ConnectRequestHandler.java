@@ -60,17 +60,10 @@ public class ConnectRequestHandler
                 out.cancelable(this); // This will throw if the request is canceled
             }
 
-            try
+            if(!initialized())
             {
-                if(!initialized())
-                {
-                    _requests.add(out);
-                    return AsyncStatus.Queued;
-                }
-            }
-            catch(Ice.LocalException ex)
-            {
-                throw new RetryException(ex);
+                _requests.add(out);
+                return AsyncStatus.Queued;
             }
         }
         return out.invokeRemote(_connection, _compress, _response);

@@ -60,18 +60,11 @@ namespace IceInternal
                     outAsync.cancelable(this); // This will throw if the request is canceled
                 }
 
-                try
+                if(!initialized())
                 {
-                    if(!initialized())
-                    {
-                        _requests.AddLast(outAsync);
-                        sentCallback = null;
-                        return false;
-                    }
-                }
-                catch(Ice.LocalException ex)
-                {
-                    throw new RetryException(ex);
+                    _requests.AddLast(outAsync);
+                    sentCallback = null;
+                    return false;
                 }
             }
             return outAsync.invokeRemote(_connection, _compress, _response, out sentCallback);

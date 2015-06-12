@@ -74,19 +74,12 @@ ConnectRequestHandler::sendRequest(ProxyOutgoingBase* out)
 {
     {
         Lock sync(*this);
-        try
+        if(!initialized())
         {
-            if(!initialized())
-            {
-                Request req;
-                req.out = out;
-                _requests.push_back(req);
-                return false; // Not sent
-            }
-        }
-        catch(const Ice::LocalException& ex)
-        {
-            throw RetryException(ex);
+            Request req;
+            req.out = out;
+            _requests.push_back(req);
+            return false; // Not sent
         }
     }
     return out->invokeRemote(_connection, _compress, _response) && !_response; // Finished if sent and no response.
@@ -102,19 +95,12 @@ ConnectRequestHandler::sendAsyncRequest(const ProxyOutgoingAsyncBasePtr& out)
             out->cancelable(this); // This will throw if the request is canceled
         }
 
-        try
+        if(!initialized())
         {
-            if(!initialized())
-            {
-                Request req;
-                req.outAsync = out;
-                _requests.push_back(req);
-                return AsyncStatusQueued;
-            }
-        }
-        catch(const Ice::LocalException& ex)
-        {
-            throw RetryException(ex);
+            Request req;
+            req.outAsync = out;
+            _requests.push_back(req);
+            return AsyncStatusQueued;
         }
     }
     return out->invokeRemote(_connection, _compress, _response);

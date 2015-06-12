@@ -86,17 +86,10 @@ var ConnectRequestHandler = Ice.Class({
             out.__cancelable(this); // This will throw if the request is canceled
         }
 
-        try
+        if(!this.initialized())
         {
-            if(!this.initialized())
-            {
-                this._requests.push(out);
-                return AsyncStatus.Queued;
-            }
-        }
-        catch(ex)
-        {
-            throw new RetryException(ex);
+            this._requests.push(out);
+            return AsyncStatus.Queued;
         }
         return out.__invokeRemote(this._connection, this._compress, this._response);
     },
