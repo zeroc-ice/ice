@@ -62,11 +62,11 @@ public class Fallback extends javax.swing.JApplet
             //
             System.exit(0);
         }
-        catch(java.io.IOException ex)
+        catch(Exception ex)
         {
             ex.printStackTrace();
             JOptionPane.showMessageDialog(null, 
-                                          "IOException trying to start IceGrid Admin from Fallback class",
+                                          "Exception trying to start IceGrid Admin from Fallback class",
                                           "IceGrid Admin Error", 
                                           JOptionPane.ERROR_MESSAGE);
             //
