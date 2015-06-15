@@ -47,6 +47,8 @@ public class ControllerServer extends Ice.Application
                         {
                             if(line.matches(Pattern.quote("starting server...") + ".*ok") ||
                                line.matches(Pattern.quote("starting serveramd...") + ".*ok") ||
+                               line.matches(Pattern.quote("starting servertie...") + ".*ok") ||
+                               line.matches(Pattern.quote("starting serveramdtie...") + ".*ok") ||
                                line.matches("starting test.*" + Pattern.quote("Server...") + ".*ok"))
                             {
                                 synchronized(ServerI.this)
