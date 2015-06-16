@@ -167,6 +167,8 @@ These are the changes since Ice 3.5.1.
     - `IcePatch2.Remove`
     - `IcePatch2.Thorough`
 
+- Fixed a bug where optional class data members were not correctly marshaled and unmarshaled when non optional class data members were defined after the optional class data members or the optional tag were not in ascending order. This bugs affects Java, CSharp and JavaScript language mappings.
+
 ## C++ Changes
 
 - Fixed a bug where the object adapter default servant map wasn't cleared on object adapter destruction. This could potential lead to leaks if the default servant had a reference to the object adapter.
