@@ -170,23 +170,24 @@ Slice::JsVisitor::writeMarshalUnmarshalParams(const ParamDeclList& params, const
 }
 
 void
-Slice::JsVisitor::writeMarshalDataMembers(const DataMemberList& dataMembers)
+Slice::JsVisitor::writeMarshalDataMembers(const DataMemberList& dataMembers, const DataMemberList& optionalMembers)
 {
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-        if((*q)->optional())
-        {
-            writeOptionalMarshalUnmarshalCode(_out, (*q)->type(), "this." + fixId((*q)->name()), (*q)->tag(), true);
-        }
-        else
+        if(!(*q)->optional())
         {
             writeMarshalUnmarshalCode(_out, (*q)->type(), "this." + fixId((*q)->name()), true);
         }
     }
+    
+    for(DataMemberList::const_iterator q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
+    {
+        writeOptionalMarshalUnmarshalCode(_out, (*q)->type(), "this." + fixId((*q)->name()), (*q)->tag(), true);
+    }
 }
 
 void
-Slice::JsVisitor::writeUnmarshalDataMembers(const DataMemberList& dataMembers)
+Slice::JsVisitor::writeUnmarshalDataMembers(const DataMemberList& dataMembers, const DataMemberList& optionalMembers)
 {
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
@@ -199,14 +200,15 @@ Slice::JsVisitor::writeUnmarshalDataMembers(const DataMemberList& dataMembers)
 
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-        if((*q)->optional())
-        {
-            writeOptionalMarshalUnmarshalCode(_out, (*q)->type(), "this." + fixId((*q)->name()), (*q)->tag(), false);
-        }
-        else
+        if(!(*q)->optional())
         {
             writeMarshalUnmarshalCode(_out, (*q)->type(), "this." + fixId((*q)->name()), false);
         }
+    }
+    
+    for(DataMemberList::const_iterator q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
+    {
+        writeOptionalMarshalUnmarshalCode(_out, (*q)->type(), "this." + fixId((*q)->name()), (*q)->tag(), false);
     }
 }
 
@@ -1220,11 +1222,11 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             _out << nl << "function(__os)";
             _out << sb;
-            writeMarshalDataMembers(dataMembers);
+            writeMarshalDataMembers(dataMembers, optionalMembers);
             _out << eb << ",";
             _out << nl << "function(__is)";
             _out << sb;
-            writeUnmarshalDataMembers(dataMembers);
+            writeUnmarshalDataMembers(dataMembers, optionalMembers);
             _out << eb << ",";
             _out << nl;
         }
@@ -1543,6 +1545,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     const DataMemberList allDataMembers = p->allDataMembers();
     const DataMemberList dataMembers = p->dataMembers();
+    const DataMemberList optionalMembers = p->orderedOptionalDataMembers();
 
     vector<string> allParamNames;
     for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
@@ -1584,11 +1587,11 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         {
             _out << nl << "function(__os)";
             _out << sb;
-            writeMarshalDataMembers(dataMembers);
+            writeMarshalDataMembers(dataMembers, optionalMembers);
             _out << eb << ",";
             _out << nl << "function(__is)";
             _out << sb;
-            writeUnmarshalDataMembers(dataMembers);
+            writeUnmarshalDataMembers(dataMembers, optionalMembers);
             _out << eb;
         }
         else
@@ -1653,11 +1656,11 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         _out << ",";
         _out << nl << "function(__os)";
         _out << sb;
-        writeMarshalDataMembers(dataMembers);
+        writeMarshalDataMembers(dataMembers, DataMemberList());
         _out << eb << ",";
         _out << nl << "function(__is)";
         _out << sb;
-        writeUnmarshalDataMembers(dataMembers);
+        writeUnmarshalDataMembers(dataMembers, DataMemberList());
         _out << eb << "," << nl << p->minWireSize() << ", " << nl << (p->isVariableLength() ? "false" : "true");
         _out.dec();
         _out << ");";

@@ -341,6 +341,21 @@
         ).then(
             function()
             {
+                var g = new Test.G();
+                g.gg1Opt = new Test.G1("gg1Opt");
+                g.gg2 = new Test.G2(new Ice.Long(0, 10));
+                g.gg2Opt = new Test.G2(new Ice.Long(0, 20));
+                g.gg1 = new Test.G1("gg1");
+                return initial.opG(g);
+            }
+        ).then(
+            function(g)
+            {
+                test(g.gg1Opt.a == "gg1Opt");
+                test(g.gg2.a.equals(new Ice.Long(0, 10)));
+                test(g.gg2Opt.a.equals(new Ice.Long(0, 20)));
+                test(g.gg1.a == "gg1");
+                
                 out.writeLine("ok");
                 out.write("testing marshaling of large containers with fixed size elements... ");
                 var mc = new Test.MultiOptional();

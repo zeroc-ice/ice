@@ -405,6 +405,17 @@ public class AllTests
         outer.setValue(recursive1);
         initial.pingPong(outer);
 
+        G g = new G();
+        g.setGg1Opt(new G1("gg1Opt"));
+        g.gg2 = new G2(10);
+        g.setGg2Opt(new G2(20));
+        g.gg1 = new G1("gg1");
+        g = initial.opG(g);
+        test("gg1Opt".equals(g.getGg1Opt().a));
+        test(10 == g.gg2.a);
+        test(20 == g.getGg2Opt().a);
+        test("gg1".equals(g.gg1.a));
+            
         out.println("ok");
 
         out.print("testing marshaling of large containers with fixed size elements... ");

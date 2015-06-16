@@ -383,6 +383,12 @@ InitialI::returnOptionalClass(bool, Optional<OneOptionalPtr>& o, const Ice::Curr
     o = new OneOptional(53);
 }
 
+GPtr
+InitialI::opG(const GPtr& g, const Ice::Current&)
+{
+    return g;
+}
+
 bool
 InitialI::supportsRequiredParams(const Ice::Current&)
 {

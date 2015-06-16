@@ -26,8 +26,8 @@ protected:
 
     void writeMarshalUnmarshalParams(const ParamDeclList&, const OperationPtr&, bool);
     void writePostUnmarshalParams(const ParamDeclList&, const OperationPtr&);
-    void writeMarshalDataMembers(const DataMemberList&);
-    void writeUnmarshalDataMembers(const DataMemberList&);
+    void writeMarshalDataMembers(const DataMemberList&, const DataMemberList&);
+    void writeUnmarshalDataMembers(const DataMemberList&, const DataMemberList&);
     void writeInitDataMembers(const DataMemberList&, const std::string&);
 
     virtual std::vector<std::string> getParams(const OperationPtr&);

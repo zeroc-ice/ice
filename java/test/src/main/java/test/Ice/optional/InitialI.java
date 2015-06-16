@@ -612,6 +612,13 @@ public final class InitialI extends Initial
     {
         o.set(new OneOptional(53));
     }
+    
+    @Override
+    public G
+    opG(G g, Ice.Current current)
+    {
+        return g;
+    }
 
     @Override
     public boolean

@@ -318,6 +318,18 @@ def allTests(communicator)
     outer = Test::Recursive.new
     outer.value = recursive1
     initial.pingPong(outer)
+    
+    
+    g = Test::G.new
+    g.gg1Opt = Test::G1.new("gg1Opt")
+    g.gg2 = Test::G2.new(10)
+    g.gg2Opt = Test::G2.new(20)
+    g.gg1 = Test::G1.new("gg1")
+    r = initial.opG(g)
+    test(r.gg1Opt.a == "gg1Opt")
+    test(r.gg2.a == 10)
+    test(r.gg2Opt.a == 20)
+    test(r.gg1.a == "gg1")
 
     puts "ok"
 

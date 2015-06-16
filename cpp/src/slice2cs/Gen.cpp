@@ -1456,7 +1456,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
     }
     _out << eb;
 
-    if(allClassMembers.size() != 0)
+    if(classMembers.size() != 0)
     {
         _out << sp;
         if(!p->isInterface())
@@ -1479,14 +1479,14 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
             _out << sp << nl << "internal Patcher__(string type, Ice.Object instance";
         }
 
-        if(allClassMembers.size() > 1)
+        if(classMembers.size() > 1)
         {
             _out << ", int member";
         }
         _out << ") : base(type)";
         _out << sb;
         _out << nl << "_instance = (" << name << ")instance;";
-        if(allClassMembers.size() > 1)
+        if(classMembers.size() > 1)
         {
             _out << nl << "_member = member;";
         }
@@ -1496,15 +1496,19 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
         _out << sb;
         _out << nl << "try";
         _out << sb;
-        if(allClassMembers.size() > 1)
+        if(classMembers.size() > 1)
         {
             _out << nl << "switch(_member)";
             _out << sb;
         }
         int memberCount = 0;
-        for(DataMemberList::const_iterator d = allClassMembers.begin(); d != allClassMembers.end(); ++d)
+        for(DataMemberList::const_iterator d = classMembers.begin(); d != classMembers.end(); ++d)
         {
-            if(allClassMembers.size() > 1)
+            if((*d)->optional())
+            {
+                continue;
+            }
+            if(classMembers.size() > 1)
             {
                 _out.dec();
                 _out << nl << "case " << memberCount << ":";
@@ -1512,36 +1516,69 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
             }
             string memberName = fixId((*d)->name(), DotNet::ICloneable, true);
             string memberType = typeToString((*d)->type(), (*d)->optional());
-            if((*d)->optional())
+            
+            if(ClassDeclPtr::dynamicCast((*d)->type()))
             {
-                if(ClassDeclPtr::dynamicCast((*d)->type()))
-                {
-                    _out << nl << "_instance." << memberName << " = new " << memberType << "(("
-                         << typeToString((*d)->type()) << ")v);";
-                }
-                else
-                {
-                    _out << nl << "_instance." << memberName << " = new " << memberType << "(v);";
-                }
+                _out << nl << "_instance." << memberName << " = (" << memberType << ")v;";
             }
             else
             {
-                if(ClassDeclPtr::dynamicCast((*d)->type()))
-                {
-                    _out << nl << "_instance." << memberName << " = (" << memberType << ")v;";
-                }
-                else
-                {
-                    _out << nl << "_instance." << memberName << " = v;";
-                }
+                _out << nl << "_instance." << memberName << " = v;";
             }
-            if(allClassMembers.size() > 1)
+            
+            if(classMembers.size() > 1)
             {
                 _out << nl << "break;";
             }
             memberCount++;
         }
-        if(allClassMembers.size() > 1)
+        
+        for(DataMemberList::const_iterator d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
+        {
+            TypePtr paramType = (*d)->type();
+            BuiltinPtr builtin = BuiltinPtr::dynamicCast(paramType);
+            if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(paramType))
+            {
+                if(classMembers.size() > 1)
+                {
+                    _out.dec();
+                    _out << nl << "case " << memberCount << ":";
+                    _out.inc();
+                }
+                string memberName = fixId((*d)->name(), DotNet::ICloneable, true);
+                string memberType = typeToString((*d)->type(), (*d)->optional());
+                if((*d)->optional())
+                {
+                    if(ClassDeclPtr::dynamicCast((*d)->type()))
+                    {
+                        _out << nl << "_instance." << memberName << " = new " << memberType << "(("
+                            << typeToString((*d)->type()) << ")v);";
+                    }
+                    else
+                    {
+                        _out << nl << "_instance." << memberName << " = new " << memberType << "(v);";
+                    }
+                }
+                else
+                {
+                    if(ClassDeclPtr::dynamicCast((*d)->type()))
+                    {
+                        _out << nl << "_instance." << memberName << " = (" << memberType << ")v;";
+                    }
+                    else
+                    {
+                        _out << nl << "_instance." << memberName << " = v;";
+                    }
+                }
+                if(classMembers.size() > 1)
+                {
+                    _out << nl << "break;";
+                }
+                memberCount++;
+            }
+        }
+        
+        if(classMembers.size() > 1)
         {
             _out << eb;
         }
@@ -1553,7 +1590,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
         _out << eb;
 
         _out << sp << nl << "private " << name << " _instance;";
-        if(allClassMembers.size() > 1)
+        if(classMembers.size() > 1)
         {
             _out << nl << "private int _member;";
         }
@@ -1570,7 +1607,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
     _out << sb;
     _out << nl << "is__.startReadSlice();";
     int classMemberCount = static_cast<int>(allClassMembers.size() - classMembers.size());
-    const bool needCustomPatcher = classMembers.size() > 1 || allClassMembers.size() > 1;
+    const bool needCustomPatcher = classMembers.size() > 1;
     for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
     {
         if(!(*d)->optional())
@@ -3516,6 +3553,9 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
     DataMemberList allDataMembers = p->allDataMembers();
     DataMemberList dataMembers = p->dataMembers();
+    DataMemberList allClassMembers = p->allClassDataMembers();
+    DataMemberList classMembers = p->classDataMembers();
+    DataMemberList optionalMembers = p->orderedOptionalDataMembers();
 
     vector<string> allParamDecl;
     for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
@@ -3823,8 +3863,8 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         }
         _out << eb;
 
-        DataMemberList allClassMembers = p->allClassDataMembers();
-        if(allClassMembers.size() != 0)
+        
+        if(classMembers.size() != 0)
         {
             _out << sp;
             emitGeneratedCodeAttribute();
@@ -3836,14 +3876,14 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             _out << "class Patcher__ : IceInternal.Patcher";
             _out << sb;
             _out << sp << nl << "internal Patcher__(string type, Ice.Exception instance";
-            if(allClassMembers.size() > 1)
+            if(classMembers.size() > 1)
             {
                 _out << ", int member";
             }
             _out << ") : base(type)";
             _out << sb;
             _out << nl << "_instance = (" << name << ")instance;";
-            if(allClassMembers.size() > 1)
+            if(classMembers.size() > 1)
             {
                 _out << nl << "_member = member;";
             }
@@ -3853,15 +3893,19 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             _out << sb;
             _out << nl << "try";
             _out << sb;
-            if(allClassMembers.size() > 1)
+            if(classMembers.size() > 1)
             {
                 _out << nl << "switch(_member)";
                 _out << sb;
             }
             int memberCount = 0;
-            for(DataMemberList::const_iterator q = allClassMembers.begin(); q != allClassMembers.end(); ++q)
+            for(DataMemberList::const_iterator q = classMembers.begin(); q != classMembers.end(); ++q)
             {
-                if(allClassMembers.size() > 1)
+                if((*q)->optional())
+                {
+                    continue;
+                }
+                if(classMembers.size() > 1)
                 {
                     _out.dec();
                     _out << nl << "case " << memberCount << ":";
@@ -3892,13 +3936,60 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
                         _out << nl << "_instance." << memberName << " = v;";
                     }
                 }
-                if(allClassMembers.size() > 1)
+                if(classMembers.size() > 1)
                 {
                     _out << nl << "break;";
                 }
                 memberCount++;
             }
-            if(allClassMembers.size() > 1)
+            
+            for(DataMemberList::const_iterator q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
+            {
+
+                TypePtr paramType = (*q)->type();
+                BuiltinPtr builtin = BuiltinPtr::dynamicCast(paramType);
+                if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(paramType))
+                {
+                    if(classMembers.size() > 1)
+                    {
+                        _out.dec();
+                        _out << nl << "case " << memberCount << ":";
+                        _out.inc();
+                    }
+                    string memberName = fixId((*q)->name(), DotNet::Exception);
+                    string memberType = typeToString((*q)->type(), (*q)->optional());
+                    if((*q)->optional())
+                    {
+                        if(ClassDeclPtr::dynamicCast((*q)->type()))
+                        {
+                            _out << nl << "_instance." << memberName << " = new " << memberType << "(("
+                                << typeToString((*q)->type()) << ")v);";
+                        }
+                        else
+                        {
+                            _out << nl << "_instance." << memberName << " = new " << memberType << "(v);";
+                        }
+                    }
+                    else
+                    {
+                        if(ClassDeclPtr::dynamicCast((*q)->type()))
+                        {
+                            _out << nl << "_instance." << memberName << " = (" << memberType << ")v;";
+                        }
+                        else
+                        {
+                            _out << nl << "_instance." << memberName << " = v;";
+                        }
+                    }
+                    if(classMembers.size() > 1)
+                    {
+                        _out << nl << "break;";
+                    }
+                    memberCount++;
+                }
+            }
+            
+            if(classMembers.size() > 1)
             {
                 _out << eb;
             }
@@ -3910,7 +4001,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             _out << eb;
 
             _out << sp << nl << "private " << name << " _instance;";
-            if(allClassMembers.size() > 1)
+            if(classMembers.size() > 1)
             {
                 _out << nl << "private int _member;";
             }
@@ -3922,9 +4013,9 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         _out << nl << "protected override void readImpl__(IceInternal.BasicStream is__)";
         _out << sb;
         _out << nl << "is__.startReadSlice();";
-        DataMemberList classMembers = p->classDataMembers();
+        
         int classMemberCount = static_cast<int>(allClassMembers.size() - classMembers.size());
-        const bool needCustomPatcher = classMembers.size() > 1 || allClassMembers.size() > 1;
+        const bool needCustomPatcher = classMembers.size() > 1;
         for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
             writeUnmarshalDataMember(*q, fixId((*q)->name(), DotNet::Exception), needCustomPatcher, classMemberCount);

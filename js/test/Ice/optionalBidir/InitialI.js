@@ -348,6 +348,10 @@
         sendOptionalClass: function(req, current)
         {
         },
+        opG: function(g, current)
+        {
+            return g
+        },
         returnOptionalClass: function(req, current)
         {
             return new Test.OneOptional(53);

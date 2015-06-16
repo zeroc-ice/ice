@@ -377,6 +377,14 @@ InitialI::returnOptionalClass_async(const ::Test::AMD_Initial_returnOptionalClas
 }
 
 void
+InitialI::opG_async(const ::Test::AMD_Initial_opGPtr& cb,
+                    const ::Test::GPtr& g,
+                    const Ice::Current&)
+{
+    cb->ice_response(g);
+}
+
+void
 InitialI::supportsRequiredParams_async(const ::Test::AMD_Initial_supportsRequiredParamsPtr& cb,
                                        const Ice::Current&)
 {

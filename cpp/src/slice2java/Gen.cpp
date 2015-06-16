@@ -855,7 +855,8 @@ Slice::JavaVisitor::writeStreamUnmarshalDataMember(Output& out, const string& pa
 }
 
 void
-Slice::JavaVisitor::writePatcher(Output& out, const string& package, const DataMemberList& classMembers, bool stream)
+Slice::JavaVisitor::writePatcher(Output& out, const string& package, const DataMemberList& classMembers,
+                                 const DataMemberList& optionalMembers, bool stream)
 {
     out << sp << nl << "private class Patcher implements IceInternal.Patcher";
     if(stream)
@@ -881,6 +882,11 @@ Slice::JavaVisitor::writePatcher(Output& out, const string& package, const DataM
     int memberCount = 0;
     for(DataMemberList::const_iterator d = classMembers.begin(); d != classMembers.end(); ++d)
     {
+        if((*d)->optional())
+        {
+            continue;
+        }
+        
         BuiltinPtr b = BuiltinPtr::dynamicCast((*d)->type());
         if(b)
         {
@@ -902,8 +908,60 @@ Slice::JavaVisitor::writePatcher(Output& out, const string& package, const DataM
             }
         }
 
-        if((*d)->optional())
+        string memberName = fixKwd((*d)->name());
+        if(b)
         {
+            out << nl << memberName << " = v;";
+        }
+        else
+        {
+            string memberType = typeToString((*d)->type(), TypeModeMember, package);
+            out << nl << "if(v == null || v instanceof " << memberType << ")";
+            out << sb;
+            out << nl << memberName << " = (" << memberType << ")v;";
+            out << eb;
+            out << nl << "else";
+            out << sb;
+            out << nl << "IceInternal.Ex.throwUOE(type(), v);";
+            out << eb;
+        }
+
+        if(classMembers.size() > 1)
+        {
+            out << nl << "break;";
+        }
+
+        memberCount++;
+    }
+    
+    for(DataMemberList::const_iterator d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
+    {        
+        BuiltinPtr b = BuiltinPtr::dynamicCast((*d)->type());
+        if(b && b->kind() != Builtin::KindObject)
+        {
+            continue;
+        }
+        
+        TypePtr paramType = (*d)->type();
+        BuiltinPtr builtin = BuiltinPtr::dynamicCast(paramType);
+        if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(paramType))
+        {
+
+            if(classMembers.size() > 1)
+            {
+                out.dec();
+                out << nl << "case " << memberCount << ":";
+                out.inc();
+                if(b)
+                {
+                    out << nl << "__typeId = Ice.ObjectImpl.ice_staticId();";
+                }
+                else
+                {
+                    out << nl << "__typeId = \"" << (*d)->type()->typeId() << "\";";
+                }
+            }
+            
             string capName = (*d)->name();
             capName[0] = toupper(static_cast<unsigned char>(capName[0]));
 
@@ -923,35 +981,16 @@ Slice::JavaVisitor::writePatcher(Output& out, const string& package, const DataM
                 out << nl << "IceInternal.Ex.throwUOE(type(), v);";
                 out << eb;
             }
-        }
-        else
-        {
-            string memberName = fixKwd((*d)->name());
-            if(b)
-            {
-                out << nl << memberName << " = v;";
-            }
-            else
-            {
-                string memberType = typeToString((*d)->type(), TypeModeMember, package);
-                out << nl << "if(v == null || v instanceof " << memberType << ")";
-                out << sb;
-                out << nl << memberName << " = (" << memberType << ")v;";
-                out << eb;
-                out << nl << "else";
-                out << sb;
-                out << nl << "IceInternal.Ex.throwUOE(type(), v);";
-                out << eb;
-            }
-        }
 
-        if(classMembers.size() > 1)
-        {
-            out << nl << "break;";
-        }
+            if(classMembers.size() > 1)
+            {
+                out << nl << "break;";
+            }
 
-        memberCount++;
+            memberCount++;
+        }
     }
+    
     if(classMembers.size() > 1)
     {
         out << eb;
@@ -1709,18 +1748,20 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
     }
     out << eb;
 
+    DataMemberList classMembers = p->classDataMembers();
     DataMemberList allClassMembers = p->allClassDataMembers();
-    if(allClassMembers.size() != 0)
+    
+    if(classMembers.size() != 0)
     {
-        writePatcher(out, package, allClassMembers, stream);
+        writePatcher(out, package, classMembers, optionalMembers, stream);
     }
 
     out << sp << nl << "protected void __readImpl(IceInternal.BasicStream __is)";
     out << sb;
     out << nl << "__is.startReadSlice();";
-    DataMemberList classMembers = p->classDataMembers();
+    
     int classMemberCount = static_cast<int>(allClassMembers.size() - classMembers.size());
-    const bool needCustomPatcher = classMembers.size() > 1 || allClassMembers.size() > 1;
+    const bool needCustomPatcher = classMembers.size() > 1;
     iter = 0;
     for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
     {
@@ -3697,18 +3738,19 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         }
         out << eb;
 
+        DataMemberList classMembers = p->classDataMembers();
         DataMemberList allClassMembers = p->allClassDataMembers();
-        if(allClassMembers.size() != 0)
+    
+        if(classMembers.size() != 0)
         {
-            writePatcher(out, package, allClassMembers, _stream);
+            writePatcher(out, package, classMembers, optionalMembers, _stream);
         }
         out << sp << nl << "protected void" << nl << "__readImpl(IceInternal.BasicStream __is)";
         out << sb;
         out << nl << "__is.startReadSlice();";
         iter = 0;
-        DataMemberList classMembers = p->classDataMembers();
         int classMemberCount = static_cast<int>(allClassMembers.size() - classMembers.size());
-        const bool needCustomPatcher = classMembers.size() > 1 || allClassMembers.size() > 1;
+        const bool needCustomPatcher = classMembers.size() > 1;
         for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
         {
             if(!(*d)->optional())
@@ -4046,7 +4088,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
         if(classMembers.size() != 0)
         {
-            writePatcher(out, package, classMembers, _stream);
+            writePatcher(out, package, classMembers, DataMemberList(), _stream);
         }
 
         out << sp << nl << "public void" << nl << "__read(IceInternal.BasicStream __is)";

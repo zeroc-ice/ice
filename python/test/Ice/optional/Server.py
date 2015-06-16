@@ -137,6 +137,9 @@ class InitialI(Test.Initial):
 
     def returnOptionalClass(self, req, current=None):
         return Test.OneOptional(5)
+    
+    def opG(self, g, current=None):
+        return g
 
     def supportsRequiredParams(self, current=None):
         return False

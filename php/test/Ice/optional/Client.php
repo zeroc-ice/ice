@@ -337,6 +337,22 @@ function allTests($communicator)
     test($oo != Ice_Unset);
     $initial->ice_encodingVersion($Ice_Encoding_1_0)->returnOptionalClass(true, $oo);
     test($oo == Ice_Unset);
+    
+    
+    $gcls = $NS ? "Test\\G" : "Test_G";
+    $g1cls = $NS ? "Test\\G1" : "Test_G1";
+    $g2cls = $NS ? "Test\\G2" : "Test_G2";
+    
+    $g = new $gcls;
+    $g->gg1Opt = new $g1cls("gg1Opt");
+    $g->gg2 = new $g2cls(10);
+    $g->gg2Opt = new $g2cls(20);
+    $g->gg1 = new $g1cls("gg1");
+    $r = $initial->opG($g);
+    test($r->gg1Opt->a == "gg1Opt");
+    test($r->gg2->a == 10);
+    test($r->gg2Opt->a == 20);
+    test($r->gg1->a == "gg1");
 
     echo "ok\n";
 

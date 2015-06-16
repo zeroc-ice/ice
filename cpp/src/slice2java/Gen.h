@@ -86,7 +86,7 @@ protected:
     //
     // Generate a patcher class.
     //
-    void writePatcher(::IceUtilInternal::Output&, const std::string&, const DataMemberList&, bool);
+    void writePatcher(::IceUtilInternal::Output&, const std::string&, const DataMemberList&, const DataMemberList&, bool);
 
     //
     // Generate dispatch and marshalling methods for a class or interface.

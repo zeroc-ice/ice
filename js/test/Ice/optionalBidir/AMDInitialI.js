@@ -355,6 +355,10 @@
         {
             cb.ice_response(new TestAMD.OneOptional(53));
         },
+        opG_async: function(cb, g, current)
+        {
+            cb.ice_response(g);
+        },
         supportsRequiredParams_async: function(cb, current)
         {
             cb.ice_response(false);

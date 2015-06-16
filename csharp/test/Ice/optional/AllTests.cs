@@ -434,6 +434,17 @@ public class AllTests : TestCommon.TestApp
         outer.value = recursive1;
         initial.pingPong(outer);
 
+        Test.G g = new Test.G();
+        g.gg1Opt = new Ice.Optional<Test.G1>(new Test.G1("gg1Opt"));
+        g.gg2 = new Test.G2(10);
+        g.gg2Opt = new Ice.Optional<Test.G2>(new Test.G2(20));
+        g.gg1 = new Test.G1("gg1");
+        g = initial.opG(g);
+        test("gg1Opt".Equals(g.gg1Opt.Value.a));
+        test(10 == g.gg2.a);
+        test(20 == g.gg2Opt.Value.a);
+        test("gg1".Equals(g.gg1.a));
+            
         WriteLine("ok");
 
         Write("testing marshaling of large containers with fixed size elements... ");

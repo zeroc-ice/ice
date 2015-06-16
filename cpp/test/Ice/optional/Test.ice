@@ -175,6 +175,24 @@ class F extends E
     optional(1) A af;
 };
 
+class G1
+{
+    string a;
+};
+
+class G2
+{
+    long a;
+};
+
+class G
+{
+    optional(1) G1 gg1Opt;
+    G2 gg2;
+    optional(0) G2 gg2Opt;
+    G1 gg1;
+};
+
 class Recursive;
 sequence<Recursive> RecursiveSeq;
 
@@ -285,6 +303,8 @@ class Initial
     void sendOptionalClass(bool req, optional(1) OneOptional o);
 
     void returnOptionalClass(bool req, out optional(1) OneOptional o);
+    
+    G opG(G g);
 
     bool supportsRequiredParams();
 

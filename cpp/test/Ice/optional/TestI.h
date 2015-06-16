@@ -184,6 +184,8 @@ public:
     virtual void sendOptionalClass(bool, const IceUtil::Optional<Test::OneOptionalPtr>&, const Ice::Current&);
 
     virtual void returnOptionalClass(bool, IceUtil::Optional<Test::OneOptionalPtr>&, const Ice::Current&);
+    
+    virtual ::Test::GPtr opG(const ::Test::GPtr& g, const Ice::Current&);
 
     virtual bool supportsRequiredParams(const Ice::Current&);
 

@@ -621,6 +621,17 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
     RecursivePtr outer = new Recursive();
     outer->value = recursive1;
     initial->pingPong(outer);
+    
+    GPtr g = new G();
+    g->gg1Opt = new G1("gg1Opt");
+    g->gg2 = new G2(10);
+    g->gg2Opt = new G2(20);
+    g->gg1 = new G1("gg1");
+    GPtr r = initial->opG(g);
+    test("gg1Opt" == r->gg1Opt.get()->a);
+    test(10 == r->gg2->a);
+    test(20 == r->gg2Opt.get()->a);
+    test("gg1" == r->gg1->a);
 
     cout << "ok" << endl;
 
@@ -1857,6 +1868,5 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         }
     }
     cout << "ok" << endl;
-
     return initial;
 }
