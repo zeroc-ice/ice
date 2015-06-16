@@ -133,12 +133,15 @@ ServerEntryPtr
 ServerCache::add(const ServerInfo& info)
 {
     Lock sync(*this);
-    assert(!getImpl(info.descriptor->id));
 
-    ServerEntryPtr entry = new ServerEntry(*this, info.descriptor->id);
-    addImpl(info.descriptor->id, entry);
-
+    ServerEntryPtr entry = getImpl(info.descriptor->id);
+    if(!entry)
+    {
+        entry = new ServerEntry(*this, info.descriptor->id);
+        addImpl(info.descriptor->id, entry);
+    }
     entry->update(info, false);
+
     _nodeCache.get(info.node, true)->addServer(entry);
 
     forEachCommunicator(AddCommunicator(*this, entry, info.application))(info.descriptor);

@@ -14,7 +14,7 @@
 using namespace std;
 using namespace IceGrid;
 
-WellKnownObjectsManager::WellKnownObjectsManager(const DatabasePtr& database) : 
+WellKnownObjectsManager::WellKnownObjectsManager(const DatabasePtr& database) :
     _database(database), _initialized(false)
 {
 }
@@ -55,8 +55,15 @@ WellKnownObjectsManager::registerAll(const ReplicaSessionPrx& session)
     //
     // If initialized, the endpoints and well known objects are immutable.
     //
-    session->setEndpoints(_endpoints);
-    session->registerWellKnownObjects(_wellKnownObjects);
+    try
+    {
+        session->setEndpoints(_endpoints);
+        session->registerWellKnownObjects(_wellKnownObjects);
+    }
+    catch(const Ice::LocalException&)
+    {
+        // The session is already gone, ignore, this will be detected by the keep alive thread.
+    }
 }
 
 void
@@ -89,7 +96,7 @@ WellKnownObjectsManager::updateReplicatedWellKnownObjects()
     id.category = _database->getInstanceName();
     ObjectInfo info;
     ObjectInfoSeq objects;
-    
+
     Lock sync(*this);
 
     Ice::ObjectPrx replicatedClientProxy = _database->getReplicaCache().getEndpoints("Client", _endpoints["Client"]);
@@ -144,7 +151,7 @@ WellKnownObjectsManager::getLocatorRegistry()
     return Ice::LocatorRegistryPrx::uncheckedCast(getWellKnownObjectReplicatedProxy(id, "Server"));
 }
 
-Ice::ObjectPrx 
+Ice::ObjectPrx
 WellKnownObjectsManager::getWellKnownObjectReplicatedProxy(const Ice::Identity& id, const string& endpt)
 {
     try
