@@ -223,6 +223,11 @@
 {
     *o = [TestOptionalOneOptional oneOptional:@53];
 }
+-(id) opG:(id)g current:(ICECurrent*)current
+{
+    return g;
+}
+
 -(BOOL) supportsRequiredParams:(ICECurrent*)current
 {
     return NO;

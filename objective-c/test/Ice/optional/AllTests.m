@@ -625,6 +625,18 @@ optionalAllTests(id<ICECommunicator> communicator)
     [[initial ice_encodingVersion:ICEEncoding_1_0] returnOptionalClass:YES o:&oo];
     test(oo == ICENone);
 
+    TestOptionalG* g = [TestOptionalG g];
+    g.gg1 = [TestOptionalG1 g1:@"g1"];
+    g.gg1Opt = [TestOptionalG1 g1:@"g1opt"];
+    g.gg2 = [TestOptionalG2 g2:10];
+    g.gg2Opt = [TestOptionalG2 g2:20];
+    TestOptionalG* r = [initial opG:g];
+
+    test([r.gg1.a isEqualToString:@"g1"]);
+    test([r.gg1Opt.a isEqualToString:@"g1opt"]);
+    test(r.gg2.a == 10);
+    test(r.gg2Opt.a == 20);
+
     tprintf("ok\n");
 
     tprintf("testing marshalling of large containers with fixed size elements...");
