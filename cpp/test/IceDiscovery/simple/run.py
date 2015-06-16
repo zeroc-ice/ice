@@ -32,12 +32,12 @@ if not TestUtil.ipv6:
     args += " --IceDiscovery.Interface=127.0.0.1"
 elif TestUtil.isDarwin():
     args += " --IceDiscovery.Interface=\"::1\""
-    
+
 serverProc = []
 for i in range(0, num):
     sys.stdout.write("starting server #%d... " % (i + 1))
     sys.stdout.flush()
-    serverProc.append(TestUtil.startServer(server, "%d %s" % (i, args)))
+    serverProc.append(TestUtil.startServer(server, "%d %s" % (i, args), count = 4))
     print("ok")
 
 sys.stdout.write("starting client... ")
