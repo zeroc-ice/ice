@@ -227,6 +227,15 @@ You can start the tool with the following command:
 In OS X there is also an application bundle named IceGrid Admin. You can start
 the IceGrid Admin tool by double-clicking the IceGrid Admin icon in Finder.
 
+## Test Controller
+
+The test Controller is an Ice server that allows to start servers for languages
+that doesn't provide a full server side. This is currently used by JavaScript and
+WinRT test suites to start the required servers.
+
+    > gradlew :testController:assemble
+
+
 [1]: https://zeroc.com/download.html
 [2]: https://zeroc.com/platforms_3_6_0.html
 [3]: http://gradle.org

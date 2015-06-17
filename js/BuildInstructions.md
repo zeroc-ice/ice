@@ -44,15 +44,17 @@ To start the browser tests run:
 
     > npm run gulp:test:run-with-browser
 
-This script requires Ice for Python to be installed. Follow the instructions
-from your Ice distribution to set up the environment for Ice for Python.
+This requires to build the Java test controller from Java subdir and tests servers
+from C++, C# or Java. Follow the instructions from the corresponding language mapping
+to build the tests and the server controller.
 
-The first time you run the script, you will be prompted for your password.
-This is necessary to configure the trust setting for the HTTP server
-certificate, which will enable you to connect to the HTTP server with
-SSL via your web browser.
+In OS X the first time you run the script, you will be prompted for your
+password. This is necessary to configure the trust setting for the HTTP
+server certificate, which will enable you to connect to the HTTP server
+with SSL via your web browser.
 
-You can then navigate to http://127.0.0.1:8080 to start the tests.
+The test page (http://127.0.0.1:8080) will be opened using the system default
+browser.
 
 ### Browser Information
 

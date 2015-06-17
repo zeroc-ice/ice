@@ -25,7 +25,6 @@ Visual Studio gives you several alternatives:
 - Visual Studio Command Prompt
 - Visual Studio x64 Win64 Command Prompt
 - Visual Studio x64 Cross Tools Command Prompt
-- Visual Studio ARM Cross Tools Command Prompt
 
 Using the first configuration produces 32-bit binaries, while the second and third
 produce 64-bit binaries and the fourth produces ARM binaries.
@@ -44,14 +43,11 @@ Now you're ready to build Ice:
 
     > nmake /f Makefile.mak
 
-After the build has completed, you must register the Ice SDK in the Windows registry:
-
-    > nmake /f Makefile.mak register-sdk
-
-> *This command must be executed in a command prompt that has administrative privileges
-because it requires write access to the registry.*
-
 ### Running the Test Suite
+
+
+The test suite project requires the [Ice Builder for Visual Studio][8].
+Add this extension to Visual Studio before opening the solution.
 
 The WinRT test suite is composed of a set of dynamic libraries (one for each
 client/server test) and a GUI application that loads and runs the tests in the
@@ -80,30 +76,29 @@ After the build completes, you can deploy the application using "Deploy Solution
 in the "Build" menu. Once deployed, you can start the application from the WinRT
 Desktop by clicking the "Ice Test Suite" icon.
 
-If you want to run the tests with SSL enabled, you must use servers from another
-language mapping as WinRT does not support server-side SSL.
+In the test suite application selecting "winrt" for Server field allows to run
+tests with TCP and WS protocols supported by  WinRT server side.
 
-To run a test with SSL, open a command window and change to the test directory.
-At the command prompt, execute:
+You can also use C++, C# or Java servers to run the tests, this allows to use 
+additional SSL and WSS protocols.
 
-    > python run.py --winrt --protocol=ssl
+To use servers from C++, C# or Java language mappings you need to build the tests
+for this language mapping.
 
-Then open the "Ice Test Suite" Windows Store application, check "Enable SSL",
-and click the "Run" button.
+The test controller server is implemented in Java refer to the build instructions in
+java subdirectory for how to build the tests controller. Use the following command
+to start the test controller:
 
-To run the tests on a remote device such as the Surface, you will need to install
-the Remote Debugger Tools.
+    > python scripts/TestController.py
 
-> *Some tests might fail if you run the tests with the debugger attached. You
-should choose "Start without Debugging" from the Debug menu to run the tests.*
+In "Ice Test Suite" Windows Store application, select the Server language mapping
+and Protocol you want to use.
 
 ## Installing a C++ Source Build
 
 Simply run `nmake /f Makefile.mak install`. This will install the Ice SDK in the
 directory specified by the `prefix` variable in `config\Make.rules.mak`.
 
-> *This command must be executed in a command prompt that has administrative
-privileges because it requires write access to the registry.*
 
 [1]: https://doc.zeroc.com/display/Ice36/Using+the+Windows+Binary+Distribution
 [2]: https://zeroc.com/platforms_3_6_0.html
@@ -112,3 +107,4 @@ privileges because it requires write access to the registry.*
 [5]: http://www.oracle.com/us/products/database/berkeley-db/overview/index.htm
 [6]: https://github.com/zeroc-ice/mcpp
 [7]: https://zeroc.com/download.html
+[8]: https://github.com/zeroc-ice/ice-builder-visualstudio
