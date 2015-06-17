@@ -32,7 +32,21 @@ public final class PluginManagerI implements PluginManager
         {
             for(PluginInfo p : _plugins)
             {
-                p.plugin.initialize();
+                try
+                {
+                    p.plugin.initialize();
+                }
+                catch(Ice.PluginInitializationException ex)
+                {
+                    throw ex;
+                }
+                catch(RuntimeException ex)
+                {
+                    PluginInitializationException e = new PluginInitializationException();
+                    e.reason = "plugin `" + p.name + "' initialization failed";
+                    e.initCause(ex);
+                    throw e;
+                }
                 initializedPlugins.add(p.plugin);
             }
         }

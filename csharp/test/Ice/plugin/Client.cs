@@ -37,7 +37,7 @@ public class Client
         {
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties();
-            initData.properties.setProperty("Ice.Plugin.Test", 
+            initData.properties.setProperty("Ice.Plugin.Test",
                                             "plugins/Plugin.dll:PluginFactory 'C:\\Program Files\\' --DatabasePath " +
                                             "'C:\\Program Files\\Application\\db'");
             communicator = Ice.Util.initialize(ref args, initData);
@@ -61,9 +61,9 @@ public class Client
             communicator = Ice.Util.initialize(ref args, initData);
             test(false);
         }
-        catch(System.Exception ex)
+        catch(Ice.PluginInitializationException ex)
         {
-            test(ex.Message.Equals("PluginInitializeFailException"));
+            test(ex.InnerException.Message.Equals("PluginInitializeFailException"));
         }
         test(communicator == null);
         Console.WriteLine("ok");
@@ -132,18 +132,18 @@ public class Client
         {
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties();
-            initData.properties.setProperty("Ice.Plugin.PluginOneFail", 
+            initData.properties.setProperty("Ice.Plugin.PluginOneFail",
                                             "plugins/Plugin.dll:PluginOneFailFactory");
-            initData.properties.setProperty("Ice.Plugin.PluginTwoFail", 
+            initData.properties.setProperty("Ice.Plugin.PluginTwoFail",
                                             "plugins/Plugin.dll:PluginTwoFailFactory");
-            initData.properties.setProperty("Ice.Plugin.PluginThreeFail", 
+            initData.properties.setProperty("Ice.Plugin.PluginThreeFail",
                                             "plugins/Plugin.dll:PluginThreeFailFactory");
             initData.properties.setProperty("Ice.PluginLoadOrder", "PluginOneFail, PluginTwoFail, PluginThreeFail");
             communicator = Ice.Util.initialize(ref args, initData);
         }
-        catch(System.Exception ex)
+        catch(Ice.PluginInitializationException ex)
         {
-            test(ex.Message.Equals("PluginInitializeFailException"));
+            test(ex.InnerException.Message.Equals("PluginInitializeFailException"));
         }
         test(communicator == null);
         Console.WriteLine("ok");

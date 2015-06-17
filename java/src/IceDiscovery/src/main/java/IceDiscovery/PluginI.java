@@ -94,7 +94,7 @@ public class PluginI implements Ice.Plugin
         catch(Ice.LocalException ex)
         {
             StringBuilder b = new StringBuilder();
-            b.append("unable to establish multicast connection, IceDiscovery will be disabled:\n");
+            b.append("IceDiscovery is unable to establish a multicast connection:\n");
             b.append("proxy = ");
             b.append(lookupPrx.toString());
             b.append('\n');

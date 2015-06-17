@@ -95,7 +95,7 @@ PluginI::initialize()
     // Setup locatory registry.
     //
     LocatorRegistryIPtr locatorRegistry = new LocatorRegistryI(_communicator);
-    Ice::LocatorRegistryPrx locatorRegistryPrx = 
+    Ice::LocatorRegistryPrx locatorRegistryPrx =
         Ice::LocatorRegistryPrx::uncheckedCast(_locatorAdapter->addWithUUID(locatorRegistry));
 
     string lookupEndpoints = properties->getProperty("IceDiscovery.Lookup");
@@ -125,7 +125,7 @@ PluginI::initialize()
     catch(const Ice::LocalException& ex)
     {
         ostringstream os;
-        os << "unable to establish multicast connection, IceDiscovery will be disabled:\n";
+        os << "IceDiscovery is unable to establish a multicast connection:\n";
         os << "proxy = " << lookupPrx << '\n';
         os << ex;
         throw Ice::PluginInitializationException(__FILE__, __LINE__, os.str());
@@ -145,7 +145,7 @@ PluginI::initialize()
     //
     Ice::ObjectPrx loc = _locatorAdapter->addWithUUID(new LocatorI(_lookup, locatorRegistryPrx));
     _communicator->setDefaultLocator(Ice::LocatorPrx::uncheckedCast(loc));
-    
+
     _multicastAdapter->activate();
     _replyAdapter->activate();
     _locatorAdapter->activate();

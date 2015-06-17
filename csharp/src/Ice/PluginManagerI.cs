@@ -53,7 +53,20 @@ namespace Ice
             {
                 foreach(PluginInfo p in _plugins)
                 {
-                    p.plugin.initialize();
+                    try
+                    {
+                        p.plugin.initialize();
+                    }
+                    catch(PluginInitializationException ex)
+                    {
+                        throw ex;
+                    }
+                    catch(System.Exception ex)
+                    {
+                        PluginInitializationException e = new PluginInitializationException(ex);
+                        e.reason = "plugin `" + p.name + "' initialization failed";
+                        throw e;
+                    }
                     initializedPlugins.Add(p.plugin);
                 }
             }

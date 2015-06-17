@@ -241,7 +241,7 @@ PluginI::initialize()
     catch(const Ice::LocalException& ex)
     {
         ostringstream os;
-        os << "unable to establish multicast connection, Ice locator discovery will be disabled:\n";
+        os << "IceLocatorDiscovery is unable to establish a multicast connection:\n";
         os << "proxy = " << lookupPrx << '\n';
         os << ex;
         throw Ice::PluginInitializationException(__FILE__, __LINE__, os.str());

@@ -25,9 +25,9 @@ namespace IceLocatorDiscovery
 
     internal class Request
     {
-        public Request(LocatorI locator, 
-                       string operation, 
-                       Ice.OperationMode mode, 
+        public Request(LocatorI locator,
+                       string operation,
+                       Ice.OperationMode mode,
                        byte[] inParams,
                        Dictionary<string, string> context,
                        Ice.AMD_Object_ice_invoke amdCB)
@@ -83,19 +83,19 @@ namespace IceLocatorDiscovery
 
     internal class VoidLocatorI : Ice.LocatorDisp_
     {
-        public override void 
+        public override void
         findObjectById_async(Ice.AMD_Locator_findObjectById amdCB, Ice.Identity id, Ice.Current current)
         {
             amdCB.ice_response(null);
         }
-        
-        public override void 
+
+        public override void
         findAdapterById_async(Ice.AMD_Locator_findAdapterById amdCB, String id, Ice.Current current)
         {
             amdCB.ice_response(null);
         }
-        
-        public override Ice.LocatorRegistryPrx 
+
+        public override Ice.LocatorRegistryPrx
         getRegistry(Ice.Current current)
         {
             return null;
@@ -383,7 +383,7 @@ namespace IceLocatorDiscovery
             catch (Ice.LocalException ex)
             {
                 System.Text.StringBuilder s = new System.Text.StringBuilder();
-                s.Append("unable to establish multicast connection, Ice locator discovery will be disabled:\n");
+                s.Append("IceLocatorDiscovery is unable to establish a multicast connection:\n");
                 s.Append("proxy = ");
                 s.Append(lookupPrx.ToString());
                 s.Append("\n");
@@ -392,7 +392,7 @@ namespace IceLocatorDiscovery
             }
 
             Ice.LocatorPrx voidLo = Ice.LocatorPrxHelper.uncheckedCast(_locatorAdapter.addWithUUID(new VoidLocatorI()));
-        
+
             string instanceName = properties.getProperty("IceLocatorDiscovery.InstanceName");
             Ice.Identity id = new Ice.Identity();
             id.name = "Locator";

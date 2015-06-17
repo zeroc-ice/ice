@@ -86,7 +86,26 @@ Ice::PluginManagerI::initializePlugins()
     {
         for(PluginInfoList::iterator p = _plugins.begin(); p != _plugins.end(); ++p)
         {
-            p->plugin->initialize();
+            try
+            {
+                p->plugin->initialize();
+            }
+            catch(const Ice::PluginInitializationException&)
+            {
+                throw;
+            }
+            catch(const std::exception& ex)
+            {
+                ostringstream os;
+                os << "plugin `" << p->name << "' initialization failed:\n" << ex.what();
+                throw PluginInitializationException(__FILE__, __LINE__, os.str());
+            }
+            catch(...)
+            {
+                ostringstream os;
+                os << "plugin `" << p->name << "' initialization failed:\nunknown exception";
+                throw PluginInitializationException(__FILE__, __LINE__, os.str());
+            }
             initializedPlugins.push_back(p->plugin);
         }
     }
@@ -420,7 +439,7 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, St
         args = properties->parseCommandLineOptions(name, args);
         cmdArgs = properties->parseCommandLineOptions(name, cmdArgs);
     }
-    
+
     PluginPtr plugin;
     PLUGIN_FACTORY factory = 0;
     DynamicLibraryPtr library;

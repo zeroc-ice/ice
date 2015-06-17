@@ -19,6 +19,8 @@ These are the changes since Ice 3.5.1.
 
 ## General Changes
 
+- Exceptions raised by the Ice::Plugin initialize method are now caught by the communicator, which raises Ice::PluginInitializationException instead.
+
 - Fixed IceGrid bug where an application update could fail and leave the registry in an invalid state if some allocation requests were pending while the application was updated.
 
 - Deprecated the `IceSSL.PersistKeySet` which is now only used when importing certificates with the deprecated `IceSSL.ImportCert` property.

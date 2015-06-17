@@ -223,9 +223,9 @@ main(int argc, char* argv[])
         communicator = Ice::initialize(argc, argv, initData);
         test(false);
     }
-    catch(const std::exception& ex)
+    catch(const Ice::PluginInitializationException& ex)
     {
-        test(string(ex.what()) == "PluginInitializeFailExeption");
+        test(ex.reason.find("PluginInitializeFailExeption") > 0);
     }
     test(!communicator);
     cout << "ok" << endl;
@@ -298,9 +298,9 @@ main(int argc, char* argv[])
         communicator = Ice::initialize(argc, argv, initData);
         test(false);
     }
-    catch(const std::exception& ex)
+    catch(const Ice::PluginInitializationException& ex)
     {
-        test(string(ex.what()) == "PluginInitializeFailExeption");
+        test(ex.reason.find("PluginInitializeFailExeption") > 0);
     }
     test(!communicator);
     cout << "ok" << endl;

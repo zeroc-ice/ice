@@ -33,7 +33,7 @@ namespace IceDiscovery
         public void initialize()
         {
             Ice.Properties properties = _communicator.getProperties();
-            
+
             bool ipv4 = properties.getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
             bool preferIPv6 = properties.getPropertyAsInt("Ice.PreferIPv6Address") > 0;
             string address;
@@ -103,7 +103,7 @@ namespace IceDiscovery
             catch(Ice.LocalException ex)
             {
                 StringBuilder b = new StringBuilder();
-                b.Append("unable to establish multicast connection, IceDiscovery will be disabled:\n");
+                b.Append("IceDiscovery is unable to establish a multicast connection:\n");
                 b.Append("proxy = ");
                 b.Append(lookupPrx.ToString());
                 b.Append('\n');
@@ -127,7 +127,7 @@ namespace IceDiscovery
             loc = _locatorAdapter.addWithUUID(
                 new LocatorI(lookup, Ice.LocatorRegistryPrxHelper.uncheckedCast(locatorRegistryPrx)));
             _communicator.setDefaultLocator(Ice.LocatorPrxHelper.uncheckedCast(loc));
-    
+
             _multicastAdapter.activate();
             _replyAdapter.activate();
             _locatorAdapter.activate();

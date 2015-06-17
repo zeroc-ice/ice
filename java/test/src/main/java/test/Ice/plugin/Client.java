@@ -59,9 +59,9 @@ public class Client extends test.Util.Application
             communicator = Ice.Util.initialize(args, initData);
             test(false);
         }
-        catch(RuntimeException ex)
+        catch(Ice.PluginInitializationException ex)
         {
-            test(ex.getMessage().equals("PluginInitializeFailException"));
+            test(ex.getCause().getMessage().equals("PluginInitializeFailException"));
         }
         test(communicator == null);
         printWriter.println("ok");
@@ -142,9 +142,9 @@ public class Client extends test.Util.Application
             initData.properties.setProperty("Ice.PluginLoadOrder", "PluginOneFail, PluginTwoFail, PluginThreeFail");
             communicator = Ice.Util.initialize(args, initData);
         }
-        catch(RuntimeException ex)
+        catch(Ice.PluginInitializationException ex)
         {
-            test(ex.getMessage().equals("PluginInitializeFailException"));
+            test(ex.getCause().getMessage().equals("PluginInitializeFailException"));
         }
         test(communicator == null);
         printWriter.println("ok");
