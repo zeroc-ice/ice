@@ -51,8 +51,13 @@ Ice installation:
 
     > set ICE_HOME=C:\Program Files (x86)\ZeroC\Ice-3.6.0
 
-Python is required to run the test suite. To run the tests, open a command window
-and change to the top-level directory. At the command prompt, execute:
+Python is required to run the test suite. Additionally, the Glacier2 tests
+require the Python module `passlib`, which you can install with the command:
+
+    > pip install passlib
+
+To run the tests, open a command window and change to the top-level directory.
+At the command prompt, execute:
 
     > python allTests.py
 
@@ -127,5 +132,5 @@ Unity API, open `config\Make.rules.mak.cs` and set `UNITY=yes`. Run nmake as bef
     > nmake /f Makefile.mak
 
 [1]: https://zeroc.com/download.html
-[2]: https://zeroc.com/platforms_3_6_0.html
+[2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+3.6.0
 [3]: https://msdn.microsoft.com/en-us/library/ms241613.aspx

@@ -1,6 +1,6 @@
 # Building Ice for C++ for Windows Applications
 
-This page describes the Ice source distribution, including information about
+This file describes the Ice source distribution, including information about
 compiler requirements, third-party dependencies, and instructions for building
 and testing the distribution. If you prefer, you can download a [Windows installer][1]
 that contains pre-compiled debug and release libraries, executables, and everything
@@ -35,9 +35,7 @@ are two knowledgebase articles that may be relevant for your system:
  - [KB 896256](http://support.microsoft.com/?id=896256)
  - [KB 895980](http://support.microsoft.com/?id=895980)
 
-## Compiling and Testing Ice
-
-### Building Ice
+## Building Ice
 
 Open a command prompt that is configured for your target architecture. For example,
 when using Visual Studio 2013, you have several alternatives:
@@ -65,16 +63,6 @@ Now you're ready to build Ice:
 
 This will build the Ice core libraries, services, and tests.
 
-### Running the Test Suite
-
-Python is required to run the test suite. After a successful build, you can run
-the tests as follows:
-
-    > python allTests.py
-
-If everything worked out, you should see lots of `ok` messages. In case of a
-failure, the tests abort with `failed`.
-
 ### x64 Platform
 
 Building Ice on x64 with the Visual Studio C++ compiler is like building Ice on
@@ -91,8 +79,22 @@ specified by the `prefix` variable in `config\Make.rules.mak`.
 If you built a 64-bit version of Ice, the binaries are installed in the `bin\x64`
 directory and the libraries are installed in the `lib\x64` directory.
 
+## Running the Test Suite
+
+Python is required to run the test suite. Additionally, the Glacier2 tests
+require the Python module `passlib`, which you can install with the command:
+
+    > pip install passlib
+
+After a successful source build, you can run the tests as follows:
+
+    > python allTests.py
+
+If everything worked out, you should see lots of `ok` messages. In case of a
+failure, the tests abort with `failed`.
+
 [1]: https://doc.zeroc.com/display/Ice36/Using+the+Windows+Binary+Distribution
-[2]: https://zeroc.com/platforms_3_6_0.html
+[2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+3.6.0
 [3]: http://expat.sourceforge.net
 [4]: http://bzip.org
 [5]: http://www.oracle.com/us/products/database/berkeley-db/overview/index.htm

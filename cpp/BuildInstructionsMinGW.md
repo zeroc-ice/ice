@@ -27,13 +27,11 @@ You do not need to build these packages yourself, as ZeroC supplies a separate
 [Windows installer][6] that contains release and debug libraries for all of the
 third-party dependencies.
 
-## Compiling and Testing Ice
+## Building Ice
 
 The Ice build system for MinGW builds only a small subset of Ice for C++, namely
 the core run time libraries (Ice, IceUtil, IceDiscovery, IceSSL), slice2cpp,
 slice2rb and the corresponding tests.
-
-### Building Ice
 
 In a command window, change to the `cpp` subdirectory:
 
@@ -67,7 +65,12 @@ Now you are ready to build Ice:
 
     > make
 
-### Running the Test Suite
+## Installing a C++ Source Build
+
+Simply run `make install` from a command prompt. This will install Ice in the
+directory specified by the `prefix` variable in `config\Make.rules`.
+
+## Running the Test Suite
 
 Python is required to run the test suite. After a successful build, you can run
 the tests as follows:
@@ -76,11 +79,6 @@ the tests as follows:
 
 If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
-
-## Installing a C++ Source Build
-
-Simply run `make install` from a command prompt. This will install Ice in the
-directory specified by the `prefix` variable in `config\Make.rules`.
 
 [1]: https://doc.zeroc.com/display/Ice36/Using+the+Ruby+Distribution
 [2]: http://sourceforge.net/projects/mingwbuilds/files/host-windows/releases/4.7.3/32-bit/threads-win32/sjlj/x32-4.7.3-release-win32-sjlj-rev1.7z/download

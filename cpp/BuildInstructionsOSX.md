@@ -1,6 +1,6 @@
 # Building Ice for C++ on OS X
 
-This page describes the Ice source distribution, including information about
+This file describes the Ice source distribution, including information about
 compiler requirements, third-party dependencies, and instructions for building
 and testing the distribution. If you prefer, you can install a [Homebrew][1]
 package instead.
@@ -36,7 +36,7 @@ you have a couple of options:
 
 - Download the Berkeley DB and mcpp source distributions and build them yourself.
 
-## Compiling and Testing Ice
+## Building Ice
 
 In a command window, change to the `cpp` subdirectory:
 
@@ -51,18 +51,6 @@ Now you're ready to build Ice:
     $ make
 
 This will build the Ice core libraries, services, and tests.
-
-Python is required to run the test suite. After a successful build, you can run the
-tests as follows:
-
-    $ make test
-
-This command is equivalent to:
-
-    $ python allTests.py
-
-If everything worked out, you should see lots of `ok` messages. In case of a
-failure, the tests abort with `failed`.
 
 ## Installing a C++ Source Build
 
@@ -80,8 +68,26 @@ When compiling Ice programs, you must pass the location of the `<prefix>/include
 directory to the compiler with the `-I` option, and the location of the library
 directory with the `-L` option.
 
+## Running the Test Suite
+
+Python is required to run the test suite. Additionally, the Glacier2 tests
+require the Python module `passlib`, which you can install with the command:
+
+    $ pip install passlib
+
+After a successful source build, you can run the tests as follows:
+
+    $ make test
+
+This command is equivalent to:
+
+    $ python allTests.py
+
+If everything worked out, you should see lots of `ok` messages. In case of a
+failure, the tests abort with `failed`.
+
 [1]: https://doc.zeroc.com/display/Ice36/Using+the+OS+X+Binary+Distribution
-[2]: https://zeroc.com/platforms_3_6_0.html
+[2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+3.6.0
 [3]: http://expat.sourceforge.net
 [4]: http://openssl.org
 [5]: http://bzip.org

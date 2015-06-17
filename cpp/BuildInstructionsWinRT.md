@@ -1,6 +1,6 @@
 # Building Ice for C++ for WinRT Applications
 
-This page describes the Ice source distribution, including information about
+This file describes the Ice source distribution, including information about
 compiler requirements, third-party dependencies, and instructions for building
 and testing the distribution. If you prefer, you can download a [Windows installer][1]
 that contains pre-compiled debug and release libraries, executables, and everything
@@ -11,9 +11,7 @@ else necessary to build Ice applications for WinRT.
 Ice was extensively tested using the operating systems and compiler versions listed
 for our [supported platforms][2].
 
-## Compiling and Testing Ice
-
-### Building Ice
+## Building Ice
 
 > *To build Ice for WinRT you first need to build Ice for Windows. The build of Ice
 for Windows is necessary to create the Slice translators that we need to build Ice
@@ -27,11 +25,11 @@ Visual Studio gives you several alternatives:
 - Visual Studio x64 Cross Tools Command Prompt
 
 Using the first configuration produces 32-bit binaries, while the second and third
-produce 64-bit binaries and the fourth produces ARM binaries.
+produce 64-bit binaries.
 
 In the command window, change to the `cpp` subdirectory:
 
-    $ cd cpp
+    > cd cpp
 
 Edit `config\Make.rules.mak` to establish your build configuration. The comments
 in the file provide more information. In particular, you must set `WINRT` to yes
@@ -43,8 +41,12 @@ Now you're ready to build Ice:
 
     > nmake /f Makefile.mak
 
-### Running the Test Suite
+## Installing a C++ Source Build
 
+Simply run `nmake /f Makefile.mak install`. This will install the Ice SDK in the
+directory specified by the `prefix` variable in `config\Make.rules.mak`.
+
+## Running the Test Suite
 
 The test suite project requires the [Ice Builder for Visual Studio][8].
 Add this extension to Visual Studio before opening the solution.
@@ -76,32 +78,26 @@ After the build completes, you can deploy the application using "Deploy Solution
 in the "Build" menu. Once deployed, you can start the application from the WinRT
 Desktop by clicking the "Ice Test Suite" icon.
 
-In the test suite application selecting "winrt" for Server field allows to run
-tests with TCP and WS protocols supported by  WinRT server side.
+In the test suite application, selecting "winrt" for the Server field allows you
+to run tests with TCP and WS protocols supported by the WinRT server side.
 
-You can also use C++, C# or Java servers to run the tests, this allows to use 
+You can also use C++, C# or Java servers to run the tests, which allows you to use 
 additional SSL and WSS protocols.
 
-To use servers from C++, C# or Java language mappings you need to build the tests
-for this language mapping.
+To use servers from C++, C# or Java language mappings, you need to build the tests
+for the desired language mapping.
 
-The test controller server is implemented in Java refer to the build instructions in
-java subdirectory for how to build the tests controller. Use the following command
-to start the test controller:
+The test controller server is implemented in Java. Refer to the build instructions in
+java subdirectory for information on building the test controller. Use the following
+command to start the test controller:
 
     > python scripts/TestController.py
 
-In "Ice Test Suite" Windows Store application, select the Server language mapping
+In the "Ice Test Suite" Windows Store application, select the Server language mapping
 and Protocol you want to use.
 
-## Installing a C++ Source Build
-
-Simply run `nmake /f Makefile.mak install`. This will install the Ice SDK in the
-directory specified by the `prefix` variable in `config\Make.rules.mak`.
-
-
 [1]: https://doc.zeroc.com/display/Ice36/Using+the+Windows+Binary+Distribution
-[2]: https://zeroc.com/platforms_3_6_0.html
+[2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+3.6.0
 [3]: http://expat.sourceforge.net
 [4]: http://bzip.org
 [5]: http://www.oracle.com/us/products/database/berkeley-db/overview/index.htm

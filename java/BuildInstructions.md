@@ -237,6 +237,6 @@ WinRT test suites to start the required servers.
 
 
 [1]: https://zeroc.com/download.html
-[2]: https://zeroc.com/platforms_3_6_0.html
+[2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+3.6.0
 [3]: http://gradle.org
 [4]: http://proguard.sourceforge.net

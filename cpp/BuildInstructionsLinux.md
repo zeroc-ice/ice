@@ -1,6 +1,6 @@
 # Building Ice for C++ on Linux
 
-This page describes the Ice source distribution, including information about
+This file describes the Ice source distribution, including information about
 compiler requirements, third-party dependencies, and instructions for building
 and testing the distribution. If you prefer, you can install [binary packages][1]
 for supported platforms that contain pre-compiled libraries, executables, and
@@ -32,7 +32,7 @@ not include them:
 - mcpp 2.7.2 with patches (`mcpp-devel`) on RHEL 7, RHEL 6, SLES 12, SLES 11
 and Amzn 2015.03
 
-## Compiling and Testing Ice for C++ on Linux
+## Building Ice
 
 In a command window, change to the `cpp` subdirectory:
 
@@ -47,18 +47,6 @@ Now you're ready to build Ice:
     $ make
 
 This will build the Ice core libraries, services, and tests.
-
-Python is required to run the test suite. After a successful build, you can run
-the tests as follows:
-
-    $ make test
-
-This command is equivalent to:
-
-    $ python allTests.py
-
-If everything worked out, you should see lots of `ok` messages. In case of a
-failure, the tests abort with `failed`.
 
 ### 64-bit Source Builds on Linux x86_64
 
@@ -103,8 +91,26 @@ directory to the compiler with the `-I` option, and the location of the library
 directory with the `-L` option. If building a C++11 program, you must add the
 `/c++11` suffix to the library directory (such as `prefix/lib/c++11`).
 
+## Running the Test Suite
+
+Python is required to run the test suite. Additionally, the Glacier2 tests
+require the Python module `passlib`, which you can install with the command:
+
+    $ pip install passlib
+
+After a successful source build, you can run the tests as follows:
+
+    $ make test
+
+This command is equivalent to:
+
+    $ python allTests.py
+
+If everything worked out, you should see lots of `ok` messages. In case of a
+failure, the tests abort with `failed`.
+
 [1]: https://doc.zeroc.com/display/Ice36/Using+the+Linux+Binary+Distributions
-[2]: https://zeroc.com/platforms_3_6_0.html
+[2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+3.6.0
 [3]: http://expat.sourceforge.net
 [4]: http://openssl.org
 [5]: http://bzip.org

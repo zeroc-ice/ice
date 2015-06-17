@@ -33,7 +33,13 @@ Run these commands to build the libraries and tests:
 
 ## Running the JavaScript Tests
 
-Python is required to run the test suite with Node.js. To start the tests simply run:
+Python is required to run the test suite with Node.js. Additionally, the
+Glacier2 tests require the Python module `passlib`, which you can install
+with the command:
+
+    $ pip install passlib
+
+To start the tests simply run:
 
     > npm run gulp:test:run-with-node
 
@@ -44,9 +50,9 @@ To start the browser tests run:
 
     > npm run gulp:test:run-with-browser
 
-This requires to build the Java test controller from Java subdir and tests servers
-from C++, C# or Java. Follow the instructions from the corresponding language mapping
-to build the tests and the server controller.
+This requires that you build the Java test controller from the Java subdirectory
+and test servers from C++, C# or Java. Follow the instructions from the corresponding
+language mapping to build the tests and the server controller.
 
 In OS X the first time you run the script, you will be prompted for your
 password. This is necessary to configure the trust setting for the HTTP
