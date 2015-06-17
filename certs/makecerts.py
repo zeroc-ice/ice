@@ -99,10 +99,8 @@ client.save("client.p12").save("client.jks", caalias="cacert")
 #
 # Server certificate
 #
-# NOTE: server.pem is used by scripts/TestController.py
-#
 server = factory.create("server", cn = (dns if usedns else ip), ip=ip, dns=dns)
-server.save("server.p12").save("server.jks", caalias="cacert").save("server.pem")
+server.save("server.p12").save("server.jks", caalias="cacert")
 
 try:
     server.save("server.bks", caalias="cacert")
