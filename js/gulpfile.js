@@ -8,7 +8,6 @@
 // **********************************************************************
 
 var bower       = require("bower"),
-    browserSync = require("browser-sync"),
     bundle      = require("./gulp/bundle"),
     concat      = require('gulp-concat'),
     del         = require("del"),
