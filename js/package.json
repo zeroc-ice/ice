@@ -16,7 +16,6 @@
   "main": "src/ice.js",
   "devDependencies": {
     "bower": "^1.4.1",
-    "browser-sync": "^2.7.6",
     "del": "^1.2.0",
     "esprima": "^2.2.0",
     "gulp": "^3.9.0",

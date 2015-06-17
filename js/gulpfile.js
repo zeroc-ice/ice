@@ -113,10 +113,7 @@ gulp.task("common:slice:watch", ["common:slice"],
     function(){
         gulp.watch(["test/Common/Controller.ice"],
             function(){
-                gulp.start("common:slice",
-                    function(){
-                        browserSync.reload("test/Common/Controller.js");
-                    });
+                gulp.start("common:slice");
             });
     });
 
@@ -135,10 +132,7 @@ gulp.task("common:js:watch", ["common:js"],
     function(){
         gulp.watch(common.scripts,
             function(){
-                gulp.start("common:js",
-                    function(){
-                        browserSync.reload("assets/common.min.js");
-                    });
+                gulp.start("common:js");
             });
     });
 
@@ -157,10 +151,7 @@ gulp.task("common:css:watch", ["common:css"],
     function(){
         gulp.watch(common.styles,
             function(){
-                gulp.start("common:css",
-                    function(){
-                        browserSync.reload("assets/common.css");
-                    });
+                gulp.start("common:css");
             });
     });
 
@@ -219,8 +210,7 @@ tests.forEach(
 
                 gulp.watch(
                     [path.join(name, "*.js"), path.join(name, "browser", "*.js"),
-                     path.join(name, "*.html")],
-                    function(e){ browserSync.reload(e.path); });
+                     path.join(name, "*.html")]);
             });
 
         gulp.task(testCleanDependTask(name), [],
@@ -361,12 +351,7 @@ libs.forEach(
         gulp.task(libCleanTask(lib), [], function(){ del(libGeneratedFiles(lib, sources)); });
         gulp.task(libWatchTask(lib), [minLibTask(lib)],
             function(){
-                gulp.watch(sources.slice.map(sliceFile).concat(watchSources(lib, sources)),
-                    function(){
-                        gulp.start(minLibTask(lib), function(){
-                            browserSync.reload(libFileMin(lib));
-                        });
-                    });
+                gulp.watch(sources.slice.map(sliceFile).concat(watchSources(lib, sources)));
             });
     });
 
@@ -388,7 +373,6 @@ gulp.task("watch", ["test:watch"].concat(useBinDist ? [] : ["dist:watch"]));
 
 gulp.task("test:run-with-browser", ["watch"].concat(useBinDist ? ["test"] : ["build"]),
     function(){
-        browserSync();
         require("./bin/HttpServer")();
 
         var p  = require("child_process").spawn("python", ["../scripts/TestController.py"], {stdio: "inherit"});
