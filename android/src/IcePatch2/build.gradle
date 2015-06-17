@@ -11,6 +11,9 @@ apply plugin: 'java'
 apply from: "$rootProject.projectDir/../java/gradle/ice.gradle"
 apply from: "$rootProject.projectDir/../java/src/IcePatch2/build.gradle"
 
+sourceCompatibility = iceSourceCompatibility
+targetCompatibility = iceTargetCompatibility
+
 sourceSets {
     main {
         java {
