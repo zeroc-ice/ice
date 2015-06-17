@@ -81,6 +81,7 @@ public:
     {
         return _cookie;
     }
+
 private:
 
     id _cookie;
@@ -249,7 +250,7 @@ public:
     id<ICEServantLocator>
     locator() const
     {
-        return _locator;
+        return [[_locator retain] autorelease];
     }
 
 private:
