@@ -17,15 +17,14 @@ listed for our [supported platforms][2].
 Ice has dependencies on a number of third-party libraries:
 
  - [expat][3] 2.0
- - [OpenSSL][4] 0.9.8 or later
- - [bzip][5] 1.0
- - [Berkeley DB][6] 5.3
- - [mcpp][7] 2.7.2 (with patches)
+ - [bzip][4] 1.0
+ - [Berkeley DB][5] 5.3
+ - [mcpp][6] 2.7.2 (with patches)
 
-Expat, OpenSSL and bzip are included with your system. For Berkeley DB and mcpp,
-you have a couple of options:
+Expat and bzip are included with your system. For Berkeley DB and mcpp, you have
+a couple of options:
 
-- Using [Homebrew][8], install Berkeley DB and mcpp with these commands:
+- Using [Homebrew][7], install Berkeley DB and mcpp with these commands:
 
         $ brew tap zeroc-ice/tap
         $ brew install berkeley-db53 [--without-java]
@@ -89,8 +88,7 @@ failure, the tests abort with `failed`.
 [1]: https://doc.zeroc.com/display/Ice36/Using+the+OS+X+Binary+Distribution
 [2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+3.6.0
 [3]: http://expat.sourceforge.net
-[4]: http://openssl.org
-[5]: http://bzip.org
-[6]: http://www.oracle.com/us/products/database/berkeley-db/overview/index.htm
-[7]: https://github.com/zeroc-ice/mcpp
-[8]: http://brew.sh
+[4]: http://bzip.org
+[5]: http://www.oracle.com/us/products/database/berkeley-db/overview/index.htm
+[6]: https://github.com/zeroc-ice/mcpp
+[7]: http://brew.sh
