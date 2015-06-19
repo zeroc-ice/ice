@@ -864,7 +864,12 @@ Glacier2::SessionFactoryHelper::SessionFactoryHelper(const Ice::PropertiesPtr& p
 
 Glacier2::SessionFactoryHelper::~SessionFactoryHelper()
 {
-    destroy();
+    IceUtil::Mutex::Lock sync(_mutex);
+    if(!_threads.empty() && Ice::getProcessLogger())
+    {
+        Ice::Warning warn(Ice::getProcessLogger());
+        warn << "Glacier2::SessionFactoryHelper::destroy() has not been called, threads won't be joined";
+    }
 }
 
 void

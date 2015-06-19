@@ -258,6 +258,7 @@ public:
             //
             _monitor.wait();
         }
+        _factory->destroy();
 
         _initData.properties->setProperty("Ice.Default.Router", "");
         _factory = new Glacier2::SessionFactoryHelper(_initData, new SuccessSessionCallback());
@@ -409,6 +410,8 @@ public:
             }
         }
 
+        _factory->destroy();
+
         _factory = new Glacier2::SessionFactoryHelper(_initData, new AfterShutdownSessionCallback());
 
         //
@@ -450,6 +453,8 @@ public:
             _session->destroy();
             cout << "ok" << endl;
         }
+
+        _factory->destroy();
 
         if(dispatcher)
         {
