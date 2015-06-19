@@ -2,17 +2,17 @@
 
 This file describes the Ice source distribution, including information about
 compiler requirements, third-party dependencies, and instructions for building
-and testing the distribution. If you prefer, you can install [binary packages][1]
-for supported platforms that contain pre-compiled libraries, executables, and
-everything else necessary to build Ice applications on Linux.
+and testing the distribution. If you prefer, you can install [binary
+packages][1] for supported platforms that contain pre-compiled libraries,
+executables, and everything else necessary to build Ice applications on Linux.
 
 ## C++ Build Requirements
 
 ### Operating Systems and Compilers
 
 Ice is expected to build and run properly on any recent Linux distribution for
-x86 and x86_64, and was extensively tested using the operating systems and compiler
-versions listed for our [supported platforms][2].
+x86 and x86_64, and was extensively tested using the operating systems and
+compiler versions listed for our [supported platforms][2].
 
 ### Third-Party Libraries
 
@@ -24,9 +24,9 @@ Ice has dependencies on a number of third-party libraries:
  - [Berkeley DB][6] 5.3
  - [mcpp][7] 2.7.2 (with patches)
 
-Expat, OpenSSL and bzip are included with most Linux distributions. ZeroC supplies
-binary packages for Berkeley DB and mcpp on supported Linux distributions that do
-not include them:
+Expat, OpenSSL and bzip are included with most Linux distributions. ZeroC
+supplies binary packages for Berkeley DB and mcpp on supported Linux
+distributions that do not include them:
 
 - Berkeley DB 5.3.28 on RHEL 6, SLES12, SLES 11 and Amzn 2015.03
 - mcpp 2.7.2 with patches (`mcpp-devel`) on RHEL 7, RHEL 6, SLES 12, SLES 11

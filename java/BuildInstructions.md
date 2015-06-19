@@ -10,17 +10,18 @@ platforms.
 
 Ice for Java is expected to build and run properly on Windows, OS X, and any
 recent Linux distribution for x86 and x86_64, and was extensively tested using
-the operating systems and compiler versions listed for our [supported platforms][2].
-Due to the portability of Java, it is very likely that it will also work on other
-platforms for which a suitable Java implementation is available.
+the operating systems and compiler versions listed for our [supported
+platforms][2]. Due to the portability of Java, it is very likely that it will
+also work on other platforms for which a suitable Java implementation is
+available.
 
 ### Slice to Java Translator
 
-You will need the Slice to Java translator. ZeroC provides translator binaries for
-our supported platforms. For other platforms, you will have to either port Ice for
-C++ (which contains the Slice to Java translator), or you will have to translate
-your Slice files to Java on a supported platform and then copy the generated Java
-files to your target platform.
+You will need the Slice to Java translator. ZeroC provides translator binaries
+for our supported platforms. For other platforms, you will have to either port
+Ice for C++ (which contains the Slice to Java translator), or you will have to
+translate your Slice files to Java on a supported platform and then copy the
+generated Java files to your target platform.
 
 ### Java Version
 
@@ -28,21 +29,21 @@ Ice for Java requires J2SE 1.7.0 or later.
 
 The Metrics Graph feature of the graphical IceGrid administrative tool requires
 J2SE 7u6 or later with JavaFX support. This feature will not be available if you
-build the source with a JVM that lacks support for JavaFX. Alternatively, building
-the source using J2SE 7u6 or later with JavaFX produces a JAR file that can be
-used in JVMs with or without JavaFX support, as the Metrics Graph feature is
-enabled dynamically.
+build the source with a JVM that lacks support for JavaFX. Alternatively,
+building the source using J2SE 7u6 or later with JavaFX produces a JAR file that
+can be used in JVMs with or without JavaFX support, as the Metrics Graph feature
+is enabled dynamically.
 
 Make sure that the `javac` and `java` commands are present in your PATH.
 
 ### Berkeley DB
 
 "Freeze" is an optional Ice component that provides a persistence facility for
-Ice applications. Freeze uses Berkeley DB as its underlying database and currently
-requires Berkeley DB version 5.3 (the recommended version is 5.3.28).
+Ice applications. Freeze uses Berkeley DB as its underlying database and
+currently requires Berkeley DB version 5.3 (the recommended version is 5.3.28).
 
-ZeroC includes Berkeley DB in the binary distributions for all supported platforms,
-or you can build it from source yourself.
+ZeroC includes Berkeley DB in the binary distributions for all supported
+platforms, or you can build it from source yourself.
 
 In order to run an application that uses Freeze, you must add `db.jar` to your
 CLASSPATH and verify that the Berkeley DB shared libraries are in your
@@ -147,8 +148,8 @@ On Windows:
 
     > set ICE_HOME=C:\Program Files (x86)\ZeroC\Ice-3.6.0
 
-Before building Ice for Java, review the settings in the file `gradle.properties`
-and edit as necessary.
+Before building Ice for Java, review the settings in the file
+`gradle.properties` and edit as necessary.
 
 ### Building Ice for Java
 
@@ -184,8 +185,8 @@ The installation installs the following JAR files to `<prefix>/lib`.
     icepatch2-3.6.0.jar
     icestorm-3.6.0.jar
 
-POM files are also installed for ease of deployment to a maven-based distribution
-system.
+POM files are also installed for ease of deployment to a maven-based
+distribution system.
 
 ## Running the Java Tests
 
@@ -201,13 +202,13 @@ On Windows:
 
     > set ICE_HOME=c:\Program Files (x86)\ZeroC\Ice-3.6.0
 
-Python is required to run the test suite. To run the tests, open a command window
-and change to the top-level directory. At the command prompt, execute:
+Python is required to run the test suite. To run the tests, open a command
+window and change to the top-level directory. At the command prompt, execute:
 
     > python allTests.py
 
-You can also run tests individually by changing to the test directory and running
-this command:
+You can also run tests individually by changing to the test directory and
+running this command:
 
     > python run.py
 
@@ -230,8 +231,8 @@ the IceGrid Admin tool by double-clicking the IceGrid Admin icon in Finder.
 ## Test Controller
 
 The test Controller is an Ice server that allows to start servers for languages
-that doesn't provide a full server side. This is currently used by JavaScript and
-WinRT test suites to start the required servers.
+that doesn't provide a full server side. This is currently used by JavaScript
+and WinRT test suites to start the required servers.
 
     > gradlew :testController:assemble
 

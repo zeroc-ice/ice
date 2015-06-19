@@ -8,9 +8,9 @@ for the supported platforms.
 
 ### Operating Systems and Compilers
 
-Ice for Python is expected to build and run properly on OS X and any recent Linux
-distribution for x86 and x86_64, and was extensively tested using the operating
-systems and compiler versions listed for our [supported platforms][2].
+Ice for Python is expected to build and run properly on OS X and any recent
+Linux distribution for x86 and x86_64, and was extensively tested using the
+operating systems and compiler versions listed for our [supported platforms][2].
 
 ### Python Versions
 

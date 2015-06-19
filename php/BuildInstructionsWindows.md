@@ -18,25 +18,26 @@ distribution or compile from source yourself.
 
 ## Building the PHP Extension
 
-The Ice installer for Windows includes a pre-compiled extension for PHP 5.6 built
-with Visual Studio 2012 (Visual C++ 11) and compatible with the "Thread-safe VC11"
-distribution of PHP available on [php.net](). We encourage you to use this
-extension if possible, together with a compatible Web server.
+The Ice installer for Windows includes a pre-compiled extension for PHP 5.6
+built with Visual Studio 2012 (Visual C++ 11) and compatible with the "Thread-
+safe VC11" distribution of PHP available on [php.net](). We encourage you to use
+this extension if possible, together with a compatible Web server.
 
-> *The Apache binaries provided by the Apache Software Foundation are compiled with
-Visual C++ 6 and therefore are not compatible with the Ice for PHP extension included
-in our Windows installer. A VC11 build of Apache is available from alternate sources.*
+> *The Apache binaries provided by the Apache Software Foundation are compiled
+with Visual C++ 6 and therefore are not compatible with the Ice for PHP
+extension included in our Windows installer. A VC11 build of Apache is available
+from alternate sources.*
 
-The most common motivation for compiling the Ice extension yourself is to create an
-extension that is compatible with your existing environment, such as when your Web
-server or PHP interpreter is built with a different compiler.
+The most common motivation for compiling the Ice extension yourself is to create
+an extension that is compatible with your existing environment, such as when
+your Web server or PHP interpreter is built with a different compiler.
 
-To build the Ice extension, first download the PHP5 binary archive or Windows installer
-and install the distribution.
+To build the Ice extension, first download the PHP5 binary archive or Windows
+installer and install the distribution.
 
-You will also need to download and extract the PHP5 sources (Ice for PHP requires
-the PHP header files). Change to the PHP5 source directory and run the following
-commands:
+You will also need to download and extract the PHP5 sources (Ice for PHP
+requires the PHP header files). Change to the PHP5 source directory and run the
+following commands:
 
     > buildconf
     > configure
@@ -56,25 +57,25 @@ Change to the Ice for PHP source directory:
 
 Open `config\Make.rules.mak.php`, review the comments, and make any necessary
 changes. In particular, you may need to change the values of `PHP_HOME` and
-`PHP_BIN_HOME` to refer to your PHP source and binary installations, respectively.
-If you compiled PHP from source, you should also review the setting of
-`PHP_LIBDIR`. If you are using PHP 5.3 or later and wish to use PHP namespaces,
-set `USE_NAMESPACES=yes`. Finally, if you are using a non-thread-safe PHP
-installation, set `PHP_ZTS=no`.
+`PHP_BIN_HOME` to refer to your PHP source and binary installations,
+respectively. If you compiled PHP from source, you should also review the
+setting of `PHP_LIBDIR`. If you are using PHP 5.3 or later and wish to use PHP
+namespaces, set `USE_NAMESPACES=yes`. Finally, if you are using a non-thread-
+safe PHP installation, set `PHP_ZTS=no`.
 
 Run NMAKE to build the extension:
 
     > nmake /f Makefile.mak
 
-Upon successful completion, the Ice for PHP extension is created as `lib\php_ice.dll`
-(Release) or `lib\php_iced.dll` (Debug).
+Upon successful completion, the Ice for PHP extension is created as
+`lib\php_ice.dll` (Release) or `lib\php_iced.dll` (Debug).
 
 ## Installing the PHP Extension
 
-To install the Ice extension, you must move the extension's shared library into PHP's
-extension directory. This directory is determined by the PHP configuration directive
-`extension_dir`. You can determine the default value for this directive by running
-the command-line version of PHP with the `-i` option:
+To install the Ice extension, you must move the extension's shared library into
+PHP's extension directory. This directory is determined by the PHP configuration
+directive `extension_dir`. You can determine the default value for this
+directive by running the command-line version of PHP with the `-i` option:
 
     > php -i
 
@@ -130,9 +131,9 @@ and its third-party dependencies. On Windows, these DLLs are required:
     bzip2.dll
 
 In general, these libraries must reside in a directory of the user's PATH. For
-Web servers, the libraries may need to reside in a system directory. For example,
-on Windows you can copy the DLLs to the `C:\WINDOWS\system32` directory, or to
-the Apache installation directory.
+Web servers, the libraries may need to reside in a system directory. For
+example, on Windows you can copy the DLLs to the `C:\WINDOWS\system32`
+directory, or to the Apache installation directory.
 
 You can verify that the Ice extension is installed properly by examining the
 output of the `php -m` command, or by calling the `phpInfo()` function from a

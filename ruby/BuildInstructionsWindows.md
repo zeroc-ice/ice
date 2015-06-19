@@ -8,9 +8,9 @@ supported platforms.
 
 ### Operating Systems
 
-Ice for Ruby is expected to build and run properly on Windows, and was extensively
-tested using the operating systems and Ruby versions listed for our [supported
-platforms][2].
+Ice for Ruby is expected to build and run properly on Windows, and was
+extensively tested using the operating systems and Ruby versions listed for our
+[supported platforms][2].
 
 ### Prerequisites
 
@@ -21,16 +21,16 @@ To build Ice for Ruby you must have the following:
 - Ruby Development Kit 4.7.2
 - mingw 4.7.3 (only for 32-bit builds)
 
-The Ruby distribution for Windows uses the MinGW compiler, therefore MinGW is the
-only C++ compiler supported by Ice for Ruby.
+The Ruby distribution for Windows uses the MinGW compiler, therefore MinGW is
+the only C++ compiler supported by Ice for Ruby.
 
 The instructions in this file make the following assumptions about your build
 environment:
 
 1. You have installed the Ice 3.6.0 distribution using the ZeroC installer. The
 default installation directory is `C:\Program Files (x86)\ZeroC\Ice-3.6.0`.
-2. You have installed Ruby 2.2.1 using the Windows installer. The default installation
-directory is `C:\Ruby221`.
+2. You have installed Ruby 2.2.1 using the Windows installer. The default
+installation directory is `C:\Ruby221`.
 3. You have installed the Ruby Development Kit 4.7.2 in `C:\RubyDevKit-4.7.2`.
 4. For 32-bit builds, you have installed mingw 4.7.3 in `C:\mingw-4.7.3`.
 
@@ -93,24 +93,25 @@ You can perform an automated installation with the following command:
 
     > make install
 
-This process uses the `prefix` variable in `config\Make.rules` as the installation's
-root directory. The subdirectory `<prefix>\ruby` is created as a copy of the local
-ruby directory and contains the Ice for Ruby extension library (`IceRuby.so`) as
-well as Ruby source code. Using this installation method requires that you modify
-your environment as described below.
+This process uses the `prefix` variable in `config\Make.rules` as the
+installation's root directory. The subdirectory `<prefix>\ruby` is created as a
+copy of the local ruby directory and contains the Ice for Ruby extension library
+(`IceRuby.so`) as well as Ruby source code. Using this installation method
+requires that you modify your environment as described below.
 
 ## Configuring your Environment for Ruby
 
-The Ruby interpreter must be able to locate the Ice extension. One way to configure
-the interpreter is to define the `RUBYLIB` environment variable as follows:
+The Ruby interpreter must be able to locate the Ice extension. One way to
+configure the interpreter is to define the `RUBYLIB` environment variable as
+follows:
 
     > set RUBYLIB=C:\Ice-3.6.0\ruby
 
 This example assumes your Ice for Ruby installation is located in the `C:\Ice-3.6.0`
 directory.
 
-In addition, you must modify your PATH environment variable to include the following
-directories:
+In addition, you must modify your PATH environment variable to include the
+following directories:
 
     C:\Program Files (x86)\ZeroC\Ice-3.6.0\bin
     C:\Ice-3.6.0\bin
@@ -121,8 +122,8 @@ At a command prompt, you can set your PATH as shown below:
 
 ## Running the Ruby Tests
 
-The `test` subdirectory contains Ruby implementations of the core Ice test suite.
-Python is required to run the test suite.
+The `test` subdirectory contains Ruby implementations of the core Ice test
+suite. Python is required to run the test suite.
 
 The test suites require that the Ice for C++ tests be built in the `cpp`
 subdirectory of this source distribution.

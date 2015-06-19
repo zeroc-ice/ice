@@ -2,30 +2,30 @@
 
 This file describes the Ice source distribution, including information about
 compiler requirements, third-party dependencies, and instructions for building
-and testing the distribution. If you prefer, you can download a [Windows installer][1]
-that contains pre-compiled debug and release libraries, executables, and everything
-else necessary to build Ice applications for WinRT.
+and testing the distribution. If you prefer, you can download a [Windows
+installer][1] that contains pre-compiled debug and release libraries,
+executables, and everything else necessary to build Ice applications for WinRT.
 
 ## Build Requirements for WinRT
 
-Ice was extensively tested using the operating systems and compiler versions listed
-for our [supported platforms][2].
+Ice was extensively tested using the operating systems and compiler versions
+listed for our [supported platforms][2].
 
 ## Building Ice
 
-> *To build Ice for WinRT you first need to build Ice for Windows. The build of Ice
-for Windows is necessary to create the Slice translators that we need to build Ice
-for WinRT.*
+> *To build Ice for WinRT you first need to build Ice for Windows. The build of
+Ice for Windows is necessary to create the Slice translators that we need to
+build Ice for WinRT.*
 
-Open a command prompt that is configured for your target architecture. For example,
-Visual Studio gives you several alternatives:
+Open a command prompt that is configured for your target architecture. For
+example, Visual Studio gives you several alternatives:
 
 - Visual Studio Command Prompt
 - Visual Studio x64 Win64 Command Prompt
 - Visual Studio x64 Cross Tools Command Prompt
 
-Using the first configuration produces 32-bit binaries, while the second and third
-produce 64-bit binaries.
+Using the first configuration produces 32-bit binaries, while the second and
+third produce 64-bit binaries.
 
 In the command window, change to the `cpp` subdirectory:
 
@@ -67,34 +67,35 @@ In Visual Studio, open this solution file:
 
     cpp\test\WinRT\TestSuite.sln
 
-Now select the configuration that matches the settings in `config\Make.rules.mak`
-that you used to build the dynamic libraries. For example, if you built the test
-libraries for x86 and debug, you must select Win32 Debug.
+Now select the configuration that matches the settings in
+`config\Make.rules.mak` that you used to build the dynamic libraries. For
+example, if you built the test libraries for x86 and debug, you must select
+Win32 Debug.
 
 After selecting the appropriate configuration, build the solution by choosing
 "Build Solution" in the "Build" menu.
 
-After the build completes, you can deploy the application using "Deploy Solution"
-in the "Build" menu. Once deployed, you can start the application from the WinRT
-Desktop by clicking the "Ice Test Suite" icon.
+After the build completes, you can deploy the application using "Deploy
+Solution" in the "Build" menu. Once deployed, you can start the application from
+the WinRT Desktop by clicking the "Ice Test Suite" icon.
 
 In the test suite application, selecting "winrt" for the Server field allows you
 to run tests with TCP and WS protocols supported by the WinRT server side.
 
-You can also use C++, C# or Java servers to run the tests, which allows you to use 
-additional SSL and WSS protocols.
+You can also use C++, C# or Java servers to run the tests, which allows you to
+use  additional SSL and WSS protocols.
 
-To use servers from C++, C# or Java language mappings, you need to build the tests
-for the desired language mapping.
+To use servers from C++, C# or Java language mappings, you need to build the
+tests for the desired language mapping.
 
-The test controller server is implemented in Java. Refer to the build instructions in
-java subdirectory for information on building the test controller. Use the following
-command to start the test controller:
+The test controller server is implemented in Java. Refer to the build
+instructions in java subdirectory for information on building the test
+controller. Use the following command to start the test controller:
 
     > python scripts/TestController.py
 
-In the "Ice Test Suite" Windows Store application, select the Server language mapping
-and Protocol you want to use.
+In the "Ice Test Suite" Windows Store application, select the Server language
+mapping and Protocol you want to use.
 
 [1]: https://doc.zeroc.com/display/Ice36/Using+the+Windows+Binary+Distribution
 [2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+3.6.0

@@ -1,22 +1,23 @@
 # Building Ice for Ruby on Linux
 
-This document describes how to build and install Ice for Ruby from source code.
-If you prefer, you can also download [binary distributions][1] for the supported
-platforms.
+This file describes how to build and install Ice for Ruby from source code on
+Linux and OS X. If you prefer, you can also download [binary distributions][1]
+for the supported platforms.
 
 ## Ruby Build Requirements
 
 ### Operating Systems and Compilers
 
-Ice for Ruby is expected to build and run properly on any recent Linux distribution
-for x86 and x86_64, and was extensively tested using the operating systems and Ruby
-versions listed for our [supported platforms][2].
+Ice for Ruby is expected to build and run properly on OS X and on any recent
+Linux distribution for x86 and x86_64, and was extensively tested using the
+operating systems and Ruby versions listed for our [supported platforms][2].
 
 ### Ruby Versions
 
-Ice for Ruby supports Ruby versions 1.8.1 or later. You can use a source or binary
-installation of Ruby. If you use an RPM installation, the following packages are
-required:
+Ice for Ruby supports Ruby versions 1.8.1 or later. You can use a source or
+binary installation of Ruby. 
+
+If you use an RPM installation, the following packages are required:
 
     ruby
     ruby-devel
@@ -32,8 +33,8 @@ distribution or compile from source yourself.
 The instructions for compiling the Ice extension assume that you have already
 installed Ruby.
 
-If you installed Ruby in a non-standard location, set the `RUBY_HOME` environment
-variable to the installation directory. For example:
+If you installed Ruby in a non-standard location, set the `RUBY_HOME`
+environment variable to the installation directory. For example:
 
     $ export RUBY_HOME=/opt/ruby
 
@@ -58,11 +59,10 @@ You can perform an automated installation with the following command:
     $ make install
 
 This process uses the `prefix` variable in `config/Make.rules` as the
-installation's root directory. The subdirectory `<prefix>/ruby` is created
-as a copy of the local `ruby` directory and contains the Ice for Ruby
-extension library (`IceRuby.so`) as well as Ruby source code. Using this
-installation method requires that you modify your environment as described
-in *Using Ice for Ruby* below.
+installation's root directory. The subdirectory `<prefix>/ruby` is created as a
+copy of the local `ruby` directory and contains the Ice for Ruby extension
+library as well as Ruby source code. Using this installation method requires
+that you modify your environment as described in *Using Ice for Ruby* below.
 
 Another option is to copy the contents of the local `ruby` directory to your
 Ruby installation's `site_ruby` directory. For example, if you installed Ruby
@@ -88,9 +88,11 @@ environment variable as follows:
 This example assumes that your Ice for Ruby installation is located in the
 `/opt/Ice` directory.
 
-You must also modify `LD_LIBRARY_PATH` to include the directory `/opt/Ice/lib`:
+You must also modify `LD_LIBRARY_PATH` or `DYLD_LIBRARY_PATH` to include the
+directory `/opt/Ice/lib`:
 
-    $ export LD_LIBRARY_PATH=/opt/Ice/lib:$LD_LIBRARY_PATH
+    $ export LD_LIBRARY_PATH=/opt/Ice/lib:$LD_LIBRARY_PATH       (Linux)
+    $ export DYLD_LIBRARY_PATH=/opt/Ice/lib:$DYLD_LIBRARY_PATH   (OS X)
 
 To verify that Ruby can load the Ice extension successfully, open a command
 window and start the interpreter using `irb`:
@@ -107,8 +109,8 @@ successfully. Enter `exit` to quit the interpreter.
 
 ## Running the Ruby Tests
 
-The `test` subdirectory contains Ruby implementations of the core Ice test suite.
-Python is required to run the test suite.
+The `test` subdirectory contains Ruby implementations of the core Ice test
+suite. Python is required to run the test suite.
 
 The test suites require that the Ice for C++ tests be built in the `cpp`
 subdirectory of this source distribution.

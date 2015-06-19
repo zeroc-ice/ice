@@ -2,16 +2,16 @@
 
 This file describes the Ice source distribution, including information about
 compiler requirements, third-party dependencies, and instructions for building
-and testing the distribution. If you prefer, you can download a [Windows installer][1]
-that contains pre-compiled debug and release libraries, executables, and everything
-else necessary to build Ice applications on Windows.
+and testing the distribution. If you prefer, you can download a [Windows
+installer][1] that contains pre-compiled debug and release libraries,
+executables, and everything else necessary to build Ice applications on Windows.
 
 ## Build Requirements
 
 ### Operating Systems and Compilers
 
-Ice was extensively tested using the operating systems and compiler versions listed
-for our [supported platforms][2].
+Ice was extensively tested using the operating systems and compiler versions
+listed for our [supported platforms][2].
 
 ### Third-Party Libraries
 
@@ -37,8 +37,8 @@ are two knowledgebase articles that may be relevant for your system:
 
 ## Building Ice
 
-Open a command prompt that is configured for your target architecture. For example,
-when using Visual Studio 2013, you have several alternatives:
+Open a command prompt that is configured for your target architecture. For
+example, when using Visual Studio 2013, you have several alternatives:
 
 - Developer Command Prompt
 - VS2013 x86 Native Tools Command Prompt
@@ -48,7 +48,8 @@ when using Visual Studio 2013, you have several alternatives:
 Using the first two configurations produces 32-bit binaries, while the third and
 fourth configurations produce 64-bit binaries.
 
-> *You must be using a Windows x64 platform when compiling a 64-bit version of Ice.*
+> *You must be using a Windows x64 platform when compiling a 64-bit version of
+> *Ice.*
 
 In the command window, change to the `cpp` subdirectory:
 
@@ -66,18 +67,19 @@ This will build the Ice core libraries, services, and tests.
 ### x64 Platform
 
 Building Ice on x64 with the Visual Studio C++ compiler is like building Ice on
-x86. You just need to perform the build in an "x64 Command Prompt", and not in
-a regular "Developer Command Prompt".
+x86. You just need to perform the build in an "x64 Command Prompt", and not in a
+regular "Developer Command Prompt".
 
-> *You must be using a Windows x64 platform when compiling a 64-bit version of Ice.*
+> *You must be using a Windows x64 platform when compiling a 64-bit version of
+> *Ice.*
 
 ## Installing a C++ Source Build
 
-Simply run `nmake /f Makefile.mak install`. This will install Ice in the directory
-specified by the `prefix` variable in `config\Make.rules.mak`.
+Simply run `nmake /f Makefile.mak install`. This will install Ice in the
+directory specified by the `prefix` variable in `config\Make.rules.mak`.
 
-If you built a 64-bit version of Ice, the binaries are installed in the `bin\x64`
-directory and the libraries are installed in the `lib\x64` directory.
+If you built a 64-bit version of Ice, the binaries are installed in the
+`bin\x64` directory and the libraries are installed in the `lib\x64` directory.
 
 ## Running the Test Suite
 

@@ -13,8 +13,8 @@ Ice for C++ was tested with the following MinGW compilers:
 - [mingw 4.7.3 32-bit][2]
 - mingw 4.7.2 64-bit, included in the [Ruby Development Kit][3] version 4.7.2
 
-> *mingw 4.7.2 32-bit, included in the 32-bit Ruby Development Kit version 4.7.2,
-contains a very severe bug that makes it unsuitable to build Ice.*
+> *mingw 4.7.2 32-bit, included in the 32-bit Ruby Development Kit version
+4.7.2, contains a very severe bug that makes it unsuitable to build Ice.*
 
 ### Third-Party Libraries
 

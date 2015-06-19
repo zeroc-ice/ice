@@ -1,14 +1,14 @@
 # Building the Ice for Android Test Suite
 
-This directory contains an Android Studio project for the Ice test suite. For ease
-of development and testing, this project also builds a subset of the Ice JAR files.
-This is not necessary for your own projects as it considerably complicates the
-project configuration.
+This directory contains an Android Studio project for the Ice test suite. For
+ease of development and testing, this project also builds a subset of the Ice
+JAR files. This is not necessary for your own projects as it considerably
+complicates the project configuration.
 
-Building [Ice for Java](../java/BuildInstructions.md) is the only way to build all
-of the Ice JAR files from source. The JAR files produced by the Ice for Java build
-fully support Android. If you prefer, our [binary distributions][1] include
-pre-compiled JAR files.
+Building [Ice for Java](../java/BuildInstructions.md) is the only way to build
+all of the Ice JAR files from source. The JAR files produced by the Ice for Java
+build fully support Android. If you prefer, our [binary distributions][1]
+include pre-compiled JAR files.
 
 ## Build Requirements
 
@@ -68,6 +68,7 @@ Follow these steps to import the Ice for Android project into Android Studio:
    "Use default gradle wrapper" and press OK 
 
 The Android Studio project contains a `testApp` application for the Ice test
-suite. To run the application, select it in the configuration pull down and run it.
+suite. To run the application, select it in the configuration pull down and run
+it.
 
 [1]: https://zeroc.com/download.html

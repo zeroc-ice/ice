@@ -19,20 +19,23 @@ distribution or compile from source yourself.
 ## Building the PHP Extension
 
 Our source code only supports building Ice for PHP as a dynamic PHP extension;
-the product of the build is a shared library that you must configure PHP to load.
+the product of the build is a shared library that you must configure PHP to
+load.
 
 First, change to the `php` source subdirectory:
 
     $ cd php
 
-Edit `config/Make.rules` and review the build settings. For example, you may want
-to enable `OPTIMIZE`. If your PHP installation resides in a non-standard location,
-modify the `PHP_HOME` setting to contain the installation directory. If you are
-using PHP 5.3 or later and wish to use PHP namespaces, set `USE_NAMESPACES=yes`.
+Edit `config/Make.rules` and review the build settings. For example, you may
+want to enable `OPTIMIZE`. If your PHP installation resides in a non-standard
+location, modify the `PHP_HOME` setting to contain the installation directory.
+If you are using PHP 5.3 or later and wish to use PHP namespaces, set
+`USE_NAMESPACES=yes`.
 
 If you have not built Ice for C++ from the `cpp` subdirectory, then set the
-`ICE_HOME` environment variable to the directory containing your Ice installation.
-For example, if Ice is installed in `/opt/Ice`, set `ICE_HOME` as follows:
+`ICE_HOME` environment variable to the directory containing your Ice
+installation. For example, if Ice is installed in `/opt/Ice`, set `ICE_HOME` as
+follows:
 
     $ export ICE_HOME=/opt/Ice
 
@@ -46,8 +49,8 @@ Run `make` to build the extension.
 
 To install the Ice extension, you must move the extension's shared library into
 PHP's extension directory. This directory is determined by the PHP configuration
-directive `extension_dir`. You can determine the default value for this directive
-by running the command-line version of PHP with the `-i` option:
+directive `extension_dir`. You can determine the default value for this
+directive by running the command-line version of PHP with the `-i` option:
 
     $ php -i
 
@@ -106,14 +109,14 @@ and its third-party dependencies. These libraries are named as follows:
     libbz2
 
 In general, these libraries must reside in a directory of the user's PATH. For
-Web servers, the libraries may need to reside in a system directory. For example,
-on Linux you can add the directory containing the Ice run-time libraries to
-`/etc/ld.so.conf` and run `ldconfig`.
+Web servers, the libraries may need to reside in a system directory. For
+example, on Linux you can add the directory containing the Ice run-time
+libraries to `/etc/ld.so.conf` and run `ldconfig`.
 
 You can verify that the Ice extension is installed properly by examining the
 output of the `php -m` command, or by calling the `phpInfo()` function from a
-script. For example, you can create a file in the Web server's document directory
-containing the following PHP script:
+script. For example, you can create a file in the Web server's document
+directory containing the following PHP script:
 
     <?php
     phpInfo();
@@ -130,9 +133,9 @@ need access to the shared libraries for IceSSL and OpenSSL.
 
 In addition to the binary Ice extension module and its library dependencies, you
 will also need to make the Ice for PHP source files available to your scripts.
-These files are located in the `lib` subdirectory and consist of the Ice run time
-definitions (`Ice.php` or `Ice_ns.php`) along with PHP source files generated from
-the Slice files included in the Ice distribution.
+These files are located in the `lib` subdirectory and consist of the Ice run
+time definitions (`Ice.php` or `Ice_ns.php`) along with PHP source files
+generated from the Slice files included in the Ice distribution.
 
 The Ice extension makes no assumptions about the location of these files, so you
 can install them anywhere you like. For example, you can simply include them in
@@ -140,7 +143,8 @@ the same directory as your application scripts. Alternatively, if you prefer to
 install them in a common directory, you may need to modify PHP's `include_path`
 directive so that the PHP interpreter is able to locate these files. Another
 option is to modify the include path from within your script prior to including
-any Ice run-time file. Here is an example that assumes Ice is installed in `/opt`:
+any Ice run-time file. Here is an example that assumes Ice is installed in
+`/opt`:
 
     // PHP
     ini_set('include_path',

@@ -1,21 +1,21 @@
 # Building Ice for .NET
 
 This page describes how to build and install Ice for .NET from source code using
-Visual Studio. If you prefer, you can also download [binary distributions][1] for
-the supported platforms.
+Visual Studio. If you prefer, you can also download [binary distributions][1]
+for the supported platforms.
 
 ## Build Requirements
 
 ### Operating Systems and Compilers
 
-Ice for .NET was extensively tested using the operating systems and compiler versions
-listed for our [supported platforms][2].
+Ice for .NET was extensively tested using the operating systems and compiler
+versions listed for our [supported platforms][2].
 
 ### Slice to C# Translator
 
-You will need the Slice to C# translator. ZeroC provides translator binaries for our
-supported platforms, or you can build Ice for C++ (which contains the Slice to C#
-translator) from source.
+You will need the Slice to C# translator. ZeroC provides translator binaries for
+our supported platforms, or you can build Ice for C++ (which contains the Slice
+to C# translator) from source.
  
 ## Compiling Ice for .NET with Visual Studio
 
@@ -33,8 +33,8 @@ Open a Visual Studio command window and change to the `csharp` subdirectory:
 
     > cd csharp
 
-Review the settings in the file `config\Make.rules.mak.cs` and edit as necessary.
-For example, you may wish to enable optimization.
+Review the settings in the file `config\Make.rules.mak.cs` and edit as
+necessary. For example, you may wish to enable optimization.
 
 To build the Ice assemblies, services and tests, run
 
@@ -61,8 +61,8 @@ At the command prompt, execute:
 
     > python allTests.py
 
-You can also run tests individually by changing to the test directory and running
-this command:
+You can also run tests individually by changing to the test directory and
+running this command:
 
     > python run.py
 
@@ -71,23 +71,24 @@ failure, the tests abort with `failed`.
 
 ## Protocol Compression with .NET
 
-Ice for .NET attempts to dynamically load `bzip2.dll` to support protocol compression,
-therefore this DLL must be present in your PATH. Ice automatically disables protocol
-compression if the DLL cannot be found.
+Ice for .NET attempts to dynamically load `bzip2.dll` to support protocol
+compression, therefore this DLL must be present in your PATH. Ice automatically
+disables protocol compression if the DLL cannot be found.
 
-On 64-bit Windows, you must ensure that Ice finds the 64-bit version of `bzip2.dll`
-before the 32-bit version. The 64-bit and 32-bit bzip2 libraries are installed in
-`<prefix>\bin\x64` and `<prefix>\bin`, respectively. For 64-bit Windows, the
-`<prefix>\bin\x64` directory must appear before `<prefix>\bin` in your application's
-PATH. (The Ice run time prints a warning to the console if it detects a `bzip2.dll`
-format mismatch during start-up.)
+On 64-bit Windows, you must ensure that Ice finds the 64-bit version of
+`bzip2.dll` before the 32-bit version. The 64-bit and 32-bit bzip2 libraries are
+installed in `<prefix>\bin\x64` and `<prefix>\bin`, respectively. For 64-bit
+Windows, the `<prefix>\bin\x64` directory must appear before `<prefix>\bin` in
+your application's PATH. (The Ice run time prints a warning to the console if it
+detects a `bzip2.dll` format mismatch during start-up.)
 
 ## Installing Ice for .NET
 
-Run `nmake /f Makefile.mak install` to install Ice for .NET in the directory specified
-by the `prefix` variable in `config\Make.rules.mak.cs`. After installation, the
-`<prefix>\bin` directory contains executables (such as `iceboxnet.exe`), and the
-`<prefix>\Assemblies` directory contains the .NET assemblies.
+Run `nmake /f Makefile.mak install` to install Ice for .NET in the directory
+specified by the `prefix` variable in `config\Make.rules.mak.cs`. After
+installation, the `<prefix>\bin` directory contains executables (such as
+`iceboxnet.exe`), and the `<prefix>\Assemblies` directory contains the .NET
+assemblies.
 
 > *This command must be executed in a command prompt that has administrative
 privileges because it requires write access to the registry to register the
@@ -127,7 +128,8 @@ build. Run nmake to start the build:
 ## Targeting Unity
 
 Ice for .NET can also be compiled to target the Unity API. To build Ice for the
-Unity API, open `config\Make.rules.mak.cs` and set `UNITY=yes`. Run nmake as before:
+Unity API, open `config\Make.rules.mak.cs` and set `UNITY=yes`. Run nmake as
+before:
 
     > nmake /f Makefile.mak
 

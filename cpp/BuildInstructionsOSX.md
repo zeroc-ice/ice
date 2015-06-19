@@ -30,10 +30,12 @@ a couple of options:
         $ brew install berkeley-db53 [--without-java]
         $ brew install mcpp
 
-   The `berkeley-db53` package is a pre-compiled bottle that includes Java support
-   by default; you can exclude Java support using the `--without-java` option.
+  The `berkeley-db53` package is a pre-compiled bottle that includes Java
+  support by default; you can exclude Java support using the `--without-java`
+  option.
 
-- Download the Berkeley DB and mcpp source distributions and build them yourself.
+- Download the Berkeley DB and mcpp source distributions and build them
+  yourself.
 
 ## Building Ice
 
@@ -42,8 +44,8 @@ In a command window, change to the `cpp` subdirectory:
     $ cd cpp
 
 Edit `config/Make.rules` to establish your build configuration. The comments in
-the file provide more information. Pay particular attention to the variables that
-define the locations of the third-party libraries.
+the file provide more information. Pay particular attention to the variables
+that define the locations of the third-party libraries.
 
 Now you're ready to build Ice:
 
@@ -56,16 +58,17 @@ This will build the Ice core libraries, services, and tests.
 Simply run `make install`. This will install Ice in the directory specified by
 the `prefix` variable in `config/Make.rules`.
 
-After installation, make sure that the `<prefix>/bin` directory is in your `PATH`.
+After installation, make sure that the `<prefix>/bin` directory is in your
+`PATH`.
 
 If you choose to not embed a `runpath` into executables at build time (see your
-build settings in `config/Make.rules`) or did not create a symbolic link from the
-`runpath` directory to the installation directory, you also need to add the
+build settings in `config/Make.rules`) or did not create a symbolic link from
+the `runpath` directory to the installation directory, you also need to add the
 library directory to your `DYLD_LIBRARY_PATH`.
 
-When compiling Ice programs, you must pass the location of the `<prefix>/include`
-directory to the compiler with the `-I` option, and the location of the library
-directory with the `-L` option.
+When compiling Ice programs, you must pass the location of the
+`<prefix>/include` directory to the compiler with the `-I` option, and the
+location of the library directory with the `-L` option.
 
 ## Running the Test Suite
 

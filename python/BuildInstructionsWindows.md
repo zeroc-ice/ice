@@ -1,22 +1,22 @@
 # Building Ice for Python on Windows
 
-This document describes how to build and install Ice for Python from source code on
-Windows. If you prefer, you can also download [binary distributions][1] for the
-supported platforms.
+This document describes how to build and install Ice for Python from source code
+on Windows. If you prefer, you can also download [binary distributions][1] for
+the supported platforms.
 
 ## Python Build Requirements
 
 ### Operating Systems and Compilers
 
-Ice for Python is expected to build and run properly on Windows and was extensively
-tested using the operating systems and compiler versions listed for our [supported
-platforms][2].
+Ice for Python is expected to build and run properly on Windows and was
+extensively tested using the operating systems and compiler versions listed for
+our [supported platforms][2].
 
 ### Python Versions
 
-Ice for Python supports Python versions 2.6, 2.7, 3.3 or 3.4. Note however that your
-Python installation must have been built with a C++ compiler that is compatible with
-the one used to build Ice for C++.
+Ice for Python supports Python versions 2.6, 2.7, 3.3 or 3.4. Note however that
+your Python installation must have been built with a C++ compiler that is
+compatible with the one used to build Ice for C++.
 
 ### Ice Development Kit
 
