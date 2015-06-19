@@ -173,6 +173,8 @@ These are the changes since Ice 3.5.1.
 
 ## C++ Changes
 
+- Calling Glacier2::SessionFactoryHelper::destroy() is now required to ensure resources allocated for session helpers are correctly released.
+
 - Fixed a bug where the object adapter default servant map wasn't cleared on object adapter destruction. This could potential lead to leaks if the default servant had a reference to the object adapter.
 
 - IceStorm is now faster when creating persistent topics and subscribers.
