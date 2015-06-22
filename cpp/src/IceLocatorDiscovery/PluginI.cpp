@@ -276,8 +276,15 @@ Request::invoke(const Ice::LocatorPrx& l)
     if(l != _locatorPrx)
     {
         _locatorPrx = l;
-        l->begin_ice_invoke(_operation, _mode, _inParams, _context,
-                            Ice::newCallback_Object_ice_invoke(this, &Request::response, &Request::exception));
+        try
+        {
+            l->begin_ice_invoke(_operation, _mode, _inParams, _context,
+                                Ice::newCallback_Object_ice_invoke(this, &Request::response, &Request::exception));
+        }
+        catch(const Ice::LocalException& ex)
+        {
+            exception(ex);
+        }
     }
     else
     {
@@ -306,6 +313,18 @@ Request::exception(const Ice::Exception& ex)
     catch(const Ice::UnknownException&)
     {
         _amdCB->ice_exception(ex);
+    }
+    catch(const Ice::NoEndpointException&)
+    {
+        _amdCB->ice_exception(Ice::ObjectNotExistException(__FILE__, __LINE__));
+    }
+    catch(const Ice::CommunicatorDestroyedException&)
+    {
+        _amdCB->ice_exception(Ice::ObjectNotExistException(__FILE__, __LINE__));
+    }
+    catch(const Ice::ObjectAdapterDeactivatedException&)
+    {
+        _amdCB->ice_exception(Ice::ObjectNotExistException(__FILE__, __LINE__));
     }
     catch(const Ice::Exception&)
     {
@@ -450,8 +469,20 @@ LocatorI::invoke(const Ice::LocatorPrx& locator, const RequestPtr& request)
         if(_pendingRetryCount == 0) // No request in progress
         {
             _pendingRetryCount = _retryCount;
-            _lookup->begin_findLocator(_instanceName, _lookupReply); // Send multicast request.
-            _timer->schedule(this, _timeout);
+            try
+            {
+                _lookup->begin_findLocator(_instanceName, _lookupReply); // Send multicast request.
+                _timer->schedule(this, _timeout);
+            }
+            catch(const Ice::LocalException&)
+            {
+                for(vector<RequestPtr>::const_iterator p = _pendingRequests.begin(); p != _pendingRequests.end(); ++p)
+                {
+                    (*p)->invoke(_voidLocator);
+                }
+                _pendingRequests.clear();
+                _pendingRetryCount = 0;
+            }
         }
     }
 }
@@ -462,19 +493,24 @@ LocatorI::runTimerTask()
     Lock sync(*this);
     if(--_pendingRetryCount > 0)
     {
-        _lookup->begin_findLocator(_instanceName, _lookupReply); // Send multicast request.
-        _timer->schedule(this, _timeout);
-    }
-    else
-    {
-        assert(!_pendingRequests.empty());
-        for(vector<RequestPtr>::const_iterator p = _pendingRequests.begin(); p != _pendingRequests.end(); ++p)
+        try
         {
-            (*p)->invoke(_voidLocator); // Send pending requests on void locator.
+            _lookup->begin_findLocator(_instanceName, _lookupReply); // Send multicast request.
+            _timer->schedule(this, _timeout);
+            return;
         }
-        _pendingRequests.clear();
-        _nextRetry = IceUtil::Time::now() + _retryDelay; // Only retry when the retry delay expires
+        catch(const Ice::LocalException&)
+        {
+        }
+        _pendingRetryCount = 0;
     }
+
+    for(vector<RequestPtr>::const_iterator p = _pendingRequests.begin(); p != _pendingRequests.end(); ++p)
+    {
+        (*p)->invoke(_voidLocator); // Send pending requests on void locator.
+    }
+    _pendingRequests.clear();
+    _nextRetry = IceUtil::Time::now() + _retryDelay; // Only retry when the retry delay expires
 }
 
 void

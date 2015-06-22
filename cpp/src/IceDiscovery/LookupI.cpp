@@ -99,9 +99,9 @@ ObjectRequest::runTimerTask()
     _lookup->objectRequestTimedOut(this);
 }
 
-LookupI::LookupI(const LocatorRegistryIPtr& registry, const LookupPrx& lookup, const Ice::PropertiesPtr& properties) : 
-    _registry(registry), 
-    _lookup(lookup), 
+LookupI::LookupI(const LocatorRegistryIPtr& registry, const LookupPrx& lookup, const Ice::PropertiesPtr& properties) :
+    _registry(registry),
+    _lookup(lookup),
     _timeout(IceUtil::Time::milliSeconds(properties->getPropertyAsIntWithDefault("IceDiscovery.Timeout", 300))),
     _retryCount(properties->getPropertyAsIntWithDefault("IceDiscovery.RetryCount", 3)),
     _latencyMultiplier(properties->getPropertyAsIntWithDefault("IceDiscovery.LatencyMultiplier", 1)),
@@ -138,8 +138,8 @@ LookupI::setLookupReply(const LookupReplyPrx& lookupReply)
     _lookupReply = lookupReply;
 }
 
-void 
-LookupI::findObjectById(const string& domainId, const Ice::Identity& id, const IceDiscovery::LookupReplyPrx& reply, 
+void
+LookupI::findObjectById(const string& domainId, const Ice::Identity& id, const IceDiscovery::LookupReplyPrx& reply,
                         const Ice::Current&)
 {
     if(domainId != _domainId)
@@ -153,12 +153,19 @@ LookupI::findObjectById(const string& domainId, const Ice::Identity& id, const I
         //
         // Reply to the mulicast request using the given proxy.
         //
-        reply->begin_foundObjectById(id, proxy);
+        try
+        {
+            reply->begin_foundObjectById(id, proxy);
+        }
+        catch(const Ice::LocalException&)
+        {
+            // Ignore.
+        }
     }
 }
 
-void 
-LookupI::findAdapterById(const string& domainId, const std::string& adapterId, 
+void
+LookupI::findAdapterById(const string& domainId, const std::string& adapterId,
                          const IceDiscovery::LookupReplyPrx& reply, const Ice::Current&)
 {
     if(domainId != _domainId)
@@ -173,15 +180,22 @@ LookupI::findAdapterById(const string& domainId, const std::string& adapterId,
         //
         // Reply to the multicast request using the given proxy.
         //
-        reply->begin_foundAdapterById(adapterId, proxy, isReplicaGroup);
+        try
+        {
+            reply->begin_foundAdapterById(adapterId, proxy, isReplicaGroup);
+        }
+        catch(const Ice::LocalException&)
+        {
+            // Ignore.
+        }
     }
 }
 
-void 
+void
 LookupI::findObject(const Ice::AMD_Locator_findObjectByIdPtr& cb, const Ice::Identity& id)
 {
     Lock sync(*this);
-    map<Ice::Identity, ObjectRequestPtr>::const_iterator p = _objectRequests.find(id);
+    map<Ice::Identity, ObjectRequestPtr>::iterator p = _objectRequests.find(id);
     if(p == _objectRequests.end())
     {
         p = _objectRequests.insert(make_pair(id, new ObjectRequest(this, id, _retryCount))).first;
@@ -189,16 +203,24 @@ LookupI::findObject(const Ice::AMD_Locator_findObjectByIdPtr& cb, const Ice::Ide
 
     if(p->second->addCallback(cb))
     {
-        _lookup->begin_findObjectById(_domainId, id, _lookupReply);
-        _timer->schedule(p->second, _timeout);
+        try
+        {
+            _lookup->begin_findObjectById(_domainId, id, _lookupReply);
+            _timer->schedule(p->second, _timeout);
+        }
+        catch(const Ice::LocalException&)
+        {
+            p->second->finished(0);
+            _objectRequests.erase(p);
+        }
     }
 }
 
-void 
+void
 LookupI::findAdapter(const Ice::AMD_Locator_findAdapterByIdPtr& cb, const std::string& adapterId)
 {
     Lock sync(*this);
-    map<string, AdapterRequestPtr>::const_iterator p = _adapterRequests.find(adapterId);
+    map<string, AdapterRequestPtr>::iterator p = _adapterRequests.find(adapterId);
     if(p == _adapterRequests.end())
     {
         p = _adapterRequests.insert(make_pair(adapterId, new AdapterRequest(this, adapterId, _retryCount))).first;
@@ -206,8 +228,16 @@ LookupI::findAdapter(const Ice::AMD_Locator_findAdapterByIdPtr& cb, const std::s
 
     if(p->second->addCallback(cb))
     {
-        _lookup->begin_findAdapterById(_domainId, adapterId, _lookupReply);
-        _timer->schedule(p->second, _timeout);
+        try
+        {
+            _lookup->begin_findAdapterById(_domainId, adapterId, _lookupReply);
+            _timer->schedule(p->second, _timeout);
+        }
+        catch(const Ice::LocalException&)
+        {
+            p->second->finished(0);
+            _adapterRequests.erase(p);
+        }
     }
 }
 
@@ -255,15 +285,20 @@ LookupI::objectRequestTimedOut(const ObjectRequestPtr& request)
 
     if(request->retry())
     {
-        _lookup->begin_findObjectById(_domainId, request->getId(), _lookupReply);
-        _timer->schedule(p->second, _timeout);
+        try
+        {
+            _lookup->begin_findObjectById(_domainId, request->getId(), _lookupReply);
+            _timer->schedule(p->second, _timeout);
+            return;
+        }
+        catch(const Ice::LocalException&)
+        {
+        }
     }
-    else
-    {
-        request->finished(0);
-        _objectRequests.erase(p);
-        _timer->cancel(request);
-    }
+
+    request->finished(0);
+    _objectRequests.erase(p);
+    _timer->cancel(request);
 }
 
 void
@@ -278,28 +313,33 @@ LookupI::adapterRequestTimedOut(const AdapterRequestPtr& request)
 
     if(request->retry())
     {
-        _lookup->begin_findAdapterById(_domainId, request->getId(), _lookupReply);
-        _timer->schedule(p->second, _timeout);
+        try
+        {
+            _lookup->begin_findAdapterById(_domainId, request->getId(), _lookupReply);
+            _timer->schedule(p->second, _timeout);
+            return;
+        }
+        catch(const Ice::LocalException&)
+        {
+        }
     }
-    else
-    {
-        request->finished(0);
-        _adapterRequests.erase(p);
-        _timer->cancel(request);
-    }
+
+    request->finished(0);
+    _adapterRequests.erase(p);
+    _timer->cancel(request);
 }
 
 LookupReplyI::LookupReplyI(const LookupIPtr& lookup) : _lookup(lookup)
 {
 }
 
-void 
+void
 LookupReplyI::foundObjectById(const Ice::Identity& id, const Ice::ObjectPrx& proxy, const Ice::Current&)
 {
     _lookup->foundObject(id, proxy);
 }
 
-void 
+void
 LookupReplyI::foundAdapterById(const std::string& adapterId, const Ice::ObjectPrx& proxy, bool isReplicaGroup,
                                const Ice::Current&)
 {

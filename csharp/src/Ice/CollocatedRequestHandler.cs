@@ -64,6 +64,7 @@ namespace IceInternal
                     {
                         outAsync.invokeCompletedAsync(cb);
                     }
+                    _adapter.decDirectCount(); // invokeAll won't be called, decrease the direct count.
                     return;
                 }
                 if(outAsync is OutgoingAsync)
@@ -161,7 +162,14 @@ namespace IceInternal
         public bool invokeAsyncRequest(OutgoingAsyncBase outAsync, int batchRequestNum, bool synchronous,
                                        out Ice.AsyncCallback sentCallback)
         {
+            //
+            // Increase the direct count to prevent the thread pool from being destroyed before
+            // invokeAll is called. This will also throw if the object adapter has been deactivated.
+            //
+            _adapter.incDirectCount();
+
             int requestId = 0;
+            try
             {
                 lock(this)
                 {
@@ -175,6 +183,11 @@ namespace IceInternal
 
                     _sendAsyncRequests.Add(outAsync, requestId);
                 }
+            }
+            catch(System.Exception ex)
+            {
+                _adapter.decDirectCount();
+                throw ex;
             }
 
             outAsync.attachCollocatedObserver(_adapter, requestId);
@@ -277,6 +290,12 @@ namespace IceInternal
             {
                 while(invokeNum > 0)
                 {
+                    //
+                    // Increase the direct count for the dispatch. We increase it again here for
+                    // each dispatch. It's important for the direct count to be > 0 until the last
+                    // collocated request response is sent to make sure the thread pool isn't
+                    // destroyed before.
+                    //
                     try
                     {
                         _adapter.incDirectCount();
@@ -284,7 +303,7 @@ namespace IceInternal
                     catch(Ice.ObjectAdapterDeactivatedException ex)
                     {
                         handleException(requestId, ex, false);
-                        return;
+                        break;
                     }
 
                     Incoming @in = new Incoming(_reference.getInstance(), this, null, _adapter, _response, (byte)0,
@@ -297,6 +316,8 @@ namespace IceInternal
             {
                 invokeException(requestId, ex, invokeNum, false); // Fatal invocation exception
             }
+
+            _adapter.decDirectCount();
         }
 
         void

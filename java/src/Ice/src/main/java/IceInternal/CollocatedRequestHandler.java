@@ -78,6 +78,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
             {
                 outAsync.invokeCompletedAsync();
             }
+            _adapter.decDirectCount(); // invokeAll won't be called, decrease the direct count.
             return;
         }
 
@@ -183,18 +184,32 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
 
     int invokeAsyncRequest(OutgoingAsyncBase outAsync, int batchRequestNum, boolean synchronous)
     {
+        //
+        // Increase the direct count to prevent the thread pool from being destroyed before
+        // invokeAll is called. This will also throw if the object adapter has been deactivated.
+        //
+        _adapter.incDirectCount();
+
         int requestId = 0;
-        synchronized(this)
+        try
         {
-            outAsync.cancelable(this); // This will throw if the request is canceled
-
-            if(_response)
+            synchronized(this)
             {
-                requestId = ++_requestId;
-                _asyncRequests.put(requestId, outAsync);
-            }
+                outAsync.cancelable(this); // This will throw if the request is canceled
 
-            _sendAsyncRequests.put(outAsync, requestId);
+                if(_response)
+                {
+                    requestId = ++_requestId;
+                    _asyncRequests.put(requestId, outAsync);
+                }
+
+                _sendAsyncRequests.put(outAsync, requestId);
+            }
+        }
+        catch(Exception ex)
+        {
+            _adapter.decDirectCount();
+            throw ex;
         }
 
         outAsync.attachCollocatedObserver(_adapter, requestId);
@@ -288,6 +303,12 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
         {
             while(invokeNum > 0)
             {
+                //
+                // Increase the direct count for the dispatch. We increase it again here for
+                // each dispatch. It's important for the direct count to be > 0 until the last
+                // collocated request response is sent to make sure the thread pool isn't
+                // destroyed before.
+                //
                 try
                 {
                     _adapter.incDirectCount();
@@ -295,7 +316,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
                 catch(Ice.ObjectAdapterDeactivatedException ex)
                 {
                     handleException(requestId, ex, false);
-                    return;
+                    break;
                 }
 
                 Incoming in = new Incoming(_reference.getInstance(), this, null, _adapter, _response, (byte)0,
@@ -348,6 +369,8 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
                 throw ex;
             }
         }
+
+        _adapter.decDirectCount();
     }
 
     private void

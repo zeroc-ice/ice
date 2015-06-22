@@ -213,7 +213,14 @@ class LookupI extends _LookupDisp
             //
             // Reply to the mulicast request using the given proxy.
             //
-            reply.begin_foundObjectById(id, proxy);
+            try
+            {
+               reply.begin_foundObjectById(id, proxy);
+            }
+            catch(Ice.LocalException ex)
+            {
+                // Ignore
+            }
         }
     }
 
@@ -233,7 +240,14 @@ class LookupI extends _LookupDisp
             //
             // Reply to the multicast request using the given proxy.
             //
-            reply.begin_foundAdapterById(adapterId, proxy, isReplicaGroup.value);
+            try
+            {
+                reply.begin_foundAdapterById(adapterId, proxy, isReplicaGroup.value);
+            }
+            catch(Ice.LocalException ex)
+            {
+                // Ignore
+            }
         }
     }
 
@@ -249,8 +263,16 @@ class LookupI extends _LookupDisp
 
         if(request.addCallback(cb))
         {
-            _lookup.begin_findObjectById(_domainId, id, _lookupReply);
-            request.scheduleTimer(_timeout);
+            try
+            {
+                _lookup.begin_findObjectById(_domainId, id, _lookupReply);
+                request.scheduleTimer(_timeout);
+            }
+            catch(Ice.LocalException ex)
+            {
+                request.finished(null);
+                _objectRequests.remove(id);
+            }
         }
     }
 
@@ -266,8 +288,16 @@ class LookupI extends _LookupDisp
 
         if(request.addCallback(cb))
         {
-            _lookup.begin_findAdapterById(_domainId, adapterId, _lookupReply);
-            request.scheduleTimer(_timeout);
+            try
+            {
+                _lookup.begin_findAdapterById(_domainId, adapterId, _lookupReply);
+                request.scheduleTimer(_timeout);
+            }
+            catch(Ice.LocalException ex)
+            {
+                request.finished(null);
+                _adapterRequests.remove(adapterId);
+            }
         }
     }
 
@@ -312,14 +342,19 @@ class LookupI extends _LookupDisp
 
         if(request.retry())
         {
-            _lookup.begin_findObjectById(_domainId, request.getId(), _lookupReply);
-            request.scheduleTimer(_timeout);
+            try
+            {
+                _lookup.begin_findObjectById(_domainId, request.getId(), _lookupReply);
+                request.scheduleTimer(_timeout);
+                return;
+            }
+            catch(Ice.LocalException ex)
+            {
+            }
         }
-        else
-        {
-            request.finished(null);
-            _objectRequests.remove(request.getId());
-        }
+
+        request.finished(null);
+        _objectRequests.remove(request.getId());
     }
 
     synchronized void
@@ -333,14 +368,19 @@ class LookupI extends _LookupDisp
 
         if(request.retry())
         {
-            _lookup.begin_findAdapterById(_domainId, request.getId(), _lookupReply);
-            request.scheduleTimer(_timeout);
+            try
+            {
+                _lookup.begin_findAdapterById(_domainId, request.getId(), _lookupReply);
+                request.scheduleTimer(_timeout);
+                return;
+            }
+            catch(Ice.LocalException ex)
+            {
+            }
         }
-        else
-        {
-            request.finished(null);
-            _adapterRequests.remove(request.getId());
-        }
+
+        request.finished(null);
+        _adapterRequests.remove(request.getId());
     }
 
     private LocatorRegistryI _registry;
@@ -355,6 +395,5 @@ class LookupI extends _LookupDisp
 
     private Map<Ice.Identity, ObjectRequest> _objectRequests = new HashMap<Ice.Identity, ObjectRequest>();
     private Map<String, AdapterRequest> _adapterRequests = new HashMap<String, AdapterRequest>();
-
 }
 

@@ -149,6 +149,7 @@ CollocatedRequestHandler::requestCanceled(OutgoingBase* out, const LocalExceptio
         InvocationTimeoutException ex(__FILE__, __LINE__);
         out->completed(ex);
         _sendRequests.erase(p);
+        _adapter->decDirectCount(); // invokeAll won't be called, decrease the direct count.
         return;
     }
 
@@ -185,6 +186,7 @@ CollocatedRequestHandler::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAs
         {
             outAsync->invokeCompletedAsync();
         }
+        _adapter->decDirectCount(); // invokeAll won't be called, decrease the direct count.
         return;
     }
 
@@ -209,6 +211,12 @@ CollocatedRequestHandler::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAs
 void
 CollocatedRequestHandler::invokeRequest(OutgoingBase* out, int batchRequestNum)
 {
+    //
+    // Increase the direct count to prevent the thread pool from being destroyed before
+    // invokeAll is called. This will also throw if the object adapter has been deactivated.
+    //
+    _adapter->incDirectCount();
+
     int requestId = 0;
     {
         Lock sync(*this);
@@ -243,7 +251,14 @@ CollocatedRequestHandler::invokeRequest(OutgoingBase* out, int batchRequestNum)
 AsyncStatus
 CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int batchRequestNum)
 {
+    //
+    // Increase the direct count to prevent the thread pool from being destroyed before
+    // invokeAll is called. This will also throw if the object adapter has been deactivated.
+    //
+    _adapter->incDirectCount();
+
     int requestId = 0;
+    try
     {
         Lock sync(*this);
 
@@ -256,6 +271,11 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
         }
 
         _sendAsyncRequests.insert(make_pair(outAsync, requestId));
+    }
+    catch(...)
+    {
+        _adapter->decDirectCount();
+        throw;
     }
 
     outAsync->attachCollocatedObserver(_adapter, requestId);
@@ -418,6 +438,12 @@ CollocatedRequestHandler::invokeAll(BasicStream* os, Int requestId, Int batchReq
     {
         while(invokeNum > 0)
         {
+            //
+            // Increase the direct count for the dispatch. We increase it again here for
+            // each dispatch. It's important for the direct count to be > 0 until the last
+            // collocated request response is sent to make sure the thread pool isn't
+            // destroyed before.
+            //
             try
             {
                 _adapter->incDirectCount();
@@ -425,7 +451,7 @@ CollocatedRequestHandler::invokeAll(BasicStream* os, Int requestId, Int batchReq
             catch(const ObjectAdapterDeactivatedException& ex)
             {
                 handleException(requestId, ex, false);
-                return;
+                break;
             }
 
             Incoming in(_reference->getInstance().get(), this, 0, _adapter, _response, 0, requestId);
@@ -437,6 +463,8 @@ CollocatedRequestHandler::invokeAll(BasicStream* os, Int requestId, Int batchReq
     {
         invokeException(requestId, ex, invokeNum, false); // Fatal invocation exception
     }
+
+    _adapter->decDirectCount();
 }
 
 void

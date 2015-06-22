@@ -25,7 +25,7 @@ namespace IceDiscovery
         {
             return _id;
         }
-        
+
         public bool addCallback(AmdCB cb)
         {
             callbacks_.Add(cb);
@@ -55,7 +55,7 @@ namespace IceDiscovery
         {
             return _proxies.Count == 0 && --nRetry_ >= 0;
         }
-        
+
         public bool response(Ice.ObjectPrx proxy, bool isReplicaGroup)
         {
             if(isReplicaGroup)
@@ -102,7 +102,7 @@ namespace IceDiscovery
             }
             sendResponse(result.ice_endpoints(endpoints.ToArray()));
         }
-        
+
         public void runTimerTask()
         {
             lookup_.adapterRequestTimedOut(this);
@@ -116,7 +116,7 @@ namespace IceDiscovery
             }
             callbacks_.Clear();
         }
-        
+
         private List<Ice.ObjectPrx> _proxies = new List<Ice.ObjectPrx>();
         private long _start;
         private long _latency;
@@ -132,7 +132,7 @@ namespace IceDiscovery
         {
             finished(proxy);
         }
-        
+
         public void finished(Ice.ObjectPrx proxy)
         {
             foreach(Ice.AMD_Locator_findObjectById cb in callbacks_)
@@ -160,12 +160,12 @@ namespace IceDiscovery
             _domainId = properties.getProperty("IceDiscovery.DomainId");
             _timer = IceInternal.Util.getInstance(lookup.ice_getCommunicator()).timer();
         }
-        
+
         public void setLookupReply(LookupReplyPrx lookupReply)
         {
             _lookupReply = lookupReply;
         }
-        
+
         public override void findObjectById(string domainId, Ice.Identity id, IceDiscovery.LookupReplyPrx reply,
                                             Ice.Current c)
         {
@@ -180,11 +180,18 @@ namespace IceDiscovery
                 //
                 // Reply to the mulicast request using the given proxy.
                 //
-                getLookupReply(reply, c).begin_foundObjectById(id, proxy);
+                try
+                {
+                    reply.begin_foundObjectById(id, proxy);
+                }
+                catch(Ice.LocalException)
+                {
+                    // Ignore.
+                }
             }
         }
 
-        public override void findAdapterById(string domainId, string adapterId, IceDiscovery.LookupReplyPrx reply, 
+        public override void findAdapterById(string domainId, string adapterId, IceDiscovery.LookupReplyPrx reply,
                                              Ice.Current c)
         {
             if(!domainId.Equals(_domainId))
@@ -199,7 +206,14 @@ namespace IceDiscovery
                 //
                 // Reply to the multicast request using the given proxy.
                 //
-                getLookupReply(reply, c).begin_foundAdapterById(adapterId, proxy, isReplicaGroup);
+                try
+                {
+                    reply.begin_foundAdapterById(adapterId, proxy, isReplicaGroup);
+                }
+                catch(Ice.LocalException)
+                {
+                    // Ignore.
+                }
             }
         }
 
@@ -215,8 +229,16 @@ namespace IceDiscovery
                 }
                 if(request.addCallback(cb))
                 {
-                    _lookup.begin_findObjectById(_domainId, id, _lookupReply);
-                    _timer.schedule(request, _timeout);
+                    try
+                    {
+                        _lookup.begin_findObjectById(_domainId, id, _lookupReply);
+                        _timer.schedule(request, _timeout);
+                    }
+                    catch(Ice.LocalException)
+                    {
+                        request.finished(null);
+                        _objectRequests.Remove(id);
+                    }
                 }
             }
         }
@@ -233,8 +255,16 @@ namespace IceDiscovery
                 }
                 if(request.addCallback(cb))
                 {
-                    _lookup.begin_findAdapterById(_domainId, adapterId, _lookupReply);
-                    _timer.schedule(request, _timeout);
+                    try
+                    {
+                        _lookup.begin_findAdapterById(_domainId, adapterId, _lookupReply);
+                        _timer.schedule(request, _timeout);
+                    }
+                    catch(Ice.LocalException)
+                    {
+                        request.finished(null);
+                        _adapterRequests.Remove(adapterId);
+                    }
                 }
             }
         }
@@ -284,15 +314,20 @@ namespace IceDiscovery
 
                 if(request.retry())
                 {
-                    _lookup.begin_findObjectById(_domainId, request.getId(), _lookupReply);
-                    _timer.schedule(request, _timeout);
+                    try
+                    {
+                        _lookup.begin_findObjectById(_domainId, request.getId(), _lookupReply);
+                        _timer.schedule(request, _timeout);
+                        return;
+                    }
+                    catch(Ice.LocalException)
+                    {
+                    }
                 }
-                else
-                {
-                    request.finished(null);
-                    _objectRequests.Remove(request.getId());
-                    _timer.cancel(request);
-                }
+
+                request.finished(null);
+                _objectRequests.Remove(request.getId());
+                _timer.cancel(request);
             }
         }
 
@@ -308,15 +343,20 @@ namespace IceDiscovery
 
                 if(request.retry())
                 {
-                    _lookup.begin_findAdapterById(_domainId, request.getId(), _lookupReply);
-                    _timer.schedule(request, _timeout);
+                    try
+                    {
+                        _lookup.begin_findAdapterById(_domainId, request.getId(), _lookupReply);
+                        _timer.schedule(request, _timeout);
+                        return;
+                    }
+                    catch(Ice.LocalException)
+                    {
+                    }
                 }
-                else
-                {
-                    request.finished(null);
-                    _adapterRequests.Remove(request.getId());
-                    _timer.cancel(request);
-                }
+
+                request.finished(null);
+                _adapterRequests.Remove(request.getId());
+                _timer.cancel(request);
             }
         }
 
@@ -328,23 +368,6 @@ namespace IceDiscovery
         internal int latencyMultiplier()
         {
             return _latencyMultiplier;
-        }
-
-        private LookupReplyPrx getLookupReply(LookupReplyPrx reply, Ice.Current current)
-        {
-            // Ice.UDPConnectionInfo info = Ice.UDPConnectionInfoPtr.dynamicCast(current.con.getInfo());
-            // if(info)
-            // {
-            //     Ice.Communicator com = current.adapter.getCommunicator();
-            //     ostringstream os;
-            //     os << "\"" << com.identityToString(reply.ice_getIdentity()) << "\"";
-            //     os << ":udp -h " << info.remoteAddress << " -p " << info.remotePort;
-            //     return LookupReplyPrx.uncheckedCast(com.stringToProxy(os.str()).ice_datagram());
-            // }
-            // else
-            {
-                return reply;
-            }
         }
 
         private LocatorRegistryI _registry;
@@ -367,7 +390,7 @@ namespace IceDiscovery
         {
             _lookup = lookup;
         }
-        
+
         public override void foundObjectById(Ice.Identity id, Ice.ObjectPrx proxy, Ice.Current c)
         {
             _lookup.foundObject(id, proxy);

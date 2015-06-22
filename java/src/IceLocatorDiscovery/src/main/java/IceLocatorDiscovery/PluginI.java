@@ -36,38 +36,63 @@ class PluginI implements Ice.Plugin
         invoke(Ice.LocatorPrx l)
         {
             _locatorPrx = l;
-            l.begin_ice_invoke(_operation, _mode, _inParams, _context,
-                new Ice.Callback_Object_ice_invoke()
-                {
-                    @Override
-                    public void
-                    response(boolean ok, byte[] outParams)
+            try
+            {
+                l.begin_ice_invoke(_operation, _mode, _inParams, _context,
+                    new Ice.Callback_Object_ice_invoke()
                     {
-                        _amdCB.ice_response(ok, outParams);
-                    }
+                        @Override
+                        public void
+                        response(boolean ok, byte[] outParams)
+                        {
+                            _amdCB.ice_response(ok, outParams);
+                        }
 
-                    @Override
-                    public void
-                    exception(Ice.LocalException ex)
-                    {
-                        try
+                        @Override
+                        public void
+                        exception(Ice.LocalException ex)
                         {
-                            throw ex;
+                            Request.this.exception(ex);
                         }
-                        catch(Ice.RequestFailedException exc)
-                        {
-                            _amdCB.ice_exception(ex);
-                        }
-                        catch(Ice.UnknownException exc)
-                        {
-                            _amdCB.ice_exception(ex);
-                        }
-                        catch(Ice.LocalException exc)
-                        {
-                            _locator.invoke(_locatorPrx, Request.this); // Retry with new locator proxy
-                        }
-                    }
-                });
+                    });
+            }
+            catch(Ice.LocalException ex)
+            {
+                exception(ex);
+            }
+        }
+
+        private void
+        exception(Ice.LocalException ex)
+        {
+            try
+            {
+                throw ex;
+            }
+            catch(Ice.RequestFailedException exc)
+            {
+                _amdCB.ice_exception(ex);
+            }
+            catch(Ice.UnknownException exc)
+            {
+                _amdCB.ice_exception(ex);
+            }
+            catch(Ice.NoEndpointException exc)
+            {
+                _amdCB.ice_exception(new Ice.ObjectNotExistException());
+            }
+            catch(Ice.ObjectAdapterDeactivatedException exc)
+            {
+                _amdCB.ice_exception(new Ice.ObjectNotExistException());
+            }
+            catch(Ice.CommunicatorDestroyedException exc)
+            {
+                _amdCB.ice_exception(new Ice.ObjectNotExistException());
+            }
+            catch(Ice.LocalException exc)
+            {
+                _locator.invoke(_locatorPrx, Request.this); // Retry with new locator proxy
+            }
         }
 
         private final LocatorI _locator;
@@ -242,8 +267,20 @@ class PluginI implements Ice.Plugin
                 if(_pendingRetryCount == 0) // No request in progress
                 {
                     _pendingRetryCount = _retryCount;
-                    _lookup.begin_findLocator(_instanceName, _lookupReply); // Send multicast request.
-                    _future = _timer.schedule(_retryTask, _timeout, java.util.concurrent.TimeUnit.MILLISECONDS);
+                    try
+                    {
+                        _lookup.begin_findLocator(_instanceName, _lookupReply); // Send multicast request.
+                        _future = _timer.schedule(_retryTask, _timeout, java.util.concurrent.TimeUnit.MILLISECONDS);
+                    }
+                    catch(Ice.LocalException ex)
+                    {
+                        for(Request req : _pendingRequests)
+                        {
+                            req.invoke(_voidLocator);
+                        }
+                        _pendingRequests.clear();
+                        _pendingRetryCount = 0;
+                    }
                 }
             }
         }
@@ -257,19 +294,24 @@ class PluginI implements Ice.Plugin
                 {
                     if(--_pendingRetryCount > 0)
                     {
-                        _lookup.begin_findLocator(_instanceName, _lookupReply); // Send multicast request.
-                        _future = _timer.schedule(_retryTask, _timeout, java.util.concurrent.TimeUnit.MILLISECONDS);
-                    }
-                    else
-                    {
-                        assert !_pendingRequests.isEmpty();
-                        for(Request req : _pendingRequests)
+                        try
                         {
-                            req.invoke(_voidLocator);
+                            _lookup.begin_findLocator(_instanceName, _lookupReply); // Send multicast request.
+                            _future = _timer.schedule(_retryTask, _timeout, java.util.concurrent.TimeUnit.MILLISECONDS);
+                            return;
                         }
-                        _pendingRequests.clear();
-                        _nextRetry = IceInternal.Time.currentMonotonicTimeMillis() + _retryDelay;
+                        catch(Ice.LocalException ex)
+                        {
+                        }
+                        _pendingRetryCount = 0;
                     }
+
+                    for(Request req : _pendingRequests)
+                    {
+                        req.invoke(_voidLocator);
+                    }
+                    _pendingRequests.clear();
+                    _nextRetry = IceInternal.Time.currentMonotonicTimeMillis() + _retryDelay;
                 }
 
             }

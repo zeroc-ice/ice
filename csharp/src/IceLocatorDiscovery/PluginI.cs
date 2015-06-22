@@ -44,31 +44,55 @@ namespace IceLocatorDiscovery
         invoke(Ice.LocatorPrx l)
         {
             _locatorPrx = l;
-            Request self = this;
-            l.begin_ice_invoke(_operation, _mode, _inParams, _context).whenCompleted(
-                (bool ok, byte[] outParams) =>
-                {
-                    _amdCB.ice_response(ok, outParams);
-                },
-                (Ice.Exception ex) =>
-                {
-                    try
+            try
+            {
+                l.begin_ice_invoke(_operation, _mode, _inParams, _context).whenCompleted(
+                    (bool ok, byte[] outParams) =>
                     {
-                        throw ex;
-                    }
-                    catch(Ice.RequestFailedException exc)
+                        _amdCB.ice_response(ok, outParams);
+                    },
+                    (Ice.Exception ex) =>
                     {
-                        _amdCB.ice_exception(exc);
-                    }
-                    catch(Ice.UnknownException exc)
-                    {
-                        _amdCB.ice_exception(exc);
-                    }
-                    catch(Ice.Exception)
-                    {
-                        _locator.invoke(_locatorPrx, self); // Retry with new locator proxy
-                    }
-                });
+                        exception(ex);
+                    });
+            }
+            catch(Ice.LocalException ex)
+            {
+                exception(ex);
+            }
+        }
+
+        private void
+        exception(Ice.Exception ex)
+        {
+            try
+            {
+                throw ex;
+            }
+            catch(Ice.RequestFailedException exc)
+            {
+                _amdCB.ice_exception(exc);
+            }
+            catch(Ice.UnknownException exc)
+            {
+                _amdCB.ice_exception(exc);
+            }
+            catch(Ice.NoEndpointException)
+            {
+                _amdCB.ice_exception(new Ice.ObjectNotExistException());
+            }
+            catch(Ice.ObjectAdapterDeactivatedException)
+            {
+                _amdCB.ice_exception(new Ice.ObjectNotExistException());
+            }
+            catch(Ice.CommunicatorDestroyedException)
+            {
+                _amdCB.ice_exception(new Ice.ObjectNotExistException());
+            }
+            catch(Ice.Exception)
+            {
+                _locator.invoke(_locatorPrx, this); // Retry with new locator proxy
+            }
         }
 
         private readonly LocatorI _locator;
@@ -243,8 +267,20 @@ namespace IceLocatorDiscovery
                     if(_pendingRetryCount == 0) // No request in progress
                     {
                         _pendingRetryCount = _retryCount;
-                        _lookup.begin_findLocator(_instanceName, _lookupReply); // Send multicast request.
-                        _timer.schedule(this, _timeout);
+                        try
+                        {
+                            _lookup.begin_findLocator(_instanceName, _lookupReply); // Send multicast request.
+                            _timer.schedule(this, _timeout);
+                        }
+                        catch(Ice.LocalException)
+                        {
+                            foreach(Request req in _pendingRequests)
+                            {
+                                req.invoke(_voidLocator);
+                            }
+                            _pendingRequests.Clear();
+                            _pendingRetryCount = 0;
+                        }
                     }
                 }
             }
@@ -257,19 +293,24 @@ namespace IceLocatorDiscovery
             {
                 if(--_pendingRetryCount > 0)
                 {
-                    _lookup.begin_findLocator(_instanceName, _lookupReply); // Send multicast request
-                    _timer.schedule(this, _timeout);
-                }
-                else
-                {
-                    Debug.Assert(_pendingRequests.Count > 0, "Pending requests is not empty");
-                    foreach(Request req in _pendingRequests)
+                    try
                     {
-                        req.invoke(_voidLocator);
+                        _lookup.begin_findLocator(_instanceName, _lookupReply); // Send multicast request
+                        _timer.schedule(this, _timeout);
+                        return;
                     }
-                    _pendingRequests.Clear();
-                    _nextRetry = IceInternal.Time.currentMonotonicTimeMillis() + _retryDelay;
+                    catch(Ice.LocalException)
+                    {
+                    }
+                    _pendingRetryCount = 0;
                 }
+
+                foreach(Request req in _pendingRequests)
+                {
+                    req.invoke(_voidLocator);
+                }
+                _pendingRequests.Clear();
+                _nextRetry = IceInternal.Time.currentMonotonicTimeMillis() + _retryDelay;
             }
         }
 
