@@ -297,7 +297,8 @@ class SSLEngine
                 //
                 // The alias of the key to use in authentication.
                 //
-                final String alias = properties.getProperty(prefix + "Alias");
+                String alias = properties.getProperty(prefix + "Alias");
+                boolean overrideAlias = !alias.isEmpty(); // Always use the configured alias
 
                 //
                 // The truststore holds the certificates of trusted CAs.
@@ -406,11 +407,32 @@ class SSLEngine
                     keyManagers = kmf.getKeyManagers();
 
                     //
-                    // If the user selected a specific alias, we need to wrap the key managers
-                    // in order to return the desired alias.
+                    // If no alias is specified, we look for the first key entry in the key store.
                     //
-                    if(alias.length() > 0)
+                    // This is required to force the key manager to always choose a certificate
+                    // even if there's no certificate signed by any of the CA names sent by the
+                    // server. Ice servers might indeed not always send the CA names of their
+                    // trusted roots.
+                    //
+                    if(alias.isEmpty())
                     {
+                        for(java.util.Enumeration<String> e = keys.aliases(); e.hasMoreElements();)
+                        {
+                            String a = e.nextElement();
+                            if(keys.isKeyEntry(a))
+                            {
+                                alias = a;
+                                break;
+                            }
+                        }
+                    }
+
+                    if(!alias.isEmpty())
+                    {
+                        //
+                        // If the user selected a specific alias, we need to wrap the key managers
+                        // in order to return the desired alias.
+                        //
                         if(!keys.isKeyEntry(alias))
                         {
                             Ice.PluginInitializationException e = new Ice.PluginInitializationException();
@@ -420,7 +442,8 @@ class SSLEngine
 
                         for(int i = 0; i < keyManagers.length; ++i)
                         {
-                            keyManagers[i] = new X509KeyManagerI((javax.net.ssl.X509KeyManager)keyManagers[i], alias);
+                            keyManagers[i] = new X509KeyManagerI((javax.net.ssl.X509ExtendedKeyManager)keyManagers[i],
+                                                                 alias, overrideAlias);
                         }
                     }
                 }

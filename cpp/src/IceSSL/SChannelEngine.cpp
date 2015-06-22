@@ -713,9 +713,7 @@ SChannelEngine::newCredentialsHandle(bool incoming)
         // client. Recent Windows versions don't CA names but older ones do
         // send all the trusted root CA names. We provide the root store to
         // ensure that for these older Windows versions, we also include the
-        // CA names of your trusted roots. IceSSL for Java will only send a
-        // client certificate if the client certificate CA matches one of the
-        // CA names sent by the server.
+        // CA names of our trusted roots.
         //
         cred.hRootStore = _rootStore;
     }
