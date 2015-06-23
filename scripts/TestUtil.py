@@ -900,6 +900,8 @@ if isDarwin():
                                       " --IceSSL.ProtocolVersionMax=tls1_1"
     sslConfigTree["cpp"]["colloc"] += " --IceSSL.Keychain=colloc.keychain --IceSSL.KeychainPassword=password"
 
+if isWin32():
+    sslConfigTree["java"]["client"] += " --IceSSL.Ciphers=!TLS_DHE_RSA_WITH_AES_128_GCM_SHA256"
 
 sslConfigTree["python"] = sslConfigTree["cpp"]
 sslConfigTree["ruby"] = sslConfigTree["cpp"]
