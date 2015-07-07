@@ -47,6 +47,3 @@ $(CLIENT3): $(C3OBJS)
 $(CLIENT4): $(C4OBJS)
 	rm -f $@
 	$(call mktest,$@,$(C4OBJS),$(LINKWITH))
-
-clean::
-	-rm -f seed

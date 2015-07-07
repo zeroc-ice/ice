@@ -33,6 +33,3 @@ $(CLIENT): $(OBJS)
 
 clean::
 	del /q Test.cpp Test.h
-
-clean::
-	del /q seed
