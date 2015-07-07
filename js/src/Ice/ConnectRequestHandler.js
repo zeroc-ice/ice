@@ -256,7 +256,7 @@ var ConnectRequestHandler = Ice.Class({
         if(this._reference.getCacheConnection() && exception === null)
         {
             this._requestHandler = new ConnectionRequestHandler(this._reference, this._connection, this._compress);
-            for(var k = 0; i < this._proxies.length; ++k)
+            for(var k = 0; k < this._proxies.length; ++k)
             {
                 this._proxies[k].__updateRequestHandler(this, this._requestHandler);
             }
