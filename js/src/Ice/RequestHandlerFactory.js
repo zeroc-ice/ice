@@ -58,7 +58,7 @@ var RequestHandlerFactory = Ice.Class({
                                          handler.setException(ex);
                                      });
         }
-        return proxy.__setRequestHandler(handler);
+        return proxy.__setRequestHandler(handler.connect(proxy));
     },
     removeRequestHandler: function(ref, handler)
     {
