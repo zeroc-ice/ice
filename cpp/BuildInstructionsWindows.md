@@ -101,4 +101,4 @@ failure, the tests abort with `failed`.
 [4]: http://bzip.org
 [5]: http://www.oracle.com/us/products/database/berkeley-db/overview/index.htm
 [6]: https://github.com/zeroc-ice/mcpp
-[7]: https://zeroc.com/download.html
+[7]: https://zeroc.com/download/Ice/3.6/Ice-3.6.0-ThirdParty.msi
