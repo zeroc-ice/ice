@@ -894,6 +894,8 @@ Client.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
@@ -1038,6 +1040,8 @@ AllTests.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
     "Test.h" \
@@ -1185,11 +1189,12 @@ TestI.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
 
 Server.obj: \
 	Server.cpp \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\Config.h" \
@@ -1305,6 +1310,8 @@ Server.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "TestI.h" \
     "Test.h" \

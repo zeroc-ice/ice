@@ -126,6 +126,9 @@ CryptPermissionsVerifierI.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "..\..\src\IceUtil\FileUtil.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
+    "$(includedir)\IceUtil\InputUtil.h" \

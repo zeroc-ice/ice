@@ -104,7 +104,6 @@ PHPUtil.obj: \
 
 Preprocessor.obj: \
 	Preprocessor.cpp \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
     "$(includedir)\Slice\Preprocessor.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \

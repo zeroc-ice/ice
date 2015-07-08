@@ -846,7 +846,6 @@ $(ARCH)\$(CONFIG)\BuiltinSequences.obj: \
 
 $(ARCH)\$(CONFIG)\CommunicatorI.obj: \
 	..\CommunicatorI.cpp \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
     "..\..\..\src\Ice\CommunicatorI.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -1883,7 +1882,6 @@ $(ARCH)\$(CONFIG)\Current.obj: \
 
 $(ARCH)\$(CONFIG)\DefaultsAndOverrides.obj: \
 	..\DefaultsAndOverrides.cpp \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
     "..\..\..\src\Ice\DefaultsAndOverrides.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -3262,7 +3260,6 @@ $(ARCH)\$(CONFIG)\Incoming.obj: \
 
 $(ARCH)\$(CONFIG)\Initialize.obj: \
 	..\Initialize.cpp \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
     "..\..\..\src\IceUtil\ArgVector.h" \
     "$(includedir)\IceUtil\Config.h" \
     "..\..\..\src\Ice\CommunicatorI.h" \
@@ -3385,7 +3382,6 @@ $(ARCH)\$(CONFIG)\Initialize.obj: \
 
 $(ARCH)\$(CONFIG)\Instance.obj: \
 	..\Instance.cpp \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
     "..\..\..\src\Ice\Instance.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\Shared.h" \
@@ -5594,7 +5590,6 @@ $(ARCH)\$(CONFIG)\OpaqueEndpointI.obj: \
 
 $(ARCH)\$(CONFIG)\OutgoingAsync.obj: \
 	..\OutgoingAsync.cpp \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
     "$(includedir)\Ice\OutgoingAsync.h" \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\Shared.h" \
@@ -5728,7 +5723,6 @@ $(ARCH)\$(CONFIG)\OutgoingAsync.obj: \
 
 $(ARCH)\$(CONFIG)\Outgoing.obj: \
 	..\Outgoing.cpp \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
     "$(includedir)\Ice\Outgoing.h" \
     "$(includedir)\IceUtil\Mutex.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -6174,7 +6168,6 @@ $(ARCH)\$(CONFIG)\PropertiesI.obj: \
     "$(includedir)\Ice\IncomingAsync.h" \
     "$(includedir)\Ice\PropertiesAdmin.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
     "..\..\..\src\IceUtil\FileUtil.h" \
     "$(includedir)\Ice\Initialize.h" \
@@ -6358,7 +6351,6 @@ $(ARCH)\$(CONFIG)\PropertiesAdmin.obj: \
 
 $(ARCH)\$(CONFIG)\PropertiesAdminI.obj: \
 	..\PropertiesAdminI.cpp \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
     "..\..\..\src\Ice\PropertiesAdminI.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -8621,7 +8613,6 @@ $(ARCH)\$(CONFIG)\ThreadPool.obj: \
     "..\..\..\src\Ice\ProtocolInstanceF.h" \
     "..\..\..\src\Ice\Selector.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "..\..\..\src\Ice\Instance.h" \
@@ -9300,7 +9291,6 @@ $(ARCH)\$(CONFIG)\UdpTransceiver.obj: \
     "$(includedir)\Ice\IncomingAsync.h" \
     "$(includedir)\Ice\PropertiesAdmin.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\Version.obj: \
 	..\Version.cpp \
@@ -9844,7 +9834,6 @@ $(ARCH)\$(CONFIG)\WSTransceiver.obj: \
     "$(includedir)\IceUtil\Random.h" \
     "$(includedir)\IceUtil\SHA1.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\HttpParser.obj: \
 	..\HttpParser.cpp \
@@ -9896,7 +9885,6 @@ $(ARCH)\$(CONFIG)\HttpParser.obj: \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\IceDiscovery\LookupI.obj: \
 	..\..\IceDiscovery\LookupI.cpp \
@@ -10935,7 +10923,6 @@ $(ARCH)\$(CONFIG)\StreamTransceiver.obj: \
     "$(includedir)\Ice\PropertiesAdmin.h" \
     "$(includedir)\IceSSL\EndpointInfo.h" \
     "$(includedir)\IceSSL\ConnectionInfo.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
 
 $(ARCH)\$(CONFIG)\EndpointInfo.obj: \
 	EndpointInfo.cpp \

@@ -146,9 +146,9 @@ Client.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
-    "$(includedir)\Ice\Service.h" \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
+    "$(includedir)\Ice\Service.h" \
     "Parser.h" \
     "$(includedir)\IceGrid\Admin.h" \
     "$(includedir)\Glacier2\Session.h" \
@@ -385,12 +385,13 @@ DescriptorHelper.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "DescriptorHelper.h" \
     "$(includedir)\IceUtil\OutputUtil.h" \
     "..\..\src\IceXML\Parser.h" \
     "$(includedir)\IceGrid\Admin.h" \
-    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
     "$(includedir)\Glacier2\Config.h" \
@@ -522,13 +523,14 @@ DescriptorParser.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "..\..\src\IceXML\Parser.h" \
     "..\..\src\IcePatch2Lib\Util.h" \
     "$(includedir)\IcePatch2\FileInfo.h" \
     "$(includedir)\IcePatch2\Config.h" \
     "$(includedir)\IceGrid\Admin.h" \
-    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
     "$(includedir)\Glacier2\Config.h" \
@@ -759,11 +761,12 @@ Parser.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "..\..\src\IceXML\Parser.h" \
     "Parser.h" \
     "$(includedir)\IceGrid\Admin.h" \
-    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
     "$(includedir)\Glacier2\Config.h" \
@@ -901,6 +904,8 @@ Util.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "Util.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
@@ -908,7 +913,6 @@ Util.obj: \
     "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\IceGrid\Exception.h" \
     "$(includedir)\IceGrid\Admin.h" \
-    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
     "$(includedir)\Glacier2\Config.h" \
@@ -1218,10 +1222,11 @@ Grammar.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "Parser.h" \
     "$(includedir)\IceGrid\Admin.h" \
-    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
     "$(includedir)\Glacier2\Config.h" \
@@ -1348,10 +1353,11 @@ Scanner.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "Parser.h" \
     "$(includedir)\IceGrid\Admin.h" \
-    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
     "$(includedir)\Glacier2\Config.h" \
@@ -1479,6 +1485,8 @@ AdminRouter.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
 
 FileCache.obj: \
@@ -1793,6 +1801,8 @@ SessionManager.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "SessionManager.h" \
     "$(includedir)\IceGrid\Query.h" \
@@ -1803,7 +1813,6 @@ SessionManager.obj: \
     "$(includedir)\Glacier2\SSLInfo.h" \
     "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Admin.h" \
-    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\IceGrid\Observer.h" \
     "$(includedir)\IceGrid\Registry.h" \
@@ -1893,7 +1902,6 @@ TraceLevels.obj: \
 
 Activator.obj: \
 	Activator.cpp \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
     "..\..\src\IceUtil\ArgVector.h" \
     "$(includedir)\IceUtil\Config.h" \
     "..\..\src\IceUtil\FileUtil.h" \
@@ -2011,6 +2019,8 @@ Activator.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "Activator.h" \
     "Internal.h" \
@@ -2018,7 +2028,6 @@ Activator.obj: \
     "$(includedir)\Glacier2\SSLInfo.h" \
     "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Admin.h" \
-    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceGrid\Exception.h" \
     "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
@@ -2173,6 +2182,7 @@ NodeAdminRouter.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\Service.h" \
     "ServerI.h" \
     "$(includedir)\Freeze\EvictorF.h" \
@@ -2297,6 +2307,8 @@ NodeI.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "..\..\src\IcePatch2Lib\Util.h" \
     "$(includedir)\IcePatch2\FileInfo.h" \
@@ -2309,7 +2321,6 @@ NodeI.obj: \
     "$(includedir)\Glacier2\SSLInfo.h" \
     "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Admin.h" \
-    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceGrid\Exception.h" \
     "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
@@ -2448,6 +2459,8 @@ NodeSessionManager.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "NodeSessionManager.h" \
     "SessionManager.h" \
@@ -2459,7 +2472,6 @@ NodeSessionManager.obj: \
     "$(includedir)\Glacier2\SSLInfo.h" \
     "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Admin.h" \
-    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\IceGrid\Observer.h" \
     "$(includedir)\IceGrid\Registry.h" \
@@ -2590,6 +2602,8 @@ ServerAdapterI.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "ServerAdapterI.h" \
     "Internal.h" \
@@ -2597,7 +2611,6 @@ ServerAdapterI.obj: \
     "$(includedir)\Glacier2\SSLInfo.h" \
     "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Admin.h" \
-    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceGrid\Exception.h" \
     "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
@@ -2735,6 +2748,8 @@ ServerI.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "ServerI.h" \
     "$(includedir)\Freeze\EvictorF.h" \
@@ -2744,7 +2759,6 @@ ServerI.obj: \
     "$(includedir)\Glacier2\SSLInfo.h" \
     "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Admin.h" \
-    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceGrid\Exception.h" \
     "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
@@ -2913,6 +2927,7 @@ AdapterCache.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
@@ -3039,6 +3054,8 @@ AdminCallbackRouter.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
@@ -3166,12 +3183,11 @@ AdminI.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "..\..\src\Ice\TraceUtil.h" \
     "..\..\src\Ice\TraceLevelsF.h" \
-    "$(includedir)\Ice\SliceChecksums.h" \
-    "$(includedir)\Ice\SliceChecksumDict.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
     "AdminI.h" \
     "$(includedir)\IceGrid\Admin.h" \
     "$(includedir)\Glacier2\Session.h" \
@@ -3366,9 +3382,10 @@ AdminSessionI.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\IceUtil\UUID.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
     "RegistryI.h" \
     "$(includedir)\IceGrid\Registry.h" \
     "$(includedir)\IceGrid\Exception.h" \
@@ -3378,7 +3395,6 @@ AdminSessionI.obj: \
     "$(includedir)\Glacier2\SSLInfo.h" \
     "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Admin.h" \
-    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\IceGrid\Query.h" \
     "$(includedir)\IceGrid\Locator.h" \
@@ -3573,6 +3589,8 @@ Allocatable.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
@@ -3719,6 +3737,7 @@ AllocatableObjectCache.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
@@ -3850,6 +3869,8 @@ Database.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Freeze\EvictorF.h" \
     "$(includedir)\Freeze\ConnectionF.h" \
@@ -3866,7 +3887,6 @@ Database.obj: \
     "$(includedir)\Freeze\Catalog.h" \
     "$(includedir)\Freeze\CatalogData.h" \
     "$(includedir)\IceGrid\Admin.h" \
-    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
     "$(includedir)\Glacier2\Config.h" \
@@ -4106,13 +4126,14 @@ IdentityObjectInfoDict.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Freeze\DB.h" \
     "$(includedir)\Freeze\Exception.h" \
     "$(includedir)\Freeze\Connection.h" \
     "$(includedir)\Freeze\Transaction.h" \
     "$(includedir)\IceGrid\Admin.h" \
-    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
     "$(includedir)\Glacier2\Config.h" \
@@ -4238,6 +4259,8 @@ InternalRegistryI.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "RegistryI.h" \
     "$(includedir)\IceGrid\Registry.h" \
@@ -4248,7 +4271,6 @@ InternalRegistryI.obj: \
     "$(includedir)\Glacier2\SSLInfo.h" \
     "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Admin.h" \
-    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\IceGrid\Query.h" \
     "$(includedir)\IceGrid\Locator.h" \
@@ -4430,6 +4452,8 @@ LocatorI.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "LocatorI.h" \
     "Internal.h" \
@@ -4437,7 +4461,6 @@ LocatorI.obj: \
     "$(includedir)\Glacier2\SSLInfo.h" \
     "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Admin.h" \
-    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceGrid\Exception.h" \
     "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
@@ -4614,6 +4637,8 @@ LocatorRegistryI.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "LocatorRegistryI.h" \
     "Internal.h" \
@@ -4621,7 +4646,6 @@ LocatorRegistryI.obj: \
     "$(includedir)\Glacier2\SSLInfo.h" \
     "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Admin.h" \
-    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceGrid\Exception.h" \
     "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
@@ -4811,6 +4835,7 @@ NodeCache.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
@@ -4948,6 +4973,8 @@ NodeSessionI.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "NodeSessionI.h" \
     "Internal.h" \
@@ -4955,7 +4982,6 @@ NodeSessionI.obj: \
     "$(includedir)\Glacier2\SSLInfo.h" \
     "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Admin.h" \
-    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceGrid\Exception.h" \
     "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
@@ -5146,6 +5172,7 @@ ObjectCache.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
@@ -5291,6 +5318,7 @@ PluginFacadeI.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Freeze\EvictorF.h" \
     "$(includedir)\Freeze\ConnectionF.h" \
@@ -5462,6 +5490,7 @@ QueryI.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Freeze\EvictorF.h" \
     "$(includedir)\Freeze\ConnectionF.h" \
@@ -5617,6 +5646,8 @@ ReapThread.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "ReapThread.h" \
 
@@ -5741,6 +5772,8 @@ RegistryAdminRouter.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Freeze\EvictorF.h" \
     "$(includedir)\Freeze\ConnectionF.h" \
@@ -5757,7 +5790,6 @@ RegistryAdminRouter.obj: \
     "$(includedir)\Freeze\Catalog.h" \
     "$(includedir)\Freeze\CatalogData.h" \
     "$(includedir)\IceGrid\Admin.h" \
-    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
     "$(includedir)\Glacier2\Config.h" \
@@ -5795,7 +5827,6 @@ RegistryAdminRouter.obj: \
 
 RegistryI.obj: \
 	RegistryI.cpp \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
     "$(includedir)\IceUtil\UUID.h" \
     "$(includedir)\IceUtil\Config.h" \
     "..\..\src\IceUtil\FileUtil.h" \
@@ -5913,6 +5944,8 @@ RegistryI.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "..\..\src\Ice\Network.h" \
     "..\..\src\Ice\NetworkF.h" \
@@ -5924,7 +5957,6 @@ RegistryI.obj: \
     "..\..\src\Ice\EndpointIF.h" \
     "..\..\src\IceStorm\Service.h" \
     "$(includedir)\IceBox\IceBox.h" \
-    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceBox\Config.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\IceStorm\Metrics.h" \
@@ -6244,6 +6276,8 @@ ReplicaSessionI.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "ReplicaSessionI.h" \
     "$(includedir)\IceGrid\Registry.h" \
@@ -6254,7 +6288,6 @@ ReplicaSessionI.obj: \
     "$(includedir)\Glacier2\SSLInfo.h" \
     "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Admin.h" \
-    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "Internal.h" \
     "$(includedir)\IceGrid\Observer.h" \
@@ -6419,6 +6452,8 @@ ReplicaSessionManager.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "ReplicaSessionManager.h" \
     "SessionManager.h" \
@@ -6430,7 +6465,6 @@ ReplicaSessionManager.obj: \
     "$(includedir)\Glacier2\SSLInfo.h" \
     "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Admin.h" \
-    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\IceGrid\Observer.h" \
     "$(includedir)\IceGrid\Registry.h" \
@@ -6597,6 +6631,8 @@ SerialsDict.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Freeze\DB.h" \
     "$(includedir)\Freeze\Exception.h" \
@@ -6750,6 +6786,7 @@ ServerCache.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
@@ -6878,6 +6915,8 @@ SessionI.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\IceUtil\UUID.h" \
     "SessionI.h" \
@@ -6901,7 +6940,6 @@ SessionI.obj: \
     "LocatorI.h" \
     "Internal.h" \
     "$(includedir)\IceGrid\Admin.h" \
-    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\IceGrid\Observer.h" \
     "$(includedir)\IceGrid\Registry.h" \
@@ -7068,6 +7106,8 @@ SessionServantManager.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
@@ -7199,13 +7239,14 @@ StringAdapterInfoDict.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Freeze\DB.h" \
     "$(includedir)\Freeze\Exception.h" \
     "$(includedir)\Freeze\Connection.h" \
     "$(includedir)\Freeze\Transaction.h" \
     "$(includedir)\IceGrid\Admin.h" \
-    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
     "$(includedir)\Glacier2\Config.h" \
@@ -7333,13 +7374,14 @@ StringApplicationInfoDict.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Freeze\DB.h" \
     "$(includedir)\Freeze\Exception.h" \
     "$(includedir)\Freeze\Connection.h" \
     "$(includedir)\Freeze\Transaction.h" \
     "$(includedir)\IceGrid\Admin.h" \
-    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
     "$(includedir)\Glacier2\Config.h" \
@@ -7464,10 +7506,11 @@ Topics.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "Topics.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
-    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceStorm\Metrics.h" \
     "$(includedir)\IceStorm\Config.h" \
     "Internal.h" \
@@ -7620,6 +7663,7 @@ WellKnownObjectsManager.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Freeze\EvictorF.h" \
     "$(includedir)\Freeze\ConnectionF.h" \
@@ -7779,6 +7823,8 @@ IceGridNode.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "Activator.h" \
     "Internal.h" \
@@ -7786,7 +7832,6 @@ IceGridNode.obj: \
     "$(includedir)\Glacier2\SSLInfo.h" \
     "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Admin.h" \
-    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceGrid\Exception.h" \
     "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
@@ -7942,6 +7987,8 @@ IceGridRegistry.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "RegistryI.h" \
     "$(includedir)\IceGrid\Registry.h" \
@@ -7952,7 +7999,6 @@ IceGridRegistry.obj: \
     "$(includedir)\Glacier2\SSLInfo.h" \
     "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceGrid\Admin.h" \
-    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\IceGrid\Query.h" \
     "$(includedir)\IceGrid\Locator.h" \

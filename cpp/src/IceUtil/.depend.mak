@@ -3,7 +3,6 @@ ArgVector.obj: \
 	ArgVector.cpp \
     "ArgVector.h" \
     "$(includedir)\IceUtil\Config.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
 
 Cond.obj: \
 	Cond.cpp \

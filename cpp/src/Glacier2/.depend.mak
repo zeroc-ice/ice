@@ -127,13 +127,14 @@ Blobject.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "RequestQueue.h" \
     "Instrumentation.h" \
     "Instance.h" \
     "ProxyVerifier.h" \
     "SessionRouterI.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
     "$(includedir)\Glacier2\PermissionsVerifierF.h" \
     "$(includedir)\Glacier2\Router.h" \
     "$(includedir)\Glacier2\Session.h" \
@@ -260,13 +261,14 @@ ClientBlobject.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "RequestQueue.h" \
     "Instrumentation.h" \
     "Instance.h" \
     "ProxyVerifier.h" \
     "SessionRouterI.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
     "$(includedir)\Glacier2\PermissionsVerifierF.h" \
     "$(includedir)\Glacier2\Router.h" \
     "$(includedir)\Glacier2\Session.h" \
@@ -493,11 +495,12 @@ FilterManager.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "Instrumentation.h" \
     "ProxyVerifier.h" \
     "SessionRouterI.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
     "$(includedir)\Glacier2\PermissionsVerifierF.h" \
     "$(includedir)\Glacier2\Router.h" \
     "$(includedir)\Glacier2\Session.h" \
@@ -628,12 +631,13 @@ Glacier2Router.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "Instance.h" \
     "RequestQueue.h" \
     "Instrumentation.h" \
     "ProxyVerifier.h" \
     "SessionRouterI.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
     "$(includedir)\Glacier2\PermissionsVerifierF.h" \
     "$(includedir)\Glacier2\Router.h" \
     "$(includedir)\Glacier2\Session.h" \
@@ -662,7 +666,6 @@ Instance.obj: \
     "$(includedir)\IceUtil\MutexProtocol.h" \
     "$(includedir)\IceUtil\Monitor.h" \
     "$(includedir)\IceUtil\Cond.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\Config.h" \
@@ -765,6 +768,8 @@ Instance.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Glacier2\PermissionsVerifierF.h" \
     "$(includedir)\Glacier2\Router.h" \
@@ -1009,6 +1014,8 @@ ProxyVerifier.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
 
 RequestQueue.obj: \
@@ -1129,12 +1136,13 @@ RequestQueue.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "Instrumentation.h" \
     "Instance.h" \
     "ProxyVerifier.h" \
     "SessionRouterI.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
     "$(includedir)\Glacier2\PermissionsVerifierF.h" \
     "$(includedir)\Glacier2\Router.h" \
     "$(includedir)\Glacier2\Session.h" \
@@ -1263,11 +1271,12 @@ RouterI.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "Instrumentation.h" \
     "ProxyVerifier.h" \
     "SessionRouterI.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
     "$(includedir)\Glacier2\PermissionsVerifierF.h" \
     "$(includedir)\Glacier2\Router.h" \
     "$(includedir)\Glacier2\Session.h" \
@@ -1399,6 +1408,8 @@ RoutingTable.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "ProxyVerifier.h" \
     "Instrumentation.h" \
@@ -1522,13 +1533,14 @@ ServerBlobject.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "RequestQueue.h" \
     "Instrumentation.h" \
     "Instance.h" \
     "ProxyVerifier.h" \
     "SessionRouterI.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
     "$(includedir)\Glacier2\PermissionsVerifierF.h" \
     "$(includedir)\Glacier2\Router.h" \
     "$(includedir)\Glacier2\Session.h" \
@@ -1552,7 +1564,6 @@ SessionRouterI.obj: \
     "$(includedir)\IceUtil\MutexProtocol.h" \
     "$(includedir)\IceUtil\Monitor.h" \
     "$(includedir)\IceUtil\Cond.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\Config.h" \
@@ -1655,6 +1666,8 @@ SessionRouterI.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Glacier2\PermissionsVerifierF.h" \
     "$(includedir)\Glacier2\Router.h" \
