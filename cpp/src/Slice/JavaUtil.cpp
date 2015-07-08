@@ -13,7 +13,6 @@
 #include <Slice/Util.h>
 #include <Slice/MD5.h>
 #include <IceUtil/Functional.h>
-#include <IceUtil/DisableWarnings.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>

@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-#include <IceUtil/DisableWarnings.h>
 #include <Gen.h>
 #include <Slice/Checksum.h>
 #include <Slice/Util.h>
@@ -886,7 +885,7 @@ Slice::JavaVisitor::writePatcher(Output& out, const string& package, const DataM
         {
             continue;
         }
-        
+
         BuiltinPtr b = BuiltinPtr::dynamicCast((*d)->type());
         if(b)
         {
@@ -933,15 +932,15 @@ Slice::JavaVisitor::writePatcher(Output& out, const string& package, const DataM
 
         memberCount++;
     }
-    
+
     for(DataMemberList::const_iterator d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
-    {        
+    {
         BuiltinPtr b = BuiltinPtr::dynamicCast((*d)->type());
         if(b && b->kind() != Builtin::KindObject)
         {
             continue;
         }
-        
+
         TypePtr paramType = (*d)->type();
         BuiltinPtr builtin = BuiltinPtr::dynamicCast(paramType);
         if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(paramType))
@@ -961,7 +960,7 @@ Slice::JavaVisitor::writePatcher(Output& out, const string& package, const DataM
                     out << nl << "__typeId = \"" << (*d)->type()->typeId() << "\";";
                 }
             }
-            
+
             string capName = (*d)->name();
             capName[0] = toupper(static_cast<unsigned char>(capName[0]));
 
@@ -990,7 +989,7 @@ Slice::JavaVisitor::writePatcher(Output& out, const string& package, const DataM
             memberCount++;
         }
     }
-    
+
     if(classMembers.size() > 1)
     {
         out << eb;
@@ -1750,7 +1749,7 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
 
     DataMemberList classMembers = p->classDataMembers();
     DataMemberList allClassMembers = p->allClassDataMembers();
-    
+
     if(classMembers.size() != 0)
     {
         writePatcher(out, package, classMembers, optionalMembers, stream);
@@ -1759,7 +1758,7 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
     out << sp << nl << "protected void __readImpl(IceInternal.BasicStream __is)";
     out << sb;
     out << nl << "__is.startReadSlice();";
-    
+
     int classMemberCount = static_cast<int>(allClassMembers.size() - classMembers.size());
     const bool needCustomPatcher = classMembers.size() > 1;
     iter = 0;
@@ -3740,7 +3739,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
         DataMemberList classMembers = p->classDataMembers();
         DataMemberList allClassMembers = p->allClassDataMembers();
-    
+
         if(classMembers.size() != 0)
         {
             writePatcher(out, package, classMembers, optionalMembers, _stream);

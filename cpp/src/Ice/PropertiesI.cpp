@@ -8,7 +8,6 @@
 // **********************************************************************
 
 #include <Ice/PropertiesI.h>
-#include <IceUtil/DisableWarnings.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/FileUtil.h>
 #include <Ice/Initialize.h>
@@ -66,7 +65,7 @@ Int
 Ice::PropertiesI::getPropertyAsIntWithDefault(const string& key, Int value)
 {
     IceUtil::Mutex::Lock sync(*this);
-    
+
     map<string, PropertyValue>::iterator p = _properties.find(key);
     if(p != _properties.end())
     {
@@ -94,7 +93,7 @@ Ice::StringSeq
 Ice::PropertiesI::getPropertyAsListWithDefault(const string& key, const StringSeq& value)
 {
     IceUtil::Mutex::Lock sync(*this);
-    
+
     map<string, PropertyValue>::iterator p = _properties.find(key);
     if(p != _properties.end())
     {
@@ -160,7 +159,7 @@ Ice::PropertiesI::setProperty(const string& key, const string& value)
         for(int i = 0 ; IceInternal::PropertyNames::validProps[i].properties != 0; ++i)
         {
             string pattern(IceInternal::PropertyNames::validProps[i].properties[0].pattern);
-            
+
             dotPos = pattern.find('.');
 
             //
@@ -169,7 +168,7 @@ Ice::PropertiesI::setProperty(const string& key, const string& value)
             // dot is an error.
             //
             assert(dotPos != string::npos);
-            
+
             bool mismatchCase = false;
             string otherKey;
             string propPrefix = pattern.substr(0, dotPos);
@@ -193,8 +192,8 @@ Ice::PropertiesI::setProperty(const string& key, const string& value)
                         currentKey = prop.deprecatedBy;
                     }
                 }
-                
-                if(!found && IceUtilInternal::match(IceUtilInternal::toUpper(currentKey), 
+
+                if(!found && IceUtilInternal::match(IceUtilInternal::toUpper(currentKey),
                                                     IceUtilInternal::toUpper(prop.pattern)))
                 {
                     found = true;
@@ -258,19 +257,19 @@ Ice::PropertiesI::parseCommandLineOptions(const string& prefix, const StringSeq&
         pfx += '.';
     }
     pfx = "--" + pfx;
-    
+
     StringSeq result;
     for(StringSeq::size_type i = 0; i < options.size(); i++)
     {
         string opt = options[i];
-       
+
         if(opt.find(pfx) == 0)
         {
             if(opt.find('=') == string::npos)
             {
                 opt += "=1";
             }
-            
+
             parseLine(opt.substr(2), 0);
         }
         else
@@ -317,7 +316,7 @@ Ice::PropertiesI::load(const std::string& file)
         DWORD numValues;
         try
         {
-            err = RegQueryInfoKey(iceKey, NULL, NULL, NULL, NULL, NULL, NULL, &numValues, &maxNameSize, &maxDataSize, 
+            err = RegQueryInfoKey(iceKey, NULL, NULL, NULL, NULL, NULL, NULL, &numValues, &maxNameSize, &maxDataSize,
                                   NULL, NULL);
             if(err != ERROR_SUCCESS)
             {
@@ -417,10 +416,10 @@ Ice::PropertiesI::load(const std::string& file)
             //
             if(firstLine)
             {
-                const unsigned char UTF8_BOM[3] = {0xEF, 0xBB, 0xBF}; 
+                const unsigned char UTF8_BOM[3] = {0xEF, 0xBB, 0xBF};
                 if(line.size() >= 3 &&
                    static_cast<const unsigned char>(line[0]) == UTF8_BOM[0] &&
-                   static_cast<const unsigned char>(line[1]) == UTF8_BOM[1] && 
+                   static_cast<const unsigned char>(line[1]) == UTF8_BOM[1] &&
                    static_cast<const unsigned char>(line[2]) == UTF8_BOM[2])
                 {
                     line = line.substr(3);
@@ -541,7 +540,7 @@ Ice::PropertiesI::parseLine(const string& line, const IceUtil::StringConverterPt
 {
     string key;
     string value;
-    
+
     enum ParseState { Key , Value };
     ParseState state = Key;
 
@@ -568,7 +567,7 @@ Ice::PropertiesI::parseLine(const string& line, const IceUtil::StringConverterPt
                       case '=':
                         key += whitespace;
                         whitespace.clear();
-                        key += c; 
+                        key += c;
                         break;
 
                       case ' ':
@@ -611,7 +610,7 @@ Ice::PropertiesI::parseLine(const string& line, const IceUtil::StringConverterPt
               case '#':
                   finished = true;
                   break;
-              
+
               default:
                   key += whitespace;
                   whitespace.clear();
@@ -637,7 +636,7 @@ Ice::PropertiesI::parseLine(const string& line, const IceUtil::StringConverterPt
                         value += value.length() == 0 ? escapedspace : whitespace;
                         whitespace.clear();
                         escapedspace.clear();
-                        value += c; 
+                        value += c;
                         break;
 
                       case ' ':
@@ -674,7 +673,7 @@ Ice::PropertiesI::parseLine(const string& line, const IceUtil::StringConverterPt
               case '#':
                   finished = true;
                   break;
-              
+
               default:
                   value += value.length() == 0 ? escapedspace : whitespace;
                   whitespace.clear();

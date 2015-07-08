@@ -9,7 +9,6 @@
 
 #include <Ice/Ice.h>
 #include <IceUtil/UUID.h>
-#include <IceUtil/DisableWarnings.h>
 #include <IceGrid/RegistryI.h>
 #include <IceGrid/AdminSessionI.h>
 #include <IceGrid/AdminI.h>

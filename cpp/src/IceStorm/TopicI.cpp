@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-#include <IceUtil/DisableWarnings.h>
 #include <IceStorm/TopicI.h>
 #include <IceStorm/Instance.h>
 #include <IceStorm/Subscriber.h>

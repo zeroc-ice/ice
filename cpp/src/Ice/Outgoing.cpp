@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-#include <IceUtil/DisableWarnings.h>
 #include <Ice/Outgoing.h>
 #include <Ice/ConnectionI.h>
 #include <Ice/CollocatedRequestHandler.h>

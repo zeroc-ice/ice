@@ -12,7 +12,6 @@
 
 #include <IceUtil/Thread.h>
 #include <IceUtil/Monitor.h>
-#include <IceUtil/DisableWarnings.h>
 
 #include <Ice/Ice.h>
 
@@ -40,7 +39,7 @@ typedef IceUtil::Handle<CreateSession> CreateSessionPtr;
 
 class Instance;
 typedef IceUtil::Handle<Instance> InstancePtr;
-    
+
 class ClientBlobject;
 typedef IceUtil::Handle<ClientBlobject> ClientBlobjectPtr;
 
@@ -63,7 +62,7 @@ public:
     void unexpectedCreateSessionException(const Ice::Exception&);
 
     void exception(const Ice::Exception&);
-    
+
     void createException(const Ice::Exception&);
 
     virtual void authorize() = 0;
@@ -90,8 +89,8 @@ typedef IceUtil::Handle<UserPasswordCreateSession> UserPasswordCreateSessionPtr;
 class SSLCreateSession;
 typedef IceUtil::Handle<SSLCreateSession> SSLCreateSessionPtr;
 
-class SessionRouterI : public Router, 
-                       public Glacier2::Instrumentation::ObserverUpdater, 
+class SessionRouterI : public Router,
+                       public Glacier2::Instrumentation::ObserverUpdater,
                        private IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
@@ -105,7 +104,7 @@ public:
     virtual Ice::ObjectPrx getServerProxy(const Ice::Current&) const;
     virtual Ice::ObjectProxySeq addProxies(const Ice::ObjectProxySeq&, const Ice::Current&);
     virtual std::string getCategoryForClient(const Ice::Current&) const;
-    virtual void createSession_async(const AMD_Router_createSessionPtr&, const std::string&, const std::string&, 
+    virtual void createSession_async(const AMD_Router_createSessionPtr&, const std::string&, const std::string&,
                                const Ice::Current&);
     virtual void createSessionFromSecureConnection_async(const AMD_Router_createSessionFromSecureConnectionPtr&,
                                                          const Ice::Current&);
@@ -127,10 +126,10 @@ public:
     void destroySession(const ::Ice::ConnectionPtr&);
 
     int sessionTraceLevel() const { return _sessionTraceLevel; }
-    
+
 private:
 
-    RouterIPtr getRouterImpl(const Ice::ConnectionPtr&, const Ice::Identity&, bool) const;    
+    RouterIPtr getRouterImpl(const Ice::ConnectionPtr&, const Ice::Identity&, bool) const;
 
     void sessionDestroyException(const Ice::Exception&);
 
@@ -176,9 +175,9 @@ private:
     mutable std::map<std::string, RouterIPtr>::iterator _routersByCategoryHint;
 
     std::map<Ice::ConnectionPtr, CreateSessionPtr> _pending;
-    
+
     Callback_Session_destroyPtr _sessionDestroyCallback;
-    
+
     bool _destroy;
 };
 

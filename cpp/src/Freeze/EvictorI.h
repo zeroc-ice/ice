@@ -21,7 +21,6 @@
 #include <list>
 #include <vector>
 #include <deque>
-#include <IceUtil/DisableWarnings.h>
 
 class DbTxn;
 
@@ -38,7 +37,7 @@ class DeactivateController : private IceUtil::Monitor<IceUtil::Mutex>
 public:
 
     //
-    // Prevents deactivation; the constructor raises 
+    // Prevents deactivation; the constructor raises
     // EvictorDeactivatedException if _deactivated or _deactivating is true.
     //
     class Guard
@@ -51,8 +50,8 @@ public:
         DeactivateController& _controller;
     };
 
-    DeactivateController(EvictorIBase*);    
-    
+    DeactivateController(EvictorIBase*);
+
     //
     // Used mostly in asserts
     //
@@ -67,7 +66,7 @@ public:
     void deactivationComplete();
 
 private:
-    
+
     friend class Guard;
 
     EvictorIBase* _evictor;
@@ -85,14 +84,14 @@ public:
 
     virtual void setSize(Ice::Int);
     virtual Ice::Int getSize();
-   
+
     virtual Ice::ObjectPrx add(const Ice::ObjectPtr&, const Ice::Identity&);
     virtual Ice::ObjectPtr remove(const Ice::Identity&);
 
     virtual bool hasObject(const Ice::Identity&);
 
     virtual Ice::ObjectPtr locate(const Ice::Current&, Ice::LocalObjectPtr&);
- 
+
     DeactivateController& deactivateController();
     const Ice::CommunicatorPtr& communicator() const;
     const Ice::EncodingVersion& encoding() const;
@@ -105,26 +104,26 @@ public:
 
     void initialize(const Ice::Identity&, const std::string&, const Ice::ObjectPtr&);
 
-    
+
     static void updateStats(Statistics&, IceUtil::Int64);
 
-    static std::string defaultDb; 
-    static std::string indexPrefix; 
+    static std::string defaultDb;
+    static std::string indexPrefix;
 
 protected:
-    
-    EvictorIBase(const Ice::ObjectAdapterPtr&, const std::string&, DbEnv*, const std::string&, 
+
+    EvictorIBase(const Ice::ObjectAdapterPtr&, const std::string&, DbEnv*, const std::string&,
              const FacetTypeMap&, const ServantInitializerPtr&, bool);
 
 
     virtual bool hasAnotherFacet(const Ice::Identity&, const std::string&) = 0;
-    
+
     virtual Ice::ObjectPtr locateImpl(const Ice::Current&, Ice::LocalObjectPtr&) = 0;
-   
+
     virtual void evict() = 0;
 
     std::vector<std::string> allDbs() const;
-    
+
     size_t _evictorSize;
 
     FacetTypeMap _facetTypes;
@@ -136,7 +135,7 @@ protected:
     Ice::EncodingVersion _encoding;
 
     ServantInitializerPtr _initializer;
-    
+
     SharedDbEnvPtr _dbEnv;
 
     std::string _filename;
@@ -160,7 +159,7 @@ class EvictorI : public EvictorIBase
 {
 public:
 
-    virtual EvictorIteratorPtr 
+    virtual EvictorIteratorPtr
     getIterator(const std::string& facet, Ice::Int batchSize)
     {
         DeactivateController::Guard deactivateGuard(_deactivateController);
@@ -170,14 +169,14 @@ public:
     }
 
 protected:
-    
+
     EvictorI(const Ice::ObjectAdapterPtr& adapter, const std::string& envName, DbEnv* dbEnv,
-             const std::string& filename, const FacetTypeMap& facetTypes, 
+             const std::string& filename, const FacetTypeMap& facetTypes,
              const ServantInitializerPtr& initializer, const std::vector<IndexPtr>& indices, bool createDb) :
         EvictorIBase(adapter, envName, dbEnv, filename, facetTypes, initializer, createDb)
     {
-        std::string propertyPrefix = std::string("Freeze.Evictor.") + envName + '.' + filename; 
-        bool populateEmptyIndices = 
+        std::string propertyPrefix = std::string("Freeze.Evictor.") + envName + '.' + filename;
+        bool populateEmptyIndices =
             (_communicator->getProperties()->
              getPropertyAsIntWithDefault(propertyPrefix + ".PopulateEmptyIndices", 0) != 0);
 
@@ -187,16 +186,16 @@ protected:
         // (2) open ObjectStores without indices
         //
         std::vector<std::string> dbs = allDbs();
-        
+
         //
         // Add default db in case it's not there
         //
         dbs.push_back(defaultDb);
-        
+
         for(std::vector<IndexPtr>::const_iterator i = indices.begin(); i != indices.end(); ++i)
         {
             std::string facet = (*i)->facet();
-            
+
             typename StoreMap::iterator q = _storeMap.find(facet);
             if(q == _storeMap.end())
             {
@@ -204,7 +203,7 @@ protected:
                 // New db
                 //
                 std::vector<IndexPtr> storeIndices;
-                
+
                 for(std::vector<IndexPtr>::const_iterator r = i; r != indices.end(); ++r)
                 {
                     if((*r)->facet() == facet)
@@ -222,7 +221,7 @@ protected:
                 _storeMap.insert(typename StoreMap::value_type(facet, store));
             }
         }
-    
+
         for(std::vector<std::string>::iterator p = dbs.begin(); p != dbs.end(); ++p)
         {
             std::string facet = *p;
@@ -231,13 +230,13 @@ protected:
                 facet = "";
             }
 #if (defined(_MSC_VER) && (_MSC_VER >= 1600))
-            std::pair<typename StoreMap::iterator, bool> ir = 
+            std::pair<typename StoreMap::iterator, bool> ir =
                 _storeMap.insert(typename StoreMap::value_type(facet, static_cast<ObjectStore<T>*>(nullptr)));
 #else
-            std::pair<typename StoreMap::iterator, bool> ir = 
+            std::pair<typename StoreMap::iterator, bool> ir =
                 _storeMap.insert(typename StoreMap::value_type(facet, 0));
 #endif
-            
+
             if(ir.second)
             {
                 std::string facetType;
@@ -252,7 +251,7 @@ protected:
         }
     }
 
-    ObjectStore<T>* 
+    ObjectStore<T>*
     findStore(const std::string& facet, bool createIt)
     {
         Lock sync(*this);
@@ -276,7 +275,7 @@ protected:
         }
         return os;
     }
-    
+
     void
     closeDbEnv()
     {
@@ -284,7 +283,7 @@ protected:
         {
             delete (*p).second;
         }
-        
+
         _dbEnv = 0;
         _initializer = 0;
     }
@@ -306,7 +305,7 @@ EvictorIBase::communicator() const
     return _communicator;
 }
 
-inline const Ice::EncodingVersion& 
+inline const Ice::EncodingVersion&
 EvictorIBase::encoding() const
 {
     return _encoding;

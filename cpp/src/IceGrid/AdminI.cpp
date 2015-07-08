@@ -14,8 +14,6 @@
 #include <Ice/TraceUtil.h>
 #include <Ice/SliceChecksums.h>
 
-#include <IceUtil/DisableWarnings.h>
-
 #include <IceGrid/AdminI.h>
 #include <IceGrid/RegistryI.h>
 #include <IceGrid/Database.h>
@@ -49,15 +47,15 @@ public:
         }
     }
 
-    ServerProxyWrapper(const ServerProxyWrapper& wrapper) : 
-        _id(wrapper._id), 
-        _proxy(wrapper._proxy), 
+    ServerProxyWrapper(const ServerProxyWrapper& wrapper) :
+        _id(wrapper._id),
+        _proxy(wrapper._proxy),
         _activationTimeout(wrapper._activationTimeout),
         _deactivationTimeout(wrapper._deactivationTimeout),
         _node(wrapper._node)
     {
     }
-    
+
     void
     useActivationTimeout()
     {
@@ -70,7 +68,7 @@ public:
         _proxy = ServerPrx::uncheckedCast(_proxy->ice_invocationTimeout(_deactivationTimeout * 1000));
     }
 
-    IceProxy::IceGrid::Server* 
+    IceProxy::IceGrid::Server*
     operator->() const
     {
         return _proxy.get();
@@ -118,7 +116,7 @@ public:
                                  const TraceLevelsPtr& traceLevels,
                                  const string& type,
                                  const string& name,
-                                 int nodeCount) : 
+                                 int nodeCount) :
         PatcherFeedbackAggregator(id, traceLevels, type, name, nodeCount),
         _cb(cb)
     {
@@ -126,13 +124,13 @@ public:
 
 private:
 
-    void 
+    void
     response()
     {
         _cb->ice_response();
     }
-    
-    void 
+
+    void
     exception(const Ice::Exception& ex)
     {
         _cb->ice_exception(ex);
@@ -143,13 +141,13 @@ private:
 
 
 template<typename AmdCB> PatcherFeedbackAggregatorPtr
-static newPatcherFeedback(const AmdCB& cb, 
+static newPatcherFeedback(const AmdCB& cb,
                           Ice::Identity id,
                           const TraceLevelsPtr& traceLevels,
                           const string& type,
                           const string& name,
                           int nodeCount)
-{ 
+{
     return new AMDPatcherFeedbackAggregator<AmdCB>(cb, id, traceLevels, type, name, nodeCount);
 }
 
@@ -238,9 +236,9 @@ AdminI::instantiateServer(const string& app, const string& node, const ServerIns
 }
 
 void
-AdminI::patchApplication_async(const AMD_Admin_patchApplicationPtr& amdCB, 
-                               const string& name, 
-                               bool shutdown, 
+AdminI::patchApplication_async(const AMD_Admin_patchApplicationPtr& amdCB,
+                               const string& name,
+                               bool shutdown,
                                const Current& current)
 {
     ApplicationHelper helper(current.adapter->getCommunicator(), _database->getApplicationInfo(name).descriptor);
@@ -258,7 +256,7 @@ AdminI::patchApplication_async(const AMD_Admin_patchApplicationPtr& amdCB,
     id.category = current.id.category;
     id.name = IceUtil::generateUUID();
 
-    PatcherFeedbackAggregatorPtr feedback = 
+    PatcherFeedbackAggregatorPtr feedback =
         newPatcherFeedback(amdCB, id, _traceLevels, "application", name, static_cast<int>(nodes.size()));
 
     for(vector<string>::const_iterator p = nodes.begin(); p != nodes.end(); ++p)
@@ -274,7 +272,7 @@ AdminI::patchApplication_async(const AMD_Admin_patchApplicationPtr& amdCB,
             NodeEntryPtr node = _database->getNode(*p);
             Resolver resolve(node->getInfo(), _database->getCommunicator());
             DistributionDescriptor desc = resolve(appDistrib);
-            InternalDistributionDescriptorPtr intAppDistrib = new InternalDistributionDescriptor(desc.icepatch, 
+            InternalDistributionDescriptorPtr intAppDistrib = new InternalDistributionDescriptor(desc.icepatch,
                                                                                                  desc.directories);
             node->getSession()->patch(feedback, name, "", intAppDistrib, shutdown);
         }
@@ -462,9 +460,9 @@ AdminI::startServer_async(const AMD_Admin_startServerPtr& amdCB, const string& i
 
     //
     // Since the server might take a while to be activated, we use AMI.
-    // 
-    proxy->begin_start(newCallback_Server_start(new StartCB(proxy, amdCB), 
-                                                &StartCB::response, 
+    //
+    proxy->begin_start(newCallback_Server_start(new StartCB(proxy, amdCB),
+                                                &StartCB::response,
                                                 &StartCB::exception));
 }
 
@@ -516,12 +514,12 @@ AdminI::stopServer_async(const AMD_Admin_stopServerPtr& amdCB, const string& id,
 {
     ServerProxyWrapper proxy(_database, id);
     proxy.useDeactivationTimeout();
-    
+
     //
     // Since the server might take a while to be deactivated, we use AMI.
-    // 
-    proxy->begin_stop(newCallback_Server_stop(new StopCB(proxy, amdCB), 
-                                              &StopCB::response, 
+    //
+    proxy->begin_stop(newCallback_Server_stop(new StopCB(proxy, amdCB),
+                                              &StopCB::response,
                                               &StopCB::exception));
 }
 
@@ -548,7 +546,7 @@ AdminI::patchServer_async(const AMD_Admin_patchServerPtr& amdCB, const string& i
     identity.category = current.id.category;
     identity.name = IceUtil::generateUUID();
 
-    PatcherFeedbackAggregatorPtr feedback = 
+    PatcherFeedbackAggregatorPtr feedback =
         newPatcherFeedback(amdCB, identity, _traceLevels, "server", id, static_cast<int>(nodes.size()));
 
     vector<string>::const_iterator p = nodes.begin();
@@ -563,7 +561,7 @@ AdminI::patchServer_async(const AMD_Admin_patchServerPtr& amdCB, const string& i
         NodeEntryPtr node = _database->getNode(*p);
         Resolver resolve(node->getInfo(), _database->getCommunicator());
         DistributionDescriptor desc = resolve(appDistrib);
-        InternalDistributionDescriptorPtr intAppDistrib = new InternalDistributionDescriptor(desc.icepatch, 
+        InternalDistributionDescriptorPtr intAppDistrib = new InternalDistributionDescriptor(desc.icepatch,
                                                                                              desc.directories);
         node->getSession()->patch(feedback, info.application, id, intAppDistrib, shutdown);
     }
@@ -603,7 +601,7 @@ AdminI::getAllServerIds(const Current&) const
     return _database->getServerCache().getAll("");
 }
 
-void 
+void
 AdminI::enableServer(const string& id, bool enable, const Ice::Current&)
 {
     ServerProxyWrapper proxy(_database, id);
@@ -651,7 +649,7 @@ AdminI::getAllAdapterIds(const Current&) const
     return _database->getAllAdapters();
 }
 
-void 
+void
 AdminI::addObject(const Ice::ObjectPrx& proxy, const ::Ice::Current& current)
 {
     checkIsReadOnly();
@@ -675,7 +673,7 @@ AdminI::addObject(const Ice::ObjectPrx& proxy, const ::Ice::Current& current)
     }
 }
 
-void 
+void
 AdminI::updateObject(const Ice::ObjectPrx& proxy, const ::Ice::Current&)
 {
     checkIsReadOnly();
@@ -697,7 +695,7 @@ AdminI::updateObject(const Ice::ObjectPrx& proxy, const ::Ice::Current&)
     _database->updateObject(proxy);
 }
 
-void 
+void
 AdminI::addObjectWithType(const Ice::ObjectPrx& proxy, const string& type, const ::Ice::Current&)
 {
     checkIsReadOnly();
@@ -722,7 +720,7 @@ AdminI::addObjectWithType(const Ice::ObjectPrx& proxy, const string& type, const
     _database->addObject(info);
 }
 
-void 
+void
 AdminI::removeObject(const Ice::Identity& id, const Ice::Current&)
 {
     checkIsReadOnly();
@@ -767,7 +765,7 @@ AdminI::getNodeAdmin(const string& name, const Current& current) const
     // Check if the node exists
     //
     _database->getNode(name);
-    
+
     Ice::Identity adminId;
     adminId.name = name;
     adminId.category = _registry->getNodeAdminCategory();
@@ -812,7 +810,7 @@ AdminI::getNodeLoad(const string& name, const Current&) const
         ostringstream os;
         os << ex;
         throw NodeUnreachableException(name, os.str());
-    }    
+    }
     return LoadInfo(); // Keep the compiler happy.
 }
 

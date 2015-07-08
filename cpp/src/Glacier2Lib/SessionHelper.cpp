@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-#include <IceUtil/DisableWarnings.h>
 #include <Glacier2/SessionHelper.h>
 
 #include <IceUtil/IceUtil.h>

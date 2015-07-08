@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-#include <IceUtil/DisableWarnings.h>
 #include <Ice/Ice.h>
 #include <IceStorm/IceStorm.h>
 #include <Event.h>
@@ -81,7 +80,7 @@ void
 usage(const char* appName)
 {
     cerr << "Usage: " << appName << " [options]\n";
-    cerr <<     
+    cerr <<
         "Options:\n"
         "-h, --help           Show this message.\n"
         "-b                   Use batch reliability.\n"

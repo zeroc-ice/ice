@@ -17,8 +17,6 @@
 #include <Ice/Properties.h>
 #include <IceUtil/StringUtil.h>
 
-#include <IceUtil/DisableWarnings.h>
-
 #ifdef ICE_OS_WINRT
 #   include <ppltasks.h> // For Concurrency::task
 #endif

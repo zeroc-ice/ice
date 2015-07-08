@@ -21,8 +21,6 @@
 #include <Ice/Buffer.h>
 #include <Ice/LocalException.h>
 
-#include <IceUtil/DisableWarnings.h>
-
 #ifdef ICE_USE_OPENSSL
 
 #include <openssl/err.h>
@@ -280,7 +278,7 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
     {
         _verified = true;
     }
-    
+
     _engine->verifyPeer(_stream->fd(), _host, NativeConnectionInfoPtr::dynamicCast(getInfo()));
 
     if(_engine->securityTraceLevel() >= 1)

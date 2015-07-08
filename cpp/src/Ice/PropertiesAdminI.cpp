@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-#include <IceUtil/DisableWarnings.h>
 #include <Ice/PropertiesAdminI.h>
 #include <Ice/Logger.h>
 #include <Ice/LoggerUtil.h>
@@ -15,7 +14,7 @@
 using namespace std;
 using namespace Ice;
 
-namespace 
+namespace
 {
 
 const char* traceCategory = "Admin.Properties";
@@ -49,11 +48,11 @@ PropertiesAdminI::setProperties_async(const AMD_PropertiesAdmin_setPropertiesPtr
                                            const Current&)
 {
     Lock sync(*this);
-    
+
     PropertyDict old = _properties->getPropertiesForPrefix("");
     PropertyDict::const_iterator p;
     const int traceLevel = _properties->getPropertyAsInt("Ice.Trace.Admin.Properties");
-    
+
     //
     // Compute the difference between the new property set and the existing property set:
     //
@@ -99,13 +98,13 @@ PropertiesAdminI::setProperties_async(const AMD_PropertiesAdmin_setPropertiesPtr
             }
         }
     }
-    
+
     if(traceLevel > 0 && (!added.empty() || !changed.empty() || !removed.empty()))
     {
         Trace out(_logger, traceCategory);
-        
+
         out << "Summary of property changes";
-        
+
         if(!added.empty())
         {
             out << "\nNew properties:";

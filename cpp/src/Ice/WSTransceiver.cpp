@@ -21,8 +21,6 @@
 #include <IceUtil/SHA1.h>
 #include <IceUtil/StringUtil.h>
 
-#include <IceUtil/DisableWarnings.h>
-
 // Python 2.7 under Windows.
 #if _MSC_VER == 1500
 typedef unsigned short uint16_t;

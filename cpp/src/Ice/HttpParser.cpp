@@ -13,8 +13,6 @@
 #include <Ice/LocalException.h>
 #include <IceUtil/StringUtil.h>
 
-#include <IceUtil/DisableWarnings.h>
-
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;

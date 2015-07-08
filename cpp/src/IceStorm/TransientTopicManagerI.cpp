@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-#include <IceUtil/DisableWarnings.h>
 #include <IceStorm/TransientTopicManagerI.h>
 #include <IceStorm/TransientTopicI.h>
 #include <IceStorm/TraceLevels.h>
@@ -56,7 +55,7 @@ TransientTopicManagerImpl::create(const string& name, const Ice::Current&)
     Ice::Identity id = nameToIdentity(_instance, name);
 
     //
-    // Called by constructor or with 'this' mutex locked. 
+    // Called by constructor or with 'this' mutex locked.
     //
     TraceLevelsPtr traceLevels = _instance->traceLevels();
     if(traceLevels->topicMgr > 0)
