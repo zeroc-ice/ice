@@ -298,7 +298,7 @@ var WSTransceiver = Ice.Class({
     checkSendSize: function(stream)
     {
     },
-    setBUfferSze: function(rcvSize, sndSize)
+    setBufferSize: function(rcvSize, sndSize)
     {
         this._maxSendPacketSize = sndSize;
     },

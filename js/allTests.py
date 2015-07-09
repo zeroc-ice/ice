@@ -36,6 +36,7 @@ tests = [
     ("Ice/facetsBidir", ["core"]),
     ("Ice/hashmap", ["once"]),
     ("Ice/hold", ["core"]),
+    ("Ice/info", ["core"]),
     ("Ice/inheritance", ["once"]),
     ("Ice/inheritanceBidir", ["once"]),
     ("Ice/location", ["once"]),

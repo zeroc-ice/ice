@@ -56,6 +56,7 @@ var tests = [
     "test/Ice/facets",
     "test/Ice/facetsBidir",
     "test/Ice/hold",
+    "test/Ice/info",
     "test/Ice/inheritance",
     "test/Ice/inheritanceBidir",
     "test/Ice/location",
