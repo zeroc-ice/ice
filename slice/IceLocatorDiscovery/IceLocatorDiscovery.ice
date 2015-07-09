@@ -12,6 +12,10 @@
 
 #include <Ice/Locator.ice>
 
+/**
+ * IceLocatorDiscovery is an Ice plug-in that enables the discovery of IceGrid and custom locators via
+ * UDP multicast.
+ **/
 module IceLocatorDiscovery
 {
 
