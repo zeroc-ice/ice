@@ -532,9 +532,21 @@ MyApplication::run(int argc, char* argv[])
     return 0;
 }
 
+#ifdef ICE_STATIC_LIBS
+extern "C"
+{
+
+Ice::Plugin* createIceSSL(const Ice::CommunicatorPtr&, const string&, const Ice::StringSeq&);
+
+}
+#endif
+
 int
 main(int argc, char* argv[])
 {
+#ifdef ICE_STATIC_LIBS
+    Ice::registerPluginFactory("IceSSL", createIceSSL, true);
+#endif
     MyApplication app;
     return app.main(argc, argv);
 }
