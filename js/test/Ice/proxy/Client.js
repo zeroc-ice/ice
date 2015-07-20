@@ -1054,15 +1054,15 @@
         ).then(
             function()
             {
-                if(typeof window !== 'undefined')
-                {
-                    //
-                    // Ensure that TCP endpoints are skipped when runing in a browser.
-                    //
-                    var p = communicator.stringToProxy("test:tcp -p 12010:ws -p 12010");
-                    p = p.ice_endpointSelection(Ice.EndpointSelectionType.Ordered);
-                    return p.ice_ping();
-                }
+                //
+                // Ensure that non connectable endpoints are skipped.
+                //
+                var p = (typeof window === 'undefined') ?
+                    communicator.stringToProxy("test:ws -p 12010:default -p 12010") : 
+                    communicator.stringToProxy("test:tcp -p 12010:default -p 12010");
+
+                p = p.ice_endpointSelection(Ice.EndpointSelectionType.Ordered);
+                return p.ice_ping();
             }
         ).then(
             function()
