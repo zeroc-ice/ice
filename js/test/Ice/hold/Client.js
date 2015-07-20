@@ -113,7 +113,7 @@
                 out.write("testing without serialize mode... ");
                 var result = null;
                 condition.value = true;
-                all = []
+                all = [];
                 return loop(function()
                             {
                                 var expected = value;

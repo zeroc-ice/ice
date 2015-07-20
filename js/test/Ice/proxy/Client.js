@@ -1033,7 +1033,7 @@
                 {
                     test(p.ice_getEndpoints()[0].getInfo() instanceof IceSSL.WSSEndpointInfo);
                 }
-                return p.ice_getConnection()
+                return p.ice_getConnection();
             }
         ).then(
             function(con)

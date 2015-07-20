@@ -364,6 +364,7 @@ var HashMap = Ice.Class({
     },
     computeHash: function(v)
     {
+        var uuid;
         if(v === 0 || v === -0)
         {
             return {key:0, hash:0};
@@ -373,7 +374,7 @@ var HashMap = Ice.Class({
         {
             if(HashMap._null === null)
             {
-                var uuid = Ice.generateUUID();
+                uuid = Ice.generateUUID();
                 HashMap._null = {key:uuid, hash:StringUtil.hashCode(uuid)};
             }
             return HashMap._null;
@@ -400,7 +401,7 @@ var HashMap = Ice.Class({
             {
                 if(HashMap._nan === null)
                 {
-                    var uuid = Ice.generateUUID();
+                    uuid = Ice.generateUUID();
                     HashMap._nan = {key:uuid, hash:StringUtil.hashCode(uuid)};
                 }
                 return HashMap._nan;

@@ -107,7 +107,7 @@
 
                         info = connection.getInfo();
                         test(!info.incoming);
-                        test(info.adapterName.length == 0);
+                        test(info.adapterName.length === 0);
                         if(connection.type() != "ws" && connection.type() != "wss")
                         {
                             test(info.localPort > 0);
@@ -152,7 +152,7 @@
                             test(ctx.get("ws.Connection") == "Upgrade");
                             test(ctx.get("ws.Sec-WebSocket-Protocol") == "ice.zeroc.com");
                             test(ctx.get("ws.Sec-WebSocket-Version") == "13");
-                            test(ctx.get("ws.Sec-WebSocket-Key") != null);
+                            test(ctx.get("ws.Sec-WebSocket-Key") !== null);
                         }
                     }
                 );
