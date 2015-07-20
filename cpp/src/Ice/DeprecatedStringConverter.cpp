@@ -7,7 +7,9 @@
 //
 // **********************************************************************
 
+#include <IceUtil/DisableWarnings.h>
 #include <Ice/DeprecatedStringConverter.h>
+
 #include <Ice/Initialize.h>
 #include <Ice/Instance.h>
 #include <IceUtil/StringConverter.h>
