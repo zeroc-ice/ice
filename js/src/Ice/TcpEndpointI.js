@@ -118,7 +118,11 @@ var TcpEndpointI = Class(Ice.IPEndpointI, {
     },
     connectable: function()
     {
-        return !this.secure(); // We don't support SSL, we can only connect with plain TCP
+        //
+        // TCP endpoints are not connectable when running in a browser, SSL
+        // isn't currently supported.
+        //
+        return TcpTransceiver !== null && !this.secure();
     },
     connect: function()
     {
