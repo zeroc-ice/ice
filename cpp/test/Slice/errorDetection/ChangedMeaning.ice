@@ -17,6 +17,7 @@ sequence<long> ls;
 struct s00
 {
     ls ls;      // OK as Ice 3.6 (data member has its own scope)
+    ls l;
 };
 
 struct s0
@@ -124,7 +125,7 @@ interface ParamTest
     void op(long param);
     void op2(counter param);
     void param(counter counter);        // OK as Ice 3.6 (parameters has its own scope)
-    void op3(long counter, counter x);  // Second "counter" is not a type
+    void op3(long counter, counter x);  // OK as Ice 3.6.1 (Second "counter" is not a type)
     void op4(long param, long param);
 };
 
