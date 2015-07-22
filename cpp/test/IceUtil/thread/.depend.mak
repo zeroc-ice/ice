@@ -33,7 +33,6 @@ TestBase.obj: \
 
 CreateTest.obj: \
 	CreateTest.cpp \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\IceUtil\Config.h" \

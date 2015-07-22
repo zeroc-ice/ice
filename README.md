@@ -58,10 +58,10 @@ Ice runs on a wide range of platforms:
   Primary development branch
 
 - `3.4`
-  Source distribution for Ice 3.4.2 plus various patches
+  Source distribution for Ice v3.4.2 plus various patches
 
 - `3.5`
-  Source distribution for Ice 3.5.1 plus various patches
+  Source distribution for Ice v3.5.1 plus various patches
 
 
 ## Copyright and License

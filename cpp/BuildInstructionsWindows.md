@@ -1,10 +1,11 @@
-# Building Ice for C++ for Windows Applications
+# Building Ice for C++ on Windows
 
-This file describes the Ice source distribution, including information about
-compiler requirements, third-party dependencies, and instructions for building
-and testing the distribution. If you prefer, you can download a [Windows
-installer][1] that contains pre-compiled debug and release libraries,
-executables, and everything else necessary to build Ice applications on Windows.
+This file describes how to build Ice for C++ from sources on Windows, and how
+to test the resulting build.
+
+ZeroC provides [Ice binary distributions][1] for various platforms and compilers,
+including Windows and Visual Studio, so building Ice from sources is usually
+unnecessary.
 
 ## Build Requirements
 
@@ -22,9 +23,11 @@ Ice has dependencies on a number of third-party libraries:
  - [Berkeley DB][5] 5.3
  - [mcpp][6] 2.7.2 (with patches)
 
-You do not need to build these packages yourself, as ZeroC supplies a separate
-[Windows installer][7] that contains release and debug libraries for all of the
-third-party dependencies.
+You do not need to build these packages yourself, as ZeroC supplies an
+[Ice Third Party installer][7] with everything you need to build Ice from sources.
+
+If you wish to build these third-party packages from sources, please follow our
+[build instructions][8].
 
 ### Monotonic Clock
 
@@ -48,9 +51,6 @@ example, when using Visual Studio 2013, you have several alternatives:
 Using the first two configurations produces 32-bit binaries, while the third and
 fourth configurations produce 64-bit binaries.
 
-> *You must be using a Windows x64 platform when compiling a 64-bit version of
-> *Ice.*
-
 In the command window, change to the `cpp` subdirectory:
 
     $ cd cpp
@@ -66,12 +66,8 @@ This will build the Ice core libraries, services, and tests.
 
 ### x64 Platform
 
-Building Ice on x64 with the Visual Studio C++ compiler is like building Ice on
-x86. You just need to perform the build in an "x64 Command Prompt", and not in a
-regular "Developer Command Prompt".
-
-> *You must be using a Windows x64 platform when compiling a 64-bit version of
-> *Ice.*
+Building Ice for x64 with Visual Studio is like building Ice for x86. You just need to 
+perform the build in an "x64 Command Prompt", and not in a regular "Developer Command Prompt".
 
 ## Installing a C++ Source Build
 
@@ -95,10 +91,12 @@ After a successful source build, you can run the tests as follows:
 If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
-[1]: https://doc.zeroc.com/display/Ice36/Using+the+Windows+Binary+Distribution
+[1]: https://zeroc.com/download.html
 [2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+3.6.0
 [3]: http://expat.sourceforge.net
 [4]: http://bzip.org
 [5]: http://www.oracle.com/us/products/database/berkeley-db/overview/index.htm
 [6]: https://github.com/zeroc-ice/mcpp
-[7]: https://zeroc.com/download.html
+[7]: https://zeroc.com/download/Ice/3.6/Ice-3.6.0-ThirdParty.msi
+[8]: https://doc.zeroc.com/display/Ice36/Building+Third+Party+Packages+from+Source
+

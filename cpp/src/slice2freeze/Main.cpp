@@ -197,6 +197,7 @@ usage(const char* n)
         "Options:\n"
         "-h, --help            Show this message.\n"
         "-v, --version         Display the Ice version.\n"
+        "--validate               Validate command line options.\n"
         "--header-ext EXT      Use EXT instead of the default `h' extension.\n"
         "--source-ext EXT      Use EXT instead of the default `cpp' extension.\n"
         "--add-header HDR[,GUARD]\n"
@@ -1434,6 +1435,7 @@ compile(int argc, char* argv[])
     IceUtilInternal::Options opts;
     opts.addOpt("h", "help");
     opts.addOpt("v", "version");
+    opts.addOpt("", "validate");
     opts.addOpt("", "header-ext", IceUtilInternal::Options::NeedArg, "h");
     opts.addOpt("", "source-ext", IceUtilInternal::Options::NeedArg, "cpp");
     opts.addOpt("", "add-header", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
@@ -1454,6 +1456,16 @@ compile(int argc, char* argv[])
     opts.addOpt("", "ice");
     opts.addOpt("", "underscore");
 
+    bool validate = false;
+    for(int i = 0; i < argc; ++i)
+    {
+        if(string(argv[i]) == "--validate")
+        {
+            validate = true;
+            break;
+        }
+    }
+
     vector<string> args;
     try
     {
@@ -1462,7 +1474,10 @@ compile(int argc, char* argv[])
     catch(const IceUtilInternal::BadOptException& e)
     {
         getErrorStream() << argv[0] << ": error: " << e.reason << endl;
-        usage(argv[0]);
+        if(!validate)
+        {
+            usage(argv[0]);
+        }
         return EXIT_FAILURE;
     }
 
@@ -1601,7 +1616,10 @@ compile(int argc, char* argv[])
                 {
                     getErrorStream() << argv[0] << ": error: " << *i << ": nothing or ',sort' expected after value-type"
                                      << endl;
-                    usage(argv[0]);
+                    if(!validate)
+                    {
+                        usage(argv[0]);
+                    }
                     return EXIT_FAILURE;
                 }
                 dict.sort = true;
@@ -1614,7 +1632,10 @@ compile(int argc, char* argv[])
                 {
                     getErrorStream() << argv[0] << ": error: " << *i << ": nothing or ',sort' expected after value-type"
                                      << endl;
-                    usage(argv[0]);
+                    if(!validate)
+                    {
+                        usage(argv[0]);
+                    }
                     return EXIT_FAILURE;
                 }
                 dict.sort = true;
@@ -1625,21 +1646,30 @@ compile(int argc, char* argv[])
         if(dict.name.empty())
         {
             getErrorStream() << argv[0] << ": error: " << *i << ": no name specified" << endl;
-            usage(argv[0]);
+            if(!validate)
+            {
+                usage(argv[0]);
+            }
             return EXIT_FAILURE;
         }
 
         if(dict.key.empty())
         {
             getErrorStream() << argv[0] << ": error: " << *i << ": no key specified" << endl;
-            usage(argv[0]);
+            if(!validate)
+            {
+                usage(argv[0]);
+            }
             return EXIT_FAILURE;
         }
 
         if(dict.value.empty())
         {
             getErrorStream() << argv[0] << ": error: " << *i << ": no value specified" << endl;
-            usage(argv[0]);
+            if(!validate)
+            {
+                usage(argv[0]);
+            }
             return EXIT_FAILURE;
         }
 
@@ -1684,21 +1714,30 @@ compile(int argc, char* argv[])
         if(index.name.empty())
         {
             getErrorStream() << argv[0] << ": error: " << *i << ": no name specified" << endl;
-            usage(argv[0]);
+            if(!validate)
+            {
+                usage(argv[0]);
+            }
             return EXIT_FAILURE;
         }
 
         if(index.type.empty())
         {
             getErrorStream() << argv[0] << ": error: " << *i << ": no type specified" << endl;
-            usage(argv[0]);
+            if(!validate)
+            {
+                usage(argv[0]);
+            }
             return EXIT_FAILURE;
         }
 
         if(index.member.empty())
         {
             getErrorStream() << argv[0] << ": error: " << *i << ": no member specified" << endl;
-            usage(argv[0]);
+            if(!validate)
+            {
+                usage(argv[0]);
+            }
             return EXIT_FAILURE;
         }
 
@@ -1706,7 +1745,10 @@ compile(int argc, char* argv[])
         {
             getErrorStream() << argv[0] << ": error: " << *i << ": the case can be `case-sensitive' or "
                              << "`case-insensitive'" << endl;
-            usage(argv[0]);
+            if(!validate)
+            {
+                usage(argv[0]);
+            }
             return EXIT_FAILURE;
         }
         index.caseSensitive = (caseString == "case-sensitive");
@@ -1766,7 +1808,10 @@ compile(int argc, char* argv[])
                     else
                     {
                         getErrorStream() << argv[0] << ": error: " << *i << ": syntax error" << endl;
-                        usage(argv[0]);
+                        if(!validate)
+                        {
+                            usage(argv[0]);
+                        }
                         return EXIT_FAILURE;
                     }
                     done = true;
@@ -1804,7 +1849,10 @@ compile(int argc, char* argv[])
                     else
                     {
                         getErrorStream() << argv[0] << ": error: " << *i << ": syntax error" << endl;
-                        usage(argv[0]);
+                        if(!validate)
+                        {
+                            usage(argv[0]);
+                        }
                         return EXIT_FAILURE;
                     }
                 }
@@ -1814,7 +1862,10 @@ compile(int argc, char* argv[])
         if(dictName.empty())
         {
             getErrorStream() << argv[0] << ": error: " << *i << ": no dictionary specified" << endl;
-            usage(argv[0]);
+            if(!validate)
+            {
+                usage(argv[0]);
+            }
             return EXIT_FAILURE;
         }
 
@@ -1837,7 +1888,10 @@ compile(int argc, char* argv[])
         if(!found)
         {
             getErrorStream() << argv[0] << ": error: " << *i << ": unknown dictionary" << endl;
-            usage(argv[0]);
+            if(!validate)
+            {
+                usage(argv[0]);
+            }
             return EXIT_FAILURE;
         }
     }
@@ -1858,15 +1912,36 @@ compile(int argc, char* argv[])
     if(dicts.empty() && indices.empty() && !(depend || dependxml))
     {
         getErrorStream() << argv[0] << ": error: no Freeze types specified" << endl;
-        usage(argv[0]);
+        if(!validate)
+        {
+            usage(argv[0]);
+        }
         return EXIT_FAILURE;
     }
 
     if(args.empty())
     {
         getErrorStream() << argv[0] << ": error: no file name base specified" << endl;
-        usage(argv[0]);
+        if(!validate)
+        {
+            usage(argv[0]);
+        }
         return EXIT_FAILURE;
+    }
+
+    if(depend && dependxml)
+    {
+        getErrorStream() << argv[0] << ": error: cannot specify both --depend and --depend-xml" << endl;
+        if(!validate)
+        {
+            usage(argv[0]);
+        }
+        return EXIT_FAILURE;
+    }
+
+    if(validate)
+    {
+        return EXIT_SUCCESS;
     }
 
     UnitPtr u = Unit::createUnit(true, false, ice, underscore);

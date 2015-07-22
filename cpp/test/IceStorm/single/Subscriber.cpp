@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-#include <IceUtil/DisableWarnings.h>
 #include <Ice/Ice.h>
 #include <IceStorm/IceStorm.h>
 #include <Single.h>
@@ -140,7 +139,7 @@ run(int, char* argv[], const CommunicatorPtr& communicator)
     //
     vector<SingleIPtr> subscribers;
     vector<Ice::Identity> subscriberIdentities;
-    
+
     {
         subscribers.push_back(new SingleI(communicator, "default"));
         Ice::ObjectPrx object = adapter->addWithUUID(subscribers.back())->ice_oneway();
@@ -197,7 +196,7 @@ run(int, char* argv[], const CommunicatorPtr& communicator)
     }
 
     adapter->activate();
-    
+
     vector<Ice::Identity> ids = topic->getSubscribers();
     test(ids.size() == subscriberIdentities.size());
     for(vector<Ice::Identity>::const_iterator i = ids.begin(); i != ids.end(); ++i)

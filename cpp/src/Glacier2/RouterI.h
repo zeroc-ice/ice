@@ -14,7 +14,6 @@
 #include <Glacier2/Router.h>
 #include <Glacier2/ClientBlobject.h>
 #include <Glacier2/ServerBlobject.h>
-#include <IceUtil/DisableWarnings.h>
 
 namespace Glacier2
 {
@@ -34,7 +33,7 @@ public:
 
     RouterI(const InstancePtr&, const Ice::ConnectionPtr&, const std::string&, const SessionPrx&, const Ice::Identity&,
             const FilterManagerPtr&, const Ice::Context&);
-            
+
     virtual ~RouterI();
 
     void destroy(const Callback_Session_destroyPtr&);
@@ -43,7 +42,7 @@ public:
     virtual Ice::ObjectPrx getServerProxy(const Ice::Current& = Ice::Current()) const;
     virtual Ice::ObjectProxySeq addProxies(const Ice::ObjectProxySeq&, const Ice::Current&);
     virtual std::string getCategoryForClient(const Ice::Current&) const;
-    virtual void createSession_async(const AMD_Router_createSessionPtr&, const std::string&, const std::string&, 
+    virtual void createSession_async(const AMD_Router_createSessionPtr&, const std::string&, const std::string&,
                                      const Ice::Current&);
     virtual void createSessionFromSecureConnection_async(const AMD_Router_createSessionFromSecureConnectionPtr&,
                                                          const Ice::Current&);
@@ -81,7 +80,7 @@ private:
     const Ice::Context _context;
     const IceUtil::Mutex _timestampMutex;
     mutable IceUtil::Time _timestamp;
-    
+
     Glacier2::Instrumentation::SessionObserverPtr _observer;
 };
 

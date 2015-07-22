@@ -1178,6 +1178,14 @@ Slice::Container::lookupType(const string& scoped, bool printError)
     return lookupTypeNoBuiltin(scoped, printError);
 }
 
+//
+// TODO: Hack to keep binary compatibility with Ice 3.6.0, fix properly in Ice 3.7
+//
+namespace
+{
+bool ignoreUndefined = false;
+}
+
 TypeList
 Slice::Container::lookupTypeNoBuiltin(const string& scoped, bool printError)
 {
@@ -1200,6 +1208,8 @@ Slice::Container::lookupTypeNoBuiltin(const string& scoped, bool printError)
     }
 
     TypeList results;
+    bool typeError = false;
+    vector<string> errors;
     if(sc.rfind('*') == sc.length() - 1)
     {
         //
@@ -1256,9 +1266,8 @@ Slice::Container::lookupTypeNoBuiltin(const string& scoped, bool printError)
                 string msg = (*p)->kindOf() + " name `" + scoped;
                 msg += "' is capitalized inconsistently with its previous name: `";
                 msg += matches.front()->scoped() + "'";
-                _unit->error(msg);
+                errors.push_back(msg);
             }
-
 
             ExceptionPtr ex = ExceptionPtr::dynamicCast(*p);
             if(ex)
@@ -1276,14 +1285,15 @@ Slice::Container::lookupTypeNoBuiltin(const string& scoped, bool printError)
             TypePtr type = TypePtr::dynamicCast(*p);
             if(!type)
             {
+                typeError = true;
                 if(printError)
                 {
                     string msg = "`";
                     msg += sc;
                     msg += "' is not a type";
-                    _unit->error(msg);
+                    errors.push_back(msg);
                 }
-                return TypeList();
+                break; // Possible that correct match is higher in scope
             }
             results.push_back(type);
         }
@@ -1292,9 +1302,18 @@ Slice::Container::lookupTypeNoBuiltin(const string& scoped, bool printError)
     if(results.empty())
     {
         ContainedPtr contained = ContainedPtr::dynamicCast(this);
-        if(!contained)
+        if(contained)
         {
-            if(printError)
+            if (typeError)
+            {
+                ignoreUndefined = true;
+            }
+            results = contained->container()->lookupTypeNoBuiltin(sc, printError);
+            ignoreUndefined = false;
+        }
+        else if(!typeError)
+        {
+            if(printError && !ignoreUndefined)
             {
                 string msg = "`";
                 msg += sc;
@@ -1303,10 +1322,21 @@ Slice::Container::lookupTypeNoBuiltin(const string& scoped, bool printError)
             }
             return TypeList();
         }
-        return contained->container()->lookupTypeNoBuiltin(sc, printError);
+        if(typeError && results.empty() && printError)
+        {
+            for(vector<string>::const_iterator p = errors.begin(); p != errors.end(); ++p)
+            {
+                _unit->error(*p);
+            }
+        }
+        return results;
     }
     else
     {
+        for(vector<string>::const_iterator p = errors.begin(); p != errors.end(); ++p)
+        {
+            _unit->error(*p);
+        }
         return results;
     }
 }

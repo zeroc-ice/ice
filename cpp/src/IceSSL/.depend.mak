@@ -223,8 +223,7 @@ AcceptorI.obj: \
     "..\..\src\Ice\EndpointFactory.h" \
     "..\..\src\Ice\EndpointFactoryF.h" \
     "$(includedir)\Ice\Plugin.h" \
-    "$(includedir)\IceSSL\EndpointInfo.h" \
-    "Instance.h" \
+    "..\..\src\Ice\WSEndpoint.h" \
     "..\..\src\Ice\ProtocolInstance.h" \
     "..\..\src\Ice\Instance.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
@@ -259,16 +258,20 @@ AcceptorI.obj: \
     "$(includedir)\Ice\ServantLocatorF.h" \
     "$(includedir)\Ice\ServantManagerF.h" \
     "$(includedir)\Ice\ResponseHandlerF.h" \
+    "$(includedir)\IceSSL\EndpointInfo.h" \
+    "Instance.h" \
     "SSLEngineF.h" \
     "$(includedir)\IceSSL\Plugin.h" \
     "$(includedir)\IceSSL\Config.h" \
     "$(includedir)\IceSSL\ConnectionInfo.h" \
     "OpenSSLTransceiverI.h" \
+    "Util.h" \
     "..\..\src\Ice\Transceiver.h" \
     "..\..\src\Ice\StreamSocket.h" \
+    "..\..\src\Ice\WSTransceiver.h" \
+    "..\..\src\Ice\HttpParser.h" \
     "SecureTransportTransceiverI.h" \
     "SChannelTransceiverI.h" \
-    "Util.h" \
     "$(includedir)\Ice\Communicator.h" \
     "$(includedir)\Ice\IncomingAsync.h" \
     "$(includedir)\Ice\RouterF.h" \
@@ -475,8 +478,11 @@ ConnectorI.obj: \
     "$(includedir)\IceSSL\Config.h" \
     "$(includedir)\IceSSL\ConnectionInfo.h" \
     "OpenSSLTransceiverI.h" \
+    "Util.h" \
     "..\..\src\Ice\Transceiver.h" \
     "..\..\src\Ice\StreamSocket.h" \
+    "..\..\src\Ice\WSTransceiver.h" \
+    "..\..\src\Ice\HttpParser.h" \
     "SecureTransportTransceiverI.h" \
     "SChannelTransceiverI.h" \
     "EndpointI.h" \
@@ -485,8 +491,8 @@ ConnectorI.obj: \
     "..\..\src\Ice\AcceptorF.h" \
     "..\..\src\Ice\EndpointFactory.h" \
     "..\..\src\Ice\EndpointFactoryF.h" \
+    "..\..\src\Ice\WSEndpoint.h" \
     "$(includedir)\IceSSL\EndpointInfo.h" \
-    "Util.h" \
     "$(includedir)\Ice\Communicator.h" \
     "$(includedir)\Ice\IncomingAsync.h" \
     "$(includedir)\Ice\RouterF.h" \
@@ -580,13 +586,7 @@ EndpointI.obj: \
     "..\..\src\Ice\EndpointFactory.h" \
     "..\..\src\Ice\EndpointFactoryF.h" \
     "$(includedir)\Ice\Plugin.h" \
-    "InstanceF.h" \
-    "$(includedir)\IceSSL\EndpointInfo.h" \
-    "AcceptorI.h" \
-    "..\..\src\Ice\Acceptor.h" \
-    "ConnectorI.h" \
-    "..\..\src\Ice\Connector.h" \
-    "Instance.h" \
+    "..\..\src\Ice\WSEndpoint.h" \
     "..\..\src\Ice\ProtocolInstance.h" \
     "..\..\src\Ice\Instance.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
@@ -621,6 +621,13 @@ EndpointI.obj: \
     "$(includedir)\Ice\ServantLocatorF.h" \
     "$(includedir)\Ice\ServantManagerF.h" \
     "$(includedir)\Ice\ResponseHandlerF.h" \
+    "InstanceF.h" \
+    "$(includedir)\IceSSL\EndpointInfo.h" \
+    "AcceptorI.h" \
+    "..\..\src\Ice\Acceptor.h" \
+    "ConnectorI.h" \
+    "..\..\src\Ice\Connector.h" \
+    "Instance.h" \
     "SSLEngineF.h" \
     "$(includedir)\IceSSL\Plugin.h" \
     "$(includedir)\IceSSL\Config.h" \
@@ -876,6 +883,7 @@ PluginI.obj: \
     "..\..\src\Ice\AcceptorF.h" \
     "..\..\src\Ice\EndpointFactory.h" \
     "..\..\src\Ice\EndpointFactoryF.h" \
+    "..\..\src\Ice\WSEndpoint.h" \
     "$(includedir)\IceSSL\EndpointInfo.h" \
     "..\..\src\Ice\ProtocolPluginFacade.h" \
     "..\..\src\Ice\ProtocolPluginFacadeF.h" \
@@ -1136,8 +1144,7 @@ SChannelTransceiverI.obj: \
     "$(includedir)\Ice\PropertiesF.h" \
     "..\..\src\Ice\ProtocolInstanceF.h" \
     "..\..\src\Ice\StreamSocket.h" \
-    "$(includedir)\IceUtil\StringUtil.h" \
-    "Instance.h" \
+    "..\..\src\Ice\WSTransceiver.h" \
     "..\..\src\Ice\ProtocolInstance.h" \
     "..\..\src\Ice\ConnectorF.h" \
     "..\..\src\Ice\IPEndpointIF.h" \
@@ -1174,6 +1181,9 @@ SChannelTransceiverI.obj: \
     "$(includedir)\Ice\ServantLocatorF.h" \
     "$(includedir)\Ice\ServantManagerF.h" \
     "$(includedir)\Ice\ResponseHandlerF.h" \
+    "..\..\src\Ice\HttpParser.h" \
+    "$(includedir)\IceUtil\StringUtil.h" \
+    "Instance.h" \
     "SSLEngine.h" \
     "Util.h" \
     "TrustManagerF.h" \

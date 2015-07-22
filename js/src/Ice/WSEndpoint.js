@@ -19,6 +19,7 @@ Ice.__M.require(module,
         "../Ice/WSTransceiver",
         "../Ice/EndpointInfo"
     ]);
+var IceSSL = Ice.__M.module("IceSSL");
 
 var HashUtil = Ice.HashUtil;
 var StringUtil = Ice.StringUtil;

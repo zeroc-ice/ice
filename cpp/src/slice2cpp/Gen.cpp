@@ -2608,6 +2608,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     bool hasBaseClass = !bases.empty() && !bases.front()->isInterface();
     bool override = p->canBeCyclic() && (!hasBaseClass || !bases.front()->canBeCyclic());
+    bool hasGCObjectBaseClass = basePreserved || override || preserved;
     if(!basePreserved && (override || preserved))
     {
         H << ", public ::IceInternal::GCObject";
@@ -2800,11 +2801,23 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             H << nl << "virtual ::Ice::ObjectPtr ice_clone() const;";
 
+             if(hasGCObjectBaseClass)
+            {
+                C.zeroIndent();
+                C << sp;
+                C << nl << "#if defined(_MSC_VER) && (_MSC_VER >= 1900)";
+                C << nl << "#   pragma warning(push)";
+                C << nl << "#   pragma warning(disable:4589)";
+                C << nl << "#endif";
+                C.restoreIndent();
+            }
             C << nl << "::Ice::ObjectPtr";
             C << nl << scoped.substr(2) << "::ice_clone() const";
             C << sb;
             if(!p->isAbstract())
             {
+                
+
                 C << nl << "::Ice::Object* __p = new " << name << "(*this);";
                 C << nl << "return __p;";
             }
@@ -2816,6 +2829,14 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
                 C << nl << "throw ::Ice::CloneNotImplementedException(__FILE__, __LINE__);";
             }
             C << eb;
+            if(hasGCObjectBaseClass)
+            {
+                C.zeroIndent();
+                C << nl << "#if defined(_MSC_VER) && (_MSC_VER >= 1900)";
+                C << nl << "#   pragma warning(pop)";
+                C << nl << "#endif";
+                C.restoreIndent();
+            }
         }
 
         ClassList allBases = p->allBases();
@@ -3872,10 +3893,17 @@ Slice::Gen::ObjectVisitor::emitOneShotConstructor(const ClassDefPtr& p)
     {
         vector<string> allParamDecls;
 
+        bool virtualInheritance = p->hasMetaData("cpp:virtual");
+        bool callBaseConstuctors = !(p->isAbstract() && virtualInheritance);
+        DataMemberList dataMembers = p->dataMembers();
+
         for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
         {
+            
             string typeName = inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), _useWstring);
-            allParamDecls.push_back(typeName + " __ice_" + (*q)->name());
+            bool dataMember = std::find(dataMembers.begin(), dataMembers.end(), (*q)) != dataMembers.end();
+            allParamDecls.push_back(typeName + ((dataMember || callBaseConstuctors) ? 
+                                                    (" __ice_" + (*q)->name()) : (" /*__ice_" + (*q)->name() + "*/")));
         }
 
         H << sp << nl;
@@ -3883,16 +3911,19 @@ Slice::Gen::ObjectVisitor::emitOneShotConstructor(const ClassDefPtr& p)
         {
             H << "explicit ";
         }
-        H << fixKwd(p->name()) << spar << allParamDecls << epar << " :";
+        H << fixKwd(p->name()) << spar << allParamDecls << epar;
+        if(callBaseConstuctors || !dataMembers.empty())
+        {
+            H << " :";
+        }
         H.inc();
-
-        DataMemberList dataMembers = p->dataMembers();
 
         ClassList bases = p->bases();
         ClassDefPtr base;
-        if(!bases.empty() && !bases.front()->isInterface())
+        
+        if(!bases.empty() && !bases.front()->isInterface() && callBaseConstuctors)
         {
-            if(emitVirtualBaseInitializers(bases.front(), p->hasMetaData("cpp:virtual"), true))
+            if(emitVirtualBaseInitializers(bases.front(), virtualInheritance, true))
             {
                 if(!dataMembers.empty())
                 {

@@ -60,6 +60,7 @@ usage(const char* n)
         "Options:\n"
         "-h, --help              Show this message.\n"
         "-v, --version           Display the Ice version.\n"
+        "--validate               Validate command line options.\n"
         "-DNAME                  Define NAME as 1.\n"
         "-DNAME=DEF              Define NAME as DEF.\n"
         "-UNAME                  Remove any definition for NAME.\n"
@@ -84,6 +85,7 @@ main(int argc, char* argv[])
     IceUtilInternal::Options opts;
     opts.addOpt("h", "help");
     opts.addOpt("v", "version");
+    opts.addOpt("", "validate");
     opts.addOpt("D", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
     opts.addOpt("U", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
     opts.addOpt("I", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
@@ -99,6 +101,16 @@ main(int argc, char* argv[])
     opts.addOpt("", "underscore");
     opts.addOpt("", "case-sensitive");
 
+    bool validate = false;
+    for(int i = 0; i < argc; ++i)
+    {
+        if(string(argv[i]) == "--validate")
+        {
+            validate = true;
+            break;
+        }
+    }
+
     vector<string> args;
     try
     {
@@ -107,7 +119,10 @@ main(int argc, char* argv[])
     catch(const IceUtilInternal::BadOptException& e)
     {
         cerr << argv[0] << ": " << e.reason << endl;
-        usage(argv[0]);
+        if(!validate)
+        {
+            usage(argv[0]);
+        }
         return EXIT_FAILURE;
     }
 
@@ -164,15 +179,26 @@ main(int argc, char* argv[])
     if(args.empty())
     {
         getErrorStream() << argv[0] << ": no input file" << endl;
-        usage(argv[0]);
+        if(!validate)
+        {
+            usage(argv[0]);
+        }
         return EXIT_FAILURE;
     }
 
     if(depend && dependxml)
     {
-        getErrorStream() << argv[0] << ": error: cannot specify both --depend and --dependxml" << endl;
-        usage(argv[0]);
+        getErrorStream() << argv[0] << ": error: cannot specify both --depend and --depend-xml" << endl;
+        if(!validate)
+        {
+            usage(argv[0]);
+        }
         return EXIT_FAILURE;
+    }
+
+    if(validate)
+    {
+        return EXIT_SUCCESS;
     }
 
     int status = EXIT_SUCCESS;

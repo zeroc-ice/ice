@@ -9,8 +9,6 @@
 
 #define ICE_STORM_SERVICE_API_EXPORTS
 
-#include <IceUtil/DisableWarnings.h>
-
 #include <Ice/PluginManagerI.h> // For loadPlugin
 
 #include <IceStorm/TopicI.h>

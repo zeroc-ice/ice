@@ -32,7 +32,8 @@
         };
 
         var h = new Ice.HashMap(keyComparator, valueComparator);
-        for(var i = 0; i < keys.length; ++i)
+        var i;
+        for(i = 0; i < keys.length; ++i)
         {
             h.set(keys[i], i);
         }
@@ -40,7 +41,7 @@
         //
         // Test the keys.
         //
-        for(var i = 0; i < keys.length; ++i)
+        for(i = 0; i < keys.length; ++i)
         {
             test(h.has(keys[i]));
             test(h.get(keys[i]) === i);
@@ -62,7 +63,7 @@
         fill(a, false);
         var k = h.keys();
         test(k.length === keys.length);
-        for(var i = 0; i < k.length; ++i)
+        for(i = 0; i < k.length; ++i)
         {
             var p = keys.indexOf(k[i]);
             test(p != -1);
@@ -76,7 +77,7 @@
         fill(a, false);
         var v = h.values();
         test(v.length === keys.length);
-        for(var i = 0; i < v.length; ++i)
+        for(i = 0; i < v.length; ++i)
         {
             a[v[i]] = true;
         }
@@ -174,7 +175,8 @@
                 //
                 var k = [];
                 k.length = 1000;
-                for(var i = 0; i < k.length; ++i)
+                var i;
+                for(i = 0; i < k.length; ++i)
                 {
                     k[i] = i;
                 }
@@ -184,7 +186,7 @@
                 // Test string keys.
                 //
                 k.length = 100;
-                for(var i = 0; i < k.length; ++i)
+                for(i = 0; i < k.length; ++i)
                 {
                     k[i] = Ice.generateUUID();
                 }
@@ -203,10 +205,22 @@
                 //
                 // Test object keys (with hashCode methods and custom key comparator).
                 //
-                k.length = 10;
-                for(var i = 0; i < k.length; ++i)
+                function createObject(i)
                 {
-                    k[i] = {key:i, hashCode:function() { return i; }};
+                    var obj =
+                        {
+                            key:i, 
+                            hashCode:function()
+                            { 
+                                return i; 
+                            }
+                        };
+                    return obj;
+                }
+                k.length = 10;
+                for(i = 0; i < k.length; ++i)
+                {
+                    k[i] = createObject(i);
                 }
                 var eq = function(a, b) { return a.key === b.key; };
                 testKeys(k, eq, eq);

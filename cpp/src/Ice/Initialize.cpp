@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-#include <IceUtil/DisableWarnings.h>
 #include <IceUtil/ArgVector.h>
 #include <Ice/CommunicatorI.h>
 #include <Ice/PropertiesI.h>

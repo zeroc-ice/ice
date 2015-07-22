@@ -8,7 +8,6 @@
 // **********************************************************************
 
 #include <IceUtil/ArgVector.h>
-#include <IceUtil/DisableWarnings.h>
 #include <cstring>
 
 IceUtilInternal::ArgVector::ArgVector(int argc, char* const argv[])

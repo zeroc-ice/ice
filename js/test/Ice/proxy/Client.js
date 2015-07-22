@@ -1033,7 +1033,7 @@
                 {
                     test(p.ice_getEndpoints()[0].getInfo() instanceof IceSSL.WSSEndpointInfo);
                 }
-                return p.ice_getConnection()
+                return p.ice_getConnection();
             }
         ).then(
             function(con)
@@ -1050,6 +1050,19 @@
                 {
                     test(con.getInfo() instanceof IceSSL.WSSConnectionInfo);
                 }
+            }
+        ).then(
+            function()
+            {
+                //
+                // Ensure that non connectable endpoints are skipped.
+                //
+                var p = (typeof window === 'undefined') ?
+                    communicator.stringToProxy("test:ws -p 12010:default -p 12010") : 
+                    communicator.stringToProxy("test:tcp -p 12010:default -p 12010");
+
+                p = p.ice_endpointSelection(Ice.EndpointSelectionType.Ordered);
+                return p.ice_ping();
             }
         ).then(
             function()

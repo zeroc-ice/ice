@@ -18,8 +18,6 @@
 #include <IceSSL/EndpointInfo.h>
 #include <IceSSL/ConnectionInfo.h>
 
-#include <IceUtil/DisableWarnings.h>
-
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;

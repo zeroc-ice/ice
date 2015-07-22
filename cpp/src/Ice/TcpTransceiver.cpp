@@ -14,8 +14,6 @@
 #include <Ice/Buffer.h>
 #include <Ice/LocalException.h>
 
-#include <IceUtil/DisableWarnings.h>
-
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;

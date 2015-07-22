@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-#include <IceUtil/DisableWarnings.h>
 #include <IceStorm/TopicManagerI.h>
 #include <IceStorm/TopicI.h>
 #include <IceStorm/TraceLevels.h>
@@ -321,7 +320,7 @@ TopicManagerImpl::TopicManagerImpl(const InstancePtr& instance) :
             _sync = _instance->nodeAdapter()->addWithUUID(_syncImpl);
         }
 
-        
+
 
         // Ensure that the llu counter is present in the log.
         LogUpdate empty = {0, 0};
@@ -340,14 +339,14 @@ TopicManagerImpl::TopicManagerImpl(const InstancePtr& instance) :
 
             // Skip the place holder.
             ++p;
-            
+
             SubscriberRecordSeq content;
             while(p != subscriberMap.end() && p->first.topic == topic)
             {
                 content.push_back(p->second);
                 ++p;
             }
-            
+
             string name = identityToTopicName(topic);
             installTopic(name, topic, false, content);
         }
@@ -412,7 +411,7 @@ TopicManagerImpl::create(const string& name)
         catch(const DatabaseException& ex)
         {
             halt(_instance->communicator(), ex);
-        }       
+        }
     }
 
     _instance->observers()->createTopic(llu, name);
@@ -525,7 +524,7 @@ TopicManagerImpl::observerInit(const LogUpdate& llu, const TopicContentSeq& cont
         catch(const DatabaseException& ex)
         {
             halt(_instance->communicator(), ex);
-        }       
+        }
     }
 
     // We do this with two scans. The first runs through the topics
@@ -618,7 +617,7 @@ TopicManagerImpl::observerCreateTopic(const LogUpdate& llu, const string& name)
         catch(const DatabaseException& ex)
         {
             halt(_instance->communicator(), ex);
-        }       
+        }
     }
     installTopic(name, id, true);
 }
@@ -679,7 +678,7 @@ TopicManagerImpl::getContent(LogUpdate& llu, TopicContentSeq& content)
 {
     {
         Lock sync(*this);
-        reap(); 
+        reap();
     }
 
     for(;;)
@@ -743,7 +742,7 @@ TopicManagerImpl::initMaster(const set<GroupNodeInfo>& slaves, const LogUpdate& 
 {
     Lock sync(*this);
 
-    reap(); 
+    reap();
 
     TopicContentSeq content;
 
@@ -782,7 +781,7 @@ TopicManagerImpl::initMaster(const set<GroupNodeInfo>& slaves, const LogUpdate& 
         catch(const DatabaseException& ex)
         {
             halt(_instance->communicator(), ex);
-        }       
+        }
     }
 
     // Now initialize the observers.
@@ -870,7 +869,7 @@ TopicManagerImpl::installTopic(const string& name, const Ice::Identity& id, bool
                                const IceStorm::SubscriberRecordSeq& subscribers)
 {
     //
-    // Called by constructor or with 'this' mutex locked. 
+    // Called by constructor or with 'this' mutex locked.
     //
     TraceLevelsPtr traceLevels = _instance->traceLevels();
     if(traceLevels->topicMgr > 0)

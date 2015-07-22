@@ -21,6 +21,7 @@ Ice.__M.require(module,
         "../Ice/Timer",
         "../Ice/ConnectionInfo"
     ]);
+var IceSSL = Ice.__M.module("IceSSL");
 
 var Debug = Ice.Debug;
 var ExUtil = Ice.ExUtil;
@@ -184,9 +185,14 @@ var WSTransceiver = Ice.Class({
         }
 
         var transceiver = this;
+        var bytesWrittenCallback = function()
+        { 
+            transceiver._bytesWrittenCallback(0, 0); 
+        };
+
         if(this._fd.bufferedAmount > 1024)
         {
-            Timer.setTimeout(function() { transceiver._bytesWrittenCallback(0, 0); }, 50);
+            Timer.setTimeout(bytesWrittenCallback, 50);
             return false;
         }
 
@@ -216,7 +222,7 @@ var WSTransceiver = Ice.Class({
 
             if(this._fd.bufferedAmount > 0 && packetSize > 0)
             {
-                Timer.setTimeout(function() { transceiver._bytesWrittenCallback(0, 0); }, 50);
+                Timer.setTimeout(bytesWrittenCallback, 50);
                 return false;
             }
         }
@@ -298,7 +304,7 @@ var WSTransceiver = Ice.Class({
     checkSendSize: function(stream)
     {
     },
-    setBUfferSze: function(rcvSize, sndSize)
+    setBufferSize: function(rcvSize, sndSize)
     {
         this._maxSendPacketSize = sndSize;
     },

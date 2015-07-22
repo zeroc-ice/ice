@@ -1669,7 +1669,7 @@ IceInternal::RoutableReference::getConnectionNoRouterInfo(const GetConnectionCal
     if(_locatorInfo)
     {
         RoutableReference* self = const_cast<RoutableReference*>(this);
-        _locatorInfo->getEndpoints(self, _locatorCacheTimeout, new Callback(self, callback));
+        _locatorInfo->getEndpoints(self, _locatorCacheTimeout, LocatorInfo::GetEndpointsCallbackPtr(new Callback(self, callback)));
     }
     else
     {

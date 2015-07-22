@@ -1,7 +1,6 @@
 
 Gen.obj: \
 	Gen.cpp \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
     "Gen.h" \
     "$(includedir)\Slice\Parser.h" \
     "$(includedir)\IceUtil\Shared.h" \

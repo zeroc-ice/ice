@@ -1,4 +1,4 @@
-# Internet Communications Engine (Ice) 
+# Internet Communications Engine (Ice)
 Ice is a comprehensive RPC framework with support for C++, .NET, Java, Python, JavaScript and more.
 
 ## Install
@@ -41,7 +41,7 @@ See the [Ice Documentation](https://doc.zeroc.com/display/Ice36/JavaScript+Mappi
 ## Slice2js Compiler
 
 To compile [Slice](https://doc.zeroc.com/display/Ice36/The+Slice+Language) files to JavaScript see the following:
-- [slice2js](https://github.com/zeroc-ice/slice2js)
+- [slice2js](https://github.com/zeroc-ice/npm-slice2js)
 - [gulp-ice-builder](https://github.com/zeroc-ice/gulp-ice-builder)
 
 ## Demos

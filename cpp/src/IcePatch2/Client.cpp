@@ -176,6 +176,10 @@ private:
             pressed = true;
             _getch();
         }
+        if(pressed)
+        {
+            pressed = confirmAbort();
+        }
         return pressed;
     }
 
@@ -192,7 +196,7 @@ private:
             term.c_cc[VTIME] = 0;
             term.c_cc[VMIN] = 1;
             tcsetattr(0, TCSANOW, &term);
-            
+
             int flags = _savedFlags;
             flags |= O_NONBLOCK;
             fcntl(0, F_SETFL, flags);
@@ -206,6 +210,10 @@ private:
         {
             pressed = true;
         }
+        if(pressed)
+        {
+            pressed = confirmAbort();
+        }
         return pressed;
     }
 
@@ -214,6 +222,32 @@ private:
     bool _block;
 
 #endif
+
+    bool
+    confirmAbort()
+    {
+#ifndef _WIN32
+        if(!_block)
+        {
+            tcsetattr(0, TCSANOW, &_savedTerm);
+            fcntl(0, F_SETFL, _savedFlags);
+            _block = true;
+        }
+#endif
+        string answer;
+        do
+        {
+            cout << "\nConfirm abort? (Y/N)" << endl;
+            cin >> answer;
+            answer = IceUtilInternal::toLower(answer);
+            if(answer == "n")
+            {
+                return false;
+            }
+        }
+        while(answer != "y");
+        return true;
+    }
 
     string _lastProgress;
     bool _pressAnyKeyMessage;
@@ -239,7 +273,7 @@ Client::run(int argc, char* argv[])
     opts.addOpt("h", "help");
     opts.addOpt("v", "version");
     opts.addOpt("t", "thorough");
-    
+
     vector<string> args;
     try
     {

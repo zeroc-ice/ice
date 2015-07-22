@@ -371,7 +371,6 @@ $(ARCH)\$(CONFIG)\Session.obj: \
 
 $(ARCH)\$(CONFIG)\SessionHelper.obj: \
 	..\SessionHelper.cpp \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
     "$(includedir)\Glacier2\SessionHelper.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \

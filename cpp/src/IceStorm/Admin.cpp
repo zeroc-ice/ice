@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-#include <IceUtil/DisableWarnings.h>
 #include <IceUtil/Options.h>
 #include <Ice/Application.h>
 #include <Ice/SliceChecksums.h>
@@ -50,7 +49,7 @@ void
 Client::usage()
 {
     cerr << "Usage: " << appName() << " [options]\n";
-    cerr <<     
+    cerr <<
         "Options:\n"
         "-h, --help           Show this message.\n"
         "-v, --version        Display the Ice version.\n"

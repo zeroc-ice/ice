@@ -125,10 +125,11 @@ Service.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "ServiceManagerI.h" \
     "$(includedir)\IceBox\IceBox.h" \
-    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceBox\Config.h" \
     "$(includedir)\Ice\DynamicLibraryF.h" \
 
@@ -252,11 +253,11 @@ ServiceManagerI.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Ice\DynamicLibrary.h" \
     "$(includedir)\Ice\DynamicLibraryF.h" \
-    "$(includedir)\Ice\SliceChecksums.h" \
-    "$(includedir)\Ice\SliceChecksumDict.h" \
     "..\..\src\Ice\Instance.h" \
     "..\..\src\Ice\TraceLevelsF.h" \
     "..\..\src\Ice\DefaultsAndOverridesF.h" \
@@ -395,9 +396,9 @@ Admin.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
-    "$(includedir)\Ice\Service.h" \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
+    "$(includedir)\Ice\Service.h" \
     "$(includedir)\IceUtil\Options.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\IceBox\IceBox.h" \

@@ -12,6 +12,7 @@
 
 #include <Callback.h>
 
+using namespace std;
 using namespace Test;
 
 namespace
@@ -62,9 +63,22 @@ SessionHelperServer::run(int, char**)
     return EXIT_SUCCESS;
 }
 
+#ifdef ICE_STATIC_LIBS
+extern "C"
+{
+
+Ice::Plugin* createIceSSL(const Ice::CommunicatorPtr&, const string&, const Ice::StringSeq&);
+
+}
+#endif
+
 int
 main(int argc, char* argv[])
 {
+#ifdef ICE_STATIC_LIBS
+    Ice::registerPluginFactory("IceSSL", createIceSSL, true);
+#endif
+
     SessionHelperServer app;
     return app.main(argc, argv);
 }

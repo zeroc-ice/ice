@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-#include <IceUtil/DisableWarnings.h>
 #include <IceUtil/IceUtil.h>
 
 #include <CreateTest.h>
@@ -21,7 +20,7 @@ static const string createTestName("thread create");
 class CreateTestThread : public Thread
 {
 public:
-    
+
     CreateTestThread() :
         threadran(false)
     {

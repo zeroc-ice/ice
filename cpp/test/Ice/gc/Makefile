@@ -25,6 +25,3 @@ CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 $(CLIENT): $(OBJS)
 	rm -f $@
 	$(call mktest,$@,$(OBJS) $(LIBS))
-
-clean::
-	-rm -f seed

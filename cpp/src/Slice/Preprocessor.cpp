@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-#include <IceUtil/DisableWarnings.h>
 #include <Slice/Preprocessor.h>
 #include <Slice/Util.h>
 #include <IceUtil/StringUtil.h>
@@ -123,7 +122,7 @@ Slice::Preprocessor::normalizeIncludePath(const string& path)
         result.replace(pos, 2, "/");
     }
 
-    if(result == "/" || (result.size() == 3 && IceUtilInternal::isAlpha(result[0]) && result[1] == ':' && 
+    if(result == "/" || (result.size() == 3 && IceUtilInternal::isAlpha(result[0]) && result[1] == ':' &&
                          result[2] == '/'))
     {
         return result;
@@ -149,7 +148,7 @@ baseArgs(vector<string> args, bool keepComments, const string& extraArgs, const 
     }
     args.push_back("-e");
     args.push_back("en_us.utf8");
-    
+
     //
     // Define version macros __ICE_VERSION__ is preferred. We keep
     // ICE_VERSION for backward compatibility with 3.5.0.
@@ -161,7 +160,7 @@ baseArgs(vector<string> args, bool keepComments, const string& extraArgs, const 
         os << "-D" << version[i] << "=" << ICE_INT_VERSION;
         args.push_back(os.str());
     }
-    
+
     if(!extraArgs.empty())
     {
         args.push_back(extraArgs);
@@ -234,9 +233,9 @@ Slice::Preprocessor::preprocess(bool keepComments, const string& extraArgs)
         // We use an unique id as the tmp file name prefix to avoid
         // problems with this code being called concurrently from
         // several processes, otherwise there is a change that two
-        // process call _tempnam before any of them call fopen and 
+        // process call _tempnam before any of them call fopen and
         // they will end up using the same tmp file.
-        // 
+        //
         char* name = _tempnam(0, ("slice-" + IceUtil::generateUUID()).c_str());
         if(name)
         {
@@ -295,7 +294,7 @@ Slice::Preprocessor::printMakefileDependencies(ostream& out, Language lang, cons
     {
         return false;
     }
-    
+
     string cppHeaderExt;
     string pyPrefix;
     if(lang == CPlusPlus)
@@ -313,7 +312,7 @@ Slice::Preprocessor::printMakefileDependencies(ostream& out, Language lang, cons
     vector<string> args = _args;
     args.push_back("-M");
     args = baseArgs(args, false, extraArgs, _fileName);
-   
+
     const char** argv = new const char*[args.size() + 1];
     for(unsigned int i = 0; i < args.size(); ++i)
     {
@@ -399,10 +398,10 @@ Slice::Preprocessor::printMakefileDependencies(ostream& out, Language lang, cons
     //
     // Process each dependency.
     //
-    
+
     string sourceFile;
     vector<string> dependencies;
-    
+
     string::size_type end;
     while((end = unprocessed.find(".ice", pos)) != string::npos)
     {
@@ -497,7 +496,7 @@ Slice::Preprocessor::printMakefileDependencies(ostream& out, Language lang, cons
                 result += ",";
             }
         }
-        
+
         string::size_type pos = 0;
         while((pos = result.find("\\", pos + 1)) != string::npos)
         {

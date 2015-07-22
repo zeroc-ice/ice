@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-#include <IceUtil/DisableWarnings.h>
 #include <Freeze/Freeze.h>
 
 #include <IceStorm/IceStormInternal.h>
@@ -95,7 +94,7 @@ Client::v32migrate(const Freeze::ConnectionPtr& oldCon, SubscriberMap& subscribe
         subscriberMap.put(SubscriberMap::value_type(key, rec));
 
         string topicName = identityToTopicName(key.topic);
-        
+
         // Next each link.
         for(LinkRecordSeq::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
         {
@@ -135,7 +134,7 @@ Client::v31migrate(const Freeze::ConnectionPtr& oldCon, SubscriberMap& subscribe
         subscriberMap.put(SubscriberMap::value_type(key, rec));
 
         string topicName = identityToTopicName(key.topic);
-        
+
         // Next each link.
         for(LinkRecordDict::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
         {
@@ -164,7 +163,7 @@ Client::run(int argc, char* argv[])
         usage();
         return EXIT_FAILURE;
     }
-    
+
     string oldEnvName = argv[1];
     string newEnvName = argv[2];
 

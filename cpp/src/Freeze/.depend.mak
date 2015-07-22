@@ -188,6 +188,8 @@ BackgroundSaveEvictorI.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Freeze\Freeze.h" \
     "$(includedir)\Freeze\Initialize.h" \
@@ -211,7 +213,6 @@ BackgroundSaveEvictorI.obj: \
     "EvictorIteratorI.h" \
     "SharedDbEnv.h" \
     "..\..\src\IceUtil\FileUtil.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
     "Util.h" \
 
@@ -335,6 +336,8 @@ Catalog.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Freeze\DB.h" \
     "$(includedir)\Freeze\Exception.h" \
@@ -462,6 +465,8 @@ CatalogIndexList.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Freeze\DB.h" \
     "$(includedir)\Freeze\Exception.h" \
@@ -589,6 +594,8 @@ ConnectionI.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Freeze\EvictorF.h" \
     "$(includedir)\Freeze\ConnectionF.h" \
@@ -726,6 +733,8 @@ EvictorI.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Freeze\Freeze.h" \
     "$(includedir)\Freeze\Initialize.h" \
@@ -749,7 +758,6 @@ EvictorI.obj: \
     "EvictorIteratorI.h" \
     "SharedDbEnv.h" \
     "..\..\src\IceUtil\FileUtil.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
     "Util.h" \
     "PingObject.h" \
 
@@ -871,6 +879,8 @@ EvictorIteratorI.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Freeze\Freeze.h" \
     "$(includedir)\Freeze\Initialize.h" \
@@ -901,7 +911,6 @@ EvictorIteratorI.obj: \
     "$(includedir)\IceUtil\UUID.h" \
     "SharedDbEnv.h" \
     "..\..\src\IceUtil\FileUtil.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
     "Util.h" \
 
 Index.obj: \
@@ -1022,6 +1031,8 @@ Index.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Freeze\DB.h" \
     "IndexI.h" \
@@ -1053,7 +1064,6 @@ Index.obj: \
     "EvictorIteratorI.h" \
     "SharedDbEnv.h" \
     "..\..\src\IceUtil\FileUtil.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
 
 IndexI.obj: \
 	IndexI.cpp \
@@ -1173,6 +1183,8 @@ IndexI.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Freeze\Index.h" \
     "$(includedir)\Freeze\DB.h" \
@@ -1204,7 +1216,6 @@ IndexI.obj: \
     "EvictorIteratorI.h" \
     "SharedDbEnv.h" \
     "..\..\src\IceUtil\FileUtil.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
     "Util.h" \
 
 MapDb.obj: \
@@ -1329,6 +1340,8 @@ MapDb.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Freeze\EvictorF.h" \
     "$(includedir)\Freeze\ConnectionF.h" \
@@ -1463,6 +1476,8 @@ MapI.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Freeze\DB.h" \
     "$(includedir)\Freeze\Exception.h" \
@@ -1602,6 +1617,8 @@ ObjectStore.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Freeze\DB.h" \
     "$(includedir)\Freeze\EvictorStorage.h" \
@@ -1632,7 +1649,6 @@ ObjectStore.obj: \
     "EvictorIteratorI.h" \
     "SharedDbEnv.h" \
     "..\..\src\IceUtil\FileUtil.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
     "BackgroundSaveEvictorI.h" \
     "Util.h" \
     "IndexI.h" \
@@ -1756,6 +1772,8 @@ SharedDbEnv.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Freeze\DB.h" \
     "$(includedir)\Freeze\Exception.h" \
@@ -1789,7 +1807,6 @@ SharedDbEnv.obj: \
     "$(includedir)\Freeze\CatalogData.h" \
     "ObjectStore.h" \
     "EvictorIteratorI.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
     "$(includedir)\Freeze\CatalogIndexList.h" \
     "$(includedir)\IceUtil\MutexPtrTryLock.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
@@ -1912,6 +1929,8 @@ TransactionalEvictorContext.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Freeze\TransactionalEvictor.h" \
     "$(includedir)\Freeze\Evictor.h" \
@@ -1943,7 +1962,6 @@ TransactionalEvictorContext.obj: \
     "EvictorIteratorI.h" \
     "SharedDbEnv.h" \
     "..\..\src\IceUtil\FileUtil.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
     "TransactionalEvictorI.h" \
     "Util.h" \
     "ConnectionI.h" \
@@ -2074,6 +2092,8 @@ TransactionalEvictorI.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Freeze\Freeze.h" \
     "$(includedir)\Freeze\Initialize.h" \
@@ -2097,7 +2117,6 @@ TransactionalEvictorI.obj: \
     "EvictorIteratorI.h" \
     "SharedDbEnv.h" \
     "..\..\src\IceUtil\FileUtil.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
     "Util.h" \
     "TransactionalEvictorContext.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
@@ -2254,6 +2273,8 @@ TransactionI.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Freeze\EvictorF.h" \
     "$(includedir)\Freeze\ConnectionF.h" \
@@ -2382,6 +2403,8 @@ Util.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Freeze\DB.h" \
     "$(includedir)\Freeze\Exception.h" \

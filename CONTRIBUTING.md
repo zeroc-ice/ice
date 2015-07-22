@@ -13,7 +13,7 @@ Follow these steps to contribute code or documentation to this project:
 
    You need to do this only once, before your first contribution.
 
-2. For large contributions (see below), make sure to first discuss your ideas with the [community](https://zeroc.com/forums) or by sending us an email.
+2. For large contributions (see below), make sure to first discuss your ideas with the [community](https://forums.zeroc.com) or by sending us an email.
 
 3. Fork this repository.
 
@@ -53,6 +53,6 @@ Some contributions are troublesome and therefore difficult to accept:
 
 ## Contact
 
- * Community Forums: https://zeroc.com/forums
+ * Community Forums: https://forums.zeroc.com
  * Twitter: https://twitter.com/zeroc_inc
  * Email: contributing@zeroc.com

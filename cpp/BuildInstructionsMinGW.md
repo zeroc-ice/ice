@@ -85,4 +85,4 @@ failure, the tests abort with `failed`.
 [3]: http://rubyinstaller.org/downloads
 [4]: http://bzip.org
 [5]: https://github.com/zeroc-ice/mcpp
-[6]: https://zeroc.com/download.html
+[6]: https://zeroc.com/download/Ice/3.6/Ice-3.6.0-ThirdParty.msi

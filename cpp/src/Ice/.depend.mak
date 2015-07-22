@@ -498,6 +498,8 @@ Application.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "LoggerI.h" \
     "..\..\src\IceUtil\FileUtil.h" \
@@ -1027,7 +1029,6 @@ CollocatedRequestHandler.obj: \
 
 CommunicatorI.obj: \
 	CommunicatorI.cpp \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
     "CommunicatorI.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -1727,7 +1728,6 @@ ConnectRequestHandler.obj: \
 
 DefaultsAndOverrides.obj: \
 	DefaultsAndOverrides.cpp \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
     "DefaultsAndOverrides.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -2603,7 +2603,6 @@ HttpParser.obj: \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
 
 ImplicitContextI.obj: \
 	ImplicitContextI.cpp \
@@ -2912,7 +2911,6 @@ IncomingAsync.obj: \
 
 Initialize.obj: \
 	Initialize.cpp \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
     "..\..\src\IceUtil\ArgVector.h" \
     "$(includedir)\IceUtil\Config.h" \
     "CommunicatorI.h" \
@@ -3035,7 +3033,6 @@ Initialize.obj: \
 
 Instance.obj: \
 	Instance.cpp \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
     "Instance.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\Shared.h" \
@@ -4809,7 +4806,6 @@ OpaqueEndpointI.obj: \
 
 Outgoing.obj: \
 	Outgoing.cpp \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
     "$(includedir)\Ice\Outgoing.h" \
     "$(includedir)\IceUtil\Mutex.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -4939,7 +4935,6 @@ Outgoing.obj: \
 
 OutgoingAsync.obj: \
 	OutgoingAsync.cpp \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
     "$(includedir)\Ice\OutgoingAsync.h" \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\Shared.h" \
@@ -5190,7 +5185,6 @@ PluginManagerI.obj: \
 
 PropertiesAdminI.obj: \
 	PropertiesAdminI.cpp \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
     "PropertiesAdminI.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -5342,7 +5336,6 @@ PropertiesI.obj: \
     "$(includedir)\Ice\IncomingAsync.h" \
     "$(includedir)\Ice\PropertiesAdmin.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
     "..\..\src\IceUtil\FileUtil.h" \
     "$(includedir)\Ice\Initialize.h" \
@@ -7054,6 +7047,8 @@ Service.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
     "LoggerI.h" \
     "Instance.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
@@ -7623,21 +7618,14 @@ TcpAcceptor.obj: \
     "TcpTransceiver.h" \
     "Transceiver.h" \
     "StreamSocket.h" \
-    "TcpEndpointI.h" \
-    "IPEndpointI.h" \
-    "$(includedir)\IceUtil\Thread.h" \
-    "IPEndpointIF.h" \
-    "EndpointI.h" \
-    "$(includedir)\Ice\Endpoint.h" \
-    "$(includedir)\Ice\BuiltinSequences.h" \
-    "ConnectorF.h" \
-    "EndpointFactory.h" \
-    "EndpointFactoryF.h" \
-    "$(includedir)\Ice\Plugin.h" \
+    "WSTransceiver.h" \
     "ProtocolInstance.h" \
+    "ConnectorF.h" \
+    "IPEndpointIF.h" \
     "Instance.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\IceUtil\Timer.h" \
+    "$(includedir)\IceUtil\Thread.h" \
     "$(includedir)\Ice\InstrumentationF.h" \
     "TraceLevelsF.h" \
     "DefaultsAndOverridesF.h" \
@@ -7649,6 +7637,8 @@ TcpAcceptor.obj: \
     "ACM.h" \
     "$(includedir)\Ice\ACMF.h" \
     "$(includedir)\Ice\Connection.h" \
+    "$(includedir)\Ice\Endpoint.h" \
+    "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\ObjectAdapterFactoryF.h" \
     "EndpointFactoryManagerF.h" \
     "RetryQueueF.h" \
@@ -7656,6 +7646,7 @@ TcpAcceptor.obj: \
     "$(includedir)\Ice\PluginF.h" \
     "$(includedir)\Ice\Initialize.h" \
     "$(includedir)\Ice\Dispatcher.h" \
+    "$(includedir)\Ice\Plugin.h" \
     "$(includedir)\Ice\BatchRequestInterceptor.h" \
     "ImplicitContextI.h" \
     "$(includedir)\Ice\ImplicitContext.h" \
@@ -7668,6 +7659,13 @@ TcpAcceptor.obj: \
     "$(includedir)\Ice\ServantLocatorF.h" \
     "$(includedir)\Ice\ServantManagerF.h" \
     "$(includedir)\Ice\ResponseHandlerF.h" \
+    "HttpParser.h" \
+    "TcpEndpointI.h" \
+    "IPEndpointI.h" \
+    "EndpointI.h" \
+    "EndpointFactory.h" \
+    "EndpointFactoryF.h" \
+    "WSEndpoint.h" \
     "$(includedir)\Ice\LoggerUtil.h" \
     "$(includedir)\Ice\Logger.h" \
     "$(includedir)\Ice\Properties.h" \
@@ -7751,21 +7749,13 @@ TcpConnector.obj: \
     "Transceiver.h" \
     "EndpointIF.h" \
     "StreamSocket.h" \
-    "TcpEndpointI.h" \
-    "IPEndpointI.h" \
-    "$(includedir)\IceUtil\Thread.h" \
-    "IPEndpointIF.h" \
-    "EndpointI.h" \
-    "$(includedir)\Ice\Endpoint.h" \
-    "$(includedir)\Ice\BuiltinSequences.h" \
-    "AcceptorF.h" \
-    "EndpointFactory.h" \
-    "EndpointFactoryF.h" \
-    "$(includedir)\Ice\Plugin.h" \
+    "WSTransceiver.h" \
     "ProtocolInstance.h" \
+    "IPEndpointIF.h" \
     "Instance.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\IceUtil\Timer.h" \
+    "$(includedir)\IceUtil\Thread.h" \
     "$(includedir)\Ice\InstrumentationF.h" \
     "TraceLevelsF.h" \
     "DefaultsAndOverridesF.h" \
@@ -7777,6 +7767,8 @@ TcpConnector.obj: \
     "ACM.h" \
     "$(includedir)\Ice\ACMF.h" \
     "$(includedir)\Ice\Connection.h" \
+    "$(includedir)\Ice\Endpoint.h" \
+    "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\ObjectAdapterFactoryF.h" \
     "EndpointFactoryManagerF.h" \
     "RetryQueueF.h" \
@@ -7784,6 +7776,7 @@ TcpConnector.obj: \
     "$(includedir)\Ice\PluginF.h" \
     "$(includedir)\Ice\Initialize.h" \
     "$(includedir)\Ice\Dispatcher.h" \
+    "$(includedir)\Ice\Plugin.h" \
     "$(includedir)\Ice\BatchRequestInterceptor.h" \
     "ImplicitContextI.h" \
     "$(includedir)\Ice\ImplicitContext.h" \
@@ -7796,6 +7789,14 @@ TcpConnector.obj: \
     "$(includedir)\Ice\ServantLocatorF.h" \
     "$(includedir)\Ice\ServantManagerF.h" \
     "$(includedir)\Ice\ResponseHandlerF.h" \
+    "HttpParser.h" \
+    "TcpEndpointI.h" \
+    "IPEndpointI.h" \
+    "EndpointI.h" \
+    "AcceptorF.h" \
+    "EndpointFactory.h" \
+    "EndpointFactoryF.h" \
+    "WSEndpoint.h" \
     "$(includedir)\Ice\LoggerUtil.h" \
     "$(includedir)\Ice\Logger.h" \
     "NetworkProxy.h" \
@@ -7882,14 +7883,7 @@ TcpEndpointI.obj: \
     "EndpointFactory.h" \
     "EndpointFactoryF.h" \
     "$(includedir)\Ice\Plugin.h" \
-    "TcpAcceptor.h" \
-    "Acceptor.h" \
-    "TcpConnector.h" \
-    "Connector.h" \
-    "TcpTransceiver.h" \
-    "Transceiver.h" \
-    "StreamSocket.h" \
-    "$(includedir)\Ice\LocalException.h" \
+    "WSEndpoint.h" \
     "ProtocolInstance.h" \
     "Instance.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
@@ -7915,6 +7909,7 @@ TcpEndpointI.obj: \
     "$(includedir)\Ice\BatchRequestInterceptor.h" \
     "ImplicitContextI.h" \
     "$(includedir)\Ice\ImplicitContext.h" \
+    "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\FacetMap.h" \
     "$(includedir)\Ice\Process.h" \
     "$(includedir)\Ice\GCObject.h" \
@@ -7923,6 +7918,15 @@ TcpEndpointI.obj: \
     "$(includedir)\Ice\ServantLocatorF.h" \
     "$(includedir)\Ice\ServantManagerF.h" \
     "$(includedir)\Ice\ResponseHandlerF.h" \
+    "TcpAcceptor.h" \
+    "Acceptor.h" \
+    "TcpConnector.h" \
+    "Connector.h" \
+    "TcpTransceiver.h" \
+    "Transceiver.h" \
+    "StreamSocket.h" \
+    "WSTransceiver.h" \
+    "HttpParser.h" \
     "HashUtil.h" \
 
 TcpTransceiver.obj: \
@@ -7998,9 +8002,7 @@ TcpTransceiver.obj: \
     "$(includedir)\Ice\FactoryTable.h" \
     "$(includedir)\Ice\LoggerF.h" \
     "StreamSocket.h" \
-    "$(includedir)\Ice\Connection.h" \
-    "$(includedir)\Ice\Endpoint.h" \
-    "$(includedir)\Ice\BuiltinSequences.h" \
+    "WSTransceiver.h" \
     "ProtocolInstance.h" \
     "ConnectorF.h" \
     "IPEndpointIF.h" \
@@ -8018,6 +8020,9 @@ TcpTransceiver.obj: \
     "$(includedir)\Ice\ConnectionFactoryF.h" \
     "ACM.h" \
     "$(includedir)\Ice\ACMF.h" \
+    "$(includedir)\Ice\Connection.h" \
+    "$(includedir)\Ice\Endpoint.h" \
+    "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\ObjectAdapterFactoryF.h" \
     "EndpointFactoryManagerF.h" \
     "RetryQueueF.h" \
@@ -8038,9 +8043,9 @@ TcpTransceiver.obj: \
     "$(includedir)\Ice\ServantLocatorF.h" \
     "$(includedir)\Ice\ServantManagerF.h" \
     "$(includedir)\Ice\ResponseHandlerF.h" \
+    "HttpParser.h" \
     "$(includedir)\Ice\LoggerUtil.h" \
     "$(includedir)\Ice\Logger.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
 
 ThreadPool.obj: \
 	ThreadPool.cpp \
@@ -8118,7 +8123,6 @@ ThreadPool.obj: \
     "ProtocolInstanceF.h" \
     "Selector.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "Instance.h" \
@@ -8793,7 +8797,6 @@ UdpTransceiver.obj: \
     "$(includedir)\Ice\IncomingAsync.h" \
     "$(includedir)\Ice\PropertiesAdmin.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
 
 WSAcceptor.obj: \
 	WSAcceptor.cpp \
@@ -9286,7 +9289,6 @@ WSTransceiver.obj: \
     "$(includedir)\IceUtil\Random.h" \
     "$(includedir)\IceUtil\SHA1.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
 
 DLLMain.obj: \
 	DLLMain.cpp \
@@ -9407,6 +9409,8 @@ DLLMain.obj: \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
 
 BuiltinSequences.obj: \
 	BuiltinSequences.cpp \

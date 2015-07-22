@@ -350,7 +350,7 @@
         },
         opG: function(g, current)
         {
-            return g
+            return g;
         },
         returnOptionalClass: function(req, current)
         {
