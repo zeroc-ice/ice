@@ -66,9 +66,8 @@ This will build the Ice core libraries, services, and tests.
 
 ### x64 Platform
 
-Building Ice on x64 with the Visual Studio C++ compiler is like building Ice on
-x86. You just need to perform the build in an "x64 Command Prompt", and not in a
-regular "Developer Command Prompt".
+Building Ice for x64 with Visual Studio is like building Ice for x86. You just need to 
+perform the build in an "x64 Command Prompt", and not in a regular "Developer Command Prompt".
 
 ## Installing a C++ Source Build
 
