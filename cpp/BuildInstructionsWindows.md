@@ -48,9 +48,6 @@ example, when using Visual Studio 2013, you have several alternatives:
 Using the first two configurations produces 32-bit binaries, while the third and
 fourth configurations produce 64-bit binaries.
 
-> *You must be using a Windows x64 platform when compiling a 64-bit version of
-> *Ice.*
-
 In the command window, change to the `cpp` subdirectory:
 
     $ cd cpp
@@ -69,9 +66,6 @@ This will build the Ice core libraries, services, and tests.
 Building Ice on x64 with the Visual Studio C++ compiler is like building Ice on
 x86. You just need to perform the build in an "x64 Command Prompt", and not in a
 regular "Developer Command Prompt".
-
-> *You must be using a Windows x64 platform when compiling a 64-bit version of
-> *Ice.*
 
 ## Installing a C++ Source Build
 
