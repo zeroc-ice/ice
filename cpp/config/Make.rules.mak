@@ -31,7 +31,7 @@ prefix			= $(PREFIX)
 
 #
 # Specify your C++ compiler, or leave unset for auto-detection.
-# Supported values are: VC100, VC110, VC120
+# Supported values are: VC100, VC110, VC120, VC140
 #
 # CPP_COMPILER = VCxxx
 
