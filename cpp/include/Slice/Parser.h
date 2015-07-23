@@ -456,7 +456,7 @@ public:
     ConstPtr createConst(const std::string, const TypePtr&, const StringList&, const SyntaxTreeBasePtr&,
                          const std::string&, const std::string&, NodeType = Real);
     TypeList lookupType(const std::string&, bool = true);
-    TypeList lookupTypeNoBuiltin(const std::string&, bool = true);
+    TypeList lookupTypeNoBuiltin(const std::string&, bool = true, bool = false);
     ContainedList lookupContained(const std::string&, bool = true);
     ExceptionPtr lookupException(const std::string&, bool = true);
     UnitPtr unit() const;

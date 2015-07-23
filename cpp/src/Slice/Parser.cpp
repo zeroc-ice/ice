@@ -1178,16 +1178,8 @@ Slice::Container::lookupType(const string& scoped, bool printError)
     return lookupTypeNoBuiltin(scoped, printError);
 }
 
-//
-// TODO: Hack to keep binary compatibility with Ice 3.6.0, fix properly in Ice 3.7
-//
-namespace
-{
-bool ignoreUndefined = false;
-}
-
 TypeList
-Slice::Container::lookupTypeNoBuiltin(const string& scoped, bool printError)
+Slice::Container::lookupTypeNoBuiltin(const string& scoped, bool printError, bool ignoreUndefined)
 {
     //
     // Remove whitespace.
@@ -1304,12 +1296,7 @@ Slice::Container::lookupTypeNoBuiltin(const string& scoped, bool printError)
         ContainedPtr contained = ContainedPtr::dynamicCast(this);
         if(contained)
         {
-            if (typeError)
-            {
-                ignoreUndefined = true;
-            }
-            results = contained->container()->lookupTypeNoBuiltin(sc, printError);
-            ignoreUndefined = false;
+            results = contained->container()->lookupTypeNoBuiltin(sc, printError, typeError || ignoreUndefined);
         }
         else if(!typeError)
         {
