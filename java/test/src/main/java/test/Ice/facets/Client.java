@@ -27,7 +27,7 @@ public class Client extends test.Util.Application
     {
         Ice.InitializationData initData = createInitializationData() ;
         initData.properties = Ice.Util.createProperties(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.binding");
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.facets");
         return initData;
     }
 
