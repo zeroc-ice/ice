@@ -76,20 +76,22 @@ public class SessionHelper
             if(!_connected)
             {
                 //
-                // In this case a connecting session is being
-                // destroyed. The communicator and session will be
-                // destroyed when the connection establishment has
-                // completed.
+                // In this case a connecting session is being destroyed.
+                // We destroy the communicator to trigger the immediate
+                // failure of the connection establishment.
                 //
+                Thread t1 = new Thread(new ThreadStart(destroyCommunicator));
+                t1.Start();
                 return;
             }
             _session = null;
             _connected = false;
+
             //
             // Run destroyInternal in a thread because it makes remote invocations.
             //
-            Thread t = new Thread(new ThreadStart(destroyInternal));
-            t.Start();
+            Thread t2 = new Thread(new ThreadStart(destroyInternal));
+            t2.Start();
         }
     }
 
@@ -392,6 +394,23 @@ public class SessionHelper
             {
                 _callback.disconnected(this);
             }, null);
+    }
+
+    private void
+    destroyCommunicator()
+    {
+        Ice.Communicator communicator;
+        lock(this)
+        {
+            communicator = _communicator;
+        }
+        try
+        {
+            communicator.destroy();
+        }
+        catch(Exception)
+        {
+        }
     }
 
     delegate Glacier2.SessionPrx ConnectStrategy(Glacier2.RouterPrx router);

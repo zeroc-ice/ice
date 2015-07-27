@@ -94,6 +94,7 @@ public:
     Ice::ObjectAdapterPtr objectAdapter();
 
     friend class DestroyInternal;
+    friend class DestroyCommunicator;
     friend class ConnectThread;
     friend class DispatchCallThread;
     friend class Glacier2::SessionFactoryHelper;
@@ -103,6 +104,7 @@ private:
     Ice::ObjectAdapterPtr internalObjectAdapter();
     void connected(const Glacier2::RouterPrx&, const Glacier2::SessionPrx&);
     void destroyInternal(const Ice::DispatcherCallPtr&);
+    void destroyCommunicator();
     void connectFailed();
 
     void connect(const std::map<std::string, std::string>&);
@@ -163,6 +165,27 @@ private:
     const Ice::DispatcherCallPtr _disconnected;
 };
 
+class DestroyCommunicator : public IceUtil::Thread
+{
+
+public:
+
+    DestroyCommunicator(const SessionHelperIPtr& session) :
+        _session(session)
+    {
+    }
+
+    virtual void run()
+    {
+        _session->destroyCommunicator();
+        _session = 0;
+    }
+
+private:
+
+    SessionHelperIPtr _session;
+};
+
 }
 
 SessionHelperI::SessionHelperI(const Glacier2::SessionThreadCallbackPtr& threadCB,
@@ -193,12 +216,13 @@ SessionHelperI::destroy()
     if(!_connected)
     {
         //
-        // In this case a connecting session is being
-        // destroyed. The communicator and session will be
-        // destroyed when the connection establishment has
-        // completed.
+        // In this case a connecting session is being destroyed.
+        // We destroy the communicator to trigger the immediate
+        // failure of the connection establishment.
         //
+        IceUtil::ThreadPtr destroyCommunicator = new DestroyCommunicator(this);
         _threadCB = 0;
+        destroyCommunicator->start();
         return;
     }
 
@@ -421,6 +445,28 @@ SessionHelperI::destroyInternal(const Ice::DispatcherCallPtr& disconnected)
         communicator = 0;
     }
     dispatchCallback(disconnected, 0);
+}
+
+void
+SessionHelperI::destroyCommunicator()
+{
+    Ice::CommunicatorPtr communicator;
+    {
+        IceUtil::Mutex::Lock sync(_mutex);
+        communicator = _communicator;
+    }
+
+    if(communicator)
+    {
+        try
+        {
+            communicator->destroy();
+        }
+        catch(...)
+        {
+        }
+        communicator = 0;
+    }
 }
 
 void

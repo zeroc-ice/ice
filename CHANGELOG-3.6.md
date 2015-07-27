@@ -2,8 +2,10 @@ The entries below contain brief descriptions of the changes in a release, in no 
 
 We recommend that you use the release notes as a guide for migrating your applications to this release, and the manual for complete details on a particular aspect of Ice.
 
-- [Changes in Ice 3.6.0](#changes-in-ice-360)
+- [Changes in Ice 3.6.1](#changes-in-ice-361)
   - [General Changes](#general-changes)
+- [Changes in Ice 3.6.0](#changes-in-ice-360)
+  - [General Changes](#general-changes-1)
   - [C++ Changes](#c-changes)
   - [Java Changes](#java-changes)
   - [C# Changes](#c#-changes)
@@ -13,13 +15,39 @@ We recommend that you use the release notes as a guide for migrating your applic
   - [PHP Changes](#php-changes)
   - [Objective-C Changes](#objective-c-changes)
 
+# Changes in Ice 3.6.1
+
+These are the changes since Ice 3.6.0.
+
+## General Changes
+
+- Calling `destroy()` on the `Glacier2::SessionHelper` during connection establishment will now immediately cause the termination of the connection attempt and `SessionCallback::connectFailed()` will be called with a `CommunicatorDestroyedException`. Previously, the helper would wait until the connection attempt either succeeded or failed before calling `SessionCallback::disconnected()` or `SessionCallback::connectFailed`.
+
+- Fixed a bug in Slice compilers which would incorrectly reject valid Slice where a parameter with the same name as a type would prevent further use of that type in the same scope. For example:
+  ```
+  module Test
+  {
+  sequence<int> Seq;
+  struct S1
+  {
+    Seq seq;
+    Seq seq2; // This would fail with 'Seq is not a type'
+  };
+
+  interface Intf
+  {
+    void method(Seq seq, Seq seq2); // This would fail with 'Seq is not a type' for second parameter
+  };
+  }
+  ```
+
 # Changes in Ice 3.6.0
 
 These are the changes since Ice 3.5.1.
 
 ## General Changes
 
-- Exceptions raised by the Ice::Plugin initialize method are now caught by the communicator, which raises Ice::PluginInitializationException instead.
+- Exceptions raised by the `Ice::Plugin` initialize method are now caught by the communicator, which raises `Ice::PluginInitializationException` instead.
 
 - Fixed IceGrid bug where an application update could fail and leave the registry in an invalid state if some allocation requests were pending while the application was updated.
 
