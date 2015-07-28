@@ -516,6 +516,18 @@ public class SessionHelper
                     {
                         _communicator.setDefaultRouter(finder.getRouter());
                     }
+                    catch(final Ice.CommunicatorDestroyedException ex)
+                    {
+                        dispatchCallback(new Runnable()
+                        {
+                            @Override
+                            public void run()
+                            {
+                                _callback.connectFailed(SessionHelper.this, ex);
+                            }
+                        }, null);
+                        return;
+                    }
                     catch(Exception ex)
                     {
                         //

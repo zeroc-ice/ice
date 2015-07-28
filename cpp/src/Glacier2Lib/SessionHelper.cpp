@@ -572,6 +572,11 @@ public:
                 {
                     _communicator->setDefaultRouter(finder->getRouter());
                 }
+                catch(const Ice::CommunicatorDestroyedException& ex)
+                {
+                    _session->dispatchCallback(new ConnectFailed(_callback, _session, ex), 0);
+                    return;
+                }
                 catch(const Ice::Exception&)
                 {
                     //

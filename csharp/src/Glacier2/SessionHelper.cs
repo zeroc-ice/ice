@@ -448,6 +448,14 @@ public class SessionHelper
                 {
                     _communicator.setDefaultRouter(finder.getRouter());
                 }
+                catch(Ice.CommunicatorDestroyedException ex)
+                {
+                    dispatchCallback(() =>
+                    {
+                        _callback.connectFailed(this, ex);
+                    }, null);
+                    return;
+                }
                 catch(Exception)
                 {
                     //

@@ -181,6 +181,18 @@ public class Client extends test.Util.Application
             _factory.setPort(12011);
             _factory.setProtocol(protocol);
             _session = _factory.connect("userid", "abc123");
+
+            while(true)
+            {
+                try
+                {
+                    Thread.sleep(100);
+                    break;
+                }
+                catch(java.lang.InterruptedException ex)
+                {
+                }
+            }
             _session.destroy();
 
             while(true)

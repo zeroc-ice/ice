@@ -253,6 +253,8 @@ public class Client
                 _factory.setPort(12011);
                 _factory.setProtocol(protocol);
                 _session = _factory.connect("userid", "abc123");
+
+                System.Threading.Thread.Sleep(100);
                 _session.destroy();
 
                 while(true)
@@ -272,8 +274,6 @@ public class Client
 #endif
                 }
             }
-
-
 
             _factory = new Glacier2.SessionFactoryHelper(_initData, new SessionCalback2());
             lock(this)

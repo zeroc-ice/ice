@@ -316,6 +316,8 @@ public:
             _factory->setPort(12011);
             _factory->setProtocol(protocol);
             _session = _factory->connect("userid", "abc123");
+
+            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
             _session->destroy();
 
             //
