@@ -34,7 +34,7 @@ tests = [
     ("Ice/operations", ["core"]),
     ("Ice/exceptions", ["core"]),
     ("Ice/ami", ["core", "nocompress"]),
-    ("Ice/info", ["core", "noipv6", "nocompress", "nosocks"]),
+    ("Ice/info", ["core", "noipv6", "nocompress", "nosocks", "nomono"]),
     ("Ice/inheritance", ["core"]),
     ("Ice/facets", ["core"]),
     ("Ice/hold", ["core"]),

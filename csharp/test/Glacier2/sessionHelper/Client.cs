@@ -162,6 +162,48 @@ public class Client
             }
         }
 
+        public class SessionCalback4 : Glacier2.SessionCallback
+        {
+            public void
+            connected(Glacier2.SessionHelper session)
+            {
+                 test(false);
+            }
+
+            public void
+            disconnected(Glacier2.SessionHelper session)
+            {
+                test(false);
+            }
+
+            public void
+            connectFailed(Glacier2.SessionHelper session, System.Exception exception)
+            {
+                try
+                {
+                    throw exception;
+                }
+                catch(Ice.CommunicatorDestroyedException)
+                {
+                    Console.Out.WriteLine("ok");
+                    lock(me)
+                    {
+                        wakeUp();
+                    }
+                }
+                catch(System.Exception)
+                {
+                    test(false);
+                }
+            }
+
+            public void
+            createdCommunicator(Glacier2.SessionHelper session)
+            {
+                test(session.communicator() != null);
+            }
+        }
+
         public Ice.InitializationData getInitData()
         {
             return _initData;
@@ -202,6 +244,37 @@ public class Client
             }
 
             _initData.properties.setProperty("Ice.Default.Router", "");
+            _factory = new Glacier2.SessionFactoryHelper(_initData, new SessionCalback4());
+            lock(this)
+            {
+                Console.Out.Write("testing SessionHelper connect interrupt... ");
+                Console.Out.Flush();
+                _factory.setRouterHost(host);
+                _factory.setPort(12011);
+                _factory.setProtocol(protocol);
+                _session = _factory.connect("userid", "abc123");
+                _session.destroy();
+
+                while(true)
+                {
+#if COMPACT
+                    System.Threading.Monitor.Wait(this);
+                    break;
+#else
+                    try
+                    {
+                        System.Threading.Monitor.Wait(this);
+                        break;
+                    }
+                    catch(ThreadInterruptedException)
+                    {
+                    }
+#endif
+                }
+            }
+
+
+
             _factory = new Glacier2.SessionFactoryHelper(_initData, new SessionCalback2());
             lock(this)
             {

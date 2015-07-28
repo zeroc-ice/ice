@@ -14,6 +14,9 @@ public class Server extends test.Util.Application
     public int
     run(String[] args)
     {
+        communicator().getProperties().setProperty("DeactivatedAdapter.Endpoints", "default -p 12011");
+        communicator().createObjectAdapter("DeactivatedAdapter");
+
         communicator().getProperties().setProperty("CallbackAdapter.Endpoints", "default -p 12010");
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("CallbackAdapter");
         adapter.add(new CallbackI(), communicator().stringToIdentity("callback"));
@@ -21,8 +24,8 @@ public class Server extends test.Util.Application
         communicator().waitForShutdown();
         return 0;
     }
-    
-    
+
+
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
         Ice.InitializationData initData = createInitializationData() ;
@@ -37,7 +40,7 @@ public class Server extends test.Util.Application
     {
         Server c = new Server();
         int status = c.main("Server", args);
-        
+
         System.gc();
         System.exit(status);
     }
