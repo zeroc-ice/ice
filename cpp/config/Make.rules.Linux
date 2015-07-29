@@ -35,7 +35,7 @@ ifeq ($(CXX),clang++)
     GCC_COMPILER	= yes
 endif
 
-ifneq ($(shell echo $(CXX) | grep "^g++"),)
+ifeq ($(CXX:g++%=g++),g++)
     GCC_COMPILER	= yes
 endif
 
