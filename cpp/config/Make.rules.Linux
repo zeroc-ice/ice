@@ -31,7 +31,15 @@ ifeq ($(CXX),c++)
    CXX			= g++
 endif
 
-ifeq ($(CXX),g++)
+ifeq ($(CXX),clang++)
+    GCC_COMPILER	= yes
+endif
+
+ifneq ($(shell echo $(CXX) | grep "^g++"),)
+    GCC_COMPILER	= yes
+endif
+
+ifeq ($(GCC_COMPILER),yes)
 
     ifneq ($(SUSE_i586),)
         CXXARCHFLAGS	+= -march=i586
