@@ -1,6 +1,6 @@
 # Building Ice for C++ with MinGW
 
-> *MinGW is only supported for building the Ice extension for Ruby. It is not
+*MinGW is only supported for building the Ice extension for Ruby. It is not
 supported for general application development. If you prefer, you can install
 a [Ruby gem][1] that contains a complete Ice for Ruby run-time.*
 
@@ -13,7 +13,7 @@ Ice for C++ was tested with the following MinGW compilers:
 - [mingw 4.7.3 32-bit][2]
 - mingw 4.7.2 64-bit, included in the [Ruby Development Kit][3] version 4.7.2
 
-> *mingw 4.7.2 32-bit, included in the 32-bit Ruby Development Kit version
+*mingw 4.7.2 32-bit, included in the 32-bit Ruby Development Kit version
 4.7.2, contains a very severe bug that makes it unsuitable to build Ice.*
 
 ### Third-Party Libraries
@@ -24,12 +24,11 @@ Ice has dependencies on the following third-party libraries:
  - [mcpp][5] 2.7.2 (with patches)
 
 You do not need to build these packages yourself, as ZeroC supplies
-[Nuget][6] packages for all of the third-party dependencies.
+[Nuget][6] packages for all of these third party dependencies.
 
-The Nuget packages used by Ice MinGW builds are [bzip2.mingw4.7.2][7]
-and [mcpp.mingw4.7.2][8] you do not need to install these packages manually
-they are automatically downloaded and installed to cpp/third-party-packages
-folder during Ice build.
+The Ice build system for Windows downloads and installs Nuget and these 
+Nuget packages when you build Ice for C++ with MinGW. The third-party 
+packages are installed in the ``ice/cpp/third-party-packages`` folder.
 
 ## Building Ice
 
@@ -88,5 +87,3 @@ failure, the tests abort with `failed`.
 [4]: http://bzip.org
 [5]: https://github.com/zeroc-ice/mcpp
 [6]: https://www.nuget.org
-[7]: https://www.nuget.org/packages/bzip2.mingw4.7.2/1.0.6.2
-[8]: https://www.nuget.org/packages/mcpp.mingw4.7.2/2.7.2.5
