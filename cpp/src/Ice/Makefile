@@ -194,3 +194,6 @@ endif
 
 install:: all
 	$(call installlib,$(DESTDIR)$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
+ifeq ($(UNAME),MINGW)
+	$(call installlib,$(DESTDIR)$(install_libdir),$(BZIP2_HOME)/build/native/bin/$(PLATFORM),bzip2_mingw.dll,,)
+endif

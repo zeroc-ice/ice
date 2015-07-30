@@ -179,6 +179,13 @@ BZIP2_LDFLAGS		= /LIBPATH:"$(BZIP2_HOME)\build\native\lib\$(PLATFORM)\$(CONFIGUR
 BZIP2_LIBS		= libbz2$(LIBSUFFIX).lib
 BZIP2_NUPKG		= $(BZIP2_HOME)\bzip2.$(PLATFORMTOOLSET).nupkg
 
+MCPP_VERSION		= 2.7.2.5
+MCPP_HOME		= $(PKG_DIR)\mcpp.$(PLATFORMTOOLSET)
+MCPP_LDFLAGS		= /LIBPATH:"$(MCPP_HOME)\build\native\lib\$(PLATFORM)\$(CONFIGURARTION)"
+MCPP_LIBS		= mcpp$(LIBSUFFIX).lib
+MCPP_NUPKG		= $(MCPP_HOME)\mcpp.$(PLATFORMTOOLSET).nupkg
+
+!if "$(CPP_COMPILER)" != "VC100"
 DB_VERSION		= 5.3.28.1
 DB_HOME			= $(PKG_DIR)\berkeley.db.$(PLATFORMTOOLSET)
 DB_CPPFLAGS		= /I"$(DB_HOME)\build\native\include"
@@ -193,11 +200,7 @@ EXPAT_LDFLAGS		= /LIBPATH:"$(EXPAT_HOME)\build\native\lib/$(PLATFORM)\$(CONFIGUR
 EXPAT_LIBS		= libexpat$(LIBSUFFIX).lib
 EXPAT_NUPKG		= $(EXPAT_HOME)\expat.$(PLATFORMTOOLSET).nupkg
 
-MCPP_VERSION		= 2.7.2.5
-MCPP_HOME		= $(PKG_DIR)\mcpp.$(PLATFORMTOOLSET)
-MCPP_LDFLAGS		= /LIBPATH:"$(MCPP_HOME)\build\native\lib\$(PLATFORM)\$(CONFIGURARTION)"
-MCPP_LIBS		= mcpp$(LIBSUFFIX).lib
-MCPP_NUPKG		= $(MCPP_HOME)\mcpp.$(PLATFORMTOOLSET).nupkg
+!endif
 
 NUGET 			= $(LOCALAPPDATA)\ZeroC\nuget\nuget.exe
 
@@ -207,19 +210,25 @@ $(NUGET):
 
 $(BZIP2_NUPKG): $(NUGET)
 	@if not exist "$(PKG_DIR)" $(MKDIR) "$(PKG_DIR)"
+	@if exist "$(PKG_DIR)\bzip2.$(PLATFORMTOOLSET)" rd /s /q "$(PKG_DIR)\bzip2.$(PLATFORMTOOLSET)"
 	$(NUGET) install bzip2.$(PLATFORMTOOLSET) -OutputDirectory "$(PKG_DIR)" -Version $(BZIP2_VERSION) -ExcludeVersion
 
+$(MCPP_NUPKG): $(NUGET)
+	@if not exist "$(PKG_DIR)" $(MKDIR) "$(PKG_DIR)"
+	@if exist "$(PKG_DIR)\mcpp.$(PLATFORMTOOLSET)" rd /s /q "$(PKG_DIR)\mcpp.$(PLATFORMTOOLSET)"
+	$(NUGET) install mcpp.$(PLATFORMTOOLSET) -OutputDirectory "$(PKG_DIR)" -Version $(MCPP_VERSION) -ExcludeVersion
+
+!if "$(CPP_COMPILER)" != "VC100"
 $(DB_NUPKG): $(NUGET)
 	@if not exist "$(PKG_DIR)" $(MKDIR) "$(PKG_DIR)"
+	@if exist "$(PKG_DIR)\berkeley.db.$(PLATFORMTOOLSET)" rd /s /q "$(PKG_DIR)\berkeley.db.$(PLATFORMTOOLSET)"
 	$(NUGET) install berkeley.db.$(PLATFORMTOOLSET) -OutputDirectory "$(PKG_DIR)" -Version $(DB_VERSION) -ExcludeVersion
 
 $(EXPAT_NUPKG): $(NUGET)
 	@if not exist "$(PKG_DIR)" $(MKDIR) "$(PKG_DIR)"
+	@if exist "$(PKG_DIR)\expat.$(PLATFORMTOOLSET)" rd /s /q "$(PKG_DIR)\expat.$(PLATFORMTOOLSET)"
 	$(NUGET) install expat.$(PLATFORMTOOLSET) -OutputDirectory "$(PKG_DIR)" -Version $(EXPAT_VERSION) -ExcludeVersion
-
-$(MCPP_NUPKG): $(NUGET)
-	@if not exist "$(PKG_DIR)" $(MKDIR) "$(PKG_DIR)"
-	$(NUGET) install mcpp.$(PLATFORMTOOLSET) -OutputDirectory "$(PKG_DIR)" -Version $(MCPP_VERSION) -ExcludeVersion
+!endif
 
 !endif
 
