@@ -47,7 +47,7 @@ $(libdir)/$(LIBNAME): $(OBJS)
 	rm -f $@
 	$(call mklib,$@,$(OBJS))
 else
-$(libdir)/$(LIBFILENAME): $(OBJS)
+$(libdir)/$(LIBFILENAME): $(OBJS) $(MCPP_NUPKG)
 	@mkdir -p $(dir $@)
 	rm -f $@
 	$(call mkshlib,$@,$(SONAME),$(OBJS),$(LINKWITH))

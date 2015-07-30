@@ -40,10 +40,13 @@ ice_bin_dist = 1
 !if "$(PLATFORM)" == "x64" || "$(PLATFORM)" == "X64" || "$(AS)" == "ml64"
 x64suffix		= \x64
 ARCH			= x64
+PLATFORM		= x64
 !elseif "$(PLATFORM)" == "ARM"
 ARCH			= arm
+PLATFORM		= arm
 !else
 ARCH			= x86
+PLATFORM		= Win32
 !endif
 
 #

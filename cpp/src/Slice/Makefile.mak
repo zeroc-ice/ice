@@ -33,9 +33,11 @@ OBJS		= .\Checksum.obj \
 		  .\RubyUtil.obj \
 		  .\Util.obj \
 		  .\Ruby.obj \
-                  $(BISON_FLEX_OBJS)
+		  $(BISON_FLEX_OBJS)
 
 !include $(top_srcdir)/config/Make.rules.mak
+
+$(OBJS)		: $(MCPP_NUPKG)
 
 CPPFLAGS	= -I.. $(CPPFLAGS) -DSLICE_API_EXPORTS  -DWIN32_LEAN_AND_MEAN
 BISONFLAGS	= --name-prefix "slice_" $(BISONFLAGS)
@@ -58,7 +60,7 @@ $(LIBNAME): $(OBJS)
 $(LIBNAME): $(DLLNAME)
 
 $(DLLNAME): $(OBJS) Slice.res
-	$(LINK) $(BASE):0x21000000 $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(BASELIBS) $(MCPP_LIBS) \
+	$(LINK) $(BASE):0x21000000 $(LD_DLLFLAGS) $(MCPP_LDFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(BASELIBS) $(MCPP_LIBS) \
 		$(RES_FILE)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \

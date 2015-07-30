@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2009-2015 ZeroC, Inc. All rights reserved. -->
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <ThirdPartyHome>$(IceHome)\cpp\third-party-packages</ThirdPartyHome>
+    <Bzip2Bin>$(ThirdPartyHome)\bzip2.$(PlatformToolset)\build\native\bin\$(Platform)\$(Configuration)</Bzip2Bin>
+    <ExpatBin>$(ThirdPartyHome)\expat.$(PlatformToolset)\build\native\bin\$(Platform)\$(Configuration)</ExpatBin>
+    <BerkeleyDBBin>$(ThirdPartyHome)\berkeley.db.$(PlatformToolset)\build\native\bin\$(Platform)\$(Configuration)</BerkeleyDBBin>
+    <Path>$(Bzip2Bin);$(ExpatBin);$(BerkeleyDBBin);$(Path)</Path>
+</Project>

@@ -167,6 +167,10 @@ SLICE2CPPFLAGS	:= --ice --include-dir Ice --dll-export ICE_API $(SLICE2CPPFLAGS)
 
 LINKWITH        := -lIceUtil $(BZIP2_LIBS) $(ICE_OS_LIBS) $(ICONV_LIBS)
 
+ifeq ($(UNAME),MINGW)
+$(OBJS): $(BZIP2_NUPKG)
+endif
+
 ifeq ($(STATICLIBS),yes)
 $(libdir)/$(LIBNAME): $(OBJS)
 	@mkdir -p $(dir $@)

@@ -8,14 +8,6 @@
 # **********************************************************************
 
 #
-# If building with MinGW  and third party libraries are not installed
-# in the default location and THIRDPARTY_HOME is not set in your
-# environment variables, change the following setting to reflect the
-# installation location.
-#
-THIRDPARTY_HOME    ?= C:\Program Files (x86)\ZeroC\Ice-$(VERSION)-ThirdParty
-
-#
 # This file is included by Make.rules when building with MinGW.
 #
 
@@ -73,16 +65,39 @@ else
     binsubdir		:= bin
 endif
 
-CPPFLAGS		:= -I"$(THIRDPARTY_HOME)/include" $(CPPFLAGS) 
-LDPLATFORMFLAGS		:= -L"$(THIRDPARTY_HOME)/$(libsubdir)" $(LDFLAGS)
-
-ifeq ($(LP64),yes)
-    MCPP_LIBS		= -L"$(THIRDPARTY_HOME)/lib/mingw$(lp64suffix)" -lmcpp
+ifneq ($(LP64),yes)
+PLATFORM 		= Win32
 else
-    MCPP_LIBS		= -L"$(THIRDPARTY_HOME)/lib/mingw" -lmcpp
+PLATFORM 		= x64
 endif
 
-BZIP2_LIBS		= -lbzip2$(COMPSUFFIX)
+PLATFORMTOOLSET		= mingw4.7.2
+PKG_DIR			= $(top_srcdir)\third-party-packages
+
+BZIP2_VERSION		= 1.0.6.1
+BZIP2_HOME		= $(PKG_DIR)\bzip2.$(PLATFORMTOOLSET)
+BZIP2_FLAGS		= -I$(BZIP2_HOME)\build\native\include
+BZIP2_LIBS		= -L$(BZIP2_HOME)\build\native\bin\$(PLATFORM) -lbzip2$(COMPSUFFIX)
+BZIP2_NUPKG		= $(BZIP2_HOME)\bzip2.$(PLATFORMTOOLSET).nupkg
+
+MCPP_VERSION		= 2.7.2.4
+MCPP_HOME		= $(PKG_DIR)\mcpp.$(PLATFORMTOOLSET)
+MCPP_LIBS		= -L$(MCPP_HOME)\build\native\lib\$(PLATFORM) -lmcpp
+MCPP_NUPKG		= $(MCPP_HOME)\mcpp.$(PLATFORMTOOLSET).nupkg
+
+NUGET			= $(subst \,/,$(LOCALAPPDATA)/ZeroC/nuget/nuget.exe)
+
+$(NUGET):
+	@mkdir -p "$(LOCALAPPDATA)\ZeroC\nuget"
+	powershell -Command "(New-Object Net.WebClient).DownloadFile('http://nuget.org/nuget.exe', '$(NUGET)')"
+
+$(BZIP2_NUPKG): $(NUGET)
+	@mkdir -p "$(PKG_DIR)"
+	$(NUGET) install bzip2.$(PLATFORMTOOLSET) -OutputDirectory "$(PKG_DIR)" -ExcludeVersion
+
+$(MCPP_NUPKG): $(NUGET)
+	@mkdir -p "$(PKG_DIR)"
+	$(NUGET) install mcpp.$(PLATFORMTOOLSET) -OutputDirectory "$(PKG_DIR)" -ExcludeVersion
 
 libdir			:= $(top_srcdir)/$(libsubdir)
 bindir			:= $(top_srcdir)/$(binsubdir)
@@ -94,7 +109,6 @@ installprogram		= $(INSTALL_PROGRAM) $(1) $(2); \
 			  chmod a+rx $(2)/$(notdir $(1))
 
 SSL_OS_LIBS		= -lsecur32 -lcrypt32 -lws2_32
-MCPP_RPATH_LINK 	= $(MCPP_LIBS)
 
 ifeq ($(STATICLIBS),yes)
 BASELIBS		= -liceutil $(ICEUTIL_OS_LIBS)

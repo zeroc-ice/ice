@@ -20,7 +20,9 @@ SRCS		= $(OBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-CPPFLAGS	= -I.. $(CPPFLAGS) -DICE_XML_API_EXPORTS -DWIN32_LEAN_AND_MEAN
+$(OBJS)		: $(EXPAT_NUPKG)
+
+CPPFLAGS	= -I.. $(CPPFLAGS) -DICE_XML_API_EXPORTS -DWIN32_LEAN_AND_MEAN $(EXPAT_CPPFLAGS)
 
 LINKWITH        = $(EXPAT_LIBS) $(BASELIBS)
 
@@ -33,7 +35,7 @@ RES_FILE        = IceXML.res
 $(LIBNAME): $(DLLNAME)
 
 $(DLLNAME): $(OBJS) IceXML.res
-	$(LINK) $(BASE):0x23000000 $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH) $(RES_FILE)
+	$(LINK) $(BASE):0x23000000 $(LD_DLLFLAGS) $(EXPAT_LDFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH) $(RES_FILE)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest

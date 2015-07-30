@@ -41,25 +41,6 @@ prefix			= $(PREFIX)
 #WINRT		        = yes
 
 #
-# If MCPP is not installed in a standard location where the compiler
-# can find it, set MCPP_HOME to the Mcpp installation directory.
-#
-# MCPP_HOME		= C:\mcpp
-
-#
-# If third party libraries are not installed in the default location
-# or THIRDPARTY_HOME is not set in your environment variables then
-# change the following setting to reflect the installation location.
-#
-!if "$(THIRDPARTY_HOME)" == ""
-!if "$(PROCESSOR_ARCHITECTURE)" == "AMD64"
-THIRDPARTY_HOME = $(PROGRAMFILES) (x86)\ZeroC\Ice-$(VERSION)-ThirdParty
-!else
-THIRDPARTY_HOME = $(PROGRAMFILES)\ZeroC\Ice-$(VERSION)-ThirdParty
-!endif
-!endif
-
-#
 # Define if you want the Ice DLLs to have compiler specific names.
 # Will be set to yes by default when CPP_COMPILER=VC100, and unset
 # otherwise
@@ -150,21 +131,17 @@ SETARGV			= setargv.obj
 !endif
 
 !if "$(CPP_COMPILER)" == "VC140"
+PLATFORMTOOLSET		= v140
 libsuff                 = \vc140$(x64suffix)
 !elseif "$(CPP_COMPILER)" == "VC110"
+PLATFORMTOOLSET		= v110
 libsuff                 = \vc110$(x64suffix)
 !elseif "$(CPP_COMPILER)" == "VC100"
+PLATFORMTOOLSET		= v100
 libsuff                 = \vc100$(x64suffix)
 !else
+PLATFORMTOOLSET		= v120
 libsuff			= $(x64suffix)
-!endif
-
-!if "$(ice_src_dist)" != ""
-!if "$(THIRDPARTY_HOME)" != ""
-CPPFLAGS        = -I"$(THIRDPARTY_HOME)\include" $(CPPFLAGS)
-LDFLAGS         = $(PRELIBPATH)"$(THIRDPARTY_HOME)\lib$(libsuff)" $(LDFLAGS)
-!endif
-!else
 !endif
 
 !if "$(UNIQUE_DLL_NAMES)" == "yes"
@@ -180,9 +157,11 @@ COMPSUFFIX  = _vc140
 !endif
 
 !if "$(OPTIMIZE)" != "yes"
+CONFIGURARTION	= Debug
 LIBSUFFIX	= d
 RCFLAGS		= -nologo -D_DEBUG
 !else
+CONFIGURARTION	= Release
 RCFLAGS         = -nologo
 !endif
 
@@ -191,15 +170,57 @@ ICEUTIL_OS_LIBS         = rpcrt4.lib advapi32.lib DbgHelp.lib
 ICE_OS_LIBS             = advapi32.lib ws2_32.lib Iphlpapi.lib
 SSL_OS_LIBS             = advapi32.lib secur32.lib crypt32.lib ws2_32.lib
 
-BZIP2_LIBS              = libbz2$(LIBSUFFIX).lib
-DB_LIBS                 = libdb53$(LIBSUFFIX).lib
-!if "$(MCPP_HOME)" != ""
-MCPP_LIBS               = $(MCPP_HOME)/mcpp$(LIBSUFFIX).lib
-!else
-MCPP_LIBS               = mcpp$(LIBSUFFIX).lib
-!endif
+PKG_DIR			= $(top_srcdir)\third-party-packages
 
-EXPAT_LIBS              = libexpat.lib
+BZIP2_VERSION		= 1.0.6.2
+BZIP2_HOME		= $(PKG_DIR)\bzip2.$(PLATFORMTOOLSET)
+BZIP2_CPPFLAGS		= /I"$(BZIP2_HOME)\build\native\include"
+BZIP2_LDFLAGS		= /LIBPATH:"$(BZIP2_HOME)\build\native\lib\$(PLATFORM)\$(CONFIGURARTION)"
+BZIP2_LIBS		= libbz2$(LIBSUFFIX).lib
+BZIP2_NUPKG		= $(BZIP2_HOME)\bzip2.$(PLATFORMTOOLSET).nupkg
+
+DB_VERSION		= 5.3.28.1
+DB_HOME			= $(PKG_DIR)\berkeley.db.$(PLATFORMTOOLSET)
+DB_CPPFLAGS		= /I"$(DB_HOME)\build\native\include"
+DB_LDFLAGS		= /LIBPATH:"$(DB_HOME)\build\native\lib\$(PLATFORM)\$(CONFIGURARTION)"
+DB_LIBS			= libdb53$(LIBSUFFIX).lib
+DB_NUPKG		= $(DB_HOME)\berkeley.db.$(PLATFORMTOOLSET).nupkg
+
+EXPAT_VERSION		= 2.1.0.1
+EXPAT_HOME		= $(PKG_DIR)\expat.$(PLATFORMTOOLSET)
+EXPAT_CPPFLAGS		= /I"$(EXPAT_HOME)\build\native\include"
+EXPAT_LDFLAGS		= /LIBPATH:"$(EXPAT_HOME)\build\native\lib/$(PLATFORM)\$(CONFIGURARTION)"
+EXPAT_LIBS		= libexpat$(LIBSUFFIX).lib
+EXPAT_NUPKG		= $(EXPAT_HOME)\expat.$(PLATFORMTOOLSET).nupkg
+
+MCPP_VERSION		= 2.7.2.5
+MCPP_HOME		= $(PKG_DIR)\mcpp.$(PLATFORMTOOLSET)
+MCPP_LDFLAGS		= /LIBPATH:"$(MCPP_HOME)\build\native\lib\$(PLATFORM)\$(CONFIGURARTION)"
+MCPP_LIBS		= mcpp$(LIBSUFFIX).lib
+MCPP_NUPKG		= $(MCPP_HOME)\mcpp.$(PLATFORMTOOLSET).nupkg
+
+NUGET 			= $(LOCALAPPDATA)\ZeroC\nuget\nuget.exe
+
+$(NUGET):
+	@if not exist "$(LOCALAPPDATA)\ZeroC\nuget" $(MKDIR) "$(LOCALAPPDATA)\ZeroC\nuget"
+	powershell -Command "(New-Object Net.WebClient).DownloadFile('http://nuget.org/nuget.exe', '$(NUGET)')"
+
+$(BZIP2_NUPKG): $(NUGET)
+	@if not exist "$(PKG_DIR)" $(MKDIR) "$(PKG_DIR)"
+	$(NUGET) install bzip2.$(PLATFORMTOOLSET) -OutputDirectory "$(PKG_DIR)" -Version $(BZIP2_VERSION) -ExcludeVersion
+
+$(DB_NUPKG): $(NUGET)
+	@if not exist "$(PKG_DIR)" $(MKDIR) "$(PKG_DIR)"
+	$(NUGET) install berkeley.db.$(PLATFORMTOOLSET) -OutputDirectory "$(PKG_DIR)" -Version $(DB_VERSION) -ExcludeVersion
+
+$(EXPAT_NUPKG): $(NUGET)
+	@if not exist "$(PKG_DIR)" $(MKDIR) "$(PKG_DIR)"
+	$(NUGET) install expat.$(PLATFORMTOOLSET) -OutputDirectory "$(PKG_DIR)" -Version $(EXPAT_VERSION) -ExcludeVersion
+
+$(MCPP_NUPKG): $(NUGET)
+	@if not exist "$(PKG_DIR)" $(MKDIR) "$(PKG_DIR)"
+	$(NUGET) install mcpp.$(PLATFORMTOOLSET) -OutputDirectory "$(PKG_DIR)" -Version $(MCPP_VERSION) -ExcludeVersion
+
 !endif
 
 

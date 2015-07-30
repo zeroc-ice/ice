@@ -378,19 +378,6 @@ if os.environ.get("USE_BIN_DIST", "no") == "yes":
         if path and len(path) > 0 and os.path.exists(path[0]):
             iceHome = path[0]
 
-#
-# Figure out Ice third party installation directory if not running
-# against Ice installation.
-#
-thirdPartyHome = None
-if not iceHome:
-    if os.environ.get("THIRDPARTY_HOME"):
-        thirdPartyHome = os.environ.get("THIRDPARTY_HOME")
-    elif isWin32():
-        path = getWinRegistryKeyValue("SOFTWARE\\ZeroC\\Ice %s Third Party Packages" % iceVersion, "InstallDir")
-        if path and len(path) > 0 and os.path.exists(path[0]):
-            thirdPartyHome = path[0]
-
 # List of supported cross languages test.
 crossTests = [ #"Ice/adapterDeactivation",
                #"Ice/background",
@@ -459,9 +446,8 @@ def run(tests, root = False):
                                    ["start=", "start-after=", "filter=", "rfilter=", "all", "all-cross", "loop",
                                     "debug", "protocol=", "compress", "valgrind", "host=", "serialize", "continue",
                                     "ipv6", "no-ipv6", "socks", "ice-home=", "cross=", "client-home=", "x64", "x86",
-                                    "script", "env", "arg=",
-                                    "service-dir=", "appverifier", "compact", "winrt", "server", "mx",
-                                    "c++11"])
+                                    "script", "env", "arg=", "service-dir=", "appverifier", "compact", 
+                                    "winrt", "server", "mx", "c++11"])
     except getopt.GetoptError:
         usage()
 
@@ -1777,7 +1763,8 @@ def getJavaLibraryPath():
         if iceHome:
             return "-Djava.library.path=\"%s\" " % os.path.join(iceHome, "bin\\x64" if x64 else "bin")
         else:
-            return "-Djava.library.path=\"%s\" " % os.path.join(thirdPartyHome, "bin\\x64" if x64 else "bin")
+            return ("-Djava.library.path=\"%s\" " % os.path.join(getIceDir("cpp"), "third-party-packages",
+                    "berkeley.db.java7.5.3.28.0", "build", "native", "bin", "x64" if x64 else "Win32"))
     elif isDarwin():
         if os.path.exists('/usr/local/opt/ice/libexec/lib'):
             return "-Djava.library.path=/usr/local/opt/ice/libexec/lib "
@@ -1803,6 +1790,41 @@ def getServiceDir():
         else:
             serviceDir = "C:\\Program Files\ZeroC\Ice-" + iceVersion + "\\bin"
     return serviceDir
+
+def getBuildMode(dir):
+  import glob
+  executables = glob.glob("*.exe")
+  if not executables:
+    print("unable to get executable information!")
+    sys.exit(1)
+  p = subprocess.Popen("dumpbin /DEPENDENTS %s" % executables[0], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+  if not p or not p.stdout:
+    print("unable to get executable information!")
+    sys.exit(1)
+    
+  debug = "MSVCP%sD.dll"
+  release = "MSVCP%s.dll"
+
+  if isVC100():
+    debug = debug % "100"
+    release = release % "100"
+  elif isVC110():
+    debug = debug % "110"
+    release = release % "110"
+  elif isVC120():
+    debug = debug % "120"
+    release = release % "120"
+  elif isVC140():
+    debug = debug % "140"
+    release = release % "140"
+
+  l = p.stdout.readline().decode("utf-8").strip()
+  while  l != None:
+    if l.find(debug) != -1:
+      return "debug"
+    elif l.find(release) != -1:
+      return "release"
+    l = p.stdout.readline().decode("utf-8").strip()
 
 def getTestEnv(lang, testdir):
     global compact
@@ -1838,27 +1860,46 @@ def getTestEnv(lang, testdir):
     # DB CLASSPATH, in Windows db.jar come from Ice home or
     # from Third Party Home
     #
-    if lang in ["cpp", "java", "csharp"]:
+    if lang in ["cpp", "java", "csharp", "python", "ruby"]:
         if isWin32():
             if iceHome:
                 addClasspath(os.path.join(getIceDir("java", testdir), "lib", "db.jar"), env)
-            elif thirdPartyHome:
-                suffix = ""
-                if x64:
-                    suffix = "x64"
-                else:
-                    suffix = ""
-                #
-                # Add third party home to PATH, to use db_xx tools
-                #
-                addPathToEnv("PATH", os.path.join(thirdPartyHome, "bin", suffix), env)
-                if isVC110():
-                    addPathToEnv("PATH", os.path.join(thirdPartyHome, "bin", "vc110", suffix), env)
-                elif isVC140():
-                    addPathToEnv("PATH", os.path.join(thirdPartyHome, "bin", "vc140", suffix), env)
-                addClasspath(os.path.join(thirdPartyHome, "lib", "db.jar"), env)
             else:
-                print("warning: could not detect Ice Third Party installation")
+                mode = getBuildMode(testdir)
+                configuration = "Debug" if mode == "debug" else "Release"
+                platform = "x64" if x64 else "Win32"
+                packagesdir = os.path.join(getIceDir("cpp"), "third-party-packages")
+
+                if isMINGW():
+                  addPathToEnv("PATH", 
+                    os.path.join(packagesdir, "bzip2.mingw4.7.2", "build", "native", "bin", platform), env)
+                else:
+                  platformtoolset = ""
+                  if isVC100():
+                      platformtoolset = "v100"
+                  elif isVC110():
+                      platformtoolset = "v110"
+                  elif isVC120():
+                      platformtoolset = "v120"
+                  elif isVC140():
+                      platformtoolset = "v140"                 
+
+                  #
+                  # For Debug builds we need to add Release binaries to path to be able to db_xxx tools
+                  #
+                  if configuration == "Debug":
+                    addPathToEnv("PATH", 
+                      os.path.join(packagesdir, "berkeley.db.{0}".format(platformtoolset), 
+                                   "build", "native", "bin", platform, "Release"), env)
+                  for package in ["berkeley.db.{0}", "bzip2.{0}", "expat.{0}"]:
+                      addPathToEnv("PATH", os.path.join(packagesdir, package.format(platformtoolset), "build", "native",
+                                                        "bin", platform, configuration), env)
+    
+                  if lang == "java":
+                    addPathToEnv("PATH", os.path.join(packagesdir, "berkeley.db.java71", "build", "native",
+                                                      "bin", platform), env)                  
+                    addClasspath(
+                      os.path.join(packagesdir, "berkeley.db.java7.5.3.28.0", "build", "native", "lib", "db.jar"), env)
         elif isDarwin():
             if os.path.exists('/usr/local/opt/ice/libexec/lib'):
                 addClasspath(os.path.join("/", "usr", "local", "opt", "ice", "libexec", "lib", "db.jar"), env)
@@ -2127,7 +2168,6 @@ def processCmdLine():
         elif o == "--mx":
             global mx
             mx = True
-
         if protocol in ["ssl", "wss"] and not serverOnly and getDefaultMapping() == "js":
             print("SSL is not supported with Node.js")
             sys.exit(1)

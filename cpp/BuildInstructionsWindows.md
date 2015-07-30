@@ -23,11 +23,43 @@ Ice has dependencies on a number of third-party libraries:
  - [Berkeley DB][5] 5.3
  - [mcpp][6] 2.7.2 (with patches)
 
-You do not need to build these packages yourself, as ZeroC supplies an
-[Ice Third Party installer][7] with everything you need to build Ice from sources.
+You do not need to build these packages yourself, as ZeroC supplies
+[Nuget][7] packages for all of the third-party dependencies.
 
-If you wish to build these third-party packages from sources, please follow our
-[build instructions][8].
+You do not need to install these packages manually they are automatically 
+downloaded and installed to cpp/third-party-packages folder during Ice build.
+
+The names of the required packages depend on the platform compiler you
+are using.
+
+For Visual Studio 2015:
+
+ - [expat.v140](https://www.nuget.org/packages/expat.v140/2.1.0.1)
+ - [bzip2.v140](https://www.nuget.org/packages/bzip2.v140/1.0.6.2)
+ - [berkeley.db.v140](https://www.nuget.org/packages/berkeley.db.v140/5.3.28.1)
+ - [mcpp.v140](https://www.nuget.org/packages/mcpp.v140/2.7.2.5)
+
+For Visual Studio 2013:
+
+ - [expat.v120](https://www.nuget.org/packages/expat.v120/2.1.0.1)
+ - [bzip2.v120](https://www.nuget.org/packages/bzip2.v120/1.0.6.2)
+ - [berkeley.db.v120](https://www.nuget.org/packages/berkeley.db.v120/5.3.28.1)
+ - [mcpp.v120](https://www.nuget.org/packages/mcpp.v120/2.7.2.5)
+
+For Visual Studio 2012:
+
+ - [expat.v110](https://www.nuget.org/packages/expat.v110/2.1.0.1)
+ - [bzip2.v110](https://www.nuget.org/packages/bzip2.v110/1.0.6.2)
+ - [berkeley.db.v110](https://www.nuget.org/packages/berkeley.db.v110/5.3.28.1)
+ - [mcpp.v110](https://www.nuget.org/packages/mcpp.v110/2.7.2.5)
+
+For Visual Studio 2010:
+
+ - [bzip2.v100](https://www.nuget.org/packages/bzip2.v100/1.0.6.2)
+ - [mcpp.v100](https://www.nuget.org/packages/mcpp.v100/2.7.2.5)
+
+If you wish to build these packages from sources, please follow the 
+instructions provided with the package README.md.
 
 ### Monotonic Clock
 
@@ -97,6 +129,5 @@ failure, the tests abort with `failed`.
 [4]: http://bzip.org
 [5]: http://www.oracle.com/us/products/database/berkeley-db/overview/index.htm
 [6]: https://github.com/zeroc-ice/mcpp
-[7]: https://zeroc.com/download/Ice/3.6/Ice-3.6.0-ThirdParty.msi
-[8]: https://doc.zeroc.com/display/Ice36/Building+Third+Party+Packages+from+Source
+[7]: https://www.nuget.org
 

@@ -12,27 +12,12 @@ $:.unshift File.join(File.dirname(__FILE__), "..", "ruby")
 
 # Fix up the environment PATH under Windows so that the plugin can load.
 if RUBY_PLATFORM =~ /mswin|mingw|cygwin/
-        path = ENV["PATH"]
-
-        iceBinDir = File.join(File.dirname(__FILE__), "..", "..", "cpp", "bin")
-        programFiles = "ProgramFiles"
-        suffix = ""
-
-        # 64 bit windows machine?
-        arch1 = ENV['PROCESSOR_ARCHITECTURE']
-        arch2 = ENV['PROCESSOR_ARCHITEW6432']
-        if arch1 == "AMD64" || arch1 == "IA64" || arch2 == "AMD64" || arch2 == "IA64"
-                programFiles += "(x86)"
-                
-                # 64 bit ruby?
-                if RUBY_PLATFORM == "x64-mingw32"
-                        suffix = "x64"
-                end
-        end
-        path = path + ";" + File.join(ENV[programFiles], "ZeroC","Ice-3.6.0-ThirdParty", "bin", suffix)
-        path = path + ";" + File.join(iceBinDir, suffix)
-
-        ENV['PATH'] = path
+    ENV['PATH'] = "%s;%s;%s" % [ENV['PATH'],
+        File.join(File.dirname(__FILE__), "..", "..", "cpp", "third-party-packages", 
+        	      "bzip2.mingw4.7.2", "build", "native", "bin", 
+        	      RUBY_PLATFORM == "x64-mingw32" ? "x64" : "Win32"),
+        File.join(File.dirname(__FILE__), "..", "..", "cpp", "bin", 
+                  RUBY_PLATFORM == "x64-mingw32" ? "x64" : "")]
 end
 
 require 'IceRuby'

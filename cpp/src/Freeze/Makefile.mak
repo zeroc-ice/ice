@@ -51,7 +51,9 @@ SDIR		= $(slicedir)\Freeze
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-CPPFLAGS	= -I.. $(CPPFLAGS) -DFREEZE_API_EXPORTS -DWIN32_LEAN_AND_MEAN
+$(OBJS)		: $(DB_NUPKG)
+
+CPPFLAGS	= -I.. $(CPPFLAGS) -DFREEZE_API_EXPORTS -DWIN32_LEAN_AND_MEAN $(DB_CPPFLAGS)
 SLICE2CPPFLAGS	= --ice --include-dir Freeze --dll-export FREEZE_API $(SLICE2CPPFLAGS)
 LINKWITH	= $(LIBS) $(DB_LIBS)
 
@@ -64,7 +66,7 @@ RES_FILE        = Freeze.res
 $(LIBNAME): $(DLLNAME)
 
 $(DLLNAME): $(OBJS) Freeze.res
-	$(LINK) $(BASE):0x25000000 $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH) $(RES_FILE)
+	$(LINK) $(BASE):0x25000000 $(LD_DLLFLAGS) $(DB_LDFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH) $(RES_FILE)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 		$(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest

@@ -41,7 +41,9 @@ HDIR		= $(headerdir)\FreezeScript
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-CPPFLAGS	= -I.. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
+$(OBJS)		: $(DB_NUPKG)
+
+CPPFLAGS	= -I.. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN $(DB_CPPFLAGS)
 BISONFLAGS	= --name-prefix "freeze_script_" $(BISONFLAGS)
 
 LINKWITH	= $(LIBS) $(DB_LIBS)
@@ -55,7 +57,7 @@ TRES_FILE        = TransformDB.res
 DRES_FILE        = DumpDB.res
 
 $(TRANSFORMDB): $(TRANSFORM_OBJS) $(COMMON_OBJS) TransformDB.res
-	$(LINK) $(LD_EXEFLAGS) $(TPDBFLAGS) $(TRANSFORM_OBJS) $(COMMON_OBJS) $(SETARGV) $(PREOUT)$@ \
+	$(LINK) $(LD_EXEFLAGS) $(DB_LDFLAGS) $(TPDBFLAGS) $(TRANSFORM_OBJS) $(COMMON_OBJS) $(SETARGV) $(PREOUT)$@ \
 		$(PRELIBS)$(LINKWITH) $(TRES_FILE)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
@@ -63,7 +65,7 @@ $(TRANSFORMDB): $(TRANSFORM_OBJS) $(COMMON_OBJS) TransformDB.res
 		signtool sign /f "$(SIGN_CERTIFICATE)" /p $(SIGN_PASSWORD) /t $(SIGN_TIMESTAMPSERVER) $@
 
 $(DUMPDB): $(DUMP_OBJS) $(COMMON_OBJS) DumpDB.res
-	$(LINK) $(LD_EXEFLAGS) $(DPDBFLAGS) $(DUMP_OBJS) $(COMMON_OBJS) $(SETARGV) $(PREOUT)$@ \
+	$(LINK) $(LD_EXEFLAGS) $(DB_LDFLAGS) $(DPDBFLAGS) $(DUMP_OBJS) $(COMMON_OBJS) $(SETARGV) $(PREOUT)$@ \
 		$(PRELIBS)$(LINKWITH) $(DRES_FILE)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest

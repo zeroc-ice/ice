@@ -23,9 +23,13 @@ Ice has dependencies on the following third-party libraries:
  - [bzip][4] 1.0
  - [mcpp][5] 2.7.2 (with patches)
 
-You do not need to build these packages yourself, as ZeroC supplies a separate
-[Windows installer][6] that contains release and debug libraries for all of the
-third-party dependencies.
+You do not need to build these packages yourself, as ZeroC supplies
+[Nuget][6] packages for all of the third-party dependencies.
+
+The Nuget packages used by Ice MinGW builds are [bzip2.mingw4.7.2][7]
+and [mcpp.mingw4.7.2][8] you do not need to install these packages manually
+they are automatically downloaded and installed to cpp/third-party-packages
+folder during Ice build.
 
 ## Building Ice
 
@@ -57,9 +61,7 @@ run the following:
         4.7.3
 
 Edit `config\Make.rules` to establish your build configuration. The comments
-in the file provide more information. In particular, if Ice third-party
-packages are not installed in the default location, set `THIRDPARTY_HOME` to
-the Ice third-party installation directory.
+in the file provide more information.
 
 Now you are ready to build Ice:
 
@@ -85,4 +87,6 @@ failure, the tests abort with `failed`.
 [3]: http://rubyinstaller.org/downloads
 [4]: http://bzip.org
 [5]: https://github.com/zeroc-ice/mcpp
-[6]: https://zeroc.com/download/Ice/3.6/Ice-3.6.0-ThirdParty.msi
+[6]: https://www.nuget.org
+[7]: https://www.nuget.org/packages/bzip2.mingw4.7.2/1.0.6.2
+[8]: https://www.nuget.org/packages/mcpp.mingw4.7.2/2.7.2.5
