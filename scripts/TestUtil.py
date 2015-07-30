@@ -1791,12 +1791,13 @@ def getServiceDir():
             serviceDir = "C:\\Program Files\ZeroC\Ice-" + iceVersion + "\\bin"
     return serviceDir
 
-def getBuildMode(dir):
+def getBuildMode(d):
+  if os.path.isfile(os.path.join(d, "build.txt")):
+    return open(os.path.join(d, "build.txt"), "r").read().strip()
   import glob
-  executables = glob.glob("*.exe")
+  executables = glob.glob(os.path.join(d, "*.exe"))
   if not executables:
-    print("unable to get executable information!")
-    sys.exit(1)
+    return "release"
   p = subprocess.Popen("dumpbin /DEPENDENTS %s" % executables[0], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
   if not p or not p.stdout:
     print("unable to get executable information!")
