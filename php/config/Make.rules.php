@@ -61,33 +61,6 @@ embedded_runpath 	?= yes
 # PHP_INCLUDE_DIR and PHP_LIB_DIR.
 #
 
-PHP_HOME		?= /opt/php
-
-#
-# Verifies the PHP_HOME is valid and attempts to adjust for platform variances
-# in install directories.  SuSE installs into 'php5' while Redhat installs to
-# php.
-#
-ifeq ($(shell test -d $(PHP_HOME) && echo 0),0)
-    ifeq ($(shell test -d $(PHP_HOME)/include/php5 && echo 0),0)
-	PHP_INCLUDE_DIR	= $(PHP_HOME)/include/php5
-	PHP_LIB_DIR	= $(PHP_HOME)/lib$(lp64suffix)/php5
-    else
-	PHP_INCLUDE_DIR	= $(PHP_HOME)/include/php
-	PHP_LIB_DIR	= $(PHP_HOME)/lib$(lp64suffix)/php
-    endif
-else
-    ifeq ($(shell test -d /usr/include/php5 && echo 0),0)
-	PHP_INCLUDE_DIR	= /usr/include/php5
-	PHP_LIB_DIR	= /usr/lib$(lp64suffix)/php5
-    else
-	PHP_INCLUDE_DIR	= /usr/include/php
-	PHP_LIB_DIR	= /usr/lib$(lp64suffix)/php
-    endif
-endif
-
-PHP_FLAGS ?= -I$(PHP_INCLUDE_DIR) -I$(PHP_INCLUDE_DIR)/main -I$(PHP_INCLUDE_DIR)/Zend -I$(PHP_INCLUDE_DIR)/TSRM
-
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
