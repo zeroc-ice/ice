@@ -1337,6 +1337,14 @@ ObjectAdapterI::updateLocatorRegistry(const IceInternal::LocatorInfoPtr& locator
             ex.id = _id;
             throw ex;
         }
+        catch(const ObjectAdapterDeactivatedException&)
+        {
+            // Expected if collocated call and OA is deactivated, ignore.
+        }
+        catch(const CommunicatorDestroyedException&)
+        {
+            // Ignore.
+        }
         catch(const LocalException& ex)
         {
             if(_instance->traceLevels()->location >= 1)

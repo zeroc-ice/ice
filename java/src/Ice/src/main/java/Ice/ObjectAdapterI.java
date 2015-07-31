@@ -33,7 +33,7 @@ public final class ObjectAdapterI implements ObjectAdapter
     {
         return _communicator;
     }
-    
+
     @Override
     public void
     activate()
@@ -132,7 +132,7 @@ public final class ObjectAdapterI implements ObjectAdapter
             factory.hold();
         }
     }
-    
+
     @Override
     public void
     waitForHold()
@@ -200,7 +200,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         // NOTE: the router/locator infos and incoming connection
         // facatory list are immutable at this point.
         //
-        
+
         if(_routerInfo != null)
         {
             //
@@ -1095,14 +1095,14 @@ public final class ObjectAdapterI implements ObjectAdapter
             }
             else if(_state != StateDestroyed)
             {
-                _instance.initializationData().logger.warning("object adapter `" + getName() + 
+                _instance.initializationData().logger.warning("object adapter `" + getName() +
                                                               "' has not been destroyed");
             }
             else
             {
                 IceUtilInternal.Assert.FinalizerAssert(_threadPool == null);
                 // Not cleared, it needs to be immutable.
-                //IceUtilInternal.Assert.FinalizerAssert(_servantManager == null); 
+                //IceUtilInternal.Assert.FinalizerAssert(_servantManager == null);
                 //IceUtilInternal.Assert.FinalizerAssert(_incomingConnectionFactories.isEmpty());
                 IceUtilInternal.Assert.FinalizerAssert(_directCount == 0);
             }
@@ -1429,6 +1429,14 @@ public final class ObjectAdapterI implements ObjectAdapter
                 ex1.id = _id;
                 throw ex1;
             }
+            catch(ObjectAdapterDeactivatedException e)
+            {
+                // Expected if collocated call and OA is deactivated, ignore.
+            }
+            catch(CommunicatorDestroyedException e)
+            {
+                // Ignore
+            }
             catch(LocalException e)
             {
                 if(_instance.traceLevels().location >= 1)
@@ -1606,7 +1614,7 @@ public final class ObjectAdapterI implements ObjectAdapter
 
         return noProps;
     }
-    
+
     private static final int StateUninitialized = 0; // Just constructed.
     private static final int StateHeld = 1;
     private static final int StateActivating = 2;
@@ -1615,7 +1623,7 @@ public final class ObjectAdapterI implements ObjectAdapter
     private static final int StateDeactivated = 5;
     private static final int StateDestroying = 6;
     private static final int StateDestroyed  = 7;
-    
+
     private int _state = StateUninitialized;
     private IceInternal.Instance _instance;
     private Communicator _communicator;
