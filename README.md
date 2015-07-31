@@ -80,5 +80,5 @@ The Ice software itself remains the same: the only difference between an open-so
 
 ## Documentation
 
-- [Ice Release Notes](https://doc.zeroc.com/display/Rel/Ice+3.6.0+Release+Notes)
+- [Ice Release Notes](https://doc.zeroc.com/display/Rel/Ice+3.6.1+Release+Notes)
 - [Ice Manual](https://doc.zeroc.com/display/Ice36/Home)
