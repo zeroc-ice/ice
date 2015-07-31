@@ -186,7 +186,7 @@ MCPP_LIBS		= mcpp$(LIBSUFFIX).lib
 MCPP_NUPKG		= $(MCPP_HOME)\mcpp.$(PLATFORMTOOLSET).nupkg
 
 !if "$(CPP_COMPILER)" != "VC100"
-DB_VERSION		= 5.3.28.1
+DB_VERSION		= 5.3.28.2
 DB_HOME			= $(PKG_DIR)\berkeley.db.$(PLATFORMTOOLSET)
 DB_CPPFLAGS		= /I"$(DB_HOME)\build\native\include"
 DB_LDFLAGS		= /LIBPATH:"$(DB_HOME)\build\native\lib\$(PLATFORM)\$(CONFIGURARTION)"
