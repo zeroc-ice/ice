@@ -51,17 +51,6 @@ embedded_runpath 	?= yes
 #
 #USE_NAMESPACES          ?= yes
 
-#
-# If you've built PHP yourself then set PHP_HOME to contain the
-# installation directory; the rest of the PHP-related settings
-# should be correct.
-#
-# If you've installed a distribution, or PHP was included with
-# your system, then you likely need to review the values of
-# PHP_INCLUDE_DIR and PHP_LIB_DIR.
-#
-
-
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
