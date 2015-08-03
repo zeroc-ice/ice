@@ -446,7 +446,7 @@ def run(tests, root = False):
                                    ["start=", "start-after=", "filter=", "rfilter=", "all", "all-cross", "loop",
                                     "debug", "protocol=", "compress", "valgrind", "host=", "serialize", "continue",
                                     "ipv6", "no-ipv6", "socks", "ice-home=", "cross=", "client-home=", "x64", "x86",
-                                    "script", "env", "arg=", "service-dir=", "appverifier", "compact", 
+                                    "script", "env", "arg=", "service-dir=", "appverifier", "compact",
                                     "winrt", "server", "mx", "c++11"])
     except getopt.GetoptError:
         usage()
@@ -1802,7 +1802,7 @@ def getBuildMode(d):
   if not p or not p.stdout:
     print("unable to get executable information!")
     sys.exit(1)
-    
+
   debug = "MSVCP%sD.dll"
   release = "MSVCP%s.dll"
 
@@ -1819,13 +1819,14 @@ def getBuildMode(d):
     debug = debug % "140"
     release = release % "140"
 
-  l = p.stdout.readline().decode("utf-8").strip()
-  while  l != None:
+  l = p.stdout.readline()
+  while l:
+    l = l.decode("utf-8").strip()
     if l.find(debug) != -1:
       return "debug"
     elif l.find(release) != -1:
       return "release"
-    l = p.stdout.readline().decode("utf-8").strip()
+    l = p.stdout.readline()
 
 def getTestEnv(lang, testdir):
     global compact
@@ -1866,41 +1867,40 @@ def getTestEnv(lang, testdir):
             if iceHome:
                 addClasspath(os.path.join(getIceDir("java", testdir), "lib", "db.jar"), env)
             else:
-                mode = getBuildMode(testdir)
+                mode = getBuildMode(testdir) if lang == "cpp" else "Release"
                 configuration = "Debug" if mode == "debug" else "Release"
                 platform = "x64" if x64 else "Win32"
-                packagesdir = os.path.join(getIceDir("cpp"), "third-party-packages")
+                pkgdir = os.path.join(getIceDir("cpp"), "third-party-packages")
+                pkgsubdir = os.path.join("build", "native", "bin", platform)
 
                 if isMINGW():
-                  addPathToEnv("PATH", 
-                    os.path.join(packagesdir, "bzip2.mingw4.7.2", "build", "native", "bin", platform), env)
+                    addPathToEnv("PATH", os.path.join(pkgdir, "bzip2.mingw4.7.2", pkgsubdir), env)
                 else:
-                  platformtoolset = ""
-                  if isVC100():
-                      platformtoolset = "v100"
-                  elif isVC110():
-                      platformtoolset = "v110"
-                  elif isVC120():
-                      platformtoolset = "v120"
-                  elif isVC140():
-                      platformtoolset = "v140"                 
+                    platformtoolset = ""
+                    if isVC100():
+                        platformtoolset = "v100"
+                    elif isVC110():
+                        platformtoolset = "v110"
+                    elif isVC120():
+                        platformtoolset = "v120"
+                    elif isVC140():
+                        platformtoolset = "v140"
 
-                  #
-                  # For Debug builds we need to add Release binaries to path to be able to db_xxx tools
-                  #
-                  if configuration == "Debug":
-                    addPathToEnv("PATH", 
-                      os.path.join(packagesdir, "berkeley.db.{0}".format(platformtoolset), 
-                                   "build", "native", "bin", platform, "Release"), env)
-                  for package in ["berkeley.db.{0}", "bzip2.{0}", "expat.{0}"]:
-                      addPathToEnv("PATH", os.path.join(packagesdir, package.format(platformtoolset), "build", "native",
-                                                        "bin", platform, configuration), env)
-    
-                  if lang == "java":
-                    addPathToEnv("PATH", os.path.join(packagesdir, "berkeley.db.java71", "build", "native",
-                                                      "bin", platform), env)                  
-                    addClasspath(
-                      os.path.join(packagesdir, "berkeley.db.java7.5.3.28.0", "build", "native", "lib", "db.jar"), env)
+                    #
+                    # For Debug builds we need to add Release binaries to path to be able to db_xxx tools
+                    #
+                    if configuration == "Debug":
+                      addPathToEnv("PATH", os.path.join(pkgdir, "berkeley.db.{0}".format(platformtoolset), pkgsubdir,
+                                   "Release"), env)
+
+                    for package in ["berkeley.db.{0}", "bzip2.{0}", "expat.{0}"]:
+                      addPathToEnv("PATH", os.path.join(pkgdir, package.format(platformtoolset), pkgsubdir,
+                                   configuration), env)
+
+                    if lang == "java":
+                      addPathToEnv("PATH", os.path.join(pkgdir, "berkeley.db.java7", pkgsubdir), env)
+                      addClasspath(os.path.join(pkgdir, "berkeley.db.java7", "build", "native", "lib", "db.jar"), env)
+
         elif isDarwin():
             if os.path.exists('/usr/local/opt/ice/libexec/lib'):
                 addClasspath(os.path.join("/", "usr", "local", "opt", "ice", "libexec", "lib", "db.jar"), env)

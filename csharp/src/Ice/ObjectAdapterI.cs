@@ -35,7 +35,6 @@ namespace Ice
         public void activate()
         {
             LocatorInfo locatorInfo = null;
-            bool registerProcess = false;
             bool printAdapterReady = false;
 
             lock(this)
@@ -68,7 +67,6 @@ namespace Ice
                 if(!_noConfig)
                 {
                     Properties properties = instance_.initializationData().properties;
-                    registerProcess = properties.getPropertyAsInt(_name + ".RegisterProcess") > 0;
                     printAdapterReady = properties.getPropertyAsInt("Ice.PrintAdapterReady") > 0;
                 }
             }
@@ -77,7 +75,7 @@ namespace Ice
             {
                 Ice.Identity dummy = new Ice.Identity();
                 dummy.name = "dummy";
-                updateLocatorRegistry(locatorInfo, createDirectProxy(dummy), registerProcess);
+                updateLocatorRegistry(locatorInfo, createDirectProxy(dummy));
             }
             catch(Ice.LocalException)
             {
@@ -183,7 +181,7 @@ namespace Ice
 
             try
             {
-                updateLocatorRegistry(_locatorInfo, null, false);
+                updateLocatorRegistry(_locatorInfo, null);
             }
             catch(Ice.LocalException)
             {
@@ -560,7 +558,6 @@ namespace Ice
         public void refreshPublishedEndpoints()
         {
             LocatorInfo locatorInfo = null;
-            bool registerProcess = false;
             List<EndpointI> oldPublishedEndpoints;
 
             lock(this)
@@ -571,18 +568,13 @@ namespace Ice
                 _publishedEndpoints = parsePublishedEndpoints();
 
                 locatorInfo = _locatorInfo;
-                if(!_noConfig)
-                {
-                    registerProcess =
-                        instance_.initializationData().properties.getPropertyAsInt(_name + ".RegisterProcess") > 0;
-                }
             }
 
             try
             {
                 Ice.Identity dummy = new Ice.Identity();
                 dummy.name = "dummy";
-                updateLocatorRegistry(locatorInfo, createDirectProxy(dummy), registerProcess);
+                updateLocatorRegistry(locatorInfo, createDirectProxy(dummy));
             }
             catch(Ice.LocalException)
             {
@@ -827,7 +819,6 @@ namespace Ice
             _routerInfo = null;
             _directCount = 0;
             _noConfig = noConfig;
-            _processId = null;
 
             if(_noConfig)
             {
@@ -1286,9 +1277,9 @@ namespace Ice
              return endpoints;
         }
 
-        private void updateLocatorRegistry(LocatorInfo locatorInfo, ObjectPrx proxy, bool registerProcess)
+        private void updateLocatorRegistry(LocatorInfo locatorInfo, ObjectPrx proxy)
         {
-            if(!registerProcess && _id.Length == 0)
+            if(_id.Length == 0 || locatorInfo == null)
             {
                 return; // Nothing to update.
             }
@@ -1297,177 +1288,105 @@ namespace Ice
             // Call on the locator registry outside the synchronization to
             // blocking other threads that need to lock this OA.
             //
-            LocatorRegistryPrx locatorRegistry = locatorInfo != null ? locatorInfo.getLocatorRegistry() : null;
-            string serverId = "";
-            if(registerProcess)
-            {
-                Debug.Assert(instance_ != null);
-                serverId = instance_.initializationData().properties.getProperty("Ice.ServerId");
-
-                if(locatorRegistry == null)
-                {
-                    instance_.initializationData().logger.warning(
-                        "object adapter `" + getName() + "' cannot register the process without a locator registry");
-                }
-                else if(serverId.Length == 0)
-                {
-                    instance_.initializationData().logger.warning(
-                        "object adapter `" + getName() +
-                        "' cannot register the process without a value for Ice.ServerId");
-                }
-            }
-
+            LocatorRegistryPrx locatorRegistry = locatorInfo.getLocatorRegistry();
             if(locatorRegistry == null)
             {
                 return;
             }
 
-            if(_id.Length > 0)
+            try
             {
-                try
+                if(_replicaGroupId.Length == 0)
                 {
-                    if(_replicaGroupId.Length == 0)
-                    {
-                        locatorRegistry.setAdapterDirectProxy(_id, proxy);
-                    }
-                    else
-                    {
-                        locatorRegistry.setReplicatedAdapterDirectProxy(_id, _replicaGroupId, proxy);
-                    }
+                    locatorRegistry.setAdapterDirectProxy(_id, proxy);
                 }
-                catch(AdapterNotFoundException)
+                else
                 {
-                    if(instance_.traceLevels().location >= 1)
-                    {
-                        System.Text.StringBuilder s = new System.Text.StringBuilder();
-                        s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
-                        s.Append("the object adapter is not known to the locator registry");
-                        instance_.initializationData().logger.trace(instance_.traceLevels().locationCat, s.ToString());
-                    }
-
-                    NotRegisteredException ex1 = new NotRegisteredException();
-                    ex1.kindOfObject = "object adapter";
-                    ex1.id = _id;
-                    throw ex1;
-                }
-                catch(InvalidReplicaGroupIdException)
-                {
-                    if(instance_.traceLevels().location >= 1)
-                    {
-                        System.Text.StringBuilder s = new System.Text.StringBuilder();
-                        s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
-                        s.Append("the replica group `" + _replicaGroupId + "' is not known to the locator registry");
-                        instance_.initializationData().logger.trace(instance_.traceLevels().locationCat, s.ToString());
-                    }
-
-                    NotRegisteredException ex1 = new NotRegisteredException();
-                    ex1.kindOfObject = "replica group";
-                    ex1.id = _replicaGroupId;
-                    throw ex1;
-                }
-                catch(AdapterAlreadyActiveException)
-                {
-                    if(instance_.traceLevels().location >= 1)
-                    {
-                        System.Text.StringBuilder s = new System.Text.StringBuilder();
-                        s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
-                        s.Append("the object adapter endpoints are already set");
-                        instance_.initializationData().logger.trace(instance_.traceLevels().locationCat, s.ToString());
-                    }
-
-                    ObjectAdapterIdInUseException ex1 = new ObjectAdapterIdInUseException();
-                    ex1.id = _id;
-                    throw;
-                }
-                catch(ObjectAdapterDeactivatedException)
-                {
-                    // Expected if collocated call and OA is deactivated, ignore.
-                }
-                catch(CommunicatorDestroyedException)
-                {
-                    // Ignore
-                }
-                catch(LocalException e)
-                {
-                    if(instance_.traceLevels().location >= 1)
-                    {
-                        System.Text.StringBuilder s = new System.Text.StringBuilder();
-                        s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
-                        s.Append(e.ToString());
-                        instance_.initializationData().logger.trace(instance_.traceLevels().locationCat, s.ToString());
-                    }
-                    throw; // TODO: Shall we raise a special exception instead of a non obvious local exception?
-                }
-
-                if(instance_.traceLevels().location >= 1)
-                {
-                    System.Text.StringBuilder s = new System.Text.StringBuilder();
-                    s.Append("updated object adapter `" + _id + "' endpoints with the locator registry\n");
-                    s.Append("endpoints = ");
-                    if(proxy != null)
-                    {
-                        Ice.Endpoint[] endpoints = proxy.ice_getEndpoints();
-                        for(int i = 0; i < endpoints.Length; i++)
-                        {
-                            s.Append(endpoints[i].ToString());
-                            if(i + 1 < endpoints.Length)
-                            {
-                                s.Append(":");
-                            }
-                        }
-                    }
-                    instance_.initializationData().logger.trace(instance_.traceLevels().locationCat, s.ToString());
+                    locatorRegistry.setReplicatedAdapterDirectProxy(_id, _replicaGroupId, proxy);
                 }
             }
-
-            if(registerProcess && serverId.Length > 0)
+            catch(AdapterNotFoundException)
             {
-                lock(this)
-                {
-                    if(_processId == null)
-                    {
-                        Process servant = new ProcessI(_communicator);
-                        _processId = addWithUUID(servant).ice_getIdentity();
-                    }
-                }
-
-                try
-                {
-                    locatorRegistry.setServerProcessProxy(serverId,
-                        ProcessPrxHelper.uncheckedCast(createDirectProxy(_processId)));
-                }
-                catch(ServerNotFoundException)
-                {
-                    if(instance_.traceLevels().location >= 1)
-                    {
-                        System.Text.StringBuilder s = new System.Text.StringBuilder();
-                        s.Append("couldn't register server `" + serverId + "' with the locator registry:\n");
-                        s.Append("the server is not known to the locator registry");
-                        instance_.initializationData().logger.trace(instance_.traceLevels().locationCat, s.ToString());
-                    }
-
-                    NotRegisteredException ex1 = new NotRegisteredException();
-                    ex1.id = serverId;
-                    ex1.kindOfObject = "server";
-                    throw ex1;
-                }
-                catch(LocalException ex)
-                {
-                    if(instance_.traceLevels().location >= 1)
-                    {
-                        System.Text.StringBuilder s = new System.Text.StringBuilder();
-                        s.Append("couldn't register server `" + serverId + "' with the locator registry:\n" + ex);
-                        instance_.initializationData().logger.trace(instance_.traceLevels().locationCat, s.ToString());
-                    }
-                    throw; // TODO: Shall we raise a special exception instead of a non obvious local exception?
-                }
-
                 if(instance_.traceLevels().location >= 1)
                 {
                     System.Text.StringBuilder s = new System.Text.StringBuilder();
-                    s.Append("registered server `" + serverId + "' with the locator registry");
+                    s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
+                    s.Append("the object adapter is not known to the locator registry");
                     instance_.initializationData().logger.trace(instance_.traceLevels().locationCat, s.ToString());
                 }
+
+                NotRegisteredException ex1 = new NotRegisteredException();
+                ex1.kindOfObject = "object adapter";
+                ex1.id = _id;
+                throw ex1;
+            }
+            catch(InvalidReplicaGroupIdException)
+            {
+                if(instance_.traceLevels().location >= 1)
+                {
+                    System.Text.StringBuilder s = new System.Text.StringBuilder();
+                    s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
+                    s.Append("the replica group `" + _replicaGroupId + "' is not known to the locator registry");
+                    instance_.initializationData().logger.trace(instance_.traceLevels().locationCat, s.ToString());
+                }
+
+                NotRegisteredException ex1 = new NotRegisteredException();
+                ex1.kindOfObject = "replica group";
+                ex1.id = _replicaGroupId;
+                throw ex1;
+            }
+            catch(AdapterAlreadyActiveException)
+            {
+                if(instance_.traceLevels().location >= 1)
+                {
+                    System.Text.StringBuilder s = new System.Text.StringBuilder();
+                    s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
+                    s.Append("the object adapter endpoints are already set");
+                    instance_.initializationData().logger.trace(instance_.traceLevels().locationCat, s.ToString());
+                }
+
+                ObjectAdapterIdInUseException ex1 = new ObjectAdapterIdInUseException();
+                ex1.id = _id;
+                throw;
+            }
+            catch(ObjectAdapterDeactivatedException)
+            {
+                // Expected if collocated call and OA is deactivated, ignore.
+            }
+            catch(CommunicatorDestroyedException)
+            {
+                // Ignore
+            }
+            catch(LocalException e)
+            {
+                if(instance_.traceLevels().location >= 1)
+                {
+                    System.Text.StringBuilder s = new System.Text.StringBuilder();
+                    s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
+                    s.Append(e.ToString());
+                    instance_.initializationData().logger.trace(instance_.traceLevels().locationCat, s.ToString());
+                }
+                throw; // TODO: Shall we raise a special exception instead of a non obvious local exception?
+            }
+
+            if(instance_.traceLevels().location >= 1)
+            {
+                System.Text.StringBuilder s = new System.Text.StringBuilder();
+                s.Append("updated object adapter `" + _id + "' endpoints with the locator registry\n");
+                s.Append("endpoints = ");
+                if(proxy != null)
+                {
+                    Ice.Endpoint[] endpoints = proxy.ice_getEndpoints();
+                    for(int i = 0; i < endpoints.Length; i++)
+                    {
+                        s.Append(endpoints[i].ToString());
+                        if(i + 1 < endpoints.Length)
+                        {
+                            s.Append(":");
+                        }
+                    }
+                }
+                instance_.initializationData().logger.trace(instance_.traceLevels().locationCat, s.ToString());
             }
         }
 
@@ -1488,7 +1407,6 @@ namespace Ice
             "Locator.Router",
             "MessageSizeMax",
             "PublishedEndpoints",
-            "RegisterProcess",
             "ReplicaGroupId",
             "Router",
             "Router.EncodingVersion",
@@ -1581,7 +1499,6 @@ namespace Ice
         private LocatorInfo _locatorInfo;
         private int _directCount;  // The number of direct proxies dispatching on this object adapter.
         private bool _noConfig;
-        private Identity _processId;
         private int _messageSizeMax;
     }
 }

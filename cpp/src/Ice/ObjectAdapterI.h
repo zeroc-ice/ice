@@ -114,7 +114,7 @@ private:
     void checkForDeactivation() const;
     std::vector<IceInternal::EndpointIPtr> parseEndpoints(const std::string&, bool) const;
     std::vector<IceInternal::EndpointIPtr> parsePublishedEndpoints();
-    void updateLocatorRegistry(const IceInternal::LocatorInfoPtr&, const Ice::ObjectPrx&, bool);
+    void updateLocatorRegistry(const IceInternal::LocatorInfoPtr&, const Ice::ObjectPrx&);
     bool filterProperties(Ice::StringSeq&);
 
     enum State
@@ -146,7 +146,6 @@ private:
     IceInternal::LocatorInfoPtr _locatorInfo;
     int _directCount; // The number of direct proxies dispatching on this object adapter.
     bool _noConfig;
-    Identity _processId;
     size_t _messageSizeMax;
 };
 

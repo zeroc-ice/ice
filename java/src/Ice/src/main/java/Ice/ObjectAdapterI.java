@@ -39,7 +39,6 @@ public final class ObjectAdapterI implements ObjectAdapter
     activate()
     {
         IceInternal.LocatorInfo locatorInfo = null;
-        boolean registerProcess = false;
         boolean printAdapterReady = false;
 
         synchronized(this)
@@ -72,7 +71,6 @@ public final class ObjectAdapterI implements ObjectAdapter
             if(!_noConfig)
             {
                 final Properties properties = _instance.initializationData().properties;
-                registerProcess = properties.getPropertyAsInt(_name +".RegisterProcess") > 0;
                 printAdapterReady = properties.getPropertyAsInt("Ice.PrintAdapterReady") > 0;
             }
         }
@@ -81,7 +79,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         {
             Ice.Identity dummy = new Ice.Identity();
             dummy.name = "dummy";
-            updateLocatorRegistry(locatorInfo, createDirectProxy(dummy), registerProcess);
+            updateLocatorRegistry(locatorInfo, createDirectProxy(dummy));
         }
         catch(Ice.LocalException ex)
         {
@@ -216,7 +214,7 @@ public final class ObjectAdapterI implements ObjectAdapter
 
         try
         {
-            updateLocatorRegistry(_locatorInfo, null, false);
+            updateLocatorRegistry(_locatorInfo, null);
         }
         catch(Ice.LocalException ex)
         {
@@ -617,7 +615,6 @@ public final class ObjectAdapterI implements ObjectAdapter
     refreshPublishedEndpoints()
     {
         IceInternal.LocatorInfo locatorInfo = null;
-        boolean registerProcess = false;
         List<IceInternal.EndpointI> oldPublishedEndpoints;
 
         synchronized(this)
@@ -628,18 +625,13 @@ public final class ObjectAdapterI implements ObjectAdapter
             _publishedEndpoints = parsePublishedEndpoints();
 
             locatorInfo = _locatorInfo;
-            if(!_noConfig)
-            {
-                registerProcess =
-                    _instance.initializationData().properties.getPropertyAsInt(_name + ".RegisterProcess") > 0;
-            }
         }
 
         try
         {
             Ice.Identity dummy = new Ice.Identity();
             dummy.name = "dummy";
-            updateLocatorRegistry(locatorInfo, createDirectProxy(dummy), registerProcess);
+            updateLocatorRegistry(locatorInfo, createDirectProxy(dummy));
         }
         catch(Ice.LocalException ex)
         {
@@ -1329,9 +1321,9 @@ public final class ObjectAdapterI implements ObjectAdapter
     }
 
     private void
-    updateLocatorRegistry(IceInternal.LocatorInfo locatorInfo, Ice.ObjectPrx proxy, boolean registerProcess)
+    updateLocatorRegistry(IceInternal.LocatorInfo locatorInfo, Ice.ObjectPrx proxy)
     {
-        if(!registerProcess && _id.length() == 0)
+        if(_id.length() == 0 || locatorInfo == null)
         {
             return; // Nothing to update.
         }
@@ -1340,195 +1332,117 @@ public final class ObjectAdapterI implements ObjectAdapter
         // Call on the locator registry outside the synchronization to
         // blocking other threads that need to lock this OA.
         //
-        LocatorRegistryPrx locatorRegistry = locatorInfo != null ? locatorInfo.getLocatorRegistry() : null;
-        String serverId = "";
-        if(registerProcess)
-        {
-            assert(_instance != null);
-            serverId = _instance.initializationData().properties.getProperty("Ice.ServerId");
-
-            if(locatorRegistry == null)
-            {
-                _instance.initializationData().logger.warning(
-                    "object adapter `" + getName() + "' cannot register the process without a locator registry");
-            }
-            else if(serverId.length() == 0)
-            {
-                _instance.initializationData().logger.warning(
-                    "object adapter `" + getName() + "' cannot register the process without a value for Ice.ServerId");
-            }
-        }
-
+        LocatorRegistryPrx locatorRegistry = locatorInfo.getLocatorRegistry();
         if(locatorRegistry == null)
         {
             return;
         }
 
-        if(_id.length() > 0)
+        try
         {
-            try
+            if(_replicaGroupId.length() == 0)
             {
-                if(_replicaGroupId.length() == 0)
-                {
-                    locatorRegistry.setAdapterDirectProxy(_id, proxy);
-                }
-                else
-                {
-                    locatorRegistry.setReplicatedAdapterDirectProxy(_id, _replicaGroupId, proxy);
-                }
+                locatorRegistry.setAdapterDirectProxy(_id, proxy);
             }
-            catch(AdapterNotFoundException ex)
+            else
             {
-                if(_instance.traceLevels().location >= 1)
-                {
-                    StringBuilder s = new StringBuilder(128);
-                    s.append("couldn't update object adapter `");
-                    s.append(_id);
-                    s.append("' endpoints with the locator registry:\n");
-                    s.append("the object adapter is not known to the locator registry");
-                    _instance.initializationData().logger.trace(_instance.traceLevels().locationCat, s.toString());
-                }
-
-                NotRegisteredException ex1 = new NotRegisteredException();
-                ex1.kindOfObject = "object adapter";
-                ex1.id = _id;
-                throw ex1;
-            }
-            catch(InvalidReplicaGroupIdException ex)
-            {
-                if(_instance.traceLevels().location >= 1)
-                {
-                    StringBuilder s = new StringBuilder(128);
-                    s.append("couldn't update object adapter `");
-                    s.append(_id);
-                    s.append("' endpoints with the locator registry:\n");
-                    s.append("the replica group `");
-                    s.append(_replicaGroupId);
-                    s.append("' is not known to the locator registry");
-                    _instance.initializationData().logger.trace(_instance.traceLevels().locationCat, s.toString());
-                }
-
-                NotRegisteredException ex1 = new NotRegisteredException();
-                ex1.kindOfObject = "replica group";
-                ex1.id = _replicaGroupId;
-                throw ex1;
-            }
-            catch(AdapterAlreadyActiveException ex)
-            {
-                if(_instance.traceLevels().location >= 1)
-                {
-                    StringBuilder s = new StringBuilder(128);
-                    s.append("couldn't update object adapter `");
-                    s.append(_id);
-                    s.append("' endpoints with the locator registry:\n");
-                    s.append("the object adapter endpoints are already set");
-                    _instance.initializationData().logger.trace(_instance.traceLevels().locationCat, s.toString());
-                }
-
-                ObjectAdapterIdInUseException ex1 = new ObjectAdapterIdInUseException();
-                ex1.id = _id;
-                throw ex1;
-            }
-            catch(ObjectAdapterDeactivatedException e)
-            {
-                // Expected if collocated call and OA is deactivated, ignore.
-            }
-            catch(CommunicatorDestroyedException e)
-            {
-                // Ignore
-            }
-            catch(LocalException e)
-            {
-                if(_instance.traceLevels().location >= 1)
-                {
-                    StringBuilder s = new StringBuilder(128);
-                    s.append("couldn't update object adapter `");
-                    s.append(_id);
-                    s.append("' endpoints with the locator registry:\n");
-                    s.append(e.toString());
-                    _instance.initializationData().logger.trace(_instance.traceLevels().locationCat, s.toString());
-                }
-                throw e; // TODO: Shall we raise a special exception instead of a non obvious local exception?
-            }
-
-            if(_instance.traceLevels().location >= 1)
-            {
-                StringBuilder s = new StringBuilder(128);
-                s.append("updated object adapter `");
-                s.append(_id);
-                s.append("' endpoints with the locator registry\n");
-                s.append("endpoints = ");
-                if(proxy != null)
-                {
-                    Ice.Endpoint[] endpoints = proxy.ice_getEndpoints();
-                    for(int i = 0; i < endpoints.length; i++)
-                    {
-                        s.append(endpoints[i].toString());
-                        if(i + 1 < endpoints.length)
-                        {
-                            s.append(":");
-                        }
-                    }
-                }
-                _instance.initializationData().logger.trace(_instance.traceLevels().locationCat, s.toString());
+                locatorRegistry.setReplicatedAdapterDirectProxy(_id, _replicaGroupId, proxy);
             }
         }
-
-        if(registerProcess && serverId.length() > 0)
+        catch(AdapterNotFoundException ex)
         {
-            synchronized(this)
-            {
-                if(_processId == null)
-                {
-                    Process servant = new IceInternal.ProcessI(_communicator);
-                    _processId = addWithUUID(servant).ice_getIdentity();
-                }
-            }
-
-            try
-            {
-                locatorRegistry.setServerProcessProxy(serverId,
-                                        ProcessPrxHelper.uncheckedCast(createDirectProxy(_processId)));
-            }
-            catch(ServerNotFoundException ex)
-            {
-                if(_instance.traceLevels().location >= 1)
-                {
-                    StringBuilder s = new StringBuilder(128);
-                    s.append("couldn't register server `");
-                    s.append(serverId);
-                    s.append("' with the locator registry:\n");
-                    s.append("the server is not known to the locator registry");
-                    _instance.initializationData().logger.trace(_instance.traceLevels().locationCat, s.toString());
-                }
-
-                NotRegisteredException ex1 = new NotRegisteredException();
-                ex1.id = serverId;
-                ex1.kindOfObject = "server";
-                throw ex1;
-            }
-            catch(LocalException ex)
-            {
-                if(_instance.traceLevels().location >= 1)
-                {
-                    StringBuilder s = new StringBuilder(128);
-                    s.append("couldn't register server `");
-                    s.append(serverId);
-                    s.append("' with the locator registry:\n");
-                    s.append(ex.toString());
-                    _instance.initializationData().logger.trace(_instance.traceLevels().locationCat, s.toString());
-                }
-                throw ex; // TODO: Shall we raise a special exception instead of a non-obvious local exception?
-            }
-
             if(_instance.traceLevels().location >= 1)
             {
                 StringBuilder s = new StringBuilder(128);
-                s.append("registered server `");
-                s.append(serverId);
-                s.append("' with the locator registry");
+                s.append("couldn't update object adapter `");
+                s.append(_id);
+                s.append("' endpoints with the locator registry:\n");
+                s.append("the object adapter is not known to the locator registry");
                 _instance.initializationData().logger.trace(_instance.traceLevels().locationCat, s.toString());
             }
+
+            NotRegisteredException ex1 = new NotRegisteredException();
+            ex1.kindOfObject = "object adapter";
+            ex1.id = _id;
+            throw ex1;
+        }
+        catch(InvalidReplicaGroupIdException ex)
+        {
+            if(_instance.traceLevels().location >= 1)
+            {
+                StringBuilder s = new StringBuilder(128);
+                s.append("couldn't update object adapter `");
+                s.append(_id);
+                s.append("' endpoints with the locator registry:\n");
+                s.append("the replica group `");
+                s.append(_replicaGroupId);
+                s.append("' is not known to the locator registry");
+                _instance.initializationData().logger.trace(_instance.traceLevels().locationCat, s.toString());
+            }
+
+            NotRegisteredException ex1 = new NotRegisteredException();
+            ex1.kindOfObject = "replica group";
+            ex1.id = _replicaGroupId;
+            throw ex1;
+        }
+        catch(AdapterAlreadyActiveException ex)
+        {
+            if(_instance.traceLevels().location >= 1)
+            {
+                StringBuilder s = new StringBuilder(128);
+                s.append("couldn't update object adapter `");
+                s.append(_id);
+                s.append("' endpoints with the locator registry:\n");
+                s.append("the object adapter endpoints are already set");
+                _instance.initializationData().logger.trace(_instance.traceLevels().locationCat, s.toString());
+            }
+
+            ObjectAdapterIdInUseException ex1 = new ObjectAdapterIdInUseException();
+            ex1.id = _id;
+            throw ex1;
+        }
+        catch(ObjectAdapterDeactivatedException e)
+        {
+            // Expected if collocated call and OA is deactivated, ignore.
+        }
+        catch(CommunicatorDestroyedException e)
+        {
+            // Ignore
+        }
+        catch(LocalException e)
+        {
+            if(_instance.traceLevels().location >= 1)
+            {
+                StringBuilder s = new StringBuilder(128);
+                s.append("couldn't update object adapter `");
+                s.append(_id);
+                s.append("' endpoints with the locator registry:\n");
+                s.append(e.toString());
+                _instance.initializationData().logger.trace(_instance.traceLevels().locationCat, s.toString());
+            }
+            throw e; // TODO: Shall we raise a special exception instead of a non obvious local exception?
+        }
+
+        if(_instance.traceLevels().location >= 1)
+        {
+            StringBuilder s = new StringBuilder(128);
+            s.append("updated object adapter `");
+            s.append(_id);
+            s.append("' endpoints with the locator registry\n");
+            s.append("endpoints = ");
+            if(proxy != null)
+            {
+                Ice.Endpoint[] endpoints = proxy.ice_getEndpoints();
+                for(int i = 0; i < endpoints.length; i++)
+                {
+                    s.append(endpoints[i].toString());
+                    if(i + 1 < endpoints.length)
+                    {
+                        s.append(":");
+                    }
+                }
+            }
+            _instance.initializationData().logger.trace(_instance.traceLevels().locationCat, s.toString());
         }
     }
 
@@ -1549,7 +1463,6 @@ public final class ObjectAdapterI implements ObjectAdapter
         "Locator.Router",
         "MessageSizeMax",
         "PublishedEndpoints",
-        "RegisterProcess",
         "ReplicaGroupId",
         "Router",
         "Router.EncodingVersion",
@@ -1642,6 +1555,5 @@ public final class ObjectAdapterI implements ObjectAdapter
     private IceInternal.LocatorInfo _locatorInfo;
     private int _directCount; // The number of direct proxies dispatching on this object adapter.
     private boolean _noConfig;
-    private Identity _processId = null;
     private final int _messageSizeMax;
 }
