@@ -326,7 +326,7 @@ IceInternal::LocatorInfo::RequestCallback::response(const LocatorInfoPtr& locato
             // by the locator is an indirect proxy. We now need to resolve the endpoints
             // of this indirect proxy.
             //
-            locatorInfo->getEndpoints(r, _ref, _ttl, _callback);
+            locatorInfo->getEndpointsWithCallback(r, _ref, _ttl, _callback);
             return;
         }
     }
@@ -620,10 +620,10 @@ IceInternal::LocatorInfo::getEndpoints(const ReferencePtr& ref, const ReferenceP
 }
 
 void
-IceInternal::LocatorInfo::getEndpoints(const ReferencePtr& ref,
-                                       const ReferencePtr& wellKnownRef,
-                                       int ttl,
-                                       const GetEndpointsCallbackPtr& callback)
+IceInternal::LocatorInfo::getEndpointsWithCallback(const ReferencePtr& ref,
+                                                   const ReferencePtr& wellKnownRef,
+                                                   int ttl,
+                                                   const GetEndpointsCallbackPtr& callback)
 {
     assert(ref->isIndirect());
     vector<EndpointIPtr> endpoints;
@@ -664,7 +664,7 @@ IceInternal::LocatorInfo::getEndpoints(const ReferencePtr& ref,
         }
         else if(!r->isWellKnown())
         {
-            getEndpoints(r, ref, ttl, callback);
+            getEndpointsWithCallback(r, ref, ttl, callback);
             return;
         }
     }
