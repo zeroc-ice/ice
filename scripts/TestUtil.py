@@ -1867,7 +1867,7 @@ def getTestEnv(lang, testdir):
             if iceHome:
                 addClasspath(os.path.join(getIceDir("java", testdir), "lib", "db.jar"), env)
             else:
-                mode = getBuildMode(testdir) if lang == "cpp" else "Release"
+                mode = getBuildMode(os.path.join(getIceDir("cpp"), "bin"))
                 configuration = "Debug" if mode == "debug" else "Release"
                 platform = "x64" if x64 else "Win32"
                 pkgdir = os.path.join(getIceDir("cpp"), "third-party-packages")
@@ -1887,10 +1887,13 @@ def getTestEnv(lang, testdir):
                         platformtoolset = "v140"
 
                     #
-                    # For Debug builds we need to add Release binaries to path to be able to db_xxx tools
+                    # For Debug builds we need to add Release binaries to path to be able to use db_xxx tools and
+                    # bzip2 to be able to use protocol compression with .NET
                     #
                     if configuration == "Debug":
                       addPathToEnv("PATH", os.path.join(pkgdir, "berkeley.db.{0}".format(platformtoolset), pkgsubdir,
+                                   "Release"), env)
+                      addPathToEnv("PATH", os.path.join(pkgdir, "bzip2.{0}".format(platformtoolset), pkgsubdir,
                                    "Release"), env)
 
                     for package in ["berkeley.db.{0}", "bzip2.{0}", "expat.{0}"]:
