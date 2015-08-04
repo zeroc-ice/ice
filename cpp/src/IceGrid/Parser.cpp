@@ -2810,7 +2810,13 @@ void
 Parser::error(const char* s)
 {
 
-    cerr << "error: " << toConsoleEncoding(s) << endl;
+    cerr << "error: "
+#ifdef _WIN32
+         << toConsoleEncoding(s) 
+#else
+         << s
+#endif
+         << endl;
     _errors++;
 }
 
@@ -2823,7 +2829,13 @@ Parser::error(const string& s)
 void
 Parser::warning(const char* s)
 {
-    cerr << "warning: " << toConsoleEncoding(s) << endl;
+    cerr << "warning: "
+#ifdef _WIN32
+         << toConsoleEncoding(s) 
+#else
+         << s
+#endif
+         << endl;
 }
 
 void
