@@ -8,14 +8,25 @@ executables, and everything else necessary to build Ice applications for WinRT.
 
 ## Build Requirements for WinRT
 
+### Operating Systems and Compilers
+
 Ice was extensively tested using the operating systems and compiler versions
 listed for our [supported platforms][2].
 
-## Building Ice
+### Third-Party Libraries
 
-> *To build Ice for WinRT you first need to build Ice for Windows. The build of
-Ice for Windows is necessary to create the Slice translators that we need to
-build Ice for WinRT.*
+Building Ice for WinRT requires the mcpp pakage:
+
+ - [mcpp][6] 2.7.2 (with patches)
+
+You do not need to build this package yourself, as ZeroC supplies
+[Nuget][7] packages for all these third party dependencies.
+
+The Ice build system for Windows downloads and installs Nuget and these 
+Nuget packages when you build Ice for C++. The third-party packages
+are installed in the ``ice/cpp/third-party-packages`` folder.
+
+## Building Ice
 
 Open a command prompt that is configured for your target architecture. For
 example, Visual Studio gives you several alternatives:
