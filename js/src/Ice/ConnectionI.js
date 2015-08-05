@@ -1055,6 +1055,14 @@ var ConnectionI = Class({
         }
         this._asyncRequests.clear();
 
+        //
+        // Don't wait to be reaped to reclaim memory allocated by read/write streams.
+        //
+        this._readStream.clear();
+        this._readStream.buffer.clear();
+        this._writeStream.clear();
+        this._writeStream.buffer.clear();
+
         if(this._callback !== null)
         {
             try
