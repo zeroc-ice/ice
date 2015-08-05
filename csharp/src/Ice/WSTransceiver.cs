@@ -314,6 +314,12 @@ namespace IceInternal
         {
             _delegate.close();
             _state = StateClosed;
+
+            //
+            // Clear the buffers now instead of waiting for destruction.
+            //
+            _readBuffer.clear();
+            _writeBuffer.clear();
         }
 
         public EndpointI bind()
@@ -1240,7 +1246,7 @@ namespace IceInternal
                         n = _readPayloadLength;
                     }
                     if(n > 0)
-                    {                            
+                    {
                         System.Buffer.BlockCopy(_readBuffer.b.rawBytes(), _readBufferPos, buf.b.rawBytes(),
                                                 buf.b.position(), n);
                         buf.b.position(buf.b.position() + n);

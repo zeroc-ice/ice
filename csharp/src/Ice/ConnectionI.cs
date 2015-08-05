@@ -1444,6 +1444,14 @@ namespace Ice
             }
             _asyncRequests.Clear();
 
+            //
+            // Don't wait to be reaped to reclaim memory allocated by read/write streams.
+            //
+            _writeStream.clear();
+            _writeStream.getBuffer().clear();
+            _readStream.clear();
+            _readStream.getBuffer().clear();
+
             if(_callback != null)
             {
                 try

@@ -478,6 +478,12 @@ IceInternal::WSTransceiver::close()
 {
     _delegate->close();
     _state = StateClosed;
+
+    //
+    // Clear the buffers now instead of waiting for destruction.
+    //
+    _writeBuffer.b.clear();
+    _readBuffer.b.clear();
 }
 
 SocketOperation
