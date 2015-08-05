@@ -1,15 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Common">
-      <UniqueIdentifier>3ce71594-e3a4-4c38-9d0f-46e2a2076f6c</UniqueIdentifier>
-    </Filter>
     <Filter Include="Assets">
       <UniqueIdentifier>aa39e686-931d-4eb4-a06f-1ce6c081fd4c</UniqueIdentifier>
     </Filter>
-    <Page Include="Common\StandardStyles.xaml">
-      <Filter>Common</Filter>
-    </Page>
     <Image Include="Assets\Logo.png">
       <Filter>Assets</Filter>
     </Image>
@@ -29,22 +23,24 @@
       <UniqueIdentifier>{a0f32232-9e67-427a-bab0-9659037ab6b9}</UniqueIdentifier>
       <Extensions>ice</Extensions>
     </Filter>
+    <Filter Include="Styles">
+      <UniqueIdentifier>3ce71594-e3a4-4c38-9d0f-46e2a2076f6c</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="App.xaml.cpp" />
-    <ClCompile Include="MainPage.xaml.cpp" />
-    <ClCompile Include="pch.cpp" />
     <ClCompile Include="generated\Controller.cpp" />
+    <ClCompile Include="..\MainPage.xaml.cpp" />
+    <ClCompile Include="..\pch.cpp" />
+    <ClCompile Include="App.xaml.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="pch.h" />
-    <ClInclude Include="App.xaml.h" />
-    <ClInclude Include="MainPage.xaml.h" />
-    <ClInclude Include="..\..\include\TestCommon.h" />
     <ClInclude Include="generated\Controller.h" />
+    <ClInclude Include="..\MainPage.xaml.h" />
+    <ClInclude Include="..\pch.h" />
+    <ClInclude Include="App.xaml.h" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest" />
@@ -173,7 +169,6 @@
     <None Include="..\..\Ice\udp\Ice_udp_server.dll">
       <Filter>Tests</Filter>
     </None>
-    <None Include="..\..\..\..\certs\cacert.der" />
     <None Include="..\..\Ice\operations\Ice_operations_collocated.dll" />
     <None Include="..\..\Ice\operations\Ice_operations_server.dll" />
     <None Include="..\..\Ice\operations\Ice_operations_serveramd.dll" />
@@ -225,7 +220,6 @@
     <None Include="..\..\Ice\admin\Ice_admin_server.dll">
       <Filter>Tests</Filter>
     </None>
-    <None Include="TestSuite_TemporaryKey.pfx" />
     <None Include="..\..\Ice\enums\Ice_enums_client.dll">
       <Filter>Tests</Filter>
     </None>
@@ -238,12 +232,17 @@
     <None Include="..\..\Ice\acm\Ice_acm_server.dll">
       <Filter>Tests</Filter>
     </None>
+    <None Include="..\..\..\..\certs\cacert.der" />
+    <None Include="TestSuite_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="MainPage.xaml" />
+    <Page Include="..\MainPage.xaml" />
+    <Page Include="..\StandardStyles.xaml">
+      <Filter>Styles</Filter>
+    </Page>
   </ItemGroup>
   <ItemGroup>
-    <IceBuilder Include="Controller.ice">
+    <IceBuilder Include="..\Controller.ice">
       <Filter>Slice Files</Filter>
     </IceBuilder>
   </ItemGroup>

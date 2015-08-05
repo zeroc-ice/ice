@@ -7,12 +7,7 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-
-                <!-- 
-                    Styles that define common aspects of the platform look and feel
-                    Required by Visual Studio project and item templates
-                 -->
-                <ResourceDictionary Source="Common/StandardStyles.xaml"/>
+                <ResourceDictionary Source="../StandardStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <Style x:Key="TitleStyle" TargetType="TextBlock">
                 <Setter Property="Foreground" Value="White" />

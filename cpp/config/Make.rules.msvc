@@ -14,14 +14,14 @@
 
 CXX		= cl.exe
 CC		= cl.exe
-LINK 		= link.exe
-AR 		= lib.exe
+LINK		= link.exe
+AR		= lib.exe
 RC		= rc.exe
 
 BASE		= /base
 PREOUT		= /out:
 PRELIBS		=
-PRELIBPATH      = /LIBPATH:
+PRELIBPATH	= /LIBPATH:
 
 !if "$(OPTIMIZE)" != "yes" || "$(RELEASEPDBS)" == "yes"
 GENERATE_PDB	= yes
@@ -43,37 +43,29 @@ WINDOWS_SDK_DIR = $(PROGRAMFILES)\Microsoft SDKs
 !endif
 
 !if "$(CPP_COMPILER)" == "VC110"
+TARGET_PLATFORM 	= Windows
 TARGET_PLATFORM_VERSION = 8.0
 MIN_VS_VERSION = 11.0
 !elseif "$(CPP_COMPILER)" == "VC120"
+TARGET_PLATFORM 	= Windows
 TARGET_PLATFORM_VERSION = 8.1
 MIN_VS_VERSION = 12.0
 !elseif "$(CPP_COMPILER)" == "VC140"
-
-!if "$(TARGET_PLATFORM_VERSION)" == ""
-TARGET_PLATFORM_VERSION = 10.0
-!endif
-
-!if "$(TARGET_PLATFORM_VERSION)" == "8.1"
-MIN_VS_VERSION = 12.0
-!elseif "$(TARGET_PLATFORM_VERSION)" == "10.0"
-MIN_VS_VERSION = 14.0
+TARGET_PLATFORM_VERSION = 10.0.10240.0
+TARGET_PLATFORM 	= UAP
+MIN_VS_VERSION 		= 14.0
 !else
 !error TARGET_PLATFORM_VERSION: $(TARGET_PLATFORM_VERSION) not supported to build Ice for WinRT
-!endif
-
 !endif
 
 !if "$(WINRT)" == "yes"
 CPPFLAGS	= $(CPPFLAGS) -DWINAPI_FAMILY=2 -Gm- -Oy- -Gd -ZW -D_UNICODE -DUNICODE
 
-!if "$(CPP_COMPILER)" == "VC140"
+
 !if "$(TARGET_PLATFORM_VERSION)" == "8.1"
 CPPFLAGS	= $(CPPFLAGS) /AI "$(WINDOWS_SDK_DIR)\Windows\v8.1\ExtensionSDKs\Microsoft.VCLibs\12.0\References\CommonConfiguration\neutral"
-!elseif "$(TARGET_PLATFORM_VERSION)" == "10.0"
-CPPFLAGS	= $(CPPFLAGS) /AI "$(WINDOWS_SDK_DIR)\Windows Kits\10\ExtensionSDKs\Microsoft.VCLibs\14.0\References\CommonConfiguration\neutral"
-!endif
-
+!elseif "$(TARGET_PLATFORM_VERSION)" == "10.0.10240.0"
+CPPFLAGS	= $(CPPFLAGS) /AI "$(VSINSTALLDIR)\VC\lib\store\references"
 !endif
 
 #
@@ -163,10 +155,11 @@ SDK_NAME		= Ice
 SDK_VERSION		= $(SHORT_VERSION)
 SDK_MANIFEST		= SDKManifest.xml
 
+
 !if "$(ice_src_dist)" != ""
-SDK_BASE_PATH		= $(top_srcdir)\SDKs\Windows\v$(TARGET_PLATFORM_VERSION)\ExtensionSDKs\$(SDK_NAME)\$(SDK_VERSION)
+SDK_BASE_PATH		= $(top_srcdir)\SDKs\$(TARGET_PLATFORM)\v$(TARGET_PLATFORM_VERSION)\ExtensionSDKs\$(SDK_NAME)\$(SDK_VERSION)
 !else
-SDK_BASE_PATH		= $(ice_dir)\SDKs\Windows\v$(TARGET_PLATFORM_VERSION)\ExtensionSDKs\$(SDK_NAME)\$(SDK_VERSION)
+SDK_BASE_PATH		= $(ice_dir)\SDKs\$(TARGET_PLATFORM)\v$(TARGET_PLATFORM_VERSION)\ExtensionSDKs\$(SDK_NAME)\$(SDK_VERSION)
 !endif
 
 SDK_INCLUDE_PATH	= $(SDK_BASE_PATH)\DesignTime\CommonConfiguration\Neutral\include

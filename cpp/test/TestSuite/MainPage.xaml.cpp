@@ -351,7 +351,7 @@ Runnable::run()
     {
         args.push_back("--Ice.ThreadPool.Server.Size=1");
         args.push_back("--Ice.ThreadPool.Server.SizeMax=3");
-        args.push_back("--Ice.ThreadPool.Server.SizeWarn=0");
+		args.push_back("--Ice.ThreadPool.Server.SizeWarn=0");
     }
 
     args.push_back("--Ice.Default.Host=" + _config.host);
