@@ -234,7 +234,7 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="..\MainPage.xaml" />
-    <Page Include="..\StandardStyles.xaml">
+    <Page Include="StandardStyles.xaml">
       <Filter>Styles</Filter>
     </Page>
   </ItemGroup>

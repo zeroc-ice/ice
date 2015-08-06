@@ -7,7 +7,7 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../StandardStyles.xaml"/>
+                <ResourceDictionary Source="StandardStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <Style x:Key="TitleStyle" TargetType="TextBlock">
                 <Setter Property="Foreground" Value="White" />
