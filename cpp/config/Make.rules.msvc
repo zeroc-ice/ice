@@ -43,14 +43,17 @@ WINDOWS_SDK_DIR = $(PROGRAMFILES)\Microsoft SDKs
 !endif
 
 !if "$(CPP_COMPILER)" == "VC110"
+SDK_NAME		= Ice.WinRT
 TARGET_PLATFORM 	= Windows
 TARGET_PLATFORM_VERSION = 8.0
 MIN_VS_VERSION = 11.0
 !elseif "$(CPP_COMPILER)" == "VC120"
+SDK_NAME		= Ice.WinRT
 TARGET_PLATFORM 	= Windows
 TARGET_PLATFORM_VERSION = 8.1
 MIN_VS_VERSION = 12.0
 !elseif "$(CPP_COMPILER)" == "VC140"
+SDK_NAME		= Ice.UAP
 TARGET_PLATFORM_VERSION = 10.0.10240.0
 TARGET_PLATFORM 	= UAP
 MIN_VS_VERSION 		= 14.0
@@ -151,7 +154,6 @@ LIBS            =
 
 !if "$(WINRT)" == "yes"
 
-SDK_NAME		= Ice
 SDK_VERSION		= $(SHORT_VERSION)
 SDK_MANIFEST		= SDKManifest.xml
 
@@ -186,12 +188,12 @@ $(SDK_BASE_PATH)\$(SDK_MANIFEST): $(SDK_BASE_PATH)
 				@echo <<$(SDK_MANIFEST)
 <FileList
 	Identity = "$(SDK_NAME), Version=$(SDK_VERSION)"
-	DisplayName = "$(SDK_NAME) SDK"
+	DisplayName = "Ice"
 	ProductFamiliyName = "ZeroC SDKs"
 	MinVSVersion = "$(MIN_VS_VERSION)"
 	MaxPlatformVersion = "$(TARGET_PLATFORM_VERSION)"
 	AppliesTo = "WindowsAppContainer + VisualC"
-	SupportedArchitecture = "x86;x64;ARM"
+	SupportedArchitecture = "x86;x64"
 	SupportsMultipleVersion = "Error"
 	MoreInfo = "https://doc.zeroc.com">
 </FileList>
