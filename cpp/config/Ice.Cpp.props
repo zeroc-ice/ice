@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-    <!-- This file is imported when using Ice 3.6.1 with C++ projects -->
+    <!-- This file is included in C++ projects when Ice Builder 4.1 or later is enabled -->
 
     <!-- platform toolset suffix -->
     <PropertyGroup Condition="'$(Platform)' != 'Win32'">
