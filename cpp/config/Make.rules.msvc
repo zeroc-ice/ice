@@ -36,6 +36,8 @@ CPPFLAGS	= $(CPPFLAGS) -W4
 !endif
 ARFLAGS	        = $(ARFLAGS) -nologo -WX
 
+!if "$(WINRT)" == "yes"
+
 !if "$(PROCESSOR_ARCHITECTURE)" == "AMD64"
 WINDOWS_SDK_DIR = $(PROGRAMFILES) (x86)\Microsoft SDKs
 !else
@@ -61,9 +63,7 @@ MIN_VS_VERSION 		= 14.0
 !error TARGET_PLATFORM_VERSION: $(TARGET_PLATFORM_VERSION) not supported to build Ice for WinRT
 !endif
 
-!if "$(WINRT)" == "yes"
 CPPFLAGS	= $(CPPFLAGS) -DWINAPI_FAMILY=2 -Gm- -Oy- -Gd -ZW -D_UNICODE -DUNICODE
-
 
 !if "$(TARGET_PLATFORM_VERSION)" == "8.1"
 CPPFLAGS	= $(CPPFLAGS) /AI "$(WINDOWS_SDK_DIR)\Windows\v8.1\ExtensionSDKs\Microsoft.VCLibs\12.0\References\CommonConfiguration\neutral"
