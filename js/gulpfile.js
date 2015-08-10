@@ -329,7 +329,7 @@ libs.forEach(
                                 modules: sources.modules,
                                 target: libFile(lib)
                             }))
-                    .pipe(sourcemaps.write("../lib", {sourceRoot:"/src"}))
+                    .pipe(sourcemaps.write("../lib", {sourceRoot:"/src", addComment: false}))
                     .pipe(gulp.dest("lib"))
                     .pipe(gzip())
                     .pipe(gulp.dest("lib"));
@@ -342,7 +342,7 @@ libs.forEach(
                     .pipe(sourcemaps.init({loadMaps:true, sourceRoot:"./"}))
                     .pipe(uglify({compress:false}))
                     .pipe(extreplace(".min.js"))
-                    .pipe(sourcemaps.write("../lib", {includeContent: false}))
+                    .pipe(sourcemaps.write("../lib", {includeContent: false, addComment: false}))
                     .pipe(gulp.dest("lib"))
                     .pipe(gzip())
                     .pipe(gulp.dest("lib"));
