@@ -55,14 +55,16 @@ Ice runs on a wide range of platforms:
 ## Branches
 
 - `master`
-  Primary development branch
+  Primary development branch (unstable, frequently updated)
 
-- `3.4`
-  Source distribution for Ice v3.4.2 plus various patches
+- `3.6`
+  Ice 3.6.x plus various patches (stable, frequently updated)
 
 - `3.5`
-  Source distribution for Ice v3.5.1 plus various patches
+  Ice 3.5.1 plus various patches (stable)
 
+- `3.4`
+  Ice 3.4.2 plus various patches (stable)
 
 ## Copyright and License
 
