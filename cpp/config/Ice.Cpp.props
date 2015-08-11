@@ -20,12 +20,44 @@
         <!-- Windows store application settings -->
         <When Condition="'$(ApplicationType)' == 'Windows Store'">
             <PropertyGroup Condition="'$(TargetPlatformIdentifier)' == 'Windows'">
-                <IceSDKName>Ice.WinRT</IceSDKName>
+                <IceSDKPrefix>8.0</IceSDKPrefix>
             </PropertyGroup>
 
             <PropertyGroup Condition="'$(TargetPlatformIdentifier)' == 'UAP'">
-                <IceSDKName>Ice.UAP</IceSDKName>
+                <IceSDKPrefix>10</IceSDKPrefix>
             </PropertyGroup>
+
+            <PropertyGroup Condition="!Exists('$(IceSourceHome)')">
+                <IceSDKDirectoryRoot>$(IceHome)\SDKs\$(IceSDKPrefix)\</IceSDKDirectoryRoot>
+            </PropertyGroup>
+
+            <PropertyGroup Condition="Exists('$(IceSourceHome)')">
+                <IceSDKDirectoryRoot>$(IceHome)\cpp\SDKs\$(IceSDKPrefix)\</IceSDKDirectoryRoot>
+            </PropertyGroup>
+            
+            <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+                <ConfigurationPrefix>Debug</ConfigurationPrefix>
+            </PropertyGroup>
+
+            <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+                <ConfigurationPrefix>Retail</ConfigurationPrefix>
+            </PropertyGroup>
+
+            <!-- Set Include, Library and SDK search paths for the given platform and configuration -->
+            <PropertyGroup>
+                <IceExtensionSDKsDirectory>$(IceSDKDirectoryRoot)\$(TargetPlatformIdentifier)\v$(TargetPlatformVersion)\ExtensionSDKs</IceExtensionSDKsDirectory>
+                <IceSDKDirectory>$(IceExtensionSDKsDirectory)\Ice\$(IceVersionMM)</IceSDKDirectory>
+                <IceInclude>$(IceSDKDirectory)\Designtime\CommonConfiguration\Neutral\include</IceInclude>
+                <IceLib>$(IceSDKDirectory)\Designtime\$(ConfigurationPrefix)\$(PlatformTarget)</IceLib>
+                <IncludePath>$(IceInclude);$(IncludePath)</IncludePath>
+                <LibraryPath>$(IceLib);$(LibraryPath)</LibraryPath>
+                <SDKReferenceDirectoryRoot>$(IceSDKDirectoryRoot);$(SDKReferenceDirectoryRoot);$(ExtensionSDKDirectoryRoot)</SDKReferenceDirectoryRoot>
+            </PropertyGroup>
+
+            <!-- Add a reference to the Ice SDK -->
+            <ItemGroup>
+                <SDKReference Include="Ice, Version=$(IceVersionMM)"/>
+            </ItemGroup>
         </When>
         <!-- Windows C++ application settings-->
         <Otherwise>
@@ -48,6 +80,22 @@
                 <IncludePath>$(IceInclude);$(IncludePath)</IncludePath>
                 <LibraryPath>$(IceLib);$(LibraryPath)</LibraryPath>
             </PropertyGroup>
+
+            <!-- Setup build macros -->
+            <ItemGroup>
+                <BuildMacro Include="IceInclude">
+                    <Value>$(IceInclude)</Value>
+                    <EnvironmentVariable>true</EnvironmentVariable>
+                </BuildMacro>
+                <BuildMacro Include="IceLib">
+                    <Value>$(IceLib)</Value>
+                    <EnvironmentVariable>true</EnvironmentVariable>
+                </BuildMacro>
+                <BuildMacro Include="IceBin">
+                    <Value>$(IceBin)</Value>
+                    <EnvironmentVariable>true</EnvironmentVariable>  
+                </BuildMacro>
+            </ItemGroup>
         </Otherwise>
     </Choose>
 
