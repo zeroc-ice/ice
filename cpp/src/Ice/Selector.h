@@ -61,11 +61,11 @@ class SelectorTimeoutException
 
 struct SelectEvent
 {
-    SelectEvent(EventHandler* handler, SocketOperation status) : handler(handler), status(status)
+    SelectEvent(const EventHandlerPtr& handler, SocketOperation status) : handler(handler), status(status)
     {
     }
 
-    EventHandler* handler;
+    EventHandlerPtr handler;
     SocketOperation status;
 };
 
@@ -81,9 +81,9 @@ public:
     void update(EventHandler*, SocketOperation, SocketOperation);    
     void finish(EventHandler*);
 
-    EventHandler* getNextHandler(SocketOperation&, int);
+    EventHandlerPtr getNextHandler(SocketOperation&, int);
     
-    void completed(EventHandler*, SocketOperation);
+    void completed(const EventHandlerPtr&, SocketOperation);
 
 private:
 

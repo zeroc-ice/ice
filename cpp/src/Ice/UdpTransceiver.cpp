@@ -952,10 +952,11 @@ IceInternal::UdpTransceiver::UdpTransceiver(const ProtocolInstancePtr& instance,
     }
 #else
     DatagramSocket^ socket = safe_cast<DatagramSocket^>(_fd);
+    IceUtil::Handle<UdpTransceiver> self(this);
     socket->MessageReceived += ref new TypedEventHandler<DatagramSocket^, DatagramSocketMessageReceivedEventArgs^>(
         [=](DatagramSocket^ fd, DatagramSocketMessageReceivedEventArgs^ args)
         {
-            this->appendMessage(args);
+            self->appendMessage(args);
         });
 #endif
 
@@ -999,10 +1000,11 @@ IceInternal::UdpTransceiver::UdpTransceiver(const UdpEndpointIPtr& endpoint, con
     _mcastAddr.saStorage.ss_family = AF_UNSPEC;
 #else
     DatagramSocket^ socket = safe_cast<DatagramSocket^>(_fd);
+    IceUtil::Handle<UdpTransceiver> self(this);
     socket->MessageReceived += ref new TypedEventHandler<DatagramSocket^, DatagramSocketMessageReceivedEventArgs^>(
         [=](DatagramSocket^ fd, DatagramSocketMessageReceivedEventArgs^ args)
         {
-            this->appendMessage(args);
+            self->appendMessage(args);
         });
 #endif
 }

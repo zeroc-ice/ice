@@ -258,7 +258,7 @@ class TestRunner : public IceUtil::Thread
 {
 public:
 
-    TestRunner(const std::shared_ptr<TestCase>&, const TestConfig&, MainPage^, 
+    TestRunner(const std::shared_ptr<TestCase>&, const TestConfig&, MainPage^,
 			   const Ice::CommunicatorPtr&);
     virtual void run();
     void runClientServerTest(const string&, const string&);
@@ -463,7 +463,7 @@ Runnable::completed(int status)
     _monitor.notify();
 }
 
-TestRunner::TestRunner(const TestCasePtr& test, const TestConfig& config, MainPage^ page, 
+TestRunner::TestRunner(const TestCasePtr& test, const TestConfig& config, MainPage^ page,
 					   const Ice::CommunicatorPtr& communicator) :
     _test(test),
     _config(config),
@@ -677,18 +677,18 @@ TestRunner::runClientServerTestWithRemoteServer(const string& client)
         configurations = _test->configurations;
     }
 
-    for(vector<TestConfigurationPtr>::const_iterator i = configurations.begin(); 
+    for(vector<TestConfigurationPtr>::const_iterator i = configurations.begin();
         i != configurations.end(); ++i)
     {
         TestConfigurationPtr configuration = *i;
         if(!configuration->languages.empty() &&
-            find(configuration->languages.begin(), 
+            find(configuration->languages.begin(),
                  configuration->languages.end(), _config.server) == configuration->languages.end())
         {
             continue;
         }
 
-        printLineToConsoleOutput("*** Running test with " + 
+        printLineToConsoleOutput("*** Running test with " +
                                  (configuration->name.empty() ? "regular server" : configuration->name));
         server->waitForServer();
 
@@ -732,7 +732,7 @@ TestRunner::runClientTest(const string& client, bool collocated)
 
 }
 
-TestConfiguration::TestConfiguration(const string& name, const vector<string>& options, 
+TestConfiguration::TestConfiguration(const string& name, const vector<string>& options,
                                      const vector<string>& languages) :
     name(name),
     options(options),
@@ -796,7 +796,7 @@ MainPage::Configuration_Loaded(Platform::Object^ sender, Windows::UI::Xaml::Rout
     initializeSupportedTests();
 }
 
-void 
+void
 MainPage::OnNavigatedTo(NavigationEventArgs^ e)
 {
     (void) e;   // Unused parameter
@@ -810,7 +810,7 @@ MainPage::failed(String^ msg)
 	completed();
 }
 
-void 
+void
 MainPage::completed()
 {
     Dispatcher->RunAsync(CoreDispatcherPriority::Normal, ref new DispatchedHandler(
@@ -831,7 +831,7 @@ MainPage::completed()
                 _run->IsEnabled = true;
                 _stop->Content = "Stop";
                 return;
-            }                                      
+            }
             _tests->IsEnabled = true;
             if(_tests->SelectedIndex == _allTests.size() - 1)
             {
@@ -846,7 +846,7 @@ MainPage::completed()
         }));
 }
 
-void 
+void
 MainPage::btnRun_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
     if(_tests->SelectedIndex >= 0 && _tests->SelectedIndex < static_cast<int>(_allTests.size()))
@@ -883,7 +883,7 @@ MainPage::communicator()
     return _communicator;
 }
 
-void 
+void
 MainPage::runSelectedTest()
 {
     TestConfig config;
@@ -962,7 +962,7 @@ TestSuite::MainPage::Language_SelectionChanged(Platform::Object^ sender, Selecti
 {
     if(_language)
     {
-        _host->IsEnabled = selectedLanguage() != "winrt";    
+        _host->IsEnabled = selectedLanguage() != "winrt";
         initializeSupportedTests();
         initializeSupportedProtocols();
     }
