@@ -482,8 +482,14 @@ IceInternal::WSTransceiver::close()
     //
     // Clear the buffers now instead of waiting for destruction.
     //
-    _writeBuffer.b.clear();
-    _readBuffer.b.clear();
+    if(!_writePending)
+    {
+        _writeBuffer.b.clear();
+    }
+    if(!_readPending)
+    {
+        _readBuffer.b.clear();
+    }
 }
 
 SocketOperation
@@ -677,6 +683,7 @@ void
 IceInternal::WSTransceiver::finishWrite(Buffer& buf)
 {
     _writePending = false;
+
     if(_state < StateOpened)
     {
         if(_state < StateConnected)
@@ -698,6 +705,12 @@ IceInternal::WSTransceiver::finishWrite(Buffer& buf)
     {
         assert(_incoming);
         _delegate->finishWrite(buf);
+    }
+
+    if(_state == StateClosed)
+    {
+        _writeBuffer.b.clear();
+        return;
     }
 
     postWrite(buf);
@@ -782,6 +795,13 @@ IceInternal::WSTransceiver::finishRead(Buffer& buf, bool& hasMoreData)
     {
         _delegate->finishRead(_readBuffer, hasMoreData);
     }
+
+    if(_state == StateClosed)
+    {
+        _readBuffer.b.clear();
+        return;
+    }
+
     postRead(buf);
 }
 #endif

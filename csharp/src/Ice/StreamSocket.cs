@@ -108,7 +108,7 @@ namespace IceInternal
 
         public bool isConnected()
         {
-            return _state == StateConnected;
+            return _state == StateConnected && _fd != null;
         }
 
         public Socket fd()

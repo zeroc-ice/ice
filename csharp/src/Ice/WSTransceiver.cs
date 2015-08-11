@@ -318,8 +318,14 @@ namespace IceInternal
             //
             // Clear the buffers now instead of waiting for destruction.
             //
-            _readBuffer.clear();
-            _writeBuffer.clear();
+            if(!_readPending)
+            {
+                _readBuffer.clear();
+            }
+            if(!_writePending)
+            {
+                _writeBuffer.clear();
+            }
         }
 
         public EndpointI bind()
@@ -539,6 +545,7 @@ namespace IceInternal
         {
             Debug.Assert(_readPending);
             _readPending = false;
+
             if(_state < StateOpened)
             {
                 Debug.Assert(_finishRead);
@@ -570,6 +577,13 @@ namespace IceInternal
                 _finishRead = false;
                 _delegate.finishRead(_readBuffer);
             }
+
+            if(_state == StateClosed)
+            {
+                _readBuffer.clear();
+                return;
+            }
+
             postRead(buf);
         }
 
@@ -611,6 +625,7 @@ namespace IceInternal
         public void finishWrite(Buffer buf)
         {
             _writePending = false;
+
             if(_state < StateOpened)
             {
                 if(_state < StateConnected)
@@ -632,6 +647,12 @@ namespace IceInternal
             {
                 Debug.Assert(_incoming);
                 _delegate.finishWrite(buf);
+            }
+
+            if(_state == StateClosed)
+            {
+                _writeBuffer.clear();
+                return;
             }
 
             postWrite(buf, SocketOperation.None);
