@@ -107,7 +107,11 @@ class reader(threading.Thread):
         try:
             while True:
                 c = self.p.stdout.read(1)
-                if not c: break
+                if not c:
+                    self.cv.acquire()
+                    self.cv.notify()
+                    self.cv.release()
+                    break
                 if c == '\r': continue
 
                 self.cv.acquire()
@@ -253,6 +257,11 @@ class reader(threading.Thread):
                     # If a single match was found then the match.
                     if len(pattern) != olen:
                         continue
+
+                    # If no match and the process has exited rasise a TIMEOUT
+                    if self.p and self.p.poll() is not None:
+                      raise  TIMEOUT ('timeout exceeded in match\npattern: "%s"\nbuffer: "%s"\n' %
+                                           (escape(s), escape(buf, False)))
 
                     if timeout is None:
                         self.cv.wait()
