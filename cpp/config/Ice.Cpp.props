@@ -20,7 +20,7 @@
         <!-- Windows store application settings -->
         <When Condition="'$(ApplicationType)' == 'Windows Store'">
             <PropertyGroup Condition="'$(TargetPlatformIdentifier)' == 'Windows'">
-                <IceSDKPrefix>8.0</IceSDKPrefix>
+                <IceSDKPrefix>8.1</IceSDKPrefix>
             </PropertyGroup>
 
             <PropertyGroup Condition="'$(TargetPlatformIdentifier)' == 'UAP'">
