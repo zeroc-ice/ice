@@ -31,20 +31,11 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
     return EXIT_SUCCESS;
 }
 
-#ifdef ICE_STATIC_LIBS
-extern "C"
-{
-
-Ice::Plugin* createIceSSL(const Ice::CommunicatorPtr&, const string&, const Ice::StringSeq&);
-
-}
-#endif
-
 int
 main(int argc, char** argv)
 {
 #ifdef ICE_STATIC_LIBS
-    Ice::registerPluginFactory("IceSSL", createIceSSL, true);
+    Ice::registerIceSSL();
 #endif
     int status;
     Ice::CommunicatorPtr communicator;
@@ -53,7 +44,7 @@ main(int argc, char** argv)
     {
         IceUtil::setProcessStringConverter(new Test::StringConverterI());
         IceUtil::setProcessWstringConverter(new Test::WstringConverterI());
-        
+
         Ice::InitializationData initData;
         initData.properties = Ice::createProperties(argc, argv);
         initData.properties->setProperty("TestAdapter.Endpoints", "default -p 12010");

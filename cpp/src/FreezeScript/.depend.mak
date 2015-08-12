@@ -121,6 +121,7 @@ AssignVisitor.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Slice\Parser.h" \
     "Error.h" \
     "Util.h" \
@@ -248,6 +249,7 @@ Data.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Slice\Parser.h" \
     "Error.h" \
     "Util.h" \
@@ -455,6 +457,7 @@ Functions.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Slice\Parser.h" \
     "Error.h" \
     "Util.h" \
@@ -590,6 +593,7 @@ Parser.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Slice\Parser.h" \
     "Error.h" \
     "GrammarUtil.h" \
@@ -716,6 +720,7 @@ Print.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Slice\Parser.h" \
     "Error.h" \
     "Util.h" \
@@ -848,6 +853,7 @@ Util.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Freeze\DB.h" \
     "$(includedir)\Freeze\Exception.h" \
     "$(includedir)\Freeze\Connection.h" \
@@ -857,6 +863,8 @@ Util.obj: \
     "$(includedir)\Freeze\ConnectionF.h" \
     "$(includedir)\Freeze\Index.h" \
     "$(includedir)\Slice\Preprocessor.h" \
+    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db_cxx.h" \
+    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db.h" \
 
 Grammar.obj: \
 	Grammar.cpp \
@@ -981,6 +989,7 @@ Grammar.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Slice\Parser.h" \
     "Error.h" \
 
@@ -1108,6 +1117,7 @@ Scanner.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Slice\Parser.h" \
     "Error.h" \
     "Grammar.h" \
@@ -1313,6 +1323,7 @@ TransformVisitor.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Slice\Parser.h" \
     "Error.h" \
     "Util.h" \
@@ -1440,6 +1451,7 @@ Transformer.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Slice\Parser.h" \
     "$(includedir)\Freeze\Connection.h" \
     "$(includedir)\Freeze\Transaction.h" \
@@ -1463,6 +1475,8 @@ Transformer.obj: \
     "$(includedir)\Freeze\Index.h" \
     "..\..\src\IceXML\Parser.h" \
     "$(includedir)\IceUtil\InputUtil.h" \
+    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db_cxx.h" \
+    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db.h" \
 
 transformdb.obj: \
 	transformdb.cpp \
@@ -1585,6 +1599,7 @@ transformdb.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Slice\Parser.h" \
     "$(includedir)\Freeze\Connection.h" \
     "$(includedir)\Freeze\Transaction.h" \
@@ -1606,6 +1621,8 @@ transformdb.obj: \
     "$(includedir)\IceUtil\Options.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "..\..\src\IceUtil\FileUtil.h" \
+    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db_cxx.h" \
+    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db.h" \
 
 DumpDescriptors.obj: \
 	DumpDescriptors.cpp \
@@ -1730,6 +1747,7 @@ DumpDescriptors.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Slice\Parser.h" \
     "Error.h" \
     "..\..\src\IceXML\Parser.h" \
@@ -1740,6 +1758,8 @@ DumpDescriptors.obj: \
     "Util.h" \
     "$(includedir)\Freeze\CatalogData.h" \
     "$(includedir)\IceUtil\InputUtil.h" \
+    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db_cxx.h" \
+    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db.h" \
 
 DumpDB.obj: \
 	DumpDB.cpp \
@@ -1864,6 +1884,7 @@ DumpDB.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Slice\Parser.h" \
     "Error.h" \
     "..\..\src\IceXML\Parser.h" \
@@ -1881,3 +1902,5 @@ DumpDB.obj: \
     "$(includedir)\IceUtil\Options.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "..\..\src\IceUtil\FileUtil.h" \
+    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db_cxx.h" \
+    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db.h" \

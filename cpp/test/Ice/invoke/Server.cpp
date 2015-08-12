@@ -17,7 +17,7 @@ DEFINE_TEST("server")
 using namespace std;
 
 class ServantLocatorI : public Ice::ServantLocator
-{   
+{
 public:
 
     ServantLocatorI(bool array, bool async)
@@ -45,7 +45,7 @@ public:
             }
         }
     }
-    
+
     virtual Ice::ObjectPtr
     locate(const Ice::Current&, Ice::LocalObjectPtr&)
     {
@@ -99,20 +99,11 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     return EXIT_SUCCESS;
 }
 
-#ifdef ICE_STATIC_LIBS
-extern "C"
-{
-
-Ice::Plugin* createIceSSL(const Ice::CommunicatorPtr&, const string&, const Ice::StringSeq&);
-
-}
-#endif
-
 int
 main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
-    Ice::registerPluginFactory("IceSSL", createIceSSL, true);
+    Ice::registerIceSSL();
 #endif
 
     int status;

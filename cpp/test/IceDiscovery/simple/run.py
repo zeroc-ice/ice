@@ -25,19 +25,20 @@ client = os.path.join(os.getcwd(), "client")
 
 num = 3
 
-args = " --Ice.Plugin.IceDiscovery=IceDiscovery:createIceDiscovery"
-args += " --IceDiscovery.Timeout=50"
+args = " --IceDiscovery.Timeout=50"
 args += " --IceDiscovery.RetryCount=5"
 if not TestUtil.ipv6:
     args += " --IceDiscovery.Interface=127.0.0.1"
 elif TestUtil.isDarwin():
     args += " --IceDiscovery.Interface=\"::1\""
 
+# Set the plugin property only for the server, the client uses Ice::registerIceDiscovery()
+serverArgs = " --Ice.Plugin.IceDiscovery=IceDiscovery:createIceDiscovery" + args
 serverProc = []
 for i in range(0, num):
     sys.stdout.write("starting server #%d... " % (i + 1))
     sys.stdout.flush()
-    serverProc.append(TestUtil.startServer(server, "%d %s" % (i, args), count = 4))
+    serverProc.append(TestUtil.startServer(server, "%d %s " % (i, serverArgs), count = 4))
     print("ok")
 
 sys.stdout.write("starting client... ")

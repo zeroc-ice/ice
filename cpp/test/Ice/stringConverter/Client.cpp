@@ -26,20 +26,11 @@ public:
 static bool useLocale = false;
 static bool useIconv = true;
 
-#ifdef ICE_STATIC_LIBS
-extern "C"
-{
-
-Ice::Plugin* createIceSSL(const Ice::CommunicatorPtr&, const string&, const Ice::StringSeq&);
-
-}
-#endif
-
 int
 main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
-    Ice::registerPluginFactory("IceSSL", createIceSSL, true);
+    Ice::registerIceSSL();
 #endif
 
     Client app;
@@ -47,7 +38,7 @@ main(int argc, char* argv[])
 #ifndef _WIN32
     //
     // Switch to French locale
-    // (we just used the codeset for as default internal code for 
+    // (we just used the codeset for as default internal code for
     // stringConverter below)
     //
 
@@ -73,7 +64,7 @@ main(int argc, char* argv[])
     }
     IceUtil::setProcessWstringConverter(new IceUtil::IconvStringConverter<wchar_t>("ucs4"));
 #else
-    
+
     if(useLocale)
     {
         IceUtil::setProcessStringConverter(new IceUtil::IconvStringConverter<char>());
@@ -106,7 +97,7 @@ main(int argc, char* argv[])
 int
 Client::run(int, char*[])
 {
-    Test::MyObjectPrx proxy = 
+    Test::MyObjectPrx proxy =
         Test::MyObjectPrx::uncheckedCast(communicator()->stringToProxy("test:default -p 12010"));
 
     char oe = char(0xBD); // A single character in ISO Latin 9

@@ -200,6 +200,7 @@ Client.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
@@ -331,6 +332,7 @@ AllTests.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\IceGrid\IceGrid.h" \
     "$(includedir)\IceGrid\Admin.h" \
     "$(includedir)\Glacier2\Session.h" \
@@ -479,6 +481,7 @@ TestI.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "TestI.h" \
     "Test.h" \
 
@@ -602,6 +605,7 @@ Server.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "TestI.h" \
     "Test.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
@@ -733,6 +737,7 @@ PermissionsVerifier.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Glacier2\PermissionsVerifier.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
     "$(includedir)\Glacier2\Config.h" \

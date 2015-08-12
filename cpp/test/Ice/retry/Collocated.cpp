@@ -18,7 +18,7 @@ DEFINE_TEST("collocated")
 using namespace std;
 using namespace Test;
 
-void 
+void
 setupObjectAdapter(const Ice::CommunicatorPtr& communicator)
 {
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("");
@@ -39,20 +39,11 @@ run(int, char**, const Ice::CommunicatorPtr& communicator, const Ice::Communicat
     return EXIT_SUCCESS;
 }
 
-#ifdef ICE_STATIC_LIBS
-extern "C"
-{
-
-Ice::Plugin* createIceSSL(const Ice::CommunicatorPtr&, const string&, const Ice::StringSeq&);
-
-}
-#endif
-
 int
 main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
-    Ice::registerPluginFactory("IceSSL", createIceSSL, true);
+    Ice::registerIceSSL();
 #endif
 
     int status;

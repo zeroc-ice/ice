@@ -21,17 +21,17 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
     IceUtil::TimerPtr timer = new IceUtil::Timer();
 
     communicator->getProperties()->setProperty("TestAdapter1.Endpoints", "default -p 12010:udp");
-    communicator->getProperties()->setProperty("TestAdapter1.ThreadPool.Size", "5"); 
-    communicator->getProperties()->setProperty("TestAdapter1.ThreadPool.SizeMax", "5"); 
-    communicator->getProperties()->setProperty("TestAdapter1.ThreadPool.SizeWarn", "0"); 
+    communicator->getProperties()->setProperty("TestAdapter1.ThreadPool.Size", "5");
+    communicator->getProperties()->setProperty("TestAdapter1.ThreadPool.SizeMax", "5");
+    communicator->getProperties()->setProperty("TestAdapter1.ThreadPool.SizeWarn", "0");
     communicator->getProperties()->setProperty("TestAdapter1.ThreadPool.Serialize", "0");
     Ice::ObjectAdapterPtr adapter1 = communicator->createObjectAdapter("TestAdapter1");
     adapter1->add(new HoldI(timer, adapter1), communicator->stringToIdentity("hold"));
 
     communicator->getProperties()->setProperty("TestAdapter2.Endpoints", "default -p 12011:udp");
-    communicator->getProperties()->setProperty("TestAdapter2.ThreadPool.Size", "5"); 
-    communicator->getProperties()->setProperty("TestAdapter2.ThreadPool.SizeMax", "5"); 
-    communicator->getProperties()->setProperty("TestAdapter2.ThreadPool.SizeWarn", "0"); 
+    communicator->getProperties()->setProperty("TestAdapter2.ThreadPool.Size", "5");
+    communicator->getProperties()->setProperty("TestAdapter2.ThreadPool.SizeMax", "5");
+    communicator->getProperties()->setProperty("TestAdapter2.ThreadPool.SizeWarn", "0");
     communicator->getProperties()->setProperty("TestAdapter2.ThreadPool.Serialize", "1");
     Ice::ObjectAdapterPtr adapter2 = communicator->createObjectAdapter("TestAdapter2");
     adapter2->add(new HoldI(timer, adapter2), communicator->stringToIdentity("hold"));
@@ -48,20 +48,11 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
     return EXIT_SUCCESS;
 }
 
-#ifdef ICE_STATIC_LIBS
-extern "C"
-{
-
-Ice::Plugin* createIceSSL(const Ice::CommunicatorPtr&, const string&, const Ice::StringSeq&);
-
-}
-#endif
-
 int
 main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
-    Ice::registerPluginFactory("IceSSL", createIceSSL, true);
+    Ice::registerIceSSL();
 #endif
     int status;
     Ice::CommunicatorPtr communicator;

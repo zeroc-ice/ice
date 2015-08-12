@@ -94,8 +94,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         //
         // Now, ensure that the IceGrid discovery locator correctly
-        // handles failure to find a locator.
-        // 
+        // handles failure to find a locator. Also test
+        // Ice::registerIceLocatorDiscovery()
+        //
+        Ice::registerIceLocatorDiscovery();
+        initData.properties->setProperty("Ice.Plugin.IceLocatorDiscovery", "");
         initData.properties->setProperty("IceLocatorDiscovery.InstanceName", "unknown");
         initData.properties->setProperty("IceLocatorDiscovery.RetryCount", "1");
         initData.properties->setProperty("IceLocatorDiscovery.Timeout", "100");
@@ -246,7 +249,7 @@ allTestsWithDeploy(const Ice::CommunicatorPtr& communicator)
     catch(const Ice::NoEndpointException&)
     {
     }
-    
+
     admin->enableServer("server", true);
 
     try

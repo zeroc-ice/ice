@@ -324,6 +324,7 @@ PluginI.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "PluginI.h" \
     "LookupI.h" \
     "IceDiscovery.h" \

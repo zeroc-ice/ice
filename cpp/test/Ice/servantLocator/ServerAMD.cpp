@@ -77,7 +77,7 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
     communicator->getProperties()->setProperty("Ice.Warn.Dispatch", "0");
 
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    
+
     adapter->addServantLocator(new ServantLocatorAMDI(""), "");
     adapter->addServantLocator(new ServantLocatorAMDI("category"), "category");
     adapter->add(new TestAMDI, communicator->stringToIdentity("asm"));
@@ -88,20 +88,11 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
     return EXIT_SUCCESS;
 }
 
-#ifdef ICE_STATIC_LIBS
-extern "C"
-{
-
-Ice::Plugin* createIceSSL(const Ice::CommunicatorPtr&, const string&, const Ice::StringSeq&);
-
-}
-#endif
-
 int
 main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
-    Ice::registerPluginFactory("IceSSL", createIceSSL, true);
+    Ice::registerIceSSL();
 #endif
 
     int status;

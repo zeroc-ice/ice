@@ -22,20 +22,11 @@ public:
     virtual int run(int, char*[]);
 };
 
-#ifdef ICE_STATIC_LIBS
-extern "C"
-{
-
-Ice::Plugin* createIceSSL(const Ice::CommunicatorPtr&, const string&, const Ice::StringSeq&);
-
-}
-#endif
-
 int
 main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
-    Ice::registerPluginFactory("IceSSL", createIceSSL, true);
+    Ice::registerIceSSL();
 #endif
 
     //
@@ -53,7 +44,7 @@ main(int argc, char* argv[])
 
 int
 CallbackClient::run(int, char**)
-{    
+{
     Glacier2::RouterPrx router = Glacier2::RouterPrx::uncheckedCast(
         communicator()->stringToProxy("Glacier2/router:tcp -h 127.0.0.1 -p 12347"));
     communicator()->setDefaultRouter(router);
@@ -127,6 +118,6 @@ CallbackClient::run(int, char**)
     Ice::ProcessPrx process = Ice::ProcessPrx::checkedCast(
         communicator()->stringToProxy("Glacier2/admin -f Process:tcp -h 127.0.0.1 -p 12349"));
     process->shutdown();
-    
+
     return EXIT_SUCCESS;
 }

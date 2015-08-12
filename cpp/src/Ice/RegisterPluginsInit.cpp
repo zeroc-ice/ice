@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#include <Ice/RegisterPlugins.h>
+#include <Ice/RegisterPluginsInit.h>
 #include <Ice/CommunicatorF.h>
 #include <Ice/Initialize.h>
 

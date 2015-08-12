@@ -33,7 +33,7 @@ CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
 $(CLIENT): $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(COBJS) $(LIBS) -lIceGrid -lGlacier2
+	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(COBJS) $(LIBS) -lIceLocatorDiscovery -lIceGrid -lGlacier2
 
 $(SERVER): $(SOBJS)
 	rm -f $@

@@ -280,7 +280,10 @@ static PropertiesPtr
 createClientProps(const Ice::PropertiesPtr& defaultProps, const string& defaultDir, const string& defaultHost, bool p12)
 {
     PropertiesPtr result = createProperties();
-    result->setProperty("Ice.Plugin.IceSSL", "IceSSL:createIceSSL");
+    //
+    // Don't set the plugin property, the client registered the plugin with registerIceSSL.
+    //
+    //result->setProperty("Ice.Plugin.IceSSL", "IceSSL:createIceSSL");
     if(!defaultDir.empty())
     {
         result->setProperty("IceSSL.DefaultDir", defaultDir);

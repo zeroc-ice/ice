@@ -16,7 +16,7 @@ DEFINE_TEST("client")
 using namespace std;
 
 int
-run(int, char**, 
+run(int, char**,
     const Ice::CommunicatorPtr& communicator,
     const Ice::InitializationData&)
 {
@@ -28,20 +28,11 @@ run(int, char**,
     return EXIT_SUCCESS;
 }
 
-#ifdef ICE_STATIC_LIBS
-extern "C"
-{
-
-Ice::Plugin* createIceSSL(const Ice::CommunicatorPtr&, const string&, const Ice::StringSeq&);
-
-}
-#endif
-
 int
 main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
-    Ice::registerPluginFactory("IceSSL", createIceSSL, true);
+    Ice::registerIceSSL();
 #endif
 
     int status;

@@ -29,20 +29,11 @@ public:
 
 }
 
-#ifdef ICE_STATIC_LIBS
-extern "C"
-{
-
-Ice::Plugin* createIceSSL(const Ice::CommunicatorPtr&, const string&, const Ice::StringSeq&);
-
-}
-#endif
-
 int
 main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
-    Ice::registerPluginFactory("IceSSL", createIceSSL, true);
+    Ice::registerIceSSL();
 #endif
 
     cout << "testing logger encoding with Ice.LogFile... " << flush;
@@ -51,10 +42,10 @@ main(int argc, char* argv[])
     id.properties->load("config.client");
     id.properties->setProperty("Ice.LogFile", "log.txt");
     const string programName = id.properties->getProperty("Ice.ProgramName");
-    
+
     Client c;
     c.main(argc, argv, id);
-    
+
     ifstream in("log.txt");
     if(!in)
     {

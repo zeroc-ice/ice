@@ -129,6 +129,7 @@ CryptPermissionsVerifierI.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "..\..\src\IceUtil\FileUtil.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\IceUtil\InputUtil.h" \

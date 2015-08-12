@@ -27,20 +27,11 @@ public:
     virtual int run(int, char*[]);
 };
 
-#ifdef ICE_STATIC_LIBS
-extern "C"
-{
-
-Ice::Plugin* createIceSSL(const Ice::CommunicatorPtr&, const string&, const Ice::StringSeq&);
-
-}
-#endif
-
 int
 main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
-    Ice::registerPluginFactory("IceSSL", createIceSSL, true);
+    Ice::registerIceSSL();
 #endif
 
     //
@@ -83,7 +74,7 @@ CallbackClient::run(int, char**)
     Identity callbackReceiverIdent;
     callbackReceiverIdent.name = "callbackReceiver";
     callbackReceiverIdent.category = category;
-    CallbackReceiverPrx twowayR = 
+    CallbackReceiverPrx twowayR =
         CallbackReceiverPrx::uncheckedCast(adapter->add(callbackReceiver, callbackReceiverIdent));
     CallbackReceiverPrx onewayR = twowayR->ice_oneway();
 
@@ -166,7 +157,7 @@ CallbackClient::run(int, char**)
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1000));
         callbackReceiverImpl->activate();
         test(callbackReceiverImpl->callbackWithPayloadOK(4) == 0);
-        
+
         int remainingCallbacks = callbackReceiverImpl->callbackOK(1, 0);
         //
         // Occasionally, Glacier2 flushes in the middle of our 5
@@ -181,7 +172,7 @@ CallbackClient::run(int, char**)
         {
             test(callbackReceiverImpl->callbackOK(remainingCallbacks, 0) == 0);
         }
-        
+
         ctx["_fwd"] = "O";
 
         oneway->initiateCallbackWithPayload(twowayR);

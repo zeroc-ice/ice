@@ -117,7 +117,7 @@ OBJS		= Acceptor.o \
 		  ProxyFactory.o \
 		  Reference.o \
 		  ReferenceFactory.o \
-		  RegisterPlugins.o \
+		  RegisterPluginsInit.o \
 		  RequestHandler.o \
 		  RequestHandlerFactory.o \
 		  ResponseHandler.o \

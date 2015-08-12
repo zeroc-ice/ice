@@ -27,10 +27,10 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
     Ice::ObjectAdapterPtr adapter2 = communicator->createObjectAdapter("ControllerAdapter");
 
     TestIntfControllerIPtr testController = new TestIntfControllerI(adapter);
-    
+
     adapter->add(new TestIntfI(), communicator->stringToIdentity("test"));
     //adapter->activate(); // Don't activate OA to ensure collocation is used.
-    
+
     adapter2->add(testController, communicator->stringToIdentity("testController"));
     //adapter2->activate(); // Don't activate OA to ensure collocation is used.
 
@@ -39,24 +39,15 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
     return EXIT_SUCCESS;
 }
 
-#ifdef ICE_STATIC_LIBS
-extern "C"
-{
-
-Ice::Plugin* createIceSSL(const Ice::CommunicatorPtr&, const string&, const Ice::StringSeq&);
-
-}
-#endif
-
 int
 main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
-    Ice::registerPluginFactory("IceSSL", createIceSSL, true);
+    Ice::registerIceSSL();
 #endif
     int status;
     Ice::CommunicatorPtr communicator;
-    
+
     try
     {
         Ice::InitializationData initData;

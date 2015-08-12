@@ -119,7 +119,7 @@ OBJS	       =  .\Acceptor.obj \
 		  .\ProxyFactory.obj \
 		  .\Reference.obj \
 		  .\ReferenceFactory.obj \
-		  .\RegisterPlugins.obj \
+		  .\RegisterPluginsInit.obj \
 		  .\RequestHandler.obj \
 		  .\RequestHandlerFactory.obj \
 		  .\ResponseHandler.obj \

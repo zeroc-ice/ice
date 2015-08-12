@@ -33,7 +33,7 @@ CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
 $(CLIENT): $(COBJS)
 	rm -f $@
-	$(call mktest,$@,$(COBJS), $(LIBS))
+	$(call mktest,$@,$(COBJS), -lIceDiscovery $(LIBS))
 
 $(SERVER): $(SOBJS)
 	rm -f $@

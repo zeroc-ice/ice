@@ -128,7 +128,7 @@ OBJS		= $(ARCH)\$(CONFIG)\Acceptor.obj \
 		  $(ARCH)\$(CONFIG)\IceDiscovery\PluginI.obj \
 		  $(ARCH)\$(CONFIG)\IceLocatorDiscovery\PluginI.obj
 
-LOCAL_OBJS	= $(ARCH)\$(CONFIG)\RegisterPlugins.obj \
+LOCAL_OBJS	= $(ARCH)\$(CONFIG)\RegisterPluginsInit.obj \
 		  $(ARCH)\$(CONFIG)\StreamAcceptor.obj \
 		  $(ARCH)\$(CONFIG)\StreamConnector.obj \
 		  $(ARCH)\$(CONFIG)\StreamEndpointI.obj \

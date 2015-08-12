@@ -191,6 +191,7 @@ BackgroundSaveEvictorI.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Freeze\Freeze.h" \
     "$(includedir)\Freeze\Initialize.h" \
     "$(includedir)\Freeze\EvictorF.h" \
@@ -210,6 +211,8 @@ BackgroundSaveEvictorI.obj: \
     "ObjectStore.h" \
     "$(includedir)\Freeze\EvictorStorage.h" \
     "TransactionI.h" \
+    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db_cxx.h" \
+    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db.h" \
     "EvictorIteratorI.h" \
     "SharedDbEnv.h" \
     "..\..\src\IceUtil\FileUtil.h" \
@@ -339,6 +342,7 @@ Catalog.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Freeze\DB.h" \
     "$(includedir)\Freeze\Exception.h" \
     "$(includedir)\Freeze\Connection.h" \
@@ -468,6 +472,7 @@ CatalogIndexList.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Freeze\DB.h" \
     "$(includedir)\Freeze\Exception.h" \
     "$(includedir)\Freeze\Connection.h" \
@@ -597,11 +602,14 @@ ConnectionI.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Freeze\EvictorF.h" \
     "$(includedir)\Freeze\ConnectionF.h" \
     "$(includedir)\Freeze\Index.h" \
     "$(includedir)\Freeze\DB.h" \
     "TransactionI.h" \
+    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db_cxx.h" \
+    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db.h" \
     "SharedDbEnv.h" \
     "$(includedir)\Freeze\Map.h" \
     "$(includedir)\Freeze\Exception.h" \
@@ -736,6 +744,7 @@ EvictorI.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Freeze\Freeze.h" \
     "$(includedir)\Freeze\Initialize.h" \
     "$(includedir)\Freeze\EvictorF.h" \
@@ -755,6 +764,8 @@ EvictorI.obj: \
     "ObjectStore.h" \
     "$(includedir)\Freeze\EvictorStorage.h" \
     "TransactionI.h" \
+    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db_cxx.h" \
+    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db.h" \
     "EvictorIteratorI.h" \
     "SharedDbEnv.h" \
     "..\..\src\IceUtil\FileUtil.h" \
@@ -882,6 +893,7 @@ EvictorIteratorI.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Freeze\Freeze.h" \
     "$(includedir)\Freeze\Initialize.h" \
     "$(includedir)\Freeze\EvictorF.h" \
@@ -901,6 +913,8 @@ EvictorIteratorI.obj: \
     "ObjectStore.h" \
     "$(includedir)\Freeze\EvictorStorage.h" \
     "TransactionI.h" \
+    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db_cxx.h" \
+    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db.h" \
     "$(includedir)\IceUtil\Cache.h" \
     "$(includedir)\IceUtil\CountDownLatch.h" \
     "EvictorI.h" \
@@ -1034,6 +1048,7 @@ Index.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Freeze\DB.h" \
     "IndexI.h" \
     "EvictorI.h" \
@@ -1061,6 +1076,8 @@ Index.obj: \
     "ObjectStore.h" \
     "$(includedir)\Freeze\EvictorStorage.h" \
     "TransactionI.h" \
+    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db_cxx.h" \
+    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db.h" \
     "EvictorIteratorI.h" \
     "SharedDbEnv.h" \
     "..\..\src\IceUtil\FileUtil.h" \
@@ -1186,6 +1203,7 @@ IndexI.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Freeze\Index.h" \
     "$(includedir)\Freeze\DB.h" \
     "EvictorI.h" \
@@ -1213,6 +1231,8 @@ IndexI.obj: \
     "ObjectStore.h" \
     "$(includedir)\Freeze\EvictorStorage.h" \
     "TransactionI.h" \
+    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db_cxx.h" \
+    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db.h" \
     "EvictorIteratorI.h" \
     "SharedDbEnv.h" \
     "..\..\src\IceUtil\FileUtil.h" \
@@ -1222,6 +1242,8 @@ MapDb.obj: \
 	MapDb.cpp \
     "MapDb.h" \
     "$(includedir)\IceUtil\Config.h" \
+    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db_cxx.h" \
+    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db.h" \
     "ConnectionI.h" \
     "$(includedir)\Freeze\Connection.h" \
     "$(includedir)\IceUtil\PushDisableWarnings.h" \
@@ -1343,6 +1365,7 @@ MapDb.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Freeze\EvictorF.h" \
     "$(includedir)\Freeze\ConnectionF.h" \
     "$(includedir)\Freeze\Index.h" \
@@ -1479,6 +1502,7 @@ MapI.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Freeze\DB.h" \
     "$(includedir)\Freeze\Exception.h" \
     "$(includedir)\Freeze\Connection.h" \
@@ -1489,6 +1513,8 @@ MapI.obj: \
     "$(includedir)\Freeze\ConnectionF.h" \
     "$(includedir)\Freeze\Index.h" \
     "TransactionI.h" \
+    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db_cxx.h" \
+    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db.h" \
     "SharedDbEnv.h" \
     "..\..\src\IceUtil\FileUtil.h" \
     "MapDb.h" \
@@ -1620,11 +1646,14 @@ ObjectStore.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Freeze\DB.h" \
     "$(includedir)\Freeze\EvictorStorage.h" \
     "$(includedir)\Freeze\Index.h" \
     "TransactionI.h" \
     "$(includedir)\Freeze\Transaction.h" \
+    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db_cxx.h" \
+    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db.h" \
     "$(includedir)\IceUtil\Cache.h" \
     "$(includedir)\IceUtil\CountDownLatch.h" \
     "EvictorI.h" \
@@ -1775,11 +1804,14 @@ SharedDbEnv.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Freeze\DB.h" \
     "$(includedir)\Freeze\Exception.h" \
     "$(includedir)\Freeze\Connection.h" \
     "$(includedir)\Freeze\Transaction.h" \
     "..\..\src\IceUtil\FileUtil.h" \
+    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db_cxx.h" \
+    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db.h" \
     "Util.h" \
     "MapDb.h" \
     "ConnectionI.h" \
@@ -1932,6 +1964,7 @@ TransactionalEvictorContext.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Freeze\TransactionalEvictor.h" \
     "$(includedir)\Freeze\Evictor.h" \
     "$(includedir)\Freeze\Exception.h" \
@@ -1959,6 +1992,8 @@ TransactionalEvictorContext.obj: \
     "$(includedir)\Freeze\CatalogData.h" \
     "ObjectStore.h" \
     "TransactionI.h" \
+    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db_cxx.h" \
+    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db.h" \
     "EvictorIteratorI.h" \
     "SharedDbEnv.h" \
     "..\..\src\IceUtil\FileUtil.h" \
@@ -2095,6 +2130,7 @@ TransactionalEvictorI.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Freeze\Freeze.h" \
     "$(includedir)\Freeze\Initialize.h" \
     "$(includedir)\Freeze\EvictorF.h" \
@@ -2114,6 +2150,8 @@ TransactionalEvictorI.obj: \
     "ObjectStore.h" \
     "$(includedir)\Freeze\EvictorStorage.h" \
     "TransactionI.h" \
+    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db_cxx.h" \
+    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db.h" \
     "EvictorIteratorI.h" \
     "SharedDbEnv.h" \
     "..\..\src\IceUtil\FileUtil.h" \
@@ -2178,6 +2216,8 @@ TransactionI.obj: \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
     "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\Freeze\Transaction.h" \
+    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db_cxx.h" \
+    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db.h" \
     "ConnectionI.h" \
     "$(includedir)\Freeze\Connection.h" \
     "$(includedir)\Ice\Version.h" \
@@ -2276,6 +2316,7 @@ TransactionI.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Freeze\EvictorF.h" \
     "$(includedir)\Freeze\ConnectionF.h" \
     "$(includedir)\Freeze\Index.h" \
@@ -2406,7 +2447,10 @@ Util.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Freeze\DB.h" \
+    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db_cxx.h" \
+    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db.h" \
     "$(includedir)\Freeze\Exception.h" \
 
 BackgroundSaveEvictor.obj: \

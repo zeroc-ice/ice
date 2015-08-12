@@ -501,6 +501,7 @@ Application.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "LoggerI.h" \
     "..\..\src\IceUtil\FileUtil.h" \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
@@ -1462,6 +1463,7 @@ ConnectionI.obj: \
     "BatchRequestQueue.h" \
     "SharedContext.h" \
     "ProxyFactory.h" \
+    "C:\Users\benoit\ice\cpp\third-party-packages\bzip2.v140\build\native\include\bzlib.h" \
 
 ConnectionRequestHandler.obj: \
 	ConnectionRequestHandler.cpp \
@@ -1814,6 +1816,7 @@ DefaultsAndOverrides.obj: \
 
 DeprecatedStringConverter.obj: \
 	DeprecatedStringConverter.cpp \
+    "$(includedir)\IceUtil\DisableWarnings.h" \
     "$(includedir)\Ice\DeprecatedStringConverter.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -3205,7 +3208,7 @@ Instance.obj: \
     "$(includedir)\Ice\MetricsAdminI.h" \
     "$(includedir)\Ice\MetricsFunctional.h" \
     "LoggerAdminI.h" \
-    "RegisterPlugins.h" \
+    "RegisterPluginsInit.h" \
     "$(includedir)\IceUtil\UUID.h" \
 
 InstrumentationI.obj: \
@@ -6185,9 +6188,9 @@ ReferenceFactory.obj: \
     "PropertyNames.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
 
-RegisterPlugins.obj: \
-	RegisterPlugins.cpp \
-    "RegisterPlugins.h" \
+RegisterPluginsInit.obj: \
+	RegisterPluginsInit.cpp \
+    "RegisterPluginsInit.h" \
     "$(includedir)\Ice\CommunicatorF.h" \
     "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
@@ -7049,6 +7052,7 @@ Service.obj: \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "LoggerI.h" \
     "Instance.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
@@ -9411,6 +9415,7 @@ DLLMain.obj: \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
 
 BuiltinSequences.obj: \
 	BuiltinSequences.cpp \

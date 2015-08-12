@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_REGISTER_PLUGINS_H
-#define ICE_REGISTER_PLUGINS_H
+#ifndef ICE_REGISTER_PLUGINS_INIT_H
+#define ICE_REGISTER_PLUGINS_INIT_H
 
 namespace IceInternal
 {
