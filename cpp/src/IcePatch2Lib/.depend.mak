@@ -272,7 +272,6 @@ Util.obj: \
     "$(includedir)\IcePatch2\FileInfo.h" \
     "$(includedir)\IcePatch2\Config.h" \
     "$(includedir)\IcePatch2\FileServer.h" \
-    "C:\Users\benoit\ice\cpp\third-party-packages\bzip2.v140\build\native\include\bzlib.h" \
 
 FileInfo.obj: \
 	FileInfo.cpp \

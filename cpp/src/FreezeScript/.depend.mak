@@ -863,8 +863,6 @@ Util.obj: \
     "$(includedir)\Freeze\ConnectionF.h" \
     "$(includedir)\Freeze\Index.h" \
     "$(includedir)\Slice\Preprocessor.h" \
-    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db_cxx.h" \
-    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db.h" \
 
 Grammar.obj: \
 	Grammar.cpp \
@@ -1475,8 +1473,6 @@ Transformer.obj: \
     "$(includedir)\Freeze\Index.h" \
     "..\..\src\IceXML\Parser.h" \
     "$(includedir)\IceUtil\InputUtil.h" \
-    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db_cxx.h" \
-    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db.h" \
 
 transformdb.obj: \
 	transformdb.cpp \
@@ -1621,8 +1617,6 @@ transformdb.obj: \
     "$(includedir)\IceUtil\Options.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "..\..\src\IceUtil\FileUtil.h" \
-    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db_cxx.h" \
-    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db.h" \
 
 DumpDescriptors.obj: \
 	DumpDescriptors.cpp \
@@ -1758,8 +1752,6 @@ DumpDescriptors.obj: \
     "Util.h" \
     "$(includedir)\Freeze\CatalogData.h" \
     "$(includedir)\IceUtil\InputUtil.h" \
-    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db_cxx.h" \
-    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db.h" \
 
 DumpDB.obj: \
 	DumpDB.cpp \
@@ -1902,5 +1894,3 @@ DumpDB.obj: \
     "$(includedir)\IceUtil\Options.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "..\..\src\IceUtil\FileUtil.h" \
-    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db_cxx.h" \
-    "C:\Users\benoit\ice\cpp\third-party-packages\berkeley.db.v140\build\native\include\db.h" \

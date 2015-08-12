@@ -1463,7 +1463,6 @@ ConnectionI.obj: \
     "BatchRequestQueue.h" \
     "SharedContext.h" \
     "ProxyFactory.h" \
-    "C:\Users\benoit\ice\cpp\third-party-packages\bzip2.v140\build\native\include\bzlib.h" \
 
 ConnectionRequestHandler.obj: \
 	ConnectionRequestHandler.cpp \
