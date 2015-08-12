@@ -21,6 +21,8 @@ These are the changes since Ice 3.6.0.
 
 ## General Changes
 
+- Connections and transports buffers are now released when the connection is closed rather than waiting for the collection or destruction of the Ice connection object.
+
 - Calling `destroy()` on the `Glacier2::SessionHelper` during connection establishment will now immediately cause the termination of the connection attempt and `SessionCallback::connectFailed()` will be called with a `CommunicatorDestroyedException`. Previously, the helper would wait until the connection attempt either succeeded or failed before calling `SessionCallback::disconnected()` or `SessionCallback::connectFailed`.
 
 - Fixed a bug in Slice compilers which would incorrectly reject valid Slice where a parameter with the same name as a type would prevent further use of that type in the same scope. For example:
@@ -40,6 +42,11 @@ These are the changes since Ice 3.6.0.
   };
   }
   ```
+
+## C++ Changes
+
+- Added registration function for Ice plug-ins (Ice::registerIceSSL, ...). Use these functions if you don't want to rely on plug-in dynamic loading at runtime. Your application will need to link with the plug-in dynamic library if uses the register function.
+
 
 # Changes in Ice 3.6.0
 
