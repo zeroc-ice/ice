@@ -43,9 +43,15 @@ These are the changes since Ice 3.6.0.
   }
   ```
 
+- Added `--validate` option to Slice compilers. This option validates the options that are passed to the Slice compiler and emits any errors but does not create the generated files.
+
 ## C++ Changes
 
-- Added registration function for Ice plug-ins (Ice::registerIceSSL, ...). Use these functions if you don't want to rely on plug-in dynamic loading at runtime. Your application will need to link with the plug-in dynamic library if uses the register function.
+- Added registration function for Ice plug-ins (Ice::registerIceSSL, ...). Use these functions if you don't want to rely on plug-in dynamic loading at runtime. Your application will need to link with the plug-in dynamic library if it uses the register function.
+
+## JavaScript Changes
+
+- Fixed an issue in connection code which would cause an unexpected exception to be raised in some browsers when connection caching was enabled.
 
 
 # Changes in Ice 3.6.0
