@@ -27,10 +27,6 @@ num = 3
 
 args = " --IceDiscovery.Timeout=50"
 args += " --IceDiscovery.RetryCount=5"
-if not TestUtil.ipv6:
-    args += " --IceDiscovery.Interface=127.0.0.1"
-elif TestUtil.isDarwin():
-    args += " --IceDiscovery.Interface=\"::1\""
 
 # Set the plugin property only for the server, the client uses Ice::registerIceDiscovery()
 serverArgs = " --Ice.Plugin.IceDiscovery=IceDiscovery:createIceDiscovery" + args

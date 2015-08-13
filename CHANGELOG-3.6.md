@@ -21,6 +21,8 @@ These are the changes since Ice 3.6.0.
 
 ## General Changes
 
+- If the IceDiscovery.Interface or the IceLocatorDiscovery.Interface property is not set, the Ice.Default.Host property is now used to figure out the default interface to receive and send multicast datagrams with the IceDiscovery or IceLocatorDiscovery plug-ins. If no default host is set, the default interface for multicast is selected by the operation system.
+
 - Connections and transports buffers are now released when the connection is closed rather than waiting for the collection or destruction of the Ice connection object.
 
 - Calling `destroy()` on the `Glacier2::SessionHelper` during connection establishment will now immediately cause the termination of the connection attempt and `SessionCallback::connectFailed()` will be called with a `CommunicatorDestroyedException`. Previously, the helper would wait until the connection attempt either succeeded or failed before calling `SessionCallback::disconnected()` or `SessionCallback::connectFailed`.

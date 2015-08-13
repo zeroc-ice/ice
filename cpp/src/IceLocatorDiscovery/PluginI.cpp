@@ -13,6 +13,8 @@
 #include <IceLocatorDiscovery/PluginI.h>
 #include <IceLocatorDiscovery/IceLocatorDiscovery.h>
 
+#include <Ice/Network.h>
+
 using namespace std;
 using namespace IceLocatorDiscovery;
 
@@ -202,6 +204,27 @@ PluginI::initialize()
     }
     int port = properties->getPropertyAsIntWithDefault("IceLocatorDiscovery.Port", 4061);
     string intf = properties->getProperty("IceLocatorDiscovery.Interface");
+    string defaultHost = properties->getProperty("Ice.Default.Host");
+    if(intf.empty() && !defaultHost.empty())
+    {
+        //
+        // Make sure the interface is an IP address, the UDP --interface option
+        // doesn't support DNS names.
+        //
+        IceInternal::ProtocolSupport protocol = ipv4 && !preferIPv6 ? IceInternal::EnableIPv4 : IceInternal::EnableIPv6;
+        try
+        {
+            IceInternal::Address address = IceInternal::getAddressForServer(defaultHost, 0, protocol, preferIPv6);
+            if(IceInternal::isAddressValid(address))
+            {
+                intf = IceInternal::inetAddrToString(address);
+            }
+        }
+        catch(const Ice::LocalException&)
+        {
+            // Ignore
+        }
+    }
 
     if(properties->getProperty("IceLocatorDiscovery.Reply.Endpoints").empty())
     {

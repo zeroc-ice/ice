@@ -73,6 +73,7 @@ tests = [
     ("IceBox/configuration", ["core", "noipv6", "nomx"]),
     ("Glacier2/router", ["service"]),
     ("Glacier2/sessionHelper", ["core"]),
+    ("IceDiscovery/simple", ["service"]),
     ("IceGrid/simple", ["service"]),
     ("IceSSL/configuration", ["once", "novista", "nomono", "nocompact"]),
     ]

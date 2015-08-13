@@ -377,6 +377,28 @@ class PluginI implements Ice.Plugin
         }
         int port = properties.getPropertyAsIntWithDefault("IceLocatorDiscovery.Port", 4061);
         String intf = properties.getProperty("IceLocatorDiscovery.Interface");
+        String defaultHost = properties.getProperty("Ice.Default.Host");
+        if(intf.isEmpty() && !defaultHost.isEmpty())
+        {
+            //
+            // Make sure the interface is an IP address, the UDP --interface option
+            // doesn't support DNS names.
+            //
+            int protocol = ipv4 && !preferIPv6 ? IceInternal.Network.EnableIPv4 : IceInternal.Network.EnableIPv6;
+            try
+            {
+                java.net.InetSocketAddress addr = IceInternal.Network.getAddressForServer(defaultHost, 0, protocol,
+                    preferIPv6);
+                if(addr != null)
+                {
+                    intf = addr.getAddress().getHostAddress();
+                }
+            }
+            catch(Ice.LocalException ex)
+            {
+                // Ignore
+            }
+        }
 
         if(properties.getProperty("IceLocatorDiscovery.Reply.Endpoints").isEmpty())
         {

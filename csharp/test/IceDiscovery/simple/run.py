@@ -33,9 +33,6 @@ if TestUtil.isDarwin() and TestUtil.ipv6:
    print("test not supported on OS X with IPv6")
    sys.exit(0)
 
-if not TestUtil.ipv6:
-    args += " --IceDiscovery.Interface=127.0.0.1"
-
 serverProc = []
 for i in range(0, num):
     sys.stdout.write("starting server #%d... " % (i + 1))
