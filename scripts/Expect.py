@@ -259,7 +259,7 @@ class reader(threading.Thread):
                         continue
 
                     # If no match and the process has exited rasise a TIMEOUT
-                    if self.p and self.p.poll() is not None:
+                    if isinstance(self.p, subprocess.Popen) and self.p.poll() is not None:
                       raise  TIMEOUT ('timeout exceeded in match\npattern: "%s"\nbuffer: "%s"\n' %
                                            (escape(s), escape(buf, False)))
 
