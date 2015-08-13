@@ -98,6 +98,7 @@ class reader(threading.Thread):
         self._tracesuppress = None
         self.logfile = logfile
         self.watchDog = None
+        self._exited = False
         threading.Thread.__init__(self)
 
     def setWatchDog(self, watchDog):
@@ -109,6 +110,7 @@ class reader(threading.Thread):
                 c = self.p.stdout.read(1)
                 if not c:
                     self.cv.acquire()
+                    self._exited = True
                     self.cv.notify()
                     self.cv.release()
                     break
@@ -259,7 +261,7 @@ class reader(threading.Thread):
                         continue
 
                     # If no match and the process has exited rasise a TIMEOUT
-                    if isinstance(self.p, subprocess.Popen) and self.p.poll() is not None:
+                    if self._exited and isinstance(self.p, subprocess.Popen) and self.p.poll() is not None:
                       raise  TIMEOUT ('timeout exceeded in match\npattern: "%s"\nbuffer: "%s"\n' %
                                            (escape(s), escape(buf, False)))
 
