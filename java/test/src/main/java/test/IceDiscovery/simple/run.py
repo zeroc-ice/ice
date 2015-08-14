@@ -29,6 +29,10 @@ num = 3
 args = " --Ice.Plugin.IceDiscovery=IceDiscovery:IceDiscovery.PluginFactory"
 args += " --IceDiscovery.Timeout=50"
 args += " --IceDiscovery.RetryCount=5"
+if not TestUtil.ipv6:
+    args += " --IceDiscovery.Interface=127.0.0.1"
+elif TestUtil.isDarwin():
+    args += " --IceDiscovery.Interface=\"::1\""
 
 serverProc = []
 for i in range(0, num):

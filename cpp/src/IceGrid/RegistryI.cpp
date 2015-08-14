@@ -11,6 +11,7 @@
 #include <IceUtil/FileUtil.h>
 #include <Ice/Ice.h>
 #include <Ice/Network.h>
+#include <Ice/ProtocolPluginFacade.h> // Just to get the hostname
 
 #include <IceStorm/Service.h>
 #include <IceSSL/IceSSL.h>
@@ -591,28 +592,6 @@ RegistryI::startImpl()
         }
         int port = properties->getPropertyAsIntWithDefault("IceGrid.Registry.Discovery.Port", 4061);
         string interface = properties->getProperty("IceGrid.Registry.Discovery.Interface");
-        string defaultHost = properties->getProperty("Ice.Default.Host");
-        if(interface.empty() && !defaultHost.empty())
-        {
-            //
-            // Make sure the interface is an IP address, the UDP --interface option
-            // doesn't support DNS names.
-            //
-            IceInternal::ProtocolSupport protocol = ipv4 && !preferIPv6 ? IceInternal::EnableIPv4 : IceInternal::EnableIPv6;
-            try
-            {
-                IceInternal::Address address = IceInternal::getAddressForServer(defaultHost, 0, protocol, preferIPv6);
-                if(IceInternal::isAddressValid(address))
-                {
-                    interface = IceInternal::inetAddrToString(address);
-                }
-            }
-            catch(const Ice::LocalException&)
-            {
-                // Ignore
-            }
-        }
-
         if(properties->getProperty("IceGrid.Registry.Discovery.Endpoints").empty())
         {
             ostringstream os;

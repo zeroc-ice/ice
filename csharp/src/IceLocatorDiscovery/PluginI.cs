@@ -13,7 +13,6 @@ namespace IceLocatorDiscovery
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Text;
-    using System.Net;
 
     public sealed class PluginFactory : Ice.PluginFactory
     {
@@ -374,27 +373,6 @@ namespace IceLocatorDiscovery
             }
             int port = properties.getPropertyAsIntWithDefault("IceLocatorDiscovery.Port", 4061);
             string intf = properties.getProperty("IceLocatorDiscovery.Interface");
-            string defaultHost = properties.getProperty("Ice.Default.Host");
-            if(intf.Length == 0 && defaultHost.Length > 0)
-            {
-                //
-                // Make sure the interface is an IP address, the UDP --interface option
-                // doesn't support DNS names.
-                //
-                int protocol = ipv4 && !preferIPv6 ? IceInternal.Network.EnableIPv4 : IceInternal.Network.EnableIPv6;
-                try
-                {
-                    EndPoint addr = IceInternal.Network.getAddressForServer(defaultHost, 0, protocol, preferIPv6);
-                    if(addr != null)
-                    {
-                        intf = IceInternal.Network.endpointAddressToString(addr);
-                    }
-                }
-                catch(Ice.LocalException)
-                {
-                    // Ignore
-                }
-            }
 
             if(properties.getProperty("IceLocatorDiscovery.Reply.Endpoints").Length == 0)
             {
