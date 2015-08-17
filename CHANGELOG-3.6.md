@@ -42,7 +42,7 @@ These are the changes since Ice 3.6.0.
   {
     void method(Seq seq, Seq seq2); // This would fail with 'Seq is not a type' for second parameter
   };
-  }
+  };
   ```
 
 - Added `--validate` option to Slice compilers. This option validates the options that are passed to the Slice compiler and emits any errors but does not create the generated files.
