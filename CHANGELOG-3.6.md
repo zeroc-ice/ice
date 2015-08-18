@@ -23,11 +23,11 @@ These are the changes since Ice 3.6.0.
 
 - Add support for Visual Studio 2015 and Universal Windows Applications.
 
-- Connections and transports buffers are now released when the connection is closed rather than waiting for the collection or destruction of the Ice connection object.
+- Connection and transport buffers are now released when the connection is closed rather than waiting for the collection or destruction of the Ice connection object.
 
 - Calling `destroy()` on the `Glacier2::SessionHelper` during connection establishment will now immediately cause the termination of the connection attempt and `SessionCallback::connectFailed()` will be called with a `CommunicatorDestroyedException`. Previously, the helper would wait until the connection attempt either succeeded or failed before calling `SessionCallback::disconnected()` or `SessionCallback::connectFailed`.
 
-- Fixed a bug in Slice compilers which would incorrectly reject valid Slice where a parameter with the same name as a type would prevent further use of that type in the same scope. For example:
+- Fixed a bug in Slice compilers that would incorrectly reject valid Slice where a parameter with the same name as a type would prevent further use of that type in the same scope. For example:
   ```
   module Test
   {
@@ -51,23 +51,23 @@ These are the changes since Ice 3.6.0.
 
 - Added registration function for Ice plug-ins (Ice::registerIceSSL, ...). Use these functions if you don't want to rely on plug-in dynamic loading at runtime. Your application will need to link with the plug-in dynamic library if it uses the register function.
 
-- C++ source builds in Windows now use third party packages from Nuget (https://www.nuget.org)
+- C++ source builds in Windows now use third-party packages from Nuget (https://www.nuget.org).
 
-- Windows C++ builds now install the required third party dependencies to the install directory.
+- Windows C++ builds now install the required third-party dependencies to the install directory.
 
 ## JavaScript Changes
  
-- Fixed an issue in connection code which would cause an unexpected exception to be raised in some browsers when connection caching was enabled.
+- Fixed an issue in connection code that would cause an unexpected exception to be raised in some browsers when connection caching was enabled.
 
 - Fixed an issue where JavaScript browser side was trying to use TCP endpoints.
 
-- Fixed an issue that prevents Ice for JavaScript run from a Web Worker.
+- Fixed an issue that prevents Ice for JavaScript from running in a Web Worker.
 
-- JavaScript browser libraries no longer include a sourceMappingURL. To use source maps you must enabled them manually.
+- JavaScript browser libraries no longer include a sourceMappingURL. To use source maps you must enable them manually.
 
 ## PHP Changes
 
-- Update PHP Linux and OS X builds to use php-config from PATH, it is not longer required to set PHP_HOME.
+- Update PHP builds for Linux and OS X to use php-config from PATH. It is no longer necessary to set PHP_HOME.
 
 
 # Changes in Ice 3.6.0
