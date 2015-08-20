@@ -10,6 +10,10 @@
 //
 // jshint browser: true
 //
+
+/* global WorkerGlobalScope */
+
+
 var Ice = require("../Ice/ModuleRegistry").Ice;
 
 if(typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope)
@@ -51,14 +55,15 @@ else
 
     var _nextId = 0;
 
-    function nextId()
+    var nextId = function()
     {
         if(_nextId == MAX_SAFE_INTEGER)
         {
             _nextId = 0;
         }
         return _nextId++;
-    }
+    };
+
     Timer.setTimeout = function(cb, ms)
     {
         var id = nextId();
@@ -106,15 +111,14 @@ else
         {
             cb = _timers.delete(e.data.id);
         }
-        
+
         if(cb !== undefined)
         {
             cb.call();
         }
     };
 
-
-    function workerCode()
+    var workerCode = function()
     {
         return "(" +
         function()
@@ -127,9 +131,9 @@ else
                 _wSetImmediateType = 2,
                 _wClearTimeoutType = 3,
                 _wClearIntervalType = 4;
-                
+
             var timers = {};
-            
+
             self.onmessage = function(e)
             {
                 if(e.data.type == _wSetTimeoutType)
@@ -163,12 +167,12 @@ else
                     delete timers[e.data.id];
                 }
             };
-            
+
             //
             // jshint worker: false
             //
         }.toString() + "());";
-    }
+    };
 
     if(worker === undefined)
     {

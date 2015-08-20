@@ -147,7 +147,7 @@
             ).exception(
                 function(ex)
                 {
-                    self._msg = "unexpected exception:\n" + ex.stack;
+                    self._msg = "unexpected exception:\n" + ex.toString() + "\n" + ex.stack;
                 }
             );
         },
@@ -441,7 +441,9 @@
         // IE doesn't allow more than 6 connections.
         //
         if(typeof(navigator) !== "undefined" &&
-           (navigator.userAgent.indexOf("MSIE") != -1 || navigator.userAgent.indexOf("Trident/7.0") != -1))
+           (navigator.userAgent.indexOf("MSIE") != -1 ||
+            navigator.userAgent.indexOf("Trident/7.0") != -1 ||
+            navigator.userAgent.indexOf("Edge/12") != -1))
         {
             tests.push(new HeartbeatOnIdleTest(com, out));
             tests.push(new HeartbeatAlwaysTest(com, out));

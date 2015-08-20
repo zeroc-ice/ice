@@ -2,7 +2,8 @@
   "extends" : ".jshintrc",
   "browser" : true,
   "jquery" : true,
-  "globals": {
+  "globals":
+  {
     "Ice" : false,
     "IceGrid" : false,
     "IceMX" : false,

@@ -148,7 +148,7 @@
                             //test(info.headers.get("Sec-WebSocket-Protocol") == "ice.zeroc.com");
                             //test(info.headers.get("Sec-WebSocket-Accept") != null);
 
-                            test(ctx.get("ws.Upgrade") == "websocket");
+                            test(ctx.get("ws.Upgrade").toLowerCase() == "websocket");
                             test(ctx.get("ws.Connection") == "Upgrade");
                             test(ctx.get("ws.Sec-WebSocket-Protocol") == "ice.zeroc.com");
                             test(ctx.get("ws.Sec-WebSocket-Version") == "13");
