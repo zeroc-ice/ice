@@ -86,7 +86,7 @@ depending on the browser you're using:
    file, and add it as a certificate authority (CA) for trusting web sites.
    After closing the dialogs, reload the test page to continue.
 
-- Internet Explorer
+- Internet Explorer and Microsoft Edge
    Run the management console (mmc.exe) and add the Certificates snap-in for
    the computer account. In the console window, open the Certificates folder.
    From the Action menu, choose All Tasks and Import. Navigate to the
