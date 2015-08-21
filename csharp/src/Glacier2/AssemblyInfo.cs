@@ -14,13 +14,12 @@ using System.Runtime.InteropServices;
 
 [assembly: CLSCompliant(true)]
 
-[assembly: AssemblyTitle("Glacier2")]
-[assembly: AssemblyDescription("Glacier2 run-time support")]
+[assembly: AssemblyTitle("Glacier2 .NET Client Library")]
+[assembly: AssemblyDescription("Glacier2 .NET Client Library")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyProduct("Glacier2 for .NET")]
-[assembly: AssemblyCopyright("Copyright (c) 2003-2015 ZeroC, Inc.")]
-[assembly: AssemblyTrademark("Ice")]
+[assembly: AssemblyProduct("Ice")]
+[assembly: AssemblyCopyright("© 2003-2015 ZeroC, Inc.")]
 [assembly: AssemblyCulture("")]         
 [assembly: AssemblyVersion("3.6.1")]
 [assembly: AssemblyDelaySign(false)]

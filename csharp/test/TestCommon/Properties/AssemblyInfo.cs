@@ -18,9 +18,8 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
-[assembly: AssemblyProduct("TestCommon")]
-[assembly: AssemblyCopyright("Copyright © ZeroC 2012-2013")]
-[assembly: AssemblyTrademark("")]
+[assembly: AssemblyProduct("Ice")]
+[assembly: AssemblyCopyright("© 2003-2015 ZeroC, Inc.")]
 [assembly: AssemblyCulture("")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 

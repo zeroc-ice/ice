@@ -18,10 +18,10 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "ZeroC, Inc.\0"
-            VALUE "FileDescription", "Slice To JavaScript Translator\0"
+            VALUE "FileDescription", "Slice to JavaScript Translator\0"
             VALUE "FileVersion", "3.6.1\0"
             VALUE "InternalName", "slice2js\0"
-            VALUE "LegalCopyright", "Copyright (c) 2003-2015 ZeroC, Inc.  All rights reserved.\0"
+            VALUE "LegalCopyright", "\251 2003-2015 ZeroC, Inc.\0"
             VALUE "OriginalFilename", "slice2js.exe\0"
             VALUE "ProductName", "Ice\0"
             VALUE "ProductVersion", "3.6.1\0"

@@ -22,10 +22,10 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "ZeroC, Inc.\0"
-            VALUE "FileDescription", "Freeze DLL\0"
+            VALUE "FileDescription", "Freeze C++ Library\0"
             VALUE "FileVersion", "3.6.1\0"
             VALUE "InternalName", INTERNALNAME
-            VALUE "LegalCopyright", "Copyright (c) 2003-2015 ZeroC, Inc.  All rights reserved.\0"
+            VALUE "LegalCopyright", "\251 2003-2015 ZeroC, Inc.\0"
             VALUE "OriginalFilename", ORIGINALFILENAME
             VALUE "ProductName", "Ice\0"
             VALUE "ProductVersion", "3.6.1\0"

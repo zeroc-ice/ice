@@ -14,13 +14,12 @@ using System.Runtime.InteropServices;
 
 [assembly: CLSCompliant(true)]
 
-[assembly: AssemblyTitle("IceGrid")]
-[assembly: AssemblyDescription("IceGrid run-time support")]
+[assembly: AssemblyTitle("IceGrid .NET Client Library")]
+[assembly: AssemblyDescription("IceGrid .NET Client Library")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyProduct("IceGrid for .NET")]
-[assembly: AssemblyCopyright("Copyright (c) 2003-2015 ZeroC, Inc.")]
-[assembly: AssemblyTrademark("Ice")]
+[assembly: AssemblyProduct("Ice")]
+[assembly: AssemblyCopyright("© 2003-2015 ZeroC, Inc.")]
 [assembly: AssemblyCulture("")]         
 [assembly: AssemblyVersion("3.6.1")]
 [assembly: AssemblyDelaySign(false)]

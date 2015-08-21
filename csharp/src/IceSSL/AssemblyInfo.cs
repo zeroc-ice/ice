@@ -14,13 +14,12 @@ using System.Runtime.InteropServices;
 
 [assembly: CLSCompliant(true)]
 
-[assembly: AssemblyTitle("IceSSL")]
-[assembly: AssemblyDescription("IceSSL run-time support")]
+[assembly: AssemblyTitle("IceSSL .NET Plug-in")]
+[assembly: AssemblyDescription("IceSSL .NET Plug-in")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyProduct("IceSSL for .NET")]
-[assembly: AssemblyCopyright("Copyright (c) 2003-2015 ZeroC, Inc.")]
-[assembly: AssemblyTrademark("Ice")]
+[assembly: AssemblyProduct("Ice")]
+[assembly: AssemblyCopyright("© 2003-2015 ZeroC, Inc.")]
 [assembly: AssemblyCulture("")]         
 [assembly: AssemblyVersion("3.6.1")]
 [assembly: AssemblyDelaySign(false)]
