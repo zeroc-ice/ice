@@ -30,6 +30,7 @@ ICE_SRCS	= Ice/LocalException.php \
 		  Ice/Current.php \
 		  Ice/ImplicitContextF.php \
 		  Ice/ImplicitContext.php \
+		  Ice/RemoteLogger.php \
 		  Ice/Router.php \
 		  Ice/RouterF.php \
 		  Ice/Plugin.php \

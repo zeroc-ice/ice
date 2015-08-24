@@ -49,6 +49,7 @@ ICE_SRCS	= Ice_BuiltinSequences_ice.py \
 		  Ice_Properties_ice.py \
 		  Ice_PropertiesAdmin_ice.py \
 		  Ice_PropertiesF_ice.py \
+		  Ice_RemoteLogger_ice.py \
 		  Ice_Router_ice.py \
 		  Ice_RouterF_ice.py \
 		  Ice_ServantLocator_ice.py \

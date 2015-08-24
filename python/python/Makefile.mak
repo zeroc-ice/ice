@@ -45,6 +45,7 @@ ICE_SLICES	= Ice\BuiltinSequences.ice \
 		  Ice\Properties.ice \
 		  Ice\PropertiesAdmin.ice \
 		  Ice\PropertiesF.ice \
+		  Ice\RemoteLogger.ice \
 		  Ice\Router.ice \
 		  Ice\RouterF.ice \
 		  Ice\ServantLocator.ice \
@@ -217,6 +218,9 @@ Ice_ImplicitContext_ice.py: "$(slicedir)/Ice/ImplicitContext.ice" "$(SLICEPARSER
 
 Ice_ImplicitContextF_ice.py: "$(slicedir)/Ice/ImplicitContextF.ice" "$(SLICEPARSERLIB)"
 	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix Ice_ --no-package "$(slicedir)/Ice/ImplicitContextF.ice"
+
+Ice_RemoteLogger_ice.py: "$(slicedir)/Ice/RemoteLogger.ice" "$(SLICEPARSERLIB)"
+	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix Ice_ --no-package "$(slicedir)/Ice/RemoteLogger.ice"
 
 Ice_Router_ice.py: "$(slicedir)/Ice/Router.ice" "$(SLICEPARSERLIB)"
 	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix Ice_ --no-package "$(slicedir)/Ice/Router.ice"

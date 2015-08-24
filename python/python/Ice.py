@@ -448,6 +448,7 @@ import Ice_ObjectAdapter_ice
 import Ice_ObjectFactory_ice
 import Ice_Process_ice
 import Ice_Properties_ice
+import Ice_RemoteLogger_ice
 import Ice_Router_ice
 import Ice_ServantLocator_ice
 import Ice_Connection_ice

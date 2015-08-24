@@ -35,6 +35,7 @@ ICE_SRCS	= Ice/LocalException.rb \
 		  Ice/Current.rb \
 		  Ice/ImplicitContextF.rb \
 		  Ice/ImplicitContext.rb \
+		  Ice/RemoteLogger.rb \
 		  Ice/Router.rb \
 		  Ice/RouterF.rb \
 		  Ice/Plugin.rb \
