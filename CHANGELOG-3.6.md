@@ -21,6 +21,8 @@ These are the changes since Ice 3.6.0.
 
 ## General Changes
 
+- Fixed IceStorm performance issue when creating a large number of topics.
+
 - Add support for Visual Studio 2015 and Universal Windows Applications.
 
 - Connection and transport buffers are now released when the connection is closed rather than waiting for the collection or destruction of the Ice connection object.
@@ -56,7 +58,7 @@ These are the changes since Ice 3.6.0.
 - Windows C++ builds now install the required third-party dependencies to the install directory.
 
 ## JavaScript Changes
- 
+
 - Fixed an issue in connection code that would cause an unexpected exception to be raised in some browsers when connection caching was enabled.
 
 - Fixed an issue where JavaScript browser side was trying to use TCP endpoints.

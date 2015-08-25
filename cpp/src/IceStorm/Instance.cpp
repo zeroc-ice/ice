@@ -22,6 +22,22 @@ using namespace std;
 using namespace IceStorm;
 using namespace IceStormElection;
 
+void
+TopicReaper::add(const string& name)
+{
+    Lock sync(*this);
+    _topics.push_back(name);
+}
+
+vector<string>
+TopicReaper::consumeReapedTopics()
+{
+    Lock sync(*this);
+    vector<string> reaped;
+    reaped.swap(_topics);
+    return reaped;
+}
+
 Instance::Instance(
     const string& instanceName,
     const string& name,
@@ -43,7 +59,8 @@ Instance::Instance(
     _flushInterval(IceUtil::Time::milliSeconds(communicator->getProperties()->getPropertyAsIntWithDefault(
                                                    name + ".Flush.Timeout", 1000))), // default one second.
     // default one minute.
-    _sendTimeout(communicator->getProperties()->getPropertyAsIntWithDefault(name + ".Send.Timeout", 60 * 1000))
+    _sendTimeout(communicator->getProperties()->getPropertyAsIntWithDefault(name + ".Send.Timeout", 60 * 1000)),
+    _topicReaper(new TopicReaper())
 {
     try
     {
@@ -66,12 +83,12 @@ Instance::Instance(
         _observers = new Observers(this);
         _batchFlusher = new IceUtil::Timer();
         _timer = new IceUtil::Timer();
-        
+
         //
         // If an Ice metrics observer is setup on the communicator, also
         // enable metrics for IceStorm.
         //
-        IceInternal::CommunicatorObserverIPtr o = 
+        IceInternal::CommunicatorObserverIPtr o =
             IceInternal::CommunicatorObserverIPtr::dynamicCast(communicator->getObserver());
         if(o)
         {
@@ -194,6 +211,12 @@ IceStorm::Instrumentation::TopicManagerObserverPtr
 Instance::observer() const
 {
     return _observer;
+}
+
+IceStorm::TopicReaperPtr
+Instance::topicReaper() const
+{
+    return _topicReaper;
 }
 
 IceUtil::Time

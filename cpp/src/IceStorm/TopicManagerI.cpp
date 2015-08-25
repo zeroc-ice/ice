@@ -808,16 +808,13 @@ TopicManagerImpl::reap()
     //
     // Lock sync(*this);
     //
-    map<string, TopicImplPtr>::iterator p = _topics.begin();
-    while(p != _topics.end())
+    vector<string> reaped = _instance->topicReaper()->consumeReapedTopics();
+    for(vector<string>::const_iterator p = reaped.begin(); p != reaped.end(); ++p)
     {
-        if(p->second->destroyed())
+        map<string, TopicImplPtr>::iterator q = _topics.find(*p);
+        if(q != _topics.end() && q->second->destroyed())
         {
-            _topics.erase(p++);
-        }
-        else
-        {
-            ++p;
+            _topics.erase(q);
         }
     }
 }

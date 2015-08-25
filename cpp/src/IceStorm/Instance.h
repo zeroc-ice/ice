@@ -43,11 +43,24 @@ namespace IceStorm
 class TraceLevels;
 typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
 
+class TopicReaper : public IceUtil::Shared, private IceUtil::Mutex
+{
+public:
+
+    void add(const std::string&);
+    std::vector<std::string> consumeReapedTopics();
+
+private:
+
+    std::vector<std::string> _topics;
+};
+typedef IceUtil::Handle<TopicReaper> TopicReaperPtr;
+
 class Instance : public IceUtil::Shared
 {
 public:
 
-    Instance(const std::string&, const std::string&, const Ice::CommunicatorPtr&, const Ice::ObjectAdapterPtr&, 
+    Instance(const std::string&, const std::string&, const Ice::CommunicatorPtr&, const Ice::ObjectAdapterPtr&,
              const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr& = 0, const IceStormElection::NodePrx& = 0);
     ~Instance();
 
@@ -69,6 +82,7 @@ public:
     Ice::ObjectPrx topicReplicaProxy() const;
     Ice::ObjectPrx publisherReplicaProxy() const;
     IceStorm::Instrumentation::TopicManagerObserverPtr observer() const;
+    TopicReaperPtr topicReaper() const;
 
     IceUtil::Time discardInterval() const;
     IceUtil::Time flushInterval() const;
@@ -92,6 +106,7 @@ private:
     const int _sendTimeout;
     const Ice::ObjectPrx _topicReplicaProxy;
     const Ice::ObjectPrx _publisherReplicaProxy;
+    const TopicReaperPtr _topicReaper;
     IceStormElection::NodeIPtr _node;
     IceStormElection::ObserversPtr _observers;
     IceUtil::TimerPtr _batchFlusher;
