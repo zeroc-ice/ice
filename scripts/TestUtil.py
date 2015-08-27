@@ -23,6 +23,8 @@ global x64
 x64 = False                     # Binary distribution is 64-bit
 global x86
 x86 = False                     # Binary distribution is 32-bit
+global armv7l
+armv7l = False                  # Binary distribution is armv7l
 cpp11 = False                   # Binary distribution is c++11
 extraArgs = []
 clientTraceFilters = []
@@ -68,8 +70,12 @@ for path in ["/etc/redhat-release", "/etc/issue"]:
         linuxDistribution = "CentOS"
     elif issue.find("Ubuntu") != -1:
         linuxDistribution = "Ubuntu"
+    elif issue.find("Debian") != -1:
+        linuxDistribution = "Debian"
     elif issue.find("SUSE Linux") != -1:
         linuxDistribution = "SUSE LINUX"
+    elif issue.find("Yocto") != -1:
+        linuxDistribution = "Yocto"
 
 def isCygwin():
     # The substring on sys.platform is required because some cygwin
@@ -116,6 +122,12 @@ def isUbuntu():
 
 def isRhel():
     return isLinux() and linuxDistribution in ["RedHat", "Amazon", "CentOS"]
+
+def isYocto():
+    return isLinux() and linuxDistribution and linuxDistribution == "Yocto"
+
+def isDebian():
+    return isLinux() and linuxDistribution and linuxDistribution == "Yocto"
 
 def isSles():
     return isLinux() and linuxDistribution and linuxDistribution == "SUSE LINUX"
@@ -1749,16 +1761,21 @@ def getCppLibDir(lang = None):
         return getCppBinDir(lang)
     else:
         libDir = os.path.join(getIceDir("cpp"), "lib")
-        if x64:
+        if isUbuntu() or isDebian():
+            if armv7l:
+                libDir = os.path.join(libDir, "arm-linux-gnueabihf")
+            elif x86_64:
+                libDir = os.path.join(libDir, "x86_64-linux-gnu")
+            else:
+                libDir = os.path.join(libDir, "i386-linux-gnu")
+        elif x64:
             if isSolaris():
                 if isSparc():
                     libDir = os.path.join(libDir, "64")
                 else:
                     libDir = os.path.join(libDir, "amd64")
-            if isLinux() and not isUbuntu():
+            if isLinux():
                 libDir = libDir + "64"
-        if isUbuntu():
-            libDir = os.path.join(libDir, "x86_64-linux-gnu" if x64 else "i386-linux-gnu")
         return libDir
     return None
 
@@ -2188,7 +2205,9 @@ def processCmdLine():
             sys.stdout.write("*** using Ice installation from " + iceHome + " ")
         else:
             sys.stdout.write("*** using Ice source dist ")
-        if x64:
+        if armv7l:
+            sys.stdout.write("(ARMv7)")
+        elif x64:
             sys.stdout.write("(64bit) ")
         else:
             sys.stdout.write("(32bit) ")
@@ -2280,7 +2299,11 @@ def runTests(start, expanded, num = 0, script = False):
             if isDarwin() and "nodarwin" in config:
                 print("%s*** test not supported under Darwin%s" % (prefix, suffix))
                 continue
-
+            
+            if isYocto() and "noyocto" in config:
+                print("%s*** test not supported under Yocto%s" % (prefix, suffix))
+                continue
+            
             if not isWin32() and "win32only" in config:
                 print("%s*** test only supported under Win32%s" % (prefix, suffix))
                 continue
