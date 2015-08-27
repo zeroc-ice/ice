@@ -1767,7 +1767,7 @@ def getCppLibDir(lang = None):
         if isUbuntu() or isDebian():
             if armv7l:
                 libDir = os.path.join(libDir, "arm-linux-gnueabihf")
-            elif x86_64:
+            elif x64:
                 libDir = os.path.join(libDir, "x86_64-linux-gnu")
             else:
                 libDir = os.path.join(libDir, "i386-linux-gnu")
