@@ -323,8 +323,11 @@ else:
     if(p.wait() != 0):
         print("uname failed:\n" + p.stdout.read().strip())
         sys.exit(1)
-    if p.stdout.readline().decode('UTF-8').strip() == "x86_64" and os.environ.get("LP64", "") != "no":
+    line = p.stdout.readline().decode('UTF-8').strip()
+    if line == "x86_64" and os.environ.get("LP64", "") != "no":
         x64 = True
+    elif line == "armv7l":
+        armv7l = True
 
 #
 # The PHP interpreter is called "php5" on some platforms (e.g., SLES).
