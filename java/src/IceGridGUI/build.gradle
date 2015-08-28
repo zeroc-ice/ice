@@ -101,8 +101,13 @@ task updateManifest(dependsOn: proguardJar) << {
         }
     }
 }
+
+def env = System.getenv()
+def keystore = env['JARSIGNER_KEYSTORE']
+def keystore_password = env['JARSIGNER_KEYSTORE_PASSWORD']
+
 task signjar(dependsOn: updateManifest) << {
-    if(keystore != "") {
+    if(keystore != null && keystore.length() > 0) {
         ant.signjar(jar: "${libDir}/${jarName}",
                     alias: 'zeroc.com',
                     keystore:"${keystore}",
