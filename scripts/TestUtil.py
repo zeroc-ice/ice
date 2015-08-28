@@ -127,7 +127,7 @@ def isYocto():
     return isLinux() and linuxDistribution and linuxDistribution == "Yocto"
 
 def isDebian():
-    return isLinux() and linuxDistribution and linuxDistribution == "Yocto"
+    return isLinux() and linuxDistribution and linuxDistribution == "Debian"
 
 def isSles():
     return isLinux() and linuxDistribution and linuxDistribution == "SUSE LINUX"
