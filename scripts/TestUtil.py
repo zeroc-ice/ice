@@ -846,10 +846,17 @@ def hashPasswords(filePath, entries):
     if os.path.exists(filePath):
       os.remove(filePath)
     passwords = open(filePath, "a")
+
+    command = "%s %s" % (sys.executable, os.path.abspath(os.path.join(os.path.dirname(__file__), "icehashpassword.py")))
+    
+    #
+    # For Linux ARM default rounds makes test slower (Usually runs on embbeded boards)
+    #
+    if isLinux() and armv7l:
+        command += " --rounds 100000"
+
     for user, password in entries.items():
-        p = subprocess.Popen(
-            "%s %s" % (sys.executable, os.path.abspath(os.path.join(os.path.dirname(__file__), "icehashpassword.py"))),
-            shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.PIPE)
+        p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.PIPE)
         p.stdin.write(password.encode('UTF-8'))
         p.stdin.write('\r\n'.encode('UTF-8'))
         p.stdin.flush()
