@@ -1061,6 +1061,7 @@ namespace IceInternal
                         s.Append(_current.endpoint.protocol());
                         s.Append(" connection to ");
                         s.Append(_current.connector.ToString());
+                        s.Append("\n");
                         s.Append(ex);
                         _factory._instance.initializationData().logger.trace(
                                             _factory._instance.traceLevels().networkCat, s.ToString());
