@@ -334,7 +334,7 @@ endif
 
 ifeq ($(SLICE_LIBS),)
     ifeq ($(STATICLIBS),yes)
-	SLICE_LIBS = -lSlice -lmcpp $(BASELIBS)
+	SLICE_LIBS = -lSlice $(MCPP_LIBS) $(BASELIBS)
     else
 	SLICE_LIBS = -lSlice $(BASELIBS)
     endif
