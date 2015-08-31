@@ -123,10 +123,10 @@ if (!iceBinDist) {
             }
         } else {
             iceCppDir = iceDir + "/cpp"
+            slice.srcDist = true
         }
 
         slice.iceHome = iceCppDir
-        slice.srcDist = true
     }
 }
 
@@ -265,7 +265,7 @@ task nugetDirectory() {
     def nugetDir = new File("${localappdata}/ZeroC/nuget")
     if(!nugetDir.exists()) {
         nugetDir.mkdirs()
-    }    
+    }
 }
 
 task nugetInstall(type:Exec, dependsOn:nugetDirectory) {
