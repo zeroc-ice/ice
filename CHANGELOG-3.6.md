@@ -12,7 +12,7 @@ particular aspect of Ice.
   - [General Changes](#general-changes)
   - [C++ Changes](#c-changes)
   - [JavaScript Changes](#javascript-changes)
-  - [Python Changes](#python-changes)
+  - [PHP Changes](#php-changes)
 - [Changes in Ice 3.6.0](#changes-in-ice-360)
   - [General Changes](#general-changes-1)
   - [C++ Changes](#c-changes-1)
