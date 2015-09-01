@@ -10,15 +10,18 @@ particular aspect of Ice.
 
 - [Changes in Ice 3.6.1](#changes-in-ice-361)
   - [General Changes](#general-changes)
+  - [C++ Changes](#c-changes)
+  - [JavaScript Changes](#javascript-changes)
+  - [Python Changes](#python-changes)
 - [Changes in Ice 3.6.0](#changes-in-ice-360)
   - [General Changes](#general-changes-1)
-  - [C++ Changes](#c-changes)
+  - [C++ Changes](#c-changes-1)
   - [Java Changes](#java-changes)
   - [C# Changes](#c#-changes)
   - [Python Changes](#python-changes)
   - [Ruby Changes](#ruby-changes)
-  - [JavaScript Changes](#javascript-changes)
-  - [PHP Changes](#php-changes)
+  - [JavaScript Changes](#javascript-changes-1)
+  - [PHP Changes](#php-changes-1)
   - [Objective-C Changes](#objective-c-changes)
 
 # Changes in Ice 3.6.1
