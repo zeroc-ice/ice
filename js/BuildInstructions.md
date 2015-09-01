@@ -9,7 +9,7 @@ supported platforms.
 To build Ice for JavaScript you must have the following:
 
 - Ice 3.6 development kit for C++
-- Node.js 10.0 or later
+- Node.js 0.10 or later
 
 ## Building the JavaScript libraries and NodeJS packages
 

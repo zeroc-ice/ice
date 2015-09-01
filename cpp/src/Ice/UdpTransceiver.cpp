@@ -953,6 +953,14 @@ IceInternal::UdpTransceiver::UdpTransceiver(const ProtocolInstancePtr& instance,
 #else
     DatagramSocket^ socket = safe_cast<DatagramSocket^>(_fd);
     IceUtil::Handle<UdpTransceiver> self(this);
+# if _WIN32_WINNT >= 0x0A00
+    // On Windows 10, it's necessary to set this property to allow Win32 applications to
+    // bind to the same multicast address
+    if(isMulticast(_addr))
+    {
+        socket->Control->MulticastOnly = true;
+    }
+# endif
     socket->MessageReceived += ref new TypedEventHandler<DatagramSocket^, DatagramSocketMessageReceivedEventArgs^>(
         [=](DatagramSocket^ fd, DatagramSocketMessageReceivedEventArgs^ args)
         {
@@ -1000,6 +1008,14 @@ IceInternal::UdpTransceiver::UdpTransceiver(const UdpEndpointIPtr& endpoint, con
     _mcastAddr.saStorage.ss_family = AF_UNSPEC;
 #else
     DatagramSocket^ socket = safe_cast<DatagramSocket^>(_fd);
+# if _WIN32_WINNT >= 0x0A00
+    // On Windows 10, it's necessary to set this property to allow Win32 applications to
+    // bind to the same multicast address
+    if(isMulticast(_addr))
+    {
+        socket->Control->MulticastOnly = true;
+    }
+# endif
     IceUtil::Handle<UdpTransceiver> self(this);
     socket->MessageReceived += ref new TypedEventHandler<DatagramSocket^, DatagramSocketMessageReceivedEventArgs^>(
         [=](DatagramSocket^ fd, DatagramSocketMessageReceivedEventArgs^ args)
