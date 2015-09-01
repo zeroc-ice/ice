@@ -16,13 +16,13 @@ particular aspect of Ice.
 - [Changes in Ice 3.6.0](#changes-in-ice-360)
   - [General Changes](#general-changes-1)
   - [C++ Changes](#c-changes-1)
-  - [Java Changes](#java-changes)
   - [C# Changes](#c#-changes)
+  - [Java Changes](#java-changes)
+  - [JavaScript Changes](#javascript-changes-1)
+  - [Objective-C Changes](#objective-c-changes)
+  - [PHP Changes](#php-changes-1)
   - [Python Changes](#python-changes)
   - [Ruby Changes](#ruby-changes)
-  - [JavaScript Changes](#javascript-changes-1)
-  - [PHP Changes](#php-changes-1)
-  - [Objective-C Changes](#objective-c-changes)
 
 # Changes in Ice 3.6.1
 
@@ -528,52 +528,6 @@ These are the changes since Ice 3.5.1.
 
 - Removed deprecated `Ice::Object::ice_getHash` function.
 
-## Java Changes
-
-- Fixed the Java IceSSL implementation to behave like the C++ and C#
-  implementation when `IceSSL.VerifyPeer=1` is set for servers. The server will
-  now reject the connection if the client provides a certificate and this
-  certificate can't be verified.
-
-- Passing null for a Slice structure or enumerator is now tolerated. Ice
-  marshals an empty structure or the first enumerator value.
-
-- The default constructor for a Slice structure, exception or class now
-  initializes string, structure or enumerator data members. A string data member
-  is initialized to the empty string, a structure data member is initialized
-  with a new default-constructed structure, and an enumerator is initialized
-  with the first enumerator value.
-
-- The `clone` method provided by Java classes generated from Slice definitions
-  is now returning the generated class, instead of `java.lang.Object`. For
-  example, the `Ice.Identity` class generated from the `Ice::Identity` Slice
-  structure contains:
-  ```
-  // Prior to Ice 3.6
-  public java.lang.Object clone() { ... }
-
-  // Starting with Ice 3.6
-  public Identity clone() { ... }
-  ```
-  This way, you typically no longer need to cast after cloning an Ice structure or other Ice object.
-
-- Added new Slice metadata `java:buffer` to enable the use of `java.nio.Buffer`
-  types in the generated code for sequences of byte, short, int, long, float and
-  double. For example, `sequence<byte>` maps to `java.nio.ByteBuffer` instead of
-  `byte[]`.
-
-- Changed the Ice core to allow applications to safely interrupt threads that
-  are calling Ice APIs. The new property `Ice.ThreadInterruptSafe` must be
-  enabled in order to use thread interrupts. Ice raises the new exception
-  `Ice.OperationInterruptedException` if an API call is interrupted.
-
-- Added support for Java 8.
-
-- Java 8 lambda expressions can be used as callbacks for asynchronous proxy
-  invocations.
-
-- Removed deprecated `IceUtil.Version` class.
-
 ## C# Changes
 
 - Fixed the Java IceSSL implementation to behave like the C++ and Java
@@ -625,29 +579,51 @@ These are the changes since Ice 3.5.1.
 
 - Mono is no longer an officially-supported platform for Ice for .NET.
 
-## Python Changes
+## Java Changes
 
-- Passing `None` for a Slice structure is now tolerated, an empty structure will
-  be marshaled.
+- Fixed the Java IceSSL implementation to behave like the C++ and C#
+  implementation when `IceSSL.VerifyPeer=1` is set for servers. The server will
+  now reject the connection if the client provides a certificate and this
+  certificate can't be verified.
 
-- Added support for Python 3.4.
+- Passing null for a Slice structure or enumerator is now tolerated. Ice
+  marshals an empty structure or the first enumerator value.
 
-- Changed the semantics of `Ice.Unset` so that it evaluates as false in a
-  boolean context.
+- The default constructor for a Slice structure, exception or class now
+  initializes string, structure or enumerator data members. A string data member
+  is initialized to the empty string, a structure data member is initialized
+  with a new default-constructed structure, and an enumerator is initialized
+  with the first enumerator value.
 
-- Fixed a bug in the Slice-to-Python translator that eliminates the use of
-  implicit relative imports for nested Slice modules.
+- The `clone` method provided by Java classes generated from Slice definitions
+  is now returning the generated class, instead of `java.lang.Object`. For
+  example, the `Ice.Identity` class generated from the `Ice::Identity` Slice
+  structure contains:
+  ```
+  // Prior to Ice 3.6
+  public java.lang.Object clone() { ... }
 
-- Added `ice_staticId` to generated proxy classes.
+  // Starting with Ice 3.6
+  public Identity clone() { ... }
+  ```
+  This way, you typically no longer need to cast after cloning an Ice structure or other Ice object.
 
-## Ruby Changes
+- Added new Slice metadata `java:buffer` to enable the use of `java.nio.Buffer`
+  types in the generated code for sequences of byte, short, int, long, float and
+  double. For example, `sequence<byte>` maps to `java.nio.ByteBuffer` instead of
+  `byte[]`.
 
-- Passing null for a Slice structure is now tolerated, an empty structure will
-  be marshaled.
+- Changed the Ice core to allow applications to safely interrupt threads that
+  are calling Ice APIs. The new property `Ice.ThreadInterruptSafe` must be
+  enabled in order to use thread interrupts. Ice raises the new exception
+  `Ice.OperationInterruptedException` if an API call is interrupted.
 
-- Added support for Ruby 2.1.
+- Added support for Java 8.
 
-- Added `ice_staticId` to generated proxy classes.
+- Java 8 lambda expressions can be used as callbacks for asynchronous proxy
+  invocations.
+
+- Removed deprecated `IceUtil.Version` class.
 
 ## JavaScript Changes
 
@@ -670,19 +646,6 @@ These are the changes since Ice 3.5.1.
   will need to modify their require statements. For example, to use Ice you
   would now write:
   `var Ice = require("icejs").Ice;`
-
-## PHP Changes
-
-- Passing null for a Slice structure is now tolerated, an empty structure will
-  be marshaled.
-
-- Added support for PHP 5.6.
-
-- Added `ice_staticId` to generated proxy helper classes.
-
-- Generated interfaces now extend the `Object` base interface.
-
-- Added `ObjectPrxHelper` class.
 
 ## Objective-C Changes
 
@@ -715,3 +678,40 @@ These are the changes since Ice 3.5.1.
   is initialized to the empty string, a structure data member is initialized
   with a new default-constructed structure, and an enumerator is initialized
   with the first enumerator value.
+
+## PHP Changes
+
+- Passing null for a Slice structure is now tolerated, an empty structure will
+  be marshaled.
+
+- Added support for PHP 5.6.
+
+- Added `ice_staticId` to generated proxy helper classes.
+
+- Generated interfaces now extend the `Object` base interface.
+
+- Added `ObjectPrxHelper` class.
+
+## Python Changes
+
+- Passing `None` for a Slice structure is now tolerated, an empty structure will
+  be marshaled.
+
+- Added support for Python 3.4.
+
+- Changed the semantics of `Ice.Unset` so that it evaluates as false in a
+  boolean context.
+
+- Fixed a bug in the Slice-to-Python translator that eliminates the use of
+  implicit relative imports for nested Slice modules.
+
+- Added `ice_staticId` to generated proxy classes.
+
+## Ruby Changes
+
+- Passing null for a Slice structure is now tolerated, an empty structure will
+  be marshaled.
+
+- Added support for Ruby 2.1.
+
+- Added `ice_staticId` to generated proxy classes.
