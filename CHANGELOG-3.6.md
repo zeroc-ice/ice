@@ -29,7 +29,7 @@ These are the changes since Ice 3.6.0.
 
 - Fixed IceStorm performance issue when creating a large number of topics.
 
-- Added support for Visual Studio 2015 and Universal Windows Applications.
+- Added support for Visual Studio 2015 and Universal Windows Platform (UWP) apps.
 
 - Connection and transport buffers are now released when the connection is
   closed rather than waiting for the collection or destruction of the Ice
