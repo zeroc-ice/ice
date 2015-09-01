@@ -791,7 +791,7 @@ def getIceBox():
                 iceBox += "d"
             iceBox += ".exe"
         elif isLinux():
-            if not x64:
+            if not x64 and not armv7l:
                 iceBox += "32"
             if cpp11:
                 iceBox += "++11"
