@@ -831,7 +831,7 @@
                             function(i)
                             {
                                 test(i == 10);
-                                test(Date.now() - start >= 475 && Date.now() - start <= 525);
+                                test(Date.now() - start >= 450 && Date.now() - start <= 650);
                             }
                         ).exception(
                             function(ex)
@@ -850,7 +850,7 @@
                                     function(i)
                                     {
                                         test(i == 10);
-                                        test(Date.now() - start >= 475 && Date.now() - start <= 525);
+                                        test(Date.now() - start >= 450 && Date.now() - start <= 650);
                                     }
                                 ).exception(
                                     function(ex)
@@ -875,7 +875,7 @@
                                     function(ex)
                                     {
                                         test(ex == "failed");
-                                        test(Date.now() - start >= 475 && Date.now() - start <= 525);
+                                        test(Date.now() - start >= 450 && Date.now() - start <= 650);
                                         out.writeLine("ok");
                                         promise.succeed();
                                     }
