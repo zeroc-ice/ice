@@ -22,13 +22,11 @@ if(typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope
     // If running in a worker we don't need to create a separate worker for the timers
     //
     var Timer = {};
-
     Timer.setTimeout = setTimeout;
     Timer.clearTimeout = clearTimeout;
     Timer.setInterval = setInterval;
     Timer.clearInterval = clearInterval;
     Timer.setImmediate = setImmediate;
-
     Ice.Timer = Timer;
 }
 else
@@ -176,9 +174,31 @@ else
 
     if(worker === undefined)
     {
-        worker = new Worker(window.URL.createObjectURL(new Blob([workerCode()], {type : 'text/javascript'})));
-        worker.onmessage = Timer.onmessage;
-    }
+        var url;
+        try
+        {
+            url = window.URL.createObjectURL(new Blob([workerCode()], {type : 'text/javascript'}));
+            worker = new Worker(url);
+            worker.onmessage = Timer.onmessage;
+            Ice.Timer = Timer;
+        }
+        catch(ex)
+        {
+            window.URL.revokeObjectURL(url)
 
-    Ice.Timer = Timer;
+            //
+            // Fallback on setInterval/setTimeout if the worker creating failed. Some IE10 and IE11 don't
+            // support creating workers from blob URLs for instance. Note that we also have to use apply
+            // with null as the first argument to workaround an issue where IE doesn't like these functions
+            // to be called with an unknown object (it reports an "Invalid calling object" error).
+            //
+            var Timer = {};
+            Timer.setTimeout = function () { setTimeout.apply(null, arguments); }
+            Timer.clearTimeout = function () { clearTimeout.apply(null, arguments); };
+            Timer.setInterval = function () { setInterval.apply(null, arguments); };
+            Timer.clearInterval = function () { clearInterval.apply(null, arguments); };
+            Timer.setImmediate = function () { setImmediate.apply(null, arguments); }
+            Ice.Timer = Timer;
+        }
+    }
 }
