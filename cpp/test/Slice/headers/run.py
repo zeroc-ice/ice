@@ -49,7 +49,7 @@ def runTest(cmd):
                      '#include <linktodir1\/a2\.h>\n'
                      '#include <linktodir1\/linktoa3\.h>\n'
                      '#include <Ice\/Identity\.h>\n', f.read(), re.S):
-        print "failed!"
+        print("failed!")
         sys.exit(1)
     os.unlink("b.h")
     os.unlink("b.cpp")
