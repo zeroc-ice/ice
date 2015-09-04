@@ -848,7 +848,7 @@ def hashPasswords(filePath, entries):
     passwords = open(filePath, "a")
 
     command = "%s %s" % (sys.executable, os.path.abspath(os.path.join(os.path.dirname(__file__), "icehashpassword.py")))
-    
+
     #
     # For Linux ARM default rounds makes test slower (Usually runs on embbeded boards)
     #
@@ -1811,7 +1811,7 @@ def getJavaLibraryPath():
         if "LD_LIBRARY_PATH" in os.environ:
             libpath = os.environ["LD_LIBRARY_PATH"] + ":" + libpath
         return "-Djava.library.path=%s " % libpath
-    return None
+    return ''
 
 def getServiceDir():
     global serviceDir
@@ -2309,11 +2309,11 @@ def runTests(start, expanded, num = 0, script = False):
             if isDarwin() and "nodarwin" in config:
                 print("%s*** test not supported under Darwin%s" % (prefix, suffix))
                 continue
-            
+
             if isYocto() and "noyocto" in config:
                 print("%s*** test not supported under Yocto%s" % (prefix, suffix))
                 continue
-            
+
             if not isWin32() and "win32only" in config:
                 print("%s*** test only supported under Win32%s" % (prefix, suffix))
                 continue
