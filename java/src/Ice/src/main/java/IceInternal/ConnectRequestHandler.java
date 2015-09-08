@@ -19,24 +19,9 @@ public class ConnectRequestHandler
     synchronized public RequestHandler
     connect(Ice.ObjectPrxHelperBase proxy)
     {
-        try
+        if(!initialized())
         {
-            if(!initialized())
-            {
-                _proxies.add(proxy);
-            }
-        }
-        catch(Ice.LocalException ex)
-        {
-            //
-            // Only throw if the connection didn't get established. If
-            // it died after being established, we allow the caller to
-            // retry the connection establishment by not throwing here.
-            //
-            if(_connection == null)
-            {
-                throw ex;
-            }
+            _proxies.add(proxy);
         }
         return _requestHandler;
     }
@@ -260,6 +245,16 @@ public class ConnectRequestHandler
 
             if(_exception != null)
             {
+                if(_connection != null)
+                {
+                    //
+                    // Only throw if the connection didn't get established. If
+                    // it died after being established, we allow the caller to
+                    // retry the connection establishment by not throwing here
+                    // (the connection will throw RetryException).
+                    //
+                    return true;
+                }
                 throw (Ice.LocalException)_exception.fillInStackTrace();
             }
             else

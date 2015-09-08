@@ -41,24 +41,9 @@ RequestHandlerPtr
 ConnectRequestHandler::connect(const Ice::ObjectPrx& proxy)
 {
     Lock sync(*this);
-    try
+    if(!initialized())
     {
-        if(!initialized())
-        {
-            _proxies.insert(proxy);
-        }
-    }
-    catch(const Ice::LocalException&)
-    {
-        //
-        // Only throw if the connection didn't get established. If
-        // it died after being established, we allow the caller to
-        // retry the connection establishment by not throwing here.
-        //
-        if(!_connection)
-        {
-            throw;
-        }
+        _proxies.insert(proxy);
     }
     return _requestHandler ? _requestHandler : this;
 }
@@ -302,6 +287,16 @@ ConnectRequestHandler::initialized()
 
         if(_exception.get())
         {
+            if(_connection)
+            {
+                //
+                // Only throw if the connection didn't get established. If
+                // it died after being established, we allow the caller to
+                // retry the connection establishment by not throwing here
+                // (the connection will throw RetryException).
+                //
+                return true;
+            }
             _exception->ice_throw();
             return false; // Keep the compiler happy.
         }

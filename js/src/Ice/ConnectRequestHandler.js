@@ -54,24 +54,9 @@ var ConnectRequestHandler = Ice.Class({
     },
     connect: function(proxy)
     {
-        try
+        if(!this.initialized())
         {
-            if(!this.initialized())
-            {
-                this._proxies.push(proxy);
-            }
-        }
-        catch(ex)
-        {
-            //
-            // Only throw if the connection didn't get established. If
-            // it died after being established, we allow the caller to
-            // retry the connection establishment by not throwing here.
-            //
-            if(this._connection === null)
-            {
-                throw ex;
-            }
+            this._proxies.push(proxy);
         }
         return this._requestHandler ? this._requestHandler : this;
     },
@@ -212,6 +197,16 @@ var ConnectRequestHandler = Ice.Class({
         {
             if(this._exception !== null)
             {
+                if(this._connection !== null)
+                {
+                    //
+                    // Only throw if the connection didn't get established. If
+                    // it died after being established, we allow the caller to
+                    // retry the connection establishment by not throwing here
+                    // (the connection will throw RetryException).
+                    //
+                    return true;
+                }
                 throw this._exception;
             }
             else
