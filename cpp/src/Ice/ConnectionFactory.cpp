@@ -1222,6 +1222,7 @@ IceInternal::IncomingConnectionFactory::flushAsyncBatchRequests(const Communicat
 bool
 IceInternal::IncomingConnectionFactory::startAsync(SocketOperation)
 {
+    assert(_acceptor);
     if(_state >= StateClosed)
     {
         return false;
@@ -1245,6 +1246,7 @@ IceInternal::IncomingConnectionFactory::startAsync(SocketOperation)
 bool
 IceInternal::IncomingConnectionFactory::finishAsync(SocketOperation)
 {
+    assert(_acceptor);
     try
     {
         _acceptor->finishAccept();
@@ -1293,6 +1295,11 @@ IceInternal::IncomingConnectionFactory::message(ThreadPoolCurrent& current)
         for(vector<Ice::ConnectionIPtr>::const_iterator p = cons.begin(); p != cons.end(); ++p)
         {
             _connections.erase(*p);
+        }
+
+        if(!_acceptor)
+        {
+            return;
         }
 
         //
@@ -1411,7 +1418,14 @@ IceInternal::IncomingConnectionFactory::toString() const
     {
         return _transceiver->toString();
     }
-    return _acceptor->toString();
+    else if(_acceptor)
+    {
+        return _acceptor->toString();
+    }
+    else
+    {
+        return string();
+    }
 }
 
 NativeInfoPtr
@@ -1421,9 +1435,14 @@ IceInternal::IncomingConnectionFactory::getNativeInfo()
     {
         return _transceiver->getNativeInfo();
     }
-
-    assert(_acceptor);
-    return _acceptor->getNativeInfo();
+    else if(_acceptor)
+    {
+        return _acceptor->getNativeInfo();
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 void
@@ -1705,6 +1724,7 @@ IceInternal::IncomingConnectionFactory::createAcceptor()
         if(_acceptor)
         {
             _acceptor->close();
+            _acceptor = 0;
         }
         throw;
     }
@@ -1722,4 +1742,13 @@ IceInternal::IncomingConnectionFactory::closeAcceptor()
     }
 
     _acceptor->close();
+
+#if TARGET_OS_IPHONE != 0
+    //
+    // Only clear the acceptor on iOS where it can be destroyed/re-created during the lifetime of the incoming
+    // connection factory. On other platforms, we keep it set. This is in particular import for IOCP/WinRT where
+    // finishAsync can be called after the acceptor is closed.
+    //
+    _acceptor = 0;
+#endif
 }
