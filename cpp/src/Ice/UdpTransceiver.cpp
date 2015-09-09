@@ -124,6 +124,7 @@ IceInternal::UdpTransceiver::close()
         _readPending = false;
     }
     _received.clear();
+    _completedHandler = nullptr;
 #endif
 
     assert(_fd != INVALID_SOCKET);
@@ -389,6 +390,7 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
                 auto operation = safe_cast<DatagramSocket^>(_fd)->ConnectAsync(_addr.host, _addr.port);
                 if(!checkIfErrorOrCompleted(SocketOperationConnect, operation))
                 {
+                    SocketOperationCompletedHandler^ completed = _completedHandler;
                     operation->Completed = ref new AsyncActionCompletedHandler(
                         [=] (IAsyncAction^ info, Windows::Foundation::AsyncStatus status)
                         {
@@ -402,7 +404,7 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
                                 _write.count = 0;
                                 _writer = ref new DataWriter(safe_cast<DatagramSocket^>(_fd)->OutputStream);
                             }
-                            _completedHandler(SocketOperationConnect);
+                            completed(SocketOperationConnect);
                         });
                 }
                 else
@@ -416,6 +418,7 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
                 auto operation = safe_cast<DatagramSocket^>(_fd)->GetOutputStreamAsync(_addr.host, _addr.port);
                 if(!checkIfErrorOrCompleted(SocketOperationConnect, operation))
                 {
+                    SocketOperationCompletedHandler^ completed = _completedHandler;
                     operation->Completed = ref new AsyncOperationCompletedHandler<IOutputStream^>(
                         [=] (IAsyncOperation<IOutputStream^>^ info, Windows::Foundation::AsyncStatus status)
                         {
@@ -433,7 +436,7 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
                             {
                                 setMcastGroup(_fd, _mcastAddr, "");
                             }
-                            _completedHandler(SocketOperationConnect);
+                            completed(SocketOperationConnect);
                         });
                 }
                 else
@@ -457,6 +460,7 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
     {
         try
         {
+            SocketOperationCompletedHandler^ completed = _completedHandler;
             DatagramSocket^ fd = safe_cast<DatagramSocket^>(_fd);
             concurrency::create_task(fd->GetOutputStreamAsync(_peerAddr.host, _peerAddr.port)).then(
                 [=,&buf](concurrency::task<IOutputStream^> task)
@@ -478,7 +482,7 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
                             // completed callback.
                             //
                             _write.count = operation->GetResults();
-                            _completedHandler(SocketOperationWrite);
+                            completed(SocketOperationWrite);
                         }
                         else if(status == Windows::Foundation::AsyncStatus::Started)
                         {
@@ -500,7 +504,7 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
                     {
                         _write.count = SOCKET_ERROR;
                         _write.error = pex->HResult;
-                        _completedHandler(SocketOperationWrite);
+                        completed(SocketOperationWrite);
                     }
                 });
         }
