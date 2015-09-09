@@ -14,6 +14,7 @@ void testRetryCount(int);
 void testFailureCount(int);
 void testInvocationCount(int);
 
+void initCounts();
 Ice::Instrumentation::CommunicatorObserverPtr getObserver();
 
 #endif

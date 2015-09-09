@@ -39,6 +39,8 @@ main(int argc, char* argv[])
 
     try
     {
+        initCounts();
+
         Ice::InitializationData initData;
         initData.properties = Ice::createProperties(argc, argv);
         initData.observer = getObserver();

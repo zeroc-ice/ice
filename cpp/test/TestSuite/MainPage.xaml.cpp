@@ -225,7 +225,9 @@ class Runnable : public IceUtil::Thread, public Test::MainHelper
 {
 public:
 
-	Runnable(const TestRunnerPtr&, const string&, const TestConfig&, const vector<string>& options = vector<string>());
+	Runnable(const TestRunnerPtr&, const string&, DllCache&, const TestConfig&,
+             const vector<string>& options = vector<string>());
+
     virtual ~Runnable();
     virtual void run();
     void waitForStart();
@@ -249,7 +251,7 @@ private:
     int _status;
     Ice::CommunicatorPtr _communicator;
     FARPROC _dllTestShutdown;
-    HINSTANCE _hnd;
+    DllCache& _dlls;
     vector<string> _options;
 };
 typedef IceUtil::Handle<Runnable> RunnablePtr;
@@ -259,7 +261,7 @@ class TestRunner : public IceUtil::Thread
 public:
 
     TestRunner(const std::shared_ptr<TestCase>&, const TestConfig&, MainPage^,
-			   const Ice::CommunicatorPtr&);
+			   const Ice::CommunicatorPtr&, DllCache&);
     virtual void run();
     void runClientServerTest(const string&, const string&);
     void runClientServerTestWithRemoteServer(const string&);
@@ -274,41 +276,40 @@ private:
     TestConfig _config;
     MainPage^ _page;
     Ice::CommunicatorPtr _communicator;
+    DllCache& _dlls;
 };
 
-Runnable::Runnable(const TestRunnerPtr& runner, const string& test, const TestConfig& config, const vector<string>& options) :
+Runnable::Runnable(const TestRunnerPtr& runner, const string& test, DllCache& dlls, const TestConfig& config,
+                   const vector<string>& options) :
 	_runner(runner),
     _test(test),
     _config(config),
     _started(false),
     _completed(false),
     _status(0),
+    _dlls(dlls),
     _options(options)
 {
 }
 
 Runnable::~Runnable()
 {
-    if(_hnd != 0)
-    {
-        FreeLibrary(_hnd);
-    }
 }
 
 void
 Runnable::run()
 {
-    _hnd = LoadPackagedLibrary(IceUtil::stringToWstring(_test).c_str(), 0);
-    if(_hnd == 0)
+	HINSTANCE hnd = _dlls.loadDll(_test);
+    if(hnd == 0)
     {
         ostringstream os;
-        os << "failed to load `" << _test + "': error code: " << GetLastError();
+        os << "failed to load `" << _test << "': error code: " << GetLastError();
         _runner->printLineToConsoleOutput(os.str());
         completed(-1);
         return;
     }
 
-    _dllTestShutdown = GetProcAddress(_hnd, "dllTestShutdown");
+    _dllTestShutdown = GetProcAddress(hnd, "dllTestShutdown");
     if(_dllTestShutdown == 0)
     {
 		_runner->printLineToConsoleOutput("failed to find dllTestShutdown function from `" + _test + "'");
@@ -316,7 +317,7 @@ Runnable::run()
         return;
     }
 
-    FARPROC dllMain = GetProcAddress(_hnd, "dllMain");
+    FARPROC dllMain = GetProcAddress(hnd, "dllMain");
     if(dllMain == 0)
     {
 		_runner->printLineToConsoleOutput("failed to find dllMain function from `" + _test + "'");
@@ -464,11 +465,12 @@ Runnable::completed(int status)
 }
 
 TestRunner::TestRunner(const TestCasePtr& test, const TestConfig& config, MainPage^ page,
-					   const Ice::CommunicatorPtr& communicator) :
+					   const Ice::CommunicatorPtr& communicator, DllCache& dlls) :
     _test(test),
     _config(config),
     _page(page),
-    _communicator(communicator)
+    _communicator(communicator),
+    _dlls(dlls)
 {
 }
 
@@ -543,7 +545,7 @@ TestRunner::run()
             if(!_test->serverAMD.empty() && _config.server == "winrt")
             {
                 printLineToConsoleOutput("*** running test with AMD server " + _test->name);
-                runClientServerTest(_test->server, _test->client);
+                runClientServerTest(_test->serverAMD, _test->client);
             }
 
             //
@@ -581,14 +583,14 @@ TestRunner::runClientServerTest(const string& server, const string& client)
     RunnablePtr serverRunable;
     TestConfig svrConfig = _config;
     svrConfig.type = TestConfigTypeServer;
-    serverRunable = new Runnable(this, _test->prefix + server, svrConfig);
+    serverRunable = new Runnable(this, _test->prefix + server, _dlls, svrConfig);
     serverRunable->start();
     serverRunable->getThreadControl().detach();
     serverRunable->waitForStart();
 
     TestConfig cltConfig = _config;
     cltConfig.type = TestConfigTypeClient;
-	RunnablePtr clientRunable = new Runnable(this, _test->prefix + client, cltConfig);
+	RunnablePtr clientRunable = new Runnable(this, _test->prefix + client, _dlls, cltConfig);
     clientRunable->start();
     clientRunable->getThreadControl().detach();
 
@@ -694,13 +696,13 @@ TestRunner::runClientServerTestWithRemoteServer(const string& client)
 
         TestConfig cltConfig = _config;
         cltConfig.type = TestConfigTypeClient;
-		RunnablePtr clientRunable = new Runnable(this, _test->prefix + client, cltConfig, configuration->options);
-        clientRunable->start();
-        clientRunable->getThreadControl().detach();
+		RunnablePtr runnable = new Runnable(this, _test->prefix + client, _dlls, cltConfig, configuration->options);
+        runnable->start();
+        runnable->getThreadControl().detach();
 
         try
         {
-            clientRunable->waitForCompleted();
+            runnable->waitForCompleted();
         }
         catch(...)
         {
@@ -724,7 +726,7 @@ TestRunner::runClientTest(const string& client, bool collocated)
 {
     TestConfig cltConfig = _config;
     cltConfig.type = collocated ? TestConfigTypeColloc : TestConfigTypeClient;
-	RunnablePtr clientRunable = new Runnable(this, _test->prefix + client, cltConfig);
+	RunnablePtr clientRunable = new Runnable(this, _test->prefix + client, _dlls, cltConfig);
     clientRunable->start();
     clientRunable->getThreadControl().detach();
     clientRunable->waitForCompleted();
@@ -752,6 +754,28 @@ TestCase::TestCase(const string& module, const string& name, const string& clien
     ipv6Support(!isIn(noIPv6, name)),
     wsSupport(!isIn(noWS, name))
 {
+}
+
+HINSTANCE
+DllCache::loadDll(const std::string& name)
+{
+    map<string, HINSTANCE>::const_iterator p = _dlls.find(name);
+    if(p != _dlls.end())
+    {
+        return p->second;
+    }
+
+    HINSTANCE hnd = LoadPackagedLibrary(IceUtil::stringToWstring(name).c_str(), 0);
+    _dlls.insert(make_pair(name, hnd));
+    return hnd;
+}
+
+DllCache::~DllCache()
+{
+    for(map<string, HINSTANCE>::const_iterator p = _dlls.begin(); p != _dlls.end(); ++p)
+    {
+        FreeLibrary(p->second);
+    }
 }
 
 MainPage::MainPage() :
@@ -894,7 +918,7 @@ MainPage::runSelectedTest()
     config.server = selectedLanguage();
     config.host = IceUtil::wstringToString(_host->Text->Data());
 
-    TestRunnerPtr t = new TestRunner(_allTests[_tests->SelectedIndex], config, this, communicator());
+    TestRunnerPtr t = new TestRunner(_allTests[_tests->SelectedIndex], config, this, communicator(), _dlls);
     t->start();
     t->getThreadControl().detach();
 }
@@ -902,8 +926,8 @@ MainPage::runSelectedTest()
 void
 TestSuite::MainPage::initializeSupportedTests()
 {
-     _allTests = allTest(selectedLanguage() != "winrt");
-     _names->Clear();
+    _allTests = allTest(selectedLanguage() != "winrt");
+    _names->Clear();
     for(vector<TestCasePtr>::const_iterator i = _allTests.begin(); i != _allTests.end(); ++i)
     {
         TestCasePtr test = *i;

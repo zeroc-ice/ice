@@ -21,7 +21,7 @@ namespace TestSuite
 
 struct TestConfiguration
 {
-    TestConfiguration(const std::string& name = "", 
+    TestConfiguration(const std::string& name = "",
                       const std::vector<std::string>& options = std::vector<std::string>(),
                       const std::vector<std::string>& languages = std::vector<std::string>());
 
@@ -75,21 +75,34 @@ findChild(Windows::UI::Xaml::DependencyObject^ parent, Platform::String^ name)
     return nullptr;
 }
 
+class DllCache
+{
+public:
+
+    ~DllCache();
+
+	HINSTANCE loadDll(const std::string&);
+
+private:
+
+    std::map<std::string, HINSTANCE> _dlls;
+};
+
 [Windows::Foundation::Metadata::WebHostHidden]
 public ref class MainPage sealed
 {
 public:
-    
+
     MainPage();
-    
+
     void completed();
     void failed(Platform::String^ reason);
 	void printToConsoleOutput(Platform::String^ message, bool newline);
 
 protected:
-        
+
     virtual void OnNavigatedTo(Windows::UI::Xaml::Navigation::NavigationEventArgs^ e) override;
-    
+
 private:
 
     void btnRun_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
@@ -108,12 +121,13 @@ private:
     void initializeSupportedTests();
 
     Ice::CommunicatorPtr communicator();
-    
+
     Platform::Collections::Vector<Platform::String^>^ _names;
     Platform::Collections::Vector<Platform::String^>^ _protocols;
     Platform::Collections::Vector<Platform::String^>^ _messages;
 
     std::vector<TestCasePtr> _allTests;
+    DllCache _dlls;
 
     Windows::UI::Xaml::Controls::ListBox^ _tests;
     Windows::UI::Xaml::Controls::ComboBox^ _language;
