@@ -10,7 +10,7 @@
                 <ResourceDictionary Source="StandardStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <Style x:Key="TitleStyle" TargetType="TextBlock">
-                <Setter Property="Foreground" Value="White" />
+                <Setter Property="Foreground" Value="{StaticResource ApplicationForegroundThemeBrush}"/>
                 <Setter Property="FontFamily" Value="Segoe UI Light" />
                 <Setter Property="FontSize" Value="16" />
             </Style>
@@ -26,7 +26,7 @@
                 <Setter Property="Margin" Value="0,0,0,25" />
             </Style>
             <Style x:Key="FooterStyle" TargetType="TextBlock">
-                <Setter Property="Foreground" Value="White" />
+                <Setter Property="Foreground" Value="{StaticResource ApplicationForegroundThemeBrush}"/>
                 <Setter Property="FontFamily" Value="Segoe UI Light" />
                 <Setter Property="FontSize" Value="12" />
                 <Setter Property="Margin" Value="0,8,0,0" />
