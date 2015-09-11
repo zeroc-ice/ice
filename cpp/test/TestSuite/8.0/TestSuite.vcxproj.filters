@@ -1,0 +1,249 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Assets">
+      <UniqueIdentifier>aa39e686-931d-4eb4-a06f-1ce6c081fd4c</UniqueIdentifier>
+    </Filter>
+    <Image Include="Assets\Logo.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\SmallLogo.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\StoreLogo.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\SplashScreen.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Filter Include="Tests">
+      <UniqueIdentifier>{16bb0b82-e8f7-47c8-8ab9-25814f65a3c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Slice Files">
+      <UniqueIdentifier>{a0f32232-9e67-427a-bab0-9659037ab6b9}</UniqueIdentifier>
+      <Extensions>ice</Extensions>
+    </Filter>
+    <Filter Include="Styles">
+      <UniqueIdentifier>3ce71594-e3a4-4c38-9d0f-46e2a2076f6c</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="generated\Controller.cpp" />
+    <ClCompile Include="..\MainPage.xaml.cpp" />
+    <ClCompile Include="..\pch.cpp" />
+    <ClCompile Include="App.xaml.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="generated\Controller.h" />
+    <ClInclude Include="..\MainPage.xaml.h" />
+    <ClInclude Include="..\pch.h" />
+    <ClInclude Include="App.xaml.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <AppxManifest Include="Package.appxmanifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\Ice\adapterDeactivation\Ice_adapterDeactivation_client.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\adapterDeactivation\Ice_adapterDeactivation_collocated.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\adapterDeactivation\Ice_adapterDeactivation_server.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\ami\Ice_ami_client.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\ami\Ice_ami_server.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\binding\Ice_binding_client.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\binding\Ice_binding_server.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\dispatcher\Ice_dispatcher_client.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\dispatcher\Ice_dispatcher_server.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\exceptions\Ice_exceptions_client.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\exceptions\Ice_exceptions_collocated.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\exceptions\Ice_exceptions_server.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\exceptions\Ice_exceptions_serveramd.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\facets\Ice_facets_client.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\facets\Ice_facets_collocated.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\facets\Ice_facets_server.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\hold\Ice_hold_client.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\hold\Ice_hold_server.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\info/Ice_info_client.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\info\Ice_info_server.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\inheritance\Ice_inheritance_client.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\inheritance\Ice_inheritance_collocated.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\inheritance\Ice_inheritance_server.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\invoke\Ice_invoke_client.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\invoke\Ice_invoke_server.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\location\Ice_location_client.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\location\Ice_location_server.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\objects\Ice_objects_client.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\objects\Ice_objects_collocated.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\objects\Ice_objects_server.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\operations\Ice_operations_collocated.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\operations\Ice_operations_server.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\operations\Ice_operations_serveramd.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\proxy\Ice_proxy_client.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\proxy\Ice_proxy_collocated.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\proxy\Ice_proxy_server.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\proxy\Ice_proxy_serveramd.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\timeout\Ice_timeout_client.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\timeout\Ice_timeout_server.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\udp\Ice_udp_client.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\udp\Ice_udp_server.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\operations\Ice_operations_collocated.dll" />
+    <None Include="..\..\Ice\operations\Ice_operations_server.dll" />
+    <None Include="..\..\Ice\operations\Ice_operations_serveramd.dll" />
+    <None Include="..\..\Ice\operations\Ice_operations_client.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\operations\Ice_operations_collocated.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\operations\Ice_operations_server.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\operations\Ice_operations_serveramd.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\retry\Ice_retry_client.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\retry\Ice_retry_server.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\stream\Ice_stream_client.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\operations\Ice_operations_client.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\hash\Ice_hash_client.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\metrics\Ice_metrics_client.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\metrics\Ice_metrics_server.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\metrics\Ice_metrics_serveramd.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\optional\Ice_optional_client.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\optional\Ice_optional_server.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\admin\Ice_admin_client.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\admin\Ice_admin_server.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\enums\Ice_enums_client.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\enums\Ice_enums_server.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\acm\Ice_acm_client.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\acm\Ice_acm_server.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\..\..\certs\cacert.der" />
+    <None Include="TestSuite_TemporaryKey.pfx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="..\MainPage.xaml" />
+    <Page Include="StandardStyles.xaml">
+      <Filter>Styles</Filter>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <IceBuilder Include="..\Controller.ice">
+      <Filter>Slice Files</Filter>
+    </IceBuilder>
+  </ItemGroup>
+</Project>

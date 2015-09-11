@@ -187,7 +187,14 @@ serverReady(id<ICECommunicator> c)
 void
 serverStop()
 {
-    [communicator shutdown];
+    @try
+    {
+        [communicator shutdown];
+    }
+    @catch(ICECommunicatorDestroyedException* ex)
+    {
+        // Ignore, it's possible the test shutdown the server explicitly already.
+    }
 }
 
 void

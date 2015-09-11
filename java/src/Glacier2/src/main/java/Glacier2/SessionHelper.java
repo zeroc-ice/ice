@@ -50,11 +50,18 @@ public class SessionHelper
             if(!_connected)
             {
                 //
-                // In this case a connecting session is being
-                // destroyed. The communicator and session will be
-                // destroyed when the connection establishment has
-                // completed.
+                // In this case a connecting session is being destroyed.
+                // We destroy the communicator to trigger the immediate
+                // failure of the connection establishment.
                 //
+                new Thread(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        destroyCommunicator();
+                    }
+                }).start();
                 return;
             }
             _session = null;
@@ -446,6 +453,27 @@ public class SessionHelper
     }
 
     private void
+    destroyCommunicator()
+    {
+        Ice.Communicator communicator = null;
+        synchronized(this)
+        {
+            communicator = _communicator;
+        }
+
+        if(communicator != null)
+        {
+            try
+            {
+                _communicator.destroy();
+            }
+            catch(Throwable ex)
+            {
+            }
+        }
+    }
+
+    private void
     connectImpl(final ConnectStrategy factory)
     {
         assert !_destroy;
@@ -487,6 +515,18 @@ public class SessionHelper
                     try
                     {
                         _communicator.setDefaultRouter(finder.getRouter());
+                    }
+                    catch(final Ice.CommunicatorDestroyedException ex)
+                    {
+                        dispatchCallback(new Runnable()
+                        {
+                            @Override
+                            public void run()
+                            {
+                                _callback.connectFailed(SessionHelper.this, ex);
+                            }
+                        }, null);
+                        return;
                     }
                     catch(Exception ex)
                     {

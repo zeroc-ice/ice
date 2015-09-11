@@ -28,20 +28,11 @@ public:
 
 }
 
-#ifdef ICE_STATIC_LIBS
-extern "C"
-{
-
-Ice::Plugin* createIceSSL(const Ice::CommunicatorPtr&, const string&, const Ice::StringSeq&);
-
-}
-#endif
-
 int
 main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
-    Ice::registerPluginFactory("IceSSL", createIceSSL, true);
+    Ice::registerIceSSL();
 #endif
 
 #ifdef _WIN32
@@ -56,7 +47,7 @@ main(int argc, char* argv[])
 #endif
     Ice::InitializationData id;
     id.properties = Ice::createProperties();
-    id.properties->load("config.client");    
+    id.properties->load("config.client");
     Client c;
     int status = c.main(argc, argv, id);
 #ifdef _WIN32

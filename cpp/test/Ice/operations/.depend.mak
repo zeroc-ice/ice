@@ -215,6 +215,7 @@ Client.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
@@ -345,6 +346,7 @@ AllTests.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
@@ -475,6 +477,7 @@ Twoways.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
@@ -605,6 +608,7 @@ Oneways.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
@@ -735,6 +739,7 @@ TwowaysAMI.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
@@ -865,6 +870,7 @@ OnewaysAMI.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
@@ -995,6 +1001,7 @@ BatchOneways.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
@@ -1125,6 +1132,7 @@ BatchOnewaysAMI.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
@@ -1255,6 +1263,7 @@ TestI.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Cache.h" \
@@ -1386,6 +1395,7 @@ Server.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
@@ -1598,6 +1608,7 @@ TestAMDI.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "TestAMDI.h" \
     "TestAMD.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
@@ -1729,6 +1740,7 @@ ServerAMD.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
@@ -1860,6 +1872,7 @@ Collocated.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \

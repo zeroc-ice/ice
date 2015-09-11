@@ -120,6 +120,7 @@ ServiceInstaller.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Cache.h" \
@@ -250,6 +251,7 @@ Install.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\IceUtil\Options.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "ServiceInstaller.h" \

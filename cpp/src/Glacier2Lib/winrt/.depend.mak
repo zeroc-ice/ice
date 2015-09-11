@@ -488,6 +488,7 @@ $(ARCH)\$(CONFIG)\SessionHelper.obj: \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
     "$(includedir)\Glacier2\Config.h" \

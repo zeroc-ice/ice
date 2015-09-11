@@ -29,7 +29,7 @@ class CallbackI : public Callback
 {
 
 public:
-    
+
     virtual void
     initiateCallback(const CallbackReceiverPrx& proxy, const Ice::Current& current)
     {
@@ -54,29 +54,23 @@ public:
 int
 SessionHelperServer::run(int, char**)
 {
+    communicator()->getProperties()->setProperty("DeactivatedAdapter.Endpoints", "default -p 12011");
+    communicator()->createObjectAdapter("DeactivatedAdapter");
+
     communicator()->getProperties()->setProperty("CallbackAdapter.Endpoints", "default -p 12010");
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("CallbackAdapter");
     adapter->add(new CallbackI(), communicator()->stringToIdentity("callback"));
     adapter->activate();
-    communicator()->waitForShutdown();        
+    communicator()->waitForShutdown();
 
     return EXIT_SUCCESS;
 }
-
-#ifdef ICE_STATIC_LIBS
-extern "C"
-{
-
-Ice::Plugin* createIceSSL(const Ice::CommunicatorPtr&, const string&, const Ice::StringSeq&);
-
-}
-#endif
 
 int
 main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
-    Ice::registerPluginFactory("IceSSL", createIceSSL, true);
+    Ice::registerIceSSL();
 #endif
 
     SessionHelperServer app;

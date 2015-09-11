@@ -555,11 +555,6 @@ final class UdpTransceiver implements Transceiver
                                 java.util.Collections.list(java.net.NetworkInterface.getNetworkInterfaces());
                     for(java.net.NetworkInterface iface : interfaces)
                     {
-                        if(!iface.supportsMulticast())
-                        {
-                            continue;
-                        }
-
                         boolean hasProtocolAddress = false;
                         java.util.List<java.net.InetAddress> addresses =
                             java.util.Collections.list(iface.getInetAddresses());
@@ -583,10 +578,8 @@ final class UdpTransceiver implements Transceiver
                     if(!join)
                     {
                         throw new Ice.SocketException(new IllegalArgumentException(
-                                                    "There aren't any interfaces that support multicast, " +
-                                                    "or the interfaces that support it\n" +
-                                                    "are not configured for the group protocol. " +
-                                                    "Cannot join the mulitcast group."));
+                                            "There are no interfaces that are configured for the group protocol.\n" +
+                                            "Cannot join the multicast group."));
                     }
                 }
             }

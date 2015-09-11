@@ -2002,6 +2002,14 @@ Ice::ConnectionI::finish(bool close)
     }
     _asyncRequests.clear();
 
+    //
+    // Don't wait to be reaped to reclaim memory allocated by read/write streams.
+    //
+    _writeStream.clear();
+    _writeStream.b.clear();
+    _readStream.clear();
+    _readStream.b.clear();
+
     if(_callback)
     {
         closeCallback(_callback);

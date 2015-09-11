@@ -23,10 +23,12 @@ public class Server
     {
         public override int run(string[] args)
         {
+            communicator().getProperties().setProperty("DeactivatedAdapter.Endpoints", "default -p 12011");
+            communicator().createObjectAdapter("DeactivatedAdapter");
+
             communicator().getProperties().setProperty("CallbackAdapter.Endpoints", "default -p 12010");
             Ice.ObjectAdapter adapter = communicator().createObjectAdapter("CallbackAdapter");
-            adapter.add(new CallbackI(),
-                        communicator().stringToIdentity("callback"));
+            adapter.add(new CallbackI(), communicator().stringToIdentity("callback"));
             adapter.activate();
             communicator().waitForShutdown();
             return 0;

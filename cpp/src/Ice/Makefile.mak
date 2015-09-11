@@ -119,7 +119,7 @@ OBJS	       =  .\Acceptor.obj \
 		  .\ProxyFactory.obj \
 		  .\Reference.obj \
 		  .\ReferenceFactory.obj \
-		  .\RegisterPlugins.obj \
+		  .\RegisterPluginsInit.obj \
 		  .\RequestHandler.obj \
 		  .\RequestHandlerFactory.obj \
 		  .\ResponseHandler.obj \
@@ -159,7 +159,9 @@ RC_SRCS		= EventLoggerMsg.rc
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-CPPFLAGS	= -I.. $(CPPFLAGS) -DICE_API_EXPORTS -DWIN32_LEAN_AND_MEAN -bigobj
+$(OBJS)		: $(BZIP2_NUPKG)
+
+CPPFLAGS	= -I.. $(CPPFLAGS) -DICE_API_EXPORTS -DWIN32_LEAN_AND_MEAN -bigobj $(BZIP2_CPPFLAGS)
 !if "$(UNIQUE_DLL_NAMES)" == "yes"
 CPPFLAGS	= $(CPPFLAGS) -DCOMPSUFFIX=\"$(COMPSUFFIX)\"
 !endif
@@ -174,7 +176,7 @@ RES_FILE	= Ice.res
 $(LIBNAME): $(DLLNAME)
 
 $(DLLNAME): $(OBJS) Ice.res
-	$(LINK) $(BASE):0x22000000 $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH) $(RES_FILE)
+	$(LINK) $(BASE):0x22000000 $(LD_DLLFLAGS) $(BZIP2_LDFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH) $(RES_FILE)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 		$(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest

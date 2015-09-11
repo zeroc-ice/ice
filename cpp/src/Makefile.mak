@@ -13,7 +13,7 @@ top_srcdir	= ..
 
 !if "$(WINRT)" == "yes"
 SUBDIRS		= IceUtil Slice slice2cpp
-SUBDIRS_WINRT = IceUtil\winrt \
+SUBDIRS_WINRT	= IceUtil\winrt \
 		  Ice\winrt \
 		  Glacier2Lib\winrt \
 		  IceStormLib\winrt \

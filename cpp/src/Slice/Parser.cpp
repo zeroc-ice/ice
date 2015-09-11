@@ -1309,23 +1309,19 @@ Slice::Container::lookupTypeNoBuiltin(const string& scoped, bool printError, boo
             }
             return TypeList();
         }
-        if(typeError && results.empty() && printError)
-        {
-            for(vector<string>::const_iterator p = errors.begin(); p != errors.end(); ++p)
-            {
-                _unit->error(*p);
-            }
-        }
-        return results;
     }
-    else
+
+    //
+    // Do not emit errors if there was a type error but a match was found in a higher scope.
+    //
+    if(printError && !(typeError && !results.empty()))
     {
         for(vector<string>::const_iterator p = errors.begin(); p != errors.end(); ++p)
         {
             _unit->error(*p);
         }
-        return results;
     }
+    return results;
 }
 
 ContainedList

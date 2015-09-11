@@ -45,9 +45,9 @@ if TestUtil.isDarwin():
     except getopt.GetoptError:
         pass
 
-version = "3.6.0"
+iceVersion = "3.6.1"
 jar = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..",
-                   "java/test/controller/build/libs/testController-%(version)s.jar" % {"version": version})
+                   "java/test/controller/build/libs/testController-%(iceVersion)s.jar" % {"iceVersion": iceVersion})
 
 javaHome = os.environ.get("JAVA_HOME", "")
 javaCmd = '%s' % os.path.join(javaHome, "bin", "java") if javaHome else "java"

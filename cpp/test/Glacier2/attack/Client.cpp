@@ -25,31 +25,22 @@ public:
     virtual int run(int, char*[]);
 };
 
-#ifdef ICE_STATIC_LIBS
-extern "C"
-{
-
-Ice::Plugin* createIceSSL(const Ice::CommunicatorPtr&, const string&, const Ice::StringSeq&);
-
-}
-#endif
-
 int
 main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
-    Ice::registerPluginFactory("IceSSL", createIceSSL, true);
+    Ice::registerIceSSL();
 #endif
 
     Ice::InitializationData initData;
     initData.properties = Ice::createProperties(argc, argv);
-   
+
     //
     // We want to check whether the client retries for evicted
     // proxies, even with regular retries disabled.
     //
     initData.properties->setProperty("Ice.RetryIntervals", "-1");
-        
+
     AttackClient app;
     return app.main(argc, argv, initData);
 }
@@ -123,7 +114,7 @@ AttackClient::run(int, char**)
     }
     cout << string(msg.size(), '\b') << string(msg.size(), ' ') << string(msg.size(), '\b');
     cout << "ok" << endl;
-    
+
     cout << "testing server and router shutdown... " << flush;
     backend->shutdown();
     communicator()->setDefaultRouter(0);

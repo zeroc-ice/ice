@@ -166,6 +166,7 @@ namespace IceInternal
                 return connectionLost(ex.InnerException as SocketException);
             }
 
+#if !UNITY
             //
             // In other cases the IOException has no inner exception. We could examine the
             // exception's message, but that is fragile due to localization issues. We
@@ -185,6 +186,7 @@ namespace IceInternal
             {
                 return true;
             }
+#endif
 
             return false;
         }

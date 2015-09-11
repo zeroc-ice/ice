@@ -133,6 +133,88 @@ public class Client extends test.Util.Application
                 connected(Glacier2.SessionHelper session)
                     throws Glacier2.SessionNotExistException
                 {
+                    test(false);
+                }
+
+                @Override
+                public void
+                disconnected(Glacier2.SessionHelper session)
+                {
+                    test(false);
+                }
+
+                @Override
+                public void
+                connectFailed(Glacier2.SessionHelper session, Throwable exception)
+                {
+                    try
+                    {
+                        throw exception;
+                    }
+                    catch(Ice.CommunicatorDestroyedException ex)
+                    {
+                        out.println("ok");
+                        synchronized(test.Glacier2.sessionHelper.Client.this)
+                        {
+                            test.Glacier2.sessionHelper.Client.wakeUp();
+                        }
+                    }
+                    catch(Throwable ex)
+                    {
+                        test(false);
+                    }
+                }
+
+                @Override
+                public void
+                createdCommunicator(Glacier2.SessionHelper session)
+                {
+                    test(session.communicator() != null);
+                }
+            });
+
+        synchronized(this)
+        {
+            out.print("testing SessionHelper connect interrupt... ");
+            out.flush();
+            _factory.setRouterHost(host);
+            _factory.setPort(12011);
+            _factory.setProtocol(protocol);
+            _session = _factory.connect("userid", "abc123");
+
+            while(true)
+            {
+                try
+                {
+                    Thread.sleep(100);
+                    break;
+                }
+                catch(java.lang.InterruptedException ex)
+                {
+                }
+            }
+            _session.destroy();
+
+            while(true)
+            {
+                try
+                {
+                    wait();
+                    break;
+                }
+                catch(java.lang.InterruptedException ex)
+                {
+                }
+            }
+        };
+
+        _factory = new Glacier2.SessionFactoryHelper(_initData, new Glacier2.SessionCallback()
+            {
+                @Override
+                public void
+                connected(Glacier2.SessionHelper session)
+                    throws Glacier2.SessionNotExistException
+                {
                     out.println("ok");
                     synchronized(test.Glacier2.sessionHelper.Client.this)
                     {

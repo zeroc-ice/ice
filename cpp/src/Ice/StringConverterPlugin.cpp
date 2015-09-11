@@ -63,7 +63,7 @@ createStringConverter(const CommunicatorPtr& communicator, const string& name, c
                 return 0;
             }
         }
-        
+
         if(cp == -1)
         {
             Error out(communicator->getLogger());
@@ -100,7 +100,7 @@ createStringConverter(const CommunicatorPtr& communicator, const string& name, c
                 return 0;
             }
         }
-        
+
         switch(iconvArgs.size())
         {
             case 0:
@@ -125,7 +125,7 @@ createStringConverter(const CommunicatorPtr& communicator, const string& name, c
             }
         }
 
-#endif    
+#endif
 
         return new StringConverterPlugin(communicator, stringConverter, wstringConverter);
     }
@@ -142,4 +142,16 @@ createStringConverter(const CommunicatorPtr& communicator, const string& name, c
         return 0;
     }
 }
+
+}
+
+namespace Ice
+{
+
+ICE_API void
+registerIceStringConverter(bool loadOnInitialize)
+{
+    Ice::registerPluginFactory("IceStringConverter", createStringConverter, loadOnInitialize);
+}
+
 }

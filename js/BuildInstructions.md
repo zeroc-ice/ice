@@ -9,7 +9,7 @@ supported platforms.
 To build Ice for JavaScript you must have the following:
 
 - Ice 3.6 development kit for C++
-- Node.js 10.0 or later
+- Node.js 0.10 or later
 
 ## Building the JavaScript libraries and NodeJS packages
 
@@ -86,7 +86,7 @@ depending on the browser you're using:
    file, and add it as a certificate authority (CA) for trusting web sites.
    After closing the dialogs, reload the test page to continue.
 
-- Internet Explorer
+- Internet Explorer and Microsoft Edge
    Run the management console (mmc.exe) and add the Certificates snap-in for
    the computer account. In the console window, open the Certificates folder.
    From the Action menu, choose All Tasks and Import. Navigate to the
@@ -136,9 +136,9 @@ following command:
 
     > npm pack
 
-This will generate the file `ice-3.6.0.tgz`, which can be installed by running:
+This will generate the file `ice-3.6.1.tgz`, which can be installed by running:
 
-    > npm install <path_to_file>/ice-3.6.0.tgz
+    > npm install <path_to_file>/ice-3.6.1.tgz
 
 To use Ice for JavaScript with a browser, copy the appropriate JavaScript
 library files located in the `lib` directory to your web server.

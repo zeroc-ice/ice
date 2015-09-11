@@ -154,7 +154,7 @@ public class AllTests
         {
             Ice.InitializationData initData = createClientProps(defaultProperties, defaultDir, defaultHost);
             initData.properties.setProperty("Ice.InitPlugins", "0");
-            initData.properties.setProperty("IceSSL.Ciphers", "NONE (.*DH_anon.*)");
+            initData.properties.setProperty("IceSSL.Ciphers", "NONE (.*DH_anon.*AES.*)");
             initData.properties.setProperty("IceSSL.VerifyPeer", "0");
             Ice.Communicator comm = Ice.Util.initialize(args, initData);
             Ice.PluginManager pm = comm.getPluginManager();
@@ -163,7 +163,7 @@ public class AllTests
             test(obj != null);
             ServerFactoryPrx fact = ServerFactoryPrxHelper.checkedCast(obj);
             java.util.Map<String, String> d = createServerProps(defaultProperties, defaultDir, defaultHost);
-            d.put("IceSSL.Ciphers", "NONE (.*DH_anon.*)");
+            d.put("IceSSL.Ciphers", "NONE (.*DH_anon.*AES.*)");
             d.put("IceSSL.VerifyPeer", "0");
             ServerPrx server = fact.createServer(d);
             try
@@ -402,13 +402,13 @@ public class AllTests
             // does not supply a certificate.
             //
             initData = createClientProps(defaultProperties, defaultDir, defaultHost);
-            initData.properties.setProperty("IceSSL.Ciphers", "NONE (.*DH_anon.*)");
+            initData.properties.setProperty("IceSSL.Ciphers", "NONE (.*DH_anon.*AES.*)");
             initData.properties.setProperty("IceSSL.VerifyPeer", "1");
             comm = Ice.Util.initialize(args, initData);
             fact = ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, defaultDir, defaultHost);
-            d.put("IceSSL.Ciphers", "NONE (.*DH_anon.*)");
+            d.put("IceSSL.Ciphers", "NONE (.*DH_anon.*AES.*)");
             d.put("IceSSL.VerifyPeer", "0");
             server = fact.createServer(d);
             try
@@ -855,7 +855,7 @@ public class AllTests
             // ADH is allowed but will not have a certificate.
             //
             initData = createClientProps(defaultProperties, defaultDir, defaultHost);
-            initData.properties.setProperty("IceSSL.Ciphers", "NONE (.*DH_anon.*)");
+            initData.properties.setProperty("IceSSL.Ciphers", "NONE (.*DH_anon.*AES.*)");
             initData.properties.setProperty("IceSSL.VerifyPeer", "0");
             Ice.Communicator comm = Ice.Util.initialize(args, initData);
             IceSSL.Plugin plugin = (IceSSL.Plugin)comm.getPluginManager().getPlugin("IceSSL");
@@ -866,7 +866,7 @@ public class AllTests
             ServerFactoryPrx fact = ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, defaultDir, defaultHost);
-            d.put("IceSSL.Ciphers", "NONE (.*DH_anon.*)");
+            d.put("IceSSL.Ciphers", "NONE (.*DH_anon.*AES.*)");
             d.put("IceSSL.VerifyPeer", "0");
             ServerPrx server = fact.createServer(d);
             try
@@ -1274,7 +1274,7 @@ public class AllTests
             // negotiate to use ADH since we explicitly enable it.
             //
             initData = createClientProps(defaultProperties, defaultDir, defaultHost);
-            initData.properties.setProperty("IceSSL.Ciphers", "NONE (.*DH_anon.*)");
+            initData.properties.setProperty("IceSSL.Ciphers", "NONE (.*DH_anon.*AES.*)");
             initData.properties.setProperty("IceSSL.VerifyPeer", "0");
             Ice.Communicator comm = Ice.Util.initialize(args, initData);
             ServerFactoryPrx fact = ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
@@ -1343,7 +1343,7 @@ public class AllTests
             // Next try a client with ADH. This should fail.
             //
             initData = createClientProps(defaultProperties, defaultDir, defaultHost);
-            initData.properties.setProperty("IceSSL.Ciphers", "NONE (.*DH_anon.*)");
+            initData.properties.setProperty("IceSSL.Ciphers", "NONE (.*DH_anon.*AES.*)");
             comm = Ice.Util.initialize(args, initData);
             fact = ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
@@ -1820,7 +1820,7 @@ public class AllTests
             // Test rejection when client does not supply a certificate.
             //
             initData = createClientProps(defaultProperties, defaultDir, defaultHost);
-            initData.properties.setProperty("IceSSL.Ciphers", "NONE (.*DH_anon.*)");
+            initData.properties.setProperty("IceSSL.Ciphers", "NONE (.*DH_anon.*AES.*)");
             initData.properties.setProperty("IceSSL.VerifyPeer", "0");
             Ice.Communicator comm = Ice.Util.initialize(args, initData);
 
@@ -1829,7 +1829,7 @@ public class AllTests
             d = createServerProps(defaultProperties, defaultDir, defaultHost);
             d.put("IceSSL.TrustOnly",
                   "C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Client");
-            d.put("IceSSL.Ciphers", "NONE (.*DH_anon.*)");
+            d.put("IceSSL.Ciphers", "NONE (.*DH_anon.*AES.*)");
             d.put("IceSSL.VerifyPeer", "0");
             ServerPrx server = fact.createServer(d);
             try
@@ -1848,7 +1848,7 @@ public class AllTests
             // Test rejection when client does not supply a certificate.
             //
             initData = createClientProps(defaultProperties, defaultDir, defaultHost);
-            initData.properties.setProperty("IceSSL.Ciphers", "NONE (.*DH_anon.*)");
+            initData.properties.setProperty("IceSSL.Ciphers", "NONE (.*DH_anon.*AES.*)");
             initData.properties.setProperty("IceSSL.VerifyPeer", "0");
             Ice.Communicator comm = Ice.Util.initialize(args, initData);
 
@@ -1857,7 +1857,7 @@ public class AllTests
             d = createServerProps(defaultProperties, defaultDir, defaultHost);
             d.put("IceSSL.TrustOnly",
                   "!C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Client");
-            d.put("IceSSL.Ciphers", "NONE (.*DH_anon.*)");
+            d.put("IceSSL.Ciphers", "NONE (.*DH_anon.*AES.*)");
             d.put("IceSSL.VerifyPeer", "0");
             ServerPrx server = fact.createServer(d);
             try

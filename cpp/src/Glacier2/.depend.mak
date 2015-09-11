@@ -130,6 +130,7 @@ Blobject.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "RequestQueue.h" \
     "Instrumentation.h" \
     "Instance.h" \
@@ -264,6 +265,7 @@ ClientBlobject.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "RequestQueue.h" \
     "Instrumentation.h" \
     "Instance.h" \
@@ -498,6 +500,7 @@ FilterManager.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "Instrumentation.h" \
     "ProxyVerifier.h" \
     "SessionRouterI.h" \
@@ -633,6 +636,7 @@ Glacier2Router.obj: \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "Instance.h" \
     "RequestQueue.h" \
     "Instrumentation.h" \
@@ -771,6 +775,7 @@ Instance.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Glacier2\PermissionsVerifierF.h" \
     "$(includedir)\Glacier2\Router.h" \
     "$(includedir)\Glacier2\Session.h" \
@@ -1017,6 +1022,7 @@ ProxyVerifier.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
 
 RequestQueue.obj: \
 	RequestQueue.cpp \
@@ -1139,6 +1145,7 @@ RequestQueue.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "Instrumentation.h" \
     "Instance.h" \
     "ProxyVerifier.h" \
@@ -1274,6 +1281,7 @@ RouterI.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "Instrumentation.h" \
     "ProxyVerifier.h" \
     "SessionRouterI.h" \
@@ -1411,6 +1419,7 @@ RoutingTable.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "ProxyVerifier.h" \
     "Instrumentation.h" \
 
@@ -1536,6 +1545,7 @@ ServerBlobject.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "RequestQueue.h" \
     "Instrumentation.h" \
     "Instance.h" \
@@ -1669,6 +1679,7 @@ SessionRouterI.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Glacier2\PermissionsVerifierF.h" \
     "$(includedir)\Glacier2\Router.h" \
     "$(includedir)\Glacier2\Session.h" \

@@ -205,6 +205,7 @@ TestI.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\IceSSL\IceSSL.h" \
     "$(includedir)\IceSSL\Plugin.h" \
     "$(includedir)\IceSSL\Config.h" \
@@ -341,6 +342,7 @@ Client.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
@@ -471,6 +473,7 @@ AllTests.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\IceSSL\IceSSL.h" \
     "$(includedir)\IceSSL\Plugin.h" \
     "$(includedir)\IceSSL\Config.h" \
@@ -607,6 +610,7 @@ Server.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \

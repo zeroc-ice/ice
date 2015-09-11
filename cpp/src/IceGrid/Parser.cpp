@@ -267,9 +267,9 @@ void flushOutput()
 #endif
 }
 
-void outputString(const string& s)
-{
 #ifdef _WIN32
+string toConsoleEncoding(const string& s)
+{
     if(windowsConsoleConverter)
     {
         try
@@ -280,19 +280,30 @@ void outputString(const string& s)
                                               reinterpret_cast<const IceUtil::Byte*>(s.data() + s.size()), 
                                               consoleString);
             
-            // We cannot use cout here as writing to console using cout
-            // will do its own conversion and will corrupt the messages.
-            //
-            fprintf_s(stdout, "%s", consoleString.c_str());
+            return consoleString;
         }
         catch(const IceUtil::IllegalConversionException&)
         {
             //
             // If there is a problem with the encoding conversions we just
-            // write the original message without encoding conversions.
+            // return the original message without encoding conversions.
             //
-            fprintf_s(stdout, "%s", s.c_str());
+            return s;
         }
+    }
+    else
+    {
+        return s;
+    }
+}
+#endif
+
+void outputString(const string& s)
+{
+#ifdef _WIN32
+    if(windowsConsoleConverter)
+    {
+        fprintf_s(stdout, "%s", toConsoleEncoding(s).c_str());
     }
     else
     {
@@ -663,12 +674,13 @@ Parser::describeApplication(const list<string>& args)
         list<string>::const_iterator p = args.begin();
 
         string name = *p++;
-
-        Output out(cout);
+        ostringstream os;
+        Output out(os);
         ApplicationInfo info = _admin->getApplicationInfo(name);
         ApplicationHelper helper(_communicator, info.descriptor);
         helper.print(out, info);
         out << nl;
+        outputString(os.str());
     }
     catch(const Ice::Exception& ex)
     {
@@ -732,7 +744,8 @@ Parser::diffApplication(const list<string>& origArgs)
         ApplicationHelper newAppHelper(_communicator, newApp);
         ApplicationHelper oldAppHelper(_communicator, origApp.descriptor);
         
-        Output out(cout);
+        ostringstream os;
+        Output out(os);
         if(opts.isSet("servers"))
         {
             map<string, ServerInfo> oldServers = oldAppHelper.getServerInfos(origApp.uuid, origApp.revision);
@@ -782,7 +795,8 @@ Parser::diffApplication(const list<string>& origArgs)
         {
             newAppHelper.printDiff(out, oldAppHelper);
         }
-        out << nl;  
+        out << nl;
+        outputString(os.str()); 
     }
     catch(const Ice::Exception& ex)
     {
@@ -913,7 +927,9 @@ Parser::listAllApplications(const list<string>& args)
     try
     {
         Ice::StringSeq names = _admin->getAllApplicationNames();
-        copy(names.begin(), names.end(), ostream_iterator<string>(cout,"\n"));
+        ostringstream os;
+        copy(names.begin(), names.end(), ostream_iterator<string>(os,"\n"));
+        outputString(os.str());
     }
     catch(const Ice::Exception& ex)
     {
@@ -939,7 +955,8 @@ Parser::describeServerTemplate(const list<string>& args)
 
         ApplicationInfo application = _admin->getApplicationInfo(name);
         
-        Output out(cout);
+        ostringstream os;
+        Output out(os);
         TemplateDescriptorDict::const_iterator q = application.descriptor.serverTemplates.find(templ);
         if(q != application.descriptor.serverTemplates.end())
         {
@@ -966,6 +983,7 @@ Parser::describeServerTemplate(const list<string>& args)
         {
             error("no server template with id `" + templ + "'");
         }
+        outputString(os.str());
     }
     catch(const Ice::Exception& ex)
     {
@@ -1028,7 +1046,8 @@ Parser::describeServiceTemplate(const list<string>& args)
 
         ApplicationInfo application = _admin->getApplicationInfo(name);
         
-        Output out(cout);
+        ostringstream os;
+        Output out(os);
         TemplateDescriptorDict::const_iterator q = application.descriptor.serviceTemplates.find(templ);
         if(q != application.descriptor.serviceTemplates.end())
         {
@@ -1047,6 +1066,7 @@ Parser::describeServiceTemplate(const list<string>& args)
         {
             invalidCommand("no service template with id `" + templ + "'");
         }
+        outputString(os.str());
     }
     catch(const Ice::Exception& ex)
     {
@@ -1066,7 +1086,8 @@ Parser::describeNode(const list<string>& args)
     try
     {
         NodeInfo info = _admin->getNodeInfo(args.front());
-        Output out(cout);
+        ostringstream os;
+        Output out(os);
         out << "node `" << args.front() << "'";
         out << sb;
         out << nl << "operating system = `" << info.os << "'";
@@ -1077,6 +1098,7 @@ Parser::describeNode(const list<string>& args)
         out << nl << "number of threads = `" << info.nProcessors << "'";
         out << eb;
         out << nl;
+        outputString(os.str());
     }
     catch(const Ice::Exception& ex)
     {
@@ -1250,12 +1272,14 @@ Parser::describeRegistry(const list<string>& args)
     try
     {
         RegistryInfo info = _admin->getRegistryInfo(args.front());
-        Output out(cout);
+        ostringstream os;
+        Output out(os);
         out << "registry `" << args.front() << "'";
         out << sb;
         out << nl << "host name = `" << info.hostname << "'";
         out << eb;
         out << nl;
+        outputString(os.str());
     }
     catch(const Ice::Exception& ex)
     {
@@ -1513,7 +1537,8 @@ Parser::describeServer(const list<string>& args)
     try
     {
         ServerInfo info = _admin->getServerInfo(args.front());
-        Output out(cout);
+        ostringstream os;
+        Output out(os);
         IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(info.descriptor);
         if(iceBox)
         {
@@ -1524,6 +1549,7 @@ Parser::describeServer(const list<string>& args)
             ServerHelper(info.descriptor).print(_communicator, out, info);
         }
         out << nl;
+        outputString(os.str());
     }
     catch(const Ice::Exception& ex)
     {
@@ -1812,7 +1838,8 @@ Parser::describeService(const list<string>& args)
             return;
         }
 
-        Output out(cout);
+        ostringstream os;
+        Output out(os);
         bool found = false;
         for(ServiceInstanceDescriptorSeq::const_iterator p = iceBox->services.begin(); p != iceBox->services.end(); ++p)
         {
@@ -1824,6 +1851,7 @@ Parser::describeService(const list<string>& args)
                 break;
             }
         }
+        outputString(os.str());
         
         if(!found)
         {
@@ -2618,7 +2646,6 @@ Parser::getInput(char* buf, size_t& result, size_t maxSize)
                 free(line);
             }
         }
-
 #else
 
         cout << parser->getPrompt() << flush;
@@ -2782,7 +2809,14 @@ Parser::patchFailed(const Ice::StringSeq& reasons)
 void
 Parser::error(const char* s)
 {
-    cerr << "error: " << s << endl;
+
+    cerr << "error: "
+#ifdef _WIN32
+         << toConsoleEncoding(s) 
+#else
+         << s
+#endif
+         << endl;
     _errors++;
 }
 
@@ -2795,7 +2829,13 @@ Parser::error(const string& s)
 void
 Parser::warning(const char* s)
 {
-    cerr << "warning: " << s << endl;
+    cerr << "warning: "
+#ifdef _WIN32
+         << toConsoleEncoding(s) 
+#else
+         << s
+#endif
+         << endl;
 }
 
 void

@@ -20,3 +20,4 @@ install::
 	copy icegrid-slice.3.5.ice.gz "$(install_configdir)"
 	copy icegrid-slice.3.6.ice.gz "$(install_configdir)"
 	copy Ice.props "$(install_configdir)"
+	copy Ice.Cpp.props "$(install_configdir)"

@@ -23,11 +23,12 @@ Ice has dependencies on a number of third-party libraries:
  - [Berkeley DB][5] 5.3
  - [mcpp][6] 2.7.2 (with patches)
 
-You do not need to build these packages yourself, as ZeroC supplies an
-[Ice Third Party installer][7] with everything you need to build Ice from sources.
+You do not need to build these packages yourself, as ZeroC supplies
+[Nuget][7] packages for all these third party dependencies.
 
-If you wish to build these third-party packages from sources, please follow our
-[build instructions][8].
+The Ice build system for Windows downloads and installs Nuget and these 
+Nuget packages when you build Ice for C++. The third-party packages
+are installed in the ``ice/cpp/third-party-packages`` folder.
 
 ### Monotonic Clock
 
@@ -92,11 +93,10 @@ If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
 [1]: https://zeroc.com/download.html
-[2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+3.6.0
+[2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+3.6.1
 [3]: http://expat.sourceforge.net
 [4]: http://bzip.org
 [5]: http://www.oracle.com/us/products/database/berkeley-db/overview/index.htm
 [6]: https://github.com/zeroc-ice/mcpp
-[7]: https://zeroc.com/download/Ice/3.6/Ice-3.6.0-ThirdParty.msi
-[8]: https://doc.zeroc.com/display/Ice36/Building+Third+Party+Packages+from+Source
+[7]: https://www.nuget.org
 

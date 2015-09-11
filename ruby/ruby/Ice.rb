@@ -220,6 +220,7 @@ require 'Ice/Connection.rb'
 require 'Ice/Version.rb'
 require 'Ice/Instrumentation.rb'
 require 'Ice/Metrics.rb'
+require 'Ice/RemoteLogger.rb'
 
 module Ice
     #

@@ -52,7 +52,7 @@ registryOptions = r' --Ice.Warn.Connections=0' + \
                   r' --IceGrid.Registry.Trace.Object=0' + \
                   r' --IceGrid.Registry.Trace.Server=0' + \
                   r' --IceGrid.Registry.Trace.Locator=0' + \
-                  r' --IceGrid.Registry.SessionTimeout=5' + \
+                  r' --IceGrid.Registry.SessionTimeout=60' + \
                   r' --Ice.ThreadPool.Server.Size=1 ' + \
                   r' --Ice.ThreadPool.Client.SizeWarn=0' + \
                   r' --IceGrid.Registry.Client.ThreadPool.SizeWarn=0' + \
@@ -80,7 +80,7 @@ def startIceGridRegistry(testdir, dynamicRegistration = False):
 
     command = ' --nowarn ' + registryOptions
     if dynamicRegistration:
-        command += r' --IceGrid.Registry.DynamicRegistration'        
+        command += r' --IceGrid.Registry.DynamicRegistration'
 
     procs = []
     i = 0
@@ -135,7 +135,7 @@ def shutdownIceGridRegistry(procs):
         p.waitTestSuccess()
 
 def iceGridNodePropertiesOverride():
-   
+
     #
     # Create property overrides from command line options.
     #
@@ -145,7 +145,7 @@ def iceGridNodePropertiesOverride():
        index = opt.find("=")
        if index == -1:
           overrideOptions += ("%s=1 ") % opt
-       else:          
+       else:
           key = opt[0:index]
           value = opt[index + 1:]
           if(value.find(' ') == -1):
@@ -181,7 +181,7 @@ def startIceGridNode(testdir):
     driverConfig = TestUtil.DriverConfig("server")
     driverConfig.lang = "cpp"
     proc = TestUtil.startServer(iceGrid, command, driverConfig, adapter='node1')
-        
+
     print("ok")
 
     return proc
@@ -211,9 +211,9 @@ def iceGridAdmin(cmd, ignoreFailure = False):
         print(proc.buf)
         sys.exit(1)
     return proc.buf
-    
+
 def killNodeServers():
-    
+
     for server in iceGridAdmin("server list"):
         server = server.strip()
         iceGridAdmin("server disable " + server, True)
@@ -230,7 +230,7 @@ def iceGridTest(application, additionalOptions = "", applicationOptions = ""):
 
     client = TestUtil.getDefaultClientFile()
     if TestUtil.getDefaultMapping() != "java":
-        client = os.path.join(testdir, client) 
+        client = os.path.join(testdir, client)
 
     clientOptions = ' ' + getDefaultLocatorProperty() + ' ' + additionalOptions
 
@@ -284,7 +284,7 @@ def iceGridClientServerTest(additionalClientOptions, additionalServerOptions):
     server = TestUtil.getDefaultServerFile()
     client = TestUtil.getDefaultClientFile()
     if TestUtil.getDefaultMapping() != "java":
-        server = os.path.join(testdir, server) 
+        server = os.path.join(testdir, server)
         client = os.path.join(testdir, client)
 
     targets = []

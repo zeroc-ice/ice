@@ -99,6 +99,11 @@ void
 IceInternal::StreamTransceiver::close()
 {
     assert(_fd != INVALID_SOCKET);
+
+    _completedHandler = nullptr;
+    _readOperationCompletedHandler = nullptr;
+    _writeOperationCompletedHandler = nullptr;
+
     try
     {
         closeSocket(_fd);
@@ -146,6 +151,7 @@ IceInternal::StreamTransceiver::startWrite(Buffer& buf)
 
             if(!checkIfErrorOrCompleted(SocketOperationConnect, action))
             {
+                SocketOperationCompletedHandler^ completed = _completedHandler;
                 action->Completed = ref new AsyncActionCompletedHandler(
                     [=] (IAsyncAction^ info, Windows::Foundation::AsyncStatus status)
                     {
@@ -157,9 +163,8 @@ IceInternal::StreamTransceiver::startWrite(Buffer& buf)
                         else
                         {
                             _write.count = 0;
-                            _verified = true;
                         }
-                        _completedHandler(SocketOperationConnect);
+                        completed(SocketOperationConnect);
                     });
             }
         }
@@ -204,6 +209,11 @@ IceInternal::StreamTransceiver::finishWrite(Buffer& buf)
 {
     if(_state < StateConnected)
     {
+        if(_write.count == SOCKET_ERROR)
+        {
+            checkConnectErrorCode(__FILE__, __LINE__, _write.error, _connectAddr.host);
+        }
+        _verified = true;
         return;
     }
 

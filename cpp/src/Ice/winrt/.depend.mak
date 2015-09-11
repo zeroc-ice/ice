@@ -1969,6 +1969,7 @@ $(ARCH)\$(CONFIG)\DefaultsAndOverrides.obj: \
 
 $(ARCH)\$(CONFIG)\DeprecatedStringConverter.obj: \
 	..\DeprecatedStringConverter.cpp \
+    "$(includedir)\IceUtil\DisableWarnings.h" \
     "$(includedir)\Ice\DeprecatedStringConverter.h" \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -3554,7 +3555,7 @@ $(ARCH)\$(CONFIG)\Instance.obj: \
     "$(includedir)\Ice\MetricsAdminI.h" \
     "$(includedir)\Ice\MetricsFunctional.h" \
     "..\..\..\src\Ice\LoggerAdminI.h" \
-    "..\..\..\src\Ice\RegisterPlugins.h" \
+    "..\..\..\src\Ice\RegisterPluginsInit.h" \
     "$(includedir)\IceUtil\UUID.h" \
 
 $(ARCH)\$(CONFIG)\IPEndpointI.obj: \
@@ -10204,6 +10205,7 @@ $(ARCH)\$(CONFIG)\IceDiscovery\PluginI.obj: \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "..\..\..\src\IceDiscovery\PluginI.h" \
     "..\..\..\src\IceDiscovery\LookupI.h" \
     "IceDiscovery\IceDiscovery.h" \
@@ -10333,11 +10335,12 @@ $(ARCH)\$(CONFIG)\IceLocatorDiscovery\PluginI.obj: \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "..\..\..\src\IceLocatorDiscovery\PluginI.h" \
     "IceLocatorDiscovery\IceLocatorDiscovery.h" \
 
-$(ARCH)\$(CONFIG)\RegisterPlugins.obj: \
-	RegisterPlugins.cpp \
+$(ARCH)\$(CONFIG)\RegisterPluginsInit.obj: \
+	RegisterPluginsInit.cpp \
     "$(includedir)\Ice\Initialize.h" \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\Shared.h" \
@@ -10408,7 +10411,7 @@ $(ARCH)\$(CONFIG)\RegisterPlugins.obj: \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\Plugin.h" \
     "$(includedir)\Ice\BatchRequestInterceptor.h" \
-    "..\..\..\src\Ice\RegisterPlugins.h" \
+    "..\..\..\src\Ice\RegisterPluginsInit.h" \
 
 $(ARCH)\$(CONFIG)\StreamAcceptor.obj: \
 	StreamAcceptor.cpp \

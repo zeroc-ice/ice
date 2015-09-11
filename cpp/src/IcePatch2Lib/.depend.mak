@@ -131,6 +131,7 @@ ClientUtil.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\IcePatch2\FileServer.h" \
     "$(includedir)\IcePatch2\FileInfo.h" \
     "$(includedir)\IcePatch2\Config.h" \
@@ -267,6 +268,7 @@ Util.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\IcePatch2\FileInfo.h" \
     "$(includedir)\IcePatch2\Config.h" \
     "$(includedir)\IcePatch2\FileServer.h" \

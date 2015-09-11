@@ -137,7 +137,7 @@ public:
             return false;
         }
         test(obj->__hasFlag(IceInternal::GCObject::CycleMember) && obj->__hasFlag(IceInternal::GCObject::Collectable));
-        
+
         obj->__setFlag(IceInternal::GCObject::Visiting);
         obj->__gcVisitMembers(*this);
         obj->__clearFlag(IceInternal::GCObject::Visiting);
@@ -351,7 +351,7 @@ MyApplication::run(int argc, char* argv[])
         NPtr n6 = new N;
         NPtr n7 = new N;
         NPtr n8 = new N;
-        
+
         n1->left = n2;
         n2->left = n3;
         n2->right = n4;
@@ -532,20 +532,11 @@ MyApplication::run(int argc, char* argv[])
     return 0;
 }
 
-#ifdef ICE_STATIC_LIBS
-extern "C"
-{
-
-Ice::Plugin* createIceSSL(const Ice::CommunicatorPtr&, const string&, const Ice::StringSeq&);
-
-}
-#endif
-
 int
 main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
-    Ice::registerPluginFactory("IceSSL", createIceSSL, true);
+    Ice::registerIceSSL();
 #endif
     MyApplication app;
     return app.main(argc, argv);

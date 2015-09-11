@@ -50,6 +50,7 @@
 #if !defined(ICE_OS_WINRT) && (!defined(__APPLE__) || TARGET_OS_IPHONE == 0)
 #   include <Ice/Service.h>
 #endif
+#include <Ice/RegisterPlugins.h>
 #include <IceUtil/PopDisableWarnings.h>
 
 #endif

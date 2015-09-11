@@ -40,6 +40,27 @@ makePair(const vector<Byte>& v)
     }
 }
 
+IceUtil::Mutex* globalMutex = 0;
+Ice::LoggerPtr processLogger;
+
+class Init
+{
+public:
+
+    Init()
+    {
+        globalMutex = new IceUtil::Mutex;
+    }
+
+    ~Init()
+    {
+        delete globalMutex;
+        globalMutex = 0;
+    }
+};
+
+Init init;
+
 }
 
 StringSeq
@@ -303,36 +324,10 @@ Ice::createOutputStream(const CommunicatorPtr& communicator, const EncodingVersi
     return new OutputStreamI(communicator, v);
 }
 
-static IceUtil::Mutex* processLoggerMutex = 0;
-static Ice::LoggerPtr processLogger;
-
-namespace
-{
-
-class Init
-{
-public:
-
-    Init()
-    {
-        processLoggerMutex = new IceUtil::Mutex;
-    }
-
-    ~Init()
-    {
-        delete processLoggerMutex;
-        processLoggerMutex = 0;
-    }
-};
-
-Init init;
-
-}
-
 LoggerPtr
 Ice::getProcessLogger()
 {
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(processLoggerMutex);
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
 
     if(processLogger == 0)
     {
@@ -347,13 +342,14 @@ Ice::getProcessLogger()
 void
 Ice::setProcessLogger(const LoggerPtr& logger)
 {
-   IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(processLoggerMutex);
-   processLogger = logger;
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
+    processLogger = logger;
 }
 
 void
 Ice::registerPluginFactory(const std::string& name, PLUGIN_FACTORY factory, bool loadOnInitialize)
 {
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
     PluginManagerI::registerPluginFactory(name, factory, loadOnInitialize);
 }
 

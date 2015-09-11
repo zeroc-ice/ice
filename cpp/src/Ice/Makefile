@@ -117,7 +117,7 @@ OBJS		= Acceptor.o \
 		  ProxyFactory.o \
 		  Reference.o \
 		  ReferenceFactory.o \
-		  RegisterPlugins.o \
+		  RegisterPluginsInit.o \
 		  RequestHandler.o \
 		  RequestHandlerFactory.o \
 		  ResponseHandler.o \
@@ -167,6 +167,10 @@ SLICE2CPPFLAGS	:= --ice --include-dir Ice --dll-export ICE_API $(SLICE2CPPFLAGS)
 
 LINKWITH        := -lIceUtil $(BZIP2_LIBS) $(ICE_OS_LIBS) $(ICONV_LIBS)
 
+ifeq ($(UNAME),MINGW)
+$(OBJS): $(BZIP2_NUPKG)
+endif
+
 ifeq ($(STATICLIBS),yes)
 $(libdir)/$(LIBNAME): $(OBJS)
 	@mkdir -p $(dir $@)
@@ -190,3 +194,6 @@ endif
 
 install:: all
 	$(call installlib,$(DESTDIR)$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
+ifeq ($(UNAME),MINGW)
+	$(call installlib,$(DESTDIR)$(install_libdir),$(BZIP2_HOME)/build/native/bin/$(PLATFORM),bzip2_mingw.dll,,)
+endif

@@ -34,6 +34,17 @@ createIceSSL(const CommunicatorPtr& communicator, const string& /*name*/, const 
 
 }
 
+namespace Ice
+{
+
+ICE_SSL_API void
+registerIceSSL(bool loadOnInitialize)
+{
+    Ice::registerPluginFactory("IceSSL", createIceSSL, loadOnInitialize);
+}
+
+}
+
 //
 // Plugin implementation.
 //

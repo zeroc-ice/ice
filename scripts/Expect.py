@@ -98,6 +98,7 @@ class reader(threading.Thread):
         self._tracesuppress = None
         self.logfile = logfile
         self.watchDog = None
+        self._finish = False
         threading.Thread.__init__(self)
 
     def setWatchDog(self, watchDog):
@@ -107,7 +108,12 @@ class reader(threading.Thread):
         try:
             while True:
                 c = self.p.stdout.read(1)
-                if not c: break
+                if not c:
+                    self.cv.acquire()
+                    self._finish = True # We have finished processing output
+                    self.cv.notify()
+                    self.cv.release()
+                    break
                 if c == '\r': continue
 
                 self.cv.acquire()
@@ -253,6 +259,11 @@ class reader(threading.Thread):
                     # If a single match was found then the match.
                     if len(pattern) != olen:
                         continue
+
+                    # If no match and we have finished processing output rasise a TIMEOUT
+                    if self._finish:
+                      raise  TIMEOUT ('timeout exceeded in match\npattern: "%s"\nbuffer: "%s"\n' %
+                                           (escape(s), escape(buf, False)))
 
                     if timeout is None:
                         self.cv.wait()

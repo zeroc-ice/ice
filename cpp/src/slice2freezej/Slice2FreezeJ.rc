@@ -1,8 +1,8 @@
 #include "winver.h"
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 3,6,0,0
- PRODUCTVERSION 3,6,0,0
+ FILEVERSION 3,6,1,0
+ PRODUCTVERSION 3,6,1,0
  FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
 #ifdef _DEBUG
  FILEFLAGS VS_FF_DEBUG
@@ -18,13 +18,13 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "ZeroC, Inc.\0"
-            VALUE "FileDescription", "Slice To Freeze for Java Translator\0"
-            VALUE "FileVersion", "3.6.0\0"
+            VALUE "FileDescription", "Slice to Freeze for Java Translator\0"
+            VALUE "FileVersion", "3.6.1\0"
             VALUE "InternalName", "slice2freezej\0"
-            VALUE "LegalCopyright", "Copyright (c) 2003-2015 ZeroC, Inc.  All rights reserved.\0"
+            VALUE "LegalCopyright", "\251 2003-2015 ZeroC, Inc.\0"
             VALUE "OriginalFilename", "slice2freezej.exe\0"
             VALUE "ProductName", "Ice\0"
-            VALUE "ProductVersion", "3.6.0\0"
+            VALUE "ProductVersion", "3.6.1\0"
         END
     END
     BLOCK "VarFileInfo"

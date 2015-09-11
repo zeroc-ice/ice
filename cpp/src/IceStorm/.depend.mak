@@ -236,6 +236,7 @@ Instance.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Cache.h" \
@@ -483,6 +484,7 @@ LLUMap.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Freeze\DB.h" \
     "$(includedir)\Freeze\Exception.h" \
     "$(includedir)\Freeze\Connection.h" \
@@ -617,6 +619,7 @@ NodeI.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "Election.h" \
     "SubscriberRecord.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
@@ -750,6 +753,7 @@ Observers.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Cache.h" \
@@ -901,6 +905,7 @@ Service.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Freeze\EvictorF.h" \
     "$(includedir)\Freeze\ConnectionF.h" \
     "$(includedir)\Freeze\Index.h" \
@@ -1078,6 +1083,7 @@ Subscriber.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "Replica.h" \
     "Util.h" \
     "$(includedir)\Freeze\Freeze.h" \
@@ -1220,6 +1226,7 @@ SubscriberMap.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Freeze\DB.h" \
     "$(includedir)\Freeze\Exception.h" \
     "$(includedir)\Freeze\Connection.h" \
@@ -1360,6 +1367,7 @@ TopicI.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Freeze\EvictorF.h" \
     "$(includedir)\Freeze\ConnectionF.h" \
     "$(includedir)\Freeze\Index.h" \
@@ -1516,6 +1524,7 @@ TopicManagerI.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "Election.h" \
     "SubscriberRecord.h" \
     "LLURecord.h" \
@@ -1764,6 +1773,7 @@ TransientTopicI.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Freeze\Freeze.h" \
     "$(includedir)\Freeze\Initialize.h" \
     "$(includedir)\Freeze\EvictorF.h" \
@@ -1915,6 +1925,7 @@ TransientTopicManagerI.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
 
 Util.obj: \
 	Util.cpp \
@@ -2037,6 +2048,7 @@ Util.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Freeze\Freeze.h" \
     "$(includedir)\Freeze\Initialize.h" \
     "$(includedir)\Freeze\EvictorF.h" \
@@ -2179,6 +2191,7 @@ V31FormatDB.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Freeze\DB.h" \
     "$(includedir)\Freeze\Exception.h" \
     "$(includedir)\Freeze\Connection.h" \
@@ -2316,6 +2329,7 @@ V32FormatDB.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Freeze\DB.h" \
     "$(includedir)\Freeze\Exception.h" \
     "$(includedir)\Freeze\Connection.h" \
@@ -3114,6 +3128,7 @@ Admin.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "Parser.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\IceStorm\Metrics.h" \
@@ -3240,6 +3255,7 @@ Parser.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "Parser.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\IceStorm\Metrics.h" \
@@ -3369,6 +3385,7 @@ Grammar.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "Parser.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\IceStorm\Metrics.h" \
@@ -3495,6 +3512,7 @@ Scanner.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "Parser.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\IceStorm\Metrics.h" \
@@ -3623,6 +3641,7 @@ Migrate.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Freeze\EvictorF.h" \
     "$(includedir)\Freeze\ConnectionF.h" \
     "$(includedir)\Freeze\Index.h" \

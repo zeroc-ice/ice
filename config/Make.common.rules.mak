@@ -12,10 +12,10 @@
 # ----------------------------------------------------------------------
 
 SHELL		= /bin/sh
-VERSION         = 3.6.0
-INTVERSION      = 3.6.0
+VERSION         = 3.6.1
+INTVERSION      = 3.6.1
 SHORT_VERSION   = 3.6
-PATCH_VERSION   = 0
+PATCH_VERSION   = 1
 SOVERSION       = 36
 
 OBJEXT		= .obj
@@ -40,10 +40,13 @@ ice_bin_dist = 1
 !if "$(PLATFORM)" == "x64" || "$(PLATFORM)" == "X64" || "$(AS)" == "ml64"
 x64suffix		= \x64
 ARCH			= x64
+PLATFORM		= x64
 !elseif "$(PLATFORM)" == "ARM"
 ARCH			= arm
+PLATFORM		= arm
 !else
 ARCH			= x86
+PLATFORM		= Win32
 !endif
 
 #

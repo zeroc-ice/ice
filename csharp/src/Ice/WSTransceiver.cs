@@ -314,6 +314,18 @@ namespace IceInternal
         {
             _delegate.close();
             _state = StateClosed;
+
+            //
+            // Clear the buffers now instead of waiting for destruction.
+            //
+            if(!_readPending)
+            {
+                _readBuffer.clear();
+            }
+            if(!_writePending)
+            {
+                _writeBuffer.clear();
+            }
         }
 
         public EndpointI bind()
@@ -533,6 +545,7 @@ namespace IceInternal
         {
             Debug.Assert(_readPending);
             _readPending = false;
+
             if(_state < StateOpened)
             {
                 Debug.Assert(_finishRead);
@@ -564,6 +577,13 @@ namespace IceInternal
                 _finishRead = false;
                 _delegate.finishRead(_readBuffer);
             }
+
+            if(_state == StateClosed)
+            {
+                _readBuffer.clear();
+                return;
+            }
+
             postRead(buf);
         }
 
@@ -605,6 +625,7 @@ namespace IceInternal
         public void finishWrite(Buffer buf)
         {
             _writePending = false;
+
             if(_state < StateOpened)
             {
                 if(_state < StateConnected)
@@ -626,6 +647,12 @@ namespace IceInternal
             {
                 Debug.Assert(_incoming);
                 _delegate.finishWrite(buf);
+            }
+
+            if(_state == StateClosed)
+            {
+                _writeBuffer.clear();
+                return;
             }
 
             postWrite(buf, SocketOperation.None);
@@ -1240,7 +1267,7 @@ namespace IceInternal
                         n = _readPayloadLength;
                     }
                     if(n > 0)
-                    {                            
+                    {
                         System.Buffer.BlockCopy(_readBuffer.b.rawBytes(), _readBufferPos, buf.b.rawBytes(),
                                                 buf.b.position(), n);
                         buf.b.position(buf.b.position() + n);

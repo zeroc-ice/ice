@@ -191,6 +191,7 @@ BackgroundSaveEvictorI.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Freeze\Freeze.h" \
     "$(includedir)\Freeze\Initialize.h" \
     "$(includedir)\Freeze\EvictorF.h" \
@@ -339,6 +340,7 @@ Catalog.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Freeze\DB.h" \
     "$(includedir)\Freeze\Exception.h" \
     "$(includedir)\Freeze\Connection.h" \
@@ -468,6 +470,7 @@ CatalogIndexList.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Freeze\DB.h" \
     "$(includedir)\Freeze\Exception.h" \
     "$(includedir)\Freeze\Connection.h" \
@@ -597,6 +600,7 @@ ConnectionI.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Freeze\EvictorF.h" \
     "$(includedir)\Freeze\ConnectionF.h" \
     "$(includedir)\Freeze\Index.h" \
@@ -736,6 +740,7 @@ EvictorI.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Freeze\Freeze.h" \
     "$(includedir)\Freeze\Initialize.h" \
     "$(includedir)\Freeze\EvictorF.h" \
@@ -882,6 +887,7 @@ EvictorIteratorI.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Freeze\Freeze.h" \
     "$(includedir)\Freeze\Initialize.h" \
     "$(includedir)\Freeze\EvictorF.h" \
@@ -1034,6 +1040,7 @@ Index.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Freeze\DB.h" \
     "IndexI.h" \
     "EvictorI.h" \
@@ -1186,6 +1193,7 @@ IndexI.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Freeze\Index.h" \
     "$(includedir)\Freeze\DB.h" \
     "EvictorI.h" \
@@ -1343,6 +1351,7 @@ MapDb.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Freeze\EvictorF.h" \
     "$(includedir)\Freeze\ConnectionF.h" \
     "$(includedir)\Freeze\Index.h" \
@@ -1479,6 +1488,7 @@ MapI.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Freeze\DB.h" \
     "$(includedir)\Freeze\Exception.h" \
     "$(includedir)\Freeze\Connection.h" \
@@ -1620,6 +1630,7 @@ ObjectStore.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Freeze\DB.h" \
     "$(includedir)\Freeze\EvictorStorage.h" \
     "$(includedir)\Freeze\Index.h" \
@@ -1775,6 +1786,7 @@ SharedDbEnv.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Freeze\DB.h" \
     "$(includedir)\Freeze\Exception.h" \
     "$(includedir)\Freeze\Connection.h" \
@@ -1932,6 +1944,7 @@ TransactionalEvictorContext.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Freeze\TransactionalEvictor.h" \
     "$(includedir)\Freeze\Evictor.h" \
     "$(includedir)\Freeze\Exception.h" \
@@ -2095,6 +2108,7 @@ TransactionalEvictorI.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Freeze\Freeze.h" \
     "$(includedir)\Freeze\Initialize.h" \
     "$(includedir)\Freeze\EvictorF.h" \
@@ -2276,6 +2290,7 @@ TransactionI.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Freeze\EvictorF.h" \
     "$(includedir)\Freeze\ConnectionF.h" \
     "$(includedir)\Freeze\Index.h" \
@@ -2406,6 +2421,7 @@ Util.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Freeze\DB.h" \
     "$(includedir)\Freeze\Exception.h" \
 

@@ -13,7 +13,7 @@
 namespace
 {
 
-int nRetry = 0; 
+int nRetry = 0;
 int nFailure = 0;
 int nInvocation = 0;
 IceUtil::Mutex* staticMutex = 0;
@@ -39,44 +39,44 @@ class InvocationObserverI : public Ice::Instrumentation::InvocationObserver
 {
 public:
 
-    virtual void 
+    virtual void
     attach()
     {
     }
 
-    virtual void 
+    virtual void
     detach()
     {
         IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(staticMutex);
         ++nInvocation;
     }
 
-    virtual void 
+    virtual void
     failed(const ::std::string&)
     {
         IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(staticMutex);
         ++nFailure;
     }
 
-    virtual void 
+    virtual void
     retried()
     {
         IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(staticMutex);
         ++nRetry;
     }
 
-    virtual void 
+    virtual void
     userException()
     {
     }
 
-    virtual ::Ice::Instrumentation::RemoteObserverPtr 
+    virtual ::Ice::Instrumentation::RemoteObserverPtr
     getRemoteObserver(const ::Ice::ConnectionInfoPtr&, const ::Ice::EndpointPtr&, ::Ice::Int, ::Ice::Int)
     {
         return 0;
     }
 
-    virtual ::Ice::Instrumentation::CollocatedObserverPtr 
+    virtual ::Ice::Instrumentation::CollocatedObserverPtr
     getCollocatedObserver(const Ice::ObjectAdapterPtr&, ::Ice::Int, ::Ice::Int)
     {
         return 0;
@@ -90,49 +90,49 @@ class CommunicatorObserverI : public Ice::Instrumentation::CommunicatorObserver
 {
 public:
 
-    virtual Ice::Instrumentation::ObserverPtr 
+    virtual Ice::Instrumentation::ObserverPtr
     getConnectionEstablishmentObserver(const Ice::EndpointPtr&, const ::std::string&)
     {
         return 0;
     }
 
-    virtual Ice::Instrumentation::ObserverPtr 
+    virtual Ice::Instrumentation::ObserverPtr
     getEndpointLookupObserver(const Ice::EndpointPtr&)
     {
         return 0;
     }
 
-    virtual Ice::Instrumentation::ConnectionObserverPtr 
-    getConnectionObserver(const Ice::ConnectionInfoPtr&, 
-                          const Ice::EndpointPtr&, 
+    virtual Ice::Instrumentation::ConnectionObserverPtr
+    getConnectionObserver(const Ice::ConnectionInfoPtr&,
+                          const Ice::EndpointPtr&,
                           Ice::Instrumentation::ConnectionState,
                           const Ice::Instrumentation::ConnectionObserverPtr&)
     {
         return 0;
     }
 
-    virtual Ice::Instrumentation::ThreadObserverPtr 
-    getThreadObserver(const ::std::string&, 
-                      const ::std::string&, 
-                      Ice::Instrumentation::ThreadState, 
+    virtual Ice::Instrumentation::ThreadObserverPtr
+    getThreadObserver(const ::std::string&,
+                      const ::std::string&,
+                      Ice::Instrumentation::ThreadState,
                       const Ice::Instrumentation::ThreadObserverPtr&)
     {
         return 0;
     }
 
-    virtual Ice::Instrumentation::InvocationObserverPtr 
+    virtual Ice::Instrumentation::InvocationObserverPtr
     getInvocationObserver(const Ice::ObjectPrx&, const ::std::string&, const Ice::Context&)
     {
         return invocationObserver;
     }
 
-    virtual Ice::Instrumentation::DispatchObserverPtr 
+    virtual Ice::Instrumentation::DispatchObserverPtr
     getDispatchObserver(const Ice::Current&, Ice::Int)
     {
         return 0;
     }
 
-    virtual void 
+    virtual void
     setObserverUpdater(const Ice::Instrumentation::ObserverUpdaterPtr&)
     {
     }
@@ -169,6 +169,13 @@ testEqual(int& value, int expected)
     value = 0;
 }
 
+}
+
+void initCounts()
+{
+    nRetry = 0;
+    nFailure = 0;
+    nInvocation = 0;
 }
 
 Ice::Instrumentation::CommunicatorObserverPtr

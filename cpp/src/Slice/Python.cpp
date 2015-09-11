@@ -434,6 +434,7 @@ Slice::Python::compile(int argc, char* argv[])
     opts.addOpt("", "underscore");
     opts.addOpt("", "all");
     opts.addOpt("", "no-package");
+    opts.addOpt("", "build-package");
     opts.addOpt("", "checksum");
     opts.addOpt("", "prefix", IceUtilInternal::Options::NeedArg);
 
@@ -500,6 +501,8 @@ Slice::Python::compile(int argc, char* argv[])
 
     bool noPackage = opts.isSet("no-package");
 
+    bool buildPackage = opts.isSet("build-package");
+
     bool checksum = opts.isSet("checksum");
 
     string prefix = opts.optArg("prefix");
@@ -514,6 +517,13 @@ Slice::Python::compile(int argc, char* argv[])
     if(depend && dependxml)
     {
         getErrorStream() << argv[0] << ": error: cannot specify both --depend and --dependxml" << endl;
+        usage(argv[0]);
+        return EXIT_FAILURE;
+    }
+
+    if(noPackage && buildPackage)
+    {
+        getErrorStream() << argv[0] << ": error: cannot specify both --no-package and --build-package" << endl;
         usage(argv[0]);
         return EXIT_FAILURE;
     }
@@ -563,8 +573,8 @@ Slice::Python::compile(int argc, char* argv[])
                 return EXIT_FAILURE;
             }
 
-            if(!icecpp->printMakefileDependencies(out.os(), depend ? Preprocessor::Python : Preprocessor::SliceXML, includePaths, 
-                                                  "-D__SLICE2PY__", "", prefix))
+            if(!icecpp->printMakefileDependencies(out.os(), depend ? Preprocessor::Python : Preprocessor::SliceXML,
+                                                  includePaths, "-D__SLICE2PY__", "", prefix))
             {
                 out.cleanup();
                 return EXIT_FAILURE;
@@ -618,45 +628,52 @@ Slice::Python::compile(int argc, char* argv[])
                 }
                 else
                 {
-                    string base = icecpp->getBaseName();
-                    string::size_type pos = base.find_last_of("/\\");
-                    if(pos != string::npos)
-                    {
-                        base.erase(0, pos + 1);
-                    }
-
-                    //
-                    // Append the suffix "_ice" to the filename in order to avoid any conflicts
-                    // with Slice module names. For example, if the file Test.ice defines a
-                    // Slice module named "Test", then we couldn't create a Python package named
-                    // "Test" and also call the generated file "Test.py".
-                    //
-                    string file = prefix + base + "_ice.py";
-                    if(!output.empty())
-                    {
-                        file = output + '/' + file;
-                    }
-
                     try
                     {
-                        IceUtilInternal::Output out;
-                        out.open(file.c_str());
-                        if(!out)
+                        string base = icecpp->getBaseName();
+                        string::size_type pos = base.find_last_of("/\\");
+                        if(pos != string::npos)
                         {
-                            ostringstream os;
-                            os << "cannot open`" << file << "': " << strerror(errno);
-                            throw FileException(__FILE__, __LINE__, os.str());
+                            base.erase(0, pos + 1);
                         }
-                        FileTracker::instance()->addFile(file);
 
-                        printHeader(out);
-                        printGeneratedHeader(out, base + ".ice", "#");
                         //
-                        // Generate the Python mapping.
+                        // If --build-package is specified, we don't generate any code and simply
+                        // update the __init__.py files.
                         //
-                        generate(u, all, checksum, includePaths, out);
-    
-                        out.close();
+                        if(!buildPackage)
+                        {
+                            //
+                            // Append the suffix "_ice" to the filename in order to avoid any conflicts
+                            // with Slice module names. For example, if the file Test.ice defines a
+                            // Slice module named "Test", then we couldn't create a Python package named
+                            // "Test" and also call the generated file "Test.py".
+                            //
+                            string file = prefix + base + "_ice.py";
+                            if(!output.empty())
+                            {
+                                file = output + '/' + file;
+                            }
+
+                            IceUtilInternal::Output out;
+                            out.open(file.c_str());
+                            if(!out)
+                            {
+                                ostringstream os;
+                                os << "cannot open`" << file << "': " << strerror(errno);
+                                throw FileException(__FILE__, __LINE__, os.str());
+                            }
+                            FileTracker::instance()->addFile(file);
+
+                            printHeader(out);
+                            printGeneratedHeader(out, base + ".ice", "#");
+                            //
+                            // Generate the Python mapping.
+                            //
+                            generate(u, all, checksum, includePaths, out);
+
+                            out.close();
+                        }
 
                         //
                         // Create or update the Python package hierarchy.
@@ -668,8 +685,9 @@ Slice::Python::compile(int argc, char* argv[])
                     }
                     catch(const Slice::FileException& ex)
                     {
-                        // If a file could not be created, then cleanup any
-                        // created files.
+                        //
+                        // If a file could not be created, then clean up any created files.
+                        //
                         FileTracker::instance()->cleanup();
                         u->destroy();
                         getErrorStream() << argv[0] << ": error: " << ex.reason() << endl;

@@ -200,6 +200,7 @@ Publisher.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\IceStorm\Metrics.h" \
     "$(includedir)\IceStorm\Config.h" \
@@ -325,6 +326,7 @@ Subscriber.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\IceStorm\Metrics.h" \
     "$(includedir)\IceStorm\Config.h" \

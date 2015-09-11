@@ -205,6 +205,7 @@ IntSMap.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Freeze\DB.h" \
     "$(includedir)\Freeze\Exception.h" \
     "$(includedir)\Freeze\Connection.h" \
@@ -340,6 +341,7 @@ makedb.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Freeze\EvictorF.h" \
     "$(includedir)\Freeze\ConnectionF.h" \
     "$(includedir)\Freeze\Index.h" \

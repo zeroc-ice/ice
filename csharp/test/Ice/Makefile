@@ -17,7 +17,6 @@ SUBDIRS		= application \
 		  exceptions \
 		  facets \
 		  faultTolerance \
-		  info \
 		  inheritance \
 		  invoke \
 		  hash \

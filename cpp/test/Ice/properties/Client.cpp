@@ -36,20 +36,11 @@ public:
 
 }
 
-#ifdef ICE_STATIC_LIBS
-extern "C"
-{
-
-Ice::Plugin* createIceSSL(const Ice::CommunicatorPtr&, const string&, const Ice::StringSeq&);
-
-}
-#endif
-
 int
 main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
-    Ice::registerPluginFactory("IceSSL", createIceSSL, true);
+    Ice::registerIceSSL();
 #endif
 
     ifstream in("./config/configPath");
@@ -57,7 +48,7 @@ main(int argc, char* argv[])
     {
         test(false);
     }
-    
+
     if(!getline(in, configPath))
     {
         test(false);
@@ -68,7 +59,7 @@ main(int argc, char* argv[])
         Ice::PropertiesPtr properties = Ice::createProperties();
         properties->load(configPath);
         test(properties->getProperty("Ice.Trace.Network") == "1");
-        test(properties->getProperty("Ice.Trace.Protocol") == "1");       
+        test(properties->getProperty("Ice.Trace.Protocol") == "1");
         test(properties->getProperty("Config.Path") == configPath);
         test(properties->getProperty("Ice.ProgramName") == "PropertiesClient");
         cout << "ok" << endl;
@@ -78,12 +69,12 @@ main(int argc, char* argv[])
         cerr << ex << endl;
         return EXIT_FAILURE;
     }
-    
+
     cout << "testing load properties from UTF-8 path using Ice::Application... " << flush;
     Client c;
     c.main(argc, argv, configPath.c_str());
     cout << "ok" << endl;
-    
+
     try
     {
         //
@@ -138,8 +129,8 @@ main(int argc, char* argv[])
         } ;
 
         for(size_t i = 0; props[i] != ""; i += 2)
-        { 
-            test(properties->getProperty(props[i]) == props[i + 1]); 
+        {
+            test(properties->getProperty(props[i]) == props[i + 1]);
         }
 
         cout << "ok" << endl;

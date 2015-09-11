@@ -3879,7 +3879,6 @@ Slice::Gen::ObjectVisitor::emitVirtualBaseInitializers(const ClassDefPtr& p, boo
     upcall += ")";
 
     H << nl << fixKwd(p->scoped()) << upcall;
-    H << nl;
 
     return true;
 }

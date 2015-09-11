@@ -1261,6 +1261,7 @@ TopicImpl::destroyInternal(const LogUpdate& origLLU, bool master)
 {
     _instance->publishAdapter()->remove(_linkPrx->ice_getIdentity());
     _instance->publishAdapter()->remove(_publisherPrx->ice_getIdentity());
+    _instance->topicReaper()->add(_name);
 
     // Destroy each of the subscribers.
     for(vector<SubscriberPtr>::const_iterator p = _subscribers.begin(); p != _subscribers.end(); ++p)

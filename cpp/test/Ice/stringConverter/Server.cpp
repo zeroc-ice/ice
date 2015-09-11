@@ -34,13 +34,13 @@ public:
         return IceUtil::stringToWstring(msg, IceUtil::getProcessStringConverter(),
                                         IceUtil::getProcessWstringConverter());
     }
-    
+
     virtual string narrow(const wstring& wmsg, const Ice::Current&)
     {
         return IceUtil::wstringToString(wmsg, IceUtil::getProcessStringConverter(),
                                         IceUtil::getProcessWstringConverter());
     }
-    
+
     virtual void shutdown(const Ice::Current& current)
     {
         current.adapter->getCommunicator()->shutdown();
@@ -54,26 +54,17 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     adapter->add(new MyObjectI, communicator->stringToIdentity("test"));
     adapter->activate();
-    
+
     TEST_READY
     communicator->waitForShutdown();
     return EXIT_SUCCESS;
 }
 
-#ifdef ICE_STATIC_LIBS
-extern "C"
-{
-
-Ice::Plugin* createIceSSL(const Ice::CommunicatorPtr&, const string&, const Ice::StringSeq&);
-
-}
-#endif
-
 int
 main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
-    Ice::registerPluginFactory("IceSSL", createIceSSL, true);
+    Ice::registerIceSSL();
 #endif
 
     int status;

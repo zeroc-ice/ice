@@ -58,7 +58,7 @@ public:
     LocatorTable();
 
     void clear();
-    
+
     bool getAdapterEndpoints(const std::string&, int, ::std::vector<EndpointIPtr>&);
     void addAdapterEndpoints(const std::string&, const ::std::vector<EndpointIPtr>&);
     ::std::vector<EndpointIPtr> removeAdapterEndpoints(const std::string&);
@@ -66,7 +66,7 @@ public:
     bool getObjectReference(const Ice::Identity&, int, ReferencePtr&);
     void addObjectReference(const Ice::Identity&, const ReferencePtr&);
     ReferencePtr removeObjectReference(const Ice::Identity&);
-    
+
 private:
 
     bool checkTTL(const IceUtil::Time&, int) const;
@@ -82,7 +82,7 @@ public:
     class GetEndpointsCallback : virtual public IceUtil::Shared
     {
     public:
-        
+
         virtual void setEndpoints(const std::vector<EndpointIPtr>&, bool) = 0;
         virtual void setException(const Ice::LocalException&) = 0;
     };
@@ -111,7 +111,7 @@ public:
 
         void addCallback(const ReferencePtr&, const ReferencePtr&, int, const GetEndpointsCallbackPtr&);
         std::vector<EndpointIPtr> getEndpoints(const ReferencePtr&, const ReferencePtr&, int, bool&);
-        
+
         void response(const Ice::ObjectPrx&);
         void exception(const Ice::Exception&);
 
@@ -157,12 +157,13 @@ public:
     {
         return getEndpoints(ref, 0, ttl, cached);
     }
-    void getEndpoints(const ReferencePtr& ref, int ttl, const GetEndpointsCallbackPtr& cb)
-    {
-        getEndpoints(ref, 0, ttl, cb);
-    }
     std::vector<EndpointIPtr> getEndpoints(const ReferencePtr&, const ReferencePtr&, int, bool&);
-    void getEndpoints(const ReferencePtr&, const ReferencePtr&, int, const GetEndpointsCallbackPtr&);
+
+    void getEndpointsWithCallback(const ReferencePtr& ref, int ttl, const GetEndpointsCallbackPtr& cb)
+    {
+        getEndpointsWithCallback(ref, 0, ttl, cb);
+    }
+    void getEndpointsWithCallback(const ReferencePtr&, const ReferencePtr&, int, const GetEndpointsCallbackPtr&);
 
     void clearCache(const ReferencePtr&);
 

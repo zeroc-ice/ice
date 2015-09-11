@@ -967,6 +967,7 @@ var ConnectCallback = Class({
                 s.push(this._current.protocol());
                 s.push(" connection to ");
                 s.push(this._current.toString());
+                s.push("\n");
                 s.push(ex.toString());
                 this._factory._instance.initializationData().logger.trace(traceLevels.networkCat, s.join(""));
             }

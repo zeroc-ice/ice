@@ -155,6 +155,7 @@ Application.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
     "$(includedir)\Glacier2\Config.h" \
@@ -293,6 +294,7 @@ NullPermissionsVerifier.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
 
 SessionHelper.obj: \
 	SessionHelper.cpp \
@@ -415,6 +417,7 @@ SessionHelper.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Glacier2\Session.h" \
     "$(includedir)\Glacier2\SSLInfo.h" \
     "$(includedir)\Glacier2\Config.h" \

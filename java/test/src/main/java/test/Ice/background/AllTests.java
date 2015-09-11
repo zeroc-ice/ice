@@ -733,6 +733,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false); // Something's wrong with retries.
             }
 

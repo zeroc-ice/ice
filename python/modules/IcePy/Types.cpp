@@ -406,13 +406,23 @@ IcePy::SlicedDataUtil::setMember(PyObject* obj, const Ice::SlicedDataPtr& sliced
         //
         // bytes
         //
-#if PY_VERSION_HEX >= 0x03000000
-        PyObjectHandle bytes =
-            PyBytes_FromStringAndSize(reinterpret_cast<const char*>(&(*p)->bytes[0]), (*p)->bytes.size());
-#else
-        PyObjectHandle bytes =
-            PyString_FromStringAndSize(reinterpret_cast<const char*>(&(*p)->bytes[0]), (*p)->bytes.size());
-#endif
+        PyObjectHandle bytes;
+        if((*p)->bytes.size() > 0)
+        {
+    #if PY_VERSION_HEX >= 0x03000000
+            bytes = PyBytes_FromStringAndSize(reinterpret_cast<const char*>(&(*p)->bytes[0]), (*p)->bytes.size());
+    #else
+            bytes = PyString_FromStringAndSize(reinterpret_cast<const char*>(&(*p)->bytes[0]), (*p)->bytes.size());
+    #endif
+        }
+        else
+        {
+    #if PY_VERSION_HEX >= 0x03000000
+            bytes = PyBytes_FromStringAndSize(0, 0);
+    #else
+            bytes = PyString_FromStringAndSize(0, 0);
+    #endif
+        }
         if(!bytes.get() || PyObject_SetAttrString(slice.get(), STRCAST("bytes"), bytes.get()) < 0)
         {
             assert(PyErr_Occurred());

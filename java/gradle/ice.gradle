@@ -123,10 +123,10 @@ if (!iceBinDist) {
             }
         } else {
             iceCppDir = iceDir + "/cpp"
+            slice.srcDist = true
         }
 
         slice.iceHome = iceCppDir
-        slice.srcDist = true
     }
 }
 
@@ -250,6 +250,34 @@ ext {
     localDependency = this.&localDependency
 }
 
+def localappdata
+def nuget
+def dbVersion
+def dbPackage
+
+if (isWindows) {
+localappdata = env['LOCALAPPDATA']
+nuget = "${localappdata}/ZeroC/nuget/nuget.exe"
+dbVersion = "5.3.28.1"
+dbPackage = "${iceCppDir}/third-party-packages/berkeley.db.java7"
+
+task nugetDirectory() {
+    def nugetDir = new File("${localappdata}/ZeroC/nuget")
+    if(!nugetDir.exists()) {
+        nugetDir.mkdirs()
+    }
+}
+
+task nugetInstall(type:Exec, dependsOn:nugetDirectory) {
+  commandLine 'cmd', '/c', 'powershell', '-Command', "(New-Object Net.WebClient).DownloadFile('http://nuget.org/nuget.exe', '${nuget}')"
+}
+
+task nugetInstallBerkeleyDb(type:Exec) {
+  commandLine 'cmd', '/c', nuget, 'install', 'berkeley.db.java7', '-OutputDirectory', "${iceCppDir}/third-party-packages/", '-ExcludeVersion'
+}
+
+}
+
 if (!android) {
     //
     // Find BerkeleyDB JAR
@@ -265,11 +293,13 @@ if (!android) {
             if(iceBinDist){
                 subdirs = [ "${iceDir}/lib/" ]
             } else {
-                def thirdpartyhome = env['THIRDPARTY_HOME']
-                if (thirdpartyhome == null || thirdpartyhome.length() == 0) {
-                    thirdpartyhome = "${programFiles}/ZeroC/Ice-${project.version}-ThirdParty"
+                if(!new File(nuget).exists()) {
+                    nugetInstall.execute()
                 }
-                subdirs = [ "${thirdpartyhome}/lib/" ]
+                if(!new File("${dbPackage}/berkeley.db.java7.nupkg").exists()) {
+                    nugetInstallBerkeleyDb.execute()
+                }
+                subdirs = [ "${dbPackage}/build/native/lib/" ]
             }
         } else {
             subdirs = [

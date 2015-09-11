@@ -24,8 +24,8 @@ class ServerLocatorRegistry : virtual public LocatorRegistry
 {
 public:
 
-    virtual void 
-    setAdapterDirectProxy_async(const AMD_LocatorRegistry_setAdapterDirectProxyPtr& cb, const string&, 
+    virtual void
+    setAdapterDirectProxy_async(const AMD_LocatorRegistry_setAdapterDirectProxyPtr& cb, const string&,
                                 const ObjectPrx&, const Current&)
     {
         cb->ice_response();
@@ -59,20 +59,20 @@ public:
     }
 
     virtual void
-    findObjectById_async(const AMD_Locator_findObjectByIdPtr& cb, const Identity& id, const Current&) const 
-    { 
-        cb->ice_response(_adapter->createProxy(id));
-    }    
-
-    virtual void
-    findAdapterById_async(const AMD_Locator_findAdapterByIdPtr& cb, const string&, const Current&) const 
+    findObjectById_async(const AMD_Locator_findObjectByIdPtr& cb, const Identity& id, const Current&) const
     {
-       cb->ice_response(_adapter->createDirectProxy(_adapter->getCommunicator()->stringToIdentity("dummy")));   
+        cb->ice_response(_adapter->createProxy(id));
     }
 
-    virtual LocatorRegistryPrx 
-    getRegistry(const Current&) const 
-    { 
+    virtual void
+    findAdapterById_async(const AMD_Locator_findAdapterByIdPtr& cb, const string&, const Current&) const
+    {
+       cb->ice_response(_adapter->createDirectProxy(_adapter->getCommunicator()->stringToIdentity("dummy")));
+    }
+
+    virtual LocatorRegistryPrx
+    getRegistry(const Current&) const
+    {
         return _registryPrx;
     }
 
@@ -90,7 +90,7 @@ public:
         _backend(backend)
     {
     }
-        
+
     virtual ObjectPtr locate(const Current&, LocalObjectPtr&)
     {
         return _backend;
@@ -116,20 +116,11 @@ public:
     virtual int run(int, char*[]);
 };
 
-#ifdef ICE_STATIC_LIBS
-extern "C"
-{
-
-Ice::Plugin* createIceSSL(const Ice::CommunicatorPtr&, const string&, const Ice::StringSeq&);
-
-}
-#endif
-
 int
 main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
-    Ice::registerPluginFactory("IceSSL", createIceSSL, true);
+    Ice::registerIceSSL();
 #endif
 
     BackendServer app;
@@ -139,7 +130,7 @@ main(int argc, char* argv[])
 int
 BackendServer::run(int, char**)
 {
-    string endpoints = communicator()->getProperties()->getPropertyWithDefault("BackendAdapter.Endpoints", 
+    string endpoints = communicator()->getProperties()->getPropertyWithDefault("BackendAdapter.Endpoints",
                                                                                "tcp -p 12010:ssl -p 12011");
 
     communicator()->getProperties()->setProperty("BackendAdapter.Endpoints", endpoints);

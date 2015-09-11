@@ -25,7 +25,11 @@ namespace IceUtil
 ICE_UTIL_API MutexProtocol
 getDefaultMutexProtocol()
 {
+#  if defined(_POSIX_THREAD_PRIO_INHERIT) && _POSIX_THREAD_PRIO_INHERIT > 0
     return PrioInherit;
+#  else
+    return PrioNone;
+#  endif
 }
 
 }

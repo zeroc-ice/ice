@@ -38,6 +38,17 @@ createIceLocatorDiscovery(const Ice::CommunicatorPtr& communicator, const string
 
 }
 
+namespace Ice
+{
+
+ICE_LOCATOR_DISCOVERY_API void
+registerIceLocatorDiscovery(bool loadOnInitialize)
+{
+    Ice::registerPluginFactory("IceLocatorDiscovery", createIceLocatorDiscovery, loadOnInitialize);
+}
+
+}
+
 namespace
 {
 

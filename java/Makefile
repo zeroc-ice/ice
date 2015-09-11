@@ -15,14 +15,6 @@ ifneq ($(DESTDIR),)
 INSTALL_FLAGS += -Dorg.gradle.project.DESTDIR=$(DESTDIR)
 endif
 
-ifneq ($(JARSIGNER_KEYSTORE),)
-BUILD_FLAGS += -Dorg.gradle.project.keystore="$(JARSIGNER_KEYSTORE)"
-endif
-
-ifneq ($(JARSIGNER_KEYSTORE_PASSWORD),)
-BUILD_FLAGS += -Dorg.gradle.project.keystore_password="$(JARSIGNER_KEYSTORE_PASSWORD)"
-endif
-
 ifeq ($(GRADLE),)
 GRADLE = ./gradlew
 endif

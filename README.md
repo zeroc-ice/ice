@@ -55,14 +55,16 @@ Ice runs on a wide range of platforms:
 ## Branches
 
 - `master`
-  Primary development branch
+  Primary development branch (unstable, frequently updated)
 
-- `3.4`
-  Source distribution for Ice v3.4.2 plus various patches
+- `3.6`
+  Ice 3.6.x plus various patches (stable, frequently updated)
 
 - `3.5`
-  Source distribution for Ice v3.5.1 plus various patches
+  Ice 3.5.1 plus various patches (stable)
 
+- `3.4`
+  Ice 3.4.2 plus various patches (stable)
 
 ## Copyright and License
 
@@ -80,5 +82,5 @@ The Ice software itself remains the same: the only difference between an open-so
 
 ## Documentation
 
-- [Ice Release Notes](https://doc.zeroc.com/display/Rel/Ice+3.6.0+Release+Notes)
+- [Ice Release Notes](https://doc.zeroc.com/display/Rel/Ice+3.6.1+Release+Notes)
 - [Ice Manual](https://doc.zeroc.com/display/Ice36/Home)

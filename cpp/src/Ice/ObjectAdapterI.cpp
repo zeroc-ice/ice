@@ -82,7 +82,6 @@ void
 Ice::ObjectAdapterI::activate()
 {
     LocatorInfoPtr locatorInfo;
-    bool registerProcess = false;
     bool printAdapterReady = false;
 
     {
@@ -115,7 +114,6 @@ Ice::ObjectAdapterI::activate()
         {
             PropertiesPtr properties = _instance->initializationData().properties;
             printAdapterReady = properties->getPropertyAsInt("Ice.PrintAdapterReady") > 0;
-            registerProcess = properties->getPropertyAsInt(_name + ".RegisterProcess") > 0;
         }
     }
 
@@ -123,7 +121,7 @@ Ice::ObjectAdapterI::activate()
     {
         Ice::Identity dummy;
         dummy.name = "dummy";
-        updateLocatorRegistry(locatorInfo, createDirectProxy(dummy), registerProcess);
+        updateLocatorRegistry(locatorInfo, createDirectProxy(dummy));
     }
     catch(const Ice::LocalException&)
     {
@@ -227,7 +225,7 @@ Ice::ObjectAdapterI::deactivate()
 
     try
     {
-        updateLocatorRegistry(_locatorInfo, 0, false);
+        updateLocatorRegistry(_locatorInfo, 0);
     }
     catch(const Ice::LocalException&)
     {
@@ -599,7 +597,6 @@ void
 Ice::ObjectAdapterI::refreshPublishedEndpoints()
 {
     LocatorInfoPtr locatorInfo;
-    bool registerProcess = false;
     vector<EndpointIPtr> oldPublishedEndpoints;
 
     {
@@ -611,18 +608,13 @@ Ice::ObjectAdapterI::refreshPublishedEndpoints()
         _publishedEndpoints = parsePublishedEndpoints();
 
         locatorInfo = _locatorInfo;
-        if(!_noConfig)
-        {
-            registerProcess =
-                _instance->initializationData().properties->getPropertyAsInt(_name + ".RegisterProcess") > 0;
-        }
     }
 
     try
     {
         Ice::Identity dummy;
         dummy.name = "dummy";
-        updateLocatorRegistry(locatorInfo, createDirectProxy(dummy), registerProcess);
+        updateLocatorRegistry(locatorInfo, createDirectProxy(dummy));
     }
     catch(const Ice::LocalException&)
     {
@@ -1246,169 +1238,103 @@ ObjectAdapterI::parsePublishedEndpoints()
 }
 
 void
-ObjectAdapterI::updateLocatorRegistry(const IceInternal::LocatorInfoPtr& locatorInfo,
-                                      const Ice::ObjectPrx& proxy,
-                                      bool registerProcess)
+ObjectAdapterI::updateLocatorRegistry(const IceInternal::LocatorInfoPtr& locatorInfo, const Ice::ObjectPrx& proxy)
 {
-    if(!registerProcess && _id.empty())
+    if(_id.empty() || !locatorInfo)
     {
         return; // Nothing to update.
     }
 
-    //
-    // Call on the locator registry outside the synchronization to
-    // blocking other threads that need to lock this OA.
-    //
-    LocatorRegistryPrx locatorRegistry = locatorInfo ? locatorInfo->getLocatorRegistry() : LocatorRegistryPrx();
-    string serverId;
-    if(registerProcess)
-    {
-        assert(_instance);
-        serverId = _instance->initializationData().properties->getProperty("Ice.ServerId");
-
-        if(!locatorRegistry)
-        {
-            Warning out(_instance->initializationData().logger);
-            out << "object adapter `" << getName() << "' cannot register the process without a locator registry";
-        }
-        else if(serverId.empty())
-        {
-            Warning out(_instance->initializationData().logger);
-            out << "object adapter `" << getName() << "' cannot register the process without a value for Ice.ServerId";
-        }
-    }
-
+    LocatorRegistryPrx locatorRegistry = locatorInfo->getLocatorRegistry();
     if(!locatorRegistry)
     {
         return;
     }
 
-    if(!_id.empty())
+    try
     {
-        try
+        if(_replicaGroupId.empty())
         {
-            if(_replicaGroupId.empty())
-            {
-                locatorRegistry->setAdapterDirectProxy(_id, proxy);
-            }
-            else
-            {
-                locatorRegistry->setReplicatedAdapterDirectProxy(_id, _replicaGroupId, proxy);
-            }
+            locatorRegistry->setAdapterDirectProxy(_id, proxy);
         }
-        catch(const AdapterNotFoundException&)
+        else
         {
-            if(_instance->traceLevels()->location >= 1)
-            {
-                Trace out(_instance->initializationData().logger, _instance->traceLevels()->locationCat);
-                out << "couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n";
-                out << "the object adapter is not known to the locator registry";
-            }
-
-            NotRegisteredException ex(__FILE__, __LINE__);
-            ex.kindOfObject = "object adapter";
-            ex.id = _id;
-            throw ex;
-        }
-        catch(const InvalidReplicaGroupIdException&)
-        {
-            if(_instance->traceLevels()->location >= 1)
-            {
-                Trace out(_instance->initializationData().logger, _instance->traceLevels()->locationCat);
-                out << "couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n";
-                out << "the replica group `" << _replicaGroupId << "' is not known to the locator registry";
-            }
-
-            NotRegisteredException ex(__FILE__, __LINE__);
-            ex.kindOfObject = "replica group";
-            ex.id = _replicaGroupId;
-            throw ex;
-        }
-        catch(const AdapterAlreadyActiveException&)
-        {
-            if(_instance->traceLevels()->location >= 1)
-            {
-                Trace out(_instance->initializationData().logger, _instance->traceLevels()->locationCat);
-                out << "couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n";
-                out << "the object adapter endpoints are already set";
-            }
-
-            ObjectAdapterIdInUseException ex(__FILE__, __LINE__);
-            ex.id = _id;
-            throw ex;
-        }
-        catch(const LocalException& ex)
-        {
-            if(_instance->traceLevels()->location >= 1)
-            {
-                Trace out(_instance->initializationData().logger, _instance->traceLevels()->locationCat);
-                out << "couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n" << ex;
-            }
-            throw; // TODO: Shall we raise a special exception instead of a non obvious local exception?
-        }
-
-        if(_instance->traceLevels()->location >= 1)
-        {
-            Trace out(_instance->initializationData().logger, _instance->traceLevels()->locationCat);
-            out << "updated object adapter `" + _id + "' endpoints with the locator registry\n";
-            out << "endpoints = ";
-            if(proxy)
-            {
-                EndpointSeq endpts = proxy ? proxy->ice_getEndpoints() : EndpointSeq();
-                ostringstream o;
-                transform(endpts.begin(), endpts.end(), ostream_iterator<string>(o, endpts.size() > 1 ? ":" : ""),
-                          Ice::constMemFun(&Endpoint::toString));
-                out << o.str();
-            }
+            locatorRegistry->setReplicatedAdapterDirectProxy(_id, _replicaGroupId, proxy);
         }
     }
-
-    if(registerProcess && !serverId.empty())
+    catch(const AdapterNotFoundException&)
     {
-        {
-            IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
-
-            if(_processId.name == "")
-            {
-                ProcessPtr servant = new ProcessI(_communicator);
-                _processId = addWithUUID(servant)->ice_getIdentity();
-            }
-        }
-
-        try
-        {
-            locatorRegistry->setServerProcessProxy(serverId, ProcessPrx::uncheckedCast(createDirectProxy(_processId)));
-        }
-        catch(const ServerNotFoundException&)
-        {
-            if(_instance->traceLevels()->location >= 1)
-            {
-                Trace out(_instance->initializationData().logger, _instance->traceLevels()->locationCat);
-                out << "couldn't register server `" + serverId + "' with the locator registry:\n";
-                out << "the server is not known to the locator registry";
-            }
-
-            NotRegisteredException ex(__FILE__, __LINE__);
-            ex.kindOfObject = "server";
-            ex.id = serverId;
-            throw ex;
-        }
-        catch(const Ice::LocalException& ex)
-        {
-            if(_instance->traceLevels()->location >= 1)
-            {
-                Trace out(_instance->initializationData().logger, _instance->traceLevels()->locationCat);
-                out << "couldn't register server `" + serverId + "' with the locator registry:\n" << ex;
-            }
-            throw; // TODO: Shall we raise a special exception instead of a non obvious local exception?
-        }
-
         if(_instance->traceLevels()->location >= 1)
         {
             Trace out(_instance->initializationData().logger, _instance->traceLevels()->locationCat);
-            out << "registered server `" + serverId + "' with the locator registry";
+            out << "couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n";
+            out << "the object adapter is not known to the locator registry";
         }
-   }
+
+        NotRegisteredException ex(__FILE__, __LINE__);
+        ex.kindOfObject = "object adapter";
+        ex.id = _id;
+        throw ex;
+    }
+    catch(const InvalidReplicaGroupIdException&)
+    {
+        if(_instance->traceLevels()->location >= 1)
+        {
+            Trace out(_instance->initializationData().logger, _instance->traceLevels()->locationCat);
+            out << "couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n";
+            out << "the replica group `" << _replicaGroupId << "' is not known to the locator registry";
+        }
+
+        NotRegisteredException ex(__FILE__, __LINE__);
+        ex.kindOfObject = "replica group";
+        ex.id = _replicaGroupId;
+        throw ex;
+    }
+    catch(const AdapterAlreadyActiveException&)
+    {
+        if(_instance->traceLevels()->location >= 1)
+        {
+            Trace out(_instance->initializationData().logger, _instance->traceLevels()->locationCat);
+            out << "couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n";
+            out << "the object adapter endpoints are already set";
+        }
+
+        ObjectAdapterIdInUseException ex(__FILE__, __LINE__);
+        ex.id = _id;
+        throw ex;
+    }
+    catch(const ObjectAdapterDeactivatedException&)
+    {
+        // Expected if collocated call and OA is deactivated, ignore.
+    }
+    catch(const CommunicatorDestroyedException&)
+    {
+        // Ignore.
+    }
+    catch(const LocalException& ex)
+    {
+        if(_instance->traceLevels()->location >= 1)
+        {
+            Trace out(_instance->initializationData().logger, _instance->traceLevels()->locationCat);
+            out << "couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n" << ex;
+        }
+        throw; // TODO: Shall we raise a special exception instead of a non obvious local exception?
+    }
+
+    if(_instance->traceLevels()->location >= 1)
+    {
+        Trace out(_instance->initializationData().logger, _instance->traceLevels()->locationCat);
+        out << "updated object adapter `" + _id + "' endpoints with the locator registry\n";
+        out << "endpoints = ";
+        if(proxy)
+        {
+            EndpointSeq endpts = proxy ? proxy->ice_getEndpoints() : EndpointSeq();
+            ostringstream o;
+            transform(endpts.begin(), endpts.end(), ostream_iterator<string>(o, endpts.size() > 1 ? ":" : ""),
+                      Ice::constMemFun(&Endpoint::toString));
+            out << o.str();
+        }
+    }
 }
 
 bool
@@ -1431,7 +1357,6 @@ Ice::ObjectAdapterI::filterProperties(StringSeq& unknownProps)
         "Locator.Router",
         "MessageSizeMax",
         "PublishedEndpoints",
-        "RegisterProcess",
         "ReplicaGroupId",
         "Router",
         "Router.EncodingVersion",

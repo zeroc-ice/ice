@@ -14,8 +14,8 @@
 SHELL		= /bin/sh
 VERSION_MAJOR   = 3
 VERSION_MINOR   = 6
-VERSION_PATCH   = 0
-VERSION         = 3.6.0
+VERSION_PATCH   = 1
+VERSION         = 3.6.1
 SHORT_VERSION   = 3.6
 SOVERSION	= 36
 
@@ -242,8 +242,10 @@ ifndef ice_src_dist
     endif
 
     ifneq ($(ICE_HOME),)
-        ifneq ($(shell test -f $(ICE_HOME)/$(binsubdir)/$(slice_translator) && echo 0), 0)
+        ifneq ("$(ice_language)", "python")
+            ifneq ($(shell test -f $(ICE_HOME)/$(binsubdir)/$(slice_translator) && echo 0), 0)
 $(error Unable to find $(slice_translator) in $(ICE_HOME)/$(binsubdir), please verify ICE_HOME is properly configured and Ice is correctly installed.)
+            endif
         endif
         ice_dir = $(ICE_HOME)
     else
@@ -273,14 +275,22 @@ endif
 #
 # If ice_require_cpp is defined, ensure the C++ headers exist
 #
-ifeq ($(ice_require_cpp), "yes")
-    ifdef ice_src_dist
-        ice_cpp_header = $(ice_cpp_dir)/include/Ice/Ice.h
-    else
-        ice_cpp_header = $(ice_dir)/include/Ice/Ice.h
+ifeq ("$(ice_language)", "python")
+    ifdef ice_bin_dist
+        skip_cpp_check = 1
     endif
-    ifneq ($(shell test -f $(ice_cpp_header) && echo 0),0)
-$(error Unable to find the C++ header file $(ice_cpp_header), please verify ICE_HOME is properly configured and Ice is correctly installed.)
+endif
+
+ifndef skip_cpp_check
+    ifeq ("$(ice_require_cpp)", "yes")
+        ifdef ice_src_dist
+            ice_cpp_header = $(ice_cpp_dir)/include/Ice/Ice.h
+        else
+            ice_cpp_header = $(ice_dir)/include/Ice/Ice.h
+        endif
+        ifneq ($(shell test -f $(ice_cpp_header) && echo 0),0)
+    $(error Unable to find the C++ header file $(ice_cpp_header), please verify ICE_HOME is properly configured and Ice is correctly installed.)
+        endif
     endif
 endif
 

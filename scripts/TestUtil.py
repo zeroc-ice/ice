@@ -23,6 +23,8 @@ global x64
 x64 = False                     # Binary distribution is 64-bit
 global x86
 x86 = False                     # Binary distribution is 32-bit
+global armv7l
+armv7l = False                  # Binary distribution is armv7l
 cpp11 = False                   # Binary distribution is c++11
 extraArgs = []
 clientTraceFilters = []
@@ -68,8 +70,12 @@ for path in ["/etc/redhat-release", "/etc/issue"]:
         linuxDistribution = "CentOS"
     elif issue.find("Ubuntu") != -1:
         linuxDistribution = "Ubuntu"
+    elif issue.find("Debian") != -1:
+        linuxDistribution = "Debian"
     elif issue.find("SUSE Linux") != -1:
         linuxDistribution = "SUSE LINUX"
+    elif issue.find("Yocto") != -1:
+        linuxDistribution = "Yocto"
 
 def isCygwin():
     # The substring on sys.platform is required because some cygwin
@@ -116,6 +122,12 @@ def isUbuntu():
 
 def isRhel():
     return isLinux() and linuxDistribution in ["RedHat", "Amazon", "CentOS"]
+
+def isYocto():
+    return isLinux() and linuxDistribution and linuxDistribution == "Yocto"
+
+def isDebian():
+    return isLinux() and linuxDistribution and linuxDistribution == "Debian"
 
 def isSles():
     return isLinux() and linuxDistribution and linuxDistribution == "SUSE LINUX"
@@ -311,8 +323,11 @@ else:
     if(p.wait() != 0):
         print("uname failed:\n" + p.stdout.read().strip())
         sys.exit(1)
-    if p.stdout.readline().decode('UTF-8').strip() == "x86_64" and os.environ.get("LP64", "") != "no":
+    line = p.stdout.readline().decode('UTF-8').strip()
+    if line == "x86_64" and os.environ.get("LP64", "") != "no":
         x64 = True
+    elif line == "armv7l":
+        armv7l = True
 
 #
 # The PHP interpreter is called "php5" on some platforms (e.g., SLES).
@@ -377,19 +392,6 @@ if os.environ.get("USE_BIN_DIST", "no") == "yes":
         path = getWinRegistryKeyValue("SOFTWARE\\ZeroC\\Ice %s" % iceVersion, "InstallDir")
         if path and len(path) > 0 and os.path.exists(path[0]):
             iceHome = path[0]
-
-#
-# Figure out Ice third party installation directory if not running
-# against Ice installation.
-#
-thirdPartyHome = None
-if not iceHome:
-    if os.environ.get("THIRDPARTY_HOME"):
-        thirdPartyHome = os.environ.get("THIRDPARTY_HOME")
-    elif isWin32():
-        path = getWinRegistryKeyValue("SOFTWARE\\ZeroC\\Ice %s Third Party Packages" % iceVersion, "InstallDir")
-        if path and len(path) > 0 and os.path.exists(path[0]):
-            thirdPartyHome = path[0]
 
 # List of supported cross languages test.
 crossTests = [ #"Ice/adapterDeactivation",
@@ -459,9 +461,8 @@ def run(tests, root = False):
                                    ["start=", "start-after=", "filter=", "rfilter=", "all", "all-cross", "loop",
                                     "debug", "protocol=", "compress", "valgrind", "host=", "serialize", "continue",
                                     "ipv6", "no-ipv6", "socks", "ice-home=", "cross=", "client-home=", "x64", "x86",
-                                    "script", "env", "arg=",
-                                    "service-dir=", "appverifier", "compact", "winrt", "server", "mx",
-                                    "c++11"])
+                                    "script", "env", "arg=", "service-dir=", "appverifier", "compact",
+                                    "winrt", "server", "mx", "c++11"])
     except getopt.GetoptError:
         usage()
 
@@ -790,7 +791,7 @@ def getIceBox():
                 iceBox += "d"
             iceBox += ".exe"
         elif isLinux():
-            if not x64:
+            if not x64 and not armv7l:
                 iceBox += "32"
             if cpp11:
                 iceBox += "++11"
@@ -845,10 +846,17 @@ def hashPasswords(filePath, entries):
     if os.path.exists(filePath):
       os.remove(filePath)
     passwords = open(filePath, "a")
+
+    command = "%s %s" % (sys.executable, os.path.abspath(os.path.join(os.path.dirname(__file__), "icehashpassword.py")))
+
+    #
+    # For Linux ARM default rounds makes test slower (Usually runs on embbeded boards)
+    #
+    if isLinux() and armv7l:
+        command += " --rounds 100000"
+
     for user, password in entries.items():
-        p = subprocess.Popen(
-            "%s %s" % (sys.executable, os.path.abspath(os.path.join(os.path.dirname(__file__), "icehashpassword.py"))),
-            shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.PIPE)
+        p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.PIPE)
         p.stdin.write(password.encode('UTF-8'))
         p.stdin.write('\r\n'.encode('UTF-8'))
         p.stdin.flush()
@@ -901,7 +909,11 @@ if isDarwin():
     sslConfigTree["cpp"]["colloc"] += " --IceSSL.Keychain=colloc.keychain --IceSSL.KeychainPassword=password"
 
 if isWin32():
+    #
+    # This cipher suites doesn't work well between Java and SChannel TLS1.2 implementations.
+    #
     sslConfigTree["java"]["client"] += " --IceSSL.Ciphers=!TLS_DHE_RSA_WITH_AES_128_GCM_SHA256"
+    sslConfigTree["java"]["server"] += " --IceSSL.Ciphers=!TLS_DHE_RSA_WITH_AES_128_GCM_SHA256"
 
 sslConfigTree["python"] = sslConfigTree["cpp"]
 sslConfigTree["ruby"] = sslConfigTree["cpp"]
@@ -1759,16 +1771,21 @@ def getCppLibDir(lang = None):
         return getCppBinDir(lang)
     else:
         libDir = os.path.join(getIceDir("cpp"), "lib")
-        if x64:
+        if isUbuntu() or isDebian():
+            if armv7l:
+                libDir = os.path.join(libDir, "arm-linux-gnueabihf")
+            elif x64:
+                libDir = os.path.join(libDir, "x86_64-linux-gnu")
+            else:
+                libDir = os.path.join(libDir, "i386-linux-gnu")
+        elif x64:
             if isSolaris():
                 if isSparc():
                     libDir = os.path.join(libDir, "64")
                 else:
                     libDir = os.path.join(libDir, "amd64")
-            if isLinux() and not isUbuntu():
+            if isLinux():
                 libDir = libDir + "64"
-        if isUbuntu():
-            libDir = os.path.join(libDir, "x86_64-linux-gnu" if x64 else "i386-linux-gnu")
         return libDir
     return None
 
@@ -1777,7 +1794,8 @@ def getJavaLibraryPath():
         if iceHome:
             return "-Djava.library.path=\"%s\" " % os.path.join(iceHome, "bin\\x64" if x64 else "bin")
         else:
-            return "-Djava.library.path=\"%s\" " % os.path.join(thirdPartyHome, "bin\\x64" if x64 else "bin")
+            return ("-Djava.library.path=\"%s\" " % os.path.join(getIceDir("cpp"), "third-party-packages",
+                    "berkeley.db.java7", "build", "native", "bin", "x64" if x64 else "Win32"))
     elif isDarwin():
         if os.path.exists('/usr/local/opt/ice/libexec/lib'):
             return "-Djava.library.path=/usr/local/opt/ice/libexec/lib "
@@ -1793,7 +1811,7 @@ def getJavaLibraryPath():
         if "LD_LIBRARY_PATH" in os.environ:
             libpath = os.environ["LD_LIBRARY_PATH"] + ":" + libpath
         return "-Djava.library.path=%s " % libpath
-    return None
+    return ''
 
 def getServiceDir():
     global serviceDir
@@ -1803,6 +1821,43 @@ def getServiceDir():
         else:
             serviceDir = "C:\\Program Files\ZeroC\Ice-" + iceVersion + "\\bin"
     return serviceDir
+
+def getBuildMode(d):
+  if os.path.isfile(os.path.join(d, "build.txt")):
+    return open(os.path.join(d, "build.txt"), "r").read().strip()
+  import glob
+  executables = glob.glob(os.path.join(d, "*.exe"))
+  if not executables:
+    return "release"
+  p = subprocess.Popen("dumpbin /DEPENDENTS %s" % executables[0], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+  if not p or not p.stdout:
+    print("unable to get executable information!")
+    sys.exit(1)
+
+  debug = "MSVCP%sD.dll"
+  release = "MSVCP%s.dll"
+
+  if isVC100():
+    debug = debug % "100"
+    release = release % "100"
+  elif isVC110():
+    debug = debug % "110"
+    release = release % "110"
+  elif isVC120():
+    debug = debug % "120"
+    release = release % "120"
+  elif isVC140():
+    debug = debug % "140"
+    release = release % "140"
+
+  l = p.stdout.readline()
+  while l:
+    l = l.decode("utf-8").strip()
+    if l.find(debug) != -1:
+      return "debug"
+    elif l.find(release) != -1:
+      return "release"
+    l = p.stdout.readline()
 
 def getTestEnv(lang, testdir):
     global compact
@@ -1838,27 +1893,48 @@ def getTestEnv(lang, testdir):
     # DB CLASSPATH, in Windows db.jar come from Ice home or
     # from Third Party Home
     #
-    if lang in ["cpp", "java", "csharp"]:
+    if lang in ["cpp", "java", "csharp", "python", "ruby"]:
         if isWin32():
             if iceHome:
                 addClasspath(os.path.join(getIceDir("java", testdir), "lib", "db.jar"), env)
-            elif thirdPartyHome:
-                suffix = ""
-                if x64:
-                    suffix = "x64"
-                else:
-                    suffix = ""
-                #
-                # Add third party home to PATH, to use db_xx tools
-                #
-                addPathToEnv("PATH", os.path.join(thirdPartyHome, "bin", suffix), env)
-                if isVC110():
-                    addPathToEnv("PATH", os.path.join(thirdPartyHome, "bin", "vc110", suffix), env)
-                elif isVC140():
-                    addPathToEnv("PATH", os.path.join(thirdPartyHome, "bin", "vc140", suffix), env)
-                addClasspath(os.path.join(thirdPartyHome, "lib", "db.jar"), env)
             else:
-                print("warning: could not detect Ice Third Party installation")
+                mode = getBuildMode(os.path.join(getIceDir("cpp"), "bin"))
+                configuration = "Debug" if mode == "debug" else "Release"
+                platform = "x64" if x64 else "Win32"
+                pkgdir = os.path.join(getIceDir("cpp"), "third-party-packages")
+                pkgsubdir = os.path.join("build", "native", "bin", platform)
+
+                if isMINGW():
+                    addPathToEnv("PATH", os.path.join(pkgdir, "bzip2.mingw4.7.2", pkgsubdir), env)
+                else:
+                    platformtoolset = ""
+                    if isVC100():
+                        platformtoolset = "v100"
+                    elif isVC110():
+                        platformtoolset = "v110"
+                    elif isVC120():
+                        platformtoolset = "v120"
+                    elif isVC140():
+                        platformtoolset = "v140"
+
+                    #
+                    # For Debug builds we need to add Release binaries to path to be able to use db_xxx tools and
+                    # bzip2 to be able to use protocol compression with .NET
+                    #
+                    if configuration == "Debug":
+                      addPathToEnv("PATH", os.path.join(pkgdir, "berkeley.db.{0}".format(platformtoolset), pkgsubdir,
+                                   "Release"), env)
+                      addPathToEnv("PATH", os.path.join(pkgdir, "bzip2.{0}".format(platformtoolset), pkgsubdir,
+                                   "Release"), env)
+
+                    for package in ["berkeley.db.{0}", "bzip2.{0}", "expat.{0}"]:
+                      addPathToEnv("PATH", os.path.join(pkgdir, package.format(platformtoolset), pkgsubdir,
+                                   configuration), env)
+
+                    if lang == "java":
+                      addPathToEnv("PATH", os.path.join(pkgdir, "berkeley.db.java7", pkgsubdir), env)
+                      addClasspath(os.path.join(pkgdir, "berkeley.db.java7", "build", "native", "lib", "db.jar"), env)
+
         elif isDarwin():
             if os.path.exists('/usr/local/opt/ice/libexec/lib'):
                 addClasspath(os.path.join("/", "usr", "local", "opt", "ice", "libexec", "lib", "db.jar"), env)
@@ -2127,7 +2203,6 @@ def processCmdLine():
         elif o == "--mx":
             global mx
             mx = True
-
         if protocol in ["ssl", "wss"] and not serverOnly and getDefaultMapping() == "js":
             print("SSL is not supported with Node.js")
             sys.exit(1)
@@ -2140,7 +2215,9 @@ def processCmdLine():
             sys.stdout.write("*** using Ice installation from " + iceHome + " ")
         else:
             sys.stdout.write("*** using Ice source dist ")
-        if x64:
+        if armv7l:
+            sys.stdout.write("(ARMv7)")
+        elif x64:
             sys.stdout.write("(64bit) ")
         else:
             sys.stdout.write("(32bit) ")
@@ -2231,6 +2308,10 @@ def runTests(start, expanded, num = 0, script = False):
 
             if isDarwin() and "nodarwin" in config:
                 print("%s*** test not supported under Darwin%s" % (prefix, suffix))
+                continue
+
+            if isYocto() and "noyocto" in config:
+                print("%s*** test not supported under Yocto%s" % (prefix, suffix))
                 continue
 
             if not isWin32() and "win32only" in config:

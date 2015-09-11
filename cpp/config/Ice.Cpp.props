@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <!-- This file is included in C++ projects when Ice Builder 4.1 or later is enabled -->
+
+    <!-- platform toolset suffix -->
+    <PropertyGroup Condition="'$(Platform)' != 'Win32'">
+        <IcePlatformSuffix>$(Platform)\</IcePlatformSuffix>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(PlatformToolset)' == 'v110'">
+        <IceToolsetSuffix>vc110\</IceToolsetSuffix>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(PlatformToolset)' == 'v140'">
+        <IceToolsetSuffix>vc140\</IceToolsetSuffix>
+    </PropertyGroup>
+
+    <Choose>
+        <!-- Windows store application settings -->
+        <When Condition="'$(ApplicationType)' == 'Windows Store'">
+            <PropertyGroup Condition="'$(TargetPlatformIdentifier)' == 'Windows'">
+                <IceSDKPrefix>8.1</IceSDKPrefix>
+            </PropertyGroup>
+
+            <PropertyGroup Condition="'$(TargetPlatformIdentifier)' == 'UAP'">
+                <IceSDKPrefix>10</IceSDKPrefix>
+            </PropertyGroup>
+
+            <PropertyGroup Condition="!Exists('$(IceSourceHome)')">
+                <IceSDKDirectoryRoot>$(IceHome)\SDKs\$(IceSDKPrefix)\</IceSDKDirectoryRoot>
+            </PropertyGroup>
+
+            <PropertyGroup Condition="Exists('$(IceSourceHome)')">
+                <IceSDKDirectoryRoot>$(IceHome)\cpp\SDKs\$(IceSDKPrefix)\</IceSDKDirectoryRoot>
+            </PropertyGroup>
+            
+            <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+                <ConfigurationPrefix>Debug</ConfigurationPrefix>
+            </PropertyGroup>
+
+            <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+                <ConfigurationPrefix>Retail</ConfigurationPrefix>
+            </PropertyGroup>
+
+            <!-- Set Include, Library and SDK search paths for the given platform and configuration -->
+            <PropertyGroup>
+                <IceExtensionSDKsDirectory>$(IceSDKDirectoryRoot)\$(TargetPlatformIdentifier)\v$(TargetPlatformVersion)\ExtensionSDKs</IceExtensionSDKsDirectory>
+                <IceSDKDirectory>$(IceExtensionSDKsDirectory)\Ice\$(IceVersionMM)</IceSDKDirectory>
+                <IceInclude>$(IceSDKDirectory)\Designtime\CommonConfiguration\Neutral\include</IceInclude>
+                <IceLib>$(IceSDKDirectory)\Designtime\$(ConfigurationPrefix)\$(PlatformTarget)</IceLib>
+                <IncludePath>$(IceInclude);$(IncludePath)</IncludePath>
+                <LibraryPath>$(IceLib);$(LibraryPath)</LibraryPath>
+                <SDKReferenceDirectoryRoot>$(IceSDKDirectoryRoot);$(SDKReferenceDirectoryRoot);$(ExtensionSDKDirectoryRoot)</SDKReferenceDirectoryRoot>
+            </PropertyGroup>
+
+            <!-- Add a reference to the Ice SDK -->
+            <ItemGroup>
+                <SDKReference Include="Ice, Version=$(IceVersionMM)"/>
+            </ItemGroup>
+        </When>
+        <!-- Windows C++ application settings-->
+        <Otherwise>
+            <!-- Ice binary distribution -->
+            <PropertyGroup Condition="!Exists('$(IceSourceHome)')">
+                <IceLib>$(IceHome)\lib\$(IceToolsetSuffix)$(IcePlatformSuffix)</IceLib>
+                <IceBin>$(IceHome)\bin\$(IceToolsetSuffix)$(IcePlatformSuffix)</IceBin>
+                <IceInclude>$(IceHome)\include\</IceInclude>
+            </PropertyGroup>
+
+            <!-- Source distributions library, binary and  include paths -->
+            <PropertyGroup Condition="Exists('$(IceSourceHome)')">
+                <IceInclude>$(IceHome)\cpp\include\</IceInclude>
+                <IceBin>$(IceHome)\cpp\bin\</IceBin>
+                <IceLib>$(IceHome)\cpp\lib\</IceLib>
+            </PropertyGroup>
+
+            <!-- Preprend our settings to C++ configuration settings -->
+            <PropertyGroup>
+                <IncludePath>$(IceInclude);$(IncludePath)</IncludePath>
+                <LibraryPath>$(IceLib);$(LibraryPath)</LibraryPath>
+            </PropertyGroup>
+
+            <!-- Setup build macros -->
+            <ItemGroup>
+                <BuildMacro Include="IceInclude">
+                    <Value>$(IceInclude)</Value>
+                    <EnvironmentVariable>true</EnvironmentVariable>
+                </BuildMacro>
+                <BuildMacro Include="IceLib">
+                    <Value>$(IceLib)</Value>
+                    <EnvironmentVariable>true</EnvironmentVariable>
+                </BuildMacro>
+                <BuildMacro Include="IceBin">
+                    <Value>$(IceBin)</Value>
+                    <EnvironmentVariable>true</EnvironmentVariable>  
+                </BuildMacro>
+            </ItemGroup>
+        </Otherwise>
+    </Choose>
+
+    <!-- If using a source distribution configure the Path to use nuget packages from third-party-packages folder -->
+    <PropertyGroup Condition="Exists('$(IceSourceHome)\cpp\third-party-packages')">
+        <Bzip2Bin>$(IceHome)\cpp\third-party-packages\bzip2.$(PlatformToolset)\build\native\bin\$(Platform)\$(Configuration)</Bzip2Bin>
+        <ExpatBin>$(IceHome)\cpp\third-party-packages\expat.$(PlatformToolset)\build\native\bin\$(Platform)\$(Configuration)</ExpatBin>
+        <BerkeleyDBBin>$(IceHome)\cpp\third-party-packages\berkeley.db.$(PlatformToolset)\build\native\bin\$(Platform)\$(Configuration)</BerkeleyDBBin>
+        <Path>$(Bzip2Bin);$(ExpatBin);$(BerkeleyDBBin);$(Path)</Path>
+    </PropertyGroup>
+
+    <!-- Prepend IceBin to the PATH -->
+    <PropertyGroup>
+        <Path>$(IceBin);$(Path)</Path>
+    </PropertyGroup>
+</Project>

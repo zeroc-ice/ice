@@ -26,7 +26,9 @@ SDIR		= $(slicedir)\IcePatch2
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-CPPFLAGS	= -I. -I.. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN -wd4996
+$(OBJS)		: $(BZIP2_NUPKG)
+
+CPPFLAGS	= -I. -I.. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN -wd4996 $(BZIP2_CPPFLAGS)
 
 SLICE2CPPFLAGS	= --ice --include-dir IcePatch2 --dll-export ICE_PATCH2_API $(SLICE2CPPFLAGS)
 
@@ -39,7 +41,7 @@ RES_FILE        = IcePatch2.res
 $(LIBNAME): $(DLLNAME)
 
 $(DLLNAME): $(OBJS) IcePatch2.res
-	$(LINK) $(BASE):0x29000000 $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) $(BZIP2_LIBS) \
+	$(LINK) $(BASE):0x29000000 $(LD_DLLFLAGS) $(BZIP2_LDFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) $(BZIP2_LIBS) \
 	    $(RES_FILE)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \

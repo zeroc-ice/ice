@@ -121,6 +121,7 @@ AssignVisitor.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Slice\Parser.h" \
     "Error.h" \
     "Util.h" \
@@ -248,6 +249,7 @@ Data.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Slice\Parser.h" \
     "Error.h" \
     "Util.h" \
@@ -455,6 +457,7 @@ Functions.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Slice\Parser.h" \
     "Error.h" \
     "Util.h" \
@@ -590,6 +593,7 @@ Parser.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Slice\Parser.h" \
     "Error.h" \
     "GrammarUtil.h" \
@@ -716,6 +720,7 @@ Print.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Slice\Parser.h" \
     "Error.h" \
     "Util.h" \
@@ -848,6 +853,7 @@ Util.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Freeze\DB.h" \
     "$(includedir)\Freeze\Exception.h" \
     "$(includedir)\Freeze\Connection.h" \
@@ -981,6 +987,7 @@ Grammar.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Slice\Parser.h" \
     "Error.h" \
 
@@ -1108,6 +1115,7 @@ Scanner.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Slice\Parser.h" \
     "Error.h" \
     "Grammar.h" \
@@ -1313,6 +1321,7 @@ TransformVisitor.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Slice\Parser.h" \
     "Error.h" \
     "Util.h" \
@@ -1440,6 +1449,7 @@ Transformer.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Slice\Parser.h" \
     "$(includedir)\Freeze\Connection.h" \
     "$(includedir)\Freeze\Transaction.h" \
@@ -1585,6 +1595,7 @@ transformdb.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Slice\Parser.h" \
     "$(includedir)\Freeze\Connection.h" \
     "$(includedir)\Freeze\Transaction.h" \
@@ -1730,6 +1741,7 @@ DumpDescriptors.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Slice\Parser.h" \
     "Error.h" \
     "..\..\src\IceXML\Parser.h" \
@@ -1864,6 +1876,7 @@ DumpDB.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Slice\Parser.h" \
     "Error.h" \
     "..\..\src\IceXML\Parser.h" \

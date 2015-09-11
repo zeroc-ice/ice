@@ -105,7 +105,7 @@ StreamSocket::connect(Buffer& readBuffer, Buffer& writeBuffer)
 bool
 StreamSocket::isConnected()
 {
-    return _state == StateConnected;
+    return _state == StateConnected && _fd != INVALID_SOCKET;
 }
 
 size_t
@@ -377,7 +377,7 @@ StreamSocket::startWrite(Buffer& buf)
 void
 StreamSocket::finishWrite(Buffer& buf)
 {
-    if(_state < StateConnected && _state != StateProxyWrite)
+    if(_fd == INVALID_SOCKET || (_state < StateConnected && _state != StateProxyWrite))
     {
         return;
     }
@@ -439,6 +439,11 @@ StreamSocket::startRead(Buffer& buf)
 void
 StreamSocket::finishRead(Buffer& buf)
 {
+    if(_fd == INVALID_SOCKET)
+    {
+        return;
+    }
+
     if(static_cast<int>(_read.count) == SOCKET_ERROR)
     {
         WSASetLastError(_read.error);

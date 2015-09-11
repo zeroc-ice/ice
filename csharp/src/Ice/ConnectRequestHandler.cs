@@ -22,27 +22,11 @@ namespace IceInternal
         {
             lock(this)
             {
-                try
+                if(!initialized())
                 {
-                    if(!initialized())
-                    {
-                        _proxies.Add(proxy);
-                    }
+                    _proxies.Add(proxy);
                 }
-                catch(Ice.LocalException ex)
-                {
-                    //
-                    // Only throw if the connection didn't get established. If
-                    // it died after being established, we allow the caller to
-                    // retry the connection establishment by not throwing here.
-                    //
-                    if(_connection == null)
-                    {
-                        throw ex;
-                    }
-                }
-
-                return proxy.setRequestHandler__(_requestHandler);
+                return _requestHandler;
             }
         }
 
@@ -226,6 +210,16 @@ namespace IceInternal
 
                 if(_exception != null)
                 {
+                    if(_connection != null)
+                    {
+                        //
+                        // Only throw if the connection didn't get established. If
+                        // it died after being established, we allow the caller to
+                        // retry the connection establishment by not throwing here
+                        // (the connection will throw RetryException).
+                        //
+                        return true;
+                    }
                     throw _exception;
                 }
                 else

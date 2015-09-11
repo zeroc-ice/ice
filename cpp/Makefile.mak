@@ -26,6 +26,27 @@ install:: install-common
 	@for %i in ( config src include ) do \
 	    @echo "making $@ in %i" && \
 	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $@" || exit 1
+
+!if "$(CPP_COMPILER)" == "VC100"
+install::
+	@if not exist "$(install_bindir)" $(MKDIR) "$(install_bindir)"
+	copy "$(BZIP2_HOME)\build\native\bin\$(PLATFORM)\$(CONFIGURARTION)\*" "$(install_bindir)"
+!else
+install::
+	@if not exist "$(install_bindir)" $(MKDIR) "$(install_bindir)"
+	copy "$(BZIP2_HOME)\build\native\bin\$(PLATFORM)\$(CONFIGURARTION)\*" "$(install_bindir)"
+	copy "$(DB_HOME)\build\native\bin\$(PLATFORM)\$(CONFIGURARTION)\*" "$(install_bindir)"
+	copy "$(EXPAT_HOME)\build\native\bin\$(PLATFORM)\$(CONFIGURARTION)\*" "$(install_bindir)"
+
+!if "$(CONFIGURARTION)" == "Debug"
+#
+# If that is a Debug build install also the DB tools from the release bin directory
+install::
+	@if not exist "$(install_bindir)" $(MKDIR) "$(install_bindir)"
+	copy "$(DB_HOME)\build\native\bin\$(PLATFORM)\Release\*" "$(install_bindir)"
+!endif
+!endif
+
 test::
 	@python $(top_srcdir)/allTests.py
 

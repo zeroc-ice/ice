@@ -224,6 +224,48 @@ public:
     }
 };
 
+class InterruptConnectCallback : public Glacier2::SessionCallback
+{
+
+public:
+
+    virtual void
+    connected(const Glacier2::SessionHelperPtr&)
+    {
+        test(false);
+    }
+
+    virtual void
+    disconnected(const Glacier2::SessionHelperPtr&)
+    {
+        test(false);
+    }
+
+    virtual void
+    connectFailed(const Glacier2::SessionHelperPtr&, const Ice::Exception& ex)
+    {
+        try
+        {
+            ex.ice_throw();
+        }
+        catch(const Ice::CommunicatorDestroyedException&)
+        {
+            cout << "ok" << endl;
+            instance->notify();
+        }
+        catch(...)
+        {
+            test(false);
+        }
+    }
+
+    virtual void
+    createdCommunicator(const Glacier2::SessionHelperPtr& session)
+    {
+        test(session->communicator());
+    }
+};
+
 class SessionHelperClient : public Ice::Application, public Notify
 {
 public:
@@ -260,7 +302,31 @@ public:
         }
         _factory->destroy();
 
+        //
+        // Test to interrupt connection establishment
+        //
+
         _initData.properties->setProperty("Ice.Default.Router", "");
+        _factory = new Glacier2::SessionFactoryHelper(_initData, new InterruptConnectCallback());
+
+        {
+            IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
+            cout << "testing SessionHelper connect interrupt... " << flush;
+            _factory->setRouterHost(host);
+            _factory->setPort(12011);
+            _factory->setProtocol(protocol);
+            _session = _factory->connect("userid", "abc123");
+
+            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
+            _session->destroy();
+
+            //
+            // Wait for connectFailed callback
+            //
+            _monitor.wait();
+        }
+        _factory->destroy();
+
         _factory = new Glacier2::SessionFactoryHelper(_initData, new SuccessSessionCallback());
 
         {
@@ -483,20 +549,11 @@ private:
 } // Anonymous namespace end
 
 
-#ifdef ICE_STATIC_LIBS
-extern "C"
-{
-
-Ice::Plugin* createIceSSL(const Ice::CommunicatorPtr&, const string&, const Ice::StringSeq&);
-
-}
-#endif
-
 int
 main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
-    Ice::registerPluginFactory("IceSSL", createIceSSL, true);
+    Ice::registerIceSSL();
 #endif
 
     SessionHelperClient c;

@@ -41,7 +41,7 @@ run(int, char**, const Ice::CommunicatorPtr& communicator,
     Ice::ObjectPtr object = new ServerManagerI(registry, initData);
     adapter->add(object, communicator->stringToIdentity("ServerManager"));
 
-    Ice::LocatorRegistryPrx registryPrx = 
+    Ice::LocatorRegistryPrx registryPrx =
         Ice::LocatorRegistryPrx::uncheckedCast(adapter->add(registry, communicator->stringToIdentity("registry")));
 
     Ice::LocatorPtr locator = new ServerLocator(registry, registryPrx);
@@ -54,20 +54,11 @@ run(int, char**, const Ice::CommunicatorPtr& communicator,
     return EXIT_SUCCESS;
 }
 
-#ifdef ICE_STATIC_LIBS
-extern "C"
-{
-
-Ice::Plugin* createIceSSL(const Ice::CommunicatorPtr&, const string&, const Ice::StringSeq&);
-
-}
-#endif
-
 int
 main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
-    Ice::registerPluginFactory("IceSSL", createIceSSL, true);
+    Ice::registerIceSSL();
 #endif
 
     int status;

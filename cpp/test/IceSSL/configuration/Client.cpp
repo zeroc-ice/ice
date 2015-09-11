@@ -34,6 +34,13 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 int
 main(int argc, char* argv[])
 {
+    //
+    // Explicitly register the IceSSL plugin to test registerIceSSL. The tests
+    // don't set Ice.Plugin.IceSSL to ensure the plugin is registered without
+    // the property setting.
+    //
+    Ice::registerIceSSL();
+
     int status;
     Ice::CommunicatorPtr communicator;
 

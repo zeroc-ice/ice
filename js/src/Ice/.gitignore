@@ -12,6 +12,7 @@ Locator.js
 Metrics.js
 Process.js
 PropertiesAdmin.js
+RemoteLogger.js
 Router.js
 ServantLocator.js
 SliceChecksumDict.js

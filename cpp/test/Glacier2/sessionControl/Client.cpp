@@ -24,20 +24,11 @@ public:
     virtual int run(int, char*[]);
 };
 
-#ifdef ICE_STATIC_LIBS
-extern "C"
-{
-
-Ice::Plugin* createIceSSL(const Ice::CommunicatorPtr&, const string&, const Ice::StringSeq&);
-
-}
-#endif
-
 int
 main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
-    Ice::registerPluginFactory("IceSSL", createIceSSL, true);
+    Ice::registerIceSSL();
 #endif
 
     Ice::InitializationData initData;
@@ -49,7 +40,7 @@ main(int argc, char* argv[])
     //
     initData.properties->setProperty("Ice.RetryIntervals", "-1");
     initData.properties->setProperty("Ice.Warn.Connections", "0");
-        
+
     SessionControlClient app;
     return app.main(argc, argv, initData);
 }
@@ -106,7 +97,7 @@ SessionControlClient::run(int, char**)
     catch(const Glacier2::CannotCreateSessionException&)
     {
     }
-    cout << "ok" << endl;    
+    cout << "ok" << endl;
 
     cout << "testing shutdown... " << flush;
     session = Test::SessionPrx::uncheckedCast(router->createSession("userid", "abc123"));

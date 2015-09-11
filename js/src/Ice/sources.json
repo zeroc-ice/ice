@@ -17,6 +17,7 @@
         "Ice/Process.ice",
         "Ice/ProcessF.ice",
         "Ice/PropertiesAdmin.ice",
+        "Ice/RemoteLogger.ice",
         "Ice/Router.ice",
         "Ice/SliceChecksumDict.ice",
         "Ice/Version.ice",

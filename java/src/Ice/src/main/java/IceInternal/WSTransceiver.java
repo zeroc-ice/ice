@@ -301,10 +301,14 @@ final class WSTransceiver implements Transceiver
     @Override
     public void close()
     {
-        // Reallocate the buffer to avoid holding a large amount of memory.
-        _writeBuffer = new Buffer(false, java.nio.ByteOrder.BIG_ENDIAN);
         _delegate.close();
         _state = StateClosed;
+
+        //
+        // Clear the buffers now instead of waiting for destruction.
+        //
+        _writeBuffer.clear();
+        _readBuffer.clear();
     }
 
     @Override
@@ -856,7 +860,7 @@ final class WSTransceiver implements Transceiver
                 {
                     ch += 256;
                 }
-                
+
                 //
                 // Check the MASK bit. Messages sent by a client must be masked;
                 // messages sent by a server must not be masked.

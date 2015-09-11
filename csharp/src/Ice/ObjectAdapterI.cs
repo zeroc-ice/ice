@@ -35,13 +35,12 @@ namespace Ice
         public void activate()
         {
             LocatorInfo locatorInfo = null;
-            bool registerProcess = false;
             bool printAdapterReady = false;
 
             lock(this)
             {
                 checkForDeactivation();
-                
+
                 //
                 // If we've previously been initialized we just need to activate the
                 // incoming connection factories and we're done.
@@ -68,16 +67,15 @@ namespace Ice
                 if(!_noConfig)
                 {
                     Properties properties = instance_.initializationData().properties;
-                    registerProcess = properties.getPropertyAsInt(_name + ".RegisterProcess") > 0;
                     printAdapterReady = properties.getPropertyAsInt("Ice.PrintAdapterReady") > 0;
                 }
             }
-            
+
             try
             {
                 Ice.Identity dummy = new Ice.Identity();
                 dummy.name = "dummy";
-                updateLocatorRegistry(locatorInfo, createDirectProxy(dummy), registerProcess);
+                updateLocatorRegistry(locatorInfo, createDirectProxy(dummy));
             }
             catch(Ice.LocalException)
             {
@@ -94,7 +92,7 @@ namespace Ice
                 }
                 throw;
             }
-                
+
             if(printAdapterReady)
             {
                 System.Console.Out.WriteLine(_name + " ready");
@@ -102,8 +100,8 @@ namespace Ice
 
             lock(this)
             {
-                Debug.Assert(state_ == StateActivating); 
-            
+                Debug.Assert(state_ == StateActivating);
+
                 foreach(IncomingConnectionFactory icf in _incomingConnectionFactories)
                 {
                     icf.activate();
@@ -113,7 +111,7 @@ namespace Ice
                 System.Threading.Monitor.PulseAll(this);
             }
         }
-        
+
         public void hold()
         {
             lock(this)
@@ -126,14 +124,14 @@ namespace Ice
                 }
             }
         }
-        
+
         public void waitForHold()
         {
             List<IncomingConnectionFactory> incomingConnectionFactories;
             lock(this)
             {
                 checkForDeactivation();
-                
+
                 incomingConnectionFactories = new List<IncomingConnectionFactory>(_incomingConnectionFactories);
             }
 
@@ -142,14 +140,14 @@ namespace Ice
                 factory.waitUntilHolding();
             }
         }
-        
+
         public void deactivate()
         {
             lock(this)
             {
                 //
                 //
-                // Wait for activation to complete. This is necessary to not 
+                // Wait for activation to complete. This is necessary to not
                 // get out of order locator updates.
                 //
                 while(state_ == StateActivating || state_ == StateDeactivating)
@@ -174,16 +172,16 @@ namespace Ice
                 // Remove entry from the router manager.
                 //
                 instance_.routerManager().erase(_routerInfo.getRouter());
-                
+
                 //
                 // Clear this object adapter with the router.
                 //
                 _routerInfo.setAdapter(null);
             }
-                
+
             try
             {
-                updateLocatorRegistry(_locatorInfo, null, false);
+                updateLocatorRegistry(_locatorInfo, null);
             }
             catch(Ice.LocalException)
             {
@@ -217,7 +215,7 @@ namespace Ice
                 System.Threading.Monitor.PulseAll(this);
             }
         }
-        
+
         public void waitForDeactivate()
         {
             IncomingConnectionFactory[] incomingConnectionFactories = null;
@@ -236,10 +234,10 @@ namespace Ice
                 {
                     return;
                 }
-                
+
                 incomingConnectionFactories = _incomingConnectionFactories.ToArray();
             }
-            
+
             //
             // Now we wait for until all incoming connection factories are
             // finished.
@@ -289,7 +287,7 @@ namespace Ice
             // locators.
             //
             _servantManager.destroy();
-            
+
             //
             // Destroy the thread pool.
             //
@@ -298,7 +296,7 @@ namespace Ice
                 _threadPool.destroy();
                 _threadPool.joinWithAllThreads();
             }
-            
+
             if(_objectAdapterFactory != null)
             {
                 _objectAdapterFactory.removeObjectAdapter(this);
@@ -311,7 +309,7 @@ namespace Ice
                 // factories.
                 //
                 _incomingConnectionFactories.Clear();
-                
+
                 //
                 // Remove object references (some of them cyclic).
                 //
@@ -355,7 +353,7 @@ namespace Ice
                 return newProxy(id, facet);
             }
         }
-        
+
         public ObjectPrx addWithUUID(Ice.Object obj)
         {
             return addFacetWithUUID(obj, "");
@@ -366,7 +364,7 @@ namespace Ice
             Identity ident = new Identity();
             ident.category = "";
             ident.name = Guid.NewGuid().ToString();
-            
+
             return addFacet(obj, ident, facet);
         }
 
@@ -381,7 +379,7 @@ namespace Ice
                 _servantManager.addDefaultServant(servant, category);
             }
         }
-        
+
         public Ice.Object remove(Identity ident)
         {
             return removeFacet(ident, "");
@@ -393,7 +391,7 @@ namespace Ice
             {
                 checkForDeactivation();
                 checkIdentity(ident);
-                
+
                 return _servantManager.removeServant(ident, facet);
             }
         }
@@ -456,7 +454,7 @@ namespace Ice
                 return findFacet(@ref.getIdentity(), @ref.getFacet());
             }
         }
-        
+
         public Ice.Object findDefaultServant(string category)
         {
             lock(this)
@@ -472,7 +470,7 @@ namespace Ice
             lock(this)
             {
                 checkForDeactivation();
-                
+
                 _servantManager.addServantLocator(locator, prefix);
             }
         }
@@ -482,60 +480,60 @@ namespace Ice
             lock(this)
             {
                 checkForDeactivation();
-                
+
                 return _servantManager.removeServantLocator(prefix);
             }
         }
-        
+
         public ServantLocator findServantLocator(string prefix)
         {
             lock(this)
             {
                 checkForDeactivation();
-                
+
                 return _servantManager.findServantLocator(prefix);
             }
         }
-        
+
         public ObjectPrx createProxy(Identity ident)
         {
             lock(this)
             {
                 checkForDeactivation();
                 checkIdentity(ident);
-                
+
                 return newProxy(ident, "");
             }
         }
-        
+
         public ObjectPrx createDirectProxy(Identity ident)
         {
             lock(this)
             {
                 checkForDeactivation();
                 checkIdentity(ident);
-                
+
                 return newDirectProxy(ident, "");
             }
         }
-        
+
         public ObjectPrx createIndirectProxy(Identity ident)
         {
             lock(this)
             {
                 checkForDeactivation();
                 checkIdentity(ident);
-                
+
                 return newIndirectProxy(ident, "", _id);
             }
         }
-        
+
         public void setLocator(LocatorPrx locator)
         {
             lock(this)
             {
                 checkForDeactivation();
-                
+
                 _locatorInfo = instance_.locatorManager().get(locator);
             }
         }
@@ -545,7 +543,7 @@ namespace Ice
             lock(this)
             {
                 checkForDeactivation();
-                
+
                 if(_locatorInfo == null)
                 {
                     return null;
@@ -560,7 +558,6 @@ namespace Ice
         public void refreshPublishedEndpoints()
         {
             LocatorInfo locatorInfo = null;
-            bool registerProcess = false;
             List<EndpointI> oldPublishedEndpoints;
 
             lock(this)
@@ -571,18 +568,13 @@ namespace Ice
                 _publishedEndpoints = parsePublishedEndpoints();
 
                 locatorInfo = _locatorInfo;
-                if(!_noConfig)
-                {
-                    registerProcess =
-                        instance_.initializationData().properties.getPropertyAsInt(_name + ".RegisterProcess") > 0;
-                }
             }
 
             try
             {
                 Ice.Identity dummy = new Ice.Identity();
                 dummy.name = "dummy";
-                updateLocatorRegistry(locatorInfo, createDirectProxy(dummy), registerProcess);
+                updateLocatorRegistry(locatorInfo, createDirectProxy(dummy));
             }
             catch(Ice.LocalException)
             {
@@ -621,7 +613,7 @@ namespace Ice
         public bool isLocal(ObjectPrx proxy)
         {
             //
-            // NOTE: it's important that isLocal() doesn't perform any blocking operations as 
+            // NOTE: it's important that isLocal() doesn't perform any blocking operations as
             // it can be called for AMI invocations if the proxy has no delegate set yet.
             //
 
@@ -645,7 +637,7 @@ namespace Ice
             else
             {
                 EndpointI[] endpoints = r.getEndpoints();
-            
+
                 lock(this)
                 {
                     checkForDeactivation();
@@ -672,7 +664,7 @@ namespace Ice
                             }
                         }
                     }
-                    
+
                     //
                     // Proxies which have at least one endpoint in common with the
                     // router's server proxy endpoints (if any), are also considered
@@ -691,7 +683,7 @@ namespace Ice
                             }
                         }
                     }
-                    
+
                     return false;
                 }
             }
@@ -724,7 +716,7 @@ namespace Ice
                 p.updateConnectionObservers();
             }
         }
-    
+
         public void  updateThreadObservers()
         {
             ThreadPool threadPool = null;
@@ -744,20 +736,20 @@ namespace Ice
             lock(this)
             {
                 checkForDeactivation();
-                
+
                 Debug.Assert(_directCount >= 0);
                 ++_directCount;
             }
         }
-        
+
         public void decDirectCount()
         {
             lock(this)
             {
                 // Not check for deactivation here!
-                
+
                 Debug.Assert(instance_ != null); // Must not be called after destroy().
-                
+
                 Debug.Assert(_directCount > 0);
                 if(--_directCount == 0)
                 {
@@ -765,17 +757,17 @@ namespace Ice
                 }
             }
         }
-        
+
         public ThreadPool getThreadPool()
         {
             // No mutex lock necessary, _threadPool and instance_ are
             // immutable after creation until they are removed in
             // destroy().
-            
+
             // Not check for deactivation here!
-            
+
             Debug.Assert(instance_ != null); // Must not be called after destroy().
-            
+
             if(_threadPool != null)
             {
                 return _threadPool;
@@ -784,7 +776,7 @@ namespace Ice
             {
                 return instance_.serverThreadPool();
             }
-            
+
         }
 
         public ServantManager getServantManager()
@@ -798,7 +790,7 @@ namespace Ice
         public ACMConfig getACM()
         {
             // Not check for deactivation here!
-            
+
             Debug.Assert(instance_ != null); // Must not be called after destroy().
             return _acm;
         }
@@ -813,7 +805,7 @@ namespace Ice
         // Only for use by ObjectAdapterFactory
         //
         public ObjectAdapterI(Instance instance, Communicator communicator,
-                              ObjectAdapterFactory objectAdapterFactory, string name, 
+                              ObjectAdapterFactory objectAdapterFactory, string name,
                               RouterPrx router, bool noConfig)
         {
             instance_ = instance;
@@ -827,8 +819,7 @@ namespace Ice
             _routerInfo = null;
             _directCount = 0;
             _noConfig = noConfig;
-            _processId = null;
-            
+
             if(_noConfig)
             {
                 _id = "";
@@ -877,7 +868,7 @@ namespace Ice
 
             _id = properties.getProperty(_name + ".AdapterId");
             _replicaGroupId = properties.getProperty(_name + ".ReplicaGroupId");
-            
+
             //
             // Setup a reference to be used to get the default proxy options
             // when creating new proxies. By default, create twoway proxies.
@@ -973,12 +964,12 @@ namespace Ice
                         // use this object adapter for callbacks.
                         //
                         _routerInfo.setAdapter(this);
-                    
+
                         //
                         // Also modify all existing outgoing connections to the
                         // router's client proxy to use this object adapter for
                         // callbacks.
-                        //      
+                        //
                         instance_.outgoingConnectionFactory().setRouterInfo(_routerInfo);
                     }
                 }
@@ -1003,7 +994,7 @@ namespace Ice
                                                                         "' without endpoints");
                         }
                     }
-                
+
                     //
                     // Parse published endpoints.
                     //
@@ -1026,7 +1017,7 @@ namespace Ice
                 throw;
             }
         }
-        
+
         /*
         ~ObjectAdapterI()
         {
@@ -1072,12 +1063,12 @@ namespace Ice
                 return newIndirectProxy(ident, facet, _replicaGroupId);
             }
         }
-        
+
         private ObjectPrx newDirectProxy(Identity ident, string facet)
         {
             EndpointI[] endpoints;
 
-            // 
+            //
             // Use the published endpoints, otherwise use the endpoints from all
             // incoming connection factories.
             //
@@ -1097,14 +1088,14 @@ namespace Ice
             {
                 endpoints[sz + i] = _routerEndpoints[i];
             }
-            
+
             //
             // Create a reference and return a proxy for this reference.
             //
             Reference reference = instance_.referenceFactory().create(ident, facet, _reference, endpoints);
             return instance_.proxyFactory().referenceToProxy(reference);
         }
-        
+
         private ObjectPrx newIndirectProxy(Identity ident, string facet, string id)
         {
             //
@@ -1124,13 +1115,13 @@ namespace Ice
                 throw ex;
             }
         }
-        
+
         private static void checkIdentity(Identity ident)
         {
             if(ident.name == null || ident.name.Length == 0)
             {
                 throw new IllegalIdentityException(ident);
-            }       
+            }
             if(ident.category == null)
             {
                 ident.category = "";
@@ -1286,184 +1277,120 @@ namespace Ice
              return endpoints;
         }
 
-        private void updateLocatorRegistry(LocatorInfo locatorInfo, ObjectPrx proxy, bool registerProcess)
+        private void updateLocatorRegistry(LocatorInfo locatorInfo, ObjectPrx proxy)
         {
-            if(!registerProcess && _id.Length == 0)
+            if(_id.Length == 0 || locatorInfo == null)
             {
                 return; // Nothing to update.
             }
 
             //
-            // Call on the locator registry outside the synchronization to 
+            // Call on the locator registry outside the synchronization to
             // blocking other threads that need to lock this OA.
             //
-            LocatorRegistryPrx locatorRegistry = locatorInfo != null ? locatorInfo.getLocatorRegistry() : null;
-            string serverId = "";
-            if(registerProcess)
-            {
-                Debug.Assert(instance_ != null);
-                serverId = instance_.initializationData().properties.getProperty("Ice.ServerId");
-
-                if(locatorRegistry == null)
-                {
-                    instance_.initializationData().logger.warning(
-                        "object adapter `" + getName() + "' cannot register the process without a locator registry");
-                }
-                else if(serverId.Length == 0)
-                {
-                    instance_.initializationData().logger.warning(
-                        "object adapter `" + getName() + 
-                        "' cannot register the process without a value for Ice.ServerId");
-                }
-            }
-
+            LocatorRegistryPrx locatorRegistry = locatorInfo.getLocatorRegistry();
             if(locatorRegistry == null)
             {
                 return;
             }
 
-            if(_id.Length > 0)
+            try
             {
-                try
+                if(_replicaGroupId.Length == 0)
                 {
-                    if(_replicaGroupId.Length == 0)
-                    {
-                        locatorRegistry.setAdapterDirectProxy(_id, proxy);
-                    }
-                    else
-                    {
-                        locatorRegistry.setReplicatedAdapterDirectProxy(_id, _replicaGroupId, proxy);
-                    }
+                    locatorRegistry.setAdapterDirectProxy(_id, proxy);
                 }
-                catch(AdapterNotFoundException)
+                else
                 {
-                    if(instance_.traceLevels().location >= 1)
-                    {
-                        System.Text.StringBuilder s = new System.Text.StringBuilder();
-                        s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
-                        s.Append("the object adapter is not known to the locator registry");
-                        instance_.initializationData().logger.trace(instance_.traceLevels().locationCat, s.ToString());
-                    }
-
-                    NotRegisteredException ex1 = new NotRegisteredException();
-                    ex1.kindOfObject = "object adapter";
-                    ex1.id = _id;
-                    throw ex1;
-                }
-                catch(InvalidReplicaGroupIdException)
-                {
-                    if(instance_.traceLevels().location >= 1)
-                    {
-                        System.Text.StringBuilder s = new System.Text.StringBuilder();
-                        s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
-                        s.Append("the replica group `" + _replicaGroupId + "' is not known to the locator registry");
-                        instance_.initializationData().logger.trace(instance_.traceLevels().locationCat, s.ToString());
-                    }
-                    
-                    NotRegisteredException ex1 = new NotRegisteredException();
-                    ex1.kindOfObject = "replica group";
-                    ex1.id = _replicaGroupId;
-                    throw ex1;
-                }
-                catch(AdapterAlreadyActiveException)
-                {
-                    if(instance_.traceLevels().location >= 1)
-                    {
-                        System.Text.StringBuilder s = new System.Text.StringBuilder();
-                        s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
-                        s.Append("the object adapter endpoints are already set");
-                        instance_.initializationData().logger.trace(instance_.traceLevels().locationCat, s.ToString());
-                    }
-
-                    ObjectAdapterIdInUseException ex1 = new ObjectAdapterIdInUseException();
-                    ex1.id = _id;
-                    throw;
-                }
-                catch(LocalException e)
-                {
-                    if(instance_.traceLevels().location >= 1)
-                    {
-                        System.Text.StringBuilder s = new System.Text.StringBuilder();
-                        s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
-                        s.Append(e.ToString());
-                        instance_.initializationData().logger.trace(instance_.traceLevels().locationCat, s.ToString());
-                    }
-                    throw; // TODO: Shall we raise a special exception instead of a non obvious local exception?
-                }
-
-                if(instance_.traceLevels().location >= 1)
-                {
-                    System.Text.StringBuilder s = new System.Text.StringBuilder();
-                    s.Append("updated object adapter `" + _id + "' endpoints with the locator registry\n");
-                    s.Append("endpoints = ");
-                    if(proxy != null)
-                    {
-                        Ice.Endpoint[] endpoints = proxy.ice_getEndpoints();
-                        for(int i = 0; i < endpoints.Length; i++)
-                        {
-                            s.Append(endpoints[i].ToString());
-                            if(i + 1 < endpoints.Length)
-                            {
-                                s.Append(":");
-                            }
-                        }
-                    }
-                    instance_.initializationData().logger.trace(instance_.traceLevels().locationCat, s.ToString());
+                    locatorRegistry.setReplicatedAdapterDirectProxy(_id, _replicaGroupId, proxy);
                 }
             }
-        
-            if(registerProcess && serverId.Length > 0)
+            catch(AdapterNotFoundException)
             {
-                lock(this)
-                {
-                    if(_processId == null)
-                    {
-                        Process servant = new ProcessI(_communicator);
-                        _processId = addWithUUID(servant).ice_getIdentity();
-                    }
-                }
-
-                try
-                {
-                    locatorRegistry.setServerProcessProxy(serverId,
-                        ProcessPrxHelper.uncheckedCast(createDirectProxy(_processId)));
-                }
-                catch(ServerNotFoundException)
-                {
-                    if(instance_.traceLevels().location >= 1)
-                    {
-                        System.Text.StringBuilder s = new System.Text.StringBuilder();
-                        s.Append("couldn't register server `" + serverId + "' with the locator registry:\n");
-                        s.Append("the server is not known to the locator registry");
-                        instance_.initializationData().logger.trace(instance_.traceLevels().locationCat, s.ToString());
-                    }
-
-                    NotRegisteredException ex1 = new NotRegisteredException();
-                    ex1.id = serverId;
-                    ex1.kindOfObject = "server";
-                    throw ex1;
-                }
-                catch(LocalException ex)
-                {
-                    if(instance_.traceLevels().location >= 1)
-                    {
-                        System.Text.StringBuilder s = new System.Text.StringBuilder();
-                        s.Append("couldn't register server `" + serverId + "' with the locator registry:\n" + ex);
-                        instance_.initializationData().logger.trace(instance_.traceLevels().locationCat, s.ToString());
-                    }
-                    throw; // TODO: Shall we raise a special exception instead of a non obvious local exception?
-                }
-            
                 if(instance_.traceLevels().location >= 1)
                 {
                     System.Text.StringBuilder s = new System.Text.StringBuilder();
-                    s.Append("registered server `" + serverId + "' with the locator registry");
+                    s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
+                    s.Append("the object adapter is not known to the locator registry");
                     instance_.initializationData().logger.trace(instance_.traceLevels().locationCat, s.ToString());
                 }
+
+                NotRegisteredException ex1 = new NotRegisteredException();
+                ex1.kindOfObject = "object adapter";
+                ex1.id = _id;
+                throw ex1;
+            }
+            catch(InvalidReplicaGroupIdException)
+            {
+                if(instance_.traceLevels().location >= 1)
+                {
+                    System.Text.StringBuilder s = new System.Text.StringBuilder();
+                    s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
+                    s.Append("the replica group `" + _replicaGroupId + "' is not known to the locator registry");
+                    instance_.initializationData().logger.trace(instance_.traceLevels().locationCat, s.ToString());
+                }
+
+                NotRegisteredException ex1 = new NotRegisteredException();
+                ex1.kindOfObject = "replica group";
+                ex1.id = _replicaGroupId;
+                throw ex1;
+            }
+            catch(AdapterAlreadyActiveException)
+            {
+                if(instance_.traceLevels().location >= 1)
+                {
+                    System.Text.StringBuilder s = new System.Text.StringBuilder();
+                    s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
+                    s.Append("the object adapter endpoints are already set");
+                    instance_.initializationData().logger.trace(instance_.traceLevels().locationCat, s.ToString());
+                }
+
+                ObjectAdapterIdInUseException ex1 = new ObjectAdapterIdInUseException();
+                ex1.id = _id;
+                throw;
+            }
+            catch(ObjectAdapterDeactivatedException)
+            {
+                // Expected if collocated call and OA is deactivated, ignore.
+            }
+            catch(CommunicatorDestroyedException)
+            {
+                // Ignore
+            }
+            catch(LocalException e)
+            {
+                if(instance_.traceLevels().location >= 1)
+                {
+                    System.Text.StringBuilder s = new System.Text.StringBuilder();
+                    s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
+                    s.Append(e.ToString());
+                    instance_.initializationData().logger.trace(instance_.traceLevels().locationCat, s.ToString());
+                }
+                throw; // TODO: Shall we raise a special exception instead of a non obvious local exception?
+            }
+
+            if(instance_.traceLevels().location >= 1)
+            {
+                System.Text.StringBuilder s = new System.Text.StringBuilder();
+                s.Append("updated object adapter `" + _id + "' endpoints with the locator registry\n");
+                s.Append("endpoints = ");
+                if(proxy != null)
+                {
+                    Ice.Endpoint[] endpoints = proxy.ice_getEndpoints();
+                    for(int i = 0; i < endpoints.Length; i++)
+                    {
+                        s.Append(endpoints[i].ToString());
+                        if(i + 1 < endpoints.Length)
+                        {
+                            s.Append(":");
+                        }
+                    }
+                }
+                instance_.initializationData().logger.trace(instance_.traceLevels().locationCat, s.ToString());
             }
         }
 
-        static private readonly string[] _suffixes = 
+        static private readonly string[] _suffixes =
         {
             "ACM",
             "ACM.Timeout",
@@ -1480,7 +1407,6 @@ namespace Ice
             "Locator.Router",
             "MessageSizeMax",
             "PublishedEndpoints",
-            "RegisterProcess",
             "ReplicaGroupId",
             "Router",
             "Router.EncodingVersion",
@@ -1504,7 +1430,7 @@ namespace Ice
             "ThreadPool.StackSize",
             "ThreadPool.Serialize"
         };
-            
+
         private bool filterProperties(List<string> unknownProps)
         {
             //
@@ -1545,7 +1471,7 @@ namespace Ice
 
             return noProps;
         }
-        
+
         private const int StateUninitialized = 0; // Just constructed.
         private const int StateHeld = 1;
         private const int StateActivating = 2;
@@ -1554,7 +1480,7 @@ namespace Ice
         private const int StateDeactivated = 5;
         private const int StateDestroying  = 6;
         private const int StateDestroyed  = 7;
-        
+
         private int state_ = StateUninitialized;
         private Instance instance_;
         private Communicator _communicator;
@@ -1573,7 +1499,6 @@ namespace Ice
         private LocatorInfo _locatorInfo;
         private int _directCount;  // The number of direct proxies dispatching on this object adapter.
         private bool _noConfig;
-        private Identity _processId;
         private int _messageSizeMax;
     }
 }

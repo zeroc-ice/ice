@@ -40,7 +40,7 @@
 #include <Ice/InstrumentationI.h>
 #include <Ice/ProtocolInstance.h>
 #include <Ice/LoggerAdminI.h>
-#include <Ice/RegisterPlugins.h>
+#include <Ice/RegisterPluginsInit.h>
 #include <Ice/ObserverHelper.h>
 
 #include <IceUtil/StringUtil.h>

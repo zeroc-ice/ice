@@ -142,10 +142,11 @@ TransientTopicManagerImpl::reap()
     //
     // Lock sync(*this);
     //
-    map<string, TransientTopicImplPtr>::iterator i = _topics.begin();
-    while(i != _topics.end())
+    vector<string> reaped = _instance->topicReaper()->consumeReapedTopics();
+    for(vector<string>::const_iterator p = reaped.begin(); p != reaped.end(); ++p)
     {
-        if(i->second->destroyed())
+        map<string, TransientTopicImplPtr>::iterator i = _topics.find(*p);
+        if(i != _topics.end() && i->second->destroyed())
         {
             Ice::Identity id = i->second->id();
             TraceLevelsPtr traceLevels = _instance->traceLevels();
@@ -164,11 +165,7 @@ TransientTopicManagerImpl::reap()
                 // Ignore
             }
 
-            _topics.erase(i++);
-        }
-        else
-        {
-            ++i;
+            _topics.erase(i);
         }
     }
 }

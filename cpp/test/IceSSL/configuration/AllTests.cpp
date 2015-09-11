@@ -13,9 +13,12 @@
 #include <Test.h>
 #include <fstream>
 
+#ifdef __APPLE__
+#  include <sys/sysctl.h>
+#endif
+
 using namespace std;
 using namespace Ice;
-
 
 void
 readFile(const string& file, vector<char>& buffer)
@@ -277,7 +280,10 @@ static PropertiesPtr
 createClientProps(const Ice::PropertiesPtr& defaultProps, const string& defaultDir, const string& defaultHost, bool p12)
 {
     PropertiesPtr result = createProperties();
-    result->setProperty("Ice.Plugin.IceSSL", "IceSSL:createIceSSL");
+    //
+    // Don't set the plugin property, the client registered the plugin with registerIceSSL.
+    //
+    //result->setProperty("Ice.Plugin.IceSSL", "IceSSL:createIceSSL");
     if(!defaultDir.empty())
     {
         result->setProperty("IceSSL.DefaultDir", defaultDir);
@@ -411,6 +417,17 @@ void verify(const IceSSL::CertificatePtr& cert, const IceSSL::CertificatePtr& ca
 void
 allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, bool shutdown)
 {
+    bool isElCapitan = false;
+#ifdef __APPLE__
+    vector<char> s(256);
+    size_t size = s.size();
+    int ret = sysctlbyname("kern.osrelease", &s[0], &size, NULL, 0);
+    if(ret == 0)
+    {
+        isElCapitan = string(&s[0]).find("15.") == 0;
+    }
+#endif
+
     string factoryRef = "factory:tcp -p 12010";
     ObjectPrx base = communicator->stringToProxy(factoryRef);
     test(base);
@@ -1416,8 +1433,8 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12);
         initData.properties->setProperty("IceSSL.Ciphers", "(DH_anon*)");
         initData.properties->setProperty("IceSSL.VerifyPeer", "0");
-        initData.properties->setProperty("IceSSL.ProtocolVersionMax", "ssl3");
-        initData.properties->setProperty("IceSSL.ProtocolVersionMin", "ssl3");
+        initData.properties->setProperty("IceSSL.ProtocolVersionMax", "tls1");
+        initData.properties->setProperty("IceSSL.ProtocolVersionMin", "tls1");
         CommunicatorPtr comm = initialize(initData);
         Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
         test(fact);
@@ -1528,10 +1545,20 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             try
             {
                 server->ice_ping();
+                if(isElCapitan)
+                {
+                    test(false);
+                }
             }
             catch(const LocalException&)
             {
-                test(false);
+                //
+                // This can still fail with OS X 10.11 El Capitan where SSLv3 is disabled.
+                //
+                if(!isElCapitan)
+                {
+                    test(false);
+                }
             }
             fact->destroyServer(server);
             comm->destroy();
@@ -1811,6 +1838,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         comm->destroy();
     }
 
+    if(!isElCapitan) // OSFIX: El Capitan SSLHandshake segfaults with this test, Apple bug #22148512
     {
         //
         // This should fail because we disabled all anonymous ciphers and the server doesn't
@@ -1895,8 +1923,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         }
         catch(const LocalException& ex)
         {
-            cerr << ex << endl;
-            test(false);
+            if(!isElCapitan) // DH params too weak for El Capitan
+            {
+                cerr << ex << endl;
+                test(false);
+            }
         }
         fact->destroyServer(server);
         comm->destroy();

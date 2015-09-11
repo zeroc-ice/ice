@@ -128,6 +128,7 @@ Service.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "ServiceManagerI.h" \
     "$(includedir)\IceBox\IceBox.h" \
     "$(includedir)\IceBox\Config.h" \
@@ -256,6 +257,7 @@ ServiceManagerI.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Ice\DynamicLibrary.h" \
     "$(includedir)\Ice\DynamicLibraryF.h" \
     "..\..\src\Ice\Instance.h" \
@@ -399,6 +401,7 @@ Admin.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\IceUtil\Options.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\IceBox\IceBox.h" \

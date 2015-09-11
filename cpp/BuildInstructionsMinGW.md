@@ -1,6 +1,6 @@
 # Building Ice for C++ with MinGW
 
-> *MinGW is only supported for building the Ice extension for Ruby. It is not
+*MinGW is only supported for building the Ice extension for Ruby. It is not
 supported for general application development. If you prefer, you can install
 a [Ruby gem][1] that contains a complete Ice for Ruby run-time.*
 
@@ -13,7 +13,7 @@ Ice for C++ was tested with the following MinGW compilers:
 - [mingw 4.7.3 32-bit][2]
 - mingw 4.7.2 64-bit, included in the [Ruby Development Kit][3] version 4.7.2
 
-> *mingw 4.7.2 32-bit, included in the 32-bit Ruby Development Kit version
+*mingw 4.7.2 32-bit, included in the 32-bit Ruby Development Kit version
 4.7.2, contains a very severe bug that makes it unsuitable to build Ice.*
 
 ### Third-Party Libraries
@@ -23,9 +23,12 @@ Ice has dependencies on the following third-party libraries:
  - [bzip][4] 1.0
  - [mcpp][5] 2.7.2 (with patches)
 
-You do not need to build these packages yourself, as ZeroC supplies a separate
-[Windows installer][6] that contains release and debug libraries for all of the
-third-party dependencies.
+You do not need to build these packages yourself, as ZeroC supplies
+[Nuget][6] packages for all of these third party dependencies.
+
+The Ice build system for Windows downloads and installs Nuget and these 
+Nuget packages when you build Ice for C++ with MinGW. The third-party 
+packages are installed in the ``ice/cpp/third-party-packages`` folder.
 
 ## Building Ice
 
@@ -57,9 +60,7 @@ run the following:
         4.7.3
 
 Edit `config\Make.rules` to establish your build configuration. The comments
-in the file provide more information. In particular, if Ice third-party
-packages are not installed in the default location, set `THIRDPARTY_HOME` to
-the Ice third-party installation directory.
+in the file provide more information.
 
 Now you are ready to build Ice:
 
@@ -85,4 +86,4 @@ failure, the tests abort with `failed`.
 [3]: http://rubyinstaller.org/downloads
 [4]: http://bzip.org
 [5]: https://github.com/zeroc-ice/mcpp
-[6]: https://zeroc.com/download/Ice/3.6/Ice-3.6.0-ThirdParty.msi
+[6]: https://www.nuget.org

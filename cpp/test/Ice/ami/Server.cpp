@@ -26,33 +26,24 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
     Ice::ObjectAdapterPtr adapter2 = communicator->createObjectAdapter("ControllerAdapter");
 
     TestIntfControllerIPtr testController = new TestIntfControllerI(adapter);
-    
+
     adapter->add(new TestIntfI(), communicator->stringToIdentity("test"));
     adapter->activate();
-    
+
     adapter2->add(testController, communicator->stringToIdentity("testController"));
     adapter2->activate();
-    
+
     TEST_READY
 
     communicator->waitForShutdown();
     return EXIT_SUCCESS;
 }
 
-#ifdef ICE_STATIC_LIBS
-extern "C"
-{
-
-Ice::Plugin* createIceSSL(const Ice::CommunicatorPtr&, const string&, const Ice::StringSeq&);
-
-}
-#endif
-
 int
 main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
-    Ice::registerPluginFactory("IceSSL", createIceSSL, true);
+    Ice::registerIceSSL();
 #endif
     int status;
     Ice::CommunicatorPtr communicator;

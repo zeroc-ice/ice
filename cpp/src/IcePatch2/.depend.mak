@@ -124,6 +124,7 @@ FileServerI.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\IcePatch2\FileInfo.h" \
     "$(includedir)\IcePatch2\Config.h" \
     "$(includedir)\IcePatch2\FileServer.h" \
@@ -253,6 +254,7 @@ Server.obj: \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "FileServerI.h" \
     "..\..\src\IcePatch2Lib\Util.h" \
     "$(includedir)\IcePatch2\FileInfo.h" \
@@ -382,6 +384,7 @@ Client.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "..\..\src\IcePatch2Lib\Util.h" \
     "$(includedir)\IcePatch2\FileInfo.h" \
     "$(includedir)\IcePatch2\Config.h" \
@@ -513,5 +516,6 @@ Calc.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\IcePatch2\FileInfo.h" \
     "$(includedir)\IcePatch2\Config.h" \

@@ -152,6 +152,16 @@ enum SocketOperation
 };
 
 //
+// On WinRT, wait only for read to return, on IOCP/Win32 wait for
+// both pending read and write operations to complete (#ICE-6695).
+//
+#if defined(ICE_OS_WINRT)
+const int SocketOperationWaitForClose = 1;
+#elif defined(ICE_USE_IOCP)
+const int SocketOperationWaitForClose = 3;
+#endif
+
+//
 // AsyncInfo struct for Windows IOCP or WinRT holds the result of
 // asynchronous operations after it completed.
 //

@@ -14,15 +14,14 @@ using System.Runtime.InteropServices;
 
 [assembly: CLSCompliant(true)]
 
-[assembly: AssemblyTitle("Ice")]
-[assembly: AssemblyDescription("Ice core run-time support")]
+[assembly: AssemblyTitle("Ice .NET Core Library")]
+[assembly: AssemblyDescription("Ice .NET Core Library")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyProduct("Ice for .NET")]
-[assembly: AssemblyCopyright("Copyright (c) 2003-2015 ZeroC, Inc.")]
-[assembly: AssemblyTrademark("Ice")]
+[assembly: AssemblyProduct("Ice")]
+[assembly: AssemblyCopyright("© 2003-2015 ZeroC, Inc.")]
 [assembly: AssemblyCulture("")]         
-[assembly: AssemblyVersion("3.6.0")]
+[assembly: AssemblyVersion("3.6.1")]
 [assembly: AssemblyDelaySign(false)]
 
 [assembly: ComVisible(false)]

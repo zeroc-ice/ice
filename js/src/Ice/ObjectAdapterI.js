@@ -46,7 +46,6 @@ var _suffixes =
     "Locator.Router",
     "MessageSizeMax",
     "PublishedEndpoints",
-    "RegisterProcess",
     "ReplicaGroupId",
     "Router",
     "Router.EncodingVersion",
@@ -129,7 +128,7 @@ var ObjectAdapterI = Ice.Class({
             ex.reason = "object adapter `" + this._name + "' requires configuration";
             throw ex;
         }
-        
+
         //
         // Setup a reference to be used to get the default proxy options
         // when creating new proxies. By default, create twoway proxies.
@@ -168,7 +167,7 @@ var ObjectAdapterI = Ice.Class({
 
         try
         {
-            
+
             if(router === null)
             {
                 router = Ice.RouterPrx.uncheckedCast(
@@ -188,7 +187,7 @@ var ObjectAdapterI = Ice.Class({
                         "object adapter with router",
                         this._instance.identityToString(router.ice_getIdentity()));
                 }
-                
+
                 //
                 // Add the router's server proxy endpoints to this object
                 // adapter.
@@ -198,7 +197,7 @@ var ObjectAdapterI = Ice.Class({
                     function(endpoints)
                     {
                         var i;
-                            
+
                         for(i = 0; i < endpoints.length; ++i)
                         {
                             self._routerEndpoints.push(endpoints[i]);
@@ -208,7 +207,7 @@ var ObjectAdapterI = Ice.Class({
                             {
                                 return e1.compareTo(e2);
                             });
-                        
+
                         //
                         // Remove duplicate endpoints, so we have a list of unique
                         // endpoints.
@@ -226,14 +225,14 @@ var ObjectAdapterI = Ice.Class({
                                 ++i;
                             }
                         }
-                        
+
                         //
                         // Associate this object adapter with the router. This way,
                         // new outgoing connections to the router's client proxy will
                         // use this object adapter for callbacks.
                         //
                         self._routerInfo.setAdapter(self);
-                        
+
                         //
                         // Also modify all existing outgoing connections to the
                         // router's client proxy to use this object adapter for

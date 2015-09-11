@@ -30,16 +30,6 @@ install:: install-common
 		chmod a+rx $(DESTDIR)$$subdir ; \
 	    fi ; \
 	done
-	@if test -d $(DESTDIR)$$prefix/libexec/bin ; \
-	then \
-	    for file in $(DESTDIR)$$prefix/libexec/bin/db_*; \
-	    do \
-		base=`basename $$file` ; \
-		rm -f $(DESTDIR)$(install_bindir)/db53_$${base:3} ; \
-		ln -s ../libexec/bin/$$base $(DESTDIR)$(install_bindir)/db53_$${base:3} ; \
-		chmod a+rx $(DESTDIR)$(install_bindir)/db53_$${base:3} ; \
-	    done ; \
-	fi
 ifeq ($(create_runpath_symlink),yes)
 	@if test -h $(embedded_runpath_prefix) ; \
 	then \

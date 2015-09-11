@@ -23,34 +23,25 @@ public:
     virtual int run(int, char*[]);
 };
 
-#ifdef ICE_STATIC_LIBS
-extern "C"
-{
-
-Ice::Plugin* createIceSSL(const Ice::CommunicatorPtr&, const string&, const Ice::StringSeq&);
-
-}
-#endif
-
 int
 main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
-    Ice::registerPluginFactory("IceSSL", createIceSSL, true);
+    Ice::registerIceSSL();
 #endif
 
     SessionControlClient app;
 
     Ice::InitializationData initData;
     initData.properties = Ice::createProperties(argc, argv);
-    
+
     //
     // We want to check whether the client retries for evicted
     // proxies, even with regular retries disabled.
     //
     initData.properties->setProperty("Ice.RetryIntervals", "-1");
     initData.properties->setProperty("Ice.Warn.Connections", "0");
-        
+
     return app.main(argc, argv, initData);
 }
 
@@ -77,7 +68,7 @@ SessionControlClient::run(int argc, char* argv[])
     controller->step(0, currentState, newState);
     currentState = newState;
     cout << "ok" << endl;
-    
+
     cout << "getting router... " << flush;
     ObjectPrx routerBase = communicator()->stringToProxy("Glacier2/router:default -p 12347");
     Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(routerBase);

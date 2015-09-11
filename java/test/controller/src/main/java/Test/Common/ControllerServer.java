@@ -28,6 +28,7 @@ public class ControllerServer extends Ice.Application
             _process = process;
             _name = name;
             _started = 0;
+            _terminated = false;
 
             class Reader extends Thread
             {
@@ -35,13 +36,13 @@ public class ControllerServer extends Ice.Application
                 {
                     _is = is;
                 }
-                
+
                 public void run()
                 {
                     try
                     {
                         final BufferedReader reader = new BufferedReader(new InputStreamReader(_is));
-                        
+
                         String line = null;
                         while((line = reader.readLine()) != null)
                         {
@@ -62,14 +63,22 @@ public class ControllerServer extends Ice.Application
                     }
                     catch(java.io.IOException ex)
                     {
+                        System.out.println("server start failed!\n" + ex);
+                    }
+
+                    // Make sure to unblock thread waiting for server start.
+                    synchronized(ServerI.this)
+                    {
+                        _terminated = true;
+                        ServerI.this.notifyAll();
                     }
                 }
-                
+
                 private java.io.InputStream _is;
             }
             new Reader(_process.getInputStream()).start();
         }
-        
+
         public synchronized void terminate(Ice.Current current)
         {
             try
@@ -84,7 +93,7 @@ public class ControllerServer extends Ice.Application
                 //
                 System.out.print("terminating " + _name + "... ");
                 System.out.flush();
-                
+
                 _process.destroy();
                 while(true)
                 {
@@ -97,12 +106,12 @@ public class ControllerServer extends Ice.Application
                     {
                     }
                 }
-                
+
                 current.adapter.remove(current.id);
                 System.out.println("ok");
             }
         }
-        
+
         public void waitTestSuccess(Ice.Current current)
         {
             Process p = null;
@@ -110,7 +119,7 @@ public class ControllerServer extends Ice.Application
             {
                 p = _process;
             }
-            
+
             if(p != null)
             {
                 while(true)
@@ -126,10 +135,10 @@ public class ControllerServer extends Ice.Application
                 }
             }
         }
-        
+
         public synchronized void waitForServer(Ice.Current current)
         {
-            while(true)
+            while(!_terminated)
             {
                 try
                 {
@@ -145,13 +154,19 @@ public class ControllerServer extends Ice.Application
                     continue;
                 }
             }
+            if(_terminated && _started == 0)
+            {
+                // TODO: Add user exception instead of throwing a local exception.
+                throw new RuntimeException("process failed to start");
+            }
         }
-        
+
         private Process _process;
         private String _name;
         private int _started;
+        private boolean _terminated;
     }
-    
+
     public class ControllerI extends _ControllerDisp
     {
         public ControllerI(String[] args)
@@ -160,7 +175,7 @@ public class ControllerServer extends Ice.Application
         }
 
         @Override
-        public ServerPrx runServer(String lang, final String name, String protocol, String host, 
+        public ServerPrx runServer(String lang, final String name, String protocol, String host,
                                    boolean winrt, String[] options, Ice.Current current)
         {
             if(_server != null)
@@ -173,9 +188,9 @@ public class ControllerServer extends Ice.Application
                 {
                 }
             }
-            
+
             String script = lang + (lang.equals("java") ? "/test/src/main/java/" : "/") + "test/" + name + "/run.py";
-                
+
             java.util.List<String> args = new java.util.ArrayList<String>();
             args.add("python");
             args.add(script);
@@ -184,12 +199,12 @@ public class ControllerServer extends Ice.Application
             args.add(protocol);
             args.add("--host");
             args.add(host);
-            
+
             if(winrt)
             {
                 args.add("--winrt");
             }
-            
+
             for(String option : options)
             {
                 args.add("--arg");
@@ -200,12 +215,12 @@ public class ControllerServer extends Ice.Application
             {
                 args.add(a);
             }
-            
+
             try
             {
                 System.out.print("starting " + name + "... ");
                 System.out.flush();
-                
+
                 final Process process = new ProcessBuilder(args)
                     .directory(_toplevel)
                     .redirectErrorStream(true)
@@ -218,11 +233,11 @@ public class ControllerServer extends Ice.Application
             }
             return _server;
         }
-        
+
         private ServerPrx _server;
         private String[] _args;
     }
-    
+
     @Override
     public int
     run(String[] args)
@@ -233,12 +248,12 @@ public class ControllerServer extends Ice.Application
         communicator().waitForShutdown();
         return 0;
     }
-    
+
     public ControllerServer(File toplevel)
     {
         _toplevel = toplevel;
     }
-    
+
     public static void
     main(String[] args)
     {
@@ -274,6 +289,6 @@ public class ControllerServer extends Ice.Application
             System.exit(1);
         }
     }
-    
+
     private final File _toplevel;
 }

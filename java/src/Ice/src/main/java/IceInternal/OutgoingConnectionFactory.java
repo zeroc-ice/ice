@@ -1097,6 +1097,7 @@ public final class OutgoingConnectionFactory
                     s.append(_current.endpoint.protocol());
                     s.append(" connection to ");
                     s.append(_current.connector.toString());
+                    s.append("\n");
                     s.append(ex);
                     _factory._instance.initializationData().logger.trace(_factory._instance.traceLevels().networkCat,
                                                                          s.toString());

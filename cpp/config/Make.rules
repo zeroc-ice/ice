@@ -213,13 +213,15 @@ ifeq ($(SSL_OS_LIBS),)
 	SSL_OS_LIBS = $(OPENSSL_LIBS)
 endif
 
+ifneq ($(UNAME),MINGW)
 ifneq ($(BZIP2_HOME),)
-    BZIP2_FLAGS         = I$(BZIP2_HOME)/include)
+    BZIP2_FLAGS         = -I$(BZIP2_HOME)/include)
 endif
 ifeq ($(BZIP2_LIBS),)
     BZIP2_LIBS          = $(if $(BZIP2_HOME),-L$(BZIP2_HOME)/$(libsubdir)) -lbz2
 endif
 BZIP2_RPATH_LINK        = $(if $(BZIP2_HOME),$(call rpathlink,$(BZIP2_HOME)/$(libsubdir)))
+endif
 
 ifeq ($(ICONV_LIBS),)
     ICONV_LIBS          = $(if $(ICONV_HOME),-L$(ICONV_HOME)/$(libsubdir)) $(ICONV_LIB)
@@ -332,7 +334,7 @@ endif
 
 ifeq ($(SLICE_LIBS),)
     ifeq ($(STATICLIBS),yes)
-	SLICE_LIBS = -lSlice -lmcpp $(BASELIBS)
+	SLICE_LIBS = -lSlice $(MCPP_LIBS) $(BASELIBS)
     else
 	SLICE_LIBS = -lSlice $(BASELIBS)
     endif
