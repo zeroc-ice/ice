@@ -26,6 +26,40 @@ toString(int value)
     return os.str();
 }
 
+class ConnectionCallbackI : public Ice::ConnectionCallback, private IceUtil::Monitor<IceUtil::Mutex>
+{
+public:
+
+    void
+    waitForCount(int count)
+    {
+        Lock sync(*this);
+        _count = count;
+        while(_count > 0)
+        {
+            wait();
+        }
+    }
+
+private:
+
+    virtual void
+    heartbeat(const Ice::ConnectionPtr&)
+    {
+        Lock sync(*this);
+        --_count;
+        notifyAll();
+    }
+
+    virtual void
+    closed(const Ice::ConnectionPtr&)
+    {
+    }
+
+    int _count;
+};
+typedef IceUtil::Handle<ConnectionCallbackI> ConnectionCallbackIPtr;
+
 }
 
 RemoteObjectAdapterPrx
@@ -123,40 +157,7 @@ TestI::interruptSleep(const Ice::Current& current)
 void
 TestI::waitForHeartbeat(int count, const Ice::Current& current)
 {
-    class ConnectionCallbackI : public Ice::ConnectionCallback, private IceUtil::Monitor<IceUtil::Mutex>
-    {
-    public:
-
-        void
-        waitForCount(int count)
-        {
-            Lock sync(*this);
-            _count = count;
-            while(_count > 0)
-            {
-                wait();
-            }
-        }
-
-    private:
-
-        virtual void
-        heartbeat(const Ice::ConnectionPtr&)
-        {
-            Lock sync(*this);
-            --_count;
-            notifyAll();
-        }
-
-        virtual void
-        closed(const Ice::ConnectionPtr&)
-        {
-        }
-
-        int _count;
-    };
-
-    IceUtil::Handle<ConnectionCallbackI> callback = new ConnectionCallbackI();
+    ConnectionCallbackIPtr callback = new ConnectionCallbackI();
     current.con->setCallback(callback);
     callback->waitForCount(count);
 }
