@@ -37,12 +37,14 @@ def allTests(communicator)
     test(acm.close == Ice::ACMClose::CloseOnIdleForceful)
     test(acm.heartbeat == Ice::ACMHeartbeat::HeartbeatOnIdle)
 
-    proxy.ice_getCachedConnection().setACM(20, Ice::ACMClose::CloseOnInvocationAndIdle,
-                                           Ice::ACMHeartbeat::HeartbeatOnInvocation)
+    proxy.ice_getCachedConnection().setACM(1, Ice::ACMClose::CloseOnInvocationAndIdle,
+                                           Ice::ACMHeartbeat::HeartbeatAlways)
     acm = proxy.ice_getCachedConnection().getACM()
-    test(acm.timeout == 20)
+    test(acm.timeout == 1)
     test(acm.close == Ice::ACMClose::CloseOnInvocationAndIdle)
-    test(acm.heartbeat == Ice::ACMHeartbeat::HeartbeatOnInvocation)
+    test(acm.heartbeat == Ice::ACMHeartbeat::HeartbeatAlways)
+
+    proxy.waitForHeartbeat(2)
 
     adapter.deactivate()
     testCommunicator.destroy()

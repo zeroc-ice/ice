@@ -60,8 +60,8 @@ RemoteCommunicatorI::shutdown(const Ice::Current& current)
     current.adapter->getCommunicator()->shutdown();
 }
 
-RemoteObjectAdapterI::RemoteObjectAdapterI(const Ice::ObjectAdapterPtr& adapter) : 
-    _adapter(adapter), 
+RemoteObjectAdapterI::RemoteObjectAdapterI(const Ice::ObjectAdapterPtr& adapter) :
+    _adapter(adapter),
     _testIntf(TestIntfPrx::uncheckedCast(_adapter->add(new TestI(),
                                          adapter->getCommunicator()->stringToIdentity("test"))))
 {
@@ -113,9 +113,50 @@ TestI::sleepAndHold(int delay, const Ice::Current& current)
     timedWait(IceUtil::Time::seconds(delay));
 }
 
-void 
+void
 TestI::interruptSleep(const Ice::Current& current)
 {
     Lock sync(*this);
     notifyAll();
+}
+
+void
+TestI::waitForHeartbeat(int count, const Ice::Current& current)
+{
+    class ConnectionCallbackI : public Ice::ConnectionCallback, private IceUtil::Monitor<IceUtil::Mutex>
+    {
+    public:
+
+        void
+        waitForCount(int count)
+        {
+            Lock sync(*this);
+            _count = count;
+            while(_count > 0)
+            {
+                wait();
+            }
+        }
+
+    private:
+
+        virtual void
+        heartbeat(const Ice::ConnectionPtr&)
+        {
+            Lock sync(*this);
+            --_count;
+            notifyAll();
+        }
+
+        virtual void
+        closed(const Ice::ConnectionPtr&)
+        {
+        }
+
+        int _count;
+    };
+
+    IceUtil::Handle<ConnectionCallbackI> callback = new ConnectionCallbackI();
+    current.con->setCallback(callback);
+    callback->waitForCount(count);
 }

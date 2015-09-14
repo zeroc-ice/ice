@@ -23,7 +23,7 @@ var ACMConfig = Class({
             this.close = Ice.ACMClose.CloseOnInvocationAndIdle;
             return;
         }
-        
+
         var timeoutProperty;
         if((prefix == "Ice.ACM.Client" || prefix == "Ice.ACM.Server") &&
             p.getProperty(prefix + ".Timeout").length === 0)
@@ -34,7 +34,7 @@ var ACMConfig = Class({
         {
             timeoutProperty = prefix + ".Timeout";
         }
-        
+
         this.timeout = p.getPropertyAsIntWithDefault(timeoutProperty, dflt.timeout / 1000) * 1000; // To ms
 
         var hb = p.getPropertyAsIntWithDefault(prefix + ".Heartbeat", dflt.heartbeat.value);
@@ -44,7 +44,7 @@ var ACMConfig = Class({
         }
         else
         {
-            l.warning("invalid value for property `" + prefix + ".Heartbeat" + 
+            l.warning("invalid value for property `" + prefix + ".Heartbeat" +
                         "', default value will be used instead");
             this.heartbeat = dflt.heartbeat;
         }
@@ -56,7 +56,7 @@ var ACMConfig = Class({
         }
         else
         {
-            l.warning("invalid value for property `" + prefix + ".Close" + 
+            l.warning("invalid value for property `" + prefix + ".Close" +
                         "', default value will be used instead");
             this.close = dflt.close;
         }
@@ -119,8 +119,8 @@ var FactoryACMMonitor = Class(ACMMonitor, {
             this._timerToken = this._instance.timer().scheduleRepeated(
                 function()
                     {
-                        self.runTimerTask(); 
-                    }, 
+                        self.runTimerTask();
+                    },
                 this._config.timeout / 2);
         }
     },
@@ -130,7 +130,7 @@ var FactoryACMMonitor = Class(ACMMonitor, {
         {
             return;
         }
-        
+
         var i = this._connections.indexOf(connection);
         Debug.assert(i >= 0);
         this._connections.splice(i, 1);
@@ -147,7 +147,7 @@ var FactoryACMMonitor = Class(ACMMonitor, {
     acm: function(timeout, close, heartbeat)
     {
         Debug.assert(this._instance !== null);
-        
+
         var config = new ACMConfig();
         config.timeout = this._config.timeout;
         config.close = this._config.close;
@@ -186,7 +186,7 @@ var FactoryACMMonitor = Class(ACMMonitor, {
         {
             return;
         }
-        
+
         //
         // Monitor connections outside the thread synchronization, so
         // that connections can be added or removed during monitoring.
@@ -195,11 +195,11 @@ var FactoryACMMonitor = Class(ACMMonitor, {
         for(var i = 0; i < this._connections.length; i++)
         {
             try
-            {          
+            {
                 this._connections[i].monitor(now, this._config);
             }
             catch(ex)
-            {   
+            {
                 this.handleException(ex);
             }
         }
@@ -209,7 +209,7 @@ var FactoryACMMonitor = Class(ACMMonitor, {
         if(this._instance === null)
         {
             return;
-        }        
+        }
         this._instance.initializationData().logger.error("exception in connection monitor:\n" + ex);
     }
 });
@@ -257,11 +257,11 @@ var ConnectionACMMonitor = Class(ACMMonitor, {
     runTimerTask: function()
     {
         try
-        {          
-            this.connection.monitor(Date.now(), this._config);
+        {
+            this._connection.monitor(Date.now(), this._config);
         }
         catch(ex)
-        {   
+        {
             this._parent.handleException(ex);
         }
     }

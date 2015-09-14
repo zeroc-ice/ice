@@ -402,7 +402,7 @@
         __init__: function(com, out)
         {
             TestCase.call(this, "setACM/getACM", com, out);
-            this.setClientACM(15, 4, 2);
+            this.setClientACM(15, 4, 0);
         },
         runTestCase: function(adapter, proxy)
         {
@@ -410,23 +410,23 @@
             acm = proxy.ice_getCachedConnection().getACM();
             test(acm.timeout === 15);
             test(acm.close === Ice.ACMClose.CloseOnIdleForceful);
-            test(acm.heartbeat === Ice.ACMHeartbeat.HeartbeatOnIdle);
+            test(acm.heartbeat === Ice.ACMHeartbeat.HeartbeatOff);
 
             proxy.ice_getCachedConnection().setACM(undefined, undefined, undefined);
             acm = proxy.ice_getCachedConnection().getACM();
             test(acm.timeout === 15);
             test(acm.close === Ice.ACMClose.CloseOnIdleForceful);
-            test(acm.heartbeat === Ice.ACMHeartbeat.HeartbeatOnIdle);
+            test(acm.heartbeat === Ice.ACMHeartbeat.HeartbeatOff);
 
-            proxy.ice_getCachedConnection().setACM(20,
+            proxy.ice_getCachedConnection().setACM(1,
                                                    Ice.ACMClose.CloseOnInvocationAndIdle,
-                                                   Ice.ACMHeartbeat.HeartbeatOnInvocation);
+                                                   Ice.ACMHeartbeat.HeartbeatAlways);
             acm = proxy.ice_getCachedConnection().getACM();
-            test(acm.timeout === 20);
+            test(acm.timeout === 1);
             test(acm.close === Ice.ACMClose.CloseOnInvocationAndIdle);
-            test(acm.heartbeat === Ice.ACMHeartbeat.HeartbeatOnInvocation);
+            test(acm.heartbeat === Ice.ACMHeartbeat.HeartbeatAlways);
 
-            return new Ice.Promise().succeed();
+            return proxy.waitForHeartbeat(2);
         }
     });
 

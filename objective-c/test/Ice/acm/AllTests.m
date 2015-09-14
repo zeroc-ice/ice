@@ -760,7 +760,7 @@
 +(id) testCase:(id<TestACMRemoteCommunicatorPrx>)com
 {
     id tc = [super testCase:com];
-    [tc setClientACM:15 close:4 heartbeat:2];
+    [tc setClientACM:15 close:4 heartbeat:0];
     return tc;
 }
 +(NSString*) getName
@@ -772,22 +772,24 @@
     ICEACM* acm = [[proxy ice_getCachedConnection] getACM];
     test(acm.timeout == 15);
     test(acm.close == ICECloseOnIdleForceful);
-    test(acm.heartbeat == ICEHeartbeatOnIdle);
+    test(acm.heartbeat == ICEHeartbeatOff);
 
     [[proxy ice_getCachedConnection] setACM:ICENone close:ICENone heartbeat:ICENone];
     acm = [[proxy ice_getCachedConnection] getACM];
     test(acm.timeout == 15);
     test(acm.close == ICECloseOnIdleForceful);
-    test(acm.heartbeat == ICEHeartbeatOnIdle);
+    test(acm.heartbeat == ICEHeartbeatOff);
 
-    id timeout = @20;
+    id timeout = @1;
     id close = @(ICECloseOnInvocationAndIdle);
-    id heartbeat = @(ICEHeartbeatOnInvocation);
+    id heartbeat = @(ICEHeartbeatAlways);
     [[proxy ice_getCachedConnection] setACM:timeout close:close heartbeat:heartbeat];
     acm = [[proxy ice_getCachedConnection] getACM];
-    test(acm.timeout == 20);
+    test(acm.timeout == 1);
     test(acm.close == ICECloseOnInvocationAndIdle);
-    test(acm.heartbeat == ICEHeartbeatOnInvocation);
+    test(acm.heartbeat == ICEHeartbeatAlways);
+
+    [proxy waitForHeartbeat:2];
 }
 @end
 

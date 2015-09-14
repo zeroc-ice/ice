@@ -76,3 +76,36 @@ class TestIntfI(Test.TestIntf):
             self.m.notifyAll()
         finally:
             self.m.release()
+
+    def waitForHeartbeat(self, count, current=None):
+
+        class ConnectionCallbackI(Ice.ConnectionCallback):
+
+            def __init__(self):
+                self.m = threading.Condition()
+                self.count = 0
+
+            def heartbeat(self, con):
+                self.m.acquire()
+                try:
+                    self.count -= 1
+                    self.m.notifyAll()
+                finally:
+                    self.m.release()
+
+            def closed(self, con):
+                pass
+
+            def waitForCount(self, count):
+                self.m.acquire()
+                self.count = count
+                try:
+                    while self.count > 0:
+                        self.m.wait()
+                finally:
+                    self.m.release()
+
+        callback = ConnectionCallbackI()
+        current.con.setCallback(callback)
+        callback.waitForCount(2)
+

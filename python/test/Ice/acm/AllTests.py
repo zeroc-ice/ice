@@ -349,26 +349,28 @@ def allTests(communicator):
     class SetACMTest(TestCase):
         def __init__(self, com):
             TestCase.__init__(self, "setACM/getACM", com)
-            self.setClientACM(15, 4, 2)
+            self.setClientACM(15, 4, 0)
 
         def runTestCase(self, adapter, proxy):
             acm = proxy.ice_getCachedConnection().getACM()
             test(acm.timeout == 15)
             test(acm.close == Ice.ACMClose.CloseOnIdleForceful)
-            test(acm.heartbeat == Ice.ACMHeartbeat.HeartbeatOnIdle)
+            test(acm.heartbeat == Ice.ACMHeartbeat.HeartbeatOff)
 
             proxy.ice_getCachedConnection().setACM(Ice.Unset, Ice.Unset, Ice.Unset)
             acm = proxy.ice_getCachedConnection().getACM()
             test(acm.timeout == 15)
             test(acm.close == Ice.ACMClose.CloseOnIdleForceful)
-            test(acm.heartbeat == Ice.ACMHeartbeat.HeartbeatOnIdle)
+            test(acm.heartbeat == Ice.ACMHeartbeat.HeartbeatOff)
 
-            proxy.ice_getCachedConnection().setACM(20, Ice.ACMClose.CloseOnInvocationAndIdle,
-                                                   Ice.ACMHeartbeat.HeartbeatOnInvocation)
+            proxy.ice_getCachedConnection().setACM(1, Ice.ACMClose.CloseOnInvocationAndIdle,
+                                                   Ice.ACMHeartbeat.HeartbeatAlways)
             acm = proxy.ice_getCachedConnection().getACM()
-            test(acm.timeout == 20)
+            test(acm.timeout == 1)
             test(acm.close == Ice.ACMClose.CloseOnInvocationAndIdle)
-            test(acm.heartbeat == Ice.ACMHeartbeat.HeartbeatOnInvocation)
+            test(acm.heartbeat == Ice.ACMHeartbeat.HeartbeatAlways)
+
+            proxy.waitForHeartbeat(2)
 
     tests.append(InvocationHeartbeatTest(com))
     tests.append(InvocationHeartbeatOnHoldTest(com))
