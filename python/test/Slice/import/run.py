@@ -41,8 +41,10 @@ if os.environ.get("USE_BIN_DIST", "no") == "yes":
 else:
     slice2py = os.path.join(path[0], "python", "config", "s2py.py")
 
-subprocess.call([sys.executable, slice2py, "Test1.ice"])
-subprocess.call([sys.executable, slice2py, "Test2.ice"])
+s2p = TestUtil.spawn(sys.executable + " " + slice2py + " Test1.ice")
+s2p.waitTestSuccess()
+s2p = TestUtil.spawn(sys.executable + " " + slice2py + " Test2.ice")
+s2p.waitTestSuccess()
 
 sys.stdout.write("starting client... ")
 sys.stdout.flush()
