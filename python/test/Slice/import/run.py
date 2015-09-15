@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import os, sys
+import os, sys, shutil, subprocess
 
 path = [ ".", "..", "../..", "../../..", "../../../.." ]
 head = os.path.dirname(sys.argv[0])
@@ -19,6 +19,30 @@ if len(path) == 0:
     raise RuntimeError("can't find toplevel directory!")
 sys.path.append(os.path.join(path[0], "scripts"))
 import TestUtil
+
+testdir = os.path.dirname(os.path.abspath(__file__))
+
+if os.path.exists(os.path.join(testdir, "Test1_ice.py")):
+    os.remove(os.path.join(testdir, "Test1_ice.py"))
+if os.path.exists(os.path.join(testdir, "Test2_ice.py")):
+    os.remove(os.path.join(testdir, "Test2_ice.py"))
+if os.path.exists(os.path.join(testdir, "Test")):
+    shutil.rmtree(os.path.join(testdir, "Test"))
+
+if os.environ.get("USE_BIN_DIST", "no") == "yes":
+    if TestUtil.isDarwin():
+        slice2py = "/usr/local/bin/slice2py"
+    elif TestUtil.isWin32():
+        pythonHome = os.path.dirname(sys.executable)
+        slice2py = os.path.join(pythonHome, "Scripts", "slice2py.exe")
+    else:
+        import slice2py
+        slice2py = os.path.normpath(os.path.join(slice2py.__file__, '..', '..', '..', '..', 'bin', 'slice2py'))
+else:
+    slice2py = os.path.join(path[0], "python", "config", "s2py.py")
+
+subprocess.call([sys.executable, slice2py, "Test1.ice"])
+subprocess.call([sys.executable, slice2py, "Test2.ice"])
 
 sys.stdout.write("starting client... ")
 sys.stdout.flush()
