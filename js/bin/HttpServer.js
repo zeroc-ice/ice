@@ -34,6 +34,7 @@ function Init()
         html: "text/html",
         ico: "image/x-icon",
         js: "text/javascript",
+        json: "application/json",
     };
 
     var libraries = ["/lib/Ice.js", "/lib/Ice.min.js",

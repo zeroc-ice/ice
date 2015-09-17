@@ -373,17 +373,26 @@ gulp.task("watch", ["test:watch"].concat(useBinDist ? [] : ["dist:watch"]));
 
 gulp.task("test:run-with-browser", ["watch"].concat(useBinDist ? ["test"] : ["build"]),
     function(){
+        var serverLanguages =
+            {
+                languages: [{value: "cpp", name: "C++"}, {value: "java", name: "Java"}]
+            };
+        if(process.platform == "win32")
+        {
+            serverLanguages.languages.push({value: "csharp", name: "C#"});
+        }
+        fs.writeFileSync("server-languages.json", JSON.stringify(serverLanguages, null, 4));
         require("./bin/HttpServer")();
 
         var p  = require("child_process").spawn("python", ["../scripts/TestController.py"], {stdio: "inherit"});
-        process.on(process.platform == "win32" ? "SIGBREAK" : "SIGINT", 
+        process.on(process.platform == "win32" ? "SIGBREAK" : "SIGINT",
             function()
             {
                 process.exit();
             });
         process.on("exit", function()
             {
-                p.kill(); 
+                p.kill();
             });
         return gulp.src("./test/Ice/acm/index.html")
                    .pipe(open("", {url: "http://127.0.0.1:8080/test/Ice/acm/index.html"}));
@@ -392,14 +401,14 @@ gulp.task("test:run-with-browser", ["watch"].concat(useBinDist ? ["test"] : ["bu
 gulp.task("test:run-with-node", (useBinDist ? ["test"] : ["build"]),
     function(){
         var p  = require("child_process").spawn("python", ["allTests.py", "--all"], {stdio: "inherit"});
-        process.on(process.platform == "win32" ? "SIGBREAK" : "SIGINT", 
+        process.on(process.platform == "win32" ? "SIGBREAK" : "SIGINT",
             function()
             {
                 process.exit();
             });
         process.on("exit", function()
             {
-                p.kill(); 
+                p.kill();
             });
     });
 
