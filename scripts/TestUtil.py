@@ -777,7 +777,6 @@ def phpSetup(clientConfig = False, iceOptions = None, iceProfile = None):
     tmpini.close()
 
 def getIceBox():
-    global compact
     global cpp11
 
     #
@@ -799,15 +798,22 @@ def getIceBox():
     elif lang == "java":
         iceBox = "IceBox.Server"
     elif lang == "csharp":
-        if compact:
-            iceBox = os.path.join(getIceDir("csharp"), "bin", "cf", "iceboxnet")
-        else:
-            iceBox = os.path.join(getIceDir("csharp"), "bin", "iceboxnet")
+        iceBox = os.path.join(getIceDir("csharp"), "bin", "iceboxnet")
 
     return iceBox
 
 def getIceBoxAdmin():
-    return getIceExe("iceboxadmin")
+    #
+    # Get and return the path of the IceBoxAdmin executable
+    #
+    lang = getDefaultMapping()
+    if lang == "java":
+        iceBoxAdmin = "IceBox.Admin"
+    else:
+        return getIceExe("iceboxadmin")
+        iceBoxAdmin = "iceboxadmin"
+
+    return iceBoxAdmin
 
 def getIceGridAdmin():
     return getIceExe("icegridadmin")
