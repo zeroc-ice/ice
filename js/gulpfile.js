@@ -384,7 +384,9 @@ gulp.task("test:run-with-browser", ["watch"].concat(useBinDist ? ["test"] : ["bu
         fs.writeFileSync("server-languages.json", JSON.stringify(serverLanguages, null, 4));
         require("./bin/HttpServer")();
 
-        var p  = require("child_process").spawn("python", ["../scripts/TestController.py"], {stdio: "inherit"});
+        var cmd = ["../scripts/TestController.py"]
+        cmd = cmd.concat(process.argv.slice(3))
+        var p  = require("child_process").spawn("python", cmd, {stdio: "inherit"});
         p.on("error", function(err)
             {
                 if(err.message == "spawn python ENOENT")
