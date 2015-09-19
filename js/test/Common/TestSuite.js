@@ -263,6 +263,35 @@ $(document).ready(
         }
         $("#test").val("/test/" + current + "/index.html");
 
+        var nextLanguage;
+        $.ajax(
+            {
+                url: "/server-languages.json",
+                dataType: "json"
+            }
+        ).done(
+            function(data)
+            {
+                data.languages.forEach(
+                    function(lang)
+                    {
+                        $("#language").append("<option value=\"" + lang.value + "\">" + lang.name + "</option>");
+                    });
+
+                nextLanguage = function(language)
+                {
+                    var i = 0;
+                    for(; i < data.languages.length; ++i)
+                    {
+                        if(data.languages[i].value == language)
+                        {
+                            break;
+                        }
+                    }
+                    return data.languages[i < data.languages.length - 1 ? i + 1 : 0].value;
+                };
+            });
+
         var out =
         {
             write: function(msg)
@@ -441,18 +470,7 @@ $(document).ready(
                                     protocol = "ws";
                                     href = href.replace("https", "http");
                                     href = href.replace("9090", "8080");
-                                    if(language == "cpp")
-                                    {
-                                        language = "java";
-                                    }
-                                    else if(language == "java")
-                                    {
-                                         language = "csharp";
-                                    }
-                                    else
-                                    {
-                                        language = "cpp";
-                                    }
+                                    language = nextLanguage(language);
                                 }
                             }
 

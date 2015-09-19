@@ -218,7 +218,7 @@ tests.forEach(
                 return gulp.src(path.join(name, ".depend"))
                     .pipe(paths(del));
             });
-        
+
         gulp.task(testCleanTask(name), [testCleanDependTask(name)],
             function(){
                 return gulp.src(path.join(name, "*.ice"))
@@ -373,17 +373,40 @@ gulp.task("watch", ["test:watch"].concat(useBinDist ? [] : ["dist:watch"]));
 
 gulp.task("test:run-with-browser", ["watch"].concat(useBinDist ? ["test"] : ["build"]),
     function(){
+        var serverLanguages =
+            {
+                languages: [{value: "cpp", name: "C++"}, {value: "java", name: "Java"}]
+            };
+        if(process.platform == "win32")
+        {
+            serverLanguages.languages.push({value: "csharp", name: "C#"});
+        }
+        fs.writeFileSync("server-languages.json", JSON.stringify(serverLanguages, null, 4));
         require("./bin/HttpServer")();
 
-        var p  = require("child_process").spawn("python", ["../scripts/TestController.py"], {stdio: "inherit"});
-        process.on(process.platform == "win32" ? "SIGBREAK" : "SIGINT", 
+        var cmd = ["../scripts/TestController.py"]
+        cmd = cmd.concat(process.argv.slice(3))
+        var p  = require("child_process").spawn("python", cmd, {stdio: "inherit"});
+        p.on("error", function(err)
+            {
+                if(err.message == "spawn python ENOENT")
+                {
+                    console.log("Error: python is required in PATH to run tests")
+                    process.exit(1)
+                }
+                else
+                {
+                    throw err;
+                }
+            });
+        process.on(process.platform == "win32" ? "SIGBREAK" : "SIGINT",
             function()
             {
                 process.exit();
             });
         process.on("exit", function()
             {
-                p.kill(); 
+                p.kill();
             });
         return gulp.src("./test/Ice/acm/index.html")
                    .pipe(open("", {url: "http://127.0.0.1:8080/test/Ice/acm/index.html"}));
@@ -392,14 +415,26 @@ gulp.task("test:run-with-browser", ["watch"].concat(useBinDist ? ["test"] : ["bu
 gulp.task("test:run-with-node", (useBinDist ? ["test"] : ["build"]),
     function(){
         var p  = require("child_process").spawn("python", ["allTests.py", "--all"], {stdio: "inherit"});
-        process.on(process.platform == "win32" ? "SIGBREAK" : "SIGINT", 
+        p.on("error", function(err)
+            {
+                if(err.message == "spawn python ENOENT")
+                {
+                    console.log("Error: python is required in PATH to run tests")
+                    process.exit(1)
+                }
+                else
+                {
+                    throw err;
+                }
+            });
+        process.on(process.platform == "win32" ? "SIGBREAK" : "SIGINT",
             function()
             {
                 process.exit();
             });
         process.on("exit", function()
             {
-                p.kill(); 
+                p.kill();
             });
     });
 

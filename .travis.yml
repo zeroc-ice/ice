@@ -1,19 +1,46 @@
-before_install:
-- yes | sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-- sudo apt-get -qq update
+sudo: false
+language: python
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - g++-4.9
+    - gcc-4.9
+    - libdb++-dev
+    - libdb-dev
+    - libdb-java
+    - libdb-java-dev
+    - php5-cli
+    - php5-dev
+    - python-dev
+    - python-pip
+    - ruby-dev
+
+cache:
+  directories:
+  - $HOME/.gradle
+  - js/node_modules
+
+env:
+  global:
+    - CXX=g++-4.9
+    - GCC_COMPILER=yes
+    - MCPP_HOME=$TRAVIS_BUILD_DIR/mcpp
+    - OPTIMIZE=yes
+
+python:
+- "2.7"
+
 install:
-- sudo apt-get install gcc-4.8 g++-4.8
-- sudo apt-get install libmcpp-dev libdb++-dev libdb-dev libdb-java libdb-java-dev
-  ruby-dev python-dev php5-dev php5-cli python-passlib
-- sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 60 --slave
-  /usr/bin/g++ g++ /usr/bin/g++-4.8
-- sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.6 40 --slave
-  /usr/bin/g++ g++ /usr/bin/g++-4.6
-- sudo update-alternatives --set gcc /usr/bin/gcc-4.8
-before_script:
+- git clone https://github.com/zeroc-ice/mcpp.git mcpp
+- make -C mcpp -j3
+- pip install passlib
 - make -j3
+
 script:
 - python allTests.py --debug --env --protocol=ssl
+
 notifications:
   email: travis-ci@zeroc.com
   slack:

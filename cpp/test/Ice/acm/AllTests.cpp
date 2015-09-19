@@ -517,7 +517,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         SetACMTest(const RemoteCommunicatorPrx& com) : TestCase("setACM/getACM", com)
         {
-            setClientACM(15, 4, 2);
+            setClientACM(15, 4, 0);
         }
 
         virtual void runTestCase(const RemoteObjectAdapterPrx& adapter, const TestIntfPrx& proxy)
@@ -526,19 +526,22 @@ allTests(const Ice::CommunicatorPtr& communicator)
             acm = proxy->ice_getCachedConnection()->getACM();
             test(acm.timeout == 15);
             test(acm.close == Ice::CloseOnIdleForceful);
-            test(acm.heartbeat == Ice::HeartbeatOnIdle);
+            test(acm.heartbeat == Ice::HeartbeatOff);
 
             proxy->ice_getCachedConnection()->setACM(IceUtil::None, IceUtil::None, IceUtil::None);
             acm = proxy->ice_getCachedConnection()->getACM();
             test(acm.timeout == 15);
             test(acm.close == Ice::CloseOnIdleForceful);
-            test(acm.heartbeat == Ice::HeartbeatOnIdle);
+            test(acm.heartbeat == Ice::HeartbeatOff);
 
-            proxy->ice_getCachedConnection()->setACM(20, Ice::CloseOnInvocationAndIdle, Ice::HeartbeatOnInvocation);
+            proxy->ice_getCachedConnection()->setACM(1, Ice::CloseOnInvocationAndIdle, Ice::HeartbeatAlways);
             acm = proxy->ice_getCachedConnection()->getACM();
-            test(acm.timeout == 20);
+            test(acm.timeout == 1);
             test(acm.close == Ice::CloseOnInvocationAndIdle);
-            test(acm.heartbeat == Ice::HeartbeatOnInvocation);
+            test(acm.heartbeat == Ice::HeartbeatAlways);
+
+            // Make sure the client sends few heartbeats to the server
+            proxy->waitForHeartbeat(2);
         }
     };
 

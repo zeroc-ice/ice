@@ -25,7 +25,7 @@ class RemoteObjectAdapterI : public Test::RemoteObjectAdapter
 public:
 
     RemoteObjectAdapterI(const Ice::ObjectAdapterPtr&);
-    
+
     virtual Test::TestIntfPrx getTestIntf(const Ice::Current&);
     virtual void activate(const Ice::Current&);
     virtual void hold(const Ice::Current&);
@@ -44,6 +44,7 @@ public:
     virtual void sleep(int, const Ice::Current&);
     virtual void sleepAndHold(int, const Ice::Current&);
     virtual void interruptSleep(const Ice::Current&);
+    virtual void waitForHeartbeat(int, const Ice::Current&);
 };
 
 #endif

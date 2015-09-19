@@ -49,7 +49,7 @@ public class RemoteObjectAdapterI : RemoteObjectAdapterDisp_
     public RemoteObjectAdapterI(Ice.ObjectAdapter adapter)
     {
         _adapter = adapter;
-        _testIntf = TestIntfPrxHelper.uncheckedCast(_adapter.add(new TestI(), 
+        _testIntf = TestIntfPrxHelper.uncheckedCast(_adapter.add(new TestI(),
                                                                  _adapter.getCommunicator().stringToIdentity("test")));
         _adapter.activate();
     }
@@ -58,7 +58,7 @@ public class RemoteObjectAdapterI : RemoteObjectAdapterDisp_
     {
         return _testIntf;
     }
-    
+
     public override void activate(Ice.Current current)
     {
         _adapter.activate();
@@ -109,5 +109,44 @@ public class TestI : TestIntfDisp_
         {
             System.Threading.Monitor.PulseAll(this);
         }
+    }
+
+    class ConnectionCallbackI : Ice.ConnectionCallback
+    {
+        public void heartbeat(Ice.Connection c)
+        {
+            lock(this)
+            {
+                --_count;
+                System.Threading.Monitor.PulseAll(this);
+            }
+        }
+
+        public void closed(Ice.Connection c)
+        {
+        }
+
+        public void waitForCount(int count)
+        {
+            lock(this)
+            {
+                _count = count;
+                while(_count > 0)
+                {
+                    System.Threading.Monitor.Wait(this);
+                }
+            }
+        }
+
+        private int _count = 0;
+    };
+
+    public override void waitForHeartbeat(int count, Ice.Current current)
+    {
+
+
+        ConnectionCallbackI callback = new ConnectionCallbackI();
+        current.con.setCallback(callback);
+        callback.waitForCount(count);
     }
 };

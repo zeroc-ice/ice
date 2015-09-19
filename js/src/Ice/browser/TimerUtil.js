@@ -25,11 +25,11 @@ var Ice = require("../Ice/ModuleRegistry").Ice;
 function createTimerObject()
 {
     var Timer = {};
-    Timer.setTimeout = function () { setTimeout.apply(null, arguments); }
+    Timer.setTimeout = function () { setTimeout.apply(null, arguments); };
     Timer.clearTimeout = function () { clearTimeout.apply(null, arguments); };
     Timer.setInterval = function () { setInterval.apply(null, arguments); };
     Timer.clearInterval = function () { clearInterval.apply(null, arguments); };
-    Timer.setImmediate = function () { setImmediate.apply(null, arguments); }
+    Timer.setImmediate = function () { setImmediate.apply(null, arguments); };
     return Timer;
 }
 
@@ -195,7 +195,7 @@ else
         }
         catch(ex)
         {
-            window.URL.revokeObjectURL(url)
+            window.URL.revokeObjectURL(url);
 
             //
             // Fallback on setInterval/setTimeout if the worker creating failed. Some IE10 and IE11 don't

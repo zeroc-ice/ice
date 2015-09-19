@@ -17,6 +17,7 @@ interface TestIntf
     void sleep(int seconds);
     void sleepAndHold(int seconds);
     void interruptSleep();
+    void waitForHeartbeat(int count);
 };
 
 interface RemoteObjectAdapter

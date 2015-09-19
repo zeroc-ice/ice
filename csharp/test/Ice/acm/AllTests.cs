@@ -307,7 +307,7 @@ public class AllTests : TestCommon.TestApp
             {
                 adapter.activate();
                 proxy.interruptSleep();
-                
+
                 waitForClosed();
             }
         }
@@ -376,7 +376,7 @@ public class AllTests : TestCommon.TestApp
         public override void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
         {
             Thread.Sleep(1500); // Idle for 1.5 second
-            
+
             waitForClosed();
             lock(this)
             {
@@ -499,7 +499,7 @@ public class AllTests : TestCommon.TestApp
     {
         public SetACMTest(RemoteCommunicatorPrx com) : base("setACM/getACM", com)
         {
-            setClientACM(15, 4, 2);
+            setClientACM(15, 4, 0);
         }
 
         public override void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
@@ -508,21 +508,23 @@ public class AllTests : TestCommon.TestApp
             acm = proxy.ice_getCachedConnection().getACM();
             test(acm.timeout == 15);
             test(acm.close == Ice.ACMClose.CloseOnIdleForceful);
-            test(acm.heartbeat == Ice.ACMHeartbeat.HeartbeatOnIdle);
+            test(acm.heartbeat == Ice.ACMHeartbeat.HeartbeatOff);
 
             proxy.ice_getCachedConnection().setACM(Ice.Util.None, Ice.Util.None, Ice.Util.None);
             acm = proxy.ice_getCachedConnection().getACM();
             test(acm.timeout == 15);
             test(acm.close == Ice.ACMClose.CloseOnIdleForceful);
-            test(acm.heartbeat == Ice.ACMHeartbeat.HeartbeatOnIdle);
+            test(acm.heartbeat == Ice.ACMHeartbeat.HeartbeatOff);
 
-            proxy.ice_getCachedConnection().setACM(20,
+            proxy.ice_getCachedConnection().setACM(1,
                                                    Ice.ACMClose.CloseOnInvocationAndIdle,
-                                                   Ice.ACMHeartbeat.HeartbeatOnInvocation);
+                                                   Ice.ACMHeartbeat.HeartbeatAlways);
             acm = proxy.ice_getCachedConnection().getACM();
-            test(acm.timeout == 20);
+            test(acm.timeout == 1);
             test(acm.close == Ice.ACMClose.CloseOnInvocationAndIdle);
-            test(acm.heartbeat == Ice.ACMHeartbeat.HeartbeatOnInvocation);
+            test(acm.heartbeat == Ice.ACMHeartbeat.HeartbeatAlways);
+
+            proxy.waitForHeartbeat(2);
         }
     };
 

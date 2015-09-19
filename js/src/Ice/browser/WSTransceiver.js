@@ -47,27 +47,19 @@ var WSTransceiver = Ice.Class({
         this._readBuffers = [];
         this._readPosition = 0;
         this._maxSendPacketSize = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.SndSize", 512 * 1024);
+        this._writeReadyTimeout = 0;
+    },
+    writeReadyTimeout: function()
+    {
+        var t = Math.round(this._writeReadyTimeout);
+        this._writeReadyTimeout +=  (this._writeReadyTimeout >= 5 ? 5 : 0.2);
+        return Math.min(t, 25);
     },
     setCallbacks: function(connectedCallback, bytesAvailableCallback, bytesWrittenCallback)
     {
         this._connectedCallback = connectedCallback;
         this._bytesAvailableCallback = bytesAvailableCallback;
-
-        var transceiver = this;
-        this._bytesWrittenCallback = function(bytesSent, bytesTotal)
-        {
-            if(transceiver._fd)
-            {
-                if(transceiver._fd.bufferedAmount < 1024 || this._exception)
-                {
-                    bytesWrittenCallback(bytesSent, bytesTotal);
-                }
-                else
-                {
-                    Timer.setTimeout(function() { transceiver._bytesWrittenCallback(bytesSent, bytesTotal); }, 50);
-                }
-            }
-        };
+        this._bytesWrittenCallback = bytesWrittenCallback;
     },
     //
     // Returns SocketOperation.None when initialization is complete.
@@ -184,47 +176,48 @@ var WSTransceiver = Ice.Class({
             return true;
         }
 
-        var transceiver = this;
-        var bytesWrittenCallback = function()
-        { 
-            transceiver._bytesWrittenCallback(0, 0); 
-        };
-
-        if(this._fd.bufferedAmount > 1024)
-        {
-            Timer.setTimeout(bytesWrittenCallback, 50);
-            return false;
-        }
-
-        var packetSize = byteBuffer.remaining;
-        Debug.assert(packetSize > 0);
         Debug.assert(this._fd);
 
-        if(this._maxSendPacketSize > 0 && packetSize > this._maxSendPacketSize)
+        var transceiver = this;
+        var write = function()
         {
-            packetSize = this._maxSendPacketSize;
-        }
+            if(transceiver.write(byteBuffer))
+            {
+                transceiver._bytesWrittenCallback(0, 0);
+            }
+        };
 
-        while(packetSize > 0)
+        var bytesWrittenCallback = function()
         {
-            var slice = byteBuffer.b.slice(byteBuffer.position, byteBuffer.position + packetSize);
-            this._fd.send(slice);
+            transceiver._bytesWrittenCallback(0, 0);
+        };
 
-            byteBuffer.position = byteBuffer.position + packetSize;
-            if(this._maxSendPacketSize > 0 && byteBuffer.remaining > this._maxSendPacketSize)
+        var i = byteBuffer.position;
+        while(true)
+        {
+            var packetSize = (this._maxSendPacketSize > 0 && byteBuffer.remaining > this._maxSendPacketSize) ?
+                this._maxSendPacketSize : byteBuffer.remaining;
+            if(byteBuffer.remaining === 0)
             {
-                packetSize = this._maxSendPacketSize;
+                break;
             }
-            else
+            Debug.assert(packetSize > 0);
+            if(this._fd.bufferedAmount + packetSize > this._maxSendPacketSize)
             {
-                packetSize = byteBuffer.remaining;
-            }
-
-            if(this._fd.bufferedAmount > 0 && packetSize > 0)
-            {
-                Timer.setTimeout(bytesWrittenCallback, 50);
+                if(byteBuffer.position - i > 0)
+                {
+                    Timer.setTimeout(bytesWrittenCallback, this.writeReadyTimeout());
+                }
+                else
+                {
+                    Timer.setTimeout(write, this.writeReadyTimeout());
+                }
                 return false;
             }
+            this._writeReadyTimeout = 0;
+            var slice = byteBuffer.b.slice(byteBuffer.position, byteBuffer.position + packetSize);
+            this._fd.send(slice);
+            byteBuffer.position = byteBuffer.position + packetSize;
         }
         return true;
     },

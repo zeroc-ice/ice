@@ -131,6 +131,7 @@ public final class Admin
                     catch(IceBox.NoSuchServiceException ex)
                     {
                         System.err.println(appName() + ": unknown service `" + service + "'");
+                        return 1;
                     }
                     catch(IceBox.AlreadyStartedException ex)
                     {
@@ -153,6 +154,7 @@ public final class Admin
                     catch(IceBox.NoSuchServiceException ex)
                     {
                         System.err.println(appName() + ": unknown service `" + service + "'");
+                        return 1;
                     }
                     catch(IceBox.AlreadyStoppedException ex)
                     {

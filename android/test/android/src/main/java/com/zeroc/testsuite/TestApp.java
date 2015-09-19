@@ -26,6 +26,8 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 
 import dalvik.system.DexClassLoader;
+
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.Log;
 import android.app.Application;
@@ -70,6 +72,7 @@ public class TestApp extends Application
 
     static private class TestSuiteBundle
     {
+        @SuppressWarnings("unchecked")
         TestSuiteBundle(String name, ClassLoader loader)
         {
             _name = name;
@@ -292,7 +295,7 @@ public class TestApp extends Application
         private final String _prefix;
         private String _formattedPrefix = "";
         private final java.text.DateFormat _date = java.text.DateFormat.getDateInstance(java.text.DateFormat.SHORT);
-        private final java.text.SimpleDateFormat _time = new java.text.SimpleDateFormat(" HH:mm:ss:SSS");
+        private final java.text.SimpleDateFormat _time = new java.text.SimpleDateFormat(" HH:mm:ss:SSS", Locale.US);
 
         AndroidLogger(String prefix)
         {
@@ -854,6 +857,7 @@ public class TestApp extends Application
         }
     }
 
+    @SuppressLint("Assert")
     public void startNextTest()
     {
         assert _complete;

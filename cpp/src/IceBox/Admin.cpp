@@ -43,7 +43,7 @@ void
 Client::usage()
 {
     cerr << "Usage: " << appName() << " [options] [command...]\n";
-    cerr <<        
+    cerr <<
         "Options:\n"
         "-h, --help           Show this message.\n"
         "-v, --version        Display the Ice version.\n"
@@ -91,7 +91,7 @@ Client::run(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-  
+
     ObjectPrx base = communicator()->propertyToProxy("IceBoxAdmin.ServiceManager.Proxy");
 
     if(base == 0)
@@ -105,7 +105,7 @@ Client::run(int argc, char* argv[])
         Identity managerIdentity;
         managerIdentity.category = properties->getPropertyWithDefault("IceBox.InstanceName", "IceBox");
         managerIdentity.name = "ServiceManager";
-        
+
         string managerProxy;
         if(properties->getProperty("Ice.Default.Locator").empty())
         {
@@ -115,7 +115,7 @@ Client::run(int argc, char* argv[])
                 cerr << appName() << ": property `IceBoxAdmin.ServiceManager.Proxy' is not set" << endl;
                 return EXIT_FAILURE;
             }
-            
+
             managerProxy = "\"" + communicator()->identityToString(managerIdentity) + "\" :" + managerEndpoints;
         }
         else
@@ -126,7 +126,7 @@ Client::run(int argc, char* argv[])
                 cerr << appName() << ": property `IceBoxAdmin.ServiceManager.Proxy' is not set" << endl;
                 return EXIT_FAILURE;
             }
-            
+
             managerProxy = "\"" + communicator()->identityToString(managerIdentity) + "\" @" + managerAdapterId;
         }
 
@@ -176,6 +176,7 @@ Client::run(int argc, char* argv[])
             catch(const IceBox::NoSuchServiceException&)
             {
                 cerr << appName() << ": unknown service `" << *r << "'" << endl;
+                return EXIT_FAILURE;
             }
             catch(const IceBox::AlreadyStartedException&)
             {
@@ -197,6 +198,7 @@ Client::run(int argc, char* argv[])
             catch(const IceBox::NoSuchServiceException&)
             {
                 cerr << appName() << ": unknown service `" << *r << "'" << endl;
+                return EXIT_FAILURE;
             }
             catch(const IceBox::AlreadyStoppedException&)
             {

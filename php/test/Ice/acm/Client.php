@@ -58,9 +58,8 @@ function allTests($communicator)
         $NS ? constant("Ice\\ACMClose::CloseOnInvocationAndIdle") : constant("Ice_ACMClose::CloseOnInvocationAndIdle");
     $HeartbeatOnIdle =
         $NS ? constant("Ice\\ACMHeartbeat::HeartbeatOnIdle") : constant("Ice_ACMHeartbeat::HeartbeatOnIdle");
-    $HeartbeatOnInvocation =
-        $NS ? constant("Ice\\ACMHeartbeat::HeartbeatOnInvocation") :
-        constant("Ice_ACMHeartbeat::HeartbeatOnInvocation");
+    $HeartbeatAlways =
+        $NS ? constant("Ice\\ACMHeartbeat::HeartbeatAlways") : constant("Ice_ACMHeartbeat::HeartbeatAlways");
 
     $acm = $proxy->ice_getCachedConnection()->getACM();
     test($acm->timeout == 15);
@@ -73,11 +72,13 @@ function allTests($communicator)
     test($acm->close == $CloseOnIdleForceful);
     test($acm->heartbeat == $HeartbeatOnIdle);
 
-    $proxy->ice_getCachedConnection()->setACM(20, $CloseOnInvocationAndIdle, $HeartbeatOnInvocation);
+    $proxy->ice_getCachedConnection()->setACM(1, $CloseOnInvocationAndIdle, $HeartbeatAlways);
     $acm = $proxy->ice_getCachedConnection()->getACM();
-    test($acm->timeout == 20);
+    test($acm->timeout == 1);
     test($acm->close == $CloseOnInvocationAndIdle);
-    test($acm->heartbeat == $HeartbeatOnInvocation);
+    test($acm->heartbeat == $HeartbeatAlways);
+
+    $proxy->waitForHeartbeat(2);
 
     $adapter->deactivate();
     $testCommunicator->destroy();
