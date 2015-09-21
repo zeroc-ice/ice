@@ -1057,8 +1057,8 @@
                 //
                 // Ensure that non connectable endpoints are skipped.
                 //
-                var p = (typeof window === 'undefined') ?
-                    communicator.stringToProxy("test:ws -p 12010:default -p 12010") : 
+                var p = (typeof window === 'undefined' && typeof WorkerGlobalScope === 'undefined') ?
+                    communicator.stringToProxy("test:ws -p 12010:default -p 12010") :
                     communicator.stringToProxy("test:tcp -p 12010:default -p 12010");
 
                 p = p.ice_endpointSelection(Ice.EndpointSelectionType.Ordered);
@@ -1092,5 +1092,5 @@
     exports.__runServer__ = true;
 }
 (typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : window.Ice.__require,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : window));
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice.__require,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));

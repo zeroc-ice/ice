@@ -1,0 +1,231 @@
+{
+    "Ice/acm":
+        {
+            "files": ["Test.js", "Client.js"]
+        },
+    "Ice/ami":
+        {
+            "files": ["Test.js", "Client.js"]
+        },
+    "Ice/binding":
+        {
+            "files": ["Test.js", "Client.js"]
+        },
+    "Ice/defaultValue":
+        {
+            "files": ["Test.js", "Client.js"]
+        },
+    "Ice/enums":
+        {
+            "files": ["Test.js", "Client.js"],
+            "configurations":
+            [
+                {
+                    "name": "1.0 encoding",
+                    "args": ["--Ice.Default.EncodingVersion=1.0"]
+                },
+                {
+                    "name": "1.1 encoding"
+                }
+            ]
+        },
+    "Ice/exceptions":
+        {
+            "files": ["Test.js", "Client.js"],
+            "configurations":
+            [
+                {
+                    "name": "compact (default) format"
+                },
+                {
+                    "name": "sliced format",
+                    "args": ["--Ice.Default.SlicedFormat"]
+                },
+                {
+                    "name": "1.0 encoding",
+                    "args": ["--Ice.Default.EncodingVersion=1.0"]
+                },
+                {
+                    "name": "compact (default) format and AMD server"
+                },
+                {
+                    "name": "sliced format and AMD server.",
+                    "args": ["--Ice.Default.SlicedFormat"]
+                },
+                {
+                    "name": "1.0 encoding and AMD server",
+                    "args": ["--Ice.Default.EncodingVersion=1.0"]
+                }
+            ]
+        },
+    "Ice/exceptionsBidir":
+        {
+            "files": ["Test.js", "TestAMD.js", "ThrowerI.js", "AMDThrowerI.js",
+                      "../exceptions/Client.js", "Client.js"]
+        },
+    "Ice/facets":
+        {
+            "files": ["Test.js", "Client.js"]
+        },
+    "Ice/facetsBidir":
+        {
+            "files": ["Test.js", "TestI.js", "../facets/Client.js", "Client.js"]
+        },
+    "Ice/hold":
+        {
+            "files": ["Test.js", "Client.js"]
+        },
+    "Ice/info":
+        {
+            "files": ["Test.js", "Client.js"]
+        },
+    "Ice/inheritance":
+        {
+            "files": ["Test.js", "Client.js"]
+        },
+    "Ice/inheritanceBidir":
+        {
+            "files": ["Test.js", "InitialI.js", "../inheritance/Client.js", "Client.js"]
+        },
+    "Ice/operations":
+        {
+            "files": ["Test.js", "Twoways.js", "Oneways.js", "BatchOneways.js", "Client.js"],
+            "configurations":
+            [
+                {
+                    "name": "regular server"
+                },
+                {
+                    "name": "AMD server"
+                },
+                {
+                    "name": "TIE server",
+                    "langs": ["java", "csharp"]
+                },
+                {
+                    "name": "AMD TIE server",
+                    "langs": ["java", "csharp"]
+                }
+            ]
+        },
+    "Ice/operationsBidir":
+        {
+            "files": ["Test.js", "TestAMD.js", "../operations/Twoways.js", "../operations/Oneways.js",
+                      "../operations/BatchOneways.js", "MyDerivedClassI.js", "AMDMyDerivedClassI.js",
+                      "../operations/Client.js", "Client.js"]
+        },
+    "Ice/objects":
+        {
+            "files": ["Test.js", "Client.js"],
+            "configurations":
+            [
+                {
+                    "name": "compact (default) format"
+                },
+                {
+                    "name": "sliced format", 
+                    "args": ["--Ice.Default.SlicedFormat"]
+                },
+                {
+                    "name": "1.0 encoding",
+                    "args": ["--Ice.Default.EncodingVersion=1.0"]
+                }
+            ]
+        },
+    "Ice/optional":
+        {
+            "files": ["Test.js", "Client.js"],
+            "configurations":
+            [
+                {
+                    "name": "compact (default) format"
+                },
+                {
+                    "name": "sliced format",
+                    "args": ["--Ice.Default.SlicedFormat"]
+                },
+                {
+                    "name": "AMD server"
+                }
+            ]
+        },
+    "Ice/optionalBidir":
+        {
+            "files": ["Test.js", "TestAMD.js", "InitialI.js", "AMDInitialI.js", "../optional/Client.js", "Client.js"]
+        },
+    "Ice/promise":
+        {
+            "files": ["Client.js"]
+        },
+    "Ice/properties":
+        {
+            "files": ["Client.js"]
+        },
+    "Ice/proxy":
+        {
+            "files": ["Test.js", "Client.js"],
+            "configurations":
+            [
+                {
+                    "name": "regular server"
+                },
+                {
+                    "name": "AMD server"
+                }
+            ]
+        },
+    "Ice/retry":
+        {
+            "files": ["Test.js", "Client.js"]
+        },
+    "Ice/slicing/exceptions":
+        {
+            "files": ["Test.js", "Client.js"],
+            "configurations":
+            [
+                {
+                    "name": "sliced format"
+                },
+                {
+                    "name": "1.0 encoding",
+                    "args": ["--Ice.Default.EncodingVersion=1.0"]
+                },
+                {
+                    "name": "sliced format and AMD server"
+                },
+                {
+                    "name": "1.0 encoding and AMD server",
+                    "args": ["--Ice.Default.EncodingVersion=1.0"]
+                }
+            ]
+        },
+    "Ice/slicing/objects":
+        {
+            "files": ["Test.js", "Client.js"],
+            "configurations":
+            [
+                {
+                    "name": "sliced format"
+                },
+                {
+                    "name": "1.0 encoding",
+                    "args": ["--Ice.Default.EncodingVersion=1.0"]
+                },
+                {
+                    "name": "sliced format and AMD server"
+                },
+                {
+                    "name": "1.0 encoding and AMD server",
+                    "args": ["--Ice.Default.EncodingVersion=1.0"]
+                }
+            ]
+        },
+    "Ice/timeout":
+        {
+            "files": ["Test.js", "Client.js"]
+        },
+    "Ice/number":
+        {
+            "files": ["Client.js"]
+        }
+}

@@ -17,9 +17,9 @@
 var Ice = require("../Ice/ModuleRegistry").Ice;
 
 //
-// Create a timer object that uses the default browser methods. Note that we also 
-// have to use apply with null as the first argument to workaround an issue where 
-// IE doesn't like these functions to be called with an unknown object (it reports 
+// Create a timer object that uses the default browser methods. Note that we also
+// have to use apply with null as the first argument to workaround an issue where
+// IE doesn't like these functions to be called with an unknown object (it reports
 // an "Invalid calling object" error).
 //
 function createTimerObject()
@@ -29,11 +29,12 @@ function createTimerObject()
     Timer.clearTimeout = function () { clearTimeout.apply(null, arguments); };
     Timer.setInterval = function () { setInterval.apply(null, arguments); };
     Timer.clearInterval = function () { clearInterval.apply(null, arguments); };
-    Timer.setImmediate = function () { setImmediate.apply(null, arguments); };
+    Timer.setImmediate = typeof(setImmediate) == "function" ?
+        function () { setImmediate.apply(null, arguments); } : function() { setTimeout.apply(null, arguments); };
     return Timer;
 }
 
-if(typeof WorkerGlobalScope !== 'undefined' && this instanceof WorkerGlobalScope)
+if(typeof(WorkerGlobalScope) !== 'undefined' && this instanceof WorkerGlobalScope)
 {
     //
     // If running in a worker we don't need to create a separate worker for the timers

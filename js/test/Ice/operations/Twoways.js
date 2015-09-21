@@ -1075,7 +1075,6 @@
                 test(retval.get(0xf1)[0] === 0xf2);
                 test(retval.get(0xf1)[1] === 0xf3);
 
-
                 var si1 = [true, false];
                 var si2 = [false, true, true];
 
@@ -1493,7 +1492,7 @@
                 s.tesT = "Test.MyStruct1.s";
                 s.myClass = null;
                 s.myStruct1 = "Test.MyStruct1.myStruct1";
-                
+
                 var c = new Test.MyClass1();
                 c.tesT = "Test.MyClass1.testT";
                 c.myClass = null;
@@ -1530,12 +1529,12 @@
                         test(arguments[8][0].size === 0);
                         test(arguments[9][0].length === 0);
                         test(arguments[10][0].size === 0);
-                        
+
                         s = arguments[11][0];
                         test(s.tesT == "Test.MyStruct1.s");
                         test(s.myClass === null);
                         test(s.myStruct1 == "Test.MyStruct1.myStruct1");
-                        
+
                         c = arguments[12][0];
                         test(c.tesT == "Test.MyClass1.testT");
                         test(c.myClass === null);
@@ -1558,5 +1557,5 @@
     exports.Twoways = { run: run };
 }
 (typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : window.Ice.__require,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : window));
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice.__require,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));

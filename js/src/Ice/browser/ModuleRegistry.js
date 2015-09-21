@@ -7,21 +7,25 @@
 //
 // **********************************************************************
 
+/* globals self */
+var __root = typeof(window) !== "undefined" ? window : self;
+/* globals -self */
+
 var __M =
 {
     module: function(name)
     {
-        var m =  window[name];
+        var m =  __root[name];
         if(m === undefined)
         {
             m = {};
-            window[name] =  m;
+            __root[name] =  m;
         }
         return m;
     },
     require: function(name)
     {
-        return window;
+        return __root;
     },
     type: function(scoped)
     {
@@ -30,7 +34,7 @@ var __M =
             return undefined;
         }
         var components = scoped.split(".");
-        var T = window;
+        var T = __root;
 
         for(var i = 0, length = components.length; i < length; ++i)
         {
@@ -48,7 +52,7 @@ var Ice = __M.module("Ice");
 
 Ice.__require = function()
 {
-    return window;
+    return __root;
 };
 
 Ice.Slice = Ice.Slice || {};

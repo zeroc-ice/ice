@@ -179,7 +179,7 @@ Slice::JsVisitor::writeMarshalDataMembers(const DataMemberList& dataMembers, con
             writeMarshalUnmarshalCode(_out, (*q)->type(), "this." + fixId((*q)->name()), true);
         }
     }
-    
+
     for(DataMemberList::const_iterator q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
     {
         writeOptionalMarshalUnmarshalCode(_out, (*q)->type(), "this." + fixId((*q)->name()), (*q)->tag(), true);
@@ -205,7 +205,7 @@ Slice::JsVisitor::writeUnmarshalDataMembers(const DataMemberList& dataMembers, c
             writeMarshalUnmarshalCode(_out, (*q)->type(), "this." + fixId((*q)->name()), false);
         }
     }
-    
+
     for(DataMemberList::const_iterator q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
     {
         writeOptionalMarshalUnmarshalCode(_out, (*q)->type(), "this." + fixId((*q)->name()), (*q)->tag(), false);
@@ -723,8 +723,8 @@ Slice::Gen::generate(const UnitPtr& p)
      _out << eb;
 
     _out << nl << "(typeof(global) !== \"undefined\" && typeof(global.process) !== \"undefined\" ? module : undefined,"
-         << nl << " typeof(global) !== \"undefined\" && typeof(global.process) !== \"undefined\" ? require : window.Ice.__require,"
-         << nl << " typeof(global) !== \"undefined\" && typeof(global.process) !== \"undefined\" ? exports : window));";
+         << nl << " typeof(global) !== \"undefined\" && typeof(global.process) !== \"undefined\" ? require : this.Ice.__require,"
+         << nl << " typeof(global) !== \"undefined\" && typeof(global.process) !== \"undefined\" ? exports : this));";
 
     if(icejs)
     {

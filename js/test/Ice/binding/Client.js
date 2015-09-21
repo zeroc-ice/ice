@@ -29,6 +29,8 @@
         return p;
     };
 
+    var isBrowser = (typeof window !== 'undefined' || typeof WorkerGlobalScope !== 'undefined');
+
     var communicator;
     var com;
     var allTests = function(out, initData)
@@ -191,8 +193,8 @@
             },
             function(ex)
             {
-                if(!(typeof(window) == 'undefined' && ex instanceof Ice.ConnectionRefusedException) &&
-                    !(typeof(window) != 'undefined' && ex instanceof Ice.ConnectFailedException))
+                if(!(!isBrowser && ex instanceof Ice.ConnectionRefusedException) &&
+                   !(isBrowser && ex instanceof Ice.ConnectFailedException))
                 {
                     throw ex;
                 }
@@ -806,8 +808,8 @@
             },
             function(ex)
             {
-                test((typeof(window) == 'undefined' && ex instanceof Ice.ConnectionRefusedException) ||
-                     (typeof(window) != 'undefined' && ex instanceof Ice.ConnectFailedException));
+                test((!isBrowser && ex instanceof Ice.ConnectionRefusedException) ||
+                     (isBrowser && ex instanceof Ice.ConnectFailedException));
                 return prx.ice_getEndpoints();
             }
         ).then(
@@ -909,8 +911,8 @@
                         },
                         function(ex)
                         {
-                            test((typeof(window) == 'undefined' && ex instanceof Ice.ConnectionRefusedException) ||
-                                 (typeof(window) != 'undefined' && ex instanceof Ice.ConnectFailedException));
+                            test((!isBrowser && ex instanceof Ice.ConnectionRefusedException) ||
+                                 (isBrowser && ex instanceof Ice.ConnectFailedException));
                         });
                 };
                 return f1();
@@ -1077,8 +1079,8 @@
                     },
                     function(ex)
                     {
-                        test((typeof(window) == 'undefined' && ex instanceof Ice.ConnectionRefusedException) ||
-                            (typeof(window) != 'undefined' && ex instanceof Ice.ConnectFailedException));
+                        test((!isBrowser && ex instanceof Ice.ConnectionRefusedException) ||
+                             (isBrowser && ex instanceof Ice.ConnectFailedException));
                         return prx.ice_getEndpoints();
                     }
                 ).then(
@@ -1167,5 +1169,5 @@
     exports.__runServer__ = true;
 }
 (typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : window.Ice.__require,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : window));
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice.__require,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));

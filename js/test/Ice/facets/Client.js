@@ -11,7 +11,6 @@
 {
     var Ice = require("ice").Ice;
     var Test = require("Test").Test;
-    
     var Promise = Ice.Promise;
 
     var allTests = function(out, communicator)
@@ -257,5 +256,5 @@
     exports.__runServer__ = true;
 }
 (typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : window.Ice.__require,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : window));
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice.__require,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));

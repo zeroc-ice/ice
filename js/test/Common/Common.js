@@ -7,44 +7,38 @@
 //
 // **********************************************************************
 
-(function(module, require, exports){
-    var Ice = require("ice").Ice;
+/* globals -Ice*/
+var Ice = require("ice").Ice;
 
-    var write = function(msg)
-    {
-        process.stdout.write(msg);
-    };
+var write = function(msg)
+{
+    process.stdout.write(msg);
+};
 
-    var writeLine = function(msg)
-    {
-        this.write(msg + "\n");
-    };
+var writeLine = function(msg)
+{
+    this.write(msg + "\n");
+};
 
-    var run = function(m)
-    {
-        var id = new Ice.InitializationData();
-        id.properties = Ice.createProperties(process.argv);
-
-        var test = m.require("./Client").__test__;
-
-        test({write: write, writeLine: writeLine}, id).exception(
-            function(ex, r)
+var run = function(m)
+{
+    var id = new Ice.InitializationData();
+    id.properties = Ice.createProperties(process.argv);
+    var test = m.require("./Client").__test__;
+    test({write: write, writeLine: writeLine}, id).exception(
+        function(ex, r)
+        {
+            console.log(ex.toString());
+            if(r instanceof Ice.AsyncResult)
             {
-                console.log(ex.toString());
-                if(r instanceof Ice.AsyncResult)
-                {
-                    console.log("\nexception occurred in call to " + r.operation);
-                }
-                if(ex.stack)
-                {
-                    console.log(ex.stack);
-                }
-                process.exit(1);
-            });
-    };
+                console.log("\nexception occurred in call to " + r.operation);
+            }
+            if(ex.stack)
+            {
+                console.log(ex.stack);
+            }
+            process.exit(1);
+        });
+};
 
-    exports.run = run;
-}
-(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : window.Ice.__require,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : window));
+exports.run = run;

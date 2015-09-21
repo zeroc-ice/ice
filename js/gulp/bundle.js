@@ -322,11 +322,11 @@ function bundle(args)
                 var sb = new StringBuffer();
 
                 sb.write(preamble);
-                lineOffset += 2;
-
+                sb.write("    var __root = typeof(window) !== \"undefined\" ? window : self;\n");
+                lineOffset += 3;
                 args.modules.forEach(
                     function(m){
-                        sb.write("    window." + m + " = window." + m + " || {};\n");
+                        sb.write("    __root." + m + " = __root." + m + " || {};\n");
                         lineOffset++;
 
                         if(m == "Ice")
@@ -455,11 +455,11 @@ function bundle(args)
                 lineOffset++;
 
                 //
-                // Now exports the modules to the global Window object.
+                // Now exports the modules to the global object.
                 //
                 args.modules.forEach(
                     function(m){
-                        sb.write("    window." + m + " = " + m + ";\n");
+                        sb.write("    __root." + m + " = " + m + ";\n");
                         lineOffset++;
                     });
 

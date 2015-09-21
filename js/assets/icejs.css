@@ -8,7 +8,7 @@
 // *********************************************************************/
 .noUiSlider{ margin-top:7px; }
 
-#wss, #loop{ margin-top:10px;}
+#wss, #loop, #worker{ margin-top:10px;}
 #progress .icon { margin-left:10px; margin-top: 5px; }
 #progress .text { margin-left:25px; }
 
