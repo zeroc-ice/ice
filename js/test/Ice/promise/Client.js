@@ -833,16 +833,7 @@
                                 test(i == 10);
                                 test(Date.now() - start >= 450 && Date.now() - start <= 650);
                             }
-                        ).exception(
-                            function(ex)
-                            {
-                                promise.fail(ex);
-                            });
-
-                        //
-                        // Now test the static version.
-                        //
-                        p = p.then(
+                        ).then(
                             function()
                             {
                                 start = Date.now();
@@ -852,17 +843,9 @@
                                         test(i == 10);
                                         test(Date.now() - start >= 450 && Date.now() - start <= 650);
                                     }
-                                ).exception(
-                                    function(ex)
-                                    {
-                                        promise.fail(ex);
-                                    });
-                            });
-
-                        //
-                        // Same but with fail
-                        //
-                        p.then(
+                                )
+                            }
+                        ).then(
                             function()
                             {
                                 var f = new Promise();
@@ -879,11 +862,12 @@
                                         out.writeLine("ok");
                                         promise.succeed();
                                     }
-                                ).exception(
-                                    function(ex)
-                                    {
-                                        promise.fail(ex);
-                                    });
+                                )
+                            }
+                        ).exception(
+                            function(ex)
+                            {
+                                promise.fail(ex);
                             });
                     }
                 );
