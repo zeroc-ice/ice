@@ -14,6 +14,16 @@
     Test : false,
 */
 
+function isSafari()
+{
+    return /^((?!chrome).)*safari/i.test(navigator.userAgent);
+}
+
+function isWorker()
+{
+    return typeof(WorkerGlobalScope) !== 'undefined' && this instanceof WorkerGlobalScope; 
+}
+
 function runTest(name, language, defaultHost, protocol, configurations, out)
 {
     var server, communicator;
