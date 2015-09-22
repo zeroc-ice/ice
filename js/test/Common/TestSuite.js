@@ -57,6 +57,21 @@ $(document).ready(
                         next:"true"
                     }).toString());
         }
+
+        function next(success)
+        {
+            if($("#loop").is(":checked"))
+            {
+                if(success)
+                {
+                    nextTest(success);
+                }
+            }
+            else if(query.loop == "true")
+            {
+                updateLocation();
+            }
+        }
         
         function setRunning(running)
         {
@@ -112,14 +127,7 @@ $(document).ready(
                         else if(e.data.type == "TestFinished")
                         {
                             setRunning(false);
-                            if(e.data.success && $("#loop").is(":checked"))
-                            {
-                                nextTest();
-                            }
-                            else if(query.loop == "true")
-                            {
-                                updateLocation();
-                            }
+                            next(e.data.success);
                         }
                     };
                     worker.postMessage(
@@ -138,26 +146,17 @@ $(document).ready(
                 }
                 else
                 {
-                    runTest(current, 
-                            $("#language").val(),
-                            document.location.hostname || "127.0.0.1",
-                            $("#protocol").val(),
-                            TestCases[current].configurations, out).finally(
+                    runTest(current, $("#language").val(), document.location.hostname || "127.0.0.1",
+                            $("#protocol").val(), TestCases[current].configurations, out
+                    ).finally(
                         function()
                         {
                             setRunning(false);
                         }
                     ).then(
-                        function()
+                        function(success)
                         {
-                            if($("#loop").is(":checked"))
-                            {
-                                nextTest();
-                            }
-                            else if(query.loop == "true")
-                            {
-                                updateLocation();
-                            }
+                            next(success);
                         });
                 }
             }

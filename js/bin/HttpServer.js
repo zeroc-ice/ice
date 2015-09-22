@@ -32,7 +32,7 @@ function Init()
         };
     if(process.platform == "win32")
     {
-        serverLanguages.languages.push({value: "csharp", name: "C#"});
+        TestData.languages.push({value: "csharp", name: "C#"});
     }
 
     var libraries = ["/lib/Ice.js", "/lib/Ice.min.js",
