@@ -505,7 +505,7 @@
         return Promise.try(
             function()
             {
-                if(isSafari() && isWorker())
+                if(typeof(navigator) !== 'undefined' && isSafari() && isWorker())
                 {
                     out.writeLine("Test not supported with Safari web workers.");
                     return Test.TestIntfPrx.uncheckedCast(

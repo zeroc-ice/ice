@@ -458,7 +458,7 @@
         return Promise.try(
             function()
             {
-                if(isSafari() && isWorker())
+                if(typeof(navigator) !== 'undefined' && isSafari() && isWorker())
                 {
                     out.writeLine("Test not supported with Safari web workers.");
                     return Test.TimeoutPrx.uncheckedCast(c.stringToProxy("timeout:default -p 12010")).shutdown();
