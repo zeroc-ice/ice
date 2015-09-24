@@ -52,38 +52,25 @@ CXXLIBS	=
 clean::
 	rm -f *.keychain *.fl*
 
+LOADER_PATH = @loader_path
+
+ifeq ($(RPATH_DIR),)
+    ifdef ice_src_dist
+        RPATH_DIR = @loader_path/$(libdir)
+    else
+        RPATH_DIR = $(ice_dir)/$(libsubdir)
+    endif
+endif
+
 #
-# If embedded_runpath is not set to yes we do not add
-# an rpath dir.
+# Clear rpath setting when doing a system install
 #
-ifeq ($(embedded_runpath),yes)
-    LOADER_PATH = @loader_path
+ifeq ($(ice_dir), $(usr_dir))
+    RPATH_DIR =
+endif
 
-    #
-    # If embedded_runpath_prefix is set it has preference
-    #
-    ifneq ($(embedded_runpath_prefix),)
-        RPATH_DIR = $(embedded_runpath_prefix)
-    endif
-
-    ifeq ($(RPATH_DIR),)
-        ifdef ice_src_dist
-            RPATH_DIR = @loader_path/$(libdir)
-        else
-            RPATH_DIR = $(ice_dir)/$(libsubdir)
-        endif
-    endif
-
-    #
-    # Clear rpath setting when doing a system install
-    #
-    ifeq ($(ice_dir), $(usr_dir))
-        RPATH_DIR =
-    endif
-
-    ifneq ($(RPATH_DIR),)
-        LDEXEFLAGS		= -Wl,-rpath,$(RPATH_DIR)
-    endif
+ifneq ($(RPATH_DIR),)
+    LDEXEFLAGS		= -Wl,-rpath,$(RPATH_DIR)
 endif
 
 ifdef ice_src_dist
