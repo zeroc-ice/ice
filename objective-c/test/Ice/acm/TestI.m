@@ -200,6 +200,6 @@
     ConnectionCallbackI* callback = [ConnectionCallbackI new];
     [current.con setCallback:callback];
     [callback waitForCount:count];
-    [callback release];
+    ICE_RELEASE(release);
 }
 @end
