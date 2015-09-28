@@ -403,7 +403,14 @@ public class AllTests
             //
             Ice.InitializationData initData = app.createInitializationData();
             initData.properties = communicator.getProperties()._clone();
-            initData.properties.setProperty("Ice.Override.ConnectTimeout", "250");
+            if(mult == 1)
+            {
+                initData.properties.setProperty("Ice.Override.ConnectTimeout", "250");
+            }
+            else
+            {
+                initData.properties.setProperty("Ice.Override.ConnectTimeout", "2500");
+            }
 
             Ice.Communicator comm = app.initialize(initData);
             TimeoutPrx to = TimeoutPrxHelper.uncheckedCast(comm.stringToProxy(sref));
@@ -436,7 +443,7 @@ public class AllTests
             // Verify that timeout set via ice_timeout() is still used for requests.
             //
             timeout.op(); // Ensure adapter is active.
-            to = TimeoutPrxHelper.uncheckedCast(to.ice_timeout(100));
+            to = TimeoutPrxHelper.uncheckedCast(to.ice_timeout(250));
             to.ice_getConnection(); // Establish connection
             timeout.holdAdapter(750 * mult);
             try
@@ -514,7 +521,7 @@ public class AllTests
             batchTimeout.ice_ping();
             batchTimeout.ice_ping();
             batchTimeout.ice_ping();
-            
+
             ((TimeoutPrx)proxy.ice_invocationTimeout(-1)).begin_sleep(300); // Keep the server thread pool busy.
             try
             {

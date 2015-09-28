@@ -179,7 +179,7 @@ def allTests(communicator)
     # Verify that timeout set via ice_timeout() is still used for requests.
     #
     timeout.op() # Ensure adapter is active.
-    to = Test::TimeoutPrx::uncheckedCast(to.ice_timeout(100))
+    to = Test::TimeoutPrx::uncheckedCast(to.ice_timeout(250))
     to.ice_getConnection() # Establish connection.
     timeout.holdAdapter(750)
     begin

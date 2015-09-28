@@ -55,7 +55,7 @@ public class AllTests : TestCommon.TestApp
     {
         Ice.InitializationData initData = new Ice.InitializationData();
         initData.properties = Ice.Util.createProperties();
-        
+
         //
         // We need to send messages large enough to cause the transport
         // buffers to fill up.
@@ -382,7 +382,7 @@ public class AllTests : TestCommon.TestApp
             // Verify that timeout set via ice_timeout() is still used for requests.
             //
             timeout.op(); // Ensure adapter is active.
-            to = Test.TimeoutPrxHelper.uncheckedCast(to.ice_timeout(100));
+            to = Test.TimeoutPrxHelper.uncheckedCast(to.ice_timeout(250));
             to.ice_getConnection(); // Establish connection.
             timeout.holdAdapter(750);
             try
