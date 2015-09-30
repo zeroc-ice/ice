@@ -41,7 +41,9 @@ ifneq ($(STATICLIBS),yes)
     # of relying on the RPATH set during the build (which isn't correct anymore for the
     # installation directly layout).
     #
-    ifdef usr_dir_install
+    ifneq ($(embedded_runpath_prefix),)
+        installlib += ; install_name_tool -rpath $(RPATH_DIR) $(embedded_runpath_prefix) $(1)/$(3)
+    else ifdef usr_dir_install
         installlib += ; install_name_tool -delete_rpath $(RPATH_DIR) $(1)/$(3)
     else ifdef ice_src_dist
         installlib += ; install_name_tool -rpath $(RPATH_DIR) @loader_path/../$(libsubdir) $(1)/$(3)
