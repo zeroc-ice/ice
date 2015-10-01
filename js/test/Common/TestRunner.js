@@ -21,7 +21,7 @@ function isSafari()
 
 function isWorker()
 {
-    return typeof(WorkerGlobalScope) !== 'undefined' && this instanceof WorkerGlobalScope; 
+    return typeof(WorkerGlobalScope) !== 'undefined' && this instanceof WorkerGlobalScope;
 }
 
 function runTest(name, language, defaultHost, protocol, configurations, out)
@@ -86,7 +86,8 @@ function runTest(name, language, defaultHost, protocol, configurations, out)
                                                     var initData = id.clone();
                                                     if(configuration.args !== undefined)
                                                     {
-                                                        initData.properties = Ice.createProperties(configuration.args, id.properties);
+                                                        initData.properties =
+                                                            Ice.createProperties(configuration.args, id.properties);
                                                     }
                                                     return __test__(out, initData);
                                                 });
@@ -154,10 +155,18 @@ function runTest(name, language, defaultHost, protocol, configurations, out)
             {
                 out.writeLine("exception occurred in call to " + r.operation);
             }
-            out.writeLine(ex.toString());
-            if(ex.stack)
+            if(ex instanceof Test.Common.ServerFailedException)
             {
-                out.writeLine(ex.stack);
+                out.writeLine("Server failed to start:\n");
+                out.writeLine(ex.reason);
+            }
+            else
+            {
+                out.writeLine(ex.toString());
+                if(ex.stack)
+                {
+                    out.writeLine(ex.stack);
+                }
             }
             return false;
         });

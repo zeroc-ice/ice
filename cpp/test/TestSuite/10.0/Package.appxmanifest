@@ -3,7 +3,7 @@
   <Identity Name="f4c6cdff-3ef9-43fb-8094-d50c547e70f6" Publisher="CN=jose" Version="1.0.0.0" />
   <mp:PhoneIdentity PhoneProductId="f4c6cdff-3ef9-43fb-8094-d50c547e70f6" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
-    <DisplayName>TestSuite</DisplayName>
+    <DisplayName>Ice Test Suite</DisplayName>
     <PublisherDisplayName>jose</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
@@ -15,7 +15,7 @@
   </Resources>
   <Applications>
     <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="TestSuite.App">
-      <uap:VisualElements DisplayName="TestSuite" Square150x150Logo="Assets\Square150x150Logo.png" Square44x44Logo="Assets\Square44x44Logo.png" Description="TestSuite" BackgroundColor="transparent">
+      <uap:VisualElements DisplayName="Ice Test Suite" Square150x150Logo="Assets\Square150x150Logo.png" Square44x44Logo="Assets\Square44x44Logo.png" Description="TestSuite" BackgroundColor="transparent">
         <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png">
         </uap:DefaultTile>
         <uap:SplashScreen Image="Assets\SplashScreen.png" />

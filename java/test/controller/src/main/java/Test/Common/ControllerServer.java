@@ -26,6 +26,7 @@ public class ControllerServer extends Ice.Application
         public ServerI(Process process, String name)
         {
             _process = process;
+            _processOutput = new StringBuffer();
             _name = name;
             _started = 0;
             _terminated = false;
@@ -46,6 +47,11 @@ public class ControllerServer extends Ice.Application
                         String line = null;
                         while((line = reader.readLine()) != null)
                         {
+                            if(_started == 0)
+                            {
+                                _processOutput.append(line + "\n");
+                            }
+
                             if(line.matches(Pattern.quote("starting server...") + ".*ok") ||
                                line.matches(Pattern.quote("starting serveramd...") + ".*ok") ||
                                line.matches(Pattern.quote("starting servertie...") + ".*ok") ||
@@ -137,6 +143,7 @@ public class ControllerServer extends Ice.Application
         }
 
         public synchronized void waitForServer(Ice.Current current)
+            throws ServerFailedException
         {
             while(!_terminated)
             {
@@ -156,12 +163,12 @@ public class ControllerServer extends Ice.Application
             }
             if(_terminated && _started == 0)
             {
-                // TODO: Add user exception instead of throwing a local exception.
-                throw new RuntimeException("process failed to start");
+                throw new ServerFailedException(_processOutput.toString());
             }
         }
 
         private Process _process;
+        private StringBuffer _processOutput;
         private String _name;
         private int _started;
         private boolean _terminated;
