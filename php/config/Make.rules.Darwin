@@ -28,16 +28,19 @@ ifneq ($(STATICLIBS),yes)
         RPATH_DIR = $(ice_dir)/$(libsubdir)
     endif
 
+    installphplib   = $(INSTALL) $(1) $(2); \
+                      chmod a+rx $(2)/$(notdir $(1))
+
     #
     # Update the RPATH to the installation lib directory when installing a library instead
     # of relying on the RPATH set during the build (which isn't correct anymore for the
     # installation directly layout).
     #
     ifneq ($(embedded_runpath_prefix),)
-        installlib += ; install_name_tool -rpath $(RPATH_DIR) $(embedded_runpath_prefix) $(1)/$(3)
+        installphplib += ; install_name_tool -rpath $(RPATH_DIR) $(embedded_runpath_prefix) $(2)/$(notdir $(1))
     else ifdef usr_dir_install
-        installlib += ; install_name_tool -delete_rpath $(RPATH_DIR) $(1)/$(3)
+        installphplib += ; install_name_tool -delete_rpath $(RPATH_DIR) $(2)/$(notdir $(1))
     else ifdef ice_src_dist
-        installlib += ; install_name_tool -rpath $(RPATH_DIR) @loader_path/../$(libsubdir) $(1)/$(3)
+        installphplib += ; install_name_tool -rpath $(RPATH_DIR) @loader_path/../$(libsubdir) $(2)/$(notdir $(1))
     endif
 endif
