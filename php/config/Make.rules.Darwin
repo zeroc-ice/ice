@@ -37,7 +37,7 @@ ifneq ($(STATICLIBS),yes)
     # installation directly layout).
     #
     ifneq ($(embedded_runpath_prefix),)
-        installphplib += ; install_name_tool -rpath $(RPATH_DIR) $(embedded_runpath_prefix) $(2)/$(notdir $(1))
+        installphplib += ; install_name_tool -rpath $(RPATH_DIR) $(embedded_runpath_prefix)/lib $(2)/$(notdir $(1))
     else ifdef usr_dir_install
         installphplib += ; install_name_tool -delete_rpath $(RPATH_DIR) $(2)/$(notdir $(1))
     else ifdef ice_src_dist

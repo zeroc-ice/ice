@@ -42,7 +42,7 @@ ifneq ($(STATICLIBS),yes)
     # installation directly layout).
     #
     ifneq ($(embedded_runpath_prefix),)
-        installlib += ; install_name_tool -rpath $(RPATH_DIR) $(embedded_runpath_prefix) $(1)/$(3)
+        installlib += ; install_name_tool -rpath $(RPATH_DIR) $(embedded_runpath_prefix)/lib $(1)/$(3)
     else ifdef usr_dir_install
         installlib += ; install_name_tool -delete_rpath $(RPATH_DIR) $(1)/$(3)
     else ifdef ice_src_dist
