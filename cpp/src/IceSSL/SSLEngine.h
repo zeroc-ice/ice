@@ -120,6 +120,7 @@ public:
 private:
 
     void parseCiphers(const std::string&);
+    SecKeychainRef openKeychain();
 
     bool _initialized;
     UniqueRef<CFArrayRef> _certificateAuthorities;
