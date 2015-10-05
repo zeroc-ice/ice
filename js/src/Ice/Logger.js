@@ -20,6 +20,16 @@ var Logger = Ice.Class({
         {
             this._prefix = "";
         }
+        this._dateformat = 
+        {
+            year: 'numeric',
+            month: 'numeric',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            second: 'numeric',
+            hour12: false
+        };
     },
     print: function(message)
     {
@@ -78,11 +88,7 @@ var Logger = Ice.Class({
     timestamp: function()
     {
         var d = new Date();
-        var mon = d.getMonth() + 1;
-        mon = mon < 10 ? "0" + mon : mon;
-        var day = d.getDate();
-        day = day < 10 ? "0" + day : day;
-        return mon + "-" + day + "-" + d.getFullYear() + " " + d.toLocaleTimeString() + "." + d.getMilliseconds();
+        return d.toLocaleString("en-US", this._dateformat) + "." + d.getMilliseconds();
     }
 });
 Ice.Logger = Logger;

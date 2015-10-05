@@ -79,8 +79,14 @@
             },
             function(ex)
             {
-                test((typeof(window) === undefined && ex instanceof Ice.ConnectionLostException) ||
-                        (typeof(window) !== undefined && ex instanceof Ice.SocketException));
+                if(typeof(window) === 'undefined' && typeof(WorkerGlobalScope) === 'undefined') // Nodejs
+                {
+                    test(ex instanceof Ice.ConnectionLostException);
+                }
+                else // Browser
+                {
+                    test(ex instanceof Ice.SocketException);
+                }
                 out.writeLine("ok");
                 out.write("calling regular operation with first proxy again... ");
                 return retry1.op(false);
@@ -181,5 +187,5 @@
     exports.__runServer__ = true;
 }
 (typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : window.Ice.__require,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : window));
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice.__require,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));

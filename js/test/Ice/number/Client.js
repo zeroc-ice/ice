@@ -37,7 +37,7 @@
                 test(new Ice.Long(0x00000001, 0xFFFFFFFF).toNumber() === Math.pow(2, 33) - 1);      // 2^33 - 1
                 test(new Ice.Long(0x001FFFFF, 0xFFFFFFFF).toNumber() === Math.pow(2, 53) - 1);      // 2^53 - 1
                 test(new Ice.Long(0x00200000, 0x00000000).toNumber() === Number.POSITIVE_INFINITY); // 2^53
-        
+
                 //
                 // Test negative numbers
                 //
@@ -57,5 +57,5 @@
     exports.__test__ = run;
 }
 (typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : window.Ice.__require,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : window));
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice.__require,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));

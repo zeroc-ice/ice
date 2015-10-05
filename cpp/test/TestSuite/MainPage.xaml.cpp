@@ -563,6 +563,10 @@ TestRunner::run()
     {
         _page->failed(ex->Message);
     }
+	catch (Test::Common::ServerFailedException& ex)
+	{
+		_page->failed(ref new String(IceUtil::stringToWstring("Server failed to start:\n\n" + ex.reason).c_str()));
+	}
     catch(const std::exception& ex)
     {
         _page->failed(ref new String(IceUtil::stringToWstring(ex.what()).c_str()));

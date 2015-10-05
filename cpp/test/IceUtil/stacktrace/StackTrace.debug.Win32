@@ -1,0 +1,8 @@
+  0 IceUtil::Exception::Exception
+  1 IceUtil::NullHandleException::NullHandleException
+  2 `anonymous namespace'::Thrower::fifth
+  3 `anonymous namespace'::Thrower::forth
+  4 `anonymous namespace'::Thrower::third
+  5 `anonymous namespace'::Thrower::second
+  6 `anonymous namespace'::Thrower::first
+  7 main

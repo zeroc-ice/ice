@@ -343,10 +343,6 @@ ifneq ($(ice_dir), $(usr_dir))
         export LD_LIBRARY_PATH := $(ice_lib_dir):$(LD_LIBRARY_PATH)
     endif
 
-    ifeq ($(UNAME),Darwin)
-        export DYLD_LIBRARY_PATH := $(ice_lib_dir):$(DYLD_LIBRARY_PATH)
-    endif
-
     ifeq ($(UNAME),SunOS)
         ifeq ($(LP64),yes)
             export LD_LIBRARY_PATH_64 := $(ice_lib_dir):$(LD_LIBRARY_PATH_64)

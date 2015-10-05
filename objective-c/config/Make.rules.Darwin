@@ -32,40 +32,27 @@ else
      OBJCFLAGS	:= $(OBJCARCHFLAGS) -g $(OBJCFLAGS)
 endif
 
+LOADER_PATH = @loader_path
+
+ifeq ($(RPATH_DIR),)
+    ifdef ice_src_dist
+        RPATH_DIR = @loader_path/$(libdir)
+    else
+        RPATH_DIR = $(ice_dir)/$(libsubdir)
+    endif
+endif
+
 #
-# If embedded_runpath is not set to yes we do not add
-# an rpath dir.
+# Clear rpath setting when doing a system install
 #
-ifeq ($(embedded_runpath),yes)
-    LOADER_PATH = @loader_path
+ifeq ($(ice_dir),/usr)
+    RPATH_DIR =
+endif
 
-    #
-    # If embedded_runpath_prefix is set it has preference
-    #
-    ifneq ($(embedded_runpath_prefix),)
-        RPATH_DIR = $(embedded_runpath_prefix)
-    endif
-
-    ifeq ($(RPATH_DIR),)
-        ifdef ice_src_dist
-            RPATH_DIR = @loader_path/$(libdir)
-        else
-            RPATH_DIR = $(ice_dir)/$(libsubdir)
-        endif
-    endif
-
-    #
-    # Clear rpath setting when doing a system install
-    #
-    ifeq ($(ice_dir),/usr)
-        RPATH_DIR =
-    endif
-
-    ifneq ($(RPATH_DIR),)
-        LDEXEFLAGS		= -Wl,-rpath,$(RPATH_DIR)
-        ifndef ice_src_dist
-            LDEXEFLAGS += -Wl,-rpath,@loader_path/$(testlibdir)
-        endif
+ifneq ($(RPATH_DIR),)
+    LDEXEFLAGS		= -Wl,-rpath,$(RPATH_DIR)
+    ifndef ice_src_dist
+        LDEXEFLAGS += -Wl,-rpath,@loader_path/$(testlibdir)
     endif
 endif
 
@@ -100,5 +87,5 @@ mkshlib		= $(CXX)  -dynamiclib $(LDFLAGS) -o $(1) -install_name @rpath/$(2) $(3)
 
 BASELIBS	= -L$(ice_cpp_dir)/$(libsubdir) -lIce -lIceUtil -framework Foundation
 LIBS		= -lIceObjC$(libsuffix) -framework Foundation
-ICESSL_LIBS 	= -lIceSSLObjC$(libsuffix)
+ICESSL_LIBS = -lIceSSLObjC$(libsuffix)
 TEST_LIBS	= -lTestCommon $(LIBS)

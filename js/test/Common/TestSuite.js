@@ -11,257 +11,16 @@
     __runEchoServerOptions__ : false,
     __test__ : false,
     Test : false,
+    URI : false,
+    current : false,
+    TestCases : false,
+    runTest: false
 */
-
-var communicator = Ice.initialize();
-
 
 $(document).foundation();
 $(document).ready(
     function(){
-
-        /* jshint browser:true, jquery:true */
-        var TestCases = {
-            "Ice/acm":
-                {
-                    files: ["Test.js", "Client.js"]
-                },
-            "Ice/ami":
-                {
-                    files: ["Test.js", "Client.js"]
-                },
-            "Ice/binding":
-                {
-                    files: ["Test.js", "Client.js"]
-                },
-            "Ice/defaultValue":
-                {
-                    files: ["Test.js", "Client.js"]
-                },
-            "Ice/enums":
-                {
-                    files: ["Test.js", "Client.js"],
-                    configurations:
-                    [
-                        {
-                            name: "1.0 encoding", args: ["--Ice.Default.EncodingVersion=1.0"]
-                        },
-                        {
-                            name: "1.1 encoding"
-                        },
-                    ]
-                },
-            "Ice/exceptions":
-                {
-                    files: ["Test.js", "Client.js"],
-                    configurations:
-                    [
-                        {
-                            name: "compact (default) format"
-                        },
-                        {
-                            name: "sliced format", args: ["--Ice.Default.SlicedFormat"]
-                        },
-                        {
-                            name: "1.0 encoding", args: ["--Ice.Default.EncodingVersion=1.0"]
-                        },
-                        {
-                            name: "compact (default) format and AMD server"
-                        },
-                        {
-                            name: "sliced format and AMD server.", args: ["--Ice.Default.SlicedFormat"]
-                        },
-                        {
-                            name: "1.0 encoding and AMD server", args: ["--Ice.Default.EncodingVersion=1.0"]
-                        }
-                    ]
-                },
-            "Ice/exceptionsBidir":
-                {
-                    files: ["Test.js", "TestAMD.js", "ThrowerI.js", "AMDThrowerI.js",
-                            "../exceptions/Client.js", "Client.js"],
-                },
-            "Ice/facets":
-                {
-                    files: ["Test.js", "Client.js"]
-                },
-            "Ice/facetsBidir":
-                {
-                    files: ["Test.js", "TestI.js", "../facets/Client.js", "Client.js"]
-                },
-            "Ice/hold":
-                {
-                    files: ["Test.js", "Client.js"]
-                },
-            "Ice/info":
-                {
-                    files: ["Test.js", "Client.js"]
-                },
-            "Ice/inheritance":
-                {
-                    files: ["Test.js", "Client.js"]
-                },
-            "Ice/inheritanceBidir":
-                {
-                    files: ["Test.js", "InitialI.js", "../inheritance/Client.js", "Client.js"],
-                },
-            "Ice/operations":
-                {
-                    files: ["Test.js", "Twoways.js", "Oneways.js", "BatchOneways.js", "Client.js"],
-                    configurations:
-                    [
-                        {
-                            name: "regular server"
-                        },
-                        {
-                            name: "AMD server"
-                        },
-                        {
-                            name: "TIE server", langs: ["java", "csharp"]
-                        },
-                        {
-                            name: "AMD TIE server", langs: ["java", "csharp"]
-                        }
-                    ]
-                },
-            "Ice/operationsBidir":
-                {
-                    files: ["Test.js", "TestAMD.js", "../operations/Twoways.js", "../operations/Oneways.js",
-                            "../operations/BatchOneways.js", "MyDerivedClassI.js", "AMDMyDerivedClassI.js",
-                            "../operations/Client.js", "Client.js"]
-                },
-            "Ice/objects":
-                {
-                    files: ["Test.js", "Client.js"],
-                    configurations:
-                    [
-                        {
-                            name: "compact (default) format"
-                        },
-                        {
-                            name: "sliced format", args: ["--Ice.Default.SlicedFormat"]
-                        },
-                        {
-                            name: "1.0 encoding", args: ["--Ice.Default.EncodingVersion=1.0"]
-                        }
-                    ]
-                },
-            "Ice/optional":
-                {
-                    files: ["Test.js", "Client.js"],
-                    configurations:
-                    [
-                        {
-                            name: "compact (default) format"
-                        },
-                        {
-                            name: "sliced format", args: ["--Ice.Default.SlicedFormat"]
-                        },
-                        {
-                            name: "AMD server"
-                        }
-                    ]
-                },
-            "Ice/optionalBidir":
-                {
-                    files: ["Test.js", "TestAMD.js", "InitialI.js", "AMDInitialI.js", "../optional/Client.js",
-                            "Client.js"]
-                },
-            "Ice/promise":
-                {
-                    files: ["Client.js"]
-                },
-            "Ice/properties":
-                {
-                    files: ["Client.js"]
-                },
-            "Ice/proxy":
-                {
-                    files: ["Test.js", "Client.js"],
-                    configurations:
-                    [
-                        {
-                            name: "regular server"
-                        },
-                        {
-                            name: "AMD server"
-                        }
-                    ]
-                },
-            "Ice/retry":
-                {
-                    files: ["Test.js", "Client.js"]
-                },
-            "Ice/slicing/exceptions":
-                {
-                    files: ["Test.js", "Client.js"],
-                    configurations:
-                    [
-                        {
-                            name: "sliced format"
-                        },
-                        {
-                            name: "1.0 encoding", args: ["--Ice.Default.EncodingVersion=1.0"]
-                        },
-                        {
-                            name: "sliced format and AMD server"
-                        },
-                        {
-                            name: "1.0 encoding and AMD server", args: ["--Ice.Default.EncodingVersion=1.0"]
-                        }
-                    ]
-                },
-            "Ice/slicing/objects":
-                {
-                    files: ["Test.js", "Client.js"],
-                    configurations:
-                    [
-                        {
-                            name: "sliced format"
-                        },
-                        {
-                            name: "1.0 encoding", args: ["--Ice.Default.EncodingVersion=1.0"]
-                        },
-                        {
-                            name: "sliced format and AMD server"
-                        },
-                        {
-                            name: "1.0 encoding and AMD server", args: ["--Ice.Default.EncodingVersion=1.0"]
-                        }
-                    ]
-                },
-            "Ice/timeout":
-                {
-                    files: ["Test.js", "Client.js"]
-                },
-            "Ice/number":
-                {
-                    files: ["Client.js"]
-                },
-        };
-
-        var current, next;
-        for(var testName in TestCases)
-        {
-            if(current)
-            {
-                next = testName;
-                break;
-            }
-
-            if(document.location.pathname.indexOf(testName + "/index.html") !== -1)
-            {
-                current = testName;
-            }
-        }
-
         $("#console").height(120);
-        $("#protocol").val(document.location.protocol == "https:" ? "wss" : "ws");
-        for(var name in TestCases)
-        {
-            $("#test").append("<option value=\"/test/" + name + "/index.html\">" + name + "</option>");
-        }
-        $("#test").val("/test/" + current + "/index.html");
 
         var out =
         {
@@ -277,308 +36,177 @@ $(document).ready(
             }
         };
 
-        var protocol;
+        var query = new URI(document.location.href).search(true);
+
+        $("#language").val(query.language !== undefined ? query.language : "cpp");
+        $("#protocol").val(document.location.protocol == "http:" ? "ws" : "wss");
+        $("#test").val("/test/" + current + "/index.html");
+        $("#worker").prop("checked", query.worker == "true");
+        $("#loop").prop("checked", query.loop == "true");
+        
+        function nextTest()
+        {
+            document.location.assign(new URI()
+                .host(document.location.host)
+                .pathname($("#test").val())
+                .search(
+                    {
+                        language: $("#language").val(),
+                        worker: $("#worker").is(":checked"),
+                        loop: $("#loop").is(":checked"),
+                        next:"true"
+                    }).toString());
+        }
+
+        function next(success)
+        {
+            if($("#loop").is(":checked"))
+            {
+                if(success)
+                {
+                    nextTest(success);
+                }
+            }
+            else if(query.loop == "true")
+            {
+                updateLocation();
+            }
+        }
+        
+        function setRunning(running)
+        {
+            if(running)
+            {
+                $("#console").val("");
+                $("#run").addClass("disabled");
+                $("#test").prop("disabled", "disabled");
+                $("#protocol").prop("disabled", "disabled");
+                $("#language").prop("disabled", "disabled");
+                $("#worker").prop("disabled", "disabled");
+            }
+            else
+            {
+                $("#test").prop("disabled", false);
+                $("#protocol").prop("disabled", false);
+                $("#language").prop("disabled", false);
+                $("#worker").prop("disabled", false);
+                $("#run").removeClass("disabled");
+            }
+        }
+        
+        function updateLocation()
+        {
+            document.location.assign(new URI()
+                .host(document.location.host)
+                .pathname($("#test").val())
+                .search(
+                    {
+                        language: $("#language").val(),
+                        worker: $("#worker").is(":checked"),
+                        loop: $("#loop").is(":checked")
+                    }).toString());
+        }
 
         $("#run").click(function(){
             if(!$(this).hasClass("disabled"))
             {
-                $("#console").val("");
-                $(this).addClass("disabled");
-                $("#test").prop("disabled", "disabled");
-                $("#protocol").prop("disabled", "disabled");
-                $("#language").prop("disabled", "disabled");
-                var defaultHost = document.location.hostname || "127.0.0.1";
-
-                protocol = $("#protocol").val();
-                var id = new Ice.InitializationData();
-                id.properties = Ice.createProperties();
-                id.properties.setProperty("Ice.Default.Host", defaultHost);
-                id.properties.setProperty("Ice.Default.Protocol", protocol);
-
-                var language = $("#language").val();
-
-                var str;
-                if(protocol == "ws")
+                setRunning(true);
+                if($("#worker").is(":checked"))
                 {
-                    str = "controller:ws -h " + defaultHost + " -p 15002";
-                }
-                else
-                {
-                    str = "controller:wss -h " + defaultHost + " -p 15003";
-                }
-                var controller = Test.Common.ControllerPrx.uncheckedCast(communicator.stringToProxy(str));
-
-                var p;
-                var server;
-                var options = [];
-                if(typeof(__runServer__) !== "undefined" || typeof(__runEchoServer__) !== "undefined")
-                {
-                    var srv;
-                    if(typeof(__runEchoServer__) !== "undefined")
+                    var worker = new Worker("/test/Common/Worker.js");
+                    worker.onmessage = function(e)
                     {
-                        srv = "Ice/echo";
-                        if(typeof(__runEchoServerOptions__) !== "undefined")
+                        if(e.data.type == "Write")
                         {
-                            options = options.concat(__runEchoServerOptions__);
+                            out.write(e.data.message);
                         }
-
-                    }
-                    else
-                    {
-                        srv = current;
-                    }
-                    out.write("starting " + srv + " server... ");
-                    p = controller.runServer(language, srv, protocol, defaultHost, false, options).then(
-                        function(proxy)
+                        else if(e.data.type == "WriteLine")
                         {
-                            var ref = proxy.ice_getIdentity().name + ":" + protocol + " -h " + defaultHost + " -p " +
-                                (protocol == "ws" ? "15002" : "15003");
-                            out.writeLine("ok");
-                            server = Test.Common.ServerPrx.uncheckedCast(communicator.stringToProxy(ref));
-
-                            var testCase = TestCases[current];
-                            if(testCase.configurations === undefined)
-                            {
-                                return server.waitForServer().then(
-                                    function()
-                                    {
-                                        return __test__(out, id);
-                                    });
-                            }
-                            else
-                            {
-                                var prev = new Ice.Promise().succeed();
-                                testCase.configurations.forEach(
-                                    function(configuration)
-                                    {
-                                        if(configuration.langs && configuration.langs.indexOf(language) == -1)
-                                        {
-                                            return prev;
-                                        }
-                                        prev = prev.then(
-                                            function()
-                                            {
-                                                out.writeLine("Running test with " + configuration.name + ".");
-                                                return server.waitForServer().then(
-                                                    function()
-                                                    {
-                                                        var initData = id.clone();
-                                                        if(configuration.args !== undefined)
-                                                        {
-                                                            initData.properties = Ice.createProperties(configuration.args, id.properties);
-                                                        }
-                                                        return __test__(out, initData);
-                                                    });
-                                            });
-                                    });
-                                return prev;
-                            }
-                        },
-                        function(ex)
-                        {
-                            out.writeLine("failed! (" + ex + ")");
-                            throw ex;
+                            out.writeLine(e.data.message);
                         }
-                    ).then(
-                        function()
+                        else if(e.data.type == "TestFinished")
                         {
-                            if(server)
-                            {
-                                return server.waitTestSuccess();
-                            }
+                            setRunning(false);
+                            next(e.data.success);
                         }
-                    ).exception(
-                        function(ex)
+                    };
+                    worker.postMessage(
                         {
-                            if(server)
+                            type: "RunTest",
+                            test:
                             {
-                                return server.terminate().then(
-                                    function()
-                                    {
-                                        throw ex;
-                                    },
-                                    function()
-                                    {
-                                        throw ex;
-                                    });
-                            }
-                            else
-                            {
-                                throw ex;
+                                name: current,
+                                language: $("#language").val(),
+                                defaultHost: document.location.hostname || "127.0.0.1",
+                                protocol: $("#protocol").val(),
+                                configurations: TestCases[current].configurations,
+                                files: TestCases[current].files
                             }
                         });
                 }
                 else
                 {
-                    p = __test__(out, id);
+                    runTest(current, $("#language").val(), document.location.hostname || "127.0.0.1",
+                            $("#protocol").val(), TestCases[current].configurations, out
+                    ).finally(
+                        function()
+                        {
+                            setRunning(false);
+                        }
+                    ).then(
+                        function(success)
+                        {
+                            next(success);
+                        });
                 }
-
-                p.finally(
-                    function()
-                    {
-                        $("#test").prop("disabled", false);
-                        $("#protocol").prop("disabled", false);
-                        $("#language").prop("disabled", false);
-                        $("#run").removeClass("disabled");
-                    }
-                ).then(
-                    function()
-                    {
-                        if($("#loop").is(":checked"))
-                        {
-                            var href = document.location.protocol + "//" + document.location.host;
-                            if(!next)
-                            {
-                                next = "Ice/acm";
-                                if(protocol == "ws")
-                                {
-                                    protocol = "wss";
-                                    href = href.replace("http", "https");
-                                    href = href.replace("8080", "9090");
-                                }
-                                else
-                                {
-                                    protocol = "ws";
-                                    href = href.replace("https", "http");
-                                    href = href.replace("9090", "8080");
-                                    if(language == "cpp")
-                                    {
-                                        language = "java";
-                                    }
-                                    else if(language == "java")
-                                    {
-                                         language = "csharp";
-                                    }
-                                    else
-                                    {
-                                        language = "cpp";
-                                    }
-                                }
-                            }
-
-                            href += document.location.pathname.replace(current, next);
-                            href += "?loop=true&language=" + language;
-                            document.location.assign(href);
-                        }
-                    }
-                ).exception(
-                    function(ex, r)
-                    {
-                        out.writeLine("");
-                        if(r instanceof Ice.AsyncResult)
-                        {
-                            out.writeLine("exception occurred in call to " + r.operation);
-                        }
-                        out.writeLine(ex.toString());
-                        if(ex.stack)
-                        {
-                            out.writeLine(ex.stack);
-                        }
-                    });
             }
             return false;
         });
 
-        //
-        // Test case
-        //
         $("#test").on("change",
-            function(e)
-            {
-                document.location.assign($(this).val() + "?language=" + $("#language").val());
-                return false;
-            });
+                      function(e)
+                      {
+                          updateLocation();
+                          return false;
+                      });
 
         $("#language").on("change",
-            function(e)
-            {
-                document.location.assign(document.location.pathname + "?language=" + $("#language").val());
-                return false;
-            });
+                          function(e)
+                          {
+                              updateLocation();
+                              return false;
+                          });
+        
+        $("#worker").on("change",
+                          function(e)
+                          {
+                              updateLocation();
+                              return false;
+                          });
 
-        //
-        // Protocol
-        //
         $("#protocol").on("change",
-            function(e)
-            {
-                var newProtocol = $(this).val();
-                if(protocol !== newProtocol)
-                {
-                    var href = document.location.protocol + "//" + document.location.host +
-                        document.location.pathname;
-                    if(newProtocol == "ws")
-                    {
-                        href = href.replace("https", "http");
-                        href = href.replace("9090", "8080");
-                    }
-                    else
-                    {
-                        href = href.replace("http", "https");
-                        href = href.replace("8080", "9090");
-                    }
-                    href += "?language=" + $("#language").val();
-                    document.location.assign(href);
-                }
-            });
+                          function(e)
+                          {
+                              if((document.location.protocol == "http:" && $(this).val() == "wss") ||
+                                 (document.location.protocol == "https:" && $(this).val() == "ws"))
+                              {
+                                  document.location.assign(
+                                      new URI()
+                                        .protocol($(this).val() == "ws" ? "http" : "https")
+                                        .hostname(document.location.hostname)
+                                        .port($(this).val() == "ws" ? 8080 : 9090)
+                                        .search(
+                                            {
+                                                language: $("#language").val(),
+                                                worker: $("#worker").is(":checked")
+                                            }));
+                                  return false;
+                              }
+                          });
 
-
-        $(this).addClass("disabled");
-        $("#test").prop("disabled", "disabled");
-        $("#protocol").prop("disabled", "disabled");
-        $("#language").prop("disabled", "disabled");
-
-        var scripts = TestCases[current].files.slice(0);
-        var head = document.getElementsByTagName("head")[0];
-        function loadScript()
+        if($("#loop").is(":checked"))
         {
-            if(scripts.length === 0)
-            {
-                $("#test").prop("disabled", false);
-                $("#protocol").prop("disabled", false);
-                $("#language").prop("disabled", false);
-                $("#run").removeClass("disabled");
-
-                //
-                // Check if we should start the test loop=true
-                //
-                var href = document.location.href;
-                var i = href.indexOf("?");
-
-                var languageIdx = i !== -1 ? href.substr(i).indexOf("language=") : -1;
-                if(languageIdx !== -1)
-                {
-                    $("#language").val(href.substr(i + languageIdx + 9));
-                }
-                else
-                {
-                    $("#language").val("cpp");
-                }
-
-                var autoStart = i !== -1 && href.substr(i).indexOf("loop=true") !== -1;
-                if(autoStart)
-                {
-                    $("#loop").prop("checked", true);
-                    $("#run").click();
-                }
-                return;
-            }
-
-            var script = document.createElement("script");
-            script.type = "text/javascript";
-            script.src = "/test/" + current + "/" + scripts.shift();
-
-            var loaded = false;
-            script.onload = script.onreadystatechange = function()
-            {
-                if(!loaded && (!this.readyState || this.readyState == "complete" || this.readyState == "loaded"))
-                {
-                    loaded = true;
-                    loadScript();
-                }
-            };
-
-            head.appendChild(script);
+            $("#loop").prop("checked", true);
+            $("#run").click();
         }
-        loadScript();
     });

@@ -499,13 +499,22 @@
         return promise;
     }
 
-    var run = function(out, id)
+    exports.__test__ = function(out, id)
     {
         var communicator = Ice.initialize(id);
         return Promise.try(
             function()
             {
-                return allTests(communicator, out);
+                if(typeof(navigator) !== 'undefined' && isSafari() && isWorker())
+                {
+                    out.writeLine("Test not supported with Safari web workers.");
+                    return Test.TestIntfPrx.uncheckedCast(
+                        communicator.stringToProxy("test:default -p 12010")).shutdown();
+                }
+                else
+                {
+                    return allTests(communicator, out);
+                }
             }
         ).finally(
             function()
@@ -514,9 +523,8 @@
             }
         );
     };
-    exports.__test__ = run;
     exports.__runServer__ = true;
 }
 (typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : window.Ice.__require,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : window));
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice.__require,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));

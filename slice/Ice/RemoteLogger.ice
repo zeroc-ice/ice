@@ -11,7 +11,7 @@
 
 #include <Ice/BuiltinSequences.ice>
 
-[["cpp:header-ext:h", "objc:header-dir:objc"]]
+[["cpp:header-ext:h", "objc:header-dir:objc", "js:ice-build"]]
 [["cpp:include:list"]]
 
 ["objc:prefix:ICE"]

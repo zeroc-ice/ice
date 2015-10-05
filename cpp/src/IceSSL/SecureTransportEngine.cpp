@@ -820,86 +820,6 @@ IceSSL::SecureTransportEngine::initialize()
     const string defaultDir = properties->getProperty("IceSSL.DefaultDir");
 
     //
-    // Open the application KeyChain or create it if the keychain doesn't exists
-    //
-    string keychainPath = properties->getProperty("IceSSL.Keychain");
-    string keychainPassword = properties->getProperty("IceSSL.KeychainPassword");
-
-    SecKeychainRef keychain = 0;
-    OSStatus err = 0;
-    if(keychainPath.empty())
-    {
-        if((err = SecKeychainCopyDefault(&keychain)))
-        {
-            throw PluginInitializationException(__FILE__, __LINE__,
-                                                "IceSSL: unable to retrieve default keychain:\n" + errorToString(err));
-        }
-    }
-    else
-    {
-        //
-        // KeyChain path is relative to the current working directory.
-        //
-        if(!IceUtilInternal::isAbsolutePath(keychainPath))
-        {
-            string cwd;
-            if(IceUtilInternal::getcwd(cwd) == 0)
-            {
-                keychainPath = string(cwd) + '/' + keychainPath;
-            }
-        }
-
-        if((err = SecKeychainOpen(keychainPath.c_str(), &keychain)))
-        {
-            throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: unable to open keychain: `" +
-                                                keychainPath + "'\n" + errorToString(err));
-        }
-    }
-
-    UniqueRef<SecKeychainRef> k(keychain);
-
-    SecKeychainStatus status;
-    err = SecKeychainGetStatus(keychain, &status);
-    if(err == noErr)
-    {
-        const char* pass = keychainPassword.empty() ? 0 : keychainPassword.c_str();
-        if((err = SecKeychainUnlock(keychain, keychainPassword.size(), pass, pass != 0)))
-        {
-            throw PluginInitializationException(__FILE__, __LINE__,
-                                                "IceSSL: unable to unlock keychain:\n" + errorToString(err));
-        }
-    }
-    else if(err == errSecNoSuchKeychain)
-    {
-        const char* pass = keychainPassword.empty() ? 0 : keychainPassword.c_str();
-        if((err = SecKeychainCreate(keychainPath.c_str(), keychainPassword.size(), pass, pass == 0, 0, &keychain)))
-        {
-            throw PluginInitializationException(__FILE__, __LINE__,
-                                                "IceSSL: unable to create keychain:\n" + errorToString(err));
-        }
-        k.reset(keychain);
-    }
-    else
-    {
-        throw PluginInitializationException(__FILE__, __LINE__,
-                                            "IceSSL: unable to open keychain:\n" + errorToString(err));
-    }
-
-    //
-    // Set keychain settings to avoid keychain lock.
-    //
-    SecKeychainSettings settings;
-    settings.version = SEC_KEYCHAIN_SETTINGS_VERS1;
-    settings.lockOnSleep = FALSE;
-    settings.useLockInterval = FALSE;
-    settings.lockInterval = INT_MAX;
-    if((err = SecKeychainSetSettings(keychain, &settings)))
-    {
-        throw PluginInitializationException(__FILE__, __LINE__,
-                                            "IceSSL: error setting keychain settings:\n" + errorToString(err));
-    }
-
-    //
     // Load the CA certificates used to authenticate peers into
     // _certificateAuthorities array.
     //
@@ -983,9 +903,10 @@ IceSSL::SecureTransportEngine::initialize()
                 keyFile = resolved;
             }
 
+            UniqueRef<SecKeychainRef> kc(openKeychain());
             try
             {
-                _chain.reset(loadCertificateChain(file, keyFile, keychain, password, passwordPrompt, passwordRetryMax));
+                _chain.reset(loadCertificateChain(file, keyFile, kc.get(), password, passwordPrompt, passwordRetryMax));
                 break;
             }
             catch(const CertificateReadException& ce)
@@ -1003,14 +924,15 @@ IceSSL::SecureTransportEngine::initialize()
     }
     else if(!findCert.empty())
     {
-        UniqueRef<SecCertificateRef> cert(findCertificate(keychain, findCert));
+        UniqueRef<SecKeychainRef> kc(openKeychain());
+        UniqueRef<SecCertificateRef> cert(findCertificate(kc.get(), findCert));
 
         //
         // Retrieve the certificate chain
         //
         UniqueRef<SecPolicyRef> policy(SecPolicyCreateSSL(true, 0));
         SecTrustRef trust = 0;
-        err = SecTrustCreateWithCertificates((CFArrayRef)cert.get(), policy.get(), &trust);
+        OSStatus err = SecTrustCreateWithCertificates((CFArrayRef)cert.get(), policy.get(), &trust);
         if(err || !trust)
         {
             throw PluginInitializationException(__FILE__, __LINE__,
@@ -1038,7 +960,7 @@ IceSSL::SecureTransportEngine::initialize()
         // identity.
         //
         SecIdentityRef identity;
-        err = SecIdentityCreateWithCertificate(keychain, cert.get(), &identity);
+        err = SecIdentityCreateWithCertificate(kc.get(), cert.get(), &identity);
         if(err != noErr)
         {
             ostringstream os;
@@ -1395,4 +1317,93 @@ IceSSL::SecureTransportEngine::parseCiphers(const string& ciphers)
                                             "\nThe result cipher list does not contain any entries");
     }
 }
+
+SecKeychainRef
+SecureTransportEngine::openKeychain()
+{
+    const PropertiesPtr properties = communicator()->getProperties();
+
+    //
+    // Open the application KeyChain or create it if the keychain doesn't exists
+    //
+    string keychainPath = properties->getProperty("IceSSL.Keychain");
+    string keychainPassword = properties->getProperty("IceSSL.KeychainPassword");
+
+    SecKeychainRef keychain = 0;
+    OSStatus err = 0;
+    if(keychainPath.empty())
+    {
+        if((err = SecKeychainCopyDefault(&keychain)))
+        {
+            throw PluginInitializationException(__FILE__, __LINE__,
+                                                "IceSSL: unable to retrieve default keychain:\n" + errorToString(err));
+        }
+    }
+    else
+    {
+        //
+        // KeyChain path is relative to the current working directory.
+        //
+        if(!IceUtilInternal::isAbsolutePath(keychainPath))
+        {
+            string cwd;
+            if(IceUtilInternal::getcwd(cwd) == 0)
+            {
+                keychainPath = string(cwd) + '/' + keychainPath;
+            }
+        }
+
+        if((err = SecKeychainOpen(keychainPath.c_str(), &keychain)))
+        {
+            throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: unable to open keychain: `" +
+                                                keychainPath + "'\n" + errorToString(err));
+        }
+    }
+
+    UniqueRef<SecKeychainRef> k(keychain);
+
+    SecKeychainStatus status;
+    err = SecKeychainGetStatus(keychain, &status);
+    if(err == noErr)
+    {
+        const char* pass = keychainPassword.empty() ? 0 : keychainPassword.c_str();
+        if((err = SecKeychainUnlock(keychain, keychainPassword.size(), pass, pass != 0)))
+        {
+            throw PluginInitializationException(__FILE__, __LINE__,
+                                                "IceSSL: unable to unlock keychain:\n" + errorToString(err));
+        }
+    }
+    else if(err == errSecNoSuchKeychain)
+    {
+        const char* pass = keychainPassword.empty() ? 0 : keychainPassword.c_str();
+        if((err = SecKeychainCreate(keychainPath.c_str(), keychainPassword.size(), pass, pass == 0, 0, &keychain)))
+        {
+            throw PluginInitializationException(__FILE__, __LINE__,
+                                                "IceSSL: unable to create keychain:\n" + errorToString(err));
+        }
+        k.reset(keychain);
+    }
+    else
+    {
+        throw PluginInitializationException(__FILE__, __LINE__,
+                                            "IceSSL: unable to open keychain:\n" + errorToString(err));
+    }
+
+    //
+    // Set keychain settings to avoid keychain lock.
+    //
+    SecKeychainSettings settings;
+    settings.version = SEC_KEYCHAIN_SETTINGS_VERS1;
+    settings.lockOnSleep = FALSE;
+    settings.useLockInterval = FALSE;
+    settings.lockInterval = INT_MAX;
+    if((err = SecKeychainSetSettings(keychain, &settings)))
+    {
+        throw PluginInitializationException(__FILE__, __LINE__,
+                                            "IceSSL: error setting keychain settings:\n" + errorToString(err));
+    }
+
+    return k.release();
+}
+
 #endif

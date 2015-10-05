@@ -84,9 +84,28 @@ SDIR		= $(slicedir)/Ice
 
 include $(top_srcdir)/config/Make.rules
 
+#
+# Set RPATH to the cpp/lib directory or Ice installation lib directory. Note that unlike Linux
+# platforms, we always set the RPATH for source builds on OS X. This is required because we
+# can no longer rely on DYLD_LIBRARY_PATH on El Capitan. The RPATH is updated when the library
+# is installed (see cpp/config/Make.rules.Darwin).
+#
+ifdef ice_src_dist
+    RPATH_DIR = @loader_path/../../cpp/$(libsubdir)
+else
+    RPATH_DIR = $(ice_dir)/$(libsubdir)
+endif
+
+ifdef usr_dir_install
+    installlib += ; install_name_tool -delete_rpath $(RPATH_DIR) $(1)/$(3)
+else ifdef ice_src_dist
+    installlib += ; install_name_tool -delete_rpath $(RPATH_DIR) $(1)/$(3)
+endif
+
 CPPFLAGS	:= -I. -I$(ice_cpp_dir)/include -DICE_API_EXPORTS $(CPPFLAGS)
 SLICE2OBJCFLAGS	:= --ice --include-dir objc/Ice --dll-export ICE_API $(SLICE2OBJCFLAGS)
 LINKWITH	:= $(BASELIBS)
+LDFLAGS		:= -Wl,-rpath,$(RPATH_DIR) $(LDFLAGS)
 
 $(libdir)/$(LIBFILENAME): $(OBJS)
 	rm -f $@

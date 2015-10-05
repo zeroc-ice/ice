@@ -17,13 +17,14 @@ prefix			?= /opt/Ice-$(VERSION)
 #
 # The "root directory" for runpath embedded in executables. Can be set
 # to change the runpath added to Ice executables. The default is
-# platform dependent.
+# platform dependent (Linux only, on OS X the embedded runpath is always
+# based on @loader_path).
 #
 #embedded_runpath_prefix ?= /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
 
 #
 # Define embedded_runpath as no if you don't want any RPATH added to
-# the executables.
+# the executables (Linux only, on OS X we always add a runpath).
 #
 embedded_runpath 	?= yes
 
@@ -103,7 +104,7 @@ else
     ICE_LIB_DIR = -L$(ice_dir)/lib$(lp64suffix)
     ICE_FLAGS	= -I$(ice_dir)/include
 endif
-ICE_LIBS = $(ICE_LIB_DIR) -lIce -lIceSSL -lSlice -lIceUtil
+ICE_LIBS = $(ICE_LIB_DIR) -lIce -lIceSSL -lIceDiscovery -lIceLocatorDiscovery -lSlice -lIceUtil
 
 ifneq ($(embedded_runpath_prefix),)
     runpath_libdir      := $(embedded_runpath_prefix)/lib$(lp64suffix)

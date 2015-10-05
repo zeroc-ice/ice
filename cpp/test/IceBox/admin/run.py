@@ -25,3 +25,20 @@ icebox = TestUtil.getIceBox()
 config = os.path.join(os.getcwd(), "config.icebox")
 
 TestUtil.clientServerTest(additionalServerOptions= '--Ice.Config=\"%s\"' % config, server = icebox)
+
+sys.stdout.write("testing iceboxadmin... ")
+sys.stdout.flush()
+
+admin = TestUtil.getIceBoxAdmin()
+adminconfig = os.path.join(os.getcwd(), "config.admin")
+
+ib = TestUtil.startServer(icebox, args = '--Ice.Config=\"%s\"' % config)
+iba = TestUtil.startClient(admin, args = '--Ice.Config=\"%s\" stop TestService' % adminconfig)
+iba.waitTestSuccess()
+iba = TestUtil.startClient(admin, args = '--Ice.Config=\"%s\" start TestService' % adminconfig)
+iba.waitTestSuccess()
+iba = TestUtil.startClient(admin, args = '--Ice.Config=\"%s\" shutdown' % adminconfig)
+iba.waitTestSuccess()
+ib.waitTestSuccess()
+
+print("ok")

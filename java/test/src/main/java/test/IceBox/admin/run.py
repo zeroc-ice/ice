@@ -21,5 +21,24 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0], "scripts"))
 import TestUtil
 
-TestUtil.clientServerTest(additionalServerOptions='--Ice.Config="%s"' % os.path.join(os.getcwd(), "config.icebox"),
-	server=TestUtil.getIceBox())
+icebox = TestUtil.getIceBox()
+config = os.path.join(os.getcwd(), "config.icebox")
+
+TestUtil.clientServerTest(additionalServerOptions='--Ice.Config="%s"' % config, server=icebox)
+
+sys.stdout.write("testing iceboxadmin... ")
+sys.stdout.flush()
+
+admin = TestUtil.getIceBoxAdmin()
+adminconfig = os.path.join(os.getcwd(), "config.admin")
+
+ib = TestUtil.startServer(icebox, args = '--Ice.Config=\"%s\"' % config)
+iba = TestUtil.startClient(admin, args = '--Ice.Config=\"%s\" stop TestService' % adminconfig)
+iba.waitTestSuccess()
+iba = TestUtil.startClient(admin, args = '--Ice.Config=\"%s\" start TestService' % adminconfig)
+iba.waitTestSuccess()
+iba = TestUtil.startClient(admin, args = '--Ice.Config=\"%s\" shutdown' % adminconfig)
+iba.waitTestSuccess()
+ib.waitTestSuccess()
+
+print("ok")

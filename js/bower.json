@@ -2,11 +2,12 @@
   "name": "ice",
   "private": true,
   "dependencies": {
-    "foundation": "~5.5.0",
-    "jquery": "~2.1.3",
     "animo.js": "~1.0.2",
-    "spin.js": "~2.0.2",
+    "foundation": "~5.5.0",
+    "highlightjs": "~8.4.0",
+    "jquery": "~2.1.3",
     "nouislider": "~7.0.10",
-    "highlightjs": "~8.4.0"
+    "spin.js": "~2.0.2",
+    "URIjs": "uri.js#~1.16.0"
   }
 }

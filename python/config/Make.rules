@@ -16,13 +16,14 @@ prefix			?= /opt/Ice-$(VERSION)
 #
 # The "root directory" for runpath embedded in executables. Can be set
 # to change the runpath added to Ice executables. The default is
-# platform dependent.
+# platform dependent (Linux only, on OS X the embedded runpath is always
+# based on @loader_path).
 #
 #embedded_runpath_prefix ?= /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
 
 #
 # Define embedded_runpath as no if you don't want any RPATH added to
-# the executables.
+# the executables (Linux only, on OS X we always add a runpath).
 #
 embedded_runpath 	?= yes
 
@@ -91,10 +92,6 @@ else
     include $(top_srcdir)/../config/Make.common.rules
 endif
 
-ifndef usr_dir_install
-RPATH_DIR	= $(prefix)/$(libsubdir)
-endif
-
 install_bindir          = $(prefix)/$(binsubdir)
 
 #
@@ -109,15 +106,14 @@ endif
 libdir                  = $(top_srcdir)/python
 
 ifndef usr_dir_install
-    install_pythondir		= $(prefix)/python
-    install_libdir			= $(prefix)/python
+    install_pythondir	= $(prefix)/python
+    install_libdir	= $(prefix)/python
 else
     #
     # The install_dir script says where python wants site-packages installed.
     #
-
-    install_pythondir = $(shell $(PYTHON) $(top_srcdir)/config/install_dir)
-    install_libdir = $(install_pythondir)
+    install_pythondir 	= $(shell $(PYTHON) $(top_srcdir)/config/install_dir)
+    install_libdir 	= $(install_pythondir)
 endif
 
 ifeq ($(UNAME),SunOS)

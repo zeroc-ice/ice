@@ -7,15 +7,18 @@
 #
 # **********************************************************************
 
-top_srcdir	= ../..
+top_srcdir	= ../../..
+
+CLIENT		= $(call mktestname,client)
+
+TARGETS		= $(CLIENT)
+
+OBJS		= Client.o
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= import
+CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
-$(EVERYTHING)::
-	@for subdir in $(SUBDIRS); \
-	do \
-	    echo "making $@ in $$subdir"; \
-	    ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
-	done
+$(CLIENT): $(OBJS)
+	rm -f $@
+	$(call mktest,$@,$(OBJS),$(BASELIBS))

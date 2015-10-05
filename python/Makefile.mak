@@ -11,7 +11,7 @@ top_srcdir	= .
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-SUBDIRS		= modules python test
+SUBDIRS		= modules python
 
 install:: install-common
 	@if not exist "$(install_pythondir)" \

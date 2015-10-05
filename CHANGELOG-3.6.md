@@ -9,13 +9,15 @@ applications to this release, and the manual for complete details on a
 particular aspect of Ice.
 
 - [Changes in Ice 3.6.1](#changes-in-ice-361)
-  - [General Changes](#general-changes)
   - [C++ Changes](#c-changes)
+- [Changes in Ice 3.6.1](#changes-in-ice-361)
+  - [General Changes](#general-changes)
+  - [C++ Changes](#c-changes-1)
   - [JavaScript Changes](#javascript-changes)
   - [PHP Changes](#php-changes)
 - [Changes in Ice 3.6.0](#changes-in-ice-360)
   - [General Changes](#general-changes-1)
-  - [C++ Changes](#c-changes-1)
+  - [C++ Changes](#c-changes-2)
   - [C# Changes](#c#-changes)
   - [Java Changes](#java-changes)
   - [JavaScript Changes](#javascript-changes-1)
@@ -23,6 +25,14 @@ particular aspect of Ice.
   - [PHP Changes](#php-changes-1)
   - [Python Changes](#python-changes)
   - [Ruby Changes](#ruby-changes)
+
+# Changes in Ice 3.6.2
+
+These are the changes since Ice 3.6.1.
+
+## C++ Changes
+
+- Fixed El Capitan build issues caused by a new security feature that no longer exports DYLD_LIBRARY_PATH to child processes.
 
 # Changes in Ice 3.6.1
 

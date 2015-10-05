@@ -253,7 +253,7 @@ public class AllTests
                 }
             }
         }
-        
+
         public abstract void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy);
 
         public void setClientACM(int timeout, int close, int heartbeat)
@@ -567,7 +567,7 @@ public class AllTests
         public SetACMTest(Application app, RemoteCommunicatorPrx com, java.io.PrintWriter out)
         {
             super(app, "setACM/getACM", com, out);
-            setClientACM(15, 4, 2);
+            setClientACM(15, 4, 0);
         }
 
         public void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
@@ -576,22 +576,25 @@ public class AllTests
             acm = proxy.ice_getCachedConnection().getACM();
             test(acm.timeout == 15);
             test(acm.close == Ice.ACMClose.CloseOnIdleForceful);
-            test(acm.heartbeat == Ice.ACMHeartbeat.HeartbeatOnIdle);
+            test(acm.heartbeat == Ice.ACMHeartbeat.HeartbeatOff);
 
             proxy.ice_getCachedConnection().setACM(null, null, null);
             acm = proxy.ice_getCachedConnection().getACM();
             test(acm.timeout == 15);
             test(acm.close == Ice.ACMClose.CloseOnIdleForceful);
-            test(acm.heartbeat == Ice.ACMHeartbeat.HeartbeatOnIdle);
+            test(acm.heartbeat == Ice.ACMHeartbeat.HeartbeatOff);
 
             proxy.ice_getCachedConnection().setACM(
-                new Ice.IntOptional(20),
+                new Ice.IntOptional(1),
                 new Ice.Optional<Ice.ACMClose>(Ice.ACMClose.CloseOnInvocationAndIdle),
-                new Ice.Optional<Ice.ACMHeartbeat>(Ice.ACMHeartbeat.HeartbeatOnInvocation));
+                new Ice.Optional<Ice.ACMHeartbeat>(Ice.ACMHeartbeat.HeartbeatAlways));
             acm = proxy.ice_getCachedConnection().getACM();
-            test(acm.timeout == 20);
+            test(acm.timeout == 1);
             test(acm.close == Ice.ACMClose.CloseOnInvocationAndIdle);
-            test(acm.heartbeat == Ice.ACMHeartbeat.HeartbeatOnInvocation);
+            test(acm.heartbeat == Ice.ACMHeartbeat.HeartbeatAlways);
+
+            // Make sure the client sends few heartbeats to the server
+            proxy.waitForHeartbeat(2);
         }
     }
 

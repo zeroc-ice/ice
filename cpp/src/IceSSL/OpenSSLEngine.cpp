@@ -259,7 +259,7 @@ OpenSSLEngine::OpenSSLEngine(const CommunicatorPtr& communicator) :
                     }
                 }
             }
-#  ifndef _WIN32
+#  if !defined (_WIN32) && !defined (OPENSSL_NO_EGD)
             //
             // The Entropy Gathering Daemon (EGD) is not available on Windows.
             // The file should be a Unix domain socket for the daemon.

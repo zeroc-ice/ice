@@ -65,34 +65,41 @@
                 }
                 else
                 {
-                    //
-                    // We are runing in a web browser load the properties file from the web server.
-                    //
-                    var p = new Promise();
-                    /*jshint jquery: true */
-                    $.ajax(
+                    if(typeof window !== 'undefined')
                     {
-                        url: "escapes.cfg",
                         //
-                        // Use text data type to avoid problems interpreting the data.
+                        //Skiped when running in a worker, we don't load JQuery in the workers
                         //
-                        dataType: "text"
-                    }).done(
-                        function(data)
-                        {
-                            properties.parse(data);
-                            for(var key in props)
+
+                        //
+                        // We are runing in a web browser load the properties file from the web server.
+                        //
+                        var p = new Promise();
+                        /*jshint jquery: true */
+                        $.ajax(
                             {
-                                test(props[key] == properties.getProperty(key));
-                            }
-                            p.succeed();
-                        }
-                    ).fail(
-                        function()
-                        {
-                            p.fail();
-                        });
-                    return p;
+                                url: "escapes.cfg",
+                                //
+                                // Use text data type to avoid problems interpreting the data.
+                                //
+                                dataType: "text"
+                            }).done(
+                                function(data)
+                                {
+                                    properties.parse(data);
+                                    for(var key in props)
+                                    {
+                                        test(props[key] == properties.getProperty(key));
+                                    }
+                                    p.succeed();
+                                }
+                            ).fail(
+                                function()
+                                {
+                                    p.fail();
+                                });
+                        return p;
+                    }
                 }
             }
         ).then(
@@ -104,5 +111,5 @@
     exports.__test__ = run;
 }
 (typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : window.Ice.__require,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : window));
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice.__require,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));

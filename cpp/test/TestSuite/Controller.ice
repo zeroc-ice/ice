@@ -13,10 +13,15 @@ module Test
 module Common
 {
 
+exception ServerFailedException
+{
+    string reason;
+};
+
 interface Server
 {
     void waitTestSuccess();
-    void waitForServer();
+    void waitForServer() throws ServerFailedException;
     void terminate();
 };
 
@@ -24,8 +29,7 @@ sequence<string> StringSeq;
 
 interface Controller
 {
-    Server* runServer(string lang, string name, string protocol, string host, bool winrt, 
-                      StringSeq options);
+    Server* runServer(string lang, string name, string protocol, string host, bool winrt, StringSeq options);
 };
 
 };

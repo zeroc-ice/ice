@@ -9,6 +9,55 @@
 
 #import <acm/TestI.h>
 
+@interface ConnectionCallbackI : NSObject<ICEConnectionCallback>
+{
+    NSCondition* _cond;
+    int _count;
+}
+-(void) waitForCount:(int)count;
+@end
+
+
+@implementation ConnectionCallbackI
+-(id) init
+{
+    self = [super init];
+    if(!self)
+    {
+        return nil;
+    }
+    _cond = [[NSCondition alloc] init];
+    _count = 0;
+    return self;
+}
+-(void) heartbeat:(id<ICEConnection>)c
+{
+    [_cond lock];
+    --_count;
+    [_cond signal];
+    [_cond unlock];
+}
+-(void) closed:(id<ICEConnection>)c
+{
+}
+-(void) waitForCount:(int)count
+{
+    [_cond lock];
+    _count = count;
+    @try
+    {
+        while(_count > 0)
+        {
+            [_cond wait];
+        }
+    }
+    @finally
+    {
+        [_cond unlock];
+    }
+}
+@end
+
 @implementation RemoteCommunicatorI
 -(id<TestACMRemoteObjectAdapterPrx>) createObjectAdapter:(ICEInt)timeout close:(ICEInt)close heartbeat:(ICEInt)heartbeat
                                                  current:(ICECurrent*)current
@@ -145,5 +194,12 @@
     [_cond lock];
     [_cond signal];
     [_cond unlock];
+}
+-(void) waitForHeartbeat:(int)count current:(ICECurrent*)current
+{
+    ConnectionCallbackI* callback = [ConnectionCallbackI new];
+    [current.con setCallback:callback];
+    [callback waitForCount:count];
+    ICE_RELEASE(callback);
 }
 @end

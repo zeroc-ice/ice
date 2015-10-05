@@ -85,6 +85,7 @@ var common = {
         "bower_components/animo.js/animo.js",
         "bower_components/spin.js/spin.js",
         "bower_components/spin.js/jquery.spin.js",
+        "bower_components/URIjs/src/URI.js",
         "bower_components/highlightjs/highlight.pack.js",
         "assets/icejs.js"
     ],
@@ -164,32 +165,6 @@ function testTask(name) { return name.replace("/", "_"); }
 function testWatchTask(name) { return testTask(name) + ":watch"; }
 function testCleanDependTask(name) { return testTask(name) + "-depend:clean"; }
 function testCleanTask(name) { return testTask(name) + ":clean"; }
-function testHtmlTask(name) { return testTask(name) + ":html"; }
-function testHtmlCleanTask(name) { return testTask(name) + ":html:clean"; }
-
-tests.forEach(
-    function(name){
-        gulp.task(testHtmlTask(name), [],
-            function(){
-                return gulp.src("test/Common/index.html")
-                    .pipe(newer(path.join(name, "index.html")))
-                    .pipe(gulp.dest(path.join(name)));
-            });
-
-        gulp.task(testHtmlCleanTask(name), [],
-            function(){
-                del(path.join(name, "index.html"));
-            });
-    });
-
-gulp.task("html", tests.map(testHtmlTask));
-
-gulp.task("html:watch", ["html"],
-    function(){
-        gulp.watch(["test/Common/index.html"], ["html"]);
-    });
-
-gulp.task("html:clean", tests.map(testHtmlCleanTask));
 
 tests.forEach(
     function(name){
@@ -204,13 +179,12 @@ tests.forEach(
                     .pipe(gulp.dest(name));
             });
 
-        gulp.task(testWatchTask(name), [testTask(name), "html"],
+        gulp.task(testWatchTask(name), [testTask(name)],
             function(){
                 gulp.watch([path.join(name, "*.ice")], [testTask(name)]);
 
                 gulp.watch(
-                    [path.join(name, "*.js"), path.join(name, "browser", "*.js"),
-                     path.join(name, "*.html")]);
+                    [path.join(name, "*.js"), path.join(name, "browser", "*.js")]);
             });
 
         gulp.task(testCleanDependTask(name), [],
@@ -218,7 +192,7 @@ tests.forEach(
                 return gulp.src(path.join(name, ".depend"))
                     .pipe(paths(del));
             });
-        
+
         gulp.task(testCleanTask(name), [testCleanDependTask(name)],
             function(){
                 return gulp.src(path.join(name, "*.ice"))
@@ -227,14 +201,12 @@ tests.forEach(
             });
     });
 
-gulp.task("test", tests.map(testTask).concat(
-    ["common:slice", "common:js", "common:css"].concat(tests.map(testHtmlTask))));
+gulp.task("test", tests.map(testTask).concat(["common:slice", "common:js", "common:css"]));
 
 gulp.task("test:watch", tests.map(testWatchTask).concat(
-    ["common:slice:watch", "common:css:watch", "common:js:watch", "html:watch"]));
+    ["common:slice:watch", "common:css:watch", "common:js:watch"]));
 
-gulp.task("test:clean", tests.map(testCleanTask).concat(
-    tests.map(testHtmlCleanTask).concat(["common:slice:clean"])));
+gulp.task("test:clean", tests.map(testCleanTask).concat(["common:slice:clean"]));
 
 //
 // Tasks to build IceJS Distribution
@@ -374,32 +346,57 @@ gulp.task("watch", ["test:watch"].concat(useBinDist ? [] : ["dist:watch"]));
 gulp.task("test:run-with-browser", ["watch"].concat(useBinDist ? ["test"] : ["build"]),
     function(){
         require("./bin/HttpServer")();
-
-        var p  = require("child_process").spawn("python", ["../scripts/TestController.py"], {stdio: "inherit"});
-        process.on(process.platform == "win32" ? "SIGBREAK" : "SIGINT", 
+        var cmd = ["../scripts/TestController.py"]
+        cmd = cmd.concat(process.argv.slice(3))
+        var p  = require("child_process").spawn("python", cmd, {stdio: "inherit"});
+        p.on("error", function(err)
+            {
+                if(err.message == "spawn python ENOENT")
+                {
+                    console.log("Error: python is required in PATH to run tests")
+                    process.exit(1)
+                }
+                else
+                {
+                    throw err;
+                }
+            });
+        process.on(process.platform == "win32" ? "SIGBREAK" : "SIGINT",
             function()
             {
                 process.exit();
             });
         process.on("exit", function()
             {
-                p.kill(); 
+                p.kill();
             });
-        return gulp.src("./test/Ice/acm/index.html")
+        return gulp.src("./test/Common/index.html")
                    .pipe(open("", {url: "http://127.0.0.1:8080/test/Ice/acm/index.html"}));
     });
 
 gulp.task("test:run-with-node", (useBinDist ? ["test"] : ["build"]),
     function(){
         var p  = require("child_process").spawn("python", ["allTests.py", "--all"], {stdio: "inherit"});
-        process.on(process.platform == "win32" ? "SIGBREAK" : "SIGINT", 
+        p.on("error", function(err)
+            {
+                if(err.message == "spawn python ENOENT")
+                {
+                    console.log("Error: python is required in PATH to run tests")
+                    process.exit(1)
+                }
+                else
+                {
+                    throw err;
+                }
+            });
+        process.on(process.platform == "win32" ? "SIGBREAK" : "SIGINT",
             function()
             {
                 process.exit();
             });
         process.on("exit", function()
             {
-                p.kill(); 
+                p.kill();
             });
     });
 

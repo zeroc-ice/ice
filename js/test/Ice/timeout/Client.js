@@ -458,7 +458,15 @@
         return Promise.try(
             function()
             {
-                return allTests(out, c);
+                if(typeof(navigator) !== 'undefined' && isSafari() && isWorker())
+                {
+                    out.writeLine("Test not supported with Safari web workers.");
+                    return Test.TimeoutPrx.uncheckedCast(c.stringToProxy("timeout:default -p 12010")).shutdown();
+                }
+                else
+                {
+                    return allTests(out, c);
+                }
             }
         ).finally(
             function()
@@ -471,5 +479,5 @@
     exports.__runServer__ = true;
 }
 (typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : window.Ice.__require,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : window));
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice.__require,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));

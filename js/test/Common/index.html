@@ -8,9 +8,13 @@
     <link rel="stylesheet" type="text/css" href="/assets/common.css"/>
 
     <script src="/assets/common.min.js"></script>
-    <script src="/lib/Ice.js"></script>
-    <script src="/test/Common/Controller.js"></script>
-    <script src="/test/Common/TestSuite.js"></script>
+    {{#scripts}}
+    <script src="{{.}}"></script>
+    {{/scripts}}
+    <script type="text/javascript">
+      var current = "{{current}}";
+      var TestCases = {{{TestCases}}};
+    </script>
   </head>
   <body>
     <div id="header">
@@ -44,6 +48,9 @@
                         </div>
                         <div class="small-9 columns">
                             <select id="test">
+                                {{#tests}}
+                                    <option value="/test/{{.}}/index.html">{{.}}</option>
+                                {{/tests}}
                             </select>
                         </div>
                     </div>
@@ -53,9 +60,9 @@
                         </div>
                         <div class="small-9 columns">
                             <select id="language">
-                                <option value="cpp">C++</option>
-                                <option value="java">Java</option>
-                                <option value="csharp">C#</option>
+                                {{#languages}}
+                                <option value="{{value}}">{{name}}</option>
+                                {{/languages}}
                             </select>
                         </div>
                     </div>
@@ -68,6 +75,14 @@
                                 <option value="ws">WS</option>
                                 <option value="wss">WSS</option>
                             </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="small-3 columns">
+                            <label class="right inline" for="worker">Worker:</label>
+                        </div>
+                        <div class="small-9 columns">
+                            <input id="worker" type="checkbox"/>
                         </div>
                     </div>
                     <div class="row">
