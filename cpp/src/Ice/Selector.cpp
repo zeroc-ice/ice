@@ -433,8 +433,7 @@ Selector::update(EventHandler* handler, SocketOperation remove, SocketOperation 
 void
 Selector::enable(EventHandler* handler, SocketOperation status)
 {
-    NativeInfoPtr nativeInfo = handler->getNativeInfo();
-    if(!nativeInfo || !(handler->_disabled & status))
+    if(!(handler->_disabled & status))
     {
         return;
     }
@@ -477,14 +476,12 @@ Selector::enable(EventHandler* handler, SocketOperation status)
         wakeup();
 #endif
     }
-    checkReady(handler);
 }
 
 void
 Selector::disable(EventHandler* handler, SocketOperation status)
 {
-    NativeInfoPtr nativeInfo = handler->getNativeInfo();
-    if(!nativeInfo || handler->_disabled & status)
+    if(handler->_disabled & status)
     {
         return;
     }
@@ -526,7 +523,6 @@ Selector::disable(EventHandler* handler, SocketOperation status)
         wakeup();
 #endif
     }
-    checkReady(handler);
 }
 
 bool
@@ -621,7 +617,6 @@ Selector::startSelect()
         }
         _interrupted = false;
     }
-}
 
 #if !defined(ICE_USE_EPOLL)
     if(!_changes.empty())
@@ -1012,11 +1007,11 @@ toCFCallbacks(SocketOperation op)
     {
         cbs |= kCFSocketWriteCallBack;
     }
-
-    if(_count == 0 && !_selectNow)
+    if(op & SocketOperationConnect)
     {
-        throw SelectorTimeoutException();
+        cbs |= kCFSocketConnectCallBack;
     }
+    return cbs;
 }
 
 }
@@ -1036,192 +1031,6 @@ EventHandlerWrapper::EventHandlerWrapper(const EventHandlerPtr& handler, Selecto
     }
     else if(handler->getNativeInfo())
     {
-        _readyHandlers.insert(make_pair(handler, SocketOperationNone));
-        wakeup();
-    }
-}
-
-void
-Selector::updateSelector()
-{
-#if defined(ICE_USE_KQUEUE)
-    int rs = kevent(_queueFd, &_changes[0], _changes.size(), 0, 0, 0);
-    if(rs < 0)
-    {
-        Ice::Error out(_instance->initializationData().logger);
-        out << "error while updating selector:\n" << IceUtilInternal::errorToString(IceInternal::getSocketErrno());
-    }
-    _changes.clear();
-#elif !defined(ICE_USE_EPOLL)
-    assert(!_selecting);
-
-    for(vector<pair<EventHandler*, SocketOperation> >::const_iterator p = _changes.begin(); p != _changes.end(); ++p)
-    {
-        EventHandler* handler = p->first;
-        SocketOperation status = p->second;
-
-        SOCKET fd = handler->getNativeInfo()->fd();
-        if(status)
-        {
-#if defined(ICE_USE_SELECT)
-            if(status & SocketOperationRead)
-            {
-                FD_SET(fd, &_readFdSet);
-            }
-            else
-            {
-                FD_CLR(fd, &_readFdSet);
-            }
-            if(status & SocketOperationWrite)
-            {
-                FD_SET(fd, &_writeFdSet);
-            }
-            else
-            {
-                FD_CLR(fd, &_writeFdSet);
-            }
-            if(status & SocketOperationConnect)
-            {
-                FD_SET(fd, &_writeFdSet);
-                FD_SET(fd, &_errorFdSet);
-            }
-            else
-            {
-                FD_CLR(fd, &_writeFdSet);
-                FD_CLR(fd, &_errorFdSet);
-            }
-            _handlers[fd] = handler;
-#else
-            short events = 0;
-            if(status & SocketOperationRead)
-            {
-                events |= POLLIN;
-            }
-            if(status & SocketOperationWrite)
-            {
-                events |= POLLOUT;
-            }
-            map<SOCKET, EventHandler*>::const_iterator q = _handlers.find(fd);
-            if(q == _handlers.end())
-            {
-                struct pollfd pollFd;
-                pollFd.fd = fd;
-                pollFd.events = events;
-                pollFd.revents = 0;
-                _pollFdSet.push_back(pollFd);
-                _handlers.insert(make_pair(fd, handler));
-            }
-            else
-            {
-                for(vector<struct pollfd>::iterator r = _pollFdSet.begin(); r != _pollFdSet.end(); ++r)
-                {
-                    if(r->fd == fd)
-                    {
-                        r->events = events;
-                        break;
-                    }
-                }
-            }
-#endif
-        }
-        else
-        {
-#if defined(ICE_USE_SELECT)
-            FD_CLR(fd, &_readFdSet);
-            FD_CLR(fd, &_writeFdSet);
-            FD_CLR(fd, &_errorFdSet);
-#else
-            for(vector<struct pollfd>::iterator r = _pollFdSet.begin(); r != _pollFdSet.end(); ++r)
-            {
-                if(r->fd == fd)
-                {
-                    _pollFdSet.erase(r);
-                    break;
-                }
-            }
-#endif
-            _handlers.erase(fd);
-        }
-    }
-    _changes.clear();
-#endif
-}
-
-#elif defined(ICE_USE_CFSTREAM)
-
-namespace
-{
-
-void selectorInterrupt(void* info)
-{
-    reinterpret_cast<Selector*>(info)->processInterrupt();
-}
-
-void eventHandlerSocketCallback(CFSocketRef, CFSocketCallBackType callbackType, CFDataRef, const void* d, void* info)
-{
-    if(callbackType == kCFSocketReadCallBack)
-    {
-        reinterpret_cast<EventHandlerWrapper*>(info)->readyCallback(SocketOperationRead);
-    }
-    else if(callbackType == kCFSocketWriteCallBack)
-    {
-        reinterpret_cast<EventHandlerWrapper*>(info)->readyCallback(SocketOperationWrite);
-    }
-    else if(callbackType == kCFSocketConnectCallBack)
-    {
-        reinterpret_cast<EventHandlerWrapper*>(info)->readyCallback(SocketOperationConnect,
-                                                                    d ? *reinterpret_cast<const SInt32*>(d) : 0);
-    }
-}
-
-class SelectorHelperThread : public IceUtil::Thread
-{
-public:
-
-    SelectorHelperThread(Selector& selector) : _selector(selector)
-    {
-    }
-
-    virtual void run()
-    {
-        _selector.run();
-    }
-
-private:
-
-    Selector& _selector;
-};
-
-CFOptionFlags
-toCFCallbacks(SocketOperation op)
-{
-    CFOptionFlags cbs = 0;
-    if(op & SocketOperationRead)
-    {
-        cbs |= kCFSocketReadCallBack;
-    }
-    if(op & SocketOperationWrite)
-    {
-        cbs |= kCFSocketWriteCallBack;
-    }
-    if(op & SocketOperationConnect)
-    {
-        cbs |= kCFSocketConnectCallBack;
-    }
-    return cbs;
-}
-
-}
-
-EventHandlerWrapper::EventHandlerWrapper(const EventHandlerPtr& handler, Selector& selector) :
-    _handler(handler),
-    _nativeInfo(StreamNativeInfoPtr::dynamicCast(handler->getNativeInfo())),
-    _selector(selector),
-    _ready(SocketOperationNone),
-    _finish(false)
-{
-    if(!StreamNativeInfoPtr::dynamicCast(handler->getNativeInfo()))
-    {
         SOCKET fd = handler->getNativeInfo()->fd();
         CFSocketContext ctx = { 0, this, 0, 0, 0 };
         _socket = CFSocketCreateWithNative(kCFAllocatorDefault,
@@ -1236,12 +1045,6 @@ EventHandlerWrapper::EventHandlerWrapper(const EventHandlerPtr& handler, Selecto
         CFSocketSetSocketFlags(_socket, 0);
         CFSocketDisableCallBacks(_socket, kCFSocketReadCallBack | kCFSocketWriteCallBack | kCFSocketConnectCallBack);
         _source = CFSocketCreateRunLoopSource(kCFAllocatorDefault, _socket, 0);
-    }
-    else
-    {
-        _socket = 0;
-        _source = 0;
-        _nativeInfo->initStreams(this);
     }
 }
 
@@ -1662,5 +1465,3 @@ Selector::addReadyHandler(EventHandlerWrapper* wrapper)
 }
 
 #endif
-
-
