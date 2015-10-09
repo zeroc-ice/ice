@@ -12,14 +12,15 @@ package IceInternal;
 public interface Transceiver
 {
     java.nio.channels.SelectableChannel fd();
+    void setReadyCallback(EventHandler.ReadyCallback callback);
 
-    int initialize(Buffer readBuffer, Buffer writeBuffer, Ice.Holder<Boolean> moreData);
+    int initialize(Buffer readBuffer, Buffer writeBuffer);
     int closing(boolean initiator, Ice.LocalException ex);
     void close();
 
     EndpointI bind();
     int write(Buffer buf);
-    int read(Buffer buf, Ice.Holder<Boolean> moreData);
+    int read(Buffer buf);
 
     String protocol();
     @Override

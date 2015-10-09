@@ -199,14 +199,14 @@ IceInternal::WSTransceiver::setCompletedHandler(IceInternal::SocketOperationComp
 #endif
 
 SocketOperation
-IceInternal::WSTransceiver::initialize(Buffer& readBuffer, Buffer& writeBuffer, bool& hasMoreData)
+IceInternal::WSTransceiver::initialize(Buffer& readBuffer, Buffer& writeBuffer)
 {
     //
     // Delegate logs exceptions that occur during initialize(), so there's no need to trap them here.
     //
     if(_state == StateInitializeDelegate)
     {
-        SocketOperation op = _delegate->initialize(readBuffer, writeBuffer, hasMoreData);
+        SocketOperation op = _delegate->initialize(readBuffer, writeBuffer);
         if(op != SocketOperationNone)
         {
             return op;
@@ -280,7 +280,7 @@ IceInternal::WSTransceiver::initialize(Buffer& readBuffer, Buffer& writeBuffer, 
         {
             if(_readBuffer.i < _readBuffer.b.end())
             {
-                SocketOperation s = _delegate->read(_readBuffer, hasMoreData);
+                SocketOperation s = _delegate->read(_readBuffer);
                 if(s == SocketOperationWrite || _readBuffer.i == _readBuffer.b.begin())
                 {
                     return s;
@@ -384,7 +384,10 @@ IceInternal::WSTransceiver::initialize(Buffer& readBuffer, Buffer& writeBuffer, 
         _state = StateOpened;
         _nextState = StateOpened;
 
-        hasMoreData |= _readI < _readBuffer.i;
+        if(_readI < _readBuffer.i)
+        {
+            _delegate->getNativeInfo()->ready(SocketOperationRead, true);
+        }
     }
     catch(const Ice::LocalException& ex)
     {
@@ -544,7 +547,7 @@ IceInternal::WSTransceiver::write(Buffer& buf)
 }
 
 SocketOperation
-IceInternal::WSTransceiver::read(Buffer& buf, bool& hasMoreData)
+IceInternal::WSTransceiver::read(Buffer& buf)
 {
     if(_readPending)
     {
@@ -555,11 +558,11 @@ IceInternal::WSTransceiver::read(Buffer& buf, bool& hasMoreData)
     {
         if(_state < StateConnected)
         {
-            return _delegate->read(buf, hasMoreData);
+            return _delegate->read(buf);
         }
         else
         {
-            if(_delegate->read(_readBuffer, hasMoreData) == SocketOperationWrite)
+            if(_delegate->read(_readBuffer) == SocketOperationWrite)
             {
                 return SocketOperationWrite;
             }
@@ -576,7 +579,10 @@ IceInternal::WSTransceiver::read(Buffer& buf, bool& hasMoreData)
     //
     if(buf.i == buf.b.end())
     {
-        hasMoreData |= _readI < _readBuffer.i;
+        if(_readI < _readBuffer.i)
+        {
+            _delegate->getNativeInfo()->ready(SocketOperationRead, true);
+        }
         return SocketOperationNone;
     }
 
@@ -597,17 +603,17 @@ IceInternal::WSTransceiver::read(Buffer& buf, bool& hasMoreData)
                 {
                     size_t size = buf.b.size();
                     buf.b.resize(buf.i - buf.b.begin() + readSz);
-                    s = _delegate->read(buf, hasMoreData);
+                    s = _delegate->read(buf);
                     buf.b.resize(size);
                 }
                 else
                 {
-                    s = _delegate->read(buf, hasMoreData);
+                    s = _delegate->read(buf);
                 }
             }
             else
             {
-                s = _delegate->read(_readBuffer, hasMoreData);
+                s = _delegate->read(_readBuffer);
             }
 
             if(s == SocketOperationWrite)
@@ -621,12 +627,15 @@ IceInternal::WSTransceiver::read(Buffer& buf, bool& hasMoreData)
 
     if(buf.i == buf.b.end())
     {
-        hasMoreData |= _readI < _readBuffer.i;
+        if(_readI < _readBuffer.i)
+        {
+            _delegate->getNativeInfo()->ready(SocketOperationRead, true);
+        }
         s = SocketOperationNone;
     }
     else
     {
-        hasMoreData = false;
+        _delegate->getNativeInfo()->ready(SocketOperationRead, false);
         s = SocketOperationRead;
     }
 
@@ -767,18 +776,18 @@ IceInternal::WSTransceiver::startRead(Buffer& buf)
 }
 
 void
-IceInternal::WSTransceiver::finishRead(Buffer& buf, bool& hasMoreData)
+IceInternal::WSTransceiver::finishRead(Buffer& buf)
 {
     _readPending = false;
     if(_state < StateOpened)
     {
         if(_state < StateConnected)
         {
-            _delegate->finishRead(buf, hasMoreData);
+            _delegate->finishRead(buf);
         }
         else
         {
-            _delegate->finishRead(_readBuffer, hasMoreData);
+            _delegate->finishRead(_readBuffer);
         }
         return;
     }
@@ -789,11 +798,11 @@ IceInternal::WSTransceiver::finishRead(Buffer& buf, bool& hasMoreData)
     }
     else if(_readState == ReadStatePayload)
     {
-        _delegate->finishRead(buf, hasMoreData);
+        _delegate->finishRead(buf);
     }
     else
     {
-        _delegate->finishRead(_readBuffer, hasMoreData);
+        _delegate->finishRead(_readBuffer);
     }
 
     if(_state == StateClosed)

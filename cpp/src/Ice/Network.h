@@ -24,8 +24,8 @@
 #include <Ice/ProtocolInstanceF.h>
 #include <Ice/EndpointTypes.h>
 
-#ifdef ICE_OS_WINRT
-#   include <Ice/EventHandlerF.h>
+#if defined(ICE_OS_WINRT)
+// Nothing to include
 #elif defined(_WIN32)
 #   include <winsock2.h>
 #   include <ws2tcpip.h>
@@ -186,6 +186,14 @@ struct ICE_API AsyncInfo
 delegate void SocketOperationCompletedHandler(int);
 #endif
 
+class ICE_API ReadyCallback : virtual public ::IceUtil::Shared
+{
+public:
+
+    virtual void ready(SocketOperation, bool) = 0;
+};
+typedef IceUtil::Handle<ReadyCallback> ReadyCallbackPtr;
+
 class ICE_API NativeInfo : virtual public IceUtil::Shared
 {
 public:
@@ -197,6 +205,14 @@ public:
     SOCKET fd() const
     {
         return _fd;
+    }
+
+    void setReadyCallback(const ReadyCallbackPtr& callback);
+
+    void ready(SocketOperation operation, bool value)
+    {
+        assert(_readyCallback);
+        _readyCallback->ready(operation, value);
     }
 
     //
@@ -214,6 +230,7 @@ public:
 protected:
 
     SOCKET _fd;
+    ReadyCallbackPtr _readyCallback;
 
 #if defined(ICE_USE_IOCP)
     HANDLE _handle;

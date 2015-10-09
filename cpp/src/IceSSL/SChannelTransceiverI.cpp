@@ -622,7 +622,7 @@ IceSSL::TransceiverI::encryptMessage(IceInternal::Buffer& buffer)
 }
 
 IceInternal::SocketOperation
-IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::Buffer& writeBuffer, bool& hasMoreData)
+IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::Buffer& writeBuffer)
 {
     IceInternal::SocketOperation op = _stream->connect(readBuffer, writeBuffer);
     if(op != IceInternal::SocketOperationNone)
@@ -746,7 +746,8 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
         }
         out << toString();
     }
-    hasMoreData = !_readUnprocessed.b.empty() || _readBuffer.i != _readBuffer.b.begin();
+    _stream->ready(IceInternal::SocketOperationRead,
+                   !_readUnprocessed.b.empty() || _readBuffer.i != _readBuffer.b.begin());
     return IceInternal::SocketOperationNone;
 }
 
@@ -819,7 +820,7 @@ IceSSL::TransceiverI::write(IceInternal::Buffer& buf)
 }
 
 IceInternal::SocketOperation
-IceSSL::TransceiverI::read(IceInternal::Buffer& buf, bool& hasMoreData)
+IceSSL::TransceiverI::read(IceInternal::Buffer& buf)
 {
     if(!_stream->isConnected())
     {
@@ -832,7 +833,7 @@ IceSSL::TransceiverI::read(IceInternal::Buffer& buf, bool& hasMoreData)
     }
     assert(_state == StateHandshakeComplete);
 
-    hasMoreData = false;
+    _stream->ready(IceInternal::SocketOperationRead, false);
     while(buf.i != buf.b.end())
     {
         if(_readUnprocessed.b.empty() && _readBuffer.i == _readBuffer.b.begin() && !readRaw(_readBuffer))
@@ -852,7 +853,8 @@ IceSSL::TransceiverI::read(IceInternal::Buffer& buf, bool& hasMoreData)
 
         buf.i += decrypted;
     }
-    hasMoreData = !_readUnprocessed.b.empty() || _readBuffer.i != _readBuffer.b.begin();
+    _stream->ready(IceInternal::SocketOperationRead,
+                   !_readUnprocessed.b.empty() || _readBuffer.i != _readBuffer.b.begin());
     return IceInternal::SocketOperationNone;
 }
 
@@ -909,7 +911,7 @@ IceSSL::TransceiverI::startRead(IceInternal::Buffer& buffer)
 }
 
 void
-IceSSL::TransceiverI::finishRead(IceInternal::Buffer& buf, bool& hasMoreData)
+IceSSL::TransceiverI::finishRead(IceInternal::Buffer& buf)
 {
     if(!_stream->isConnected())
     {
@@ -924,11 +926,12 @@ IceSSL::TransceiverI::finishRead(IceInternal::Buffer& buf, bool& hasMoreData)
         if(decrypted > 0)
         {
             buf.i += decrypted;
-            hasMoreData = !_readUnprocessed.b.empty() || _readBuffer.i != _readBuffer.b.begin();
+            _stream->ready(IceInternal::SocketOperationRead,
+                           !_readUnprocessed.b.empty() || _readBuffer.i != _readBuffer.b.begin());
         }
         else
         {
-            hasMoreData = false;
+            _stream->ready(IceInternal::SocketOperationRead, false);
         }
     }
 }

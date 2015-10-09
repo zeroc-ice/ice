@@ -537,8 +537,9 @@ initializeTests(const ConfigurationPtr& configuration,
         background->op();
         configuration->initializeSocketOperation(IceInternal::SocketOperationNone);
     }
-    catch(const Ice::LocalException&)
+    catch(const Ice::LocalException& ex)
     {
+        cerr << ex << endl;
         test(false);
     }
     background->ice_getConnection()->close(false);
@@ -549,8 +550,9 @@ initializeTests(const ConfigurationPtr& configuration,
         background->op();
         configuration->initializeSocketOperation(IceInternal::SocketOperationNone);
     }
-    catch(const Ice::LocalException&)
+    catch(const Ice::LocalException& ex)
     {
+        cerr << ex << endl;
         test(false);
     }
     background->ice_getConnection()->close(false);

@@ -1419,6 +1419,12 @@ public final class ConnectionI extends IceInternal.EventHandler
         return _transceiver.fd();
     }
 
+    @Override
+    public void setReadyCallback(IceInternal.EventHandler.ReadyCallback callback)
+    {
+        _transceiver.setReadyCallback(callback);
+    }
+
     public synchronized void timedOut()
     {
         if(_state <= StateNotValidated)
@@ -1918,7 +1924,7 @@ public final class ConnectionI extends IceInternal.EventHandler
 
     private boolean initialize(int operation)
     {
-        int s = _transceiver.initialize(_readStream.getBuffer(), _writeStream.getBuffer(), _hasMoreData);
+        int s = _transceiver.initialize(_readStream.getBuffer(), _writeStream.getBuffer());
         if(s != IceInternal.SocketOperation.None)
         {
             scheduleTimeout(s);
@@ -2818,7 +2824,7 @@ public final class ConnectionI extends IceInternal.EventHandler
     private int read(IceInternal.Buffer buf)
     {
         int start = buf.b.position();
-        int op = _transceiver.read(buf, _hasMoreData);
+        int op = _transceiver.read(buf);
         if(_instance.traceLevels().network >= 3 && buf.b.position() != start)
         {
             StringBuffer s = new StringBuffer("received ");

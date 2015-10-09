@@ -25,7 +25,7 @@ IceInternal::TcpTransceiver::getNativeInfo()
 }
 
 SocketOperation
-IceInternal::TcpTransceiver::initialize(Buffer& readBuffer, Buffer& writeBuffer, bool&)
+IceInternal::TcpTransceiver::initialize(Buffer& readBuffer, Buffer& writeBuffer)
 {
     return _stream->connect(readBuffer, writeBuffer);
 }
@@ -51,7 +51,7 @@ IceInternal::TcpTransceiver::write(Buffer& buf)
 }
 
 SocketOperation
-IceInternal::TcpTransceiver::read(Buffer& buf, bool&)
+IceInternal::TcpTransceiver::read(Buffer& buf)
 {
     return _stream->read(buf);
 }
@@ -76,7 +76,7 @@ IceInternal::TcpTransceiver::startRead(Buffer& buf)
 }
 
 void
-IceInternal::TcpTransceiver::finishRead(Buffer& buf, bool&)
+IceInternal::TcpTransceiver::finishRead(Buffer& buf)
 {
     _stream->finishRead(buf);
 }

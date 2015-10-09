@@ -22,7 +22,13 @@ final class TransceiverI implements IceInternal.Transceiver, IceInternal.WSTrans
     }
 
     @Override
-    public int initialize(IceInternal.Buffer readBuffer, IceInternal.Buffer writeBuffer, Ice.Holder<Boolean> moreData)
+    public void setReadyCallback(IceInternal.EventHandler.ReadyCallback callback)
+    {
+        _readyCallback = callback;
+    }
+
+    @Override
+    public int initialize(IceInternal.Buffer readBuffer, IceInternal.Buffer writeBuffer)
     {
         int status = _stream.connect(readBuffer, writeBuffer);
         if(status != IceInternal.SocketOperation.None)
@@ -138,9 +144,9 @@ final class TransceiverI implements IceInternal.Transceiver, IceInternal.WSTrans
     }
 
     @Override
-    public int read(IceInternal.Buffer buf, Ice.Holder<Boolean> moreData)
+    public int read(IceInternal.Buffer buf)
     {
-        moreData.value = false;
+        _readyCallback.ready(IceInternal.SocketOperation.Read, false);
 
         if(!_stream.isConnected())
         {
@@ -207,7 +213,10 @@ final class TransceiverI implements IceInternal.Transceiver, IceInternal.WSTrans
         //
         // Return a boolean to indicate whether more data is available.
         //
-        moreData.value = _netInput.position() > 0 || _appInput.position() > 0;
+        if(_netInput.position() > 0 || _appInput.position() > 0)
+        {
+            _readyCallback.ready(IceInternal.SocketOperation.Read, true);
+        }
 
         return IceInternal.SocketOperation.None;
     }
@@ -583,6 +592,7 @@ final class TransceiverI implements IceInternal.Transceiver, IceInternal.WSTrans
     private String _host = "";
     private String _adapterName = "";
     private boolean _incoming;
+    private IceInternal.EventHandler.ReadyCallback _readyCallback;
 
     private ByteBuffer _appInput; // Holds clear-text data to be read by the application.
     private ByteBuffer _netInput; // Holds encrypted data read from the socket.

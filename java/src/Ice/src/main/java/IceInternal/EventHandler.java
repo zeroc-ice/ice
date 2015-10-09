@@ -11,6 +11,12 @@ package IceInternal;
 
 public abstract class EventHandler
 {
+    public interface ReadyCallback
+    {
+        void ready(int op, boolean value);
+    };
+
+
     //
     // Called when there's a message ready to be processed.
     //
@@ -32,8 +38,13 @@ public abstract class EventHandler
     //
     abstract public java.nio.channels.SelectableChannel fd();
 
+    //
+    // Set the ready callback
+    //
+    abstract public void setReadyCallback(ReadyCallback callback);
+
     public int _disabled = 0;
-    public Ice.Holder<Boolean> _hasMoreData = new Ice.Holder<Boolean>(false);
     public int _registered = 0;
+    public int _ready = 0;
     public java.nio.channels.SelectionKey _key = null;
 }

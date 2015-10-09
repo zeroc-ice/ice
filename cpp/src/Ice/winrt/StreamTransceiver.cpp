@@ -67,7 +67,7 @@ IceInternal::StreamTransceiver::setCompletedHandler(SocketOperationCompletedHand
 }
 
 SocketOperation
-IceInternal::StreamTransceiver::initialize(Buffer&, Buffer&,bool&)
+IceInternal::StreamTransceiver::initialize(Buffer&, Buffer&)
 {
     if(_state == StateNeedConnect)
     {
@@ -123,7 +123,7 @@ IceInternal::StreamTransceiver::write(Buffer& buf)
 }
 
 SocketOperation
-IceInternal::StreamTransceiver::read(Buffer& buf, bool&)
+IceInternal::StreamTransceiver::read(Buffer& buf)
 {
     return buf.i == buf.b.end() ? SocketOperationNone : SocketOperationRead;
 }
@@ -254,7 +254,7 @@ IceInternal::StreamTransceiver::startRead(Buffer& buf)
 }
 
 void
-IceInternal::StreamTransceiver::finishRead(Buffer& buf, bool& hasMoreData)
+IceInternal::StreamTransceiver::finishRead(Buffer& buf)
 {
     if(_read.count == SOCKET_ERROR)
     {

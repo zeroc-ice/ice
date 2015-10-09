@@ -19,7 +19,13 @@ final class TcpTransceiver implements Transceiver, WSTransceiverDelegate
     }
 
     @Override
-    public int initialize(Buffer readBuffer, Buffer writeBuffer, Ice.Holder<Boolean> moreData)
+    public void setReadyCallback(EventHandler.ReadyCallback callback)
+    {
+        // No need of the callback
+    }
+
+    @Override
+    public int initialize(Buffer readBuffer, Buffer writeBuffer)
     {
         return _stream.connect(readBuffer, writeBuffer);
     }
@@ -52,7 +58,7 @@ final class TcpTransceiver implements Transceiver, WSTransceiverDelegate
     }
 
     @Override
-    public int read(Buffer buf, Ice.Holder<Boolean> moreData)
+    public int read(Buffer buf)
     {
         return _stream.read(buf);
     }

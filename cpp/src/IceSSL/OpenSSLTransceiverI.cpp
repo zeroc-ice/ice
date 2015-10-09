@@ -83,7 +83,7 @@ IceSSL::TransceiverI::getNativeInfo()
 }
 
 IceInternal::SocketOperation
-IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::Buffer& writeBuffer, bool&)
+IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::Buffer& writeBuffer)
 {
     IceInternal::SocketOperation status = _stream->connect(readBuffer, writeBuffer);
     if(status != IceInternal::SocketOperationNone)
@@ -440,7 +440,7 @@ IceSSL::TransceiverI::write(IceInternal::Buffer& buf)
 }
 
 IceInternal::SocketOperation
-IceSSL::TransceiverI::read(IceInternal::Buffer& buf, bool&)
+IceSSL::TransceiverI::read(IceInternal::Buffer& buf)
 {
     if(!_stream->isConnected())
     {
@@ -448,8 +448,7 @@ IceSSL::TransceiverI::read(IceInternal::Buffer& buf, bool&)
     }
 
     //
-    // Note: we don't set the hasMoreData flag in this implementation.
-    // We assume that OpenSSL doesn't read more SSL records than
+    // Note: We assume that OpenSSL doesn't read more SSL records than
     // necessary to fill the requested data and that the sender sends
     // Ice messages in individual SSL records.
     //

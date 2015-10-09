@@ -18,7 +18,7 @@ Transceiver::getNativeInfo()
 }
 
 IceInternal::SocketOperation
-Transceiver::initialize(IceInternal::Buffer& readBuffer, IceInternal::Buffer& writeBuffer, bool& hasMoreData)
+Transceiver::initialize(IceInternal::Buffer& readBuffer, IceInternal::Buffer& writeBuffer)
 {
 #ifndef ICE_USE_IOCP
     IceInternal::SocketOperation status = _configuration->initializeSocketOperation();
@@ -30,7 +30,7 @@ Transceiver::initialize(IceInternal::Buffer& readBuffer, IceInternal::Buffer& wr
     {
         if(!_initialized)
         {
-            status = _transceiver->initialize(readBuffer, writeBuffer, hasMoreData);
+            status = _transceiver->initialize(readBuffer, writeBuffer);
             if(status != IceInternal::SocketOperationNone)
             {
                 return status;
@@ -48,7 +48,7 @@ Transceiver::initialize(IceInternal::Buffer& readBuffer, IceInternal::Buffer& wr
     _configuration->checkInitializeException();
     if(!_initialized)
     {
-        IceInternal::SocketOperation status = _transceiver->initialize(readBuffer, writeBuffer, hasMoreData);
+        IceInternal::SocketOperation status = _transceiver->initialize(readBuffer, writeBuffer);
         if(status != IceInternal::SocketOperationNone)
         {
             return status;
@@ -83,7 +83,7 @@ Transceiver::write(IceInternal::Buffer& buf)
 }
 
 IceInternal::SocketOperation
-Transceiver::read(IceInternal::Buffer& buf, bool& moreData)
+Transceiver::read(IceInternal::Buffer& buf)
 {
     if(!_configuration->readReady() && (!buf.b.empty() && buf.i < buf.b.end()))
     {
@@ -99,10 +99,10 @@ Transceiver::read(IceInternal::Buffer& buf, bool& moreData)
             if(_readBufferPos == _readBuffer.i)
             {
                 _readBufferPos = _readBuffer.i = _readBuffer.b.begin();
-                _transceiver->read(_readBuffer, moreData);
+                _transceiver->read(_readBuffer);
                 if(_readBufferPos == _readBuffer.i)
                 {
-                    moreData = false;
+                    _transceiver->getNativeInfo()->ready(IceInternal::SocketOperationRead, false);
                     return IceInternal::SocketOperationRead;
                 }
             }
@@ -119,12 +119,15 @@ Transceiver::read(IceInternal::Buffer& buf, bool& moreData)
             _readBufferPos += available;
             buf.i += available;
         }
-        moreData |= _readBufferPos < _readBuffer.i;
+        if(_readBufferPos < _readBuffer.i)
+        {
+            _transceiver->getNativeInfo()->ready(IceInternal::SocketOperationRead, true);
+        }
         return IceInternal::SocketOperationNone;
     }
     else
     {
-        return _transceiver->read(buf, moreData);
+        return _transceiver->read(buf);
     }
 }
 
@@ -182,14 +185,14 @@ Transceiver::startRead(IceInternal::Buffer& buf)
 }
 
 void
-Transceiver::finishRead(IceInternal::Buffer& buf, bool& hasMoreData)
+Transceiver::finishRead(IceInternal::Buffer& buf)
 {
     _configuration->checkReadException();
     if(_buffered && _initialized)
     {
         if(buf.i != buf.b.end())
         {
-            _transceiver->finishRead(_readBuffer, hasMoreData);
+            _transceiver->finishRead(_readBuffer);
 
             size_t requested = buf.b.end() - buf.i;
             size_t available = _readBuffer.i - _readBufferPos;
@@ -208,7 +211,7 @@ Transceiver::finishRead(IceInternal::Buffer& buf, bool& hasMoreData)
     }
     else
     {
-        _transceiver->finishRead(buf, hasMoreData);
+        _transceiver->finishRead(buf);
     }
 }
 #endif

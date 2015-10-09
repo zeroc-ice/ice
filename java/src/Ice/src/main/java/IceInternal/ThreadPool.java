@@ -267,10 +267,26 @@ public final class ThreadPool
     }
 
     public synchronized void
-    initialize(EventHandler handler)
+    initialize(final EventHandler handler)
     {
         assert(!_destroyed);
         _selector.initialize(handler);
+
+        handler.setReadyCallback(
+            new EventHandler.ReadyCallback()
+            {
+                public void ready(int op, boolean value)
+                {
+                    synchronized(ThreadPool.this)
+                    {
+                        if(_destroyed)
+                        {
+                            return;
+                        }
+                        _selector.ready(handler, op, value);
+                    }
+                }
+            });
     }
 
     public void
@@ -295,20 +311,6 @@ public final class ThreadPool
             return;
         }
         _selector.update(handler, remove, add);
-
-        if((add & SocketOperation.Read) != 0 && handler._hasMoreData.value &&
-           (handler._disabled & SocketOperation.Read) == 0)
-        {
-            if(_pendingHandlers.isEmpty())
-            {
-                _workQueue.queue(_interruptWorkItem); // Interrupt select()
-            }
-            _pendingHandlers.add(handler);
-        }
-        else if((remove & SocketOperation.Read) != 0)
-        {
-            _pendingHandlers.remove(handler);
-        }
     }
 
     public void
@@ -322,7 +324,6 @@ public final class ThreadPool
     {
         assert(!_destroyed);
         closeNow = _selector.finish(handler, closeNow);
-        _pendingHandlers.remove(handler);
         _workQueue.queue(new FinishedWorkItem(handler, !closeNow));
         return closeNow;
     }
@@ -354,9 +355,13 @@ public final class ThreadPool
         }
     }
 
-    public void
+    synchronized public void
     dispatch(DispatchWorkItem workItem)
     {
+        if(_destroyed)
+        {
+            throw new Ice.CommunicatorDestroyedException();
+        }
         _workQueue.queue(workItem);
     }
 
@@ -407,22 +412,19 @@ public final class ThreadPool
             }
             else if(select)
             {
-                if(_workQueue.size() == 0)
+                try
                 {
-                    try
+                    _selector.select(_serverIdleTime);
+                }
+                catch(Selector.TimeoutException ex)
+                {
+                    synchronized(this)
                     {
-                        _selector.select(_serverIdleTime);
-                    }
-                    catch(Selector.TimeoutException ex)
-                    {
-                        synchronized(this)
+                        if(!_destroyed && _inUse == 0)
                         {
-                            if(!_destroyed && _inUse == 0)
-                            {
-                                _workQueue.queue(new ShutdownWorkItem()); // Select timed-out.
-                            }
-                            continue;
+                            _workQueue.queue(new ShutdownWorkItem()); // Select timed-out.
                         }
+                        continue;
                     }
                 }
             }
@@ -434,22 +436,7 @@ public final class ThreadPool
                     if(select)
                     {
                         _selector.finishSelect(_handlers);
-                        _workQueue.update(_handlers);
                         select = false;
-
-                        if(!_pendingHandlers.isEmpty())
-                        {
-                            for(EventHandlerOpPair pair : _handlers)
-                            {
-                                _pendingHandlers.remove(pair.handler);
-                            }
-                            for(EventHandler p : _pendingHandlers)
-                            {
-                                _handlers.add(new EventHandlerOpPair(p, SocketOperation.Read));
-                            }
-                            _pendingHandlers.clear();
-                        }
-
                         _nextHandler = _handlers.iterator();
                     }
                     else if(!current._leader && followerWait(current))
@@ -466,16 +453,6 @@ public final class ThreadPool
                         // the IO thread count now.
                         //
                         --_inUseIO;
-
-                        if(current._handler._hasMoreData.value &&
-                           (current._handler._registered & SocketOperation.Read) != 0)
-                        {
-                            if(_pendingHandlers.isEmpty())
-                            {
-                                _workQueue.queue(_interruptWorkItem);
-                            }
-                            _pendingHandlers.add(current._handler);
-                        }
                     }
                     else
                     {
@@ -486,15 +463,6 @@ public final class ThreadPool
                         if(_serialize)
                         {
                             _selector.enable(current._handler, current.operation);
-                            if(current._handler._hasMoreData.value &&
-                               (current._handler._registered & SocketOperation.Read) != 0)
-                            {
-                                if(_pendingHandlers.isEmpty())
-                                {
-                                    _workQueue.queue(_interruptWorkItem); // Interrupt select()
-                                }
-                                _pendingHandlers.add(current._handler);
-                            }
                         }
                         assert(_inUse > 0);
                         --_inUse;
@@ -505,39 +473,23 @@ public final class ThreadPool
                         return; // Wait timed-out.
                     }
                 }
-                else if(current._handler._hasMoreData.value &&
-                        (current._handler._registered & SocketOperation.Read) != 0)
-                {
-                    if(_pendingHandlers.isEmpty())
-                    {
-                        _workQueue.queue(_interruptWorkItem); // Interrupt select()
-                    }
-                    _pendingHandlers.add(current._handler);
-                }
 
                 //
                 // Get the next ready handler.
                 //
-                EventHandlerOpPair next = null;
+                current._handler = null;
                 while(_nextHandler.hasNext())
                 {
                     EventHandlerOpPair n = _nextHandler.next();
-                    if((n.op & n.handler._registered) != 0)
+                    int op = n.op & ~n.handler._disabled & n.handler._registered;
+                    if(op != 0)
                     {
-                        next = n;
+                        current._ioCompleted = false;
+                        current._handler = n.handler;
+                        current.operation = op;
+                        thread.setState(Ice.Instrumentation.ThreadState.ThreadStateInUseForIO);
                         break;
                     }
-                }
-                if(next != null)
-                {
-                    current._ioCompleted = false;
-                    current._handler = next.handler;
-                    current.operation = next.op;
-                    thread.setState(Ice.Instrumentation.ThreadState.ThreadStateInUseForIO);
-                }
-                else
-                {
-                    current._handler = null;
                 }
 
                 if(current._handler == null)
@@ -592,20 +544,6 @@ public final class ThreadPool
                 if(_serialize)
                 {
                     _selector.disable(current._handler, current.operation);
-
-                    // Make sure the handler isn't in the set of pending handlers (this can
-                    // for example occur if the handler is has more data and its added by
-                    // ThreadPool::update while we were processing IO).
-                    _pendingHandlers.remove(current._handler);
-                }
-                else if(current._handler._hasMoreData.value &&
-                        (current._handler._registered & SocketOperation.Read) != 0)
-                {
-                    if(_pendingHandlers.isEmpty())
-                    {
-                        _workQueue.queue(_interruptWorkItem); // Interrupt select()
-                    }
-                    _pendingHandlers.add(current._handler);
                 }
             }
 
@@ -714,8 +652,7 @@ public final class ThreadPool
                 }
                 if(interrupted || IceInternal.Time.currentMonotonicTimeMillis() - before >= _threadIdleTime * 1000)
                 {
-                    if(!_destroyed && (!_promote || _inUseIO == _sizeIO ||
-                                       (!_nextHandler.hasNext() && _inUseIO > 0)))
+                    if(!_destroyed && (!_promote || _inUseIO == _sizeIO || (!_nextHandler.hasNext() && _inUseIO > 0)))
                     {
                         if(_instance.traceLevels().threadPool >= 1)
                         {
@@ -881,7 +818,6 @@ public final class ThreadPool
 
     private java.util.List<EventHandlerOpPair> _handlers = new java.util.ArrayList<EventHandlerOpPair>();
     private java.util.Iterator<EventHandlerOpPair> _nextHandler;
-    private java.util.HashSet<EventHandler> _pendingHandlers = new java.util.HashSet<EventHandler>();
 
     private boolean _promote;
 }

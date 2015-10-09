@@ -37,11 +37,11 @@ public:
 
     virtual IceInternal::NativeInfoPtr getNativeInfo();
 
-    virtual IceInternal::SocketOperation initialize(IceInternal::Buffer&, IceInternal::Buffer&, bool&);
+    virtual IceInternal::SocketOperation initialize(IceInternal::Buffer&, IceInternal::Buffer&);
     virtual IceInternal::SocketOperation closing(bool, const Ice::LocalException&);
     virtual void close();
     virtual IceInternal::SocketOperation write(IceInternal::Buffer&);
-    virtual IceInternal::SocketOperation read(IceInternal::Buffer&, bool&);
+    virtual IceInternal::SocketOperation read(IceInternal::Buffer&);
 
     virtual std::string protocol() const;
     virtual std::string toString() const;
@@ -74,7 +74,7 @@ private:
     SSLContextRef _ssl;
     SecTrustRef _trust;
     bool _verified;
-    
+
     size_t _buffered;
     enum SSLWantFlags
     {

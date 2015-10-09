@@ -51,7 +51,10 @@ public final class Selector
 
     void initialize(EventHandler handler)
     {
-        updateImpl(handler);
+        if(handler.fd() != null)
+        {
+            updateImpl(handler);
+        }
     }
 
     void update(EventHandler handler, int remove, int add)
@@ -64,27 +67,38 @@ public final class Selector
             return;
         }
 
+        if(handler.fd() == null)
+        {
+            return;
+        }
+
         updateImpl(handler);
+        checkReady(handler);
     }
 
     void enable(EventHandler handler, int status)
     {
-        if((handler._disabled & status) == 0)
+        if(handler.fd() == null || (handler._disabled & status) == 0)
         {
             return;
         }
         handler._disabled = handler._disabled & ~status;
 
+        if(handler.fd() == null)
+        {
+            return;
+        }
+
         if(handler._key != null && (handler._registered & status) != 0)
         {
-            // If registered with the selector, update the registration.
-            updateImpl(handler);
+            updateImpl(handler); // If registered with the selector, update the registration.
         }
+        checkReady(handler);
     }
 
     void disable(EventHandler handler, int status)
     {
-        if((handler._disabled & status) != 0)
+        if(handler.fd() == null || (handler._disabled & status) != 0)
         {
             return;
         }
@@ -92,9 +106,9 @@ public final class Selector
 
         if(handler._key != null && (handler._registered & status) != 0)
         {
-            // If registered with the selector, update the registration.
-            updateImpl(handler);
+            updateImpl(handler); // If registered with the selector, update the registration.
         }
+        checkReady(handler);
     }
 
     boolean finish(EventHandler handler, boolean closeNow)
@@ -106,7 +120,26 @@ public final class Selector
             handler._key = null;
         }
         _changes.remove(handler);
+        checkReady(handler);
         return closeNow;
+    }
+
+    void ready(EventHandler handler, int status, boolean value)
+    {
+        if(((handler._ready & status) != 0) == value)
+        {
+            return; // Nothing to do if ready state already correctly set.
+        }
+
+        if(value)
+        {
+            handler._ready |= status;
+        }
+        else
+        {
+            handler._ready &= ~status;
+        }
+        checkReady(handler);
     }
 
     void startSelect()
@@ -116,13 +149,19 @@ public final class Selector
             updateSelector();
         }
         _selecting = true;
+
+        //
+        // If there are ready handlers, don't block in select, just do a non-blocking
+        // select to retrieve new ready handlers from the Java selector.
+        //
+        _selectNow = !_readyHandlers.isEmpty();
     }
 
     void finishSelect(java.util.List<EventHandlerOpPair> handlers)
     {
         assert(handlers.isEmpty());
 
-        if(_keys.isEmpty() && !_interrupted) // If key set is empty and we weren't woken up.
+        if(_keys.isEmpty() && _readyHandlers.isEmpty() && !_interrupted) // If key set is empty and we weren't woken up.
         {
             //
             // This is necessary to prevent a busy loop in case of a spurious wake-up which
@@ -149,7 +188,7 @@ public final class Selector
         }
         _interrupted = false;
         _spuriousWakeUp = 0;
-        
+
         for(java.nio.channels.SelectionKey key : _keys)
         {
             EventHandler handler = (EventHandler)key.attachment();
@@ -160,15 +199,31 @@ public final class Selector
                 // report the operations in which the handler is still interested.
                 //
                 final int op = fromJavaOps(key.readyOps() & key.interestOps());
-                handlers.add(new EventHandlerOpPair(handler, op));
+                if(!_readyHandlers.contains(handler)) // Handler will be added by the loop below
+                {
+                    handlers.add(new EventHandlerOpPair(handler, op));
+                }
             }
             catch(java.nio.channels.CancelledKeyException ex)
             {
                 assert(handler._registered == 0);
             }
         }
-        _keys.clear();
 
+        for(EventHandler handler : _readyHandlers)
+        {
+            int op = handler._ready & ~handler._disabled & handler._registered;
+            if(handler._key != null && _keys.contains(handler._key))
+            {
+                op |= fromJavaOps(handler._key.readyOps() & handler._key.interestOps());
+            }
+            if(op > 0)
+            {
+                handlers.add(new EventHandlerOpPair(handler, op));
+            }
+        }
+
+        _keys.clear();
         _selecting = false;
     }
 
@@ -179,7 +234,11 @@ public final class Selector
         {
             try
             {
-                if(timeout > 0)
+                if(_selectNow)
+                {
+                    _selector.selectNow();
+                }
+                else if(timeout > 0)
                 {
                     //
                     // NOTE: On some platforms, select() sometime returns slightly before
@@ -233,31 +292,11 @@ public final class Selector
             break;
         }
     }
-    
-    void wakeup()
-    {
-        _selector.wakeup();
-        _interrupted = true;
-    }
 
     private void updateImpl(EventHandler handler)
     {
         _changes.add(handler);
-
-        //
-        // We can't change the selection key interest ops while a select operation is in progress
-        // (it could block depending on the underlying implementation of the Java selector).
-        //
-        // Wake up the selector if necessary.
-        //
-        if(_selecting)
-        {
-            wakeup();
-        }
-        else
-        {
-            updateSelector();
-        }
+        wakeup();
     }
 
     private void updateSelector()
@@ -286,6 +325,31 @@ public final class Selector
             }
         }
         _changes.clear();
+    }
+
+    private void checkReady(EventHandler handler)
+    {
+        if((handler._ready & ~handler._disabled & handler._registered) != 0)
+        {
+            _readyHandlers.add(handler);
+            if(_selecting)
+            {
+                wakeup();
+            }
+        }
+        else
+        {
+            _readyHandlers.remove(handler);
+        }
+    }
+
+    private void wakeup()
+    {
+        if(_selecting && !_interrupted)
+        {
+            _selector.wakeup();
+            _interrupted = true;
+        }
     }
 
     private int toJavaOps(EventHandler handler, int o)
@@ -336,7 +400,9 @@ public final class Selector
     private java.nio.channels.Selector _selector;
     private java.util.Set<java.nio.channels.SelectionKey> _keys;
     private java.util.HashSet<EventHandler> _changes = new java.util.HashSet<EventHandler>();
+    private java.util.HashSet<EventHandler> _readyHandlers = new java.util.HashSet<EventHandler>();
     private boolean _selecting;
+    private boolean _selectNow;
     private boolean _interrupted;
-    private int _spuriousWakeUp;    
+    private int _spuriousWakeUp;
 }

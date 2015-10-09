@@ -79,7 +79,7 @@ IceInternal::UdpTransceiver::setCompletedHandler(SocketOperationCompletedHandler
 #endif
 
 SocketOperation
-IceInternal::UdpTransceiver::initialize(Buffer& /*readBuffer*/, Buffer& /*writeBuffer*/, bool& /*hasMoreData*/)
+IceInternal::UdpTransceiver::initialize(Buffer& /*readBuffer*/, Buffer& /*writeBuffer*/)
 {
     if(_state == StateNeedConnect)
     {
@@ -264,7 +264,7 @@ repeat:
 }
 
 SocketOperation
-IceInternal::UdpTransceiver::read(Buffer& buf, bool&)
+IceInternal::UdpTransceiver::read(Buffer& buf)
 {
     if(buf.i == buf.b.end())
     {
@@ -681,7 +681,7 @@ IceInternal::UdpTransceiver::startRead(Buffer& buf)
 }
 
 void
-IceInternal::UdpTransceiver::finishRead(Buffer& buf, bool&)
+IceInternal::UdpTransceiver::finishRead(Buffer& buf)
 {
 #ifdef ICE_OS_WINRT
     IceUtil::Mutex::Lock lock(_mutex);

@@ -762,7 +762,14 @@ getAddressStorageSize(const Address& addr)
 
 }
 
+void
+NativeInfo::setReadyCallback(const ReadyCallbackPtr& callback)
+{
+    _readyCallback = callback;
+}
+
 #ifdef ICE_USE_IOCP
+
 IceInternal::AsyncInfo::AsyncInfo(SocketOperation s)
 {
     ZeroMemory(this, sizeof(AsyncInfo));
@@ -786,6 +793,7 @@ IceInternal::NativeInfo::completed(SocketOperation operation)
         throw ex;
     }
 }
+
 #elif defined(ICE_OS_WINRT)
 
 void

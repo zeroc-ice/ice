@@ -35,16 +35,16 @@ public:
     virtual NativeInfoPtr getNativeInfo();
     virtual void setCompletedHandler(SocketOperationCompletedHandler^);
 
-    virtual SocketOperation initialize(Buffer&, Buffer&, bool&);
+    virtual SocketOperation initialize(Buffer&, Buffer&);
     virtual SocketOperation closing(bool, const Ice::LocalException&);
     virtual void close();
     virtual SocketOperation write(Buffer&);
-    virtual SocketOperation read(Buffer&, bool&);
+    virtual SocketOperation read(Buffer&);
 
     virtual bool startWrite(Buffer&);
     virtual void finishWrite(Buffer&);
     virtual void startRead(Buffer&);
-    virtual void finishRead(Buffer&, bool&);
+    virtual void finishRead(Buffer&);
 
     virtual std::string protocol() const;
     virtual std::string toString() const;

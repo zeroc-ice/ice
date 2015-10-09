@@ -1372,19 +1372,12 @@ Ice::ConnectionI::startAsync(SocketOperation operation)
         }
         else if(operation & SocketOperationRead)
         {
-            if(!_hasMoreData)
+            if(_observer && !_readHeader)
             {
-                if(_observer && !_readHeader)
-                {
-                    _observer.startRead(_readStream);
-                }
+                _observer.startRead(_readStream);
+            }
 
-                _transceiver->startRead(_readStream);
-            }
-            else
-            {
-                _transceiver->getNativeInfo()->completed(IceInternal::SocketOperationRead);
-            }
+            _transceiver->startRead(_readStream);
         }
     }
     catch(const Ice::LocalException& ex)
@@ -1422,29 +1415,26 @@ Ice::ConnectionI::finishAsync(SocketOperation operation)
         }
         else if(operation & SocketOperationRead)
         {
-            if(!_hasMoreData)
+            Buffer::Container::iterator start = _readStream.i;
+            _transceiver->finishRead(_readStream);
+            if(_instance->traceLevels()->network >= 3 && _readStream.i != start)
             {
-                Buffer::Container::iterator start = _readStream.i;
-                _transceiver->finishRead(_readStream, _hasMoreData);
-                if(_instance->traceLevels()->network >= 3 && _readStream.i != start)
+                Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);
+                out << "received ";
+                if(_endpoint->datagram())
                 {
-                    Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);
-                    out << "received ";
-                    if(_endpoint->datagram())
-                    {
-                        out << _readStream.b.size();
-                    }
-                    else
-                    {
-                        out << (_readStream.i - start) << " of " << (_readStream.b.end() - start);
-                    }
-                    out << " bytes via " << _endpoint->protocol() << "\n" << toString();
+                    out << _readStream.b.size();
                 }
+                else
+                {
+                    out << (_readStream.i - start) << " of " << (_readStream.b.end() - start);
+                }
+                out << " bytes via " << _endpoint->protocol() << "\n" << toString();
+            }
 
-                if(_observer && !_readHeader)
-                {
-                    _observer.finishRead(_readStream);
-                }
+            if(_observer && !_readHeader)
+            {
+                _observer.finishRead(_readStream);
             }
         }
     }
@@ -2517,7 +2507,7 @@ Ice::ConnectionI::heartbeat()
 bool
 Ice::ConnectionI::initialize(SocketOperation operation)
 {
-    SocketOperation s = _transceiver->initialize(_readStream, _writeStream, _hasMoreData);
+    SocketOperation s = _transceiver->initialize(_readStream, _writeStream);
     if(s != SocketOperationNone)
     {
         scheduleTimeout(s);
@@ -3548,7 +3538,7 @@ SocketOperation
 ConnectionI::read(Buffer& buf)
 {
     Buffer::Container::iterator start = buf.i;
-    SocketOperation op = _transceiver->read(buf, _hasMoreData);
+    SocketOperation op = _transceiver->read(buf);
     if(_instance->traceLevels()->network >= 3 && buf.i != start)
     {
         Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);

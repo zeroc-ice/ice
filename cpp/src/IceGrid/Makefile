@@ -114,7 +114,7 @@ $(ADMIN): $(ADMIN_OBJS) $(LIBTARGETS)
 $(REGISTRY_SERVER): $(REGISTRY_SVR_OBJS) $(LIBTARGETS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(REGISTRY_SVR_OBJS) -lIceGrid -lIceStorm -lIceStormService -lGlacier2 -lIcePatch2 \
-	$(DB_RPATH_LINK) -lFreeze -lIceBox $(EXPAT_RPATH_LINK) -lIceXML -lIceSSL $(OPENSSL_RPATH_LINK) $(LIBS)
+	$(RPATH_LINK) -lFreeze -lIceBox $(EXPAT_RPATH_LINK) -lIceXML -lIceSSL $(OPENSSL_RPATH_LINK) $(LIBS)
 
 $(NODE_SERVER): $(NODE_SVR_OBJS) $(LIBTARGETS)
 	rm -f $@

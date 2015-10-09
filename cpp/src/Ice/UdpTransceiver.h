@@ -44,17 +44,17 @@ public:
     virtual void setCompletedHandler(SocketOperationCompletedHandler^);
 #endif
 
-    virtual SocketOperation initialize(Buffer&, Buffer&, bool&);
+    virtual SocketOperation initialize(Buffer&, Buffer&);
     virtual SocketOperation closing(bool, const Ice::LocalException&);
     virtual void close();
     virtual EndpointIPtr bind();
     virtual SocketOperation write(Buffer&);
-    virtual SocketOperation read(Buffer&, bool&);
+    virtual SocketOperation read(Buffer&);
 #if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
     virtual bool startWrite(Buffer&);
     virtual void finishWrite(Buffer&);
     virtual void startRead(Buffer&);
-    virtual void finishRead(Buffer&, bool&);
+    virtual void finishRead(Buffer&);
 #endif
     virtual std::string protocol() const;
     virtual std::string toString() const;

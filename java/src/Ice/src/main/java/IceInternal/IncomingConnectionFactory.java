@@ -328,6 +328,12 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
         return _acceptor.fd();
     }
 
+    @Override
+    public void setReadyCallback(EventHandler.ReadyCallback readyCallback)
+    {
+        // Ignore, we have no use of the ready callback in the incoming connection factory.
+    }
+
     //
     // Operations from ConnectionI.StartCallback
     //
@@ -533,7 +539,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
                 if(_acceptor != null)
                 {
                     //
-                    // If possible, close the acceptor now to prevent new connections from 
+                    // If possible, close the acceptor now to prevent new connections from
                     // being accepted while we are deactivating. This is especially useful
                     // if there are no more threads in the thread pool available to dispatch
                     // the finish() call.

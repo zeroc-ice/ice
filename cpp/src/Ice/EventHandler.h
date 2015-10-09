@@ -20,7 +20,7 @@
 namespace IceInternal
 {
 
-class ICE_API EventHandler : virtual public ::IceUtil::Shared
+class ICE_API EventHandler : virtual public ::Ice::LocalObject
 {
 public:
 
@@ -53,19 +53,19 @@ public:
     virtual NativeInfoPtr getNativeInfo() = 0;
 
 protected:
-    
+
     EventHandler();
     virtual ~EventHandler();
 
 #if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
-    SocketOperation _ready;
     SocketOperation _pending;
     SocketOperation _started;
+    SocketOperation _completed;
     bool _finish;
 #else
     SocketOperation _disabled;
 #endif
-    bool _hasMoreData;
+    SocketOperation _ready;
     SocketOperation _registered;
 
     friend class ThreadPool;

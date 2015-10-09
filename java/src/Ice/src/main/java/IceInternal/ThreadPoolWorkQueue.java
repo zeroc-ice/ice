@@ -18,7 +18,6 @@ final class ThreadPoolWorkQueue extends EventHandler
         _threadPool = threadPool;
         _selector = selector;
         _destroyed = false;
-        
         _registered = SocketOperation.Read;
     }
 
@@ -38,39 +37,39 @@ final class ThreadPoolWorkQueue extends EventHandler
         }
     }
 
-    synchronized void destroy()
+    void destroy()
     {
+        // Called with the thread pool locked
         assert(!_destroyed);
         _destroyed = true;
-        _selector.wakeup();
+        _selector.ready(this, SocketOperation.Read, true);
     }
 
-    synchronized void queue(ThreadPoolWorkItem item)
+    void queue(ThreadPoolWorkItem item)
     {
-        if(_destroyed)
-        {
-            throw new Ice.CommunicatorDestroyedException();
-        }
+        // Called with the thread pool locked
         assert(item != null);
         _workItems.add(item);
-        _selector.wakeup();
+        if(_workItems.size() == 1)
+        {
+            _selector.ready(this, SocketOperation.Read, true);
+        }
     }
 
     @Override
     public void message(ThreadPoolCurrent current)
     {
         ThreadPoolWorkItem workItem = null;
-        synchronized(this)
+        synchronized(_threadPool)
         {
             if(!_workItems.isEmpty())
             {
                 workItem = _workItems.removeFirst();
                 assert(workItem != null);
             }
-            else
+            if(_workItems.isEmpty() && !_destroyed)
             {
-                assert(_destroyed);
-                _selector.wakeup();
+                _selector.ready(this, SocketOperation.Read, false);
             }
         }
 
@@ -80,6 +79,7 @@ final class ThreadPoolWorkQueue extends EventHandler
         }
         else
         {
+            assert(_destroyed);
             _threadPool.ioCompleted(current);
             throw new ThreadPool.DestroyedException();
         }
@@ -103,32 +103,14 @@ final class ThreadPoolWorkQueue extends EventHandler
         return null;
     }
 
-    // Return the number of pending events.
-    synchronized int size()
+    @Override
+    public void setReadyCallback(EventHandler.ReadyCallback callback)
     {
-        int sz = _workItems.size();
-        if(_destroyed)
-        {
-            sz++;
-        }
-        return sz;
-    }
-    
-    synchronized void update(List<EventHandlerOpPair> handlers)
-    {
-        int sz = size();
-        while(sz > 0)
-        {
-            handlers.add(_opPair);
-            --sz;
-        }
+        // Ignore, we don't use the ready callback.
     }
 
     private final ThreadPool _threadPool;
     private boolean _destroyed;
     private Selector _selector;
-
-    private EventHandlerOpPair _opPair = new EventHandlerOpPair(this, SocketOperation.Read);
     private java.util.LinkedList<ThreadPoolWorkItem> _workItems = new java.util.LinkedList<ThreadPoolWorkItem>();
-
 }

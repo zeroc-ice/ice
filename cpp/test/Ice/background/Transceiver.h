@@ -22,18 +22,18 @@ public:
     virtual IceInternal::SocketOperation closing(bool, const Ice::LocalException&);
     virtual void close();
     virtual IceInternal::SocketOperation write(IceInternal::Buffer&);
-    virtual IceInternal::SocketOperation read(IceInternal::Buffer&, bool&);
+    virtual IceInternal::SocketOperation read(IceInternal::Buffer&);
 #ifdef ICE_USE_IOCP
     virtual bool startWrite(IceInternal::Buffer&);
     virtual void finishWrite(IceInternal::Buffer&);
     virtual void startRead(IceInternal::Buffer&);
-    virtual void finishRead(IceInternal::Buffer&, bool&);
+    virtual void finishRead(IceInternal::Buffer&);
 #endif
     virtual std::string protocol() const;
     virtual std::string toString() const;
     virtual std::string toDetailedString() const;
     virtual Ice::ConnectionInfoPtr getInfo() const;
-    virtual IceInternal::SocketOperation initialize(IceInternal::Buffer&, IceInternal::Buffer&, bool&);
+    virtual IceInternal::SocketOperation initialize(IceInternal::Buffer&, IceInternal::Buffer&);
     virtual void checkSendSize(const IceInternal::Buffer&);
     virtual void setBufferSize(int rcvSize, int sndSize);
 

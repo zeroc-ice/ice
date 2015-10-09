@@ -47,8 +47,8 @@ def allTests(communicator, ref):
     test(Ice.proxyIdentityEqual(base.ice_getLocator(), anotherLocator));
     communicator.setDefaultLocator(locator);
     base = communicator.stringToProxy("test @ TestAdapter");
-    test(Ice.proxyIdentityEqual(base.ice_getLocator(), communicator.getDefaultLocator())); 
-        
+    test(Ice.proxyIdentityEqual(base.ice_getLocator(), communicator.getDefaultLocator()));
+
     #
     # We also test ice_router/ice_getRouter (perhaps we should add a
     # test/Ice/router test?)
@@ -106,24 +106,28 @@ def allTests(communicator, ref):
     try:
         obj3 = Test.TestIntfPrx.checkedCast(base3)
         obj3.ice_ping()
-    except Ice.LocalException:
+    except Ice.LocalException as ex:
+        print(ex)
         test(False)
     try:
         obj2 = Test.TestIntfPrx.checkedCast(base2)
         obj2.ice_ping()
-    except Ice.LocalException:
+    except Ice.LocalException as ex:
+        print(ex)
         test(False)
     obj.shutdown()
     manager.startServer()
     try:
         obj2 = Test.TestIntfPrx.checkedCast(base2)
         obj2.ice_ping()
-    except Ice.LocalException:
+    except Ice.LocalException as ex:
+        print(ex)
         test(False)
     try:
         obj3 = Test.TestIntfPrx.checkedCast(base3)
         obj3.ice_ping()
-    except Ice.LocalException:
+    except Ice.LocalException as ex:
+        print(ex)
         test(False)
     obj.shutdown()
     manager.startServer()
@@ -243,7 +247,7 @@ def allTests(communicator, ref):
     id.name = Ice.generateUUID();
     registry.addObject(adapter.add(HelloI(), id));
     adapter.activate();
-    
+
     helloPrx = Test.HelloPrx.checkedCast(communicator.stringToProxy(communicator.identityToString(id)));
     test(not helloPrx.ice_getConnection());
 

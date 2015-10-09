@@ -19,8 +19,15 @@ final class Transceiver implements IceInternal.Transceiver
     }
 
     @Override
+    public void setReadyCallback(IceInternal.EventHandler.ReadyCallback callback)
+    {
+        _transceiver.setReadyCallback(callback);
+        _readyCallback = callback;
+    }
+
+    @Override
     public int
-    initialize(IceInternal.Buffer readBuffer, IceInternal.Buffer writeBuffer, Ice.Holder<Boolean> moreData)
+    initialize(IceInternal.Buffer readBuffer, IceInternal.Buffer writeBuffer)
     {
         int status = _configuration.initializeSocketStatus();
         if(status == IceInternal.SocketOperation.Connect)
@@ -31,7 +38,7 @@ final class Transceiver implements IceInternal.Transceiver
         {
             if(!_initialized)
             {
-                status = _transceiver.initialize(readBuffer, writeBuffer, moreData);
+                status = _transceiver.initialize(readBuffer, writeBuffer);
                 if(status != IceInternal.SocketOperation.None)
                 {
                     return status;
@@ -48,7 +55,7 @@ final class Transceiver implements IceInternal.Transceiver
         _configuration.checkInitializeException();
         if(!_initialized)
         {
-            status = _transceiver.initialize(readBuffer, writeBuffer, moreData);
+            status = _transceiver.initialize(readBuffer, writeBuffer);
             if(status != IceInternal.SocketOperation.None)
             {
                 return status;
@@ -94,7 +101,7 @@ final class Transceiver implements IceInternal.Transceiver
 
     @Override
     public int
-    read(IceInternal.Buffer buf, Ice.Holder<Boolean> moreData)
+    read(IceInternal.Buffer buf)
     {
         if(!_configuration.readReady() && buf.b.hasRemaining())
         {
@@ -111,10 +118,10 @@ final class Transceiver implements IceInternal.Transceiver
                 {
                     _readBufferPos = 0;
                     _readBuffer.b.position(0);
-                    _transceiver.read(_readBuffer, moreData);
+                    _transceiver.read(_readBuffer);
                     if(_readBufferPos == _readBuffer.b.position())
                     {
-                        moreData.value = false;
+                        _readyCallback.ready(IceInternal.SocketOperation.Read, false);
                         return IceInternal.SocketOperation.Read;
                     }
                 }
@@ -135,12 +142,13 @@ final class Transceiver implements IceInternal.Transceiver
                 _readBufferPos += available;
                 _readBuffer.b.position(pos);
             }
-            moreData.value = _readBufferPos < _readBuffer.b.position();
+
+            _readyCallback.ready(IceInternal.SocketOperation.Read, _readBufferPos < _readBuffer.b.position());
             return IceInternal.SocketOperation.None;
         }
         else
         {
-            return _transceiver.read(buf, moreData);
+            return _transceiver.read(buf);
         }
     }
 
@@ -207,6 +215,7 @@ final class Transceiver implements IceInternal.Transceiver
 
     private final IceInternal.Transceiver _transceiver;
     private final Configuration _configuration;
+    private IceInternal.EventHandler.ReadyCallback _readyCallback;
     private boolean _initialized;
     private final boolean _buffered;
     private IceInternal.Buffer _readBuffer;

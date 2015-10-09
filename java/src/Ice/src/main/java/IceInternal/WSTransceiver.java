@@ -20,14 +20,21 @@ final class WSTransceiver implements Transceiver
     }
 
     @Override
-    public int initialize(Buffer readBuffer, Buffer writeBuffer, Ice.Holder<Boolean> moreData)
+    public void setReadyCallback(EventHandler.ReadyCallback callback)
+    {
+        _readyCallback = callback;
+        _delegate.setReadyCallback(callback);
+    }
+
+    @Override
+    public int initialize(Buffer readBuffer, Buffer writeBuffer)
     {
         //
         // Delegate logs exceptions that occur during initialize(), so there's no need to trap them here.
         //
         if(_state == StateInitializeDelegate)
         {
-            int op = _delegate.initialize(readBuffer, writeBuffer, moreData);
+            int op = _delegate.initialize(readBuffer, writeBuffer);
             if(op != 0)
             {
                 return op;
@@ -104,7 +111,7 @@ final class WSTransceiver implements Transceiver
             {
                 if(_readBuffer.b.hasRemaining())
                 {
-                    int s = _delegate.read(_readBuffer, moreData);
+                    int s = _delegate.read(_readBuffer);
                     if(s == SocketOperation.Write || _readBuffer.b.position() == 0)
                     {
                         return s;
@@ -208,7 +215,10 @@ final class WSTransceiver implements Transceiver
             _state = StateOpened;
             _nextState = StateOpened;
 
-            moreData.value = _readBufferPos < _readBuffer.b.position() || moreData.value;
+            if(_readBufferPos < _readBuffer.b.position())
+            {
+                _readyCallback.ready(SocketOperation.Read, true);
+            }
         }
         catch(Ice.LocalException ex)
         {
@@ -371,17 +381,17 @@ final class WSTransceiver implements Transceiver
     }
 
     @Override
-    public int read(Buffer buf, Ice.Holder<Boolean> moreData)
+    public int read(Buffer buf)
     {
         if(_state < StateOpened)
         {
             if(_state < StateConnected)
             {
-                return _delegate.read(buf, moreData);
+                return _delegate.read(buf);
             }
             else
             {
-                if(_delegate.read(_readBuffer, moreData) == SocketOperation.Write)
+                if(_delegate.read(_readBuffer) == SocketOperation.Write)
                 {
                     return SocketOperation.Write;
                 }
@@ -394,7 +404,10 @@ final class WSTransceiver implements Transceiver
 
         if(!buf.b.hasRemaining())
         {
-            moreData.value |= _readBufferPos < _readBuffer.b.position();
+            if(_readBufferPos < _readBuffer.b.position())
+            {
+                _readyCallback.ready(SocketOperation.Read, true);
+            }
             return SocketOperation.None;
         }
 
@@ -415,17 +428,17 @@ final class WSTransceiver implements Transceiver
                     {
                         int size = buf.size();
                         buf.resize(buf.b.position() + readSz, true);
-                        s = _delegate.read(buf, moreData);
+                        s = _delegate.read(buf);
                         buf.resize(size, true);
                     }
                     else
                     {
-                        s = _delegate.read(buf, moreData);
+                        s = _delegate.read(buf);
                     }
                 }
                 else
                 {
-                    s = _delegate.read(_readBuffer, moreData);
+                    s = _delegate.read(_readBuffer);
                 }
 
                 if(s == SocketOperation.Write)
@@ -439,12 +452,15 @@ final class WSTransceiver implements Transceiver
 
         if(!buf.b.hasRemaining())
         {
-            moreData.value |= _readBufferPos < _readBuffer.b.position();
+            if(_readBufferPos < _readBuffer.b.position())
+            {
+                _readyCallback.ready(SocketOperation.Read, true);
+            }
             s = SocketOperation.None;
         }
         else
         {
-            moreData.value = false;
+            _readyCallback.ready(SocketOperation.Read, false);
             s = SocketOperation.Read;
         }
 
@@ -1503,6 +1519,7 @@ final class WSTransceiver implements Transceiver
     private int _port;
     private String _resource;
     private boolean _incoming;
+    private EventHandler.ReadyCallback _readyCallback;
 
     private static final int StateInitializeDelegate = 0;
     private static final int StateConnected = 1;
