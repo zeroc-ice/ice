@@ -61,7 +61,7 @@ RPATH_DIR	= $(LOADER_PATH)/../$(libsubdir)
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= $(CPPFLAGS) -I.. $(READLINE_FLAGS)
+CPPFLAGS	:= $(CPPFLAGS) -I.. $(READLINE_FLAGS) $(LMDB_FLAGS)
 ICECPPFLAGS	:= $(ICECPPFLAGS) -I..
 SLICE2CPPFLAGS	:= --ice --include-dir IceStorm $(SLICE2CPPFLAGS)
 LINKWITH	:= $(BZIP2_RPATH_LINK) -lIceStorm -lIceGrid -lGlacier2 -lIceBox -lIce -lIceUtil -lIceDB

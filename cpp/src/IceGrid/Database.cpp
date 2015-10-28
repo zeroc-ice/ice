@@ -224,7 +224,8 @@ Database::Database(const Ice::ObjectAdapterPtr& registryAdapter,
 
     IceDB::IceContext context;
     context.communicator = _communicator;
-    context.encoding = { 1, 1 };
+    context.encoding.major = 1;
+    context.encoding.minor = 1;
 
     _applications = StringApplicationInfoMap(txn, applicationsDbName, context, MDB_CREATE);
 

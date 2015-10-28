@@ -107,7 +107,7 @@ RPATH_DIR	= $(LOADER_PATH)/../$(libsubdir)
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= $(CPPFLAGS) -I.. $(READLINE_FLAGS)
+CPPFLAGS	:= $(CPPFLAGS) -I.. $(READLINE_FLAGS) $(LMDB_FLAGS)
 ICECPPFLAGS	:= $(ICECPPFLAGS) -I..
 SLICE2CPPFLAGS 	:= --checksum --ice --include-dir IceGrid $(SLICE2CPPFLAGS)
 SLICE2FREEZECMD	:= $(SLICE2FREEZE) --ice --include-dir IceGrid $(ICECPPFLAGS)

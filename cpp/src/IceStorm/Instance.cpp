@@ -59,7 +59,8 @@ PersistentInstance::PersistentInstance(
     try
     {
         dbContext.communicator = communicator;
-        dbContext.encoding = { 1, 1 };
+        dbContext.encoding.minor = 1;
+        dbContext.encoding.major = 1;
 
         IceDB::ReadWriteTxn txn(_dbEnv);
 
