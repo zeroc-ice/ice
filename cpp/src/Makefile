@@ -78,11 +78,13 @@ Glacier2 IceGridLib Glacier2CryptPermissionsVerifier: Glacier2Lib
 
 IcePatch2: IcePatch2Lib
 
-IceStorm: IceBox IceStormLib IceGridLib Glacier2Lib Freeze
+IceStorm: IceBox IceStormLib IceGridLib Glacier2Lib IceDB
 
-IceGrid: IceGridLib IceStorm IcePatch2Lib Freeze IceSSL IceBox IceXML
+IceGrid: IceGridLib IceStorm IcePatch2Lib IceDB IceSSL IceBox IceXML
 
 IceDiscovery IceLocatorDiscovery: Ice
+
+IceDB: Ice
 
 all:: $(SUBDIRS)
 
