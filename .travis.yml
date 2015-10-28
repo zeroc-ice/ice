@@ -26,15 +26,22 @@ env:
   global:
     - CXX=g++-4.9
     - GCC_COMPILER=yes
-    - MCPP_HOME=$TRAVIS_BUILD_DIR/mcpp
+    - MCPP_HOME=${TRAVIS_BUILD_DIR}/mcpp
     - OPTIMIZE=yes
+    - LMDB_REVISION=0.9.16
+    - LMDB_HOME=${TRAVIS_BUILD_DIR}/lmdb-LMDB_${LMDB_REVISION}/libraries/liblmdb
 
 python:
 - "2.7"
 
-install:
+before_install:
 - git clone https://github.com/zeroc-ice/mcpp.git mcpp
-- make -C mcpp -j3
+- wget https://github.com/LMDB/lmdb/archive/LMDB_${LMDB_REVISION}.tar.gz
+- tar xvf LMDB_${LMDB_REVISION}.tar.gz
+
+install:
+- make -C ${MCPP_HOME} -j3
+- make -C ${LMDB_HOME} -j3
 - pip install passlib
 - make -j3
 
