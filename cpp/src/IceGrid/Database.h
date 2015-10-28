@@ -12,8 +12,8 @@
 
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Shared.h>
+#include <IceUtil/FileUtil.h>
 #include <Ice/CommunicatorF.h>
-#include <Freeze/Freeze.h>
 #include <IceGrid/Admin.h>
 #include <IceGrid/Internal.h>
 #include <IceGrid/ServerCache.h>
@@ -25,9 +25,7 @@
 #include <IceGrid/Topics.h>
 #include <IceGrid/PluginFacadeI.h>
 
-#include <IceGrid/StringApplicationInfoDict.h>
-#include <IceGrid/StringAdapterInfoDict.h>
-#include <IceGrid/IdentityObjectInfoDict.h>
+#include <IceDB/IceDB.h>
 
 namespace IceGrid
 {
@@ -48,6 +46,17 @@ typedef IceUtil::Handle<ServerEntry> ServerEntryPtr;
 
 class ApplicationHelper;
 
+typedef IceDB::Dbi<std::string, IceGrid::ApplicationInfo, IceDB::IceContext, Ice::OutputStreamPtr>
+    StringApplicationInfoMap;
+
+typedef IceDB::Dbi<Ice::Identity, IceGrid::ObjectInfo, IceDB::IceContext, Ice::OutputStreamPtr> IdentityObjectInfoMap;
+typedef IceDB::Dbi<std::string, Ice::Identity, IceDB::IceContext, Ice::OutputStreamPtr> StringIdentityMap;
+
+typedef IceDB::Dbi<std::string, IceGrid::AdapterInfo, IceDB::IceContext, Ice::OutputStreamPtr> StringAdapterInfoMap;
+typedef IceDB::Dbi<std::string, std::string, IceDB::IceContext, Ice::OutputStreamPtr> StringStringMap;
+
+typedef IceDB::Dbi<std::string, Ice::Long, IceDB::IceContext, Ice::OutputStreamPtr> StringLongMap;
+
 class Database : public IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
@@ -58,9 +67,9 @@ public:
 #endif
 
 
-    Database(const Ice::ObjectAdapterPtr&, const IceStorm::TopicManagerPrx&, const std::string&,
-             const TraceLevelsPtr&, const RegistryInfo&, const Freeze::ConnectionPtr&, const std::string&, bool);
-    
+    Database(const Ice::ObjectAdapterPtr&, const IceStorm::TopicManagerPrx&, const std::string&, const TraceLevelsPtr&,
+             const RegistryInfo&, bool);
+
     std::string getInstanceName() const;
     bool isReadOnly() const { return _readonly; }
     const TraceLevelsPtr& getTraceLevels() const { return _traceLevels; }
@@ -78,9 +87,9 @@ public:
     void syncAdapters(const AdapterInfoSeq&, Ice::Long);
     void syncObjects(const ObjectInfoSeq&, Ice::Long);
 
-    ApplicationInfoSeq getApplications(Ice::Long&) const;
-    AdapterInfoSeq getAdapters(Ice::Long&) const;
-    ObjectInfoSeq getObjects(Ice::Long&) const;
+    ApplicationInfoSeq getApplications(Ice::Long&);
+    AdapterInfoSeq getAdapters(Ice::Long&);
+    ObjectInfoSeq getObjects(Ice::Long&);
 
     StringLongDict getSerials() const;
 
@@ -98,7 +107,7 @@ public:
 
     ReplicaCache& getReplicaCache();
     ReplicaEntryPtr getReplica(const std::string&) const;
-    
+
     ServerCache& getServerCache();
     ServerEntryPtr getServer(const std::string&) const;
 
@@ -106,16 +115,16 @@ public:
     AllocatableObjectEntryPtr getAllocatableObject(const Ice::Identity&) const;
 
     void setAdapterDirectProxy(const std::string&, const std::string&, const Ice::ObjectPrx&, Ice::Long = 0);
-    Ice::ObjectPrx getAdapterDirectProxy(const std::string&, const Ice::EncodingVersion&, const Ice::ConnectionPtr&, 
+    Ice::ObjectPrx getAdapterDirectProxy(const std::string&, const Ice::EncodingVersion&, const Ice::ConnectionPtr&,
                                          const Ice::Context&);
 
     void removeAdapter(const std::string&);
     AdapterPrx getAdapterProxy(const std::string&, const std::string&, bool);
-    void getLocatorAdapterInfo(const std::string&, const Ice::ConnectionPtr&, const Ice::Context&, 
-                               LocatorAdapterInfoSeq&, int&, bool&, bool&, 
+    void getLocatorAdapterInfo(const std::string&, const Ice::ConnectionPtr&, const Ice::Context&,
+                               LocatorAdapterInfoSeq&, int&, bool&, bool&,
                                const std::set<std::string>& = std::set<std::string>());
 
-    bool addAdapterSyncCallback(const std::string&, const SynchronizationCallbackPtr&, 
+    bool addAdapterSyncCallback(const std::string&, const SynchronizationCallbackPtr&,
                                 const std::set<std::string>& = std::set<std::string>());
 
     std::vector<std::pair<std::string, AdapterPrx> > getAdapters(const std::string&, int&, bool&);
@@ -140,7 +149,7 @@ public:
     Ice::ObjectPrx getObjectByTypeOnLeastLoadedNode(const std::string&, LoadSample,
                                                     const Ice::ConnectionPtr& = Ice::ConnectionPtr(),
                                                     const Ice::Context& = Ice::Context());
-    Ice::ObjectProxySeq getObjectsByType(const std::string&, 
+    Ice::ObjectProxySeq getObjectsByType(const std::string&,
                                          const Ice::ConnectionPtr& = Ice::ConnectionPtr(),
                                          const Ice::Context& = Ice::Context());
     ObjectInfo getObjectInfo(const Ice::Identity&);
@@ -153,13 +162,13 @@ public:
 
 private:
 
-    void checkForAddition(const ApplicationHelper&, const Freeze::ConnectionPtr&);
-    void checkForUpdate(const ApplicationHelper&, const ApplicationHelper&, const Freeze::ConnectionPtr&);
+    void checkForAddition(const ApplicationHelper&, const IceDB::ReadWriteTxn&);
+    void checkForUpdate(const ApplicationHelper&, const ApplicationHelper&, const IceDB::ReadWriteTxn&);
     void checkForRemove(const ApplicationHelper&);
 
     void checkServerForAddition(const std::string&);
-    void checkAdapterForAddition(const std::string&, const StringAdapterInfoDict&);
-    void checkObjectForAddition(const Ice::Identity&, const IdentityObjectInfoDict&);
+    void checkAdapterForAddition(const std::string&, const IceDB::ReadWriteTxn&);
+    void checkObjectForAddition(const Ice::Identity&, const IceDB::ReadWriteTxn&);
     void checkReplicaGroupExists(const std::string&);
     void checkReplicaGroupForRemove(const std::string&);
 
@@ -169,8 +178,8 @@ private:
 
     void checkUpdate(const ApplicationHelper&, const ApplicationHelper&, const std::string&, int, bool);
 
-    Ice::Long saveApplication(const ApplicationInfo&, const Freeze::ConnectionPtr&, Ice::Long = 0);
-    Ice::Long removeApplication(const std::string&, const Freeze::ConnectionPtr&, Ice::Long = 0);
+    Ice::Long saveApplication(const ApplicationInfo&, const IceDB::ReadWriteTxn&, Ice::Long = 0);
+    Ice::Long removeApplication(const std::string&, const IceDB::ReadWriteTxn&, Ice::Long = 0);
 
     void finishApplicationUpdate(const ApplicationUpdateInfo&, const ApplicationInfo&, const ApplicationHelper&,
                                  const ApplicationHelper&, AdminSessionI*, bool, Ice::Long = 0);
@@ -181,6 +190,15 @@ private:
     void startUpdating(const std::string&, const std::string&, int);
     void finishUpdating(const std::string&);
 
+    Ice::Long getSerial(const IceDB::Txn&, const std::string&);
+    Ice::Long updateSerial(const IceDB::ReadWriteTxn&, const std::string&, Ice::Long = 0);
+
+    void addAdapter(const IceDB::ReadWriteTxn&, const AdapterInfo&);
+    void deleteAdapter(const IceDB::ReadWriteTxn&, const AdapterInfo&);
+
+    void addObject(const IceDB::ReadWriteTxn&, const ObjectInfo&, bool);
+    void deleteObject(const IceDB::ReadWriteTxn&, const ObjectInfo&, bool);
+
     friend struct AddComponent;
 
     static const std::string _applicationDbName;
@@ -188,7 +206,7 @@ private:
     static const std::string _internalObjectDbName;
     static const std::string _adapterDbName;
     static const std::string _replicaGroupDbName;
-  
+
     const Ice::CommunicatorPtr _communicator;
     const Ice::ObjectAdapterPtr _internalAdapter;
     const IceStorm::TopicManagerPrx _topicManager;
@@ -210,16 +228,24 @@ private:
     AdapterObserverTopicPtr _adapterObserverTopic;
     ObjectObserverTopicPtr _objectObserverTopic;
 
-    Freeze::ConnectionPtr _connection;
-    const std::string _envName;
-    
-    StringApplicationInfoDict _applications;
-    StringAdapterInfoDict _adapters;
-    IdentityObjectInfoDict _objects;
-    IdentityObjectInfoDict _internalObjects;
-    
+    IceUtilInternal::FileLock _dbLock;
+    IceDB::Env _env;
+
+    StringApplicationInfoMap _applications;
+
+    StringAdapterInfoMap _adapters;
+    StringStringMap _adaptersByGroupId;
+
+    IdentityObjectInfoMap _objects;
+    StringIdentityMap _objectsByType;
+
+    IdentityObjectInfoMap _internalObjects;
+    StringIdentityMap _internalObjectsByType;
+
+    StringLongMap _serials;
+
     RegistryPluginFacadeIPtr _pluginFacade;
-    
+
     AdminSessionI* _lock;
     std::string _lockUserId;
 

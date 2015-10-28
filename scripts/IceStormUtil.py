@@ -129,7 +129,7 @@ class Replicated(IceStormUtil):
             self.dbHome.append(dbHome)
             TestUtil.cleanDbDir(dbHome)
 
-            self.iceStormDBEnv.append(' --Freeze.DbEnv.IceStorm.DbHome="%s"' % dbHome)
+            self.iceStormDBEnv.append(' --IceStorm.LMDB.Path="%s"' % dbHome)
             self.procs.append(None)
 
         topicReplicaProxy = '%s/TopicManager:%s' % (instanceName, replicaTopicManagerEndpoints)
@@ -226,7 +226,7 @@ class NonReplicated(IceStormUtil):
         self.dbHome = os.path.join(self.testdir, self.dbDir)
         TestUtil.cleanDbDir(self.dbHome)
 
-        self.iceStormDBEnv = ' --Freeze.DbEnv.IceStorm.DbHome="%s"' % self.dbHome
+        self.iceStormDBEnv = ' --IceStorm.LMDB.Path="%s"' % self.dbHome
 
     def clean(self):
         TestUtil.cleanDbDir(self.dbHome)

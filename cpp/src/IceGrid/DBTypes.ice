@@ -9,15 +9,22 @@
 
 #pragma once
 
+#include <IceGrid/Admin.ice>
+
 [["cpp:header-ext:h"]]
 
-#include <IceStorm/LinkRecord.ice>
-
-module IceStorm
+module IceGrid
 {
 
-/** Dictionary of link name to link record. */
-dictionary<string, LinkRecord> LinkRecordDict;
+dictionary<string, long> StringLongDict;
 
-}; // End module IceStorm
+struct AllData
+{
+    ApplicationInfoSeq applications;
+    AdapterInfoSeq adapters;
+    ObjectInfoSeq objects;
+    ObjectInfoSeq internalObjects;
+    StringLongDict serials;
+};
 
+};

@@ -22,13 +22,6 @@
 using namespace IceStorm;
 using namespace std;
 
-namespace IceStorm
-{
-
-extern Ice::Identity nameToIdentity(const InstancePtr&, const string&);
-
-}
-
 TransientTopicManagerImpl::TransientTopicManagerImpl(const InstancePtr& instance) :
     _instance(instance)
 {
@@ -52,7 +45,7 @@ TransientTopicManagerImpl::create(const string& name, const Ice::Current&)
         throw ex;
     }
 
-    Ice::Identity id = nameToIdentity(_instance, name);
+    Ice::Identity id = IceStormInternal::nameToIdentity(_instance, name);
 
     //
     // Called by constructor or with 'this' mutex locked.

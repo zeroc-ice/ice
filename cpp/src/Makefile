@@ -51,6 +51,7 @@ endif
 		   IcePatch2 \
 		   IceStormLib \
 		   IceGridLib \
+		   IceDB \
 		   IceStorm \
 		   IceGrid
 endif

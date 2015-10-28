@@ -6,11 +6,15 @@ VS_VERSION_INFO VERSIONINFO
  FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
 #ifdef _DEBUG
  FILEFLAGS VS_FF_DEBUG
+ #define INTERNALNAME "icedb36d\0"
+ #define ORIGINALFILENAME "icedb36d.dll\0"
 #else
  FILEFLAGS 0x0L
+ #define INTERNALNAME "icedb36\0"
+ #define ORIGINALFILENAME "icedb36.dll\0"
 #endif
  FILEOS 0x4L
- FILETYPE VFT_APP
+ FILETYPE VFT_DLL
  FILESUBTYPE 0x0L
 BEGIN
     BLOCK "StringFileInfo"
@@ -18,11 +22,11 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "ZeroC, Inc.\0"
-            VALUE "FileDescription", "Migration Utility for IceStorm Database\0"
+            VALUE "FileDescription", "IceDB C++ Library\0"
             VALUE "FileVersion", "3.6.1\0"
-            VALUE "InternalName", "icestormmigrate\0"
+            VALUE "InternalName", INTERNALNAME
             VALUE "LegalCopyright", "\251 2003-2015 ZeroC, Inc.\0"
-            VALUE "OriginalFilename", "icestormmigrate.exe\0"
+            VALUE "OriginalFilename", ORIGINALFILENAME
             VALUE "ProductName", "Ice\0"
             VALUE "ProductVersion", "3.6.1\0"
         END

@@ -341,9 +341,7 @@ RegistryI::startImpl()
             return false;
         }
     }
-    _communicator->getProperties()->setProperty("Freeze.DbEnv.Registry.DbHome", dbPath);
-    const string envName = "Registry";
-    Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, envName);
+    _communicator->getProperties()->setProperty("Registry.LMDB.Path", dbPath);
 
     //
     // Ensure that nothing is running on this port. This is also
@@ -388,11 +386,10 @@ RegistryI::startImpl()
                                                   _registryAdapter,
                                                   "IceGrid.Registry",
                                                   registryTopicManagerId,
-                                                  envName);
+                                                  "");
     const IceStorm::TopicManagerPrx topicManager = _iceStorm->getTopicManager();
 
-    _database = new Database(_registryAdapter, topicManager, _instanceName, _traceLevels, getInfo(), connection,
-                             "Registry", _readonly);
+    _database = new Database(_registryAdapter, topicManager, _instanceName, _traceLevels, getInfo(), _readonly);
     _wellKnownObjects = new WellKnownObjectsManager(_database);
 
     if(!_initFromReplica.empty())

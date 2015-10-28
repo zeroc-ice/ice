@@ -50,7 +50,7 @@ $(SERVER): $(SOBJS)
 
 $(SVCFILENAME): $(SERVICE_OBJS)
 	rm -f $@
-	$(call mkshlib,$@,$(SVCSONAME),$(SERVICE_OBJS), $(DB_RPATH_LINK) -lFreeze $(LINKWITH))
+	$(call mkshlib,$@,$(SVCSONAME),$(SERVICE_OBJS), $(DB_RPATH_LINK) $(LINKWITH))
 
 clean::
 	-rm -f build.txt log1.txt log2.txt log3.txt log4.txt

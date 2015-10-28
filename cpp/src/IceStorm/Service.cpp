@@ -15,6 +15,7 @@
 #include <IceStorm/TopicManagerI.h>
 #include <IceStorm/TransientTopicManagerI.h>
 #include <IceStorm/Instance.h>
+#include <IceStorm/Util.h>
 
 #include <IceStorm/Service.h>
 
@@ -61,6 +62,7 @@ public:
 
 private:
 
+    void createDbEnv(const Ice::CommunicatorPtr&);
     void validateProperties(const string&, const PropertiesPtr&, const LoggerPtr&);
 
     TopicManagerImplPtr _manager;
@@ -183,14 +185,16 @@ ServiceI::start(
 
     if(id == -1) // No replication.
     {
-        _instance = new Instance(instanceName, name, communicator, publishAdapter, topicAdapter);
-
         try
         {
-            _manager = new TopicManagerImpl(_instance);
+            PersistentInstancePtr instance =
+                new PersistentInstance(instanceName, name, communicator, publishAdapter, topicAdapter);
+            _instance = instance;
+
+            _manager = new TopicManagerImpl(instance);
             _managerProxy = TopicManagerPrx::uncheckedCast(topicAdapter->add(_manager->getServant(), topicManagerId));
         }
-        catch(const Ice::Exception& ex)
+        catch(const IceUtil::Exception& ex)
         {
             _instance = 0;
 
@@ -336,8 +340,11 @@ ServiceI::start(
 
             Ice::ObjectAdapterPtr nodeAdapter = communicator->createObjectAdapter(name + ".Node");
 
-            _instance = new Instance(instanceName, name, communicator, publishAdapter, topicAdapter,
-                                     nodeAdapter, nodes[id]);
+            PersistentInstancePtr instance =
+                new PersistentInstance(instanceName, name, communicator, publishAdapter, topicAdapter,
+                                       nodeAdapter, nodes[id]);
+            _instance = instance;
+
             _instance->observers()->setMajority(static_cast<unsigned int>(nodes.size())/2);
 
             // Trace replication information.
@@ -366,7 +373,7 @@ ServiceI::start(
                 _managerProxy = TopicManagerPrx::uncheckedCast(topicAdapter->createIndirectProxy(topicManagerId));
             }
 
-            _manager = new TopicManagerImpl(_instance);
+            _manager = new TopicManagerImpl(instance);
             topicAdapter->add(_manager->getServant(), topicManagerId);
 
             ostringstream os; // The node object identity.
@@ -382,7 +389,7 @@ ServiceI::start(
 
             node->start();
         }
-        catch(const Ice::Exception& ex)
+        catch(const IceUtil::Exception& ex)
         {
             _instance = 0;
 
@@ -420,7 +427,7 @@ ServiceI::start(const CommunicatorPtr& communicator,
     // This is for IceGrid only and as such we use a transient
     // implementation of IceStorm.
     string instanceName = communicator->getProperties()->getPropertyWithDefault(name + ".InstanceName", "IceStorm");
-    _instance = new Instance(instanceName, name, communicator, publishAdapter, topicAdapter);
+    _instance = new Instance(instanceName, name, communicator, publishAdapter, topicAdapter, 0);
 
     try
     {
@@ -536,7 +543,8 @@ ServiceI::validateProperties(const string& name, const PropertiesPtr& properties
         "SQL.Port",
         "SQL.DatabaseName",
         "SQL.UserName",
-        "SQL.Password"
+        "SQL.Password",
+        "LMDB.Path"
     };
 
     vector<string> unknownProps;

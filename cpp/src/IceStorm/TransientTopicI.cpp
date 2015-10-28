@@ -94,11 +94,6 @@ private:
 
 }
 
-namespace IceStorm
-{
-extern string identityToTopicName(const Ice::Identity& id);
-}
-
 TransientTopicImpl::TransientTopicImpl(
     const InstancePtr& instance,
     const string& name,
@@ -398,7 +393,7 @@ TransientTopicImpl::link(const TopicPrx& topic, Ice::Int cost, const Ice::Curren
     vector<SubscriberPtr>::iterator p = find(_subscribers.begin(), _subscribers.end(), record.id);
     if(p != _subscribers.end())
     {
-        string name = identityToTopicName(id);
+        string name = IceStormInternal::identityToTopicName(id);
         LinkExists ex;
         ex.name = name;
         throw ex;
@@ -422,7 +417,7 @@ TransientTopicImpl::unlink(const TopicPrx& topic, const Ice::Current&)
     vector<SubscriberPtr>::iterator p = find(_subscribers.begin(), _subscribers.end(), id);
     if(p == _subscribers.end())
     {
-        string name = identityToTopicName(id);
+        string name = IceStormInternal::identityToTopicName(id);
         TraceLevelsPtr traceLevels = _instance->traceLevels();
         if(traceLevels->topic > 0)
         {
@@ -464,7 +459,7 @@ TransientTopicImpl::getLinkInfoSeq(const Ice::Current&) const
         if(record.link && !(*p)->errored())
         {
             LinkInfo info;
-            info.name = identityToTopicName(record.theTopic->ice_getIdentity());
+            info.name = IceStormInternal::identityToTopicName(record.theTopic->ice_getIdentity());
             info.cost = record.cost;
             info.theTopic = record.theTopic;
             seq.push_back(info);

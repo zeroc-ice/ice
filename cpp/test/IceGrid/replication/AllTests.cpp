@@ -19,14 +19,14 @@ using namespace std;
 using namespace Test;
 using namespace IceGrid;
 
-namespace 
+namespace
 {
 
 const int sleepTime = 100; // 100ms
 const int maxRetry = 240000 / sleepTime; // 4 minutes
 
 
-void 
+void
 addProperty(const CommunicatorDescriptorPtr& communicator, const string& name, const string& value)
 {
     PropertyDescriptor prop;
@@ -44,7 +44,7 @@ waitForServerState(const IceGrid::AdminPrx& admin, const std::string& server, bo
         if(admin->getServerState(server) == (up ? Active : Inactive))
         {
             return;
-        } 
+        }
 
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(sleepTime));
         ++nRetry;
@@ -118,7 +118,7 @@ waitForNodeState(const IceGrid::AdminPrx& admin, const std::string& node, bool u
                 return;
             }
         }
-        
+
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(sleepTime));
         ++nRetry;
     }
@@ -230,7 +230,7 @@ AdminPrx
 createAdminSession(const Ice::LocatorPrx& locator, const string& replica)
 {
     test(waitAndPing(locator));
-    
+
     string registryStr("RepTestIceGrid/Registry");
     if(!replica.empty() && replica != "Master")
     {
@@ -267,34 +267,34 @@ allTests(const Ice::CommunicatorPtr& comm)
     params["replicaName"] = "";
     params["port"] = "12050";
     instantiateServer(admin, "IceGridRegistry", params);
-    
+
     params.clear();
     params["id"] = "Slave1";
     params["replicaName"] = "Slave1";
     params["port"] = "12051";
     instantiateServer(admin, "IceGridRegistry", params);
-    
+
     params.clear();
     params["id"] = "Slave2";
     params["replicaName"] = "Slave2";
     params["port"] = "12052";
     instantiateServer(admin, "IceGridRegistry", params);
 
-    Ice::LocatorPrx masterLocator = 
+    Ice::LocatorPrx masterLocator =
         Ice::LocatorPrx::uncheckedCast(comm->stringToProxy("RepTestIceGrid/Locator-Master:default -p 12050"));
-    Ice::LocatorPrx slave1Locator = 
+    Ice::LocatorPrx slave1Locator =
         Ice::LocatorPrx::uncheckedCast(comm->stringToProxy("RepTestIceGrid/Locator-Slave1:default -p 12051"));
-    Ice::LocatorPrx slave2Locator = 
+    Ice::LocatorPrx slave2Locator =
         Ice::LocatorPrx::uncheckedCast(comm->stringToProxy("RepTestIceGrid/Locator-Slave2:default -p 12052"));
 
-    Ice::LocatorPrx replicatedLocator = 
+    Ice::LocatorPrx replicatedLocator =
         Ice::LocatorPrx::uncheckedCast(comm->stringToProxy("RepTestIceGrid/Locator:default -p 12050:default -p 12051"));
 
     AdminPrx masterAdmin, slave1Admin, slave2Admin;
 
     admin->startServer("Master");
     masterAdmin = createAdminSession(masterLocator, "");
-    
+
     admin->startServer("Slave1");
     slave1Admin = createAdminSession(slave1Locator, "Slave1");
 
@@ -313,7 +313,7 @@ allTests(const Ice::CommunicatorPtr& comm)
     {
         Ice::EndpointSeq endpoints;
         ObjectInfo info;
-        
+
         info = masterAdmin->getObjectInfo(comm->stringToIdentity("RepTestIceGrid/Locator"));
         ObjectInfo info1 = slave1Admin->getObjectInfo(comm->stringToIdentity("RepTestIceGrid/Locator"));
         test(slave1Admin->getObjectInfo(comm->stringToIdentity("RepTestIceGrid/Locator")) == info);
@@ -422,7 +422,7 @@ allTests(const Ice::CommunicatorPtr& comm)
         SessionPrx session = masterRegistry->createSession("dummy", "dummy");
         session->destroy();
         if(comm->getProperties()->getProperty("Ice.Default.Protocol") == "ssl")
-        { 
+        {
             session = masterRegistry->createSessionFromSecureConnection();
             session->destroy();
         }
@@ -480,7 +480,7 @@ allTests(const Ice::CommunicatorPtr& comm)
         catch(const UserAccountNotFoundException&)
         {
         }
-        
+
         //
         // Test SessionManager, SSLSessionManager,
         // AdminSessionManager, AdminSSLSessionManager
@@ -544,7 +544,7 @@ allTests(const Ice::CommunicatorPtr& comm)
         //
         // Test addition of application, adapter, object.
         //
-        
+
         try
         {
             slave1Admin->addApplication(app);
@@ -574,8 +574,8 @@ allTests(const Ice::CommunicatorPtr& comm)
 
         test(masterAdmin->getApplicationInfo("TestApp").descriptor.description == "added application");
         test(slave1Admin->getApplicationInfo("TestApp").descriptor.description == "added application");
-        test(slave2Admin->getApplicationInfo("TestApp").descriptor.description == "added application"); 
-            
+        test(slave2Admin->getApplicationInfo("TestApp").descriptor.description == "added application");
+
         test(masterAdmin->getAdapterInfo("TestAdpt")[0] == adpt);
         test(slave1Admin->getAdapterInfo("TestAdpt")[0] == adpt);
         test(slave2Admin->getAdapterInfo("TestAdpt")[0] == adpt);
@@ -583,7 +583,7 @@ allTests(const Ice::CommunicatorPtr& comm)
         test(masterAdmin->getObjectInfo(obj.proxy->ice_getIdentity()) == obj);
         test(slave1Admin->getObjectInfo(obj.proxy->ice_getIdentity()) == obj);
         test(slave2Admin->getObjectInfo(obj.proxy->ice_getIdentity()) == obj);
-        
+
         slave2Admin->shutdown();
         waitForServerState(admin, "Slave2", false);
 
@@ -658,7 +658,7 @@ allTests(const Ice::CommunicatorPtr& comm)
         test(masterAdmin->getObjectInfo(obj.proxy->ice_getIdentity()) == obj);
         test(slave1Admin->getObjectInfo(obj.proxy->ice_getIdentity()) == obj);
         test(slave2Admin->getObjectInfo(obj.proxy->ice_getIdentity()) == obj);
-        
+
         slave2Admin->shutdown();
         waitForServerState(admin, "Slave2", false);
 
@@ -812,7 +812,7 @@ allTests(const Ice::CommunicatorPtr& comm)
     cout << "testing node session establishment... " << flush;
     {
         admin->startServer("Node1");
-        
+
         waitForNodeState(masterAdmin, "Node1", true);
         waitForNodeState(slave1Admin, "Node1", true);
 
@@ -1060,14 +1060,14 @@ allTests(const Ice::CommunicatorPtr& comm)
 
         //
         // Restart Node1 and Slave2, Slave2 still has the old version
-        // of the server so it should be able to load it. Slave1 has 
+        // of the server so it should be able to load it. Slave1 has
         // a more recent version, so it can't load it.
         //
         admin->startServer("Slave2");
         slave2Admin = createAdminSession(slave2Locator, "Slave2");
 
         admin->startServer("Node1");
-        
+
         waitForNodeState(slave2Admin, "Node1", true);
 
         slave1Admin->shutdown();
@@ -1088,7 +1088,7 @@ allTests(const Ice::CommunicatorPtr& comm)
 
         try
         {
-            comm->stringToProxy("test")->ice_locator(slave1Locator)->ice_locatorCacheTimeout(0)->ice_ping();    
+            comm->stringToProxy("test")->ice_locator(slave1Locator)->ice_locatorCacheTimeout(0)->ice_ping();
         }
         catch(const Ice::NoEndpointException&)
         {
@@ -1145,7 +1145,7 @@ allTests(const Ice::CommunicatorPtr& comm)
         slave2Admin->stopServer("Server");
 
         masterAdmin->removeApplication("TestApp");
-    }    
+    }
     cout << "ok" << endl;
 
     cout << "testing master upgrade... " << flush;
@@ -1195,7 +1195,7 @@ allTests(const Ice::CommunicatorPtr& comm)
         waitForServerState(admin, "Master", false);
         slave1Admin->shutdown();
         waitForServerState(admin, "Slave1", false);
-        
+
         params.clear();
         params["id"] = "Slave1";
         params["port"] = "12051";
@@ -1203,7 +1203,7 @@ allTests(const Ice::CommunicatorPtr& comm)
         instantiateServer(admin, "IceGridRegistry", params);
 
         admin->startServer("Slave1");
-        slave1Locator = 
+        slave1Locator =
             Ice::LocatorPrx::uncheckedCast(comm->stringToProxy("RepTestIceGrid/Locator-Master:default -p 12051"));
         slave1Admin = createAdminSession(slave1Locator, "");
 
@@ -1243,7 +1243,7 @@ allTests(const Ice::CommunicatorPtr& comm)
         masterAdmin = createAdminSession(masterLocator, "");
 
         admin->startServer("Slave1");
-        slave1Locator = 
+        slave1Locator =
             Ice::LocatorPrx::uncheckedCast(comm->stringToProxy("RepTestIceGrid/Locator-Slave1:default -p 12051"));
         slave1Admin = createAdminSession(slave1Locator, "Slave1");
 
@@ -1284,7 +1284,7 @@ allTests(const Ice::CommunicatorPtr& comm)
         admin->startServer("Node2");
         waitForNodeState(masterAdmin, "Node2", true);
 
-        Ice::LocatorPrx slave3Locator = 
+        Ice::LocatorPrx slave3Locator =
             Ice::LocatorPrx::uncheckedCast(
                 comm->stringToProxy("RepTestIceGrid/Locator-Slave3 -e 1.0:default -p 12053"));
         IceGrid::AdminPrx slave3Admin = createAdminSession(slave3Locator, "Slave3");
@@ -1332,8 +1332,8 @@ allTests(const Ice::CommunicatorPtr& comm)
 
     }
     cout << "ok" << endl;
-    
-    
+
+
     slave1Admin->shutdownNode("Node1");
     removeServer(admin, "Node1");
 

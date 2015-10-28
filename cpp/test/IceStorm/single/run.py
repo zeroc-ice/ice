@@ -50,7 +50,7 @@ def dotest(type):
 
     sys.stdout.write("starting subscriber... ")
     sys.stdout.flush()
-    subscriberProc = TestUtil.startServer(subscriber, icestorm.reference() + subscriberArgs, count = 3)
+    subscriberProc = TestUtil.startServer(subscriber, icestorm.reference() + subscriberArgs + " " + type, count = 3)
     print("ok")
 
     #

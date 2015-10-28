@@ -2,7 +2,7 @@
 
   <!-- Include service templates -->
   <include file="service.xml"/>
-  <include file="freezeservice.xml"/>
+  <include file="service2.xml"/>
 
   <server-template id="IceBoxTemplate">
     <parameter name="name"/>
@@ -10,7 +10,7 @@
 
     <icebox id="${name}" exe="${icebox.exe}" activation="on-demand" pwd=".">  
       <service-instance template="ServiceTemplate" name="Service1" NodeVarOverridedByParam="Overrided"/>
-      <service-instance template="FreezeServiceTemplate" name="Service2">
+      <service-instance template="SecondServiceTemplate" name="Service2">
         <properties>
           <property name="ServiceInstanceProperty" value="${name}"/>
         </properties>

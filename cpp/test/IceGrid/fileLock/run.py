@@ -22,7 +22,7 @@ import TestUtil, IceGridAdmin
 
 testdir = os.getcwd();
 
-# No need to spawn repliacs for this test.
+# No need to spawn replicas for this test.
 IceGridAdmin.nreplicas = 0
 
 def runIceGridRegistry():
@@ -48,9 +48,11 @@ def runIceGridRegistry():
 registryProcs = IceGridAdmin.startIceGridRegistry(testdir)
 
 sys.stdout.write("testing IceGrid file lock... ")
+IceGridAdmin.iceGridPort = 12011
 iceGrid = runIceGridRegistry()
-iceGrid.expect(".*IceUtil::FileLockedException.*")
+iceGrid.expect(".*IceUtil::FileLockException.*")
 iceGrid.wait()
+IceGridAdmin.iceGridPort = 12010
 print("ok")
 
 IceGridAdmin.shutdownIceGridRegistry(registryProcs)

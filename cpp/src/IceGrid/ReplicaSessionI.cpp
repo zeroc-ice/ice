@@ -28,7 +28,7 @@ operator==(const ObjectInfo& info, const Ice::Identity& id)
 
 }
 
-ReplicaSessionI::ReplicaSessionI(const DatabasePtr& database, 
+ReplicaSessionI::ReplicaSessionI(const DatabasePtr& database,
                                  const WellKnownObjectsManagerPtr& wellKnownObjects,
                                  const InternalReplicaInfoPtr& info,
                                  const InternalRegistryPrx& proxy,
@@ -95,7 +95,7 @@ ReplicaSessionI::getTimeout(const Ice::Current&) const
 }
 
 void
-ReplicaSessionI::setDatabaseObserver(const DatabaseObserverPrx& observer, 
+ReplicaSessionI::setDatabaseObserver(const DatabaseObserverPrx& observer,
                                      const IceUtil::Optional<StringLongDict>& slaveSerials,
                                      const Ice::Current&)
 {
@@ -140,7 +140,7 @@ ReplicaSessionI::setDatabaseObserver(const DatabaseObserverPrx& observer,
             os << " master and slave database with an administrative client and either:\n";
             os << " - restart the slave with --initdb-from-replica=Master\n";
             os << " - restart the master with --initdb-from-replica=" << _info->name;
-            
+
             Ice::Error out(_traceLevels->logger);
             out << os.str();
             throw DeploymentException(os.str());
@@ -160,7 +160,7 @@ ReplicaSessionI::setDatabaseObserver(const DatabaseObserverPrx& observer,
         if(_destroy)
         {
             throw Ice::ObjectNotExistException(__FILE__, __LINE__);
-        }   
+        }
         _observer = observer;
 
         serialApplicationObserver = applicationObserver->subscribe(_observer, _info->name);
@@ -181,7 +181,7 @@ ReplicaSessionI::setEndpoints(const StringObjectProxyDict& endpoints, const Ice:
         if(_destroy)
         {
             throw Ice::ObjectNotExistException(__FILE__, __LINE__);
-        }       
+        }
         _replicaEndpoints = endpoints;
     }
     _wellKnownObjects->updateReplicatedWellKnownObjects();
@@ -212,7 +212,7 @@ ReplicaSessionI::registerWellKnownObjects(const ObjectInfoSeq& objects, const Ic
 
 void
 ReplicaSessionI::setAdapterDirectProxy(const string& adapterId,
-                                       const string& replicaGroupId, 
+                                       const string& replicaGroupId,
                                        const Ice::ObjectPrx& proxy,
                                        const Ice::Current&)
 {
@@ -256,13 +256,13 @@ ReplicaSessionI::shutdown()
     destroyImpl(true);
 }
 
-const InternalRegistryPrx& 
+const InternalRegistryPrx&
 ReplicaSessionI::getInternalRegistry() const
 {
     return _internalRegistry;
 }
- 
-const InternalReplicaInfoPtr& 
+
+const InternalReplicaInfoPtr&
 ReplicaSessionI::getInfo() const
 {
     return _info;
@@ -300,7 +300,7 @@ ReplicaSessionI::destroyImpl(bool shutdown)
         if(_destroy)
         {
             throw Ice::ObjectNotExistException(__FILE__, __LINE__);
-        }       
+        }
         _destroy = true;
     }
 

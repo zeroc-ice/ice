@@ -17,6 +17,7 @@
 #include <IceUtil/Time.h>
 #include <IceStorm/Election.h>
 #include <IceStorm/Instrumentation.h>
+#include <IceStorm/Util.h>
 
 namespace IceUtil
 {
@@ -89,7 +90,7 @@ public:
     int sendTimeout() const;
 
     void shutdown();
-    void destroy();
+    virtual void destroy();
 
 private:
 
@@ -112,8 +113,36 @@ private:
     IceUtil::TimerPtr _batchFlusher;
     IceUtil::TimerPtr _timer;
     IceStorm::Instrumentation::TopicManagerObserverPtr _observer;
+
+
 };
 typedef IceUtil::Handle<Instance> InstancePtr;
+
+typedef IceDB::ReadWriteCursor<SubscriberRecordKey, SubscriberRecord, IceDB::IceContext, Ice::OutputStreamPtr>
+        SubscriberMapRWCursor;
+
+class PersistentInstance : public Instance
+{
+public:
+
+    PersistentInstance(const std::string&, const std::string&, const Ice::CommunicatorPtr&,
+                       const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr& = 0,
+                       const IceStormElection::NodePrx& = 0);
+
+    const IceDB::Env& dbEnv() const { return _dbEnv; }
+    LLUMap lluMap() const { return _lluMap; }
+    SubscriberMap subscriberMap() const { return _subscriberMap; }
+
+    virtual void destroy();
+
+private:
+
+    IceUtilInternal::FileLock _dbLock;
+    IceDB::Env _dbEnv;
+    LLUMap _lluMap;
+    SubscriberMap _subscriberMap;
+};
+typedef IceUtil::Handle<PersistentInstance> PersistentInstancePtr;
 
 } // End namespace IceStorm
 

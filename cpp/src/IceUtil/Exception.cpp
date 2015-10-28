@@ -676,7 +676,7 @@ IceUtil::FileLockException::~FileLockException() throw()
 {
 }
 
-const char* IceUtil::FileLockException::_name = "IceUtil::FileLockedException";
+const char* IceUtil::FileLockException::_name = "IceUtil::FileLockException";
 
 string
 IceUtil::FileLockException::ice_name() const

@@ -8,12 +8,44 @@
 // **********************************************************************
 
 #include <IceStorm/Util.h>
-#include <IceStorm/LLUMap.h>
+#include <IceStorm/SubscriberRecord.h>
+#include <IceStorm/Instance.h>
 
-using namespace Freeze;
-using namespace IceStormElection;
 using namespace IceStorm;
 using namespace std;
+
+namespace IceStormInternal
+{
+IceDB::IceContext dbContext;
+}
+
+string
+IceStormInternal::identityToTopicName(const Ice::Identity& id)
+{
+    //
+    // Work out the topic name. If the category is empty then we're in
+    // backwards compatibility mode and the name is just
+    // identity.name. Otherwise identity.name is topic.<topicname>.
+    //
+    if(id.category.empty())
+    {
+        return id.name;
+    }
+
+    assert(id.name.length() > 6 && id.name.compare(0, 6, "topic.") == 0);
+    return id.name.substr(6);
+}
+
+Ice::Identity
+IceStormInternal::nameToIdentity(const InstancePtr& instance, const string& name)
+{
+    // Identity is instanceName>/topic.<topicname>
+    Ice::Identity id;
+    id.category = instance->instanceName();
+    id.name = "topic." + name;
+
+    return id;
+}
 
 string
 IceStormInternal::describeEndpoints(const Ice::ObjectPrx& proxy)
@@ -26,7 +58,7 @@ IceStormInternal::describeEndpoints(const Ice::ObjectPrx& proxy)
         {
             if(i != endpoints.begin())
             {
-                os << ", "; 
+                os << ", ";
             }
             os << "\"" << (*i)->toString() << "\"";
         }
@@ -38,33 +70,32 @@ IceStormInternal::describeEndpoints(const Ice::ObjectPrx& proxy)
     return os.str();
 }
 
-namespace
+int
+IceStormInternal::compareSubscriberRecordKey(const MDB_val* v1, const MDB_val* v2)
 {
-
-const string lluDbName = "llu";
-
-}
-
-void
-IceStormInternal::putLLU(const ConnectionPtr& connection, const LogUpdate& llu)
-{
-    LLUMap llumap(connection, lluDbName);
-    LLUMap::iterator ci = llumap.find("_manager");
-    if(ci == llumap.end())
+    SubscriberRecordKey k1, k2;
+    IceDB::Codec<SubscriberRecordKey, IceDB::IceContext, Ice::OutputStreamPtr>::read(k1, *v1, dbContext);
+    IceDB::Codec<SubscriberRecordKey, IceDB::IceContext, Ice::OutputStreamPtr>::read(k2, *v2, dbContext);
+    if(k1 < k2)
     {
-        llumap.put(LLUMap::value_type("_manager", llu));
+        return -1;
+    }
+    else if(k1 == k2)
+    {
+        return 0;
     }
     else
     {
-        ci.set(llu);
+        return 1;
     }
 }
 
-LogUpdate
-IceStormInternal::getLLU(const ConnectionPtr& connection)
+IceStormElection::LogUpdate
+IceStormInternal::getIncrementedLLU(const IceDB::ReadWriteTxn& txn, LLUMap& lluMap)
 {
-    LLUMap llumap(connection, lluDbName);
-    LLUMap::iterator ci = llumap.find("_manager");
-    assert(ci != llumap.end());
-    return ci->second;
+    IceStormElection::LogUpdate llu;
+    lluMap.get(txn, lluDbKey, llu);
+    llu.iteration++;
+    lluMap.put(txn, lluDbKey, llu);
+    return llu;
 }

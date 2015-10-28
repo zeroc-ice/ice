@@ -15,8 +15,7 @@
 #include <IceStorm/Replica.h>
 #include <IceStorm/Election.h>
 #include <IceStorm/Instrumentation.h>
-
-#include <Freeze/Freeze.h>
+#include <IceStorm/Util.h>
 
 #include <IceUtil/RecMutex.h>
 
@@ -26,8 +25,8 @@ namespace IceStorm
 //
 // Forward declarations.
 //
-class Instance;
-typedef IceUtil::Handle<Instance> InstancePtr;
+class PersistentInstance;
+typedef IceUtil::Handle<PersistentInstance> PersistentInstancePtr;
 
 class TopicImpl;
 typedef IceUtil::Handle<TopicImpl> TopicImplPtr;
@@ -41,7 +40,7 @@ class TopicManagerImpl : public IceStormElection::Replica,
 {
 public:
 
-    TopicManagerImpl(const InstancePtr&);
+    TopicManagerImpl(const PersistentInstancePtr&);
     ~TopicManagerImpl();
 
     // TopicManager methods.
@@ -81,8 +80,7 @@ private:
     TopicPrx installTopic(const std::string&, const Ice::Identity&, bool,
                           const IceStorm::SubscriberRecordSeq& = IceStorm::SubscriberRecordSeq());
 
-    const InstancePtr _instance;
-    const Freeze::ConnectionPtr _connection;
+    const PersistentInstancePtr _instance;
 
     std::map<std::string, TopicImplPtr> _topics;
 
@@ -92,6 +90,8 @@ private:
     Ice::ObjectPtr _syncImpl;
     Ice::ObjectPrx _sync;
 
+    LLUMap _lluMap;
+    SubscriberMap _subscriberMap;
 };
 typedef IceUtil::Handle<TopicManagerImpl> TopicManagerImplPtr;
 

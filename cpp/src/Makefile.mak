@@ -43,6 +43,7 @@ SUBDIRS		= IceUtil \
 		  IceDiscovery \
 		  IceLocatorDiscovery \
 		  IceXML \
+                  IceDB \
 		  Freeze \
 		  FreezeScript \
 		  IcePatch2Lib \

@@ -327,6 +327,22 @@ exception NoSuchTopic
 
 /**
  *
+ * This exception indicates that an attempt was made to create a topic
+ * whose name is invalid.
+ *
+ **/
+exception InvalidTopic
+{
+    /**
+     *
+     * The reason the topic name is invalid.
+     *
+     */
+    string reason;
+};
+
+/**
+ *
  * A topic manager manages topics, and subscribers to topics.
  *
  * @see Topic
@@ -346,8 +362,10 @@ interface TopicManager
      * @throws TopicExists Raised if a topic with the same name already
      * exists.
      *
+     * @throws InvalidTopic Raised if a topic name is invalid.
+     *
      **/
-    Topic* create(string name) throws TopicExists;
+    Topic* create(string name) throws TopicExists, InvalidTopic;
 
     /**
      *

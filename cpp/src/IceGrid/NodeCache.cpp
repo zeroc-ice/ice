@@ -109,10 +109,12 @@ struct ToInternalServerDescriptor : std::unary_function<CommunicatorDescriptorPt
             if(p->dbHome.empty())
             {
                 _desc->dbEnvs.push_back(new InternalDbEnvDescriptor(p->name, p->properties));
+                props.push_back(createProperty(p->name + ".LMDB.Path", dbsPath + p->name));
                 props.push_back(createProperty("Freeze.DbEnv." + p->name + ".DbHome", dbsPath + p->name));
             }
             else
             {
+                props.push_back(createProperty(p->name + ".LMDB.Path", p->dbHome));
                 props.push_back(createProperty("Freeze.DbEnv." + p->name + ".DbHome", p->dbHome));
             }
         }
@@ -663,7 +665,7 @@ NodeEntry::destroyServer(const ServerEntryPtr& entry, const ServerInfo& info, in
 
         if(noRestart)
         {
-            node->begin_destroyServerWithoutRestart(info.descriptor->id, info.uuid, info.revision, 
+            node->begin_destroyServerWithoutRestart(info.descriptor->id, info.uuid, info.revision,
                                                     _cache.getReplicaName(),
                                                     newCallback_Node_destroyServerWithoutRestart(
                                                         new DestroyCB(_cache.getTraceLevels(), entry, _name),

@@ -13,16 +13,16 @@
 #include <IceStorm/IceStormInternal.h>
 #include <IceStorm/Election.h>
 #include <IceStorm/Instrumentation.h>
+#include <IceStorm/Util.h>
 #include <Ice/ObserverHelper.h>
-#include <Freeze/Freeze.h>
 #include <list>
 
 namespace IceStorm
 {
 
 // Forward declarations
-class Instance;
-typedef IceUtil::Handle<Instance> InstancePtr;
+class PersistentInstance;
+typedef IceUtil::Handle<PersistentInstance> PersistentInstancePtr;
 
 class Subscriber;
 typedef IceUtil::Handle<Subscriber> SubscriberPtr;
@@ -31,7 +31,7 @@ class TopicImpl : public IceUtil::Shared
 {
 public:
 
-    TopicImpl(const InstancePtr&, const std::string&, const Ice::Identity&, const SubscriberRecordSeq&);
+    TopicImpl(const PersistentInstancePtr&, const std::string&, const Ice::Identity&, const SubscriberRecordSeq&);
     ~TopicImpl();
 
     std::string getName() const;
@@ -77,11 +77,9 @@ private:
     // Immutable members.
     //
     const Ice::ObjectPrx _publisherReplicaProxy;
-    const InstancePtr _instance;
-    const Freeze::ConnectionPtr _connection;
+    const PersistentInstancePtr _instance;
     const std::string _name; // The topic name
     const Ice::Identity _id; // The topic identity
-    const std::string _envName;
 
     IceInternal::ObserverHelperT<IceStorm::Instrumentation::TopicObserver> _observer;
 
@@ -103,6 +101,9 @@ private:
     std::vector<SubscriberPtr> _subscribers;
 
     bool _destroyed; // Has this Topic been destroyed?
+
+    LLUMap _lluMap;
+    SubscriberMap _subscriberMap;
 };
 
 typedef IceUtil::Handle<TopicImpl> TopicImplPtr;

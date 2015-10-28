@@ -21,6 +21,12 @@
 using namespace std;
 using namespace IceStorm;
 using namespace IceStormElection;
+using namespace IceStormInternal;
+
+namespace IceStormInternal
+{
+extern IceDB::IceContext dbContext;
+}
 
 void
 TopicReaper::add(const string& name)
@@ -36,6 +42,48 @@ TopicReaper::consumeReapedTopics()
     vector<string> reaped;
     reaped.swap(_topics);
     return reaped;
+}
+
+PersistentInstance::PersistentInstance(
+    const string& instanceName,
+    const string& name,
+    const Ice::CommunicatorPtr& communicator,
+    const Ice::ObjectAdapterPtr& publishAdapter,
+    const Ice::ObjectAdapterPtr& topicAdapter,
+    const Ice::ObjectAdapterPtr& nodeAdapter,
+    const NodePrx& nodeProxy) :
+    Instance(instanceName, name, communicator, publishAdapter, topicAdapter, nodeAdapter, nodeProxy),
+    _dbLock(communicator->getProperties()->getPropertyWithDefault(name + ".LMDB.Path", name) + "/icedb.lock"),
+    _dbEnv(communicator->getProperties()->getPropertyWithDefault(name + ".LMDB.Path", name), 2)
+{
+    try
+    {
+        dbContext.communicator = communicator;
+        dbContext.encoding = { 1, 1 };
+
+        IceDB::ReadWriteTxn txn(_dbEnv);
+
+        _lluMap = LLUMap(txn, "llu", dbContext, MDB_CREATE);
+        _subscriberMap = SubscriberMap(txn, "subscribers", dbContext, MDB_CREATE, compareSubscriberRecordKey);
+
+        txn.commit();
+    }
+    catch(...)
+    {
+        shutdown();
+        destroy();
+
+        throw;
+    }
+}
+
+void
+PersistentInstance::destroy()
+{
+    _dbEnv.close();
+    dbContext.communicator = 0;
+
+    Instance::destroy();
 }
 
 Instance::Instance(

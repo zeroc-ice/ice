@@ -12,7 +12,6 @@
 
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Timer.h>
-#include <Freeze/EvictorF.h>
 #include <IceGrid/Activator.h>
 #include <IceGrid/Internal.h>
 #include <set>

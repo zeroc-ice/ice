@@ -1,6 +1,6 @@
 <icegrid>
 
-  <service-template id="FreezeServiceTemplate">
+  <service-template id="SecondServiceTemplate">
 
     <parameter name="name"/>
 
@@ -15,17 +15,12 @@
 
         <property name="Ice.Warn.UnknownProperties" value="0"/>
         <property name="${name}.Identity" value="${server}-${name}"/>
-        <property name="${name}.Type" value="freeze"/>
+        <property name="${name}.Type" value="nonstandard"/>
         <property name="${name}.ServiceName" value="${name}"/>
-        <property name="${name}.Freeze" value="1"/>
 
         <property name="AppVarOverridedByParamProp" value="${AppVarOverridedByParam}"/>
         <property name="NodeVarOverridedByParamProp" value="${NodeVarOverridedByParam}"/>
       </properties>
-
-      <dbenv name="${name}">
-	<dbproperty name="set_cachesize" value="0 52428800 1"/>
-      </dbenv>
     </service>
   </service-template>
 

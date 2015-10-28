@@ -5,11 +5,5 @@ IceLocatorDiscovery.cpp
 IceLocatorDiscovery.h
 Internal.cpp
 Internal.h
-StringApplicationInfoDict.h
-StringApplicationInfoDict.cpp
-IdentityObjectInfoDict.h
-IdentityObjectInfoDict.cpp
-StringAdapterInfoDict.h
-StringAdapterInfoDict.cpp
-SerialsDict.h
-SerialsDict.cpp
+DBTypes.h
+DBTypes.cpp
