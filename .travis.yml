@@ -29,7 +29,7 @@ env:
     - MCPP_HOME=${TRAVIS_BUILD_DIR}/mcpp
     - OPTIMIZE=yes
     - LMDB_REVISION=0.9.16
-    - LMDB_HOME=${TRAVIS_BUILD_DIR}/lmdb-LMDB_${LMDB_REVISION}/libraries/liblmdb
+    - LMDB_HOME=${TRAVIS_BUILD_DIR}/lmdb-LMDB_${LMDB_REVISION}
 
 python:
 - "2.7"

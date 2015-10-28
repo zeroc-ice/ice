@@ -21,8 +21,8 @@ RPATH_DIR	= $(LOADER_PATH)/../$(libsubdir)
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= $(CPPFLAGS) -DICE_DB_API_EXPORTS -I..
-LINKWITH	:= -lIce -lIceUtil -llmdb
+CPPFLAGS	:= $(CPPFLAGS) -DICE_DB_API_EXPORTS -I.. $(LMDB_FLAGS)
+LINKWITH	:= -lIce -lIceUtil $(LMDB_LIBS)
 
 $(libdir)/$(LIBFILENAME): $(OBJS)
 	@mkdir -p $(dir $@)
