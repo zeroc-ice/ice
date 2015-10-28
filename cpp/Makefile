@@ -11,7 +11,7 @@ top_srcdir	= .
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= config src include test
+SUBDIRS		= config src tools include test
 
 ifeq ($(shell uname | grep MINGW),)
 SUBDIRS		:= $(SUBDIRS) demo

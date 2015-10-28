@@ -12,7 +12,7 @@ top_srcdir	= .
 !include $(top_srcdir)/config/Make.rules.mak
 
 !if "$(WINRT)" != "yes"
-SUBDIRS		= config src include test demo
+SUBDIRS		= config src tools include test demo
 
 INSTALL_SUBDIRS	= "$(install_bindir)" "$(install_libdir)" "$(install_includedir)" "$(install_configdir)"
 
