@@ -41,7 +41,7 @@ before_install:
 
 install:
 - make -C ${MCPP_HOME} -j3
-- make -C ${LMDB_HOME} -j3
+- make -C ${LMDB_HOME}/libraries/liblmdb -j3
 - pip install passlib
 - make -j3
 
