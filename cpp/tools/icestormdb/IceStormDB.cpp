@@ -125,7 +125,10 @@ Client::run(int argc, char* argv[])
     {
         IceStorm::AllData data;
 
-        EncodingVersion encoding = { 1, 1 };
+        EncodingVersion encoding; 
+        encoding.major = 1;
+        encoding.minor = 1;
+
         communicator()->getProperties()->setProperty("Freeze.DbEnv.IceStorm.DbHome", dbPath);
 
         if(import)
@@ -145,7 +148,7 @@ Client::run(int argc, char* argv[])
                 return EXIT_FAILURE;
             }
 
-            ifstream fs(dbFile, ios::binary);
+            ifstream fs(dbFile.c_str(), ios::binary);
             if(fs.fail())
             {
                 cerr << "Could not open input file: " << strerror(errno) << endl;
@@ -259,7 +262,7 @@ Client::run(int argc, char* argv[])
             stream->write(data);
             pair<const Ice::Byte*, const Ice::Byte*> buf = stream->finished();
 
-            ofstream fs(dbFile, ios::binary);
+            ofstream fs(dbFile.c_str(), ios::binary);
             if(fs.fail())
             {
                 cerr << "Could not open output file: " << strerror(errno) << endl;
