@@ -268,6 +268,21 @@ Database::Database(const Ice::ObjectAdapterPtr& registryAdapter,
     _nodeObserverTopic = new NodeObserverTopic(_topicManager, _internalAdapter);
     _registryObserverTopic = new RegistryObserverTopic(_topicManager);
 
+    // Set all serials to 1 if they have not yet been set.
+    Ice::Long serial;
+    if(!_serials.get(txn, applicationsDbName, serial))
+    {
+        _serials.put(txn, applicationsDbName, 1);
+    }
+    if(!_serials.get(txn, adaptersDbName, serial))
+    {
+        _serials.put(txn, adaptersDbName, 1);
+    }
+    if(!_serials.get(txn, objectsDbName, serial))
+    {
+        _serials.put(txn, objectsDbName, 1);
+    }
+
     _applicationObserverTopic =
         new ApplicationObserverTopic(_topicManager, toMap(txn, _applications), getSerial(txn, applicationsDbName));
     _adapterObserverTopic =
