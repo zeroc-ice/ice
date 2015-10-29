@@ -19,6 +19,12 @@ class Acceptor implements IceInternal.Acceptor
     }
 
     @Override
+    public void setReadyCallback(IceInternal.ReadyCallback callback)
+    {
+        // No need to for the ready callback.
+    }
+
+    @Override
     public void
     close()
     {

@@ -9,15 +9,7 @@
 
 package IceInternal;
 
-public interface Acceptor
+public interface ReadyCallback
 {
-    java.nio.channels.ServerSocketChannel fd();
-    void setReadyCallback(ReadyCallback callback);
-    void close();
-    EndpointI listen();
-    Transceiver accept();
-    String protocol();
-    @Override
-    String toString();
-    String toDetailedString();
-}
+    void ready(int op, boolean value);
+};

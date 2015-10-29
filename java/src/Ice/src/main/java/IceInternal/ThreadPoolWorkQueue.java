@@ -104,7 +104,7 @@ final class ThreadPoolWorkQueue extends EventHandler
     }
 
     @Override
-    public void setReadyCallback(EventHandler.ReadyCallback callback)
+    public void setReadyCallback(ReadyCallback callback)
     {
         // Ignore, we don't use the ready callback.
     }

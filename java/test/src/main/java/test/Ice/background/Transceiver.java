@@ -19,7 +19,7 @@ final class Transceiver implements IceInternal.Transceiver
     }
 
     @Override
-    public void setReadyCallback(IceInternal.EventHandler.ReadyCallback callback)
+    public void setReadyCallback(IceInternal.ReadyCallback callback)
     {
         _transceiver.setReadyCallback(callback);
         _readyCallback = callback;
@@ -215,7 +215,7 @@ final class Transceiver implements IceInternal.Transceiver
 
     private final IceInternal.Transceiver _transceiver;
     private final Configuration _configuration;
-    private IceInternal.EventHandler.ReadyCallback _readyCallback;
+    private IceInternal.ReadyCallback _readyCallback;
     private boolean _initialized;
     private final boolean _buffered;
     private IceInternal.Buffer _readBuffer;

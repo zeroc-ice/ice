@@ -18,6 +18,12 @@ class TcpAcceptor implements Acceptor
     }
 
     @Override
+    public void setReadyCallback(ReadyCallback callback)
+    {
+        // No need to for the ready callback.
+    }
+
+    @Override
     public void close()
     {
         if(_fd != null)

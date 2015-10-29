@@ -11,12 +11,6 @@ package IceInternal;
 
 public abstract class EventHandler
 {
-    public interface ReadyCallback
-    {
-        void ready(int op, boolean value);
-    };
-
-
     //
     // Called when there's a message ready to be processed.
     //

@@ -18,6 +18,12 @@ final class WSAcceptor implements IceInternal.Acceptor
     }
 
     @Override
+    public void setReadyCallback(ReadyCallback callback)
+    {
+        _delegate.setReadyCallback(callback);
+    }
+
+    @Override
     public void close()
     {
         _delegate.close();

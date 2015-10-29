@@ -20,7 +20,7 @@ final class WSTransceiver implements Transceiver
     }
 
     @Override
-    public void setReadyCallback(EventHandler.ReadyCallback callback)
+    public void setReadyCallback(ReadyCallback callback)
     {
         _readyCallback = callback;
         _delegate.setReadyCallback(callback);
@@ -1519,7 +1519,7 @@ final class WSTransceiver implements Transceiver
     private int _port;
     private String _resource;
     private boolean _incoming;
-    private EventHandler.ReadyCallback _readyCallback;
+    private ReadyCallback _readyCallback;
 
     private static final int StateInitializeDelegate = 0;
     private static final int StateConnected = 1;

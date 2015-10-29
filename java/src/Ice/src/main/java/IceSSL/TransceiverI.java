@@ -22,7 +22,7 @@ final class TransceiverI implements IceInternal.Transceiver, IceInternal.WSTrans
     }
 
     @Override
-    public void setReadyCallback(IceInternal.EventHandler.ReadyCallback callback)
+    public void setReadyCallback(IceInternal.ReadyCallback callback)
     {
         _readyCallback = callback;
     }
@@ -592,7 +592,7 @@ final class TransceiverI implements IceInternal.Transceiver, IceInternal.WSTrans
     private String _host = "";
     private String _adapterName = "";
     private boolean _incoming;
-    private IceInternal.EventHandler.ReadyCallback _readyCallback;
+    private IceInternal.ReadyCallback _readyCallback;
 
     private ByteBuffer _appInput; // Holds clear-text data to be read by the application.
     private ByteBuffer _netInput; // Holds encrypted data read from the socket.

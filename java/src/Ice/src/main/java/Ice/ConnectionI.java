@@ -1420,7 +1420,7 @@ public final class ConnectionI extends IceInternal.EventHandler
     }
 
     @Override
-    public void setReadyCallback(IceInternal.EventHandler.ReadyCallback callback)
+    public void setReadyCallback(IceInternal.ReadyCallback callback)
     {
         _transceiver.setReadyCallback(callback);
     }

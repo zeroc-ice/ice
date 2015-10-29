@@ -273,7 +273,7 @@ public final class ThreadPool
         _selector.initialize(handler);
 
         handler.setReadyCallback(
-            new EventHandler.ReadyCallback()
+            new ReadyCallback()
             {
                 public void ready(int op, boolean value)
                 {

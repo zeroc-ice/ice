@@ -12,7 +12,7 @@ package IceInternal;
 public interface Transceiver
 {
     java.nio.channels.SelectableChannel fd();
-    void setReadyCallback(EventHandler.ReadyCallback callback);
+    void setReadyCallback(ReadyCallback callback);
 
     int initialize(Buffer readBuffer, Buffer writeBuffer);
     int closing(boolean initiator, Ice.LocalException ex);

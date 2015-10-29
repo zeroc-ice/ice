@@ -19,7 +19,7 @@ final class UdpTransceiver implements Transceiver
     }
 
     @Override
-    public void setReadyCallback(EventHandler.ReadyCallback callback)
+    public void setReadyCallback(ReadyCallback callback)
     {
     }
 

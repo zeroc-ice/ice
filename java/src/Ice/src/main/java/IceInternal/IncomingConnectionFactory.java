@@ -329,9 +329,12 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
     }
 
     @Override
-    public void setReadyCallback(EventHandler.ReadyCallback readyCallback)
+    public void setReadyCallback(ReadyCallback readyCallback)
     {
-        // Ignore, we have no use of the ready callback in the incoming connection factory.
+        if(_acceptor != null)
+        {
+            _acceptor.setReadyCallback(readyCallback);
+        }
     }
 
     //

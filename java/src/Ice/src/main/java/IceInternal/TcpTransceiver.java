@@ -19,7 +19,7 @@ final class TcpTransceiver implements Transceiver, WSTransceiverDelegate
     }
 
     @Override
-    public void setReadyCallback(EventHandler.ReadyCallback callback)
+    public void setReadyCallback(ReadyCallback callback)
     {
         // No need of the callback
     }
