@@ -29,7 +29,8 @@ env:
     - MCPP_HOME=${TRAVIS_BUILD_DIR}/mcpp
     - OPTIMIZE=yes
     - LMDB_REVISION=0.9.16
-    - LMDB_HOME=${TRAVIS_BUILD_DIR}/lmdb-LMDB_${LMDB_REVISION}
+    - LMDB_BUILD_DIR=${TRAVIS_BUILD_DIR}/lmdb-LMDB_${LMDB_REVISION}
+    - LMDB_HOME=${TRAVIS_BUILD_DIR}/lmdb
 
 python:
 - "2.7"
@@ -41,7 +42,12 @@ before_install:
 
 install:
 - make -C ${MCPP_HOME} -j3
-- make -C ${LMDB_HOME}/libraries/liblmdb -j3
+- mkdir -p ${LMDB_HOME}/bin
+- mkdir -p ${LMDB_HOME}/lib
+- mkdir -p ${LMDB_HOME}/include
+- mkdir -p ${LMDB_HOME}/man/man1
+- CPPFLAGS=-fPIC make -C ${LMDB_BUILD_DIR}/libraries/liblmdb install prefix=${LMDB_HOME}
+- rm -f ${LMDB_HOME}/lib/liblmdb.so
 - pip install passlib
 - make -j3
 

@@ -1320,6 +1320,21 @@ namespace Ice
                 ex1.id = _id;
                 throw ex1;
             }
+            catch(InvalidAdapterException ex)
+            {
+                if(instance_.traceLevels().location >= 1)
+                {
+                    System.Text.StringBuilder s = new System.Text.StringBuilder();
+                    s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
+                    s.Append(ex.reason);
+                    instance_.initializationData().logger.trace(instance_.traceLevels().locationCat, s.ToString());
+                }
+
+                NotRegisteredException ex1 = new NotRegisteredException();
+                ex1.kindOfObject = "object adapter";
+                ex1.id = _id;
+                throw ex1;
+            }
             catch(InvalidReplicaGroupIdException)
             {
                 if(instance_.traceLevels().location >= 1)

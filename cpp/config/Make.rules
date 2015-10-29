@@ -260,10 +260,11 @@ ifeq ($(EXPAT_LIBS),)
 endif
 EXPAT_RPATH_LINK        = $(if $(EXPAT_HOME),$(call rpathlink,$(EXPAT_HOME)/$(libsubdir)))
 
-LMDB_FLAGS             = $(if $(LMDB_HOME),-I$(LMDB_HOME)/libraries/liblmdb)
+LMDB_FLAGS             = $(if $(LMDB_HOME),-I$(LMDB_HOME)/include)
 ifeq ($(LMDB_LIBS),)
-    LMDB_LIBS              = $(if $(LMDB_HOME),-L$(LMDB_HOME)/libraries/liblmdb) -llmdb
+    LMDB_LIBS              = $(if $(LMDB_HOME),-L$(LMDB_HOME)/lib) -llmdb
 endif
+LMDB_RPATH_LINK        = $(if $(LMDB_HOME),$(call rpathlink,$(LMDB_HOME)/lib))
 
 ifeq ($(MCPP_LIBS),)
     ifeq ($(MCPP_HOME),)

@@ -37,7 +37,8 @@ public class AllTests
 
     public static void
     allTests(Application app)
-        throws Ice.AdapterAlreadyActiveException, Ice.AdapterNotFoundException, InterruptedException
+        throws Ice.AdapterAlreadyActiveException, Ice.AdapterNotFoundException, Ice.InvalidAdapterException,
+               InterruptedException
     {
         Ice.Communicator communicator = app.communicator();
         PrintWriter out = app.getWriter();
@@ -64,7 +65,7 @@ public class AllTests
 
         out.print("testing ice_locator and ice_getLocator... ");
         test(Ice.Util.proxyIdentityCompare(base.ice_getLocator(), communicator.getDefaultLocator()) == 0);
-        Ice.LocatorPrx anotherLocator = 
+        Ice.LocatorPrx anotherLocator =
             Ice.LocatorPrxHelper.uncheckedCast(communicator.stringToProxy("anotherLocator"));
         base = base.ice_locator(anotherLocator);
         test(Ice.Util.proxyIdentityCompare(base.ice_getLocator(), anotherLocator) == 0);
@@ -75,8 +76,8 @@ public class AllTests
         test(Ice.Util.proxyIdentityCompare(base.ice_getLocator(), anotherLocator) == 0);
         communicator.setDefaultLocator(locator);
         base = communicator.stringToProxy("test @ TestAdapter");
-        test(Ice.Util.proxyIdentityCompare(base.ice_getLocator(), communicator.getDefaultLocator()) == 0); 
-        
+        test(Ice.Util.proxyIdentityCompare(base.ice_getLocator(), communicator.getDefaultLocator()) == 0);
+
         //
         // We also test ice_router/ice_getRouter (perhaps we should add a
         // test/Ice/router test?)
@@ -114,7 +115,7 @@ public class AllTests
         TestIntfPrx obj6 = TestIntfPrxHelper.checkedCast(base6);
         test(obj6 != null);
         out.println("ok");
- 
+
         out.print("testing id@AdapterId indirect proxy... ");
         out.flush();
         obj.shutdown();
@@ -128,8 +129,8 @@ public class AllTests
             ex.printStackTrace();
             test(false);
         }
-        out.println("ok");    
-    
+        out.println("ok");
+
         out.print("testing id@ReplicaGroupId indirect proxy... ");
         out.flush();
         obj.shutdown();
@@ -143,8 +144,8 @@ public class AllTests
             ex.printStackTrace();
             test(false);
         }
-        out.println("ok");    
-    
+        out.println("ok");
+
         out.print("testing identity indirect proxy... ");
         out.flush();
         obj.shutdown();
@@ -233,7 +234,7 @@ public class AllTests
             ex.printStackTrace();
             test(false);
         }
-        out.println("ok");    
+        out.println("ok");
 
         out.print("testing proxy with unknown identity... ");
         out.flush();
@@ -248,7 +249,7 @@ public class AllTests
             test(ex.kindOfObject.equals("object"));
             test(ex.id.equals("unknown/unknown"));
         }
-        out.println("ok");       
+        out.println("ok");
 
         out.print("testing proxy with unknown adapter... ");
         out.flush();
@@ -263,11 +264,11 @@ public class AllTests
             test(ex.kindOfObject.equals("object adapter"));
             test(ex.id.equals("TestAdapterUnknown"));
         }
-        out.println("ok");       
+        out.println("ok");
 
         out.print("testing locator cache timeout... ");
         out.flush();
-        
+
         int count = locator.getRequestCount();
         communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
         test(++count == locator.getRequestCount());
@@ -278,7 +279,7 @@ public class AllTests
         Thread.sleep(1200);
         communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
         test(++count == locator.getRequestCount());
-        
+
         communicator.stringToProxy("test").ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
         count += 2;
         test(count == locator.getRequestCount());
@@ -288,18 +289,18 @@ public class AllTests
         communicator.stringToProxy("test").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout
         count += 2;
         test(count == locator.getRequestCount());
-        
-        communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(-1).ice_ping(); 
+
+        communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(-1).ice_ping();
         test(count == locator.getRequestCount());
         communicator.stringToProxy("test").ice_locatorCacheTimeout(-1).ice_ping();
         test(count == locator.getRequestCount());
-        communicator.stringToProxy("test@TestAdapter").ice_ping(); 
+        communicator.stringToProxy("test@TestAdapter").ice_ping();
         test(count == locator.getRequestCount());
         communicator.stringToProxy("test").ice_ping();
         test(count == locator.getRequestCount());
 
         test(communicator.stringToProxy("test").ice_locatorCacheTimeout(99).ice_getLocatorCacheTimeout() == 99);
-        
+
         out.println("ok");
 
         out.print("testing proxy from server... ");
@@ -422,7 +423,7 @@ public class AllTests
             ex.printStackTrace();
             test(false);
         }
-    
+
         try
         {
             communicator.stringToProxy("test@TestAdapter3").ice_locatorCacheTimeout(0).ice_ping();
@@ -437,7 +438,7 @@ public class AllTests
             test(false);
         }
         catch(Ice.LocalException ex)
-        {   
+        {
         }
         registry.setAdapterDirectProxy("TestAdapter3", locator.findAdapterById("TestAdapter"));
         try
@@ -512,7 +513,7 @@ public class AllTests
             test(false);
         }
         catch(Ice.LocalException ex)
-        {   
+        {
         }
         try
         {
@@ -531,7 +532,7 @@ public class AllTests
         {
             test(false);
         }
-        
+
         registry.addObject(communicator.stringToProxy("test4"));
         try
         {
@@ -542,7 +543,7 @@ public class AllTests
         {
         }
         out.println("ok");
-        
+
         out.print("testing locator cache background updates... ");
         out.flush();
         {

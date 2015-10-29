@@ -64,7 +64,7 @@ include $(top_srcdir)/config/Make.rules
 CPPFLAGS	:= $(CPPFLAGS) -I.. $(READLINE_FLAGS) $(LMDB_FLAGS)
 ICECPPFLAGS	:= $(ICECPPFLAGS) -I..
 SLICE2CPPFLAGS	:= --ice --include-dir IceStorm $(SLICE2CPPFLAGS)
-LINKWITH	:= $(BZIP2_RPATH_LINK) -lIceStorm -lIceGrid -lGlacier2 -lIceBox -lIce -lIceUtil -lIceDB
+LINKWITH	:= $(BZIP2_RPATH_LINK) -lIceStorm -lIceGrid -lGlacier2 -lIceBox -lIce -lIceUtil $(LMDB_RPATH_LINK) -lIceDB
 
 $(libdir)/$(LIBFILENAME): $(LIB_OBJS)
 	@mkdir -p $(dir $@)
@@ -86,7 +86,7 @@ $(ADMIN): $(AOBJS) $(LIBTARGETS)
 
 $(DB): $(DBOBJS) $(LIBTARGETS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(DBOBJS) -lIceStorm -lIceDB -lIcePatch2 $(LIBS)
+	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(DBOBJS) -lIceStorm $(LMDB_RPATH_LINK) -lIceDB -lIcePatch2 $(LIBS)
 
 # Needed for make -jn to work.
 ../IceStorm/Grammar.y: Grammar.h
