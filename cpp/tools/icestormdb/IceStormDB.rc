@@ -22,7 +22,7 @@ BEGIN
             VALUE "FileVersion", "3.6.1\0"
             VALUE "InternalName", "icestormdb\0"
             VALUE "LegalCopyright", "Copyright (c) 2003-2015 ZeroC, Inc. All rights reserved.\0"
-            VALUE "OriginalFilename", "icegridadmin.exe\0"
+            VALUE "OriginalFilename", "icestormdb.exe\0"
             VALUE "ProductName", "Ice\0"
             VALUE "ProductVersion", "3.6.1\0"
         END
