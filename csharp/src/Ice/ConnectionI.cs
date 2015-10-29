@@ -1451,6 +1451,7 @@ namespace Ice
             _writeStream.getBuffer().clear();
             _readStream.clear();
             _readStream.getBuffer().clear();
+            _incomingCache = null;
 
             if(_callback != null)
             {
