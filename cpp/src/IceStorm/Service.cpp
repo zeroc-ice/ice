@@ -537,13 +537,6 @@ ServiceI::validateProperties(const string& name, const PropertiesPtr& properties
         "Trace.TopicManager",
         "Send.Timeout",
         "Discard.Interval",
-        "SQL.DatabaseType",
-        "SQL.EncodingVersion",
-        "SQL.HostName",
-        "SQL.Port",
-        "SQL.DatabaseName",
-        "SQL.UserName",
-        "SQL.Password",
         "LMDB.Path"
     };
 
