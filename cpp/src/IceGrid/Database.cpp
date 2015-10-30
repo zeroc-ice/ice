@@ -2664,35 +2664,31 @@ Database::finishUpdating(const string& name)
 Ice::Long
 Database::getSerial(const IceDB::Txn& txn, const string& dbName)
 {
-    Ice::Long serial;
-    if(!_serials.get(txn, dbName, serial))
-    {
-        return 1;
-    }
+    Ice::Long serial = 1;
+    _serials.get(txn, dbName, serial);
     return serial;
 }
 
 Ice::Long
 Database::updateSerial(const IceDB::ReadWriteTxn& txn, const string& dbName, Ice::Long serial)
 {
-    if(serial == -1) // Master doesn't support serials.
+    if(serial == -1) // The master we are talking to doesn't support serials (old IceGrid versions)
     {
         return -1;
     }
 
     //
-    // If a serial number is provided, just update the serial number from the database,
+    // If a serial number is set, just update the serial number from the database,
     // otherwise if the serial is 0, we increment the serial from the database.
     //
-    Ice::Long dbSerial;
-    if(!_serials.get(txn, dbName, dbSerial))
+    if(serial > 0)
     {
-        _serials.put(txn, dbName, serial == 0 ? 1 : serial);
-        return 1;
+        _serials.put(txn, dbName, serial);
+        return serial;
     }
     else
     {
-        dbSerial = (serial == 0 ? dbSerial + 1 : serial);
+        Ice::Long dbSerial = getSerial(txn, dbName) + 1;
         _serials.put(txn, dbName, dbSerial);
         return dbSerial;
     }
