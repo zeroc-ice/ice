@@ -63,3 +63,4 @@ clean::
 
 install:: all
 	$(call installprogram,$(ICESTORMDB),$(DESTDIR)$(install_bindir))
+	$(call installdata,$(top_srcdir)/../man/man1/icestormdb36.1,$(DESTDIR)$(install_mandir))
