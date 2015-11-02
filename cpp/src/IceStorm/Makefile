@@ -97,5 +97,6 @@ clean::
 install:: all
 	$(call installlib,$(DESTDIR)$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
 	$(call installprogram,$(ADMIN),$(DESTDIR)$(install_bindir))
-	$(call installprogram,$(DB),$(DESTDIR)$(install_bindir))
 	$(call installdata,$(top_srcdir)/../man/man1/icestormadmin.1,$(DESTDIR)$(install_mandir))
+	$(call installprogram,$(DB),$(DESTDIR)$(install_bindir))
+	$(call installdata,$(top_srcdir)/../man/man1/icestormdb.1,$(DESTDIR)$(install_mandir))

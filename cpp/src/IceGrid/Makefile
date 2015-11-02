@@ -140,8 +140,9 @@ $(NODE_SERVER): $(NODE_SVR_OBJS) $(LIBTARGETS)
 
 install:: all
 	$(call installprogram,$(ADMIN),$(DESTDIR)$(install_bindir))
-	$(call installprogram,$(DB),$(DESTDIR)$(install_bindir))
 	$(call installdata,$(top_srcdir)/../man/man1/icegridadmin.1,$(DESTDIR)$(install_mandir))
+	$(call installprogram,$(DB),$(DESTDIR)$(install_bindir))
+	$(call installdata,$(top_srcdir)/../man/man1/icegriddb.1,$(DESTDIR)$(install_mandir))
 	$(call installprogram,$(NODE_SERVER),$(DESTDIR)$(install_bindir))
 	$(call installdata,$(top_srcdir)/../man/man1/icegridnode.1,$(DESTDIR)$(install_mandir))
 	$(call installprogram,$(REGISTRY_SERVER),$(DESTDIR)$(install_bindir))
