@@ -61,10 +61,10 @@ Ice runs on a wide range of platforms:
   Ice 3.6.x plus various patches (stable, frequently updated)
 
 - `3.5`
-  Ice 3.5.1 plus various patches (stable)
+  Ice 3.7.0 plus various patches (stable)
 
 - `3.4`
-  Ice 3.4.2 plus various patches (stable)
+  Ice 3.7.0 plus various patches (stable)
 
 ## Copyright and License
 
@@ -82,5 +82,5 @@ The Ice software itself remains the same: the only difference between an open-so
 
 ## Documentation
 
-- [Ice Release Notes](https://doc.zeroc.com/display/Rel/Ice+3.6.1+Release+Notes)
-- [Ice Manual](https://doc.zeroc.com/display/Ice36/Home)
+- [Ice Release Notes](https://doc.zeroc.com/display/Rel/Ice+3.7.0+Release+Notes)
+- [Ice Manual](https://doc.zeroc.com/display/Ice37/Home)

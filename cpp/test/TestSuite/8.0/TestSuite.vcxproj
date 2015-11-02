@@ -389,7 +389,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <SDKReference Include="Ice, Version=3.6" />
+    <SDKReference Include="Ice, Version=3.7" />
   </ItemGroup>
   <ItemGroup>
     <IceBuilder Include="..\Controller.ice" />
