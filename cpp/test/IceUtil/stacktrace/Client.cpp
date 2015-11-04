@@ -113,8 +113,12 @@ getIceHome()
 void
 standardizeVersion(string& str)
 {
-    string v1("3.6.1");
-    string v2("36");
+    string v1(ICE_STRING_VERSION);
+
+    vector<string> split;
+    IceUtilInternal::splitString(v1, ".", split);
+    string v2(split[0] + split[1]);
+
     size_t pos = 0;
     while((pos = str.find(v1, pos)) != string::npos)
     {
