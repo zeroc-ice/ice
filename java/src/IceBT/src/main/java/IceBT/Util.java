@@ -7,9 +7,8 @@
 //
 // **********************************************************************
 
-package IceInternal;
+package IceBT;
 
-public interface ReadyCallback
+public final class Util
 {
-    void ready(int op, boolean value);
 }

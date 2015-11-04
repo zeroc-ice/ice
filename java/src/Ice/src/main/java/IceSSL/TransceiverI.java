@@ -209,9 +209,8 @@ final class TransceiverI implements IceInternal.Transceiver, IceInternal.WSTrans
             throw new Ice.SecurityException("IceSSL: error during read", ex);
         }
 
-
         //
-        // Return a boolean to indicate whether more data is available.
+        // Indicate whether more data is available.
         //
         if(_netInput.position() > 0 || _appInput.position() > 0)
         {

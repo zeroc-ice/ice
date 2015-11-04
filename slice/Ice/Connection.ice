@@ -283,7 +283,7 @@ local interface Connection
 
     /**
      *
-     * Set the connectiion buffer receive/send size.
+     * Set the connection buffer receive/send size.
      *
      * @rcvSize The connection receive buffer size.
      * @sndSize The connection send buffer size.
