@@ -389,7 +389,17 @@ RegistryI::startImpl()
                                                   "");
     const IceStorm::TopicManagerPrx topicManager = _iceStorm->getTopicManager();
 
-    _database = new Database(_registryAdapter, topicManager, _instanceName, _traceLevels, getInfo(), _readonly);
+    try
+    {
+        _database = new Database(_registryAdapter, topicManager, _instanceName, _traceLevels, getInfo(), _readonly);
+    }
+    catch(const IceDB::LMDBException& ex)
+    {
+        Error out(_communicator->getLogger());
+        out << "couldn't open database:\n";
+        out << ex;
+        return false;
+    }
     _wellKnownObjects = new WellKnownObjectsManager(_database);
 
     if(!_initFromReplica.empty())
@@ -449,11 +459,11 @@ RegistryI::startImpl()
         {
             Ice::Long serial;
             IceGrid::InternalRegistryPrx registry = IceGrid::InternalRegistryPrx::checkedCast(proxy);
-	    ApplicationInfoSeq applications = registry->getApplications(serial);
+            ApplicationInfoSeq applications = registry->getApplications(serial);
             _database->syncApplications(applications, serial);
-	    AdapterInfoSeq adapters = registry->getAdapters(serial);
+            AdapterInfoSeq adapters = registry->getAdapters(serial);
             _database->syncAdapters(adapters, serial);
-	    ObjectInfoSeq objects = registry->getObjects(serial);
+            ObjectInfoSeq objects = registry->getObjects(serial);
             _database->syncObjects(objects, serial);
         }
         catch(const Ice::OperationNotExistException&)
