@@ -341,7 +341,6 @@ RegistryI::startImpl()
             return false;
         }
     }
-    _communicator->getProperties()->setProperty("Registry.LMDB.Path", dbPath);
 
     //
     // Ensure that nothing is running on this port. This is also

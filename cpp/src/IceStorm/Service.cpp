@@ -537,7 +537,8 @@ ServiceI::validateProperties(const string& name, const PropertiesPtr& properties
         "Trace.TopicManager",
         "Send.Timeout",
         "Discard.Interval",
-        "LMDB.Path"
+        "LMDB.Path",
+        "LMDB.MapSize"
     };
 
     vector<string> unknownProps;

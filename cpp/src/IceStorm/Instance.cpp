@@ -54,7 +54,8 @@ PersistentInstance::PersistentInstance(
     const NodePrx& nodeProxy) :
     Instance(instanceName, name, communicator, publishAdapter, topicAdapter, nodeAdapter, nodeProxy),
     _dbLock(communicator->getProperties()->getPropertyWithDefault(name + ".LMDB.Path", name) + "/icedb.lock"),
-    _dbEnv(communicator->getProperties()->getPropertyWithDefault(name + ".LMDB.Path", name), 2)
+    _dbEnv(communicator->getProperties()->getPropertyWithDefault(name + ".LMDB.Path", name), 2,
+           communicator->getProperties()->getPropertyAsIntWithDefault(name + ".LMDB.MapSize", 100) * 1024 * 1024)
 {
     try
     {

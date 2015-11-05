@@ -159,6 +159,20 @@ Env::Env(const string& path, MDB_dbi maxDbs, size_t mapSize, unsigned int maxRea
 
     if(mapSize != 0)
     {
+        // Make sure the map size is a multiple of the page size
+        size_t pageSize;
+#ifdef _WIN32
+        SYSTEM_INFO si;
+        GetSystemInfo(&si);
+        pageSize = si.dwPageSize;
+#else
+        pageSize = sysconf(_SC_PAGESIZE);
+#endif
+        size_t remainder = mapSize % pageSize;
+        if(remainder != 0)
+        {
+            mapSize = mapSize + pageSize - remainder;
+        }
         rc = mdb_env_set_mapsize(_menv, mapSize);
         if(rc != MDB_SUCCESS)
         {

@@ -511,6 +511,7 @@ generated from the section label.
         <property name="Registry.Discovery.Interface" />
         <property name="Registry.DynamicRegistration" />
         <property name="Registry.Internal" class="objectadapter" />
+        <property name="Registry.LMDB.MapSize" />
         <property name="Registry.NodeSessionTimeout" />
         <property name="Registry.PermissionsVerifier" class="proxy" />
         <property name="Registry.ReplicaName" />
