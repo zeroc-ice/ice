@@ -1887,7 +1887,10 @@ def getTestEnv(lang, testdir):
     if lang == "cpp":
         addLdPath(os.path.join(testdir), env)
     elif lang == "java":
-        addClasspath(os.path.join(toplevel, "java", "lib", "test.jar"), env)
+        if toplevel.find(os.path.join("freeze","ice")) != -1:
+            addClasspath(os.path.join(toplevel, "..", "java", "lib", "test.jar"), env)
+        else:
+            addClasspath(os.path.join(toplevel, "java", "lib", "test.jar"), env)
     elif lang == "js":
         addPathToEnv("NODE_PATH", os.path.join(testdir), env)
 
@@ -2248,6 +2251,8 @@ def runTests(start, expanded, num = 0, script = False):
             # Deal with Java's different directory structure
             if i.find(os.path.join("java","test")) != -1:
                 dir = os.path.join(toplevel, "java", "test", "src", "main", i)
+            elif toplevel.find(os.path.join("freeze","ice")) != -1:
+                dir = os.path.join(toplevel, "..", i)
             else:
                 dir = os.path.join(toplevel, i)
             dir = os.path.normpath(dir)
