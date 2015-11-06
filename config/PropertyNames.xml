@@ -536,7 +536,7 @@ generated from the section label.
         <property name="Registry.Trace.Topic"/>
         <property name="Registry.Trace.TopicManager"/>
         <property name="Registry.UserAccounts" />
-</section>
+    </section>
 
     <section name="IcePatch2">
         <property class="objectadapter" />
@@ -604,6 +604,12 @@ generated from the section label.
         <property name="TopicManager.[any]" />
         <property name="Host" />
         <property name="Port" />
+    </section>
+
+    <section name="IceBT">
+        <property name="DefaultAddress" />
+        <property name="RcvSize" />
+        <property name="SndSize" />
     </section>
 
     <section name="Glacier2">

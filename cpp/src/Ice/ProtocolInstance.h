@@ -39,10 +39,7 @@ public:
         return _traceCategory;
     }
 
-    const Ice::LoggerPtr& logger() const
-    {
-        return _instance->initializationData().logger;
-    }
+    const Ice::LoggerPtr& logger() const;
 
     const std::string& protocol() const
     {
@@ -64,21 +61,9 @@ public:
         return _secure;
     }
 
-    BufSizeWarnInfo getBufSizeWarn(Ice::Short type)
-    {
-        return _instance->getBufSizeWarn(type);
-    }
-
-    void setSndBufSizeWarn(Ice::Short type, int size)
-    {
-        _instance->setSndBufSizeWarn(type, size);
-    }
-
-    void setRcvBufSizeWarn(Ice::Short type, int size)
-    {
-        _instance->setRcvBufSizeWarn(type, size);
-    }
-
+    BufSizeWarnInfo getBufSizeWarn(Ice::Short type);
+    void setSndBufSizeWarn(Ice::Short type, int size);
+    void setRcvBufSizeWarn(Ice::Short type, int size);
     bool preferIPv6() const;
     ProtocolSupport protocolSupport() const;
     const std::string& defaultHost() const;

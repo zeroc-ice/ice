@@ -44,6 +44,30 @@ IceInternal::ProtocolInstance::ProtocolInstance(const InstancePtr& instance, Sho
 {
 }
 
+const LoggerPtr&
+IceInternal::ProtocolInstance::logger() const
+{
+    return _instance->initializationData().logger;
+}
+
+BufSizeWarnInfo
+IceInternal::ProtocolInstance::getBufSizeWarn(Short type)
+{
+    return _instance->getBufSizeWarn(type);
+}
+
+void
+IceInternal::ProtocolInstance::setSndBufSizeWarn(Short type, int size)
+{
+    _instance->setSndBufSizeWarn(type, size);
+}
+
+void
+IceInternal::ProtocolInstance::setRcvBufSizeWarn(Short type, int size)
+{
+    _instance->setRcvBufSizeWarn(type, size);
+}
+
 bool
 IceInternal::ProtocolInstance::preferIPv6() const
 {

@@ -274,6 +274,17 @@ final class EndpointI extends IceInternal.EndpointI
     {
         super.initWithOptions(args);
 
+        if(_addr.length() == 0)
+        {
+            _addr = _instance.properties().getProperty("IceBT.DefaultAddress");
+        }
+
+        if(!oaEndpoint && _addr.length() == 0)
+        {
+            throw new Ice.EndpointParseException(
+                "a device address must be specified using the -a option or IceBT.DefaultAddress");
+        }
+
         if(_name.length() == 0)
         {
             _name = "Ice Service";
@@ -282,11 +293,6 @@ final class EndpointI extends IceInternal.EndpointI
         if(_uuid == null)
         {
             throw new Ice.EndpointParseException("a UUID must be specified using the -u option");
-        }
-
-        if(!oaEndpoint && _addr.length() == 0)
-        {
-            throw new Ice.EndpointParseException("a device address must be specified using the -a option");
         }
 
         hashInit();
