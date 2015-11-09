@@ -20,13 +20,13 @@ Ice has dependencies on a number of third-party libraries:
 
  - [expat][3] 2.0
  - [bzip][4] 1.0
- - [Berkeley DB][5] 5.3
+ - [LMDB][5] 0.9.16
  - [mcpp][6] 2.7.2 (with patches)
 
 You do not need to build these packages yourself, as ZeroC supplies
 [Nuget][7] packages for all these third party dependencies.
 
-The Ice build system for Windows downloads and installs Nuget and these 
+The Ice build system for Windows downloads and installs Nuget and these
 Nuget packages when you build Ice for C++. The third-party packages
 are installed in the ``ice/cpp/third-party-packages`` folder.
 
@@ -67,7 +67,7 @@ This will build the Ice core libraries, services, and tests.
 
 ### x64 Platform
 
-Building Ice for x64 with Visual Studio is like building Ice for x86. You just need to 
+Building Ice for x64 with Visual Studio is like building Ice for x86. You just need to
 perform the build in an "x64 Command Prompt", and not in a regular "Developer Command Prompt".
 
 ## Installing a C++ Source Build
@@ -96,7 +96,7 @@ failure, the tests abort with `failed`.
 [2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+3.6.1
 [3]: http://expat.sourceforge.net
 [4]: http://bzip.org
-[5]: http://www.oracle.com/us/products/database/berkeley-db/overview/index.htm
+[5]: http://symas.com/mdb/
 [6]: https://github.com/zeroc-ice/mcpp
 [7]: https://www.nuget.org
 

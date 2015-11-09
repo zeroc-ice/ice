@@ -21,18 +21,21 @@ Ice has dependencies on a number of third-party libraries:
  - [expat][3] 2.0
  - [OpenSSL][4] 0.9.8 or later
  - [bzip][5] 1.0
- - [Berkeley DB][6] 5.3
+ - [LMDB][6] 0.9.16
  - [mcpp][7] 2.7.2 (with patches)
 
 Expat, OpenSSL and bzip are included with most Linux distributions. ZeroC
-supplies binary packages for Berkeley DB and mcpp on supported Linux
-distributions that do not include them:
+supplies binary packages for LMDB and mcpp on supported Linux distributions
+that do not include them:
 
-- Berkeley DB 5.3.28 on RHEL 6, SLES12, SLES 11 and Amzn 2015.03
+- LMDB 0.9.16 on RHEL 7 and Amzn 2015.09
 - mcpp 2.7.2 with patches (`mcpp-devel`) on RHEL 7, RHEL 6, SLES 12, SLES 11
 and Amzn 2015.03
 
 ## Building Ice
+
+Obtain all third-party dependencies. If building from source, please read
+[Building Third Party Packages from Source][8] documentation.
 
 In a command window, change to the `cpp` subdirectory:
 
@@ -47,15 +50,6 @@ Now you're ready to build Ice:
     $ make
 
 This will build the Ice core libraries, services, and tests.
-
-### 64-bit Source Builds on Linux x86_64
-
-To build Ice in 64-bit mode, you need to do the following:
-
-- Obtain or build all the third-party dependencies, and put the 64-bit libraries
-in the lib64 directories. For example, put Berkeley DB 64-bit libraries in
-`$DB_HOME/lib64`.
-- Build and test as described above.
 
 ### 32-bit Source Builds on Linux x86_64
 
@@ -114,5 +108,6 @@ failure, the tests abort with `failed`.
 [3]: http://expat.sourceforge.net
 [4]: http://openssl.org
 [5]: http://bzip.org
-[6]: http://www.oracle.com/us/products/database/berkeley-db/overview/index.htm
+[6]: http://symas.com/mdb/
 [7]: https://github.com/zeroc-ice/mcpp
+[8]: https://doc.zeroc.com/display/Ice36/Building+Third+Party+Packages+from+Source

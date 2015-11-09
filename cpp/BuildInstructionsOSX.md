@@ -18,24 +18,18 @@ Ice has dependencies on a number of third-party libraries:
 
  - [expat][3] 2.0
  - [bzip][4] 1.0
- - [Berkeley DB][5] 5.3
+ - [LMDB][5] 0.9.16
  - [mcpp][6] 2.7.2 (with patches)
 
-Expat and bzip are included with your system. For Berkeley DB and mcpp, you have
+Expat and bzip are included with your system. For mcpp, you have
 a couple of options:
 
-- Using [Homebrew][7], install Berkeley DB and mcpp with these commands:
+- Using [Homebrew][7], install mcpp with these commands:
 
         $ brew tap zeroc-ice/tap
-        $ brew install berkeley-db53 [--without-java]
         $ brew install mcpp
 
-  The `berkeley-db53` package is a pre-compiled bottle that includes Java
-  support by default; you can exclude Java support using the `--without-java`
-  option.
-
-- Download the Berkeley DB and mcpp source distributions and build them
-  yourself.
+- Download the mcpp source distributions and build it yourself.
 
 ## Building Ice
 
