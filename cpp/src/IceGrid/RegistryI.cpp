@@ -322,11 +322,11 @@ RegistryI::startImpl()
     //
     // Create the registry database.
     //
-    string dbPath = _communicator->getProperties()->getProperty("IceGrid.Registry.Data");
+    string dbPath = _communicator->getProperties()->getProperty("IceGrid.Registry.LMDB.Path");
     if(dbPath.empty())
     {
         Ice::Error out(_communicator->getLogger());
-        out << "property `IceGrid.Registry.Data' is not set";
+        out << "property `IceGrid.Registry.LMDB.Path' is not set";
         return false;
     }
     else
@@ -337,7 +337,7 @@ RegistryI::startImpl()
             ex.error = IceInternal::getSystemErrno();
 
             Ice::Error out(_communicator->getLogger());
-            out << "property `IceGrid.Registry.Data' is set to an invalid path:\n" << ex;
+            out << "property `IceGrid.Registry.LMDB.Path' is set to an invalid path:\n" << ex;
             return false;
         }
     }

@@ -502,7 +502,6 @@ generated from the section label.
         <property name="Registry.AdminSSLPermissionsVerifier" class="proxy" />
         <property name="Registry.Client" class="objectadapter" />
         <property name="Registry.CryptPasswords" />
-        <property name="Registry.Data" />
         <property name="Registry.DefaultTemplates" />
         <property name="Registry.Discovery" class="objectadapter" />
         <property name="Registry.Discovery.Enabled" />
@@ -512,6 +511,7 @@ generated from the section label.
         <property name="Registry.DynamicRegistration" />
         <property name="Registry.Internal" class="objectadapter" />
         <property name="Registry.LMDB.MapSize" />
+        <property name="Registry.LMDB.Path" />
         <property name="Registry.NodeSessionTimeout" />
         <property name="Registry.PermissionsVerifier" class="proxy" />
         <property name="Registry.ReplicaName" />

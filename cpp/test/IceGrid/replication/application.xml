@@ -45,7 +45,7 @@
         <property name="IceGrid.Registry.SessionManager.Endpoints" value="default"/>
         <property name="IceGrid.Registry.AdminSessionManager.Endpoints" value="default"/>
         <property name="IceGrid.Registry.ReplicaName" value="${replicaName}"/>
-        <property name="IceGrid.Registry.Data" value="${node.datadir}/servers/${server}/dbs/data"/>
+        <property name="IceGrid.Registry.LMDB.Path" value="${node.datadir}/servers/${server}/dbs/data"/>
         <property name="IceGrid.Registry.PermissionsVerifier" value="RepTestIceGrid/NullPermissionsVerifier"/>
         <property name="IceGrid.Registry.SSLPermissionsVerifier" value="RepTestIceGrid/NullSSLPermissionsVerifier"/>
         <property name="IceGrid.Registry.AdminPermissionsVerifier" value="RepTestIceGrid/NullPermissionsVerifier"/>

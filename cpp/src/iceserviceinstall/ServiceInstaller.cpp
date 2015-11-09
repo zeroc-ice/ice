@@ -150,14 +150,14 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
             throw "The IceGrid registry service can't depend on itself";
         }
 
-        string registryDataDir = fixDirSeparator(_serviceProperties->getProperty("IceGrid.Registry.Data"));
+        string registryDataDir = fixDirSeparator(_serviceProperties->getProperty("IceGrid.Registry.LMDB.Path"));
         if(registryDataDir == "")
         {
-            throw "IceGrid.Registry.Data must be set in " + _configFile;
+            throw "IceGrid.Registry.LMDB.Path must be set in " + _configFile;
         }
         if(!IceUtilInternal::isAbsolutePath(registryDataDir))
         {
-            throw "'" + registryDataDir + "' is a relative path; IceGrid.Registry.Data must be an absolute path";
+            throw "'" + registryDataDir + "' is a relative path; IceGrid.Registry.LMDB.Path must be an absolute path";
         }
 
         if(!mkdir(registryDataDir))
