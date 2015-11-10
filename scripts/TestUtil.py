@@ -131,12 +131,6 @@ def isDebian():
 def isSles():
     return isLinux() and linuxDistribution and linuxDistribution == "SUSE LINUX"
 
-def isFreezeTest():
-    return toplevel.find(os.path.join("freeze","ice")) != -1
-
-def getFreezeDir(lang):
-    return os.path.join(toplevel, "..", lang)
-
 def getCppCompiler():
     compiler = ""
     if os.environ.get("CPP_COMPILER", "") != "":
@@ -315,6 +309,15 @@ path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "scri
 if len(path) == 0:
     raise RuntimeError("can't find toplevel directory!")
 toplevel = path[0]
+
+freezeTest = os.path.exists(os.path.join(toplevel, "..", "cpp", "include", "Freeze", "Freeze.h"))
+
+def isFreezeTest():
+    global freezeTest
+    return freezeTest
+
+def getFreezeDir(lang):
+    return os.path.join(toplevel, "..", lang)
 
 #
 # Set the default arch to x64 on x64 machines, this could be overriden
