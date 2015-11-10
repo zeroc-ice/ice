@@ -1471,7 +1471,7 @@ Transformer.obj: \
     "$(includedir)\Freeze\EvictorF.h" \
     "$(includedir)\Freeze\ConnectionF.h" \
     "$(includedir)\Freeze\Index.h" \
-    "..\..\src\IceXML\Parser.h" \
+    "$(includedir)\IceXML\Parser.h" \
     "$(includedir)\IceUtil\InputUtil.h" \
 
 transformdb.obj: \
@@ -1616,7 +1616,7 @@ transformdb.obj: \
     "$(includedir)\Freeze\Exception.h" \
     "$(includedir)\IceUtil\Options.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
-    "..\..\src\IceUtil\FileUtil.h" \
+    "$(includedir)\IceUtil\FileUtil.h" \
 
 DumpDescriptors.obj: \
 	DumpDescriptors.cpp \
@@ -1744,7 +1744,7 @@ DumpDescriptors.obj: \
     "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Slice\Parser.h" \
     "Error.h" \
-    "..\..\src\IceXML\Parser.h" \
+    "$(includedir)\IceXML\Parser.h" \
     "AssignVisitor.h" \
     "Print.h" \
     "Functions.h" \
@@ -1879,7 +1879,7 @@ DumpDB.obj: \
     "$(includedir)\Ice\RegisterPlugins.h" \
     "$(includedir)\Slice\Parser.h" \
     "Error.h" \
-    "..\..\src\IceXML\Parser.h" \
+    "$(includedir)\IceXML\Parser.h" \
     "Util.h" \
     "$(includedir)\Freeze\CatalogData.h" \
     "Exception.h" \
@@ -1893,4 +1893,4 @@ DumpDB.obj: \
     "$(includedir)\IceUtil\OutputUtil.h" \
     "$(includedir)\IceUtil\Options.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
-    "..\..\src\IceUtil\FileUtil.h" \
+    "$(includedir)\IceUtil\FileUtil.h" \

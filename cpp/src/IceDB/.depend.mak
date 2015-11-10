@@ -4,12 +4,13 @@ IceDB.obj: \
     "IceDB.h" \
     "$(includedir)\IceUtil\Exception.h" \
     "$(includedir)\IceUtil\Config.h" \
-    "$(includedir)\Ice\Initialize.h" \
-    "$(includedir)\IceUtil\Timer.h" \
+    "$(includedir)\IceUtil\FileUtil.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Atomic.h" \
-    "$(includedir)\IceUtil\Thread.h" \
     "$(includedir)\IceUtil\Handle.h" \
+    "$(includedir)\Ice\Initialize.h" \
+    "$(includedir)\IceUtil\Timer.h" \
+    "$(includedir)\IceUtil\Thread.h" \
     "$(includedir)\IceUtil\Mutex.h" \
     "$(includedir)\IceUtil\Lock.h" \
     "$(includedir)\IceUtil\ThreadException.h" \

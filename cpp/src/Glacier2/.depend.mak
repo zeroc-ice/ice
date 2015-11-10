@@ -526,7 +526,7 @@ Glacier2Router.obj: \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Atomic.h" \
     "$(includedir)\IceUtil\Handle.h" \
-    "..\..\src\IceUtil\FileUtil.h" \
+    "$(includedir)\IceUtil\FileUtil.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\IceUtil\PushDisableWarnings.h" \

@@ -135,10 +135,11 @@ PriorityInversion.obj: \
 
 TestSuite.obj: \
 	TestSuite.cpp \
+    "$(includedir)\IceUtil\MutexProtocol.h" \
+    "$(includedir)\IceUtil\Config.h" \
     "TestSuite.h" \
     "TestBase.h" \
     "$(includedir)\IceUtil\Shared.h" \
-    "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\Atomic.h" \
     "$(includedir)\IceUtil\Handle.h" \
     "$(includedir)\IceUtil\Exception.h" \

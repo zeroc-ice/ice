@@ -129,7 +129,7 @@ ServiceInstaller.obj: \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\IceUtil\UUID.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
-    "..\..\src\IceUtil\FileUtil.h" \
+    "$(includedir)\IceUtil\FileUtil.h" \
 
 Install.obj: \
 	Install.cpp \

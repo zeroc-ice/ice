@@ -62,7 +62,7 @@ Exception.obj: \
 FileUtil.obj: \
 	FileUtil.cpp \
     "$(includedir)\IceUtil\DisableWarnings.h" \
-    "FileUtil.h" \
+    "$(includedir)\IceUtil\FileUtil.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Atomic.h" \
@@ -99,7 +99,7 @@ OutputUtil.obj: \
 	OutputUtil.cpp \
     "$(includedir)\IceUtil\OutputUtil.h" \
     "$(includedir)\IceUtil\Config.h" \
-    "FileUtil.h" \
+    "$(includedir)\IceUtil\FileUtil.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Atomic.h" \
     "$(includedir)\IceUtil\Handle.h" \

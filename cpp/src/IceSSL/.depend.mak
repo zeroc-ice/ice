@@ -1059,7 +1059,7 @@ SChannelEngine.obj: \
     "$(includedir)\Ice\PropertiesAdmin.h" \
     "$(includedir)\Ice\FacetMap.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
-    "..\..\src\IceUtil\FileUtil.h" \
+    "$(includedir)\IceUtil\FileUtil.h" \
     "$(includedir)\IceUtil\UUID.h" \
 
 SChannelTransceiverI.obj: \
@@ -1468,7 +1468,7 @@ Util.obj: \
     "$(includedir)\Ice\FactoryTable.h" \
     "$(includedir)\Ice\Connection.h" \
     "$(includedir)\Ice\Endpoint.h" \
-    "..\..\src\IceUtil\FileUtil.h" \
+    "$(includedir)\IceUtil\FileUtil.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\Ice\LocalException.h" \
     "..\..\src\Ice\Network.h" \

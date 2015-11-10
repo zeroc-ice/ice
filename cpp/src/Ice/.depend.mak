@@ -503,7 +503,7 @@ Application.obj: \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Ice\RegisterPlugins.h" \
     "LoggerI.h" \
-    "..\..\src\IceUtil\FileUtil.h" \
+    "$(includedir)\IceUtil\FileUtil.h" \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
     "..\..\src\IceUtil\ArgVector.h" \
 
@@ -3009,7 +3009,7 @@ Initialize.obj: \
     "$(includedir)\Ice\Stream.h" \
     "LoggerI.h" \
     "$(includedir)\Ice\Logger.h" \
-    "..\..\src\IceUtil\FileUtil.h" \
+    "$(includedir)\IceUtil\FileUtil.h" \
     "Instance.h" \
     "TraceLevelsF.h" \
     "DefaultsAndOverridesF.h" \
@@ -3185,7 +3185,7 @@ Instance.obj: \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
     "LoggerI.h" \
     "$(includedir)\Ice\Logger.h" \
-    "..\..\src\IceUtil\FileUtil.h" \
+    "$(includedir)\IceUtil\FileUtil.h" \
     "NetworkProxy.h" \
     "EndpointFactoryManager.h" \
     "EndpointFactoryF.h" \
@@ -3704,7 +3704,7 @@ LoggerI.obj: \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
     "$(includedir)\IceUtil\PopDisableWarnings.h" \
-    "..\..\src\IceUtil\FileUtil.h" \
+    "$(includedir)\IceUtil\FileUtil.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
     "$(includedir)\IceUtil\Mutex.h" \
     "$(includedir)\IceUtil\Lock.h" \
@@ -5339,7 +5339,7 @@ PropertiesI.obj: \
     "$(includedir)\Ice\PropertiesAdmin.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
-    "..\..\src\IceUtil\FileUtil.h" \
+    "$(includedir)\IceUtil\FileUtil.h" \
     "$(includedir)\Ice\Initialize.h" \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\Thread.h" \
@@ -6945,7 +6945,7 @@ Service.obj: \
     "$(includedir)\IceUtil\Monitor.h" \
     "$(includedir)\IceUtil\Cond.h" \
     "..\..\src\IceUtil\ArgVector.h" \
-    "..\..\src\IceUtil\FileUtil.h" \
+    "$(includedir)\IceUtil\FileUtil.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Ice\Ice.h" \

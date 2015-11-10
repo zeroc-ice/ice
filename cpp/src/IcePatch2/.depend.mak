@@ -2,7 +2,7 @@
 FileServerI.obj: \
 	FileServerI.cpp \
     "$(includedir)\IceUtil\DisableWarnings.h" \
-    "..\..\src\IceUtil\FileUtil.h" \
+    "$(includedir)\IceUtil\FileUtil.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Atomic.h" \
@@ -143,7 +143,7 @@ Server.obj: \
     "$(includedir)\IceUtil\Atomic.h" \
     "$(includedir)\IceUtil\Handle.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
-    "..\..\src\IceUtil\FileUtil.h" \
+    "$(includedir)\IceUtil\FileUtil.h" \
     "$(includedir)\IceUtil\DisableWarnings.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Ice\Ice.h" \
@@ -405,7 +405,7 @@ Calc.obj: \
     "$(includedir)\IceUtil\Atomic.h" \
     "$(includedir)\IceUtil\Handle.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
-    "..\..\src\IceUtil\FileUtil.h" \
+    "$(includedir)\IceUtil\FileUtil.h" \
     "..\..\src\IcePatch2Lib\Util.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\IceUtil\PushDisableWarnings.h" \

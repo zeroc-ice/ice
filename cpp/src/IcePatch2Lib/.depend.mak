@@ -12,7 +12,7 @@ ClientUtil.obj: \
 	ClientUtil.cpp \
     "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\IceUtil\Config.h" \
-    "..\..\src\IceUtil\FileUtil.h" \
+    "$(includedir)\IceUtil\FileUtil.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Atomic.h" \
     "$(includedir)\IceUtil\Handle.h" \
@@ -168,7 +168,7 @@ Util.obj: \
     "$(includedir)\IceUtil\UniquePtr.h" \
     "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
-    "..\..\src\IceUtil\FileUtil.h" \
+    "$(includedir)\IceUtil\FileUtil.h" \
     "$(includedir)\IceUtil\SHA1.h" \
     "Util.h" \
     "$(includedir)\Ice\Ice.h" \

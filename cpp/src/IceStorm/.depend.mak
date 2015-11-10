@@ -70,6 +70,17 @@ SubscriberRecord.h: \
     "$(slicedir)/Ice/Metrics.ice" \
     "$(slicedir)/Ice/BuiltinSequences.ice"
 
+DBTypes.h: \
+    DBTypes.ice \
+    ../IceStorm/SubscriberRecord.ice \
+    "$(slicedir)/Ice/Identity.ice" \
+    "$(slicedir)/IceStorm/IceStorm.ice" \
+    "$(slicedir)/Ice/SliceChecksumDict.ice" \
+    "$(slicedir)/IceStorm/Metrics.ice" \
+    "$(slicedir)/Ice/Metrics.ice" \
+    "$(slicedir)/Ice/BuiltinSequences.ice" \
+    ../IceStorm/LLURecord.ice
+
 Instance.obj: \
 	Instance.cpp \
     "Instance.h" \
@@ -201,6 +212,7 @@ Instance.obj: \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Ice\RegisterPlugins.h" \
     "..\..\src\IceDB\IceDB.h" \
+    "$(includedir)\IceUtil\FileUtil.h" \
     "TraceLevels.h" \
     "Observers.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
@@ -467,6 +479,7 @@ NodeI.obj: \
     "Instrumentation.h" \
     "Util.h" \
     "..\..\src\IceDB\IceDB.h" \
+    "$(includedir)\IceUtil\FileUtil.h" \
     "Observers.h" \
     "TraceLevels.h" \
 
@@ -610,6 +623,7 @@ Observers.obj: \
     "Instrumentation.h" \
     "Util.h" \
     "..\..\src\IceDB\IceDB.h" \
+    "$(includedir)\IceUtil\FileUtil.h" \
     "TraceLevels.h" \
 
 Service.obj: \
@@ -699,8 +713,7 @@ Service.obj: \
     "SubscriberRecord.h" \
     "LLURecord.h" \
     "Instrumentation.h" \
-    "TopicManagerI.h" \
-    "Replica.h" \
+    "Util.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\DeprecatedStringConverter.h" \
     "$(includedir)\Ice\Initialize.h" \
@@ -746,11 +759,13 @@ Service.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Ice\RegisterPlugins.h" \
+    "..\..\src\IceDB\IceDB.h" \
+    "$(includedir)\IceUtil\FileUtil.h" \
+    "TopicManagerI.h" \
+    "Replica.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "TransientTopicManagerI.h" \
     "Instance.h" \
-    "Util.h" \
-    "..\..\src\IceDB\IceDB.h" \
     "Service.h" \
     "$(includedir)\IceBox\IceBox.h" \
     "$(includedir)\IceBox\Config.h" \
@@ -904,6 +919,7 @@ Subscriber.obj: \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Ice\RegisterPlugins.h" \
     "..\..\src\IceDB\IceDB.h" \
+    "$(includedir)\IceUtil\FileUtil.h" \
     "TraceLevels.h" \
     "NodeI.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
@@ -997,8 +1013,6 @@ TopicI.obj: \
     "SubscriberRecord.h" \
     "LLURecord.h" \
     "Instrumentation.h" \
-    "Instance.h" \
-    "$(includedir)\Ice\PropertiesF.h" \
     "Util.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\DeprecatedStringConverter.h" \
@@ -1007,6 +1021,7 @@ TopicI.obj: \
     "$(includedir)\Ice\Initialize.h" \
     "$(includedir)\IceUtil\Timer.h" \
     "$(includedir)\IceUtil\Thread.h" \
+    "$(includedir)\Ice\PropertiesF.h" \
     "$(includedir)\Ice\InstrumentationF.h" \
     "$(includedir)\Ice\Dispatcher.h" \
     "$(includedir)\Ice\BatchRequestInterceptor.h" \
@@ -1047,6 +1062,8 @@ TopicI.obj: \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Ice\RegisterPlugins.h" \
     "..\..\src\IceDB\IceDB.h" \
+    "$(includedir)\IceUtil\FileUtil.h" \
+    "Instance.h" \
     "Subscriber.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "TraceLevels.h" \
@@ -1190,13 +1207,14 @@ TopicManagerI.obj: \
     "SubscriberRecord.h" \
     "LLURecord.h" \
     "Instrumentation.h" \
+    "Util.h" \
+    "..\..\src\IceDB\IceDB.h" \
+    "$(includedir)\IceUtil\FileUtil.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "TopicI.h" \
     "IceStormInternal.h" \
     "TraceLevels.h" \
     "Instance.h" \
-    "Util.h" \
-    "..\..\src\IceDB\IceDB.h" \
     "NodeI.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
@@ -1416,6 +1434,7 @@ TransientTopicI.obj: \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Ice\RegisterPlugins.h" \
     "..\..\src\IceDB\IceDB.h" \
+    "$(includedir)\IceUtil\FileUtil.h" \
     "Subscriber.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "TraceLevels.h" \
@@ -1555,6 +1574,7 @@ TransientTopicManagerI.obj: \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Ice\RegisterPlugins.h" \
     "..\..\src\IceDB\IceDB.h" \
+    "$(includedir)\IceUtil\FileUtil.h" \
     "Subscriber.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
 
@@ -1681,13 +1701,14 @@ Util.obj: \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Ice\RegisterPlugins.h" \
     "..\..\src\IceDB\IceDB.h" \
+    "$(includedir)\IceUtil\FileUtil.h" \
+    "LLURecord.h" \
     "SubscriberRecord.h" \
     "$(includedir)\IceStorm\IceStorm.h" \
     "$(includedir)\IceStorm\Metrics.h" \
     "$(includedir)\IceStorm\Config.h" \
     "Instance.h" \
     "Election.h" \
-    "LLURecord.h" \
     "Instrumentation.h" \
 
 Election.obj: \
@@ -2684,3 +2705,226 @@ Scanner.obj: \
     "$(includedir)\IceStorm\Metrics.h" \
     "$(includedir)\IceStorm\Config.h" \
     "Grammar.h" \
+
+IceStormDB.obj: \
+	IceStormDB.cpp \
+    "$(includedir)\IceUtil\Options.h" \
+    "$(includedir)\IceUtil\Config.h" \
+    "$(includedir)\IceUtil\RecMutex.h" \
+    "$(includedir)\IceUtil\Lock.h" \
+    "$(includedir)\IceUtil\ThreadException.h" \
+    "$(includedir)\IceUtil\Exception.h" \
+    "$(includedir)\IceUtil\Time.h" \
+    "$(includedir)\IceUtil\MutexProtocol.h" \
+    "$(includedir)\IceUtil\Shared.h" \
+    "$(includedir)\IceUtil\Atomic.h" \
+    "$(includedir)\IceUtil\Handle.h" \
+    "$(includedir)\Ice\Application.h" \
+    "$(includedir)\Ice\Ice.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
+    "$(includedir)\Ice\Config.h" \
+    "$(includedir)\Ice\DeprecatedStringConverter.h" \
+    "$(includedir)\Ice\CommunicatorF.h" \
+    "$(includedir)\Ice\ProxyF.h" \
+    "$(includedir)\Ice\ProxyHandle.h" \
+    "$(includedir)\Ice\ObjectF.h" \
+    "$(includedir)\Ice\Handle.h" \
+    "$(includedir)\Ice\Exception.h" \
+    "$(includedir)\Ice\Format.h" \
+    "$(includedir)\Ice\StreamF.h" \
+    "$(includedir)\Ice\LocalObject.h" \
+    "$(includedir)\Ice\LocalObjectF.h" \
+    "$(includedir)\Ice\StreamHelpers.h" \
+    "$(includedir)\IceUtil\ScopedArray.h" \
+    "$(includedir)\IceUtil\Iterator.h" \
+    "$(includedir)\IceUtil\Optional.h" \
+    "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
+    "$(includedir)\IceUtil\StringConverter.h" \
+    "$(includedir)\Ice\Plugin.h" \
+    "$(includedir)\Ice\LoggerF.h" \
+    "$(includedir)\Ice\BuiltinSequences.h" \
+    "$(includedir)\Ice\Initialize.h" \
+    "$(includedir)\IceUtil\Timer.h" \
+    "$(includedir)\IceUtil\Thread.h" \
+    "$(includedir)\IceUtil\Mutex.h" \
+    "$(includedir)\IceUtil\Monitor.h" \
+    "$(includedir)\IceUtil\Cond.h" \
+    "$(includedir)\Ice\PropertiesF.h" \
+    "$(includedir)\Ice\Proxy.h" \
+    "$(includedir)\Ice\ProxyFactoryF.h" \
+    "$(includedir)\Ice\ConnectionIF.h" \
+    "$(includedir)\Ice\RequestHandlerF.h" \
+    "$(includedir)\Ice\EndpointF.h" \
+    "$(includedir)\Ice\EndpointTypes.h" \
+    "$(includedir)\Ice\ObjectAdapterF.h" \
+    "$(includedir)\Ice\ReferenceF.h" \
+    "$(includedir)\Ice\BatchRequestQueueF.h" \
+    "$(includedir)\Ice\AsyncResult.h" \
+    "$(includedir)\IceUtil\UniquePtr.h" \
+    "$(includedir)\Ice\ConnectionF.h" \
+    "$(includedir)\Ice\InstanceF.h" \
+    "$(includedir)\Ice\AsyncResultF.h" \
+    "$(includedir)\Ice\ObserverHelper.h" \
+    "$(includedir)\Ice\Instrumentation.h" \
+    "$(includedir)\Ice\Current.h" \
+    "$(includedir)\Ice\Identity.h" \
+    "$(includedir)\Ice\Version.h" \
+    "$(includedir)\Ice\BasicStream.h" \
+    "$(includedir)\Ice\Object.h" \
+    "$(includedir)\Ice\IncomingAsyncF.h" \
+    "$(includedir)\Ice\ObjectFactoryF.h" \
+    "$(includedir)\Ice\ObjectFactoryManagerF.h" \
+    "$(includedir)\Ice\Buffer.h" \
+    "$(includedir)\Ice\Protocol.h" \
+    "$(includedir)\Ice\SlicedDataF.h" \
+    "$(includedir)\Ice\UserExceptionFactory.h" \
+    "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\InstrumentationF.h" \
+    "$(includedir)\Ice\Dispatcher.h" \
+    "$(includedir)\Ice\BatchRequestInterceptor.h" \
+    "$(includedir)\Ice\LocalException.h" \
+    "$(includedir)\Ice\PropertiesAdmin.h" \
+    "$(includedir)\Ice\GCObject.h" \
+    "$(includedir)\IceUtil\MutexPtrLock.h" \
+    "$(includedir)\Ice\Incoming.h" \
+    "$(includedir)\Ice\ServantLocatorF.h" \
+    "$(includedir)\Ice\ServantManagerF.h" \
+    "$(includedir)\Ice\ResponseHandlerF.h" \
+    "$(includedir)\Ice\IncomingAsync.h" \
+    "$(includedir)\Ice\Properties.h" \
+    "$(includedir)\Ice\Logger.h" \
+    "$(includedir)\Ice\LoggerUtil.h" \
+    "$(includedir)\Ice\RemoteLogger.h" \
+    "$(includedir)\Ice\FactoryTableInit.h" \
+    "$(includedir)\Ice\DefaultObjectFactory.h" \
+    "$(includedir)\Ice\ObjectFactory.h" \
+    "$(includedir)\Ice\Communicator.h" \
+    "$(includedir)\Ice\RouterF.h" \
+    "$(includedir)\Ice\LocatorF.h" \
+    "$(includedir)\Ice\PluginF.h" \
+    "$(includedir)\Ice\ImplicitContextF.h" \
+    "$(includedir)\Ice\FacetMap.h" \
+    "$(includedir)\Ice\CommunicatorAsync.h" \
+    "$(includedir)\Ice\ObjectAdapter.h" \
+    "$(includedir)\Ice\Endpoint.h" \
+    "$(includedir)\Ice\ServantLocator.h" \
+    "$(includedir)\Ice\SlicedData.h" \
+    "$(includedir)\Ice\OutgoingAsync.h" \
+    "$(includedir)\Ice\OutgoingAsyncF.h" \
+    "$(includedir)\Ice\Process.h" \
+    "$(includedir)\Ice\Connection.h" \
+    "$(includedir)\Ice\ConnectionAsync.h" \
+    "$(includedir)\Ice\Functional.h" \
+    "$(includedir)\IceUtil\Functional.h" \
+    "$(includedir)\Ice\Stream.h" \
+    "$(includedir)\Ice\ImplicitContext.h" \
+    "$(includedir)\Ice\Locator.h" \
+    "$(includedir)\Ice\ProcessF.h" \
+    "$(includedir)\Ice\Router.h" \
+    "$(includedir)\Ice\DispatchInterceptor.h" \
+    "$(includedir)\Ice\NativePropertiesAdmin.h" \
+    "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\SliceChecksums.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
+    "$(includedir)\Ice\Service.h" \
+    "$(includedir)\Ice\RegisterPlugins.h" \
+    "..\..\src\IceDB\IceDB.h" \
+    "$(includedir)\IceUtil\FileUtil.h" \
+    "DBTypes.h" \
+    "SubscriberRecord.h" \
+    "$(includedir)\IceStorm\IceStorm.h" \
+    "$(includedir)\IceStorm\Metrics.h" \
+    "$(includedir)\IceStorm\Config.h" \
+    "LLURecord.h" \
+    "..\..\src\IcePatch2Lib\Util.h" \
+    "$(includedir)\IcePatch2\FileInfo.h" \
+    "$(includedir)\IcePatch2\Config.h" \
+    "$(includedir)\IceUtil\DisableWarnings.h" \
+
+DBTypes.obj: \
+	DBTypes.cpp \
+    "DBTypes.h" \
+    "$(includedir)\IceUtil\PushDisableWarnings.h" \
+    "$(includedir)\Ice\ProxyF.h" \
+    "$(includedir)\IceUtil\Shared.h" \
+    "$(includedir)\IceUtil\Config.h" \
+    "$(includedir)\IceUtil\Atomic.h" \
+    "$(includedir)\Ice\Config.h" \
+    "$(includedir)\Ice\ProxyHandle.h" \
+    "$(includedir)\IceUtil\Handle.h" \
+    "$(includedir)\IceUtil\Exception.h" \
+    "$(includedir)\Ice\ObjectF.h" \
+    "$(includedir)\Ice\Handle.h" \
+    "$(includedir)\Ice\Exception.h" \
+    "$(includedir)\Ice\Format.h" \
+    "$(includedir)\Ice\StreamF.h" \
+    "$(includedir)\Ice\LocalObject.h" \
+    "$(includedir)\Ice\LocalObjectF.h" \
+    "$(includedir)\Ice\StreamHelpers.h" \
+    "$(includedir)\IceUtil\ScopedArray.h" \
+    "$(includedir)\IceUtil\Iterator.h" \
+    "$(includedir)\Ice\Proxy.h" \
+    "$(includedir)\IceUtil\Mutex.h" \
+    "$(includedir)\IceUtil\Lock.h" \
+    "$(includedir)\IceUtil\ThreadException.h" \
+    "$(includedir)\IceUtil\Time.h" \
+    "$(includedir)\IceUtil\MutexProtocol.h" \
+    "$(includedir)\Ice\ProxyFactoryF.h" \
+    "$(includedir)\Ice\ConnectionIF.h" \
+    "$(includedir)\Ice\RequestHandlerF.h" \
+    "$(includedir)\Ice\EndpointF.h" \
+    "$(includedir)\IceUtil\Optional.h" \
+    "$(includedir)\IceUtil\UndefSysMacros.h" \
+    "$(includedir)\IceUtil\PopDisableWarnings.h" \
+    "$(includedir)\Ice\EndpointTypes.h" \
+    "$(includedir)\Ice\ObjectAdapterF.h" \
+    "$(includedir)\Ice\ReferenceF.h" \
+    "$(includedir)\Ice\BatchRequestQueueF.h" \
+    "$(includedir)\Ice\AsyncResult.h" \
+    "$(includedir)\IceUtil\Monitor.h" \
+    "$(includedir)\IceUtil\Cond.h" \
+    "$(includedir)\IceUtil\UniquePtr.h" \
+    "$(includedir)\Ice\CommunicatorF.h" \
+    "$(includedir)\Ice\ConnectionF.h" \
+    "$(includedir)\Ice\InstanceF.h" \
+    "$(includedir)\Ice\AsyncResultF.h" \
+    "$(includedir)\Ice\ObserverHelper.h" \
+    "$(includedir)\Ice\Instrumentation.h" \
+    "$(includedir)\Ice\Current.h" \
+    "$(includedir)\Ice\Identity.h" \
+    "$(includedir)\Ice\Version.h" \
+    "$(includedir)\Ice\BasicStream.h" \
+    "$(includedir)\IceUtil\StringConverter.h" \
+    "$(includedir)\Ice\Object.h" \
+    "$(includedir)\Ice\IncomingAsyncF.h" \
+    "$(includedir)\Ice\ObjectFactoryF.h" \
+    "$(includedir)\Ice\ObjectFactoryManagerF.h" \
+    "$(includedir)\Ice\Buffer.h" \
+    "$(includedir)\Ice\Protocol.h" \
+    "$(includedir)\Ice\SlicedDataF.h" \
+    "$(includedir)\Ice\UserExceptionFactory.h" \
+    "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\GCObject.h" \
+    "$(includedir)\IceUtil\MutexPtrLock.h" \
+    "$(includedir)\Ice\Incoming.h" \
+    "$(includedir)\Ice\ServantLocatorF.h" \
+    "$(includedir)\Ice\ServantManagerF.h" \
+    "$(includedir)\Ice\ResponseHandlerF.h" \
+    "$(includedir)\Ice\FactoryTableInit.h" \
+    "$(includedir)\Ice\DefaultObjectFactory.h" \
+    "$(includedir)\Ice\ObjectFactory.h" \
+    "SubscriberRecord.h" \
+    "$(includedir)\IceStorm\IceStorm.h" \
+    "$(includedir)\Ice\SliceChecksumDict.h" \
+    "$(includedir)\IceStorm\Metrics.h" \
+    "$(includedir)\Ice\Metrics.h" \
+    "$(includedir)\Ice\BuiltinSequences.h" \
+    "$(includedir)\IceStorm\Config.h" \
+    "LLURecord.h" \
+    "$(includedir)\Ice\LocalException.h" \
+    "$(includedir)\Ice\Outgoing.h" \
+    "$(includedir)\Ice\OutgoingAsync.h" \
+    "$(includedir)\IceUtil\Timer.h" \
+    "$(includedir)\IceUtil\Thread.h" \
+    "$(includedir)\Ice\OutgoingAsyncF.h" \

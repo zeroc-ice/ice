@@ -115,7 +115,7 @@ Preprocessor.obj: \
     "$(includedir)\IceUtil\OutputUtil.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
-    "..\..\src\IceUtil\FileUtil.h" \
+    "$(includedir)\IceUtil\FileUtil.h" \
     "$(includedir)\IceUtil\UUID.h" \
 
 PythonUtil.obj: \
@@ -189,7 +189,7 @@ Python.obj: \
     "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\IceUtil\Options.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
-    "..\..\src\IceUtil\FileUtil.h" \
+    "$(includedir)\IceUtil\FileUtil.h" \
     "$(includedir)\Slice\Preprocessor.h" \
     "$(includedir)\Slice\FileTracker.h" \
     "$(includedir)\Slice\Parser.h" \
@@ -222,7 +222,7 @@ Util.obj: \
     "$(includedir)\IceUtil\Handle.h" \
     "$(includedir)\IceUtil\Exception.h" \
     "$(includedir)\IceUtil\OutputUtil.h" \
-    "..\..\src\IceUtil\FileUtil.h" \
+    "$(includedir)\IceUtil\FileUtil.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
 
 Ruby.obj: \
