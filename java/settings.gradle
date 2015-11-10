@@ -16,8 +16,8 @@ include ':icelocatordiscovery'
 project(':icelocatordiscovery').projectDir = new File('src/IceLocatorDiscovery')
 include ':icebt'
 project(':icebt').projectDir = new File('src/IceBT')
-//include ':freeze'
-//project(':freeze').projectDir = new File('src/Freeze')
+include ':freeze'
+project(':freeze').projectDir = new File('src/Freeze')
 include ':icebox'
 project(':icebox').projectDir = new File('src/IceBox')
 include ':glacier2'
@@ -32,8 +32,8 @@ include ':IceGridGUI'
 project(':IceGridGUI').projectDir = new File('src/IceGridGUI')
 
 // Tests
-//include ':test'
-//include ':testPlugins'
-//project(':testPlugins').projectDir = new File('test/plugins')
-//include ':testController'
-//project(':testController').projectDir = new File('test/controller')
+include ':test'
+include ':testPlugins'
+project(':testPlugins').projectDir = new File('test/plugins')
+include ':testController'
+project(':testController').projectDir = new File('test/controller')
