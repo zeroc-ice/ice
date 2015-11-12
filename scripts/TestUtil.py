@@ -57,6 +57,7 @@ linuxDistribution = None
 for path in ["/etc/redhat-release", "/etc/issue"]:
     if not os.path.isfile(path):
         continue
+
     f = open(path, "r")
     issue = f.read()
     f.close()
@@ -309,15 +310,6 @@ path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "scri
 if len(path) == 0:
     raise RuntimeError("can't find toplevel directory!")
 toplevel = path[0]
-
-freezeTest = os.path.exists(os.path.join(toplevel, "..", "cpp", "include", "Freeze", "Freeze.h"))
-
-def isFreezeTest():
-    global freezeTest
-    return freezeTest
-
-def getFreezeDir(lang):
-    return os.path.join(toplevel, "..", lang)
 
 #
 # Set the default arch to x64 on x64 machines, this could be overriden
@@ -667,12 +659,6 @@ def getIceDir(subdir = None, testdir = None):
     global iceHome
     if iceHome:
         return iceHome
-    elif isFreezeTest():
-        icedir = os.environ["ICE_HOME"]
-        if subdir:
-            return os.path.join(icedir, subdir)
-        else:
-            return icedir
     elif subdir:
         return os.path.join(toplevel, subdir)
     else:
@@ -1811,14 +1797,10 @@ def getCppLibDir(lang = None):
 
 def getJavaLibraryPath():
     if isWin32():
-        if isFreezeTest():
-            return ("-Djava.library.path=\"%s\" " % os.path.join(getFreezeDir("cpp"), "third-party-packages",
-                    "berkeley.db.java7", "build", "native", "bin", "x64" if x64 else "Win32"))
+        if iceHome:
+            return "-Djava.library.path=\"%s\" " % os.path.join(iceHome, "bin\\x64" if x64 else "bin")
         else:
-            if iceHome:
-                return "-Djava.library.path=\"%s\" " % os.path.join(iceHome, "bin\\x64" if x64 else "bin")
-            else:
-                return ("-Djava.library.path=\"%s\" " % os.path.join(getIceDir("cpp"), "third-party-packages",
+            return ("-Djava.library.path=\"%s\" " % os.path.join(getIceDir("cpp"), "third-party-packages",
                     "berkeley.db.java7", "build", "native", "bin", "x64" if x64 else "Win32"))
     elif isDarwin():
         if os.path.exists('/usr/local/opt/ice/libexec/lib'):
@@ -1883,18 +1865,6 @@ def getBuildMode(d):
       return "release"
     l = p.stdout.readline()
 
-def getPlatformToolSet():
-    platformtoolset = ""
-    if isVC100():
-        platformtoolset = "v100"
-    elif isVC110():
-        platformtoolset = "v110"
-    elif isVC120():
-        platformtoolset = "v120"
-    elif isVC140():
-        platformtoolset = "v140"
-    return platformtoolset
-
 def getTestEnv(lang, testdir):
     global compact
     env = os.environ.copy()
@@ -1917,10 +1887,7 @@ def getTestEnv(lang, testdir):
     if lang == "cpp":
         addLdPath(os.path.join(testdir), env)
     elif lang == "java":
-        if isFreezeTest():
-            addClasspath(os.path.join(getFreezeDir("java"), "lib", "test.jar"), env)
-        else:
-            addClasspath(os.path.join(toplevel, "java", "lib", "test.jar"), env)
+        addClasspath(os.path.join(toplevel, "java", "lib", "test.jar"), env)
     elif lang == "js":
         addPathToEnv("NODE_PATH", os.path.join(testdir), env)
 
@@ -1934,42 +1901,27 @@ def getTestEnv(lang, testdir):
     #
     if lang in ["cpp", "java", "csharp", "python", "ruby"]:
         if isWin32():
-            mode = getBuildMode(os.path.join(getIceDir("cpp"), "bin"))
-            configuration = "Debug" if mode == "debug" else "Release"
-            platform = "x64" if x64 else "Win32"
-
-            if isFreezeTest():
-                addPathToEnv("PATH", os.path.join(getFreezeDir("cpp"), "bin"), env)
-
-                pkgdir = os.path.join(getFreezeDir("cpp"), "third-party-packages")
-                pkgsubdir = os.path.join("build", "native", "bin", platform)
-                platformtoolset = getPlatformToolSet()
-
-                #
-                # For Debug builds we need to add Release binaries to path to be able to use db_xxx tools and
-                # bzip2 to be able to use protocol compression with .NET
-                #
-                if configuration == "Debug":
-                  addPathToEnv("PATH", os.path.join(pkgdir, "berkeley.db.{0}".format(platformtoolset), pkgsubdir,
-                               "Release"), env)
-
-                addPathToEnv("PATH", os.path.join(pkgdir, "berkeley.db.{0}".format(platformtoolset), pkgsubdir,
-                             configuration), env)
-
-                if lang == "java":
-                  addPathToEnv("PATH", os.path.join(pkgdir, "berkeley.db.java7", pkgsubdir), env)
-                  addClasspath(os.path.join(pkgdir, "berkeley.db.java7", "build", "native", "lib", "db.jar"), env)
-
             if iceHome:
                 addClasspath(os.path.join(getIceDir("java", testdir), "lib", "db.jar"), env)
             else:
+                mode = getBuildMode(os.path.join(getIceDir("cpp"), "bin"))
+                configuration = "Debug" if mode == "debug" else "Release"
+                platform = "x64" if x64 else "Win32"
                 pkgdir = os.path.join(getIceDir("cpp"), "third-party-packages")
                 pkgsubdir = os.path.join("build", "native", "bin", platform)
 
                 if isMINGW():
                     addPathToEnv("PATH", os.path.join(pkgdir, "bzip2.mingw4.7.2", pkgsubdir), env)
                 else:
-                    platformtoolset = getPlatformToolSet()
+                    platformtoolset = ""
+                    if isVC100():
+                        platformtoolset = "v100"
+                    elif isVC110():
+                        platformtoolset = "v110"
+                    elif isVC120():
+                        platformtoolset = "v120"
+                    elif isVC140():
+                        platformtoolset = "v140"
 
                     #
                     # For Debug builds we need to add Release binaries to path to be able to use db_xxx tools and
@@ -2296,8 +2248,6 @@ def runTests(start, expanded, num = 0, script = False):
             # Deal with Java's different directory structure
             if i.find(os.path.join("java","test")) != -1:
                 dir = os.path.join(toplevel, "java", "test", "src", "main", i)
-            elif isFreezeTest():
-                dir = os.path.join(toplevel, "..", i)
             else:
                 dir = os.path.join(toplevel, i)
             dir = os.path.normpath(dir)
