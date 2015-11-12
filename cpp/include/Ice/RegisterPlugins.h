@@ -50,6 +50,10 @@ ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceDiscovery(bool = true);
 ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceLocatorDiscovery(bool = true);
 #endif
 
+#ifndef ICE_BT_API_EXPORTS
+ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceBT(bool = true);
+#endif
+
 }
 
 #endif

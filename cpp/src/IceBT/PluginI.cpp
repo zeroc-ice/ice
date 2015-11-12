@@ -42,6 +42,17 @@ createIceBT(const CommunicatorPtr& communicator, const string& /*name*/, const S
 
 }
 
+namespace Ice
+{
+
+ICE_BT_API void
+registerIceBT(bool loadOnInitialize)
+{
+    Ice::registerPluginFactory("IceBT", createIceBT, loadOnInitialize);
+}
+
+}
+
 //
 // Plugin implementation.
 //
