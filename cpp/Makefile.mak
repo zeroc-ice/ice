@@ -30,15 +30,15 @@ install:: install-common
 !if "$(CPP_COMPILER)" == "VC100"
 install::
 	@if not exist "$(install_bindir)" $(MKDIR) "$(install_bindir)"
-	copy "$(BZIP2_HOME)\build\native\bin\$(PLATFORM)\$(CONFIGURARTION)\*" "$(install_bindir)"
+	copy "$(BZIP2_HOME)\build\native\bin\$(PLATFORM)\$(CONFIGURATION)\*" "$(install_bindir)"
 !else
 install::
 	@if not exist "$(install_bindir)" $(MKDIR) "$(install_bindir)"
-	copy "$(BZIP2_HOME)\build\native\bin\$(PLATFORM)\$(CONFIGURARTION)\*" "$(install_bindir)"
-	copy "$(DB_HOME)\build\native\bin\$(PLATFORM)\$(CONFIGURARTION)\*" "$(install_bindir)"
-	copy "$(EXPAT_HOME)\build\native\bin\$(PLATFORM)\$(CONFIGURARTION)\*" "$(install_bindir)"
+	copy "$(BZIP2_HOME)\build\native\bin\$(PLATFORM)\$(CONFIGURATION)\*" "$(install_bindir)"
+	copy "$(DB_HOME)\build\native\bin\$(PLATFORM)\$(CONFIGURATION)\*" "$(install_bindir)"
+	copy "$(EXPAT_HOME)\build\native\bin\$(PLATFORM)\$(CONFIGURATION)\*" "$(install_bindir)"
 
-!if "$(CONFIGURARTION)" == "Debug"
+!if "$(CONFIGURATION)" == "Debug"
 #
 # If that is a Debug build install also the DB tools from the release bin directory
 install::
