@@ -203,9 +203,6 @@ Client.obj: \
     "$(includedir)\Ice\RegisterPlugins.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
-    "$(includedir)\IceUtil\AbstractMutex.h" \
-    "$(includedir)\IceUtil\Cache.h" \
-    "$(includedir)\IceUtil\CountDownLatch.h" \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\IceUtil\UUID.h" \
@@ -334,9 +331,6 @@ AllTests.obj: \
     "$(includedir)\Ice\RegisterPlugins.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
-    "$(includedir)\IceUtil\AbstractMutex.h" \
-    "$(includedir)\IceUtil\Cache.h" \
-    "$(includedir)\IceUtil\CountDownLatch.h" \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\IceUtil\UUID.h" \
@@ -347,20 +341,17 @@ TestI.obj: \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\IceUtil\Config.h" \
-    "$(includedir)\IceUtil\AbstractMutex.h" \
-    "$(includedir)\IceUtil\Lock.h" \
+    "$(includedir)\IceUtil\Cond.h" \
+    "$(includedir)\IceUtil\Time.h" \
     "$(includedir)\IceUtil\ThreadException.h" \
     "$(includedir)\IceUtil\Exception.h" \
-    "$(includedir)\IceUtil\Time.h" \
-    "$(includedir)\IceUtil\Cache.h" \
-    "$(includedir)\IceUtil\Handle.h" \
-    "$(includedir)\IceUtil\Mutex.h" \
-    "$(includedir)\IceUtil\MutexProtocol.h" \
-    "$(includedir)\IceUtil\CountDownLatch.h" \
-    "$(includedir)\IceUtil\Cond.h" \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
     "$(includedir)\IceUtil\Functional.h" \
+    "$(includedir)\IceUtil\Handle.h" \
+    "$(includedir)\IceUtil\Lock.h" \
     "$(includedir)\IceUtil\Monitor.h" \
+    "$(includedir)\IceUtil\MutexProtocol.h" \
+    "$(includedir)\IceUtil\Mutex.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\IceUtil\ScopedArray.h" \
@@ -597,9 +588,6 @@ ServantLocatorI.obj: \
     "$(includedir)\Ice\RegisterPlugins.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
-    "$(includedir)\IceUtil\AbstractMutex.h" \
-    "$(includedir)\IceUtil\Cache.h" \
-    "$(includedir)\IceUtil\CountDownLatch.h" \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\IceUtil\UUID.h" \
@@ -730,9 +718,6 @@ Server.obj: \
     "ServantLocatorI.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
-    "$(includedir)\IceUtil\AbstractMutex.h" \
-    "$(includedir)\IceUtil\Cache.h" \
-    "$(includedir)\IceUtil\CountDownLatch.h" \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\IceUtil\UUID.h" \
@@ -861,9 +846,6 @@ Collocated.obj: \
     "ServantLocatorI.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
-    "$(includedir)\IceUtil\AbstractMutex.h" \
-    "$(includedir)\IceUtil\Cache.h" \
-    "$(includedir)\IceUtil\CountDownLatch.h" \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\IceUtil\UUID.h" \

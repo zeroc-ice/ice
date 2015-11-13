@@ -18,8 +18,6 @@
 //
 
 #include <IceUtil/Config.h>
-#include <IceUtil/AbstractMutex.h>
-#include <IceUtil/Cache.h>
 #include <IceUtil/Cond.h>
 #if !defined(__APPLE__) && !defined(ICE_OS_WINRT)
 #   include <IceUtil/CtrlCHandler.h>

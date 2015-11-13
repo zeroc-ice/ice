@@ -205,9 +205,6 @@ Client.obj: \
     "$(includedir)\Ice\RegisterPlugins.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
-    "$(includedir)\IceUtil\AbstractMutex.h" \
-    "$(includedir)\IceUtil\Cache.h" \
-    "$(includedir)\IceUtil\CountDownLatch.h" \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\IceUtil\UUID.h" \
@@ -336,9 +333,6 @@ AllTests.obj: \
     "$(includedir)\Ice\RegisterPlugins.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
-    "$(includedir)\IceUtil\AbstractMutex.h" \
-    "$(includedir)\IceUtil\Cache.h" \
-    "$(includedir)\IceUtil\CountDownLatch.h" \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\IceUtil\UUID.h" \

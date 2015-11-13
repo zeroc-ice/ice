@@ -208,9 +208,6 @@ Client.obj: \
     "$(includedir)\Ice\RegisterPlugins.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
-    "$(includedir)\IceUtil\AbstractMutex.h" \
-    "$(includedir)\IceUtil\Cache.h" \
-    "$(includedir)\IceUtil\CountDownLatch.h" \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\IceUtil\UUID.h" \
@@ -341,9 +338,6 @@ AllTests.obj: \
     "$(includedir)\IceUtil\Random.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
-    "$(includedir)\IceUtil\AbstractMutex.h" \
-    "$(includedir)\IceUtil\Cache.h" \
-    "$(includedir)\IceUtil\CountDownLatch.h" \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\IceUtil\UUID.h" \
@@ -387,9 +381,6 @@ Dispatcher.obj: \
     "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
-    "$(includedir)\IceUtil\AbstractMutex.h" \
-    "$(includedir)\IceUtil\Cache.h" \
-    "$(includedir)\IceUtil\CountDownLatch.h" \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
     "$(includedir)\IceUtil\Functional.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
@@ -525,9 +516,6 @@ TestI.obj: \
     "Dispatcher.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
-    "$(includedir)\IceUtil\AbstractMutex.h" \
-    "$(includedir)\IceUtil\Cache.h" \
-    "$(includedir)\IceUtil\CountDownLatch.h" \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\IceUtil\UUID.h" \
@@ -657,9 +645,6 @@ Server.obj: \
     "Test.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
-    "$(includedir)\IceUtil\AbstractMutex.h" \
-    "$(includedir)\IceUtil\Cache.h" \
-    "$(includedir)\IceUtil\CountDownLatch.h" \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\IceUtil\UUID.h" \
@@ -788,9 +773,6 @@ Collocated.obj: \
     "$(includedir)\Ice\RegisterPlugins.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
-    "$(includedir)\IceUtil\AbstractMutex.h" \
-    "$(includedir)\IceUtil\Cache.h" \
-    "$(includedir)\IceUtil\CountDownLatch.h" \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\IceUtil\UUID.h" \

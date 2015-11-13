@@ -17,14 +17,11 @@ Client.obj: \
     "$(top_srcdir)\test\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\PushDisableWarnings.h" \
-    "$(includedir)\IceUtil\AbstractMutex.h" \
-    "$(includedir)\IceUtil\Cache.h" \
-    "$(includedir)\IceUtil\Mutex.h" \
-    "$(includedir)\IceUtil\CountDownLatch.h" \
     "$(includedir)\IceUtil\Cond.h" \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
     "$(includedir)\IceUtil\Functional.h" \
     "$(includedir)\IceUtil\Monitor.h" \
+    "$(includedir)\IceUtil\Mutex.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
     "$(includedir)\IceUtil\ScopedArray.h" \
     "$(includedir)\IceUtil\StringConverter.h" \

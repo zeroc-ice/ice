@@ -451,9 +451,6 @@ FilterManager.obj: \
     "$(includedir)\Ice\FacetMap.h" \
     "$(includedir)\Ice\Logger.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
-    "$(includedir)\IceUtil\AbstractMutex.h" \
-    "$(includedir)\IceUtil\Cache.h" \
-    "$(includedir)\IceUtil\CountDownLatch.h" \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
     "$(includedir)\IceUtil\Functional.h" \
     "$(includedir)\IceUtil\RecMutex.h" \

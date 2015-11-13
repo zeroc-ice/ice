@@ -91,20 +91,17 @@ Configuration.obj: \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\IceUtil\Config.h" \
-    "$(includedir)\IceUtil\AbstractMutex.h" \
-    "$(includedir)\IceUtil\Lock.h" \
+    "$(includedir)\IceUtil\Cond.h" \
+    "$(includedir)\IceUtil\Time.h" \
     "$(includedir)\IceUtil\ThreadException.h" \
     "$(includedir)\IceUtil\Exception.h" \
-    "$(includedir)\IceUtil\Time.h" \
-    "$(includedir)\IceUtil\Cache.h" \
-    "$(includedir)\IceUtil\Handle.h" \
-    "$(includedir)\IceUtil\Mutex.h" \
-    "$(includedir)\IceUtil\MutexProtocol.h" \
-    "$(includedir)\IceUtil\CountDownLatch.h" \
-    "$(includedir)\IceUtil\Cond.h" \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
     "$(includedir)\IceUtil\Functional.h" \
+    "$(includedir)\IceUtil\Handle.h" \
+    "$(includedir)\IceUtil\Lock.h" \
     "$(includedir)\IceUtil\Monitor.h" \
+    "$(includedir)\IceUtil\MutexProtocol.h" \
+    "$(includedir)\IceUtil\Mutex.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\IceUtil\ScopedArray.h" \
@@ -187,18 +184,15 @@ Connector.obj: \
     "Configuration.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\PushDisableWarnings.h" \
-    "$(includedir)\IceUtil\AbstractMutex.h" \
-    "$(includedir)\IceUtil\Lock.h" \
-    "$(includedir)\IceUtil\ThreadException.h" \
-    "$(includedir)\IceUtil\Time.h" \
-    "$(includedir)\IceUtil\Cache.h" \
-    "$(includedir)\IceUtil\Mutex.h" \
-    "$(includedir)\IceUtil\MutexProtocol.h" \
-    "$(includedir)\IceUtil\CountDownLatch.h" \
     "$(includedir)\IceUtil\Cond.h" \
+    "$(includedir)\IceUtil\Time.h" \
+    "$(includedir)\IceUtil\ThreadException.h" \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
     "$(includedir)\IceUtil\Functional.h" \
+    "$(includedir)\IceUtil\Lock.h" \
     "$(includedir)\IceUtil\Monitor.h" \
+    "$(includedir)\IceUtil\MutexProtocol.h" \
+    "$(includedir)\IceUtil\Mutex.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\IceUtil\ScopedArray.h" \
@@ -361,9 +355,6 @@ Acceptor.obj: \
     "$(includedir)\Ice\ResponseHandlerF.h" \
     "Configuration.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
-    "$(includedir)\IceUtil\AbstractMutex.h" \
-    "$(includedir)\IceUtil\Cache.h" \
-    "$(includedir)\IceUtil\CountDownLatch.h" \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
     "$(includedir)\IceUtil\Functional.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
@@ -456,9 +447,6 @@ EndpointI.obj: \
     "$(includedir)\Ice\ResponseHandlerF.h" \
     "Configuration.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
-    "$(includedir)\IceUtil\AbstractMutex.h" \
-    "$(includedir)\IceUtil\Cache.h" \
-    "$(includedir)\IceUtil\CountDownLatch.h" \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
     "$(includedir)\IceUtil\Functional.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
@@ -556,9 +544,6 @@ Transceiver.obj: \
     "..\..\..\src\Ice\ProtocolInstanceF.h" \
     "Configuration.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
-    "$(includedir)\IceUtil\AbstractMutex.h" \
-    "$(includedir)\IceUtil\Cache.h" \
-    "$(includedir)\IceUtil\CountDownLatch.h" \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
     "$(includedir)\IceUtil\Functional.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
@@ -659,9 +644,6 @@ EndpointFactory.obj: \
     "$(includedir)\Ice\ResponseHandlerF.h" \
     "Configuration.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
-    "$(includedir)\IceUtil\AbstractMutex.h" \
-    "$(includedir)\IceUtil\Cache.h" \
-    "$(includedir)\IceUtil\CountDownLatch.h" \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
     "$(includedir)\IceUtil\Functional.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
@@ -759,9 +741,6 @@ PluginI.obj: \
     "PluginI.h" \
     "Configuration.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
-    "$(includedir)\IceUtil\AbstractMutex.h" \
-    "$(includedir)\IceUtil\Cache.h" \
-    "$(includedir)\IceUtil\CountDownLatch.h" \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
     "$(includedir)\IceUtil\Functional.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
@@ -900,9 +879,6 @@ Client.obj: \
     "$(includedir)\Ice\RegisterPlugins.h" \
     "$(top_srcdir)\test\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
-    "$(includedir)\IceUtil\AbstractMutex.h" \
-    "$(includedir)\IceUtil\Cache.h" \
-    "$(includedir)\IceUtil\CountDownLatch.h" \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\IceUtil\UUID.h" \
@@ -921,20 +897,17 @@ AllTests.obj: \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\IceUtil\Config.h" \
-    "$(includedir)\IceUtil\AbstractMutex.h" \
-    "$(includedir)\IceUtil\Lock.h" \
+    "$(includedir)\IceUtil\Cond.h" \
+    "$(includedir)\IceUtil\Time.h" \
     "$(includedir)\IceUtil\ThreadException.h" \
     "$(includedir)\IceUtil\Exception.h" \
-    "$(includedir)\IceUtil\Time.h" \
-    "$(includedir)\IceUtil\Cache.h" \
-    "$(includedir)\IceUtil\Handle.h" \
-    "$(includedir)\IceUtil\Mutex.h" \
-    "$(includedir)\IceUtil\MutexProtocol.h" \
-    "$(includedir)\IceUtil\CountDownLatch.h" \
-    "$(includedir)\IceUtil\Cond.h" \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
     "$(includedir)\IceUtil\Functional.h" \
+    "$(includedir)\IceUtil\Handle.h" \
+    "$(includedir)\IceUtil\Lock.h" \
     "$(includedir)\IceUtil\Monitor.h" \
+    "$(includedir)\IceUtil\MutexProtocol.h" \
+    "$(includedir)\IceUtil\Mutex.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\IceUtil\ScopedArray.h" \
@@ -1131,9 +1104,6 @@ TestI.obj: \
     "$(includedir)\Ice\Endpoint.h" \
     "Configuration.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
-    "$(includedir)\IceUtil\AbstractMutex.h" \
-    "$(includedir)\IceUtil\Cache.h" \
-    "$(includedir)\IceUtil\CountDownLatch.h" \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
     "$(includedir)\IceUtil\Functional.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
@@ -1321,9 +1291,6 @@ Server.obj: \
     "Test.h" \
     "Configuration.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
-    "$(includedir)\IceUtil\AbstractMutex.h" \
-    "$(includedir)\IceUtil\Cache.h" \
-    "$(includedir)\IceUtil\CountDownLatch.h" \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\IceUtil\UUID.h" \

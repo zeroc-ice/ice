@@ -75,9 +75,6 @@ CryptPermissionsVerifierI.obj: \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Glacier2\Config.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
-    "$(includedir)\IceUtil\AbstractMutex.h" \
-    "$(includedir)\IceUtil\Cache.h" \
-    "$(includedir)\IceUtil\CountDownLatch.h" \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
     "$(includedir)\IceUtil\Functional.h" \
     "$(includedir)\IceUtil\RecMutex.h" \

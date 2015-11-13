@@ -126,7 +126,6 @@ RecMutex.obj: \
     "$(includedir)\IceUtil\Exception.h" \
     "$(includedir)\IceUtil\Time.h" \
     "$(includedir)\IceUtil\MutexProtocol.h" \
-    "$(includedir)\IceUtil\AbstractMutex.h" \
 
 SHA1.obj: \
 	SHA1.cpp \

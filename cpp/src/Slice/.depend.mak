@@ -132,18 +132,15 @@ PythonUtil.obj: \
     "$(includedir)\Slice\Util.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\PushDisableWarnings.h" \
-    "$(includedir)\IceUtil\AbstractMutex.h" \
-    "$(includedir)\IceUtil\Lock.h" \
-    "$(includedir)\IceUtil\ThreadException.h" \
-    "$(includedir)\IceUtil\Time.h" \
-    "$(includedir)\IceUtil\Cache.h" \
-    "$(includedir)\IceUtil\Mutex.h" \
-    "$(includedir)\IceUtil\MutexProtocol.h" \
-    "$(includedir)\IceUtil\CountDownLatch.h" \
     "$(includedir)\IceUtil\Cond.h" \
+    "$(includedir)\IceUtil\Time.h" \
+    "$(includedir)\IceUtil\ThreadException.h" \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
     "$(includedir)\IceUtil\Functional.h" \
+    "$(includedir)\IceUtil\Lock.h" \
     "$(includedir)\IceUtil\Monitor.h" \
+    "$(includedir)\IceUtil\MutexProtocol.h" \
+    "$(includedir)\IceUtil\Mutex.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\IceUtil\ScopedArray.h" \
@@ -162,20 +159,17 @@ Python.obj: \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\IceUtil\Config.h" \
-    "$(includedir)\IceUtil\AbstractMutex.h" \
-    "$(includedir)\IceUtil\Lock.h" \
+    "$(includedir)\IceUtil\Cond.h" \
+    "$(includedir)\IceUtil\Time.h" \
     "$(includedir)\IceUtil\ThreadException.h" \
     "$(includedir)\IceUtil\Exception.h" \
-    "$(includedir)\IceUtil\Time.h" \
-    "$(includedir)\IceUtil\Cache.h" \
-    "$(includedir)\IceUtil\Handle.h" \
-    "$(includedir)\IceUtil\Mutex.h" \
-    "$(includedir)\IceUtil\MutexProtocol.h" \
-    "$(includedir)\IceUtil\CountDownLatch.h" \
-    "$(includedir)\IceUtil\Cond.h" \
     "$(includedir)\IceUtil\CtrlCHandler.h" \
     "$(includedir)\IceUtil\Functional.h" \
+    "$(includedir)\IceUtil\Handle.h" \
+    "$(includedir)\IceUtil\Lock.h" \
     "$(includedir)\IceUtil\Monitor.h" \
+    "$(includedir)\IceUtil\MutexProtocol.h" \
+    "$(includedir)\IceUtil\Mutex.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\IceUtil\ScopedArray.h" \

@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <IceUtil/IceUtil.h>
+#include <IceUtil/CountDownLatch.h>
 
 #include <CountDownLatchTest.h>
 #include <TestCommon.h>
