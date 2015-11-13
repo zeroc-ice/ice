@@ -24,8 +24,6 @@ else
 		  Slice \
 		  slice2cpp \
 		  slice2cs \
-		  slice2freeze \
-		  slice2freezej \
 		  slice2java \
 		  slice2php \
 		  slice2html \
@@ -41,8 +39,6 @@ endif
 		   IceSSL \
 		   IceDiscovery \
 		   IceLocatorDiscovery \
-		   Freeze \
-		   FreezeScript \
 		   IceBox \
 		   Glacier2Lib \
 		   Glacier2CryptPermissionsVerifier \
@@ -64,15 +60,11 @@ endif
 
 Slice: IceUtil
 
-slice2cpp slice2cs slice2freeze slice2freezej slice2java slice2js slice2php slice2html slice2objc: Slice
+slice2cpp slice2cs slice2java slice2js slice2php slice2html slice2objc: Slice
 
 Ice: slice2cpp
 
-IceXML IceSSL Freeze FreezeScript IceBox Glacier2Lib IcePatch2Lib IceStormLib IceGridLib: Ice
-
-Freeze: slice2freeze
-
-FreezeScript: Freeze
+IceXML IceSSL IceBox Glacier2Lib IcePatch2Lib IceStormLib IceGridLib: Ice
 
 Glacier2 IceGridLib Glacier2CryptPermissionsVerifier: Glacier2Lib
 

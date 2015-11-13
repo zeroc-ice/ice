@@ -17,8 +17,6 @@ tests.each {
 // Main source
 include ':ice'
 project(':ice').projectDir = new File('src/Ice')
-include	':freeze'
-project(':freeze').projectDir = new File('src/Freeze')
 include	':icebox'
 project(':icebox').projectDir = new File('src/IceBox')
 include	':glacier2'

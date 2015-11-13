@@ -31,9 +31,7 @@ SUBDIRS		= IceUtil \
 SUBDIRS		= IceUtil \
 		  Slice \
 		  slice2cpp \
-		  slice2freeze \
 		  slice2cs \
-		  slice2freezej \
 		  slice2java \
 		  slice2html \
 		  slice2php \
@@ -44,8 +42,6 @@ SUBDIRS		= IceUtil \
 		  IceLocatorDiscovery \
 		  IceXML \
                   IceDB \
-		  Freeze \
-		  FreezeScript \
 		  IcePatch2Lib \
 		  Glacier2Lib \
 		  IceStormLib \

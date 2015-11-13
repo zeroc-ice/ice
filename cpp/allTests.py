@@ -82,10 +82,6 @@ tests = [
     ("IceSSL/configuration", ["once", "novalgrind"]), # valgrind doesn't work well with openssl
     ("IceBox/configuration", ["core", "noipv6", "novc100", "nomingw", "nomx"]),
     ("IceBox/admin", ["core", "noipv6", "novc100", "nomingw", "nomx"]),
-    ("Freeze/dbmap", ["once", "novc100", "nomingw"]),
-    ("Freeze/complex", ["once", "novc100", "nomingw"]),
-    ("Freeze/evictor", ["once", "novc100", "nomingw"]),
-    ("Freeze/fileLock", ["once", "novc100", "nomingw"]),
     ("IceStorm/single", ["service", "novc100", "noappverifier", "nomingw"]), # This test doesn't work with appverifier
     ("IceStorm/federation", ["service", "novc100", "nomingw"]),
     ("IceStorm/federation2", ["service", "novc100", "nomingw"]),
@@ -93,8 +89,6 @@ tests = [
     ("IceStorm/rep1", ["service", "novc100", "nomingw"]),
     ("IceStorm/repgrid", ["service", "novc100", "nomingw"]),
     ("IceStorm/repstress", ["service", "noipv6", "stress", "novc100", "nomingw"]),
-    ("FreezeScript/dbmap", ["once", "novc100", "nomingw"]),
-    ("FreezeScript/evictor", ["once", "novc100", "nomingw"]),
     ("IceDiscovery/simple", ["service"]),
     ("IceGrid/simple", ["service", "novc100", "nomingw"]),
     ("IceGrid/fileLock", ["service", "novc100", "nomingw"]),

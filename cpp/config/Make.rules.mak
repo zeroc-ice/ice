@@ -186,12 +186,6 @@ MCPP_LIBS		= mcpp$(LIBSUFFIX).lib
 MCPP_NUPKG		= $(MCPP_HOME)\mcpp.$(PLATFORMTOOLSET).nupkg
 
 !if "$(CPP_COMPILER)" != "VC100"
-DB_VERSION		= 5.3.28.2
-DB_HOME			= $(PKG_DIR)\berkeley.db.$(PLATFORMTOOLSET)
-DB_CPPFLAGS		= /I"$(DB_HOME)\build\native\include"
-DB_LDFLAGS		= /LIBPATH:"$(DB_HOME)\build\native\lib\$(PLATFORM)\$(CONFIGURATION)"
-DB_LIBS			= libdb53$(LIBSUFFIX).lib
-DB_NUPKG		= $(DB_HOME)\berkeley.db.$(PLATFORMTOOLSET).nupkg
 
 EXPAT_VERSION		= 2.1.0.1
 EXPAT_HOME		= $(PKG_DIR)\expat.$(PLATFORMTOOLSET)
@@ -219,11 +213,6 @@ $(MCPP_NUPKG): $(NUGET)
 	$(NUGET) install mcpp.$(PLATFORMTOOLSET) -OutputDirectory "$(PKG_DIR)" -Version $(MCPP_VERSION) -ExcludeVersion
 
 !if "$(CPP_COMPILER)" != "VC100"
-$(DB_NUPKG): $(NUGET)
-	@if not exist "$(PKG_DIR)" $(MKDIR) "$(PKG_DIR)"
-	@if exist "$(PKG_DIR)\berkeley.db.$(PLATFORMTOOLSET)" rd /s /q "$(PKG_DIR)\berkeley.db.$(PLATFORMTOOLSET)"
-	$(NUGET) install berkeley.db.$(PLATFORMTOOLSET) -OutputDirectory "$(PKG_DIR)" -Version $(DB_VERSION) -ExcludeVersion
-
 $(EXPAT_NUPKG): $(NUGET)
 	@if not exist "$(PKG_DIR)" $(MKDIR) "$(PKG_DIR)"
 	@if exist "$(PKG_DIR)\expat.$(PLATFORMTOOLSET)" rd /s /q "$(PKG_DIR)\expat.$(PLATFORMTOOLSET)"
@@ -253,11 +242,9 @@ LDFLAGS			= $(LDFLAGS) $(LDPLATFORMFLAGS) $(CXXFLAGS)
 !if "$(ice_src_dist)" != ""
 SLICEPARSERLIB		= $(libdir)\slice$(LIBSUFFIX).lib
 SLICE2CPP		= $(bindir)\slice2cpp.exe
-SLICE2FREEZE		= $(bindir)\slice2freeze.exe
 !else
 SLICE2CPP		= $(ice_dir)\bin\slice2cpp.exe
 SLICEPARSERLIB		= $(SLICE2CPP)
-SLICE2FREEZE		= $(ice_dir)\bin\slice2freeze.exe
 !endif
 
 #

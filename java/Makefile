@@ -23,7 +23,7 @@ all:
 	$(GRADLE) $(BUILD_FLAGS) build
 
 dist:
-	$(GRADLE) $(BUILD_FLAGS) :Ice:assemble :Freeze:assemble :Glacier2:assemble :IceGrid:assemble \
+	$(GRADLE) $(BUILD_FLAGS) :Ice:assemble :Glacier2:assemble :IceGrid:assemble \
 		:IceBox:assemble :IceDiscovery:assemble :IcePatch2:assemble :IceStorm:assemble :IceGridGUI:assemble
 
 clean:

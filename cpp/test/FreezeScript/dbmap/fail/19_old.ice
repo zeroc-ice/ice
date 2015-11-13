@@ -1,6 +1,0 @@
-module Test
-{
-
-class C {};
-
-};

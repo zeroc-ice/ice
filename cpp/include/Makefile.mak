@@ -30,7 +30,6 @@ SUBDIRS		= Glacier2 \
 		  IceGrid \
 		  IceStorm \
 		  IceUtil \
-		  Freeze \
 		  IceBox \
 		  IcePatch2 \
 		  IceSSL \

@@ -71,9 +71,6 @@ all::
 clean::
 	del /q build.txt
 	del /q Single.cpp Single.h
-	-if exist 0.db\__Freeze rmdir /q /s 0.db\__Freeze
 	-for %f in (0.db\*) do if not %f == 0.db\.gitignore del /q %f
-	-if exist 1.db\__Freeze rmdir /q /s 1.db\__Freeze
 	-for %f in (1.db\*) do if not %f == 1.db\.gitignore del /q %f
-	-if exist 2.db\__Freeze rmdir /q /s 2.db\__Freeze
 	-for %f in (2.db\*) do if not %f == 2.db\.gitignore del /q %f

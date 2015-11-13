@@ -18,7 +18,6 @@ SUBDIRS		= Ice \
 
 ifeq ($(findstring MINGW,$(UNAME)),)
 SUBDIRS		:= $(SUBDIRS) \
-		Freeze \
 		Glacier2 \
 		IceBox \
 		IceGrid \

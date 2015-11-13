@@ -27,9 +27,7 @@ SUBDIRS		= IceUtil \
 		  Ice \
 		  IceSSL \
 		  Glacier2 \
-		  Freeze \
 		  IceStorm \
-		  FreezeScript \
 		  IceGrid \
 		  IceBox \
 		  IceDiscovery

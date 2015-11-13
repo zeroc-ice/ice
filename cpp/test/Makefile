@@ -21,8 +21,6 @@ ifeq ($(findstring MINGW,$(UNAME)),)
 SUBDIRS		:= $(SUBDIRS) \
 		   IceBox \
 		   IceStorm \
-		   Freeze \
-		   FreezeScript \
 		   Glacier2 \
 		   IceGrid
 endif

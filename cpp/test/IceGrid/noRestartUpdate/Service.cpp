@@ -9,7 +9,6 @@
 
 #include <Ice/Ice.h>
 #include <IceBox/IceBox.h>
-#include <Freeze/Freeze.h>
 #include <TestI.h>
 
 using namespace std;

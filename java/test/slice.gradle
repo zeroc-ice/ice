@@ -47,7 +47,6 @@ task testSliceTask {
                                                      'Ice/throughput/*.ice',
                                                      'Ice/threadPoolPriority/*.ice',
                                                      'Ice/udp/*.ice',
-                                                     'Freeze/complex/*.ice',
                                                      'Glacier2/router/*.ice',
                                                      'Glacier2/sessionHelper/*.ice',
                                                      'IceDiscovery/simple/*.ice',
@@ -61,8 +60,7 @@ task testSliceTask {
             }
             set2 {
                 args = "--tie"
-                files = fileTree(dir: testDir, includes:['Ice/operations/*.ice',
-                                                     'Freeze/evictor/*.ice'])
+                files = fileTree(dir: testDir, includes:['Ice/operations/*.ice'])
             }
             set3 {
                 args = "--stream"
@@ -84,49 +82,6 @@ task testSliceTask {
                 args = "--checksum test.Ice.checksum.server.Test.SliceChecksums"
                 files = fileTree(dir: testDir, includes:['Ice/checksum/TestServer.ice',
                                                      'Ice/checksum/TypesServer.ice'])
-            }
-        }
-        freezej {
-            files = [file("${testDir}/Freeze/complex/Complex.ice"),
-                     file("${sliceDir}/Ice/Identity.ice")]
-            args = "--ice"
-            dict {
-                ComplexDict {
-                    javaType = "test.Freeze.complex.Complex.ComplexDict"
-                    key = "Complex::Key"
-                    value = "Complex::Node"
-                }
-            }
-            dict {
-                ByteIntMap {
-                    javaType = "test.Freeze.dbmap.ByteIntMap"
-                    key = "byte"
-                    value = "int"
-                    index = [[:]]
-                }
-            }
-            dict {
-                IntIdentityMap {
-                    javaType = "test.Freeze.dbmap.IntIdentityMap"
-                    key = "int"
-                    value = "Ice::Identity"
-                }
-            }
-            dict {
-                IntIdentityMapWithIndex {
-                    javaType = "test.Freeze.dbmap.IntIdentityMapWithIndex"
-                    key = "int"
-                    value = "Ice::Identity"
-                    index = [[ member: 'category']]
-                }
-            }
-            dict {
-                SortedMap {
-                    javaType = "test.Freeze.dbmap.SortedMap"
-                    key = "int"
-                    value = "Ice::Identity"
-                    index = [[ member: 'category']]
-                }
             }
         }
     }

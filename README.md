@@ -1,14 +1,14 @@
 [![Build Status](https://travis-ci.org/zeroc-ice/ice.svg?branch=master)](https://travis-ci.org/zeroc-ice/ice)
 
-# Internet Communications Engine (Ice)
+# Ice - Comprehensive RPC Framework
 
-Ice is a comprehensive RPC framework that helps you build distributed applications with minimal effort. Ice takes care of all interactions with low-level network programming interfaces and allows you to focus your efforts on your application logic. When using Ice, there is no need to worry about details such as opening network connections, serializing and deserializing data for network transmission, or retrying failed connection attempts (to name just a few of dozens of such low-level details).
+Ice is a comprehensive RPC framework that helps you network your software with minimal effort. Ice takes care of all interactions with low-level network programming interfaces and allows you to focus your efforts on your application logic. When using Ice, there is no need to worry about details such as opening network connections, serializing and deserializing data for network transmission, or retrying failed connection attempts (to name just a few of dozens of such low-level details).
 
-You can find download instructions for the latest release of Ice [here](https://zeroc.com/download.html). Otherwise you can use this GitHub repository to build from source. See [branches](#branches) for more information.
+You can download Ice releases from [ZeroC's website](https://zeroc.com/downloads/ice). Use this GitHub repository to build from source; see [branches](#branches) for more information.
 
 ## Languages
 
-Ice is available for the following programming languages:
+Ice supports the following programming languages:
 
 - C#
 - C++
@@ -24,13 +24,14 @@ Ice is available for the following programming languages:
 Ice runs on a wide range of platforms:
 
 - Android
-- iOS ([Ice Touch](https://github.com/zeroc-ice/icetouch))
+- iOS with [Ice Touch](https://github.com/zeroc-ice/icetouch)
 - Linux
+- Linux on embedded devices with [Ice-E](https://github.com/zeroc-ice/icee)
 - Node.js
 - OS X
 - Web Browser
 - Windows
-- WinRT
+- Universal Windows
 
 ## Features
 
@@ -46,9 +47,8 @@ Ice runs on a wide range of platforms:
   and server-side dispatches
 - Automatic discovery of remote objects through UDP multicast
 - Comes with a number of optional services:
-    - [IceGrid](https://zeroc.com/icegrid/index.html) - the nerve-center of any large-scale application, with support for server deployment, replication, monitoring, load-balancing and more
+    - [IceGrid](https://zeroc.com/icegrid/index.html) - a DNS-like service for Ice objects, with support for server deployment, replication, monitoring, load-balancing and more
     - [IceStorm](https://zeroc.com/icestorm/index.html) - a lightweight topic-based pub-sub service
-    - [Freeze](https://zeroc.com/freeze/index.html) - an embedded, transactional database for Ice datatypes
     - [Glacier2](https://zeroc.com/glacier2/index.html) - a sysadmin-friendly solution for routing Ice communications through firewalls
     - [IcePatch2](https://zeroc.com/icepatch2/index.html) - an efficient software distribution and patching service
 
