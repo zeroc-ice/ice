@@ -10,7 +10,7 @@
 #include <Glacier2/SessionHelper.h>
 
 #include <IceUtil/IceUtil.h>
-#include <IceUtil/CountdownLatch.h>
+#include <IceUtil/CountDownLatch.h>
 #include <Ice/Ice.h>
 
 #include <algorithm> // required by max
