@@ -22,7 +22,7 @@ module IceGrid
 {
 
 /**
- * 
+ *
  * The ReplicaGroupFilter is used by IceGrid to filter adapters
  * returned to the client when it resolves a filtered replica group.
  *
@@ -44,17 +44,17 @@ local interface ReplicaGroupFilter
      * @param con The connection from the Ice client which is
      * resolving the replica group endpoints.
      *
-     * @param ctx The context from the ICe client which is resolving
+     * @param ctx The context from the Ice client which is resolving
      * the replica group endpoints.
-     * 
+     *
      * @return The filtered adapter IDs.
-     * 
+     *
      **/
     Ice::StringSeq filter(string replicaGroupId, Ice::StringSeq adapterIds, Ice::Connection con, Ice::Context ctx);
 };
 
 /**
- * 
+ *
  * The TypeFilter is used by IceGrid to filter well-known proxies
  * returned to the client when it searches a well-known object by
  * type.
@@ -77,11 +77,11 @@ local interface TypeFilter
      * @param con The connection from the Ice client which is
      * looking up well-known objects by type.
      *
-     * @param ctx The context from the ICe client which is looking up
+     * @param ctx The context from the Ice client which is looking up
      * well-known objects by type.
-     * 
+     *
      * @return The filtered proxies.
-     * 
+     *
      **/
     Ice::ObjectProxySeq filter(string type, Ice::ObjectProxySeq proxies, Ice::Connection con, Ice::Context ctx);
 };
@@ -219,7 +219,7 @@ local interface RegistryPluginFacade
      * @param name The node name.
      *
      * @return The node information.
-     * 
+     *
      * @throws NodeNotExistException Raised if the node doesn't exist.
      *
      * @throws NodeUnreachableException Raised if the node could not be
@@ -236,7 +236,7 @@ local interface RegistryPluginFacade
      * @param name The node name.
      *
      * @return The node load information.
-     * 
+     *
      * @throws NodeNotExistException Raised if the node doesn't exist.
      *
      * @throws NodeUnreachableException Raised if the node could not be

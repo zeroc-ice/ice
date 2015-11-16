@@ -293,6 +293,11 @@ template<typename Callable, typename Callback> struct is_callable
     static const bool value = callable_type<Callable>::value == callback_type<Callback>::value;
 };
 
+//
+// COMPILERFIX: we have to use this function specialization to workaround an issue where 
+// VS2012 and GCC 4.6 can't resolve the begin_xxx overloads if we just use std::function.
+// We use some SNIFAE here to help the compiler with the overload resolution.
+//
 template<class S> class Function : public std::function<S>
 {
 

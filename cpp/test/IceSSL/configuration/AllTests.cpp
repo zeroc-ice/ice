@@ -1309,14 +1309,14 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_ca1", "cacert1");
         initData.properties->setProperty("IceSSL.VerifyPeer", "0");
-        initData.properties->setProperty("IceSSL.Protocols", "ssl3");
+        initData.properties->setProperty("IceSSL.Protocols", "tls1_1");
         CommunicatorPtr comm = initialize(initData);
 
         Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
         d["IceSSL.VerifyPeer"] = "0";
-        d["IceSSL.Protocols"] = "tls";
+        d["IceSSL.Protocols"] = "tls1_2";
         Test::ServerPrx server = fact->createServer(d);
         try
         {
@@ -1346,7 +1346,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         test(fact);
         d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
         d["IceSSL.VerifyPeer"] = "0";
-        d["IceSSL.Protocols"] = "tls, ssl3";
+        d["IceSSL.Protocols"] = "tls1_1, tls1_2";
         server = fact->createServer(d);
         try
         {
@@ -1397,33 +1397,35 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             comm->destroy();
         }
 
-        //
-        // This should success because both have SSLv3 enabled
-        //
-        {
-            InitializationData initData;
-            initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "", "cacert1");
-            initData.properties->setProperty("IceSSL.Protocols", "ssl3");
-            CommunicatorPtr comm = initialize(initData);
+	//
+	// SSLv3 is now disabled by default with some SSL implementations.
+	//
+        // //
+        // // This should success because both have SSLv3 enabled
+        // //
+        // {
+        //     InitializationData initData;
+        //     initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "", "cacert1");
+        //     initData.properties->setProperty("IceSSL.Protocols", "ssl3");
+        //     CommunicatorPtr comm = initialize(initData);
 
-            Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
-            test(fact);
-            Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "");
-            d["IceSSL.VerifyPeer"] = "0";
-            d["IceSSL.Protocols"] = "ssl3, tls, tls1_1, tls1_2";
-            Test::ServerPrx server = fact->createServer(d);
-            try
-            {
-                server->ice_ping();
-            }
-            catch(const LocalException& ex)
-            {
-                cerr << ex << endl;
-                test(false);
-            }
-            fact->destroyServer(server);
-            comm->destroy();
-        }
+        //     Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        //     test(fact);
+        //     Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "");
+        //     d["IceSSL.VerifyPeer"] = "0";
+        //     d["IceSSL.Protocols"] = "ssl3, tls, tls1_1, tls1_2";
+        //     Test::ServerPrx server = fact->createServer(d);
+        //     try
+        //     {
+        //         server->ice_ping();
+        //     }
+        //     catch(const LocalException& ex)
+        //     {
+	//         test(false);
+        //     }
+        //     fact->destroyServer(server);
+        //     comm->destroy();
+        // }
 #else
         //
         // This should fail because the client and server have no protocol
