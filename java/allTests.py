@@ -30,7 +30,6 @@ tests = [
     ("Slice/macros", ["once"]),
     ("Slice/structure", ["once"]),
     ("IceUtil/inputUtil", ["once"]),
-    ("IceUtil/fileLock", ["once"]),
     ("Ice/proxy", ["core"]),
     ("Ice/operations", ["core"]),
     ("Ice/seqMapping", ["core"]),
