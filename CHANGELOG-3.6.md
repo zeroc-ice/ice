@@ -30,11 +30,6 @@ particular aspect of Ice.
 
 These are the changes since Ice 3.6.1.
 
-## General Changes
-
-- Added two new tools, icegriddb36 and icestormdb36, used to import/export the
-  IceGrid and IceStorm databases.
-
 ## C++ Changes
 
 - Fixed El Capitan build issues caused by a new security feature that no longer
@@ -42,8 +37,8 @@ These are the changes since Ice 3.6.1.
 
 ## C# Changes
 
-- Minor fixes to release the memory used by the transports to send and receive 
-  data sooner. This garbage collector can therefore collect this memory sooner 
+- Minor fixes to release the memory used by the transports to send and receive
+  data sooner. This garbage collector can therefore collect this memory sooner
   as well.
 
 # Changes in Ice 3.6.1

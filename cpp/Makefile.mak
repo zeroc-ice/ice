@@ -15,7 +15,7 @@ INSTALL_SUBDIRS	= "$(install_bindir)" "$(install_libdir)" "$(install_includedir)
 
 !if "$(WINRT)" != "yes"
 
-SUBDIRS		= config src tools include test 
+SUBDIRS		= config src include test
 
 install:: install-common
 	@for %i in ( $(INSTALL_SUBDIRS) ) do \

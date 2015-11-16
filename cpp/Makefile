@@ -11,7 +11,7 @@ top_srcdir	= .
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= config src tools include
+SUBDIRS		= config src include
 
 ifneq ($(MAKECMDGOALS),install)
     SUBDIRS		:= $(SUBDIRS) test
