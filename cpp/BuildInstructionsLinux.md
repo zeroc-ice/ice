@@ -28,7 +28,7 @@ before building Ice for C++:
 Expat, OpenSSL and bzip are included with most Linux distributions. 
 
 ZeroC supplies binary packages for LMDB and mcpp for several Linux distributions 
-that do not include them:
+that do not include them. You can install these packages as shown below:
 
 #### Amazon Linux
     wget https://zeroc.com/download/GPG-KEY-zeroc-release
@@ -50,7 +50,6 @@ that do not include them:
     cd /etc/yum.repos.d
     sudo wget https://dev.zeroc.com/rpm/thirdparty/zeroc-thirdparty-sles12.repo
     sudo yum install lmdb-devel mcpp-devel
-
 
 ## Building Ice
 
