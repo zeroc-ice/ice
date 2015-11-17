@@ -12,6 +12,7 @@
 
 #include <IceBT/EngineF.h>
 #include <IceBT/Config.h>
+#include <IceBT/Plugin.h>
 #include <IceBT/Types.h>
 #include <Ice/CommunicatorF.h>
 
@@ -68,13 +69,16 @@ public:
     void initialize();
     bool initialized() const;
 
-    std::string getDefaultDeviceAddress() const;
-    bool deviceExists(const std::string&) const;
+    std::string getDefaultAdapterAddress() const;
+    bool adapterExists(const std::string&) const;
 
     std::string registerProfile(const std::string&, const std::string&, int, const ProfileCallbackPtr&);
     void unregisterProfile(const std::string&);
 
     void connect(const std::string&, const std::string&, const ConnectCallbackPtr&);
+
+    void startDiscovery(const std::string&, const DiscoveryCallbackPtr&);
+    void stopDiscovery(const std::string&);
 
     void destroy();
 
@@ -83,7 +87,7 @@ private:
     const Ice::CommunicatorPtr _communicator;
     bool _initialized;
     IceUtil::Monitor<IceUtil::Mutex> _lock;
-    ManagedObjectsPtr _managedObjects;
+    BluetoothServicePtr _service;
 };
 
 }

@@ -11,13 +11,13 @@
 #define ICE_BT_PLUGIN_I_H
 
 #include <Ice/CommunicatorF.h>
-#include <Ice/Plugin.h>
+#include <IceBT/Plugin.h>
 #include <IceBT/EngineF.h>
 
 namespace IceBT
 {
 
-class PluginI : public Ice::Plugin
+class PluginI : public Plugin
 {
 public:
 
@@ -28,6 +28,12 @@ public:
     //
     virtual void initialize();
     virtual void destroy();
+
+    //
+    // From IceBT::Plugin.
+    //
+    virtual void startDiscovery(const std::string&, const DiscoveryCallbackPtr&);
+    virtual void stopDiscovery(const std::string&);
 
 private:
 

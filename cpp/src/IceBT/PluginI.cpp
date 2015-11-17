@@ -79,3 +79,15 @@ IceBT::PluginI::destroy()
 {
     _engine->destroy();
 }
+
+void
+IceBT::PluginI::startDiscovery(const string& address, const DiscoveryCallbackPtr& cb)
+{
+    _engine->startDiscovery(address, cb);
+}
+
+void
+IceBT::PluginI::stopDiscovery(const string& address)
+{
+    _engine->stopDiscovery(address);
+}

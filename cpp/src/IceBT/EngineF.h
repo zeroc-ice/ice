@@ -20,9 +20,9 @@ class Engine;
 IceUtil::Shared* upCast(Engine*);
 typedef IceInternal::Handle<Engine> EnginePtr;
 
-class ManagedObjects;
-IceUtil::Shared* upCast(ManagedObjects*);
-typedef IceInternal::Handle<ManagedObjects> ManagedObjectsPtr;
+class BluetoothService;
+IceUtil::Shared* upCast(BluetoothService*);
+typedef IceInternal::Handle<BluetoothService> BluetoothServicePtr;
 
 }
 

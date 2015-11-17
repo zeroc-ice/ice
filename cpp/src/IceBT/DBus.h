@@ -165,6 +165,8 @@ public:
 
     virtual ValuePtr clone() const = 0;
 
+    virtual std::string toString() const = 0;
+
 protected:
 
     virtual void print(std::ostream&) = 0;
@@ -202,6 +204,13 @@ public:
     virtual ValuePtr clone() const
     {
         return new PrimitiveValue(v);
+    }
+
+    virtual std::string toString() const
+    {
+        std::ostringstream out;
+        out << v;
+        return out.str();
     }
 
     E v;
@@ -267,6 +276,11 @@ public:
         return const_cast<VariantValue*>(this);
     }
 
+    virtual std::string toString() const
+    {
+        return v ? v->toString() : "nil";
+    }
+
     ValuePtr v;
 
 protected:
@@ -310,6 +324,13 @@ public:
         return r;
     }
 
+    virtual std::string toString() const
+    {
+        std::ostringstream out;
+        out << key->toString() << "=" << value->toString();
+        return out.str();
+    }
+
     ValuePtr key;
     ValuePtr value;
 
@@ -347,6 +368,20 @@ public:
             r->elements.push_back((*p)->clone());
         }
         return r;
+    }
+
+    virtual std::string toString() const
+    {
+        std::ostringstream out;
+        for(std::vector<ValuePtr>::const_iterator p = elements.begin(); p != elements.end(); ++p)
+        {
+            if(p != elements.begin())
+            {
+                out << ',';
+            }
+            out << (*p)->toString();
+        }
+        return out.str();
     }
 
     void toStringMap(std::map<std::string, ValuePtr>& m)
@@ -400,6 +435,20 @@ public:
             r->members.push_back((*p)->clone());
         }
         return r;
+    }
+
+    virtual std::string toString() const
+    {
+        std::ostringstream out;
+        for(std::vector<ValuePtr>::const_iterator p = members.begin(); p != members.end(); ++p)
+        {
+            if(p != members.begin())
+            {
+                out << ',';
+            }
+            out << (*p)->toString();
+        }
+        return out.str();
     }
 
     std::vector<ValuePtr> members;

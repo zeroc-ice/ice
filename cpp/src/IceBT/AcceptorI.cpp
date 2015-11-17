@@ -206,7 +206,7 @@ IceBT::AcceptorI::AcceptorI(const EndpointIPtr& endpoint, const InstancePtr& ins
         //
         // If no address was specified, we use the first available BT adapter.
         //
-        s = _instance->engine()->getDefaultDeviceAddress();
+        s = _instance->engine()->getDefaultAdapterAddress();
     }
 
     s = IceUtilInternal::toUpper(s);
@@ -218,7 +218,7 @@ IceBT::AcceptorI::AcceptorI(const EndpointIPtr& endpoint, const InstancePtr& ins
         ex.str = "invalid address value `" + s + "' in endpoint " + endpoint->toString();
         throw ex;
     }
-    if(!_instance->engine()->deviceExists(s))
+    if(!_instance->engine()->adapterExists(s))
     {
         EndpointParseException ex(__FILE__, __LINE__);
         ex.str = "no device found for `" + s + "' in endpoint " + endpoint->toString();

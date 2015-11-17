@@ -440,9 +440,9 @@ IceBT::EndpointI::initWithOptions(vector<string>& args, bool oaEndpoint)
     if(oaEndpoint && _addr.empty())
     {
         //
-        // getDefaultDeviceAddress can throw BluetoothException.
+        // getDefaultAdapterAddress can throw BluetoothException.
         //
-        const_cast<string&>(_addr) = _instance->engine()->getDefaultDeviceAddress();
+        const_cast<string&>(_addr) = _instance->engine()->getDefaultAdapterAddress();
     }
 
     if(!oaEndpoint && _addr.empty())
