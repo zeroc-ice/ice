@@ -81,7 +81,7 @@ the tests as follows:
 If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
-[1]: https://doc.zeroc.com/display/Ice36/Using+the+Ruby+Distribution
+[1]: https://doc.zeroc.com/display/Ice37/Using+the+Ruby+Distribution
 [2]: http://sourceforge.net/projects/mingwbuilds/files/host-windows/releases/4.7.3/32-bit/threads-win32/sjlj/x32-4.7.3-release-win32-sjlj-rev1.7z/download
 [3]: http://rubyinstaller.org/downloads
 [4]: http://bzip.org
