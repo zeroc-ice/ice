@@ -21,21 +21,16 @@ Ice has dependencies on a number of third-party libraries:
  - [LMDB][5] 0.9.16
  - [mcpp][6] 2.7.2 (with patches)
 
-Expat and bzip are included with your system. For mcpp, you have
-a couple of options:
+Expat and bzip are included with your system. 
 
-- Using [Homebrew][7], install mcpp with these commands:
-
-        $ brew tap zeroc-ice/tap
-        $ brew install mcpp
-
-- Download the mcpp source distributions and build it yourself.
+You can install LMDB and mcpp using [Homebrew][7]:
+    brew install lmdb mcpp
 
 ## Building Ice
 
 In a command window, change to the `cpp` subdirectory:
 
-    $ cd cpp
+    cd cpp
 
 Edit `config/Make.rules` to establish your build configuration. The comments in
 the file provide more information. Pay particular attention to the variables
@@ -43,7 +38,7 @@ that define the locations of the third-party libraries.
 
 Now you're ready to build Ice:
 
-    $ make
+    make
 
 This will build the Ice core libraries, services, and tests.
 
@@ -69,23 +64,23 @@ location of the library directory with the `-L` option.
 Python is required to run the test suite. Additionally, the Glacier2 tests
 require the Python module `passlib`, which you can install with the command:
 
-    $ pip install passlib
+    pip install passlib
 
 After a successful source build, you can run the tests as follows:
 
-    $ make test
+    make test
 
 This command is equivalent to:
 
-    $ python allTests.py
+    python allTests.py
 
 If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
-[1]: https://doc.zeroc.com/display/Ice36/Using+the+OS+X+Binary+Distribution
-[2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+3.6.1
+[1]: https://doc.zeroc.com/display/Ice37/Using+the+OS+X+Binary+Distribution
+[2]: https://doc.zeroc.com/display/Ice37/Supported+Platforms+for+Ice+3.7.0
 [3]: http://expat.sourceforge.net
 [4]: http://bzip.org
-[5]: http://www.oracle.com/us/products/database/berkeley-db/overview/index.htm
+[5]: http://symas.com/mdb/
 [6]: https://github.com/zeroc-ice/mcpp
 [7]: http://brew.sh
