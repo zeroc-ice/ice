@@ -18,9 +18,7 @@ OBJS		= .\IceDB.obj
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-#
-#$(OBJS)		: $(LMDB_NUPKG)
-#
+$(OBJS)		: $(LMDB_NUPKG)
 
 CPPFLAGS	= -I.. $(LMDB_CPPFLAGS) $(CPPFLAGS) -DICE_DB_API_EXPORTS -DWIN32_LEAN_AND_MEAN
 LINKWITH	= $(LMDB_LDFLAGS) $(LMDB_LIBS)
