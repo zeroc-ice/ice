@@ -14,9 +14,10 @@ Ice is expected to build and run properly on any recent Linux distribution for
 x86 and x86_64, and was extensively tested using the operating systems and
 compiler versions listed for our [supported platforms][2].
 
-### Third-Party Libraries
+### Third-Party Packages
 
-Ice has dependencies on a number of third-party libraries:
+Ice has dependencies on a number of third-party packages. Install these packages 
+before building Ice for C++:
 
  - [expat][3] 2.0
  - [OpenSSL][4] 0.9.8 or later
@@ -24,18 +25,34 @@ Ice has dependencies on a number of third-party libraries:
  - [LMDB][6] 0.9.16
  - [mcpp][7] 2.7.2 (with patches)
 
-Expat, OpenSSL and bzip are included with most Linux distributions. ZeroC
-supplies binary packages for LMDB and mcpp on supported Linux distributions
+Expat, OpenSSL and bzip are included with most Linux distributions. 
+
+ZeroC supplies binary packages for LMDB and mcpp for several Linux distributions 
 that do not include them:
 
-- LMDB 0.9.16 on RHEL 7 and Amzn 2015.09
-- mcpp 2.7.2 with patches (`mcpp-devel`) on RHEL 7, RHEL 6, SLES 12, SLES 11
-and Amzn 2015.03
+#### Amazon Linux
+    wget https://zeroc.com/download/GPG-KEY-zeroc-release
+    sudo rpm --import GPG-KEY-zeroc-release
+    cd /etc/yum.repos.d
+    sudo wget https://dev.zeroc.com/rpm/thirdparty/zeroc-thirdparty-amzn1.repo
+    sudo yum install lmdb-devel mcpp-devel
+
+#### RHEL 7
+    wget https://zeroc.com/download/GPG-KEY-zeroc-release
+    sudo rpm --import GPG-KEY-zeroc-release
+    cd /etc/yum.repos.d
+    sudo wget https://dev.zeroc.com/rpm/thirdparty/zeroc-thirdparty-el7.repo
+    sudo yum install lmdb-devel mcpp-devel
+
+#### SLES 12
+    wget https://zeroc.com/download/GPG-KEY-zeroc-release
+    sudo rpm --import GPG-KEY-zeroc-release
+    cd /etc/yum.repos.d
+    sudo wget https://dev.zeroc.com/rpm/thirdparty/zeroc-thirdparty-sles12.repo
+    sudo yum install lmdb-devel mcpp-devel
+
 
 ## Building Ice
-
-Obtain all third-party dependencies. If building from source, please read
-[Building Third Party Packages from Source][8] documentation.
 
 In a command window, change to the `cpp` subdirectory:
 
@@ -103,11 +120,10 @@ This command is equivalent to:
 If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
-[1]: https://doc.zeroc.com/display/Ice36/Using+the+Linux+Binary+Distributions
-[2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+3.6.1
+[1]: https://doc.zeroc.com/display/Ice37/Using+the+Linux+Binary+Distributions
+[2]: https://doc.zeroc.com/display/Ice37/Supported+Platforms+for+Ice+3.7.0
 [3]: http://expat.sourceforge.net
 [4]: http://openssl.org
 [5]: http://bzip.org
 [6]: http://symas.com/mdb/
 [7]: https://github.com/zeroc-ice/mcpp
-[8]: https://doc.zeroc.com/display/Ice36/Building+Third+Party+Packages+from+Source
