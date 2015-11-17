@@ -30,15 +30,6 @@ The Ice build system for Windows downloads and installs Nuget and these
 Nuget packages when you build Ice for C++. The third-party packages
 are installed in the ``ice/cpp/third-party-packages`` folder.
 
-### Monotonic Clock
-
-Ice uses the `QueryPerformanceCounter` Windows API function to measure time with
-a monotonic clock. If you are experiencing timing or performance issues, there
-are two knowledgebase articles that may be relevant for your system:
-
- - [KB 896256](http://support.microsoft.com/?id=896256)
- - [KB 895980](http://support.microsoft.com/?id=895980)
-
 ## Building Ice
 
 Open a command prompt that is configured for your target architecture. For
