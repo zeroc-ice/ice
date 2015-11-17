@@ -2305,10 +2305,10 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
     //
     // Create or update the server directories exists.
     //
-    createOrUpdateDirectory(_serverDir);
-    createOrUpdateDirectory(_serverDir + "/config");
-    createOrUpdateDirectory(_serverDir + "/dbs");
-    createOrUpdateDirectory(_serverDir + "/distrib");
+    IcePatch2Internal::createDirectory(_serverDir);
+    IcePatch2Internal::createDirectory(_serverDir + "/config");
+    IcePatch2Internal::createDirectory(_serverDir + "/dbs");
+    IcePatch2Internal::createDirectory(_serverDir + "/distrib");
 
     //
     // Create the configuration files, remove the old ones.
@@ -2379,7 +2379,7 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
             knownDbEnvs.push_back((*q)->name);
 
             string dbEnvHome = _serverDir + "/dbs/" + (*q)->name;
-            createOrUpdateDirectory(dbEnvHome);
+            IcePatch2Internal::createDirectory(dbEnvHome);
 
             if(!(*q)->properties.empty())
             {
@@ -3039,18 +3039,6 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
                 out << "changed server `" << _id << "' state to `Loading'";
             }
         }
-    }
-}
-
-void
-ServerI::createOrUpdateDirectory(const string& dir)
-{
-    try
-    {
-        IcePatch2Internal::createDirectory(dir);
-    }
-    catch(const string&)
-    {
     }
 }
 

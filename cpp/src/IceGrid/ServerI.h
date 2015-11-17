@@ -80,7 +80,7 @@ public:
 
     virtual ServerState getState(const ::Ice::Current& = Ice::Current()) const;
     virtual Ice::Int getPid(const ::Ice::Current& = Ice::Current()) const;
-   
+
     virtual void setEnabled(bool, const ::Ice::Current&);
     virtual bool isEnabled(const ::Ice::Current& = Ice::Current()) const;
     virtual void setProcess_async(const AMD_Server_setProcessPtr&, const ::Ice::ProcessPrx&, const ::Ice::Current&);
@@ -125,7 +125,7 @@ public:
     void updateRuntimePropertiesCallback(const Ice::Exception&, const InternalServerDescriptorPtr&);
 
 private:
-    
+
     void updateImpl(const InternalServerDescriptorPtr&);
     void checkRevision(const std::string&, const std::string&, int) const;
     void checkNoRestart(const InternalServerDescriptorPtr&);
@@ -138,8 +138,7 @@ private:
     void setState(InternalServerState, const std::string& = std::string());
     ServerCommandPtr nextCommand();
     void setStateNoSync(InternalServerState, const std::string& = std::string());
-    
-    void createOrUpdateDirectory(const std::string&);
+
     ServerState toServerState(InternalServerState) const;
     ServerActivation toServerActivation(const std::string&) const;
     ServerDynamicInfo getDynamicInfo() const;
@@ -180,7 +179,7 @@ private:
     LoadCommandPtr _load;
     PatchCommandPtr _patch;
     StartCommandPtr _start;
-    
+
     int _pid;
 };
 typedef IceUtil::Handle<ServerI> ServerIPtr;
