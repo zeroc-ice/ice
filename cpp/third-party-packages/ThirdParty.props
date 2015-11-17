@@ -3,7 +3,6 @@
     <PropertyGroup>
         <Bzip2Bin>$(IceHome)\cpp\third-party-packages\bzip2.$(PlatformToolset)\build\native\bin\$(Platform)\$(Configuration)</Bzip2Bin>
         <ExpatBin>$(IceHome)\cpp\third-party-packages\expat.$(PlatformToolset)\build\native\bin\$(Platform)\$(Configuration)</ExpatBin>
-        <BerkeleyDBBin>$(IceHome)\cpp\third-party-packages\berkeley.db.$(PlatformToolset)\build\native\bin\$(Platform)\$(Configuration)</BerkeleyDBBin>
         <Path>$(Bzip2Bin);$(ExpatBin);$(BerkeleyDBBin);$(Path)</Path>
     </PropertyGroup>
 </Project>

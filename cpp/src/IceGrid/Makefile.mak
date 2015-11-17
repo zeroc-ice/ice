@@ -120,7 +120,7 @@ DLINKWITH 	= $(LIBS)
 NLINKWITH	= $(LIBS) advapi32.lib pdh.lib ws2_32.lib
 
 SLICE2CPPFLAGS	= --checksum --ice --include-dir IceGrid $(SLICE2CPPFLAGS)
-CPPFLAGS	= -I. -I.. -I$(LMDB_HOME)\include $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN -Zm200
+CPPFLAGS	= -I. -I.. $(LMDB_CPPFLAGS) $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN -Zm200
 
 !if "$(GENERATE_PDB)" == "yes"
 APDBFLAGS       = /pdb:$(ADMIN:.exe=.pdb)

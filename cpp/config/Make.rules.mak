@@ -194,6 +194,13 @@ EXPAT_LDFLAGS		= /LIBPATH:"$(EXPAT_HOME)\build\native\lib/$(PLATFORM)\$(CONFIGUR
 EXPAT_LIBS		= libexpat$(LIBSUFFIX).lib
 EXPAT_NUPKG		= $(EXPAT_HOME)\expat.$(PLATFORMTOOLSET).nupkg
 
+LMDB_VERSION		= 0.9.16.0
+LMDB_HOME		= $(PKG_DIR)\lmdb.$(PLATFORMTOOLSET)
+LMDB_CPPFLAGS		= /I"$(LMDB_HOME)\build\native\include"
+LMDB_LDFLAGS		= /LIBPATH:"$(LMDB_HOME)\build\native\lib/$(PLATFORM)\$(CONFIGURATION)"
+LMDB_LIBS		= lmdb$(LIBSUFFIX).lib advapi32.lib
+LMDB_NUPKG		= $(LMDB_HOME)\lmdb.$(PLATFORMTOOLSET).nupkg
+
 !endif
 
 NUGET 			= $(LOCALAPPDATA)\ZeroC\nuget\nuget.exe
@@ -217,6 +224,11 @@ $(EXPAT_NUPKG): $(NUGET)
 	@if not exist "$(PKG_DIR)" $(MKDIR) "$(PKG_DIR)"
 	@if exist "$(PKG_DIR)\expat.$(PLATFORMTOOLSET)" rd /s /q "$(PKG_DIR)\expat.$(PLATFORMTOOLSET)"
 	$(NUGET) install expat.$(PLATFORMTOOLSET) -OutputDirectory "$(PKG_DIR)" -Version $(EXPAT_VERSION) -ExcludeVersion
+
+$(LMDB_NUPKG): $(NUGET)
+	@if not exist "$(PKG_DIR)" $(MKDIR) "$(PKG_DIR)"
+	@if exist "$(PKG_DIR)\lmdb.$(PLATFORMTOOLSET)" rd /s /q "$(PKG_DIR)\lmdb.$(PLATFORMTOOLSET)"
+	$(NUGET) install lmdb.$(PLATFORMTOOLSET) -OutputDirectory "$(PKG_DIR)" -Version $(LMDB_VERSION) -ExcludeVersion
 !endif
 
 !endif

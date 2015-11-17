@@ -63,7 +63,7 @@ SDIR		= $(slicedir)\IceStorm
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-CPPFLAGS	= -I.. -I$(LMDB_HOME)\include $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
+CPPFLAGS	= -I.. $(LMDB_CPPFLAGS) $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 ICECPPFLAGS	= $(ICECPPFLAGS) -I..
 SLICE2CPPFLAGS	= --ice --include-dir IceStorm $(SLICE2CPPFLAGS)
 LINKWITH 	= $(LIBS)
