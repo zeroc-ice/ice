@@ -30,15 +30,6 @@ The Ice build system for Windows downloads and installs Nuget and these
 Nuget packages when you build Ice for C++. The third-party packages
 are installed in the ``ice/cpp/third-party-packages`` folder.
 
-### Monotonic Clock
-
-Ice uses the `QueryPerformanceCounter` Windows API function to measure time with
-a monotonic clock. If you are experiencing timing or performance issues, there
-are two knowledgebase articles that may be relevant for your system:
-
- - [KB 896256](http://support.microsoft.com/?id=896256)
- - [KB 895980](http://support.microsoft.com/?id=895980)
-
 ## Building Ice
 
 Open a command prompt that is configured for your target architecture. For
@@ -54,14 +45,14 @@ fourth configurations produce 64-bit binaries.
 
 In the command window, change to the `cpp` subdirectory:
 
-    $ cd cpp
+    cd cpp
 
 Edit `config\Make.rules.mak` to establish your build configuration. The comments
 in the file provide more information.
 
 Now you're ready to build Ice:
 
-    > nmake /f Makefile.mak
+    nmake /f Makefile.mak
 
 This will build the Ice core libraries, services, and tests.
 
@@ -83,17 +74,17 @@ If you built a 64-bit version of Ice, the binaries are installed in the
 Python is required to run the test suite. Additionally, the Glacier2 tests
 require the Python module `passlib`, which you can install with the command:
 
-    > pip install passlib
+    pip install passlib
 
 After a successful source build, you can run the tests as follows:
 
-    > python allTests.py
+    python allTests.py
 
 If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
 [1]: https://zeroc.com/download.html
-[2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+3.6.1
+[2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+3.7.0
 [3]: http://expat.sourceforge.net
 [4]: http://bzip.org
 [5]: http://symas.com/mdb/
