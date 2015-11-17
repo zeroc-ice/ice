@@ -49,7 +49,7 @@ that do not include them. You can install these packages as shown below:
     sudo rpm --import GPG-KEY-zeroc-release
     cd /etc/yum.repos.d
     sudo wget https://dev.zeroc.com/rpm/thirdparty/zeroc-thirdparty-sles12.repo
-    sudo yum install lmdb-devel mcpp-devel
+    sudo yum install mcpp-devel
 
 ## Building Ice
 
