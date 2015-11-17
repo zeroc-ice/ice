@@ -24,6 +24,7 @@ Ice has dependencies on a number of third-party libraries:
 Expat and bzip are included with your system. 
 
 You can install LMDB and mcpp using [Homebrew][7]:
+
     brew install lmdb mcpp
 
 ## Building Ice
