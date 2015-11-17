@@ -33,7 +33,6 @@ dependencies {
     compile localDependency('icestorm')
     compile localDependency('icegrid')
     compile project(':testPlugins')
-    compile files(dbJar)
     runtime "org.apache.tools:bzip2:1.0"
 }
 

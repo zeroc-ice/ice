@@ -40,10 +40,10 @@ Make sure that the `javac` and `java` commands are present in your PATH.
 
 Ice for Java uses the [Gradle][3] build system, and includes the Gradle wrapper
 version 2.4 in the distribution. You cannot build the Ice for Java source
-distribution without an Internet connection. Except for Berkeley DB, Gradle will
-download all required packages automatically. These packages are listed below.
-Gradle will automatically download any necessary build artifacts from ZeroC's
-Maven repository located at
+distribution without an Internet connection. Gradle will download all required
+packages automatically. These packages are listed below. Gradle will
+automatically download any necessary build artifacts from ZeroC's Maven
+repository located at
 
     http://repo.zeroc.com/nexus/content/repositories/thirdparty
 
@@ -101,20 +101,10 @@ The Maven package id for the application bundler package is as follows:
 
 ### Preparing to Build
 
-This source distribution cannot be compiled successfully without the Berkeley DB
-run time for Java (`db.jar`). The build system searches in standard locations
-for the following two JAR files:
-
-    db-5.3.28.jar
-    db.jar
-
-If neither of these files is present in the standard locations on your system,
-you must set `dbHome` in `gradle.properties`.
-
-The build system also requires the Slice translators from Ice for C++. If you
-have not built Ice for C++ in this source distribution, you must set the
-`ICE_HOME` environment variable with the path name of your Ice installation.
-For example, on Unix:
+The build system  requires the Slice translators from Ice for C++. If you have
+not built Ice for C++ in this source distribution, you must set the `ICE_HOME`
+environment variable with the path name of your Ice installation. For example,
+on Unix:
 
     $ export ICE_HOME=/opt/Ice-3.6.1 (For local build)
     $ export ICE_HOME=/usr (For RPM installation)

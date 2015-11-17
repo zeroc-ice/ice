@@ -7,10 +7,6 @@ addons:
     packages:
     - g++-4.9
     - gcc-4.9
-    - libdb++-dev
-    - libdb-dev
-    - libdb-java
-    - libdb-java-dev
     - php5-cli
     - php5-dev
     - python-dev

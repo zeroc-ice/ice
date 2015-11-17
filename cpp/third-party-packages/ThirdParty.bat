@@ -47,18 +47,9 @@ if "%Compiler%" == "mingw4.7.2" goto v100_mingw4.7.2
 set THIRDPARTY_HOME=%~dp0
 
 ::
-:: Set Java Enviroment
-::
-set CLASSPATH=%THIRDPARTY_HOME%berkeley.db.java7\build\native\lib\db.jar;%CLASSPATH%
-set PATH=%THIRDPARTY_HOME%berkeley.db.java7\build\native\bin\%Platform%\Release;%PATH%
-
-::
 :: Set C++ Enviroment
 ::
-if "%Configuration%" == "Debug" set PATH=%THIRDPARTY_HOME%berkeley.db.%Compiler%\build\native\bin\%Platform%\Release;%PATH%
-
 set PATH=%THIRDPARTY_HOME%bzip2.%Compiler%\build\native\bin\%Platform%\%Configuration%;%PATH%
-set PATH=%THIRDPARTY_HOME%berkeley.db.%Compiler%\build\native\bin\%Platform%\%Configuration%;%PATH%
 set PATH=%THIRDPARTY_HOME%expat.%Compiler%\build\native\bin\%Platform%\%Configuration%;%PATH%
 
 goto :eof
