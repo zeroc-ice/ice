@@ -21,6 +21,10 @@ import test.Ice.objects.Test.E;
 import test.Ice.objects.Test.F;
 import test.Ice.objects.Test.H;
 import test.Ice.objects.Test.I;
+import test.Ice.objects.Test.A1;
+import test.Ice.objects.Test.B1;
+import test.Ice.objects.Test.D1;
+import test.Ice.objects.Test.EDerived;
 import test.Ice.objects.Test.Base;
 import test.Ice.objects.Test.S;
 import test.Ice.objects.Test.BaseSeqHolder;
@@ -191,6 +195,32 @@ public class AllTests
         test(j != null && ((J)j) != null);
         I h = initial.getH();
         test(h != null && ((H)h) != null);
+        out.println("ok");
+        
+        out.print("getting D1... ");
+        out.flush();
+        D1 d1 = new D1(new A1("a1"), new A1("a2"), new A1("a3"), new A1("a4"));
+        d1 = initial.getD1(d1);
+        test(d1.a1.name.equals("a1"));
+        test(d1.a2.name.equals("a2"));
+        test(d1.a3.name.equals("a3"));
+        test(d1.a4.name.equals("a4"));
+        out.println("ok");
+        
+        out.print("throw EDerived... ");
+        out.flush();
+        try
+        {
+            initial.throwEDerived();
+            test(false);
+        }
+        catch(EDerived ederived)
+        {
+            test(ederived.a1.name.equals("a1"));
+            test(ederived.a2.name.equals("a2"));
+            test(ederived.a3.name.equals("a3"));
+            test(ederived.a4.name.equals("a4"));
+        }
         out.println("ok");
 
         out.print("setting I... ");

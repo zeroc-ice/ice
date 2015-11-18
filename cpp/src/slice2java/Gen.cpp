@@ -1759,19 +1759,19 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
     out << sb;
     out << nl << "__is.startReadSlice();";
 
-    int classMemberCount = static_cast<int>(allClassMembers.size() - classMembers.size());
+    int patchIter = 0;
     const bool needCustomPatcher = classMembers.size() > 1;
     iter = 0;
     for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
     {
         if(!(*d)->optional())
         {
-            writeUnmarshalDataMember(out, package, *d, iter, needCustomPatcher, classMemberCount);
+            writeUnmarshalDataMember(out, package, *d, iter, needCustomPatcher, patchIter);
         }
     }
     for(DataMemberList::const_iterator d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
     {
-        writeUnmarshalDataMember(out, package, *d, iter, needCustomPatcher, classMemberCount);
+        writeUnmarshalDataMember(out, package, *d, iter, needCustomPatcher, patchIter);
     }
     out << nl << "__is.endReadSlice();";
     if(base)
@@ -1808,17 +1808,17 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
         out << sb;
         out << nl << "__inS.startSlice();";
         iter = 0;
-        classMemberCount = static_cast<int>(allClassMembers.size() - classMembers.size());
+        patchIter = 0;
         for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
         {
             if(!(*d)->optional())
             {
-                writeStreamUnmarshalDataMember(out, package, *d, iter, needCustomPatcher, classMemberCount);
+                writeStreamUnmarshalDataMember(out, package, *d, iter, needCustomPatcher, patchIter);
             }
         }
         for(DataMemberList::const_iterator d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
         {
-            writeStreamUnmarshalDataMember(out, package, *d, iter, needCustomPatcher, classMemberCount);
+            writeStreamUnmarshalDataMember(out, package, *d, iter, needCustomPatcher, patchIter);
         }
         out << nl << "__inS.endSlice();";
         if(base)
@@ -3748,18 +3748,18 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         out << sb;
         out << nl << "__is.startReadSlice();";
         iter = 0;
-        int classMemberCount = static_cast<int>(allClassMembers.size() - classMembers.size());
+        int patchIter = 0;
         const bool needCustomPatcher = classMembers.size() > 1;
         for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
         {
             if(!(*d)->optional())
             {
-                writeUnmarshalDataMember(out, package, *d, iter, needCustomPatcher, classMemberCount);
+                writeUnmarshalDataMember(out, package, *d, iter, needCustomPatcher, patchIter);
             }
         }
         for(DataMemberList::const_iterator d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
         {
-            writeUnmarshalDataMember(out, package, *d, iter, needCustomPatcher, classMemberCount);
+            writeUnmarshalDataMember(out, package, *d, iter, needCustomPatcher, patchIter);
         }
         out << nl << "__is.endReadSlice();";
         if(base)
@@ -3796,17 +3796,17 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             out << sb;
             out << nl << "__inS.startSlice();";
             iter = 0;
-            classMemberCount = static_cast<int>(allClassMembers.size() - classMembers.size());
+            patchIter = 0;
             for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
             {
                 if(!(*d)->optional())
                 {
-                    writeStreamUnmarshalDataMember(out, package, *d, iter, needCustomPatcher, classMemberCount);
+                    writeStreamUnmarshalDataMember(out, package, *d, iter, needCustomPatcher, patchIter);
                 }
             }
             for(DataMemberList::const_iterator d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
             {
-                writeStreamUnmarshalDataMember(out, package, *d, iter, needCustomPatcher, classMemberCount);
+                writeStreamUnmarshalDataMember(out, package, *d, iter, needCustomPatcher, patchIter);
             }
             out << nl << "__inS.endSlice();";
             if(base)
@@ -4093,11 +4093,11 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         out << sp << nl << "public void" << nl << "__read(IceInternal.BasicStream __is)";
         out << sb;
         iter = 0;
-        int classMemberCount = 0;
+        int patchIter = 0;
         const bool needCustomPatcher = classMembers.size() > 1;
         for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
         {
-            writeUnmarshalDataMember(out, package, *d, iter, needCustomPatcher, classMemberCount);
+            writeUnmarshalDataMember(out, package, *d, iter, needCustomPatcher, patchIter);
         }
         out << eb;
 
@@ -4115,10 +4115,10 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
             out << sp << nl << "public void" << nl << "ice_read(Ice.InputStream __inS)";
             out << sb;
             iter = 0;
-            classMemberCount = 0;
+            patchIter = 0;
             for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
             {
-                writeStreamUnmarshalDataMember(out, package, *d, iter, needCustomPatcher, classMemberCount);
+                writeStreamUnmarshalDataMember(out, package, *d, iter, needCustomPatcher, patchIter);
             }
             out << eb;
         }
