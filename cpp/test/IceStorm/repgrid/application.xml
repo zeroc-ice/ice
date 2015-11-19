@@ -33,20 +33,21 @@
         <dbenv name="${service}"/>
 
         <adapter name="${service}.TopicManager"
-                 id="${instance-name}${node-id}.TopicManager" 
+                 id="${instance-name}${node-id}.TopicManager"
                  endpoints="${topic-manager-endpoints}"
                  replica-group="${topic-manager-replica-group}"/>
 
-        <adapter name="${service}.Publish" 
-                 id="${instance-name}${node-id}.Publish" 
+        <adapter name="${service}.Publish"
+                 id="${instance-name}${node-id}.Publish"
                  endpoints="${publish-endpoints}"
                  replica-group="${publish-replica-group}"/>
 
         <adapter name="${service}.Node"
-                 id="${instance-name}${node-id}.Node" 
+                 id="${instance-name}${node-id}.Node"
                  endpoints="${node-endpoints}"/>
 
         <properties>
+           <property name="${service}.LMDB.Path" value="${service.data}"/>
            <property name="${service}.InstanceName" value="${instance-name}"/>
            <property name="${service}.NodeId" value="${node-id}"/>
            <property name="${service}.Flush.Timeout" value="${flush-timeout}"/>
@@ -72,8 +73,8 @@
 
       <icebox id="${instance-name}${node-id}" exe="${icebox.exe}" activation="on-demand">
         <service-instance template="IceStorm-HA-withsql"
-			  instance-name="${instance-name}" 
-			  node-id="${node-id}" 
+			  instance-name="${instance-name}"
+			  node-id="${node-id}"
 			  topic-manager-endpoints="${topic-manager-endpoints}"
 			  publish-endpoints="${publish-endpoints}"
 			  node-endpoints="${node-endpoints}"
