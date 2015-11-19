@@ -1870,6 +1870,40 @@ def getTestEnv(lang, testdir):
         if os.environ.get("USE_BIN_DIST", "no") != "yes":
             addPathToEnv("NODE_PATH", os.path.join(getIceDir("js", testdir), "src"), env)
 
+
+    if isWin32() and lang in ["cpp", "java", "csharp", "python", "ruby"]:
+        if not iceHome:
+            mode = getBuildMode(os.path.join(getIceDir("cpp"), "bin"))
+            configuration = "Debug" if mode == "debug" else "Release"
+            platform = "x64" if x64 else "Win32"
+            pkgdir = os.path.join(getIceDir("cpp"), "third-party-packages")
+            pkgsubdir = os.path.join("build", "native", "bin", platform)
+
+            if isMINGW():
+                addPathToEnv("PATH", os.path.join(pkgdir, "bzip2.mingw4.7.2", pkgsubdir), env)
+            else:
+                platformtoolset = ""
+                if isVC100():
+                    platformtoolset = "v100"
+                elif isVC110():
+                    platformtoolset = "v110"
+                elif isVC120():
+                    platformtoolset = "v120"
+                elif isVC140():
+                    platformtoolset = "v140"
+
+                #
+                # For Debug builds we need to add Release binaries to path
+                # to be able to use protocol compression with .NET
+                #
+                if configuration == "Debug":
+                  addPathToEnv("PATH", os.path.join(pkgdir, "bzip2.{0}".format(platformtoolset), pkgsubdir,
+                               "Release"), env)
+
+                for package in ["bzip2.{0}", "expat.{0}"]:
+                    addPathToEnv("PATH", os.path.join(pkgdir, package.format(platformtoolset), pkgsubdir,
+                                 configuration), env)
+
     #
     # If Ice is installed on the system, set the CLASSPATH for Java and
     # NODE_PATH for JavaScript
