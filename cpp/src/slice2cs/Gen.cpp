@@ -1606,18 +1606,18 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
     _out << nl << "protected " << qualifier << "void readImpl__(IceInternal.BasicStream is__)";
     _out << sb;
     _out << nl << "is__.startReadSlice();";
-    int classMemberCount = static_cast<int>(allClassMembers.size() - classMembers.size());
+    int patchIter = 0;
     const bool needCustomPatcher = classMembers.size() > 1;
     for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
     {
         if(!(*d)->optional())
         {
-            writeUnmarshalDataMember(*d, fixId(*d, DotNet::ICloneable, true), needCustomPatcher, classMemberCount);
+            writeUnmarshalDataMember(*d, fixId(*d, DotNet::ICloneable, true), needCustomPatcher, patchIter);
         }
     }
     for(DataMemberList::const_iterator d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
     {
-        writeUnmarshalDataMember(*d, fixId(*d, DotNet::ICloneable, true), needCustomPatcher, classMemberCount);
+        writeUnmarshalDataMember(*d, fixId(*d, DotNet::ICloneable, true), needCustomPatcher, patchIter);
     }
     _out << nl << "is__.endReadSlice();";
     if(base)
@@ -1665,19 +1665,19 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
         _out << nl << "protected " << qualifier << "void readImpl__(Ice.InputStream inS__)";
         _out << sb;
         _out << nl << "inS__.startSlice();";
-        classMemberCount = static_cast<int>(allClassMembers.size() - classMembers.size());
+        patchIter = 0;
         for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
         {
             if(!(*d)->optional())
             {
                 writeStreamUnmarshalDataMember(*d, fixId(*d, DotNet::ICloneable, true), needCustomPatcher,
-                                               classMemberCount);
+                                               patchIter);
             }
         }
         for(DataMemberList::const_iterator d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
         {
             writeStreamUnmarshalDataMember(*d, fixId(*d, DotNet::ICloneable, true), needCustomPatcher,
-                                           classMemberCount);
+                                           patchIter);
         }
         _out << nl << "inS__.endSlice();";
         if(base)
@@ -4014,11 +4014,11 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         _out << sb;
         _out << nl << "is__.startReadSlice();";
         
-        int classMemberCount = static_cast<int>(allClassMembers.size() - classMembers.size());
+        int patchIter = 0;
         const bool needCustomPatcher = classMembers.size() > 1;
         for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
-            writeUnmarshalDataMember(*q, fixId((*q)->name(), DotNet::Exception), needCustomPatcher, classMemberCount);
+            writeUnmarshalDataMember(*q, fixId((*q)->name(), DotNet::Exception), needCustomPatcher, patchIter);
         }
         _out << nl << "is__.endReadSlice();";
         if(base)
@@ -4050,11 +4050,11 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             _out << nl << "protected override void readImpl__(Ice.InputStream inS__)";
             _out << sb;
             _out << nl << "inS__.startSlice();";
-            classMemberCount = static_cast<int>(allClassMembers.size() - classMembers.size());
+            patchIter = 0;
             for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
             {
                 writeStreamUnmarshalDataMember(*q, fixId((*q)->name(), DotNet::Exception), needCustomPatcher,
-                                               classMemberCount);
+                                               patchIter);
             }
             _out << nl << "inS__.endSlice();";
             if(base)
@@ -4407,12 +4407,12 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         emitGeneratedCodeAttribute();
         _out << nl << "public void read__(IceInternal.BasicStream is__)";
         _out << sb;
-        int classMemberCount = 0;
+        int patchIter = 0;
         const bool needCustomPatcher = classMembers.size() > 1;
         for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
             writeUnmarshalDataMember(*q, fixId(*q, isClass ? DotNet::ICloneable : 0), needCustomPatcher,
-                                     classMemberCount);
+                                     patchIter);
         }
         _out << eb;
 
@@ -4460,11 +4460,11 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
             emitGeneratedCodeAttribute();
             _out << nl << "public void ice_read(Ice.InputStream inS__)";
             _out << sb;
-            classMemberCount = 0;
+            patchIter = 0;
             for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
             {
                 writeStreamUnmarshalDataMember(*q, fixId(*q, isClass ? DotNet::ICloneable : 0), needCustomPatcher,
-                                               classMemberCount);
+                                               patchIter);
             }
             _out << eb;
 

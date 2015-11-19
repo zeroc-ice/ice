@@ -108,6 +108,9 @@ public:
     virtual Test::IPtr getI(const Ice::Current&);
     virtual Test::IPtr getJ(const Ice::Current&);
     virtual Test::IPtr getH(const Ice::Current&);
+    
+    virtual Test::D1Ptr getD1(const Test::D1Ptr&, const Ice::Current&);
+    virtual void throwEDerived(const Ice::Current&);
 
     virtual void setI(const Test::IPtr&, const Ice::Current&);
 

@@ -88,6 +88,16 @@ public sealed class InitialI : Initial
     {
         return new HI();
     }
+    
+    public override D1 getD1(D1 d1, Ice.Current current)
+    {
+        return d1;
+    }
+
+    public override void throwEDerived(Ice.Current current)
+    {
+        throw new EDerived(new A1("a1"), new A1("a2"), new A1("a3"), new A1("a4"));
+    }
 
     public override void setI(I theI, Ice.Current current)
     {

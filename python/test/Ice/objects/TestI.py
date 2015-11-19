@@ -147,6 +147,12 @@ class InitialI(Test.Initial):
 
     def getH(self, current=None):
         return HI()
+    
+    def getD1(self, d1, current=None):
+        return d1
+
+    def throwEDerived(self, current=None):
+        raise Test.EDerived(Test.A1("a1"), Test.A1("a2"), Test.A1("a3"), Test.A1("a4"))
 
     def setI(self, i, current=None):
         pass

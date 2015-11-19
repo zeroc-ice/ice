@@ -107,6 +107,27 @@ def allTests(communicator):
     h = initial.getH()
     test(isinstance(h, Test.H))
     print("ok")
+    
+    sys.stdout.write("getting D1... ")
+    sys.stdout.flush()
+    d1 = initial.getD1(Test.D1(Test.A1("a1"), Test.A1("a2"), Test.A1("a3"), Test.A1("a4")));
+    test(d1.a1.name == "a1")
+    test(d1.a2.name == "a2")
+    test(d1.a3.name == "a3")
+    test(d1.a4.name == "a4")
+    print("ok")
+    
+    sys.stdout.write("throw EDerived... ")
+    sys.stdout.flush()
+    try:
+        initial.throwEDerived()
+        test(false)
+    except Test.EDerived as e:
+        test(e.a1.name == "a1")
+        test(e.a2.name == "a2")
+        test(e.a3.name == "a3")
+        test(e.a4.name == "a4")
+    print("ok")
 
     sys.stdout.write("setting I... ")
     sys.stdout.flush()

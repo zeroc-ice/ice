@@ -216,6 +216,32 @@ public class AllTests : TestCommon.TestApp
         I h = initial.getH();
         test(h != null && ((H)h) != null);
         WriteLine("ok");
+        
+        Write("getting D1... ");
+        Flush();
+        D1 d1 = new D1(new A1("a1"), new A1("a2"), new A1("a3"), new A1("a4"));
+        d1 = initial.getD1(d1);
+        test(d1.a1.name.Equals("a1"));
+        test(d1.a2.name.Equals("a2"));
+        test(d1.a3.name.Equals("a3"));
+        test(d1.a4.name.Equals("a4"));
+        WriteLine("ok");
+        
+        Write("throw EDerived... ");
+        Flush();
+        try
+        {
+            initial.throwEDerived();
+            test(false);
+        }
+        catch(EDerived ederived)
+        {
+            test(ederived.a1.name.Equals("a1"));
+            test(ederived.a2.name.Equals("a2"));
+            test(ederived.a3.name.Equals("a3"));
+            test(ederived.a4.name.Equals("a4"));
+        }
+        WriteLine("ok");
 
         Write("setting I... ");
         Flush();

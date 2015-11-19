@@ -206,6 +206,30 @@ allTests(const Ice::CommunicatorPtr& communicator)
     IPtr h = initial->getH();
     test(h && HPtr::dynamicCast(h));
     cout << "ok" << endl;
+    
+    cout << "getting D1... " << flush;
+    D1Ptr d1 = new D1(new A1("a1"), new A1("a2"), new A1("a3"), new A1("a4"));
+    d1 = initial->getD1(d1);
+    test(d1->a1->name == "a1");
+    test(d1->a2->name == "a2");
+    test(d1->a3->name == "a3");
+    test(d1->a4->name == "a4");
+    cout << "ok" << endl;
+    
+    cout << "throw EDerived... " << flush;
+    try
+    {
+        initial->throwEDerived();
+        test(false);
+    }
+    catch(const EDerived& ederived)
+    {
+        test(ederived.a1->name == "a1");
+        test(ederived.a2->name == "a2");
+        test(ederived.a3->name == "a3");
+        test(ederived.a4->name == "a4");
+    }
+    cout << "ok" << endl;
 
     cout << "setting I... " << flush;
     initial->setI(i);

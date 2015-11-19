@@ -379,6 +379,37 @@
             {
                 h = obj;
                 test(h);
+                out.writeLine("ok");
+                out.write("getting D1... ");
+                return initial.getD1(new Test.D1(new Test.A1("a1"),
+                                                 new Test.A1("a2"),
+                                                 new Test.A1("a3"),
+                                                 new Test.A1("a4")));
+            }
+        ).then(
+            function(d1)
+            {
+                test(d1.a1.name == "a1");
+                test(d1.a2.name == "a2");
+                test(d1.a3.name == "a3");
+                test(d1.a4.name == "a4");
+                out.writeLine("ok");
+                out.write("throw EDerived... ");
+                return initial.throwEDerived();
+            }
+        ).then(
+            function()
+            {
+                test(false);
+            },
+            function(ex)
+            {
+                test(ex instanceof Test.EDerived);
+                test(ex.a1.name == "a1");
+                test(ex.a2.name == "a2");
+                test(ex.a3.name == "a3");
+                test(ex.a4.name == "a4");
+                out.writeLine("ok");
                 out.write("setting I... ");
                 return initial.setI(i);
             }

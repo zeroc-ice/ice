@@ -98,11 +98,11 @@
         topic-manager-replica-group="TopicManagerReplicaGroup"/>
 
       <icebox id="Test.IceStorm" exe="${icebox.exe}" activation="on-demand">
-        <service-instance template="IceStorm-HA-withsql"
+        <service-instance template="IceStorm-HA"
 			  node-id="2"
        	                  publish-replica-group="PublishReplicaGroup"
                           topic-manager-replica-group="TopicManagerReplicaGroup"/>
-        <service-instance template="IceStorm-HA-withsql"
+        <service-instance template="IceStorm-HA"
 			  node-id="3"
        	                  publish-replica-group="PublishReplicaGroup"
                           topic-manager-replica-group="TopicManagerReplicaGroup"/>

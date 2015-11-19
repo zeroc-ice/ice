@@ -109,6 +109,36 @@ class CompactExt(CompactExtId) extends Compact
 {
 };
 
+
+class A1
+{
+    string name;
+};
+
+class B1
+{
+    A1 a1;
+    A1 a2;
+};
+
+class D1 extends B1
+{
+    A1 a3;
+    A1 a4;
+};
+
+exception EBase
+{
+    A1 a1;
+    A1 a2;
+};
+
+exception EDerived extends EBase
+{
+    A1 a3;
+    A1 a4;
+};
+
 module Inner
 {
     
@@ -154,6 +184,9 @@ class Initial
     I getI();
     I getJ();
     I getH();
+
+    D1 getD1(D1 d1);
+    void throwEDerived() throws EDerived;
 
     void setI(I theI);
 

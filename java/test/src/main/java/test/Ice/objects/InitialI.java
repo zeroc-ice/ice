@@ -18,6 +18,9 @@ import test.Ice.objects.Test.DHolder;
 import test.Ice.objects.Test.E;
 import test.Ice.objects.Test.F;
 import test.Ice.objects.Test.I;
+import test.Ice.objects.Test.A1;
+import test.Ice.objects.Test.D1;
+import test.Ice.objects.Test.EDerived;
 import test.Ice.objects.Test.Base;
 import test.Ice.objects.Test.BaseSeqHolder;
 import test.Ice.objects.Test.Initial;
@@ -140,6 +143,20 @@ public final class InitialI extends Initial
     getH(Ice.Current current)
     {
         return new HI();
+    }
+    
+    @Override
+    public D1
+    getD1(D1 d1, Ice.Current current)
+    {
+        return d1;
+    }
+    
+    @Override
+    public void
+    throwEDerived(Ice.Current current) throws EDerived
+    {
+        throw new EDerived(new A1("a1"), new A1("a2"), new A1("a3"), new A1("a4"));
     }
 
     @Override

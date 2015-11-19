@@ -30,6 +30,17 @@ particular aspect of Ice.
 
 These are the changes since Ice 3.6.1.
 
+## General Changes
+
+- Added two new tools, icegriddb36 and icestormdb36, used to import/export the
+  IceGrid and IceStorm databases.
+
+- Fixed a bug that affects Java and C# generated code. The generated patcher for
+  reading class data members was bogus when the class had more than one class data 
+  member and derived from a class that contained class data members. The same
+  issue was true for exceptions with class data members deriving from exceptions
+  with class data members.
+
 ## C++ Changes
 
 - Fixed El Capitan build issues caused by a new security feature that no longer

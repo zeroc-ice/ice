@@ -268,6 +268,18 @@ InitialI::getH(const Ice::Current&)
     return new HI();
 }
 
+D1Ptr
+InitialI::getD1(const Test::D1Ptr& d1, const Ice::Current&)
+{
+    return d1;
+}
+
+void
+InitialI::throwEDerived(const Ice::Current&)
+{
+    throw EDerived(new A1("a1"), new A1("a2"), new A1("a3"), new A1("a4"));
+}
+
 bool
 UnexpectedObjectExceptionTestI::ice_invoke(const std::vector<Ice::Byte>&,
                                            std::vector<Ice::Byte>& outParams,
