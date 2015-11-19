@@ -1065,9 +1065,9 @@ Resolver::getReserved()
     reserved["application.distrib"] = "${node.data}/distrib/${application}";
     reserved["server.distrib"] = "${node.data}/servers/${server}/distrib";
     reserved["server"] = "";
-    reserved["server.data"] = "${node.data}/servers/${server}/server_data";
+    reserved["server.data"] = "${node.data}/servers/${server}/data";
     reserved["service"] = "";
-    reserved["service.data"] = "${node.data}/servers/${server}/service_data/${service}";
+    reserved["service.data"] = "${node.data}/servers/${server}/data_${service}";
     return reserved;
 }
 

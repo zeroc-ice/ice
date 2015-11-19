@@ -2309,8 +2309,7 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
     IcePatch2Internal::createDirectory(_serverDir + "/config");
     IcePatch2Internal::createDirectory(_serverDir + "/dbs");
     IcePatch2Internal::createDirectory(_serverDir + "/distrib");
-    IcePatch2Internal::createDirectory(_serverDir + "/server_data");
-    IcePatch2Internal::createDirectory(_serverDir + "/service_data");
+    IcePatch2Internal::createDirectory(_serverDir + "/data");
 
     //
     // Create the configuration files, remove the old ones.
@@ -2378,27 +2377,35 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
         Ice::StringSeq knownDirs;
         for(Ice::StringSeq::const_iterator q = _desc->services->begin(); q != _desc->services->end(); ++q)
         {
-            knownDirs.push_back(*q);
-            IcePatch2Internal::createDirectory(_serverDir + "/service_data/" + *q);
+            knownDirs.push_back("data_" + *q);
+            IcePatch2Internal::createDirectory(_serverDir + "/data_" + *q);
         }
         sort(knownDirs.begin(), knownDirs.end());
 
         //
         // Remove old directories
         //
-        Ice::StringSeq dirs = IcePatch2Internal::readDirectory(_serverDir + "/service_data");
+        Ice::StringSeq dirs = IcePatch2Internal::readDirectory(_serverDir);
+        Ice::StringSeq svcDirs;
+        for(Ice::StringSeq::const_iterator p = dirs.begin(); p != dirs.end(); ++p)
+        {
+            if(p->find("data_") == 0)
+            {
+                svcDirs.push_back(*p);
+            }
+        }
         Ice::StringSeq toDel;
-        set_difference(dirs.begin(), dirs.end(), knownDirs.begin(), knownDirs.end(), back_inserter(toDel));
+        set_difference(svcDirs.begin(), svcDirs.end(), knownDirs.begin(), knownDirs.end(), back_inserter(toDel));
         for(Ice::StringSeq::const_iterator p = toDel.begin(); p != toDel.end(); ++p)
         {
             try
             {
-                IcePatch2Internal::removeRecursive(_serverDir + "/service_data/" + *p);
+                IcePatch2Internal::removeRecursive(_serverDir + "/" + *p);
             }
             catch(const string& msg)
             {
                 Ice::Warning out(_node->getTraceLevels()->logger);
-                out << "couldn't remove directory `" + _serverDir + "/service_data/" + *p + "':\n" + msg;
+                out << "couldn't remove directory `" + _serverDir + "/" + *p + "':\n" + msg;
             }
         }
     }

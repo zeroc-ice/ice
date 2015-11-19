@@ -1221,8 +1221,16 @@ NodeI::canRemoveServerDirectory(const string& name)
     contents.erase("config");
     contents.erase("distrib");
     contents.erase("revision");
-    contents.erase("server_data");
-    contents.erase("service_data");
+    contents.erase("data");
+    Ice::StringSeq serviceDataDirs;
+    for(set<string>::const_iterator p = contents.begin(); p != contents.end(); ++p)
+    {
+        if(p->find("data_") != 0)
+        {
+            return false;
+        }
+        serviceDataDirs.push_back(*p);
+    }
     if(!contents.empty())
     {
         return false;
@@ -1259,30 +1267,26 @@ NodeI::canRemoveServerDirectory(const string& name)
         }
     }
 
-    if(IceUtilInternal::directoryExists(_serversDir + "/" + name + "/server_data"))
+    if(IceUtilInternal::directoryExists(_serversDir + "/" + name + "/data"))
     {
-        if(!readDirectory(_serversDir + "/" + name + "/server_data").empty())
+        if(!readDirectory(_serversDir + "/" + name + "/data").empty())
         {
             return false;
         }
     }
 
-    if(IceUtilInternal::directoryExists(_serversDir + "/" + name + "/service_data"))
+    for(Ice::StringSeq::const_iterator p = serviceDataDirs.begin(); p != serviceDataDirs.end(); ++p)
     {
-        c = readDirectory(_serversDir + "/" + name + "/service_data");
-        for(Ice::StringSeq::const_iterator p = c.begin() ; p != c.end(); ++p)
+        try
         {
-            try
-            {
-                if(!readDirectory(_serversDir + "/" + name + "/service_data/" + *p).empty())
-                {
-                    return false;
-                }
-            }
-            catch(const string&)
+            if(!readDirectory(_serversDir + "/" + name + "/" + *p).empty())
             {
                 return false;
             }
+        }
+        catch(const string&)
+        {
+            return false;
         }
     }
     return true;
