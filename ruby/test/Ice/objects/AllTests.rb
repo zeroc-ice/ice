@@ -192,6 +192,28 @@ def allTests(communicator)
     h = initial.getH()
     test(i)
     puts "ok"
+    
+    print "getting D1... "
+    STDOUT.flush
+    d1 = initial.getD1(Test::D1.new(Test::A1.new("a1"), Test::A1.new("a2"), Test::A1.new("a3"), Test::A1.new("a4")))
+    test(d1.a1.name == "a1")
+    test(d1.a2.name == "a2")
+    test(d1.a3.name == "a3")
+    test(d1.a4.name == "a4")
+    puts "ok"
+    
+    print "throw EDerived... "
+    STDOUT.flush
+    begin
+        initial.throwEDerived()
+        test(false)
+    rescue Test::EDerived => e
+        test(e.a1.name == "a1")
+        test(e.a2.name == "a2")
+        test(e.a3.name == "a3")
+        test(e.a4.name == "a4")
+    end
+    puts "ok"
 
     print "setting I... "
     STDOUT.flush

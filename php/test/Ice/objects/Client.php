@@ -346,6 +346,31 @@ function allTests($communicator)
     $h = $initial->getH();
     test($h != null and $h instanceof Test_H);
     echo "ok\n";
+    
+    echo "getting D1... ";
+    flush();
+    $d1 = $initial->getD1(new Test_D1(new Test_A1("a1"), new Test_A1("a2"), new Test_A1("a3"), new Test_A1("a4")));
+    test($d1->a1->name == "a1");
+    test($d1->a2->name == "a2");
+    test($d1->a3->name == "a3");
+    test($d1->a4->name == "a4");
+    echo "ok\n";
+    
+    echo "throw EDerived... ";
+    flush();
+    try
+    {
+        $initial->throwEDerived();
+        test(false);
+    }
+    catch(Test_EDerived $e)
+    {
+        test($e->a1->name == "a1");
+        test($e->a2->name == "a2");
+        test($e->a3->name == "a3");
+        test($e->a4->name == "a4");
+    }
+    echo "ok\n";
 
     echo "setting I... ";
     flush();
