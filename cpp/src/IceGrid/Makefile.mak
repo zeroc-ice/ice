@@ -114,6 +114,8 @@ SDIR		= $(slicedir)\IceGrid
 
 !include $(top_srcdir)\config\Make.rules.mak
 
+$(OBJS)		: $(LMDB_NUPKG)
+
 LINKWITH 	= $(LIBS)
 ALINKWITH 	= $(LIBS)
 DLINKWITH 	= $(LIBS)

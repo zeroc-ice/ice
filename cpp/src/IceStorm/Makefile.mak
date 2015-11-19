@@ -63,12 +63,14 @@ SDIR		= $(slicedir)\IceStorm
 
 !include $(top_srcdir)\config\Make.rules.mak
 
+$(OBJS)		: $(LMDB_NUPKG)
+
 CPPFLAGS	= -I.. $(LMDB_CPPFLAGS) $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 ICECPPFLAGS	= $(ICECPPFLAGS) -I..
 SLICE2CPPFLAGS	= --ice --include-dir IceStorm $(SLICE2CPPFLAGS)
 LINKWITH 	= $(LIBS)
-ALINKWITH 	= $(LIBS) 
-DLINKWITH 	= $(LIBS) 
+ALINKWITH 	= $(LIBS)
+DLINKWITH 	= $(LIBS)
 
 !if "$(GENERATE_PDB)" == "yes"
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
