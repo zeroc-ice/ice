@@ -151,7 +151,7 @@ if(macosx)
 
     task copyBundle(type: Copy, dependsOn: bundleapp) {
         from "${libDir}/${appName}.app"
-        into "${DESTDIR}${binDir}/${appName}.app"
+        into "${DESTDIR}/${prefix}/${appName}.app"
     }
 }
 
