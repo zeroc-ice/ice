@@ -47,7 +47,7 @@ class Node extends ListTreeNode
             final String prefix = "Retrieving Admin proxy for Node " + _id + "...";
             final String errorTitle = "Failed to retrieve Admin Proxy for Node " + _id;
             getRoot().getCoordinator().getStatusBar().setText(prefix);
-        
+
             Callback_Admin_getNodeAdmin cb = new Callback_Admin_getNodeAdmin()
             {
                 @Override
@@ -56,7 +56,7 @@ class Node extends ListTreeNode
                     final Ice.LoggerAdminPrx loggerAdmin = Ice.LoggerAdminPrxHelper.uncheckedCast(prx.ice_facet("Logger"));
                     final String title = "Node " + _id + " Ice log";
                     final String defaultFileName = "node-" + _id;
-                    
+
                     SwingUtilities.invokeLater(new Runnable()
                     {
                         @Override
@@ -65,7 +65,7 @@ class Node extends ListTreeNode
                             success(prefix);
                             if(_showIceLogDialog == null)
                             {
-                                _showIceLogDialog = new ShowIceLogDialog(Node.this, title, loggerAdmin, defaultFileName, 
+                                _showIceLogDialog = new ShowIceLogDialog(Node.this, title, loggerAdmin, defaultFileName,
                                             getRoot().getLogMaxLines(), getRoot().getLogInitialLines());
                             }
                             else
@@ -75,7 +75,7 @@ class Node extends ListTreeNode
                         }
                     });
                 }
-                
+
                 @Override
                 public void exception(Ice.UserException e)
                 {
@@ -88,7 +88,7 @@ class Node extends ListTreeNode
                     amiFailure(prefix, errorTitle, e.toString());
                 }
             };
-        
+
             try
             {
                 getRoot().getCoordinator().getSession().getAdmin().begin_getNodeAdmin(_id, cb);
@@ -103,7 +103,7 @@ class Node extends ListTreeNode
             _showIceLogDialog.toFront();
         }
     }
-    
+
     @Override
     public void retrieveOutput(final boolean stdout)
     {
@@ -266,13 +266,13 @@ class Node extends ListTreeNode
 
         return _cellRenderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
     }
-    
+
     @Override
     public void clearShowIceLogDialog()
     {
         _showIceLogDialog = null;
     }
-    
+
 
     Node(Root parent, NodeDynamicInfo info)
     {
@@ -566,6 +566,7 @@ class Node extends ListTreeNode
             updated = resolver.put("node.version", _info.info.version) || updated;
             updated = resolver.put("node.machine", _info.info.machine) || updated;
             updated = resolver.put("node.datadir", _info.info.dataDir) || updated;
+            updated = resolver.put("node.data", _info.info.dataDir) || updated;
             return updated;
         }
     }
@@ -640,7 +641,7 @@ class Node extends ListTreeNode
         _up = false;
         _info.servers.clear();
         _info.adapters.clear();
-        
+
         if(_showIceLogDialog != null)
         {
             _showIceLogDialog.stopped();
@@ -1032,7 +1033,7 @@ class Node extends ListTreeNode
     private boolean _up = false;
     private NodeDynamicInfo _info;
     private boolean _windows = false;
-    
+
     private ShowIceLogDialog _showIceLogDialog;
 
     static private DefaultTreeCellRenderer _cellRenderer;

@@ -10,8 +10,8 @@
       <parameter name="deactivation-delay" default="0"/>
       <parameter name="fail-on-startup" default="0"/>
       <server id="${id}" exe="${test.dir}/server"
-                         activation="${activation}" 
-                         activation-timeout="${activation-timeout}" 
+                         activation="${activation}"
+                         activation-timeout="${activation-timeout}"
                          deactivation-timeout="${deactivation-timeout}">
         <adapter name="TestAdapter" endpoints="default">
 	  <object identity="${server}" type="Test"/>
@@ -22,16 +22,16 @@
         <property name="FailOnStartup" value="${fail-on-startup}"/>
       </server>
     </server-template>
-  
+
     <server-template id="IceGridNode">
       <parameter name="id"/>
       <parameter name="disable-on-failure" default="0"/>
       <server id="${id}" exe="${icegridnode.exe}" activation="manual">
         <option>--nowarn</option>
-        <dbenv name="data"/>
+
         <property name="IceGrid.Node.Endpoints" value="default"/>
         <property name="IceGrid.Node.Name" value="${server}"/>
-        <property name="IceGrid.Node.Data" value="${node.datadir}/servers/${server}/dbs/data"/>
+        <property name="IceGrid.Node.Data" value="${server.data}"/>
         <property name="IceGrid.Node.PropertiesOverride"
                   value="${properties-override} Ice.ServerIdleTime=0 Ice.PrintProcessId=0 Ice.PrintAdapterReady=0"/>
         <property name="IceGrid.Node.DisableOnFailure" value="${disable-on-failure}"/>
@@ -47,7 +47,7 @@
       <server-instance template="Server" id="server-always" activation="always"/>
       <server-instance template="Server" id="server-session" activation="session"/>
       <server-instance template="Server" id="server-activation-timeout" activation-delay="5" activation-timeout="3"/>
-      <server-instance template="Server" id="server-deactivation-timeout" deactivation-delay="60" 
+      <server-instance template="Server" id="server-deactivation-timeout" deactivation-delay="60"
                        deactivation-timeout="3"/>
       <server-instance template="Server" id="fail-on-startup" fail-on-startup="1"/>
 

@@ -1221,6 +1221,8 @@ NodeI::canRemoveServerDirectory(const string& name)
     contents.erase("config");
     contents.erase("distrib");
     contents.erase("revision");
+    contents.erase("server_data");
+    contents.erase("service_data");
     if(!contents.empty())
     {
         return false;
@@ -1235,25 +1237,54 @@ NodeI::canRemoveServerDirectory(const string& name)
         }
     }
 
-    c = readDirectory(_serversDir + "/" + name + "/dbs");
-    for(Ice::StringSeq::const_iterator p = c.begin() ; p != c.end(); ++p)
+    if(IceUtilInternal::directoryExists(_serversDir + "/" + name + "/dbs"))
     {
-        try
+        c = readDirectory(_serversDir + "/" + name + "/dbs");
+        for(Ice::StringSeq::const_iterator p = c.begin() ; p != c.end(); ++p)
         {
-            Ice::StringSeq files = readDirectory(_serversDir + "/" + name + "/dbs/" + *p);
-            files.erase(remove(files.begin(), files.end(), "DB_CONFIG"), files.end());
-            files.erase(remove(files.begin(), files.end(), "__Freeze"), files.end());
-            if(!files.empty())
+            try
+            {
+                Ice::StringSeq files = readDirectory(_serversDir + "/" + name + "/dbs/" + *p);
+                files.erase(remove(files.begin(), files.end(), "DB_CONFIG"), files.end());
+                files.erase(remove(files.begin(), files.end(), "__Freeze"), files.end());
+                if(!files.empty())
+                {
+                    return false;
+                }
+            }
+            catch(const string&)
             {
                 return false;
             }
         }
-        catch(const string&)
+    }
+
+    if(IceUtilInternal::directoryExists(_serversDir + "/" + name + "/server_data"))
+    {
+        if(!readDirectory(_serversDir + "/" + name + "/server_data").empty())
         {
             return false;
         }
     }
 
+    if(IceUtilInternal::directoryExists(_serversDir + "/" + name + "/service_data"))
+    {
+        c = readDirectory(_serversDir + "/" + name + "/service_data");
+        for(Ice::StringSeq::const_iterator p = c.begin() ; p != c.end(); ++p)
+        {
+            try
+            {
+                if(!readDirectory(_serversDir + "/" + name + "/service_data/" + *p).empty())
+                {
+                    return false;
+                }
+            }
+            catch(const string&)
+            {
+                return false;
+            }
+        }
+    }
     return true;
 }
 

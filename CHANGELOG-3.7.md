@@ -22,3 +22,12 @@ These are the changes since Ice 3.6.1.
 
 - Added command line tools, `icegriddb` and `icestormdb`, to import/export the
   IceGrid and IceStorm databases.
+
+- Added support for two additional IceGrid variables: `server.data` and
+  `service.data`. These variables point to   server and service specific data
+  directories created by IceGrid on the node.   These data directories are
+  automatically removed by IceGrid if you remove the   server from the
+  deployment.
+
+  For consistency, the `node.datadir` variable has been deprecated, use the
+  `node.data` variable instead.

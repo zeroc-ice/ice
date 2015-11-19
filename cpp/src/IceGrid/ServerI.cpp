@@ -2309,13 +2309,15 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
     IcePatch2Internal::createDirectory(_serverDir + "/config");
     IcePatch2Internal::createDirectory(_serverDir + "/dbs");
     IcePatch2Internal::createDirectory(_serverDir + "/distrib");
+    IcePatch2Internal::createDirectory(_serverDir + "/server_data");
+    IcePatch2Internal::createDirectory(_serverDir + "/service_data");
 
     //
     // Create the configuration files, remove the old ones.
     //
     {
         //
-        // We do not want to esapce the properties if the Ice version is
+        // We do not want to escape the properties if the Ice version is
         // previous to Ice 3.3.
         //
         Ice::StringSeq knownFiles;
@@ -2364,6 +2366,39 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
                     Ice::Warning out(_node->getTraceLevels()->logger);
                     out << "couldn't remove file `" + _serverDir + "/config/" + *q + "':\n" + msg;
                 }
+            }
+        }
+    }
+
+    //
+    // Update the service data directories if necessary and remove the old ones.
+    //
+    if(_desc->services)
+    {
+        Ice::StringSeq knownDirs;
+        for(Ice::StringSeq::const_iterator q = _desc->services->begin(); q != _desc->services->end(); ++q)
+        {
+            knownDirs.push_back(*q);
+            IcePatch2Internal::createDirectory(_serverDir + "/service_data/" + *q);
+        }
+        sort(knownDirs.begin(), knownDirs.end());
+
+        //
+        // Remove old directories
+        //
+        Ice::StringSeq dirs = IcePatch2Internal::readDirectory(_serverDir + "/service_data");
+        Ice::StringSeq toDel;
+        set_difference(dirs.begin(), dirs.end(), knownDirs.begin(), knownDirs.end(), back_inserter(toDel));
+        for(Ice::StringSeq::const_iterator p = toDel.begin(); p != toDel.end(); ++p)
+        {
+            try
+            {
+                IcePatch2Internal::removeRecursive(_serverDir + "/service_data/" + *p);
+            }
+            catch(const string& msg)
+            {
+                Ice::Warning out(_node->getTraceLevels()->logger);
+                out << "couldn't remove directory `" + _serverDir + "/service_data/" + *p + "':\n" + msg;
             }
         }
     }
