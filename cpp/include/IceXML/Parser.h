@@ -88,6 +88,7 @@ typedef std::map<std::string, std::string> Attributes;
 class ICE_XML_API Node : public IceUtil::Shared
 {
 public:
+
     virtual ~Node();
 
     virtual NodePtr getParent() const;
@@ -99,10 +100,13 @@ public:
 
     virtual bool addChild(const NodePtr&);
 
+    virtual void destroy();
+
     int getLine() const;
     int getColumn() const;
 
 protected:
+
     Node(const NodePtr&, const std::string&, const std::string&, int, int);
 
     NodePtr _parent;
@@ -115,6 +119,7 @@ protected:
 class ICE_XML_API Element : public Node
 {
 public:
+
     Element(const NodePtr&, const std::string&, const Attributes&, int, int);
     virtual ~Element();
 
@@ -124,7 +129,10 @@ public:
 
     virtual bool addChild(const NodePtr&);
 
+    virtual void destroy();
+
 private:
+
     NodeList _children;
     Attributes _attributes;
 };
@@ -132,6 +140,7 @@ private:
 class ICE_XML_API Text : public Node
 {
 public:
+
     Text(const NodePtr&, const std::string&, int, int);
     virtual ~Text();
 };
@@ -139,6 +148,7 @@ public:
 class ICE_XML_API Document : public Node
 {
 public:
+
     Document();
     virtual ~Document();
 
@@ -146,13 +156,17 @@ public:
 
     virtual bool addChild(const NodePtr&);
 
+    virtual void destroy();
+
 private:
+
     NodeList _children;
 };
 
 class ICE_XML_API Handler
 {
 public:
+
     virtual ~Handler();
 
     virtual void startElement(const std::string&, const Attributes&, int, int) = 0;

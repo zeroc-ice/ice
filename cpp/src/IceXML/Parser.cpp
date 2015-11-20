@@ -126,6 +126,12 @@ IceXML::Node::addChild(const NodePtr&)
     return false;
 }
 
+void
+IceXML::Node::destroy()
+{
+    _parent = 0;
+}
+
 int
 IceXML::Node::getLine() const
 {
@@ -181,6 +187,16 @@ IceXML::Element::addChild(const NodePtr& child)
     return true;
 }
 
+void
+IceXML::Element::destroy()
+{
+    Node::destroy();
+    for(NodeList::iterator p = _children.begin(); p != _children.end(); ++p)
+    {
+        (*p)->destroy();
+    }
+}
+
 //
 // Text
 //
@@ -218,6 +234,16 @@ IceXML::Document::addChild(const NodePtr& child)
     return true;
 }
 
+void
+IceXML::Document::destroy()
+{
+    Node::destroy();
+    for(NodeList::iterator p = _children.begin(); p != _children.end(); ++p)
+    {
+        (*p)->destroy();
+    }
+}
+
 //
 // Handler
 //
@@ -242,6 +268,7 @@ namespace IceXML
 class DocumentBuilder : public Handler
 {
 public:
+
     DocumentBuilder();
 
     virtual void startElement(const string&, const Attributes&, int, int);
@@ -251,6 +278,7 @@ public:
     DocumentPtr getDocument() const;
 
 private:
+
     list<NodePtr> _nodeStack;
     DocumentPtr _document;
 };
