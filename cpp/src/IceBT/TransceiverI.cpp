@@ -37,9 +37,6 @@ IceBT::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::Bu
 IceInternal::SocketOperation
 IceBT::TransceiverI::closing(bool initiator, const Ice::LocalException&)
 {
-    //
-    // Bluetooth sockets seem to need this in order to shut down in a timely fashion.
-    //
     ::shutdown(_stream->fd(), SHUT_RDWR);
 
     //

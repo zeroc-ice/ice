@@ -21,6 +21,7 @@
 #include <Ice/Logger.h>
 #include <Ice/Object.h>
 #include <Ice/Properties.h>
+#include <IceUtil/Random.h>
 #include <IceUtil/StringUtil.h>
 
 using namespace std;
@@ -28,6 +29,19 @@ using namespace Ice;
 using namespace IceBT;
 
 IceUtil::Shared* IceBT::upCast(EndpointI* p) { return p; }
+
+namespace
+{
+
+struct RandomNumberGenerator : public std::unary_function<ptrdiff_t, ptrdiff_t>
+{
+    ptrdiff_t operator()(ptrdiff_t d)
+    {
+        return IceUtilInternal::random(static_cast<int>(d));
+    }
+};
+
+}
 
 IceBT::EndpointI::EndpointI(const InstancePtr& instance, const string& addr, const string& uuid, const string& name,
                             Int channel, Int timeout, const string& connectionId, bool compress) :
@@ -175,7 +189,7 @@ IceBT::EndpointI::transceiver() const
 }
 
 void
-IceBT::EndpointI::connectors_async(EndpointSelectionType, const IceInternal::EndpointI_connectorsPtr& cb) const
+IceBT::EndpointI::connectors_async(EndpointSelectionType selType, const IceInternal::EndpointI_connectorsPtr& cb) const
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
 
@@ -189,7 +203,7 @@ IceBT::EndpointI::connectors_async(EndpointSelectionType, const IceInternal::End
             ostr << "searching for service " << _uuid << " at " << _addr;
             _instance->logger()->trace(_instance->traceCategory(), ostr.str());
         }
-        _instance->engine()->findService(_addr, _uuid, new FindCallbackI(const_cast<EndpointI*>(this)));
+        _instance->engine()->findService(_addr, _uuid, new FindCallbackI(const_cast<EndpointI*>(this), selType));
     }
 
     const_cast<vector<IceInternal::EndpointI_connectorsPtr>&>(_callbacks).push_back(cb);
@@ -603,11 +617,21 @@ IceBT::EndpointI::checkOption(const string& option, const string& argument, cons
 }
 
 void
-IceBT::EndpointI::findCompleted(int channel)
+IceBT::EndpointI::findCompleted(const vector<int>& channels, EndpointSelectionType selType)
 {
+    assert(!channels.empty());
+
     vector<IceInternal::ConnectorPtr> connectors;
-    assert(channel >= 0);
-    connectors.push_back(new ConnectorI(_instance, createAddr(_addr, channel), _uuid, _timeout, _connectionId));
+    for(vector<int>::const_iterator p = channels.begin(); p != channels.end(); ++p)
+    {
+        connectors.push_back(new ConnectorI(_instance, createAddr(_addr, *p), _uuid, _timeout, _connectionId));
+    }
+
+    if(selType == Ice::Random && connectors.size() > 1)
+    {
+        RandomNumberGenerator rng;
+        random_shuffle(connectors.begin(), connectors.end(), rng);
+    }
 
     vector<IceInternal::EndpointI_connectorsPtr> callbacks;
 

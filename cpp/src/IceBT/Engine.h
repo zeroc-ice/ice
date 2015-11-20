@@ -23,7 +23,7 @@ class FindServiceCallback : public IceUtil::Shared
 {
 public:
 
-    virtual void completed(int) = 0;
+    virtual void completed(const std::vector<int>&) = 0;
     virtual void exception(const Ice::LocalException&) = 0;
 };
 typedef IceUtil::Handle<FindServiceCallback> FindServiceCallbackPtr;

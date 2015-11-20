@@ -65,21 +65,22 @@ private:
     void hashInit();
     bool checkOption(const std::string&, const std::string&, const std::string&);
 
-    void findCompleted(int);
+    void findCompleted(const std::vector<int>&, Ice::EndpointSelectionType);
     void findException(const Ice::LocalException&);
 
     class FindCallbackI : public FindServiceCallback
     {
     public:
 
-        FindCallbackI(const EndpointIPtr& e) :
-            _endpoint(e)
+        FindCallbackI(const EndpointIPtr& e, Ice::EndpointSelectionType selType) :
+            _endpoint(e),
+            _selType(selType)
         {
         }
 
-        virtual void completed(int channel)
+        virtual void completed(const std::vector<int>& channels)
         {
-            _endpoint->findCompleted(channel);
+            _endpoint->findCompleted(channels, _selType);
         }
 
         virtual void exception(const Ice::LocalException& ex)
@@ -88,6 +89,7 @@ private:
         }
 
         EndpointIPtr _endpoint;
+        Ice::EndpointSelectionType _selType;
     };
     friend class FindCallbackI;
 

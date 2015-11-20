@@ -544,7 +544,8 @@ public:
     void runFindService(const IceUtil::ThreadPtr& thread, const string& addr, const string& uuid,
                         const FindServiceCallbackPtr& cb)
     {
-        int channel = -1;
+        vector<int> channels;
+        bool failed = false;
 
         try
         {
@@ -724,9 +725,10 @@ public:
                                 if(ch)
                                 {
                                     string val = ch->getAttribute("value");
+                                    int channel;
                                     if(sscanf(val.c_str(), "%x", &channel) == 1)
                                     {
-                                        break;
+                                        channels.push_back(channel);
                                     }
                                 }
                             }
@@ -770,23 +772,34 @@ public:
         catch(const DBus::Exception& ex)
         {
             cb->exception(BluetoothException(__FILE__, __LINE__, ex.reason));
+            failed = true;
         }
         catch(const LocalException& ex)
         {
             cb->exception(ex);
+            failed = true;
         }
         catch(const std::exception& ex)
         {
             cb->exception(UnknownException(__FILE__, __LINE__, ex.what()));
+            failed = true;
         }
         catch(...)
         {
             cb->exception(UnknownException(__FILE__, __LINE__, "unknown C++ exception"));
+            failed = true;
         }
 
-        if(channel != -1)
+        if(!failed)
         {
-            cb->completed(channel);
+            if(channels.empty())
+            {
+                cb->exception(BluetoothException(__FILE__, __LINE__, "no service found for " + uuid + " at " + addr));
+            }
+            else
+            {
+                cb->completed(channels);
+            }
         }
 
         {
