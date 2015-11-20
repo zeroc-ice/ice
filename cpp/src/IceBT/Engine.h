@@ -19,41 +19,14 @@
 namespace IceBT
 {
 
-//
-// Notifies the transport about a new incoming connection.
-//
-class ProfileCallback : public IceUtil::Shared
+class FindServiceCallback : public IceUtil::Shared
 {
 public:
 
-    virtual void newConnection(int) = 0;
+    virtual void completed(int) = 0;
+    virtual void exception(const Ice::LocalException&) = 0;
 };
-typedef IceUtil::Handle<ProfileCallback> ProfileCallbackPtr;
-
-//
-// Represents an outgoing (client) connection. The transport must keep a reference to this object
-// and call close() when no longer needed.
-//
-class Connection : public IceUtil::Shared
-{
-public:
-
-    virtual void close() = 0;
-
-};
-typedef IceUtil::Handle<Connection> ConnectionPtr;
-
-//
-// Callback API for an outgoing connection attempt.
-//
-class ConnectCallback : public IceUtil::Shared
-{
-public:
-
-    virtual void completed(int, const ConnectionPtr&) = 0;
-    virtual void failed(const Ice::LocalException&) = 0;
-};
-typedef IceUtil::Handle<ConnectCallback> ConnectCallbackPtr;
+typedef IceUtil::Handle<FindServiceCallback> FindServiceCallbackPtr;
 
 //
 // Engine encapsulates all Bluetooth activities.
@@ -72,10 +45,21 @@ public:
     std::string getDefaultAdapterAddress() const;
     bool adapterExists(const std::string&) const;
 
-    std::string registerProfile(const std::string&, const std::string&, int, const ProfileCallbackPtr&);
-    void unregisterProfile(const std::string&);
+    //
+    // Blocks while we register a service with the Bluetooth daemon. Returns a
+    // handle to the service that can be passed to removeService().
+    //
+    unsigned int addService(const std::string&, const std::string&, const std::string&, int);
 
-    void connect(const std::string&, const std::string&, const ConnectCallbackPtr&);
+    //
+    // Asynchronously looks for a service at the given target device with the given UUID.
+    //
+    void findService(const std::string&, const std::string&, const FindServiceCallbackPtr&);
+
+    //
+    // Removes a service added by addService().
+    //
+    void removeService(const std::string&, unsigned int);
 
     void startDiscovery(const std::string&, const DiscoveryCallbackPtr&);
     void stopDiscovery(const std::string&);

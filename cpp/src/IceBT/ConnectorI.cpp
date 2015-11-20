@@ -34,16 +34,7 @@ IceBT::ConnectorI::connect()
         throw ex;
     }
 
-    assert(_fd != -1);
-
-    //
-    // Transceiver takes ownership of the file descriptor and connection.
-    //
-    IceInternal::TransceiverPtr t = new TransceiverI(_instance, new StreamSocket(_instance, _fd), _connection, _uuid);
-    _fd = -1;
-    _connection = 0;
-
-    return t;
+    return new TransceiverI(_instance, new StreamSocket(_instance, _addr), _uuid);
 }
 
 Short
@@ -55,7 +46,7 @@ IceBT::ConnectorI::type() const
 string
 IceBT::ConnectorI::toString() const
 {
-    return _addr;
+    return addrToString(_addr);
 }
 
 bool
@@ -67,7 +58,7 @@ IceBT::ConnectorI::operator==(const IceInternal::Connector& r) const
         return false;
     }
 
-    if(_addr != p->_addr)
+    if(compareAddress(_addr, p->_addr) != 0)
     {
         return false;
     }
@@ -105,9 +96,14 @@ IceBT::ConnectorI::operator<(const IceInternal::Connector& r) const
         return type() < r.type();
     }
 
-    if(_addr < p->_addr)
+    int rc = compareAddress(_addr, p->_addr);
+    if(rc < 0)
     {
         return true;
+    }
+    else if(rc > 0)
+    {
+        return false;
     }
 
     if(_uuid < p->_uuid)
@@ -131,26 +127,12 @@ IceBT::ConnectorI::operator<(const IceInternal::Connector& r) const
     return _connectionId < p->_connectionId;
 }
 
-IceBT::ConnectorI::ConnectorI(const InstancePtr& instance, SOCKET fd, const ConnectionPtr& conn, const string& addr,
-                              const string& uuid, Int timeout, const string& connectionId) :
+IceBT::ConnectorI::ConnectorI(const InstancePtr& instance, const SocketAddress& addr, const string& uuid, Int timeout,
+                              const string& connectionId) :
     _instance(instance),
-    _fd(fd),
-    _connection(conn),
     _addr(addr),
     _uuid(uuid),
     _timeout(timeout),
     _connectionId(connectionId)
 {
-}
-
-IceBT::ConnectorI::~ConnectorI()
-{
-    //
-    // We must close the connection and socket if we haven't passed them to a transceiver yet.
-    //
-    if(_fd != -1)
-    {
-        _connection->close();
-        IceInternal::closeSocketNoThrow(_fd);
-    }
 }

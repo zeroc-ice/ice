@@ -65,33 +65,31 @@ private:
     void hashInit();
     bool checkOption(const std::string&, const std::string&, const std::string&);
 
-    void connectCompleted(int, const ConnectionPtr&);
-    void connectFailed(const Ice::LocalException&);
+    void findCompleted(int);
+    void findException(const Ice::LocalException&);
 
-    class ConnectCallbackI : public ConnectCallback
+    class FindCallbackI : public FindServiceCallback
     {
     public:
 
-        ConnectCallbackI(const EndpointIPtr& endpoint) :
-            _endpoint(endpoint)
+        FindCallbackI(const EndpointIPtr& e) :
+            _endpoint(e)
         {
         }
 
-        virtual void completed(int fd, const ConnectionPtr& conn)
+        virtual void completed(int channel)
         {
-            _endpoint->connectCompleted(fd, conn);
+            _endpoint->findCompleted(channel);
         }
 
-        virtual void failed(const Ice::LocalException& ex)
+        virtual void exception(const Ice::LocalException& ex)
         {
-            _endpoint->connectFailed(ex);
+            _endpoint->findException(ex);
         }
-
-    private:
 
         EndpointIPtr _endpoint;
     };
-    friend class ConnectCallbackI;
+    friend class FindCallbackI;
 
     const InstancePtr _instance;
     const std::string _addr;
@@ -103,7 +101,7 @@ private:
     const bool _compress;
     const Ice::Int _hashValue;
     IceUtil::Monitor<IceUtil::Mutex> _lock;
-    bool _connectPending;
+    bool _findPending;
     std::vector<IceInternal::EndpointI_connectorsPtr> _callbacks;
 };
 

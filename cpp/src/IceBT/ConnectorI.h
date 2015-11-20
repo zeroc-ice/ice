@@ -35,15 +35,11 @@ public:
 
 private:
 
-    ConnectorI(const InstancePtr&, SOCKET, const ConnectionPtr&, const std::string&, const std::string&, Ice::Int,
-               const std::string&);
-    virtual ~ConnectorI();
+    ConnectorI(const InstancePtr&, const SocketAddress&, const std::string&, Ice::Int, const std::string&);
     friend class EndpointI;
 
     const InstancePtr _instance;
-    SOCKET _fd;
-    ConnectionPtr _connection;
-    const std::string _addr;
+    const SocketAddress _addr;
     const std::string _uuid;
     const Ice::Int _timeout;
     const std::string _connectionId;

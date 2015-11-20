@@ -53,11 +53,13 @@ public:
     // The given callback will be invoked for each discovered device. The same
     // device may be reported more than once. Discovery remains active until
     // explicitly stopped by a call to stopDiscovery(), or via other administrative means.
+    // The address argument can be an empty string to select the default adapter.
     //
     virtual void startDiscovery(const std::string& address, const DiscoveryCallbackPtr& cb) = 0;
 
     //
     // Stops Bluetooth device discovery on the adapter with the specified address.
+    // The address argument can be an empty string to select the default adapter.
     // All discovery callbacks are removed when discovery stops.
     //
     virtual void stopDiscovery(const std::string& address) = 0;

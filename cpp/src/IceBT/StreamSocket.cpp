@@ -19,9 +19,24 @@ using namespace std;
 using namespace Ice;
 using namespace IceBT;
 
+IceBT::StreamSocket::StreamSocket(const InstancePtr& instance, const SocketAddress& addr) :
+    IceInternal::NativeInfo(createSocket()),
+    _instance(instance),
+    _addr(addr),
+    _state(StateNeedConnect)
+{
+    init();
+    if(doConnect(_fd, _addr))
+    {
+        _state = StateConnected;
+    }
+    _desc = fdToString(_fd);
+}
+
 IceBT::StreamSocket::StreamSocket(const InstancePtr& instance, SOCKET fd) :
     IceInternal::NativeInfo(fd),
-    _instance(instance)
+    _instance(instance),
+    _state(StateConnected)
 {
     init();
     _desc = fdToString(fd);
@@ -30,6 +45,31 @@ IceBT::StreamSocket::StreamSocket(const InstancePtr& instance, SOCKET fd) :
 IceBT::StreamSocket::~StreamSocket()
 {
     assert(_fd == INVALID_SOCKET);
+}
+
+IceInternal::SocketOperation
+IceBT::StreamSocket::connect(IceInternal::Buffer& readBuffer, IceInternal::Buffer& writeBuffer)
+{
+    if(_state == StateNeedConnect)
+    {
+        _state = StateConnectPending;
+        return IceInternal::SocketOperationConnect;
+    }
+    else if(_state <= StateConnectPending)
+    {
+        doFinishConnect(_fd);
+        _desc = fdToString(_fd);
+        _state = StateConnected;
+    }
+
+    assert(_state == StateConnected);
+    return IceInternal::SocketOperationNone;
+}
+
+bool
+IceBT::StreamSocket::isConnected()
+{
+    return _state == StateConnected;
 }
 
 size_t

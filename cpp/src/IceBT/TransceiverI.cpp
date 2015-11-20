@@ -31,24 +31,27 @@ IceBT::TransceiverI::getNativeInfo()
 IceInternal::SocketOperation
 IceBT::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::Buffer& writeBuffer)
 {
-    return IceInternal::SocketOperationNone; // Already connected.
+    return _stream->connect(readBuffer, writeBuffer);
 }
 
 IceInternal::SocketOperation
 IceBT::TransceiverI::closing(bool initiator, const Ice::LocalException&)
 {
+    //
+    // Bluetooth sockets seem to need this in order to shut down in a timely fashion.
+    //
+    ::shutdown(_stream->fd(), SHUT_RDWR);
+
+    //
     // If we are initiating the connection closure, wait for the peer
     // to close the TCP/IP connection. Otherwise, close immediately.
+    //
     return initiator ? IceInternal::SocketOperationRead : IceInternal::SocketOperationNone;
 }
 
 void
 IceBT::TransceiverI::close()
 {
-    if(_connection)
-    {
-        _connection->close();
-    }
     _stream->close();
 }
 
@@ -103,11 +106,9 @@ IceBT::TransceiverI::setBufferSize(int rcvSize, int sndSize)
     _stream->setBufferSize(rcvSize, sndSize);
 }
 
-IceBT::TransceiverI::TransceiverI(const InstancePtr& instance, const StreamSocketPtr& stream, const ConnectionPtr& conn,
-                                  const string& uuid) :
+IceBT::TransceiverI::TransceiverI(const InstancePtr& instance, const StreamSocketPtr& stream, const string& uuid) :
     _instance(instance),
     _stream(stream),
-    _connection(conn),
     _uuid(uuid)
 {
 }

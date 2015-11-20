@@ -12,11 +12,8 @@
 
 #include <Ice/TransceiverF.h>
 #include <Ice/Acceptor.h>
-#include <IceBT/Config.h>
-#include <IceBT/EngineF.h>
 #include <IceBT/InstanceF.h>
-
-#include <stack>
+#include <IceBT/Util.h>
 
 namespace IceBT
 {
@@ -36,8 +33,6 @@ public:
 
     int effectiveChannel() const;
 
-    void newConnection(int);
-
 private:
 
     AcceptorI(const EndpointIPtr&, const InstancePtr&, const std::string&, const std::string&, const std::string&,
@@ -48,14 +43,12 @@ private:
     EndpointIPtr _endpoint;
     const InstancePtr _instance;
     const std::string _adapterName;
-    const std::string _addr;
     const std::string _uuid;
     const std::string _name;
-    const int _channel;
-    std::string _path;
-
-    IceUtil::Monitor<IceUtil::Mutex> _lock;
-    std::stack<IceInternal::TransceiverPtr> _transceivers;
+    std::string _adapter;
+    SocketAddress _addr;
+    Ice::Int _backlog;
+    unsigned int _serviceHandle;
 };
 
 }

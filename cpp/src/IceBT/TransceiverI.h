@@ -11,7 +11,6 @@
 #define ICE_BT_TRANSCEIVER_H
 
 #include <IceBT/InstanceF.h>
-#include <IceBT/Engine.h>
 #include <IceBT/StreamSocket.h>
 
 #include <Ice/Transceiver.h>
@@ -42,7 +41,7 @@ public:
 
 private:
 
-    TransceiverI(const InstancePtr&, const StreamSocketPtr&, const ConnectionPtr&, const std::string&);
+    TransceiverI(const InstancePtr&, const StreamSocketPtr&, const std::string&);
     virtual ~TransceiverI();
 
     friend class ConnectorI;
@@ -50,7 +49,6 @@ private:
 
     const InstancePtr _instance;
     const StreamSocketPtr _stream;
-    const ConnectionPtr _connection;
     const std::string _uuid;
 };
 

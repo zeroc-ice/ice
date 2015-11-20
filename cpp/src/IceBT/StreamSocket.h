@@ -24,9 +24,12 @@ class StreamSocket : public IceInternal::NativeInfo
 {
 public:
 
+    StreamSocket(const InstancePtr&, const SocketAddress&);
     StreamSocket(const InstancePtr&, SOCKET);
     virtual ~StreamSocket();
 
+    IceInternal::SocketOperation connect(IceInternal::Buffer&, IceInternal::Buffer&);
+    bool isConnected();
     size_t getSendPacketSize(size_t);
     size_t getRecvPacketSize(size_t);
 
@@ -45,8 +48,16 @@ private:
 
     void init();
 
+    enum State
+    {
+        StateNeedConnect,
+        StateConnectPending,
+        StateConnected
+    };
+
     const InstancePtr _instance;
     SocketAddress _addr;
+    State _state;
     std::string _desc;
 };
 typedef IceUtil::Handle<StreamSocket> StreamSocketPtr;

@@ -15,9 +15,10 @@
 #include <IceBT/Util.h>
 
 #include <Ice/BasicStream.h>
-#include <Ice/LocalException.h>
 #include <Ice/DefaultsAndOverrides.h>
 #include <Ice/HashUtil.h>
+#include <Ice/LocalException.h>
+#include <Ice/Logger.h>
 #include <Ice/Object.h>
 #include <Ice/Properties.h>
 #include <IceUtil/StringUtil.h>
@@ -39,7 +40,7 @@ IceBT::EndpointI::EndpointI(const InstancePtr& instance, const string& addr, con
     _connectionId(connectionId),
     _compress(compress),
     _hashValue(0),
-    _connectPending(false)
+    _findPending(false)
 {
     hashInit();
 }
@@ -50,7 +51,7 @@ IceBT::EndpointI::EndpointI(const InstancePtr& instance) :
     _timeout(instance->defaultTimeout()),
     _compress(false),
     _hashValue(0),
-    _connectPending(false)
+    _findPending(false)
 {
 }
 
@@ -60,7 +61,7 @@ IceBT::EndpointI::EndpointI(const InstancePtr& instance, IceInternal::BasicStrea
     _timeout(-1),
     _compress(false),
     _hashValue(0),
-    _connectPending(false)
+    _findPending(false)
 {
     //
     // _name and _channel are not marshaled.
@@ -174,15 +175,21 @@ IceBT::EndpointI::transceiver() const
 }
 
 void
-IceBT::EndpointI::connectors_async(EndpointSelectionType selType, const IceInternal::EndpointI_connectorsPtr& cb) const
+IceBT::EndpointI::connectors_async(EndpointSelectionType, const IceInternal::EndpointI_connectorsPtr& cb) const
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
 
-    if(!_connectPending)
+    if(!_findPending)
     {
         assert(_callbacks.empty());
-        _instance->engine()->connect(_addr, _uuid, new ConnectCallbackI(const_cast<EndpointI*>(this)));
-        const_cast<bool&>(_connectPending) = true;
+        const_cast<bool&>(_findPending) = true;
+        if(_instance->traceLevel() > 1)
+        {
+            ostringstream ostr;
+            ostr << "searching for service " << _uuid << " at " << _addr;
+            _instance->logger()->trace(_instance->traceCategory(), ostr.str());
+        }
+        _instance->engine()->findService(_addr, _uuid, new FindCallbackI(const_cast<EndpointI*>(this)));
     }
 
     const_cast<vector<IceInternal::EndpointI_connectorsPtr>&>(_callbacks).push_back(cb);
@@ -596,25 +603,19 @@ IceBT::EndpointI::checkOption(const string& option, const string& argument, cons
 }
 
 void
-IceBT::EndpointI::connectCompleted(int fd, const ConnectionPtr& conn)
+IceBT::EndpointI::findCompleted(int channel)
 {
-    //
-    // We are responsible for closing the given file descriptor and connection.
-    //
-
     vector<IceInternal::ConnectorPtr> connectors;
-
-    if(fd != -1)
-    {
-        connectors.push_back(new ConnectorI(_instance, fd, conn, _addr, _uuid, _timeout, _connectionId));
-    }
+    assert(channel >= 0);
+    connectors.push_back(new ConnectorI(_instance, createAddr(_addr, channel), _uuid, _timeout, _connectionId));
 
     vector<IceInternal::EndpointI_connectorsPtr> callbacks;
+
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
         assert(!_callbacks.empty());
         callbacks.swap(_callbacks);
-        _connectPending = false;
+        _findPending = false;
     }
 
     for(vector<IceInternal::EndpointI_connectorsPtr>::iterator p = callbacks.begin(); p != callbacks.end(); ++p)
@@ -624,38 +625,20 @@ IceBT::EndpointI::connectCompleted(int fd, const ConnectionPtr& conn)
 }
 
 void
-IceBT::EndpointI::connectFailed(const Ice::LocalException& ex)
+IceBT::EndpointI::findException(const LocalException& ex)
 {
     vector<IceInternal::EndpointI_connectorsPtr> callbacks;
+
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
         assert(!_callbacks.empty());
         callbacks.swap(_callbacks);
-        _connectPending = false;
+        _findPending = false;
     }
 
-    //
-    // NoEndpointException means the device address was unknown, so we just return an empty list of
-    // connectors (similar to a DNS lookup failure).
-    //
-    try
+    for(vector<IceInternal::EndpointI_connectorsPtr>::iterator p = callbacks.begin(); p != callbacks.end(); ++p)
     {
-        ex.ice_throw();
-    }
-    catch(const Ice::NoEndpointException&)
-    {
-        vector<IceInternal::ConnectorPtr> connectors;
-        for(vector<IceInternal::EndpointI_connectorsPtr>::iterator p = callbacks.begin(); p != callbacks.end(); ++p)
-        {
-            (*p)->connectors(connectors);
-        }
-    }
-    catch(...)
-    {
-        for(vector<IceInternal::EndpointI_connectorsPtr>::iterator p = callbacks.begin(); p != callbacks.end(); ++p)
-        {
-            (*p)->exception(ex);
-        }
+        (*p)->exception(ex);
     }
 }
 

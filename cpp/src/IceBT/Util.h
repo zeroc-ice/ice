@@ -26,6 +26,11 @@ std::string addrToString(const std::string&, Ice::Int);
 std::string addrToString(const SocketAddress&);
 SocketAddress createAddr(const std::string&, Ice::Int);
 
+SOCKET createSocket();
+bool doConnect(SOCKET, const SocketAddress&);
+void doFinishConnect(SOCKET);
+SocketAddress doBind(SOCKET, const SocketAddress&);
+SOCKET doAccept(SOCKET);
 std::string fdToString(SOCKET);
 void fdToAddressAndChannel(SOCKET, std::string&, int&, std::string&, int&);
 int compareAddress(const SocketAddress&, const SocketAddress&);

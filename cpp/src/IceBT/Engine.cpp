@@ -14,6 +14,7 @@
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/Thread.h>
 #include <IceUtil/UUID.h>
+#include <IceXML/Parser.h>
 
 #include <stack>
 
@@ -23,306 +24,59 @@ using namespace IceBT;
 
 IceUtil::Shared* IceBT::upCast(IceBT::Engine* p) { return p; }
 
+typedef map<string, DBus::VariantValuePtr> VariantMap;
+
+namespace
+{
+
+void extractProperties(const DBus::ValuePtr& v, VariantMap& vm)
+{
+    //
+    // The given value is a dictionary structured like this:
+    //
+    //   Key: Property name
+    //   Value: Property value (variant)
+    //
+
+    assert(v->getType()->getKind() == DBus::Type::KindArray);
+    DBus::ArrayValuePtr props = DBus::ArrayValuePtr::dynamicCast(v);
+    for(vector<DBus::ValuePtr>::const_iterator s = props->elements.begin(); s != props->elements.end(); ++s)
+    {
+        assert((*s)->getType()->getKind() == DBus::Type::KindDictEntry);
+        DBus::DictEntryValuePtr pe = DBus::DictEntryValuePtr::dynamicCast(*s);
+        assert(pe->key->getType()->getKind() == DBus::Type::KindString);
+        DBus::StringValuePtr propName = DBus::StringValuePtr::dynamicCast(pe->key);
+        assert(pe->value->getType()->getKind() == DBus::Type::KindVariant);
+        vm[propName->v] = DBus::VariantValuePtr::dynamicCast(pe->value);
+    }
+}
+
+}
+
 namespace IceBT
 {
 
-class ConnectionI;
-typedef IceUtil::Handle<ConnectionI> ConnectionIPtr;
-
 //
-// ConnectionI implements IceBT::Connection and encapsulates a DBus connection along with
-// some additional state.
-//
-class ConnectionI : public Connection
-{
-public:
-
-    ConnectionI(const DBus::ConnectionPtr& conn, const string& devicePath, const string& uuid) :
-        _connection(conn),
-        _devicePath(devicePath),
-        _uuid(uuid)
-    {
-    }
-
-    DBus::ConnectionPtr dbusConnection() const
-    {
-        return _connection;
-    }
-
-    //
-    // Blocking close.
-    //
-    virtual void close()
-    {
-        try
-        {
-            //
-            // Invoke DisconnectProfile to terminate the client-side connection.
-            //
-            DBus::MessagePtr msg =
-                DBus::Message::createCall("org.bluez", _devicePath, "org.bluez.Device1", "DisconnectProfile");
-            msg->write(new DBus::StringValue(_uuid));
-            DBus::AsyncResultPtr r = _connection->callAsync(msg);
-            r->waitUntilFinished(); // Block until the call completes.
-        }
-        catch(const DBus::Exception&)
-        {
-            // Ignore.
-        }
-
-        try
-        {
-            _connection->close();
-        }
-        catch(const DBus::Exception&)
-        {
-            // Ignore.
-        }
-    }
-
-private:
-
-    DBus::ConnectionPtr _connection;
-    string _devicePath;
-    string _uuid;
-};
-
-//
-// Profile is an abstract base class representing a Bluetooth "profile". We have to register a DBus
-// profile object for a UUID in order to receive connection notifications. This is necessary for both
-// outgoing and incoming connections.
-//
-class Profile : public DBus::Service
-{
-public:
-
-    virtual void handleMethodCall(const DBus::ConnectionPtr& conn, const DBus::MessagePtr& m)
-    {
-        string member = m->getMember();
-        if(member == "Release")
-        {
-            //
-            // Ignore - no reply necessary.
-            //
-        }
-        else if(member == "NewConnection")
-        {
-            vector<DBus::ValuePtr> values = m->readAll();
-            assert(values.size() == 3);
-
-            //
-            // This argument is the Unix file descriptor for the new connection.
-            //
-            DBus::UnixFDValuePtr fd = DBus::UnixFDValuePtr::dynamicCast(values[1]);
-            assert(fd);
-
-            try
-            {
-                //
-                // Send an empty reply.
-                //
-                DBus::MessagePtr ret = DBus::Message::createReturn(m);
-                conn->sendAsync(ret);
-            }
-            catch(const DBus::Exception&)
-            {
-                // Ignore.
-            }
-
-            try
-            {
-                newConnection(fd->v);
-            }
-            catch(...)
-            {
-                // Ignore.
-            }
-        }
-        else if(member == "RequestDisconnection")
-        {
-            try
-            {
-                //
-                // Send an empty reply.
-                //
-                DBus::MessagePtr ret = DBus::Message::createReturn(m);
-                conn->sendAsync(ret);
-            }
-            catch(const DBus::Exception&)
-            {
-                // Ignore.
-            }
-
-            //
-            // Ignore disconnect requests.
-            //
-        }
-    }
-
-protected:
-
-    Profile() {}
-
-    virtual void newConnection(int) = 0;
-};
-typedef IceUtil::Handle<Profile> ProfilePtr;
-
-//
-// ClientProfile represents an outgoing connection profile.
-//
-class ClientProfile : public Profile
-{
-public:
-
-    ClientProfile(const ConnectionPtr& conn, const ConnectCallbackPtr& cb) :
-        _connection(conn),
-        _callback(cb)
-    {
-    }
-
-    ~ClientProfile()
-    {
-    }
-
-protected:
-
-    virtual void newConnection(int fd)
-    {
-        //
-        // The callback assumes ownership of the file descriptor and connection.
-        //
-        _callback->completed(fd, _connection);
-        _connection = 0; // Remove circular reference.
-        _callback = 0;
-    }
-
-private:
-
-    ConnectionPtr _connection;
-    ConnectCallbackPtr _callback;
-};
-typedef IceUtil::Handle<ClientProfile> ClientProfilePtr;
-
-//
-// ServerProfile represents an incoming connection profile.
-//
-class ServerProfile : public Profile
-{
-public:
-
-    ServerProfile(const ProfileCallbackPtr& cb) :
-        _callback(cb)
-    {
-    }
-
-protected:
-
-    virtual void newConnection(int fd)
-    {
-        _callback->newConnection(fd);
-    }
-
-private:
-
-    ProfileCallbackPtr _callback;
-};
-typedef IceUtil::Handle<ServerProfile> ServerProfilePtr;
-
-//
-// Engine delegates to BluetoothService. It encapsulates a snapshot of the "objects" managed by the
-// DBus Bluetooth daemon. These objects include local Bluetooth adapters, paired devices, etc.
+// Engine delegates to BluetoothService.
 //
 class BluetoothService : public DBus::Filter
 {
 public:
 
-    typedef map<string, DBus::VariantValuePtr> VariantMap;
     typedef map<string, VariantMap> InterfacePropertiesMap;
 
-    struct RemoteDevice
-    {
-        RemoteDevice()
-        {
-        }
-
-        RemoteDevice(const VariantMap& m) :
-            properties(m)
-        {
-        }
-
-        string getAddress() const
-        {
-            string addr;
-            VariantMap::const_iterator i = properties.find("Address");
-            if(i != properties.end())
-            {
-                DBus::StringValuePtr str = DBus::StringValuePtr::dynamicCast(i->second->v);
-                assert(str);
-                addr = str->v;
-            }
-            return IceUtilInternal::toUpper(addr);
-        }
-
-        string getAdapter() const
-        {
-            string adapter;
-            VariantMap::const_iterator i = properties.find("Adapter");
-            if(i != properties.end())
-            {
-                DBus::ObjectPathValuePtr path = DBus::ObjectPathValuePtr::dynamicCast(i->second->v);
-                assert(path);
-                adapter = path->v;
-            }
-            return adapter;
-        }
-
-        VariantMap properties;
-    };
-
-    struct Adapter
-    {
-        Adapter()
-        {
-        }
-
-        Adapter(const VariantMap& p) :
-            properties(p)
-        {
-        }
-
-        string getAddress() const
-        {
-            string addr;
-            VariantMap::const_iterator i = properties.find("Address");
-            if(i != properties.end())
-            {
-                DBus::StringValuePtr str = DBus::StringValuePtr::dynamicCast(i->second->v);
-                assert(str);
-                addr = str->v;
-            }
-            return IceUtilInternal::toUpper(addr);
-        }
-
-        VariantMap properties;
-        vector<DiscoveryCallbackPtr> callbacks;
-    };
-
-    typedef map<string, RemoteDevice> RemoteDeviceMap; // Key is the object path.
-    typedef map<string, Adapter> AdapterMap; // Key is the object path.
-
-    BluetoothService()
+    BluetoothService() :
+        _destroyed(false)
     {
         DBus::initThreads();
 
         try
         {
             //
-            // Block while we establish a DBus connection and retrieve a snapshot of the managed objects
-            // from the Bluetooth service.
+            // Block while we establish a DBus connection.
             //
             _dbusConnection = DBus::Connection::getSystemBus();
             _dbusConnection->addFilter(this);
-            getManagedObjects();
         }
         catch(const DBus::Exception& ex)
         {
@@ -343,122 +97,84 @@ public:
         string intf = msg->getInterface();
         string member = msg->getMember();
 
-        if(intf == "org.freedesktop.DBus.ObjectManager" && member == "InterfacesAdded")
+        if(intf == "org.bluez.Adapter" && member == "DeviceFound")
         {
             //
-            // The InterfacesAdded signal contains two values: 
+            // The DeviceFound signal contains two values: 
             //
-            //   OBJPATH obj_path
-            //   DICT<STRING,DICT<STRING,VARIANT>> interfaces_and_properties
+            //   STRING address
+            //   DICT<STRING,VARIANT> properties
             //
-
             vector<DBus::ValuePtr> values = msg->readAll();
             assert(values.size() == 2);
-            DBus::ObjectPathValuePtr path = DBus::ObjectPathValuePtr::dynamicCast(values[0]);
-            assert(path);
+            DBus::StringValuePtr addr = DBus::StringValuePtr::dynamicCast(values[0]);
+            assert(addr);
+            VariantMap props;
+            extractProperties(values[1], props);
 
-            InterfacePropertiesMap interfaceProps;
-            extractInterfaceProperties(values[1], interfaceProps);
+            vector<DiscoveryCallbackPtr> callbacks;
 
-            InterfacePropertiesMap::iterator p = interfaceProps.find("org.bluez.Device1");
-            if(p != interfaceProps.end())
             {
-                //
-                // A remote device was added.
-                //
-                deviceAdded(path->v, p->second);
-            }
+                IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
 
-            p = interfaceProps.find("org.bluez.Adapter1");
-            if(p != interfaceProps.end())
-            {
-                //
-                // A local Bluetooth adapter was added.
-                //
-                adapterAdded(path->v, p->second);
-            }
-
-            return true;
-        }
-        else if(intf == "org.freedesktop.DBus.ObjectManager" && member == "InterfacesRemoved")
-        {
-            //
-            // The InterfacesRemoved signal contains two values: 
-            //
-            //   OBJPATH obj_path
-            //   ARRAY<STRING> interfaces
-            //
-
-            vector<DBus::ValuePtr> values = msg->readAll();
-            assert(values.size() == 2);
-            DBus::ObjectPathValuePtr path = DBus::ObjectPathValuePtr::dynamicCast(values[0]);
-            assert(path);
-            DBus::ArrayValuePtr ifaces = DBus::ArrayValuePtr::dynamicCast(values[1]);
-            assert(ifaces);
-
-            for(vector<DBus::ValuePtr>::const_iterator q = ifaces->elements.begin(); q != ifaces->elements.end(); ++q)
-            {
-                assert((*q)->getType()->getKind() == DBus::Type::KindString);
-                DBus::StringValuePtr ifaceName = DBus::StringValuePtr::dynamicCast(*q);
-
-                //
-                // A remote device was removed.
-                //
-                if(ifaceName->v == "org.bluez.Device1")
+                map<string, vector<DiscoveryCallbackPtr> >::iterator p = _discoveryCallbacks.find(msg->getPath());
+                if(p != _discoveryCallbacks.end())
                 {
-                    deviceRemoved(path->v);
+                    callbacks = p->second;
                 }
-                else if(ifaceName->v == "org.bluez.Adapter1")
+            }
+
+            if(!callbacks.empty())
+            {
+                PropertyMap pm; // Convert to string-string map.
+                for(VariantMap::const_iterator p = props.begin(); p != props.end(); ++p)
                 {
-                    adapterRemoved(path->v);
+                    pm[p->first] = p->second->toString();
+                }
+                for(vector<DiscoveryCallbackPtr>::iterator p = callbacks.begin(); p != callbacks.end(); ++p)
+                {
+                    try
+                    {
+                        (*p)->discovered(addr->v, pm);
+                    }
+                    catch(...)
+                    {
+                    }
                 }
             }
 
             return true;
         }
-        else if(intf == "org.freedesktop.DBus.Properties" && member == "PropertiesChanged")
+        else if(intf == "org.bluez.Adapter" && member == "PropertyChanged")
         {
             //
-            // The PropertiesChanged signal contains three values: 
+            // The PropertyChanged signal contains two values: 
             //
-            //   STRING interface_name
-            //   DICT<STRING,VARIANT> changed_properties
-            //   ARRAY<STRING> invalidated_properties
+            //   STRING name
+            //   VARIANT value
             //
-
             vector<DBus::ValuePtr> values = msg->readAll();
-            assert(values.size() == 3);
-            DBus::StringValuePtr iface = DBus::StringValuePtr::dynamicCast(values[0]);
-            assert(iface);
-
-            if(iface->v != "org.bluez.Device1" && iface->v != "org.bluez.Adapter1")
+            assert(values.size() == 2);
+            DBus::StringValuePtr name = DBus::StringValuePtr::dynamicCast(values[0]);
+            assert(name);
+            if(name->v == "Discovering")
             {
-                return false;
-            }
+                DBus::VariantValuePtr v = DBus::VariantValuePtr::dynamicCast(values[1]);
+                assert(v);
+                DBus::BooleanValuePtr b = DBus::BooleanValuePtr::dynamicCast(v->v);
+                assert(b);
+                if(!b->v)
+                {
+                    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
 
-            VariantMap changed;
-            extractProperties(values[1], changed);
-
-            DBus::ArrayValuePtr a = DBus::ArrayValuePtr::dynamicCast(values[2]);
-            assert(a);
-            vector<string> removedNames;
-            for(vector<DBus::ValuePtr>::const_iterator p = a->elements.begin(); p != a->elements.end(); ++p)
-            {
-                DBus::StringValuePtr sv = DBus::StringValuePtr::dynamicCast(*p);
-                assert(sv);
-                removedNames.push_back(sv->v);
+                    map<string, vector<DiscoveryCallbackPtr> >::iterator p = _discoveryCallbacks.find(msg->getPath());
+                    if(p != _discoveryCallbacks.end())
+                    {
+                        _discoveryCallbacks.erase(p);
+                    }
+                }
             }
-
-            if(iface->v == "org.bluez.Device1")
-            {
-                deviceChanged(msg->getPath(), changed, removedNames);
-            }
-            else
-            {
-                adapterChanged(msg->getPath(), changed, removedNames);
-            }
-
-            return true;
+            return false;
         }
 
         return false;
@@ -466,119 +182,29 @@ public:
 
     string getDefaultAdapterAddress() const
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+        string path = getDefaultAdapter();
+        VariantMap props = getAdapterProperties(path);
 
-        //
-        // Return the device address of the default local adapter.
-        //
-        // TBD: Be smarter about this? E.g., consider the state of the Powered property?
-        //
-        if(!_adapters.empty())
+        VariantMap::const_iterator i = props.find("Address");
+        if(i != props.end())
         {
-            return _adapters.begin()->second.getAddress();
+            DBus::StringValuePtr str = DBus::StringValuePtr::dynamicCast(i->second->v);
+            assert(str);
+            return IceUtilInternal::toUpper(str->v);
         }
 
-        throw BluetoothException(__FILE__, __LINE__, "no Bluetooth adapter found");
+        throw BluetoothException(__FILE__, __LINE__, "no default Bluetooth adapter found");
     }
 
     bool adapterExists(const string& addr) const
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
-
-        //
-        // Check if a local adapter exists with the given device address.
-        //
-        for(AdapterMap::const_iterator p = _adapters.begin(); p != _adapters.end(); ++p)
-        {
-            if(addr == p->second.getAddress())
-            {
-                return true;
-            }
-        }
-
-        return false;
+        string path = findAdapter(addr);
+        return !path.empty();
     }
 
-    //
-    // Calling registerProfile will advertise a service (SDP) profile with the Bluetooth daemon.
-    //
-    string registerProfile(const string& uuid, const string& name, int channel, const ProfileCallbackPtr& cb)
+    unsigned int addService(const string& addr, const string& name, const string& uuid, int channel)
     {
-        //
-        // As a subclass of DBus::Service, the ServerProfile object will receive DBus method
-        // invocations for a given object path.
-        //
-        ProfilePtr profile = new ServerProfile(cb);
-
-        string path = generatePath();
-
-        try
-        {
-            DBus::AsyncResultPtr ar = registerProfileImpl(_dbusConnection, path, uuid, name, channel, profile);
-            DBus::MessagePtr reply = ar->waitUntilFinished(); // Block until finished.
-            if(reply->isError())
-            {
-                reply->throwException();
-            }
-        }
-        catch(const DBus::Exception& ex)
-        {
-            throw BluetoothException(__FILE__, __LINE__, ex.reason);
-        }
-
-        return path;
-    }
-
-    void unregisterProfile(const string& path)
-    {
-        try
-        {
-            //
-            // Block while we unregister the profile.
-            //
-            DBus::AsyncResultPtr ar = unregisterProfileImpl(_dbusConnection, path);
-            ar->waitUntilFinished();
-            DBus::MessagePtr reply = ar->getReply();
-            _dbusConnection->removeService(path);
-            if(reply->isError())
-            {
-                reply->throwException();
-            }
-        }
-        catch(const DBus::Exception& ex)
-        {
-            throw BluetoothException(__FILE__, __LINE__, ex.reason);
-        }
-    }
-
-    void connect(const string& addr, const string& uuid, const ConnectCallbackPtr& cb)
-    {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
-
-        //
-        // Start a thread to establish the connection.
-        //
-        IceUtil::ThreadPtr t = new ConnectThread(this, addr, uuid, cb);
-        _connectThreads.push_back(t);
-        t->start();
-    }
-
-    void startDiscovery(const string& addr, const DiscoveryCallbackPtr& cb)
-    {
-        string path;
-
-        {
-            IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
-
-            for(AdapterMap::iterator p = _adapters.begin(); p != _adapters.end(); ++p)
-            {
-                if(p->second.getAddress() == IceUtilInternal::toUpper(addr))
-                {
-                    path = p->first;
-                    p->second.callbacks.push_back(cb);
-                }
-            }
-        }
+        string path = findAdapter(addr);
 
         if(path.empty())
         {
@@ -586,17 +212,122 @@ public:
         }
 
         //
-        // Invoke StartDiscovery() on the adapter object.
+        // Compose an XML record.
         //
+        ostringstream ostr;
+        ostr << "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>" << endl
+             << "<record>" << endl
+             << "    <attribute id=\"0x0001\">" << endl // UUID
+             << "        <sequence>" << endl
+             << "            <uuid value=\"" << uuid << "\" />" << endl
+             << "        </sequence>" << endl
+             << "    </attribute>" << endl
+             << "    <attribute id=\"0x0004\">" << endl
+             << "        <sequence>" << endl
+             << "            <sequence>" << endl
+             << "                <uuid value=\"0x0100\" />" << endl // L2CAP
+             << "            </sequence>" << endl
+             << "            <sequence>" << endl
+             << "                <uuid value=\"0x0003\" />" << endl // RFCOMM channel
+             << "                <uint8 value=\"0x" << hex << channel << dec << "\" />" << endl
+             << "            </sequence>" << endl
+             << "        </sequence>" << endl
+             << "    </attribute>" << endl
+             << "    <attribute id=\"0x0005\">" << endl
+             << "        <sequence>" << endl
+             << "            <uuid value=\"0x1002\" />" << endl
+             << "        </sequence>" << endl
+             << "    </attribute>" << endl;
+        if(!name.empty())
+        {
+             ostr << "    <attribute id=\"0x0100\">" << endl
+                  << "        <text value=\"" << name << "\" />" << endl
+                  << "    </attribute>" << endl;
+        }
+        ostr << "</record>";
+
         try
         {
-            DBus::MessagePtr msg = DBus::Message::createCall("org.bluez", path, "org.bluez.Adapter1", "StartDiscovery");
-            DBus::AsyncResultPtr r = _dbusConnection->callAsync(msg);
-            DBus::MessagePtr reply = r->waitUntilFinished();
-            if(reply->isError())
+            DBus::MessagePtr reply = call(path, "org.bluez.Service", "AddRecord", new DBus::StringValue(ostr.str()));
+            DBus::ValuePtr v = reply->read();
+            DBus::Uint32ValuePtr handle = DBus::Uint32ValuePtr::dynamicCast(v);
+            return handle->v;
+        }
+        catch(const DBus::Exception& ex)
+        {
+            throw BluetoothException(__FILE__, __LINE__, ex.reason);
+        }
+    }
+
+    void findService(const string& addr, const string& uuid, const FindServiceCallbackPtr& cb)
+    {
+        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+
+        if(_destroyed)
+        {
+            cb->exception(CommunicatorDestroyedException(__FILE__, __LINE__));
+        }
+        else
+        {
+            IceUtil::ThreadPtr t = new FindServiceThread(this, addr, uuid, cb);
+            _threads.push_back(t);
+            t->start();
+        }
+    }
+
+    void removeService(const string& addr, unsigned int handle)
+    {
+        string path = findAdapter(addr);
+
+        if(path.empty())
+        {
+            throw BluetoothException(__FILE__, __LINE__, "no Bluetooth adapter found matching address " + addr);
+        }
+
+        try
+        {
+            call(path, "org.bluez.Service", "RemoveRecord", new DBus::Uint32Value(handle));
+        }
+        catch(const DBus::Exception& ex)
+        {
+            if(ex.reason.find("DoesNotExist") != string::npos)
             {
-                reply->throwException();
+                throw BluetoothException(__FILE__, __LINE__, ex.reason);
             }
+        }
+    }
+
+    void startDiscovery(const string& addr, const DiscoveryCallbackPtr& cb)
+    {
+        string path;
+        if(addr.empty())
+        {
+            path = getDefaultAdapter();
+        }
+        else
+        {
+            path = findAdapter(addr);
+        }
+
+        if(path.empty())
+        {
+            throw BluetoothException(__FILE__, __LINE__, "no Bluetooth adapter found matching address " + addr);
+        }
+
+        {
+            IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+
+            map<string, vector<DiscoveryCallbackPtr> >::iterator p = _discoveryCallbacks.find(path);
+            if(p == _discoveryCallbacks.end())
+            {
+                _discoveryCallbacks[path] = vector<DiscoveryCallbackPtr>();
+            }
+            _discoveryCallbacks[path].push_back(cb);
+        }
+
+        try
+        {
+            call(path, "org.bluez.Adapter", "StartDiscovery");
         }
         catch(const DBus::Exception& ex)
         {
@@ -607,18 +338,13 @@ public:
     void stopDiscovery(const string& addr)
     {
         string path;
-
+        if(addr.empty())
         {
-            IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
-
-            for(AdapterMap::iterator p = _adapters.begin(); p != _adapters.end(); ++p)
-            {
-                if(p->second.getAddress() == IceUtilInternal::toUpper(addr))
-                {
-                    path = p->first;
-                    p->second.callbacks.clear();
-                }
-            }
+            path = getDefaultAdapter();
+        }
+        else
+        {
+            path = findAdapter(addr);
         }
 
         if(path.empty())
@@ -626,18 +352,9 @@ public:
             throw BluetoothException(__FILE__, __LINE__, "no Bluetooth adapter found matching address " + addr);
         }
 
-        //
-        // Invoke StopDiscovery() on the adapter object.
-        //
         try
         {
-            DBus::MessagePtr msg = DBus::Message::createCall("org.bluez", path, "org.bluez.Adapter1", "StopDiscovery");
-            DBus::AsyncResultPtr r = _dbusConnection->callAsync(msg);
-            DBus::MessagePtr reply = r->waitUntilFinished();
-            if(reply->isError())
-            {
-                reply->throwException();
-            }
+            call(path, "org.bluez.Adapter", "StopDiscovery");
         }
         catch(const DBus::Exception& ex)
         {
@@ -647,17 +364,16 @@ public:
 
     void destroy()
     {
-        //
-        // Wait for any active connect threads to finish.
-        //
-        vector<IceUtil::ThreadPtr> v;
+        vector<IceUtil::ThreadPtr> threads;
 
         {
             IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
-            v.swap(_connectThreads);
+
+            _destroyed = true;
+            threads.swap(_threads);
         }
 
-        for(vector<IceUtil::ThreadPtr>::iterator p = v.begin(); p != v.end(); ++p)
+        for(vector<IceUtil::ThreadPtr>::iterator p = threads.begin(); p != threads.end(); ++p)
         {
             (*p)->getThreadControl().join();
         }
@@ -674,537 +390,423 @@ public:
         }
     }
 
-    void getManagedObjects()
+    string getDefaultAdapter() const
     {
-        try
-        {
-            //
-            // Query the Bluetooth service for its managed objects. This is a standard DBus invocation
-            // with the following signature:
-            //
-            // org.freedesktop.DBus.ObjectManager.GetManagedObjects (
-            //     out DICT<OBJPATH,DICT<STRING,DICT<STRING,VARIANT>>> objpath_interfaces_and_properties);
-            //
-            DBus::MessagePtr msg =
-                DBus::Message::createCall("org.bluez", "/", "org.freedesktop.DBus.ObjectManager", "GetManagedObjects");
-            DBus::AsyncResultPtr r = _dbusConnection->callAsync(msg);
-            DBus::MessagePtr reply = r->waitUntilFinished();
-            if(reply->isError())
-            {
-                reply->throwException();
-            }
-
-            IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
-
-            _adapters.clear();
-            _remoteDevices.clear();
-            _defaultAdapterAddress.clear();
-
-            //
-            // The return value of GetManagedObjects is a dictionary structured like this:
-            //
-            //     Key: Object path (e.g., "/org/bluez")
-            //     Value: Dictionary of interfaces
-            //         Key: Interface name (e.g., "org.bluez.Adapter1")
-            //         Value: Dictionary of properties
-            //             Key: Property name
-            //             Value: Property value (variant)
-            //
-
-            //
-            // Extract the dictionary from the reply message.
-            //
-            DBus::ValuePtr v = reply->read();
-
-            //
-            // Iterate through the dictionary and collect the objects that we need.
-            //
-            assert(v->getType()->getKind() == DBus::Type::KindArray);
-            DBus::ArrayValuePtr a = DBus::ArrayValuePtr::dynamicCast(v);
-            for(vector<DBus::ValuePtr>::const_iterator p = a->elements.begin(); p != a->elements.end(); ++p)
-            {
-                assert((*p)->getType()->getKind() == DBus::Type::KindDictEntry);
-                DBus::DictEntryValuePtr e = DBus::DictEntryValuePtr::dynamicCast(*p);
-                assert(e->key->getType()->getKind() == DBus::Type::KindObjectPath);
-                DBus::ObjectPathValuePtr path = DBus::ObjectPathValuePtr::dynamicCast(e->key);
-
-                assert(e->value->getType()->getKind() == DBus::Type::KindArray);
-                InterfacePropertiesMap ipmap;
-                extractInterfaceProperties(e->value, ipmap);
-
-                InterfacePropertiesMap::iterator q;
-
-                q = ipmap.find("org.bluez.Adapter1");
-                if(q != ipmap.end())
-                {
-                    //
-                    // org.bluez.Adapter1 is the interface for local Bluetooth adapters.
-                    //
-                    _adapters[path->v] = Adapter(q->second);
-                }
-
-                q = ipmap.find("org.bluez.Device1");
-                if(q != ipmap.end())
-                {
-                    //
-                    // org.bluez.Device1 is the interface for paired remote devices.
-                    //
-                    RemoteDevice d(q->second);
-                    if(!d.getAddress().empty())
-                    {
-                        _remoteDevices[path->v] = d;
-                    }
-                }
-            }
-        }
-        catch(const DBus::Exception& ex)
-        {
-            throw BluetoothException(__FILE__, __LINE__, ex.reason);
-        }
+        //
+        // The call to DefaultAdapter returns OBJ_PATH.
+        //
+        DBus::MessagePtr reply = call("/", "org.bluez.Manager", "DefaultAdapter");
+        DBus::ValuePtr v = reply->read();
+        DBus::ObjectPathValuePtr path = DBus::ObjectPathValuePtr::dynamicCast(v);
+        assert(path);
+        return path->v;
     }
 
-    DBus::AsyncResultPtr registerProfileImpl(const DBus::ConnectionPtr& conn, const string& path, const string& uuid,
-                                             const string& name, int channel, const ProfilePtr& profile)
+    string findAdapter(const string& addr) const
     {
-        conn->addService(path, profile);
-
         //
-        // Invoke RegisterProfile on the profile manager object.
+        // The call to FindAdapter returns OBJ_PATH.
         //
-        DBus::MessagePtr msg =
-            DBus::Message::createCall("org.bluez", "/org/bluez", "org.bluez.ProfileManager1", "RegisterProfile");
-        vector<DBus::ValuePtr> args;
-        args.push_back(new DBus::ObjectPathValue(path));
-        args.push_back(new DBus::StringValue(uuid));
-        DBus::DictEntryTypePtr dt =
-            new DBus::DictEntryType(DBus::Type::getPrimitive(DBus::Type::KindString), new DBus::VariantType);
-        DBus::TypePtr t = new DBus::ArrayType(dt);
-        DBus::ArrayValuePtr options = new DBus::ArrayValue(t);
-        if(!name.empty())
-        {
-            options->elements.push_back(
-                new DBus::DictEntryValue(dt, new DBus::StringValue("Name"),
-                                         new DBus::VariantValue(new DBus::StringValue(name))));
-        }
-        if(channel != -1)
-        {
-            options->elements.push_back(
-                new DBus::DictEntryValue(dt, new DBus::StringValue("Channel"),
-                                         new DBus::VariantValue(new DBus::Uint16Value(channel))));
-            options->elements.push_back(
-                new DBus::DictEntryValue(dt, new DBus::StringValue("Role"),
-                                         new DBus::VariantValue(new DBus::StringValue("server"))));
-        }
-        else
-        {
-            options->elements.push_back(
-                new DBus::DictEntryValue(dt, new DBus::StringValue("Role"),
-                                         new DBus::VariantValue(new DBus::StringValue("client"))));
-        }
-        args.push_back(options);
-        msg->write(args);
-        return conn->callAsync(msg);
+        DBus::MessagePtr reply = call("/", "org.bluez.Manager", "FindAdapter", new DBus::StringValue(addr));
+        DBus::ValuePtr v = reply->read();
+        DBus::ObjectPathValuePtr path = DBus::ObjectPathValuePtr::dynamicCast(v);
+        assert(path);
+        return path->v;
     }
 
-    DBus::AsyncResultPtr unregisterProfileImpl(const DBus::ConnectionPtr& conn, const string& path)
+    VariantMap getAdapterProperties(const string& path) const
     {
         //
-        // Invoke UnregisterProfile on the profile manager object.
+        // The call to GetProperties returns
         //
-        DBus::MessagePtr msg =
-            DBus::Message::createCall("org.bluez", "/org/bluez", "org.bluez.ProfileManager1", "UnregisterProfile");
-        msg->write(new DBus::ObjectPathValue(path));
-        return conn->callAsync(msg);
-    }
-
-    static string generatePath()
-    {
+        //   DICT<STRING,VARIANT> properties
         //
-        // Generate a unique object path. Path elements can only contain "[A-Z][a-z][0-9]_".
-        //
-        string path = "/com/zeroc/P" + IceUtil::generateUUID();
-        for(string::iterator p = path.begin(); p != path.end(); ++p)
-        {
-            if(*p == '-')
-            {
-                *p = '_';
-            }
-        }
-        return path;
-    }
-
-    void deviceAdded(const string& path, const VariantMap& props)
-    {
-        RemoteDevice dev(props);
-        if(dev.getAddress().empty())
-        {
-            return; // Ignore devices that don't have an Address property.
-        }
-
-        vector<DiscoveryCallbackPtr> callbacks;
-
-        {
-            IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
-
-            AdapterMap::iterator p = _adapters.find(dev.getAdapter());
-            if(p != _adapters.end())
-            {
-                callbacks = p->second.callbacks;
-            }
-            _remoteDevices[path] = dev;
-        }
-
-        if(!callbacks.empty())
-        {
-            PropertyMap pm; // Convert to string-string map.
-            for(VariantMap::const_iterator p = props.begin(); p != props.end(); ++p)
-            {
-                pm[p->first] = p->second->toString();
-            }
-            for(vector<DiscoveryCallbackPtr>::iterator p = callbacks.begin(); p != callbacks.end(); ++p)
-            {
-                try
-                {
-                    (*p)->discovered(dev.getAddress(), pm);
-                }
-                catch(...)
-                {
-                }
-            }
-        }
-    }
-
-    void deviceChanged(const string& path, const VariantMap& changed, const vector<string>& removedProps)
-    {
-        vector<DiscoveryCallbackPtr> callbacks;
-        string addr;
-        string adapter;
+        DBus::MessagePtr reply = call(path, "org.bluez.Adapter", "GetProperties");
+        DBus::ValuePtr v = reply->read();
         VariantMap props;
+        extractProperties(v, props);
+        return props;
+    }
 
+    IceXML::NodePtr findChild(const IceXML::NodePtr& parent, const string& name) const
+    {
+        IceXML::NodeList l = parent->getChildren();
+        for(IceXML::NodeList::iterator p = l.begin(); p != l.end(); ++p)
         {
-            IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
-
-            RemoteDeviceMap::iterator p = _remoteDevices.find(path);
-            if(p == _remoteDevices.end())
+            if((*p)->getName() == name)
             {
-                RemoteDevice dev(changed);
-                addr = dev.getAddress();
-                if(!addr.empty())
-                {
-                    _remoteDevices[path] = dev;
-                    props = changed;
-                    adapter = dev.getAdapter();
-                }
-            }
-            else
-            {
-                updateProperties(p->second.properties, changed, removedProps);
-
-                addr = p->second.getAddress();
-
-                if(addr.empty())
-                {
-                    //
-                    // Remove the device if we don't know its address.
-                    //
-                    _remoteDevices.erase(p);
-                }
-                else
-                {
-                    props = p->second.properties;
-                    adapter = p->second.getAdapter();
-                }
-            }
-
-            AdapterMap::iterator q = _adapters.find(adapter);
-            if(q != _adapters.end())
-            {
-                callbacks = q->second.callbacks;
+                return *p;
             }
         }
 
-        if(!addr.empty() && !callbacks.empty())
+        return 0;
+    }
+
+    IceXML::NodePtr findAttribute(const IceXML::NodePtr& record, int id) const
+    {
+        IceXML::NodeList l = record->getChildren();
+        for(IceXML::NodeList::iterator p = l.begin(); p != l.end(); ++p)
         {
-            PropertyMap pm; // Convert to string-string map.
-            for(VariantMap::iterator p = props.begin(); p != props.end(); ++p)
+            if((*p)->getName() == "attribute")
             {
-                pm[p->first] = p->second->toString();
-            }
-            for(vector<DiscoveryCallbackPtr>::iterator p = callbacks.begin(); p != callbacks.end(); ++p)
-            {
-                try
+                string sid = (*p)->getAttribute("id");
+                int i;
+                if(sscanf(sid.c_str(), "%x", &i) == 1 && i == id)
                 {
-                    (*p)->discovered(addr, pm);
-                }
-                catch(...)
-                {
+                    return *p;
                 }
             }
         }
+
+        return 0;
     }
 
-    void deviceRemoved(const string& path)
+    IceXML::NodePtr findSequence(const IceXML::NodePtr& parent, const string& uuid) const
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
-
-        RemoteDeviceMap::iterator p = _remoteDevices.find(path);
-        if(p != _remoteDevices.end())
+        IceXML::NodeList l = parent->getChildren();
+        for(IceXML::NodeList::iterator p = l.begin(); p != l.end(); ++p)
         {
-            _remoteDevices.erase(p);
-        }
-    }
-
-    void adapterAdded(const string& path, const VariantMap& props)
-    {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
-
-        _adapters[path] = Adapter(props);
-    }
-
-    void adapterChanged(const string& path, const VariantMap& changed, const vector<string>& removedProps)
-    {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
-
-        AdapterMap::iterator p = _adapters.find(path);
-        if(p == _adapters.end())
-        {
-            _adapters[path] = Adapter(changed);
-        }
-        else
-        {
-            updateProperties(p->second.properties, changed, removedProps);
-        }
-    }
-
-    void adapterRemoved(const string& path)
-    {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
-
-        AdapterMap::iterator p = _adapters.find(path);
-        if(p != _adapters.end())
-        {
-            _adapters.erase(p);
-        }
-    }
-
-    void extractInterfaceProperties(const DBus::ValuePtr& v, InterfacePropertiesMap& interfaceProps)
-    {
-        //
-        // The given value is a dictionary structured like this:
-        //
-        //   Key: Interface name (e.g., "org.bluez.Adapter1")
-        //   Value: Dictionary of properties
-        //     Key: Property name
-        //     Value: Property value (variant)
-        //
-
-        DBus::ArrayValuePtr ifaces = DBus::ArrayValuePtr::dynamicCast(v);
-        assert(ifaces);
-
-        for(vector<DBus::ValuePtr>::const_iterator q = ifaces->elements.begin(); q != ifaces->elements.end(); ++q)
-        {
-            assert((*q)->getType()->getKind() == DBus::Type::KindDictEntry);
-            DBus::DictEntryValuePtr ie = DBus::DictEntryValuePtr::dynamicCast(*q);
-            assert(ie->key->getType()->getKind() == DBus::Type::KindString);
-            DBus::StringValuePtr ifaceName = DBus::StringValuePtr::dynamicCast(ie->key);
-
-            VariantMap pm;
-            extractProperties(ie->value, pm);
-
-            interfaceProps[ifaceName->v] = pm;
-        }
-    }
-
-    void extractProperties(const DBus::ValuePtr& v, VariantMap& vm)
-    {
-        //
-        // The given value is a dictionary structured like this:
-        //
-        //   Key: Property name
-        //   Value: Property value (variant)
-        //
-
-        assert(v->getType()->getKind() == DBus::Type::KindArray);
-        DBus::ArrayValuePtr props = DBus::ArrayValuePtr::dynamicCast(v);
-        for(vector<DBus::ValuePtr>::const_iterator s = props->elements.begin(); s != props->elements.end(); ++s)
-        {
-            assert((*s)->getType()->getKind() == DBus::Type::KindDictEntry);
-            DBus::DictEntryValuePtr pe = DBus::DictEntryValuePtr::dynamicCast(*s);
-            assert(pe->key->getType()->getKind() == DBus::Type::KindString);
-            DBus::StringValuePtr propName = DBus::StringValuePtr::dynamicCast(pe->key);
-            assert(pe->value->getType()->getKind() == DBus::Type::KindVariant);
-            vm[propName->v] = DBus::VariantValuePtr::dynamicCast(pe->value);
-        }
-    }
-
-    void updateProperties(VariantMap& props, const VariantMap& changed, const vector<string>& removedProps)
-    {
-        //
-        // Remove properties.
-        //
-        for(vector<string>::const_iterator q = removedProps.begin(); q != removedProps.end(); ++q)
-        {
-            VariantMap::iterator r = props.find(*q);
-            if(r != props.end())
+            if((*p)->getName() == "sequence")
             {
-                props.erase(r);
+                IceXML::NodePtr u = findChild(*p, "uuid");
+                if(u)
+                {
+                    string val = u->getAttribute("value");
+                    if(IceUtilInternal::toUpper(val) == IceUtilInternal::toUpper(uuid))
+                    {
+                        return *p;
+                    }
+                }
+
+                //
+                // Recursively search for nested <sequence> elements.
+                //
+                IceXML::NodePtr n = findSequence(*p, uuid);
+                if(n)
+                {
+                    return n;
+                }
             }
         }
 
-        //
-        // Merge changes.
-        //
-        for(VariantMap::const_iterator q = changed.begin(); q != changed.end(); ++q)
-        {
-            props[q->first] = q->second;
-        }
+        return 0;
     }
 
-    void runConnectThread(const IceUtil::ThreadPtr& thread, const string& addr, const string& uuid,
-                          const ConnectCallbackPtr& cb)
+    IceXML::NodePtr findSequence(const IceXML::NodePtr& parent, int uuid) const
     {
-        //
-        // Establishing a connection is a complicated process.
-        //
-        // 1) Determine whether our local Bluetooth service knows about the target
-        //    remote device denoted by the 'addr' argument. The known remote devices
-        //    are included in the managed objects returned by the GetManagedObjects
-        //    invocation on the Bluetooth service and updated dynamically during
-        //    discovery.
-        //
-        // 2) After we find the remote device, we have to register a client profile
-        //    for the given UUID.
-        //
-        // 3) After registering the profile, we have to invoke ConnectDevice on the
-        //    local device object corresponding to the target address. The Bluetooth
-        //    service will attempt to establish a connection to the remote device.
-        //    If the connection succeeds, our profile object will receive a
-        //    NewConnection invocation that supplies the file descriptor.
-        //
+        IceXML::NodeList l = parent->getChildren();
+        for(IceXML::NodeList::iterator p = l.begin(); p != l.end(); ++p)
+        {
+            if((*p)->getName() == "sequence")
+            {
+                IceXML::NodePtr u = findChild(*p, "uuid");
+                if(u)
+                {
+                    string val = u->getAttribute("value");
+                    int i;
+                    if(sscanf(val.c_str(), "%x", &i) == 1 && i == uuid)
+                    {
+                        return *p;
+                    }
+                }
 
-        ConnectionIPtr conn;
-        bool ok = true;
+                //
+                // Recursively search for nested <sequence> elements.
+                //
+                IceXML::NodePtr n = findSequence(*p, uuid);
+                if(n)
+                {
+                    return n;
+                }
+            }
+        }
+
+        return 0;
+    }
+
+    DBus::MessagePtr call(const string& path, const string& intf, const string& member,
+                          const DBus::ValuePtr& arg = 0) const
+    {
+        DBus::MessagePtr msg = DBus::Message::createCall("org.bluez", path, intf, member);
+        if(arg)
+        {
+            msg->write(arg);
+        }
+        DBus::AsyncResultPtr r = _dbusConnection->callAsync(msg);
+        DBus::MessagePtr reply = r->waitUntilFinished();
+        if(reply->isError())
+        {
+            reply->throwException();
+        }
+        return reply;
+    }
+
+    void runFindService(const IceUtil::ThreadPtr& thread, const string& addr, const string& uuid,
+                        const FindServiceCallbackPtr& cb)
+    {
+        int channel = -1;
 
         try
         {
+            const string a = IceUtilInternal::toUpper(addr);
+            const string adapter = getDefaultAdapter();
+
             string devicePath;
+            bool first = true;
 
-            //
-            // Search our list of known devices for one that matches the given address.
-            //
-            {
-                IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
-
-                for(RemoteDeviceMap::iterator p = _remoteDevices.begin(); p != _remoteDevices.end(); ++p)
-                {
-                    if(p->second.getAddress() == IceUtilInternal::toUpper(addr))
-                    {
-                        devicePath = p->first;
-                        break;
-                    }
-                }
-            }
-
-            //
-            // If we don't find a match, we're done.
-            //
-            if(devicePath.empty())
-            {
-                //
-                // ConnectorI handles this situation specially.
-                //
-                throw Ice::NoEndpointException(__FILE__, __LINE__, addr);
-            }
-
-            //
-            // We have a matching device, now register a client profile.
-            //
-            DBus::ConnectionPtr dbusConn = DBus::Connection::getSystemBus();
-            conn = new ConnectionI(dbusConn, devicePath, uuid);
-
-            ProfilePtr profile = new ClientProfile(conn, cb);
-            string path = generatePath();
-
-            //
-            // Register a client profile. Client profiles are not advertised in SDP.
-            //
-            DBus::AsyncResultPtr r = registerProfileImpl(dbusConn, path, uuid, string(), -1, profile);
-            DBus::MessagePtr reply = r->waitUntilFinished();
-            if(reply->isError())
-            {
-                reply->throwException();
-            }
-
-            //
-            // Invoke ConnectProfile to initiate the client-side connection:
-            //
-            // void ConnectProfile(string uuid)
-            //
-            // We only care about errors from this invocation. If the connection succeeds, our
-            // client profile will receive a separate NewConnection invocation.
-            //
-            DBus::MessagePtr msg =
-                DBus::Message::createCall("org.bluez", devicePath, "org.bluez.Device1", "ConnectProfile");
-            msg->write(new DBus::StringValue(uuid));
-            r = dbusConn->callAsync(msg);
-            reply = r->waitUntilFinished();
-            if(reply->isError())
+            while(devicePath.empty())
             {
                 try
                 {
-                    reply->throwException();
+                    DBus::MessagePtr reply = call(adapter, "org.bluez.Adapter", "FindDevice", new DBus::StringValue(a));
+                    DBus::ValuePtr v = reply->read();
+                    DBus::ObjectPathValuePtr path = DBus::ObjectPathValuePtr::dynamicCast(v);
+                    assert(path);
+                    devicePath = path->v;
                 }
                 catch(const DBus::Exception& ex)
                 {
-                    ostringstream ostr;
-                    ostr << "unable to establish connection to " << uuid << " at " << addr;
-                    if(!ex.reason.empty())
+                    if(ex.reason.find("DoesNotExist") != string::npos)
                     {
-                        ostr << ':' << endl << ex.reason;
+                        if(first)
+                        {
+                            first = false;
+                            try
+                            {
+                                DBus::MessagePtr reply = call(adapter, "org.bluez.Adapter", "CreateDevice",
+                                                              new DBus::StringValue(a));
+                                DBus::ValuePtr v = reply->read();
+                                DBus::ObjectPathValuePtr path = DBus::ObjectPathValuePtr::dynamicCast(v);
+                                assert(path);
+                                devicePath = path->v;
+                            }
+                            catch(const DBus::Exception&)
+                            {
+                                // Try FindDevice one more time.
+                            }
+                        }
+                        else
+                        {
+                            break;
+                        }
                     }
+                    else
+                    {
+                        throw BluetoothException(__FILE__, __LINE__, ex.reason);
+                    }
+                }
+            }
+
+            if(devicePath.empty())
+            {
+                //
+                // Couldn't get the object path for the device.
+                //
+                throw BluetoothException(__FILE__, __LINE__, "unable to create device for address " + addr);
+            }
+
+            DBus::ValuePtr services;
+
+            for(int iter = 0; iter < 50; ++iter)
+            {
+                {
+                    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+
+                    if(_destroyed)
+                    {
+                        throw CommunicatorDestroyedException(__FILE__, __LINE__);
+                    }
+                }
+
+                try
+                {
+                    //
+                    // Try to call DiscoverServices on the device to get the XML service records.
+                    // The return value is a DICT<UINT32, STRING>.
+                    //
+                    DBus::MessagePtr reply = call(devicePath, "org.bluez.Device", "DiscoverServices",
+                                                  new DBus::StringValue(""));
+                    services = reply->read();
+                    break;
+                }
+                catch(const DBus::Exception& ex)
+                {
+                    if(ex.reason.find("InProgress") == string::npos)
+                    {
+                        throw BluetoothException(__FILE__, __LINE__, ex.reason);
+                    }
+
+                    //
+                    // Another call to DiscoverServices is already in progress for the target device.
+                    // Sleep a little and try again.
+                    //
+                    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
+                }
+            }
+
+            if(!services)
+            {
+                throw BluetoothException(__FILE__, __LINE__, "query for services failed for address " + addr);
+            }
+
+            //
+            // The returned dictionary contains an XML record for each service advertised by the
+            // remote device. We have to parse the XML and look for certain elements. Specifically,
+            // we're looking for a UUID that matches the one supplied by the caller. If we find
+            // that, we look in the same record for an RFCOMM channel.
+            //
+            IceXML::DocumentPtr doc;
+            assert(services->getType()->getKind() == DBus::Type::KindArray);
+            DBus::ArrayValuePtr d = DBus::ArrayValuePtr::dynamicCast(services);
+            for(vector<DBus::ValuePtr>::const_iterator p = d->elements.begin(); p != d->elements.end(); ++p)
+            {
+                assert((*p)->getType()->getKind() == DBus::Type::KindDictEntry);
+                DBus::DictEntryValuePtr pe = DBus::DictEntryValuePtr::dynamicCast(*p);
+                assert(pe->value->getType()->getKind() == DBus::Type::KindString);
+                DBus::StringValuePtr rec = DBus::StringValuePtr::dynamicCast(pe->value);
+
+                try
+                {
+                    //
+                    // This is what we're processing:
+                    //
+                    // <record>
+                    //     <attribute id="0x0001">
+                    //         <sequence>
+                    //             <uuid value="f6d289b4-1596-4294-ac34-f08e8adbfe5b" />
+                    //         </sequence>
+                    //     </attribute>
+                    //     <attribute id="0x0004">
+                    //         <sequence>
+                    //             <sequence>
+                    //                 <uuid value="0x0100" />
+                    //             </sequence>
+                    //             <sequence>
+                    //                 <uuid value="0x0003" />
+                    //                 <uint8 value="0x01" />
+                    //             </sequence>
+                    //         </sequence>
+                    //     </attribute>
+                    //     ...
+                    // </record>
+                    //
+
+                    istringstream istr(rec->v);
+                    doc = IceXML::Parser::parse(istr);
+                    IceXML::NodePtr record = findChild(doc, "record");
+                    if(!record)
+                    {
+                        throw BluetoothException(__FILE__, __LINE__, "malformed XML - can't find <record>");
+                    }
+
+                    //
+                    // Attribute 0x0001 holds the UUID. See if it matches the target UUID.
+                    //
+                    IceXML::NodePtr attrib = findAttribute(record, 1);
+                    IceXML::NodePtr seq;
+                    if(attrib)
+                    {
+                        seq = findSequence(attrib, uuid);
+                    }
+                    if(seq)
+                    {
+                        //
+                        // We found a matching service UUID. Now look for the RFCOMM channel in the
+                        // protocol descriptor list.
+                        //
+                        attrib = findAttribute(record, 4);
+                        if(attrib)
+                        {
+                            seq = findSequence(attrib, 3);
+                            if(seq)
+                            {
+                                IceXML::NodePtr ch = findChild(seq, "uint8");
+                                if(ch)
+                                {
+                                    string val = ch->getAttribute("value");
+                                    if(sscanf(val.c_str(), "%x", &channel) == 1)
+                                    {
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                catch(const IceXML::ParserException& ex)
+                {
+                    if(doc)
+                    {
+                        doc->destroy();
+                    }
+                    ostringstream ostr;
+                    ostr << ex.reason() << endl << rec->v;
                     throw BluetoothException(__FILE__, __LINE__, ostr.str());
+                }
+                catch(...)
+                {
+                    if(doc)
+                    {
+                        doc->destroy();
+                    }
+                    throw;
+                }
+            }
+
+            if(doc)
+            {
+                doc->destroy();
+            }
+
+            {
+                IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+
+                if(_destroyed)
+                {
+                    throw CommunicatorDestroyedException(__FILE__, __LINE__);
                 }
             }
         }
         catch(const DBus::Exception& ex)
         {
-            ok = false;
-            cb->failed(BluetoothException(__FILE__, __LINE__, ex.reason));
+            cb->exception(BluetoothException(__FILE__, __LINE__, ex.reason));
         }
-        catch(const Ice::LocalException& ex)
+        catch(const LocalException& ex)
         {
-            ok = false;
-            cb->failed(ex);
+            cb->exception(ex);
         }
-
-        //
-        // Clean up.
-        //
-
-        if(!ok && conn)
+        catch(const std::exception& ex)
         {
-            conn->close();
+            cb->exception(UnknownException(__FILE__, __LINE__, ex.what()));
+        }
+        catch(...)
+        {
+            cb->exception(UnknownException(__FILE__, __LINE__, "unknown C++ exception"));
         }
 
-        //
-        // Remove the thread from the list.
-        //
+        if(channel != -1)
+        {
+            cb->completed(channel);
+        }
+
         {
             IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
 
-            vector<IceUtil::ThreadPtr>::iterator p = find(_connectThreads.begin(), _connectThreads.end(), thread);
-            assert(p != _connectThreads.end());
-            _connectThreads.erase(p);
+            vector<IceUtil::ThreadPtr>::iterator p = find(_threads.begin(), _threads.end(), thread);
+            if(p != _threads.end())
+            {
+                _threads.erase(p);
+            }
         }
     }
 
-    class ConnectThread : public IceUtil::Thread
+    class FindServiceThread : public IceUtil::Thread
     {
     public:
 
-        ConnectThread(const BluetoothServicePtr& mo, const string& addr, const string& uuid,
-                      const ConnectCallbackPtr& cb) :
-            _mo(mo),
+        FindServiceThread(const BluetoothServicePtr& service, const string& addr, const string& uuid,
+                          const FindServiceCallbackPtr& cb) :
+            _service(service),
             _addr(addr),
             _uuid(uuid),
             _cb(cb)
@@ -1213,27 +815,20 @@ public:
 
         virtual void run()
         {
-            _mo->runConnectThread(this, _addr, _uuid, _cb);
+            _service->runFindService(this, _addr, _uuid, _cb);
         }
 
-    private:
-
-        BluetoothServicePtr _mo;
+        BluetoothServicePtr _service;
         string _addr;
         string _uuid;
-        ConnectCallbackPtr _cb;
+        FindServiceCallbackPtr _cb;
     };
 
     IceUtil::Monitor<IceUtil::Mutex> _lock;
+    bool _destroyed;
     DBus::ConnectionPtr _dbusConnection;
-
-    AdapterMap _adapters;
-    RemoteDeviceMap _remoteDevices;
-    string _defaultAdapterAddress;
-    vector<IceUtil::ThreadPtr> _connectThreads;
-
-    bool _discovering;
-    vector<DiscoveryCallbackPtr> _discoveryCallbacks;
+    vector<IceUtil::ThreadPtr> _threads;
+    map<string, vector<DiscoveryCallbackPtr> > _discoveryCallbacks;
 };
 
 }
@@ -1277,22 +872,22 @@ IceBT::Engine::adapterExists(const string& addr) const
     return _service->adapterExists(addr);
 }
 
-string
-IceBT::Engine::registerProfile(const string& uuid, const string& name, int channel, const ProfileCallbackPtr& cb)
+unsigned int
+IceBT::Engine::addService(const string& address, const string& name, const string& uuid, int channel)
 {
-    return _service->registerProfile(uuid, name, channel, cb);
+    return _service->addService(address, name, uuid, channel);
 }
 
 void
-IceBT::Engine::unregisterProfile(const string& path)
+IceBT::Engine::findService(const string& address, const string& uuid, const FindServiceCallbackPtr& cb)
 {
-    return _service->unregisterProfile(path);
+    _service->findService(address, uuid, cb);
 }
 
 void
-IceBT::Engine::connect(const string& addr, const string& uuid, const ConnectCallbackPtr& cb)
+IceBT::Engine::removeService(const string& address, unsigned int handle)
 {
-    _service->connect(addr, uuid, cb);
+    _service->removeService(address, handle);
 }
 
 void

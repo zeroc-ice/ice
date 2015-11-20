@@ -40,7 +40,7 @@ include $(top_srcdir)/config/Make.rules
 CPPFLAGS	:= -I.. $(CPPFLAGS) -DICE_BT_API_EXPORTS `pkg-config --cflags dbus-1`
 SLICE2CPPFLAGS	:= --ice --include-dir IceBT --dll-export ICE_BT_API $(SLICE2CPPFLAGS)
 
-LINKWITH        := $(BZIP2_RPATH_LINK) -lIce -lIceUtil `pkg-config --libs dbus-1` $(CXXLIBS)
+LINKWITH        := $(BZIP2_RPATH_LINK) -lIce -lIceXML -lIceUtil `pkg-config --libs dbus-1` $(CXXLIBS)
 
 ifeq ($(STATICLIBS),yes)
 $(libdir)/$(LIBNAME): $(OBJS)
