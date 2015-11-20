@@ -234,7 +234,7 @@ Txn::Txn(const Env& env, unsigned int flags)
 
 Txn::~Txn()
 {
-    abort();
+    rollback();
 }
 
 void
@@ -249,7 +249,7 @@ Txn::commit()
 }
 
 void
-Txn::abort()
+Txn::rollback()
 {
     if(_mtxn != 0)
     {

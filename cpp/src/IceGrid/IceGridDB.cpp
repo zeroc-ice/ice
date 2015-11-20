@@ -501,7 +501,7 @@ Client::run(int argc, char* argv[])
                 }
                 serialCursor.close();
 
-                txn.abort();
+                txn.rollback();
                 env.close();
             }
 

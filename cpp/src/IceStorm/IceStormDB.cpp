@@ -271,7 +271,7 @@ Client::run(int argc, char* argv[])
                 }
                 subCursor.close();
 
-                txn.abort();
+                txn.rollback();
                 env.close();
             }
 

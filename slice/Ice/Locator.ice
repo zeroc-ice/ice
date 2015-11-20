@@ -21,21 +21,6 @@ module Ice
 
 /**
  *
- * This exception is raised if an adapter is invalid.
- *
- **/
-exception InvalidAdapterException
-{
-    /**
-     *
-     * The reason for the failure.
-     *
-     **/
-    string reason;
-};
-
-/**
- *
  * This exception is raised if an adapter cannot be found.
  *
  **/
@@ -169,11 +154,9 @@ interface LocatorRegistry
      * @throws AdapterAlreadyActiveException Raised if an adapter with the same
      * id is already active.
      *
-     * @throws InvalidAdapterException Raised if the adapter info is invalid.
-     *
      **/
     ["amd"] idempotent void setAdapterDirectProxy(string id, Object* proxy)
-        throws AdapterNotFoundException, AdapterAlreadyActiveException, InvalidAdapterException;
+        throws AdapterNotFoundException, AdapterAlreadyActiveException;
 
     /**
      *
@@ -195,16 +178,13 @@ interface LocatorRegistry
      * @throws AdapterAlreadyActiveException Raised if an adapter with the same
      * id is already active.
      *
-     * @throws InvalidAdapterException Raised if the adapter info is invalid.
-     *
      * @throws InvalidReplicaGroupIdException Raised if the given
      * replica group doesn't match the one registered with the
      * locator registry for this object adapter.
      *
      **/
     ["amd"] idempotent void setReplicatedAdapterDirectProxy(string adapterId, string replicaGroupId, Object* p)
-        throws AdapterNotFoundException, AdapterAlreadyActiveException, InvalidAdapterException,
-               InvalidReplicaGroupIdException;
+        throws AdapterNotFoundException, AdapterAlreadyActiveException, InvalidReplicaGroupIdException;
 
     /**
      *

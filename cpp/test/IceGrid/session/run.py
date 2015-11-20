@@ -41,6 +41,7 @@ verifierProc = TestUtil.startServer(os.path.join(os.getcwd(), "verifier"), confi
 print("ok")
 
 IceGridAdmin.registryOptions += \
+                             r' --Ice.Warn.Dispatch=0' + \
                              r' --IceGrid.Registry.DynamicRegistration' + \
                              r' --IceGrid.Registry.SessionFilters' + \
                              r' --IceGrid.Registry.AdminSessionFilters' + \

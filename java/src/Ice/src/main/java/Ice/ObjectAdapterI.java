@@ -1366,23 +1366,6 @@ public final class ObjectAdapterI implements ObjectAdapter
             ex1.id = _id;
             throw ex1;
         }
-        catch(InvalidAdapterException ex)
-        {
-            if(_instance.traceLevels().location >= 1)
-            {
-                StringBuilder s = new StringBuilder(128);
-                s.append("couldn't update object adapter `");
-                s.append(_id);
-                s.append("' endpoints with the locator registry:\n");
-                s.append(ex.reason);
-                _instance.initializationData().logger.trace(_instance.traceLevels().locationCat, s.toString());
-            }
-
-            NotRegisteredException ex1 = new NotRegisteredException();
-            ex1.kindOfObject = "object adapter";
-            ex1.id = _id;
-            throw ex1;
-        }
         catch(InvalidReplicaGroupIdException ex)
         {
             if(_instance.traceLevels().location >= 1)

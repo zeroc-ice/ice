@@ -1276,20 +1276,6 @@ ObjectAdapterI::updateLocatorRegistry(const IceInternal::LocatorInfoPtr& locator
         ex.id = _id;
         throw ex;
     }
-    catch(const InvalidAdapterException& ex)
-    {
-        if(_instance->traceLevels()->location >= 1)
-        {
-            Trace out(_instance->initializationData().logger, _instance->traceLevels()->locationCat);
-            out << "couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n";
-            out << ex.reason;
-        }
-
-        NotRegisteredException ex1(__FILE__, __LINE__);
-        ex1.kindOfObject = "object adapter";
-        ex1.id = _id;
-        throw ex1;
-    }
     catch(const InvalidReplicaGroupIdException&)
     {
         if(_instance->traceLevels()->location >= 1)

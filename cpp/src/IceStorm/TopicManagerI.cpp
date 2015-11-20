@@ -28,14 +28,10 @@ namespace
 {
 
 void
-halt(const Ice::CommunicatorPtr& com, const IceDB::LMDBException& ex)
+logError(const Ice::CommunicatorPtr& com, const IceDB::LMDBException& ex)
 {
-    {
-        Ice::Error error(com->getLogger());
-        error << "fatal exception: " << ex << "\n*** Aborting application ***";
-    }
-
-    abort();
+    Ice::Error error(com->getLogger());
+    error << "LMDB error: " << ex;
 }
 
 class TopicManagerI : public TopicManagerInternal
@@ -347,7 +343,7 @@ TopicManagerImpl::create(const string& name)
         throw ex;
     }
 
-    // Identity is instanceName>/topic.<topicname>
+    // Identity is <instanceName>/topic.<topicname>
     Ice::Identity id = nameToIdentity(_instance, name);
 
     LogUpdate llu;
@@ -367,16 +363,10 @@ TopicManagerImpl::create(const string& name)
 
         txn.commit();
     }
-    catch(const IceDB::KeyTooLongException&)
-    {
-        ostringstream os;
-        os << "topic name is too long: ";
-        os << name;
-        throw InvalidTopic(os.str());
-    }
     catch(const IceDB::LMDBException& ex)
     {
-        halt(_instance->communicator(), ex);
+        logError(_instance->communicator(), ex);
+        throw; // will become UnknownException in caller
     }
 
     _instance->observers()->createTopic(llu, name);
@@ -480,7 +470,8 @@ TopicManagerImpl::observerInit(const LogUpdate& llu, const TopicContentSeq& cont
     }
     catch(const IceDB::LMDBException& ex)
     {
-        halt(_instance->communicator(), ex);
+        logError(_instance->communicator(), ex);
+        throw; // will become UnknownException in caller
     }
 
     // We do this with two scans. The first runs through the topics
@@ -564,8 +555,10 @@ TopicManagerImpl::observerCreateTopic(const LogUpdate& llu, const string& name)
     }
     catch(const IceDB::LMDBException& ex)
     {
-        halt(_instance->communicator(), ex);
+        logError(_instance->communicator(), ex);
+        throw; // will become UnknownException in caller
     }
+
     installTopic(name, id, true);
 }
 
@@ -642,7 +635,8 @@ TopicManagerImpl::getContent(LogUpdate& llu, TopicContentSeq& content)
     }
     catch(const IceDB::LMDBException& ex)
     {
-        halt(_instance->communicator(), ex);
+        logError(_instance->communicator(), ex);
+        throw; // will become UnknownException in caller
     }
 }
 
@@ -657,8 +651,10 @@ TopicManagerImpl::getLastLogUpdate() const
     }
     catch(const IceDB::LMDBException& ex)
     {
-        halt(_instance->communicator(), ex);
+        logError(_instance->communicator(), ex);
+        throw; // will become UnknownException in caller
     }
+
     return llu;
 }
 
@@ -712,7 +708,8 @@ TopicManagerImpl::initMaster(const set<GroupNodeInfo>& slaves, const LogUpdate& 
     }
     catch(const IceDB::LMDBException& ex)
     {
-        halt(_instance->communicator(), ex);
+        logError(_instance->communicator(), ex);
+        throw; // will become UnknownException in caller
     }
 
     // Now initialize the observers.

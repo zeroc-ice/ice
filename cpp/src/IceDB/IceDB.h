@@ -168,7 +168,7 @@ public:
     virtual ~Txn();
 
     void commit();
-    void abort();
+    void rollback();
 
     MDB_txn* mtxn() const;
 

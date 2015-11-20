@@ -37,8 +37,7 @@ public class AllTests
 
     public static void
     allTests(Application app)
-        throws Ice.AdapterAlreadyActiveException, Ice.AdapterNotFoundException, Ice.InvalidAdapterException,
-               InterruptedException
+        throws Ice.AdapterAlreadyActiveException, Ice.AdapterNotFoundException, InterruptedException
     {
         Ice.Communicator communicator = app.communicator();
         PrintWriter out = app.getWriter();

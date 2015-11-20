@@ -1410,7 +1410,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             locatorRegistry->setAdapterDirectProxy(string(512, 'A'), obj);
             test(false);
         }
-        catch(const Ice::InvalidAdapterException&)
+        catch(const Ice::UnknownException&)
         {
         }
 
@@ -1419,7 +1419,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             locatorRegistry->setReplicatedAdapterDirectProxy("Adapter", string(512, 'A'), obj);
             test(false);
         }
-        catch(const Ice::InvalidAdapterException&)
+        catch(const Ice::UnknownException&)
         {
         }
 

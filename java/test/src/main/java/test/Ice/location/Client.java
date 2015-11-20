@@ -28,11 +28,6 @@ public class Client extends test.Util.Application
             ex.printStackTrace();
             throw new RuntimeException();
         }
-        catch(Ice.InvalidAdapterException ex)
-        {
-            ex.printStackTrace();
-            throw new RuntimeException();
-        }
         catch(InterruptedException ex)
         {
             ex.printStackTrace();
