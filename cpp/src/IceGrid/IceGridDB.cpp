@@ -153,8 +153,10 @@ Client::usage()
         "-v, --version          Display version.\n"
         "--import FILE          Import database from FILE.\n"
         "--export FILE          Export database to FILE.\n"
-        "--dbhome DIR           The database directory.\n"
-        "--server-version VER   Ice version for IceGrid servers (import only).\n"
+        "--dbhome DIR           Source or target database environment.\n"
+        "--dbpath DIR           Source or target database environment.\n"
+        "--mapsize VALUE        Set LMDB map size in MB (optional, import only).\n"
+        "--server-version VER   Set Ice version for IceGrid servers (optional, import only).\n"
         "-d, --debug            Print debug messages."
         ;
 }
@@ -169,6 +171,8 @@ Client::run(int argc, char* argv[])
     opts.addOpt("", "import", IceUtilInternal::Options::NeedArg);
     opts.addOpt("", "export", IceUtilInternal::Options::NeedArg);
     opts.addOpt("", "dbhome", IceUtilInternal::Options::NeedArg);
+    opts.addOpt("", "dbpath", IceUtilInternal::Options::NeedArg);
+    opts.addOpt("", "mapsize", IceUtilInternal::Options::NeedArg);
     opts.addOpt("", "server-version", IceUtilInternal::Options::NeedArg);
 
     vector<string> args;
@@ -201,16 +205,16 @@ Client::run(int argc, char* argv[])
         return EXIT_SUCCESS;
     }
 
-    if((!opts.isSet("import") && !opts.isSet("export")) || (opts.isSet("import") && opts.isSet("export")))
+    if(!(opts.isSet("import") ^ opts.isSet("export")))
     {
         cerr << "Either --import or --export must be set" << endl;
         usage();
         return EXIT_FAILURE;
     }
 
-    if(!opts.isSet("dbhome"))
+    if(!(opts.isSet("dbhome") ^ opts.isSet("dbpath")))
     {
-        cerr << "Database home must be specified" << endl;
+        cerr << "Set the database environment directory with either --dbhome or --dbpath" << endl;
         usage();
         return EXIT_FAILURE;
     }
@@ -218,7 +222,18 @@ Client::run(int argc, char* argv[])
     bool debug = opts.isSet("debug");
     bool import = opts.isSet("import");
     string dbFile = opts.optArg(import ? "import" : "export");
-    string dbPath = opts.optArg("dbhome");
+    string dbPath;
+    if(opts.isSet("dbhome"))
+    {
+        dbPath = opts.optArg("dbhome");
+    }
+    else
+    {
+        dbPath = opts.optArg("dbpath");
+    }
+
+    string mapSizeStr = opts.optArg("mapsize");
+    size_t mapSize = IceDB::getMapSize(atoi(mapSizeStr.c_str()));
     string serverVersion = opts.optArg("server-version");
 
     try
@@ -295,7 +310,7 @@ Client::run(int argc, char* argv[])
             stream->read(data);
 
             {
-                IceDB::Env env(dbPath, 5);
+                IceDB::Env env(dbPath, 5, mapSize);
                 IceDB::ReadWriteTxn txn(env);
 
                 if(debug)

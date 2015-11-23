@@ -37,7 +37,11 @@
 			  node-endpoints="${node-endpoints}"
 			  flush-timeout="${flush-timeout}"
                           publish-replica-group="${publish-replica-group}"
-                          topic-manager-replica-group="${topic-manager-replica-group}"/>
+                          topic-manager-replica-group="${topic-manager-replica-group}">
+           <properties>
+              <property name="${service}.LMDB.MapSize" value="1"/>
+           </properties>
+        </service-instance>
       </icebox>
 
    </server-template>
@@ -58,11 +62,20 @@
         <service-instance template="IceStorm-HA"
 			  node-id="2"
        	                  publish-replica-group="PublishReplicaGroup"
-                          topic-manager-replica-group="TopicManagerReplicaGroup"/>
+                          topic-manager-replica-group="TopicManagerReplicaGroup">
+           <properties>
+              <property name="${service}.LMDB.MapSize" value="1"/>
+           </properties>
+
+        </service-instance>
         <service-instance template="IceStorm-HA"
 			  node-id="3"
        	                  publish-replica-group="PublishReplicaGroup"
-                          topic-manager-replica-group="TopicManagerReplicaGroup"/>
+                          topic-manager-replica-group="TopicManagerReplicaGroup">
+           <properties>
+              <property name="${service}.LMDB.MapSize" value="1"/>
+           </properties>
+        </service-instance>
       </icebox>
      </node>
 

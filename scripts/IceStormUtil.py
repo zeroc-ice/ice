@@ -21,7 +21,7 @@ origIceBoxService = ' --Ice.Admin.Endpoints="default -p {0}"' + \
 
 origIceBoxEndpoints = ' --IceBoxAdmin.ServiceManager.Proxy="IceBox{0}/admin -f IceBox.ServiceManager: default -p {0}"'
 
-# Turn off the dispatch and cofnnection warnings -- they are expected
+# Turn off the dispatch and connection warnings -- they are expected
 # when using a replicated IceStorm.
 origIceStormService = ' --IceBox.Service.IceStorm=IceStormService,' + TestUtil.getIceSoVersion() + ':createIceStorm' + \
                   ' --IceStorm.TopicManager.Endpoints="default -p %d"' + \
@@ -129,7 +129,7 @@ class Replicated(IceStormUtil):
             self.dbHome.append(dbHome)
             TestUtil.cleanDbDir(dbHome)
 
-            self.iceStormDBEnv.append(' --IceStorm.LMDB.Path="%s"' % dbHome)
+            self.iceStormDBEnv.append(' --IceStorm.LMDB.MapSize=1 --IceStorm.LMDB.Path="%s"' % dbHome)
             self.procs.append(None)
 
         topicReplicaProxy = '%s/TopicManager:%s' % (instanceName, replicaTopicManagerEndpoints)
@@ -226,7 +226,7 @@ class NonReplicated(IceStormUtil):
         self.dbHome = os.path.join(self.testdir, self.dbDir)
         TestUtil.cleanDbDir(self.dbHome)
 
-        self.iceStormDBEnv = ' --IceStorm.LMDB.Path="%s"' % self.dbHome
+        self.iceStormDBEnv = ' --IceStorm.LMDB.MapSize=1 --IceStorm.LMDB.Path="%s"' % self.dbHome
 
     def clean(self):
         TestUtil.cleanDbDir(self.dbHome)

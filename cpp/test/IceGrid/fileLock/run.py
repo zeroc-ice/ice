@@ -36,7 +36,7 @@ def runIceGridRegistry():
     cmd = command + ' ' + \
             r' --Ice.ProgramName=registry' + \
             r' --IceGrid.Registry.Client.Endpoints="default -p ' + str(IceGridAdmin.iceGridPort) + '" ' + \
-            r' --IceGrid.Registry.LMDB.Path="' + dataDir + '"'
+            r' --IceGrid.Registry.LMDB.MapSize=1 --IceGrid.Registry.LMDB.Path="' + dataDir + '"'
 
     driverConfig = TestUtil.DriverConfig("server")
     driverConfig.lang = "cpp"

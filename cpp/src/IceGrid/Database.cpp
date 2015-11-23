@@ -213,7 +213,7 @@ Database::Database(const Ice::ObjectAdapterPtr& registryAdapter,
     _serverCache(_communicator, _instanceName, _nodeCache, _adapterCache, _objectCache, _allocatableObjectCache),
     _dbLock(_communicator->getProperties()->getProperty("IceGrid.Registry.LMDB.Path") + "/icedb.lock"),
     _env(_communicator->getProperties()->getProperty("IceGrid.Registry.LMDB.Path"), 8,
-         _communicator->getProperties()->getPropertyAsInt("IceGrid.Registry.LMDB.MapSize") * 1024 * 1024),
+         IceDB::getMapSize(_communicator->getProperties()->getPropertyAsInt("IceGrid.Registry.LMDB.MapSize"))),
     _pluginFacade(RegistryPluginFacadeIPtr::dynamicCast(getRegistryPluginFacade())),
     _lock(0)
 {

@@ -25,11 +25,6 @@ if TestUtil.appverifier:
     targets = [TestUtil.getIceBox()]
     TestUtil.setAppVerifierSettings(targets, cwd = os.getcwd())
 
-#
-# Remove IceStorm databases possibly left from SQL run.
-#
-for filename in [os.path.join("db", f) for f in os.listdir("db") if f.endswith(".db")]:
-    os.remove(filename)
 
 variables = "icebox.exe='%s'" % TestUtil.getIceBox()
 

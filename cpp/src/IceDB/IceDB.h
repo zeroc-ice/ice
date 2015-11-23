@@ -534,6 +534,14 @@ struct Codec<T, IceContext, Ice::OutputStreamPtr>
     }
 };
 
+//
+// Returns computed mapSize in bytes.
+// When the input parameter is <= 0, returns a platform-dependent default
+// (currently 0 on Windows and 100 MB on other platforms).
+// Otherwise, returns input parameter * 1 MB.
+//
+
+ICE_DB_API size_t getMapSize(int);
 }
 
 #endif

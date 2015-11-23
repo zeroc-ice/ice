@@ -102,7 +102,7 @@ def startIceGridRegistry(testdir, dynamicRegistration = False):
         cmd = command + ' ' + \
               r' --Ice.ProgramName=' + name + \
               r' --IceGrid.Registry.Client.Endpoints="default -p ' + str(iceGridPort + i) + '" ' + \
-              r' --IceGrid.Registry.LMDB.Path="' + dataDir + '" '
+              r' --IceGrid.Registry.LMDB.MapSize=1 --IceGrid.Registry.LMDB.Path="' + dataDir + '" '
 
         if i > 0:
             cmd += r' --IceGrid.Registry.ReplicaName=' + name + ' ' + getDefaultLocatorProperty()
