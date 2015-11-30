@@ -724,9 +724,10 @@ IcePy::PrimitiveInfo::validate(PyObject* p)
         }
         else
         {
-            // Ensure double does not exceed maximum float value before casting
+            // Ensure double does not exceed maximum float value
+            // before casting.  NaN and Inf are OK too.
             double val = PyFloat_AsDouble(p);
-            return val <= numeric_limits<float>::max() && val >= -numeric_limits<float>::max();
+            return (val <= numeric_limits<float>::max() && val >= -numeric_limits<float>::max()) || !isfinite (val);
         }
 
         break;
