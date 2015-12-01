@@ -905,6 +905,7 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
         case Slice::Builtin::KindObject:
         case Slice::Builtin::KindObjectProxy:
         case Slice::Builtin::KindLocalObject:
+        case Slice::Builtin::KindValue:
             assert(false);
         }
     }
@@ -1098,6 +1099,7 @@ CodeVisitor::writeType(const TypePtr& p)
                 break;
             }
             case Builtin::KindObject:
+            case Builtin::KindValue:
             {
                 _out << "$Ice__t_Object";
                 break;
@@ -1164,6 +1166,7 @@ CodeVisitor::writeDefaultValue(const DataMemberPtr& m)
             case Builtin::KindObject:
             case Builtin::KindObjectProxy:
             case Builtin::KindLocalObject:
+            case Builtin::KindValue:
             {
                 _out << "null";
                 break;
@@ -1342,6 +1345,7 @@ CodeVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePtr& va
             case Slice::Builtin::KindObject:
             case Slice::Builtin::KindObjectProxy:
             case Slice::Builtin::KindLocalObject:
+            case Slice::Builtin::KindValue:
                 assert(false);
             }
         }

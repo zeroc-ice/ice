@@ -13,6 +13,899 @@
 #include <functional>
 #include <iterator>
 
+using namespace Ice;
+using namespace Test;
+
+using namespace std;
+
+MyDerivedClassI::MyDerivedClassI() : _opByteSOnewayCallCount(0)
+{
+}
+
+bool
+MyDerivedClassI::ice_isA(const std::string& id, const Ice::Current& current) const
+{
+    test(current.mode == ICE_ENUM(OperationMode, Nonmutating));
+#ifdef ICE_CPP11_MAPPING
+    return Test::MyDerivedClassDisp::ice_isA(id, current);
+#else
+    return Test::MyDerivedClass::ice_isA(id, current);
+#endif
+}
+
+void
+MyDerivedClassI::ice_ping(const Ice::Current& current) const
+{
+    test(current.mode == ICE_ENUM(OperationMode, Nonmutating));
+#ifdef ICE_CPP11_MAPPING
+    Test::MyDerivedClassDisp::ice_ping(current);
+#else
+    Test::MyDerivedClass::ice_ping(current);
+#endif
+}
+
+std::vector<std::string>
+MyDerivedClassI::ice_ids(const Ice::Current& current) const
+{
+    test(current.mode == ICE_ENUM(OperationMode, Nonmutating));
+#ifdef ICE_CPP11_MAPPING
+    return Test::MyDerivedClassDisp::ice_ids(current);
+#else
+    return Test::MyDerivedClass::ice_ids(current);
+#endif
+}
+
+const std::string&
+MyDerivedClassI::ice_id(const Ice::Current& current) const
+{
+    test(current.mode == ICE_ENUM(OperationMode, Nonmutating));
+#ifdef ICE_CPP11_MAPPING
+    return Test::MyDerivedClassDisp::ice_id(current);
+#else
+    return Test::MyDerivedClass::ice_id(current);
+#endif
+}
+
+#ifdef ICE_CPP11_MAPPING
+
+class Thread_opVoid : public IceUtil::Thread
+{
+public:
+
+    Thread_opVoid(function<void ()> response) :
+        _response(move(response))
+    {
+    }
+
+    virtual void run()
+    {
+        _response();
+    }
+
+private:
+
+    function<void ()> _response;
+};
+
+void
+MyDerivedClassI::shutdown_async(function<void ()> response,
+                                function<void (const exception_ptr&)>, 
+                                const Ice::Current& current)
+{
+    {
+        IceUtil::Mutex::Lock sync(_opVoidMutex);
+        if(_opVoidThread)
+        {
+            _opVoidThread->getThreadControl().join();
+            _opVoidThread = 0;
+        }
+    }
+
+    current.adapter->getCommunicator()->shutdown();
+    response();
+}
+
+void
+MyDerivedClassI::delay_async(Ice::Int ms, function<void ()> response,
+                             function<void (const exception_ptr&)>,
+                             const Ice::Current&)
+{
+    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(ms));
+    response();
+}
+
+void
+MyDerivedClassI::opVoid_async(function<void ()> response,
+                              function<void (const exception_ptr&)>,
+                              const Ice::Current& current)
+{
+    test(current.mode == OperationMode::Normal);
+
+    IceUtil::Mutex::Lock sync(_opVoidMutex);
+    if(_opVoidThread)
+    {
+        _opVoidThread->getThreadControl().join();
+        _opVoidThread = 0;
+    }
+
+    _opVoidThread = new Thread_opVoid(response);
+    _opVoidThread->start();
+}
+
+
+void 
+MyDerivedClassI::opByte_async(Ice::Byte p1,
+                              Ice::Byte p2,
+                              function<void (Ice::Byte, Ice::Byte)> response,
+                              function<void (const exception_ptr&)>,
+                              const Ice::Current&)
+{
+    response(p1, p1 ^ p2);
+}
+
+void 
+MyDerivedClassI::opBool_async(bool p1,
+                              bool p2,
+                              function<void (bool, bool)> response,
+                              function<void (const exception_ptr&)>,
+                              const Ice::Current&)
+{
+    response(p2, p1);
+}
+
+
+void
+MyDerivedClassI::opShortIntLong_async(short p1,
+                                      int p2,
+                                      long long int p3,
+                                      function<void (long long int, short, int, long long int)> response,
+                                      function<void (const exception_ptr&)>,
+                                      const Ice::Current&)
+{
+    response(p3, p1, p2, p3);
+}
+
+
+void
+MyDerivedClassI::opFloatDouble_async(float p1,
+                                     double p2,
+                                     function<void (double, float, double)> response,
+                                     function<void (const exception_ptr&)>,
+                                     const Ice::Current&)
+{
+    response(p2, p1, p2);
+}
+
+void
+MyDerivedClassI::opString_async(const string& p1,
+                                const string& p2,
+                                function<void (const string&, const string&)> response,
+                                function<void (const exception_ptr&)>,
+                                const Ice::Current&)
+{
+    response(p1 + " " + p2, p2 + " " + p1);
+}
+
+
+void
+MyDerivedClassI::opMyEnum_async(Test::MyEnum p1,
+                                function<void (Test::MyEnum, Test::MyEnum)> response,
+                                function<void (const exception_ptr&)>,
+                                const Ice::Current&)
+{
+    response(MyEnum::enum3, p1);
+}
+
+void
+MyDerivedClassI::opMyClass_async(const shared_ptr<Test::MyClassPrx>& p1,
+                                 function<void (const shared_ptr<Test::MyClassPrx>&,
+                                                const shared_ptr<Test::MyClassPrx>&,
+                                                const shared_ptr<Test::MyClassPrx>&)> response,
+                                 function<void (const exception_ptr&)>,
+                                 const Ice::Current& current)
+{
+    auto p2 = p1;
+    auto p3 = uncheckedCast<Test::MyClassPrx>(current.adapter->createProxy(
+                            current.adapter->getCommunicator()->stringToIdentity("noSuchIdentity")));
+    response(uncheckedCast<Test::MyClassPrx>(current.adapter->createProxy(current.id)), p2, p3);
+}
+
+void
+MyDerivedClassI::opStruct_async(const Test::Structure& p1, 
+                                const Test::Structure& p2,
+                                function<void (const Test::Structure&, const Test::Structure&)> response,
+                                function<void (const exception_ptr&)>,
+                                const Ice::Current&)
+{
+    Test::Structure p3 = p1;
+    p3.s.s = "a new string";
+    response(p2, p3);
+}
+
+void
+MyDerivedClassI::opByteS_async(const Test::ByteS& p1,
+                               const Test::ByteS& p2,
+                               function<void (const Test::ByteS&, const Test::ByteS&)> response,
+                               function<void (const exception_ptr&)>,
+                               const Ice::Current&)
+{
+    Test::ByteS p3;
+    p3.resize(p1.size());
+    std::reverse_copy(p1.begin(), p1.end(), p3.begin());
+    Test::ByteS r = p1;
+    std::copy(p2.begin(), p2.end(), std::back_inserter(r));
+    response(r, p3);
+}
+
+void
+MyDerivedClassI::opBoolS_async(const Test::BoolS& p1,
+                               const Test::BoolS& p2,
+                               function<void (const Test::BoolS&, const Test::BoolS&)> response,
+                               function<void (const exception_ptr&)>,
+                               const Ice::Current&)
+{
+    Test::BoolS p3 = p1;
+    std::copy(p2.begin(), p2.end(), std::back_inserter(p3));
+    Test::BoolS r;
+    r.resize(p1.size());
+    std::reverse_copy(p1.begin(), p1.end(), r.begin());
+    response(r, p3);
+}
+
+void
+MyDerivedClassI::opShortIntLongS_async(const Test::ShortS& p1,
+                                       const Test::IntS& p2,
+                                       const Test::LongS& p3,
+                                       function<void (const Test::LongS&,
+                                                      const Test::ShortS&,
+                                                      const Test::IntS&,
+                                                      const Test::LongS&)> response,
+                                       function<void (const exception_ptr&)>,
+                                       const Ice::Current&)
+{
+    Test::ShortS p4 = p1;
+    Test::IntS p5;
+    p5.resize(p2.size());
+    std::reverse_copy(p2.begin(), p2.end(), p5.begin());
+    Test::LongS p6 = p3;
+    std::copy(p3.begin(), p3.end(), std::back_inserter(p6));
+    response(p3, p4, p5, p6);
+}
+
+void
+MyDerivedClassI::opFloatDoubleS_async(const Test::FloatS& p1,
+                                      const Test::DoubleS& p2,
+                                      function<void (const Test::DoubleS&,
+                                                     const Test::FloatS&,
+                                                     const Test::DoubleS&)> response,
+                                      function<void (const exception_ptr&)>,
+                                      const Ice::Current&)
+{
+    Test::FloatS p3 = p1;
+    Test::DoubleS p4;
+    p4.resize(p2.size());
+    std::reverse_copy(p2.begin(), p2.end(), p4.begin());
+    Test::DoubleS r = p2;
+    std::copy(p1.begin(), p1.end(), std::back_inserter(r));
+    response(r, p3, p4);
+}
+
+void
+MyDerivedClassI::opStringS_async(const Test::StringS& p1,
+                                 const Test::StringS& p2,
+                                 function<void (const Test::StringS&, const Test::StringS&)> response,
+                                 function<void (const exception_ptr&)>,
+                                 const Ice::Current&)
+{
+    Test::StringS p3 = p1;
+    std::copy(p2.begin(), p2.end(), std::back_inserter(p3));
+    Test::StringS r;
+    r.resize(p1.size());
+    std::reverse_copy(p1.begin(), p1.end(), r.begin());
+    response(r, p3);
+}
+
+void
+MyDerivedClassI::opByteSS_async(const Test::ByteSS& p1,
+                                const Test::ByteSS& p2,
+                                function<void (const Test::ByteSS&, const Test::ByteSS&)> response,
+                                function<void (const exception_ptr&)>,
+                                const Ice::Current&)
+{
+    Test::ByteSS p3;
+    p3.resize(p1.size());
+    std::reverse_copy(p1.begin(), p1.end(), p3.begin());
+    Test::ByteSS r = p1;
+    std::copy(p2.begin(), p2.end(), std::back_inserter(r));
+    response(r, p3);
+}
+
+void
+MyDerivedClassI::opBoolSS_async(const Test::BoolSS& p1,
+                                const Test::BoolSS& p2,
+                                function<void (const Test::BoolSS&, const Test::BoolSS&)> response,
+                                function<void (const exception_ptr&)>,
+                                const Ice::Current&)
+{
+    auto p3 = p1;
+    std::copy(p2.begin(), p2.end(), std::back_inserter(p3));
+    Test::BoolSS r;
+    r.resize(p1.size());
+    std::reverse_copy(p1.begin(), p1.end(), r.begin());
+    response(r, p3);
+}
+
+void
+MyDerivedClassI::opShortIntLongSS_async(const Test::ShortSS& p1,
+                                        const Test::IntSS& p2,
+                                        const Test::LongSS& p3,
+                                        function<void (const Test::LongSS&,
+                                                       const Test::ShortSS&,
+                                                       const Test::IntSS&,
+                                                       const Test::LongSS&)> response,
+                                        function<void (const exception_ptr&)>,
+                                        const Ice::Current&)
+{
+    auto p4 = p1;
+    Test::IntSS p5;
+    p5.resize(p2.size());
+    std::reverse_copy(p2.begin(), p2.end(), p5.begin());
+    auto p6 = p3;
+    std::copy(p3.begin(), p3.end(), std::back_inserter(p6));
+    response(p3, p4, p5, p6);
+}
+
+void
+MyDerivedClassI::opFloatDoubleSS_async(const Test::FloatSS& p1,
+                                       const Test::DoubleSS& p2,
+                                       function<void (const Test::DoubleSS&,
+                                                      const Test::FloatSS&,
+                                                      const Test::DoubleSS&)> response,
+                                       function<void (const exception_ptr&)>,
+                                       const Ice::Current&)
+{
+    Test::FloatSS p3 = p1;
+    Test::DoubleSS p4;
+    p4.resize(p2.size());
+    std::reverse_copy(p2.begin(), p2.end(), p4.begin());
+    Test::DoubleSS r = p2;
+    std::copy(p2.begin(), p2.end(), std::back_inserter(r));
+    response(r, p3, p4);
+}
+
+void
+MyDerivedClassI::opStringSS_async(const Test::StringSS& p1,
+                                  const Test::StringSS& p2,
+                                  function<void (const Test::StringSS&, const Test::StringSS&)> response,
+                                  function<void (const exception_ptr&)>,
+                                  const Ice::Current&)
+{
+    Test::StringSS p3 = p1;
+    std::copy(p2.begin(), p2.end(), std::back_inserter(p3));
+    Test::StringSS r;
+    r.resize(p2.size());
+    std::reverse_copy(p2.begin(), p2.end(), r.begin());
+    response(r, p3);
+}
+
+void
+MyDerivedClassI::opStringSSS_async(const Test::StringSSS& p1, const Test::StringSSS& p2,
+                                   function<void (const Test::StringSSS&, const Test::StringSSS&)> response,
+                                   function<void (const exception_ptr&)>,
+                                   const Ice::Current&)
+{
+    Test::StringSSS p3 = p1;
+    std::copy(p2.begin(), p2.end(), std::back_inserter(p3));
+    Test::StringSSS r;
+    r.resize(p2.size());
+    std::reverse_copy(p2.begin(), p2.end(), r.begin());
+    response(r, p3);
+}
+
+void
+MyDerivedClassI::opByteBoolD_async(const Test::ByteBoolD& p1, const Test::ByteBoolD& p2,
+                                   function<void (const Test::ByteBoolD&, const Test::ByteBoolD&)> response,
+                                   function<void (const exception_ptr&)>,
+                                   const Ice::Current&)
+{
+    Test::ByteBoolD p3 = p1;
+    Test::ByteBoolD r = p1;
+    std::set_union(p1.begin(), p1.end(), p2.begin(), p2.end(), std::inserter(r, r.end()));
+    response(r, p3);
+}
+
+void
+MyDerivedClassI::opShortIntD_async(const Test::ShortIntD& p1, const Test::ShortIntD& p2,
+                                   function<void (const Test::ShortIntD&, const Test::ShortIntD&)> response,
+                                   function<void (const exception_ptr&)>,
+                                   const Ice::Current&)
+{
+    Test::ShortIntD p3 = p1;
+    Test::ShortIntD r = p1;
+    std::set_union(p1.begin(), p1.end(), p2.begin(), p2.end(), std::inserter(r, r.end()));
+    response(r, p3);
+}
+
+void
+MyDerivedClassI::opLongFloatD_async(const Test::LongFloatD& p1, const Test::LongFloatD& p2,
+                                    function<void (const Test::LongFloatD&, const Test::LongFloatD&)> response,
+                                    function<void (const exception_ptr&)>,
+                                    const Ice::Current&)
+{
+    Test::LongFloatD p3 = p1;
+    Test::LongFloatD r = p1;
+    std::set_union(p1.begin(), p1.end(), p2.begin(), p2.end(), std::inserter(r, r.end()));
+    response(r, p3);
+}
+
+void
+MyDerivedClassI::opStringStringD_async(const Test::StringStringD& p1, const Test::StringStringD& p2,
+                                       function<void (const Test::StringStringD&, const Test::StringStringD&)> response,
+                                       function<void (const exception_ptr&)>,
+                                       const Ice::Current&)
+{
+    Test::StringStringD p3 = p1;
+    Test::StringStringD r = p1;
+    std::set_union(p1.begin(), p1.end(), p2.begin(), p2.end(), std::inserter(r, r.end()));
+    response(r, p3);
+}
+
+void
+MyDerivedClassI::opStringMyEnumD_async(const Test::StringMyEnumD& p1, const Test::StringMyEnumD& p2,
+                                       function<void (const Test::StringMyEnumD&, const Test::StringMyEnumD&)> response,
+                                       function<void (const exception_ptr&)>,
+                                       const Ice::Current&)
+{
+    Test::StringMyEnumD p3 = p1;
+    Test::StringMyEnumD r = p1;
+    std::set_union(p1.begin(), p1.end(), p2.begin(), p2.end(), std::inserter(r, r.end()));
+    response(r, p3);
+}
+
+void
+MyDerivedClassI::opMyEnumStringD_async(const Test::MyEnumStringD& p1, const Test::MyEnumStringD& p2,
+                                       function<void (const Test::MyEnumStringD&, const Test::MyEnumStringD&)> response,
+                                       function<void (const exception_ptr&)>,
+                                       const Ice::Current&)
+{
+    Test::MyEnumStringD p3 = p1;
+    Test::MyEnumStringD r = p1;
+    std::set_union(p1.begin(), p1.end(), p2.begin(), p2.end(), std::inserter(r, r.end()));
+    response(r, p3);
+}
+
+void
+MyDerivedClassI::opMyStructMyEnumD_async(const Test::MyStructMyEnumD& p1, const Test::MyStructMyEnumD& p2,
+                                         function<void (const Test::MyStructMyEnumD&,
+                                                        const Test::MyStructMyEnumD&)> response,
+                                         function<void (const exception_ptr&)>,
+                                         const Ice::Current&)
+{
+    Test::MyStructMyEnumD p3 = p1;
+    Test::MyStructMyEnumD r = p1;
+    std::set_union(p1.begin(), p1.end(), p2.begin(), p2.end(), std::inserter(r, r.end()));
+    response(r, p3);
+}
+
+void
+MyDerivedClassI::opByteBoolDS_async(const Test::ByteBoolDS& p1,
+                                    const Test::ByteBoolDS& p2,
+                                    function<void (const Test::ByteBoolDS&, const Test::ByteBoolDS&)> response,
+                                    function<void (const exception_ptr&)>,
+                                    const Ice::Current&)
+{
+    Test::ByteBoolDS p3 = p2;
+    std::copy(p1.begin(), p1.end(), std::back_inserter(p3));
+    Test::ByteBoolDS r;
+    r.resize(p1.size());
+    std::reverse_copy(p1.begin(), p1.end(), r.begin());
+    response(r, p3);
+}
+
+void
+MyDerivedClassI::opShortIntDS_async(const Test::ShortIntDS& p1, const Test::ShortIntDS& p2,
+                                    function<void (const Test::ShortIntDS&, const Test::ShortIntDS&)> response,
+                                    function<void (const exception_ptr&)>,
+                                    const Ice::Current&)
+{
+    Test::ShortIntDS p3 = p2;
+    std::copy(p1.begin(), p1.end(), std::back_inserter(p3));
+    Test::ShortIntDS r;
+    r.resize(p1.size());
+    std::reverse_copy(p1.begin(), p1.end(), r.begin());
+    response(r, p3);
+}
+
+void
+MyDerivedClassI::opLongFloatDS_async(const Test::LongFloatDS& p1,
+                                     const Test::LongFloatDS& p2,
+                                     function<void (const Test::LongFloatDS&, const Test::LongFloatDS&)> response,
+                                     function<void (const exception_ptr&)>,
+                                     const Ice::Current&)
+{
+    Test::LongFloatDS p3 = p2;
+    std::copy(p1.begin(), p1.end(), std::back_inserter(p3));
+    Test::LongFloatDS r;
+    r.resize(p1.size());
+    std::reverse_copy(p1.begin(), p1.end(), r.begin());
+    response(r, p3);
+}
+
+void
+MyDerivedClassI::opStringStringDS_async(const Test::StringStringDS& p1,
+                                        const Test::StringStringDS& p2,
+                                        function<void (const Test::StringStringDS&, const Test::StringStringDS&)> response,
+                                        function<void (const exception_ptr&)>,
+                                        const Ice::Current&)
+{
+    Test::StringStringDS p3 = p2;
+    std::copy(p1.begin(), p1.end(), std::back_inserter(p3));
+    Test::StringStringDS r;
+    r.resize(p1.size());
+    std::reverse_copy(p1.begin(), p1.end(), r.begin());
+    response(r, p3);
+}
+
+void
+MyDerivedClassI::opStringMyEnumDS_async(const Test::StringMyEnumDS& p1,
+                                        const Test::StringMyEnumDS& p2,
+                                        function<void (const Test::StringMyEnumDS&, const Test::StringMyEnumDS&)> response,
+                                        function<void (const exception_ptr&)>,
+                                        const Ice::Current&)
+{
+    Test::StringMyEnumDS p3 = p2;
+    std::copy(p1.begin(), p1.end(), std::back_inserter(p3));
+    Test::StringMyEnumDS r;
+    r.resize(p1.size());
+    std::reverse_copy(p1.begin(), p1.end(), r.begin());
+    response(r, p3);
+}
+
+void
+MyDerivedClassI::opMyEnumStringDS_async(const Test::MyEnumStringDS& p1,
+                                        const Test::MyEnumStringDS& p2,
+                                        function<void (const Test::MyEnumStringDS&, const Test::MyEnumStringDS&)> response,
+                                        function<void (const exception_ptr&)>,
+                                        const Ice::Current&)
+{
+    Test::MyEnumStringDS p3 = p2;
+    std::copy(p1.begin(), p1.end(), std::back_inserter(p3));
+    Test::MyEnumStringDS r;
+    r.resize(p1.size());
+    std::reverse_copy(p1.begin(), p1.end(), r.begin());
+    response(r, p3);
+}
+
+void
+MyDerivedClassI::opMyStructMyEnumDS_async(const Test::MyStructMyEnumDS& p1, const Test::MyStructMyEnumDS& p2,
+                                          function<void (const Test::MyStructMyEnumDS&,
+                                                         const Test::MyStructMyEnumDS&)> response,
+                                          function<void (const exception_ptr&)>,
+                                          const Ice::Current&)
+{
+    Test::MyStructMyEnumDS p3 = p2;
+    std::copy(p1.begin(), p1.end(), std::back_inserter(p3));
+    Test::MyStructMyEnumDS r;
+    r.resize(p1.size());
+    std::reverse_copy(p1.begin(), p1.end(), r.begin());
+    response(r, p3);
+}
+
+void
+MyDerivedClassI::opByteByteSD_async(const Test::ByteByteSD& p1, const Test::ByteByteSD& p2,
+                                    function<void (const Test::ByteByteSD&, const Test::ByteByteSD&)> response,
+                                    function<void (const exception_ptr&)>,
+                                    const Ice::Current&)
+{
+    Test::ByteByteSD p3 = p2;
+    Test::ByteByteSD r;
+    std::set_union(p1.begin(), p1.end(), p2.begin(), p2.end(), std::inserter(r, r.end()));
+    response(r, p3);
+}
+
+void
+MyDerivedClassI::opBoolBoolSD_async(const Test::BoolBoolSD& p1,
+                                    const Test::BoolBoolSD& p2,
+                                    function<void (const Test::BoolBoolSD&, const Test::BoolBoolSD&)> response,
+                                    function<void (const exception_ptr&)>,
+                                    const Ice::Current&)
+{
+    Test::BoolBoolSD p3 = p2;
+    Test::BoolBoolSD r;
+    std::set_union(p1.begin(), p1.end(), p2.begin(), p2.end(), std::inserter(r, r.end()));
+    response(r, p3);
+}
+
+void
+MyDerivedClassI::opShortShortSD_async(const Test::ShortShortSD& p1,
+                                      const Test::ShortShortSD& p2,
+                                      function<void (const Test::ShortShortSD&, const Test::ShortShortSD&)> response,
+                                      function<void (const exception_ptr&)>,
+                                      const Ice::Current&)
+{
+    Test::ShortShortSD p3 = p2;
+    Test::ShortShortSD r;
+    std::set_union(p1.begin(), p1.end(), p2.begin(), p2.end(), std::inserter(r, r.end()));
+    response(r, p3);
+}
+
+void
+MyDerivedClassI::opIntIntSD_async(const Test::IntIntSD& p1,
+                                  const Test::IntIntSD& p2,
+                                  function<void (const Test::IntIntSD&, const Test::IntIntSD&)> response,
+                                  function<void (const exception_ptr&)>,
+                                  const Ice::Current&)
+{
+    Test::IntIntSD p3 = p2;
+    Test::IntIntSD r;
+    std::set_union(p1.begin(), p1.end(), p2.begin(), p2.end(), std::inserter(r, r.end()));
+    response(r, p3);
+}
+
+void
+MyDerivedClassI::opLongLongSD_async(const Test::LongLongSD& p1,
+                                    const Test::LongLongSD& p2,
+                                    function<void (const Test::LongLongSD&, const Test::LongLongSD&)> response,
+                                    function<void (const exception_ptr&)>,
+                                    const Ice::Current&)
+{
+    Test::LongLongSD p3 = p2;
+    Test::LongLongSD r;
+    std::set_union(p1.begin(), p1.end(), p2.begin(), p2.end(), std::inserter(r, r.end()));
+    response(r, p3);
+}
+
+void
+MyDerivedClassI::opStringFloatSD_async(const Test::StringFloatSD& p1,
+                                       const Test::StringFloatSD& p2,
+                                       function<void (const Test::StringFloatSD&, const Test::StringFloatSD&)> response,
+                                       function<void (const exception_ptr&)>,
+                                       const Ice::Current&)
+{
+    Test::StringFloatSD p3 = p2;
+    Test::StringFloatSD r;
+    std::set_union(p1.begin(), p1.end(), p2.begin(), p2.end(), std::inserter(r, r.end()));
+    response(r, p3);
+}
+
+void
+MyDerivedClassI::opStringDoubleSD_async(const Test::StringDoubleSD& p1,
+                                        const Test::StringDoubleSD& p2,
+                                        function<void (const Test::StringDoubleSD&,
+                                                       const Test::StringDoubleSD&)> response,
+                                        function<void (const exception_ptr&)>,
+                                        const Ice::Current&)
+{
+    Test::StringDoubleSD p3 = p2;
+    Test::StringDoubleSD r;
+    std::set_union(p1.begin(), p1.end(), p2.begin(), p2.end(), std::inserter(r, r.end()));
+    response(r, p3);
+}
+
+void
+MyDerivedClassI::opStringStringSD_async(const Test::StringStringSD& p1, const Test::StringStringSD& p2,
+                                        function<void (const Test::StringStringSD&,
+                                                       const Test::StringStringSD&)> response,
+                                        function<void (const exception_ptr&)>,
+                                        const Ice::Current&)
+{
+    Test::StringStringSD p3 = p2;
+    Test::StringStringSD r;
+    std::set_union(p1.begin(), p1.end(), p2.begin(), p2.end(), std::inserter(r, r.end()));
+    response(r, p3);
+}
+
+void
+MyDerivedClassI::opMyEnumMyEnumSD_async(const Test::MyEnumMyEnumSD& p1, const Test::MyEnumMyEnumSD& p2,
+                                        function<void (const Test::MyEnumMyEnumSD&,
+                                                       const Test::MyEnumMyEnumSD&)> response,
+                                        function<void (const exception_ptr&)>,
+                                        const Ice::Current&)
+{
+    Test::MyEnumMyEnumSD p3 = p2;
+    Test::MyEnumMyEnumSD r;
+    std::set_union(p1.begin(), p1.end(), p2.begin(), p2.end(), std::inserter(r, r.end()));
+    response(r, p3);
+}
+
+void
+MyDerivedClassI::opIntS_async(const Test::IntS& s, 
+                              function<void (const Test::IntS&)> response,
+                              function<void (const exception_ptr&)>,
+                              const Ice::Current&)
+{
+    Test::IntS r;
+    std::transform(s.begin(), s.end(), std::back_inserter(r), std::negate<int>());
+    response(r);
+}
+
+void
+MyDerivedClassI::opByteSOneway_async(const Test::ByteS&, function<void ()> response, function<void (const exception_ptr&)>,
+                                     const Ice::Current&)
+{
+    IceUtil::Mutex::Lock sync(_mutex);
+    ++_opByteSOnewayCallCount;
+    response();
+}
+
+void
+MyDerivedClassI::opByteSOnewayCallCount_async(function<void (int)> response, function<void (const exception_ptr&)>,
+                                              const Ice::Current&)
+{
+    IceUtil::Mutex::Lock sync(_mutex);
+    response(_opByteSOnewayCallCount);
+    _opByteSOnewayCallCount = 0;
+}
+
+void
+MyDerivedClassI::opContext_async(function<void (const Ice::Context&)> response,
+                                 function<void (const exception_ptr&)>,
+                                 const Ice::Current& current)
+{
+    Test::StringStringD r = current.ctx;
+    response(r);
+}
+
+void
+MyDerivedClassI::opDoubleMarshaling_async(Ice::Double p1,
+                                          const Test::DoubleS& p2, 
+                                          function<void ()> response,
+                                          function<void (const exception_ptr&)>,
+                                          const Ice::Current&)
+{
+    Ice::Double d = 1278312346.0 / 13.0;
+    test(p1 == d);
+    for(unsigned int i = 0; i < p2.size(); ++i)
+    {
+        test(p2[i] == d);
+    }
+    response();
+}
+
+void
+MyDerivedClassI::opIdempotent_async(function<void ()> response,
+                                    function<void (const exception_ptr&)>,
+                                    const Ice::Current& current)
+{
+    test(current.mode == OperationMode::Idempotent);
+    response();
+}
+
+void
+MyDerivedClassI::opNonmutating_async(function<void ()> response,
+                                     function<void (const exception_ptr&)>,
+                                     const Ice::Current& current)
+{
+    test(current.mode == OperationMode::Nonmutating);
+    response();
+}
+
+void
+MyDerivedClassI::opDerived_async(function<void ()> response,
+                                 function<void (const exception_ptr&)>,
+                                 const Ice::Current&)
+{
+    response();
+}
+
+void
+MyDerivedClassI::opByte1_async(Ice::Byte b,
+                               function<void (Ice::Byte)> response,
+                               function<void (const exception_ptr&)>,
+                               const Ice::Current&)
+{
+    response(b);
+}
+
+void
+MyDerivedClassI::opShort1_async(Ice::Short s,
+                                function<void (Ice::Short)> response,
+                                function<void (const exception_ptr&)>,
+                                const Ice::Current&)
+{
+    response(s);
+}
+
+void
+MyDerivedClassI::opInt1_async(Ice::Int i,
+                              function<void (Ice::Int)> response,
+                              function<void (const exception_ptr&)>,
+                              const Ice::Current&)
+{
+    response(i);
+}
+
+void
+MyDerivedClassI::opLong1_async(Ice::Long l,
+                               function<void (Ice::Long)> response,
+                               function<void (const exception_ptr&)>,
+                               const Ice::Current&)
+{
+    response(l);
+}
+
+void
+MyDerivedClassI::opFloat1_async(Ice::Float f,
+                                function<void (Ice::Float)> response,
+                                function<void (const exception_ptr&)>,
+                                const Ice::Current&)
+{
+    response(f);
+}
+
+void
+MyDerivedClassI::opDouble1_async(Ice::Double d,
+                                 function<void (Ice::Double)> response,
+                                 function<void (const exception_ptr&)>,
+                                 const Ice::Current&)
+{
+    response(d);
+}
+
+void
+MyDerivedClassI::opString1_async(const string& s,
+                                 function<void (const string&)> response,
+                                 function<void (const exception_ptr&)>,
+                                 const Ice::Current&)
+{
+    response(s);
+}
+
+void
+MyDerivedClassI::opStringS1_async(const Test::StringS& seq,
+                                  function<void (const Test::StringS&)> response,
+                                  function<void (const exception_ptr&)>,
+                                  const Ice::Current&)
+{
+    response(seq);
+}
+
+void
+MyDerivedClassI::opByteBoolD1_async(const Test::ByteBoolD& dict,
+                                    function<void (const Test::ByteBoolD&)> response,
+                                    function<void (const exception_ptr&)>,
+                                    const Ice::Current&)
+{
+    response(dict);
+}
+
+void
+MyDerivedClassI::opStringS2_async(const Test::StringS& seq,
+                                  function<void (const Test::StringS&)> response,
+                                  function<void (const exception_ptr&)>,
+                                  const Ice::Current&)
+{
+    response(seq);
+}
+
+void
+MyDerivedClassI::opByteBoolD2_async(const Test::ByteBoolD& dict,
+                                    function<void (const Test::ByteBoolD&)> response,
+                                    function<void (const exception_ptr&)>,
+                                    const Ice::Current&)
+{
+    response(dict);
+}
+
+void
+MyDerivedClassI::opMyStruct1_async(const Test::MyStruct1& s,
+                                   function<void (const Test::MyStruct1&)> response,
+                                   function<void (const exception_ptr&)>,
+                                   const Ice::Current&)
+{
+    response(s);
+}
+
+void
+MyDerivedClassI::opMyClass1_async(const shared_ptr<Test::MyClass1>& c,
+                                  function<void (const shared_ptr<Test::MyClass1>&)> response,
+                                  function<void (const exception_ptr&)>,
+                                  const Ice::Current&)
+{
+    response(c);
+}
+#else
+
 class Thread_opVoid : public IceUtil::Thread
 {
 public:
@@ -31,38 +924,6 @@ private:
 
     const Test::AMD_MyClass_opVoidPtr _cb;
 };
-
-MyDerivedClassI::MyDerivedClassI() : _opByteSOnewayCallCount(0)
-{
-}
-
-bool
-MyDerivedClassI::ice_isA(const std::string& id, const Ice::Current& current) const
-{
-    test(current.mode == Ice::Nonmutating);
-    return Test::MyDerivedClass::ice_isA(id, current);
-}
-
-void
-MyDerivedClassI::ice_ping(const Ice::Current& current) const
-{
-    test(current.mode == Ice::Nonmutating);
-    Test::MyDerivedClass::ice_ping(current);
-}
-
-std::vector<std::string>
-MyDerivedClassI::ice_ids(const Ice::Current& current) const
-{
-    test(current.mode == Ice::Nonmutating);
-    return Test::MyDerivedClass::ice_ids(current);
-}
-
-const std::string&
-MyDerivedClassI::ice_id(const Ice::Current& current) const
-{
-    test(current.mode == Ice::Nonmutating);
-    return Test::MyDerivedClass::ice_id(current);
-}
 
 void
 MyDerivedClassI::shutdown_async(const Test::AMD_MyClass_shutdownPtr& cb, const Ice::Current& current)
@@ -90,7 +951,7 @@ MyDerivedClassI::delay_async(const Test::AMD_MyClass_delayPtr& cb, Ice::Int ms, 
 void
 MyDerivedClassI::opVoid_async(const Test::AMD_MyClass_opVoidPtr& cb, const Ice::Current& current)
 {
-    test(current.mode == Ice::Normal);
+    test(current.mode == ICE_ENUM(OperationMode, Normal));
 
     IceUtil::Mutex::Lock sync(_opVoidMutex);
     if(_opVoidThread)
@@ -154,18 +1015,19 @@ MyDerivedClassI::opMyEnum_async(const Test::AMD_MyClass_opMyEnumPtr& cb,
                                 Test::MyEnum p1,
                                 const Ice::Current&)
 {
-    cb->ice_response(Test::enum3, p1);
+    cb->ice_response(ICE_ENUM(MyEnum, enum3), p1);
 }
 
 void
 MyDerivedClassI::opMyClass_async(const Test::AMD_MyClass_opMyClassPtr& cb,
-                                 const Test::MyClassPrx& p1,
+                                 const Test::MyClassPrxPtr& p1,
                                  const Ice::Current& current)
 {
-    Test::MyClassPrx p2 = p1;
-    Test::MyClassPrx p3 = Test::MyClassPrx::uncheckedCast(current.adapter->createProxy(
-                                        current.adapter->getCommunicator()->stringToIdentity("noSuchIdentity")));
-    cb->ice_response(Test::MyClassPrx::uncheckedCast(current.adapter->createProxy(current.id)), p2, p3);
+    Test::MyClassPrxPtr p2 = p1;
+    Test::MyClassPrxPtr p3 = ICE_UNCHECKED_CAST(
+        Test::MyClassPrx, current.adapter->createProxy(
+            current.adapter->getCommunicator()->stringToIdentity("noSuchIdentity")));
+    cb->ice_response(ICE_UNCHECKED_CAST(Test::MyClassPrx, current.adapter->createProxy(current.id)), p2, p3);
 }
 
 void
@@ -678,14 +1540,14 @@ MyDerivedClassI::opDoubleMarshaling_async(const Test::AMD_MyClass_opDoubleMarsha
 void
 MyDerivedClassI::opIdempotent_async(const Test::AMD_MyClass_opIdempotentPtr& cb, const Ice::Current& current)
 {
-    test(current.mode == Ice::Idempotent);
+    test(current.mode == ICE_ENUM(OperationMode, Idempotent));
     cb->ice_response();
 }
 
 void
 MyDerivedClassI::opNonmutating_async(const Test::AMD_MyClass_opNonmutatingPtr& cb, const Ice::Current& current)
 {
-    test(current.mode == Ice::Nonmutating);
+    test(current.mode == ICE_ENUM(OperationMode, Nonmutating));
     cb->ice_response();
 }
 
@@ -777,3 +1639,4 @@ MyDerivedClassI::opMyClass1_async(const Test::AMD_MyDerivedClass_opMyClass1Ptr& 
 {
     cb->ice_response(c);
 }
+#endif

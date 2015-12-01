@@ -89,7 +89,7 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
     if(comma == string::npos)
     {
         libName = libSpec;
-#  if defined(ICE_CPP11) && defined(__GLIBCXX__)
+#  if defined(ICE_CPP11_COMPILER) && defined(__GLIBCXX__)
         libName += "++11";
 #  endif
         if(useIceVersion)
@@ -119,7 +119,7 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
             return 0;
         }
         libName = libSpec.substr(0, comma);
-#  if defined(ICE_CPP11) && defined(__GLIBCXX__)
+#  if defined(ICE_CPP11_COMPILER) && defined(__GLIBCXX__)
         libName += "++11";
 #  endif
         version = libSpec.substr(comma + 1);

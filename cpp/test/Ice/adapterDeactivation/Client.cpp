@@ -22,8 +22,8 @@ using namespace Test;
 int
 run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
-    TestIntfPrx allTests(const CommunicatorPtr&);
-    TestIntfPrx obj = allTests(communicator);
+    TestIntfPrxPtr allTests(const CommunicatorPtr&);
+    TestIntfPrxPtr obj = allTests(communicator);
     return EXIT_SUCCESS;
 }
 

@@ -81,7 +81,11 @@ namespace Ice
 typedef unsigned char Byte;
 typedef short Short;
 typedef int Int;
+#ifdef ICE_CPP11_MAPPING
+typedef long long int Long;
+#else
 typedef IceUtil::Int64 Long;
+#endif
 typedef float Float;
 typedef double Double;
 

@@ -23,7 +23,7 @@ Ice::Context emptyCtx;
 
 }
 
-IceInternal::InvocationObserver::InvocationObserver(IceProxy::Ice::Object* proxy, const string& op, const Context* ctx)
+IceInternal::InvocationObserver::InvocationObserver(const Ice::ObjectPrxPtr& proxy, const string& op, const Context* ctx)
 {
     const CommunicatorObserverPtr& obsv = proxy->__reference()->getInstance()->initializationData().observer;
     if(!obsv)
@@ -53,7 +53,7 @@ IceInternal::InvocationObserver::InvocationObserver(IceInternal::Instance* insta
 }
 
 void
-IceInternal::InvocationObserver::attach(IceProxy::Ice::Object* proxy, const string& op, const Context* ctx)
+IceInternal::InvocationObserver::attach(const Ice::ObjectPrxPtr& proxy, const string& op, const Context* ctx)
 {
     const CommunicatorObserverPtr& obsv = proxy->__reference()->getInstance()->initializationData().observer;
     if(!obsv)

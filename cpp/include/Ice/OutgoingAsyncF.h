@@ -18,21 +18,28 @@ namespace IceInternal
 {
 
 class OutgoingAsyncBase;
+class OutgoingAsync;
+class ProxyOutgoingAsyncBase;
+class CommunicatorFlushBatchAsync;
+
+#ifdef ICE_CPP11_MAPPING
+typedef ::std::shared_ptr<OutgoingAsyncBase> OutgoingAsyncBasePtr;
+typedef ::std::shared_ptr<OutgoingAsync> OutgoingAsyncPtr;
+typedef ::std::shared_ptr<ProxyOutgoingAsyncBase> ProxyOutgoingAsyncBasePtr;
+typedef ::std::shared_ptr<CommunicatorFlushBatchAsync> CommunicatorFlushBatchAsyncPtr;
+#else
 ICE_API IceUtil::Shared* upCast(OutgoingAsyncBase*);
 typedef IceInternal::Handle<OutgoingAsyncBase> OutgoingAsyncBasePtr;
 
-class OutgoingAsync;
 ICE_API IceUtil::Shared* upCast(OutgoingAsync*);
 typedef IceInternal::Handle<OutgoingAsync> OutgoingAsyncPtr;
 
-class ProxyOutgoingAsyncBase;
 ICE_API IceUtil::Shared* upCast(ProxyOutgoingAsyncBase*);
 typedef IceInternal::Handle<ProxyOutgoingAsyncBase> ProxyOutgoingAsyncBasePtr;
 
-class CommunicatorFlushBatchAsync;
 ICE_API IceUtil::Shared* upCast(CommunicatorFlushBatchAsync*);
 typedef IceInternal::Handle<CommunicatorFlushBatchAsync> CommunicatorFlushBatchAsyncPtr;
-
+#endif
 }
 
 #endif

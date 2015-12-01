@@ -29,22 +29,12 @@
 #include <Ice/StreamF.h>
 #include <Ice/CommunicatorF.h>
 #include <Ice/ObserverHelper.h>
+#include <Ice/LocalException.h>
 #include <iosfwd>
-
-namespace IceProxy
-{
 
 namespace Ice
 {
-
-class Locator;
-ICE_API ::IceProxy::Ice::Object* upCast(::IceProxy::Ice::Locator*);
-
-class Router;
-ICE_API ::IceProxy::Ice::Object* upCast(::IceProxy::Ice::Router*);
-
-}
-
+ICE_API extern const Context noExplicitContext;
 }
 
 namespace IceInternal
@@ -54,41 +44,457 @@ class Outgoing;
 
 }
 
+#ifdef ICE_CPP11_MAPPING // C++11 mapping
 namespace Ice
 {
 
-typedef ::IceInternal::ProxyHandle< ::IceProxy::Ice::Router> RouterPrx;
-typedef ::IceInternal::ProxyHandle< ::IceProxy::Ice::Locator> LocatorPrx;
+class RouterPrx;
+typedef ::std::shared_ptr<::Ice::RouterPrx> RouterPrxPtr;
+
+class LocatorPrx;
+typedef ::std::shared_ptr<::Ice::LocatorPrx> LocatorPrxPtr;
 
 class LocalException;
+}
 
-ICE_API void ice_writeObjectPrx(const ::Ice::OutputStreamPtr&, const ObjectPrx&);
-ICE_API void ice_readObjectPrx(const ::Ice::InputStreamPtr&, ObjectPrx&);
+namespace Ice
+{
 
-class Callback_Object_ice_isA_Base : virtual public ::IceInternal::CallbackBase { };
-typedef ::IceUtil::Handle< Callback_Object_ice_isA_Base> Callback_Object_ice_isAPtr;
+class ICE_API ObjectPrx : public ::std::enable_shared_from_this<ObjectPrx>
+{
+public:
 
-class Callback_Object_ice_ping_Base : virtual public ::IceInternal::CallbackBase { };
-typedef ::IceUtil::Handle< Callback_Object_ice_ping_Base> Callback_Object_ice_pingPtr;
+    virtual ~ObjectPrx() = default;
 
-class Callback_Object_ice_ids_Base : virtual public ::IceInternal::CallbackBase { };
-typedef ::IceUtil::Handle< Callback_Object_ice_ids_Base> Callback_Object_ice_idsPtr;
+    bool operator==(const ObjectPrx&) const;
+    bool operator!=(const ObjectPrx&) const;
+    bool operator<(const ObjectPrx&) const;
 
-class Callback_Object_ice_id_Base : virtual public ::IceInternal::CallbackBase { };
-typedef ::IceUtil::Handle< Callback_Object_ice_id_Base> Callback_Object_ice_idPtr;
+    ::std::shared_ptr<::Ice::Communicator> ice_getCommunicator() const;
 
-class Callback_Object_ice_invoke_Base : virtual public ::IceInternal::CallbackBase { };
-typedef ::IceUtil::Handle< Callback_Object_ice_invoke_Base> Callback_Object_ice_invokePtr;
+    ::std::string ice_toString() const;
 
-class Callback_Object_ice_flushBatchRequests_Base : virtual public ::IceInternal::CallbackBase { };
-typedef ::IceUtil::Handle< Callback_Object_ice_flushBatchRequests_Base> Callback_Object_ice_flushBatchRequestsPtr;
+    bool ice_isA(const ::std::string& typeId, const ::Ice::Context& context = ::Ice::noExplicitContext);
 
-class Callback_Object_ice_getConnection_Base : virtual public ::IceInternal::CallbackBase { };
-typedef ::IceUtil::Handle< Callback_Object_ice_getConnection_Base> Callback_Object_ice_getConnectionPtr;
+    ::std::function<void()>
+    ice_isA_async(const ::std::string& typeId,
+                  ::std::function<void (bool)> response,
+                  ::std::function<void (::std::exception_ptr)> = nullptr,
+                  ::std::function<void (bool)> sent = nullptr,
+                  const ::Ice::Context& context = ::Ice::noExplicitContext);
+
+    template<template<typename> class P = std::promise>
+    auto ice_isA_async(const ::std::string& typeId, const ::Ice::Context& context = ::Ice::noExplicitContext)
+        -> decltype(std::declval<P<bool>>().get_future())
+    {
+        auto promise = ::std::make_shared<P<bool>>();
+
+        ice_isA_async(
+            typeId,
+            [promise](bool value)
+            {
+                promise->set_value(value);
+            },
+            [promise](::std::exception_ptr ex)
+            {
+                promise->set_exception(::std::move(ex));
+            },
+            nullptr, context);
+
+        return promise->get_future();
+    }
+
+    void
+    ice_ping(const ::Ice::Context& context = ::Ice::noExplicitContext);
+
+    ::std::function<void()>
+    ice_ping_async(::std::function<void ()> response,
+                   ::std::function<void (::std::exception_ptr)> exception = nullptr,
+                   ::std::function<void (bool)> sent = nullptr,
+                   const ::Ice::Context& context = ::Ice::noExplicitContext);
+
+    template<template<typename> class P = std::promise>
+    auto ice_ping_async(const ::Ice::Context& context = ::Ice::noExplicitContext)
+        -> decltype(std::declval<P<void>>().get_future())
+    {
+        auto promise = ::std::make_shared<P<void>>();
+        if(ice_isTwoway())
+        {
+            ice_ping_async(
+                [promise]()
+                {
+                    promise->set_value();
+                },
+                [promise](::std::exception_ptr ex)
+                {
+                    promise->set_exception(::std::move(ex));
+                },
+                nullptr, context);
+        }
+        else if(ice_isOneway() || ice_isDatagram())
+        {
+            ice_ping_async(
+                nullptr,
+                [promise](::std::exception_ptr ex)
+                {
+                    promise->set_exception(::std::move(ex));
+                },
+                [promise](bool)
+                {
+                    promise->set_value();
+                },
+                context);
+        }
+        else
+        {
+            ice_ping_async(nullptr, nullptr, nullptr, context);
+            promise->set_value();
+        }
+        return promise->get_future();
+    }
+
+    ::std::vector<::std::string>
+    ice_ids(const ::Ice::Context& context = ::Ice::noExplicitContext);
+
+    ::std::function<void()>
+    ice_ids_async(::std::function<void (::std::vector< ::std::string>)> response,
+                  ::std::function<void (::std::exception_ptr)> exception = nullptr,
+                  ::std::function<void (bool)> sent = nullptr,
+                  const ::Ice::Context& context = ::Ice::noExplicitContext);
+
+    template<template<typename> class P = std::promise>
+    auto ice_ids_async(const ::Ice::Context& context = ::Ice::noExplicitContext)
+        -> decltype(std::declval<P<::std::vector<::std::string>>>().get_future())
+    {
+        auto promise = ::std::make_shared<P<::std::vector<::std::string>>>();
+        ice_ids_async(
+            [promise](::std::vector<::std::string> ids)
+            {
+                promise->set_value(::std::move(ids));
+            },
+            [promise](::std::exception_ptr ex)
+            {
+                promise->set_exception(::std::move(ex));
+            },
+            nullptr, context);
+        return promise->get_future();
+    }
+
+    ::std::string
+    ice_id(const ::Ice::Context& context = ::Ice::noExplicitContext);
+
+    ::std::function<void ()>
+    ice_id_async(::std::function<void (::std::string)> response,
+                 ::std::function<void (::std::exception_ptr)> exception = nullptr,
+                 ::std::function<void (bool)> sent = nullptr,
+                 const ::Ice::Context& context = ::Ice::noExplicitContext);
+
+    template<template<typename> class P = std::promise>
+    auto ice_id_async(const ::Ice::Context& context = ::Ice::noExplicitContext)
+        -> decltype(std::declval<P<::std::string>>().get_future())
+    {
+        auto promise = ::std::make_shared<P<::std::string>>();
+        ice_id_async(
+            [promise](::std::string id)
+            {
+                promise->set_value(::std::move(id));
+            },
+            [promise](::std::exception_ptr ex)
+            {
+                promise->set_exception(::std::move(ex));
+            },
+            nullptr, context);
+        return promise->get_future();
+    }
+
+    static const ::std::string& ice_staticId()
+    {
+        return ::Ice::Object::ice_staticId();
+    }
+
+    // Returns true if ok, false if user exception.
+    bool
+    ice_invoke(const ::std::string& operation,
+               ::Ice::OperationMode mode,
+               const ::std::vector< ::Ice::Byte>& inParams,
+               ::std::vector< ::Ice::Byte>& outParams,
+               const ::Ice::Context& context = ::Ice::noExplicitContext);
+
+    ::std::function<void ()>
+    ice_invoke_async(
+        const ::std::string&,
+        ::Ice::OperationMode,
+        const ::std::vector<::Ice::Byte>&,
+        ::std::function<void (bool, ::std::vector<::Ice::Byte>)> response,
+        ::std::function<void (::std::exception_ptr)> exception = nullptr,
+        ::std::function<void (bool)> sent = nullptr,
+        const ::Ice::Context& context = ::Ice::noExplicitContext);
+
+    ::Ice::Identity ice_getIdentity() const;
+    ::std::shared_ptr<::Ice::ObjectPrx> ice_identity(const ::Ice::Identity&) const;
+
+    ::Ice::Context ice_getContext() const;
+    ::std::shared_ptr<::Ice::ObjectPrx> ice_context(const ::Ice::Context&) const;
+
+    const ::std::string& ice_getFacet() const;
+    ::std::shared_ptr<::Ice::ObjectPrx> ice_facet(const ::std::string&) const;
+
+    ::std::string ice_getAdapterId() const;
+    ::std::shared_ptr<::Ice::ObjectPrx> ice_adapterId(const ::std::string&) const;
+
+    ::Ice::EndpointSeq ice_getEndpoints() const;
+    ::std::shared_ptr<::Ice::ObjectPrx> ice_endpoints(const ::Ice::EndpointSeq&) const;
+
+    ::Ice::Int ice_getLocatorCacheTimeout() const;
+    ::std::shared_ptr<::Ice::ObjectPrx> ice_locatorCacheTimeout(::Ice::Int) const;
+
+    bool ice_isConnectionCached() const;
+    ::std::shared_ptr<::Ice::ObjectPrx> ice_connectionCached(bool) const;
+
+    ::Ice::EndpointSelectionType ice_getEndpointSelection() const;
+    ::std::shared_ptr<::Ice::ObjectPrx> ice_endpointSelection(::Ice::EndpointSelectionType) const;
+
+    bool ice_isSecure() const;
+    ::std::shared_ptr<::Ice::ObjectPrx> ice_secure(bool) const;
+
+    ::Ice::EncodingVersion ice_getEncodingVersion() const;
+    ::std::shared_ptr<::Ice::ObjectPrx> ice_encodingVersion(const ::Ice::EncodingVersion&) const;
+
+    bool ice_isPreferSecure() const;
+    ::std::shared_ptr<::Ice::ObjectPrx> ice_preferSecure(bool) const;
+
+    ::std::shared_ptr<::Ice::RouterPrx> ice_getRouter() const;
+    ::std::shared_ptr<::Ice::ObjectPrx> ice_router(const ::std::shared_ptr<::Ice::RouterPrx>&) const;
+
+    ::std::shared_ptr<::Ice::LocatorPrx> ice_getLocator() const;
+    ::std::shared_ptr<::Ice::ObjectPrx> ice_locator(const ::std::shared_ptr<::Ice::LocatorPrx>&) const;
+
+    bool ice_isCollocationOptimized() const;
+    ::std::shared_ptr<::Ice::ObjectPrx> ice_collocationOptimized(bool) const;
+
+    ::Ice::Int ice_getInvocationTimeout() const;
+    ::std::shared_ptr<::Ice::ObjectPrx> ice_invocationTimeout(::Ice::Int) const;
+
+    ::std::shared_ptr<::Ice::ObjectPrx> ice_twoway() const;
+    bool ice_isTwoway() const;
+    ::std::shared_ptr<::Ice::ObjectPrx> ice_oneway() const;
+    bool ice_isOneway() const;
+    ::std::shared_ptr<::Ice::ObjectPrx> ice_batchOneway() const;
+    bool ice_isBatchOneway() const;
+    ::std::shared_ptr<::Ice::ObjectPrx> ice_datagram() const;
+    bool ice_isDatagram() const;
+    ::std::shared_ptr<::Ice::ObjectPrx> ice_batchDatagram() const;
+    bool ice_isBatchDatagram() const;
+
+    ::std::shared_ptr<::Ice::ObjectPrx> ice_compress(bool) const;
+    ::std::shared_ptr<::Ice::ObjectPrx> ice_timeout(int) const;
+
+    ::std::shared_ptr<::Ice::ObjectPrx> ice_connectionId(const ::std::string&) const;
+    ::std::string ice_getConnectionId() const;
+
+
+    ::std::shared_ptr<::Ice::Connection> ice_getConnection();
+
+    ::std::function<void ()>
+    ice_getConnection_async(
+        ::std::function<void (::std::shared_ptr<::Ice::Connection>)> response,
+        ::std::function<void (::std::exception_ptr)> exception = nullptr);
+
+
+    template<template<typename> class P = std::promise>
+    auto ice_getConnection_async()
+        -> decltype(std::declval<P<::std::shared_ptr<::Ice::Connection>>>().get_future())
+    {
+        auto promise = ::std::make_shared<P<::std::shared_ptr<::Ice::Connection>>>();
+        ice_getConnection_async(
+            [promise](::std::shared_ptr<::Ice::Connection> connection)
+            {
+                promise->set_value(::std::move(connection));
+            },
+            [promise](::std::exception_ptr ex)
+            {
+                promise->set_exception(::std::move(ex));
+            });
+        return promise->get_future();
+    }
+
+    ::std::shared_ptr<::Ice::Connection> ice_getCachedConnection() const;
+
+    void ice_flushBatchRequests();
+
+    std::function<void ()>
+    ice_flushBatchRequests_async(
+        ::std::function<void (::std::exception_ptr)> exception,
+        ::std::function<void (bool)> sent = nullptr);
+
+
+    template<template<typename> class P = std::promise>
+    auto ice_flushBatchRequests_async()
+        -> decltype(std::declval<P<bool>>().get_future())
+    {
+        auto promise = ::std::make_shared<P<bool>>();
+        ice_flushBatchRequests_async(
+            [promise](::std::exception_ptr ex)
+            {
+                promise->set_exception(::std::move(ex));
+            },
+            [promise](bool sent)
+            {
+                promise->set_value(sent);
+            });
+        return promise->get_future();
+    }
+
+    const ::IceInternal::ReferencePtr& __reference() const { return _reference; }
+
+    void __copyFrom(const ::Ice::ObjectPrxPtr&);
+
+    int __handleException(const ::Ice::Exception&, const ::IceInternal::RequestHandlerPtr&, ::Ice::OperationMode,
+                          bool, int&);
+
+    void __checkAsyncTwowayOnly(const ::std::string&) const;
+
+    ::IceInternal::RequestHandlerPtr __getRequestHandler();
+    ::IceInternal::BatchRequestQueuePtr __getBatchRequestQueue();
+    ::IceInternal::RequestHandlerPtr __setRequestHandler(const ::IceInternal::RequestHandlerPtr&);
+    void __updateRequestHandler(const ::IceInternal::RequestHandlerPtr&, const ::IceInternal::RequestHandlerPtr&);
+
+protected:
+
+    virtual ::std::shared_ptr<ObjectPrx> __newInstance() const;
+
+private:
+
+    void setup(const ::IceInternal::ReferencePtr&);
+    friend class ::IceInternal::ProxyFactory;
+
+    ::IceInternal::ReferencePtr _reference;
+    ::IceInternal::RequestHandlerPtr _requestHandler;
+    ::IceInternal::BatchRequestQueuePtr _batchRequestQueue;
+    IceUtil::Mutex _mutex;
+};
+
+ICE_API ::std::ostream& operator<<(::std::ostream&, const ::Ice::ObjectPrx&);
+
+ICE_API bool proxyIdentityLess(const ::std::shared_ptr<ObjectPrx>&, const ::std::shared_ptr<ObjectPrx>&);
+ICE_API bool proxyIdentityEqual(const ::std::shared_ptr<ObjectPrx>&, const ::std::shared_ptr<ObjectPrx>&);
+
+ICE_API bool proxyIdentityAndFacetLess(const ::std::shared_ptr<ObjectPrx>&, const ::std::shared_ptr<ObjectPrx>&);
+ICE_API bool proxyIdentityAndFacetEqual(const ::std::shared_ptr<ObjectPrx>&, const ::std::shared_ptr<ObjectPrx>&);
+
+struct ProxyIdentityLess : std::binary_function<bool, ::std::shared_ptr<ObjectPrx>&, ::std::shared_ptr<ObjectPrx>&>
+{
+    bool operator()(const ::std::shared_ptr<ObjectPrx>& lhs, const ::std::shared_ptr<ObjectPrx>& rhs) const
+    {
+        return proxyIdentityLess(lhs, rhs);
+    }
+};
+
+struct ProxyIdentityEqual : std::binary_function<bool, ::std::shared_ptr<ObjectPrx>&, ::std::shared_ptr<ObjectPrx>&>
+{
+    bool operator()(const ::std::shared_ptr<ObjectPrx>& lhs, const ::std::shared_ptr<ObjectPrx>& rhs) const
+    {
+        return proxyIdentityEqual(lhs, rhs);
+    }
+};
+
+struct ProxyIdentityAndFacetLess : std::binary_function<bool, ::std::shared_ptr<ObjectPrx>&, ::std::shared_ptr<ObjectPrx>&>
+{
+    bool operator()(const ::std::shared_ptr<ObjectPrx>& lhs, const ::std::shared_ptr<ObjectPrx>& rhs) const
+    {
+        return proxyIdentityAndFacetLess(lhs, rhs);
+    }
+};
+
+struct ProxyIdentityAndFacetEqual : std::binary_function<bool, ::std::shared_ptr<ObjectPrx>&, ::std::shared_ptr<ObjectPrx>&>
+{
+    bool operator()(const ::std::shared_ptr<ObjectPrx>& lhs, const ::std::shared_ptr<ObjectPrx>& rhs) const
+    {
+        return proxyIdentityAndFacetEqual(lhs, rhs);
+    }
+};
+
+template<typename P,
+         typename T,
+         typename ::std::enable_if<::std::is_base_of<::Ice::ObjectPrx, P>::value>::type* = nullptr,
+         typename ::std::enable_if<::std::is_base_of<::Ice::ObjectPrx, T>::value>::type* = nullptr> ::std::shared_ptr<P>
+uncheckedCast(const ::std::shared_ptr<T>& b)
+{
+    ::std::shared_ptr<P> r;
+    if(b)
+    {
+        r = ::std::dynamic_pointer_cast<P>(b);
+        if(!r)
+        {
+            r = ::std::make_shared<P>();
+            r->__copyFrom(b);
+        }
+    }
+    return r;
+}
+
+template<typename P,
+         typename T,
+         typename ::std::enable_if<::std::is_base_of<::Ice::ObjectPrx, P>::value>::type* = nullptr,
+         typename ::std::enable_if<::std::is_base_of<::Ice::ObjectPrx, T>::value>::type* = nullptr> ::std::shared_ptr<P>
+uncheckedCast(const ::std::shared_ptr<T>& b, const std::string& f)
+{
+    ::std::shared_ptr<P> r;
+    if(b)
+    {
+        r = ::std::make_shared<P>();
+        r->__copyFrom(b->ice_facet(f));
+    }
+    return r;
+}
+
+template<typename P,
+         typename T,
+         typename ::std::enable_if<::std::is_base_of<::Ice::ObjectPrx, P>::value>::type* = nullptr,
+         typename ::std::enable_if<::std::is_base_of<::Ice::ObjectPrx, T>::value>::type* = nullptr> ::std::shared_ptr<P>
+checkedCast(const ::std::shared_ptr<T>& b, const ::Ice::Context& context = Ice::noExplicitContext)
+{
+    ::std::shared_ptr<P> r;
+    if(b)
+    {
+        if(b->ice_isA(P::ice_staticId(), context))
+        {
+            r = ::std::make_shared<P>();
+            r->__copyFrom(b);
+        }
+    }
+    return r;
+}
+
+template<typename P,
+         typename T,
+         typename ::std::enable_if<::std::is_base_of<::Ice::ObjectPrx, P>::value>::type* = nullptr,
+         typename ::std::enable_if<::std::is_base_of<::Ice::ObjectPrx, T>::value>::type* = nullptr> ::std::shared_ptr<P>
+checkedCast(const ::std::shared_ptr<T>& b, const std::string& f, const ::Ice::Context& context = Ice::noExplicitContext)
+{
+    ::std::shared_ptr<P> r;
+    if(b)
+    {
+        try
+        {
+            ::std::shared_ptr<::Ice::ObjectPrx> bb = b->ice_facet(f);
+            if(bb->ice_isA(P::ice_staticId(), context))
+            {
+                r = ::std::make_shared<P>();
+                r->__copyFrom(bb);
+            }
+        }
+        catch(const Ice::FacetNotExistException&)
+        {
+        }
+    }
+    return r;
+}
 
 }
 
-#ifdef ICE_CPP11
+#else // C++98 mapping
+#   ifdef ICE_CPP11_COMPILER
 namespace IceInternal
 {
 
@@ -130,7 +536,59 @@ private:
 };
 
 }
-#endif
+#   endif
+
+namespace IceProxy
+{
+
+namespace Ice
+{
+
+class Locator;
+ICE_API ::IceProxy::Ice::Object* upCast(::IceProxy::Ice::Locator*);
+
+class Router;
+ICE_API ::IceProxy::Ice::Object* upCast(::IceProxy::Ice::Router*);
+
+}
+
+}
+
+namespace Ice
+{
+
+typedef ::IceInternal::ProxyHandle< ::IceProxy::Ice::Router> RouterPrx;
+typedef RouterPrx RouterPrxPtr;
+typedef ::IceInternal::ProxyHandle< ::IceProxy::Ice::Locator> LocatorPrx;
+typedef LocatorPrx LocatorPrxPtr;
+
+class LocalException;
+
+ICE_API void ice_writeObjectPrx(const ::Ice::OutputStreamPtr&, const ObjectPrxPtr&);
+ICE_API void ice_readObjectPrx(const ::Ice::InputStreamPtr&, ObjectPrxPtr&);
+
+class Callback_Object_ice_isA_Base : virtual public ::IceInternal::CallbackBase { };
+typedef ::IceUtil::Handle< Callback_Object_ice_isA_Base> Callback_Object_ice_isAPtr;
+
+class Callback_Object_ice_ping_Base : virtual public ::IceInternal::CallbackBase { };
+typedef ::IceUtil::Handle< Callback_Object_ice_ping_Base> Callback_Object_ice_pingPtr;
+
+class Callback_Object_ice_ids_Base : virtual public ::IceInternal::CallbackBase { };
+typedef ::IceUtil::Handle< Callback_Object_ice_ids_Base> Callback_Object_ice_idsPtr;
+
+class Callback_Object_ice_id_Base : virtual public ::IceInternal::CallbackBase { };
+typedef ::IceUtil::Handle< Callback_Object_ice_id_Base> Callback_Object_ice_idPtr;
+
+class Callback_Object_ice_invoke_Base : virtual public ::IceInternal::CallbackBase { };
+typedef ::IceUtil::Handle< Callback_Object_ice_invoke_Base> Callback_Object_ice_invokePtr;
+
+class Callback_Object_ice_flushBatchRequests_Base : virtual public ::IceInternal::CallbackBase { };
+typedef ::IceUtil::Handle< Callback_Object_ice_flushBatchRequests_Base> Callback_Object_ice_flushBatchRequestsPtr;
+
+class Callback_Object_ice_getConnection_Base : virtual public ::IceInternal::CallbackBase { };
+typedef ::IceUtil::Handle< Callback_Object_ice_getConnection_Base> Callback_Object_ice_getConnectionPtr;
+
+}
 
 namespace IceProxy { namespace Ice
 {
@@ -147,16 +605,12 @@ public:
 
     ::std::string ice_toString() const;
 
-    bool ice_isA(const ::std::string& typeId)
-    {
-        return ice_isA(typeId, 0);
-    }
-    bool ice_isA(const ::std::string& typeId, const ::Ice::Context& context)
+    bool ice_isA(const ::std::string& typeId, const ::Ice::Context& context = ::Ice::noExplicitContext)
     {
         return ice_isA(typeId, &context);
     }
 
-#ifdef ICE_CPP11
+#   ifdef ICE_CPP11_COMPILER
     ::Ice::AsyncResultPtr
     begin_ice_isA(const ::std::string& typeId,
                   const ::Ice::Context& ctx,
@@ -175,7 +629,7 @@ public:
                   ::IceInternal::Function<void (const ::Ice::Exception&)>(),
                   const ::IceInternal::Function<void (bool)>& sent = ::IceInternal::Function<void (bool)>())
     {
-        return __begin_ice_isA(typeId, 0, response, exception, sent);
+        return __begin_ice_isA(typeId, &::Ice::noExplicitContext, response, exception, sent);
     }
 
     ::Ice::AsyncResultPtr
@@ -184,7 +638,7 @@ public:
                   const ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>& sent =
                   ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>())
     {
-        return begin_ice_isA(typeId, 0, ::Ice::newCallback(completed, sent), 0);
+        return begin_ice_isA(typeId, &::Ice::noExplicitContext, ::Ice::newCallback(completed, sent), 0);
     }
 
     ::Ice::AsyncResultPtr
@@ -196,14 +650,9 @@ public:
     {
         return begin_ice_isA(typeId, &ctx, ::Ice::newCallback(completed, sent), 0);
     }
-#endif
+#   endif
 
-    ::Ice::AsyncResultPtr begin_ice_isA(const ::std::string& typeId)
-    {
-        return begin_ice_isA(typeId, 0, ::IceInternal::__dummyCallback, 0);
-    }
-
-    ::Ice::AsyncResultPtr begin_ice_isA(const ::std::string& typeId, const ::Ice::Context& __ctx)
+    ::Ice::AsyncResultPtr begin_ice_isA(const ::std::string& typeId, const ::Ice::Context& __ctx = ::Ice::noExplicitContext)
     {
         return begin_ice_isA(typeId, &__ctx, ::IceInternal::__dummyCallback, 0);
     }
@@ -212,7 +661,7 @@ public:
                                         const ::Ice::CallbackPtr& __del,
                                         const ::Ice::LocalObjectPtr& __cookie = 0)
     {
-        return begin_ice_isA(typeId, 0, __del, __cookie);
+        return begin_ice_isA(typeId, &::Ice::noExplicitContext, __del, __cookie);
     }
 
     ::Ice::AsyncResultPtr begin_ice_isA(const ::std::string& typeId,
@@ -227,7 +676,7 @@ public:
                                         const ::Ice::Callback_Object_ice_isAPtr& __del,
                                         const ::Ice::LocalObjectPtr& __cookie = 0)
     {
-        return begin_ice_isA(typeId, 0, __del, __cookie);
+        return begin_ice_isA(typeId, &::Ice::noExplicitContext, __del, __cookie);
     }
 
     ::Ice::AsyncResultPtr begin_ice_isA(const ::std::string& typeId,
@@ -240,23 +689,19 @@ public:
 
     bool end_ice_isA(const ::Ice::AsyncResultPtr&);
 
-    void ice_ping()
-    {
-        ice_ping(0);
-    }
-    void ice_ping(const ::Ice::Context& context)
+    void ice_ping(const ::Ice::Context& context = ::Ice::noExplicitContext)
     {
         ice_ping(&context);
     }
 
-#ifdef ICE_CPP11
+#   ifdef ICE_CPP11_COMPILER
     ::Ice::AsyncResultPtr
     begin_ice_ping(const ::IceInternal::Function<void ()>& response,
                    const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception =
                    ::IceInternal::Function<void (const ::Ice::Exception&)>(),
                    const ::IceInternal::Function<void (bool)>& sent = ::IceInternal::Function<void (bool)>())
     {
-        return __begin_ice_ping(0, response, exception, sent);
+        return __begin_ice_ping(&::Ice::noExplicitContext, response, exception, sent);
     }
 
     ::Ice::AsyncResultPtr
@@ -274,7 +719,7 @@ public:
                    const ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>& sent =
                    ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>())
     {
-        return begin_ice_ping(0, ::Ice::newCallback(completed, sent), 0);
+        return begin_ice_ping(&::Ice::noExplicitContext, ::Ice::newCallback(completed, sent), 0);
     }
 
     ::Ice::AsyncResultPtr
@@ -285,14 +730,9 @@ public:
     {
         return begin_ice_ping(&ctx, ::Ice::newCallback(completed, sent), 0);
     }
-#endif
+#   endif
 
-    ::Ice::AsyncResultPtr begin_ice_ping()
-    {
-        return begin_ice_ping(0, ::IceInternal::__dummyCallback, 0);
-    }
-
-    ::Ice::AsyncResultPtr begin_ice_ping(const ::Ice::Context& __ctx)
+    ::Ice::AsyncResultPtr begin_ice_ping(const ::Ice::Context& __ctx = ::Ice::noExplicitContext)
     {
         return begin_ice_ping(&__ctx, ::IceInternal::__dummyCallback, 0);
     }
@@ -300,7 +740,7 @@ public:
     ::Ice::AsyncResultPtr begin_ice_ping(const ::Ice::CallbackPtr& __del,
                                          const ::Ice::LocalObjectPtr& __cookie = 0)
     {
-        return begin_ice_ping(0, __del, __cookie);
+        return begin_ice_ping(&::Ice::noExplicitContext, __del, __cookie);
     }
 
     ::Ice::AsyncResultPtr begin_ice_ping(const ::Ice::Context& __ctx, const ::Ice::CallbackPtr& __del,
@@ -313,7 +753,7 @@ public:
     ::Ice::AsyncResultPtr begin_ice_ping(const ::Ice::Callback_Object_ice_pingPtr& __del,
                                          const ::Ice::LocalObjectPtr& __cookie = 0)
     {
-        return begin_ice_ping(0, __del, __cookie);
+        return begin_ice_ping(&::Ice::noExplicitContext, __del, __cookie);
     }
 
     ::Ice::AsyncResultPtr begin_ice_ping(const ::Ice::Context& __ctx, const ::Ice::Callback_Object_ice_pingPtr& __del,
@@ -324,23 +764,19 @@ public:
 
     void end_ice_ping(const ::Ice::AsyncResultPtr&);
 
-    ::std::vector< ::std::string> ice_ids()
-    {
-        return ice_ids(0);
-    }
-    ::std::vector< ::std::string> ice_ids(const ::Ice::Context& context)
+    ::std::vector< ::std::string> ice_ids(const ::Ice::Context& context = ::Ice::noExplicitContext)
     {
         return ice_ids(&context);
     }
 
-#ifdef ICE_CPP11
+#   ifdef ICE_CPP11_COMPILER
     ::Ice::AsyncResultPtr
     begin_ice_ids(const ::IceInternal::Function<void (const ::std::vector< ::std::string>&)>& response,
                   const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception =
                   ::IceInternal::Function<void (const ::Ice::Exception&)>(),
                   const ::IceInternal::Function<void (bool)>& sent = ::IceInternal::Function<void (bool)>())
     {
-        return __begin_ice_ids(0, response, exception, sent);
+        return __begin_ice_ids(&::Ice::noExplicitContext, response, exception, sent);
     }
 
     ::Ice::AsyncResultPtr
@@ -358,7 +794,7 @@ public:
                   const ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>& sent =
                   ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>())
     {
-        return begin_ice_ids(0, ::Ice::newCallback(completed, sent), 0);
+        return begin_ice_ids(&::Ice::noExplicitContext, ::Ice::newCallback(completed, sent), 0);
     }
 
     ::Ice::AsyncResultPtr
@@ -369,14 +805,9 @@ public:
     {
         return begin_ice_ids(&ctx, ::Ice::newCallback(completed, sent), 0);
     }
-#endif
+#   endif
 
-    ::Ice::AsyncResultPtr begin_ice_ids()
-    {
-        return begin_ice_ids(0, ::IceInternal::__dummyCallback, 0);
-    }
-
-    ::Ice::AsyncResultPtr begin_ice_ids(const ::Ice::Context& __ctx)
+    ::Ice::AsyncResultPtr begin_ice_ids(const ::Ice::Context& __ctx = ::Ice::noExplicitContext)
     {
         return begin_ice_ids(&__ctx, ::IceInternal::__dummyCallback, 0);
     }
@@ -384,7 +815,7 @@ public:
     ::Ice::AsyncResultPtr begin_ice_ids(const ::Ice::CallbackPtr& __del,
                                         const ::Ice::LocalObjectPtr& __cookie = 0)
     {
-        return begin_ice_ids(0, __del, __cookie);
+        return begin_ice_ids(&::Ice::noExplicitContext, __del, __cookie);
     }
 
     ::Ice::AsyncResultPtr begin_ice_ids(const ::Ice::Context& __ctx,
@@ -397,7 +828,7 @@ public:
     ::Ice::AsyncResultPtr begin_ice_ids(const ::Ice::Callback_Object_ice_idsPtr& __del,
                                         const ::Ice::LocalObjectPtr& __cookie = 0)
     {
-        return begin_ice_ids(0, __del, __cookie);
+        return begin_ice_ids(&::Ice::noExplicitContext, __del, __cookie);
     }
 
     ::Ice::AsyncResultPtr begin_ice_ids(const ::Ice::Context& __ctx,
@@ -409,23 +840,19 @@ public:
 
     ::std::vector< ::std::string> end_ice_ids(const ::Ice::AsyncResultPtr&);
 
-    ::std::string ice_id()
-    {
-        return ice_id(0);
-    }
-    ::std::string ice_id(const ::Ice::Context& context)
+    ::std::string ice_id(const ::Ice::Context& context = ::Ice::noExplicitContext)
     {
         return ice_id(&context);
     }
 
-#ifdef ICE_CPP11
+#   ifdef ICE_CPP11_COMPILER
     ::Ice::AsyncResultPtr
     begin_ice_id(const ::IceInternal::Function<void (const ::std::string&)>& response,
                  const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception =
                  ::IceInternal::Function<void (const ::Ice::Exception&)>(),
                  const ::IceInternal::Function<void (bool)>& sent = ::IceInternal::Function<void (bool)>())
     {
-        return __begin_ice_id(0, response, exception, sent);
+        return __begin_ice_id(&::Ice::noExplicitContext, response, exception, sent);
     }
 
     ::Ice::AsyncResultPtr
@@ -443,7 +870,7 @@ public:
                  const ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>& sent =
                  ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>())
     {
-        return begin_ice_id(0, ::Ice::newCallback(completed, sent), 0);
+        return begin_ice_id(&::Ice::noExplicitContext, ::Ice::newCallback(completed, sent), 0);
     }
 
     ::Ice::AsyncResultPtr
@@ -454,14 +881,9 @@ public:
     {
         return begin_ice_id(&ctx, ::Ice::newCallback(completed, sent), 0);
     }
-#endif
+#   endif
 
-    ::Ice::AsyncResultPtr begin_ice_id()
-    {
-        return begin_ice_id(0, ::IceInternal::__dummyCallback, 0);
-    }
-
-    ::Ice::AsyncResultPtr begin_ice_id(const ::Ice::Context& __ctx)
+    ::Ice::AsyncResultPtr begin_ice_id(const ::Ice::Context& __ctx = ::Ice::noExplicitContext)
     {
         return begin_ice_id(&__ctx, ::IceInternal::__dummyCallback, 0);
     }
@@ -469,7 +891,7 @@ public:
     ::Ice::AsyncResultPtr begin_ice_id(const ::Ice::CallbackPtr& __del,
                                        const ::Ice::LocalObjectPtr& __cookie = 0)
     {
-        return begin_ice_id(0, __del, __cookie);
+        return begin_ice_id(&::Ice::noExplicitContext, __del, __cookie);
     }
 
     ::Ice::AsyncResultPtr begin_ice_id(const ::Ice::Context& __ctx,
@@ -482,7 +904,7 @@ public:
     ::Ice::AsyncResultPtr begin_ice_id(const ::Ice::Callback_Object_ice_idPtr& __del,
                                        const ::Ice::LocalObjectPtr& __cookie = 0)
     {
-        return begin_ice_id(0, __del, __cookie);
+        return begin_ice_id(&::Ice::noExplicitContext, __del, __cookie);
     }
 
     ::Ice::AsyncResultPtr begin_ice_id(const ::Ice::Context& __ctx,
@@ -505,21 +927,13 @@ public:
     bool ice_invoke(const ::std::string& operation,
                     ::Ice::OperationMode mode,
                     const ::std::vector< ::Ice::Byte>& inParams,
-                    ::std::vector< ::Ice::Byte>& outParams)
-    {
-        return ice_invoke(operation, mode, inParams, outParams, 0);
-    }
-
-    bool ice_invoke(const ::std::string& operation,
-                    ::Ice::OperationMode mode,
-                    const ::std::vector< ::Ice::Byte>& inParams,
                     ::std::vector< ::Ice::Byte>& outParams,
-                    const ::Ice::Context& context)
+                    const ::Ice::Context& context = ::Ice::noExplicitContext)
     {
         return ice_invoke(operation, mode, inParams, outParams, &context);
     }
 
-#ifdef ICE_CPP11
+#   ifdef ICE_CPP11_COMPILER
     ::Ice::AsyncResultPtr begin_ice_invoke(
         const ::std::string& operation,
         ::Ice::OperationMode mode,
@@ -529,7 +943,7 @@ public:
            ::IceInternal::Function<void (const ::Ice::Exception&)>(),
         const ::IceInternal::Function<void (bool)>& sent = ::IceInternal::Function<void (bool)>())
     {
-        return __begin_ice_invoke(operation, mode, inParams, 0, response, exception, sent);
+        return __begin_ice_invoke(operation, mode, inParams, &::Ice::noExplicitContext, response, exception, sent);
     }
 
     ::Ice::AsyncResultPtr begin_ice_invoke(
@@ -554,7 +968,7 @@ public:
                                                             ::IceInternal::Function<void (const ::Ice::Exception&)>(),
             const ::IceInternal::Function<void (bool)>& sent = ::IceInternal::Function<void (bool)>())
     {
-        return __begin_ice_invoke(operation, mode, inParams, 0, response, exception, sent);
+        return __begin_ice_invoke(operation, mode, inParams, &::Ice::noExplicitContext, response, exception, sent);
     }
 
     ::Ice::AsyncResultPtr begin_ice_invoke(
@@ -570,13 +984,13 @@ public:
     {
         return __begin_ice_invoke(operation, mode, inParams, &ctx, response, exception, sent);
     }
-#endif
+#   endif
 
     ::Ice::AsyncResultPtr begin_ice_invoke(const ::std::string& operation,
                                            ::Ice::OperationMode mode,
                                            const ::std::vector< ::Ice::Byte>& inParams)
     {
-        return begin_ice_invoke(operation, mode, inParams, 0, ::IceInternal::__dummyCallback, 0);
+        return begin_ice_invoke(operation, mode, inParams, &::Ice::noExplicitContext, ::IceInternal::__dummyCallback, 0);
     }
 
     ::Ice::AsyncResultPtr begin_ice_invoke(const ::std::string& operation,
@@ -593,7 +1007,7 @@ public:
                                            const ::Ice::CallbackPtr& __del,
                                            const ::Ice::LocalObjectPtr& __cookie = 0)
     {
-        return begin_ice_invoke(operation, mode, inParams, 0, __del, __cookie);
+        return begin_ice_invoke(operation, mode, inParams, &::Ice::noExplicitContext, __del, __cookie);
     }
 
     ::Ice::AsyncResultPtr begin_ice_invoke(const ::std::string& operation,
@@ -612,7 +1026,7 @@ public:
                                            const ::Ice::Callback_Object_ice_invokePtr& __del,
                                            const ::Ice::LocalObjectPtr& __cookie = 0)
     {
-        return begin_ice_invoke(operation, mode, inParams, 0, __del, __cookie);
+        return begin_ice_invoke(operation, mode, inParams, &::Ice::noExplicitContext, __del, __cookie);
     }
 
     ::Ice::AsyncResultPtr begin_ice_invoke(const ::std::string& operation,
@@ -630,16 +1044,8 @@ public:
     bool ice_invoke(const ::std::string& operation,
                     ::Ice::OperationMode mode,
                     const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>& inParams,
-                    ::std::vector< ::Ice::Byte>& outParams)
-    {
-        return ice_invoke(operation, mode, inParams, outParams, 0);
-    }
-
-    bool ice_invoke(const ::std::string& operation,
-                    ::Ice::OperationMode mode,
-                    const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>& inParams,
                     ::std::vector< ::Ice::Byte>& outParams,
-                    const ::Ice::Context& context)
+                    const ::Ice::Context& context = ::Ice::noExplicitContext)
     {
         return ice_invoke(operation, mode, inParams, outParams, &context);
     }
@@ -648,7 +1054,7 @@ public:
                                            ::Ice::OperationMode mode,
                                            const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>& inParams)
     {
-        return begin_ice_invoke(operation, mode, inParams, 0, ::IceInternal::__dummyCallback, 0);
+        return begin_ice_invoke(operation, mode, inParams, &::Ice::noExplicitContext, ::IceInternal::__dummyCallback, 0);
     }
 
     ::Ice::AsyncResultPtr begin_ice_invoke(const ::std::string& operation,
@@ -666,7 +1072,7 @@ public:
                                            const ::Ice::CallbackPtr& __del,
                                            const ::Ice::LocalObjectPtr& __cookie = 0)
     {
-        return begin_ice_invoke(operation, mode, inParams, 0, __del, __cookie);
+        return begin_ice_invoke(operation, mode, inParams, &::Ice::noExplicitContext, __del, __cookie);
     }
 
     ::Ice::AsyncResultPtr begin_ice_invoke(const ::std::string& operation,
@@ -685,7 +1091,7 @@ public:
                                            const ::Ice::Callback_Object_ice_invokePtr& __del,
                                            const ::Ice::LocalObjectPtr& __cookie = 0)
     {
-        return begin_ice_invoke(operation, mode, inParams, 0, __del, __cookie);
+        return begin_ice_invoke(operation, mode, inParams, &::Ice::noExplicitContext, __del, __cookie);
     }
 
     ::Ice::AsyncResultPtr begin_ice_invoke(const ::std::string& operation,
@@ -701,37 +1107,37 @@ public:
     bool ___end_ice_invoke(::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&, const ::Ice::AsyncResultPtr&);
 
     ::Ice::Identity ice_getIdentity() const;
-    ::Ice::ObjectPrx ice_identity(const ::Ice::Identity&) const;
+    ::Ice::ObjectPrxPtr ice_identity(const ::Ice::Identity&) const;
 
     ::Ice::Context ice_getContext() const;
-    ::Ice::ObjectPrx ice_context(const ::Ice::Context&) const;
+    ::Ice::ObjectPrxPtr ice_context(const ::Ice::Context&) const;
 
     const ::std::string& ice_getFacet() const;
-    ::Ice::ObjectPrx ice_facet(const ::std::string&) const;
+    ::Ice::ObjectPrxPtr ice_facet(const ::std::string&) const;
 
     ::std::string ice_getAdapterId() const;
-    ::Ice::ObjectPrx ice_adapterId(const ::std::string&) const;
+    ::Ice::ObjectPrxPtr ice_adapterId(const ::std::string&) const;
 
     ::Ice::EndpointSeq ice_getEndpoints() const;
-    ::Ice::ObjectPrx ice_endpoints(const ::Ice::EndpointSeq&) const;
+    ::Ice::ObjectPrxPtr ice_endpoints(const ::Ice::EndpointSeq&) const;
 
     ::Ice::Int ice_getLocatorCacheTimeout() const;
-    ::Ice::ObjectPrx ice_locatorCacheTimeout(::Ice::Int) const;
+    ::Ice::ObjectPrxPtr ice_locatorCacheTimeout(::Ice::Int) const;
 
     bool ice_isConnectionCached() const;
-    ::Ice::ObjectPrx ice_connectionCached(bool) const;
+    ::Ice::ObjectPrxPtr ice_connectionCached(bool) const;
 
     ::Ice::EndpointSelectionType ice_getEndpointSelection() const;
-    ::Ice::ObjectPrx ice_endpointSelection(::Ice::EndpointSelectionType) const;
+    ::Ice::ObjectPrxPtr ice_endpointSelection(::Ice::EndpointSelectionType) const;
 
     bool ice_isSecure() const;
-    ::Ice::ObjectPrx ice_secure(bool) const;
+    ::Ice::ObjectPrxPtr ice_secure(bool) const;
 
     ::Ice::EncodingVersion ice_getEncodingVersion() const;
-    ::Ice::ObjectPrx ice_encodingVersion(const ::Ice::EncodingVersion&) const;
+    ::Ice::ObjectPrxPtr ice_encodingVersion(const ::Ice::EncodingVersion&) const;
 
     bool ice_isPreferSecure() const;
-    ::Ice::ObjectPrx ice_preferSecure(bool) const;
+    ::Ice::ObjectPrxPtr ice_preferSecure(bool) const;
 
     ::Ice::RouterPrx ice_getRouter() const;
     ::Ice::ObjectPrx ice_router(const ::Ice::RouterPrx&) const;
@@ -764,7 +1170,7 @@ public:
 
     ::Ice::ConnectionPtr ice_getConnection();
 
-#ifdef ICE_CPP11
+#ifdef ICE_CPP11_COMPILER
     ::Ice::AsyncResultPtr begin_ice_getConnection(
         const ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>& completed)
     {
@@ -800,7 +1206,7 @@ public:
 
     void ice_flushBatchRequests();
 
-#ifdef ICE_CPP11
+#ifdef ICE_CPP11_COMPILER
     ::Ice::AsyncResultPtr begin_ice_flushBatchRequests(
         const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception,
         const ::IceInternal::Function<void (bool)>& sent = ::IceInternal::Function<void (bool)>())
@@ -833,7 +1239,7 @@ public:
 
     ::Ice::Int __hash() const;
 
-    void __copyFrom(const ::Ice::ObjectPrx&);
+    void __copyFrom(const ::Ice::ObjectPrxPtr&);
 
     int __handleException(const ::Ice::Exception&, const ::IceInternal::RequestHandlerPtr&, ::Ice::OperationMode,
                           bool, int&);
@@ -861,7 +1267,7 @@ private:
                                         const ::IceInternal::CallbackBasePtr&,
                                         const ::Ice::LocalObjectPtr&);
 
-#ifdef ICE_CPP11
+#ifdef ICE_CPP11_COMPILER
     ::Ice::AsyncResultPtr __begin_ice_isA(
         const ::std::string&,
         const ::Ice::Context*,
@@ -877,7 +1283,7 @@ private:
                                          const ::IceInternal::CallbackBasePtr&,
                                          const ::Ice::LocalObjectPtr&);
 
-#ifdef ICE_CPP11
+#ifdef ICE_CPP11_COMPILER
     ::Ice::AsyncResultPtr __begin_ice_ping(
         const ::Ice::Context* ctx,
         const ::IceInternal::Function<void ()>& response,
@@ -894,7 +1300,7 @@ private:
                                         const ::IceInternal::CallbackBasePtr&,
                                         const ::Ice::LocalObjectPtr&);
 
-#ifdef ICE_CPP11
+#ifdef ICE_CPP11_COMPILER
     ::Ice::AsyncResultPtr __begin_ice_ids(
         const ::Ice::Context*,
         const ::IceInternal::Function<void (const ::std::vector< ::std::string>&)>&,
@@ -908,7 +1314,7 @@ private:
     ::Ice::AsyncResultPtr begin_ice_id(const ::Ice::Context*,
                                        const ::IceInternal::CallbackBasePtr&,
                                        const ::Ice::LocalObjectPtr&);
-#ifdef ICE_CPP11
+#ifdef ICE_CPP11_COMPILER
     ::Ice::AsyncResultPtr __begin_ice_id(
         const ::Ice::Context*,
         const ::IceInternal::Function<void (const ::std::string&)>&,
@@ -931,7 +1337,7 @@ private:
                                            const ::IceInternal::CallbackBasePtr&,
                                            const ::Ice::LocalObjectPtr&);
 
-#ifdef ICE_CPP11
+#ifdef ICE_CPP11_COMPILER
     ::Ice::AsyncResultPtr __begin_ice_invoke(
         const ::std::string&,
         ::Ice::OperationMode,
@@ -957,7 +1363,7 @@ private:
                                            const ::IceInternal::CallbackBasePtr&,
                                            const ::Ice::LocalObjectPtr&);
 
-#ifdef ICE_CPP11
+#ifdef ICE_CPP11_COMPILER
     ::Ice::AsyncResultPtr __begin_ice_invoke(
         const ::std::string&,
         ::Ice::OperationMode,
@@ -991,39 +1397,39 @@ ICE_API ::std::ostream& operator<<(::std::ostream&, const ::IceProxy::Ice::Objec
 namespace Ice
 {
 
-ICE_API bool proxyIdentityLess(const ObjectPrx&, const ObjectPrx&);
-ICE_API bool proxyIdentityEqual(const ObjectPrx&, const ObjectPrx&);
+ICE_API bool proxyIdentityLess(const ObjectPrxPtr&, const ObjectPrxPtr&);
+ICE_API bool proxyIdentityEqual(const ObjectPrxPtr&, const ObjectPrxPtr&);
 
-ICE_API bool proxyIdentityAndFacetLess(const ObjectPrx&, const ObjectPrx&);
-ICE_API bool proxyIdentityAndFacetEqual(const ObjectPrx&, const ObjectPrx&);
+ICE_API bool proxyIdentityAndFacetLess(const ObjectPrxPtr&, const ObjectPrxPtr&);
+ICE_API bool proxyIdentityAndFacetEqual(const ObjectPrxPtr&, const ObjectPrxPtr&);
 
-struct ProxyIdentityLess : std::binary_function<bool, ObjectPrx&, ObjectPrx&>
+struct ProxyIdentityLess : std::binary_function<bool, ObjectPrxPtr&, ObjectPrxPtr&>
 {
-    bool operator()(const ObjectPrx& lhs, const ObjectPrx& rhs) const
+    bool operator()(const ObjectPrxPtr& lhs, const ObjectPrxPtr& rhs) const
     {
         return proxyIdentityLess(lhs, rhs);
     }
 };
 
-struct ProxyIdentityEqual : std::binary_function<bool, ObjectPrx&, ObjectPrx&>
+struct ProxyIdentityEqual : std::binary_function<bool, ObjectPrxPtr&, ObjectPrxPtr&>
 {
-    bool operator()(const ObjectPrx& lhs, const ObjectPrx& rhs) const
+    bool operator()(const ObjectPrxPtr& lhs, const ObjectPrxPtr& rhs) const
     {
         return proxyIdentityEqual(lhs, rhs);
     }
 };
 
-struct ProxyIdentityAndFacetLess : std::binary_function<bool, ObjectPrx&, ObjectPrx&>
+struct ProxyIdentityAndFacetLess : std::binary_function<bool, ObjectPrxPtr&, ObjectPrxPtr&>
 {
-    bool operator()(const ObjectPrx& lhs, const ObjectPrx& rhs) const
+    bool operator()(const ObjectPrxPtr& lhs, const ObjectPrxPtr& rhs) const
     {
         return proxyIdentityAndFacetLess(lhs, rhs);
     }
 };
 
-struct ProxyIdentityAndFacetEqual : std::binary_function<bool, ObjectPrx&, ObjectPrx&>
+struct ProxyIdentityAndFacetEqual : std::binary_function<bool, ObjectPrxPtr&, ObjectPrxPtr&>
 {
-    bool operator()(const ObjectPrx& lhs, const ObjectPrx& rhs) const
+    bool operator()(const ObjectPrxPtr& lhs, const ObjectPrxPtr& rhs) const
     {
         return proxyIdentityAndFacetEqual(lhs, rhs);
     }
@@ -1096,7 +1502,7 @@ inline bool operator>=(const ProxyHandle<T>& lhs, const ProxyHandle<U>& rhs)
 // checkedCast and uncheckedCast functions without facet:
 //
 template<typename P> P
-checkedCastImpl(const ::Ice::ObjectPrx& b, const ::Ice::Context* context)
+checkedCastImpl(const ::Ice::ObjectPrxPtr& b, const ::Ice::Context* context)
 {
     P d = 0;
     if(b.get())
@@ -1116,7 +1522,7 @@ checkedCastImpl(const ::Ice::ObjectPrx& b, const ::Ice::Context* context)
 }
 
 template<typename P> P
-uncheckedCastImpl(const ::Ice::ObjectPrx& b)
+uncheckedCastImpl(const ::Ice::ObjectPrxPtr& b)
 {
     P d = 0;
     if(b)
@@ -1140,24 +1546,24 @@ uncheckedCastImpl(const ::Ice::ObjectPrx& b)
 //
 // Helper with type ID.
 //
-ICE_API ::Ice::ObjectPrx checkedCastImpl(const ::Ice::ObjectPrx&, const std::string&, const std::string&,
+ICE_API ::Ice::ObjectPrxPtr checkedCastImpl(const ::Ice::ObjectPrxPtr&, const std::string&, const std::string&,
                                          const ::Ice::Context*);
 
 //
-// Specializations for P = ::Ice::ObjectPrx
+// Specializations for P = ::Ice::ObjectPrxPtr
 // We have to use inline functions for broken compilers such as VC7.
 //
 
-template<> inline ::Ice::ObjectPrx
-checkedCastImpl< ::Ice::ObjectPrx>(const ::Ice::ObjectPrx& b, const std::string& f, const ::Ice::Context* context)
+template<> inline ::Ice::ObjectPrxPtr
+checkedCastImpl< ::Ice::ObjectPrxPtr>(const ::Ice::ObjectPrxPtr& b, const std::string& f, const ::Ice::Context* context)
 {
     return checkedCastImpl(b, f, "::Ice::Object", context);
 }
 
-template<> inline ::Ice::ObjectPrx
-uncheckedCastImpl< ::Ice::ObjectPrx>(const ::Ice::ObjectPrx& b, const std::string& f)
+template<> inline ::Ice::ObjectPrxPtr
+uncheckedCastImpl< ::Ice::ObjectPrxPtr>(const ::Ice::ObjectPrxPtr& b, const std::string& f)
 {
-    ::Ice::ObjectPrx d = 0;
+    ::Ice::ObjectPrxPtr d = 0;
     if(b)
     {
         d = b->ice_facet(f);
@@ -1166,12 +1572,12 @@ uncheckedCastImpl< ::Ice::ObjectPrx>(const ::Ice::ObjectPrx& b, const std::strin
 }
 
 template<typename P> P
-checkedCastImpl(const ::Ice::ObjectPrx& b, const std::string& f, const ::Ice::Context* context)
+checkedCastImpl(const ::Ice::ObjectPrxPtr& b, const std::string& f, const ::Ice::Context* context)
 {
     P d = 0;
 
     typedef typename P::element_type T;
-    ::Ice::ObjectPrx bb = checkedCastImpl(b, f, T::ice_staticId(), context);
+    ::Ice::ObjectPrxPtr bb = checkedCastImpl(b, f, T::ice_staticId(), context);
 
     if(bb)
     {
@@ -1182,14 +1588,14 @@ checkedCastImpl(const ::Ice::ObjectPrx& b, const std::string& f, const ::Ice::Co
 }
 
 template<typename P> P
-uncheckedCastImpl(const ::Ice::ObjectPrx& b, const std::string& f)
+uncheckedCastImpl(const ::Ice::ObjectPrxPtr& b, const std::string& f)
 {
     P d = 0;
     if(b)
     {
         typedef typename P::element_type T;
 
-        ::Ice::ObjectPrx bb = b->ice_facet(f);
+        ::Ice::ObjectPrxPtr bb = b->ice_facet(f);
         d = new T;
         d->__copyFrom(bb);
     }
@@ -1224,20 +1630,20 @@ uncheckedCast(const ::IceInternal::ProxyHandle<Y>& b)
 }
 
 template<typename P> inline P
-checkedCast(const ::Ice::ObjectPrx& b, const std::string& f)
+checkedCast(const ::Ice::ObjectPrxPtr& b, const std::string& f)
 {
     Ice::Context* ctx = 0;
     return ::IceInternal::checkedCastImpl<P>(b, f, ctx);
 }
 
 template<typename P> inline P
-checkedCast(const ::Ice::ObjectPrx& b, const std::string& f, const ::Ice::Context& context)
+checkedCast(const ::Ice::ObjectPrxPtr& b, const std::string& f, const ::Ice::Context& context)
 {
     return ::IceInternal::checkedCastImpl<P>(b, f, &context);
 }
 
 template<typename P> inline P
-uncheckedCast(const ::Ice::ObjectPrx& b, const std::string& f)
+uncheckedCast(const ::Ice::ObjectPrxPtr& b, const std::string& f)
 {
     return ::IceInternal::uncheckedCastImpl<P>(b, f);
 }
@@ -2448,5 +2854,6 @@ newCallback_Object_ice_flushBatchRequests(T* instance,
 }
 
 }
+#endif
 
 #endif

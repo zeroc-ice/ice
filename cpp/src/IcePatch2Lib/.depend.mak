@@ -27,6 +27,7 @@ ClientUtil.obj: \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
     "$(includedir)\Ice\Handle.h" \
+    "$(includedir)\Ice\ValueF.h" \
     "$(includedir)\Ice\Exception.h" \
     "$(includedir)\Ice\Format.h" \
     "$(includedir)\Ice\StreamF.h" \
@@ -35,6 +36,7 @@ ClientUtil.obj: \
     "$(includedir)\Ice\StreamHelpers.h" \
     "$(includedir)\IceUtil\ScopedArray.h" \
     "$(includedir)\IceUtil\Iterator.h" \
+    "$(includedir)\Ice\Traits.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
     "$(includedir)\IceUtil\PopDisableWarnings.h" \
@@ -75,7 +77,7 @@ ClientUtil.obj: \
     "$(includedir)\Ice\BasicStream.h" \
     "$(includedir)\Ice\Object.h" \
     "$(includedir)\Ice\IncomingAsyncF.h" \
-    "$(includedir)\Ice\ObjectFactoryF.h" \
+    "$(includedir)\Ice\ObjectFactory.h" \
     "$(includedir)\Ice\ObjectFactoryManagerF.h" \
     "$(includedir)\Ice\Buffer.h" \
     "$(includedir)\Ice\Protocol.h" \
@@ -89,6 +91,7 @@ ClientUtil.obj: \
     "$(includedir)\Ice\PropertiesAdmin.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
+    "$(includedir)\Ice\Value.h" \
     "$(includedir)\Ice\Incoming.h" \
     "$(includedir)\Ice\ServantLocatorF.h" \
     "$(includedir)\Ice\ServantManagerF.h" \
@@ -100,7 +103,6 @@ ClientUtil.obj: \
     "$(includedir)\Ice\RemoteLogger.h" \
     "$(includedir)\Ice\FactoryTableInit.h" \
     "$(includedir)\Ice\DefaultObjectFactory.h" \
-    "$(includedir)\Ice\ObjectFactory.h" \
     "$(includedir)\Ice\Communicator.h" \
     "$(includedir)\Ice\RouterF.h" \
     "$(includedir)\Ice\LocatorF.h" \
@@ -123,7 +125,6 @@ ClientUtil.obj: \
     "$(includedir)\Ice\Stream.h" \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\Locator.h" \
-    "$(includedir)\Ice\ProcessF.h" \
     "$(includedir)\Ice\Router.h" \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
@@ -176,6 +177,7 @@ Util.obj: \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\Ice\ObjectF.h" \
     "$(includedir)\Ice\Handle.h" \
+    "$(includedir)\Ice\ValueF.h" \
     "$(includedir)\Ice\Exception.h" \
     "$(includedir)\Ice\Format.h" \
     "$(includedir)\Ice\StreamF.h" \
@@ -183,6 +185,7 @@ Util.obj: \
     "$(includedir)\Ice\LocalObjectF.h" \
     "$(includedir)\Ice\StreamHelpers.h" \
     "$(includedir)\IceUtil\Iterator.h" \
+    "$(includedir)\Ice\Traits.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
     "$(includedir)\Ice\Plugin.h" \
@@ -211,7 +214,7 @@ Util.obj: \
     "$(includedir)\Ice\BasicStream.h" \
     "$(includedir)\Ice\Object.h" \
     "$(includedir)\Ice\IncomingAsyncF.h" \
-    "$(includedir)\Ice\ObjectFactoryF.h" \
+    "$(includedir)\Ice\ObjectFactory.h" \
     "$(includedir)\Ice\ObjectFactoryManagerF.h" \
     "$(includedir)\Ice\Buffer.h" \
     "$(includedir)\Ice\Protocol.h" \
@@ -224,6 +227,7 @@ Util.obj: \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\PropertiesAdmin.h" \
     "$(includedir)\Ice\GCObject.h" \
+    "$(includedir)\Ice\Value.h" \
     "$(includedir)\Ice\Incoming.h" \
     "$(includedir)\Ice\ServantLocatorF.h" \
     "$(includedir)\Ice\ServantManagerF.h" \
@@ -235,7 +239,6 @@ Util.obj: \
     "$(includedir)\Ice\RemoteLogger.h" \
     "$(includedir)\Ice\FactoryTableInit.h" \
     "$(includedir)\Ice\DefaultObjectFactory.h" \
-    "$(includedir)\Ice\ObjectFactory.h" \
     "$(includedir)\Ice\Communicator.h" \
     "$(includedir)\Ice\RouterF.h" \
     "$(includedir)\Ice\LocatorF.h" \
@@ -257,7 +260,6 @@ Util.obj: \
     "$(includedir)\Ice\Stream.h" \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\Locator.h" \
-    "$(includedir)\Ice\ProcessF.h" \
     "$(includedir)\Ice\Router.h" \
     "$(includedir)\Ice\DispatchInterceptor.h" \
     "$(includedir)\Ice\NativePropertiesAdmin.h" \
@@ -284,6 +286,7 @@ FileInfo.obj: \
     "$(includedir)\IceUtil\Exception.h" \
     "$(includedir)\Ice\ObjectF.h" \
     "$(includedir)\Ice\Handle.h" \
+    "$(includedir)\Ice\ValueF.h" \
     "$(includedir)\Ice\Exception.h" \
     "$(includedir)\Ice\Format.h" \
     "$(includedir)\Ice\StreamF.h" \
@@ -292,6 +295,7 @@ FileInfo.obj: \
     "$(includedir)\Ice\StreamHelpers.h" \
     "$(includedir)\IceUtil\ScopedArray.h" \
     "$(includedir)\IceUtil\Iterator.h" \
+    "$(includedir)\Ice\Traits.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
@@ -312,7 +316,7 @@ FileInfo.obj: \
     "$(includedir)\Ice\ConnectionF.h" \
     "$(includedir)\Ice\Identity.h" \
     "$(includedir)\Ice\Version.h" \
-    "$(includedir)\Ice\ObjectFactoryF.h" \
+    "$(includedir)\Ice\ObjectFactory.h" \
     "$(includedir)\Ice\ObjectFactoryManagerF.h" \
     "$(includedir)\Ice\Buffer.h" \
     "$(includedir)\Ice\Protocol.h" \
@@ -334,6 +338,7 @@ FileServer.obj: \
     "$(includedir)\IceUtil\Exception.h" \
     "$(includedir)\Ice\ObjectF.h" \
     "$(includedir)\Ice\Handle.h" \
+    "$(includedir)\Ice\ValueF.h" \
     "$(includedir)\Ice\Exception.h" \
     "$(includedir)\Ice\Format.h" \
     "$(includedir)\Ice\StreamF.h" \
@@ -342,6 +347,7 @@ FileServer.obj: \
     "$(includedir)\Ice\StreamHelpers.h" \
     "$(includedir)\IceUtil\ScopedArray.h" \
     "$(includedir)\IceUtil\Iterator.h" \
+    "$(includedir)\Ice\Traits.h" \
     "$(includedir)\Ice\Proxy.h" \
     "$(includedir)\IceUtil\Mutex.h" \
     "$(includedir)\IceUtil\Lock.h" \
@@ -376,7 +382,7 @@ FileServer.obj: \
     "$(includedir)\IceUtil\StringConverter.h" \
     "$(includedir)\Ice\Object.h" \
     "$(includedir)\Ice\IncomingAsyncF.h" \
-    "$(includedir)\Ice\ObjectFactoryF.h" \
+    "$(includedir)\Ice\ObjectFactory.h" \
     "$(includedir)\Ice\ObjectFactoryManagerF.h" \
     "$(includedir)\Ice\Buffer.h" \
     "$(includedir)\Ice\Protocol.h" \
@@ -385,6 +391,7 @@ FileServer.obj: \
     "$(includedir)\Ice\FactoryTable.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
+    "$(includedir)\Ice\Value.h" \
     "$(includedir)\Ice\Incoming.h" \
     "$(includedir)\Ice\ServantLocatorF.h" \
     "$(includedir)\Ice\ServantManagerF.h" \
@@ -392,7 +399,6 @@ FileServer.obj: \
     "$(includedir)\Ice\IncomingAsync.h" \
     "$(includedir)\Ice\FactoryTableInit.h" \
     "$(includedir)\Ice\DefaultObjectFactory.h" \
-    "$(includedir)\Ice\ObjectFactory.h" \
     "$(includedir)\IcePatch2\FileInfo.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\IcePatch2\Config.h" \

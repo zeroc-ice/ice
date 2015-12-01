@@ -660,7 +660,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
 }
 
 ReferenceFactoryPtr
-IceInternal::ReferenceFactory::setDefaultRouter(const RouterPrx& defaultRouter)
+IceInternal::ReferenceFactory::setDefaultRouter(const RouterPrxPtr& defaultRouter)
 {
     if(defaultRouter == _defaultRouter)
     {
@@ -673,14 +673,14 @@ IceInternal::ReferenceFactory::setDefaultRouter(const RouterPrx& defaultRouter)
     return factory;
 }
 
-RouterPrx
+RouterPrxPtr
 IceInternal::ReferenceFactory::getDefaultRouter() const
 {
     return _defaultRouter;
 }
 
 ReferenceFactoryPtr
-IceInternal::ReferenceFactory::setDefaultLocator(const LocatorPrx& defaultLocator)
+IceInternal::ReferenceFactory::setDefaultLocator(const LocatorPrxPtr& defaultLocator)
 {
     if(defaultLocator == _defaultLocator)
     {
@@ -693,7 +693,7 @@ IceInternal::ReferenceFactory::setDefaultLocator(const LocatorPrx& defaultLocato
     return factory;
 }
 
-LocatorPrx
+LocatorPrxPtr
 IceInternal::ReferenceFactory::getDefaultLocator() const
 {
     return _defaultLocator;
@@ -815,7 +815,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
         string property;
 
         property = propertyPrefix + ".Locator";
-        LocatorPrx locator = LocatorPrx::uncheckedCast(_communicator->propertyToProxy(property));
+        LocatorPrxPtr locator = ICE_UNCHECKED_CAST(LocatorPrx, _communicator->propertyToProxy(property));
         if(locator)
         {
             if(locator->ice_getEncodingVersion() != encoding)
@@ -829,7 +829,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
         }
 
         property = propertyPrefix + ".Router";
-        RouterPrx router = RouterPrx::uncheckedCast(_communicator->propertyToProxy(property));
+        RouterPrxPtr router = ICE_UNCHECKED_CAST(RouterPrx, _communicator->propertyToProxy(property));
         if(router)
         {
             if(propertyPrefix.size() > 7 && propertyPrefix.substr(propertyPrefix.size() - 7, 7) == ".Router")

@@ -17,12 +17,15 @@ using namespace Ice;
 void
 TestI::transient(const Current& current)
 {
+    cerr << "TestI::transient" << endl;
     CommunicatorPtr communicator = current.adapter->getCommunicator();
     
     ObjectAdapterPtr adapter =
         communicator->createObjectAdapterWithEndpoints("TransientTestAdapter", "default -p 9999");
     adapter->activate();
+    cerr << "TestI::transient activate" << endl;
     adapter->destroy();
+    cerr << "TestI::transient ok" << endl;
 }
 
 void

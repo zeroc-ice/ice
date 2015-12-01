@@ -14,6 +14,9 @@
 #include <functional>
 #include <iterator>
 
+using namespace Ice;
+using namespace Test;
+
 MyDerivedClassI::MyDerivedClassI() : _opByteSOnewayCallCount(0)
 {
 }
@@ -21,29 +24,45 @@ MyDerivedClassI::MyDerivedClassI() : _opByteSOnewayCallCount(0)
 bool
 MyDerivedClassI::ice_isA(const std::string& id, const Ice::Current& current) const
 {
-    test(current.mode == Ice::Nonmutating);
+    test(current.mode == ICE_ENUM(OperationMode, Nonmutating));
+#ifdef ICE_CPP11_MAPPING
+    return Test::MyDerivedClassDisp::ice_isA(id, current);
+#else
     return Test::MyDerivedClass::ice_isA(id, current);
+#endif
 }
 
 void
 MyDerivedClassI::ice_ping(const Ice::Current& current) const
 {
-    test(current.mode == Ice::Nonmutating);
-    Test::MyDerivedClass::ice_ping(current);
+    test(current.mode == ICE_ENUM(OperationMode, Nonmutating));
+#ifdef ICE_CPP11_MAPPING
+    Test::MyDerivedClassDisp::ice_ping(current);
+#else
+    Test::MyDerivedClass::ice_ping(current);    
+#endif
 }
 
 std::vector<std::string>
 MyDerivedClassI::ice_ids(const Ice::Current& current) const
 {
-    test(current.mode == Ice::Nonmutating);
+    test(current.mode == ICE_ENUM(OperationMode, Nonmutating));
+#ifdef ICE_CPP11_MAPPING
+    return Test::MyDerivedClassDisp::ice_ids(current);
+#else
     return Test::MyDerivedClass::ice_ids(current);
+#endif
 }
 
 const std::string&
 MyDerivedClassI::ice_id(const Ice::Current& current) const
 {
-    test(current.mode == Ice::Nonmutating);
+    test(current.mode == ICE_ENUM(OperationMode, Nonmutating));
+#ifdef ICE_CPP11_MAPPING
+    return Test::MyDerivedClassDisp::ice_id(current);
+#else
     return Test::MyDerivedClass::ice_id(current);
+#endif
 }
 
 void
@@ -61,7 +80,7 @@ MyDerivedClassI::delay(Ice::Int ms, const Ice::Current&)
 void
 MyDerivedClassI::opVoid(const Ice::Current& current)
 {
-    test(current.mode == Ice::Normal);
+    test(current.mode == ICE_ENUM(OperationMode, Normal));
 }
 
 Ice::Byte
@@ -127,19 +146,20 @@ MyDerivedClassI::opMyEnum(Test::MyEnum p1,
                           const Ice::Current&)
 {
     p2 = p1;
-    return Test::enum3;
+    return ICE_ENUM(MyEnum, enum3);
 }
 
-Test::MyClassPrx
-MyDerivedClassI::opMyClass(const Test::MyClassPrx& p1,
-                           Test::MyClassPrx& p2,
-                           Test::MyClassPrx& p3,
+Test::MyClassPrxPtr
+MyDerivedClassI::opMyClass(const Test::MyClassPrxPtr& p1,
+                           Test::MyClassPrxPtr& p2,
+                           Test::MyClassPrxPtr& p3,
                            const Ice::Current& current)
 {
     p2 = p1;
-    p3 = Test::MyClassPrx::uncheckedCast(current.adapter->createProxy(
+    p3 = ICE_UNCHECKED_CAST(Test::MyClassPrx,
+                            current.adapter->createProxy(
                                 current.adapter->getCommunicator()->stringToIdentity("noSuchIdentity")));
-    return Test::MyClassPrx::uncheckedCast(current.adapter->createProxy(current.id));
+    return ICE_UNCHECKED_CAST(Test::MyClassPrx, current.adapter->createProxy(current.id));
 }
 
 Test::Structure
@@ -647,13 +667,13 @@ MyDerivedClassI::opDoubleMarshaling(Ice::Double p1, const Test::DoubleS& p2, con
 void
 MyDerivedClassI::opIdempotent(const Ice::Current& current)
 {
-    test(current.mode == Ice::Idempotent);
+    test(current.mode == ICE_ENUM(OperationMode, Idempotent));
 }
 
 void
 MyDerivedClassI::opNonmutating(const Ice::Current& current)
 {
-    test(current.mode == Ice::Nonmutating);
+    test(current.mode == ICE_ENUM(OperationMode, Nonmutating));
 }
 
 void

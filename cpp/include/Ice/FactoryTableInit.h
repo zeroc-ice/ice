@@ -69,7 +69,15 @@ public:
     DefaultObjectFactoryInit(const char* typeId) :
         _typeId(typeId)
     {
+#ifdef ICE_CPP11_MAPPING
+        factoryTable->addObjectFactory(_typeId, 
+                                    [](const std::string&)
+                                    {
+                                        return ::std::make_shared<O>();
+                                    });
+#else
         factoryTable->addObjectFactory(_typeId, new DefaultObjectFactory<O>(_typeId));
+#endif
     }
 
     ~DefaultObjectFactoryInit()

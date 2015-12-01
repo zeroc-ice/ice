@@ -21,7 +21,7 @@ public:
 
     RemoteCommunicatorI(const Ice::CommunicatorPtr&);
 
-    virtual Ice::ObjectPrx getAdmin(const Ice::Current&);
+    virtual Ice::ObjectPrxPtr getAdmin(const Ice::Current&);
     virtual Ice::PropertyDict getChanges(const Ice::Current&);
 
     virtual void print(const std::string&, const Ice::Current&);
@@ -41,13 +41,13 @@ private:
     Ice::PropertyDict _changes;
     bool _called;
 };
-typedef IceUtil::Handle<RemoteCommunicatorI> RemoteCommunicatorIPtr;
+ICE_DEFINE_PTR(RemoteCommunicatorIPtr, RemoteCommunicatorI);
 
 class RemoteCommunicatorFactoryI : public Test::RemoteCommunicatorFactory
 {
 public:
 
-    virtual Test::RemoteCommunicatorPrx createCommunicator(const Ice::PropertyDict&, const Ice::Current&);
+    virtual Test::RemoteCommunicatorPrxPtr createCommunicator(const Ice::PropertyDict&, const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
 };
 

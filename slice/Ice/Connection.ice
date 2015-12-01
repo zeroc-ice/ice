@@ -92,6 +92,7 @@ local interface ConnectionCallback
     void closed(Connection con);
 };
 
+["cpp:unscoped"]
 local enum ACMClose
 {
     CloseOff,
@@ -101,6 +102,7 @@ local enum ACMClose
     CloseOnIdleForceful
 };
 
+["cpp:unscoped"]
 local enum ACMHeartbeat
 {
     HeartbeatOff,

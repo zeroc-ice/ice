@@ -16,6 +16,16 @@ DEFINE_TEST("client")
 using namespace std;
 using namespace Test;
 
+#ifdef ICE_CPP11_MAPPING
+template<typename T>
+function<shared_ptr<T>(const string&)> makeFactory()
+{
+    return [](const string&)
+        {
+            return make_shared<T>();
+        };
+}
+#else
 class MyObjectFactory : public Ice::ObjectFactory
 {
 public:
@@ -64,10 +74,21 @@ public:
         // Nothing to do
     }
 };
+#endif
 
 int
 run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
+#ifdef ICE_CPP11_MAPPING
+    communicator->addObjectFactory(makeFactory<BI>(), "::Test::B");
+    communicator->addObjectFactory(makeFactory<CI>(), "::Test::C");
+    communicator->addObjectFactory(makeFactory<DI>(), "::Test::D");
+    communicator->addObjectFactory(makeFactory<EI>(), "::Test::E");
+    communicator->addObjectFactory(makeFactory<FI>(), "::Test::F");
+    communicator->addObjectFactory(makeFactory<II>(), "::Test::I");
+    communicator->addObjectFactory(makeFactory<JI>(), "::Test::J");
+    communicator->addObjectFactory(makeFactory<HI>(), "::Test::H");
+#else
     Ice::ObjectFactoryPtr factory = new MyObjectFactory;
     communicator->addObjectFactory(factory, "::Test::B");
     communicator->addObjectFactory(factory, "::Test::C");
@@ -77,9 +98,10 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
     communicator->addObjectFactory(factory, "::Test::I");
     communicator->addObjectFactory(factory, "::Test::J");
     communicator->addObjectFactory(factory, "::Test::H");
+#endif
 
-    InitialPrx allTests(const Ice::CommunicatorPtr&);
-    InitialPrx initial = allTests(communicator);
+    InitialPrxPtr allTests(const Ice::CommunicatorPtr&);
+    InitialPrxPtr initial = allTests(communicator);
     initial->shutdown();
     return EXIT_SUCCESS;
 }

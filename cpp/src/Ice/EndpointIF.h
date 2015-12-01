@@ -17,24 +17,37 @@ namespace IceInternal
 {
 
 class EndpointI;
+class TcpEndpointI;
+class UdpEndpointI;
+class WSEndpoint;
+class EndpointI_connectors;
+
+#ifdef ICE_CPP11_MAPPING // C++11 mapping
+
+typedef ::std::shared_ptr<EndpointI> EndpointIPtr;
+typedef ::std::shared_ptr<TcpEndpointI> TcpEndpointIPtr;
+typedef ::std::shared_ptr<UdpEndpointI> UdpEndpointIPtr;
+typedef ::std::shared_ptr<WSEndpoint> WSEndpointPtr;
+typedef ::std::shared_ptr<EndpointI_connectors> EndpointI_connectorsPtr;
+
+#else // C++98 mapping
+
 ICE_API IceUtil::Shared* upCast(EndpointI*);
 typedef Handle<EndpointI> EndpointIPtr;
 
-class TcpEndpointI;
 ICE_API IceUtil::Shared* upCast(TcpEndpointI*);
 typedef Handle<TcpEndpointI> TcpEndpointIPtr;
 
-class UdpEndpointI;
 ICE_API IceUtil::Shared* upCast(UdpEndpointI*);
 typedef Handle<UdpEndpointI> UdpEndpointIPtr;
 
-class WSEndpoint;
 ICE_API IceUtil::Shared* upCast(WSEndpoint*);
 typedef Handle<WSEndpoint> WSEndpointPtr;
 
-class EndpointI_connectors;
 ICE_API IceUtil::Shared* upCast(EndpointI_connectors*);
 typedef Handle<EndpointI_connectors> EndpointI_connectorsPtr;
+
+#endif
 
 }
 

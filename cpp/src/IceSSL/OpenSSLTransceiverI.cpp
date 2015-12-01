@@ -279,7 +279,11 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
         _verified = true;
     }
 
+#ifdef ICE_CPP11_MAPPING
+    _engine->verifyPeer(_stream->fd(), _host, dynamic_pointer_cast<NativeConnectionInfo>(getInfo()));
+#else
     _engine->verifyPeer(_stream->fd(), _host, NativeConnectionInfoPtr::dynamicCast(getInfo()));
+#endif
 
     if(_engine->securityTraceLevel() >= 1)
     {
@@ -571,7 +575,7 @@ IceSSL::TransceiverI::toDetailedString() const
 Ice::ConnectionInfoPtr
 IceSSL::TransceiverI::getInfo() const
 {
-    NativeConnectionInfoPtr info = new NativeConnectionInfo();
+    NativeConnectionInfoPtr info = ICE_MAKE_SHARED(NativeConnectionInfo);
     fillConnectionInfo(info, info->nativeCerts);
     return info;
 }
@@ -579,7 +583,7 @@ IceSSL::TransceiverI::getInfo() const
 Ice::ConnectionInfoPtr
 IceSSL::TransceiverI::getWSInfo(const Ice::HeaderDict& headers) const
 {
-    WSSNativeConnectionInfoPtr info = new WSSNativeConnectionInfo();
+    WSSNativeConnectionInfoPtr info = ICE_MAKE_SHARED(WSSNativeConnectionInfo);
     fillConnectionInfo(info, info->nativeCerts);
     info->headers = headers;
     return info;
@@ -627,7 +631,7 @@ IceSSL::TransceiverI::verifyCallback(int ok, X509_STORE_CTX* c)
         _nativeCerts.clear();
         for(int i = 0; i < sk_X509_num(chain); ++i)
         {
-            _nativeCerts.push_back(new Certificate(X509_dup(sk_X509_value(chain, i))));
+            _nativeCerts.push_back(ICE_MAKE_SHARED(Certificate, X509_dup(sk_X509_value(chain, i))));
         }
         sk_X509_pop_free(chain, X509_free);
     }

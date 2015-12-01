@@ -1643,6 +1643,7 @@ Slice::Python::CodeVisitor::writeType(const TypePtr& p)
                 break;
             }
             case Builtin::KindObject:
+            case Builtin::KindValue:
             {
                 _out << "IcePy._t_Object";
                 break;
@@ -1706,6 +1707,7 @@ Slice::Python::CodeVisitor::writeInitializer(const DataMemberPtr& m)
                 _out << "''";
                 break;
             }
+            case Builtin::KindValue:
             case Builtin::KindObject:
             case Builtin::KindObjectProxy:
             case Builtin::KindLocalObject:
@@ -1943,6 +1945,7 @@ Slice::Python::CodeVisitor::writeConstantValue(const TypePtr& type, const Syntax
                 _out << "\"";                                   // Closing "
                 break;
             }
+            case Slice::Builtin::KindValue:
             case Slice::Builtin::KindObject:
             case Slice::Builtin::KindObjectProxy:
             case Slice::Builtin::KindLocalObject:

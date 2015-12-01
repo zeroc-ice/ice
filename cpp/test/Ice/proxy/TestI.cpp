@@ -17,8 +17,8 @@ MyDerivedClassI::MyDerivedClassI()
 {
 }
 
-Ice::ObjectPrx
-MyDerivedClassI::echo(const Ice::ObjectPrx& obj, const Ice::Current&)
+Ice::ObjectPrxPtr
+MyDerivedClassI::echo(const Ice::ObjectPrxPtr& obj, const Ice::Current&)
 {
     return obj;
 }
@@ -39,5 +39,9 @@ bool
 MyDerivedClassI::ice_isA(const std::string& s, const Ice::Current& current) const
 {
     _ctx = current.ctx;
+#ifdef ICE_CPP11_MAPPING
+    return Test::MyDerivedClassDisp::ice_isA(s, current);
+#else
     return Test::MyDerivedClass::ice_isA(s, current);
+#endif
 }

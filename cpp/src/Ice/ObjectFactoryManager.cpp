@@ -19,7 +19,7 @@ using namespace IceInternal;
 IceUtil::Shared* IceInternal::upCast(ObjectFactoryManager* p) { return p; }
 
 void
-IceInternal::ObjectFactoryManager::add(const ObjectFactoryPtr& factory, const string& id)
+IceInternal::ObjectFactoryManager::add(const ICE_OBJECT_FACTORY& factory, const string& id)
 {
     IceUtil::Mutex::Lock sync(*this);
 
@@ -32,13 +32,13 @@ IceInternal::ObjectFactoryManager::add(const ObjectFactoryPtr& factory, const st
         throw ex;
     }
 
-    _factoryMapHint = _factoryMap.insert(_factoryMapHint, pair<const string, ObjectFactoryPtr>(id, factory));
+    _factoryMapHint = _factoryMap.insert(_factoryMapHint, pair<const string, ICE_OBJECT_FACTORY>(id, factory));
 }
 
 void
 IceInternal::ObjectFactoryManager::remove(const string& id)
 {
-    ObjectFactoryPtr factory = 0;
+    ICE_OBJECT_FACTORY factory = ICE_NULLPTR;
     {
         IceUtil::Mutex::Lock sync(*this);
 
@@ -81,10 +81,12 @@ IceInternal::ObjectFactoryManager::remove(const string& id)
     // Destroy outside the lock
     //
     assert(factory != 0);
+#ifndef ICE_CPP11_MAPPING
     factory->destroy();
+#endif
 }
 
-ObjectFactoryPtr
+ICE_OBJECT_FACTORY
 IceInternal::ObjectFactoryManager::find(const string& id) const
 {
     IceUtil::Mutex::Lock sync(*this);
@@ -112,7 +114,7 @@ IceInternal::ObjectFactoryManager::find(const string& id) const
     }
     else
     {
-        return 0;
+        return ICE_NULLPTR;
     }
 }
 
@@ -124,6 +126,11 @@ IceInternal::ObjectFactoryManager::ObjectFactoryManager() :
 void
 IceInternal::ObjectFactoryManager::destroy()
 {
+#ifdef ICE_CPP11_MAPPING
+    IceUtil::Mutex::Lock sync(*this);
+    _factoryMap.clear();
+    _factoryMapHint = _factoryMap.end();
+#else
     FactoryMap oldMap;
     {
         IceUtil::Mutex::Lock sync(*this);
@@ -136,4 +143,5 @@ IceInternal::ObjectFactoryManager::destroy()
     //
     for_each(oldMap.begin(), oldMap.end(),
              Ice::secondVoidMemFun<const string, ObjectFactory>(&ObjectFactory::destroy));
+#endif
 }

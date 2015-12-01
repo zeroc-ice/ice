@@ -15,18 +15,22 @@ using namespace std;
 using namespace Ice;
 using namespace Test;
 
-TestIntfPrx
+TestIntfPrxPtr
 allTests(const CommunicatorPtr& communicator)
 {
     cout << "testing stringToProxy... " << flush;
-    ObjectPrx base = communicator->stringToProxy("test:default -p 12010");
+    ObjectPrxPtr base = communicator->stringToProxy("test:default -p 12010");
     test(base);
     cout << "ok" << endl;
 
     cout << "testing checked cast... " << flush;
-    TestIntfPrx obj = TestIntfPrx::checkedCast(base);
+    TestIntfPrxPtr obj = ICE_CHECKED_CAST(TestIntfPrx, base);
     test(obj);
+#ifdef ICE_CPP11_MAPPING
+    test(Ice::targetEquals(obj, base));
+#else
     test(obj == base);
+#endif
     cout << "ok" << endl;
 
     {
@@ -64,7 +68,11 @@ allTests(const CommunicatorPtr& communicator)
             Ice::InitializationData initData;
             initData.properties = communicator->getProperties()->clone();
             Ice::CommunicatorPtr comm = Ice::initialize(initData);
+#ifdef ICE_CPP11_MAPPING
+            comm->stringToProxy("test:default -p 12010")->ice_ping_async();
+#else
             comm->stringToProxy("test:default -p 12010")->begin_ice_ping();
+#endif
             comm->destroy();
         }
         cout << "ok" << endl;

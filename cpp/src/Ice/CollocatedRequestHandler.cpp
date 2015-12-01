@@ -35,7 +35,15 @@ public:
               CollocatedRequestHandler* handler,
               Int requestId,
               Int batchRequestNum) :
-        _out(out), _os(os), _handler(handler), _requestId(requestId), _batchRequestNum(batchRequestNum)
+        _out(out),
+        _os(os),
+#ifdef ICE_CPP11_MAPPING
+        _handler(dynamic_pointer_cast<CollocatedRequestHandler>(handler->shared_from_this())),
+#else
+        _handler(handler),
+#endif
+        _requestId(requestId),
+        _batchRequestNum(batchRequestNum)
     {
     }
 
@@ -63,7 +71,7 @@ public:
 
     InvokeAllAsync(const OutgoingAsyncBasePtr& outAsync,
                    BasicStream* os,
-                   CollocatedRequestHandler* handler,
+                   const CollocatedRequestHandlerPtr& handler,
                    Int requestId,
                    Int batchRequestNum) :
         _outAsync(outAsync), _os(os), _handler(handler), _requestId(requestId), _batchRequestNum(batchRequestNum)
@@ -103,7 +111,7 @@ fillInValue(BasicStream* os, int pos, Int value)
 
 CollocatedRequestHandler::CollocatedRequestHandler(const ReferencePtr& ref, const ObjectAdapterPtr& adapter) :
     RequestHandler(ref),
-    _adapter(ObjectAdapterIPtr::dynamicCast(adapter)),
+    _adapter(ICE_DYNAMIC_CAST(ObjectAdapterI, adapter)),
     _dispatcher(_reference->getInstance()->initializationData().dispatcher),
     _logger(_reference->getInstance()->initializationData().logger), // Cached for better performance.
     _traceLevels(_reference->getInstance()->traceLevels()), // Cached for better performance.
@@ -118,7 +126,11 @@ CollocatedRequestHandler::~CollocatedRequestHandler()
 RequestHandlerPtr
 CollocatedRequestHandler::update(const RequestHandlerPtr& previousHandler, const RequestHandlerPtr& newHandler)
 {
+#ifdef ICE_CPP11_MAPPING
+    return previousHandler.get() == this ? newHandler : dynamic_pointer_cast<RequestHandler>(shared_from_this());
+#else
     return previousHandler.get() == this ? newHandler : this;
+#endif
 }
 
 bool
@@ -190,7 +202,7 @@ CollocatedRequestHandler::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAs
         return;
     }
 
-    OutgoingAsyncPtr o = OutgoingAsyncPtr::dynamicCast(outAsync);
+    OutgoingAsyncPtr o = ICE_DYNAMIC_CAST(OutgoingAsync, outAsync);
     if(o)
     {
         for(map<Int, OutgoingAsyncBasePtr>::iterator q = _asyncRequests.begin(); q != _asyncRequests.end(); ++q)
@@ -262,15 +274,32 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
     {
         Lock sync(*this);
 
-        outAsync->cancelable(this); // This will throw if the request is canceled
+        //
+        // This will throw if the request is canceled
+        //
+#ifdef ICE_CPP11_MAPPING
+        outAsync->cancelable(dynamic_pointer_cast<CollocatedRequestHandler>(shared_from_this()));
+#else
+        outAsync->cancelable(this);
+#endif
 
         if(_response)
         {
             requestId = ++_requestId;
+#ifdef ICE_CPP11_MAPPING
+            _asyncRequests.insert(make_pair(requestId, 
+                                            dynamic_pointer_cast<OutgoingAsyncBase>(outAsync->shared_from_this())));
+#else
             _asyncRequests.insert(make_pair(requestId, outAsync));
+#endif
         }
 
+#ifdef ICE_CPP11_MAPPING
+        _sendAsyncRequests.insert(make_pair(
+            dynamic_pointer_cast<OutgoingAsyncBase>(outAsync->shared_from_this()), requestId));
+#else
         _sendAsyncRequests.insert(make_pair(outAsync, requestId));
+#endif
     }
     catch(...)
     {
@@ -280,8 +309,17 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
 
     outAsync->attachCollocatedObserver(_adapter, requestId);
 
+#ifdef ICE_CPP11_MAPPING
+    _adapter->getThreadPool()->dispatch(new InvokeAllAsync(
+                                                dynamic_pointer_cast<OutgoingAsyncBase>(outAsync->shared_from_this()), 
+                                                outAsync->getOs(), 
+                                                dynamic_pointer_cast<CollocatedRequestHandler>(shared_from_this()),
+                                                requestId,
+                                                batchRequestNum));
+#else
     _adapter->getThreadPool()->dispatch(new InvokeAllAsync(outAsync, outAsync->getOs(), this, requestId,
                                                            batchRequestNum));
+#endif
     return AsyncStatusQueued;
 }
 
@@ -392,7 +430,12 @@ CollocatedRequestHandler::sentAsync(OutgoingAsyncBase* outAsync)
 {
     {
         Lock sync(*this);
+#ifdef ICE_CPP11_MAPPING
+        if(_sendAsyncRequests.erase(outAsync ? 
+            dynamic_pointer_cast<IceInternal::OutgoingAsyncBase>(outAsync->shared_from_this()) : nullptr) == 0)
+#else
         if(_sendAsyncRequests.erase(outAsync) == 0)
+#endif
         {
             return false; // The request timed-out.
         }

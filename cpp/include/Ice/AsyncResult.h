@@ -23,7 +23,7 @@
 #include <Ice/ObserverHelper.h>
 #include <Ice/BasicStream.h>
 
-#ifdef ICE_CPP11
+#ifdef ICE_CPP11_COMPILER
 #   include <functional> // for std::function
 #endif
 
@@ -31,16 +31,30 @@ namespace IceInternal
 {
 
 class CallbackBase;
-typedef IceUtil::Handle<CallbackBase> CallbackBasePtr;
+ICE_DEFINE_PTR(CallbackBasePtr, CallbackBase);
 
 }
 
 namespace Ice
 {
 
-class ICE_API AsyncResult : public Ice::LocalObject, private IceUtil::noncopyable
+class ICE_API AsyncResult : private IceUtil::noncopyable,
+#ifdef ICE_CPP11_MAPPING
+    public ::std::enable_shared_from_this<::Ice::AsyncResult>
+#else
+    public Ice::LocalObject
+#endif
 {
 public:
+    
+#ifdef ICE_CPP11_MAPPING
+    AsyncResult(const CommunicatorPtr&, const IceInternal::InstancePtr&, const std::string&,
+                const IceInternal::CallbackBasePtr&);
+#else
+    AsyncResult(const CommunicatorPtr&, const IceInternal::InstancePtr&, const std::string&,
+                const IceInternal::CallbackBasePtr&, const LocalObjectPtr&);
+#endif
+    virtual ~AsyncResult(); // Must be heap-allocated
 
     void cancel();
 
@@ -48,7 +62,7 @@ public:
 
     CommunicatorPtr getCommunicator() const;
     virtual ConnectionPtr getConnection() const;
-    virtual ObjectPrx getProxy() const;
+    virtual ObjectPrxPtr getProxy() const;
 
     bool isCompleted() const;
     void waitForCompleted();
@@ -59,7 +73,11 @@ public:
     void throwLocalException() const;
 
     bool sentSynchronously() const;
+
+#ifndef ICE_CPP11_MAPPING
     LocalObjectPtr getCookie() const;
+#endif
+
     const std::string& getOperation() const;
 
     ::IceInternal::BasicStream* __startReadParams()
@@ -90,10 +108,6 @@ public:
 protected:
 
     static void __check(const AsyncResultPtr&, const ::std::string&);
-
-    AsyncResult(const CommunicatorPtr&, const IceInternal::InstancePtr&, const std::string&,
-                const IceInternal::CallbackBasePtr&, const LocalObjectPtr&);
-    virtual ~AsyncResult(); // Must be heap-allocated
 
     bool sent(bool);
     bool finished(bool);
@@ -157,14 +171,16 @@ namespace IceInternal
 //
 // Base class for all callbacks.
 //
-class ICE_API CallbackBase : public IceUtil::Shared
+class ICE_API CallbackBase : public ICE_ENABLE_SHARED_FROM_THIS(CallbackBase)
 {
 public:
 
     void checkCallback(bool, bool);
 
     virtual void completed(const ::Ice::AsyncResultPtr&) const = 0;
+#ifndef ICE_CPP11_MAPPING
     virtual CallbackBasePtr verify(const ::Ice::LocalObjectPtr&) = 0;
+#endif
     virtual void sent(const ::Ice::AsyncResultPtr&) const = 0;
     virtual bool hasSentCallback() const = 0;
 };
@@ -231,7 +247,7 @@ private:
     Callback _sent;
 };
 
-#ifdef ICE_CPP11
+#ifdef ICE_CPP11_COMPILER
 
 template<typename T> struct callback_type
 {
@@ -334,6 +350,7 @@ public:
 namespace Ice
 {
 
+#ifndef ICE_CPP11_MAPPING
 typedef IceUtil::Handle< ::IceInternal::GenericCallbackBase> CallbackPtr;
 
 template<class T> CallbackPtr
@@ -352,17 +369,18 @@ newCallback(T* instance,
     return new ::IceInternal::AsyncCallback<T>(instance, cb, sentcb);
 }
 
-#ifdef ICE_CPP11
+#   ifdef ICE_CPP11_COMPILER
 
 ICE_API CallbackPtr
 newCallback(const ::IceInternal::Function<void (const AsyncResultPtr&)>&,
             const ::IceInternal::Function<void (const AsyncResultPtr&)>& =
                ::IceInternal::Function<void (const AsyncResultPtr&)>());
+#   endif
 #endif
+}
 
 //
 // Operation callbacks are specified in Proxy.h
 //
-}
 
 #endif

@@ -26,7 +26,7 @@ OutgoingBase::OutgoingBase(Instance* instance) : _os(instance, Ice::currentProto
 {
 }
 
-ProxyOutgoingBase::ProxyOutgoingBase(IceProxy::Ice::Object* proxy, OperationMode mode) :
+ProxyOutgoingBase::ProxyOutgoingBase(const Ice::ObjectPrxPtr& proxy, OperationMode mode) :
     OutgoingBase(proxy->__reference()->getInstance().get()),
     _proxy(proxy),
     _mode(mode),
@@ -280,7 +280,7 @@ ProxyOutgoingBase::invokeImpl()
     return false;
 }
 
-Outgoing::Outgoing(IceProxy::Ice::Object* proxy, const string& operation, OperationMode mode, const Context* context) :
+Outgoing::Outgoing(const Ice::ObjectPrxPtr& proxy, const string& operation, OperationMode mode, const Context* context) :
     ProxyOutgoingBase(proxy, mode),
     _encoding(getCompatibleEncoding(proxy->__reference()->getEncoding())),
     _is(proxy->__reference()->getInstance().get(), Ice::currentProtocolEncoding),
@@ -288,7 +288,6 @@ Outgoing::Outgoing(IceProxy::Ice::Object* proxy, const string& operation, Operat
 {
     checkSupportedProtocol(getCompatibleProtocol(proxy->__reference()->getProtocol()));
     _observer.attach(proxy, operation, context);
-
     switch(_proxy->__reference()->getMode())
     {
         case Reference::ModeTwoway:
@@ -328,7 +327,7 @@ Outgoing::Outgoing(IceProxy::Ice::Object* proxy, const string& operation, Operat
 
         _os.write(static_cast<Ice::Byte>(mode));
 
-        if(context != 0)
+        if(context != &Ice::noExplicitContext)
         {
             //
             // Explicit context
@@ -582,8 +581,8 @@ Outgoing::throwUserException()
     }
 }
 
-ProxyFlushBatch::ProxyFlushBatch(IceProxy::Ice::Object* proxy, const string& operation) :
-    ProxyOutgoingBase(proxy, Ice::Normal)
+ProxyFlushBatch::ProxyFlushBatch(const Ice::ObjectPrxPtr& proxy, const string& operation) :
+    ProxyOutgoingBase(proxy, ICE_ENUM(OperationMode, Normal))
 {
     checkSupportedProtocol(getCompatibleProtocol(proxy->__reference()->getProtocol()));
     _observer.attach(proxy, operation, 0);

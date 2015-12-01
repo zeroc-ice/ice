@@ -52,7 +52,7 @@ main(int argc, char* argv[])
     {
         Ice::InitializationData initData;
         initData.properties = Ice::createProperties(argc, argv);
-#ifdef ICE_CPP11
+#ifdef ICE_CPP11_COMPILER
         Ice::DispatcherPtr dispatcher = new Dispatcher();
         initData.dispatcher = Ice::newDispatcher(
             [=](const Ice::DispatcherCallPtr& call, const Ice::ConnectionPtr& conn)

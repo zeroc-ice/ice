@@ -10,6 +10,12 @@
 top_srcdir	= ..
 
 include $(top_srcdir)/config/Make.rules
+ifeq ($(CPP11_MAPPING),yes)
+SUBDIRS		= IceUtil \
+		  Slice \
+		  Ice
+else
+
 
 SUBDIRS		= IceUtil \
 		  Slice \
@@ -23,6 +29,7 @@ SUBDIRS		:= $(SUBDIRS) \
 		   IceStorm \
 		   Glacier2 \
 		   IceGrid
+endif
 endif
 
 .PHONY: $(EVERYTHING) $(SUBDIRS)

@@ -11,6 +11,18 @@ top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules
 
+ifeq ($(CPP11_MAPPING),yes)
+SUBDIRS		= proxy \
+                  operations \
+                  exceptions \
+                  ami \
+                  info \
+                  inheritance \
+                  objects \
+                  properties \
+                  admin \
+                  enums
+else
 SUBDIRS		= proxy \
                   operations \
                   exceptions \
@@ -52,7 +64,8 @@ SUBDIRS		= proxy \
                   echo \
                   logger \
                   networkProxy \
-		  services
+                  services
+endif
 
 .PHONY: $(EVERYTHING) $(SUBDIRS)
 

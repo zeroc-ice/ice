@@ -1814,7 +1814,6 @@ def getBuildMode(d):
   if not p or not p.stdout:
     print("unable to get executable information!")
     sys.exit(1)
-
   debug = "MSVCP%sD.dll"
   release = "MSVCP%s.dll"
 

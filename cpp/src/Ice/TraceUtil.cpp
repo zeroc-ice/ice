@@ -73,21 +73,21 @@ printRequestHeader(ostream& s, BasicStream& stream)
     Byte mode;
     stream.read(mode);
     s << "\nmode = " << static_cast<int>(mode) << ' ';
-    switch(mode)
+    switch(static_cast<OperationMode>(mode))
     {
-        case Normal:
+        case ICE_ENUM(OperationMode, Normal):
         {
             s << "(normal)";
             break;
         }
 
-        case Nonmutating:
+        case ICE_ENUM(OperationMode, Nonmutating):
         {
             s << "(nonmutating)";
             break;
         }
 
-        case Idempotent:
+        case ICE_ENUM(OperationMode, Idempotent):
         {
             s << "(idempotent)";
             break;

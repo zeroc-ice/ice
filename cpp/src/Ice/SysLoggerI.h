@@ -21,6 +21,7 @@ class SysLoggerI : public Logger, public ::IceUtil::Mutex
 public:
 
     SysLoggerI(const std::string&, const std::string&);
+    SysLoggerI(const std::string&, int);
     ~SysLoggerI();
 
     virtual void print(const std::string&);
@@ -31,8 +32,6 @@ public:
     virtual LoggerPtr cloneWithPrefix(const std::string&);
 
 private:
-
-    SysLoggerI(const std::string&, int);
 
     int _facility;
     const std::string _prefix;

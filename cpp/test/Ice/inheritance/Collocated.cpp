@@ -21,10 +21,10 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    Ice::ObjectPtr object = new InitialI(adapter);
+    Ice::ObjectPtr object = ICE_MAKE_SHARED(InitialI, adapter);
     adapter->add(object, communicator->stringToIdentity("initial"));
 
-    InitialPrx allTests(const Ice::CommunicatorPtr&);
+    InitialPrxPtr allTests(const Ice::CommunicatorPtr&);
     allTests(communicator);
 
     return EXIT_SUCCESS;

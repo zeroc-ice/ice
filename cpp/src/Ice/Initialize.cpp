@@ -27,19 +27,6 @@ using namespace IceInternal;
 namespace
 {
 
-pair<const Byte*, const Byte*>
-makePair(const vector<Byte>& v)
-{
-    if(v.empty())
-    {
-        return pair<const Byte*, const Byte*>(static_cast<Byte*>(0), static_cast<Byte*>(0));
-    }
-    else
-    {
-        return pair<const Byte*, const Byte*>(&v[0], &v[0] + v.size());
-    }
-}
-
 IceUtil::Mutex* globalMutex = 0;
 Ice::LoggerPtr processLogger;
 
@@ -134,13 +121,13 @@ Ice::stringSeqToArgs(const StringSeq& args, int& argc, char* argv[])
 PropertiesPtr
 Ice::createProperties()
 {
-    return new PropertiesI(IceUtil::getProcessStringConverter());
+    return PropertiesPtr(new PropertiesI(IceUtil::getProcessStringConverter()));
 }
 
 PropertiesPtr
 Ice::createProperties(StringSeq& args, const PropertiesPtr& defaults)
 {
-    return new PropertiesI(args, defaults, IceUtil::getProcessStringConverter());
+    return PropertiesPtr(new PropertiesI(args, defaults, IceUtil::getProcessStringConverter()));
 }
 
 PropertiesPtr
@@ -154,7 +141,7 @@ Ice::createProperties(int& argc, char* argv[], const PropertiesPtr& defaults)
 
 Ice::ThreadHookPlugin::ThreadHookPlugin(const CommunicatorPtr& communicator, const ThreadNotificationPtr& threadHook)
 {
-    if(communicator == 0)
+    if(communicator == ICE_NULLPTR)
     {
         throw PluginInitializationException(__FILE__, __LINE__, "Communicator cannot be null");
     }
@@ -229,18 +216,16 @@ Ice::initialize(int& argc, char* argv[], const InitializationData& initializatio
     InitializationData initData = initializationData;
     initData.properties = createProperties(argc, argv, initData.properties);
 
-    CommunicatorI* communicatorI = new CommunicatorI(initData);
-    CommunicatorPtr result = communicatorI; // For exception safety.
-    communicatorI->finishSetup(argc, argv);
-    return result;
+    CommunicatorIPtr communicator = CommunicatorI::create(initData);
+    communicator->finishSetup(argc, argv);
+    return communicator;
 }
 
 CommunicatorPtr
 Ice::initialize(StringSeq& args, const InitializationData& initializationData, Int version)
 {
-    CommunicatorPtr communicator;
     IceUtilInternal::ArgVector av(args);
-    communicator = initialize(av.argc, av.argv, initializationData, version);
+    CommunicatorPtr communicator = initialize(av.argc, av.argv, initializationData, version);
     args = argsToStringSeq(av.argc, av.argv);
     return communicator;
 }
@@ -254,14 +239,32 @@ Ice::initialize(const InitializationData& initData, Int version)
     //
     checkIceVersion(version);
 
-    CommunicatorI* communicatorI = new CommunicatorI(initData);
-    CommunicatorPtr result = communicatorI; // For exception safety.
+    CommunicatorIPtr communicator = CommunicatorI::create(initData);
     int argc = 0;
     char* argv[] = { 0 };
-    communicatorI->finishSetup(argc, argv);
-    return result;
+    communicator->finishSetup(argc, argv);
+    return communicator;
 }
 
+#ifndef ICE_CPP11_MAPPING
+
+namespace
+{
+
+pair<const Byte*, const Byte*>
+makePair(const vector<Byte>& v)
+{
+    if(v.empty())
+    {
+        return pair<const Byte*, const Byte*>(static_cast<Byte*>(0), static_cast<Byte*>(0));
+    }
+    else
+    {
+        return pair<const Byte*, const Byte*>(&v[0], &v[0] + v.size());
+    }
+}
+
+}
 InputStreamPtr
 Ice::createInputStream(const CommunicatorPtr& communicator, const vector<Byte>& bytes)
 {
@@ -323,18 +326,19 @@ Ice::createOutputStream(const CommunicatorPtr& communicator, const EncodingVersi
 {
     return new OutputStreamI(communicator, v);
 }
+#endif
 
 LoggerPtr
 Ice::getProcessLogger()
 {
     IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
 
-    if(processLogger == 0)
+    if(processLogger == ICE_NULLPTR)
     {
        //
        // TODO: Would be nice to be able to use process name as prefix by default.
        //
-       processLogger = new Ice::LoggerI("", "", true, IceUtil::getProcessStringConverter());
+       processLogger = ICE_MAKE_SHARED(Ice::LoggerI, "", "", true, IceUtil::getProcessStringConverter());
     }
     return processLogger;
 }
@@ -356,7 +360,7 @@ Ice::registerPluginFactory(const std::string& name, PLUGIN_FACTORY factory, bool
 InstancePtr
 IceInternal::getInstance(const CommunicatorPtr& communicator)
 {
-    CommunicatorI* p = dynamic_cast<CommunicatorI*>(communicator.get());
+    CommunicatorIPtr p = ICE_DYNAMIC_CAST(::Ice::CommunicatorI, communicator);
     assert(p);
     return p->_instance;
 }
@@ -364,12 +368,12 @@ IceInternal::getInstance(const CommunicatorPtr& communicator)
 IceUtil::TimerPtr
 IceInternal::getInstanceTimer(const CommunicatorPtr& communicator)
 {
-    CommunicatorI* p = dynamic_cast<CommunicatorI*>(communicator.get());
+    CommunicatorIPtr p = ICE_DYNAMIC_CAST(::Ice::CommunicatorI, communicator);
     assert(p);
     return p->_instance->timer();
 }
 
-#ifdef ICE_CPP11
+#ifdef ICE_CPP11_COMPILER
 Ice::DispatcherPtr
 Ice::newDispatcher(const ::std::function<void (const DispatcherCallPtr&, const ConnectionPtr)>& cb)
 {
@@ -393,9 +397,7 @@ Ice::newDispatcher(const ::std::function<void (const DispatcherCallPtr&, const C
 
     return new Cpp11Dispatcher(cb);
 }
-#endif
 
-#ifdef ICE_CPP11
 Ice::BatchRequestInterceptorPtr
 Ice::newBatchRequestInterceptor(const ::std::function<void (const BatchRequest&, int, int)>& cb)
 {
@@ -417,6 +419,6 @@ Ice::newBatchRequestInterceptor(const ::std::function<void (const BatchRequest&,
         const ::std::function<void (const BatchRequest&, int, int)> _cb;
     };
 
-    return new Cpp11BatchRequestInterceptor(cb);
+    return ICE_MAKE_SHARED(Cpp11BatchRequestInterceptor, cb);
 }
 #endif

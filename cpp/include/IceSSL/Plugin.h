@@ -164,14 +164,16 @@ private:
 // Forward declaration.
 //
 class Certificate;
-typedef IceUtil::Handle<Certificate> CertificatePtr;
+ICE_DEFINE_PTR(CertificatePtr, Certificate);
 
 //
 // A representation of a PublicKey.
 //
-class ICE_SSL_API PublicKey : public IceUtil::Shared
+class ICE_SSL_API PublicKey : public ICE_ENABLE_SHARED_FROM_THIS(PublicKey)
 {
 public:
+    
+    PublicKey(const CertificatePtr&, KeyRef);
 
     ~PublicKey();
 
@@ -186,14 +188,13 @@ public:
 
 private:
 
-    PublicKey(const CertificatePtr&, KeyRef);
     friend class Certificate;
 
     CertificatePtr _cert;
     KeyRef _key;
 
 };
-typedef IceUtil::Handle<PublicKey> PublicKeyPtr;
+ICE_DEFINE_PTR(PublicKeyPtr, PublicKey);
 
 //
 // This class represents a DistinguishedName, similar to the Java
@@ -266,7 +267,7 @@ private:
 // This convenience class is a wrapper around a native certificate.
 // The interface is inspired by java.security.cert.X509Certificate.
 //
-class ICE_SSL_API Certificate : public IceUtil::Shared
+class ICE_SSL_API Certificate : public ICE_ENABLE_SHARED_FROM_THIS(Certificate)
 {
 public:
 
@@ -456,7 +457,7 @@ public:
     //
     std::vector<CertificatePtr> nativeCerts;
 };
-typedef IceUtil::Handle<NativeConnectionInfo> NativeConnectionInfoPtr;
+ICE_DEFINE_PTR(NativeConnectionInfoPtr, NativeConnectionInfo);
 
 //
 // WSSNativeConnectionInfo is an extension of IceSSL::WSSConnectionInfo
@@ -473,13 +474,13 @@ public:
     //
     std::vector<CertificatePtr> nativeCerts;
 };
-typedef IceUtil::Handle<WSSNativeConnectionInfo> WSSNativeConnectionInfoPtr;
+ICE_DEFINE_PTR(WSSNativeConnectionInfoPtr, WSSNativeConnectionInfo);
 
 //
 // An application can customize the certificate verification process
 // by implementing the CertificateVerifier interface.
 //
-class ICE_SSL_API CertificateVerifier : public IceUtil::Shared
+class ICE_SSL_API CertificateVerifier : public ICE_ENABLE_SHARED_FROM_THIS(CertificateVerifier)
 {
 public:
 
@@ -489,7 +490,7 @@ public:
     //
     virtual bool verify(const NativeConnectionInfoPtr&) = 0;
 };
-typedef IceUtil::Handle<CertificateVerifier> CertificateVerifierPtr;
+ICE_DEFINE_PTR(CertificateVerifierPtr, CertificateVerifier);
 
 //
 // In order to read an encrypted file, such as one containing a
@@ -506,7 +507,7 @@ typedef IceUtil::Handle<CertificateVerifier> CertificateVerifierPtr;
 // IceSSL.DelayInit=1), configure the PasswordPrompt, then manually
 // initialize the plug-in.
 //
-class ICE_SSL_API PasswordPrompt : public IceUtil::Shared
+class ICE_SSL_API PasswordPrompt : public ICE_ENABLE_SHARED_FROM_THIS(PasswordPrompt)
 {
 public:
 
@@ -517,7 +518,7 @@ public:
     //
     virtual std::string getPassword() = 0;
 };
-typedef IceUtil::Handle<PasswordPrompt> PasswordPromptPtr;
+ICE_DEFINE_PTR(PasswordPromptPtr, PasswordPrompt);
 
 class ICE_SSL_API Plugin : public Ice::Plugin
 {
@@ -557,7 +558,7 @@ public:
     virtual SSL_CTX* getContext() = 0;
 #endif
 };
-typedef IceUtil::Handle<Plugin> PluginPtr;
+ICE_DEFINE_PTR(PluginPtr, Plugin);
 
 }
 

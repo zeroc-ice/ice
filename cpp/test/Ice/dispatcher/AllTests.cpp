@@ -116,7 +116,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     Test::TestIntfControllerPrx testController = Test::TestIntfControllerPrx::uncheckedCast(obj);
 
-#ifdef ICE_CPP11
+#ifdef ICE_CPP11_COMPILER
     cout << "testing C++11 dispatcher... " << flush;
 #else
     cout << "testing dispatcher... " << flush;

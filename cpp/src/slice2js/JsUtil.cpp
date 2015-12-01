@@ -192,6 +192,7 @@ Slice::JsGenerator::getOptionalFormat(const TypePtr& type)
             return "Ice.OptionalFormat.VSize";
         }
         case Builtin::KindObject:
+        case Builtin::KindValue:
         {
             return "Ice.OptionalFormat.Class";
         }
@@ -503,6 +504,7 @@ Slice::JsGenerator::writeMarshalUnmarshalCode(Output &out,
                 return;
             }
             case Builtin::KindObject:
+            case Builtin::KindValue:
             {
                 // Handle by isClassType below.
                 break;
@@ -670,6 +672,7 @@ Slice::JsGenerator::getHelper(const TypePtr& type)
                 return "Ice.StringHelper";
             }
             case Builtin::KindObject:
+            case Builtin::KindValue:
             {
                 return "Ice.ObjectHelper";
             }

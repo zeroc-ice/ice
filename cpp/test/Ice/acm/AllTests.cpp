@@ -24,7 +24,9 @@ toString(int value)
     return os.str();
 }
 
-class LoggerI : public Ice::Logger, private IceUtil::Mutex
+class LoggerI : public ICE_ENABLE_SHARED_FROM_THIS(LoggerI),
+                public Ice::Logger, 
+                private IceUtil::Mutex
 {
 public:
 
@@ -93,7 +95,7 @@ public:
     virtual Ice::LoggerPtr
     cloneWithPrefix(const std::string&)
     {
-        return this;
+        return ICE_SHARED_FROM_THIS;
     }
 
 private:
@@ -111,13 +113,20 @@ private:
     bool _started;
     vector<string> _messages;
 };
-typedef IceUtil::Handle<LoggerI> LoggerIPtr;
+ICE_DEFINE_PTR(LoggerIPtr, LoggerI);
 
-class TestCase : public IceUtil::Thread, protected Ice::ConnectionCallback, protected IceUtil::Monitor<IceUtil::Mutex>
+class TestCase : 
+#ifdef ICE_CPP11_MAPPING
+                 public enable_shared_from_this<Ice::ConnectionCallback>,
+#else
+                 public IceUtil::Thread,
+#endif
+                 public Ice::ConnectionCallback,
+                 protected IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
-    TestCase(const string& name, const RemoteCommunicatorPrx& com) :
+    TestCase(const string& name, const RemoteCommunicatorPrxPtr& com) :
         _name(name), _com(com), _logger(new LoggerI()),
         _clientACMTimeout(-1), _clientACMClose(-1), _clientACMHeartbeat(-1),
         _serverACMTimeout(-1), _serverACMClose(-1), _serverACMHeartbeat(-1),
@@ -158,12 +167,19 @@ public:
         _communicator->destroy();
     }
 
-    void
-    join()
+#ifdef ICE_CPP11_MAPPING
+    void join(thread& t)
+#else
+    void join()
+#endif
     {
         cout << "testing " << _name << "... " << flush;
         _logger->start();
+#ifdef ICE_CPP11_MAPPING
+        t.join();
+#else
         getThreadControl().join();
+#endif
         if(_msg.empty())
         {
             cout << "ok" << endl;
@@ -178,11 +194,11 @@ public:
     virtual void
     run()
     {
-        TestIntfPrx proxy = TestIntfPrx::uncheckedCast(_communicator->stringToProxy(
+        TestIntfPrxPtr proxy = ICE_UNCHECKED_CAST(TestIntfPrx, _communicator->stringToProxy(
                                                            _adapter->getTestIntf()->ice_toString()));
         try
         {
-            proxy->ice_getConnection()->setCallback(this);
+            proxy->ice_getConnection()->setCallback(ICE_SHARED_FROM_THIS);
             runTestCase(_adapter, proxy);
         }
         catch(const std::exception& ex)
@@ -225,7 +241,7 @@ public:
         }
     }
 
-    virtual void runTestCase(const RemoteObjectAdapterPrx&, const TestIntfPrx&) = 0;
+    virtual void runTestCase(const RemoteObjectAdapterPrxPtr&, const TestIntfPrxPtr&) = 0;
 
     void
     setClientACM(int timeout, int close, int heartbeat)
@@ -246,12 +262,12 @@ public:
 protected:
 
     const string _name;
-    const RemoteCommunicatorPrx _com;
+    const RemoteCommunicatorPrxPtr _com;
     string _msg;
     LoggerIPtr _logger;
 
     Ice::CommunicatorPtr _communicator;
-    RemoteObjectAdapterPrx _adapter;
+    RemoteObjectAdapterPrxPtr _adapter;
 
     int _clientACMTimeout;
     int _clientACMClose;
@@ -263,7 +279,277 @@ protected:
     int _heartbeat;
     bool _closed;
 };
-typedef IceUtil::Handle<TestCase> TestCasePtr;
+ICE_DEFINE_PTR(TestCasePtr, TestCase);
+
+class InvocationHeartbeatTest : public TestCase
+{
+public:
+
+    InvocationHeartbeatTest(const RemoteCommunicatorPrxPtr& com) :
+        TestCase("invocation heartbeat", com)
+    {
+    }
+
+    virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr& proxy)
+    {
+        proxy->sleep(2);
+
+        Lock sync(*this);
+        test(_heartbeat >= 2);
+    }
+};
+
+class InvocationHeartbeatOnHoldTest : public TestCase
+{
+public:
+
+    InvocationHeartbeatOnHoldTest(const RemoteCommunicatorPrxPtr& com) :
+        TestCase("invocation with heartbeat on hold", com)
+    {
+        // Use default ACM configuration.
+    }
+
+    virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr& proxy)
+    {
+        try
+        {
+            // When the OA is put on hold, connections shouldn't
+            // send heartbeats, the invocation should therefore
+            // fail.
+            proxy->sleepAndHold(10);
+            test(false);
+        }
+        catch(const Ice::ConnectionTimeoutException&)
+        {
+            adapter->activate();
+            proxy->interruptSleep();
+
+            waitForClosed();
+        }
+    }
+};
+
+class InvocationNoHeartbeatTest : public TestCase
+{
+public:
+
+    InvocationNoHeartbeatTest(const RemoteCommunicatorPrxPtr& com) :
+        TestCase("invocation with no heartbeat", com)
+    {
+        setServerACM(1, 2, 0); // Disable heartbeat on invocations
+    }
+
+    virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr& proxy)
+    {
+        try
+        {
+            // Heartbeats are disabled on the server, the
+            // invocation should fail since heartbeats are
+            // expected.
+            proxy->sleep(10);
+            test(false);
+        }
+        catch(const Ice::ConnectionTimeoutException&)
+        {
+            proxy->interruptSleep();
+
+            waitForClosed();
+
+            Lock sync(*this);
+            test(_heartbeat == 0);
+        }
+    }
+};
+
+class InvocationHeartbeatCloseOnIdleTest : public TestCase
+{
+public:
+
+    InvocationHeartbeatCloseOnIdleTest(const RemoteCommunicatorPrxPtr& com) :
+        TestCase("invocation with no heartbeat and close on idle", com)
+    {
+        setClientACM(1, 1, 0); // Only close on idle.
+        setServerACM(1, 2, 0); // Disable heartbeat on invocations
+    }
+
+    virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr& proxy)
+    {
+        // No close on invocation, the call should succeed this
+        // time.
+        proxy->sleep(2);
+
+        Lock sync(*this);
+        test(_heartbeat == 0);
+        test(!_closed);
+    }
+};
+
+class CloseOnIdleTest : public TestCase
+{
+public:
+
+    CloseOnIdleTest(const RemoteCommunicatorPrxPtr& com) : TestCase("close on idle", com)
+    {
+        setClientACM(1, 1, 0); // Only close on idle
+    }
+
+    virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr& proxy)
+    {
+        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1500)); // Idle for 1.5 seconds
+
+        waitForClosed();
+
+        Lock sync(*this);
+        test(_heartbeat == 0);
+    }
+};
+
+class CloseOnInvocationTest : public TestCase
+{
+public:
+
+    CloseOnInvocationTest(const RemoteCommunicatorPrxPtr& com) : TestCase("close on invocation", com)
+    {
+        setClientACM(1, 2, 0); // Only close on invocation
+    }
+
+    virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr& proxy)
+    {
+        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1500)); // Idle for 1.5 seconds
+
+        Lock sync(*this);
+        test(_heartbeat == 0);
+        test(!_closed);
+    }
+};
+
+class CloseOnIdleAndInvocationTest : public TestCase
+{
+public:
+
+    CloseOnIdleAndInvocationTest(const RemoteCommunicatorPrxPtr& com) : TestCase("close on idle and invocation", com)
+    {
+        setClientACM(1, 3, 0); // Only close on idle and invocation
+    }
+
+    virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr& proxy)
+    {
+        //
+        // Put the adapter on hold. The server will not respond to
+        // the graceful close. This allows to test whether or not
+        // the close is graceful or forceful.
+        //
+        adapter->hold();
+        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1500)); // Idle for 1.5 seconds
+
+        {
+            Lock sync(*this);
+            test(_heartbeat == 0);
+            test(!_closed); // Not closed yet because of graceful close.
+        }
+
+        adapter->activate();
+        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
+
+        waitForClosed();
+    }
+};
+
+class ForcefulCloseOnIdleAndInvocationTest : public TestCase
+{
+public:
+
+    ForcefulCloseOnIdleAndInvocationTest(const RemoteCommunicatorPrxPtr& com) :
+        TestCase("forceful close on idle and invocation", com)
+    {
+        setClientACM(1, 4, 0); // Only close on idle and invocation
+    }
+
+    virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr& proxy)
+    {
+        adapter->hold();
+        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1500)); // Idle for 1.5 seconds
+
+        waitForClosed();
+
+        Lock sync(*this);
+        test(_heartbeat == 0);
+    }
+};
+
+class HeartbeatOnIdleTest : public TestCase
+{
+public:
+
+    HeartbeatOnIdleTest(const RemoteCommunicatorPrxPtr& com) : TestCase("heartbeat on idle", com)
+    {
+        setServerACM(1, -1, 2); // Enable server heartbeats.
+    }
+
+    virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr& proxy)
+    {
+        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(2000));
+
+        Lock sync(*this);
+        test(_heartbeat >= 3);
+    }
+};
+
+class HeartbeatAlwaysTest : public TestCase
+{
+public:
+
+    HeartbeatAlwaysTest(const RemoteCommunicatorPrxPtr& com) : TestCase("heartbeat always", com)
+    {
+        setServerACM(1, -1, 3); // Enable server heartbeats.
+    }
+
+    virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr& proxy)
+    {
+        for(int i = 0; i < 12; ++i)
+        {
+            proxy->ice_ping();
+            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(200));
+        }
+
+        Lock sync(*this);
+        test(_heartbeat >= 3);
+    }
+};
+
+class SetACMTest : public TestCase
+{
+public:
+
+    SetACMTest(const RemoteCommunicatorPrxPtr& com) : TestCase("setACM/getACM", com)
+    {
+        setClientACM(15, 4, 0);
+    }
+
+    virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr& proxy)
+    {
+        Ice::ACM acm;
+        acm = proxy->ice_getCachedConnection()->getACM();
+        test(acm.timeout == 15);
+        test(acm.close == Ice::CloseOnIdleForceful);
+        test(acm.heartbeat == Ice::HeartbeatOff);
+
+        proxy->ice_getCachedConnection()->setACM(IceUtil::None, IceUtil::None, IceUtil::None);
+        acm = proxy->ice_getCachedConnection()->getACM();
+        test(acm.timeout == 15);
+        test(acm.close == Ice::CloseOnIdleForceful);
+        test(acm.heartbeat == Ice::HeartbeatOff);
+
+        proxy->ice_getCachedConnection()->setACM(1, Ice::CloseOnInvocationAndIdle, Ice::HeartbeatAlways);
+        acm = proxy->ice_getCachedConnection()->getACM();
+        test(acm.timeout == 1);
+        test(acm.close == Ice::CloseOnInvocationAndIdle);
+        test(acm.heartbeat == Ice::HeartbeatAlways);
+
+        // Make sure the client sends few heartbeats to the server
+        proxy->waitForHeartbeat(2);
+    }
+};
 
 }
 
@@ -271,298 +557,45 @@ void
 allTests(const Ice::CommunicatorPtr& communicator)
 {
     string ref = "communicator:default -p 12010";
-    RemoteCommunicatorPrx com = RemoteCommunicatorPrx::uncheckedCast(communicator->stringToProxy(ref));
+    RemoteCommunicatorPrxPtr com = ICE_UNCHECKED_CAST(RemoteCommunicatorPrx, communicator->stringToProxy(ref));
 
     vector<TestCasePtr> tests;
 
-    class InvocationHeartbeatTest : public TestCase
-    {
-    public:
+    tests.push_back(ICE_MAKE_SHARED(InvocationHeartbeatTest, com));
+    tests.push_back(ICE_MAKE_SHARED(InvocationHeartbeatOnHoldTest, com));
+    tests.push_back(ICE_MAKE_SHARED(InvocationNoHeartbeatTest, com));
+    tests.push_back(ICE_MAKE_SHARED(InvocationHeartbeatCloseOnIdleTest, com));
 
-        InvocationHeartbeatTest(const RemoteCommunicatorPrx& com) :
-            TestCase("invocation heartbeat", com)
-        {
-        }
+    tests.push_back(ICE_MAKE_SHARED(CloseOnIdleTest, com));
+    tests.push_back(ICE_MAKE_SHARED(CloseOnInvocationTest, com));
+    tests.push_back(ICE_MAKE_SHARED(CloseOnIdleAndInvocationTest, com));
+    tests.push_back(ICE_MAKE_SHARED(ForcefulCloseOnIdleAndInvocationTest, com));
 
-        virtual void runTestCase(const RemoteObjectAdapterPrx& adapter, const TestIntfPrx& proxy)
-        {
-            proxy->sleep(2);
-
-            Lock sync(*this);
-            test(_heartbeat >= 2);
-        }
-    };
-
-    class InvocationHeartbeatOnHoldTest : public TestCase
-    {
-    public:
-
-        InvocationHeartbeatOnHoldTest(const RemoteCommunicatorPrx& com) :
-            TestCase("invocation with heartbeat on hold", com)
-        {
-            // Use default ACM configuration.
-        }
-
-        virtual void runTestCase(const RemoteObjectAdapterPrx& adapter, const TestIntfPrx& proxy)
-        {
-            try
-            {
-                // When the OA is put on hold, connections shouldn't
-                // send heartbeats, the invocation should therefore
-                // fail.
-                proxy->sleepAndHold(10);
-                test(false);
-            }
-            catch(const Ice::ConnectionTimeoutException&)
-            {
-                adapter->activate();
-                proxy->interruptSleep();
-
-                waitForClosed();
-            }
-        }
-    };
-
-    class InvocationNoHeartbeatTest : public TestCase
-    {
-    public:
-
-        InvocationNoHeartbeatTest(const RemoteCommunicatorPrx& com) :
-            TestCase("invocation with no heartbeat", com)
-        {
-            setServerACM(1, 2, 0); // Disable heartbeat on invocations
-        }
-
-        virtual void runTestCase(const RemoteObjectAdapterPrx& adapter, const TestIntfPrx& proxy)
-        {
-            try
-            {
-                // Heartbeats are disabled on the server, the
-                // invocation should fail since heartbeats are
-                // expected.
-                proxy->sleep(10);
-                test(false);
-            }
-            catch(const Ice::ConnectionTimeoutException&)
-            {
-                proxy->interruptSleep();
-
-                waitForClosed();
-
-                Lock sync(*this);
-                test(_heartbeat == 0);
-            }
-        }
-    };
-
-    class InvocationHeartbeatCloseOnIdleTest : public TestCase
-    {
-    public:
-
-        InvocationHeartbeatCloseOnIdleTest(const RemoteCommunicatorPrx& com) :
-            TestCase("invocation with no heartbeat and close on idle", com)
-        {
-            setClientACM(1, 1, 0); // Only close on idle.
-            setServerACM(1, 2, 0); // Disable heartbeat on invocations
-        }
-
-        virtual void runTestCase(const RemoteObjectAdapterPrx& adapter, const TestIntfPrx& proxy)
-        {
-            // No close on invocation, the call should succeed this
-            // time.
-            proxy->sleep(2);
-
-            Lock sync(*this);
-            test(_heartbeat == 0);
-            test(!_closed);
-        }
-    };
-
-    class CloseOnIdleTest : public TestCase
-    {
-    public:
-
-        CloseOnIdleTest(const RemoteCommunicatorPrx& com) : TestCase("close on idle", com)
-        {
-            setClientACM(1, 1, 0); // Only close on idle
-        }
-
-        virtual void runTestCase(const RemoteObjectAdapterPrx& adapter, const TestIntfPrx& proxy)
-        {
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1500)); // Idle for 1.5 seconds
-
-            waitForClosed();
-
-            Lock sync(*this);
-            test(_heartbeat == 0);
-        }
-    };
-
-    class CloseOnInvocationTest : public TestCase
-    {
-    public:
-
-        CloseOnInvocationTest(const RemoteCommunicatorPrx& com) : TestCase("close on invocation", com)
-        {
-            setClientACM(1, 2, 0); // Only close on invocation
-        }
-
-        virtual void runTestCase(const RemoteObjectAdapterPrx& adapter, const TestIntfPrx& proxy)
-        {
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1500)); // Idle for 1.5 seconds
-
-            Lock sync(*this);
-            test(_heartbeat == 0);
-            test(!_closed);
-        }
-    };
-
-    class CloseOnIdleAndInvocationTest : public TestCase
-    {
-    public:
-
-        CloseOnIdleAndInvocationTest(const RemoteCommunicatorPrx& com) : TestCase("close on idle and invocation", com)
-        {
-            setClientACM(1, 3, 0); // Only close on idle and invocation
-        }
-
-        virtual void runTestCase(const RemoteObjectAdapterPrx& adapter, const TestIntfPrx& proxy)
-        {
-            //
-            // Put the adapter on hold. The server will not respond to
-            // the graceful close. This allows to test whether or not
-            // the close is graceful or forceful.
-            //
-            adapter->hold();
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1500)); // Idle for 1.5 seconds
-
-            {
-                Lock sync(*this);
-                test(_heartbeat == 0);
-                test(!_closed); // Not closed yet because of graceful close.
-            }
-
-            adapter->activate();
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
-
-            waitForClosed();
-        }
-    };
-
-    class ForcefulCloseOnIdleAndInvocationTest : public TestCase
-    {
-    public:
-
-        ForcefulCloseOnIdleAndInvocationTest(const RemoteCommunicatorPrx& com) :
-            TestCase("forceful close on idle and invocation", com)
-        {
-            setClientACM(1, 4, 0); // Only close on idle and invocation
-        }
-
-        virtual void runTestCase(const RemoteObjectAdapterPrx& adapter, const TestIntfPrx& proxy)
-        {
-            adapter->hold();
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1500)); // Idle for 1.5 seconds
-
-            waitForClosed();
-
-            Lock sync(*this);
-            test(_heartbeat == 0);
-        }
-    };
-
-    class HeartbeatOnIdleTest : public TestCase
-    {
-    public:
-
-        HeartbeatOnIdleTest(const RemoteCommunicatorPrx& com) : TestCase("heartbeat on idle", com)
-        {
-            setServerACM(1, -1, 2); // Enable server heartbeats.
-        }
-
-        virtual void runTestCase(const RemoteObjectAdapterPrx& adapter, const TestIntfPrx& proxy)
-        {
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(2000));
-
-            Lock sync(*this);
-            test(_heartbeat >= 3);
-        }
-    };
-
-    class HeartbeatAlwaysTest : public TestCase
-    {
-    public:
-
-        HeartbeatAlwaysTest(const RemoteCommunicatorPrx& com) : TestCase("heartbeat always", com)
-        {
-            setServerACM(1, -1, 3); // Enable server heartbeats.
-        }
-
-        virtual void runTestCase(const RemoteObjectAdapterPrx& adapter, const TestIntfPrx& proxy)
-        {
-            for(int i = 0; i < 12; ++i)
-            {
-                proxy->ice_ping();
-                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(200));
-            }
-
-            Lock sync(*this);
-            test(_heartbeat >= 3);
-        }
-    };
-
-    class SetACMTest : public TestCase
-    {
-    public:
-
-        SetACMTest(const RemoteCommunicatorPrx& com) : TestCase("setACM/getACM", com)
-        {
-            setClientACM(15, 4, 0);
-        }
-
-        virtual void runTestCase(const RemoteObjectAdapterPrx& adapter, const TestIntfPrx& proxy)
-        {
-            Ice::ACM acm;
-            acm = proxy->ice_getCachedConnection()->getACM();
-            test(acm.timeout == 15);
-            test(acm.close == Ice::CloseOnIdleForceful);
-            test(acm.heartbeat == Ice::HeartbeatOff);
-
-            proxy->ice_getCachedConnection()->setACM(IceUtil::None, IceUtil::None, IceUtil::None);
-            acm = proxy->ice_getCachedConnection()->getACM();
-            test(acm.timeout == 15);
-            test(acm.close == Ice::CloseOnIdleForceful);
-            test(acm.heartbeat == Ice::HeartbeatOff);
-
-            proxy->ice_getCachedConnection()->setACM(1, Ice::CloseOnInvocationAndIdle, Ice::HeartbeatAlways);
-            acm = proxy->ice_getCachedConnection()->getACM();
-            test(acm.timeout == 1);
-            test(acm.close == Ice::CloseOnInvocationAndIdle);
-            test(acm.heartbeat == Ice::HeartbeatAlways);
-
-            // Make sure the client sends few heartbeats to the server
-            proxy->waitForHeartbeat(2);
-        }
-    };
-
-    tests.push_back(new InvocationHeartbeatTest(com));
-    tests.push_back(new InvocationHeartbeatOnHoldTest(com));
-    tests.push_back(new InvocationNoHeartbeatTest(com));
-    tests.push_back(new InvocationHeartbeatCloseOnIdleTest(com));
-
-    tests.push_back(new CloseOnIdleTest(com));
-    tests.push_back(new CloseOnInvocationTest(com));
-    tests.push_back(new CloseOnIdleAndInvocationTest(com));
-    tests.push_back(new ForcefulCloseOnIdleAndInvocationTest(com));
-
-    tests.push_back(new HeartbeatOnIdleTest(com));
-    tests.push_back(new HeartbeatAlwaysTest(com));
-    tests.push_back(new SetACMTest(com));
+    tests.push_back(ICE_MAKE_SHARED(HeartbeatOnIdleTest, com));
+    tests.push_back(ICE_MAKE_SHARED(HeartbeatAlwaysTest, com));
+    tests.push_back(ICE_MAKE_SHARED(SetACMTest, com));
 
     for(vector<TestCasePtr>::const_iterator p = tests.begin(); p != tests.end(); ++p)
     {
         (*p)->init();
     }
+    
+#ifdef ICE_CPP11_MAPPING
+    vector<pair<thread, TestCasePtr>> threads;
+    for(auto p = tests.begin(); p != tests.end(); ++p)
+    {
+        TestCasePtr testCase = *p;
+        thread t([testCase]()
+            {
+                testCase->run();
+            });
+        threads.push_back(make_pair(move(t), testCase));
+    }
+    for(auto p = threads.begin(); p != threads.end(); ++p)
+    {
+        p->second->join(p->first);
+    }
+#else
     for(vector<TestCasePtr>::const_iterator p = tests.begin(); p != tests.end(); ++p)
     {
         (*p)->start();
@@ -571,6 +604,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         (*p)->join();
     }
+#endif
     for(vector<TestCasePtr>::const_iterator p = tests.begin(); p != tests.end(); ++p)
     {
         (*p)->destroy();

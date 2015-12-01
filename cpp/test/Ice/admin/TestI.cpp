@@ -19,7 +19,7 @@ namespace
 // A no-op Logger, used when testing the Logger Admin
 //
 
-class NullLogger : public Ice::Logger
+class NullLogger : public Ice::Logger, public ICE_ENABLE_SHARED_FROM_THIS(NullLogger)
 {
 public:
 
@@ -46,7 +46,7 @@ public:
     
     virtual Ice::LoggerPtr cloneWithPrefix(const string&)
     {
-        return this;
+        return ICE_SHARED_FROM_THIS;
     }
 };
 
@@ -59,7 +59,7 @@ RemoteCommunicatorI::RemoteCommunicatorI(const Ice::CommunicatorPtr& communicato
 {
 }
 
-Ice::ObjectPrx
+Ice::ObjectPrxPtr
 RemoteCommunicatorI::getAdmin(const Ice::Current&)
 {
     return _communicator->getAdmin();
@@ -141,7 +141,7 @@ RemoteCommunicatorI::updated(const Ice::PropertyDict& changes)
     notify();
 }
 
-Test::RemoteCommunicatorPrx
+Test::RemoteCommunicatorPrxPtr
 RemoteCommunicatorFactoryI::createCommunicator(const Ice::PropertyDict& props, const Ice::Current& current)
 {
     //
@@ -156,7 +156,7 @@ RemoteCommunicatorFactoryI::createCommunicator(const Ice::PropertyDict& props, c
 
     if(init.properties->getPropertyAsInt("NullLogger") > 0)
     {
-        init.logger = new NullLogger;
+        init.logger = ICE_MAKE_SHARED(NullLogger);
     }
 
     //
@@ -167,23 +167,23 @@ RemoteCommunicatorFactoryI::createCommunicator(const Ice::PropertyDict& props, c
     //
     // Install a custom admin facet.
     //
-    communicator->addAdminFacet(new TestFacetI, "TestFacet");
+    communicator->addAdminFacet(ICE_MAKE_SHARED(TestFacetI), "TestFacet");
 
     //
     // The RemoteCommunicator servant also implements PropertiesAdminUpdateCallback.
     // Set the callback on the admin facet.
     //
-    RemoteCommunicatorIPtr servant = new RemoteCommunicatorI(communicator);
+    RemoteCommunicatorIPtr servant = ICE_MAKE_SHARED(RemoteCommunicatorI, communicator);
     Ice::ObjectPtr propFacet = communicator->findAdminFacet("Properties");
     if(propFacet)
     {
-        Ice::NativePropertiesAdminPtr admin = Ice::NativePropertiesAdminPtr::dynamicCast(propFacet);
+        Ice::NativePropertiesAdminPtr admin = ICE_DYNAMIC_CAST(Ice::NativePropertiesAdmin, propFacet);
         assert(admin);
         admin->addUpdateCallback(servant);
     }
 
-    Ice::ObjectPrx proxy = current.adapter->addWithUUID(servant);
-    return Test::RemoteCommunicatorPrx::uncheckedCast(proxy);
+    Ice::ObjectPrxPtr proxy = current.adapter->addWithUUID(servant);
+    return ICE_UNCHECKED_CAST(Test::RemoteCommunicatorPrx, proxy);
 }
 
 void

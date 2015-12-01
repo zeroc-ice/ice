@@ -440,7 +440,6 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, St
         cmdArgs = properties->parseCommandLineOptions(name, cmdArgs);
     }
 
-    PluginPtr plugin;
     PLUGIN_FACTORY factory = 0;
     DynamicLibraryPtr library;
 
@@ -487,7 +486,7 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, St
     // Invoke the factory function. No exceptions can be raised
     // by the factory function because it's declared extern "C".
     //
-    plugin = factory(_communicator, name, args);
+    PluginPtr plugin(factory(_communicator, name, args));
     if(!plugin)
     {
         PluginInitializationException e(__FILE__, __LINE__);

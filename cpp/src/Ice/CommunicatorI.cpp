@@ -56,26 +56,26 @@ Ice::CommunicatorI::isShutdown() const
     return _instance->objectAdapterFactory()->isShutdown();
 }
 
-ObjectPrx
+ObjectPrxPtr
 Ice::CommunicatorI::stringToProxy(const string& s) const
 {
     return _instance->proxyFactory()->stringToProxy(s);
 }
 
 string
-Ice::CommunicatorI::proxyToString(const ObjectPrx& proxy) const
+Ice::CommunicatorI::proxyToString(const ObjectPrxPtr& proxy) const
 {
     return _instance->proxyFactory()->proxyToString(proxy);
 }
 
-ObjectPrx
+ObjectPrxPtr
 Ice::CommunicatorI::propertyToProxy(const string& p) const
 {
     return _instance->proxyFactory()->propertyToProxy(p);
 }
 
 PropertyDict
-Ice::CommunicatorI::proxyToProperty(const ObjectPrx& proxy, const string& property) const
+Ice::CommunicatorI::proxyToProperty(const ObjectPrxPtr& proxy, const string& property) const
 {
     return _instance->proxyFactory()->proxyToProperty(proxy, property);
 }
@@ -95,7 +95,7 @@ Ice::CommunicatorI::identityToString(const Identity& ident) const
 ObjectAdapterPtr
 Ice::CommunicatorI::createObjectAdapter(const string& name)
 {
-    return _instance->objectAdapterFactory()->createObjectAdapter(name, 0);
+    return _instance->objectAdapterFactory()->createObjectAdapter(name, ICE_NULLPTR);
 }
 
 ObjectAdapterPtr
@@ -108,11 +108,11 @@ Ice::CommunicatorI::createObjectAdapterWithEndpoints(const string& name, const s
     }
 
     getProperties()->setProperty(oaName + ".Endpoints", endpoints);
-    return _instance->objectAdapterFactory()->createObjectAdapter(oaName, 0);
+    return _instance->objectAdapterFactory()->createObjectAdapter(oaName, ICE_NULLPTR);
 }
 
 ObjectAdapterPtr
-Ice::CommunicatorI::createObjectAdapterWithRouter(const string& name, const RouterPrx& router)
+Ice::CommunicatorI::createObjectAdapterWithRouter(const string& name, const RouterPrxPtr& router)
 {
     string oaName = name;
     if(oaName.empty())
@@ -129,17 +129,31 @@ Ice::CommunicatorI::createObjectAdapterWithRouter(const string& name, const Rout
     return _instance->objectAdapterFactory()->createObjectAdapter(oaName, router);
 }
 
+#ifdef ICE_CPP11_MAPPING
 void
-Ice::CommunicatorI::addObjectFactory(const ObjectFactoryPtr& factory, const string& id)
+Ice::CommunicatorI::addObjectFactory(function<::Ice::ValuePtr (const string&)> factory, const string& id)
 {
-    _instance->servantFactoryManager()->add(factory, id);
+        _instance->servantFactoryManager()->add(move(factory), id);
 }
 
-ObjectFactoryPtr
+function<::Ice::ValuePtr (const string&)>
 Ice::CommunicatorI::findObjectFactory(const string& id) const
 {
     return _instance->servantFactoryManager()->find(id);
 }
+#else
+void
+Ice::CommunicatorI::addObjectFactory(const ::Ice::ObjectFactoryPtr& factory, const string& id)
+{
+    _instance->servantFactoryManager()->add(factory, id);
+}
+
+::Ice::ObjectFactoryPtr
+Ice::CommunicatorI::findObjectFactory(const string& id) const
+{
+    return _instance->servantFactoryManager()->find(id);
+}
+#endif
 
 PropertiesPtr
 Ice::CommunicatorI::getProperties() const
@@ -159,26 +173,26 @@ Ice::CommunicatorI::getObserver() const
     return _instance->initializationData().observer;
 }
 
-RouterPrx
+RouterPrxPtr
 Ice::CommunicatorI::getDefaultRouter() const
 {
     return _instance->referenceFactory()->getDefaultRouter();
 }
 
 void
-Ice::CommunicatorI::setDefaultRouter(const RouterPrx& router)
+Ice::CommunicatorI::setDefaultRouter(const RouterPrxPtr& router)
 {
     _instance->setDefaultRouter(router);
 }
 
-LocatorPrx
+LocatorPrxPtr
 Ice::CommunicatorI::getDefaultLocator() const
 {
     return _instance->referenceFactory()->getDefaultLocator();
 }
 
 void
-Ice::CommunicatorI::setDefaultLocator(const LocatorPrx& locator)
+Ice::CommunicatorI::setDefaultLocator(const LocatorPrxPtr& locator)
 {
     _instance->setDefaultLocator(locator);
 }
@@ -195,6 +209,117 @@ Ice::CommunicatorI::getPluginManager() const
     return _instance->pluginManager();
 }
 
+namespace
+{
+
+const ::std::string __flushBatchRequests_name = "flushBatchRequests";
+
+}
+
+#ifdef ICE_CPP11_MAPPING
+void
+Ice::CommunicatorI::flushBatchRequests()
+{
+    promise<bool> promise;
+    flushBatchRequests_async(
+        nullptr,
+        [&](exception_ptr ex)
+        {
+            promise.set_exception(move(ex));
+        },
+        [&](bool sentSynchronously)
+        {
+            promise.set_value(sentSynchronously);
+        });
+    promise.get_future().get();
+}
+
+::std::function<void ()>
+Ice::CommunicatorI::flushBatchRequests_async(
+    function<void ()> completed,
+    function<void (exception_ptr)> exception,
+    function<void (bool)> sent)
+{
+    class FlushBatchRequestsCallback : public CallbackBase
+    {
+    public:
+        
+        FlushBatchRequestsCallback(function<void (exception_ptr)> exception,
+                                   function<void (bool)> sent, 
+                                   shared_ptr<Communicator> communicator) :
+            _exception(move(exception)),
+            _sent(move(sent)),
+            _communicator(move(communicator))
+        {
+        }
+        
+        virtual void sent(const AsyncResultPtr& result) const
+        {
+            try
+            {
+                AsyncResult::__check(result, _communicator.get(), __flushBatchRequests_name);
+                result->__wait();
+            }
+            catch(const ::Ice::Exception&)
+            {
+                _exception(current_exception());
+            }
+            
+            if(_sent)
+            {
+                _sent(result->sentSynchronously());
+            }
+        }
+        
+        virtual bool hasSentCallback() const
+        {
+            return true;
+        }
+
+        
+        virtual void
+        completed(const ::Ice::AsyncResultPtr& result) const
+        {
+            try
+            {
+                AsyncResult::__check(result, _communicator.get(), __flushBatchRequests_name);
+                result->__wait();
+            }
+            catch(const ::Ice::Exception&)
+            {
+                _exception(current_exception());
+            }
+        }
+
+    private:
+
+        function<void (exception_ptr)> _exception;
+        function<void (bool)> _sent;
+        shared_ptr<Communicator> _communicator;
+    };
+    
+    OutgoingConnectionFactoryPtr connectionFactory = _instance->outgoingConnectionFactory();
+    ObjectAdapterFactoryPtr adapterFactory = _instance->objectAdapterFactory();
+    
+    auto self = dynamic_pointer_cast<CommunicatorI>(shared_from_this());
+    
+    auto result = make_shared<CommunicatorFlushBatchAsync>(self, _instance, __flushBatchRequests_name,
+        make_shared<FlushBatchRequestsCallback>(move(exception), move(sent), self));
+    
+    connectionFactory->flushAsyncBatchRequests(result);
+    adapterFactory->flushAsyncBatchRequests(result);
+
+    //
+    // Inform the callback that we have finished initiating all of the
+    // flush requests.
+    //
+    result->ready();
+    return [result]()
+        {
+            result->cancel();
+        };
+}
+#else
 void
 Ice::CommunicatorI::flushBatchRequests()
 {
@@ -224,7 +349,7 @@ AsyncResultPtr
 Ice::CommunicatorI::begin_flushBatchRequests(const IceInternal::Function<void (const Exception&)>& exception,
                                              const IceInternal::Function<void (bool)>& sent)
 {
-#ifdef ICE_CPP11
+#ifdef ICE_CPP11_COMPILER
     class Cpp11CB : public IceInternal::Cpp11FnCallbackNC
     {
 
@@ -254,18 +379,11 @@ Ice::CommunicatorI::begin_flushBatchRequests(const IceInternal::Function<void (c
         }
     };
 
-    return __begin_flushBatchRequests(new Cpp11CB(exception, sent), 0);
+    return __begin_flushBatchRequests(ICE_MAKE_SHARED(Cpp11CB, exception, sent), 0);
 #else
     assert(false); // Ice not built with C++11 support.
     return 0;
 #endif
-}
-
-namespace
-{
-
-const ::std::string __flushBatchRequests_name = "flushBatchRequests";
-
 }
 
 AsyncResultPtr
@@ -278,7 +396,7 @@ Ice::CommunicatorI::__begin_flushBatchRequests(const IceInternal::CallbackBasePt
     // This callback object receives the results of all invocations
     // of Connection::begin_flushBatchRequests.
     //
-    CommunicatorFlushBatchAsyncPtr result = new CommunicatorFlushBatchAsync(this,
+    CommunicatorFlushBatchAsyncPtr result = new CommunicatorFlushBatchAsync(ICE_SHARED_FROM_THIS,
                                                                             _instance,
                                                                             __flushBatchRequests_name,
                                                                             cb,
@@ -302,13 +420,14 @@ Ice::CommunicatorI::end_flushBatchRequests(const AsyncResultPtr& r)
     AsyncResult::__check(r, this, __flushBatchRequests_name);
     r->__wait();
 }
+#endif
 
-ObjectPrx
+ObjectPrxPtr
 Ice::CommunicatorI::createAdmin(const ObjectAdapterPtr& adminAdapter, const Identity& adminId)
 {
     return _instance->createAdmin(adminAdapter, adminId);
 }
-ObjectPrx
+ObjectPrxPtr
 Ice::CommunicatorI::getAdmin() const
 {
     return _instance->getAdmin();
@@ -338,27 +457,27 @@ Ice::CommunicatorI::findAllAdminFacets()
     return _instance->findAllAdminFacets();
 }
 
-Ice::CommunicatorI::CommunicatorI(const InitializationData& initData)
+CommunicatorIPtr
+Ice::CommunicatorI::create(const InitializationData& initData)
 {
-    __setNoDelete(true);
+    Ice::CommunicatorIPtr communicator = ICE_MAKE_SHARED(CommunicatorI);
     try
     {
-        const_cast<InstancePtr&>(_instance) = new Instance(this, initData);
+        const_cast<InstancePtr&>(communicator->_instance) = new Instance(communicator, initData);
 
         //
         // Keep a reference to the dynamic library list to ensure
         // the libraries are not unloaded until this Communicator's
         // destructor is invoked.
         //
-        const_cast<DynamicLibraryListPtr&>(_dynamicLibraryList) = _instance->dynamicLibraryList();
+        const_cast<DynamicLibraryListPtr&>(communicator->_dynamicLibraryList) = communicator->_instance->dynamicLibraryList();
     }
     catch(...)
     {
-        destroy();
-        __setNoDelete(false);
+        communicator->destroy();
         throw;
     }
-    __setNoDelete(false);
+    return communicator;
 }
 
 Ice::CommunicatorI::~CommunicatorI()
@@ -375,7 +494,7 @@ Ice::CommunicatorI::finishSetup(int& argc, char* argv[])
 {
     try
     {
-        _instance->finishSetup(argc, argv, this);
+        _instance->finishSetup(argc, argv, ICE_SHARED_FROM_THIS);
     }
     catch(...)
     {

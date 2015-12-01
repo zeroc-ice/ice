@@ -525,7 +525,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
 
     cout << "ok" << endl;
-#ifdef ICE_CPP11
+#ifdef ICE_CPP11_COMPILER
         cout << "testing asynchronous ice_invoke with C++11 style callbacks... " << flush;
 
     {

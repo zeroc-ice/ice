@@ -26,25 +26,37 @@ ServantLocatorI::~ServantLocatorI()
 }
 
 Ice::ObjectPtr
+#ifdef ICE_CPP11_MAPPING
+ServantLocatorI::locate(const Ice::Current& current, std::shared_ptr<void>& cookie)
+#else
 ServantLocatorI::locate(const Ice::Current& current, Ice::LocalObjectPtr& cookie)
+#endif
 {
     test(!_deactivated);
 
     test(current.id.category == "");
     test(current.id.name == "test");
 
-    cookie = new CookieI;
+    cookie = ICE_MAKE_SHARED(CookieI);
 
-    return new TestI;
+    return ICE_MAKE_SHARED(TestI);
 }
 
 void
+#ifdef ICE_CPP11_MAPPING
+ServantLocatorI::finished(const Ice::Current&, const Ice::ObjectPtr&,
+                          const std::shared_ptr<void>& cookie)
+#else
 ServantLocatorI::finished(const Ice::Current&, const Ice::ObjectPtr&,
                           const Ice::LocalObjectPtr& cookie)
+#endif
 {
     test(!_deactivated);
-
+#ifdef ICE_CPP11_MAPPING
+    shared_ptr<CookieI> co = static_pointer_cast<CookieI>(cookie);
+#else
     CookiePtr co = CookiePtr::dynamicCast(cookie);
+#endif
     test(co);
     test(co->message() == "blahblah");
 }

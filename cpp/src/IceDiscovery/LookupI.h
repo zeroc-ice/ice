@@ -54,7 +54,7 @@ public:
         return _callbacks.size() == 1;
     }
 
-    virtual void finished(const Ice::ObjectPrx& proxy)
+    virtual void finished(const Ice::ObjectPrxPtr& proxy)
     {
         for(typename std::vector<CB>::const_iterator p = _callbacks.begin(); p != _callbacks.end(); ++p)
         {
@@ -78,7 +78,7 @@ public:
     {
     }
 
-    void response(const Ice::ObjectPrx&);
+    void response(const Ice::ObjectPrxPtr&);
 
 private:
 
@@ -96,15 +96,15 @@ public:
     {
     }
 
-    bool response(const Ice::ObjectPrx&, bool);
+    bool response(const Ice::ObjectPrxPtr&, bool);
 
     virtual bool retry();
-    virtual void finished(const Ice::ObjectPrx&);
+    virtual void finished(const Ice::ObjectPrxPtr&);
 
 private:
 
     virtual void runTimerTask();
-    std::vector<Ice::ObjectPrx> _proxies;
+    std::vector<Ice::ObjectPrxPtr> _proxies;
     IceUtil::Time _start;
     IceUtil::Time _latency;
 };
@@ -114,23 +114,23 @@ class LookupI : public Lookup, private IceUtil::Mutex
 {
 public:
 
-    LookupI(const LocatorRegistryIPtr&, const LookupPrx&, const Ice::PropertiesPtr&);
+    LookupI(const LocatorRegistryIPtr&, const LookupPrxPtr&, const Ice::PropertiesPtr&);
     virtual ~LookupI();
 
     void destroy();
 
-    void setLookupReply(const LookupReplyPrx&);
+    void setLookupReply(const LookupReplyPrxPtr&);
 
-    virtual void findObjectById(const std::string&, const Ice::Identity&, const IceDiscovery::LookupReplyPrx&, 
+    virtual void findObjectById(const std::string&, const Ice::Identity&, const IceDiscovery::LookupReplyPrxPtr&, 
                                 const Ice::Current&);
-    virtual void findAdapterById(const std::string&, const std::string&, const IceDiscovery::LookupReplyPrx&, 
+    virtual void findAdapterById(const std::string&, const std::string&, const IceDiscovery::LookupReplyPrxPtr&, 
                                  const Ice::Current&);
 
     void findObject(const Ice::AMD_Locator_findObjectByIdPtr&, const Ice::Identity&);
     void findAdapter(const Ice::AMD_Locator_findAdapterByIdPtr&, const std::string&);
 
-    void foundObject(const Ice::Identity&, const Ice::ObjectPrx&);
-    void foundAdapter(const std::string&, const Ice::ObjectPrx&, bool);
+    void foundObject(const Ice::Identity&, const Ice::ObjectPrxPtr&);
+    void foundAdapter(const std::string&, const Ice::ObjectPrxPtr&, bool);
 
     void adapterRequestTimedOut(const AdapterRequestPtr&);
     void objectRequestTimedOut(const ObjectRequestPtr&);
@@ -150,15 +150,15 @@ public:
 private:
 
     LocatorRegistryIPtr _registry;
-    const LookupPrx _lookup;
-    LookupReplyPrx _lookupReply;
+    const LookupPrxPtr _lookup;
+    LookupReplyPrxPtr _lookupReply;
     const IceUtil::Time _timeout;
     const int _retryCount;
     const int _latencyMultiplier;
     const std::string _domainId;
 
     IceUtil::TimerPtr _timer;
-    Ice::ObjectPrx _wellKnownProxy;
+    Ice::ObjectPrxPtr _wellKnownProxy;
 
     std::map<Ice::Identity, ObjectRequestPtr> _objectRequests;
     std::map<std::string, AdapterRequestPtr> _adapterRequests;
@@ -170,8 +170,8 @@ public:
 
     LookupReplyI(const LookupIPtr&);
 
-    virtual void foundObjectById(const Ice::Identity&, const Ice::ObjectPrx&, const Ice::Current&);
-    virtual void foundAdapterById(const std::string&, const Ice::ObjectPrx&, bool, const Ice::Current&);
+    virtual void foundObjectById(const Ice::Identity&, const Ice::ObjectPrxPtr&, const Ice::Current&);
+    virtual void foundAdapterById(const std::string&, const Ice::ObjectPrxPtr&, bool, const Ice::Current&);
 
 private:
 

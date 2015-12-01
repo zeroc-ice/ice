@@ -23,7 +23,7 @@ class ICE_API LoggerOutputBase : private IceUtil::noncopyable
 public:
 
     std::string str() const;
-   
+
     std::ostringstream& __str(); // For internal use only. Don't use in your code.
 
 private:
@@ -68,12 +68,18 @@ template<typename T>
 inline LoggerOutputBase&
 operator<<(LoggerOutputBase& out, const T& val)
 {
-    return LoggerOutputInserter<T, IsException<T>::value>::insert(out, val); 
+    return LoggerOutputInserter<T, IsException<T>::value>::insert(out, val);
 }
 
+#ifdef ICE_CPP11_MAPPING
+template<typename T, typename ::std::enable_if<::std::is_base_of<::Ice::ObjectPrx, T>::value>::type* = nullptr>
+inline LoggerOutputBase&
+operator<<(LoggerOutputBase& os, const ::std::shared_ptr<T>& p)
+#else
 template<typename T>
-inline LoggerOutputBase& 
+inline LoggerOutputBase&
 operator<<(LoggerOutputBase& os, const ::IceInternal::ProxyHandle<T>& p)
+#endif
 {
     return os << (p ? p->ice_toString() : "");
 }
@@ -94,7 +100,7 @@ public:
     inline LoggerOutput(const LPtr& lptr) :
         _logger(lptr)
     {}
-    
+
     inline ~LoggerOutput()
     {
         flush();
@@ -112,7 +118,7 @@ public:
     }
 
 private:
-   
+
     LPtr _logger;
 };
 
@@ -126,9 +132,9 @@ public:
     Trace(const LoggerPtr&, const std::string&);
     ~Trace();
     void flush();
-   
+
 private:
-    
+
     LoggerPtr _logger;
     std::string _category;
 };

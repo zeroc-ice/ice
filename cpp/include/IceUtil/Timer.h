@@ -28,7 +28,10 @@ typedef IceUtil::Handle<Timer> TimerPtr;
 // Extend the TimerTask class and override the runTimerTask() method to execute
 // code at a specific time or repeatedly.
 //
-class ICE_UTIL_API TimerTask : virtual public IceUtil::Shared
+class ICE_UTIL_API TimerTask
+#ifndef ICE_CPP11_MAPPING
+    : virtual public IceUtil::Shared
+#endif
 {
 public:
 
@@ -36,7 +39,7 @@ public:
 
     virtual void runTimerTask() = 0;
 };
-typedef IceUtil::Handle<TimerTask> TimerTaskPtr;
+ICE_DEFINE_PTR(TimerTaskPtr, TimerTask);
 
 //
 // The timer class is used to schedule tasks for one-time execution or

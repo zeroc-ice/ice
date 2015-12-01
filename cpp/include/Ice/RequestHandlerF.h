@@ -16,13 +16,19 @@
 namespace IceInternal
 {
 
-class RequestHandler;
-ICE_API IceUtil::Shared* upCast(RequestHandler*);
-typedef IceInternal::Handle<RequestHandler> RequestHandlerPtr;
-
 class CancellationHandler;
+class RequestHandler;
+
+#ifdef ICE_CPP11_MAPPING
+typedef ::std::shared_ptr<CancellationHandler> CancellationHandlerPtr;
+typedef ::std::shared_ptr<RequestHandler> RequestHandlerPtr;
+#else
 ICE_API IceUtil::Shared* upCast(CancellationHandler*);
 typedef IceInternal::Handle<CancellationHandler> CancellationHandlerPtr;
+
+ICE_API IceUtil::Shared* upCast(RequestHandler*);
+typedef IceInternal::Handle<RequestHandler> RequestHandlerPtr;
+#endif
 
 }
 

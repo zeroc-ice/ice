@@ -365,6 +365,7 @@ Slice::CsVisitor::writeStreamMarshalDataMember(const DataMemberPtr& member, cons
             case Builtin::KindString:
             case Builtin::KindObject:
             case Builtin::KindObjectProxy:
+            case Builtin::KindValue:
             {
                 _out << nl << "int pos__ = outS__.startSize();";
                 writeMarshalUnmarshalCode(_out, member->type(), value, true, true);

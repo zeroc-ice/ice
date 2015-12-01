@@ -46,7 +46,12 @@ IceInternal::IncomingBase::IncomingBase(Instance* instance, ResponseHandler* res
     _responseHandler(responseHandler)
 {
     _current.adapter = adapter;
+#ifdef ICE_CPP11_MAPPING
+    ::Ice::ConnectionI* conn = dynamic_cast<::Ice::ConnectionI*>(connection);
+    _current.con = conn ? dynamic_pointer_cast<::Ice::ConnectionI>(conn->shared_from_this()) : nullptr;
+#else
     _current.con = connection;
+#endif
     _current.requestId = requestId;
 }
 
@@ -179,7 +184,7 @@ IceInternal::IncomingBase::__warning(const Exception& ex) const
     if(_current.con)
     {
         Ice::ConnectionInfoPtr connInfo = _current.con->getInfo();
-        Ice::IPConnectionInfoPtr ipConnInfo = Ice::IPConnectionInfoPtr::dynamicCast(connInfo);
+        Ice::IPConnectionInfoPtr ipConnInfo = ICE_DYNAMIC_CAST(Ice::IPConnectionInfo, connInfo);
         if(ipConnInfo)
         {
             out << "\nremote host: " << ipConnInfo->remoteAddress << " remote port: " << ipConnInfo->remotePort;
@@ -200,7 +205,7 @@ IceInternal::IncomingBase::__warning(const string& msg) const
     if(_current.con)
     {
         Ice::ConnectionInfoPtr connInfo = _current.con->getInfo();
-        Ice::IPConnectionInfoPtr ipConnInfo = Ice::IPConnectionInfoPtr::dynamicCast(connInfo);
+        Ice::IPConnectionInfoPtr ipConnInfo = ICE_DYNAMIC_CAST(Ice::IPConnectionInfo, connInfo);
         if(ipConnInfo)
         {
             out << "\nremote host: " << ipConnInfo->remoteAddress << " remote port: " << ipConnInfo->remotePort;
@@ -555,7 +560,14 @@ void
 IceInternal::Incoming::setActive(IncomingAsync& cb)
 {
     assert(_cb == 0);
-    _cb = &cb; // acquires a ref-count
+    //
+    // acquires a ref-count
+    //
+#ifdef ICE_CPP11_MAPPING
+    _cb = cb.shared_from_this();
+#else
+    _cb = &cb;
+#endif
 }
 
 void

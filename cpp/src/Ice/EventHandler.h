@@ -16,11 +16,17 @@
 #include <Ice/ThreadPoolF.h>
 #include <Ice/BasicStream.h>
 #include <Ice/Network.h>
+#include <Ice/VirtualShared.h>
 
 namespace IceInternal
 {
 
-class ICE_API EventHandler : virtual public ::Ice::LocalObject
+class ICE_API EventHandler :
+#ifdef ICE_CPP11_MAPPING
+    virtual public VirtualShared
+#else
+    virtual public ::Ice::LocalObject
+#endif
 {
 public:
 

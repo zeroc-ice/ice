@@ -650,6 +650,10 @@ Slice::JavaGenerator::getOptionalFormat(const TypePtr& type)
             assert(false);
             break;
         }
+        case Builtin::KindValue:
+        {
+            return "Ice.OptionalFormat.Class";
+        }
         }
     }
 
@@ -765,6 +769,7 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
                 case Builtin::KindObject:
                 case Builtin::KindObjectProxy:
                 case Builtin::KindLocalObject:
+                case Builtin::KindValue:
                 {
                     break;
                 }
@@ -1157,6 +1162,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                 break;
             }
             case Builtin::KindObject:
+            case Builtin::KindValue:
             {
                 if(marshal)
                 {
@@ -1670,6 +1676,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                         }
                         return;
                     }
+                    case Builtin::KindValue:
                     case Builtin::KindObject:
                     case Builtin::KindObjectProxy:
                     case Builtin::KindLocalObject:
@@ -2153,6 +2160,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                 case Builtin::KindObject:
                 case Builtin::KindObjectProxy:
                 case Builtin::KindLocalObject:
+                case Builtin::KindValue:
                 {
                     assert(false);
                     break;
@@ -2428,6 +2436,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                     }
                     break;
                 }
+                case Builtin::KindValue:
                 case Builtin::KindObject:
                 case Builtin::KindObjectProxy:
                 case Builtin::KindLocalObject:
@@ -2678,6 +2687,7 @@ Slice::JavaGenerator::writeStreamMarshalUnmarshalCode(Output& out,
                 }
                 break;
             }
+            case Builtin::KindValue:
             case Builtin::KindObject:
             {
                 if(marshal)
@@ -3343,6 +3353,7 @@ Slice::JavaGenerator::writeStreamSequenceMarshalUnmarshalCode(Output& out,
                 case Builtin::KindObject:
                 case Builtin::KindObjectProxy:
                 case Builtin::KindLocalObject:
+                case Builtin::KindValue:
                 {
                     assert(false);
                     break;
@@ -3618,6 +3629,7 @@ Slice::JavaGenerator::writeStreamSequenceMarshalUnmarshalCode(Output& out,
                 case Builtin::KindObject:
                 case Builtin::KindObjectProxy:
                 case Builtin::KindLocalObject:
+                case Builtin::KindValue:
                 {
                     assert(false);
                     break;

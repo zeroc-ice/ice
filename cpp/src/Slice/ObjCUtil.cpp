@@ -633,6 +633,7 @@ Slice::ObjCGenerator::getOptionalFormat(const TypePtr& type)
             return "ICEOptionalFormatVSize";
         }
         case Builtin::KindObject:
+        case Builtin::KindValue:
         {
             return "ICEOptionalFormatClass";
         }

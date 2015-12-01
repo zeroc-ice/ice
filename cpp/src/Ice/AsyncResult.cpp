@@ -20,7 +20,9 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
+#ifndef ICE_CPP11_MAPPING
 IceUtil::Shared* Ice::upCast(AsyncResult* p) { return p; }
+#endif
 
 const unsigned char Ice::AsyncResult::OK = 0x1;
 const unsigned char Ice::AsyncResult::Done = 0x2;
@@ -51,10 +53,10 @@ AsyncResult::getConnection() const
     return 0;
 }
 
-ObjectPrx 
+ObjectPrxPtr
 AsyncResult::getProxy() const
 {
-    return 0;
+    return ICE_NULLPTR;
 }
 
 bool
@@ -107,11 +109,13 @@ AsyncResult::sentSynchronously() const
     return _sentSynchronously;
 }
 
+#ifndef ICE_CPP11_MAPPING
 LocalObjectPtr 
 AsyncResult::getCookie() const
 {
     return _cookie;
 }
+#endif
 
 const std::string& 
 AsyncResult::getOperation() const
@@ -204,6 +208,25 @@ AsyncResult::__check(const AsyncResultPtr& r, const string& operation)
     }
 }
 
+#ifdef ICE_CPP11_MAPPING
+AsyncResult::AsyncResult(const CommunicatorPtr& communicator,
+                         const IceInternal::InstancePtr& instance,
+                         const string& op,
+                         const CallbackBasePtr& callback) :
+    _instance(instance),
+    _sentSynchronously(false),
+    _is(instance.get(), Ice::currentProtocolEncoding),
+    _communicator(communicator),
+    _operation(op),
+    _callback(callback),
+    _state(0)
+{
+    if(!_callback)
+    {
+        throw IceUtil::IllegalArgumentException(__FILE__, __LINE__);
+    }
+}
+#else
 AsyncResult::AsyncResult(const CommunicatorPtr& communicator,
                          const IceInternal::InstancePtr& instance,
                          const string& op,
@@ -224,6 +247,7 @@ AsyncResult::AsyncResult(const CommunicatorPtr& communicator,
     }
     const_cast<CallbackBasePtr&>(_callback) = _callback->verify(_cookie);
 }
+#endif
 
 AsyncResult::~AsyncResult()
 {
@@ -266,7 +290,7 @@ AsyncResult::finished(bool ok)
         _observer.detach();
     }
     _monitor.notifyAll();
-    return _callback;
+    return _callback != ICE_NULLPTR;
 }
 
 bool
@@ -282,7 +306,7 @@ AsyncResult::finished(const Ice::Exception& ex)
         _observer.detach();
     }
     _monitor.notifyAll();
-    return _callback;
+    return _callback != ICE_NULLPTR;
 }
 
 void
@@ -315,7 +339,7 @@ AsyncResult::invokeSentAsync()
     //
     try
     {
-        _instance->clientThreadPool()->dispatch(new AsynchronousSent(_cachedConnection, this));
+        _instance->clientThreadPool()->dispatch(new AsynchronousSent(_cachedConnection, ICE_SHARED_FROM_THIS));
     }
     catch(const Ice::CommunicatorDestroyedException&)
     {
@@ -349,7 +373,7 @@ AsyncResult::invokeCompletedAsync()
     // CommunicatorDestroyedCompleted is the only exception that can propagate directly
     // from this method.
     //
-    _instance->clientThreadPool()->dispatch(new AsynchronousCompleted(_cachedConnection, this));
+    _instance->clientThreadPool()->dispatch(new AsynchronousCompleted(_cachedConnection, ICE_SHARED_FROM_THIS));
 }
 
 void
@@ -359,7 +383,7 @@ AsyncResult::invokeSent()
 
     try
     {
-        AsyncResultPtr self(this);
+        AsyncResultPtr self(ICE_SHARED_FROM_THIS);
         _callback->sent(self);
     }
     catch(const std::exception& ex)
@@ -373,7 +397,7 @@ AsyncResult::invokeSent()
 
     if(_observer)
     {
-        ObjectPrx proxy = getProxy();
+        ObjectPrxPtr proxy = getProxy();
         if(!proxy || !proxy->ice_isTwoway())
         {
             _observer.detach();
@@ -388,7 +412,7 @@ AsyncResult::invokeCompleted()
 
     try
     {
-        AsyncResultPtr self(this);
+        AsyncResultPtr self(ICE_SHARED_FROM_THIS);
         _callback->completed(self);
     }
     catch(const std::exception& ex)
@@ -416,7 +440,11 @@ AsyncResult::cancel(const Ice::LocalException& ex)
         }
         handler = _cancellationHandler;
     }
+#ifdef ICE_CPP11_MAPPING
+    handler->asyncRequestCanceled(dynamic_pointer_cast<OutgoingAsyncBase>(shared_from_this()), ex);
+#else
     handler->asyncRequestCanceled(OutgoingAsyncBasePtr::dynamicCast(this), ex);
+#endif
 }
 
 void
@@ -526,9 +554,10 @@ public:
 // versus the generated inline version of the begin_ method having
 // passed a pointer to the dummy delegate.
 //
-CallbackBasePtr IceInternal::__dummyCallback = new DummyCallback;
+CallbackBasePtr IceInternal::__dummyCallback = ICE_MAKE_SHARED(DummyCallback);
 
-#ifdef ICE_CPP11
+#ifndef ICE_CPP11_MAPPING
+#   ifdef ICE_CPP11_COMPILER
 
 Ice::CallbackPtr
 Ice::newCallback(const ::IceInternal::Function<void (const AsyncResultPtr&)>& completed,
@@ -564,7 +593,7 @@ Ice::newCallback(const ::IceInternal::Function<void (const AsyncResultPtr&)>& co
             if(_sent != nullptr)
             {
                 _sent(result);
-             }
+            }
         }
 
         virtual bool
@@ -581,6 +610,7 @@ Ice::newCallback(const ::IceInternal::Function<void (const AsyncResultPtr&)>& co
 
     return new Cpp11CB(completed, sent);
 }
+#   endif
 #endif
 
 void
@@ -595,5 +625,4 @@ IceInternal::CallbackBase::checkCallback(bool obj, bool cb)
         throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, "callback cannot be null");
     }
 }
-
 

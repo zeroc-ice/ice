@@ -50,7 +50,8 @@ public:
     virtual Ice::ACM getACM() = 0;
 };
 
-class FactoryACMMonitor : public ACMMonitor, public ::IceUtil::Mutex
+class FactoryACMMonitor : public ACMMonitor, public ::IceUtil::Mutex,
+                          public ICE_ENABLE_SHARED_FROM_THIS(FactoryACMMonitor)
 {
 public:
 
@@ -85,7 +86,8 @@ private:
     std::vector<Ice::ConnectionIPtr> _reapedConnections;
 };
 
-class ConnectionACMMonitor : public ACMMonitor, public ::IceUtil::Mutex
+class ConnectionACMMonitor : public ACMMonitor, public ::IceUtil::Mutex,
+                             public ICE_ENABLE_SHARED_FROM_THIS(ConnectionACMMonitor)
 {
 public:
 

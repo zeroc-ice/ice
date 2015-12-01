@@ -13,6 +13,7 @@
 #include <Ice/IncomingAsyncF.h>
 #include <Ice/Incoming.h>
 
+#ifndef ICE_CPP11_MAPPING
 namespace Ice
 {
 
@@ -25,6 +26,7 @@ public:
 };
 
 }
+#endif
 
 namespace IceInternal
 {
@@ -33,7 +35,12 @@ namespace IceInternal
 // We need virtual inheritance from AMDCallback, because we use multiple
 // inheritance from Ice::AMDCallback for generated AMD code.
 //
-class ICE_API IncomingAsync : public IncomingBase, virtual public Ice::AMDCallback
+class ICE_API IncomingAsync : public IncomingBase,
+#ifdef ICE_CPP11_MAPPING
+    public ::std::enable_shared_from_this<IncomingAsync>
+#else
+    public virtual Ice::AMDCallback
+#endif
 {
 public:
 
@@ -43,8 +50,6 @@ public:
 
     virtual void ice_exception(const ::std::exception&);
     virtual void ice_exception();
-
-protected:
 
     void __response();
     void __exception(const std::exception&);
@@ -72,6 +77,7 @@ private:
 
 }
 
+#ifndef ICE_CPP11_MAPPING
 namespace Ice
 {
 
@@ -104,5 +110,6 @@ public:
 }
 
 }
+#endif
 
 #endif

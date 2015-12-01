@@ -21,7 +21,9 @@
 namespace IceInternal
 {
 
-class RetryTask : public IceUtil::TimerTask, public CancellationHandler
+class RetryTask : public IceUtil::TimerTask,
+                  public CancellationHandler,
+                  public ICE_ENABLE_SHARED_FROM_THIS(RetryTask)
 {
 public:
 
@@ -43,7 +45,7 @@ private:
     const RetryQueuePtr _queue;
     const ProxyOutgoingAsyncBasePtr _outAsync;
 };
-typedef IceUtil::Handle<RetryTask> RetryTaskPtr;
+ICE_DEFINE_PTR(RetryTaskPtr, RetryTask);
 
 class RetryQueue : public IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mutex>
 {

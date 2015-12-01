@@ -18,8 +18,12 @@ namespace IceInternal
 {
 
 class ObjectAdapterFactory;
+#ifdef ICE_CPP11_MAPPING
+typedef ::std::shared_ptr<ObjectAdapterFactory> ObjectAdapterFactoryPtr;
+#else
 IceUtil::Shared* upCast(ObjectAdapterFactory*);
 typedef IceInternal::Handle<ObjectAdapterFactory> ObjectAdapterFactoryPtr;
+#endif
 
 }
 

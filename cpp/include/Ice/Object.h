@@ -58,7 +58,44 @@ public:
     virtual const Current& getCurrent() = 0;
 };
 
-class ICE_API Object : virtual public IceUtil::Shared
+
+#ifdef ICE_CPP11_MAPPING
+class ICE_API Object
+{
+public:
+
+    virtual ~Object() = default;
+        
+    virtual bool operator==(const Object&) const;
+    virtual bool operator<(const Object&) const;
+
+    virtual bool ice_isA(const std::string&, const Current& = Current()) const;
+    DispatchStatus ___ice_isA(IceInternal::Incoming&, const Current&);
+
+    virtual void ice_ping(const Current&  = Current()) const;
+    DispatchStatus ___ice_ping(IceInternal::Incoming&, const Current&);
+
+    virtual std::vector< std::string> ice_ids(const Current& = Current()) const;
+    DispatchStatus ___ice_ids(IceInternal::Incoming&, const Current&);
+
+    virtual const std::string& ice_id(const Current& = Current()) const;
+    DispatchStatus ___ice_id(IceInternal::Incoming&, const Current&);
+    
+    static const std::string& ice_staticId();
+
+    virtual ObjectPtr ice_clone() const;
+
+    static std::string __all[];
+
+    virtual DispatchStatus ice_dispatch(Ice::Request&, const DispatchInterceptorAsyncCallbackPtr& = 0);
+    virtual DispatchStatus __dispatch(IceInternal::Incoming&, const Current&);
+
+protected:
+
+    static void __checkMode(OperationMode, OperationMode);
+};
+#else
+class ICE_API Object  : public virtual IceUtil::Shared
 {
 public:
 
@@ -78,19 +115,7 @@ public:
     DispatchStatus ___ice_id(IceInternal::Incoming&, const Current&);
 
     virtual Int ice_operationAttributes(const std::string&) const;
-
-    static const std::string& ice_staticId();
-
-    virtual ObjectPtr ice_clone() const;
-
-    virtual void ice_preMarshal();
-    virtual void ice_postUnmarshal();
-
-    static std::string __all[];
-
-    virtual DispatchStatus ice_dispatch(Ice::Request&, const DispatchInterceptorAsyncCallbackPtr& = 0);
-    virtual DispatchStatus __dispatch(IceInternal::Incoming&, const Current&);
-
+    
     virtual void __write(IceInternal::BasicStream*) const;
     virtual void __read(IceInternal::BasicStream*);
 
@@ -99,11 +124,25 @@ public:
 
     virtual bool __gcVisit(IceInternal::GCVisitor&) { return false; };
     virtual void ice_collectable(bool) { };
+    
+    virtual void ice_preMarshal();
+    virtual void ice_postUnmarshal();
+    
+    static const std::string& ice_staticId();
+
+    virtual ObjectPtr ice_clone() const;
+
+    static std::string __all[];
+
+    virtual DispatchStatus ice_dispatch(Ice::Request&, const DispatchInterceptorAsyncCallbackPtr& = 0);
+    virtual DispatchStatus __dispatch(IceInternal::Incoming&, const Current&);
 
 protected:
 
     Object() {} // This class is abstract.
     virtual ~Object() {}
+
+protected:
 
     virtual void __writeImpl(IceInternal::BasicStream*) const {}
     virtual void __readImpl(IceInternal::BasicStream*) {}
@@ -113,6 +152,7 @@ protected:
 
     static void __checkMode(OperationMode, OperationMode);
 };
+#endif
 
 class ICE_API Blobject : virtual public Object
 {
@@ -142,8 +182,11 @@ class ICE_API BlobjectAsync : virtual public Object
 {
 public:
 
+#ifdef ICE_CPP11_MAPPING
+    // TODO
+#else
     virtual void ice_invoke_async(const AMD_Object_ice_invokePtr&, const std::vector<Byte>&, const Current&) = 0;
-
+#endif
     virtual DispatchStatus __dispatch(IceInternal::Incoming&, const Current&);
 };
 
@@ -151,14 +194,17 @@ class ICE_API BlobjectArrayAsync : virtual public Object
 {
 public:
 
+#ifdef ICE_CPP11_MAPPING
+    // TODO
+#else
     virtual void ice_invoke_async(const AMD_Object_ice_invokePtr&, const std::pair<const Byte*, const Byte*>&,
                                   const Current&) = 0;
-
+#endif
     virtual DispatchStatus __dispatch(IceInternal::Incoming&, const Current&);
 };
 
-ICE_API void ice_writeObject(const OutputStreamPtr&, const ObjectPtr&);
-ICE_API void ice_readObject(const InputStreamPtr&, ObjectPtr&);
+ICE_API void ice_writeObject(const OutputStreamPtr&, const ValuePtr&);
+ICE_API void ice_readObject(const InputStreamPtr&, ValuePtr&);
 
 }
 

@@ -715,7 +715,7 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
         }
     }
 
-    _engine->verifyPeer(_stream->fd(), _host, NativeConnectionInfoPtr::dynamicCast(getInfo()));
+    _engine->verifyPeer(_stream->fd(), _host, ICE_DYNAMIC_CAST(NativeConnectionInfo, getInfo()));
     _state = StateHandshakeComplete;
 
     if(_instance->engine()->securityTraceLevel() >= 1)
@@ -958,7 +958,7 @@ IceSSL::TransceiverI::toDetailedString() const
 Ice::ConnectionInfoPtr
 IceSSL::TransceiverI::getInfo() const
 {
-    NativeConnectionInfoPtr info = new NativeConnectionInfo();
+    NativeConnectionInfoPtr info = ICE_MAKE_SHARED(NativeConnectionInfo);
     fillConnectionInfo(info, info->nativeCerts);
     return info;
 }
@@ -966,7 +966,7 @@ IceSSL::TransceiverI::getInfo() const
 Ice::ConnectionInfoPtr
 IceSSL::TransceiverI::getWSInfo(const Ice::HeaderDict& headers) const
 {
-    WSSNativeConnectionInfoPtr info = new WSSNativeConnectionInfo();
+    WSSNativeConnectionInfoPtr info = ICE_MAKE_SHARED(WSSNativeConnectionInfo);
     fillConnectionInfo(info, info->nativeCerts);
     info->headers = headers;
     return info;
@@ -1051,7 +1051,7 @@ IceSSL::TransceiverI::fillConnectionInfo(const ConnectionInfoPtr& info, vector<C
                                                 IceUtilInternal::lastErrorToString());
                     }
 
-                    CertificatePtr certificate = new Certificate(cc);
+                    CertificatePtr certificate = ICE_MAKE_SHARED(Certificate, cc);
                     nativeCerts.push_back(certificate);
                     info->certs.push_back(certificate->encode());
                 }

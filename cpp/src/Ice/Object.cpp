@@ -19,13 +19,15 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
+#ifndef ICE_CPP11_MAPPING
 Object* Ice::upCast(Object* p) { return p; }
 
-void 
+void
 Ice::__patch(ObjectPtr& obj, const ObjectPtr& v)
 {
     obj = v;
 }
+#endif
 
 bool
 Ice::Object::operator==(const Object& r) const
@@ -87,16 +89,6 @@ Ice::Object::ice_clone() const
     return 0; // avoid warning with some compilers
 }
 
-void
-Ice::Object::ice_preMarshal()
-{
-}
-
-void
-Ice::Object::ice_postUnmarshal()
-{
-}
-
 DispatchStatus
 Ice::Object::___ice_isA(Incoming& __inS, const Current& __current)
 {
@@ -140,12 +132,6 @@ Ice::Object::___ice_id(Incoming& __inS, const Current& __current)
     __os->write(__ret, false);
     __inS.__endWriteParams(true);
     return DispatchOK;
-}
-
-Ice::Int
-Ice::Object::ice_operationAttributes(const string&) const
-{
-    return 0;
 }
 
 
@@ -229,6 +215,17 @@ Ice::Object::__dispatch(Incoming& in, const Current& current)
     throw OperationNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
 }
 
+#ifndef ICE_CPP11_MAPPING
+void
+Ice::Object::ice_preMarshal()
+{
+}
+
+void
+Ice::Object::ice_postUnmarshal()
+{
+}
+
 void
 Ice::Object::__write(IceInternal::BasicStream* os) const
 {
@@ -266,12 +263,19 @@ Ice::Object::__writeImpl(const OutputStreamPtr&) const
 {
     throw MarshalException(__FILE__, __LINE__, "class was not generated with stream support");
 }
- 
-void 
+
+void
 Ice::Object::__readImpl(const InputStreamPtr&)
 {
     throw MarshalException(__FILE__, __LINE__, "class was not generated with stream support");
 }
+
+Ice::Int
+Ice::Object::ice_operationAttributes(const string&) const
+{
+    return 0;
+}
+#endif
 
 namespace
 {
@@ -281,19 +285,26 @@ operationModeToString(OperationMode mode)
 {
     switch(mode)
     {
-    case Normal:
+    case ICE_ENUM(OperationMode, Normal):
         return "::Ice::Normal";
 
-    case Nonmutating:
+    case ICE_ENUM(OperationMode, Nonmutating):
         return "::Ice::Nonmutating";
 
-    case Idempotent:
+    case ICE_ENUM(OperationMode, Idempotent):
         return "::Ice::Idempotent";
     }
-
+    //
+    // This could not happen with C++11 strong type enums
+    //
+#ifndef ICE_CPP11_MAPPING
     ostringstream os;
     os << "unknown value (" << mode << ")";
     return os.str();
+#else
+    assert(false);
+    return "";
+#endif
 }
 
 }
@@ -303,12 +314,12 @@ Ice::Object::__checkMode(OperationMode expected, OperationMode received)
 {
     if(expected != received)
     {
-        if(expected == Idempotent && received == Nonmutating)
+        if(expected == ICE_ENUM(OperationMode, Idempotent) && received == ICE_ENUM(OperationMode, Nonmutating))
         {
-            // 
+            //
             // Fine: typically an old client still using the deprecated nonmutating keyword
             //
-            
+
             //
             // Note that expected == Nonmutating and received == Idempotent is not ok:
             // the server may still use the deprecated nonmutating keyword to detect updates
@@ -385,6 +396,10 @@ Ice::BlobjectArray::__dispatch(Incoming& in, const Current& current)
 DispatchStatus
 Ice::BlobjectAsync::__dispatch(Incoming& in, const Current& current)
 {
+#ifdef ICE_CPP11_MAPPING
+    // TODO
+    return DispatchAsync;
+#else
     const Byte* inEncaps;
     Int sz;
     in.readParamEncaps(inEncaps, sz);
@@ -402,11 +417,16 @@ Ice::BlobjectAsync::__dispatch(Incoming& in, const Current& current)
         cb->ice_exception();
     }
     return DispatchAsync;
+#endif
 }
 
 DispatchStatus
 Ice::BlobjectArrayAsync::__dispatch(Incoming& in, const Current& current)
 {
+#ifdef ICE_CPP11_MAPPING
+    // TODO
+    return DispatchAsync;
+#else
     pair<const Byte*, const Byte*> inEncaps;
     Int sz;
     in.readParamEncaps(inEncaps.first, sz);
@@ -425,16 +445,17 @@ Ice::BlobjectArrayAsync::__dispatch(Incoming& in, const Current& current)
         cb->ice_exception();
     }
     return DispatchAsync;
+#endif
 }
 
 void
-Ice::ice_writeObject(const OutputStreamPtr& out, const ObjectPtr& p)
+Ice::ice_writeObject(const OutputStreamPtr& out, const ValuePtr& p)
 {
     out->write(p);
 }
 
 void
-Ice::ice_readObject(const InputStreamPtr& in, ObjectPtr& p)
+Ice::ice_readObject(const InputStreamPtr& in, ValuePtr& p)
 {
     in->read(p);
 }

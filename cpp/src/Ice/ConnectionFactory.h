@@ -27,6 +27,7 @@
 #include <Ice/EndpointI.h>
 #include <Ice/InstrumentationF.h>
 #include <Ice/ACMF.h>
+#include <Ice/Comparable.h>
 
 #include <list>
 #include <set>
@@ -36,7 +37,7 @@ namespace Ice
 
 class LocalException;
 class ObjectAdapterI;
-typedef IceUtil::Handle<ObjectAdapterI> ObjectAdapterIPtr;
+ICE_DEFINE_PTR(ObjectAdapterIPtr, ObjectAdapterI);
 
 }
 
@@ -68,11 +69,11 @@ public:
     void removeAdapter(const Ice::ObjectAdapterPtr&);
     void flushAsyncBatchRequests(const CommunicatorFlushBatchAsyncPtr&);
 
-private:
-
     OutgoingConnectionFactory(const Ice::CommunicatorPtr&, const InstancePtr&);
     virtual ~OutgoingConnectionFactory();
     friend class Instance;
+    
+private:
 
     struct ConnectorInfo
     {
@@ -86,7 +87,11 @@ private:
         EndpointIPtr endpoint;
     };
 
-    class ConnectCallback : public Ice::ConnectionI::StartCallback, public IceInternal::EndpointI_connectors
+    class ConnectCallback : public Ice::ConnectionI::StartCallback,
+                            public IceInternal::EndpointI_connectors
+#ifdef ICE_CPP11_MAPPING
+                    , public ::std::enable_shared_from_this<::IceInternal::OutgoingConnectionFactory::ConnectCallback>
+#endif
     {
     public:
 
@@ -127,7 +132,7 @@ private:
         std::vector<ConnectorInfo> _connectors;
         std::vector<ConnectorInfo>::const_iterator _iter;
     };
-    typedef IceUtil::Handle<ConnectCallback> ConnectCallbackPtr;
+    ICE_DEFINE_PTR(ConnectCallbackPtr, ConnectCallback);
     friend class ConnectCallback;
 
     std::vector<EndpointIPtr> applyOverrides(const std::vector<EndpointIPtr>&);
@@ -156,7 +161,11 @@ private:
     std::multimap<ConnectorPtr, Ice::ConnectionIPtr> _connections;
     std::map<ConnectorPtr, std::set<ConnectCallbackPtr> > _pending;
 
+#ifdef ICE_CPP11_MAPPING
+    std::multimap<EndpointIPtr, Ice::ConnectionIPtr, Ice::TargetLess<EndpointIPtr>> _connectionsByEndpoint;
+#else
     std::multimap<EndpointIPtr, Ice::ConnectionIPtr> _connectionsByEndpoint;
+#endif
     int _pendingConnectCount;
 };
 
@@ -201,11 +210,12 @@ public:
     virtual void connectionStartCompleted(const Ice::ConnectionIPtr&);
     virtual void connectionStartFailed(const Ice::ConnectionIPtr&, const Ice::LocalException&);
 
-private:
-
     IncomingConnectionFactory(const InstancePtr&, const EndpointIPtr&, const Ice::ObjectAdapterIPtr&);
     void initialize();
     virtual ~IncomingConnectionFactory();
+    
+private:
+
     friend class Ice::ObjectAdapterI;
 
     enum State

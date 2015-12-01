@@ -103,7 +103,7 @@ IceInternal::TcpTransceiver::toDetailedString() const
 Ice::ConnectionInfoPtr
 IceInternal::TcpTransceiver::getInfo() const
 {
-    TCPConnectionInfoPtr info = new TCPConnectionInfo();
+    TCPConnectionInfoPtr info = ICE_MAKE_SHARED(TCPConnectionInfo);
     fillConnectionInfo(info);
     return info;
 }
@@ -111,7 +111,7 @@ IceInternal::TcpTransceiver::getInfo() const
 Ice::ConnectionInfoPtr
 IceInternal::TcpTransceiver::getWSInfo(const Ice::HeaderDict& headers) const
 {
-    WSConnectionInfoPtr info = new WSConnectionInfo();
+    WSConnectionInfoPtr info = ICE_MAKE_SHARED(WSConnectionInfo);
     fillConnectionInfo(info);
     info->headers = headers;
     return info;

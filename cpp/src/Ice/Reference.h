@@ -36,14 +36,17 @@ class Reference : public IceUtil::Shared
 {
 public:
 
-    class GetConnectionCallback : virtual public IceUtil::Shared
+    class GetConnectionCallback 
+#ifndef ICE_CPP11_MAPPING
+        : virtual public IceUtil::Shared
+#endif
     {
     public:
 
         virtual void setConnection(const Ice::ConnectionIPtr&, bool) = 0;
         virtual void setException(const Ice::LocalException&) = 0;
     };
-    typedef IceUtil::Handle<GetConnectionCallback> GetConnectionCallbackPtr;
+    ICE_DEFINE_PTR(GetConnectionCallbackPtr, GetConnectionCallback);
 
     enum Mode
     {
@@ -95,8 +98,8 @@ public:
 
     virtual ReferencePtr changeEndpoints(const std::vector<EndpointIPtr>&) const = 0;
     virtual ReferencePtr changeAdapterId(const std::string&) const = 0;
-    virtual ReferencePtr changeLocator(const Ice::LocatorPrx&) const = 0;
-    virtual ReferencePtr changeRouter(const Ice::RouterPrx&) const = 0;
+    virtual ReferencePtr changeLocator(const Ice::LocatorPrxPtr&) const = 0;
+    virtual ReferencePtr changeRouter(const Ice::RouterPrxPtr&) const = 0;
     virtual ReferencePtr changeCollocationOptimized(bool) const = 0;
     virtual ReferencePtr changeLocatorCacheTimeout(int) const = 0;
     virtual ReferencePtr changeCacheConnection(bool) const = 0;
@@ -132,7 +135,7 @@ public:
     //
     // Get a suitable connection for this reference.
     //
-    virtual RequestHandlerPtr getRequestHandler(const Ice::ObjectPrx&) const = 0;
+    virtual RequestHandlerPtr getRequestHandler(const Ice::ObjectPrxPtr&) const = 0;
     virtual BatchRequestQueuePtr getBatchRequestQueue() const = 0;
 
     virtual bool operator==(const Reference&) const;
@@ -190,8 +193,8 @@ public:
 
     virtual ReferencePtr changeEndpoints(const std::vector<EndpointIPtr>&) const;
     virtual ReferencePtr changeAdapterId(const std::string&) const;
-    virtual ReferencePtr changeLocator(const Ice::LocatorPrx&) const;
-    virtual ReferencePtr changeRouter(const Ice::RouterPrx&) const;
+    virtual ReferencePtr changeLocator(const Ice::LocatorPrxPtr&) const;
+    virtual ReferencePtr changeRouter(const Ice::RouterPrxPtr&) const;
     virtual ReferencePtr changeCollocationOptimized(bool) const;
     virtual ReferencePtr changeCacheConnection(bool) const;
     virtual ReferencePtr changePreferSecure(bool) const;
@@ -208,7 +211,7 @@ public:
     virtual std::string toString() const;
     virtual Ice::PropertyDict toProperty(const std::string&) const;
 
-    virtual RequestHandlerPtr getRequestHandler(const Ice::ObjectPrx&) const;
+    virtual RequestHandlerPtr getRequestHandler(const Ice::ObjectPrxPtr&) const;
     virtual BatchRequestQueuePtr getBatchRequestQueue() const;
 
     virtual bool operator==(const Reference&) const;
@@ -248,8 +251,8 @@ public:
     virtual ReferencePtr changeCompress(bool) const;
     virtual ReferencePtr changeEndpoints(const std::vector<EndpointIPtr>&) const;
     virtual ReferencePtr changeAdapterId(const std::string&) const;
-    virtual ReferencePtr changeLocator(const Ice::LocatorPrx&) const;
-    virtual ReferencePtr changeRouter(const Ice::RouterPrx&) const;
+    virtual ReferencePtr changeLocator(const Ice::LocatorPrxPtr&) const;
+    virtual ReferencePtr changeRouter(const Ice::RouterPrxPtr&) const;
     virtual ReferencePtr changeCollocationOptimized(bool) const;
     virtual ReferencePtr changeCacheConnection(bool) const;
     virtual ReferencePtr changePreferSecure(bool) const;
@@ -272,7 +275,7 @@ public:
 
     virtual ReferencePtr clone() const;
 
-    virtual RequestHandlerPtr getRequestHandler(const Ice::ObjectPrx&) const;
+    virtual RequestHandlerPtr getRequestHandler(const Ice::ObjectPrxPtr&) const;
     virtual BatchRequestQueuePtr getBatchRequestQueue() const;
 
     void getConnection(const GetConnectionCallbackPtr&) const;

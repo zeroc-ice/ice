@@ -62,8 +62,13 @@ public:
     virtual ::Ice::Int hash() const;
     virtual std::string options() const;
 
+#ifdef ICE_CPP11_MAPPING
+    virtual bool operator==(const EndpointI&) const;
+    virtual bool operator<(const EndpointI&) const;
+#else
     virtual bool operator==(const Ice::LocalObject&) const;
     virtual bool operator<(const Ice::LocalObject&) const;
+#endif
 
     virtual std::vector<ConnectorPtr> connectors(const std::vector<Address>&, const NetworkProxyPtr&) const;
     const std::string& host() const;
@@ -143,6 +148,7 @@ private:
 #endif
 };
 
+#ifndef ICE_CPP11_MAPPING
 inline bool operator==(const IPEndpointI& l, const IPEndpointI& r)
 {
     return static_cast<const ::Ice::LocalObject&>(l) == static_cast<const ::Ice::LocalObject&>(r);
@@ -152,6 +158,7 @@ inline bool operator<(const IPEndpointI& l, const IPEndpointI& r)
 {
     return static_cast<const ::Ice::LocalObject&>(l) < static_cast<const ::Ice::LocalObject&>(r);
 }
+#endif
 
 }
 

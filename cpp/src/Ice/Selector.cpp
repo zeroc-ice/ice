@@ -77,11 +77,13 @@ Selector::initialize(EventHandler* handler)
         ex.error = GetLastError();
         throw ex;
     }
-    handler->__incRef();
     handler->getNativeInfo()->initialize(_handle, reinterpret_cast<ULONG_PTR>(handler));
 #else
+#   ifdef ICE_CPP11_MAPPING
+    EventHandlerPtr h = dynamic_pointer_cast<EventHandler>(handler->shared_from_this());
+#   else
     EventHandlerPtr h = handler;
-    handler->__incRef();
+#   endif
     handler->getNativeInfo()->setCompletedHandler(
         ref new SocketOperationCompletedHandler(
             [=](int operation)
@@ -117,7 +119,6 @@ Selector::finish(IceInternal::EventHandler* handler)
 {
     handler->_registered = SocketOperationNone;
     handler->_finish = false; // Ensures that finished() is only called once on the event handler.
-    handler->__decRef();
 }
 
 void
@@ -721,7 +722,12 @@ Selector::finishSelect(vector<pair<EventHandler*, SocketOperation> >& handlers)
             continue; // Interrupted
         }
 
+#ifdef ICE_CPP11_MAPPING
+        map<EventHandlerPtr, SocketOperation>::iterator q = _readyHandlers.find(
+            dynamic_pointer_cast<EventHandler>(p.first->shared_from_this()));
+#else
         map<EventHandlerPtr, SocketOperation>::iterator q = _readyHandlers.find(p.first);
+#endif
         if(q != _readyHandlers.end()) // Handler will be added by the loop below
         {
             q->second = p.second; // We just remember which operations are ready here.
@@ -831,12 +837,22 @@ Selector::checkReady(EventHandler* handler)
 {
     if(handler->_ready & ~handler->_disabled & handler->_registered)
     {
+#ifdef ICE_CPP11_MAPPING
+        _readyHandlers.insert(make_pair(dynamic_pointer_cast<EventHandler>(handler->shared_from_this()), 
+                                        SocketOperationNone));
+#else
         _readyHandlers.insert(make_pair(handler, SocketOperationNone));
+#endif
         wakeup();
     }
     else
     {
+#ifdef ICE_CPP11_MAPPING
+        map<EventHandlerPtr, SocketOperation>::iterator p = 
+            _readyHandlers.find(dynamic_pointer_cast<EventHandler>(handler->shared_from_this()));
+#else
         map<EventHandlerPtr, SocketOperation>::iterator p = _readyHandlers.find(handler);
+#endif
         if(p != _readyHandlers.end())
         {
             _readyHandlers.erase(p);

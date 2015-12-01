@@ -57,11 +57,18 @@
 #if (__cplusplus >= 201103) || \
     ((defined(__GNUC__) && defined(__GXX_EXPERIMENTAL_CXX0X__) && ((__GNUC__* 100) + __GNUC_MINOR__) >= 405)) || \
     (defined(_MSC_VER) && (_MSC_VER >= 1600))
-#   define ICE_CPP11
+#   define ICE_CPP11_COMPILER
+#endif
+
+//
+// Check C++11 compiler is used when building the C++11 mapping
+//
+#if defined(ICE_CPP11_MAPPING) && !defined(ICE_CPP11_COMPILER)
+#   error "you need a C++11 capble compiler to use C++11 mapping"
 #endif
 
 
-#if defined(ICE_CPP11) && (!defined(_MSC_VER) || (_MSC_VER >= 1900))
+#if defined(ICE_CPP11_COMPILER) && (!defined(_MSC_VER) || (_MSC_VER >= 1900))
 #   define ICE_NOEXCEPT noexcept
 #   define ICE_NOEXCEPT_FALSE noexcept(false)
 #else
@@ -241,5 +248,40 @@ typedef long long Int64;
 //
 #define ICE_STRING_VERSION "3.7.0" // "A.B.C", with A=major, B=minor, C=patch
 #define ICE_INT_VERSION 30700      // AABBCC, with AA=major, BB=minor, CC=patch
+
+//
+// Macros to facilitate C++98 -> C++11 transition
+//
+#ifdef ICE_CPP11_MAPPING // C++11 mapping
+#   include <memory>
+#   include <future>
+#   define ICE_HANDLE ::std::shared_ptr
+#   define ICE_INTERNAL_HANDLE ::std::shared_ptr
+#   define ICE_PROXY_HANDLE ::std::shared_ptr
+#   define ICE_MAKE_SHARED(T, ...) ::std::make_shared<T>(__VA_ARGS__)
+#   define ICE_DEFINE_PTR(TPtr, T) typedef ::std::shared_ptr<T> TPtr
+#   define ICE_ENUM(CLASS,ENUMERATOR) CLASS::ENUMERATOR
+#   define ICE_NULLPTR nullptr
+#   define ICE_DYNAMIC_CAST(T,V) ::std::dynamic_pointer_cast<T>(V)
+#   define ICE_ENABLE_SHARED_FROM_THIS(T) ::std::enable_shared_from_this<T>
+#   define ICE_SHARED_FROM_THIS shared_from_this()
+#   define ICE_CHECKED_CAST(T,V) Ice::checkedCast<T>(V)
+#   define ICE_UNCHECKED_CAST(T,V) Ice::uncheckedCast<T>(V)
+#   define ICE_OBJECT_FACTORY ::std::function<::Ice::ValuePtr (const std::string& type)>
+#else // C++98 mapping
+#   define ICE_HANDLE ::IceUtil::Handle
+#   define ICE_INTERNAL_HANDLE ::IceInternal::Handle
+#   define ICE_PROXY_HANDLE ::IceInternal::ProxyHandle
+#   define ICE_MAKE_SHARED(T, ...) new T(__VA_ARGS__)
+#   define ICE_DEFINE_PTR(TPtr, T) typedef ::IceUtil::Handle<T> TPtr
+#   define ICE_ENUM(CLASS,ENUMERATOR) ENUMERATOR
+#   define ICE_NULLPTR 0
+#   define ICE_DYNAMIC_CAST(T,V) T##Ptr::dynamicCast(V)
+#   define ICE_ENABLE_SHARED_FROM_THIS(T) virtual ::IceUtil::Shared
+#   define ICE_SHARED_FROM_THIS this
+#   define ICE_CHECKED_CAST(T,V) T::checkedCast(V)
+#   define ICE_UNCHECKED_CAST(T,V) T::uncheckedCast(V)
+#   define ICE_OBJECT_FACTORY ::Ice::ObjectFactoryPtr
+#endif
 
 #endif

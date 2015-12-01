@@ -38,16 +38,16 @@ TestI::getEndpointInfoAsContext(const Ice::Current& c)
     os << info->type();
     ctx["type"] = os.str();
 
-    Ice::IPEndpointInfoPtr ipinfo = Ice::IPEndpointInfoPtr::dynamicCast(info);
+    Ice::IPEndpointInfoPtr ipinfo = ICE_DYNAMIC_CAST(Ice::IPEndpointInfo, info);
     test(info);
     ctx["host"] = ipinfo->host;
     os.str("");
     os << ipinfo->port;
     ctx["port"] = os.str();
 
-    if(Ice::UDPEndpointInfoPtr::dynamicCast(ipinfo))
+    if(ICE_DYNAMIC_CAST(Ice::UDPEndpointInfo, ipinfo))
     {
-        Ice::UDPEndpointInfoPtr udp = Ice::UDPEndpointInfoPtr::dynamicCast(ipinfo);
+        Ice::UDPEndpointInfoPtr udp = ICE_DYNAMIC_CAST(Ice::UDPEndpointInfo, ipinfo);
         ctx["mcastInterface"] = udp->mcastInterface;
         ctx["mcastTtl"] = udp->mcastTtl;
     }
@@ -64,7 +64,7 @@ TestI::getConnectionInfoAsContext(const Ice::Current& c)
     ctx["incoming"] = info->incoming ? "true" : "false";
     ostringstream os;
 
-    Ice::IPConnectionInfoPtr ipinfo = Ice::IPConnectionInfoPtr::dynamicCast(info);
+    Ice::IPConnectionInfoPtr ipinfo = ICE_DYNAMIC_CAST(Ice::IPConnectionInfo, info);
     test(ipinfo);
     ctx["localAddress"] = ipinfo->localAddress;
     os.str("");
@@ -75,7 +75,7 @@ TestI::getConnectionInfoAsContext(const Ice::Current& c)
     os << ipinfo->remotePort;
     ctx["remotePort"] = os.str();
 
-    Ice::WSConnectionInfoPtr wsinfo = Ice::WSConnectionInfoPtr::dynamicCast(info);
+    Ice::WSConnectionInfoPtr wsinfo = ICE_DYNAMIC_CAST(Ice::WSConnectionInfo, info);
     if(wsinfo)
     {
         for(Ice::HeaderDict::const_iterator p = wsinfo->headers.begin(); p != wsinfo->headers.end(); ++p)
@@ -84,7 +84,7 @@ TestI::getConnectionInfoAsContext(const Ice::Current& c)
         }
     }
 
-    IceSSL::WSSConnectionInfoPtr wssinfo = IceSSL::WSSConnectionInfoPtr::dynamicCast(info);
+    IceSSL::WSSConnectionInfoPtr wssinfo = ICE_DYNAMIC_CAST(IceSSL::WSSConnectionInfo, info);
     if(wssinfo)
     {
         for(Ice::HeaderDict::const_iterator p = wssinfo->headers.begin(); p != wssinfo->headers.end(); ++p)

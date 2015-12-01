@@ -79,6 +79,15 @@ public:
     virtual bool checkValues(const Ice::Current&);
 };
 
+#ifdef ICE_CPP11_MAPPING
+class II : public ::Ice::InterfaceByValue<Test::I>
+{
+};
+
+class JI : public ::Ice::InterfaceByValue<Test::J>
+{
+};
+#else
 class II : public Test::I
 {
 };
@@ -86,12 +95,18 @@ class II : public Test::I
 class JI : public Test::J
 {
 };
+#endif
 
 class HI : public Test::H
 {
 };
 
-class InitialI : public Test::Initial
+class InitialI :
+#ifdef ICE_CPP11_MAPPING
+    public Test::InitialDisp
+#else
+    public Test::Initial
+#endif
 {
 public:
 
@@ -105,15 +120,25 @@ public:
     virtual Test::EPtr getE(const Ice::Current&);
     virtual Test::FPtr getF(const Ice::Current&);
     virtual void getAll(Test::BPtr&, Test::BPtr&, Test::CPtr&, Test::DPtr&, const Ice::Current&);
+    
+#ifdef ICE_CPP11_MAPPING
+    virtual ::std::shared_ptr<::Ice::Value> getI(const Ice::Current&);
+    virtual ::std::shared_ptr<::Ice::Value> getJ(const Ice::Current&);
+    virtual ::std::shared_ptr<::Ice::Value> getH(const Ice::Current&);
+#else
     virtual Test::IPtr getI(const Ice::Current&);
     virtual Test::IPtr getJ(const Ice::Current&);
     virtual Test::IPtr getH(const Ice::Current&);
-    
+#endif
+
     virtual Test::D1Ptr getD1(const Test::D1Ptr&, const Ice::Current&);
     virtual void throwEDerived(const Ice::Current&);
 
+#ifdef ICE_CPP11_MAPPING
+    virtual void setI(const ::std::shared_ptr<::Ice::Value>&, const Ice::Current&);
+#else
     virtual void setI(const Test::IPtr&, const Ice::Current&);
-
+#endif
     virtual Test::BaseSeq opBaseSeq(const Test::BaseSeq&, Test::BaseSeq&, const Ice::Current&);
 
     virtual Test::CompactPtr getCompact(const Ice::Current&);

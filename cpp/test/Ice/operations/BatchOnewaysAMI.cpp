@@ -91,11 +91,67 @@ public:
 }
 
 void
-batchOnewaysAMI(const Test::MyClassPrx& p)
+batchOnewaysAMI(const Test::MyClassPrxPtr& p)
 {
     const Test::ByteS bs1(10  * 1024);
+    Test::MyClassPrxPtr batch = ICE_UNCHECKED_CAST(Test::MyClassPrx, p->ice_batchOneway());
+#ifdef ICE_CPP11_MAPPING
+    
+    promise<void> prom;
+    batch->ice_flushBatchRequests_async(nullptr,
+        [&](bool sentSynchronously)
+        {
+            test(sentSynchronously);
+            prom.set_value();
+        }); // Empty flush
+    prom.get_future().get();
 
-    Test::MyClassPrx batch = Test::MyClassPrx::uncheckedCast(p->ice_batchOneway());
+    for(int i = 0 ; i < 30 ; ++i)
+    {
+        batch->opByteSOneway_async(bs1, nullptr, [](exception_ptr){ test(false); });
+    }
+
+    int count = 0;
+    while(count < 27) // 3 * 9 requests auto-flushed.
+    {
+        count += p->opByteSOnewayCallCount();
+        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(10));
+    }
+
+    if(batch->ice_getConnection())
+    {
+        shared_ptr<Test::MyClassPrx> batch1 = Ice::uncheckedCast<Test::MyClassPrx>(p->ice_batchOneway());
+        shared_ptr<Test::MyClassPrx> batch2 = Ice::uncheckedCast<Test::MyClassPrx>(p->ice_batchOneway());
+
+        batch1->ice_ping_async().get();
+        batch2->ice_ping_async().get();
+        batch1->ice_flushBatchRequests_async().get();
+        batch1->ice_getConnection()->close(false);
+        batch1->ice_ping_async().get();
+        batch2->ice_ping_async().get();
+
+        batch1->ice_getConnection();
+        batch2->ice_getConnection();
+
+        batch1->ice_ping_async().get();
+        batch1->ice_getConnection()->close(false);
+
+        batch1->ice_ping_async().get();
+        batch2->ice_ping_async().get();
+    }
+
+    Ice::Identity identity;
+    identity.name = "invalid";
+    auto batch3 = batch->ice_identity(identity);
+    batch3->ice_ping_async();
+    batch3->ice_flushBatchRequests_async().get();
+
+    // Make sure that a bogus batch request doesn't cause troubles to other ones.
+    batch3->ice_ping_async();
+    batch->ice_ping_async();
+    batch->ice_flushBatchRequests_async().get();
+    batch->ice_ping_async();
+#else
     batch->end_ice_flushBatchRequests(batch->begin_ice_flushBatchRequests()); // Empty flush
 
     test(batch->begin_ice_flushBatchRequests()->isSent()); // Empty flush
@@ -149,4 +205,5 @@ batchOnewaysAMI(const Test::MyClassPrx& p)
     batch->begin_ice_ping();
     batch->end_ice_flushBatchRequests(batch->begin_ice_flushBatchRequests());
     batch->begin_ice_ping();
+#endif
 }

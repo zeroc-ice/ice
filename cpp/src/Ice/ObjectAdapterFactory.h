@@ -19,7 +19,7 @@
 namespace IceInternal
 {
 
-class ObjectAdapterFactory : public ::IceUtil::Shared, public ::IceUtil::Monitor< ::IceUtil::RecMutex>
+class ObjectAdapterFactory : public ICE_ENABLE_SHARED_FROM_THIS(ObjectAdapterFactory), public ::IceUtil::Monitor< ::IceUtil::RecMutex>
 {
 public:
 
@@ -30,15 +30,16 @@ public:
 
     void updateObservers(void (Ice::ObjectAdapterI::*)());
 
-    ::Ice::ObjectAdapterPtr createObjectAdapter(const std::string&, const Ice::RouterPrx&);
-    ::Ice::ObjectAdapterPtr findObjectAdapter(const ::Ice::ObjectPrx&);
+    ::Ice::ObjectAdapterPtr createObjectAdapter(const std::string&, const Ice::RouterPrxPtr&);
+    ::Ice::ObjectAdapterPtr findObjectAdapter(const ::Ice::ObjectPrxPtr&);
     void removeObjectAdapter(const ::Ice::ObjectAdapterPtr&);
     void flushAsyncBatchRequests(const CommunicatorFlushBatchAsyncPtr&) const;
 
-private:
-
     ObjectAdapterFactory(const InstancePtr&, const ::Ice::CommunicatorPtr&);
     virtual ~ObjectAdapterFactory();
+
+private:
+
     friend class Instance;
 
     InstancePtr _instance;

@@ -191,6 +191,10 @@ Slice::CsGenerator::getOptionalFormat(const TypePtr& type)
             assert(false);
             break;
         }
+        case Builtin::KindValue:
+        {
+            return "Ice.OptionalFormat.Class";
+        }
         }
     }
 
@@ -552,6 +556,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
                 break;
             }
             case Builtin::KindObject:
+            case Builtin::KindValue:
             {
                 if(marshal)
                 {
@@ -835,6 +840,7 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
                 break;
             }
             case Builtin::KindObject:
+            case Builtin::KindValue:
             {
                 if(marshal)
                 {
@@ -1138,6 +1144,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     {
         switch(builtin->kind())
         {
+            case Builtin::KindValue:
             case Builtin::KindObject:
             case Builtin::KindObjectProxy:
             {
@@ -1170,7 +1177,8 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                                 << "> e__ = " << param << ".GetEnumerator();";
                             out << nl << "while(e__.MoveNext())";
                             out << sb;
-                            string func = builtin->kind() == Builtin::KindObject ? "writeObject" : "writeProxy";
+                            string func = (builtin->kind() == Builtin::KindObject || 
+                                           builtin->kind() == Builtin::KindValue) ? "writeObject" : "writeProxy";
                             out << nl << stream << '.' << func << "(e__.Current);";
                             out << eb;
                         }
@@ -1179,7 +1187,8 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                     {
                         out << nl << "for(int ix__ = 0; ix__ < " << param << '.' << limitID << "; ++ix__)";
                         out << sb;
-                        string func = builtin->kind() == Builtin::KindObject ? "writeObject" : "writeProxy";
+                        string func = (builtin->kind() == Builtin::KindObject ||
+                                       builtin->kind() == Builtin::KindValue) ? "writeObject" : "writeProxy";
                         out << nl << stream << '.' << func << '(' << param << "[ix__]);";
                         out << eb;
                     }
@@ -1190,7 +1199,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                     out << nl << "int " << param << "_lenx = " << stream << ".readAndCheckSeqSize("
                         << static_cast<unsigned>(builtin->minWireSize()) << ");";
                     out << nl << param << " = new ";
-                    if(builtin->kind() == Builtin::KindObject)
+                    if((builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue))
                     {
                         if(isArray)
                         {
@@ -1953,6 +1962,7 @@ Slice::CsGenerator::writeOptionalSequenceMarshalUnmarshalCode(Output& out,
             break;
         }
 
+        case Builtin::KindValue:
         case Builtin::KindObject:
         case Builtin::KindObjectProxy:
         {
@@ -2200,6 +2210,7 @@ Slice::CsGenerator::writeSerializeDeserializeCode(Output &out,
                 }
                 break;
             }
+            case Builtin::KindValue:
             case Builtin::KindObject:
             case Builtin::KindLocalObject:
             {
@@ -2530,7 +2541,8 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                         {
                             ClassDeclPtr cd = ClassDeclPtr::dynamicCast(seq->type());
                             BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
-                            if(!cd && !(builtin && builtin->kind() == Builtin::KindObject))
+                            if(!cd && !(builtin && (builtin->kind() == Builtin::KindObject ||
+                                                    builtin->kind() == Builtin::KindValue)))
                             {
                                 continue;
                             }

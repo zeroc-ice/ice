@@ -12,64 +12,64 @@
 
 using namespace Test;
 
-MA::CAPrx
-CAI_::caop(const MA::CAPrx& p, const Ice::Current&)
+MA::CAPrxPtr
+CAI_::caop(const MA::CAPrxPtr& p, const Ice::Current&)
 {
     return p;
 }
 
-MB::CBPrx
-CBI::cbop(const MB::CBPrx& p, const Ice::Current&)
+MB::CBPrxPtr
+CBI::cbop(const MB::CBPrxPtr& p, const Ice::Current&)
 {
     return p;
 }
 
-MA::CCPrx
-CCI::ccop(const MA::CCPrx& p, const Ice::Current&)
+MA::CCPrxPtr
+CCI::ccop(const MA::CCPrxPtr& p, const Ice::Current&)
 {
     return p;
 }
 
-MA::CDPrx
-CDI::cdop(const MA::CDPrx& p, const Ice::Current&)
+MA::CDPrxPtr
+CDI::cdop(const MA::CDPrxPtr& p, const Ice::Current&)
 {
     return p;
 }
 
-MA::IAPrx
-IAI::iaop(const MA::IAPrx& p, const Ice::Current&)
+MA::IAPrxPtr
+IAI::iaop(const MA::IAPrxPtr& p, const Ice::Current&)
 {
     return p;
 }
 
-MB::IB1Prx
-IB1I::ib1op(const MB::IB1Prx& p, const Ice::Current&)
+MB::IB1PrxPtr
+IB1I::ib1op(const MB::IB1PrxPtr& p, const Ice::Current&)
 {
     return p;
 }
 
-MB::IB2Prx
-IB2I::ib2op(const MB::IB2Prx& p, const Ice::Current&)
+MB::IB2PrxPtr
+IB2I::ib2op(const MB::IB2PrxPtr& p, const Ice::Current&)
 {
     return p;
 }
 
-MA::ICPrx
-ICI::icop(const MA::ICPrx& p, const Ice::Current&)
+MA::ICPrxPtr
+ICI::icop(const MA::ICPrxPtr& p, const Ice::Current&)
 {
     return p;
 }
 
 InitialI::InitialI(const Ice::ObjectAdapterPtr& adapter)
 {
-    _ca = MA::CAPrx::uncheckedCast(adapter->addWithUUID(new CAI_));
-    _cb = MB::CBPrx::uncheckedCast(adapter->addWithUUID(new CBI));
-    _cc = MA::CCPrx::uncheckedCast(adapter->addWithUUID(new CCI));
-    _cd = MA::CDPrx::uncheckedCast(adapter->addWithUUID(new CDI));
-    _ia = MA::IAPrx::uncheckedCast(adapter->addWithUUID(new IAI));
-    _ib1 = MB::IB1Prx::uncheckedCast(adapter->addWithUUID(new IB1I));
-    _ib2 = MB::IB2Prx::uncheckedCast(adapter->addWithUUID(new IB2I));
-    _ic = MA::ICPrx::uncheckedCast(adapter->addWithUUID(new ICI));
+    _ca = ICE_UNCHECKED_CAST(MA::CAPrx, adapter->addWithUUID(ICE_MAKE_SHARED(CAI_)));
+    _cb = ICE_UNCHECKED_CAST(MB::CBPrx, adapter->addWithUUID(ICE_MAKE_SHARED(CBI)));
+    _cc = ICE_UNCHECKED_CAST(MA::CCPrx, adapter->addWithUUID(ICE_MAKE_SHARED(CCI)));
+    _cd = ICE_UNCHECKED_CAST(MA::CDPrx, adapter->addWithUUID(ICE_MAKE_SHARED(CDI)));
+    _ia = ICE_UNCHECKED_CAST(MA::IAPrx, adapter->addWithUUID(ICE_MAKE_SHARED(IAI)));
+    _ib1 = ICE_UNCHECKED_CAST(MB::IB1Prx, adapter->addWithUUID(ICE_MAKE_SHARED(IB1I)));
+    _ib2 = ICE_UNCHECKED_CAST(MB::IB2Prx, adapter->addWithUUID(ICE_MAKE_SHARED(IB2I)));
+    _ic = ICE_UNCHECKED_CAST(MA::ICPrx, adapter->addWithUUID(ICE_MAKE_SHARED(ICI)));
 }
 
 void
@@ -78,49 +78,49 @@ InitialI::shutdown(const Ice::Current& current)
     current.adapter->getCommunicator()->shutdown();
 }
 
-MA::CAPrx
+MA::CAPrxPtr
 InitialI::caop(const Ice::Current&)
 {
     return _ca;
 }
 
-MB::CBPrx
+MB::CBPrxPtr
 InitialI::cbop(const Ice::Current&)
 {
     return _cb;
 }
 
-MA::CCPrx
+MA::CCPrxPtr
 InitialI::ccop(const Ice::Current&)
 {
     return _cc;
 }
 
-MA::CDPrx
+MA::CDPrxPtr
 InitialI::cdop(const Ice::Current&)
 {
     return _cd;
 }
 
-MA::IAPrx
+MA::IAPrxPtr
 InitialI::iaop(const Ice::Current&)
 {
     return _ia;
 }
 
-MB::IB1Prx
+MB::IB1PrxPtr
 InitialI::ib1op(const Ice::Current&)
 {
     return _ib1;
 }
 
-MB::IB2Prx
+MB::IB2PrxPtr
 InitialI::ib2op(const Ice::Current&)
 {
     return _ib2;
 }
 
-MA::ICPrx
+MA::ICPrxPtr
 InitialI::icop(const Ice::Current&)
 {
     return _ic;

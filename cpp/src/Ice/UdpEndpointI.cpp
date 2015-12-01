@@ -22,7 +22,9 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
+#ifndef ICE_CPP11_MAPPING
 IceUtil::Shared* IceInternal::upCast(UdpEndpointI* p) { return p; }
+#endif
 
 extern "C"
 {
@@ -76,7 +78,12 @@ IceInternal::UdpEndpointI::UdpEndpointI(const ProtocolInstancePtr& instance, Bas
 EndpointInfoPtr
 IceInternal::UdpEndpointI::getInfo() const
 {
+#ifdef ICE_CPP11_MAPPING
+    Ice::UDPEndpointInfoPtr info = make_shared<InfoI<Ice::UDPEndpointInfo>>(
+        dynamic_pointer_cast<UdpEndpointI>(const_pointer_cast<EndpointI>(shared_from_this())));
+#else
     Ice::UDPEndpointInfoPtr info = new InfoI<Ice::UDPEndpointInfo>(const_cast<UdpEndpointI*>(this));
+#endif
     fillEndpointInfo(info.get());
     return info;
 }
@@ -90,7 +97,11 @@ IceInternal::UdpEndpointI::timeout() const
 EndpointIPtr
 IceInternal::UdpEndpointI::timeout(Int) const
 {
+#ifdef ICE_CPP11_MAPPING
+    return const_pointer_cast<EndpointI>(shared_from_this());
+#else
     return const_cast<UdpEndpointI*>(this);
+#endif
 }
 
 bool
@@ -104,12 +115,16 @@ IceInternal::UdpEndpointI::compress(bool compress) const
 {
     if(compress == _compress)
     {
+#ifdef ICE_CPP11_MAPPING
+        return const_pointer_cast<EndpointI>(shared_from_this());
+#else
         return const_cast<UdpEndpointI*>(this);
+#endif
     }
     else
     {
-        return new UdpEndpointI(_instance, _host, _port, _sourceAddr, _mcastInterface, _mcastTtl, _connect,
-                                _connectionId, compress);
+        return ICE_MAKE_SHARED(UdpEndpointI, _instance, _host, _port, _sourceAddr, _mcastInterface, _mcastTtl,
+                               _connect, _connectionId, compress);
     }
 }
 
@@ -122,7 +137,12 @@ IceInternal::UdpEndpointI::datagram() const
 TransceiverPtr
 IceInternal::UdpEndpointI::transceiver() const
 {
+#ifdef ICE_CPP11_MAPPING
+    return new UdpTransceiver(dynamic_pointer_cast<UdpEndpointI>(const_pointer_cast<EndpointI>(shared_from_this())),
+                              _instance, _host, _port, _mcastInterface, _connect);    
+#else
     return new UdpTransceiver(const_cast<UdpEndpointI*>(this), _instance, _host, _port, _mcastInterface, _connect);
+#endif
 }
 
 AcceptorPtr
@@ -134,8 +154,8 @@ IceInternal::UdpEndpointI::acceptor(const string&) const
 UdpEndpointIPtr
 IceInternal::UdpEndpointI::endpoint(const UdpTransceiverPtr& transceiver) const
 {
-    return new UdpEndpointI(_instance, _host, transceiver->effectivePort(), _sourceAddr, _mcastInterface, _mcastTtl,
-                            _connect, _connectionId, _compress);
+    return ICE_MAKE_SHARED(UdpEndpointI, _instance, _host, transceiver->effectivePort(), _sourceAddr, _mcastInterface,
+                           _mcastTtl, _connect, _connectionId, _compress);
 }
 
 string
@@ -175,7 +195,11 @@ IceInternal::UdpEndpointI::options() const
 }
 
 bool
+#ifdef ICE_CPP11_MAPPING
+IceInternal::UdpEndpointI::operator==(const EndpointI& r) const
+#else
 IceInternal::UdpEndpointI::operator==(const LocalObject& r) const
+#endif
 {
     if(!IPEndpointI::operator==(r))
     {
@@ -217,7 +241,11 @@ IceInternal::UdpEndpointI::operator==(const LocalObject& r) const
 }
 
 bool
+#ifdef ICE_CPP11_MAPPING
+IceInternal::UdpEndpointI::operator<(const EndpointI& r) const
+#else
 IceInternal::UdpEndpointI::operator<(const LocalObject& r) const
+#endif
 {
     const UdpEndpointI* p = dynamic_cast<const UdpEndpointI*>(&r);
     if(!p)
@@ -406,8 +434,8 @@ IceInternal::UdpEndpointI::createConnector(const Address& address, const Network
 IPEndpointIPtr
 IceInternal::UdpEndpointI::createEndpoint(const string& host, int port, const string& connectionId) const
 {
-    return new UdpEndpointI(_instance, host, port, _sourceAddr, _mcastInterface, _mcastTtl, _connect, connectionId,
-                            _compress);
+    return ICE_MAKE_SHARED(UdpEndpointI, _instance, host, port, _sourceAddr, _mcastInterface, _mcastTtl, _connect,
+                           connectionId, _compress);
 }
 
 IceInternal::UdpEndpointFactory::UdpEndpointFactory(const ProtocolInstancePtr& instance) : _instance(instance)
@@ -433,7 +461,7 @@ IceInternal::UdpEndpointFactory::protocol() const
 EndpointIPtr
 IceInternal::UdpEndpointFactory::create(vector<string>& args, bool oaEndpoint) const
 {
-    IPEndpointIPtr endpt = new UdpEndpointI(_instance);
+    IPEndpointIPtr endpt = ICE_MAKE_SHARED(UdpEndpointI, _instance);
     endpt->initWithOptions(args, oaEndpoint);
     return endpt;
 }
@@ -441,7 +469,7 @@ IceInternal::UdpEndpointFactory::create(vector<string>& args, bool oaEndpoint) c
 EndpointIPtr
 IceInternal::UdpEndpointFactory::read(BasicStream* s) const
 {
-    return new UdpEndpointI(_instance, s);
+    return ICE_MAKE_SHARED(UdpEndpointI, _instance, s);
 }
 
 void

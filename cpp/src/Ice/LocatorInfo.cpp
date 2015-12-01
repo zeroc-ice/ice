@@ -18,6 +18,7 @@
 #include <Ice/Reference.h>
 #include <Ice/Functional.h>
 #include <Ice/Properties.h>
+#include <Ice/Comparable.h>
 #include <iterator>
 
 using namespace std;
@@ -44,11 +45,31 @@ public:
     {
         try
         {
+#ifdef ICE_CPP11_MAPPING
+            _locatorInfo->getLocator()->findObjectById_async(
+                _ref->getIdentity(),
+                [this](const ObjectPrxPtr& object)
+                {
+                    this->response(object);
+                },
+                [this](exception_ptr e)
+                {
+                    try
+                    {
+                        rethrow_exception(e);
+                    }
+                    catch(const UserException& ex)
+                    {
+                        this->exception(ex);
+                    }
+                });
+#else
             _locatorInfo->getLocator()->begin_findObjectById(
                 _ref->getIdentity(),
                 newCallback_Locator_findObjectById(static_cast<LocatorInfo::Request*>(this),
                                                    &LocatorInfo::Request::response,
                                                    &LocatorInfo::Request::exception));
+#endif
         }
         catch(const Ice::Exception& ex)
         {
@@ -70,11 +91,31 @@ public:
     {
         try
         {
+#ifdef ICE_CPP11_MAPPING
+            _locatorInfo->getLocator()->findAdapterById_async(
+                _ref->getAdapterId(),
+                [this](const Ice::ObjectPrxPtr& object)
+                {
+                    this->response(object);
+                },
+                [this](exception_ptr e)
+                {
+                    try
+                    {
+                        rethrow_exception(e);
+                    }
+                    catch(const UserException& ex)
+                    {
+                        this->exception(ex);
+                    }
+                });
+#else
             _locatorInfo->getLocator()->begin_findAdapterById(
                 _ref->getAdapterId(),
                 newCallback_Locator_findAdapterById(static_cast<LocatorInfo::Request*>(this),
                                                     &LocatorInfo::Request::response,
                                                     &LocatorInfo::Request::exception));
+#endif
         }
         catch(const Ice::Exception& ex)
         {
@@ -96,8 +137,11 @@ IceInternal::LocatorManager::destroy()
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    for_each(_table.begin(), _table.end(), Ice::secondVoidMemFun<const LocatorPrx, LocatorInfo>(&LocatorInfo::destroy));
-
+#ifdef ICE_CPP11_MAPPING
+    for_each(_table.begin(), _table.end(), [](auto it){ it.second->destroy(); });
+#else
+    for_each(_table.begin(), _table.end(), Ice::secondVoidMemFun<const LocatorPrxPtr, LocatorInfo>(&LocatorInfo::destroy));
+#endif
     _table.clear();
     _tableHint = _table.end();
 
@@ -105,14 +149,14 @@ IceInternal::LocatorManager::destroy()
 }
 
 LocatorInfoPtr
-IceInternal::LocatorManager::get(const LocatorPrx& loc)
+IceInternal::LocatorManager::get(const LocatorPrxPtr& loc)
 {
     if(!loc)
     {
         return 0;
     }
 
-    LocatorPrx locator = LocatorPrx::uncheckedCast(loc->ice_locator(0)); // The locator can't be located.
+    LocatorPrxPtr locator = ICE_UNCHECKED_CAST(LocatorPrx, loc->ice_locator(0)); // The locator can't be located.
 
     //
     // TODO: reap unused locator info objects?
@@ -120,7 +164,7 @@ IceInternal::LocatorManager::get(const LocatorPrx& loc)
 
     IceUtil::Mutex::Lock sync(*this);
 
-    map<LocatorPrx, LocatorInfoPtr>::iterator p = _table.end();
+    map<LocatorPrxPtr, LocatorInfoPtr>::iterator p = _table.end();
 
     if(_tableHint != _table.end())
     {
@@ -152,7 +196,7 @@ IceInternal::LocatorManager::get(const LocatorPrx& loc)
         }
 
         _tableHint = _table.insert(_tableHint,
-                                   pair<const LocatorPrx, LocatorInfoPtr>(locator,
+                                   pair<const LocatorPrxPtr, LocatorInfoPtr>(locator,
                                                                           new LocatorInfo(locator, t->second,
                                                                                           _background)));
     }
@@ -301,7 +345,7 @@ IceInternal::LocatorTable::checkTTL(const IceUtil::Time& time, int ttl) const
 }
 
 void
-IceInternal::LocatorInfo::RequestCallback::response(const LocatorInfoPtr& locatorInfo, const Ice::ObjectPrx& proxy)
+IceInternal::LocatorInfo::RequestCallback::response(const LocatorInfoPtr& locatorInfo, const Ice::ObjectPrxPtr& proxy)
 {
     vector<EndpointIPtr> endpoints;
     if(proxy)
@@ -467,7 +511,7 @@ IceInternal::LocatorInfo::Request::Request(const LocatorInfoPtr& locatorInfo, co
 }
 
 void
-IceInternal::LocatorInfo::Request::response(const Ice::ObjectPrx& proxy)
+IceInternal::LocatorInfo::Request::response(const Ice::ObjectPrxPtr& proxy)
 {
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
@@ -497,7 +541,7 @@ IceInternal::LocatorInfo::Request::exception(const Ice::Exception& ex)
     }
 }
 
-IceInternal::LocatorInfo::LocatorInfo(const LocatorPrx& locator, const LocatorTablePtr& table, bool background) :
+IceInternal::LocatorInfo::LocatorInfo(const LocatorPrxPtr& locator, const LocatorTablePtr& table, bool background) :
     _locator(locator),
     _table(table),
     _background(background)
@@ -518,22 +562,34 @@ IceInternal::LocatorInfo::destroy()
 bool
 IceInternal::LocatorInfo::operator==(const LocatorInfo& rhs) const
 {
+#ifdef ICE_CPP11_MAPPING
+    return Ice::targetEquals(_locator, rhs._locator);
+#else
     return _locator == rhs._locator;
+#endif
 }
 
 bool
 IceInternal::LocatorInfo::operator!=(const LocatorInfo& rhs) const
 {
+#ifdef ICE_CPP11_MAPPING
+    return !Ice::targetEquals(_locator, rhs._locator);
+#else
     return _locator != rhs._locator;
+#endif
 }
 
 bool
 IceInternal::LocatorInfo::operator<(const LocatorInfo& rhs) const
 {
+#ifdef ICE_CPP11_MAPPING
+    return Ice::targetLess(_locator, rhs._locator);
+#else
     return _locator < rhs._locator;
+#endif
 }
 
-LocatorRegistryPrx
+LocatorRegistryPrxPtr
 IceInternal::LocatorInfo::getLocatorRegistry()
 {
     {
@@ -547,7 +603,7 @@ IceInternal::LocatorInfo::getLocatorRegistry()
     //
     // Do not make locator calls from within sync.
     //
-    LocatorRegistryPrx locatorRegistry = _locator->getRegistry();
+    LocatorRegistryPrxPtr locatorRegistry = _locator->getRegistry();
     if(!locatorRegistry)
     {
         return 0;
@@ -877,7 +933,7 @@ IceInternal::LocatorInfo::getObjectRequest(const ReferencePtr& ref)
 void
 IceInternal::LocatorInfo::finishRequest(const ReferencePtr& ref,
                                         const vector<ReferencePtr>& wellKnownRefs,
-                                        const Ice::ObjectPrx& proxy,
+                                        const Ice::ObjectPrxPtr& proxy,
                                         bool notRegistered)
 {
     if(!proxy || proxy->__reference()->isIndirect())

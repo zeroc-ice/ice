@@ -21,11 +21,11 @@ main(int argc, char* argv[])
     try
     {
         cout << "testing Slice predefined macros... " << flush;
-        DefaultPtr d = new Default();
+        DefaultPtr d = ICE_MAKE_SHARED(Default);
         test(d->x == 10);
         test(d->y == 10);
 
-        CppOnlyPtr c = new CppOnly();
+        CppOnlyPtr c = ICE_MAKE_SHARED(CppOnly);
         test(c->lang == "cpp");
         test(c->version == ICE_INT_VERSION);
         cout << "ok" << endl;

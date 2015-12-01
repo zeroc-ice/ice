@@ -1331,6 +1331,7 @@ Slice::Ruby::CodeVisitor::writeType(const TypePtr& p)
                 _out << "::Ice::T_string";
                 break;
             }
+            case Builtin::KindValue:
             case Builtin::KindObject:
             {
                 _out << "::Ice::T_Object";
@@ -1391,6 +1392,7 @@ Slice::Ruby::CodeVisitor::getInitializer(const DataMemberPtr& m)
             {
                 return "''";
             }
+            case Builtin::KindValue:
             case Builtin::KindObject:
             case Builtin::KindObjectProxy:
             case Builtin::KindLocalObject:
@@ -1535,6 +1537,7 @@ Slice::Ruby::CodeVisitor::writeConstantValue(const TypePtr& type, const SyntaxTr
                 break;
             }
 
+            case Slice::Builtin::KindValue:
             case Slice::Builtin::KindObject:
             case Slice::Builtin::KindObjectProxy:
             case Slice::Builtin::KindLocalObject:

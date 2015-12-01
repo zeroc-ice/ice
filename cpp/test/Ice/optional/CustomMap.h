@@ -12,7 +12,7 @@
 
 #include <IceUtil/Config.h>
 
-#ifdef ICE_CPP11
+#ifdef ICE_CPP11_COMPILER
 #   include <unordered_map>
 #else
 #   include <map>
@@ -21,7 +21,7 @@
 namespace Test
 {
 
-#ifdef ICE_CPP11
+#ifdef ICE_CPP11_COMPILER
 template<typename K, typename V>
 class CustomMap : public std::unordered_map<K, V>
 {

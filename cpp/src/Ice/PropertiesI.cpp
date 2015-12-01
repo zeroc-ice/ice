@@ -435,7 +435,7 @@ PropertiesPtr
 Ice::PropertiesI::clone()
 {
     IceUtil::Mutex::Lock sync(*this);
-    return new PropertiesI(this);
+    return ICE_MAKE_SHARED(PropertiesI, this);
 }
 
 set<string>

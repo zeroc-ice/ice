@@ -48,6 +48,12 @@ prefix			= $(PREFIX)
 #UNIQUE_DLL_NAMES       = yes
 
 #
+# Define CPP11_MAPPING as yes if you want to build the new moderm C++11
+# mapping.
+#
+#CPP11_MAPPING		?= yes
+
+#
 # Define if you want the Ice DLLs and executable files to be authenticode
 # signed.
 #
@@ -66,6 +72,10 @@ ice_language     = cpp
 !if "$(USE_BIN_DIST)" == "yes" || !exist ($(top_srcdir)\..\cpp)
 slice_translator = slice2cpp.exe
 ice_require_cpp  = 1
+!endif
+
+!if "$(CPP11_MAPPING)" == "yes"
+CPPFLAGS	 	= -DICE_CPP11_MAPPING $(CPPFLAGS)
 !endif
 
 #

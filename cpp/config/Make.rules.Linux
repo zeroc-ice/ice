@@ -46,7 +46,7 @@ ifeq ($(GCC_COMPILER),yes)
     endif
 
     ifeq ($(CPP11), yes)
-        CXXFLAGS += -std=c++0x
+        CXXFLAGS += -std=c++1y
     endif
 
     ifeq ($(MACHINE),sparc64)

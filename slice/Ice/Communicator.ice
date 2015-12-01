@@ -14,7 +14,7 @@
 #include <Ice/LoggerF.ice>
 #include <Ice/InstrumentationF.ice>
 #include <Ice/ObjectAdapterF.ice>
-#include <Ice/ObjectFactoryF.ice>
+#include <Ice/ObjectFactory.ice>
 #include <Ice/RouterF.ice>
 #include <Ice/LocatorF.ice>
 #include <Ice/PluginF.ice>

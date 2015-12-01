@@ -18,8 +18,10 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
+#ifndef ICE_CPP11_MAPPING
 IceUtil::Shared* IceInternal::upCast(ACMMonitor* p) { return p; }
 IceUtil::Shared* IceInternal::upCast(FactoryACMMonitor* p) { return p; }
+#endif
 
 IceInternal::ACMConfig::ACMConfig(bool server) :
     timeout(IceUtil::Time::seconds(60)), 
@@ -107,7 +109,7 @@ IceInternal::FactoryACMMonitor::add(const ConnectionIPtr& connection)
     if(_connections.empty())
     {
         _connections.insert(connection);
-        _instance->timer()->scheduleRepeated(this, _config.timeout / 2);
+        _instance->timer()->scheduleRepeated(ICE_SHARED_FROM_THIS, _config.timeout / 2);
     }
     else
     {
@@ -156,7 +158,7 @@ IceInternal::FactoryACMMonitor::acm(const IceUtil::Optional<int>& timeout,
     {
         config.heartbeat = *heartbeat;
     }
-    return new ConnectionACMMonitor(this, _instance->timer(), config);
+    return ICE_MAKE_SHARED(ConnectionACMMonitor, ICE_SHARED_FROM_THIS, _instance->timer(), config);
 }
 
 Ice::ACM
@@ -201,7 +203,7 @@ IceInternal::FactoryACMMonitor::runTimerTask()
 
         if(_connections.empty())
         {
-            _instance->timer()->cancel(this);
+            _instance->timer()->cancel(ICE_SHARED_FROM_THIS);
             return;
         }
     }
@@ -275,7 +277,7 @@ IceInternal::ConnectionACMMonitor::add(const ConnectionIPtr& connection)
     _connection = connection;
     if(_config.timeout != IceUtil::Time())
     {
-        _timer->scheduleRepeated(this, _config.timeout / 2);
+        _timer->scheduleRepeated(ICE_SHARED_FROM_THIS, _config.timeout / 2);
     }
 }
 
@@ -286,7 +288,7 @@ IceInternal::ConnectionACMMonitor::remove(const ConnectionIPtr& connection)
     assert(_connection == connection);
     if(_config.timeout != IceUtil::Time())
     {
-        _timer->cancel(this);
+        _timer->cancel(ICE_SHARED_FROM_THIS);
     }
     _connection = 0;
 }

@@ -28,7 +28,7 @@ public:
 
     RequestHandlerFactory(const InstancePtr&);
 
-    RequestHandlerPtr getRequestHandler(const RoutableReferencePtr&, const Ice::ObjectPrx&);
+    RequestHandlerPtr getRequestHandler(const RoutableReferencePtr&, const Ice::ObjectPrxPtr&);
     void removeRequestHandler(const ReferencePtr&, const RequestHandlerPtr&);
 
 private:

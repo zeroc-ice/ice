@@ -21,7 +21,9 @@ using namespace std;
 using namespace Ice;
 using namespace IceSSL;
 
+#ifndef ICE_CPP11_MAPPING
 IceUtil::Shared* IceSSL::upCast(EndpointI* p) { return p; }
+#endif
 
 IceSSL::EndpointI::EndpointI(const InstancePtr& instance, const string& ho, Int po,
                              const IceInternal::Address& sourceAddr, Int ti, const string& conId, bool co) :
@@ -53,7 +55,13 @@ IceSSL::EndpointI::EndpointI(const InstancePtr& instance, IceInternal::BasicStre
 Ice::EndpointInfoPtr
 IceSSL::EndpointI::getInfo() const
 {
+#ifdef ICE_CPP11_MAPPING
+    EndpointInfoPtr info = make_shared<IceInternal::InfoI<EndpointInfo>>(
+        dynamic_pointer_cast<IceInternal::EndpointI>(
+            const_pointer_cast<IceInternal::EndpointI>(shared_from_this())));
+#else
     EndpointInfoPtr info = new IceInternal::InfoI<EndpointInfo>(const_cast<EndpointI*>(this));
+#endif
     fillEndpointInfo(info.get());
     return info;
 }
@@ -61,7 +69,13 @@ IceSSL::EndpointI::getInfo() const
 Ice::EndpointInfoPtr
 IceSSL::EndpointI::getWSInfo(const string& resource) const
 {
+#ifdef ICE_CPP11_MAPPING
+    WSEndpointInfoPtr info = make_shared<IceInternal::InfoI<Ice::WSEndpointInfo>>(
+        dynamic_pointer_cast<IceInternal::EndpointI>(
+            const_pointer_cast<IceInternal::EndpointI>(shared_from_this())));
+#else
     WSSEndpointInfoPtr info = new IceInternal::InfoI<WSSEndpointInfo>(const_cast<EndpointI*>(this));
+#endif
     fillEndpointInfo(info.get());
     info->resource = resource;
     return info;
@@ -78,11 +92,15 @@ IceSSL::EndpointI::timeout(Int timeout) const
 {
     if(timeout == _timeout)
     {
+#ifdef ICE_CPP11_MAPPING
+        return dynamic_pointer_cast<IceInternal::EndpointI>(const_pointer_cast<IceInternal::EndpointI>(shared_from_this()));
+#else
         return const_cast<EndpointI*>(this);
+#endif
     }
     else
     {
-        return new EndpointI(_instance, _host, _port, _sourceAddr, timeout, _connectionId, _compress);
+        return ICE_MAKE_SHARED(EndpointI, _instance, _host, _port, _sourceAddr, timeout, _connectionId, _compress);
     }
 }
 
@@ -97,11 +115,15 @@ IceSSL::EndpointI::compress(bool compress) const
 {
     if(compress == _compress)
     {
+#ifdef ICE_CPP11_MAPPING
+        return dynamic_pointer_cast<IceInternal::EndpointI>(const_pointer_cast<IceInternal::EndpointI>(shared_from_this()));
+#else
         return const_cast<EndpointI*>(this);
+#endif
     }
     else
     {
-        return new EndpointI(_instance, _host, _port, _sourceAddr, _timeout, _connectionId, compress);
+        return ICE_MAKE_SHARED(EndpointI, _instance, _host, _port, _sourceAddr, _timeout, _connectionId, compress);
     }
 }
 
@@ -120,13 +142,19 @@ IceSSL::EndpointI::transceiver() const
 IceInternal::AcceptorPtr
 IceSSL::EndpointI::acceptor(const string& adapterName) const
 {
+#ifdef ICE_CPP11_MAPPING
+    return new AcceptorI(
+        dynamic_pointer_cast<EndpointI>(const_pointer_cast<IceInternal::EndpointI>(shared_from_this())),
+        _instance, adapterName, _host, _port);
+#else
     return new AcceptorI(const_cast<EndpointI*>(this), _instance, adapterName, _host, _port);
+#endif
 }
 
 EndpointIPtr
 IceSSL::EndpointI::endpoint(const AcceptorIPtr& acceptor) const
 {
-    return new EndpointI(_instance, _host, acceptor->effectivePort(), _sourceAddr, _timeout, _connectionId, _compress);
+    return ICE_MAKE_SHARED(EndpointI, _instance, _host, acceptor->effectivePort(), _sourceAddr, _timeout, _connectionId, _compress);
 }
 
 string
@@ -160,7 +188,11 @@ IceSSL::EndpointI::options() const
 }
 
 bool
+#ifdef ICE_CPP11_MAPPING
+IceSSL::EndpointI::operator==(const IceInternal::EndpointI& r) const
+#else
 IceSSL::EndpointI::operator==(const Ice::LocalObject& r) const
+#endif
 {
     if(!IPEndpointI::operator==(r))
     {
@@ -192,7 +224,11 @@ IceSSL::EndpointI::operator==(const Ice::LocalObject& r) const
 }
 
 bool
+#ifdef ICE_CPP11_MAPPING
+IceSSL::EndpointI::operator<(const IceInternal::EndpointI& r) const
+#else
 IceSSL::EndpointI::operator<(const Ice::LocalObject& r) const
+#endif
 {
     const EndpointI* p = dynamic_cast<const EndpointI*>(&r);
     if(!p)
@@ -319,7 +355,7 @@ IceSSL::EndpointI::createConnector(const IceInternal::Address& address, const Ic
 IceInternal::IPEndpointIPtr
 IceSSL::EndpointI::createEndpoint(const string& host, int port, const string& connectionId) const
 {
-    return new EndpointI(_instance, host, port, _sourceAddr, _timeout, connectionId, _compress);
+    return ICE_MAKE_SHARED(EndpointI, _instance, host, port, _sourceAddr, _timeout, connectionId, _compress);
 }
 
 IceSSL::EndpointFactoryI::EndpointFactoryI(const InstancePtr& instance) : _instance(instance)
@@ -345,7 +381,7 @@ IceSSL::EndpointFactoryI::protocol() const
 IceInternal::EndpointIPtr
 IceSSL::EndpointFactoryI::create(vector<string>& args, bool oaEndpoint) const
 {
-    IceInternal::IPEndpointIPtr endpt = new EndpointI(_instance);
+    IceInternal::IPEndpointIPtr endpt = ICE_MAKE_SHARED(EndpointI, _instance);
     endpt->initWithOptions(args, oaEndpoint);
     return endpt;
 }
@@ -353,7 +389,7 @@ IceSSL::EndpointFactoryI::create(vector<string>& args, bool oaEndpoint) const
 IceInternal::EndpointIPtr
 IceSSL::EndpointFactoryI::read(IceInternal::BasicStream* s) const
 {
-    return new EndpointI(_instance, s);
+    return ICE_MAKE_SHARED(EndpointI, _instance, s);
 }
 
 void

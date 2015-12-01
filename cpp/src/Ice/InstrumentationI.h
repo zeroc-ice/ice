@@ -21,9 +21,8 @@ template<typename T, typename O> class ObserverWithDelegateT : public IceMX::Obs
 public:
 
     typedef O ObserverType;
-    typedef typename IceInternal::Handle<O> ObserverPtrType;
-
-    virtual void 
+    typedef typename ICE_INTERNAL_HANDLE<O> ObserverPtrType;
+    virtual void
     attach()
     {
         IceMX::ObserverT<T>::attach();
@@ -33,7 +32,7 @@ public:
         }
     }
 
-    virtual void 
+    virtual void
     detach()
     {
         IceMX::ObserverT<T>::detach();
@@ -65,11 +64,11 @@ public:
         _delegate = delegate;
     }
 
-    template<typename ObserverImpl, typename ObserverMetricsType, typename ObserverPtrType> ObserverPtrType 
-    getObserverWithDelegate(const std::string& mapName, const IceMX::MetricsHelperT<ObserverMetricsType>& helper, 
+    template<typename ObserverImpl, typename ObserverMetricsType, typename ObserverPtrType> ObserverPtrType
+    getObserverWithDelegate(const std::string& mapName, const IceMX::MetricsHelperT<ObserverMetricsType>& helper,
                             const ObserverPtrType& del)
     {
-        IceInternal::Handle<ObserverImpl> obsv = IceMX::ObserverT<T>::template getObserver<ObserverImpl>(mapName, 
+        ICE_INTERNAL_HANDLE<ObserverImpl> obsv = IceMX::ObserverT<T>::template getObserver<ObserverImpl>(mapName,
                                                                                                          helper);
         if(obsv)
         {
@@ -88,15 +87,15 @@ template<typename T> class ObserverFactoryWithDelegateT : public IceMX::Observer
 {
 public:
 
-    ObserverFactoryWithDelegateT(const IceInternal::MetricsAdminIPtr& metrics, const std::string& name) : 
+    ObserverFactoryWithDelegateT(const IceInternal::MetricsAdminIPtr& metrics, const std::string& name) :
         IceMX::ObserverFactoryT<T>(metrics, name)
     {
     }
 
-    template<typename ObserverMetricsType, typename ObserverPtrType> ObserverPtrType 
+    template<typename ObserverMetricsType, typename ObserverPtrType> ObserverPtrType
     getObserverWithDelegate(const IceMX::MetricsHelperT<ObserverMetricsType>& helper, const ObserverPtrType& del)
     {
-        IceInternal::Handle<T> obsv = IceMX::ObserverFactoryT<T>::getObserver(helper);
+        ICE_INTERNAL_HANDLE<T> obsv = IceMX::ObserverFactoryT<T>::getObserver(helper);
         if(obsv)
         {
             obsv->setDelegate(del);
@@ -105,11 +104,11 @@ public:
         return del;
     }
 
-    template<typename ObserverMetricsType, typename ObserverPtrType> ObserverPtrType 
-    getObserverWithDelegate(const IceMX::MetricsHelperT<ObserverMetricsType>& helper, const ObserverPtrType& del, 
+    template<typename ObserverMetricsType, typename ObserverPtrType> ObserverPtrType
+    getObserverWithDelegate(const IceMX::MetricsHelperT<ObserverMetricsType>& helper, const ObserverPtrType& del,
                             const ObserverPtrType& old)
     {
-        IceInternal::Handle<T> obsv = IceMX::ObserverFactoryT<T>::getObserver(helper, old);
+        ICE_INTERNAL_HANDLE<T> obsv = IceMX::ObserverFactoryT<T>::getObserver(helper, old);
         if(obsv)
         {
             obsv->setDelegate(del);
@@ -129,7 +128,7 @@ void addEndpointAttributes(typename Helper::Attributes& attrs)
     attrs.add("endpointIsSecure", &Helper::getEndpointInfo, &Ice::EndpointInfo::secure);
     attrs.add("endpointTimeout", &Helper::getEndpointInfo, &Ice::EndpointInfo::timeout);
     attrs.add("endpointCompress", &Helper::getEndpointInfo, &Ice::EndpointInfo::compress);
-    
+
     attrs.add("endpointHost", &Helper::getEndpointInfo, &Ice::IPEndpointInfo::host);
     attrs.add("endpointPort", &Helper::getEndpointInfo, &Ice::IPEndpointInfo::port);
 }
@@ -140,19 +139,19 @@ void addConnectionAttributes(typename Helper::Attributes& attrs)
     attrs.add("incoming", &Helper::getConnectionInfo, &Ice::ConnectionInfo::incoming);
     attrs.add("adapterName", &Helper::getConnectionInfo, &Ice::ConnectionInfo::adapterName);
     attrs.add("connectionId", &Helper::getConnectionInfo, &Ice::ConnectionInfo::connectionId);
-    
+
     attrs.add("localHost", &Helper::getConnectionInfo, &Ice::IPConnectionInfo::localAddress);
     attrs.add("localPort", &Helper::getConnectionInfo, &Ice::IPConnectionInfo::localPort);
     attrs.add("remoteHost", &Helper::getConnectionInfo, &Ice::IPConnectionInfo::remoteAddress);
     attrs.add("remotePort", &Helper::getConnectionInfo, &Ice::IPConnectionInfo::remotePort);
-            
+
     attrs.add("mcastHost", &Helper::getConnectionInfo, &Ice::UDPConnectionInfo::mcastAddress);
     attrs.add("mcastPort", &Helper::getConnectionInfo, &Ice::UDPConnectionInfo::mcastPort);
-    
+
     addEndpointAttributes<Helper>(attrs);
 }
 
-class ConnectionObserverI : public ObserverWithDelegateT<IceMX::ConnectionMetrics, 
+class ConnectionObserverI : public ObserverWithDelegateT<IceMX::ConnectionMetrics,
                                                          Ice::Instrumentation::ConnectionObserver>
 {
 public:
@@ -184,7 +183,7 @@ public:
     virtual void reply(Ice::Int);
 };
 
-class CollocatedObserverI : public ObserverWithDelegateT<IceMX::CollocatedMetrics, 
+class CollocatedObserverI : public ObserverWithDelegateT<IceMX::CollocatedMetrics,
                                                          Ice::Instrumentation::CollocatedObserver>
 {
 public:
@@ -192,7 +191,7 @@ public:
     virtual void reply(Ice::Int);
 };
 
-class InvocationObserverI : public ObserverWithDelegateT<IceMX::InvocationMetrics, 
+class InvocationObserverI : public ObserverWithDelegateT<IceMX::InvocationMetrics,
                                                          Ice::Instrumentation::InvocationObserver>
 {
 public:
@@ -201,7 +200,7 @@ public:
 
     virtual void userException();
 
-    virtual Ice::Instrumentation::RemoteObserverPtr 
+    virtual Ice::Instrumentation::RemoteObserverPtr
     getRemoteObserver(const Ice::ConnectionInfoPtr&, const Ice::EndpointPtr&, Ice::Int, Ice::Int);
 
     virtual Ice::Instrumentation::CollocatedObserverPtr
@@ -217,23 +216,23 @@ public:
     CommunicatorObserverI(const Ice::InitializationData&);
 
     virtual void setObserverUpdater(const Ice::Instrumentation::ObserverUpdaterPtr&);
- 
+
     virtual Ice::Instrumentation::ObserverPtr getConnectionEstablishmentObserver(const Ice::EndpointPtr&,
                                                                                  const std::string&);
- 
+
     virtual Ice::Instrumentation::ObserverPtr getEndpointLookupObserver(const Ice::EndpointPtr&);
-    
-    virtual Ice::Instrumentation::ConnectionObserverPtr 
-    getConnectionObserver(const Ice::ConnectionInfoPtr&, 
+
+    virtual Ice::Instrumentation::ConnectionObserverPtr
+    getConnectionObserver(const Ice::ConnectionInfoPtr&,
                           const Ice::EndpointPtr&,
-                          Ice::Instrumentation::ConnectionState, 
+                          Ice::Instrumentation::ConnectionState,
                           const Ice::Instrumentation::ConnectionObserverPtr&);
 
     virtual Ice::Instrumentation::ThreadObserverPtr getThreadObserver(const std::string&, const std::string&,
                                                                       Ice::Instrumentation::ThreadState,
                                                                       const Ice::Instrumentation::ThreadObserverPtr&);
 
-    virtual Ice::Instrumentation::InvocationObserverPtr getInvocationObserver(const Ice::ObjectPrx&, 
+    virtual Ice::Instrumentation::InvocationObserverPtr getInvocationObserver(const Ice::ObjectPrxPtr&,
                                                                               const std::string&,
                                                                               const Ice::Context&);
 
@@ -255,7 +254,7 @@ private:
     ObserverFactoryWithDelegateT<ObserverI> _connects;
     ObserverFactoryWithDelegateT<ObserverI> _endpointLookups;
 };
-typedef IceUtil::Handle<CommunicatorObserverI> CommunicatorObserverIPtr;
+ICE_DEFINE_PTR(CommunicatorObserverIPtr, CommunicatorObserverI);
 
 };
 

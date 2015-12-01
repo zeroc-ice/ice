@@ -27,11 +27,14 @@
 #include <Ice/RequestHandlerFactory.h>
 #include <Ice/ConnectionRequestHandler.h>
 #include <Ice/DefaultsAndOverrides.h>
+#include <Ice/Comparable.h>
+
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/Random.h>
 #include <IceUtil/MutexPtrLock.h>
 
 #include <functional>
+#include <algorithm>
 
 using namespace std;
 using namespace Ice;
@@ -376,7 +379,6 @@ IceInternal::Reference::operator==(const Reference& r) const
     {
         return false;
     }
-
     return true;
 }
 
@@ -654,14 +656,14 @@ IceInternal::FixedReference::changeAdapterId(const string& /*newAdapterId*/) con
 }
 
 ReferencePtr
-IceInternal::FixedReference::changeLocator(const LocatorPrx&) const
+IceInternal::FixedReference::changeLocator(const LocatorPrxPtr&) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
     return 0; // Keep the compiler happy.
 }
 
 ReferencePtr
-IceInternal::FixedReference::changeRouter(const RouterPrx&) const
+IceInternal::FixedReference::changeRouter(const RouterPrxPtr&) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
     return 0; // Keep the compiler happy.
@@ -753,7 +755,7 @@ IceInternal::FixedReference::toProperty(const string&) const
 }
 
 RequestHandlerPtr
-IceInternal::FixedReference::getRequestHandler(const Ice::ObjectPrx& proxy) const
+IceInternal::FixedReference::getRequestHandler(const Ice::ObjectPrxPtr& proxy) const
 {
     switch(getMode())
     {
@@ -815,7 +817,7 @@ IceInternal::FixedReference::getRequestHandler(const Ice::ObjectPrx& proxy) cons
     }
 
     ReferencePtr ref = const_cast<FixedReference*>(this);
-    return proxy->__setRequestHandler(new ConnectionRequestHandler(ref, _fixedConnection, compress));
+    return proxy->__setRequestHandler(ICE_MAKE_SHARED(ConnectionRequestHandler, ref, _fixedConnection, compress));
 }
 
 BatchRequestQueuePtr
@@ -1039,7 +1041,7 @@ IceInternal::RoutableReference::changeAdapterId(const string& newAdapterId) cons
 }
 
 ReferencePtr
-IceInternal::RoutableReference::changeLocator(const LocatorPrx& newLocator) const
+IceInternal::RoutableReference::changeLocator(const LocatorPrxPtr& newLocator) const
 {
     LocatorInfoPtr newLocatorInfo = getInstance()->locatorManager()->get(newLocator);
     if(newLocatorInfo == _locatorInfo)
@@ -1052,7 +1054,7 @@ IceInternal::RoutableReference::changeLocator(const LocatorPrx& newLocator) cons
 }
 
 ReferencePtr
-IceInternal::RoutableReference::changeRouter(const RouterPrx& newRouter) const
+IceInternal::RoutableReference::changeRouter(const RouterPrxPtr& newRouter) const
 {
     RouterInfoPtr newRouterInfo = getInstance()->routerManager()->get(newRouter);
     if(newRouterInfo == _routerInfo)
@@ -1351,7 +1353,12 @@ IceInternal::RoutableReference::operator==(const Reference& r) const
     {
         return false;
     }
+#ifdef ICE_CPP11_MAPPING
+    if(!equal(_endpoints.begin(), _endpoints.end(), rhs->_endpoints.begin(), rhs->_endpoints.end(), 
+              Ice::TargetEquals<shared_ptr<EndpointI>>()))
+#else
     if(_endpoints != rhs->_endpoints)
+#endif
     {
         return false;
     }
@@ -1479,7 +1486,12 @@ IceInternal::RoutableReference::operator<(const Reference& r) const
     {
         return false;
     }
+#ifdef ICE_CPP11_MAPPING
+    if(lexicographical_compare(_endpoints.begin(), _endpoints.end(), rhs->_endpoints.begin(), rhs->_endpoints.end(),
+                               Ice::TargetLess<shared_ptr<EndpointI>>()))
+#else    
     if(_endpoints < rhs->_endpoints)
+#endif
     {
         return true;
     }
@@ -1505,7 +1517,7 @@ IceInternal::RoutableReference::clone() const
 }
 
 RequestHandlerPtr
-IceInternal::RoutableReference::getRequestHandler(const Ice::ObjectPrx& proxy) const
+IceInternal::RoutableReference::getRequestHandler(const Ice::ObjectPrxPtr& proxy) const
 {
     return getInstance()->requestHandlerFactory()->getRequestHandler(const_cast<RoutableReference*>(this), proxy);
 }
@@ -1640,7 +1652,7 @@ IceInternal::RoutableReference::getConnectionNoRouterInfo(const GetConnectionCal
 
             vector<EndpointIPtr> endpts = endpoints;
             _reference->applyOverrides(endpts);
-            _reference->createConnection(endpts, new Callback2(_reference, _callback, cached));
+            _reference->createConnection(endpts, ICE_MAKE_SHARED(Callback2, _reference, _callback, cached));
         }
 
         virtual void

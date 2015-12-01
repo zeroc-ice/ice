@@ -56,7 +56,7 @@ local interface Properties
      * @see #setProperty
      *
      **/
-    string getPropertyWithDefault(string key, string value);
+    string getPropertyWithDefault(string key, string \value);
 
     /**
      *
@@ -88,7 +88,7 @@ local interface Properties
      * @see #setProperty
      *
      **/
-    int getPropertyAsIntWithDefault(string key, int value);
+    int getPropertyAsIntWithDefault(string key, int \value);
 
 
      /**
@@ -132,7 +132,7 @@ local interface Properties
      * @see #setProperty
      *
      **/
-    StringSeq getPropertyAsListWithDefault(string key, StringSeq value);
+    StringSeq getPropertyAsListWithDefault(string key, StringSeq \value);
 
     /**
      *
@@ -158,7 +158,7 @@ local interface Properties
      * @see #getProperty
      *
      **/
-    void setProperty(string key, string value);
+    void setProperty(string key, string \value);
 
     /**
      *

@@ -55,7 +55,11 @@ protected:
     Ice::Current _current;
     Ice::ObjectPtr _servant;
     Ice::ServantLocatorPtr _locator;
+#ifdef ICE_CPP11_MAPPING
+    ::std::shared_ptr<void> _cookie;
+#else
     Ice::LocalObjectPtr _cookie;
+#endif
     DispatchObserver _observer;
     bool _response;
     Ice::Byte _compress;

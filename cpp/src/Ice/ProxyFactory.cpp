@@ -28,7 +28,7 @@ using namespace IceInternal;
 
 IceUtil::Shared* IceInternal::upCast(ProxyFactory* p) { return p; }
 
-ObjectPrx
+ObjectPrxPtr
 IceInternal::ProxyFactory::stringToProxy(const string& str) const
 {
     ReferencePtr ref = _instance->referenceFactory()->create(str, "");
@@ -36,7 +36,7 @@ IceInternal::ProxyFactory::stringToProxy(const string& str) const
 }
 
 string
-IceInternal::ProxyFactory::proxyToString(const ObjectPrx& proxy) const
+IceInternal::ProxyFactory::proxyToString(const ObjectPrxPtr& proxy) const
 {
     if(proxy)
     {
@@ -48,7 +48,7 @@ IceInternal::ProxyFactory::proxyToString(const ObjectPrx& proxy) const
     }
 }
 
-ObjectPrx
+ObjectPrxPtr
 IceInternal::ProxyFactory::propertyToProxy(const string& prefix) const
 {
     string proxy = _instance->initializationData().properties->getProperty(prefix);
@@ -57,7 +57,7 @@ IceInternal::ProxyFactory::propertyToProxy(const string& prefix) const
 }
 
 PropertyDict
-IceInternal::ProxyFactory::proxyToProperty(const ObjectPrx& proxy, const string& prefix) const
+IceInternal::ProxyFactory::proxyToProperty(const ObjectPrxPtr& proxy, const string& prefix) const
 {
     if(proxy)
     {
@@ -69,7 +69,7 @@ IceInternal::ProxyFactory::proxyToProperty(const ObjectPrx& proxy, const string&
     }
 }
 
-ObjectPrx
+ObjectPrxPtr
 IceInternal::ProxyFactory::streamToProxy(BasicStream* s) const
 {
     Identity ident;
@@ -80,7 +80,7 @@ IceInternal::ProxyFactory::streamToProxy(BasicStream* s) const
 }
 
 void
-IceInternal::ProxyFactory::proxyToStream(const ObjectPrx& proxy, BasicStream* s) const
+IceInternal::ProxyFactory::proxyToStream(const ObjectPrxPtr& proxy, BasicStream* s) const
 {
     if(proxy)
     {
@@ -94,18 +94,18 @@ IceInternal::ProxyFactory::proxyToStream(const ObjectPrx& proxy, BasicStream* s)
     }
 }
 
-ObjectPrx
+ObjectPrxPtr
 IceInternal::ProxyFactory::referenceToProxy(const ReferencePtr& ref) const
 {
     if(ref)
     {
-        ObjectPrx proxy = new ::IceProxy::Ice::Object;
+        ObjectPrxPtr proxy = ICE_MAKE_SHARED(::IceProxy::Ice::Object);
         proxy->setup(ref);
         return proxy;
     }
     else
     {
-        return 0;
+        return ICE_NULLPTR;
     }
 }
 

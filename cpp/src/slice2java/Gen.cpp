@@ -124,6 +124,7 @@ initValue(const TypePtr& p)
         case Builtin::KindObject:
         case Builtin::KindObjectProxy:
         case Builtin::KindLocalObject:
+        case Builtin::KindValue:
         {
             return "null";
         }
@@ -1938,6 +1939,7 @@ Slice::JavaVisitor::writeConstantValue(Output& out, const TypePtr& type, const S
                 case Builtin::KindObject:
                 case Builtin::KindObjectProxy:
                 case Builtin::KindLocalObject:
+                case Builtin::KindValue:
                 {
                     out << value;
                     break;
@@ -3979,6 +3981,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
                 case Builtin::KindObject:
                 case Builtin::KindObjectProxy:
                 case Builtin::KindLocalObject:
+                case Builtin::KindValue:
                 {
                     out << nl << "if(" << memberName << " != _r." << memberName << ')';
                     out << sb;
@@ -6319,6 +6322,7 @@ Slice::Gen::BaseImplVisitor::writeDecl(Output& out, const string& package, const
                 case Builtin::KindObject:
                 case Builtin::KindObjectProxy:
                 case Builtin::KindLocalObject:
+                case Builtin::KindValue:
                 {
                     out << " = null";
                     break;
@@ -6392,6 +6396,7 @@ Slice::Gen::BaseImplVisitor::writeReturn(Output& out, const TypePtr& type, bool 
                 case Builtin::KindObject:
                 case Builtin::KindObjectProxy:
                 case Builtin::KindLocalObject:
+                case Builtin::KindValue:
                 {
                     out << nl << "return null;";
                     break;

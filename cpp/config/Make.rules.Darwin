@@ -41,7 +41,7 @@ endif
 # explicitly set it to no (possibly to test binary compatibility).
 #
 ifneq ($(CPP11), no)
-    CPPFLAGS += --std=c++11
+    CPPFLAGS += --std=c++1y
 endif
 
 #

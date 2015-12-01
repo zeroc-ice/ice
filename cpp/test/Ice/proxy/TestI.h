@@ -12,13 +12,18 @@
 
 #include <Test.h>
 
-class MyDerivedClassI : public Test::MyDerivedClass
+class MyDerivedClassI : 
+#ifdef ICE_CPP11_MAPPING
+    public Test::MyDerivedClassDisp
+#else
+    public Test::MyDerivedClass
+#endif
 {
 public:
 
     MyDerivedClassI();
 
-    virtual Ice::ObjectPrx echo(const Ice::ObjectPrx&, const Ice::Current&);
+    virtual Ice::ObjectPrxPtr echo(const Ice::ObjectPrxPtr&, const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
     virtual Ice::Context getContext(const Ice::Current&);
     virtual bool ice_isA(const std::string&, const Ice::Current&) const;

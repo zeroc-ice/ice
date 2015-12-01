@@ -29,7 +29,7 @@
 #define FLEX_SCANNER
 #define YY_FLEX_MAJOR_VERSION 2
 #define YY_FLEX_MINOR_VERSION 5
-#define YY_FLEX_SUBMINOR_VERSION 35
+#define YY_FLEX_SUBMINOR_VERSION 39
 #if YY_FLEX_SUBMINOR_VERSION > 0
 #define FLEX_BETA
 #endif
@@ -74,7 +74,6 @@ typedef int flex_int32_t;
 typedef unsigned char flex_uint8_t; 
 typedef unsigned short int flex_uint16_t;
 typedef unsigned int flex_uint32_t;
-#endif /* ! C99 */
 
 /* Limits of integral types. */
 #ifndef INT8_MIN
@@ -104,6 +103,8 @@ typedef unsigned int flex_uint32_t;
 #ifndef UINT32_MAX
 #define UINT32_MAX             (4294967295U)
 #endif
+
+#endif /* ! C99 */
 
 #endif /* ! FLEXINT_H */
 
@@ -161,7 +162,15 @@ typedef unsigned int flex_uint32_t;
 
 /* Size of default input buffer. */
 #ifndef YY_BUF_SIZE
+#ifdef __ia64__
+/* On IA-64, the buffer size is 16k, not 8k.
+ * Moreover, YY_BUF_SIZE is 2*YY_READ_BUF_SIZE in the general case.
+ * Ditto for the __ia64__ case accordingly.
+ */
+#define YY_BUF_SIZE 32768
+#else
 #define YY_BUF_SIZE 16384
+#endif /* __ia64__ */
 #endif
 
 /* The state buf must be large enough to hold one state per character in the main buffer.
@@ -173,7 +182,12 @@ typedef unsigned int flex_uint32_t;
 typedef struct yy_buffer_state *YY_BUFFER_STATE;
 #endif
 
-extern int slice_leng;
+#ifndef YY_TYPEDEF_YY_SIZE_T
+#define YY_TYPEDEF_YY_SIZE_T
+typedef size_t yy_size_t;
+#endif
+
+extern yy_size_t slice_leng;
 
 extern FILE *slice_in, *slice_out;
 
@@ -182,6 +196,7 @@ extern FILE *slice_in, *slice_out;
 #define EOB_ACT_LAST_MATCH 2
 
     #define YY_LESS_LINENO(n)
+    #define YY_LINENO_REWIND_TO(ptr)
     
 /* Return all but the first "n" matched characters back to the input stream. */
 #define yyless(n) \
@@ -198,11 +213,6 @@ extern FILE *slice_in, *slice_out;
 	while ( 0 )
 
 #define unput(c) yyunput( c, (yytext_ptr)  )
-
-#ifndef YY_TYPEDEF_YY_SIZE_T
-#define YY_TYPEDEF_YY_SIZE_T
-typedef size_t yy_size_t;
-#endif
 
 #ifndef YY_STRUCT_YY_BUFFER_STATE
 #define YY_STRUCT_YY_BUFFER_STATE
@@ -221,7 +231,7 @@ struct yy_buffer_state
 	/* Number of characters read into yy_ch_buf, not including EOB
 	 * characters.
 	 */
-	int yy_n_chars;
+	yy_size_t yy_n_chars;
 
 	/* Whether we "own" the buffer - i.e., we know we created it,
 	 * and can realloc() it to grow it, and should free() it to
@@ -291,8 +301,8 @@ static YY_BUFFER_STATE * yy_buffer_stack = 0; /**< Stack as an array. */
 
 /* yy_hold_char holds the character lost when slice_text is formed. */
 static char yy_hold_char;
-static int yy_n_chars;		/* number of characters read into yy_ch_buf */
-int slice_leng;
+static yy_size_t yy_n_chars;		/* number of characters read into yy_ch_buf */
+yy_size_t slice_leng;
 
 /* Points to current character in buffer. */
 static char *yy_c_buf_p = (char *) 0;
@@ -320,7 +330,7 @@ static void slice__init_buffer (YY_BUFFER_STATE b,FILE *file  );
 
 YY_BUFFER_STATE slice__scan_buffer (char *base,yy_size_t size  );
 YY_BUFFER_STATE slice__scan_string (yyconst char *yy_str  );
-YY_BUFFER_STATE slice__scan_bytes (yyconst char *bytes,int len  );
+YY_BUFFER_STATE slice__scan_bytes (yyconst char *bytes,yy_size_t len  );
 
 void *slice_alloc (yy_size_t  );
 void *slice_realloc (void *,yy_size_t  );
@@ -352,7 +362,7 @@ void slice_free (void *  );
 
 /* Begin user sect3 */
 
-#define slice_wrap(n) 1
+#define slice_wrap() 1
 #define YY_SKIP_YYWRAP
 
 typedef unsigned char YY_CHAR;
@@ -554,7 +564,7 @@ char *slice_text;
 //
 // **********************************************************************
 
-#include <Slice/GrammarUtil.h>	// Before Grammer.h, so that YYSTYPE is defined
+#include <Slice/GrammarUtil.h>  // Before Grammer.h, so that YYSTYPE is defined
 #include <Slice/Grammar.h>
 #include <IceUtil/InputUtil.h>
 
@@ -595,7 +605,7 @@ char *slice_text;
 #      define slice_wrap() 1
 #   endif
 #   ifdef ICE_64
-#       pragma error_messages(off,truncwarn)      
+#       pragma error_messages(off,truncwarn)
 #   endif
 #endif
 
@@ -608,7 +618,7 @@ namespace Slice
 //
 // Definitions for the case-insensitive keyword-token map.
 //
-typedef std::map<std::string, int, Slice::CICompare> StringTokenMap;
+typedef std::map<std::string, int> StringTokenMap;
 static StringTokenMap keywordMap;
 
 void initScanner();
@@ -616,11 +626,11 @@ int checkKeyword(string&);
 
 }
 
-#define	YY_USER_INIT initScanner();
+#define YY_USER_INIT initScanner();
 
 
 
-#line 623 "lex.yy.c"
+#line 633 "lex.yy.c"
 
 #define INITIAL 0
 #define BOMSCAN 1
@@ -661,7 +671,7 @@ FILE *slice_get_out (void );
 
 void slice_set_out  (FILE * out_str  );
 
-int slice_get_leng (void );
+yy_size_t slice_get_leng (void );
 
 char *slice_get_text (void );
 
@@ -703,7 +713,12 @@ static int input (void );
 
 /* Amount of stuff to slurp up with each read. */
 #ifndef YY_READ_BUF_SIZE
+#ifdef __ia64__
+/* On IA-64, the buffer size is 16k, not 8k */
+#define YY_READ_BUF_SIZE 16384
+#else
 #define YY_READ_BUF_SIZE 8192
+#endif /* __ia64__ */
 #endif
 
 /* Copy whatever the last rule matched to the standard output. */
@@ -722,7 +737,7 @@ static int input (void );
 	if ( YY_CURRENT_BUFFER_LVALUE->yy_is_interactive ) \
 		{ \
 		int c = '*'; \
-		unsigned n; \
+		size_t n; \
 		for ( n = 0; n < max_size && \
 			     (c = getc( slice_in )) != EOF && c != '\n'; ++n ) \
 			buf[n] = (char) c; \
@@ -807,11 +822,6 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 92 "Scanner.l"
-
-
-#line 813 "lex.yy.c"
-
 	if ( !(yy_init) )
 		{
 		(yy_init) = 1;
@@ -838,6 +848,12 @@ YY_DECL
 		slice__load_buffer_state( );
 		}
 
+	{
+#line 92 "Scanner.l"
+
+
+#line 855 "lex.yy.c"
+
 	while ( 1 )		/* loops until end-of-file is reached */
 		{
 		yy_cp = (yy_c_buf_p);
@@ -855,7 +871,7 @@ YY_DECL
 yy_match:
 		do
 			{
-			register YY_CHAR yy_c = yy_ec[YY_SC_TO_UI(*yy_cp)];
+			register YY_CHAR yy_c = yy_ec[YY_SC_TO_UI(*yy_cp)] ;
 			if ( yy_accept[yy_current_state] )
 				{
 				(yy_last_accepting_state) = yy_current_state;
@@ -906,6 +922,7 @@ YY_RULE_SETUP
 case 2:
 /* rule 2 can match eol */
 *yy_cp = (yy_hold_char); /* undo effects of setting up slice_text */
+YY_LINENO_REWIND_TO(yy_cp - 1);
 (yy_c_buf_p) = yy_cp -= 1;
 YY_DO_BEFORE_ACTION; /* set up slice_text again */
 YY_RULE_SETUP
@@ -933,6 +950,7 @@ YY_RULE_SETUP
 case 4:
 /* rule 4 can match eol */
 *yy_cp = (yy_hold_char); /* undo effects of setting up slice_text */
+YY_LINENO_REWIND_TO(yy_cp - 1);
 (yy_c_buf_p) = yy_cp -= 1;
 YY_DO_BEFORE_ACTION; /* set up slice_text again */
 YY_RULE_SETUP
@@ -953,11 +971,11 @@ YY_RULE_SETUP
     int c;
     do
     {
-	c = yyinput();
-	if(c == '\n')
-	{
-	    unit->nextLine();
-	}
+        c = yyinput();
+        if(c == '\n')
+        {
+            unit->nextLine();
+        }
     }
     while(c != '\n' && c != EOF);
 }
@@ -971,38 +989,38 @@ YY_RULE_SETUP
     string comment = slice_text + 2;
     while(true)
     {
-	int c = yyinput();
-	if(c == '\n')
-	{
-	    comment += static_cast<char>(c);
-	    unit->nextLine();
-	}
-	else if(c == '*')
-	{
-	    int next = yyinput();
-	    if(next == '/')
-	    {
-		break;
-	    }
-	    else
-	    {
-		comment += static_cast<char>(c);
-		unput(next);
-	    }
-	}
-	else if(c == EOF)
-	{
-	    unit->warning("EOF in comment");
-	    break;
-	}
-	else
-	{
-	    comment += static_cast<char>(c);
-	}
+        int c = yyinput();
+        if(c == '\n')
+        {
+            comment += static_cast<char>(c);
+            unit->nextLine();
+        }
+        else if(c == '*')
+        {
+            int next = yyinput();
+            if(next == '/')
+            {
+                break;
+            }
+            else
+            {
+                comment += static_cast<char>(c);
+                unput(next);
+            }
+        }
+        else if(c == EOF)
+        {
+            unit->warning("EOF in comment");
+            break;
+        }
+        else
+        {
+            comment += static_cast<char>(c);
+        }
     }
     if(!comment.empty() && comment[0] == '*')
     {
-	unit->setComment(comment);
+        unit->setComment(comment);
     }
 }
 	YY_BREAK
@@ -1095,156 +1113,149 @@ YY_RULE_SETUP
     str->literal = "\"";
     while(true)
     {
-	char c = static_cast<char>(yyinput());
+        char c = static_cast<char>(yyinput());
         str->literal += c;
-	if(c == '"')
-	{
-	    break;
-	}
-	else if(c == EOF)
-	{
-	    unit->error("EOF in string");
-	    break;
-	}
-	else if(c == '\n')
-	{
-	    unit->error("newline in string");
-	}
-	else if(c == '\\')
-	{
-	    char next = static_cast<char>(yyinput());
+        if(c == '"')
+        {
+            break;
+        }
+        else if(c == EOF)
+        {
+            unit->error("EOF in string");
+            break;
+        }
+        else if(c == '\n')
+        {
+            unit->error("newline in string");
+        }
+        else if(c == '\\')
+        {
+            char next = static_cast<char>(yyinput());
             str->literal += next;
-	    switch(next)
-	    {
-		case '\\':
-		case '"':
-		case '\'':
-		{
-		    str->v += next;
-		    break;
-		}
-	    
-		case 'n':
-		{
-		    str->v += '\n';
-		    break;
-		}
-	    
-		case 'r':
-		{
-		    str->v += '\r';
-		    break;
-		}
+            switch(next)
+            {
+                case '\\':
+                case '"':
+                case '\'':
+                {
+                    str->v += next;
+                    break;
+                }
+                case 'n':
+                {
+                    str->v += '\n';
+                    break;
+                }
+                case 'r':
+                {
+                    str->v += '\r';
+                    break;
+                }
+                case 't':
+                {
+                    str->v += '\t';
+                    break;
+                }
+                case 'v':
+                {
+                    str->v += '\v';
+                    break;
+                }
+                case 'f':
+                {
+                    str->v += '\f';
+                    break;
+                }
 
-		case 't':
-		{
-		    str->v += '\t';
-		    break;
-		}
-	    
-		case 'v':
-		{
-		    str->v += '\v';
-		    break;
-		}
-	    
-		case 'f':
-		{
-		    str->v += '\f';
-		    break;
-		}
+                case 'a':
+                {
+                    str->v += '\a';
+                    break;
+                }
 
-		case 'a':
-		{
-		    str->v += '\a';
-		    break;
-		}
+                case 'b':
+                {
+                    str->v += '\b';
+                    break;
+                }
 
-		case 'b':
-		{
-		    str->v += '\b';
-		    break;
-		}
+                case '?':
+                {
+                    str->v += '\?';
+                    break;
+                }
 
-		case '?':
-		{
-		    str->v += '\?';
-		    break;
-		}
-
-		case '0':
-		case '1':
-		case '2':
-		case '3':
-		{
-		    static string octalDigits = "01234567";
-		    unsigned short us = next - '0';
-		    if(octalDigits.find_first_of(next = static_cast<char>(yyinput())) != string::npos)
-		    {
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                {
+                    static string octalDigits = "01234567";
+                    unsigned short us = next - '0';
+                    if(octalDigits.find_first_of(next = static_cast<char>(yyinput())) != string::npos)
+                    {
                         str->literal += next;
-		    	us = us * 8 + next - '0';
-			if(octalDigits.find_first_of(next = static_cast<char>(yyinput())) != string::npos)
-			{
-			    us = us * 8 + next - '0';
-			}
-			else
-			{
-			    unput(next);
-			}
-		    }
-		    else
-		    {
-		    	unput(next);
-		    }
-		    if(us == 0)
-		    {
-			unit->error("illegal NUL character in string constant");
-		    }
-		    str->v += static_cast<char>(us);
-		    break;
-		}
-		case 'x':
-		{
-		    IceUtil::Int64 ull = 0;
-		    while(isxdigit(static_cast<unsigned char>(next = static_cast<char>(yyinput()))))
-		    {
+                        us = us * 8 + next - '0';
+                        if(octalDigits.find_first_of(next = static_cast<char>(yyinput())) != string::npos)
+                        {
+                            us = us * 8 + next - '0';
+                        }
+                        else
+                        {
+                            unput(next);
+                        }
+                    }
+                    else
+                    {
+                        unput(next);
+                    }
+                    if(us == 0)
+                    {
+                        unit->error("illegal NUL character in string constant");
+                    }
+                    str->v += static_cast<char>(us);
+                    break;
+                }
+                case 'x':
+                {
+                    IceUtil::Int64 ull = 0;
+                    while(isxdigit(static_cast<unsigned char>(next = static_cast<char>(yyinput()))))
+                    {
                         str->literal += next;
-			ull *= 16;
-			if(isdigit(static_cast<unsigned char>(next)))
-			{
-			    ull += next - '0';
-			}
-			else if(islower(static_cast<unsigned char>(next)))
-			{
-			    ull += next - 'a' + 10;
-			}
-			else
-			{
-			    ull += next - 'A' + 10;
-			}
-		    }
-		    unput(next);
-		    if(ull == 0)
-		    {
-			unit->error("illegal NUL character in string constant");
-		    }
-		    str->v += static_cast<char>(ull);
-		    break;
-		}
-	
-		// TODO: add universal character names
-	    
-		default:
-		{
-		    str->v += c;
-		    unput(next);
-		}
-	    }
-	}
-	else
-	{
-	    str->v += c;
-	}
+                        ull *= 16;
+                        if(isdigit(static_cast<unsigned char>(next)))
+                        {
+                            ull += next - '0';
+                        }
+                        else if(islower(static_cast<unsigned char>(next)))
+                        {
+                            ull += next - 'a' + 10;
+                        }
+                        else
+                        {
+                            ull += next - 'A' + 10;
+                        }
+                    }
+                    unput(next);
+                    if(ull == 0)
+                    {
+                        unit->error("illegal NUL character in string constant");
+                    }
+                    str->v += static_cast<char>(ull);
+                    break;
+                }
+                // TODO: add universal character names
+                default:
+                {
+                    str->v += c;
+                    unput(next);
+                }
+            }
+        }
+        else
+        {
+            str->v += c;
+        }
     }
     *yylvalp = str;
     return ICE_STRING_LITERAL;
@@ -1252,7 +1263,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 397 "Scanner.l"
+#line 390 "Scanner.l"
 {
     BEGIN(MAINSCAN);
     IntegerTokPtr itp = new IntegerTok;
@@ -1260,18 +1271,18 @@ YY_RULE_SETUP
     *yylvalp = itp;
     if(!IceUtilInternal::stringToInt64(string(slice_text), itp->v))
     {
-	assert(itp->v != 0);
-	string msg = "integer constant `";
-	msg += slice_text;
-	msg += "' out of range";
-	unit->error(msg);
+        assert(itp->v != 0);
+        string msg = "integer constant `";
+        msg += slice_text;
+        msg += "' out of range";
+        unit->error(msg);
     }
     return ICE_INTEGER_LITERAL;
 }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 413 "Scanner.l"
+#line 406 "Scanner.l"
 {
     BEGIN(MAINSCAN);
     errno = 0;
@@ -1282,22 +1293,22 @@ YY_RULE_SETUP
     char lastChar = literal[literal.size() - 1];
     if(lastChar == 'f' || lastChar == 'F')
     {
-    	literal = literal.substr(0, literal.size() - 1);	// Clobber trailing 'f' or 'F' suffix
+        literal = literal.substr(0, literal.size() - 1);    // Clobber trailing 'f' or 'F' suffix
     }
     ftp->v = strtod(literal.c_str(), 0);
     if((ftp->v == HUGE_VAL || ftp->v == -HUGE_VAL) && errno == ERANGE)
     {
-	string msg = "floating-point constant `";
-	msg += slice_text;
-	msg += "' too large (overflow)";
-	unit->error(msg);
+        string msg = "floating-point constant `";
+        msg += slice_text;
+        msg += "' too large (overflow)";
+        unit->error(msg);
     }
     else if(ftp->v == 0 && errno == ERANGE)
     {
-	string msg = "floating-point constant `";
-	msg += slice_text;
-	msg += "' too small (underflow)";
-	unit->error(msg);
+        string msg = "floating-point constant `";
+        msg += slice_text;
+        msg += "' too small (underflow)";
+    unit->error(msg);
     }
     return ICE_FLOATING_POINT_LITERAL;
 }
@@ -1305,54 +1316,54 @@ YY_RULE_SETUP
 case 17:
 /* rule 17 can match eol */
 YY_RULE_SETUP
-#line 443 "Scanner.l"
+#line 436 "Scanner.l"
 {
     // Ignore white-space
-    
+
     if(unit->currentLine() != 0)
     {
         BEGIN(MAINSCAN);
     }
     if(slice_text[0] == '\n')
     {
-	unit->nextLine();
+        unit->nextLine();
     }
 }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 456 "Scanner.l"
+#line 449 "Scanner.l"
 {
     // Ignore UTF-8 BOM, rule only active when parsing start of file.
-    
+
     BEGIN(MAINSCAN);
 }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 462 "Scanner.l"
+#line 455 "Scanner.l"
 {
     BEGIN(MAINSCAN);
     if(slice_text[0] < 32 || slice_text[0] > 126)
     {
-	stringstream s;
-	s << "illegal input character: '\\";
-	s.width(3);
-	s.fill('0');
-	s << oct << static_cast<int>(static_cast<unsigned char>(slice_text[0]));
-	s << "'";
-	unit->error(s.str());
-	return BAD_CHAR;
+        stringstream s;
+        s << "illegal input character: '\\";
+        s.width(3);
+        s.fill('0');
+        s << oct << static_cast<int>(static_cast<unsigned char>(slice_text[0]));
+        s << "'";
+        unit->error(s.str());
+        return BAD_CHAR;
     }
     return slice_text[0];
 }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 478 "Scanner.l"
+#line 471 "Scanner.l"
 ECHO;
 	YY_BREAK
-#line 1355 "lex.yy.c"
+#line 1366 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(BOMSCAN):
 case YY_STATE_EOF(MAINSCAN):
@@ -1486,6 +1497,7 @@ case YY_STATE_EOF(MAINSCAN):
 			"fatal flex scanner internal error--no action found" );
 	} /* end of action switch */
 		} /* end of scanning one token */
+	} /* end of user's declarations */
 } /* end of slice_lex */
 
 /* yy_get_next_buffer - try to read in a new buffer
@@ -1541,21 +1553,21 @@ static int yy_get_next_buffer (void)
 
 	else
 		{
-			int num_to_read =
+			yy_size_t num_to_read =
 			YY_CURRENT_BUFFER_LVALUE->yy_buf_size - number_to_move - 1;
 
 		while ( num_to_read <= 0 )
 			{ /* Not enough room in the buffer - grow it. */
 
 			/* just a shorter name for the current buffer */
-			YY_BUFFER_STATE b = YY_CURRENT_BUFFER;
+			YY_BUFFER_STATE b = YY_CURRENT_BUFFER_LVALUE;
 
 			int yy_c_buf_p_offset =
 				(int) ((yy_c_buf_p) - b->yy_ch_buf);
 
 			if ( b->yy_is_our_buffer )
 				{
-				int new_size = b->yy_buf_size * 2;
+				yy_size_t new_size = b->yy_buf_size * 2;
 
 				if ( new_size <= 0 )
 					b->yy_buf_size += b->yy_buf_size / 8;
@@ -1586,7 +1598,7 @@ static int yy_get_next_buffer (void)
 
 		/* Read in more data. */
 		YY_INPUT( (&YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[number_to_move]),
-			(yy_n_chars), (size_t) num_to_read );
+			(yy_n_chars), num_to_read );
 
 		YY_CURRENT_BUFFER_LVALUE->yy_n_chars = (yy_n_chars);
 		}
@@ -1682,7 +1694,7 @@ static int yy_get_next_buffer (void)
 	yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
 	yy_is_jam = (yy_current_state == 72);
 
-	return yy_is_jam ? 0 : yy_current_state;
+		return yy_is_jam ? 0 : yy_current_state;
 }
 
     static void yyunput (int c, register char * yy_bp )
@@ -1697,7 +1709,7 @@ static int yy_get_next_buffer (void)
 	if ( yy_cp < YY_CURRENT_BUFFER_LVALUE->yy_ch_buf + 2 )
 		{ /* need to shift things up to make room */
 		/* +2 for EOB chars. */
-		register int number_to_move = (yy_n_chars) + 2;
+		register yy_size_t number_to_move = (yy_n_chars) + 2;
 		register char *dest = &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[
 					YY_CURRENT_BUFFER_LVALUE->yy_buf_size + 2];
 		register char *source =
@@ -1746,7 +1758,7 @@ static int yy_get_next_buffer (void)
 
 		else
 			{ /* need more input */
-			int offset = (yy_c_buf_p) - (yytext_ptr);
+			yy_size_t offset = (yy_c_buf_p) - (yytext_ptr);
 			++(yy_c_buf_p);
 
 			switch ( yy_get_next_buffer(  ) )
@@ -2020,7 +2032,7 @@ void slice_pop_buffer_state (void)
  */
 static void slice_ensure_buffer_stack (void)
 {
-	int num_to_alloc;
+	yy_size_t num_to_alloc;
     
 	if (!(yy_buffer_stack)) {
 
@@ -2112,17 +2124,17 @@ YY_BUFFER_STATE slice__scan_string (yyconst char * yystr )
 
 /** Setup the input buffer state to scan the given bytes. The next call to slice_lex() will
  * scan from a @e copy of @a bytes.
- * @param bytes the byte buffer to scan
- * @param len the number of bytes in the buffer pointed to by @a bytes.
+ * @param yybytes the byte buffer to scan
+ * @param _yybytes_len the number of bytes in the buffer pointed to by @a bytes.
  * 
  * @return the newly allocated buffer state object.
  */
-YY_BUFFER_STATE slice__scan_bytes  (yyconst char * yybytes, int  _yybytes_len )
+YY_BUFFER_STATE slice__scan_bytes  (yyconst char * yybytes, yy_size_t  _yybytes_len )
 {
 	YY_BUFFER_STATE b;
 	char *buf;
 	yy_size_t n;
-	int i;
+	yy_size_t i;
     
 	/* Get memory for full buffer, including space for trailing EOB's. */
 	n = _yybytes_len + 2;
@@ -2204,7 +2216,7 @@ FILE *slice_get_out  (void)
 /** Get the length of the current token.
  * 
  */
-int slice_get_leng  (void)
+yy_size_t slice_get_leng  (void)
 {
         return slice_leng;
 }
@@ -2352,7 +2364,7 @@ void slice_free (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 478 "Scanner.l"
+#line 470 "Scanner.l"
 
 
 
@@ -2394,6 +2406,7 @@ initScanner()
     keywordMap["true"] = ICE_TRUE;
     keywordMap["idempotent"] = ICE_IDEMPOTENT;
     keywordMap["optional"] = ICE_OPTIONAL;
+    keywordMap["Value"] = ICE_VALUE;
 }
 
 //
@@ -2409,15 +2422,15 @@ checkKeyword(string& id)
     StringTokenMap::const_iterator pos = keywordMap.find(id);
     if(pos != keywordMap.end())
     {
-    	if(pos->first != id)
-	{
-	    string msg;
-	    msg = "illegal identifier: `" + id + "' differs from keyword `";
-	    msg += pos->first + "' only in capitalization";
-	    unit->error(msg);
-	    id = pos->first;
-	}
-	return pos->second;
+        if(pos->first != id)
+        {
+            string msg;
+            msg = "illegal identifier: `" + id + "' differs from keyword `";
+            msg += pos->first + "' only in capitalization";
+            unit->error(msg);
+            id = pos->first;
+        }
+        return pos->second;
     }
     return ICE_IDENTIFIER;
 }

@@ -22,7 +22,10 @@ namespace IceInternal
 
 class BasicStream;
 
-class ICE_API EndpointI_connectors : public virtual IceUtil::Shared
+class ICE_API EndpointI_connectors 
+#ifndef ICE_CPP11_MAPPING
+    : public virtual IceUtil::Shared
+#endif
 {
 public:
 
@@ -32,7 +35,8 @@ public:
     virtual void exception(const Ice::LocalException&) = 0;
 };
 
-class ICE_API EndpointI : public Ice::Endpoint
+class ICE_API EndpointI : public Ice::Endpoint,
+                          public ICE_ENABLE_SHARED_FROM_THIS(EndpointI)
 {
 public:
 
@@ -131,8 +135,13 @@ public:
     //
     // Compare endpoints for sorting purposes.
     //
+#ifdef ICE_CPP11_MAPPING
+    virtual bool operator==(const EndpointI&) const = 0;
+    virtual bool operator<(const EndpointI&) const = 0;
+#else
     virtual bool operator==(const Ice::LocalObject&) const = 0;
     virtual bool operator<(const Ice::LocalObject&) const = 0;
+#endif
 
     virtual ::Ice::Int hash() const = 0;
 
@@ -150,6 +159,7 @@ protected:
 
 };
 
+#ifndef ICE_CPP11_MAPPING
 inline bool operator==(const EndpointI& l, const EndpointI& r)
 {
     return static_cast<const ::Ice::LocalObject&>(l) == static_cast<const ::Ice::LocalObject&>(r);
@@ -159,6 +169,7 @@ inline bool operator<(const EndpointI& l, const EndpointI& r)
 {
     return static_cast<const ::Ice::LocalObject&>(l) < static_cast<const ::Ice::LocalObject&>(r);
 }
+#endif
 
 template<typename T> class InfoI : public T
 {

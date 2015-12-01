@@ -68,7 +68,8 @@ local interface Observer
  * The thread state enumeration keeps track of the different possible
  * states of Ice threads.
  *
- **/ 
+ **/
+["cpp:unscoped"]
 local enum ThreadState
 {
     /**
@@ -130,7 +131,8 @@ local interface ThreadObserver extends Observer
  *
  * The state of an Ice connection.
  *
- **/ 
+ **/
+["cpp:unscoped"]
 local enum ConnectionState
 {
     /**

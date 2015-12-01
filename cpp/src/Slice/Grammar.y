@@ -40,11 +40,11 @@ slice_error(const char* s)
 
     if (strcmp(s, "parse error") == 0)
     {
-	unit->error("syntax error");
+        unit->error("syntax error");
     }
     else
     {
-	unit->error(s);
+        unit->error(s);
     }
 }
 
@@ -86,6 +86,7 @@ slice_error(const char* s)
 %token ICE_TRUE
 %token ICE_IDEMPOTENT
 %token ICE_OPTIONAL
+%token ICE_VALUE
 
 //
 // Other tokens.
@@ -156,7 +157,7 @@ definitions
     ContainedPtr contained = ContainedPtr::dynamicCast($2);
     if(contained && !metaData->v.empty())
     {
-	contained->setMetaData(metaData->v);
+        contained->setMetaData(metaData->v);
     }
 }
 ';' definitions
@@ -242,9 +243,9 @@ module_def
     ModulePtr module = cont->createModule(ident->v);
     if(module)
     {
-	cont->checkIntroduced(ident->v, module);
-	unit->pushContainer(module);
-	$$ = module;
+        cont->checkIntroduced(ident->v, module);
+        unit->pushContainer(module);
+        $$ = module;
     }
     else
     {
@@ -255,8 +256,8 @@ module_def
 {
     if($3)
     {
-	unit->popContainer();
-	$$ = $3;
+        unit->popContainer();
+        $$ = $3;
     }
     else
     {
@@ -302,8 +303,8 @@ exception_def
     ExceptionPtr ex = cont->createException(ident->v, base, local->v);
     if(ex)
     {
-	cont->checkIntroduced(ident->v, ex);
-	unit->pushContainer(ex);
+        cont->checkIntroduced(ident->v, ex);
+        unit->pushContainer(ex);
     }
     $$ = ex;
 }
@@ -311,7 +312,7 @@ exception_def
 {
     if($4)
     {
-	unit->popContainer();
+        unit->popContainer();
     }
     $$ = $4;
 }
@@ -343,7 +344,7 @@ exception_exports
     ContainedPtr contained = ContainedPtr::dynamicCast($2);
     if(contained && !metaData->v.empty())
     {
-	contained->setMetaData(metaData->v);
+        contained->setMetaData(metaData->v);
     }
 }
 | error ';' exception_exports
@@ -533,8 +534,8 @@ struct_def
     StructPtr st = cont->createStruct(ident->v, local->v);
     if(st)
     {
-	cont->checkIntroduced(ident->v, st);
-	unit->pushContainer(st);
+        cont->checkIntroduced(ident->v, st);
+        unit->pushContainer(st);
     }
     else
     {
@@ -548,7 +549,7 @@ struct_def
 {
     if($3)
     {
-	unit->popContainer();
+        unit->popContainer();
     }
     $$ = $3;
 
@@ -559,7 +560,7 @@ struct_def
     assert(st);
     if(st->dataMembers().empty())
     {
-    	unit->error("struct `" + st->name() + "' must have at least one member"); // $$ is a dummy
+        unit->error("struct `" + st->name() + "' must have at least one member"); // $$ is a dummy
     }
 }
 ;
@@ -573,7 +574,7 @@ struct_exports
     ContainedPtr contained = ContainedPtr::dynamicCast($2);
     if(contained && !metaData->v.empty())
     {
-	contained->setMetaData(metaData->v);
+        contained->setMetaData(metaData->v);
     }
 }
 | error ';' struct_exports
@@ -736,14 +737,14 @@ class_def
     ClassListTokPtr bases = ClassListTokPtr::dynamicCast($4);
     if(base)
     {
-	bases->v.push_front(base);
+    bases->v.push_front(base);
     }
     ClassDefPtr cl = cont->createClassDef(ident->v, ident->t, false, bases->v, local->v);
     if(cl)
     {
-	cont->checkIntroduced(ident->v, cl);
-	unit->pushContainer(cl);
-	$$ = cl;
+        cont->checkIntroduced(ident->v, cl);
+        unit->pushContainer(cl);
+        $$ = cl;
     }
     else
     {
@@ -754,8 +755,8 @@ class_def
 {
     if($5)
     {
-	unit->popContainer();
-	$$ = $5;
+        unit->popContainer();
+        $$ = $5;
     }
     else
     {
@@ -775,30 +776,30 @@ class_extends
     $$ = 0;
     if(!types.empty())
     {
-	ClassDeclPtr cl = ClassDeclPtr::dynamicCast(types.front());
-	if(!cl || cl->isInterface())
-	{
-	    string msg = "`";
-	    msg += scoped->v;
-	    msg += "' is not a class";
-	    unit->error(msg);
-	}
-	else
-	{
-	    ClassDefPtr def = cl->definition();
-	    if(!def)
-	    {
-		string msg = "`";
-		msg += scoped->v;
-		msg += "' has been declared but not defined";
-		unit->error(msg);
-	    }
-	    else
-	    {
-	    	cont->checkIntroduced(scoped->v);
-		$$ = def;
-	    }
-	}
+        ClassDeclPtr cl = ClassDeclPtr::dynamicCast(types.front());
+        if(!cl || cl->isInterface())
+        {
+            string msg = "`";
+            msg += scoped->v;
+            msg += "' is not a class";
+            unit->error(msg);
+        }
+        else
+        {
+            ClassDefPtr def = cl->definition();
+            if(!def)
+            {
+                string msg = "`";
+                msg += scoped->v;
+                msg += "' has been declared but not defined";
+                unit->error(msg);
+            }
+            else
+            {
+                cont->checkIntroduced(scoped->v);
+                $$ = def;
+            }
+        }
     }
 }
 |
@@ -829,7 +830,7 @@ class_exports
     ContainedPtr contained = ContainedPtr::dynamicCast($2);
     if(contained && !metaData->v.empty())
     {
-	contained->setMetaData(metaData->v);
+        contained->setMetaData(metaData->v);
     }
 }
 | error ';' class_exports
@@ -1039,17 +1040,17 @@ operation_preamble
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     if(cl)
     {
-	OperationPtr op = cl->createOperation(name, returnType->v.type, returnType->v.optional, returnType->v.tag);
-	if(op)
-	{
-	    cl->checkIntroduced(name, op);
-	    unit->pushContainer(op);
-	    $$ = op;
-	}
-	else
-	{
-	    $$ = 0;
-	}
+        OperationPtr op = cl->createOperation(name, returnType->v.type, returnType->v.optional, returnType->v.tag);
+        if(op)
+        {
+            cl->checkIntroduced(name, op);
+            unit->pushContainer(op);
+            $$ = op;
+        }
+        else
+        {
+            $$ = 0;
+        }
     }
     else
     {
@@ -1063,18 +1064,18 @@ operation_preamble
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     if(cl)
     {
-	OperationPtr op = cl->createOperation(name, returnType->v.type, returnType->v.optional, returnType->v.tag,
-                                              Operation::Idempotent);
-	if(op)
-	{
-	    cl->checkIntroduced(name, op);
-	    unit->pushContainer(op);
-	    $$ = op;
-	}
-	else
-	{
-	    $$ = 0;
-	}
+        OperationPtr op = cl->createOperation(name, returnType->v.type, returnType->v.optional, returnType->v.tag,
+                                                Operation::Idempotent);
+        if(op)
+        {
+            cl->checkIntroduced(name, op);
+            unit->pushContainer(op);
+            $$ = op;
+        }
+        else
+        {
+            $$ = 0;
+        }
     }
     else
     {
@@ -1088,17 +1089,17 @@ operation_preamble
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     if(cl)
     {
-	OperationPtr op = cl->createOperation(name, returnType->v.type, returnType->v.optional, returnType->v.tag);
-	if(op)
-	{
-	    unit->pushContainer(op);
-	    unit->error("keyword `" + name + "' cannot be used as operation name");
-	    $$ = op; // Dummy
-	}
-	else
-	{
-	    $$ = 0;
-	}
+        OperationPtr op = cl->createOperation(name, returnType->v.type, returnType->v.optional, returnType->v.tag);
+        if(op)
+        {
+            unit->pushContainer(op);
+            unit->error("keyword `" + name + "' cannot be used as operation name");
+            $$ = op; // Dummy
+        }
+        else
+        {
+            $$ = 0;
+        }
     }
     else
     {
@@ -1112,22 +1113,22 @@ operation_preamble
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     if(cl)
     {
-	OperationPtr op = cl->createOperation(name, returnType->v.type, returnType->v.optional, returnType->v.tag,
-                                              Operation::Idempotent);
-	if(op)
-	{
-	    unit->pushContainer(op);
-	    unit->error("keyword `" + name + "' cannot be used as operation name");
-	    $$ = op; // Dummy
-	}
-	else
-	{
-	    return 0;
-	}
+        OperationPtr op = cl->createOperation(name, returnType->v.type, returnType->v.optional, returnType->v.tag,
+                                                Operation::Idempotent);
+        if(op)
+        {
+            unit->pushContainer(op);
+            unit->error("keyword `" + name + "' cannot be used as operation name");
+            $$ = op; // Dummy
+        }
+        else
+        {
+            return 0;
+        }
     }
     else
     {
-    	$$ = 0;
+        $$ = 0;
     }
 }
 ;
@@ -1139,8 +1140,8 @@ operation
 {
     if($1)
     {
-	unit->popContainer();
-	$$ = $1;
+        unit->popContainer();
+        $$ = $1;
     }
     else
     {
@@ -1161,7 +1162,7 @@ throws
 {
     if($1)
     {
-	unit->popContainer();
+        unit->popContainer();
     }
     yyerrok;
 }
@@ -1225,9 +1226,9 @@ interface_def
     ClassDefPtr cl = cont->createClassDef(ident->v, -1, true, bases->v, local->v);
     if(cl)
     {
-	cont->checkIntroduced(ident->v, cl);
-	unit->pushContainer(cl);
-	$$ = cl;
+    cont->checkIntroduced(ident->v, cl);
+    unit->pushContainer(cl);
+    $$ = cl;
     }
     else
     {
@@ -1238,12 +1239,12 @@ interface_def
 {
     if($4)
     {
-	unit->popContainer();
-	$$ = $4;
+    unit->popContainer();
+    $$ = $4;
     }
     else
     {
-	$$ = 0;
+    $$ = 0;
     }
 }
 ;
@@ -1259,30 +1260,30 @@ interface_list
     TypeList types = cont->lookupType(scoped->v);
     if(!types.empty())
     {
-	ClassDeclPtr cl = ClassDeclPtr::dynamicCast(types.front());
-	if(!cl || !cl->isInterface())
-	{
-	    string msg = "`";
-	    msg += scoped->v;
-	    msg += "' is not an interface";
-	    unit->error(msg);
-	}
-	else
-	{
-	    ClassDefPtr def = cl->definition();
-	    if(!def)
-	    {
-		string msg = "`";
-		msg += scoped->v;
-		msg += "' has been declared but not defined";
-		unit->error(msg);
-	    }
-	    else
-	    {
-	    	cont->checkIntroduced(scoped->v);
-		intfs->v.push_front(def);
-	    }
-	}
+    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(types.front());
+    if(!cl || !cl->isInterface())
+    {
+        string msg = "`";
+        msg += scoped->v;
+        msg += "' is not an interface";
+        unit->error(msg);
+    }
+    else
+    {
+        ClassDefPtr def = cl->definition();
+        if(!def)
+        {
+        string msg = "`";
+        msg += scoped->v;
+        msg += "' has been declared but not defined";
+        unit->error(msg);
+        }
+        else
+        {
+            cont->checkIntroduced(scoped->v);
+        intfs->v.push_front(def);
+        }
+    }
     }
     $$ = intfs;
 }
@@ -1294,36 +1295,41 @@ interface_list
     TypeList types = cont->lookupType(scoped->v);
     if(!types.empty())
     {
-	ClassDeclPtr cl = ClassDeclPtr::dynamicCast(types.front());
-	if(!cl || !cl->isInterface())
-	{
-	    string msg = "`";
-	    msg += scoped->v;
-	    msg += "' is not an interface";
-	    unit->error(msg); // $$ is a dummy
-	}
-	else
-	{
-	    ClassDefPtr def = cl->definition();
-	    if(!def)
-	    {
-		string msg = "`";
-		msg += scoped->v;
-		msg += "' has been declared but not defined";
-		unit->error(msg); // $$ is a dummy
-	    }
-	    else
-	    {
-	    	cont->checkIntroduced(scoped->v);
-		intfs->v.push_front(def);
-	    }
-	}
+    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(types.front());
+    if(!cl || !cl->isInterface())
+    {
+        string msg = "`";
+        msg += scoped->v;
+        msg += "' is not an interface";
+        unit->error(msg); // $$ is a dummy
+    }
+    else
+    {
+        ClassDefPtr def = cl->definition();
+        if(!def)
+        {
+        string msg = "`";
+        msg += scoped->v;
+        msg += "' has been declared but not defined";
+        unit->error(msg); // $$ is a dummy
+        }
+        else
+        {
+            cont->checkIntroduced(scoped->v);
+        intfs->v.push_front(def);
+        }
+    }
     }
     $$ = intfs;
 }
 | ICE_OBJECT
 {
     unit->error("illegal inheritance from type Object");
+    $$ = new ClassListTok; // Dummy
+}
+| ICE_VALUE
+{
+    unit->error("illegal inheritance from type Value");
     $$ = new ClassListTok; // Dummy
 }
 ;
@@ -1350,7 +1356,7 @@ interface_exports
     ContainedPtr contained = ContainedPtr::dynamicCast($2);
     if(contained && !metaData->v.empty())
     {
-	contained->setMetaData(metaData->v);
+    contained->setMetaData(metaData->v);
     }
 }
 | error ';' interface_exports
@@ -1400,7 +1406,7 @@ exception
     ExceptionPtr exception = cont->lookupException(scoped->v);
     if(!exception)
     {
-	exception = cont->createException(IceUtil::generateUUID(), 0, false, Dummy); // Dummy
+    exception = cont->createException(IceUtil::generateUUID(), 0, false, Dummy); // Dummy
     }
     cont->checkIntroduced(scoped->v, exception);
     $$ = exception;
@@ -1497,12 +1503,12 @@ enum_def
     EnumPtr en = EnumPtr::dynamicCast($3);
     if(en)
     {
-	EnumeratorListTokPtr enumerators = EnumeratorListTokPtr::dynamicCast($5);
-	if(enumerators->v.empty())
-	{
-	    unit->error("enum `" + en->name() + "' must have at least one enumerator");
-	}
-	en->setEnumerators(enumerators->v); // Dummy
+    EnumeratorListTokPtr enumerators = EnumeratorListTokPtr::dynamicCast($5);
+    if(enumerators->v.empty())
+    {
+        unit->error("enum `" + en->name() + "' must have at least one enumerator");
+    }
+    en->setEnumerators(enumerators->v); // Dummy
     }
     $$ = $3;
 }
@@ -1544,7 +1550,7 @@ enumerator
     EnumeratorPtr en = cont->createEnumerator(ident->v);
     if(en)
     {
-	ens->v.push_front(en);
+    ens->v.push_front(en);
     }
     $$ = ens;
 }
@@ -1658,8 +1664,8 @@ parameters
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
     if(op)
     {
-	ParamDeclPtr pd = op->createParamDecl(tsp->v.name, tsp->v.type, isOutParam->v, tsp->v.optional, tsp->v.tag);
-	unit->currentContainer()->checkIntroduced(tsp->v.name, pd);
+        ParamDeclPtr pd = op->createParamDecl(tsp->v.name, tsp->v.type, isOutParam->v, tsp->v.optional, tsp->v.tag);
+        unit->currentContainer()->checkIntroduced(tsp->v.name, pd);
         StringListTokPtr metaData = StringListTokPtr::dynamicCast($2);
         if(!metaData->v.empty())
         {
@@ -1674,8 +1680,8 @@ parameters
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
     if(op)
     {
-	ParamDeclPtr pd = op->createParamDecl(tsp->v.name, tsp->v.type, isOutParam->v, tsp->v.optional, tsp->v.tag);
-	unit->currentContainer()->checkIntroduced(tsp->v.name, pd);
+        ParamDeclPtr pd = op->createParamDecl(tsp->v.name, tsp->v.type, isOutParam->v, tsp->v.optional, tsp->v.tag);
+        unit->currentContainer()->checkIntroduced(tsp->v.name, pd);
         StringListTokPtr metaData = StringListTokPtr::dynamicCast($4);
         if(!metaData->v.empty())
         {
@@ -1691,8 +1697,8 @@ parameters
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
     if(op)
     {
-	op->createParamDecl(ident->v, type, isOutParam->v, false, 0); // Dummy
-	unit->error("keyword `" + ident->v + "' cannot be used as parameter name");
+        op->createParamDecl(ident->v, type, isOutParam->v, false, 0); // Dummy
+        unit->error("keyword `" + ident->v + "' cannot be used as parameter name");
     }
 }
 | parameters ',' out_qualifier meta_data type keyword
@@ -1703,8 +1709,8 @@ parameters
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
     if(op)
     {
-	op->createParamDecl(ident->v, type, isOutParam->v, false, 0); // Dummy
-	unit->error("keyword `" + ident->v + "' cannot be used as parameter name");
+        op->createParamDecl(ident->v, type, isOutParam->v, false, 0); // Dummy
+        unit->error("keyword `" + ident->v + "' cannot be used as parameter name");
     }
 }
 | out_qualifier meta_data type
@@ -1714,8 +1720,8 @@ parameters
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
     if(op)
     {
-	op->createParamDecl(IceUtil::generateUUID(), type, isOutParam->v, false, 0); // Dummy
-	unit->error("missing parameter name");
+        op->createParamDecl(IceUtil::generateUUID(), type, isOutParam->v, false, 0); // Dummy
+        unit->error("missing parameter name");
     }
 }
 | parameters ',' out_qualifier meta_data type
@@ -1725,8 +1731,8 @@ parameters
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
     if(op)
     {
-	op->createParamDecl(IceUtil::generateUUID(), type, isOutParam->v, false, 0); // Dummy
-	unit->error("missing parameter name");
+        op->createParamDecl(IceUtil::generateUUID(), type, isOutParam->v, false, 0); // Dummy
+        unit->error("missing parameter name");
     }
 }
 ;
@@ -1813,19 +1819,23 @@ type
 {
     $$ = unit->builtin(Builtin::KindLocalObject);
 }
+| ICE_VALUE
+{
+    $$ = unit->builtin(Builtin::KindValue);
+}
 | scoped_name
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast($1);
     ContainerPtr cont = unit->currentContainer();
     if(cont)
     {
-	TypeList types = cont->lookupType(scoped->v);
-	if(types.empty())
-	{
-	    YYERROR; // Can't continue, jump to next yyerrok
-	}
-	cont->checkIntroduced(scoped->v);
-	$$ = types.front();
+        TypeList types = cont->lookupType(scoped->v);
+        if(types.empty())
+        {
+            YYERROR; // Can't continue, jump to next yyerrok
+        }
+        cont->checkIntroduced(scoped->v);
+        $$ = types.front();
     }
     else
     {
@@ -1838,30 +1848,30 @@ type
     ContainerPtr cont = unit->currentContainer();
     if(cont)
     {
-	TypeList types = cont->lookupType(scoped->v);
-	if(types.empty())
-	{
-	    YYERROR; // Can't continue, jump to next yyerrok
-	}
-	for(TypeList::iterator p = types.begin(); p != types.end(); ++p)
-	{
-	    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(*p);
-	    if(!cl)
-	    {
-		string msg = "`";
-		msg += scoped->v;
-		msg += "' must be class or interface";
-		unit->error(msg);
-		YYERROR; // Can't continue, jump to next yyerrok
-	    }
-	    cont->checkIntroduced(scoped->v);
-	    if(cl->isLocal())
-	    {
-		unit->error("cannot create proxy for " + cl->kindOf() + " `" + cl->name() + "'"); // $$ is dummy
-	    }
-	    *p = new Proxy(cl);
-	}
-	$$ = types.front();
+        TypeList types = cont->lookupType(scoped->v);
+        if(types.empty())
+        {
+            YYERROR; // Can't continue, jump to next yyerrok
+        }
+        for(TypeList::iterator p = types.begin(); p != types.end(); ++p)
+        {
+            ClassDeclPtr cl = ClassDeclPtr::dynamicCast(*p);
+            if(!cl)
+            {
+                string msg = "`";
+                msg += scoped->v;
+                msg += "' must be class or interface";
+                unit->error(msg);
+                YYERROR; // Can't continue, jump to next yyerrok
+            }
+            cont->checkIntroduced(scoped->v);
+            if(cl->isLocal())
+            {
+                unit->error("cannot create proxy for " + cl->kindOf() + " `" + cl->name() + "'"); // $$ is dummy
+            }
+            *p = new Proxy(cl);
+        }
+        $$ = types.front();
     }
     else
     {
@@ -1963,9 +1973,9 @@ const_initializer
     }
     else
     {
-	EnumeratorPtr enumerator = EnumeratorPtr::dynamicCast(cl.front());
+        EnumeratorPtr enumerator = EnumeratorPtr::dynamicCast(cl.front());
         ConstPtr constant = ConstPtr::dynamicCast(cl.front());
-	if(enumerator)
+        if(enumerator)
         {
             unit->currentContainer()->checkIntroduced(scoped->v, enumerator);
             def->v.type = enumerator->type();
@@ -1981,17 +1991,17 @@ const_initializer
             def->v.valueAsLiteral = constant->value();
         }
         else
-	{
-	    string msg = "illegal initializer: `" + scoped->v + "' is a";
-	    static const string vowels = "aeiou";
-	    string kindOf = cl.front()->kindOf();
-	    if(vowels.find_first_of(kindOf[0]) != string::npos)
-	    {
-	    	msg += "n";
-	    }
-	    msg += " " + kindOf;
-	    unit->error(msg); // $$ is dummy
-	}
+        {
+            string msg = "illegal initializer: `" + scoped->v + "' is a";
+            static const string vowels = "aeiou";
+            string kindOf = cl.front()->kindOf();
+            if(vowels.find_first_of(kindOf[0]) != string::npos)
+            {
+                msg += "n";
+            }
+            msg += " " + kindOf;
+            unit->error(msg); // $$ is dummy
+        }
     }
     $$ = def;
 }
@@ -2141,6 +2151,9 @@ keyword
 {
 }
 | ICE_OPTIONAL
+{
+}
+| ICE_VALUE
 {
 }
 ;

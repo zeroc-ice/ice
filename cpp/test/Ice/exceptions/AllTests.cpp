@@ -14,7 +14,7 @@
 using namespace std;
 using namespace Test;
 
-namespace 
+namespace
 {
 const bool printException = false;
 }
@@ -28,9 +28,15 @@ class ServantLocatorI : virtual public Ice::ServantLocator
 {
 public:
 
+#ifdef ICE_CPP11_MAPPING
+    virtual shared_ptr<Ice::Object> locate(const Ice::Current&, shared_ptr<void>&) { return nullptr; }
+    virtual void finished(const Ice::Current&, const shared_ptr<Ice::Object>&, const shared_ptr<void>&) {}
+    virtual void deactivate(const string&) {}
+#else
     virtual Ice::ObjectPtr locate(const Ice::Current&, Ice::LocalObjectPtr&) { return 0; }
     virtual void finished(const Ice::Current&, const Ice::ObjectPtr&, const Ice::LocalObjectPtr&) {}
     virtual void deactivate(const string&) {}
+#endif
 };
 
 class ObjectFactoryI : virtual public Ice::ObjectFactory
@@ -394,7 +400,7 @@ endsWith(const string& s, const string& findme)
     return false;
 }
 
-ThrowerPrx
+ThrowerPrxPtr
 allTests(const Ice::CommunicatorPtr& communicator)
 {
     cout << "testing ice_print()/what()... " << flush;
@@ -449,10 +455,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(os.str() == "Test::E");
             test(ex.data == "E");
         }
-    
+
         //
         // Test custom ice_print
-        // 
+        //
         {
             F ex("F");
             ostringstream os;
@@ -498,7 +504,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             // Expected
         }
 
-        string host = communicator->getProperties()->getPropertyAsIntWithDefault("Ice.IPv6", 0) == 0 ? 
+        string host = communicator->getProperties()->getPropertyAsIntWithDefault("Ice.IPv6", 0) == 0 ?
             "127.0.0.1" : "\"0:0:0:0:0:0:0:1\"";
         communicator->getProperties()->setProperty("TestAdapter0.Endpoints", "default -h " + host);
         first = communicator->createObjectAdapter("TestAdapter0");
@@ -540,11 +546,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "testing servant registration exceptions... " << flush;
     {
-        string host = communicator->getProperties()->getPropertyAsIntWithDefault("Ice.IPv6", 0) == 0 ? 
+        string host = communicator->getProperties()->getPropertyAsIntWithDefault("Ice.IPv6", 0) == 0 ?
             "127.0.0.1" : "\"0:0:0:0:0:0:0:1\"";
         communicator->getProperties()->setProperty("TestAdapter1.Endpoints", "default -h " + host);
         Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter1");
-        Ice::ObjectPtr obj = new EmptyI;
+        Ice::ObjectPtr obj = ICE_MAKE_SHARED(EmptyI);
         adapter->add(obj, communicator->stringToIdentity("x"));
         try
         {
@@ -573,7 +579,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 printer << ex;
             }
         }
-        
+
         try
         {
             adapter->add(0, communicator->stringToIdentity("x"));
@@ -609,11 +615,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "testing servant locator registrations exceptions... " << flush;
     {
-        string host = communicator->getProperties()->getPropertyAsIntWithDefault("Ice.IPv6", 0) == 0 ? 
+        string host = communicator->getProperties()->getPropertyAsIntWithDefault("Ice.IPv6", 0) == 0 ?
             "127.0.0.1" : "\"0:0:0:0:0:0:0:1\"";
         communicator->getProperties()->setProperty("TestAdapter2.Endpoints", "default -h " + host);
         Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter2");
-        Ice::ServantLocatorPtr loc = new ServantLocatorI;
+        Ice::ServantLocatorPtr loc = ICE_MAKE_SHARED(ServantLocatorI);
         adapter->addServantLocator(loc, "x");
         try
         {
@@ -630,6 +636,27 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "testing object factory registration exception... " << flush;
     {
+#ifdef ICE_CPP11_MAPPING
+        communicator->addObjectFactory(
+            [](const std::string&)
+            {
+                return nullptr;
+            },
+            "x");
+        try
+        {
+            communicator->addObjectFactory(
+                [](const std::string&)
+                {
+                    return nullptr;
+                },
+                "x");
+            test(false);
+        }
+        catch(const Ice::AlreadyRegisteredException&)
+        {
+        }
+#else
         Ice::ObjectFactoryPtr of = new ObjectFactoryI;
         communicator->addObjectFactory(of, "x");
         try
@@ -640,19 +667,24 @@ allTests(const Ice::CommunicatorPtr& communicator)
         catch(const Ice::AlreadyRegisteredException&)
         {
         }
+#endif
     }
     cout << "ok" << endl;
 
     cout << "testing stringToProxy... " << flush;
     string ref = "thrower:default -p 12010";
-    Ice::ObjectPrx base = communicator->stringToProxy(ref);
+    Ice::ObjectPrxPtr base = communicator->stringToProxy(ref);
     test(base);
     cout << "ok" << endl;
 
     cout << "testing checked cast... " << flush;
-    ThrowerPrx thrower = ThrowerPrx::checkedCast(base);
+    ThrowerPrxPtr thrower = ICE_CHECKED_CAST(ThrowerPrx, base);
     test(thrower);
+#ifdef ICE_CPP11_MAPPING
+    test(Ice::targetEquals(thrower, base));
+#else
     test(thrower == base);
+#endif
     cout << "ok" << endl;
 
     cout << "catching exact types... " << flush;
@@ -943,8 +975,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
             cerr << ex << endl;
             test(false);
         }
-        
-        ThrowerPrx thrower2 = ThrowerPrx::uncheckedCast(communicator->stringToProxy("thrower:default -p 12011"));
+
+        ThrowerPrxPtr thrower2 = ICE_UNCHECKED_CAST(ThrowerPrx, communicator->stringToProxy("thrower:default -p 12011"));
         try
         {
             thrower2->throwMemoryLimitException(Ice::ByteSeq(2 * 1024 * 1024)); // 2MB (no limits)
@@ -952,7 +984,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         catch(const Ice::MemoryLimitException&)
         {
         }
-        ThrowerPrx thrower3 = ThrowerPrx::uncheckedCast(communicator->stringToProxy("thrower:default -p 12012"));
+        ThrowerPrxPtr thrower3 = ICE_UNCHECKED_CAST(ThrowerPrx, communicator->stringToProxy("thrower:default -p 12012"));
         try
         {
             thrower3->throwMemoryLimitException(Ice::ByteSeq(1024)); // 1KB limit
@@ -970,7 +1002,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     Ice::Identity id = communicator->stringToIdentity("does not exist");
     try
     {
-        ThrowerPrx thrower2 = ThrowerPrx::uncheckedCast(thrower->ice_identity(id));
+        ThrowerPrxPtr thrower2 = ICE_UNCHECKED_CAST(ThrowerPrx, thrower->ice_identity(id));
         thrower2->throwAasA(1);
 //      thrower2->ice_ping();
         test(false);
@@ -990,7 +1022,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     try
     {
-        ThrowerPrx thrower2 = ThrowerPrx::uncheckedCast(thrower, "no such facet");
+#ifdef ICE_CPP11_MAPPING
+        ThrowerPrxPtr thrower2 = Ice::uncheckedCast<ThrowerPrx>(thrower, "no such facet");
+#else
+        ThrowerPrxPtr thrower2 = ThrowerPrx::uncheckedCast(thrower, "no such facet");
+#endif
         try
         {
             thrower2->ice_ping();
@@ -1012,7 +1048,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     try
     {
-        WrongOperationPrx thrower2 = WrongOperationPrx::uncheckedCast(thrower);
+        WrongOperationPrxPtr thrower2 = ICE_UNCHECKED_CAST(WrongOperationPrx, thrower);
         thrower2->noSuchOperation();
         test(false);
     }
@@ -1102,62 +1138,219 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "ok" << endl;
 
     cout << "catching exact types with new AMI mapping... " << flush;
-
+#ifdef ICE_CPP11_MAPPING
+    {
+        auto f = thrower->throwAasA_async(1);
+        try
+        {
+            f.get();
+            test(false);
+        }
+        catch(const A& ex)
+        {
+            test(ex.aMem == 1);
+        }
+        catch(const Ice::Exception&)
+        {
+            test(false);
+        }
+        catch(...)
+        {
+            test(false);
+        }
+    }
+    {
+        auto f = thrower->throwAorDasAorD_async(1);
+        try
+        {
+            f.get();
+            test(false);
+        }
+        catch(const A& ex)
+        {
+            test(ex.aMem == 1);
+        }
+        catch(...)
+        {
+            test(false);
+        }
+    }
+    {
+        auto f = thrower->throwAorDasAorD_async(-1);
+        try
+        {
+            f.get();
+            test(false);
+        }
+        catch(const D& ex)
+        {
+            test(ex.dMem == -1);
+        }
+        catch(...)
+        {
+            test(false);
+        }
+    }
+    {
+        auto f = thrower->throwBasB_async(1, 2);
+        try
+        {
+            f.get();
+            test(false);
+        }
+        catch(const B& ex)
+        {
+            test(ex.aMem == 1);
+            test(ex.bMem == 2);
+        }
+        catch(...)
+        {
+            test(false);
+        }
+    }
+    {
+        auto f = thrower->throwCasC_async(1, 2, 3);
+        try
+        {
+            f.get();
+            test(false);
+        }
+        catch(const C& ex)
+        {
+            test(ex.aMem == 1);
+            test(ex.bMem == 2);
+            test(ex.cMem == 3);
+        }
+        catch(...)
+        {
+            test(false);
+        }
+    }
+    {
+        auto f = thrower->throwModA_async(1, 2);
+        try
+        {
+            f.get();
+        }
+        catch(const A& ex)
+        {
+            test(ex.aMem == 1);
+        }
+        catch(const Ice::OperationNotExistException&)
+        {
+            //
+            // This operation is not supported in Java.
+            //
+        }
+        catch(...)
+        {
+            test(false);
+        }
+    }
+#else
     {
         CallbackPtr cb = new Callback;
-        Callback_Thrower_throwAasAPtr callback = 
+        Callback_Thrower_throwAasAPtr callback =
             newCallback_Thrower_throwAasA(cb, &Callback::response, &Callback::exception_AasA);
         thrower->begin_throwAasA(1, callback);
         cb->check();
     }
-
     {
         CallbackPtr cb = new Callback;
-        Callback_Thrower_throwAorDasAorDPtr callback = 
+        Callback_Thrower_throwAorDasAorDPtr callback =
             newCallback_Thrower_throwAorDasAorD(cb, &Callback::response, &Callback::exception_AorDasAorD);
         thrower->begin_throwAorDasAorD(1, callback);
         cb->check();
     }
-
     {
         CallbackPtr cb = new Callback;
-        Callback_Thrower_throwAorDasAorDPtr callback = 
+        Callback_Thrower_throwAorDasAorDPtr callback =
             newCallback_Thrower_throwAorDasAorD(cb, &Callback::response, &Callback::exception_AorDasAorD);
         thrower->begin_throwAorDasAorD(-1, callback);
         cb->check();
     }
-
     {
         CallbackPtr cb = new Callback;
-        Callback_Thrower_throwBasBPtr callback = 
+        Callback_Thrower_throwBasBPtr callback =
             newCallback_Thrower_throwBasB(cb, &Callback::response, &Callback::exception_BasB);
         thrower->begin_throwBasB(1, 2, callback);
         cb->check();
     }
-
     {
         CallbackPtr cb = new Callback;
-        Callback_Thrower_throwCasCPtr callback = 
+        Callback_Thrower_throwCasCPtr callback =
             newCallback_Thrower_throwCasC(cb, &Callback::response, &Callback::exception_CasC);
         thrower->begin_throwCasC(1, 2, 3, callback);
         cb->check();
     }
-
     {
         CallbackPtr cb = new Callback;
-        Callback_Thrower_throwModAPtr callback = 
+        Callback_Thrower_throwModAPtr callback =
             newCallback_Thrower_throwModA(cb, &Callback::response, &Callback::exception_ModA);
         thrower->begin_throwModA(1, 2, callback);
         cb->check();
     }
-
+#endif
     cout << "ok" << endl;
 
     cout << "catching derived types with new AMI mapping... " << flush;
+#ifdef ICE_CPP11_MAPPING
+    {
+        auto f = thrower->throwBasA_async(1, 2);
+        try
+        {
+            f.get();
+        }
+        catch(const B& ex)
+        {
+            test(ex.aMem == 1);
+            test(ex.bMem == 2);
+        }
+        catch(...)
+        {
+            test(false);
+        }
+    }
 
     {
+        auto f = thrower->throwCasA_async(1, 2, 3);
+        try
+        {
+            f.get();
+        }
+        catch(const C& ex)
+        {
+            test(ex.aMem == 1);
+            test(ex.bMem == 2);
+            test(ex.cMem == 3);
+        }
+        catch(...)
+        {
+            test(false);
+        }
+    }
+
+    {
+        auto f = thrower->throwCasB_async(1, 2, 3);
+        try
+        {
+            f.get();
+        }
+        catch(const C& ex)
+        {
+            test(ex.aMem == 1);
+            test(ex.bMem == 2);
+            test(ex.cMem == 3);
+        }
+        catch(...)
+        {
+            test(false);
+        }
+    }
+#else
+    {
         CallbackPtr cb = new Callback;
-        Callback_Thrower_throwBasAPtr callback = 
+        Callback_Thrower_throwBasAPtr callback =
             newCallback_Thrower_throwBasA(cb, &Callback::response, &Callback::exception_BasA);
         thrower->begin_throwBasA(1, 2, callback);
         cb->check();
@@ -1165,7 +1358,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
         CallbackPtr cb = new Callback;
-        Callback_Thrower_throwCasAPtr callback = 
+        Callback_Thrower_throwCasAPtr callback =
             newCallback_Thrower_throwCasA(cb, &Callback::response, &Callback::exception_CasA);
         thrower->begin_throwCasA(1, 2, 3, callback);
         cb->check();
@@ -1173,21 +1366,74 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
         CallbackPtr cb = new Callback;
-        Callback_Thrower_throwCasBPtr callback = 
+        Callback_Thrower_throwCasBPtr callback =
             newCallback_Thrower_throwCasB(cb, &Callback::response, &Callback::exception_CasB);
         thrower->begin_throwCasB(1, 2, 3, callback);
         cb->check();
     }
-
+#endif
     cout << "ok" << endl;
 
     if(thrower->supportsUndeclaredExceptions())
     {
         cout << "catching unknown user exception with new AMI mapping... " << flush;
+#ifdef ICE_CPP11_MAPPING
+        {
+            auto f = thrower->throwUndeclaredA_async(1);
+            try
+            {
+                f.get();
+                test(false);
+            }
+            catch(const Ice::UnknownUserException&)
+            {
+            }
+            catch(const Ice::Exception& ex)
+            {
+                cout << ex << endl;
+                cout << ex.ice_stackTrace() << endl;
+                test(false);
+            }
+            catch(...)
+            {
+                test(false);
+            }
+        }
 
         {
+            auto f = thrower->throwUndeclaredB_async(1, 2);
+            try
+            {
+                f.get();
+                test(false);
+            }
+            catch(const Ice::UnknownUserException&)
+            {
+            }
+            catch(...)
+            {
+                test(false);
+            }
+        }
+
+        {
+            auto f = thrower->throwUndeclaredC_async(1, 2, 3);
+            try
+            {
+                f.get();
+            }
+            catch(const Ice::UnknownUserException&)
+            {
+            }
+            catch(...)
+            {
+                test(false);
+            }
+        }
+#else
+        {
             CallbackPtr cb = new Callback;
-            Callback_Thrower_throwUndeclaredAPtr callback = 
+            Callback_Thrower_throwUndeclaredAPtr callback =
                 newCallback_Thrower_throwUndeclaredA(cb, &Callback::response, &Callback::exception_UndeclaredA);
             thrower->begin_throwUndeclaredA(1, callback);
             cb->check();
@@ -1203,25 +1449,43 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         {
             CallbackPtr cb = new Callback;
-            Callback_Thrower_throwUndeclaredCPtr callback = 
+            Callback_Thrower_throwUndeclaredCPtr callback =
                 newCallback_Thrower_throwUndeclaredC(cb, &Callback::response, &Callback::exception_UndeclaredC);
             thrower->begin_throwUndeclaredC(1, 2, 3, callback);
             cb->check();
         }
-
+#endif
         cout << "ok" << endl;
     }
 
     cout << "catching object not exist exception with new AMI mapping... " << flush;
 
     {
+#ifdef ICE_CPP11_MAPPING
+        id = communicator->stringToIdentity("does not exist");
+        shared_ptr<ThrowerPrx> thrower2 = Ice::uncheckedCast<ThrowerPrx>(thrower->ice_identity(id));
+        auto f = thrower2->throwAasA_async(1);
+        try
+        {
+            f.get();
+        }
+        catch(const Ice::ObjectNotExistException& ex)
+        {
+            test(ex.id == id);
+        }
+        catch(...)
+        {
+            test(false);
+        }
+#else
         id = communicator->stringToIdentity("does not exist");
         ThrowerPrx thrower2 = ThrowerPrx::uncheckedCast(thrower->ice_identity(id));
         CallbackPtr cb = new Callback(communicator);
-        Callback_Thrower_throwAasAPtr callback = 
+        Callback_Thrower_throwAasAPtr callback =
             newCallback_Thrower_throwAasA(cb, &Callback::response, &Callback::exception_AasAObjectNotExist);
         thrower2->begin_throwAasA(1, callback);
         cb->check();
+#endif
     }
 
     cout << "ok" << endl;
@@ -1229,12 +1493,25 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "catching facet not exist exception with new AMI mapping... " << flush;
 
     {
+#ifdef ICE_CPP11_MAPPING
+        shared_ptr<ThrowerPrx> thrower2 = Ice::uncheckedCast<ThrowerPrx>(thrower, "no such facet");
+        auto f = thrower2->throwAasA_async(1);
+        try
+        {
+            f.get();
+        }
+        catch(const Ice::FacetNotExistException& ex)
+        {
+            test(ex.facet == "no such facet");
+        }
+#else
         ThrowerPrx thrower2 = ThrowerPrx::uncheckedCast(thrower, "no such facet");
         CallbackPtr cb = new Callback;
-        Callback_Thrower_throwAasAPtr callback = 
+        Callback_Thrower_throwAasAPtr callback =
             newCallback_Thrower_throwAasA(cb, &Callback::response, &Callback::exception_AasAFacetNotExist);
         thrower2->begin_throwAasA(1, callback);
         cb->check();
+#endif
     }
 
     cout << "ok" << endl;
@@ -1242,22 +1519,74 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "catching operation not exist exception with new AMI mapping... " << flush;
 
     {
+#ifdef ICE_CPP11_MAPPING
+        shared_ptr<WrongOperationPrx> thrower4 = Ice::uncheckedCast<WrongOperationPrx>(thrower);
+        auto f = thrower4->noSuchOperation_async();
+        try
+        {
+            f.get();
+        }
+        catch(const Ice::OperationNotExistException& ex)
+        {
+            test(ex.operation == "noSuchOperation");
+        }
+        catch(...)
+        {
+            test(false);
+        }
+#else
         CallbackPtr cb = new Callback;
-        Callback_WrongOperation_noSuchOperationPtr callback = 
-            newCallback_WrongOperation_noSuchOperation(cb, &Callback::response, 
+        Callback_WrongOperation_noSuchOperationPtr callback =
+            newCallback_WrongOperation_noSuchOperation(cb, &Callback::response,
                                                        &Callback::exception_noSuchOperation);
         WrongOperationPrx thrower4 = WrongOperationPrx::uncheckedCast(thrower);
         thrower4->begin_noSuchOperation(callback);
         cb->check();
+#endif
     }
 
     cout << "ok" << endl;
 
     cout << "catching unknown local exception with new AMI mapping... " << flush;
+#ifdef ICE_CPP11_MAPPING
+    {
+        auto f = thrower->throwLocalException_async();
+        try
+        {
+            f.get();
+            test(false);
+        }
+        catch(const Ice::UnknownLocalException&)
+        {
+        }
+        catch(...)
+        {
+            test(false);
+        }
+    }
 
     {
+        auto f = thrower->throwLocalExceptionIdempotent_async();
+        try
+        {
+            f.get();
+            test(false);
+        }
+        catch(const Ice::UnknownLocalException&)
+        {
+        }
+        catch(const Ice::OperationNotExistException&)
+        {
+        }
+        catch(...)
+        {
+            test(false);
+        }
+    }
+#else
+    {
         CallbackPtr cb = new Callback;
-        Callback_Thrower_throwLocalExceptionPtr callback = 
+        Callback_Thrower_throwLocalExceptionPtr callback =
             newCallback_Thrower_throwLocalException(cb, &Callback::response, &Callback::exception_LocalException);
         thrower->begin_throwLocalException(callback);
         cb->check();
@@ -1265,23 +1594,40 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
         CallbackPtr cb = new Callback;
-        Callback_Thrower_throwLocalExceptionIdempotentPtr callback = 
-            newCallback_Thrower_throwLocalExceptionIdempotent(cb, &Callback::response, 
+        Callback_Thrower_throwLocalExceptionIdempotentPtr callback =
+            newCallback_Thrower_throwLocalExceptionIdempotent(cb, &Callback::response,
                                                               &Callback::exception_LocalException);
         thrower->begin_throwLocalExceptionIdempotent(callback);
         cb->check();
     }
-
+#endif
     cout << "ok" << endl;
 
     cout << "catching unknown non-Ice exception with new AMI mapping... " << flush;
 
     {
+#ifdef ICE_CPP11_MAPPING
+        auto f = thrower->throwNonIceException_async();
+        try
+        {
+            f.get();
+            test(false);
+        }
+        catch(const Ice::UnknownException&)
+        {
+        }
+        catch(...)
+        {
+            test(false);
+        }
+
+#else
         CallbackPtr cb = new Callback;
-        Callback_Thrower_throwNonIceExceptionPtr callback = 
+        Callback_Thrower_throwNonIceExceptionPtr callback =
             newCallback_Thrower_throwNonIceException(cb, &Callback::response, &Callback::exception_NonIceException);
         thrower->begin_throwNonIceException(callback);
         cb->check();
+#endif
     }
 
     cout << "ok" << endl;

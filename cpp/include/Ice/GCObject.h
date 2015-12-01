@@ -15,6 +15,8 @@
 #include <IceUtil/MutexPtrLock.h>
 #include <IceUtil/Mutex.h>
 
+#ifndef ICE_CPP11_MAPPING
+
 namespace IceInternal
 {
 
@@ -73,5 +75,7 @@ private:
 };
 
 }
+
+#endif
 
 #endif

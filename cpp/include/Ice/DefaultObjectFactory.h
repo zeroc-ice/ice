@@ -13,6 +13,7 @@
 #include <Ice/Config.h>
 #include <Ice/ObjectFactory.h>
 
+#ifndef ICE_CPP11_MAPPING
 namespace IceInternal
 {
 template<class O>
@@ -44,5 +45,6 @@ private:
 };
 
 }
+#endif
 
 #endif

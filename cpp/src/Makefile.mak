@@ -18,7 +18,12 @@ SUBDIRS_WINRT	= IceUtil\winrt \
 		  Glacier2Lib\winrt \
 		  IceStormLib\winrt \
 		  IceGridLib\winrt
-
+!elseif "$(CPP11_MAPPING)" == "yes"
+SUBDIRS		= IceUtil \
+		  Slice \
+		  slice2cpp \
+		  Ice \
+		  IceSSL
 !elseif "$(CPP_COMPILER)" == "VC100"
 SUBDIRS		= IceUtil \
 		  Slice \

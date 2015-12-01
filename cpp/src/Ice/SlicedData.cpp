@@ -13,15 +13,19 @@
 using namespace std;
 using namespace Ice;
 
+#ifndef ICE_CPP11_MAPPING
 IceUtil::Shared* Ice::upCast(SliceInfo* p) { return p; }
 IceUtil::Shared* Ice::upCast(SlicedData* p) { return p; }
 IceUtil::Shared* Ice::upCast(UnknownSlicedObject* p) { return p; }
+#endif
 
 Ice::SlicedData::SlicedData(const SliceInfoSeq& seq) :
     slices(seq)
 {
 }
 
+
+#ifndef ICE_CPP11_MAPPING
 void
 Ice::SlicedData::__gcVisitMembers(IceInternal::GCVisitor& visitor)
 {
@@ -39,6 +43,7 @@ Ice::SlicedData::__gcVisitMembers(IceInternal::GCVisitor& visitor)
         }
     }
 }
+#endif
 
 Ice::UnknownSlicedObject::UnknownSlicedObject(const string& unknownTypeId) : _unknownTypeId(unknownTypeId)
 {
@@ -56,6 +61,7 @@ Ice::UnknownSlicedObject::getSlicedData() const
     return _slicedData;
 }
 
+#ifndef ICE_CPP11_MAPPING
 void
 Ice::UnknownSlicedObject::__gcVisitMembers(IceInternal::GCVisitor& _v)
 {
@@ -64,6 +70,7 @@ Ice::UnknownSlicedObject::__gcVisitMembers(IceInternal::GCVisitor& _v)
         _slicedData->__gcVisitMembers(_v);
     }
 }
+#endif
 
 void
 Ice::UnknownSlicedObject::__write(IceInternal::BasicStream* __os) const

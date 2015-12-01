@@ -15,6 +15,7 @@
 #include <Ice/Config.h>
 #include <Ice/ProxyHandle.h>
 
+#ifndef ICE_CPP11_MAPPING // C++98 mapping
 namespace IceProxy
 {
 
@@ -71,8 +72,32 @@ namespace Ice
 {
 
 typedef IceInternal::ProxyHandle< ::IceProxy::Ice::Object> ObjectPrx;
+typedef ObjectPrx ObjectPrxPtr;
+
+}
+#else // C++11 mapping
+namespace Ice
+{
+
+class ObjectPrx;
+typedef ::std::shared_ptr<ObjectPrx> ObjectPrxPtr;
 
 }
 
+namespace IceProxy
+{
+
+namespace Ice
+{
+
+//
+// ObjectPrx alias for compatibility with C++98 mapping
+//
+typedef ::Ice::ObjectPrx Object;
+
+}
+
+}
+#endif
 
 #endif

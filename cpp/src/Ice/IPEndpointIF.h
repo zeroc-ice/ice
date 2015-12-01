@@ -17,13 +17,17 @@ namespace IceInternal
 {
 
 class IPEndpointI;
+
+#ifdef ICE_CPP11_MAPPING
+typedef ::std::shared_ptr<IPEndpointI> IPEndpointIPtr;
+#else
 ICE_API IceUtil::Shared* upCast(IPEndpointI*);
 typedef Handle<IPEndpointI> IPEndpointIPtr;
+#endif
 
 class EndpointHostResolver;
 ICE_API IceUtil::Shared* upCast(EndpointHostResolver*);
 typedef Handle<EndpointHostResolver> EndpointHostResolverPtr;
-
 }
 
 #endif

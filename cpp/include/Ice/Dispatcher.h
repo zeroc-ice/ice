@@ -14,7 +14,7 @@
 #include <IceUtil/Shared.h>
 #include <IceUtil/Handle.h>
 #include <Ice/ConnectionF.h>
-#ifdef ICE_CPP11
+#ifdef ICE_CPP11_COMPILER
 #   include <functional>
 #endif
 
@@ -41,7 +41,7 @@ public:
 
 typedef IceUtil::Handle<Dispatcher> DispatcherPtr;
 
-#ifdef ICE_CPP11
+#ifdef ICE_CPP11_COMPILER
 ICE_API DispatcherPtr
 newDispatcher(const ::std::function<void (const DispatcherCallPtr&, const ConnectionPtr)>&);
 #endif

@@ -60,7 +60,7 @@ namespace Ice
 
 class LocalException;
 class ObjectAdapterI;
-typedef IceUtil::Handle<ObjectAdapterI> ObjectAdapterIPtr;
+ICE_DEFINE_PTR(ObjectAdapterIPtr, ObjectAdapterI);
 
 class ConnectionI : public Connection,
                     public IceInternal::EventHandler,
@@ -134,6 +134,17 @@ public:
 #endif
     };
 
+    
+#ifdef ICE_CPP11_MAPPING
+    class StartCallback
+    {
+    public:
+
+        virtual void connectionStartCompleted(const ConnectionIPtr&) = 0;
+        virtual void connectionStartFailed(const ConnectionIPtr&, const Ice::LocalException&) = 0;
+    };
+    typedef ::std::shared_ptr<StartCallback> StartCallbackPtr;
+#else
     class StartCallback : virtual public IceUtil::Shared
     {
     public:
@@ -142,7 +153,8 @@ public:
         virtual void connectionStartFailed(const ConnectionIPtr&, const Ice::LocalException&) = 0;
     };
     typedef IceUtil::Handle<StartCallback> StartCallbackPtr;
-
+#endif
+    
     enum DestructionReason
     {
         ObjectAdapterDeactivated,
@@ -174,16 +186,22 @@ public:
 
     virtual void flushBatchRequests(); // From Connection.
 
+#ifdef ICE_CPP11_MAPPING
+    virtual std::function<void ()>
+    flushBatchRequests_async(::std::function<void ()> completed,
+                             ::std::function<void (::std::exception_ptr)> exception = nullptr,
+                             ::std::function<void (bool)> sent = nullptr);
+#else
     virtual AsyncResultPtr begin_flushBatchRequests();
     virtual AsyncResultPtr begin_flushBatchRequests(const CallbackPtr&, const LocalObjectPtr& = 0);
     virtual AsyncResultPtr begin_flushBatchRequests(const Callback_Connection_flushBatchRequestsPtr&,
                                                     const LocalObjectPtr& = 0);
-
     virtual AsyncResultPtr begin_flushBatchRequests(
         const ::IceInternal::Function<void (const ::Ice::Exception&)>&,
         const ::IceInternal::Function<void (bool)>& = ::IceInternal::Function<void (bool)>());
 
     virtual void end_flushBatchRequests(const AsyncResultPtr&);
+#endif
 
     virtual void setCallback(const ConnectionCallbackPtr&);
     virtual void setACM(const IceUtil::Optional<int>&,
@@ -205,7 +223,7 @@ public:
     virtual void setAdapter(const ObjectAdapterPtr&); // From Connection.
     virtual ObjectAdapterPtr getAdapter() const; // From Connection.
     virtual EndpointPtr getEndpoint() const; // From Connection.
-    virtual ObjectPrx createProxy(const Identity& ident) const; // From Connection.
+    virtual ObjectPrxPtr createProxy(const Identity& ident) const; // From Connection.
 
     //
     // Operations from EventHandler
@@ -238,7 +256,19 @@ public:
 
     void closeCallback(const ConnectionCallbackPtr&);
 
+
+    virtual ~ConnectionI();
+
 private:
+
+    ConnectionI(const Ice::CommunicatorPtr&, const IceInternal::InstancePtr&, const IceInternal::ACMMonitorPtr&,
+                const IceInternal::TransceiverPtr&, const IceInternal::ConnectorPtr&,
+                const IceInternal::EndpointIPtr&, const ObjectAdapterIPtr&);
+
+    static ConnectionIPtr
+    create(const Ice::CommunicatorPtr&, const IceInternal::InstancePtr&, const IceInternal::ACMMonitorPtr&,
+           const IceInternal::TransceiverPtr&, const IceInternal::ConnectorPtr&,
+           const IceInternal::EndpointIPtr&, const ObjectAdapterIPtr&);
 
     enum State
     {
@@ -251,11 +281,6 @@ private:
         StateClosed,
         StateFinished
     };
-
-    ConnectionI(const Ice::CommunicatorPtr&, const IceInternal::InstancePtr&, const IceInternal::ACMMonitorPtr&,
-                const IceInternal::TransceiverPtr&, const IceInternal::ConnectorPtr&,
-                const IceInternal::EndpointIPtr&, const ObjectAdapterIPtr&);
-    virtual ~ConnectionI();
 
     friend class IceInternal::IncomingConnectionFactory;
     friend class IceInternal::OutgoingConnectionFactory;

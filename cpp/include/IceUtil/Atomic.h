@@ -10,12 +10,12 @@
 #ifndef ICE_UTIL_ATOMIC_H
 #define ICE_UTIL_ATOMIC_H
 
-#if ((defined(ICE_CPP11) && defined(_MSC_VER) && (_MSC_VER > 1600)) || \
-     (defined(ICE_CPP11) && !defined(_MSC_VER)))
-#   define ICE_CPP11_HAS_ATOMIC
+#if ((defined(ICE_CPP11_COMPILER) && defined(_MSC_VER) && (_MSC_VER > 1600)) || \
+     (defined(ICE_CPP11_COMPILER) && !defined(_MSC_VER)))
+#   define ICE_CPP11_COMPILER_HAS_ATOMIC
 #endif
 
-#if defined(ICE_CPP11_HAS_ATOMIC)
+#if defined(ICE_CPP11_COMPILER_HAS_ATOMIC)
 #   include <atomic>
 #elif defined(ICE_USE_MUTEX_SHARED)
 
@@ -45,7 +45,7 @@
 namespace IceUtilInternal
 {
 
-#ifdef ICE_CPP11_HAS_ATOMIC
+#ifdef ICE_CPP11_COMPILER_HAS_ATOMIC
 typedef std::atomic<int> Atomic;
 #else
 

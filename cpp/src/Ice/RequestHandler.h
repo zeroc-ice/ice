@@ -52,7 +52,10 @@ private:
     IceUtil::UniquePtr<Ice::LocalException> _ex;
 };
 
-class CancellationHandler : virtual public IceUtil::Shared
+class CancellationHandler
+#ifndef ICE_CPP11_MAPPING
+    : virtual public IceUtil::Shared
+#endif
 {
 public:
 
@@ -63,6 +66,8 @@ public:
 class RequestHandler : public CancellationHandler
 {
 public:
+    
+    RequestHandler(const ReferencePtr&);
 
     virtual RequestHandlerPtr update(const RequestHandlerPtr&, const RequestHandlerPtr&) = 0;
 
@@ -76,7 +81,6 @@ public:
 
 protected:
 
-    RequestHandler(const ReferencePtr&);
     const ReferencePtr _reference;
     const bool _response;
 };

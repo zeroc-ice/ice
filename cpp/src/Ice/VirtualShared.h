@@ -7,15 +7,25 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_VIRTUAL_SHARED_H
+#define ICE_VIRTUAL_SHARED_H
 
-[["cpp:header-ext:h", "objc:header-dir:objc"]]
+#include <IceUtil/Config.h>
 
-["objc:prefix:ICE"]
-module Ice
+#ifdef ICE_CPP11_MAPPING
+
+namespace IceInternal
 {
 
-local interface ObjectFactory;
+class VirtualShared : public ::std::enable_shared_from_this<VirtualShared>
+{
+public:
 
+    virtual ~VirtualShared() = default;
 };
 
+}
+
+#endif
+
+#endif

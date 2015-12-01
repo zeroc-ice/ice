@@ -821,7 +821,7 @@ IceInternal::UdpTransceiver::toDetailedString() const
 Ice::ConnectionInfoPtr
 IceInternal::UdpTransceiver::getInfo() const
 {
-    Ice::UDPConnectionInfoPtr info = new Ice::UDPConnectionInfo();
+    Ice::UDPConnectionInfoPtr info = ICE_MAKE_SHARED(Ice::UDPConnectionInfo);
 #if defined(ICE_OS_WINRT)
     if(isMulticast(_addr) || isAddressValid(_mcastAddr))
     {

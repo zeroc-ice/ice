@@ -20,7 +20,6 @@ namespace IceInternal
 class Instance;
 ICE_API IceUtil::Shared* upCast(Instance*);
 typedef IceInternal::Handle<Instance> InstancePtr;
-
 }
 
 #endif

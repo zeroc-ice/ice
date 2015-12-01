@@ -19,12 +19,13 @@
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/LoggerF.h>
 #include <Ice/TraceLevelsF.h>
+#include <Ice/VirtualShared.h>
 
 namespace Ice
 {
 
 class ObjectAdapterI;
-typedef IceUtil::Handle<ObjectAdapterI> ObjectAdapterIPtr;
+ICE_DEFINE_PTR(ObjectAdapterIPtr, ObjectAdapterI);
 
 }
 
@@ -36,7 +37,12 @@ class Outgoing;
 class OutgoingAsyncBase;
 class OutgoingAsync;
 
-class CollocatedRequestHandler : public RequestHandler, public ResponseHandler, private IceUtil::Monitor<IceUtil::Mutex>
+class CollocatedRequestHandler : public RequestHandler,
+                                 public ResponseHandler,
+                                 private IceUtil::Monitor<IceUtil::Mutex>
+#ifndef ICE_CPP11_MAPPING
+                                 , public virtual ::IceUtil::Shared
+#endif
 {
 public:
 
@@ -86,7 +92,7 @@ private:
     std::map<Ice::Int, OutgoingBase*> _requests;
     std::map<Ice::Int, OutgoingAsyncBasePtr> _asyncRequests;
 };
-typedef IceUtil::Handle<CollocatedRequestHandler> CollocatedRequestHandlerPtr;
+ICE_DEFINE_PTR(CollocatedRequestHandlerPtr, CollocatedRequestHandler);
 
 }
 

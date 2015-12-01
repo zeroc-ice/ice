@@ -21,7 +21,11 @@ template<typename T = Ice::Instrumentation::Observer> class ObserverHelperT
 {
 public:
 
+#ifdef ICE_CPP11_MAPPING
+    typedef ::std::shared_ptr<T> TPtr;
+#else
     typedef IceInternal::Handle<T> TPtr;
+#endif
 
     ObserverHelperT()
     {
@@ -37,7 +41,7 @@ public:
 
     operator bool() const
     {
-        return _observer;
+        return _observer != ICE_NULLPTR;
     }
 
     T* operator->() const
@@ -63,11 +67,17 @@ public:
         }
     }
 
+#ifdef ICE_CPP11_MAPPING
+    TPtr get() const
+    {
+        return _observer;
+    }
+#else
     T* get() const
     {
         return _observer.get();
     }
-
+#endif
     void adopt(ObserverHelperT& other)
     {
         _observer = other._observer;
@@ -121,13 +131,13 @@ class ICE_API InvocationObserver : public ObserverHelperT<Ice::Instrumentation::
 {
 public:
 
-    InvocationObserver(IceProxy::Ice::Object*, const std::string&, const Ice::Context*);
+    InvocationObserver(const Ice::ObjectPrxPtr&, const std::string&, const Ice::Context*);
     InvocationObserver(Instance*, const std::string&);
     InvocationObserver()
     {
     }
 
-    void attach(IceProxy::Ice::Object*, const std::string&, const Ice::Context*);
+    void attach(const Ice::ObjectPrxPtr&, const std::string&, const Ice::Context*);
     void attach(Instance*, const std::string&);
 
     void retried()

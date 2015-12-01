@@ -14,9 +14,9 @@
 using namespace std;
 
 void
-oneways(const Ice::CommunicatorPtr&, const Test::MyClassPrx& proxy)
+oneways(const Ice::CommunicatorPtr&, const Test::MyClassPrxPtr& proxy)
 {
-    Test::MyClassPrx p = Test::MyClassPrx::uncheckedCast(proxy->ice_oneway());
+    Test::MyClassPrxPtr p = ICE_UNCHECKED_CAST(Test::MyClassPrx, proxy->ice_oneway());
     
     {
         p->ice_ping();
@@ -28,7 +28,11 @@ oneways(const Ice::CommunicatorPtr&, const Test::MyClassPrx& proxy)
             p->ice_isA("dummy");
             test(false);
         }
+#ifdef ICE_CPP11_MAPPING
+        catch(const IceUtil::IllegalArgumentException&)
+#else
         catch(const Ice::TwowayOnlyException&)
+#endif
         {
         }
     }
@@ -39,7 +43,11 @@ oneways(const Ice::CommunicatorPtr&, const Test::MyClassPrx& proxy)
             p->ice_id();
             test(false);
         }
+#ifdef ICE_CPP11_MAPPING
+        catch(const IceUtil::IllegalArgumentException&)
+#else
         catch(const Ice::TwowayOnlyException&)
+#endif
         {
         }
     }
@@ -50,7 +58,11 @@ oneways(const Ice::CommunicatorPtr&, const Test::MyClassPrx& proxy)
             p->ice_ids();
             test(false);
         }
+#ifdef ICE_CPP11_MAPPING
+        catch(const IceUtil::IllegalArgumentException&)
+#else
         catch(const Ice::TwowayOnlyException&)
+#endif
         {
         }
     }    
@@ -75,7 +87,11 @@ oneways(const Ice::CommunicatorPtr&, const Test::MyClassPrx& proxy)
             p->opByte(Ice::Byte(0xff), Ice::Byte(0x0f), b);
             test(false);
         }
+#ifdef ICE_CPP11_MAPPING
+        catch(const IceUtil::IllegalArgumentException&)
+#else
         catch(const Ice::TwowayOnlyException&)
+#endif
         {
         }
     }

@@ -12,6 +12,7 @@
 
 #include <Ice/SlicedDataF.h>
 #include <Ice/GCObject.h>
+#include <Ice/Value.h>
 
 namespace Ice
 {
@@ -19,7 +20,10 @@ namespace Ice
 //
 // SliceInfo encapsulates the details of a slice for an unknown class or exception type.
 //
-struct ICE_API SliceInfo : public ::IceUtil::Shared
+struct ICE_API SliceInfo
+#ifndef ICE_CPP11_MAPPING
+    : public ::IceUtil::Shared
+#endif
 {
     //
     // The Slice type ID for this slice.
@@ -39,7 +43,7 @@ struct ICE_API SliceInfo : public ::IceUtil::Shared
     //
     // The Ice objects referenced by this slice.
     //
-    ::std::vector<ObjectPtr> objects;
+    ::std::vector<ValuePtr> objects;
 
     //
     // Whether or not the slice contains optional members.
@@ -55,21 +59,30 @@ struct ICE_API SliceInfo : public ::IceUtil::Shared
 //
 // SlicedData holds the slices of unknown types.
 //
-class ICE_API SlicedData : public ::IceUtil::Shared
+class ICE_API SlicedData
+#ifndef ICE_CPP11_MAPPING
+    : public ::IceUtil::Shared
+#endif
 {
 public:
 
     SlicedData(const SliceInfoSeq&);
 
     const SliceInfoSeq slices;
-
+#ifndef ICE_CPP11_MAPPING
     void __gcVisitMembers(IceInternal::GCVisitor&);
+#endif
 };
 
 //
 // Unknown sliced object holds instance of unknown type.
 //
-class ICE_API UnknownSlicedObject : virtual public Object, private IceInternal::GCObject
+class ICE_API UnknownSlicedObject
+#ifdef ICE_CPP11_MAPPING
+    : public Value
+#else
+    : virtual public Object, private IceInternal::GCObject
+#endif
 {
 public:
 
@@ -79,13 +92,12 @@ public:
 
     SlicedDataPtr getSlicedData() const;
 
+#ifndef ICE_CPP11_MAPPING
     virtual void __gcVisitMembers(IceInternal::GCVisitor&);
+#endif
 
     virtual void __write(::IceInternal::BasicStream*) const;
     virtual void __read(::IceInternal::BasicStream*);
-    
-    using Object::__write;
-    using Object::__read;
 
 private:
 

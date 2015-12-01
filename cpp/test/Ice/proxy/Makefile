@@ -49,7 +49,7 @@ GENPIC          = no
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
+CPPFLAGS	:= -I. -I../../include -I../../../src $(CPPFLAGS)
 
 $(CLIENT): $(COBJS)
 	rm -f $@

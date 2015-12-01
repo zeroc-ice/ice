@@ -38,7 +38,6 @@ SLICE_OBJS	= .\BuiltinSequences.obj \
 		  .\ObjectAdapter.obj \
 		  .\ObjectAdapterF.obj \
 		  .\ObjectFactory.obj \
-		  .\ObjectFactoryF.obj \
 		  .\Plugin.obj \
 		  .\PluginF.obj \
 		  .\Process.obj \
@@ -52,6 +51,7 @@ SLICE_OBJS	= .\BuiltinSequences.obj \
 		  .\ServantLocator.obj \
 		  .\ServantLocatorF.obj \
 		  .\SliceChecksumDict.obj \
+		  .\Value.obj \
 		  .\Version.obj
 
 WINDOWS_OBJS   =  .\DLLMain.obj

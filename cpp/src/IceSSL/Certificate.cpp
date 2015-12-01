@@ -874,11 +874,11 @@ CertificatePtr
 Certificate::load(const string& file)
 {
 #if defined(ICE_USE_SECURE_TRANSPORT)
-    return new Certificate(loadCertificate(file));
+    return ICE_MAKE_SHARED(Certificate, loadCertificate(file));
 #elif defined(ICE_USE_SCHANNEL)
     CERT_SIGNED_CONTENT_INFO* cert;
     loadCertificate(&cert, file);
-    return new Certificate(cert);
+    return ICE_MAKE_SHARED(Certificate, cert);
 #else
     BIO *cert = BIO_new(BIO_s_file());
     if(BIO_read_filename(cert, file.c_str()) <= 0)
@@ -894,7 +894,7 @@ Certificate::load(const string& file)
         throw CertificateReadException(__FILE__, __LINE__, "error reading file:\n" + getSslErrors(false));
     }
     BIO_free(cert);
-    return new Certificate(x);
+    return ICE_MAKE_SHARED(Certificate, x);
 #endif
 }
 
@@ -925,11 +925,11 @@ Certificate::decode(const string& encoding)
     CFRelease(items);
 
     assert(SecCertificateGetTypeID() == CFGetTypeID(item));
-    return new Certificate((SecCertificateRef)item);
+    return ICE_MAKE_SHARED(Certificate, (SecCertificateRef)item);
 #elif defined(ICE_USE_SCHANNEL)
     CERT_SIGNED_CONTENT_INFO* cert;
     loadCertificate(&cert, encoding.c_str(), static_cast<DWORD>(encoding.size()));
-    return new Certificate(cert);
+    return ICE_MAKE_SHARED(Certificate, cert);
 #else
     BIO *cert = BIO_new_mem_buf(static_cast<void*>(const_cast<char*>(&encoding[0])), static_cast<int>(encoding.size()));
     X509CertificateRef x = PEM_read_bio_X509_AUX(cert, NULL, NULL, NULL);
@@ -939,7 +939,7 @@ Certificate::decode(const string& encoding)
         throw CertificateEncodingException(__FILE__, __LINE__, getSslErrors(false));
     }
     BIO_free(cert);
-    return new Certificate(x);
+    return ICE_MAKE_SHARED(Certificate, x);
 #endif
 }
 
@@ -977,11 +977,24 @@ Certificate::getPublicKey() const
     {
         throw CertificateEncodingException(__FILE__, __LINE__, errorToString(err));
     }
+#   ifdef ICE_CPP11_MAPPING
+    return make_shared<PublicKey>(const_pointer_cast<Certificate>(shared_from_this()), key);
+#   else
     return new PublicKey(const_cast<Certificate*>(this), key);
+#   endif
 #elif defined(ICE_USE_SCHANNEL)
+#   ifdef ICE_CPP11_MAPPING
+    return make_shared<PublicKey>(const_pointer_cast<Certificate>(shared_from_this()),
+                                  &_certInfo->SubjectPublicKeyInfo);
+#   else
     return new PublicKey(const_cast<Certificate*>(this), &_certInfo->SubjectPublicKeyInfo);
+#   endif
 #else
+#   ifdef ICE_CPP11_MAPPING
+    return make_shared<PublicKey>(const_pointer_cast<Certificate>(shared_from_this()), X509_get_pubkey(_cert));
+#   else
     return new PublicKey(const_cast<Certificate*>(this), X509_get_pubkey(_cert));
+#   endif
 #endif
 }
 

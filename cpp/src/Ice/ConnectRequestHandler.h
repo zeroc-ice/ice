@@ -30,14 +30,14 @@ namespace IceInternal
 class ConnectRequestHandler : public RequestHandler,
                               public Reference::GetConnectionCallback,
                               public RouterInfo::AddProxyCallback,
-                              public IceUtil::Monitor<IceUtil::Mutex>
+                              public IceUtil::Monitor<IceUtil::Mutex>,
+                              public ICE_ENABLE_SHARED_FROM_THIS(ConnectRequestHandler)
 {
 public:
 
-    ConnectRequestHandler(const ReferencePtr&, const Ice::ObjectPrx&);
-    virtual ~ConnectRequestHandler();
+    ConnectRequestHandler(const ReferencePtr&, const Ice::ObjectPrxPtr&);
 
-    RequestHandlerPtr connect(const Ice::ObjectPrx&);
+    RequestHandlerPtr connect(const Ice::ObjectPrxPtr&);
     virtual RequestHandlerPtr update(const RequestHandlerPtr&, const RequestHandlerPtr&);
 
     virtual bool sendRequest(ProxyOutgoingBase*);
@@ -69,8 +69,8 @@ private:
         ProxyOutgoingAsyncBasePtr outAsync;
     };
 
-    Ice::ObjectPrx _proxy;
-    std::set<Ice::ObjectPrx> _proxies;
+    Ice::ObjectPrxPtr _proxy;
+    std::set<Ice::ObjectPrxPtr> _proxies;
 
     Ice::ConnectionIPtr _connection;
     bool _compress;

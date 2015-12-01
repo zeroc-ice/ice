@@ -26,7 +26,11 @@ toString(int value)
     return os.str();
 }
 
-class ConnectionCallbackI : public Ice::ConnectionCallback, private IceUtil::Monitor<IceUtil::Mutex>
+class ConnectionCallbackI : public Ice::ConnectionCallback,
+#ifdef ICE_CPP11_MAPPING
+                            public enable_shared_from_this<Ice::ConnectionCallback>,
+#endif
+                            private IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
@@ -58,11 +62,11 @@ private:
 
     int _count;
 };
-typedef IceUtil::Handle<ConnectionCallbackI> ConnectionCallbackIPtr;
+ICE_DEFINE_PTR(ConnectionCallbackIPtr, ConnectionCallbackI);
 
 }
 
-RemoteObjectAdapterPrx
+RemoteObjectAdapterPrxPtr
 RemoteCommunicatorI::createObjectAdapter(int timeout, int close, int heartbeat, const Current& current)
 {
     Ice::CommunicatorPtr com = current.adapter->getCommunicator();
@@ -85,7 +89,9 @@ RemoteCommunicatorI::createObjectAdapter(int timeout, int close, int heartbeat, 
     }
     properties->setProperty(name + ".ThreadPool.Size", "2");
     ObjectAdapterPtr adapter = com->createObjectAdapterWithEndpoints(name, protocol + " -h \"" + host + "\"");
-    return RemoteObjectAdapterPrx::uncheckedCast(current.adapter->addWithUUID(new RemoteObjectAdapterI(adapter)));
+    
+    return ICE_UNCHECKED_CAST(RemoteObjectAdapterPrx, current.adapter->addWithUUID(
+                              ICE_MAKE_SHARED(RemoteObjectAdapterI, adapter)));
 }
 
 void
@@ -96,13 +102,13 @@ RemoteCommunicatorI::shutdown(const Ice::Current& current)
 
 RemoteObjectAdapterI::RemoteObjectAdapterI(const Ice::ObjectAdapterPtr& adapter) :
     _adapter(adapter),
-    _testIntf(TestIntfPrx::uncheckedCast(_adapter->add(new TestI(),
+    _testIntf(ICE_UNCHECKED_CAST(TestIntfPrx, _adapter->add(ICE_MAKE_SHARED(TestI),
                                          adapter->getCommunicator()->stringToIdentity("test"))))
 {
     _adapter->activate();
 }
 
-TestIntfPrx
+TestIntfPrxPtr
 RemoteObjectAdapterI::getTestIntf(const Ice::Current&)
 {
     return _testIntf;
@@ -157,7 +163,7 @@ TestI::interruptSleep(const Ice::Current& current)
 void
 TestI::waitForHeartbeat(int count, const Ice::Current& current)
 {
-    ConnectionCallbackIPtr callback = new ConnectionCallbackI();
+    ConnectionCallbackIPtr callback = ICE_MAKE_SHARED(ConnectionCallbackI);
     current.con->setCallback(callback);
     callback->waitForCount(count);
 }

@@ -26,7 +26,7 @@ class ICE_API ReadObjectCallback : public ::IceUtil::Shared
 {
 public:
 
-    virtual void invoke(const ObjectPtr&) = 0;
+    virtual void invoke(const ValuePtr&) = 0;
 };
 typedef IceUtil::Handle<ReadObjectCallback> ReadObjectCallbackPtr;
 
@@ -36,14 +36,18 @@ class ReadObjectCallbackI : public ReadObjectCallback
 
 public:
 
-    ReadObjectCallbackI(::IceInternal::Handle<T>& v) :
+    ReadObjectCallbackI(ICE_INTERNAL_HANDLE<T>& v) :
         _v(v)
     {
     }
 
-    virtual void invoke(const ObjectPtr& p)
+    virtual void invoke(const ValuePtr& p)
     {
+#ifdef ICE_CPP11_MAPPING
+        _v = ::std::dynamic_pointer_cast<T>(p);
+#else
         _v = ::IceInternal::Handle<T>::dynamicCast(p);
+#endif
         if(p && !_v)
         {
             IceInternal::Ex::throwUOE(T::ice_staticId(), p);
@@ -52,7 +56,7 @@ public:
 
 private:
 
-    ::IceInternal::Handle<T>& _v;
+    ICE_INTERNAL_HANDLE<T>& _v;
 };
 
 class ICE_API UserExceptionReader : public UserException
@@ -109,23 +113,33 @@ public:
     virtual Int readSize() = 0;
     virtual Int readAndCheckSeqSize(int) = 0;
 
-    virtual ObjectPrx readProxy() = 0;
+    virtual ObjectPrxPtr readProxy() = 0;
+#ifndef ICE_CPP11_MAPPING
     template<typename T> void read(IceInternal::ProxyHandle<T>& v)
+#else
+    template<typename T, typename ::std::enable_if<IsProxy<T>::value>::type* = nullptr>
+    void read(::std::shared_ptr<T>& v)
+#endif
     {
-        ObjectPrx proxy = readProxy();
+        ObjectPrxPtr proxy = readProxy();
         if(!proxy)
         {
             v = 0;
         }
         else
         {
-            v = new T;
+            v = ICE_MAKE_SHARED(T);
             v->__copyFrom(proxy);
         }
     }
 
     virtual void readObject(const ReadObjectCallbackPtr&) = 0;
+#ifndef ICE_CPP11_MAPPING
     template<typename T> void read(IceInternal::Handle<T>& v)
+#else
+    template<typename T, typename ::std::enable_if<IsValue<T>::value>::type* = nullptr>
+    void read(::std::shared_ptr<T>& v)
+#endif
     {
         readObject(new ReadObjectCallbackI<T>(v));
     }
@@ -255,17 +269,33 @@ public:
 
     virtual void writeSize(Int) = 0;
 
-    virtual void writeProxy(const ObjectPrx&) = 0;
+    virtual void writeProxy(const ObjectPrxPtr&) = 0;
+#ifndef ICE_CPP11_MAPPING
     template<typename T> void write(const IceInternal::ProxyHandle<T>& v)
     {
         writeProxy(ObjectPrx(v.get()));
     }
+#else
+    template<typename T, typename ::std::enable_if<IsProxy<T>::value>::type* = nullptr>
+    void write(const ::std::shared_ptr<T>& v)
+    {
+        writeProxy(::std::dynamic_pointer_cast<ObjectPrx>(v));
+    }
+#endif
 
-    virtual void writeObject(const ObjectPtr&) = 0;
+    virtual void writeObject(const ValuePtr&) = 0;
+#ifndef ICE_CPP11_MAPPING
     template<typename T> void write(const IceInternal::Handle<T>& v)
     {
         writeObject(ObjectPtr(v.get()));
     }
+#else
+    template<typename T, typename ::std::enable_if<IsValue<T>::value>::type* = nullptr>
+    void write(const ::std::shared_ptr<T>& v)
+    {
+        writeObject(::std::dynamic_pointer_cast<Value>(v));
+    }
+#endif
 
     virtual void writeEnum(Int v, Int maxValue)
     {

@@ -9,6 +9,8 @@
 
 #include <Ice/GCObject.h>
 
+#ifndef ICE_CPP11_MAPPING
+
 #include <set>
 #include <stack>
 
@@ -442,3 +444,4 @@ GCObject::collect(IceUtilInternal::MutexPtrLock<IceUtil::Mutex>& lock)
     }
     return true;
 }
+#endif

@@ -20,30 +20,39 @@
 namespace Ice
 {
 
-class CommunicatorI : public Communicator
+class CommunicatorI;
+ICE_DEFINE_PTR(CommunicatorIPtr, CommunicatorI);
+
+class CommunicatorI : public ICE_ENABLE_SHARED_FROM_THIS(CommunicatorI),
+                      public Communicator
 {
 public:
-    
+
     virtual void destroy();
     virtual void shutdown();
     virtual void waitForShutdown();
     virtual bool isShutdown() const;
 
-    virtual ObjectPrx stringToProxy(const std::string&) const;
-    virtual std::string proxyToString(const ObjectPrx&) const;
+    virtual ObjectPrxPtr stringToProxy(const std::string&) const;
+    virtual std::string proxyToString(const ObjectPrxPtr&) const;
 
-    virtual ObjectPrx propertyToProxy(const std::string&) const;
-    virtual PropertyDict proxyToProperty(const ObjectPrx&, const std::string&) const;
+    virtual ObjectPrxPtr propertyToProxy(const std::string&) const;
+    virtual PropertyDict proxyToProperty(const ObjectPrxPtr&, const std::string&) const;
 
     virtual Identity stringToIdentity(const std::string&) const;
     virtual std::string identityToString(const Identity&) const;
 
     virtual ObjectAdapterPtr createObjectAdapter(const std::string&);
     virtual ObjectAdapterPtr createObjectAdapterWithEndpoints(const std::string&, const std::string&);
-    virtual ObjectAdapterPtr createObjectAdapterWithRouter(const std::string&, const RouterPrx&);
+    virtual ObjectAdapterPtr createObjectAdapterWithRouter(const std::string&, const RouterPrxPtr&);
 
+#ifdef ICE_CPP11_MAPPING
+    virtual void addObjectFactory(std::function<std::shared_ptr<Ice::Value> (const std::string&)>, const std::string&);    
+    virtual std::function<::std::shared_ptr<Ice::Value> (const std::string&)> findObjectFactory(const std::string&) const;
+#else
     virtual void addObjectFactory(const ObjectFactoryPtr&, const std::string&);
     virtual ObjectFactoryPtr findObjectFactory(const std::string&) const;
+#endif
 
     virtual ImplicitContextPtr getImplicitContext() const;
 
@@ -51,16 +60,23 @@ public:
     virtual LoggerPtr getLogger() const;
     virtual Ice::Instrumentation::CommunicatorObserverPtr getObserver() const;
 
-    virtual RouterPrx getDefaultRouter() const;
-    virtual void setDefaultRouter(const RouterPrx&);
+    virtual RouterPrxPtr getDefaultRouter() const;
+    virtual void setDefaultRouter(const RouterPrxPtr&);
 
-    virtual LocatorPrx getDefaultLocator() const;
-    virtual void setDefaultLocator(const LocatorPrx&);
+    virtual LocatorPrxPtr getDefaultLocator() const;
+    virtual void setDefaultLocator(const LocatorPrxPtr&);
 
     virtual PluginManagerPtr getPluginManager() const;
 
     virtual void flushBatchRequests();
 
+#ifdef ICE_CPP11_MAPPING
+    virtual ::std::function<void ()>
+    flushBatchRequests_async(
+        ::std::function<void ()> completed,
+        ::std::function<void (std::exception_ptr)> exception = nullptr,
+        ::std::function<void (bool)> sent = nullptr);
+#else
     virtual AsyncResultPtr begin_flushBatchRequests();
     virtual AsyncResultPtr begin_flushBatchRequests(const CallbackPtr&, const LocalObjectPtr& = 0);
     virtual AsyncResultPtr begin_flushBatchRequests(const Callback_Communicator_flushBatchRequestsPtr&,
@@ -71,18 +87,21 @@ public:
         const IceInternal::Function<void (bool)>& = IceInternal::Function<void (bool)>());
 
     virtual void end_flushBatchRequests(const AsyncResultPtr&);
+#endif
 
-    virtual ObjectPrx createAdmin(const ObjectAdapterPtr&, const Identity&);
-    virtual ObjectPrx getAdmin() const;
+    virtual ObjectPrxPtr createAdmin(const ObjectAdapterPtr&, const Identity&);
+    virtual ObjectPrxPtr getAdmin() const;
     virtual void addAdminFacet(const ObjectPtr&, const std::string&);
     virtual ObjectPtr removeAdminFacet(const std::string&);
     virtual ObjectPtr findAdminFacet(const std::string&);
     virtual FacetMap findAllAdminFacets();
 
+    virtual ~CommunicatorI();
+
 private:
 
-    CommunicatorI(const InitializationData&);
-    virtual ~CommunicatorI();
+    static CommunicatorIPtr
+    create(const InitializationData&);
 
     //
     // Certain initialization tasks need to be completed after the

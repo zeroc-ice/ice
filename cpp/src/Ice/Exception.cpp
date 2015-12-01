@@ -66,7 +66,7 @@ namespace Ex
 {
 
 void
-throwUOE(const string& expectedType, const ObjectPtr& v)
+throwUOE(const string& expectedType, const ValuePtr& v)
 {
     //
     // If the object is an unknown sliced object, we didn't find an

@@ -94,7 +94,7 @@ local interface ImplicitContext
      * @return The previous value associated with the key, if any.
      *
      **/
-    string put(string key, string value);
+    string put(string key, string \value);
 
     /**
      * Remove the entry for the given key in the underlying context.

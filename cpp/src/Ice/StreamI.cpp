@@ -121,10 +121,10 @@ InputStreamI::readAndCheckSeqSize(int minSize)
     return _is->readAndCheckSeqSize(minSize);
 }
 
-ObjectPrx
+ObjectPrxPtr
 InputStreamI::readProxy()
 {
-    ObjectPrx v;
+    ObjectPrxPtr v;
     _is->read(v);
     return v;
 }
@@ -133,7 +133,7 @@ namespace
 {
 
 void
-patchObject(void* addr, const ObjectPtr& v)
+patchObject(void* addr, const ValuePtr& v)
 {
     ReadObjectCallback* cb = static_cast<ReadObjectCallback*>(addr);
     assert(cb);
@@ -454,7 +454,7 @@ OutputStreamI::communicator() const
 }
 
 void
-OutputStreamI::writeObject(const ObjectPtr& v)
+OutputStreamI::writeObject(const ValuePtr& v)
 {
     _os->write(v);
 }
@@ -466,7 +466,7 @@ OutputStreamI::writeException(const UserException& v)
 }
 
 void
-OutputStreamI::writeProxy(const ObjectPrx& v)
+OutputStreamI::writeProxy(const ObjectPrxPtr& v)
 {
     _os->write(v);
 }

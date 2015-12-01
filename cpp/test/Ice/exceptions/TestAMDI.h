@@ -21,6 +21,119 @@ public:
 
     ThrowerI();
 
+#ifdef ICE_CPP11_MAPPING
+    virtual void shutdown_async(std::function<void ()>,
+                                std::function<void (const std::exception_ptr&)>,
+                                const Ice::Current&);
+
+    virtual void supportsUndeclaredExceptions_async(std::function<void (bool)>,
+                                                    std::function<void (const std::exception_ptr&)>,
+                                                    const Ice::Current&);
+
+    virtual void supportsAssertException_async(std::function<void (bool)>,
+                                               std::function<void (const std::exception_ptr&)>,
+                                               const Ice::Current&);
+
+    virtual void throwAasA_async(int,
+                                 std::function<void ()>,
+                                 std::function<void (const std::exception_ptr&)>,
+                                 const Ice::Current&);
+
+    virtual void throwAorDasAorD_async(int,
+                                       std::function<void ()>,
+                                       std::function<void (const std::exception_ptr&)>,
+                                       const Ice::Current&);
+
+    virtual void throwBasA_async(int, int,
+                                 std::function<void ()>,
+                                 std::function<void (const std::exception_ptr&)>,
+                                 const Ice::Current&);
+
+    virtual void throwCasA_async(int, int, int,
+                                 std::function<void ()>,
+                                 std::function<void (const std::exception_ptr&)>,
+                                 const Ice::Current&);
+
+    virtual void throwBasB_async(int, int,
+                                 std::function<void ()>,
+                                 std::function<void (const std::exception_ptr&)>,
+                                 const Ice::Current&);
+
+    virtual void throwCasB_async(int, int, int,
+                                 std::function<void ()>,
+                                 std::function<void (const std::exception_ptr&)>,
+                                 const Ice::Current&);
+
+    virtual void throwCasC_async(int, int, int,
+                                 std::function<void ()>,
+                                 std::function<void (const std::exception_ptr&)>,
+                                 const Ice::Current&);
+
+    virtual void throwModA_async(int, int,
+                                 std::function<void ()>,
+                                 std::function<void (const std::exception_ptr&)>,
+                                 const Ice::Current&);
+
+    virtual void throwUndeclaredA_async(int,
+                                        std::function<void ()>,
+                                        std::function<void (const std::exception_ptr&)>,
+                                        const Ice::Current&);
+
+    virtual void throwUndeclaredB_async(int, int,
+                                        std::function<void ()>,
+                                        std::function<void (const std::exception_ptr&)>,
+                                        const Ice::Current&);
+
+    virtual void throwUndeclaredC_async(int, int, int,
+                                        std::function<void ()>,
+                                        std::function<void (const std::exception_ptr&)>,
+                                        const Ice::Current&);
+
+    virtual void throwLocalException_async(std::function<void ()>,
+                                           std::function<void (const std::exception_ptr&)>,
+                                           const Ice::Current&);
+
+    virtual void throwNonIceException_async(std::function<void ()>,
+                                            std::function<void (const std::exception_ptr&)>,
+                                            const Ice::Current&);
+
+    virtual void throwAssertException_async(std::function<void ()>,
+                                            std::function<void (const std::exception_ptr&)>,
+                                            const Ice::Current&);
+
+    virtual void throwMemoryLimitException_async(const Ice::ByteSeq&,
+                                                 std::function<void (const Ice::ByteSeq&)>,
+                                                 std::function<void (const std::exception_ptr&)>,
+                                                 const Ice::Current&);
+
+    virtual void throwLocalExceptionIdempotent_async(std::function<void ()>,
+                                                     std::function<void (const std::exception_ptr&)>,
+                                                     const Ice::Current&);
+
+    virtual void throwAfterResponse_async(std::function<void ()>,
+                                          std::function<void (const std::exception_ptr&)>,
+                                          const Ice::Current&);
+
+    virtual void throwAfterException_async(std::function<void ()>,
+                                           std::function<void (const std::exception_ptr&)>,
+                                           const Ice::Current&);
+    
+    virtual void throwE_async(std::function<void ()>,
+                              std::function<void (const std::exception_ptr&)>,
+                              const Ice::Current&);
+
+    virtual void throwF_async(std::function<void ()>,
+                              std::function<void (const std::exception_ptr&)>,
+                              const Ice::Current&);
+
+    virtual void throwG_async(std::function<void ()>,
+                              std::function<void (const std::exception_ptr&)>,
+                              const Ice::Current&);
+
+    virtual void throwH_async(std::function<void ()>,
+                              std::function<void (const std::exception_ptr&)>,
+                              const Ice::Current&);
+#else
     virtual void shutdown_async(const Test::AMD_Thrower_shutdownPtr&,
                                 const Ice::Current&);
     virtual void supportsUndeclaredExceptions_async(const Test::AMD_Thrower_supportsUndeclaredExceptionsPtr&,
@@ -71,6 +184,7 @@ public:
     virtual void throwF_async(const Test::AMD_Thrower_throwFPtr&, const Ice::Current&);
     virtual void throwG_async(const Test::AMD_Thrower_throwGPtr&, const Ice::Current&);
     virtual void throwH_async(const Test::AMD_Thrower_throwHPtr&, const Ice::Current&);
+#endif
 };
 
 #endif

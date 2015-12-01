@@ -19,8 +19,8 @@ using namespace Test;
 int
 run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
-    InitialPrx allTests(const Ice::CommunicatorPtr&);
-    InitialPrx initial = allTests(communicator);
+    InitialPrxPtr allTests(const Ice::CommunicatorPtr&);
+    InitialPrxPtr initial = allTests(communicator);
     initial->shutdown();
     return EXIT_SUCCESS;
 }

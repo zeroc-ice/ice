@@ -14,6 +14,7 @@
 #include <IceUtil/Iterator.h>
 
 #include <Ice/ObjectF.h>
+#include <Ice/Traits.h>
 
 namespace Ice
 {
@@ -233,6 +234,15 @@ struct StreamableTraits< ::std::vector<bool> >
 };
 
 
+#ifdef ICE_CPP11_MAPPING
+template<typename T>
+struct StreamableTraits<::std::shared_ptr<T>, typename ::std::enable_if<IsProxy<T>::value>::type>
+{
+    static const StreamHelperCategory helper = StreamHelperCategoryProxy;
+    static const int minWireSize = 2;
+    static const bool fixedLength = false;
+};
+#else
 template<typename T>
 struct StreamableTraits< ::IceInternal::ProxyHandle<T> >
 {
@@ -240,7 +250,17 @@ struct StreamableTraits< ::IceInternal::ProxyHandle<T> >
     static const int minWireSize = 2;
     static const bool fixedLength = false;
 };
+#endif
 
+#ifdef ICE_CPP11_MAPPING
+template<typename T>
+struct StreamableTraits<::std::shared_ptr<T>, typename ::std::enable_if<IsValue<T>::value>::type>
+{
+    static const StreamHelperCategory helper = StreamHelperCategoryClass;
+    static const int minWireSize = 1;
+    static const bool fixedLength = false;
+};
+#else
 template<typename T>
 struct StreamableTraits< ::IceInternal::Handle<T> >
 {
@@ -248,6 +268,7 @@ struct StreamableTraits< ::IceInternal::Handle<T> >
     static const int minWireSize = 1;
     static const bool fixedLength = false;
 };
+#endif
 
 //
 // StreamHelper templates used by streams to read and write data.

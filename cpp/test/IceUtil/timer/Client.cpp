@@ -15,6 +15,22 @@
 using namespace IceUtil;
 using namespace std;
 
+template<typename T>
+struct TargetLess
+{
+    bool operator()(const T& lhs, const T& rhs) const
+    {
+        if(lhs && rhs)
+        {
+            return *lhs < *rhs;
+        }
+        else
+        {
+            return !lhs && rhs;
+        }
+    }
+};
+
 class TestTask : public IceUtil::TimerTask, IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
@@ -96,7 +112,7 @@ private:
     IceUtil::Time _scheduledTime;
     int _count;
 };
-typedef IceUtil::Handle<TestTask> TestTaskPtr;
+ICE_DEFINE_PTR(TestTaskPtr, TestTask);
 
 
 class DestroyTask : public IceUtil::TimerTask, IceUtil::Monitor<IceUtil::Mutex>
@@ -134,7 +150,7 @@ private:
     IceUtil::TimerPtr _timer;
     bool _run;
 };
-typedef IceUtil::Handle<DestroyTask> DestroyTaskPtr;
+ICE_DEFINE_PTR(DestroyTaskPtr, DestroyTask);
 
 int main(int, char**)
 {
@@ -143,7 +159,7 @@ int main(int, char**)
         IceUtil::TimerPtr timer = new IceUtil::Timer();
 
         {
-            TestTaskPtr task = new TestTask();
+            TestTaskPtr task = ICE_MAKE_SHARED(TestTask);
             timer->schedule(task, IceUtil::Time());
             task->waitForRun();
             task->clear();
@@ -165,7 +181,7 @@ int main(int, char**)
         }
 
         {
-            TestTaskPtr task = new TestTask();
+            TestTaskPtr task = ICE_MAKE_SHARED(TestTask);
             test(!timer->cancel(task));
             timer->schedule(task, IceUtil::Time::seconds(1));
             test(!task->hasRun() && timer->cancel(task) && !task->hasRun());
@@ -179,7 +195,7 @@ int main(int, char**)
             IceUtil::Time start = IceUtil::Time::now(IceUtil::Time::Monotonic) + IceUtil::Time::milliSeconds(500);
             for(int i = 0; i < 20; ++i)
             {
-                tasks.push_back(new TestTask(IceUtil::Time::milliSeconds(500 + i * 50)));
+                tasks.push_back(ICE_MAKE_SHARED(TestTask, IceUtil::Time::milliSeconds(500 + i * 50)));
             }
 
             random_shuffle(tasks.begin(), tasks.end());
@@ -196,7 +212,11 @@ int main(int, char**)
 
             test(IceUtil::Time::now(IceUtil::Time::Monotonic) > start);
 
+#ifdef ICE_CPP11_MAPPING
+            sort(tasks.begin(), tasks.end(), TargetLess<shared_ptr<TestTask>>());
+#else
             sort(tasks.begin(), tasks.end());
+#endif
             for(p = tasks.begin(); p + 1 != tasks.end(); ++p)
             {
                 if((*p)->getRunTime() > (*(p + 1))->getRunTime())
@@ -207,7 +227,7 @@ int main(int, char**)
         }
 
         {
-            TestTaskPtr task = new TestTask();
+            TestTaskPtr task = ICE_MAKE_SHARED(TestTask);
             timer->scheduleRepeated(task, IceUtil::Time::milliSeconds(20));
             IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
             test(task->hasRun());
@@ -227,7 +247,7 @@ int main(int, char**)
     {
         {
             IceUtil::TimerPtr timer = new IceUtil::Timer();
-            DestroyTaskPtr destroyTask = new DestroyTask(timer);
+            DestroyTaskPtr destroyTask = ICE_MAKE_SHARED(DestroyTask, timer);
             timer->schedule(destroyTask, IceUtil::Time());
             destroyTask->waitForRun();
             try
@@ -241,7 +261,7 @@ int main(int, char**)
         }
         {
             IceUtil::TimerPtr timer = new IceUtil::Timer();
-            TestTaskPtr testTask = new TestTask();
+            TestTaskPtr testTask = ICE_MAKE_SHARED(TestTask);
             timer->schedule(testTask, IceUtil::Time());
             timer->destroy();
             try

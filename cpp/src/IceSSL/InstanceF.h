@@ -22,8 +22,12 @@ IceUtil::Shared* upCast(Instance*);
 typedef IceInternal::Handle<Instance> InstancePtr;
 
 class EndpointI;
+#ifdef ICE_CPP11_MAPPING
+typedef ::std::shared_ptr<EndpointI> EndpointIPtr;
+#else
 IceUtil::Shared* upCast(EndpointI*);
 typedef IceInternal::Handle<EndpointI> EndpointIPtr;
+#endif
 
 class AcceptorI;
 IceUtil::Shared* upCast(AcceptorI*);

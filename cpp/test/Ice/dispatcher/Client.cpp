@@ -44,7 +44,7 @@ main(int argc, char* argv[])
         //
         initData.properties->setProperty("Ice.TCP.SndSize", "50000");
 
-#ifdef ICE_CPP11
+#ifdef ICE_CPP11_COMPILER
         Ice::DispatcherPtr dispatcher = new Dispatcher();
         initData.dispatcher = Ice::newDispatcher(
             [=](const Ice::DispatcherCallPtr& call, const Ice::ConnectionPtr& conn)

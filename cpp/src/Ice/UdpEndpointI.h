@@ -39,9 +39,14 @@ public:
     virtual AcceptorPtr acceptor(const std::string&) const;
     virtual std::string options() const;
 
+#ifdef ICE_CPP11_MAPPING
+    virtual bool operator==(const EndpointI&) const;
+    virtual bool operator<(const EndpointI&) const;
+#else
     virtual bool operator==(const Ice::LocalObject&) const;
     virtual bool operator<(const Ice::LocalObject&) const;
-
+#endif
+    
     UdpEndpointIPtr endpoint(const UdpTransceiverPtr&) const;
 
     using IPEndpointI::connectionId;

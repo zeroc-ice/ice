@@ -13,7 +13,7 @@
 #include <Test.h>
 
 class TestIntfControllerI;
-typedef IceUtil::Handle<TestIntfControllerI> TestIntfControllerIPtr;
+ICE_DEFINE_PTR(TestIntfControllerIPtr, TestIntfControllerI);
 
 class TestIntfI : virtual public Test::TestIntf, public IceUtil::Monitor<IceUtil::Mutex>
 {

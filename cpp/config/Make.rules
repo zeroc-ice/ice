@@ -146,6 +146,12 @@ USE_READLINE		?= no
 #DEFAULT_MUTEX_PROTOCOL ?= PrioNone
 
 #
+# Define CPP11_MAPPING as yes if you want to build the new moderm C++11
+# mapping.
+#
+#CPP11_MAPPING		?= yes
+
+#
 # Define CPP11 as yes if you want to enable C++11 features in GCC or
 # Clang.
 #
@@ -167,6 +173,11 @@ ice_language     = cpp
 ifneq ($(shell test "$(USE_BIN_DIST)" != "yes" -a -d $(top_srcdir)/../$(ice_language) && echo 0),0)
 	slice_translator = slice2cpp
 	ice_require_cpp  = 1
+endif
+
+ifeq ($(CPP11_MAPPING),yes)
+	CPP11		= yes
+	CPPFLAGS	+= -DICE_CPP11_MAPPING
 endif
 
 ifeq ($(shell test -f $(top_srcdir)/config/Make.common.rules && echo 0),0)
@@ -394,7 +405,7 @@ all:: $(TARGETS)
 .cpp.o:
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
 	@mkdir -p .depend
-	@$(CXX) -DMAKEDEPEND -MM $(CPPFLAGS) $< > .depend/$(*F).d
+	@$(CXX) -DMAKEDEPEND -MM $(CPPFLAGS) $(CXXFLAGS) $< > .depend/$(*F).d
 
 .c.o:
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) $<

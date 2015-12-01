@@ -691,7 +691,7 @@ IceInternal::Instance::identityToString(const Identity& ident) const
     }
 }
 
-Ice::ObjectPrx
+Ice::ObjectPrxPtr
 IceInternal::Instance::createAdmin(const ObjectAdapterPtr& adminAdapter, const Identity& adminIdentity)
 {
     ObjectAdapterPtr adapter = adminAdapter;
@@ -759,7 +759,7 @@ IceInternal::Instance::createAdmin(const ObjectAdapterPtr& adminAdapter, const I
     return adapter->createProxy(adminIdentity);
 }
 
-Ice::ObjectPrx
+Ice::ObjectPrxPtr
 IceInternal::Instance::getAdmin()
 {
     Lock sync(*this);
@@ -850,12 +850,12 @@ IceInternal::Instance::addAllAdminFacets()
 void
 IceInternal::Instance::setServerProcessProxy(const ObjectAdapterPtr& adminAdapter, const Identity& adminIdentity)
 {
-    ObjectPrx admin = adminAdapter->createProxy(adminIdentity);
-    LocatorPrx locator = adminAdapter->getLocator();
+    ObjectPrxPtr admin = adminAdapter->createProxy(adminIdentity);
+    LocatorPrxPtr locator = adminAdapter->getLocator();
     const string serverId = _initData.properties->getProperty("Ice.Admin.ServerId");
     if(locator && serverId != "")
     {
-        ProcessPrx process = ProcessPrx::uncheckedCast(admin->ice_facet("Process"));
+        ProcessPrxPtr process = ICE_UNCHECKED_CAST(ProcessPrx, admin->ice_facet("Process"));
         try
         {
             //
@@ -1009,7 +1009,7 @@ IceInternal::Instance::findAllAdminFacets()
 }
 
 void
-IceInternal::Instance::setDefaultLocator(const Ice::LocatorPrx& defaultLocator)
+IceInternal::Instance::setDefaultLocator(const Ice::LocatorPrxPtr& defaultLocator)
 {
     Lock sync(*this);
 
@@ -1022,7 +1022,7 @@ IceInternal::Instance::setDefaultLocator(const Ice::LocatorPrx& defaultLocator)
 }
 
 void
-IceInternal::Instance::setDefaultRouter(const Ice::RouterPrx& defaultRouter)
+IceInternal::Instance::setDefaultRouter(const Ice::RouterPrxPtr& defaultRouter)
 {
     Lock sync(*this);
 
@@ -1222,23 +1222,23 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                     throw InitializationException(__FILE__, __LINE__, "Both syslog and file logger cannot be enabled.");
                 }
 
-                _initData.logger =
-                    new SysLoggerI(_initData.properties->getProperty("Ice.ProgramName"),
-                                   _initData.properties->getPropertyWithDefault("Ice.SyslogFacility", "LOG_USER"));
+                _initData.logger = ICE_MAKE_SHARED(SysLoggerI,
+                                                   _initData.properties->getProperty("Ice.ProgramName"),
+                                                   _initData.properties->getPropertyWithDefault("Ice.SyslogFacility", "LOG_USER"));
             }
             else
 #endif
             if(!logfile.empty())
             {
-                _initData.logger = new LoggerI(_initData.properties->getProperty("Ice.ProgramName"), logfile);
+                _initData.logger = ICE_MAKE_SHARED(LoggerI, _initData.properties->getProperty("Ice.ProgramName"), logfile);
             }
             else
             {
                 _initData.logger = getProcessLogger();
-                if(LoggerIPtr::dynamicCast(_initData.logger))
+                if(ICE_DYNAMIC_CAST(Logger, _initData.logger))
                 {
-                    _initData.logger = new LoggerI(_initData.properties->getProperty("Ice.ProgramName"), "",
-                                                   logStdErrConvert, _stringConverter);
+                    _initData.logger = ICE_MAKE_SHARED(LoggerI, _initData.properties->getProperty("Ice.ProgramName"), "",
+                                                       logStdErrConvert, _stringConverter);
                 }
             }
         }
@@ -1347,13 +1347,13 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 
         _dynamicLibraryList = new DynamicLibraryList;
 
-        _pluginManager = new PluginManagerI(communicator, _dynamicLibraryList);
+        _pluginManager = ICE_MAKE_SHARED(PluginManagerI, communicator, _dynamicLibraryList);
 
         _outgoingConnectionFactory = new OutgoingConnectionFactory(communicator, this);
 
         _servantFactoryManager = new ObjectFactoryManager();
 
-        _objectAdapterFactory = new ObjectAdapterFactory(this, communicator);
+        _objectAdapterFactory = ICE_MAKE_SHARED(ObjectAdapterFactory, this, communicator);
 
         _retryQueue = new RetryQueue(this);
 
@@ -1494,7 +1494,7 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[], const Ice::Communica
         const string processFacetName = "Process";
         if(_adminFacetFilter.empty() || _adminFacetFilter.find(processFacetName) != _adminFacetFilter.end())
         {
-            _adminFacets.insert(make_pair(processFacetName, new ProcessI(communicator)));
+            _adminFacets.insert(make_pair(processFacetName, ICE_MAKE_SHARED(ProcessI, communicator)));
         }
 
         //
@@ -1515,7 +1515,7 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[], const Ice::Communica
         PropertiesAdminIPtr propsAdmin;
         if(_adminFacetFilter.empty() || _adminFacetFilter.find(propertiesFacetName) != _adminFacetFilter.end())
         {
-            propsAdmin = new PropertiesAdminI(_initData.properties, _initData.logger);
+            propsAdmin = ICE_MAKE_SHARED(PropertiesAdminI, _initData.properties, _initData.logger);
             _adminFacets.insert(make_pair(propertiesFacetName, propsAdmin));
         }
 
@@ -1525,7 +1525,7 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[], const Ice::Communica
         const string metricsFacetName = "Metrics";
         if(_adminFacetFilter.empty() || _adminFacetFilter.find(metricsFacetName) != _adminFacetFilter.end())
         {
-            CommunicatorObserverIPtr observer = new CommunicatorObserverI(_initData);
+            CommunicatorObserverIPtr observer = ICE_MAKE_SHARED(CommunicatorObserverI, _initData);
             _initData.observer = observer;
             _adminFacets.insert(make_pair(metricsFacetName, observer->getFacet()));
 
@@ -1544,7 +1544,7 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[], const Ice::Communica
     //
     if(_initData.observer)
     {
-        _initData.observer->setObserverUpdater(new ObserverUpdaterI(this));
+        _initData.observer->setObserverUpdater(ICE_MAKE_SHARED(ObserverUpdaterI, this));
     }
 
     //
@@ -1589,7 +1589,7 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[], const Ice::Communica
     //
     if(!_referenceFactory->getDefaultRouter())
     {
-        RouterPrx router = RouterPrx::uncheckedCast(_proxyFactory->propertyToProxy("Ice.Default.Router"));
+        RouterPrxPtr router = ICE_UNCHECKED_CAST(RouterPrx, _proxyFactory->propertyToProxy("Ice.Default.Router"));
         if(router)
         {
             _referenceFactory = _referenceFactory->setDefaultRouter(router);
@@ -1598,7 +1598,7 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[], const Ice::Communica
 
     if(!_referenceFactory->getDefaultLocator())
     {
-        LocatorPrx locator = LocatorPrx::uncheckedCast(_proxyFactory->propertyToProxy("Ice.Default.Locator"));
+        LocatorPrxPtr locator = ICE_UNCHECKED_CAST(LocatorPrx, _proxyFactory->propertyToProxy("Ice.Default.Locator"));
         if(locator)
         {
             _referenceFactory = _referenceFactory->setDefaultLocator(locator);
@@ -1715,7 +1715,7 @@ IceInternal::Instance::destroy()
 
     if(_initData.observer)
     {
-        CommunicatorObserverIPtr observer = CommunicatorObserverIPtr::dynamicCast(_initData.observer);
+        CommunicatorObserverIPtr observer = ICE_DYNAMIC_CAST(CommunicatorObserverI, _initData.observer);
         if(observer)
         {
             observer->destroy(); // Break cyclic reference counts. Don't clear _observer, it's immutable.
@@ -1723,7 +1723,7 @@ IceInternal::Instance::destroy()
         _initData.observer->setObserverUpdater(0); // Break cyclic reference count.
     }
 
-    LoggerAdminLoggerPtr logger = LoggerAdminLoggerPtr::dynamicCast(_initData.logger);
+    LoggerAdminLoggerPtr logger = ICE_DYNAMIC_CAST(LoggerAdminLogger, _initData.logger);
     if(logger)
     {
         //

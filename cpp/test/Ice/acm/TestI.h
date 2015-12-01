@@ -16,7 +16,7 @@ class RemoteCommunicatorI : public Test::RemoteCommunicator
 {
 public:
 
-    virtual Test::RemoteObjectAdapterPrx createObjectAdapter(int, int, int, const Ice::Current&);
+    virtual Test::RemoteObjectAdapterPrxPtr createObjectAdapter(int, int, int, const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
 };
 
@@ -26,7 +26,7 @@ public:
 
     RemoteObjectAdapterI(const Ice::ObjectAdapterPtr&);
 
-    virtual Test::TestIntfPrx getTestIntf(const Ice::Current&);
+    virtual Test::TestIntfPrxPtr getTestIntf(const Ice::Current&);
     virtual void activate(const Ice::Current&);
     virtual void hold(const Ice::Current&);
     virtual void deactivate(const Ice::Current&);
@@ -34,7 +34,7 @@ public:
 private:
 
     const Ice::ObjectAdapterPtr _adapter;
-    const Test::TestIntfPrx _testIntf;
+    const Test::TestIntfPrxPtr _testIntf;
 };
 
 class TestI : public Test::TestIntf, private IceUtil::Monitor<IceUtil::Mutex>

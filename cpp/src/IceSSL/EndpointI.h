@@ -10,6 +10,7 @@
 #ifndef ICE_SSL_ENDPOINT_I_H
 #define ICE_SSL_ENDPOINT_I_H
 
+#include <Ice/EndpointI.h>
 #include <Ice/IPEndpointI.h>
 #include <Ice/EndpointFactory.h>
 #include <Ice/WSEndpoint.h>
@@ -42,8 +43,13 @@ public:
     virtual IceInternal::AcceptorPtr acceptor(const std::string&) const;
     virtual std::string options() const;
 
+#ifdef ICE_CPP11_MAPPING
+    virtual bool operator==(const IceInternal::EndpointI&) const;
+    virtual bool operator<(const IceInternal::EndpointI&) const;
+#else
     virtual bool operator==(const Ice::LocalObject&) const;
     virtual bool operator<(const Ice::LocalObject&) const;
+#endif
 
     virtual EndpointIPtr endpoint(const AcceptorIPtr&) const;
 

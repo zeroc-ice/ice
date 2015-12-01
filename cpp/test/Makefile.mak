@@ -15,6 +15,10 @@ top_srcdir	= ..
 
 SUBDIRS		= Ice
 
+!elseif "$(CPP11_MAPPING)" == "yes"
+SUBDIRS		= IceUtil \
+		  Slice \
+		  Ice
 !elseif "$(CPP_COMPILER)" == "VC100"
 SUBDIRS		= IceUtil \
 		  Slice \

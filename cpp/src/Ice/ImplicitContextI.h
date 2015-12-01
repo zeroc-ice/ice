@@ -18,12 +18,14 @@ namespace Ice
 //
 // The base class for all ImplicitContext implementations
 //
+class ImplicitContextI;
+ICE_DEFINE_PTR(ImplicitContextIPtr,ImplicitContextI);
 
 class ImplicitContextI : public ImplicitContext
 {
 public:
-    
-    static ImplicitContextI* create(const std::string&);
+
+    static ImplicitContextIPtr create(const std::string&);
 
 #ifdef _WIN32
     static void cleanupThread();
@@ -45,7 +47,7 @@ public:
 
 };
 
-typedef IceInternal::Handle<ImplicitContextI> ImplicitContextIPtr;
+ICE_DEFINE_PTR(ImplicitContextIPtr, ImplicitContextI);
 
 }
 #endif

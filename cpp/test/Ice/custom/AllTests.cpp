@@ -2274,7 +2274,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
 
     cout << "ok" << endl;
-#ifdef ICE_CPP11
+#ifdef ICE_CPP11_COMPILER
 
     cout << "testing alternate strings with new C++11 AMI callbacks... " << flush;
     {
@@ -3120,7 +3120,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-#ifdef ICE_CPP11  
+#ifdef ICE_CPP11_COMPILER  
     cout << "testing alternate dictionaries with new C++11 AMI callbacks... " << flush;
     {
         {
@@ -3237,7 +3237,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         cb->check();
     }
     cout << "ok" << endl;
-#ifdef ICE_CPP11
+#ifdef ICE_CPP11_COMPILER
     cout << "testing class mapped structs with C++11 AMI... " << flush;
     {
         CallbackPtr cb = new Callback();
@@ -3302,7 +3302,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
                              newInParam(wstr));
         cb->check();
     }
-#ifdef ICE_CPP11
+#ifdef ICE_CPP11_COMPILER
     {
         CallbackPtr cb = new Callback();
         wsc1->begin_opString(wstr,
@@ -3341,7 +3341,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
                                                                             &Callback::noEx), newInParam(wstr));
         cb->check();
     }
-#ifdef ICE_CPP11
+#ifdef ICE_CPP11_COMPILER
     {
         CallbackPtr cb = new Callback();
         wsc2->begin_opString(wstr,
@@ -3397,7 +3397,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         wsc1->begin_throwExcept(wstr, Ice::newCallback(cb, &Callback::throwExcept1), newInParam(wstr));
         cb->check();
     }
-#ifdef ICE_CPP11
+#ifdef ICE_CPP11_COMPILER
     {
         CallbackPtr cb = new Callback();
         wsc1->begin_throwExcept(wstr, nullptr,
@@ -3435,7 +3435,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         wsc2->begin_throwExcept(wstr, Ice::newCallback(cb, &Callback::throwExcept2), newInParam(wstr));
         cb->check();
     }
-#ifdef ICE_CPP11
+#ifdef ICE_CPP11_COMPILER
     {
         CallbackPtr cb = new Callback();
         wsc2->begin_throwExcept(wstr, nullptr,

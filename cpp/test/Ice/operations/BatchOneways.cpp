@@ -39,7 +39,11 @@ public:
 
         if(_size + request.getSize() > 25000)
         {
+#ifdef ICE_CPP11_MAPPING
+            request.getProxy()->ice_flushBatchRequests_async();
+#else
             request.getProxy()->begin_ice_flushBatchRequests();
+#endif
             _size = 18; // header
         }
 
@@ -70,16 +74,16 @@ private:
     int _size;
     int _lastRequestSize;
 };
-typedef IceUtil::Handle<BatchRequestInterceptorI> BatchRequestInterceptorIPtr;
+ICE_DEFINE_PTR(BatchRequestInterceptorIPtr, BatchRequestInterceptorI);
 
 }
 
 void
-batchOneways(const Test::MyClassPrx& p)
+batchOneways(const Test::MyClassPrxPtr& p)
 {
     const Test::ByteS bs1(10  * 1024);
 
-    Test::MyClassPrx batch = Test::MyClassPrx::uncheckedCast(p->ice_batchOneway());
+    Test::MyClassPrxPtr batch = ICE_UNCHECKED_CAST(Test::MyClassPrx, p->ice_batchOneway());
 
     batch->ice_flushBatchRequests(); // Empty flush
 
@@ -106,8 +110,8 @@ batchOneways(const Test::MyClassPrx& p)
 
     if(batch->ice_getConnection())
     {
-        Test::MyClassPrx batch1 = Test::MyClassPrx::uncheckedCast(p->ice_batchOneway());
-        Test::MyClassPrx batch2 = Test::MyClassPrx::uncheckedCast(p->ice_batchOneway());
+        Test::MyClassPrxPtr batch1 = ICE_UNCHECKED_CAST(Test::MyClassPrx, p->ice_batchOneway());
+        Test::MyClassPrxPtr batch2 = ICE_UNCHECKED_CAST(Test::MyClassPrx, p->ice_batchOneway());
 
         batch1->ice_ping();
         batch2->ice_ping();
@@ -127,7 +131,7 @@ batchOneways(const Test::MyClassPrx& p)
 
     Ice::Identity identity;
     identity.name = "invalid";
-    Ice::ObjectPrx batch3 = batch->ice_identity(identity);
+    Ice::ObjectPrxPtr batch3 = batch->ice_identity(identity);
     batch3->ice_ping();
     batch3->ice_flushBatchRequests();
 
@@ -141,9 +145,9 @@ batchOneways(const Test::MyClassPrx& p)
     {
         Ice::InitializationData initData;
         initData.properties = p->ice_getCommunicator()->getProperties()->clone();
-        BatchRequestInterceptorIPtr interceptor = new BatchRequestInterceptorI;
+        BatchRequestInterceptorIPtr interceptor = ICE_MAKE_SHARED(BatchRequestInterceptorI);
 
-#ifdef ICE_CPP11
+#ifdef ICE_CPP11_COMPILER
         // Ensure lambda factory method works.
         initData.batchRequestInterceptor = Ice::newBatchRequestInterceptor(
             [=](const Ice::BatchRequest& request, int count, int size)
@@ -155,8 +159,8 @@ batchOneways(const Test::MyClassPrx& p)
 #endif
         Ice::CommunicatorPtr ic = Ice::initialize(initData);
 
-        Test::MyClassPrx batch =
-            Test::MyClassPrx::uncheckedCast(ic->stringToProxy(p->ice_toString()))->ice_batchOneway();
+        Test::MyClassPrxPtr batch =
+            ICE_UNCHECKED_CAST(Test::MyClassPrx, ic->stringToProxy(p->ice_toString()))->ice_batchOneway();
 
         test(interceptor->count() == 0);
         batch->ice_ping();

@@ -11,6 +11,14 @@ top_srcdir	= ..
 
 include $(top_srcdir)/config/Make.rules
 
+ifeq ($(CPP11_MAPPING),yes)
+    SUBDIRS	= IceUtil \
+		  Slice \
+		  slice2cpp \
+		  Ice \
+		  IceSSL
+else
+
 ifneq ($(findstring MINGW,$(UNAME)),)
     SUBDIRS	= IceUtil \
 		  Slice \
@@ -50,6 +58,7 @@ endif
 		   IceDB \
 		   IceStorm \
 		   IceGrid
+endif
 endif
 
 .PHONY: $(EVERYTHING) $(SUBDIRS)

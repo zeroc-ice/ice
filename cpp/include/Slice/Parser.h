@@ -344,7 +344,8 @@ public:
         KindString,
         KindObject,
         KindObjectProxy,
-        KindLocalObject
+        KindLocalObject,
+        KindValue
     };
 
     virtual bool isLocal() const;
@@ -478,6 +479,9 @@ public:
     bool hasOnlyDictionaries(DictionaryList&) const;
     bool hasClassDecls() const;
     bool hasClassDefs() const;
+    bool hasLocalClassDefs() const;
+    bool hasNonLocalInterfaceDefs() const;
+    bool hasValueDefs() const;
     bool hasOnlyClassDecls() const;
     bool hasAbstractClassDefs() const;
     bool hasNonLocalDataOnlyClasses() const;

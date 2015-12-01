@@ -18,8 +18,13 @@ namespace Ice
 {
 
 class AsyncResult;
+
+#ifdef ICE_CPP11_MAPPING
+typedef ::std::shared_ptr<AsyncResult> AsyncResultPtr;
+#else
 ICE_API IceUtil::Shared* upCast(::Ice::AsyncResult*);
 typedef IceInternal::Handle<AsyncResult> AsyncResultPtr;
+#endif
 
 }
 

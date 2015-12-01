@@ -34,10 +34,10 @@ public:
     virtual PluginPtr getPlugin(const std::string&);
     virtual void addPlugin(const std::string&, const PluginPtr&);
     virtual void destroy();
+    PluginManagerI(const CommunicatorPtr&, const IceInternal::DynamicLibraryListPtr&);
 
 private:
 
-    PluginManagerI(const CommunicatorPtr&, const IceInternal::DynamicLibraryListPtr&);
     friend class IceInternal::Instance;
 
     void loadPlugins(int&, char*[]);

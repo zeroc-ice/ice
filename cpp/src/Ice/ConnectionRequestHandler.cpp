@@ -51,7 +51,7 @@ ConnectionRequestHandler::update(const RequestHandlerPtr& previousHandler, const
     {
         // Ignore.
     }
-    return this;
+    return ICE_SHARED_FROM_THIS;
 }
 
 bool

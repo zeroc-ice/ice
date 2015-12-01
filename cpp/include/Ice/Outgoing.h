@@ -77,7 +77,7 @@ class ICE_API ProxyOutgoingBase : public OutgoingBase
 {
 public:
 
-    ProxyOutgoingBase(IceProxy::Ice::Object*, Ice::OperationMode);
+    ProxyOutgoingBase(const Ice::ObjectPrxPtr&, Ice::OperationMode);
     ~ProxyOutgoingBase();
 
     virtual bool invokeRemote(const Ice::ConnectionIPtr&, bool, bool) = 0;
@@ -96,7 +96,7 @@ protected:
     // Optimization. The request handler and the reference may not be
     // deleted while a stack-allocated Outgoing still holds it.
     //
-    IceProxy::Ice::Object* _proxy;
+    Ice::ObjectPrxPtr _proxy;
     Ice::OperationMode _mode;
     RequestHandlerPtr _handler;
     IceUtil::Time _invocationTimeoutDeadline;
@@ -117,7 +117,7 @@ class ICE_API Outgoing : public ProxyOutgoingBase
 {
 public:
 
-    Outgoing(IceProxy::Ice::Object*, const std::string&, Ice::OperationMode, const Ice::Context*);
+    Outgoing(const Ice::ObjectPrxPtr&, const std::string&, Ice::OperationMode, const Ice::Context*);
     ~Outgoing();
 
     virtual bool invokeRemote(const Ice::ConnectionIPtr&, bool, bool);
@@ -190,7 +190,7 @@ class ProxyFlushBatch : public ProxyOutgoingBase
 {
 public:
 
-    ProxyFlushBatch(IceProxy::Ice::Object*, const std::string&);
+    ProxyFlushBatch(const Ice::ObjectPrxPtr&, const std::string&);
 
     virtual bool invokeRemote(const Ice::ConnectionIPtr&, bool, bool);
     virtual void invokeCollocated(CollocatedRequestHandler*);

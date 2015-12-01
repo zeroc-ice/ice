@@ -23,9 +23,11 @@
 using namespace std;
 using namespace IceInternal;
 
+#ifndef ICE_CPP11_MAPPING
 IceUtil::Shared* IceInternal::upCast(ConnectRequestHandler* p) { return p; }
+#endif
 
-ConnectRequestHandler::ConnectRequestHandler(const ReferencePtr& ref, const Ice::ObjectPrx& proxy) :
+ConnectRequestHandler::ConnectRequestHandler(const ReferencePtr& ref, const Ice::ObjectPrxPtr& proxy) :
     RequestHandler(ref),
     _proxy(proxy),
     _initialized(false),
@@ -33,25 +35,21 @@ ConnectRequestHandler::ConnectRequestHandler(const ReferencePtr& ref, const Ice:
 {
 }
 
-ConnectRequestHandler::~ConnectRequestHandler()
-{
-}
-
 RequestHandlerPtr
-ConnectRequestHandler::connect(const Ice::ObjectPrx& proxy)
+ConnectRequestHandler::connect(const Ice::ObjectPrxPtr& proxy)
 {
     Lock sync(*this);
     if(!initialized())
     {
         _proxies.insert(proxy);
     }
-    return _requestHandler ? _requestHandler : this;
+    return _requestHandler ? _requestHandler : ICE_SHARED_FROM_THIS;
 }
 
 RequestHandlerPtr
 ConnectRequestHandler::update(const RequestHandlerPtr& previousHandler, const RequestHandlerPtr& newHandler)
 {
-    return previousHandler.get() == this ? newHandler : this;
+    return previousHandler.get() == this ? newHandler : ICE_SHARED_FROM_THIS;
 }
 
 bool
@@ -77,7 +75,7 @@ ConnectRequestHandler::sendAsyncRequest(const ProxyOutgoingAsyncBasePtr& out)
         Lock sync(*this);
         if(!_initialized)
         {
-            out->cancelable(this); // This will throw if the request is canceled
+            out->cancelable(ICE_SHARED_FROM_THIS); // This will throw if the request is canceled
         }
 
         if(!initialized())
@@ -205,7 +203,11 @@ ConnectRequestHandler::setConnection(const Ice::ConnectionIPtr& connection, bool
     // add this proxy to the router info object.
     //
     RouterInfoPtr ri = _reference->getRouterInfo();
+#ifdef ICE_CPP11_MAPPING
+    if(ri && !ri->addProxy(_proxy, dynamic_pointer_cast<AddProxyCallback>(shared_from_this())))
+#else
     if(ri && !ri->addProxy(_proxy, this))
+#endif
     {
         return; // The request handler will be initialized once addProxy returns.
     }
@@ -233,7 +235,7 @@ ConnectRequestHandler::setException(const Ice::LocalException& ex)
     //
     try
     {
-        _reference->getInstance()->requestHandlerFactory()->removeRequestHandler(_reference, this);
+        _reference->getInstance()->requestHandlerFactory()->removeRequestHandler(_reference, ICE_SHARED_FROM_THIS);
     }
     catch(const Ice::CommunicatorDestroyedException&)
     {
@@ -342,7 +344,7 @@ ConnectRequestHandler::flushRequests()
             exception.reset(ex.get()->ice_clone());
 
             // Remove the request handler before retrying.
-            _reference->getInstance()->requestHandlerFactory()->removeRequestHandler(_reference, this);
+            _reference->getInstance()->requestHandlerFactory()->removeRequestHandler(_reference, ICE_SHARED_FROM_THIS);
 
             if(req.out)
             {
@@ -376,10 +378,10 @@ ConnectRequestHandler::flushRequests()
     //
     if(_reference->getCacheConnection() && !exception.get())
     {
-        _requestHandler = new ConnectionRequestHandler(_reference, _connection, _compress);
-        for(set<Ice::ObjectPrx>::const_iterator p = _proxies.begin(); p != _proxies.end(); ++p)
+        _requestHandler = ICE_MAKE_SHARED(ConnectionRequestHandler, _reference, _connection, _compress);
+        for(set<Ice::ObjectPrxPtr>::const_iterator p = _proxies.begin(); p != _proxies.end(); ++p)
         {
-            (*p)->__updateRequestHandler(this, _requestHandler);
+            (*p)->__updateRequestHandler(ICE_SHARED_FROM_THIS, _requestHandler);
         }
     }
 
@@ -394,10 +396,11 @@ ConnectRequestHandler::flushRequests()
         // Only remove once all the requests are flushed to
         // guarantee serialization.
         //
-        _reference->getInstance()->requestHandlerFactory()->removeRequestHandler(_reference, this);
+        _reference->getInstance()->requestHandlerFactory()->removeRequestHandler(_reference, ICE_SHARED_FROM_THIS);
 
         _proxies.clear();
         _proxy = 0; // Break cyclic reference count.
         notifyAll();
     }
 }
+

@@ -65,8 +65,13 @@ public:
     EndpointIPtr delegate() const;
     WSEndpointPtr endpoint(const EndpointIPtr&) const;
 
+#ifdef ICE_CPP11_MAPPING
+    virtual bool operator==(const EndpointI&) const;
+    virtual bool operator<(const EndpointI&) const;
+#else
     virtual bool operator==(const Ice::LocalObject&) const;
     virtual bool operator<(const Ice::LocalObject&) const;
+#endif
 
 protected:
 

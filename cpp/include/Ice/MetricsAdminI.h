@@ -17,7 +17,7 @@
 #include <Ice/Metrics.h>
 
 #ifdef _MSC_VER
-#  define ICE_CPP11_REGEXP
+#  define ICE_CPP11_COMPILER_REGEXP
 #endif
 
 #ifdef __MINGW32__
@@ -25,7 +25,7 @@
     // No regexp support with MinGW, when MinGW C++11 mode is not experimental
     // we can use std::regex.
     //
-#elif defined(ICE_CPP11_REGEXP)
+#elif defined(ICE_CPP11_COMPILER_REGEXP)
 #  include <regex>
 #else
 #  include <regex.h>
@@ -44,14 +44,17 @@ template<typename T> class MetricsHelperT;
 namespace IceInternal
 {
 
-class ICE_API MetricsMapI : public IceUtil::Shared
+class ICE_API MetricsMapI;
+ICE_DEFINE_PTR(MetricsMapIPtr, MetricsMapI);
+
+class ICE_API MetricsMapI : public ICE_ENABLE_SHARED_FROM_THIS(MetricsMapI)
 {
 public:
 
     class ICE_API RegExp : public IceUtil::Shared
     {
     public:
-        
+
         RegExp(const std::string&, const std::string&);
         ~RegExp();
 
@@ -73,7 +76,7 @@ public:
     private:
 
         bool match(const std::string&);
-        
+
         const std::string _attribute;
 
 #ifdef __MINGW32__
@@ -81,7 +84,7 @@ public:
     // No regexp support with MinGW, when MinGW C++11 mode is not experimental
     // we can use std::regex.
     //
-#elif defined(ICE_CPP11_REGEXP)
+#elif defined(ICE_CPP11_COMPILER_REGEXP)
 #   if _MSC_VER < 1600
         std::tr1::regex _regex;
 #   else
@@ -89,9 +92,9 @@ public:
 #   endif
 #else
         regex_t _preg;
-#endif        
+#endif
     };
-    typedef IceUtil::Handle<RegExp> RegExpPtr;
+    ICE_DEFINE_PTR(RegExpPtr, RegExp);
 
     MetricsMapI(const std::string&, const Ice::PropertiesPtr&);
     MetricsMapI(const MetricsMapI&);
@@ -102,7 +105,7 @@ public:
     virtual IceMX::MetricsFailures getFailures(const std::string&) = 0;
     virtual IceMX::MetricsMap getMetrics() const = 0;
 
-    virtual MetricsMapI* clone() const = 0;
+    virtual MetricsMapIPtr clone() const = 0;
 
     const Ice::PropertyDict& getProperties() const;
 
@@ -115,7 +118,6 @@ protected:
     const std::vector<RegExpPtr> _accept;
     const std::vector<RegExpPtr> _reject;
 };
-typedef IceUtil::Handle<MetricsMapI> MetricsMapIPtr;
 
 class ICE_API MetricsMapFactory : public Ice::LocalObject
 {
@@ -124,34 +126,39 @@ public:
     MetricsMapFactory(IceMX::Updater*);
 
     virtual MetricsMapIPtr create(const std::string&, const Ice::PropertiesPtr&) = 0;
-    
+
     void update();
 
 private:
-    
+
     IceMX::Updater* _updater;
 };
-typedef IceUtil::Handle<MetricsMapFactory> MetricsMapFactoryPtr;
+ICE_DEFINE_PTR(MetricsMapFactoryPtr, MetricsMapFactory);
 
 template<class MetricsType> class MetricsMapT : public MetricsMapI, private IceUtil::Mutex
 {
 public:
 
     typedef MetricsType T;
-    typedef IceInternal::Handle<MetricsType> TPtr;
+    typedef ICE_INTERNAL_HANDLE<MetricsType> TPtr;
 
-    typedef IceUtil::Handle<MetricsMapT> MetricsMapTPtr;
+    ICE_DEFINE_PTR(MetricsMapTPtr, MetricsMapT);
 
     typedef IceMX::MetricsMap MetricsType::* SubMapMember;
 
     class EntryT;
-    typedef IceUtil::Handle<EntryT> EntryTPtr;
+    ICE_DEFINE_PTR(EntryTPtr, EntryT);
 
-    class EntryT : public Ice::LocalObject
+    class EntryT
+#ifdef ICE_CPP11_MAPPING
+        : public ::std::enable_shared_from_this<EntryT>
+#else
+        : public Ice::LocalObject
+#endif
     {
     public:
 
-        EntryT(MetricsMapT* map, const TPtr& object, const typename std::list<EntryTPtr>::iterator& p) : 
+        EntryT(MetricsMapT* map, const TPtr& object, const typename std::list<EntryTPtr>::iterator& p) :
             _map(map), _object(object), _detachedPos(p)
         {
         }
@@ -166,7 +173,7 @@ public:
             }
         }
 
-        void  
+        void
         failed(const std::string& exceptionName)
         {
             IceUtil::Mutex::Lock sync(*_map);
@@ -180,7 +187,7 @@ public:
             MetricsMapIPtr m;
             {
                 IceUtil::Mutex::Lock sync(*_map);
-                typename std::map<std::string, std::pair<MetricsMapIPtr, SubMapMember> >::iterator p = 
+                typename std::map<std::string, std::pair<MetricsMapIPtr, SubMapMember> >::iterator p =
                     _subMaps.find(mapName);
                 if(p == _subMaps.end())
                 {
@@ -196,7 +203,7 @@ public:
                 }
                 m = p->second.first;
             }
-                
+
             MetricsMapT<MemberMetricsType>* map = dynamic_cast<MetricsMapT<MemberMetricsType>*>(m.get());
             assert(map);
             return map->getMatching(helper);
@@ -209,7 +216,11 @@ public:
             _object->totalLifetime += lifetime;
             if(--_object->current == 0)
             {
+#ifdef ICE_CPP11_MAPPING
+                _map->detached(this->shared_from_this());
+#else
                 _map->detached(this);
+#endif
             }
         }
 
@@ -241,7 +252,7 @@ public:
         IceMX::MetricsPtr
         clone() const
         {
-            TPtr metrics = TPtr::dynamicCast(_object->ice_clone());
+            TPtr metrics = ICE_DYNAMIC_CAST(T, _object->ice_clone());
             for(typename std::map<std::string, std::pair<MetricsMapIPtr, SubMapMember> >::const_iterator p =
                     _subMaps.begin(); p != _subMaps.end(); ++p)
             {
@@ -364,9 +375,13 @@ public:
             _subMaps.find(subMapName);
         if(p != _subMaps.end())
         {
+#ifdef ICE_CPP11_MAPPING
+            return std::pair<MetricsMapIPtr, SubMapMember>(p->second.second->clone()->shared_from_this(), p->second.first);
+#else
             return std::pair<MetricsMapIPtr, SubMapMember>(p->second.second->clone(), p->second.first);
+#endif
         }
-        return std::pair<MetricsMapIPtr, SubMapMember>(MetricsMapIPtr(), static_cast<SubMapMember>(0));
+        return std::pair<MetricsMapIPtr, SubMapMember>(MetricsMapIPtr(ICE_NULLPTR), static_cast<SubMapMember>(0));
     }
 
     EntryTPtr
@@ -440,10 +455,10 @@ public:
         typename std::map<std::string, EntryTPtr>::const_iterator p = _objects.find(key);
         if(p == _objects.end())
         {
-            TPtr t = new T();
+            TPtr t = ICE_MAKE_SHARED(T);
             t->id = key;
             p = _objects.insert(typename std::map<std::string, EntryTPtr>::value_type(
-                                    key, new EntryT(this, t, _detachedQueue.end()))).first;
+                                    key, ICE_MAKE_SHARED(EntryT, this, t, _detachedQueue.end()))).first;
         }
         p->second->attach(helper);
         return p->second;
@@ -451,12 +466,12 @@ public:
     
 private:
 
-    virtual MetricsMapI* clone() const
+    virtual MetricsMapIPtr clone() const
     {
-        return new MetricsMapT<MetricsType>(*this);
+        return ICE_MAKE_SHARED(MetricsMapT<MetricsType>, *this);
     }
 
-    void detached(EntryT* entry)
+    void detached(EntryTPtr entry)
     {
         // This is called with the map mutex locked.
 
@@ -529,14 +544,14 @@ public:
     virtual MetricsMapIPtr
     create(const std::string& mapPrefix, const Ice::PropertiesPtr& properties)
     {
-        return new MetricsMapT<MetricsType>(mapPrefix, properties, _subMaps);
+        return ICE_MAKE_SHARED(MetricsMapT<MetricsType>, mapPrefix, properties, _subMaps);
     }
 
     template<class SubMapMetricsType> void
     registerSubMap(const std::string& subMap, IceMX::MetricsMap MetricsType::* member)
     {
         _subMaps[subMap] = std::pair<IceMX::MetricsMap MetricsType::*, 
-                                     MetricsMapFactoryPtr>(member, new MetricsMapFactoryT<SubMapMetricsType>(0));
+                                     MetricsMapFactoryPtr>(member, ICE_MAKE_SHARED(MetricsMapFactoryT<SubMapMetricsType>, ICE_NULLPTR));
     }
 
 private:
@@ -569,7 +584,7 @@ private:
     const std::string _name;
     std::map<std::string, MetricsMapIPtr> _maps;
 };
-typedef IceUtil::Handle<MetricsViewI> MetricsViewIPtr;
+ICE_DEFINE_PTR(MetricsViewIPtr, MetricsViewI);
 
 class ICE_API MetricsAdminI : public IceMX::MetricsAdmin, public Ice::PropertiesAdminUpdateCallback,
                               private IceUtil::Mutex
@@ -583,14 +598,14 @@ public:
 
     void updateViews();
 
-    template<class MetricsType> void 
+    template<class MetricsType> void
     registerMap(const std::string& map, IceMX::Updater* updater)
     {
         bool updated;
         MetricsMapFactoryPtr factory;
         {
             Lock sync(*this);
-            factory = new MetricsMapFactoryT<MetricsType>(updater);
+            factory = ICE_MAKE_SHARED(MetricsMapFactoryT<MetricsType>, updater);
             _factories[map] = factory;
             updated = addOrUpdateMap(map, factory);
         }
@@ -604,16 +619,19 @@ public:
     registerSubMap(const std::string& map, const std::string& subMap, IceMX::MetricsMap MetricsType::* member)
     {
         bool updated;
-        IceUtil::Handle<MetricsMapFactoryT<MetricsType> > factory;
+        ICE_HANDLE<MetricsMapFactoryT<MetricsType> > factory;
         {
             Lock sync(*this);
-            
             std::map<std::string, MetricsMapFactoryPtr>::const_iterator p = _factories.find(map);
             if(p == _factories.end())
             {
                 return;
             }
+#ifdef ICE_CPP11_MAPPING
+            factory = ::std::dynamic_pointer_cast<MetricsMapFactoryT<MetricsType>>(p->second);
+#else
             factory = dynamic_cast<MetricsMapFactoryT<MetricsType>*>(p->second.get());
+#endif
             factory->template registerSubMap<MemberMetricsType>(subMap, member);
             removeMap(map);
             updated = addOrUpdateMap(map, factory);
@@ -655,7 +673,7 @@ private:
     const Ice::LoggerPtr _logger;
     Ice::PropertiesPtr _properties;
 };
-typedef IceUtil::Handle<MetricsAdminI> MetricsAdminIPtr;
+ICE_DEFINE_PTR(MetricsAdminIPtr, MetricsAdminI);
 
 };
 

@@ -12,7 +12,12 @@
 
 #include <Test.h>
 
-class MyDerivedClassI : public Test::MyDerivedClass
+class MyDerivedClassI : 
+#ifdef ICE_CPP11_MAPPING
+    public Test::MyDerivedClassDisp
+#else
+    public Test::MyDerivedClass
+#endif
 {
 public:
 
@@ -65,9 +70,9 @@ public:
                                   Test::MyEnum&,
                                   const Ice::Current&);
 
-    virtual Test::MyClassPrx opMyClass(const Test::MyClassPrx&,
-                                       Test::MyClassPrx&, Test::MyClassPrx&,
-                                       const Ice::Current&);
+    virtual Test::MyClassPrxPtr opMyClass(const Test::MyClassPrxPtr&,
+                                          Test::MyClassPrxPtr&, Test::MyClassPrxPtr&,
+                                          const Ice::Current&);
 
     virtual Test::Structure opStruct(const Test::Structure&, const Test::Structure&,
                                   Test::Structure&,

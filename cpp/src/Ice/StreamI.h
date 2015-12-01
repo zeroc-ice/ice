@@ -41,7 +41,7 @@ public:
     virtual Int readSize();
     virtual Int readAndCheckSeqSize(int);
 
-    virtual ObjectPrx readProxy();
+    virtual ObjectPrxPtr readProxy();
     virtual void readObject(const ReadObjectCallbackPtr&);
 
     virtual void throwException();
@@ -125,9 +125,9 @@ public:
 
     virtual CommunicatorPtr communicator() const;
 
-    virtual void writeObject(const ObjectPtr&);
+    virtual void writeObject(const ValuePtr&);
     virtual void writeException(const UserException&);
-    virtual void writeProxy(const ObjectPrx&);
+    virtual void writeProxy(const ObjectPrxPtr&);
 
     virtual void writeSize(Int);
 

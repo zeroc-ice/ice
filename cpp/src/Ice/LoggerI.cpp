@@ -122,7 +122,7 @@ Ice::LoggerI::getPrefix()
 LoggerPtr
 Ice::LoggerI::cloneWithPrefix(const std::string& prefix)
 {
-    return new LoggerI(prefix, _file, _convert, _converter);
+    return ICE_MAKE_SHARED(LoggerI, prefix, _file, _convert, _converter);
 }
 
 void

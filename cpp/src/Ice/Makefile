@@ -38,7 +38,6 @@ SLICE_OBJS	= BuiltinSequences.o \
 		  ObjectAdapter.o \
 		  ObjectAdapterF.o \
 		  ObjectFactory.o \
-		  ObjectFactoryF.o \
 		  Plugin.o \
 		  PluginF.o \
 		  Process.o \
@@ -142,6 +141,7 @@ OBJS		= Acceptor.o \
 		  UdpConnector.o \
 		  UdpEndpointI.o \
 		  UdpTransceiver.o \
+		  Value.o \
 		  WSAcceptor.o \
 		  WSConnector.o \
 		  WSEndpoint.o \

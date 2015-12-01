@@ -26,6 +26,7 @@ module Ice
  * @see Freeze
  *
  **/
+["cpp11:type:std::function<Ice::ValuePtr (const std::string& type)>"]
 local interface ObjectFactory
 {
     /**
@@ -44,7 +45,7 @@ local interface ObjectFactory
      * factory is unable to create the object.
      *
      **/
-    Object create(string type);
+    Value create(string type);
 
     /**
      *

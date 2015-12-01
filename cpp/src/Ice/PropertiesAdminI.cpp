@@ -44,8 +44,15 @@ PropertiesAdminI::getPropertiesForPrefix(const string& prefix, const Current&)
 }
 
 void
+#ifdef ICE_CPP11_MAPPING
+PropertiesAdminI::setProperties_async(const PropertyDict& props,
+                                      function<void ()> response,
+                                      function<void (const ::std::exception_ptr&)>,
+                                      const Current&)
+#else
 PropertiesAdminI::setProperties_async(const AMD_PropertiesAdmin_setPropertiesPtr& cb, const PropertyDict& props,
-                                           const Current&)
+                                      const Current&)
+#endif
 {
     Lock sync(*this);
 
@@ -164,7 +171,11 @@ PropertiesAdminI::setProperties_async(const AMD_PropertiesAdmin_setPropertiesPtr
     // Send the response now so that we do not block the client during
     // the call to the update callback.
     //
+#ifdef ICE_CPP11_MAPPING
+    response();
+#else
     cb->ice_response();
+#endif
 
     //
     // Copy the callbacks to allow callbacks to update the callbacks.

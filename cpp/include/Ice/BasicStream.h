@@ -13,8 +13,9 @@
 #include <IceUtil/StringConverter.h>
 #include <Ice/InstanceF.h>
 #include <Ice/Object.h>
+#include <Ice/ValueF.h>
 #include <Ice/ProxyF.h>
-#include <Ice/ObjectFactoryF.h>
+#include <Ice/ObjectFactory.h>
 #include <Ice/ObjectFactoryManagerF.h>
 #include <Ice/Buffer.h>
 #include <Ice/Protocol.h>
@@ -22,6 +23,7 @@
 #include <Ice/UserExceptionFactory.h>
 #include <Ice/StreamHelpers.h>
 #include <Ice/FactoryTable.h>
+#include <Ice/Traits.h>
 
 namespace Ice
 {
@@ -34,10 +36,19 @@ namespace IceInternal
 {
 
 template<typename T> inline void
-patchHandle(void* addr, const Ice::ObjectPtr& v)
+patchHandle(void* addr, const Ice::ValuePtr& v)
 {
+#ifdef ICE_CPP11_MAPPING
+    ::std::shared_ptr<T>* handle = static_cast<::std::shared_ptr<T>*>(addr);
+    *handle = ::std::dynamic_pointer_cast<T>(v);
+    if(v && !handle)
+    {
+        IceInternal::Ex::throwUOE(T::ice_staticId(), v);
+    }
+#else
     IceInternal::Handle<T>* p = static_cast<IceInternal::Handle<T>*>(addr);
     __patch(*p, v); // Generated __patch method, necessary for forward declarations.
+#endif
 }
 
 class ICE_API BasicStream : public Buffer
@@ -45,7 +56,7 @@ class ICE_API BasicStream : public Buffer
 public:
 
     typedef size_t size_type;
-    typedef void (*PatchFunc)(void*, const Ice::ObjectPtr&);
+    typedef void (*PatchFunc)(void*, const Ice::ValuePtr&);
 
     BasicStream(Instance*, const Ice::EncodingVersion&);
     BasicStream(Instance*, const Ice::EncodingVersion&, const Ice::Byte*, const Ice::Byte*);
@@ -626,7 +637,13 @@ public:
     void read(std::pair<const Ice::Int*, const Ice::Int*>&, ::IceUtil::ScopedArray<Ice::Int>&);
 
     // Long
+
+#ifdef ICE_CPP11_MAPPING
+    void write(long long int);
+#else
     void write(Ice::Long);
+#endif
+
     void write(const Ice::Long*, const Ice::Long*);
     void read(Ice::Long&);
     void read(std::vector<Ice::Long>&);
@@ -780,6 +797,32 @@ public:
     void read(std::vector<std::wstring>&);
 
     // Proxy
+#ifdef ICE_CPP11_MAPPING
+    void writeProxy(const Ice::ObjectPrxPtr&);
+
+    template<typename T, typename ::std::enable_if<::std::is_base_of<::Ice::ObjectPrx, T>::value>::type* = nullptr>
+    void write(const ::std::shared_ptr<T>& v)
+    {
+        writeProxy(::std::static_pointer_cast<::Ice::ObjectPrx>(v));
+    }
+
+    ::Ice::ObjectPrxPtr readProxy();
+
+    template<typename T, typename ::std::enable_if<::std::is_base_of<::Ice::ObjectPrx, T>::value>::type* = nullptr>
+    void read(::std::shared_ptr<T>& v)
+    {
+        ::std::shared_ptr<::Ice::ObjectPrx> proxy(readProxy());
+        if(!proxy)
+        {
+            v = 0;
+        }
+        else
+        {
+            v = ::std::make_shared<T>();
+            v->__copyFrom(proxy);
+        }
+    }
+#else
     void write(const Ice::ObjectPrx&);
     template<typename T> void write(const IceInternal::ProxyHandle<T>& v)
     {
@@ -790,8 +833,23 @@ public:
     {
         __read(this, v); // Generated __read method, necessary for forward declarations.
     }
+#endif
 
     // Class
+#ifdef ICE_CPP11_MAPPING // C++11 mapping
+    template<typename T, typename ::std::enable_if<::std::is_base_of<::Ice::Value, T>::value>::type* = nullptr>
+    void write(const ::std::shared_ptr<T>& v)
+    {
+        initWriteEncaps();
+        _currentWriteEncaps->encoder->write(v);
+    }
+
+    template<typename T, typename ::std::enable_if<::std::is_base_of<::Ice::Value, T>::value>::type* = nullptr>
+    void read(::std::shared_ptr<T>& v)
+    {
+        read(&patchHandle<T>, &v);
+    }
+#else // C++98 mapping
     void write(const Ice::ObjectPtr& v)
     {
         initWriteEncaps();
@@ -801,14 +859,17 @@ public:
     {
         write(Ice::ObjectPtr(upCast(v.get())));
     }
+
+    template<typename T> void read(IceInternal::Handle<T>& v)
+    {
+        read(&patchHandle<T>, &v);
+    }
+#endif
+
     void read(PatchFunc patchFunc, void* patchAddr)
     {
         initReadEncaps();
         _currentReadEncaps->decoder->read(patchFunc, patchAddr);
-    }
-    template<typename T> void read(IceInternal::Handle<T>& v)
-    {
-        read(&patchHandle<T>, &v);
     }
 
     // Enum
@@ -888,7 +949,7 @@ private:
     class WriteEncaps;
     enum SliceType { NoSlice, ObjectSlice, ExceptionSlice };
 
-    typedef std::vector<Ice::ObjectPtr> ObjectList;
+    typedef std::vector<Ice::ValuePtr> ObjectList;
 
     class ICE_API EncapsDecoder : private ::IceUtil::noncopyable
     {
@@ -922,12 +983,12 @@ private:
         }
 
         std::string readTypeId(bool);
-        Ice::ObjectPtr newInstance(const std::string&);
+        Ice::ValuePtr newInstance(const std::string&);
 
         void addPatchEntry(Ice::Int, PatchFunc, void*);
-        void unmarshal(Ice::Int, const Ice::ObjectPtr&);
+        void unmarshal(Ice::Int, const Ice::ValuePtr&);
 
-        typedef std::map<Ice::Int, Ice::ObjectPtr> IndexToPtrMap;
+        typedef std::map<Ice::Int, Ice::ValuePtr> IndexToPtrMap;
         typedef std::map<Ice::Int, std::string> TypeIdReadMap;
 
         struct PatchEntry
@@ -1084,7 +1145,7 @@ private:
 
         virtual ~EncapsEncoder() { }
 
-        virtual void write(const Ice::ObjectPtr&) = 0;
+        virtual void write(const Ice::ValuePtr&) = 0;
         virtual void write(const Ice::UserException&) = 0;
 
         virtual void startInstance(SliceType, const Ice::SlicedDataPtr&) = 0;
@@ -1112,7 +1173,7 @@ private:
         BasicStream* _stream;
         WriteEncaps* _encaps;
 
-        typedef std::map<Ice::ObjectPtr, Ice::Int> PtrToIndexMap;
+        typedef std::map<Ice::ValuePtr, Ice::Int> PtrToIndexMap;
         typedef std::map<std::string, Ice::Int> TypeIdWriteMap;
 
         // Encapsulation attributes for object marshalling.
@@ -1134,7 +1195,7 @@ private:
         {
         }
 
-        virtual void write(const Ice::ObjectPtr&);
+        virtual void write(const Ice::ValuePtr&);
         virtual void write(const Ice::UserException&);
 
         virtual void startInstance(SliceType, const Ice::SlicedDataPtr&);
@@ -1146,7 +1207,7 @@ private:
 
     private:
 
-        Ice::Int registerObject(const Ice::ObjectPtr&);
+        Ice::Int registerObject(const Ice::ValuePtr&);
 
         // Instance attributes
         SliceType _sliceType;
@@ -1168,7 +1229,7 @@ private:
         {
         }
 
-        virtual void write(const Ice::ObjectPtr&);
+        virtual void write(const Ice::ValuePtr&);
         virtual void write(const Ice::UserException&);
 
         virtual void startInstance(SliceType, const Ice::SlicedDataPtr&);
@@ -1181,7 +1242,7 @@ private:
     private:
 
         void writeSlicedData(const Ice::SlicedDataPtr&);
-        void writeInstance(const Ice::ObjectPtr&);
+        void writeInstance(const Ice::ValuePtr&);
 
         struct InstanceData
         {

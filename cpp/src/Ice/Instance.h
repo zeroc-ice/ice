@@ -58,7 +58,7 @@ class Timer;
 typedef IceUtil::Handle<Timer> TimerPtr;
 
 class MetricsAdminI;
-typedef IceUtil::Handle<MetricsAdminI> MetricsAdminIPtr;
+ICE_DEFINE_PTR(MetricsAdminIPtr, MetricsAdminI);
 
 class RequestHandlerFactory;
 typedef IceUtil::Handle<RequestHandlerFactory> RequestHandlerFactoryPtr;
@@ -116,8 +116,8 @@ public:
     Ice::Identity stringToIdentity(const std::string&) const;
     std::string identityToString(const Ice::Identity&) const;
 
-    Ice::ObjectPrx createAdmin(const Ice::ObjectAdapterPtr&, const Ice::Identity&);
-    Ice::ObjectPrx getAdmin();
+    Ice::ObjectPrxPtr createAdmin(const Ice::ObjectAdapterPtr&, const Ice::Identity&);
+    Ice::ObjectPrxPtr getAdmin();
     void addAdminFacet(const Ice::ObjectPtr&, const std::string&);
     Ice::ObjectPtr removeAdminFacet(const std::string&);
     Ice::ObjectPtr findAdminFacet(const std::string&);
@@ -128,8 +128,8 @@ public:
         return _implicitContext;
     }
 
-    void setDefaultLocator(const Ice::LocatorPrx&);
-    void setDefaultRouter(const Ice::RouterPrx&);
+    void setDefaultLocator(const Ice::LocatorPrxPtr&);
+    void setDefaultRouter(const Ice::RouterPrxPtr&);
 
     void setLogger(const Ice::LoggerPtr&);
     void setThreadHook(const Ice::ThreadNotificationPtr&);

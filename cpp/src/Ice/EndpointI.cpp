@@ -11,8 +11,10 @@
 
 using namespace std;
 
+#ifndef ICE_CPP11_MAPPING
 IceUtil::Shared* IceInternal::upCast(EndpointI* p) { return p; }
 IceUtil::Shared* IceInternal::upCast(EndpointI_connectors* p) { return p; }
+#endif
 
 string
 IceInternal::EndpointI::toString() const

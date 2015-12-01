@@ -23,8 +23,10 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
+#ifndef ICE_CPP11_MAPPING
 IceUtil::Shared* IceInternal::upCast(IncomingAsync* p) { return p; }
 IceUtil::Shared* Ice::upCast(AMD_Object_ice_invoke* p) { return p; }
+#endif
 
 namespace
 {
@@ -54,7 +56,11 @@ Init init;
 IceInternal::IncomingAsync::IncomingAsync(Incoming& in) :
     IncomingBase(in),
     _instanceCopy(_os.instance()),
+#ifdef ICE_CPP11_MAPPING
+    _responseHandlerCopy(dynamic_pointer_cast<ResponseHandler>(_responseHandler->shared_from_this())),
+#else
     _responseHandlerCopy(_responseHandler),
+#endif
     _retriable(in.isRetriable()),
     _active(true)
 {
@@ -291,6 +297,7 @@ IceInternal::IncomingAsync::__validateResponse(bool ok)
     return true;
 }
 
+#ifndef ICE_CPP11_MAPPING
 IceAsync::Ice::AMD_Object_ice_invoke::AMD_Object_ice_invoke(Incoming& in) :
     IncomingAsync(in)
 {
@@ -338,3 +345,4 @@ IceAsync::Ice::AMD_Object_ice_invoke::ice_response(bool ok, const pair<const Byt
         __response();
     }
 }
+#endif

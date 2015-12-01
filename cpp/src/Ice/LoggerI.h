@@ -49,8 +49,7 @@ private:
 #endif
 
 };
-
-typedef IceUtil::Handle<LoggerI> LoggerIPtr;
+ICE_DEFINE_PTR(LoggerIPtr, LoggerI);
 
 }
 

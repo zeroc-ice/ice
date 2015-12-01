@@ -11,6 +11,18 @@ top_srcdir	= ..\..
 
 !include $(top_srcdir)\config\Make.rules.mak
 
+!if "$(CPP11_MAPPING)" == "yes"
+SUBDIRS		= proxy \
+                  operations \
+                  exceptions \
+                  ami \
+                  info \
+                  inheritance \
+                  objects \
+                  properties \
+                  admin \
+                  enums
+!else
 SUBDIRS		= proxy \
 		  operations \
 		  exceptions \
@@ -65,7 +77,7 @@ SUBDIRS		= $(SUBDIRS) \
 		  interceptor \
 		  services
 !endif
-
+!endif
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

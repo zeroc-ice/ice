@@ -13,7 +13,7 @@
 #include <IceUtil/Shared.h>
 
 #include <Ice/ProxyF.h>
-#ifdef ICE_CPP11
+#ifdef ICE_CPP11_COMPILER
 #   include <functional>
 #endif
 
@@ -31,18 +31,18 @@ public:
     virtual void enqueue() const = 0;
     virtual int getSize() const = 0;
     virtual const std::string& getOperation() const = 0;
-    virtual const Ice::ObjectPrx& getProxy() const = 0;
+    virtual const Ice::ObjectPrxPtr& getProxy() const = 0;
 };
 
-class BatchRequestInterceptor : public IceUtil::Shared
+class BatchRequestInterceptor : public ICE_ENABLE_SHARED_FROM_THIS(BatchRequestInterceptor)
 {
 public:
 
     virtual void enqueue(const BatchRequest&, int, int) = 0;
 };
-typedef IceUtil::Handle<BatchRequestInterceptor> BatchRequestInterceptorPtr;
+ICE_DEFINE_PTR(BatchRequestInterceptorPtr, BatchRequestInterceptor);
 
-#ifdef ICE_CPP11
+#ifdef ICE_CPP11_COMPILER
 ICE_API BatchRequestInterceptorPtr
 newBatchRequestInterceptor(const ::std::function<void (const BatchRequest&, int, int)>&);
 #endif

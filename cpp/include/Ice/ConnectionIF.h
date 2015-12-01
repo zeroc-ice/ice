@@ -17,8 +17,12 @@ namespace Ice
 {
 
 class ConnectionI;
+#ifdef ICE_CPP11_MAPPING // C++11 mapping
+typedef ::std::shared_ptr<ConnectionI> ConnectionIPtr;
+#else // C++98 mapping
 ICE_API Ice::LocalObject* upCast(Ice::ConnectionI*);
 typedef IceInternal::Handle<ConnectionI> ConnectionIPtr;
+#endif
 
 }
 

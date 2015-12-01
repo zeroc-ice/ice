@@ -121,11 +121,11 @@ namespace Ice
 
 const EncodingVersion currentEncoding = { IceInternal::encodingMajor, IceInternal::encodingMinor };
 const ProtocolVersion currentProtocol = { IceInternal::protocolMajor, IceInternal::protocolMinor };
-
 //
 // The encoding to use for protocol messages, this version is tied to
 // the protocol version.
 //
+
 const EncodingVersion currentProtocolEncoding = { IceInternal::protocolEncodingMajor,
                                                   IceInternal::protocolEncodingMinor };
 

@@ -38,10 +38,20 @@ allTests(const Ice::CommunicatorPtr& communicator)
     def_s2.il.push_back(2);
     def_s2.il.push_back(3);
     def_s2.sd["abc"] = "def";
+#ifdef ICE_CPP11_MAPPING
+    def_s2.s = {"name"};
+#else
     def_s2.s = new S1("name");
-    def_s2.cls = new C(5);
+#endif
+    def_s2.cls = ICE_MAKE_SHARED(C, 5);
     def_s2.prx = communicator->stringToProxy("test");
 
+#ifndef ICE_CPP11_MAPPING
+    //
+    // cpp:comparable required by tests bellow is only
+    // supported with C++98 mapping.
+    //
+    
     //
     // Change one primitive member at a time.
     //
@@ -248,7 +258,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         v2.prx = 0;
         test(v1 != v2);
     }
-
+#endif
     cout << "ok" << endl;
 }
 

@@ -12,7 +12,7 @@
 
 #include <IceUtil/Mutex.h>
 #include <Ice/UserExceptionFactory.h>
-#include <Ice/ObjectFactoryF.h>
+#include <Ice/ObjectFactory.h>
 
 
 namespace Ice
@@ -39,8 +39,12 @@ public:
     IceInternal::UserExceptionFactoryPtr getExceptionFactory(const ::std::string&) const;
     void removeExceptionFactory(const ::std::string&);
 
-    void addObjectFactory(const ::std::string&, const Ice::ObjectFactoryPtr&);
-    Ice::ObjectFactoryPtr getObjectFactory(const ::std::string&) const;
+#ifdef ICE_CPP11_MAPPING
+    void addObjectFactory(const ::std::string&, ::std::function<::Ice::ValuePtr (const ::std::string&)>);
+#else
+    void addObjectFactory(const ::std::string&, const ::Ice::ObjectFactoryPtr&);
+#endif
+    ICE_OBJECT_FACTORY getObjectFactory(const ::std::string&) const;
     void removeObjectFactory(const ::std::string&);
 
     void addTypeId(int, const ::std::string&);
@@ -55,7 +59,7 @@ private:
     typedef ::std::map< ::std::string, EFPair> EFTable;
     EFTable _eft;
 
-    typedef ::std::pair<Ice::ObjectFactoryPtr, int> OFPair;
+    typedef ::std::pair<ICE_OBJECT_FACTORY, int> OFPair;
     typedef ::std::map< ::std::string, OFPair> OFTable;
     OFTable _oft;
 

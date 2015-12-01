@@ -10,12 +10,14 @@
 #include <Ice/FactoryTable.h>
 #include <Ice/ObjectFactory.h>
 
+using namespace std;
+
 //
 // Add a factory to the exception factory table.
 // If the factory is present already, increment its reference count.
 //
 void
-IceInternal::FactoryTable::addExceptionFactory(const std::string& t, const IceInternal::UserExceptionFactoryPtr& f)
+IceInternal::FactoryTable::addExceptionFactory(const string& t, const IceInternal::UserExceptionFactoryPtr& f)
 {
     IceUtil::Mutex::Lock lock(_m);
     assert(f);
@@ -34,7 +36,7 @@ IceInternal::FactoryTable::addExceptionFactory(const std::string& t, const IceIn
 // Return the exception factory for a given type ID
 //
 IceInternal::UserExceptionFactoryPtr
-IceInternal::FactoryTable::getExceptionFactory(const std::string& t) const
+IceInternal::FactoryTable::getExceptionFactory(const string& t) const
 {
     IceUtil::Mutex::Lock lock(_m);
     EFTable::const_iterator i = _eft.find(t);
@@ -48,7 +50,7 @@ IceInternal::FactoryTable::getExceptionFactory(const std::string& t) const
 // entry from the table.
 //
 void
-IceInternal::FactoryTable::removeExceptionFactory(const std::string& t)
+IceInternal::FactoryTable::removeExceptionFactory(const string& t)
 {
     IceUtil::Mutex::Lock lock(_m);
     EFTable::iterator i = _eft.find(t);
@@ -64,8 +66,13 @@ IceInternal::FactoryTable::removeExceptionFactory(const std::string& t)
 //
 // Add a factory to the object factory table.
 //
+#ifdef ICE_CPP11_MAPPING
 void
-IceInternal::FactoryTable::addObjectFactory(const std::string& t, const Ice::ObjectFactoryPtr& f)
+IceInternal::FactoryTable::addObjectFactory(const string& t, function<::Ice::ValuePtr (const string&)> f)
+#else
+void
+IceInternal::FactoryTable::addObjectFactory(const string& t, const ::Ice::ObjectFactoryPtr& f)
+#endif
 {
     IceUtil::Mutex::Lock lock(_m);
     assert(f);
@@ -83,13 +90,23 @@ IceInternal::FactoryTable::addObjectFactory(const std::string& t, const Ice::Obj
 //
 // Return the object factory for a given type ID
 //
+#ifdef ICE_CPP11_MAPPING
+function<Ice::ValuePtr(const string&)>
+IceInternal::FactoryTable::getObjectFactory(const string& t) const
+{
+    IceUtil::Mutex::Lock lock(_m);
+    OFTable::const_iterator i = _oft.find(t);
+    return i != _oft.end() ? i->second.first : nullptr;
+}
+#else
 Ice::ObjectFactoryPtr
-IceInternal::FactoryTable::getObjectFactory(const std::string& t) const
+IceInternal::FactoryTable::getObjectFactory(const string& t) const
 {
     IceUtil::Mutex::Lock lock(_m);
     OFTable::const_iterator i = _oft.find(t);
     return i != _oft.end() ? i->second.first : Ice::ObjectFactoryPtr();
 }
+#endif
 
 //
 // Remove a factory from the object factory table. If the factory
@@ -98,7 +115,7 @@ IceInternal::FactoryTable::getObjectFactory(const std::string& t) const
 // entry from the table.
 //
 void
-IceInternal::FactoryTable::removeObjectFactory(const std::string& t)
+IceInternal::FactoryTable::removeObjectFactory(const string& t)
 {
     IceUtil::Mutex::Lock lock(_m);
     OFTable::iterator i = _oft.find(t);
@@ -115,7 +132,7 @@ IceInternal::FactoryTable::removeObjectFactory(const std::string& t)
 // Add a factory to the object factory table.
 //
 void
-IceInternal::FactoryTable::addTypeId(int compactId, const std::string& typeId)
+IceInternal::FactoryTable::addTypeId(int compactId, const string& typeId)
 {
     IceUtil::Mutex::Lock lock(_m);
     assert(!typeId.empty() && compactId >= 0);
@@ -133,12 +150,12 @@ IceInternal::FactoryTable::addTypeId(int compactId, const std::string& typeId)
 //
 // Return the type ID for the given compact ID
 //
-std::string
+string
 IceInternal::FactoryTable::getTypeId(int compactId) const
 {
     IceUtil::Mutex::Lock lock(_m);
     TypeIdTable::const_iterator i = _typeIdTable.find(compactId);
-    return i != _typeIdTable.end() ? i->second.first : std::string();
+    return i != _typeIdTable.end() ? i->second.first : string();
 }
 
 void

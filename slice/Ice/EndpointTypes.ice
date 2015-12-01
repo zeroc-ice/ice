@@ -22,7 +22,8 @@ module Ice
  * in a proxy when establishing a connection.
  *
  **/
-enum EndpointSelectionType
+["cpp:unscoped"]
+local enum EndpointSelectionType
 {
     /**
      * <tt>Random</tt> causes the endpoints to be arranged in a random order.

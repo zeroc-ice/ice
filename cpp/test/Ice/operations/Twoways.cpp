@@ -30,6 +30,7 @@
 #endif
 
 using namespace std;
+using namespace Test;
 
 namespace
 {
@@ -38,37 +39,42 @@ class PerThreadContextInvokeThread : public IceUtil::Thread
 {
 public:
 
-PerThreadContextInvokeThread(const Test::MyClassPrx& proxy) : _proxy(proxy)
-{
-}
+    PerThreadContextInvokeThread(const Test::MyClassPrxPtr& proxy) :
+        _proxy(proxy)
+    {
+    }
 
-virtual void
-run()
-{
-    Ice::Context ctx = _proxy->ice_getCommunicator()->getImplicitContext()->getContext();
-    test(ctx.empty());
-    ctx["one"] = "UN";
-    _proxy->ice_getCommunicator()->getImplicitContext()->setContext(ctx);
-    test(_proxy->opContext() == ctx);
-}
+    virtual void
+    run()
+    {
+        Ice::Context ctx = _proxy->ice_getCommunicator()->getImplicitContext()->getContext();
+        test(ctx.empty());
+        ctx["one"] = "UN";
+        _proxy->ice_getCommunicator()->getImplicitContext()->setContext(ctx);
+        test(_proxy->opContext() == ctx);
+    }
 
 private:
 
-    Test::MyClassPrx _proxy;
+    Test::MyClassPrxPtr _proxy;
 };
 
 }
 
 void
-twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
+twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& p)
 {
     {
         p->ice_ping();
     }
 
     {
+#ifdef ICE_CPP11_MAPPING
+        test(Test::MyClassPrx::ice_staticId() == Test::MyClassDisp::ice_staticId());
+#else
         test(Test::MyClassPrx::ice_staticId() == Test::MyClass::ice_staticId());
-	test(Ice::ObjectPrx::ice_staticId() == Ice::Object::ice_staticId());
+#endif
+        test(Ice::ObjectPrx::ice_staticId() == Ice::Object::ice_staticId());
     }
 
     {
@@ -170,15 +176,15 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
         Test::MyEnum e;
         Test::MyEnum r;
 
-        r = p->opMyEnum(Test::enum2, e);
-        test(e == Test::enum2);
-        test(r == Test::enum3);
+        r = p->opMyEnum(ICE_ENUM(MyEnum, enum2), e);
+        test(e == ICE_ENUM(MyEnum, enum2));
+        test(r == ICE_ENUM(MyEnum, enum3));
     }
 
     {
-        Test::MyClassPrx c1;
-        Test::MyClassPrx c2;
-        Test::MyClassPrx r;
+        Test::MyClassPrxPtr c1;
+        Test::MyClassPrxPtr c2;
+        Test::MyClassPrxPtr r;
 
         r = p->opMyClass(p, c1, c2);
         test(Ice::proxyIdentityAndFacetEqual(c1, p));
@@ -209,20 +215,24 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
     {
         Test::Structure si1;
         si1.p = p;
-        si1.e = Test::enum3;
+        si1.e = ICE_ENUM(MyEnum, enum3);
         si1.s.s = "abc";
         Test::Structure si2;
         si2.p = 0;
-        si2.e = Test::enum2;
+        si2.e = ICE_ENUM(MyEnum, enum2);
         si2.s.s = "def";
 
         Test::Structure so;
         Test::Structure rso = p->opStruct(si1, si2, so);
         test(rso.p == 0);
-        test(rso.e == Test::enum2);
+        test(rso.e == ICE_ENUM(MyEnum, enum2));
         test(rso.s.s == "def");
+#ifdef ICE_CPP11_MAPPING
+        test(Ice::targetEquals(so.p, p));
+#else
         test(so.p == p);
-        test(so.e == Test::enum3);
+#endif
+        test(so.e == ICE_ENUM(MyEnum, enum3));
         test(so.s.s == "a new string");
         so.p->opVoid();
     }
@@ -731,64 +741,64 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 
     {
         Test::StringMyEnumD di1;
-        di1["abc"] = Test::enum1;
-        di1[""] = Test::enum2;
+        di1["abc"] = ICE_ENUM(MyEnum, enum1);
+        di1[""] = ICE_ENUM(MyEnum, enum2);
         Test::StringMyEnumD di2;
-        di2["abc"] = Test::enum1;
-        di2["qwerty"] = Test::enum3;
-        di2["Hello!!"] = Test::enum2;
+        di2["abc"] = ICE_ENUM(MyEnum, enum1);
+        di2["qwerty"] = ICE_ENUM(MyEnum, enum3);
+        di2["Hello!!"] = ICE_ENUM(MyEnum, enum2);
 
         Test::StringMyEnumD _do;
         Test::StringMyEnumD ro = p->opStringMyEnumD(di1, di2, _do);
 
         test(_do == di1);
         test(ro.size() == 4);
-        test(ro["abc"] == Test::enum1);
-        test(ro["qwerty"] == Test::enum3);
-        test(ro[""] == Test::enum2);
-        test(ro["Hello!!"] == Test::enum2);
+        test(ro["abc"] == ICE_ENUM(MyEnum, enum1));
+        test(ro["qwerty"] == ICE_ENUM(MyEnum, enum3));
+        test(ro[""] == ICE_ENUM(MyEnum, enum2));
+        test(ro["Hello!!"] == ICE_ENUM(MyEnum, enum2));
     }
 
     {
         Test::MyEnumStringD di1;
-        di1[Test::enum1] = "abc";
+        di1[ICE_ENUM(MyEnum, enum1)] = "abc";
         Test::MyEnumStringD di2;
-        di2[Test::enum2] = "Hello!!";
-        di2[Test::enum3] = "qwerty";
+        di2[ICE_ENUM(MyEnum, enum2)] = "Hello!!";
+        di2[ICE_ENUM(MyEnum, enum3)] = "qwerty";
 
         Test::MyEnumStringD _do;
         Test::MyEnumStringD ro = p->opMyEnumStringD(di1, di2, _do);
 
         test(_do == di1);
         test(ro.size() == 3);
-        test(ro[Test::enum1] == "abc");
-        test(ro[Test::enum2] == "Hello!!");
-        test(ro[Test::enum3] == "qwerty");
+        test(ro[ICE_ENUM(MyEnum, enum1)] == "abc");
+        test(ro[ICE_ENUM(MyEnum, enum2)] == "Hello!!");
+        test(ro[ICE_ENUM(MyEnum, enum3)] == "qwerty");
     }
 
     {
         Test::MyStruct s11 = { 1, 1 };
         Test::MyStruct s12 = { 1, 2 };
         Test::MyStructMyEnumD di1;
-        di1[s11] = Test::enum1;
-        di1[s12] = Test::enum2;
+        di1[s11] = ICE_ENUM(MyEnum, enum1);
+        di1[s12] = ICE_ENUM(MyEnum, enum2);
 
         Test::MyStruct s22 = { 2, 2 };
         Test::MyStruct s23 = { 2, 3 };
         Test::MyStructMyEnumD di2;
-        di2[s11] = Test::enum1;
-        di2[s22] = Test::enum3;
-        di2[s23] = Test::enum2;
+        di2[s11] = ICE_ENUM(MyEnum, enum1);
+        di2[s22] = ICE_ENUM(MyEnum, enum3);
+        di2[s23] = ICE_ENUM(MyEnum, enum2);
 
         Test::MyStructMyEnumD _do;
         Test::MyStructMyEnumD ro = p->opMyStructMyEnumD(di1, di2, _do);
 
         test(_do == di1);
         test(ro.size() == 4);
-        test(ro[s11] == Test::enum1);
-        test(ro[s12] == Test::enum2);
-        test(ro[s22] == Test::enum3);
-        test(ro[s23] == Test::enum2);
+        test(ro[s11] == ICE_ENUM(MyEnum, enum1));
+        test(ro[s12] == ICE_ENUM(MyEnum, enum2));
+        test(ro[s22] == ICE_ENUM(MyEnum, enum3));
+        test(ro[s23] == ICE_ENUM(MyEnum, enum2));
     }
 
     {
@@ -999,14 +1009,14 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
         dsi2.resize(1);
 
         Test::StringMyEnumD di1;
-        di1["abc"] = Test::enum1;
-        di1[""] = Test::enum2;
+        di1["abc"] = ICE_ENUM(MyEnum, enum1);
+        di1[""] = ICE_ENUM(MyEnum, enum2);
         Test::StringMyEnumD di2;
-        di2["abc"] = Test::enum1;
-        di2["qwerty"] = Test::enum3;
-        di2["Hello!!"] = Test::enum2;
+        di2["abc"] = ICE_ENUM(MyEnum, enum1);
+        di2["qwerty"] = ICE_ENUM(MyEnum, enum3);
+        di2["Hello!!"] = ICE_ENUM(MyEnum, enum2);
         Test::StringMyEnumD di3;
-        di3["Goodbye"] = Test::enum1;
+        di3["Goodbye"] = ICE_ENUM(MyEnum, enum1);
 
         dsi1[0] = di1;
         dsi1[1] = di2;
@@ -1019,23 +1029,23 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 
             test(ro.size() == 2);
             test(ro[0].size() == 3);
-            test(ro[0]["abc"] == Test::enum1);
-            test(ro[0]["qwerty"] == Test::enum3);
-            test(ro[0]["Hello!!"] == Test::enum2);
+            test(ro[0]["abc"] == ICE_ENUM(MyEnum, enum1));
+            test(ro[0]["qwerty"] == ICE_ENUM(MyEnum, enum3));
+            test(ro[0]["Hello!!"] == ICE_ENUM(MyEnum, enum2));
             test(ro[1].size() == 2);
-            test(ro[1]["abc"] == Test::enum1);
-            test(ro[1][""] == Test::enum2);
+            test(ro[1]["abc"] == ICE_ENUM(MyEnum, enum1));
+            test(ro[1][""] == ICE_ENUM(MyEnum, enum2));
 
             test(_do.size() == 3);
             test(_do[0].size() == 1);
-            test(_do[0]["Goodbye"] == Test::enum1);
+            test(_do[0]["Goodbye"] == ICE_ENUM(MyEnum, enum1));
             test(_do[1].size() == 2);
-            test(_do[1]["abc"] == Test::enum1);
-            test(_do[1][""] == Test::enum2);
+            test(_do[1]["abc"] == ICE_ENUM(MyEnum, enum1));
+            test(_do[1][""] == ICE_ENUM(MyEnum, enum2));
             test(_do[2].size() == 3);
-            test(_do[2]["abc"] == Test::enum1);
-            test(_do[2]["qwerty"] == Test::enum3);
-            test(_do[2]["Hello!!"] == Test::enum2);
+            test(_do[2]["abc"] == ICE_ENUM(MyEnum, enum1));
+            test(_do[2]["qwerty"] == ICE_ENUM(MyEnum, enum3));
+            test(_do[2]["Hello!!"] == ICE_ENUM(MyEnum, enum2));
         }
         catch(const Ice::OperationNotExistException&)
         {
@@ -1049,12 +1059,12 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
         dsi2.resize(1);
 
         Test::MyEnumStringD di1;
-        di1[Test::enum1] = "abc";
+        di1[ICE_ENUM(MyEnum, enum1)] = "abc";
         Test::MyEnumStringD di2;
-        di2[Test::enum2] = "Hello!!";
-        di2[Test::enum3] = "qwerty";
+        di2[ICE_ENUM(MyEnum, enum2)] = "Hello!!";
+        di2[ICE_ENUM(MyEnum, enum3)] = "qwerty";
         Test::MyEnumStringD di3;
-        di3[Test::enum1] = "Goodbye";
+        di3[ICE_ENUM(MyEnum, enum1)] = "Goodbye";
 
         dsi1[0] = di1;
         dsi1[1] = di2;
@@ -1067,19 +1077,19 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 
             test(ro.size() == 2);
             test(ro[0].size() == 2);
-            test(ro[0][Test::enum2] == "Hello!!");
-            test(ro[0][Test::enum3] == "qwerty");
+            test(ro[0][ICE_ENUM(MyEnum, enum2)] == "Hello!!");
+            test(ro[0][ICE_ENUM(MyEnum, enum3)] == "qwerty");
             test(ro[1].size() == 1);
-            test(ro[1][Test::enum1] == "abc");
+            test(ro[1][ICE_ENUM(MyEnum, enum1)] == "abc");
 
             test(_do.size() == 3);
             test(_do[0].size() == 1);
-            test(_do[0][Test::enum1] == "Goodbye");
+            test(_do[0][ICE_ENUM(MyEnum, enum1)] == "Goodbye");
             test(_do[1].size() == 1);
-            test(_do[1][Test::enum1] == "abc");
+            test(_do[1][ICE_ENUM(MyEnum, enum1)] == "abc");
             test(_do[2].size() == 2);
-            test(_do[2][Test::enum2] == "Hello!!");
-            test(_do[2][Test::enum3] == "qwerty");
+            test(_do[2][ICE_ENUM(MyEnum, enum2)] == "Hello!!");
+            test(_do[2][ICE_ENUM(MyEnum, enum3)] == "qwerty");
         }
         catch(const Ice::OperationNotExistException&)
         {
@@ -1095,18 +1105,18 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
         Test::MyStruct s11 = { 1, 1 };
         Test::MyStruct s12 = { 1, 2 };
         Test::MyStructMyEnumD di1;
-        di1[s11] = Test::enum1;
-        di1[s12] = Test::enum2;
+        di1[s11] = ICE_ENUM(MyEnum, enum1);
+        di1[s12] = ICE_ENUM(MyEnum, enum2);
 
         Test::MyStruct s22 = { 2, 2 };
         Test::MyStruct s23 = { 2, 3 };
         Test::MyStructMyEnumD di2;
-        di2[s11] = Test::enum1;
-        di2[s22] = Test::enum3;
-        di2[s23] = Test::enum2;
+        di2[s11] = ICE_ENUM(MyEnum, enum1);
+        di2[s22] = ICE_ENUM(MyEnum, enum3);
+        di2[s23] = ICE_ENUM(MyEnum, enum2);
 
         Test::MyStructMyEnumD di3;
-        di3[s23] = Test::enum3;
+        di3[s23] = ICE_ENUM(MyEnum, enum3);
 
         dsi1[0] = di1;
         dsi1[1] = di2;
@@ -1119,23 +1129,23 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 
             test(ro.size() == 2);
             test(ro[0].size() == 3);
-            test(ro[0][s11] == Test::enum1);
-            test(ro[0][s22] == Test::enum3);
-            test(ro[0][s23] == Test::enum2);
+            test(ro[0][s11] == ICE_ENUM(MyEnum, enum1));
+            test(ro[0][s22] == ICE_ENUM(MyEnum, enum3));
+            test(ro[0][s23] == ICE_ENUM(MyEnum, enum2));
             test(ro[1].size() == 2);
-            test(ro[1][s11] == Test::enum1);
-            test(ro[1][s12] == Test::enum2);
+            test(ro[1][s11] == ICE_ENUM(MyEnum, enum1));
+            test(ro[1][s12] == ICE_ENUM(MyEnum, enum2));
 
             test(_do.size() == 3);
             test(_do[0].size() == 1);
-            test(_do[0][s23] == Test::enum3);
+            test(_do[0][s23] == ICE_ENUM(MyEnum, enum3));
             test(_do[1].size() == 2);
-            test(_do[1][s11] == Test::enum1);
-            test(_do[1][s12] == Test::enum2);
+            test(_do[1][s11] == ICE_ENUM(MyEnum, enum1));
+            test(_do[1][s12] == ICE_ENUM(MyEnum, enum2));
             test(_do[2].size() == 3);
-            test(_do[2][s11] == Test::enum1);
-            test(_do[2][s22] == Test::enum3);
-            test(_do[2][s23] == Test::enum2);
+            test(_do[2][s11] == ICE_ENUM(MyEnum, enum1));
+            test(_do[2][s22] == ICE_ENUM(MyEnum, enum3));
+            test(_do[2][s23] == ICE_ENUM(MyEnum, enum2));
         }
         catch(const Ice::OperationNotExistException&)
         {
@@ -1486,17 +1496,17 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
         Test::MyEnumS si2;
         Test::MyEnumS si3;
 
-        si1.push_back(Test::enum1);
-        si1.push_back(Test::enum1);
-        si1.push_back(Test::enum2);
-        si2.push_back(Test::enum1);
-        si2.push_back(Test::enum2);
-        si3.push_back(Test::enum3);
-        si3.push_back(Test::enum3);
+        si1.push_back(ICE_ENUM(MyEnum, enum1));
+        si1.push_back(ICE_ENUM(MyEnum, enum1));
+        si1.push_back(ICE_ENUM(MyEnum, enum2));
+        si2.push_back(ICE_ENUM(MyEnum, enum1));
+        si2.push_back(ICE_ENUM(MyEnum, enum2));
+        si3.push_back(ICE_ENUM(MyEnum, enum3));
+        si3.push_back(ICE_ENUM(MyEnum, enum3));
 
-        sdi1[Test::enum3] = si1;
-        sdi1[Test::enum2] = si2;
-        sdi2[Test::enum1] = si3;
+        sdi1[ICE_ENUM(MyEnum, enum3)] = si1;
+        sdi1[ICE_ENUM(MyEnum, enum2)] = si2;
+        sdi2[ICE_ENUM(MyEnum, enum1)] = si3;
 
         try
         {
@@ -1505,16 +1515,16 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 
             test(_do == sdi2);
             test(ro.size() == 3);
-            test(ro[Test::enum3].size() == 3);
-            test(ro[Test::enum3][0] == Test::enum1);
-            test(ro[Test::enum3][1] == Test::enum1);
-            test(ro[Test::enum3][2] == Test::enum2);
-            test(ro[Test::enum2].size() == 2);
-            test(ro[Test::enum2][0] == Test::enum1);
-            test(ro[Test::enum2][1] == Test::enum2);
-            test(ro[Test::enum1].size() == 2);
-            test(ro[Test::enum1][0] == Test::enum3);
-            test(ro[Test::enum1][1] == Test::enum3);
+            test(ro[ICE_ENUM(MyEnum, enum3)].size() == 3);
+            test(ro[ICE_ENUM(MyEnum, enum3)][0] == ICE_ENUM(MyEnum, enum1));
+            test(ro[ICE_ENUM(MyEnum, enum3)][1] == ICE_ENUM(MyEnum, enum1));
+            test(ro[ICE_ENUM(MyEnum, enum3)][2] == ICE_ENUM(MyEnum, enum2));
+            test(ro[ICE_ENUM(MyEnum, enum2)].size() == 2);
+            test(ro[ICE_ENUM(MyEnum, enum2)][0] == ICE_ENUM(MyEnum, enum1));
+            test(ro[ICE_ENUM(MyEnum, enum2)][1] == ICE_ENUM(MyEnum, enum2));
+            test(ro[ICE_ENUM(MyEnum, enum1)].size() == 2);
+            test(ro[ICE_ENUM(MyEnum, enum1)][0] == ICE_ENUM(MyEnum, enum3));
+            test(ro[ICE_ENUM(MyEnum, enum1)][1] == ICE_ENUM(MyEnum, enum3));
         }
         catch(const Ice::OperationNotExistException&)
         {
@@ -1556,7 +1566,7 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
             test(r == ctx);
         }
         {
-            Test::MyClassPrx p2 = Test::MyClassPrx::checkedCast(p->ice_context(ctx));
+            Test::MyClassPrxPtr p2 = ICE_CHECKED_CAST(Test::MyClassPrx, p->ice_context(ctx));
             test(p2->ice_getContext() == ctx);
             Test::StringStringD r = p2->opContext();
             test(r == ctx);
@@ -1585,8 +1595,8 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
                 ctx["two"] = "TWO";
                 ctx["three"] = "THREE";
 
-                Test::MyClassPrx p = Test::MyClassPrx::uncheckedCast(
-                                        ic->stringToProxy("test:default -p 12010 -t 10000"));
+                Test::MyClassPrxPtr p = ICE_UNCHECKED_CAST(Test::MyClassPrx,
+                                                           ic->stringToProxy("test:default -p 12010 -t 10000"));
 
                 ic->getImplicitContext()->setContext(ctx);
                 test(ic->getImplicitContext()->getContext() == ctx);
@@ -1608,7 +1618,7 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
                 combined.insert(ctx.begin(), ctx.end());
                 test(combined["one"] == "UN");
 
-                p = Test::MyClassPrx::uncheckedCast(p->ice_context(prxContext));
+                p = ICE_UNCHECKED_CAST(Test::MyClassPrx, p->ice_context(prxContext));
 
                 ic->getImplicitContext()->setContext(Ice::Context());
                 test(p->opContext() == prxContext);
@@ -1650,7 +1660,7 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
     test(p->opDouble1(1.0) == 1.0);
     test(p->opString1("opString1") == "opString1");
 
-    Test::MyDerivedClassPrx d = Test::MyDerivedClassPrx::uncheckedCast(p);
+    Test::MyDerivedClassPrxPtr d = ICE_UNCHECKED_CAST(Test::MyDerivedClassPrx, p);
 
     Test::MyStruct1 s;
     s.tesT = "Test::MyStruct1::s";
@@ -1661,7 +1671,7 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
     test(s.myClass == 0);
     test(s.myStruct1 == "Test::MyStruct1::myStruct1");
 
-    Test::MyClass1Ptr c = new Test::MyClass1();
+    Test::MyClass1Ptr c = ICE_MAKE_SHARED(Test::MyClass1);
     c->tesT = "Test::MyClass1::testT";
     c->myClass = 0;
     c->myClass1 = "Test::MyClass1::myClass1";

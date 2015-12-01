@@ -17,6 +17,8 @@
 #include <Ice/ConnectionIF.h>
 #include <Ice/ObjectAdapterF.h>
 
+#include <exception>
+
 namespace IceInternal
 {
 
@@ -64,9 +66,12 @@ public:
 
 protected:
 
+#ifdef ICE_CPP11_MAPPING
+    OutgoingAsyncBase(const Ice::CommunicatorPtr&, const InstancePtr&, const std::string&, const CallbackBasePtr&);
+#else
     OutgoingAsyncBase(const Ice::CommunicatorPtr&, const InstancePtr&, const std::string&, const CallbackBasePtr&,
                       const Ice::LocalObjectPtr&);
-
+#endif
     bool sent(bool);
     bool finished(const Ice::Exception&);
 
@@ -88,7 +93,7 @@ public:
     virtual AsyncStatus invokeRemote(const Ice::ConnectionIPtr&, bool, bool) = 0;
     virtual AsyncStatus invokeCollocated(CollocatedRequestHandler*) = 0;
 
-    virtual Ice::ObjectPrx getProxy() const;
+    virtual Ice::ObjectPrxPtr getProxy() const;
 
     using OutgoingAsyncBase::sent;
     virtual bool completed(const Ice::Exception&);
@@ -100,9 +105,12 @@ public:
 
 protected:
 
-    ProxyOutgoingAsyncBase(const Ice::ObjectPrx&, const std::string&, const CallbackBasePtr&,
+#ifdef ICE_CPP11_MAPPING
+    ProxyOutgoingAsyncBase(const Ice::ObjectPrxPtr&, const std::string&, const CallbackBasePtr&);
+#else
+    ProxyOutgoingAsyncBase(const Ice::ObjectPrxPtr&, const std::string&, const CallbackBasePtr&,
                            const Ice::LocalObjectPtr&);
-
+#endif
     void invokeImpl(bool);
 
     bool sent(bool);
@@ -112,7 +120,7 @@ protected:
     int handleException(const Ice::Exception&);
     virtual void runTimerTask();
 
-    const Ice::ObjectPrx _proxy;
+    const Ice::ObjectPrxPtr _proxy;
     RequestHandlerPtr _handler;
     Ice::OperationMode _mode;
 
@@ -129,8 +137,11 @@ class ICE_API OutgoingAsync : public ProxyOutgoingAsyncBase
 {
 public:
 
-    OutgoingAsync(const Ice::ObjectPrx&, const std::string&, const CallbackBasePtr&, const Ice::LocalObjectPtr&);
-
+#ifdef ICE_CPP11_MAPPING
+    OutgoingAsync(const Ice::ObjectPrxPtr&, const std::string&, const CallbackBasePtr&);
+#else
+    OutgoingAsync(const Ice::ObjectPrxPtr&, const std::string&, const CallbackBasePtr&, const Ice::LocalObjectPtr&);
+#endif
     void prepare(const std::string&, Ice::OperationMode, const Ice::Context*);
 
     virtual bool sent();
@@ -187,7 +198,11 @@ class ICE_API ProxyFlushBatchAsync : public ProxyOutgoingAsyncBase
 {
 public:
 
-    ProxyFlushBatchAsync(const Ice::ObjectPrx&, const std::string&, const CallbackBasePtr&, const Ice::LocalObjectPtr&);
+#ifdef ICE_CPP11_MAPPING
+    ProxyFlushBatchAsync(const Ice::ObjectPrxPtr&, const std::string&, const CallbackBasePtr&);
+#else
+    ProxyFlushBatchAsync(const Ice::ObjectPrxPtr&, const std::string&, const CallbackBasePtr&, const Ice::LocalObjectPtr&);
+#endif
 
     virtual AsyncStatus invokeRemote(const Ice::ConnectionIPtr&, bool, bool);
     virtual AsyncStatus invokeCollocated(CollocatedRequestHandler*);
@@ -207,8 +222,11 @@ class ICE_API ProxyGetConnection :  public ProxyOutgoingAsyncBase
 {
 public:
 
-    ProxyGetConnection(const Ice::ObjectPrx&, const std::string&, const CallbackBasePtr&, const Ice::LocalObjectPtr&);
-
+#ifdef ICE_CPP11_MAPPING
+    ProxyGetConnection(const Ice::ObjectPrxPtr&, const std::string&, const CallbackBasePtr&);
+#else
+    ProxyGetConnection(const Ice::ObjectPrxPtr&, const std::string&, const CallbackBasePtr&, const Ice::LocalObjectPtr&);
+#endif
     virtual AsyncStatus invokeRemote(const Ice::ConnectionIPtr&, bool, bool);
     virtual AsyncStatus invokeCollocated(CollocatedRequestHandler*);
 
@@ -223,9 +241,13 @@ class ICE_API ConnectionFlushBatchAsync : public OutgoingAsyncBase
 {
 public:
 
+#ifdef ICE_CPP11_MAPPING
+    ConnectionFlushBatchAsync(const Ice::ConnectionIPtr&, const Ice::CommunicatorPtr&, const InstancePtr&,
+                              const std::string&, const CallbackBasePtr&);
+#else
     ConnectionFlushBatchAsync(const Ice::ConnectionIPtr&, const Ice::CommunicatorPtr&, const InstancePtr&,
                               const std::string&, const CallbackBasePtr&, const Ice::LocalObjectPtr&);
-
+#endif
     virtual Ice::ConnectionPtr getConnection() const;
 
     void invoke();
@@ -243,8 +265,13 @@ class ICE_API CommunicatorFlushBatchAsync : public Ice::AsyncResult
 {
 public:
 
+#ifdef ICE_CPP11_MAPPING
+    CommunicatorFlushBatchAsync(const Ice::CommunicatorPtr&, const InstancePtr&, const std::string&,
+                                const CallbackBasePtr&);
+#else
     CommunicatorFlushBatchAsync(const Ice::CommunicatorPtr&, const InstancePtr&, const std::string&,
                                 const CallbackBasePtr&, const Ice::LocalObjectPtr&);
+#endif
 
     void flushConnection(const Ice::ConnectionIPtr&);
     void ready();
@@ -257,5 +284,99 @@ private:
 };
 
 }
+
+//
+// Base callback for C++11 mapping
+//
+#ifdef ICE_CPP11_MAPPING
+namespace IceInternal
+{
+
+class ICE_API OnewayClosureCallback : public ::IceInternal::GenericCallbackBase
+{
+public:
+
+    OnewayClosureCallback(const std::string&,
+             const std::shared_ptr<Ice::ObjectPrx>&,
+             std::function<void ()>,
+             std::function<void (::std::exception_ptr)>,
+             std::function<void (bool)>);
+    
+    virtual void
+    sent(const ::Ice::AsyncResultPtr&) const;
+
+    virtual bool
+    hasSentCallback() const;
+    
+    virtual void
+    completed(const ::Ice::AsyncResultPtr&) const;
+    
+    static std::function<void ()>
+    invoke(const std::string&,
+           const std::shared_ptr<Ice::ObjectPrx>&,
+           Ice::OperationMode,
+           Ice::FormatType,
+           std::function<void (::IceInternal::BasicStream*)>,
+           std::function<void ()>,
+           std::function<void (::std::exception_ptr)>,
+           std::function<void (bool)>,
+           const Ice::Context&);
+
+private:
+
+    const std::string& __name;
+    std::shared_ptr<Ice::ObjectPrx> __proxy;
+    std::function<void ()> __response;
+    std::function<void (::std::exception_ptr)> __exception;
+    std::function<void (bool)> __sent;
+};
+
+class ICE_API TwowayClosureCallback : public ::IceInternal::GenericCallbackBase
+{
+public:
+
+    TwowayClosureCallback(const std::string&,
+             const std::shared_ptr<Ice::ObjectPrx>&,
+             bool,
+             std::function<void (::IceInternal::BasicStream*)>,
+             std::function<void (const ::Ice::UserException&)>,
+             std::function<void (::std::exception_ptr)>,
+             std::function<void (bool)>);
+    
+    virtual void
+    sent(const ::Ice::AsyncResultPtr&) const;
+
+    virtual bool
+    hasSentCallback() const;
+    
+    virtual void
+    completed(const ::Ice::AsyncResultPtr&) const;
+    
+    static std::function<void ()>
+    invoke(const std::string&,
+           const std::shared_ptr<Ice::ObjectPrx>&,
+           Ice::OperationMode,
+           Ice::FormatType,
+           std::function<void (::IceInternal::BasicStream*)>,
+           bool,
+           std::function<void (::IceInternal::BasicStream*)>,
+           std::function<void (const ::Ice::UserException&)>,
+           std::function<void (::std::exception_ptr)>,
+           std::function<void (bool)>,
+           const Ice::Context&);
+
+private:
+
+    const std::string& __name;
+    std::shared_ptr<Ice::ObjectPrx> __proxy;
+    bool __readEmptyParams;
+    std::function<void (::IceInternal::BasicStream*)> __read;
+    std::function<void (const ::Ice::UserException&)> __userException;
+    std::function<void (::std::exception_ptr)> __exception;
+    std::function<void (bool)> __sent;
+};
+
+}
+#endif
 
 #endif

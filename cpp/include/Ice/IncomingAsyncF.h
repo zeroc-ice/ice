@@ -14,6 +14,13 @@
 
 #include <Ice/Handle.h>
 
+#ifdef ICE_CPP11_MAPPING
+namespace IceInternal
+{
+class IncomingAsync;
+typedef std::shared_ptr<IncomingAsync> IncomingAsyncPtr;
+};
+#else
 namespace IceInternal
 {
 
@@ -31,5 +38,6 @@ ICE_API IceUtil::Shared* upCast(::Ice::AMD_Object_ice_invoke*);
 typedef IceInternal::Handle<AMD_Object_ice_invoke> AMD_Object_ice_invokePtr;
 
 }
+#endif
 
 #endif

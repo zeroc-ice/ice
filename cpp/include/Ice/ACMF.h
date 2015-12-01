@@ -18,12 +18,18 @@ namespace IceInternal
 {
 
 class ACMMonitor;
+class FactoryACMMonitor;
+
+#ifdef ICE_CPP11_MAPPING
+typedef ::std::shared_ptr<ACMMonitor> ACMMonitorPtr;
+typedef ::std::shared_ptr<FactoryACMMonitor> FactoryACMMonitorPtr;
+#else
 ICE_API IceUtil::Shared* upCast(ACMMonitor*);
 typedef IceInternal::Handle<ACMMonitor> ACMMonitorPtr;
 
-class FactoryACMMonitor;
 ICE_API IceUtil::Shared* upCast(FactoryACMMonitor*);
 typedef IceInternal::Handle<FactoryACMMonitor> FactoryACMMonitorPtr;
+#endif
 
 }
 

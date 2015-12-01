@@ -23,10 +23,10 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    ServantLocatorPtr locator = new ServantLocatorI;
+    ServantLocatorPtr locator = ICE_MAKE_SHARED(ServantLocatorI);
     adapter->addServantLocator(locator, "");
 
-    TestIntfPrx allTests(const CommunicatorPtr&);
+    TestIntfPrxPtr allTests(const CommunicatorPtr&);
     allTests(communicator);
 
     adapter->waitForDeactivate();

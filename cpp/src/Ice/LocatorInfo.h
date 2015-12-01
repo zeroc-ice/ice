@@ -39,14 +39,14 @@ public:
     // Returns locator info for a given locator. Automatically creates
     // the locator info if it doesn't exist yet.
     //
-    LocatorInfoPtr get(const Ice::LocatorPrx&);
+    LocatorInfoPtr get(const Ice::LocatorPrxPtr&);
 
 private:
 
     const bool _background;
 
-    std::map<Ice::LocatorPrx, LocatorInfoPtr> _table;
-    std::map<Ice::LocatorPrx, LocatorInfoPtr>::iterator _tableHint;
+    std::map<Ice::LocatorPrxPtr, LocatorInfoPtr> _table;
+    std::map<Ice::LocatorPrxPtr, LocatorInfoPtr>::iterator _tableHint;
 
     std::map<std::pair<Ice::Identity, Ice::EncodingVersion>, LocatorTablePtr> _locatorTables;
 };
@@ -94,7 +94,7 @@ public:
 
         RequestCallback(const ReferencePtr&, int, const GetEndpointsCallbackPtr&);
 
-        void response(const LocatorInfoPtr&, const Ice::ObjectPrx&);
+        void response(const LocatorInfoPtr&, const Ice::ObjectPrxPtr&);
         void exception(const LocatorInfoPtr&, const Ice::Exception&);
 
     private:
@@ -112,7 +112,7 @@ public:
         void addCallback(const ReferencePtr&, const ReferencePtr&, int, const GetEndpointsCallbackPtr&);
         std::vector<EndpointIPtr> getEndpoints(const ReferencePtr&, const ReferencePtr&, int, bool&);
 
-        void response(const Ice::ObjectPrx&);
+        void response(const Ice::ObjectPrxPtr&);
         void exception(const Ice::Exception&);
 
     protected:
@@ -131,12 +131,12 @@ public:
         std::vector<ReferencePtr> _wellKnownRefs;
         bool _sent;
         bool _response;
-        Ice::ObjectPrx _proxy;
+        Ice::ObjectPrxPtr _proxy;
         IceUtil::UniquePtr<Ice::Exception> _exception;
     };
     typedef IceUtil::Handle<Request> RequestPtr;
 
-    LocatorInfo(const Ice::LocatorPrx&, const LocatorTablePtr&, bool);
+    LocatorInfo(const Ice::LocatorPrxPtr&, const LocatorTablePtr&, bool);
 
     void destroy();
 
@@ -144,14 +144,14 @@ public:
     bool operator!=(const LocatorInfo&) const;
     bool operator<(const LocatorInfo&) const;
 
-    const Ice::LocatorPrx& getLocator() const
+    const Ice::LocatorPrxPtr& getLocator() const
     {
         //
         // No mutex lock necessary, _locator is immutable.
         //
         return _locator;
     }
-    Ice::LocatorRegistryPrx getLocatorRegistry();
+    Ice::LocatorRegistryPrxPtr getLocatorRegistry();
 
     std::vector<EndpointIPtr> getEndpoints(const ReferencePtr& ref, int ttl, bool& cached)
     {
@@ -176,12 +176,12 @@ private:
     RequestPtr getAdapterRequest(const ReferencePtr&);
     RequestPtr getObjectRequest(const ReferencePtr&);
 
-    void finishRequest(const ReferencePtr&, const std::vector<ReferencePtr>&, const Ice::ObjectPrx&, bool);
+    void finishRequest(const ReferencePtr&, const std::vector<ReferencePtr>&, const Ice::ObjectPrxPtr&, bool);
     friend class Request;
     friend class RequestCallback;
 
-    const Ice::LocatorPrx _locator;
-    Ice::LocatorRegistryPrx _locatorRegistry;
+    const Ice::LocatorPrxPtr _locator;
+    Ice::LocatorRegistryPrxPtr _locatorRegistry;
     const LocatorTablePtr _table;
     const bool _background;
 

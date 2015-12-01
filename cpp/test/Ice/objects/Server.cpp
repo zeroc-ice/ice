@@ -16,6 +16,16 @@ DEFINE_TEST("server")
 using namespace std;
 using namespace Test;
 
+#ifdef ICE_CPP11_MAPPING
+template<typename T>
+function<shared_ptr<T>(const string&)> makeFactory()
+{
+    return [](const string&)
+        {
+            return make_shared<T>();
+        };
+}
+#else
 class MyObjectFactory : public Ice::ObjectFactory
 {
 public:
@@ -44,21 +54,32 @@ public:
         // Nothing to do
     }
 };
+#endif
 
 int
 run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
+#ifdef ICE_CPP11_MAPPING
+    communicator->addObjectFactory(makeFactory<II>(), "::Test::I");
+    communicator->addObjectFactory(makeFactory<JI>(), "::Test::J");
+    communicator->addObjectFactory(makeFactory<HI>(), "::Test::H");
+#else
     Ice::ObjectFactoryPtr factory = new MyObjectFactory;
     communicator->addObjectFactory(factory, "::Test::I");
     communicator->addObjectFactory(factory, "::Test::J");
     communicator->addObjectFactory(factory, "::Test::H");
+#endif
 
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    InitialPtr initial = new InitialI(adapter);
-    adapter->add(initial, communicator->stringToIdentity("initial"));
+    adapter->add(ICE_MAKE_SHARED(InitialI, adapter), communicator->stringToIdentity("initial"));
+    
+#ifdef ICE_CPP11_MAPPING
+    //TODO
+#else
     UnexpectedObjectExceptionTestIPtr uoet = new UnexpectedObjectExceptionTestI;
     adapter->add(uoet, communicator->stringToIdentity("uoet"));
+#endif
     adapter->activate();
     TEST_READY
     communicator->waitForShutdown();

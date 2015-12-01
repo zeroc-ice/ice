@@ -35,7 +35,7 @@ namespace IceInternal
 class ThreadPoolCurrent;
 
 class ThreadPoolWorkQueue;
-typedef IceUtil::Handle<ThreadPoolWorkQueue> ThreadPoolWorkQueuePtr;
+ICE_DEFINE_PTR(ThreadPoolWorkQueuePtr, ThreadPoolWorkQueue);
 
 class ThreadPoolWorkItem : virtual public IceUtil::Shared
 {

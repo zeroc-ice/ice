@@ -18,9 +18,12 @@ namespace IceInternal
 {
 
 class EventHandler;
+#ifdef ICE_CPP11_MAPPING
+typedef ::std::shared_ptr<EventHandler> EventHandlerPtr;
+#else
 ICE_API IceUtil::Shared* upCast(EventHandler*);
 typedef Handle<EventHandler> EventHandlerPtr;
-
+#endif
 }
 
 #endif

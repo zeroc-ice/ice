@@ -36,9 +36,11 @@ namespace Ice
 {
 
 class ObjectAdapterI;
-typedef IceUtil::Handle<ObjectAdapterI> ObjectAdapterIPtr;
+ICE_DEFINE_PTR(ObjectAdapterIPtr, ObjectAdapterI);
 
-class ObjectAdapterI : public ObjectAdapter, public IceUtil::Monitor<IceUtil::RecMutex>
+class ObjectAdapterI : public ICE_ENABLE_SHARED_FROM_THIS(ObjectAdapterI),
+                       public ObjectAdapter,
+                       public IceUtil::Monitor<IceUtil::RecMutex>
 {
 public:
 
@@ -54,10 +56,10 @@ public:
     virtual bool isDeactivated() const;
     virtual void destroy();
 
-    virtual ObjectPrx add(const ObjectPtr&, const Identity&);
-    virtual ObjectPrx addFacet(const ObjectPtr&, const Identity&, const std::string&);
-    virtual ObjectPrx addWithUUID(const ObjectPtr&);
-    virtual ObjectPrx addFacetWithUUID(const ObjectPtr&, const std::string&);
+    virtual ObjectPrxPtr add(const ObjectPtr&, const Identity&);
+    virtual ObjectPrxPtr addFacet(const ObjectPtr&, const Identity&, const std::string&);
+    virtual ObjectPrxPtr addWithUUID(const ObjectPtr&);
+    virtual ObjectPrxPtr addFacetWithUUID(const ObjectPtr&, const std::string&);
     virtual void addDefaultServant(const ObjectPtr&, const std::string&);
     virtual ObjectPtr remove(const Identity&);
     virtual ObjectPtr removeFacet(const Identity&, const std::string&);
@@ -66,7 +68,7 @@ public:
     virtual ObjectPtr find(const Identity&) const;
     virtual ObjectPtr findFacet(const Identity&, const std::string&) const;
     virtual FacetMap findAllFacets(const Identity&) const;
-    virtual ObjectPtr findByProxy(const ObjectPrx&) const;
+    virtual ObjectPtr findByProxy(const ObjectPrxPtr&) const;
     virtual ObjectPtr findDefaultServant(const std::string&) const;
 
 
@@ -74,18 +76,18 @@ public:
     virtual ServantLocatorPtr removeServantLocator(const std::string&);
     virtual ServantLocatorPtr findServantLocator(const std::string&) const;
 
-    virtual ObjectPrx createProxy(const Identity&) const;
-    virtual ObjectPrx createDirectProxy(const Identity&) const;
-    virtual ObjectPrx createIndirectProxy(const Identity&) const;
+    virtual ObjectPrxPtr createProxy(const Identity&) const;
+    virtual ObjectPrxPtr createDirectProxy(const Identity&) const;
+    virtual ObjectPrxPtr createIndirectProxy(const Identity&) const;
 
-    virtual void setLocator(const LocatorPrx&);
-    virtual Ice::LocatorPrx getLocator() const;
+    virtual void setLocator(const LocatorPrxPtr&);
+    virtual Ice::LocatorPrxPtr getLocator() const;
     virtual void refreshPublishedEndpoints();
 
     virtual EndpointSeq getEndpoints() const;
     virtual EndpointSeq getPublishedEndpoints() const;
 
-    bool isLocal(const ObjectPrx&) const;
+    bool isLocal(const ObjectPrxPtr&) const;
 
     void flushAsyncBatchRequests(const IceInternal::CommunicatorFlushBatchAsyncPtr&);
 
@@ -100,21 +102,22 @@ public:
     IceInternal::ACMConfig getACM() const;
     size_t messageSizeMax() const { return _messageSizeMax; }
 
-private:
-
     ObjectAdapterI(const IceInternal::InstancePtr&, const CommunicatorPtr&,
                    const IceInternal::ObjectAdapterFactoryPtr&, const std::string&, bool);
     virtual ~ObjectAdapterI();
-    void initialize(const RouterPrx&);
+
+private:
+
+    void initialize(const RouterPrxPtr&);
     friend class IceInternal::ObjectAdapterFactory;
 
-    ObjectPrx newProxy(const Identity&, const std::string&) const;
-    ObjectPrx newDirectProxy(const Identity&, const std::string&) const;
-    ObjectPrx newIndirectProxy(const Identity&, const std::string&, const std::string&) const;
+    ObjectPrxPtr newProxy(const Identity&, const std::string&) const;
+    ObjectPrxPtr newDirectProxy(const Identity&, const std::string&) const;
+    ObjectPrxPtr newIndirectProxy(const Identity&, const std::string&, const std::string&) const;
     void checkForDeactivation() const;
     std::vector<IceInternal::EndpointIPtr> parseEndpoints(const std::string&, bool) const;
     std::vector<IceInternal::EndpointIPtr> parsePublishedEndpoints();
-    void updateLocatorRegistry(const IceInternal::LocatorInfoPtr&, const Ice::ObjectPrx&);
+    void updateLocatorRegistry(const IceInternal::LocatorInfoPtr&, const Ice::ObjectPrxPtr&);
     bool filterProperties(Ice::StringSeq&);
 
     enum State

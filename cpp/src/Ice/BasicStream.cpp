@@ -1580,16 +1580,28 @@ IceInternal::BasicStream::read(vector<wstring>& v)
 }
 
 void
-IceInternal::BasicStream::write(const ObjectPrx& v)
+#ifndef ICE_CPP11_MAPPING
+IceInternal::BasicStream::write(const ObjectPrxPtr& v)
+#else
+IceInternal::BasicStream::writeProxy(const ObjectPrxPtr& v)
+#endif
 {
     _instance->proxyFactory()->proxyToStream(v, this);
 }
 
+#ifndef ICE_CPP11_MAPPING
 void
-IceInternal::BasicStream::read(ObjectPrx& v)
+IceInternal::BasicStream::read(ObjectPrxPtr& v)
 {
     v = _instance->proxyFactory()->streamToProxy(this);
 }
+#else
+ObjectPrxPtr
+IceInternal::BasicStream::readProxy()
+{
+    return _instance->proxyFactory()->streamToProxy(this);
+}
+#endif
 
 Int
 IceInternal::BasicStream::readEnum(Int maxValue)
@@ -1904,20 +1916,27 @@ IceInternal::BasicStream::EncapsDecoder::readTypeId(bool isIndex)
     }
 }
 
-Ice::ObjectPtr
+Ice::ValuePtr
 IceInternal::BasicStream::EncapsDecoder::newInstance(const string& typeId)
 {
-    Ice::ObjectPtr v;
+    Ice::ValuePtr v;
 
     //
     // Try to find a factory registered for the specific type.
     //
+#ifdef ICE_CPP11_MAPPING
+    function<ValuePtr (const string&)> userFactory = _servantFactoryManager->find(typeId);
+    if(userFactory)
+    {
+        v = userFactory(typeId);
+    }
+#else
     ObjectFactoryPtr userFactory = _servantFactoryManager->find(typeId);
     if(userFactory)
     {
         v = userFactory->create(typeId);
     }
-
+#endif
     //
     // If that fails, invoke the default factory if one has been
     // registered.
@@ -1927,7 +1946,11 @@ IceInternal::BasicStream::EncapsDecoder::newInstance(const string& typeId)
         userFactory = _servantFactoryManager->find("");
         if(userFactory)
         {
+#ifdef ICE_CPP11_MAPPING
+            v = userFactory(typeId);
+#else
             v = userFactory->create(typeId);
+#endif
         }
     }
 
@@ -1937,12 +1960,21 @@ IceInternal::BasicStream::EncapsDecoder::newInstance(const string& typeId)
     //
     if(!v)
     {
+#ifdef ICE_CPP11_MAPPING
+        function<ValuePtr (const string&)> of = IceInternal::factoryTable->getObjectFactory(typeId);
+        if(of)
+        {
+            v = of(typeId);
+            assert(v);
+        }
+#else
         ObjectFactoryPtr of = IceInternal::factoryTable->getObjectFactory(typeId);
         if(of)
         {
             v = of->create(typeId);
             assert(v);
         }
+#endif
     }
 
     return v;
@@ -1990,7 +2022,7 @@ IceInternal::BasicStream::EncapsDecoder::addPatchEntry(Int index, PatchFunc patc
 }
 
 void
-IceInternal::BasicStream::EncapsDecoder::unmarshal(Int index, const Ice::ObjectPtr& v)
+IceInternal::BasicStream::EncapsDecoder::unmarshal(Int index, const Ice::ValuePtr& v)
 {
     //
     // Add the object to the map of un-marshalled objects, this must
@@ -2030,10 +2062,12 @@ IceInternal::BasicStream::EncapsDecoder::unmarshal(Int index, const Ice::ObjectP
     {
         try
         {
+#ifndef ICE_CPP11_MAPPING
             if(_stream->instance()->collectObjects())
             {
                 v->ice_collectable(true);
             }
+#endif
             v->ice_postUnmarshal();
         }
         catch(const std::exception& ex)
@@ -2063,10 +2097,12 @@ IceInternal::BasicStream::EncapsDecoder::unmarshal(Int index, const Ice::ObjectP
             {
                 try
                 {
+#ifndef ICE_CPP11_MAPPING
                     if(_stream->instance()->collectObjects())
                     {
                         (*p)->ice_collectable(true);
                     }
+#endif
                     (*p)->ice_postUnmarshal();
                 }
                 catch(const std::exception& ex)
@@ -2107,7 +2143,7 @@ IceInternal::BasicStream::EncapsDecoder10::read(PatchFunc patchFunc, void* patch
         // Calling the patch function for null instances is necessary for correct functioning of Ice for
         // Python and Ruby.
         //
-        ObjectPtr nil;
+        ValuePtr nil;
         patchFunc(patchAddr, nil);
     }
     else
@@ -2337,7 +2373,7 @@ IceInternal::BasicStream::EncapsDecoder10::readInstance()
     //
     startSlice();
     const string mostDerivedId = _typeId;
-    ObjectPtr v;
+    ValuePtr v;
     while(true)
     {
         //
@@ -2397,7 +2433,7 @@ IceInternal::BasicStream::EncapsDecoder11::read(PatchFunc patchFunc, void* patch
         //
         if(patchFunc)
         {
-            ObjectPtr nil;
+            ValuePtr nil;
             patchFunc(patchAddr, nil);
         }
     }
@@ -2685,7 +2721,7 @@ IceInternal::BasicStream::EncapsDecoder11::skipSlice()
     //
     // Preserve this slice.
     //
-    SliceInfoPtr info = new SliceInfo;
+    SliceInfoPtr info = ICE_MAKE_SHARED(SliceInfo);
     info->typeId = _current->typeId;
     info->compactId = _current->compactId;
     info->hasOptionalMembers = _current->sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS;
@@ -2768,7 +2804,7 @@ IceInternal::BasicStream::EncapsDecoder11::readInstance(Int index, PatchFunc pat
     //
     startSlice();
     const string mostDerivedId = _current->typeId;
-    Ice::ObjectPtr v;
+    Ice::ValuePtr v;
     const CompactIdResolverPtr& compactIdResolver = _stream->instance()->initializationData().compactIdResolver;
     while(true)
     {
@@ -2853,7 +2889,7 @@ IceInternal::BasicStream::EncapsDecoder11::readInstance(Int index, PatchFunc pat
             v = newInstance(Object::ice_staticId());
             if(!v)
             {
-                v = new UnknownSlicedObject(mostDerivedId);
+                v = ICE_MAKE_SHARED(UnknownSlicedObject, mostDerivedId);
             }
 
             break;
@@ -2905,7 +2941,7 @@ IceInternal::BasicStream::EncapsDecoder11::readSlicedData()
         // enclosing object.
         //
         const IndexList& table = _current->indirectionTables[n];
-        vector<ObjectPtr>& objects = _current->slices[n]->objects;
+        vector<ValuePtr>& objects = _current->slices[n]->objects;
         objects.resize(table.size());
         IndexList::size_type j = 0;
         for(IndexList::const_iterator p = table.begin(); p != table.end(); ++p)
@@ -2913,7 +2949,7 @@ IceInternal::BasicStream::EncapsDecoder11::readSlicedData()
             addPatchEntry(*p, &patchHandle<Object>, &objects[j++]);
         }
     }
-    return new SlicedData(_current->slices);
+    return ICE_MAKE_SHARED(SlicedData, _current->slices);
 }
 
 Int
@@ -2932,7 +2968,7 @@ IceInternal::BasicStream::EncapsEncoder::registerTypeId(const string& typeId)
 }
 
 void
-IceInternal::BasicStream::EncapsEncoder10::write(const ObjectPtr& v)
+IceInternal::BasicStream::EncapsEncoder10::write(const ValuePtr& v)
 {
     //
     // Object references are encoded as a negative integer in 1.0.
@@ -3078,7 +3114,7 @@ IceInternal::BasicStream::EncapsEncoder10::writePendingObjects()
 }
 
 Int
-IceInternal::BasicStream::EncapsEncoder10::registerObject(const ObjectPtr& v)
+IceInternal::BasicStream::EncapsEncoder10::registerObject(const ValuePtr& v)
 {
     assert(v);
 
@@ -3109,7 +3145,7 @@ IceInternal::BasicStream::EncapsEncoder10::registerObject(const ObjectPtr& v)
 }
 
 void
-IceInternal::BasicStream::EncapsEncoder11::write(const ObjectPtr& v)
+IceInternal::BasicStream::EncapsEncoder11::write(const ValuePtr& v)
 {
     if(!v)
     {
@@ -3354,7 +3390,7 @@ IceInternal::BasicStream::EncapsEncoder11::writeSlicedData(const SlicedDataPtr& 
 }
 
 void
-IceInternal::BasicStream::EncapsEncoder11::writeInstance(const ObjectPtr& v)
+IceInternal::BasicStream::EncapsEncoder11::writeInstance(const ValuePtr& v)
 {
     assert(v);
 
@@ -3392,4 +3428,3 @@ IceInternal::BasicStream::EncapsEncoder11::writeInstance(const ObjectPtr& v)
     _stream->writeSize(1); // Object instance marker.
     v->__write(_stream);
 }
-

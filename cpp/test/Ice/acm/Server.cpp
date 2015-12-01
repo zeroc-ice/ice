@@ -22,7 +22,7 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
     communicator->getProperties()->setProperty("TestAdapter.ACM.Timeout", "0");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     Ice::Identity id = communicator->stringToIdentity("communicator");
-    adapter->add(new RemoteCommunicatorI(), id);
+    adapter->add(ICE_MAKE_SHARED(RemoteCommunicatorI), id);
     adapter->activate();
 
     TEST_READY

@@ -13,7 +13,7 @@
 #include <IceUtil/Shared.h>
 #include <IceUtil/Mutex.h>
 #include <Ice/ObjectFactoryManagerF.h>
-#include <Ice/ObjectFactoryF.h>
+#include <Ice/ObjectFactory.h>
 
 namespace IceInternal
 {
@@ -22,11 +22,11 @@ class ObjectFactoryManager : public ::IceUtil::Shared, public ::IceUtil::Mutex
 {
 public:
 
-    void add(const ::Ice::ObjectFactoryPtr&, const std::string&);
+    void add(const ICE_OBJECT_FACTORY&, const std::string&);
+    ICE_OBJECT_FACTORY find(const std::string&) const;
+    typedef std::map<std::string, ICE_OBJECT_FACTORY> FactoryMap;
+    
     void remove(const std::string&);
-    ::Ice::ObjectFactoryPtr find(const std::string&) const;
-
-    typedef std::map<std::string, ::Ice::ObjectFactoryPtr> FactoryMap;
 
 private:
 

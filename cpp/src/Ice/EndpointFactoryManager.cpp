@@ -140,7 +140,7 @@ IceInternal::EndpointFactoryManager::create(const string& str, bool oaEndpoint) 
     //
     if(protocol == "opaque")
     {
-        EndpointIPtr ue = new OpaqueEndpointI(v);
+        EndpointIPtr ue = ICE_MAKE_SHARED(OpaqueEndpointI, v);
         if(!v.empty())
         {
             EndpointParseException ex(__FILE__, __LINE__);
@@ -189,7 +189,7 @@ IceInternal::EndpointFactoryManager::read(BasicStream* s) const
     }
     else
     {
-        e = new OpaqueEndpointI(type, s);
+        e = ICE_MAKE_SHARED(OpaqueEndpointI, type, s);
     }
 
     s->endReadEncaps();

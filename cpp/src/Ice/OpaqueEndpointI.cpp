@@ -107,7 +107,7 @@ IceInternal::OpaqueEndpointI::streamWrite(BasicStream* s) const
 Ice::EndpointInfoPtr
 IceInternal::OpaqueEndpointI::getInfo() const
 {
-    return new OpaqueEndpointInfoI(_type, _rawEncoding, _rawBytes);
+    return ICE_MAKE_SHARED(OpaqueEndpointInfoI, _type, _rawEncoding, _rawBytes);
 }
 
 Short
@@ -131,7 +131,11 @@ IceInternal::OpaqueEndpointI::timeout() const
 EndpointIPtr
 IceInternal::OpaqueEndpointI::timeout(Int) const
 {
+#ifdef ICE_CPP11_MAPPING
+    return dynamic_pointer_cast<OpaqueEndpointI>(const_pointer_cast<EndpointI>(shared_from_this()));
+#else
     return const_cast<OpaqueEndpointI*>(this);
+#endif
 }
 
 const string&
@@ -143,7 +147,11 @@ IceInternal::OpaqueEndpointI::connectionId() const
 EndpointIPtr
 IceInternal::OpaqueEndpointI::connectionId(const string&) const
 {
+#ifdef ICE_CPP11_MAPPING
+    return dynamic_pointer_cast<OpaqueEndpointI>(const_pointer_cast<EndpointI>(shared_from_this()));
+#else
     return const_cast<OpaqueEndpointI*>(this);
+#endif
 }
 
 bool
@@ -155,7 +163,11 @@ IceInternal::OpaqueEndpointI::compress() const
 EndpointIPtr
 IceInternal::OpaqueEndpointI::compress(bool) const
 {
+#ifdef ICE_CPP11_MAPPING
+    return dynamic_pointer_cast<OpaqueEndpointI>(const_pointer_cast<EndpointI>(shared_from_this()));
+#else
     return const_cast<OpaqueEndpointI*>(this);
+#endif
 }
 
 bool
@@ -173,7 +185,7 @@ IceInternal::OpaqueEndpointI::secure() const
 TransceiverPtr
 IceInternal::OpaqueEndpointI::transceiver() const
 {
-    return 0;
+    return ICE_NULLPTR;
 }
 
 void
@@ -185,14 +197,18 @@ IceInternal::OpaqueEndpointI::connectors_async(Ice::EndpointSelectionType, const
 AcceptorPtr
 IceInternal::OpaqueEndpointI::acceptor(const string&) const
 {
-    return 0;
+    return ICE_NULLPTR;
 }
 
 vector<EndpointIPtr>
 IceInternal::OpaqueEndpointI::expand() const
 {
     vector<EndpointIPtr> endps;
+#ifdef ICE_CPP11_MAPPING
+    endps.push_back(dynamic_pointer_cast<OpaqueEndpointI>(const_pointer_cast<EndpointI>(shared_from_this())));
+#else
     endps.push_back(const_cast<OpaqueEndpointI*>(this));
+#endif
     return endps;
 }
 
@@ -231,7 +247,11 @@ IceInternal::OpaqueEndpointI::options() const
 }
 
 bool
+#ifdef ICE_CPP11_MAPPING
+IceInternal::OpaqueEndpointI::operator==(const EndpointI& r) const
+#else
 IceInternal::OpaqueEndpointI::operator==(const LocalObject& r) const
+#endif
 {
     const OpaqueEndpointI* p = dynamic_cast<const OpaqueEndpointI*>(&r);
     if(!p)
@@ -263,7 +283,11 @@ IceInternal::OpaqueEndpointI::operator==(const LocalObject& r) const
 }
 
 bool
+#ifdef ICE_CPP11_MAPPING
+IceInternal::OpaqueEndpointI::operator<(const EndpointI& r) const
+#else
 IceInternal::OpaqueEndpointI::operator<(const LocalObject& r) const
+#endif
 {
     const OpaqueEndpointI* p = dynamic_cast<const OpaqueEndpointI*>(&r);
     if(!p)

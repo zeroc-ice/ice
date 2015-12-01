@@ -30,7 +30,7 @@ public:
     BatchRequestQueue(const InstancePtr&, bool);
 
     void prepareBatchRequest(BasicStream*);
-    void finishBatchRequest(BasicStream*, const Ice::ObjectPrx&, const std::string&);
+    void finishBatchRequest(BasicStream*, const Ice::ObjectPrxPtr&, const std::string&);
     void abortBatchRequest(BasicStream*);
 
     int swap(BasicStream*);

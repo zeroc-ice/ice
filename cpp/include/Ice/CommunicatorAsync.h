@@ -12,6 +12,7 @@
 
 #include <Ice/Communicator.h>
 
+#ifndef ICE_CPP11_MAPPING
 namespace Ice
 {
 
@@ -111,5 +112,6 @@ newCallback_Communicator_flushBatchRequests(T* instance, void (T::*excb)(const :
 }
 
 }
+#endif
 
 #endif

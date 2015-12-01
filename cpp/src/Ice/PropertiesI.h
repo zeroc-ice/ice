@@ -19,10 +19,11 @@
 namespace Ice
 {
 
-class PropertiesI : public Properties, public IceUtil::Mutex
+class PropertiesI : public Properties,
+                    public IceUtil::Mutex
 {
 public:
-    
+
     virtual std::string getProperty(const std::string&);
     virtual std::string getPropertyWithDefault(const std::string&, const std::string&);
     virtual Ice::Int getPropertyAsInt(const std::string&);
@@ -40,10 +41,11 @@ public:
 
     std::set<std::string> getUnusedProperties();
 
+    PropertiesI(const PropertiesI*);
+    
 private:
     PropertiesI(const IceUtil::StringConverterPtr&);
     PropertiesI(StringSeq&, const PropertiesPtr&, const IceUtil::StringConverterPtr&);
-    PropertiesI(const PropertiesI*);
 
     friend ICE_API PropertiesPtr createProperties();
     friend ICE_API PropertiesPtr createProperties(StringSeq&, const PropertiesPtr&);

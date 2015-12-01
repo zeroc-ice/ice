@@ -196,7 +196,7 @@ public:
     virtual Ice::LoggerPtr
     cloneWithPrefix(const string& prefix)
     {
-        return new SMEventLoggerIWrapper(_logger, prefix);
+        return ICE_MAKE_SHARED(SMEventLoggerIWrapper, _logger, prefix);
     }
 
 private:
@@ -585,10 +585,10 @@ Ice::Service::main(int& argc, char* argv[], const InitializationData& initializa
             // our own logger.
             //
             _logger = getProcessLogger();
-            if(LoggerIPtr::dynamicCast(_logger))
+            if(ICE_DYNAMIC_CAST(LoggerI, _logger))
             {
                 string eventLogSource = initData.properties->getPropertyWithDefault("Ice.EventLog.Source", name);
-                _logger = new SMEventLoggerIWrapper(new SMEventLoggerI(eventLogSource, stringConverter), "");
+                _logger = ICE_MAKE_SHARED(SMEventLoggerIWrapper, new SMEventLoggerI(eventLogSource, stringConverter), "");
                 setProcessLogger(_logger);
             }
 
@@ -712,14 +712,14 @@ Ice::Service::main(int& argc, char* argv[], const InitializationData& initializa
     if(!_logger)
     {
         _logger = getProcessLogger();
-        if(LoggerIPtr::dynamicCast(_logger))
+        if(ICE_DYNAMIC_CAST(LoggerI, _logger))
         {
             const bool convert =
                 initData.properties->getPropertyAsIntWithDefault("Ice.LogStdErr.Convert", 1) > 0 &&
                 initData.properties->getProperty("Ice.StdErr").empty();
 
-            _logger = new LoggerI(initData.properties->getProperty("Ice.ProgramName"), "", convert,
-                                  IceUtil::getProcessStringConverter());
+            _logger = ICE_MAKE_SHARED(LoggerI, initData.properties->getProperty("Ice.ProgramName"), "", convert,
+                                      IceUtil::getProcessStringConverter());
             setProcessLogger(_logger);
         }
     }

@@ -258,6 +258,11 @@ Slice::Builtin::typeId() const
             return "::Ice::LocalObject";
             break;
         }
+        case KindValue:
+        {
+            return "::Ice::Value";
+            break;
+        }
     }
     assert(false);
     return ""; // Keep the compiler happy.
@@ -266,7 +271,7 @@ Slice::Builtin::typeId() const
 bool
 Slice::Builtin::usesClasses() const
 {
-    return _kind == KindObject;
+    return _kind == KindObject || _kind == KindValue;
 }
 
 size_t
@@ -283,7 +288,8 @@ Slice::Builtin::minWireSize() const
         8, // KindDouble
         1, // KindString: at least one byte for an empty string.
         1, // KindObject: at least one byte (to marshal an index instead of an instance).
-        2  // KindObjectProxy: at least an empty identity for a nil proxy, that is, 2 bytes.
+        2, // KindObjectProxy: at least an empty identity for a nil proxy, that is, 2 bytes.
+        1  // KindValue: at least one byte (to marshal an index instead of an instance).
     };
 
     assert(_kind != KindLocalObject);
@@ -293,7 +299,7 @@ Slice::Builtin::minWireSize() const
 bool
 Slice::Builtin::isVariableLength() const
 {
-    return _kind == KindString || _kind == KindObject || _kind == KindObjectProxy;
+    return _kind == KindString || _kind == KindObject || _kind == KindObjectProxy || _kind == KindValue;
 }
 
 Builtin::Kind
@@ -320,7 +326,8 @@ const char* Slice::Builtin::builtinTable[] =
         "string",
         "Object",
         "Object*",
-        "LocalObject"
+        "LocalObject",
+        "Value"
     };
 
 Slice::Builtin::Builtin(const UnitPtr& unit, Kind kind) :
@@ -408,7 +415,7 @@ Slice::Contained::updateIncludeLevel()
 
 bool
 Slice::Contained::hasMetaData(const string& meta) const
-{
+{        
     return find(_metaData.begin(), _metaData.end(), meta) != _metaData.end();
 }
 
@@ -876,17 +883,6 @@ Slice::Container::createSequence(const string& name, const TypePtr& type, const 
 {
     checkIdentifier(name);
 
-    if(_unit->profile() == IceE && !local)
-    {
-        BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-        if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(type))
-        {
-            string msg = "Sequence `" + name + "' cannot contain object values.";
-            _unit->error(msg);
-            return 0;
-        }
-    }
-
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
@@ -941,17 +937,6 @@ Slice::Container::createDictionary(const string& name, const TypePtr& keyType, c
                                    NodeType nt)
 {
     checkIdentifier(name);
-
-    if(_unit->profile() == IceE && !local)
-    {
-        BuiltinPtr builtin = BuiltinPtr::dynamicCast(valueType);
-        if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(valueType))
-        {
-            string msg = "Dictionary `" + name + "' cannot contain object values.";
-            _unit->error(msg);
-            return 0;
-        }
-    }
 
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
@@ -1762,6 +1747,66 @@ Slice::Container::hasClassDefs() const
 }
 
 bool
+Slice::Container::hasLocalClassDefs() const
+{
+    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    {
+        ClassDefPtr cl = ClassDefPtr::dynamicCast(*p);
+        if(cl && cl->isLocal())
+        {
+            return true;
+        }
+
+        ContainerPtr container = ContainerPtr::dynamicCast(*p);
+        if(container && container->hasLocalClassDefs())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool
+Slice::Container::hasNonLocalInterfaceDefs() const
+{
+    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    {
+        ClassDefPtr cl = ClassDefPtr::dynamicCast(*p);
+        if(cl && !cl->isLocal() && (cl->isInterface() || !cl->allOperations().empty()))
+        {
+            return true;
+        }
+
+        ContainerPtr container = ContainerPtr::dynamicCast(*p);
+        if(container && container->hasNonLocalInterfaceDefs())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool
+Slice::Container::hasValueDefs() const
+{
+    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    {
+        ClassDefPtr cl = ClassDefPtr::dynamicCast(*p);
+        if(cl && !cl->isLocal() && !cl->isInterface())
+        {
+            return true;
+        }
+
+        ContainerPtr container = ContainerPtr::dynamicCast(*p);
+        if(container && container->hasValueDefs())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool
 Slice::Container::hasOnlyClassDecls() const
 {
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
@@ -2562,6 +2607,7 @@ Slice::Container::validateConstant(const string& name, const TypePtr& type, cons
                 case Builtin::KindObject:
                 case Builtin::KindObjectProxy:
                 case Builtin::KindLocalObject:
+                case Builtin::KindValue:
                 {
                     assert(false);
                     break;
@@ -3186,28 +3232,6 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type, bool 
 {
     checkIdentifier(name);
 
-    if(_unit->profile() == IceE)
-    {
-        if(!isLocal())
-        {
-            BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-            if((builtin && builtin->kind() == Builtin::KindObject))
-            {
-                string msg = "Class data member `" + name + "' cannot be a value object.";
-                _unit->error(msg);
-                return 0;
-            }
-
-            ClassDeclPtr classDecl = ClassDeclPtr::dynamicCast(type);
-            if(classDecl != 0 && !classDecl->isLocal())
-            {
-                string msg = "Class data member `" + name + "' cannot be a value object.";
-                _unit->error(msg);
-                return 0;
-            }
-        }
-    }
-
     assert(!isInterface());
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
@@ -3443,7 +3467,9 @@ Slice::ClassDef::classDataMembers() const
         if(q)
         {
             BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->type());
-            if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(q->type()))
+            if((builtin && builtin->kind() == Builtin::KindObject) || 
+               (builtin && builtin->kind() == Builtin::KindValue) ||
+               ClassDeclPtr::dynamicCast(q->type()))
             {
                 result.push_back(q);
             }
@@ -3726,28 +3752,6 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type, bool
 {
     checkIdentifier(name);
 
-    if(_unit->profile() == IceE)
-    {
-        if(!isLocal())
-        {
-            BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-            if((builtin && builtin->kind() == Builtin::KindObject))
-            {
-                string msg = "Exception data member `" + name + "' cannot be a value object.";
-                _unit->error(msg);
-                return 0;
-            }
-
-            ClassDeclPtr classDecl = ClassDeclPtr::dynamicCast(type);
-            if(classDecl != 0 && !classDecl->isLocal())
-            {
-                string msg = "Exception data member `" + name + "' cannot be a value object.";
-                _unit->error(msg);
-                return 0;
-            }
-        }
-    }
-
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
@@ -3912,7 +3916,9 @@ Slice::Exception::classDataMembers() const
         if(q)
         {
             BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->type());
-            if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(q->type()))
+            if((builtin && builtin->kind() == Builtin::KindObject) ||
+               (builtin && builtin->kind() == Builtin::KindValue) ||
+               ClassDeclPtr::dynamicCast(q->type()))
             {
                 result.push_back(q);
             }
@@ -4082,27 +4088,6 @@ Slice::Struct::createDataMember(const string& name, const TypePtr& type, bool op
 {
     checkIdentifier(name);
 
-    if(_unit->profile() == IceE)
-    {
-        if(!isLocal())
-        {
-            BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-            if((builtin && builtin->kind() == Builtin::KindObject))
-            {
-                string msg = "Struct data member `" + name + "' cannot be a value object.";
-                _unit->error(msg);
-                return 0;
-            }
-            ClassDeclPtr classDecl = ClassDeclPtr::dynamicCast(type);
-            if(classDecl != 0 && !classDecl->isLocal())
-            {
-                string msg = "Struct data member `" + name + "' cannot be a value object.";
-                _unit->error(msg);
-                return 0;
-            }
-        }
-    }
-
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
@@ -4217,7 +4202,9 @@ Slice::Struct::classDataMembers() const
         if(q)
         {
             BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->type());
-            if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(q->type()))
+            if((builtin && builtin->kind() == Builtin::KindObject) ||
+               (builtin && builtin->kind() == Builtin::KindValue) ||
+               ClassDeclPtr::dynamicCast(q->type()))
             {
                 result.push_back(q);
             }
@@ -4556,6 +4543,7 @@ Slice::Dictionary::legalKeyType(const TypePtr& type, bool& containsSequence)
             case Builtin::KindObject:
             case Builtin::KindObjectProxy:
             case Builtin::KindLocalObject:
+            case Builtin::KindValue:
             {
                 return false;
                 break;
@@ -4932,29 +4920,6 @@ ParamDeclPtr
 Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool isOutParam, bool optional, int tag)
 {
     checkIdentifier(name);
-
-    if(_unit->profile() == IceE)
-    {
-        ClassDefPtr cl = ClassDefPtr::dynamicCast(this->container());
-        assert(cl);
-        if(!cl->isLocal())
-        {
-            BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-            if((builtin && builtin->kind() == Builtin::KindObject))
-            {
-                string msg = "Object `" + name + "' cannot be passed by value.";
-                _unit->error(msg);
-                return 0;
-            }
-            ClassDeclPtr classDecl =  ClassDeclPtr::dynamicCast(type);
-            if(classDecl != 0 && !classDecl->isLocal())
-            {
-                string msg = "Object `" + name + "' cannot be passed by value.";
-                _unit->error(msg);
-                return 0;
-            }
-        }
-    }
 
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
@@ -5343,26 +5308,6 @@ Slice::Operation::Operation(const ContainerPtr& container,
     _returnTag(returnTag),
     _mode(mode)
 {
-    if(_unit->profile() == IceE)
-    {
-        ClassDefPtr cl = ClassDefPtr::dynamicCast(this->container());
-        assert(cl);
-        if(!cl->isLocal())
-        {
-            BuiltinPtr builtin = BuiltinPtr::dynamicCast(returnType);
-            if((builtin && builtin->kind() == Builtin::KindObject))
-            {
-                string msg = "Method `" + name + "' cannot return an object by value.";
-                _unit->error(msg);
-            }
-            ClassDeclPtr classDecl = ClassDeclPtr::dynamicCast(returnType);
-            if(classDecl != 0 && !classDecl->isLocal())
-            {
-                string msg = "Method `" + name + "' cannot return an object by value.";
-                _unit->error(msg);
-            }
-        }
-    }
 }
 
 // ----------------------------------------------------------------------
@@ -6021,6 +5966,11 @@ Slice::Unit::usesNonLocals() const
     }
 
     if(_builtins.find(Builtin::KindObjectProxy) != _builtins.end())
+    {
+        return true;
+    }
+
+    if(_builtins.find(Builtin::KindValue) != _builtins.end())
     {
         return true;
     }

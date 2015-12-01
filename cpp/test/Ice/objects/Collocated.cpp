@@ -16,6 +16,16 @@ DEFINE_TEST("collocated")
 using namespace std;
 using namespace Test;
 
+#ifdef ICE_CPP11_MAPPING
+template<typename T>
+function<shared_ptr<T>(const string&)> makeFactory()
+{
+    return [](const string&)
+        {
+            return make_shared<T>();
+        };
+}
+#else
 class MyObjectFactory : public Ice::ObjectFactory
 {
 public:
@@ -64,10 +74,21 @@ public:
         // Nothing to do
     }
 };
+#endif
 
 int
 run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
+#ifdef ICE_CPP11_MAPPING
+    communicator->addObjectFactory(makeFactory<BI>(), "::Test::B");
+    communicator->addObjectFactory(makeFactory<CI>(), "::Test::C");
+    communicator->addObjectFactory(makeFactory<DI>(), "::Test::D");
+    communicator->addObjectFactory(makeFactory<EI>(), "::Test::E");
+    communicator->addObjectFactory(makeFactory<FI>(), "::Test::F");
+    communicator->addObjectFactory(makeFactory<II>(), "::Test::I");
+    communicator->addObjectFactory(makeFactory<JI>(), "::Test::J");
+    communicator->addObjectFactory(makeFactory<HI>(), "::Test::H");
+#else
     Ice::ObjectFactoryPtr factory = new MyObjectFactory;
     communicator->addObjectFactory(factory, "::Test::B");
     communicator->addObjectFactory(factory, "::Test::C");
@@ -77,17 +98,19 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
     communicator->addObjectFactory(factory, "::Test::I");
     communicator->addObjectFactory(factory, "::Test::J");
     communicator->addObjectFactory(factory, "::Test::H");
+#endif
 
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    InitialPtr initial = new InitialI(adapter);
-    adapter->add(initial, communicator->stringToIdentity("initial"));
+    adapter->add(ICE_MAKE_SHARED(InitialI, adapter), communicator->stringToIdentity("initial"));
+#ifndef ICE_CPP11_MAPPING
     UnexpectedObjectExceptionTestIPtr uoet = new UnexpectedObjectExceptionTestI;
     adapter->add(uoet, communicator->stringToIdentity("uoet"));
-    InitialPrx allTests(const Ice::CommunicatorPtr&);
-    allTests(communicator);
+#endif
+    InitialPrxPtr allTests(const Ice::CommunicatorPtr&);
+    InitialPrxPtr initial = allTests(communicator);
     // We must call shutdown even in the collocated case for cyclic dependency cleanup
-    initial->shutdown(Ice::Current());
+    initial->shutdown();
     return EXIT_SUCCESS;
 }
 

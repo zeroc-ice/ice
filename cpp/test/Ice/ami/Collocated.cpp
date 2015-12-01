@@ -26,9 +26,9 @@ run(int, char**, const Ice::CommunicatorPtr& communicator,
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     Ice::ObjectAdapterPtr adapter2 = communicator->createObjectAdapter("ControllerAdapter");
 
-    TestIntfControllerIPtr testController = new TestIntfControllerI(adapter);
+    TestIntfControllerIPtr testController = ICE_MAKE_SHARED(TestIntfControllerI, adapter);
 
-    adapter->add(new TestIntfI(), communicator->stringToIdentity("test"));
+    adapter->add(ICE_MAKE_SHARED(TestIntfI), communicator->stringToIdentity("test"));
     //adapter->activate(); // Collocated test doesn't need to activate the OA
 
     adapter2->add(testController, communicator->stringToIdentity("testController"));

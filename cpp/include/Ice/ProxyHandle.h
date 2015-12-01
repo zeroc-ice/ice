@@ -15,6 +15,7 @@
 
 #include <iosfwd>
 
+#ifndef ICE_CPP11_MAPPING // C++98 mapping
 namespace IceInternal
 {
 
@@ -326,5 +327,7 @@ std::ostream& operator<<(std::ostream& os, ::IceInternal::ProxyHandle<Y> p)
 }
 
 }
+
+#endif
 
 #endif

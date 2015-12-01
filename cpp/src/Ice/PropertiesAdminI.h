@@ -27,7 +27,13 @@ public:
 
     virtual std::string getProperty(const std::string&, const Ice::Current&);
     virtual Ice::PropertyDict getPropertiesForPrefix(const std::string&, const Ice::Current&);
+
+#ifdef ICE_CPP11_MAPPING
+    virtual void setProperties_async(const ::Ice::PropertyDict&, ::std::function<void ()>,
+                                     ::std::function<void (const ::std::exception_ptr&)>, const Ice::Current&);
+#else
     virtual void setProperties_async(const Ice::AMD_PropertiesAdmin_setPropertiesPtr&, const Ice::PropertyDict&, const Ice::Current&);
+#endif
 
     virtual void addUpdateCallback(const Ice::PropertiesAdminUpdateCallbackPtr&);
     virtual void removeUpdateCallback(const Ice::PropertiesAdminUpdateCallbackPtr&);
@@ -38,7 +44,7 @@ private:
     const Ice::LoggerPtr _logger;
     std::vector<Ice::PropertiesAdminUpdateCallbackPtr> _updateCallbacks;
 };
-typedef IceUtil::Handle<PropertiesAdminI> PropertiesAdminIPtr;
+ICE_DEFINE_PTR(PropertiesAdminIPtr, PropertiesAdminI);
 
 }
 

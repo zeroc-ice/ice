@@ -13,7 +13,7 @@
 
 
 #include <Ice/Identity.ice>
-#include <Ice/ProcessF.ice>
+#include <Ice/Process.ice>
 
 ["objc:prefix:ICE"]
 module Ice
