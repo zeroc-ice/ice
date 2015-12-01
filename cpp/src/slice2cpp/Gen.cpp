@@ -5771,7 +5771,7 @@ Slice::Gen::Cpp11ObjectDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
         H << sp << nl << "class " << name << ';';
         H << nl << "typedef ::std::shared_ptr< " << name << "> " << p->name() << "Ptr;";
     }
-    if(p->isInterface())
+    else if(p->isInterface())
     {
         H << sp << nl << "class " << name << ';';
         H << nl << "typedef ::std::shared_ptr< " << name << "> " << p->name() << "Ptr;";

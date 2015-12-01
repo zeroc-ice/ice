@@ -281,7 +281,8 @@ Slice::CsGenerator::typeToString(const TypePtr& type, bool optional)
         "string",
         "Ice.Object",
         "Ice.ObjectPrx",
-        "_System.Object"
+        "_System.Object",
+        "Ice.Object" // Ice.Value
     };
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
@@ -373,6 +374,7 @@ Slice::CsGenerator::isValueType(const TypePtr& type)
             case Builtin::KindObject:
             case Builtin::KindObjectProxy:
             case Builtin::KindLocalObject:
+            case Builtin::KindValue:
             {
                 return false;
                 break;

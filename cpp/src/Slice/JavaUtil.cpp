@@ -573,7 +573,7 @@ Slice::JavaGenerator::getStaticId(const TypePtr& type, const string& package) co
     BuiltinPtr b = BuiltinPtr::dynamicCast(type);
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
 
-    assert((b && b->kind() == Builtin::KindObject) || cl);
+    assert((b && (b->kind() == Builtin::KindObject || b->kind() == Builtin::KindValue)) || cl);
 
     if(b)
     {
@@ -711,7 +711,8 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
         "String",
         "Ice.Object",
         "Ice.ObjectPrx",
-        "java.lang.Object"
+        "java.lang.Object",
+        "Ice.Object" // Ice.Value
     };
     static const char* builtinHolderTable[] =
     {
@@ -725,7 +726,8 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
         "Ice.StringHolder",
         "Ice.ObjectHolder",
         "Ice.ObjectPrxHolder",
-        "Ice.LocalObjectHolder"
+        "Ice.LocalObjectHolder",
+        "Ice.ObjectHolder" // Ice.ValueHolder
     };
     static const char* builtinOptionalTable[] =
     {
@@ -736,6 +738,7 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
         "Ice.LongOptional",
         "Ice.FloatOptional",
         "Ice.DoubleOptional",
+        "???",
         "???",
         "???",
         "???",
@@ -909,7 +912,8 @@ Slice::JavaGenerator::typeToObjectString(const TypePtr& type,
         "java.lang.String",
         "Ice.Object",
         "Ice.ObjectPrx",
-        "java.lang.Object"
+        "java.lang.Object",
+        "Ice.Object" // Ice.Value
     };
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
@@ -1636,7 +1640,8 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
             BuiltinPtr elemBuiltin = BuiltinPtr::dynamicCast(elemType);
 
             if(optionalParam && elemBuiltin && elemBuiltin->kind() != Builtin::KindObject &&
-               elemBuiltin->kind() != Builtin::KindObjectProxy && !hasTypeMetaData(seq, metaData))
+               elemBuiltin->kind() != Builtin::KindObjectProxy && elemBuiltin->kind() != Builtin::KindValue && 
+               !hasTypeMetaData(seq, metaData))
             {
                 static const char* builtinTable[] =
                 {
@@ -1979,7 +1984,7 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
             }
 
             BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-            if(ClassDeclPtr::dynamicCast(type) || (b && b->kind() == Builtin::KindObject))
+            if(ClassDeclPtr::dynamicCast(type) || (b && (b->kind() == Builtin::KindObject || b->kind() == Builtin::KindValue)))
             {
                 string keyTypeStr = typeToObjectString(key, TypeModeIn, package);
                 string valueTypeStr = typeToObjectString(value, TypeModeIn, package);
@@ -2002,7 +2007,8 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
             }
         }
         BuiltinPtr builtin = BuiltinPtr::dynamicCast(value);
-        if(!(builtin && builtin->kind() == Builtin::KindObject) && !ClassDeclPtr::dynamicCast(value))
+        if(!(builtin && (builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue)) &&
+           !ClassDeclPtr::dynamicCast(value))
         {
             out << nl << "" << v << ".put(__key, __value);";
         }
@@ -2271,7 +2277,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         {
             bool isObject = false;
             ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
-            if((b && b->kind() == Builtin::KindObject) || cl)
+            if((b && (b->kind() == Builtin::KindObject || b->kind() == Builtin::KindValue)) || cl)
             {
                 isObject = true;
             }
@@ -2336,7 +2342,9 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     else
     {
         BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-        if(b && b->kind() != Builtin::KindObject && b->kind() != Builtin::KindObjectProxy)
+        if(b && b->kind() != Builtin::KindObject &&
+                b->kind() != Builtin::KindValue && 
+                b->kind() != Builtin::KindObjectProxy)
         {
             switch(b->kind())
             {
@@ -2471,7 +2479,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             {
                 bool isObject = false;
                 ClassDeclPtr cl = ClassDeclPtr::dynamicCast(origContent);
-                if((b && b->kind() == Builtin::KindObject) || cl)
+                if((b && (b->kind() == Builtin::KindObject || b->kind() == Builtin::KindValue)) || cl)
                 {
                     isObject = true;
                 }
@@ -3193,7 +3201,8 @@ Slice::JavaGenerator::writeStreamDictionaryMarshalUnmarshalCode(Output& out,
             }
         }
         BuiltinPtr builtin = BuiltinPtr::dynamicCast(value);
-        if(!(builtin && builtin->kind() == Builtin::KindObject) && !ClassDeclPtr::dynamicCast(value))
+        if(!(builtin && (builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue)) && 
+           !ClassDeclPtr::dynamicCast(value))
         {
             out << nl << "" << v << ".put(__key, __value);";
         }
@@ -3461,7 +3470,7 @@ Slice::JavaGenerator::writeStreamSequenceMarshalUnmarshalCode(Output& out,
         {
             bool isObject = false;
             ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
-            if((b && b->kind() == Builtin::KindObject) || cl)
+            if((b && (b->kind() == Builtin::KindObject || b->kind() == Builtin::KindValue)) || cl)
             {
                 isObject = true;
             }
@@ -3526,7 +3535,9 @@ Slice::JavaGenerator::writeStreamSequenceMarshalUnmarshalCode(Output& out,
     else
     {
         BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-        if(b && b->kind() != Builtin::KindObject && b->kind() != Builtin::KindObjectProxy)
+        if(b && b->kind() != Builtin::KindObject &&
+                b->kind() != Builtin::KindValue && 
+                b->kind() != Builtin::KindObjectProxy)
         {
             switch(b->kind())
             {
@@ -3661,7 +3672,7 @@ Slice::JavaGenerator::writeStreamSequenceMarshalUnmarshalCode(Output& out,
             {
                 bool isObject = false;
                 ClassDeclPtr cl = ClassDeclPtr::dynamicCast(origContent);
-                if((b && b->kind() == Builtin::KindObject) || cl)
+                if((b && (b->kind() == Builtin::KindObject || b->kind() == Builtin::KindValue)) || cl)
                 {
                     isObject = true;
                 }

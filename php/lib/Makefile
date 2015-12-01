@@ -25,7 +25,6 @@ ICE_SRCS	= Ice/LocalException.php \
 		  Ice/Properties.php \
 		  Ice/PropertiesF.php \
 		  Ice/ObjectFactory.php \
-		  Ice/ObjectFactoryF.php \
 		  Ice/Identity.php \
 		  Ice/Current.php \
 		  Ice/ImplicitContextF.php \
