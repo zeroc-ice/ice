@@ -37,7 +37,6 @@ ICE_SLICES	= Ice\BuiltinSequences.ice \
 		  Ice\ObjectAdapter.ice \
 		  Ice\ObjectAdapterF.ice \
 		  Ice\ObjectFactory.ice \
-		  Ice\ObjectFactoryF.ice \
 		  Ice\Plugin.ice \
 		  Ice\PluginF.ice \
 		  Ice\Process.ice \

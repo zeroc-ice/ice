@@ -41,7 +41,6 @@ ICE_SRCS	= Ice_BuiltinSequences_ice.py \
 		  Ice_ObjectAdapter_ice.py \
 		  Ice_ObjectAdapterF_ice.py \
 		  Ice_ObjectFactory_ice.py \
-		  Ice_ObjectFactoryF_ice.py \
 		  Ice_Plugin_ice.py \
 		  Ice_PluginF_ice.py \
 		  Ice_Process_ice.py \
