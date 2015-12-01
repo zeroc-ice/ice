@@ -18,6 +18,7 @@ SUBDIRS		= proxy \
                   ami \
                   info \
                   inheritance \
+                  facets \
                   objects \
                   properties \
                   admin \
