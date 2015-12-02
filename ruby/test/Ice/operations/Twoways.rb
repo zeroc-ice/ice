@@ -135,6 +135,23 @@ def twoways(communicator, p)
     r, f, d = p.opFloatDouble(3.402823466E38, 0.0)
     r, f, d = p.opFloatDouble(-3.402823466E38, 0.0)
 
+    #
+    # For portability, don't use Float::NAN here.
+    #
+    nan = 0.0 / 0.0
+    for val in [nan, -nan]
+        r, f, d = p.opFloatDouble(val, val)
+        test(r.nan? && f.nan? && d.nan?)
+    end
+    #
+    # For portability, don't use Float::INFINITY here.
+    #
+    inf = 1.0 / 0.0
+    for val in [inf, -inf]
+        r, f, d = p.opFloatDouble(val, val)
+        test(r.infinite? != 0 && f.infinite? != 0 && d.infinite? != 0)
+    end
+
     begin
         r, f, d = p.opFloatDouble(3.402823466E38*2, 0.0)
         test(false)
