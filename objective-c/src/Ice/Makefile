@@ -37,7 +37,6 @@ SLICE_OBJS	= BuiltinSequences.o \
 		  Metrics.o \
 		  ObjectAdapter.o \
 		  ObjectAdapterF.o \
-		  ObjectFactoryF.o \
 		  PluginF.o \
 		  Process.o \
 		  ProcessF.o \
