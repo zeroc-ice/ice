@@ -180,27 +180,26 @@
             function(ex)
             {
                 test(ex instanceof Ice.MarshalException);
-                return prx.opFloatDouble(0, Number.MAX_VALUE * 2);
+                return prx.opFloatDouble(Number.NaN, Number.NaN);
             }
         ).then(
-            failCB,
-            function(ex)
+            function(retval, f, d)
             {
-                test(ex instanceof Ice.MarshalException);
-                return prx.opFloatDouble(0, -Number.MAX_VALUE * 2);
+                return prx.opFloatDouble(-Number.NaN, -Number.NaN);
             }
         ).then(
-            failCB,
-            function(ex)
+            function(retval, f, d)
             {
-                test(ex instanceof Ice.MarshalException);
-                return prx.opFloatDouble(0, Number.NaN);
+                return prx.opFloatDouble(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
             }
         ).then(
-            failCB,
-            function(ex)
+            function(retval, f, d)
             {
-                test(ex instanceof Ice.MarshalException);
+                return prx.opFloatDouble(Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
+            }
+        ).then(
+            function(retval, f, d)
+            {
                 return prx.opString("hello", "world");
             }
         ).then(

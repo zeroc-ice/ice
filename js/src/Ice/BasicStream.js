@@ -2943,9 +2943,19 @@ Ice.IntHelper = defineBuiltinHelper(stream.writeInt, stream.readInt, 4, Ice.Opti
 
 Ice.FloatHelper = defineBuiltinHelper(stream.writeFloat, stream.readFloat, 4, Ice.OptionalFormat.F4,
                                       MIN_FLOAT32_VALUE, MAX_FLOAT32_VALUE);
+Ice.FloatHelper.validate = function(v)
+{
+    return Number.isNaN(v) || v == Number.POSITIVE_INFINITY || v == Number.NEGATIVE_INFINITY ||
+        (v >= MIN_FLOAT32_VALUE && v <= MAX_FLOAT32_VALUE);
+};
 
 Ice.DoubleHelper = defineBuiltinHelper(stream.writeDouble, stream.readDouble, 8, Ice.OptionalFormat.F8,
                                        -Number.MAX_VALUE, Number.MAX_VALUE);
+Ice.DoubleHelper.validate = function(v)
+{
+    return Number.isNaN(v) || v == Number.POSITIVE_INFINITY || v == Number.NEGATIVE_INFINITY ||
+        (v >= -Number.MAX_VALUE && v <= Number.MAX_VALUE);
+};
 
 Ice.BoolHelper = defineBuiltinHelper(stream.writeBool, stream.readBool, 1, Ice.OptionalFormat.F1);
 Ice.LongHelper = defineBuiltinHelper(stream.writeLong, stream.readLong, 8, Ice.OptionalFormat.F8);

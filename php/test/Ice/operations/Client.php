@@ -186,6 +186,17 @@ function twoways($communicator, $p)
         $r = $p->opFloatDouble(3.402823466E38, 0.0, $f, $d);
         $r = $p->opFloatDouble(-3.402823466E38, 0.0, $f, $d);
 
+        foreach(array(NAN, -NAN) as $val)
+        {
+            $r = $p->opFloatDouble($val, $val, $f, $d);
+            test(is_nan($r) && is_nan($f) && is_nan($d));
+        }
+        foreach(array(INF, -INF) as $val)
+        {
+            $r = $p->opFloatDouble($val, $val, $f, $d);
+            test(is_infinite($r) && is_infinite($f) && is_infinite($d));
+        }
+
         try
         {
             $r = $p->opFloatDouble(3.402823466E38*2, 0.0, $f, $d);

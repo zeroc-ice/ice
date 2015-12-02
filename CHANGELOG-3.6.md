@@ -41,6 +41,9 @@ These are the changes since Ice 3.6.1.
   issue was true for exceptions with class data members deriving from exceptions
   with class data members.
 
+- Fixed a bug that prevented scripting languages (Python, Ruby, Javascript and PHP)
+  from marshaling NaN or Infinity as a floating point value.
+
 ## C++ Changes
 
 - Fixed El Capitan build issues caused by a new security feature that no longer

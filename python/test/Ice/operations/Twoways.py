@@ -141,6 +141,13 @@ def twoways(communicator, p):
     r, f, d = p.opFloatDouble(3.402823466E38, 0.0)
     r, f, d = p.opFloatDouble(-3.402823466E38, 0.0)
 
+    for val in ('inf', '-inf'):
+        r, f, d = p.opFloatDouble(float(val), float(val))
+        test(math.isinf(r) and math.isinf(f) and math.isinf(d))
+    for val in ('nan', '-nan'):
+        r, f, d = p.opFloatDouble(float(val), float(val))
+        test(math.isnan(r) and math.isnan(f) and math.isnan(d))
+
     try:
         r, f, d = p.opFloatDouble(3.402823466E38*2, 0.0)
         test(False)

@@ -596,7 +596,7 @@ IceRuby::PrimitiveInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectM
         }
         assert(TYPE(val) == T_FLOAT);
         double d = static_cast<double>(RFLOAT_VALUE(val));
-        if(d > numeric_limits<float>::max() || d < -numeric_limits<float>::max())
+        if(isfinite(d) && (d > numeric_limits<float>::max() || d < -numeric_limits<float>::max()))
         {
             throw RubyException(rb_eTypeError, "value is out of range for a float");
         }
