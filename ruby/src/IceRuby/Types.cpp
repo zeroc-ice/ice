@@ -17,6 +17,7 @@
 #include <Ice/SlicedData.h>
 #include <list>
 #include <limits>
+#include <math.h>
 
 //
 // Required for RHASH_SIZE to work properly with Ruby 1.8.x.
