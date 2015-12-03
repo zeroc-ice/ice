@@ -374,8 +374,17 @@ Ice::ObjectPrx::ice_flushBatchRequests_async(function<void (exception_ptr)> exce
 
 
         virtual void
-        completed(const ::Ice::AsyncResultPtr&) const
+        completed(const ::Ice::AsyncResultPtr& result) const
         {
+            try
+            {
+                AsyncResult::__check(result, _proxy.get(), ice_flushBatchRequests_name);
+                result->__wait();
+            }
+            catch(const ::Ice::Exception&)
+            {
+                _exception(current_exception());
+            }
         }
 
     private:
