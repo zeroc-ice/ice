@@ -27,7 +27,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     {
         ostringstream os;
         os << "control:tcp -p " << (12010 + i);
-        TestIntfPrx::uncheckedCast(communicator->stringToProxy(os.str()))->shutdown();
+        ICE_UNCHECKED_CAST(TestIntfPrx, communicator->stringToProxy(os.str()))->shutdown();
     }
     return EXIT_SUCCESS;
 }

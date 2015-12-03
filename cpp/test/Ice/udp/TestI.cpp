@@ -15,7 +15,7 @@ using namespace std;
 using namespace Ice;
 
 void
-TestIntfI::ping(const Test::PingReplyPrx& reply, const Current&)
+TestIntfI::ping(const Test::PingReplyPrxPtr& reply, const Current&)
 {
     try
     {
@@ -28,7 +28,7 @@ TestIntfI::ping(const Test::PingReplyPrx& reply, const Current&)
 }
 
 void
-TestIntfI::sendByteSeq(const Test::ByteSeq&, const Test::PingReplyPrx& reply, const Current&)
+TestIntfI::sendByteSeq(const Test::ByteSeq&, const Test::PingReplyPrxPtr& reply, const Current&)
 {
     try
     {
@@ -53,7 +53,7 @@ TestIntfI::pingBiDir(const Ice::Identity& id, const Ice::Current& current)
         {
             Test::ByteSeq seq;
             seq.resize(32 * 1024);
-            Test::TestIntfPrx::uncheckedCast(current.con->createProxy(id))->sendByteSeq(seq, 0);
+            ICE_UNCHECKED_CAST(Test::TestIntfPrx, current.con->createProxy(id))->sendByteSeq(seq, 0);
         }
         catch(const DatagramLimitException&)
         {
@@ -63,7 +63,11 @@ TestIntfI::pingBiDir(const Ice::Identity& id, const Ice::Current& current)
         //
         // Send the reply through the incoming connection.
         //
+#ifdef ICE_CPP11_MAPPING
+        Ice::uncheckedCast<Test::PingReplyPrx>(current.con->createProxy(id))->reply_async();
+#else
         Test::PingReplyPrx::uncheckedCast(current.con->createProxy(id))->begin_reply();
+#endif
     }
     catch(const Ice::Exception& ex)
     {

@@ -57,21 +57,20 @@ private:
 
     int _replies;
 };
-
-typedef IceUtil::Handle<PingReplyI> PingReplyIPtr;
+ICE_DEFINE_PTR(PingReplyIPtr, PingReplyI);
 
 void
 allTests(const CommunicatorPtr& communicator)
 {
     communicator->getProperties()->setProperty("ReplyAdapter.Endpoints", "udp -p 12030");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("ReplyAdapter");
-    PingReplyIPtr replyI = new PingReplyI;
-    PingReplyPrx reply = PingReplyPrx::uncheckedCast(adapter->addWithUUID(replyI))->ice_datagram();
+    PingReplyIPtr replyI = ICE_MAKE_SHARED(PingReplyI);
+    PingReplyPrxPtr reply = ICE_UNCHECKED_CAST(PingReplyPrx, adapter->addWithUUID(replyI))->ice_datagram();
     adapter->activate();
 
     cout << "testing udp... " << flush;
-    ObjectPrx base = communicator->stringToProxy("test -d:udp -p 12010");
-    TestIntfPrx obj = TestIntfPrx::uncheckedCast(base);
+    ObjectPrxPtr base = communicator->stringToProxy("test -d:udp -p 12010");
+    TestIntfPrxPtr obj = ICE_UNCHECKED_CAST(TestIntfPrx, base);
 
     int nRetry = 5;
     bool ret;
@@ -89,8 +88,8 @@ allTests(const CommunicatorPtr& communicator)
 
         // If the 3 datagrams were not received within the 2 seconds, we try again to
         // receive 3 new datagrams using a new object. We give up after 5 retries. 
-        replyI = new PingReplyI;
-        reply = PingReplyPrx::uncheckedCast(adapter->addWithUUID(replyI))->ice_datagram();
+        replyI = ICE_MAKE_SHARED(PingReplyI);
+        reply = ICE_UNCHECKED_CAST(PingReplyPrx, adapter->addWithUUID(replyI))->ice_datagram();
     }
     test(ret);
 
@@ -149,7 +148,7 @@ allTests(const CommunicatorPtr& communicator)
         endpoint = "udp -h 239.255.1.1 -p 12020";
     }
     base = communicator->stringToProxy("test -d:" + endpoint);
-    TestIntfPrx objMcast = TestIntfPrx::uncheckedCast(base);
+    TestIntfPrxPtr objMcast = ICE_UNCHECKED_CAST(TestIntfPrx, base);
 #if !defined(ICE_OS_WINRT) && (!defined(__APPLE__) || (defined(__APPLE__) && !TARGET_OS_IPHONE))
     cout << "testing udp multicast... " << flush;
 
@@ -163,8 +162,8 @@ allTests(const CommunicatorPtr& communicator)
         {
             break; // Success
         }
-        replyI = new PingReplyI;
-        reply = PingReplyPrx::uncheckedCast(adapter->addWithUUID(replyI))->ice_datagram();
+        replyI = ICE_MAKE_SHARED(PingReplyI);
+        reply = ICE_UNCHECKED_CAST(PingReplyPrx, adapter->addWithUUID(replyI))->ice_datagram();
     }
     if(!ret)
     {
@@ -194,8 +193,8 @@ allTests(const CommunicatorPtr& communicator)
 
         // If the 3 datagrams were not received within the 2 seconds, we try again to
         // receive 3 new datagrams using a new object. We give up after 5 retries. 
-        replyI = new PingReplyI;
-        reply = PingReplyPrx::uncheckedCast(adapter->addWithUUID(replyI))->ice_datagram();
+        replyI = ICE_MAKE_SHARED(PingReplyI);
+        reply = ICE_UNCHECKED_CAST(PingReplyPrx, adapter->addWithUUID(replyI))->ice_datagram();
     }
     test(ret);
     cout << "ok" << endl;

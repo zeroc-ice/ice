@@ -22,7 +22,9 @@ SUBDIRS		= proxy \
                   objects \
                   properties \
                   admin \
-                  enums
+                  enums \
+                  timeout \
+                  udp
 else
 SUBDIRS		= proxy \
                   operations \

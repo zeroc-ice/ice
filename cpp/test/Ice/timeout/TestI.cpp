@@ -47,7 +47,7 @@ TimeoutI::sendData(const Test::ByteSeq&, const Ice::Current&)
 }
 
 void
-TimeoutI::sleep(Ice::Int to, const Ice::Current&)
+TimeoutI::sleep(Ice::Int to, const Ice::Current& c)
 {
     IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(to));
 }
