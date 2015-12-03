@@ -6326,7 +6326,8 @@ Slice::Gen::Cpp11TypesVisitor::visitSequence(const SequencePtr& p)
 {
     string name = fixKwd(p->name());
     TypePtr type = p->type();
-    string s = typeToString(type, p->typeMetaData(), _useWstring, true);
+    int typeCtx = p->isLocal() ? (_useWstring | TypeContextLocalOperation) : _useWstring;
+    string s = typeToString(type, p->typeMetaData(), typeCtx, true);
     StringList metaData = p->getMetaData();
 
     string seqType = findMetaData(metaData, _useWstring);
@@ -6347,7 +6348,7 @@ Slice::Gen::Cpp11TypesVisitor::visitDictionary(const DictionaryPtr& p)
 {
     string name = fixKwd(p->name());
     string dictType = findMetaData(p->getMetaData());
-
+    int typeCtx = p->isLocal() ? (_useWstring | TypeContextLocalOperation) : _useWstring;
     if(dictType.empty())
     {
         //
@@ -6356,12 +6357,12 @@ Slice::Gen::Cpp11TypesVisitor::visitDictionary(const DictionaryPtr& p)
 
         TypePtr keyType = p->keyType();
         TypePtr valueType = p->valueType();
-        string ks = typeToString(keyType, p->keyMetaData(), _useWstring);
+        string ks = typeToString(keyType, p->keyMetaData(), typeCtx, true);
         if(ks[0] == ':')
         {
             ks.insert(0, " ");
         }
-        string vs = typeToString(valueType, p->valueMetaData(), _useWstring);
+        string vs = typeToString(valueType, p->valueMetaData(), typeCtx, true);
 
         H << sp << nl << "typedef ::std::map<" << ks << ", " << vs << "> " << name << ';';
     }
@@ -7625,7 +7626,7 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitOperation(const OperationPtr& p)
     string scope = fixKwd(p->scope());
 
     TypePtr ret = p->returnType();
-    string retS = returnTypeToString(ret, p->returnIsOptional(), p->getMetaData(), _useWstring, true);
+    string retS = returnTypeToString(ret, p->returnIsOptional(), p->getMetaData(), _useWstring | TypeContextLocalOperation, true);
 
     string params = "(";
     string paramsDecl = "(";
@@ -7648,12 +7649,12 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitOperation(const OperationPtr& p)
         if(isOutParam)
         {
             outParams.push_back(*q);
-            typeString = outputTypeToString(type, (*q)->optional(), (*q)->getMetaData(), _useWstring, true);
+            typeString = outputTypeToString(type, (*q)->optional(), (*q)->getMetaData(), _useWstring | TypeContextLocalOperation, true);
         }
         else
         {
             inParams.push_back(*q);
-            typeString = inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), _useWstring, true);
+            typeString = inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), _useWstring | TypeContextLocalOperation, true);
         }
 
         if(q != paramList.begin())
@@ -7671,7 +7672,7 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitOperation(const OperationPtr& p)
 
         if(isOutParam)
         {
-            outDecls.push_back(inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), _useWstring, true));
+            outDecls.push_back(inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), _useWstring | TypeContextLocalOperation, true));
         }
     }
 
@@ -7702,11 +7703,11 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitOperation(const OperationPtr& p)
             if((*r)->isOutParam())
             {
                 typeString = outputTypeToString((*r)->type(), (*r)->optional(), metaData,
-                                                _useWstring | TypeContextAMIEnd, true);
+                                                _useWstring | TypeContextAMIEnd | TypeContextLocalOperation, true);
             }
             else
             {
-                typeString = inputTypeToString((*r)->type(), (*r)->optional(), metaData, _useWstring, true);
+                typeString = inputTypeToString((*r)->type(), (*r)->optional(), metaData, _useWstring | TypeContextLocalOperation, true);
             }
 
             if(!(*r)->isOutParam())
@@ -8698,7 +8699,7 @@ Slice::Gen::Cpp11ObjectVisitor::emitOneShotConstructor(const ClassDefPtr& p)
         for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
         {
             
-            string typeName = inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), _useWstring);
+            string typeName = inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), _useWstring, true);
             allParamDecls.push_back(typeName + " __ice_" + (*q)->name());
         }
 
