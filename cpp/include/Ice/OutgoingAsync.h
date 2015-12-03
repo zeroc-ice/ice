@@ -86,7 +86,7 @@ protected:
 // correct notified of failures and make sure the retry task is
 // correctly canceled when the invocation completes.
 //
-class ICE_API ProxyOutgoingAsyncBase : public OutgoingAsyncBase, protected IceUtil::TimerTask
+class ICE_API ProxyOutgoingAsyncBase : public OutgoingAsyncBase, public IceUtil::TimerTask
 {
 public:
 
