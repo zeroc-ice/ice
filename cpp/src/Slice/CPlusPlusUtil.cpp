@@ -486,7 +486,7 @@ Slice::typeToString(const TypePtr& type, const StringList& metaData, int typeCtx
         "::Ice::LocalObjectPtr",
         "::Ice::ValuePtr"
     };
-    
+
     static const char* cpp11BuiltinTable[] =
     {
         "::Ice::Byte",
@@ -542,6 +542,10 @@ Slice::typeToString(const TypePtr& type, const StringList& metaData, int typeCtx
             if(cpp11 && findMetaData("cpp11:type:", cl, t))
             {
                 return t;
+            }
+            else if(cl->definition() && cl->definition()->isDelegate())
+            {
+                return classDefToDelegateString(cl->definition());
             }
             else
             {
@@ -673,7 +677,7 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const StringList& m
         "const ::Ice::LocalObjectPtr&",
         "const ::Ice::ValuePtr&"
     };
-    
+
     static const char* cpp11InputBuiltinTable[] =
     {
         "::Ice::Byte",
@@ -737,6 +741,10 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const StringList& m
             else if(cl->isInterface() && !cl->isLocal())
             {
                 return "const ::std::shared_ptr<::Ice::Value>&";
+            }
+            else if(cl->definition() && cl->definition()->isDelegate())
+            {
+                return classDefToDelegateString(cl->definition(), typeCtx, cpp11);
             }
             else
             {
@@ -829,7 +837,7 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const StringList& 
         "::Ice::LocalObjectPtr&",
         "::Ice::ValuePtr&"
     };
-    
+
     static const char* cpp11OutputBuiltinTable[] =
     {
         "::Ice::Byte&",
@@ -1258,7 +1266,7 @@ Slice::findMetaData(const string& prefix, const ClassDeclPtr& cl, string& value)
     {
         return true;
     }
-    
+
     ClassDefPtr def = cl->definition();
     return def ? findMetaData(prefix, def->getMetaData(), value) : false;
 }
@@ -1405,4 +1413,37 @@ Slice::getDataMemberRef(const DataMemberPtr& p)
     {
         return "(*" + name + ")";
     }
+}
+
+string
+Slice::classDefToDelegateString(const ClassDefPtr& cl, int typeCtx, bool cpp11)
+{
+    assert(cl->isDelegate());
+
+    // A delegate only has one operation
+    OperationPtr op = cl->allOperations().front();
+
+    TypePtr ret = op->returnType();
+    string retS = returnTypeToString(ret, op->returnIsOptional(), op->getMetaData(), typeCtx, cpp11);
+
+    string t = "::std::function<" + retS + " (";
+
+    ParamDeclList paramList = cl->allOperations().front()->parameters();
+    for(ParamDeclList::iterator q = paramList.begin(); q != paramList.end(); ++q)
+    {
+        if((*q)->isOutParam())
+        {
+            t += outputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), typeCtx, cpp11);
+        }
+        else
+        {
+            t += inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), typeCtx, cpp11);
+        }
+
+        t += distance(q, paramList.end()) == 1  ? "" : ", ";
+    }
+
+    t += ")>";
+
+    return t;
 }

@@ -1640,7 +1640,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
             BuiltinPtr elemBuiltin = BuiltinPtr::dynamicCast(elemType);
 
             if(optionalParam && elemBuiltin && elemBuiltin->kind() != Builtin::KindObject &&
-               elemBuiltin->kind() != Builtin::KindObjectProxy && elemBuiltin->kind() != Builtin::KindValue && 
+               elemBuiltin->kind() != Builtin::KindObjectProxy && elemBuiltin->kind() != Builtin::KindValue &&
                !hasTypeMetaData(seq, metaData))
             {
                 static const char* builtinTable[] =
@@ -2343,7 +2343,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     {
         BuiltinPtr b = BuiltinPtr::dynamicCast(type);
         if(b && b->kind() != Builtin::KindObject &&
-                b->kind() != Builtin::KindValue && 
+                b->kind() != Builtin::KindValue &&
                 b->kind() != Builtin::KindObjectProxy)
         {
             switch(b->kind())
@@ -3201,7 +3201,7 @@ Slice::JavaGenerator::writeStreamDictionaryMarshalUnmarshalCode(Output& out,
             }
         }
         BuiltinPtr builtin = BuiltinPtr::dynamicCast(value);
-        if(!(builtin && (builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue)) && 
+        if(!(builtin && (builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue)) &&
            !ClassDeclPtr::dynamicCast(value))
         {
             out << nl << "" << v << ".put(__key, __value);";
@@ -3536,7 +3536,7 @@ Slice::JavaGenerator::writeStreamSequenceMarshalUnmarshalCode(Output& out,
     {
         BuiltinPtr b = BuiltinPtr::dynamicCast(type);
         if(b && b->kind() != Builtin::KindObject &&
-                b->kind() != Builtin::KindValue && 
+                b->kind() != Builtin::KindValue &&
                 b->kind() != Builtin::KindObjectProxy)
         {
             switch(b->kind())
@@ -4280,6 +4280,11 @@ Slice::JavaGenerator::MetaDataVisitor::getMetaData(const ContainedPtr& cont)
 
                 emitWarning(cont->file(), cont->line(), "ignoring invalid metadata `" + s + "'");
             }
+            else if(s == "delegate")
+            {
+                result.push_back(s);
+                continue;
+            }
 
             _history.insert(s);
         }
@@ -4335,6 +4340,15 @@ Slice::JavaGenerator::MetaDataVisitor::validateType(const SyntaxTreeBasePtr& p, 
             //
             // Only valid in sequence defintion which is checked in visitSequence
             //
+            emitWarning(file, line, "ignoring invalid metadata `" + *i + "'");
+        }
+        else if(i->find("delegate") == 0)
+        {
+            ClassDefPtr cl = ClassDefPtr::dynamicCast(p);
+            if(cl && cl->isDelegate())
+            {
+                continue;
+            }
             emitWarning(file, line, "ignoring invalid metadata `" + *i + "'");
         }
     }

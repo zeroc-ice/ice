@@ -31,3 +31,7 @@ These are the changes since Ice 3.6.1.
 
   For consistency, the `node.datadir` variable has been deprecated, use the
   `node.data` variable instead.
+
+- Added the new metadata tag `delegate` for local interfaces with one operation.
+  Interfaces with this metadata will be generated as a `std::function` in C++, a
+  `delegate` in C#, and a `FunctionalInterface` in Java.

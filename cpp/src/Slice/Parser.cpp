@@ -415,7 +415,7 @@ Slice::Contained::updateIncludeLevel()
 
 bool
 Slice::Contained::hasMetaData(const string& meta) const
-{        
+{
     return find(_metaData.begin(), _metaData.end(), meta) != _metaData.end();
 }
 
@@ -3467,7 +3467,7 @@ Slice::ClassDef::classDataMembers() const
         if(q)
         {
             BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->type());
-            if((builtin && builtin->kind() == Builtin::KindObject) || 
+            if((builtin && builtin->kind() == Builtin::KindObject) ||
                (builtin && builtin->kind() == Builtin::KindValue) ||
                ClassDeclPtr::dynamicCast(q->type()))
             {
@@ -3658,6 +3658,11 @@ Slice::ClassDef::compactId() const
     return _compactId;
 }
 
+bool
+Slice::ClassDef::isDelegate() const
+{
+    return isLocal() && isInterface() && hasMetaData("delegate") && allOperations().size() == 1;
+}
 Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, int id, bool intf, const ClassList& bases,
                           bool local) :
     SyntaxTreeBase(container->unit()),

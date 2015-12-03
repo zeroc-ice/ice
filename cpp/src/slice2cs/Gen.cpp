@@ -1517,7 +1517,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
             }
             string memberName = fixId((*d)->name(), DotNet::ICloneable, true);
             string memberType = typeToString((*d)->type(), (*d)->optional());
-            
+
             if(ClassDeclPtr::dynamicCast((*d)->type()))
             {
                 _out << nl << "_instance." << memberName << " = (" << memberType << ")v;";
@@ -1526,14 +1526,14 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
             {
                 _out << nl << "_instance." << memberName << " = v;";
             }
-            
+
             if(classMembers.size() > 1)
             {
                 _out << nl << "break;";
             }
             memberCount++;
         }
-        
+
         for(DataMemberList::const_iterator d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
         {
             TypePtr paramType = (*d)->type();
@@ -1578,7 +1578,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
                 memberCount++;
             }
         }
-        
+
         if(classMembers.size() > 1)
         {
             _out << eb;
@@ -3036,6 +3036,16 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     _out << sp;
     emitAttributes(p);
+
+    if(p->isDelegate())
+    {
+        emitComVisibleAttribute();
+        OperationPtr o = p->allOperations().front();
+        _out << nl << "public delegate " << typeToString(o->returnType(), o->returnIsOptional()) << " ";
+        _out << fixId(name) << spar << getParams(o) << epar << ";";
+        return false;
+    }
+
     if(p->isInterface())
     {
         emitComVisibleAttribute();
@@ -3864,7 +3874,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         }
         _out << eb;
 
-        
+
         if(classMembers.size() != 0)
         {
             _out << sp;
@@ -3943,7 +3953,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
                 }
                 memberCount++;
             }
-            
+
             for(DataMemberList::const_iterator q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
             {
 
@@ -3989,7 +3999,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
                     memberCount++;
                 }
             }
-            
+
             if(classMembers.size() > 1)
             {
                 _out << eb;
@@ -4014,7 +4024,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         _out << nl << "protected override void readImpl__(IceInternal.BasicStream is__)";
         _out << sb;
         _out << nl << "is__.startReadSlice();";
-        
+
         int patchIter = 0;
         const bool needCustomPatcher = classMembers.size() > 1;
         for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)

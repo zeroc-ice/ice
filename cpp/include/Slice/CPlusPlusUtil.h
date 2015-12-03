@@ -65,6 +65,8 @@ SLICE_API std::string findMetaData(const StringList&, int = 0);
 SLICE_API bool inWstringModule(const SequencePtr&);
 
 SLICE_API std::string getDataMemberRef(const DataMemberPtr&);
+
+SLICE_API std::string classDefToDelegateString(const ClassDefPtr&, int = 0, bool = false);
 }
 
 #endif

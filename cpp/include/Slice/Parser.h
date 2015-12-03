@@ -690,6 +690,7 @@ public:
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*, bool);
     int compactId() const;
+    bool isDelegate() const;
 
 protected:
 

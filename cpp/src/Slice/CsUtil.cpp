@@ -1179,7 +1179,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                                 << "> e__ = " << param << ".GetEnumerator();";
                             out << nl << "while(e__.MoveNext())";
                             out << sb;
-                            string func = (builtin->kind() == Builtin::KindObject || 
+                            string func = (builtin->kind() == Builtin::KindObject ||
                                            builtin->kind() == Builtin::KindValue) ? "writeObject" : "writeProxy";
                             out << nl << stream << '.' << func << "(e__.Current);";
                             out << eb;
@@ -2632,6 +2632,20 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
             {
                 static const string csAttributePrefix = prefix + "attribute:";
                 if(s.find(csAttributePrefix) == 0 && s.size() > csAttributePrefix.size())
+                {
+                    continue;
+                }
+                emitWarning(cont->file(), cont->line(), msg + " `" + s + "'");
+                _history.insert(s);
+            }
+        }
+
+        if(_history.count(s) == 0)
+        {
+            if(s == "delegate")
+            {
+                ClassDefPtr cl = ClassDefPtr::dynamicCast(cont);
+                if(cl && cl->isDelegate())
                 {
                     continue;
                 }
