@@ -12,10 +12,6 @@
 
 #include <ServerPrivate.h>
 
-#ifndef ICE_CPP11_MAPPING
-#   include <Forward.h>
-#endif
-
 class TestI : virtual public Test::TestIntf
 {
 public:

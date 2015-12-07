@@ -234,7 +234,7 @@ TestI::paramTest2_async(function<void (const shared_ptr<Test::B>&, const shared_
 }
 
 void
-TestI::paramTest3_async(function<void (const shared_ptr<Test::B>&, 
+TestI::paramTest3_async(function<void (const shared_ptr<Test::B>&,
                                        const shared_ptr<Test::B>&,
                                        const shared_ptr<Test::B>&)> response,
                         function<void (const exception_ptr&)>,
@@ -268,7 +268,7 @@ TestI::paramTest3_async(function<void (const shared_ptr<Test::B>&,
 }
 
 void
-TestI::paramTest4_async(function<void (const shared_ptr<Test::B>&, 
+TestI::paramTest4_async(function<void (const shared_ptr<Test::B>&,
                                        const shared_ptr<Test::B>&)> response,
                         function<void (const exception_ptr&)>,
                         const ::Ice::Current&)
@@ -284,7 +284,7 @@ TestI::paramTest4_async(function<void (const shared_ptr<Test::B>&,
 }
 
 void
-TestI::returnTest1_async(function<void (const shared_ptr<Test::B>&, 
+TestI::returnTest1_async(function<void (const shared_ptr<Test::B>&,
                                         const shared_ptr<Test::B>&,
                                         const shared_ptr<Test::B>&)> response,
                          function<void (const exception_ptr&)>,
@@ -412,7 +412,7 @@ TestI::PBSUnknownAsPreserved_async(function<void (const shared_ptr<::Test::Prese
     response(r);
 }
 
-void 
+void
 TestI::checkPBSUnknown_async(const shared_ptr<::Test::Preserved>& p,
                              function<void ()> response,
                              function<void (const exception_ptr&)>,
@@ -1182,16 +1182,6 @@ TestI::throwPreservedException_async(const AMD_TestIntf_throwPreservedExceptionP
     ue.p->pb = ue.p;
     cb->ice_exception(ue);
     ue.p->pb = 0; // Break the cycle.
-}
-
-void
-TestI::useForward_async(const AMD_TestIntf_useForwardPtr& cb, const ::Ice::Current&)
-{
-    ForwardPtr f = new Forward;
-    f->h = new Hidden;
-    f->h->f = f;
-    f->ice_collectable(true);
-    cb->ice_response(f);
 }
 
 void
