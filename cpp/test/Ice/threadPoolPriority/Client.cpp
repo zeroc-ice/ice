@@ -16,8 +16,8 @@ using namespace std;
 int
 run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
-    Test::PriorityPrx allTests(const Ice::CommunicatorPtr&);
-    Test::PriorityPrx priority = allTests(communicator);
+    Test::PriorityPrxPtr allTests(const Ice::CommunicatorPtr&);
+    Test::PriorityPrxPtr priority = allTests(communicator);
 
     priority->shutdown();
 

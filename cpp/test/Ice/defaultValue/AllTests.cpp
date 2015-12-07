@@ -30,12 +30,21 @@ allTests()
         test(v.f == static_cast<float>(5.1));
         test(v.d == 6.2);
         test(v.str == "foo \\ \"bar\n \r\n\t\v\f\a\b? \007 \x07");
+#ifdef ICE_CPP11_MAPPING
+        test(v.c1 == Color::red);
+        test(v.c2 == Color::green);
+        test(v.c3 == Color::blue);
+        test(v.nc1 == Nested::Color::red);
+        test(v.nc2 == Nested::Color::green);
+        test(v.nc3 == Nested::Color::blue);
+#else
         test(v.c1 == red);
         test(v.c2 == green);
         test(v.c3 == blue);
         test(v.nc1 == Nested::red);
         test(v.nc2 == Nested::green);
         test(v.nc3 == Nested::blue);
+#endif
         test(v.noDefault.empty());
         test(v.zeroI == 0);
         test(v.zeroL == 0);
@@ -70,6 +79,31 @@ allTests()
     }
 
     {
+#ifdef ICE_CPP11_MAPPING
+        Struct3 v;
+        test(!v.boolFalse);
+        test(v.boolTrue);
+        test(v.b == 1);
+        test(v.s == 2);
+        test(v.i == 3);
+        test(v.l == 4);
+        test(v.f == static_cast<float>(5.1));
+        test(v.d == 6.2);
+        test(v.str == "foo \\ \"bar\n \r\n\t\v\f\a\b? \007 \x07");
+        test(v.c1 == Color::red);
+        test(v.c2 == Color::green);
+        test(v.c3 == Color::blue);
+        test(v.nc1 == Nested::Color::red);
+        test(v.nc2 == Nested::Color::green);
+        test(v.nc3 == Nested::Color::blue);
+        test(v.noDefault.empty());
+        test(v.zeroI == 0);
+        test(v.zeroL == 0);
+        test(v.zeroF == 0);
+        test(v.zeroDotF == 0);
+        test(v.zeroD == 0);
+        test(v.zeroDotD == 0);
+#else
         Struct3Ptr v = new Struct3;
         test(!v->boolFalse);
         test(v->boolTrue);
@@ -93,10 +127,11 @@ allTests()
         test(v->zeroDotF == 0);
         test(v->zeroD == 0);
         test(v->zeroDotD == 0);
+#endif
     }
 
     {
-        BasePtr v = new Base;
+        BasePtr v = ICE_MAKE_SHARED(Base);
         test(!v->boolFalse);
         test(v->boolTrue);
         test(v->b == 1);
@@ -116,7 +151,7 @@ allTests()
     }
 
     {
-        DerivedPtr v = new Derived;
+        DerivedPtr v = ICE_MAKE_SHARED(Derived);
         test(!v->boolFalse);
         test(v->boolTrue);
         test(v->b == 1);
@@ -127,12 +162,21 @@ allTests()
         test(v->d == 6.2);
         test(v->str == "foo \\ \"bar\n \r\n\t\v\f\a\b? \007 \x07");
         test(v->noDefault.empty());
+#ifdef ICE_CPP11_MAPPING
+        test(v->c1 == Color::red);
+        test(v->c2 == Color::green);
+        test(v->c3 == Color::blue);
+        test(v->nc1 == Nested::Color::red);
+        test(v->nc2 == Nested::Color::green);
+        test(v->nc3 == Nested::Color::blue);
+#else
         test(v->c1 == red);
         test(v->c2 == green);
         test(v->c3 == blue);
         test(v->nc1 == Nested::red);
         test(v->nc2 == Nested::green);
         test(v->nc3 == Nested::blue);
+#endif
         test(v->zeroI == 0);
         test(v->zeroL == 0);
         test(v->zeroF == 0);
@@ -173,12 +217,21 @@ allTests()
         test(v.d == 6.2);
         test(v.str == "foo \\ \"bar\n \r\n\t\v\f\a\b? \007 \x07");
         test(v.noDefault.empty());
+#ifdef ICE_CPP11_MAPPING
+        test(v.c1 == Color::red);
+        test(v.c2 == Color::green);
+        test(v.c3 == Color::blue);
+        test(v.nc1 == Nested::Color::red);
+        test(v.nc2 == Nested::Color::green);
+        test(v.nc3 == Nested::Color::blue);
+#else
         test(v.c1 == red);
         test(v.c2 == green);
         test(v.c3 == blue);
         test(v.nc1 == Nested::red);
         test(v.nc2 == Nested::green);
         test(v.nc3 == Nested::blue);
+#endif
         test(v.zeroI == 0);
         test(v.zeroL == 0);
         test(v.zeroF == 0);

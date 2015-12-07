@@ -39,6 +39,8 @@ public:
     
     virtual const std::string& ice_id() const;
     static const std::string& ice_staticId();
+    
+    virtual ValuePtr ice_clone() const;
 
 protected:
     

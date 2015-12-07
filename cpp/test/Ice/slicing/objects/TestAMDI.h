@@ -11,14 +11,175 @@
 #define TESTI_H
 
 #include <ServerPrivateAMD.h>
-#include <Forward.h>
 
 class TestI : virtual public ::Test::TestIntf
 {
 public:
 
     TestI();
+#ifdef ICE_CPP11_MAPPING
+    virtual void SBaseAsObject_async(std::function<void (const std::shared_ptr<Ice::Value>&)>,
+                                     std::function<void (const std::exception_ptr&)>,
+                                     const ::Ice::Current&);
 
+    virtual void SBaseAsSBase_async(std::function<void (const std::shared_ptr<Test::SBase>&)>,
+                                    std::function<void (const std::exception_ptr&)>,
+                                    const ::Ice::Current&);
+
+    virtual void SBSKnownDerivedAsSBase_async(std::function<void (const std::shared_ptr<Test::SBase>&)>,
+                                              std::function<void (const std::exception_ptr&)>,
+                                              const ::Ice::Current&);
+
+    virtual void SBSKnownDerivedAsSBSKnownDerived_async(std::function<void (const std::shared_ptr<Test::SBSKnownDerived>&)>,
+                                                        std::function<void (const std::exception_ptr&)>,
+                                                        const ::Ice::Current&);
+
+    virtual void SBSUnknownDerivedAsSBase_async(std::function<void (const std::shared_ptr<Test::SBase>&)>,
+                                                std::function<void (const std::exception_ptr&)>,
+                                                const ::Ice::Current&);
+
+    virtual void SBSUnknownDerivedAsSBaseCompact_async(std::function<void (const std::shared_ptr<Test::SBase>&)>,
+                                                       std::function<void (const std::exception_ptr&)>,
+                                                       const ::Ice::Current&);
+
+    virtual void SUnknownAsObject_async(std::function<void (const std::shared_ptr<Ice::Value>&)>,
+                                        std::function<void (const std::exception_ptr&)>,
+                                        const ::Ice::Current&);
+
+    virtual void checkSUnknown_async(const Ice::ValuePtr&,
+                                     std::function<void ()>,
+                                     std::function<void (const std::exception_ptr&)>,
+                                     const ::Ice::Current&);
+
+    virtual void oneElementCycle_async(std::function<void (const std::shared_ptr<Test::B>&)>,
+                                       std::function<void (const std::exception_ptr&)>,
+                                       const ::Ice::Current&);
+
+    virtual void twoElementCycle_async(std::function<void (const std::shared_ptr<Test::B>&)>,
+                                       std::function<void (const std::exception_ptr&)>,
+                                       const ::Ice::Current&);
+
+    virtual void D1AsB_async(std::function<void (const std::shared_ptr<Test::B>&)>,
+                             std::function<void (const std::exception_ptr&)>,
+                             const ::Ice::Current&);
+
+    virtual void D1AsD1_async(std::function<void (const std::shared_ptr<Test::D1>&)>,
+                              std::function<void (const std::exception_ptr&)>,
+                              const ::Ice::Current&);
+
+    virtual void D2AsB_async(std::function<void (const std::shared_ptr<Test::B>&)>,
+                             std::function<void (const std::exception_ptr&)>,
+                             const ::Ice::Current&);
+
+    virtual void paramTest1_async(std::function<void (const std::shared_ptr<Test::B>&,
+                                                      const std::shared_ptr<Test::B>&)>,
+                                  std::function<void (const std::exception_ptr&)>,
+                                  const ::Ice::Current&);
+
+    virtual void paramTest2_async(std::function<void (const std::shared_ptr<Test::B>&, 
+                                                      const std::shared_ptr<Test::B>&)>,
+                                  std::function<void (const std::exception_ptr&)>,
+                                  const ::Ice::Current&);
+
+    virtual void paramTest3_async(std::function<void (const std::shared_ptr<Test::B>&, 
+                                                      const std::shared_ptr<Test::B>&,
+                                                      const std::shared_ptr<Test::B>&)>,
+                                  std::function<void (const std::exception_ptr&)>,
+                                  const ::Ice::Current&);
+
+    virtual void paramTest4_async(std::function<void (const std::shared_ptr<Test::B>&, 
+                                                      const std::shared_ptr<Test::B>&)>,
+                                  std::function<void (const std::exception_ptr&)>,
+                                  const ::Ice::Current&);
+
+    virtual void returnTest1_async(std::function<void (const std::shared_ptr<Test::B>&, 
+                                                       const std::shared_ptr<Test::B>&,
+                                                       const std::shared_ptr<Test::B>&)>,
+                                   std::function<void (const std::exception_ptr&)>,
+                                   const ::Ice::Current&);
+
+    virtual void returnTest2_async(std::function<void (const std::shared_ptr<Test::B>&, 
+                                                       const std::shared_ptr<Test::B>&,
+                                                       const std::shared_ptr<Test::B>&)>,
+                                   std::function<void (const std::exception_ptr&)>,
+                                   const ::Ice::Current&);
+
+    virtual void returnTest3_async(const ::Test::BPtr&, const ::Test::BPtr&,
+                                   std::function<void (const std::shared_ptr<Test::B>&)>,
+                                   std::function<void (const std::exception_ptr&)>,
+                                   const ::Ice::Current&);
+
+    virtual void sequenceTest_async(const ::std::shared_ptr<::Test::SS1>&,
+                                    const ::std::shared_ptr<::Test::SS2>&,
+                                    std::function<void (const ::Test::SS3&)>,
+                                    std::function<void (const std::exception_ptr&)>,
+                                    const ::Ice::Current&);
+
+    virtual void dictionaryTest_async(const Test::BDict&,
+                                      std::function<void (const ::Test::BDict&, const ::Test::BDict&)>,
+                                      std::function<void (const std::exception_ptr&)>,
+                                      const ::Ice::Current&);
+
+    virtual void exchangePBase_async(const std::shared_ptr<::Test::PBase>&,
+                                     std::function<void (const std::shared_ptr<::Test::PBase>&)>,
+                                     std::function<void (const std::exception_ptr&)>,
+                                     const ::Ice::Current&);
+
+    virtual void PBSUnknownAsPreserved_async(std::function<void (const std::shared_ptr<::Test::Preserved>&)>,
+                                             std::function<void (const std::exception_ptr&)>,
+                                             const ::Ice::Current&);
+
+    virtual void checkPBSUnknown_async(const std::shared_ptr<::Test::Preserved>&,
+                                       std::function<void ()>,
+                                       std::function<void (const std::exception_ptr&)>,
+                                       const ::Ice::Current&);
+
+    virtual void PBSUnknownAsPreservedWithGraph_async(std::function<void (const std::shared_ptr<::Test::Preserved>&)>,
+                                                      std::function<void (const std::exception_ptr&)>,
+                                                      const ::Ice::Current&);
+
+    virtual void checkPBSUnknownWithGraph_async(const ::Test::PreservedPtr&,
+                                                std::function<void ()>,
+                                                std::function<void (const std::exception_ptr&)>,
+                                                const ::Ice::Current&);
+
+    virtual void PBSUnknown2AsPreservedWithGraph_async(std::function<void (const std::shared_ptr<::Test::Preserved>&)>,
+                                                       std::function<void (const std::exception_ptr&)>,
+                                                       const ::Ice::Current&);
+
+    virtual void checkPBSUnknown2WithGraph_async(const std::shared_ptr<::Test::Preserved>&,
+                                                 std::function<void ()>,
+                                                 std::function<void (const std::exception_ptr&)>,
+                                                 const ::Ice::Current&);
+
+    virtual void exchangePNode_async(const ::Test::PNodePtr&,
+                                     std::function<void (const std::shared_ptr<::Test::PNode>&)>,
+                                     std::function<void (const std::exception_ptr&)>,
+                                     const ::Ice::Current&);
+
+    virtual void throwBaseAsBase_async(std::function<void ()>,
+                                       std::function<void (const std::exception_ptr&)>,
+                                       const ::Ice::Current&);
+
+    virtual void throwDerivedAsBase_async(std::function<void ()>,
+                                          std::function<void (const std::exception_ptr&)>,
+                                          const ::Ice::Current&);
+    virtual void throwDerivedAsDerived_async(std::function<void ()>,
+                                             std::function<void (const std::exception_ptr&)>,
+                                             const ::Ice::Current&);
+
+    virtual void throwUnknownDerivedAsBase_async(std::function<void ()>,
+                                                 std::function<void (const std::exception_ptr&)>,
+                                                 const ::Ice::Current&);
+
+    virtual void throwPreservedException_async(std::function<void ()>,
+                                               std::function<void (const std::exception_ptr&)>,
+                                               const ::Ice::Current&);
+
+    virtual void shutdown_async(std::function<void ()>,
+                                std::function<void (const std::exception_ptr&)>,
+                                const ::Ice::Current&);
+#else    
     virtual void SBaseAsObject_async(const ::Test::AMD_TestIntf_SBaseAsObjectPtr&, const ::Ice::Current&);
     virtual void SBaseAsSBase_async(const ::Test::AMD_TestIntf_SBaseAsSBasePtr&, const ::Ice::Current&);
     virtual void SBSKnownDerivedAsSBase_async(const ::Test::AMD_TestIntf_SBSKnownDerivedAsSBasePtr&,
@@ -89,9 +250,8 @@ public:
     virtual void throwPreservedException_async(const ::Test::AMD_TestIntf_throwPreservedExceptionPtr&,
                                                const ::Ice::Current&);
 
-    virtual void useForward_async(const ::Test::AMD_TestIntf_useForwardPtr&, const ::Ice::Current&);
-
     virtual void shutdown_async(const ::Test::AMD_TestIntf_shutdownPtr&, const ::Ice::Current&);
+#endif
 };
 
 #endif

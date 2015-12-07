@@ -47,7 +47,7 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
 #endif
 
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    Ice::ObjectPtr object = new PriorityI(adapter);
+    Ice::ObjectPtr object = ICE_MAKE_SHARED(PriorityI, adapter);
     adapter->add(object, communicator->stringToIdentity("test"));
     adapter->activate();
     communicator->waitForShutdown();

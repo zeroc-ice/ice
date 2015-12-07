@@ -52,7 +52,7 @@ private:
     bool _called;
 };
 
-class Callback : public CallbackBase, public IceUtil::Shared
+class Callback : public CallbackBase, public ICE_ENABLE_SHARED_FROM_THIS(Callback)
 {
 public:
 
@@ -61,7 +61,7 @@ public:
     {
         test(o);
         test(o->ice_id() == "::Test::SBase");
-        SBasePtr sb = SBasePtr::dynamicCast(o);
+        SBasePtr sb = ICE_DYNAMIC_CAST(SBase, o);
         test(sb);
         test(sb->sb == "SBase.sb");
         called();
@@ -77,7 +77,7 @@ public:
     void
     response_SBSKnownDerivedAsSBase(const SBasePtr& sb)
     {
-        SBSKnownDerivedPtr sbskd = SBSKnownDerivedPtr::dynamicCast(sb);
+        SBSKnownDerivedPtr sbskd = ICE_DYNAMIC_CAST(SBSKnownDerived, sb);
         test(sbskd);
         test(sbskd->sbskd == "SBSKnownDerived.sbskd");
         called();
@@ -126,8 +126,8 @@ public:
     void
     response_SUnknownAsObject11(const Ice::ObjectPtr& o)
     {
-        test(Ice::UnknownSlicedObjectPtr::dynamicCast(o));
-        test(Ice::UnknownSlicedObjectPtr::dynamicCast(o)->getUnknownTypeId() == "::Test::SUnknown");
+        test(ICE_DYNAMIC_CAST(Ice::UnknownSlicedObject, o));
+        test(ICE_DYNAMIC_CAST(Ice::UnknownSlicedObject, o)->getUnknownTypeId() == "::Test::SUnknown");
         called();
     }
 
@@ -170,7 +170,7 @@ public:
         test(b1->sb == "D1.sb");
         test(b1->pb);
         test(b1->pb != b1);
-        D1Ptr d1 = D1Ptr::dynamicCast(b1);
+        D1Ptr d1 = ICE_DYNAMIC_CAST(D1, b1);
         test(d1);
         test(d1->sd1 == "D1.sd1");
         test(d1->pd1);
@@ -216,7 +216,7 @@ public:
         test(b1->ice_id() == "::Test::D1");
         test(b1->sb == "D1.sb");
         test(b1->pb == b2);
-        D1Ptr d1 = D1Ptr::dynamicCast(b1);
+        D1Ptr d1 = ICE_DYNAMIC_CAST(D1, b1);
         test(d1);
         test(d1->sd1 == "D1.sd1");
         test(d1->pd1 == b2);
@@ -230,7 +230,7 @@ public:
         test(b1->ice_id() == "::Test::D1");
         test(b1->sb == "D1.sb");
         test(b1->pb == b2);
-        D1Ptr d1 = D1Ptr::dynamicCast(b1);
+        D1Ptr d1 = ICE_DYNAMIC_CAST(D1, b1);
         test(d1);
         test(d1->sd1 == "D1.sd1");
         test(d1->pd1 == b2);
@@ -375,16 +375,9 @@ public:
     }
 
     void
-    response_useForward(const ForwardPtr& f)
-    {
-        test(f);
-        called();
-    }
-
-    void
     response_preserved1(const PBasePtr& r)
     {
-        PDerivedPtr pd = PDerivedPtr::dynamicCast(r);
+        PDerivedPtr pd = ICE_DYNAMIC_CAST(PDerived, r);
         test(pd);
         test(pd->pi == 3);
         test(pd->ps == "preserved");
@@ -395,7 +388,7 @@ public:
     void
     response_preserved2(const PBasePtr& r)
     {
-        PCUnknownPtr p2 = PCUnknownPtr::dynamicCast(r);
+        PCUnknownPtr p2 = ICE_DYNAMIC_CAST(PCUnknown, r);
         test(!p2);
         test(r->pi == 3);
         called();
@@ -407,7 +400,7 @@ public:
         //
         // Encoding 1.0
         //
-        PCDerivedPtr p2 = PCDerivedPtr::dynamicCast(r);
+        PCDerivedPtr p2 = ICE_DYNAMIC_CAST(PCDerived, r);
         test(!p2);
         test(r->pi == 3);
         called();
@@ -419,7 +412,7 @@ public:
         //
         // Encoding > 1.0
         //
-        PCDerivedPtr p2 = PCDerivedPtr::dynamicCast(r);
+        PCDerivedPtr p2 = ICE_DYNAMIC_CAST(PCDerived, r);
         test(p2);
         test(p2->pi == 3);
         test(p2->pbs[0] == p2);
@@ -429,12 +422,12 @@ public:
     void
     response_preserved5(const PBasePtr& r)
     {
-        PCDerived3Ptr p3 = PCDerived3Ptr::dynamicCast(r);
+        PCDerived3Ptr p3 = ICE_DYNAMIC_CAST(PCDerived3, r);
         test(p3);
         test(p3->pi == 3);
         for(int i = 0; i < 300; ++i)
         {
-            PCDerived2Ptr p2 = PCDerived2Ptr::dynamicCast(p3->pbs[i]);
+            PCDerived2Ptr p2 = ICE_DYNAMIC_CAST(PCDerived2, p3->pbs[i]);
             test(p2->pi == i);
             test(p2->pbs.size() == 1);
             test(!p2->pbs[0]);
@@ -451,7 +444,7 @@ public:
         //
         // Encoding 1.0
         //
-        CompactPCDerivedPtr p2 = CompactPCDerivedPtr::dynamicCast(r);
+        CompactPCDerivedPtr p2 = ICE_DYNAMIC_CAST(CompactPCDerived, r);
         test(!p2);
         test(r->pi == 3);
         called();
@@ -463,7 +456,7 @@ public:
         //
         // Encoding > 1.0
         //
-        CompactPCDerivedPtr p2 = CompactPCDerivedPtr::dynamicCast(r);
+        CompactPCDerivedPtr p2 = ICE_DYNAMIC_CAST(CompactPCDerived, r);
         test(p2);
         test(p2->pi == 3);
         test(p2->pbs[0] == p2);
@@ -494,7 +487,7 @@ public:
     BDict rbdict;
     BDict obdict;
 };
-typedef IceUtil::Handle<Callback> CallbackPtr;
+ICE_DEFINE_PTR(CallbackPtr, Callback);
 
 class PNodeI : virtual public PNode
 {
@@ -515,6 +508,7 @@ public:
 
 int PNodeI::counter = 0;
 
+#ifndef ICE_CPP11_MAPPING
 class NodeFactoryI : public Ice::ObjectFactory
 {
 public:
@@ -532,6 +526,7 @@ public:
     {
     }
 };
+#endif
 
 class PreservedI : virtual public Preserved
 {
@@ -552,6 +547,7 @@ public:
 
 int PreservedI::counter = 0;
 
+#ifndef ICE_CPP11_MAPPING
 class PreservedFactoryI : public Ice::ObjectFactory
 {
 public:
@@ -569,17 +565,18 @@ public:
     {
     }
 };
+#endif
 
 void
-testUOO(const TestIntfPrx& test)
+testUOO(const TestIntfPrxPtr& test)
 {
-    Ice::ObjectPtr o;
+    Ice::ValuePtr o;
     try
     {
         o = test->SUnknownAsObject();
         test(test->ice_getEncodingVersion() != Ice::Encoding_1_0);
-        test(Ice::UnknownSlicedObjectPtr::dynamicCast(o));
-        test(Ice::UnknownSlicedObjectPtr::dynamicCast(o)->getUnknownTypeId() == "::Test::SUnknown");
+        test(ICE_DYNAMIC_CAST(Ice::UnknownSlicedObject, o));
+        test(ICE_DYNAMIC_CAST(Ice::UnknownSlicedObject, o)->getUnknownTypeId() == "::Test::SUnknown");
         test->checkSUnknown(o);
     }
     catch(const Ice::NoObjectFactoryException&)
@@ -597,26 +594,31 @@ testUOO(const TestIntfPrx& test)
     }
 }
 
-TestIntfPrx
+TestIntfPrxPtr
 allTests(const Ice::CommunicatorPtr& communicator)
 {
-    Ice::ObjectPrx obj = communicator->stringToProxy("Test:default -p 12010");
-    TestIntfPrx test = TestIntfPrx::checkedCast(obj);
+    Ice::ObjectPrxPtr obj = communicator->stringToProxy("Test:default -p 12010");
+    TestIntfPrxPtr test = ICE_CHECKED_CAST(TestIntfPrx, obj);
 
     cout << "base as Object... " << flush;
     {
-        Ice::ObjectPtr o;
+        Ice::ValuePtr o;
         try
         {
             o = test->SBaseAsObject();
             test(o);
             test(o->ice_id() == "::Test::SBase");
         }
+        catch(const std::exception& ex)
+        {
+            cerr << ex.what() << endl;
+            test(false);
+        }
         catch(...)
         {
             test(false);
         }
-        SBasePtr sb = SBasePtr::dynamicCast(o);
+        SBasePtr sb = ICE_DYNAMIC_CAST(SBase, o);
         test(sb);
         test(sb->sb == "SBase.sb");
     }
@@ -624,10 +626,27 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "base as Object (AMI)... " << flush;
     {
-        CallbackPtr cb = new Callback;
+#ifdef ICE_CPP11_MAPPING
+        auto f = test->SBaseAsObject_async();
+        try
+        {
+            auto o = f.get();
+            test(o);
+            test(o->ice_id() == "::Test::SBase");
+            auto sb = dynamic_pointer_cast<SBase>(o);
+            test(sb);
+            test(sb->sb == "SBase.sb");
+        }
+        catch(...)
+        {
+            test(false);
+        }
+#else
+        CallbackPtr cb = new Callback();
         test->begin_SBaseAsObject(
             newCallback_TestIntf_SBaseAsObject(cb, &Callback::response_SBaseAsObject, &Callback::exception));
         cb->check();
+#endif
     }
     cout << "ok" << endl;
 
@@ -648,10 +667,22 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "base as base (AMI)... " << flush;
     {
+#ifdef ICE_CPP11_MAPPING
+        try
+        {
+            auto sb = test->SBaseAsSBase_async().get();
+            test(sb->sb == "SBase.sb");
+        }
+        catch(...)
+        {
+            test(false);
+        }
+#else
         CallbackPtr cb = new Callback;
         test->begin_SBaseAsSBase(
             newCallback_TestIntf_SBaseAsSBase(cb, &Callback::response_SBaseAsSBase, &Callback::exception));
         cb->check();
+#endif
     }
     cout << "ok" << endl;
 
@@ -667,7 +698,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             test(false);
         }
-        SBSKnownDerivedPtr sbskd = SBSKnownDerivedPtr::dynamicCast(sb);
+        SBSKnownDerivedPtr sbskd = ICE_DYNAMIC_CAST(SBSKnownDerived, sb);
         test(sbskd);
         test(sbskd->sbskd == "SBSKnownDerived.sbskd");
     }
@@ -675,11 +706,28 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "base with known derived as base (AMI)... " << flush;
     {
+#ifdef ICE_CPP11_MAPPING
+        auto f = test->SBSKnownDerivedAsSBase_async();
+        try
+        {
+            shared_ptr<SBase> sb = f.get();
+            sb = test->SBSKnownDerivedAsSBase();
+            test(sb->sb == "SBSKnownDerived.sb");
+            SBSKnownDerivedPtr sbskd = ICE_DYNAMIC_CAST(SBSKnownDerived, sb);
+            test(sbskd);
+            test(sbskd->sbskd == "SBSKnownDerived.sbskd");
+        }
+        catch(...)
+        {
+            test(false);
+        }
+#else
         CallbackPtr cb = new Callback;
         test->begin_SBSKnownDerivedAsSBase(
             newCallback_TestIntf_SBSKnownDerivedAsSBase(
                 cb, &Callback::response_SBSKnownDerivedAsSBase, &Callback::exception));
         cb->check();
+#endif
     }
     cout << "ok" << endl;
 
@@ -700,11 +748,24 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "base with known derived as known derived (AMI)... " << flush;
     {
+#ifdef ICE_CPP11_MAPPING
+        auto f = test->SBSKnownDerivedAsSBSKnownDerived_async();
+        try
+        {
+            SBSKnownDerivedPtr sbskd = test->SBSKnownDerivedAsSBSKnownDerived();
+            test(sbskd->sbskd == "SBSKnownDerived.sbskd");
+        }
+        catch(...)
+        {
+            test(false);
+        }
+#else
         CallbackPtr cb = new Callback;
         test->begin_SBSKnownDerivedAsSBSKnownDerived(
             newCallback_TestIntf_SBSKnownDerivedAsSBSKnownDerived(
                 cb, &Callback::response_SBSKnownDerivedAsSBSKnownDerived, &Callback::exception));
         cb->check();
+#endif
     }
     cout << "ok" << endl;
 
@@ -766,22 +827,48 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "base with unknown derived as base (AMI)... " << flush;
     {
+#ifdef ICE_CPP11_MAPPING
+        auto f = test->SBSUnknownDerivedAsSBase_async();
+        try
+        {
+            SBasePtr sb = f.get();
+            test(sb->sb == "SBSUnknownDerived.sb");
+        }
+        catch(...)
+        {
+            test(false);
+        }
+#else
         CallbackPtr cb = new Callback;
         test->begin_SBSUnknownDerivedAsSBase(
             newCallback_TestIntf_SBSUnknownDerivedAsSBase(
                 cb, &Callback::response_SBSUnknownDerivedAsSBase, &Callback::exception));
         cb->check();
+#endif
     }
     if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
     {
         //
         // This test succeeds for the 1.0 encoding.
         //
+#ifdef ICE_CPP11_MAPPING
+        auto f = test->SBSUnknownDerivedAsSBaseCompact_async();
+        try
+        {
+            SBasePtr sb = f.get();
+            test(sb->sb == "SBSUnknownDerived.sb");
+        }
+        catch(...)
+        {
+            test(false);
+        }
+#else
         CallbackPtr cb = new Callback;
         test->begin_SBSUnknownDerivedAsSBaseCompact(
             newCallback_TestIntf_SBSUnknownDerivedAsSBaseCompact(
                 cb, &Callback::response_SBSUnknownDerivedAsSBase, &Callback::exception));
         cb->check();
+#endif
     }
     else
     {
@@ -789,12 +876,28 @@ allTests(const Ice::CommunicatorPtr& communicator)
         // This test fails when using the compact format because the instance cannot
         // be sliced to a known type.
         //
+#ifdef ICE_CPP11_MAPPING
+        auto f = test->SBSUnknownDerivedAsSBaseCompact_async();
+        try
+        {
+            f.get();
+            test(false);
+        }
+        catch(const Ice::NoObjectFactoryException&)
+        {
+        }
+        catch(...)
+        {
+            test(false);
+        }
+#else
         CallbackPtr cb = new Callback;
         test->begin_SBSUnknownDerivedAsSBaseCompact(
             newCallback_TestIntf_SBSUnknownDerivedAsSBaseCompact(
                 cb, &Callback::response_SBSUnknownDerivedAsSBaseCompact,
                 &Callback::exception_SBSUnknownDerivedAsSBaseCompact));
         cb->check();
+#endif
     }
     cout << "ok" << endl;
 
@@ -808,6 +911,39 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         try
         {
+#ifdef ICE_CPP11_MAPPING
+            if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+            {
+                auto f = test->SUnknownAsObject_async();
+                try
+                {
+                    f.get();
+                    test(false);
+                }
+                catch(const Ice::NoObjectFactoryException&)
+                {
+                }
+                catch(...)
+                {
+                    test(false);
+                }
+            }
+            else
+            {
+                auto f = test->SUnknownAsObject_async();
+                try
+                {
+                    shared_ptr<Ice::Value> v = f.get();
+                    test(dynamic_pointer_cast<Ice::UnknownSlicedObject>(v));
+                    test(dynamic_pointer_cast<Ice::UnknownSlicedObject>(v)->getUnknownTypeId() == "::Test::SUnknown");
+                }
+                catch(...)
+                {
+                    test(false);
+                }
+                
+            }
+#else
             CallbackPtr cb = new Callback;
             if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
             {
@@ -822,6 +958,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
                         cb, &Callback::response_SUnknownAsObject11, &Callback::exception_SUnknownAsObject11));
             }
             cb->check();
+#endif
         }
         catch(...)
         {
@@ -849,11 +986,27 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "one-element cycle (AMI)... " << flush;
     {
+#ifdef ICE_CPP11_MAPPING
+        auto f = test->oneElementCycle_async();
+        try
+        {
+            auto b = f.get();
+            test(b);
+            test(b->ice_id() == "::Test::B");
+            test(b->sb == "B1.sb");
+            test(b->pb == b);
+        }
+        catch(...)
+        {
+            test(false);
+        }
+#else
         CallbackPtr cb = new Callback;
         test->begin_oneElementCycle(
             newCallback_TestIntf_oneElementCycle(
                 cb, &Callback::response_oneElementCycle, &Callback::exception));
         cb->check();
+#endif
     }
     cout << "ok" << endl;
 
@@ -881,11 +1034,32 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "two-element cycle (AMI)... " << flush;
     {
+#ifdef ICE_CPP11_MAPPING
+        auto f = test->twoElementCycle_async();
+        try
+        {
+            auto b1 = f.get();
+            test(b1);
+            test(b1->ice_id() == "::Test::B");
+            test(b1->sb == "B1.sb");
+
+            auto b2 = b1->pb;
+            test(b2);
+            test(b2->ice_id() == "::Test::B");
+            test(b2->sb == "B2.sb");
+            test(b2->pb == b1);
+        }
+        catch(...)
+        {
+            test(false);
+        }
+#else
         CallbackPtr cb = new Callback;
         test->begin_twoElementCycle(
             newCallback_TestIntf_twoElementCycle(
                 cb, &Callback::response_twoElementCycle, &Callback::exception));
         cb->check();
+#endif
     }
     cout << "ok" << endl;
 
@@ -900,7 +1074,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(b1->sb == "D1.sb");
             test(b1->pb);
             test(b1->pb != b1);
-            D1Ptr d1 = D1Ptr::dynamicCast(b1);
+            D1Ptr d1 = ICE_DYNAMIC_CAST(D1, b1);
             test(d1);
             test(d1->sd1 == "D1.sd1");
             test(d1->pd1);
@@ -922,9 +1096,38 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "known derived pointer slicing as base (AMI)... " << flush;
     {
+#ifdef ICE_CPP11_MAPPING
+        auto f = test->D1AsB_async();
+        try
+        {
+            auto b1 = f.get();
+            test(b1);
+            test(b1->ice_id() == "::Test::D1");
+            test(b1->sb == "D1.sb");
+            test(b1->pb);
+            test(b1->pb != b1);
+            auto d1 = dynamic_pointer_cast<D1>(b1);
+            test(d1);
+            test(d1->sd1 == "D1.sd1");
+            test(d1->pd1);
+            test(d1->pd1 != b1);
+            test(b1->pb == d1->pd1);
+
+            auto b2 = b1->pb;
+            test(b2);
+            test(b2->pb == b1);
+            test(b2->sb == "D2.sb");
+            test(b2->ice_id() == "::Test::B");
+        }
+        catch(...)
+        {
+            test(false);
+        }
+#else
         CallbackPtr cb = new Callback;
         test->begin_D1AsB(newCallback_TestIntf_D1AsB(cb, &Callback::response_D1AsB, &Callback::exception));
         cb->check();
+#endif
     }
     cout << "ok" << endl;
 
@@ -955,9 +1158,32 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "known derived pointer slicing as derived (AMI)... " << flush;
     {
+#ifdef ICE_CPP11_MAPPING
+        auto f = test->D1AsD1_async();
+        try
+        {
+            auto d1 = f.get();
+            test(d1);
+            test(d1->ice_id() == "::Test::D1");
+            test(d1->sb == "D1.sb");
+            test(d1->pb);
+            test(d1->pb != d1);
+
+            auto b2 = d1->pb;
+            test(b2);
+            test(b2->ice_id() == "::Test::B");
+            test(b2->sb == "D2.sb");
+            test(b2->pb == d1);
+        }
+        catch(...)
+        {
+            test(false);
+        }
+#else
         CallbackPtr cb = new Callback;
         test->begin_D1AsD1(newCallback_TestIntf_D1AsD1(cb, &Callback::response_D1AsD1, &Callback::exception));
         cb->check();
+#endif
     }
     cout << "ok" << endl;
 
@@ -978,7 +1204,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(b1->ice_id() == "::Test::D1");
             test(b1->sb == "D1.sb");
             test(b1->pb == b2);
-            D1Ptr d1 = D1Ptr::dynamicCast(b1);
+            D1Ptr d1 = ICE_DYNAMIC_CAST(D1, b1);
             test(d1);
             test(d1->sd1 == "D1.sd1");
             test(d1->pd1 == b2);
@@ -992,9 +1218,36 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "unknown derived pointer slicing as base (AMI)... " << flush;
     {
+#ifdef ICE_CPP11_MAPPING
+        auto f = test->D2AsB_async();
+        try
+        {
+            auto b2 = test->D2AsB();
+            test(b2);
+            test(b2->ice_id() == "::Test::B");
+            test(b2->sb == "D2.sb");
+            test(b2->pb);
+            test(b2->pb != b2);
+
+            auto b1 = b2->pb;
+            test(b1);
+            test(b1->ice_id() == "::Test::D1");
+            test(b1->sb == "D1.sb");
+            test(b1->pb == b2);
+            auto d1 = dynamic_pointer_cast<D1>(b1);
+            test(d1);
+            test(d1->sd1 == "D1.sd1");
+            test(d1->pd1 == b2);
+        }
+        catch(...)
+        {
+            test(false);
+        }
+#else
         CallbackPtr cb = new Callback;
         test->begin_D2AsB(newCallback_TestIntf_D2AsB(cb, &Callback::response_D2AsB, &Callback::exception));
         cb->check();
+#endif
     }
     cout << "ok" << endl;
 
@@ -1010,7 +1263,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(b1->ice_id() == "::Test::D1");
             test(b1->sb == "D1.sb");
             test(b1->pb == b2);
-            D1Ptr d1 = D1Ptr::dynamicCast(b1);
+            D1Ptr d1 = ICE_DYNAMIC_CAST(D1, b1);
             test(d1);
             test(d1->sd1 == "D1.sd1");
             test(d1->pd1 == b2);
@@ -1029,10 +1282,38 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "param ptr slicing with known first (AMI)... " << flush;
     {
+#ifdef ICE_CPP11_MAPPING
+        auto f = test->paramTest1_async();
+        try
+        {
+            auto result = f.get();
+            auto b1 = move(result.p1);
+            auto b2 = move(result.p2);
+            
+            test(b1);
+            test(b1->ice_id() == "::Test::D1");
+            test(b1->sb == "D1.sb");
+            test(b1->pb == b2);
+            D1Ptr d1 = ICE_DYNAMIC_CAST(D1, b1);
+            test(d1);
+            test(d1->sd1 == "D1.sd1");
+            test(d1->pd1 == b2);
+
+            test(b2);
+            test(b2->ice_id() == "::Test::B");  // No factory, must be sliced
+            test(b2->sb == "D2.sb");
+            test(b2->pb == b1);
+        }
+        catch(...)
+        {
+            test(false);
+        }
+#else
         CallbackPtr cb = new Callback;
         test->begin_paramTest1(
             newCallback_TestIntf_paramTest1(cb, &Callback::response_paramTest1, &Callback::exception));
         cb->check();
+#endif
     }
     cout << "ok" << endl;
 
@@ -1048,7 +1329,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(b1->ice_id() == "::Test::D1");
             test(b1->sb == "D1.sb");
             test(b1->pb == b2);
-            D1Ptr d1 = D1Ptr::dynamicCast(b1);
+            D1Ptr d1 = ICE_DYNAMIC_CAST(D1, b1);
             test(d1);
             test(d1->sd1 == "D1.sd1");
             test(d1->pd1 == b2);
@@ -1083,10 +1364,23 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "return value identity with known first (AMI)... " << flush;
     {
+#ifdef ICE_CPP11_MAPPING
+        auto f = test->returnTest1_async();
+        try
+        {
+            auto result = f.get();
+            test(result.returnValue == result.p1);
+        }
+        catch(...)
+        {
+            test(false);
+        }
+#else
         CallbackPtr cb = new Callback;
         test->begin_returnTest1(
             newCallback_TestIntf_returnTest1(cb, &Callback::response_returnTest1, &Callback::exception));
         cb->check();
+#endif
     }
     cout << "ok" << endl;
 
@@ -1108,10 +1402,23 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "return value identity with unknown first (AMI)... " << flush;
     {
+#ifdef ICE_CPP11_MAPPING
+        auto f = test->returnTest2_async();
+        try
+        {
+            auto result = f.get();
+            test(result.returnValue == result.p2);
+        }
+        catch(...)
+        {
+            test(false);
+        }
+#else
         CallbackPtr cb = new Callback;
         test->begin_returnTest2(
             newCallback_TestIntf_returnTest2(cb, &Callback::response_returnTest2, &Callback::exception));
         cb->check();
+#endif
     }
     cout << "ok" << endl;
 
@@ -1119,24 +1426,26 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         try
         {
-            D1Ptr d1 = new D1;
+            D1Ptr d1 = ICE_MAKE_SHARED(D1);
             d1->sb = "D1.sb";
             d1->sd1 = "D1.sd1";
-            D3Ptr d3 = new D3;
+            D3Ptr d3 = ICE_MAKE_SHARED(D3);
             d3->pb = d1;
             d3->sb = "D3.sb";
             d3->sd3 = "D3.sd3";
             d3->pd3 = d1;
             d1->pb = d3;
             d1->pd1 = d3;
+#ifndef ICE_CPP11_MAPPING
             d1->ice_collectable(true);
+#endif
 
             BPtr b1 = test->returnTest3(d1, d3);
 
             test(b1);
             test(b1->sb == "D1.sb");
             test(b1->ice_id() == "::Test::D1");
-            D1Ptr p1 = D1Ptr::dynamicCast(b1);
+            D1Ptr p1 = ICE_DYNAMIC_CAST(D1, b1);
             test(p1);
             test(p1->sd1 == "D1.sd1");
             test(p1->pd1 == b1->pb);
@@ -1146,7 +1455,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(b2->sb == "D3.sb");
             test(b2->ice_id() == "::Test::B");  // Sliced by server
             test(b2->pb == b1);
-            D3Ptr p3 = D3Ptr::dynamicCast(b2);
+            D3Ptr p3 = ICE_DYNAMIC_CAST(D3, b2);
             test(!p3);
 
             test(b1 != d1);
@@ -1165,28 +1474,35 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         try
         {
-            D1Ptr d1 = new D1;
+            D1Ptr d1 = ICE_MAKE_SHARED(D1);
             d1->sb = "D1.sb";
             d1->sd1 = "D1.sd1";
-            D3Ptr d3 = new D3;
+            D3Ptr d3 = ICE_MAKE_SHARED(D3);
             d3->pb = d1;
             d3->sb = "D3.sb";
             d3->sd3 = "D3.sd3";
             d3->pd3 = d1;
             d1->pb = d3;
             d1->pd1 = d3;
+#ifndef ICE_CPP11_MAPPING
             d1->ice_collectable(true);
-            
+#endif
+
+#ifdef ICE_CPP11_MAPPING
+            auto f = test->returnTest3_async(d1, d3);
+            auto b1 = f.get();
+#else
             CallbackPtr cb = new Callback;
             test->begin_returnTest3(d1, d3,
                 newCallback_TestIntf_returnTest3(cb, &Callback::response_returnTest3, &Callback::exception));
             cb->check();
             BPtr b1 = cb->rb;
+#endif
 
             test(b1);
             test(b1->sb == "D1.sb");
             test(b1->ice_id() == "::Test::D1");
-            D1Ptr p1 = D1Ptr::dynamicCast(b1);
+            D1Ptr p1 = ICE_DYNAMIC_CAST(D1, b1);
             test(p1);
             test(p1->sd1 == "D1.sd1");
             test(p1->pd1 == b1->pb);
@@ -1196,7 +1512,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(b2->sb == "D3.sb");
             test(b2->ice_id() == "::Test::B");  // Sliced by server
             test(b2->pb == b1);
-            D3Ptr p3 = D3Ptr::dynamicCast(b2);
+            D3Ptr p3 = ICE_DYNAMIC_CAST(D3, b2);
             test(!p3);
 
             test(b1 != d1);
@@ -1215,24 +1531,26 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         try
         {
-            D1Ptr d1 = new D1;
+            D1Ptr d1 = ICE_MAKE_SHARED(D1);
             d1->sb = "D1.sb";
             d1->sd1 = "D1.sd1";
-            D3Ptr d3 = new D3;
+            D3Ptr d3 = ICE_MAKE_SHARED(D3);
             d3->pb = d1;
             d3->sb = "D3.sb";
             d3->sd3 = "D3.sd3";
             d3->pd3 = d1;
             d1->pb = d3;
             d1->pd1 = d3;
+#ifndef ICE_CPP11_MAPPING
             d1->ice_collectable(true);
-            
+#endif
             BPtr b1 = test->returnTest3(d3, d1);
 
             test(b1);
             test(b1->sb == "D3.sb");
             test(b1->ice_id() == "::Test::B");  // Sliced by server
-            D3Ptr p1 = D3Ptr::dynamicCast(b1);
+
+            D3Ptr p1 = ICE_DYNAMIC_CAST(D3, b1);
             test(!p1);
 
             BPtr b2 = b1->pb;
@@ -1240,7 +1558,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(b2->sb == "D1.sb");
             test(b2->ice_id() == "::Test::D1");
             test(b2->pb == b1);
-            D1Ptr p3 = D1Ptr::dynamicCast(b2);
+
+            D1Ptr p3 = ICE_DYNAMIC_CAST(D1, b2);
             test(p3);
             test(p3->sd1 == "D1.sd1");
             test(p3->pd1 == b1);
@@ -1261,28 +1580,35 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         try
         {
-            D1Ptr d1 = new D1;
+            D1Ptr d1 = ICE_MAKE_SHARED(D1);
             d1->sb = "D1.sb";
             d1->sd1 = "D1.sd1";
-            D3Ptr d3 = new D3;
+            D3Ptr d3 = ICE_MAKE_SHARED(D3);
             d3->pb = d1;
             d3->sb = "D3.sb";
             d3->sd3 = "D3.sd3";
             d3->pd3 = d1;
             d1->pb = d3;
             d1->pd1 = d3;
+#ifndef ICE_CPP11_MAPPING
             d1->ice_collectable(true);
-            
+#endif
+
+#ifdef ICE_CPP11_MAPPING
+            auto f = test->returnTest3_async(d3, d1);
+            auto b1 = f.get();
+#else
             CallbackPtr cb = new Callback;
             test->begin_returnTest3(d3, d1, 
                 newCallback_TestIntf_returnTest3(cb, &Callback::response_returnTest3, &Callback::exception));
             cb->check();
             BPtr b1 = cb->rb;
+#endif
 
             test(b1);
             test(b1->sb == "D3.sb");
             test(b1->ice_id() == "::Test::B");  // Sliced by server
-            D3Ptr p1 = D3Ptr::dynamicCast(b1);
+            D3Ptr p1 = ICE_DYNAMIC_CAST(D3, b1);
             test(!p1);
 
             BPtr b2 = b1->pb;
@@ -1290,7 +1616,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(b2->sb == "D1.sb");
             test(b2->ice_id() == "::Test::D1");
             test(b2->pb == b1);
-            D1Ptr p3 = D1Ptr::dynamicCast(b2);
+            D1Ptr p3 = ICE_DYNAMIC_CAST(D1, b2);
             test(p3);
             test(p3->sd1 == "D1.sd1");
             test(p3->pd1 == b1);
@@ -1339,10 +1665,40 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "remainder unmarshaling (3 instances) (AMI)... " << flush;
     {
+#ifdef ICE_CPP11_MAPPING
+        auto f = test->paramTest3_async();
+        try
+        {
+            auto result = f.get();
+            auto ret = result.returnValue;
+            auto p1 = result.p1;
+            auto p2 = result.p2;
+
+            test(p1);
+            test(p1->sb == "D2.sb (p1 1)");
+            test(p1->pb == 0);
+            test(p1->ice_id() == "::Test::B");
+
+            test(p2);
+            test(p2->sb == "D2.sb (p2 1)");
+            test(p2->pb == 0);
+            test(p2->ice_id() == "::Test::B");
+
+            test(ret);
+            test(ret->sb == "D1.sb (p2 2)");
+            test(ret->pb == 0);
+            test(ret->ice_id() == "::Test::D1");
+        }
+        catch(...)
+        {
+            test(false);
+        }
+#else
         CallbackPtr cb = new Callback;
         test->begin_paramTest3(
             newCallback_TestIntf_paramTest3(cb, &Callback::response_paramTest3, &Callback::exception));
         cb->check();
+#endif
     }
     cout << "ok" << endl;
 
@@ -1372,10 +1728,34 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "remainder unmarshaling (4 instances) (AMI)... " << flush;
     {
+#ifdef ICE_CPP11_MAPPING
+        auto f = test->paramTest4_async();
+        try
+        {
+            auto result = f.get();
+            auto ret = move(result.returnValue);
+            auto b = move(result.p);
+
+            test(b);
+            test(b->sb == "D4.sb (1)");
+            test(b->pb == nullptr);
+            test(b->ice_id() == "::Test::B");
+
+            test(ret);
+            test(ret->sb == "B.sb (2)");
+            test(ret->pb == nullptr);
+            test(ret->ice_id() == "::Test::B");
+        }
+        catch(...)
+        {
+            test(false);
+        }
+#else
         CallbackPtr cb = new Callback;
         test->begin_paramTest4(
             newCallback_TestIntf_paramTest4(cb, &Callback::response_paramTest4, &Callback::exception));
         cb->check();
+#endif
     }
     cout << "ok" << endl;
 
@@ -1383,18 +1763,20 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         try
         {
-            BPtr b1 = new B;
+            BPtr b1 = ICE_MAKE_SHARED(B);
             b1->sb = "B.sb(1)";
             b1->pb = b1;
 
-            D3Ptr d3 = new D3;
+            D3Ptr d3 = ICE_MAKE_SHARED(D3);
             d3->sb = "D3.sb";
             d3->pb = d3;
             d3->sd3 = "D3.sd3";
             d3->pd3 = b1;
+#ifndef ICE_CPP11_MAPPING
             d3->ice_collectable(true);
+#endif
 
-            BPtr b2 = new B;
+            BPtr b2 = ICE_MAKE_SHARED(B);
             b2->sb = "B.sb(2)";
             b2->pb = b1;
 
@@ -1416,27 +1798,32 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         try
         {
-            BPtr b1 = new B;
+            BPtr b1 = ICE_MAKE_SHARED(B);
             b1->sb = "B.sb(1)";
             b1->pb = b1;
 
-            D3Ptr d3 = new D3;
+            D3Ptr d3 = ICE_MAKE_SHARED(D3);
             d3->sb = "D3.sb";
             d3->pb = d3;
             d3->sd3 = "D3.sd3";
             d3->pd3 = b1;
+#ifndef ICE_CPP11_MAPPING
             d3->ice_collectable(true);
+#endif
 
-            BPtr b2 = new B;
+            BPtr b2 = ICE_MAKE_SHARED(B);
             b2->sb = "B.sb(2)";
             b2->pb = b1;
 
+#ifdef ICE_CPP11_MAPPING
+            auto r = test->returnTest3_async(d3, b2).get();
+#else
             CallbackPtr cb = new Callback;
             test->begin_returnTest3(d3, b2,
                 newCallback_TestIntf_returnTest3(cb, &Callback::response_returnTest3, &Callback::exception));
             cb->check();
             BPtr r = cb->rb;
-
+#endif
             test(r);
             test(r->ice_id() == "::Test::B");
             test(r->sb == "D3.sb");
@@ -1454,25 +1841,27 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         try
         {
-            D1Ptr d11 = new D1;
+            D1Ptr d11 = ICE_MAKE_SHARED(D1);
             d11->sb = "D1.sb(1)";
             d11->pb = d11;
             d11->sd1 = "D1.sd1(1)";
 
-            D3Ptr d3 = new D3;
+            D3Ptr d3 = ICE_MAKE_SHARED(D3);
             d3->sb = "D3.sb";
             d3->pb = d3;
             d3->sd3 = "D3.sd3";
             d3->pd3 = d11;
+#ifndef ICE_CPP11_MAPPING
             d3->ice_collectable(true);
-            
-            D1Ptr d12 = new D1;
+#endif
+            D1Ptr d12 = ICE_MAKE_SHARED(D1);
             d12->sb = "D1.sb(2)";
             d12->pb = d12;
             d12->sd1 = "D1.sd1(2)";
             d12->pd1 = d11;
+#ifndef ICE_CPP11_MAPPING
             d12->ice_collectable(true);
-            
+#endif
             BPtr r = test->returnTest3(d3, d12);
             test(r);
             test(r->ice_id() == "::Test::B");
@@ -1491,30 +1880,37 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         try
         {
-            D1Ptr d11 = new D1;
+            D1Ptr d11 = ICE_MAKE_SHARED(D1);
             d11->sb = "D1.sb(1)";
             d11->pb = d11;
             d11->sd1 = "D1.sd1(1)";
 
-            D3Ptr d3 = new D3;
+            D3Ptr d3 = ICE_MAKE_SHARED(D3);
             d3->sb = "D3.sb";
             d3->pb = d3;
             d3->sd3 = "D3.sd3";
             d3->pd3 = d11;
+#ifndef ICE_CPP11_MAPPING
             d3->ice_collectable(true);
-            
-            D1Ptr d12 = new D1;
+#endif
+            D1Ptr d12 = ICE_MAKE_SHARED(D1);
             d12->sb = "D1.sb(2)";
             d12->pb = d12;
             d12->sd1 = "D1.sd1(2)";
             d12->pd1 = d11;
+#ifndef ICE_CPP11_MAPPING
             d12->ice_collectable(true);
+#endif
 
+#ifdef ICE_CPP11_MAPPING
+            auto r = test->returnTest3_async(d3, d12).get();
+#else
             CallbackPtr cb = new Callback;
             test->begin_returnTest3(d3, d12,
                 newCallback_TestIntf_returnTest3(cb, &Callback::response_returnTest3, &Callback::exception));
             cb->check();
             BPtr r = cb->rb;
+#endif
             test(r);
             test(r->ice_id() == "::Test::B");
             test(r->sb == "D3.sb");
@@ -1533,31 +1929,32 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             SS3 ss;
             {
-                BPtr ss1b = new B;
+                BPtr ss1b = ICE_MAKE_SHARED(B);
                 ss1b->sb = "B.sb";
                 ss1b->pb = ss1b;
 
-                D1Ptr ss1d1 = new D1;
+                D1Ptr ss1d1 = ICE_MAKE_SHARED(D1);
                 ss1d1->sb = "D1.sb";
                 ss1d1->sd1 = "D1.sd1";
                 ss1d1->pb = ss1b;
 
-                D3Ptr ss1d3 = new D3;
+                D3Ptr ss1d3 = ICE_MAKE_SHARED(D3);
                 ss1d3->sb = "D3.sb";
                 ss1d3->sd3 = "D3.sd3";
                 ss1d3->pb = ss1b;
+#ifndef ICE_CPP11_MAPPING
                 ss1d3->ice_collectable(true);
-                
-                BPtr ss2b = new B;
+#endif
+                BPtr ss2b = ICE_MAKE_SHARED(B);
                 ss2b->sb = "B.sb";
                 ss2b->pb = ss1b;
 
-                D1Ptr ss2d1 = new D1;
+                D1Ptr ss2d1 = ICE_MAKE_SHARED(D1);
                 ss2d1->sb = "D1.sb";
                 ss2d1->sd1 = "D1.sd1";
                 ss2d1->pb = ss2b;
 
-                D3Ptr ss2d3 = new D3;
+                D3Ptr ss2d3 = ICE_MAKE_SHARED(D3);
                 ss2d3->sb = "D3.sb";
                 ss2d3->sd3 = "D3.sd3";
                 ss2d3->pb = ss2b;
@@ -1568,19 +1965,20 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 ss2d1->pd1 = ss1d3;
                 ss2d3->pd3 = ss1d1;
 
-                SS1Ptr ss1 = new SS1;
+                SS1Ptr ss1 = ICE_MAKE_SHARED(SS1);
                 ss1->s.push_back(ss1b);
                 ss1->s.push_back(ss1d1);
                 ss1->s.push_back(ss1d3);
 
-                SS2Ptr ss2 = new SS2;
+                SS2Ptr ss2 = ICE_MAKE_SHARED(SS2);
                 ss2->s.push_back(ss2b);
                 ss2->s.push_back(ss2d1);
                 ss2->s.push_back(ss2d3);
-                
+
+#ifndef ICE_CPP11_MAPPING
                 ss1->ice_collectable(true);
                 ss2->ice_collectable(true);
-
+#endif
                 ss = test->sequenceTest(ss1, ss2);
             }
 
@@ -1624,31 +2022,33 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             SS3 ss;
             {
-                BPtr ss1b = new B;
+                BPtr ss1b = ICE_MAKE_SHARED(B);
                 ss1b->sb = "B.sb";
                 ss1b->pb = ss1b;
 
-                D1Ptr ss1d1 = new D1;
+                D1Ptr ss1d1 = ICE_MAKE_SHARED(D1);
                 ss1d1->sb = "D1.sb";
                 ss1d1->sd1 = "D1.sd1";
                 ss1d1->pb = ss1b;
 
-                D3Ptr ss1d3 = new D3;
+                D3Ptr ss1d3 = ICE_MAKE_SHARED(D3);
                 ss1d3->sb = "D3.sb";
                 ss1d3->sd3 = "D3.sd3";
                 ss1d3->pb = ss1b;
+#ifndef ICE_CPP11_MAPPING
                 ss1d3->ice_collectable(true);
+#endif
 
-                BPtr ss2b = new B;
+                BPtr ss2b = ICE_MAKE_SHARED(B);
                 ss2b->sb = "B.sb";
                 ss2b->pb = ss1b;
 
-                D1Ptr ss2d1 = new D1;
+                D1Ptr ss2d1 = ICE_MAKE_SHARED(D1);
                 ss2d1->sb = "D1.sb";
                 ss2d1->sd1 = "D1.sd1";
                 ss2d1->pb = ss2b;
 
-                D3Ptr ss2d3 = new D3;
+                D3Ptr ss2d3 = ICE_MAKE_SHARED(D3);
                 ss2d3->sb = "D3.sb";
                 ss2d3->sd3 = "D3.sd3";
                 ss2d3->pb = ss2b;
@@ -1659,24 +2059,29 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 ss2d1->pd1 = ss1d3;
                 ss2d3->pd3 = ss1d1;
 
-                SS1Ptr ss1 = new SS1;
+                SS1Ptr ss1 = ICE_MAKE_SHARED(SS1);
                 ss1->s.push_back(ss1b);
                 ss1->s.push_back(ss1d1);
                 ss1->s.push_back(ss1d3);
 
-                SS2Ptr ss2 = new SS2;
+                SS2Ptr ss2 = ICE_MAKE_SHARED(SS2);
                 ss2->s.push_back(ss2b);
                 ss2->s.push_back(ss2d1);
                 ss2->s.push_back(ss2d3);
-                
+#ifndef ICE_CPP11_MAPPING
                 ss1->ice_collectable(true);
                 ss2->ice_collectable(true);
-
+#endif
+                
+#ifdef ICE_CPP11_MAPPING
+                ss = test->sequenceTest_async(ss1, ss2).get();
+#else
                 CallbackPtr cb = new Callback;
                 test->begin_sequenceTest(ss1, ss2,
                     newCallback_TestIntf_sequenceTest(cb, &Callback::response_sequenceTest, &Callback::exception));
                 cb->check();
                 ss = cb->rss3;
+#endif
             }
 
             test(ss.c1);
@@ -1725,12 +2130,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
             {
                 ostringstream s;
                 s << "D1." << i;
-                D1Ptr d1 = new D1;
+                D1Ptr d1 = ICE_MAKE_SHARED(D1);
                 d1->sb = s.str();
                 d1->pb = d1;
                 d1->sd1 = s.str();
                 bin[i] = d1;
+#ifndef ICE_CPP11_MAPPING
                 d1->ice_collectable(true);
+#endif
             }
 
             r = test->dictionaryTest(bin, bout);
@@ -1758,7 +2165,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 s << "D1." << i * 20;
                 test(b->sb == s.str());
                 test(b->pb == (i == 0 ? BPtr(0) : r.find((i - 1) * 20)->second));
-                D1Ptr d1 = D1Ptr::dynamicCast(b);
+                D1Ptr d1 = ICE_DYNAMIC_CAST(D1, b);
                 test(d1);
                 test(d1->sd1 == s.str());
                 test(d1->pd1 == d1);
@@ -1783,20 +2190,28 @@ allTests(const Ice::CommunicatorPtr& communicator)
             {
                 ostringstream s;
                 s << "D1." << i;
-                D1Ptr d1 = new D1;
+                D1Ptr d1 = ICE_MAKE_SHARED(D1);
                 d1->sb = s.str();
                 d1->pb = d1;
                 d1->sd1 = s.str();
                 bin[i] = d1;
+#ifndef ICE_CPP11_MAPPING
                 d1->ice_collectable(true);
+#endif
             }
 
+#ifdef ICE_CPP11_MAPPING
+            auto result = test->dictionaryTest_async(bin).get();
+            r = result.returnValue;
+            bout = result.bout;
+#else
             CallbackPtr cb = new Callback;
             test->begin_dictionaryTest(bin,
                 newCallback_TestIntf_dictionaryTest(cb, &Callback::response_dictionaryTest, &Callback::exception));
             cb->check();
             bout = cb->obdict;
             r = cb->rbdict;
+#endif
 
             test(bout.size() == 10);
             for(i = 0; i < 10; ++i)
@@ -1821,7 +2236,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 s << "D1." << i * 20;
                 test(b->sb == s.str());
                 test(b->pb == (i == 0 ? BPtr(0) : r.find((i - 1) * 20)->second));
-                D1Ptr d1 = D1Ptr::dynamicCast(b);
+                D1Ptr d1 = ICE_DYNAMIC_CAST(D1, b);
                 test(d1);
                 test(d1->sd1 == s.str());
                 test(d1->pd1 == d1);
@@ -1858,10 +2273,30 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "base exception thrown as base exception (AMI)... " << flush;
     {
+#ifdef ICE_CPP11_MAPPING
+        try
+        {
+            test->throwBaseAsBase_async().get();
+            test(false);
+        }
+        catch(const BaseException& ex)
+        {
+            test(ex.ice_name() == "Test::BaseException");
+            test(ex.sbe == "sbe");
+            test(ex.pb);
+            test(ex.pb->sb == "sb");
+            test(ex.pb->pb == ex.pb);
+        }
+        catch(...)
+        {
+            test(false);
+        }
+#else
         CallbackPtr cb = new Callback;
         test->begin_throwBaseAsBase(
             newCallback_TestIntf_throwBaseAsBase(cb, &Callback::response, &Callback::exception_throwBaseAsBase));
         cb->check();
+#endif
     }
     cout << "ok" << endl;
 
@@ -1895,10 +2330,36 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "derived exception thrown as base exception (AMI)... " << flush;
     {
+#ifdef ICE_CPP11_MAPPING
+        try
+        {
+            test->throwDerivedAsBase_async().get();
+            test(false);
+        }
+        catch(const DerivedException& ex)
+        {
+            test(ex.ice_name() == "Test::DerivedException");
+            test(ex.sbe == "sbe");
+            test(ex.pb);
+            test(ex.pb->sb == "sb1");
+            test(ex.pb->pb == ex.pb);
+            test(ex.sde == "sde1");
+            test(ex.pd1);
+            test(ex.pd1->sb == "sb2");
+            test(ex.pd1->pb == ex.pd1);
+            test(ex.pd1->sd1 == "sd2");
+            test(ex.pd1->pd1 == ex.pd1);
+        }
+        catch(...)
+        {
+            test(false);
+        }
+#else
         CallbackPtr cb = new Callback;
         test->begin_throwDerivedAsBase(
             newCallback_TestIntf_throwDerivedAsBase(cb, &Callback::response, &Callback::exception_throwDerivedAsBase));
         cb->check();
+#endif
     }
     cout << "ok" << endl;
 
@@ -1932,11 +2393,37 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "derived exception thrown as derived exception (AMI)... " << flush;
     {
+#ifdef ICE_CPP11_MAPPING
+        try
+        {
+            test->throwDerivedAsDerived_async().get();
+            test(false);
+        }
+        catch(const DerivedException& e)
+        {
+            test(e.ice_name() == "Test::DerivedException");
+            test(e.sbe == "sbe");
+            test(e.pb);
+            test(e.pb->sb == "sb1");
+            test(e.pb->pb == e.pb);
+            test(e.sde == "sde1");
+            test(e.pd1);
+            test(e.pd1->sb == "sb2");
+            test(e.pd1->pb == e.pd1);
+            test(e.pd1->sd1 == "sd2");
+            test(e.pd1->pd1 == e.pd1);
+        }
+        catch(...)
+        {
+            test(false);
+        }
+#else
         CallbackPtr cb = new Callback;
         test->begin_throwDerivedAsDerived(
             newCallback_TestIntf_throwDerivedAsDerived(
                 cb, &Callback::response, &Callback::exception_throwDerivedAsDerived));
         cb->check();
+#endif
     }
     cout << "ok" << endl;
 
@@ -1964,35 +2451,31 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "unknown derived exception thrown as base exception (AMI)... " << flush;
     {
-        CallbackPtr cb = new Callback;
-        test->begin_throwUnknownDerivedAsBase(
-            newCallback_TestIntf_throwUnknownDerivedAsBase(
-                cb, &Callback::response, &Callback::exception_throwUnknownDerivedAsBase));
-        cb->check();
-    }
-    cout << "ok" << endl;
-
-    cout << "forward-declared class... " << flush;
-    {
+#ifdef ICE_CPP11_MAPPING
         try
         {
-            ForwardPtr f;
-            test->useForward(f);
-            test(f);
+            test->throwUnknownDerivedAsBase_async().get();
+            test(false);
+        }
+        catch(const BaseException& e)
+        {
+            test(e.ice_name() == "Test::BaseException");
+            test(e.sbe == "sbe");
+            test(e.pb);
+            test(e.pb->sb == "sb d2");
+            test(e.pb->pb == e.pb);
         }
         catch(...)
         {
             test(false);
         }
-    }
-    cout << "ok" << endl;
-
-    cout << "forward-declared class (AMI)... " << flush;
-    {
+#else
         CallbackPtr cb = new Callback;
-        test->begin_useForward(
-            newCallback_TestIntf_useForward(cb, &Callback::response_useForward, &Callback::exception));
+        test->begin_throwUnknownDerivedAsBase(
+            newCallback_TestIntf_throwUnknownDerivedAsBase(
+                cb, &Callback::response, &Callback::exception_throwUnknownDerivedAsBase));
         cb->check();
+#endif
     }
     cout << "ok" << endl;
 
@@ -2002,14 +2485,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
         //
         // Server knows the most-derived class PDerived.
         //
-        PDerivedPtr pd = new PDerived;
+        PDerivedPtr pd = ICE_MAKE_SHARED(PDerived);
         pd->pi = 3;
         pd->ps = "preserved";
         pd->pb = pd;
+#ifndef ICE_CPP11_MAPPING
         pd->ice_collectable(true);
-
+#endif
         PBasePtr r = test->exchangePBase(pd);
-        PDerivedPtr p2 = PDerivedPtr::dynamicCast(r);
+        PDerivedPtr p2 = ICE_DYNAMIC_CAST(PDerived, r);
         test(p2);
         test(p2->pi == 3);
         test(p2->ps == "preserved");
@@ -2024,12 +2508,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         //
         // Server only knows the base (non-preserved) type, so the object is sliced.
         //
-        PCUnknownPtr pu = new PCUnknown;
+        PCUnknownPtr pu = ICE_MAKE_SHARED(PCUnknown);
         pu->pi = 3;
         pu->pu = "preserved";
-
         PBasePtr r = test->exchangePBase(pu);
-        PCUnknownPtr p2 = PCUnknownPtr::dynamicCast(r);
+        PCUnknownPtr p2 = ICE_DYNAMIC_CAST(PCUnknown, r);
         test(!p2);
         test(r->pi == 3);
     }
@@ -2043,13 +2526,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
         // Server only knows the intermediate type Preserved. The object will be sliced to
         // Preserved for the 1.0 encoding; otherwise it should be returned intact.
         //
-        PCDerivedPtr pcd = new PCDerived;
+        PCDerivedPtr pcd = ICE_MAKE_SHARED(PCDerived);
         pcd->pi = 3;
         pcd->pbs.push_back(pcd);
+#ifndef ICE_CPP11_MAPPING
         pcd->ice_collectable(true);
+#endif
 
         PBasePtr r = test->exchangePBase(pcd);
-        PCDerivedPtr p2 = PCDerivedPtr::dynamicCast(r);
+        PCDerivedPtr p2 = ICE_DYNAMIC_CAST(PCDerived, r);
         if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
         {
             test(!p2);
@@ -2072,13 +2557,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
         // Server only knows the intermediate type CompactPDerived. The object will be sliced to
         // CompactPDerived for the 1.0 encoding; otherwise it should be returned intact.
         //
-        CompactPCDerivedPtr pcd = new CompactPCDerived;
+        CompactPCDerivedPtr pcd = ICE_MAKE_SHARED(CompactPCDerived);
         pcd->pi = 3;
         pcd->pbs.push_back(pcd);
+#ifndef ICE_CPP11_MAPPING
         pcd->ice_collectable(true);
+#endif
 
         PBasePtr r = test->exchangePBase(pcd);
-        CompactPCDerivedPtr p2 = CompactPCDerivedPtr::dynamicCast(r);
+        CompactPCDerivedPtr p2 = ICE_DYNAMIC_CAST(CompactPCDerived, r);
         if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
         {
             test(!p2);
@@ -2101,7 +2588,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         // Send an object that will have multiple preserved slices in the server.
         // The object will be sliced to Preserved for the 1.0 encoding.
         //
-        PCDerived3Ptr pcd = new PCDerived3;
+        PCDerived3Ptr pcd = ICE_MAKE_SHARED(PCDerived3);
         pcd->pi = 3;
         //
         // Sending more than 254 objects exercises the encoding for object ids.
@@ -2109,7 +2596,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         int i;
         for(i = 0; i < 300; ++i)
         {
-            PCDerived2Ptr p2 = new PCDerived2;
+            PCDerived2Ptr p2 = ICE_MAKE_SHARED(PCDerived2);
             p2->pi = i;
             p2->pbs.push_back(0); // Nil reference. This slice should not have an indirection table.
             p2->pcd2 = i;
@@ -2119,11 +2606,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         pcd->pcd3 = pcd->pbs[10];
 
         PBasePtr r = test->exchangePBase(pcd);
-        PCDerived3Ptr p3 = PCDerived3Ptr::dynamicCast(r);
+        PCDerived3Ptr p3 = ICE_DYNAMIC_CAST(PCDerived3, r);
         if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
         {
             test(!p3);
-            test(PreservedPtr::dynamicCast(r));
+            test(ICE_DYNAMIC_CAST(Preserved, r));
             test(r->pi == 3);
         }
         else
@@ -2132,7 +2619,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(p3->pi == 3);
             for(i = 0; i < 300; ++i)
             {
-                PCDerived2Ptr p2 = PCDerived2Ptr::dynamicCast(p3->pbs[i]);
+                PCDerived2Ptr p2 = ICE_DYNAMIC_CAST(PCDerived2, p3->pbs[i]);
                 test(p2->pi == i);
                 test(p2->pbs.size() == 1);
                 test(!p2->pbs[0]);
@@ -2171,31 +2658,62 @@ allTests(const Ice::CommunicatorPtr& communicator)
         //
         // Server knows the most-derived class PDerived.
         //
-        PDerivedPtr pd = new PDerived;
+        PDerivedPtr pd = ICE_MAKE_SHARED(PDerived);
         pd->pi = 3;
         pd->ps = "preserved";
         pd->ps = "preserved";
         pd->pb = pd;
+
+#ifndef ICE_CPP11_MAPPING
         pd->ice_collectable(true);
-        
+#endif
+
+#ifdef ICE_CPP11_MAPPING
+        try
+        {
+            pd = dynamic_pointer_cast<PDerived>(test->exchangePBase_async(pd).get());
+            test(pd);
+            test(pd->pi == 3);
+            test(pd->ps == "preserved");
+            test(pd->pb == pd);
+        }
+        catch(...)
+        {
+            test(false);
+        }
+#else
         CallbackPtr cb = new Callback;
         test->begin_exchangePBase(
             pd, newCallback_TestIntf_exchangePBase(cb, &Callback::response_preserved1, &Callback::exception));
         cb->check();
+#endif
     }
 
     {
         //
         // Server only knows the base (non-preserved) type, so the object is sliced.
         //
-        PCUnknownPtr pu = new PCUnknown;
+        PCUnknownPtr pu = ICE_MAKE_SHARED(PCUnknown);
         pu->pi = 3;
         pu->pu = "preserved";
-
+#ifdef ICE_CPP11_MAPPING
+        try
+        {
+            auto r = test->exchangePBase_async(pu).get();
+            auto p2 = dynamic_pointer_cast<PCUnknown>(r);
+            test(!p2);
+            test(r->pi == 3);
+        }
+        catch(...)
+        {
+            test(false);
+        }
+#else
         CallbackPtr cb = new Callback;
         test->begin_exchangePBase(
             pu, newCallback_TestIntf_exchangePBase(cb, &Callback::response_preserved2, &Callback::exception));
         cb->check();
+#endif
     }
 
     {
@@ -2203,9 +2721,26 @@ allTests(const Ice::CommunicatorPtr& communicator)
         // Server only knows the intermediate type Preserved. The object will be sliced to
         // Preserved for the 1.0 encoding; otherwise it should be returned intact.
         //
-        PCDerivedPtr pcd = new PCDerived;
+        PCDerivedPtr pcd = ICE_MAKE_SHARED(PCDerived);
         pcd->pi = 3;
         pcd->pbs.push_back(pcd);
+#ifdef ICE_CPP11_MAPPING
+        if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+        {
+            auto r = test->exchangePBase_async(pcd).get();
+            auto p2 = dynamic_pointer_cast<PCDerived>(r);
+            test(!p2);
+            test(r->pi == 3);
+        }
+        else
+        {
+            auto r = test->exchangePBase_async(pcd).get();
+            auto p2 = dynamic_pointer_cast<PCDerived>(r);
+            test(p2);
+            test(p2->pi == 3);
+            test(p2->pbs[0] == p2);
+        }
+#else
         pcd->ice_collectable(true);
 
         CallbackPtr cb = new Callback;
@@ -2220,6 +2755,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 pcd, newCallback_TestIntf_exchangePBase(cb, &Callback::response_preserved4, &Callback::exception));
         }
         cb->check();
+#endif
     }
 
     {
@@ -2227,9 +2763,27 @@ allTests(const Ice::CommunicatorPtr& communicator)
         // Server only knows the intermediate type CompactPDerived. The object will be sliced to
         // CompactPDerived for the 1.0 encoding; otherwise it should be returned intact.
         //
-        CompactPCDerivedPtr pcd = new CompactPCDerived;
+        CompactPCDerivedPtr pcd = ICE_MAKE_SHARED(CompactPCDerived);
         pcd->pi = 3;
         pcd->pbs.push_back(pcd);
+        
+#ifdef ICE_CPP11_MAPPING
+        if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+        {
+            auto r = test->exchangePBase_async(pcd).get();
+            auto p2 = dynamic_pointer_cast<CompactPCDerived>(r);
+            test(!p2);
+            test(r->pi == 3);
+        }
+        else
+        {
+            auto r = test->exchangePBase_async(pcd).get();
+            auto p2 = dynamic_pointer_cast<CompactPCDerived>(r);
+            test(p2);
+            test(p2->pi == 3);
+            test(p2->pbs[0] == p2);
+        }
+#else
         pcd->ice_collectable(true);
         
         CallbackPtr cb = new Callback;
@@ -2246,6 +2800,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
                                                                               &Callback::exception));
         }
         cb->check();
+#endif
     }
 
     {
@@ -2253,7 +2808,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         // Send an object that will have multiple preserved slices in the server.
         // The object will be sliced to Preserved for the 1.0 encoding.
         //
-        PCDerived3Ptr pcd = new PCDerived3;
+        PCDerived3Ptr pcd = ICE_MAKE_SHARED(PCDerived3);
         pcd->pi = 3;
         //
         // Sending more than 254 objects exercises the encoding for object ids.
@@ -2261,7 +2816,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         int i;
         for(i = 0; i < 300; ++i)
         {
-            PCDerived2Ptr p2 = new PCDerived2;
+            PCDerived2Ptr p2 = ICE_MAKE_SHARED(PCDerived2);
             p2->pi = i;
             p2->pbs.push_back(0); // Nil reference. This slice should not have an indirection table.
             p2->pcd2 = i;
@@ -2270,6 +2825,32 @@ allTests(const Ice::CommunicatorPtr& communicator)
         pcd->pcd2 = pcd->pi;
         pcd->pcd3 = pcd->pbs[10];
 
+#ifdef ICE_CPP11_MAPPING
+        if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+        {
+            auto r = test->exchangePBase_async(pcd).get();
+            auto p2 = dynamic_pointer_cast<PCDerived>(r);
+            test(!p2);
+            test(r->pi == 3);
+        }
+        else
+        {
+            auto r = test->exchangePBase_async(pcd).get();
+            auto p3 = dynamic_pointer_cast<PCDerived3>(r);
+            test(p3);
+            test(p3->pi == 3);
+            for(int i = 0; i < 300; ++i)
+            {
+                auto p2 = dynamic_pointer_cast<PCDerived2>(p3->pbs[i]);
+                test(p2->pi == i);
+                test(p2->pbs.size() == 1);
+                test(!p2->pbs[0]);
+                test(p2->pcd2 == i);
+            }
+            test(p3->pcd2 == p3->pi);
+            test(p3->pcd3 == p3->pbs[10]);
+        }
+#else
         CallbackPtr cb = new Callback;
         if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
         {
@@ -2282,9 +2863,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 pcd, newCallback_TestIntf_exchangePBase(cb, &Callback::response_preserved5, &Callback::exception));
         }
         cb->check();
+#endif
     }
     cout << "ok" << endl;
 
+#ifndef ICE_CPP11_MAPPING
     cout << "garbage collection for preserved classes... " << flush;
     try
     {
@@ -2400,6 +2983,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
     }
     cout << "ok" << endl;
-
+#endif
     return test;
 }

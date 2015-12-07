@@ -15,15 +15,15 @@
 
 using namespace std;
 
-Test::PriorityPrx
+Test::PriorityPrxPtr
 allTests(const Ice::CommunicatorPtr& communicator)
 {
     cout << "testing server priority... " << flush;
     string ref = "test:default -p 12010 -t 10000";
-    Ice::ObjectPrx base = communicator->stringToProxy(ref);
+    Ice::ObjectPrxPtr base = communicator->stringToProxy(ref);
     test(base);
 
-    Test::PriorityPrx priority = Test::PriorityPrx::checkedCast(base);
+    Test::PriorityPrxPtr priority = ICE_UNCHECKED_CAST(Test::PriorityPrx, base);
 
     try
     {

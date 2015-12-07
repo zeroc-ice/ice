@@ -181,7 +181,24 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
             EnumPtr ep = EnumPtr::dynamicCast(type);
             if(ep)
             {
-                out << fixKwd(value);
+                bool unscoped = findMetaData(ep->getMetaData()) == "%unscoped";
+                if(!cpp11 || unscoped)
+                {
+                    out << fixKwd(value);
+                }
+                else
+                {
+                    string v = value;
+                    string scope;
+                    size_t pos = value.rfind("::");
+                    if(pos != string::npos)
+                    {
+                        v = value.substr(pos + 2);
+                        scope = value.substr(0, value.size() - v.size());
+                    }
+                    
+                    out << fixKwd(scope + ep->name() + "::" + v);
+                }
             }
             else
             {
@@ -223,7 +240,7 @@ writeMarshalUnmarshalDataMembers(IceUtilInternal::Output& C,
 }
 
 void
-writeDataMemberInitializers(IceUtilInternal::Output& C, const DataMemberList& members, int useWstring)
+writeDataMemberInitializers(IceUtilInternal::Output& C, const DataMemberList& members, int useWstring, bool cpp11 = false)
 {
     bool first = true;
     for(DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
@@ -242,7 +259,7 @@ writeDataMemberInitializers(IceUtilInternal::Output& C, const DataMemberList& me
             }
             C << nl << memberName << '(';
             writeConstantValue(C, (*p)->type(), (*p)->defaultValueType(), (*p)->defaultValue(), useWstring,
-                               (*p)->getMetaData());
+                               (*p)->getMetaData(), cpp11);
             C << ')';
         }
     }
@@ -5794,7 +5811,6 @@ Slice::Gen::Cpp11ObjectDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
     {
         H << sp << nl << "class " << name << ';';
         H << nl << "typedef ::std::shared_ptr< " << name << "> " << p->name() << "Ptr;";
-        H << nl << _dllExport << "void __patch(" << p->name() << "Ptr&, const ::Ice::ValuePtr&);";
     }
 }
 
@@ -5953,7 +5969,7 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         if(p->hasDefaultValues())
         {
             C << ", ";
-            writeDataMemberInitializers(C, dataMembers, _useWstring);
+            writeDataMemberInitializers(C, dataMembers, _useWstring, true);
         }
         C.dec();
         C << sb;
@@ -5963,7 +5979,7 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     {
         C << sp << nl << scoped.substr(2) << "::" << name << "() :";
         C.inc();
-        writeDataMemberInitializers(C, dataMembers, _useWstring);
+        writeDataMemberInitializers(C, dataMembers, _useWstring, true);
         C.dec();
         C << sb;
         C << eb;
@@ -7298,19 +7314,15 @@ enumSizeType(IceUtil::Int64 size)
 {
     if(size <= 0xFF)
     {
-        return "char";
+        return "unsigned char";
     }
     else if(size <= 0xFFFF)
     {
-        return "short";
-    }
-    else if(size <= 0xFFFFFFFF)
-    {
-        return "int";
+        return "unsigned short";
     }
     else
     {
-        return "long long int";
+        return "unsigned int";
     }
 }
 
@@ -7523,7 +7535,7 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             H << sp << nl << name << "() :";
             H.inc();
-            writeDataMemberInitializers(H, dataMembers, _useWstring);
+            writeDataMemberInitializers(H, dataMembers, _useWstring, true);
             H.dec();
             H << sb;
             H << eb;
@@ -8449,7 +8461,7 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         H << sp << nl << name << "() :";
         H.inc();
-        writeDataMemberInitializers(H, dataMembers, _useWstring);
+        writeDataMemberInitializers(H, dataMembers, _useWstring, true);
         H.dec();
         H << sb;
         H << eb;
@@ -8463,6 +8475,8 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     emitOneShotConstructor(p);
     H << sp;
     H << nl << "virtual ::Ice::ValuePtr ice_clone() const;";
+    H << sp;
+    H << nl << "const ::std::string& ice_id() const;";
     H << sp;
     H << nl << "static const ::std::string& ice_staticId();";
     return true;
@@ -8550,6 +8564,13 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     C << sp;
     C << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_staticId()";
+    C << sb;
+    C << nl << "static const ::std::string typeId = \"" << p->scoped() << "\";";
+    C << nl << "return typeId;";
+    C << eb;
+    
+    C << sp;
+    C << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_id() const";
     C << sb;
     C << nl << "static const ::std::string typeId = \"" << p->scoped() << "\";";
     C << nl << "return typeId;";

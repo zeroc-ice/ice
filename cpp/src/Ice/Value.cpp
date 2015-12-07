@@ -54,16 +54,21 @@ const string __Ice__Object_ids[] =
 }
 
 const string&
+Ice::Value::ice_staticId()
+{
+    return __Ice__Object_ids[0];
+}
+
+const string&
 Ice::Value::ice_id() const
 {
     return __Ice__Object_ids[0];
 }
 
-
-const string&
-Ice::Value::ice_staticId()
+ValuePtr
+Ice::Value::ice_clone() const
 {
-    return __Ice__Object_ids[0];
+    return make_shared<Value>(*this);
 }
 
 #endif

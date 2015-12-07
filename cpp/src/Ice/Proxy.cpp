@@ -1332,12 +1332,6 @@ IceProxy::Ice::Object::end_ice_flushBatchRequests(const AsyncResultPtr& result)
     result->__wait();
 }
 
-Int
-IceProxy::Ice::Object::__hash() const
-{
-    return _reference->hash();
-}
-
 void
 IceProxy::Ice::Object::__invoke(Outgoing& __og) const
 {
@@ -2222,6 +2216,12 @@ ICE_OBJECT_PRX::ice_toString() const
     // printable ASCII which is a subset of all native character sets.
     //
     return _reference->toString();
+}
+
+Int
+ICE_OBJECT_PRX::__hash() const
+{
+    return _reference->hash();
 }
 
 bool

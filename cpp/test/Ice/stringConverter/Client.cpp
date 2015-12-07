@@ -41,9 +41,7 @@ main(int argc, char* argv[])
     // (we just used the codeset for as default internal code for
     // stringConverter below)
     //
-
-    useLocale = (setlocale(LC_ALL, "fr_FR.ISO8859-15") != 0
-                 || setlocale(LC_ALL, "fr_FR.iso885915@euro") != 0);
+    useLocale = (setlocale(LC_ALL, "fr_FR.ISO8859-15") != 0 || setlocale(LC_ALL, "fr_FR.iso885915@euro") != 0);
 #endif
 
 #if defined(_WIN32)
@@ -97,8 +95,8 @@ main(int argc, char* argv[])
 int
 Client::run(int, char*[])
 {
-    Test::MyObjectPrx proxy =
-        Test::MyObjectPrx::uncheckedCast(communicator()->stringToProxy("test:default -p 12010"));
+    Test::MyObjectPrxPtr proxy = ICE_UNCHECKED_CAST(Test::MyObjectPrx,
+                                                    communicator()->stringToProxy("test:default -p 12010"));
 
     char oe = char(0xBD); // A single character in ISO Latin 9
     string msg = string("tu me fends le c") + oe + "ur!";

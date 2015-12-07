@@ -359,6 +359,8 @@ public:
     ::IceInternal::RequestHandlerPtr __setRequestHandler(const ::IceInternal::RequestHandlerPtr&);
     void __updateRequestHandler(const ::IceInternal::RequestHandlerPtr&, const ::IceInternal::RequestHandlerPtr&);
 
+    int __hash() const;
+
 protected:
 
     virtual ::std::shared_ptr<ObjectPrx> __newInstance() const;

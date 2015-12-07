@@ -20,11 +20,17 @@ SUBDIRS		= proxy \
                   inheritance \
                   facets \
                   objects \
-                  properties \
+                  adapterDeactivation \
+                  hash \
                   admin \
                   enums \
                   timeout \
-                  udp
+                  udp \
+                  defaultValue \
+                  properties \
+                  plugin \
+                  logger \
+                  networkProxy
 else
 SUBDIRS		= proxy \
                   operations \

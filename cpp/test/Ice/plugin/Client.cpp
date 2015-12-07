@@ -63,7 +63,7 @@ private:
     bool _initialized;
     bool _destroyed;
 };
-typedef IceUtil::Handle<MyPlugin> MyPluginPtr;
+ICE_DEFINE_PTR(MyPluginPtr, MyPlugin);
 
 }
 
@@ -91,7 +91,7 @@ main(int argc, char* argv[])
     try
     {
         communicator = Ice::initialize(argc, argv);
-        MyPluginPtr plugin = MyPluginPtr::dynamicCast(communicator->getPluginManager()->getPlugin("Static1"));
+        MyPluginPtr plugin = ICE_DYNAMIC_CAST(MyPlugin, communicator->getPluginManager()->getPlugin("Static1"));
         test(plugin && plugin->isInitialized());
         try
         {
@@ -113,9 +113,9 @@ main(int argc, char* argv[])
         initData.properties = Ice::createProperties(argc, argv);
         initData.properties->setProperty("Ice.Plugin.Static2", "1");
         communicator = Ice::initialize(argc, argv, initData);
-        MyPluginPtr plugin = MyPluginPtr::dynamicCast(communicator->getPluginManager()->getPlugin("Static1"));
+        MyPluginPtr plugin = ICE_DYNAMIC_CAST(MyPlugin, communicator->getPluginManager()->getPlugin("Static1"));
         test(plugin && plugin->isInitialized());
-        plugin = MyPluginPtr::dynamicCast(communicator->getPluginManager()->getPlugin("Static2"));
+        plugin = ICE_DYNAMIC_CAST(MyPlugin, communicator->getPluginManager()->getPlugin("Static2"));
         test(plugin && plugin->isInitialized());
         communicator->destroy();
     }
@@ -266,7 +266,7 @@ main(int argc, char* argv[])
         test(pm->getPlugin("PluginTwo"));
         test(pm->getPlugin("PluginThree"));
 
-        MyPluginPtr p4 = new MyPlugin;
+        MyPluginPtr p4 = ICE_MAKE_SHARED(MyPlugin);
         pm->addPlugin("PluginFour", p4);
         test(pm->getPlugin("PluginFour"));
 

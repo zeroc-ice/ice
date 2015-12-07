@@ -1058,7 +1058,15 @@ def getCommandLineProperties(exe, config):
     if config.serialize:
         components.append("--Ice.ThreadPool.Server.Serialize=1")
 
-    if config.type == "server" or config.type == "colloc" and config.lang == "python":
+    #
+    # TODO
+    # config.lang == "cpp" required with C++11 mapping, we should be able to ged rid
+    # of this once AsyncResult is optimized to not required a thread pool thread with
+    # collocated calls and C++11 mapping. We must also check if it still required for
+    # python.
+    #
+    if (config.type == "server" or config.type == "colloc" and 
+        (config.lang == "python" or config.lang == "cpp")):
         components.append("--Ice.ThreadPool.Server.Size=1")
         components.append("--Ice.ThreadPool.Server.SizeMax=3")
         components.append("--Ice.ThreadPool.Server.SizeWarn=0")

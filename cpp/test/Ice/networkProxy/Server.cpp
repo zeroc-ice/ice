@@ -36,7 +36,7 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    Ice::ObjectPtr object = new TestI;
+    Ice::ObjectPtr object = ICE_MAKE_SHARED(TestI);
     adapter->add(object, communicator->stringToIdentity("test"));
     adapter->activate();
     TEST_READY
