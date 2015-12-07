@@ -196,7 +196,7 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
                         v = value.substr(pos + 2);
                         scope = value.substr(0, value.size() - v.size());
                     }
-                    
+
                     out << fixKwd(scope + ep->name() + "::" + v);
                 }
             }
@@ -7305,29 +7305,6 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
     H << eb;
 }
 
-
-namespace
-{
-
-string
-enumSizeType(IceUtil::Int64 size)
-{
-    if(size <= 0xFF)
-    {
-        return "unsigned char";
-    }
-    else if(size <= 0xFFFF)
-    {
-        return "unsigned short";
-    }
-    else
-    {
-        return "unsigned int";
-    }
-}
-
-};
-
 void
 Slice::Gen::Cpp11TypesVisitor::visitEnum(const EnumPtr& p)
 {
@@ -7338,9 +7315,9 @@ Slice::Gen::Cpp11TypesVisitor::visitEnum(const EnumPtr& p)
         H << "class ";
     }
     H << fixKwd(p->name());
-    if(!unscoped)
+    if(!unscoped && p->maxValue() <= 0xFF)
     {
-        H << " : " << enumSizeType(p->maxValue());
+        H << " : unsigned char";
     }
     H << sb;
 
@@ -8568,7 +8545,7 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
     C << nl << "static const ::std::string typeId = \"" << p->scoped() << "\";";
     C << nl << "return typeId;";
     C << eb;
-    
+
     C << sp;
     C << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_id() const";
     C << sb;
