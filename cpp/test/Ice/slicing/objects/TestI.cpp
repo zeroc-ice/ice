@@ -567,6 +567,17 @@ TestI::throwPreservedException_async(const AMD_TestIntf_throwPreservedExceptionP
 }
 
 void
+TestI::useForward(ForwardPtr& f, const ::Ice::Current&)
+{
+    f = ICE_MAKE_SHARED(Forward);
+    f->h = ICE_MAKE_SHARED(Hidden);
+    f->h->f = f;
+#ifndef ICE_CPP11_MAPPING
+    f->ice_collectable(true);
+#endif
+}
+
+void
 TestI::shutdown(const ::Ice::Current& current)
 {
     current.adapter->getCommunicator()->shutdown();

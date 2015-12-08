@@ -647,6 +647,16 @@ TestI::throwPreservedException_async(function<void ()>,
     }
 }
 
+void
+TestI::useForward_async(function<void (const shared_ptr<::Test::Forward>&)> response,
+                        function<void (const exception_ptr&)>,
+                        const ::Ice::Current&)
+{
+    auto f = make_shared<Forward>();
+    f->h = make_shared<Hidden>;
+    f->h->f = f;
+    response(f);
+}
 
 void
 TestI::shutdown_async(function<void ()> response,
@@ -1182,6 +1192,16 @@ TestI::throwPreservedException_async(const AMD_TestIntf_throwPreservedExceptionP
     ue.p->pb = ue.p;
     cb->ice_exception(ue);
     ue.p->pb = 0; // Break the cycle.
+}
+
+void
+TestI::useForward_async(const AMD_TestIntf_useForwardPtr& cb, const ::Ice::Current&)
+{
+    ForwardPtr f = new Forward;
+    f->h = new Hidden;
+    f->h->f = f;
+    f->ice_collectable(true);
+    cb->ice_response(f);
 }
 
 void

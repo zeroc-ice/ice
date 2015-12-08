@@ -66,6 +66,8 @@ exception DerivedException extends BaseException
     D1 pd1;
 };
 
+class Forward;          /* Forward-declared class defined in another compilation unit */
+
 class PBase
 {
     int pi;
@@ -148,7 +150,19 @@ interface TestIntf
     void throwUnknownDerivedAsBase() throws BaseException;
     void throwPreservedException() throws PreservedException;
 
+    void useForward(out Forward f); /* Use of forward-declared class to verify that code is generated correctly. */
+
     void shutdown();
+};
+
+class Hidden
+{
+    Forward f;
+};
+
+class Forward
+{
+    Hidden h;
 };
 
 };

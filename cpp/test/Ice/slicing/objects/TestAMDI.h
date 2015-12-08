@@ -176,6 +176,10 @@ public:
                                                std::function<void (const std::exception_ptr&)>,
                                                const ::Ice::Current&);
 
+    virtual void useForward_async(std::function<void (const std::shared_ptr<::Test::Forward>&)>,
+                                  std::function<void (const std::exception_ptr&)>,
+                                  const ::Ice::Current&);
+
     virtual void shutdown_async(std::function<void ()>,
                                 std::function<void (const std::exception_ptr&)>,
                                 const ::Ice::Current&);
@@ -249,6 +253,8 @@ public:
                                                  const ::Ice::Current&);
     virtual void throwPreservedException_async(const ::Test::AMD_TestIntf_throwPreservedExceptionPtr&,
                                                const ::Ice::Current&);
+
+    virtual void useForward_async(const ::Test::AMD_TestIntf_useForwardPtr&, const ::Ice::Current&);
 
     virtual void shutdown_async(const ::Test::AMD_TestIntf_shutdownPtr&, const ::Ice::Current&);
 #endif
