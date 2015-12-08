@@ -22,7 +22,8 @@ SUBDIRS		= proxy \
                   objects \
                   properties \
                   admin \
-                  enums
+                  enums \
+                  faultTolerance
 !else
 SUBDIRS		= proxy \
 		  operations \

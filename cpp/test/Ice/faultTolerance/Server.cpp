@@ -52,7 +52,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     endpts << "default  -p " << port << ":udp";
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", endpts.str());
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    Ice::ObjectPtr object = new TestI();
+    Ice::ObjectPtr object = ICE_MAKE_SHARED(TestI);
     adapter->add(object, communicator->stringToIdentity("test"));
     adapter->activate();
     communicator->waitForShutdown();

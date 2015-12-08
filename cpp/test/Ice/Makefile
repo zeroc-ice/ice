@@ -20,6 +20,7 @@ SUBDIRS		= proxy \
                   inheritance \
                   facets \
                   objects \
+                  faultTolerance \
                   adapterDeactivation \
                   hash \
                   admin \

@@ -118,14 +118,18 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
     {
         ref << ":default -p " << *p;
     }
-    Ice::ObjectPrx base = communicator->stringToProxy(ref.str());
+    Ice::ObjectPrxPtr base = communicator->stringToProxy(ref.str());
     test(base);
     cout << "ok" << endl;
 
     cout << "testing checked cast... " << flush;
-    TestIntfPrx obj = TestIntfPrx::checkedCast(base);
+    TestIntfPrxPtr obj = ICE_CHECKED_CAST(TestIntfPrx, base);
     test(obj);
+#ifdef ICE_CPP11_MAPPING
+    test(Ice::targetEquals(obj, base));
+#else
     test(obj == base);
+#endif
     cout << "ok" << endl;
 
     int oldPid = 0;
@@ -149,6 +153,19 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
         else
         {
             cout << "testing server #" << i << " with AMI... " << flush;
+#ifdef ICE_CPP11_MAPPING
+            try
+            {
+                int pid = obj->pid_async().get();
+                test(pid != oldPid);
+                cout << "ok" << endl;
+                oldPid = pid;
+            }
+            catch(const exception&)
+            {
+                test(false);
+            }
+#else
             CallbackPtr cb = new Callback();
             obj->begin_pid(newCallback_TestIntf_pid(cb, &Callback::opPidI, &Callback::exception));
             cb->check();
@@ -156,6 +173,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
             test(pid != oldPid);
             cout << "ok" << endl;
             oldPid = pid;
+#endif
         }
 
         if(j == 0)
@@ -168,11 +186,24 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
             }
             else
             {
+#ifdef ICE_CPP11_MAPPING
+                cout << "shutting down server #" << i << " with AMI... " << flush;
+                try
+                {
+                    obj->shutdown_async().get();
+                }
+                catch(const exception&)
+                {
+                    test(false);
+                }
+                cout << "ok" << endl;
+#else
                 cout << "shutting down server #" << i << " with AMI... " << flush;
                 CallbackPtr cb = new Callback;
                 obj->begin_shutdown(newCallback_TestIntf_shutdown(cb, &Callback::opShutdownI, &Callback::exception));
                 cb->check();
                 cout << "ok" << endl;
+#endif
             }
         }
         else if(j == 1 || i + 1 > ports.size())
@@ -196,11 +227,24 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
             }
             else
             {
+#ifdef ICE_CPP11_MAPPING
+                cout << "aborting server #" << i << " with AMI... " << flush;
+                try
+                {
+                    obj->abort_async().get();
+                    test(false);
+                }
+                catch(const exception&)
+                {
+                }
+                cout << "ok" << endl;
+#else
                 cout << "aborting server #" << i << " with AMI... " << flush;
                 CallbackPtr cb = new Callback;
                 obj->begin_abort(newCallback_TestIntf_abort(cb, &Callback::response, &Callback::exceptAbortI));
                 cb->check();
                 cout << "ok" << endl;
+#endif
             }
         }
         else if(j == 2 || j == 3)
@@ -224,12 +268,25 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
             }
             else
             {
+#ifdef ICE_CPP11_MAPPING
+                cout << "aborting server #" << i << " and #" << i + 1 << " with idempotent AMI call... " << flush;
+                try
+                {
+                    obj->idempotentAbort_async().get();
+                    test(false);
+                }
+                catch(const exception&)
+                {
+                }
+                cout << "ok" << endl;
+#else
                 cout << "aborting server #" << i << " and #" << i + 1 << " with idempotent AMI call... " << flush;
                 CallbackPtr cb = new Callback;
                 obj->begin_idempotentAbort(newCallback_TestIntf_idempotentAbort(cb, &Callback::response, 
                                                                                 &Callback::exceptAbortI));
                 cb->check();
                 cout << "ok" << endl;
+#endif
             }
 
             ++i;
