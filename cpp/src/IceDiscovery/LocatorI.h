@@ -24,19 +24,41 @@ public:
 
     LocatorRegistryI(const Ice::CommunicatorPtr&);
     
+#ifdef ICE_CPP11_MAPPING
+    virtual void 
+    setAdapterDirectProxy_async(const std::string&,
+                                const std::shared_ptr<Ice::ObjectPrx>&,
+                                std::function<void ()>,
+                                std::function<void (const std::exception_ptr&)>,
+                                const Ice::Current&);
+
+    virtual void
+    setReplicatedAdapterDirectProxy_async(const std::string&, const std::string&,
+                                          const std::shared_ptr<Ice::ObjectPrx>&,
+                                          std::function<void ()>,
+                                          std::function<void (const std::exception_ptr&)>,
+                                          const Ice::Current&);
+
+    virtual void 
+    setServerProcessProxy_async(const std::string&, 
+                                const std::shared_ptr<Ice::ProcessPrx>&,
+                                std::function<void ()>,
+                                std::function<void (const std::exception_ptr&)>,
+                                const Ice::Current&);
+#else
     virtual void 
     setAdapterDirectProxy_async(const Ice::AMD_LocatorRegistry_setAdapterDirectProxyPtr&, const std::string&, 
-                                const Ice::ObjectPrxPtr&, const Ice::Current&);
+                                const Ice::ObjectPrx&, const Ice::Current&);
 
     virtual void
     setReplicatedAdapterDirectProxy_async(const Ice::AMD_LocatorRegistry_setReplicatedAdapterDirectProxyPtr&,
-                                          const std::string&, const std::string&, const Ice::ObjectPrxPtr&, 
+                                          const std::string&, const std::string&, const Ice::ObjectPrx&, 
                                           const Ice::Current&);
 
     virtual void 
     setServerProcessProxy_async(const Ice::AMD_LocatorRegistry_setServerProcessProxyPtr&, const std::string&, 
-                                const Ice::ProcessPrxPtr&, const Ice::Current&);
-
+                                const Ice::ProcessPrx&, const Ice::Current&);
+#endif
     Ice::ObjectPrxPtr findObject(const Ice::Identity&) const;
     Ice::ObjectPrxPtr findAdapter(const std::string&, bool&) const;
 
@@ -57,6 +79,19 @@ public:
 
     LocatorI(const LookupIPtr&, const Ice::LocatorRegistryPrxPtr&);
 
+#ifdef ICE_CPP11_MAPPING
+    virtual void 
+    findObjectById_async(const Ice::Identity&, 
+                         std::function<void (const std::shared_ptr<Ice::ObjectPrx>&)>,
+                         std::function<void (const std::exception_ptr&)>,
+                         const Ice::Current&) const;
+
+    virtual void 
+    findAdapterById_async(const std::string&, 
+                          std::function<void (const std::shared_ptr<Ice::ObjectPrx>&)>,
+                          std::function<void (const std::exception_ptr&)>,
+                          const Ice::Current&) const;
+#else
     virtual void 
     findObjectById_async(const Ice::AMD_Locator_findObjectByIdPtr&, const Ice::Identity&, 
                          const Ice::Current&) const;
@@ -64,7 +99,7 @@ public:
     virtual void 
     findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr&, const std::string&, 
                           const Ice::Current&) const;
-
+#endif
     virtual Ice::LocatorRegistryPrxPtr getRegistry(const Ice::Current&) const;
 
 private:

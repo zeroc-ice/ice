@@ -21,6 +21,98 @@ namespace IceDiscovery
 
 class LookupI;
 
+#ifdef ICE_CPP11_MAPPING
+
+
+template<class T> class Request :
+    public IceUtil::TimerTask,
+    public std::enable_shared_from_this<Request<T>>
+{
+public:
+    
+    Request(std::shared_ptr<LookupI> lookup, const T& id, int retryCount) : 
+        _lookup(lookup),
+        _id(id),
+        _nRetry(retryCount)
+    {
+    }
+
+    T getId() const
+    {
+        return _id;
+    }
+    
+    virtual bool retry()
+    {
+        return --_nRetry >= 0;
+    }
+
+    bool addCallback(std::function<void (const std::shared_ptr<::Ice::ObjectPrx>&)> cb)
+    {
+        _callbacks.push_back(cb);
+        return _callbacks.size() == 1;
+    }
+
+    virtual void finished(const Ice::ObjectPrxPtr& proxy)
+    {
+        for(auto cb : _callbacks) 
+        {
+            cb(proxy);
+        }
+        _callbacks.clear();
+    }
+
+protected:
+
+    LookupIPtr _lookup;
+    const T _id;
+    int _nRetry;
+    std::vector<std::function<void (const std::shared_ptr<::Ice::ObjectPrx>&)>> _callbacks;
+};
+
+class ObjectRequest : public Request<Ice::Identity>
+{
+public:
+
+    ObjectRequest(const std::shared_ptr<LookupI>& lookup, const Ice::Identity& id, int retryCount) : 
+        Request<Ice::Identity>(lookup, id, retryCount)
+    {
+    }
+
+    void response(const std::shared_ptr<Ice::ObjectPrx>&);
+
+private:
+
+    virtual void runTimerTask();
+};
+typedef std::shared_ptr<ObjectRequest> ObjectRequestPtr;
+
+class AdapterRequest : public Request<std::string>
+{
+public:
+
+    AdapterRequest(std::shared_ptr<LookupI> lookup, const std::string& adapterId, int retryCount) : 
+        Request<std::string>(lookup, adapterId, retryCount),
+        _start(IceUtil::Time::now())
+    {
+    }
+
+    bool response(const std::shared_ptr<Ice::ObjectPrx>&, bool);
+
+    virtual bool retry();
+    virtual void finished(const std::shared_ptr<Ice::ObjectPrx>&);
+
+private:
+
+    virtual void runTimerTask();
+    std::vector<Ice::ObjectPrxPtr> _proxies;
+    IceUtil::Time _start;
+    IceUtil::Time _latency;
+};
+typedef std::shared_ptr<AdapterRequest> AdapterRequestPtr;
+
+#else
+
 class Request : public IceUtil::TimerTask
 {
 public:
@@ -109,8 +201,11 @@ private:
     IceUtil::Time _latency;
 };
 typedef IceUtil::Handle<AdapterRequest> AdapterRequestPtr;
+#endif
 
-class LookupI : public Lookup, private IceUtil::Mutex
+class LookupI : public Lookup,
+                private IceUtil::Mutex,
+                public ICE_ENABLE_SHARED_FROM_THIS(LookupI)
 {
 public:
 
@@ -126,8 +221,13 @@ public:
     virtual void findAdapterById(const std::string&, const std::string&, const IceDiscovery::LookupReplyPrxPtr&, 
                                  const Ice::Current&);
 
+#ifdef ICE_CPP11_MAPPING
+    void findObject(std::function<void (const std::shared_ptr<Ice::ObjectPrx>&)>, const Ice::Identity&);
+    void findAdapter(std::function<void (const std::shared_ptr<Ice::ObjectPrx>&)>, const std::string&);
+#else
     void findObject(const Ice::AMD_Locator_findObjectByIdPtr&, const Ice::Identity&);
     void findAdapter(const Ice::AMD_Locator_findAdapterByIdPtr&, const std::string&);
+#endif
 
     void foundObject(const Ice::Identity&, const Ice::ObjectPrxPtr&);
     void foundAdapter(const std::string&, const Ice::ObjectPrxPtr&, bool);

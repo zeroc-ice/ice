@@ -105,9 +105,9 @@ PluginI::initialize()
     //
     // Setup locatory registry.
     //
-    LocatorRegistryIPtr locatorRegistry = new LocatorRegistryI(_communicator);
-    Ice::LocatorRegistryPrx locatorRegistryPrx =
-        Ice::LocatorRegistryPrx::uncheckedCast(_locatorAdapter->addWithUUID(locatorRegistry));
+    LocatorRegistryIPtr locatorRegistry = ICE_MAKE_SHARED(LocatorRegistryI, _communicator);
+    Ice::LocatorRegistryPrxPtr locatorRegistryPrx =
+        ICE_UNCHECKED_CAST(Ice::LocatorRegistryPrx, _locatorAdapter->addWithUUID(locatorRegistry));
 
     string lookupEndpoints = properties->getProperty("IceDiscovery.Lookup");
     if(lookupEndpoints.empty())
@@ -121,17 +121,21 @@ PluginI::initialize()
         lookupEndpoints = os.str();
     }
 
-    Ice::ObjectPrx lookupPrx = _communicator->stringToProxy("IceDiscovery/Lookup -d:" + lookupEndpoints);
+    Ice::ObjectPrxPtr lookupPrx = _communicator->stringToProxy("IceDiscovery/Lookup -d:" + lookupEndpoints);
     lookupPrx = lookupPrx->ice_collocationOptimized(false); // No collocation optimization for the multicast proxy!
     try
     {
         // Ensure we can establish a connection to the multicast proxy
         // but don't block.
+#ifdef ICE_CPP11_MAPPING
+        lookupPrx->ice_getConnection();
+#else
         Ice::AsyncResultPtr result = lookupPrx->begin_ice_getConnection();
         if(result->sentSynchronously())
         {
             lookupPrx->end_ice_getConnection(result);
         }
+#endif
     }
     catch(const Ice::LocalException& ex)
     {
@@ -145,17 +149,17 @@ PluginI::initialize()
     //
     // Add lookup and lookup reply Ice objects
     //
-    _lookup = new LookupI(locatorRegistry, LookupPrx::uncheckedCast(lookupPrx), properties);
+    _lookup = ICE_MAKE_SHARED(LookupI, locatorRegistry, ICE_UNCHECKED_CAST(LookupPrx, lookupPrx), properties);
     _multicastAdapter->add(_lookup, _communicator->stringToIdentity("IceDiscovery/Lookup"));
 
-    Ice::ObjectPrx lookupReply = _replyAdapter->addWithUUID(new LookupReplyI(_lookup))->ice_datagram();
-    _lookup->setLookupReply(LookupReplyPrx::uncheckedCast(lookupReply));
+    Ice::ObjectPrxPtr lookupReply = _replyAdapter->addWithUUID(ICE_MAKE_SHARED(LookupReplyI, _lookup))->ice_datagram();
+    _lookup->setLookupReply(ICE_UNCHECKED_CAST(LookupReplyPrx, lookupReply));
 
     //
     // Setup locator on the communicator.
     //
-    Ice::ObjectPrx loc = _locatorAdapter->addWithUUID(new LocatorI(_lookup, locatorRegistryPrx));
-    _communicator->setDefaultLocator(Ice::LocatorPrx::uncheckedCast(loc));
+    Ice::ObjectPrxPtr loc = _locatorAdapter->addWithUUID(ICE_MAKE_SHARED(LocatorI, _lookup, locatorRegistryPrx));
+    _communicator->setDefaultLocator(ICE_UNCHECKED_CAST(Ice::LocatorPrx, loc));
 
     _multicastAdapter->activate();
     _replyAdapter->activate();

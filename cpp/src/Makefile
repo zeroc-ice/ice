@@ -16,7 +16,8 @@ ifeq ($(CPP11_MAPPING),yes)
 		  Slice \
 		  slice2cpp \
 		  Ice \
-		  IceSSL
+		  IceSSL \
+		  IceDiscovery
 else
 
 ifneq ($(findstring MINGW,$(UNAME)),)

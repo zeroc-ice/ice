@@ -46,13 +46,14 @@ public:
         try
         {
 #ifdef ICE_CPP11_MAPPING
+            LocatorInfo::RequestPtr request = this;
             _locatorInfo->getLocator()->findObjectById_async(
                 _ref->getIdentity(),
-                [this](const ObjectPrxPtr& object)
+                [request](const ObjectPrxPtr& object)
                 {
-                    this->response(object);
+                    request->response(object);
                 },
-                [this](exception_ptr e)
+                [request](exception_ptr e)
                 {
                     try
                     {
@@ -60,7 +61,7 @@ public:
                     }
                     catch(const UserException& ex)
                     {
-                        this->exception(ex);
+                        request->exception(ex);
                     }
                 });
 #else
@@ -92,13 +93,13 @@ public:
         try
         {
 #ifdef ICE_CPP11_MAPPING
-            _locatorInfo->getLocator()->findAdapterById_async(
-                _ref->getAdapterId(),
-                [this](const Ice::ObjectPrxPtr& object)
+            LocatorInfo::RequestPtr request = this;
+            _locatorInfo->getLocator()->findAdapterById_async(_ref->getAdapterId(),
+                [request](const shared_ptr<Ice::ObjectPrx>& object)
                 {
-                    this->response(object);
+                    request->response(object);
                 },
-                [this](exception_ptr e)
+                [request](exception_ptr e)
                 {
                     try
                     {
@@ -106,7 +107,7 @@ public:
                     }
                     catch(const UserException& ex)
                     {
-                        this->exception(ex);
+                        request->exception(ex);
                     }
                 });
 #else

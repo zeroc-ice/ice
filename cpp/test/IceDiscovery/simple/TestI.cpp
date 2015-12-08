@@ -48,7 +48,7 @@ ControllerI::addObject(const string& oaName, const string& id, const Ice::Curren
     assert(_adapters[oaName]);
     Ice::Identity identity;
     identity.name = id;
-    _adapters[oaName]->add(new TestIntfI, identity);
+    _adapters[oaName]->add(ICE_MAKE_SHARED(TestIntfI), identity);
 }
 
 void
