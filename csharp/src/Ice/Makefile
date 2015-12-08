@@ -68,7 +68,6 @@ SRCS		= Acceptor.cs \
 		  Object.cs \
 		  ObjectAdapterFactory.cs \
 		  ObjectAdapterI.cs \
-		  ObjectFactoryManager.cs \
 		  ObserverHelper.cs \
 		  OpaqueEndpointI.cs \
 		  Optional.cs \
@@ -124,6 +123,7 @@ SRCS		= Acceptor.cs \
 		  UnknownSlicedObject.cs \
 		  UserExceptionFactory.cs \
 		  Util.cs \
+		  ValueFactoryManager.cs \
 		  ValueWriter.cs \
 		  WSAcceptor.cs \
 		  WSConnector.cs \
@@ -154,6 +154,7 @@ SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
 		  $(SDIR)/Router.ice \
 		  $(SDIR)/ServantLocator.ice \
 		  $(SDIR)/SliceChecksumDict.ice \
+		  $(SDIR)/ValueFactory.ice \
 		  $(SDIR)/Version.ice \
 
 SDIR		= $(slicedir)/Ice

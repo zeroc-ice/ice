@@ -48,7 +48,8 @@ ICE_SRCS	= Ice/LocalException.php \
 		  Ice/Version.php \
 		  Ice/InstrumentationF.php \
 		  Ice/Instrumentation.php \
-		  Ice/Metrics.php
+		  Ice/Metrics.php \
+		  Ice/ValueFactory.php
 
 #
 # IMPORTANT: If you add or remove Slice files, you also need to check Glacier2.php!
@@ -115,7 +116,7 @@ endif
 
 all:: $(ALL_SRCS)
 
-SLICE2PHPFLAGS	+= --ice 
+SLICE2PHPFLAGS	+= --ice
 
 Ice/%.php: $(slicedir)/Ice/%.ice $(SLICE2PHP) $(SLICEPARSERLIB)
 	@mkdir -p $(notdir $(<D))

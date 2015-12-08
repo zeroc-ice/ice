@@ -267,7 +267,7 @@ typedef long long Int64;
 #   define ICE_SHARED_FROM_THIS shared_from_this()
 #   define ICE_CHECKED_CAST(T,V) Ice::checkedCast<T>(V)
 #   define ICE_UNCHECKED_CAST(T,V) Ice::uncheckedCast<T>(V)
-#   define ICE_OBJECT_FACTORY ::std::function<::Ice::ValuePtr (const std::string& type)>
+#   define ICE_VALUE_FACTORY ::std::function<::Ice::ValuePtr (const std::string& type)>
 #else // C++98 mapping
 #   define ICE_HANDLE ::IceUtil::Handle
 #   define ICE_INTERNAL_HANDLE ::IceInternal::Handle
@@ -281,7 +281,7 @@ typedef long long Int64;
 #   define ICE_SHARED_FROM_THIS this
 #   define ICE_CHECKED_CAST(T,V) T::checkedCast(V)
 #   define ICE_UNCHECKED_CAST(T,V) T::uncheckedCast(V)
-#   define ICE_OBJECT_FACTORY ::Ice::ObjectFactoryPtr
+#   define ICE_VALUE_FACTORY ::Ice::ValueFactoryPtr
 #endif
 
 #endif

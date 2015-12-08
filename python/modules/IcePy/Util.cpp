@@ -818,7 +818,7 @@ convertLocalException(const Ice::LocalException& ex, PyObject* p)
         m = IcePy::createEncodingVersion(e.supported);
         PyObject_SetAttrString(p, STRCAST("supported"), m.get());
     }
-    catch(const Ice::NoObjectFactoryException& e)
+    catch(const Ice::NoValueFactoryException& e)
     {
         IcePy::PyObjectHandle m;
         m = IcePy::createString(e.reason);

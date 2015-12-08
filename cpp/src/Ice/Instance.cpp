@@ -18,7 +18,7 @@
 #include <Ice/ProxyFactory.h>
 #include <Ice/ThreadPool.h>
 #include <Ice/ConnectionFactory.h>
-#include <Ice/ObjectFactoryManager.h>
+#include <Ice/ValueFactoryManager.h>
 #include <Ice/LocalException.h>
 #include <Ice/ObjectAdapterFactory.h>
 #include <Ice/Exception.h>
@@ -396,7 +396,7 @@ IceInternal::Instance::outgoingConnectionFactory() const
     return _outgoingConnectionFactory;
 }
 
-ObjectFactoryManagerPtr
+ValueFactoryManagerPtr
 IceInternal::Instance::servantFactoryManager() const
 {
     Lock sync(*this);
@@ -1351,7 +1351,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 
         _outgoingConnectionFactory = new OutgoingConnectionFactory(communicator, this);
 
-        _servantFactoryManager = new ObjectFactoryManager();
+        _servantFactoryManager = new ValueFactoryManager();
 
         _objectAdapterFactory = ICE_MAKE_SHARED(ObjectAdapterFactory, this, communicator);
 

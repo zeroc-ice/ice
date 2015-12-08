@@ -102,7 +102,7 @@ function allTests($communicator)
         }
         catch(Exception $ex)
         {
-            test(get_class($ex) == ($NS ? "Ice\\NoObjectFactoryException" : "Ice_NoObjectFactoryException"));
+            test(get_class($ex) == ($NS ? "Ice\\NoValueFactoryException" : "Ice_NoValueFactoryException"));
         }
     }
     echo "ok\n";
@@ -122,7 +122,7 @@ function allTests($communicator)
         }
         catch(Exception $b)
         {
-            $excls = $NS ? "Ice\\NoObjectFactoryException" : "Ice_NoObjectFactoryException";
+            $excls = $NS ? "Ice\\NoValueFactoryException" : "Ice_NoValueFactoryException";
             if($b instanceof $excls)
             {
                 test($test->ice_getEncodingVersion() == $Ice_Encoding_1_0);

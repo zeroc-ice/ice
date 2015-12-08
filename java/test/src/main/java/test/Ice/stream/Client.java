@@ -66,7 +66,7 @@ public class Client extends test.Util.Application
         boolean called = false;
     }
 
-    private static class TestObjectFactory implements Ice.ObjectFactory
+    private static class TestValueFactory implements Ice.ValueFactory
     {
         @Override
         public Ice.Object
@@ -75,19 +75,13 @@ public class Client extends test.Util.Application
             assert(type.equals(MyClass.ice_staticId()));
             return new TestObjectReader();
         }
-
-        @Override
-        public void
-        destroy()
-        {
-        }
     }
 
     private static class MyInterfaceI extends _MyInterfaceDisp
     {
     };
 
-    private static class MyInterfaceFactory implements Ice.ObjectFactory
+    private static class MyInterfaceFactory implements Ice.ValueFactory
     {
         @Override
         public Ice.Object
@@ -95,12 +89,6 @@ public class Client extends test.Util.Application
         {
             assert(type.equals(_MyInterfaceDisp.ice_staticId()));
             return new MyInterfaceI();
-        }
-        
-        @Override
-        public void
-        destroy()
-        {
         }
     }
 
@@ -116,7 +104,7 @@ public class Client extends test.Util.Application
         Ice.Object obj;
     }
 
-    private static class MyClassFactoryWrapper implements Ice.ObjectFactory
+    private static class MyClassFactoryWrapper implements Ice.ValueFactory
     {
         MyClassFactoryWrapper()
         {
@@ -130,14 +118,8 @@ public class Client extends test.Util.Application
             return _factory.create(type);
         }
 
-        @Override
-        public void
-        destroy()
-        {
-        }
-
         void
-        setFactory(Ice.ObjectFactory factory)
+        setFactory(Ice.ValueFactory factory)
         {
             if(factory == null)
             {
@@ -149,7 +131,7 @@ public class Client extends test.Util.Application
             }
         }
 
-        private Ice.ObjectFactory _factory;
+        private Ice.ValueFactory _factory;
     }
 
     @Override
@@ -158,8 +140,8 @@ public class Client extends test.Util.Application
     {
         Ice.Communicator comm = communicator();
         MyClassFactoryWrapper factoryWrapper = new MyClassFactoryWrapper();
-        comm.addObjectFactory(factoryWrapper, MyClass.ice_staticId());
-        comm.addObjectFactory(new MyInterfaceFactory(), _MyInterfaceDisp.ice_staticId());
+        comm.addValueFactory(factoryWrapper, MyClass.ice_staticId());
+        comm.addValueFactory(new MyInterfaceFactory(), _MyInterfaceDisp.ice_staticId());
 
         Ice.InputStream in;
         Ice.OutputStream out;
@@ -759,7 +741,7 @@ public class Client extends test.Util.Application
             out.destroy();
             in.destroy();
         }
-        
+
         {
             MyInterface i = new MyInterfaceI();
             out = Ice.Util.createOutputStream(comm);
@@ -796,7 +778,7 @@ public class Client extends test.Util.Application
             out.writePendingObjects();
             byte[] data = out.finished();
             test(writer.called);
-            factoryWrapper.setFactory(new TestObjectFactory());
+            factoryWrapper.setFactory(new TestValueFactory());
             in = Ice.Util.createInputStream(comm, data);
             TestReadObjectCallback cb = new TestReadObjectCallback();
             in.readObject(cb);
@@ -835,10 +817,10 @@ public class Client extends test.Util.Application
             c.d.put("hi", c);
 
             ex.c = c;
-        
+
             out.writeException(ex);
             byte[] data = out.finished();
- 
+
             in = Ice.Util.createInputStream(comm, data);
             try
             {

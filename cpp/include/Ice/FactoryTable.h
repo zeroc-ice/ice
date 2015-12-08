@@ -12,7 +12,7 @@
 
 #include <IceUtil/Mutex.h>
 #include <Ice/UserExceptionFactory.h>
-#include <Ice/ObjectFactory.h>
+#include <Ice/ValueFactory.h>
 
 
 namespace Ice
@@ -40,12 +40,12 @@ public:
     void removeExceptionFactory(const ::std::string&);
 
 #ifdef ICE_CPP11_MAPPING
-    void addObjectFactory(const ::std::string&, ::std::function<::Ice::ValuePtr (const ::std::string&)>);
+    void addValueFactory(const ::std::string&, ::std::function<::Ice::ValuePtr (const ::std::string&)>);
 #else
-    void addObjectFactory(const ::std::string&, const ::Ice::ObjectFactoryPtr&);
+    void addValueFactory(const ::std::string&, const ::Ice::ValueFactoryPtr&);
 #endif
-    ICE_OBJECT_FACTORY getObjectFactory(const ::std::string&) const;
-    void removeObjectFactory(const ::std::string&);
+    ICE_VALUE_FACTORY getValueFactory(const ::std::string&) const;
+    void removeValueFactory(const ::std::string&);
 
     void addTypeId(int, const ::std::string&);
     std::string getTypeId(int) const;
@@ -59,9 +59,9 @@ private:
     typedef ::std::map< ::std::string, EFPair> EFTable;
     EFTable _eft;
 
-    typedef ::std::pair<ICE_OBJECT_FACTORY, int> OFPair;
-    typedef ::std::map< ::std::string, OFPair> OFTable;
-    OFTable _oft;
+    typedef ::std::pair<ICE_VALUE_FACTORY, int> VFPair;
+    typedef ::std::map< ::std::string, VFPair> VFTable;
+    VFTable _vft;
 
     typedef ::std::pair< ::std::string, int> TypeIdPair;
     typedef ::std::map<int, TypeIdPair> TypeIdTable;

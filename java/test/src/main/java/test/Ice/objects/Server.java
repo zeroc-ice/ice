@@ -11,7 +11,7 @@ package test.Ice.objects;
 
 public class Server extends test.Util.Application
 {
-    private static class MyObjectFactory implements Ice.ObjectFactory
+    private static class MyValueFactory implements Ice.ValueFactory
     {
         @Override
         public Ice.Object create(String type)
@@ -32,22 +32,16 @@ public class Server extends test.Util.Application
             assert (false); // Should never be reached
             return null;
         }
-
-        @Override
-        public void destroy()
-        {
-            // Nothing to do
-        }
     }
 
     @Override
     public int run(String[] args)
     {
         Ice.Communicator communicator = communicator();
-        Ice.ObjectFactory factory = new MyObjectFactory();
-        communicator.addObjectFactory(factory, "::Test::I");
-        communicator.addObjectFactory(factory, "::Test::J");
-        communicator.addObjectFactory(factory, "::Test::H");
+        Ice.ValueFactory factory = new MyValueFactory();
+        communicator.addValueFactory(factory, "::Test::I");
+        communicator.addValueFactory(factory, "::Test::J");
+        communicator.addValueFactory(factory, "::Test::H");
 
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.Object object = new InitialI(adapter);

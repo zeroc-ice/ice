@@ -24,9 +24,9 @@ These are the changes since Ice 3.6.1.
   IceGrid and IceStorm databases.
 
 - Added support for two additional IceGrid variables: `server.data` and
-  `service.data`. These variables point to   server and service specific data
-  directories created by IceGrid on the node.   These data directories are
-  automatically removed by IceGrid if you remove the   server from the
+  `service.data`. These variables point to server and service specific data
+  directories created by IceGrid on the node. These data directories are
+  automatically removed by IceGrid if you remove the server from the
   deployment.
 
   For consistency, the `node.datadir` variable has been deprecated, use the
@@ -35,3 +35,7 @@ These are the changes since Ice 3.6.1.
 - Added the new metadata tag `delegate` for local interfaces with one operation.
   Interfaces with this metadata will be generated as a `std::function` in C++, a
   `delegate` in C#, and a `FunctionalInterface` in Java.
+
+- Added a new local interface `ValueFactory` that replaces `ObjectFactory` (which is
+  still available). This interface has one operation and uses the `delegate`
+  metadata.

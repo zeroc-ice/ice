@@ -33,6 +33,7 @@ if($NS)
         class Test_H extends Test\H {}
         class Ice_ObjectImpl extends Ice\ObjectImpl {}
         interface Ice_ObjectFactory extends Ice\ObjectFactory {}
+        interface Ice_ValueFactory extends Ice\ValueFactory {}
 EOT;
     eval($code);
 }
@@ -122,7 +123,7 @@ class HI extends Test_H
 {
 }
 
-class MyObjectFactory implements Ice_ObjectFactory
+class MyValueFactory implements Ice_ValueFactory
 {
     function create($id)
     {
@@ -160,9 +161,18 @@ class MyObjectFactory implements Ice_ObjectFactory
         }
         return null;
     }
+}
+
+class MyObjectFactory implements Ice_ObjectFactory
+{
+    function create($id)
+    {
+        return null;
+    }
 
     function destroy()
     {
+        // Do nothing
     }
 }
 
@@ -346,7 +356,7 @@ function allTests($communicator)
     $h = $initial->getH();
     test($h != null and $h instanceof Test_H);
     echo "ok\n";
-    
+
     echo "getting D1... ";
     flush();
     $d1 = $initial->getD1(new Test_D1(new Test_A1("a1"), new Test_A1("a2"), new Test_A1("a3"), new Test_A1("a4")));
@@ -355,7 +365,7 @@ function allTests($communicator)
     test($d1->a3->name == "a3");
     test($d1->a4->name == "a4");
     echo "ok\n";
-    
+
     echo "throw EDerived... ";
     flush();
     try
@@ -440,19 +450,30 @@ function allTests($communicator)
     }
     echo "ok\n";
 
+    echo "testing getting ObjectFactory... ";
+    flush();
+    test($communicator->findObjectFactory("TestOF") != null);
+    echo "ok\n";
+
+    echo "testing getting ObjectFactory as ValueFactory... ";
+    flush();
+    test($communicator->findValueFactory("TestOF") != null);
+    echo "ok\n";
+
     return $initial;
 }
 
 $communicator = Ice_initialize($argv);
-$factory = new MyObjectFactory();
-$communicator->addObjectFactory($factory, "::Test::B");
-$communicator->addObjectFactory($factory, "::Test::C");
-$communicator->addObjectFactory($factory, "::Test::D");
-$communicator->addObjectFactory($factory, "::Test::E");
-$communicator->addObjectFactory($factory, "::Test::F");
-$communicator->addObjectFactory($factory, "::Test::I");
-$communicator->addObjectFactory($factory, "::Test::J");
-$communicator->addObjectFactory($factory, "::Test::H");
+$factory = new MyValueFactory();
+$communicator->addValueFactory($factory, "::Test::B");
+$communicator->addValueFactory($factory, "::Test::C");
+$communicator->addValueFactory($factory, "::Test::D");
+$communicator->addValueFactory($factory, "::Test::E");
+$communicator->addValueFactory($factory, "::Test::F");
+$communicator->addValueFactory($factory, "::Test::I");
+$communicator->addValueFactory($factory, "::Test::J");
+$communicator->addValueFactory($factory, "::Test::H");
+$communicator->addObjectFactory(new MyObjectFactory(), "TestOF");
 $initial = allTests($communicator);
 $initial->shutdown();
 $communicator->destroy();

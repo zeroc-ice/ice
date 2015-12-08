@@ -90,6 +90,6 @@ IceInternal::CompactIdInit::CompactIdInit(const char* typeId, int compactId) :
 
 IceInternal::CompactIdInit::~CompactIdInit()
 {
-    factoryTable->removeTypeId(_compactId);  
+    factoryTable->removeTypeId(_compactId);
 }
 

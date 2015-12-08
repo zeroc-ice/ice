@@ -128,6 +128,11 @@ interface Ice_ObjectFactory
     public function destroy();
 }
 
+interface Ice_ValueFactory
+{
+    public function create($id);
+}
+
 class Ice_InitializationData
 {
     public function __construct($properties=null, $logger=null)
@@ -170,6 +175,7 @@ require_once 'Ice/EndpointTypes.php';
 require_once 'Ice/LocalException.php';
 require_once 'Ice/Locator.php';
 require_once 'Ice/ObjectFactory.php';
+require_once 'Ice/ValueFactory.php';
 require_once 'Ice/Process.php';
 require_once 'Ice/Router.php';
 require_once 'Ice/Version.php';

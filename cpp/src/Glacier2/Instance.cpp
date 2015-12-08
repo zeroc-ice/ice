@@ -25,7 +25,7 @@ const string clientBuffered = "Glacier2.Client.Buffered";
 
 }
 
-Glacier2::Instance::Instance(const Ice::CommunicatorPtr& communicator, const Ice::ObjectAdapterPtr& clientAdapter, 
+Glacier2::Instance::Instance(const Ice::CommunicatorPtr& communicator, const Ice::ObjectAdapterPtr& clientAdapter,
                              const Ice::ObjectAdapterPtr& serverAdapter) :
     _communicator(communicator),
     _properties(communicator->getProperties()),
@@ -69,12 +69,12 @@ Glacier2::Instance::Instance(const Ice::CommunicatorPtr& communicator, const Ice
     // If an Ice metrics observer is setup on the communicator, also
     // enable metrics for IceStorm.
     //
-    IceInternal::CommunicatorObserverIPtr o = 
+    IceInternal::CommunicatorObserverIPtr o =
         IceInternal::CommunicatorObserverIPtr::dynamicCast(communicator->getObserver());
     if(o)
     {
-        const_cast<Glacier2::Instrumentation::RouterObserverPtr&>(_observer) = 
-            new RouterObserverI(o->getFacet(), 
+        const_cast<Glacier2::Instrumentation::RouterObserverPtr&>(_observer) =
+            new RouterObserverI(o->getFacet(),
                                 _properties->getPropertyWithDefault("Glacier2.InstanceName", "Glacier2"));
     }
 }
@@ -90,7 +90,7 @@ Glacier2::Instance::destroy()
     {
         _clientRequestQueueThread->destroy();
     }
-    
+
     if(_serverRequestQueueThread)
     {
         _serverRequestQueueThread->destroy();

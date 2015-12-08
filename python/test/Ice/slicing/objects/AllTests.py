@@ -68,14 +68,14 @@ class Callback(CallbackBase):
         test(False)
 
     def exception_SBSUnknownDerivedAsSBaseCompact(self, ex):
-        test(isinstance(ex, Ice.NoObjectFactoryException))
+        test(isinstance(ex, Ice.NoValueFactoryException))
         self.called()
 
     def response_SUnknownAsObject10(self, o):
         test(False)
 
     def exception_SUnknownAsObject10(self, exc):
-        test(exc.ice_name() == "Ice::NoObjectFactoryException")
+        test(exc.ice_name() == "Ice::NoValueFactoryException")
         self.called()
 
     def response_SUnknownAsObject11(self, o):
@@ -359,14 +359,11 @@ class PNodeI(Test.PNode):
     def __del__(self):
         PNodeI.counter = PNodeI.counter - 1
 
-class NodeFactoryI(Ice.ObjectFactory):
+class NodeFactoryI(Ice.ValueFactory):
     def create(self, id):
         if id == Test.PNode.ice_staticId():
             return PNodeI()
         return None
-
-    def destroy(self):
-        pass
 
 class PreservedI(Test.Preserved):
     counter = 0
@@ -377,14 +374,11 @@ class PreservedI(Test.Preserved):
     def __del__(self):
         PreservedI.counter = PreservedI.counter - 1
 
-class PreservedFactoryI(Ice.ObjectFactory):
+class PreservedFactoryI(Ice.ValueFactory):
     def create(self, id):
         if id == Test.Preserved.ice_staticId():
             return PreservedI()
         return None
-
-    def destroy(self):
-        pass
 
 def allTests(communicator):
     obj = communicator.stringToProxy("Test:default -p 12010")
@@ -492,7 +486,7 @@ def allTests(communicator):
             test(False)
         except Ice.OperationNotExistException:
             pass
-        except Ice.NoObjectFactoryException:
+        except Ice.NoValueFactoryException:
             # Expected.
             pass
         except:
@@ -530,7 +524,7 @@ def allTests(communicator):
         test(isinstance(o, Ice.UnknownSlicedObject))
         test(o.unknownTypeId == "::Test::SUnknown")
         t.checkSUnknown(o)
-    except Ice.NoObjectFactoryException:
+    except Ice.NoValueFactoryException:
         test(t.ice_getEncodingVersion() == Ice.Encoding_1_0)
     except Ice.Exception:
         test(False)
@@ -1579,7 +1573,7 @@ def allTests(communicator):
             t.ice_encodingVersion(Ice.Encoding_1_0).checkPBSUnknown(p)
     except Ice.OperationNotExistException:
         pass
-    
+
     print("ok")
 
     sys.stdout.write("preserved classes (AMI)... ")
@@ -1674,7 +1668,7 @@ def allTests(communicator):
         # UCNode. This provides an easy way to determine how many
         # unmarshaled instances currently exist.
         #
-        communicator.addObjectFactory(NodeFactoryI(), Test.PNode.ice_staticId())
+        communicator.addValueFactory(NodeFactoryI(), Test.PNode.ice_staticId())
 
         #
         # Relay a graph through the server. This test uses a preserved class
@@ -1761,7 +1755,7 @@ def allTests(communicator):
         # Preserved. This provides an easy way to determine how many
         # unmarshaled instances currently exist.
         #
-        communicator.addObjectFactory(PreservedFactoryI(), Test.Preserved.ice_staticId())
+        communicator.addValueFactory(PreservedFactoryI(), Test.Preserved.ice_staticId())
 
         #
         # Obtain a preserved object from the server where the most-derived

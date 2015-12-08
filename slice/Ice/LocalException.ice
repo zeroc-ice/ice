@@ -69,7 +69,7 @@ local exception CollocationOptimizationException
  * the Ice run time.
  *
  * This exception is raised if an attempt is made to register a
- * servant, servant locator, facet, object factory, plug-in, object
+ * servant, servant locator, facet, value factory, plug-in, object
  * adapter, object, or user exception factory more than once for the
  * same ID.
  *
@@ -80,7 +80,7 @@ local exception AlreadyRegisteredException
     /**
      *
      * The kind of object that is registered already: "servant",
-     * "servant locator", "object factory", "plug-in",
+     * "servant locator", "value factory", "plug-in",
      * "object adapter", "object", or "user exception factory".
      *
      **/
@@ -100,7 +100,7 @@ local exception AlreadyRegisteredException
  * registered with the Ice run time or Ice locator.
  *
  * This exception is raised if an attempt is made to remove a servant,
- * servant locator, facet, object factory, plug-in, object adapter,
+ * servant locator, facet, value factory, plug-in, object adapter,
  * object, or user exception factory that is not currently registered.
  *
  * It's also raised if the Ice locator can't find an object or object
@@ -114,7 +114,7 @@ local exception NotRegisteredException
     /**
      *
      * The kind of object that could not be removed: "servant",
-     * "servant locator", "object factory", "plug-in",
+     * "servant locator", "value factory", "plug-in",
      * "object adapter", "object", or "user exception factory".
      *
      **/
@@ -888,16 +888,16 @@ local exception UnmarshalOutOfBoundsException extends MarshalException
 
 /**
  *
- * This exception is raised if no suitable object factory was found during
+ * This exception is raised if no suitable value factory was found during
  * unmarshaling of a Slice class instance.
  *
- * @see ObjectFactory
- * @see Communicator#addObjectFactory
- * @see Communicator#findObjectFactory
+ * @see ValueFactory
+ * @see Communicator#addValueFactory
+ * @see Communicator#findValueFactory
  *
  **/
 ["cpp:ice_print"]
-local exception NoObjectFactoryException extends MarshalException
+local exception NoValueFactoryException extends MarshalException
 {
     /**
      *

@@ -7,20 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_OBJECT_FACTORY_MANAGER_F_H
-#define ICE_OBJECT_FACTORY_MANAGER_F_H
+#import <objc/Ice/Config.h>
 
-#include <IceUtil/Shared.h>
-
-#include <Ice/Handle.h>
-
-namespace IceInternal
-{
-
-class ObjectFactoryManager;
-IceUtil::Shared* upCast(ObjectFactoryManager*);
-typedef Handle<ObjectFactoryManager> ObjectFactoryManagerPtr;
-
-}
-
-#endif
+ICE_API @protocol ICEValueFactory <NSObject>
+-(ICEObject*) create:(NSString*)sliceId NS_RETURNS_RETAINED;
+@end

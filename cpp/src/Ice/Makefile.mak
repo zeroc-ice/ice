@@ -51,7 +51,7 @@ SLICE_OBJS	= .\BuiltinSequences.obj \
 		  .\ServantLocator.obj \
 		  .\ServantLocatorF.obj \
 		  .\SliceChecksumDict.obj \
-		  .\Value.obj \
+		  .\ValueFactory.obj \
 		  .\Version.obj
 
 WINDOWS_OBJS   =  .\DLLMain.obj
@@ -103,7 +103,6 @@ OBJS	       =  .\Acceptor.obj \
 		  .\Object.obj \
 		  .\ObjectAdapterFactory.obj \
 		  .\ObjectAdapterI.obj \
-		  .\ObjectFactoryManager.obj \
 		  .\ObserverHelper.obj \
 		  .\OpaqueEndpointI.obj \
 		  .\Outgoing.obj \
@@ -145,6 +144,7 @@ OBJS	       =  .\Acceptor.obj \
 		  .\UdpConnector.obj \
 		  .\UdpEndpointI.obj \
 		  .\UdpTransceiver.obj \
+		  .\ValueFactoryManager.obj \
 		  .\WSAcceptor.obj \
 		  .\WSConnector.obj \
 		  .\WSEndpoint.obj \

@@ -15,13 +15,13 @@ public class Ex
     {
         //
         // If the object is an unknown sliced object, we didn't find an
-        // object factory, in this case raise a NoObjectFactoryException
+        // value factory, in this case raise a NoValueFactoryException
         // instead.
         //
         if(v instanceof Ice.UnknownSlicedObject)
         {
             Ice.UnknownSlicedObject uso = (Ice.UnknownSlicedObject)v;
-            throw new Ice.NoObjectFactoryException("", uso.getUnknownTypeId());
+            throw new Ice.NoValueFactoryException("", uso.getUnknownTypeId());
         }
 
         String type = v.ice_id();

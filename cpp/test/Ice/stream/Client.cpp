@@ -59,7 +59,7 @@ public:
 };
 typedef IceUtil::Handle<TestObjectReader> TestObjectReaderPtr;
 
-class TestObjectFactory : public Ice::ObjectFactory
+class TestValueFactory : public Ice::ValueFactory
 {
 public:
 
@@ -94,7 +94,7 @@ public:
 };
 typedef IceUtil::Handle<TestReadObjectCallback> TestReadObjectCallbackPtr;
 
-class MyClassFactoryWrapper : public Ice::ObjectFactory
+class MyClassFactoryWrapper : public Ice::ValueFactory
 {
 public:
 
@@ -114,7 +114,7 @@ public:
     }
 
     void
-    setFactory(const Ice::ObjectFactoryPtr& factory)
+    setFactory(const Ice::ValueFactoryPtr& factory)
     {
         if(!factory)
         {
@@ -128,11 +128,11 @@ public:
 
 private:
 
-    Ice::ObjectFactoryPtr _factory;
+    Ice::ValueFactoryPtr _factory;
 };
 typedef IceUtil::Handle<MyClassFactoryWrapper> MyClassFactoryWrapperPtr;
 
-class MyInterfaceFactory : public Ice::ObjectFactory
+class MyInterfaceFactory : public Ice::ValueFactory
 {
 public:
 
@@ -152,8 +152,8 @@ int
 run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
     MyClassFactoryWrapperPtr factoryWrapper = new MyClassFactoryWrapper;
-    communicator->addObjectFactory(factoryWrapper, Test::MyClass::ice_staticId());
-    communicator->addObjectFactory(new MyInterfaceFactory, Test::MyInterface::ice_staticId());
+    communicator->addValueFactory(factoryWrapper, Test::MyClass::ice_staticId());
+    communicator->addValueFactory(new MyInterfaceFactory, Test::MyInterface::ice_staticId());
 
     Ice::InputStreamPtr in;
     Ice::OutputStreamPtr out;
@@ -829,7 +829,7 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
         out->writePendingObjects();
         out->finished(data);
         test(writer->called);
-        factoryWrapper->setFactory(new TestObjectFactory);
+        factoryWrapper->setFactory(new TestValueFactory);
         in = Ice::createInputStream(communicator, data);
         TestReadObjectCallbackPtr cb = new TestReadObjectCallback;
         in->readObject(cb);

@@ -34,14 +34,17 @@ public:
 
     virtual void destroy();
 
-    void add(VALUE, const std::string&);
-    VALUE find(const std::string&);
+    void addValueFactory(VALUE, const std::string&);
+    VALUE findValueFactory(const std::string&);
+    void addObjectFactory(VALUE, const std::string&);
+    VALUE findObjectFactory(const std::string&);
     void mark();
 
 private:
 
     typedef std::map<std::string, VALUE> FactoryMap;
-    FactoryMap _factoryMap;
+    FactoryMap _valueFactoryMap;
+    FactoryMap _objectFactoryMap;
 };
 typedef IceUtil::Handle<ObjectFactory> ObjectFactoryPtr;
 

@@ -459,7 +459,7 @@ Slice::Gen::generate(const UnitPtr& p)
             H << "\n#include <Ice/IncomingAsync.h>";
         }
         C << "\n#include <Ice/LocalException.h>";
-        C << "\n#include <Ice/ObjectFactory.h>";
+        C << "\n#include <Ice/ValueFactory.h>";
         C << "\n#include <Ice/Outgoing.h>";
         C << "\n#include <Ice/OutgoingAsync.h>";
     }
@@ -3275,7 +3275,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
         if(!p->isAbstract())
         {
-            H << sp << nl << "static ::Ice::ObjectFactoryPtr ice_factory();";
+            H << sp << nl << "static ::Ice::ValueFactoryPtr ice_factory();";
         }
 
         if(preserved && !basePreserved)
@@ -3412,7 +3412,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             if(!p->isAbstract())
             {
                 string initName = p->flattenedScope() + p->name() + "_init";
-                C << sp << nl << "const ::IceInternal::DefaultObjectFactoryInit< " << scoped << "> "
+                C << sp << nl << "const ::IceInternal::DefaultValueFactoryInit< " << scoped << "> "
                   << initName << "(\"" << p->scoped() << "\");";
             }
             if(p->compactId() >= 0)
@@ -3425,9 +3425,9 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
             if(!p->isAbstract())
             {
-                C << sp << nl << "::Ice::ObjectFactoryPtr" << nl << scoped.substr(2) << "::ice_factory()";
+                C << sp << nl << "::Ice::ValueFactoryPtr" << nl << scoped.substr(2) << "::ice_factory()";
                 C << sb;
-                C << nl << "return ::IceInternal::factoryTable->getObjectFactory(" << scoped << "::ice_staticId());";
+                C << nl << "return ::IceInternal::factoryTable->getValueFactory(" << scoped << "::ice_staticId());";
                 C << eb;
             }
         }
@@ -8557,7 +8557,7 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
     C << nl << "{";
 
     string initName = p->flattenedScope() + p->name() + "_init";
-    C << sp << nl << "const ::IceInternal::DefaultObjectFactoryInit< " << scoped << "> "
+    C << sp << nl << "const ::IceInternal::DefaultValueFactoryInit< " << scoped << "> "
         << initName << "(\"" << p->scoped() << "\");";
 
     if(p->compactId() >= 0)

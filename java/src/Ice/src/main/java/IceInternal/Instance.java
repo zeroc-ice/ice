@@ -255,7 +255,7 @@ public final class Instance
         return _outgoingConnectionFactory;
     }
 
-    public synchronized ObjectFactoryManager
+    public synchronized ValueFactoryManager
     servantFactoryManager()
     {
         if(_state == StateDestroyed)
@@ -987,7 +987,7 @@ public final class Instance
 
             _outgoingConnectionFactory = new OutgoingConnectionFactory(communicator, this);
 
-            _servantFactoryManager = new ObjectFactoryManager();
+            _servantFactoryManager = new ValueFactoryManager();
 
             _objectAdapterFactory = new ObjectAdapterFactory(this, communicator);
 
@@ -1724,7 +1724,7 @@ public final class Instance
     private RequestHandlerFactory _requestHandlerFactory;
     private ProxyFactory _proxyFactory;
     private OutgoingConnectionFactory _outgoingConnectionFactory;
-    private ObjectFactoryManager _servantFactoryManager;
+    private ValueFactoryManager _servantFactoryManager;
     private ObjectAdapterFactory _objectAdapterFactory;
     private int _protocolSupport;
     private boolean _preferIPv6;

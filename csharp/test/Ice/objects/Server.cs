@@ -19,39 +19,29 @@ using System.Reflection;
 
 public class Server
 {
-    private class MyObjectFactory : Ice.ObjectFactory
+    public static Ice.Object MyValueFactory(string type)
     {
-        public Ice.Object create(string type)
+        if(type.Equals("::Test::I"))
         {
-            if(type.Equals("::Test::I"))
-            {
-                return new II();
-            }
-            else if(type.Equals("::Test::J"))
-            {
-                return new JI();
-            }
-            else if(type.Equals("::Test::H"))
-            {
-                return new HI();
-            }
-            Debug.Assert(false); // Should never be reached
-            return null;
+            return new II();
         }
-
-        public void
-        destroy()
+        else if(type.Equals("::Test::J"))
         {
-            // Nothing to do
+            return new JI();
         }
+        else if(type.Equals("::Test::H"))
+        {
+            return new HI();
+        }
+        Debug.Assert(false); // Should never be reached
+        return null;
     }
 
     private static int run(string[] args, Ice.Communicator communicator)
     {
-        Ice.ObjectFactory factory = new MyObjectFactory();
-        communicator.addObjectFactory(factory, "::Test::I");
-        communicator.addObjectFactory(factory, "::Test::J");
-        communicator.addObjectFactory(factory, "::Test::H");
+        communicator.addValueFactory(MyValueFactory, "::Test::I");
+        communicator.addValueFactory(MyValueFactory, "::Test::J");
+        communicator.addValueFactory(MyValueFactory, "::Test::H");
 
         communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");

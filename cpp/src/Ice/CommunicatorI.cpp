@@ -13,7 +13,7 @@
 #include <Ice/ConnectionFactory.h>
 #include <Ice/ReferenceFactory.h>
 #include <Ice/ProxyFactory.h>
-#include <Ice/ObjectFactoryManager.h>
+#include <Ice/ValueFactoryManager.h>
 #include <Ice/ObjectAdapterFactory.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/LocalException.h>
@@ -129,19 +129,6 @@ Ice::CommunicatorI::createObjectAdapterWithRouter(const string& name, const Rout
     return _instance->objectAdapterFactory()->createObjectAdapter(oaName, router);
 }
 
-#ifdef ICE_CPP11_MAPPING
-void
-Ice::CommunicatorI::addObjectFactory(function<::Ice::ValuePtr (const string&)> factory, const string& id)
-{
-        _instance->servantFactoryManager()->add(move(factory), id);
-}
-
-function<::Ice::ValuePtr (const string&)>
-Ice::CommunicatorI::findObjectFactory(const string& id) const
-{
-    return _instance->servantFactoryManager()->find(id);
-}
-#else
 void
 Ice::CommunicatorI::addObjectFactory(const ::Ice::ObjectFactoryPtr& factory, const string& id)
 {
@@ -150,6 +137,31 @@ Ice::CommunicatorI::addObjectFactory(const ::Ice::ObjectFactoryPtr& factory, con
 
 ::Ice::ObjectFactoryPtr
 Ice::CommunicatorI::findObjectFactory(const string& id) const
+{
+    return _instance->servantFactoryManager()->findObjectFactory(id);
+}
+
+#ifdef ICE_CPP11_MAPPING
+void
+Ice::CommunicatorI::addValueFactory(function<::Ice::ValuePtr (const string&)> factory, const string& id)
+{
+        _instance->servantFactoryManager()->add(move(factory), id);
+}
+
+function<::Ice::ValuePtr (const string&)>
+Ice::CommunicatorI::findValueFactory(const string& id) const
+{
+    return _instance->servantFactoryManager()->find(id);
+}
+#else
+void
+Ice::CommunicatorI::addValueFactory(const ::Ice::ValueFactoryPtr& factory, const string& id)
+{
+    _instance->servantFactoryManager()->add(factory, id);
+}
+
+::Ice::ValueFactoryPtr
+Ice::CommunicatorI::findValueFactory(const string& id) const
 {
     return _instance->servantFactoryManager()->find(id);
 }
@@ -243,16 +255,16 @@ Ice::CommunicatorI::flushBatchRequests_async(
     class FlushBatchRequestsCallback : public CallbackBase
     {
     public:
-        
+
         FlushBatchRequestsCallback(function<void (exception_ptr)> exception,
-                                   function<void (bool)> sent, 
+                                   function<void (bool)> sent,
                                    shared_ptr<Communicator> communicator) :
             _exception(move(exception)),
             _sent(move(sent)),
             _communicator(move(communicator))
         {
         }
-        
+
         virtual void sent(const AsyncResultPtr& result) const
         {
             try
@@ -264,19 +276,19 @@ Ice::CommunicatorI::flushBatchRequests_async(
             {
                 _exception(current_exception());
             }
-            
+
             if(_sent)
             {
                 _sent(result->sentSynchronously());
             }
         }
-        
+
         virtual bool hasSentCallback() const
         {
             return true;
         }
 
-        
+
         virtual void
         completed(const ::Ice::AsyncResultPtr& result) const
         {
@@ -297,15 +309,15 @@ Ice::CommunicatorI::flushBatchRequests_async(
         function<void (bool)> _sent;
         shared_ptr<Communicator> _communicator;
     };
-    
+
     OutgoingConnectionFactoryPtr connectionFactory = _instance->outgoingConnectionFactory();
     ObjectAdapterFactoryPtr adapterFactory = _instance->objectAdapterFactory();
-    
+
     auto self = dynamic_pointer_cast<CommunicatorI>(shared_from_this());
-    
+
     auto result = make_shared<CommunicatorFlushBatchAsync>(self, _instance, __flushBatchRequests_name,
         make_shared<FlushBatchRequestsCallback>(move(exception), move(sent), self));
-    
+
     connectionFactory->flushAsyncBatchRequests(result);
     adapterFactory->flushAsyncBatchRequests(result);
 

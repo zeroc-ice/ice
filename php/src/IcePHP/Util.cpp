@@ -323,7 +323,7 @@ IcePHP::createStringMap(zval* zv, const map<string, string>& ctx TSRMLS_DC)
     for(map<string, string>::const_iterator p = ctx.begin(); p != ctx.end(); ++p)
     {
         if(add_assoc_stringl_ex(zv, const_cast<char*>(p->first.c_str()), p->first.length() + 1,
-                                const_cast<char*>(p->second.c_str()), 
+                                const_cast<char*>(p->second.c_str()),
                                 static_cast<uint>(p->second.length()), 1) == FAILURE)
         {
             return false;
@@ -595,7 +595,7 @@ convertLocalException(const Ice::LocalException& ex, zval* zex TSRMLS_DC)
         zend_update_property(cls, zex, const_cast<char*>("supported"), sizeof("supported") - 1, v TSRMLS_CC);
         zval_ptr_dtor(&v);
     }
-    catch(const Ice::NoObjectFactoryException& e)
+    catch(const Ice::NoValueFactoryException& e)
     {
         setStringMember(zex, "reason", e.reason TSRMLS_CC);
         setStringMember(zex, "type", e.type TSRMLS_CC);

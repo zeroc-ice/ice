@@ -51,6 +51,7 @@ SLICE_OBJS	= BuiltinSequences.o \
 		  ServantLocator.o \
 		  ServantLocatorF.o \
 		  SliceChecksumDict.o \
+		  ValueFactory.o \
 		  Version.o
 
 OBJS		= Acceptor.o \
@@ -100,7 +101,6 @@ OBJS		= Acceptor.o \
 		  Object.o \
 		  ObjectAdapterFactory.o \
 		  ObjectAdapterI.o \
-		  ObjectFactoryManager.o \
 		  ObserverHelper.o \
 		  OpaqueEndpointI.o \
 		  Outgoing.o \
@@ -142,6 +142,7 @@ OBJS		= Acceptor.o \
 		  UdpEndpointI.o \
 		  UdpTransceiver.o \
 		  Value.o \
+		  ValueFactoryManager.o \
 		  WSAcceptor.o \
 		  WSConnector.o \
 		  WSEndpoint.o \

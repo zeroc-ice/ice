@@ -13,4 +13,3 @@ ICE_API @protocol ICEObjectFactory <NSObject>
 -(ICEObject*) create:(NSString*)sliceId NS_RETURNS_RETAINED;
 -(void) destroy;
 @end
-

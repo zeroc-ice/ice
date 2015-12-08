@@ -65,7 +65,6 @@
         "ObjectAdapterFactory.js",
         "ObjectAdapterI.js",
         "ObjectFactory.js",
-        "ObjectFactoryManager.js",
         "ObjectPrx.js",
         "OpaqueEndpointI.js",
         "Operation.js",
@@ -99,6 +98,8 @@
         "TraceUtil.js",
         "UnknownSlicedObject.js",
         "UUID.js",
+        "ValueFactory.js",
+        "ValueFactoryManager.js",
         "WSEndpoint.js",
         "WSEndpointFactory.js"],
 

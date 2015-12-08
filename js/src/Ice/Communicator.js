@@ -117,9 +117,17 @@ var Communicator = Ice.Class({
     },
     addObjectFactory: function(factory, id)
     {
-        this._instance.servantFactoryManager().add(factory, id);
+        this._instance.servantFactoryManager().addObjectFactory(factory, id);
     },
     findObjectFactory: function(id)
+    {
+        return this._instance.servantFactoryManager().findObjectFactory(id);
+    },
+    addValueFactory: function(factory, id)
+    {
+        this._instance.servantFactoryManager().add(factory, id);
+    },
+    findValueFactory: function(id)
     {
         return this._instance.servantFactoryManager().find(id);
     },

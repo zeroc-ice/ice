@@ -107,6 +107,16 @@ namespace Ice
 
         public ObjectFactory findObjectFactory(string id)
         {
+            return instance_.servantFactoryManager().findObjectFactory(id);
+        }
+
+        public void addValueFactory(ValueFactory factory, string id)
+        {
+            instance_.servantFactoryManager().add(factory, id);
+        }
+
+        public ValueFactory findValueFactory(string id)
+        {
             return instance_.servantFactoryManager().find(id);
         }
 
@@ -177,7 +187,7 @@ namespace Ice
             // This callback object receives the results of all invocations
             // of Connection.begin_flushBatchRequests.
             //
-            IceInternal.CommunicatorFlushBatch result = 
+            IceInternal.CommunicatorFlushBatch result =
                 new IceInternal.CommunicatorFlushBatch(this, instance_, __flushBatchRequests_name, cookie);
 
             if(cb != null)
@@ -200,7 +210,7 @@ namespace Ice
 
         public void end_flushBatchRequests(AsyncResult result)
         {
-            IceInternal.CommunicatorFlushBatch outAsync = 
+            IceInternal.CommunicatorFlushBatch outAsync =
                 IceInternal.CommunicatorFlushBatch.check(result, this, __flushBatchRequests_name);
             outAsync.wait();
         }
@@ -209,7 +219,7 @@ namespace Ice
         {
             return instance_.createAdmin(adminAdapter, adminIdentity);
         }
-        
+
         public Ice.ObjectPrx getAdmin()
         {
             return instance_.getAdmin();

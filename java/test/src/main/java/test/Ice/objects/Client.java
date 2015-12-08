@@ -13,7 +13,7 @@ import test.Ice.objects.Test.InitialPrx;
 
 public class Client extends test.Util.Application
 {
-    private static class MyObjectFactory implements Ice.ObjectFactory
+    private static class MyValueFactory implements Ice.ValueFactory
     {
         @Override
         public Ice.Object create(String type)
@@ -39,6 +39,7 @@ public class Client extends test.Util.Application
                 return new FI();
             }
             else if(type.equals("::Test::I"))
+
             {
                 return new II();
             }
@@ -54,11 +55,20 @@ public class Client extends test.Util.Application
             assert (false); // Should never be reached
             return null;
         }
+    }
+
+    private static class MyObjectFactory implements Ice.ObjectFactory
+    {
+        @Override
+        public Ice.Object create(String type)
+        {
+            return null;
+        }
 
         @Override
         public void destroy()
         {
-            // Nothing to do
+            //
         }
     }
 
@@ -66,15 +76,17 @@ public class Client extends test.Util.Application
     public int run(String[] args)
     {
         Ice.Communicator communicator = communicator();
-        Ice.ObjectFactory factory = new MyObjectFactory();
-        communicator.addObjectFactory(factory, "::Test::B");
-        communicator.addObjectFactory(factory, "::Test::C");
-        communicator.addObjectFactory(factory, "::Test::D");
-        communicator.addObjectFactory(factory, "::Test::E");
-        communicator.addObjectFactory(factory, "::Test::F");
-        communicator.addObjectFactory(factory, "::Test::I");
-        communicator.addObjectFactory(factory, "::Test::J");
-        communicator.addObjectFactory(factory, "::Test::H");
+        Ice.ValueFactory factory = new MyValueFactory();
+        communicator.addValueFactory(factory, "::Test::B");
+        communicator.addValueFactory(factory, "::Test::C");
+        communicator.addValueFactory(factory, "::Test::D");
+        communicator.addValueFactory(factory, "::Test::E");
+        communicator.addValueFactory(factory, "::Test::F");
+        communicator.addValueFactory(factory, "::Test::I");
+        communicator.addValueFactory(factory, "::Test::J");
+        communicator.addValueFactory(factory, "::Test::H");
+
+        communicator.addObjectFactory(new MyObjectFactory(), "TestOF");
 
         InitialPrx initial = AllTests.allTests(communicator, getWriter());
         initial.shutdown();

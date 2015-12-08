@@ -133,6 +133,11 @@ namespace Ice
         public function destroy();
     }
 
+    interface VaueFactory
+    {
+        public function create($id);
+    }
+
     class InitializationData
     {
         public function __construct($properties=null, $logger=null)
@@ -178,6 +183,7 @@ require_once 'Ice/EndpointTypes.php';
 require_once 'Ice/LocalException.php';
 require_once 'Ice/Locator.php';
 require_once 'Ice/ObjectFactory.php';
+require_once 'Ice/ValueFactory.php';
 require_once 'Ice/Process.php';
 require_once 'Ice/Router.php';
 require_once 'Ice/Version.php';

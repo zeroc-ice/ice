@@ -15,10 +15,10 @@
 #   import <Foundation/NSGarbageCollector.h>
 #endif
 
-@interface ClientMyObjectFactory : NSObject<ICEObjectFactory>
+@interface ClientMyValueFactory : NSObject<ICEValueFactory>
 @end
 
-@implementation ClientMyObjectFactory
+@implementation ClientMyValueFactory
 
 // Note that the object factory must not autorelease the
 // returned objects.
@@ -62,6 +62,17 @@
     }
     return nil;
 }
+@end
+
+@interface ClientMyObjectFactory : NSObject<ICEObjectFactory>
+@end
+
+@implementation ClientMyObjectFactory
+
+-(ICEObject*) create:(NSString*)type
+{
+    return nil;
+}
 
 -(void) destroy
 {
@@ -72,16 +83,19 @@
 static int
 run(id<ICECommunicator> communicator)
 {
-    id<ICEObjectFactory> factory = ICE_AUTORELEASE([[ClientMyObjectFactory alloc] init]);
+    id<ICEValueFactory> factory = ICE_AUTORELEASE([[ClientMyValueFactory alloc] init]);
 
-    [communicator addObjectFactory:factory sliceId:@"::Test::B"];
-    [communicator addObjectFactory:factory sliceId:@"::Test::C"];
-    [communicator addObjectFactory:factory sliceId:@"::Test::D"];
-    [communicator addObjectFactory:factory sliceId:@"::Test::E"];
-    [communicator addObjectFactory:factory sliceId:@"::Test::F"];
-    [communicator addObjectFactory:factory sliceId:@"::Test::I"];
-    [communicator addObjectFactory:factory sliceId:@"::Test::J"];
-    [communicator addObjectFactory:factory sliceId:@"::Test::H"];
+    [communicator addValueFactory:factory sliceId:@"::Test::B"];
+    [communicator addValueFactory:factory sliceId:@"::Test::C"];
+    [communicator addValueFactory:factory sliceId:@"::Test::D"];
+    [communicator addValueFactory:factory sliceId:@"::Test::E"];
+    [communicator addValueFactory:factory sliceId:@"::Test::F"];
+    [communicator addValueFactory:factory sliceId:@"::Test::I"];
+    [communicator addValueFactory:factory sliceId:@"::Test::J"];
+    [communicator addValueFactory:factory sliceId:@"::Test::H"];
+
+    id<ICEObjectFactory> objectFactory = ICE_AUTORELEASE([[ClientMyObjectFactory alloc] init]);
+    [communicator addObjectFactory:objectFactory sliceId:@"TestOF" ];
 
     id<TestObjectsInitialPrx> objectsAllTests(id<ICECommunicator>, bool);
     id<TestObjectsInitialPrx> initial = objectsAllTests(communicator, NO);

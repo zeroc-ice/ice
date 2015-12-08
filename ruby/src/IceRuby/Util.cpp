@@ -311,7 +311,7 @@ IceRuby::createString(const string& str)
 namespace
 {
 
-template <typename T> 
+template <typename T>
 struct RubyCallArgs
 {
     volatile VALUE val;
@@ -699,7 +699,7 @@ setExceptionMembers(const Ice::LocalException& ex, VALUE p)
         m = createEncodingVersion(e.supported);
         callRuby(rb_iv_set, p, "@supported", m);
     }
-    catch(const Ice::NoObjectFactoryException& e)
+    catch(const Ice::NoValueFactoryException& e)
     {
         volatile VALUE v;
         v = createString(e.reason);

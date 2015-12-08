@@ -490,7 +490,7 @@ var EncapsDecoder10 = Class(EncapsDecoder, {
             //
             if(this._typeId == IceObject.ice_staticId())
             {
-                throw new Ice.NoObjectFactoryException("", mostDerivedId);
+                throw new Ice.NoValueFactoryException("", mostDerivedId);
             }
 
             v = this.newInstance(this._typeId);
@@ -508,7 +508,7 @@ var EncapsDecoder10 = Class(EncapsDecoder, {
             //
             if(!this._sliceObjects)
             {
-                throw new Ice.NoObjectFactoryException("no object factory found and object slicing is disabled",
+                throw new Ice.NoValueFactoryException("no value factory found and object slicing is disabled",
                                                        this._typeId);
             }
 
@@ -793,7 +793,7 @@ var EncapsDecoder11 = Class(EncapsDecoder, {
         {
             if(this._current.sliceType === SliceType.ObjectSlice)
             {
-                throw new Ice.NoObjectFactoryException("no object factory found and compact format prevents slicing " +
+                throw new Ice.NoValueFactoryException("no value factory found and compact format prevents slicing " +
                                                        "(the sender should use the sliced format instead)",
                                                        this._current.typeId);
             }
@@ -936,7 +936,7 @@ var EncapsDecoder11 = Class(EncapsDecoder, {
             //
             if(!this._sliceObjects)
             {
-                throw new Ice.NoObjectFactoryException("no object factory found and object slicing is disabled",
+                throw new Ice.NoValueFactoryException("no value factory found and object slicing is disabled",
                                                        this._current.typeId);
             }
 
@@ -2761,7 +2761,7 @@ var BasicStream = Class({
         }
         catch(ex)
         {
-            throw new Ice.NoObjectFactoryException("no object factory", id, ex);
+            throw new Ice.NoValueFactoryException("no value factory", id, ex);
         }
 
         return obj;
@@ -2898,7 +2898,7 @@ var defineBuiltinHelper = function(write, read, sz, format, min, max)
         writeOpt: function(os, tag, v) { os.writeOptValue(tag, format, write, v); },
         readOpt: function(is, tag) { return is.readOptValue(tag, format, read); },
     };
-    
+
     if(min !== undefined && max !== undefined)
     {
         helper.validate = function(v) {
@@ -2932,13 +2932,13 @@ var MAX_INT32_VALUE = 0x7FFFFFFF;
 var MIN_FLOAT32_VALUE = -3.4028234664e+38;
 var MAX_FLOAT32_VALUE = 3.4028234664e+38;
 
-Ice.ByteHelper = defineBuiltinHelper(stream.writeByte, stream.readByte, 1, Ice.OptionalFormat.F1, 
+Ice.ByteHelper = defineBuiltinHelper(stream.writeByte, stream.readByte, 1, Ice.OptionalFormat.F1,
                                      MIN_UINT8_VALUE, MAX_UINT8_VALUE);
 
 Ice.ShortHelper = defineBuiltinHelper(stream.writeShort, stream.readShort, 2, Ice.OptionalFormat.F2,
                                       MIN_INT16_VALUE, MAX_INT16_VALUE);
 
-Ice.IntHelper = defineBuiltinHelper(stream.writeInt, stream.readInt, 4, Ice.OptionalFormat.F4, 
+Ice.IntHelper = defineBuiltinHelper(stream.writeInt, stream.readInt, 4, Ice.OptionalFormat.F4,
                                     MIN_INT32_VALUE, MAX_INT32_VALUE);
 
 Ice.FloatHelper = defineBuiltinHelper(stream.writeFloat, stream.readFloat, 4, Ice.OptionalFormat.F4,
@@ -2964,7 +2964,7 @@ Ice.LongHelper.validate = function(v)
     //
     // For a long to be valid both words must be within the range of UINT32
     //
-    return v.low >= MIN_UINT32_VALUE && v.low <= MAX_UINT32_VALUE && 
+    return v.low >= MIN_UINT32_VALUE && v.low <= MAX_UINT32_VALUE &&
            v.high >= MIN_UINT32_VALUE && v.high <= MAX_UINT32_VALUE;
 };
 

@@ -2745,7 +2745,7 @@ public class BasicStream
         }
         catch(java.lang.Exception ex)
         {
-            throw new Ice.NoObjectFactoryException("no object factory", id, ex);
+            throw new Ice.NoValueFactoryException("no value factory", id, ex);
         }
 
         return obj;
@@ -2951,7 +2951,7 @@ public class BasicStream
 
     abstract private static class EncapsDecoder
     {
-        EncapsDecoder(BasicStream stream, boolean sliceObjects, ObjectFactoryManager f)
+        EncapsDecoder(BasicStream stream, boolean sliceObjects, ValueFactoryManager f)
         {
             _stream = stream;
             _sliceObjects = sliceObjects;
@@ -3013,7 +3013,7 @@ public class BasicStream
             //
             // Try to find a factory registered for the specific type.
             //
-            Ice.ObjectFactory userFactory = _servantFactoryManager.find(typeId);
+            Ice.ValueFactory userFactory = _servantFactoryManager.find(typeId);
             Ice.Object v = null;
             if(userFactory != null)
             {
@@ -3174,7 +3174,7 @@ public class BasicStream
 
         protected final BasicStream _stream;
         protected final boolean _sliceObjects;
-        protected ObjectFactoryManager _servantFactoryManager;
+        protected ValueFactoryManager _servantFactoryManager;
 
         // Encapsulation attributes for object un-marshalling
         protected java.util.TreeMap<Integer, java.util.LinkedList<Patcher> > _patchMap;
@@ -3188,7 +3188,7 @@ public class BasicStream
 
     private static final class EncapsDecoder10 extends EncapsDecoder
     {
-        EncapsDecoder10(BasicStream stream, boolean sliceObjects, ObjectFactoryManager f)
+        EncapsDecoder10(BasicStream stream, boolean sliceObjects, ValueFactoryManager f)
         {
             super(stream, sliceObjects, f);
             _sliceType = SliceType.NoSlice;
@@ -3446,7 +3446,7 @@ public class BasicStream
                 //
                 if(_typeId.equals(Ice.ObjectImpl.ice_staticId()))
                 {
-                    throw new Ice.NoObjectFactoryException("", mostDerivedId);
+                    throw new Ice.NoValueFactoryException("", mostDerivedId);
                 }
 
                 v = newInstance(_typeId);
@@ -3464,7 +3464,7 @@ public class BasicStream
                 //
                 if(!_sliceObjects)
                 {
-                    throw new Ice.NoObjectFactoryException("no object factory found and object slicing is disabled",
+                    throw new Ice.NoValueFactoryException("no value factory found and object slicing is disabled",
                                                            _typeId);
                 }
 
@@ -3492,7 +3492,7 @@ public class BasicStream
 
     private static class EncapsDecoder11 extends EncapsDecoder
     {
-        EncapsDecoder11(BasicStream stream, boolean sliceObjects, ObjectFactoryManager f)
+        EncapsDecoder11(BasicStream stream, boolean sliceObjects, ValueFactoryManager f)
         {
             super(stream, sliceObjects, f);
             _objectIdIndex = 1;
@@ -3787,7 +3787,7 @@ public class BasicStream
             {
                 if(_current.sliceType == SliceType.ObjectSlice)
                 {
-                    throw new Ice.NoObjectFactoryException("no object factory found and compact format prevents " +
+                    throw new Ice.NoValueFactoryException("no value factory found and compact format prevents " +
                                                            "slicing (the sender should use the sliced format instead)",
                                                            _current.typeId);
                 }
@@ -3951,7 +3951,7 @@ public class BasicStream
                 //
                 if(!_sliceObjects)
                 {
-                    throw new Ice.NoObjectFactoryException("no object factory found and object slicing is disabled",
+                    throw new Ice.NoValueFactoryException("no value factory found and object slicing is disabled",
                                                            _current.typeId);
                 }
 
@@ -4763,7 +4763,7 @@ public class BasicStream
 
         if(_readEncapsStack.decoder == null) // Lazy initialization.
         {
-            ObjectFactoryManager factoryManager = _instance.servantFactoryManager();
+            ValueFactoryManager factoryManager = _instance.servantFactoryManager();
             if(_readEncapsStack.encoding_1_0)
             {
                 _readEncapsStack.decoder = new EncapsDecoder10(this, _sliceObjects, factoryManager);

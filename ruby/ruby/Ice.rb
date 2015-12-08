@@ -214,6 +214,7 @@ require 'Ice/LocalException.rb'
 require 'Ice/Locator.rb'
 require 'Ice/Logger.rb'
 require 'Ice/ObjectFactory.rb'
+require 'Ice/ValueFactory.rb'
 require 'Ice/Process.rb'
 require 'Ice/Router.rb'
 require 'Ice/Connection.rb'
@@ -339,7 +340,7 @@ module Ice
         def initialize(signalPolicy=HandleSignals)
             @@_signalPolicy = signalPolicy
         end
-        
+
         def main(args, configFile=nil, initData=nil)
             if @@_communicator
                 Ice::getProcessLogger().error($0 + ": only one instance of the Application class can be used")

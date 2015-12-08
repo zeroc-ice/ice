@@ -28,7 +28,7 @@
 #include <Ice/ThreadPoolF.h>
 #include <Ice/ConnectionFactoryF.h>
 #include <Ice/ACM.h>
-#include <Ice/ObjectFactoryManagerF.h>
+#include <Ice/ValueFactoryManagerF.h>
 #include <Ice/ObjectAdapterFactoryF.h>
 #include <Ice/EndpointFactoryManagerF.h>
 #include <Ice/IPEndpointIF.h>
@@ -95,7 +95,7 @@ public:
     RequestHandlerFactoryPtr requestHandlerFactory() const;
     ProxyFactoryPtr proxyFactory() const;
     OutgoingConnectionFactoryPtr outgoingConnectionFactory() const;
-    ObjectFactoryManagerPtr servantFactoryManager() const;
+    ValueFactoryManagerPtr servantFactoryManager() const;
     ObjectAdapterFactoryPtr objectAdapterFactory() const;
     ProtocolSupport protocolSupport() const;
     bool preferIPv6() const;
@@ -179,7 +179,7 @@ private:
     RequestHandlerFactoryPtr _requestHandlerFactory;
     ProxyFactoryPtr _proxyFactory;
     OutgoingConnectionFactoryPtr _outgoingConnectionFactory;
-    ObjectFactoryManagerPtr _servantFactoryManager;
+    ValueFactoryManagerPtr _servantFactoryManager;
     ObjectAdapterFactoryPtr _objectAdapterFactory;
     ProtocolSupport _protocolSupport;
     bool _preferIPv6;

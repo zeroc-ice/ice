@@ -39,6 +39,7 @@ Router.cpp
 ServantLocatorF.cpp
 ServantLocator.cpp
 SliceChecksumDict.cpp
+ValueFactory.cpp
 Version.cpp
 BuiltinSequences.h
 CommunicatorF.h

@@ -10,7 +10,7 @@
 package test.Ice.exceptions;
 
 
-public final class ObjectFactoryI implements Ice.ObjectFactory
+public final class ValueFactoryI implements Ice.ValueFactory
 {
     @Override
     public Ice.Object create(String s)
@@ -18,8 +18,4 @@ public final class ObjectFactoryI implements Ice.ObjectFactory
         return null;
     }
 
-    @Override
-    public void destroy()
-    {
-    }
 }

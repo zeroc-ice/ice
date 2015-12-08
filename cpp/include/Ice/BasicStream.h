@@ -15,8 +15,8 @@
 #include <Ice/Object.h>
 #include <Ice/ValueF.h>
 #include <Ice/ProxyF.h>
-#include <Ice/ObjectFactory.h>
-#include <Ice/ObjectFactoryManagerF.h>
+#include <Ice/ValueFactory.h>
+#include <Ice/ValueFactoryManagerF.h>
 #include <Ice/Buffer.h>
 #include <Ice/Protocol.h>
 #include <Ice/SlicedDataF.h>
@@ -977,7 +977,7 @@ private:
 
     protected:
 
-        EncapsDecoder(BasicStream* stream, ReadEncaps* encaps, bool sliceObjects, const ObjectFactoryManagerPtr& f) :
+        EncapsDecoder(BasicStream* stream, ReadEncaps* encaps, bool sliceObjects, const ValueFactoryManagerPtr& f) :
             _stream(stream), _encaps(encaps), _sliceObjects(sliceObjects), _servantFactoryManager(f), _typeIdIndex(0)
         {
         }
@@ -1002,7 +1002,7 @@ private:
         BasicStream* _stream;
         ReadEncaps* _encaps;
         const bool _sliceObjects;
-        ObjectFactoryManagerPtr _servantFactoryManager;
+        ValueFactoryManagerPtr _servantFactoryManager;
 
         // Encapsulation attributes for object un-marshalling
         PatchMap _patchMap;
@@ -1020,7 +1020,7 @@ private:
     {
     public:
 
-        EncapsDecoder10(BasicStream* stream, ReadEncaps* encaps, bool sliceObjects, const ObjectFactoryManagerPtr& f) :
+        EncapsDecoder10(BasicStream* stream, ReadEncaps* encaps, bool sliceObjects, const ValueFactoryManagerPtr& f) :
             EncapsDecoder(stream, encaps, sliceObjects, f), _sliceType(NoSlice)
         {
         }
@@ -1053,7 +1053,7 @@ private:
     {
     public:
 
-        EncapsDecoder11(BasicStream* stream, ReadEncaps* encaps, bool sliceObjects, const ObjectFactoryManagerPtr& f) :
+        EncapsDecoder11(BasicStream* stream, ReadEncaps* encaps, bool sliceObjects, const ValueFactoryManagerPtr& f) :
             EncapsDecoder(stream, encaps, sliceObjects, f), _preAllocatedInstanceData(0), _current(0), _objectIdIndex(1)
         {
         }

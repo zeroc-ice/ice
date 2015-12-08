@@ -54,6 +54,7 @@ ICE_SRCS	= Ice_BuiltinSequences_ice.py \
 		  Ice_ServantLocator_ice.py \
 		  Ice_ServantLocatorF_ice.py \
 		  Ice_SliceChecksumDict_ice.py \
+		  Ice_ValueFactory_ice.py \
 		  Ice_Version_ice.py
 
 GLACIER2_SRCS	= Glacier2_Metrics_ice.py \

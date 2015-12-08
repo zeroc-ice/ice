@@ -11,11 +11,11 @@ top_srcdir	= ../../..
 
 TARGETS		= client.exe server.exe collocated.exe serveramd.exe
 
-C_SRCS		= AllTests.cs Client.cs EmptyI.cs ObjectFactoryI.cs ServantLocatorI.cs ../../TestCommon/TestApp.cs
-S_SRCS		= EmptyI.cs ObjectFactoryI.cs ServantLocatorI.cs Server.cs ThrowerI.cs
-COL_SRCS	= AllTests.cs Collocated.cs EmptyI.cs ObjectFactoryI.cs ServantLocatorI.cs ThrowerI.cs \
+C_SRCS		= AllTests.cs Client.cs EmptyI.cs ServantLocatorI.cs ../../TestCommon/TestApp.cs
+S_SRCS		= EmptyI.cs ServantLocatorI.cs Server.cs ThrowerI.cs
+COL_SRCS	= AllTests.cs Collocated.cs EmptyI.cs ServantLocatorI.cs ThrowerI.cs \
 	          ../../TestCommon/TestApp.cs
-SAMD_SRCS	= EmptyI.cs ObjectFactoryI.cs ServantLocatorI.cs Server.cs ThrowerAMDI.cs
+SAMD_SRCS	= EmptyI.cs ServantLocatorI.cs Server.cs ThrowerAMDI.cs
 
 SLICE_SRCS	= $(SDIR)/Test.ice
 SLICE_AMD_SRCS  = $(SDIR)/TestAMD.ice

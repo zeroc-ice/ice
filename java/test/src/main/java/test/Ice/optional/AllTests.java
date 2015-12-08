@@ -29,7 +29,7 @@ public class AllTests
         Ice.Communicator communicator = app.communicator();
 
         FactoryI factory = new FactoryI();
-        communicator.addObjectFactory(factory, "");
+        communicator.addValueFactory(factory, "");
 
         out.print("testing stringToProxy... ");
         out.flush();
@@ -415,7 +415,7 @@ public class AllTests
         test(10 == g.gg2.a);
         test(20 == g.getGg2Opt().a);
         test("gg1".equals(g.gg1.a));
-            
+
         out.println("ok");
 
         out.print("testing marshaling of large containers with fixed size elements... ");
@@ -2450,7 +2450,7 @@ public class AllTests
         private F _f;
     }
 
-    private static class FactoryI implements Ice.ObjectFactory
+    private static class FactoryI implements Ice.ValueFactory
     {
         @Override
         public Ice.Object create(String typeId)
@@ -2486,11 +2486,6 @@ public class AllTests
             }
 
             return null;
-        }
-
-        @Override
-        public void destroy()
-        {
         }
 
         void setEnabled(boolean enabled)

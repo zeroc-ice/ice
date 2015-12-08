@@ -14,8 +14,8 @@
 #include <Ice/Object.h>
 #include <Ice/Proxy.h>
 #include <Ice/ProxyFactory.h>
-#include <Ice/ObjectFactory.h>
-#include <Ice/ObjectFactoryManager.h>
+#include <Ice/ValueFactory.h>
+#include <Ice/ValueFactoryManager.h>
 #include <Ice/UserExceptionFactory.h>
 #include <Ice/LocalException.h>
 #include <Ice/Protocol.h>
@@ -1855,7 +1855,7 @@ IceInternal::BasicStream::initReadEncaps()
 
     if(!_currentReadEncaps->decoder) // Lazy initialization.
     {
-        ObjectFactoryManagerPtr factoryManager = _instance->servantFactoryManager();
+        ValueFactoryManagerPtr factoryManager = _instance->servantFactoryManager();
         if(_currentReadEncaps->encoding == Encoding_1_0)
         {
             _currentReadEncaps->decoder = new EncapsDecoder10(this, _currentReadEncaps, _sliceObjects, factoryManager);
@@ -1931,7 +1931,7 @@ IceInternal::BasicStream::EncapsDecoder::newInstance(const string& typeId)
         v = userFactory(typeId);
     }
 #else
-    ObjectFactoryPtr userFactory = _servantFactoryManager->find(typeId);
+    ValueFactoryPtr userFactory = _servantFactoryManager->find(typeId);
     if(userFactory)
     {
         v = userFactory->create(typeId);
@@ -1961,14 +1961,14 @@ IceInternal::BasicStream::EncapsDecoder::newInstance(const string& typeId)
     if(!v)
     {
 #ifdef ICE_CPP11_MAPPING
-        function<ValuePtr (const string&)> of = IceInternal::factoryTable->getObjectFactory(typeId);
+        function<ValuePtr (const string&)> of = IceInternal::factoryTable->getValueFactory(typeId);
         if(of)
         {
             v = of(typeId);
             assert(v);
         }
 #else
-        ObjectFactoryPtr of = IceInternal::factoryTable->getObjectFactory(typeId);
+        ValueFactoryPtr of = IceInternal::factoryTable->getValueFactory(typeId);
         if(of)
         {
             v = of->create(typeId);
@@ -2382,7 +2382,7 @@ IceInternal::BasicStream::EncapsDecoder10::readInstance()
         //
         if(_typeId == Object::ice_staticId())
         {
-            throw NoObjectFactoryException(__FILE__, __LINE__, "", mostDerivedId);
+            throw NoValueFactoryException(__FILE__, __LINE__, "", mostDerivedId);
         }
 
         v = newInstance(_typeId);
@@ -2400,7 +2400,7 @@ IceInternal::BasicStream::EncapsDecoder10::readInstance()
         //
         if(!_sliceObjects)
         {
-            throw NoObjectFactoryException(__FILE__, __LINE__, "no object factory found and object slicing is disabled",
+            throw NoValueFactoryException(__FILE__, __LINE__, "no value factory found and object slicing is disabled",
                                            _typeId);
         }
 
@@ -2700,8 +2700,8 @@ IceInternal::BasicStream::EncapsDecoder11::skipSlice()
     {
         if(_current->sliceType == ObjectSlice)
         {
-            throw NoObjectFactoryException(__FILE__, __LINE__,
-                                           "no object factory found and compact format prevents "
+            throw NoValueFactoryException(__FILE__, __LINE__,
+                                           "no value factory found and compact format prevents "
                                            "slicing (the sender should use the sliced format instead)",
                                            _current->typeId);
         }
@@ -2867,7 +2867,7 @@ IceInternal::BasicStream::EncapsDecoder11::readInstance(Int index, PatchFunc pat
         //
         if(!_sliceObjects)
         {
-            throw NoObjectFactoryException(__FILE__, __LINE__, "no object factory found and object slicing is disabled",
+            throw NoValueFactoryException(__FILE__, __LINE__, "no value factory found and object slicing is disabled",
                                            _current->typeId);
         }
 

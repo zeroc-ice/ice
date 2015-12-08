@@ -32,7 +32,7 @@ public class AllTests : TestCommon.TestApp
 #endif
     {
         FactoryI factory = new FactoryI();
-        communicator.addObjectFactory(factory, "");
+        communicator.addValueFactory(factory.create, "");
 
         Write("testing stringToProxy... ");
         Flush();
@@ -444,7 +444,7 @@ public class AllTests : TestCommon.TestApp
         test(10 == g.gg2.a);
         test(20 == g.gg2Opt.Value.a);
         test("gg1".Equals(g.gg1.a));
-            
+
         WriteLine("ok");
 
         Write("testing marshaling of large containers with fixed size elements... ");
@@ -2476,7 +2476,7 @@ public class AllTests : TestCommon.TestApp
         private Test.F _f;
     }
 
-    private class FactoryI : Ice.ObjectFactory
+    private class FactoryI
     {
         public Ice.Object create(string typeId)
         {
@@ -2511,10 +2511,6 @@ public class AllTests : TestCommon.TestApp
             }
 
             return null;
-        }
-
-        public void destroy()
-        {
         }
 
         internal void setEnabled(bool enabled)

@@ -7,14 +7,11 @@
 //
 // **********************************************************************
 
-public sealed class ObjectFactoryI : Ice.ObjectFactory
-{
-    public Ice.Object create(string s)
+var Ice = require("../Ice/Class").Ice;
+Ice.ValueFactory = Ice.Class({
+    create: function(type)
     {
-        return null;
+        throw new Error("not implemented");
     }
-    
-    public void destroy()
-    {
-    }
-}
+});
+module.exports.Ice = Ice;

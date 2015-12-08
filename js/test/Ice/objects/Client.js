@@ -136,16 +136,16 @@
     JI.prototype = new Test.J();
     JI.prototype.constructor = JI;
 
-    var MyObjectFactory = function()
+    var MyValueFactory = function()
     {
-        Ice.ObjectFactory.call(this);
+        Ice.ValueFactory.call(this);
     };
 
-    MyObjectFactory.prototype = new Ice.ObjectFactory();
+    MyValueFactory.prototype = new Ice.ValueFactory();
 
-    MyObjectFactory.prototype.constructor = MyObjectFactory;
+    MyValueFactory.prototype.constructor = MyValueFactory;
 
-    MyObjectFactory.prototype.create = function(type)
+    MyValueFactory.prototype.create = function(type)
     {
         switch(type)
         {
@@ -172,6 +172,20 @@
             default:
                 break;
         }
+        return null;
+    };
+
+    var MyObjectFactory = function()
+    {
+        Ice.ObjectFactory.call(this);
+    };
+
+    MyObjectFactory.prototype = new Ice.ObjectFactory();
+
+    MyObjectFactory.prototype.constructor = MyObjectFactory;
+
+    MyObjectFactory.prototype.create = function(type)
+    {
         return null;
     };
 
@@ -203,17 +217,19 @@
         Promise.try(
             function()
             {
-                var factory = new MyObjectFactory();
-                communicator.addObjectFactory(factory, "::Test::B");
-                communicator.addObjectFactory(factory, "::Test::C");
-                communicator.addObjectFactory(factory, "::Test::D");
-                communicator.addObjectFactory(factory, "::Test::E");
-                communicator.addObjectFactory(factory, "::Test::F");
-                communicator.addObjectFactory(factory, "::Test::I");
-                communicator.addObjectFactory(factory, "::Test::J");
-                communicator.addObjectFactory(factory, "::Test::H");
-                communicator.addObjectFactory(factory, "::Test::Inner::A");
-                communicator.addObjectFactory(factory, "::Test::Inner::Sub::A");
+                var factory = new MyValueFactory();
+                communicator.addValueFactory(factory, "::Test::B");
+                communicator.addValueFactory(factory, "::Test::C");
+                communicator.addValueFactory(factory, "::Test::D");
+                communicator.addValueFactory(factory, "::Test::E");
+                communicator.addValueFactory(factory, "::Test::F");
+                communicator.addValueFactory(factory, "::Test::I");
+                communicator.addValueFactory(factory, "::Test::J");
+                communicator.addValueFactory(factory, "::Test::H");
+                communicator.addValueFactory(factory, "::Test::Inner::A");
+                communicator.addValueFactory(factory, "::Test::Inner::Sub::A");
+
+                communicator.addObjectFactory(new MyObjectFactory(), "TestOF");
 
                 out.write("testing stringToProxy... ");
                 ref = "initial:default -p 12010";
@@ -508,6 +524,14 @@
             {
                 test(ex.reason == "Inner::Sub::Ex");
                 out.writeLine("ok");
+
+                out.write("testing getting ObjectFactory... ");
+                test(communicator.findObjectFactory("TestOF") !== null);
+                out.writeLine("ok");
+                out.write("testing getting ObjectFactory as ValueFactory... ");
+                test(communicator.findValueFactory("TestOF") !== null);
+                out.writeLine("ok");
+
                 return initial.shutdown();
             }
         ).then(

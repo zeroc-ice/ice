@@ -3277,20 +3277,17 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     if(!p->isInterface() && p->allOperations().size() == 0 && !p->isLocal())
     {
         out << sp;
-        out << nl << "private static class __F implements Ice.ObjectFactory";
+        out << nl << "private static class __F implements Ice.ValueFactory";
         out << sb;
         out << nl << "public Ice.Object create(String type)";
         out << sb;
         out << nl << "assert(type.equals(ice_staticId()));";
         out << nl << "return new " << fixKwd(name) << "();";
         out << eb;
-        out << sp << nl << "public void destroy()";
-        out << sb;
         out << eb;
-        out << eb;
-        out << nl << "private static Ice.ObjectFactory _factory = new __F();";
+        out << nl << "private static Ice.ValueFactory _factory = new __F();";
         out << sp;
-        out << nl << "public static Ice.ObjectFactory" << nl << "ice_factory()";
+        out << nl << "public static Ice.ValueFactory" << nl << "ice_factory()";
         out << sb;
         out << nl << "return _factory;";
         out << eb;

@@ -124,14 +124,22 @@ public final class CommunicatorI implements Communicator
 
     @Override
     public void
-    addObjectFactory(ObjectFactory factory, String id)
+    addObjectFactory(ObjectFactory factory, String id) { _instance.servantFactoryManager().add(factory, id); }
+
+    @Override
+    public ObjectFactory
+    findObjectFactory(String id) { return _instance.servantFactoryManager().findObjectFactory(id); }
+
+    @Override
+    public void
+    addValueFactory(ValueFactory factory, String id)
     {
         _instance.servantFactoryManager().add(factory, id);
     }
 
     @Override
-    public ObjectFactory
-    findObjectFactory(String id)
+    public ValueFactory
+    findValueFactory(String id)
     {
         return _instance.servantFactoryManager().find(id);
     }

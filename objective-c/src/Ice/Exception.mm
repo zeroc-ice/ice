@@ -864,7 +864,7 @@ localExceptionToString(const Ice::LocalException& ex)
 }
 @end
 
-@implementation ICENoObjectFactoryException (ICEInternal)
+@implementation ICENoValueFactoryException (ICEInternal)
 -(id)initWithLocalException:(const Ice::LocalException&)ex
 {
     self = [super initWithLocalException:ex];
@@ -872,14 +872,14 @@ localExceptionToString(const Ice::LocalException& ex)
     {
         return nil;
     }
-    NSAssert(dynamic_cast<const Ice::NoObjectFactoryException*>(&ex), @"invalid local exception type");
-    const Ice::NoObjectFactoryException& localEx = dynamic_cast<const Ice::NoObjectFactoryException&>(ex);
+    NSAssert(dynamic_cast<const Ice::NoValueFactoryException*>(&ex), @"invalid local exception type");
+    const Ice::NoValueFactoryException& localEx = dynamic_cast<const Ice::NoValueFactoryException&>(ex);
     type = toNSString(localEx.type);
     return self;
 }
 -(void) rethrowCxx
 {
-    throw Ice::NoObjectFactoryException(file, line, fromNSString([self reason_]), fromNSString(type));
+    throw Ice::NoValueFactoryException(file, line, fromNSString([self reason_]), fromNSString(type));
 }
 @end
 

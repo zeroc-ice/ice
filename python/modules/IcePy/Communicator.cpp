@@ -24,6 +24,7 @@
 #include <Thread.h>
 #include <Types.h>
 #include <Util.h>
+#include <Ice/ValueFactory.h>
 #include <Ice/Initialize.h>
 #include <Ice/CommunicatorAsync.h>
 #include <Ice/LocalException.h>
@@ -1197,7 +1198,51 @@ communicatorAddObjectFactory(CommunicatorObject* self, PyObject* args)
 
     }
 
-    if(!pof->add(factory, id))
+    if(!pof->addObjectFactory(factory, id))
+    {
+        return 0;
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+communicatorAddValueFactory(CommunicatorObject* self, PyObject* args)
+{
+    PyObject* factoryType = lookupType("Ice.ValueFactory");
+    assert(factoryType);
+
+    PyObject* factory;
+    PyObject* strObj;
+    if(!PyArg_ParseTuple(args, STRCAST("O!O"), factoryType, &factory, &strObj))
+    {
+        return 0;
+    }
+
+    string id;
+    if(!getStringArg(strObj, "id", id))
+    {
+        return 0;
+    }
+
+    ObjectFactoryPtr pof;
+    try
+    {
+        pof = ObjectFactoryPtr::dynamicCast((*self->communicator)->findObjectFactory(""));
+        assert(pof);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return 0;
+
+    }
+
+    if(!pof->addValueFactory(factory, id))
     {
         return 0;
     }
@@ -1236,7 +1281,40 @@ communicatorFindObjectFactory(CommunicatorObject* self, PyObject* args)
         return 0;
     }
 
-    return pof->find(id);
+    return pof->findObjectFactory(id);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+communicatorFindValueFactory(CommunicatorObject* self, PyObject* args)
+{
+    PyObject* strObj;
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &strObj))
+    {
+        return 0;
+    }
+
+    string id;
+    if(!getStringArg(strObj, "id", id))
+    {
+        return 0;
+    }
+
+    ObjectFactoryPtr pof;
+    try
+    {
+        pof = ObjectFactoryPtr::dynamicCast((*self->communicator)->findObjectFactory(""));
+        assert(pof);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return 0;
+    }
+
+    return pof->findValueFactory(id);
 }
 
 #ifdef WIN32
@@ -1570,6 +1648,10 @@ static PyMethodDef CommunicatorMethods[] =
         PyDoc_STR(STRCAST("addObjectFactory(factory, id) -> None")) },
     { STRCAST("findObjectFactory"), reinterpret_cast<PyCFunction>(communicatorFindObjectFactory), METH_VARARGS,
         PyDoc_STR(STRCAST("findObjectFactory(id) -> Ice.ObjectFactory")) },
+    { STRCAST("addValueFactory"), reinterpret_cast<PyCFunction>(communicatorAddValueFactory), METH_VARARGS,
+        PyDoc_STR(STRCAST("addValueFactory(factory, id) -> None")) },
+    { STRCAST("findValueFactory"), reinterpret_cast<PyCFunction>(communicatorFindValueFactory), METH_VARARGS,
+        PyDoc_STR(STRCAST("findValueFactory(id) -> Ice.ValueFactory")) },
     { STRCAST("getImplicitContext"), reinterpret_cast<PyCFunction>(communicatorGetImplicitContext), METH_NOARGS,
       PyDoc_STR(STRCAST("getImplicitContext() -> Ice.ImplicitContext")) },
     { STRCAST("getProperties"), reinterpret_cast<PyCFunction>(communicatorGetProperties), METH_NOARGS,

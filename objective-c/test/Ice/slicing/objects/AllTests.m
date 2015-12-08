@@ -139,7 +139,7 @@
 
 -(void) SBSUnknownDerivedAsSBaseCompactException:(ICEException*)exc
 {
-    test([[exc ice_name] isEqualToString:@"Ice::NoObjectFactoryException"]);
+    test([[exc ice_name] isEqualToString:@"Ice::NoValueFactoryException"]);
     [self called];
 }
 
@@ -150,7 +150,7 @@
 
 -(void) SUnknownAsObjectException10:(ICEException*)exc
 {
-    test([[exc ice_name] isEqualToString:@"Ice::NoObjectFactoryException"]);
+    test([[exc ice_name] isEqualToString:@"Ice::NoValueFactoryException"]);
     [self called];
 }
 
@@ -728,7 +728,7 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
             @catch(const ICEOperationNotExistException*)
             {
             }
-            @catch(const ICENoObjectFactoryException*)
+            @catch(const ICENoValueFactoryException*)
             {
                 // Expected.
             }
@@ -778,7 +778,7 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
             test([[((ICEUnknownSlicedObject*)o) getUnknownTypeId] isEqualToString:@"::Test::SUnknown"]);
             [test checkSUnknown:o];
         }
-        @catch(ICENoObjectFactoryException*)
+        @catch(ICENoValueFactoryException*)
         {
             test([[test ice_getEncodingVersion] isEqual:ICEEncoding_1_0]);
         }

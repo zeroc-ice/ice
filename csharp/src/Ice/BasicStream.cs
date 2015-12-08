@@ -3452,7 +3452,7 @@ namespace IceInternal
             }
             catch(Exception ex)
             {
-                Ice.NoObjectFactoryException e = new Ice.NoObjectFactoryException(ex);
+                Ice.NoValueFactoryException e = new Ice.NoValueFactoryException(ex);
                 e.type = id;
                 throw e;
             }
@@ -3561,7 +3561,7 @@ namespace IceInternal
 
         abstract private class EncapsDecoder
         {
-            internal EncapsDecoder(BasicStream stream, ReadEncaps encaps, bool sliceObjects, ObjectFactoryManager f)
+            internal EncapsDecoder(BasicStream stream, ReadEncaps encaps, bool sliceObjects, ValueFactoryManager f)
             {
                 _stream = stream;
                 _encaps = encaps;
@@ -3619,11 +3619,11 @@ namespace IceInternal
                 //
                 // Try to find a factory registered for the specific type.
                 //
-                Ice.ObjectFactory userFactory = _servantFactoryManager.find(typeId);
+                Ice.ValueFactory userFactory = _servantFactoryManager.find(typeId);
                 Ice.Object v = null;
                 if(userFactory != null)
                 {
-                    v = userFactory.create(typeId);
+                    v = userFactory(typeId);
                 }
 
                 //
@@ -3635,7 +3635,7 @@ namespace IceInternal
                     userFactory = _servantFactoryManager.find("");
                     if(userFactory != null)
                     {
-                        v = userFactory.create(typeId);
+                        v = userFactory(typeId);
                     }
                 }
 
@@ -3779,7 +3779,7 @@ namespace IceInternal
             protected readonly BasicStream _stream;
             protected readonly ReadEncaps _encaps;
             protected readonly bool _sliceObjects;
-            protected ObjectFactoryManager _servantFactoryManager;
+            protected ValueFactoryManager _servantFactoryManager;
 
             // Encapsulation attributes for object un-marshalling
             protected Dictionary<int, LinkedList<IPatcher> > _patchMap;
@@ -3793,7 +3793,7 @@ namespace IceInternal
 
         private sealed class EncapsDecoder10 : EncapsDecoder
         {
-            internal EncapsDecoder10(BasicStream stream, ReadEncaps encaps, bool sliceObjects, ObjectFactoryManager f)
+            internal EncapsDecoder10(BasicStream stream, ReadEncaps encaps, bool sliceObjects, ValueFactoryManager f)
                 : base(stream, encaps, sliceObjects, f)
             {
                 _sliceType = SliceType.NoSlice;
@@ -4043,7 +4043,7 @@ namespace IceInternal
                     //
                     if(_typeId.Equals(Ice.ObjectImpl.ice_staticId()))
                     {
-                        throw new Ice.NoObjectFactoryException("", mostDerivedId);
+                        throw new Ice.NoValueFactoryException("", mostDerivedId);
                     }
 
                     v = newInstance(_typeId);
@@ -4061,7 +4061,7 @@ namespace IceInternal
                     //
                     if(!_sliceObjects)
                     {
-                        throw new Ice.NoObjectFactoryException("no object factory found and object slicing is disabled",
+                        throw new Ice.NoValueFactoryException("no value factory found and object slicing is disabled",
                                                                _typeId);
                     }
 
@@ -4089,7 +4089,7 @@ namespace IceInternal
 
         private sealed class EncapsDecoder11 : EncapsDecoder
         {
-            internal EncapsDecoder11(BasicStream stream, ReadEncaps encaps, bool sliceObjects, ObjectFactoryManager f)
+            internal EncapsDecoder11(BasicStream stream, ReadEncaps encaps, bool sliceObjects, ValueFactoryManager f)
                 : base(stream, encaps, sliceObjects, f)
             {
                 _objectIdIndex = 1;
@@ -4379,8 +4379,8 @@ namespace IceInternal
                 {
                     if(_current.sliceType == SliceType.ObjectSlice)
                     {
-                        throw new Ice.NoObjectFactoryException("no object factory found and compact format prevents " +
-                                                               "slicing (the sender should use the sliced format " + 
+                        throw new Ice.NoValueFactoryException("no value factory found and compact format prevents " +
+                                                               "slicing (the sender should use the sliced format " +
                                                                "instead)", _current.typeId);
                     }
                     else
@@ -4541,7 +4541,7 @@ namespace IceInternal
                     //
                     if(!_sliceObjects)
                     {
-                        throw new Ice.NoObjectFactoryException("no object factory found and object slicing is disabled",
+                        throw new Ice.NoValueFactoryException("no value factory found and object slicing is disabled",
                                                                _current.typeId);
                     }
 
@@ -5332,7 +5332,7 @@ namespace IceInternal
 
             if(_readEncapsStack.decoder == null) // Lazy initialization.
             {
-                ObjectFactoryManager factoryMgr = instance_.servantFactoryManager();
+                ValueFactoryManager factoryMgr = instance_.servantFactoryManager();
                 if(_readEncapsStack.encoding_1_0)
                 {
                     _readEncapsStack.decoder = new EncapsDecoder10(this, _readEncapsStack, _sliceObjects, factoryMgr);

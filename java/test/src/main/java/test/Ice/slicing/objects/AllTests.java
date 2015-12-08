@@ -248,7 +248,7 @@ public class AllTests
                 callback.called();
                 return;
             }
-            test(exc instanceof Ice.NoObjectFactoryException);
+            test(exc instanceof Ice.NoValueFactoryException);
             callback.called();
         }
 
@@ -274,7 +274,7 @@ public class AllTests
         public void
         exception(Ice.LocalException exc)
         {
-            test(exc.ice_name().equals("Ice::NoObjectFactoryException"));
+            test(exc.ice_name().equals("Ice::NoValueFactoryException"));
             callback.called();
         }
 
@@ -929,7 +929,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    private static class Callback_TestIntf_throwUnknownDerivedAsBaseI 
+    private static class Callback_TestIntf_throwUnknownDerivedAsBaseI
         extends Callback_TestIntf_throwUnknownDerivedAsBase
     {
         @Override
@@ -1282,7 +1282,7 @@ public class AllTests
         static int counter = 0;
     }
 
-    private static class NodeFactoryI implements Ice.ObjectFactory
+    private static class NodeFactoryI implements Ice.ValueFactory
     {
         @Override
         public Ice.Object create(String id)
@@ -1292,11 +1292,6 @@ public class AllTests
                 return new PNodeI();
             }
             return null;
-        }
-
-        @Override
-        public void destroy()
-        {
         }
     }
 
@@ -1310,7 +1305,7 @@ public class AllTests
         static int counter = 0;
     }
 
-    private static class PreservedFactoryI implements Ice.ObjectFactory
+    private static class PreservedFactoryI implements Ice.ValueFactory
     {
         @Override
         public Ice.Object create(String id)
@@ -1320,11 +1315,6 @@ public class AllTests
                 return new PreservedI();
             }
             return null;
-        }
-
-        @Override
-        public void destroy()
-        {
         }
     }
 
@@ -1494,7 +1484,7 @@ public class AllTests
                 test.SBSUnknownDerivedAsSBaseCompact();
                 test(false);
             }
-            catch(Ice.NoObjectFactoryException ex)
+            catch(Ice.NoValueFactoryException ex)
             {
                 // Expected.
             }
@@ -1550,7 +1540,7 @@ public class AllTests
                 test(((Ice.UnknownSlicedObject)o).getUnknownTypeId().equals("::Test::SUnknown"));
                 test.checkSUnknown(o);
             }
-            catch(Ice.NoObjectFactoryException ex)
+            catch(Ice.NoValueFactoryException ex)
             {
                 test(test.ice_getEncodingVersion().equals(Ice.Util.Encoding_1_0));
             }
@@ -2750,7 +2740,7 @@ public class AllTests
         // the Ice run time will install its own internal factory for Preserved upon receiving the
         // first instance.
         //
-        communicator.addObjectFactory(new PreservedFactoryI(), Preserved.ice_staticId());
+        communicator.addValueFactory(new PreservedFactoryI(), Preserved.ice_staticId());
 
         try
         {
@@ -3073,7 +3063,7 @@ public class AllTests
             // Register a factory in order to substitute our own subclass of PNode. This provides
             // an easy way to determine how many unmarshaled instances currently exist.
             //
-            communicator.addObjectFactory(new NodeFactoryI(), PNode.ice_staticId());
+            communicator.addValueFactory(new NodeFactoryI(), PNode.ice_staticId());
 
             //
             // Relay a graph through the server.

@@ -19,6 +19,7 @@
 
 @interface ICECommunicator : ICELocalObject<ICECommunicator>
 {
+    NSMutableDictionary* valueFactories_;
     NSMutableDictionary* objectFactories_;
     NSDictionary* prefixTable_;
     NSMutableDictionary* adminFacets_;

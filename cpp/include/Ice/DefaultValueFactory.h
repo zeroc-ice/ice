@@ -7,21 +7,21 @@
 //
 // **********************************************************************
 
-#ifndef ICE_DEFAULT_OBJECT_FACTORY_H
-#define ICE_DEFAULT_OBJECT_FACTORY_H
+#ifndef ICE_DEFAULT_VALUE_FACTORY_H
+#define ICE_DEFAULT_VALUE_FACTORY_H
 
 #include <Ice/Config.h>
-#include <Ice/ObjectFactory.h>
+#include <Ice/ValueFactory.h>
 
 #ifndef ICE_CPP11_MAPPING
 namespace IceInternal
 {
 template<class O>
-class DefaultObjectFactory : public Ice::ObjectFactory
+class DefaultValueFactory : public Ice::ValueFactory
 {
 public:
-    
-    DefaultObjectFactory(const ::std::string& typeId) :
+
+    DefaultValueFactory(const ::std::string& typeId) :
         _typeId(typeId)
     {
     }
@@ -34,10 +34,6 @@ public:
     {
         assert(typeId == _typeId);
         return new O;
-    }
-
-    virtual void destroy()
-    {
     }
 
 private:

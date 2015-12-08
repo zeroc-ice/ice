@@ -22,7 +22,7 @@ run(id<ICECommunicator> communicator)
     // Test the stream api.
     //
     tprintf("testing primitive types... ");
-    
+
     {
         NSData* byte = [NSData data];
         in = [ICEUtil createInputStream:communicator data:byte];
@@ -144,9 +144,9 @@ run(id<ICECommunicator> communicator)
     }
 
     tprintf("ok\n");
-    
+
     tprintf("testing constructed types... ");
-    
+
     {
         out = [ICEUtil createOutputStream:communicator];
         [TestStreamMyEnumHelper write:@(TestStreamenum3) stream:out];
@@ -537,7 +537,7 @@ run(id<ICECommunicator> communicator)
 
             ICEDouble doubleS[] = { 1, 2, 3, 4 };
             c.seq7 = [NSMutableData dataWithBytes:doubleS length:sizeof(doubleS)];
-            
+
             c.seq8 = [ICEMutableStringSeq array];
             [(ICEMutableStringSeq*)c.seq8 addObject:@"string1"];
             [(ICEMutableStringSeq*)c.seq8 addObject:@"string2"];
@@ -546,7 +546,7 @@ run(id<ICECommunicator> communicator)
 
             TestStreamMyEnum enumS[] = { TestStreamenum3, TestStreamenum2, TestStreamenum1 };
             c.seq9 = [NSMutableData dataWithBytes:enumS length:sizeof(enumS)];
-            
+
             c.d = [NSDictionary dictionaryWithObject:[TestStreamMyClass myClass] forKey:@"hi"];
             [arr addObject:c];
         }
@@ -583,7 +583,7 @@ run(id<ICECommunicator> communicator)
             f.c = nil;
             f.o = nil;
         }
-                
+
         TestStreamMutableMyClassSS* arrS = [TestStreamMutableMyClassSS array];
         [arrS addObject:arr];
         [arrS addObject:[TestStreamMyClassS array]];
@@ -677,7 +677,7 @@ run(id<ICECommunicator> communicator)
 
         ICEDouble doubleS[] = { 1, 2, 3, 4 };
         c.seq7 = [NSMutableData dataWithBytes:doubleS length:sizeof(doubleS)];
-            
+
         c.seq8 = [ICEMutableStringSeq array];
         [(ICEMutableStringSeq*)c.seq8 addObject:@"string1"];
         [(ICEMutableStringSeq*)c.seq8 addObject:@"string2"];
@@ -686,7 +686,7 @@ run(id<ICECommunicator> communicator)
 
         TestStreamMyEnum enumS[] = { TestStreamenum3, TestStreamenum2, TestStreamenum1 };
         c.seq9 = [NSMutableData dataWithBytes:enumS length:sizeof(enumS)];
-            
+
         c.d = [NSDictionary dictionaryWithObject:[TestStreamMyClass myClass] forKey:@"hi"];
 
         ex.c = c;
@@ -790,11 +790,11 @@ run(id<ICECommunicator> communicator)
         TestStreamStringMyClassD* dict2 = [TestStreamStringMyClassDHelper read:in];
         [in readPendingObjects];
         test([dict2 count] == [dict count]);
-        test([dict2 objectForKey:@"key1"] != nil && 
+        test([dict2 objectForKey:@"key1"] != nil &&
              ((TestStreamMyClass*)[dict2 objectForKey:@"key1"]).s.e == TestStreamenum2);
-        test([dict2 objectForKey:@"key2"] != nil && 
+        test([dict2 objectForKey:@"key2"] != nil &&
              ((TestStreamMyClass*)[dict2 objectForKey:@"key2"]).s.e == TestStreamenum3);
-        
+
     }
 
     {
@@ -937,10 +937,10 @@ main(int argc, char* argv[])
             initData.properties = defaultClientProperties(&argc, argv);
 #if TARGET_OS_IPHONE
             initData.prefixTable__ = [NSDictionary dictionaryWithObjectsAndKeys:
-                                      @"TestStream", @"::Test", 
-                                      @"TestStreamSub", @"::Test::Sub", 
-                                      @"TestStream2", @"::Test2", 
-                                      @"TestStream2Sub2", @"::Test2::Sub2", 
+                                      @"TestStream", @"::Test",
+                                      @"TestStreamSub", @"::Test::Sub",
+                                      @"TestStream2", @"::Test2",
+                                      @"TestStream2Sub2", @"::Test2::Sub2",
                                       nil];
 #endif
             communicator = [ICEUtil createCommunicator:&argc argv:argv initData:initData];

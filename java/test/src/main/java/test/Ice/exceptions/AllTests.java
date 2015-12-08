@@ -826,12 +826,12 @@ public class AllTests
         }
 
         {
-            out.print("testing object factory registration exception... ");
-            Ice.ObjectFactory of = new ObjectFactoryI();
-            communicator.addObjectFactory(of, "::x");
+            out.print("testing value factory registration exception... ");
+            Ice.ValueFactory of = new ValueFactoryI();
+            communicator.addValueFactory(of, "::x");
             try
             {
-                communicator.addObjectFactory(of, "::x");
+                communicator.addValueFactory(of, "::x");
                 test(false);
             }
             catch(Ice.AlreadyRegisteredException ex)
@@ -1138,7 +1138,7 @@ public class AllTests
                 ex.printStackTrace();
                 test(false);
             }
-        
+
             ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(
                 communicator.stringToProxy("thrower:default -p 12011"));
             try

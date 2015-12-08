@@ -99,30 +99,16 @@ public class AllTests : TestCommon.TestApp
     {
     }
 
-    private class MyInterfaceFactory : Ice.ObjectFactory
+    private static Ice.Object MyInterfaceFactory(string type)
     {
-        public Ice.Object create(string type)
-        {
-            Debug.Assert(type.Equals(Test.MyInterfaceDisp_.ice_staticId()));
-            return new MyInterfaceI();
-        }
-
-        public void destroy()
-        {
-        }
+        Debug.Assert(type.Equals(Test.MyInterfaceDisp_.ice_staticId()));
+        return new MyInterfaceI();
     }
 
-    private class TestObjectFactory : Ice.ObjectFactory
+    private static Ice.Object TestObjectFactory(string type)
     {
-        public Ice.Object create(string type)
-        {
-            Debug.Assert(type.Equals(Test.MyClass.ice_staticId()));
-            return new TestObjectReader();
-        }
-
-        public void destroy()
-        {
-        }
+        Debug.Assert(type.Equals(Test.MyClass.ice_staticId()));
+        return new TestObjectReader();
     }
 
     private class TestReadObjectCallback : Ice.ReadObjectCallback
@@ -135,7 +121,7 @@ public class AllTests : TestCommon.TestApp
         internal Ice.Object obj;
     }
 
-    public class MyClassFactoryWrapper : Ice.ObjectFactory
+    public class MyClassFactoryWrapper
     {
         public MyClassFactoryWrapper()
         {
@@ -146,21 +132,17 @@ public class AllTests : TestCommon.TestApp
         {
             if (_factory != null)
             {
-                return _factory.create(type);
+                return _factory(type);
             }
             return new Test.MyClass();
         }
 
-        public void destroy()
-        {
-        }
-
-        public void setFactory(Ice.ObjectFactory factory)
+        public void setFactory(Ice.ValueFactory factory)
         {
             _factory = factory;
         }
 
-        private Ice.ObjectFactory _factory;
+        private Ice.ValueFactory _factory;
     }
 
 #if SILVERLIGHT
@@ -179,8 +161,9 @@ public class AllTests : TestCommon.TestApp
 #endif
     {
         MyClassFactoryWrapper factoryWrapper = new MyClassFactoryWrapper();
-        communicator.addObjectFactory(factoryWrapper, Test.MyClass.ice_staticId());
-        communicator.addObjectFactory(new MyInterfaceFactory(), Test.MyInterfaceDisp_.ice_staticId());
+
+        communicator.addValueFactory(factoryWrapper.create, Test.MyClass.ice_staticId());
+        communicator.addValueFactory(MyInterfaceFactory, Test.MyInterfaceDisp_.ice_staticId());
 
         Ice.InputStream @in;
         Ice.OutputStream @out;
@@ -822,7 +805,7 @@ public class AllTests : TestCommon.TestApp
             @out.writePendingObjects();
             byte[] data = @out.finished();
             test(writer.called);
-            factoryWrapper.setFactory(new TestObjectFactory());
+            factoryWrapper.setFactory(TestObjectFactory);
             @in = Ice.Util.createInputStream(communicator, data);
             TestReadObjectCallback cb = new TestReadObjectCallback();
             @in.readObject(cb);

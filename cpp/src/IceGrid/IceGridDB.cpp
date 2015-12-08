@@ -66,11 +66,11 @@ private:
     string _serverVersion;
 };
 
-class ObjectFactoryI : public Ice::ObjectFactory
+class ValueFactoryI : public Ice::ValueFactory
 {
 public:
 
-    ObjectFactoryI(const string& serverVersion) :
+    ValueFactoryI(const string& serverVersion) :
         _serverVersion(serverVersion)
     {
     }
@@ -86,10 +86,6 @@ public:
             return new IceBoxDescriptorI(_serverVersion);
         }
         return 0;
-    }
-
-    virtual void destroy()
-    {
     }
 
 private:
@@ -282,9 +278,9 @@ Client::run(int argc, char* argv[])
 
             if(!serverVersion.empty())
             {
-                ObjectFactoryPtr factory = new ObjectFactoryI(serverVersion);
-                communicator()->addObjectFactory(factory, "::IceGrid::ServerDescriptor");
-                communicator()->addObjectFactory(factory, "::IceGrid::IceBoxDescriptor");
+                ValueFactoryPtr factory = new ValueFactoryI(serverVersion);
+                communicator()->addValueFactory(factory, "::IceGrid::ServerDescriptor");
+                communicator()->addValueFactory(factory, "::IceGrid::IceBoxDescriptor");
             }
 
             Ice::InputStreamPtr stream = Ice::wrapInputStream(communicator(), buf, dbContext.encoding);

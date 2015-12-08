@@ -13,12 +13,9 @@ def test(b)
     end
 end
 
-class ObjectFactoryI
+class ValueFactoryI
     def create(id)
         return nil
-    end
-
-    def destroy()
     end
 end
 
@@ -29,12 +26,12 @@ def allTests(communicator)
         isWin32 = true
     end
 
-    print "testing object factory registration exception... "
+    print "testing value factory registration exception... "
     STDOUT.flush
-    of = ObjectFactoryI.new
-    communicator.addObjectFactory(of, "x")
+    vf = ValueFactoryI.new
+    communicator.addValueFactory(vf, "x")
     begin
-        communicator.addObjectFactory(of, "x")
+        communicator.addValueFactory(vf, "x")
         test(false)
     rescue Ice::AlreadyRegisteredException
     end

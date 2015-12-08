@@ -25,7 +25,8 @@ IcePy::ObjectFactory::ObjectFactory()
 
 IcePy::ObjectFactory::~ObjectFactory()
 {
-    assert(_factoryMap.empty());
+    assert(_valueFactoryMap.empty());
+    assert(_objectFactoryMap.empty());
 }
 
 Ice::ObjectPtr
@@ -39,8 +40,8 @@ IcePy::ObjectFactory::create(const string& id)
     {
         Lock sync(*this);
 
-        FactoryMap::iterator p = _factoryMap.find(id);
-        if(p != _factoryMap.end())
+        FactoryMap::iterator p = _valueFactoryMap.find(id);
+        if(p != _valueFactoryMap.end())
         {
             factory = p->second;
         }
@@ -112,12 +113,15 @@ IcePy::ObjectFactory::create(const string& id)
 void
 IcePy::ObjectFactory::destroy()
 {
-    FactoryMap factories;
+    FactoryMap valueFactories;
+    FactoryMap objectFactories;
 
     {
         Lock sync(*this);
-        factories = _factoryMap;
-        _factoryMap.clear();
+        objectFactories = _objectFactoryMap;
+        valueFactories = _valueFactoryMap;
+        _valueFactoryMap.clear();
+        _objectFactoryMap.clear();
     }
 
     //
@@ -126,66 +130,89 @@ IcePy::ObjectFactory::destroy()
     //
     AdoptThread adoptThread;
 
-    for(FactoryMap::iterator p = factories.begin(); p != factories.end(); ++p)
+    for(FactoryMap::iterator p = _objectFactoryMap.begin(); p != _objectFactoryMap.end(); ++p)
     {
         //
-        // Invoke the destroy method on each registered Python factory.
+        // Invoke the destroy method on each registered Python "object" factory.
         //
         PyObjectHandle obj = PyObject_CallMethod(p->second, STRCAST("destroy"), 0);
+        PyErr_Clear(); // Ignore errors.
+        Py_DECREF(p->second);
+    }
+    for(FactoryMap::iterator p = _valueFactoryMap.begin(); p != _valueFactoryMap.end(); ++p)
+    {
         PyErr_Clear(); // Ignore errors.
         Py_DECREF(p->second);
     }
 }
 
 bool
-IcePy::ObjectFactory::add(PyObject* factory, const string& id)
+IcePy::ObjectFactory::addValueFactory(PyObject* factory, const string& id)
 {
     Lock sync(*this);
 
-    FactoryMap::iterator p = _factoryMap.find(id);
-    if(p != _factoryMap.end())
+    FactoryMap::iterator p = _valueFactoryMap.find(id);
+    if(p != _valueFactoryMap.end())
     {
         Ice::AlreadyRegisteredException ex(__FILE__, __LINE__);
-        ex.kindOfObject = "object factory";
+        ex.kindOfObject = "value factory";
         ex.id = id;
         setPythonException(ex);
         return false;
     }
 
-    _factoryMap.insert(FactoryMap::value_type(id, factory));
+    _valueFactoryMap.insert(FactoryMap::value_type(id, factory));
     Py_INCREF(factory);
 
     return true;
 }
 
 bool
-IcePy::ObjectFactory::remove(const string& id)
+IcePy::ObjectFactory::addObjectFactory(PyObject* factory, const string& id)
 {
     Lock sync(*this);
 
-    FactoryMap::iterator p = _factoryMap.find(id);
-    if(p == _factoryMap.end())
+    FactoryMap::iterator p = _valueFactoryMap.find(id);
+    if(p != _valueFactoryMap.end())
     {
-        Ice::NotRegisteredException ex(__FILE__, __LINE__);
-        ex.kindOfObject = "object factory";
+        Ice::AlreadyRegisteredException ex(__FILE__, __LINE__);
+        ex.kindOfObject = "value factory";
         ex.id = id;
         setPythonException(ex);
         return false;
     }
 
-    Py_DECREF(p->second);
-    _factoryMap.erase(p);
+    _valueFactoryMap.insert(FactoryMap::value_type(id, factory));
+    Py_INCREF(factory);
+    _objectFactoryMap.insert(FactoryMap::value_type(id, factory));
+    Py_INCREF(factory);
 
     return true;
 }
 
 PyObject*
-IcePy::ObjectFactory::find(const string& id)
+IcePy::ObjectFactory::findValueFactory(const string& id)
 {
     Lock sync(*this);
 
-    FactoryMap::iterator p = _factoryMap.find(id);
-    if(p == _factoryMap.end())
+    FactoryMap::iterator p = _valueFactoryMap.find(id);
+    if(p == _valueFactoryMap.end())
+    {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+
+    Py_INCREF(p->second);
+    return p->second;
+}
+
+PyObject*
+IcePy::ObjectFactory::findObjectFactory(const string& id)
+{
+    Lock sync(*this);
+
+    FactoryMap::iterator p = _objectFactoryMap.find(id);
+    if(p == _objectFactoryMap.end())
     {
         Py_INCREF(Py_None);
         return Py_None;

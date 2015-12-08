@@ -11,7 +11,7 @@
 #define ICE_FACTORYTABLEINIT_H
 
 #include <Ice/FactoryTable.h>
-#include <Ice/DefaultObjectFactory.h>
+#include <Ice/DefaultValueFactory.h>
 
 namespace IceInternal
 {
@@ -32,11 +32,11 @@ extern ICE_API FactoryTable* factoryTable;
 class ICE_API CompactIdInit
 {
 public:
-    
+
     CompactIdInit(const char*, int);
-        
+
     ~CompactIdInit();
-    
+
 private:
     const int _compactId;
 };
@@ -45,7 +45,7 @@ template<class E>
 class DefaultUserExceptionFactoryInit
 {
 public:
-    
+
     DefaultUserExceptionFactoryInit(const char* typeId) :
         _typeId(typeId)
     {
@@ -56,38 +56,38 @@ public:
     {
         factoryTable->removeExceptionFactory(_typeId);
     }
-    
+
 private:
     const ::std::string _typeId;
 };
 
 template<class O>
-class DefaultObjectFactoryInit
+class DefaultValueFactoryInit
 {
 public:
-    
-    DefaultObjectFactoryInit(const char* typeId) :
+
+    DefaultValueFactoryInit(const char* typeId) :
         _typeId(typeId)
     {
 #ifdef ICE_CPP11_MAPPING
-        factoryTable->addObjectFactory(_typeId, 
+        factoryTable->addValueFactory(_typeId,
                                     [](const std::string&)
                                     {
                                         return ::std::make_shared<O>();
                                     });
 #else
-        factoryTable->addObjectFactory(_typeId, new DefaultObjectFactory<O>(_typeId));
+        factoryTable->addValueFactory(_typeId, new DefaultValueFactory<O>(_typeId));
 #endif
     }
 
-    ~DefaultObjectFactoryInit()
+    ~DefaultValueFactoryInit()
     {
-        factoryTable->removeObjectFactory(_typeId);
+        factoryTable->removeValueFactory(_typeId);
     }
-    
+
 private:
     const ::std::string _typeId;
- 
+
 };
 
 }

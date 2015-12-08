@@ -17,8 +17,8 @@ using namespace Test;
 class AbstractBaseI : public AbstractBase
 {
 public:
-    
-    virtual void op(const Ice::Current&) 
+
+    virtual void op(const Ice::Current&)
     {}
 };
 
@@ -98,7 +98,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     BasePtr bp2 = ICE_DYNAMIC_CAST(Base, bp1->ice_clone());
     test(bp1->theS.str == bp2->theS.str);
     test(bp1->str == bp2->str);
-    
+
 #ifndef ICE_CPP11_MAPPING
     //
     // With C++11 mapping value classes are never abstracts.
@@ -119,22 +119,22 @@ allTests(const Ice::CommunicatorPtr& communicator)
     BPtr b1 = initial->getB1();
     test(b1);
     cout << "ok" << endl;
-    
+
     cout << "getting B2... " << flush;
     BPtr b2 = initial->getB2();
     test(b2);
     cout << "ok" << endl;
-    
+
     cout << "getting C... " << flush;
     CPtr c = initial->getC();
     test(c);
     cout << "ok" << endl;
-    
+
     cout << "getting D... " << flush;
     DPtr d = initial->getD();
     test(d);
     cout << "ok" << endl;
-    
+
     cout << "checking consistency... " << flush;
     test(b1 != b2);
 #ifdef ICE_CPP11_MAPPING
@@ -182,7 +182,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(c);
     test(d);
     cout << "ok" << endl;
-    
+
     cout << "checking consistency... " << flush;
 #ifdef ICE_CPP11_MAPPING
     test(b1 != b2);
@@ -263,7 +263,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(h && HPtr::dynamicCast(h));
 #endif
     cout << "ok" << endl;
-    
+
     cout << "getting D1... " << flush;
     D1Ptr d1 = ICE_MAKE_SHARED(D1,
                                ICE_MAKE_SHARED(A1, "a1"),
@@ -276,7 +276,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(d1->a3->name == "a3");
     test(d1->a4->name == "a4");
     cout << "ok" << endl;
-    
+
     cout << "throw EDerived... " << flush;
     try
     {
@@ -325,5 +325,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
     testUOE(communicator);
     cout << "ok" << endl;
 #endif
+
+    cout << "testing getting ObjectFactory... " << flush;
+    test(communicator->findObjectFactory("TestOF"));
+    cout << "ok" << endl;
+    cout << "testing getting ObjectFactory as ValueFactory... " << flush;
+    test(communicator->findValueFactory("TestOF"));
+    cout << "ok" << endl;
+
     return initial;
 }

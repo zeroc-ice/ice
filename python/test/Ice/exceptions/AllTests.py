@@ -26,12 +26,9 @@ class ServantLocatorI(Ice.ServantLocator):
     def deactivate(self, category):
         pass
 
-class ObjectFactoryI(Ice.ObjectFactory):
+class ValueFactoryI(Ice.ValueFactory):
     def create(id):
         return None
-
-    def destroy():
-        pass
 
 class CallbackBase:
     def __init__(self):
@@ -273,10 +270,10 @@ def allTests(communicator):
 
     sys.stdout.write("testing object factory registration exception... ")
     sys.stdout.flush()
-    of = ObjectFactoryI()
-    communicator.addObjectFactory(of, "x")
+    vf = ValueFactoryI()
+    communicator.addValueFactory(vf, "x")
     try:
-        communicator.addObjectFactory(of, "x")
+        communicator.addValueFactory(vf, "x")
         test(false)
     except Ice.AlreadyRegisteredException:
         pass

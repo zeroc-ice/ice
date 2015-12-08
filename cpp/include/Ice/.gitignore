@@ -39,4 +39,6 @@ Router.h
 ServantLocatorF.h
 ServantLocator.h
 SliceChecksumDict.h
+ValueFactoryF.h
+ValueFactory.h
 Version.h

@@ -21,7 +21,8 @@ IceRuby::ObjectFactory::ObjectFactory()
 
 IceRuby::ObjectFactory::~ObjectFactory()
 {
-    assert(_factoryMap.empty());
+    assert(_valueFactoryMap.empty());
+    assert(_objectFactoryMap.empty());
 }
 
 Ice::ObjectPtr
@@ -54,8 +55,8 @@ IceRuby::ObjectFactory::create(const string& id)
     //
     // Check if the application has registered a factory for this id.
     //
-    FactoryMap::iterator p = _factoryMap.find(id);
-    if(p != _factoryMap.end())
+    FactoryMap::iterator p = _valueFactoryMap.find(id);
+    if(p != _valueFactoryMap.end())
     {
         //
         // Invoke the create method on the Ruby factory object.
@@ -82,10 +83,10 @@ IceRuby::ObjectFactory::destroy()
 {
     Lock sync(*this);
 
-    for(FactoryMap::iterator p = _factoryMap.begin(); p != _factoryMap.end(); ++p)
+    for(FactoryMap::iterator p = _objectFactoryMap.begin(); p != _objectFactoryMap.end(); ++p)
     {
         //
-        // Invoke the destroy method on each registered Ruby factory.
+        // Invoke the destroy method on each registered Ruby object factory.
         //
         try
         {
@@ -96,33 +97,67 @@ IceRuby::ObjectFactory::destroy()
             // Ignore.
         }
     }
-    _factoryMap.clear();
+
+    _valueFactoryMap.clear();
+    _objectFactoryMap.clear();
 }
 
 void
-IceRuby::ObjectFactory::add(VALUE factory, const string& id)
+IceRuby::ObjectFactory::addValueFactory(VALUE factory, const string& id)
 {
     Lock sync(*this);
 
-    FactoryMap::iterator p = _factoryMap.find(id);
-    if(p != _factoryMap.end())
+    FactoryMap::iterator p = _valueFactoryMap.find(id);
+    if(p != _valueFactoryMap.end())
     {
         Ice::AlreadyRegisteredException ex(__FILE__, __LINE__);
-        ex.kindOfObject = "object factory";
+        ex.kindOfObject = "value factory";
         ex.id = id;
         throw ex;
     }
 
-    _factoryMap.insert(FactoryMap::value_type(id, factory));
+    _valueFactoryMap.insert(FactoryMap::value_type(id, factory));
 }
 
-VALUE
-IceRuby::ObjectFactory::find(const string& id)
+void
+IceRuby::ObjectFactory::addObjectFactory(VALUE factory, const string& id)
 {
     Lock sync(*this);
 
-    FactoryMap::iterator p = _factoryMap.find(id);
-    if(p == _factoryMap.end())
+    FactoryMap::iterator p = _valueFactoryMap.find(id);
+    if(p != _valueFactoryMap.end())
+    {
+        Ice::AlreadyRegisteredException ex(__FILE__, __LINE__);
+        ex.kindOfObject = "value factory";
+        ex.id = id;
+        throw ex;
+    }
+
+    _valueFactoryMap.insert(FactoryMap::value_type(id, factory));
+    _objectFactoryMap.insert(FactoryMap::value_type(id, factory));
+}
+
+VALUE
+IceRuby::ObjectFactory::findValueFactory(const string& id)
+{
+    Lock sync(*this);
+
+    FactoryMap::iterator p = _valueFactoryMap.find(id);
+    if(p == _valueFactoryMap.end())
+    {
+        return Qnil;
+    }
+
+    return p->second;
+}
+
+VALUE
+IceRuby::ObjectFactory::findObjectFactory(const string& id)
+{
+    Lock sync(*this);
+
+    FactoryMap::iterator p = _objectFactoryMap.find(id);
+    if(p == _objectFactoryMap.end())
     {
         return Qnil;
     }
@@ -133,7 +168,11 @@ IceRuby::ObjectFactory::find(const string& id)
 void
 IceRuby::ObjectFactory::mark()
 {
-    for(FactoryMap::iterator p = _factoryMap.begin(); p != _factoryMap.end(); ++p)
+    for(FactoryMap::iterator p = _valueFactoryMap.begin(); p != _valueFactoryMap.end(); ++p)
+    {
+        rb_gc_mark(p->second);
+    }
+    for(FactoryMap::iterator p = _objectFactoryMap.begin(); p != _objectFactoryMap.end(); ++p)
     {
         rb_gc_mark(p->second);
     }

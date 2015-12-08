@@ -122,6 +122,8 @@ $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 
 $(HDIR)/ObjectFactory.h ObjectFactory.m:
 	@echo
+$(HDIR)/ValueFactory.h ValueFactory.m:
+	@echo
 
 install:: all
 	$(call installlib,$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))

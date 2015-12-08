@@ -39,12 +39,13 @@ public:
 #endif
 };
 
-class ObjectFactoryI : virtual public Ice::ObjectFactory
+#ifndef ICE_CPP11_MAPPING // C++98
+class ValueFactoryI : virtual public Ice::ValueFactory
 {
 public:
     virtual Ice::ObjectPtr create(const string&) { return 0; }
-    virtual void destroy() {}
 };
+#endif
 
 class CallbackBase : public IceUtil::Monitor<IceUtil::Mutex>
 {
@@ -634,10 +635,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing object factory registration exception... " << flush;
+    cout << "testing value factory registration exception... " << flush;
     {
 #ifdef ICE_CPP11_MAPPING
-        communicator->addObjectFactory(
+        communicator->addValueFactory(
             [](const std::string&)
             {
                 return nullptr;
@@ -645,7 +646,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             "x");
         try
         {
-            communicator->addObjectFactory(
+            communicator->addValueFactory(
                 [](const std::string&)
                 {
                     return nullptr;
@@ -657,11 +658,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
         }
 #else
-        Ice::ObjectFactoryPtr of = new ObjectFactoryI;
-        communicator->addObjectFactory(of, "x");
+        Ice::ValueFactoryPtr vf = new ValueFactoryI;
+        communicator->addValueFactory(vf, "x");
         try
         {
-            communicator->addObjectFactory(of, "x");
+            communicator->addValueFactory(vf, "x");
             test(false);
         }
         catch(const Ice::AlreadyRegisteredException&)

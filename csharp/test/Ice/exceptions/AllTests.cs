@@ -193,11 +193,10 @@ public class AllTests : TestCommon.TestApp
 #endif
         {
             Write("testing object factory registration exception... ");
-            Ice.ObjectFactory of = new ObjectFactoryI();
-            communicator.addObjectFactory(of, "::x");
+            communicator.addValueFactory( _ => { return null; }, "::x");
             try
             {
-                communicator.addObjectFactory(of, "::x");
+                communicator.addValueFactory( _ => { return null; }, "::x");
                 test(false);
             }
             catch(Ice.AlreadyRegisteredException)
@@ -674,7 +673,7 @@ public class AllTests : TestCommon.TestApp
                     {
                         test(false);
                     }
-                    cb.called();                
+                    cb.called();
                 });
             cb.check();
         }

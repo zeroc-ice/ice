@@ -177,7 +177,7 @@ private:
     FPtr _f;
 };
 
-class FactoryI : public Ice::ObjectFactory
+class FactoryI : public Ice::ValueFactory
 {
     bool _enabled;
 
@@ -223,10 +223,6 @@ public:
         return 0;
     }
 
-    void destroy()
-    {
-    }
-
     void
     setEnabled(bool enabled)
     {
@@ -239,7 +235,7 @@ InitialPrx
 allTests(const Ice::CommunicatorPtr& communicator, bool)
 {
     FactoryIPtr factory = new FactoryI();
-    communicator->addObjectFactory(factory, "");
+    communicator->addValueFactory(factory, "");
 
     cout << "testing stringToProxy... " << flush;
     string ref = "initial:default -p 12010";
@@ -621,7 +617,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
     RecursivePtr outer = new Recursive();
     outer->value = recursive1;
     initial->pingPong(outer);
-    
+
     GPtr g = new G();
     g->gg1Opt = new G1("gg1Opt");
     g->gg2 = new G2(10);

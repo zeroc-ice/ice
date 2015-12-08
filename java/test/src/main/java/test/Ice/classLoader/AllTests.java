@@ -20,7 +20,7 @@ import test.Util.Application;
 
 public class AllTests
 {
-    private static class MyObjectFactory implements Ice.ObjectFactory
+    private static class MyValueFactory implements Ice.ValueFactory
     {
         @Override
         public Ice.Object create(String type)
@@ -32,12 +32,6 @@ public class AllTests
 
             assert (false); // Should never be reached
             return null;
-        }
-
-        @Override
-        public void destroy()
-        {
-            // Nothing to do
         }
     }
 
@@ -179,7 +173,7 @@ public class AllTests
                 {
                     initial.getAbstractClass();
                 }
-                catch(Ice.NoObjectFactoryException ex)
+                catch(Ice.NoValueFactoryException ex)
                 {
                     // Expected.
                 }
@@ -187,7 +181,7 @@ public class AllTests
                 test(classLoader.check("test.Ice.classLoader.Test.AbstractClass"));
                 classLoader.reset();
 
-                ic.addObjectFactory(new MyObjectFactory(), "::Test::AbstractClass");
+                ic.addValueFactory(new MyValueFactory(), "::Test::AbstractClass");
                 AbstractClass ac = initial.getAbstractClass();
                 test(ac != null);
                 test(!classLoader.check("Test.AbstractClass"));

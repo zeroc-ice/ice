@@ -26,7 +26,7 @@ function<shared_ptr<T>(const string&)> makeFactory()
         };
 }
 #else
-class MyObjectFactory : public Ice::ObjectFactory
+class MyValueFactory : public Ice::ValueFactory
 {
 public:
 
@@ -49,10 +49,6 @@ public:
         return 0;
     }
 
-    virtual void destroy()
-    {
-        // Nothing to do
-    }
 };
 #endif
 
@@ -60,20 +56,20 @@ int
 run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
 #ifdef ICE_CPP11_MAPPING
-    communicator->addObjectFactory(makeFactory<II>(), "::Test::I");
-    communicator->addObjectFactory(makeFactory<JI>(), "::Test::J");
-    communicator->addObjectFactory(makeFactory<HI>(), "::Test::H");
+    communicator->addValueFactory(makeFactory<II>(), "::Test::I");
+    communicator->addValueFactory(makeFactory<JI>(), "::Test::J");
+    communicator->addValueFactory(makeFactory<HI>(), "::Test::H");
 #else
-    Ice::ObjectFactoryPtr factory = new MyObjectFactory;
-    communicator->addObjectFactory(factory, "::Test::I");
-    communicator->addObjectFactory(factory, "::Test::J");
-    communicator->addObjectFactory(factory, "::Test::H");
+    Ice::ValueFactoryPtr factory = new MyValueFactory;
+    communicator->addValueFactory(factory, "::Test::I");
+    communicator->addValueFactory(factory, "::Test::J");
+    communicator->addValueFactory(factory, "::Test::H");
 #endif
 
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     adapter->add(ICE_MAKE_SHARED(InitialI, adapter), communicator->stringToIdentity("initial"));
-    
+
 #ifdef ICE_CPP11_MAPPING
     //TODO
 #else

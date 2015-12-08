@@ -446,6 +446,7 @@ import Ice_Locator_ice
 import Ice_Logger_ice
 import Ice_ObjectAdapter_ice
 import Ice_ObjectFactory_ice
+import Ice_ValueFactory_ice
 import Ice_Process_ice
 import Ice_Properties_ice
 import Ice_RemoteLogger_ice
@@ -622,6 +623,12 @@ class CommunicatorI(Communicator):
 
     def findObjectFactory(self, id):
         return self._impl.findObjectFactory(id)
+
+    def addValueFactory(self, factory, id):
+        self._impl.addValueFactory(factory, id)
+
+    def findValueFactory(self, id):
+        return self._impl.findValueFactory(id)
 
     def getImplicitContext(self):
         context = self._impl.getImplicitContext()

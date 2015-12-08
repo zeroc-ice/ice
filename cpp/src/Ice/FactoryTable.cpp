@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <Ice/FactoryTable.h>
-#include <Ice/ObjectFactory.h>
+#include <Ice/ValueFactory.h>
 
 using namespace std;
 
@@ -64,22 +64,22 @@ IceInternal::FactoryTable::removeExceptionFactory(const string& t)
 }
 
 //
-// Add a factory to the object factory table.
+// Add a factory to the value factory table.
 //
 #ifdef ICE_CPP11_MAPPING
 void
-IceInternal::FactoryTable::addObjectFactory(const string& t, function<::Ice::ValuePtr (const string&)> f)
+IceInternal::FactoryTable::addValueFactory(const string& t, function<::Ice::ValuePtr (const string&)> f)
 #else
 void
-IceInternal::FactoryTable::addObjectFactory(const string& t, const ::Ice::ObjectFactoryPtr& f)
+IceInternal::FactoryTable::addValueFactory(const string& t, const ::Ice::ValueFactoryPtr& f)
 #endif
 {
     IceUtil::Mutex::Lock lock(_m);
     assert(f);
-    OFTable::iterator i = _oft.find(t);
-    if(i == _oft.end())
+    VFTable::iterator i = _vft.find(t);
+    if(i == _vft.end())
     {
-        _oft[t] = OFPair(f, 1);
+        _vft[t] = VFPair(f, 1);
     }
     else
     {
@@ -88,48 +88,48 @@ IceInternal::FactoryTable::addObjectFactory(const string& t, const ::Ice::Object
 }
 
 //
-// Return the object factory for a given type ID
+// Return the value factory for a given type ID
 //
 #ifdef ICE_CPP11_MAPPING
 function<Ice::ValuePtr(const string&)>
-IceInternal::FactoryTable::getObjectFactory(const string& t) const
+IceInternal::FactoryTable::getValueFactory(const string& t) const
 {
     IceUtil::Mutex::Lock lock(_m);
-    OFTable::const_iterator i = _oft.find(t);
-    return i != _oft.end() ? i->second.first : nullptr;
+    VFTable::const_iterator i = _vft.find(t);
+    return i != _vft.end() ? i->second.first : nullptr;
 }
 #else
-Ice::ObjectFactoryPtr
-IceInternal::FactoryTable::getObjectFactory(const string& t) const
+Ice::ValueFactoryPtr
+IceInternal::FactoryTable::getValueFactory(const string& t) const
 {
     IceUtil::Mutex::Lock lock(_m);
-    OFTable::const_iterator i = _oft.find(t);
-    return i != _oft.end() ? i->second.first : Ice::ObjectFactoryPtr();
+    VFTable::const_iterator i = _vft.find(t);
+    return i != _vft.end() ? i->second.first : Ice::ValueFactoryPtr();
 }
 #endif
 
 //
-// Remove a factory from the object factory table. If the factory
+// Remove a factory from the value factory table. If the factory
 // is not present, do nothing; otherwise, decrement the factory's
 // reference count if the count drops to zero, remove the factory's
 // entry from the table.
 //
 void
-IceInternal::FactoryTable::removeObjectFactory(const string& t)
+IceInternal::FactoryTable::removeValueFactory(const string& t)
 {
     IceUtil::Mutex::Lock lock(_m);
-    OFTable::iterator i = _oft.find(t);
-    if(i != _oft.end())
+    VFTable::iterator i = _vft.find(t);
+    if(i != _vft.end())
     {
         if(--i->second.second == 0)
         {
-            _oft.erase(i);
+            _vft.erase(i);
         }
     }
 }
 
 //
-// Add a factory to the object factory table.
+// Add a factory to the value factory table.
 //
 void
 IceInternal::FactoryTable::addTypeId(int compactId, const string& typeId)

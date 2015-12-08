@@ -70,13 +70,13 @@ throwUOE(const string& expectedType, const ValuePtr& v)
 {
     //
     // If the object is an unknown sliced object, we didn't find an
-    // object factory, in this case raise a NoObjectFactoryException
+    // value factory, in this case raise a NoValueFactoryException
     // instead.
     //
     UnknownSlicedObject* uso = dynamic_cast<UnknownSlicedObject*>(v.get());
     if(uso)
     {
-        throw NoObjectFactoryException(__FILE__, __LINE__, "", uso->getUnknownTypeId());
+        throw NoValueFactoryException(__FILE__, __LINE__, "", uso->getUnknownTypeId());
     }
 
     string type = v->ice_id();
@@ -698,7 +698,7 @@ Ice::UnmarshalOutOfBoundsException::ice_print(ostream& out) const
 }
 
 void
-Ice::NoObjectFactoryException::ice_print(ostream& out) const
+Ice::NoValueFactoryException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nprotocol error: no suitable object factory found for `" << type << "'";

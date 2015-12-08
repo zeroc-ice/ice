@@ -30,7 +30,7 @@ public interface InputStream
      *
      * @param slice If <code>true</code> (the default), slicing is enabled; if <code>false</code>,
      * slicing is disabled. If slicing is disabled and the stream encounters a Slice type ID
-     * during decoding for which no object factory is installed, it raises {@link NoObjectFactoryException}.
+     * during decoding for which no value factory is installed, it raises {@link NoValueFactoryException}.
      **/
     void sliceObjects(boolean slice);
 

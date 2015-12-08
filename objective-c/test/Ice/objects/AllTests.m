@@ -510,5 +510,15 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL collocated)
         tprintf("ok\n");
     }
 
+    {
+        tprintf("testing getting ObjectFactory... ");
+        test([communicator findObjectFactory:@"TestOF"] != nil);
+        tprintf("ok\n");
+
+        tprintf("testing getting ObjectFactory as ValueFactory... ");
+        test([communicator findValueFactory:@"TestOF"] != nil);
+        tprintf("ok\n");
+    }
+
     return initial;
 }

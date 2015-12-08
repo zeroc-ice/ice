@@ -26,7 +26,7 @@ function<shared_ptr<T>(const string&)> makeFactory()
         };
 }
 #else
-class MyObjectFactory : public Ice::ObjectFactory
+class MyValueFactory : public Ice::ValueFactory
 {
 public:
 
@@ -69,35 +69,57 @@ public:
         return 0;
     }
 
-    virtual void destroy()
-    {
-        // Nothing to do
-    }
 };
 #endif
+class MyObjectFactory : public Ice::ObjectFactory
+{
+public:
+    MyObjectFactory() : _destroyed(false)
+    {
+    }
+
+    ~MyObjectFactory()
+    {
+        assert(_destroyed);
+    }
+
+    virtual Ice::ValuePtr create(const string& type)
+    {
+        return ICE_NULLPTR;
+    }
+
+    virtual void destroy()
+    {
+        _destroyed = true;
+    }
+private:
+    bool _destroyed;
+};
 
 int
 run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
 #ifdef ICE_CPP11_MAPPING
-    communicator->addObjectFactory(makeFactory<BI>(), "::Test::B");
-    communicator->addObjectFactory(makeFactory<CI>(), "::Test::C");
-    communicator->addObjectFactory(makeFactory<DI>(), "::Test::D");
-    communicator->addObjectFactory(makeFactory<EI>(), "::Test::E");
-    communicator->addObjectFactory(makeFactory<FI>(), "::Test::F");
-    communicator->addObjectFactory(makeFactory<II>(), "::Test::I");
-    communicator->addObjectFactory(makeFactory<JI>(), "::Test::J");
-    communicator->addObjectFactory(makeFactory<HI>(), "::Test::H");
+    communicator->addValueFactory(makeFactory<BI>(), "::Test::B");
+    communicator->addValueFactory(makeFactory<CI>(), "::Test::C");
+    communicator->addValueFactory(makeFactory<DI>(), "::Test::D");
+    communicator->addValueFactory(makeFactory<EI>(), "::Test::E");
+    communicator->addValueFactory(makeFactory<FI>(), "::Test::F");
+    communicator->addValueFactory(makeFactory<II>(), "::Test::I");
+    communicator->addValueFactory(makeFactory<JI>(), "::Test::J");
+    communicator->addValueFactory(makeFactory<HI>(), "::Test::H");
+    communicator->addObjectFactory(make_shared<MyObjectFactory>(), "TestOF");
 #else
-    Ice::ObjectFactoryPtr factory = new MyObjectFactory;
-    communicator->addObjectFactory(factory, "::Test::B");
-    communicator->addObjectFactory(factory, "::Test::C");
-    communicator->addObjectFactory(factory, "::Test::D");
-    communicator->addObjectFactory(factory, "::Test::E");
-    communicator->addObjectFactory(factory, "::Test::F");
-    communicator->addObjectFactory(factory, "::Test::I");
-    communicator->addObjectFactory(factory, "::Test::J");
-    communicator->addObjectFactory(factory, "::Test::H");
+    Ice::ValueFactoryPtr factory = new MyValueFactory;
+    communicator->addValueFactory(factory, "::Test::B");
+    communicator->addValueFactory(factory, "::Test::C");
+    communicator->addValueFactory(factory, "::Test::D");
+    communicator->addValueFactory(factory, "::Test::E");
+    communicator->addValueFactory(factory, "::Test::F");
+    communicator->addValueFactory(factory, "::Test::I");
+    communicator->addValueFactory(factory, "::Test::J");
+    communicator->addValueFactory(factory, "::Test::H");
+    communicator->addObjectFactory(new MyObjectFactory(), "TestOF");
 #endif
 
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010");

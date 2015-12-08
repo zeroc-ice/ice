@@ -174,7 +174,7 @@ namespace IceInternal
             }
         }
 
-        public ObjectFactoryManager servantFactoryManager()
+        public ValueFactoryManager servantFactoryManager()
         {
             lock(this)
             {
@@ -916,7 +916,7 @@ namespace IceInternal
 
                 _outgoingConnectionFactory = new OutgoingConnectionFactory(communicator, this);
 
-                _servantFactoryManager = new ObjectFactoryManager();
+                _servantFactoryManager = new ValueFactoryManager();
 
                 _objectAdapterFactory = new ObjectAdapterFactory(this, communicator);
 
@@ -1546,7 +1546,7 @@ namespace IceInternal
         private RequestHandlerFactory _requestHandlerFactory;
         private ProxyFactory _proxyFactory;
         private OutgoingConnectionFactory _outgoingConnectionFactory;
-        private ObjectFactoryManager _servantFactoryManager;
+        private ValueFactoryManager _servantFactoryManager;
         private ObjectAdapterFactory _objectAdapterFactory;
         private int _protocolSupport;
         private bool _preferIPv6;

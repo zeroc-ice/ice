@@ -21,7 +21,7 @@ Ice.__M.require(module,
         "../Ice/LocatorManager",
         "../Ice/Logger",
         "../Ice/ObjectAdapterFactory",
-        "../Ice/ObjectFactoryManager",
+        "../Ice/ValueFactoryManager",
         "../Ice/OutgoingConnectionFactory",
         "../Ice/Promise",
         "../Ice/Properties",
@@ -52,7 +52,7 @@ var ImplicitContextI = Ice.ImplicitContextI;
 var LocatorManager = Ice.LocatorManager;
 var Logger = Ice.Logger;
 var ObjectAdapterFactory = Ice.ObjectAdapterFactory;
-var ObjectFactoryManager = Ice.ObjectFactoryManager;
+var ValueFactoryManager = Ice.ValueFactoryManager;
 var OutgoingConnectionFactory = Ice.OutgoingConnectionFactory;
 var Promise = Ice.Promise;
 var Properties = Ice.Properties;
@@ -381,7 +381,7 @@ var Instance = Ice.Class({
             this._endpointFactoryManager.add(wssEndpointFactory);
 
             this._outgoingConnectionFactory = new OutgoingConnectionFactory(communicator, this);
-            this._servantFactoryManager = new ObjectFactoryManager();
+            this._servantFactoryManager = new ValueFactoryManager();
 
             this._objectAdapterFactory = new ObjectAdapterFactory(this, communicator);
 

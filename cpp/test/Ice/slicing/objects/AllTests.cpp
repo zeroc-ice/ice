@@ -82,7 +82,7 @@ public:
         test(sbskd->sbskd == "SBSKnownDerived.sbskd");
         called();
     }
-    
+
     void
     response_SBSKnownDerivedAsSBSKnownDerived(const SBSKnownDerivedPtr& sbskd)
     {
@@ -106,7 +106,7 @@ public:
     void
     exception_SBSUnknownDerivedAsSBaseCompact(const Ice::Exception& exc)
     {
-        test(exc.ice_name() == "Ice::NoObjectFactoryException");
+        test(exc.ice_name() == "Ice::NoValueFactoryException");
         called();
     }
 
@@ -119,7 +119,7 @@ public:
     void
     exception_SUnknownAsObject10(const Ice::Exception& exc)
     {
-        test(exc.ice_name() == "Ice::NoObjectFactoryException");
+        test(exc.ice_name() == "Ice::NoValueFactoryException");
         called();
     }
 
@@ -463,13 +463,13 @@ public:
         called();
     }
 
-    void 
+    void
     response()
     {
         test(false);
     }
 
-    void 
+    void
     exception(const ::Ice::Exception& ex)
     {
         if(!dynamic_cast<const Ice::OperationNotExistException*>(&ex))
@@ -481,7 +481,7 @@ public:
             called();
         }
     }
- 
+
     BPtr rb;
     SS3 rss3;
     BDict rbdict;
@@ -509,7 +509,7 @@ public:
 int PNodeI::counter = 0;
 
 #ifndef ICE_CPP11_MAPPING
-class NodeFactoryI : public Ice::ObjectFactory
+class NodeFactoryI : public Ice::ValueFactory
 {
 public:
 
@@ -548,7 +548,7 @@ public:
 int PreservedI::counter = 0;
 
 #ifndef ICE_CPP11_MAPPING
-class PreservedFactoryI : public Ice::ObjectFactory
+class PreservedFactoryI : public Ice::ValueFactory
 {
 public:
 
@@ -579,7 +579,7 @@ testUOO(const TestIntfPrxPtr& test)
         test(ICE_DYNAMIC_CAST(Ice::UnknownSlicedObject, o)->getUnknownTypeId() == "::Test::SUnknown");
         test->checkSUnknown(o);
     }
-    catch(const Ice::NoObjectFactoryException&)
+    catch(const Ice::NoValueFactoryException&)
     {
         test(test->ice_getEncodingVersion() == Ice::Encoding_1_0);
     }
@@ -814,7 +814,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         catch(const Ice::OperationNotExistException&)
         {
         }
-        catch(const Ice::NoObjectFactoryException&)
+        catch(const Ice::NoValueFactoryException&)
         {
             // Expected.
         }
@@ -883,7 +883,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             f.get();
             test(false);
         }
-        catch(const Ice::NoObjectFactoryException&)
+        catch(const Ice::NoValueFactoryException&)
         {
         }
         catch(...)
@@ -920,7 +920,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
                     f.get();
                     test(false);
                 }
-                catch(const Ice::NoObjectFactoryException&)
+                catch(const Ice::NoValueFactoryException&)
                 {
                 }
                 catch(...)
@@ -941,7 +941,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 {
                     test(false);
                 }
-                
+
             }
 #else
             CallbackPtr cb = new Callback;
@@ -1289,7 +1289,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             auto result = f.get();
             auto b1 = move(result.p1);
             auto b2 = move(result.p2);
-            
+
             test(b1);
             test(b1->ice_id() == "::Test::D1");
             test(b1->sb == "D1.sb");
@@ -1599,7 +1599,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             auto b1 = f.get();
 #else
             CallbackPtr cb = new Callback;
-            test->begin_returnTest3(d3, d1, 
+            test->begin_returnTest3(d3, d1,
                 newCallback_TestIntf_returnTest3(cb, &Callback::response_returnTest3, &Callback::exception));
             cb->check();
             BPtr b1 = cb->rb;
@@ -2072,7 +2072,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 ss1->ice_collectable(true);
                 ss2->ice_collectable(true);
 #endif
-                
+
 #ifdef ICE_CPP11_MAPPING
                 ss = test->sequenceTest_async(ss1, ss2).get();
 #else
@@ -2766,7 +2766,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         CompactPCDerivedPtr pcd = ICE_MAKE_SHARED(CompactPCDerived);
         pcd->pi = 3;
         pcd->pbs.push_back(pcd);
-        
+
 #ifdef ICE_CPP11_MAPPING
         if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
         {
@@ -2785,7 +2785,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
 #else
         pcd->ice_collectable(true);
-        
+
         CallbackPtr cb = new Callback;
         if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
         {
@@ -2796,7 +2796,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         else
         {
             test->begin_exchangePBase(pcd, newCallback_TestIntf_exchangePBase(cb,
-                                                                              &Callback::response_compactPreserved2, 
+                                                                              &Callback::response_compactPreserved2,
                                                                               &Callback::exception));
         }
         cb->check();
@@ -2875,7 +2875,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         // Register a factory in order to substitute our own subclass of PNode. This provides
         // an easy way to determine how many unmarshaled instances currently exist.
         //
-        communicator->addObjectFactory(new NodeFactoryI, PNode::ice_staticId());
+        communicator->addValueFactory(new NodeFactoryI, PNode::ice_staticId());
 
         //
         // Relay a graph through the server. This test uses a preserved class
@@ -2921,7 +2921,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         // Register a factory in order to substitute our own subclass of Preserved. This provides
         // an easy way to determine how many unmarshaled instances currently exist.
         //
-        communicator->addObjectFactory(new PreservedFactoryI, Preserved::ice_staticId());
+        communicator->addValueFactory(new PreservedFactoryI, Preserved::ice_staticId());
 
         //
         // Obtain a preserved object from the server where the most-derived

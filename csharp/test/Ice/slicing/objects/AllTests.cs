@@ -62,22 +62,6 @@ public class AllTests : TestCommon.TestApp
         internal static int counter = 0;
     }
 
-    private class NodeFactoryI : Ice.ObjectFactory
-    {
-        public Ice.Object create(string id)
-        {
-            if(id.Equals(PNode.ice_staticId()))
-            {
-                return new PNodeI();
-            }
-            return null;
-        }
-
-        public void destroy()
-        {
-        }
-    }
-
     private class PreservedI : Preserved
     {
         public PreservedI()
@@ -88,20 +72,13 @@ public class AllTests : TestCommon.TestApp
         internal static int counter = 0;
     }
 
-    private class PreservedFactoryI : Ice.ObjectFactory
+    private static Ice.Object PreservedFactoryI(string id)
     {
-        public Ice.Object create(string id)
-        {
-            if(id.Equals(Preserved.ice_staticId()))
+        if(id.Equals(Preserved.ice_staticId()))
             {
                 return new PreservedI();
             }
             return null;
-        }
-
-        public void destroy()
-        {
-        }
     }
 
 #if SILVERLIGHT
@@ -321,7 +298,7 @@ public class AllTests : TestCommon.TestApp
                 testPrx.SBSUnknownDerivedAsSBaseCompact();
                 test(false);
             }
-            catch(Ice.NoObjectFactoryException)
+            catch(Ice.NoValueFactoryException)
             {
                 // Expected.
             }
@@ -380,7 +357,7 @@ public class AllTests : TestCommon.TestApp
                 },
                 (Ice.Exception ex) =>
                 {
-                    test(ex is Ice.NoObjectFactoryException);
+                    test(ex is Ice.NoValueFactoryException);
                     cb.called();
                 });
             cb.check();
@@ -398,7 +375,7 @@ public class AllTests : TestCommon.TestApp
                 test((o as Ice.UnknownSlicedObject).getUnknownTypeId().Equals("::Test::SUnknown"));
                 testPrx.checkSUnknown(o);
             }
-            catch(Ice.NoObjectFactoryException)
+            catch(Ice.NoValueFactoryException)
             {
                 test(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0));
             }
@@ -424,7 +401,7 @@ public class AllTests : TestCommon.TestApp
                         },
                         (Ice.Exception ex) =>
                         {
-                            test(ex.GetType().FullName.Equals("Ice.NoObjectFactoryException"));
+                            test(ex.GetType().FullName.Equals("Ice.NoValueFactoryException"));
                             cb.called();
                         });
                 }
@@ -1303,7 +1280,7 @@ public class AllTests : TestCommon.TestApp
             testPrx.begin_returnTest3(d3, b2).whenCompleted(
                 (B b) =>
                 {
-                    rv = b;                    
+                    rv = b;
                     cb.called();
                 },
                 (Ice.Exception ex) =>
@@ -1379,7 +1356,7 @@ public class AllTests : TestCommon.TestApp
             testPrx.begin_returnTest3(d3, d12).whenCompleted(
                 (B b) =>
                 {
-                    rv = b;                    
+                    rv = b;
                     cb.called();
                 },
                 (Ice.Exception ex) =>
@@ -1540,7 +1517,7 @@ public class AllTests : TestCommon.TestApp
                 testPrx.begin_sequenceTest(ss1, ss2).whenCompleted(
                     (SS3 s) =>
                     {
-                        ss = s;                   
+                        ss = s;
                         cb.called();
                     },
                     (Ice.Exception ex) =>
@@ -1656,7 +1633,7 @@ public class AllTests : TestCommon.TestApp
                 {
                     rv = (Dictionary<int, B>)r;
                     bout = (Dictionary<int, B>)b;
-                    cb.called();              
+                    cb.called();
                 },
                 (Ice.Exception ex) =>
                 {
@@ -1970,7 +1947,7 @@ public class AllTests : TestCommon.TestApp
         // the Ice run time will install its own internal factory for Preserved upon receiving the
         // first instance.
         //
-        communicator.addObjectFactory(new PreservedFactoryI(), Preserved.ice_staticId());
+        communicator.addValueFactory(PreservedFactoryI, Preserved.ice_staticId());
 
         try
         {
@@ -2362,7 +2339,14 @@ public class AllTests : TestCommon.TestApp
             // Register a factory in order to substitute our own subclass of PNode. This provides
             // an easy way to determine how many unmarshaled instances currently exist.
             //
-            communicator.addObjectFactory(new NodeFactoryI(), PNode.ice_staticId());
+            communicator.addValueFactory((string id) =>
+            {
+                if(id.Equals(PNode.ice_staticId()))
+                {
+                    return new PNodeI();
+                }
+                return null;
+            }, PNode.ice_staticId());
 
             //
             // Relay a graph through the server.

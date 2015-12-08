@@ -53,7 +53,8 @@ ICE_SRCS	= Ice/LocalException.rb \
 		  Ice/Version.rb \
 		  Ice/InstrumentationF.rb \
 		  Ice/Instrumentation.rb \
-		  Ice/Metrics.rb
+		  Ice/Metrics.rb \
+		  Ice/ValueFactory.rb
 
 #
 # IMPORTANT: If you add or remove Slice files, you also need to check Glacier2.rb!

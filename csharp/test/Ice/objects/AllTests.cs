@@ -17,52 +17,70 @@ using System.Windows.Controls;
 
 public class AllTests : TestCommon.TestApp
 {
+    public static Ice.Object MyValueFactory(string type)
+    {
+        if (type.Equals("::Test::B"))
+        {
+            return new BI();
+        }
+        else if (type.Equals("::Test::C"))
+        {
+            return new CI();
+        }
+        else if (type.Equals("::Test::D"))
+        {
+            return new DI();
+        }
+        else if (type.Equals("::Test::E"))
+        {
+            return new EI();
+        }
+        else if (type.Equals("::Test::F"))
+        {
+            return new FI();
+        }
+        else if (type.Equals("::Test::I"))
+        {
+            return new II();
+        }
+        else if (type.Equals("::Test::J"))
+        {
+            return new JI();
+        }
+        else if (type.Equals("::Test::H"))
+        {
+            return new HI();
+        }
+        Debug.Assert(false); // Should never be reached
+        return null;
+    }
+
     private class MyObjectFactory : Ice.ObjectFactory
     {
+        public MyObjectFactory()
+        {
+            _destroyed = false;
+        }
+
+        ~MyObjectFactory()
+        {
+            Debug.Assert(_destroyed);
+        }
+
         public Ice.Object create(string type)
         {
-            if (type.Equals("::Test::B"))
-            {
-                return new BI();
-            }
-            else if (type.Equals("::Test::C"))
-            {
-                return new CI();
-            }
-            else if (type.Equals("::Test::D"))
-            {
-                return new DI();
-            }
-            else if (type.Equals("::Test::E"))
-            {
-                return new EI();
-            }
-            else if (type.Equals("::Test::F"))
-            {
-                return new FI();
-            }
-            else if (type.Equals("::Test::I"))
-            {
-                return new II();
-            }
-            else if (type.Equals("::Test::J"))
-            {
-                return new JI();
-            }
-            else if (type.Equals("::Test::H"))
-            {
-                return new HI();
-            }
-            Debug.Assert(false); // Should never be reached
             return null;
         }
 
         public void
         destroy()
         {
-            // Nothing to do
+            _destroyed = true;
         }
+
+        private bool _destroyed;
     }
+
 #if SILVERLIGHT
     public override Ice.InitializationData initData()
     {
@@ -78,15 +96,16 @@ public class AllTests : TestCommon.TestApp
     public static InitialPrx allTests(Ice.Communicator communicator)
 #endif
     {
-        Ice.ObjectFactory factory = new MyObjectFactory();
-        communicator.addObjectFactory(factory, "::Test::B");
-        communicator.addObjectFactory(factory, "::Test::C");
-        communicator.addObjectFactory(factory, "::Test::D");
-        communicator.addObjectFactory(factory, "::Test::E");
-        communicator.addObjectFactory(factory, "::Test::F");
-        communicator.addObjectFactory(factory, "::Test::I");
-        communicator.addObjectFactory(factory, "::Test::J");
-        communicator.addObjectFactory(factory, "::Test::H");
+        communicator.addValueFactory(MyValueFactory, "::Test::B");
+        communicator.addValueFactory(MyValueFactory, "::Test::C");
+        communicator.addValueFactory(MyValueFactory, "::Test::D");
+        communicator.addValueFactory(MyValueFactory, "::Test::E");
+        communicator.addValueFactory(MyValueFactory, "::Test::F");
+        communicator.addValueFactory(MyValueFactory, "::Test::I");
+        communicator.addValueFactory(MyValueFactory, "::Test::J");
+        communicator.addValueFactory(MyValueFactory, "::Test::H");
+
+        communicator.addObjectFactory(new MyObjectFactory(), "TestOF");
 
         Write("testing stringToProxy... ");
         Flush();
@@ -94,38 +113,38 @@ public class AllTests : TestCommon.TestApp
         Ice.ObjectPrx @base = communicator.stringToProxy(@ref);
         test(@base != null);
         WriteLine("ok");
-        
+
         Write("testing checked cast... ");
         Flush();
         InitialPrx initial = InitialPrxHelper.checkedCast(@base);
         test(initial != null);
         test(initial.Equals(@base));
         WriteLine("ok");
-        
+
         Write("getting B1... ");
         Flush();
         B b1 = initial.getB1();
         test(b1 != null);
         WriteLine("ok");
-        
+
         Write("getting B2... ");
         Flush();
         B b2 = initial.getB2();
         test(b2 != null);
         WriteLine("ok");
-        
+
         Write("getting C... ");
         Flush();
         C c = initial.getC();
         test(c != null);
         WriteLine("ok");
-        
+
         Write("getting D... ");
         Flush();
         D d = initial.getD();
         test(d != null);
         WriteLine("ok");
-        
+
         Write("checking consistency... ");
         Flush();
         test(b1 != b2);
@@ -153,7 +172,7 @@ public class AllTests : TestCommon.TestApp
         test(b2.theA == b2);
         test(d.theC == null);
         WriteLine("ok");
-        
+
         Write("getting B1, B2, C, and D all at once... ");
         Flush();
         B b1out;
@@ -166,7 +185,7 @@ public class AllTests : TestCommon.TestApp
         test(cout != null);
         test(dout != null);
         WriteLine("ok");
-        
+
         Write("checking consistency... ");
         Flush();
         test(b1out != b2out);
@@ -183,7 +202,7 @@ public class AllTests : TestCommon.TestApp
         test(dout.preMarshalInvoked);
         test(dout.postUnmarshalInvoked());
         test(dout.theA.preMarshalInvoked);
-        test(dout.theA.postUnmarshalInvoked()); 
+        test(dout.theA.postUnmarshalInvoked());
         test(dout.theB.preMarshalInvoked);
         test(dout.theB.postUnmarshalInvoked());
         test(dout.theB.theC.preMarshalInvoked);
@@ -216,7 +235,7 @@ public class AllTests : TestCommon.TestApp
         I h = initial.getH();
         test(h != null && ((H)h) != null);
         WriteLine("ok");
-        
+
         Write("getting D1... ");
         Flush();
         D1 d1 = new D1(new A1("a1"), new A1("a2"), new A1("a3"), new A1("a4"));
@@ -226,7 +245,7 @@ public class AllTests : TestCommon.TestApp
         test(d1.a3.name.Equals("a3"));
         test(d1.a4.name.Equals("a4"));
         WriteLine("ok");
-        
+
         Write("throw EDerived... ");
         Flush();
         try
@@ -258,7 +277,7 @@ public class AllTests : TestCommon.TestApp
             Base[] outS;
             Base[] retS;
             retS = initial.opBaseSeq(inS, out outS);
-            
+
             inS = new Base[1];
             inS[0] = new Base(new S(), "");
             retS = initial.opBaseSeq(inS, out outS);
@@ -303,6 +322,16 @@ public class AllTests : TestCommon.TestApp
             test(false);
         }
         WriteLine("ok");
+
+        Write("testing getting ObjectFactory...");
+        Flush();
+        test(communicator.findObjectFactory("TestOF") != null);
+        WriteLine("ok");
+        Write("testing getting ObjectFactory as ValueFactory...");
+        Flush();
+        test(communicator.findValueFactory("TestOF") != null);
+        WriteLine("ok");
+
 #if SILVERLIGHT
         initial.shutdown();
 #else

@@ -212,7 +212,7 @@
 }
 @end
 
-@interface FactoryI : NSObject<ICEObjectFactory>
+@interface FactoryI : NSObject<ICEValueFactory>
 {
     BOOL enabled_;
 }
@@ -267,9 +267,6 @@
 
     return nil;
 }
--(void) destroy
-{
-}
 -(void) setEnabled:(BOOL)enabled
 {
     self->enabled_ = enabled;
@@ -280,7 +277,7 @@ id<TestOptionalInitialPrx>
 optionalAllTests(id<ICECommunicator> communicator)
 {
     FactoryI* factory = [FactoryI factoryI];
-    [communicator addObjectFactory:factory sliceId:@""];
+    [communicator addValueFactory:factory sliceId:@""];
 
     tprintf("testing stringToProxy... ");
     NSString* sref = @"initial:default -p 12010";

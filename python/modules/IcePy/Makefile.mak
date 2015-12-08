@@ -35,6 +35,7 @@ OBJS		= .\BatchRequestInterceptor.obj \
 		  .\Types.obj \
 		  .\Util.obj
 
+
 #
 # Get Make.common.rules.mak to figure out CPP_COMPILER by setting it
 # to "auto"

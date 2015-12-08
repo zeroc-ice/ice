@@ -46,12 +46,15 @@ public:
     virtual ObjectAdapterPtr createObjectAdapterWithEndpoints(const std::string&, const std::string&);
     virtual ObjectAdapterPtr createObjectAdapterWithRouter(const std::string&, const RouterPrxPtr&);
 
-#ifdef ICE_CPP11_MAPPING
-    virtual void addObjectFactory(std::function<std::shared_ptr<Ice::Value> (const std::string&)>, const std::string&);    
-    virtual std::function<::std::shared_ptr<Ice::Value> (const std::string&)> findObjectFactory(const std::string&) const;
-#else
     virtual void addObjectFactory(const ObjectFactoryPtr&, const std::string&);
     virtual ObjectFactoryPtr findObjectFactory(const std::string&) const;
+
+#ifdef ICE_CPP11_MAPPING
+    virtual void addValueFactory(std::function<std::shared_ptr<Ice::Value> (const std::string&)>, const std::string&);
+    virtual std::function<::std::shared_ptr<Ice::Value> (const std::string&)> findValueFactory(const std::string&) const;
+#else
+    virtual void addValueFactory(const ValueFactoryPtr&, const std::string&);
+    virtual ValueFactoryPtr findValueFactory(const std::string&) const;
 #endif
 
     virtual ImplicitContextPtr getImplicitContext() const;

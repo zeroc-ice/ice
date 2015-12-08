@@ -40,17 +40,13 @@
         {
         };
 
-        var ObjectFactoryI = function()
+        var ValueFactoryI = function()
         {
         };
 
-        ObjectFactoryI.prototype.create = function(type)
+        ValueFactoryI.prototype.create = function(type)
         {
             return null;
-        };
-
-        ObjectFactoryI.prototype.destroy = function()
-        {
         };
 
         var p = new Ice.Promise();
@@ -235,12 +231,12 @@
         ).then(
             function()
             {
-                out.write("testing object factory registration exception... ");
-                var of = new ObjectFactoryI();
-                communicator.addObjectFactory(of, "::x");
+                out.write("testing value factory registration exception... ");
+                var vf = new ValueFactoryI();
+                communicator.addValueFactory(vf, "::x");
                 try
                 {
-                    communicator.addObjectFactory(of, "::x");
+                    communicator.addValueFactory(vf, "::x");
                     test(false);
                 }
                 catch(ex)

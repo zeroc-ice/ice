@@ -34,14 +34,17 @@ public:
 
     virtual void destroy();
 
-    bool add(PyObject*, const std::string&);
-    bool remove(const std::string&);
-    PyObject* find(const std::string&);
+    bool addValueFactory(PyObject*, const std::string&);
+    bool addObjectFactory(PyObject*, const std::string&);
+
+    PyObject* findValueFactory(const std::string&);
+    PyObject* findObjectFactory(const std::string&);
 
 private:
 
     typedef std::map<std::string, PyObject*> FactoryMap;
-    FactoryMap _factoryMap;
+    FactoryMap _valueFactoryMap;
+    FactoryMap _objectFactoryMap;
 };
 typedef IceUtil::Handle<ObjectFactory> ObjectFactoryPtr;
 

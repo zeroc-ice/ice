@@ -11,10 +11,10 @@
 #import <TestCommon.h>
 #import <objects/TestI.h>
 
-@interface CollocatedMyObjectFactory : NSObject<ICEObjectFactory>
+@interface CollocatedMyValueFactory : NSObject<ICEValueFactory>
 @end
 
-@implementation CollocatedMyObjectFactory
+@implementation CollocatedMyValueFactory
 
 // Note that the object factory must not autorelease the
 // returned objects.
@@ -58,6 +58,17 @@
     }
     return nil;
 }
+@end
+
+@interface ClientMyObjectFactory : NSObject<ICEObjectFactory>
+@end
+
+@implementation ClientMyObjectFactory
+
+-(ICEObject*) create:(NSString*)type
+{
+    return nil;
+}
 
 -(void) destroy
 {
@@ -68,16 +79,19 @@
 static int
 run(id<ICECommunicator> communicator)
 {
-    id<ICEObjectFactory> factory = ICE_AUTORELEASE([[CollocatedMyObjectFactory alloc] init]);
+    id<ICEValueFactory> factory = ICE_AUTORELEASE([[CollocatedMyValueFactory alloc] init]);
 
-    [communicator addObjectFactory:factory sliceId:@"::Test::B"];
-    [communicator addObjectFactory:factory sliceId:@"::Test::C"];
-    [communicator addObjectFactory:factory sliceId:@"::Test::D"];
-    [communicator addObjectFactory:factory sliceId:@"::Test::E"];
-    [communicator addObjectFactory:factory sliceId:@"::Test::F"];
-    [communicator addObjectFactory:factory sliceId:@"::Test::I"];
-    [communicator addObjectFactory:factory sliceId:@"::Test::J"];
-    [communicator addObjectFactory:factory sliceId:@"::Test::H"];
+    [communicator addValueFactory:factory sliceId:@"::Test::B"];
+    [communicator addValueFactory:factory sliceId:@"::Test::C"];
+    [communicator addValueFactory:factory sliceId:@"::Test::D"];
+    [communicator addValueFactory:factory sliceId:@"::Test::E"];
+    [communicator addValueFactory:factory sliceId:@"::Test::F"];
+    [communicator addValueFactory:factory sliceId:@"::Test::I"];
+    [communicator addValueFactory:factory sliceId:@"::Test::J"];
+    [communicator addValueFactory:factory sliceId:@"::Test::H"];
+
+    id<ICEObjectFactory> objectFactory = ICE_AUTORELEASE([[ClientMyObjectFactory alloc] init]);
+    [communicator addObjectFactory:objectFactory sliceId:@"TestOF" ];
 
     [[communicator getProperties] setProperty:@"TestAdapter.Endpoints" value:@"default -p 12010"];
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAdapter"];

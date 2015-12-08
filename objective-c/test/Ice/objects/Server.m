@@ -11,10 +11,10 @@
 #import <TestCommon.h>
 #import <objects/TestI.h>
 
-@interface ServerMyObjectFactory : NSObject<ICEObjectFactory>
+@interface ServerMyValueFactory : NSObject<ICEValueFactory>
 @end
 
-@implementation ServerMyObjectFactory
+@implementation ServerMyValueFactory
 // Note that the object factory must not autorelease the
 // returned objects.
 -(ICEObject*) create:(NSString*)type
@@ -47,11 +47,11 @@
 static int
 run(id<ICECommunicator> communicator)
 {
-    id<ICEObjectFactory> factory = ICE_AUTORELEASE([[ServerMyObjectFactory alloc] init]);
+    id<ICEValueFactory> factory = ICE_AUTORELEASE([[ServerMyValueFactory alloc] init]);
 
-    [communicator addObjectFactory:factory sliceId:@"::Test::I"];
-    [communicator addObjectFactory:factory sliceId:@"::Test::J"];
-    [communicator addObjectFactory:factory sliceId:@"::Test::H"];
+    [communicator addValueFactory:factory sliceId:@"::Test::I"];
+    [communicator addValueFactory:factory sliceId:@"::Test::J"];
+    [communicator addValueFactory:factory sliceId:@"::Test::H"];
 
     [[communicator getProperties] setProperty:@"TestAdapter.Endpoints" value:@"default -p 12010"];
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAdapter"];

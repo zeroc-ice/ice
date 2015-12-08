@@ -42,7 +42,7 @@ namespace Ice
         /// </summary>
         /// <param name="slice">If true (the default), slicing is enabled; if false,
         /// slicing is disabled. If slicing is disabled and the stream encounters a Slice type ID
-        /// during decoding for which no object factory is installed, it raises NoObjectFactoryException.</param>
+        /// during decoding for which no object factory is installed, it raises NoValueFactoryException.</param>
         void sliceObjects(bool slice);
 
         /// <summary>

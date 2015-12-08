@@ -24,7 +24,7 @@
             }
         });
 
-        var PreservedFactoryI = Ice.Class(Ice.ObjectFactory,
+        var PreservedFactoryI = Ice.Class(Ice.ValueFactory,
         {
             create: function(id)
             {
@@ -33,9 +33,6 @@
                     return new PreservedI();
                 }
                 return null;
-            },
-            destroy: function()
-            {
             }
         });
 
@@ -140,7 +137,7 @@
                         function(ex)
                         {
                             test(ex instanceof Ice.OperationNotExistException ||
-                                 ex instanceof Ice.NoObjectFactoryException);
+                                 ex instanceof Ice.NoValueFactoryException);
                         });
                 }
             }
@@ -161,7 +158,7 @@
             },
             function(ex)
             {
-                test(ex instanceof Ice.NoObjectFactoryException);
+                test(ex instanceof Ice.NoValueFactoryException);
                 test(prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0));
             }
         ).then(
@@ -682,7 +679,7 @@
                 // the Ice run time will install its own internal factory for Preserved upon receiving the
                 // first instance.
                 //
-                communicator.addObjectFactory(new PreservedFactoryI(), Test.Preserved.ice_staticId());
+                communicator.addValueFactory(new PreservedFactoryI(), Test.Preserved.ice_staticId());
 
                 //
                 // Server knows the most-derived class PDerived.

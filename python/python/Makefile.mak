@@ -50,6 +50,7 @@ ICE_SLICES	= Ice\BuiltinSequences.ice \
 		  Ice\ServantLocator.ice \
 		  Ice\ServantLocatorF.ice \
 		  Ice\SliceChecksumDict.ice \
+		  Ice\ValueFactory.ice \
 		  Ice\Version.ice \
 
 ICE_SRCS = $(ICE_SLICES:.ice=_ice.py)
@@ -265,6 +266,12 @@ Ice_EndpointF_ice.py: "$(slicedir)/Ice/EndpointF.ice" "$(SLICEPARSERLIB)"
 
 Ice_EndpointTypes_ice.py: "$(slicedir)/Ice/EndpointTypes.ice" "$(SLICEPARSERLIB)"
 	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix Ice_ --no-package "$(slicedir)/Ice/EndpointTypes.ice"
+
+Ice_ValueFactory_ice.py: "$(slicedir)/Ice/ValueFactory.ice" "$(SLICEPARSERLIB)"
+	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix Ice_ --no-package "$(slicedir)/Ice/ValueFactory.ice"
+
+Ice_ValueFactoryF_ice.py: "$(slicedir)/Ice/ValueFactoryF.ice" "$(SLICEPARSERLIB)"
+	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix Ice_ --no-package "$(slicedir)/Ice/ValueFactoryF.ice"
 
 Ice_Version_ice.py: "$(slicedir)/Ice/Version.ice" "$(SLICEPARSERLIB)"
 	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix Ice_ --no-package "$(slicedir)/Ice/Version.ice"
