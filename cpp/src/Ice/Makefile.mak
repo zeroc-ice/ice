@@ -144,6 +144,7 @@ OBJS	       =  .\Acceptor.obj \
 		  .\UdpConnector.obj \
 		  .\UdpEndpointI.obj \
 		  .\UdpTransceiver.obj \
+                  .\Value.obj \
 		  .\ValueFactoryManager.obj \
 		  .\WSAcceptor.obj \
 		  .\WSConnector.obj \
