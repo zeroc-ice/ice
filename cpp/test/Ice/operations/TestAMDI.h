@@ -12,6 +12,7 @@
 
 #include <IceUtil/Thread.h>
 #include <TestAMD.h>
+#include <TestCommon.h>
 
 class MyDerivedClassI : 
 #ifdef ICE_CPP11_MAPPING
@@ -27,352 +28,352 @@ public:
     //
     // Override the Object "pseudo" operations to verify the operation mode.
     //
-    virtual bool ice_isA(const std::string&, const Ice::Current&) const;
+    virtual bool ice_isA(ICE_IN(std::string), const Ice::Current&) const;
     virtual void ice_ping(const Ice::Current&) const;
     virtual std::vector<std::string> ice_ids(const Ice::Current&) const;
     virtual const std::string& ice_id(const Ice::Current&) const;
 
 #ifdef ICE_CPP11_MAPPING
     virtual void shutdown_async(::std::function<void ()>,
-                                ::std::function<void (const ::std::exception_ptr&)>,
+                                ::std::function<void (std::exception_ptr)>,
                                 const Ice::Current&);
 
     virtual void delay_async(Ice::Int,
                              ::std::function<void ()>,
-                             ::std::function<void (const ::std::exception_ptr&)>,
+                             ::std::function<void (std::exception_ptr)>,
                              const Ice::Current&);
 
     virtual void opVoid_async(::std::function<void ()>,
-                              ::std::function<void (const ::std::exception_ptr&)>,
+                              ::std::function<void (std::exception_ptr)>,
                               const Ice::Current&);
 
     virtual void opByte_async(Ice::Byte, Ice::Byte,
                               ::std::function<void (Ice::Byte, Ice::Byte)>,
-                              ::std::function<void (const ::std::exception_ptr&)>,
+                              ::std::function<void (std::exception_ptr)>,
                               const Ice::Current&);
 
     virtual void opBool_async(bool, bool,
                               ::std::function<void (bool, bool)>,
-                              ::std::function<void (const ::std::exception_ptr&)>,
+                              ::std::function<void (std::exception_ptr)>,
                               const Ice::Current&);
 
     virtual void opShortIntLong_async(short, int, long long int,
                                       ::std::function<void (long long int, short, int, long long int)>,
-                                      ::std::function<void (const ::std::exception_ptr&)>,
+                                      ::std::function<void (std::exception_ptr)>,
                                       const Ice::Current&);
 
     virtual void opFloatDouble_async(float, double,
                                      ::std::function<void (double, float, double)>,
-                                     ::std::function<void (const ::std::exception_ptr&)>,
+                                     ::std::function<void (std::exception_ptr)>,
                                      const Ice::Current&);
 
-    virtual void opString_async(const std::string&, const std::string&,
+    virtual void opString_async(std::string, std::string,
                                 ::std::function<void (const ::std::string&, const ::std::string&)>,
-                                ::std::function<void (const ::std::exception_ptr&)>,
+                                ::std::function<void (std::exception_ptr)>,
                                 const Ice::Current&);
 
     virtual void opMyEnum_async(Test::MyEnum,
-                                ::std::function<void (Test::MyEnum, Test::MyEnum)>,
-                                ::std::function<void (const ::std::exception_ptr&)>,
+                                std::function<void (Test::MyEnum, Test::MyEnum)>,
+                                std::function<void (std::exception_ptr)>,
                                 const Ice::Current&);
 
-    virtual void opMyClass_async(const ::std::shared_ptr<Test::MyClassPrx>&,
-                                 ::std::function<void (const ::std::shared_ptr<Test::MyClassPrx>&,
-                                                       const ::std::shared_ptr<Test::MyClassPrx>&,
-                                                       const ::std::shared_ptr<Test::MyClassPrx>&)>,
-                                 ::std::function<void (const ::std::exception_ptr&)>,
+    virtual void opMyClass_async(std::shared_ptr<Test::MyClassPrx>,
+                                 std::function<void (const std::shared_ptr<Test::MyClassPrx>&,
+                                                     const std::shared_ptr<Test::MyClassPrx>&,
+                                                     const std::shared_ptr<Test::MyClassPrx>&)>,
+                                 ::std::function<void (std::exception_ptr)>,
                                  const Ice::Current&);
 
-    virtual void opStruct_async(const Test::Structure&, const Test::Structure&,
+    virtual void opStruct_async(Test::Structure, Test::Structure,
                                 ::std::function<void (const Test::Structure&, const Test::Structure&)>,
-                                ::std::function<void (const ::std::exception_ptr&)>,
+                                ::std::function<void (std::exception_ptr)>,
                                 const Ice::Current&);
 
-    virtual void opByteS_async(const Test::ByteS&, const Test::ByteS&,
+    virtual void opByteS_async(Test::ByteS, Test::ByteS,
                                ::std::function<void (const Test::ByteS&, const Test::ByteS&)>,
-                               ::std::function<void (const ::std::exception_ptr&)>,
+                               ::std::function<void (std::exception_ptr)>,
                                const Ice::Current&);
 
-    virtual void opBoolS_async(const Test::BoolS&, const Test::BoolS&,
+    virtual void opBoolS_async(Test::BoolS, Test::BoolS,
                                ::std::function<void (const Test::BoolS&, const Test::BoolS&)>,
-                               ::std::function<void (const ::std::exception_ptr&)>,
+                               ::std::function<void (std::exception_ptr)>,
                                const Ice::Current&);
 
-    virtual void opShortIntLongS_async(const Test::ShortS&, const Test::IntS&, const Test::LongS&,
+    virtual void opShortIntLongS_async(Test::ShortS, Test::IntS, Test::LongS,
                                        ::std::function<void (const Test::LongS&,
                                                              const Test::ShortS&,
                                                              const Test::IntS&,
                                                              const Test::LongS&)>,
-                                       ::std::function<void (const ::std::exception_ptr&)>,
+                                       ::std::function<void (std::exception_ptr)>,
                                        const Ice::Current&);
 
-    virtual void opFloatDoubleS_async(const Test::FloatS&, const Test::DoubleS&,
+    virtual void opFloatDoubleS_async(Test::FloatS, Test::DoubleS,
                                       ::std::function<void (const Test::DoubleS&,
                                                             const Test::FloatS&,
                                                             const Test::DoubleS&)>,
-                                      ::std::function<void (const ::std::exception_ptr&)>,
+                                      ::std::function<void (std::exception_ptr)>,
                                       const Ice::Current&);
 
-    virtual void opStringS_async(const Test::StringS&, const Test::StringS&,
+    virtual void opStringS_async(Test::StringS, Test::StringS,
                                  ::std::function<void (const Test::StringS&, const Test::StringS&)>,
-                                 ::std::function<void (const ::std::exception_ptr&)>,
+                                 ::std::function<void (std::exception_ptr)>,
                                  const Ice::Current&);
 
-    virtual void opByteSS_async(const Test::ByteSS&, const Test::ByteSS&,
+    virtual void opByteSS_async(Test::ByteSS, Test::ByteSS,
                                 ::std::function<void (const Test::ByteSS&, const Test::ByteSS&)>,
-                                ::std::function<void (const ::std::exception_ptr&)>,
+                                ::std::function<void (std::exception_ptr)>,
                                 const Ice::Current&);
 
-    virtual void opBoolSS_async(const Test::BoolSS&, const Test::BoolSS&,
+    virtual void opBoolSS_async(Test::BoolSS, Test::BoolSS,
                                 ::std::function<void (const Test::BoolSS&, const Test::BoolSS&)>,
-                                ::std::function<void (const ::std::exception_ptr&)>,
+                                ::std::function<void (std::exception_ptr)>,
                                 const Ice::Current&);
 
-    virtual void opShortIntLongSS_async(const Test::ShortSS&, const Test::IntSS&, const Test::LongSS&,
+    virtual void opShortIntLongSS_async(Test::ShortSS, Test::IntSS, Test::LongSS,
                                         ::std::function<void (const Test::LongSS&,
                                                               const Test::ShortSS&,
                                                               const Test::IntSS&,
                                                               const Test::LongSS&)>,
-                                        ::std::function<void (const ::std::exception_ptr&)>,
+                                        ::std::function<void (std::exception_ptr)>,
                                         const Ice::Current&);
 
-    virtual void opFloatDoubleSS_async(const Test::FloatSS&, const Test::DoubleSS&,
+    virtual void opFloatDoubleSS_async(Test::FloatSS, Test::DoubleSS,
                                        ::std::function<void (const Test::DoubleSS&,
                                                              const Test::FloatSS&,
                                                              const Test::DoubleSS&)>,
-                                       ::std::function<void (const ::std::exception_ptr&)>,
+                                       ::std::function<void (std::exception_ptr)>,
                                        const Ice::Current&);
 
-    virtual void opStringSS_async(const Test::StringSS&, const Test::StringSS&,
+    virtual void opStringSS_async(Test::StringSS, Test::StringSS,
                                   ::std::function<void (const Test::StringSS&, const Test::StringSS&)>,
-                                  ::std::function<void (const ::std::exception_ptr&)>,
+                                  ::std::function<void (std::exception_ptr)>,
                                   const Ice::Current&);
 
-    virtual void opStringSSS_async(const Test::StringSSS&, const Test::StringSSS&,
+    virtual void opStringSSS_async(Test::StringSSS, Test::StringSSS,
                                    ::std::function<void (const Test::StringSSS&, const Test::StringSSS&)>,
-                                   ::std::function<void (const ::std::exception_ptr&)>,
+                                   ::std::function<void (std::exception_ptr)>,
                                    const Ice::Current&);
 
-    virtual void opByteBoolD_async(const Test::ByteBoolD&, const Test::ByteBoolD&,
+    virtual void opByteBoolD_async(Test::ByteBoolD, Test::ByteBoolD,
                                    ::std::function<void (const Test::ByteBoolD&, const Test::ByteBoolD&)>,
-                                   ::std::function<void (const ::std::exception_ptr&)>,
+                                   ::std::function<void (std::exception_ptr)>,
                                    const Ice::Current&);
 
-    virtual void opShortIntD_async(const Test::ShortIntD&, const Test::ShortIntD&,
+    virtual void opShortIntD_async(Test::ShortIntD, Test::ShortIntD,
                                    ::std::function<void (const Test::ShortIntD&, const Test::ShortIntD&)>,
-                                   ::std::function<void (const ::std::exception_ptr&)>,
+                                   ::std::function<void (std::exception_ptr)>,
                                    const Ice::Current&);
 
-    virtual void opLongFloatD_async(const Test::LongFloatD&, const Test::LongFloatD&,
+    virtual void opLongFloatD_async(Test::LongFloatD, Test::LongFloatD,
                                     ::std::function<void (const Test::LongFloatD&, const Test::LongFloatD&)>,
-                                    ::std::function<void (const ::std::exception_ptr&)>,
+                                    ::std::function<void (std::exception_ptr)>,
                                     const Ice::Current&);
 
-    virtual void opStringStringD_async(const Test::StringStringD&, const Test::StringStringD&,
+    virtual void opStringStringD_async(Test::StringStringD, Test::StringStringD,
                                        ::std::function<void (const Test::StringStringD&, const Test::StringStringD&)>,
-                                       ::std::function<void (const ::std::exception_ptr&)>,
+                                       ::std::function<void (std::exception_ptr)>,
                                        const Ice::Current&);
 
-    virtual void opStringMyEnumD_async(const Test::StringMyEnumD&, const Test::StringMyEnumD&,
+    virtual void opStringMyEnumD_async(Test::StringMyEnumD, Test::StringMyEnumD,
                                        ::std::function<void (const Test::StringMyEnumD&, const Test::StringMyEnumD&)>,
-                                       ::std::function<void (const ::std::exception_ptr&)>,
+                                       ::std::function<void (std::exception_ptr)>,
                                        const Ice::Current&);
 
-    virtual void opMyEnumStringD_async(const Test::MyEnumStringD&, const Test::MyEnumStringD&,
+    virtual void opMyEnumStringD_async(Test::MyEnumStringD, Test::MyEnumStringD,
                                        ::std::function<void (const Test::MyEnumStringD&, const Test::MyEnumStringD&)>,
-                                       ::std::function<void (const ::std::exception_ptr&)>,
+                                       ::std::function<void (std::exception_ptr)>,
                                        const Ice::Current&);
 
-    virtual void opMyStructMyEnumD_async(const Test::MyStructMyEnumD&, const Test::MyStructMyEnumD&,
+    virtual void opMyStructMyEnumD_async(Test::MyStructMyEnumD, Test::MyStructMyEnumD,
                                          ::std::function<void (const Test::MyStructMyEnumD&,
                                                                const Test::MyStructMyEnumD&)>,
-                                         ::std::function<void (const ::std::exception_ptr&)>,
+                                         ::std::function<void (std::exception_ptr)>,
                                          const Ice::Current&);
 
-    virtual void opByteBoolDS_async(const Test::ByteBoolDS&, const Test::ByteBoolDS&,
+    virtual void opByteBoolDS_async(Test::ByteBoolDS, Test::ByteBoolDS,
                                     ::std::function<void (const Test::ByteBoolDS&, const Test::ByteBoolDS&)>,
-                                    ::std::function<void (const ::std::exception_ptr&)>,
+                                    ::std::function<void (std::exception_ptr)>,
                                     const Ice::Current&);
 
-    virtual void opShortIntDS_async(const Test::ShortIntDS&, const Test::ShortIntDS&,
+    virtual void opShortIntDS_async(Test::ShortIntDS, Test::ShortIntDS,
                                     ::std::function<void (const Test::ShortIntDS&, const Test::ShortIntDS&)>,
-                                    ::std::function<void (const ::std::exception_ptr&)>,
+                                    ::std::function<void (std::exception_ptr)>,
                                     const Ice::Current&);
 
-    virtual void opLongFloatDS_async(const Test::LongFloatDS&, const Test::LongFloatDS&,
+    virtual void opLongFloatDS_async(Test::LongFloatDS, Test::LongFloatDS,
                                      ::std::function<void (const Test::LongFloatDS&, const Test::LongFloatDS&)>,
-                                     ::std::function<void (const ::std::exception_ptr&)>,
+                                     ::std::function<void (std::exception_ptr)>,
                                      const Ice::Current&);
 
-    virtual void opStringStringDS_async(const Test::StringStringDS&, const Test::StringStringDS&,
+    virtual void opStringStringDS_async(Test::StringStringDS, Test::StringStringDS,
                                         ::std::function<void (const Test::StringStringDS&, const Test::StringStringDS&)>,
-                                        ::std::function<void (const ::std::exception_ptr&)>,
+                                        ::std::function<void (std::exception_ptr)>,
                                         const Ice::Current&);
 
-    virtual void opStringMyEnumDS_async(const Test::StringMyEnumDS&, const Test::StringMyEnumDS&,
+    virtual void opStringMyEnumDS_async(Test::StringMyEnumDS, Test::StringMyEnumDS,
                                         ::std::function<void (const Test::StringMyEnumDS&,
                                                               const Test::StringMyEnumDS&)>,
-                                        ::std::function<void (const ::std::exception_ptr&)>,
+                                        ::std::function<void (std::exception_ptr)>,
                                         const Ice::Current&);
 
-    virtual void opMyEnumStringDS_async(const Test::MyEnumStringDS&, const Test::MyEnumStringDS&,
+    virtual void opMyEnumStringDS_async(Test::MyEnumStringDS, Test::MyEnumStringDS,
                                         ::std::function<void (const Test::MyEnumStringDS&,
                                                               const Test::MyEnumStringDS&)>,
-                                        ::std::function<void (const ::std::exception_ptr&)>,
+                                        ::std::function<void (std::exception_ptr)>,
                                         const Ice::Current&);
 
-    virtual void opMyStructMyEnumDS_async(const Test::MyStructMyEnumDS&, const Test::MyStructMyEnumDS&,
+    virtual void opMyStructMyEnumDS_async(Test::MyStructMyEnumDS, Test::MyStructMyEnumDS,
                                           ::std::function<void (const Test::MyStructMyEnumDS&,
                                                                 const Test::MyStructMyEnumDS&)>,
-                                          ::std::function<void (const ::std::exception_ptr&)>,
+                                          ::std::function<void (std::exception_ptr)>,
                                           const Ice::Current&);
 
-    virtual void opByteByteSD_async(const Test::ByteByteSD&, const Test::ByteByteSD&,
+    virtual void opByteByteSD_async(Test::ByteByteSD, Test::ByteByteSD,
                                     ::std::function<void (const Test::ByteByteSD&, const Test::ByteByteSD&)>,
-                                    ::std::function<void (const ::std::exception_ptr&)>,
+                                    ::std::function<void (std::exception_ptr)>,
                                     const Ice::Current&);
 
-    virtual void opBoolBoolSD_async(const Test::BoolBoolSD&, const Test::BoolBoolSD&,
+    virtual void opBoolBoolSD_async(Test::BoolBoolSD, Test::BoolBoolSD,
                                     ::std::function<void (const Test::BoolBoolSD&, const Test::BoolBoolSD&)>,
-                                    ::std::function<void (const ::std::exception_ptr&)>,
+                                    ::std::function<void (std::exception_ptr)>,
                                     const Ice::Current&);
 
-    virtual void opShortShortSD_async(const Test::ShortShortSD&, const Test::ShortShortSD&,
+    virtual void opShortShortSD_async(Test::ShortShortSD, Test::ShortShortSD,
                                       ::std::function<void (const Test::ShortShortSD&, const Test::ShortShortSD&)>,
-                                      ::std::function<void (const ::std::exception_ptr&)>,
+                                      ::std::function<void (std::exception_ptr)>,
                                       const Ice::Current&);
 
-    virtual void opIntIntSD_async(const Test::IntIntSD&, const Test::IntIntSD&,
+    virtual void opIntIntSD_async(Test::IntIntSD, Test::IntIntSD,
                                   ::std::function<void (const Test::IntIntSD&, const Test::IntIntSD&)>,
-                                  ::std::function<void (const ::std::exception_ptr&)>,
+                                  ::std::function<void (std::exception_ptr)>,
                                   const Ice::Current&);
 
-    virtual void opLongLongSD_async(const Test::LongLongSD&, const Test::LongLongSD&,
+    virtual void opLongLongSD_async(Test::LongLongSD, Test::LongLongSD,
                                     ::std::function<void (const Test::LongLongSD&, const Test::LongLongSD&)>,
-                                    ::std::function<void (const ::std::exception_ptr&)>,
+                                    ::std::function<void (std::exception_ptr)>,
                                     const Ice::Current&);
 
-    virtual void opStringFloatSD_async(const Test::StringFloatSD&, const Test::StringFloatSD&,
+    virtual void opStringFloatSD_async(Test::StringFloatSD, Test::StringFloatSD,
                                        ::std::function<void (const Test::StringFloatSD&, const Test::StringFloatSD&)>,
-                                       ::std::function<void (const ::std::exception_ptr&)>,
+                                       ::std::function<void (std::exception_ptr)>,
                                        const Ice::Current&);
 
-    virtual void opStringDoubleSD_async(const Test::StringDoubleSD&, const Test::StringDoubleSD&,
+    virtual void opStringDoubleSD_async(Test::StringDoubleSD, Test::StringDoubleSD,
                                         ::std::function<void (const Test::StringDoubleSD&,
                                                               const Test::StringDoubleSD&)>,
-                                        ::std::function<void (const ::std::exception_ptr&)>,
+                                        ::std::function<void (std::exception_ptr)>,
                                         const Ice::Current&);
 
-    virtual void opStringStringSD_async(const Test::StringStringSD&, const Test::StringStringSD&,
+    virtual void opStringStringSD_async(Test::StringStringSD, Test::StringStringSD,
                                         ::std::function<void (const Test::StringStringSD&,
                                                               const Test::StringStringSD&)>,
-                                        ::std::function<void (const ::std::exception_ptr&)>,
+                                        ::std::function<void (std::exception_ptr)>,
                                         const Ice::Current&);
 
-    virtual void opMyEnumMyEnumSD_async(const Test::MyEnumMyEnumSD&, const Test::MyEnumMyEnumSD&,
+    virtual void opMyEnumMyEnumSD_async(Test::MyEnumMyEnumSD, Test::MyEnumMyEnumSD,
                                         ::std::function<void (const Test::MyEnumMyEnumSD&,
                                                               const Test::MyEnumMyEnumSD&)>,
-                                        ::std::function<void (const ::std::exception_ptr&)>,
+                                        ::std::function<void (std::exception_ptr)>,
                                         const Ice::Current&);
 
-    virtual void opIntS_async(const Test::IntS&, 
+    virtual void opIntS_async(Test::IntS,
                               ::std::function<void (const Test::IntS&)>,
-                              ::std::function<void (const ::std::exception_ptr&)>,
+                              ::std::function<void (std::exception_ptr)>,
                               const Ice::Current&);
 
-    virtual void opByteSOneway_async(const Test::ByteS&,
+    virtual void opByteSOneway_async(Test::ByteS,
                                      ::std::function<void ()>,
-                                     ::std::function<void (const ::std::exception_ptr&)>,
+                                     ::std::function<void (std::exception_ptr)>,
                                      const Ice::Current&);
     
     virtual void opByteSOnewayCallCount_async(::std::function<void (int)>,
-                                              ::std::function<void (const ::std::exception_ptr&)>,
+                                              ::std::function<void (std::exception_ptr)>,
                                               const Ice::Current&);
 
     virtual void opContext_async(::std::function<void (const Ice::Context&)>,
-                                 ::std::function<void (const ::std::exception_ptr&)>,
+                                 ::std::function<void (std::exception_ptr)>,
                                  const Ice::Current&);
 
-    virtual void opDoubleMarshaling_async(Ice::Double, const Test::DoubleS&,
+    virtual void opDoubleMarshaling_async(Ice::Double, Test::DoubleS,
                                           ::std::function<void ()>,
-                                          ::std::function<void (const ::std::exception_ptr&)>,
+                                          ::std::function<void (std::exception_ptr)>,
                                           const Ice::Current&);
 
     virtual void opIdempotent_async(::std::function<void ()>,
-                                    ::std::function<void (const ::std::exception_ptr&)>,
+                                    ::std::function<void (std::exception_ptr)>,
                                     const Ice::Current&);
 
     virtual void opNonmutating_async(::std::function<void ()>,
-                                     ::std::function<void (const ::std::exception_ptr&)>,
+                                     ::std::function<void (std::exception_ptr)>,
                                      const Ice::Current&);
 
     virtual void opDerived_async(::std::function<void ()>,
-                                 ::std::function<void (const ::std::exception_ptr&)>,
+                                 ::std::function<void (std::exception_ptr)>,
                                  const Ice::Current&);
 
     virtual void opByte1_async(Ice::Byte,
                                ::std::function<void (Ice::Byte)>,
-                               ::std::function<void (const ::std::exception_ptr&)>,
+                               ::std::function<void (std::exception_ptr)>,
                                const Ice::Current&);
 
     virtual void opShort1_async(Ice::Short,
                                 ::std::function<void (Ice::Short)>,
-                                ::std::function<void (const ::std::exception_ptr&)>,
+                                ::std::function<void (std::exception_ptr)>,
                                 const Ice::Current&);
 
     virtual void opInt1_async(Ice::Int,
                               ::std::function<void (Ice::Int)>,
-                              ::std::function<void (const ::std::exception_ptr&)>,
+                              ::std::function<void (std::exception_ptr)>,
                               const Ice::Current&);
 
     virtual void opLong1_async(Ice::Long,
                                ::std::function<void (Ice::Long)>,
-                               ::std::function<void (const ::std::exception_ptr&)>,
+                               ::std::function<void (std::exception_ptr)>,
                                const Ice::Current&);
 
     virtual void opFloat1_async(Ice::Float,
                                 ::std::function<void (Ice::Float)>,
-                                ::std::function<void (const ::std::exception_ptr&)>,
+                                ::std::function<void (std::exception_ptr)>,
                                 const Ice::Current&);
 
     virtual void opDouble1_async(Ice::Double,
                                  ::std::function<void (Ice::Double)>,
-                                 ::std::function<void (const ::std::exception_ptr&)>,
+                                 ::std::function<void (std::exception_ptr)>,
                                  const Ice::Current&);
 
-    virtual void opString1_async(const std::string&,
+    virtual void opString1_async(std::string,
                                  ::std::function<void (const ::std::string&)>,
-                                 ::std::function<void (const ::std::exception_ptr&)>,
+                                 ::std::function<void (std::exception_ptr)>,
                                  const Ice::Current&);
 
-    virtual void opStringS1_async(const Test::StringS&,
+    virtual void opStringS1_async(Test::StringS,
                                   ::std::function<void (const Test::StringS&)>,
-                                  ::std::function<void (const ::std::exception_ptr&)>,
+                                  ::std::function<void (std::exception_ptr)>,
                                   const Ice::Current&);
 
-    virtual void opByteBoolD1_async(const Test::ByteBoolD&,
+    virtual void opByteBoolD1_async(Test::ByteBoolD,
                                     ::std::function<void (const Test::ByteBoolD&)>,
-                                    ::std::function<void (const ::std::exception_ptr&)>,
+                                    ::std::function<void (std::exception_ptr)>,
                                     const Ice::Current&);
     
-    virtual void opStringS2_async(const Test::StringS&,
+    virtual void opStringS2_async(Test::StringS,
                                   ::std::function<void (const Test::StringS&)>,
-                                  ::std::function<void (const ::std::exception_ptr&)>,
+                                  ::std::function<void (std::exception_ptr)>,
                                   const Ice::Current&);
     
-    virtual void opByteBoolD2_async(const Test::ByteBoolD&,
+    virtual void opByteBoolD2_async(Test::ByteBoolD,
                                     ::std::function<void (const Test::ByteBoolD&)>,
-                                    ::std::function<void (const ::std::exception_ptr&)>,
+                                    ::std::function<void (std::exception_ptr)>,
                                     const Ice::Current&);
 
-    virtual void opMyStruct1_async(const Test::MyStruct1&,
+    virtual void opMyStruct1_async(Test::MyStruct1,
                                    ::std::function<void (const Test::MyStruct1&)>,
-                                   ::std::function<void (const ::std::exception_ptr&)>,
+                                   ::std::function<void (std::exception_ptr)>,
                                    const Ice::Current&);
 
-    virtual void opMyClass1_async(const ::std::shared_ptr<Test::MyClass1>&,
+    virtual void opMyClass1_async(::std::shared_ptr<Test::MyClass1>,
                                   ::std::function<void (const ::std::shared_ptr<Test::MyClass1>&)>,
-                                  ::std::function<void (const ::std::exception_ptr&)>,
+                                  ::std::function<void (std::exception_ptr)>,
                                   const Ice::Current&);
 #else
     virtual void shutdown_async(const Test::AMD_MyClass_shutdownPtr&,

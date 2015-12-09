@@ -216,22 +216,27 @@ public:
 
     void setLookupReply(const LookupReplyPrxPtr&);
 
-    virtual void findObjectById(const std::string&, const Ice::Identity&, const IceDiscovery::LookupReplyPrxPtr&, 
-                                const Ice::Current&);
-    virtual void findAdapterById(const std::string&, const std::string&, const IceDiscovery::LookupReplyPrxPtr&, 
-                                 const Ice::Current&);
-
 #ifdef ICE_CPP11_MAPPING
+    virtual void findObjectById(std::string,
+                                Ice::Identity,
+                                ::std::shared_ptr<IceDiscovery::LookupReplyPrx>,
+                                const Ice::Current&);
+    virtual void findAdapterById(std::string, std::string, ::std::shared_ptr<IceDiscovery::LookupReplyPrx>,
+                                 const Ice::Current&);
     void findObject(std::function<void (const std::shared_ptr<Ice::ObjectPrx>&)>, const Ice::Identity&);
     void findAdapter(std::function<void (const std::shared_ptr<Ice::ObjectPrx>&)>, const std::string&);
 #else
+    virtual void findObjectById(const std::string&, const Ice::Identity&, const IceDiscovery::LookupReplyPrx&,
+                                const Ice::Current&);
+    virtual void findAdapterById(const std::string&, const std::string, ::std::shared_ptr<IceDiscovery::LookupReplyPrx>,
+                                 const Ice::Current&);
     void findObject(const Ice::AMD_Locator_findObjectByIdPtr&, const Ice::Identity&);
     void findAdapter(const Ice::AMD_Locator_findAdapterByIdPtr&, const std::string&);
 #endif
 
     void foundObject(const Ice::Identity&, const Ice::ObjectPrxPtr&);
     void foundAdapter(const std::string&, const Ice::ObjectPrxPtr&, bool);
-
+    
     void adapterRequestTimedOut(const AdapterRequestPtr&);
     void objectRequestTimedOut(const ObjectRequestPtr&);
 
@@ -270,8 +275,13 @@ public:
 
     LookupReplyI(const LookupIPtr&);
 
-    virtual void foundObjectById(const Ice::Identity&, const Ice::ObjectPrxPtr&, const Ice::Current&);
-    virtual void foundAdapterById(const std::string&, const Ice::ObjectPrxPtr&, bool, const Ice::Current&);
+#ifdef ICE_CPP11_MAPPING
+    virtual void foundObjectById(Ice::Identity, std::shared_ptr<Ice::ObjectPrx>, const Ice::Current&);
+    virtual void foundAdapterById(std::string, std::shared_ptr<Ice::ObjectPrx>, bool, const Ice::Current&);
+#else
+    virtual void foundObjectById(const Ice::Identity&, const Ice::ObjectPrx&, const Ice::Current&);
+    virtual void foundAdapterById(const std::string&, const Ice::ObjectPrx&, bool, const Ice::Current&);
+#endif
 
 private:
 

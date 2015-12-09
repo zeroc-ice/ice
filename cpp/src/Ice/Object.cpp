@@ -96,7 +96,11 @@ Ice::Object::___ice_isA(Incoming& __inS, const Current& __current)
     string __id;
     __is->read(__id, false);
     __inS.endReadParams();
+#ifdef ICE_CPP11_MAPPING
+    bool __ret = ice_isA(move(__id), __current);
+#else
     bool __ret = ice_isA(__id, __current);
+#endif
     BasicStream* __os = __inS.__startWriteParams(DefaultFormat);
     __os->write(__ret);
     __inS.__endWriteParams(true);

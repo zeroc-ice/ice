@@ -99,8 +99,8 @@ public:
     
     RemoteLoggerI();
 
-    virtual void init(const string&, const Ice::LogMessageSeq&, const Ice::Current&);
-    virtual void log(const Ice::LogMessage&, const Ice::Current&);
+    virtual void init(ICE_IN(string), ICE_IN(Ice::LogMessageSeq), const Ice::Current&);
+    virtual void log(ICE_IN(Ice::LogMessage), const Ice::Current&);
 
     void checkNextInit(const string&, const Ice::LogMessageSeq&);
     void checkNextLog(Ice::LogMessageType, const string&, const string& = "");
@@ -126,7 +126,7 @@ RemoteLoggerI::RemoteLoggerI() : _receivedCalls(0)
 }
 
 void
-RemoteLoggerI::init(const string& prefix, const Ice::LogMessageSeq& logMessages, const Ice::Current&)
+RemoteLoggerI::init(ICE_IN(string) prefix, ICE_IN(Ice::LogMessageSeq) logMessages, const Ice::Current&)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
     test(prefix == _expectedPrefix);
@@ -136,7 +136,7 @@ RemoteLoggerI::init(const string& prefix, const Ice::LogMessageSeq& logMessages,
 }
 
 void
-RemoteLoggerI::log(const Ice::LogMessage& logMessage, const Ice::Current&)
+RemoteLoggerI::log(ICE_IN(Ice::LogMessage) logMessage, const Ice::Current&)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
     Ice::LogMessage front = _expectedLogMessages.front();

@@ -8105,7 +8105,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
         paramsDecl += typeString;
         paramsDecl += ' ';
         paramsDecl += paramName;
-        args += paramName;
+        args += (isMovable(type) && !isOutParam) ? ("::std::move(" + paramName + ")") : paramName;
     }
 
     if(!paramList.empty())
@@ -8127,12 +8127,19 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
             argsAMD += ", ";
         }
         paramsAMD += inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), _useWstring, true);
-        argsAMD += fixKwd(string(paramPrefix) + (*q)->name());
+        if(isMovable((*q)->type()))
+        {
+            argsAMD += "::std::move(" + fixKwd(string(paramPrefix) + (*q)->name()) + ")";
+        }
+        else
+        {
+            argsAMD += fixKwd(string(paramPrefix) + (*q)->name());
+        }
     }
 
     if(ret)
     {
-        string typeString = inputTypeToString(ret, p->returnIsOptional(), p->getMetaData(), _useWstring, true);
+        string typeString = inputTypeToString(ret, p->returnIsOptional(), p->getMetaData(), _useWstring | TypeContextAMD, true);
         responseParams = typeString;
         responseParamsDecl = typeString + " __ret";
         if(!outParams.empty())
@@ -8150,7 +8157,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
             responseParamsDecl += ", ";
         }
         string paramName = fixKwd(string(paramPrefix) + (*q)->name());
-        string typeString = inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), _useWstring, true);
+        string typeString = inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), _useWstring | TypeContextAMD, true);
         responseParams += typeString;
         responseParamsDecl += typeString + " " + paramName;
     }
@@ -8191,7 +8198,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
             H << "," << nl;
         }
         H << "::std::function<void (" << responseParams << ")>," << nl
-          << "::std::function<void (const ::std::exception_ptr&)>, const Ice::Current&)"
+          << "::std::function<void (::std::exception_ptr)>, const Ice::Current&)"
           << (isConst ? " const" : "") << " = 0;";
         H.restoreIndent();
     }
@@ -8268,7 +8275,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
     else
     {
         C << nl << "auto inS = ::std::make_shared<::IceInternal::IncomingAsync>(__inS);";
-        C << nl << "auto __exception = [inS](const ::std::exception_ptr& e)";
+        C << nl << "auto __exception = [inS](::std::exception_ptr e)";
         C << sb;
         C << nl << "try";
         C << sb;

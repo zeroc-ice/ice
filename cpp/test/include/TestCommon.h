@@ -12,6 +12,12 @@
 
 #include <IceUtil/IceUtil.h>
 
+#ifdef ICE_CPP11_MAPPING
+#   define ICE_IN(T) T
+#else
+#   define ICE_IN(T) const T##&
+#endif
+
 #if defined(ICE_OS_WINRT) || (TARGET_OS_IPHONE)
 #   include <Ice/Initialize.h>
 #   include <Ice/Logger.h>

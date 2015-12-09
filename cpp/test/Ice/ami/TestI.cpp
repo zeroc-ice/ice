@@ -36,7 +36,7 @@ TestIntfI::opWithUE(const Ice::Current&)
 }
 
 void
-TestIntfI::opWithPayload(const Ice::ByteSeq&, const Ice::Current&)
+TestIntfI::opWithPayload(ICE_IN(Ice::ByteSeq), const Ice::Current&)
 {
 }
 

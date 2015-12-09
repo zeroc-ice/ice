@@ -662,7 +662,7 @@ Slice::returnTypeToString(const TypePtr& type, bool optional, const StringList& 
 string
 Slice::inputTypeToString(const TypePtr& type, bool optional, const StringList& metaData, int typeCtx, bool cpp11)
 {
-    static const char* inputBuiltinTable[] =
+    static const char* cpp98InputBuiltinTable[] =
     {
         "::Ice::Byte",
         "bool",
@@ -678,27 +678,52 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const StringList& m
         "const ::Ice::ValuePtr&"
     };
 
-    static const char* cpp11InputBuiltinTable[] =
-    {
-        "::Ice::Byte",
-        "bool",
-        "short",
-        "int",
-        "long long int",
-        "float",
-        "double",
-        "const ::std::string&",
-        "const ::std::shared_ptr<::Ice::Object>&",
-        "const ::std::shared_ptr<::Ice::ObjectPrx>&",
-        "const ::std::shared_ptr<void>&",
-        "const ::std::shared_ptr<::Ice::Value>&"
-    };
+    static const char* cpp11InputLocalBuiltinTable[] =
+        {
+            "::Ice::Byte",
+            "bool",
+            "short",
+            "int",
+            "long long int",
+            "float",
+            "double",
+            "const ::std::string&",
+            "const ::std::shared_ptr<::Ice::Object>&",
+            "const ::std::shared_ptr<::Ice::ObjectPrx>&",
+            "const ::std::shared_ptr<void>&",
+            "const ::std::shared_ptr<::Ice::Value>&"
+        };
 
+    static const char* cpp11InputBuiltinTable[] =
+        {
+            "::Ice::Byte",
+            "bool",
+            "short",
+            "int",
+            "long long int",
+            "float",
+            "double",
+            "::std::string&",
+            "::std::shared_ptr<::Ice::Object>",
+            "::std::shared_ptr<::Ice::ObjectPrx>",
+            "::std::shared_ptr<void>",
+            "::std::shared_ptr<::Ice::Value>"
+        };
+    
+    
     typeCtx |= TypeContextInParam;
 
     if(optional)
     {
-        return "const IceUtil::Optional<" + toTemplateArg(typeToString(type, metaData, typeCtx, cpp11)) +">&";
+        if(cpp11 && !(typeCtx & TypeContextLocalOperation) &&
+                    !(typeCtx & TypeContextAMD))
+        {
+            return "IceUtil::Optional<" + toTemplateArg(typeToString(type, metaData, typeCtx, cpp11)) +">";
+        }
+        else
+        {
+            return "const IceUtil::Optional<" + toTemplateArg(typeToString(type, metaData, typeCtx, cpp11)) +">&";
+        }
     }
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
@@ -706,7 +731,14 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const StringList& m
     {
         if(builtin->kind() == Builtin::KindString)
         {
-            return string("const ") + stringTypeToString(type, metaData, typeCtx) + "&";
+            if(cpp11 && !(typeCtx & TypeContextLocalOperation) && !(typeCtx & TypeContextAMD))
+            {
+                return stringTypeToString(type, metaData, typeCtx);
+            }
+            else
+            {
+                return string("const ") + stringTypeToString(type, metaData, typeCtx) + "&";
+            }
         }
         else
         {
@@ -714,16 +746,30 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const StringList& m
             {
                 if(builtin->kind() == Builtin::KindObject && !(typeCtx & TypeContextLocalOperation))
                 {
-                    return "const ::std::shared_ptr<::Ice::Value>&";
+                    if(typeCtx & TypeContextAMD)
+                    {
+                        return "const ::std::shared_ptr<::Ice::Value>&";
+                    }
+                    else
+                    {
+                        return "::std::shared_ptr<::Ice::Value>";
+                    }
                 }
                 else
                 {
-                    return cpp11InputBuiltinTable[builtin->kind()];
+                    if(typeCtx & TypeContextLocalOperation || typeCtx & TypeContextAMD)
+                    {
+                        return cpp11InputLocalBuiltinTable[builtin->kind()];
+                    }
+                    else
+                    {
+                        return cpp11InputBuiltinTable[builtin->kind()];
+                    }
                 }
             }
             else
             {
-                return inputBuiltinTable[builtin->kind()];
+                return cpp98InputBuiltinTable[builtin->kind()];
             }
         }
     }
@@ -738,17 +784,41 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const StringList& m
             {
                 return t;
             }
-            else if(cl->isInterface() && !cl->isLocal())
+            else if(cl->isLocal() || (typeCtx & TypeContextLocalOperation))
             {
-                return "const ::std::shared_ptr<::Ice::Value>&";
-            }
-            else if(cl->definition() && cl->definition()->isDelegate())
-            {
-                return classDefToDelegateString(cl->definition(), typeCtx, cpp11);
+                if(cl->definition() && cl->definition()->isDelegate())
+                {
+                    return classDefToDelegateString(cl->definition(), typeCtx, cpp11);
+                }
+                else
+                {
+                    return "const ::std::shared_ptr<" + fixKwd(cl->scoped()) + ">&";
+                }
             }
             else
             {
-                return "const ::std::shared_ptr<" + fixKwd(cl->scoped()) + ">&";
+                if(typeCtx & TypeContextAMD)
+                {
+                    if(cl->isInterface())
+                    {
+                        return "const ::std::shared_ptr<::Ice::Value>&";
+                    }
+                    else
+                    {
+                        return "const ::std::shared_ptr<" + fixKwd(cl->scoped()) + ">&";
+                    }
+                }
+                else
+                {
+                    if(cl->isInterface())
+                    {
+                        return "::std::shared_ptr<::Ice::Value>";
+                    }
+                    else
+                    {
+                        return "::std::shared_ptr<" + fixKwd(cl->scoped()) + ">";
+                    }
+                }
             }
         }
         else
@@ -760,11 +830,28 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const StringList& m
     StructPtr st = StructPtr::dynamicCast(type);
     if(st)
     {
-        if(!cpp11 && findMetaData(st->getMetaData()) == "%class")
+        if(cpp11)
         {
-            return "const " + fixKwd(st->scoped() + "Ptr&");
+            if(st->isLocal() || (typeCtx & TypeContextLocalOperation) || (typeCtx & TypeContextAMD))
+            {
+                return "const " + fixKwd(st->scoped()) + "&";
+            }
+            else
+            {
+                return fixKwd(st->scoped());
+            }
         }
-        return "const " + fixKwd(st->scoped()) + "&";
+        else
+        {
+            if(findMetaData(st->getMetaData()) == "%class")
+            {
+                return "const " + fixKwd(st->scoped() + "Ptr&");
+            }
+            else
+            {
+                return "const " + fixKwd(st->scoped()) + "&";
+            }
+        }
     }
 
     ProxyPtr proxy = ProxyPtr::dynamicCast(type);
@@ -777,13 +864,30 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const StringList& m
             // Non local classes without operations map to the base
             // proxy class shared_ptr<Ice::ObjectPrx>
             //
-            if(def && !def->isInterface() && def->allOperations().empty())
+            if(typeCtx & TypeContextLocalOperation)
             {
-                return "const ::std::shared_ptr<::Ice::ObjectPrx>";
+                if(def && !def->isInterface() && def->allOperations().empty())
+                {
+                    return "const ::std::shared_ptr<::Ice::ObjectPrx>&";
+                }
+                else
+                {
+                    return "const ::std::shared_ptr<" + fixKwd(proxy->_class()->scoped() + "Prx") + ">&";
+                }
             }
             else
             {
-                return "const ::std::shared_ptr<" + fixKwd(proxy->_class()->scoped() + "Prx") + ">&";
+                string t;
+                if(def && !def->isInterface() && def->allOperations().empty())
+                {
+                    t = "::std::shared_ptr<::Ice::ObjectPrx>";
+                }
+                else
+                {
+                    t = "::std::shared_ptr<" + fixKwd(proxy->_class()->scoped() + "Prx") + ">";
+                }
+                
+                return (typeCtx & TypeContextAMD) ? ("const " + t + "&") : t;
             }
         }
         else
@@ -801,19 +905,40 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const StringList& m
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if(seq)
     {
-        return "const " + sequenceTypeToString(seq, metaData, typeCtx) + "&";
+        if(cpp11 && !(typeCtx & TypeContextLocalOperation) && !(typeCtx & TypeContextAMD))
+        {
+            return sequenceTypeToString(seq, metaData, typeCtx);
+        }
+        else
+        {
+            return "const " + sequenceTypeToString(seq, metaData, typeCtx) + "&";
+        }
     }
 
     DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
     if(dict)
     {
-        return "const " + dictionaryTypeToString(dict, metaData, typeCtx) + "&";
+        if(cpp11 && !(typeCtx & TypeContextLocalOperation) && !(typeCtx & TypeContextAMD))
+        {
+            return dictionaryTypeToString(dict, metaData, typeCtx);
+        }
+        else
+        {
+            return "const " + dictionaryTypeToString(dict, metaData, typeCtx) + "&";
+        }
     }
 
     ContainedPtr contained = ContainedPtr::dynamicCast(type);
     if(contained)
     {
-        return "const " + fixKwd(contained->scoped()) + "&";
+        if(cpp11 && !(typeCtx & TypeContextLocalOperation) && !(typeCtx & TypeContextAMD))
+        {
+            return fixKwd(contained->scoped());
+        }
+        else
+        {
+            return "const " + fixKwd(contained->scoped()) + "&";
+        }
     }
 
     return "???";

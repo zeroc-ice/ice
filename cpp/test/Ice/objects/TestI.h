@@ -11,6 +11,7 @@
 #define TEST_I_H
 
 #include <Test.h>
+#include <TestCommon.h>
 
 class BI : public Test::B
 {
@@ -131,15 +132,15 @@ public:
     virtual Test::IPtr getH(const Ice::Current&);
 #endif
 
-    virtual Test::D1Ptr getD1(const Test::D1Ptr&, const Ice::Current&);
+    virtual Test::D1Ptr getD1(ICE_IN(Test::D1Ptr), const Ice::Current&);
     virtual void throwEDerived(const Ice::Current&);
 
 #ifdef ICE_CPP11_MAPPING
-    virtual void setI(const ::std::shared_ptr<::Ice::Value>&, const Ice::Current&);
+    virtual void setI(::std::shared_ptr<::Ice::Value>, const Ice::Current&);
 #else
     virtual void setI(const Test::IPtr&, const Ice::Current&);
 #endif
-    virtual Test::BaseSeq opBaseSeq(const Test::BaseSeq&, Test::BaseSeq&, const Ice::Current&);
+    virtual Test::BaseSeq opBaseSeq(ICE_IN(Test::BaseSeq), Test::BaseSeq&, const Ice::Current&);
 
     virtual Test::CompactPtr getCompact(const Ice::Current&);
     

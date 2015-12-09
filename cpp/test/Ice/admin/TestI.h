@@ -11,6 +11,7 @@
 #define TEST_I_H
 
 #include <Test.h>
+#include <TestCommon.h>
 #include <Ice/NativePropertiesAdmin.h>
 
 class RemoteCommunicatorI : virtual public Test::RemoteCommunicator,
@@ -24,10 +25,10 @@ public:
     virtual Ice::ObjectPrxPtr getAdmin(const Ice::Current&);
     virtual Ice::PropertyDict getChanges(const Ice::Current&);
 
-    virtual void print(const std::string&, const Ice::Current&);
-    virtual void trace(const std::string&, const std::string&, const Ice::Current&);
-    virtual void warning(const std::string&, const Ice::Current&);
-    virtual void error(const std::string&, const Ice::Current&);
+    virtual void print(ICE_IN(std::string), const Ice::Current&);
+    virtual void trace(ICE_IN(std::string), ICE_IN(std::string), const Ice::Current&);
+    virtual void warning(ICE_IN(std::string), const Ice::Current&);
+    virtual void error(ICE_IN(std::string), const Ice::Current&);
 
     virtual void shutdown(const Ice::Current&);
     virtual void waitForShutdown(const Ice::Current&);
@@ -47,7 +48,7 @@ class RemoteCommunicatorFactoryI : public Test::RemoteCommunicatorFactory
 {
 public:
 
-    virtual Test::RemoteCommunicatorPrxPtr createCommunicator(const Ice::PropertyDict&, const Ice::Current&);
+    virtual Test::RemoteCommunicatorPrxPtr createCommunicator(ICE_IN(Ice::PropertyDict), const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
 };
 

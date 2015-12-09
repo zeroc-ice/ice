@@ -20,9 +20,9 @@ MyDerivedClassI::MyDerivedClassI()
 #ifdef ICE_CPP11_MAPPING
 void
 MyDerivedClassI::echo_async(
-    const shared_ptr<Ice::ObjectPrx>& obj,
+    shared_ptr<Ice::ObjectPrx> obj,
     function<void (const shared_ptr<Ice::ObjectPrx>&)> response,
-    function<void (const exception_ptr&)>,
+    function<void (exception_ptr)>,
     const Ice::Current&)
 {
     response(obj);
@@ -31,7 +31,7 @@ MyDerivedClassI::echo_async(
 void
 MyDerivedClassI::shutdown_async(
     function<void ()> response,
-    function<void (const exception_ptr&)>,
+    function<void (exception_ptr)>,
     const Ice::Current& current)
 {
     current.adapter->getCommunicator()->shutdown();
@@ -41,10 +41,16 @@ MyDerivedClassI::shutdown_async(
 void
 MyDerivedClassI::getContext_async(
     function<void (const Ice::Context&)> response,
-    function<void (const exception_ptr&)>,
+    function<void (exception_ptr)>,
     const Ice::Current&)
 {
     response(_ctx);
+}
+bool
+MyDerivedClassI::ice_isA(string s, const Ice::Current& current) const
+{
+    _ctx = current.ctx;
+    return Test::MyDerivedClassDisp::ice_isA(move(s), current);
 }
 #else
 void
@@ -65,14 +71,12 @@ MyDerivedClassI::getContext_async(const Test::AMD_MyClass_getContextPtr& cb, con
 {
     cb->ice_response(_ctx);
 }
-#endif
+
 bool
 MyDerivedClassI::ice_isA(const string& s, const Ice::Current& current) const
 {
     _ctx = current.ctx;
-#ifdef ICE_CPP11_MAPPING
-    return Test::MyDerivedClassDisp::ice_isA(s, current);
-#else
     return Test::MyDerivedClass::ice_isA(s, current);
-#endif
 }
+
+#endif

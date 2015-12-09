@@ -22,7 +22,7 @@ TestI::TestI()
 
 void
 TestI::SBaseAsObject_async(function<void (const shared_ptr<Ice::Value>&)> response,
-                           function<void (const exception_ptr&)>,
+                           function<void (exception_ptr)>,
                            const ::Ice::Current&)
 {
     auto sb = make_shared<SBase>();
@@ -32,7 +32,7 @@ TestI::SBaseAsObject_async(function<void (const shared_ptr<Ice::Value>&)> respon
 
 void
 TestI::SBaseAsSBase_async(function<void (const shared_ptr<Test::SBase>&)> response,
-                          function<void (const exception_ptr&)>,
+                          function<void (exception_ptr)>,
                           const ::Ice::Current&)
 {
     auto sb = make_shared<SBase>();
@@ -42,7 +42,7 @@ TestI::SBaseAsSBase_async(function<void (const shared_ptr<Test::SBase>&)> respon
 
 void
 TestI::SBSKnownDerivedAsSBase_async(function<void (const shared_ptr<Test::SBase>&)> response,
-                                    function<void (const exception_ptr&)>,
+                                    function<void (exception_ptr)>,
                                     const ::Ice::Current&)
 {
     auto sbskd = make_shared<SBSKnownDerived>();
@@ -53,7 +53,7 @@ TestI::SBSKnownDerivedAsSBase_async(function<void (const shared_ptr<Test::SBase>
 
 void
 TestI::SBSKnownDerivedAsSBSKnownDerived_async(function<void (const shared_ptr<Test::SBSKnownDerived>&)> response,
-                                              function<void (const exception_ptr&)>,
+                                              function<void (exception_ptr)>,
                                               const ::Ice::Current&)
 {
     auto sbskd = make_shared<SBSKnownDerived>();
@@ -65,7 +65,7 @@ TestI::SBSKnownDerivedAsSBSKnownDerived_async(function<void (const shared_ptr<Te
 
 void
 TestI::SBSUnknownDerivedAsSBase_async(function<void (const shared_ptr<Test::SBase>&)> response,
-                                      function<void (const exception_ptr&)>,
+                                      function<void (exception_ptr)>,
                                       const ::Ice::Current&)
 {
     auto sbsud = make_shared<SBSUnknownDerived>();
@@ -74,10 +74,9 @@ TestI::SBSUnknownDerivedAsSBase_async(function<void (const shared_ptr<Test::SBas
     response(sbsud);
 }
 
-
 void
 TestI::SBSUnknownDerivedAsSBaseCompact_async(function<void (const shared_ptr<Test::SBase>&)> response,
-                                             function<void (const exception_ptr&)>,
+                                             function<void (exception_ptr)>,
                                              const ::Ice::Current&)
 {
     auto sbsud = make_shared<SBSUnknownDerived>();
@@ -89,7 +88,7 @@ TestI::SBSUnknownDerivedAsSBaseCompact_async(function<void (const shared_ptr<Tes
 
 void
 TestI::SUnknownAsObject_async(function<void (const shared_ptr<Ice::Value>&)> response,
-                              function<void (const exception_ptr&)>,
+                              function<void (exception_ptr)>,
                               const ::Ice::Current&)
 {
     auto su = make_shared<SUnknown>();
@@ -98,9 +97,9 @@ TestI::SUnknownAsObject_async(function<void (const shared_ptr<Ice::Value>&)> res
 }
 
 void
-TestI::checkSUnknown_async(const Ice::ValuePtr& obj,
+TestI::checkSUnknown_async(Ice::ValuePtr obj,
                            function<void ()> response,
-                           function<void (const exception_ptr&)>,
+                           function<void (exception_ptr)>,
                            const ::Ice::Current& current)
 {
     auto su = dynamic_pointer_cast<SUnknown>(obj);
@@ -119,7 +118,7 @@ TestI::checkSUnknown_async(const Ice::ValuePtr& obj,
 
 void
 TestI::oneElementCycle_async(function<void (const shared_ptr<Test::B>&)> response,
-                             function<void (const exception_ptr&)>,
+                             function<void (exception_ptr)>,
                              const ::Ice::Current&)
 {
     auto b = make_shared<B>();
@@ -130,7 +129,7 @@ TestI::oneElementCycle_async(function<void (const shared_ptr<Test::B>&)> respons
 
 void
 TestI::twoElementCycle_async(function<void (const shared_ptr<Test::B>&)> response,
-                             function<void (const exception_ptr&)>,
+                             function<void (exception_ptr)>,
                              const ::Ice::Current&)
 {
     auto b1 = make_shared<B>();
@@ -144,7 +143,7 @@ TestI::twoElementCycle_async(function<void (const shared_ptr<Test::B>&)> respons
 
 void
 TestI::D1AsB_async(function<void (const shared_ptr<Test::B>&)> response,
-                   function<void (const exception_ptr&)>,
+                   function<void (exception_ptr)>,
                    const ::Ice::Current&)
 {
     auto d1 = make_shared<D1>();
@@ -163,7 +162,7 @@ TestI::D1AsB_async(function<void (const shared_ptr<Test::B>&)> response,
 
 void
 TestI::D1AsD1_async(function<void (const shared_ptr<Test::D1>&)> response,
-                    function<void (const exception_ptr&)>,
+                    function<void (exception_ptr)>,
                     const ::Ice::Current&)
 {
     auto d1 = make_shared<D1>();
@@ -181,7 +180,7 @@ TestI::D1AsD1_async(function<void (const shared_ptr<Test::D1>&)> response,
 
 void
 TestI::D2AsB_async(function<void (const shared_ptr<Test::B>&)> response,
-                   function<void (const exception_ptr&)>,
+                   function<void (exception_ptr)>,
                    const ::Ice::Current&)
 {
     auto d2 = make_shared<D2>();
@@ -198,8 +197,9 @@ TestI::D2AsB_async(function<void (const shared_ptr<Test::B>&)> response,
 }
 
 void
-TestI::paramTest1_async(function<void (const shared_ptr<Test::B>&, const shared_ptr<Test::B>&)> response,
-                        function<void (const exception_ptr&)>,
+TestI::paramTest1_async(function<void (const shared_ptr<Test::B>&,
+                                       const shared_ptr<Test::B>&)> response,
+                        function<void (exception_ptr)>,
                         const ::Ice::Current&)
 {
     auto d1 = make_shared<D1>();
@@ -217,7 +217,7 @@ TestI::paramTest1_async(function<void (const shared_ptr<Test::B>&, const shared_
 
 void
 TestI::paramTest2_async(function<void (const shared_ptr<Test::B>&, const shared_ptr<Test::B>&)> response,
-                        function<void (const exception_ptr&)>,
+                        function<void (exception_ptr)>,
                         const ::Ice::Current&)
 {
     auto d1 = make_shared<D1>();
@@ -237,7 +237,7 @@ void
 TestI::paramTest3_async(function<void (const shared_ptr<Test::B>&,
                                        const shared_ptr<Test::B>&,
                                        const shared_ptr<Test::B>&)> response,
-                        function<void (const exception_ptr&)>,
+                        function<void (exception_ptr)>,
                         const ::Ice::Current&)
 {
     auto d2 = make_shared<D2>();
@@ -270,7 +270,7 @@ TestI::paramTest3_async(function<void (const shared_ptr<Test::B>&,
 void
 TestI::paramTest4_async(function<void (const shared_ptr<Test::B>&,
                                        const shared_ptr<Test::B>&)> response,
-                        function<void (const exception_ptr&)>,
+                        function<void (exception_ptr)>,
                         const ::Ice::Current&)
 {
     auto d4 = make_shared<D4>();
@@ -287,7 +287,7 @@ void
 TestI::returnTest1_async(function<void (const shared_ptr<Test::B>&,
                                         const shared_ptr<Test::B>&,
                                         const shared_ptr<Test::B>&)> response,
-                         function<void (const exception_ptr&)>,
+                         function<void (exception_ptr)>,
                          const ::Ice::Current&)
 {
     auto d1 = make_shared<D1>();
@@ -308,7 +308,7 @@ void
 TestI::returnTest2_async(function<void (const shared_ptr<Test::B>&,
                                         const shared_ptr<Test::B>&,
                                         const shared_ptr<Test::B>&)> response,
-                         function<void (const exception_ptr&)>,
+                         function<void (exception_ptr)>,
                          const ::Ice::Current&)
 {
     auto d1 = make_shared<D1>();
@@ -325,9 +325,10 @@ TestI::returnTest2_async(function<void (const shared_ptr<Test::B>&,
 }
 
 void
-TestI::returnTest3_async(const ::Test::BPtr& p1, const ::Test::BPtr&,
+TestI::returnTest3_async(shared_ptr<::Test::B> p1,
+                         shared_ptr<::Test::B>,
                          function<void (const shared_ptr<Test::B>&)> response,
-                         function<void (const exception_ptr&)>,
+                         function<void (exception_ptr)>,
                          const ::Ice::Current&)
 {
     response(p1);
@@ -335,23 +336,23 @@ TestI::returnTest3_async(const ::Test::BPtr& p1, const ::Test::BPtr&,
 
 
 void
-TestI::sequenceTest_async(const shared_ptr<::Test::SS1>& p1,
-                          const shared_ptr<::Test::SS2>& p2,
+TestI::sequenceTest_async(shared_ptr<::Test::SS1> p1,
+                          shared_ptr<::Test::SS2> p2,
                           function<void (const ::Test::SS3&)> response,
-                          function<void (const exception_ptr&)>,
+                          function<void (exception_ptr)>,
                           const ::Ice::Current&)
 {
     SS3 ss;
-    ss.c1 = p1;
-    ss.c2 = p2;
+    ss.c1 = move(p1);
+    ss.c2 = move(p2);
     response(ss);
 }
 
 
 void
-TestI::dictionaryTest_async(const Test::BDict& bin,
+TestI::dictionaryTest_async(Test::BDict bin,
                             function<void (const ::Test::BDict&, const ::Test::BDict&)> response,
-                            function<void (const exception_ptr&)>,
+                            function<void (exception_ptr)>,
                             const ::Ice::Current&)
 {
     BDict bout;
@@ -382,9 +383,9 @@ TestI::dictionaryTest_async(const Test::BDict& bin,
 }
 
 void
-TestI::exchangePBase_async(const shared_ptr<::Test::PBase>& pb,
+TestI::exchangePBase_async(shared_ptr<::Test::PBase> pb,
                            function<void (const shared_ptr<::Test::PBase>&)> response,
-                           function<void (const exception_ptr&)>,
+                           function<void (exception_ptr)>,
                            const ::Ice::Current&)
 {
     response(pb);
@@ -393,7 +394,7 @@ TestI::exchangePBase_async(const shared_ptr<::Test::PBase>& pb,
 
 void
 TestI::PBSUnknownAsPreserved_async(function<void (const shared_ptr<::Test::Preserved>&)> response,
-                                   function<void (const exception_ptr&)>,
+                                   function<void (exception_ptr)>,
                                    const ::Ice::Current& current)
 {
     auto r = make_shared<PSUnknown>();
@@ -413,9 +414,9 @@ TestI::PBSUnknownAsPreserved_async(function<void (const shared_ptr<::Test::Prese
 }
 
 void
-TestI::checkPBSUnknown_async(const shared_ptr<::Test::Preserved>& p,
+TestI::checkPBSUnknown_async(shared_ptr<::Test::Preserved> p,
                              function<void ()> response,
-                             function<void (const exception_ptr&)>,
+                             function<void (exception_ptr)>,
                              const ::Ice::Current& current)
 {
     auto pu = dynamic_pointer_cast<PSUnknown>(p);
@@ -439,7 +440,7 @@ TestI::checkPBSUnknown_async(const shared_ptr<::Test::Preserved>& p,
 
 void
 TestI::PBSUnknownAsPreservedWithGraph_async(function<void (const shared_ptr<::Test::Preserved>&)> response,
-                                            function<void (const exception_ptr&)>,
+                                            function<void (exception_ptr)>,
                                             const ::Ice::Current&)
 {
     auto r = make_shared<PSUnknown>();
@@ -456,9 +457,9 @@ TestI::PBSUnknownAsPreservedWithGraph_async(function<void (const shared_ptr<::Te
 
 
 void
-TestI::checkPBSUnknownWithGraph_async(const ::Test::PreservedPtr& p,
+TestI::checkPBSUnknownWithGraph_async(shared_ptr<::Test::Preserved> p,
                                       function<void ()> response,
-                                      function<void (const exception_ptr&)>,
+                                      function<void (exception_ptr)>,
                                       const ::Ice::Current& current)
 {
     auto pu = dynamic_pointer_cast<PSUnknown>(p);
@@ -484,7 +485,7 @@ TestI::checkPBSUnknownWithGraph_async(const ::Test::PreservedPtr& p,
 
 void
 TestI::PBSUnknown2AsPreservedWithGraph_async(function<void (const shared_ptr<::Test::Preserved>&)> response,
-                                             function<void (const exception_ptr&)>,
+                                             function<void (exception_ptr)>,
                                              const ::Ice::Current&)
 {
     auto r = make_shared<PSUnknown2>();
@@ -496,9 +497,9 @@ TestI::PBSUnknown2AsPreservedWithGraph_async(function<void (const shared_ptr<::T
 }
 
 void
-TestI::checkPBSUnknown2WithGraph_async(const shared_ptr<::Test::Preserved>& p,
+TestI::checkPBSUnknown2WithGraph_async(shared_ptr<::Test::Preserved> p,
                                        function<void ()> response,
-                                       function<void (const exception_ptr&)>,
+                                       function<void (exception_ptr)>,
                                        const ::Ice::Current& current)
 {
     auto pu = dynamic_pointer_cast<PSUnknown2>(p);
@@ -520,9 +521,9 @@ TestI::checkPBSUnknown2WithGraph_async(const shared_ptr<::Test::Preserved>& p,
 }
 
 void
-TestI::exchangePNode_async(const ::Test::PNodePtr& pn,
+TestI::exchangePNode_async(shared_ptr<::Test::PNode> pn,
                            function<void (const shared_ptr<::Test::PNode>&)> response,
-                           function<void (const exception_ptr&)>,
+                           function<void (exception_ptr)>,
                            const ::Ice::Current&)
 {
     response(pn);
@@ -530,7 +531,7 @@ TestI::exchangePNode_async(const ::Test::PNodePtr& pn,
 
 void
 TestI::throwBaseAsBase_async(function<void ()>,
-                             function<void (const exception_ptr&)> exception,
+                             function<void (exception_ptr)> exception,
                              const ::Ice::Current&)
 {
     try
@@ -550,7 +551,7 @@ TestI::throwBaseAsBase_async(function<void ()>,
 
 void
 TestI::throwDerivedAsBase_async(function<void ()>,
-                                function<void (const exception_ptr&)> exception,
+                                function<void (exception_ptr)> exception,
                                 const ::Ice::Current&)
 {
     try
@@ -576,7 +577,7 @@ TestI::throwDerivedAsBase_async(function<void ()>,
 
 void
 TestI::throwDerivedAsDerived_async(function<void ()>,
-                                   function<void (const exception_ptr&)> exception,
+                                   function<void (exception_ptr)> exception,
                                    const ::Ice::Current&)
 {
     try
@@ -602,7 +603,7 @@ TestI::throwDerivedAsDerived_async(function<void ()>,
 
 void
 TestI::throwUnknownDerivedAsBase_async(function<void ()>,
-                                       function<void (const exception_ptr&)> exception,
+                                       function<void (exception_ptr)> exception,
                                        const ::Ice::Current&)
 {
     try
@@ -628,7 +629,7 @@ TestI::throwUnknownDerivedAsBase_async(function<void ()>,
 
 void
 TestI::throwPreservedException_async(function<void ()>,
-                                     function<void (const exception_ptr&)> exception,
+                                     function<void (exception_ptr)> exception,
                                      const ::Ice::Current&)
 {
     try
@@ -649,18 +650,18 @@ TestI::throwPreservedException_async(function<void ()>,
 
 void
 TestI::useForward_async(function<void (const shared_ptr<::Test::Forward>&)> response,
-                        function<void (const exception_ptr&)>,
+                        function<void (exception_ptr)>,
                         const ::Ice::Current&)
 {
     auto f = make_shared<Forward>();
-    f->h = make_shared<Hidden>;
+    f->h = make_shared<Hidden>();
     f->h->f = f;
     response(f);
 }
 
 void
 TestI::shutdown_async(function<void ()> response,
-                      function<void (const exception_ptr&)>,
+                      function<void (exception_ptr)>,
                       const ::Ice::Current& current)
 {
     current.adapter->getCommunicator()->shutdown();

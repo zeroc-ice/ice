@@ -11,6 +11,7 @@
 #define TEST_I_H
 
 #include <Test.h>
+#include <TestCommon.h>
 
 class TestIntfI : public Test::TestIntf
 {
@@ -23,11 +24,11 @@ class ControllerI : public Test::Controller
 {
 public:
 
-    virtual void activateObjectAdapter(const std::string&, const std::string&, const std::string&, const Ice::Current&);
-    virtual void deactivateObjectAdapter(const std::string&, const Ice::Current&);
+    virtual void activateObjectAdapter(ICE_IN(std::string), ICE_IN(std::string), ICE_IN(std::string), const Ice::Current&);
+    virtual void deactivateObjectAdapter(ICE_IN(std::string), const Ice::Current&);
 
-    virtual void addObject(const std::string&, const std::string&, const Ice::Current&);
-    virtual void removeObject(const std::string&, const std::string&, const Ice::Current&);
+    virtual void addObject(ICE_IN(std::string), ICE_IN(std::string), const Ice::Current&);
+    virtual void removeObject(ICE_IN(std::string), ICE_IN(std::string), const Ice::Current&);
 
     virtual void shutdown(const Ice::Current&);
     

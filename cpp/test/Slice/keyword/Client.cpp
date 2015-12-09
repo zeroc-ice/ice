@@ -20,7 +20,7 @@ public:
 #ifdef ICE_CPP11_MAPPING
     virtual void case_async(::Ice::Int,
                             function<void (int)> response,
-                            function<void (const exception_ptr&)>,
+                            function<void (exception_ptr)>,
                             const ::Ice::Current&)
     {
         response(0);
@@ -50,7 +50,7 @@ public:
 class switchI: public _cpp_and::_cpp_switch
 {
 public:
-    virtual void foo(const _cpp_and::charPrx&, Ice::Int&, const ::Ice::Current&)
+    virtual void foo(_cpp_and::charPrx, Ice::Int&, const ::Ice::Current&)
     {
     }
 };

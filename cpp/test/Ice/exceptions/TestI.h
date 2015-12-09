@@ -11,6 +11,7 @@
 #define TEST_I_H
 
 #include <Test.h>
+#include <TestCommon.h>
 
 bool endsWith(const std::string&, const std::string&);
 
@@ -40,7 +41,7 @@ public:
     virtual void throwLocalException(const Ice::Current&);
     virtual void throwNonIceException(const Ice::Current&);
     virtual void throwAssertException(const Ice::Current&);
-    virtual Ice::ByteSeq throwMemoryLimitException(const Ice::ByteSeq&, const Ice::Current&);
+    virtual Ice::ByteSeq throwMemoryLimitException(ICE_IN(Ice::ByteSeq), const Ice::Current&);
 
     virtual void throwLocalExceptionIdempotent(const Ice::Current&);
 

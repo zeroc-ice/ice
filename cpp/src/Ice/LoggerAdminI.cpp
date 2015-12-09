@@ -33,12 +33,21 @@ public:
 
     LoggerAdminI(const PropertiesPtr&);
 
-    virtual void attachRemoteLogger(const RemoteLoggerPrxPtr&, const LogMessageTypeSeq&,
+#ifdef ICE_CPP11_MAPPING
+    virtual void attachRemoteLogger(shared_ptr<RemoteLoggerPrx>, LogMessageTypeSeq,
+                                    StringSeq, Int, const Current&);
+
+    virtual bool detachRemoteLogger(shared_ptr<RemoteLoggerPrx>, const Current&);
+
+    virtual LogMessageSeq getLog(LogMessageTypeSeq, StringSeq, Int, string&, const Current&);
+#else
+    virtual void attachRemoteLogger(const RemoteLoggerPrx&, const LogMessageTypeSeq&,
                                     const StringSeq&, Int, const Current&);
 
-    virtual bool detachRemoteLogger(const RemoteLoggerPrxPtr&, const Current&);
+    virtual bool detachRemoteLogger(const RemoteLoggerPrx&, const Current&);
 
     virtual LogMessageSeq getLog(const LogMessageTypeSeq&, const StringSeq&, Int, string&, const Current&);
+#endif
 
     void destroy();
 
@@ -324,11 +333,19 @@ LoggerAdminI::LoggerAdminI(const PropertiesPtr& props) :
 }
 
 void
-LoggerAdminI::attachRemoteLogger(const RemoteLoggerPrxPtr& prx,
+#ifdef ICE_CPP11_MAPPING
+LoggerAdminI::attachRemoteLogger(shared_ptr<RemoteLoggerPrx> prx,
+                                 LogMessageTypeSeq messageTypes,
+                                 StringSeq categories,
+                                 Int messageMax,
+                                 const Current& current)
+#else
+LoggerAdminI::attachRemoteLogger(const RemoteLoggerPrx& prx,
                                  const LogMessageTypeSeq& messageTypes,
                                  const StringSeq& categories,
                                  Int messageMax,
                                  const Current& current)
+#endif
 {
     if(!prx)
     {
@@ -438,7 +455,11 @@ LoggerAdminI::attachRemoteLogger(const RemoteLoggerPrxPtr& prx,
 }
 
 bool
-LoggerAdminI::detachRemoteLogger(const RemoteLoggerPrxPtr& remoteLogger, const Current& current)
+#ifdef ICE_CPP11_MAPPING
+LoggerAdminI::detachRemoteLogger(shared_ptr<RemoteLoggerPrx> remoteLogger, const Current& current)
+#else
+LoggerAdminI::detachRemoteLogger(const RemoteLoggerPrx& remoteLogger, const Current& current)
+#endif
 {
     if(remoteLogger == 0)
     {
@@ -467,8 +488,13 @@ LoggerAdminI::detachRemoteLogger(const RemoteLoggerPrxPtr& remoteLogger, const C
 }
 
 LogMessageSeq
-LoggerAdminI::getLog(const LogMessageTypeSeq& messageTypes, const StringSeq& categories,
+#ifdef ICE_CPP11_MAPPING
+LoggerAdminI::getLog(LogMessageTypeSeq messageTypes, StringSeq categories,
                      Int messageMax, string& prefix, const Current& current)
+#else
+LoggerAdminI::getLog(LogMessageTypeSeq messageTypes, StringSeq categories,
+                     Int messageMax, string& prefix, const Current& current)
+#endif
 {
     LogMessageSeq logMessages;
     {

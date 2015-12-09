@@ -21,9 +21,9 @@ TestIntfI::getAdapterId(const Ice::Current& current)
 }
 
 void
-ControllerI::activateObjectAdapter(const string& name, 
-                                   const string& adapterId, 
-                                   const string& replicaGroupId,
+ControllerI::activateObjectAdapter(ICE_IN(string) name, 
+                                   ICE_IN(string) adapterId, 
+                                   ICE_IN(string) replicaGroupId,
                                    const Ice::Current& current)
 {
     Ice::CommunicatorPtr communicator = current.adapter->getCommunicator();
@@ -36,14 +36,14 @@ ControllerI::activateObjectAdapter(const string& name,
 }
 
 void
-ControllerI::deactivateObjectAdapter(const string& name, const Ice::Current& current)
+ControllerI::deactivateObjectAdapter(ICE_IN(string) name, const Ice::Current& current)
 {
     _adapters[name]->destroy();
     _adapters.erase(name);
 }
 
 void
-ControllerI::addObject(const string& oaName, const string& id, const Ice::Current&)
+ControllerI::addObject(ICE_IN(string) oaName, ICE_IN(string) id, const Ice::Current&)
 {
     assert(_adapters[oaName]);
     Ice::Identity identity;
@@ -52,7 +52,7 @@ ControllerI::addObject(const string& oaName, const string& id, const Ice::Curren
 }
 
 void
-ControllerI::removeObject(const string& oaName, const string& id, const Ice::Current&)
+ControllerI::removeObject(ICE_IN(string) oaName, ICE_IN(string) id, const Ice::Current&)
 {
     assert(_adapters[oaName]);
     Ice::Identity identity;

@@ -79,7 +79,7 @@ TestI::SUnknownAsObject(const ::Ice::Current&)
 }
 
 void
-TestI::checkSUnknown(const Ice::ValuePtr& obj, const ::Ice::Current& current)
+TestI::checkSUnknown(ICE_IN(Ice::ValuePtr) obj, const ::Ice::Current& current)
 {
     SUnknownPtr su = ICE_DYNAMIC_CAST(SUnknown, obj);
     if(current.encoding == Ice::Encoding_1_0)
@@ -267,13 +267,13 @@ TestI::returnTest2(BPtr& p1, BPtr& p2, const ::Ice::Current&)
 }
 
 BPtr
-TestI::returnTest3(const BPtr& p1, const BPtr&, const ::Ice::Current&)
+TestI::returnTest3(ICE_IN(BPtr) p1, ICE_IN(BPtr), const ::Ice::Current&)
 {
     return p1;
 }
 
 SS3
-TestI::sequenceTest(const SS1Ptr& p1, const SS2Ptr& p2, const ::Ice::Current&)
+TestI::sequenceTest(ICE_IN(SS1Ptr) p1, ICE_IN(SS2Ptr) p2, const ::Ice::Current&)
 {
     SS3 ss;
     ss.c1 = p1;
@@ -282,7 +282,7 @@ TestI::sequenceTest(const SS1Ptr& p1, const SS2Ptr& p2, const ::Ice::Current&)
 }
 
 Test::BDict
-TestI::dictionaryTest(const BDict& bin, BDict& bout, const ::Ice::Current&)
+TestI::dictionaryTest(ICE_IN(BDict) bin, BDict& bout, const ::Ice::Current&)
 {
     int i;
     for(i = 0; i < 10; ++i)
@@ -317,7 +317,7 @@ TestI::dictionaryTest(const BDict& bin, BDict& bout, const ::Ice::Current&)
 }
 
 Test::PBasePtr
-TestI::exchangePBase(const Test::PBasePtr& pb, const Ice::Current&)
+TestI::exchangePBase(ICE_IN(Test::PBasePtr) pb, const Ice::Current&)
 {
     return pb;
 }
@@ -342,7 +342,7 @@ TestI::PBSUnknownAsPreserved(const Ice::Current& current)
 }
 
 void
-TestI::checkPBSUnknown(const Test::PreservedPtr& p, const Ice::Current& current)
+TestI::checkPBSUnknown(ICE_IN(Test::PreservedPtr) p, const Ice::Current& current)
 {
     PSUnknownPtr pu =  ICE_DYNAMIC_CAST(PSUnknown, p);
     if(current.encoding == Ice::Encoding_1_0)
@@ -365,7 +365,7 @@ TestI::checkPBSUnknown(const Test::PreservedPtr& p, const Ice::Current& current)
 #ifdef ICE_CPP11_MAPPING
 void
 TestI::PBSUnknownAsPreservedWithGraph_async(function<void (const shared_ptr<Test::Preserved>&)> response,
-                                            function<void (const exception_ptr&)>,
+                                            function<void (exception_ptr)>,
                                             const Ice::Current&)
 #else
 void
@@ -390,7 +390,7 @@ TestI::PBSUnknownAsPreservedWithGraph_async(const Test::AMD_TestIntf_PBSUnknownA
 }
 
 void
-TestI::checkPBSUnknownWithGraph(const Test::PreservedPtr& p, const Ice::Current& current)
+TestI::checkPBSUnknownWithGraph(ICE_IN(Test::PreservedPtr) p, const Ice::Current& current)
 {
     PSUnknownPtr pu = ICE_DYNAMIC_CAST(PSUnknown, p);
     if(current.encoding == Ice::Encoding_1_0)
@@ -415,7 +415,7 @@ TestI::checkPBSUnknownWithGraph(const Test::PreservedPtr& p, const Ice::Current&
 #ifdef ICE_CPP11_MAPPING
 void
 TestI::PBSUnknown2AsPreservedWithGraph_async(function<void (const shared_ptr<Test::Preserved>&)> response,
-                                             function<void (const exception_ptr&)>,
+                                             function<void (exception_ptr)>,
                                              const Ice::Current&)
 #else
 void
@@ -436,7 +436,7 @@ TestI::PBSUnknown2AsPreservedWithGraph_async(const Test::AMD_TestIntf_PBSUnknown
 }
 
 void
-TestI::checkPBSUnknown2WithGraph(const Test::PreservedPtr& p, const Ice::Current& current)
+TestI::checkPBSUnknown2WithGraph(ICE_IN(Test::PreservedPtr) p, const Ice::Current& current)
 {
     PSUnknown2Ptr pu = ICE_DYNAMIC_CAST(PSUnknown2, p);
     if(current.encoding == Ice::Encoding_1_0)
@@ -456,7 +456,7 @@ TestI::checkPBSUnknown2WithGraph(const Test::PreservedPtr& p, const Ice::Current
 }
 
 Test::PNodePtr
-TestI::exchangePNode(const Test::PNodePtr& pn, const Ice::Current&)
+TestI::exchangePNode(ICE_IN(Test::PNodePtr) pn, const Ice::Current&)
 {
     return pn;
 }
@@ -539,7 +539,7 @@ TestI::throwUnknownDerivedAsBase(const ::Ice::Current&)
 #ifdef ICE_CPP11_MAPPING
 void
 TestI::throwPreservedException_async(function<void ()>,
-                                     function<void (const exception_ptr&)> exception,
+                                     function<void (exception_ptr)> exception,
                                      const ::Ice::Current&)
 #else
 void

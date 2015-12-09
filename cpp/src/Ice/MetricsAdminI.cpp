@@ -529,7 +529,11 @@ MetricsAdminI::getMetricsViewNames(Ice::StringSeq& disabledViews, const Current&
 }
 
 void
+#ifdef ICE_CPP11_MAPPING
+MetricsAdminI::enableMetricsView(string viewName, const Current&)
+#else
 MetricsAdminI::enableMetricsView(const string& viewName, const Current&)
+#endif
 {
     {
         Lock sync(*this);
@@ -540,7 +544,11 @@ MetricsAdminI::enableMetricsView(const string& viewName, const Current&)
 }
 
 void
+#ifdef ICE_CPP11_MAPPING
+MetricsAdminI::disableMetricsView(string viewName, const Current&)
+#else
 MetricsAdminI::disableMetricsView(const string& viewName, const Current&)
+#endif
 {
     {
         Lock sync(*this);
@@ -551,7 +559,11 @@ MetricsAdminI::disableMetricsView(const string& viewName, const Current&)
 }
 
 MetricsView
+#ifdef ICE_CPP11_MAPPING
+MetricsAdminI::getMetricsView(string viewName, ::Ice::Long& timestamp, const Current&)
+#else
 MetricsAdminI::getMetricsView(const string& viewName, ::Ice::Long& timestamp, const Current&)
+#endif
 {
     Lock sync(*this);
     MetricsViewIPtr view = getMetricsView(viewName);
@@ -564,7 +576,11 @@ MetricsAdminI::getMetricsView(const string& viewName, ::Ice::Long& timestamp, co
 }
 
 MetricsFailuresSeq
+#ifdef ICE_CPP11_MAPPING
+MetricsAdminI::getMapMetricsFailures(string viewName, string map, const Current&)
+#else
 MetricsAdminI::getMapMetricsFailures(const string& viewName, const string& map, const Current&)
+#endif
 {
     Lock sync(*this);
     MetricsViewIPtr view = getMetricsView(viewName);
@@ -576,7 +592,11 @@ MetricsAdminI::getMapMetricsFailures(const string& viewName, const string& map, 
 }
 
 MetricsFailures
+#ifdef ICE_CPP11_MAPPING
+MetricsAdminI::getMetricsFailures(string viewName, string map, string id, const Current&)
+#else
 MetricsAdminI::getMetricsFailures(const string& viewName, const string& map, const string& id, const Current&)
+#endif
 {
     Lock sync(*this);
     MetricsViewIPtr view = getMetricsView(viewName);

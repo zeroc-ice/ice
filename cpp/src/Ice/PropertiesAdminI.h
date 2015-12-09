@@ -25,13 +25,16 @@ public:
 
     PropertiesAdminI(const Ice::PropertiesPtr&, const Ice::LoggerPtr&);
 
+#ifdef ICE_CPP11_MAPPING
+    virtual std::string getProperty(std::string, const Ice::Current&);
+    virtual Ice::PropertyDict getPropertiesForPrefix(std::string, const Ice::Current&);
+    virtual void setProperties_async(::Ice::PropertyDict,
+                                     ::std::function<void ()>,
+                                     ::std::function<void (::std::exception_ptr)>,
+                                     const Ice::Current&);
+#else
     virtual std::string getProperty(const std::string&, const Ice::Current&);
     virtual Ice::PropertyDict getPropertiesForPrefix(const std::string&, const Ice::Current&);
-
-#ifdef ICE_CPP11_MAPPING
-    virtual void setProperties_async(const ::Ice::PropertyDict&, ::std::function<void ()>,
-                                     ::std::function<void (const ::std::exception_ptr&)>, const Ice::Current&);
-#else
     virtual void setProperties_async(const Ice::AMD_PropertiesAdmin_setPropertiesPtr&, const Ice::PropertyDict&, const Ice::Current&);
 #endif
 

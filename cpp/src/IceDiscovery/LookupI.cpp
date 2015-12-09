@@ -179,8 +179,13 @@ LookupI::setLookupReply(const LookupReplyPrxPtr& lookupReply)
 }
 
 void
-LookupI::findObjectById(const string& domainId, const Ice::Identity& id, const IceDiscovery::LookupReplyPrxPtr& reply,
+#ifdef ICE_CPP11_MAPPING
+LookupI::findObjectById(string domainId, Ice::Identity id, shared_ptr<IceDiscovery::LookupReplyPrx> reply,
                         const Ice::Current&)
+#else
+LookupI::findObjectById(const string& domainId, const Ice::Identity& id, const IceDiscovery::LookupReplyPrx& reply,
+                        const Ice::Current&)
+#endif
 {
     if(domainId != _domainId)
     {
@@ -209,8 +214,13 @@ LookupI::findObjectById(const string& domainId, const Ice::Identity& id, const I
 }
 
 void
-LookupI::findAdapterById(const string& domainId, const std::string& adapterId,
-                         const IceDiscovery::LookupReplyPrxPtr& reply, const Ice::Current&)
+#ifdef ICE_CPP11_MAPPING
+LookupI::findAdapterById(string domainId, string adapterId, shared_ptr<IceDiscovery::LookupReplyPrx> reply,
+                         const Ice::Current&)
+#else
+LookupI::findAdapterById(const string& domainId, const string& adapterId, const IceDiscovery::LookupReplyPrxPtr& reply,
+                         const Ice::Current&)
+#endif
 {
     if(domainId != _domainId)
     {
@@ -441,16 +451,28 @@ LookupReplyI::LookupReplyI(const LookupIPtr& lookup) : _lookup(lookup)
 {
 }
 
+#ifdef ICE_CPP11_MAPPING
 void
-LookupReplyI::foundObjectById(const Ice::Identity& id, const Ice::ObjectPrxPtr& proxy, const Ice::Current&)
+LookupReplyI::foundObjectById(Identity id, shared_ptr<ObjectPrx> proxy, const Current&)
 {
     _lookup->foundObject(id, proxy);
 }
 
 void
-LookupReplyI::foundAdapterById(const std::string& adapterId, const Ice::ObjectPrxPtr& proxy, bool isReplicaGroup,
-                               const Ice::Current&)
+LookupReplyI::foundAdapterById(string adapterId, shared_ptr<ObjectPrx> proxy, bool isReplicaGroup, const Current&)
 {
     _lookup->foundAdapter(adapterId, proxy, isReplicaGroup);
 }
+#else
+void
+LookupReplyI::foundObjectById(const Identity& id, const ObjectPrxPtr& proxy, const Current&)
+{
+    _lookup->foundObject(id, proxy);
+}
 
+void
+LookupReplyI::foundAdapterById(const string& adapterId, const ObjectPrxPtr& proxy, bool isReplicaGroup, const Current&)
+{
+    _lookup->foundAdapter(adapterId, proxy, isReplicaGroup);
+}
+#endif

@@ -645,6 +645,14 @@ public:
     void unregisterMap(const std::string&);
 
     virtual Ice::StringSeq getMetricsViewNames(Ice::StringSeq&, const ::Ice::Current&);
+    
+#ifdef ICE_CPP11_MAPPING
+    virtual void enableMetricsView(std::string, const ::Ice::Current&);
+    virtual void disableMetricsView(std::string, const ::Ice::Current&);
+    virtual IceMX::MetricsView getMetricsView(std::string, Ice::Long&, const ::Ice::Current&);
+    virtual IceMX::MetricsFailuresSeq getMapMetricsFailures(std::string, std::string, const ::Ice::Current&);
+    virtual IceMX::MetricsFailures getMetricsFailures(std::string, std::string, std::string, const ::Ice::Current&);
+#else
     virtual void enableMetricsView(const std::string&, const ::Ice::Current&);
     virtual void disableMetricsView(const std::string&, const ::Ice::Current&);
     virtual IceMX::MetricsView getMetricsView(const std::string&, Ice::Long&, const ::Ice::Current&);
@@ -652,7 +660,7 @@ public:
                                                             const ::Ice::Current&);
     virtual IceMX::MetricsFailures getMetricsFailures(const std::string&, const std::string&, const std::string&,
                                                       const ::Ice::Current&);
-
+#endif
     std::vector<MetricsMapIPtr> getMaps(const std::string&) const;
 
     const Ice::LoggerPtr& getLogger() const;

@@ -215,7 +215,7 @@ InitialI::getI(const Ice::Current&)
 }
 
 void
-InitialI::setI(const shared_ptr<Ice::Value>&, const Ice::Current&)
+InitialI::setI(ICE_IN(shared_ptr<Ice::Value>), const Ice::Current&)
 {
 }
 #else
@@ -232,7 +232,7 @@ InitialI::setI(const IPtr&, const Ice::Current&)
 #endif
 
 BaseSeq
-InitialI::opBaseSeq(const BaseSeq& inSeq, BaseSeq& outSeq, const Ice::Current&)
+InitialI::opBaseSeq(ICE_IN(BaseSeq) inSeq, BaseSeq& outSeq, const Ice::Current&)
 {
     outSeq = inSeq;
     return inSeq;
@@ -299,7 +299,7 @@ InitialI::getH(const Ice::Current&)
 #endif
 
 D1Ptr
-InitialI::getD1(const Test::D1Ptr& d1, const Ice::Current&)
+InitialI::getD1(ICE_IN(Test::D1Ptr) d1, const Ice::Current&)
 {
     return d1;
 }

@@ -11,6 +11,7 @@
 #define TEST_I_H
 
 #include <Test.h>
+#include <TestCommon.h>
 
 class TestIntfControllerI;
 ICE_DEFINE_PTR(TestIntfControllerIPtr, TestIntfControllerI);
@@ -24,7 +25,7 @@ public:
     virtual void op(const Ice::Current&);
     virtual int opWithResult(const Ice::Current&);
     virtual void opWithUE(const Ice::Current&);
-    virtual void opWithPayload(const Ice::ByteSeq&, const Ice::Current&);
+    virtual void opWithPayload(ICE_IN(Ice::ByteSeq), const Ice::Current&);
     virtual void opBatch(const Ice::Current&);
     virtual Ice::Int opBatchCount(const Ice::Current&);
     virtual void opWithArgs(Ice::Int&, Ice::Int&, Ice::Int&, Ice::Int&, Ice::Int&, Ice::Int&, Ice::Int&,

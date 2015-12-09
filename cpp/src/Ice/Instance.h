@@ -212,7 +212,11 @@ public:
     ProcessI(const Ice::CommunicatorPtr&);
 
     virtual void shutdown(const Ice::Current&);
+#ifdef ICE_CPP11_MAPPING
+    virtual void writeMessage(std::string, Ice::Int, const Ice::Current&);
+#else
     virtual void writeMessage(const std::string&, Ice::Int, const Ice::Current&);
+#endif
 
 private:
 

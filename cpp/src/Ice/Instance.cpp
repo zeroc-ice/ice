@@ -1951,7 +1951,11 @@ IceInternal::ProcessI::shutdown(const Current&)
 }
 
 void
+#ifdef ICE_CPP11_MAPPING
+IceInternal::ProcessI::writeMessage(string message, Int fd, const Current&)
+#else
 IceInternal::ProcessI::writeMessage(const string& message, Int fd, const Current&)
+#endif
 {
     switch(fd)
     {

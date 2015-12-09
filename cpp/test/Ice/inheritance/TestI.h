@@ -11,6 +11,7 @@
 #define TESTI_H
 
 #include <Test.h>
+#include <TestCommon.h>
 
 class InitialI : public Test::Initial
 {
@@ -46,28 +47,28 @@ class CAI_ : virtual public Test::MA::CADisp
 {
 public:
 
-    virtual std::shared_ptr<Test::MA::CAPrx> caop(const std::shared_ptr<Test::MA::CAPrx>&, const Ice::Current&);
+    virtual std::shared_ptr<Test::MA::CAPrx> caop(std::shared_ptr<Test::MA::CAPrx>, const Ice::Current&);
 };
 
 class CBI : virtual public Test::MB::CBDisp, virtual public CAI_
 {
 public:
 
-    virtual std::shared_ptr<Test::MB::CBPrx> cbop(const std::shared_ptr<Test::MB::CBPrx>&, const Ice::Current&);
+    virtual std::shared_ptr<Test::MB::CBPrx> cbop(std::shared_ptr<Test::MB::CBPrx>, const Ice::Current&);
 };
 
 class CCI : virtual public Test::MA::CCDisp, virtual public CBI
 {
 public:
 
-    virtual std::shared_ptr<Test::MA::CCPrx> ccop(const std::shared_ptr<Test::MA::CCPrx>&, const Ice::Current&);
+    virtual std::shared_ptr<Test::MA::CCPrx> ccop(std::shared_ptr<Test::MA::CCPrx>, const Ice::Current&);
 };
 
 class IAI : virtual public Test::MA::IA
 {
 public:
 
-    virtual std::shared_ptr<Test::MA::IAPrx> iaop(const std::shared_ptr<Test::MA::IAPrx>&, const Ice::Current&);
+    virtual std::shared_ptr<Test::MA::IAPrx> iaop(std::shared_ptr<Test::MA::IAPrx>, const Ice::Current&);
 };
 
 class IB1I : virtual public Test::MB::IB1,
@@ -75,28 +76,28 @@ class IB1I : virtual public Test::MB::IB1,
 {
 public:
 
-    virtual std::shared_ptr<Test::MB::IB1Prx> ib1op(const std::shared_ptr<Test::MB::IB1Prx>&, const Ice::Current&);
+    virtual std::shared_ptr<Test::MB::IB1Prx> ib1op(std::shared_ptr<Test::MB::IB1Prx>, const Ice::Current&);
 };
 
 class IB2I : virtual public Test::MB::IB2, virtual public IAI
 {
 public:
 
-    virtual std::shared_ptr<Test::MB::IB2Prx> ib2op(const std::shared_ptr<Test::MB::IB2Prx>&, const Ice::Current&);
+    virtual std::shared_ptr<Test::MB::IB2Prx> ib2op(std::shared_ptr<Test::MB::IB2Prx>, const Ice::Current&);
 };
 
 class ICI : virtual public Test::MA::IC, virtual public IB1I, virtual public IB2I
 {
 public:
 
-    virtual std::shared_ptr<Test::MA::ICPrx> icop(const std::shared_ptr<Test::MA::ICPrx>&, const Ice::Current&);
+    virtual std::shared_ptr<Test::MA::ICPrx> icop(std::shared_ptr<Test::MA::ICPrx>, const Ice::Current&);
 };
 
 class CDI : virtual public Test::MA::CDDisp, virtual public CCI, virtual public IB1I, virtual public IB2I
 {
 public:
 
-    virtual std::shared_ptr<Test::MA::CDPrx> cdop(const std::shared_ptr<Test::MA::CDPrx>&, const Ice::Current&);
+    virtual std::shared_ptr<Test::MA::CDPrx> cdop(std::shared_ptr<Test::MA::CDPrx>, const Ice::Current&);
 };
 #else
 class CAI_ : virtual public Test::MA::CA

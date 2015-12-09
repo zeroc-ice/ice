@@ -30,14 +30,22 @@ PropertiesAdminI::PropertiesAdminI(const PropertiesPtr& properties, const Logger
 }
 
 string
+#ifdef ICE_CPP11_MAPPING
+PropertiesAdminI::getProperty(string name, const Current&)
+#else
 PropertiesAdminI::getProperty(const string& name, const Current&)
+#endif
 {
     Lock sync(*this);
     return _properties->getProperty(name);
 }
 
 PropertyDict
+#ifdef ICE_CPP11_MAPPING
+PropertiesAdminI::getPropertiesForPrefix(string prefix, const Current&)
+#else
 PropertiesAdminI::getPropertiesForPrefix(const string& prefix, const Current&)
+#endif
 {
     Lock sync(*this);
     return _properties->getPropertiesForPrefix(prefix);
@@ -45,9 +53,9 @@ PropertiesAdminI::getPropertiesForPrefix(const string& prefix, const Current&)
 
 void
 #ifdef ICE_CPP11_MAPPING
-PropertiesAdminI::setProperties_async(const PropertyDict& props,
+PropertiesAdminI::setProperties_async(PropertyDict props,
                                       function<void ()> response,
-                                      function<void (const ::std::exception_ptr&)>,
+                                      function<void (exception_ptr)>,
                                       const Current&)
 #else
 PropertiesAdminI::setProperties_async(const AMD_PropertiesAdmin_setPropertiesPtr& cb, const PropertyDict& props,
