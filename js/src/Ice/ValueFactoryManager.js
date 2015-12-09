@@ -47,7 +47,12 @@ var ValueFactoryManager = Ice.Class({
             ex.kindOfObject = "value factory";
             throw ex;
         }
-        this._factoryMap.set(id, factory);
+        this._factoryMap.set(id,
+            function(s)
+            {
+                return factory.create(s);
+            }
+        );
         this._objectFactoryMap.set(id, factory);
     },
     find: function(id)

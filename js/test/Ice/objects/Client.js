@@ -136,16 +136,7 @@
     JI.prototype = new Test.J();
     JI.prototype.constructor = JI;
 
-    var MyValueFactory = function()
-    {
-        Ice.ValueFactory.call(this);
-    };
-
-    MyValueFactory.prototype = new Ice.ValueFactory();
-
-    MyValueFactory.prototype.constructor = MyValueFactory;
-
-    MyValueFactory.prototype.create = function(type)
+    function MyValueFactory(type)
     {
         switch(type)
         {
@@ -173,7 +164,7 @@
                 break;
         }
         return null;
-    };
+    }
 
     var MyObjectFactory = function()
     {
@@ -217,17 +208,16 @@
         Promise.try(
             function()
             {
-                var factory = new MyValueFactory();
-                communicator.addValueFactory(factory, "::Test::B");
-                communicator.addValueFactory(factory, "::Test::C");
-                communicator.addValueFactory(factory, "::Test::D");
-                communicator.addValueFactory(factory, "::Test::E");
-                communicator.addValueFactory(factory, "::Test::F");
-                communicator.addValueFactory(factory, "::Test::I");
-                communicator.addValueFactory(factory, "::Test::J");
-                communicator.addValueFactory(factory, "::Test::H");
-                communicator.addValueFactory(factory, "::Test::Inner::A");
-                communicator.addValueFactory(factory, "::Test::Inner::Sub::A");
+                communicator.addValueFactory(MyValueFactory, "::Test::B");
+                communicator.addValueFactory(MyValueFactory, "::Test::C");
+                communicator.addValueFactory(MyValueFactory, "::Test::D");
+                communicator.addValueFactory(MyValueFactory, "::Test::E");
+                communicator.addValueFactory(MyValueFactory, "::Test::F");
+                communicator.addValueFactory(MyValueFactory, "::Test::I");
+                communicator.addValueFactory(MyValueFactory, "::Test::J");
+                communicator.addValueFactory(MyValueFactory, "::Test::H");
+                communicator.addValueFactory(MyValueFactory, "::Test::Inner::A");
+                communicator.addValueFactory(MyValueFactory, "::Test::Inner::Sub::A");
 
                 communicator.addObjectFactory(new MyObjectFactory(), "TestOF");
 

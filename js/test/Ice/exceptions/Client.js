@@ -40,14 +40,10 @@
         {
         };
 
-        var ValueFactoryI = function()
-        {
-        };
-
-        ValueFactoryI.prototype.create = function(type)
+        function ValueFactoryI()
         {
             return null;
-        };
+        }
 
         var p = new Ice.Promise();
         var test = function(b)
@@ -232,11 +228,11 @@
             function()
             {
                 out.write("testing value factory registration exception... ");
-                var vf = new ValueFactoryI();
-                communicator.addValueFactory(vf, "::x");
+
+                communicator.addValueFactory(ValueFactoryI, "::x");
                 try
                 {
-                    communicator.addValueFactory(vf, "::x");
+                    communicator.addValueFactory(ValueFactoryI, "::x");
                     test(false);
                 }
                 catch(ex)

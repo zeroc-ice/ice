@@ -24,17 +24,14 @@
             }
         });
 
-        var PreservedFactoryI = Ice.Class(Ice.ValueFactory,
+        function PreservedFactoryI(id)
         {
-            create: function(id)
+            if(id === Test.Preserved.ice_staticId())
             {
-                if(id === Test.Preserved.ice_staticId())
-                {
-                    return new PreservedI();
-                }
-                return null;
+                return new PreservedI();
             }
-        });
+            return null;
+        }
 
         var p = new Promise();
         var test = function(b)
@@ -679,7 +676,7 @@
                 // the Ice run time will install its own internal factory for Preserved upon receiving the
                 // first instance.
                 //
-                communicator.addValueFactory(new PreservedFactoryI(), Test.Preserved.ice_staticId());
+                communicator.addValueFactory(PreservedFactoryI, Test.Preserved.ice_staticId());
 
                 //
                 // Server knows the most-derived class PDerived.

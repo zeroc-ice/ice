@@ -116,7 +116,7 @@ var EncapsDecoder = Class({
 
         if(userFactory !== undefined)
         {
-            v = userFactory.create(typeId);
+            v = userFactory(typeId);
         }
 
         //
@@ -128,7 +128,7 @@ var EncapsDecoder = Class({
             userFactory = this._servantFactoryManager.find("");
             if(userFactory !== undefined)
             {
-                v = userFactory.create(typeId);
+                v = userFactory(typeId);
             }
         }
 
