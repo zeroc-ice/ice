@@ -11,6 +11,16 @@
 #include <TestCommon.h>
 #include <Test.h>
 
+#ifdef _MSC_VER
+// For 'Ice::Communicator::addObjectFactory()' deprecation
+#pragma warning( disable : 4996 )
+#endif
+
+#if defined(__GNUC__)
+// For 'Ice::Communicator::addObjectFactory()' deprecation
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 using namespace std;
 using namespace Test;
 
