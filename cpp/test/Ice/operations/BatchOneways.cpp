@@ -157,7 +157,7 @@ batchOneways(const Test::MyClassPrxPtr& p)
 #else
         initData.batchRequestInterceptor = interceptor;
 #endif
-        Ice::CommunicatorPtr ic = Ice::initialize(initData);
+        Ice::CommunicatorPtr ic = ICE_COMMUNICATOR_HOLDER_RELEASE(Ice::initialize(initData));
 
         Test::MyClassPrxPtr batch =
             ICE_UNCHECKED_CAST(Test::MyClassPrx, ic->stringToProxy(p->ice_toString()))->ice_batchOneway();

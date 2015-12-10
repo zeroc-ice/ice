@@ -1588,7 +1588,7 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& p)
                 initData.properties = communicator->getProperties()->clone();
                 initData.properties->setProperty("Ice.ImplicitContext", impls[i]);
 
-                Ice::CommunicatorPtr ic = Ice::initialize(initData);
+                Ice::CommunicatorPtr ic = ICE_COMMUNICATOR_HOLDER_RELEASE(Ice::initialize(initData));
 
                 Ice::Context ctx;
                 ctx["one"] = "ONE";

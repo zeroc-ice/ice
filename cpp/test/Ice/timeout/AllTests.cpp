@@ -326,7 +326,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         Ice::InitializationData initData;
         initData.properties = communicator->getProperties()->clone();
         initData.properties->setProperty("Ice.Override.Timeout", "250");
-        Ice::CommunicatorPtr comm = Ice::initialize(initData);
+        Ice::CommunicatorPtr comm = ICE_COMMUNICATOR_HOLDER_RELEASE(Ice::initialize(initData));
         TimeoutPrxPtr to = ICE_CHECKED_CAST(TimeoutPrx, comm->stringToProxy(sref));
         timeout->holdAdapter(700);
         try
@@ -363,7 +363,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         Ice::InitializationData initData;
         initData.properties = communicator->getProperties()->clone();
         initData.properties->setProperty("Ice.Override.ConnectTimeout", "250");
-        Ice::CommunicatorPtr comm = Ice::initialize(initData);
+        Ice::CommunicatorPtr comm = ICE_COMMUNICATOR_HOLDER_RELEASE(Ice::initialize(initData));
         timeout->holdAdapter(750);
         TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, comm->stringToProxy(sref));
         try
@@ -415,7 +415,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         Ice::InitializationData initData;
         initData.properties = communicator->getProperties()->clone();
         initData.properties->setProperty("Ice.Override.CloseTimeout", "250");
-        Ice::CommunicatorPtr comm = Ice::initialize(initData);
+        Ice::CommunicatorPtr comm = ICE_COMMUNICATOR_HOLDER_RELEASE(Ice::initialize(initData));
         Ice::ConnectionPtr connection = comm->stringToProxy(sref)->ice_getConnection();
         timeout->holdAdapter(500);
         IceUtil::Time now = IceUtil::Time::now();

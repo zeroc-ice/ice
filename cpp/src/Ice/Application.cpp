@@ -665,7 +665,7 @@ Ice::Application::doMain(int argc, char* argv[], const InitializationData& initD
                                          IceUtil::getProcessStringConverter()));
         }
 
-        IceInternal::Application::_communicator = initialize(argc, argv, initData);
+        IceInternal::Application::_communicator = ICE_COMMUNICATOR_HOLDER_RELEASE(initialize(argc, argv, initData));
         IceInternal::Application::_destroyed = false;
 
         //

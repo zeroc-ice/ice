@@ -194,7 +194,7 @@ main(int argc, char* argv[])
     {
         Ice::InitializationData initData;
         initData.properties = Ice::createProperties(argc, argv);
-        communicator = Ice::initialize(argc, argv, initData);
+        communicator = ICE_COMMUNICATOR_HOLDER_RELEASE(Ice::initialize(argc, argv, initData));
         status = run(communicator);
     }
     catch(const Ice::Exception& ex)

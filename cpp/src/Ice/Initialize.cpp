@@ -208,7 +208,43 @@ inline void checkIceVersion(Int version)
 
 }
 
-CommunicatorPtr
+#ifdef ICE_CPP11_MAPPING
+
+Ice::CommunicatorHolder::CommunicatorHolder(shared_ptr<Ice::Communicator>&& communicator) :
+    _communicator(move(communicator))
+{
+}
+
+Ice::CommunicatorHolder::~CommunicatorHolder()
+{
+    if(_communicator)
+    {
+        _communicator->destroy();
+    }
+}
+
+const shared_ptr<Ice::Communicator>&
+Ice::CommunicatorHolder::communicator() const
+{
+    return _communicator;
+}
+
+shared_ptr<Ice::Communicator>
+Ice::CommunicatorHolder::release()
+{
+    return move(_communicator);
+}
+
+const shared_ptr<Ice::Communicator>&
+Ice::CommunicatorHolder::operator->() const
+{
+    return _communicator;
+}
+#endif
+
+
+
+ICE_COMMUNICATOR_HOLDER
 Ice::initialize(int& argc, char* argv[], const InitializationData& initializationData, Int version)
 {
     checkIceVersion(version);
@@ -218,19 +254,27 @@ Ice::initialize(int& argc, char* argv[], const InitializationData& initializatio
 
     CommunicatorIPtr communicator = CommunicatorI::create(initData);
     communicator->finishSetup(argc, argv);
+#ifdef ICE_CPP11_MAPPING
+    return CommunicatorHolder(move(communicator));
+#else
     return communicator;
+#endif
 }
 
-CommunicatorPtr
+ICE_COMMUNICATOR_HOLDER
 Ice::initialize(StringSeq& args, const InitializationData& initializationData, Int version)
 {
     IceUtilInternal::ArgVector av(args);
-    CommunicatorPtr communicator = initialize(av.argc, av.argv, initializationData, version);
+    ICE_COMMUNICATOR_HOLDER communicator = initialize(av.argc, av.argv, initializationData, version);
     args = argsToStringSeq(av.argc, av.argv);
+#ifdef ICE_CPP11_MAPPING
+    return move(communicator);
+#else
     return communicator;
+#endif
 }
 
-CommunicatorPtr
+ICE_COMMUNICATOR_HOLDER
 Ice::initialize(const InitializationData& initData, Int version)
 {
     //
@@ -243,7 +287,11 @@ Ice::initialize(const InitializationData& initData, Int version)
     int argc = 0;
     char* argv[] = { 0 };
     communicator->finishSetup(argc, argv);
+#ifdef ICE_CPP11_MAPPING
+    return CommunicatorHolder(move(communicator));
+#else
     return communicator;
+#endif
 }
 
 #ifndef ICE_CPP11_MAPPING

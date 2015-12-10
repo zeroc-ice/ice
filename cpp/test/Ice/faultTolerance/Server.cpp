@@ -79,7 +79,7 @@ main(int argc, char* argv[])
         initData.properties = Ice::createProperties(argc, argv);
         initData.properties->setProperty("Ice.ServerIdleTime", "120"); // Two minutes.
 
-        communicator = Ice::initialize(argc, argv, initData);
+        communicator = ICE_COMMUNICATOR_HOLDER_RELEASE(Ice::initialize(argc, argv, initData));
         status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)

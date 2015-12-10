@@ -45,7 +45,7 @@ main(int argc, char* argv[])
         //
         initData.properties->setProperty("Ice.CollectObjects", "1");
 
-        communicator = Ice::initialize(argc, argv, initData);
+        communicator = ICE_COMMUNICATOR_HOLDER_RELEASE(Ice::initialize(argc, argv, initData));
         status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)

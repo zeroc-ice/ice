@@ -42,7 +42,7 @@ main(int argc, char* argv[])
         Ice::InitializationData initData;
         initData.properties = Ice::createProperties(argc, argv);
         initData.properties->setProperty("Ice.Warn.Dispatch", "0");
-        communicator = Ice::initialize(argc, argv, initData);
+        communicator = ICE_COMMUNICATOR_HOLDER_RELEASE(Ice::initialize(argc, argv, initData));
         status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)

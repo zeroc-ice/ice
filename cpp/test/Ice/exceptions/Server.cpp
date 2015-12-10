@@ -54,7 +54,7 @@ main(int argc, char* argv[])
         initData.properties->setProperty("TestAdapter2.MessageSizeMax", "0");
         initData.properties->setProperty("TestAdapter3.Endpoints", "default -p 12012");
         initData.properties->setProperty("TestAdapter3.MessageSizeMax", "1");
-        communicator = Ice::initialize(argc, argv, initData);
+        communicator = ICE_COMMUNICATOR_HOLDER_RELEASE(Ice::initialize(argc, argv, initData));
         status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)

@@ -162,7 +162,7 @@ RemoteCommunicatorFactoryI::createCommunicator(ICE_IN(Ice::PropertyDict) props, 
     //
     // Initialize a new communicator.
     //
-    Ice::CommunicatorPtr communicator = Ice::initialize(init);
+    Ice::CommunicatorPtr communicator = ICE_COMMUNICATOR_HOLDER_RELEASE(Ice::initialize(init));
 
     //
     // Install a custom admin facet.

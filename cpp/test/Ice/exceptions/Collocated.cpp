@@ -46,7 +46,7 @@ main(int argc, char* argv[])
         initData.properties->setProperty("Ice.MessageSizeMax", "10"); // 10KB max
         initData.properties->setProperty("Ice.Warn.Connections", "0");
         initData.properties->setProperty("Ice.Warn.Dispatch", "0");
-        communicator = Ice::initialize(argc, argv, initData);
+        communicator = ICE_COMMUNICATOR_HOLDER_RELEASE(Ice::initialize(argc, argv, initData));
         status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)

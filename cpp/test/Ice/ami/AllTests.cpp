@@ -1199,7 +1199,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         {
             Ice::InitializationData initData;
             initData.properties = communicator->getProperties()->clone();
-            Ice::CommunicatorPtr ic = Ice::initialize(initData);
+            Ice::CommunicatorPtr ic = ICE_COMMUNICATOR_HOLDER_RELEASE(Ice::initialize(initData));
             auto obj = ic->stringToProxy(p->ice_toString());
             auto p2 = Ice::checkedCast<Test::TestIntfPrx>(obj);
             ic->destroy();
@@ -1256,7 +1256,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         {
             Ice::InitializationData initData;
             initData.properties = communicator->getProperties()->clone();
-            Ice::CommunicatorPtr ic = Ice::initialize(initData);
+            Ice::CommunicatorPtr ic = ICE_COMMUNICATOR_HOLDER_RELEASE(Ice::initialize(initData));
             auto obj = ic->stringToProxy(p->ice_toString());
             auto p2 = Ice::checkedCast<Test::TestIntfPrx>(obj);
             ic->destroy();

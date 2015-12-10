@@ -141,7 +141,7 @@ main(int argc, char* argv[])
 
     try
     {
-        communicator = Ice::initialize(argc, argv);
+        communicator = ICE_COMMUNICATOR_HOLDER_RELEASE(Ice::initialize(argc, argv));
         status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)

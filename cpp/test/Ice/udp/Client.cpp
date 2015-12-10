@@ -51,7 +51,7 @@ main(int argc, char* argv[])
         initData.properties->setProperty("Ice.UDP.RcvSize", "16384");
         initData.properties->setProperty("Ice.UDP.SndSize", "16384");
 
-        communicator = Ice::initialize(argc, argv, initData);
+        communicator = ICE_COMMUNICATOR_HOLDER_RELEASE(Ice::initialize(argc, argv, initData));
         status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)

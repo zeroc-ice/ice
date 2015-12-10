@@ -268,6 +268,8 @@ typedef long long Int64;
 #   define ICE_CHECKED_CAST(T,V) Ice::checkedCast<T>(V)
 #   define ICE_UNCHECKED_CAST(T,V) Ice::uncheckedCast<T>(V)
 #   define ICE_VALUE_FACTORY ::std::function<::Ice::ValuePtr (const std::string& type)>
+#   define ICE_COMMUNICATOR_HOLDER Ice::CommunicatorHolder
+#   define ICE_COMMUNICATOR_HOLDER_RELEASE(T) T.release() 
 #else // C++98 mapping
 #   define ICE_HANDLE ::IceUtil::Handle
 #   define ICE_INTERNAL_HANDLE ::IceInternal::Handle
@@ -282,6 +284,8 @@ typedef long long Int64;
 #   define ICE_CHECKED_CAST(T,V) T::checkedCast(V)
 #   define ICE_UNCHECKED_CAST(T,V) T::uncheckedCast(V)
 #   define ICE_VALUE_FACTORY ::Ice::ValueFactoryPtr
+#   define ICE_COMMUNICATOR_HOLDER Ice::CommunicatorPtr
+#   define ICE_COMMUNICATOR_HOLDER_RELEASE(T) T 
 #endif
 
 #endif
