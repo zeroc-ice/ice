@@ -8,6 +8,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/DisableWarnings.h>
 #include <Ice/ValueFactoryManager.h>
 #include <Ice/ValueFactory.h>
 #include <Ice/ObjectFactory.h>
