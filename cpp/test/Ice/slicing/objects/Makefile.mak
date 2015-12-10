@@ -20,25 +20,21 @@ SLICE_OBJS	= .\Test.obj \
 		  .\ClientPrivate.obj \
 		  .\ServerPrivate.obj \
 		  .\ServerPrivateAMD.obj \
-		  .\Forward.obj
 
 COBJS		= .\Test.obj \
 		  .\ClientPrivate.obj \
 		  .\Client.obj \
 		  .\AllTests.obj \
-		  .\Forward.obj
 
 SOBJS		= .\Test.obj \
 		  .\ServerPrivate.obj \
 		  .\TestI.obj \
 		  .\Server.obj \
-		  .\Forward.obj
 
 SAMDOBJS	= .\TestAMD.obj \
 		  .\ServerPrivateAMD.obj \
 		  .\TestAMDI.obj \
 		  .\ServerAMD.obj \
-		  .\Forward.obj
 
 OBJS		= $(COBJS) \
 		  $(SOBJS) \
@@ -77,4 +73,3 @@ clean::
 	del /q ClientPrivate.cpp ClientPrivate.h
 	del /q ServerPrivate.cpp ServerPrivate.h
 	del /q ServerPrivateAMD.cpp ServerPrivateAMD.h
-	del /q Forward.cpp Forward.h
