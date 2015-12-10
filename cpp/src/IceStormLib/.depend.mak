@@ -70,13 +70,15 @@ IceStorm.obj: \
     "$(includedir)\IceUtil\StringConverter.h" \
     "$(includedir)\Ice\Object.h" \
     "$(includedir)\Ice\IncomingAsyncF.h" \
-    "$(includedir)\Ice\ObjectFactory.h" \
-    "$(includedir)\Ice\ObjectFactoryManagerF.h" \
+    "$(includedir)\Ice\ValueFactory.h" \
+    "$(includedir)\Ice\ValueFactoryManagerF.h" \
     "$(includedir)\Ice\Buffer.h" \
     "$(includedir)\Ice\Protocol.h" \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\LocalException.h" \
+    "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
     "$(includedir)\Ice\Value.h" \
@@ -85,13 +87,11 @@ IceStorm.obj: \
     "$(includedir)\Ice\ServantManagerF.h" \
     "$(includedir)\Ice\ResponseHandlerF.h" \
     "$(includedir)\Ice\FactoryTableInit.h" \
-    "$(includedir)\Ice\DefaultObjectFactory.h" \
+    "$(includedir)\Ice\DefaultValueFactory.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\IceStorm\Metrics.h" \
     "$(includedir)\Ice\Metrics.h" \
-    "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\IceStorm\Config.h" \
-    "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\Outgoing.h" \
     "$(includedir)\Ice\OutgoingAsync.h" \
     "$(includedir)\IceUtil\Timer.h" \
@@ -157,13 +157,15 @@ Metrics.obj: \
     "$(includedir)\IceUtil\StringConverter.h" \
     "$(includedir)\Ice\Object.h" \
     "$(includedir)\Ice\IncomingAsyncF.h" \
-    "$(includedir)\Ice\ObjectFactory.h" \
-    "$(includedir)\Ice\ObjectFactoryManagerF.h" \
+    "$(includedir)\Ice\ValueFactory.h" \
+    "$(includedir)\Ice\ValueFactoryManagerF.h" \
     "$(includedir)\Ice\Buffer.h" \
     "$(includedir)\Ice\Protocol.h" \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\LocalException.h" \
+    "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
     "$(includedir)\Ice\Value.h" \
@@ -172,11 +174,9 @@ Metrics.obj: \
     "$(includedir)\Ice\ServantManagerF.h" \
     "$(includedir)\Ice\ResponseHandlerF.h" \
     "$(includedir)\Ice\FactoryTableInit.h" \
-    "$(includedir)\Ice\DefaultObjectFactory.h" \
+    "$(includedir)\Ice\DefaultValueFactory.h" \
     "$(includedir)\Ice\Metrics.h" \
-    "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\IceStorm\Config.h" \
-    "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\Outgoing.h" \
     "$(includedir)\Ice\OutgoingAsync.h" \
     "$(includedir)\IceUtil\Timer.h" \

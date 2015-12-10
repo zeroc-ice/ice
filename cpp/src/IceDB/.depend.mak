@@ -62,17 +62,18 @@ IceDB.obj: \
     "$(includedir)\IceUtil\StringConverter.h" \
     "$(includedir)\Ice\Object.h" \
     "$(includedir)\Ice\IncomingAsyncF.h" \
-    "$(includedir)\Ice\ObjectFactory.h" \
-    "$(includedir)\Ice\ObjectFactoryManagerF.h" \
+    "$(includedir)\Ice\ValueFactory.h" \
+    "$(includedir)\Ice\ValueFactoryManagerF.h" \
     "$(includedir)\Ice\Buffer.h" \
     "$(includedir)\Ice\Protocol.h" \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\LocalException.h" \
+    "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\LoggerF.h" \
     "$(includedir)\Ice\InstrumentationF.h" \
     "$(includedir)\Ice\Dispatcher.h" \
-    "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\Plugin.h" \
     "$(includedir)\Ice\BatchRequestInterceptor.h" \
     "$(includedir)\Ice\Stream.h" \

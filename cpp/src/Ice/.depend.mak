@@ -1067,6 +1067,7 @@ CollocatedRequestHandler.obj: \
 
 CommunicatorI.obj: \
 	CommunicatorI.cpp \
+    "$(includedir)\IceUtil\DisableWarnings.h" \
     "CommunicatorI.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\IceUtil\Config.h" \
@@ -3043,6 +3044,7 @@ Initialize.obj: \
 	Initialize.cpp \
     "..\..\src\IceUtil\ArgVector.h" \
     "$(includedir)\IceUtil\Config.h" \
+    "$(includedir)\IceUtil\DisableWarnings.h" \
     "CommunicatorI.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\IceUtil\Lock.h" \
@@ -9142,7 +9144,8 @@ UdpTransceiver.obj: \
 Value.obj: \
 	Value.cpp \
     "$(includedir)\Ice\Value.h" \
-    "$(includedir)\Ice\ValueF.h" \
+    "$(includedir)\Ice\Stream.h" \
+    "$(includedir)\Ice\StreamF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\Atomic.h" \
@@ -9150,13 +9153,12 @@ Value.obj: \
     "$(includedir)\IceUtil\Handle.h" \
     "$(includedir)\IceUtil\Exception.h" \
     "$(includedir)\Ice\Config.h" \
-    "$(includedir)\Ice\ObjectF.h" \
-    "$(includedir)\Ice\StreamF.h" \
-    "$(includedir)\Ice\Stream.h" \
     "$(includedir)\Ice\CommunicatorF.h" \
     "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
+    "$(includedir)\Ice\ObjectF.h" \
+    "$(includedir)\Ice\ValueF.h" \
     "$(includedir)\Ice\Exception.h" \
     "$(includedir)\Ice\Format.h" \
     "$(includedir)\Ice\LocalObject.h" \
@@ -9210,6 +9212,7 @@ Value.obj: \
 
 ValueFactoryManager.obj: \
 	ValueFactoryManager.cpp \
+    "$(includedir)\IceUtil\DisableWarnings.h" \
     "ValueFactoryManager.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
