@@ -492,7 +492,7 @@ LogMessageSeq
 LoggerAdminI::getLog(LogMessageTypeSeq messageTypes, StringSeq categories,
                      Int messageMax, string& prefix, const Current& current)
 #else
-LoggerAdminI::getLog(LogMessageTypeSeq messageTypes, StringSeq categories,
+LoggerAdminI::getLog(const LogMessageTypeSeq& messageTypes, const StringSeq& categories,
                      Int messageMax, string& prefix, const Current& current)
 #endif
 {

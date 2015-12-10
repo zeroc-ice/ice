@@ -7874,7 +7874,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     H << sp;
     H << nl << "virtual bool ice_isA"
-      << "(const ::std::string&, const ::Ice::Current& = ::Ice::Current()) const;";
+      << "(::std::string, const ::Ice::Current& = ::Ice::Current()) const;";
     H << nl << "virtual ::std::vector< ::std::string> ice_ids"
       << "(const ::Ice::Current& = ::Ice::Current()) const;";
     H << nl << "virtual const ::std::string& ice_id(const ::Ice::Current& = ::Ice::Current()) const;";
@@ -7901,7 +7901,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     C << sp;
     C << nl << "bool" << nl << scoped.substr(2)
-      << "::ice_isA(const ::std::string& _s, const ::Ice::Current&) const";
+      << "::ice_isA(::std::string _s, const ::Ice::Current&) const";
     C << sb;
     C << nl << "return ::std::binary_search(" << flatName << ", " << flatName << " + " << ids.size() << ", _s);";
     C << eb;

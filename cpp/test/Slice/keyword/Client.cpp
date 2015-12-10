@@ -16,7 +16,7 @@ using namespace std;
 class breakI : public _cpp_and::_cpp_break
 {
 public:
-    
+
 #ifdef ICE_CPP11_MAPPING
     virtual void case_async(::Ice::Int,
                             function<void (int)> response,
@@ -50,7 +50,11 @@ public:
 class switchI: public _cpp_and::_cpp_switch
 {
 public:
-    virtual void foo(_cpp_and::charPrx, Ice::Int&, const ::Ice::Current&)
+#ifdef ICE_CPP11_MAPPING
+    virtual void foo(shared_ptr<_cpp_and::charPrx>, Ice::Int&, const ::Ice::Current&)
+#else
+    virtual void foo(const _cpp_and::charPrx&, Ice::Int&, const ::Ice::Current&)
+#endif
     {
     }
 };
@@ -70,7 +74,7 @@ public:
     {
     }
 #endif
-    virtual void _cpp_explicit(const ::Ice::Current&) 
+    virtual void _cpp_explicit(const ::Ice::Current&)
     {
     }
     virtual void foo(const _cpp_and::charPrx&, Ice::Int&, const ::Ice::Current&)
@@ -82,7 +86,7 @@ class friendI : public _cpp_and::_cpp_friend
 {
 public:
     virtual _cpp_and::_cpp_auto
-    _cpp_goto(_cpp_and::_cpp_continue, 
+    _cpp_goto(_cpp_and::_cpp_continue,
               const _cpp_and::_cpp_auto&,
 #ifdef ICE_CPP11_MAPPING
               const _cpp_and::_cpp_delete&,
@@ -101,7 +105,7 @@ public:
         return _cpp_and::_cpp_auto();
     }
 };
-   
+
 //
 // This section of the test is present to ensure that the C++ types
 // are named correctly. It is not expected to run.

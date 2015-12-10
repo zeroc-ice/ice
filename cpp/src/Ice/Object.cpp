@@ -53,7 +53,11 @@ const string __Ice__Object_ids[] =
 }
 
 bool
+#ifdef ICE_CPP11_MAPPING
+Ice::Object::ice_isA(string s, const Current&) const
+#else
 Ice::Object::ice_isA(const string& s, const Current&) const
+#endif
 {
     return s == __Ice__Object_ids[0];
 }
@@ -178,7 +182,7 @@ Ice::Object::ice_dispatch(Request& request, const DispatchInterceptorAsyncCallba
 
 
     IceInternal::Incoming& in = dynamic_cast<IceInternal::IncomingRequest&>(request)._in;
-    
+
     PushCb pusbCb(in, cb);
     in.startOver(); // may raise ResponseSentException
     return __dispatch(in, in.getCurrent());
@@ -193,7 +197,7 @@ Ice::Object::__dispatch(Incoming& in, const Current& current)
     if(r.first == r.second)
     {
         throw OperationNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
-    }                                        
+    }
 
     switch(r.first - __all)
     {
@@ -237,32 +241,32 @@ Ice::Object::__write(IceInternal::BasicStream* os) const
     __writeImpl(os);
     os->endWriteObject();
 }
- 
-void 
+
+void
 Ice::Object::__read(IceInternal::BasicStream* is)
 {
    is->startReadObject();
    __readImpl(is);
    is->endReadObject(false);
 }
-    
-void 
+
+void
 Ice::Object::__write(const OutputStreamPtr& os) const
 {
     os->startObject(0);
     __writeImpl(os);
     os->endObject();
 }
- 
-void 
+
+void
 Ice::Object::__read(const InputStreamPtr& is)
 {
     is->startObject();
    __readImpl(is);
    is->endObject(false);
 }
- 
-void 
+
+void
 Ice::Object::__writeImpl(const OutputStreamPtr&) const
 {
     throw MarshalException(__FILE__, __LINE__, "class was not generated with stream support");

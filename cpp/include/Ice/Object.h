@@ -43,14 +43,14 @@ enum DispatchStatus
 class ICE_API DispatchInterceptorAsyncCallback : public virtual IceUtil::Shared
 {
 public:
-    
+
     virtual bool response(bool) = 0;
     virtual bool exception(const std::exception&) = 0;
     virtual bool exception() = 0;
 };
 typedef IceUtil::Handle<DispatchInterceptorAsyncCallback> DispatchInterceptorAsyncCallbackPtr;
 
-class ICE_API Request 
+class ICE_API Request
 {
 public:
 
@@ -65,11 +65,11 @@ class ICE_API Object
 public:
 
     virtual ~Object() = default;
-        
+
     virtual bool operator==(const Object&) const;
     virtual bool operator<(const Object&) const;
 
-    virtual bool ice_isA(const std::string&, const Current& = Current()) const;
+    virtual bool ice_isA(std::string, const Current& = Current()) const;
     DispatchStatus ___ice_isA(IceInternal::Incoming&, const Current&);
 
     virtual void ice_ping(const Current&  = Current()) const;
@@ -80,7 +80,7 @@ public:
 
     virtual const std::string& ice_id(const Current& = Current()) const;
     DispatchStatus ___ice_id(IceInternal::Incoming&, const Current&);
-    
+
     static const std::string& ice_staticId();
 
     virtual ObjectPtr ice_clone() const;
@@ -115,7 +115,7 @@ public:
     DispatchStatus ___ice_id(IceInternal::Incoming&, const Current&);
 
     virtual Int ice_operationAttributes(const std::string&) const;
-    
+
     virtual void __write(IceInternal::BasicStream*) const;
     virtual void __read(IceInternal::BasicStream*);
 
@@ -124,10 +124,10 @@ public:
 
     virtual bool __gcVisit(IceInternal::GCVisitor&) { return false; };
     virtual void ice_collectable(bool) { };
-    
+
     virtual void ice_preMarshal();
     virtual void ice_postUnmarshal();
-    
+
     static const std::string& ice_staticId();
 
     virtual ObjectPtr ice_clone() const;
