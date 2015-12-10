@@ -13,6 +13,7 @@
 #include <Proxy.h>
 #include <Types.h>
 #include <Util.h>
+#include <IceUtil/DisableWarnings.h>
 #include <IceUtil/Options.h>
 #include <IceUtil/MutexPtrLock.h>
 #include <IceUtil/StringUtil.h>

@@ -105,7 +105,11 @@ public class AllTests : TestCommon.TestApp
         communicator.addValueFactory(MyValueFactory, "::Test::J");
         communicator.addValueFactory(MyValueFactory, "::Test::H");
 
+// Disable Obsolete warning/error
+#pragma warning disable 612, 618
         communicator.addObjectFactory(new MyObjectFactory(), "TestOF");
+#pragma warning restore 612, 618
+
 
         Write("testing stringToProxy... ");
         Flush();
@@ -323,6 +327,8 @@ public class AllTests : TestCommon.TestApp
         }
         WriteLine("ok");
 
+// Disable Obsolete warning/error
+#pragma warning disable 612, 618
         Write("testing getting ObjectFactory...");
         Flush();
         test(communicator.findObjectFactory("TestOF") != null);
@@ -331,6 +337,7 @@ public class AllTests : TestCommon.TestApp
         Flush();
         test(communicator.findValueFactory("TestOF") != null);
         WriteLine("ok");
+#pragma warning restore 612, 618
 
 #if SILVERLIGHT
         initial.shutdown();

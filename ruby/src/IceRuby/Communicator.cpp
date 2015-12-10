@@ -15,6 +15,7 @@
 #include <Proxy.h>
 #include <Types.h>
 #include <Util.h>
+#include <IceUtil/DisableWarnings.h>
 #include <Ice/Communicator.h>
 #include <Ice/Initialize.h>
 #include <Ice/Locator.h>
