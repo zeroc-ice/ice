@@ -27,7 +27,7 @@ module Ice
  *
  **/
 
-["deprecated:ObjectFactory has been deprecated, use ValueFactory instead."]
+["deprecate:ObjectFactory has been deprecated, use ValueFactory instead."]
 local interface ObjectFactory
 {
     /**

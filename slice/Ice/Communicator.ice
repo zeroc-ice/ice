@@ -330,7 +330,7 @@ local interface Communicator
      * @see ObjectFactory
      *
      **/
-    ["deprecated:addObjectFactory() is deprecated, use addValueFactory() instead."]
+    ["deprecate:addObjectFactory() is deprecated, use addValueFactory() instead."]
     void addObjectFactory(ObjectFactory factory, ["objc:param:sliceId"] string id);
 
     /**
@@ -398,7 +398,7 @@ local interface Communicator
      * @see ObjectFactory
      *
      **/
-    ["cpp:const", "deprecated:findObjectFactory() is deprecated, use findValueFactory() instead."]
+    ["cpp:const", "deprecate:findObjectFactory() is deprecated, use findValueFactory() instead."]
     ObjectFactory findObjectFactory(string id);
 
     /**

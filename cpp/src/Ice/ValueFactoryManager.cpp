@@ -22,20 +22,6 @@ using namespace IceInternal;
 
 IceUtil::Shared* IceInternal::upCast(ValueFactoryManager* p) { return p; }
 
-#ifndef ICE_CPP11_MAPPING
-IceUtil::Shared* IceInternal::upCast(ValueFactoryWrapper* p) { return p; }
-
-ValueFactoryWrapper::ValueFactoryWrapper(const Ice::ObjectFactoryPtr& factory) : _objectFactory(factory)
-{
-}
-
-Ice::ValuePtr
-ValueFactoryWrapper::create(const string& id)
-{
-    return _objectFactory->create(id);
-}
-#endif
-
 void
 IceInternal::ValueFactoryManager::add(const ICE_VALUE_FACTORY& factory, const string& id)
 {
@@ -78,6 +64,23 @@ IceInternal::ValueFactoryManager::add(const Ice::ObjectFactoryPtr& factory, cons
                                             }
                                         ));
 #else
+
+    class ValueFactoryWrapper: public Ice::ValueFactory
+    {
+    public:
+        ValueFactoryWrapper(const Ice::ObjectFactoryPtr& factory) :  _objectFactory(factory)
+        {
+        }
+
+        Ice::ValuePtr create(const std::string& id)
+        {
+            return _objectFactory->create(id);
+        }
+
+    private:
+        Ice::ObjectFactoryPtr _objectFactory;
+    };
+
     _factoryMapHint = _factoryMap.insert(_factoryMapHint,
                                          pair<const string, ICE_VALUE_FACTORY>(id, new ValueFactoryWrapper(factory)));
 #endif

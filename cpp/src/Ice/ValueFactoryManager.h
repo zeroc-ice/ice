@@ -19,19 +19,6 @@
 namespace IceInternal
 {
 
-#ifndef ICE_CPP11_MAPPING
-class ValueFactoryWrapper: public Ice::ValueFactory
-{
-public:
-    ValueFactoryWrapper(const Ice::ObjectFactoryPtr& factory);
-
-    Ice::ValuePtr create(const std::string& id);
-
-private:
-    Ice::ObjectFactoryPtr _objectFactory;
-};
-#endif
-
 class ValueFactoryManager : public ::IceUtil::Shared, public ::IceUtil::Mutex
 {
 public:
