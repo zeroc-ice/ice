@@ -25,14 +25,14 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
     return EXIT_SUCCESS;
 }
 
+
+
 int
 main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
     Ice::registerIceSSL();
 #endif
-    int status;
-    Ice::CommunicatorPtr communicator;
 
     try
     {
@@ -40,27 +40,13 @@ main(int argc, char* argv[])
         initData.properties = Ice::createProperties(argc, argv);
         initData.properties->setProperty("Ice.Warn.Connections", "0");
         initData.properties->setProperty("Ice.MessageSizeMax", "10"); // 10KB max
-        communicator = ICE_COMMUNICATOR_HOLDER_RELEASE(Ice::initialize(argc, argv, initData));
-        status = run(argc, argv, communicator);
+
+        Ice::CommunicatorHolder ich = Ice::initialize(argc, argv, initData);
+        return run(argc, argv, ich.communicator());
     }
     catch(const Ice::Exception& ex)
     {
         cerr << ex << endl;
-        status = EXIT_FAILURE;
+        return  EXIT_FAILURE;
     }
-
-    if(communicator)
-    {
-        try
-        {
-            communicator->destroy();
-        }
-        catch(const Ice::Exception& ex)
-        {
-            cerr << ex << endl;
-            status = EXIT_FAILURE;
-        }
-    }
-
-    return status;
 }

@@ -209,43 +209,8 @@ inline void checkIceVersion(Int version)
 
 }
 
-#ifdef ICE_CPP11_MAPPING
 
-Ice::CommunicatorHolder::CommunicatorHolder(shared_ptr<Ice::Communicator>&& communicator) :
-    _communicator(move(communicator))
-{
-}
-
-Ice::CommunicatorHolder::~CommunicatorHolder()
-{
-    if(_communicator)
-    {
-        _communicator->destroy();
-    }
-}
-
-const shared_ptr<Ice::Communicator>&
-Ice::CommunicatorHolder::communicator() const
-{
-    return _communicator;
-}
-
-shared_ptr<Ice::Communicator>
-Ice::CommunicatorHolder::release()
-{
-    return move(_communicator);
-}
-
-const shared_ptr<Ice::Communicator>&
-Ice::CommunicatorHolder::operator->() const
-{
-    return _communicator;
-}
-#endif
-
-
-
-ICE_COMMUNICATOR_HOLDER
+Ice::CommunicatorPtr
 Ice::initialize(int& argc, char* argv[], const InitializationData& initializationData, Int version)
 {
     checkIceVersion(version);
@@ -255,27 +220,19 @@ Ice::initialize(int& argc, char* argv[], const InitializationData& initializatio
 
     CommunicatorIPtr communicator = CommunicatorI::create(initData);
     communicator->finishSetup(argc, argv);
-#ifdef ICE_CPP11_MAPPING
-    return CommunicatorHolder(move(communicator));
-#else
     return communicator;
-#endif
 }
 
-ICE_COMMUNICATOR_HOLDER
+Ice::CommunicatorPtr
 Ice::initialize(StringSeq& args, const InitializationData& initializationData, Int version)
 {
     IceUtilInternal::ArgVector av(args);
-    ICE_COMMUNICATOR_HOLDER communicator = initialize(av.argc, av.argv, initializationData, version);
+    CommunicatorPtr communicator = initialize(av.argc, av.argv, initializationData, version);
     args = argsToStringSeq(av.argc, av.argv);
-#ifdef ICE_CPP11_MAPPING
-    return move(communicator);
-#else
     return communicator;
-#endif
 }
 
-ICE_COMMUNICATOR_HOLDER
+Ice::CommunicatorPtr
 Ice::initialize(const InitializationData& initData, Int version)
 {
     //
@@ -288,11 +245,7 @@ Ice::initialize(const InitializationData& initData, Int version)
     int argc = 0;
     char* argv[] = { 0 };
     communicator->finishSetup(argc, argv);
-#ifdef ICE_CPP11_MAPPING
-    return CommunicatorHolder(move(communicator));
-#else
     return communicator;
-#endif
 }
 
 #ifndef ICE_CPP11_MAPPING
@@ -404,6 +357,53 @@ Ice::registerPluginFactory(const std::string& name, PLUGIN_FACTORY factory, bool
 {
     IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
     PluginManagerI::registerPluginFactory(name, factory, loadOnInitialize);
+}
+
+#ifdef ICE_CPP11_MAPPING
+Ice::CommunicatorHolder::CommunicatorHolder(shared_ptr<Communicator> communicator) :
+    _communicator(std::move(communicator))
+{
+}
+
+#else
+
+Ice::CommunicatorHolder::CommunicatorHolder(const CommunicatorPtr& communicator) :
+    _communicator(communicator)
+{
+}
+
+#endif
+
+Ice::CommunicatorHolder::~CommunicatorHolder()
+{
+    if(_communicator)
+    {
+        _communicator->destroy();
+    }
+}
+
+const Ice::CommunicatorPtr&
+Ice::CommunicatorHolder::communicator() const
+{
+    return _communicator;
+}
+
+Ice::CommunicatorPtr
+Ice::CommunicatorHolder::release()
+{
+#ifdef ICE_CPP11_MAPPING
+    return std::move(_communicator);
+#else
+    CommunicatorPtr result;
+    result.swap(_communicator);
+    return result;
+#endif
+}
+
+const Ice::CommunicatorPtr&
+Ice::CommunicatorHolder::operator->() const
+{
+    return _communicator;
 }
 
 InstancePtr

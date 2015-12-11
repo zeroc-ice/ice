@@ -90,38 +90,13 @@ struct InitializationData
     BatchRequestInterceptorPtr batchRequestInterceptor;
 };
 
-#ifdef ICE_CPP11_MAPPING
+ICE_API CommunicatorPtr initialize(int&, char*[], const InitializationData& = InitializationData(),
+                                   Int = ICE_INT_VERSION);
 
-class ICE_API CommunicatorHolder
-{
-public:
-    
-    CommunicatorHolder(std::shared_ptr<Ice::Communicator>&&);
-    
-    CommunicatorHolder(CommunicatorHolder&&) = default;
-    CommunicatorHolder(CommunicatorHolder&) = delete;
-    CommunicatorHolder& operator=(CommunicatorHolder&&) = default;
+ICE_API CommunicatorPtr initialize(Ice::StringSeq&, const InitializationData& = InitializationData(),
+                                   Int = ICE_INT_VERSION);
 
-    ~CommunicatorHolder();
-    
-    const std::shared_ptr<Ice::Communicator>& communicator() const;
-    std::shared_ptr<Ice::Communicator> release();
-    const std::shared_ptr<Ice::Communicator>& operator->() const;
-
-private:
-    
-    std::shared_ptr<Ice::Communicator> _communicator;
-};
-
-#endif
-
-ICE_API ICE_COMMUNICATOR_HOLDER initialize(int&, char*[], const InitializationData& = InitializationData(),
-                                           Int = ICE_INT_VERSION);
-
-ICE_API ICE_COMMUNICATOR_HOLDER initialize(Ice::StringSeq&, const InitializationData& = InitializationData(),
-                                           Int = ICE_INT_VERSION);
-
-ICE_API ICE_COMMUNICATOR_HOLDER initialize(const InitializationData& = InitializationData(),
+ICE_API CommunicatorPtr initialize(const InitializationData& = InitializationData(),
                                            Int = ICE_INT_VERSION);
 
 ICE_API InputStreamPtr createInputStream(const CommunicatorPtr&, const ::std::vector< Byte >&);
@@ -148,6 +123,41 @@ ICE_API void setProcessLogger(const LoggerPtr&);
 
 typedef Ice::Plugin* (*PLUGIN_FACTORY)(const ::Ice::CommunicatorPtr&, const std::string&, const ::Ice::StringSeq&);
 ICE_API void registerPluginFactory(const std::string&, PLUGIN_FACTORY, bool);
+
+
+//
+// RAII helper class
+//
+class ICE_API CommunicatorHolder
+{
+public:
+
+#ifdef ICE_CPP11_MAPPING
+    CommunicatorHolder(std::shared_ptr<Communicator>);
+
+    CommunicatorHolder(const CommunicatorHolder&) = delete;
+
+    CommunicatorHolder(CommunicatorHolder&&) = default;
+    CommunicatorHolder& operator=(CommunicatorHolder&&) = default;
+
+#else
+    CommunicatorHolder(const Ice::CommunicatorPtr&);
+#endif
+
+    ~CommunicatorHolder();
+
+    const CommunicatorPtr& communicator() const;
+    CommunicatorPtr release();
+    const CommunicatorPtr& operator->() const;
+
+private:
+
+#ifndef ICE_CPP11_MAPPING
+    CommunicatorHolder(const CommunicatorHolder&); // not defined
+#endif
+
+    CommunicatorPtr  _communicator;
+};
 
 }
 

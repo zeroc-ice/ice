@@ -960,7 +960,7 @@ Ice::Service::stop()
 Ice::CommunicatorPtr
 Ice::Service::initializeCommunicator(int& argc, char* argv[], const InitializationData& initData)
 {
-    return ICE_COMMUNICATOR_HOLDER_RELEASE(Ice::initialize(argc, argv, initData));
+    return Ice::initialize(argc, argv, initData);
 }
 
 void

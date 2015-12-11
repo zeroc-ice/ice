@@ -273,34 +273,14 @@ run(const Ice::CommunicatorPtr& communicator)
 int
 main(int argc, char* argv[])
 {
-    int status;
-    Ice::CommunicatorPtr communicator;
-
     try
     {
-        Ice::InitializationData initData;
-        initData.properties = Ice::createProperties(argc, argv);
-        communicator = ICE_COMMUNICATOR_HOLDER_RELEASE(Ice::initialize(argc, argv, initData));
-        status = run(communicator);
+        Ice::CommunicatorHolder ich = Ice::initialize(argc, argv);
+        return run(ich.communicator());
     }
     catch(const Ice::Exception& ex)
     {
         cerr << ex << endl;
-        status = EXIT_FAILURE;
+        return  EXIT_FAILURE;
     }
-
-    if(communicator)
-    {
-        try
-        {
-            communicator->destroy();
-        }
-        catch(const Ice::Exception& ex)
-        {
-            cerr << ex << endl;
-            status = EXIT_FAILURE;
-        }
-    }
-
-    return status;
 }

@@ -190,7 +190,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         init.properties = Ice::createProperties();
         init.properties->setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
         init.properties->setProperty("Ice.Admin.InstanceName", "Test");
-        Ice::CommunicatorPtr com = ICE_COMMUNICATOR_HOLDER_RELEASE(Ice::initialize(init));
+        Ice::CommunicatorPtr com = Ice::initialize(init);
         testFacets(com);
         com->destroy();
     }
@@ -203,7 +203,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         init.properties->setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
         init.properties->setProperty("Ice.Admin.InstanceName", "Test");
         init.properties->setProperty("Ice.Admin.Facets", "Properties");
-        Ice::CommunicatorPtr com = ICE_COMMUNICATOR_HOLDER_RELEASE(Ice::initialize(init));
+        Ice::CommunicatorPtr com = Ice::initialize(init);
         testFacets(com, false);
         com->destroy();
     }
@@ -211,7 +211,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         //
         // Test: Verify that the operations work correctly with the Admin object disabled.
         //
-        Ice::CommunicatorPtr com = ICE_COMMUNICATOR_HOLDER_RELEASE(Ice::initialize());
+        Ice::CommunicatorPtr com = Ice::initialize();
         testFacets(com, false);
         com->destroy();
     }
@@ -222,7 +222,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         Ice::InitializationData init;
         init.properties = Ice::createProperties();
         init.properties->setProperty("Ice.Admin.Enabled", "1");
-        Ice::CommunicatorPtr com = ICE_COMMUNICATOR_HOLDER_RELEASE(Ice::initialize(init));
+        Ice::CommunicatorPtr com = Ice::initialize(init);
         test(!com->getAdmin());
 
         Ice::Identity id = com->stringToIdentity("test-admin");
@@ -251,7 +251,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         init.properties->setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
         init.properties->setProperty("Ice.Admin.InstanceName", "Test");
         init.properties->setProperty("Ice.Admin.DelayCreation", "1");
-        Ice::CommunicatorPtr com = ICE_COMMUNICATOR_HOLDER_RELEASE(Ice::initialize(init));
+        Ice::CommunicatorPtr com = Ice::initialize(init);
         testFacets(com);
         com->getAdmin();
         testFacets(com);

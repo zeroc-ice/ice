@@ -314,7 +314,7 @@ createSendLogCommunicator(const CommunicatorPtr& communicator, const LoggerPtr& 
         initData.properties->parseCommandLineOptions("", extraProps);
     }
 
-    return ICE_COMMUNICATOR_HOLDER_RELEASE(initialize(initData));
+    return initialize(initData);
 }
 
 //
