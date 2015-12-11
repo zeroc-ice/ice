@@ -141,7 +141,7 @@ public:
     CommunicatorHolder& operator=(CommunicatorHolder&&) = default;
 
 #else
-    CommunicatorHolder(const Ice::CommunicatorPtr&);
+    CommunicatorHolder(const CommunicatorPtr&);
 #endif
 
     ~CommunicatorHolder();
@@ -151,10 +151,6 @@ public:
     const CommunicatorPtr& operator->() const;
 
 private:
-
-#ifndef ICE_CPP11_MAPPING
-    CommunicatorHolder(const CommunicatorHolder&); // not defined
-#endif
 
     CommunicatorPtr  _communicator;
 };
