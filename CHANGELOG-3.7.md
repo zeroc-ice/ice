@@ -33,9 +33,11 @@ These are the changes since Ice 3.6.1.
   `node.data` variable instead.
 
 - Added the new metadata tag `delegate` for local interfaces with one operation.
-  Interfaces with this metadata will be generated as a `std::function` in C++, a
-  `delegate` in C#, and a `FunctionalInterface` in Java.
+  Interfaces with this metadata will be generated as a `std::function` in C++11,
+  a `delegate` in C#, a `FunctionalInterface` in Java, and a `function callback`
+  in JavaScript. Other language mappings keep their default behavior.
 
-- Added a new local interface `ValueFactory` that replaces `ObjectFactory` (which is
-  still available). This interface has one operation and uses the `delegate`
-  metadata.
+- `ObjectFactory` has been deprecated in favor of the new local interface
+  `ValueFactory`. Communicator operations `addObjectFactory`and
+  `findObjectFactory` have been deprecated in favor of `addValueFactory` and
+  `findValueFactory`.
