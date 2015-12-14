@@ -263,7 +263,8 @@ Slice::ObjCGenerator::typeToString(const TypePtr& type)
         "NSString",
         "ICEObject",
         "id<ICEObjectPrx>",
-        "id"            // Dummy--we don't support Slice local Object
+        "id",            // Dummy--we don't support Slice local Object
+        "ICEObject"
     };
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
