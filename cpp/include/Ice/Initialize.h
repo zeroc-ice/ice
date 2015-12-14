@@ -143,10 +143,9 @@ public:
 #else
     CommunicatorHolder(const CommunicatorPtr&);
     
-    // Required for successful copy-initialization, but not
-    // defined as it should always be elided by compiler
-    CommunicatorHolder(const CommunicatorHolder&);
-
+    // Required for successful copy-initialization,
+    // where this copy-ctor is usually elided
+    CommunicatorHolder(CommunicatorHolder&);
 #endif
 
     ~CommunicatorHolder();
