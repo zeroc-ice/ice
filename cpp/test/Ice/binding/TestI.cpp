@@ -18,8 +18,13 @@ RemoteCommunicatorI::RemoteCommunicatorI() : _nextPort(10001)
 {
 }
 
+#ifdef ICE_CPP11_MAPPING
+shared_ptr<Test::RemoteObjectAdapterPrx>
+RemoteCommunicatorI::createObjectAdapter(string name, string endpts, const Ice::Current& current)
+#else
 RemoteObjectAdapterPrx
 RemoteCommunicatorI::createObjectAdapter(const string& name, const string& endpts, const Current& current)
+#endif
 {
     string endpoints = endpts;
     if(endpoints.find("-p") == string::npos)
@@ -36,11 +41,16 @@ RemoteCommunicatorI::createObjectAdapter(const string& name, const string& endpt
     Ice::CommunicatorPtr com = current.adapter->getCommunicator();
     com->getProperties()->setProperty(name + ".ThreadPool.Size", "1");
     ObjectAdapterPtr adapter = com->createObjectAdapterWithEndpoints(name, endpoints);
-    return RemoteObjectAdapterPrx::uncheckedCast(current.adapter->addWithUUID(new RemoteObjectAdapterI(adapter)));
+    return ICE_UNCHECKED_CAST(RemoteObjectAdapterPrx, current.adapter->addWithUUID(ICE_MAKE_SHARED(RemoteObjectAdapterI, adapter)));
 }
 
+#ifdef ICE_CPP11_MAPPING
+void
+RemoteCommunicatorI::deactivateObjectAdapter(shared_ptr<RemoteObjectAdapterPrx> adapter, const Current&)
+#else
 void
 RemoteCommunicatorI::deactivateObjectAdapter(const RemoteObjectAdapterPrx& adapter, const Current&)
+#endif
 {
     adapter->deactivate(); // Collocated call
 }
@@ -53,13 +63,14 @@ RemoteCommunicatorI::shutdown(const Ice::Current& current)
 
 RemoteObjectAdapterI::RemoteObjectAdapterI(const Ice::ObjectAdapterPtr& adapter) : 
     _adapter(adapter), 
-    _testIntf(TestIntfPrx::uncheckedCast(_adapter->add(new TestI(), 
-                                         adapter->getCommunicator()->stringToIdentity("test"))))
+    _testIntf(ICE_UNCHECKED_CAST(TestIntfPrx, 
+                    _adapter->add(ICE_MAKE_SHARED(TestI), 
+                                  adapter->getCommunicator()->stringToIdentity("test"))))
 {
     _adapter->activate();
 }
 
-TestIntfPrx
+TestIntfPrxPtr
 RemoteObjectAdapterI::getTestIntf(const Ice::Current&)
 {
     return _testIntf;

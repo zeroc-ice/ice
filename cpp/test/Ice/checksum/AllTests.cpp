@@ -13,14 +13,14 @@
 
 using namespace std;
 
-Test::ChecksumPrx
+Test::ChecksumPrxPtr
 allTests(const Ice::CommunicatorPtr& communicator, bool)
 {
     string ref = "test:default -p 12010";
-    Ice::ObjectPrx base = communicator->stringToProxy(ref);
+    Ice::ObjectPrxPtr base = communicator->stringToProxy(ref);
     test(base);
 
-    Test::ChecksumPrx checksum = Test::ChecksumPrx::checkedCast(base);
+    Test::ChecksumPrxPtr checksum = ICE_CHECKED_CAST(Test::ChecksumPrx, base);
     test(checksum);
 
     Ice::SliceChecksumDict::const_iterator p;

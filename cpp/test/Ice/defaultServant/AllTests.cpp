@@ -20,7 +20,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     Ice::ObjectAdapterPtr oa = communicator->createObjectAdapterWithEndpoints("MyOA", "tcp -h localhost");
     oa->activate();
 
-    Ice::ObjectPtr servant = new MyObjectI();
+    Ice::ObjectPtr servant = ICE_MAKE_SHARED(MyObjectI);
 
     //
     // Register default servant with category "foo"
@@ -48,13 +48,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
     for(idx = 0; idx < 5; ++idx)
     {
         identity.name = names[idx];
-        MyObjectPrx prx = MyObjectPrx::uncheckedCast(oa->createProxy(identity));
+        MyObjectPrxPtr prx = ICE_UNCHECKED_CAST(MyObjectPrx, oa->createProxy(identity));
         prx->ice_ping();
         test(prx->getName() == names[idx]);
     }
 
     identity.name = "ObjectNotExist";
-    MyObjectPrx prx = MyObjectPrx::uncheckedCast(oa->createProxy(identity));
+    MyObjectPrxPtr prx = ICE_UNCHECKED_CAST(MyObjectPrx, oa->createProxy(identity));
     try
     {
         prx->ice_ping();
@@ -76,7 +76,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
 
     identity.name = "FacetNotExist";
-    prx = MyObjectPrx::uncheckedCast(oa->createProxy(identity));
+    prx = ICE_UNCHECKED_CAST(MyObjectPrx, oa->createProxy(identity));
     try
     {
         prx->ice_ping();
@@ -101,7 +101,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     for(idx = 0; idx < 5; idx++)
     {
         identity.name = names[idx];
-        prx = MyObjectPrx::uncheckedCast(oa->createProxy(identity));
+        prx = ICE_UNCHECKED_CAST(MyObjectPrx, oa->createProxy(identity));
 
         try
         {
@@ -126,7 +126,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     oa->removeDefaultServant("foo");
     identity.category = "foo";
-    prx = MyObjectPrx::uncheckedCast(oa->createProxy(identity));
+    prx = ICE_UNCHECKED_CAST(MyObjectPrx, oa->createProxy(identity));
     try
     {
         prx->ice_ping();
@@ -151,7 +151,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     for(idx = 0; idx < 5; ++idx)
     {
         identity.name = names[idx];
-        prx = MyObjectPrx::uncheckedCast(oa->createProxy(identity));
+        prx = ICE_UNCHECKED_CAST(MyObjectPrx, oa->createProxy(identity));
         prx->ice_ping();
         test(prx->getName() == names[idx]);
     }

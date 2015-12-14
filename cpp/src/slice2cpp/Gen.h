@@ -35,6 +35,7 @@ public:
     ~Gen();
 
     void generate(const UnitPtr&);
+    void generateChecksumMap(const UnitPtr&);
     void closeOutput();
 
     static int setUseWstring(ContainedPtr, std::list<int>&, int);

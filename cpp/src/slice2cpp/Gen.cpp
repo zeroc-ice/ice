@@ -311,6 +311,38 @@ Slice::Gen::~Gen()
 }
 
 void
+Slice::Gen::generateChecksumMap(const UnitPtr& p)
+{
+    if(_checksum)
+    {
+        ChecksumMap map = createChecksums(p);
+        if(!map.empty())
+        {
+            C << sp << nl << "namespace";
+            C << nl << "{";
+            C << sp << nl << "const char* __sliceChecksums[] =";
+            C << sb;
+            for(ChecksumMap::const_iterator q = map.begin(); q != map.end(); ++q)
+            {
+                C << nl << "\"" << q->first << "\", \"";
+                ostringstream str;
+                str.flags(ios_base::hex);
+                str.fill('0');
+                for(vector<unsigned char>::const_iterator r = q->second.begin(); r != q->second.end(); ++r)
+                {
+                    str << static_cast<int>(*r);
+                }
+                C << str.str() << "\",";
+            }
+            C << nl << "0";
+            C << eb << ';';
+            C << nl << "const IceInternal::SliceChecksumInit __sliceChecksumInit(__sliceChecksums);";
+            C << sp << nl << "}";
+        }
+    }
+}
+
+void
 Slice::Gen::generate(const UnitPtr& p)
 {
     string file = p->topLevelFile();
@@ -630,34 +662,8 @@ Slice::Gen::generate(const UnitPtr& p)
             ImplVisitor implVisitor(implH, implC, _dllExport);
             p->visit(&implVisitor, false);
         }
-
-        if(_checksum)
-        {
-            ChecksumMap map = createChecksums(p);
-            if(!map.empty())
-            {
-                C << sp << nl << "namespace";
-                C << nl << "{";
-                C << sp << nl << "const char* __sliceChecksums[] =";
-                C << sb;
-                for(ChecksumMap::const_iterator q = map.begin(); q != map.end(); ++q)
-                {
-                    C << nl << "\"" << q->first << "\", \"";
-                    ostringstream str;
-                    str.flags(ios_base::hex);
-                    str.fill('0');
-                    for(vector<unsigned char>::const_iterator r = q->second.begin(); r != q->second.end(); ++r)
-                    {
-                        str << static_cast<int>(*r);
-                    }
-                    C << str.str() << "\",";
-                }
-                C << nl << "0";
-                C << eb << ';';
-                C << nl << "const IceInternal::SliceChecksumInit __sliceChecksumInit(__sliceChecksums);";
-                C << sp << nl << "}";
-            }
-        }
+        
+        generateChecksumMap(p);
     }
     H << sp;
     H.zeroIndent();
@@ -717,35 +723,10 @@ Slice::Gen::generate(const UnitPtr& p)
 
             ImplVisitor implVisitor(implH, implC, _dllExport);
             p->visit(&implVisitor, false);
-        }
-
-        if(_checksum)
-        {
-            ChecksumMap map = createChecksums(p);
-            if(!map.empty())
-            {
-                C << sp << nl << "namespace";
-                C << nl << "{";
-                C << sp << nl << "const char* __sliceChecksums[] =";
-                C << sb;
-                for(ChecksumMap::const_iterator q = map.begin(); q != map.end(); ++q)
-                {
-                    C << nl << "\"" << q->first << "\", \"";
-                    ostringstream str;
-                    str.flags(ios_base::hex);
-                    str.fill('0');
-                    for(vector<unsigned char>::const_iterator r = q->second.begin(); r != q->second.end(); ++r)
-                    {
-                        str << static_cast<int>(*r);
-                    }
-                    C << str.str() << "\",";
-                }
-                C << nl << "0";
-                C << eb << ';';
-                C << nl << "const IceInternal::SliceChecksumInit __sliceChecksumInit(__sliceChecksums);";
-                C << sp << nl << "}";
-            }
         }*/
+
+        generateChecksumMap(p);
+        
         H << sp;
         H.zeroIndent();
         H << nl << "#endif";
