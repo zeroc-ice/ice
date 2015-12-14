@@ -36,15 +36,16 @@ run(int, char**, const Ice::CommunicatorPtr& communicator,
     // locator interface, this locator is used by the clients and the
     // 'servers' created with the server manager interface.
     //
-    ServerLocatorRegistryPtr registry = new ServerLocatorRegistry();
+    ServerLocatorRegistryPtr registry = ICE_MAKE_SHARED(ServerLocatorRegistry);
     registry->addObject(adapter->createProxy(communicator->stringToIdentity("ServerManager")));
-    Ice::ObjectPtr object = new ServerManagerI(registry, initData);
+    Ice::ObjectPtr object = ICE_MAKE_SHARED(ServerManagerI, registry, initData);
     adapter->add(object, communicator->stringToIdentity("ServerManager"));
 
-    Ice::LocatorRegistryPrx registryPrx =
-        Ice::LocatorRegistryPrx::uncheckedCast(adapter->add(registry, communicator->stringToIdentity("registry")));
+    Ice::LocatorRegistryPrxPtr registryPrx =
+        ICE_UNCHECKED_CAST(Ice::LocatorRegistryPrx,
+                           adapter->add(registry, communicator->stringToIdentity("registry")));
 
-    Ice::LocatorPtr locator = new ServerLocator(registry, registryPrx);
+    Ice::LocatorPtr locator = ICE_MAKE_SHARED(ServerLocator, registry, registryPrx);
     adapter->add(locator, communicator->stringToIdentity("locator"));
 
     adapter->activate();
@@ -60,37 +61,17 @@ main(int argc, char* argv[])
 #ifdef ICE_STATIC_LIBS
     Ice::registerIceSSL();
 #endif
-
-    int status;
-    Ice::CommunicatorPtr communicator;
-
     try
     {
         Ice::InitializationData initData;
         initData.properties = Ice::createProperties(argc, argv);
-        communicator = Ice::initialize(argc, argv, initData);
-        assert(initData.properties != communicator->getProperties());
-
-        status = run(argc, argv, communicator, initData);
+        Ice::CommunicatorHolder ich = Ice::initialize(argc, argv, initData);
+        assert(initData.properties != ich->getProperties());
+        return run(argc, argv, ich.communicator(), initData);
     }
     catch(const Ice::Exception& ex)
     {
         cerr << ex << endl;
-        status = EXIT_FAILURE;
+        return EXIT_FAILURE;
     }
-
-    if(communicator)
-    {
-        try
-        {
-            communicator->destroy();
-        }
-        catch(const Ice::Exception& ex)
-        {
-            cerr << ex << endl;
-            status = EXIT_FAILURE;
-        }
-    }
-
-    return status;
 }

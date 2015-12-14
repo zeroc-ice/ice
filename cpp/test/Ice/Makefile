@@ -21,12 +21,16 @@ SUBDIRS		= proxy \
                   facets \
                   objects \
                   faultTolerance \
+                  location \
                   adapterDeactivation \
                   hash \
+                  checksum \
+                  binding \
                   admin \
                   enums \
                   timeout \
                   udp \
+                  defaultServant \
                   defaultValue \
                   properties \
                   plugin \

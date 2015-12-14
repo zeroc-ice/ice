@@ -45,8 +45,8 @@ public:
     TestI(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const ServerLocatorRegistryPtr&);
 
     virtual void shutdown(const Ice::Current&);
-    virtual ::Test::HelloPrx getHello(const Ice::Current&);
-    virtual ::Test::HelloPrx getReplicatedHello(const Ice::Current&);
+    virtual ::Test::HelloPrxPtr getHello(const Ice::Current&);
+    virtual ::Test::HelloPrxPtr getReplicatedHello(const Ice::Current&);
     virtual void migrateHello(const Ice::Current&);
 
 private:

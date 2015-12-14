@@ -15,7 +15,9 @@ using namespace Test;
 
 ServerManagerI::ServerManagerI(const ServerLocatorRegistryPtr& registry,
                                const Ice::InitializationData& initData) :
-    _registry(registry), _initData(initData), _nextPort(12011)
+    _registry(registry),
+    _initData(initData),
+    _nextPort(12011)
 {
     _initData.properties->setProperty("TestAdapter.AdapterId", "TestAdapter");
     _initData.properties->setProperty("TestAdapter.ReplicaGroupId", "ReplicatedAdapter");    
@@ -62,11 +64,11 @@ ServerManagerI::startServer(const Ice::Current&)
     Ice::ObjectAdapterPtr adapter = serverCommunicator->createObjectAdapter("TestAdapter");
     Ice::ObjectAdapterPtr adapter2 = serverCommunicator->createObjectAdapter("TestAdapter2");
 
-    Ice::ObjectPrx locator = serverCommunicator->stringToProxy("locator:default -p 12010");
-    adapter->setLocator(Ice::LocatorPrx::uncheckedCast(locator));
-    adapter2->setLocator(Ice::LocatorPrx::uncheckedCast(locator));
+    Ice::ObjectPrxPtr locator = serverCommunicator->stringToProxy("locator:default -p 12010");
+    adapter->setLocator(ICE_UNCHECKED_CAST(Ice::LocatorPrx, locator));
+    adapter2->setLocator(ICE_UNCHECKED_CAST(Ice::LocatorPrx, locator));
 
-    Ice::ObjectPtr object = new TestI(adapter, adapter2, _registry);
+    Ice::ObjectPtr object = ICE_MAKE_SHARED(TestI, adapter, adapter2, _registry);
     _registry->addObject(adapter->add(object, serverCommunicator->stringToIdentity("test")));
     _registry->addObject(adapter->add(object, serverCommunicator->stringToIdentity("test2")));
     adapter->add(object, serverCommunicator->stringToIdentity("test3"));
@@ -91,7 +93,7 @@ TestI::TestI(const Ice::ObjectAdapterPtr& adapter,
              const ServerLocatorRegistryPtr& registry) :
     _adapter1(adapter), _adapter2(adapter2), _registry(registry)
 {
-    _registry->addObject(_adapter1->add(new HelloI(), _adapter1->getCommunicator()->stringToIdentity("hello")));
+    _registry->addObject(_adapter1->add(ICE_MAKE_SHARED(HelloI), _adapter1->getCommunicator()->stringToIdentity("hello")));
 }
 
 void
@@ -100,17 +102,17 @@ TestI::shutdown(const Ice::Current&)
     _adapter1->getCommunicator()->shutdown();
 }
 
-HelloPrx
+HelloPrxPtr
 TestI::getHello(const Ice::Current&)
 {
-    return HelloPrx::uncheckedCast(_adapter1->createIndirectProxy(
-                                        _adapter1->getCommunicator()->stringToIdentity("hello")));
+    return ICE_UNCHECKED_CAST(HelloPrx, _adapter1->createIndirectProxy(
+                                            _adapter1->getCommunicator()->stringToIdentity("hello")));
 }
 
-HelloPrx
+HelloPrxPtr
 TestI::getReplicatedHello(const Ice::Current&)
 {
-    return HelloPrx::uncheckedCast(_adapter1->createProxy(_adapter1->getCommunicator()->stringToIdentity("hello")));
+    return ICE_UNCHECKED_CAST(HelloPrx, _adapter1->createProxy(_adapter1->getCommunicator()->stringToIdentity("hello")));
 }
 
 void
