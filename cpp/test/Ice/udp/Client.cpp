@@ -48,16 +48,7 @@ main(int argc, char* argv[])
         initData.properties->setProperty("Ice.UDP.SndSize", "16384");
 
         Ice::CommunicatorHolder ich = Ice::initialize(argc, argv, initData);
-        int status = run(argc, argv, ich.communicator());
-
-#if TARGET_OS_IPHONE != 0
-        //
-        // iOS WORKAROUND: without a sleep before the communicator
-        // destroy, the close on the UDP socket hangs.
-        //
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
-#endif
-        return status;
+        return run(argc, argv, ich.communicator());
     }
     catch(const Ice::Exception& ex)
     {
