@@ -372,11 +372,6 @@ Ice::CommunicatorHolder::CommunicatorHolder(const CommunicatorPtr& communicator)
 {
 }
 
-Ice::CommunicatorHolder::CommunicatorHolder(CommunicatorHolder& other) :
-    _communicator(other.release())
-{
-}
-
 #endif
 
 Ice::CommunicatorHolder::~CommunicatorHolder()
