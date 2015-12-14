@@ -26,48 +26,50 @@ struct RandomNumberGenerator : public std::unary_function<ptrdiff_t, ptrdiff_t>
     }
 };
 
+#ifndef ICE_CPP11_MAPPING
+class GetAdapterNameCB : public IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mutex>
+{
+public:
+
+    void
+    response(const string& name)
+    {
+        Lock sync(*this);
+        assert(!name.empty());
+        _name = name;
+        notify();
+    }
+
+    void
+    exception(const Ice::Exception&)
+    {
+        test(false);
+    }
+
+    virtual string
+    getResult()
+    {
+        Lock sync(*this);
+        while(_name.empty())
+        {
+            wait();
+        }
+        return _name;
+    }
+
+private:
+
+    string _name;
+};
+typedef IceUtil::Handle<GetAdapterNameCB> GetAdapterNameCBPtr;
+#endif
+
 string
 getAdapterNameWithAMI(const TestIntfPrxPtr& test)
 {
 #ifdef ICE_CPP11_MAPPING
     return test->getAdapterName_async().get();
 #else
-    class GetAdapterNameCB : public IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mutex>
-    {
-    public:
-
-        void
-        response(const string& name)
-        {
-            Lock sync(*this);
-            assert(!name.empty());
-            _name = name;
-            notify();
-        }
-
-        void
-        exception(const Ice::Exception&)
-        {
-            test(false);
-        }
-
-        virtual string
-        getResult()
-        {
-            Lock sync(*this);
-            while(_name.empty())
-            {
-                wait();
-            }
-            return _name;
-        }
-
-    private:
-
-        string _name;
-    };
-    typedef IceUtil::Handle<GetAdapterNameCB> GetAdapterNameCBPtr;
-
     GetAdapterNameCBPtr cb = new GetAdapterNameCB();
     test->begin_getAdapterName(
         newCallback_TestIntf_getAdapterName(cb, &GetAdapterNameCB::response,  &GetAdapterNameCB::exception));
