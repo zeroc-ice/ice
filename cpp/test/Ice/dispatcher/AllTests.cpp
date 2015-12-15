@@ -195,7 +195,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             cb->check();
         }
 
-        /*testController->holdAdapter();
+        testController->holdAdapter();
 
         Ice::ByteSeq seq;
         seq.resize(1024); // Make sure the request doesn't compress too well.
@@ -214,7 +214,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 [cb, &sent, &completed]()
                 {
                     cb->payload();
-                    if(cb->sentSynchronously())
+                    if(!cb->sentSynchronously())
                     {
                         completed.set_value();
                     }
@@ -241,7 +241,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             }
         }
         testController->resumeAdapter();
-        completed.get_future().get();*/
+        completed.get_future().get();
 #else
         Test::Callback_TestIntf_opPtr callback = Test::newCallback_TestIntf_op(cb,
                                                                                &Callback::response,
