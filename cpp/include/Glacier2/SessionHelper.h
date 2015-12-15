@@ -41,15 +41,15 @@ public:
     virtual void destroy() = 0;
     virtual Ice::CommunicatorPtr communicator() const = 0;
     virtual std::string categoryForClient() const = 0;
-    virtual Ice::ObjectPrx addWithUUID(const Ice::ObjectPtr&) = 0;
-    virtual Glacier2::SessionPrx session() const = 0;
+    virtual Ice::ObjectPrxPtr addWithUUID(const Ice::ObjectPtr&) = 0;
+    virtual Glacier2::SessionPrxPtr session() const = 0;
     virtual bool isConnected() const = 0;
     virtual Ice::ObjectAdapterPtr objectAdapter() = 0;
 
     bool operator==(const Glacier2::SessionHelper&) const;
     bool operator!=(const Glacier2::SessionHelper&) const;
 };
-typedef IceUtil::Handle<SessionHelper> SessionHelperPtr;
+ICE_DEFINE_PTR(SessionHelperPtr, SessionHelper);
 
 class GLACIER2_API SessionCallback : virtual public IceUtil::Shared
 {
@@ -61,11 +61,11 @@ public:
     virtual void disconnected(const SessionHelperPtr&) = 0;
     virtual void connectFailed(const SessionHelperPtr&, const Ice::Exception&) = 0;
 };
-typedef IceUtil::Handle<SessionCallback> SessionCallbackPtr;
+ICE_DEFINE_PTR(SessionCallbackPtr, SessionCallback);
 
 class SessionThreadCallback;
 
-class GLACIER2_API SessionFactoryHelper : public IceUtil::Shared
+class GLACIER2_API SessionFactoryHelper : public ICE_ENABLE_SHARED_FROM_THIS(SessionFactoryHelper)
 {
     friend class SessionThreadCallback; // To access thread functions
 
@@ -131,7 +131,7 @@ private:
     bool _useCallbacks;
     std::map<const SessionHelper*, IceUtil::ThreadPtr> _threads;
 };
-typedef IceUtil::Handle<SessionFactoryHelper> SessionFactoryHelperPtr;
+ICE_DEFINE_PTR(SessionFactoryHelperPtr, SessionFactoryHelper);
 
 }
 

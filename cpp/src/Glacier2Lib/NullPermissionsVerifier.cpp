@@ -21,7 +21,11 @@ class NullPermissionsVerifier : public Glacier2::PermissionsVerifier
 {
 public:
 
+#ifdef ICE_CPP11_MAPPING
+    bool checkPermissions(string, string, string&, const Current&) const
+#else
     bool checkPermissions(const string&, const string&, string&, const Current&) const
+#endif
     {
         return true;
     }
@@ -31,8 +35,13 @@ class NullSSLPermissionsVerifier : public Glacier2::SSLPermissionsVerifier
 {
 public:
 
+#ifdef ICE_CPP11_MAPPING
     virtual bool
-    authorize(const Glacier2::SSLInfo&, std::string&, const Ice::Current&) const
+    authorize(Glacier2::SSLInfo, string&, const Ice::Current&) const
+#else
+    virtual bool
+    authorize(const Glacier2::SSLInfo&, string&, const Ice::Current&) const
+#endif
     {
         return true;
     }
@@ -91,7 +100,7 @@ Init::checkPermissionVerifier(const string& val)
     // Check if it's in proxy format
     try
     {
-        ObjectPrx prx  = _communicator->stringToProxy(val);
+        ObjectPrxPtr prx  = _communicator->stringToProxy(val);
         if(prx->ice_getIdentity() == _nullPVId || prx->ice_getIdentity() == _nullSSLPVId)
         {
             createObjects();
@@ -124,8 +133,8 @@ Init::createObjects()
     if(!_adapter)
     {
         _adapter = _communicator->createObjectAdapter(""); // colloc-only adapter           
-        _adapter->add(new NullPermissionsVerifier, _nullPVId);
-        _adapter->add(new NullSSLPermissionsVerifier, _nullSSLPVId);
+        _adapter->add(ICE_MAKE_SHARED(NullPermissionsVerifier), _nullPVId);
+        _adapter->add(ICE_MAKE_SHARED(NullSSLPermissionsVerifier), _nullSSLPVId);
         _adapter->activate();
     }
 }

@@ -15,8 +15,8 @@ using namespace std;
 using namespace Ice;
     
 Ice::ObjectAdapterPtr Glacier2::Application::_adapter;
-Glacier2::RouterPrx Glacier2::Application::_router;
-Glacier2::SessionPrx Glacier2::Application::_session;
+Glacier2::RouterPrxPtr Glacier2::Application::_router;
+Glacier2::SessionPrxPtr Glacier2::Application::_session;
 bool Glacier2::Application::_createdSession = false;
 string Glacier2::Application::_category;
 
@@ -85,7 +85,7 @@ Glacier2::Application::objectAdapter()
     return _adapter;
 }
 
-Ice::ObjectPrx
+Ice::ObjectPrxPtr
 Glacier2::Application::addWithUUID(const Ice::ObjectPtr& servant)
 {
     return objectAdapter()->add(servant, createCallbackIdentity(IceUtil::generateUUID()));
@@ -153,7 +153,7 @@ Glacier2::Application::doMain(Ice::StringSeq& args, const Ice::InitializationDat
     try
     {
         IceInternal::Application::_communicator = Ice::initialize(args, initData);
-        _router = Glacier2::RouterPrx::uncheckedCast(communicator()->getDefaultRouter());
+        _router = ICE_UNCHECKED_CAST(Glacier2::RouterPrx, communicator()->getDefaultRouter());
         
         if(!_router)
         {
@@ -204,7 +204,7 @@ Glacier2::Application::doMain(Ice::StringSeq& args, const Ice::InitializationDat
                     Ice::ConnectionPtr connection = _router->ice_getCachedConnection();
                     assert(connection);
                     connection->setACM(acmTimeout, IceUtil::None, Ice::HeartbeatAlways);
-                    connection->setCallback(new ConnectionCallbackI(this));
+                    connection->setCallback(ICE_MAKE_SHARED(ConnectionCallbackI, this));
                 }
 
                 _category = _router->getCategoryForClient();

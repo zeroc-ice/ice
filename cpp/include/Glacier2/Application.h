@@ -118,7 +118,7 @@ public:
 
      * @return The Glacier2 session.
      **/
-    virtual Glacier2::SessionPrx createSession() = 0;
+    virtual Glacier2::SessionPrxPtr createSession() = 0;
 
     /**
      * Called to restart the application's Glacier2 session. This
@@ -148,7 +148,7 @@ public:
      * Returns the Glacier2 router proxy
      * @return The router proxy.
      **/
-    static Glacier2::RouterPrx router()
+    static Glacier2::RouterPrxPtr router()
     {
         return _router;
     }
@@ -157,7 +157,7 @@ public:
      * Returns the Glacier2 session proxy
      * @return The session proxy.
      **/
-    static Glacier2::SessionPrx session()
+    static Glacier2::SessionPrxPtr session()
     {
         return _session;
     }
@@ -183,7 +183,7 @@ public:
      * @param servant The servant to add.
      * @return The proxy for the servant.
      **/
-    Ice::ObjectPrx addWithUUID(const Ice::ObjectPtr& servant);
+    Ice::ObjectPrxPtr addWithUUID(const Ice::ObjectPtr& servant);
 
     /**
      * Creates an object adapter for callback objects.
@@ -211,8 +211,8 @@ private:
     }
 
     static Ice::ObjectAdapterPtr _adapter;
-    static Glacier2::RouterPrx _router;
-    static Glacier2::SessionPrx _session;
+    static Glacier2::RouterPrxPtr _router;
+    static Glacier2::SessionPrxPtr _session;
     static bool _createdSession;
     static std::string _category;
 };
