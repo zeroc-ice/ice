@@ -22,18 +22,16 @@ class Dispatcher : public Ice::Dispatcher, IceUtil::Thread, IceUtil::Monitor<Ice
 public:
 
     Dispatcher();
-
     virtual void dispatch(const Ice::DispatcherCallPtr&, const Ice::ConnectionPtr&);
+
     
+    void run();
     static void terminate();
     static bool isDispatcherThread();
 
 private:
 
-    void run();
-
     static Dispatcher* _instance;
-
     std::deque<Ice::DispatcherCallPtr> _calls;
     bool _terminated;
 };

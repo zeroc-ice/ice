@@ -140,9 +140,23 @@ Ice::createProperties(int& argc, char* argv[], const PropertiesPtr& defaults)
     return properties;
 }
 
+#ifdef ICE_CPP11_MAPPING
+Ice::ThreadHookPlugin::ThreadHookPlugin(const CommunicatorPtr& communicator,
+                                        function<void()> threadStart,
+                                        function<void()> threadStop)
+{
+    if(communicator == nullptr)
+    {
+        throw PluginInitializationException(__FILE__, __LINE__, "Communicator cannot be null");
+    }
+
+    IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
+    instance->setThreadHook(move(threadStart), move(threadStop));
+}
+#else
 Ice::ThreadHookPlugin::ThreadHookPlugin(const CommunicatorPtr& communicator, const ThreadNotificationPtr& threadHook)
 {
-    if(communicator == ICE_NULLPTR)
+    if(communicator == 0)
     {
         throw PluginInitializationException(__FILE__, __LINE__, "Communicator cannot be null");
     }
@@ -150,7 +164,7 @@ Ice::ThreadHookPlugin::ThreadHookPlugin(const CommunicatorPtr& communicator, con
     IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
     instance->setThreadHook(threadHook);
 }
-
+#endif
 void
 Ice::ThreadHookPlugin::initialize()
 {

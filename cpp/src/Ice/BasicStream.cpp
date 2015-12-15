@@ -2805,7 +2805,11 @@ IceInternal::BasicStream::EncapsDecoder11::readInstance(Int index, PatchFunc pat
     startSlice();
     const string mostDerivedId = _current->typeId;
     Ice::ValuePtr v;
+#ifdef ICE_CPP11_MAPPING
+    function<string (int)> compactIdResolver = _stream->instance()->initializationData().compactIdResolver;
+#else
     const CompactIdResolverPtr& compactIdResolver = _stream->instance()->initializationData().compactIdResolver;
+#endif
     while(true)
     {
         if(_current->compactId >= 0)
@@ -2818,7 +2822,11 @@ IceInternal::BasicStream::EncapsDecoder11::readInstance(Int index, PatchFunc pat
             {
                 try
                 {
+#ifdef ICE_CPP11_MAPPING
+                    _current->typeId = compactIdResolver(_current->compactId);
+#else
                     _current->typeId = compactIdResolver->resolve(_current->compactId);
+#endif
                 }
                 catch(const LocalException&)
                 {

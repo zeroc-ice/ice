@@ -69,8 +69,11 @@ class ICE_API ThreadHookPlugin : public Ice::Plugin
 {
 public:
 
+#ifdef ICE_CPP11_MAPPING
+    ThreadHookPlugin(const CommunicatorPtr& communicator, std::function<void()>, std::function<void()>);
+#else
     ThreadHookPlugin(const CommunicatorPtr& communicator, const ThreadNotificationPtr&);
-
+#endif
     virtual void initialize();
 
     virtual void destroy();
@@ -84,10 +87,18 @@ struct InitializationData
     PropertiesPtr properties;
     LoggerPtr logger;
     Instrumentation::CommunicatorObserverPtr observer;
+#ifdef ICE_CPP11_MAPPING
+    std::function<void()> threadStart;
+    std::function<void()> threadStop;
+    std::function<void (std::function<void ()>, const std::shared_ptr<Ice::Connection>&)> dispatcher;
+    std::function<std::string (int)> compactIdResolver;
+    std::function<void(const Ice::BatchRequest&, int, int)> batchRequestInterceptor;
+#else
     ThreadNotificationPtr threadHook;
     DispatcherPtr dispatcher;
     CompactIdResolverPtr compactIdResolver;
     BatchRequestInterceptorPtr batchRequestInterceptor;
+#endif
 };
 
 ICE_API CommunicatorPtr initialize(int&, char*[], const InitializationData& = InitializationData(),

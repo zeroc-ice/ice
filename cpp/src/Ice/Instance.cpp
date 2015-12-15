@@ -1043,6 +1043,14 @@ IceInternal::Instance::setLogger(const Ice::LoggerPtr& logger)
     _initData.logger = logger;
 }
 
+#ifdef ICE_CPP11_MAPPING
+void
+IceInternal::Instance::setThreadHook(function<void ()> threadStart, function<void ()> threadStop)
+{
+    _initData.threadStart = move(threadStart);
+    _initData.threadStop = move(threadStop);
+}
+#else
 void
 IceInternal::Instance::setThreadHook(const Ice::ThreadNotificationPtr& threadHook)
 {
@@ -1051,6 +1059,7 @@ IceInternal::Instance::setThreadHook(const Ice::ThreadNotificationPtr& threadHoo
     //
     _initData.threadHook = threadHook;
 }
+#endif
 
 namespace
 {

@@ -132,7 +132,11 @@ private:
     std::string nextThreadId();
 
     const InstancePtr _instance;
+#ifdef ICE_CPP11_MAPPING
+    std::function<void (std::function<void ()>, const std::shared_ptr<Ice::Connection>&)> _dispatcher;
+#else
     const Ice::DispatcherPtr _dispatcher;
+#endif
     ThreadPoolWorkQueuePtr _workQueue;
     bool _destroyed;
     const std::string _prefix;

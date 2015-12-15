@@ -132,7 +132,11 @@ public:
     void setDefaultRouter(const Ice::RouterPrxPtr&);
 
     void setLogger(const Ice::LoggerPtr&);
+#ifdef ICE_CPP11_MAPPING
+    void setThreadHook(std::function<void ()>, std::function<void ()>);
+#else
     void setThreadHook(const Ice::ThreadNotificationPtr&);
+#endif
 
     IceUtil::StringConverterPtr getStringConverter() const { return _stringConverter; }
     IceUtil::WstringConverterPtr getWstringConverter() const { return _wstringConverter; }

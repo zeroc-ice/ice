@@ -10,6 +10,8 @@
 #include <Dispatcher.h>
 #include <TestCommon.h>
 
+using namespace std;
+
 Dispatcher* Dispatcher::_instance = 0;
 
 Dispatcher::Dispatcher()
@@ -19,17 +21,6 @@ Dispatcher::Dispatcher()
     __setNoDelete(true);
     start();
     __setNoDelete(false);
-}
-
-void
-Dispatcher::dispatch(const Ice::DispatcherCallPtr& call, const Ice::ConnectionPtr&)
-{
-    Lock sync(*this);
-    _calls.push_back(call);
-    if(_calls.size() == 1)
-    {
-        notify();
-    }
 }
 
 void
@@ -49,6 +40,18 @@ bool
 Dispatcher::isDispatcherThread()
 {
     return IceUtil::ThreadControl() == _instance->getThreadControl();
+}
+
+void
+Dispatcher::dispatch(const Ice::DispatcherCallPtr& call, const Ice::ConnectionPtr&)
+
+{
+    Lock sync(*this);
+    _calls.push_back(call);
+    if(_calls.size() == 1)
+    {
+        notify();
+    }
 }
 
 void

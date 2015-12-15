@@ -147,7 +147,13 @@ batchOneways(const Test::MyClassPrxPtr& p)
         initData.properties = p->ice_getCommunicator()->getProperties()->clone();
         BatchRequestInterceptorIPtr interceptor = ICE_MAKE_SHARED(BatchRequestInterceptorI);
 
-#ifdef ICE_CPP11_COMPILER
+#if defined(ICE_CPP11_MAPPING)
+        initData.batchRequestInterceptor =
+            [=](const Ice::BatchRequest& request, int count, int size)
+            {
+                interceptor->enqueue(request, count, size);
+            };
+#elif defined(ICE_CPP11_COMPILER)
         // Ensure lambda factory method works.
         initData.batchRequestInterceptor = Ice::newBatchRequestInterceptor(
             [=](const Ice::BatchRequest& request, int count, int size)

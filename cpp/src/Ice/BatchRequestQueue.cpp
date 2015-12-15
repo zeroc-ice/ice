@@ -127,7 +127,11 @@ BatchRequestQueue::finishBatchRequest(BasicStream* os, const Ice::ObjectPrxPtr& 
         if(_interceptor)
         {
             BatchRequestI request(*this, proxy, operation, static_cast<int>(_batchStream.b.size() - _batchMarker));
+#ifdef ICE_CPP11_MAPPING
+            _interceptor(request, _batchRequestNum, static_cast<int>(_batchMarker));
+#else
             _interceptor->enqueue(request, _batchRequestNum, static_cast<int>(_batchMarker));
+#endif
         }
         else
         {
