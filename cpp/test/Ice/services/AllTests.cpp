@@ -24,11 +24,19 @@ class ClockI : public Clock
 {
 public:
 
+#ifdef ICE_CPP11_MAPPING
+    virtual void
+    tick(string time, const Ice::Current&)
+    {
+        cout << time << endl;
+    }
+#else
     virtual void
     tick(const string& time, const Ice::Current&)
     {
         cout << time << endl;
     }
+#endif
 };
 
 class SessionCallbackI : public Glacier2::SessionCallback
@@ -63,7 +71,7 @@ public:
 
     int run(int argc, char* argv[])
     {
-        _factory = new Glacier2::SessionFactoryHelper(new SessionCallbackI());
+        _factory = ICE_MAKE_SHARED(Glacier2::SessionFactoryHelper, ICE_MAKE_SHARED(SessionCallbackI));
         return EXIT_SUCCESS;
     }
 
@@ -90,11 +98,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
         cout << "Testing IceStorm stub... " << flush;
-        IceStorm::TopicManagerPrx manager =
-                    IceStorm::TopicManagerPrx::uncheckedCast(communicator->stringToProxy("test:default -p 12010"));
+        IceStorm::TopicManagerPrxPtr manager =
+                    ICE_UNCHECKED_CAST(IceStorm::TopicManagerPrx, communicator->stringToProxy("test:default -p 12010"));
 
         IceStorm::QoS qos;
-        IceStorm::TopicPrx topic;
+        IceStorm::TopicPrxPtr topic;
         string topicName = "time";
 
         try
@@ -111,8 +119,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
 
         Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("subscriber" ,"tcp");
-        Ice::ObjectPrx subscriber = adapter->addWithUUID(new ClockI);
+        Ice::ObjectPrxPtr subscriber = adapter->addWithUUID(ICE_MAKE_SHARED(ClockI));
         adapter->activate();
+#ifdef ICE_CPP11_MAPPING
+        assert(!topic);
+#else
         try
         {
             topic->subscribeAndGetPublisher(qos, subscriber);
@@ -125,16 +136,17 @@ allTests(const Ice::CommunicatorPtr& communicator)
         catch(const IceUtil::NullHandleException&)
         {
         }
+#endif
         cout << "ok" << endl;
     }
 
     {
         cout << "Testing IceGrid stub... " << flush;
 
-        Ice::ObjectPrx base = communicator->stringToProxy("test:default -p 12010");
-        IceGrid::RegistryPrx registry = IceGrid::RegistryPrx::uncheckedCast(base);
-        IceGrid::AdminSessionPrx session;
-        IceGrid::AdminPrx admin;
+        Ice::ObjectPrxPtr base = communicator->stringToProxy("test:default -p 12010");
+        IceGrid::RegistryPrxPtr registry = ICE_UNCHECKED_CAST(IceGrid::RegistryPrx, base);
+        IceGrid::AdminSessionPrxPtr session;
+        IceGrid::AdminPrxPtr admin;
         try
         {
             session = registry->createAdminSession("username", "password");
@@ -147,7 +159,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
         catch(const Ice::LocalException&)
         {
         }
-
+#ifdef ICE_CPP11_MAPPING
+        assert(!admin);
+#else
         try
         {
             admin = session->getAdmin();
@@ -156,6 +170,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         catch(const IceUtil::NullHandleException&)
         {
         }
+#endif
         cout << "ok" << endl;
     }
 }

@@ -35,7 +35,8 @@ SUBDIRS		= proxy \
                   properties \
                   plugin \
                   logger \
-                  networkProxy
+                  networkProxy \
+                  services
 else
 SUBDIRS		= proxy \
                   operations \
