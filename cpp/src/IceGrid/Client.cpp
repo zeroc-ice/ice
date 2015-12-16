@@ -20,7 +20,6 @@
 #include <IceGrid/Parser.h>
 #include <IceGrid/FileParserI.h>
 #include <IceGrid/Registry.h>
-#include <IceGrid/Locator.h>
 #include <IceGrid/IceLocatorDiscovery.h>
 #include <Glacier2/Router.h>
 #include <fstream>

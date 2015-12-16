@@ -12,7 +12,7 @@
 
 #include <IceUtil/Handle.h>
 #include <IceGrid/Admin.h>
-#include <IceGrid/Query.h>
+#include <IceGrid/Registry.h>
 #include <list>
 #include <stdio.h>
 

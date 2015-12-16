@@ -74,9 +74,6 @@ ICEGRID_SRCS	= IceGrid/Admin.php \
 		  IceGrid/Descriptor.php \
 		  IceGrid/Exception.php \
 		  IceGrid/FileParser.php \
-		  IceGrid/Locator.php \
-		  IceGrid/Observer.php \
-		  IceGrid/Query.php \
 		  IceGrid/Registry.php \
 		  IceGrid/Session.php \
 		  IceGrid/UserAccountMapper.php

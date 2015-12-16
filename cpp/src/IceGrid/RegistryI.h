@@ -12,8 +12,6 @@
 
 #include <IceUtil/Timer.h>
 #include <IceGrid/Registry.h>
-#include <IceGrid/Query.h>
-#include <IceGrid/Locator.h>
 #include <IceGrid/Internal.h>
 #include <IceGrid/PlatformInfo.h>
 #include <IceGrid/ReplicaSessionManager.h>

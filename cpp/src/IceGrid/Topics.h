@@ -13,7 +13,7 @@
 #include <IceUtil/Mutex.h>
 #include <IceStorm/IceStorm.h>
 #include <IceGrid/Internal.h>
-#include <IceGrid/Observer.h>
+#include <IceGrid/Registry.h>
 #include <set>
 
 namespace IceGrid

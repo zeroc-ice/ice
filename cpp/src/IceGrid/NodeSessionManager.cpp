@@ -11,7 +11,6 @@
 #include <IceGrid/NodeSessionManager.h>
 #include <IceGrid/TraceLevels.h>
 #include <IceGrid/NodeI.h>
-#include <IceGrid/Query.h>
 
 using namespace std;
 using namespace IceGrid;

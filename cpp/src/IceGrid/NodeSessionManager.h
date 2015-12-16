@@ -15,7 +15,7 @@
 #include <IceUtil/Monitor.h>
 
 #include <IceGrid/SessionManager.h>
-#include <IceGrid/Query.h>
+#include <IceGrid/Registry.h>
 #include <IceGrid/Internal.h>
 #include <set>
 

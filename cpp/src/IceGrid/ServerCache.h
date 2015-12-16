@@ -14,7 +14,7 @@
 #include <IceUtil/Shared.h>
 #include <IceGrid/Descriptor.h>
 #include <IceGrid/Internal.h>
-#include <IceGrid/Query.h>
+#include <IceGrid/Registry.h>
 #include <IceGrid/Allocatable.h>
 #include <IceGrid/Cache.h>
 

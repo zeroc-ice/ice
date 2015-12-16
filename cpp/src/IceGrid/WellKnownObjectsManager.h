@@ -11,7 +11,7 @@
 #define ICE_GRID_WELL_KNOWN_OBJECTS_MANAGER_H
 
 #include <IceGrid/Internal.h>
-#include <IceGrid/Locator.h>
+#include <IceGrid/Registry.h>
 
 namespace IceGrid
 {

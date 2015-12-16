@@ -18,7 +18,7 @@
 #include <Ice/Logger.h>
 #include <Ice/LoggerUtil.h>
 
-#include <IceGrid/Query.h>
+#include <IceGrid/Registry.h>
 #include <IceGrid/Internal.h>
 
 namespace IceGrid

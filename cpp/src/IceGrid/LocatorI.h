@@ -11,7 +11,7 @@
 #define ICE_GRID_LOCATOR_I_H
 
 #include <IceGrid/Internal.h>
-#include <IceGrid/Locator.h>
+#include <IceGrid/Registry.h>
 
 #include <set>
 
