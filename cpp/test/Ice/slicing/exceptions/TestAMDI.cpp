@@ -12,11 +12,393 @@
 #include <TestCommon.h>
 
 using namespace Test;
+using namespace std;
 
 TestI::TestI()
 {
 }
 
+#ifdef ICE_CPP11_MAPPING
+void
+TestI::baseAsBase_async(function<void ()>, function<void (exception_ptr)> error, const ::Ice::Current&)
+{
+    try
+    {
+        Base b;
+        b.b = "Base.b";
+        throw b;
+    }
+    catch(...)
+    {
+        error(current_exception());
+    }
+}
+
+void
+TestI::unknownDerivedAsBase_async(function<void ()>, function<void (exception_ptr)> error, const ::Ice::Current&)
+{
+    try
+    {
+        UnknownDerived d;
+        d.b = "UnknownDerived.b";
+        d.ud = "UnknownDerived.ud";
+        throw d;
+    }
+    catch(...)
+    {
+        error(current_exception());
+    }
+}
+
+void
+TestI::knownDerivedAsBase_async(function<void ()>, function<void (exception_ptr)> error, const ::Ice::Current&)
+{
+    try
+    {
+        KnownDerived d;
+        d.b = "KnownDerived.b";
+        d.kd = "KnownDerived.kd";
+        throw d;
+    }
+    catch(...)
+    {
+        error(current_exception());
+    }
+}
+
+void
+TestI::knownDerivedAsKnownDerived_async(function<void ()>, function<void (exception_ptr)> error, const ::Ice::Current&)
+{
+    try
+    {
+        KnownDerived d;
+        d.b = "KnownDerived.b";
+        d.kd = "KnownDerived.kd";
+        throw d;
+    }
+    catch(...)
+    {
+        error(current_exception());
+    }
+}
+
+void
+TestI::unknownIntermediateAsBase_async(function<void ()>, function<void (exception_ptr)> error, const ::Ice::Current&)
+{
+    try
+    {
+        UnknownIntermediate ui;
+        ui.b = "UnknownIntermediate.b";
+        ui.ui = "UnknownIntermediate.ui";
+        throw ui;
+    }
+    catch(...)
+    {
+        error(current_exception());
+    }
+}
+
+void
+TestI::knownIntermediateAsBase_async(function<void ()>, function<void (exception_ptr)> error, const ::Ice::Current&)
+{
+    try
+    {
+        KnownIntermediate ki;
+        ki.b = "KnownIntermediate.b";
+        ki.ki = "KnownIntermediate.ki";
+        throw ki;
+    }
+    catch(...)
+    {
+        error(current_exception());
+    }
+}
+
+void
+TestI::knownMostDerivedAsBase_async(function<void ()>, function<void (exception_ptr)> error, const ::Ice::Current&)
+{
+    try
+    {
+        KnownMostDerived kmd;
+        kmd.b = "KnownMostDerived.b";
+        kmd.ki = "KnownMostDerived.ki";
+        kmd.kmd = "KnownMostDerived.kmd";
+        throw kmd;
+    }
+    catch(...)
+    {
+        error(current_exception());
+    }
+}
+
+void
+TestI::knownIntermediateAsKnownIntermediate_async(function<void ()>, function<void (exception_ptr)> error,
+                                                  const ::Ice::Current&)
+{
+    try
+    {
+        KnownIntermediate ki;
+        ki.b = "KnownIntermediate.b";
+        ki.ki = "KnownIntermediate.ki";
+        throw ki;
+    }
+    catch(...)
+    {
+        error(current_exception());
+    }
+}
+
+void
+TestI::knownMostDerivedAsKnownIntermediate_async(function<void ()>, function<void (exception_ptr)> error,
+                                                 const ::Ice::Current&)
+{
+    try
+    {
+        KnownMostDerived kmd;
+        kmd.b = "KnownMostDerived.b";
+        kmd.ki = "KnownMostDerived.ki";
+        kmd.kmd = "KnownMostDerived.kmd";
+        throw kmd;
+    }
+    catch(...)
+    {
+        error(current_exception());
+    }
+}
+
+void
+TestI::
+knownMostDerivedAsKnownMostDerived_async(function<void ()>, function<void (exception_ptr)> error,
+                                         const ::Ice::Current&)
+{
+    try
+    {
+        KnownMostDerived kmd;
+        kmd.b = "KnownMostDerived.b";
+        kmd.ki = "KnownMostDerived.ki";
+        kmd.kmd = "KnownMostDerived.kmd";
+        throw kmd;
+    }
+    catch(...)
+    {
+        error(current_exception());
+    }
+}
+
+void
+TestI::unknownMostDerived1AsBase_async(function<void ()>, function<void (exception_ptr)> error, const ::Ice::Current&)
+{
+    try
+    {
+        UnknownMostDerived1 umd1;
+        umd1.b = "UnknownMostDerived1.b";
+        umd1.ki = "UnknownMostDerived1.ki";
+        umd1.umd1 = "UnknownMostDerived1.umd1";
+        throw umd1;
+    }
+    catch(...)
+    {
+        error(current_exception());
+    }
+}
+
+void
+TestI::unknownMostDerived1AsKnownIntermediate_async(function<void ()>, function<void (exception_ptr)> error,
+                                                    const ::Ice::Current&)
+{
+    try
+    {
+        UnknownMostDerived1 umd1;
+        umd1.b = "UnknownMostDerived1.b";
+        umd1.ki = "UnknownMostDerived1.ki";
+        umd1.umd1 = "UnknownMostDerived1.umd1";
+        throw umd1;
+    }
+    catch(...)
+    {
+        error(current_exception());
+    }
+}
+
+void
+TestI::unknownMostDerived2AsBase_async(function<void ()>, function<void (exception_ptr)> error, const ::Ice::Current&)
+{
+    try
+    {
+        UnknownMostDerived2 umd2;
+        umd2.b = "UnknownMostDerived2.b";
+        umd2.ui = "UnknownMostDerived2.ui";
+        umd2.umd2 = "UnknownMostDerived2.umd2";
+        throw umd2;
+    }
+    catch(...)
+    {
+        error(current_exception());
+    }
+}
+
+void
+TestI::unknownMostDerived2AsBaseCompact_async(function<void ()>, function<void (exception_ptr)> error,
+                                              const ::Ice::Current&)
+{
+    try
+    {
+        UnknownMostDerived2 umd2;
+        umd2.b = "UnknownMostDerived2.b";
+        umd2.ui = "UnknownMostDerived2.ui";
+        umd2.umd2 = "UnknownMostDerived2.umd2";
+        throw umd2;
+    }
+    catch(...)
+    {
+        error(current_exception());
+    }
+}
+
+void
+TestI::knownPreservedAsBase_async(function<void ()>, function<void (exception_ptr)> error, const ::Ice::Current&)
+{
+    try
+    {
+        KnownPreservedDerived ex;
+        ex.b = "base";
+        ex.kp = "preserved";
+        ex.kpd = "derived";
+        throw ex;
+    }
+    catch(...)
+    {
+        error(current_exception());
+    }
+}
+
+void
+TestI::knownPreservedAsKnownPreserved_async(function<void ()>, function<void (exception_ptr)> error,
+                                            const ::Ice::Current&)
+{
+    try
+    {
+        KnownPreservedDerived ex;
+        ex.b = "base";
+        ex.kp = "preserved";
+        ex.kpd = "derived";
+    }
+    catch(...)
+    {
+        error(current_exception());
+    }
+}
+
+void
+TestI::relayKnownPreservedAsBase_async(shared_ptr<RelayPrx> r,
+                                       function<void ()>, function<void (exception_ptr)> error,
+                                       const ::Ice::Current&)
+{
+    try
+    {
+        r->knownPreservedAsBase();
+        test(false);
+    }
+    catch(...)
+    {
+        error(current_exception());
+    }
+}
+
+void
+TestI::relayKnownPreservedAsKnownPreserved_async(shared_ptr<RelayPrx> r,
+                                                 function<void ()>, function<void (exception_ptr)> error,
+                                                 const ::Ice::Current&)
+{
+    try
+    {
+        r->knownPreservedAsKnownPreserved();
+        test(false);
+    }
+    catch(...)
+    {
+        error(current_exception());
+    }
+}
+
+void
+TestI::unknownPreservedAsBase_async(function<void ()>, function<void (exception_ptr)> error, const ::Ice::Current&)
+{
+    try
+    {
+        SPreserved2 ex;
+        ex.b = "base";
+        ex.kp = "preserved";
+        ex.kpd = "derived";
+        ex.p1 = make_shared<SPreservedClass>("bc", "spc");
+        ex.p2 = ex.p1;
+        throw ex;
+    }
+    catch(...)
+    {
+        error(current_exception());
+    }
+}
+
+void
+TestI::unknownPreservedAsKnownPreserved_async(function<void ()>, function<void (exception_ptr)> error,
+                                              const ::Ice::Current&)
+{
+    try
+    {
+        SPreserved2 ex;
+        ex.b = "base";
+        ex.kp = "preserved";
+        ex.kpd = "derived";
+        ex.p1 = make_shared<SPreservedClass>("bc", "spc");
+        ex.p2 = ex.p1;
+        throw ex;
+    }
+    catch(...)
+    {
+        error(current_exception());
+    }
+}
+
+void
+TestI::relayUnknownPreservedAsBase_async(shared_ptr<RelayPrx> r,
+                                         function<void ()>, function<void (exception_ptr)> error,
+                                         const ::Ice::Current&)
+{
+    try
+    {
+        r->unknownPreservedAsBase();
+        test(false);
+    }
+    catch(...)
+    {
+        error(current_exception());
+    }
+}
+
+void
+TestI::relayUnknownPreservedAsKnownPreserved_async(shared_ptr<RelayPrx> r,
+                                                   function<void ()>, function<void (exception_ptr)> error,
+                                                   const ::Ice::Current&)
+{
+    try
+    {
+        r->unknownPreservedAsKnownPreserved();
+        test(false);
+    }
+    catch(...)
+    {
+        error(current_exception());
+    }
+}
+
+void
+TestI::shutdown_async(function<void ()> response, function<void (exception_ptr)>, const ::Ice::Current& current)
+{
+    current.adapter->getCommunicator()->shutdown();
+    response();
+}
+#else
 void
 TestI::baseAsBase_async(const AMD_TestIntf_baseAsBasePtr& cb, const ::Ice::Current&)
 {
@@ -267,3 +649,4 @@ TestI::shutdown_async(const AMD_TestIntf_shutdownPtr& cb, const ::Ice::Current& 
     current.adapter->getCommunicator()->shutdown();
     cb->ice_response();
 }
+#endif

@@ -19,8 +19,8 @@ DEFINE_TEST("client")
 int
 run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
-    TestIntfPrx allTests(const Ice::CommunicatorPtr&);
-    TestIntfPrx Test = allTests(communicator);
+    TestIntfPrxPtr allTests(const Ice::CommunicatorPtr&);
+    TestIntfPrxPtr Test = allTests(communicator);
     Test->shutdown();
     return EXIT_SUCCESS;
 }
@@ -32,32 +32,14 @@ main(int argc, char* argv[])
     Ice::registerIceSSL();
 #endif
 
-    int status;
-    Ice::CommunicatorPtr communicator;
-
     try
     {
-        communicator = Ice::initialize(argc, argv);
-        status = run(argc, argv, communicator);
+        Ice::CommunicatorHolder ich = Ice::initialize(argc, argv);
+        return run(argc, argv, ich.communicator());
     }
     catch(const Ice::Exception& ex)
     {
         cerr << ex << endl;
-        status = EXIT_FAILURE;
+        return EXIT_FAILURE;
     }
-
-    if(communicator)
-    {
-        try
-        {
-            communicator->destroy();
-        }
-        catch(const Ice::Exception& ex)
-        {
-            cerr << ex << endl;
-            status = EXIT_FAILURE;
-        }
-    }
-
-    return status;
 }

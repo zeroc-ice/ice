@@ -23,17 +23,18 @@ SUBDIRS		= proxy \
                   faultTolerance \
                   location \
                   adapterDeactivation \
+                  slicing \
                   hash \
                   checksum \
                   binding \
-                  admin \
-                  enums \
                   timeout \
                   udp \
                   defaultServant \
                   defaultValue \
                   properties \
                   plugin \
+                  admin \
+                  enums \
                   logger \
                   networkProxy \
                   services

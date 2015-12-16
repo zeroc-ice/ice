@@ -14,6 +14,7 @@
 using namespace std;
 using namespace Test;
 
+#ifndef ICE_CPP11_MAPPING
 class CallbackBase : public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
@@ -322,6 +323,7 @@ public:
     }
 };
 typedef IceUtil::Handle<Callback> CallbackPtr;
+#endif
 
 class RelayI : public Relay
 {
@@ -349,7 +351,7 @@ class RelayI : public Relay
         ex.b = "base";
         ex.kp = "preserved";
         ex.kpd = "derived";
-        ex.p1 = new PreservedClass("bc", "pc");
+        ex.p1 = ICE_MAKE_SHARED(PreservedClass, "bc", "pc");
         ex.p2 = ex.p1;
         throw ex;
     }
@@ -360,17 +362,17 @@ class RelayI : public Relay
         ex.b = "base";
         ex.kp = "preserved";
         ex.kpd = "derived";
-        ex.p1 = new PreservedClass("bc", "pc");
+        ex.p1 = ICE_MAKE_SHARED(PreservedClass, "bc", "pc");
         ex.p2 = ex.p1;
         throw ex;
     }
 };
 
-TestIntfPrx
+TestIntfPrxPtr
 allTests(const Ice::CommunicatorPtr& communicator)
 {
-    Ice::ObjectPrx obj = communicator->stringToProxy("Test:default -p 12010");
-    TestIntfPrx test = TestIntfPrx::checkedCast(obj);
+    Ice::ObjectPrxPtr obj = communicator->stringToProxy("Test:default -p 12010");
+    TestIntfPrxPtr test = ICE_CHECKED_CAST(TestIntfPrx, obj);
 
     cout << "base... " << flush;
     {
@@ -393,10 +395,29 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "base (AMI)... " << flush;
     {
+#ifdef ICE_CPP11_MAPPING
+        auto result = test->baseAsBase_async();
+        try
+        {
+            result.get();
+            test(false);
+        }
+        catch(const Base& b)
+        {
+            test(b.b == "Base.b");
+            test(b.ice_name() =="Test::Base");
+        }
+        catch(...)
+        {
+            test(false);
+        }
+            
+#else
         CallbackPtr cb = new Callback;
         test->begin_baseAsBase(
             newCallback_TestIntf_baseAsBase(cb, &Callback::response, &Callback::exception_baseAsBase));
         cb->check();
+#endif
     }
     cout << "ok" << endl;
 
@@ -421,11 +442,29 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "slicing of unknown derived (AMI)... " << flush;
     {
+#ifdef ICE_CPP11_MAPPING
+        auto result = test->unknownDerivedAsBase_async();
+        try
+        {
+            result.get();
+            test(false);
+        }
+        catch(const Base& b)
+        {
+            test(b.b == "UnknownDerived.b");
+            test(b.ice_name() =="Test::Base");
+        }
+        catch(...)
+        {
+            test(false);
+        }
+#else
         CallbackPtr cb = new Callback;
         test->begin_unknownDerivedAsBase(
             newCallback_TestIntf_unknownDerivedAsBase(cb, &Callback::response,
                                                       &Callback::exception_unknownDerivedAsBase));
         cb->check();
+#endif
     }
     cout << "ok" << endl;
 
@@ -451,10 +490,29 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "non-slicing of known derived as base (AMI)... " << flush;
     {
+#ifdef ICE_CPP11_MAPPING
+        auto result = test->knownDerivedAsBase_async();
+        try
+        {
+            result.get();
+            test(false);
+        }
+        catch(const KnownDerived& k)
+        {
+            test(k.b == "KnownDerived.b");
+            test(k.kd == "KnownDerived.kd");
+            test(k.ice_name() =="Test::KnownDerived");
+        }
+        catch(...)
+        {
+            test(false);
+        }
+#else
         CallbackPtr cb = new Callback;
         test->begin_knownDerivedAsBase(
             newCallback_TestIntf_knownDerivedAsBase(cb, &Callback::response, &Callback::exception_knownDerivedAsBase));
         cb->check();
+#endif
     }
     cout << "ok" << endl;
 
@@ -480,11 +538,29 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "non-slicing of known derived as derived (AMI)... " << flush;
     {
+#ifdef ICE_CPP11_MAPPING
+        auto result = test->knownDerivedAsKnownDerived_async();
+        try
+        {
+            result.get();
+        }
+        catch(const KnownDerived& k)
+        {
+            test(k.b == "KnownDerived.b");
+            test(k.kd == "KnownDerived.kd");
+            test(k.ice_name() =="Test::KnownDerived");
+        }
+        catch(...)
+        {
+            test(false);
+        }
+#else
         CallbackPtr cb = new Callback;
         test->begin_knownDerivedAsKnownDerived(
             newCallback_TestIntf_knownDerivedAsKnownDerived(cb, &Callback::response, 
                                                             &Callback::exception_knownDerivedAsKnownDerived));
         cb->check();
+#endif
     }
     cout << "ok" << endl;
 
@@ -509,11 +585,29 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "slicing of unknown intermediate as base (AMI)... " << flush;
     {
+#ifdef ICE_CPP11_MAPPING
+        auto result = test->unknownIntermediateAsBase_async();
+        try
+        {
+            result.get();
+            test(false);
+        }
+        catch(const Base& b)
+        {
+            test(b.b == "UnknownIntermediate.b");
+            test(b.ice_name() =="Test::Base");
+        }
+        catch(...)
+        {
+            test(false);
+        }
+#else
         CallbackPtr cb = new Callback;
         test->begin_unknownIntermediateAsBase(
             newCallback_TestIntf_unknownIntermediateAsBase(cb, &Callback::response, 
                                                            &Callback::exception_unknownIntermediateAsBase));
         cb->check();
+#endif
     }
     cout << "ok" << endl;
 
@@ -539,11 +633,30 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "slicing of known intermediate as base (AMI)... " << flush;
     {
+#ifdef ICE_CPP11_MAPPING
+        auto result = test->knownIntermediateAsBase_async();
+        try
+        {
+            result.get();
+            test(false);
+        }
+        catch(const KnownIntermediate& ki)
+        {
+            test(ki.b == "KnownIntermediate.b");
+            test(ki.ki == "KnownIntermediate.ki");
+            test(ki.ice_name() =="Test::KnownIntermediate");
+        }
+        catch(...)
+        {
+            test(false);
+        }
+#else
         CallbackPtr cb = new Callback;
         test->begin_knownIntermediateAsBase(
             newCallback_TestIntf_knownIntermediateAsBase(cb, &Callback::response, 
                                                          &Callback::exception_knownIntermediateAsBase));
         cb->check();
+#endif
     }
     cout << "ok" << endl;
 
@@ -570,11 +683,31 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "slicing of known most derived as base (AMI)... " << flush;
     {
+#ifdef ICE_CPP11_MAPPING
+        auto result = test->knownMostDerivedAsBase_async();
+        try
+        {
+            result.get();
+            test(false);
+        }
+        catch(const KnownMostDerived& kmd)
+        {
+            test(kmd.b == "KnownMostDerived.b");
+            test(kmd.ki == "KnownMostDerived.ki");
+            test(kmd.kmd == "KnownMostDerived.kmd");
+            test(kmd.ice_name() =="Test::KnownMostDerived");
+        }
+        catch(...)
+        {
+            test(false);
+        }
+#else
         CallbackPtr cb = new Callback;
         test->begin_knownMostDerivedAsBase(
             newCallback_TestIntf_knownMostDerivedAsBase(cb, &Callback::response, 
                                                         &Callback::exception_knownMostDerivedAsBase));
         cb->check();
+#endif
     }
     cout << "ok" << endl;
 
@@ -600,11 +733,30 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "non-slicing of known intermediate as intermediate (AMI)... " << flush;
     {
+#ifdef ICE_CPP11_MAPPING
+        auto result = test->knownIntermediateAsKnownIntermediate_async();
+        try
+        {
+            result.get();
+            test(false);
+        }
+        catch(const KnownIntermediate& ki)
+        {
+            test(ki.b == "KnownIntermediate.b");
+            test(ki.ki == "KnownIntermediate.ki");
+            test(ki.ice_name() =="Test::KnownIntermediate");
+        }
+        catch(...)
+        {
+            test(false);
+        }
+#else
         CallbackPtr cb = new Callback;
         test->begin_knownIntermediateAsKnownIntermediate(
             newCallback_TestIntf_knownIntermediateAsKnownIntermediate(cb, &Callback::response, 
                                                         &Callback::exception_knownIntermediateAsKnownIntermediate));
         cb->check();
+#endif
     }
     cout << "ok" << endl;
 
@@ -631,11 +783,31 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "non-slicing of known most derived as intermediate (AMI)... " << flush;
     {
+#ifdef ICE_CPP11_MAPPING
+        auto result = test->knownMostDerivedAsKnownIntermediate_async();
+        try
+        {
+            result.get();
+            test(false);
+        }
+        catch(const KnownMostDerived& kmd)
+        {
+            test(kmd.b == "KnownMostDerived.b");
+            test(kmd.ki == "KnownMostDerived.ki");
+            test(kmd.kmd == "KnownMostDerived.kmd");
+            test(kmd.ice_name() =="Test::KnownMostDerived");
+        }
+        catch(...)
+        {
+            test(false);
+        }
+#else
         CallbackPtr cb = new Callback;
         test->begin_knownMostDerivedAsKnownIntermediate(
             newCallback_TestIntf_knownMostDerivedAsKnownIntermediate(cb, &Callback::response, 
                                                         &Callback::exception_knownMostDerivedAsKnownIntermediate));
         cb->check();
+#endif
     }
     cout << "ok" << endl;
 
@@ -662,11 +834,31 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "non-slicing of known most derived as most derived (AMI)... " << flush;
     {
+#ifdef ICE_CPP11_MAPPING
+        auto result = test->knownMostDerivedAsKnownMostDerived_async();
+        try
+        {
+            result.get();
+            test(false);
+        }
+        catch(const KnownMostDerived& kmd)
+        {
+            test(kmd.b == "KnownMostDerived.b");
+            test(kmd.ki == "KnownMostDerived.ki");
+            test(kmd.kmd == "KnownMostDerived.kmd");
+            test(kmd.ice_name() =="Test::KnownMostDerived");
+        }
+        catch(...)
+        {
+            test(false);
+        }
+#else
         CallbackPtr cb = new Callback;
         test->begin_knownMostDerivedAsKnownMostDerived(
             newCallback_TestIntf_knownMostDerivedAsKnownMostDerived(cb, &Callback::response, 
                                                         &Callback::exception_knownMostDerivedAsKnownMostDerived));
         cb->check();
+#endif
     }
     cout << "ok" << endl;
 
@@ -692,11 +884,30 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "slicing of unknown most derived, known intermediate as base (AMI)... " << flush;
     {
+#ifdef ICE_CPP11_MAPPING
+        auto result = test->unknownMostDerived1AsBase_async();
+        try
+        {
+            result.get();
+            test(false);
+        }
+        catch(const KnownIntermediate& ki)
+        {
+            test(ki.b == "UnknownMostDerived1.b");
+            test(ki.ki == "UnknownMostDerived1.ki");
+            test(string(ki.ice_name()) =="Test::KnownIntermediate");
+        }
+        catch(...)
+        {
+            test(false);
+        }
+#else
         CallbackPtr cb = new Callback;
         test->begin_unknownMostDerived1AsBase(
             newCallback_TestIntf_unknownMostDerived1AsBase(cb, &Callback::response, 
                                                            &Callback::exception_unknownMostDerived1AsBase));
         cb->check();
+#endif
     }
     cout << "ok" << endl;
 
@@ -722,11 +933,30 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "slicing of unknown most derived, known intermediate as intermediate (AMI)... " << flush;
     {
+#ifdef ICE_CPP11_MAPPING
+        auto result = test->unknownMostDerived1AsKnownIntermediate_async();
+        try
+        {
+            result.get();
+            test(false);
+        }
+        catch(const KnownIntermediate& ki)
+        {
+            test(ki.b == "UnknownMostDerived1.b");
+            test(ki.ki == "UnknownMostDerived1.ki");
+            test(ki.ice_name() =="Test::KnownIntermediate");
+        }
+        catch(...)
+        {
+            test(false);
+        }
+#else
         CallbackPtr cb = new Callback;
         test->begin_unknownMostDerived1AsKnownIntermediate(
             newCallback_TestIntf_unknownMostDerived1AsKnownIntermediate(cb, &Callback::response, 
                                                          &Callback::exception_unknownMostDerived1AsKnownIntermediate));
         cb->check();
+#endif
     }
     cout << "ok" << endl;
 
@@ -751,11 +981,29 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "slicing of unknown most derived, unknown intermediate as base (AMI)... " << flush;
     {
+#ifdef ICE_CPP11_MAPPING
+        auto result = test->unknownMostDerived2AsBase_async();
+        try
+        {
+            result.get();
+            test(false);
+        }
+        catch(const Base& b)
+        {
+            test(b.b == "UnknownMostDerived2.b");
+            test(b.ice_name() =="Test::Base");
+        }
+        catch(...)
+        {
+            test(false);
+        }
+#else
         CallbackPtr cb = new Callback;
         test->begin_unknownMostDerived2AsBase(
             newCallback_TestIntf_unknownMostDerived2AsBase(cb, &Callback::response, 
                                                          &Callback::exception_unknownMostDerived2AsBase));
         cb->check();
+#endif
     }
     cout << "ok" << endl;
 
@@ -794,7 +1042,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "preserved exceptions... " << flush;
     {
         Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("Relay", "default");
-        RelayPrx relay = RelayPrx::uncheckedCast(adapter->addWithUUID(new RelayI));
+        RelayPrxPtr relay = ICE_UNCHECKED_CAST(RelayPrx, adapter->addWithUUID(ICE_MAKE_SHARED(RelayI)));
         adapter->activate();
 
         try
@@ -846,7 +1094,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(ex.kp == "preserved");
             test(ex.kpd == "derived");
             test(ex.p1->ice_id() == PreservedClass::ice_staticId());
-            PreservedClassPtr pc = PreservedClassPtr::dynamicCast(ex.p1);
+            PreservedClassPtr pc = ICE_DYNAMIC_CAST(PreservedClass, ex.p1);
             test(pc->bc == "bc");
             test(pc->pc == "pc");
             test(ex.p2 == ex.p1);
@@ -883,7 +1131,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(ex.kp == "preserved");
             test(ex.kpd == "derived");
             test(ex.p1->ice_id() == PreservedClass::ice_staticId());
-            PreservedClassPtr pc = PreservedClassPtr::dynamicCast(ex.p1);
+            PreservedClassPtr pc = ICE_DYNAMIC_CAST(PreservedClass, ex.p1);
             test(pc->bc == "bc");
             test(pc->pc == "pc");
             test(ex.p2 == ex.p1);

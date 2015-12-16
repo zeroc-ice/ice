@@ -171,14 +171,14 @@ TestI::knownPreservedAsKnownPreserved(const ::Ice::Current&)
 }
 
 void
-TestI::relayKnownPreservedAsBase(const RelayPrx& r, const ::Ice::Current&)
+TestI::relayKnownPreservedAsBase(ICE_IN(RelayPrxPtr) r, const ::Ice::Current&)
 {
     r->knownPreservedAsBase();
     test(false);
 }
 
 void
-TestI::relayKnownPreservedAsKnownPreserved(const RelayPrx& r, const ::Ice::Current&)
+TestI::relayKnownPreservedAsKnownPreserved(ICE_IN(RelayPrxPtr) r, const ::Ice::Current&)
 {
     r->knownPreservedAsKnownPreserved();
     test(false);
@@ -191,7 +191,7 @@ TestI::unknownPreservedAsBase(const ::Ice::Current&)
     ex.b = "base";
     ex.kp = "preserved";
     ex.kpd = "derived";
-    ex.p1 = new SPreservedClass("bc", "spc");
+    ex.p1 = ICE_MAKE_SHARED(SPreservedClass, "bc", "spc");
     ex.p2 = ex.p1;
     throw ex;
 }
@@ -203,20 +203,20 @@ TestI::unknownPreservedAsKnownPreserved(const ::Ice::Current&)
     ex.b = "base";
     ex.kp = "preserved";
     ex.kpd = "derived";
-    ex.p1 = new SPreservedClass("bc", "spc");
+    ex.p1 = ICE_MAKE_SHARED(SPreservedClass, "bc", "spc");
     ex.p2 = ex.p1;
     throw ex;
 }
 
 void
-TestI::relayUnknownPreservedAsBase(const RelayPrx& r, const ::Ice::Current&)
+TestI::relayUnknownPreservedAsBase(ICE_IN(RelayPrxPtr) r, const ::Ice::Current&)
 {
     r->unknownPreservedAsBase();
     test(false);
 }
 
 void
-TestI::relayUnknownPreservedAsKnownPreserved(const RelayPrx& r, const ::Ice::Current&)
+TestI::relayUnknownPreservedAsKnownPreserved(ICE_IN(RelayPrxPtr) r, const ::Ice::Current&)
 {
     r->unknownPreservedAsKnownPreserved();
     test(false);
