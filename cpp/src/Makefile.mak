@@ -24,7 +24,10 @@ SUBDIRS		= IceUtil \
 		  slice2cpp \
 		  Ice \
 		  IceSSL \
-		  IceDiscovery
+		  IceDiscovery \
+		  Glacier2Lib \
+		  IceStormLib \
+		  IceGridLib
 !elseif "$(CPP_COMPILER)" == "VC100"
 SUBDIRS		= IceUtil \
 		  Slice \

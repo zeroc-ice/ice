@@ -20,9 +20,6 @@ GEN_SRCS	= $(GDIR)\Admin.cs \
 		  $(GDIR)\Descriptor.cs \
 		  $(GDIR)\Exception.cs \
 		  $(GDIR)\FileParser.cs \
-		  $(GDIR)\Locator.cs \
-		  $(GDIR)\Observer.cs \
-		  $(GDIR)\Query.cs \
 		  $(GDIR)\Registry.cs \
 		  $(GDIR)\Session.cs \
 		  $(GDIR)\UserAccountMapper.cs

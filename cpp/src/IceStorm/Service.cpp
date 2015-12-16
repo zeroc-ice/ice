@@ -26,8 +26,7 @@
 #include <IceStorm/NodeI.h>
 #include <IceStorm/TransientTopicI.h>
 
-#include <IceGrid/Locator.h>
-#include <IceGrid/Query.h>
+#include <IceGrid/Registry.h>
 
 using namespace std;
 using namespace Ice;

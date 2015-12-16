@@ -81,9 +81,6 @@ ICEGRID_SLICES	= IceGrid\Admin.ice \
 		  IceGrid\Descriptor.ice \
 		  IceGrid\Exception.ice \
 		  IceGrid\FileParser.ice \
-		  IceGrid\Locator.ice \
-		  IceGrid\Observer.ice \
-		  IceGrid\Query.ice \
 		  IceGrid\Registry.ice \
 		  IceGrid\Session.ice \
 		  IceGrid\UserAccountMapper.ice \

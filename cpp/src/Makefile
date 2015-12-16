@@ -17,7 +17,10 @@ ifeq ($(CPP11_MAPPING),yes)
 		  slice2cpp \
 		  Ice \
 		  IceSSL \
-		  IceDiscovery
+		  IceDiscovery \
+		  Glacier2Lib \
+		  IceStormLib \
+		  IceGridLib
 else
 
 ifneq ($(findstring MINGW,$(UNAME)),)

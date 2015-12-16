@@ -10,8 +10,5 @@
 require 'IceGrid/Admin.rb'
 require 'IceGrid/Descriptor.rb'
 require 'IceGrid/FileParser.rb'
-require 'IceGrid/Locator.rb'
-require 'IceGrid/Observer.rb'
-require 'IceGrid/Query.rb'
 require 'IceGrid/Registry.rb'
 require 'IceGrid/UserAccountMapper.rb'
