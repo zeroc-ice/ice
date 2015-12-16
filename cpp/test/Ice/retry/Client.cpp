@@ -20,8 +20,8 @@ using namespace Test;
 int
 run(int, char**, const Ice::CommunicatorPtr& communicator, const Ice::CommunicatorPtr& communicator2)
 {
-    RetryPrx allTests(const Ice::CommunicatorPtr&, const Ice::CommunicatorPtr&, const string&);
-    RetryPrx retry = allTests(communicator, communicator2, "retry:default -p 12010");
+    RetryPrxPtr allTests(const Ice::CommunicatorPtr&, const Ice::CommunicatorPtr&, const string&);
+    RetryPrxPtr retry = allTests(communicator, communicator2, "retry:default -p 12010");
     retry->shutdown();
     return EXIT_SUCCESS;
 }
@@ -32,11 +32,6 @@ main(int argc, char* argv[])
 #ifdef ICE_STATIC_LIBS
     Ice::registerIceSSL();
 #endif
-
-    int status;
-    Ice::CommunicatorPtr communicator;
-    Ice::CommunicatorPtr communicator2;
-
     try
     {
         initCounts();
@@ -50,7 +45,7 @@ main(int argc, char* argv[])
         initData.properties->setProperty("Ice.Warn.Connections", "0");
 
         initData.properties->setProperty("Ice.RetryIntervals", "0 1 10 1");
-        communicator = Ice::initialize(argc, argv, initData);
+        Ice::CommunicatorHolder ich = Ice::initialize(argc, argv, initData);
 
         //
         // Configure a second communicator for the invocation timeout
@@ -61,39 +56,12 @@ main(int argc, char* argv[])
         initData2.properties = initData.properties->clone();
         initData2.properties->setProperty("Ice.RetryIntervals", "0 1 10000");
         initData2.observer = getObserver();
-        communicator2 = Ice::initialize(initData2);
-        status = run(argc, argv, communicator, communicator2);
+        Ice::CommunicatorHolder ich2 = Ice::initialize(initData2);
+        return run(argc, argv, ich.communicator(), ich2.communicator());
     }
     catch(const Ice::Exception& ex)
     {
         cerr << ex << endl;
-        status = EXIT_FAILURE;
+        return EXIT_FAILURE;
     }
-
-    if(communicator)
-    {
-        try
-        {
-            communicator->destroy();
-        }
-        catch(const Ice::Exception& ex)
-        {
-            cerr << ex << endl;
-            status = EXIT_FAILURE;
-        }
-    }
-    if(communicator2)
-    {
-        try
-        {
-            communicator2->destroy();
-        }
-        catch(const Ice::Exception& ex)
-        {
-            cerr << ex << endl;
-            status = EXIT_FAILURE;
-        }
-    }
-
-    return status;
 }

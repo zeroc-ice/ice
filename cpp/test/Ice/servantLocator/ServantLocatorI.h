@@ -21,15 +21,24 @@ public:
 
     ServantLocatorI(const std::string&);
     virtual ~ServantLocatorI();
-
+#ifdef ICE_CPP11_MAPPING
+    virtual std::shared_ptr<Ice::Object> locate(const Ice::Current&, std::shared_ptr<void>&);
+    virtual void finished(const Ice::Current&, const Ice::ObjectPtr&, const std::shared_ptr<void>&);
+#else
     virtual Ice::ObjectPtr locate(const Ice::Current&, Ice::LocalObjectPtr&);
     virtual void finished(const Ice::Current&, const Ice::ObjectPtr&, const Ice::LocalObjectPtr&);
+#endif
     virtual void deactivate(const std::string&);
 
 protected:
 
+#ifdef ICE_CPP11_MAPPING
+    virtual Ice::ObjectPtr newServantAndCookie(std::shared_ptr<void>&) const = 0;
+    virtual void checkCookie(const std::shared_ptr<void>&) const = 0;
+#else
     virtual Ice::ObjectPtr newServantAndCookie(Ice::LocalObjectPtr&) const = 0;
     virtual void checkCookie(const Ice::LocalObjectPtr&) const = 0;
+#endif
     virtual void throwTestIntfUserException() const = 0;
 
 private:

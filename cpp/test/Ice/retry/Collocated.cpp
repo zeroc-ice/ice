@@ -22,8 +22,7 @@ void
 setupObjectAdapter(const Ice::CommunicatorPtr& communicator)
 {
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("");
-    Ice::ObjectPtr object = new RetryI;
-    adapter->add(object, communicator->stringToIdentity("retry"));
+    adapter->add(ICE_MAKE_SHARED(RetryI), communicator->stringToIdentity("retry"));
     //adapter->activate(); // Don't activate OA to ensure collocation is used.
 }
 
@@ -33,8 +32,8 @@ run(int, char**, const Ice::CommunicatorPtr& communicator, const Ice::Communicat
     setupObjectAdapter(communicator);
     setupObjectAdapter(communicator2);
 
-    RetryPrx allTests(const Ice::CommunicatorPtr&, const Ice::CommunicatorPtr&, const string&);
-    RetryPrx retry = allTests(communicator, communicator2, "retry");
+    RetryPrxPtr allTests(const Ice::CommunicatorPtr&, const Ice::CommunicatorPtr&, const string&);
+    RetryPrxPtr retry = allTests(communicator, communicator2, "retry");
     retry->shutdown();
     return EXIT_SUCCESS;
 }
@@ -45,11 +44,6 @@ main(int argc, char* argv[])
 #ifdef ICE_STATIC_LIBS
     Ice::registerIceSSL();
 #endif
-
-    int status;
-    Ice::CommunicatorPtr communicator;
-    Ice::CommunicatorPtr communicator2;
-
     try
     {
         Ice::InitializationData initData;
@@ -64,7 +58,7 @@ main(int argc, char* argv[])
         initData.properties->setProperty("Ice.Warn.Connections", "0");
         initData.properties->setProperty("Ice.Warn.Dispatch", "0");
 
-        communicator = Ice::initialize(argc, argv, initData);
+        Ice::CommunicatorHolder ich = Ice::initialize(argc, argv, initData);
 
         //
         // Configure a second communicator for the invocation timeout
@@ -76,41 +70,13 @@ main(int argc, char* argv[])
         initData2.properties->setProperty("Ice.RetryIntervals", "0 1 10000");
         initData2.observer = getObserver();
 
-        communicator2 = Ice::initialize(initData2);
+        Ice::CommunicatorHolder ich2 = Ice::initialize(initData2);
 
-        status = run(argc, argv, communicator, communicator2);
+        return run(argc, argv, ich.communicator(), ich2.communicator());
     }
     catch(const Ice::Exception& ex)
     {
         cerr << ex << endl;
-        status = EXIT_FAILURE;
+        return EXIT_FAILURE;
     }
-
-    if(communicator)
-    {
-        try
-        {
-            communicator->destroy();
-        }
-        catch(const Ice::Exception& ex)
-        {
-            cerr << ex << endl;
-            status = EXIT_FAILURE;
-        }
-    }
-
-    if(communicator2)
-    {
-        try
-        {
-            communicator2->destroy();
-        }
-        catch(const Ice::Exception& ex)
-        {
-            cerr << ex << endl;
-            status = EXIT_FAILURE;
-        }
-    }
-
-    return status;
 }

@@ -73,18 +73,18 @@ public:
     virtual ::Ice::Instrumentation::RemoteObserverPtr
     getRemoteObserver(const ::Ice::ConnectionInfoPtr&, const ::Ice::EndpointPtr&, ::Ice::Int, ::Ice::Int)
     {
-        return 0;
+        return ICE_NULLPTR;
     }
 
     virtual ::Ice::Instrumentation::CollocatedObserverPtr
     getCollocatedObserver(const Ice::ObjectAdapterPtr&, ::Ice::Int, ::Ice::Int)
     {
-        return 0;
+        return ICE_NULLPTR;
     }
 
 };
 
-Ice::Instrumentation::InvocationObserverPtr invocationObserver = new InvocationObserverI();
+Ice::Instrumentation::InvocationObserverPtr invocationObserver = ICE_MAKE_SHARED(InvocationObserverI);
 
 class CommunicatorObserverI : public Ice::Instrumentation::CommunicatorObserver
 {
@@ -93,13 +93,13 @@ public:
     virtual Ice::Instrumentation::ObserverPtr
     getConnectionEstablishmentObserver(const Ice::EndpointPtr&, const ::std::string&)
     {
-        return 0;
+        return ICE_NULLPTR;
     }
 
     virtual Ice::Instrumentation::ObserverPtr
     getEndpointLookupObserver(const Ice::EndpointPtr&)
     {
-        return 0;
+        return ICE_NULLPTR;
     }
 
     virtual Ice::Instrumentation::ConnectionObserverPtr
@@ -108,7 +108,7 @@ public:
                           Ice::Instrumentation::ConnectionState,
                           const Ice::Instrumentation::ConnectionObserverPtr&)
     {
-        return 0;
+        return ICE_NULLPTR;
     }
 
     virtual Ice::Instrumentation::ThreadObserverPtr
@@ -117,11 +117,11 @@ public:
                       Ice::Instrumentation::ThreadState,
                       const Ice::Instrumentation::ThreadObserverPtr&)
     {
-        return 0;
+        return ICE_NULLPTR;
     }
 
     virtual Ice::Instrumentation::InvocationObserverPtr
-    getInvocationObserver(const Ice::ObjectPrx&, const ::std::string&, const Ice::Context&)
+    getInvocationObserver(const Ice::ObjectPrxPtr&, const ::std::string&, const Ice::Context&)
     {
         return invocationObserver;
     }
@@ -129,7 +129,7 @@ public:
     virtual Ice::Instrumentation::DispatchObserverPtr
     getDispatchObserver(const Ice::Current&, Ice::Int)
     {
-        return 0;
+        return ICE_NULLPTR;
     }
 
     virtual void
@@ -138,7 +138,7 @@ public:
     }
 };
 
-Ice::Instrumentation::CommunicatorObserverPtr communicatorObserver = new CommunicatorObserverI();
+Ice::Instrumentation::CommunicatorObserverPtr communicatorObserver = ICE_MAKE_SHARED(CommunicatorObserverI);
 
 void
 testEqual(int& value, int expected)

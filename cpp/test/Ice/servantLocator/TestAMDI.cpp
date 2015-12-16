@@ -14,6 +14,158 @@
 using namespace std;
 using namespace Ice;
 
+#ifdef ICE_CPP11_MAPPING
+void
+TestAMDI::requestFailedException_async(function<void ()> response, function<void (exception_ptr)>, const Current&)
+{
+    response();
+}
+
+void
+TestAMDI::unknownUserException_async(function<void ()> response, function<void (exception_ptr)>, const Current&)
+{
+    response();
+}
+
+void
+TestAMDI::unknownLocalException_async(function<void ()> response, function<void (exception_ptr)>, const Current&)
+{
+    response();
+}
+
+void
+TestAMDI::unknownException_async(function<void ()> response, function<void (exception_ptr)>, const Current&)
+{
+    response();
+}
+
+void
+TestAMDI::userException_async(function<void ()> response, function<void (exception_ptr)>, const Current&)
+{
+    response();
+}
+
+void
+TestAMDI::localException_async(function<void ()> response, function<void (exception_ptr)>, const Current&)
+{
+    response();
+}
+
+void
+TestAMDI::stdException_async(function<void ()> response, function<void (exception_ptr)>, const Current&)
+{
+    response();
+}
+
+void
+TestAMDI::cppException_async(function<void ()> response, function<void (exception_ptr)>, const Current&)
+{
+    response();
+}
+
+void
+TestAMDI::unknownExceptionWithServantException_async(function<void ()>,
+                                                     function<void (exception_ptr)> error,
+                                                     const Current&)
+{
+    try
+    {
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+    }
+    catch(...)
+    {
+        error(current_exception());
+    }
+}
+
+void
+TestAMDI::impossibleException_async(bool _cpp_throw,
+                                    function<void (const string&)> response,
+                                    function<void (exception_ptr)> error,
+                                    const Current&)
+{
+    if(_cpp_throw)
+    {
+        try
+        {
+            throw Test::TestImpossibleException();
+        }
+        catch(...)
+        {
+            error(current_exception());
+        }
+    }
+    else
+    {
+        //
+        // Return a value so we can be sure that the stream position
+        // is reset correctly if finished() throws.
+        //
+        response("Hello");
+    }
+}
+
+void
+TestAMDI::intfUserException_async(bool _cpp_throw,
+                                  function<void (const string&)> response,
+                                  function<void (exception_ptr)> error,
+                                  const Current&)
+{
+    if(_cpp_throw)
+    {
+        try
+        {
+            throw Test::TestIntfUserException();
+        }
+        catch(...)
+        {
+            error(current_exception());
+        }
+    }
+    else
+    {
+        //
+        // Return a value so we can be sure that the stream position
+        // is reset correctly if finished() throws.
+        //
+        response("Hello");
+    }
+}
+
+void
+TestAMDI::asyncResponse_async(function<void ()> response,
+                              function<void (exception_ptr)>,
+                              const Current&)
+{
+    response();
+    throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+}
+
+void
+TestAMDI::asyncException_async(function<void ()> response,
+                               function<void (exception_ptr)> error,
+                               const Current&)
+{
+    try
+    {
+        throw Test::TestIntfUserException();
+    }
+    catch(...)
+    {
+        error(current_exception());
+    }
+    throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+}
+
+void
+TestAMDI::shutdown_async(function<void ()> response,
+                         function<void (exception_ptr)> error,
+                         const Current& current)
+{
+    current.adapter->deactivate();
+    response();
+}
+#else
 void
 TestAMDI::requestFailedException_async(const Test::AMD_TestIntf_requestFailedExceptionPtr& cb, const Current&)
 {
@@ -123,6 +275,7 @@ TestAMDI::shutdown_async(const Test::AMD_TestIntf_shutdownPtr& cb, const Current
     current.adapter->deactivate();
     cb->ice_response();
 }
+#endif
 
 string
 CookieI::message() const

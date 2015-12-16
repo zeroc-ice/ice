@@ -17,7 +17,7 @@ using namespace Ice;
 using namespace Test;
 
 void
-testExceptions(const TestIntfPrx& obj)
+testExceptions(const TestIntfPrxPtr& obj)
 {
     try
     {
@@ -213,24 +213,28 @@ testExceptions(const TestIntfPrx& obj)
     }
 }
 
-TestIntfPrx
+TestIntfPrxPtr
 allTests(const CommunicatorPtr& communicator)
 {
     cout << "testing stringToProxy... " << flush;
-    ObjectPrx base = communicator->stringToProxy("asm:default -p 12010");
+    ObjectPrxPtr base = communicator->stringToProxy("asm:default -p 12010");
     test(base);
     cout << "ok" << endl;
 
     cout << "testing checked cast... " << flush;
-    TestIntfPrx obj = TestIntfPrx::checkedCast(base);
+    TestIntfPrxPtr obj = ICE_CHECKED_CAST(TestIntfPrx, base);
     test(obj);
+#ifdef ICE_CPP11_MAPPING
+    test(Ice::targetEquals(obj, base));
+#else
     test(obj == base);
+#endif
     cout << "ok" << endl;
 
     cout << "testing ice_ids... " << flush;
     try
     {
-        ObjectPrx o = communicator->stringToProxy("category/locate:default -p 12010");
+        ObjectPrxPtr o = communicator->stringToProxy("category/locate:default -p 12010");
         o->ice_ids();
         test(false);
     }
@@ -245,7 +249,7 @@ allTests(const CommunicatorPtr& communicator)
 
     try
     {
-        ObjectPrx o = communicator->stringToProxy("category/finished:default -p 12010");
+        ObjectPrxPtr o = communicator->stringToProxy("category/finished:default -p 12010");
         o->ice_ids();
         test(false);
     }
@@ -261,10 +265,10 @@ allTests(const CommunicatorPtr& communicator)
 
     cout << "testing servant locator..." << flush;
     base = communicator->stringToProxy("category/locate:default -p 12010");
-    obj = TestIntfPrx::checkedCast(base);
+    obj = ICE_CHECKED_CAST(TestIntfPrx, base);
     try
     {
-        TestIntfPrx::checkedCast(communicator->stringToProxy("category/unknown:default -p 12010"));
+        ICE_CHECKED_CAST(TestIntfPrx, communicator->stringToProxy("category/unknown:default -p 12010"));
     }
     catch(const ObjectNotExistException&)
     {
@@ -273,19 +277,19 @@ allTests(const CommunicatorPtr& communicator)
 
     cout << "testing default servant locator..." << flush;
     base = communicator->stringToProxy("anothercategory/locate:default -p 12010");
-    obj = TestIntfPrx::checkedCast(base);
+    obj = ICE_CHECKED_CAST(TestIntfPrx, base);
     base = communicator->stringToProxy("locate:default -p 12010");
-    obj = TestIntfPrx::checkedCast(base);
+    obj = ICE_CHECKED_CAST(TestIntfPrx, base);
     try
     {
-        TestIntfPrx::checkedCast(communicator->stringToProxy("anothercategory/unknown:default -p 12010"));
+        ICE_CHECKED_CAST(TestIntfPrx, communicator->stringToProxy("anothercategory/unknown:default -p 12010"));
     }
     catch(const ObjectNotExistException&)
     {
     }
     try
     {
-        TestIntfPrx::checkedCast(communicator->stringToProxy("unknown:default -p 12010"));
+        ICE_CHECKED_CAST(TestIntfPrx, communicator->stringToProxy("unknown:default -p 12010"));
     }
     catch(const Ice::ObjectNotExistException&)
     {
@@ -294,13 +298,13 @@ allTests(const CommunicatorPtr& communicator)
 
     cout << "testing locate exceptions... " << flush;
     base = communicator->stringToProxy("category/locate:default -p 12010");
-    obj = TestIntfPrx::checkedCast(base);
+    obj = ICE_CHECKED_CAST(TestIntfPrx, base);
     testExceptions(obj);
     cout << "ok" << endl;
 
     cout << "testing finished exceptions... " << flush;
     base = communicator->stringToProxy("category/finished:default -p 12010");
-    obj = TestIntfPrx::checkedCast(base);
+    obj = ICE_CHECKED_CAST(TestIntfPrx, base);
     testExceptions(obj);
 
     //
@@ -340,7 +344,7 @@ allTests(const CommunicatorPtr& communicator)
 
     cout << "testing servant locator removal... " << flush;
     base = communicator->stringToProxy("test/activation:default -p 12010");
-    TestActivationPrx activation = TestActivationPrx::checkedCast(base);
+    TestActivationPrxPtr activation = ICE_CHECKED_CAST(TestActivationPrx, base);
     activation->activateServantLocator(false);
     try
     {

@@ -16,6 +16,79 @@ class TestAMDI : public Test::TestIntf
 {
 public:
 
+#ifdef ICE_CPP11_MAPPING
+    virtual void requestFailedException_async(
+        std::function<void ()>,
+        std::function<void (std::exception_ptr)>,
+        const Ice::Current&);
+    
+    virtual void unknownUserException_async(
+        std::function<void ()>,
+        std::function<void (std::exception_ptr)>,
+        const Ice::Current&);
+
+    virtual void unknownLocalException_async(
+        std::function<void ()>,
+        std::function<void (std::exception_ptr)>,
+        const Ice::Current&);
+
+    virtual void unknownException_async(
+        std::function<void ()>,
+        std::function<void (std::exception_ptr)>,
+        const Ice::Current&);
+
+    virtual void userException_async(
+        std::function<void ()>,
+        std::function<void (std::exception_ptr)>,
+        const Ice::Current&);
+
+    virtual void localException_async(
+        std::function<void ()>,
+        std::function<void (std::exception_ptr)>,
+        const Ice::Current&);
+    
+    virtual void stdException_async(
+        std::function<void ()>,
+        std::function<void (std::exception_ptr)>,
+        const Ice::Current&);
+
+    virtual void cppException_async(
+        std::function<void ()>,
+        std::function<void (std::exception_ptr)>,
+        const Ice::Current&);
+
+    virtual void unknownExceptionWithServantException_async(
+        std::function<void ()>,
+        std::function<void (std::exception_ptr)>,
+        const Ice::Current&);
+
+    virtual void impossibleException_async(
+        bool,
+        std::function<void (const std::string&)>,
+        std::function<void (std::exception_ptr)>,
+        const Ice::Current&);
+
+    virtual void intfUserException_async(
+        bool,
+        std::function<void (const std::string&)>,
+        std::function<void (std::exception_ptr)>,
+        const Ice::Current&);
+
+    virtual void asyncResponse_async(
+        std::function<void ()>,
+        std::function<void (std::exception_ptr)>,
+        const Ice::Current&);
+
+    virtual void asyncException_async(
+        std::function<void ()>,
+        std::function<void (std::exception_ptr)>,
+        const Ice::Current&);
+
+    virtual void shutdown_async(
+        std::function<void ()>,
+        std::function<void (std::exception_ptr)>,
+        const Ice::Current&);
+#else
     virtual void requestFailedException_async(const Test::AMD_TestIntf_requestFailedExceptionPtr&, const Ice::Current&);
     virtual void unknownUserException_async(const Test::AMD_TestIntf_unknownUserExceptionPtr&, const Ice::Current&);
     virtual void unknownLocalException_async(const Test::AMD_TestIntf_unknownLocalExceptionPtr&, const Ice::Current&);
@@ -35,6 +108,7 @@ public:
     virtual void asyncException_async(const Test::AMD_TestIntf_asyncExceptionPtr&, const Ice::Current&);
 
     virtual void shutdown_async(const Test::AMD_TestIntf_shutdownPtr&, const Ice::Current&);
+#endif
 };
 
 class CookieI : public Test::Cookie

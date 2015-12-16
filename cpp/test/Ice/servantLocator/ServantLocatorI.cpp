@@ -30,7 +30,11 @@ ServantLocatorI::~ServantLocatorI()
 }
 
 Ice::ObjectPtr
+#ifdef ICE_CPP11_MAPPING
+ServantLocatorI::locate(const Ice::Current& current, shared_ptr<void>& cookie)
+#else
 ServantLocatorI::locate(const Ice::Current& current, Ice::LocalObjectPtr& cookie)
+#endif
 {
     test(!_deactivated);
     test(current.id.category == _category || _category.empty());
@@ -56,8 +60,13 @@ ServantLocatorI::locate(const Ice::Current& current, Ice::LocalObjectPtr& cookie
 }
 
 void
+#ifdef ICE_CPP11_MAPPING
+ServantLocatorI::finished(const Ice::Current& current, const Ice::ObjectPtr&,
+                          const shared_ptr<void>& cookie)
+#else
 ServantLocatorI::finished(const Ice::Current& current, const Ice::ObjectPtr&,
                           const Ice::LocalObjectPtr& cookie)
+#endif
 {
     test(!_deactivated);
 

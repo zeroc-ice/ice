@@ -26,8 +26,13 @@ SUBDIRS		= proxy \
                   slicing \
                   hash \
                   checksum \
+                  dispatcher \
+                  hold \
                   binding \
+                  retry \
                   timeout \
+                  acm \
+                  servantLocator \
                   udp \
                   defaultServant \
                   defaultValue \

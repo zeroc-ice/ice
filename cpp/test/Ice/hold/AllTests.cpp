@@ -82,20 +82,29 @@ allTests(const Ice::CommunicatorPtr& communicator)
 {
     cout << "testing stringToProxy... " << flush;
     string ref = "hold:default -p 12010";
-    Ice::ObjectPrx base = communicator->stringToProxy(ref);
+    Ice::ObjectPrxPtr base = communicator->stringToProxy(ref);
     test(base);
     string refSerialized = "hold:default -p 12011";
-    Ice::ObjectPrx baseSerialized = communicator->stringToProxy(refSerialized);
+    Ice::ObjectPrxPtr baseSerialized = communicator->stringToProxy(refSerialized);
     test(base);
     cout << "ok" << endl;
 
     cout << "testing checked cast... " << flush;
-    HoldPrx hold = HoldPrx::checkedCast(base);
+    HoldPrxPtr hold = ICE_CHECKED_CAST(HoldPrx, base);
     test(hold);
+#ifdef ICE_CPP11_MAPPING
+    test(Ice::targetEquals(hold, base));
+#else
     test(hold == base);
-    HoldPrx holdSerialized = HoldPrx::checkedCast(baseSerialized);
+#endif
+    HoldPrxPtr holdSerialized = ICE_CHECKED_CAST(HoldPrx, baseSerialized);
     test(holdSerialized);
+    
+#ifdef ICE_CPP11_MAPPING
+    test(Ice::targetEquals(holdSerialized, baseSerialized));
+#else
     test(holdSerialized == baseSerialized);
+#endif
     cout << "ok" << endl;
 
     cout << "changing state between active and hold rapidly... " << flush;
@@ -122,6 +131,48 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         ConditionPtr cond = new Condition(true);
         int value = 0;
+#ifdef ICE_CPP11_MAPPING
+        shared_ptr<promise<void>> completed;
+        while(cond->value())
+        {
+            completed = make_shared<promise<void>>();
+            promise<bool> sent;
+            hold->set_async(value + 1, IceUtilInternal::random(5),
+                [cond, expected = value, completed](int value)
+                {
+                    if(value != expected)
+                    {
+                        cond->set(false);
+                    }
+                    completed->set_value();
+                },
+                [completed](exception_ptr)
+                {
+                    completed->set_value();
+                },
+                [&sent](bool sentSynchronously)
+                {
+                    sent.set_value(sentSynchronously);
+                });
+            
+            ++value;
+            if(value % 100 == 0)
+            {
+                sent.get_future().get();;
+            }
+            
+            if(value > 1000000)
+            {
+                // Don't continue, it's possible that out-of-order dispatch doesn't occur
+                // after 100000 iterations and we don't want the test to last for too long
+                // when this occurs.
+                break;
+            }
+        }
+        test(value > 100000 || !cond->value());
+        completed->get_future().get();
+#else
+        
         Ice::AsyncResultPtr result;
         while(cond->value())
         {
@@ -144,6 +195,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         test(value > 100000 || !cond->value());
         result->waitForCompleted();
+#endif
     }
     cout << "ok" << endl;
 
@@ -151,6 +203,38 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         ConditionPtr cond = new Condition(true);
         int value = 0;
+#ifdef ICE_CPP11_MAPPING
+        shared_ptr<promise<void>> completed;
+        while(value < 3000 && cond->value())
+        {
+            completed = make_shared<promise<void>>();
+            promise<bool> sent;
+            holdSerialized->set_async(
+                value + 1,
+                IceUtilInternal::random(1),
+                [cond, expected = value, completed](int value)
+                {
+                    if(value != expected)
+                    {
+                        cond->set(false);
+                    }
+                    completed->set_value();
+                },
+                [completed](exception_ptr)
+                {
+                    completed->set_value();
+                },
+                [&sent](bool sentSynchronously)
+                {
+                    sent.set_value(sentSynchronously);
+                });
+            ++value;
+            if(value % 100 == 0)
+            {
+                sent.get_future().get();
+            }
+        }
+#else
         Ice::AsyncResultPtr result;
         while(value < 3000 && cond->value())
         {
@@ -166,8 +250,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
             }
         }
         result->waitForCompleted();
+#endif
         test(cond->value());
-
         for(int i = 0; i < 10000; ++i)
         {
             holdSerialized->ice_oneway()->setOneway(value + 1, value);
@@ -184,6 +268,31 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         int value = 0;
         holdSerialized->set(value, 0);
+#ifdef ICE_CPP11_MAPPING
+        shared_ptr<promise<void>> completed;
+        for(int i = 0; i < 10000; ++i)
+        {
+            completed = make_shared<promise<void>>();
+            // Create a new proxy for each request
+            holdSerialized->ice_oneway()->setOneway_async(value + 1, value,
+                nullptr,
+                [](exception_ptr)
+                {
+                },
+                [completed](bool sentSynchronously)
+                {
+                    completed->set_value();
+                });
+            ++value;
+            if((i % 100) == 0)
+            {
+                completed->get_future().get();
+                holdSerialized->ice_ping(); // Ensure everything's dispatched
+                holdSerialized->ice_getConnection()->close(false);
+            }
+        }
+        completed->get_future().get();
+#else
         Ice::AsyncResultPtr result;
         for(int i = 0; i < 10000; ++i)
         {
@@ -198,6 +307,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             }
         }
         result->waitForCompleted();
+#endif
     }
     cout << "ok" << endl;
 

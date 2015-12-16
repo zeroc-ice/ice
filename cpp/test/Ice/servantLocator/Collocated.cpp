@@ -28,6 +28,22 @@ public:
 
 protected:
 
+#ifdef ICE_CPP11_MAPPING
+    virtual Ice::ObjectPtr
+    newServantAndCookie(shared_ptr<void>& cookie) const
+    {
+        cookie = make_shared<CookieI>();
+        return make_shared<TestI>();
+    }
+
+    virtual void
+    checkCookie(const shared_ptr<void>& cookie) const
+    {
+        Test::CookiePtr co = static_pointer_cast<Test::Cookie>(cookie);
+        test(co);
+        test(co->message() == "blahblah");
+    }
+#else
     virtual Ice::ObjectPtr
     newServantAndCookie(Ice::LocalObjectPtr& cookie) const
     {
@@ -42,7 +58,7 @@ protected:
         test(co);
         test(co->message() == "blahblah");
     }
-
+#endif
     virtual void
     throwTestIntfUserException() const
     {
@@ -58,8 +74,8 @@ public:
     {
         if(activate)
         {
-            current.adapter->addServantLocator(new ServantLocatorI(""), "");
-            current.adapter->addServantLocator(new ServantLocatorI("category"), "category");
+            current.adapter->addServantLocator(ICE_MAKE_SHARED(ServantLocatorI, ""), "");
+            current.adapter->addServantLocator(ICE_MAKE_SHARED(ServantLocatorI, "category"), "category");
         }
         else
         {
@@ -78,12 +94,12 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010");
 
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    adapter->addServantLocator(new ServantLocatorI(""), "");
-    adapter->addServantLocator(new ServantLocatorI("category"), "category");
-    adapter->add(new TestI, communicator->stringToIdentity("asm"));
-    adapter->add(new TestActivationI, communicator->stringToIdentity("test/activation"));
+    adapter->addServantLocator(ICE_MAKE_SHARED(ServantLocatorI, ""), "");
+    adapter->addServantLocator(ICE_MAKE_SHARED(ServantLocatorI, "category"), "category");
+    adapter->add(ICE_MAKE_SHARED(TestI), communicator->stringToIdentity("asm"));
+    adapter->add(ICE_MAKE_SHARED(TestActivationI), communicator->stringToIdentity("test/activation"));
 
-    Test::TestIntfPrx allTests(const CommunicatorPtr&);
+    Test::TestIntfPrxPtr allTests(const CommunicatorPtr&);
     allTests(communicator);
 
     return EXIT_SUCCESS;
@@ -95,35 +111,16 @@ main(int argc, char* argv[])
 #ifdef ICE_STATIC_LIBS
     Ice::registerIceSSL();
 #endif
-
-    int status;
-    Ice::CommunicatorPtr communicator;
-
     try
     {
         Ice::InitializationData initData;
         initData.properties = Ice::createProperties(argc, argv);
-        communicator = Ice::initialize(argc, argv, initData);
-        status = run(argc, argv, communicator);
+        Ice::CommunicatorHolder ich = Ice::initialize(argc, argv, initData);
+        return run(argc, argv, ich.communicator());
     }
     catch(const Ice::Exception& ex)
     {
         cerr << ex << endl;
-        status = EXIT_FAILURE;
+        return EXIT_FAILURE;
     }
-
-    if(communicator)
-    {
-        try
-        {
-            communicator->destroy();
-        }
-        catch(const Ice::Exception& ex)
-        {
-            cerr << ex << endl;
-            status = EXIT_FAILURE;
-        }
-    }
-
-    return status;
 }
