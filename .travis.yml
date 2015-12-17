@@ -12,6 +12,8 @@ addons:
     - python-dev
     - python-pip
     - ruby-dev
+    - libdbus-1-dev
+    - libbluetooth-dev
 
 cache:
   directories:
