@@ -1296,11 +1296,6 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
 
     cout << "testing protocols... " << flush;
     {
-        //
-        // In OS X we don't support IceSSL.Protocols as secure transport doesn't allow to set the enabled protocols
-        // instead we use IceSSL.ProtocolVersionMax IceSSL.ProtocolVersionMin to set the maximun and minimum
-        // enabled protocol versions. See the test bellow.
-        //
 #ifndef ICE_USE_SECURE_TRANSPORT
         //
         // This should fail because the client and server have no protocol
@@ -1428,6 +1423,12 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         // }
 #else
         //
+        // In OS X we don't support IceSSL.Protocols as secure transport doesn't allow to set the enabled protocols
+        // instead we use IceSSL.ProtocolVersionMax IceSSL.ProtocolVersionMin to set the maximun and minimum
+        // enabled protocol versions. See the test bellow.
+        //
+
+        //
         // This should fail because the client and server have no protocol
         // in common.
         //
@@ -1528,7 +1529,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         }
 
         //
-        // This should success because both have SSLv3 enabled
+        // This should succeed because both have SSLv3 enabled
         //
         {
             InitializationData initData;
@@ -1546,21 +1547,12 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             Test::ServerPrx server = fact->createServer(d);
             try
             {
+                // OS X 10.11 versions prior to 10.11.2 will throw an exception as SSLv3 is totally disabled.
                 server->ice_ping();
-                if(isElCapitan)
-                {
-                    test(false);
-                }
             }
             catch(const LocalException&)
             {
-                //
-                // This can still fail with OS X 10.11 El Capitan where SSLv3 is disabled.
-                //
-                if(!isElCapitan)
-                {
-                    test(false);
-                }
+                test(false);
             }
             fact->destroyServer(server);
             comm->destroy();
@@ -1840,46 +1832,43 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         comm->destroy();
     }
 
-    if(!isElCapitan) // OSFIX: El Capitan SSLHandshake segfaults with this test, Apple bug #22148512
-    {
-        //
-        // This should fail because we disabled all anonymous ciphers and the server doesn't
-        // provide a certificate.
-        //
-        InitializationData initData;
-        initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12);
+    //
+    // This should fail because we disabled all anonymous ciphers and the server doesn't
+    // provide a certificate.
+    //
+    InitializationData initData;
+    initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12);
 #  ifdef ICE_USE_OPENSSL
-        initData.properties->setProperty("IceSSL.Ciphers", "ALL:!ADH");
+    initData.properties->setProperty("IceSSL.Ciphers", "ALL:!ADH");
 #  else
-        initData.properties->setProperty("IceSSL.Ciphers", "ALL !(DH_anon*)");
+    initData.properties->setProperty("IceSSL.Ciphers", "ALL !(DH_anon*)");
 #  endif
-        CommunicatorPtr comm = initialize(initData);
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
-        test(fact);
-        Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12);
-        d["IceSSL.VerifyPeer"] = "0";
-        Test::ServerPrx server = fact->createServer(d);
-        try
-        {
-            server->ice_ping();
-            test(false);
-        }
-        catch(const ProtocolException&)
-        {
-            // Expected
-        }
-        catch(const ConnectionLostException&)
-        {
-            // Expected
-        }
-        catch(const LocalException& ex)
-        {
-            cerr << ex << endl;
-            test(false);
-        }
-        fact->destroyServer(server);
-        comm->destroy();
+    CommunicatorPtr comm = initialize(initData);
+    Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+    test(fact);
+    Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12);
+    d["IceSSL.VerifyPeer"] = "0";
+    Test::ServerPrx server = fact->createServer(d);
+    try
+    {
+        server->ice_ping();
+        test(false);
     }
+    catch(const ProtocolException&)
+    {
+        // Expected
+    }
+    catch(const ConnectionLostException&)
+    {
+        // Expected
+    }
+    catch(const LocalException& ex)
+    {
+        cerr << ex << endl;
+        test(false);
+    }
+    fact->destroyServer(server);
+    comm->destroy();
 
 #  ifdef ICE_USE_SECURE_TRANSPORT
     {
