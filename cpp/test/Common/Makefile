@@ -21,9 +21,6 @@ SLICE_OBJS	= Controller.o
 OBJS		= TestCommon.o \
 		  $(SLICE_OBJS)
 
-#HDIR		= .
-#SDIR		= .
-
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I$(testincdir) $(CPPFLAGS) -DTEST_API_EXPORTS

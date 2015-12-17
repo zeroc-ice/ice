@@ -12,7 +12,7 @@ addons:
     - python-dev
     - python-pip
     - ruby-dev
-    - libdbus-1-dev
+    - libdbus-glib-1-dev
     - libbluetooth-dev
 
 cache:
@@ -29,6 +29,9 @@ env:
     - LMDB_REVISION=0.9.16
     - LMDB_BUILD_DIR=${TRAVIS_BUILD_DIR}/lmdb-LMDB_${LMDB_REVISION}
     - LMDB_HOME=${TRAVIS_BUILD_DIR}/lmdb
+  matrix:
+    - WORK_DIR=${TRAVIS_BUILD_DIR}/cpp CPP11_MAPPING=yes
+    - WORK_DIR=${TRAVIS_BUILD_DIR}
 
 python:
 - "2.7"
@@ -47,9 +50,10 @@ install:
 - CPPFLAGS=-fPIC make -C ${LMDB_BUILD_DIR}/libraries/liblmdb install prefix=${LMDB_HOME}
 - rm -f ${LMDB_HOME}/lib/liblmdb.so
 - pip install passlib
-- make -j3
+- make -C ${WORK_DIR} -j3
 
 script:
+- cd ${WORK_DIR}
 - python allTests.py --debug --env --protocol=ssl
 
 notifications:

@@ -2057,6 +2057,8 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
     }
 
+    p->shutdown();
+
 #else
     string sref = "test:" + getTestEndpoint(communicator, 0);
     Ice::ObjectPrx obj = communicator->stringToProxy(sref);
@@ -4075,6 +4077,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         }
         cout << "ok" << endl;
     }
+
     p->shutdown();
 #endif
 }

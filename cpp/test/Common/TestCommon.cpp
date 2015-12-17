@@ -84,7 +84,7 @@ RemoteConfig::RemoteConfig(const std::string& name, int argc, char** argv, const
         }
     }
 
-    Test::Common::ServerPrx server;
+    Test::Common::ServerPrxPtr server;
 
     if(!controllerHost.empty())
     {
@@ -97,7 +97,7 @@ RemoteConfig::RemoteConfig(const std::string& name, int argc, char** argv, const
 
         Test::Common::StringSeq options;
 
-        Test::Common::ControllerPrx controller = Test::Common::ControllerPrx::checkedCast(
+        Test::Common::ControllerPrxPtr controller = ICE_CHECKED_CAST(Test::Common::ControllerPrx,
             communicator->stringToProxy("controller:tcp -h " + controllerHost + " -p 15000"));
         server = controller->runServer("cpp", name, prot, host, false, configName, options);
         server->waitForServer();
