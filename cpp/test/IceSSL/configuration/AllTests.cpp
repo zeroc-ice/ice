@@ -417,8 +417,8 @@ void verify(const IceSSL::CertificatePtr& cert, const IceSSL::CertificatePtr& ca
 void
 allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, bool shutdown)
 {
-    bool isElCapitan = false;
 #ifdef __APPLE__
+    bool isElCapitan = false;
     vector<char> s(256);
     size_t size = s.size();
     int ret = sysctlbyname("kern.osrelease", &s[0], &size, NULL, 0);
