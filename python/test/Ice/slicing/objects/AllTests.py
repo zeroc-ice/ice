@@ -359,11 +359,10 @@ class PNodeI(Test.PNode):
     def __del__(self):
         PNodeI.counter = PNodeI.counter - 1
 
-class NodeFactoryI(Ice.ValueFactory):
-    def create(self, id):
-        if id == Test.PNode.ice_staticId():
-            return PNodeI()
-        return None
+def NodeFactoryI(id):
+    if id == Test.PNode.ice_staticId():
+        return PNodeI()
+    return None
 
 class PreservedI(Test.Preserved):
     counter = 0
@@ -374,11 +373,10 @@ class PreservedI(Test.Preserved):
     def __del__(self):
         PreservedI.counter = PreservedI.counter - 1
 
-class PreservedFactoryI(Ice.ValueFactory):
-    def create(self, id):
-        if id == Test.Preserved.ice_staticId():
-            return PreservedI()
-        return None
+def PreservedFactoryI(id):
+    if id == Test.Preserved.ice_staticId():
+        return PreservedI()
+    return None
 
 def allTests(communicator):
     obj = communicator.stringToProxy("Test:default -p 12010")
@@ -1668,7 +1666,7 @@ def allTests(communicator):
         # UCNode. This provides an easy way to determine how many
         # unmarshaled instances currently exist.
         #
-        communicator.addValueFactory(NodeFactoryI(), Test.PNode.ice_staticId())
+        communicator.addValueFactory(NodeFactoryI, Test.PNode.ice_staticId())
 
         #
         # Relay a graph through the server. This test uses a preserved class
@@ -1755,7 +1753,7 @@ def allTests(communicator):
         # Preserved. This provides an easy way to determine how many
         # unmarshaled instances currently exist.
         #
-        communicator.addValueFactory(PreservedFactoryI(), Test.Preserved.ice_staticId())
+        communicator.addValueFactory(PreservedFactoryI, Test.Preserved.ice_staticId())
 
         #
         # Obtain a preserved object from the server where the most-derived
