@@ -86,8 +86,8 @@ public:
 
 private:
 
-    int run(const Test::MyObjectPrx&, const InterceptorIPtr&);
-    int runAmd(const Test::MyObjectPrx&, const AMDInterceptorIPtr&);
+    int run(const Test::MyObjectPrxPtr&, const InterceptorIPtr&);
+    int runAmd(const Test::MyObjectPrxPtr&, const AMDInterceptorIPtr&);
 };
 
 #ifndef _WIN32
@@ -152,12 +152,12 @@ Client::run(int, char*[])
     //
     Ice::ObjectAdapterPtr oa = communicator()->createObjectAdapterWithEndpoints("MyOA", "tcp -h localhost");
 
-    Ice::ObjectPtr servant = new MyObjectI;
-    InterceptorIPtr interceptor = new InterceptorI(servant);
-    AMDInterceptorIPtr amdInterceptor = new AMDInterceptorI(servant);
+    Ice::ObjectPtr servant = ICE_MAKE_SHARED(MyObjectI);
+    InterceptorIPtr interceptor = ICE_MAKE_SHARED(InterceptorI, servant);
+    AMDInterceptorIPtr amdInterceptor = ICE_MAKE_SHARED(AMDInterceptorI, servant);
 
-    Test::MyObjectPrx prx = Test::MyObjectPrx::uncheckedCast(oa->addWithUUID(interceptor));
-    Test::MyObjectPrx prxForAMD = Test::MyObjectPrx::uncheckedCast(oa->addWithUUID(amdInterceptor));
+    Test::MyObjectPrxPtr prx = ICE_UNCHECKED_CAST(Test::MyObjectPrx, oa->addWithUUID(interceptor));
+    Test::MyObjectPrxPtr prxForAMD = ICE_UNCHECKED_CAST(Test::MyObjectPrx, oa->addWithUUID(amdInterceptor));
 
     cout << "Collocation optimization on" << endl;
     int rs = run(prx, interceptor);
@@ -177,7 +177,7 @@ Client::run(int, char*[])
 
     cout << "Collocation optimization off" << endl;
     interceptor->clear();
-    prx = Test::MyObjectPrx::uncheckedCast(prx->ice_collocationOptimized(false));
+    prx = ICE_UNCHECKED_CAST(Test::MyObjectPrx, prx->ice_collocationOptimized(false));
     rs = run(prx, interceptor);
     if(rs != 0)
     {
@@ -186,7 +186,7 @@ Client::run(int, char*[])
 
     cout << "Now with AMD" << endl;
     amdInterceptor->clear();
-    prxForAMD = Test::MyObjectPrx::uncheckedCast(prxForAMD->ice_collocationOptimized(false));
+    prxForAMD = ICE_UNCHECKED_CAST(Test::MyObjectPrx, prxForAMD->ice_collocationOptimized(false));
     rs = runAmd(prxForAMD, amdInterceptor);
 
     return rs;
@@ -194,7 +194,7 @@ Client::run(int, char*[])
 
 
 int
-Client::run(const Test::MyObjectPrx& prx, const InterceptorIPtr& interceptor)
+Client::run(const Test::MyObjectPrxPtr& prx, const InterceptorIPtr& interceptor)
 {
     cout << "testing simple interceptor... " << flush;
     test(interceptor->getLastOperation().empty());
@@ -271,11 +271,11 @@ Client::run(const Test::MyObjectPrx& prx, const InterceptorIPtr& interceptor)
     test(interceptor->getLastStatus() == Ice::DispatchAsync);
     cout << "ok" << endl;
 
-    return 0;
+    return EXIT_SUCCESS;
 }
 
 int
-Client::runAmd(const Test::MyObjectPrx& prx, const AMDInterceptorIPtr& interceptor)
+Client::runAmd(const Test::MyObjectPrxPtr& prx, const AMDInterceptorIPtr& interceptor)
 {
     cout << "testing simple interceptor... " << flush;
     test(interceptor->getLastOperation().empty());
@@ -340,5 +340,5 @@ Client::runAmd(const Test::MyObjectPrx& prx, const AMDInterceptorIPtr& intercept
     test(interceptor->getActualStatus() == Ice::DispatchAsync);
     test(dynamic_cast<MySystemException*>(interceptor->getException()) != 0);
     cout << "ok" << endl;
-    return 0;
+    return EXIT_SUCCESS;
 }

@@ -31,7 +31,6 @@ protected:
     std::string _lastOperation;
     Ice::DispatchStatus _lastStatus;
 };
-
-typedef IceUtil::Handle<InterceptorI> InterceptorIPtr;
+ICE_DEFINE_PTR(InterceptorIPtr, InterceptorI);
 
 #endif

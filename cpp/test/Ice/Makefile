@@ -33,6 +33,7 @@ SUBDIRS		= proxy \
                   timeout \
                   acm \
                   servantLocator \
+                  interceptor \
                   udp \
                   defaultServant \
                   defaultValue \

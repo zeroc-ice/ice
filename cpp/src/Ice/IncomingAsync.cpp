@@ -64,11 +64,31 @@ IceInternal::IncomingAsync::IncomingAsync(Incoming& in) :
     _retriable(in.isRetriable()),
     _active(true)
 {
+#ifndef ICE_CPP11_MAPPING
     if(_retriable)
     {
+        //
+        // With C++11 maping we cannot call setActive from the ctor as 
+        // it creates a smart pointer to this object, and with shared_ptr
+        // this requires a fully constructed object.
+        //
         in.setActive(*this);
     }
+#endif
 }
+
+#ifdef ICE_CPP11_MAPPING
+IncomingAsyncPtr
+IceInternal::IncomingAsync::create(Incoming& in)
+{
+    IncomingAsyncPtr self(new IncomingAsync(in));
+    if(in.isRetriable())
+    {
+        in.setActive(*self.get());
+    }
+    return self;
+}
+#endif
 
 void
 IceInternal::IncomingAsync::__deactivate(Incoming& in)

@@ -37,8 +37,7 @@ private:
   
     IceUtil::Mutex _mutex;
 };
-
-typedef IceUtil::Handle<AMDInterceptorI> AMDInterceptorIPtr;
+ICE_DEFINE_PTR(AMDInterceptorIPtr, AMDInterceptorI);
 
 class DispatchInterceptorAsyncCallbackI : public Ice::DispatchInterceptorAsyncCallback
 {

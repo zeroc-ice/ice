@@ -182,7 +182,6 @@ Ice::Object::ice_dispatch(Request& request, const DispatchInterceptorAsyncCallba
 
 
     IceInternal::Incoming& in = dynamic_cast<IceInternal::IncomingRequest&>(request)._in;
-
     PushCb pusbCb(in, cb);
     in.startOver(); // may raise ResponseSentException
     return __dispatch(in, in.getCurrent());

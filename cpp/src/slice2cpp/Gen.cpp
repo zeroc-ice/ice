@@ -8255,7 +8255,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
     }
     else
     {
-        C << nl << "auto inS = ::std::make_shared<::IceInternal::IncomingAsync>(__inS);";
+        C << nl << "auto inS = ::IceInternal::IncomingAsync::create(__inS);";
         C << nl << "auto __exception = [inS](::std::exception_ptr e)";
         C << sb;
         C << nl << "try";

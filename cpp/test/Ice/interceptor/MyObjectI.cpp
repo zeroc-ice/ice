@@ -77,8 +77,116 @@ MyObjectI::badSystemAdd(int, int, const Ice::Current&)
 {
     throw MySystemException(__FILE__, __LINE__);
 }
-    
 
+#ifdef ICE_CPP11_MAPPING
+void
+MyObjectI::amdAdd_async(int x,
+                        int y,
+                        function<void (int)> response,
+                        function<void (exception_ptr)>,
+                        const Ice::Current&)
+{
+    thread t(
+        [x, y, response]()
+        {
+            this_thread::sleep_for(chrono::milliseconds(10));
+            response(x + y);
+        });
+    t.detach();
+}
+
+void 
+MyObjectI::amdAddWithRetry_async(int x,
+                                 int y,
+                                 function<void (int)> response,
+                                 function<void (exception_ptr)>,
+                                 const Ice::Current& current)
+{
+    thread t(
+        [x, y, response]()
+        {
+            this_thread::sleep_for(chrono::milliseconds(10));
+            response(x + y);
+        });
+    t.detach();
+
+    Ice::Context::const_iterator p = current.ctx.find("retry");
+    
+    if(p == current.ctx.end() || p->second != "no")
+    {
+        throw Test::RetryException(__FILE__, __LINE__);
+    }
+}
+
+void 
+MyObjectI::amdBadAdd_async(int x,
+                           int y,
+                           function<void (int)>,
+                           function<void (exception_ptr)> error,
+                           const Ice::Current&)
+{
+    thread t(
+        [x, y, error]()
+        {
+            this_thread::sleep_for(chrono::milliseconds(10));
+            try
+            {
+                throw Test::InvalidInputException();
+            }
+            catch(...)
+            {
+                error(current_exception());
+            }
+        });
+    t.detach();
+}
+
+void 
+MyObjectI::amdNotExistAdd_async(int x,
+                                int y,
+                                function<void (int)>,
+                                function<void (exception_ptr)> error,
+                                const Ice::Current&)
+{    
+    thread t(
+        [x, y, error]()
+        {
+            this_thread::sleep_for(chrono::milliseconds(10));
+            try
+            {
+                throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+            }
+            catch(...)
+            {
+                error(current_exception());
+            }
+        });
+    t.detach();
+}
+
+void 
+MyObjectI::amdBadSystemAdd_async(int x,
+                                 int y,
+                                 function<void (int)>,
+                                 function<void (exception_ptr)> error,
+                                 const Ice::Current&)
+{    
+    thread t(
+        [x, y, error]()
+        {
+            this_thread::sleep_for(chrono::milliseconds(10));
+            try
+            {
+                throw MySystemException(__FILE__, __LINE__);
+            }
+            catch(...)
+            {
+                error(current_exception());
+            }
+        });
+    t.detach();
+}
+#else
 void 
 MyObjectI::amdAdd_async(const Test::AMD_MyObject_amdAddPtr& cb, int x, int y, const Ice::Current&)
 {
@@ -219,3 +327,4 @@ MyObjectI::amdBadSystemAdd_async(const Test::AMD_MyObject_amdBadSystemAddPtr& cb
     ThreadPtr thread = new ThreadI(cb);
     thread->start().detach();
 }
+#endif

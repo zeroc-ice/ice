@@ -11,6 +11,8 @@
 #include <Test.h>
 #include <TestCommon.h>
 
+using namespace std;
+
 InterceptorI::InterceptorI(const Ice::ObjectPtr& servant) :
     _servant(servant),
     _lastStatus(Ice::DispatchAsync)
@@ -43,7 +45,6 @@ InterceptorI::dispatch(Ice::Request& request)
         
         current.ctx["retry"] = "no";
     }
-      
     _lastStatus = _servant->ice_dispatch(request);
     return _lastStatus;
 }

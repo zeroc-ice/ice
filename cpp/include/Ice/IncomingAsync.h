@@ -43,9 +43,9 @@ class ICE_API IncomingAsync : public IncomingBase,
 #endif
 {
 public:
+    
 
-    IncomingAsync(Incoming&); // Adopts the argument. It must not be used afterwards.
-
+    
     void __deactivate(Incoming&);
 
     virtual void ice_exception(const ::std::exception&);
@@ -57,6 +57,15 @@ public:
 
     bool __validateResponse(bool);
 
+#ifdef ICE_CPP11_MAPPING
+    static IncomingAsyncPtr create(Incoming&); // Adopts the argument. It must not be used afterwards.
+
+protected:
+    
+    IncomingAsync(Incoming&); // Adopts the argument. It must not be used afterwards.
+#else
+    IncomingAsync(Incoming&); // Adopts the argument. It must not be used afterwards.
+#endif
 private:
 
     //

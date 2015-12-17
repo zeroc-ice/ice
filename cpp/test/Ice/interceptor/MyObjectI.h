@@ -35,11 +35,19 @@ public:
     virtual int notExistAdd(int, int, const Ice::Current&);
     virtual int badSystemAdd(int, int, const Ice::Current&);
     
+#ifdef ICE_CPP11_MAPPING
+    virtual void amdAdd_async(int, int, std::function<void (int)>, std::function<void (std::exception_ptr)>, const Ice::Current&);
+    virtual void amdAddWithRetry_async(int, int, std::function<void (int)>, std::function<void (std::exception_ptr)>, const Ice::Current&);
+    virtual void amdBadAdd_async(int, int, std::function<void (int)>, std::function<void (std::exception_ptr)>, const Ice::Current&);
+    virtual void amdNotExistAdd_async(int, int, std::function<void (int)>, std::function<void (std::exception_ptr)>, const Ice::Current&);
+    virtual void amdBadSystemAdd_async(int, int, std::function<void (int)>, std::function<void (std::exception_ptr)>, const Ice::Current&);
+#else
     virtual void amdAdd_async(const Test::AMD_MyObject_amdAddPtr&, int, int, const Ice::Current&);
     virtual void amdAddWithRetry_async(const Test::AMD_MyObject_amdAddWithRetryPtr&, int, int, const Ice::Current&);
     virtual void amdBadAdd_async(const Test::AMD_MyObject_amdBadAddPtr&, int, int, const Ice::Current&);
     virtual void amdNotExistAdd_async(const Test::AMD_MyObject_amdNotExistAddPtr&, int, int, const Ice::Current&);
     virtual void amdBadSystemAdd_async(const Test::AMD_MyObject_amdBadSystemAddPtr&, int, int, const Ice::Current&);
+#endif
 };
 
 #endif

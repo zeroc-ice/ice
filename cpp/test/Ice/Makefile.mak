@@ -13,17 +13,37 @@ top_srcdir	= ..\..
 
 !if "$(CPP11_MAPPING)" == "yes"
 SUBDIRS		= proxy \
-                  operations \
-                  exceptions \
-                  ami \
-                  info \
-                  inheritance \
-                  facets \
-                  objects \
-                  properties \
-                  admin \
-                  enums \
-                  faultTolerance
+		  operations \
+		  exceptions \
+		  ami \
+		  info \
+		  inheritance \
+		  facets \
+		  objects \
+		  faultTolerance \
+		  location \
+		  adapterDeactivation \
+		  slicing \
+		  hash \
+		  checksum \
+		  dispatcher \
+		  hold \
+		  binding \
+		  retry \
+		  timeout \
+		  acm \
+		  servantLocator \
+		  interceptor \
+		  udp \
+		  defaultServant \
+		  defaultValue \
+		  properties \
+		  plugin \
+		  admin \
+		  enums \
+		  logger \
+		  networkProxy \
+		  services
 !else
 SUBDIRS		= proxy \
 		  operations \
