@@ -285,7 +285,7 @@ typedef IceUtil::Handle<Callback> CallbackPtr;
 Test::MyClassPrx
 allTests(const Ice::CommunicatorPtr& communicator)
 {
-    string ref = "test:default -p 12010";
+    string ref = "test:" + getTestEndpoint(communicator, 0);
     Ice::ObjectPrx base = communicator->stringToProxy(ref);
     test(base);
 

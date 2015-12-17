@@ -259,7 +259,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    string ref = "factory:default -p 12010 -t 10000";
+    string ref = "factory:" + getTestEndpoint(communicator, 0) + " -t 10000";
     RemoteCommunicatorFactoryPrxPtr factory =
         ICE_UNCHECKED_CAST(RemoteCommunicatorFactoryPrx, communicator->stringToProxy(ref));
 

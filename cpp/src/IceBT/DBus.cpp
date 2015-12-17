@@ -810,7 +810,8 @@ private:
 };
 typedef IceUtil::Handle<MessageI> MessageIPtr;
 
-static void pendingCallback(DBusPendingCall*, void*);
+static void pendingCallCompletedCallback(DBusPendingCall*, void*);
+static void pendingCallFree(void*);
 
 class AsyncResultI : public AsyncResult
 {
@@ -821,14 +822,35 @@ public:
         _callback(cb),
         _status(StatusPending)
     {
-        if(!::dbus_pending_call_set_notify(_call, pendingCallback, this, 0))
-        {
-            throw ExceptionI("dbus_pending_call_set_notify failed");
-        }
         //
         // Bump our refcount to ensure this object lives until the reply is received.
+        // The pendingFree function will decrement the refcount.
         //
         __incRef();
+
+        if(!::dbus_pending_call_set_notify(_call, pendingCallCompletedCallback, this, pendingCallFree))
+        {
+            ::dbus_pending_call_cancel(_call);
+            ::dbus_pending_call_unref(_call);
+            throw ExceptionI("dbus_pending_call_set_notify failed");
+        }
+
+        //
+        // There's a potential race condition with dbus_pending_call_set_notify. If the
+        // pending call is already completed when we call dbus_pending_call_set_notify,
+        // our callback will NOT be invoked. We manually check the completion status
+        // here and handle the reply if necessary.
+        //
+        bool complete;
+        {
+            IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+            complete = (::dbus_pending_call_get_completed(_call) && _status == StatusPending);
+        }
+
+        if(complete)
+        {
+            replyReceived();
+        }
     }
 
     ~AsyncResultI()
@@ -892,17 +914,24 @@ public:
     void replyReceived()
     {
         assert(::dbus_pending_call_get_completed(_call));
-        DBusMessage* m = ::dbus_pending_call_steal_reply(_call);
-        assert(m);
 
         AsyncCallbackPtr cb;
 
         {
             IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
-            _reply = MessageI::adopt(m);
-            _status = StatusComplete;
-            cb = _callback;
-            _lock.notifyAll();
+
+            //
+            // Make sure we haven't already handled the reply (see constructor).
+            //
+            if(_status == StatusPending)
+            {
+                DBusMessage* m = ::dbus_pending_call_steal_reply(_call);
+                assert(m);
+                _reply = MessageI::adopt(m);
+                _status = StatusComplete;
+                cb = _callback;
+                _lock.notifyAll();
+            }
         }
 
         if(cb)
@@ -915,11 +944,6 @@ public:
             {
             }
         }
-
-        //
-        // Decrement our refcount (see constructor). This object may be destroyed immediately.
-        //
-        __decRef();
     }
 
 private:
@@ -935,11 +959,19 @@ private:
 };
 
 static void
-pendingCallback(DBusPendingCall*, void* userData)
+pendingCallCompletedCallback(DBusPendingCall*, void* userData)
 {
     AsyncResultI* r = static_cast<AsyncResultI*>(userData);
     assert(r);
     r->replyReceived();
+}
+
+static void
+pendingCallFree(void* userData)
+{
+    AsyncResultI* r = static_cast<AsyncResultI*>(userData);
+    assert(r);
+    r->__decRef();
 }
 
 static DBusHandlerResult filterCallback(DBusConnection*, DBusMessage*, void*);

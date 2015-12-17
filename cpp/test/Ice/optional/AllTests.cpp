@@ -238,7 +238,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
     communicator->addValueFactory(factory, "");
 
     cout << "testing stringToProxy... " << flush;
-    string ref = "initial:default -p 12010";
+    string ref = "initial:" + getTestEndpoint(communicator, 0);
     Ice::ObjectPrx base = communicator->stringToProxy(ref);
     test(base);
     cout << "ok" << endl;

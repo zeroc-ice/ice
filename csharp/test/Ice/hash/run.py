@@ -21,4 +21,3 @@ sys.path.append(os.path.join(path[0], "scripts"))
 import TestUtil
 
 TestUtil.simpleTest()
-

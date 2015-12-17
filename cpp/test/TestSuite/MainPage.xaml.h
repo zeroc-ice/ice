@@ -21,11 +21,15 @@ namespace TestSuite
 
 struct TestConfiguration
 {
-    TestConfiguration(const std::string& name = "",
+    TestConfiguration(const std::string& desc = "",
+                      const std::string& configName = "",
+                      bool localOnly = false,
                       const std::vector<std::string>& options = std::vector<std::string>(),
                       const std::vector<std::string>& languages = std::vector<std::string>());
 
-    const std::string name;
+    const std::string desc;
+    const std::string configName;
+    const bool localOnly;
     const std::vector<std::string> options;
     const std::vector<std::string> languages;
 };

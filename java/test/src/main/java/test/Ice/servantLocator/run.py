@@ -21,11 +21,8 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0], "scripts"))
 import TestUtil
 
-print("tests with regular server.")
-TestUtil.clientServerTest()
-
-print("tests with AMD server.")
-TestUtil.clientServerTest(server="test.Ice.servantLocator.AMDServer")
-
-print("tests with collocated server.")
-TestUtil.collocatedTest()
+TestUtil.queueClientServerTest()
+TestUtil.queueClientServerTest(configName = "amd", localOnly = True, message = "Running test with AMD server.",
+                               server="test.Ice.servantLocator.AMDServer")
+TestUtil.queueCollocatedTest()
+TestUtil.runQueuedTests()

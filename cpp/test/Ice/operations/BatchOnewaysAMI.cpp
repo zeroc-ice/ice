@@ -93,7 +93,7 @@ public:
 void
 batchOnewaysAMI(const Test::MyClassPrxPtr& p)
 {
-    const Test::ByteS bs1(10  * 1024);
+    const Test::ByteS bs1(10 * 1024);
     Test::MyClassPrxPtr batch = ICE_UNCHECKED_CAST(Test::MyClassPrx, p->ice_batchOneway());
 #ifdef ICE_CPP11_MAPPING
     
@@ -106,7 +106,7 @@ batchOnewaysAMI(const Test::MyClassPrxPtr& p)
         }); // Empty flush
     prom.get_future().get();
 
-    for(int i = 0 ; i < 30 ; ++i)
+    for(int i = 0; i < 30; ++i)
     {
         batch->opByteSOneway_async(bs1, nullptr, [](exception_ptr){ test(false); });
     }
@@ -118,7 +118,8 @@ batchOnewaysAMI(const Test::MyClassPrxPtr& p)
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(10));
     }
 
-    if(batch->ice_getConnection())
+    if(batch->ice_getConnection() &&
+       p->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Protocol") != "bt")
     {
         shared_ptr<Test::MyClassPrx> batch1 = Ice::uncheckedCast<Test::MyClassPrx>(p->ice_batchOneway());
         shared_ptr<Test::MyClassPrx> batch2 = Ice::uncheckedCast<Test::MyClassPrx>(p->ice_batchOneway());
@@ -158,7 +159,7 @@ batchOnewaysAMI(const Test::MyClassPrxPtr& p)
     test(batch->begin_ice_flushBatchRequests()->isCompleted()); // Empty flush
     test(batch->begin_ice_flushBatchRequests()->sentSynchronously()); // Empty flush
 
-    for(int i = 0 ; i < 30 ; ++i)
+    for(int i = 0; i < 30; ++i)
     {
         batch->begin_opByteSOneway(bs1, Test::newCallback_MyClass_opByteSOneway(new Callback_ByteSOneway(),
                                                                                 &Callback_ByteSOneway::response,
@@ -172,7 +173,8 @@ batchOnewaysAMI(const Test::MyClassPrxPtr& p)
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(10));
     }
 
-    if(batch->ice_getConnection())
+    if(batch->ice_getConnection() &&
+       p->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Protocol") != "bt")
     {
         Test::MyClassPrx batch1 = Test::MyClassPrx::uncheckedCast(p->ice_batchOneway());
         Test::MyClassPrx batch2 = Test::MyClassPrx::uncheckedCast(p->ice_batchOneway());

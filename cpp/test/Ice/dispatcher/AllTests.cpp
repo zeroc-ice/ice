@@ -112,13 +112,13 @@ ICE_DEFINE_PTR(CallbackPtr, Callback);
 void
 allTests(const Ice::CommunicatorPtr& communicator)
 {
-    string sref = "test:default -p 12010";
+    string sref = "test:" + getTestEndpoint(communicator, 0);
     Ice::ObjectPrxPtr obj = communicator->stringToProxy(sref);
     test(obj);
 
     Test::TestIntfPrxPtr p = ICE_UNCHECKED_CAST(Test::TestIntfPrx, obj);
 
-    sref = "testController:tcp -p 12011";
+    sref = "testController:" + getTestEndpoint(communicator, 1, "tcp");
     obj = communicator->stringToProxy(sref);
     test(obj);
 

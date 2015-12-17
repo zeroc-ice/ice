@@ -23,6 +23,7 @@
 #include <Ice/Properties.h>
 #include <IceUtil/Random.h>
 #include <IceUtil/StringUtil.h>
+#include <IceUtil/UUID.h>
 
 using namespace std;
 using namespace Ice;
@@ -417,7 +418,7 @@ IceBT::EndpointI::options() const
         }
     }
 
-    if(_channel != 0)
+    if(_channel > 0)
     {
         s << " -c " << _channel;
     }
@@ -455,22 +456,24 @@ IceBT::EndpointI::initWithOptions(vector<string>& args, bool oaEndpoint)
 
     if(_addr.empty())
     {
-        const_cast<string&>(_addr) = _instance->properties()->getProperty("IceBT.DefaultAddress");
+        const_cast<string&>(_addr) = _instance->defaultHost();
     }
 
-    if(oaEndpoint && _addr.empty())
+    if(_addr.empty() || _addr == "*")
     {
-        //
-        // getDefaultAdapterAddress can throw BluetoothException.
-        //
-        const_cast<string&>(_addr) = _instance->engine()->getDefaultAdapterAddress();
-    }
-
-    if(!oaEndpoint && _addr.empty())
-    {
-        Ice::EndpointParseException ex(__FILE__, __LINE__);
-        ex.str = "a device address must be specified using the -a option or IceBT.DefaultAddress";
-        throw ex;
+        if(oaEndpoint)
+        {
+            //
+            // getDefaultAdapterAddress can throw BluetoothException.
+            //
+            const_cast<string&>(_addr) = _instance->engine()->getDefaultAdapterAddress();
+        }
+        else
+        {
+            Ice::EndpointParseException ex(__FILE__, __LINE__);
+            ex.str = "a device address must be specified using the -a option or Ice.Default.Host";
+            throw ex;
+        }
     }
 
     if(_name.empty())
@@ -480,9 +483,19 @@ IceBT::EndpointI::initWithOptions(vector<string>& args, bool oaEndpoint)
 
     if(_uuid.empty())
     {
-        Ice::EndpointParseException ex(__FILE__, __LINE__);
-        ex.str = "a UUID must be specified using the -u option";
-        throw ex;
+        if(oaEndpoint)
+        {
+            //
+            // Generate a UUID for object adapters that don't specify one.
+            //
+            const_cast<string&>(_uuid) = IceUtil::generateUUID();
+        }
+        else
+        {
+            Ice::EndpointParseException ex(__FILE__, __LINE__);
+            ex.str = "a UUID must be specified using the -u option";
+            throw ex;
+        }
     }
 
     if(_channel < 0)
@@ -511,10 +524,11 @@ void
 IceBT::EndpointI::hashInit()
 {
     Int h = 5381;
-    IceInternal::hashAdd(h, type());
     IceInternal::hashAdd(h, _addr);
     IceInternal::hashAdd(h, _uuid);
+    IceInternal::hashAdd(h, _timeout);
     IceInternal::hashAdd(h, _connectionId);
+    IceInternal::hashAdd(h, _compress);
     const_cast<Int&>(_hashValue) = h;
 }
 
@@ -530,7 +544,7 @@ IceBT::EndpointI::checkOption(const string& option, const string& argument, cons
             ex.str = "no argument provided for -a option in endpoint " + endpoint;
             throw ex;
         }
-        if(!isValidDeviceAddress(arg))
+        if(arg != "*" && !isValidDeviceAddress(arg))
         {
             Ice::EndpointParseException ex(__FILE__, __LINE__);
             ex.str = "invalid argument provided for -a option in endpoint " + endpoint;
@@ -558,7 +572,7 @@ IceBT::EndpointI::checkOption(const string& option, const string& argument, cons
         }
 
         istringstream t(argument);
-        if(!(t >> const_cast<Int&>(_channel)) || !t.eof() || _channel > 30)
+        if(!(t >> const_cast<Int&>(_channel)) || !t.eof() || _channel < 0 || _channel > 30)
         {
             EndpointParseException ex(__FILE__, __LINE__);
             ex.str = "invalid channel value `" + arg + "' in endpoint " + endpoint;

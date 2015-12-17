@@ -17,7 +17,7 @@ using namespace std;
 Test::MyClassPrxPtr
 allTests(const Ice::CommunicatorPtr& communicator)
 {
-    string ref = "test:default -p 12010";
+    string ref = "test:" + getTestEndpoint(communicator, 0);
     Ice::ObjectPrxPtr base = communicator->stringToProxy(ref);
     Test::MyClassPrxPtr cl = ICE_CHECKED_CAST(Test::MyClassPrx, base);
     Test::MyDerivedClassPrxPtr derived = ICE_CHECKED_CAST(Test::MyDerivedClassPrx, cl);

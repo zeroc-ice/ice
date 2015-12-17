@@ -851,14 +851,16 @@ typedef IceUtil::Handle<Thrower> ThrowerPtr;
 void
 allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 {
+    const string protocol = communicator->getProperties()->getProperty("Ice.Default.Protocol");
+
 #ifdef ICE_CPP11_MAPPING
-    string sref = "test:default -p 12010";
+    string sref = "test:" + getTestEndpoint(communicator, 0);
     auto obj = communicator->stringToProxy(sref);
     test(obj);
 
     auto p = Ice::uncheckedCast<Test::TestIntfPrx>(obj);
 
-    sref = "testController:default -p 12011";
+    sref = "testController:" + getTestEndpoint(communicator, 1);
     obj = communicator->stringToProxy(sref);
     test(obj);
 
@@ -1195,7 +1197,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         //
         // Check that CommunicatorDestroyedException is raised directly.
         //
-        if(p->ice_getConnection())
+        if(p->ice_getConnection() && protocol != "bt")
         {
             Ice::InitializationData initData;
             initData.properties = communicator->getProperties()->clone();
@@ -1679,7 +1681,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
             test(p->waitForBatch(2));
         }
 
-        if(p->ice_getConnection())
+        if(p->ice_getConnection() && protocol != "bt")
         {
             test(p->opBatchCount() == 0);
             auto b1 = p->ice_batchOneway();
@@ -1754,6 +1756,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
                 promise.get_future().get();
             }
 
+            if(protocol != "bt")
             {
                 test(p->opBatchCount() == 0);
                 auto b1 = Ice::uncheckedCast<Test::TestIntfPrx>(
@@ -1816,6 +1819,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
                 test(p->waitForBatch(2));
             }
 
+            if(protocol != "bt")
             {
                 //
                 // Exception - 1 connection.
@@ -1844,6 +1848,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
                 test(p->opBatchCount() == 0);
             }
 
+            if(protocol != "bt")
             {
                 //
                 // 2 connections.
@@ -1878,6 +1883,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
                 test(p->waitForBatch(4));
             }
 
+            if(protocol != "bt")
             {
                 //
                 // 2 connections - 2 failures.
@@ -1984,7 +1990,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 //
 //  TODO port this to use the C++11 callback API
 //
-//         if(p->ice_getConnection())
+//         if(p->ice_getConnection() && protocol != "bt")
 //         {
 //             cout << "testing close connection with sending queue... " << flush;
 //             {
@@ -2051,15 +2057,14 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
     }
 
-    p->shutdown();
 #else
-    string sref = "test:default -p 12010";
+    string sref = "test:" + getTestEndpoint(communicator, 0);
     Ice::ObjectPrx obj = communicator->stringToProxy(sref);
     test(obj);
 
     Test::TestIntfPrx p = Test::TestIntfPrx::uncheckedCast(obj);
 
-    sref = "testController:default -p 12011";
+    sref = "testController:" + getTestEndpoint(communicator, 1);
     obj = communicator->stringToProxy(sref);
     test(obj);
 
@@ -2437,7 +2442,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         //
         // Check that CommunicatorDestroyedException is raised directly.
         //
-        if(p->ice_getConnection())
+        if(p->ice_getConnection() && protocol != "bt")
         {
             Ice::InitializationData initData;
             initData.properties = communicator->getProperties()->clone();
@@ -3016,6 +3021,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
         if(p->ice_getConnection())
         {
+            if(protocol != "bt")
             {
                 //
                 // AsyncResult exception without cookie.
@@ -3033,6 +3039,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
                 test(p->waitForBatch(1));
             }
 
+            if(protocol != "bt")
             {
                 //
                 // AsyncResult exception with cookie.
@@ -3082,7 +3089,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
             test(p->waitForBatch(2));
         }
 
-        if(p->ice_getConnection())
+        if(p->ice_getConnection() && protocol != "bt")
         {
             {
                 //
@@ -3141,7 +3148,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
             test(p->waitForBatch(2));
         }
 
-        if(p->ice_getConnection())
+        if(p->ice_getConnection() && protocol != "bt")
         {
             test(p->opBatchCount() == 0);
             Test::TestIntfPrx b1 = p->ice_batchOneway();
@@ -3208,6 +3215,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
                 test(p->waitForBatch(2));
             }
 
+            if(protocol != "bt")
             {
                 //
                 // AsyncResult exception without cookie.
@@ -3226,6 +3234,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
                 test(p->opBatchCount() == 0);
             }
 
+            if(protocol != "bt")
             {
                 //
                 // AsyncResult exception with cookie.
@@ -3277,6 +3286,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
                 test(p->waitForBatch(2));
             }
 
+            if(protocol != "bt")
             {
                 //
                 // Exception without cookie.
@@ -3296,6 +3306,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
                 test(p->opBatchCount() == 0);
             }
 
+            if(protocol != "bt")
             {
                 //
                 // Exception with cookie.
@@ -3338,7 +3349,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
                 test(p->waitForBatch(2));
             }
 
-            if(p->ice_getConnection())
+            if(p->ice_getConnection() && protocol != "bt")
             {
                 //
                 // Exception without cookie.
@@ -3399,6 +3410,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
                 test(p->waitForBatch(2));
             }
 
+            if(protocol != "bt")
             {
                 //
                 // AsyncResult exception without cookie - 1 connection.
@@ -3417,6 +3429,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
                 test(p->opBatchCount() == 0);
             }
 
+            if(protocol != "bt")
             {
                 //
                 // AsyncResult exception with cookie - 1 connection.
@@ -3433,6 +3446,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
                 test(p->opBatchCount() == 0);
             }
 
+            if(protocol != "bt")
             {
                 //
                 // AsyncResult - 2 connections.
@@ -3457,6 +3471,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
                 test(p->waitForBatch(4));
             }
 
+            if(protocol != "bt")
             {
                 //
                 // AsyncResult exception - 2 connections - 1 failure.
@@ -3484,6 +3499,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
                 test(p->waitForBatch(1));
             }
 
+            if(protocol != "bt")
             {
                 //
                 // AsyncResult exception - 2 connections - 2 failures.
@@ -3547,6 +3563,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
                 test(p->waitForBatch(2));
             }
 
+            if(protocol != "bt")
             {
                 //
                 // Exception without cookie - 1 connection.
@@ -3566,6 +3583,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
                 test(p->opBatchCount() == 0);
             }
 
+            if(protocol != "bt")
             {
                 //
                 // Exception with cookie - 1 connection.
@@ -3583,6 +3601,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
                 test(p->opBatchCount() == 0);
             }
 
+            if(protocol != "bt")
             {
                 //
                 // 2 connections.
@@ -3609,6 +3628,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
                 test(p->waitForBatch(4));
             }
 
+            if(protocol != "bt")
             {
                 //
                 // Exception - 2 connections - 1 failure.
@@ -3637,6 +3657,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
                 test(p->waitForBatch(1));
             }
 
+            if(protocol != "bt")
             {
                 //
                 // Exception - 2 connections - 2 failures.
@@ -3689,6 +3710,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
                 test(p->waitForBatch(2));
             }
 
+            if(protocol != "bt")
             {
                 //
                 // Exception without cookie - 1 connection.
@@ -3734,6 +3756,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
                 test(p->waitForBatch(4));
             }
 
+            if(protocol != "bt")
             {
                 //
                 // Exception - 2 connections - 1 failure.
@@ -3762,6 +3785,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
                 test(p->waitForBatch(1));
             }
 
+            if(protocol != "bt")
             {
                 //
                 // Exception - 2 connections - 2 failures.
@@ -3988,7 +4012,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     }
     cout << "ok" << endl;
 
-    if(p->ice_getConnection())
+    if(p->ice_getConnection() && protocol != "bt")
     {
         cout << "testing close connection with sending queue... " << flush;
         {

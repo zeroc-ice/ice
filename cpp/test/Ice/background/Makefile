@@ -46,15 +46,15 @@ OBJS		= $(TRANSPORT_OBJS) \
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include -I../../../src $(CPPFLAGS) $(NO_DEPRECATED_FLAGS)
-LINKWITH	:= $(BZIP2_RPATH_LINK) -lIce -lIceUtil
+LINKWITH	:= $(BZIP2_RPATH_LINK) -lTestCommon -lIce -lIceUtil
 
 $(CLIENT): $(COBJS)
 	rm -f $@
-	$(call mktest,$@,$(COBJS),$(LIBS))
+	$(call mktest,$@,$(COBJS),$(LINKWITH))
 
 $(SERVER): $(SOBJS)
 	rm -f $@
-	$(call mktest,$@,$(SOBJS),$(LIBS))
+	$(call mktest,$@,$(SOBJS),$(LINKWITH))
 
 $(TSPFILENAME): $(TRANSPORT_OBJS)
 	rm -f $@

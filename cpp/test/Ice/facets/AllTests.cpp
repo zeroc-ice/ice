@@ -44,9 +44,20 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "ok" << endl;
 
     cout << "testing facet registration exceptions... " << flush;
-    string host = communicator->getProperties()->getPropertyAsIntWithDefault("Ice.IPv6", 0) == 0 ? 
-            "127.0.0.1" : "\"0:0:0:0:0:0:0:1\"";
-    communicator->getProperties()->setProperty("FacetExceptionTestAdapter.Endpoints", "default -h " + host);
+    string localOAEndpoint;
+    {
+        ostringstream ostr;
+        if(communicator->getProperties()->getProperty("Ice.Default.Protocol") == "bt")
+        {
+            ostr << "default -a *";
+        }
+        else
+        {
+            ostr << "default -h *";
+        }
+        localOAEndpoint = ostr.str();
+    }
+    communicator->getProperties()->setProperty("FacetExceptionTestAdapter.Endpoints", localOAEndpoint);
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("FacetExceptionTestAdapter");
     Ice::ObjectPtr obj = ICE_MAKE_SHARED(EmptyI);
     adapter->add(obj, communicator->stringToIdentity("d"));
@@ -101,7 +112,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     adapter->deactivate();
 
     cout << "testing stringToProxy... " << flush;
-    string ref = "d:default -p 12010";
+    string ref = "d:" + getTestEndpoint(communicator, 0);
     Ice::ObjectPrxPtr db = communicator->stringToProxy(ref);
     test(db);
     cout << "ok" << endl;

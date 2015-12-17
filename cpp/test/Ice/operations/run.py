@@ -20,9 +20,9 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0], "scripts"))
 import TestUtil
 
-print("tests with regular server.")
-TestUtil.clientServerTest(additionalClientOptions = "--Ice.Warn.AMICallback=0")
-print("tests with AMD server.")
-TestUtil.clientServerTest(additionalClientOptions = "--Ice.Warn.AMICallback=0", server = "serveramd")
-print("tests with collocated server.")
-TestUtil.collocatedTest()
+TestUtil.queueClientServerTest(additionalClientOptions = "--Ice.Warn.AMICallback=0")
+TestUtil.queueClientServerTest(configName = "amd", localOnly = True, message = "Running test with AMD server.",
+                               additionalClientOptions = "--Ice.Warn.AMICallback=0",
+                               server = "serveramd")
+TestUtil.queueCollocatedTest()
+TestUtil.runQueuedTests()

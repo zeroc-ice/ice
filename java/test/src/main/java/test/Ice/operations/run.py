@@ -21,17 +21,19 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0], "scripts"))
 import TestUtil
 
-print("tests with regular server.")
-TestUtil.clientServerTest(additionalClientOptions = "--Ice.Warn.AMICallback=0")
+TestUtil.queueClientServerTest(additionalClientOptions = "--Ice.Warn.AMICallback=0")
 
-print("tests with AMD server.")
-TestUtil.clientServerTest(additionalClientOptions = "--Ice.Warn.AMICallback=0", server="test.Ice.operations.AMDServer")
+TestUtil.queueClientServerTest(configName = "amd", localOnly = True, message = "Running test with AMD server.",
+                               additionalClientOptions = "--Ice.Warn.AMICallback=0",
+                               server="test.Ice.operations.AMDServer")
 
-print("tests with TIE server.")
-TestUtil.clientServerTest(additionalClientOptions = "--Ice.Warn.AMICallback=0", server="test.Ice.operations.TieServer")
+TestUtil.queueClientServerTest(configName = "tie", localOnly = True, message = "Running test with TIE server.",
+                               additionalClientOptions = "--Ice.Warn.AMICallback=0",
+                               server="test.Ice.operations.TieServer")
 
-print("tests with AMD TIE server.")
-TestUtil.clientServerTest(additionalClientOptions = "--Ice.Warn.AMICallback=0", server="test.Ice.operations.AMDTieServer")
+TestUtil.queueClientServerTest(configName = "amdTie", localOnly = True, message = "Running test with AMD TIE server.",
+                               additionalClientOptions = "--Ice.Warn.AMICallback=0",
+                               server="test.Ice.operations.AMDTieServer")
 
-print("tests with collocated server.")
-TestUtil.collocatedTest()
+TestUtil.queueCollocatedTest()
+TestUtil.runQueuedTests()

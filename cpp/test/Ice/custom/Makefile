@@ -64,6 +64,8 @@ include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS) -DSTRING_VIEW_IGNORE_STRING_CONVERTER
 
+LINKWITH	:= -lTestCommon $(LIBS)
+
 #
 # Disables optimization when building with Solaris CC:
 # AllTests.cpp takes a very very long time to compile with -O
@@ -80,16 +82,16 @@ endif
 
 $(CLIENT): $(COBJS)
 	rm -f $@
-	$(call mktest,$@,$(COBJS),$(LIBS))
+	$(call mktest,$@,$(COBJS),$(LINKWITH))
 
 $(SERVER): $(SOBJS)
 	rm -f $@
-	$(call mktest,$@,$(SOBJS),$(LIBS))
+	$(call mktest,$@,$(SOBJS),$(LINKWITH))
 
 $(SERVERAMD): $(SAMDOBJS)
 	rm -f $@
-	$(call mktest,$@,$(SAMDOBJS),$(LIBS))
+	$(call mktest,$@,$(SAMDOBJS),$(LINKWITH))
 
 $(COLLOCATED): $(COLOBJS)
 	rm -f $@
-	$(call mktest,$@,$(COLOBJS),$(LIBS))
+	$(call mktest,$@,$(COLOBJS),$(LINKWITH))

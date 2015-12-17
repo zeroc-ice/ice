@@ -13,7 +13,8 @@ top_srcdir	= ..
 
 !if "$(WINRT)" == "yes"
 
-SUBDIRS		= Ice
+SUBDIRS		= Common \
+		  Ice
 
 !elseif "$(CPP11_MAPPING)" == "yes"
 SUBDIRS		= IceUtil \
@@ -22,12 +23,14 @@ SUBDIRS		= IceUtil \
 !elseif "$(CPP_COMPILER)" == "VC100"
 SUBDIRS		= IceUtil \
 		  Slice \
+		  Common \
 		  Ice \
 		  IceSSL \
 		  IceDiscovery
 !else
 SUBDIRS		= IceUtil \
 		  Slice \
+		  Common \
 		  Ice \
 		  IceSSL \
 		  Glacier2 \

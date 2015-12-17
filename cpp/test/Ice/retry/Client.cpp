@@ -21,7 +21,7 @@ int
 run(int, char**, const Ice::CommunicatorPtr& communicator, const Ice::CommunicatorPtr& communicator2)
 {
     RetryPrxPtr allTests(const Ice::CommunicatorPtr&, const Ice::CommunicatorPtr&, const string&);
-    RetryPrxPtr retry = allTests(communicator, communicator2, "retry:default -p 12010");
+    RetryPrxPtr retry = allTests(communicator, communicator2, "retry:" + getTestEndpoint(communicator, 0));
     retry->shutdown();
     return EXIT_SUCCESS;
 }

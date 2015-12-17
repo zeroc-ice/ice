@@ -30,13 +30,20 @@ main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
     Ice::registerIceSSL();
+#   if defined(__linux)
+    Ice::registerIceBT();
+#   endif
 #endif
+
     try
     {
         Ice::InitializationData initData;
         initData.properties = Ice::createProperties(argc, argv);
         Ice::CommunicatorHolder ich = Ice::initialize(argc, argv, initData);
-        return run(argc, argv, ich.communicator());
+        RemoteConfig rc("Ice/servantLocator", argc, argv, ich.communicator());
+        int status = run(argc, argv, ich.communicator());
+        rc.finished(status);
+        return status;
     }
     catch(const Ice::Exception& ex)
     {

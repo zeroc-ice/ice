@@ -21,4 +21,5 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0], "scripts"))
 import TestUtil
 
-TestUtil.clientServerTest()
+TestUtil.queueClientServerTest()
+TestUtil.runQueuedTests()

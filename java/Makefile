@@ -24,7 +24,8 @@ all:
 
 dist:
 	$(GRADLE) $(BUILD_FLAGS) :Ice:assemble :Glacier2:assemble :IceGrid:assemble \
-		:IceBox:assemble :IceDiscovery:assemble :IcePatch2:assemble :IceStorm:assemble :IceGridGUI:assemble
+		:IceBox:assemble :IceBT:assemble :IceDiscovery:assemble :IcePatch2:assemble :IceStorm:assemble \
+		:IceGridGUI:assemble
 
 clean:
 	$(GRADLE) clean

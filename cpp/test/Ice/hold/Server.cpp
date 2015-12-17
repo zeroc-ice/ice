@@ -20,7 +20,7 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
     IceUtil::TimerPtr timer = new IceUtil::Timer();
 
-    communicator->getProperties()->setProperty("TestAdapter1.Endpoints", "default -p 12010:udp");
+    communicator->getProperties()->setProperty("TestAdapter1.Endpoints", getTestEndpoint(communicator, 0) + ":udp");
     communicator->getProperties()->setProperty("TestAdapter1.ThreadPool.Size", "5");
     communicator->getProperties()->setProperty("TestAdapter1.ThreadPool.SizeMax", "5");
     communicator->getProperties()->setProperty("TestAdapter1.ThreadPool.SizeWarn", "0");
@@ -28,7 +28,7 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
     Ice::ObjectAdapterPtr adapter1 = communicator->createObjectAdapter("TestAdapter1");
     adapter1->add(ICE_MAKE_SHARED(HoldI, timer, adapter1), communicator->stringToIdentity("hold"));
 
-    communicator->getProperties()->setProperty("TestAdapter2.Endpoints", "default -p 12011:udp");
+    communicator->getProperties()->setProperty("TestAdapter2.Endpoints", getTestEndpoint(communicator, 1) + ":udp");
     communicator->getProperties()->setProperty("TestAdapter2.ThreadPool.Size", "5");
     communicator->getProperties()->setProperty("TestAdapter2.ThreadPool.SizeMax", "5");
     communicator->getProperties()->setProperty("TestAdapter2.ThreadPool.SizeWarn", "0");

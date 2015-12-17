@@ -556,7 +556,7 @@ public:
 void
 allTests(const Ice::CommunicatorPtr& communicator)
 {
-    string ref = "communicator:default -p 12010";
+    string ref = "communicator:" + getTestEndpoint(communicator, 0);
     RemoteCommunicatorPrxPtr com = ICE_UNCHECKED_CAST(RemoteCommunicatorPrx, communicator->stringToProxy(ref));
 
     vector<TestCasePtr> tests;

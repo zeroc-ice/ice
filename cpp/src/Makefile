@@ -62,6 +62,11 @@ endif
 		   IceDB \
 		   IceStorm \
 		   IceGrid
+
+ifneq ($(findstring Ubuntu,$(shell uname -a)),)
+    SUBDIRS	:= $(SUBDIRS) IceBT
+endif
+
 endif
 endif
 
@@ -77,7 +82,7 @@ slice2cpp slice2cs slice2java slice2js slice2php slice2html slice2objc: Slice
 
 Ice: slice2cpp
 
-IceXML IceSSL IceBox Glacier2Lib IcePatch2Lib IceStormLib IceGridLib: Ice
+IceXML IceSSL IceBox Glacier2Lib IcePatch2Lib IceStormLib IceGridLib IceBT: Ice
 
 Glacier2 IceGridLib Glacier2CryptPermissionsVerifier: Glacier2Lib
 

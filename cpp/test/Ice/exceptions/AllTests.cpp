@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/IceUtil.h>
 #include <Ice/Ice.h>
 #include <TestCommon.h>
 #include <Test.h>
@@ -487,6 +488,20 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
+    string localOAEndpoint;
+    {
+        ostringstream ostr;
+        if(communicator->getProperties()->getProperty("Ice.Default.Protocol") == "bt")
+        {
+            ostr << "default -a *";
+        }
+        else
+        {
+            ostr << "default -h *";
+        }
+        localOAEndpoint = ostr.str();
+    }
+
     cout << "testing object adapter registration exceptions... " << flush;
     {
         Ice::ObjectAdapterPtr first;
@@ -505,9 +520,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             // Expected
         }
 
-        string host = communicator->getProperties()->getPropertyAsIntWithDefault("Ice.IPv6", 0) == 0 ?
-            "127.0.0.1" : "\"0:0:0:0:0:0:0:1\"";
-        communicator->getProperties()->setProperty("TestAdapter0.Endpoints", "default -h " + host);
+        communicator->getProperties()->setProperty("TestAdapter0.Endpoints", localOAEndpoint);
         first = communicator->createObjectAdapter("TestAdapter0");
         try
         {
@@ -547,9 +560,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "testing servant registration exceptions... " << flush;
     {
-        string host = communicator->getProperties()->getPropertyAsIntWithDefault("Ice.IPv6", 0) == 0 ?
-            "127.0.0.1" : "\"0:0:0:0:0:0:0:1\"";
-        communicator->getProperties()->setProperty("TestAdapter1.Endpoints", "default -h " + host);
+        communicator->getProperties()->setProperty("TestAdapter1.Endpoints", localOAEndpoint);
         Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter1");
         Ice::ObjectPtr obj = ICE_MAKE_SHARED(EmptyI);
         adapter->add(obj, communicator->stringToIdentity("x"));
@@ -594,7 +605,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
             }
         }
 
-
         adapter->remove(communicator->stringToIdentity("x"));
         try
         {
@@ -616,9 +626,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "testing servant locator registrations exceptions... " << flush;
     {
-        string host = communicator->getProperties()->getPropertyAsIntWithDefault("Ice.IPv6", 0) == 0 ?
-            "127.0.0.1" : "\"0:0:0:0:0:0:0:1\"";
-        communicator->getProperties()->setProperty("TestAdapter2.Endpoints", "default -h " + host);
+        communicator->getProperties()->setProperty("TestAdapter2.Endpoints", localOAEndpoint);
         Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter2");
         Ice::ServantLocatorPtr loc = ICE_MAKE_SHARED(ServantLocatorI);
         adapter->addServantLocator(loc, "x");
@@ -673,7 +681,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "ok" << endl;
 
     cout << "testing stringToProxy... " << flush;
-    string ref = "thrower:default -p 12010";
+    string ref = "thrower:" + getTestEndpoint(communicator, 0);
     Ice::ObjectPrxPtr base = communicator->stringToProxy(ref);
     test(base);
     cout << "ok" << endl;
@@ -977,7 +985,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(false);
         }
 
-        ThrowerPrxPtr thrower2 = ICE_UNCHECKED_CAST(ThrowerPrx, communicator->stringToProxy("thrower:default -p 12011"));
+        ThrowerPrxPtr thrower2 =
+            ICE_UNCHECKED_CAST(ThrowerPrx, communicator->stringToProxy("thrower:" + getTestEndpoint(communicator, 1)));
         try
         {
             thrower2->throwMemoryLimitException(Ice::ByteSeq(2 * 1024 * 1024)); // 2MB (no limits)
@@ -985,7 +994,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
         catch(const Ice::MemoryLimitException&)
         {
         }
-        ThrowerPrxPtr thrower3 = ICE_UNCHECKED_CAST(ThrowerPrx, communicator->stringToProxy("thrower:default -p 12012"));
+        ThrowerPrxPtr thrower3 =
+            ICE_UNCHECKED_CAST(ThrowerPrx, communicator->stringToProxy("thrower:" + getTestEndpoint(communicator, 2)));
         try
         {
             thrower3->throwMemoryLimitException(Ice::ByteSeq(1024)); // 1KB limit

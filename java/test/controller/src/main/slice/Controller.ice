@@ -29,7 +29,8 @@ sequence<string> StringSeq;
 
 interface Controller
 {
-    Server* runServer(string lang, string name, string protocol, string host, bool winrt, StringSeq options);
+    Server* runServer(string lang, string name, string protocol, string host, bool winrt, string configName,
+                      StringSeq options);
 };
 
 };

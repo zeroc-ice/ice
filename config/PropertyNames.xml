@@ -607,7 +607,6 @@ generated from the section label.
     </section>
 
     <section name="IceBT">
-        <property name="DefaultAddress" />
         <property name="RcvSize" />
         <property name="SndSize" />
     </section>

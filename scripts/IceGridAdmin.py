@@ -140,7 +140,7 @@ def iceGridNodePropertiesOverride():
     # Create property overrides from command line options.
     #
     overrideOptions = ''
-    for opt in shlex.split(TestUtil.getCommandLineProperties("", TestUtil.DriverConfig("server"))):
+    for opt in shlex.split(TestUtil.getCommandLineProperties("", TestUtil.DriverConfig("server"), "")):
        opt = opt.strip().replace("--", "")
        index = opt.find("=")
        if index == -1:

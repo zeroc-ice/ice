@@ -194,9 +194,9 @@ the IceGrid Admin tool by double-clicking the IceGrid Admin icon in Finder.
 
 ## Test Controller
 
-The test Controller is an Ice server that allows to start servers for languages
-that doesn't provide a full server side. This is currently used by JavaScript
-and WinRT test suites to start the required servers.
+The test Controller is an Ice server that starts servers for languages that
+don't provide a full server side implementation. This is currently used by
+the JavaScript and WinRT test suites to start the required servers.
 
     > gradlew :testController:assemble
 

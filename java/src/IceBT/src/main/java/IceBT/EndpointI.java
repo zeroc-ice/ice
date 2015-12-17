@@ -276,13 +276,22 @@ final class EndpointI extends IceInternal.EndpointI
 
         if(_addr.length() == 0)
         {
-            _addr = _instance.properties().getProperty("IceBT.DefaultAddress");
+            _addr = _instance.defaultHost();
         }
 
-        if(!oaEndpoint && _addr.length() == 0)
+        if(_addr.length() == 0 || _addr.equals("*"))
         {
-            throw new Ice.EndpointParseException(
-                "a device address must be specified using the -a option or IceBT.DefaultAddress");
+            if(oaEndpoint)
+            {
+                //
+                // Ignore a missing address, we always use the default adapter anyway.
+                //
+            }
+            else
+            {
+                throw new Ice.EndpointParseException(
+                    "a device address must be specified using the -a option or Ice.Default.Host");
+            }
         }
 
         if(_name.length() == 0)
@@ -292,7 +301,17 @@ final class EndpointI extends IceInternal.EndpointI
 
         if(_uuid == null)
         {
-            throw new Ice.EndpointParseException("a UUID must be specified using the -u option");
+            if(oaEndpoint)
+            {
+                //
+                // Generate a UUID for object adapters that don't specify one.
+                //
+                _uuid = UUID.randomUUID();
+            }
+            else
+            {
+                throw new Ice.EndpointParseException("a UUID must be specified using the -u option");
+            }
         }
 
         hashInit();
@@ -408,7 +427,7 @@ final class EndpointI extends IceInternal.EndpointI
             {
                 throw new Ice.EndpointParseException("no argument provided for -a option in endpoint " + endpoint);
             }
-            if(!BluetoothAdapter.checkBluetoothAddress(argument.toUpperCase()))
+            if(!argument.equals("*") && !BluetoothAdapter.checkBluetoothAddress(argument.toUpperCase()))
             {
                 throw new Ice.EndpointParseException("invalid address provided for -a option in endpoint " + endpoint);
             }
@@ -512,7 +531,6 @@ final class EndpointI extends IceInternal.EndpointI
         int h = 5381;
         h = IceInternal.HashUtil.hashAdd(h, _addr);
         h = IceInternal.HashUtil.hashAdd(h, _uuid.toString());
-        h = IceInternal.HashUtil.hashAdd(h, _channel);
         h = IceInternal.HashUtil.hashAdd(h, _timeout);
         h = IceInternal.HashUtil.hashAdd(h, _connectionId);
         h = IceInternal.HashUtil.hashAdd(h, _compress);

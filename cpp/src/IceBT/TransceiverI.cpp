@@ -37,8 +37,6 @@ IceBT::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::Bu
 IceInternal::SocketOperation
 IceBT::TransceiverI::closing(bool initiator, const Ice::LocalException&)
 {
-    ::shutdown(_stream->fd(), SHUT_RDWR);
-
     //
     // If we are initiating the connection closure, wait for the peer
     // to close the TCP/IP connection. Otherwise, close immediately.

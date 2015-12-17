@@ -18,7 +18,8 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
     Ice::PropertiesPtr properties = communicator->getProperties();
     properties->setProperty("Ice.Warn.Dispatch", "0");
-    communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000:udp");
+    communicator->getProperties()->setProperty("TestAdapter.Endpoints",
+                                               getTestEndpoint(communicator, 0) + " -t 10000:udp");
     communicator->getProperties()->setProperty("TestAdapter.ThreadPool.Size", "1");
 
     //

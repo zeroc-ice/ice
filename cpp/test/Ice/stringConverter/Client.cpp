@@ -95,8 +95,9 @@ main(int argc, char* argv[])
 int
 Client::run(int, char*[])
 {
-    Test::MyObjectPrxPtr proxy = ICE_UNCHECKED_CAST(Test::MyObjectPrx,
-                                                    communicator()->stringToProxy("test:default -p 12010"));
+    Test::MyObjectPrxPtr proxy =
+        ICE_UNCHECKED_CAST(Test::MyObjectPrx,
+                           communicator()->stringToProxy("test:" + getTestEndpoint(communicator(), 0)));
 
     char oe = char(0xBD); // A single character in ISO Latin 9
     string msg = string("tu me fends le c") + oe + "ur!";

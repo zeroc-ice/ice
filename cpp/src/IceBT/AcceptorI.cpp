@@ -57,6 +57,10 @@ IceBT::AcceptorI::listen()
 {
     try
     {
+        if(!_instance->engine()->adapterExists(_adapter))
+        {
+            throw SocketException(__FILE__, __LINE__, EADDRNOTAVAIL);
+        }
         _addr = doBind(_fd, _addr);
         IceInternal::doListen(_fd, _backlog);
     }
@@ -156,12 +160,6 @@ IceBT::AcceptorI::AcceptorI(const EndpointIPtr& endpoint, const InstancePtr& ins
     {
         EndpointParseException ex(__FILE__, __LINE__);
         ex.str = "invalid address value `" + _adapter + "' in endpoint " + endpoint->toString();
-        throw ex;
-    }
-    if(!_instance->engine()->adapterExists(_adapter))
-    {
-        EndpointParseException ex(__FILE__, __LINE__);
-        ex.str = "no device found for `" + _adapter + "' in endpoint " + endpoint->toString();
         throw ex;
     }
 

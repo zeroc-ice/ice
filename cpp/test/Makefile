@@ -17,7 +17,8 @@ SUBDIRS		= IceUtil \
 else
 
 
-SUBDIRS		= IceUtil \
+SUBDIRS		= Common \
+		  IceUtil \
 		  Slice \
 		  Ice \
 		  IceSSL \

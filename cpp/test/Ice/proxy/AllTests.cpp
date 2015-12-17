@@ -19,8 +19,9 @@ using namespace std;
 Test::MyClassPrxPtr
 allTests(const Ice::CommunicatorPtr& communicator)
 {
+    const string endp = getTestEndpoint(communicator, 0);
     cout << "testing stringToProxy... " << flush;
-    string ref = "test:default -p 12010";
+    string ref = "test:" + endp;
     Ice::ObjectPrxPtr base = communicator->stringToProxy(ref);
     test(base);
 
@@ -271,7 +272,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "testing propertyToProxy... " << flush;
     Ice::PropertiesPtr prop = communicator->getProperties();
     string propertyPrefix = "Foo.Proxy";
-    prop->setProperty(propertyPrefix, "test:default -p 12010");
+    prop->setProperty(propertyPrefix, "test:" + endp);
     b1 = communicator->propertyToProxy(propertyPrefix);
     test(b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category.empty() &&
          b1->ice_getAdapterId().empty() && b1->ice_getFacet().empty());
@@ -280,7 +281,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     property = propertyPrefix + ".Locator";
     test(!b1->ice_getLocator());
-    prop->setProperty(property, "locator:default -p 10000");
+    prop->setProperty(property, "locator:" + endp);
     b1 = communicator->propertyToProxy(propertyPrefix);
     test(b1->ice_getLocator() && b1->ice_getLocator()->ice_getIdentity().name == "locator");
     prop->setProperty(property, "");
@@ -295,7 +296,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     // Now retest with an indirect proxy.
     prop->setProperty(propertyPrefix, "test");
     property = propertyPrefix + ".Locator";
-    prop->setProperty(property, "locator:default -p 10000");
+    prop->setProperty(property, "locator:" + endp);
     b1 = communicator->propertyToProxy(propertyPrefix);
     test(b1->ice_getLocator() && b1->ice_getLocator()->ice_getIdentity().name == "locator");
     prop->setProperty(property, "");
@@ -315,11 +316,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
     //test(b1->ice_getLocatorCacheTimeout() == 60);
     //prop->setProperty("Ice.Default.LocatorCacheTimeout", "");
 
-    prop->setProperty(propertyPrefix, "test:default -p 12010");
+    prop->setProperty(propertyPrefix, "test:" + endp);
 
     property = propertyPrefix + ".Router";
     test(!b1->ice_getRouter());
-    prop->setProperty(property, "router:default -p 10000");
+    prop->setProperty(property, "router:" + endp);
     b1 = communicator->propertyToProxy(propertyPrefix);
     test(b1->ice_getRouter() && b1->ice_getRouter()->ice_getIdentity().name == "router");
     prop->setProperty(property, "");
@@ -787,8 +788,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(compObj->ice_timeout(10) < compObj->ice_timeout(20));
     test(!(compObj->ice_timeout(20) < compObj->ice_timeout(10)));
 
-    Ice::LocatorPrxPtr loc1 = ICE_UNCHECKED_CAST(Ice::LocatorPrx, communicator->stringToProxy("loc1:default -p 10000"));
-    Ice::LocatorPrxPtr loc2 = ICE_UNCHECKED_CAST(Ice::LocatorPrx, communicator->stringToProxy("loc2:default -p 10000"));
+    Ice::LocatorPrxPtr loc1 = ICE_UNCHECKED_CAST(Ice::LocatorPrx, communicator->stringToProxy("loc1:" + endp));
+    Ice::LocatorPrxPtr loc2 = ICE_UNCHECKED_CAST(Ice::LocatorPrx, communicator->stringToProxy("loc2:" + endp));
     test(compObj->ice_locator(0) == compObj->ice_locator(0));
     test(compObj->ice_locator(loc1) == compObj->ice_locator(loc1));
     test(compObj->ice_locator(loc1) != compObj->ice_locator(0));
@@ -799,8 +800,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(compObj->ice_locator(loc1) < compObj->ice_locator(loc2));
     test(!(compObj->ice_locator(loc2) < compObj->ice_locator(loc1)));
 
-    Ice::RouterPrxPtr rtr1 = ICE_UNCHECKED_CAST(Ice::RouterPrx, communicator->stringToProxy("rtr1:default -p 10000"));
-    Ice::RouterPrxPtr rtr2 = ICE_UNCHECKED_CAST(Ice::RouterPrx, communicator->stringToProxy("rtr2:default -p 10000"));
+    Ice::RouterPrxPtr rtr1 = ICE_UNCHECKED_CAST(Ice::RouterPrx, communicator->stringToProxy("rtr1:" + endp));
+    Ice::RouterPrxPtr rtr2 = ICE_UNCHECKED_CAST(Ice::RouterPrx, communicator->stringToProxy("rtr2:" + endp));
     test(compObj->ice_router(0) == compObj->ice_router(0));
     test(compObj->ice_router(rtr1) == compObj->ice_router(rtr1));
     test(compObj->ice_router(rtr1) != compObj->ice_router(0));
@@ -949,7 +950,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "ok" << endl;
 
     cout << "testing encoding versioning... " << flush;
-    string ref20 = "test -e 2.0:default -p 12010";
+    string ref20 = "test -e 2.0:" + endp;
     Test::MyClassPrxPtr cl20 = ICE_UNCHECKED_CAST(Test::MyClassPrx, communicator->stringToProxy(ref20));
     try
     {
@@ -961,7 +962,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         // Server 2.0 endpoint doesn't support 1.1 version.
     }
 
-    string ref10 = "test -e 1.0:default -p 12010";
+    string ref10 = "test -e 1.0:" + endp;
     Test::MyClassPrxPtr cl10 = ICE_UNCHECKED_CAST(Test::MyClassPrx, communicator->stringToProxy(ref10));
     cl10->ice_ping();
     cl10->ice_encodingVersion(Ice::Encoding_1_0)->ice_ping();
@@ -969,7 +970,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
     // call will use the 1.1 encoding
-    string ref13 = "test -e 1.3:default -p 12010";
+    string ref13 = "test -e 1.3:" + endp;
     Test::MyClassPrxPtr cl13 = ICE_UNCHECKED_CAST(Test::MyClassPrx, communicator->stringToProxy(ref13));
     cl13->ice_ping();
 #ifdef ICE_CPP11_MAPPING
@@ -1029,7 +1030,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "testing protocol versioning... " << flush;
 
-    ref20 = "test -p 2.0:default -p 12010";
+    ref20 = "test -p 2.0:" + endp;
     cl20 = ICE_UNCHECKED_CAST(Test::MyClassPrx, communicator->stringToProxy(ref20));
     try
     {
@@ -1041,13 +1042,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
         // Server 2.0 proxy doesn't support 1.0 version.
     }
 
-    ref10 = "test -p 1.0:default -p 12010";
+    ref10 = "test -p 1.0:" + endp;
     cl10 = ICE_UNCHECKED_CAST(Test::MyClassPrx, communicator->stringToProxy(ref10));
     cl10->ice_ping();
 
     // 1.3 isn't supported but since a 1.3 proxy supports 1.0, the
     // call will use the 1.0 encoding
-    ref13 = "test -p 1.3:default -p 12010";
+    ref13 = "test -p 1.3:" + endp;
     cl13 = ICE_UNCHECKED_CAST(Test::MyClassPrx, communicator->stringToProxy(ref13));
     cl13->ice_ping();
 #ifdef ICE_CPP11_MAPPING

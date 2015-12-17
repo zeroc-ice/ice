@@ -20,11 +20,12 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0], "scripts"))
 import TestUtil
 
-print("tests with Blobject server.")
-TestUtil.clientServerTest()
-print("tests with BlobjectArray server.")
-TestUtil.clientServerTest(additionalServerOptions = "--array")
-print("tests with BlobjectAsync server.")
-TestUtil.clientServerTest(additionalServerOptions = "--async")
-print("tests with BlobjectAsyncArray server.")
-TestUtil.clientServerTest(additionalServerOptions = "--array --async")
+TestUtil.queueClientServerTest(configName = "blobject", message = "Running test with Blobject server.")
+TestUtil.queueClientServerTest(configName = "blobjectArray", message = "Running test with BlobjectArray server.",
+                               additionalServerOptions = "--array")
+TestUtil.queueClientServerTest(configName = "blobjectAsync", message = "Running test with BlobjectAsync server.",
+                               additionalServerOptions = "--async")
+TestUtil.queueClientServerTest(configName = "blobjectAsyncArray",
+                               message = "Running test with BlobjectAsyncArray server.",
+                               additionalServerOptions = "--array --async")
+TestUtil.runQueuedTests()

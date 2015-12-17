@@ -2456,7 +2456,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         }
 
 #ifndef ICE_OS_WINRT
-        if(p->ice_getConnection())
+        if(p->ice_getConnection() && communicator->getProperties()->getProperty("Ice.Default.Protocol") != "bt")
         {
             //
             // Test implicit context propagation
@@ -2476,8 +2476,8 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
                 ctx["two"] = "TWO";
                 ctx["three"] = "THREE";
 
-
-                Test::MyClassPrxPtr p = ICE_UNCHECKED_CAST(Test::MyClassPrx, ic->stringToProxy("test:default -p 12010"));
+                Test::MyClassPrxPtr p =
+                    ICE_UNCHECKED_CAST(Test::MyClassPrx, ic->stringToProxy("test:" + getTestEndpoint(ic, 0)));
                 ic->getImplicitContext()->setContext(ctx);
                 test(ic->getImplicitContext()->getContext() == ctx);
                 {

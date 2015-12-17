@@ -32,6 +32,7 @@ OBJS		= $(SLICE_OBJS) \
 !include $(top_srcdir)/config/Make.rules.mak
 
 CPPFLAGS	= -I. -I../../include $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
+LINKWITH	= testcommon$(LIBSUFFIX).lib $(LIBS)
 
 !if "$(GENERATE_PDB)" == "yes"
 CPDBFLAGS        = /pdb:$(CLIENT).pdb
@@ -39,7 +40,7 @@ SPDBFLAGS        = /pdb:$(SERVER).pdb
 !endif
 
 $(SERVER)$(EXT): $(OBJS)
-	$(LINK) $(LD_TESTFLAGS) $(SPDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+	$(LINK) $(LD_TESTFLAGS) $(SPDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 

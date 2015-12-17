@@ -10,7 +10,8 @@
 #ifndef TEST_COMMON_H
 #define TEST_COMMON_H
 
-#include <IceUtil/IceUtil.h>
+#include <Ice/CommunicatorF.h>
+#include <Ice/ProxyF.h>
 
 #ifdef ICE_CPP11_MAPPING
 #   define ICE_IN(T) T
@@ -24,6 +25,18 @@
 #   include <Ice/LocalException.h>
 #endif
 
+#include <IceUtil/IceUtil.h>
+
+#ifndef TEST_API
+#   ifdef TEST_API_EXPORTS
+#       define TEST_API ICE_DECLSPEC_EXPORT
+#   elif defined(ICE_STATIC_LIBS)
+#       define TEST_API /**/
+#   else
+#       define TEST_API ICE_DECLSPEC_IMPORT
+#   endif
+#endif
+
 void
 inline print(const std::string& msg)
 {
@@ -35,6 +48,24 @@ inline println(const std::string& msg)
 {
     std::cout << msg << std::endl;
 }
+
+TEST_API std::string getTestEndpoint(const Ice::CommunicatorPtr&, int, const std::string = std::string());
+
+class TEST_API RemoteConfig
+{
+public:
+
+    RemoteConfig(const std::string&, int, char**, const Ice::CommunicatorPtr&);
+    ~RemoteConfig();
+
+    bool isRemote() const;
+    void finished(int);
+
+private:
+
+    Ice::ObjectPrxPtr _server;
+    int _status;
+};
 
 #if !defined(ICE_OS_WINRT) && (TARGET_OS_IPHONE == 0)
 

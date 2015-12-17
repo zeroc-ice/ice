@@ -1575,7 +1575,7 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& p)
         }
 
 #ifndef ICE_OS_WINRT
-        if(p->ice_getConnection())
+        if(p->ice_getConnection() && communicator->getProperties()->getProperty("Ice.Default.Protocol") != "bt")
         {
             //
             // Test implicit context propagation
@@ -1596,7 +1596,7 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& p)
                 ctx["three"] = "THREE";
 
                 Test::MyClassPrxPtr p = ICE_UNCHECKED_CAST(Test::MyClassPrx,
-                                                           ic->stringToProxy("test:default -p 12010 -t 10000"));
+                                                           ic->stringToProxy("test:" + getTestEndpoint(ic, 0)));
 
                 ic->getImplicitContext()->setContext(ctx);
                 test(ic->getImplicitContext()->getContext() == ctx);

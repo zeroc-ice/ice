@@ -227,7 +227,7 @@ IceBT::doBind(SOCKET fd, const SocketAddress& addr)
     SocketAddress local;
     socklen_t len = static_cast<socklen_t>(sizeof(SocketAddress));
 #  ifdef NDEBUG
-    getsockname(fd, &local, &len);
+    getsockname(fd, reinterpret_cast<struct sockaddr*>(&local), &len);
 #  else
     int ret = getsockname(fd, reinterpret_cast<struct sockaddr*>(&local), &len);
     assert(ret != SOCKET_ERROR);

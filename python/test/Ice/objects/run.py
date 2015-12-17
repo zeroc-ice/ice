@@ -20,16 +20,15 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0], "scripts"))
 import TestUtil
 
-print("Running test with compact (default) format.")
-TestUtil.clientServerTest()
+TestUtil.queueClientServerTest(configName = "compact", message = "Running test with compact (default) format.")
 
-print("Running test with sliced format.")
-TestUtil.clientServerTest(additionalClientOptions="--Ice.Default.SlicedFormat", 
-                          additionalServerOptions="--Ice.Default.SlicedFormat")
+TestUtil.queueClientServerTest(configName = "sliced", message = "Running test with sliced format.",
+                               additionalClientOptions="--Ice.Default.SlicedFormat", 
+                               additionalServerOptions="--Ice.Default.SlicedFormat")
 
-print("Running test with 1.0 encoding.")
-TestUtil.clientServerTest(additionalClientOptions="--Ice.Default.EncodingVersion=1.0", 
-                          additionalServerOptions="--Ice.Default.EncodingVersion=1.0")
+TestUtil.queueClientServerTest(configName = "1.0", message = "Running test with 1.0 encoding.",
+                               additionalClientOptions="--Ice.Default.EncodingVersion=1.0", 
+                               additionalServerOptions="--Ice.Default.EncodingVersion=1.0")
 
-print("Running collocated test.")
-TestUtil.collocatedTest()
+TestUtil.queueCollocatedTest()
+TestUtil.runQueuedTests()

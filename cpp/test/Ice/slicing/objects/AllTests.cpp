@@ -597,7 +597,7 @@ testUOO(const TestIntfPrxPtr& test)
 TestIntfPrxPtr
 allTests(const Ice::CommunicatorPtr& communicator)
 {
-    Ice::ObjectPrxPtr obj = communicator->stringToProxy("Test:default -p 12010");
+    Ice::ObjectPrxPtr obj = communicator->stringToProxy("Test:" + getTestEndpoint(communicator, 0));
     TestIntfPrxPtr test = ICE_CHECKED_CAST(TestIntfPrx, obj);
 
     cout << "base as Object... " << flush;

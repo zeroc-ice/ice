@@ -83,7 +83,7 @@ typedef IceUtil::Handle<Callback> CallbackPtr;
 TimeoutPrxPtr
 allTests(const Ice::CommunicatorPtr& communicator)
 {
-    string sref = "timeout:default -p 12010";
+    string sref = "timeout:" + getTestEndpoint(communicator, 0);
     Ice::ObjectPrxPtr obj = communicator->stringToProxy(sref);
     test(obj);
 

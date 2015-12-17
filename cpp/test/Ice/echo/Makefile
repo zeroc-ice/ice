@@ -25,6 +25,8 @@ include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
+LINKWITH	:= -lTestCommon $(LIBS)
+
 $(SERVER): $(OBJS)
 	rm -f $@
-	$(call mktest,$@,$(OBJS),$(LIBS))
+	$(call mktest,$@,$(OBJS),$(LINKWITH))

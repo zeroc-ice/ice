@@ -21,4 +21,5 @@ sys.path.append(os.path.join(path[0], "scripts"))
 import TestUtil
 
 server = os.path.join(os.getcwd(), "server", "server")
-TestUtil.clientServerTest(server = server)
+TestUtil.queueClientServerTest(server = server)
+TestUtil.runQueuedTests()

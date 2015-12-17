@@ -19,7 +19,7 @@ int
 run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
     void allTests(const Ice::CommunicatorPtr&, const string&);
-    allTests(communicator, "ServerManager:default -p 12010");
+    allTests(communicator, "ServerManager:" + getTestEndpoint(communicator, 0));
     return EXIT_SUCCESS;
 }
 

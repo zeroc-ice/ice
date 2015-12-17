@@ -72,7 +72,11 @@ RemoteCommunicatorI::createObjectAdapter(int timeout, int close, int heartbeat, 
     Ice::CommunicatorPtr com = current.adapter->getCommunicator();
     Ice::PropertiesPtr properties = com->getProperties();
     string protocol = properties->getPropertyWithDefault("Ice.Default.Protocol", "tcp");
-    string host = properties->getPropertyWithDefault("Ice.Default.Host", "127.0.0.1");
+    string opts;
+    if(protocol != "bt")
+    {
+        opts = " -h \"" + properties->getPropertyWithDefault("Ice.Default.Host", "127.0.0.1") + "\"";
+    }
 
     string name = IceUtil::generateUUID();
     if(timeout >= 0)
@@ -88,7 +92,7 @@ RemoteCommunicatorI::createObjectAdapter(int timeout, int close, int heartbeat, 
         properties->setProperty(name + ".ACM.Heartbeat", toString(heartbeat));
     }
     properties->setProperty(name + ".ThreadPool.Size", "2");
-    ObjectAdapterPtr adapter = com->createObjectAdapterWithEndpoints(name, protocol + " -h \"" + host + "\"");
+    ObjectAdapterPtr adapter = com->createObjectAdapterWithEndpoints(name, protocol + opts);
     
     return ICE_UNCHECKED_CAST(RemoteObjectAdapterPrx, current.adapter->addWithUUID(
                               ICE_MAKE_SHARED(RemoteObjectAdapterI, adapter)));

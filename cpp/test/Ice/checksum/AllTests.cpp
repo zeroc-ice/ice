@@ -16,7 +16,7 @@ using namespace std;
 Test::ChecksumPrxPtr
 allTests(const Ice::CommunicatorPtr& communicator, bool)
 {
-    string ref = "test:default -p 12010";
+    string ref = "test:" + getTestEndpoint(communicator, 0);
     Ice::ObjectPrxPtr base = communicator->stringToProxy(ref);
     test(base);
 

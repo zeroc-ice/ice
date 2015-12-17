@@ -20,6 +20,7 @@ DEFINE_TEST("collocated")
 int
 run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
+    communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(communicator, 0));
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     adapter->add(new TestIntfI(communicator), communicator->stringToIdentity("test"));
     adapter->add(new Test1::WstringClassI, communicator->stringToIdentity("wstring1"));
@@ -45,10 +46,7 @@ main(int argc, char** argv)
         IceUtil::setProcessStringConverter(new Test::StringConverterI());
         IceUtil::setProcessWstringConverter(new Test::WstringConverterI());
 
-        Ice::InitializationData initData;
-        initData.properties = Ice::createProperties(argc, argv);
-        initData.properties->setProperty("TestAdapter.Endpoints", "default -p 12010");
-        communicator = Ice::initialize(argc, argv, initData);
+        communicator = Ice::initialize(argc, argv);
         status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)

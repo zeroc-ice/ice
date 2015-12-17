@@ -21,9 +21,10 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0], "scripts"))
 import TestUtil
 
-print("Running test with compact (default) format.")
-TestUtil.clientServerTest()
-print("Running test with sliced format.")
-TestUtil.clientServerTest(additionalClientOptions="--Ice.Default.SlicedFormat", additionalServerOptions="--Ice.Default.SlicedFormat")
-print("Running test with AMD server.")
-TestUtil.clientServerTest(server="test.Ice.optional.AMDServer")
+TestUtil.queueClientServerTest(configName = "compact", message = "Running test with compact (default) format.")
+TestUtil.queueClientServerTest(configName = "sliced", message = "Running test with sliced format.",
+                               additionalClientOptions="--Ice.Default.SlicedFormat",
+                               additionalServerOptions="--Ice.Default.SlicedFormat")
+TestUtil.queueClientServerTest(configName = "amd", localOnly = True, message = "Running test with AMD server.",
+                               server="test.Ice.optional.AMDServer")
+TestUtil.runQueuedTests()

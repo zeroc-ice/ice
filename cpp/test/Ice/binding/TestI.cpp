@@ -26,19 +26,23 @@ RemoteObjectAdapterPrx
 RemoteCommunicatorI::createObjectAdapter(const string& name, const string& endpts, const Current& current)
 #endif
 {
+    Ice::CommunicatorPtr com = current.adapter->getCommunicator();
+    const string defaultProtocol = com->getProperties()->getProperty("Ice.Default.Protocol");
+
     string endpoints = endpts;
-    if(endpoints.find("-p") == string::npos)
+    if(defaultProtocol != "bt")
     {
-        // Use a fixed port if none is specified (bug 2896)
-        ostringstream os;
-        os << endpoints << " -h \""
-           << (current.adapter->getCommunicator()->getProperties()->getPropertyWithDefault(
-                                                                                    "Ice.Default.Host", "127.0.0.1"))
-           << "\" -p " << _nextPort++;
-        endpoints = os.str();
+        if(endpoints.find("-p") == string::npos)
+        {
+            // Use a fixed port if none is specified (bug 2896)
+            ostringstream os;
+            os << endpoints << " -h \""
+               << (com->getProperties()->getPropertyWithDefault("Ice.Default.Host", "127.0.0.1"))
+               << "\" -p " << _nextPort++;
+            endpoints = os.str();
+        }
     }
     
-    Ice::CommunicatorPtr com = current.adapter->getCommunicator();
     com->getProperties()->setProperty(name + ".ThreadPool.Size", "1");
     ObjectAdapterPtr adapter = com->createObjectAdapterWithEndpoints(name, endpoints);
     return ICE_UNCHECKED_CAST(RemoteObjectAdapterPrx, current.adapter->addWithUUID(ICE_MAKE_SHARED(RemoteObjectAdapterI, adapter)));

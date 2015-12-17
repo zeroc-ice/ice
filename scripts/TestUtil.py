@@ -10,7 +10,7 @@
 import sys, os, re, getopt, time, string, threading, atexit, platform, traceback, subprocess
 
 # Global flags and their default values.
-protocol = ""                   # If unset, default to TCP. Valid values are "tcp", "ssl", "ws" or "wss".
+protocol = ""                   # If unset, default to TCP. Valid values are "tcp", "ssl", "ws", "wss" or "bt".
 compress = False                # Set to True to enable bzip2 compression.
 serialize = False               # Set to True to have tests use connection serialization
 host = None                     # Will default to loopback.
@@ -49,6 +49,10 @@ winrt = False
 global serverOnly
 serverOnly = False
 mx = False
+controller = None
+configName = None
+
+queuedTests = []
 
 #
 # Linux distribution
@@ -377,7 +381,7 @@ except:
     sys.exit(1)
 
 #
-# Figure out Ice installation directoty
+# Figure out Ice installation directory
 #
 iceHome = None  # Binary distribution to use (or None to use binaries from source distribution)
 if os.environ.get("USE_BIN_DIST", "no") == "yes":
@@ -393,7 +397,7 @@ if os.environ.get("USE_BIN_DIST", "no") == "yes":
         if path and len(path) > 0 and os.path.exists(path[0]):
             iceHome = path[0]
 
-# List of supported cross languages test.
+# List of supported cross-language tests.
 crossTests = [ #"Ice/adapterDeactivation",
                #"Ice/background",
                #"Ice/binding",
@@ -422,37 +426,38 @@ crossTests = [ #"Ice/adapterDeactivation",
 def run(tests, root = False):
     def usage():
         print("usage: " + sys.argv[0] + """
-          --all                       Run all sensible permutations of the tests.
-          --all-cross                 Run all sensible permutations of cross language tests.
-          --start=index               Start running the tests at the given index.
-          --loop                      Run the tests in a loop.
-          --filter=<regex>            Run all the tests that match the given regex.
-          --rfilter=<regex>           Run all the tests that do not match the given regex.
-          --debug                     Display debugging information on each test.
-          --protocol=tcp|ssl|ws|wss   Run with the given protocol.
-          --compress                  Run the tests with protocol compression.
-          --host=host                 Set --Ice.Default.Host=<host>.
-          --valgrind                  Run the test with valgrind.
-          --appverifier               Run the test with appverifier under Windows.
-          --serialize                 Run with connection serialization.
-          --continue                  Keep running when a test fails
-          --ipv6                      Use IPv6 addresses.
-          --socks                     Use SOCKS proxy running on localhost.
-          --no-ipv6                   Don't use IPv6 addresses.
-          --ice-home=<path>           Use the binary distribution from the given path.
-          --x86                       Binary distribution is 32-bit.
-          --x64                       Binary distribution is 64-bit.
-          --c++11                     Binary distribution is c++11.
-          --cross=lang                Run cross language test.
-          --client-home=<dir>         Run cross test clients from the given Ice source distribution.
-          --script                    Generate a script to run the tests.
-          --env                       Print important environment variables.
-          --service-dir=<dir>         Where to locate services for builds without service support.
-          --compact                   Ice for .NET uses the Compact Framework.
-          --winrt                     Run server with configuration suited for WinRT client.
-          --server                    Run only the server.
-          --mx                        Enable IceMX when running the tests.
-          --arg=<property>            Append the given argument.
+          --all                Run all sensible permutations of the tests.
+          --all-cross          Run all sensible permutations of cross language tests.
+          --start=index        Start running the tests at the given index.
+          --loop               Run the tests in a loop.
+          --filter=<regex>     Run all the tests that match the given regex.
+          --rfilter=<regex>    Run all the tests that do not match the given regex.
+          --debug              Display debugging information on each test.
+          --protocol=<prot>    Run with the given protocol (tcp|ssl|ws|wss|bt).
+          --compress           Run the tests with protocol compression.
+          --host=host          Set --Ice.Default.Host=<host>.
+          --valgrind           Run the test with valgrind.
+          --appverifier        Run the test with appverifier under Windows.
+          --serialize          Run with connection serialization.
+          --continue           Keep running when a test fails.
+          --ipv6               Use IPv6 addresses.
+          --socks              Use SOCKS proxy running on localhost.
+          --no-ipv6            Don't use IPv6 addresses.
+          --ice-home=<path>    Use the binary distribution from the given path.
+          --x86                Binary distribution is 32-bit.
+          --x64                Binary distribution is 64-bit.
+          --c++11              Binary distribution is c++11.
+          --cross=lang         Run cross language test.
+          --client-home=<dir>  Run cross test clients from the given Ice source distribution.
+          --script             Generate a script to run the tests.
+          --env                Print important environment variables.
+          --service-dir=<dir>  Where to locate services for builds without service support.
+          --compact            Ice for .NET uses the Compact Framework.
+          --winrt              Run server with configuration suited for WinRT client.
+          --server             Run only the server.
+          --mx                 Enable IceMX when running the tests.
+          --controller=<host>  Use the test controller on the specified host.
+          --arg=<property>     Append the given argument.
         """)
         sys.exit(2)
 
@@ -462,7 +467,7 @@ def run(tests, root = False):
                                     "debug", "protocol=", "compress", "valgrind", "host=", "serialize", "continue",
                                     "ipv6", "no-ipv6", "socks", "ice-home=", "cross=", "client-home=", "x64", "x86",
                                     "script", "env", "arg=", "service-dir=", "appverifier", "compact",
-                                    "winrt", "server", "mx", "c++11"])
+                                    "winrt", "server", "mx", "c++11", "controller=", "configName="])
     except getopt.GetoptError:
         usage()
 
@@ -480,6 +485,8 @@ def run(tests, root = False):
     winrt = "--winrt" in opts
     serverOnly = "--server" in opts
     mx = "--mx" in opts
+    controller = "--controller" in opts
+    configName = "--configName" in opts
 
     filters = []
     for o, a in opts:
@@ -516,7 +523,7 @@ def run(tests, root = False):
             arg += a
             arg += '"'
         elif o == "--protocol":
-            if a not in ( "ws", "wss", "ssl", "tcp"):
+            if a not in ("bt", "ws", "wss", "ssl", "tcp"):
                 usage()
             if not root and getDefaultMapping() == "csharp" and (a == "ssl" or a == "wss"):
                 if mono:
@@ -525,6 +532,9 @@ def run(tests, root = False):
                 if compact:
                     print("SSL is not supported with the Compact Framework")
                     sys.exit(1)
+            if a == "bt" and not isLinux():
+                print("Bluetooth is only supported on Linux")
+                sys.exit(1)
         elif o == "--c++11":
             global cpp11
             cpp11 = True
@@ -537,7 +547,7 @@ def run(tests, root = False):
         if o in ( "--cross", "--protocol", "--host", "--debug", "--compress", "--valgrind", "--serialize", "--ipv6", \
                   "--socks", "--ice-home", "--x86", "--x64", "--c++11", "--env", \
                   "--service-dir", "--appverifier", "--compact", "--winrt", \
-                  "--server", "--mx", "--client-home"):
+                  "--server", "--mx", "--client-home", "--controller", "--configName"):
             arg += " " + o
             if len(a) > 0:
                 arg += " " + a
@@ -545,7 +555,7 @@ def run(tests, root = False):
     if not root:
         tests = [ (os.path.join(getDefaultMapping(), "test", x), y) for x, y in tests ]
 
-    # Expand all the tests and argument combinations.
+    # Expand all the test and argument combinations.
     expanded = []
     if all:
         expanded.append([(test, arg, config) for test,config in tests if "once" in config ])
@@ -557,6 +567,9 @@ def run(tests, root = False):
         expanded.append([ (test, a, config) for test,config in tests if "core" in config])
 
         a = '--protocol=ws %s'  % arg
+        expanded.append([ (test, a, config) for test,config in tests if "core" in config])
+
+        a = '--protocol=bt %s'  % arg
         expanded.append([ (test, a, config) for test,config in tests if "core" in config])
 
         if not noipv6:
@@ -927,7 +940,7 @@ sslConfigTree["php"] = sslConfigTree["cpp"]
 sslConfigTree["objective-c"] = sslConfigTree["cpp"]
 
 def getDefaultMapping():
-    """Try and guess the language mapping out of the current path"""
+    """Try to guess the language mapping from the current path"""
     here = os.getcwd().split(os.sep)
     here.reverse()
     for i in range(0, len(here)):
@@ -961,6 +974,7 @@ class DriverConfig:
     cpp11 = False
     serviceDir = None
     mx = False
+    controller = None
     extraArgs = []
 
     def __init__(self, type = None):
@@ -979,6 +993,7 @@ class DriverConfig:
         global serviceDir
         global compact
         global mx
+        global controller
         global extraArgs
         self.lang = getDefaultMapping()
         self.protocol = protocol
@@ -997,6 +1012,7 @@ class DriverConfig:
         self.serviceDir = serviceDir
         self.compact = compact
         self.mx = mx
+        self.controller = controller
         self.extraArgs = extraArgs
 
 def argsToDict(argumentString, results):
@@ -1018,7 +1034,7 @@ def argsToDict(argumentString, results):
             results[current] = None
     return results
 
-def getCommandLineProperties(exe, config):
+def getCommandLineProperties(exe, config, cfgName):
 
     #
     # Command lines are built up from the items in the components
@@ -1036,8 +1052,7 @@ def getCommandLineProperties(exe, config):
     #components.append("--Ice.Trace.Network=3")
 
     #
-    # Now we add additional components dependent on the desired
-    # configuration.
+    # Now we add additional components depending on the desired configuration.
     #
     if config.protocol == "ssl" or config.protocol == "wss":
         sslenv = {}
@@ -1049,6 +1064,9 @@ def getCommandLineProperties(exe, config):
             sslenv["verifyPeer"] = "2"
         components.append(sslConfigTree[config.lang]["plugin"] % sslenv)
         components.append(sslConfigTree[config.lang][config.type] % sslenv)
+
+    if config.protocol == "bt":
+        components.append("--Ice.Plugin.IceBT=IceBT:createIceBT")
 
     components.append("--Ice.Default.Protocol=" + config.protocol)
 
@@ -1086,6 +1104,12 @@ def getCommandLineProperties(exe, config):
         components.append("--IceMX.Metrics.Parent.GroupBy=parent")
         components.append("--IceMX.Metrics.All.GroupBy=none")
 
+    if config.controller:
+        components.append("--ControllerHost=" + config.controller)
+
+    if cfgName:
+        components.append("--ConfigName=" + cfgName)
+
     if config.socksProxy:
         components.append("--Ice.SOCKSProxyHost=127.0.0.1")
 
@@ -1094,8 +1118,9 @@ def getCommandLineProperties(exe, config):
         if config.host == None:
             components.append("--Ice.Default.Host=0:0:0:0:0:0:0:1")
     else:
-        components.append("--Ice.IPv4=1 --Ice.IPv6=0")
-        if config.host == None:
+        if config.protocol != "bt":
+            components.append("--Ice.IPv4=1 --Ice.IPv6=0")
+        if config.host == None and config.protocol != "bt":
             components.append("--Ice.Default.Host=127.0.0.1")
 
     if config.host != None and len(config.host) != 0:
@@ -1128,7 +1153,7 @@ def getCommandLineProperties(exe, config):
     output.close()
     return properties
 
-def getCommandLine(exe, config, options = "", interpreterOptions = ""):
+def getCommandLine(exe, config, options = "", interpreterOptions = "", cfgName = None):
     output = getStringIO()
 
     if config.mono and config.lang == "csharp":
@@ -1183,7 +1208,7 @@ def getCommandLine(exe, config, options = "", interpreterOptions = ""):
     if exe.find("IceUtil\\") != -1 or exe.find("IceUtil/") != -1:
         output.write(' ' + options)
     else:
-        output.write(getCommandLineProperties(exe, config) + ' ' + options)
+        output.write(getCommandLineProperties(exe, config, cfgName) + ' ' + options)
 
     commandline = output.getvalue()
     output.close()
@@ -1445,7 +1470,7 @@ def getClientCrossTestDir(base):
     return os.path.join(clientHome, lang, *after)
 
 
-def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
+def clientServerTest(cfgName = None, additionalServerOptions = "", additionalClientOptions = "",
                      server = None, client = None, serverenv = None, clientenv = None,
                      interpreterOptions = ""):
     if server is None:
@@ -1480,6 +1505,7 @@ def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
     elif len(cross) == 0:
         cross.append(lang)
 
+    global controller
     global clientHome
     for clientLang in cross:
         clientCfg = DriverConfig("client")
@@ -1521,15 +1547,16 @@ def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
         if appverifier:
           setAppVerifierSettings([clientExe, serverExe])
 
-        sys.stdout.write("starting " + serverDesc + "... ")
-        sys.stdout.flush()
-        serverCfg = DriverConfig("server")
-        if lang in ["ruby", "php", "js"]:
-            serverCfg.lang = "cpp"
-        server = getCommandLine(server, serverCfg, additionalServerOptions, interpreterOptions)
-        serverProc = spawnServer(server, env = serverenv, lang=serverCfg.lang, mx=serverCfg.mx)
-        print("ok")
-        sys.stdout.flush()
+        if not controller:
+            sys.stdout.write("starting " + serverDesc + "... ")
+            sys.stdout.flush()
+            serverCfg = DriverConfig("server")
+            if lang in ["ruby", "php", "js"]:
+                serverCfg.lang = "cpp"
+            server = getCommandLine(server, serverCfg, additionalServerOptions, interpreterOptions)
+            serverProc = spawnServer(server, env = serverenv, lang=serverCfg.lang, mx=serverCfg.mx)
+            print("ok")
+            sys.stdout.flush()
 
         if not serverOnly:
             if clientLang == lang:
@@ -1537,7 +1564,9 @@ def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
             else:
                 sys.stdout.write("starting %s %s ... " % (clientLang, clientDesc))
             sys.stdout.flush()
-            client = getCommandLine(client, clientCfg, additionalClientOptions, interpreterOptions)
+            if not controller:
+                cfgName = None
+            client = getCommandLine(client, clientCfg, additionalClientOptions, interpreterOptions, cfgName)
             clientProc = spawnClient(client, env = clientenv, cwd = clientdir, startReader = False, lang=clientCfg.lang)
             print("ok")
 
@@ -1545,13 +1574,14 @@ def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
             clientProc.startReader(watchDog)
             clientProc.waitTestSuccess()
 
-        serverProc.waitTestSuccess()
+        if not controller:
+            serverProc.waitTestSuccess()
 
         if appverifier:
             appVerifierAfterTestEnd([clientExe, serverExe])
 
 def collocatedTest(additionalOptions = ""):
-    if serverOnly:
+    if controller or serverOnly:
         print("** skipping collocated test")
         return
     lang = getDefaultMapping()
@@ -2044,29 +2074,30 @@ class WatchDog(threading.Thread):
 def processCmdLine():
     def usage():
         print("usage: " + sys.argv[0] + """
-          --debug                     Display debugging information on each test.
-          --trace=<file>              Display tracing.
-          --protocol=tcp|ssl|ws|wss   Run with the given protocol.
-          --compress                  Run the tests with protocol compression.
-          --valgrind                  Run the tests with valgrind.
-          --appverifier               Run the tests with appverifier.
-          --host=host                 Set --Ice.Default.Host=<host>.
-          --serialize                 Run with connection serialization.
-          --ipv6                      Use IPv6 addresses.
-          --socks                     Use SOCKS proxy running on localhost.
-          --ice-home=<path>           Use the binary distribution from the given path.
-          --x86                       Binary distribution is 32-bit.
-          --x64                       Binary distribution is 64-bit.
-          --c++11                     Binary distribution is c++11.
-          --env                       Print important environment variables.
-          --cross=lang                Run cross language test.
-          --client-home=<dir>         Run cross test clients from the given Ice source distribution.
-          --service-dir=<dir>         Where to locate services for builds without service support.
-          --compact                   Ice for .NET uses the Compact Framework.
-          --winrt                     Run server with configuration suited for WinRT client.
-          --server                    Run only the server.
-          --mx                        Enable IceMX when running the tests.
-          --arg=<property>            Append the given argument.
+          --debug              Display debugging information on each test.
+          --trace=<file>       Display tracing.
+          --protocol=<prot>    Run with the given protocol (tcp|ssl|ws|wss|bt).
+          --compress           Run the tests with protocol compression.
+          --valgrind           Run the tests with valgrind.
+          --appverifier        Run the tests with appverifier.
+          --host=host          Set --Ice.Default.Host=<host>.
+          --serialize          Run with connection serialization.
+          --ipv6               Use IPv6 addresses.
+          --socks              Use SOCKS proxy running on localhost.
+          --ice-home=<path>    Use the binary distribution from the given path.
+          --x86                Binary distribution is 32-bit.
+          --x64                Binary distribution is 64-bit.
+          --c++11              Binary distribution is c++11.
+          --env                Print important environment variables.
+          --cross=lang         Run cross language test.
+          --client-home=<dir>  Run cross test clients from the given Ice source distribution.
+          --service-dir=<dir>  Where to locate services for builds without service support.
+          --compact            Ice for .NET uses the Compact Framework.
+          --winrt              Run server with configuration suited for WinRT client.
+          --server             Run only the server.
+          --mx                 Enable IceMX when running the tests.
+          --controller=<host>  Use the test controller on the specified host.
+          --arg=<property>     Append the given argument.
         """)
         sys.exit(2)
 
@@ -2075,7 +2106,7 @@ def processCmdLine():
             sys.argv[1:], "", ["debug", "trace=", "protocol=", "compress", "valgrind", "host=", "serialize", "ipv6", \
                                "socks", "ice-home=", "x86", "x64", "cross=", "client-home=", "env", \
                                "service-dir=", "appverifier", "arg=", \
-                               "compact", "winrt", "server", "mx", "c++11"])
+                               "compact", "winrt", "server", "mx", "c++11", "controller=", "configName="])
     except getopt.GetoptError:
         usage()
 
@@ -2147,11 +2178,14 @@ def processCmdLine():
             global printenv
             printenv = True
         elif o == "--protocol":
-            if a not in ( "ws", "wss", "ssl", "tcp"):
+            if a not in ("bt", "ws", "wss", "ssl", "tcp"):
                 usage()
             # ssl protocol isn't directly supported with mono.
             if mono and getDefaultMapping() == "csharp" and (a == "ssl" or a == "wss"):
                 print("SSL is not supported with mono")
+                sys.exit(1)
+            if a == "bt" and not isLinux():
+                print("Bluetooth is only supported on Linux")
                 sys.exit(1)
             global protocol
             protocol = a
@@ -2171,6 +2205,12 @@ def processCmdLine():
         elif o == "--mx":
             global mx
             mx = True
+        elif o == "--controller":
+            global controller
+            controller = a
+        elif o == "--configName":
+            global configName
+            configName = a
         if protocol in ["ssl", "wss"] and not serverOnly and getDefaultMapping() == "js":
             print("SSL is not supported with Node.js")
             sys.exit(1)
@@ -2329,6 +2369,10 @@ def runTests(start, expanded, num = 0, script = False):
                 print("%s*** test not supported with IceSSL%s" % (prefix, suffix))
                 continue
 
+            if (args.find("bt") != -1) and ("bt" not in config):
+                print("%s*** test not supported with Bluetooth%s" % (prefix, suffix))
+                continue
+
             if (args.find("ws") != -1 or args.find("wss") != -1) and ("nows" in config):
                 print("%s*** test not supported with IceWS%s" % (prefix, suffix))
                 continue
@@ -2379,6 +2423,99 @@ def runTests(start, expanded, num = 0, script = False):
                         print(" ** Error logged and will be displayed again when suite is completed **")
                         global testErrors
                         testErrors.append(message)
+
+class ClientServerTest:
+    def __init__(self, cfgName, message, additionalServerOptions, additionalClientOptions,
+                 server, client, serverenv, clientenv, interpreterOptions, localOnly):
+        if cfgName is None:
+            cfgName = "default"
+        self.cfgName = cfgName
+        self.message = message
+        self.additionalServerOptions = additionalServerOptions
+        self.additionalClientOptions = additionalClientOptions
+        self.server = server
+        self.client = client
+        self.serverenv = serverenv
+        self.clientenv = clientenv
+        self.interpreterOptions = interpreterOptions
+        self.localOnly = localOnly
+
+    def getConfigName(self):
+        return self.cfgName
+
+    def getMessage(self):
+        return self.message
+
+    def isLocalOnly(self):
+        return self.localOnly
+
+    def getDefaultMessage(self):
+        return "Running test with regular server."
+
+    def run(self):
+        clientServerTest(self.cfgName, self.additionalServerOptions, self.additionalClientOptions, self.server,
+                         self.client, self.serverenv, self.clientenv, self.interpreterOptions)
+
+def queueClientServerTest(configName = None, message = None, additionalServerOptions = "",
+                          additionalClientOptions = "", server = None, client = None, serverenv = None,
+                          clientenv = None, interpreterOptions = "", localOnly = False):
+    global queuedTests
+    queuedTests.append(ClientServerTest(configName, message, additionalServerOptions, additionalClientOptions, server,
+                                        client, serverenv, clientenv, interpreterOptions, localOnly))
+
+class CollocatedTest:
+    def __init__(self, message = None, additionalOptions = ""):
+        self.message = message
+        self.additionalOptions = additionalOptions
+
+    def getMessage(self):
+        return self.message
+
+    def isLocalOnly(self):
+        return True
+
+    def getDefaultMessage(self):
+        return "Running test with collocated server."
+
+    def run(self):
+        collocatedTest(self.additionalOptions)
+
+def queueCollocatedTest(message = None, additionalOptions = ""):
+    global queuedTests
+    queuedTests.append(CollocatedTest(message, additionalOptions))
+
+def runQueuedTests():
+    global queuedTests
+    global serverOnly
+    global controller
+    global configName
+
+    if serverOnly:
+        name = configName
+        if not name:
+            name = "default"
+
+        for t in queuedTests:
+            if isinstance(t, ClientServerTest) and t.getConfigName() == name:
+                t.run()
+                return
+
+        print("no queued test found matching configuration name `" + name + "'")
+        sys.exit(1)
+
+    tests = []
+    for t in queuedTests:
+        if controller and t.isLocalOnly():
+            continue
+        tests.append(t)
+
+    for t in tests:
+        msg = t.getMessage()
+        if msg:
+            print(msg)
+        elif len(tests) > 1:
+            print(t.getDefaultMessage())
+        t.run()
 
 if "ICE_CONFIG" in os.environ:
     os.unsetenv("ICE_CONFIG")

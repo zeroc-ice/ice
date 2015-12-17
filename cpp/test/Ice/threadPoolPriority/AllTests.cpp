@@ -19,7 +19,7 @@ Test::PriorityPrxPtr
 allTests(const Ice::CommunicatorPtr& communicator)
 {
     cout << "testing server priority... " << flush;
-    string ref = "test:default -p 12010 -t 10000";
+    string ref = "test:" + getTestEndpoint(communicator, 0) + " -t 10000";
     Ice::ObjectPrxPtr base = communicator->stringToProxy(ref);
     test(base);
 

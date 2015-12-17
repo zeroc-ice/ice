@@ -32,6 +32,9 @@ main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
     Ice::registerIceSSL();
+#   if defined(__linux)
+    Ice::registerIceBT();
+#   endif
 #endif
 
     try
@@ -42,7 +45,10 @@ main(int argc, char* argv[])
         initData.properties->setProperty("Ice.MessageSizeMax", "10"); // 10KB max
 
         Ice::CommunicatorHolder ich = Ice::initialize(argc, argv, initData);
-        return run(argc, argv, ich.communicator());
+        RemoteConfig rc("Ice/exceptions", argc, argv, ich.communicator());
+        int status = run(argc, argv, ich.communicator());
+        rc.finished(status);
+        return status;
     }
     catch(const Ice::Exception& ex)
     {

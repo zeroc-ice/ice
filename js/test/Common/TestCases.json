@@ -21,11 +21,13 @@
             "configurations":
             [
                 {
-                    "name": "1.0 encoding",
+                    "configName": "1.0",
+                    "desc": "1.0 encoding",
                     "args": ["--Ice.Default.EncodingVersion=1.0"]
                 },
                 {
-                    "name": "1.1 encoding"
+                    "configName": "1.1",
+                    "desc": "1.1 encoding"
                 }
             ]
         },
@@ -35,25 +37,17 @@
             "configurations":
             [
                 {
-                    "name": "compact (default) format"
+                    "configName": "compact",
+                    "desc": "compact (default) format"
                 },
                 {
-                    "name": "sliced format",
+                    "configName": "sliced",
+                    "desc": "sliced format",
                     "args": ["--Ice.Default.SlicedFormat"]
                 },
                 {
-                    "name": "1.0 encoding",
-                    "args": ["--Ice.Default.EncodingVersion=1.0"]
-                },
-                {
-                    "name": "compact (default) format and AMD server"
-                },
-                {
-                    "name": "sliced format and AMD server.",
-                    "args": ["--Ice.Default.SlicedFormat"]
-                },
-                {
-                    "name": "1.0 encoding and AMD server",
+                    "configName": "1.0",
+                    "desc": "1.0 encoding",
                     "args": ["--Ice.Default.EncodingVersion=1.0"]
                 }
             ]
@@ -89,24 +83,7 @@
         },
     "Ice/operations":
         {
-            "files": ["Test.js", "Twoways.js", "Oneways.js", "BatchOneways.js", "Client.js"],
-            "configurations":
-            [
-                {
-                    "name": "regular server"
-                },
-                {
-                    "name": "AMD server"
-                },
-                {
-                    "name": "TIE server",
-                    "langs": ["java", "csharp"]
-                },
-                {
-                    "name": "AMD TIE server",
-                    "langs": ["java", "csharp"]
-                }
-            ]
+            "files": ["Test.js", "Twoways.js", "Oneways.js", "BatchOneways.js", "Client.js"]
         },
     "Ice/operationsBidir":
         {
@@ -120,14 +97,17 @@
             "configurations":
             [
                 {
-                    "name": "compact (default) format"
+                    "configName": "compact",
+                    "desc": "compact (default) format"
                 },
                 {
-                    "name": "sliced format", 
+                    "configName": "sliced",
+                    "desc": "sliced format", 
                     "args": ["--Ice.Default.SlicedFormat"]
                 },
                 {
-                    "name": "1.0 encoding",
+                    "configName": "1.0",
+                    "desc": "1.0 encoding",
                     "args": ["--Ice.Default.EncodingVersion=1.0"]
                 }
             ]
@@ -138,14 +118,13 @@
             "configurations":
             [
                 {
-                    "name": "compact (default) format"
+                    "configName": "compact",
+                    "desc": "compact (default) format"
                 },
                 {
-                    "name": "sliced format",
+                    "configName": "sliced",
+                    "desc": "sliced format",
                     "args": ["--Ice.Default.SlicedFormat"]
-                },
-                {
-                    "name": "AMD server"
                 }
             ]
         },
@@ -163,16 +142,7 @@
         },
     "Ice/proxy":
         {
-            "files": ["Test.js", "Client.js"],
-            "configurations":
-            [
-                {
-                    "name": "regular server"
-                },
-                {
-                    "name": "AMD server"
-                }
-            ]
+            "files": ["Test.js", "Client.js"]
         },
     "Ice/retry":
         {
@@ -184,17 +154,12 @@
             "configurations":
             [
                 {
-                    "name": "sliced format"
+                    "configName": "sliced",
+                    "desc": "sliced format"
                 },
                 {
-                    "name": "1.0 encoding",
-                    "args": ["--Ice.Default.EncodingVersion=1.0"]
-                },
-                {
-                    "name": "sliced format and AMD server"
-                },
-                {
-                    "name": "1.0 encoding and AMD server",
+                    "configName": "1.0",
+                    "desc": "1.0 encoding",
                     "args": ["--Ice.Default.EncodingVersion=1.0"]
                 }
             ]
@@ -205,17 +170,12 @@
             "configurations":
             [
                 {
-                    "name": "sliced format"
+                    "configName": "sliced",
+                    "desc": "sliced format"
                 },
                 {
-                    "name": "1.0 encoding",
-                    "args": ["--Ice.Default.EncodingVersion=1.0"]
-                },
-                {
-                    "name": "sliced format and AMD server"
-                },
-                {
-                    "name": "1.0 encoding and AMD server",
+                    "configName": "1.0",
+                    "desc": "1.0 encoding",
                     "args": ["--Ice.Default.EncodingVersion=1.0"]
                 }
             ]

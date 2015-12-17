@@ -42,14 +42,16 @@ ICECPPFLAGS	:= -I. $(ICECPPFLAGS)
 
 CPPFLAGS	:= -I. -I../../../include $(CPPFLAGS)
 
+LINKWITH	:= -lTestCommon $(LIBS)
+
 $(CLIENT): $(COBJS)
 	rm -f $@
-	$(call mktest,$@,$(COBJS),$(LIBS))
+	$(call mktest,$@,$(COBJS),$(LINKWITH))
 
 $(SERVER): $(SOBJS)
 	rm -f $@
-	$(call mktest,$@,$(SOBJS),$(LIBS))
+	$(call mktest,$@,$(SOBJS),$(LINKWITH))
 
 $(SERVERAMD): $(SAMDOBJS)
 	rm -f $@
-	$(call mktest,$@,$(SAMDOBJS),$(LIBS))
+	$(call mktest,$@,$(SAMDOBJS),$(LINKWITH))

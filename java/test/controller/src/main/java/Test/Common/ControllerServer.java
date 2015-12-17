@@ -183,7 +183,7 @@ public class ControllerServer extends Ice.Application
 
         @Override
         public ServerPrx runServer(String lang, final String name, String protocol, String host,
-                                   boolean winrt, String[] options, Ice.Current current)
+                                   boolean winrt, String configName, String[] options, Ice.Current current)
         {
             if(_server != null)
             {
@@ -204,12 +204,21 @@ public class ControllerServer extends Ice.Application
             args.add("--server");
             args.add("--protocol");
             args.add(protocol);
-            args.add("--host");
-            args.add(host);
+            if(!host.isEmpty())
+            {
+                args.add("--host");
+                args.add(host);
+            }
 
             if(winrt)
             {
                 args.add("--winrt");
+            }
+
+            if(!configName.isEmpty())
+            {
+                args.add("--configName");
+                args.add(configName);
             }
 
             for(String option : options)

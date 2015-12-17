@@ -111,7 +111,7 @@ function Init()
 
                     res.writeHead(302, {"Location": location});
                     res.end();
-                    console.log("HTTP/302 (Redierct) -> " + location);
+                    console.log("HTTP/302 (Redirect) -> " + location);
                 }
                 else
                 {
@@ -167,7 +167,7 @@ function Init()
             var ext = path.extname(filePath).slice(1);
 
             //
-            // When the browser ask for a .js or .css file and it has support for gzip content
+            // When the browser asks for a .js or .css file and it has support for gzip content
             // check if a gzip version (.js.gz or .css.gz) of the file exists and use that instead.
             //
             if((ext == "js" || ext == "css" || ext == "map") && req.headers["accept-encoding"].indexOf("gzip") !== -1)

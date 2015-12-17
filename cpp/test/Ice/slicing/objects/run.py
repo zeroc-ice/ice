@@ -20,17 +20,18 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0], "scripts"))
 import TestUtil
 
-print("Running test with sliced format.")
-TestUtil.clientServerTest()
+TestUtil.queueClientServerTest(configName = "sliced", message = "Running test with sliced format.")
 
-print("Running test with 1.0 encoding.")
-TestUtil.clientServerTest(additionalClientOptions="--Ice.Default.EncodingVersion=1.0", 
-                          additionalServerOptions="--Ice.Default.EncodingVersion=1.0")
+TestUtil.queueClientServerTest(configName = "1.0", message = "Running test with 1.0 encoding.",
+                               additionalClientOptions="--Ice.Default.EncodingVersion=1.0", 
+                               additionalServerOptions="--Ice.Default.EncodingVersion=1.0")
 
-print("Running test with sliced format and AMD server.")
-TestUtil.clientServerTest(server="serveramd")
+TestUtil.queueClientServerTest(configName = "slicedAMD", localOnly = True,
+                               message = "Running test with sliced format and AMD server.", server="serveramd")
 
-print("Running test with 1.0 encoding and AMD server.")
-TestUtil.clientServerTest(server="serveramd", 
-                          additionalClientOptions="--Ice.Default.EncodingVersion=1.0", 
-                          additionalServerOptions="--Ice.Default.EncodingVersion=1.0")
+TestUtil.queueClientServerTest(configName = "1.0AMD", localOnly = True,
+                               message = "Running test with 1.0 encoding and AMD server.",
+                               server="serveramd", 
+                               additionalClientOptions="--Ice.Default.EncodingVersion=1.0", 
+                               additionalServerOptions="--Ice.Default.EncodingVersion=1.0")
+TestUtil.runQueuedTests()

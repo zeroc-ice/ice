@@ -76,11 +76,33 @@ public:
             // Block while we establish a DBus connection.
             //
             _dbusConnection = DBus::Connection::getSystemBus();
-            _dbusConnection->addFilter(this);
         }
         catch(const DBus::Exception& ex)
         {
             throw BluetoothException(__FILE__, __LINE__, ex.reason);
+        }
+
+        _dbusConnection->addFilter(this);
+
+        try
+        {
+            //
+            // Use a call DefaultAdapter() to verify that the Bluetooth daemon is present and
+            // uses the expected version (BlueZ 4). If the system is running BlueZ 5, this call
+            // will return the error org.freedesktop.DBus.Error.UnknownMethod.
+            //
+            call("/", "org.bluez.Manager", "DefaultAdapter");
+        }
+        catch(const DBus::Exception& ex)
+        {
+            if(ex.reason.find("UnknownMethod") != string::npos)
+            {
+                throw BluetoothException(__FILE__, __LINE__, "Bluetooth daemon uses an unsupported version");
+            }
+            else
+            {
+                throw BluetoothException(__FILE__, __LINE__, ex.reason);
+            }
         }
     }
 
@@ -392,26 +414,50 @@ public:
 
     string getDefaultAdapter() const
     {
-        //
-        // The call to DefaultAdapter returns OBJ_PATH.
-        //
-        DBus::MessagePtr reply = call("/", "org.bluez.Manager", "DefaultAdapter");
-        DBus::ValuePtr v = reply->read();
-        DBus::ObjectPathValuePtr path = DBus::ObjectPathValuePtr::dynamicCast(v);
-        assert(path);
-        return path->v;
+        try
+        {
+            //
+            // The call to DefaultAdapter returns OBJ_PATH.
+            //
+            DBus::MessagePtr reply = call("/", "org.bluez.Manager", "DefaultAdapter");
+            DBus::ValuePtr v = reply->read();
+            DBus::ObjectPathValuePtr path = DBus::ObjectPathValuePtr::dynamicCast(v);
+            assert(path);
+            return path->v;
+        }
+        catch(const DBus::Exception& ex)
+        {
+            if(ex.reason.find("NoSuchAdapter") == string::npos)
+            {
+                throw BluetoothException(__FILE__, __LINE__, ex.reason);
+            }
+        }
+
+        return string();
     }
 
     string findAdapter(const string& addr) const
     {
-        //
-        // The call to FindAdapter returns OBJ_PATH.
-        //
-        DBus::MessagePtr reply = call("/", "org.bluez.Manager", "FindAdapter", new DBus::StringValue(addr));
-        DBus::ValuePtr v = reply->read();
-        DBus::ObjectPathValuePtr path = DBus::ObjectPathValuePtr::dynamicCast(v);
-        assert(path);
-        return path->v;
+        try
+        {
+            //
+            // The call to FindAdapter returns OBJ_PATH.
+            //
+            DBus::MessagePtr reply = call("/", "org.bluez.Manager", "FindAdapter", new DBus::StringValue(addr));
+            DBus::ValuePtr v = reply->read();
+            DBus::ObjectPathValuePtr path = DBus::ObjectPathValuePtr::dynamicCast(v);
+            assert(path);
+            return path->v;
+        }
+        catch(const DBus::Exception& ex)
+        {
+            if(ex.reason.find("NoSuchAdapter") == string::npos)
+            {
+                throw BluetoothException(__FILE__, __LINE__, ex.reason);
+            }
+        }
+
+        return string();
     }
 
     VariantMap getAdapterProperties(const string& path) const
@@ -794,7 +840,11 @@ public:
         {
             if(channels.empty())
             {
-                cb->exception(BluetoothException(__FILE__, __LINE__, "no service found for " + uuid + " at " + addr));
+                //
+                // No service found for the UUID at the remote address. We treat this as if the
+                // server is not running.
+                //
+                cb->exception(ConnectFailedException(__FILE__, __LINE__, ECONNREFUSED));
             }
             else
             {

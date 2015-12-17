@@ -371,7 +371,7 @@ class RelayI : public Relay
 TestIntfPrxPtr
 allTests(const Ice::CommunicatorPtr& communicator)
 {
-    Ice::ObjectPrxPtr obj = communicator->stringToProxy("Test:default -p 12010");
+    Ice::ObjectPrxPtr obj = communicator->stringToProxy("Test:" + getTestEndpoint(communicator, 0));
     TestIntfPrxPtr test = ICE_CHECKED_CAST(TestIntfPrx, obj);
 
     cout << "base... " << flush;
@@ -1040,8 +1040,21 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "ok" << endl;
 
     cout << "preserved exceptions... " << flush;
+    string localOAEndpoint;
     {
-        Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("Relay", "default");
+        ostringstream ostr;
+        if(communicator->getProperties()->getProperty("Ice.Default.Protocol") == "bt")
+        {
+            ostr << "default -a *";
+        }
+        else
+        {
+            ostr << "default -h *";
+        }
+        localOAEndpoint = ostr.str();
+    }
+    {
+        Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("Relay", localOAEndpoint);
         RelayPrxPtr relay = ICE_UNCHECKED_CAST(RelayPrx, adapter->addWithUUID(ICE_MAKE_SHARED(RelayI)));
         adapter->activate();
 
@@ -1059,6 +1072,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         catch(const Ice::OperationNotExistException&)
         {
         }
+    catch(const Ice::LocalException& ex)
+    {
+        cout << endl << "** OOPS" << endl << ex << endl;
+        test(false);
+    }
         catch(...)
         {
             test(false);

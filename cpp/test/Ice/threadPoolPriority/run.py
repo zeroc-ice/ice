@@ -20,7 +20,7 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0], "scripts"))
 import TestUtil
 
-print("tests default server thread pool.")
-TestUtil.clientServerTest()
-print("tests custom server thread pool.")
-TestUtil.clientServerTest(server = "servercustom")
+TestUtil.queueClientServerTest(message = "Running test with default server thread pool.")
+TestUtil.queueClientServerTest(configName = "custom", message = "Running test with custom server thread pool.",
+                               server = "servercustom")
+TestUtil.runQueuedTests()

@@ -27,7 +27,7 @@ OBJS		= $(COBJS) \
 
 include $(top_srcdir)/config/Make.rules
 
-LINKWITH	= $(LIBS) $(ICONV_LIBS)
+LINKWITH	= -lTestCommon $(LIBS) $(ICONV_LIBS)
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
