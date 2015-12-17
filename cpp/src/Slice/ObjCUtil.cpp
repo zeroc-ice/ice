@@ -297,7 +297,11 @@ Slice::ObjCGenerator::typeToString(const TypePtr& type)
     {
         if(cl->isInterface())
         {
-            if(cl->isLocal())
+            if(cl->definition() && cl->definition()->isDelegate())
+            {
+                return fixName(cl);
+            }
+            else if(cl->isLocal())
             {
                 return "id<" + fixName(cl) + ">";
             }

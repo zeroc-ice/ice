@@ -11,13 +11,9 @@
 #import <TestCommon.h>
 #import <objects/TestI.h>
 
-@interface ServerMyValueFactory : NSObject<ICEValueFactory>
-@end
-
-@implementation ServerMyValueFactory
-// Note that the object factory must not autorelease the
+// Note that the factory must not autorelease the
 // returned objects.
--(ICEObject*) create:(NSString*)type
+ICEValueFactory factory = ^ICEObject* (NSString* type)
 {
     if([type isEqualToString:@"::Test::I"])
     {
@@ -36,19 +32,11 @@
         test(NO); // Should never be reached
     }
     return nil;
-}
-
--(void) destroy
-{
-    // Nothing to do
-}
-@end
+};
 
 static int
 run(id<ICECommunicator> communicator)
 {
-    id<ICEValueFactory> factory = ICE_AUTORELEASE([[ServerMyValueFactory alloc] init]);
-
     [communicator addValueFactory:factory sliceId:@"::Test::I"];
     [communicator addValueFactory:factory sliceId:@"::Test::J"];
     [communicator addValueFactory:factory sliceId:@"::Test::H"];

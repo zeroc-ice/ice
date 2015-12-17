@@ -15,21 +15,19 @@ Ice.loadSlice('Test.ice')
 Ice.loadSlice('ServerPrivate.ice')
 import Test, TestI
 
-class MyValueFactory(Ice.ValueFactory):
-    def create(self, type):
-        if type == '::Test::I':
-            return TestI.II()
-        elif type == '::Test::J':
-            return TestI.JI()
-        elif type == '::Test::H':
-            return TestI.HI()
-        assert(False) # Should never be reached
+def MyValueFactory(type):
+    if type == '::Test::I':
+        return TestI.II()
+    elif type == '::Test::J':
+        return TestI.JI()
+    elif type == '::Test::H':
+        return TestI.HI()
+    assert(False) # Should never be reached
 
 def run(args, communicator):
-    factory = MyValueFactory()
-    communicator.addValueFactory(factory, '::Test::I')
-    communicator.addValueFactory(factory, '::Test::J')
-    communicator.addValueFactory(factory, '::Test::H')
+    communicator.addValueFactory(MyValueFactory, '::Test::I')
+    communicator.addValueFactory(MyValueFactory, '::Test::J')
+    communicator.addValueFactory(MyValueFactory, '::Test::H')
 
     communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010")
     adapter = communicator.createObjectAdapter("TestAdapter")

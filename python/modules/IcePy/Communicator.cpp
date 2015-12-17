@@ -1213,7 +1213,7 @@ extern "C"
 static PyObject*
 communicatorAddValueFactory(CommunicatorObject* self, PyObject* args)
 {
-    PyObject* factoryType = lookupType("Ice.ValueFactory");
+    PyObject* factoryType = lookupType("types.FunctionType");
     assert(factoryType);
 
     PyObject* factory;

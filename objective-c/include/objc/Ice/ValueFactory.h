@@ -8,7 +8,5 @@
 // **********************************************************************
 
 #import <objc/Ice/Config.h>
+typedef ICEObject* (^ICEValueFactory)(NSString*);
 
-ICE_API @protocol ICEValueFactory <NSObject>
--(ICEObject*) create:(NSString*)sliceId NS_RETURNS_RETAINED;
-@end

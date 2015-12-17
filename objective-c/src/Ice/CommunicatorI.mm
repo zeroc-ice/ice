@@ -77,7 +77,7 @@ public:
         NSString* sliceId = [[NSString alloc] initWithUTF8String:type.c_str()];
         @try
         {
-            id<ICEObjectFactory> factory = nil;
+            ICEValueFactory factory = nil;
             @synchronized(_factories)
             {
                 factory = [_factories objectForKey:sliceId];
@@ -90,7 +90,7 @@ public:
             ICEObject* obj = nil;
             if(factory != nil)
             {
-                obj = [factory create:sliceId];
+                obj = factory(sliceId);
             }
 
             if(obj == nil)
@@ -419,7 +419,13 @@ private:
     @synchronized(valueFactories_)
     {
         [objectFactories_ setObject:factory forKey:sliceId];
-        [valueFactories_ setObject:factory forKey:sliceId];
+
+        ICEValueFactory valueFactoryWrapper = ^(NSString* s)
+        {
+            return [factory create:s];
+        };
+
+        [valueFactories_ setObject:ICE_AUTORELEASE([valueFactoryWrapper copy]) forKey:sliceId];
     }
 }
 -(id<ICEObjectFactory>) findObjectFactory:(NSString*)sliceId
@@ -431,14 +437,15 @@ private:
     return nil; // Keep the compiler happy.
 }
 
--(void) addValueFactory:(id<ICEValueFactory>)factory sliceId:(NSString*)sliceId
+-(void) addValueFactory:(ICEValueFactory)factory sliceId:(NSString*)sliceId
 {
     @synchronized(valueFactories_)
     {
-        [valueFactories_ setObject:factory forKey:sliceId];
+        [valueFactories_ setObject:ICE_AUTORELEASE([factory copy]) forKey:sliceId];
     }
 }
--(id<ICEValueFactory>) findValueFactory:(NSString*)sliceId
+
+-(ICEValueFactory) findValueFactory:(NSString*)sliceId
 {
     @synchronized(valueFactories_)
     {

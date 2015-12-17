@@ -619,7 +619,11 @@ class CommunicatorI(Communicator):
         return ObjectAdapterI(adapter)
 
     def addObjectFactory(self, factory, id):
+        # Add a ValueFactory and an ObjectFactory. The ValueFactory is the one
+        # which is used. ObjectFactory is for backward compatibility, and must
+        # be added first.
         self._impl.addObjectFactory(factory, id)
+        self._impl.addValueFactory(lambda s, factory=factory: factory.create(s), id)
 
     def findObjectFactory(self, id):
         return self._impl.findObjectFactory(id)

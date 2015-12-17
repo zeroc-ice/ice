@@ -9,25 +9,24 @@
 
 import Ice, Test, TestI, sys
 
-class MyValueFactory(Ice.ValueFactory):
-    def create(self, type):
-        if type == '::Test::B':
-            return TestI.BI()
-        elif type == '::Test::C':
-            return TestI.CI()
-        elif type == '::Test::D':
-            return TestI.DI()
-        elif type == '::Test::E':
-            return TestI.EI()
-        elif type == '::Test::F':
-            return TestI.FI()
-        elif type == '::Test::I':
-            return TestI.II()
-        elif type == '::Test::J':
-            return TestI.JI()
-        elif type == '::Test::H':
-            return TestI.HI()
-        assert(False) # Should never be reached
+def MyValueFactory(type):
+    if type == '::Test::B':
+        return TestI.BI()
+    elif type == '::Test::C':
+        return TestI.CI()
+    elif type == '::Test::D':
+        return TestI.DI()
+    elif type == '::Test::E':
+        return TestI.EI()
+    elif type == '::Test::F':
+        return TestI.FI()
+    elif type == '::Test::I':
+        return TestI.II()
+    elif type == '::Test::J':
+        return TestI.JI()
+    elif type == '::Test::H':
+        return TestI.HI()
+    assert(False) # Should never be reached
 
 class MyObjectFactory(Ice.ObjectFactory):
     def create(self, type):
@@ -41,15 +40,14 @@ def test(b):
         raise RuntimeError('test assertion failed')
 
 def allTests(communicator):
-    factory = MyValueFactory()
-    communicator.addValueFactory(factory, '::Test::B')
-    communicator.addValueFactory(factory, '::Test::C')
-    communicator.addValueFactory(factory, '::Test::D')
-    communicator.addValueFactory(factory, '::Test::E')
-    communicator.addValueFactory(factory, '::Test::F')
-    communicator.addValueFactory(factory, '::Test::I')
-    communicator.addValueFactory(factory, '::Test::J')
-    communicator.addValueFactory(factory, '::Test::H')
+    communicator.addValueFactory(MyValueFactory, '::Test::B')
+    communicator.addValueFactory(MyValueFactory, '::Test::C')
+    communicator.addValueFactory(MyValueFactory, '::Test::D')
+    communicator.addValueFactory(MyValueFactory, '::Test::E')
+    communicator.addValueFactory(MyValueFactory, '::Test::F')
+    communicator.addValueFactory(MyValueFactory, '::Test::I')
+    communicator.addValueFactory(MyValueFactory, '::Test::J')
+    communicator.addValueFactory(MyValueFactory, '::Test::H')
 
     communicator.addObjectFactory(MyObjectFactory(), "TestOF")
 

@@ -15,14 +15,9 @@
 #   import <Foundation/NSGarbageCollector.h>
 #endif
 
-@interface ClientMyValueFactory : NSObject<ICEValueFactory>
-@end
-
-@implementation ClientMyValueFactory
-
-// Note that the object factory must not autorelease the
+// Note that the factory must not autorelease the
 // returned objects.
--(ICEObject*) create:(NSString*)type
+ICEValueFactory factory = ^ICEObject* (NSString* type)
 {
     if([type isEqualToString:@"::Test::B"])
     {
@@ -61,8 +56,7 @@
         test(NO);
     }
     return nil;
-}
-@end
+};
 
 @interface ClientMyObjectFactory : NSObject<ICEObjectFactory>
 @end
@@ -83,8 +77,6 @@
 static int
 run(id<ICECommunicator> communicator)
 {
-    id<ICEValueFactory> factory = ICE_AUTORELEASE([[ClientMyValueFactory alloc] init]);
-
     [communicator addValueFactory:factory sliceId:@"::Test::B"];
     [communicator addValueFactory:factory sliceId:@"::Test::C"];
     [communicator addValueFactory:factory sliceId:@"::Test::D"];

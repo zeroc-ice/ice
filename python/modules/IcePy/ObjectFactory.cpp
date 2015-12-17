@@ -74,7 +74,7 @@ IcePy::ObjectFactory::create(const string& id)
         //
         // Invoke the create method on the Python factory object.
         //
-        PyObjectHandle obj = PyObject_CallMethod(factory, STRCAST("create"), STRCAST("s"), id.c_str());
+        PyObjectHandle obj = PyObject_CallFunction(factory, STRCAST("s"), id.c_str());
         if(!obj.get())
         {
             assert(PyErr_Occurred());
@@ -182,8 +182,6 @@ IcePy::ObjectFactory::addObjectFactory(PyObject* factory, const string& id)
         return false;
     }
 
-    _valueFactoryMap.insert(FactoryMap::value_type(id, factory));
-    Py_INCREF(factory);
     _objectFactoryMap.insert(FactoryMap::value_type(id, factory));
     Py_INCREF(factory);
 

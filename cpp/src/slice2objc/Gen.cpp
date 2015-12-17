@@ -1109,6 +1109,7 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
     TypePtr returnType = p->returnType();
     string retString;
     string params;
+
     if(cl->isLocal())
     {
         retString = outTypeToString(returnType, p->returnIsOptional());
