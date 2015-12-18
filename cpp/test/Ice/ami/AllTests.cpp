@@ -1534,26 +1534,24 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         {
             while(true)
             {
-                promise<bool> promise;
+                promise<bool> s;
                 p->opWithPayload_async(
                     seq,
-                    []()
-                    {
-                    },
+                    [](){},
                     [&](const exception_ptr& ex)
                     {
-                        promise.set_exception(ex);
+                        s.set_exception(ex);
                     },
-                    [&](bool sentAsync)
+                    [&](bool value)
                     {
-                        promise.set_value(sentAsync);
+                        s.set_value(value);
                     });
-                future<bool> future = promise.get_future();
-                if(!future.get())
+                auto f = s.get_future();
+                if(f.wait_for(chrono::seconds(0)) != future_status::ready || !f.get())
                 {
                     break;
                 }
-                futures.push_back(move(future));
+                futures.push_back(move(f));
             }
         }
         catch(...)
