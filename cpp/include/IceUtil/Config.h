@@ -61,10 +61,10 @@
 #endif
 
 //
-// Check C++11 compiler is used when building the C++11 mapping
+// Ensure the C++ compiler supports C++11 when using the C++11 mapping
 //
 #if defined(ICE_CPP11_MAPPING) && !defined(ICE_CPP11_COMPILER)
-#   error "you need a C++11 capble compiler to use C++11 mapping"
+#   error "you need a C++11 capable compiler to use the C++11 mapping"
 #endif
 
 
