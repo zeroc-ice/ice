@@ -1135,9 +1135,9 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
         _H << ";";
     }
 
-    if(cl->isLocal() && (cl->hasMetaData("async") || p->hasMetaData("async")))
+    if(cl->isLocal() && (cl->hasMetaData("async-oneway") || p->hasMetaData("async-oneway")))
     {
-        // TODO: add supports for parameters when needed.
+        // TODO: add support for parameters when needed.
         _H << nl << "-(id<ICEAsyncResult>) begin_" << name << ";";
         _H << nl << "-(id<ICEAsyncResult>) begin_" << name << ":(void(^)(ICEException*))exception;";
         _H << nl << "-(id<ICEAsyncResult>) begin_" << name

@@ -207,7 +207,7 @@ local interface Connection
      * associated with the connection.
      *
      **/
-    ["async"] void flushBatchRequests();
+    ["async-oneway"] void flushBatchRequests();
 
     /**
      *

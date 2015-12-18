@@ -235,7 +235,6 @@ Ice::CommunicatorI::flushBatchRequests()
 {
     promise<bool> promise;
     flushBatchRequests_async(
-        nullptr,
         [&](exception_ptr ex)
         {
             promise.set_exception(move(ex));
@@ -249,7 +248,6 @@ Ice::CommunicatorI::flushBatchRequests()
 
 ::std::function<void ()>
 Ice::CommunicatorI::flushBatchRequests_async(
-    function<void ()> completed,
     function<void (exception_ptr)> exception,
     function<void (bool)> sent)
 {

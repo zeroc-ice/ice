@@ -1582,7 +1582,7 @@ Slice::Container::hasLocalClassDefsWithAsync() const
         ClassDefPtr cl = ClassDefPtr::dynamicCast(*p);
         if(cl && cl->isLocal())
         {
-            if(cl->hasMetaData("async"))
+            if(cl->hasMetaData("async-oneway"))
             {
                 return true;
             }
@@ -1590,7 +1590,7 @@ Slice::Container::hasLocalClassDefsWithAsync() const
             OperationList ol = cl->operations();
             for(OperationList::const_iterator q = ol.begin(); q != ol.end(); ++q)
             {
-                if((*q)->hasMetaData("async"))
+                if((*q)->hasMetaData("async-oneway"))
                 {
                     return true;
                 }

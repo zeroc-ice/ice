@@ -96,7 +96,7 @@ batchOnewaysAMI(const Test::MyClassPrxPtr& p)
     const Test::ByteS bs1(10 * 1024);
     Test::MyClassPrxPtr batch = ICE_UNCHECKED_CAST(Test::MyClassPrx, p->ice_batchOneway());
 #ifdef ICE_CPP11_MAPPING
-    
+
     promise<void> prom;
     batch->ice_flushBatchRequests_async(nullptr,
         [&](bool sentSynchronously)

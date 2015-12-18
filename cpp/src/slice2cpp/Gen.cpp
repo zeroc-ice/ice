@@ -662,7 +662,7 @@ Slice::Gen::generate(const UnitPtr& p)
             ImplVisitor implVisitor(implH, implC, _dllExport);
             p->visit(&implVisitor, false);
         }
-        
+
         generateChecksumMap(p);
     }
     H << sp;
@@ -726,7 +726,7 @@ Slice::Gen::generate(const UnitPtr& p)
         }*/
 
         generateChecksumMap(p);
-        
+
         H << sp;
         H.zeroIndent();
         H << nl << "#endif";
@@ -3797,7 +3797,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
         C << eb;
     }
 
-    if(cl->isLocal() && (cl->hasMetaData("async") || p->hasMetaData("async")))
+    if(cl->isLocal() && (cl->hasMetaData("async-oneway") || p->hasMetaData("async-oneway")))
     {
         vector<string> paramsDeclAMI;
         vector<string> outParamsDeclAMI;
@@ -4121,7 +4121,7 @@ Slice::Gen::AsyncCallbackVisitor::AsyncCallbackVisitor(Output& h, Output&, const
 bool
 Slice::Gen::AsyncCallbackVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if(!p->hasNonLocalClassDefs() && !p->hasContentsWithMetaData("async"))
+    if(!p->hasNonLocalClassDefs() && !p->hasContentsWithMetaData("async-oneway"))
     {
         return false;
     }
@@ -4159,7 +4159,7 @@ Slice::Gen::AsyncCallbackVisitor::visitOperation(const OperationPtr& p)
 {
     ClassDefPtr cl = ClassDefPtr::dynamicCast(p->container());
 
-    if(cl->isLocal() && !(cl->hasMetaData("async") || p->hasMetaData("async")))
+    if(cl->isLocal() && !(cl->hasMetaData("async-oneway") || p->hasMetaData("async-oneway")))
     {
         return;
     }
@@ -7677,7 +7677,7 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitOperation(const OperationPtr& p)
     H << nl << deprecateSymbol << "virtual " << retS << ' ' << fixKwd(name) << params
       << (isConst ? " const" : "") << " = 0;";
 
-    if(cl->hasMetaData("async") || p->hasMetaData("async"))
+    if(cl->hasMetaData("async-oneway") || p->hasMetaData("async-oneway"))
     {
         vector<string> paramsDeclAMI;
         vector<string> outParamsDeclAMI;
@@ -7689,23 +7689,10 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitOperation(const OperationPtr& p)
 
             StringList metaData = (*r)->getMetaData();
             string typeString;
-            if((*r)->isOutParam())
-            {
-                typeString = outputTypeToString((*r)->type(), (*r)->optional(), metaData,
-                                                _useWstring | TypeContextAMIEnd | TypeContextLocalOperation, true);
-            }
-            else
-            {
-                typeString = inputTypeToString((*r)->type(), (*r)->optional(), metaData, _useWstring | TypeContextLocalOperation, true);
-            }
-
             if(!(*r)->isOutParam())
             {
+                typeString = inputTypeToString((*r)->type(), (*r)->optional(), metaData, _useWstring | TypeContextLocalOperation, true);
                 paramsDeclAMI.push_back(typeString + ' ' + paramName);
-            }
-            else
-            {
-                outParamsDeclAMI.push_back(typeString + ' ' + paramName);
             }
         }
 
@@ -7721,19 +7708,42 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitOperation(const OperationPtr& p)
         {
             H << nl;
         }
-        H << "::std::function<void (";
-        for(vector<string>::const_iterator i = outParamsDeclAMI.begin(); i != outParamsDeclAMI.end();)
+        H << "::std::function<void (::std::exception_ptr)> exception,";
+        H << nl << "::std::function<void (bool)> sent) = 0;";
+        H.restoreIndent();
+
+        H << sp;
+        H << nl << "template<template<typename> class P = ::std::promise>";
+        H << nl << deprecateSymbol << "auto " << name << "_async" << spar << paramsDeclAMI << epar;
+        H.inc();
+        H << nl << "-> decltype(::std::declval<P<bool>>().get_future())";
+        H.dec();
+        H << sb;
+        H << nl << "using Promise = P<bool>;";
+        H << nl << "auto __promise = ::std::make_shared<Promise>();";
+
+        H << nl << name << "_async(";
+        H.useCurrentPosAsIndent();
+        for(vector<string>::const_iterator i = paramsDeclAMI.begin(); i != paramsDeclAMI.end(); ++i)
         {
             H << *i << ",";
-            if(++i != outParamsDeclAMI.end())
-            {
-                H << " ";
-            }
         }
-        H << ")>,";
-        H << nl << "::std::function<void (::std::exception_ptr)> exception = nullptr,";
-        H << nl << "::std::function<void (bool)> sent = nullptr) = 0;";
+        if(!paramsDeclAMI.empty())
+        {
+            H << nl;
+        }
+        H << "[__promise](::std::exception_ptr __ex)";
+        H << sb;
+        H << nl << "__promise->set_exception(::std::move(__ex));";
+        H << eb << ",";
+        H << nl << "[__promise](bool __b)";
+        H << sb;
+        H << nl << "__promise->set_value(__b);";
+        H << eb << ");";
         H.restoreIndent();
+
+        H << nl << "return __promise->get_future();";
+        H << eb;
     }
 }
 

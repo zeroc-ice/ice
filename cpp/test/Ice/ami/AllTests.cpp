@@ -1720,7 +1720,6 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
                 promise<void> promise;
 
                 b1->ice_getConnection()->flushBatchRequests_async(
-                    nullptr,
                     [&](const exception_ptr& ex)
                     {
                         promise.set_exception(ex);
@@ -1740,7 +1739,6 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
                 auto id = this_thread::get_id();
                 promise<void> promise;
                 p->ice_getConnection()->flushBatchRequests_async(
-                    nullptr,
                     [&](const exception_ptr& ex)
                     {
                         promise.set_exception(ex);
@@ -1764,7 +1762,6 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
                 promise<void> promise;
                 b1->ice_getConnection()->flushBatchRequests_async(
-                    nullptr,
                     [&](exception_ptr ex)
                     {
                         promise.set_exception(move(ex));
@@ -1791,6 +1788,20 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         {
             {
                 //
+                // 1 connection. Test future
+                //
+                test(p->opBatchCount() == 0);
+                auto b1 = Ice::uncheckedCast<Test::TestIntfPrx>(
+                    p->ice_getConnection()->createProxy(p->ice_getIdentity())->ice_batchOneway());
+                b1->opBatch();
+                b1->opBatch();
+
+                communicator->flushBatchRequests_async().get();
+                test(p->waitForBatch(2));
+            }
+
+            {
+                //
                 // 1 connection.
                 //
                 test(p->opBatchCount() == 0);
@@ -1802,7 +1813,6 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
                 promise<void> promise;
                 auto id = this_thread::get_id();
                 communicator->flushBatchRequests_async(
-                    nullptr,
                     [&](exception_ptr ex)
                     {
                         promise.set_exception(move(ex));
@@ -1831,7 +1841,6 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
                 promise<void> promise;
                 auto id = this_thread::get_id();
                 communicator->flushBatchRequests_async(
-                    nullptr,
                     [&](exception_ptr ex)
                     {
                         promise.set_exception(move(ex));
@@ -1866,7 +1875,6 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
                 promise<void> promise;
                 auto id = this_thread::get_id();
                 communicator->flushBatchRequests_async(
-                    nullptr,
                     [&](exception_ptr ex)
                     {
                         promise.set_exception(move(ex));
@@ -1904,7 +1912,6 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
                 promise<void> promise;
                 auto id = this_thread::get_id();
                 communicator->flushBatchRequests_async(
-                    nullptr,
                     [&](exception_ptr ex)
                     {
                         promise.set_exception(move(ex));

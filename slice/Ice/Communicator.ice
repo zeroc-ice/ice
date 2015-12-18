@@ -542,7 +542,7 @@ local interface Communicator
      * Any errors that occur while flushing a connection are ignored.
      *
      **/
-    ["async"] void flushBatchRequests();
+    ["async-oneway"] void flushBatchRequests();
 
     /**
      *

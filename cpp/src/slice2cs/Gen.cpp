@@ -3352,7 +3352,7 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
              << spar << params << "Ice.Current current__" << epar << ';';
     }
 
-    if(isLocal && (classDef->hasMetaData("async") || p->hasMetaData("async")))
+    if(isLocal && (classDef->hasMetaData("async-oneway") || p->hasMetaData("async-oneway")))
     {
         vector<string> paramsNewAsync = getParamsAsync(p, false);
 
@@ -5063,9 +5063,9 @@ Slice::Gen::AsyncDelegateVisitor::visitOperation(const OperationPtr& p)
     ClassDefPtr cl = ClassDefPtr::dynamicCast(p->container());
 
     //
-    // We also generate delegates for local twoway-style operations marked with "async" metadata.
+    // We also generate delegates for local twoway-style operations marked with "async-oneway" metadata.
     //
-    if(cl->isLocal() && (!(cl->hasMetaData("async") || p->hasMetaData("async")) || !p->returnsData()))
+    if(cl->isLocal() && (!(cl->hasMetaData("async-oneway") || p->hasMetaData("async-oneway")) || !p->returnsData()))
     {
         return;
     }

@@ -3073,9 +3073,9 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << ';';
 
             //
-            // Generate asynchronous API for local operations marked with "async" metadata.
+            // Generate asynchronous API for local operations marked with "async-oneway" metadata.
             //
-            if(p->hasMetaData("async") || op->hasMetaData("async"))
+            if(p->hasMetaData("async-oneway") || op->hasMetaData("async-oneway"))
             {
                 vector<string> inParams = getInOutParams(op, package, InParam, true, true);
 

@@ -815,22 +815,22 @@ Ice::ConnectionI::flushBatchRequests()
 
 #ifdef ICE_CPP11_MAPPING
 function<void ()>
-Ice::ConnectionI::flushBatchRequests_async(function<void ()>, function<void (exception_ptr)> exception,
-                                           function<void (bool)> sent) 
+Ice::ConnectionI::flushBatchRequests_async(function<void (exception_ptr)> exception,
+                                           function<void (bool)> sent)
 {
     class FlushBatchRequestsCallback : public CallbackBase
     {
     public:
-        
+
         FlushBatchRequestsCallback(function<void (exception_ptr)> exception,
-                                   function<void (bool)> sent, 
+                                   function<void (bool)> sent,
                                    shared_ptr<Connection> connection) :
             _exception(move(exception)),
             _sent(move(sent)),
             _connection(move(connection))
         {
         }
-        
+
         virtual void sent(const AsyncResultPtr& result) const
         {
             try
@@ -842,19 +842,19 @@ Ice::ConnectionI::flushBatchRequests_async(function<void ()>, function<void (exc
             {
                 _exception(current_exception());
             }
-            
+
             if(_sent)
             {
                 _sent(result->sentSynchronously());
             }
         }
-        
+
         virtual bool hasSentCallback() const
         {
             return true;
         }
 
-        
+
         virtual void
         completed(const ::Ice::AsyncResultPtr& result) const
         {
@@ -875,9 +875,9 @@ Ice::ConnectionI::flushBatchRequests_async(function<void ()>, function<void (exc
         function<void (bool)> _sent;
         shared_ptr<Connection> _connection;
     };
-    
+
     auto self = dynamic_pointer_cast<ConnectionI>(shared_from_this());
-    
+
     auto result = make_shared<ConnectionFlushBatchAsync>(self, _communicator, _instance, __flushBatchRequests_name,
         make_shared<FlushBatchRequestsCallback>(move(exception), move(sent), self));
     result->invoke();
