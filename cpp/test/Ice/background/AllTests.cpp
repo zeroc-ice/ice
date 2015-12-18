@@ -143,9 +143,9 @@ class OpThread : public IceUtil::Thread, public IceUtil::Mutex
 {
 public:
 
-    OpThread(const BackgroundPrx& background) :
+    OpThread(const BackgroundPrxPtr& background) :
         _destroyed(false),
-        _background(BackgroundPrx::uncheckedCast(background->ice_oneway()))
+        _background(ICE_UNCHECKED_CAST(BackgroundPrx, background->ice_oneway()))
     {
         start();
     }
@@ -171,7 +171,11 @@ public:
                     count = 0;
                     _background->ice_twoway()->ice_ping();
                 }
+#ifdef ICE_CPP11_MAPPING
+                _background->op_async();
+#else
                 _background->begin_op();
+#endif
                 IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1));
             }
             catch(const Ice::LocalException&)
@@ -190,32 +194,36 @@ public:
 private:
 
     bool _destroyed;
-    BackgroundPrx _background;
+    BackgroundPrxPtr _background;
 };
 typedef IceUtil::Handle<OpThread> OpThreadPtr;
 
-void connectTests(const ConfigurationPtr&, const Test::BackgroundPrx&);
-void initializeTests(const ConfigurationPtr&, const Test::BackgroundPrx&, const Test::BackgroundControllerPrx&);
-void validationTests(const ConfigurationPtr&, const Test::BackgroundPrx&, const Test::BackgroundControllerPrx&);
-void readWriteTests(const ConfigurationPtr&, const Test::BackgroundPrx&, const Test::BackgroundControllerPrx&);
+void connectTests(const ConfigurationPtr&, const Test::BackgroundPrxPtr&);
+void initializeTests(const ConfigurationPtr&, const Test::BackgroundPrxPtr&, const Test::BackgroundControllerPrxPtr&);
+void validationTests(const ConfigurationPtr&, const Test::BackgroundPrxPtr&, const Test::BackgroundControllerPrxPtr&);
+void readWriteTests(const ConfigurationPtr&, const Test::BackgroundPrxPtr&, const Test::BackgroundControllerPrxPtr&);
 
-BackgroundPrx
+BackgroundPrxPtr
 allTests(const Ice::CommunicatorPtr& communicator)
 {
     const string endp = getTestEndpoint(communicator, 0);
     string sref = "background:" + endp;
-    Ice::ObjectPrx obj = communicator->stringToProxy(sref);
+    Ice::ObjectPrxPtr obj = communicator->stringToProxy(sref);
     test(obj);
 
-    BackgroundPrx background = BackgroundPrx::uncheckedCast(obj);
+    BackgroundPrxPtr background = ICE_UNCHECKED_CAST(BackgroundPrx, obj);
 
     sref = "backgroundController:" + getTestEndpoint(communicator, 1, "tcp");
     obj = communicator->stringToProxy(sref);
     test(obj);
 
-    BackgroundControllerPrx backgroundController = BackgroundControllerPrx::uncheckedCast(obj);
+    BackgroundControllerPrxPtr backgroundController = ICE_UNCHECKED_CAST(BackgroundControllerPrx, obj);
 
+#ifdef ICE_CPP11_MAPPING
+    auto plugin = dynamic_pointer_cast<PluginI>(communicator->getPluginManager()->getPlugin("Test"));
+#else
     PluginI* plugin = dynamic_cast<PluginI*>(communicator->getPluginManager()->getPlugin("Test").get());
+#endif
     assert(plugin);
     ConfigurationPtr configuration = plugin->getConfiguration();
 
@@ -245,9 +253,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "testing locator... " << flush;
     {
-        Ice::LocatorPrx locator;
+        Ice::LocatorPrxPtr locator;
         obj = communicator->stringToProxy("locator:" + endp)->ice_invocationTimeout(250);
-        locator = Ice::LocatorPrx::uncheckedCast(obj);
+        locator = ICE_UNCHECKED_CAST(Ice::LocatorPrx, obj);
         obj = communicator->stringToProxy("background@Test")->ice_locator(locator)->ice_oneway();
 
         backgroundController->pauseCall("findAdapterById");
@@ -262,13 +270,32 @@ allTests(const Ice::CommunicatorPtr& communicator)
         backgroundController->resumeCall("findAdapterById");
 
         obj = communicator->stringToProxy("locator:" + endp);
-        locator = Ice::LocatorPrx::uncheckedCast(obj);
+        locator = ICE_UNCHECKED_CAST(Ice::LocatorPrx, obj);
         obj = obj->ice_locator(locator);
         obj->ice_ping();
-
         obj = communicator->stringToProxy("background@Test")->ice_locator(locator);
-        BackgroundPrx bg = BackgroundPrx::uncheckedCast(obj);
+        BackgroundPrxPtr bg = ICE_UNCHECKED_CAST(BackgroundPrx, obj);
 
+#ifdef ICE_CPP11_MAPPING
+        backgroundController->pauseCall("findAdapterById");
+        
+        promise<void> p1;
+        promise<void> p2;
+        
+        bg->op_async([&p1](){ p1.set_value(); }, [&p1](exception_ptr e){ p1.set_exception(e); });
+        bg->op_async([&p2](){ p2.set_value(); }, [&p2](exception_ptr e){ p2.set_exception(e); });
+        
+        auto f1 = p1.get_future();
+        auto f2 = p2.get_future();
+        
+        test(f1.wait_for(chrono::milliseconds(1)) != future_status::ready);
+        test(f2.wait_for(chrono::milliseconds(1)) != future_status::ready);
+        
+        backgroundController->resumeCall("findAdapterById");
+        
+        f1.get();
+        f2.get();
+#else
         backgroundController->pauseCall("findAdapterById");
         Ice::AsyncResultPtr r1 = bg->begin_op();
         Ice::AsyncResultPtr r2 = bg->begin_op();
@@ -279,15 +306,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
         bg->end_op(r2);
         test(r1->isCompleted());
         test(r2->isCompleted());
+#endif
     }
     cout << "ok" << endl;
 
     cout << "testing router... " << flush;
     {
-        Ice::RouterPrx router;
-
+        Ice::RouterPrxPtr router;
         obj = communicator->stringToProxy("router:" + endp)->ice_invocationTimeout(250);
-        router = Ice::RouterPrx::uncheckedCast(obj);
+        router = ICE_UNCHECKED_CAST(Ice::RouterPrx, obj);
         obj = communicator->stringToProxy("background@Test")->ice_router(router)->ice_oneway();
 
         backgroundController->pauseCall("getClientProxy");
@@ -302,11 +329,31 @@ allTests(const Ice::CommunicatorPtr& communicator)
         backgroundController->resumeCall("getClientProxy");
 
         obj = communicator->stringToProxy("router:" + endp);
-        router = Ice::RouterPrx::uncheckedCast(obj);
+        router = ICE_UNCHECKED_CAST(Ice::RouterPrx, obj);
         obj = communicator->stringToProxy("background@Test")->ice_router(router);
-        BackgroundPrx bg = BackgroundPrx::uncheckedCast(obj);
+        BackgroundPrxPtr bg = ICE_UNCHECKED_CAST(BackgroundPrx, obj);
         test(bg->ice_getRouter());
 
+#ifdef ICE_CPP11_MAPPING
+        backgroundController->pauseCall("getClientProxy");
+
+        promise<void> p1;
+        promise<void> p2;
+        
+        bg->op_async([&p1](){ p1.set_value(); }, [&p1](exception_ptr e){ p1.set_exception(e); });
+        bg->op_async([&p2](){ p2.set_value(); }, [&p2](exception_ptr e){ p2.set_exception(e); });
+        
+        auto f1 = p1.get_future();
+        auto f2 = p2.get_future();
+        
+        test(f1.wait_for(chrono::milliseconds(1)) != future_status::ready);
+        test(f2.wait_for(chrono::milliseconds(1)) != future_status::ready);
+        
+        backgroundController->resumeCall("getClientProxy");
+        
+        f1.get();
+        f2.get();
+#else
         backgroundController->pauseCall("getClientProxy");
         Ice::AsyncResultPtr r1 = bg->begin_op();
         Ice::AsyncResultPtr r2 = bg->begin_op();
@@ -317,6 +364,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         bg->end_op(r2);
         test(r1->isCompleted());
         test(r2->isCompleted());
+#endif
     }
     cout << "ok" << endl;
 
@@ -328,6 +376,36 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         configuration->buffered(true);
         backgroundController->buffered(true);
+
+#ifdef ICE_CPP11_MAPPING
+        background->op_async();
+        background->ice_getCachedConnection()->close(true);
+        background->op_async();
+
+        vector<future<void>> results;
+        for(int i = 0; i < 10000; ++i)
+        {
+            auto f = background->op_async();
+            if(i % 50 == 0)
+            {
+                backgroundController->holdAdapter();
+                backgroundController->resumeAdapter();
+            }
+            if(i % 100 == 0)
+            {
+                f.get();
+            }
+            else
+            {
+                results.push_back(move(f));
+            }
+        }
+
+        for(auto& f : results)
+        {
+            f.get(); // Ensure all the calls are completed before destroying the communicator
+        }
+#else
         background->begin_op();
         background->ice_getCachedConnection()->close(true);
         background->begin_op();
@@ -356,7 +434,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             (*p)->waitForCompleted(); // Ensure all the calls are completed before destroying the communicator
         }
-
+#endif
         cout << "ok" << endl;
     }
 
@@ -364,7 +442,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 }
 
 void
-connectTests(const ConfigurationPtr& configuration, const Test::BackgroundPrx& background)
+connectTests(const ConfigurationPtr& configuration, const Test::BackgroundPrxPtr& background)
 {
     try
     {
@@ -387,7 +465,7 @@ connectTests(const ConfigurationPtr& configuration, const Test::BackgroundPrx& b
         {
             configuration->connectException(new Ice::SocketException(__FILE__, __LINE__));
         }
-        BackgroundPrx prx = (i == 1 || i == 3) ? background : background->ice_oneway();
+        BackgroundPrxPtr prx = (i == 1 || i == 3) ? background : background->ice_oneway();
 
         try
         {
@@ -397,7 +475,48 @@ connectTests(const ConfigurationPtr& configuration, const Test::BackgroundPrx& b
         catch(const Ice::Exception&)
         {
         }
+#ifdef ICE_CPP11_MAPPING
+        {
+            promise<void> completed;
+            promise<bool> sent;
+            prx->op_async(
+                [&completed]()
+                {
+                    test(false);
+                },
+                [&completed](exception_ptr)
+                {
+                    completed.set_value();
+                },
+                [&sent](bool value)
+                {
+                    sent.set_value(value);
+                });
+            test(sent.get_future().wait_for(chrono::milliseconds(1)) != future_status::ready);
+            completed.get_future().get();
+        }
 
+        {
+            promise<void> completed;
+            promise<bool> sent;
+            
+            prx->op_async(
+                [&completed]()
+                {
+                    test(false);
+                },
+                [&completed](exception_ptr)
+                {
+                    completed.set_value();
+                },
+                [&sent](bool value)
+                {
+                    sent.set_value(value);
+                });
+            test(sent.get_future().wait_for(chrono::milliseconds(1)) != future_status::ready);
+            completed.get_future().get();
+        }
+#else
         Ice::AsyncResultPtr r = prx->begin_op();
         test(!r->sentSynchronously());
         try
@@ -409,13 +528,13 @@ connectTests(const ConfigurationPtr& configuration, const Test::BackgroundPrx& b
         {
         }
         test(r->isCompleted());
-
+        
         OpAMICallbackPtr cbEx = new OpAMICallback();
         r = prx->begin_op(Test::newCallback_Background_op(cbEx, &OpAMICallback::exception));
         test(!r->sentSynchronously());
         cbEx->checkException();
         test(r->isCompleted());
-
+#endif
         if(i == 0 || i == 2)
         {
             configuration->connectorsException(0);
@@ -462,8 +581,8 @@ connectTests(const ConfigurationPtr& configuration, const Test::BackgroundPrx& b
 
 void
 initializeTests(const ConfigurationPtr& configuration,
-                const Test::BackgroundPrx& background,
-                const Test::BackgroundControllerPrx& ctl)
+                const Test::BackgroundPrxPtr& background,
+                const Test::BackgroundControllerPrxPtr& ctl)
 {
     try
     {
@@ -491,7 +610,7 @@ initializeTests(const ConfigurationPtr& configuration,
             configuration->initializeException(new Ice::SocketException(__FILE__, __LINE__));
 #endif
         }
-        BackgroundPrx prx = (i == 1 || i == 3) ? background : background->ice_oneway();
+        BackgroundPrxPtr prx = (i == 1 || i == 3) ? background : background->ice_oneway();
 
         try
         {
@@ -502,6 +621,26 @@ initializeTests(const ConfigurationPtr& configuration,
         {
         }
 
+#ifdef ICE_CPP11_MAPPING
+        promise<bool> sent;
+        promise<void> completed;
+        
+        prx->op_async(
+            []()
+            {
+                test(false);
+            },
+            [&completed](exception_ptr)
+            {
+                completed.set_value();
+            },
+            [&sent](bool value)
+            {
+                sent.set_value(value);
+            });
+        test(sent.get_future().wait_for(chrono::milliseconds(1)) != future_status::ready);
+        completed.get_future().get();
+#else
         Ice::AsyncResultPtr r = prx->begin_op();
         test(!r->sentSynchronously());
         try
@@ -519,7 +658,7 @@ initializeTests(const ConfigurationPtr& configuration,
         test(!r->sentSynchronously());
         cbEx->checkException();
         test(r->isCompleted());
-
+#endif
         if(i == 0 || i == 2)
         {
             configuration->initializeException(0);
@@ -697,8 +836,8 @@ initializeTests(const ConfigurationPtr& configuration,
 
 void
 validationTests(const ConfigurationPtr& configuration,
-                const Test::BackgroundPrx& background,
-                const Test::BackgroundControllerPrx& ctl)
+                const Test::BackgroundPrxPtr& background,
+                const Test::BackgroundControllerPrxPtr& ctl)
 {
     try
     {
@@ -731,7 +870,27 @@ validationTests(const ConfigurationPtr& configuration,
     for(i = 0; i < 2; i++)
     {
         configuration->readException(new Ice::SocketException(__FILE__, __LINE__));
-        BackgroundPrx prx = i == 0 ? background : background->ice_oneway();
+        BackgroundPrxPtr prx = i == 0 ? background : background->ice_oneway();
+#ifdef ICE_CPP11_MAPPING
+        promise<bool> sent;
+        promise<void> completed;
+        
+        prx->op_async(
+            []()
+            {
+                test(false);
+            },
+            [&completed](exception_ptr)
+            {
+                completed.set_value();
+            },
+            [&sent](bool value)
+            {
+                sent.set_value(value);
+            });
+        test(sent.get_future().wait_for(chrono::milliseconds(1)) != future_status::ready);
+        completed.get_future().get();
+#else
         Ice::AsyncResultPtr r = prx->begin_op();
         test(!r->sentSynchronously());
         try
@@ -743,6 +902,7 @@ validationTests(const ConfigurationPtr& configuration,
         {
         }
         test(r->isCompleted());
+#endif
         configuration->readException(0);
     }
 
@@ -786,6 +946,30 @@ validationTests(const ConfigurationPtr& configuration,
         {
             configuration->readReady(false);
             configuration->readException(new Ice::SocketException(__FILE__, __LINE__));
+#ifdef ICE_CPP11_MAPPING
+            promise<void> completed;
+            background->op_async(
+                []()
+                {
+                    test(false);
+                },
+                [&completed](exception_ptr err)
+                {
+                    try
+                    {
+                        rethrow_exception(err);
+                    }
+                    catch(const Ice::SocketException&)
+                    {
+                        completed.set_value();
+                    }
+                    catch(...)
+                    {
+                        test(false);
+                    }
+                });
+            completed.get_future().get();
+#else
             Ice::AsyncResultPtr r = background->begin_op();
             test(!r->sentSynchronously());
             try
@@ -797,12 +981,62 @@ validationTests(const ConfigurationPtr& configuration,
             {
             }
             test(r->isCompleted());
+#endif
             configuration->readException(0);
             configuration->readReady(true);
         }
     }
 
     ctl->holdAdapter(); // Hold to block in connection validation
+#ifdef ICE_CPP11_MAPPING
+    promise<void> p1;
+    promise<void> p2;
+    
+    promise<bool> s1;
+    promise<bool> s2;
+    
+    background->op_async(
+        [&p1]()
+        {
+            p1.set_value();
+        },
+        [&p1](exception_ptr e)
+        {
+            p1.set_exception(e);
+        },
+        [&s1](bool value)
+        {
+            s1.set_value(value);
+        });
+    
+    background->op_async(
+        [&p2]()
+        {
+            p2.set_value();
+        },
+        [&p2](exception_ptr e)
+        {
+            p2.set_exception(e);
+        },
+        [&s2](bool value)
+        {
+            s2.set_value(value);
+        });
+    
+    test(s1.get_future().wait_for(chrono::milliseconds(1)) != future_status::ready);
+    test(s2.get_future().wait_for(chrono::milliseconds(1)) != future_status::ready);
+    
+    auto f1 = p1.get_future();
+    auto f2 = p2.get_future();
+    
+    test(f1.wait_for(chrono::milliseconds(1)) != future_status::ready);
+    test(f2.wait_for(chrono::milliseconds(1)) != future_status::ready);
+    
+    ctl->resumeAdapter();
+    
+    f1.get();
+    f2.get();
+#else
     Ice::AsyncResultPtr r = background->begin_op();
     Ice::AsyncResultPtr r2 = background->begin_op();
     test(!r->sentSynchronously() && !r2->sentSynchronously());
@@ -811,6 +1045,7 @@ validationTests(const ConfigurationPtr& configuration,
     background->end_op(r);
     background->end_op(r2);
     test(r->isCompleted() && r2->isCompleted());
+#endif
 
 #if defined(ICE_USE_IOCP) || defined(ICE_USE_CFSTREAM)
     if(background->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Protocol") != "test-ssl" &&
@@ -873,7 +1108,7 @@ validationTests(const ConfigurationPtr& configuration,
     Ice::ByteSeq seq;
     seq.resize(512 * 1024);
 
-    BackgroundPrx backgroundBatchOneway = BackgroundPrx::uncheckedCast(background->ice_batchOneway());
+    BackgroundPrxPtr backgroundBatchOneway = ICE_UNCHECKED_CAST(BackgroundPrx, background->ice_batchOneway());
 
     //
     // First send small requests to test without auto-flushing.
@@ -923,7 +1158,11 @@ validationTests(const ConfigurationPtr& configuration,
     backgroundBatchOneway->op();
     backgroundBatchOneway->op();
     ctl->resumeAdapter();
+#ifdef ICE_CPP11_MAPPING
+    backgroundBatchOneway->ice_flushBatchRequests_async();
+#else
     backgroundBatchOneway->begin_ice_flushBatchRequests();
+#endif
     backgroundBatchOneway->ice_getConnection()->close(false);
 
     ctl->holdAdapter();
@@ -932,6 +1171,9 @@ validationTests(const ConfigurationPtr& configuration,
     backgroundBatchOneway->opWithPayload(seq);
     backgroundBatchOneway->opWithPayload(seq);
     ctl->resumeAdapter();
+#ifdef ICE_CPP11_MAPPING
+    backgroundBatchOneway->ice_flushBatchRequests_async().get();
+#else
     r = backgroundBatchOneway->begin_ice_flushBatchRequests();
     //
     // We can't close the connection before ensuring all the batches
@@ -943,13 +1185,14 @@ validationTests(const ConfigurationPtr& configuration,
     //
     //backgroundBatchOneway->ice_getConnection()->close(false);
     backgroundBatchOneway->end_ice_flushBatchRequests(r);
+#endif
     backgroundBatchOneway->ice_getConnection()->close(false);
 }
 
 void
 readWriteTests(const ConfigurationPtr& configuration,
-               const Test::BackgroundPrx& background,
-               const Test::BackgroundControllerPrx& ctl)
+               const Test::BackgroundPrxPtr& background,
+               const Test::BackgroundControllerPrxPtr& ctl)
 {
     try
     {
@@ -964,7 +1207,7 @@ readWriteTests(const ConfigurationPtr& configuration,
     int i;
     for(i = 0; i < 2; i++)
     {
-        BackgroundPrx prx = i == 0 ? background : background->ice_oneway();
+        BackgroundPrxPtr prx = i == 0 ? background : background->ice_oneway();
 
         try
         {
@@ -980,6 +1223,36 @@ readWriteTests(const ConfigurationPtr& configuration,
 
         background->ice_ping();
         configuration->writeException(new Ice::SocketException(__FILE__, __LINE__));
+#ifdef ICE_CPP11_MAPPING
+        promise<bool> sent;
+        promise<void> completed;
+        prx->op_async(
+            []()
+            {
+                test(false);
+            },
+            [&completed](exception_ptr e)
+            {
+                try
+                {
+                    rethrow_exception(e);
+                }
+                catch(const Ice::SocketException&)
+                {
+                    completed.set_value();
+                }
+                catch(...)
+                {
+                    test(false);
+                }
+            },
+            [&sent](bool value)
+            {
+                sent.set_value(value);
+            });
+        test(sent.get_future().wait_for(chrono::milliseconds(1)) != future_status::ready);
+        completed.get_future().get();
+#else
         Ice::AsyncResultPtr r = prx->begin_op();
         test(!r->sentSynchronously());
         try
@@ -991,6 +1264,7 @@ readWriteTests(const ConfigurationPtr& configuration,
         {
         }
         test(r->isCompleted());
+#endif
         configuration->writeException(0);
     }
 
@@ -1009,6 +1283,30 @@ readWriteTests(const ConfigurationPtr& configuration,
     background->ice_ping();
     configuration->readReady(false); // Required in C# to make sure beginRead() doesn't throw too soon.
     configuration->readException(new Ice::SocketException(__FILE__, __LINE__));
+#ifdef ICE_CPP11_MAPPING
+    promise<void> completed;
+    background->op_async(
+        []()
+        {
+            test(false);
+        },
+        [&completed](exception_ptr e)
+        {
+            try
+            {
+                rethrow_exception(e);
+            }
+            catch(const Ice::SocketException&)
+            {
+                completed.set_value();
+            }
+            catch(...)
+            {
+                test(false);
+            }
+        });
+    completed.get_future().get();
+#else
     Ice::AsyncResultPtr r = background->begin_op();
     try
     {
@@ -1019,6 +1317,7 @@ readWriteTests(const ConfigurationPtr& configuration,
     {
     }
     test(r->isCompleted());
+#endif
     configuration->readException(0);
     configuration->readReady(true);
 
@@ -1068,11 +1367,37 @@ readWriteTests(const ConfigurationPtr& configuration,
 
         for(i = 0; i < 2; ++i)
         {
-            BackgroundPrx prx = i == 0 ? background : background->ice_oneway();
+            BackgroundPrxPtr prx = i == 0 ? background : background->ice_oneway();
 
             background->ice_ping();
             configuration->writeReady(false);
             configuration->writeException(new Ice::SocketException(__FILE__, __LINE__));
+#ifdef ICE_CPP11_MAPPING
+            promise<void> completed;
+            promise<bool> sent;
+            prx->op_async(
+                []()
+                {
+                    test(false);
+                },
+                [&completed](exception_ptr e)
+                {
+                    try
+                    {
+                        rethrow_exception(e);
+                    }
+                    catch(const Ice::SocketException&)
+                    {
+                        completed.set_value();
+                    }
+                },
+                [&sent](bool value)
+                {
+                    sent.set_value(value);
+                });
+            test(sent.get_future().wait_for(chrono::milliseconds(1)) != future_status::ready);
+            completed.get_future().get();
+#else
             Ice::AsyncResultPtr r = prx->begin_op();
             test(!r->sentSynchronously());
             try
@@ -1084,6 +1409,7 @@ readWriteTests(const ConfigurationPtr& configuration,
             {
             }
             test(r->isCompleted());
+#endif
             configuration->writeReady(true);
             configuration->writeException(0);
         }
@@ -1106,6 +1432,31 @@ readWriteTests(const ConfigurationPtr& configuration,
             background->ice_ping();
             configuration->readReady(false);
             configuration->readException(new Ice::SocketException(__FILE__, __LINE__));
+#ifdef ICE_CPP11_MAPPING
+            promise<void> completed;
+            background->op_async(
+                []()
+                {
+                    test(false);
+                },
+                [&completed](exception_ptr e)
+                {
+                    try
+                    {
+                        rethrow_exception(e);
+                    }
+                    catch(const Ice::SocketException&)
+                    {
+                        completed.set_value();
+                    }
+                    catch(...)
+                    {
+                        test(false);
+                    }
+                });
+            completed.get_future().get();
+                
+#else
             Ice::AsyncResultPtr r = background->begin_op();
             try
             {
@@ -1116,6 +1467,7 @@ readWriteTests(const ConfigurationPtr& configuration,
             {
             }
             test(r->isCompleted());
+#endif
             configuration->readReady(true);
             configuration->readException(0);
         }
@@ -1125,11 +1477,40 @@ readWriteTests(const ConfigurationPtr& configuration,
             configuration->readReady(false);
             configuration->writeReady(false);
             configuration->readException(new Ice::SocketException(__FILE__, __LINE__));
-            Ice::AsyncResultPtr r = background->begin_op();
+#ifdef ICE_CPP11_MAPPING
+            promise<void> completed;
+            promise<bool> sent;
+            background->op_async(
+                []()
+                {
+                    test(false);
+                },
+                [&completed](exception_ptr e)
+                {
+                    try
+                    {
+                        rethrow_exception(e);
+                    }
+                    catch(const Ice::SocketException&)
+                    {
+                        completed.set_value();
+                    }
+                    catch(...)
+                    {
+                        test(false);
+                    }
+                },
+                [&sent](bool value)
+                {
+                    sent.set_value(value);
+                });
+            sent.get_future().get();
+            completed.get_future().get();
+#else
             // The read exception might propagate before the message send is seen as completed on IOCP.
-#ifndef ICE_USE_IOCP
+#   ifndef ICE_USE_IOCP
             r->waitForSent();
-#endif
+#   endif
             try
             {
                 background->end_op(r);
@@ -1139,6 +1520,7 @@ readWriteTests(const ConfigurationPtr& configuration,
             {
             }
             test(r->isCompleted());
+#endif
             configuration->writeReady(true);
             configuration->readReady(true);
             configuration->readException(0);
@@ -1149,7 +1531,7 @@ readWriteTests(const ConfigurationPtr& configuration,
 
     background->ice_ping(); // Establish the connection
 
-    BackgroundPrx backgroundOneway = BackgroundPrx::uncheckedCast(background->ice_oneway());
+    BackgroundPrxPtr backgroundOneway = ICE_UNCHECKED_CAST(BackgroundPrx, background->ice_oneway());
     test(backgroundOneway->ice_getConnection() == background->ice_getConnection());
 
     ctl->holdAdapter(); // Hold to block in request send.
@@ -1160,6 +1542,93 @@ readWriteTests(const ConfigurationPtr& configuration,
     {
         *p = static_cast<Ice::Byte>(IceUtilInternal::random(255));
     }
+    
+#ifdef ICE_CPP11_MAPPING
+    // Fill up the receive and send buffers
+    for(int i = 0; i < 200; ++i) // 2MB
+    {
+        backgroundOneway->opWithPayload_async(
+            seq,
+            []()
+            {
+                test(false);
+            },
+            [](exception_ptr)
+            {
+                test(false);
+            });
+    }
+
+    promise<void> c1;
+    promise<bool> s1;
+
+    background->op_async(
+        [&c1]()
+        {
+            c1.set_value();
+        },
+        [](exception_ptr err)
+        {
+            test(false);
+        },
+        [&s1](bool value)
+        {
+            s1.set_value(value);
+        });
+    
+    auto fs1 = s1.get_future();
+    test(fs1.wait_for(chrono::milliseconds(1)) != future_status::ready);
+    
+    promise<void> c2;
+    promise<bool> s2;
+
+    background->op_async(
+        [&c2]()
+        {
+            c2.set_value();
+        },
+        [](exception_ptr err)
+        {
+            test(false);
+        },
+        [&s2](bool value)
+        {
+            s2.set_value(value);
+        });
+    
+    auto fs2 = s2.get_future();
+    test(fs2.wait_for(chrono::milliseconds(1)) != future_status::ready);
+    
+    promise<bool> s3;
+    backgroundOneway->opWithPayload_async(seq, 
+                                          [](){ test(false); },
+                                          [](exception_ptr){ test(false); },
+                                          [&s3](bool value){ s3.set_value(value); });
+    auto fs3 = s3.get_future();
+    test(fs3.wait_for(chrono::milliseconds(1)) != future_status::ready);
+    
+    promise<bool> s4;
+    backgroundOneway->opWithPayload_async(seq, 
+                                          [](){ test(false); },
+                                          [](exception_ptr){ test(false); },
+                                          [&s4](bool value){ s4.set_value(value); });
+    auto fs4 = s4.get_future();
+    test(fs4.wait_for(chrono::milliseconds(1)) != future_status::ready);
+    
+    auto fc1 = c1.get_future();
+    test(fc1.wait_for(chrono::milliseconds(1)) != future_status::ready);
+    
+    auto fc2 = c2.get_future();
+    test(fc2.wait_for(chrono::milliseconds(1)) != future_status::ready);
+    
+    ctl->resumeAdapter();
+    
+    fs1.get();
+    fs2.get();
+    
+    fc1.get();
+    fc2.get();
+#else
     OpAMICallbackPtr cb = new OpAMICallback();
     Callback_Background_opWithPayloadPtr callbackWP = newCallback_Background_opWithPayload(cb,
                                                                                            &OpAMICallback::noResponse,
@@ -1196,6 +1665,7 @@ readWriteTests(const ConfigurationPtr& configuration,
     cb2->checkResponseAndSent();
     test(r1->isSent() && r1->isCompleted());
     test(r2->isSent() && r2->isCompleted());
+#endif
 
     try
     {

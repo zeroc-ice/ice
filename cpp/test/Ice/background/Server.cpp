@@ -22,6 +22,29 @@ class LocatorI : public Ice::Locator
 {
 public:
 
+#ifdef ICE_CPP11_MAPPING
+    virtual void
+    findAdapterById_async(string,
+                          function<void (const shared_ptr<Ice::ObjectPrx>&)> response,
+                          function<void (exception_ptr)>,
+                          const Ice::Current& current) const
+    {
+        _controller->checkCallPause(current);
+        Ice::CommunicatorPtr communicator = current.adapter->getCommunicator();
+        response(current.adapter->createDirectProxy(communicator->stringToIdentity("dummy")));
+    }
+
+    virtual void
+    findObjectById_async(Ice::Identity id,
+                         function<void (const shared_ptr<Ice::ObjectPrx>&)> response,
+                         function<void (exception_ptr)>,
+                         const Ice::Current& current) const
+    {
+        _controller->checkCallPause(current);
+        Ice::CommunicatorPtr communicator = current.adapter->getCommunicator();
+        response(current.adapter->createDirectProxy(id));
+    }
+#else
     virtual void
     findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr& response, const string&,
                           const Ice::Current& current) const
@@ -39,11 +62,11 @@ public:
         Ice::CommunicatorPtr communicator = current.adapter->getCommunicator();
         response->ice_response(current.adapter->createDirectProxy(id));
     }
-
-    virtual Ice::LocatorRegistryPrx
+#endif
+    virtual Ice::LocatorRegistryPrxPtr
     getRegistry(const Ice::Current&) const
     {
-        return 0;
+        return ICE_NULLPTR;
     }
 
     LocatorI(const BackgroundControllerIPtr& controller) : _controller(controller)
@@ -59,22 +82,22 @@ class RouterI : public Ice::Router
 {
 public:
 
-    virtual Ice::ObjectPrx
+    virtual Ice::ObjectPrxPtr
     getClientProxy(const Ice::Current& current) const
     {
         _controller->checkCallPause(current);
-        return 0;
+        return ICE_NULLPTR;
     }
 
-    virtual Ice::ObjectPrx
+    virtual Ice::ObjectPrxPtr
     getServerProxy(const Ice::Current& current) const
     {
         _controller->checkCallPause(current);
-        return 0;
+        return ICE_NULLPTR;
     }
 
     virtual Ice::ObjectProxySeq
-    addProxies(const Ice::ObjectProxySeq&, const Ice::Current&)
+    addProxies(ICE_IN(Ice::ObjectProxySeq), const Ice::Current&)
     {
         return Ice::ObjectProxySeq();
     }
@@ -100,14 +123,18 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     Ice::ObjectAdapterPtr adapter2 = communicator->createObjectAdapter("ControllerAdapter");
 
+#ifdef ICE_CPP11_MAPPING
+    shared_ptr<PluginI> plugin = dynamic_pointer_cast<PluginI>(communicator->getPluginManager()->getPlugin("Test"));
+#else
     PluginI* plugin = dynamic_cast<PluginI*>(communicator->getPluginManager()->getPlugin("Test").get());
+#endif
     assert(plugin);
     ConfigurationPtr configuration = plugin->getConfiguration();
-    BackgroundControllerIPtr backgroundController = new BackgroundControllerI(adapter, configuration);
+    BackgroundControllerIPtr backgroundController = ICE_MAKE_SHARED(BackgroundControllerI, adapter, configuration);
 
-    adapter->add(new BackgroundI(backgroundController), communicator->stringToIdentity("background"));
-    adapter->add(new LocatorI(backgroundController), communicator->stringToIdentity("locator"));
-    adapter->add(new RouterI(backgroundController), communicator->stringToIdentity("router"));
+    adapter->add(ICE_MAKE_SHARED(BackgroundI, backgroundController), communicator->stringToIdentity("background"));
+    adapter->add(ICE_MAKE_SHARED(LocatorI, backgroundController), communicator->stringToIdentity("locator"));
+    adapter->add(ICE_MAKE_SHARED(RouterI, backgroundController), communicator->stringToIdentity("router"));
     adapter->activate();
 
     adapter2->add(backgroundController, communicator->stringToIdentity("backgroundController"));
@@ -120,9 +147,6 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
 int
 main(int argc, char* argv[])
 {
-    int status;
-    Ice::CommunicatorPtr communicator;
-
     try
     {
         Ice::InitializationData initData;
@@ -146,27 +170,12 @@ main(int argc, char* argv[])
         string defaultProtocol = initData.properties->getPropertyWithDefault("Ice.Default.Protocol", "tcp");
         initData.properties->setProperty("Ice.Default.Protocol", "test-" + defaultProtocol);
 
-        communicator = Ice::initialize(argc, argv, initData);
-        status = run(argc, argv, communicator);
+        Ice::CommunicatorHolder ich = Ice::initialize(argc, argv, initData);
+        return run(argc, argv, ich.communicator());
     }
     catch(const Ice::Exception& ex)
     {
         cerr << ex << endl;
-        status = EXIT_FAILURE;
+        return EXIT_FAILURE;
     }
-
-    if(communicator)
-    {
-        try
-        {
-            communicator->destroy();
-        }
-        catch(const Ice::Exception& ex)
-        {
-            cerr << ex << endl;
-            status = EXIT_FAILURE;
-        }
-    }
-
-    return status;
 }

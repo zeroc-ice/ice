@@ -18,8 +18,8 @@ using namespace Test;
 int
 run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
-    BackgroundPrx allTests(const Ice::CommunicatorPtr&);
-    BackgroundPrx background = allTests(communicator);
+    BackgroundPrxPtr allTests(const Ice::CommunicatorPtr&);
+    BackgroundPrxPtr background = allTests(communicator);
     background->shutdown();
     return EXIT_SUCCESS;
 }

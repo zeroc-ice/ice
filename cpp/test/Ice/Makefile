@@ -34,6 +34,7 @@ SUBDIRS		= proxy \
                   acm \
                   servantLocator \
                   interceptor \
+                  stringConverter \
                   udp \
                   defaultServant \
                   defaultValue \

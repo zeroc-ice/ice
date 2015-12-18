@@ -59,7 +59,7 @@ public:
                     {
                         rethrow_exception(e);
                     }
-                    catch(const UserException& ex)
+                    catch(const Exception& ex)
                     {
                         request->exception(ex);
                     }
@@ -105,7 +105,7 @@ public:
                     {
                         rethrow_exception(e);
                     }
-                    catch(const UserException& ex)
+                    catch(const Exception& ex)
                     {
                         request->exception(ex);
                     }

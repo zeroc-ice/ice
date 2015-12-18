@@ -71,11 +71,15 @@ EndpointI::timeout(int timeout) const
     IceInternal::EndpointIPtr endpoint = _endpoint->timeout(timeout);
     if(endpoint == _endpoint)
     {
+#ifdef ICE_CPP11_MAPPING
+        return const_pointer_cast<IceInternal::EndpointI>(shared_from_this());
+#else
         return const_cast<EndpointI*>(this);
+#endif
     }
     else
     {
-        return new EndpointI(endpoint);
+        return ICE_MAKE_SHARED(EndpointI, endpoint);
     }
 }
 
@@ -85,11 +89,15 @@ EndpointI::connectionId(const string& connectionId) const
     IceInternal::EndpointIPtr endpoint = _endpoint->connectionId(connectionId);
     if(endpoint == _endpoint)
     {
+#ifdef ICE_CPP11_MAPPING
+        return const_pointer_cast<IceInternal::EndpointI>(shared_from_this());
+#else
         return const_cast<EndpointI*>(this);
+#endif
     }
     else
     {
-        return new EndpointI(endpoint);
+        return ICE_MAKE_SHARED(EndpointI, endpoint);
     }
 }
 
@@ -105,11 +113,15 @@ EndpointI::compress(bool compress) const
     IceInternal::EndpointIPtr endpoint = _endpoint->compress(compress);
     if(endpoint == _endpoint)
     {
+#ifdef ICE_CPP11_MAPPING
+        return const_pointer_cast<IceInternal::EndpointI>(shared_from_this());
+#else
         return const_cast<EndpointI*>(this);
+#endif
     }
     else
     {
-        return new EndpointI(endpoint);
+        return ICE_MAKE_SHARED(EndpointI, endpoint);
     }
 }
 
@@ -175,7 +187,7 @@ EndpointI::connectors_async(Ice::EndpointSelectionType selType, const IceInterna
     try
     {
         _configuration->checkConnectorsException();
-        _endpoint->connectors_async(selType, new Callback(cb));
+        _endpoint->connectors_async(selType, ICE_MAKE_SHARED(Callback, cb));
     }
     catch(const Ice::LocalException& ex)
     {
@@ -186,7 +198,13 @@ EndpointI::connectors_async(Ice::EndpointSelectionType selType, const IceInterna
 IceInternal::AcceptorPtr
 EndpointI::acceptor(const string& adapterName) const
 {
+#ifdef ICE_CPP11_MAPPING
+    return new Acceptor(dynamic_pointer_cast<EndpointI>(
+        const_pointer_cast<IceInternal::EndpointI>(shared_from_this())),                        
+                        _endpoint->acceptor(adapterName));
+#else
     return new Acceptor(const_cast<EndpointI*>(this), _endpoint->acceptor(adapterName));
+#endif
 }
 
 /*IceInternal::EndpointIPtr
@@ -207,7 +225,7 @@ EndpointI::endpoint(const IceInternal::TransceiverPtr& transceiver) const
 EndpointIPtr
 EndpointI::endpoint(const IceInternal::EndpointIPtr& delEndp) const
 {
-    return new EndpointI(delEndp);
+    return ICE_MAKE_SHARED(EndpointI, delEndp);
 }
 
 vector<IceInternal::EndpointIPtr>
@@ -216,7 +234,11 @@ EndpointI::expand() const
     vector<IceInternal::EndpointIPtr> e = _endpoint->expand();
     for(vector<IceInternal::EndpointIPtr>::iterator p = e.begin(); p != e.end(); ++p)
     {
+#ifdef ICE_CPP11_MAPPING
+        *p = (*p == _endpoint) ? const_pointer_cast<IceInternal::EndpointI>(shared_from_this()) : make_shared<EndpointI>(*p);
+#else
         *p = (*p == _endpoint) ? const_cast<EndpointI*>(this) : new EndpointI(*p);
+#endif
     }
     return e;
 }
@@ -245,7 +267,11 @@ EndpointI::getInfo() const
 }
 
 bool
+#ifdef ICE_CPP11_MAPPING
+EndpointI::operator==(const IceInternal::EndpointI& r) const
+#else
 EndpointI::operator==(const Ice::LocalObject& r) const
+#endif
 {
     const EndpointI* p = dynamic_cast<const EndpointI*>(&r);
     if(!p)
@@ -263,7 +289,11 @@ EndpointI::operator==(const Ice::LocalObject& r) const
 }
 
 bool
+#ifdef ICE_CPP11_MAPPING
+EndpointI::operator<(const IceInternal::EndpointI& r) const
+#else
 EndpointI::operator<(const Ice::LocalObject& r) const
+#endif
 {
     const EndpointI* p = dynamic_cast<const EndpointI*>(&r);
     if(!p)

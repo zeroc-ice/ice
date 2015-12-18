@@ -16,13 +16,15 @@
 
 
 class EndpointI;
-typedef IceUtil::Handle<EndpointI> EndpointIPtr;
+ICE_DEFINE_PTR(EndpointIPtr, EndpointI);
 
 class EndpointI : public IceInternal::EndpointI
 {
 public:
 
     static Ice::Short TYPE_BASE;
+    
+    EndpointI(const IceInternal::EndpointIPtr&);
 
     // From EndpointI
     virtual void streamWrite(IceInternal::BasicStream*) const;
@@ -47,8 +49,13 @@ public:
     virtual bool datagram() const;
     virtual bool secure() const;
 
+#ifdef ICE_CPP11_MAPPING
+    virtual bool operator==(const IceInternal::EndpointI&) const;
+    virtual bool operator<(const IceInternal::EndpointI&) const;
+#else
     virtual bool operator==(const Ice::LocalObject&) const;
     virtual bool operator<(const Ice::LocalObject&) const;
+#endif
 
     virtual int hash() const;
     virtual std::string options() const;
@@ -60,7 +67,6 @@ public:
 
 private:
 
-    EndpointI(const IceInternal::EndpointIPtr&);
     friend class EndpointFactory;
 
     const IceInternal::EndpointIPtr _endpoint;

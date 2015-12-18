@@ -20,8 +20,8 @@ using namespace Test;
 int
 run(int, char**, const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPtr& observer)
 {
-    MetricsPrx allTests(const Ice::CommunicatorPtr&, const CommunicatorObserverIPtr&);
-    MetricsPrx metrics = allTests(communicator, observer);
+    MetricsPrxPtr allTests(const Ice::CommunicatorPtr&, const CommunicatorObserverIPtr&);
+    MetricsPrxPtr metrics = allTests(communicator, observer);
     metrics->shutdown();
     return EXIT_SUCCESS;
 }
@@ -32,10 +32,6 @@ main(int argc, char* argv[])
 #ifdef ICE_STATIC_LIBS
     Ice::registerIceSSL();
 #endif
-
-    int status;
-    Ice::CommunicatorPtr communicator;
-
     try
     {
         Ice::InitializationData initData;
@@ -48,27 +44,12 @@ main(int argc, char* argv[])
         initData.properties->setProperty("Ice.Default.Host", "127.0.0.1");
         CommunicatorObserverIPtr observer = new CommunicatorObserverI();
         initData.observer = observer;
-        communicator = Ice::initialize(argc, argv, initData);
-        status = run(argc, argv, communicator, observer);
+        Ice::CommunicatorHolder ich = Ice::initialize(argc, argv, initData);
+        return run(argc, argv, ich.communicator(), observer);
     }
     catch(const Ice::Exception& ex)
     {
         cerr << ex << endl;
-        status = EXIT_FAILURE;
+        return EXIT_FAILURE;
     }
-
-    if(communicator)
-    {
-        try
-        {
-            communicator->destroy();
-        }
-        catch(const Ice::Exception& ex)
-        {
-            cerr << ex << endl;
-            status = EXIT_FAILURE;
-        }
-    }
-
-    return status;
 }

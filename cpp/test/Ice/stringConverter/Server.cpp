@@ -22,7 +22,7 @@ class MyObjectI : public Test::MyObject
 {
 public:
 
-    virtual wstring widen(const string& msg, const Ice::Current&)
+    virtual wstring widen(ICE_IN(string) msg, const Ice::Current&)
     {
         const Ice::Byte* cmsg = reinterpret_cast<const Ice::Byte*>(msg.c_str());
 
@@ -35,7 +35,7 @@ public:
                                         IceUtil::getProcessWstringConverter());
     }
 
-    virtual string narrow(const wstring& wmsg, const Ice::Current&)
+    virtual string narrow(ICE_IN(wstring) wmsg, const Ice::Current&)
     {
         return IceUtil::wstringToString(wmsg, IceUtil::getProcessStringConverter(),
                                         IceUtil::getProcessWstringConverter());

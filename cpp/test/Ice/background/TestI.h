@@ -11,19 +11,20 @@
 #define TEST_I_H
 
 #include <Test.h>
+#include <TestCommon.h>
 #include <Configuration.h>
 
 #include <set>
 
 class BackgroundControllerI;
-typedef IceUtil::Handle<BackgroundControllerI> BackgroundControllerIPtr;
+ICE_DEFINE_PTR(BackgroundControllerIPtr, BackgroundControllerI);
 
 class BackgroundI : virtual public Test::Background
 {
 public:
 
     virtual void op(const Ice::Current&);
-    virtual void opWithPayload(const Ice::ByteSeq&, const Ice::Current&);
+    virtual void opWithPayload(ICE_IN(Ice::ByteSeq), const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
 
     BackgroundI(const BackgroundControllerIPtr&);
@@ -38,8 +39,8 @@ class BackgroundControllerI : public Test::BackgroundController, IceUtil::Monito
 public:
 
 
-    virtual void pauseCall(const std::string&, const Ice::Current&);
-    virtual void resumeCall(const std::string&, const Ice::Current&);
+    virtual void pauseCall(ICE_IN(std::string), const Ice::Current&);
+    virtual void resumeCall(ICE_IN(std::string), const Ice::Current&);
     virtual void checkCallPause(const Ice::Current&);
 
     virtual void holdAdapter(const Ice::Current&);
