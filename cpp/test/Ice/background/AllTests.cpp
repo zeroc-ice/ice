@@ -1507,6 +1507,7 @@ readWriteTests(const ConfigurationPtr& configuration,
             sent.get_future().get();
             completed.get_future().get();
 #else
+            Ice::AsyncResultPtr r = background->begin_op();
             // The read exception might propagate before the message send is seen as completed on IOCP.
 #   ifndef ICE_USE_IOCP
             r->waitForSent();

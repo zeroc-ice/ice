@@ -34,12 +34,15 @@ SUBDIRS		= proxy \
 		  acm \
 		  servantLocator \
 		  interceptor \
+		  stringConverter \
+		  background \
 		  udp \
 		  defaultServant \
 		  defaultValue \
 		  properties \
 		  plugin \
 		  admin \
+		  metrics \
 		  enums \
 		  logger \
 		  networkProxy \
