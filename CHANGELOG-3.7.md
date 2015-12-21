@@ -42,3 +42,5 @@ These are the changes since Ice 3.6.1.
   `ValueFactory`. Communicator operations `addObjectFactory`and
   `findObjectFactory` have been deprecated in favor of `addValueFactory` and
   `findValueFactory`.
+
+- Renamed local interface metadata `async` to `async-oneway`.
