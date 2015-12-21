@@ -262,8 +262,6 @@ Ice::initialize(const InitializationData& initData, Int version)
     return communicator;
 }
 
-#ifndef ICE_CPP11_MAPPING
-
 namespace
 {
 
@@ -342,7 +340,6 @@ Ice::createOutputStream(const CommunicatorPtr& communicator, const EncodingVersi
 {
     return new OutputStreamI(communicator, v);
 }
-#endif
 
 LoggerPtr
 Ice::getProcessLogger()
