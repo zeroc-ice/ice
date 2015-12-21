@@ -1390,6 +1390,10 @@ readWriteTests(const ConfigurationPtr& configuration,
                     {
                         completed.set_value();
                     }
+                    catch(...)
+                    {
+                        test(false);
+                    }
                 },
                 [&sent](bool value)
                 {

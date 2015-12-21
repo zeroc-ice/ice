@@ -17,6 +17,7 @@
 #include <Ice/OutgoingAsyncF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/RequestHandler.h> // For CancellationHandler
+#include <Ice/VirtualShared.h>
 
 namespace IceInternal
 {

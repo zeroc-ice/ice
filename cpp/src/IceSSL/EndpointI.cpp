@@ -55,13 +55,7 @@ IceSSL::EndpointI::EndpointI(const InstancePtr& instance, IceInternal::BasicStre
 Ice::EndpointInfoPtr
 IceSSL::EndpointI::getInfo() const
 {
-#ifdef ICE_CPP11_MAPPING
-    EndpointInfoPtr info = make_shared<IceInternal::InfoI<EndpointInfo>>(
-        dynamic_pointer_cast<IceInternal::EndpointI>(
-            const_pointer_cast<IceInternal::EndpointI>(shared_from_this())));
-#else
-    EndpointInfoPtr info = new IceInternal::InfoI<EndpointInfo>(const_cast<EndpointI*>(this));
-#endif
+    EndpointInfoPtr info = ICE_MAKE_SHARED(IceInternal::InfoI<EndpointInfo>, shared_from_this());
     fillEndpointInfo(info.get());
     return info;
 }
@@ -69,13 +63,7 @@ IceSSL::EndpointI::getInfo() const
 Ice::EndpointInfoPtr
 IceSSL::EndpointI::getWSInfo(const string& resource) const
 {
-#ifdef ICE_CPP11_MAPPING
-    WSEndpointInfoPtr info = make_shared<IceInternal::InfoI<Ice::WSEndpointInfo>>(
-        dynamic_pointer_cast<IceInternal::EndpointI>(
-            const_pointer_cast<IceInternal::EndpointI>(shared_from_this())));
-#else
-    WSSEndpointInfoPtr info = new IceInternal::InfoI<WSSEndpointInfo>(const_cast<EndpointI*>(this));
-#endif
+    WSSEndpointInfoPtr info = ICE_MAKE_SHARED(IceInternal::InfoI<WSSEndpointInfo>, shared_from_this());
     fillEndpointInfo(info.get());
     info->resource = resource;
     return info;
@@ -92,11 +80,7 @@ IceSSL::EndpointI::timeout(Int timeout) const
 {
     if(timeout == _timeout)
     {
-#ifdef ICE_CPP11_MAPPING
-        return dynamic_pointer_cast<IceInternal::EndpointI>(const_pointer_cast<IceInternal::EndpointI>(shared_from_this()));
-#else
-        return const_cast<EndpointI*>(this);
-#endif
+        return shared_from_this();
     }
     else
     {
@@ -115,11 +99,7 @@ IceSSL::EndpointI::compress(bool compress) const
 {
     if(compress == _compress)
     {
-#ifdef ICE_CPP11_MAPPING
-        return dynamic_pointer_cast<IceInternal::EndpointI>(const_pointer_cast<IceInternal::EndpointI>(shared_from_this()));
-#else
-        return const_cast<EndpointI*>(this);
-#endif
+        return shared_from_this();
     }
     else
     {
@@ -142,13 +122,7 @@ IceSSL::EndpointI::transceiver() const
 IceInternal::AcceptorPtr
 IceSSL::EndpointI::acceptor(const string& adapterName) const
 {
-#ifdef ICE_CPP11_MAPPING
-    return new AcceptorI(
-        dynamic_pointer_cast<EndpointI>(const_pointer_cast<IceInternal::EndpointI>(shared_from_this())),
-        _instance, adapterName, _host, _port);
-#else
-    return new AcceptorI(const_cast<EndpointI*>(this), _instance, adapterName, _host, _port);
-#endif
+    return new AcceptorI(ICE_DYNAMIC_CAST(IceSSL::EndpointI, shared_from_this()), _instance, adapterName, _host, _port);
 }
 
 EndpointIPtr

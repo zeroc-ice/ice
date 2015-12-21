@@ -39,10 +39,8 @@ class OutgoingAsync;
 
 class CollocatedRequestHandler : public RequestHandler,
                                  public ResponseHandler,
-                                 private IceUtil::Monitor<IceUtil::Mutex>
-#ifndef ICE_CPP11_MAPPING
-                                 , public virtual ::IceUtil::Shared
-#endif
+                                 private IceUtil::Monitor<IceUtil::Mutex>,
+                                 public ICE_ENABLE_SHARED_FROM_THIS(CollocatedRequestHandler)
 {
 public:
 

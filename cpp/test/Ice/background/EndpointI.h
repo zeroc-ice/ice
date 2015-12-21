@@ -18,7 +18,7 @@
 class EndpointI;
 ICE_DEFINE_PTR(EndpointIPtr, EndpointI);
 
-class EndpointI : public IceInternal::EndpointI
+class EndpointI : public IceInternal::EndpointI, public ICE_ENABLE_SHARED_FROM_THIS(EndpointI)
 {
 public:
 

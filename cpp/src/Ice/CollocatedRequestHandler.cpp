@@ -126,11 +126,7 @@ CollocatedRequestHandler::~CollocatedRequestHandler()
 RequestHandlerPtr
 CollocatedRequestHandler::update(const RequestHandlerPtr& previousHandler, const RequestHandlerPtr& newHandler)
 {
-#ifdef ICE_CPP11_MAPPING
-    return previousHandler.get() == this ? newHandler : dynamic_pointer_cast<RequestHandler>(shared_from_this());
-#else
-    return previousHandler.get() == this ? newHandler : this;
-#endif
+    return previousHandler.get() == this ? newHandler : shared_from_this();
 }
 
 bool
@@ -277,11 +273,7 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
         //
         // This will throw if the request is canceled
         //
-#ifdef ICE_CPP11_MAPPING
-        outAsync->cancelable(dynamic_pointer_cast<CollocatedRequestHandler>(shared_from_this()));
-#else
-        outAsync->cancelable(this);
-#endif
+        outAsync->cancelable(shared_from_this());
 
         if(_response)
         {

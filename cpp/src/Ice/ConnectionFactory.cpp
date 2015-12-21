@@ -867,12 +867,7 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::connectionStartComplete
     }
 
     connection->activate();
-#ifdef ICE_CPP11_MAPPING
-    _factory->finishGetConnection(_connectors, *_iter, connection,
-                                  dynamic_pointer_cast<ConnectCallback>(shared_from_this()));
-#else
-    _factory->finishGetConnection(_connectors, *_iter, connection, this);
-#endif
+    _factory->finishGetConnection(_connectors, *_iter, connection, shared_from_this());
 }
 
 void
@@ -890,11 +885,7 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::connectionStartFailed(c
     _factory->handleConnectionException(ex, _hasMore || _iter != _connectors.end() - 1);
     if(dynamic_cast<const Ice::CommunicatorDestroyedException*>(&ex)) // No need to continue.
     {
-#ifdef ICE_CPP11_MAPPING
-        _factory->finishGetConnection(_connectors, ex, dynamic_pointer_cast<ConnectCallback>(shared_from_this()));
-#else
-        _factory->finishGetConnection(_connectors, ex, this);
-#endif
+        _factory->finishGetConnection(_connectors, ex, shared_from_this());
     }
     else if(++_iter != _connectors.end()) // Try the next connector.
     {
@@ -902,11 +893,7 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::connectionStartFailed(c
     }
     else
     {
-#ifdef ICE_CPP11_MAPPING
-        _factory->finishGetConnection(_connectors, ex, dynamic_pointer_cast<ConnectCallback>(shared_from_this()));
-#else
-        _factory->finishGetConnection(_connectors, ex, this);
-#endif
+        _factory->finishGetConnection(_connectors, ex, shared_from_this());
     }
 }
 
@@ -1008,14 +995,7 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::getConnection()
         // connection.
         //
         bool compress;
-#ifdef ICE_CPP11_MAPPING
-        Ice::ConnectionIPtr connection = _factory->getConnection(
-                                                            _connectors, 
-                                                            dynamic_pointer_cast<ConnectCallback>(shared_from_this()),
-                                                            compress);
-#else
-        Ice::ConnectionIPtr connection = _factory->getConnection(_connectors, this, compress);
-#endif
+        Ice::ConnectionIPtr connection = _factory->getConnection(_connectors, shared_from_this(), compress);
         if(!connection)
         {
             //
@@ -1122,11 +1102,7 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::removeConnectors(const 
 void
 IceInternal::OutgoingConnectionFactory::ConnectCallback::removeFromPending()
 {
-#ifdef ICE_CPP11_MAPPING
-    _factory->removeFromPending(dynamic_pointer_cast<ConnectCallback>(shared_from_this()), _connectors);
-#else
-    _factory->removeFromPending(this, _connectors);
-#endif
+    _factory->removeFromPending(shared_from_this(), _connectors);
 }
 
 bool
@@ -1435,11 +1411,7 @@ IceInternal::IncomingConnectionFactory::message(ThreadPoolCurrent& current)
     }
 
     assert(connection);
-#ifdef ICE_CPP11_MAPPING
-    connection->start(dynamic_pointer_cast<IncomingConnectionFactory>(shared_from_this()));
-#else
-    connection->start(this);
-#endif
+    connection->start(shared_from_this());
 }
 
 void
@@ -1693,12 +1665,7 @@ IceInternal::IncomingConnectionFactory::setState(State state)
                     Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);
                     out << "accepting " << _endpoint->protocol() << " connections at " << _acceptor->toString();
                 }
-#ifdef ICE_CPP11_MAPPING
-                _adapter->getThreadPool()->_register(dynamic_pointer_cast<EventHandler>(shared_from_this()),
-                                                     SocketOperationRead);
-#else
-                _adapter->getThreadPool()->_register(this, SocketOperationRead);
-#endif
+                _adapter->getThreadPool()->_register(shared_from_this(), SocketOperationRead);
             }
             for_each(_connections.begin(), _connections.end(), Ice::voidMemFun(&ConnectionI::activate));
             break;
@@ -1717,12 +1684,7 @@ IceInternal::IncomingConnectionFactory::setState(State state)
                     Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);
                     out << "holding " << _endpoint->protocol() << " connections at " << _acceptor->toString();
                 }
-#ifdef ICE_CPP11_MAPPING
-                _adapter->getThreadPool()->unregister(dynamic_pointer_cast<EventHandler>(shared_from_this()),
-                                                      SocketOperationRead);
-#else
-                _adapter->getThreadPool()->unregister(this, SocketOperationRead);
-#endif
+                _adapter->getThreadPool()->unregister(shared_from_this(), SocketOperationRead);
             }
             for_each(_connections.begin(), _connections.end(), Ice::voidMemFun(&ConnectionI::hold));
             break;
@@ -1739,11 +1701,7 @@ IceInternal::IncomingConnectionFactory::setState(State state)
                 // the finish() call. Not all selector implementations do support this
                 // however.
                 //
-#ifdef ICE_CPP11_MAPPING
-                if(_adapter->getThreadPool()->finish(dynamic_pointer_cast<EventHandler>(shared_from_this()), true))
-#else
-                if(_adapter->getThreadPool()->finish(this, true))
-#endif
+                if(_adapter->getThreadPool()->finish(shared_from_this(), true))
                 {
                     closeAcceptor();
                 }
@@ -1789,19 +1747,10 @@ IceInternal::IncomingConnectionFactory::createAcceptor()
             out << "listening for " << _endpoint->protocol() << " connections\n" << _acceptor->toDetailedString();
         }
 
-#ifdef ICE_CPP11_MAPPING
-        _adapter->getThreadPool()->initialize(dynamic_pointer_cast<EventHandler>(shared_from_this()));
-#else
-        _adapter->getThreadPool()->initialize(this);
-#endif
+        _adapter->getThreadPool()->initialize(shared_from_this());
         if(_state == StateActive)
         {
-#ifdef ICE_CPP11_MAPPING
-            _adapter->getThreadPool()->_register(dynamic_pointer_cast<EventHandler>(shared_from_this()),
-                                                 SocketOperationRead);
-#else
-            _adapter->getThreadPool()->_register(this, SocketOperationRead);
-#endif
+            _adapter->getThreadPool()->_register(shared_from_this(), SocketOperationRead);
         }
     }
     catch(const Ice::Exception&)

@@ -38,6 +38,7 @@
 #include <Ice/ConnectionAsync.h>
 #include <Ice/BatchRequestQueueF.h>
 #include <Ice/ACM.h>
+#include <Ice/VirtualShared.h>
 
 #include <deque>
 
@@ -66,7 +67,8 @@ class ConnectionI : public Connection,
                     public IceInternal::EventHandler,
                     public IceInternal::ResponseHandler,
                     public IceInternal::CancellationHandler,
-                    public IceUtil::Monitor<IceUtil::Mutex>
+                    public IceUtil::Monitor<IceUtil::Mutex>,
+                    public ICE_ENABLE_SHARED_FROM_THIS(ConnectionI)
 {
     class Observer : public IceInternal::ObserverHelperT<Ice::Instrumentation::ConnectionObserver>
     {

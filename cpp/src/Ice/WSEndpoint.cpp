@@ -94,11 +94,7 @@ IceInternal::WSEndpoint::timeout(Int timeout) const
 {
     if(timeout == _delegate->timeout())
     {
-#ifdef ICE_CPP11_MAPPING
-        return const_pointer_cast<EndpointI>(shared_from_this());
-#else
-        return const_cast<WSEndpoint*>(this);
-#endif
+        return shared_from_this();
     }
     else
     {
@@ -117,11 +113,7 @@ IceInternal::WSEndpoint::connectionId(const string& connectionId) const
 {
     if(connectionId == _delegate->connectionId())
     {
-#ifdef ICE_CPP11_MAPPING
-        return const_pointer_cast<EndpointI>(shared_from_this());
-#else
-        return const_cast<WSEndpoint*>(this);
-#endif
+        return shared_from_this();
     }
     else
     {
@@ -140,11 +132,7 @@ IceInternal::WSEndpoint::compress(bool compress) const
 {
     if(compress == _delegate->compress())
     {
-#ifdef ICE_CPP11_MAPPING
-        return const_pointer_cast<EndpointI>(shared_from_this());
-#else
-        return const_cast<WSEndpoint*>(this);
-#endif
+        return shared_from_this();
     }
     else
     {
@@ -215,12 +203,7 @@ AcceptorPtr
 IceInternal::WSEndpoint::acceptor(const string& adapterName) const
 {
     AcceptorPtr delAcc = _delegate->acceptor(adapterName);
-#ifdef ICE_CPP11_MAPPING
-    return new WSAcceptor(dynamic_pointer_cast<WSEndpoint>(const_pointer_cast<EndpointI>(shared_from_this())), 
-                          _instance, delAcc);
-#else
-    return new WSAcceptor(const_cast<WSEndpoint*>(this), _instance, delAcc);
-#endif
+    return new WSAcceptor(shared_from_this(), _instance, delAcc);
 }
 
 WSEndpointPtr
@@ -235,13 +218,7 @@ IceInternal::WSEndpoint::expand() const
     vector<EndpointIPtr> endps = _delegate->expand();
     for(vector<EndpointIPtr>::iterator p = endps.begin(); p != endps.end(); ++p)
     {
-#ifdef ICE_CPP11_MAPPING
-        *p = p->get() == _delegate.get() ? 
-            dynamic_pointer_cast<WSEndpoint>(const_pointer_cast<EndpointI>(shared_from_this())) : 
-            make_shared<WSEndpoint>(_instance, *p, _resource);
-#else
-        *p = p->get() == _delegate.get() ? const_cast<WSEndpoint*>(this) : new WSEndpoint(_instance, *p, _resource);
-#endif
+        *p = p->get() == _delegate.get() ? shared_from_this() : ICE_MAKE_SHARED(WSEndpoint, _instance, *p, _resource);
     }
     return endps;
 }

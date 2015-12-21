@@ -263,7 +263,6 @@ typedef long long Int64;
 #   define ICE_ENUM(CLASS,ENUMERATOR) CLASS::ENUMERATOR
 #   define ICE_NULLPTR nullptr
 #   define ICE_DYNAMIC_CAST(T,V) ::std::dynamic_pointer_cast<T>(V)
-#   define ICE_ENABLE_SHARED_FROM_THIS(T) ::std::enable_shared_from_this<T>
 #   define ICE_SHARED_FROM_THIS shared_from_this()
 #   define ICE_CHECKED_CAST(T,V) Ice::checkedCast<T>(V)
 #   define ICE_UNCHECKED_CAST(T,V) Ice::uncheckedCast<T>(V)
@@ -277,7 +276,6 @@ typedef long long Int64;
 #   define ICE_ENUM(CLASS,ENUMERATOR) ENUMERATOR
 #   define ICE_NULLPTR 0
 #   define ICE_DYNAMIC_CAST(T,V) T##Ptr::dynamicCast(V)
-#   define ICE_ENABLE_SHARED_FROM_THIS(T) virtual ::IceUtil::Shared
 #   define ICE_SHARED_FROM_THIS this
 #   define ICE_CHECKED_CAST(T,V) T::checkedCast(V)
 #   define ICE_UNCHECKED_CAST(T,V) T::uncheckedCast(V)

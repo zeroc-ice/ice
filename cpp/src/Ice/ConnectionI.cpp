@@ -355,12 +355,7 @@ Ice::ConnectionI::start(const StartCallbackPtr& callback)
         exception(ex);
         if(callback)
         {
-#ifdef ICE_CPP11_MAPPING
-            callback->connectionStartFailed(dynamic_pointer_cast<ConnectionI>(shared_from_this()),
-                                            *_exception.get());
-#else
-            callback->connectionStartFailed(this, *_exception.get());
-#endif
+            callback->connectionStartFailed(shared_from_this(), *_exception.get());
             return;
         }
         else
@@ -372,11 +367,7 @@ Ice::ConnectionI::start(const StartCallbackPtr& callback)
 
     if(callback)
     {
-#ifdef ICE_CPP11_MAPPING
-        callback->connectionStartCompleted(dynamic_pointer_cast<ConnectionI>(shared_from_this()));
-#else
-        callback->connectionStartCompleted(this);
-#endif
+        callback->connectionStartCompleted(shared_from_this());
     }
 }
 
@@ -736,11 +727,7 @@ Ice::ConnectionI::sendAsyncRequest(const OutgoingAsyncBasePtr& out, bool compres
     // Notify the request that it's cancelable with this connection.
     // This will throw if the request is canceled.
     //
-#ifdef ICE_CPP11_MAPPING
-    out->cancelable(dynamic_pointer_cast<CancellationHandler>(shared_from_this()));
-#else
-    out->cancelable(this);
-#endif
+    out->cancelable(shared_from_this());
     Int requestId = 0;
     if(response)
     {
@@ -951,11 +938,7 @@ AsyncResultPtr
 Ice::ConnectionI::__begin_flushBatchRequests(const CallbackBasePtr& cb, const LocalObjectPtr& cookie)
 {
     ConnectionFlushBatchAsyncPtr result = new ConnectionFlushBatchAsync(
-#ifdef ICE_CPP11_MAPPING
-        dynamic_pointer_cast<EventHandler>(shared_from_this()),
-#else
-        this,
-#endif
+        shared_from_this(),
         _communicator,
         _instance,
         __flushBatchRequests_name,
@@ -1002,11 +985,7 @@ Ice::ConnectionI::setCallback(const ConnectionCallbackPtr& callback)
                     const ConnectionIPtr _connection;
                     const ConnectionCallbackPtr _callback;
                 };
-#ifdef ICE_CPP11_MAPPING
-                _threadPool->dispatch(new CallbackWorkItem(dynamic_pointer_cast<ConnectionI>(shared_from_this()), callback));
-#else
-                _threadPool->dispatch(new CallbackWorkItem(this, callback));
-#endif
+                _threadPool->dispatch(new CallbackWorkItem(shared_from_this(), callback));
             }
         }
         else
@@ -1021,11 +1000,7 @@ Ice::ConnectionI::closeCallback(const ConnectionCallbackPtr& callback)
 {
     try
     {
-#ifdef ICE_CPP11_MAPPING
-        callback->closed(dynamic_pointer_cast<ConnectionI>(shared_from_this()));
-#else
-        callback->closed(this);
-#endif
+        callback->closed(shared_from_this());
     }
     catch(const std::exception& ex)
     {
@@ -1052,11 +1027,7 @@ Ice::ConnectionI::setACM(const IceUtil::Optional<int>& timeout,
 
     if(_state == StateActive)
     {
-#ifdef ICE_CPP11_MAPPING
-        _monitor->remove(dynamic_pointer_cast<ConnectionI>(shared_from_this()));
-#else
-        _monitor->remove(this);
-#endif
+        _monitor->remove(shared_from_this());
     }
     _monitor = _monitor->acm(timeout, close, heartbeat);
 
@@ -1071,11 +1042,7 @@ Ice::ConnectionI::setACM(const IceUtil::Optional<int>& timeout,
 
     if(_state == StateActive)
     {
-#ifdef ICE_CPP11_MAPPING
-        _monitor->add(dynamic_pointer_cast<ConnectionI>(shared_from_this()));
-#else
-        _monitor->add(this);
-#endif
+        _monitor->add(shared_from_this());
     }
 }
 
@@ -1453,13 +1420,8 @@ Ice::ConnectionI::createProxy(const Identity& ident) const
     // Create a reference and return a reverse proxy for this
     // reference.
     //
-    ConnectionIPtr self =
-#ifdef ICE_CPP11_MAPPING
-        dynamic_pointer_cast<ConnectionI>(const_pointer_cast<VirtualShared>(shared_from_this()));
-#else
-        const_cast<ConnectionI*>(this);
-#endif
-    return _instance->proxyFactory()->referenceToProxy(_instance->referenceFactory()->create(ident, self));
+    return _instance->proxyFactory()->referenceToProxy(
+        _instance->referenceFactory()->create(ident, shared_from_this()));
 }
 
 #if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
@@ -1708,12 +1670,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                     // satisfied before continuing.
                     //
                     scheduleTimeout(newOp);
-#ifdef ICE_CPP11_MAPPING
-                    _threadPool->update(dynamic_pointer_cast<EventHandler>(shared_from_this()),
-                                        current.operation, newOp);
-#else
-                    _threadPool->update(this, current.operation, newOp);
-#endif
+                    _threadPool->update(shared_from_this(), current.operation, newOp);
                     return;
                 }
 
@@ -1727,12 +1684,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                     return;
                 }
 
-#ifdef ICE_CPP11_MAPPING
-                _threadPool->unregister(dynamic_pointer_cast<EventHandler>(shared_from_this()),
-                                        current.operation);
-#else
-                _threadPool->unregister(this, current.operation);
-#endif
+                _threadPool->unregister(shared_from_this(), current.operation);
 
                 //
                 // We start out in holding state.
@@ -1780,12 +1732,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                 if(_state < StateClosed)
                 {
                     scheduleTimeout(newOp);
-#ifdef ICE_CPP11_MAPPING
-                    _threadPool->update(dynamic_pointer_cast<EventHandler>(shared_from_this()), current.operation,
-                                        newOp);
-#else
-                    _threadPool->update(this, current.operation, newOp);
-#endif
+                    _threadPool->update(shared_from_this(), current.operation, newOp);
                 }
             }
 
@@ -1847,14 +1794,9 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
     }
     else
     {
-#ifdef ICE_CPP11_MAPPING
-        _threadPool->dispatchFromThisThread(new DispatchCall(dynamic_pointer_cast<ConnectionI>(shared_from_this()),
-            startCB, sentCBs, compress, requestId, invokeNum, servantManager, adapter, outAsync, heartbeatCallback,
-            current.stream));
-#else
-        _threadPool->dispatchFromThisThread(new DispatchCall(this, startCB, sentCBs, compress, requestId,
-            invokeNum, servantManager, adapter, outAsync, heartbeatCallback, current.stream));
-#endif
+        _threadPool->dispatchFromThisThread(new DispatchCall(shared_from_this(), startCB, sentCBs, compress, requestId,
+                                                             invokeNum, servantManager, adapter, outAsync,
+                                                             heartbeatCallback, current.stream));
 
     }
 }
@@ -1873,12 +1815,7 @@ ConnectionI::dispatch(const StartCallbackPtr& startCB, const vector<OutgoingMess
     //
     if(startCB)
     {
-
-#ifdef ICE_CPP11_MAPPING
-        startCB->connectionStartCompleted(dynamic_pointer_cast<ConnectionI>(shared_from_this()));
-#else
-        startCB->connectionStartCompleted(this);
-#endif
+        startCB->connectionStartCompleted(shared_from_this());
         ++dispatchedCount;
     }
 
@@ -1923,11 +1860,7 @@ ConnectionI::dispatch(const StartCallbackPtr& startCB, const vector<OutgoingMess
     {
         try
         {
-#ifdef ICE_CPP11_MAPPING
-            heartbeatCallback->heartbeat(dynamic_pointer_cast<ConnectionI>(shared_from_this()));
-#else
-            heartbeatCallback->heartbeat(this);
-#endif
+            heartbeatCallback->heartbeat(shared_from_this());
         }
         catch(const std::exception& ex)
         {
@@ -2019,12 +1952,7 @@ Ice::ConnectionI::finished(ThreadPoolCurrent& current, bool close)
     }
     else
     {
-#ifdef ICE_CPP11_MAPPING
-        _threadPool->dispatchFromThisThread(new FinishCall(
-            dynamic_pointer_cast<ConnectionI>(shared_from_this()), close));
-#else
-        _threadPool->dispatchFromThisThread(new FinishCall(this, close));
-#endif
+        _threadPool->dispatchFromThisThread(new FinishCall(shared_from_this(), close));
     }
 }
 
@@ -2069,12 +1997,7 @@ Ice::ConnectionI::finish(bool close)
 
     if(_startCallback)
     {
-#ifdef ICE_CPP11_MAPPING
-        _startCallback->connectionStartFailed(
-            dynamic_pointer_cast<ConnectionI>(shared_from_this()), *_exception.get());
-#else
-        _startCallback->connectionStartFailed(this, *_exception.get());
-#endif
+        _startCallback->connectionStartFailed(shared_from_this(), *_exception.get());
         _startCallback = 0;
     }
 
@@ -2454,12 +2377,7 @@ Ice::ConnectionI::setState(State state)
             {
                 return;
             }
-#ifdef ICE_CPP11_MAPPING
-            _threadPool->_register(dynamic_pointer_cast<EventHandler>(shared_from_this()),
-                                   SocketOperationRead);
-#else
-            _threadPool->_register(this, SocketOperationRead);
-#endif
+            _threadPool->_register(shared_from_this(), SocketOperationRead);
             break;
         }
 
@@ -2475,12 +2393,7 @@ Ice::ConnectionI::setState(State state)
             }
             if(_state == StateActive)
             {
-#ifdef ICE_CPP11_MAPPING
-                _threadPool->unregister(dynamic_pointer_cast<EventHandler>(shared_from_this()),
-                                        SocketOperationRead);
-#else
-                _threadPool->unregister(this, SocketOperationRead);
-#endif
+                _threadPool->unregister(shared_from_this(), SocketOperationRead);
             }
             break;
         }
@@ -2511,11 +2424,7 @@ Ice::ConnectionI::setState(State state)
             // Don't need to close now for connections so only close the transceiver
             // if the selector request it.
             //
-#ifdef ICE_CPP11_MAPPING
-            if(_threadPool->finish(dynamic_pointer_cast<EventHandler>(shared_from_this()), false))
-#else
-            if(_threadPool->finish(this, false))
-#endif
+            if(_threadPool->finish(shared_from_this(), false))
             {
                 _transceiver->close();
             }
@@ -2550,19 +2459,11 @@ Ice::ConnectionI::setState(State state)
             {
                 _acmLastActivity = IceUtil::Time::now(IceUtil::Time::Monotonic);
             }
-#ifdef ICE_CPP11_MAPPING
-            _monitor->add(dynamic_pointer_cast<ConnectionI>(shared_from_this()));
-#else
-            _monitor->add(this);
-#endif
+            _monitor->add(shared_from_this());
         }
         else if(_state == StateActive)
         {
-#ifdef ICE_CPP11_MAPPING
-            _monitor->remove(dynamic_pointer_cast<ConnectionI>(shared_from_this()));
-#else
-            _monitor->remove(this);
-#endif
+            _monitor->remove(shared_from_this());
         }
     }
 
@@ -2647,11 +2548,7 @@ Ice::ConnectionI::initiateShutdown()
             if(op)
             {
                 scheduleTimeout(op);
-#ifdef ICE_CPP11_MAPPING
-                _threadPool->_register(dynamic_pointer_cast<EventHandler>(shared_from_this()), op);
-#else
-                _threadPool->_register(this, op);
-#endif
+                _threadPool->_register(shared_from_this(), op);
             }
         }
     }
@@ -2695,11 +2592,7 @@ Ice::ConnectionI::initialize(SocketOperation operation)
     if(s != SocketOperationNone)
     {
         scheduleTimeout(s);
-#ifdef ICE_CPP11_MAPPING
-        _threadPool->update(dynamic_pointer_cast<EventHandler>(shared_from_this()), operation, s);
-#else
-        _threadPool->update(this, operation, s);
-#endif
+        _threadPool->update(shared_from_this(), operation, s);
         return false;
     }
 
@@ -2745,11 +2638,7 @@ Ice::ConnectionI::validate(SocketOperation operation)
                 if(op)
                 {
                     scheduleTimeout(op);
-#ifdef ICE_CPP11_MAPPING
-                    _threadPool->update(dynamic_pointer_cast<EventHandler>(shared_from_this()), operation, op);
-#else
-                    _threadPool->update(this, operation, op);
-#endif
+                    _threadPool->update(shared_from_this(), operation, op);
                     return false;
                 }
             }
@@ -2778,11 +2667,7 @@ Ice::ConnectionI::validate(SocketOperation operation)
                 if(op)
                 {
                     scheduleTimeout(op);
-#ifdef ICE_CPP11_MAPPING
-                    _threadPool->update(dynamic_pointer_cast<EventHandler>(shared_from_this()), operation, op);
-#else
-                    _threadPool->update(this, operation, op);
-#endif
+                    _threadPool->update(shared_from_this(), operation, op);
                     return false;
                 }
             }
@@ -3160,11 +3045,7 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
 
     _writeStream.swap(*_sendStreams.back().stream);
     scheduleTimeout(op);
-#ifdef ICE_CPP11_MAPPING
-    _threadPool->_register(dynamic_pointer_cast<EventHandler>(shared_from_this()), op);
-#else
-    _threadPool->_register(this, op);
-#endif
+    _threadPool->_register(shared_from_this(), op);
     return AsyncStatusQueued;
 }
 
@@ -3779,11 +3660,7 @@ ConnectionI::reap()
 {
     if(_monitor)
     {
-#ifdef ICE_CPP11_MAPPING
-        _monitor->reap(dynamic_pointer_cast<ConnectionI>(shared_from_this()));
-#else
-        _monitor->reap(this);
-#endif
+        _monitor->reap(shared_from_this());
     }
     if(_observer)
     {

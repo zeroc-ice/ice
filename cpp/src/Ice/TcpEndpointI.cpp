@@ -64,12 +64,8 @@ IceInternal::TcpEndpointI::TcpEndpointI(const ProtocolInstancePtr& instance, Bas
 EndpointInfoPtr
 IceInternal::TcpEndpointI::getInfo() const
 {
-#ifdef ICE_CPP11_MAPPING
-    TCPEndpointInfoPtr info = make_shared<InfoI<Ice::TCPEndpointInfo>>(
-        dynamic_pointer_cast<TcpEndpointI>(const_pointer_cast<EndpointI>(shared_from_this())));
-#else
-    TCPEndpointInfoPtr info = new InfoI<Ice::TCPEndpointInfo>(const_cast<TcpEndpointI*>(this));
-#endif
+    TCPEndpointInfoPtr info = ICE_MAKE_SHARED(InfoI<Ice::TCPEndpointInfo>, 
+                                              ICE_DYNAMIC_CAST(TcpEndpointI, shared_from_this()));
     fillEndpointInfo(info.get());
     return info;
 }
@@ -77,12 +73,7 @@ IceInternal::TcpEndpointI::getInfo() const
 EndpointInfoPtr
 IceInternal::TcpEndpointI::getWSInfo(const string& resource) const
 {
-#ifdef ICE_CPP11_MAPPING
-    WSEndpointInfoPtr info = make_shared<InfoI<Ice::WSEndpointInfo>>(
-        dynamic_pointer_cast<TcpEndpointI>(const_pointer_cast<EndpointI>(shared_from_this())));
-#else
-    WSEndpointInfoPtr info = new InfoI<Ice::WSEndpointInfo>(const_cast<TcpEndpointI*>(this));
-#endif
+    WSEndpointInfoPtr info = ICE_MAKE_SHARED(InfoI<Ice::WSEndpointInfo>, shared_from_this());
     fillEndpointInfo(info.get());
     info->resource = resource;
     return info;
@@ -99,11 +90,7 @@ IceInternal::TcpEndpointI::timeout(Int timeout) const
 {
     if(timeout == _timeout)
     {
-#ifdef ICE_CPP11_MAPPING
-        return dynamic_pointer_cast<TcpEndpointI>(const_pointer_cast<EndpointI>(shared_from_this()));
-#else
-        return const_cast<TcpEndpointI*>(this);
-#endif
+        return shared_from_this();
     }
     else
     {
@@ -122,11 +109,7 @@ IceInternal::TcpEndpointI::compress(bool compress) const
 {
     if(compress == _compress)
     {
-#ifdef ICE_CPP11_MAPPING
-        return dynamic_pointer_cast<TcpEndpointI>(const_pointer_cast<EndpointI>(shared_from_this()));
-#else
-        return const_cast<TcpEndpointI*>(this);
-#endif
+        return shared_from_this();
     }
     else
     {
@@ -149,11 +132,7 @@ IceInternal::TcpEndpointI::transceiver() const
 AcceptorPtr
 IceInternal::TcpEndpointI::acceptor(const string&) const
 {
-#ifdef ICE_CPP11_MAPPING
-    return new TcpAcceptor(dynamic_pointer_cast<TcpEndpointI>(const_pointer_cast<EndpointI>(shared_from_this())), _instance, _host, _port);
-#else
-    return new TcpAcceptor(const_cast<TcpEndpointI*>(this), _instance, _host, _port);
-#endif
+    return new TcpAcceptor(ICE_DYNAMIC_CAST(TcpEndpointI, shared_from_this()), _instance, _host, _port);
 }
 
 TcpEndpointIPtr

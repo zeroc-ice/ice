@@ -31,7 +31,7 @@ public:
     virtual Ice::EndpointInfoPtr getWSInfo(const std::string&) const = 0;
 };
 
-class WSEndpoint : public EndpointI
+class WSEndpoint : public EndpointI, public ICE_ENABLE_SHARED_FROM_THIS(WSEndpoint)
 {
 public:
 

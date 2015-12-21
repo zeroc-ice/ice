@@ -80,13 +80,7 @@ IceInternal::IPEndpointInfoI::secure() const
 Ice::EndpointInfoPtr
 IceInternal::IPEndpointI::getInfo() const
 {
-    Ice::IPEndpointInfoPtr info 
-#ifdef ICE_CPP11_MAPPING
-        = make_shared<IPEndpointInfoI>(
-            dynamic_pointer_cast<IPEndpointI>(const_pointer_cast<EndpointI>(shared_from_this())));
-#else
-        = new IPEndpointInfoI(const_cast<IPEndpointI*>(this));
-#endif
+    Ice::IPEndpointInfoPtr info = ICE_MAKE_SHARED(IPEndpointInfoI, shared_from_this());
     fillEndpointInfo(info.get());
     return info;
 }
@@ -129,12 +123,7 @@ IceInternal::IPEndpointI::connectionId(const string& connectionId) const
 {
     if(connectionId == _connectionId)
     {
-#ifdef ICE_CPP11_MAPPING
-        return dynamic_pointer_cast<IPEndpointI>(
-            const_pointer_cast<EndpointI>(shared_from_this()));
-#else
-        return const_cast<IPEndpointI*>(this);
-#endif
+        return shared_from_this();
     }
     else
     {
@@ -157,13 +146,7 @@ IceInternal::IPEndpointI::port() const
 void
 IceInternal::IPEndpointI::connectors_async(Ice::EndpointSelectionType selType, const EndpointI_connectorsPtr& cb) const
 {
-    _instance->resolve(_host, _port, selType, 
-#ifdef ICE_CPP11_MAPPING
-                       dynamic_pointer_cast<IPEndpointI>(const_pointer_cast<EndpointI>(shared_from_this())),
-#else
-                       const_cast<IPEndpointI*>(this), 
-#endif
-                       cb);
+    _instance->resolve(_host, _port, selType, shared_from_this(), cb);
 }
 
 vector<EndpointIPtr>
@@ -173,13 +156,7 @@ IceInternal::IPEndpointI::expand() const
     vector<string> hosts = getHostsForEndpointExpand(_host, _instance->protocolSupport(), false);
     if(hosts.empty())
     {
-        endps.push_back(
-#ifdef ICE_CPP11_MAPPING
-                       dynamic_pointer_cast<IPEndpointI>(const_pointer_cast<EndpointI>(shared_from_this()))
-#else
-                       const_cast<IPEndpointI*>(this)
-#endif
-        );
+        endps.push_back(shared_from_this());
     }
     else
     {

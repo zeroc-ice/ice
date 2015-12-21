@@ -23,12 +23,7 @@ namespace IceInternal
 
 class BasicStream;
 
-class ResponseHandler :
-#ifdef ICE_CPP11_MAPPING
-    public virtual VirtualShared
-#else
-    public virtual ::IceUtil::Shared
-#endif
+class ResponseHandler : public virtual ICE_SHARED
 {
 public:
 

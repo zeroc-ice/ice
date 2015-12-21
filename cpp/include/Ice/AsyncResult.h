@@ -22,6 +22,7 @@
 #include <Ice/AsyncResultF.h>
 #include <Ice/ObserverHelper.h>
 #include <Ice/BasicStream.h>
+#include <Ice/VirtualShared.h>
 
 #ifdef ICE_CPP11_COMPILER
 #   include <functional> // for std::function

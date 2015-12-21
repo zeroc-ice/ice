@@ -71,11 +71,7 @@ EndpointI::timeout(int timeout) const
     IceInternal::EndpointIPtr endpoint = _endpoint->timeout(timeout);
     if(endpoint == _endpoint)
     {
-#ifdef ICE_CPP11_MAPPING
-        return const_pointer_cast<IceInternal::EndpointI>(shared_from_this());
-#else
-        return const_cast<EndpointI*>(this);
-#endif
+        return shared_from_this();
     }
     else
     {
@@ -89,11 +85,7 @@ EndpointI::connectionId(const string& connectionId) const
     IceInternal::EndpointIPtr endpoint = _endpoint->connectionId(connectionId);
     if(endpoint == _endpoint)
     {
-#ifdef ICE_CPP11_MAPPING
-        return const_pointer_cast<IceInternal::EndpointI>(shared_from_this());
-#else
-        return const_cast<EndpointI*>(this);
-#endif
+        return shared_from_this();
     }
     else
     {
@@ -113,11 +105,7 @@ EndpointI::compress(bool compress) const
     IceInternal::EndpointIPtr endpoint = _endpoint->compress(compress);
     if(endpoint == _endpoint)
     {
-#ifdef ICE_CPP11_MAPPING
-        return const_pointer_cast<IceInternal::EndpointI>(shared_from_this());
-#else
-        return const_cast<EndpointI*>(this);
-#endif
+        return shared_from_this();
     }
     else
     {
@@ -198,13 +186,7 @@ EndpointI::connectors_async(Ice::EndpointSelectionType selType, const IceInterna
 IceInternal::AcceptorPtr
 EndpointI::acceptor(const string& adapterName) const
 {
-#ifdef ICE_CPP11_MAPPING
-    return new Acceptor(dynamic_pointer_cast<EndpointI>(
-        const_pointer_cast<IceInternal::EndpointI>(shared_from_this())),                        
-                        _endpoint->acceptor(adapterName));
-#else
-    return new Acceptor(const_cast<EndpointI*>(this), _endpoint->acceptor(adapterName));
-#endif
+    return new Acceptor(shared_from_this(), _endpoint->acceptor(adapterName));
 }
 
 /*IceInternal::EndpointIPtr
@@ -234,11 +216,7 @@ EndpointI::expand() const
     vector<IceInternal::EndpointIPtr> e = _endpoint->expand();
     for(vector<IceInternal::EndpointIPtr>::iterator p = e.begin(); p != e.end(); ++p)
     {
-#ifdef ICE_CPP11_MAPPING
-        *p = (*p == _endpoint) ? const_pointer_cast<IceInternal::EndpointI>(shared_from_this()) : make_shared<EndpointI>(*p);
-#else
-        *p = (*p == _endpoint) ? const_cast<EndpointI*>(this) : new EndpointI(*p);
-#endif
+        *p = (*p == _endpoint) ? shared_from_this() : ICE_MAKE_SHARED(EndpointI, *p);
     }
     return e;
 }

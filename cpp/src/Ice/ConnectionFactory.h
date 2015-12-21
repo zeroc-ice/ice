@@ -88,10 +88,8 @@ private:
     };
 
     class ConnectCallback : public Ice::ConnectionI::StartCallback,
-                            public IceInternal::EndpointI_connectors
-#ifdef ICE_CPP11_MAPPING
-                    , public ::std::enable_shared_from_this<::IceInternal::OutgoingConnectionFactory::ConnectCallback>
-#endif
+                            public IceInternal::EndpointI_connectors,
+                            public ICE_ENABLE_SHARED_FROM_THIS(IceInternal::OutgoingConnectionFactory::ConnectCallback)
     {
     public:
 
@@ -171,7 +169,8 @@ private:
 
 class IncomingConnectionFactory : public EventHandler,
                                   public Ice::ConnectionI::StartCallback,
-                                  public IceUtil::Monitor<IceUtil::Mutex>
+                                  public IceUtil::Monitor<IceUtil::Mutex>,
+                                  public ICE_ENABLE_SHARED_FROM_THIS(IncomingConnectionFactory)
 {
 public:
 

@@ -16,16 +16,14 @@
 #include <Ice/TransceiverF.h>
 #include <Ice/ConnectorF.h>
 #include <Ice/AcceptorF.h>
+#include <Ice/VirtualShared.h>
 
 namespace IceInternal
 {
 
 class BasicStream;
 
-class ICE_API EndpointI_connectors 
-#ifndef ICE_CPP11_MAPPING
-    : public virtual IceUtil::Shared
-#endif
+class ICE_API EndpointI_connectors : public virtual ICE_SHARED
 {
 public:
 
@@ -36,7 +34,7 @@ public:
 };
 
 class ICE_API EndpointI : public Ice::Endpoint,
-                          public ICE_ENABLE_SHARED_FROM_THIS(EndpointI)
+                          public virtual ICE_SHARED
 {
 public:
 

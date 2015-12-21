@@ -78,12 +78,8 @@ IceInternal::UdpEndpointI::UdpEndpointI(const ProtocolInstancePtr& instance, Bas
 EndpointInfoPtr
 IceInternal::UdpEndpointI::getInfo() const
 {
-#ifdef ICE_CPP11_MAPPING
-    Ice::UDPEndpointInfoPtr info = make_shared<InfoI<Ice::UDPEndpointInfo>>(
-        dynamic_pointer_cast<UdpEndpointI>(const_pointer_cast<EndpointI>(shared_from_this())));
-#else
-    Ice::UDPEndpointInfoPtr info = new InfoI<Ice::UDPEndpointInfo>(const_cast<UdpEndpointI*>(this));
-#endif
+    Ice::UDPEndpointInfoPtr info = ICE_MAKE_SHARED(InfoI<Ice::UDPEndpointInfo>, 
+                                                   ICE_DYNAMIC_CAST(UdpEndpointI, shared_from_this()));
     fillEndpointInfo(info.get());
     return info;
 }
@@ -97,11 +93,7 @@ IceInternal::UdpEndpointI::timeout() const
 EndpointIPtr
 IceInternal::UdpEndpointI::timeout(Int) const
 {
-#ifdef ICE_CPP11_MAPPING
-    return const_pointer_cast<EndpointI>(shared_from_this());
-#else
-    return const_cast<UdpEndpointI*>(this);
-#endif
+    return shared_from_this();
 }
 
 bool
@@ -115,11 +107,7 @@ IceInternal::UdpEndpointI::compress(bool compress) const
 {
     if(compress == _compress)
     {
-#ifdef ICE_CPP11_MAPPING
-        return const_pointer_cast<EndpointI>(shared_from_this());
-#else
-        return const_cast<UdpEndpointI*>(this);
-#endif
+        return shared_from_this();
     }
     else
     {
@@ -137,12 +125,7 @@ IceInternal::UdpEndpointI::datagram() const
 TransceiverPtr
 IceInternal::UdpEndpointI::transceiver() const
 {
-#ifdef ICE_CPP11_MAPPING
-    return new UdpTransceiver(dynamic_pointer_cast<UdpEndpointI>(const_pointer_cast<EndpointI>(shared_from_this())),
-                              _instance, _host, _port, _mcastInterface, _connect);    
-#else
-    return new UdpTransceiver(const_cast<UdpEndpointI*>(this), _instance, _host, _port, _mcastInterface, _connect);
-#endif
+    return new UdpTransceiver(ICE_DYNAMIC_CAST(UdpEndpointI, shared_from_this()), _instance, _host, _port, _mcastInterface, _connect);
 }
 
 AcceptorPtr

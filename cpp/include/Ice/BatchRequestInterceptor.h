@@ -11,8 +11,9 @@
 #define ICE_BATCH_REQUEST_INTERCEPTOR_H
 
 #include <IceUtil/Shared.h>
-
 #include <Ice/ProxyF.h>
+#include <Ice/VirtualShared.h>
+
 #ifdef ICE_CPP11_COMPILER
 #   include <functional>
 #endif

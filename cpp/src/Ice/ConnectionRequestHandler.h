@@ -13,6 +13,7 @@
 #include <Ice/RequestHandler.h>
 #include <Ice/ReferenceF.h>
 #include <Ice/ProxyF.h>
+#include <Ice/VirtualShared.h>
 
 namespace IceInternal
 {
