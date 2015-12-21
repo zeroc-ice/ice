@@ -246,7 +246,7 @@ EndpointI::getInfo() const
 
 bool
 #ifdef ICE_CPP11_MAPPING
-EndpointI::operator==(const IceInternal::EndpointI& r) const
+EndpointI::operator==(const Ice::Endpoint& r) const
 #else
 EndpointI::operator==(const Ice::LocalObject& r) const
 #endif
@@ -268,7 +268,7 @@ EndpointI::operator==(const Ice::LocalObject& r) const
 
 bool
 #ifdef ICE_CPP11_MAPPING
-EndpointI::operator<(const IceInternal::EndpointI& r) const
+EndpointI::operator<(const Ice::Endpoint& r) const
 #else
 EndpointI::operator<(const Ice::LocalObject& r) const
 #endif

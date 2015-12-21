@@ -30,7 +30,8 @@ public:
 
    std::shared_ptr<T> shared_from_this() const
    {
-      return std::dynamic_pointer_cast<T>(VirtualEnableSharedFromThis::shared_from_this());
+      return std::dynamic_pointer_cast<T>(
+          std::const_pointer_cast<VirtualEnableSharedFromThisBase>(VirtualEnableSharedFromThisBase::shared_from_this()));
    }
 };
 

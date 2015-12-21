@@ -281,7 +281,7 @@ IceInternal::WSEndpoint::delegate() const
 
 bool
 #ifdef ICE_CPP11_MAPPING
-IceInternal::WSEndpoint::operator==(const EndpointI& r) const
+IceInternal::WSEndpoint::operator==(const Endpoint& r) const
 #else
 IceInternal::WSEndpoint::operator==(const Ice::LocalObject& r) const
 #endif
@@ -312,7 +312,7 @@ IceInternal::WSEndpoint::operator==(const Ice::LocalObject& r) const
 
 bool
 #ifdef ICE_CPP11_MAPPING
-IceInternal::WSEndpoint::operator<(const EndpointI& r) const
+IceInternal::WSEndpoint::operator<(const Endpoint& r) const
 #else
 IceInternal::WSEndpoint::operator<(const Ice::LocalObject& r) const
 #endif

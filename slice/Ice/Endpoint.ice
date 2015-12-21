@@ -104,6 +104,7 @@ local class EndpointInfo
  * The user-level interface to an endpoint.
  *
  **/
+["cpp:comparable"]
 local interface Endpoint
 {
     /**

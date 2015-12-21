@@ -179,7 +179,7 @@ IceInternal::UdpEndpointI::options() const
 
 bool
 #ifdef ICE_CPP11_MAPPING
-IceInternal::UdpEndpointI::operator==(const EndpointI& r) const
+IceInternal::UdpEndpointI::operator==(const Endpoint& r) const
 #else
 IceInternal::UdpEndpointI::operator==(const LocalObject& r) const
 #endif
@@ -225,7 +225,7 @@ IceInternal::UdpEndpointI::operator==(const LocalObject& r) const
 
 bool
 #ifdef ICE_CPP11_MAPPING
-IceInternal::UdpEndpointI::operator<(const EndpointI& r) const
+IceInternal::UdpEndpointI::operator<(const Endpoint& r) const
 #else
 IceInternal::UdpEndpointI::operator<(const LocalObject& r) const
 #endif

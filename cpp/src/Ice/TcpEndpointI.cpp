@@ -175,7 +175,7 @@ IceInternal::TcpEndpointI::options() const
 
 bool
 #ifdef ICE_CPP11_MAPPING
-IceInternal::TcpEndpointI::operator==(const EndpointI& r) const
+IceInternal::TcpEndpointI::operator==(const Endpoint& r) const
 #else
 IceInternal::TcpEndpointI::operator==(const LocalObject& r) const
 #endif
@@ -210,7 +210,7 @@ IceInternal::TcpEndpointI::operator==(const LocalObject& r) const
 
 bool
 #ifdef ICE_CPP11_MAPPING
-IceInternal::TcpEndpointI::operator<(const EndpointI& r) const
+IceInternal::TcpEndpointI::operator<(const Endpoint& r) const
 #else
 IceInternal::TcpEndpointI::operator<(const LocalObject& r) const
 #endif

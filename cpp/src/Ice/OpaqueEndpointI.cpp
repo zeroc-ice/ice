@@ -232,7 +232,7 @@ IceInternal::OpaqueEndpointI::options() const
 
 bool
 #ifdef ICE_CPP11_MAPPING
-IceInternal::OpaqueEndpointI::operator==(const EndpointI& r) const
+IceInternal::OpaqueEndpointI::operator==(const Endpoint& r) const
 #else
 IceInternal::OpaqueEndpointI::operator==(const LocalObject& r) const
 #endif
@@ -268,7 +268,7 @@ IceInternal::OpaqueEndpointI::operator==(const LocalObject& r) const
 
 bool
 #ifdef ICE_CPP11_MAPPING
-IceInternal::OpaqueEndpointI::operator<(const EndpointI& r) const
+IceInternal::OpaqueEndpointI::operator<(const Endpoint& r) const
 #else
 IceInternal::OpaqueEndpointI::operator<(const LocalObject& r) const
 #endif

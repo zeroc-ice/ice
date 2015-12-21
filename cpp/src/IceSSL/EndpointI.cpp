@@ -163,7 +163,7 @@ IceSSL::EndpointI::options() const
 
 bool
 #ifdef ICE_CPP11_MAPPING
-IceSSL::EndpointI::operator==(const IceInternal::EndpointI& r) const
+IceSSL::EndpointI::operator==(const Ice::Endpoint& r) const
 #else
 IceSSL::EndpointI::operator==(const Ice::LocalObject& r) const
 #endif
@@ -199,7 +199,7 @@ IceSSL::EndpointI::operator==(const Ice::LocalObject& r) const
 
 bool
 #ifdef ICE_CPP11_MAPPING
-IceSSL::EndpointI::operator<(const IceInternal::EndpointI& r) const
+IceSSL::EndpointI::operator<(const Ice::Endpoint& r) const
 #else
 IceSSL::EndpointI::operator<(const Ice::LocalObject& r) const
 #endif

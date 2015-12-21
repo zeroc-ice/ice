@@ -134,8 +134,8 @@ public:
     // Compare endpoints for sorting purposes.
     //
 #ifdef ICE_CPP11_MAPPING
-    virtual bool operator==(const EndpointI&) const = 0;
-    virtual bool operator<(const EndpointI&) const = 0;
+    virtual bool operator==(const Endpoint&) const = 0;
+    virtual bool operator<(const Endpoint&) const = 0;
 #else
     virtual bool operator==(const Ice::LocalObject&) const = 0;
     virtual bool operator<(const Ice::LocalObject&) const = 0;

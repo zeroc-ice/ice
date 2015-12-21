@@ -7507,6 +7507,13 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
         emitOneShotConstructor(p);
         H << sp;
     }
+    
+    if(p->hasMetaData("cpp:comparable"))
+    {
+        H << sp;
+        H << nl << "virtual bool operator==(const " << p->name() << "&) const = 0;";
+        H << nl << "virtual bool operator<(const " << p->name() << "&) const = 0;";
+    }
     return true;
 }
 

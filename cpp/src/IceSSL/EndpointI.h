@@ -44,8 +44,8 @@ public:
     virtual std::string options() const;
 
 #ifdef ICE_CPP11_MAPPING
-    virtual bool operator==(const IceInternal::EndpointI&) const;
-    virtual bool operator<(const IceInternal::EndpointI&) const;
+    virtual bool operator==(const Ice::Endpoint&) const;
+    virtual bool operator<(const Ice::Endpoint&) const;
 #else
     virtual bool operator==(const Ice::LocalObject&) const;
     virtual bool operator<(const Ice::LocalObject&) const;
