@@ -1511,10 +1511,7 @@ checkedCastImpl(const ::Ice::ObjectPrxPtr& b, const ::Ice::Context* context)
     {
         typedef typename P::element_type T;
 
-        d = dynamic_cast<T*>(b.get());
-        if(!d && (context == 0 ?
-                  b->ice_isA(T::ice_staticId()) :
-                  b->ice_isA(T::ice_staticId(), *context)))
+        if(context == 0 ? b->ice_isA(T::ice_staticId()) : b->ice_isA(T::ice_staticId(), *context))
         {
             d = new T;
             d->__copyFrom(b);
