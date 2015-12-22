@@ -16,29 +16,14 @@ using namespace std;
 using namespace Ice;
 using namespace Ice::Instrumentation;
 
-namespace
-{
-
-Ice::Context emptyCtx;
-
-}
-
-IceInternal::InvocationObserver::InvocationObserver(const Ice::ObjectPrxPtr& proxy, const string& op, const Context* ctx)
+IceInternal::InvocationObserver::InvocationObserver(const Ice::ObjectPrxPtr& proxy, const string& op, const Context& ctx)
 {
     const CommunicatorObserverPtr& obsv = proxy->__reference()->getInstance()->initializationData().observer;
     if(!obsv)
     {
         return;
     }
-
-    if(ctx)
-    {
-        attach(obsv->getInvocationObserver(proxy, op, *ctx));
-    }
-    else
-    {
-        attach(obsv->getInvocationObserver(proxy, op, emptyCtx));
-    }
+    attach(obsv->getInvocationObserver(proxy, op, ctx));
 }
 
 IceInternal::InvocationObserver::InvocationObserver(IceInternal::Instance* instance, const string& op)
@@ -49,26 +34,18 @@ IceInternal::InvocationObserver::InvocationObserver(IceInternal::Instance* insta
         return;
     }
 
-    attach(obsv->getInvocationObserver(0, op, emptyCtx));
+    attach(obsv->getInvocationObserver(0, op, noExplicitContext));
 }
 
 void
-IceInternal::InvocationObserver::attach(const Ice::ObjectPrxPtr& proxy, const string& op, const Context* ctx)
+IceInternal::InvocationObserver::attach(const Ice::ObjectPrxPtr& proxy, const string& op, const Context& ctx)
 {
     const CommunicatorObserverPtr& obsv = proxy->__reference()->getInstance()->initializationData().observer;
     if(!obsv)
     {
         return;
     }
-
-    if(ctx)
-    {
-        attach(obsv->getInvocationObserver(proxy, op, *ctx));
-    }
-    else
-    {
-        attach(obsv->getInvocationObserver(proxy, op, emptyCtx));
-    }
+    attach(obsv->getInvocationObserver(proxy, op, ctx));
 }
 
 void
@@ -80,5 +57,5 @@ IceInternal::InvocationObserver::attach(IceInternal::Instance* instance, const s
         return;
     }
 
-    attach(obsv->getInvocationObserver(0, op, emptyCtx));
+    attach(obsv->getInvocationObserver(0, op, Ice::noExplicitContext));
 }

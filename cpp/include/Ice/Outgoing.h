@@ -117,7 +117,7 @@ class ICE_API Outgoing : public ProxyOutgoingBase
 {
 public:
 
-    Outgoing(const Ice::ObjectPrxPtr&, const std::string&, Ice::OperationMode, const Ice::Context*);
+    Outgoing(const Ice::ObjectPrxPtr&, const std::string&, Ice::OperationMode, const Ice::Context&);
     ~Outgoing();
 
     virtual bool invokeRemote(const Ice::ConnectionIPtr&, bool, bool);

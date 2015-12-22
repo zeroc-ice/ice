@@ -496,7 +496,7 @@ Ice::ObjectPrx::ice_invoke_async(const string& operation, ::Ice::OperationMode m
         make_shared<InvokeCallback>(move(response), move(exception), shared_from_this()));
     try
     {
-        result->prepare(operation, mode, &context);
+        result->prepare(operation, mode, context);
 
         pair<const Byte*, const Byte*> inPair;
         if(inEncaps.empty())
@@ -532,14 +532,14 @@ Ice::ObjectPrx::__newInstance() const
 #else // C++98 mapping
 
 ::Ice::ObjectPrxPtr
-IceInternal::checkedCastImpl(const ObjectPrxPtr& b, const string& f, const string& typeId, const Context* context)
+IceInternal::checkedCastImpl(const ObjectPrxPtr& b, const string& f, const string& typeId, const Context& context)
 {
     if(b != ICE_NULLPTR)
     {
         ObjectPrxPtr bb = b->ice_facet(f);
         try
         {
-            if(context == 0 ? bb->ice_isA(typeId) : bb->ice_isA(typeId, *context))
+            if(bb->ice_isA(typeId, context))
             {
                 return bb;
             }
@@ -643,7 +643,7 @@ IceProxy::Ice::Object::operator<(const Object& r) const
 }
 
 bool
-IceProxy::Ice::Object::ice_isA(const string& typeId, const Context* context)
+IceProxy::Ice::Object::ice_isA(const string& typeId, const Context& context)
 {
     __checkTwowayOnly(ice_isA_name);
     Outgoing __og(this, ice_isA_name, ::Ice::Nonmutating, context);
@@ -676,10 +676,10 @@ IceProxy::Ice::Object::ice_isA(const string& typeId, const Context* context)
 }
 
 Ice::AsyncResultPtr
-IceProxy::Ice::Object::begin_ice_isA(const string& typeId,
-                                     const Context* ctx,
-                                     const ::IceInternal::CallbackBasePtr& del,
-                                     const ::Ice::LocalObjectPtr& cookie)
+IceProxy::Ice::Object::__begin_ice_isA(const string& typeId,
+                                       const Context& ctx,
+                                       const ::IceInternal::CallbackBasePtr& del,
+                                       const ::Ice::LocalObjectPtr& cookie)
 {
     __checkAsyncTwowayOnly(ice_isA_name);
     OutgoingAsyncPtr __result = new OutgoingAsync(this, ice_isA_name, del, cookie);
@@ -701,11 +701,11 @@ IceProxy::Ice::Object::begin_ice_isA(const string& typeId,
 #ifdef ICE_CPP11_COMPILER
 
 Ice::AsyncResultPtr
-IceProxy::Ice::Object::__begin_ice_isA(const ::std::string& typeId,
-                                       const ::Ice::Context* ctx,
-                                       const ::IceInternal::Function<void (bool)>& response,
-                                       const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception,
-                                       const ::IceInternal::Function<void (bool)>& sent)
+IceProxy::Ice::Object::begin_ice_isA(const ::std::string& typeId,
+                                     const ::Ice::Context& ctx,
+                                     const ::IceInternal::Function<void (bool)>& response,
+                                     const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception,
+                                     const ::IceInternal::Function<void (bool)>& sent)
 {
     class Cpp11CB : public ::IceInternal::Cpp11FnCallbackNC
     {
@@ -744,14 +744,14 @@ IceProxy::Ice::Object::__begin_ice_isA(const ::std::string& typeId,
         ::std::function<void (bool)> _response;
     };
 
-    return begin_ice_isA(typeId, ctx, new Cpp11CB(response, exception, sent), 0);
+    return __begin_ice_isA(typeId, ctx, new Cpp11CB(response, exception, sent), 0);
 }
 
 Ice::AsyncResultPtr
-IceProxy::Ice::Object::__begin_ice_id(const ::Ice::Context* ctx,
-                                      const ::IceInternal::Function<void (const ::std::string&)>& response,
-                                      const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception,
-                                      const ::IceInternal::Function<void (bool)>& sent)
+IceProxy::Ice::Object::begin_ice_id(const ::Ice::Context& ctx,
+                                    const ::IceInternal::Function<void (const ::std::string&)>& response,
+                                    const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception,
+                                    const ::IceInternal::Function<void (bool)>& sent)
 {
     class Cpp11CB : public ::IceInternal::Cpp11FnCallbackNC
     {
@@ -789,12 +789,12 @@ IceProxy::Ice::Object::__begin_ice_id(const ::Ice::Context* ctx,
 
         ::std::function<void (const ::std::string&)> _response;
     };
-    return begin_ice_id(ctx, new Cpp11CB(response, exception, sent), 0);
+    return __begin_ice_id(ctx, new Cpp11CB(response, exception, sent), 0);
 }
 
 Ice::AsyncResultPtr
-IceProxy::Ice::Object::__begin_ice_ids(
-    const ::Ice::Context* ctx,
+IceProxy::Ice::Object::begin_ice_ids(
+    const ::Ice::Context& ctx,
     const ::IceInternal::Function<void (const ::std::vector< ::std::string>&)>& response,
     const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception,
     const ::IceInternal::Function<void (bool)>& sent)
@@ -835,15 +835,15 @@ IceProxy::Ice::Object::__begin_ice_ids(
 
         ::std::function<void (const ::std::vector< ::std::string>&)> _response;
     };
-    return begin_ice_ids(ctx, new Cpp11CB(response, exception, sent), 0);
+    return __begin_ice_ids(ctx, new Cpp11CB(response, exception, sent), 0);
 }
 
 Ice::AsyncResultPtr
-IceProxy::Ice::Object::__begin_ice_invoke(
+IceProxy::Ice::Object::begin_ice_invoke(
     const ::std::string& operation,
     ::Ice::OperationMode mode,
     const ::std::vector< ::Ice::Byte>& inParams,
-    const ::Ice::Context* ctx,
+    const ::Ice::Context& ctx,
     const ::IceInternal::Function<void (bool, const ::std::vector< ::Ice::Byte>&)>& response,
     const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception,
     const ::IceInternal::Function<void (bool)>& sent)
@@ -886,15 +886,15 @@ IceProxy::Ice::Object::__begin_ice_invoke(
         ::std::function<void (bool, const ::std::vector< ::Ice::Byte>&)> _response;
     };
 
-    return begin_ice_invoke(operation, mode, inParams, ctx, new Cpp11CB(response, exception, sent), 0);
+    return __begin_ice_invoke(operation, mode, inParams, ctx, new Cpp11CB(response, exception, sent), 0);
 }
 
 Ice::AsyncResultPtr
-IceProxy::Ice::Object::__begin_ice_invoke(
+IceProxy::Ice::Object::begin_ice_invoke(
     const ::std::string& operation,
     ::Ice::OperationMode mode,
     const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>& inParams,
-    const ::Ice::Context* ctx,
+    const ::Ice::Context& ctx,
     const ::IceInternal::Function<void (bool, const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&)>& response,
     const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception,
     const ::IceInternal::Function<void (bool)>& sent)
@@ -936,7 +936,7 @@ IceProxy::Ice::Object::__begin_ice_invoke(
 
         ::std::function<void (bool, const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&)> _response;
     };
-    return begin_ice_invoke(operation, mode, inParams, ctx, new Cpp11CB(response, exception, sent), 0);
+    return __begin_ice_invoke(operation, mode, inParams, ctx, new Cpp11CB(response, exception, sent), 0);
 }
 
 Ice::AsyncResultPtr
@@ -1009,7 +1009,7 @@ IceProxy::Ice::Object::end_ice_isA(const AsyncResultPtr& __result)
 }
 
 void
-IceProxy::Ice::Object::ice_ping(const Context* context)
+IceProxy::Ice::Object::ice_ping(const Context& context)
 {
     Outgoing __og(this, ice_ping_name, ::Ice::Nonmutating, context);
     __og.writeEmptyParams();
@@ -1032,9 +1032,9 @@ IceProxy::Ice::Object::ice_ping(const Context* context)
 }
 
 AsyncResultPtr
-IceProxy::Ice::Object::begin_ice_ping(const Context* ctx,
-                                      const ::IceInternal::CallbackBasePtr& del,
-                                      const ::Ice::LocalObjectPtr& cookie)
+IceProxy::Ice::Object::__begin_ice_ping(const Context& ctx,
+                                        const ::IceInternal::CallbackBasePtr& del,
+                                        const ::Ice::LocalObjectPtr& cookie)
 {
     OutgoingAsyncPtr __result = new OutgoingAsync(this, ice_ping_name, del, cookie);
     try
@@ -1057,7 +1057,7 @@ IceProxy::Ice::Object::end_ice_ping(const AsyncResultPtr& __result)
 }
 
 vector<string>
-IceProxy::Ice::Object::ice_ids(const Context* context)
+IceProxy::Ice::Object::ice_ids(const Context& context)
 {
     __checkTwowayOnly(ice_ids_name);
     Outgoing __og(this, ice_ids_name, ::Ice::Nonmutating, context);
@@ -1081,7 +1081,7 @@ IceProxy::Ice::Object::ice_ids(const Context* context)
 }
 
 string
-IceProxy::Ice::Object::ice_id(const Context* context)
+IceProxy::Ice::Object::ice_id(const Context& context)
 {
     __checkTwowayOnly(ice_id_name);
     Outgoing __og(this, ice_id_name, ::Ice::Nonmutating, context);
@@ -1105,9 +1105,9 @@ IceProxy::Ice::Object::ice_id(const Context* context)
 }
 
 AsyncResultPtr
-IceProxy::Ice::Object::begin_ice_ids(const Context* ctx,
-                                     const ::IceInternal::CallbackBasePtr& del,
-                                     const ::Ice::LocalObjectPtr& cookie)
+IceProxy::Ice::Object::__begin_ice_ids(const Context& ctx,
+                                       const ::IceInternal::CallbackBasePtr& del,
+                                       const ::Ice::LocalObjectPtr& cookie)
 {
     __checkAsyncTwowayOnly(ice_ids_name);
     OutgoingAsyncPtr __result = new OutgoingAsync(this, ice_ids_name, del, cookie);
@@ -1148,9 +1148,9 @@ IceProxy::Ice::Object::end_ice_ids(const AsyncResultPtr& __result)
 }
 
 AsyncResultPtr
-IceProxy::Ice::Object::begin_ice_id(const Context* ctx,
-                                    const ::IceInternal::CallbackBasePtr& del,
-                                    const ::Ice::LocalObjectPtr& cookie)
+IceProxy::Ice::Object::__begin_ice_id(const Context& ctx,
+                                      const ::IceInternal::CallbackBasePtr& del,
+                                      const ::Ice::LocalObjectPtr& cookie)
 {
     __checkAsyncTwowayOnly(ice_id_name);
     OutgoingAsyncPtr __result = new OutgoingAsync(this, ice_id_name, del, cookie);
@@ -1195,7 +1195,7 @@ IceProxy::Ice::Object::ice_invoke(const string& operation,
                                   OperationMode mode,
                                   const vector<Byte>& inEncaps,
                                   vector<Byte>& outEncaps,
-                                  const Context* context)
+                                  const Context& context)
 {
     pair<const Byte*, const Byte*> inPair;
     if(inEncaps.empty())
@@ -1211,12 +1211,12 @@ IceProxy::Ice::Object::ice_invoke(const string& operation,
 }
 
 AsyncResultPtr
-IceProxy::Ice::Object::begin_ice_invoke(const string& operation,
-                                        OperationMode mode,
-                                        const vector<Byte>& inEncaps,
-                                        const Context* ctx,
-                                        const ::IceInternal::CallbackBasePtr& del,
-                                        const ::Ice::LocalObjectPtr& cookie)
+IceProxy::Ice::Object::__begin_ice_invoke(const string& operation,
+                                          OperationMode mode,
+                                          const vector<Byte>& inEncaps,
+                                          const Context& ctx,
+                                          const ::IceInternal::CallbackBasePtr& del,
+                                          const ::Ice::LocalObjectPtr& cookie)
 {
     pair<const Byte*, const Byte*> inPair;
     if(inEncaps.empty())
@@ -1228,7 +1228,7 @@ IceProxy::Ice::Object::begin_ice_invoke(const string& operation,
         inPair.first = &inEncaps[0];
         inPair.second = inPair.first + inEncaps.size();
     }
-    return begin_ice_invoke(operation, mode, inPair, ctx, del, cookie);
+    return __begin_ice_invoke(operation, mode, inPair, ctx, del, cookie);
 }
 
 bool
@@ -1251,7 +1251,7 @@ IceProxy::Ice::Object::ice_invoke(const string& operation,
                                   OperationMode mode,
                                   const pair<const Byte*, const Byte*>& inEncaps,
                                   vector<Byte>& outEncaps,
-                                  const Context* context)
+                                  const Context& context)
 {
     Outgoing __og(this, operation, mode, context);
     try
@@ -1274,12 +1274,12 @@ IceProxy::Ice::Object::ice_invoke(const string& operation,
 }
 
 AsyncResultPtr
-IceProxy::Ice::Object::begin_ice_invoke(const string& operation,
-                                        OperationMode mode,
-                                        const pair<const Byte*, const Byte*>& inEncaps,
-                                        const Context* ctx,
-                                        const ::IceInternal::CallbackBasePtr& del,
-                                        const ::Ice::LocalObjectPtr& cookie)
+IceProxy::Ice::Object::__begin_ice_invoke(const string& operation,
+                                          OperationMode mode,
+                                          const pair<const Byte*, const Byte*>& inEncaps,
+                                          const Context& ctx,
+                                          const ::IceInternal::CallbackBasePtr& del,
+                                          const ::Ice::LocalObjectPtr& cookie)
 {
     OutgoingAsyncPtr __result = new OutgoingAsync(this, ice_invoke_name, del, cookie);
     try
@@ -2012,7 +2012,7 @@ ICE_OBJECT_PRX::ice_getConnectionId() const
 ConnectionPtr
 ICE_OBJECT_PRX::ice_getConnection()
 {
-    InvocationObserver observer(ICE_SHARED_FROM_THIS, "ice_getConnection", 0);
+    InvocationObserver observer(ICE_SHARED_FROM_THIS, "ice_getConnection", ::Ice::noExplicitContext);
     int cnt = 0;
     while(true)
     {

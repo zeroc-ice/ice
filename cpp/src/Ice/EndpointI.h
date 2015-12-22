@@ -33,8 +33,7 @@ public:
     virtual void exception(const Ice::LocalException&) = 0;
 };
 
-class ICE_API EndpointI : public Ice::Endpoint,
-                          public virtual ICE_SHARED
+class ICE_API EndpointI : public Ice::Endpoint, public virtual ICE_SHARED
 {
 public:
 

@@ -346,7 +346,7 @@ ProxyOutgoingAsyncBase::sent(bool done)
 #ifdef ICE_CPP11_MAPPING
             _instance->timer()->cancel(dynamic_pointer_cast<TimerTask>(shared_from_this()));
 #else
-            _instance->timer()->cancel(this);      
+            _instance->timer()->cancel(this);
 #endif
         }
     }
@@ -361,7 +361,7 @@ ProxyOutgoingAsyncBase::finished(const Exception& ex)
 #ifdef ICE_CPP11_MAPPING
         _instance->timer()->cancel(dynamic_pointer_cast<TimerTask>(shared_from_this()));
 #else
-        _instance->timer()->cancel(this);      
+        _instance->timer()->cancel(this);
 #endif
     }
     return OutgoingAsyncBase::finished(ex);
@@ -375,7 +375,7 @@ ProxyOutgoingAsyncBase::finished(bool ok)
 #ifdef ICE_CPP11_MAPPING
         _instance->timer()->cancel(dynamic_pointer_cast<TimerTask>(shared_from_this()));
 #else
-        _instance->timer()->cancel(this);      
+        _instance->timer()->cancel(this);
 #endif
     }
     return AsyncResult::finished(ok);
@@ -417,7 +417,7 @@ OutgoingAsync::OutgoingAsync(const ObjectPrxPtr& prx,
 }
 
 void
-OutgoingAsync::prepare(const string& operation, OperationMode mode, const Context* context)
+OutgoingAsync::prepare(const string& operation, OperationMode mode, const Context& context)
 {
     checkSupportedProtocol(getCompatibleProtocol(_proxy->__reference()->getProtocol()));
 
@@ -463,12 +463,12 @@ OutgoingAsync::prepare(const string& operation, OperationMode mode, const Contex
 
     _os.write(static_cast<Byte>(_mode));
 
-    if(context != &Ice::noExplicitContext)
+    if(&context != &Ice::noExplicitContext)
     {
         //
         // Explicit context
         //
-        _os.write(*context);
+        _os.write(context);
     }
     else
     {
@@ -706,7 +706,7 @@ ProxyFlushBatchAsync::ProxyFlushBatchAsync(const ObjectPrxPtr& proxy,
     ProxyOutgoingAsyncBase(proxy, operation, delegate, cookie)
 #endif
 {
-    _observer.attach(proxy, operation, 0);
+    _observer.attach(proxy, operation, ::Ice::noExplicitContext);
     _batchRequestNum = proxy->__getBatchRequestQueue()->swap(&_os);
 }
 
@@ -770,7 +770,7 @@ ProxyGetConnection::ProxyGetConnection(const ObjectPrxPtr& prx,
     ProxyOutgoingAsyncBase(prx, operation, delegate, cookie)
 #endif
 {
-    _observer.attach(prx, operation, 0);
+    _observer.attach(prx, operation, ::Ice::noExplicitContext);
 }
 
 AsyncStatus
@@ -1099,11 +1099,11 @@ OnewayClosureCallback::invoke(
     function<void (bool)> __sent,
     const Ice::Context& __context)
 {
-    auto __result = make_shared<OutgoingAsync>(__proxy, __name, 
+    auto __result = make_shared<OutgoingAsync>(__proxy, __name,
         make_shared<OnewayClosureCallback>(__name, __proxy, move(__response), move(__exception), move(__sent)));
     try
     {
-        __result->prepare(__name, __mode, &__context);
+        __result->prepare(__name, __mode, __context);
         if(__marshal)
         {
             __marshal(__result->startWriteParams(__format));
@@ -1123,7 +1123,7 @@ OnewayClosureCallback::invoke(
     {
         __result->abort(__ex);
     }
-    
+
     return [__result]()
         {
             __result->cancel();
@@ -1212,7 +1212,7 @@ TwowayClosureCallback::completed(const AsyncResultPtr& __result) const
 
 function<void ()>
 TwowayClosureCallback::invoke(
-    const string& __name, 
+    const string& __name,
     const shared_ptr<Ice::ObjectPrx>& __proxy,
     OperationMode __mode,
     FormatType __format,
@@ -1225,13 +1225,13 @@ TwowayClosureCallback::invoke(
     const Context& __context)
 {
     assert(__proxy);
-    auto __result = make_shared<OutgoingAsync>(__proxy, __name, 
+    auto __result = make_shared<OutgoingAsync>(__proxy, __name,
         make_shared<TwowayClosureCallback>(__name, __proxy, __readEmptyParams, move(__read),
                                            move(__userException), move(__exception), move(__sent)));
     __proxy->__checkAsyncTwowayOnly(__name);
     try
     {
-        __result->prepare(__name, __mode, &__context);
+        __result->prepare(__name, __mode, __context);
         if(__write)
         {
             __write(__result->startWriteParams(__format));
@@ -1247,7 +1247,7 @@ TwowayClosureCallback::invoke(
     {
         __result->abort(__ex);
     }
-    
+
     return [__result]()
         {
             __result->cancel();

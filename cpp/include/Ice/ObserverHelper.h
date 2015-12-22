@@ -109,7 +109,7 @@ protected:
 class ICE_API DispatchObserver : public ObserverHelperT<Ice::Instrumentation::DispatchObserver>
 {
 public:
-    
+
     void userException()
     {
         if(_observer)
@@ -131,13 +131,13 @@ class ICE_API InvocationObserver : public ObserverHelperT<Ice::Instrumentation::
 {
 public:
 
-    InvocationObserver(const Ice::ObjectPrxPtr&, const std::string&, const Ice::Context*);
+    InvocationObserver(const Ice::ObjectPrxPtr&, const std::string&, const Ice::Context&);
     InvocationObserver(Instance*, const std::string&);
     InvocationObserver()
     {
     }
 
-    void attach(const Ice::ObjectPrxPtr&, const std::string&, const Ice::Context*);
+    void attach(const Ice::ObjectPrxPtr&, const std::string&, const Ice::Context&);
     void attach(Instance*, const std::string&);
 
     void retried()

@@ -142,7 +142,7 @@ public:
 #else
     OutgoingAsync(const Ice::ObjectPrxPtr&, const std::string&, const CallbackBasePtr&, const Ice::LocalObjectPtr&);
 #endif
-    void prepare(const std::string&, Ice::OperationMode, const Ice::Context*);
+    void prepare(const std::string&, Ice::OperationMode, const Ice::Context&);
 
     virtual bool sent();
 
@@ -301,16 +301,16 @@ public:
              std::function<void ()>,
              std::function<void (::std::exception_ptr)>,
              std::function<void (bool)>);
-    
+
     virtual void
     sent(const ::Ice::AsyncResultPtr&) const;
 
     virtual bool
     hasSentCallback() const;
-    
+
     virtual void
     completed(const ::Ice::AsyncResultPtr&) const;
-    
+
     static std::function<void ()>
     invoke(const std::string&,
            const std::shared_ptr<Ice::ObjectPrx>&,
@@ -342,16 +342,16 @@ public:
              std::function<void (const ::Ice::UserException&)>,
              std::function<void (::std::exception_ptr)>,
              std::function<void (bool)>);
-    
+
     virtual void
     sent(const ::Ice::AsyncResultPtr&) const;
 
     virtual bool
     hasSentCallback() const;
-    
+
     virtual void
     completed(const ::Ice::AsyncResultPtr&) const;
-    
+
     static std::function<void ()>
     invoke(const std::string&,
            const std::shared_ptr<Ice::ObjectPrx>&,

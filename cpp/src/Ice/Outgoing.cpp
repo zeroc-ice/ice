@@ -280,7 +280,7 @@ ProxyOutgoingBase::invokeImpl()
     return false;
 }
 
-Outgoing::Outgoing(const Ice::ObjectPrxPtr& proxy, const string& operation, OperationMode mode, const Context* context) :
+Outgoing::Outgoing(const Ice::ObjectPrxPtr& proxy, const string& operation, OperationMode mode, const Context& context) :
     ProxyOutgoingBase(proxy, mode),
     _encoding(getCompatibleEncoding(proxy->__reference()->getEncoding())),
     _is(proxy->__reference()->getInstance().get(), Ice::currentProtocolEncoding),
@@ -327,12 +327,12 @@ Outgoing::Outgoing(const Ice::ObjectPrxPtr& proxy, const string& operation, Oper
 
         _os.write(static_cast<Ice::Byte>(mode));
 
-        if(context != &Ice::noExplicitContext)
+        if(&context != &Ice::noExplicitContext)
         {
             //
             // Explicit context
             //
-            _os.write(*context);
+            _os.write(context);
         }
         else
         {
@@ -585,7 +585,7 @@ ProxyFlushBatch::ProxyFlushBatch(const Ice::ObjectPrxPtr& proxy, const string& o
     ProxyOutgoingBase(proxy, ICE_ENUM(OperationMode, Normal))
 {
     checkSupportedProtocol(getCompatibleProtocol(proxy->__reference()->getProtocol()));
-    _observer.attach(proxy, operation, 0);
+    _observer.attach(proxy, operation, ::Ice::noExplicitContext);
 
     _batchRequestNum = proxy->__getBatchRequestQueue()->swap(&_os);
 }

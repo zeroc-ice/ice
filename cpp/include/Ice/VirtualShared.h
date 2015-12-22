@@ -20,10 +20,10 @@ namespace Ice
 class VirtualEnableSharedFromThisBase : public std::enable_shared_from_this<VirtualEnableSharedFromThisBase>
 {
 public:
-     virtual ~ VirtualEnableSharedFromThisBase() = default;
+     virtual ~VirtualEnableSharedFromThisBase() = default;
 };
 
-template<typename T> class VirtualEnableSharedFromThis : public virtual VirtualEnableSharedFromThisBase 
+template<typename T> class VirtualEnableSharedFromThis : public virtual VirtualEnableSharedFromThisBase
 {
 
 public:

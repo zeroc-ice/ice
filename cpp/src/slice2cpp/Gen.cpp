@@ -1954,16 +1954,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     string thisPointer = fixKwd(scope.substr(0, scope.size() - 2)) + "*";
 
     string deprecateSymbol = getDeprecateSymbol(p, cl);
-    H << nl << deprecateSymbol << retS << ' ' << fixKwd(name) << spar << paramsDecl << "const ::Ice::Context& __ctx = ::Ice::noExplicitContext"
-      << epar;
-    H << sb;
-    H << nl;
-    if(ret)
-    {
-        H << "return ";
-    }
-    H << fixKwd(name) << spar << args << "&__ctx" << epar << ';';
-    H << eb;
+    H << nl << deprecateSymbol << retS << ' ' << fixKwd(name) << spar << paramsDecl
+      << "const ::Ice::Context& __ctx = ::Ice::noExplicitContext" << epar << ";";
 
     H.zeroIndent();
     H << nl << "#ifdef ICE_CPP11_COMPILER";
@@ -2001,12 +1993,12 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     H << sb;
     if(p->returnsData())
     {
-        H << nl << "return __begin_" << name << spar << argsAMI << "&::Ice::noExplicitContext, __response, __exception, __sent" << epar << ";";
+        H << nl << "return begin_" << name << spar << argsAMI << "::Ice::noExplicitContext, __response, __exception, __sent" << epar << ";";
     }
     else
     {
-        H << nl << "return begin_" << name << spar << argsAMI
-          << "&::Ice::noExplicitContext, new ::IceInternal::Cpp11FnOnewayCallbackNC(__response, __exception, __sent)" << epar << ";";
+        H << nl << "return __begin_" << name << spar << argsAMI
+          << "::Ice::noExplicitContext, new ::IceInternal::Cpp11FnOnewayCallbackNC(__response, __exception, __sent)" << epar << ";";
 
     }
     H << eb;
@@ -2028,7 +2020,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
       << "const ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>& __sent = "
          "::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>()" << epar;
     H << sb;
-    H << nl << "return begin_" << name << spar << argsAMI << "&::Ice::noExplicitContext, ::Ice::newCallback(__completed, __sent), 0" << epar << ";";
+    H << nl << "return __begin_" << name << spar << argsAMI << "::Ice::noExplicitContext, ::Ice::newCallback(__completed, __sent), 0" << epar << ";";
     H << eb;
 
     //
@@ -2053,22 +2045,26 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     {
         H << retInS;
     }
-    H << outDecls << epar << ">& __response, "
-      << "const ::IceInternal::Function<void (const ::Ice::Exception&)>& __exception = "
-         "::IceInternal::Function<void (const ::Ice::Exception&)>(), "
-      << "const ::IceInternal::Function<void (bool)>& __sent = ::IceInternal::Function<void (bool)>()" << epar;
 
-    H << sb;
     if(p->returnsData())
     {
-        H << nl << "return __begin_" << name << spar << argsAMI << "&__ctx, __response, __exception, __sent" << epar << ";";
+        H << outDecls << epar << ">&, "
+          << "const ::IceInternal::Function<void (const ::Ice::Exception&)>& = "
+          <<   "::IceInternal::Function<void (const ::Ice::Exception&)>(), "
+          << "const ::IceInternal::Function<void (bool)>& = ::IceInternal::Function<void (bool)>()"
+          << epar << ";";
     }
     else
     {
-        H << nl << "return begin_" << name << spar << argsAMI
-          << "&__ctx, new ::IceInternal::Cpp11FnOnewayCallbackNC(__response, __exception, __sent), 0" << epar << ";";
+        H << outDecls << epar << ">& __response, "
+          << "const ::IceInternal::Function<void (const ::Ice::Exception&)>& __exception = "
+          <<   "::IceInternal::Function<void (const ::Ice::Exception&)>(), "
+          << "const ::IceInternal::Function<void (bool)>& __sent = ::IceInternal::Function<void (bool)>()" << epar;
+        H << sb;
+        H << nl << "return __begin_" << name << spar << argsAMI
+          << "__ctx, new ::IceInternal::Cpp11FnOnewayCallbackNC(__response, __exception, __sent), 0" << epar << ";";
+        H << eb;
     }
-    H << eb;
 
     //
     // COMPILERFIX VC compilers up to VC110 don't support more than 10 parameters with std::function due to
@@ -2088,76 +2084,17 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
       << "const ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>& __sent = "
          "::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>()" << epar;
     H << sb;
-    H << nl << "return begin_" << name << spar << argsAMI << "&__ctx, ::Ice::newCallback(__completed, __sent)" << epar << ";";
+    H << nl << "return __begin_" << name << spar << argsAMI << "__ctx, ::Ice::newCallback(__completed, __sent)" << epar << ";";
     H << eb;
-
-    if(p->returnsData())
-    {
-        //
-        // COMPILERFIX VC compilers up to VC110 don't support more than 10 parameters with std::function due to
-        // lack of variadic templates.
-        //
-        if(outDecls.size() > 10 || (outDecls.size() > 9 && !retInS.empty()))
-        {
-            H.zeroIndent();
-            H << nl << "#if !defined(_MSC_VER) || _MSC_VER > 1700";
-            H.restoreIndent();
-            H << nl << "//";
-            H << nl << "// COMPILERFIX VC compilers up to VC110 don't support more than 10 parameters with";
-            H << nl << "// std::function due to lack of variadic templates.";
-            H << nl << "//";
-        }
-
-        H << nl;
-        H.dec();
-        H << nl << "private:";
-        H.inc();
-
-
-        H << sp << nl << "::Ice::AsyncResultPtr __begin_" << name << spar << paramsDeclAMI
-          << "const ::Ice::Context* __ctx" << "const ::IceInternal::Function<void " << spar;
-
-
-        if(!retInS.empty())
-        {
-            H << retInS;
-        }
-        H << outDecls;
-
-        H << epar << ">& __response, "
-          << "const ::IceInternal::Function<void (const ::Ice::Exception&)>& __exception, "
-          << "const ::IceInternal::Function<void (bool)>& __sent" << epar << ";";
-
-        H << nl;
-        H.dec();
-        H << nl << "public:";
-        H.inc();
-        //
-        // COMPILERFIX VC compilers up to VC110 don't support more than 10 parameters with std::function due to
-        // lack of variadic templates.
-        //
-        if(outDecls.size() > 10 || (outDecls.size() > 9 && !retInS.empty()))
-        {
-            H.zeroIndent();
-            H << nl << "#endif";
-            H.restoreIndent();
-        }
-    }
 
     H.zeroIndent();
     H << nl << "#endif";
     H.restoreIndent();
 
-    H << sp << nl << "::Ice::AsyncResultPtr begin_" << name << spar << paramsDeclAMI << epar;
-    H << sb;
-    H << nl << "return begin_" << name << spar << argsAMI << "&::Ice::noExplicitContext" << "::IceInternal::__dummyCallback" << "0"
-      << epar << ';';
-    H << eb;
-
     H << sp << nl << "::Ice::AsyncResultPtr begin_" << name << spar << paramsDeclAMI
-      << "const ::Ice::Context& __ctx" << epar;
+      << "const ::Ice::Context& __ctx = ::Ice::noExplicitContext" << epar;
     H << sb;
-    H << nl << "return begin_" << name << spar << argsAMI << "&__ctx" << "::IceInternal::__dummyCallback" << "0"
+    H << nl << "return __begin_" << name << spar << argsAMI << "__ctx" << "::IceInternal::__dummyCallback" << "0"
       << epar << ';';
     H << eb;
 
@@ -2165,7 +2102,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
       << "const ::Ice::CallbackPtr& __del"
       << "const ::Ice::LocalObjectPtr& __cookie = 0" << epar;
     H << sb;
-    H << nl << "return begin_" << name << spar << argsAMI << "&::Ice::noExplicitContext" << "__del" << "__cookie" << epar << ';';
+    H << nl << "return __begin_" << name << spar << argsAMI << "::Ice::noExplicitContext" << "__del" << "__cookie" << epar << ';';
     H << eb;
 
     H << sp << nl << "::Ice::AsyncResultPtr begin_" << name << spar << paramsDeclAMI
@@ -2173,14 +2110,14 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
       << "const ::Ice::CallbackPtr& __del"
       << "const ::Ice::LocalObjectPtr& __cookie = 0" << epar;
     H << sb;
-    H << nl << "return begin_" << name << spar << argsAMI << "&__ctx" << "__del" << "__cookie" << epar << ';';
+    H << nl << "return __begin_" << name << spar << argsAMI << "__ctx" << "__del" << "__cookie" << epar << ';';
     H << eb;
 
     H << sp << nl << "::Ice::AsyncResultPtr begin_" << name << spar << paramsDeclAMI
       << "const " + delNameScoped + "Ptr& __del"
       << "const ::Ice::LocalObjectPtr& __cookie = 0" << epar;
     H << sb;
-    H << nl << "return begin_" << name << spar << argsAMI << "&::Ice::noExplicitContext" << "__del" << "__cookie" << epar << ';';
+    H << nl << "return __begin_" << name << spar << argsAMI << "::Ice::noExplicitContext" << "__del" << "__cookie" << epar << ';';
     H << eb;
 
     H << sp << nl << "::Ice::AsyncResultPtr begin_" << name << spar << paramsDeclAMI
@@ -2188,7 +2125,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
       << "const " + delNameScoped + "Ptr& __del"
       << "const ::Ice::LocalObjectPtr& __cookie = 0" << epar;
     H << sb;
-    H << nl << "return begin_" << name << spar << argsAMI << "&__ctx" << "__del" << "__cookie" << epar << ';';
+    H << nl << "return __begin_" << name << spar << argsAMI << "__ctx" << "__del" << "__cookie" << epar << ';';
     H << eb;
 
     H << sp << nl << retS << " end_" << name << spar << outParamsDeclAMI
@@ -2203,9 +2140,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     H.dec();
     H << nl << "private:";
     H.inc();
-    H << sp << nl << retS << ' ' << fixKwd(name) << spar << params << "const ::Ice::Context*" << epar
-      << ';';
-    H << nl <<  "::Ice::AsyncResultPtr begin_" << name << spar << paramsAMI << "const ::Ice::Context*"
+    H << nl <<  "::Ice::AsyncResultPtr __begin_" << name << spar << paramsAMI << "const ::Ice::Context&"
       << "const ::IceInternal::CallbackBasePtr&"
       << "const ::Ice::LocalObjectPtr& __cookie = 0" << epar << ';';
     H << nl;
@@ -2213,7 +2148,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     H << nl << "public:";
     H.inc();
 
-    C << sp << nl << retS << nl << "IceProxy" << scoped << spar << paramsDecl << "const ::Ice::Context* __ctx" << epar;
+    C << sp << nl << retS << nl << "IceProxy" << scoped << spar << paramsDecl << "const ::Ice::Context& __ctx" << epar;
     C << sb;
     if(p->returnsData())
     {
@@ -2324,8 +2259,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     }
     C << eb;
 
-    C << sp << nl << "::Ice::AsyncResultPtr" << nl << "IceProxy" << scope << "begin_" << name << spar << paramsDeclAMI
-      << "const ::Ice::Context* __ctx" << "const ::IceInternal::CallbackBasePtr& __del"
+    C << sp << nl << "::Ice::AsyncResultPtr" << nl << "IceProxy" << scope << "__begin_" << name << spar << paramsDeclAMI
+      << "const ::Ice::Context& __ctx" << "const ::IceInternal::CallbackBasePtr& __del"
       << "const ::Ice::LocalObjectPtr& __cookie" << epar;
     C << sb;
     if(p->returnsData())
@@ -2380,8 +2315,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         }
 
         C << sp << nl << "::Ice::AsyncResultPtr" << nl
-          << "IceProxy" << scope << "__begin_" <<  name << spar << paramsDeclAMI
-          << "const ::Ice::Context* __ctx" << "const ::IceInternal::Function<void " << spar;
+          << "IceProxy" << scope << "begin_" <<  name << spar << paramsDeclAMI
+          << "const ::Ice::Context& __ctx" << "const ::IceInternal::Function<void " << spar;
 
         if(!retInS.empty())
         {
@@ -2479,7 +2414,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
         C << eb << ';';
 
-        C << nl << "return begin_" << name << spar << argsAMI << "__ctx"
+        C << nl << "return __begin_" << name << spar << argsAMI << "__ctx"
           << "new Cpp11CB(__response, __exception, __sent)" << epar << ';';
         C << eb;
 
@@ -4991,8 +4926,8 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         }
     }
 
-    paramsInvoke.push_back("const ::Ice::Context*");
-    paramsDeclInvoke.push_back("const ::Ice::Context* __ctx");
+    paramsInvoke.push_back("const ::Ice::Context&");
+    paramsDeclInvoke.push_back("const ::Ice::Context& __ctx");
 
     if(cl->hasMetaData("amd") || p->hasMetaData("amd"))
     {
@@ -7507,7 +7442,7 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
         emitOneShotConstructor(p);
         H << sp;
     }
-    
+
     if(p->hasMetaData("cpp:comparable"))
     {
         H << sp;
