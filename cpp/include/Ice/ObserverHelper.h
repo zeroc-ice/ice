@@ -155,7 +155,7 @@ public:
         {
             return _observer->getRemoteObserver(con, endpt, requestId, size);
         }
-        return 0;
+        return ICE_NULLPTR;
     }
 
     ::Ice::Instrumentation::ChildInvocationObserverPtr
@@ -165,7 +165,7 @@ public:
         {
             return _observer->getCollocatedObserver(adapter, requestId, size);
         }
-        return 0;
+        return ICE_NULLPTR;
     }
 
     void

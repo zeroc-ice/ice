@@ -529,6 +529,12 @@ Ice::ObjectPrx::__newInstance() const
     return make_shared<ObjectPrx>();
 }
 
+ostream&
+Ice::operator<<(ostream& os, const Ice::ObjectPrx& p)
+{
+    return os << p.ice_toString();
+}
+
 #else // C++98 mapping
 
 ::Ice::ObjectPrxPtr

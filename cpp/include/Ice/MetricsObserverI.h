@@ -237,6 +237,12 @@ protected:
             return os.str();
         }
 
+        static const std::string
+        toString(const Ice::ObjectPrxPtr& p)
+        {
+            return p->ice_toString();
+        }
+        
         static const std::string&
         toString(const std::string& s)
         {
@@ -266,10 +272,7 @@ protected:
     };
 };
 
-class Updater
-#ifndef ICE_CPP11_MAPPING
-    : public IceUtil::Shared
-#endif
+class Updater : public ICE_SHARED
 {
 public:
 
@@ -298,11 +301,7 @@ public:
 
 private:
 
-#ifdef ICE_CPP11_MAPPING
-    const ::std::shared_ptr<T> _updater;
-#else
-    const IceUtil::Handle<T> _updater;
-#endif
+    const ICE_HANDLE<T> _updater;
     void (T::*_fn)();
 };
 
@@ -394,7 +393,6 @@ public:
         }
 
         _previousDelay = previous->_previousDelay + previous->_watch.delay();
-
         //
         // Detach entries from previous observer which are no longer
         // attached to this new observer.
@@ -418,7 +416,7 @@ public:
                 return *p;
             }
         }
-        return 0;
+        return ICE_NULLPTR;
     }
 
     template<typename ObserverImpl, typename ObserverMetricsType> ICE_INTERNAL_HANDLE<ObserverImpl>
@@ -436,7 +434,7 @@ public:
 
         if(metricsObjects.empty())
         {
-            return 0;
+            return ICE_NULLPTR;
         }
 
         ICE_INTERNAL_HANDLE<ObserverImpl> obsv = ICE_MAKE_SHARED(ObserverImpl);
@@ -486,7 +484,7 @@ public:
         IceUtil::Mutex::Lock sync(*this);
         if(!_metrics)
         {
-            return 0;
+            return ICE_NULLPTR;
         }
 
         typename ObserverImplType::EntrySeqType metricsObjects;
@@ -501,7 +499,7 @@ public:
 
         if(metricsObjects.empty())
         {
-            return 0;
+            return ICE_NULLPTR;
         }
 
         ObserverImplPtrType obsv = ICE_MAKE_SHARED(ObserverImplType);
@@ -513,19 +511,19 @@ public:
     getObserver(const MetricsHelperT<MetricsType>& helper, const ObserverPtrType& observer)
     {
 #ifdef ICE_CPP11_MAPPING
-        ObserverImplPtrType old = ::std::dynamic_pointer_cast<ObserverImplType>(observer);
+        ObserverImplPtrType old = std::dynamic_pointer_cast<ObserverImplType>(observer);
 #else
         ObserverImplPtrType old = ObserverImplPtrType::dynamicCast(observer);
 #endif
+
         if(!observer || !old)
         {
             return getObserver(helper);
         }
-
         IceUtil::Mutex::Lock sync(*this);
         if(!_metrics)
         {
-            return 0;
+            return ICE_NULLPTR;
         }
 
         typename ObserverImplType::EntrySeqType metricsObjects;
@@ -537,11 +535,10 @@ public:
                 metricsObjects.push_back(entry);
             }
         }
-
         if(metricsObjects.empty())
         {
             old->detach();
-            return 0;
+            return ICE_NULLPTR;
         }
 
         ObserverImplPtrType obsv = ICE_MAKE_SHARED(ObserverImplType);

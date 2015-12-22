@@ -42,6 +42,7 @@ SUBDIRS		= proxy \
                   properties \
                   plugin \
                   admin \
+                  metrics \
                   enums \
                   logger \
                   networkProxy \

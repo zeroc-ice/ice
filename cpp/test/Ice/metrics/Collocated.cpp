@@ -53,7 +53,7 @@ main(int argc, char* argv[])
         initData.properties->setProperty("Ice.Warn.Dispatch", "0");
         initData.properties->setProperty("Ice.MessageSizeMax", "50000");
         initData.properties->setProperty("Ice.Default.Host", "127.0.0.1");
-        CommunicatorObserverIPtr observer = new CommunicatorObserverI();
+        CommunicatorObserverIPtr observer = ICE_MAKE_SHARED(CommunicatorObserverI);
         initData.observer = observer;
         Ice::CommunicatorHolder ich = Ice::initialize(argc, argv, initData);
         return run(argc, argv, ich.communicator(), observer);

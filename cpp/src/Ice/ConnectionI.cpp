@@ -540,10 +540,12 @@ Ice::ConnectionI::updateObserver()
     }
 
     assert(_instance->initializationData().observer);
-    _observer.attach(_instance->initializationData().observer->getConnectionObserver(initConnectionInfo(),
-                                                                                     _endpoint,
-                                                                                     toConnectionState(_state),
-                                                                                     _observer.get()));
+    
+    ConnectionObserverPtr o = _instance->initializationData().observer->getConnectionObserver(initConnectionInfo(),
+                                                                                              _endpoint,
+                                                                                              toConnectionState(_state),
+                                                                                              _observer.get());
+    _observer.attach(o);
 }
 
 void

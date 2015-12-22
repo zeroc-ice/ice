@@ -14,6 +14,28 @@
 
 class MetricsI : public Test::Metrics
 {
+public:
+
+#ifdef ICE_CPP11_MAPPING
+    virtual void op_async(std::function<void ()>, std::function<void (std::exception_ptr)>, const Ice::Current&);
+
+    virtual void fail_async(std::function<void ()>, std::function<void (std::exception_ptr)>, const Ice::Current&);
+
+    virtual void opWithUserException_async(std::function<void ()>, std::function<void (std::exception_ptr)>,
+                                           const Ice::Current&);
+
+    virtual void opWithRequestFailedException_async(std::function<void ()>, std::function<void (std::exception_ptr)>,
+                                                    const Ice::Current&);
+
+    virtual void opWithLocalException_async(std::function<void ()>, std::function<void (std::exception_ptr)>,
+                                            const Ice::Current&);
+
+    virtual void opWithUnknownException_async(std::function<void ()>, std::function<void (std::exception_ptr)>,
+                                              const Ice::Current&);
+
+    virtual void opByteS_async(Test::ByteSeq, std::function<void ()>, std::function<void (std::exception_ptr)>,
+                               const Ice::Current&);
+#else
     virtual void op_async(const Test::AMD_Metrics_opPtr&, const Ice::Current&);
 
     virtual void fail_async(const Test::AMD_Metrics_failPtr&, const Ice::Current&);
@@ -28,8 +50,9 @@ class MetricsI : public Test::Metrics
     virtual void opWithUnknownException_async(const Test::AMD_Metrics_opWithUnknownExceptionPtr&, const Ice::Current&);
 
     virtual void opByteS_async(const Test::AMD_Metrics_opByteSPtr&, const Test::ByteSeq&, const Ice::Current&);
+#endif
 
-    virtual Ice::ObjectPrx getAdmin(const Ice::Current&);
+    virtual Ice::ObjectPrxPtr getAdmin(const Ice::Current&);
 
     virtual void shutdown(const Ice::Current&);
 };

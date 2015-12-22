@@ -119,7 +119,7 @@ protected:
     const std::vector<RegExpPtr> _reject;
 };
 
-class ICE_API MetricsMapFactory : public Ice::LocalObject
+class ICE_API MetricsMapFactory : public ICE_LOCAL_OBJECT
 {
 public:
 
@@ -149,16 +149,11 @@ public:
     class EntryT;
     ICE_DEFINE_PTR(EntryTPtr, EntryT);
 
-    class EntryT
-#ifdef ICE_CPP11_MAPPING
-        : public ::std::enable_shared_from_this<EntryT>
-#else
-        : public Ice::LocalObject
-#endif
+    class EntryT : public ICE_LOCAL_OBJECT
     {
     public:
 
-        EntryT(MetricsMapT* map, const TPtr& object, const typename std::list<EntryTPtr>::iterator& p) :
+        EntryT(MetricsMapTPtr map, const TPtr& object, const typename std::list<EntryTPtr>::iterator& p) :
             _map(map), _object(object), _detachedPos(p)
         {
         }
@@ -217,7 +212,7 @@ public:
             if(--_object->current == 0)
             {
 #ifdef ICE_CPP11_MAPPING
-                _map->detached(this->shared_from_this());
+                _map->detached(std::dynamic_pointer_cast<EntryT>(shared_from_this()));
 #else
                 _map->detached(this);
 #endif
@@ -394,7 +389,7 @@ public:
         {
             if(!(*p)->match(helper, false))
             {
-                return 0;
+                return ICE_NULLPTR;
             }
         }
         
@@ -402,7 +397,7 @@ public:
         {
             if((*p)->match(helper, true))
             {
-                return 0;
+                return ICE_NULLPTR;
             }
         }
 
@@ -434,7 +429,7 @@ public:
         }
         catch(const std::exception&)
         {
-            return 0;
+            return ICE_NULLPTR;
         }
 
         //
@@ -443,7 +438,7 @@ public:
         Lock sync(*this);
         if(_destroyed)
         {
-            return 0;
+            return ICE_NULLPTR;
         }
 
         if(previous && previous->_object->id == key)
@@ -457,8 +452,14 @@ public:
         {
             TPtr t = ICE_MAKE_SHARED(T);
             t->id = key;
+#ifdef ICE_CPP11_MAPPING
             p = _objects.insert(typename std::map<std::string, EntryTPtr>::value_type(
-                                    key, ICE_MAKE_SHARED(EntryT, this, t, _detachedQueue.end()))).first;
+                                    key, std::make_shared<EntryT>(
+                                        std::dynamic_pointer_cast<MetricsMapT<MetricsType>>(shared_from_this()), t, _detachedQueue.end()))).first;
+#else
+            p = _objects.insert(typename std::map<std::string, EntryTPtr>::value_type(
+                                    key, new EntryT(this, t, _detachedQueue.end()))).first;
+#endif
         }
         p->second->attach(helper);
         return p->second;
