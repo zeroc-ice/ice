@@ -13,7 +13,7 @@
 
 using namespace std;
 using namespace Ice;
-    
+
 Ice::ObjectAdapterPtr Glacier2::Application::_adapter;
 Glacier2::RouterPrxPtr Glacier2::Application::_router;
 Glacier2::SessionPrxPtr Glacier2::Application::_session;
@@ -22,31 +22,26 @@ string Glacier2::Application::_category;
 
 namespace
 {
-
-class ConnectionCallbackI : public Ice::ConnectionCallback
+#ifndef ICE_CPP11_MAPPING // C++98
+class CloseCallbackI : public Ice::CloseCallback
 {
 public:
 
-    ConnectionCallbackI(Glacier2::Application* app) : _app(app)
+    CloseCallbackI(Glacier2::Application* app) : _app(app)
     {
     }
 
     virtual void
-    heartbeat(const Ice::ConnectionPtr&)
-    {
-    }
-
-    virtual void 
     closed(const Ice::ConnectionPtr&)
     {
         _app->sessionDestroyed();
     }
-    
+
 private:
 
     Glacier2::Application* _app;
 };
-    
+#endif
 }
 
 string
@@ -154,7 +149,7 @@ Glacier2::Application::doMain(Ice::StringSeq& args, const Ice::InitializationDat
     {
         IceInternal::Application::_communicator = Ice::initialize(args, initData);
         _router = ICE_UNCHECKED_CAST(Glacier2::RouterPrx, communicator()->getDefaultRouter());
-        
+
         if(!_router)
         {
             Error out(getProcessLogger());
@@ -188,7 +183,7 @@ Glacier2::Application::doMain(Ice::StringSeq& args, const Ice::InitializationDat
             {
                 Ice::Int acmTimeout = 0;
                 try
-                { 
+                {
                     acmTimeout = _router->getACMTimeout();
                 }
                 catch(const Ice::OperationNotExistException&)
@@ -204,7 +199,14 @@ Glacier2::Application::doMain(Ice::StringSeq& args, const Ice::InitializationDat
                     Ice::ConnectionPtr connection = _router->ice_getCachedConnection();
                     assert(connection);
                     connection->setACM(acmTimeout, IceUtil::None, Ice::HeartbeatAlways);
-                    connection->setCallback(ICE_MAKE_SHARED(ConnectionCallbackI, this));
+#ifdef ICE_CPP11_MAPPING
+                    connection->setCloseCallback([this](const Ice::ConnectionPtr&)
+                    {
+                       this->sessionDestroyed();
+                    });
+#else
+                    connection->setCloseCallback(ICE_MAKE_SHARED(CloseCallbackI, this));
+#endif
                 }
 
                 _category = _router->getCategoryForClient();

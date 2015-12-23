@@ -488,7 +488,7 @@ Slice::ObjCGenerator::mapsToPointerType(const TypePtr& type)
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl && cl->isInterface())
     {
-        if(cl->isLocal())
+        if(cl->isLocal() || (cl->definition() && cl->definition()->isDelegate()))
         {
             return false;
         }

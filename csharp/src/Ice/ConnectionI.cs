@@ -507,7 +507,7 @@ namespace Ice
             return result;
         }
 
-        public void setCallback(ConnectionCallback callback)
+        public void setCloseCallback(CloseCallback callback)
         {
             lock(this)
             {
@@ -519,7 +519,7 @@ namespace Ice
                         {
                             try
                             {
-                                callback.closed(this);
+                                callback(this);
                             }
                             catch(System.Exception ex)
                             {
@@ -530,8 +530,16 @@ namespace Ice
                 }
                 else
                 {
-                    _callback = callback;
+                    _closeCallback = callback;
                 }
+            }
+        }
+
+        public void setHeartbeatCallback(HeartbeatCallback callback)
+        {
+            lock(this)
+            {
+                _heartbeatCallback = callback;
             }
         }
 
@@ -1249,7 +1257,7 @@ namespace Ice
             {
                 try
                 {
-                    info.heartbeatCallback.heartbeat(this);
+                    info.heartbeatCallback(this);
                 }
                 catch(System.Exception ex)
                 {
@@ -1324,7 +1332,8 @@ namespace Ice
             // to call code that will potentially block (this avoids promoting a new leader and
             // unecessary thread creation, especially if this is called on shutdown).
             //
-            if(_startCallback == null && _sendStreams.Count == 0 && _asyncRequests.Count == 0 && _callback == null)
+            if(_startCallback == null && _sendStreams.Count == 0 && _asyncRequests.Count == 0 &&
+                _closeCallback == null && _heartbeatCallback == null)
             {
                 finish();
                 return;
@@ -1453,18 +1462,20 @@ namespace Ice
             _readStream.getBuffer().clear();
             _incomingCache = null;
 
-            if(_callback != null)
+            if(_closeCallback != null)
             {
                 try
                 {
-                    _callback.closed(this);
+                    _closeCallback(this);
                 }
                 catch(System.Exception ex)
                 {
                     _logger.error("connection callback exception:\n" + ex + '\n' + _desc);
                 }
-                _callback = null;
+                _closeCallback = null;
             }
+
+            _heartbeatCallback = null;
 
             //
             // This must be done last as this will cause waitUntilFinished() to return (and communicator
@@ -2353,7 +2364,7 @@ namespace Ice
             public ObjectAdapter adapter;
             public IceInternal.OutgoingAsyncBase outAsync;
             public Ice.AsyncCallback completedCallback;
-            public ConnectionCallback heartbeatCallback;
+            public HeartbeatCallback heartbeatCallback;
             public int messageDispatchCount;
         }
 
@@ -2511,9 +2522,9 @@ namespace Ice
                     case IceInternal.Protocol.validateConnectionMsg:
                     {
                         IceInternal.TraceUtil.traceRecv(info.stream, _logger, _traceLevels);
-                        if(_callback != null)
+                        if(_heartbeatCallback != null)
                         {
-                            info.heartbeatCallback = _callback;
+                            info.heartbeatCallback = _heartbeatCallback;
                             ++info.messageDispatchCount;
                         }
                         break;
@@ -2986,7 +2997,8 @@ namespace Ice
 
         private Ice.ConnectionInfo _info;
 
-        private Ice.ConnectionCallback _callback;
+        private Ice.CloseCallback _closeCallback;
+        private Ice.HeartbeatCallback _heartbeatCallback;
 
         private static ConnectionState[] connectionStateMap = new ConnectionState[] {
             ConnectionState.ConnectionStateValidating,   // StateNotInitialized

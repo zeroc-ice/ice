@@ -25,7 +25,7 @@ toString(int value)
 }
 
 class LoggerI : public Ice::EnableSharedFromThis<LoggerI>,
-                public Ice::Logger, 
+                public Ice::Logger,
                 private IceUtil::Mutex
 {
 public:
@@ -115,13 +115,13 @@ private:
 };
 ICE_DEFINE_PTR(LoggerIPtr, LoggerI);
 
-class TestCase : 
+class TestCase :
 #ifdef ICE_CPP11_MAPPING
-                 public enable_shared_from_this<Ice::ConnectionCallback>,
+                 public enable_shared_from_this<TestCase>,
 #else
                  public IceUtil::Thread,
+                 public Ice::CloseCallback, public Ice::HeartbeatCallback,
 #endif
-                 public Ice::ConnectionCallback,
                  protected IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
@@ -198,7 +198,20 @@ public:
                                                            _adapter->getTestIntf()->ice_toString()));
         try
         {
-            proxy->ice_getConnection()->setCallback(ICE_SHARED_FROM_THIS);
+#ifdef ICE_CPP11_MAPPING
+            auto self(shared_from_this());
+            proxy->ice_getConnection()->setCloseCallback([this, self](const Ice::ConnectionPtr& connection)
+            {
+                closed(connection);
+            });
+            proxy->ice_getConnection()->setHeartbeatCallback([this, self](const Ice::ConnectionPtr& connection)
+            {
+                heartbeat(connection);
+            });
+#else
+            proxy->ice_getConnection()->setCloseCallback(ICE_SHARED_FROM_THIS);
+            proxy->ice_getConnection()->setHeartbeatCallback(ICE_SHARED_FROM_THIS);
+#endif
             runTestCase(_adapter, proxy);
         }
         catch(const std::exception& ex)
@@ -579,7 +592,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         (*p)->init();
     }
-    
+
 #ifdef ICE_CPP11_MAPPING
     vector<pair<thread, TestCasePtr>> threads;
     for(auto p = tests.begin(); p != tests.end(); ++p)

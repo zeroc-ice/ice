@@ -107,7 +107,7 @@ class LoggerI : Ice.Logger
     private List<string> _messages = new List<string>();
 };
 
-abstract class TestCase : Ice.ConnectionCallback
+abstract class TestCase
 {
     public TestCase(string name, RemoteCommunicatorPrx com)
     {
@@ -187,29 +187,28 @@ abstract class TestCase : Ice.ConnectionCallback
                                                                 _adapter.getTestIntf().ToString()));
         try
         {
-            proxy.ice_getConnection().setCallback(this);
+            proxy.ice_getConnection().setCloseCallback(_=>
+            {
+                lock(this)
+                {
+                    _closed = true;
+                    Monitor.Pulse(this);
+                }
+            });
+
+            proxy.ice_getConnection().setHeartbeatCallback(_=>
+            {
+                lock(this)
+                {
+                    ++_heartbeat;
+                }
+            });
+
             runTestCase(_adapter, proxy);
         }
         catch(Exception ex)
         {
             _msg = "unexpected exception:\n" + ex.ToString();
-        }
-    }
-
-    public void heartbeat(Ice.Connection con)
-    {
-        lock(this)
-        {
-            ++_heartbeat;
-        }
-    }
-
-    public void closed(Ice.Connection con)
-    {
-        lock(this)
-        {
-            _closed = true;
-            Monitor.Pulse(this);
         }
     }
 

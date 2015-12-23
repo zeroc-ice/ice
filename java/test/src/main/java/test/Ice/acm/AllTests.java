@@ -118,7 +118,7 @@ public class AllTests
         private java.io.PrintWriter _out;
     };
 
-    static abstract class TestCase implements Ice.ConnectionCallback
+    static abstract class TestCase
     {
         public TestCase(Application app, String name, RemoteCommunicatorPrx com, PrintWriter out)
         {
@@ -215,24 +215,31 @@ public class AllTests
                                                                     _adapter.getTestIntf().toString()));
             try
             {
-                proxy.ice_getConnection().setCallback(this);
+                proxy.ice_getConnection().setCloseCallback(new Ice.CloseCallback()
+                {
+                    @Override
+                    synchronized  public void closed(Ice.Connection con)
+                    {
+                        _closed = true;
+                        notify();
+                    }
+                });
+
+                proxy.ice_getConnection().setHeartbeatCallback(new Ice.HeartbeatCallback()
+                {
+                    @Override
+                    synchronized public void heartbeat(Ice.Connection con)
+                    {
+                        ++_heartbeat;
+                    }
+                });
+
                 runTestCase(_adapter, proxy);
             }
             catch(Exception ex)
             {
                 _msg = "unexpected exception:\n" + IceInternal.Ex.toString(ex);
             }
-        }
-
-        synchronized public void heartbeat(Ice.Connection con)
-        {
-            ++_heartbeat;
-        }
-
-        synchronized public void closed(Ice.Connection con)
-        {
-            _closed = true;
-            notify();
         }
 
         public synchronized void waitForClosed()

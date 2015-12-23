@@ -79,7 +79,7 @@ class TestIntfI(Test.TestIntf):
 
     def waitForHeartbeat(self, count, current=None):
 
-        class ConnectionCallbackI(Ice.ConnectionCallback):
+        class ConnectionCallbackI():
 
             def __init__(self):
                 self.m = threading.Condition()
@@ -93,9 +93,6 @@ class TestIntfI(Test.TestIntf):
                 finally:
                     self.m.release()
 
-            def closed(self, con):
-                pass
-
             def waitForCount(self, count):
                 self.m.acquire()
                 self.count = count
@@ -106,6 +103,6 @@ class TestIntfI(Test.TestIntf):
                     self.m.release()
 
         callback = ConnectionCallbackI()
-        current.con.setCallback(callback)
+        current.con.setHeartbeatCallback(lambda con: callback.heartbeat(con))
         callback.waitForCount(2)
 

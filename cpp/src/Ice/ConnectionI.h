@@ -204,7 +204,13 @@ public:
     virtual void end_flushBatchRequests(const AsyncResultPtr&);
 #endif
 
-    virtual void setCallback(const ConnectionCallbackPtr&);
+#ifdef ICE_CPP11_MAPPING
+    virtual void setCloseCallback(::std::function<void (const ::std::shared_ptr<::Ice::Connection>&)>);
+    virtual void setHeartbeatCallback(::std::function<void (const ::std::shared_ptr<::Ice::Connection>&)>);
+#else
+    virtual void setCloseCallback(const Ice::CloseCallbackPtr&);
+    virtual void setHeartbeatCallback(const Ice::HeartbeatCallbackPtr&);
+#endif
     virtual void setACM(const IceUtil::Optional<int>&,
                         const IceUtil::Optional<ACMClose>&,
                         const IceUtil::Optional<ACMHeartbeat>&);
@@ -252,11 +258,10 @@ public:
     void dispatch(const StartCallbackPtr&, const std::vector<OutgoingMessage>&, Byte, Int, Int,
                   const IceInternal::ServantManagerPtr&, const ObjectAdapterPtr&,
                   const IceInternal::OutgoingAsyncBasePtr&,
-                  const ConnectionCallbackPtr&, IceInternal::BasicStream&);
+                  const ICE_HEARTBEAT_CALLBACK&, IceInternal::BasicStream&);
     void finish(bool);
 
-    void closeCallback(const ConnectionCallbackPtr&);
-
+    void closeCallback(const ICE_CLOSE_CALLBACK&);
 
     virtual ~ConnectionI();
 
@@ -304,7 +309,7 @@ private:
 
     IceInternal::SocketOperation parseMessage(IceInternal::BasicStream&, Int&, Int&, Byte&,
                                               IceInternal::ServantManagerPtr&, ObjectAdapterPtr&,
-                                              IceInternal::OutgoingAsyncBasePtr&, ConnectionCallbackPtr&, int&);
+                                              IceInternal::OutgoingAsyncBasePtr&, ICE_HEARTBEAT_CALLBACK&, int&);
 
     void invokeAll(IceInternal::BasicStream&, Int, Int, Byte,
                    const IceInternal::ServantManagerPtr&, const ObjectAdapterPtr&);
@@ -384,7 +389,9 @@ private:
     bool _initialized;
     bool _validated;
 
-    Ice::ConnectionCallbackPtr _callback;
+    ICE_CLOSE_CALLBACK _closeCallback;
+    ICE_HEARTBEAT_CALLBACK _heartbeatCallback;
+
 };
 
 }

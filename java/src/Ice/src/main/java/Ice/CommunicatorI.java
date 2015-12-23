@@ -122,11 +122,11 @@ public final class CommunicatorI implements Communicator
         return _instance.objectAdapterFactory().createObjectAdapter(name, router);
     }
 
-    @Override
+    @Override @SuppressWarnings("deprecation")
     public void
     addObjectFactory(ObjectFactory factory, String id) { _instance.servantFactoryManager().add(factory, id); }
 
-    @Override
+    @Override @SuppressWarnings("deprecation")
     public ObjectFactory
     findObjectFactory(String id) { return _instance.servantFactoryManager().findObjectFactory(id); }
 
@@ -271,9 +271,9 @@ public final class CommunicatorI implements Communicator
         // This callback object receives the results of all invocations
         // of Connection.begin_flushBatchRequests.
         //
-        IceInternal.CommunicatorFlushBatch result = new IceInternal.CommunicatorFlushBatch(this, 
-                                                                                           _instance, 
-                                                                                           __flushBatchRequests_name, 
+        IceInternal.CommunicatorFlushBatch result = new IceInternal.CommunicatorFlushBatch(this,
+                                                                                           _instance,
+                                                                                           __flushBatchRequests_name,
                                                                                            cb);
 
         connectionFactory.flushAsyncBatchRequests(result);
@@ -332,7 +332,7 @@ public final class CommunicatorI implements Communicator
     {
         return _instance.findAdminFacet(facet);
     }
-    
+
     @Override
     public java.util.Map<String, Ice.Object>
     findAllAdminFacets()

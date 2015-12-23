@@ -141,7 +141,14 @@
             ).then(
                 function(con)
                 {
-                    con.setCallback(self);
+                    con.setCloseCallback(function(connection)
+                    {
+                        self._closed = true;
+                    });
+                    con.setHeartbeatCallback(function(connection)
+                    {
+                        ++self._heartbeat;
+                    });
                     return self.runTestCase(self._adapter, proxy);
                 }
             ).exception(
@@ -150,14 +157,6 @@
                     self._msg = "unexpected exception:\n" + ex.toString() + "\n" + ex.stack;
                 }
             );
-        },
-        heartbeat: function(con)
-        {
-            ++this._heartbeat;
-        },
-        closed: function(con)
-        {
-            this._closed = true;
         },
         runTestCase: function(adapter, proxy)
         {

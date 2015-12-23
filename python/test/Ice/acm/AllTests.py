@@ -74,7 +74,7 @@ class LoggerI(Ice.Logger):
             print(p)
         self._messages = []
 
-class TestCase(threading.Thread, Ice.ConnectionCallback):
+class TestCase(threading.Thread):
     def __init__(self, name, com):
         threading.Thread.__init__(self)
         self._name = name
@@ -128,7 +128,9 @@ class TestCase(threading.Thread, Ice.ConnectionCallback):
         proxy = Test.TestIntfPrx.uncheckedCast(self._communicator.stringToProxy(
                     self._adapter.getTestIntf().ice_toString()))
         try:
-            proxy.ice_getConnection().setCallback(self)
+            proxy.ice_getConnection().setCloseCallback(lambda conn: self.closed(conn))
+            proxy.ice_getConnection().setHeartbeatCallback(lambda conn: self.heartbeat(conn))
+
             self.runTestCase(self._adapter, proxy)
         except Exception as ex:
             self._msg = "unexpected exception:\n" + traceback.format_exc()

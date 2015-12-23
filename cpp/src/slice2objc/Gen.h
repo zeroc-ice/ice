@@ -30,6 +30,7 @@ protected:
     virtual std::string getName(const OperationPtr&) const;
     virtual std::string getSelector(const OperationPtr&) const;
     virtual std::string getParams(const OperationPtr&) const;
+    virtual std::string getBlockParams(const OperationPtr&) const;
     virtual std::string getMarshalParams(const OperationPtr&) const;
     virtual std::string getUnmarshalParams(const OperationPtr&) const;
     virtual std::string getServerParams(const OperationPtr&) const;

@@ -450,6 +450,32 @@ Slice::ObjCVisitor::getParams(const OperationPtr& op) const
 }
 
 string
+Slice::ObjCVisitor::getBlockParams(const OperationPtr& op) const
+{
+    string result;
+    ParamDeclList paramList = op->parameters();
+    for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
+    {
+        TypePtr type = (*q)->type();
+        string typeString;
+        if((*q)->isOutParam())
+        {
+            typeString = outTypeToString(type, (*q)->optional(), false, true);
+        }
+        else
+        {
+            typeString = inTypeToString(type, (*q)->optional());
+        }
+        if(q != paramList.begin())
+        {
+            result += " " + getParamId(*q);
+        }
+        result += "(" + typeString + ")";
+    }
+    return result;
+}
+
+string
 Slice::ObjCVisitor::getMarshalParams(const OperationPtr& op) const
 {
     ParamDeclList paramList = op->parameters();
@@ -868,6 +894,11 @@ Slice::Gen::ObjectDeclVisitor::ObjectDeclVisitor(Output& H, Output& M, const str
 void
 Slice::Gen::ObjectDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
+    if(p->definition() && p->definition()->isDelegate())
+    {
+        return;
+    }
+
     _H << sp;
     if(!p->isLocal() || !p->isInterface())
     {
@@ -925,7 +956,16 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     string name = fixName(p);
     ClassList bases = p->bases();
 
+    if(p->isDelegate())
+    {
+        OperationPtr o = p->allOperations().front();
+        _H << sp << nl << "typedef " << typeToString(o->returnType());
+        _H << " (^" << name << ")" << getBlockParams(o) << ";";
+        return false;
+    }
+
     _H << sp << nl << _dllExport << "@protocol " << name;
+
     if(!bases.empty())
     {
         _H << " <";

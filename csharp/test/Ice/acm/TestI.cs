@@ -111,7 +111,7 @@ public class TestI : TestIntfDisp_
         }
     }
 
-    class ConnectionCallbackI : Ice.ConnectionCallback
+    class HeartbeatCallbackI
     {
         public void heartbeat(Ice.Connection c)
         {
@@ -120,10 +120,6 @@ public class TestI : TestIntfDisp_
                 --_count;
                 System.Threading.Monitor.PulseAll(this);
             }
-        }
-
-        public void closed(Ice.Connection c)
-        {
         }
 
         public void waitForCount(int count)
@@ -145,8 +141,8 @@ public class TestI : TestIntfDisp_
     {
 
 
-        ConnectionCallbackI callback = new ConnectionCallbackI();
-        current.con.setCallback(callback);
+        HeartbeatCallbackI callback = new HeartbeatCallbackI();
+        current.con.setHeartbeatCallback(callback.heartbeat);
         callback.waitForCount(count);
     }
 };

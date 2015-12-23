@@ -9,7 +9,7 @@
 
 #import <acm/TestI.h>
 
-@interface ConnectionCallbackI : NSObject<ICEConnectionCallback>
+@interface ConnectionCallbackI : NSObject
 {
     NSCondition* _cond;
     int _count;
@@ -36,9 +36,6 @@
     --_count;
     [_cond signal];
     [_cond unlock];
-}
--(void) closed:(id<ICEConnection>)c
-{
 }
 -(void) waitForCount:(int)count
 {
@@ -198,7 +195,11 @@
 -(void) waitForHeartbeat:(int)count current:(ICECurrent*)current
 {
     ConnectionCallbackI* callback = [ConnectionCallbackI new];
-    [current.con setCallback:callback];
+
+    [current.con setHeartbeatCallback:^(id<ICEConnection> c)
+    {
+        [callback heartbeat:c];
+    }];
     [callback waitForCount:count];
     ICE_RELEASE(callback);
 }

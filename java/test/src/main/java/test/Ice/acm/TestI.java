@@ -52,7 +52,7 @@ public class TestI extends _TestIntfDisp
     public void waitForHeartbeat(int count, Ice.Current current)
     {
         final Ice.Holder<Integer> c = new Ice.Holder<Integer>(count);
-        Ice.ConnectionCallback callback = new Ice.ConnectionCallback()
+        Ice.HeartbeatCallback callback = new Ice.HeartbeatCallback()
         {
             synchronized public void heartbeat(Ice.Connection connection)
             {
@@ -60,11 +60,8 @@ public class TestI extends _TestIntfDisp
                 notifyAll();
             }
 
-            public void closed(Ice.Connection connection)
-            {
-            }
         };
-        current.con.setCallback(callback);
+        current.con.setHeartbeatCallback(callback);
 
         synchronized(callback)
         {

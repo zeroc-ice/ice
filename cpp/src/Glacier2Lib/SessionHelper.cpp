@@ -707,16 +707,12 @@ private:
     const Glacier2::SessionHelperPtr _session;
 };
 
-class ConnectionCallbackI : public Ice::ConnectionCallback
+#ifndef ICE_CPP11_MAPPING // C++98
+class CloseCallbackI : public Ice::CloseCallback
 {
 public:
 
-    ConnectionCallbackI(const SessionHelperIPtr& sessionHelper) : _sessionHelper(sessionHelper)
-    {
-    }
-
-    virtual void
-    heartbeat(const Ice::ConnectionPtr&)
+    CloseCallbackI(const SessionHelperIPtr& sessionHelper) : _sessionHelper(sessionHelper)
     {
     }
 
@@ -730,6 +726,7 @@ private:
 
     SessionHelperIPtr _sessionHelper;
 };
+#endif
 
 }
 
@@ -792,7 +789,15 @@ SessionHelperI::connected(const Glacier2::RouterPrxPtr& router, const Glacier2::
                 Ice::ConnectionPtr connection = _router->ice_getCachedConnection();
                 assert(connection);
                 connection->setACM(acmTimeout, IceUtil::None, Ice::HeartbeatAlways);
-                connection->setCallback(ICE_MAKE_SHARED(ConnectionCallbackI, shared_from_this()));
+#ifdef ICE_CPP11_MAPPING
+                auto self(shared_from_this());
+                connection->setCloseCallback([self](const Ice::ConnectionPtr&)
+                {
+                    self->destroy();
+                });
+#else
+                connection->setCloseCallback(ICE_MAKE_SHARED(CloseCallbackI, shared_from_this()));
+#endif
             }
         }
     }
@@ -1115,7 +1120,7 @@ Glacier2::SessionFactoryHelper::connect()
     map<string, string> context;
     {
         IceUtil::Mutex::Lock sync(_mutex);
-        session = ICE_MAKE_SHARED(SessionHelperI, 
+        session = ICE_MAKE_SHARED(SessionHelperI,
                                   ICE_MAKE_SHARED(SessionThreadCallback, shared_from_this()),
                                   _callback,
                                   createInitData(),

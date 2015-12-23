@@ -16,18 +16,12 @@ using namespace IceGrid;
 namespace
 {
 
-class ConnectionCallbackI : public Ice::ConnectionCallback
+class CloseCallbackI : public Ice::CloseCallback
 {
 public:
 
-    ConnectionCallbackI(const ReapThreadPtr& reaper) : _reaper(reaper)
+    CloseCallbackI(const ReapThreadPtr& reaper) : _reaper(reaper)
     {
-    }
-    
-    virtual void
-    heartbeat(const Ice::ConnectionPtr& con)
-    {
-        _reaper->connectionHeartbeat(con);
     }
 
     virtual void
@@ -37,7 +31,26 @@ public:
     }
 
 private:
-    
+
+    const ReapThreadPtr _reaper;
+};
+
+class HeartbeatCallbackI : public Ice::HeartbeatCallback
+{
+public:
+
+    HeartbeatCallbackI(const ReapThreadPtr& reaper) : _reaper(reaper)
+    {
+    }
+
+    virtual void
+    heartbeat(const Ice::ConnectionPtr& con)
+    {
+        _reaper->connectionHeartbeat(con);
+    }
+
+private:
+
     const ReapThreadPtr _reaper;
 };
 
@@ -45,7 +58,8 @@ private:
 
 ReapThread::ReapThread() :
     IceUtil::Thread("Icegrid reaper thread"),
-    _callback(new ConnectionCallbackI(this)),
+    _closeCallback(new CloseCallbackI(this)),
+    _heartbeatCallback(new HeartbeatCallbackI(this)),
     _terminated(false)
 {
 }
@@ -76,7 +90,7 @@ ReapThread::run()
             {
                 timedWait(_wakeInterval);
             }
-            
+
             if(_terminated)
             {
                 break;
@@ -118,7 +132,8 @@ ReapThread::run()
                         q->second.erase(p->item);
                         if(q->second.empty())
                         {
-                            p->connection->setCallback(0);
+                            p->connection->setCloseCallback(0);
+                            p->connection->setHeartbeatCallback(0);
                             _connections.erase(q);
                         }
                     }
@@ -152,10 +167,12 @@ ReapThread::terminate()
 
         for(map<Ice::ConnectionPtr, set<ReapablePtr> >::iterator p = _connections.begin(); p != _connections.end(); ++p)
         {
-            p->first->setCallback(0);
+            p->first->setCloseCallback(0);
+            p->first->setHeartbeatCallback(0);
         }
         _connections.clear();
-        _callback = 0;
+        _closeCallback = 0;
+        _heartbeatCallback = 0;
     }
 
     for(list<ReapableItem>::iterator p = reap.begin(); p != reap.end(); ++p)
@@ -198,7 +215,9 @@ ReapThread::add(const ReapablePtr& reapable, int timeout, const Ice::ConnectionP
         if(p == _connections.end())
         {
             p = _connections.insert(make_pair(connection, set<ReapablePtr>())).first;
-            connection->setCallback(_callback);
+            connection->setCloseCallback(_closeCallback);
+            connection->setHeartbeatCallback(_heartbeatCallback);
+
         }
         p->second.insert(reapable);
     }
@@ -213,7 +232,7 @@ ReapThread::add(const ReapablePtr& reapable, int timeout, const Ice::ConnectionP
         {
             notify();
         }
-        
+
         //
         // Since we just added a new session with a non null timeout there
         // must be a non-zero wakeInterval.
@@ -222,14 +241,15 @@ ReapThread::add(const ReapablePtr& reapable, int timeout, const Ice::ConnectionP
     }
 }
 
-void 
+void
 ReapThread::connectionHeartbeat(const Ice::ConnectionPtr& con)
 {
     Lock sync(*this);
     map<Ice::ConnectionPtr, set<ReapablePtr> >::const_iterator p = _connections.find(con);
     if(p == _connections.end())
     {
-        con->setCallback(0);
+        con->setCloseCallback(0);
+        con->setHeartbeatCallback(0);
         return;
     }
 
@@ -246,7 +266,8 @@ ReapThread::connectionClosed(const Ice::ConnectionPtr& con)
     map<Ice::ConnectionPtr, set<ReapablePtr> >::iterator p = _connections.find(con);
     if(p == _connections.end())
     {
-        con->setCallback(0);
+        con->setCloseCallback(0);
+        con->setHeartbeatCallback(0);
         return;
     }
 
@@ -258,7 +279,7 @@ ReapThread::connectionClosed(const Ice::ConnectionPtr& con)
 }
 
 //
-// Returns true if the calculated wake interval is less than the current wake 
+// Returns true if the calculated wake interval is less than the current wake
 // interval (or if the original wake interval was "forever").
 //
 bool

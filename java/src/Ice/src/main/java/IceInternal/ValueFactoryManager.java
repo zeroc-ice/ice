@@ -9,6 +9,7 @@
 
 package IceInternal;
 
+@SuppressWarnings("deprecation")
 public final class ValueFactoryManager
 {
     public synchronized void

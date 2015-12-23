@@ -148,7 +148,8 @@ private:
     const SSLSessionManagerPrx _sslSessionManager;
 
     IceUtil::Time _sessionTimeout;
-    Ice::ConnectionCallbackPtr _connectionCallback;
+    Ice::CloseCallbackPtr _closeCallback;
+    Ice::HeartbeatCallbackPtr _heartbeatCallback;
 
     class SessionThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
     {

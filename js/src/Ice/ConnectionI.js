@@ -140,7 +140,8 @@ var ConnectionI = Class({
         {
             this._servantManager = null;
         }
-        this._callback = null;
+        this._closeCallback = null;
+        this._heartbeatCallback = null;
     },
     start: function()
     {
@@ -465,7 +466,7 @@ var ConnectionI = Class({
         result.__invoke();
         return result;
     },
-    setCallback: function(callback)
+    setCloseCallback: function(callback)
     {
         if(this._state >= StateClosed)
         {
@@ -475,7 +476,7 @@ var ConnectionI = Class({
                 Timer.setImmediate(function() {
                     try
                     {
-                        callback.closed(this);
+                        callback(this);
                     }
                     catch(ex)
                     {
@@ -486,8 +487,12 @@ var ConnectionI = Class({
         }
         else
         {
-            this._callback = callback;
+            this._closeCallback = callback;
         }
+    },
+    setHeartbeatCallback: function(callback)
+    {
+        this._heartbeatCallback = callback;
     },
     setACM: function(timeout, close, heartbeat)
     {
@@ -920,7 +925,7 @@ var ConnectionI = Class({
             {
                 try
                 {
-                    info.heartbeatCallback.heartbeat(this);
+                    info.heartbeatCallback(this);
                 }
                 catch(ex)
                 {
@@ -1063,18 +1068,20 @@ var ConnectionI = Class({
         this._writeStream.clear();
         this._writeStream.buffer.clear();
 
-        if(this._callback !== null)
+        if(this._closeCallback !== null)
         {
             try
             {
-                this._callback.closed(this);
+                this._closeCallback(this);
             }
             catch(ex)
             {
                 this._logger.error("connection callback exception:\n" + ex + '\n' + this._desc);
             }
-            this._callback = null;
+            this._closeCallback = null;
         }
+
+        _heartbeatCallback = null;
 
         //
         // This must be done last as this will cause waitUntilFinished() to return (and communicator
@@ -1843,9 +1850,9 @@ var ConnectionI = Class({
                 case Protocol.validateConnectionMsg:
                 {
                     TraceUtil.traceRecv(info.stream, this._logger, this._traceLevels);
-                    if(this._callback !== null)
+                    if(this._heartbeatCallback !== null)
                     {
-                        info.heartbeatCallback = this._callback;
+                        info.heartbeatCallback = this._heartbeatCallback;
                         ++this._dispatchCount;
                     }
                     break;

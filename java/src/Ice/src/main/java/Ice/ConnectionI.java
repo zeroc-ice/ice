@@ -482,36 +482,39 @@ public final class ConnectionI extends IceInternal.EventHandler
     }
 
     @Override
-    synchronized public void setCallback(final ConnectionCallback callback)
+    synchronized public void setCloseCallback(final CloseCallback callback)
     {
-        synchronized(this)
+        if(_state >= StateClosed)
         {
-            if(_state >= StateClosed)
+            if(callback != null)
             {
-                if(callback != null)
+                _threadPool.dispatch(new IceInternal.DispatchWorkItem(this)
                 {
-                    _threadPool.dispatch(new IceInternal.DispatchWorkItem(this)
+                    @Override
+                    public void run()
                     {
-                        @Override
-                        public void run()
+                        try
                         {
-                            try
-                            {
-                                callback.closed(ConnectionI.this);
-                            }
-                            catch(Exception ex)
-                            {
-                                _logger.error("connection callback exception:\n" + ex + '\n' + _desc);
-                            }
+                            callback.closed(ConnectionI.this);
                         }
-                    });
-                }
-            }
-            else
-            {
-                _callback = callback;
+                        catch(Exception ex)
+                        {
+                            _logger.error("connection callback exception:\n" + ex + '\n' + _desc);
+                        }
+                    }
+                });
             }
         }
+        else
+        {
+            _closeCallback = callback;
+        }
+    }
+
+    @Override
+    synchronized public void setHeartbeatCallback(final HeartbeatCallback callback)
+    {
+        _heartbeatCallback = callback;
     }
 
     @Override
@@ -1243,7 +1246,8 @@ public final class ConnectionI extends IceInternal.EventHandler
         // promoting a new leader and unecessary thread creation, especially if
         // this is called on shutdown).
         //
-        if(_startCallback == null && _sendStreams.isEmpty() && _asyncRequests.isEmpty() && _callback == null)
+        if(_startCallback == null && _sendStreams.isEmpty() && _asyncRequests.isEmpty() &&
+                _closeCallback == null && _heartbeatCallback == null)
         {
             finish(close);
             return;
@@ -1378,18 +1382,20 @@ public final class ConnectionI extends IceInternal.EventHandler
         _readStream.clear();
         _readStream.getBuffer().clear();
 
-        if(_callback != null)
+        if(_closeCallback != null)
         {
             try
             {
-                _callback.closed(this);
+                _closeCallback.closed(this);
             }
             catch(Exception ex)
             {
                 _logger.error("connection callback exception:\n" + ex + '\n' + _desc);
             }
-            _callback = null;
+            _closeCallback = null;
         }
+
+        _heartbeatCallback = null;
 
         //
         // This must be done last as this will cause waitUntilFinished() to
@@ -2342,7 +2348,7 @@ public final class ConnectionI extends IceInternal.EventHandler
         IceInternal.ServantManager servantManager;
         ObjectAdapter adapter;
         IceInternal.OutgoingAsyncBase outAsync;
-        ConnectionCallback heartbeatCallback;
+        HeartbeatCallback heartbeatCallback;
         int messageDispatchCount;
     }
 
@@ -2482,9 +2488,9 @@ public final class ConnectionI extends IceInternal.EventHandler
                 case IceInternal.Protocol.validateConnectionMsg:
                 {
                     IceInternal.TraceUtil.traceRecv(info.stream, _logger, _traceLevels);
-                    if(_callback != null)
+                    if(_heartbeatCallback != null)
                     {
-                        info.heartbeatCallback = _callback;
+                        info.heartbeatCallback = _heartbeatCallback;
                         ++info.messageDispatchCount;
                     }
                     break;
@@ -3001,7 +3007,8 @@ public final class ConnectionI extends IceInternal.EventHandler
 
     private Ice.ConnectionInfo _info;
 
-    private ConnectionCallback _callback;
+    private CloseCallback _closeCallback;
+    private HeartbeatCallback _heartbeatCallback;
 
     private static Ice.Instrumentation.ConnectionState connectionStateMap[] = {
             Ice.Instrumentation.ConnectionState.ConnectionStateValidating, // StateNotInitialized

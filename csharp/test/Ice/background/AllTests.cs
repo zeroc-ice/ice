@@ -603,11 +603,8 @@ public class AllTests
         thread2.Join();
     }
 
-    private sealed class CloseCallback : Callback, Ice.ConnectionCallback
+    private sealed class CloseCallback : Callback
     {
-        public void heartbeat(Ice.Connection con)
-        {
-        }
 
         public void closed(Ice.Connection con)
         {
@@ -621,7 +618,7 @@ public class AllTests
     private static void closeConnection(Ice.ObjectPrx prx)
     {
         CloseCallback cb = new CloseCallback();
-        prx.ice_getConnection().setCallback(cb);
+        prx.ice_getConnection().setCloseCallback(cb.closed);
         prx.ice_getConnection().close(false);
         cb.check();
     }

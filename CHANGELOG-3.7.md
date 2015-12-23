@@ -44,3 +44,7 @@ These are the changes since Ice 3.6.1.
   `findValueFactory`.
 
 - Renamed local interface metadata `async` to `async-oneway`.
+
+- Replaced `ConnectionCallback` by delegates `CloseCallback` and `HeartbeatCallback`.
+  Also replaced `setCallback` by `setCloseCallback` and `setHeartbeatCallback` on
+  the `Connection` interface.

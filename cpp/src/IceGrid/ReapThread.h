@@ -42,10 +42,10 @@ template<class T>
 class SessionReapable : public Reapable
 {
     typedef IceUtil::Handle<T> TPtr;
-    
+
 public:
-    
-    SessionReapable(const Ice::LoggerPtr& logger, const TPtr& session) : 
+
+    SessionReapable(const Ice::LoggerPtr& logger, const TPtr& session) :
         _logger(logger), _session(session)
     {
     }
@@ -53,7 +53,7 @@ public:
     virtual ~SessionReapable()
     {
     }
-        
+
     virtual IceUtil::Time
     timestamp() const
     {
@@ -94,15 +94,15 @@ template<class T>
 class SessionReapableWithHeartbeat : public SessionReapable<T>
 {
     typedef IceUtil::Handle<T> TPtr;
-    
+
 public:
 
-    SessionReapableWithHeartbeat(const Ice::LoggerPtr& logger, const TPtr& session) : 
+    SessionReapableWithHeartbeat(const Ice::LoggerPtr& logger, const TPtr& session) :
         SessionReapable<T>(logger, session)
     {
     }
 
-    virtual void 
+    virtual void
     heartbeat() const
     {
         try
@@ -121,7 +121,7 @@ class ReapThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mute
 public:
 
     ReapThread();
-    
+
     virtual void run();
     void terminate();
     void add(const ReapablePtr&, int, const Ice::ConnectionPtr& = Ice::ConnectionPtr());
@@ -132,8 +132,9 @@ public:
 private:
 
     bool calcWakeInterval();
-    
-    Ice::ConnectionCallbackPtr _callback;
+
+    Ice::CloseCallbackPtr _closeCallback;
+    Ice::HeartbeatCallbackPtr _heartbeatCallback;
     IceUtil::Time _wakeInterval;
     bool _terminated;
     struct ReapableItem

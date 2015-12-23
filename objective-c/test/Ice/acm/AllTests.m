@@ -109,7 +109,7 @@
 
 @class TestCaseThread;
 
-@interface TestCase : NSObject<ICEConnectionCallback>
+@interface TestCase : ICELocalObject
 {
     NSCondition* _cond;
 
@@ -262,7 +262,20 @@
 
     @try
     {
-        [[proxy ice_getConnection] setCallback:self];
+        [[proxy ice_getConnection] setCloseCallback:^(id<ICEConnection> connection)
+        {
+            [_cond lock];
+            _closed = YES;
+            [_cond signal];
+            [_cond unlock];
+        }];
+        [[proxy ice_getConnection] setHeartbeatCallback:^(id<ICEConnection> connection)
+        {
+            [_cond lock];
+            ++_heartbeat;
+            [_cond unlock];
+        }];
+
         [self runTestCase:_adapter proxy:proxy];
     }
     @catch(ICEException* ex)
@@ -280,20 +293,6 @@
 -(void) runTestCase:(id<TestACMRemoteObjectAdapterPrx>)adapter proxy:(id<TestACMTestIntfPrx>)proxy
 {
     NSAssert(NO, @"Subclasses need to overwrite this method");
-}
-
--(void)closed:(id<ICEConnection>)connection
-{
-    [_cond lock];
-    _closed = YES;
-    [_cond signal];
-    [_cond unlock];
-}
--(void)heartbeat:(id<ICEConnection>)connection
-{
-    [_cond lock];
-    ++_heartbeat;
-    [_cond unlock];
 }
 
 -(void) waitForClosed

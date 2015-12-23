@@ -233,14 +233,8 @@ public abstract class Application extends Ice.Application
         return _adapter;
     }
 
-    private class ConnectionCallbackI implements Ice.ConnectionCallback
+    private class CloseCallbackI implements Ice.CloseCallback
     {
-        @Override
-        public void heartbeat(Ice.Connection con)
-        {
-
-        }
-
         @Override
         public void closed(Ice.Connection con)
         {
@@ -346,7 +340,7 @@ public abstract class Application extends Ice.Application
                         connection.setACM(new Ice.IntOptional(acmTimeout),
                                           null,
                                           new Ice.Optional<Ice.ACMHeartbeat>(Ice.ACMHeartbeat.HeartbeatAlways));
-                        connection.setCallback(new ConnectionCallbackI());
+                        connection.setCloseCallback(new CloseCallbackI());
                     }
                     _category = _router.getCategoryForClient();
                     status.value = runWithSession(argHolder.value);

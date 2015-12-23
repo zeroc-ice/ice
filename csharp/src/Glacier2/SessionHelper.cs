@@ -20,26 +20,6 @@ namespace Glacier2
 /// </summary>
 public class SessionHelper
 {
-    private class ConnectionCallbackI : Ice.ConnectionCallback
-    {
-        internal ConnectionCallbackI(SessionHelper sessionHelper)
-        {
-            _sessionHelper = sessionHelper;
-        }
-
-        public void heartbeat(Ice.Connection con)
-        {
-
-        }
-
-        public void closed(Ice.Connection con)
-        {
-            _sessionHelper.destroy();
-        }
-
-        private readonly SessionHelper _sessionHelper;
-    }
-
     /// <summary>
     /// Creates a Glacier2 session.
     /// </summary>
@@ -320,7 +300,7 @@ public class SessionHelper
                 Ice.Connection connection = _router.ice_getCachedConnection();
                 Debug.Assert(connection != null);
                 connection.setACM(acmTimeout, Ice.Util.None, Ice.ACMHeartbeat.HeartbeatAlways);
-                connection.setCallback(new ConnectionCallbackI(this));
+                connection.setCloseCallback(_ => destroy());
             }
         }
 

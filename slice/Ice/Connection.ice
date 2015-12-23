@@ -68,12 +68,33 @@ local interface Connection;
 /**
  *
  * An application can implement this interface to receive notifications when
- * a connection closes or receives a heartbeat message.
+ * a connection closes.
  *
- * @see Connection#setCallback
+ * @see Connection#setCloseCallback
  *
  **/
-local interface ConnectionCallback
+["delegate"]
+local interface CloseCallback
+{
+    /**
+     *
+     * This method is called by the the connection when the connection
+     * is closed.
+     *
+     **/
+    void closed(Connection con);
+};
+
+/**
+ *
+ * An application can implement this interface to receive notifications when
+ * a connection receives a heartbeat message.
+ *
+ * @see Connection#setHeartbeatCallback
+ *
+ **/
+["delegate"]
+local interface HeartbeatCallback
 {
     /**
      *
@@ -82,14 +103,6 @@ local interface ConnectionCallback
      *
      **/
     void heartbeat(Connection con);
-
-    /**
-     *
-     * This method is called by the the connection when the connection
-     * is closed.
-     *
-     **/
-    void closed(Connection con);
 };
 
 ["cpp:unscoped"]
@@ -215,10 +228,21 @@ local interface Connection
      * connection when it's closed. The callback is called from the
      * Ice thread pool associated with the connection.
      *
-     * @param callback The connection callback object.
+     * @param callback The closed callback object.
      *
      **/
-    void setCallback(ConnectionCallback callback);
+    void setCloseCallback(CloseCallback callback);
+
+    /**
+     *
+     * Set callback on the connection. The callback is called by the
+     * connection when a heartbeat is received. The callback is called
+     * from the Ice thread pool associated with the connection.
+     *
+     * @param callback The heartbeat callback object.
+     *
+     **/
+    void setHeartbeatCallback(HeartbeatCallback callback);
 
     /**
      *

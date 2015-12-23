@@ -205,26 +205,6 @@ public abstract class Application : Ice.Application
         return _adapter;
     }
 
-    private class ConnectionCallbackI : Ice.ConnectionCallback
-    {
-        internal ConnectionCallbackI(Application application)
-        {
-            _application = application;
-        }
-
-        public void heartbeat(Ice.Connection con)
-        {
-
-        }
-
-        public void closed(Ice.Connection con)
-        {
-            _application.sessionDestroyed();
-        }
-
-        private readonly Application _application;
-    }
-
     protected override int
     doMain(string[] originArgs, Ice.InitializationData initData)
     {
@@ -319,7 +299,7 @@ public abstract class Application : Ice.Application
                         Ice.Connection connection = _router.ice_getCachedConnection();
                         Debug.Assert(connection != null);
                         connection.setACM((int)acmTimeout, Ice.Util.None, Ice.ACMHeartbeat.HeartbeatAlways);
-                        connection.setCallback(new ConnectionCallbackI(this));
+                        connection.setCloseCallback(_ => sessionDestroyed());
                     }
                     _category = _router.getCategoryForClient();
                     status = runWithSession(args);

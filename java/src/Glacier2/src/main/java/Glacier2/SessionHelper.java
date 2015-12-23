@@ -327,19 +327,14 @@ public class SessionHelper
                 connection.setACM(new Ice.IntOptional(acmTimeout),
                                   null,
                                   new Ice.Optional<Ice.ACMHeartbeat>(Ice.ACMHeartbeat.HeartbeatAlways));
-                connection.setCallback(new Ice.ConnectionCallback()
-                                       {
-                                           @Override
-                                           public void heartbeat(Ice.Connection con)
-                                           {
-                                           }
-
-                                           @Override
-                                           public void closed(Ice.Connection con)
-                                           {
-                                               destroy();
-                                           }
-                                       });
+                connection.setCloseCallback(new Ice.CloseCallback()
+                {
+                    @Override
+                    public void closed(Ice.Connection con)
+                    {
+                        destroy();
+                    }
+                });
             }
 
             _shutdownHook = new Thread("Shutdown hook")

@@ -26,9 +26,11 @@ toString(int value)
     return os.str();
 }
 
-class ConnectionCallbackI : public Ice::ConnectionCallback,
+class HeartbeatCallbackI :
 #ifdef ICE_CPP11_MAPPING
-                            public enable_shared_from_this<Ice::ConnectionCallback>,
+                            public enable_shared_from_this<HeartbeatCallbackI>,
+#else
+                            public Ice::HeartbeatCallback,
 #endif
                             private IceUtil::Monitor<IceUtil::Mutex>
 {
@@ -45,8 +47,6 @@ public:
         }
     }
 
-private:
-
     virtual void
     heartbeat(const Ice::ConnectionPtr&)
     {
@@ -55,14 +55,11 @@ private:
         notifyAll();
     }
 
-    virtual void
-    closed(const Ice::ConnectionPtr&)
-    {
-    }
+private:
 
     int _count;
 };
-ICE_DEFINE_PTR(ConnectionCallbackIPtr, ConnectionCallbackI);
+ICE_DEFINE_PTR(HeartbeatCallbackIPtr, HeartbeatCallbackI);
 
 }
 
@@ -93,7 +90,7 @@ RemoteCommunicatorI::createObjectAdapter(int timeout, int close, int heartbeat, 
     }
     properties->setProperty(name + ".ThreadPool.Size", "2");
     ObjectAdapterPtr adapter = com->createObjectAdapterWithEndpoints(name, protocol + opts);
-    
+
     return ICE_UNCHECKED_CAST(RemoteObjectAdapterPrx, current.adapter->addWithUUID(
                               ICE_MAKE_SHARED(RemoteObjectAdapterI, adapter)));
 }
@@ -167,7 +164,14 @@ TestI::interruptSleep(const Ice::Current& current)
 void
 TestI::waitForHeartbeat(int count, const Ice::Current& current)
 {
-    ConnectionCallbackIPtr callback = ICE_MAKE_SHARED(ConnectionCallbackI);
-    current.con->setCallback(callback);
+    HeartbeatCallbackIPtr callback = ICE_MAKE_SHARED(HeartbeatCallbackI);
+#ifdef ICE_CPP11_MAPPING
+    current.con->setHeartbeatCallback([callback](const Ice::ConnectionPtr& connection)
+    {
+        callback->heartbeat(connection);
+    });
+#else
+    current.con->setHeartbeatCallback(callback);
+#endif
     callback->waitForCount(count);
 }

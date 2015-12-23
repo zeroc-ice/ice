@@ -92,42 +92,20 @@
 namespace
 {
 
-class ConnectionCallbackI : public Ice::ConnectionCallback
+class CloseCallbackI : public Ice::CloseCallback
 {
 public:
 
-    ConnectionCallbackI(id<ICEConnection> connection, id<ICEConnectionCallback> callback) :
-        _connection(connection), _callback(callback)
+    CloseCallbackI(id<ICEConnection> connection, ICECloseCallback callback) :
+        _connection(connection), _callback(Block_copy(callback))
     {
         [_connection retain];
-        [_callback retain];
     }
 
-    ~ConnectionCallbackI()
+    ~CloseCallbackI()
     {
         [_connection release];
         [_callback release];
-    }
-
-    void
-    heartbeat(const Ice::ConnectionPtr& connection)
-    {
-        NSException* ex = nil;
-        @autoreleasepool
-        {
-            @try
-            {
-                [_callback heartbeat:_connection];
-            }
-            @catch(id e)
-            {
-                ex = [e retain];
-            }
-        }
-        if(ex != nil)
-        {
-            rethrowCxxException(ex, true); // True = release the exception.
-        }
     }
 
     void
@@ -138,7 +116,7 @@ public:
         {
             @try
             {
-                [_callback closed:_connection];
+                _callback(_connection);
             }
             @catch(id e)
             {
@@ -154,7 +132,50 @@ public:
 private:
 
     id<ICEConnection> _connection;
-    id<ICEConnectionCallback> _callback;
+    ICECloseCallback _callback;
+};
+
+class HeartbeatCallbackI : public Ice::HeartbeatCallback
+{
+public:
+
+    HeartbeatCallbackI(id<ICEConnection> connection, ICEHeartbeatCallback callback) :
+        _connection(connection), _callback(Block_copy(callback))
+    {
+        [_connection retain];
+    }
+
+    ~HeartbeatCallbackI()
+    {
+        [_connection release];
+        [_callback release];
+    }
+
+    void
+    heartbeat(const Ice::ConnectionPtr& connection)
+    {
+        NSException* ex = nil;
+        @autoreleasepool
+        {
+            @try
+            {
+                _callback(_connection);
+            }
+            @catch(id e)
+            {
+                ex = [e retain];
+            }
+        }
+        if(ex != nil)
+        {
+            rethrowCxxException(ex, true); // True = release the exception.
+        }
+    }
+
+private:
+
+    id<ICEConnection> _connection;
+    ICEHeartbeatCallback _callback;
 };
 
 }
@@ -267,9 +288,13 @@ private:
                    CONNECTION->end_flushBatchRequests(r);
                }, result);
 }
--(void) setCallback:(id<ICEConnectionCallback>)callback
+-(void) setCloseCallback:(ICECloseCallback)callback;
 {
-    CONNECTION->setCallback(new ConnectionCallbackI(self, callback));
+    CONNECTION->setCloseCallback(new CloseCallbackI(self, callback));
+}
+-(void) setHeartbeatCallback:(ICEHeartbeatCallback)callback
+{
+    CONNECTION->setHeartbeatCallback(new HeartbeatCallbackI(self, callback));
 }
 -(void) setACM:(id)timeout close:(id)close heartbeat:(id)heartbeat
 {
