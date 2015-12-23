@@ -3292,64 +3292,17 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     if(!p->isAbstract())
     {
-        bool restoreInProtected = false;
         //
         // We add a protected destructor to force heap instantiation of the class.
         //
-        if(inProtected)
-        {
-            H.zeroIndent();
-            H << nl << "#if defined(_MSC_VER) && (_MSC_VER >= 1900)";
-            H.restoreIndent();
-
-            H << nl << "//";
-            H << nl << "// COMPILERFIX: Visual Studio 2015 update 1 fails to access";
-            H << nl << "// the proected destructor from a friend class.";
-            H << nl << "//";
-            H << nl << "public:";
-
-            H.zeroIndent();
-            H << nl << "#endif";
-            restoreInProtected = true;
-            H.restoreIndent();
-        }
-        else
+        if(!inProtected)
         {
             H.dec();
-
-            H.zeroIndent();
-            H << nl << "#if !defined(_MSC_VER) || (_MSC_VER < 1900)";
-            H.restoreIndent();
-            H << nl << "//";
-            H << nl << "// COMPILERFIX: Visual Studio 2015 update 1 fails to access";
-            H << nl << "// the proected destructor from a friend class.";
-            H << nl << "//";
             H << nl << "protected:";
-
-            H.zeroIndent();
-            H << nl << "#endif";
-            H.restoreIndent();
-
             H.inc();
             inProtected = true;
         }
         H << sp << nl << "virtual ~" << fixKwd(p->name()) << "() {}";
-
-        if(restoreInProtected)
-        {
-            H.zeroIndent();
-            H << nl << "#if defined(_MSC_VER) && (_MSC_VER >= 1900)";
-            H.restoreIndent();
-            H << nl << "//";
-            H << nl << "// COMPILERFIX: Visual Studio 2015 update 1 fails to access";
-            H << nl << "// the proected destructor from a friend class.";
-            H << nl << "//";
-            H << nl << "protected:";
-
-            H.zeroIndent();
-            H << nl << "#endif";
-            H.restoreIndent();
-        }
 
         if(!_doneStaticSymbol)
         {
@@ -3383,6 +3336,14 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
         // For a Slice class Foo, we instantiate a dummy class Foo__staticInit instead of using a static
         // Foo instance directly because Foo has a protected destructor.
         //
+        H.zeroIndent();
+        H << nl << "#if !defined(_MSC_VER) || (_MSC_VER < 1900)";
+        H.restoreIndent();
+        H << nl << "//";
+        H << nl << "// COMPILERFIX: Visual Studio 2015 update 1 fails to access";
+        H << nl << "// the proected destructor from a friend class.";
+        H << nl << "//";
+
         H << sp << nl << "class " << p->name() << "__staticInit";
         H << sb;
         H.dec();
@@ -3392,6 +3353,10 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
         H << eb << ';';
         _doneStaticSymbol = true;
         H << sp << nl << "static " << p->name() << "__staticInit _" << p->name() << "_init;";
+
+        H.zeroIndent();
+        H << nl << "#endif";
+        H.restoreIndent();
     }
 
     if(p->isLocal())
