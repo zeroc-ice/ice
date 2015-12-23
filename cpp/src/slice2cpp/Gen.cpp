@@ -2816,7 +2816,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
             C << sb;
             if(!p->isAbstract())
             {
-                
+
 
                 C << nl << "::Ice::Object* __p = new " << name << "(*this);";
                 C << nl << "return __p;";
@@ -3292,21 +3292,70 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     if(!p->isAbstract())
     {
+        bool restoreInProtected = false;
         //
         // We add a protected destructor to force heap instantiation of the class.
         //
-        if(!inProtected)
+        if(inProtected)
+        {
+            H.zeroIndent();
+            H << nl << "#if defined(_MSC_VER) && (_MSC_VER >= 1900)";
+            H.restoreIndent();
+
+            H << nl << "//";
+            H << nl << "// COMPILERFIX: Visual Studio 2015 update 1 fails to access";
+            H << nl << "// the proected destructor from a friend class.";
+            H << nl << "//";
+            H << nl << "public:";
+
+            H.zeroIndent();
+            H << nl << "#endif";
+            restoreInProtected = true;
+            H.restoreIndent();
+        }
+        else
         {
             H.dec();
-            H << sp << nl << "protected:";
+
+            H.zeroIndent();
+            H << nl << "#if !defined(_MSC_VER) || (_MSC_VER < 1900)";
+            H.restoreIndent();
+            H << nl << "//";
+            H << nl << "// COMPILERFIX: Visual Studio 2015 update 1 fails to access";
+            H << nl << "// the proected destructor from a friend class.";
+            H << nl << "//";
+            H << nl << "protected:";
+
+            H.zeroIndent();
+            H << nl << "#endif";
+            H.restoreIndent();
+
             H.inc();
             inProtected = true;
         }
         H << sp << nl << "virtual ~" << fixKwd(p->name()) << "() {}";
 
+        if(restoreInProtected)
+        {
+            H.zeroIndent();
+            H << nl << "#if defined(_MSC_VER) && (_MSC_VER >= 1900)";
+            H.restoreIndent();
+            H << nl << "//";
+            H << nl << "// COMPILERFIX: Visual Studio 2015 update 1 fails to access";
+            H << nl << "// the proected destructor from a friend class.";
+            H << nl << "//";
+            H << nl << "protected:";
+
+            H.zeroIndent();
+            H << nl << "#endif";
+            H.restoreIndent();
+        }
+
         if(!_doneStaticSymbol)
         {
+            H.dec();
             H << sp << nl << "friend class " << p->name() << "__staticInit;";
+            H.inc();
         }
     }
 
@@ -3898,10 +3947,10 @@ Slice::Gen::ObjectVisitor::emitOneShotConstructor(const ClassDefPtr& p)
 
         for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
         {
-            
+
             string typeName = inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), _useWstring);
             bool dataMember = std::find(dataMembers.begin(), dataMembers.end(), (*q)) != dataMembers.end();
-            allParamDecls.push_back(typeName + ((dataMember || callBaseConstuctors) ? 
+            allParamDecls.push_back(typeName + ((dataMember || callBaseConstuctors) ?
                                                     (" __ice_" + (*q)->name()) : (" /*__ice_" + (*q)->name() + "*/")));
         }
 
@@ -3919,7 +3968,7 @@ Slice::Gen::ObjectVisitor::emitOneShotConstructor(const ClassDefPtr& p)
 
         ClassList bases = p->bases();
         ClassDefPtr base;
-        
+
         if(!bases.empty() && !bases.front()->isInterface() && callBaseConstuctors)
         {
             if(emitVirtualBaseInitializers(bases.front(), virtualInheritance, true))
