@@ -52,7 +52,7 @@ private:
     bool _called;
 };
 
-class Callback : public CallbackBase, public ICE_ENABLE_SHARED_FROM_THIS(Callback)
+class Callback : public CallbackBase, public Ice::EnableSharedFromThis<Callback>
 {
 public:
 

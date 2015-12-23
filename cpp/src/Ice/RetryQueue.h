@@ -24,7 +24,7 @@ namespace IceInternal
 
 class RetryTask : public IceUtil::TimerTask,
                   public CancellationHandler,
-                  public ICE_ENABLE_SHARED_FROM_THIS(RetryTask)
+                  public Ice::EnableSharedFromThis<RetryTask>
 {
 public:
 

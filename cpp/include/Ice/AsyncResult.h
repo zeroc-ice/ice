@@ -172,7 +172,7 @@ namespace IceInternal
 //
 // Base class for all callbacks.
 //
-class ICE_API CallbackBase : public ICE_ENABLE_SHARED_FROM_THIS(CallbackBase)
+class ICE_API CallbackBase : public Ice::EnableSharedFromThis<CallbackBase>
 {
 public:
 

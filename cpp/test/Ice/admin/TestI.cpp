@@ -19,7 +19,7 @@ namespace
 // A no-op Logger, used when testing the Logger Admin
 //
 
-class NullLogger : public Ice::Logger, public ICE_ENABLE_SHARED_FROM_THIS(NullLogger)
+class NullLogger : public Ice::Logger, public Ice::EnableSharedFromThis<NullLogger>
 {
 public:
 
@@ -46,7 +46,7 @@ public:
     
     virtual Ice::LoggerPtr cloneWithPrefix(const string&)
     {
-        return ICE_SHARED_FROM_THIS;
+        return shared_from_this();
     }
 };
 

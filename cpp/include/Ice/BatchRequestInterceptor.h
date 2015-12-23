@@ -35,7 +35,7 @@ public:
     virtual const Ice::ObjectPrxPtr& getProxy() const = 0;
 };
 
-class BatchRequestInterceptor : public ICE_ENABLE_SHARED_FROM_THIS(BatchRequestInterceptor)
+class BatchRequestInterceptor : public ICE_SHARED
 {
 public:
 

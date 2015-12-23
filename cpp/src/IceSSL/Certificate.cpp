@@ -977,24 +977,11 @@ Certificate::getPublicKey() const
     {
         throw CertificateEncodingException(__FILE__, __LINE__, errorToString(err));
     }
-#   ifdef ICE_CPP11_MAPPING
-    return make_shared<PublicKey>(const_pointer_cast<Certificate>(shared_from_this()), key);
-#   else
-    return new PublicKey(const_cast<Certificate*>(this), key);
-#   endif
+    return ICE_MAKE_SHARED(PublicKey, shared_from_this(), key);
 #elif defined(ICE_USE_SCHANNEL)
-#   ifdef ICE_CPP11_MAPPING
-    return make_shared<PublicKey>(const_pointer_cast<Certificate>(shared_from_this()),
-                                  &_certInfo->SubjectPublicKeyInfo);
-#   else
-    return new PublicKey(const_cast<Certificate*>(this), &_certInfo->SubjectPublicKeyInfo);
-#   endif
+    return ICE_MAKE_SHARED(PublicKey, shared_from_this(), &_certInfo->SubjectPublicKeyInfo);
 #else
-#   ifdef ICE_CPP11_MAPPING
-    return make_shared<PublicKey>(const_pointer_cast<Certificate>(shared_from_this()), X509_get_pubkey(_cert));
-#   else
-    return new PublicKey(const_cast<Certificate*>(this), X509_get_pubkey(_cert));
-#   endif
+    return ICE_MAKE_SHARED(PublicKey, shared_from_this(), X509_get_pubkey(_cert));
 #endif
 }
 

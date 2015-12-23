@@ -24,7 +24,7 @@ toString(int value)
     return os.str();
 }
 
-class LoggerI : public ICE_ENABLE_SHARED_FROM_THIS(LoggerI),
+class LoggerI : public Ice::EnableSharedFromThis<LoggerI>,
                 public Ice::Logger, 
                 private IceUtil::Mutex
 {

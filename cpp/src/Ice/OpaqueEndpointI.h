@@ -16,7 +16,7 @@
 namespace IceInternal
 {
 
-class OpaqueEndpointI : public EndpointI, public ICE_ENABLE_SHARED_FROM_THIS(OpaqueEndpointI)
+class OpaqueEndpointI : public EndpointI, public Ice::EnableSharedFromThis<OpaqueEndpointI>
 {
 public:
 

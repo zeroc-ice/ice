@@ -47,7 +47,7 @@ namespace IceInternal
 class ICE_API MetricsMapI;
 ICE_DEFINE_PTR(MetricsMapIPtr, MetricsMapI);
 
-class ICE_API MetricsMapI : public ICE_ENABLE_SHARED_FROM_THIS(MetricsMapI)
+class ICE_API MetricsMapI : public Ice::EnableSharedFromThis<MetricsMapI>
 {
 public:
 
@@ -119,7 +119,12 @@ protected:
     const std::vector<RegExpPtr> _reject;
 };
 
-class ICE_API MetricsMapFactory : public ICE_LOCAL_OBJECT
+class ICE_API MetricsMapFactory :
+#ifdef ICE_CPP11_MAPPING
+    virtual public Ice::VirtualEnableSharedFromThisBase
+#else
+    public Ice::LocalObject
+#endif
 {
 public:
 
@@ -149,7 +154,12 @@ public:
     class EntryT;
     ICE_DEFINE_PTR(EntryTPtr, EntryT);
 
-    class EntryT : public ICE_LOCAL_OBJECT
+    class EntryT :
+#ifdef ICE_CPP11_MAPPING
+        virtual public Ice::VirtualEnableSharedFromThisBase
+#else
+        public Ice::LocalObject
+#endif
     {
     public:
 

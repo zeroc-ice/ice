@@ -89,7 +89,7 @@ private:
 
     class ConnectCallback : public Ice::ConnectionI::StartCallback,
                             public IceInternal::EndpointI_connectors,
-                            public ICE_ENABLE_SHARED_FROM_THIS(IceInternal::OutgoingConnectionFactory::ConnectCallback)
+                            public Ice::EnableSharedFromThis<IceInternal::OutgoingConnectionFactory::ConnectCallback>
     {
     public:
 
@@ -170,7 +170,7 @@ private:
 class IncomingConnectionFactory : public EventHandler,
                                   public Ice::ConnectionI::StartCallback,
                                   public IceUtil::Monitor<IceUtil::Mutex>,
-                                  public ICE_ENABLE_SHARED_FROM_THIS(IncomingConnectionFactory)
+                                  public Ice::EnableSharedFromThis<IncomingConnectionFactory>
 {
 public:
 

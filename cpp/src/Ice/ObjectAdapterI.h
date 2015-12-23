@@ -38,7 +38,7 @@ namespace Ice
 class ObjectAdapterI;
 ICE_DEFINE_PTR(ObjectAdapterIPtr, ObjectAdapterI);
 
-class ObjectAdapterI : public ICE_ENABLE_SHARED_FROM_THIS(ObjectAdapterI),
+class ObjectAdapterI : public EnableSharedFromThis<ObjectAdapterI>,
                        public ObjectAdapter,
                        public IceUtil::Monitor<IceUtil::RecMutex>
 {

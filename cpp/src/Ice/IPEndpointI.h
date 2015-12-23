@@ -43,7 +43,7 @@ private:
     const EndpointIPtr _endpoint;
 };
 
-class ICE_API IPEndpointI : public EndpointI, public ICE_ENABLE_SHARED_FROM_THIS(IPEndpointI)
+class ICE_API IPEndpointI : public EndpointI, public Ice::EnableSharedFromThis<IPEndpointI>
 {
 public:
 

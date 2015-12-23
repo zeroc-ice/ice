@@ -116,11 +116,7 @@ AdapterRequest::finished(const Ice::ObjectPrxPtr& proxy)
 void
 AdapterRequest::runTimerTask()
 {
-#ifdef ICE_CPP11_MAPPING
-    _lookup->adapterRequestTimedOut(dynamic_pointer_cast<AdapterRequest>(shared_from_this()));
-#else
-    _lookup->adapterRequestTimedOut(this);
-#endif
+    _lookup->adapterRequestTimedOut(shared_from_this());
 }
 
 void
@@ -132,11 +128,7 @@ ObjectRequest::response(const Ice::ObjectPrxPtr& proxy)
 void
 ObjectRequest::runTimerTask()
 {
-#ifdef ICE_CPP11_MAPPING
-    _lookup->objectRequestTimedOut(dynamic_pointer_cast<ObjectRequest>(shared_from_this()));
-#else
-    _lookup->objectRequestTimedOut(this);
-#endif
+    _lookup->objectRequestTimedOut(shared_from_this());
 }
 
 LookupI::LookupI(const LocatorRegistryIPtr& registry, const LookupPrxPtr& lookup, const Ice::PropertiesPtr& properties) :

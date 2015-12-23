@@ -51,7 +51,7 @@ public:
 };
 
 class FactoryACMMonitor : public ACMMonitor, public ::IceUtil::Mutex,
-                          public ICE_ENABLE_SHARED_FROM_THIS(FactoryACMMonitor)
+                          public Ice::EnableSharedFromThis<FactoryACMMonitor>
 {
 public:
 
@@ -87,7 +87,7 @@ private:
 };
 
 class ConnectionACMMonitor : public ACMMonitor, public ::IceUtil::Mutex,
-                             public ICE_ENABLE_SHARED_FROM_THIS(ConnectionACMMonitor)
+                             public Ice::EnableSharedFromThis<ConnectionACMMonitor>
 {
 public:
 

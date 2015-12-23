@@ -19,7 +19,8 @@
 namespace IceInternal
 {
 
-class ObjectAdapterFactory : public ICE_ENABLE_SHARED_FROM_THIS(ObjectAdapterFactory), public ::IceUtil::Monitor< ::IceUtil::RecMutex>
+class ObjectAdapterFactory : public Ice::EnableSharedFromThis<ObjectAdapterFactory>,
+                             public ::IceUtil::Monitor< ::IceUtil::RecMutex>
 {
 public:
 

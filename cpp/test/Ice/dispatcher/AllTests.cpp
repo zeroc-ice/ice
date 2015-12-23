@@ -18,7 +18,7 @@ using namespace std;
 namespace
 {
 
-class Callback : public ICE_ENABLE_SHARED_FROM_THIS(Callback)
+class Callback : public ICE_SHARED
 {
 public:
 

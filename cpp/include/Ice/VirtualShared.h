@@ -15,7 +15,7 @@
 namespace Ice
 {
 
-#ifdef ICE_CPP11_MAPPING
+#ifdef ICE_CPP11_MAPPING // C++11
 
 class VirtualEnableSharedFromThisBase : public std::enable_shared_from_this<VirtualEnableSharedFromThisBase>
 {
@@ -23,7 +23,7 @@ public:
      virtual ~VirtualEnableSharedFromThisBase() = default;
 };
 
-template<typename T> class VirtualEnableSharedFromThis : public virtual VirtualEnableSharedFromThisBase
+template<typename T> class EnableSharedFromThis : public virtual VirtualEnableSharedFromThisBase
 {
 
 public:
@@ -36,12 +36,8 @@ public:
 };
 
 #   define ICE_SHARED Ice::VirtualEnableSharedFromThisBase
-#   define ICE_LOCAL_OBJECT Ice::VirtualEnableSharedFromThisBase
-#   define ICE_ENABLE_SHARED_FROM_THIS(T) Ice::VirtualEnableSharedFromThis<T>
 
-#else
-
-// C++98
+#else // C++98
 
 template<typename T> class EnableSharedFromThis : virtual public IceUtil::Shared
 {
@@ -54,8 +50,6 @@ public:
 };
 
 #   define ICE_SHARED IceUtil::Shared
-#   define ICE_LOCAL_OBJECT Ice::LocalObject
-#   define ICE_ENABLE_SHARED_FROM_THIS(T) Ice::EnableSharedFromThis<T>
 
 
 #endif

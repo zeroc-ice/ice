@@ -169,7 +169,7 @@ ICE_DEFINE_PTR(CertificatePtr, Certificate);
 //
 // A representation of a PublicKey.
 //
-class ICE_SSL_API PublicKey : public ICE_ENABLE_SHARED_FROM_THIS(PublicKey)
+class ICE_SSL_API PublicKey : public Ice::EnableSharedFromThis<PublicKey>
 {
 public:
     
@@ -267,7 +267,7 @@ private:
 // This convenience class is a wrapper around a native certificate.
 // The interface is inspired by java.security.cert.X509Certificate.
 //
-class ICE_SSL_API Certificate : public ICE_ENABLE_SHARED_FROM_THIS(Certificate)
+class ICE_SSL_API Certificate : public Ice::EnableSharedFromThis<Certificate>
 {
 public:
 
@@ -480,7 +480,7 @@ ICE_DEFINE_PTR(WSSNativeConnectionInfoPtr, WSSNativeConnectionInfo);
 // An application can customize the certificate verification process
 // by implementing the CertificateVerifier interface.
 //
-class ICE_SSL_API CertificateVerifier : public ICE_ENABLE_SHARED_FROM_THIS(CertificateVerifier)
+class ICE_SSL_API CertificateVerifier : public Ice::EnableSharedFromThis<CertificateVerifier>
 {
 public:
 
@@ -507,7 +507,7 @@ ICE_DEFINE_PTR(CertificateVerifierPtr, CertificateVerifier);
 // IceSSL.DelayInit=1), configure the PasswordPrompt, then manually
 // initialize the plug-in.
 //
-class ICE_SSL_API PasswordPrompt : public ICE_ENABLE_SHARED_FROM_THIS(PasswordPrompt)
+class ICE_SSL_API PasswordPrompt : public Ice::EnableSharedFromThis<PasswordPrompt>
 {
 public:
 

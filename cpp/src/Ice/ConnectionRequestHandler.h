@@ -19,7 +19,7 @@ namespace IceInternal
 {
 
 class ConnectionRequestHandler : public RequestHandler,
-                                 public ICE_ENABLE_SHARED_FROM_THIS(ConnectionRequestHandler)
+                                 public Ice::EnableSharedFromThis<ConnectionRequestHandler>
 {
 public:
 

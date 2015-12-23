@@ -20,7 +20,7 @@ using namespace std;
 namespace Glacier2
 {
 
-class SessionThreadCallback : public ICE_ENABLE_SHARED_FROM_THIS(SessionThreadCallback)
+class SessionThreadCallback : public Ice::EnableSharedFromThis<SessionThreadCallback>
 {
 public:
 
@@ -82,10 +82,7 @@ private:
     const Glacier2::SessionCallbackPtr _callback;
 };
 
-class SessionHelperI : public Glacier2::SessionHelper
-#ifdef ICE_CPP11_MAPPING
-    , public enable_shared_from_this<SessionHelperI>
-#endif
+class SessionHelperI : public Glacier2::SessionHelper, public Ice::EnableSharedFromThis<SessionHelperI>
 {
 
 public:
@@ -227,13 +224,13 @@ SessionHelperI::destroy()
         // We destroy the communicator to trigger the immediate
         // failure of the connection establishment.
         //
-        IceUtil::ThreadPtr destroyCommunicator = new DestroyCommunicator(ICE_SHARED_FROM_THIS);
+        IceUtil::ThreadPtr destroyCommunicator = new DestroyCommunicator(shared_from_this());
         _threadCB = ICE_NULLPTR;
         destroyCommunicator->start();
         return;
     }
 
-    IceUtil::ThreadPtr destroyInternal = new DestroyInternal(ICE_SHARED_FROM_THIS, _threadCB, _callback);
+    IceUtil::ThreadPtr destroyInternal = new DestroyInternal(shared_from_this(), _threadCB, _callback);
 
     _session = ICE_NULLPTR;
     _connected = false;
@@ -666,13 +663,13 @@ SessionHelperI::connectImpl(const ConnectStrategyPtr& factory)
     catch(const Ice::LocalException& ex)
     {
         _destroy = true;
-        IceUtil::ThreadPtr thread = new DispatchCallThread(ICE_SHARED_FROM_THIS, new ConnectFailed(_callback, ICE_SHARED_FROM_THIS, ex), 0);
+        IceUtil::ThreadPtr thread = new DispatchCallThread(shared_from_this(), new ConnectFailed(_callback, shared_from_this(), ex), 0);
         _threadCB->add(this, thread);
         thread->start();
         return;
     }
 
-    IceUtil::ThreadPtr thread = new ConnectThread(_callback, ICE_SHARED_FROM_THIS, factory, _communicator, _finder);
+    IceUtil::ThreadPtr thread = new ConnectThread(_callback, shared_from_this(), factory, _communicator, _finder);
     _threadCB->add(this, thread);
     thread->start();
 }
@@ -795,7 +792,7 @@ SessionHelperI::connected(const Glacier2::RouterPrxPtr& router, const Glacier2::
                 Ice::ConnectionPtr connection = _router->ice_getCachedConnection();
                 assert(connection);
                 connection->setACM(acmTimeout, IceUtil::None, Ice::HeartbeatAlways);
-                connection->setCallback(ICE_MAKE_SHARED(ConnectionCallbackI, ICE_SHARED_FROM_THIS));
+                connection->setCallback(ICE_MAKE_SHARED(ConnectionCallbackI, shared_from_this()));
             }
         }
     }
@@ -806,11 +803,11 @@ SessionHelperI::connected(const Glacier2::RouterPrxPtr& router, const Glacier2::
         // connected() is only called from the ConnectThread so it is ok to
         // call destroyInternal here.
         //
-        destroyInternal(new Disconnected(ICE_SHARED_FROM_THIS, _callback));
+        destroyInternal(new Disconnected(shared_from_this(), _callback));
     }
     else
     {
-        dispatchCallback(new Connected(_callback, ICE_SHARED_FROM_THIS), conn);
+        dispatchCallback(new Connected(_callback, shared_from_this()), conn);
     }
 }
 
@@ -1119,7 +1116,7 @@ Glacier2::SessionFactoryHelper::connect()
     {
         IceUtil::Mutex::Lock sync(_mutex);
         session = ICE_MAKE_SHARED(SessionHelperI, 
-                                  ICE_MAKE_SHARED(SessionThreadCallback, ICE_SHARED_FROM_THIS),
+                                  ICE_MAKE_SHARED(SessionThreadCallback, shared_from_this()),
                                   _callback,
                                   createInitData(),
                                   getRouterFinderStr(),
@@ -1138,7 +1135,7 @@ Glacier2::SessionFactoryHelper::connect(const string& user,  const string& passw
     {
         IceUtil::Mutex::Lock sync(_mutex);
         session = ICE_MAKE_SHARED(SessionHelperI,
-                                  ICE_MAKE_SHARED(SessionThreadCallback, ICE_SHARED_FROM_THIS),
+                                  ICE_MAKE_SHARED(SessionThreadCallback, shared_from_this()),
                                   _callback,
                                   createInitData(),
                                   getRouterFinderStr(),

@@ -33,7 +33,7 @@ namespace Glacier2
 const int GLACIER2_SSL_PORT = 4064;
 const int GLACIER2_TCP_PORT = 4063;
 
-class GLACIER2_API SessionHelper : public IceUtil::Shared
+class GLACIER2_API SessionHelper : public virtual ICE_SHARED
 {
 
 public:
@@ -51,7 +51,7 @@ public:
 };
 ICE_DEFINE_PTR(SessionHelperPtr, SessionHelper);
 
-class GLACIER2_API SessionCallback : virtual public IceUtil::Shared
+class GLACIER2_API SessionCallback : virtual public ICE_SHARED
 {
 
 public:
@@ -65,7 +65,7 @@ ICE_DEFINE_PTR(SessionCallbackPtr, SessionCallback);
 
 class SessionThreadCallback;
 
-class GLACIER2_API SessionFactoryHelper : public ICE_ENABLE_SHARED_FROM_THIS(SessionFactoryHelper)
+class GLACIER2_API SessionFactoryHelper : public Ice::EnableSharedFromThis<SessionFactoryHelper>
 {
     friend class SessionThreadCallback; // To access thread functions
 

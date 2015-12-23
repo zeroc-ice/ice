@@ -68,7 +68,7 @@ class ConnectionI : public Connection,
                     public IceInternal::ResponseHandler,
                     public IceInternal::CancellationHandler,
                     public IceUtil::Monitor<IceUtil::Mutex>,
-                    public ICE_ENABLE_SHARED_FROM_THIS(ConnectionI)
+                    public EnableSharedFromThis<ConnectionI>
 {
     class Observer : public IceInternal::ObserverHelperT<Ice::Instrumentation::ConnectionObserver>
     {

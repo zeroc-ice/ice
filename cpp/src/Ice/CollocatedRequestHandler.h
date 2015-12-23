@@ -40,7 +40,7 @@ class OutgoingAsync;
 class CollocatedRequestHandler : public RequestHandler,
                                  public ResponseHandler,
                                  private IceUtil::Monitor<IceUtil::Mutex>,
-                                 public ICE_ENABLE_SHARED_FROM_THIS(CollocatedRequestHandler)
+                                 public Ice::EnableSharedFromThis<CollocatedRequestHandler>
 {
 public:
 

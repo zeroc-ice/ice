@@ -23,7 +23,7 @@ namespace Ice
 class CommunicatorI;
 ICE_DEFINE_PTR(CommunicatorIPtr, CommunicatorI);
 
-class CommunicatorI : public ICE_ENABLE_SHARED_FROM_THIS(CommunicatorI),
+class CommunicatorI : public EnableSharedFromThis<CommunicatorI>,
                       public Communicator
 {
 public:

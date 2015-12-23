@@ -24,9 +24,7 @@ class LookupI;
 #ifdef ICE_CPP11_MAPPING
 
 
-template<class T> class Request :
-    public IceUtil::TimerTask,
-    public std::enable_shared_from_this<Request<T>>
+template<class T> class Request : public IceUtil::TimerTask
 {
 public:
 
@@ -70,7 +68,7 @@ protected:
     std::vector<std::function<void (const std::shared_ptr<::Ice::ObjectPrx>&)>> _callbacks;
 };
 
-class ObjectRequest : public Request<Ice::Identity>
+class ObjectRequest : public Request<Ice::Identity>, public Ice::EnableSharedFromThis<ObjectRequest>
 {
 public:
 
@@ -87,7 +85,7 @@ private:
 };
 typedef std::shared_ptr<ObjectRequest> ObjectRequestPtr;
 
-class AdapterRequest : public Request<std::string>
+class AdapterRequest : public Request<std::string>, public Ice::EnableSharedFromThis<AdapterRequest>
 {
 public:
 
@@ -161,7 +159,8 @@ protected:
     std::vector<CB> _callbacks;
 };
 
-class ObjectRequest : public RequestT<Ice::Identity, Ice::AMD_Locator_findObjectByIdPtr>
+class ObjectRequest : public RequestT<Ice::Identity, Ice::AMD_Locator_findObjectByIdPtr>,
+                      public Ice::EnableSharedFromThis<ObjectRequest>
 {
 public:
 
@@ -178,7 +177,7 @@ private:
 };
 typedef IceUtil::Handle<ObjectRequest> ObjectRequestPtr;
 
-class AdapterRequest : public RequestT<std::string, Ice::AMD_Locator_findAdapterByIdPtr>
+class AdapterRequest : public RequestT<std::string, Ice::AMD_Locator_findAdapterByIdPtr>, public Ice::EnableSharedFromThis<AdapterRequest>
 {
 public:
 
@@ -205,7 +204,7 @@ typedef IceUtil::Handle<AdapterRequest> AdapterRequestPtr;
 
 class LookupI : public Lookup,
                 private IceUtil::Mutex,
-                public ICE_ENABLE_SHARED_FROM_THIS(LookupI)
+                public Ice::EnableSharedFromThis<LookupI>
 {
 public:
 

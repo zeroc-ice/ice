@@ -138,7 +138,7 @@ public:
 typedef IceUtil::Handle<Job> JobPtr;
 
 
-class LoggerAdminLoggerI : public ICE_ENABLE_SHARED_FROM_THIS(LoggerAdminLoggerI), public IceInternal::LoggerAdminLogger
+class LoggerAdminLoggerI : public Ice::EnableSharedFromThis<LoggerAdminLoggerI>, public IceInternal::LoggerAdminLogger
 {
 public:
 
