@@ -4,7 +4,7 @@
 
 Ice is a comprehensive RPC framework that helps you build distributed applications with minimal effort. Ice takes care of all interactions with low-level network programming interfaces and allows you to focus your efforts on your application logic. When using Ice, there is no need to worry about details such as opening network connections, serializing and deserializing data for network transmission, or retrying failed connection attempts (to name just a few of dozens of such low-level details).
 
-You can find download instructions for the latest release of Ice [here](https://zeroc.com/download.html). Otherwise you can use this GitHub repository to build from source. See [branches](#branches) for more information.
+You can find download instructions for the latest release of Ice [here](https://zeroc.com/downloads/ice). Otherwise you can use this GitHub repository to build from source. See [branches](#branches) for more information.
 
 ## Languages
 
@@ -46,11 +46,11 @@ Ice runs on a wide range of platforms:
   and server-side dispatches
 - Automatic discovery of remote objects through UDP multicast
 - Comes with a number of optional services:
-    - [IceGrid](https://zeroc.com/icegrid/index.html) - the nerve-center of any large-scale application, with support for server deployment, replication, monitoring, load-balancing and more
-    - [IceStorm](https://zeroc.com/icestorm/index.html) - a lightweight topic-based pub-sub service
-    - [Freeze](https://zeroc.com/freeze/index.html) - an embedded, transactional database for Ice datatypes
-    - [Glacier2](https://zeroc.com/glacier2/index.html) - a sysadmin-friendly solution for routing Ice communications through firewalls
-    - [IcePatch2](https://zeroc.com/icepatch2/index.html) - an efficient software distribution and patching service
+    - [IceGrid](https://zeroc.com/products/ice/services/icegrid) - the nerve-center of any large-scale application, with support for server deployment, replication, monitoring, load-balancing and more
+    - [IceStorm](https://zeroc.com/products/ice/services/icestorm) - a lightweight topic-based pub-sub service
+    - [Freeze](https://zeroc.com/products/ice/services/freeze) - an embedded, transactional database for Ice datatypes
+    - [Glacier2](https://zeroc.com/products/ice/services/glacier2) - a sysadmin-friendly solution for routing Ice communications through firewalls
+    - [IcePatch2](https://zeroc.com/products/ice/services/icepatch2) - an efficient software distribution and patching service
 
 ## Branches
 
