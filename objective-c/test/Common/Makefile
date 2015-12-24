@@ -9,7 +9,7 @@
 
 top_srcdir	= ../..
 
-LIBNAME		= $(call mklibname,TestCommon)
+LIBNAME		= $(call mklibname,TestCommonObjC)
 
 TARGETS		= ../../lib/$(LIBNAME)
 

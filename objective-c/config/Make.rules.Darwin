@@ -88,4 +88,4 @@ mkshlib		= $(CXX)  -dynamiclib $(LDFLAGS) -o $(1) -install_name @rpath/$(2) $(3)
 BASELIBS	= -L$(ice_cpp_dir)/$(libsubdir) -lIce -lIceUtil -framework Foundation
 LIBS		= -lIceObjC$(libsuffix) -framework Foundation
 ICESSL_LIBS = -lIceSSLObjC$(libsuffix)
-TEST_LIBS	= -lTestCommon $(LIBS)
+TEST_LIBS	= -lTestCommonObjC $(LIBS)
