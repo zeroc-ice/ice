@@ -47,10 +47,10 @@ Ice runs on a wide range of platforms:
   and server-side dispatches
 - Automatic discovery of remote objects through UDP multicast
 - Comes with a number of optional services:
-    - [IceGrid](https://zeroc.com/icegrid/index.html) - a DNS-like service for Ice objects, with support for server deployment, replication, monitoring, load-balancing and more
-    - [IceStorm](https://zeroc.com/icestorm/index.html) - a lightweight topic-based pub-sub service
-    - [Glacier2](https://zeroc.com/glacier2/index.html) - a sysadmin-friendly solution for routing Ice communications through firewalls
-    - [IcePatch2](https://zeroc.com/icepatch2/index.html) - an efficient software distribution and patching service
+    - [IceGrid](https://zeroc.com/products/ice/services/icegrid) - a DNS-like service for Ice objects, with support for server deployment, replication, monitoring, load-balancing and more
+    - [IceStorm](https://zeroc.com/products/ice/services/icestorm) - a lightweight topic-based pub-sub service
+    - [Glacier2](https://zeroc.com/products/ice/services/glacier2) - a sysadmin-friendly solution for routing Ice communications through firewalls
+    - [IcePatch2](https://zeroc.com/products/ice/services/icepatch2) - an efficient software distribution and patching service
 
 ## Branches
 

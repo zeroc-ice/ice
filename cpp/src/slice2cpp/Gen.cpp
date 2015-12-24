@@ -3389,7 +3389,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
         if(!inProtected)
         {
             H.dec();
-            H << sp << nl << "protected:";
+            H << nl << "protected:";
             H.inc();
             inProtected = true;
         }
@@ -3397,7 +3397,9 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
         if(!_doneStaticSymbol)
         {
+            H.dec();
             H << sp << nl << "friend class " << p->name() << "__staticInit;";
+            H.inc();
         }
     }
 
@@ -3425,6 +3427,14 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
         // For a Slice class Foo, we instantiate a dummy class Foo__staticInit instead of using a static
         // Foo instance directly because Foo has a protected destructor.
         //
+        H.zeroIndent();
+        H << nl << "#if !defined(_MSC_VER) || (_MSC_VER < 1900)";
+        H.restoreIndent();
+        H << nl << "//";
+        H << nl << "// COMPILERFIX: Visual Studio 2015 update 1 fails to access";
+        H << nl << "// the proected destructor from a friend class.";
+        H << nl << "//";
+
         H << sp << nl << "class " << p->name() << "__staticInit";
         H << sb;
         H.dec();
@@ -3434,6 +3444,10 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
         H << eb << ';';
         _doneStaticSymbol = true;
         H << sp << nl << "static " << p->name() << "__staticInit _" << p->name() << "_init;";
+
+        H.zeroIndent();
+        H << nl << "#endif";
+        H.restoreIndent();
     }
 
     if(p->isLocal())
