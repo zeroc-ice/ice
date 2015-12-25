@@ -116,9 +116,9 @@ IceUtilInternal::freopen(const std::string& path, const std::string& mode, FILE*
     //
     const IceUtil::StringConverterPtr converter = IceUtil::getProcessStringConverter();
     return _wfreopen(IceUtil::stringToWstring(path, converter).c_str(),
-                     IceUtil::stringToWstring(mode, converter).c_str(), stderr);
+                     IceUtil::stringToWstring(mode, converter).c_str(), stream);
 #  else
-    return freopen(path.c_str(), mode.c_str(), stderr);
+    return freopen(path.c_str(), mode.c_str(), stream);
 #  endif
 #endif
 }
