@@ -33,17 +33,6 @@ class RestartSessionException(Exception):
     def __init__(self):
         pass
 
-class ConnectionCallbackI(Ice.ConnectionCallback):
-    def __init__(self, app):
-        self._app = app
-
-    def heartbeat(self, conn):
-        pass
-
-    def closed(self, conn):
-        self._app.sessionDestroyed()
-
-
 class Application(Ice.Application):
 
     def __init__(self, signalPolicy=0): # HandleSignals=0
@@ -150,7 +139,7 @@ Application.NoSignalHandling.
                         connection = Application._router.ice_getCachedConnection()
                         assert(connection)
                         connection.setACM(acmTimeout, Ice.Unset, Ice.ACMHeartbeat.HeartbeatAlways)
-                        connection.setCallback(ConnectionCallbackI(self))
+                        connection.setCloseCallback(lambda conn: self.sessionDestroyed())
                     Application._category = Application._router.getCategoryForClient()
                     status = self.runWithSession(args)
 
