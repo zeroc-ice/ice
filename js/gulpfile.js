@@ -17,7 +17,7 @@ var bower       = require("bower"),
     gzip        = require('gulp-gzip'),
     iceBuilder  = require('gulp-ice-builder'),
     jshint      = require('gulp-jshint'),
-    minifycss   = require('gulp-minify-css'),
+    nano        = require('gulp-cssnano'),
     newer       = require('gulp-newer'),
     open        = require("gulp-open"),
     path        = require('path'),
@@ -142,7 +142,7 @@ gulp.task("common:css", ["bower"],
         return gulp.src(common.styles)
             .pipe(newer("assets/common.css"))
             .pipe(concat("common.css"))
-            .pipe(minifycss())
+            .pipe(nano())
             .pipe(gulp.dest("assets"))
             .pipe(gzip())
             .pipe(gulp.dest("assets"));
@@ -346,15 +346,15 @@ gulp.task("watch", ["test:watch"].concat(useBinDist ? [] : ["dist:watch"]));
 gulp.task("test:run-with-browser", ["watch"].concat(useBinDist ? ["test"] : ["build"]),
     function(){
         require("./bin/HttpServer")();
-        var cmd = ["../scripts/TestController.py"]
-        cmd = cmd.concat(process.argv.slice(3))
+        var cmd = ["../scripts/TestController.py"];
+        cmd = cmd.concat(process.argv.slice(3));
         var p  = require("child_process").spawn("python", cmd, {stdio: "inherit"});
         p.on("error", function(err)
             {
                 if(err.message == "spawn python ENOENT")
                 {
-                    console.log("Error: python is required in PATH to run tests")
-                    process.exit(1)
+                    console.log("Error: python is required in PATH to run tests");
+                    process.exit(1);
                 }
                 else
                 {
@@ -370,8 +370,8 @@ gulp.task("test:run-with-browser", ["watch"].concat(useBinDist ? ["test"] : ["bu
             {
                 p.kill();
             });
-        return gulp.src("./test/Common/index.html")
-                   .pipe(open("", {url: "http://127.0.0.1:8080/test/Ice/acm/index.html"}));
+        return gulp.src("")
+               .pipe(open({uri: "http://127.0.0.1:8080/test/Ice/acm/index.html"}));
     });
 
 gulp.task("test:run-with-node", (useBinDist ? ["test"] : ["build"]),
@@ -381,8 +381,8 @@ gulp.task("test:run-with-node", (useBinDist ? ["test"] : ["build"]),
             {
                 if(err.message == "spawn python ENOENT")
                 {
-                    console.log("Error: python is required in PATH to run tests")
-                    process.exit(1)
+                    console.log("Error: python is required in PATH to run tests");
+                    process.exit(1);
                 }
                 else
                 {
