@@ -343,5 +343,39 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(communicator->findValueFactory("TestOF"));
     cout << "ok" << endl;
 
+    try
+    {
+        string ref = "test:default -p 12010";
+        TestIntfPrx p = TestIntfPrx::checkedCast(communicator->stringToProxy(ref));
+
+        cout << "testing UnexpectedObjectException... " << flush;
+        testUOE(communicator);
+        cout << "ok" << endl;
+
+        cout << "testing Object factory registration... " << flush;
+        {
+            BasePtr base = p->opDerived();
+            test(base);
+            test(base->ice_id() == "::Test::Derived");
+        }
+        cout << "ok" << endl;
+
+        cout << "testing Exception factory registration... " << flush;
+        {
+            try
+            {
+                p->throwDerived();
+            }
+            catch(const BaseEx& ex)
+            {
+                test(ex.ice_name() == "Test::DerivedEx");
+            }
+        }
+        cout << "ok" << endl;
+    }
+    catch(const Ice::ObjectNotExistException&)
+    {
+    }
+
     return initial;
 }

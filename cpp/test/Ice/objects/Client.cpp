@@ -10,6 +10,8 @@
 #include <Ice/Ice.h>
 #include <TestCommon.h>
 #include <TestI.h>
+#include <Derived.h>
+#include <DerivedEx.h>
 
 DEFINE_TEST("client")
 

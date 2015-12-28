@@ -169,4 +169,12 @@ public:
 };
 typedef IceUtil::Handle<UnexpectedObjectExceptionTestI> UnexpectedObjectExceptionTestIPtr;
 
+class TestIntfI : public Test::TestIntf
+{
+public:
+
+    virtual Test::BasePtr opDerived(const Ice::Current&);
+    virtual void throwDerived(const Ice::Current&);
+};
+
 #endif
