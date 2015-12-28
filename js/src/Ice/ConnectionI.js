@@ -1081,7 +1081,7 @@ var ConnectionI = Class({
             this._closeCallback = null;
         }
 
-        _heartbeatCallback = null;
+        this._heartbeatCallback = null;
 
         //
         // This must be done last as this will cause waitUntilFinished() to return (and communicator
