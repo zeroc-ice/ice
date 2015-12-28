@@ -90,7 +90,7 @@ public:
             ICEObject* obj = nil;
             if(factory != nil)
             {
-                obj = factory(sliceId);
+                obj = [factory(sliceId) retain];
             }
 
             if(obj == nil)
@@ -207,6 +207,13 @@ private:
         @synchronized(adminFacets_)
         {
             [adminFacets_ removeAllObjects];
+        }
+        @synchronized(objectFactories_)
+        {
+            for(NSString* k in objectFactories_)
+            {
+                [[objectFactories_ objectForKey:k] destroy];
+            }
         }
         return;
     }
