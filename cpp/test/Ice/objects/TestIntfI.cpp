@@ -17,7 +17,7 @@ using namespace Test;
 BasePtr
 TestIntfI::opDerived(const Ice::Current&)
 {
-    DerivedPtr d = new Derived();
+    DerivedPtr d = ICE_MAKE_SHARED(Derived);
     d->theS.str = "S.str";
     d->str = "str";
     d->b = "b";

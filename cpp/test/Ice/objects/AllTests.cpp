@@ -346,11 +346,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     try
     {
         string ref = "test:default -p 12010";
-        TestIntfPrx p = TestIntfPrx::checkedCast(communicator->stringToProxy(ref));
-
-        cout << "testing UnexpectedObjectException... " << flush;
-        testUOE(communicator);
-        cout << "ok" << endl;
+        TestIntfPrxPtr p = ICE_CHECKED_CAST(TestIntfPrx, communicator->stringToProxy(ref));
 
         cout << "testing Object factory registration... " << flush;
         {
