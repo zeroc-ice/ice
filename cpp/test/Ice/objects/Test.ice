@@ -23,6 +23,11 @@ class Base
     string str;
 };
 
+exception BaseEx
+{
+    string reason;
+};
+
 class AbstractBase extends Base
 {
     void op();
@@ -194,6 +199,12 @@ class Initial
 
     void throwInnerEx() throws Inner::Ex;
     void throwInnerSubEx() throws Inner::Sub::Ex;
+};
+
+interface TestIntf
+{
+    Base opDerived();
+    void throwDerived() throws BaseEx;
 };
 
 class Empty

@@ -82,6 +82,7 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     InitialPtr initial = new InitialI(adapter);
     adapter->add(initial, communicator->stringToIdentity("initial"));
+    adapter->add(new TestIntfI(), communicator->stringToIdentity("test"));
     UnexpectedObjectExceptionTestIPtr uoet = new UnexpectedObjectExceptionTestI;
     adapter->add(uoet, communicator->stringToIdentity("uoet"));
     InitialPrx allTests(const Ice::CommunicatorPtr&);

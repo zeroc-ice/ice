@@ -3326,7 +3326,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     H << eb << ';';
 
-    if(!p->isAbstract() && !_doneStaticSymbol)
+    if(!p->isAbstract() && !p->isLocal() && !_doneStaticSymbol)
     {
         //
         // We need an instance here to trigger initialization if the implementation is in a shared library.
@@ -3353,6 +3353,12 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
         H << eb << ';';
         _doneStaticSymbol = true;
         H << sp << nl << "static " << p->name() << "__staticInit _" << p->name() << "_init;";
+
+        H.zeroIndent();
+        H << nl << "#else";
+        H.restoreIndent();
+
+        H << nl << "static auto _" << p->name() << "_init = " << p->scoped() << "::ice_factory;";
 
         H.zeroIndent();
         H << nl << "#endif";
