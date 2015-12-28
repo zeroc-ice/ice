@@ -1180,9 +1180,9 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     if(!p->isLocal())
     {
         //
-        // We need an instance here to trigger initialization if the implementation is in a shared libarry.
+        // We need an instance here to trigger initialization if the implementation is in a static library.
         // But we do this only once per source file, because a single instance is sufficient to initialize
-        // all of the globals in a shared library.
+        // all of the globals in a compilation unit.
         //
         if(!_doneStaticSymbol)
         {
@@ -7526,35 +7526,9 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             inProtected = false;
         }
         H << sp << nl << "virtual ~" << fixKwd(p->name()) << "() = default;";
-
-        if(!_doneStaticSymbol)
-        {
-            H << sp << nl << "friend class " << p->name() << "__staticInit;";
-        }
     }
 
     H << eb << ';';
-
-    if(!p->isAbstract() && !_doneStaticSymbol)
-    {
-        //
-        // We need an instance here to trigger initialization if the implementation is in a shared library.
-        // But we do this only once per source file, because a single instance is sufficient to initialize
-        // all of the globals in a shared library.
-        //
-        // For a Slice class Foo, we instantiate a dummy class Foo__staticInit instead of using a static
-        // Foo instance directly because Foo has a protected destructor.
-        //
-        H << sp << nl << "class " << p->name() << "__staticInit";
-        H << sb;
-        H.dec();
-        H << nl << "public:";
-        H.inc();
-        H << sp << nl << scoped << " _init;";
-        H << eb << ';';
-        _doneStaticSymbol = true;
-        H << sp << nl << "static " << p->name() << "__staticInit _" << p->name() << "_init;";
-    }
 }
 
 bool
@@ -8560,11 +8534,6 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
         emitDataMember(*q);
     }
 
-    if(!_doneStaticSymbol)
-    {
-        H << sp << nl << "friend class " << p->name() << "__staticInit;";
-    }
-
     if(preserved && !basePreserved)
     {
         if(!inProtected)
@@ -8582,22 +8551,12 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
     if(!_doneStaticSymbol)
     {
         //
-        // We need an instance here to trigger initialization if the implementation is in a shared library.
+        // We need an instance here to trigger initialization if the implementation is in a static library.
         // But we do this only once per source file, because a single instance is sufficient to initialize
-        // all of the globals in a shared library.
+        // all of the globals in a compilation unit.
         //
-        // For a Slice class Foo, we instantiate a dummy class Foo__staticInit instead of using a static
-        // Foo instance directly because Foo has a protected destructor.
-        //
-        H << sp << nl << "class " << p->name() << "__staticInit";
-        H << sb;
-        H.dec();
-        H << nl << "public:";
-        H.inc();
-        H << sp << nl << scoped << " _init;";
-        H << eb << ';';
         _doneStaticSymbol = true;
-        H << sp << nl << "static " << p->name() << "__staticInit _" << p->name() << "_init;";
+        H << sp << nl << "static " << fixKwd(p->name()) << " _" << p->name() << "_init;";
     }
 
     _useWstring = resetUseWstring(_useWstringHist);
