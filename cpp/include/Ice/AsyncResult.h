@@ -24,10 +24,6 @@
 #include <Ice/BasicStream.h>
 #include <Ice/VirtualShared.h>
 
-#ifdef ICE_CPP11_COMPILER
-#   include <functional> // for std::function
-#endif
-
 namespace IceInternal
 {
 
@@ -248,104 +244,6 @@ private:
     Callback _sent;
 };
 
-#ifdef ICE_CPP11_COMPILER
-
-template<typename T> struct callback_type
-{
-    static const int value = 1;
-};
-
-template<> struct callback_type<void(const ::Ice::AsyncResultPtr&)>
-{
-    static const int value = 2;
-};
-
-template<> struct callback_type<void(const ::Ice::Exception&)>
-{
-    static const int value = 3;
-};
-
-template<typename Callable, typename = void> struct callable_type
-{
-    static const int value = 1;
-};
-
-template<class Callable> struct callable_type<Callable, typename ::std::enable_if< 
-                                                            ::std::is_class<Callable>::value &&
-                                                            !::std::is_bind_expression<Callable>::value>::type>
-{
-    template<typename T, T> struct TypeCheck;
-    template<typename T> struct AsyncResultCallback
-    {
-        typedef void (T::*ok)(const ::Ice::AsyncResultPtr&) const;
-    };
-    template<typename T> struct ExceptionCallback
-    {
-        typedef void (T::*ok)(const ::Ice::Exception&) const;
-    };
-
-    typedef char (&other)[1];
-    typedef char (&asyncResult)[2];
-    typedef char (&exception)[3];
-
-    template<typename T> static other check(...);
-    template<typename T> static asyncResult check(TypeCheck<typename AsyncResultCallback<T>::ok, &T::operator()>*);
-    template<typename T> static exception check(TypeCheck<typename ExceptionCallback<T>::ok, &T::operator()>*);
-
-    enum { value = sizeof(check<Callable>(0)) };
-};
-
-template<> struct callable_type<void(*)(const ::Ice::AsyncResultPtr&)>
-{
-    static const int value = 2;
-};
-
-template<> struct callable_type<void(*)(const ::Ice::Exception&)>
-{
-    static const int value = 3;
-};
-
-template<typename Callable, typename Callback> struct is_callable
-{
-    static const bool value = callable_type<Callable>::value == callback_type<Callback>::value;
-};
-
-//
-// COMPILERFIX: we have to use this function specialization to workaround an issue where 
-// VS2012 and GCC 4.6 can't resolve the begin_xxx overloads if we just use std::function.
-// We use some SNIFAE here to help the compiler with the overload resolution.
-//
-template<class S> class Function : public std::function<S>
-{
-
-public:
-
-    template<typename T> Function(T f, typename ::std::enable_if<is_callable<T, S>::value>::type* = 0) 
-        : std::function<S>(f)
-    {
-    }
-
-    Function()
-    {
-    }
-
-    Function(::std::nullptr_t) : ::std::function<S>(nullptr)
-    {
-    }
-};
-
-#else
-
-template<class S> class Function
-{
-public:
-    Function()
-    {
-    }
-};
-
-#endif
-
 }
 
 namespace Ice
@@ -370,13 +268,6 @@ newCallback(T* instance,
     return new ::IceInternal::AsyncCallback<T>(instance, cb, sentcb);
 }
 
-#   ifdef ICE_CPP11_COMPILER
-
-ICE_API CallbackPtr
-newCallback(const ::IceInternal::Function<void (const AsyncResultPtr&)>&,
-            const ::IceInternal::Function<void (const AsyncResultPtr&)>& =
-               ::IceInternal::Function<void (const AsyncResultPtr&)>());
-#   endif
 #endif
 }
 

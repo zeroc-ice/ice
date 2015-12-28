@@ -151,12 +151,6 @@ USE_READLINE		?= no
 #
 #CPP11_MAPPING		?= yes
 
-#
-# Define CPP11 as yes if you want to enable C++11 features in GCC or
-# Clang.
-#
-#CPP11     		?= yes
-
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
 # ----------------------------------------------------------------------

@@ -79,19 +79,12 @@ main(int argc, char* argv[])
         //
         initData.properties->setProperty("Ice.TCP.RcvSize", "50000");
 
-#if defined(ICE_CPP11_MAPPING)
+#ifdef ICE_CPP11_MAPPING
         Ice::DispatcherPtr dispatcher = new Dispatcher();
         initData.dispatcher = [=](function<void ()> call, const shared_ptr<Ice::Connection>& conn)
             {
                 dispatcher->dispatch(new DispatcherCall(call), conn);
             };
-#elif defined(ICE_CPP11_COMPILER)
-        Ice::DispatcherPtr dispatcher = new Dispatcher();
-        initData.dispatcher = Ice::newDispatcher(
-            [=](const Ice::DispatcherCallPtr& call, const Ice::ConnectionPtr& conn)
-                {
-                    dispatcher->dispatch(call, conn);
-                });
 #else
         initData.dispatcher = new Dispatcher();
 #endif

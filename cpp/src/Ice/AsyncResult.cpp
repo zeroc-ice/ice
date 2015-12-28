@@ -556,63 +556,6 @@ public:
 //
 CallbackBasePtr IceInternal::__dummyCallback = ICE_MAKE_SHARED(DummyCallback);
 
-#ifndef ICE_CPP11_MAPPING
-#   ifdef ICE_CPP11_COMPILER
-
-Ice::CallbackPtr
-Ice::newCallback(const ::IceInternal::Function<void (const AsyncResultPtr&)>& completed,
-                 const ::IceInternal::Function<void (const AsyncResultPtr&)>& sent)
-{
-    class Cpp11CB : public GenericCallbackBase
-    {
-    public:
-
-        Cpp11CB(const ::std::function<void (const AsyncResultPtr&)>& completed,
-                const ::std::function<void (const AsyncResultPtr&)>& sent) :
-            _completed(completed),
-            _sent(sent)
-        {
-            checkCallback(true, completed != nullptr);
-        }
-
-        virtual void
-        completed(const AsyncResultPtr& result) const
-        {
-            _completed(result);
-        }
-
-        virtual CallbackBasePtr
-        verify(const LocalObjectPtr&)
-        {
-            return this; // Nothing to do, the cookie is not type-safe.
-        }
-
-        virtual void
-        sent(const AsyncResultPtr& result) const
-        {
-            if(_sent != nullptr)
-            {
-                _sent(result);
-            }
-        }
-
-        virtual bool
-        hasSentCallback() const
-        {
-            return _sent != nullptr;
-        }
-
-    private:
-
-        ::std::function< void (const AsyncResultPtr&)> _completed;
-        ::std::function< void (const AsyncResultPtr&)> _sent;
-    };
-
-    return new Cpp11CB(completed, sent);
-}
-#   endif
-#endif
-
 void
 IceInternal::CallbackBase::checkCallback(bool obj, bool cb)
 {

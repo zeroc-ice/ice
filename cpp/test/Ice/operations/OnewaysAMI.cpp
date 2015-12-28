@@ -242,25 +242,32 @@ onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrxPtr& proxy)
         {
         }
     }
-#ifdef ICE_CPP11_COMPILER
-#   ifndef ICE_CPP11_MAPPING
+#ifdef ICE_CPP11_MAPPING
     {
         CallbackPtr cb = new Callback;
-        p->begin_ice_ping(nullptr, 
-                          [=](const Ice::Exception& ex){ cb->noException(ex); },
-                          [=](bool sent){ cb->sent(sent); });
+        p->ice_ping_async(nullptr, 
+                        [=](exception_ptr e)
+                        {
+                            try
+                            {
+                                rethrow_exceptino(e);
+                            }
+                            catch(const Ice::Exception& ex)
+                            {
+                                cb->noException(ex);
+                            }
+                        },
+                        [=](bool sent)
+                        {
+                            cb->sent(sent); 
+                        });
         cb->check();
 
     }
-#   endif
     {
         try
         {
-#   ifdef ICE_CPP11_MAPPING
             p->ice_isA_async(Test::MyClass::ice_staticId());
-#   else
-            p->begin_ice_isA(Test::MyClass::ice_staticId(), [=](bool){ test(false); });
-#   endif
             test(false);
         }
         catch(const IceUtil::IllegalArgumentException&)
@@ -271,11 +278,7 @@ onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrxPtr& proxy)
     {
         try
         {
-#   ifdef ICE_CPP11_MAPPING
             p->ice_id_async();
-#   else
-            p->begin_ice_id([=](const string&){ test(false); });
-#   endif
             test(false);
         }
         catch(const IceUtil::IllegalArgumentException&)
@@ -286,11 +289,7 @@ onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrxPtr& proxy)
     {
         try
         {
-#   ifdef ICE_CPP11_MAPPING
             p->ice_ids_async();
-#   else
-            p->begin_ice_ids([=](const Ice::StringSeq&){ test(false); });
-#   endif
             test(false);
         }
         catch(const IceUtil::IllegalArgumentException&)
@@ -298,7 +297,6 @@ onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrxPtr& proxy)
         }
     }
 
-#   ifndef ICE_CPP11_MAPPING
     {
         CallbackPtr cb = new Callback;
         p->begin_opVoid(nullptr, 
@@ -333,6 +331,5 @@ onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrxPtr& proxy)
         {
         }
     }
-#   endif
 #endif
 }

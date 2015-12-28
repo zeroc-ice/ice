@@ -155,13 +155,6 @@ batchOneways(const Test::MyClassPrxPtr& p)
             {
                 interceptor->enqueue(request, count, size);
             };
-#elif defined(ICE_CPP11_COMPILER)
-        // Ensure lambda factory method works.
-        initData.batchRequestInterceptor = Ice::newBatchRequestInterceptor(
-            [=](const Ice::BatchRequest& request, int count, int size)
-            {
-                interceptor->enqueue(request, count, size);
-            });
 #else
         initData.batchRequestInterceptor = interceptor;
 #endif

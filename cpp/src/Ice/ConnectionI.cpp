@@ -896,46 +896,6 @@ Ice::ConnectionI::begin_flushBatchRequests(const Callback_Connection_flushBatchR
 }
 
 AsyncResultPtr
-Ice::ConnectionI::begin_flushBatchRequests(const IceInternal::Function<void (const Exception&)>& exception,
-                                           const IceInternal::Function<void (bool)>& sent)
-{
-#ifdef ICE_CPP11_COMPILER
-    class Cpp11CB : public IceInternal::Cpp11FnCallbackNC
-    {
-    public:
-
-        Cpp11CB(const IceInternal::Function<void (const Exception&)>& excb,
-                const IceInternal::Function<void (bool)>& sentcb) :
-            IceInternal::Cpp11FnCallbackNC(excb, sentcb)
-        {
-            CallbackBase::checkCallback(true, excb != nullptr);
-        }
-
-        virtual void
-        completed(const AsyncResultPtr& __result) const
-        {
-            ConnectionPtr __con = __result->getConnection();
-            assert(__con);
-            try
-            {
-                __con->end_flushBatchRequests(__result);
-                assert(false);
-            }
-            catch(const Exception& ex)
-            {
-                IceInternal::Cpp11FnCallbackNC::exception(__result, ex);
-            }
-        }
-    };
-
-    return __begin_flushBatchRequests(ICE_MAKE_SHARED(Cpp11CB, exception, sent), 0);
-#else
-    assert(false); // Ice not built with C++11 support.
-    return 0;
-#endif
-}
-
-AsyncResultPtr
 Ice::ConnectionI::__begin_flushBatchRequests(const CallbackBasePtr& cb, const LocalObjectPtr& cookie)
 {
     ConnectionFlushBatchAsyncPtr result = new ConnectionFlushBatchAsync(

@@ -2219,56 +2219,6 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     }
     cout << "ok" << endl;
 
-#ifdef ICE_CPP11_COMPILER
-    cout << "testing C++11 async callback... " << flush;
-    {
-        AsyncCallbackPtr cb = new AsyncCallback();
-        Ice::Context ctx;
-
-        p->begin_ice_isA(Test::TestIntf::ice_staticId(), [=](const ::Ice::AsyncResultPtr& r){ cb->isA(r); });
-        cb->check();
-        p->begin_ice_isA(Test::TestIntf::ice_staticId(), ctx, [=](const ::Ice::AsyncResultPtr& r){ cb->isA(r); });
-        cb->check();
-
-        p->begin_ice_ping([=](const ::Ice::AsyncResultPtr& r){ cb->ping(r); });
-        cb->check();
-        p->begin_ice_ping(ctx, [=](const ::Ice::AsyncResultPtr& r){ cb->ping(r); });
-        cb->check();
-
-        p->begin_ice_id([=](const ::Ice::AsyncResultPtr& r){ cb->id(r); });
-        cb->check();
-        p->begin_ice_id(ctx, [=](const ::Ice::AsyncResultPtr& r){ cb->id(r); });
-        cb->check();
-
-        p->begin_ice_ids([=](const ::Ice::AsyncResultPtr& r){ cb->ids(r); });
-        cb->check();
-        p->begin_ice_ids(ctx, [=](const ::Ice::AsyncResultPtr& r){ cb->ids(r); });
-        cb->check();
-
-        if(!collocated)
-        {
-            p->begin_ice_getConnection([=](const ::Ice::AsyncResultPtr& r){ cb->connection(r); });
-            cb->check();
-        }
-
-        p->begin_op([=](const ::Ice::AsyncResultPtr& r){ cb->op(r); });
-        cb->check();
-        p->begin_op(ctx, [=](const ::Ice::AsyncResultPtr& r){ cb->op(r); });
-        cb->check();
-
-        p->begin_opWithResult([=](const ::Ice::AsyncResultPtr& r){ cb->opWithResult(r); });
-        cb->check();
-        p->begin_opWithResult(ctx, [=](const ::Ice::AsyncResultPtr& r){ cb->opWithResult(r); });
-        cb->check();
-
-        p->begin_opWithUE([=](const ::Ice::AsyncResultPtr& r){ cb->opWithUE(r); });
-        cb->check();
-        p->begin_opWithUE(ctx, [=](const ::Ice::AsyncResultPtr& r){ cb->opWithUE(r); });
-        cb->check();
-    }
-    cout << "ok" << endl;
-#endif
-
     cout << "testing response callback... " << flush;
     {
         ResponseCallbackPtr cb = new ResponseCallback();
@@ -2363,63 +2313,6 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         cbWC->check();
     }
     cout << "ok" << endl;
-
-#ifdef ICE_CPP11_COMPILER
-    cout << "testing C++11 response callback... " << flush;
-    {
-        ResponseCallbackPtr cb = new ResponseCallback();
-        Ice::Context ctx;
-
-        p->begin_ice_isA(Test::TestIntf::ice_staticId(), [=](bool is){ cb->isA(is); });
-        cb->check();
-
-        p->begin_ice_isA(Test::TestIntf::ice_staticId(), ctx, [=](bool is){ cb->isA(is); });
-        cb->check();
-
-        p->begin_ice_ping([=](){ cb->ping(); });
-        cb->check();
-
-        p->begin_ice_ping(ctx, [=](){ cb->ping(); });
-        cb->check();
-
-        p->begin_ice_id([=](const string& id){ cb->id(id); });
-        cb->check();
-
-        p->begin_ice_id(ctx, [=](const string& id){ cb->id(id); });
-        cb->check();
-
-        p->begin_ice_ids([=](const Ice::StringSeq& ids){ cb->ids(ids); });
-        cb->check();
-
-        p->begin_ice_ids(ctx, [=](const Ice::StringSeq& ids){ cb->ids(ids); });
-        cb->check();
-
-        if(!collocated)
-        {
-            p->begin_ice_getConnection([=](const Ice::ConnectionPtr& conn){ cb->connection(conn); });
-            cb->check();
-        }
-
-        p->begin_op([=](){ cb->op(); });
-        cb->check();
-
-        p->begin_op(ctx, [=](){ cb->op(); });
-        cb->check();
-
-        p->begin_opWithResult([=](int ret){ cb->opWithResult(ret); });
-        cb->check();
-
-        p->begin_opWithResult(ctx, [=](int ret){ cb->opWithResult(ret); });
-        cb->check();
-
-        p->begin_opWithUE([](){ test(false); }, [=](const Ice::Exception& ex){ cb->opWithUE(ex); });
-        cb->check();
-
-        p->begin_opWithUE(ctx, [](){ test(false); }, [=](const Ice::Exception& ex){ cb->opWithUE(ex); });
-        cb->check();
-    }
-    cout << "ok" << endl;
-#endif
 
     cout << "testing local exceptions... " << flush;
     {
@@ -2558,37 +2451,6 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     }
     cout << "ok" << endl;
 
-#ifdef ICE_CPP11_COMPILER
-    cout << "testing local exceptions with C++11 response callback... " << flush;
-    {
-        Test::TestIntfPrx i = Test::TestIntfPrx::uncheckedCast(p->ice_adapterId("dummy"));
-        ExceptionCallbackPtr cb = new ExceptionCallback();
-
-        i->begin_ice_isA(Test::TestIntf::ice_staticId(), std::function<void (bool)>([](bool){ test(false); }), [=](const Ice::Exception& ex){ cb->ex(ex); });
-        cb->check();
-
-        i->begin_ice_ping([](){ test(false); }, [=](const Ice::Exception& ex){ cb->ex(ex); });
-        cb->check();
-
-        i->begin_ice_id([](const string&){ test(false); }, [=](const Ice::Exception& ex){ cb->ex(ex); });
-        cb->check();
-
-        i->begin_ice_ids([](const Ice::StringSeq&){ test(false); }, [=](const Ice::Exception& ex){ cb->ex(ex); });
-        cb->check();
-
-        if(!collocated)
-        {
-            i->begin_ice_getConnection([](const Ice::ConnectionPtr&){ test(false); },
-                                       [=](const Ice::Exception& ex){ cb->ex(ex); });
-            cb->check();
-        }
-
-        i->begin_op([](){ test(false); }, [=](const Ice::Exception& ex){ cb->ex(ex); });
-        cb->check();
-    }
-    cout << "ok" << endl;
-#endif
-
     cout << "testing exception callback... " << flush;
     {
         Test::TestIntfPrx i = Test::TestIntfPrx::uncheckedCast(p->ice_adapterId("dummy"));
@@ -2637,38 +2499,6 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         cbWC->check();
     }
     cout << "ok" << endl;
-
-#ifdef ICE_CPP11_COMPILER
-    cout << "testing C++11 exception callback... " << flush;
-    {
-        Test::TestIntfPrx i = Test::TestIntfPrx::uncheckedCast(p->ice_adapterId("dummy"));
-        ExceptionCallbackPtr cb = new ExceptionCallback();
-
-        i->begin_ice_isA(Test::TestIntf::ice_staticId(), nullptr, [=](const Ice::Exception& ex){cb->ex(ex); });
-        cb->check();
-
-        if(!collocated)
-        {
-            i->begin_ice_getConnection(nullptr, [=](const Ice::Exception& ex){ cb->ex(ex); });
-            cb->check();
-        }
-
-        i->begin_op(nullptr, [=](const Ice::Exception& ex){ cb->ex(ex); });
-        cb->check();
-
-        i->begin_opWithUE(nullptr, [=](const Ice::Exception& ex){ cb->ex(ex); });
-        cb->check();
-
-        // Ensures no exception is called when response is received
-        p->begin_ice_isA(Test::TestIntf::ice_staticId(), nullptr, [=](const Ice::Exception& ex){ cb->noEx(ex); });
-        p->begin_op(nullptr, [=](const Ice::Exception& ex){ cb->noEx(ex); });
-
-        // If response is a user exception, it should be received.
-        p->begin_opWithUE(nullptr, [=](const Ice::Exception& ex){ cb->opWithUE(ex); });
-        cb->check();
-    }
-    cout << "ok" << endl;
-#endif
 
     cout << "testing sent callback... " << flush;
     {
@@ -2745,75 +2575,6 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         }
     }
     cout << "ok" << endl;
-
-#ifdef ICE_CPP11_COMPILER
-    cout << "testing C++11 sent callback... " << flush;
-    {
-        SentCallbackPtr cb = new SentCallback;
-
-        p->begin_ice_isA("", [=](bool v){ cb->isA(v); },
-                             [=](const Ice::Exception& ex){ cb->ex(ex); },
-                             [=](bool sent){ cb->sent(sent); });
-        cb->check();
-
-        p->begin_ice_ping([=](){ cb->ping(); },
-                          [=](const Ice::Exception& ex){ cb->ex(ex); },
-                          [=](bool sent){ cb->sent(sent); });
-        cb->check();
-
-        p->begin_ice_id([=](const string& id){ cb->id(id); },
-                        [=](const Ice::Exception& ex){ cb->ex(ex); },
-                        [=](bool sent){ cb->sent(sent); });
-        cb->check();
-
-        p->begin_ice_ids([=](const Ice::StringSeq& ids){ cb->ids(ids); },
-                         [=](const Ice::Exception& ex){ cb->ex(ex); },
-                         [=](bool sent){ cb->sent(sent); });
-        cb->check();
-
-
-        p->begin_op([=](){ cb->op(); },
-                    [=](const Ice::Exception& ex){ cb->ex(ex); },
-                    [=](bool sent){ cb->sent(sent); });
-        cb->check();
-
-        p->begin_op([=](){ cb->op(); },
-                    nullptr,
-                    [=](bool sent){ cb->sent(sent); });
-        cb->check();
-
-        p->begin_op(nullptr,
-                    [=](const Ice::Exception& ex){ cb->ex(ex); },
-                    [=](bool sent){ cb->sent(sent); });
-        cb->check();
-
-        vector<SentCallbackPtr> cbs;
-        Ice::ByteSeq seq;
-        seq.resize(1024);
-        testController->holdAdapter();
-        try
-        {
-            cb = new SentCallback();
-            while(p->begin_opWithPayload(seq, nullptr, [=](const Ice::Exception& ex){ cb->ex(ex); },
-                                                       [=](bool sent){ cb->sent(sent); })->sentSynchronously())
-            {
-                cbs.push_back(cb);
-                cb = new SentCallback();
-            }
-        }
-        catch(...)
-        {
-            testController->resumeAdapter();
-            throw;
-        }
-        testController->resumeAdapter();
-        for(vector<SentCallbackPtr>::const_iterator r = cbs.begin(); r != cbs.end(); r++)
-        {
-            (*r)->check();
-        }
-    }
-    cout << "ok" << endl;
-#endif
 
     cout << "testing illegal arguments... " << flush;
     {
@@ -2962,32 +2723,6 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     }
     cout << "ok" << endl;
 
-#ifdef ICE_CPP11_COMPILER
-    cout << "testing unexpected exceptions from C++11 callback... " << flush;
-    {
-        Test::TestIntfPrx q = Test::TestIntfPrx::uncheckedCast(p->ice_adapterId("dummy"));
-        ThrowType throwEx[] = { LocalException, UserException, StandardException, OtherException };
-
-        for(int i = 0; i < 4; ++i)
-        {
-            ThrowerPtr cb = new Thrower(throwEx[i]);
-
-            p->begin_op([=](){ cb->op(); }, [=](const Ice::Exception& ex){ cb->noEx(ex); });
-            cb->check();
-
-            p->begin_op([=](){ cb->op(); }, [=](const Ice::Exception& ex){ cb->ex(ex); });
-            cb->check();
-
-            p->begin_op([=](){ cb->noOp(); }, [=](const Ice::Exception& ex){ cb->noEx(ex); }, [=](bool sent){ cb->sent(sent); });
-            cb->check();
-
-            q->begin_op(nullptr, [=](const Ice::Exception& ex){ cb->ex(ex); });
-            cb->check();
-        }
-    }
-    cout << "ok" << endl;
-#endif
-
     cout << "testing batch requests with proxy... " << flush;
     {
         test(p->ice_batchOneway()->begin_ice_flushBatchRequests()->sentSynchronously());
@@ -3134,45 +2869,6 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         }
     }
     cout << "ok" << endl;
-
-#ifdef ICE_CPP11_COMPILER
-    cout << "testing C++11 batch requests with proxy... " << flush;
-    {
-
-        {
-            test(p->opBatchCount() == 0);
-            Test::TestIntfPrx b1 = p->ice_batchOneway();
-            b1->opBatch();
-            b1->opBatch();
-            FlushCallbackPtr cb = new FlushCallback();
-            Ice::AsyncResultPtr r = b1->begin_ice_flushBatchRequests(
-                [=](const Ice::Exception& ex){ cb->exception(ex);},
-                [=](bool sent){ cb->sent(sent); });
-
-            cb->check();
-            test(r->isSent());
-            test(r->isCompleted());
-            test(p->waitForBatch(2));
-        }
-
-        if(p->ice_getConnection() && protocol != "bt")
-        {
-            test(p->opBatchCount() == 0);
-            Test::TestIntfPrx b1 = p->ice_batchOneway();
-            b1->opBatch();
-            b1->ice_getConnection()->close(false);
-            FlushCallbackPtr cb = new FlushCallback();
-            Ice::AsyncResultPtr r = b1->begin_ice_flushBatchRequests(
-                [=](const Ice::Exception& ex){ cb->exception(ex);},
-                [=](bool sent){ cb->sent(sent); });
-            cb->check();
-            test(r->isSent());
-            test(r->isCompleted());
-            test(p->waitForBatch(1));
-        }
-    }
-    cout << "ok" << endl;
-#endif
 
     if(p->ice_getConnection()) // No collocation optimization
     {
@@ -3332,52 +3028,6 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
             }
         }
         cout << "ok" << endl;
-
-#ifdef ICE_CPP11_COMPILER
-        cout << "testing C++11 batch requests with connection... " << flush;
-        {
-            if(p->ice_getConnection())
-            {
-                //
-                // Without cookie.
-                //
-                test(p->opBatchCount() == 0);
-                Test::TestIntfPrx b1 = Test::TestIntfPrx::uncheckedCast(
-                    p->ice_getConnection()->createProxy(p->ice_getIdentity())->ice_batchOneway());
-                b1->opBatch();
-                b1->opBatch();
-                FlushCallbackPtr cb = new FlushCallback();
-                Ice::AsyncResultPtr r = b1->ice_getConnection()->begin_flushBatchRequests(
-                    [=](const Ice::Exception& ex){ cb->exception(ex);},
-                    [=](bool sent){ cb->sent(sent); });
-                cb->check();
-                test(r->isSent());
-                test(r->isCompleted());
-                test(p->waitForBatch(2));
-            }
-
-            if(p->ice_getConnection() && protocol != "bt")
-            {
-                //
-                // Exception without cookie.
-                //
-                test(p->opBatchCount() == 0);
-                Test::TestIntfPrx b1 = Test::TestIntfPrx::uncheckedCast(
-                    p->ice_getConnection()->createProxy(p->ice_getIdentity())->ice_batchOneway());
-                b1->opBatch();
-                b1->ice_getConnection()->close(false);
-                FlushExCallbackPtr cb = new FlushExCallback();
-                Ice::AsyncResultPtr r = b1->ice_getConnection()->begin_flushBatchRequests(
-                    [=](const Ice::Exception& ex){ cb->exception(ex);},
-                    [=](bool sent){ cb->sent(sent); });
-                cb->check();
-                test(!r->isSent());
-                test(r->isCompleted());
-                test(p->opBatchCount() == 0);
-            }
-        }
-        cout << "ok" << endl;
-#endif
 
         cout << "testing batch requests with communicator... " << flush;
         {
@@ -3694,135 +3344,6 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
             }
         }
         cout << "ok" << endl;
-
-#ifdef ICE_CPP11_COMPILER
-        cout << "testing C++11 batch requests with communicator... " << flush;
-        {
-            {
-                //
-                // Without cookie - 1 connection.
-                //
-                test(p->opBatchCount() == 0);
-                Test::TestIntfPrx b1 = Test::TestIntfPrx::uncheckedCast(
-                    p->ice_getConnection()->createProxy(p->ice_getIdentity())->ice_batchOneway());
-                b1->opBatch();
-                b1->opBatch();
-                FlushCallbackPtr cb = new FlushCallback();
-                Ice::AsyncResultPtr r = communicator->begin_flushBatchRequests(
-                    [=](const Ice::Exception& ex){ cb->exception(ex);},
-                    [=](bool sent){ cb->sent(sent); });
-                cb->check();
-                test(r->isSent());
-                test(r->isCompleted());
-                test(p->waitForBatch(2));
-            }
-
-            if(protocol != "bt")
-            {
-                //
-                // Exception without cookie - 1 connection.
-                //
-                test(p->opBatchCount() == 0);
-                Test::TestIntfPrx b1 = Test::TestIntfPrx::uncheckedCast(
-                    p->ice_getConnection()->createProxy(p->ice_getIdentity())->ice_batchOneway());
-                b1->opBatch();
-                b1->ice_getConnection()->close(false);
-                FlushCallbackPtr cb = new FlushCallback();
-                Ice::AsyncResultPtr r = communicator->begin_flushBatchRequests(
-                    [=](const Ice::Exception& ex){ cb->exception(ex);},
-                    [=](bool sent){ cb->sent(sent); });
-                cb->check();
-                test(r->isSent()); // Exceptions are ignored!
-                test(r->isCompleted());
-                test(p->opBatchCount() == 0);
-            }
-
-            {
-                //
-                // 2 connections.
-                //
-                test(p->opBatchCount() == 0);
-                Test::TestIntfPrx b1 = Test::TestIntfPrx::uncheckedCast(
-                    p->ice_getConnection()->createProxy(p->ice_getIdentity())->ice_batchOneway());
-                Test::TestIntfPrx b2 = Test::TestIntfPrx::uncheckedCast(
-                    p->ice_connectionId("2")->ice_getConnection()->createProxy(
-                        p->ice_getIdentity())->ice_batchOneway());
-
-                b2->ice_getConnection(); // Ensure connection is established.
-                b1->opBatch();
-                b1->opBatch();
-                b2->opBatch();
-                b2->opBatch();
-                FlushCallbackPtr cb = new FlushCallback();
-                Ice::AsyncResultPtr r = communicator->begin_flushBatchRequests(
-                    [=](const Ice::Exception& ex){ cb->exception(ex);},
-                    [=](bool sent){ cb->sent(sent); });
-                cb->check();
-                test(r->isSent());
-                test(r->isCompleted());
-                test(p->waitForBatch(4));
-            }
-
-            if(protocol != "bt")
-            {
-                //
-                // Exception - 2 connections - 1 failure.
-                //
-                // All connections should be flushed even if there are failures on some connections.
-                // Exceptions should not be reported.
-                //
-                test(p->opBatchCount() == 0);
-                Test::TestIntfPrx b1 = Test::TestIntfPrx::uncheckedCast(
-                    p->ice_getConnection()->createProxy(p->ice_getIdentity())->ice_batchOneway());
-                Test::TestIntfPrx b2 = Test::TestIntfPrx::uncheckedCast(
-                    p->ice_connectionId("2")->ice_getConnection()->createProxy(
-                        p->ice_getIdentity())->ice_batchOneway());
-
-                b2->ice_getConnection(); // Ensure connection is established.
-                b1->opBatch();
-                b2->opBatch();
-                b1->ice_getConnection()->close(false);
-                FlushCallbackPtr cb = new FlushCallback();
-                Ice::AsyncResultPtr r = communicator->begin_flushBatchRequests(
-                    [=](const Ice::Exception& ex){ cb->exception(ex);},
-                    [=](bool sent){ cb->sent(sent); });
-                cb->check();
-                test(r->isSent()); // Exceptions are ignored!
-                test(r->isCompleted());
-                test(p->waitForBatch(1));
-            }
-
-            if(protocol != "bt")
-            {
-                //
-                // Exception - 2 connections - 2 failures.
-                //
-                // The sent callback should be invoked even if all connections fail.
-                //
-                test(p->opBatchCount() == 0);
-                Test::TestIntfPrx b1 = Test::TestIntfPrx::uncheckedCast(
-                    p->ice_getConnection()->createProxy(p->ice_getIdentity())->ice_batchOneway());
-                Test::TestIntfPrx b2 = Test::TestIntfPrx::uncheckedCast(
-                    p->ice_connectionId("2")->ice_getConnection()->createProxy(
-                        p->ice_getIdentity())->ice_batchOneway());
-
-                b2->ice_getConnection(); // Ensure connection is established.
-                b1->opBatch();
-                b2->opBatch();
-                b1->ice_getConnection()->close(false);
-                b2->ice_getConnection()->close(false);
-                FlushCallbackPtr cb = new FlushCallback();
-                Ice::AsyncResultPtr r = communicator->begin_flushBatchRequests(
-                    [=](const Ice::Exception& ex){ cb->exception(ex);},
-                    [=](bool sent){ cb->sent(sent); });
-                cb->check();
-                test(r->isSent()); // Exceptions are ignored!
-                test(r->isCompleted());
-                test(p->opBatchCount() == 0);
-            }
-        }
-        cout << "ok" << endl;
-#endif
     }
     cout << "testing AsyncResult operations... " << flush;
     {

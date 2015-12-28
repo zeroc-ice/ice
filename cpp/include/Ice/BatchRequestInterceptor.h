@@ -14,10 +14,6 @@
 #include <Ice/ProxyF.h>
 #include <Ice/VirtualShared.h>
 
-#ifdef ICE_CPP11_COMPILER
-#   include <functional>
-#endif
-
 namespace Ice
 {
 
@@ -42,11 +38,6 @@ public:
     virtual void enqueue(const BatchRequest&, int, int) = 0;
 };
 ICE_DEFINE_PTR(BatchRequestInterceptorPtr, BatchRequestInterceptor);
-
-#ifdef ICE_CPP11_COMPILER
-ICE_API BatchRequestInterceptorPtr
-newBatchRequestInterceptor(const ::std::function<void (const BatchRequest&, int, int)>&);
-#endif
 
 };
 
