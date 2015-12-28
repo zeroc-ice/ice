@@ -569,8 +569,9 @@ def run(tests, root = False):
         a = '--protocol=ws %s'  % arg
         expanded.append([ (test, a, config) for test,config in tests if "core" in config])
 
-        a = '--protocol=bt %s'  % arg
-        expanded.append([ (test, a, config) for test,config in tests if "core" in config])
+        if isLinux():
+            a = '--protocol=bt %s'  % arg
+            expanded.append([ (test, a, config) for test,config in tests if "core" in config])
 
         if not noipv6:
             a = "--ipv6 --protocol=wss --compress --mx --serialize %s" % arg
@@ -1083,7 +1084,7 @@ def getCommandLineProperties(exe, config, cfgName):
     # collocated calls and C++11 mapping. We must also check if it still required for
     # python.
     #
-    if (config.type == "server" or config.type == "colloc" and 
+    if (config.type == "server" or config.type == "colloc" and
         (config.lang == "python" or config.lang == "cpp")):
         components.append("--Ice.ThreadPool.Server.Size=1")
         components.append("--Ice.ThreadPool.Server.SizeMax=3")
