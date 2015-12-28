@@ -26,10 +26,9 @@ include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../../include $(CPPFLAGS)
 
-LINKWITH	:= -lTestCommon $(LIBS)
 
 SLICE2CPPFLAGS  := --checksum $(SLICE2CPPFLAGS)
 
 $(SERVER): $(SOBJS)
 	rm -f $@
-	$(call mktest,$@,$(SOBJS),$(LINKWITH))
+	$(call mktest,$@,$(SOBJS),$(TEST_LIBS))

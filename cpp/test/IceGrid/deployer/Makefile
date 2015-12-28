@@ -13,9 +13,9 @@ CLIENT		= client
 SERVER		= server
 
 SVCFILENAME     = $(call mklibfilename,TestService)
-SVCSONAME	= $(call mksoname,TestService) 
+SVCSONAME	= $(call mksoname,TestService)
 
-TARGETS		= $(CLIENT) $(SERVER) $(SVCFILENAME) 
+TARGETS		= $(CLIENT) $(SERVER) $(SVCFILENAME)
 
 SLICE_OBJS	= Test.o
 
@@ -38,7 +38,6 @@ OBJS		= $(COBJS) \
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
-LINKWITH	:= -lIceBox $(BZIP2_RPATH_LINK) -lIce -lIceUtil
 
 $(CLIENT): $(COBJS)
 	rm -f $@
@@ -50,7 +49,7 @@ $(SERVER): $(SOBJS)
 
 $(SVCFILENAME): $(SERVICE_OBJS)
 	rm -f $@
-	$(call mkshlib,$@,$(SVCSONAME),$(SERVICE_OBJS), $(DB_RPATH_LINK) $(LINKWITH))
+	$(call mkshlib,$@,$(SVCSONAME),$(SERVICE_OBJS), -lIceBox $(LIBS))
 
 clean::
 	-rm -f build.txt log1.txt log2.txt log3.txt log4.txt

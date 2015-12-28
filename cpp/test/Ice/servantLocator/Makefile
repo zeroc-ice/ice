@@ -48,20 +48,19 @@ include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
-LINKWITH	:= -lTestCommon $(LIBS)
 
 $(CLIENT): $(COBJS)
 	rm -f $@
-	$(call mktest,$@,$(COBJS),$(LINKWITH))
+	$(call mktest,$@,$(COBJS),$(TEST_LIBS))
 
 $(SERVER): $(SOBJS)
 	rm -f $@
-	$(call mktest,$@,$(SOBJS),$(LINKWITH))
+	$(call mktest,$@,$(SOBJS),$(TEST_LIBS))
 
 $(SERVERAMD): $(SAMDOBJS)
 	rm -f $@
-	$(call mktest,$@,$(SAMDOBJS),$(LINKWITH))
+	$(call mktest,$@,$(SAMDOBJS),$(TEST_LIBS))
 
 $(COLLOCATED): $(COLOBJS)
 	rm -f $@
-	$(call mktest,$@,$(COLOBJS),$(LINKWITH))
+	$(call mktest,$@,$(COLOBJS),$(TEST_LIBS))

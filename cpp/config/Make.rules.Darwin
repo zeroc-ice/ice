@@ -27,7 +27,7 @@ endif
 # By default we build x86_64 binaries.
 #
 ifeq ($(CXXARCHFLAGS),)
-CXXARCHFLAGS    	:= -arch x86_64
+    CXXARCHFLAGS    := -arch x86_64
 endif
 
 ifeq ($(OPTIMIZE),yes)
@@ -71,6 +71,11 @@ endif
 
 ifneq ($(RPATH_DIR),)
     LDEXEFLAGS		= -Wl,-rpath,$(RPATH_DIR)
+
+    LDTESTEXEFLAGS  = $(LDEXEFLAGS)
+    ifndef ice_src_dist
+        LDTESTEXEFLAGS += -Wl,-rpath,@loader_path/$(libdir)
+    endif
 endif
 
 ifdef ice_src_dist

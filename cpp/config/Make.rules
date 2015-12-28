@@ -302,7 +302,7 @@ ICECPPFLAGS		= -I$(slicedir)
 SLICE2CPPFLAGS		= $(ICECPPFLAGS)
 
 ifeq ($(ice_dir), $(usr_dir))
-    LDFLAGS		= $(LDPLATFORMFLAGS) $(CXXFLAGS)
+    LDFLAGS     = $(LDPLATFORMFLAGS) $(CXXFLAGS)
     ifeq ($(CPP11),yes)
         LDFLAGS = $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(ice_dir)/$(libsubdir)$(cpp11libdirsuffix)
     endif
@@ -332,11 +332,11 @@ ifeq ($(mkshlib),)
 endif
 
 ifeq ($(mktestname),)
-    mktestname	= $(1)$(EXE_EXT)
+    mktestname = $(1)$(EXE_EXT)
 endif
 
 ifeq ($(mktest),)
-    mktest 	  = $(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $(@) $(2) $(3)
+    mktest = $(CXX) $(LDFLAGS) $(if $(findstring -lTestCommon,$(3)),$(LDTESTEXEFLAGS),$(LDEXEFLAGS)) -o $(@) $(2) $(3)
 endif
 
 ifdef ice_src_dist
@@ -365,6 +365,15 @@ endif
 ifeq ($(ICESSL_LIBS),)
     ICESSL_LIBS         = -lIceSSL
 endif
+
+ifeq ($(TEST_LIBS),)
+    ifndef ice_src_dist
+        TEST_LIBS = -L$(libdir)$(cpp11libdirsuffix) -lTestCommon $(LIBS)
+    else
+        TEST_LIBS = -lTestCommon $(LIBS)
+    endif
+endif
+
 
 EVERYTHING		= all clean install compile-slice
 EVERYTHING_EXCEPT_ALL   = clean install compile-slice

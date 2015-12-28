@@ -32,12 +32,11 @@ include $(top_srcdir)/config/Make.rules
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 SLICE2CPPFLAGS	:= $(SLICE2CPPFLAGS)
 
-LINKWITH	:= -lTestCommon $(LIBS)
 
 $(CLIENT): $(COBJS)
 	rm -f $@
-	$(call mktest,$@,$(COBJS),$(LINKWITH))
+	$(call mktest,$@,$(COBJS),$(TEST_LIBS))
 
 $(SERVER): $(SOBJS)
 	rm -f $@
-	$(call mktest,$@,$(SOBJS),$(LINKWITH))
+	$(call mktest,$@,$(SOBJS),$(TEST_LIBS))

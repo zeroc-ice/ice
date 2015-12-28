@@ -13,10 +13,10 @@ CLIENT		= client
 SERVER		= server
 
 SVCFILENAME     = $(call mklibfilename,TestService)
-SVCSONAME	= $(call mksoname,TestService) 
+SVCSONAME	= $(call mksoname,TestService)
 
 PLUGINFILENAME  = $(call mklibfilename,RegistryPlugin,$(VERSION))
-PLUGINSONAME	= $(call mksoname,RegistryPlugin,$(SOVERSION)) 
+PLUGINSONAME	= $(call mksoname,RegistryPlugin,$(SOVERSION))
 
 TARGETS		= $(CLIENT) $(SERVER) $(SVCFILENAME) $(call mklibtargets,$(PLUGINFILENAME),$(PLUGINSONAME))
 
@@ -44,7 +44,6 @@ OBJS		= $(COBJS) \
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
-LINKWITH	:= $(BZIP2_RPATH_LINK) -lIce -lIceUtil
 
 $(CLIENT): $(COBJS)
 	rm -f $@
@@ -56,11 +55,11 @@ $(SERVER): $(SOBJS)
 
 $(SVCFILENAME): $(SERVICE_OBJS)
 	rm -f $@
-	$(call mkshlib,$@,$(SVCSONAME),$(SERVICE_OBJS),-lIceBox $(LINKWITH))
+	$(call mkshlib,$@,$(SVCSONAME),$(SERVICE_OBJS),-lIceBox $(LIBS))
 
 $(PLUGINFILENAME): $(POBJS)
 	rm -f $@
-	$(call mkshlib,$@,$(PLUGINSONAME),$(POBJS),-lIceGrid -lGlacier2 $(LINKWITH))
+	$(call mkshlib,$@,$(PLUGINSONAME),$(POBJS),-lIceGrid -lGlacier2 $(LIBS))
 
 $(PLUGINSONAME): $(PLUGINFILENAME)
 	rm -f $@

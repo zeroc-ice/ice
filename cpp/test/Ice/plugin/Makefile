@@ -25,8 +25,6 @@ POBJS		= Plugin.o
 OBJS		= $(COBJS) \
 		  $(POBJS)
 
-LINKWITH        := -lIceUtil -lIce
-
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
@@ -37,7 +35,7 @@ $(CLIENT): $(COBJS)
 
 $(PLUGINDIR)/$(LIBFILENAME): $(POBJS)
 	rm -f $@
-	$(call mkshlib,$@,$(SONAME),$(POBJS),$(LINKWITH))
+	$(call mkshlib,$@,$(SONAME),$(POBJS),$(LIBS))
 
 $(PLUGINDIR)/$(SONAME): $(PLUGINDIR)/$(LIBFILENAME)
 	rm -f $@

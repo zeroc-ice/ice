@@ -12,7 +12,7 @@ top_srcdir	= ../../..
 CLIENT		= client
 
 SVCFILENAME     = $(call mklibfilename,TestService)
-SVCSONAME	= $(call mksoname,TestService) 
+SVCSONAME	= $(call mksoname,TestService)
 
 TARGETS		= $(CLIENT) $(SVCFILENAME)
 
@@ -32,7 +32,6 @@ OBJS		= $(COBJS) \
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
-LINKWITH	:= -lIceBox $(BZIP2_RPATH_LINK) -lIce -lIceUtil
 
 $(CLIENT): $(COBJS)
 	rm -f $@
@@ -40,4 +39,4 @@ $(CLIENT): $(COBJS)
 
 $(SVCFILENAME): $(SERVICE_OBJS)
 	rm -f $@
-	$(call mkshlib,$@,$(SVCSONAME),$(SERVICE_OBJS), $(LINKWITH))
+	$(call mkshlib,$@,$(SVCSONAME),$(SERVICE_OBJS), -lIceBox $(LIBS))

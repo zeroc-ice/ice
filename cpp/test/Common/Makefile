@@ -26,8 +26,6 @@ include $(top_srcdir)/config/Make.rules
 CPPFLAGS	:= -I. -I$(testincdir) $(CPPFLAGS) -DTEST_API_EXPORTS
 SLICE2CPPFLAGS	:= --dll-export TEST_API $(SLICE2CPPFLAGS)
 
-LINKWITH        := $(LIBS)
-
 ifeq ($(STATICLIBS),yes)
 $(libdir)/$(LIBNAME): $(OBJS)
 	@mkdir -p $(dir $@)
@@ -37,7 +35,7 @@ else
 $(libdir)/$(LIBFILENAME): $(OBJS)
 	@mkdir -p $(dir $@)
 	rm -f $@
-	$(call mkshlib,$@,$(SONAME),$(OBJS),$(LINKWITH))
+	$(call mkshlib,$@,$(SONAME),$(OBJS),$(LIBS))
 
 $(libdir)/$(SONAME): $(libdir)/$(LIBFILENAME)
 	rm -f $@

@@ -23,13 +23,13 @@ OBJCFLAGS	+= -Wall -Werror -mmacosx-version-min=$(OSX_TARGET_MIN_SDK_VERSION)
 # By default we build x86_64 binaries.
 #
 ifeq ($(OBJCARCHFLAGS),)
-OBJCARCHFLAGS   := -arch x86_64
+    OBJCARCHFLAGS   := -arch x86_64
 endif
 
 ifeq ($(OPTIMIZE),yes)
-     OBJCFLAGS	:= $(OBJCARCHFLAGS) -O2 -DNDEBUG $(OBJCFLAGS)
+    OBJCFLAGS	:= $(OBJCARCHFLAGS) -O2 -DNDEBUG $(OBJCFLAGS)
 else
-     OBJCFLAGS	:= $(OBJCARCHFLAGS) -g $(OBJCFLAGS)
+    OBJCFLAGS	:= $(OBJCARCHFLAGS) -g $(OBJCFLAGS)
 endif
 
 LOADER_PATH = @loader_path
@@ -57,7 +57,7 @@ ifneq ($(RPATH_DIR),)
 endif
 
 ifdef ice_src_dist
-rpathlink	= -Wl,-rpath,$(1)
+    rpathlink	= -Wl,-rpath,$(1)
 endif
 
 #
@@ -65,11 +65,11 @@ endif
 # when COMPILE_WITH_ARC is defined.
 #
 ifneq ($(findstring demo/,${CURDIR}),)
-TARGET_SUPPORT_ARC = yes
+    TARGET_SUPPORT_ARC = yes
 endif
 
 ifneq ($(findstring test/,${CURDIR}),)
-TARGET_SUPPORT_ARC = yes
+    TARGET_SUPPORT_ARC = yes
 endif
 
 ifeq ($(TARGET_SUPPORT_ARC),yes)
@@ -78,7 +78,7 @@ ifeq ($(TARGET_SUPPORT_ARC),yes)
         # Don't add these to OBJCFLAGS flex and bison generated files used in
         # some demos doesn't support ARC.
         #
-		ARCFLAGS = -fobjc-arc -fobjc-arc-exceptions
+        ARCFLAGS = -fobjc-arc -fobjc-arc-exceptions
     endif
 endif
 
@@ -87,5 +87,5 @@ mkshlib		= $(CXX)  -dynamiclib $(LDFLAGS) -o $(1) -install_name @rpath/$(2) $(3)
 
 BASELIBS	= -L$(ice_cpp_dir)/$(libsubdir) -lIce -lIceUtil -framework Foundation
 LIBS		= -lIceObjC$(libsuffix) -framework Foundation
-ICESSL_LIBS = -lIceSSLObjC$(libsuffix)
+ICESSL_LIBS 	= -lIceSSLObjC$(libsuffix)
 TEST_LIBS	= -lTestCommonObjC $(LIBS)
