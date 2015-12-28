@@ -70,16 +70,16 @@ ifeq ($(ice_dir), $(usr_dir))
 endif
 
 ifneq ($(RPATH_DIR),)
-    LDEXEFLAGS		= -Wl,-rpath,$(RPATH_DIR)
+    LDEXEFLAGS = -Wl,-rpath,$(RPATH_DIR)
+endif
 
-    LDTESTEXEFLAGS  = $(LDEXEFLAGS)
-    ifndef ice_src_dist
-        LDTESTEXEFLAGS += -Wl,-rpath,@loader_path/$(libdir)
-    endif
+LDTESTEXEFLAGS = $(LDEXEFLAGS)
+ifndef ice_src_dist
+    LDTESTEXEFLAGS += -Wl,-rpath,@loader_path/$(libdir)
 endif
 
 ifdef ice_src_dist
-rpathlink		= -Wl,-rpath,$(1)
+    rpathlink = -Wl,-rpath,$(1)
 endif
 
 mklib 			= libtool -static -o $(1) $(2)

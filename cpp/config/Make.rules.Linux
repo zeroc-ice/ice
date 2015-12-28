@@ -151,13 +151,13 @@ ifeq ($(GCC_COMPILER),yes)
         endif
 
         ifneq ($(RPATH_DIR),)
-            LDEXEFLAGS              = $(DTAGS) -Wl,-rpath,$(RPATH_DIR)
-
-	    LDTESTEXEFLAGS  = $(LDEXEFLAGS)
-	    ifndef ice_src_dist
-	        LDTESTEXEFLAGS += -Wl,-rpath,\$$ORIGIN/$(libdir)
-	    endif
+            LDEXEFLAGS = $(DTAGS) -Wl,-rpath,$(RPATH_DIR)
         endif
+
+	LDTESTEXEFLAGS  = $(LDEXEFLAGS)
+	ifndef ice_src_dist
+	    LDTESTEXEFLAGS += -Wl,-rpath,\$$ORIGIN/$(libdir)
+	endif
     endif
 
     #
