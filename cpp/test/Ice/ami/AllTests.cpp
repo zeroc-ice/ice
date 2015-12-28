@@ -1534,19 +1534,20 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         {
             while(true)
             {
-                promise<bool> s;
+                auto s = make_shared<promise<bool>>();
+                auto f = s->get_future();
                 p->opWithPayload_async(
                     seq,
                     [](){},
-                    [&](const exception_ptr& ex)
+                    [s](const exception_ptr& ex)
                     {
-                        s.set_exception(ex);
+                        s->set_exception(ex);
                     },
-                    [&](bool value)
+                    [s](bool value)
                     {
-                        s.set_value(value);
+                        s->set_value(value);
                     });
-                auto f = s.get_future();
+                
                 if(f.wait_for(chrono::seconds(0)) != future_status::ready || !f.get())
                 {
                     break;

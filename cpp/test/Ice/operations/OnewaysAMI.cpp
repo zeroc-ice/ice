@@ -250,7 +250,7 @@ onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrxPtr& proxy)
                         {
                             try
                             {
-                                rethrow_exceptino(e);
+                                rethrow_exception(e);
                             }
                             catch(const Ice::Exception& ex)
                             {
@@ -290,41 +290,6 @@ onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrxPtr& proxy)
         try
         {
             p->ice_ids_async();
-            test(false);
-        }
-        catch(const IceUtil::IllegalArgumentException&)
-        {
-        }
-    }
-
-    {
-        CallbackPtr cb = new Callback;
-        p->begin_opVoid(nullptr, 
-                        [=](const Ice::Exception& ex){ cb->noException(ex); },
-                        [=](bool sent){ cb->sent(sent); });
-        cb->check();
-    }
-
-    {
-        CallbackPtr cb = new Callback;
-        p->begin_opIdempotent(nullptr, 
-                              [=](const Ice::Exception& ex){ cb->noException(ex); },
-                              [=](bool sent){ cb->sent(sent); });
-        cb->check();
-    }
-
-    {
-        CallbackPtr cb = new Callback;
-        p->begin_opNonmutating(nullptr, 
-                               [=](const Ice::Exception& ex){ cb->noException(ex); },
-                               [=](bool sent){ cb->sent(sent); });
-        cb->check();
-    }
-
-    {
-        try
-        {
-            p->begin_opByte(Ice::Byte(0xff), Ice::Byte(0x0f), [=](const Ice::Byte&, const Ice::Byte&){ test(false); });
             test(false);
         }
         catch(const IceUtil::IllegalArgumentException&)

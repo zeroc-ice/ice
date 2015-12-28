@@ -115,13 +115,11 @@ ifeq ($(shell test -d $(usr_dir)/lib/i386-linux-gnu && echo 0),0)
     lp32suffix     = /i386-linux-gnu
 endif
 
-ifeq ($(CPP11),yes)
-    ifneq ($(UNAME),Darwin)
-        cpp11libdirsuffix	= /c++11
-        cpp11libsuffix		= ++11
-        cpp11sonamedir		= ../
-        binsuffix 		:= $(binsuffix)$(cpp11libsuffix)
-    endif
+ifeq ($(CPP11_MAPPING),yes)
+    cpp11libdirsuffix		= /c++11
+    cpp11libsuffix		= ++11
+    cpp11sonamedir		= ../
+    binsuffix 		:= $(binsuffix)$(cpp11libsuffix)
 endif
 
 ifneq ($(findstring MINGW,$(UNAME)),)
