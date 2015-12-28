@@ -32,9 +32,6 @@ env:
 python:
 - "2.7"
 
-before_install:
-- nvm use node # This will use the latest version of Node.js
-
 install:
 - git clone https://github.com/zeroc-ice/mcpp.git mcpp
 - make -C mcpp -j3
