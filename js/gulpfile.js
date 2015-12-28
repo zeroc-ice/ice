@@ -17,7 +17,7 @@ var bower       = require("bower"),
     gzip        = require('gulp-gzip'),
     iceBuilder  = require('gulp-ice-builder'),
     jshint      = require('gulp-jshint'),
-    nano        = require('gulp-cssnano'),
+    minifycss   = require('gulp-minify-css'),
     newer       = require('gulp-newer'),
     open        = require("gulp-open"),
     path        = require('path'),
@@ -142,7 +142,7 @@ gulp.task("common:css", ["bower"],
         return gulp.src(common.styles)
             .pipe(newer("assets/common.css"))
             .pipe(concat("common.css"))
-            .pipe(nano())
+            .pipe(minifycss())
             .pipe(gulp.dest("assets"))
             .pipe(gzip())
             .pipe(gulp.dest("assets"));
