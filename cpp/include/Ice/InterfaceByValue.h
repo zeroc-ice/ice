@@ -26,7 +26,7 @@ public:
     virtual void
     __writeImpl(::IceInternal::BasicStream* __os) const
     {
-        __os->startWriteSlice(InterfaceTraits<T>::staticId, InterfaceTraits<T>::compactId, true);
+        __os->startWriteSlice(T::ice_staticId(), -1, true);
         __os->endWriteSlice();
     }
 
@@ -36,17 +36,15 @@ public:
         __is->startReadSlice();
         __is->endReadSlice();
     }
-
-    virtual const std::string&
-    ice_id() const
+    
+    virtual const std::string& ice_id() const
     {
-        return InterfaceTraits<T>::staticId;
+        return T::ice_staticId();
     }
 
-    static const std::string&
-    ice_staticId()
+    static const std::string& ice_staticId()
     {
-        return InterfaceTraits<T>::staticId;
+        return T::ice_staticId();
     }
 };
 

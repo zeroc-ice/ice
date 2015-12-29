@@ -690,9 +690,6 @@ Slice::Gen::generate(const UnitPtr& p)
         Cpp11ProxyVisitor proxyVisitor(H, C, _dllExport);
         p->visit(&proxyVisitor, false);
 
-        Cpp11InterfaceTraitsVisitor interfaceTraitsVisitor(H, C, _dllExport);
-        p->visit(&interfaceTraitsVisitor, false);
-
         Cpp11LocalObjectVisitor localObjectVisitor(H, C, _dllExport, _stream);
         p->visit(&localObjectVisitor, false);
 
@@ -8495,48 +8492,4 @@ Slice::Gen::Cpp11StreamVisitor::visitEnum(const EnumPtr& p)
         H << nl << "static const bool fixedLength = false;";
         H << eb << ";" << nl;
     }
-}
-
-Slice::Gen::Cpp11InterfaceTraitsVisitor::Cpp11InterfaceTraitsVisitor(Output& h, Output& c, const string& dllExport) :
-    H(h), C(c), _dllExport(dllExport)
-{
-}
-
-bool
-Slice::Gen::Cpp11InterfaceTraitsVisitor::visitUnitStart(const UnitPtr& p)
-{
-    if(!p->hasNonLocalClassDecls())
-    {
-        return false;
-    }
-
-    H << sp << nl << "namespace Ice" << nl << '{';
-
-    return true;
-}
-
-void
-Slice::Gen::Cpp11InterfaceTraitsVisitor::visitUnitEnd(const UnitPtr&)
-{
-    H << sp << nl << '}';
-}
-
-bool
-Slice::Gen::Cpp11InterfaceTraitsVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    if(!p->isInterface() || p->isLocal())
-    {
-        return false;
-    }
-    H << sp;
-    H << nl << "template<>";
-    H << nl << "struct InterfaceTraits<" << fixKwd(p->scoped()) << ">";
-    H << sb;
-    H << nl << "static const std::string staticId;";
-    H << nl << "static const int compactId = " << p->compactId() << ";";
-    H << eb << ";";
-
-    C << sp;
-    C << nl << "const std::string Ice::InterfaceTraits<" << fixKwd(p->scoped()) << ">::staticId = \"" << p->scoped() << "\";";
-    return true;
 }
