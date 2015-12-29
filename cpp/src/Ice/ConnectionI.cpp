@@ -943,11 +943,13 @@ Ice::ConnectionI::setCloseCallback(const Ice::CloseCallbackPtr& callback)
             {
             public:
 #ifdef ICE_CPP11_MAPPING
-                CallbackWorkItem(const ConnectionIPtr& connection, ICE_CLOSE_CALLBACK callback) :
+                CallbackWorkItem(const ConnectionIPtr& connection,
+                                 std::function<void (std::shared_ptr<Ice::Connection>)> callback) :
                     _connection(connection),
                     _callback(move(callback))
 #else
-                CallbackWorkItem(const ConnectionIPtr& connection, const ICE_CLOSE_CALLBACK& callback) :
+                CallbackWorkItem(const ConnectionIPtr& connection,
+                                 const Ice::CloseCallbackPtr& callback) :
                     _connection(connection),
                     _callback(callback)
 #endif
