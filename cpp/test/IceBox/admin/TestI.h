@@ -29,6 +29,6 @@ private:
     Ice::PropertyDict _changes;
     bool _called;
 };
-typedef IceUtil::Handle<TestFacetI> TestFacetIPtr;
+ICE_DEFINE_PTR(TestFacetIPtr, TestFacetI);
 
 #endif

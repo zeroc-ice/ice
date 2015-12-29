@@ -92,7 +92,7 @@ Client::run(int argc, char* argv[])
     }
 
 
-    ObjectPrx base = communicator()->propertyToProxy("IceBoxAdmin.ServiceManager.Proxy");
+    ObjectPrxPtr base = communicator()->propertyToProxy("IceBoxAdmin.ServiceManager.Proxy");
 
     if(base == 0)
     {
@@ -133,7 +133,7 @@ Client::run(int argc, char* argv[])
         base = communicator()->stringToProxy(managerProxy);
     }
 
-    IceBox::ServiceManagerPrx manager = IceBox::ServiceManagerPrx::checkedCast(base);
+    IceBox::ServiceManagerPrxPtr manager = ICE_CHECKED_CAST(IceBox::ServiceManagerPrx, base);
     if(!manager)
     {
         cerr << appName() << ": `" << base << "' is not an IceBox::ServiceManager" << endl;

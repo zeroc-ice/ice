@@ -18,25 +18,32 @@ void
 allTests(const Ice::CommunicatorPtr& communicator)
 {
     string ref = "DemoIceBox/admin:default -p 9996 -t 10000";
-    Ice::ObjectPrx admin = communicator->stringToProxy(ref);
+    Ice::ObjectPrxPtr admin = communicator->stringToProxy(ref);
 
-    TestFacetPrx facet;
+    TestFacetPrxPtr facet;
 
     cout << "testing custom facet... " << flush;
     {
         //
         // Test: Verify that the custom facet is present.
         //
+#ifdef ICE_CPP11_MAPPING
+        facet = Ice::checkedCast<Test::TestFacetPrx>(admin, "TestFacet");
+#else
         facet = Test::TestFacetPrx::checkedCast(admin, "TestFacet");
+#endif
         facet->ice_ping();
     }
     cout << "ok" << endl;
 
     cout << "testing properties facet... " << flush;
     {
+#ifdef ICE_CPP11_MAPPING
+        auto pa = Ice::checkedCast<Ice::PropertiesAdminPrx>(admin, "IceBox.Service.TestService.Properties");
+#else
         Ice::PropertiesAdminPrx pa =
             Ice::PropertiesAdminPrx::checkedCast(admin, "IceBox.Service.TestService.Properties");
-
+#endif
         //
         // Test: PropertiesAdmin::getProperty()
         //
@@ -87,11 +94,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "testing metrics admin facet... " << flush;
     {
+#ifdef ICE_CPP11_MAPPING
+        auto ma = Ice::checkedCast<IceMX::MetricsAdminPrx>(admin, "IceBox.Service.TestService.Metrics");
+        auto pa = Ice::checkedCast<Ice::PropertiesAdminPrx>(admin, "IceBox.Service.TestService.Properties");
+#else
         IceMX::MetricsAdminPrx ma = IceMX::MetricsAdminPrx::checkedCast(admin, "IceBox.Service.TestService.Metrics");
-
         Ice::PropertiesAdminPrx pa =
             Ice::PropertiesAdminPrx::checkedCast(admin, "IceBox.Service.TestService.Properties");
-
+#endif
         Ice::StringSeq views;
         Ice::StringSeq disabledViews;
         views = ma->getMetricsViewNames(disabledViews);
@@ -108,7 +118,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(views.size() == 3);
         
         // Make sure that the IceBox communicator metrics admin is a separate instance.
+#ifdef ICE_CPP11_MAPPING
+        test(Ice::checkedCast<IceMX::MetricsAdminPrx>(admin, "Metrics")->getMetricsViewNames(disabledViews).empty());
+#else
         test(IceMX::MetricsAdminPrx::checkedCast(admin, "Metrics")->getMetricsViewNames(disabledViews).empty());
+#endif
     }
     cout << "ok" << endl;
 }

@@ -20,7 +20,8 @@ ifeq ($(CPP11_MAPPING),yes)
 		  IceDiscovery \
 		  Glacier2Lib \
 		  IceStormLib \
-		  IceGridLib
+		  IceGridLib \
+		  IceBox
 else
 
 ifneq ($(findstring MINGW,$(UNAME)),)

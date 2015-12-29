@@ -44,7 +44,7 @@ create(CommunicatorPtr communicator)
 
 ServiceI::ServiceI(const CommunicatorPtr& serviceManagerCommunicator)
 {
-    TestFacetIPtr facet = new TestFacetI;
+    TestFacetIPtr facet = ICE_MAKE_SHARED(TestFacetI);
 
     //
     // Install a custom admin facet.
@@ -56,7 +56,7 @@ ServiceI::ServiceI(const CommunicatorPtr& serviceManagerCommunicator)
     // Set the callback on the admin facet.
     //
     ObjectPtr propFacet = serviceManagerCommunicator->findAdminFacet("IceBox.Service.TestService.Properties");
-    NativePropertiesAdminPtr admin = NativePropertiesAdminPtr::dynamicCast(propFacet);
+    NativePropertiesAdminPtr admin = ICE_DYNAMIC_CAST(NativePropertiesAdmin, propFacet);
     assert(admin);
     admin->addUpdateCallback(facet);
 }

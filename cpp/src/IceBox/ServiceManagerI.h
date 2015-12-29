@@ -19,7 +19,9 @@
 namespace IceBox
 {
 
-class ServiceManagerI : public ServiceManager, public IceUtil::Monitor<IceUtil::Mutex>
+class ServiceManagerI : public ServiceManager, 
+                        public IceUtil::Monitor<IceUtil::Mutex>,
+                        public Ice::EnableSharedFromThis<ServiceManagerI>
 {
 public:
 
@@ -28,10 +30,10 @@ public:
 
     virtual Ice::SliceChecksumDict getSliceChecksums(const Ice::Current&) const;
 
-    virtual void startService(const std::string&, const ::Ice::Current&);
-    virtual void stopService(const std::string&, const ::Ice::Current&);
+    virtual void startService(ICE_IN(std::string), const ::Ice::Current&);
+    virtual void stopService(ICE_IN(std::string), const ::Ice::Current&);
 
-    virtual void addObserver(const ServiceObserverPrx&, const Ice::Current&);
+    virtual void addObserver(ICE_IN(ServiceObserverPrxPtr), const Ice::Current&);
 
     virtual void shutdown(const ::Ice::Current&);
 
@@ -40,7 +42,11 @@ public:
     bool start();
     void stop();
 
+#ifdef ICE_CPP11_MAPPING
+    void observerCompleted(const std::shared_ptr<ServiceObserverPrx>&, std::exception_ptr);
+#else
     void observerCompleted(const Ice::AsyncResultPtr&);
+#endif
 
 private:
 
@@ -66,9 +72,14 @@ private:
     void start(const std::string&, const std::string&, const ::Ice::StringSeq&);
     void stopAll();
 
-    void servicesStarted(const std::vector<std::string>&, const std::set<ServiceObserverPrx>&);
-    void servicesStopped(const std::vector<std::string>&, const std::set<ServiceObserverPrx>&);
+    void servicesStarted(const std::vector<std::string>&, const std::set<ServiceObserverPrxPtr>&);
+    void servicesStopped(const std::vector<std::string>&, const std::set<ServiceObserverPrxPtr>&);
+
+#ifdef ICE_CPP11_MAPPING
+    void observerRemoved(const std::shared_ptr<ServiceObserverPrx>&, std::exception_ptr);
+#else
     void observerRemoved(const ServiceObserverPrx&, const std::exception&);
+#endif
 
     Ice::PropertiesPtr createServiceProperties(const std::string&);
     void destroyServiceCommunicator(const std::string&, const Ice::CommunicatorPtr&);
@@ -85,12 +96,13 @@ private:
     std::vector<ServiceInfo> _services;
     bool _pendingStatusChanges;
 
-    std::set<ServiceObserverPrx> _observers;
+    std::set<ServiceObserverPrxPtr> _observers;
     int _traceServiceObserver;
+#ifndef ICE_CPP11_MAPPING
     ::Ice::CallbackPtr _observerCompletedCB;
+#endif
 };
-
-typedef IceUtil::Handle<ServiceManagerI> ServiceManagerIPtr;
+ICE_DEFINE_PTR(ServiceManagerIPtr, ServiceManagerI);
 
 }
 

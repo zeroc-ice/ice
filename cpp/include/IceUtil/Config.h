@@ -269,6 +269,7 @@ typedef long long Int64;
 #   define ICE_VALUE_FACTORY ::std::function<::Ice::ValuePtr (const std::string& type)>
 #   define ICE_CLOSE_CALLBACK ::std::function<void (const ::std::shared_ptr<::Ice::Connection>&)>
 #   define ICE_HEARTBEAT_CALLBACK ::std::function<void (const ::std::shared_ptr<::Ice::Connection>&)>
+#   define ICE_IN(T) T
 #else // C++98 mapping
 #   define ICE_HANDLE ::IceUtil::Handle
 #   define ICE_INTERNAL_HANDLE ::IceInternal::Handle
@@ -284,6 +285,7 @@ typedef long long Int64;
 #   define ICE_VALUE_FACTORY ::Ice::ValueFactoryPtr
 #   define ICE_CLOSE_CALLBACK ::Ice::CloseCallbackPtr
 #   define ICE_HEARTBEAT_CALLBACK ::Ice::HeartbeatCallbackPtr
+#   define ICE_IN(T) const T&
 #endif
 
 #endif

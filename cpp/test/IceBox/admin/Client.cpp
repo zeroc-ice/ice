@@ -24,7 +24,7 @@ run(int, char**, const Ice::CommunicatorPtr& comm)
     //
     // Shutdown the IceBox server.
     //
-    Ice::ProcessPrx::uncheckedCast(comm->stringToProxy("DemoIceBox/admin -f Process:default -p 9996"))->shutdown();
+    ICE_UNCHECKED_CAST(Ice::ProcessPrx, comm->stringToProxy("DemoIceBox/admin -f Process:default -p 9996"))->shutdown();
 
     return EXIT_SUCCESS;
 }

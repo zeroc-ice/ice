@@ -17,10 +17,10 @@ using namespace Test;
 void
 allTests(const Ice::CommunicatorPtr& communicator)
 {
-    TestIntfPrx service1 = TestIntfPrx::uncheckedCast(communicator->stringToProxy("test:tcp -p 12010"));
-    TestIntfPrx service2 = TestIntfPrx::uncheckedCast(communicator->stringToProxy("test:tcp -p 12011"));
-    TestIntfPrx service3 = TestIntfPrx::uncheckedCast(communicator->stringToProxy("test:tcp -p 12012"));
-    TestIntfPrx service4 = TestIntfPrx::uncheckedCast(communicator->stringToProxy("test:tcp -p 12013"));
+    TestIntfPrxPtr service1 = ICE_UNCHECKED_CAST(TestIntfPrx, communicator->stringToProxy("test:tcp -p 12010"));
+    TestIntfPrxPtr service2 = ICE_UNCHECKED_CAST(TestIntfPrx, communicator->stringToProxy("test:tcp -p 12011"));
+    TestIntfPrxPtr service3 = ICE_UNCHECKED_CAST(TestIntfPrx, communicator->stringToProxy("test:tcp -p 12012"));
+    TestIntfPrxPtr service4 = ICE_UNCHECKED_CAST(TestIntfPrx, communicator->stringToProxy("test:tcp -p 12013"));
 
     if(service1->getProperty("IceBox.InheritProperties") == "")
     {

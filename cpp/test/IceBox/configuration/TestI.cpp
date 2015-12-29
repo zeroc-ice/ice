@@ -17,7 +17,7 @@ TestI::TestI(const Ice::StringSeq& args) : _args(args)
 }
 
 std::string
-TestI::getProperty(const std::string& name, const Ice::Current& current)
+TestI::getProperty(ICE_IN(std::string) name, const Ice::Current& current)
 {
     return current.adapter->getCommunicator()->getProperties()->getProperty(name);
 }
