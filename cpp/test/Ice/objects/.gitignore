@@ -6,3 +6,7 @@ server
 collocated
 Test.cpp
 Test.h
+Derived.cpp
+Derived.h
+DerivedEx.cpp
+DerivedEx.h
