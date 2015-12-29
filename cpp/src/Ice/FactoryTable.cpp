@@ -68,7 +68,7 @@ IceInternal::FactoryTable::removeExceptionFactory(const string& t)
 //
 #ifdef ICE_CPP11_MAPPING
 void
-IceInternal::FactoryTable::addValueFactory(const string& t, function<::Ice::ValuePtr (const string&)> f)
+IceInternal::FactoryTable::addValueFactory(const string& t, function<::Ice::ValuePtr (string)> f)
 #else
 void
 IceInternal::FactoryTable::addValueFactory(const string& t, const ::Ice::ValueFactoryPtr& f)

@@ -267,8 +267,8 @@ typedef long long Int64;
 #   define ICE_CHECKED_CAST(T,V) Ice::checkedCast<T>(V)
 #   define ICE_UNCHECKED_CAST(T,V) Ice::uncheckedCast<T>(V)
 #   define ICE_VALUE_FACTORY ::std::function<::Ice::ValuePtr (const std::string& type)>
-#   define ICE_CLOSE_CALLBACK ::std::function<void (const ::std::shared_ptr<::Ice::Connection>&)>
-#   define ICE_HEARTBEAT_CALLBACK ::std::function<void (const ::std::shared_ptr<::Ice::Connection>&)>
+#   define ICE_CLOSE_CALLBACK ::std::function<void (::std::shared_ptr<::Ice::Connection>)>
+#   define ICE_HEARTBEAT_CALLBACK ::std::function<void (::std::shared_ptr<::Ice::Connection>)>
 #   define ICE_IN(T) T
 #else // C++98 mapping
 #   define ICE_HANDLE ::IceUtil::Handle

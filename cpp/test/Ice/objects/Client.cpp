@@ -30,9 +30,9 @@ using namespace Test;
 
 #ifdef ICE_CPP11_MAPPING
 template<typename T>
-function<shared_ptr<T>(const string&)> makeFactory()
+function<shared_ptr<T>(string)> makeFactory()
 {
-    return [](const string&)
+    return [](string)
         {
             return make_shared<T>();
         };

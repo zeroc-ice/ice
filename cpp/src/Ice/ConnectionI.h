@@ -202,8 +202,8 @@ public:
 #endif
 
 #ifdef ICE_CPP11_MAPPING
-    virtual void setCloseCallback(::std::function<void (const ::std::shared_ptr<::Ice::Connection>&)>);
-    virtual void setHeartbeatCallback(::std::function<void (const ::std::shared_ptr<::Ice::Connection>&)>);
+    virtual void setCloseCallback(::std::function<void (::std::shared_ptr<::Ice::Connection>)>);
+    virtual void setHeartbeatCallback(::std::function<void (::std::shared_ptr<::Ice::Connection>)>);
 #else
     virtual void setCloseCallback(const Ice::CloseCallbackPtr&);
     virtual void setHeartbeatCallback(const Ice::HeartbeatCallbackPtr&);

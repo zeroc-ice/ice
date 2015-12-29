@@ -36,6 +36,7 @@ const int TypeContextUseWstring = 16;
 const int TypeContextReadClosure = 32;
 const int TypeContextLocalOperation = 64;
 const int TypeContextAMD = 128;
+const int TypeContextDelegate = 256;
 
 SLICE_API bool isMovable(const TypePtr&);
 

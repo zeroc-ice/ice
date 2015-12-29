@@ -18,9 +18,9 @@ using namespace Test;
 
 #ifdef ICE_CPP11_MAPPING
 template<typename T>
-function<shared_ptr<T>(const string&)> makeFactory()
+function<shared_ptr<T>(string)> makeFactory()
 {
-    return [](const string&)
+    return [](string)
         {
             return make_shared<T>();
         };
@@ -70,7 +70,7 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     adapter->add(ICE_MAKE_SHARED(InitialI, adapter), communicator->stringToIdentity("initial"));
     adapter->add(ICE_MAKE_SHARED(TestIntfI), communicator->stringToIdentity("test"));
-    
+
 #ifdef ICE_CPP11_MAPPING
     // TODO
 #else

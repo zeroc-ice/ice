@@ -50,7 +50,7 @@ public:
     virtual ObjectFactoryPtr findObjectFactory(const std::string&) const;
 
 #ifdef ICE_CPP11_MAPPING
-    virtual void addValueFactory(std::function<std::shared_ptr<Ice::Value> (const std::string&)>, const std::string&);
+    virtual void addValueFactory(std::function<std::shared_ptr<Ice::Value> (std::string)>, const ::std::string&);
     virtual std::function<::std::shared_ptr<Ice::Value> (const std::string&)> findValueFactory(const std::string&) const;
 #else
     virtual void addValueFactory(const ValueFactoryPtr&, const std::string&);

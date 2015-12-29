@@ -681,7 +681,7 @@ Slice::Gen::generate(const UnitPtr& p)
         Cpp11ObjectDeclVisitor objectDeclVisitor(H, C, _dllExport);
         p->visit(&objectDeclVisitor, false);
 
-        Cpp11TypesVisitor typesVisitor(H, C, _dllExport, _stream);
+        Cpp11TypesVisitor typesVisitor(H, C, _dllExport);
         p->visit(&typesVisitor, false);
 
         Cpp11StreamVisitor streamVisitor(H, C, _dllExport);
@@ -5484,8 +5484,8 @@ Slice::Gen::Cpp11ObjectDeclVisitor::visitOperation(const OperationPtr& p)
     }
 }
 
-Slice::Gen::Cpp11TypesVisitor::Cpp11TypesVisitor(Output& h, Output& c, const string& dllExport, bool stream) :
-    H(h), C(c), _dllExport(dllExport), _stream(stream), _doneStaticSymbol(false), _useWstring(false)
+Slice::Gen::Cpp11TypesVisitor::Cpp11TypesVisitor(Output& h, Output& c, const string& dllExport) :
+    H(h), C(c), _dllExport(dllExport), _doneStaticSymbol(false), _useWstring(false)
 {
 }
 

@@ -709,8 +709,7 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const StringList& m
             "::std::shared_ptr<void>",
             "::std::shared_ptr<::Ice::Value>"
         };
-    
-    
+
     typeCtx |= TypeContextInParam;
 
     if(optional)
@@ -789,6 +788,10 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const StringList& m
                 if(cl->definition() && cl->definition()->isDelegate())
                 {
                     return classDefToDelegateString(cl->definition(), typeCtx, cpp11);
+                }
+                else if(typeCtx & TypeContextDelegate)
+                {
+                    return "::std::shared_ptr<" + fixKwd(cl->scoped()) + ">";
                 }
                 else
                 {
@@ -886,7 +889,7 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const StringList& m
                 {
                     t = "::std::shared_ptr<" + fixKwd(proxy->_class()->scoped() + "Prx") + ">";
                 }
-                
+
                 return (typeCtx & TypeContextAMD) ? ("const " + t + "&") : t;
             }
         }
@@ -1552,6 +1555,14 @@ Slice::classDefToDelegateString(const ClassDefPtr& cl, int typeCtx, bool cpp11)
     string retS = returnTypeToString(ret, op->returnIsOptional(), op->getMetaData(), typeCtx, cpp11);
 
     string t = "::std::function<" + retS + " (";
+
+    if(cpp11)
+    {
+        // inputTypeToString usually passes local operation values by
+        // reference. This is not the desired behavior for delegates
+        typeCtx &= ~TypeContextLocalOperation;
+        typeCtx |= TypeContextDelegate;
+    }
 
     ParamDeclList paramList = cl->allOperations().front()->parameters();
     for(ParamDeclList::iterator q = paramList.begin(); q != paramList.end(); ++q)

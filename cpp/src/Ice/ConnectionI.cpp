@@ -919,7 +919,7 @@ Ice::ConnectionI::end_flushBatchRequests(const AsyncResultPtr& r)
 
 void
 #ifdef ICE_CPP11_MAPPING
-Ice::ConnectionI::setHeartbeatCallback(::std::function<void (const ::std::shared_ptr<::Ice::Connection>&)> callback)
+Ice::ConnectionI::setHeartbeatCallback(std::function<void (std::shared_ptr<::Ice::Connection>)> callback)
 #else
 Ice::ConnectionI::setHeartbeatCallback(const Ice::HeartbeatCallbackPtr& callback)
 #endif
@@ -929,7 +929,7 @@ Ice::ConnectionI::setHeartbeatCallback(const Ice::HeartbeatCallbackPtr& callback
 }
 void
 #ifdef ICE_CPP11_MAPPING
-Ice::ConnectionI::setCloseCallback(::std::function<void (const ::std::shared_ptr<::Ice::Connection>&)> callback)
+Ice::ConnectionI::setCloseCallback(std::function<void (std::shared_ptr<::Ice::Connection>)> callback)
 #else
 Ice::ConnectionI::setCloseCallback(const Ice::CloseCallbackPtr& callback)
 #endif
@@ -942,10 +942,15 @@ Ice::ConnectionI::setCloseCallback(const Ice::CloseCallbackPtr& callback)
             class CallbackWorkItem : public DispatchWorkItem
             {
             public:
-
+#ifdef ICE_CPP11_MAPPING
                 CallbackWorkItem(const ConnectionIPtr& connection, const ICE_CLOSE_CALLBACK& callback) :
                     _connection(connection),
                     _callback(callback)
+#else
+                CallbackWorkItem(const ConnectionIPtr& connection, ICE_CLOSE_CALLBACK callback) :
+                    _connection(move(connection)),
+                    _callback(move(callback))
+#endif
                 {
                 }
 
@@ -959,7 +964,11 @@ Ice::ConnectionI::setCloseCallback(const Ice::CloseCallbackPtr& callback)
                 const ConnectionIPtr _connection;
                 const ICE_CLOSE_CALLBACK _callback;
             };
-            _threadPool->dispatch(new CallbackWorkItem(shared_from_this(), callback));
+#ifdef ICE_CPP11_MAPPING
+            _threadPool->dispatch(new CallbackWorkItem(shared_from_this(), move(callback)));
+#else
+            _threadPool->dispatch(new CallbackWorkItem(shared_from_this(), callback);
+#endif
         }
     }
     else

@@ -166,9 +166,9 @@ TestI::waitForHeartbeat(int count, const Ice::Current& current)
 {
     HeartbeatCallbackIPtr callback = ICE_MAKE_SHARED(HeartbeatCallbackI);
 #ifdef ICE_CPP11_MAPPING
-    current.con->setHeartbeatCallback([callback](const Ice::ConnectionPtr& connection)
+    current.con->setHeartbeatCallback([callback](Ice::ConnectionPtr connection)
     {
-        callback->heartbeat(connection);
+        callback->heartbeat(move(connection));
     });
 #else
     current.con->setHeartbeatCallback(callback);

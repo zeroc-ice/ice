@@ -200,7 +200,7 @@ Glacier2::Application::doMain(Ice::StringSeq& args, const Ice::InitializationDat
                     assert(connection);
                     connection->setACM(acmTimeout, IceUtil::None, Ice::HeartbeatAlways);
 #ifdef ICE_CPP11_MAPPING
-                    connection->setCloseCallback([this](const Ice::ConnectionPtr&)
+                    connection->setCloseCallback([this](Ice::ConnectionPtr)
                     {
                        this->sessionDestroyed();
                     });

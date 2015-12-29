@@ -367,7 +367,7 @@ private:
     {
     public:
 
-        Cpp11TypesVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&, bool);
+        Cpp11TypesVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
@@ -390,7 +390,6 @@ private:
         ::IceUtilInternal::Output& C;
 
         std::string _dllExport;
-        bool _stream;
         bool _doneStaticSymbol;
         int _useWstring;
         std::list<int> _useWstringHist;
@@ -438,7 +437,7 @@ private:
 
         std::string _dllExport;
     };
-    
+
     class Cpp11ObjectVisitor : public ParserVisitor
     {
     public:
@@ -460,7 +459,7 @@ private:
         int _useWstring;
         std::list<int> _useWstringHist;
     };
-    
+
     class Cpp11LocalObjectVisitor : private ::IceUtil::noncopyable, public Cpp11ObjectVisitor
     {
     public:
@@ -475,7 +474,7 @@ private:
         virtual bool visitStructStart(const StructPtr&);
         virtual void visitOperation(const OperationPtr&);
     };
-    
+
     class Cpp11InterfaceVisitor : private ::IceUtil::noncopyable, public Cpp11ObjectVisitor
     {
     public:
@@ -491,7 +490,7 @@ private:
         virtual void visitOperation(const OperationPtr&);
         void emitUpcall(const ClassDefPtr&, const std::string&);
     };
-    
+
     class Cpp11ValueVisitor : private ::IceUtil::noncopyable, public Cpp11ObjectVisitor
     {
     public:
@@ -528,7 +527,7 @@ private:
         int _useWstring;
         std::list<int> _useWstringHist;
     };
-    
+
     class Cpp11AsyncImplVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
@@ -571,7 +570,7 @@ private:
         ::IceUtilInternal::Output& C;
         std::string _dllExport;
     };
-    
+
     class Cpp11InterfaceTraitsVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:

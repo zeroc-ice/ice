@@ -144,7 +144,7 @@ Ice::CommunicatorI::findObjectFactory(const string& id) const
 
 #ifdef ICE_CPP11_MAPPING
 void
-Ice::CommunicatorI::addValueFactory(function<::Ice::ValuePtr (const string&)> factory, const string& id)
+Ice::CommunicatorI::addValueFactory(function<::Ice::ValuePtr (string)> factory, const string& id)
 {
         _instance->servantFactoryManager()->add(move(factory), id);
 }

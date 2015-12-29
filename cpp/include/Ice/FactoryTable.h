@@ -40,7 +40,7 @@ public:
     void removeExceptionFactory(const ::std::string&);
 
 #ifdef ICE_CPP11_MAPPING
-    void addValueFactory(const ::std::string&, ::std::function<::Ice::ValuePtr (const ::std::string&)>);
+    void addValueFactory(const ::std::string&, ::std::function<::Ice::ValuePtr (::std::string)>);
 #else
     void addValueFactory(const ::std::string&, const ::Ice::ValueFactoryPtr&);
 #endif
