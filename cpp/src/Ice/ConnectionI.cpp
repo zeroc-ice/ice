@@ -943,13 +943,13 @@ Ice::ConnectionI::setCloseCallback(const Ice::CloseCallbackPtr& callback)
             {
             public:
 #ifdef ICE_CPP11_MAPPING
+                CallbackWorkItem(const ConnectionIPtr& connection, ICE_CLOSE_CALLBACK callback) :
+                    _connection(connection),
+                    _callback(move(callback))
+#else
                 CallbackWorkItem(const ConnectionIPtr& connection, const ICE_CLOSE_CALLBACK& callback) :
                     _connection(connection),
                     _callback(callback)
-#else
-                CallbackWorkItem(const ConnectionIPtr& connection, ICE_CLOSE_CALLBACK callback) :
-                    _connection(move(connection)),
-                    _callback(move(callback))
 #endif
                 {
                 }
@@ -967,7 +967,7 @@ Ice::ConnectionI::setCloseCallback(const Ice::CloseCallbackPtr& callback)
 #ifdef ICE_CPP11_MAPPING
             _threadPool->dispatch(new CallbackWorkItem(shared_from_this(), move(callback)));
 #else
-            _threadPool->dispatch(new CallbackWorkItem(shared_from_this(), callback);
+            _threadPool->dispatch(new CallbackWorkItem(shared_from_this(), callback));
 #endif
         }
     }
