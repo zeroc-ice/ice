@@ -134,12 +134,19 @@ public:
             VariantMap props;
             extractProperties(values[1], props);
 
+#ifdef ICE_CPP11_MAPPING
+            vector<function<void (const string&, const PropertyMap&)>> callbacks;
+#else
             vector<DiscoveryCallbackPtr> callbacks;
+#endif
 
             {
                 IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
-
+#ifdef ICE_CPP11_MAPPING
+                auto p = _discoveryCallbacks.find(msg->getPath());
+#else
                 map<string, vector<DiscoveryCallbackPtr> >::iterator p = _discoveryCallbacks.find(msg->getPath());
+#endif
                 if(p != _discoveryCallbacks.end())
                 {
                     callbacks = p->second;
@@ -153,6 +160,18 @@ public:
                 {
                     pm[p->first] = p->second->toString();
                 }
+#ifdef ICE_CPP11_MAPPING
+                for(const auto& discovered : callbacks)
+                {
+                    try
+                    {
+                        discovered(addr->v, pm);
+                    }
+                    catch(...)
+                    {
+                    }
+                }
+#else
                 for(vector<DiscoveryCallbackPtr>::iterator p = callbacks.begin(); p != callbacks.end(); ++p)
                 {
                     try
@@ -163,6 +182,7 @@ public:
                     {
                     }
                 }
+#endif
             }
 
             return true;
@@ -189,7 +209,11 @@ public:
                 {
                     IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
 
+#ifdef ICE_CPP11_MAPPING
+                    auto p = _discoveryCallbacks.find(msg->getPath());
+#else
                     map<string, vector<DiscoveryCallbackPtr> >::iterator p = _discoveryCallbacks.find(msg->getPath());
+#endif
                     if(p != _discoveryCallbacks.end())
                     {
                         _discoveryCallbacks.erase(p);
@@ -319,7 +343,11 @@ public:
         }
     }
 
+#ifdef ICE_CPP11_MAPPING
+    void startDiscovery(const string& addr, function<void (const string&, const PropertyMap&)> cb)
+#else
     void startDiscovery(const string& addr, const DiscoveryCallbackPtr& cb)
+#endif
     {
         string path;
         if(addr.empty())
@@ -339,12 +367,21 @@ public:
         {
             IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
 
+#ifdef ICE_CPP11_MAPPING
+            auto p = _discoveryCallbacks.find(path);
+            if(p == _discoveryCallbacks.end())
+            {
+                _discoveryCallbacks[path] = vector<function<void (const string&, const PropertyMap&)>>();
+            }
+            _discoveryCallbacks[path].push_back(move(cb));
+#else
             map<string, vector<DiscoveryCallbackPtr> >::iterator p = _discoveryCallbacks.find(path);
             if(p == _discoveryCallbacks.end())
             {
                 _discoveryCallbacks[path] = vector<DiscoveryCallbackPtr>();
             }
             _discoveryCallbacks[path].push_back(cb);
+#endif
         }
 
         try
@@ -891,7 +928,11 @@ public:
     bool _destroyed;
     DBus::ConnectionPtr _dbusConnection;
     vector<IceUtil::ThreadPtr> _threads;
+#ifdef ICE_CPP11_MAPPING
+    map<string, vector<function<void (const string&, const PropertyMap&)>>> _discoveryCallbacks;
+#else
     map<string, vector<DiscoveryCallbackPtr> > _discoveryCallbacks;
+#endif
 };
 
 }
@@ -954,7 +995,11 @@ IceBT::Engine::removeService(const string& address, unsigned int handle)
 }
 
 void
+#ifdef ICE_CPP11_MAPPING
+IceBT::Engine::startDiscovery(const string& address, function<void (const string&, const PropertyMap&)> cb)
+#else
 IceBT::Engine::startDiscovery(const string& address, const DiscoveryCallbackPtr& cb)
+#endif
 {
     _service->startDiscovery(address, cb);
 }

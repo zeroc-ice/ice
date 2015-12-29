@@ -61,7 +61,11 @@ public:
     //
     void removeService(const std::string&, unsigned int);
 
+#ifdef ICE_CPP11_MAPPING
+    void startDiscovery(const std::string&, std::function<void (const std::string&, const PropertyMap&)>);
+#else
     void startDiscovery(const std::string&, const DiscoveryCallbackPtr&);
+#endif
     void stopDiscovery(const std::string&);
 
     void destroy();

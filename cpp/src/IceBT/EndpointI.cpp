@@ -29,7 +29,9 @@ using namespace std;
 using namespace Ice;
 using namespace IceBT;
 
+#ifndef ICE_CPP11_MAPPING
 IceUtil::Shared* IceBT::upCast(EndpointI* p) { return p; }
+#endif
 
 namespace
 {
@@ -125,11 +127,11 @@ IceBT::EndpointI::timeout(Int timeout) const
 {
     if(timeout == _timeout)
     {
-        return const_cast<EndpointI*>(this);
+        return shared_from_this();
     }
     else
     {
-        return new EndpointI(_instance, _addr, _uuid, _name, _channel, timeout, _connectionId, _compress);
+        return ICE_MAKE_SHARED(EndpointI, _instance, _addr, _uuid, _name, _channel, timeout, _connectionId, _compress);
     }
 }
 
@@ -144,11 +146,11 @@ IceBT::EndpointI::connectionId(const string& connectionId) const
 {
     if(connectionId == _connectionId)
     {
-        return const_cast<EndpointI*>(this);
+        return shared_from_this();
     }
     else
     {
-        return new EndpointI(_instance, _addr, _uuid, _name, _channel, _timeout, connectionId, _compress);
+        return ICE_MAKE_SHARED(EndpointI, _instance, _addr, _uuid, _name, _channel, _timeout, connectionId, _compress);
     }
 }
 
@@ -163,11 +165,11 @@ IceBT::EndpointI::compress(bool compress) const
 {
     if(compress == _compress)
     {
-        return const_cast<EndpointI*>(this);
+        return shared_from_this();
     }
     else
     {
-        return new EndpointI(_instance, _addr, _uuid, _name, _channel, _timeout, _connectionId, compress);
+        return ICE_MAKE_SHARED(EndpointI, _instance, _addr, _uuid, _name, _channel, _timeout, _connectionId, compress);
     }
 }
 
@@ -204,7 +206,7 @@ IceBT::EndpointI::connectors_async(EndpointSelectionType selType, const IceInter
             ostr << "searching for service " << _uuid << " at " << _addr;
             _instance->logger()->trace(_instance->traceCategory(), ostr.str());
         }
-        _instance->engine()->findService(_addr, _uuid, new FindCallbackI(const_cast<EndpointI*>(this), selType));
+        _instance->engine()->findService(_addr, _uuid, new FindCallbackI(shared_from_this(), selType));
     }
 
     const_cast<vector<IceInternal::EndpointI_connectorsPtr>&>(_callbacks).push_back(cb);
@@ -213,7 +215,7 @@ IceBT::EndpointI::connectors_async(EndpointSelectionType selType, const IceInter
 IceInternal::AcceptorPtr
 IceBT::EndpointI::acceptor(const string& adapterName) const
 {
-    return new AcceptorI(const_cast<EndpointI*>(this), _instance, adapterName, _addr, _uuid, _name, _channel);
+    return new AcceptorI(shared_from_this(), _instance, adapterName, _addr, _uuid, _name, _channel);
 }
 
 vector<IceInternal::EndpointIPtr>
@@ -223,7 +225,7 @@ IceBT::EndpointI::expand() const
     // Nothing to do here.
     //
     vector<IceInternal::EndpointIPtr> endps;
-    endps.push_back(const_cast<EndpointI*>(this));
+    endps.push_back(shared_from_this());
     return endps;
 }
 
@@ -239,7 +241,11 @@ IceBT::EndpointI::equivalent(const IceInternal::EndpointIPtr& endpoint) const
 }
 
 bool
+#ifdef ICE_CPP11_MAPPING
+IceBT::EndpointI::operator==(const Ice::Endpoint& r) const
+#else
 IceBT::EndpointI::operator==(const Ice::LocalObject& r) const
+#endif
 {
     const EndpointI* p = dynamic_cast<const EndpointI*>(&r);
     if(!p)
@@ -286,7 +292,11 @@ IceBT::EndpointI::operator==(const Ice::LocalObject& r) const
 }
 
 bool
+#ifdef ICE_CPP11_MAPPING
+IceBT::EndpointI::operator<(const Ice::Endpoint& r) const
+#else
 IceBT::EndpointI::operator<(const Ice::LocalObject& r) const
+#endif
 {
     const EndpointI* p = dynamic_cast<const EndpointI*>(&r);
     if(!p)
@@ -443,7 +453,7 @@ IceBT::EndpointI::options() const
 Ice::EndpointInfoPtr
 IceBT::EndpointI::getInfo() const
 {
-    EndpointInfoPtr info = new EndpointInfoI(const_cast<EndpointI*>(this));
+    EndpointInfoPtr info = ICE_MAKE_SHARED(EndpointInfoI, shared_from_this());
     info->addr = _addr;
     info->uuid = _uuid;
     return info;
@@ -516,8 +526,8 @@ IceBT::EndpointI::initWithOptions(vector<string>& args, bool oaEndpoint)
 IceBT::EndpointIPtr
 IceBT::EndpointI::endpoint(const AcceptorIPtr& acceptor) const
 {
-    return new EndpointI(_instance, _addr, _uuid, _name, acceptor->effectiveChannel(), _timeout, _connectionId,
-                         _compress);
+    return ICE_MAKE_SHARED(EndpointI, _instance, _addr, _uuid, _name, acceptor->effectiveChannel(), _timeout, _connectionId,
+                           _compress);
 }
 
 void
@@ -729,7 +739,7 @@ IceBT::EndpointFactoryI::protocol() const
 IceInternal::EndpointIPtr
 IceBT::EndpointFactoryI::create(vector<string>& args, bool oaEndpoint) const
 {
-    EndpointIPtr endpt = new EndpointI(_instance);
+    EndpointIPtr endpt = ICE_MAKE_SHARED(EndpointI, _instance);
     endpt->initWithOptions(args, oaEndpoint);
     return endpt;
 }
@@ -737,7 +747,7 @@ IceBT::EndpointFactoryI::create(vector<string>& args, bool oaEndpoint) const
 IceInternal::EndpointIPtr
 IceBT::EndpointFactoryI::read(IceInternal::BasicStream* s) const
 {
-    return new EndpointI(_instance, s);
+    return ICE_MAKE_SHARED(EndpointI, _instance, s);
 }
 
 void

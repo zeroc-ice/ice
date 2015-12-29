@@ -18,6 +18,7 @@ ifeq ($(CPP11_MAPPING),yes)
 		  Ice \
 		  IceSSL \
 		  IceDiscovery \
+		  IceBT \
 		  Glacier2Lib \
 		  IceStormLib \
 		  IceGridLib \

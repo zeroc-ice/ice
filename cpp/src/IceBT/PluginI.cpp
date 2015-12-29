@@ -81,7 +81,11 @@ IceBT::PluginI::destroy()
 }
 
 void
+#ifdef ICE_CPP11_MAPPING
+IceBT::PluginI::startDiscovery(const string& address, function<void (const string&, const PropertyMap&)> cb)
+#else
 IceBT::PluginI::startDiscovery(const string& address, const DiscoveryCallbackPtr& cb)
+#endif
 {
     _engine->startDiscovery(address, cb);
 }

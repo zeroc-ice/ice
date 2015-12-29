@@ -83,7 +83,7 @@ IceBT::TransceiverI::toDetailedString() const
 Ice::ConnectionInfoPtr
 IceBT::TransceiverI::getInfo() const
 {
-    IceBT::ConnectionInfoPtr info = new IceBT::ConnectionInfo();
+    IceBT::ConnectionInfoPtr info = ICE_MAKE_SHARED(IceBT::ConnectionInfo);
     fdToAddressAndChannel(_stream->fd(), info->localAddress, info->localChannel, info->remoteAddress,
                           info->remoteChannel);
     info->uuid = _uuid;
