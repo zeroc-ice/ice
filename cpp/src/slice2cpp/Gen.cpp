@@ -5769,17 +5769,10 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             H << sp << nl << "virtual void __write(::IceInternal::BasicStream*) const;";
             H << nl << "virtual void __read(::IceInternal::BasicStream*);";
 
-            if(_stream)
-            {
-                H << nl << "virtual void __write(const ::Ice::OutputStreamPtr&) const;";
-                H << nl << "virtual void __read(const ::Ice::InputStreamPtr&);";
-            }
-            else
-            {
-                string baseName = base ? fixKwd(base->scoped()) : string("::Ice::UserException");
-                H << nl << "using " << baseName << "::__write;";
-                H << nl << "using " << baseName << "::__read;";
-            }
+
+            string baseName = base ? fixKwd(base->scoped()) : string("::Ice::UserException");
+            H << nl << "using " << baseName << "::__write;";
+            H << nl << "using " << baseName << "::__read;";
         }
 
         H.dec();
@@ -5789,22 +5782,14 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         H << nl << "virtual void __writeImpl(::IceInternal::BasicStream*) const;";
         H << nl << "virtual void __readImpl(::IceInternal::BasicStream*);";
 
-        if(_stream)
-        {
-            H << nl << "virtual void __writeImpl(const ::Ice::OutputStreamPtr&) const;";
-            H << nl << "virtual void __readImpl(const ::Ice::InputStreamPtr&);";
-        }
-        else
-        {
-            string baseName = base ? fixKwd(base->scoped()) : string("::Ice::UserException");
-            H << nl << "using " << baseName << "::__writeImpl;";
-            H << nl << "using " << baseName << "::__readImpl;";
-        }
+        string baseName = base ? fixKwd(base->scoped()) : string("::Ice::UserException");
+        H << nl << "using " << baseName << "::__writeImpl;";
+        H << nl << "using " << baseName << "::__readImpl;";
 
         if(preserved && !basePreserved)
         {
 
-            H << sp << nl << "::Ice::SlicedDataPtr __slicedData;";
+            H << sp << nl << "::std::shared_ptr<::Ice::SlicedData> __slicedData;";
 
             C << sp << nl << "void" << nl << scoped.substr(2) << "::__write(::IceInternal::BasicStream* __os) const";
             C << sb;
@@ -5842,50 +5827,6 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             emitUpcall(base, "::__readImpl(__is);");
         }
         C << eb;
-
-        if(_stream)
-        {
-            if(preserved && !basePreserved)
-            {
-                C << sp << nl << "void" << nl << scoped.substr(2) << "::__write(const ::Ice::OutputStreamPtr& __os) const";
-                C << sb;
-                C << nl << "__os->startException(__slicedData);";
-                C << nl << "__writeImpl(__os);";
-                C << nl << "__os->endException();";
-                C << eb;
-
-                C << sp << nl << "void" << nl << scoped.substr(2) << "::__read(const ::Ice::InputStreamPtr& __is)";
-                C << sb;
-                C << nl << "__is->startException();";
-                C << nl << "__readImpl(__is);";
-                C << nl << "__slicedData = __is->endException(true);";
-                C << eb;
-            }
-
-            C << sp << nl << "void" << nl << scoped.substr(2)
-              << "::__writeImpl(const ::Ice::OutputStreamPtr& __os) const";
-            C << sb;
-            C << nl << "__os->startSlice(\"" << p->scoped() << "\", -1, " << (!base ? "true" : "false") << ");";
-            writeMarshalUnmarshalDataMembers(C, p->dataMembers(), p->orderedOptionalDataMembers(), true);
-            C << nl << "__os->endSlice();";
-            if(base)
-            {
-                emitUpcall(base, "::__writeImpl(__os);");
-            }
-            C << eb;
-
-            C << sp << nl << "void" << nl << scoped.substr(2)
-              << "::__readImpl(const ::Ice::InputStreamPtr& __is)";
-            C << sb;
-            C << nl << "__is->startSlice();";
-            writeMarshalUnmarshalDataMembers(C, p->dataMembers(), p->orderedOptionalDataMembers(), false);
-            C << nl << "__is->endSlice();";
-            if(base)
-            {
-                emitUpcall(base, "::__readImpl(__is);");
-            }
-            C << eb;
-        }
     }
     H << eb << ';';
 
@@ -6269,12 +6210,12 @@ Slice::Gen::Cpp11ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     H << nl << "return ::std::dynamic_pointer_cast<" << prx << ">(::Ice::ObjectPrx::ice_preferSecure(__preferSecure));";
     H << eb;
 
-    H << nl << "::std::shared_ptr<" << prx << "> ice_router(const ::Ice::RouterPrxPtr& __router) const";
+    H << nl << "::std::shared_ptr<" << prx << "> ice_router(const ::std::shared_ptr<::Ice::RouterPrx>& __router) const";
     H << sb;
     H << nl << "return ::std::dynamic_pointer_cast<" << prx << ">(::Ice::ObjectPrx::ice_router(__router));";
     H << eb;
 
-    H << nl << "::std::shared_ptr<" << prx << "> ice_locator(const ::Ice::LocatorPrxPtr& __locator) const";
+    H << nl << "::std::shared_ptr<" << prx << "> ice_locator(const ::std::shared_ptr<::Ice::LocatorPrx>& __locator) const";
     H << sb;
     H << nl << "return ::std::dynamic_pointer_cast<" << prx << ">(::Ice::ObjectPrx::ice_locator(__locator));";
     H << eb;
@@ -7149,7 +7090,7 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     if(p->name() != "PointerType")
     {
-        H << nl << "typedef " << p->name() << "Ptr PointerType;";
+        H << nl << "typedef ::std::shared_ptr<" << name << "> PointerType;";
     }
 
     vector<string> params;
@@ -8075,7 +8016,7 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     if(p->name() != "PointerType")
     {
-        H << nl << "typedef " << p->name() << "Ptr PointerType;";
+        H << nl << "typedef ::std::shared_ptr<" << name << "> PointerType;";
     }
 
     vector<string> params;
@@ -8111,7 +8052,7 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     emitOneShotConstructor(p);
     H << sp;
-    H << nl << "virtual ::Ice::ValuePtr ice_clone() const;";
+    H << nl << "virtual ::std::shared_ptr<::Ice::Value> ice_clone() const;";
     H << sp;
     H << nl << "const ::std::string& ice_id() const;";
     H << sp;
@@ -8193,7 +8134,7 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
     C << eb;
 
     C << sp;
-    C << nl << "::Ice::ValuePtr";
+    C << nl << "::std::shared_ptr<::Ice::Value>";
     C << nl << scoped.substr(2) << "::ice_clone() const";
     C << sb;
     C << nl << "return ::std::make_shared<" << scoped << ">(*this);";
@@ -8269,7 +8210,7 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
             H.inc();
             inProtected = true;
         }
-        H << sp << nl << "::Ice::SlicedDataPtr __slicedData;";
+        H << sp << nl << "::std::shared_ptr<::Ice::SlicedData> __slicedData;";
     }
 
     H << eb << ';';
@@ -8397,7 +8338,14 @@ Slice::Gen::Cpp11ObjectVisitor::emitOneShotConstructor(const ClassDefPtr& p)
                 H << ',' << nl;
             }
             string memberName = fixKwd((*q)->name());
-            H << memberName << '(' << "__ice_" << (*q)->name() << ')';
+            if(isMovable((*q)->type()))
+            {
+                H << memberName << "(::std::move(" << "__ice_" << (*q)->name() << "))";
+            }
+            else
+            {
+                H << memberName << '(' << "__ice_" << (*q)->name() << ')';
+            }
         }
 
         H.dec();
