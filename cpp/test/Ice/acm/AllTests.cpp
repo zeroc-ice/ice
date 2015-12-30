@@ -199,15 +199,16 @@ public:
         try
         {
 #ifdef ICE_CPP11_MAPPING
-            auto self(shared_from_this());
-            proxy->ice_getConnection()->setCloseCallback([this, self](Ice::ConnectionPtr connection)
-            {
-                closed(move(connection));
-            });
-            proxy->ice_getConnection()->setHeartbeatCallback([this, self](Ice::ConnectionPtr connection)
-            {
-                heartbeat(move(connection));
-            });
+            proxy->ice_getConnection()->setCloseCallback
+                ([self = shared_from_this()](Ice::ConnectionPtr connection)
+                {
+                    self->closed(move(connection));
+                });
+            proxy->ice_getConnection()->setHeartbeatCallback(
+                [self = shared_from_this()](Ice::ConnectionPtr connection)
+                {
+                    self->heartbeat(move(connection));
+                });
 #else
             proxy->ice_getConnection()->setCloseCallback(ICE_SHARED_FROM_THIS);
             proxy->ice_getConnection()->setHeartbeatCallback(ICE_SHARED_FROM_THIS);

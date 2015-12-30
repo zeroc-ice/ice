@@ -28,11 +28,17 @@ template<typename T> class EnableSharedFromThis : public virtual VirtualEnableSh
 
 public:
 
-   std::shared_ptr<T> shared_from_this() const
-   {
-      return std::dynamic_pointer_cast<T>(
-          std::const_pointer_cast<VirtualEnableSharedFromThisBase>(VirtualEnableSharedFromThisBase::shared_from_this()));
-   }
+    std::shared_ptr<T> shared_from_this() const
+    {
+        return std::dynamic_pointer_cast<T>(
+            std::const_pointer_cast<VirtualEnableSharedFromThisBase>(VirtualEnableSharedFromThisBase::shared_from_this()));
+    }
+   
+    std::weak_ptr<T> weak_from_this() const
+    {
+        std::weak_ptr<T> self = shared_from_this();
+        return self;
+    }
 };
 
 #   define ICE_SHARED Ice::VirtualEnableSharedFromThisBase
@@ -43,10 +49,10 @@ template<typename T> class EnableSharedFromThis : virtual public IceUtil::Shared
 {
 public:
 
-   T* shared_from_this() const
-   {
+    T* shared_from_this() const
+    {
         return static_cast<T*>(const_cast<EnableSharedFromThis<T>*>(this));
-   }
+    }
 };
 
 #   define ICE_SHARED IceUtil::Shared

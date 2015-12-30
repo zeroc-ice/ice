@@ -300,11 +300,7 @@ IceBox::ServiceManagerI::addObserver(ICE_IN(ServiceObserverPrxPtr) observer, con
         if(activeServices.size() > 0)
         {
 #ifdef ICE_CPP11_MAPPING
-            observer->servicesStarted_async(activeServices, nullptr,
-                [this, observer](exception_ptr ex)
-                {
-                    this->observerCompleted(observer, ex);
-                });
+            observer->servicesStarted_async(activeServices, nullptr, makeObserverCompletedCallback(observer));
 #else
             observer->begin_servicesStarted(activeServices, _observerCompletedCB);
 #endif
@@ -914,6 +910,18 @@ IceBox::ServiceManagerI::stopAll()
 
 #ifdef ICE_CPP11_MAPPING
 
+function<void (exception_ptr)>
+IceBox::ServiceManagerI::makeObserverCompletedCallback(const shared_ptr<ServiceObserverPrx>& observer)
+{
+    return [self = weak_from_this(), observer](exception_ptr ex)
+        {
+            auto s = self.lock();
+            if(s)
+            {
+                s->observerCompleted(observer, ex);
+            }
+        };
+}
 void
 IceBox::ServiceManagerI::servicesStarted(const vector<string>& services, const set<shared_ptr<ServiceObserverPrx>>& observers)
 {
@@ -921,13 +929,7 @@ IceBox::ServiceManagerI::servicesStarted(const vector<string>& services, const s
     {
         for(auto p : observers)
         {
-            p->servicesStarted_async(
-                services,
-                nullptr,
-                [this, p](exception_ptr ex)
-                {
-                    this->observerCompleted(p, ex);
-                });
+            p->servicesStarted_async(services, nullptr, makeObserverCompletedCallback(p));
         }
     }
 }
@@ -939,13 +941,7 @@ IceBox::ServiceManagerI::servicesStopped(const vector<string>& services, const s
     {
         for(auto p : observers)
         {
-            p->servicesStopped_async(
-                services,
-                nullptr,
-                [this, p](exception_ptr ex)
-                {
-                    this->observerCompleted(p, ex);
-                });
+            p->servicesStopped_async(services, nullptr, makeObserverCompletedCallback(p));
         }
     }
 }

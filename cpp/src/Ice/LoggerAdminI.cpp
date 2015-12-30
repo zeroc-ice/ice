@@ -27,7 +27,7 @@ namespace
 
 const char* traceCategory = "Admin.Logger";
 
-class LoggerAdminI : public Ice::LoggerAdmin
+class LoggerAdminI : public Ice::LoggerAdmin, public Ice::EnableSharedFromThis<LoggerAdminI>
 {
 public:
 
@@ -416,15 +416,15 @@ LoggerAdminI::attachRemoteLogger(const RemoteLoggerPrx& prx,
     try
     {
         remoteLogger->init_async(logger->getPrefix(), initLogMessages,
-            [this, logger, remoteLogger]()
+            [self =  shared_from_this(), logger, remoteLogger]()
             {
-                if(this->_traceLevel > 1)
+                if(self->_traceLevel > 1)
                 {
                     Trace trace(logger, traceCategory);
                     trace << "init on `" << remoteLogger << "' completed successfully";
                 }
             },
-            [this, logger, remoteLogger](exception_ptr e)
+            [self =  shared_from_this(), logger, remoteLogger](exception_ptr e)
             {
                 try
                 {
@@ -432,7 +432,7 @@ LoggerAdminI::attachRemoteLogger(const RemoteLoggerPrx& prx,
                 }
                 catch(const Ice::LocalException& e)
                 {
-                    this->deadRemoteLogger(remoteLogger, logger, e, "init");
+                    self->deadRemoteLogger(remoteLogger, logger, e, "init");
                 }
             });
     }
@@ -854,15 +854,15 @@ LoggerAdminLoggerI::run()
 #ifdef ICE_CPP11_MAPPING
                 RemoteLoggerPrxPtr remoteLogger = *p;
                 remoteLogger->log_async(job->logMessage,
-                    [this, remoteLogger]()
+                    [self = shared_from_this(), remoteLogger]()
                     {
-                        if(this->_loggerAdmin->getTraceLevel() > 1)
+                        if(self->_loggerAdmin->getTraceLevel() > 1)
                         {
-                            Trace trace(_localLogger, traceCategory);
+                            Trace trace(self->_localLogger, traceCategory);
                             trace << "log on `" << remoteLogger << "' completed successfully";
                         }
                     },
-                    [this, remoteLogger](exception_ptr e)
+                    [self = shared_from_this(), remoteLogger](exception_ptr e)
                     {
                         try
                         {
@@ -874,7 +874,7 @@ LoggerAdminLoggerI::run()
                         }
                         catch(const LocalException& ex)
                         {
-                            this->_loggerAdmin->deadRemoteLogger(remoteLogger, _localLogger, ex, "log");
+                            self->_loggerAdmin->deadRemoteLogger(remoteLogger, self->_localLogger, ex, "log");
                         }
                     });
 #else
