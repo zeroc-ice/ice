@@ -25,7 +25,6 @@ SUBDIRS		= IceUtil \
 		  Ice \
 		  IceSSL \
 		  IceDiscovery \
-		  IceBT \
 		  Glacier2Lib \
 		  IceStormLib \
 		  IceGridLib \

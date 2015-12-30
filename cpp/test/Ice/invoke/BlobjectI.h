@@ -27,7 +27,25 @@ public:
                             const Ice::Current&);
 };
 
+#ifdef ICE_CPP11_MAPPING
+class BlobjectAsyncI : public Ice::BlobjectAsync
+{
+public:
 
+    virtual void ice_invoke_async(std::vector<Ice::Byte>, 
+                                  std::function<void (bool, const std::vector<Ice::Byte>&)>,
+                                  const Ice::Current&);
+};
+
+class BlobjectArrayAsyncI : public Ice::BlobjectArrayAsync
+{
+public:
+
+    virtual void ice_invoke_async(std::pair<const Ice::Byte*, const Ice::Byte*>,
+                                  std::function<void (bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)>,
+                                  const Ice::Current&);
+};
+#else
 class BlobjectAsyncI : public Ice::BlobjectAsync
 {
 public:
@@ -43,5 +61,6 @@ public:
     virtual void ice_invoke_async(const Ice::AMD_Object_ice_invokePtr&, 
                                   const std::pair<const Ice::Byte*, const Ice::Byte*>&, const Ice::Current&);
 };
+#endif
 
 #endif

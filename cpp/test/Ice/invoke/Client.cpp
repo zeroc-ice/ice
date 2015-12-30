@@ -20,8 +20,8 @@ run(int, char**,
     const Ice::CommunicatorPtr& communicator,
     const Ice::InitializationData&)
 {
-    Test::MyClassPrx allTests(const Ice::CommunicatorPtr&);
-    Test::MyClassPrx myClass = allTests(communicator);
+    Test::MyClassPrxPtr allTests(const Ice::CommunicatorPtr&);
+    Test::MyClassPrxPtr myClass = allTests(communicator);
 
     myClass->shutdown();
 

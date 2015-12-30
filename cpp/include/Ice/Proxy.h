@@ -219,12 +219,29 @@ public:
                const ::std::vector< ::Ice::Byte>& inParams,
                ::std::vector< ::Ice::Byte>& outParams,
                const ::Ice::Context& context = ::Ice::noExplicitContext);
+    
+    bool
+    ice_invoke(const ::std::string& operation,
+               ::Ice::OperationMode mode,
+               const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>& inParams,
+               ::std::vector< ::Ice::Byte>& outParams,
+               const ::Ice::Context& context = ::Ice::noExplicitContext);
 
     ::std::function<void ()>
     ice_invoke_async(
         const ::std::string&,
         ::Ice::OperationMode,
         const ::std::vector<::Ice::Byte>&,
+        ::std::function<void (bool, ::std::vector<::Ice::Byte>)> response,
+        ::std::function<void (::std::exception_ptr)> exception = nullptr,
+        ::std::function<void (bool)> sent = nullptr,
+        const ::Ice::Context& context = ::Ice::noExplicitContext);
+    
+    ::std::function<void ()>
+    ice_invoke_async(
+        const ::std::string&,
+        ::Ice::OperationMode,
+        const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>& inParams,
         ::std::function<void (bool, ::std::vector<::Ice::Byte>)> response,
         ::std::function<void (::std::exception_ptr)> exception = nullptr,
         ::std::function<void (bool)> sent = nullptr,

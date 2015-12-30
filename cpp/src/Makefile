@@ -18,11 +18,15 @@ ifeq ($(CPP11_MAPPING),yes)
 		  Ice \
 		  IceSSL \
 		  IceDiscovery \
-		  IceBT \
 		  Glacier2Lib \
 		  IceStormLib \
 		  IceGridLib \
 		  IceBox
+
+ifneq ($(findstring Ubuntu,$(shell uname -a)),)
+    SUBDIRS	:= $(SUBDIRS) IceXML IceBT
+endif
+
 else
 
 ifneq ($(findstring MINGW,$(UNAME)),)
@@ -85,6 +89,8 @@ slice2cpp slice2cs slice2java slice2js slice2php slice2html slice2objc: Slice
 Ice: slice2cpp
 
 IceXML IceSSL IceBox Glacier2Lib IcePatch2Lib IceStormLib IceGridLib IceBT: Ice
+
+IceBT: IceXML
 
 Glacier2 IceGridLib Glacier2CryptPermissionsVerifier: Glacier2Lib
 

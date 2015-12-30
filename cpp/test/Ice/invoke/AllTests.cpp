@@ -13,9 +13,11 @@
 #include <Test.h>
 
 using namespace std;
+using namespace Ice;
 
 static string testString = "This is a test string";
 
+#ifndef ICE_CPP11_MAPPING
 class Cookie : public Ice::LocalObject
 {
 public:
@@ -281,36 +283,34 @@ private:
     bool _useCookie;
 };
 typedef IceUtil::Handle<Callback> CallbackPtr;
+#endif
 
-Test::MyClassPrx
+Test::MyClassPrxPtr
 allTests(const Ice::CommunicatorPtr& communicator)
 {
     string ref = "test:" + getTestEndpoint(communicator, 0);
-    Ice::ObjectPrx base = communicator->stringToProxy(ref);
+    Ice::ObjectPrxPtr base = communicator->stringToProxy(ref);
     test(base);
 
-    Test::MyClassPrx cl = Test::MyClassPrx::checkedCast(base);
+    Test::MyClassPrxPtr cl = ICE_CHECKED_CAST(Test::MyClassPrx, base);
     test(cl);
 
-    Test::MyClassPrx oneway = cl->ice_oneway();
-    Test::MyClassPrx batchOneway = cl->ice_batchOneway();
-
-    void (Callback::*nullEx)(const Ice::Exception&) = 0;
-    void (Callback::*nullExWC)(const Ice::Exception&, const CookiePtr&) = 0;
+    Test::MyClassPrxPtr oneway = cl->ice_oneway();
+    Test::MyClassPrxPtr batchOneway = cl->ice_batchOneway();
 
     cout << "testing ice_invoke... " << flush;
 
     {
         Ice::ByteSeq inEncaps, outEncaps;
-        if(!oneway->ice_invoke("opOneway", Ice::Normal, inEncaps, outEncaps))
+        if(!oneway->ice_invoke("opOneway", ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps))
         {
             test(false);
         }
 
-        test(batchOneway->ice_invoke("opOneway", Ice::Normal, inEncaps, outEncaps));
-        test(batchOneway->ice_invoke("opOneway", Ice::Normal, inEncaps, outEncaps));
-        test(batchOneway->ice_invoke("opOneway", Ice::Normal, inEncaps, outEncaps));
-        test(batchOneway->ice_invoke("opOneway", Ice::Normal, inEncaps, outEncaps));
+        test(batchOneway->ice_invoke("opOneway", ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps));
+        test(batchOneway->ice_invoke("opOneway", ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps));
+        test(batchOneway->ice_invoke("opOneway", ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps));
+        test(batchOneway->ice_invoke("opOneway", ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps));
         batchOneway->ice_flushBatchRequests();
 
         Ice::OutputStreamPtr out = Ice::createOutputStream(communicator);
@@ -320,7 +320,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         out->finished(inEncaps);
 
         // ice_invoke
-        if(cl->ice_invoke("opString", Ice::Normal, inEncaps, outEncaps))
+        if(cl->ice_invoke("opString", ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps))
         {
             Ice::InputStreamPtr in = Ice::createInputStream(communicator, outEncaps);
             in->startEncapsulation();
@@ -338,7 +338,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         // ice_invoke with array mapping
         pair<const ::Ice::Byte*, const ::Ice::Byte*> inPair(&inEncaps[0], &inEncaps[0] + inEncaps.size());
-        if(cl->ice_invoke("opString", Ice::Normal, inPair, outEncaps))
+        if(cl->ice_invoke("opString", ICE_ENUM(OperationMode, Normal), inPair, outEncaps))
         {
             Ice::InputStreamPtr in = Ice::createInputStream(communicator, outEncaps);
             in->startEncapsulation();
@@ -357,7 +357,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
         Ice::ByteSeq inEncaps, outEncaps;
-        if(cl->ice_invoke("opException", Ice::Normal, inEncaps, outEncaps))
+        if(cl->ice_invoke("opException", ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps))
         {
             test(false);
         }
@@ -383,12 +383,132 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "ok" << endl;
 
     cout << "testing asynchronous ice_invoke... " << flush;
+#ifdef ICE_CPP11_MAPPING
+    
+    {
+        promise<bool> completed;
+        Ice::ByteSeq inEncaps, outEncaps;
+        oneway->ice_invoke_async(
+            "opOneway", 
+            OperationMode::Normal, 
+            inEncaps,
+            nullptr,
+            [&](exception_ptr ex)
+            {
+                completed.set_exception(ex);
+            },
+            [&](bool)
+            {
+                completed.set_value(true);
+            });
+
+        test(completed.get_future().get());
+    }
+    
+    {
+        promise<bool> completed;
+        Ice::ByteSeq inEncaps, outEncaps;
+        Ice::OutputStreamPtr out = Ice::createOutputStream(communicator);
+        out->startEncapsulation();
+        out->write(testString);
+        out->endEncapsulation();
+        out->finished(inEncaps);
+        
+        cl->ice_invoke_async("opString", OperationMode::Normal, inEncaps,
+            [&](bool ok, vector<Ice::Byte> outParams)
+            {
+                outEncaps = move(outParams);
+                completed.set_value(ok);
+            },
+            [&](exception_ptr ex)
+            {
+                completed.set_exception(ex);
+            });
+        test(completed.get_future().get());
+        
+        Ice::InputStreamPtr in = Ice::createInputStream(communicator, outEncaps);
+        in->startEncapsulation();
+        string s;
+        in->read(s);
+        test(s == testString);
+        in->read(s);
+        test(s == testString);
+        in->endEncapsulation();
+    }
+    
+    {
+        promise<bool> completed;
+        Ice::ByteSeq inEncaps, outEncaps;
+        Ice::OutputStreamPtr out = Ice::createOutputStream(communicator);
+        out->startEncapsulation();
+        out->write(testString);
+        out->endEncapsulation();
+        out->finished(inEncaps);
+
+        pair<const ::Ice::Byte*, const ::Ice::Byte*> inPair(&inEncaps[0], &inEncaps[0] + inEncaps.size());
+        
+        cl->ice_invoke_async("opString", OperationMode::Normal, inPair,
+            [&](bool ok, vector<Ice::Byte> outParams)
+            {
+                outEncaps = move(outParams);
+                completed.set_value(ok);
+            },
+            [&](exception_ptr ex)
+            {
+                completed.set_exception(ex);
+            });
+        test(completed.get_future().get());
+        
+        Ice::InputStreamPtr in = Ice::createInputStream(communicator, outEncaps);
+        in->startEncapsulation();
+        string s;
+        in->read(s);
+        test(s == testString);
+        in->read(s);
+        test(s == testString);
+        in->endEncapsulation();
+    }
+    
+    {
+        promise<bool> completed;
+        Ice::ByteSeq inEncaps, outEncaps;
+
+        cl->ice_invoke_async("opException", OperationMode::Normal, inEncaps,
+            [&](bool ok, vector<Ice::Byte> outParams)
+            {
+                outEncaps = move(outParams);
+                completed.set_value(ok);
+            },
+            [&](exception_ptr ex)
+            {
+                completed.set_exception(ex);
+            });
+        test(!completed.get_future().get());
+
+        Ice::InputStreamPtr in = Ice::createInputStream(communicator, outEncaps);
+        in->startEncapsulation();
+        try
+        {
+            in->throwException();
+            test(false);
+        }
+        catch(const Test::MyException&)
+        {
+        }
+        catch(...)
+        {
+            test(false);
+        }
+    }
+#else
+    void (Callback::*nullEx)(const Ice::Exception&) = 0;
+    void (Callback::*nullExWC)(const Ice::Exception&, const CookiePtr&) = 0;
 
     {
         CookiePtr cookie = new Cookie();
 
         Ice::ByteSeq inEncaps, outEncaps;
-        Ice::AsyncResultPtr result = oneway->begin_ice_invoke("opOneway", Ice::Normal, inEncaps);
+        Ice::AsyncResultPtr result = oneway->begin_ice_invoke("opOneway", ICE_ENUM(OperationMode, Normal), inEncaps);
         if(!oneway->end_ice_invoke(outEncaps, result))
         {
             test(false);
@@ -401,7 +521,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         out->finished(inEncaps);
 
         // begin_ice_invoke with no callback
-        result = cl->begin_ice_invoke("opString", Ice::Normal, inEncaps);
+        result = cl->begin_ice_invoke("opString", ICE_ENUM(OperationMode, Normal), inEncaps);
         if(cl->end_ice_invoke(outEncaps, result))
         {
             Ice::InputStreamPtr in = Ice::createInputStream(communicator, outEncaps);
@@ -420,7 +540,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         // begin_ice_invoke with no callback and array mapping
         pair<const ::Ice::Byte*, const ::Ice::Byte*> inPair(&inEncaps[0], &inEncaps[0] + inEncaps.size());
-        result = cl->begin_ice_invoke("opString", Ice::Normal, inPair);
+        result = cl->begin_ice_invoke("opString", ICE_ENUM(OperationMode, Normal), inPair);
         if(cl->end_ice_invoke(outEncaps, result))
         {
             Ice::InputStreamPtr in = Ice::createInputStream(communicator, outEncaps);
@@ -439,36 +559,36 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         // begin_ice_invoke with Callback
         CallbackPtr cb = new Callback(communicator, false);
-        cl->begin_ice_invoke("opString", Ice::Normal, inEncaps, Ice::newCallback(cb, &Callback::opString));
+        cl->begin_ice_invoke("opString", ICE_ENUM(OperationMode, Normal), inEncaps, Ice::newCallback(cb, &Callback::opString));
         cb->check();
 
         // begin_ice_invoke with Callback and Cookie
         cb = new Callback(communicator, true);
-        cl->begin_ice_invoke("opString", Ice::Normal, inEncaps, Ice::newCallback(cb, &Callback::opString), cookie);
+        cl->begin_ice_invoke("opString", ICE_ENUM(OperationMode, Normal), inEncaps, Ice::newCallback(cb, &Callback::opString), cookie);
         cb->check();
 
         // begin_ice_invoke with Callback_Object_ice_invoke 
         cb = new Callback(communicator, false);
         Ice::Callback_Object_ice_invokePtr d = Ice::newCallback_Object_ice_invoke(cb, &Callback::opStringNC, nullEx);
-        cl->begin_ice_invoke("opString", Ice::Normal, inEncaps, d);
+        cl->begin_ice_invoke("opString", ICE_ENUM(OperationMode, Normal), inEncaps, d);
         cb->check();
 
         // begin_ice_invoke with Callback_Object_ice_invoke with Cookie
         cb = new Callback(communicator, false);
         d = Ice::newCallback_Object_ice_invoke(cb, &Callback::opStringWC, nullExWC);
-        cl->begin_ice_invoke("opString", Ice::Normal, inEncaps, d, cookie);
+        cl->begin_ice_invoke("opString", ICE_ENUM(OperationMode, Normal), inEncaps, d, cookie);
         cb->check();
 
         // begin_ice_invoke with Callback_Object_ice_invoke and array mapping
         cb = new Callback(communicator, false);
         d = Ice::newCallback_Object_ice_invoke(cb, &Callback::opStringNC, nullEx);
-        cl->begin_ice_invoke("opString", Ice::Normal, inPair, d);
+        cl->begin_ice_invoke("opString", ICE_ENUM(OperationMode, Normal), inPair, d);
         cb->check();
 
         // begin_ice_invoke with Callback_Object_ice_invoke and array mapping with Cookie
         cb = new Callback(communicator, false);
         d = Ice::newCallback_Object_ice_invoke(cb, &Callback::opStringWC, nullExWC);
-        cl->begin_ice_invoke("opString", Ice::Normal, inPair, d, cookie);
+        cl->begin_ice_invoke("opString", ICE_ENUM(OperationMode, Normal), inPair, d, cookie);
         cb->check();
     }
 
@@ -477,7 +597,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         Ice::ByteSeq inEncaps, outEncaps;
 
         // begin_ice_invoke with no callback
-        Ice::AsyncResultPtr result = cl->begin_ice_invoke("opException", Ice::Normal, inEncaps);
+        Ice::AsyncResultPtr result = cl->begin_ice_invoke("opException", ICE_ENUM(OperationMode, Normal), inEncaps);
         if(cl->end_ice_invoke(outEncaps, result))
         {
             test(false);
@@ -502,28 +622,28 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         // begin_ice_invoke with Callback
         CallbackPtr cb = new Callback(communicator, false);
-        cl->begin_ice_invoke("opException", Ice::Normal, inEncaps, Ice::newCallback(cb, &Callback::opException));
+        cl->begin_ice_invoke("opException", ICE_ENUM(OperationMode, Normal), inEncaps, Ice::newCallback(cb, &Callback::opException));
         cb->check();
 
         // begin_ice_invoke with Callback and Cookie
         cb = new Callback(communicator, true);
-        cl->begin_ice_invoke("opException", Ice::Normal, inEncaps, Ice::newCallback(cb, &Callback::opException),
+        cl->begin_ice_invoke("opException", ICE_ENUM(OperationMode, Normal), inEncaps, Ice::newCallback(cb, &Callback::opException),
                              cookie);
         cb->check();
 
         // begin_ice_invoke with Callback_Object_ice_invoke
         cb = new Callback(communicator, false);
         Ice::Callback_Object_ice_invokePtr d = Ice::newCallback_Object_ice_invoke(cb, &Callback::opExceptionNC, nullEx);
-        cl->begin_ice_invoke("opException", Ice::Normal, inEncaps, d);
+        cl->begin_ice_invoke("opException", ICE_ENUM(OperationMode, Normal), inEncaps, d);
         cb->check();
 
         // begin_ice_invoke with Callback_Object_ice_invoke with Cookie
         cb = new Callback(communicator, false);
         d = Ice::newCallback_Object_ice_invoke(cb, &Callback::opExceptionWC, nullExWC);
-        cl->begin_ice_invoke("opException", Ice::Normal, inEncaps, d, cookie);
+        cl->begin_ice_invoke("opException", ICE_ENUM(OperationMode, Normal), inEncaps, d, cookie);
         cb->check();
     }
-
+#endif
     cout << "ok" << endl;
     return cl;
 }

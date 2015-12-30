@@ -94,7 +94,39 @@ BlobjectArrayI::ice_invoke(const pair<const Ice::Byte*, const Ice::Byte*>& inEnc
     return invokeInternal(in, outEncaps, current);
 }
 
+#ifdef ICE_CPP11_MAPPING
+void
+BlobjectAsyncI::ice_invoke_async(vector<Ice::Byte> inEncaps,
+                                 function<void (bool, const vector<Ice::Byte>&)> response,
+                                 const Ice::Current& current)
+{
+    Ice::InputStreamPtr in = Ice::createInputStream(current.adapter->getCommunicator(), inEncaps);
+    vector<Ice::Byte> outEncaps;
+    bool ok = invokeInternal(in, outEncaps, current);
+    response(ok, outEncaps);
+}
 
+void
+BlobjectArrayAsyncI::ice_invoke_async(pair<const Ice::Byte*, const Ice::Byte*> inEncaps,
+                                      function<void (bool, const pair<const Ice::Byte*, const Ice::Byte*>&)> response,
+                                      const Ice::Current& current)
+{
+    Ice::InputStreamPtr in = Ice::createInputStream(current.adapter->getCommunicator(), inEncaps);
+    vector<Ice::Byte> outEncaps;
+    bool ok = invokeInternal(in, outEncaps, current);
+#if (defined(_MSC_VER) && (_MSC_VER >= 1600))
+    pair<const Ice::Byte*, const Ice::Byte*> outPair(static_cast<const Ice::Byte*>(nullptr), static_cast<const Ice::Byte*>(nullptr));
+#else
+    pair<const Ice::Byte*, const Ice::Byte*> outPair(0, 0);
+#endif
+    if(outEncaps.size() != 0)
+    {
+        outPair.first = &outEncaps[0];
+        outPair.second = &outEncaps[0] + outEncaps.size();
+    }
+    response(ok, outPair);
+}
+#else
 void
 BlobjectAsyncI::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb, const vector<Ice::Byte>& inEncaps, 
                                 const Ice::Current& current)
@@ -125,3 +157,4 @@ BlobjectArrayAsyncI::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb,
     }
     cb->ice_response(ok, outPair);
 }
+#endif

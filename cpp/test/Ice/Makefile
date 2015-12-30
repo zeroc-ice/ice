@@ -39,6 +39,7 @@ SUBDIRS		= proxy \
                   udp \
                   defaultServant \
                   defaultValue \
+                  invoke \
                   properties \
                   plugin \
                   admin \

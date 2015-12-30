@@ -183,7 +183,9 @@ class ICE_API BlobjectAsync : virtual public Object
 public:
 
 #ifdef ICE_CPP11_MAPPING
-    // TODO
+    virtual void ice_invoke_async(std::vector<Byte>, 
+                                  std::function<void (bool, const std::vector<Byte>&)>,
+                                  const Current&) = 0;
 #else
     virtual void ice_invoke_async(const AMD_Object_ice_invokePtr&, const std::vector<Byte>&, const Current&) = 0;
 #endif
@@ -195,7 +197,9 @@ class ICE_API BlobjectArrayAsync : virtual public Object
 public:
 
 #ifdef ICE_CPP11_MAPPING
-    // TODO
+    virtual void ice_invoke_async(std::pair<const Byte*, const Byte*>, 
+                                  std::function<void (bool, const std::pair<const Byte*, const Byte*>&)>,
+                                  const Current&) = 0;
 #else
     virtual void ice_invoke_async(const AMD_Object_ice_invokePtr&, const std::pair<const Byte*, const Byte*>&,
                                   const Current&) = 0;

@@ -417,28 +417,129 @@ Ice::ObjectPrx::ice_invoke(const string& operation,
                            vector<::Ice::Byte>& pOutParams,
                            const ::Ice::Context& context)
 {
-    promise<bool> p;
-    ice_invoke_async(operation, mode, inParams,
-        [&](bool ok, vector<::Ice::Byte> outParams)
+    switch(_reference->getMode())
+    {
+        case Reference::ModeTwoway:
         {
-            pOutParams = move(outParams);
-            p.set_value(ok);
-        },
-        [&](exception_ptr ex)
+            promise<bool> p;
+            ice_invoke_async(operation, mode, inParams,
+                [&](bool ok, vector<::Ice::Byte> outParams)
+                {
+                    pOutParams = move(outParams);
+                    p.set_value(ok);
+                },
+                [&](exception_ptr ex)
+                {
+                    p.set_exception(move(ex));
+                },
+                nullptr, context);
+            return p.get_future().get();
+        }
+        case Reference::ModeOneway:
+        case Reference::ModeDatagram:
         {
-            p.set_exception(move(ex));
-        },
-        nullptr, context);
-    return p.get_future().get();
+            promise<bool> p;
+            ice_invoke_async(operation, mode, inParams,
+                nullptr,
+                [&](exception_ptr ex)
+                {
+                    p.set_exception(move(ex));
+                },
+                [&](bool)
+                {
+                    p.set_value(true);
+                },
+                context);
+            return p.get_future().get();
+        }
+        default:
+        {
+            ice_invoke_async(operation, mode, inParams, nullptr, nullptr, nullptr, context);
+            return true;
+        }
+    }
+}
+
+bool
+Ice::ObjectPrx::ice_invoke(const string& operation,
+                           ::Ice::OperationMode mode,
+                           const pair<const ::Ice::Byte*, const ::Ice::Byte*>& inParams,
+                           vector<::Ice::Byte>& pOutParams,
+                           const ::Ice::Context& context)
+{
+    switch(_reference->getMode())
+    {
+        case Reference::ModeTwoway:
+        {
+            promise<bool> p;
+            ice_invoke_async(operation, mode, inParams,
+                [&](bool ok, vector<::Ice::Byte> outParams)
+                {
+                    pOutParams = move(outParams);
+                    p.set_value(ok);
+                },
+                [&](exception_ptr ex)
+                {
+                    p.set_exception(move(ex));
+                },
+                nullptr, context);
+            return p.get_future().get();
+        }
+        case Reference::ModeOneway:
+        case Reference::ModeDatagram:
+        {
+            promise<bool> p;
+            ice_invoke_async(operation, mode, inParams,
+                nullptr,
+                [&](exception_ptr ex)
+                {
+                    p.set_exception(move(ex));
+                },
+                [&](bool)
+                {
+                    p.set_value(true);
+                },
+                context);
+            return p.get_future().get();
+        }
+        default:
+        {
+            ice_invoke_async(operation, mode, inParams, nullptr, nullptr, nullptr, context);
+            return true;
+        }
+    }
 }
 
 function<void ()>
-Ice::ObjectPrx::ice_invoke_async(const string& operation, ::Ice::OperationMode mode,
-    const vector<::Ice::Byte>& inEncaps,
-    function<void (bool, vector<::Ice::Byte>)> response,
-    function<void (exception_ptr)> exception,
-    function<void (bool)> sent,
-    const ::Ice::Context& context)
+Ice::ObjectPrx::ice_invoke_async(const string& operation,
+                                 ::Ice::OperationMode mode,
+                                 const vector<::Ice::Byte>& inEncaps,
+                                 function<void (bool, vector<::Ice::Byte>)> response,
+                                 function<void (exception_ptr)> exception,
+                                 function<void (bool)> sent,
+                                 const ::Ice::Context& context)
+{
+    pair<const Byte*, const Byte*> inPair;
+    if(inEncaps.empty())
+    {
+        inPair.first = inPair.second = 0;
+    }
+    else
+    {
+        inPair.first = &inEncaps[0];
+        inPair.second = inPair.first + inEncaps.size();
+    }
+    return ice_invoke_async(operation, mode, inPair, move(response), move(exception), move(sent), context);
+}
+
+function<void ()>
+Ice::ObjectPrx::ice_invoke_async(const string& operation,
+                                 ::Ice::OperationMode mode,
+                                 const pair<const ::Ice::Byte*, const ::Ice::Byte*>& inEncaps,
+                                 function<void (bool, vector<::Ice::Byte>)> response,
+                                 function<void (exception_ptr)> exception,
+                                 function<void (bool)> sent,
+                                 const ::Ice::Context& context)
 {
     class InvokeCallback : public CallbackBase
     {
@@ -446,18 +547,26 @@ Ice::ObjectPrx::ice_invoke_async(const string& operation, ::Ice::OperationMode m
 
         InvokeCallback(function<void (bool, vector<::Ice::Byte>)> response,
                        function<void (exception_ptr)> exception,
+                       function<void (bool)> sent,
                        shared_ptr<ObjectPrx> proxy) :
             _response(move(response)),
             _exception(move(exception)),
+            _sent(move(sent)),
             _proxy(move(proxy))
         {
         }
 
-        virtual void sent(const AsyncResultPtr&) const {}
+        virtual void sent(const AsyncResultPtr& result) const
+        {
+            if(_sent)
+            {
+                _sent(result->sentSynchronously());
+            }
+        }
 
         virtual bool hasSentCallback() const
         {
-            return false;
+            return _sent != nullptr;
         }
 
 
@@ -481,7 +590,10 @@ Ice::ObjectPrx::ice_invoke_async(const string& operation, ::Ice::OperationMode m
             }
             catch(const ::Ice::Exception&)
             {
-                _exception(current_exception());
+                if(_exception)
+                {
+                    _exception(current_exception());
+                }
             }
         }
 
@@ -489,27 +601,15 @@ Ice::ObjectPrx::ice_invoke_async(const string& operation, ::Ice::OperationMode m
 
         function<void (bool, vector<::Ice::Byte>)> _response;
         function<void (exception_ptr)> _exception;
+        function<void (bool)> _sent;
         shared_ptr<ObjectPrx> _proxy;
     };
-
     auto result = make_shared<OutgoingAsync>(shared_from_this(), ice_invoke_name,
-        make_shared<InvokeCallback>(move(response), move(exception), shared_from_this()));
+        make_shared<InvokeCallback>(move(response), move(exception), move(sent), shared_from_this()));
     try
     {
         result->prepare(operation, mode, context);
-
-        pair<const Byte*, const Byte*> inPair;
-        if(inEncaps.empty())
-        {
-            inPair.first = inPair.second = 0;
-        }
-        else
-        {
-            inPair.first = &inEncaps[0];
-            inPair.second = inPair.first + inEncaps.size();
-        }
-
-        result->writeParamEncaps(&inEncaps[0], static_cast<Int>(inPair.second - inPair.first));
+        result->writeParamEncaps(inEncaps.first, static_cast<Int>(inEncaps.second - inEncaps.first));
         result->invoke();
     }
     catch(const Exception& ex)

@@ -403,13 +403,49 @@ Ice::BlobjectArray::__dispatch(Incoming& in, const Current& current)
 DispatchStatus
 Ice::BlobjectAsync::__dispatch(Incoming& in, const Current& current)
 {
-#ifdef ICE_CPP11_MAPPING
-    // TODO
-    return DispatchAsync;
-#else
     const Byte* inEncaps;
     Int sz;
     in.readParamEncaps(inEncaps, sz);
+#ifdef ICE_CPP11_MAPPING
+    auto async = IncomingAsync::create(in);
+    try
+    {
+        ice_invoke_async(vector<Byte>(inEncaps, inEncaps + sz), 
+            [async](bool ok, const vector<Byte>& outEncaps)
+            {
+                if(async->__validateResponse(ok))
+                {
+                    try
+                    {
+                        if(outEncaps.empty())
+                        {
+                            async->__writeParamEncaps(0, 0, ok);
+                        }
+                        else
+                        {
+                            async->__writeParamEncaps(&outEncaps[0], static_cast< ::Ice::Int>(outEncaps.size()), ok);
+                        }
+                    }
+                    catch(const LocalException& ex)
+                    {
+                        async->__exception(ex);
+                        return;
+                    }
+                    async->__response();
+                }
+            },
+            current);
+    }
+    catch(const ::std::exception& ex)
+    {
+        async->ice_exception(ex);
+    }
+    catch(...)
+    {
+        async->ice_exception();
+    }
+#else
+
     AMD_Object_ice_invokePtr cb = new ::IceAsync::Ice::AMD_Object_ice_invoke(in);
     try
     {
@@ -423,21 +459,49 @@ Ice::BlobjectAsync::__dispatch(Incoming& in, const Current& current)
     {
         cb->ice_exception();
     }
-    return DispatchAsync;
 #endif
+    return DispatchAsync;
 }
 
 DispatchStatus
 Ice::BlobjectArrayAsync::__dispatch(Incoming& in, const Current& current)
 {
-#ifdef ICE_CPP11_MAPPING
-    // TODO
-    return DispatchAsync;
-#else
     pair<const Byte*, const Byte*> inEncaps;
     Int sz;
     in.readParamEncaps(inEncaps.first, sz);
     inEncaps.second = inEncaps.first + sz;
+#ifdef ICE_CPP11_MAPPING
+    auto async = IncomingAsync::create(in);
+    try
+    {
+        ice_invoke_async(inEncaps, 
+            [async](bool ok, const pair<const Byte*, const Byte*>& outEncaps)
+            {
+                if(async->__validateResponse(ok))
+                {
+                    try
+                    {
+                        async->__writeParamEncaps(outEncaps.first, static_cast<Int>(outEncaps.second - outEncaps.first), ok);
+                    }
+                    catch(const LocalException& ex)
+                    {
+                        async->__exception(ex);
+                        return;
+                    }
+                    async->__response();
+                }
+            },
+            current);
+    }
+    catch(const ::std::exception& ex)
+    {
+        async->ice_exception(ex);
+    }
+    catch(...)
+    {
+        async->ice_exception();
+    }
+#else
     AMD_Object_ice_invokePtr cb = new ::IceAsync::Ice::AMD_Object_ice_invoke(in);
     try
     {
@@ -451,8 +515,8 @@ Ice::BlobjectArrayAsync::__dispatch(Incoming& in, const Current& current)
     {
         cb->ice_exception();
     }
-    return DispatchAsync;
 #endif
+    return DispatchAsync;
 }
 
 void
