@@ -790,8 +790,7 @@ SessionHelperI::connected(const Glacier2::RouterPrxPtr& router, const Glacier2::
                 assert(connection);
                 connection->setACM(acmTimeout, IceUtil::None, Ice::HeartbeatAlways);
 #ifdef ICE_CPP11_MAPPING
-                auto self(shared_from_this());
-                connection->setCloseCallback([self](Ice::ConnectionPtr)
+                connection->setCloseCallback([self = shared_from_this()](Ice::ConnectionPtr)
                 {
                     self->destroy();
                 });

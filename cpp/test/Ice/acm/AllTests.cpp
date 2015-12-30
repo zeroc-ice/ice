@@ -199,8 +199,8 @@ public:
         try
         {
 #ifdef ICE_CPP11_MAPPING
-            proxy->ice_getConnection()->setCloseCallback
-                ([self = shared_from_this()](Ice::ConnectionPtr connection)
+            proxy->ice_getConnection()->setCloseCallback(
+                [self = shared_from_this()](Ice::ConnectionPtr connection)
                 {
                     self->closed(move(connection));
                 });
