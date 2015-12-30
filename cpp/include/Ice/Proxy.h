@@ -242,7 +242,7 @@ public:
         const ::std::string&,
         ::Ice::OperationMode,
         const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>& inParams,
-        ::std::function<void (bool, ::std::vector<::Ice::Byte>)> response,
+        ::std::function<void (bool, ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>)> response,
         ::std::function<void (::std::exception_ptr)> exception = nullptr,
         ::std::function<void (bool)> sent = nullptr,
         const ::Ice::Context& context = ::Ice::noExplicitContext);
@@ -315,7 +315,8 @@ public:
     ::std::function<void ()>
     ice_getConnection_async(
         ::std::function<void (::std::shared_ptr<::Ice::Connection>)> response,
-        ::std::function<void (::std::exception_ptr)> exception = nullptr);
+        ::std::function<void (::std::exception_ptr)> exception = nullptr,
+        ::std::function<void (bool)> sent = nullptr);
 
 
     template<template<typename> class P = std::promise>

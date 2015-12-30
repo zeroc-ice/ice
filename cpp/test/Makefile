@@ -15,7 +15,8 @@ ifeq ($(CPP11_MAPPING),yes)
 SUBDIRS		= Common \
 		  IceUtil \
 		  Slice \
-		  Ice
+		  Ice \
+		  IceDiscovery
 else
 
 SUBDIRS		= Common \

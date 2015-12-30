@@ -247,7 +247,8 @@ Ice::ObjectPrx::ice_ids_async(function<void (vector<string>)> response,
 function<void ()>
 Ice::ObjectPrx::ice_getConnection_async(
     function<void (shared_ptr<::Ice::Connection>)> response,
-    function<void (exception_ptr)> exception)
+    function<void (exception_ptr)> exception,
+    function<void (bool)> sent)
 {
 
     class ConnectionCallback : public CallbackBase
@@ -256,18 +257,26 @@ Ice::ObjectPrx::ice_getConnection_async(
 
         ConnectionCallback(function<void (shared_ptr<::Ice::Connection>)> response,
                            function<void (exception_ptr)> exception,
+                           function<void (bool)> sent,
                            shared_ptr<ObjectPrx> proxy) :
             _response(move(response)),
             _exception(move(exception)),
+            _sent(move(sent)),
             _proxy(move(proxy))
         {
         }
 
-        virtual void sent(const AsyncResultPtr&) const {}
+        virtual void sent(const AsyncResultPtr& result) const
+        {
+            if(_sent)
+            {
+                _sent(result->sentSynchronously());
+            }
+        }
 
         virtual bool hasSentCallback() const
         {
-            return false;
+            return _sent != nullptr;
         }
 
 
@@ -296,12 +305,13 @@ Ice::ObjectPrx::ice_getConnection_async(
 
         function<void (shared_ptr<::Ice::Connection>)> _response;
         function<void (exception_ptr)> _exception;
+        function<void (bool)> _sent;
         shared_ptr<ObjectPrx> _proxy;
     };
 
 
     auto result = make_shared<ProxyGetConnection>(shared_from_this(), ice_getConnection_name,
-        make_shared<ConnectionCallback>(move(response), move(exception), shared_from_this()));
+        make_shared<ConnectionCallback>(move(response), move(exception), move(sent), shared_from_this()));
     try
     {
         result->invoke();
@@ -414,7 +424,7 @@ bool
 Ice::ObjectPrx::ice_invoke(const string& operation,
                            ::Ice::OperationMode mode,
                            const vector<::Ice::Byte>& inParams,
-                           vector<::Ice::Byte>& pOutParams,
+                           vector<::Ice::Byte>& outParams,
                            const ::Ice::Context& context)
 {
     switch(_reference->getMode())
@@ -423,9 +433,9 @@ Ice::ObjectPrx::ice_invoke(const string& operation,
         {
             promise<bool> p;
             ice_invoke_async(operation, mode, inParams,
-                [&](bool ok, vector<::Ice::Byte> outParams)
+                [&](bool ok, vector<::Ice::Byte> outEncaps)
                 {
-                    pOutParams = move(outParams);
+                    outParams = move(outEncaps);
                     p.set_value(ok);
                 },
                 [&](exception_ptr ex)
@@ -464,7 +474,7 @@ bool
 Ice::ObjectPrx::ice_invoke(const string& operation,
                            ::Ice::OperationMode mode,
                            const pair<const ::Ice::Byte*, const ::Ice::Byte*>& inParams,
-                           vector<::Ice::Byte>& pOutParams,
+                           vector<::Ice::Byte>& outParams,
                            const ::Ice::Context& context)
 {
     switch(_reference->getMode())
@@ -473,9 +483,9 @@ Ice::ObjectPrx::ice_invoke(const string& operation,
         {
             promise<bool> p;
             ice_invoke_async(operation, mode, inParams,
-                [&](bool ok, vector<::Ice::Byte> outParams)
+                [&](bool ok, pair<const ::Ice::Byte*, const ::Ice::Byte*> outEncaps)
                 {
-                    pOutParams = move(outParams);
+                    vector<Byte>(outEncaps.first, outEncaps.second).swap(outParams);
                     p.set_value(ok);
                 },
                 [&](exception_ptr ex)
@@ -529,18 +539,7 @@ Ice::ObjectPrx::ice_invoke_async(const string& operation,
         inPair.first = &inEncaps[0];
         inPair.second = inPair.first + inEncaps.size();
     }
-    return ice_invoke_async(operation, mode, inPair, move(response), move(exception), move(sent), context);
-}
 
-function<void ()>
-Ice::ObjectPrx::ice_invoke_async(const string& operation,
-                                 ::Ice::OperationMode mode,
-                                 const pair<const ::Ice::Byte*, const ::Ice::Byte*>& inEncaps,
-                                 function<void (bool, vector<::Ice::Byte>)> response,
-                                 function<void (exception_ptr)> exception,
-                                 function<void (bool)> sent,
-                                 const ::Ice::Context& context)
-{
     class InvokeCallback : public CallbackBase
     {
     public:
@@ -568,7 +567,6 @@ Ice::ObjectPrx::ice_invoke_async(const string& operation,
         {
             return _sent != nullptr;
         }
-
 
         virtual void
         completed(const ::Ice::AsyncResultPtr& result) const
@@ -600,6 +598,97 @@ Ice::ObjectPrx::ice_invoke_async(const string& operation,
     private:
 
         function<void (bool, vector<::Ice::Byte>)> _response;
+        function<void (exception_ptr)> _exception;
+        function<void (bool)> _sent;
+        shared_ptr<ObjectPrx> _proxy;
+    };
+    auto result = make_shared<OutgoingAsync>(shared_from_this(), ice_invoke_name,
+        make_shared<InvokeCallback>(move(response), move(exception), move(sent), shared_from_this()));
+    try
+    {
+        result->prepare(operation, mode, context);
+        result->writeParamEncaps(inPair.first, inEncaps.size());
+        result->invoke();
+    }
+    catch(const Exception& ex)
+    {
+        result->abort(ex);
+    }
+
+    return [result]()
+        {
+            result->cancel();
+        };
+}
+
+function<void ()>
+Ice::ObjectPrx::ice_invoke_async(const string& operation,
+                                 ::Ice::OperationMode mode,
+                                 const pair<const Byte*, const Byte*>& inEncaps,
+                                 function<void (bool, pair<const Byte*, const Byte*>)> response,
+                                 function<void (exception_ptr)> exception,
+                                 function<void (bool)> sent,
+                                 const ::Ice::Context& context)
+{
+    class InvokeCallback : public CallbackBase
+    {
+    public:
+
+        InvokeCallback(function<void (bool, pair<const Byte*, const Byte*>)> response,
+                       function<void (exception_ptr)> exception,
+                       function<void (bool)> sent,
+                       shared_ptr<ObjectPrx> proxy) :
+            _response(move(response)),
+            _exception(move(exception)),
+            _sent(move(sent)),
+            _proxy(move(proxy))
+        {
+        }
+
+        virtual void sent(const AsyncResultPtr& result) const
+        {
+            if(_sent)
+            {
+                _sent(result->sentSynchronously());
+            }
+        }
+
+        virtual bool hasSentCallback() const
+        {
+            return _sent != nullptr;
+        }
+
+        virtual void
+        completed(const ::Ice::AsyncResultPtr& result) const
+        {
+            try
+            {
+                AsyncResult::__check(result, _proxy.get(), ice_invoke_name);
+                bool ok = result->__wait();
+                if(_proxy->_reference->getMode() == Reference::ModeTwoway)
+                {
+                    pair<const Byte*, const Byte*> v;
+                    Int sz;
+                    result->__readParamEncaps(v.first, sz);
+                    v.second = v.first + sz;
+                    if(_response)
+                    {
+                        _response(ok, move(v));
+                    }
+                }
+            }
+            catch(const ::Ice::Exception&)
+            {
+                if(_exception)
+                {
+                    _exception(current_exception());
+                }
+            }
+        }
+
+    private:
+
+        function<void (bool, pair<const Byte*, const Byte*>)> _response;
         function<void (exception_ptr)> _exception;
         function<void (bool)> _sent;
         shared_ptr<ObjectPrx> _proxy;

@@ -19,7 +19,8 @@ SUBDIRS		= Common \
 !elseif "$(CPP11_MAPPING)" == "yes"
 SUBDIRS		= IceUtil \
 		  Slice \
-		  Ice
+		  Ice \
+		  IceDiscovery
 !elseif "$(CPP_COMPILER)" == "VC100"
 SUBDIRS		= IceUtil \
 		  Slice \

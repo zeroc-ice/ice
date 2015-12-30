@@ -434,6 +434,24 @@ Ice::BlobjectAsync::__dispatch(Incoming& in, const Current& current)
                     async->__response();
                 }
             },
+            [async](exception_ptr e)
+            {
+                if(e)
+                {
+                    try
+                    {
+                        rethrow_exception(e);
+                    }
+                    catch(const exception& ex)
+                    {
+                        async->ice_exception(ex);
+                    }
+                }
+                else
+                {
+                    async->ice_exception();
+                }
+            },
             current);
     }
     catch(const ::std::exception& ex)
@@ -489,6 +507,24 @@ Ice::BlobjectArrayAsync::__dispatch(Incoming& in, const Current& current)
                         return;
                     }
                     async->__response();
+                }
+            },
+            [async](exception_ptr e)
+            {
+                if(e)
+                {
+                    try
+                    {
+                        rethrow_exception(e);
+                    }
+                    catch(const exception& ex)
+                    {
+                        async->ice_exception(ex);
+                    }
+                }
+                else
+                {
+                    async->ice_exception();
                 }
             },
             current);

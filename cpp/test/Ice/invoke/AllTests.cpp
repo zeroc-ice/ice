@@ -448,9 +448,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
         pair<const ::Ice::Byte*, const ::Ice::Byte*> inPair(&inEncaps[0], &inEncaps[0] + inEncaps.size());
         
         cl->ice_invoke_async("opString", OperationMode::Normal, inPair,
-            [&](bool ok, vector<Ice::Byte> outParams)
+            [&](bool ok, pair<const Ice::Byte*, const Ice::Byte*> outParams)
             {
-                outEncaps = move(outParams);
+                vector<Ice::Byte>(outParams.first, outParams.second).swap(outEncaps);
                 completed.set_value(ok);
             },
             [&](exception_ptr ex)
