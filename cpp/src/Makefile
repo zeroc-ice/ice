@@ -21,7 +21,8 @@ ifeq ($(CPP11_MAPPING),yes)
 		  Glacier2Lib \
 		  IceStormLib \
 		  IceGridLib \
-		  IceBox
+		  IceBox \
+		  IceLocatorDiscovery
 
 ifneq ($(findstring Ubuntu,$(shell uname -a)),)
     SUBDIRS	:= $(SUBDIRS) IceXML IceBT

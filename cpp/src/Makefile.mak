@@ -28,7 +28,8 @@ SUBDIRS		= IceUtil \
 		  Glacier2Lib \
 		  IceStormLib \
 		  IceGridLib \
-		  IceBox
+		  IceBox \
+		  IceLocatorDiscovery
 !elseif "$(CPP_COMPILER)" == "VC100"
 SUBDIRS		= IceUtil \
 		  Slice \
