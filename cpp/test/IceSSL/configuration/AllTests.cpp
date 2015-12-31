@@ -17,6 +17,12 @@
 #  include <sys/sysctl.h>
 #endif
 
+#ifdef ICE_CPP11_MAPPING
+#   define ICE_TARGET_EQUALS(A,B) Ice::targetEquals(A, B)
+#else
+#   define ICE_TARGET_EQUALS(A,B) A == B
+#endif
+
 using namespace std;
 using namespace Ice;
 
@@ -115,17 +121,17 @@ public:
             }
             CertDeleteCertificateFromStore(cert);
         }
-	_certs.clear();
+        _certs.clear();
         for(vector<HCERTSTORE>::const_iterator i = _stores.begin(); i != _stores.end(); ++i)
         {
             CertCloseStore(*i, 0);
         }
-	_stores.clear();
-	if(_store)
-	{
-	    CertCloseStore(_store, 0);
-	    _store = 0;
-	}
+        _stores.clear();
+        if(_store)
+        {
+            CertCloseStore(_store, 0);
+            _store = 0;
+        }
     }
 
 private:
@@ -175,7 +181,7 @@ private:
     string _password;
     int _count;
 };
-typedef IceUtil::Handle<PasswordPromptI> PasswordPromptIPtr;
+ICE_DEFINE_PTR(PasswordPromptIPtr, PasswordPromptI);
 
 class CertificateVerifierI : public IceSSL::CertificateVerifier
 {
@@ -272,7 +278,7 @@ private:
     bool _invoked;
     bool _hadCert;
 };
-typedef IceUtil::Handle<CertificateVerifierI> CertificateVerifierIPtr;
+ICE_DEFINE_PTR(CertificateVerifierIPtr, CertificateVerifierI);
 
 int keychainN = 0;
 
@@ -429,9 +435,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
 #endif
 
     string factoryRef = "factory:tcp -p 12010";
-    ObjectPrx base = communicator->stringToProxy(factoryRef);
+    ObjectPrxPtr base = communicator->stringToProxy(factoryRef);
     test(base);
-    Test::ServerFactoryPrx factory = Test::ServerFactoryPrx::checkedCast(base);
+    Test::ServerFactoryPrxPtr factory = ICE_CHECKED_CAST(Test::ServerFactoryPrx, base);
 
     string defaultHost = communicator->getProperties()->getProperty("Ice.Default.Host");
     string defaultDir = testDir + "/../certs";
@@ -450,7 +456,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12);
         initData.properties->setProperty("Ice.InitPlugins", "0");
         CommunicatorPtr comm = initialize(initData);
-        ObjectPrx p = comm->stringToProxy("dummy:ssl -p 9999");
+        ObjectPrxPtr p = comm->stringToProxy("dummy:ssl -p 9999");
         try
         {
             p->ice_ping();
@@ -484,9 +490,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         CommunicatorPtr comm = initialize(initData);
         PluginManagerPtr pm = comm->getPluginManager();
         pm->initializePlugins();
-        ObjectPrx obj = comm->stringToProxy(factoryRef);
+        ObjectPrxPtr obj = comm->stringToProxy(factoryRef);
         test(obj);
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(obj);
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, obj);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12);
 #  ifdef ICE_USE_OPENSSL
         d["IceSSL.Ciphers"] = "ADH";
@@ -494,7 +500,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         d["IceSSL.Ciphers"] = "DH_anon_WITH_AES_256_CBC_SHA";
 #  endif
         d["IceSSL.VerifyPeer"] = "0";
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->ice_ping();
@@ -519,16 +525,16 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "", "");
         initData.properties->setProperty("IceSSL.VerifyPeer", "0");
         CommunicatorPtr comm = initialize(initData);
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
 
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "");
         d["IceSSL.VerifyPeer"] = "0";
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->noCert();
-            test(!IceSSL::ConnectionInfoPtr::dynamicCast(server->ice_getConnection()->getInfo())->verified);
+            test(!ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo())->verified);
         }
         catch(const LocalException& ex)
         {
@@ -544,7 +550,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         //
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "", "cacert1");
         comm = initialize(initData);
-        fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
 
         d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "");
@@ -553,7 +559,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         try
         {
             server->noCert();
-            test(IceSSL::ConnectionInfoPtr::dynamicCast(server->ice_getConnection()->getInfo())->verified);
+            test(ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo())->verified);
         }
         catch(const LocalException&)
         {
@@ -613,7 +619,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         //
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_ca1", "cacert1");
         comm = initialize(initData);
-        fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
 
         d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
@@ -631,13 +637,13 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             // Validate some aspects of the Certificate class.
             //
             IceSSL::CertificatePtr serverCert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_pub.pem");
-            test(IceSSL::Certificate::decode(serverCert->encode()) == serverCert);
-            test(serverCert == serverCert);
+            test(ICE_TARGET_EQUALS(IceSSL::Certificate::decode(serverCert->encode()), serverCert));
+            test(ICE_TARGET_EQUALS(serverCert, serverCert));
             test(serverCert->checkValidity());
             test(!serverCert->checkValidity(IceUtil::Time::seconds(0)));
 
             IceSSL::CertificatePtr caCert = IceSSL::Certificate::load(defaultDir + "/cacert1.pem");
-            test(caCert == caCert);
+            test(ICE_TARGET_EQUALS(caCert, caCert));
             test(caCert->checkValidity());
             test(!caCert->checkValidity(IceUtil::Time::seconds(0)));
 
@@ -645,15 +651,15 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             test(serverCert->verify(caCert));
             test(caCert->verify(caCert));
 
-            info = IceSSL::NativeConnectionInfoPtr::dynamicCast(server->ice_getConnection()->getInfo());
+            info = ICE_DYNAMIC_CAST(IceSSL::NativeConnectionInfo, server->ice_getConnection()->getInfo());
             test(info->nativeCerts.size() == 2);
             test(info->verified);
 
-            test(caCert == info->nativeCerts[1]);
-            test(serverCert == info->nativeCerts[0]);
+            test(ICE_TARGET_EQUALS(caCert, info->nativeCerts[1]));
+            test(ICE_TARGET_EQUALS(serverCert, info->nativeCerts[0]));
 
-            test(serverCert != info->nativeCerts[1]);
-            test(caCert != info->nativeCerts[0]);
+            test(!ICE_TARGET_EQUALS(serverCert, info->nativeCerts[1]));
+            test(!ICE_TARGET_EQUALS(caCert, info->nativeCerts[0]));
 
             test(info->nativeCerts[0]->checkValidity() && info->nativeCerts[1]->checkValidity());
             test(!info->nativeCerts[0]->checkValidity(IceUtil::Time::seconds(0)) &&
@@ -696,7 +702,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "", "");
         initData.properties->setProperty("IceSSL.VerifyPeer", "1");
         comm = initialize(initData);
-        fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
         d["IceSSL.VerifyPeer"] = "0";
@@ -725,7 +731,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_ca2", "");
         initData.properties->setProperty("IceSSL.VerifyPeer", "0");
         comm = initialize(initData);
-        fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "");
         d["IceSSL.VerifyPeer"] = "1";
@@ -752,7 +758,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         //
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "", "cacert2");
         comm = initialize(initData);
-        fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "cacert2", "");
         d["IceSSL.VerifyPeer"] = "0";
@@ -774,7 +780,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         //
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "", "");
         comm = initialize(initData);
-        fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "cacert2", "");
         d["IceSSL.VerifyPeer"] = "0";
@@ -800,7 +806,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         //
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_ca1", "cacert1");
         comm = initialize(initData);
-        fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
         d["IceSSL.CheckCertName"] = "1";
@@ -830,7 +836,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             initData.properties->setProperty("IceSSL.CheckCertName", "1");
             comm = initialize(initData);
 
-            fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+            fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
             test(fact);
             d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
             server = fact->createServer(d);
@@ -852,7 +858,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             initData.properties->setProperty("IceSSL.CheckCertName", "1");
             comm = initialize(initData);
 
-            fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+            fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
             test(fact);
             d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1_cn1", "cacert1");
             server = fact->createServer(d);
@@ -875,7 +881,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             initData.properties->setProperty("IceSSL.CheckCertName", "1");
             comm = initialize(initData);
 
-            fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+            fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
             test(fact);
             d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1_cn2", "cacert1");
             server = fact->createServer(d);
@@ -904,7 +910,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties->setProperty("IceSSL.VerifyPeer", "0");
         CommunicatorPtr comm = initialize(initData);
 
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
 
         //
@@ -914,10 +920,10 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         //
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "");
         d["IceSSL.VerifyPeer"] = "0";
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
-            info = IceSSL::NativeConnectionInfoPtr::dynamicCast(server->ice_getConnection()->getInfo());
+            info = ICE_DYNAMIC_CAST(IceSSL::NativeConnectionInfo, server->ice_getConnection()->getInfo());
             test(info->nativeCerts.size() == 1);
             test(!info->verified);
         }
@@ -937,7 +943,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         server = fact->createServer(d);
         try
         {
-            info = IceSSL::NativeConnectionInfoPtr::dynamicCast(server->ice_getConnection()->getInfo());
+            info = ICE_DYNAMIC_CAST(IceSSL::NativeConnectionInfo, server->ice_getConnection()->getInfo());
 #ifdef ICE_USE_OPENSSL
             test(info->nativeCerts.size() == 2); // TODO: Fix OpenSSL
 #else
@@ -965,7 +971,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             server = fact->createServer(d);
             try
             {
-                info = IceSSL::NativeConnectionInfoPtr::dynamicCast(server->ice_getConnection()->getInfo());
+                info = ICE_DYNAMIC_CAST(IceSSL::NativeConnectionInfo, server->ice_getConnection()->getInfo());
 #ifdef ICE_USE_SCHANNEL
                 test(info->nativeCerts.size() == 1); // SChannel never sends the root certificate
 #else
@@ -990,16 +996,16 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties->setProperty("IceSSL.VerifyPeer", "1");
         comm = initialize(initData);
 
-        fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
 
         {
             Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "");
             d["IceSSL.VerifyPeer"] = "0";
-            Test::ServerPrx server = fact->createServer(d);
+            Test::ServerPrxPtr server = fact->createServer(d);
             try
             {
-                info = IceSSL::NativeConnectionInfoPtr::dynamicCast(server->ice_getConnection()->getInfo());
+                info = ICE_DYNAMIC_CAST(IceSSL::NativeConnectionInfo, server->ice_getConnection()->getInfo());
                 test(info->nativeCerts.size() == 2);
                 test(info->verified);
             }
@@ -1021,16 +1027,16 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties->setProperty("IceSSL.VerifyDepthMax", "2");
         comm = initialize(initData);
 
-        fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
 
         {
             Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_cai1", "");
             d["IceSSL.VerifyPeer"] = "0";
-            Test::ServerPrx server = fact->createServer(d);
+            Test::ServerPrxPtr server = fact->createServer(d);
             try
             {
-                IceSSL::NativeConnectionInfoPtr::dynamicCast(server->ice_getConnection()->getInfo());
+                ICE_DYNAMIC_CAST(IceSSL::NativeConnectionInfo, server->ice_getConnection()->getInfo());
                 import.cleanup();
                 test(false);
             }
@@ -1056,16 +1062,16 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         //initData.properties->setProperty("IceSSL.VerifyDepthMax", "3");
         comm = initialize(initData);
 
-        fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
 
         {
             Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_cai1", "");
             d["IceSSL.VerifyPeer"] = "0";
-            Test::ServerPrx server = fact->createServer(d);
+            Test::ServerPrxPtr server = fact->createServer(d);
             try
             {
-                info = IceSSL::NativeConnectionInfoPtr::dynamicCast(server->ice_getConnection()->getInfo());
+                info = ICE_DYNAMIC_CAST(IceSSL::NativeConnectionInfo, server->ice_getConnection()->getInfo());
                 test(info->nativeCerts.size() == 3);
                 test(info->verified);
             }
@@ -1080,10 +1086,10 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         {
             Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_cai2", "");
             d["IceSSL.VerifyPeer"] = "0";
-            Test::ServerPrx server = fact->createServer(d);
+            Test::ServerPrxPtr server = fact->createServer(d);
             try
             {
-                IceSSL::NativeConnectionInfoPtr::dynamicCast(server->ice_getConnection()->getInfo());
+                ICE_DYNAMIC_CAST(IceSSL::NativeConnectionInfo, server->ice_getConnection()->getInfo());
                 import.cleanup();
                 test(false);
             }
@@ -1103,16 +1109,16 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties->setProperty("IceSSL.VerifyDepthMax", "4");
         comm = initialize(initData);
 
-        fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
 
         {
             Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_cai2", "");
             d["IceSSL.VerifyPeer"] = "0";
-            Test::ServerPrx server = fact->createServer(d);
+            Test::ServerPrxPtr server = fact->createServer(d);
             try
             {
-                info = IceSSL::NativeConnectionInfoPtr::dynamicCast(server->ice_getConnection()->getInfo());
+                info = ICE_DYNAMIC_CAST(IceSSL::NativeConnectionInfo, server->ice_getConnection()->getInfo());
                 test(info->nativeCerts.size() == 4);
                 test(info->verified);
             }
@@ -1134,13 +1140,13 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties->setProperty("IceSSL.VerifyDepthMax", "4");
         comm = initialize(initData);
 
-        fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
 
         {
             Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_cai2", "cacert1");
             d["IceSSL.VerifyPeer"] = "2";
-            Test::ServerPrx server = fact->createServer(d);
+            Test::ServerPrxPtr server = fact->createServer(d);
             try
             {
                 server->ice_getConnection();
@@ -1167,7 +1173,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_cai2", "cacert1");
             d["IceSSL.VerifyPeer"] = "2";
             d["IceSSL.VerifyDepthMax"] = "4";
-            Test::ServerPrx server = fact->createServer(d);
+            Test::ServerPrxPtr server = fact->createServer(d);
             try
             {
                 server->ice_getConnection();
@@ -1203,12 +1209,12 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
 #  endif
         initData.properties->setProperty("IceSSL.VerifyPeer", "0");
         CommunicatorPtr comm = initialize(initData);
-        IceSSL::PluginPtr plugin = IceSSL::PluginPtr::dynamicCast(comm->getPluginManager()->getPlugin("IceSSL"));
+        IceSSL::PluginPtr plugin = ICE_DYNAMIC_CAST(IceSSL::Plugin, comm->getPluginManager()->getPlugin("IceSSL"));
         test(plugin);
-        CertificateVerifierIPtr verifier = new CertificateVerifierI;
+        CertificateVerifierIPtr verifier = ICE_MAKE_SHARED(CertificateVerifierI);
         plugin->setCertificateVerifier(verifier);
 
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12);
 #  ifdef ICE_USE_OPENSSL
@@ -1219,11 +1225,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         d["IceSSL.Ciphers"] = "(DH_anon*)";
 #  endif
         d["IceSSL.VerifyPeer"] = "0";
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->checkCipher(cipherSub);
-            info = IceSSL::NativeConnectionInfoPtr::dynamicCast(server->ice_getConnection()->getInfo());
+            info = ICE_DYNAMIC_CAST(IceSSL::NativeConnectionInfo, server->ice_getConnection()->getInfo());
             test(info->cipher.compare(0, cipherSub.size(), cipherSub) == 0);
         }
         catch(const LocalException&)
@@ -1268,16 +1274,16 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_ca1", "cacert1");
         initData.properties->setProperty("IceSSL.VerifyPeer", "0");
         CommunicatorPtr comm = initialize(initData);
-        IceSSL::PluginPtr plugin = IceSSL::PluginPtr::dynamicCast(comm->getPluginManager()->getPlugin("IceSSL"));
+        IceSSL::PluginPtr plugin = ICE_DYNAMIC_CAST(IceSSL::Plugin, comm->getPluginManager()->getPlugin("IceSSL"));
         test(plugin);
-        CertificateVerifierIPtr verifier = new CertificateVerifierI;
+        CertificateVerifierIPtr verifier = ICE_MAKE_SHARED(CertificateVerifierI);
         plugin->setCertificateVerifier(verifier);
 
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
         d["IceSSL.VerifyPeer"] = "2";
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->ice_ping();
@@ -1307,12 +1313,12 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties->setProperty("IceSSL.Protocols", "tls1_1");
         CommunicatorPtr comm = initialize(initData);
 
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
         d["IceSSL.VerifyPeer"] = "0";
         d["IceSSL.Protocols"] = "tls1_2";
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->ice_ping();
@@ -1337,7 +1343,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         // This should succeed.
         //
         comm = initialize(initData);
-        fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
         d["IceSSL.VerifyPeer"] = "0";
@@ -1366,11 +1372,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             initData.properties->setProperty("IceSSL.Protocols", "ssl3");
             CommunicatorPtr comm = initialize(initData);
 
-            Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+            Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
             test(fact);
             Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
             d["IceSSL.VerifyPeer"] = "0";
-            Test::ServerPrx server = fact->createServer(d);
+            Test::ServerPrxPtr server = fact->createServer(d);
             try
             {
                 server->ice_ping();
@@ -1392,9 +1398,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             comm->destroy();
         }
 
-	//
-	// SSLv3 is now disabled by default with some SSL implementations.
-	//
+        //
+        // SSLv3 is now disabled by default with some SSL implementations.
+        //
         // //
         // // This should success because both have SSLv3 enabled
         // //
@@ -1404,12 +1410,12 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         //     initData.properties->setProperty("IceSSL.Protocols", "ssl3");
         //     CommunicatorPtr comm = initialize(initData);
 
-        //     Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        //     Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         //     test(fact);
         //     Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "");
         //     d["IceSSL.VerifyPeer"] = "0";
         //     d["IceSSL.Protocols"] = "ssl3, tls, tls1_1, tls1_2";
-        //     Test::ServerPrx server = fact->createServer(d);
+        //     Test::ServerPrxPtr server = fact->createServer(d);
         //     try
         //     {
         //         server->ice_ping();
@@ -1439,14 +1445,14 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties->setProperty("IceSSL.ProtocolVersionMax", "tls1");
         initData.properties->setProperty("IceSSL.ProtocolVersionMin", "tls1");
         CommunicatorPtr comm = initialize(initData);
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12);
         d["IceSSL.Ciphers"] = "(DH_anon*)";
         d["IceSSL.VerifyPeer"] = "0";
         d["IceSSL.ProtocolVersionMax"] = "tls1_2";
         d["IceSSL.ProtocolVersionMin"] = "tls1_2";
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->ice_ping();
@@ -1471,7 +1477,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         // This should succeed.
         //
         comm = initialize(initData);
-        fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         d = createServerProps(defaultProps, defaultDir, defaultHost, p12);
         d["IceSSL.Ciphers"] = "(DH_anon*)";
@@ -1502,11 +1508,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             initData.properties->setProperty("IceSSL.ProtocolVersionMax", "ssl3");
             CommunicatorPtr comm = initialize(initData);
 
-            Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+            Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
             test(fact);
             Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
             d["IceSSL.VerifyPeer"] = "0";
-            Test::ServerPrx server = fact->createServer(d);
+            Test::ServerPrxPtr server = fact->createServer(d);
             try
             {
                 server->ice_ping();
@@ -1539,12 +1545,12 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             initData.properties->setProperty("IceSSL.ProtocolVersionMax", "ssl3");
             CommunicatorPtr comm = initialize(initData);
 
-            Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+            Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
             test(fact);
             Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
             d["IceSSL.VerifyPeer"] = "0";
             d["IceSSL.ProtocolVersionMin"] = "ssl3";
-            Test::ServerPrx server = fact->createServer(d);
+            Test::ServerPrxPtr server = fact->createServer(d);
             try
             {
                 // OS X 10.11 versions prior to 10.11.2 will throw an exception as SSLv3 is totally disabled.
@@ -1574,10 +1580,10 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_ca1", "cacert1");
         CommunicatorPtr comm = initialize(initData);
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1_exp", "cacert1");
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->ice_ping();
@@ -1605,7 +1611,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
 
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_ca1_exp", "cacert1");
         comm = initialize(initData);
-        fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
         server = fact->createServer(d);
@@ -1639,11 +1645,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_ca1", "");
         initData.properties->setProperty("IceSSL.CAs", defaultDir);
         CommunicatorPtr comm = initialize(initData);
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "");
         d["IceSSL.CAs"] = defaultDir;
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->ice_ping();
@@ -1664,11 +1670,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_ca1", "cacerts");
         CommunicatorPtr comm = initialize(initData);
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca2", "cacerts");
         d["IceSSL.VerifyPeer"] = "2";
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->ice_ping();
@@ -1689,12 +1695,12 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_ca1", "");
         initData.properties->setProperty("IceSSL.CAs", "cacert1.der");
         CommunicatorPtr comm = initialize(initData);
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "");
         d["IceSSL.VerifyPeer"] = "2";
         d["IceSSL.CAs"] = "cacert1.der";
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->ice_ping();
@@ -1728,16 +1734,16 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties->setProperty("Ice.InitPlugins", "0");
         CommunicatorPtr comm = initialize(initData);
         PluginManagerPtr pm = comm->getPluginManager();
-        IceSSL::PluginPtr plugin = IceSSL::PluginPtr::dynamicCast(pm->getPlugin("IceSSL"));
+        IceSSL::PluginPtr plugin = ICE_DYNAMIC_CAST(IceSSL::Plugin, pm->getPlugin("IceSSL"));
         test(plugin);
-        PasswordPromptIPtr prompt = new PasswordPromptI("client");
+        PasswordPromptIPtr prompt = ICE_MAKE_SHARED(PasswordPromptI, "client");
         plugin->setPasswordPrompt(prompt);
         pm->initializePlugins();
         test(prompt->count() == 1);
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->ice_ping();
@@ -1759,9 +1765,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties->setProperty("Ice.InitPlugins", "0");
         comm = initialize(initData);
         pm = comm->getPluginManager();
-        plugin = IceSSL::PluginPtr::dynamicCast(pm->getPlugin("IceSSL"));
+        plugin = ICE_DYNAMIC_CAST(IceSSL::Plugin, pm->getPlugin("IceSSL"));
         test(plugin);
-        prompt = new PasswordPromptI("invalid");
+        prompt = ICE_MAKE_SHARED(PasswordPromptI, "invalid");
         plugin->setPasswordPrompt(prompt);
         try
         {
@@ -1799,7 +1805,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties->setProperty("IceSSL.Ciphers", "(DH_anon*)");
 #  endif
         CommunicatorPtr comm = initialize(initData);
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
 #  ifdef ICE_USE_OPENSSL
@@ -1810,11 +1816,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         d["IceSSL.Ciphers"] = "(RSA_*) (DH_anon*)";
 #  endif
         d["IceSSL.VerifyPeer"] = "1";
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->checkCipher(cipherSub);
-            info = IceSSL::NativeConnectionInfoPtr::dynamicCast(server->ice_getConnection()->getInfo());
+            info = ICE_DYNAMIC_CAST(IceSSL::NativeConnectionInfo, server->ice_getConnection()->getInfo());
             test(info->cipher.compare(0, cipherSub.size(), cipherSub) == 0);
         }
         catch(const LocalException& ex)
@@ -1844,11 +1850,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
     initData.properties->setProperty("IceSSL.Ciphers", "ALL !(DH_anon*)");
 #  endif
     CommunicatorPtr comm = initialize(initData);
-    Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+    Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
     test(fact);
     Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12);
     d["IceSSL.VerifyPeer"] = "0";
-    Test::ServerPrx server = fact->createServer(d);
+    Test::ServerPrxPtr server = fact->createServer(d);
     try
     {
         server->ice_ping();
@@ -1901,13 +1907,13 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12);
         initData.properties->setProperty("IceSSL.Ciphers", "(DH_anon*)");
         CommunicatorPtr comm = initialize(initData);
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12);
         d["IceSSL.Ciphers"] = "(DH_anon*)";
         d["IceSSL.DHParams"] = "dh_params512.der";
         d["IceSSL.VerifyPeer"] = "0";
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->checkCipher("DH_anon");
@@ -1932,13 +1938,13 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12);
         initData.properties->setProperty("IceSSL.Ciphers", "(DH_anon*)");
         CommunicatorPtr comm = initialize(initData);
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12);
         d["IceSSL.Ciphers"] = "(DH_anon*)";
         d["IceSSL.DHParams"] = "dh_params1024.der";
         d["IceSSL.VerifyPeer"] = "0";
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->checkCipher("DH_anon");
@@ -1962,17 +1968,17 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties->setProperty("IceSSL.Ciphers", "3DES");
 
         CommunicatorPtr comm = initialize(initData);
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
 
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
         d["IceSSL.Ciphers"] = "3DES AES_256";
 
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->checkCipher("3DES");
-            info = IceSSL::NativeConnectionInfoPtr::dynamicCast(server->ice_getConnection()->getInfo());
+            info = ICE_DYNAMIC_CAST(IceSSL::NativeConnectionInfo, server->ice_getConnection()->getInfo());
             test(info->cipher.compare(0, 4, "3DES") == 0);
         }
         catch(const LocalException& ex)
@@ -1992,12 +1998,12 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties->setProperty("IceSSL.Ciphers", "3DES");
 
         CommunicatorPtr comm = initialize(initData);
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
 
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
         d["IceSSL.Ciphers"] = "AES_256";
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->checkCipher("3DES");
@@ -2039,12 +2045,12 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_dsa_ca1", "cacert1");
         initData.properties->setProperty("IceSSL.Ciphers", "DEFAULT:DSS");
         CommunicatorPtr comm = initialize(initData);
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_dsa_ca1", "cacert1");
         d["IceSSL.Ciphers"] = "DEFAULT:DSS";
         d["IceSSL.VerifyPeer"] = "1";
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->ice_ping();
@@ -2061,7 +2067,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         //
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_ca1", "cacert1");
         comm = initialize(initData);
-        fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "", "cacert1");
         if(p12)
@@ -2098,7 +2104,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12);
         initData.properties->setProperty("IceSSL.Ciphers", "ADH");
         comm = initialize(initData);
-        fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "", "cacert1");
         d["IceSSL.CertFile"] = "s_rsa_ca1_pub.pem" + sep + "s_dsa_ca1_pub.pem";
@@ -2133,12 +2139,12 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties->setProperty("IceSSL.Ciphers", "DSS");
 
         CommunicatorPtr comm = initialize(initData);
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
         d["IceSSL.VerifyPeer"] = "2";
 
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->ice_ping();
@@ -2172,10 +2178,10 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
                                          "OU=Ice, emailAddress=info@zeroc.com, CN=Server");
         CommunicatorPtr comm = initialize(initData);
 
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->ice_ping();
@@ -2195,10 +2201,10 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
                                          "OU=Ice, emailAddress=info@zeroc.com, CN=Server");
         CommunicatorPtr comm = initialize(initData);
 
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->ice_ping();
@@ -2217,10 +2223,10 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
                                          "OU=Ice, emailAddress=info@zeroc.com, CN=Server");
         CommunicatorPtr comm = initialize(initData);
 
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->ice_ping();
@@ -2237,11 +2243,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_ca1", "cacert1");
         CommunicatorPtr comm = initialize(initData);
 
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
         d["IceSSL.TrustOnly"] = "C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com,CN=Client";
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->ice_ping();
@@ -2258,11 +2264,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_ca1", "cacert1");
         CommunicatorPtr comm = initialize(initData);
 
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
         d["IceSSL.TrustOnly"] = "!C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Client";
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->ice_ping();
@@ -2280,10 +2286,10 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties->setProperty("IceSSL.TrustOnly", "CN=Server");
         CommunicatorPtr comm = initialize(initData);
 
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->ice_ping();
@@ -2301,10 +2307,10 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties->setProperty("IceSSL.TrustOnly", "!CN=Server");
         CommunicatorPtr comm = initialize(initData);
 
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->ice_ping();
@@ -2321,11 +2327,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_ca1", "cacert1");
         CommunicatorPtr comm = initialize(initData);
 
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
         d["IceSSL.TrustOnly"] = "CN=Client";
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->ice_ping();
@@ -2342,11 +2348,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_ca1", "cacert1");
         CommunicatorPtr comm = initialize(initData);
 
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
         d["IceSSL.TrustOnly"] = "!CN=Client";
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->ice_ping();
@@ -2364,10 +2370,10 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties->setProperty("IceSSL.TrustOnly", "CN=Client");
         CommunicatorPtr comm = initialize(initData);
 
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->ice_ping();
@@ -2384,11 +2390,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_ca1", "cacert1");
         CommunicatorPtr comm = initialize(initData);
 
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
         d["IceSSL.TrustOnly"] = "CN=Server";
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->ice_ping();
@@ -2406,10 +2412,10 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties->setProperty("IceSSL.TrustOnly", "C=Canada,CN=Server");
         CommunicatorPtr comm = initialize(initData);
 
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->ice_ping();
@@ -2427,10 +2433,10 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties->setProperty("IceSSL.TrustOnly", "!C=Canada,CN=Server");
         CommunicatorPtr comm = initialize(initData);
 
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->ice_ping();
@@ -2448,10 +2454,10 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties->setProperty("IceSSL.TrustOnly", "C=Canada;CN=Server");
         CommunicatorPtr comm = initialize(initData);
 
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->ice_ping();
@@ -2469,10 +2475,10 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties->setProperty("IceSSL.TrustOnly", "!C=Canada;!CN=Server");
         CommunicatorPtr comm = initialize(initData);
 
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->ice_ping();
@@ -2490,10 +2496,10 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties->setProperty("IceSSL.TrustOnly", "!CN=Server1"); // Should not match "Server"
         CommunicatorPtr comm = initialize(initData);
 
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->ice_ping();
@@ -2510,11 +2516,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_ca1", "cacert1");
         CommunicatorPtr comm = initialize(initData);
 
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
         d["IceSSL.TrustOnly"] = "!CN=Client1"; // Should not match "Client"
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->ice_ping();
@@ -2536,12 +2542,12 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties->setProperty("IceSSL.VerifyPeer", "0");
         CommunicatorPtr comm = initialize(initData);
 
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
         d["IceSSL.VerifyPeer"] = "0";
         d["IceSSL.TrustOnly"] = "C=US, ST=Florida, O=ZeroC\\, Inc.,OU=Ice, emailAddress=info@zeroc.com, CN=Client";
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->ice_ping();
@@ -2562,12 +2568,12 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties->setProperty("IceSSL.VerifyPeer", "0");
         CommunicatorPtr comm = initialize(initData);
 
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
         d["IceSSL.TrustOnly"] = "!C=US, ST=Florida, O=ZeroC\\, Inc.,OU=Ice, emailAddress=info@zeroc.com, CN=Client";
         d["IceSSL.VerifyPeer"] = "0";
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->ice_ping();
@@ -2588,10 +2594,10 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties->setProperty("IceSSL.TrustOnly", "ST=Florida;!CN=Server;C=US");
         CommunicatorPtr comm = initialize(initData);
 
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->ice_ping();
@@ -2611,11 +2617,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_ca1", "cacert1");
         CommunicatorPtr comm = initialize(initData);
 
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
         d["IceSSL.TrustOnly"] = "C=US;!CN=Client;ST=Florida";
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->ice_ping();
@@ -2637,14 +2643,14 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
                                          "OU=Ice, emailAddress=info@zeroc.com, CN=Server");
         CommunicatorPtr comm = initialize(initData);
 
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
         // Should have no effect.
         d["IceSSL.TrustOnly.Client"] = "C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com,"
                                        "CN=Server";
 
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->ice_ping();
@@ -2663,10 +2669,10 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
                                          "OU=Ice, emailAddress=info@zeroc.com, CN=Server");
         CommunicatorPtr comm = initialize(initData);
 
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->ice_ping();
@@ -2683,12 +2689,12 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_ca1", "cacert1");
         CommunicatorPtr comm = initialize(initData);
 
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
         // Should have no effect.
         d["IceSSL.TrustOnly.Client"] = "!CN=Client";
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->ice_ping();
@@ -2706,10 +2712,10 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties->setProperty("IceSSL.TrustOnly.Client", "CN=Client");
         CommunicatorPtr comm = initialize(initData);
 
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->ice_ping();
@@ -2727,10 +2733,10 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties->setProperty("IceSSL.TrustOnly.Client", "!CN=Client");
         CommunicatorPtr comm = initialize(initData);
 
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->ice_ping();
@@ -2753,13 +2759,13 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
                                          "emailAddress=info@zeroc.com,CN=Client");
         CommunicatorPtr comm = initialize(initData);
 
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
         d["IceSSL.TrustOnly.Server"] = "C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com,"
                                        "CN=Client";
 
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->ice_ping();
@@ -2776,12 +2782,12 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_ca1", "cacert1");
         CommunicatorPtr comm = initialize(initData);
 
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
         d["IceSSL.TrustOnly.Server"] =
             "!C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Client";
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->ice_ping();
@@ -2800,10 +2806,10 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties->setProperty("IceSSL.TrustOnly.Server", "!CN=Server");
         CommunicatorPtr comm = initialize(initData);
 
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->ice_ping();
@@ -2820,11 +2826,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_ca1", "cacert1");
         CommunicatorPtr comm = initialize(initData);
 
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
         d["IceSSL.TrustOnly.Server"] = "CN=Server";
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->ice_ping();
@@ -2841,11 +2847,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_ca1", "cacert1");
         CommunicatorPtr comm = initialize(initData);
 
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
         d["IceSSL.TrustOnly.Server"] = "!CN=Client";
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->ice_ping();
@@ -2865,13 +2871,13 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_ca1", "cacert1");
         CommunicatorPtr comm = initialize(initData);
 
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
         d["IceSSL.TrustOnly.Server.ServerAdapter"] =
             "C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com,CN=Client";
         d["IceSSL.TrustOnly.Server"] = "CN=bogus";
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->ice_ping();
@@ -2888,12 +2894,12 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_ca1", "cacert1");
         CommunicatorPtr comm = initialize(initData);
 
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
         d["IceSSL.TrustOnly.Server.ServerAdapter"] =
             "!C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Client";
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->ice_ping();
@@ -2910,11 +2916,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_ca1", "cacert1");
         CommunicatorPtr comm = initialize(initData);
 
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
         d["IceSSL.TrustOnly.Server.ServerAdapter"] = "CN=bogus";
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->ice_ping();
@@ -2931,11 +2937,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_ca1", "cacert1");
         CommunicatorPtr comm = initialize(initData);
 
-        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
         d["IceSSL.TrustOnly.Server.ServerAdapter"] = "!CN=bogus";
-        Test::ServerPrx server = fact->createServer(d);
+        Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
             server->ice_ping();
@@ -3004,7 +3010,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
 
             CommunicatorPtr comm = initialize(initData);
 
-            Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+            Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
             test(fact);
             Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
             d["IceSSL.CAs"] = "cacert1.pem";
@@ -3014,7 +3020,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             //
             d["IceSSL.TrustOnly"] = "CN=Client";
 
-            Test::ServerPrx server = fact->createServer(d);
+            Test::ServerPrxPtr server = fact->createServer(d);
             try
             {
                 server->ice_ping();
@@ -3134,7 +3140,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
 
             CommunicatorPtr comm = initialize(initData);
 
-            Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+            Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
             test(fact);
             Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12);
             d["IceSSL.CAs"] = "cacert1.pem";
@@ -3146,7 +3152,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             //
             d["IceSSL.TrustOnly"] = "CN=Client";
 
-            Test::ServerPrx server = fact->createServer(d);
+            Test::ServerPrxPtr server = fact->createServer(d);
             try
             {
                 server->ice_ping();
@@ -3193,7 +3199,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties->setProperty("IceSSL.VerifyDepthMax", "4");
         initData.properties->setProperty("Ice.Override.Timeout", "5000"); // 5s timeout
         CommunicatorPtr comm = initialize(initData);
-        Ice::ObjectPrx p = comm->stringToProxy("dummy:wss -h demo.zeroc.com -p 5064");
+        Ice::ObjectPrxPtr p = comm->stringToProxy("dummy:wss -h demo.zeroc.com -p 5064");
         try
         {
             p->ice_ping();
@@ -3219,7 +3225,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         IceSSL::WSSConnectionInfoPtr info;
         try
         {
-            info = IceSSL::WSSConnectionInfoPtr::dynamicCast(p->ice_getConnection()->getInfo());
+            info = ICE_DYNAMIC_CAST(IceSSL::WSSConnectionInfo, p->ice_getConnection()->getInfo());
             test(info->verified);
         }
         catch(const Ice::LocalException& ex)

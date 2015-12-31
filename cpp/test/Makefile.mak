@@ -20,6 +20,7 @@ SUBDIRS		= Common \
 SUBDIRS		= IceUtil \
 		  Slice \
 		  Ice \
+		  IceSSL \
 		  IceDiscovery \
 		  IceBox
 !elseif "$(CPP_COMPILER)" == "VC100"
