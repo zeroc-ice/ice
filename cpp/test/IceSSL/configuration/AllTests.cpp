@@ -658,8 +658,8 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             test(ICE_TARGET_EQUALS(caCert, info->nativeCerts[1]));
             test(ICE_TARGET_EQUALS(serverCert, info->nativeCerts[0]));
 
-            test(!ICE_TARGET_EQUALS(serverCert, info->nativeCerts[1]));
-            test(!ICE_TARGET_EQUALS(caCert, info->nativeCerts[0]));
+            test(!(ICE_TARGET_EQUALS(serverCert, info->nativeCerts[1])));
+            test(!(ICE_TARGET_EQUALS(caCert, info->nativeCerts[0])));
 
             test(info->nativeCerts[0]->checkValidity() && info->nativeCerts[1]->checkValidity());
             test(!info->nativeCerts[0]->checkValidity(IceUtil::Time::seconds(0)) &&
