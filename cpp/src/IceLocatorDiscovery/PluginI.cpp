@@ -91,7 +91,11 @@ public:
     }
 
     void invoke(const Ice::LocatorPrxPtr&);
+#ifdef ICE_CPP11_MAPPING
+    void response(const bool, pair<const Ice::Byte*, const Ice::Byte*>);
+#else
     void response(const bool, const pair<const Ice::Byte*, const Ice::Byte*>&);
+#endif
     void exception(const Ice::Exception&);
 
 protected:
@@ -126,7 +130,7 @@ public:
 
 #ifdef ICE_CPP11_MAPPING
     virtual void ice_invoke_async(pair<const Ice::Byte*, const Ice::Byte*>, 
-                                  function<void (bool, const pair<const Ice::Byte*, const Ice::Byte*>&)>,
+                                  function<void (bool, pair<const Ice::Byte*, const Ice::Byte*>)>,
                                   function<void (exception_ptr)>,
                                   const Ice::Current&);
 #else
@@ -379,7 +383,7 @@ Request::invoke(const Ice::LocatorPrxPtr& l)
                                         outPair.first = &outParams[0];
                                         outPair.second = outPair.first + outParams.size();
                                     }
-                                    self->response(ok, outPair);
+                                    self->response(ok, move(outPair));
                                 },
                                 [self = shared_from_this()](exception_ptr e)
                                 {
@@ -428,15 +432,19 @@ Request::invoke(const Ice::LocatorPrxPtr& l)
 #endif
 }
 
+#ifdef ICE_CPP11_MAPPING
+void
+Request::response(bool ok, pair<const Ice::Byte*, const Ice::Byte*> outParams)
+{
+    _responseCB(ok, move(outParams));
+}
+#else
 void
 Request::response(bool ok, const pair<const Ice::Byte*, const Ice::Byte*>& outParams)
 {
-#ifdef ICE_CPP11_MAPPING
-    _responseCB(ok, outParams);
-#else
     _amdCB->ice_response(ok, outParams);
-#endif
 }
+#endif
 
 void
 Request::exception(const Ice::Exception& ex)
@@ -551,7 +559,7 @@ LocatorI::setLookupReply(const LookupReplyPrxPtr& lookupReply)
 #ifdef ICE_CPP11_MAPPING
 void
 LocatorI::ice_invoke_async(pair<const Ice::Byte*, const Ice::Byte*> inParams,
-                           function<void (bool, const pair<const Ice::Byte*, const Ice::Byte*>&)> responseCB,
+                           function<void (bool, pair<const Ice::Byte*, const Ice::Byte*>)> responseCB,
                            function<void (exception_ptr)> exceptionCB,
                            const Ice::Current& current)
 {
