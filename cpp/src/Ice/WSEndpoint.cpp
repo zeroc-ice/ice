@@ -15,6 +15,7 @@
 #include <Ice/IPEndpointI.h>
 #include <Ice/HashUtil.h>
 #include <Ice/EndpointFactoryManager.h>
+#include <Ice/Comparable.h>
 
 using namespace std;
 using namespace Ice;
@@ -297,7 +298,7 @@ IceInternal::WSEndpoint::operator==(const Ice::LocalObject& r) const
         return true;
     }
 
-    if(_delegate != p->_delegate)
+    if(!Ice::targetEquals(_delegate, p->_delegate))
     {
         return false;
     }
@@ -333,11 +334,11 @@ IceInternal::WSEndpoint::operator<(const Ice::LocalObject& r) const
         return false;
     }
 
-    if(_delegate < p->_delegate)
+    if(Ice::targetLess(_delegate, p->_delegate))
     {
         return true;
     }
-    else if (p->_delegate < _delegate)
+    else if (Ice::targetLess(p->_delegate, _delegate))
     {
         return false;
     }
