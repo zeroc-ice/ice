@@ -288,8 +288,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
         auto f1 = p1.get_future();
         auto f2 = p2.get_future();
         
-        test(f1.wait_for(chrono::milliseconds(1)) != future_status::ready);
-        test(f2.wait_for(chrono::milliseconds(1)) != future_status::ready);
+        test(f1.wait_for(chrono::milliseconds(0)) != future_status::ready);
+        test(f2.wait_for(chrono::milliseconds(0)) != future_status::ready);
         
         backgroundController->resumeCall("findAdapterById");
         
@@ -346,8 +346,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
         auto f1 = p1.get_future();
         auto f2 = p2.get_future();
         
-        test(f1.wait_for(chrono::milliseconds(1)) != future_status::ready);
-        test(f2.wait_for(chrono::milliseconds(1)) != future_status::ready);
+        test(f1.wait_for(chrono::milliseconds(0)) != future_status::ready);
+        test(f2.wait_for(chrono::milliseconds(0)) != future_status::ready);
         
         backgroundController->resumeCall("getClientProxy");
         
@@ -492,7 +492,7 @@ connectTests(const ConfigurationPtr& configuration, const Test::BackgroundPrxPtr
                 {
                     sent.set_value(value);
                 });
-            test(sent.get_future().wait_for(chrono::milliseconds(1)) != future_status::ready);
+            test(sent.get_future().wait_for(chrono::milliseconds(0)) != future_status::ready);
             completed.get_future().get();
         }
 
@@ -513,7 +513,7 @@ connectTests(const ConfigurationPtr& configuration, const Test::BackgroundPrxPtr
                 {
                     sent.set_value(value);
                 });
-            test(sent.get_future().wait_for(chrono::milliseconds(1)) != future_status::ready);
+            test(sent.get_future().wait_for(chrono::milliseconds(0)) != future_status::ready);
             completed.get_future().get();
         }
 #else
@@ -638,7 +638,7 @@ initializeTests(const ConfigurationPtr& configuration,
             {
                 sent.set_value(value);
             });
-        test(sent.get_future().wait_for(chrono::milliseconds(1)) != future_status::ready);
+        test(sent.get_future().wait_for(chrono::milliseconds(0)) != future_status::ready);
         completed.get_future().get();
 #else
         Ice::AsyncResultPtr r = prx->begin_op();
@@ -888,7 +888,7 @@ validationTests(const ConfigurationPtr& configuration,
             {
                 sent.set_value(value);
             });
-        test(sent.get_future().wait_for(chrono::milliseconds(1)) != future_status::ready);
+        test(sent.get_future().wait_for(chrono::milliseconds(0)) != future_status::ready);
         completed.get_future().get();
 #else
         Ice::AsyncResultPtr r = prx->begin_op();
@@ -1023,14 +1023,14 @@ validationTests(const ConfigurationPtr& configuration,
             s2.set_value(value);
         });
     
-    test(s1.get_future().wait_for(chrono::milliseconds(1)) != future_status::ready);
-    test(s2.get_future().wait_for(chrono::milliseconds(1)) != future_status::ready);
+    test(s1.get_future().wait_for(chrono::milliseconds(0)) != future_status::ready);
+    test(s2.get_future().wait_for(chrono::milliseconds(0)) != future_status::ready);
     
     auto f1 = p1.get_future();
     auto f2 = p2.get_future();
     
-    test(f1.wait_for(chrono::milliseconds(1)) != future_status::ready);
-    test(f2.wait_for(chrono::milliseconds(1)) != future_status::ready);
+    test(f1.wait_for(chrono::milliseconds(0)) != future_status::ready);
+    test(f2.wait_for(chrono::milliseconds(0)) != future_status::ready);
     
     ctl->resumeAdapter();
     
@@ -1250,7 +1250,7 @@ readWriteTests(const ConfigurationPtr& configuration,
             {
                 sent.set_value(value);
             });
-        test(sent.get_future().wait_for(chrono::milliseconds(1)) != future_status::ready);
+        test(sent.get_future().wait_for(chrono::milliseconds(0)) != future_status::ready);
         completed.get_future().get();
 #else
         Ice::AsyncResultPtr r = prx->begin_op();
@@ -1399,7 +1399,7 @@ readWriteTests(const ConfigurationPtr& configuration,
                 {
                     sent.set_value(value);
                 });
-            test(sent.get_future().wait_for(chrono::milliseconds(1)) != future_status::ready);
+            test(sent.get_future().wait_for(chrono::milliseconds(0)) != future_status::ready);
             completed.get_future().get();
 #else
             Ice::AsyncResultPtr r = prx->begin_op();
@@ -1484,12 +1484,13 @@ readWriteTests(const ConfigurationPtr& configuration,
 #ifdef ICE_CPP11_MAPPING
             promise<void> completed;
             promise<bool> sent;
+            auto f1 = sent.get_future();
             background->op_async(
                 []()
                 {
                     test(false);
                 },
-                [&completed](exception_ptr e)
+                [&f1, &sent, &completed](exception_ptr e)
                 {
                     try
                     {
@@ -1503,12 +1504,17 @@ readWriteTests(const ConfigurationPtr& configuration,
                     {
                         test(false);
                     }
+
+                    if(f1.valid() && f1.wait_for(chrono::milliseconds(0)) != future_status::ready)
+                    {
+                        sent.set_value(true);
+                    }
                 },
                 [&sent](bool value)
                 {
                     sent.set_value(value);
                 });
-            sent.get_future().get();
+            f1.get();
             completed.get_future().get();
 #else
             Ice::AsyncResultPtr r = background->begin_op();
@@ -1563,7 +1569,6 @@ readWriteTests(const ConfigurationPtr& configuration,
                 test(false);
             });
     }
-
     promise<void> c1;
     promise<bool> s1;
 
@@ -1580,13 +1585,11 @@ readWriteTests(const ConfigurationPtr& configuration,
         {
             s1.set_value(value);
         });
-    
     auto fs1 = s1.get_future();
-    test(fs1.wait_for(chrono::milliseconds(1)) != future_status::ready);
-    
+    test(fs1.wait_for(chrono::milliseconds(0)) != future_status::ready);
+
     promise<void> c2;
     promise<bool> s2;
-
     background->op_async(
         [&c2]()
         {
@@ -1602,15 +1605,15 @@ readWriteTests(const ConfigurationPtr& configuration,
         });
     
     auto fs2 = s2.get_future();
-    test(fs2.wait_for(chrono::milliseconds(1)) != future_status::ready);
-    
+    test(fs2.wait_for(chrono::milliseconds(0)) != future_status::ready);
+
     promise<bool> s3;
     backgroundOneway->opWithPayload_async(seq, 
                                           [](){ test(false); },
                                           [](exception_ptr){ test(false); },
                                           [&s3](bool value){ s3.set_value(value); });
     auto fs3 = s3.get_future();
-    test(fs3.wait_for(chrono::milliseconds(1)) != future_status::ready);
+    test(fs3.wait_for(chrono::milliseconds(0)) != future_status::ready);
     
     promise<bool> s4;
     backgroundOneway->opWithPayload_async(seq, 
@@ -1618,13 +1621,13 @@ readWriteTests(const ConfigurationPtr& configuration,
                                           [](exception_ptr){ test(false); },
                                           [&s4](bool value){ s4.set_value(value); });
     auto fs4 = s4.get_future();
-    test(fs4.wait_for(chrono::milliseconds(1)) != future_status::ready);
+    test(fs4.wait_for(chrono::milliseconds(0)) != future_status::ready);
     
     auto fc1 = c1.get_future();
-    test(fc1.wait_for(chrono::milliseconds(1)) != future_status::ready);
+    test(fc1.wait_for(chrono::milliseconds(0)) != future_status::ready);
     
     auto fc2 = c2.get_future();
-    test(fc2.wait_for(chrono::milliseconds(1)) != future_status::ready);
+    test(fc2.wait_for(chrono::milliseconds(0)) != future_status::ready);
     
     ctl->resumeAdapter();
     
