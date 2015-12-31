@@ -16,7 +16,8 @@ SUBDIRS		= Common \
 		  IceUtil \
 		  Slice \
 		  Ice \
-		  IceDiscovery
+		  IceDiscovery \
+		  IceBox
 else
 
 SUBDIRS		= Common \

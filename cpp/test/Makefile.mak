@@ -20,7 +20,8 @@ SUBDIRS		= Common \
 SUBDIRS		= IceUtil \
 		  Slice \
 		  Ice \
-		  IceDiscovery
+		  IceDiscovery \
+		  IceBox
 !elseif "$(CPP_COMPILER)" == "VC100"
 SUBDIRS		= IceUtil \
 		  Slice \
