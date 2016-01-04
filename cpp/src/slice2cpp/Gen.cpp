@@ -721,6 +721,9 @@ Slice::Gen::generate(const UnitPtr& p)
             ImplVisitor implVisitor(implH, implC, _dllExport);
             p->visit(&implVisitor, false);
         }*/
+        
+        Cpp11CompatibilityVisitor compatibilityVisitor(H, C, _dllExport);
+        p->visit(&compatibilityVisitor, false);
 
         generateChecksumMap(p);
 
@@ -3149,12 +3152,9 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
     if(!p->isAbstract() && !p->isLocal() && !_doneStaticSymbol)
     {
         //
-        // We need an instance here to trigger initialization if the implementation is in a shared library.
+        // We need an instance here to trigger initialization if the implementation is in a static library.
         // But we do this only once per source file, because a single instance is sufficient to initialize
-        // all of the globals in a shared library.
-        //
-        // For a Slice class Foo, we instantiate a dummy class Foo__staticInit instead of using a static
-        // Foo instance directly because Foo has a protected destructor.
+        // all of the globals in a compilation unit.
         //
         H.zeroIndent();
         H << nl << "#if !defined(_MSC_VER) || (_MSC_VER < 1900)";
@@ -5455,22 +5455,7 @@ Slice::Gen::Cpp11ObjectDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
     string name = fixKwd(p->name());
     string scoped = fixKwd(p->scoped());
 
-
-    if(p->isLocal())
-    {
-        H << sp << nl << "class " << name << ';';
-        H << nl << "typedef ::std::shared_ptr< " << name << "> " << p->name() << "Ptr;";
-    }
-    else if(p->isInterface())
-    {
-        H << sp << nl << "class " << name << ';';
-        H << nl << "typedef ::std::shared_ptr< " << name << "> " << p->name() << "Ptr;";
-    }
-    else // Value class
-    {
-        H << sp << nl << "class " << name << ';';
-        H << nl << "typedef ::std::shared_ptr< " << name << "> " << p->name() << "Ptr;";
-    }
+    H << sp << nl << "class " << name << ';';
 }
 
 void
@@ -5542,7 +5527,7 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
     {
-        string typeName = inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), _useWstring);
+        string typeName = inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), _useWstring, true);
         allTypes.push_back(typeName);
         allParamDecls.push_back(typeName + " __ice_" + fixKwd((*q)->name()));
     }
@@ -5768,8 +5753,6 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
 
             string baseName = base ? fixKwd(base->scoped()) : string("::Ice::UserException");
-            H << nl << "using " << baseName << "::__write;";
-            H << nl << "using " << baseName << "::__read;";
         }
 
         H.dec();
@@ -5778,10 +5761,6 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
         H << nl << "virtual void __writeImpl(::IceInternal::BasicStream*) const;";
         H << nl << "virtual void __readImpl(::IceInternal::BasicStream*);";
-
-        string baseName = base ? fixKwd(base->scoped()) : string("::Ice::UserException");
-        H << nl << "using " << baseName << "::__writeImpl;";
-        H << nl << "using " << baseName << "::__readImpl;";
 
         if(preserved && !basePreserved)
         {
@@ -6054,7 +6033,6 @@ Slice::Gen::Cpp11ProxyDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
         if(p->isInterface() || (def && !def->allOperations().empty()))
         {
             H << nl << "class " << p->name() << "Prx;";
-            H << nl << "typedef ::std::shared_ptr<" << p->name() << "Prx> " << p->name() << "PrxPtr;";
         }
     }
 }
@@ -8491,5 +8469,63 @@ Slice::Gen::Cpp11StreamVisitor::visitEnum(const EnumPtr& p)
         H << nl << "static const int minWireSize = " << p->minWireSize() << ";";
         H << nl << "static const bool fixedLength = false;";
         H << eb << ";" << nl;
+    }
+}
+
+
+Slice::Gen::Cpp11CompatibilityVisitor::Cpp11CompatibilityVisitor(Output& h, Output& c, const string& dllExport) :
+    H(h),
+    C(c),
+    _dllExport(dllExport)
+{
+}
+
+bool
+Slice::Gen::Cpp11CompatibilityVisitor::visitModuleStart(const ModulePtr& p)
+{
+    if(!p->hasClassDecls())
+    {
+        return false;
+    }
+
+    string name = fixKwd(p->name());
+
+    H << sp << nl << "namespace " << name << nl << '{';
+    return true;
+}
+
+void
+Slice::Gen::Cpp11CompatibilityVisitor::visitModuleEnd(const ModulePtr&)
+{
+    H << sp;
+    H << nl << '}';
+}
+
+void
+Slice::Gen::Cpp11CompatibilityVisitor::visitClassDecl(const ClassDeclPtr& p)
+{
+    string t;
+    if(p->isLocal() && findMetaData("cpp11:type", p, t))
+    {
+        return;
+    }
+    if(p->definition() && p->definition()->isDelegate())
+    {
+        return;
+    }
+
+    string name = fixKwd(p->name());
+    string scoped = fixKwd(p->scoped());
+
+    H << sp << nl << "typedef ::std::shared_ptr<" << name << "> " << p->name() << "Ptr;";
+    
+    if(!p->isLocal())
+    {
+        ClassDefPtr def = p->definition();
+        if(p->isInterface() || (def && !def->allOperations().empty()))
+        {
+            H << nl << "class " << p->name() << "Prx;";
+            H << nl << "typedef ::std::shared_ptr<" << p->name() << "Prx> " << p->name() << "PrxPtr;";
+        }
     }
 }

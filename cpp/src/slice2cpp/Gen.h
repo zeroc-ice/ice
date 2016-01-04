@@ -570,16 +570,17 @@ private:
         ::IceUtilInternal::Output& C;
         std::string _dllExport;
     };
-
-    class Cpp11InterfaceTraitsVisitor : private ::IceUtil::noncopyable, public ParserVisitor
+    
+    
+    class Cpp11CompatibilityVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
 
-        Cpp11InterfaceTraitsVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
+        Cpp11CompatibilityVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
 
-        virtual bool visitUnitStart(const UnitPtr&);
-        virtual void visitUnitEnd(const UnitPtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual bool visitModuleStart(const ModulePtr&);
+        virtual void visitModuleEnd(const ModulePtr&);
+        virtual void visitClassDecl(const ClassDeclPtr&);
 
     private:
 
