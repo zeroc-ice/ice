@@ -7309,7 +7309,7 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitOperation(const OperationPtr& p)
             H << nl;
         }
         H << "::std::function<void (::std::exception_ptr)> exception,";
-        H << nl << "::std::function<void (bool)> sent) = 0;";
+        H << nl << "::std::function<void (bool)> sent = nullptr) = 0;";
         H.restoreIndent();
 
         H << sp;
