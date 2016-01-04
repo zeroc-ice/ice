@@ -278,21 +278,21 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 #ifdef ICE_CPP11_MAPPING
         backgroundController->pauseCall("findAdapterById");
-        
+
         promise<void> p1;
         promise<void> p2;
-        
+
         bg->op_async([&p1](){ p1.set_value(); }, [&p1](exception_ptr e){ p1.set_exception(e); });
         bg->op_async([&p2](){ p2.set_value(); }, [&p2](exception_ptr e){ p2.set_exception(e); });
-        
+
         auto f1 = p1.get_future();
         auto f2 = p2.get_future();
-        
+
         test(f1.wait_for(chrono::milliseconds(0)) != future_status::ready);
         test(f2.wait_for(chrono::milliseconds(0)) != future_status::ready);
-        
+
         backgroundController->resumeCall("findAdapterById");
-        
+
         f1.get();
         f2.get();
 #else
@@ -339,18 +339,18 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         promise<void> p1;
         promise<void> p2;
-        
+
         bg->op_async([&p1](){ p1.set_value(); }, [&p1](exception_ptr e){ p1.set_exception(e); });
         bg->op_async([&p2](){ p2.set_value(); }, [&p2](exception_ptr e){ p2.set_exception(e); });
-        
+
         auto f1 = p1.get_future();
         auto f2 = p2.get_future();
-        
+
         test(f1.wait_for(chrono::milliseconds(0)) != future_status::ready);
         test(f2.wait_for(chrono::milliseconds(0)) != future_status::ready);
-        
+
         backgroundController->resumeCall("getClientProxy");
-        
+
         f1.get();
         f2.get();
 #else
@@ -499,7 +499,7 @@ connectTests(const ConfigurationPtr& configuration, const Test::BackgroundPrxPtr
         {
             promise<void> completed;
             promise<bool> sent;
-            
+
             prx->op_async(
                 [&completed]()
                 {
@@ -528,7 +528,7 @@ connectTests(const ConfigurationPtr& configuration, const Test::BackgroundPrxPtr
         {
         }
         test(r->isCompleted());
-        
+
         OpAMICallbackPtr cbEx = new OpAMICallback();
         r = prx->begin_op(Test::newCallback_Background_op(cbEx, &OpAMICallback::exception));
         test(!r->sentSynchronously());
@@ -624,7 +624,7 @@ initializeTests(const ConfigurationPtr& configuration,
 #ifdef ICE_CPP11_MAPPING
         promise<bool> sent;
         promise<void> completed;
-        
+
         prx->op_async(
             []()
             {
@@ -874,7 +874,7 @@ validationTests(const ConfigurationPtr& configuration,
 #ifdef ICE_CPP11_MAPPING
         promise<bool> sent;
         promise<void> completed;
-        
+
         prx->op_async(
             []()
             {
@@ -991,10 +991,10 @@ validationTests(const ConfigurationPtr& configuration,
 #ifdef ICE_CPP11_MAPPING
     promise<void> p1;
     promise<void> p2;
-    
+
     promise<bool> s1;
     promise<bool> s2;
-    
+
     background->op_async(
         [&p1]()
         {
@@ -1008,7 +1008,7 @@ validationTests(const ConfigurationPtr& configuration,
         {
             s1.set_value(value);
         });
-    
+
     background->op_async(
         [&p2]()
         {
@@ -1022,18 +1022,18 @@ validationTests(const ConfigurationPtr& configuration,
         {
             s2.set_value(value);
         });
-    
+
     test(s1.get_future().wait_for(chrono::milliseconds(0)) != future_status::ready);
     test(s2.get_future().wait_for(chrono::milliseconds(0)) != future_status::ready);
-    
+
     auto f1 = p1.get_future();
     auto f2 = p2.get_future();
-    
+
     test(f1.wait_for(chrono::milliseconds(0)) != future_status::ready);
     test(f2.wait_for(chrono::milliseconds(0)) != future_status::ready);
-    
+
     ctl->resumeAdapter();
-    
+
     f1.get();
     f2.get();
 #else
@@ -1459,7 +1459,7 @@ readWriteTests(const ConfigurationPtr& configuration,
                     }
                 });
             completed.get_future().get();
-                
+
 #else
             Ice::AsyncResultPtr r = background->begin_op();
             try
@@ -1483,14 +1483,12 @@ readWriteTests(const ConfigurationPtr& configuration,
             configuration->readException(new Ice::SocketException(__FILE__, __LINE__));
 #ifdef ICE_CPP11_MAPPING
             promise<void> completed;
-            promise<bool> sent;
-            auto f1 = sent.get_future();
             background->op_async(
                 []()
                 {
                     test(false);
                 },
-                [&f1, &sent, &completed](exception_ptr e)
+                [&](exception_ptr e)
                 {
                     try
                     {
@@ -1504,17 +1502,7 @@ readWriteTests(const ConfigurationPtr& configuration,
                     {
                         test(false);
                     }
-
-                    if(f1.valid() && f1.wait_for(chrono::milliseconds(0)) != future_status::ready)
-                    {
-                        sent.set_value(true);
-                    }
-                },
-                [&sent](bool value)
-                {
-                    sent.set_value(value);
                 });
-            f1.get();
             completed.get_future().get();
 #else
             Ice::AsyncResultPtr r = background->begin_op();
@@ -1553,8 +1541,9 @@ readWriteTests(const ConfigurationPtr& configuration,
     {
         *p = static_cast<Ice::Byte>(IceUtilInternal::random(255));
     }
-    
+
 #ifdef ICE_CPP11_MAPPING
+
     // Fill up the receive and send buffers
     for(int i = 0; i < 200; ++i) // 2MB
     {
@@ -1603,37 +1592,37 @@ readWriteTests(const ConfigurationPtr& configuration,
         {
             s2.set_value(value);
         });
-    
+
     auto fs2 = s2.get_future();
     test(fs2.wait_for(chrono::milliseconds(0)) != future_status::ready);
 
     promise<bool> s3;
-    backgroundOneway->opWithPayload_async(seq, 
+    backgroundOneway->opWithPayload_async(seq,
                                           [](){ test(false); },
                                           [](exception_ptr){ test(false); },
                                           [&s3](bool value){ s3.set_value(value); });
     auto fs3 = s3.get_future();
     test(fs3.wait_for(chrono::milliseconds(0)) != future_status::ready);
-    
+
     promise<bool> s4;
-    backgroundOneway->opWithPayload_async(seq, 
+    backgroundOneway->opWithPayload_async(seq,
                                           [](){ test(false); },
                                           [](exception_ptr){ test(false); },
                                           [&s4](bool value){ s4.set_value(value); });
     auto fs4 = s4.get_future();
     test(fs4.wait_for(chrono::milliseconds(0)) != future_status::ready);
-    
+
     auto fc1 = c1.get_future();
     test(fc1.wait_for(chrono::milliseconds(0)) != future_status::ready);
-    
+
     auto fc2 = c2.get_future();
     test(fc2.wait_for(chrono::milliseconds(0)) != future_status::ready);
-    
+
     ctl->resumeAdapter();
-    
+
     fs1.get();
     fs2.get();
-    
+
     fc1.get();
     fc2.get();
 #else

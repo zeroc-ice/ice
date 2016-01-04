@@ -32,7 +32,7 @@ tests = [
     ("IceUtil/uuid", ["once", "noappverifier"]), # This test is very slow with appverifier.
     ("IceUtil/timer", ["once"]),
     ("IceUtil/sha1", ["once"]),
-    ("IceUtil/stacktrace", ["once"]),
+    ("IceUtil/stacktrace", ["once", "noc++11"]),
     ("Slice/errorDetection", ["once"]),
     ("Slice/keyword", ["once"]),
     ("Slice/structure", ["once"]),

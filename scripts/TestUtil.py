@@ -808,6 +808,8 @@ def getIceBox():
                 iceBox += "32"
             if cpp11:
                 iceBox += "++11"
+        elif isDarwin and cpp11:
+            iceBox += "++11"
         iceBox = os.path.join(getCppBinDir(lang), iceBox)
     elif lang == "java":
         iceBox = "IceBox.Server"

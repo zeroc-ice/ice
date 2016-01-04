@@ -82,7 +82,7 @@ public:
         test(sentSynchronously || Dispatcher::isDispatcherThread());
         _sentSynchronously = sentSynchronously;
     }
-    
+
     bool
     sentSynchronously()
     {
@@ -147,7 +147,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 }
             });
         cb->check();
-        
+
         auto i = p->ice_adapterId("dummy");
         i->op_async(
             [cb]()
@@ -166,7 +166,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 }
             });
         cb->check();
-        
+
         {
             //
             // Expect InvocationTimeoutException.
@@ -190,7 +190,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 });
             cb->check();
         }
-
         testController->holdAdapter();
 
         Ice::ByteSeq seq;
@@ -200,44 +199,38 @@ allTests(const Ice::CommunicatorPtr& communicator)
             *q = static_cast<Ice::Byte>(IceUtilInternal::random(255));
         }
 
-        promise<void> completed;
+        vector<shared_ptr<promise<void>>> completed;
         while(true)
         {
-            CallbackPtr cb = ICE_MAKE_SHARED(Callback);
-            promise<bool> call;
-            future<bool> sent = call.get_future();
-            p->opWithPayload_async(seq, 
-                [cb, &sent, &completed]()
+            auto s = make_shared<promise<bool>>();
+            auto fs = s->get_future();
+            auto c = make_shared<promise<void>>();
+
+            p->opWithPayload_async(seq,
+                [=]()
                 {
-                    cb->payload();
-                    if(!cb->sentSynchronously())
-                    {
-                        completed.set_value();
-                    }
+                    c->set_value();
                 },
-                [cb](exception_ptr err)
+                [=](exception_ptr)
                 {
-                    try
-                    {
-                        rethrow_exception(err);
-                    }
-                    catch(const Ice::Exception& ex)
-                    {
-                        cb->ignoreEx(ex);
-                    }
+                    c->set_value();
                 },
-                [cb, &call](bool sentSynchronously)
+                [=](bool sent)
                 {
-                    cb->sent(sentSynchronously);
-                    call.set_value(sentSynchronously);
+                    s->set_value(sent);
                 });
-            if(!sent.get())
+            completed.push_back(c);
+
+            if(fs.wait_for(chrono::milliseconds(0)) != future_status::ready || !fs.get())
             {
                 break;
             }
         }
         testController->resumeAdapter();
-        completed.get_future().get();
+        for(auto& c : completed)
+        {
+            c->get_future().get();
+        }
 #else
         Test::Callback_TestIntf_opPtr callback = Test::newCallback_TestIntf_op(cb,
                                                                                &Callback::response,

@@ -927,7 +927,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
     catch(const Ice::Exception&)
     {
     }
-    
+
     metrics->op_async(
         [cb]()
         {
@@ -953,7 +953,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
     metrics->begin_op(newCallback_Metrics_op(cb, &Callback::response, &Callback::exception));
 #endif
     cb->waitForResponse();
-        
+
     // User exception
     try
     {
