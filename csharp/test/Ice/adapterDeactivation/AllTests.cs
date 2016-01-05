@@ -73,6 +73,7 @@ public class AllTests : TestCommon.TestApp
         Write("creating/activating/deactivating object adapter in one operation... ");
         Flush();
         obj.transient();
+        obj.end_transient(obj.begin_transient());
         WriteLine("ok");
 
         {

@@ -36,7 +36,7 @@ These are the changes since Ice 3.6.1.
   IceGrid and IceStorm databases.
 
 - Fixed a bug that affects Java and C# generated code. The generated patcher for
-  reading class data members was bogus when the class had more than one class data 
+  reading class data members was bogus when the class had more than one class data
   member and derived from a class that contained class data members. The same
   issue was true for exceptions with class data members deriving from exceptions
   with class data members.
@@ -48,6 +48,9 @@ These are the changes since Ice 3.6.1.
 
 - Fixed El Capitan build issues caused by a new security feature that no longer
   exports DYLD_LIBRARY_PATH to child processes.
+
+- Fixed potential deadlock that could occur when using collocation
+  optimization and serialized server thread pools.
 
 ## C# Changes
 

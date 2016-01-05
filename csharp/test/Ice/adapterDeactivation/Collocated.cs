@@ -25,17 +25,23 @@ public class Collocated
         public override int run(string[] args)
         {
             communicator().getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010");
+
+            //
+            // 2 threads are necessary to dispatch the collocated transient() call with AMI
+            //
+            communicator().getProperties().setProperty("TestAdapter.ThreadPool.Size", "2");
+
             Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
             Ice.ServantLocator locator = new ServantLocatorI();
             adapter.addServantLocator(locator, "");
 
             AllTests.allTests(communicator());
-            
+
             adapter.waitForDeactivate();
             return 0;
         }
     }
-    
+
     public static int Main(string[] args)
     {
         App app = new App();
