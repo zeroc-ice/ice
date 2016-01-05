@@ -221,3 +221,9 @@ ICEUTIL_OS_LIBS = -lrt $(OPENSSL_RPATH_LINK) -lcrypto
 ICE_OS_LIBS     = -ldl
 
 PLATFORM_HAS_READLINE   = yes
+
+ifeq ($(BUILD_ICE_BT),)
+    ifneq ($(findstring Ubuntu,$(shell uname -a)),)
+        BUILD_ICE_BT     = yes
+    endif
+endif

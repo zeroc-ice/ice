@@ -24,7 +24,7 @@ ifeq ($(CPP11_MAPPING),yes)
 		  IceBox \
 		  IceLocatorDiscovery
 
-ifneq ($(findstring Ubuntu,$(shell uname -a)),)
+ifeq ($(BUILD_ICE_BT),yes)
     SUBDIRS	:= $(SUBDIRS) IceXML IceBT
 endif
 
@@ -70,7 +70,7 @@ endif
 		   IceStorm \
 		   IceGrid
 
-ifneq ($(findstring Ubuntu,$(shell uname -a)),)
+ifeq ($(BUILD_ICE_BT),yes)
     SUBDIRS	:= $(SUBDIRS) IceBT
 endif
 

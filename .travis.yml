@@ -5,8 +5,8 @@ addons:
     sources:
     - ubuntu-toolchain-r-test
     packages:
-    - g++-4.9
-    - gcc-4.9
+    - g++-5
+    - gcc-5
     - php5-cli
     - php5-dev
     - python-dev
@@ -22,7 +22,7 @@ cache:
 
 env:
   global:
-    - CXX=g++-4.9
+    - CXX=g++-5
     - GCC_COMPILER=yes
     - MCPP_HOME=${TRAVIS_BUILD_DIR}/mcpp
     - OPTIMIZE=yes
@@ -30,7 +30,7 @@ env:
     - LMDB_BUILD_DIR=${TRAVIS_BUILD_DIR}/lmdb-LMDB_${LMDB_REVISION}
     - LMDB_HOME=${TRAVIS_BUILD_DIR}/lmdb
   matrix:
-    - WORK_DIR=${TRAVIS_BUILD_DIR}/cpp CPP11_MAPPING=yes
+    - WORK_DIR=${TRAVIS_BUILD_DIR}/cpp CPP11_MAPPING=yes BUILD_ICE_BT=no
     - WORK_DIR=${TRAVIS_BUILD_DIR}
 
 python:
