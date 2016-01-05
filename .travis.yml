@@ -30,7 +30,7 @@ env:
     - LMDB_BUILD_DIR=${TRAVIS_BUILD_DIR}/lmdb-LMDB_${LMDB_REVISION}
     - LMDB_HOME=${TRAVIS_BUILD_DIR}/lmdb
   matrix:
-    - WORK_DIR=${TRAVIS_BUILD_DIR}/cpp CPP11_MAPPING=yes BUILD_ICE_BT=no
+    - WORK_DIR=${TRAVIS_BUILD_DIR}/cpp CPP11_MAPPING=yes BUILD_ICE_BT=no TEST_FLAGS="--c++11"
     - WORK_DIR=${TRAVIS_BUILD_DIR}
 
 python:
@@ -54,7 +54,7 @@ install:
 
 script:
 - cd ${WORK_DIR}
-- python allTests.py --debug --env --protocol=ssl
+- python allTests.py ${TEST_FLAGS} --debug --env --protocol=ssl
 
 notifications:
   email: travis-ci@zeroc.com
