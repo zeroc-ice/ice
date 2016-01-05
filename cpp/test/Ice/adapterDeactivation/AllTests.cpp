@@ -30,10 +30,10 @@ allTests(const CommunicatorPtr& communicator)
     cout << "ok" << endl;
 
     {
-        string host = communicator->getProperties()->getPropertyAsIntWithDefault("Ice.IPv6", 0) == 0 ? 
+        string host = communicator->getProperties()->getPropertyAsIntWithDefault("Ice.IPv6", 0) == 0 ?
             "127.0.0.1" : "\"0:0:0:0:0:0:0:1\"";
         cout << "creating/destroying/recreating object adapter... " << flush;
-        ObjectAdapterPtr adapter = 
+        ObjectAdapterPtr adapter =
             communicator->createObjectAdapterWithEndpoints("TransientTestAdapter", "default -h " + host);
         try
         {
@@ -55,6 +55,7 @@ allTests(const CommunicatorPtr& communicator)
 
     cout << "creating/activating/deactivating object adapter in one operation... " << flush;
     obj->transient();
+    obj->end_transient(obj->begin_transient());
     cout << "ok" << endl;
 
     {

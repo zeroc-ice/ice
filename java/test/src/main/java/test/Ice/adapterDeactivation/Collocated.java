@@ -28,10 +28,12 @@ public class Collocated extends test.Util.Application
     {
         Ice.InitializationData initData = createInitializationData();
         initData.properties = Ice.Util.createProperties(argsH);
-        if(initData.properties.getPropertyAsInt("Ice.ThreadInterruptSafe") > 0 || isAndroid())
-        {
-            initData.properties.setProperty("Ice.ThreadPool.Server.Size", "2");
-        }
+
+        //
+        // 2 threads are necessary to dispatch the collocated transient() call with AMI
+        //
+        initData.properties.setProperty("TestAdapter.ThreadPool.Size", "2");
+
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.adapterDeactivation");
         initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
         return initData;

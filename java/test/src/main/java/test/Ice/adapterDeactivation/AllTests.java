@@ -44,7 +44,7 @@ public class AllTests
         {
             out.print("creating/destroying/recreating object adapter... ");
             out.flush();
-            Ice.ObjectAdapter adapter = 
+            Ice.ObjectAdapter adapter =
                 communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default");
             try
             {
@@ -66,6 +66,7 @@ public class AllTests
         out.print("creating/activating/deactivating object adapter in one operation... ");
         out.flush();
         obj._transient();
+        obj.end_transient(obj.begin_transient());
         out.println("ok");
 
         {

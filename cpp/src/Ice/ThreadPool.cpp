@@ -777,7 +777,7 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
                     // If the handler called ioCompleted(), we re-enable the handler in
                     // case it was disabled and we decrease the number of thread in use.
                     //
-                    if(_serialize)
+                    if(_serialize && current._handler.get() != _workQueue.get())
                     {
                         _selector.enable(current._handler.get(), current.operation);
                         if(current._handler->_hasMoreData && current._handler->_registered & SocketOperationRead)
@@ -1004,7 +1004,7 @@ IceInternal::ThreadPool::ioCompleted(ThreadPoolCurrent& current)
 
         if(!_destroyed)
         {
-            if(_serialize)
+            if(_serialize && current._handler.get() != _workQueue.get())
             {
                 _selector.disable(current._handler.get(), current.operation);
 
@@ -1079,7 +1079,7 @@ IceInternal::ThreadPool::ioCompleted(ThreadPoolCurrent& current)
         }
     }
 
-    return _serialize;
+    return _serialize && current._handler.get() != _workQueue.get();
 }
 
 #if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)

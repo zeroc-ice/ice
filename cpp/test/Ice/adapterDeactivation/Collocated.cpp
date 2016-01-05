@@ -22,6 +22,12 @@ int
 run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010");
+
+    //
+    // 2 threads are necessary to dispatch the collocated transient() call with AMI
+    //
+    communicator->getProperties()->setProperty("TestAdapter.ThreadPool.Size", "2");
+
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     ServantLocatorPtr locator = new ServantLocatorI;
     adapter->addServantLocator(locator, "");
