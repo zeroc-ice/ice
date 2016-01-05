@@ -19,7 +19,40 @@ namespace
 
 enum ThrowType { LocalException, UserException, StandardException, OtherException };
 
-#ifndef ICE_CPP11_MAPPING
+#ifdef ICE_CPP11_MAPPING
+ThrowType throwEx[] = { LocalException, UserException, StandardException, OtherException };
+auto thrower = [](ThrowType t)
+    {
+        switch(t)
+        {
+            case LocalException:
+            {
+                throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+                break;
+            }
+            case UserException:
+            {
+                throw Test::TestIntfException();
+                break;
+            }
+            case StandardException:
+            {
+                throw ::std::bad_alloc();
+                break;
+            }
+            case OtherException:
+            {
+                throw 99;
+                break;
+            }
+            default:
+            {
+                assert(false);
+                break;
+            }
+        }
+    };
+#else
 struct Cookie : public Ice::LocalObject
 {
     Cookie(int i) : val(i)
@@ -1564,42 +1597,9 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     }
     cout << "ok" << endl;
 
-    auto thrower = [](ThrowType t)
-        {
-            switch(t)
-            {
-                case LocalException:
-                {
-                    throw Ice::ObjectNotExistException(__FILE__, __LINE__);
-                    break;
-                }
-                case UserException:
-                {
-                    throw Test::TestIntfException();
-                    break;
-                }
-                case StandardException:
-                {
-                    throw ::std::bad_alloc();
-                    break;
-                }
-                case OtherException:
-                {
-                    throw 99;
-                    break;
-                }
-                default:
-                {
-                    assert(false);
-                    break;
-                }
-            }
-        };
-
     cout << "testing unexpected exceptions from callback... " << flush;
     {
         auto q = Ice::uncheckedCast<Test::TestIntfPrx>(p->ice_adapterId("dummy"));
-        ThrowType throwEx[] = { LocalException, UserException, StandardException, OtherException };
 
         for(int i = 0; i < 4; ++i)
         {
@@ -1629,14 +1629,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             {
                 promise<void> promise;
-                p->op_async(
-                    [&]()
-                    {
-                    },
-                    [&, i](const exception_ptr&)
-                    {
-                        test(false);
-                    },
+                p->op_async(nullptr, nullptr,
                     [&, i](bool)
                     {
                         promise.set_value();
