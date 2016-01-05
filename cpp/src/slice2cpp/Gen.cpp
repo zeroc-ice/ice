@@ -8342,8 +8342,17 @@ Slice::Gen::Cpp11StreamVisitor::visitModuleEnd(const ModulePtr& m)
 }
 
 bool
-Slice::Gen::Cpp11StreamVisitor::visitExceptionStart(const ExceptionPtr&)
+Slice::Gen::Cpp11StreamVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
+    if(!p->isLocal())
+    {
+        string scoped = p->scoped();
+        H << nl << "template<>";
+        H << nl << "struct StreamableTraits< " << fixKwd(scoped) << ">";
+        H << sb;
+        H << nl << "static const StreamHelperCategory helper = StreamHelperCategoryUserException;";
+        H << eb << ";" << nl;
+    }
     return false;
 }
 
