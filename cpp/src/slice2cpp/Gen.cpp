@@ -3126,13 +3126,6 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             inProtected = true;
         }
         H << sp << nl << "virtual ~" << fixKwd(p->name()) << "() {}";
-
-        if(!_doneStaticSymbol)
-        {
-            H.dec();
-            H << sp << nl << "friend class " << p->name() << "__staticInit;";
-            H.inc();
-        }
     }
 
     if(!p->isLocal() && preserved && !basePreserved)
@@ -3156,33 +3149,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
         // But we do this only once per source file, because a single instance is sufficient to initialize
         // all of the globals in a compilation unit.
         //
-        H.zeroIndent();
-        H << nl << "#if !defined(_MSC_VER) || (_MSC_VER < 1900)";
-        H.restoreIndent();
-        H << nl << "//";
-        H << nl << "// COMPILERFIX: Visual Studio 2015 update 1 fails to access";
-        H << nl << "// the proected destructor from a friend class.";
-        H << nl << "//";
-
-        H << sp << nl << "class " << p->name() << "__staticInit";
-        H << sb;
-        H.dec();
-        H << nl << "public:";
-        H.inc();
-        H << sp << nl << scoped << " _init;";
-        H << eb << ';';
-        _doneStaticSymbol = true;
-        H << sp << nl << "static " << p->name() << "__staticInit _" << p->name() << "_init;";
-
-        H.zeroIndent();
-        H << nl << "#else";
-        H.restoreIndent();
-
-        H << nl << "static auto _" << p->name() << "_init = " << p->scoped() << "::ice_factory;";
-
-        H.zeroIndent();
-        H << nl << "#endif";
-        H.restoreIndent();
+        H << nl << "static ::Ice::ValueFactoryPtr _" << p->name() << "_init = " << p->scoped() << "::ice_factory();";
     }
 
     if(p->isLocal())
