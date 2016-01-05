@@ -438,6 +438,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     
     {
         promise<bool> completed;
+        promise<void> sent;
         Ice::ByteSeq inEncaps, outEncaps;
         Ice::OutputStreamPtr out = Ice::createOutputStream(communicator);
         out->startEncapsulation();
@@ -456,7 +457,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
             [&](exception_ptr ex)
             {
                 completed.set_exception(ex);
+            },
+            [&](bool)
+            {
+                sent.set_value();
             });
+        sent.get_future().get(); // Ensure sent callback was called
         test(completed.get_future().get());
         
         Ice::InputStreamPtr in = Ice::createInputStream(communicator, outEncaps);
@@ -471,6 +477,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     
     {
         promise<bool> completed;
+        promise<void> sent;
         Ice::ByteSeq inEncaps, outEncaps;
 
         cl->ice_invoke_async("opException", OperationMode::Normal, inEncaps,
@@ -482,7 +489,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
             [&](exception_ptr ex)
             {
                 completed.set_exception(ex);
+            },
+            [&](bool)
+            {
+                sent.set_value();
             });
+        sent.get_future().get(); // Ensure sent callback was called
         test(!completed.get_future().get());
 
         Ice::InputStreamPtr in = Ice::createInputStream(communicator, outEncaps);

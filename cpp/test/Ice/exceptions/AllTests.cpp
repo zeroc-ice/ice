@@ -1170,6 +1170,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(false);
         }
     }
+    
     {
         auto f = thrower->throwAorDasAorD_async(1);
         try
@@ -1186,6 +1187,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(false);
         }
     }
+    
     {
         auto f = thrower->throwAorDasAorD_async(-1);
         try
@@ -1257,6 +1259,99 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             test(false);
         }
+    }
+    
+    //
+    // repeat with callback API and no exception callback
+    //
+    {
+        promise<bool> sent;
+        thrower->throwAasA_async(1,
+            []()
+            {
+                test(false);
+            },
+            nullptr,
+            [&](bool value)
+            {
+                sent.set_value(value);
+            });
+        sent.get_future().get(); // Wait for sent
+    }
+    
+    {
+        promise<bool> sent;
+        thrower->throwAorDasAorD_async(1,
+            []()
+            {
+                test(false);
+            },
+            nullptr,
+            [&](bool value)
+            {
+                sent.set_value(value);
+            });
+        sent.get_future().get(); // Wait for sent
+    }
+    
+    {
+        promise<bool> sent;
+        thrower->throwAorDasAorD_async(-1,
+            []()
+            {
+                test(false);
+            },
+            nullptr,
+            [&](bool value)
+            {
+                sent.set_value(value);
+            });
+        sent.get_future().get(); // Wait for sent
+    }
+
+    {
+        promise<bool> sent;
+        thrower->throwBasB_async(1, 2,
+            []()
+            {
+                test(false);
+            },
+            nullptr,
+            [&](bool value)
+            {
+                sent.set_value(value);
+            });
+        sent.get_future().get(); // Wait for sent
+    }
+
+    {
+        promise<bool> sent;
+        thrower->throwCasC_async(1, 2, 3,
+            []()
+            {
+                test(false);
+            },
+            nullptr,
+            [&](bool value)
+            {
+                sent.set_value(value);
+            });
+        sent.get_future().get(); // Wait for sent
+    }
+
+    {
+        promise<bool> sent;
+        thrower->throwModA_async(1, 2,
+            []()
+            {
+                test(false);
+            },
+            nullptr,
+            [&](bool value)
+            {
+                sent.set_value(value);
+            });
+        sent.get_future().get(); // Wait for sent
     }
 #else
     {
