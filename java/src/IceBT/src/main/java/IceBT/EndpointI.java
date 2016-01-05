@@ -279,6 +279,11 @@ final class EndpointI extends IceInternal.EndpointI
             _addr = _instance.defaultHost();
         }
 
+        if(_addr == null)
+        {
+            _addr = "";
+        }
+
         if(_addr.length() == 0 || _addr.equals("*"))
         {
             if(oaEndpoint)
