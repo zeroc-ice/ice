@@ -721,7 +721,7 @@ Slice::Gen::generate(const UnitPtr& p)
             ImplVisitor implVisitor(implH, implC, _dllExport);
             p->visit(&implVisitor, false);
         }*/
-        
+
         Cpp11CompatibilityVisitor compatibilityVisitor(H, C, _dllExport);
         p->visit(&compatibilityVisitor, false);
 
@@ -8473,9 +8473,8 @@ Slice::Gen::Cpp11StreamVisitor::visitEnum(const EnumPtr& p)
 }
 
 
-Slice::Gen::Cpp11CompatibilityVisitor::Cpp11CompatibilityVisitor(Output& h, Output& c, const string& dllExport) :
+Slice::Gen::Cpp11CompatibilityVisitor::Cpp11CompatibilityVisitor(Output& h, Output&, const string& dllExport) :
     H(h),
-    C(c),
     _dllExport(dllExport)
 {
 }
@@ -8518,7 +8517,7 @@ Slice::Gen::Cpp11CompatibilityVisitor::visitClassDecl(const ClassDeclPtr& p)
     string scoped = fixKwd(p->scoped());
 
     H << sp << nl << "typedef ::std::shared_ptr<" << name << "> " << p->name() << "Ptr;";
-    
+
     if(!p->isLocal())
     {
         ClassDefPtr def = p->definition();

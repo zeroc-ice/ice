@@ -570,8 +570,8 @@ private:
         ::IceUtilInternal::Output& C;
         std::string _dllExport;
     };
-    
-    
+
+
     class Cpp11CompatibilityVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
@@ -585,7 +585,6 @@ private:
     private:
 
         ::IceUtilInternal::Output& H;
-        ::IceUtilInternal::Output& C;
         std::string _dllExport;
     };
 
