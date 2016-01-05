@@ -154,8 +154,9 @@ Slice::fullPath(const string& path)
 }
 
 string
-Slice::changeInclude(const string& path, const vector<string>& includePaths)
+Slice::changeInclude(const string& p, const vector<string>& includePaths)
 {
+    string path = normalizePath(p);
     //
     // Compare each include path against the included file and select
     // the path that produces the shortest relative filename.
