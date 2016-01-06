@@ -54,5 +54,5 @@ Some contributions are troublesome and therefore difficult to accept:
 ## Contact
 
  * Community Forums: https://forums.zeroc.com
- * Twitter: https://twitter.com/zeroc_inc
+ * Twitter: https://twitter.com/zeroc
  * Email: contributing@zeroc.com
