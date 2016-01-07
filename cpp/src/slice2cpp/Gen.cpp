@@ -3579,7 +3579,9 @@ void
 Slice::Gen::ObjectVisitor::emitGCVisitCode(const TypePtr& p, const string& prefix, const string& name, int level)
 {
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
-    if((builtin && BuiltinPtr::dynamicCast(p)->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(p))
+    if((builtin && 
+       (BuiltinPtr::dynamicCast(p)->kind() == Builtin::KindObject || BuiltinPtr::dynamicCast(p)->kind() == Builtin::KindValue)) ||
+       ClassDeclPtr::dynamicCast(p))
     {
         C << nl << "if(" << prefix << name << ')';
         C << sb;
