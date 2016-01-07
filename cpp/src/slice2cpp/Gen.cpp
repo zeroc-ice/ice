@@ -5480,8 +5480,8 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     ExceptionPtr base = p->base();
     DataMemberList dataMembers = p->dataMembers();
     DataMemberList allDataMembers = p->allDataMembers();
-    bool hasDefaultValues = p->hasDefaultValues();
-
+    DataMemberList baseDataMembers;
+    
     vector<string> params;
     vector<string> allTypes;
     vector<string> allParamDecls;
@@ -5496,15 +5496,15 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     {
         string typeName = inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), _useWstring, true);
         allTypes.push_back(typeName);
-        allParamDecls.push_back(typeName + " __ice_" + fixKwd((*q)->name()));
+        allParamDecls.push_back(typeName + " " + fixKwd("__ice_" + (*q)->name()));
     }
 
     if(base)
     {
-        DataMemberList baseDataMembers = base->allDataMembers();
+        baseDataMembers = base->allDataMembers();
         for(DataMemberList::const_iterator q = baseDataMembers.begin(); q != baseDataMembers.end(); ++q)
         {
-            baseParams.push_back("__ice_" + fixKwd((*q)->name()));
+            baseParams.push_back(fixKwd("__ice_" + (*q)->name()));
         }
     }
 
@@ -5526,35 +5526,104 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     H << nl << "public:";
     H.inc();
 
-    H << sp << nl << name << spar;
+    
     if(p->isLocal())
     {
-        H << "const char*" << "int";
-    }
-    H << epar;
-    if(!p->isLocal() && !hasDefaultValues)
-    {
-        H << " {}";
+        H << sp << nl << name << "(const char* __ice_file, int __ice_line) : "
+          << (base ? fixKwd(base->scoped()) : "::Ice::LocalException") << "(__ice_file, __ice_line)";
+        H << sb;
+        H << eb;
     }
     else
     {
-        H << ';';
+        H << sp << nl << name << "() = default;";
     }
-    if(!allTypes.empty())
+
+    if(!allDataMembers.empty())
     {
-        H << nl;
-        if(!p->isLocal() && allTypes.size() == 1)
-        {
-            H << "explicit ";
-        }
-        H << name << spar;
+        H << sp << nl << name << "(";
         if(p->isLocal())
         {
-            H << "const char*" << "int";
+            H << "const char* __ice_file, int __ice_line";
+            if(!allParamDecls.empty())
+            {
+                H << ", ";
+            }
         }
-        H << allTypes << epar << ';';
+
+        for(vector<string>::const_iterator q = allParamDecls.begin(); q != allParamDecls.end(); ++q)
+        {
+            if(q != allParamDecls.begin())
+            {
+                H << ", ";
+            }
+            H << (*q);
+        }
+        H << ") :";
+        H.inc();
+        if(base && (p->isLocal() || !baseDataMembers.empty()))
+        {
+            H << nl << fixKwd(base->scoped()) << "(";
+            if(p->isLocal())
+            {
+                H << "__ice_file, __ice_line";
+                if(!baseDataMembers.empty())
+                {
+                    H << ", ";
+                }
+            }
+            
+            for(DataMemberList::const_iterator q = baseDataMembers.begin(); q != baseDataMembers.end(); ++q)
+            {
+                if(q != baseDataMembers.begin())
+                {
+                    H << ", ";
+                }
+                if(isMovable((*q)->type()))
+                {
+                    H << "::std::move(" << fixKwd("__ice_" + (*q)->name()) << ")";
+                }
+                else
+                {
+                    H << fixKwd("__ice_" + (*q)->name());
+                }
+            }
+            
+            H << ")";
+            if(!dataMembers.empty())
+            {
+                H << ",";
+            }
+        }
+        else if(p->isLocal())
+        {
+            H << nl << "::Ice::LocalException(__ice_file, __ice_line)";
+            if(!dataMembers.empty())
+            {
+                H << ",";
+            }
+        }
+
+        for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        {
+            if(q != dataMembers.begin())
+            {
+                H << ", ";
+            }
+            if(isMovable((*q)->type()))
+            {
+                H << nl << fixKwd((*q)->name()) << "(::std::move(" << fixKwd("__ice_" + (*q)->name()) << "))";
+            }
+            else
+            {
+                H << nl << fixKwd((*q)->name()) << "(" << fixKwd("__ice_" + (*q)->name()) << ")";
+            }
+        }
+
+        H.dec();
+        H << sb;
+        H << eb;
     }
-    H << nl << "virtual ~" << name << "() throw();";
     H << sp;
 
 
@@ -5570,89 +5639,6 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
         C << sp << nl << "}";
     }
-
-    if(p->isLocal())
-    {
-        C << sp << nl << scoped.substr(2) << "::" << name << spar << "const char* __file" << "int __line" << epar
-          << " :";
-        C.inc();
-        emitUpcall(base, "(__file, __line)", true);
-        if(p->hasDefaultValues())
-        {
-            C << ", ";
-            writeDataMemberInitializers(C, dataMembers, _useWstring, true);
-        }
-        C.dec();
-        C << sb;
-        C << eb;
-    }
-    else if(hasDefaultValues)
-    {
-        C << sp << nl << scoped.substr(2) << "::" << name << "() :";
-        C.inc();
-        writeDataMemberInitializers(C, dataMembers, _useWstring, true);
-        C.dec();
-        C << sb;
-        C << eb;
-    }
-
-    if(!allTypes.empty())
-    {
-        C << sp << nl;
-        C << scoped.substr(2) << "::" << name << spar;
-        if(p->isLocal())
-        {
-            C << "const char* __file" << "int __line";
-        }
-        C << allParamDecls << epar;
-        if(p->isLocal() || !baseParams.empty() || !params.empty())
-        {
-            C << " :";
-            C.inc();
-            string upcall;
-            if(!allParamDecls.empty())
-            {
-                upcall = "(";
-                if(p->isLocal())
-                {
-                    upcall += "__file, __line";
-                }
-                for(vector<string>::const_iterator pi = baseParams.begin(); pi != baseParams.end(); ++pi)
-                {
-                    if(p->isLocal() || pi != baseParams.begin())
-                    {
-                        upcall += ", ";
-                    }
-                    upcall += *pi;
-                }
-                upcall += ")";
-            }
-            if(!params.empty())
-            {
-                upcall += ",";
-            }
-            emitUpcall(base, upcall, p->isLocal());
-        }
-        for(vector<string>::const_iterator pi = params.begin(); pi != params.end(); ++pi)
-        {
-            if(pi != params.begin())
-            {
-                C << ",";
-            }
-            C << nl << *pi << "(__ice_" << *pi << ')';
-        }
-        if(p->isLocal() || !baseParams.empty() || !params.empty())
-        {
-            C.dec();
-        }
-        C << sb;
-        C << eb;
-    }
-
-    C << sp << nl;
-    C << scoped.substr(2) << "::~" << name << "() throw()";
-    C << sb;
-    C << eb;
 
     H << nl << "virtual ::std::string ice_name() const;";
     C << sp << nl << "::std::string" << nl << scoped.substr(2) << "::ice_name() const";
@@ -6924,7 +6910,15 @@ void
 Slice::Gen::Cpp11ObjectVisitor::emitDataMember(const DataMemberPtr& p)
 {
     string name = fixKwd(p->name());
-    H << sp << nl << typeToString(p->type(), p->optional(), p->getMetaData(), _useWstring, true) << ' ' << name << ';';
+    H << sp << nl << typeToString(p->type(), p->optional(), p->getMetaData(), _useWstring, true) << ' ' << name;
+    
+    string defaultValue = p->defaultValue();
+    if(!defaultValue.empty())
+    {
+        H << " = ";
+        writeConstantValue(H, p->type(), p->defaultValueType(), defaultValue, _useWstring, p->getMetaData(), true);
+    }
+    H << ";";
 }
 
 void
@@ -7977,20 +7971,7 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
         allParamDecls.push_back(typeName + " __ice_" + (*q)->name());
     }
 
-    if(p->hasDefaultValues())
-    {
-        H << sp << nl << name << "() :";
-        H.inc();
-        writeDataMemberInitializers(H, dataMembers, _useWstring, true);
-        H.dec();
-        H << sb;
-        H << eb;
-    }
-    else
-    {
-        H << sp << nl << name << "()";
-        H << sb << eb;
-    }
+    H << sp << nl << name << "() = default;";
 
     emitOneShotConstructor(p);
     H << sp;
@@ -8190,27 +8171,10 @@ Slice::Gen::Cpp11ValueVisitor::visitOperation(const OperationPtr&)
 
 
 bool
-Slice::Gen::Cpp11ObjectVisitor::emitVirtualBaseInitializers(const ClassDefPtr& p, bool virtualInheritance, bool direct)
+Slice::Gen::Cpp11ObjectVisitor::emitVirtualBaseInitializers(const ClassDefPtr& p)
 {
     DataMemberList allDataMembers = p->allDataMembers();
     if(allDataMembers.empty())
-    {
-        return false;
-    }
-
-    ClassList bases = p->bases();
-    if(!bases.empty() && !bases.front()->isInterface())
-    {
-        if(emitVirtualBaseInitializers(bases.front(), false, false))
-        {
-            H << ',';
-        }
-    }
-
-    //
-    // Do not call non direct base classes constructor if not using virtual inheritance.
-    //
-    if(!direct && !virtualInheritance)
     {
         return false;
     }
@@ -8222,7 +8186,14 @@ Slice::Gen::Cpp11ObjectVisitor::emitVirtualBaseInitializers(const ClassDefPtr& p
         {
             upcall += ", ";
         }
-        upcall += "__ice_" + (*q)->name();
+        if(isMovable((*q)->type()))
+        {
+            upcall += "::std::move(__ice_" + (*q)->name() + ")";
+        }
+        else
+        {
+            upcall += "__ice_" + (*q)->name();
+        }
     }
     upcall += ")";
 
@@ -8256,11 +8227,10 @@ Slice::Gen::Cpp11ObjectVisitor::emitOneShotConstructor(const ClassDefPtr& p)
         H.inc();
 
         ClassList bases = p->bases();
-        ClassDefPtr base;
 
         if(!bases.empty() && !bases.front()->isInterface())
         {
-            if(emitVirtualBaseInitializers(bases.front(), false, true))
+            if(emitVirtualBaseInitializers(bases.front()))
             {
                 if(!dataMembers.empty())
                 {
@@ -8273,6 +8243,7 @@ Slice::Gen::Cpp11ObjectVisitor::emitOneShotConstructor(const ClassDefPtr& p)
         {
             H << nl;
         }
+
         for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
             if(q != dataMembers.begin())
