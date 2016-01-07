@@ -806,7 +806,7 @@ public:
         writeProxy(::std::static_pointer_cast<::Ice::ObjectPrx>(v));
     }
 
-    ::Ice::ObjectPrxPtr readProxy();
+    ::std::shared_ptr<::Ice::ObjectPrx> readProxy();
 
     template<typename T, typename ::std::enable_if<::std::is_base_of<::Ice::ObjectPrx, T>::value>::type* = nullptr>
     void read(::std::shared_ptr<T>& v)
@@ -818,7 +818,7 @@ public:
         }
         else
         {
-            v = ::std::make_shared<T>();
+            v = ::IceInternal::createProxy<T>();
             v->__copyFrom(proxy);
         }
     }

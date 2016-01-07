@@ -6210,6 +6210,11 @@ Slice::Gen::Cpp11ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     H << nl << "static const ::std::string& ice_staticId();";
 
     H.dec();
+    H << sp << nl << "protected: ";
+    H.inc();
+    H << nl << prx << "() = default;";
+    H << nl << "friend ::std::shared_ptr<" << prx << "> IceInternal::createProxy<" << prx << ">();";
+    H.dec();
     H << sp << nl << "private: ";
     H.inc();
     H << nl << "virtual ::std::shared_ptr<::Ice::ObjectPrx> __newInstance() const;";
@@ -6230,7 +6235,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     C << sp << nl << "::std::shared_ptr<::Ice::ObjectPrx>";
     C << nl << scoped.substr(2) << "::__newInstance() const";
     C << sb;
-    C << nl << "return ::std::make_shared<" << prx << ">();";
+    C << nl << "return ::IceInternal::createProxy<" << prx << ">();";
     C << eb;
 
     _useWstring = resetUseWstring(_useWstringHist);

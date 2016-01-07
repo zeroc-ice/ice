@@ -45,6 +45,17 @@ class Outgoing;
 }
 
 #ifdef ICE_CPP11_MAPPING // C++11 mapping
+
+namespace IceInternal
+{
+template<typename P>
+::std::shared_ptr<P> createProxy()
+{
+    return ::std::shared_ptr<P>(new P());
+}
+
+}
+
 namespace Ice
 {
 
@@ -382,6 +393,8 @@ public:
 protected:
 
     virtual ::std::shared_ptr<ObjectPrx> __newInstance() const;
+    ObjectPrx() = default;
+    friend ::std::shared_ptr<ObjectPrx> IceInternal::createProxy<ObjectPrx>();
 
 private:
 
@@ -446,7 +459,7 @@ uncheckedCast(const ::std::shared_ptr<T>& b)
         r = ::std::dynamic_pointer_cast<P>(b);
         if(!r)
         {
-            r = ::std::make_shared<P>();
+            r = IceInternal::createProxy<P>();
             r->__copyFrom(b);
         }
     }
@@ -462,7 +475,7 @@ uncheckedCast(const ::std::shared_ptr<T>& b, const std::string& f)
     ::std::shared_ptr<P> r;
     if(b)
     {
-        r = ::std::make_shared<P>();
+        r = IceInternal::createProxy<P>();
         r->__copyFrom(b->ice_facet(f));
     }
     return r;
@@ -479,7 +492,7 @@ checkedCast(const ::std::shared_ptr<T>& b, const ::Ice::Context& context = Ice::
     {
         if(b->ice_isA(P::ice_staticId(), context))
         {
-            r = ::std::make_shared<P>();
+            r = IceInternal::createProxy<P>();
             r->__copyFrom(b);
         }
     }
@@ -500,7 +513,7 @@ checkedCast(const ::std::shared_ptr<T>& b, const std::string& f, const ::Ice::Co
             ::std::shared_ptr<::Ice::ObjectPrx> bb = b->ice_facet(f);
             if(bb->ice_isA(P::ice_staticId(), context))
             {
-                r = ::std::make_shared<P>();
+                r = IceInternal::createProxy<P>();
                 r->__copyFrom(bb);
             }
         }

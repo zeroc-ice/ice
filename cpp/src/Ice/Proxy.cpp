@@ -715,7 +715,7 @@ Ice::ObjectPrx::ice_invoke_async(const string& operation,
 shared_ptr<ObjectPrx>
 Ice::ObjectPrx::__newInstance() const
 {
-    return make_shared<ObjectPrx>();
+    return createProxy<ObjectPrx>();
 }
 
 ostream&
@@ -1349,7 +1349,7 @@ ICE_OBJECT_PRX::ice_identity(const Identity& newIdentity) const
     else
     {
 #ifdef ICE_CPP11_MAPPING
-        auto proxy = make_shared<ObjectPrx>();
+        auto proxy = createProxy<ObjectPrx>();
 #else
         ObjectPrxPtr proxy = new IceProxy::Ice::Object;
 #endif
@@ -1388,7 +1388,7 @@ ICE_OBJECT_PRX::ice_facet(const string& newFacet) const
     else
     {
 #ifdef ICE_CPP11_MAPPING
-        auto proxy = make_shared<ObjectPrx>();
+        auto proxy = createProxy<ObjectPrx>();
 #else
         ObjectPrx proxy = new IceProxy::Ice::Object;
 #endif

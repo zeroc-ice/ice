@@ -84,6 +84,14 @@ typedef ::std::shared_ptr<ObjectPrx> ObjectPrxPtr;
 
 }
 
+namespace IceInternal
+{
+
+template<typename P>
+::std::shared_ptr<P> createProxy();
+
+}
+
 namespace IceProxy
 {
 
