@@ -48,13 +48,6 @@ protected:
     virtual void __readImpl(IceInternal::BasicStream*) {}
 };
 
-template<typename T>
-struct ICE_API InterfaceTraits
-{    
-    static const int compactId = -1;
-    static const std::string staticId;
-};
-
 ICE_API void ice_writeObject(const OutputStreamPtr&, const ValuePtr&);
 ICE_API void ice_readObject(const InputStreamPtr&, ValuePtr&);
 
