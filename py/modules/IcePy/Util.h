@@ -23,8 +23,8 @@
 // instead of the standard ones in order to avoid GCC warnings about
 // strict aliasing and type punning.
 //
-#define PyRETURN_FALSE return Py_INCREF(getFalse()), getFalse()
-#define PyRETURN_TRUE return Py_INCREF(getTrue()), getTrue()
+#define PyRETURN_FALSE return incFalse()
+#define PyRETURN_TRUE return incTrue()
 
 #define PyRETURN_BOOL(b) if(b) PyRETURN_TRUE; else PyRETURN_FALSE
 
@@ -47,6 +47,20 @@ inline PyObject* getTrue()
 {
     PyIntObject* i = &_Py_TrueStruct;
     return reinterpret_cast<PyObject*>(i);
+}
+
+inline PyObject* incFalse()
+{
+    PyObject* f = getFalse();
+    Py_INCREF(f);
+    return f;
+}
+
+inline PyObject* incTrue()
+{
+    PyObject* t = getTrue();
+    Py_INCREF(t);
+    return t;
 }
 
 inline PyObject* createString(const std::string& str)
