@@ -2532,7 +2532,7 @@ IcePy::SyncBlobjectInvocation::invoke(PyObject* args, PyObject* /* kwds */)
             throwPythonException();
         }
 
-        if(PyTuple_SET_ITEM(result.get(), 0, ok ? getTrue() : getFalse()) < 0)
+        if(PyTuple_SET_ITEM(result.get(), 0, ok ? incTrue() : incFalse()) < 0)
         {
             throwPythonException();
         }
@@ -2813,7 +2813,7 @@ IcePy::AsyncBlobjectInvocation::end(const Ice::ObjectPrx& proxy, const Ice::Asyn
             return 0;
         }
 
-        if(PyTuple_SET_ITEM(args.get(), 0, ok ? getTrue() : getFalse()) < 0)
+        if(PyTuple_SET_ITEM(args.get(), 0, ok ? incTrue() : incFalse()) < 0)
         {
             return 0;
         }
@@ -2896,7 +2896,7 @@ IcePy::AsyncBlobjectInvocation::response(bool ok, const pair<const Ice::Byte*, c
             return;
         }
 
-        if(PyTuple_SET_ITEM(args.get(), 0, ok ? getTrue() : getFalse()) < 0)
+        if(PyTuple_SET_ITEM(args.get(), 0, ok ? incTrue() : incFalse()) < 0)
         {
             assert(PyErr_Occurred());
             PyErr_Print();
@@ -3112,7 +3112,7 @@ IcePy::OldAsyncBlobjectInvocation::response(bool ok, const pair<const Ice::Byte*
             return;
         }
 
-        if(PyTuple_SET_ITEM(args.get(), 0, ok ? getTrue() : getFalse()) < 0)
+        if(PyTuple_SET_ITEM(args.get(), 0, ok ? incTrue() : incFalse()) < 0)
         {
             assert(PyErr_Occurred());
             PyErr_Print();
