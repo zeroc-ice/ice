@@ -106,7 +106,7 @@ RemoteConfig::RemoteConfig(const std::string& name, int argc, char** argv, const
     _server = server;
 }
 
-RemoteConfig::~RemoteConfig()
+RemoteConfig::~RemoteConfig() noexcept(false)
 {
     if(_server)
     {

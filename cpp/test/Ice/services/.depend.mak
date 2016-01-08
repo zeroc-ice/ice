@@ -67,6 +67,7 @@ Test.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\GCObject.h" \
@@ -158,6 +159,7 @@ Client.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\InstrumentationF.h" \
     "$(includedir)\Ice\Dispatcher.h" \
@@ -290,6 +292,7 @@ AllTests.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\InstrumentationF.h" \
     "$(includedir)\Ice\Dispatcher.h" \
@@ -359,9 +362,6 @@ AllTests.obj: \
     "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
     "$(includedir)\IceGrid\FileParser.h" \
-    "$(includedir)\IceGrid\Locator.h" \
-    "$(includedir)\IceGrid\Observer.h" \
-    "$(includedir)\IceGrid\Query.h" \
     "$(includedir)\IceGrid\Registry.h" \
     "$(includedir)\IceGrid\Session.h" \
     "$(includedir)\IceGrid\UserAccountMapper.h" \

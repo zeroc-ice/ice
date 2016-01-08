@@ -18,10 +18,7 @@ SLICE_OBJS	= .\Admin.obj \
 		  .\Descriptor.obj \
 		  .\Exception.obj \
 		  .\FileParser.obj \
-		  .\Locator.obj \
-		  .\Observer.obj \
 		  .\PluginFacade.obj \
-		  .\Query.obj \
 		  .\Registry.obj \
 		  .\Session.obj \
 		  .\UserAccountMapper.obj
@@ -37,7 +34,7 @@ SDIR		= $(slicedir)\IceGrid
 LINKWITH 	= $(LIBS)
 
 SLICE2CPPFLAGS	= --checksum --ice --include-dir IceGrid --dll-export ICE_GRID_API $(SLICE2CPPFLAGS)
-CPPFLAGS        = -I.. $(CPPFLAGS)
+CPPFLAGS        = -I.. $(CPPFLAGS) /bigobj
 
 !if "$(GENERATE_PDB)" == "yes"
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
@@ -61,7 +58,6 @@ clean::
 	-del /q Descriptor.cpp $(HDIR)\Descriptor.h
 	-del /q Exception.cpp $(HDIR)\Exception.h
 	-del /q FileParser.cpp $(HDIR)\FileParser.h
-	-del /q Locator.cpp $(HDIR)\Locator.h
 	-del /q Observer.cpp $(HDIR)\Observer.h
 	-del /q PluginFacade.cpp $(HDIR)\PluginFacade.h
 	-del /q Query.cpp $(HDIR)\Query.h

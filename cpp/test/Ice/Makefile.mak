@@ -16,6 +16,7 @@ SUBDIRS		= proxy \
 		  operations \
 		  exceptions \
 		  ami \
+		  invoke \
 		  info \
 		  inheritance \
 		  facets \
@@ -36,6 +37,7 @@ SUBDIRS		= proxy \
 		  interceptor \
 		  stringConverter \
 		  background \
+		  threadPoolPriority \
 		  udp \
 		  defaultServant \
 		  defaultValue \

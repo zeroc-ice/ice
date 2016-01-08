@@ -2073,10 +2073,10 @@ Ice::ConnectionI::finish(bool close)
     if(_closeCallback)
     {
         closeCallback(_closeCallback);
-        _closeCallback = 0;
+        _closeCallback = ICE_NULLPTR;
     }
 
-    _heartbeatCallback = 0;
+    _heartbeatCallback = ICE_NULLPTR;
 
     //
     // This must be done last as this will cause waitUntilFinished() to return (and communicator

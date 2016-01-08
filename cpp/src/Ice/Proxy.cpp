@@ -607,7 +607,7 @@ Ice::ObjectPrx::ice_invoke_async(const string& operation,
     try
     {
         result->prepare(operation, mode, context);
-        result->writeParamEncaps(inPair.first, inEncaps.size());
+        result->writeParamEncaps(inPair.first, static_cast<Ice::Int>(inEncaps.size()));
         result->invoke();
     }
     catch(const Exception& ex)

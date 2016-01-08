@@ -258,6 +258,7 @@ Acceptor.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\LoggerF.h" \
@@ -332,6 +333,7 @@ ACM.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\Endpoint.h" \
@@ -353,7 +355,6 @@ ACM.obj: \
     "NetworkF.h" \
     "NetworkProxyF.h" \
     "ProtocolInstanceF.h" \
-    "VirtualShared.h" \
     "RequestHandler.h" \
     "ResponseHandler.h" \
     "$(includedir)\Ice\ResponseHandlerF.h" \
@@ -467,6 +468,7 @@ Application.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\InstrumentationF.h" \
     "$(includedir)\Ice\Dispatcher.h" \
@@ -581,6 +583,7 @@ AsyncResult.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "ThreadPool.h" \
     "$(includedir)\IceUtil\Thread.h" \
     "$(includedir)\Ice\Dispatcher.h" \
@@ -601,7 +604,6 @@ AsyncResult.obj: \
     "NetworkF.h" \
     "NetworkProxyF.h" \
     "ProtocolInstanceF.h" \
-    "VirtualShared.h" \
     "Selector.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
     "Instance.h" \
@@ -723,6 +725,7 @@ BasicStream.obj: \
     "$(includedir)\Ice\AsyncResultF.h" \
     "$(includedir)\Ice\ObserverHelper.h" \
     "$(includedir)\Ice\Instrumentation.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\Endpoint.h" \
@@ -801,6 +804,7 @@ BatchRequestQueue.obj: \
     "$(includedir)\Ice\Config.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
     "$(includedir)\IceUtil\Handle.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\BatchRequestQueueF.h" \
     "$(includedir)\Ice\Handle.h" \
     "$(includedir)\Ice\InstanceF.h" \
@@ -974,7 +978,7 @@ CollocatedRequestHandler.obj: \
     "$(includedir)\Ice\Version.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\ResponseHandlerF.h" \
-    "VirtualShared.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\BasicStream.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
     "$(includedir)\Ice\InstanceF.h" \
@@ -1137,6 +1141,7 @@ CommunicatorI.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\LoggerF.h" \
@@ -1196,7 +1201,6 @@ CommunicatorI.obj: \
     "EventHandlerF.h" \
     "Network.h" \
     "ProtocolInstanceF.h" \
-    "VirtualShared.h" \
     "RequestHandler.h" \
     "ResponseHandler.h" \
     "$(includedir)\Ice\ConnectionAsync.h" \
@@ -1291,6 +1295,7 @@ ConnectionFactory.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\Endpoint.h" \
@@ -1309,7 +1314,6 @@ ConnectionFactory.obj: \
     "NetworkProxyF.h" \
     "$(includedir)\Ice\PropertiesF.h" \
     "ProtocolInstanceF.h" \
-    "VirtualShared.h" \
     "RequestHandler.h" \
     "ResponseHandler.h" \
     "$(includedir)\Ice\ResponseHandlerF.h" \
@@ -1444,6 +1448,7 @@ ConnectionI.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\Endpoint.h" \
@@ -1463,7 +1468,6 @@ ConnectionI.obj: \
     "NetworkProxyF.h" \
     "$(includedir)\Ice\PropertiesF.h" \
     "ProtocolInstanceF.h" \
-    "VirtualShared.h" \
     "RequestHandler.h" \
     "ResponseHandler.h" \
     "$(includedir)\Ice\ResponseHandlerF.h" \
@@ -1544,6 +1548,7 @@ ConnectionRequestHandler.obj: \
     "$(includedir)\Ice\ConnectionIF.h" \
     "$(includedir)\Ice\LocalObject.h" \
     "$(includedir)\Ice\LocalObjectF.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\Proxy.h" \
     "$(includedir)\IceUtil\Mutex.h" \
     "$(includedir)\IceUtil\Lock.h" \
@@ -1634,7 +1639,6 @@ ConnectionRequestHandler.obj: \
     "NetworkProxyF.h" \
     "$(includedir)\Ice\PropertiesF.h" \
     "ProtocolInstanceF.h" \
-    "VirtualShared.h" \
     "ResponseHandler.h" \
     "$(includedir)\Ice\Dispatcher.h" \
     "$(includedir)\Ice\ConnectionAsync.h" \
@@ -1731,6 +1735,7 @@ ConnectRequestHandler.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\LocatorF.h" \
@@ -1794,7 +1799,6 @@ ConnectRequestHandler.obj: \
     "EventHandlerF.h" \
     "Network.h" \
     "ProtocolInstanceF.h" \
-    "VirtualShared.h" \
     "ResponseHandler.h" \
     "$(includedir)\Ice\ConnectionAsync.h" \
     "$(includedir)\Ice\Outgoing.h" \
@@ -1870,6 +1874,7 @@ DefaultsAndOverrides.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\Endpoint.h" \
@@ -1967,6 +1972,7 @@ DeprecatedStringConverter.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\InstrumentationF.h" \
     "$(includedir)\Ice\Dispatcher.h" \
@@ -2167,6 +2173,7 @@ EndpointFactory.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\Endpoint.h" \
     "$(includedir)\Ice\PropertiesF.h" \
@@ -2242,6 +2249,7 @@ EndpointFactoryManager.obj: \
     "TransceiverF.h" \
     "ConnectorF.h" \
     "AcceptorF.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "EndpointFactory.h" \
     "ProtocolInstanceF.h" \
     "$(includedir)\Ice\CommunicatorF.h" \
@@ -2358,6 +2366,7 @@ EndpointI.obj: \
     "TransceiverF.h" \
     "ConnectorF.h" \
     "AcceptorF.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
 
 EventHandler.obj: \
 	EventHandler.cpp \
@@ -2430,11 +2439,11 @@ EventHandler.obj: \
     "$(includedir)\Ice\AsyncResultF.h" \
     "$(includedir)\Ice\ObserverHelper.h" \
     "$(includedir)\Ice\Instrumentation.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\LoggerF.h" \
     "ProtocolInstanceF.h" \
-    "VirtualShared.h" \
     "Instance.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\IceUtil\Timer.h" \
@@ -2544,6 +2553,7 @@ Exception.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LoggerF.h" \
     "ProtocolInstanceF.h" \
     "$(includedir)\Ice\Plugin.h" \
@@ -2846,6 +2856,7 @@ Incoming.obj: \
     "$(includedir)\IceUtil\UniquePtr.h" \
     "$(includedir)\Ice\CommunicatorF.h" \
     "$(includedir)\Ice\AsyncResultF.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\LocatorF.h" \
@@ -2873,7 +2884,6 @@ Incoming.obj: \
     "NetworkProxyF.h" \
     "$(includedir)\Ice\PropertiesF.h" \
     "ProtocolInstanceF.h" \
-    "VirtualShared.h" \
     "RequestHandler.h" \
     "ResponseHandler.h" \
     "$(includedir)\Ice\Dispatcher.h" \
@@ -2986,6 +2996,7 @@ IncomingAsync.obj: \
     "$(includedir)\Ice\BatchRequestQueueF.h" \
     "$(includedir)\Ice\AsyncResult.h" \
     "$(includedir)\Ice\AsyncResultF.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\Endpoint.h" \
@@ -3004,7 +3015,6 @@ IncomingAsync.obj: \
     "NetworkProxyF.h" \
     "$(includedir)\Ice\PropertiesF.h" \
     "ProtocolInstanceF.h" \
-    "VirtualShared.h" \
     "RequestHandler.h" \
     "ResponseHandler.h" \
     "$(includedir)\Ice\Dispatcher.h" \
@@ -3113,6 +3123,7 @@ Initialize.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\LoggerF.h" \
@@ -3248,6 +3259,7 @@ Instance.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\Endpoint.h" \
@@ -3302,7 +3314,6 @@ Instance.obj: \
     "ThreadPool.h" \
     "EventHandler.h" \
     "EventHandlerF.h" \
-    "VirtualShared.h" \
     "Selector.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
     "ConnectionFactory.h" \
@@ -3420,6 +3431,7 @@ InstrumentationI.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\GCObject.h" \
@@ -3503,6 +3515,7 @@ IPEndpointI.obj: \
     "TransceiverF.h" \
     "ConnectorF.h" \
     "AcceptorF.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "Network.h" \
     "NetworkF.h" \
     "NetworkProxyF.h" \
@@ -3664,6 +3677,7 @@ LocatorInfo.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "EndpointIF.h" \
@@ -3795,6 +3809,7 @@ LoggerAdminI.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\Initialize.h" \
@@ -3957,6 +3972,7 @@ LoggerUtil.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\Endpoint.h" \
     "$(includedir)\Ice\PropertiesF.h" \
     "$(includedir)\Ice\ObjectAdapterFactoryF.h" \
@@ -4050,6 +4066,7 @@ MetricsAdminI.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\GCObject.h" \
@@ -4181,6 +4198,7 @@ MetricsObserverI.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\Metrics.h" \
     "$(includedir)\Ice\GCObject.h" \
@@ -4277,6 +4295,7 @@ Network.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\LoggerF.h" \
@@ -4401,6 +4420,7 @@ NetworkProxy.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\LoggerF.h" \
@@ -4492,6 +4512,7 @@ Object.obj: \
     "$(includedir)\IceUtil\Cond.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
     "$(includedir)\Ice\AsyncResultF.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\SlicedData.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
@@ -4565,6 +4586,7 @@ ObjectAdapterFactory.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\ServantLocatorF.h" \
@@ -4658,6 +4680,7 @@ ObjectAdapterI.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\ServantLocatorF.h" \
@@ -4728,7 +4751,6 @@ ObjectAdapterI.obj: \
     "EventHandlerF.h" \
     "Network.h" \
     "ProtocolInstanceF.h" \
-    "VirtualShared.h" \
     "RequestHandler.h" \
     "ResponseHandler.h" \
     "$(includedir)\Ice\ConnectionAsync.h" \
@@ -4820,6 +4842,7 @@ ObserverHelper.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\LocatorF.h" \
@@ -4908,6 +4931,7 @@ OpaqueEndpointI.obj: \
     "TransceiverF.h" \
     "ConnectorF.h" \
     "AcceptorF.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "EndpointFactory.h" \
     "EndpointFactoryF.h" \
     "ProtocolInstanceF.h" \
@@ -5028,6 +5052,7 @@ Outgoing.obj: \
     "$(includedir)\Ice\BatchRequestQueueF.h" \
     "$(includedir)\Ice\AsyncResult.h" \
     "$(includedir)\Ice\AsyncResultF.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\Endpoint.h" \
@@ -5047,7 +5072,6 @@ Outgoing.obj: \
     "NetworkProxyF.h" \
     "$(includedir)\Ice\PropertiesF.h" \
     "ProtocolInstanceF.h" \
-    "VirtualShared.h" \
     "RequestHandler.h" \
     "ResponseHandler.h" \
     "$(includedir)\Ice\ResponseHandlerF.h" \
@@ -5155,6 +5179,7 @@ OutgoingAsync.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\ConnectionIF.h" \
     "ConnectionI.h" \
     "..\..\src\IceUtil\StopWatch.h" \
@@ -5182,7 +5207,6 @@ OutgoingAsync.obj: \
     "NetworkProxyF.h" \
     "$(includedir)\Ice\PropertiesF.h" \
     "ProtocolInstanceF.h" \
-    "VirtualShared.h" \
     "RequestHandler.h" \
     "ResponseHandler.h" \
     "$(includedir)\Ice\ResponseHandlerF.h" \
@@ -5305,6 +5329,7 @@ PluginManagerI.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
@@ -5422,6 +5447,7 @@ PropertiesAdminI.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\GCObject.h" \
@@ -5507,6 +5533,7 @@ PropertiesI.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\GCObject.h" \
@@ -5647,6 +5674,7 @@ ProtocolInstance.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\LoggerF.h" \
@@ -5785,6 +5813,7 @@ ProtocolPluginFacade.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\Endpoint.h" \
@@ -5884,6 +5913,7 @@ Proxy.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "ProxyFactory.h" \
@@ -5960,7 +5990,6 @@ Proxy.obj: \
     "EventHandlerF.h" \
     "Network.h" \
     "ProtocolInstanceF.h" \
-    "VirtualShared.h" \
     "RequestHandler.h" \
     "ResponseHandler.h" \
     "$(includedir)\Ice\ConnectionAsync.h" \
@@ -6034,6 +6063,7 @@ ProxyFactory.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\GCObject.h" \
@@ -6164,6 +6194,7 @@ Reference.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\LocatorF.h" \
@@ -6236,7 +6267,6 @@ Reference.obj: \
     "EventHandler.h" \
     "EventHandlerF.h" \
     "Network.h" \
-    "VirtualShared.h" \
     "RequestHandler.h" \
     "ResponseHandler.h" \
     "$(includedir)\Ice\ConnectionAsync.h" \
@@ -6317,6 +6347,7 @@ ReferenceFactory.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\GCObject.h" \
@@ -6386,7 +6417,6 @@ ReferenceFactory.obj: \
     "EventHandlerF.h" \
     "Network.h" \
     "ProtocolInstanceF.h" \
-    "VirtualShared.h" \
     "RequestHandler.h" \
     "ResponseHandler.h" \
     "$(includedir)\Ice\ConnectionAsync.h" \
@@ -6472,6 +6502,7 @@ RegisterPluginsInit.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\LoggerF.h" \
@@ -6550,6 +6581,7 @@ RequestHandler.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\LocatorF.h" \
@@ -6620,7 +6652,7 @@ RequestHandlerFactory.obj: \
     "$(includedir)\Ice\Version.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\ResponseHandlerF.h" \
-    "VirtualShared.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\BasicStream.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
     "$(includedir)\Ice\Object.h" \
@@ -6736,7 +6768,7 @@ ResponseHandler.obj: \
     "$(includedir)\Ice\Version.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\ResponseHandlerF.h" \
-    "VirtualShared.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
 
 RetryQueue.obj: \
 	RetryQueue.cpp \
@@ -6769,6 +6801,7 @@ RetryQueue.obj: \
     "$(includedir)\Ice\ConnectionIF.h" \
     "$(includedir)\Ice\LocalObject.h" \
     "$(includedir)\Ice\LocalObjectF.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\OutgoingAsync.h" \
     "$(includedir)\Ice\AsyncResult.h" \
     "$(includedir)\Ice\CommunicatorF.h" \
@@ -6922,6 +6955,7 @@ RouterInfo.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\GCObject.h" \
@@ -7021,6 +7055,7 @@ Selector.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\LoggerF.h" \
@@ -7028,7 +7063,6 @@ Selector.obj: \
     "EventHandlerF.h" \
     "EventHandler.h" \
     "$(includedir)\Ice\ThreadPoolF.h" \
-    "VirtualShared.h" \
     "Instance.h" \
     "$(includedir)\IceUtil\RecMutex.h" \
     "$(includedir)\IceUtil\Timer.h" \
@@ -7160,6 +7194,7 @@ ServantManager.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\Endpoint.h" \
     "$(includedir)\Ice\PropertiesF.h" \
     "$(includedir)\Ice\ObjectAdapterFactoryF.h" \
@@ -7264,6 +7299,7 @@ Service.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\InstrumentationF.h" \
     "$(includedir)\Ice\Dispatcher.h" \
@@ -7489,6 +7525,7 @@ Stream.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
 
@@ -7558,6 +7595,7 @@ StreamI.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "Instance.h" \
@@ -7676,6 +7714,7 @@ StreamSocket.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\LoggerF.h" \
@@ -7803,6 +7842,7 @@ StringConverterPlugin.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\GCObject.h" \
     "$(includedir)\Ice\Value.h" \
@@ -7903,6 +7943,7 @@ TcpAcceptor.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\LoggerF.h" \
@@ -8038,6 +8079,7 @@ TcpConnector.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\LoggerF.h" \
@@ -8145,6 +8187,7 @@ TcpEndpointI.obj: \
     "TransceiverF.h" \
     "ConnectorF.h" \
     "AcceptorF.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "Network.h" \
     "NetworkF.h" \
     "NetworkProxyF.h" \
@@ -8304,6 +8347,7 @@ TcpTransceiver.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\LoggerF.h" \
@@ -8424,6 +8468,7 @@ ThreadPool.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "EventHandler.h" \
@@ -8432,7 +8477,6 @@ ThreadPool.obj: \
     "NetworkF.h" \
     "NetworkProxyF.h" \
     "ProtocolInstanceF.h" \
-    "VirtualShared.h" \
     "Selector.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
     "Instance.h" \
@@ -8551,6 +8595,7 @@ TraceLevels.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\Properties.h" \
@@ -8649,6 +8694,7 @@ TraceUtil.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\Endpoint.h" \
@@ -8752,6 +8798,7 @@ Transceiver.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\LoggerF.h" \
@@ -8830,6 +8877,7 @@ UdpConnector.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\LoggerF.h" \
@@ -8930,6 +8978,7 @@ UdpEndpointI.obj: \
     "TransceiverF.h" \
     "ConnectorF.h" \
     "AcceptorF.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "Network.h" \
     "NetworkF.h" \
     "NetworkProxyF.h" \
@@ -9084,6 +9133,7 @@ UdpTransceiver.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\LoggerF.h" \
@@ -9144,8 +9194,7 @@ UdpTransceiver.obj: \
 Value.obj: \
 	Value.cpp \
     "$(includedir)\Ice\Value.h" \
-    "$(includedir)\Ice\Stream.h" \
-    "$(includedir)\Ice\StreamF.h" \
+    "$(includedir)\Ice\ValueF.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\Atomic.h" \
@@ -9153,12 +9202,13 @@ Value.obj: \
     "$(includedir)\IceUtil\Handle.h" \
     "$(includedir)\IceUtil\Exception.h" \
     "$(includedir)\Ice\Config.h" \
+    "$(includedir)\Ice\ObjectF.h" \
+    "$(includedir)\Ice\StreamF.h" \
+    "$(includedir)\Ice\Stream.h" \
     "$(includedir)\Ice\CommunicatorF.h" \
     "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\Ice\ProxyF.h" \
     "$(includedir)\Ice\ProxyHandle.h" \
-    "$(includedir)\Ice\ObjectF.h" \
-    "$(includedir)\Ice\ValueF.h" \
     "$(includedir)\Ice\Exception.h" \
     "$(includedir)\Ice\Format.h" \
     "$(includedir)\Ice\LocalObject.h" \
@@ -9207,6 +9257,7 @@ Value.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
 
@@ -9332,6 +9383,7 @@ WSAcceptor.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "ProtocolInstanceF.h" \
@@ -9456,6 +9508,7 @@ WSConnector.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "EndpointIF.h" \
@@ -9547,6 +9600,7 @@ WSEndpoint.obj: \
     "TransceiverF.h" \
     "ConnectorF.h" \
     "AcceptorF.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "IPEndpointIF.h" \
     "EndpointFactory.h" \
     "EndpointFactoryF.h" \
@@ -9637,6 +9691,7 @@ WSEndpoint.obj: \
     "IPEndpointI.h" \
     "HashUtil.h" \
     "EndpointFactoryManager.h" \
+    "$(includedir)\Ice\Comparable.h" \
 
 WSTransceiver.obj: \
 	WSTransceiver.cpp \
@@ -9706,6 +9761,7 @@ WSTransceiver.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\LoggerF.h" \
@@ -9849,6 +9905,7 @@ DLLMain.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\InstrumentationF.h" \
     "$(includedir)\Ice\Dispatcher.h" \
     "$(includedir)\Ice\BatchRequestInterceptor.h" \
@@ -10013,6 +10070,7 @@ Communicator.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\GCObject.h" \
@@ -10134,6 +10192,7 @@ Connection.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\Endpoint.h" \
@@ -10701,6 +10760,7 @@ Locator.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\GCObject.h" \
@@ -10785,6 +10845,7 @@ LocatorF.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
 
@@ -10909,6 +10970,7 @@ Metrics.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\GCObject.h" \
@@ -10991,6 +11053,7 @@ ObjectAdapter.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\ServantLocatorF.h" \
@@ -11221,6 +11284,7 @@ Process.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\GCObject.h" \
@@ -11303,6 +11367,7 @@ ProcessF.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
 
@@ -11371,6 +11436,7 @@ Properties.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\GCObject.h" \
@@ -11455,6 +11521,7 @@ PropertiesAdmin.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\GCObject.h" \
@@ -11538,6 +11605,7 @@ PropertiesF.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
 
@@ -11606,6 +11674,7 @@ RemoteLogger.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\GCObject.h" \
@@ -11688,6 +11757,7 @@ Router.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\GCObject.h" \
@@ -11770,6 +11840,7 @@ RouterF.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
 

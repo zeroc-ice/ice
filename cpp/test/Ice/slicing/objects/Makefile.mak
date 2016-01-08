@@ -44,7 +44,7 @@ OBJS		= $(COBJS) \
 
 ICECPPFLAGS	= -I. $(ICECPPFLAGS)
 
-CPPFLAGS	= -I. -I../../../include $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
+CPPFLAGS	= -I. -I../../../include $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN /bigobj
 LINKWITH	= testcommon$(LIBSUFFIX).lib $(LIBS)
 
 !if "$(GENERATE_PDB)" == "yes"

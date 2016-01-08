@@ -118,13 +118,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         test1->ice_ping();
         test2->ice_ping();
-        
+
         com->deactivateObjectAdapter(adapter);
-        
+
         TestIntfPrxPtr test3 = ICE_UNCHECKED_CAST(TestIntfPrx, test1);
         test(test3->ice_getConnection() == test1->ice_getConnection());
         test(test3->ice_getConnection() == test2->ice_getConnection());
-        
+
         try
         {
             test3->ice_ping();
@@ -163,7 +163,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
             test(test1->ice_getConnection() == test2->ice_getConnection());
             test(test2->ice_getConnection() == test3->ice_getConnection());
-            
+
             names.erase(test1->getAdapterName());
             test1->ice_getConnection()->close(false);
         }
@@ -177,7 +177,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             {
                 (*p)->getTestIntf()->ice_ping();
             }
-            
+
             TestIntfPrxPtr test = createTestIntfPrx(adapters);
             string name = test->getAdapterName();
             const int nRetry = 10;
@@ -189,7 +189,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             {
                 (*q)->getTestIntf()->ice_getConnection()->close(false);
             }
-        }           
+        }
 
         //
         // Deactivate an adapter and ensure that we can still
@@ -207,21 +207,21 @@ allTests(const Ice::CommunicatorPtr& communicator)
             TestIntfPrxPtr test2 = createTestIntfPrx(adpts);
             random_shuffle(adpts.begin(), adpts.end(), rng);
             TestIntfPrxPtr test3 = createTestIntfPrx(adpts);
-            
+
             test(test1->ice_getConnection() == test2->ice_getConnection());
             test(test2->ice_getConnection() == test3->ice_getConnection());
 
             names.erase(test1->getAdapterName());
             test1->ice_getConnection()->close(false);
         }
-        
+
         //
         // Deactivate an adapter and ensure that we can still
         // establish the connection to the remaining adapter.
         //
-        com->deactivateObjectAdapter(adapters[2]);      
+        com->deactivateObjectAdapter(adapters[2]);
         TestIntfPrxPtr test = createTestIntfPrx(adapters);
-        test(test->getAdapterName() == "Adapter12");    
+        test(test->getAdapterName() == "Adapter12");
 
         deactivate(com, adapters);
     }
@@ -250,7 +250,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 com->deactivateObjectAdapter(adapters[4]);
                 --adapterCount;
             }
-            vector<TestIntfPrx> proxies;
+            vector<TestIntfPrxPtr> proxies;
             proxies.resize(10);
 #else
             if(count < 60 && count % 10 == 0)
@@ -276,7 +276,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 }
                 proxies[i] = createTestIntfPrx(adpts);
             }
-            
+
             for(i = 0; i < proxies.size(); i++)
             {
 #ifdef ICE_CPP11_MAPPING
@@ -347,7 +347,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
             test(test1->ice_getConnection() == test2->ice_getConnection());
             test(test2->ice_getConnection() == test3->ice_getConnection());
-            
+
             names.erase(getAdapterNameWithAMI(test1));
             test1->ice_getConnection()->close(false);
         }
@@ -361,7 +361,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             {
                 (*p)->getTestIntf()->ice_ping();
             }
-            
+
             TestIntfPrxPtr test = createTestIntfPrx(adapters);
             string name = getAdapterNameWithAMI(test);
             const int nRetry = 10;
@@ -373,7 +373,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             {
                 (*q)->getTestIntf()->ice_getConnection()->close(false);
             }
-        }           
+        }
 
         //
         // Deactivate an adapter and ensure that we can still
@@ -391,21 +391,21 @@ allTests(const Ice::CommunicatorPtr& communicator)
             TestIntfPrxPtr test2 = createTestIntfPrx(adpts);
             random_shuffle(adpts.begin(), adpts.end(), rng);
             TestIntfPrxPtr test3 = createTestIntfPrx(adpts);
-            
+
             test(test1->ice_getConnection() == test2->ice_getConnection());
             test(test2->ice_getConnection() == test3->ice_getConnection());
 
             names.erase(test1->getAdapterName());
             test1->ice_getConnection()->close(false);
         }
-        
+
         //
         // Deactivate an adapter and ensure that we can still
         // establish the connection to the remaining adapter.
         //
-        com->deactivateObjectAdapter(adapters[2]);      
+        com->deactivateObjectAdapter(adapters[2]);
         TestIntfPrxPtr test = createTestIntfPrx(adapters);
-        test(test->getAdapterName() == "AdapterAMI12"); 
+        test(test->getAdapterName() == "AdapterAMI12");
 
         deactivate(com, adapters);
     }
@@ -494,7 +494,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 #endif
         test(i == nRetry);
         com->deactivateObjectAdapter(adapters[2]);
-        
+
         try
         {
             test->getAdapterName();
@@ -510,7 +510,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         //
         // Now, re-activate the adapters with the same endpoints in the opposite
         // order.
-        // 
+        //
         adapters.push_back(com->createObjectAdapter("Adapter36", endpoints[2]->toString()));
         for(i = 0; i < nRetry && test->getAdapterName() == "Adapter36"; i++);
 #if TARGET_OS_IPHONE > 0
@@ -559,9 +559,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(test1->ice_getConnection() == test2->ice_getConnection());
 
         test1->ice_ping();
-        
+
         com->deactivateObjectAdapter(adapter);
-        
+
         TestIntfPrxPtr test3 = ICE_UNCHECKED_CAST(TestIntfPrx, test1);
         try
         {
@@ -605,7 +605,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         com->deactivateObjectAdapter(adapters[2]);
 
         test(test->getAdapterName() == "Adapter52");
-        
+
         deactivate(com, adapters);
     }
     cout << "ok" << endl;
@@ -641,7 +641,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         com->deactivateObjectAdapter(adapters[2]);
 
         test(test->getAdapterName() == "AdapterAMI52");
-        
+
         deactivate(com, adapters);
     }
     cout << "ok" << endl;
@@ -686,7 +686,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(i == nRetry);
 #endif
         com->deactivateObjectAdapter(adapters[2]);
-        
+
         try
         {
             test->getAdapterName();
@@ -702,7 +702,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         //
         // Now, re-activate the adapters with the same endpoints in the opposite
         // order.
-        // 
+        //
         adapters.push_back(com->createObjectAdapter("Adapter66", endpoints[2]->toString()));
         for(i = 0; i < nRetry && test->getAdapterName() == "Adapter66"; i++);
 #if TARGET_OS_IPHONE > 0
@@ -769,7 +769,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(i == nRetry);
 #endif
         com->deactivateObjectAdapter(adapters[2]);
-        
+
         try
         {
             test->getAdapterName();
@@ -785,7 +785,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         //
         // Now, re-activate the adapters with the same endpoints in the opposite
         // order.
-        // 
+        //
         adapters.push_back(com->createObjectAdapter("AdapterAMI66", endpoints[2]->toString()));
         for(i = 0; i < nRetry && getAdapterNameWithAMI(test) == "AdapterAMI66"; i++);
 #if TARGET_OS_IPHONE > 0
@@ -812,7 +812,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         TestIntfPrxPtr test = createTestIntfPrx(adapters);
         test(test->getAdapterName() == "Adapter71");
-        
+
         TestIntfPrxPtr testUDP = ICE_UNCHECKED_CAST(TestIntfPrx, test->ice_datagram());
         test(test->ice_getConnection() != testUDP->ice_getConnection());
         try
@@ -836,7 +836,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             vector<RemoteObjectAdapterPrxPtr> adapters;
             adapters.push_back(com->createObjectAdapter("Adapter81", "ssl"));
             adapters.push_back(com->createObjectAdapter("Adapter82", "tcp"));
-            
+
             TestIntfPrxPtr test = createTestIntfPrx(adapters);
             int i;
             for(i = 0; i < 5; i++)
@@ -844,7 +844,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 test(test->getAdapterName() == "Adapter82");
                 test->ice_getConnection()->close(false);
             }
-            
+
             TestIntfPrxPtr testSecure = ICE_UNCHECKED_CAST(TestIntfPrx, test->ice_secure(true));
             test(testSecure->ice_isSecure());
             testSecure = ICE_UNCHECKED_CAST(TestIntfPrx, test->ice_secure(false));
@@ -854,7 +854,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(test->ice_getConnection() != testSecure->ice_getConnection());
 
             com->deactivateObjectAdapter(adapters[1]);
-            
+
             for(i = 0; i < 5; i++)
             {
                 test(test->getAdapterName() == "Adapter81");
@@ -1030,7 +1030,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
                          (*p == anyipv4 && *q == ipv6) || (*p == anyipv6 && *q == ipv4) ||
                          (*p == anyboth && *q == ipv4 && !dualStack) ||
                          (*p == localipv4 && *q == ipv6) || (*p == localipv6 && *q == ipv4) ||
-                         (*p == ipv6 && *q == bothPreferIPv4) || (*p == ipv6 && *q == bothPreferIPv6) || 
+                         (*p == ipv6 && *q == bothPreferIPv4) || (*p == ipv6 && *q == bothPreferIPv6) ||
                          (*p == bothPreferIPv6 && *q == ipv6));
                 }
             }

@@ -19,6 +19,7 @@ SUBDIRS		= Common \
 !elseif "$(CPP11_MAPPING)" == "yes"
 SUBDIRS		= IceUtil \
 		  Slice \
+		  Common \
 		  Ice \
 		  IceSSL \
 		  IceDiscovery \
