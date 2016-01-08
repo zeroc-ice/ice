@@ -106,7 +106,11 @@ RemoteConfig::RemoteConfig(const std::string& name, int argc, char** argv, const
     _server = server;
 }
 
+#ifdef ICE_CPP11_MAPPING
 RemoteConfig::~RemoteConfig() noexcept(false)
+#else
+RemoteConfig::~RemoteConfig()
+#endif
 {
     if(_server)
     {
