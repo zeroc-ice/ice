@@ -65,7 +65,11 @@ protected:
     OutgoingBase(Instance*);
 
     BasicStream _os;
+#ifdef ICE_CPP11_MAPPING
+    std::exception_ptr _exception;
+#else
     IceUtil::UniquePtr<Ice::Exception> _exception;
+#endif
     bool _sent;
     InvocationObserver _observer;
     ObserverHelperT<Ice::Instrumentation::ChildInvocationObserver> _childObserver;

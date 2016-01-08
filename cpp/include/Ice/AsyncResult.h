@@ -147,10 +147,18 @@ private:
     const std::string& _operation;
     const IceInternal::CallbackBasePtr _callback;
     const LocalObjectPtr _cookie;
+#ifdef ICE_CPP11_MAPPING
+    std::exception_ptr _exception;
+#else
     IceUtil::UniquePtr<Exception> _exception;
-
+#endif
+    
     IceInternal::CancellationHandlerPtr _cancellationHandler;
+#ifdef ICE_CPP11_MAPPING
+    std::exception_ptr _cancellationException;
+#else
     IceUtil::UniquePtr<Ice::LocalException> _cancellationException;
+#endif
 
     static const unsigned char OK;
     static const unsigned char Done;

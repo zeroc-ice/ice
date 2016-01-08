@@ -12,6 +12,8 @@
 #include <Test.h>
 #include <TestCommon.h>
 
+using namespace std;
+
 AMDInterceptorI::AMDInterceptorI(const Ice::ObjectPtr& servant) :
     InterceptorI(servant),
     _defaultCb(new DispatchInterceptorAsyncCallbackI(*this)),
@@ -82,7 +84,11 @@ void
 AMDInterceptorI::setActualStatus(const IceUtil::Exception& e)
 {
     IceUtil::Mutex::Lock lock(_mutex);
+#ifdef ICE_CPP11_MAPPING
+    _exception = e.ice_clone();
+#else
     _exception.reset(e.ice_clone());
+#endif
     _actualStatus = Ice::DispatchAsync;
 }
 
@@ -93,20 +99,33 @@ AMDInterceptorI::getActualStatus() const
     return _actualStatus;
 }
 
+#ifdef ICE_CPP11_MAPPING
+exception_ptr
+AMDInterceptorI::getException() const
+{
+    IceUtil::Mutex::Lock lock(_mutex);
+    return _exception;
+}
+#else
 IceUtil::Exception*
 AMDInterceptorI::getException() const
 {
     IceUtil::Mutex::Lock lock(_mutex);
     return _exception.get();
 }
-    
+#endif
+
 void 
 AMDInterceptorI::clear()
 {
     InterceptorI::clear();
     IceUtil::Mutex::Lock lock(_mutex);
     _actualStatus = Ice::DispatchAsync;
+#ifdef ICE_CPP11_MAPPING
+    _exception = nullptr;
+#else
     _exception.reset();
+#endif
 }
 
 

@@ -46,7 +46,9 @@ public:
     LocalException(const char*, int);
     virtual ~LocalException() throw();
     virtual std::string ice_name() const = 0;
+#ifndef ICE_CPP11_MAPPING
     virtual LocalException* ice_clone() const = 0;
+#endif
     virtual void ice_throw() const = 0;
 };
 
@@ -55,7 +57,9 @@ class ICE_API UserException : public IceUtil::Exception
 public:
 
     virtual std::string ice_name() const = 0;
+#ifndef ICE_CPP11_MAPPING
     virtual UserException* ice_clone() const = 0;
+#endif
     virtual void ice_throw() const = 0;
 
     virtual void __write(::IceInternal::BasicStream*) const;
@@ -84,7 +88,9 @@ public:
     SystemException(const char*, int);
     virtual ~SystemException() throw();
     virtual std::string ice_name() const = 0;
+#ifndef ICE_CPP11_MAPPING
     virtual SystemException* ice_clone() const = 0;
+#endif
     virtual void ice_throw() const = 0;
 };
 

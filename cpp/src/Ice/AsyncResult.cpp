@@ -87,7 +87,7 @@ void
 AsyncResult::waitForSent()
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
-    while(!(_state & Sent) && !_exception.get())
+    while(!(_state & Sent) && !ICE_EXCEPTION_GET(_exception))
     {
         _monitor.wait();
     }
@@ -97,9 +97,9 @@ void
 AsyncResult::throwLocalException() const
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
-    if(_exception.get())
+    if(ICE_EXCEPTION_GET(_exception))
     {
-        _exception.get()->ice_throw();
+        ICE_RETHROW_EXCEPTION(_exception);
     }
 }
 
@@ -151,10 +151,12 @@ AsyncResult::__wait()
     {
         _monitor.wait();
     }
-    if(_exception.get())
+
+    if(ICE_EXCEPTION_GET(_exception))
     {
-        _exception.get()->ice_throw();
+        ICE_RETHROW_EXCEPTION(_exception);
     }
+
     return _state & OK;
 }
 
@@ -257,8 +259,7 @@ bool
 AsyncResult::sent(bool done)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
-    assert(!_exception.get());
-
+    assert(!ICE_EXCEPTION_GET(_exception));
     bool alreadySent = _state & Sent;
     _state |= Sent;
     if(done)
@@ -298,7 +299,11 @@ AsyncResult::finished(const Ice::Exception& ex)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
     _state |= Done;
+#ifdef ICE_CPP11_MAPPING
+    _exception = ex.ice_clone();
+#else
     _exception.reset(ex.ice_clone());
+#endif
     _cancellationHandler = 0;
     _observer.failed(ex.ice_name());
     if(!_callback)
@@ -433,7 +438,11 @@ AsyncResult::cancel(const Ice::LocalException& ex)
     CancellationHandlerPtr handler;
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
-        _cancellationException.reset(ex.ice_clone());
+#ifdef ICE_CPP11_MAPPING
+        _cancellationException = ex.ice_clone();
+#else
+        _cancellationException.reset(ex.ice_clone());  
+#endif
         if(!_cancellationHandler)
         {
             return;
@@ -451,6 +460,20 @@ void
 AsyncResult::cancelable(const CancellationHandlerPtr& handler)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
+#ifdef ICE_CPP11_MAPPING
+    if(_cancellationException)
+    {
+        try
+        {
+            rethrow_exception(_cancellationException);
+        }
+        catch(const Ice::Exception&)
+        {
+            _cancellationException = nullptr;
+            throw;
+        }
+    }
+#else
     if(_cancellationException.get())
     {
         try
@@ -463,6 +486,7 @@ AsyncResult::cancelable(const CancellationHandlerPtr& handler)
             throw;
         }
     }
+#endif
     _cancellationHandler = handler;
 }
 

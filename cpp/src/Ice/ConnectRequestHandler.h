@@ -74,7 +74,11 @@ private:
 
     Ice::ConnectionIPtr _connection;
     bool _compress;
+#ifdef ICE_CPP11_MAPPING
+    std::exception_ptr _exception;
+#else
     IceUtil::UniquePtr<Ice::LocalException> _exception;
+#endif
     bool _initialized;
     bool _flushing;
 

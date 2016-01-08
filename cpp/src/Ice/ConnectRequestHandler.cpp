@@ -94,7 +94,7 @@ ConnectRequestHandler::requestCanceled(OutgoingBase* out, const Ice::LocalExcept
 {
     {
         Lock sync(*this);
-        if(_exception.get())
+        if(ICE_EXCEPTION_GET(_exception))
         {
             return; // The request has been notified of a failure already.
         }
@@ -121,7 +121,7 @@ ConnectRequestHandler::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync
 {
     {
         Lock sync(*this);
-        if(_exception.get())
+        if(ICE_EXCEPTION_GET(_exception))
         {
             return; // The request has been notified of a failure already.
         }
@@ -149,9 +149,9 @@ Ice::ConnectionIPtr
 ConnectRequestHandler::getConnection()
 {
     Lock sync(*this);
-    if(_exception.get())
+    if(ICE_EXCEPTION_GET(_exception))
     {
-        _exception->ice_throw();
+        ICE_RETHROW_EXCEPTION(_exception);
         return 0; // Keep the compiler happy.
     }
     else
@@ -164,22 +164,25 @@ Ice::ConnectionIPtr
 ConnectRequestHandler::waitForConnection()
 {
     Lock sync(*this);
-    if(_exception.get())
+    if(ICE_EXCEPTION_GET(_exception))
     {
+#ifdef ICE_CPP11_MAPPING
+        throw RetryException(_exception);
+#else
         throw RetryException(*_exception.get());
+#endif
     }
-
     //
     // Wait for the connection establishment to complete or fail.
     //
-    while(!_initialized && !_exception.get())
+    while(!_initialized && !ICE_EXCEPTION_GET(_exception))
     {
         wait();
     }
 
-    if(_exception.get())
+    if(ICE_EXCEPTION_GET(_exception))
     {
-        _exception->ice_throw();
+        ICE_RETHROW_EXCEPTION(_exception);
         return 0; // Keep the compiler happy.
     }
     else
@@ -193,7 +196,7 @@ ConnectRequestHandler::setConnection(const Ice::ConnectionIPtr& connection, bool
 {
     {
         Lock sync(*this);
-        assert(!_exception.get() && !_connection);
+        assert(!ICE_EXCEPTION_GET(_exception) && !_connection);
         _connection = connection;
         _compress = compress;
     }
@@ -222,8 +225,12 @@ void
 ConnectRequestHandler::setException(const Ice::LocalException& ex)
 {
     Lock sync(*this);
-    assert(!_initialized && !_exception.get());
+    assert(!_initialized && !ICE_EXCEPTION_GET(_exception));
+#ifdef ICE_CPP11_MAPPING
+    _exception = ex.ice_clone();
+#else
     _exception.reset(ex.ice_clone());
+#endif
     _proxies.clear();
     _proxy = 0; // Break cyclic reference count.
 
@@ -242,6 +249,29 @@ ConnectRequestHandler::setException(const Ice::LocalException& ex)
         // Ignore
     }
 
+#ifdef ICE_CPP11_MAPPING
+    try
+    {
+        rethrow_exception(_exception);
+    }
+    catch(const Ice::LocalException& ex)
+    {
+        for(deque<Request>::const_iterator p = _requests.begin(); p != _requests.end(); ++p)
+        {
+            if(p->out)
+            {
+                p->out->completed(ex);
+            }
+            else
+            {
+                if(p->outAsync->completed(ex))
+                {
+                    p->outAsync->invokeCompletedAsync();
+                }
+            }
+        }
+    }
+#else
     for(deque<Request>::const_iterator p = _requests.begin(); p != _requests.end(); ++p)
     {
         if(p->out)
@@ -256,6 +286,7 @@ ConnectRequestHandler::setException(const Ice::LocalException& ex)
             }
         }
     }
+#endif
     _requests.clear();
     notifyAll();
 }
@@ -282,12 +313,12 @@ ConnectRequestHandler::initialized()
     }
     else
     {
-        while(_flushing && !_exception.get())
+        while(_flushing && !ICE_EXCEPTION_GET(_exception))
         {
             wait();
         }
 
-        if(_exception.get())
+        if(ICE_EXCEPTION_GET(_exception))
         {
             if(_connection)
             {
@@ -299,7 +330,7 @@ ConnectRequestHandler::initialized()
                 //
                 return true;
             }
-            _exception->ice_throw();
+            ICE_RETHROW_EXCEPTION(_exception);
             return false; // Keep the compiler happy.
         }
         else
@@ -324,7 +355,11 @@ ConnectRequestHandler::flushRequests()
         _flushing = true;
     }
 
+#ifdef ICE_CPP11_MAPPING
+    std::exception_ptr exception;
+#else
     IceUtil::UniquePtr<Ice::LocalException> exception;
+#endif
     while(!_requests.empty()) // _requests is immutable when _flushing = true
     {
         Request& req = _requests.front();
@@ -341,10 +376,30 @@ ConnectRequestHandler::flushRequests()
         }
         catch(const RetryException& ex)
         {
-            exception.reset(ex.get()->ice_clone());
+#ifdef ICE_CPP11_MAPPING
+            exception = ex.get();
+            try
+            {
+                rethrow_exception(exception);
+            }
+            catch(const Ice::LocalException& ee)
+            {
+                // Remove the request handler before retrying.
+                _reference->getInstance()->requestHandlerFactory()->removeRequestHandler(_reference, shared_from_this());
 
+                if(req.out)
+                {
+                    req.out->retryException(ee);
+                }
+                else
+                {
+                    req.outAsync->retryException(ee);
+                }
+            }
+#else
+            exception.reset(ex.get()->ice_clone());
             // Remove the request handler before retrying.
-            _reference->getInstance()->requestHandlerFactory()->removeRequestHandler(_reference, ICE_SHARED_FROM_THIS);
+            _reference->getInstance()->requestHandlerFactory()->removeRequestHandler(_reference, this);
 
             if(req.out)
             {
@@ -354,10 +409,15 @@ ConnectRequestHandler::flushRequests()
             {
                 req.outAsync->retryException(*ex.get());
             }
+#endif
         }
         catch(const Ice::LocalException& ex)
         {
+#ifdef ICE_CPP11_MAPPING
+            exception = ex.ice_clone();
+#else
             exception.reset(ex.ice_clone());
+#endif
             if(req.out)
             {
                 req.out->completed(ex);
@@ -376,7 +436,7 @@ ConnectRequestHandler::flushRequests()
     // request handler to use the more efficient connection request
     // handler.
     //
-    if(_reference->getCacheConnection() && !exception.get())
+    if(_reference->getCacheConnection() && !ICE_EXCEPTION_GET(exception))
     {
         _requestHandler = ICE_MAKE_SHARED(ConnectionRequestHandler, _reference, _connection, _compress);
         for(set<Ice::ObjectPrxPtr>::const_iterator p = _proxies.begin(); p != _proxies.end(); ++p)
@@ -388,8 +448,12 @@ ConnectRequestHandler::flushRequests()
     {
         Lock sync(*this);
         assert(!_initialized);
+#ifdef ICE_CPP11_MAPPING
+        swap(_exception, exception);
+#else
         _exception.swap(exception);
-        _initialized = !_exception.get();
+#endif
+        _initialized = !ICE_EXCEPTION_GET(_exception);
         _flushing = false;
 
         //
@@ -399,7 +463,7 @@ ConnectRequestHandler::flushRequests()
         _reference->getInstance()->requestHandlerFactory()->removeRequestHandler(_reference, ICE_SHARED_FROM_THIS);
 
         _proxies.clear();
-        _proxy = 0; // Break cyclic reference count.
+        _proxy = ICE_NULLPTR; // Break cyclic reference count.
         notifyAll();
     }
 }

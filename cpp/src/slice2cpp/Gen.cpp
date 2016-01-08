@@ -5654,12 +5654,6 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         H << nl << "virtual void ice_print(::std::ostream&) const;";
     }
 
-    H << nl << "virtual " << name << "* ice_clone() const;";
-    C << sp << nl << scoped.substr(2) << "*" << nl << scoped.substr(2) << "::ice_clone() const";
-    C << sb;
-    C << nl << "return new " << name << "(*this);";
-    C << eb;
-
     H << nl << "virtual void ice_throw() const;";
     C << sp << nl << "void" << nl << scoped.substr(2) << "::ice_throw() const";
     C << sb;

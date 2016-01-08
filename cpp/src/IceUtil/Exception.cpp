@@ -451,11 +451,28 @@ IceUtil::Exception::what() const throw()
     return "";
 }
 
+#ifdef ICE_CPP11_MAPPING
+exception_ptr
+IceUtil::Exception::ice_clone() const
+{
+    try
+    {
+        ice_throw();
+    }
+    catch(...)
+    {
+        return current_exception();
+    }
+    assert(false);
+    return nullptr; // Make compilers happy
+}
+#else
 IceUtil::Exception*
 IceUtil::Exception::ice_clone() const
 {
     return new Exception(*this);
 }
+#endif
 
 void
 IceUtil::Exception::ice_throw() const
@@ -509,11 +526,13 @@ IceUtil::NullHandleException::ice_name() const
     return _name;
 }
 
+#ifndef ICE_CPP11_MAPPING
 IceUtil::NullHandleException*
 IceUtil::NullHandleException::ice_clone() const
 {
     return new NullHandleException(*this);
 }
+#endif
 
 void
 IceUtil::NullHandleException::ice_throw() const
@@ -551,11 +570,13 @@ IceUtil::IllegalArgumentException::ice_print(ostream& out) const
     out << ": " << _reason;
 }
 
+#ifndef ICE_CPP11_MAPPING
 IceUtil::IllegalArgumentException*
 IceUtil::IllegalArgumentException::ice_clone() const
 {
     return new IllegalArgumentException(*this);
 }
+#endif
 
 void
 IceUtil::IllegalArgumentException::ice_throw() const
@@ -602,11 +623,13 @@ IceUtil::IllegalConversionException::ice_print(ostream& out) const
 
 }
 
+#ifndef ICE_CPP11_MAPPING
 IceUtil::IllegalConversionException*
 IceUtil::IllegalConversionException::ice_clone() const
 {
     return new IllegalConversionException(*this);
 }
+#endif
 
 void
 IceUtil::IllegalConversionException::ice_throw() const
@@ -646,11 +669,13 @@ IceUtil::SyscallException::ice_print(ostream& os) const
     }
 }
 
+#ifndef ICE_CPP11_MAPPING
 IceUtil::SyscallException*
 IceUtil::SyscallException::ice_clone() const
 {
     return new SyscallException(*this);
 }
+#endif
 
 void
 IceUtil::SyscallException::ice_throw() const
@@ -695,11 +720,13 @@ IceUtil::FileLockException::ice_print(ostream& os) const
     }
 }
 
+#ifndef ICE_CPP11_MAPPING
 IceUtil::FileLockException*
 IceUtil::FileLockException::ice_clone() const
 {
     return new FileLockException(*this);
 }
+#endif
 
 void
 IceUtil::FileLockException::ice_throw() const
@@ -734,11 +761,13 @@ IceUtil::OptionalNotSetException::ice_name() const
     return _name;
 }
 
+#ifndef ICE_CPP11_MAPPING
 IceUtil::OptionalNotSetException*
 IceUtil::OptionalNotSetException::ice_clone() const
 {
     return new OptionalNotSetException(*this);
 }
+#endif
 
 void
 IceUtil::OptionalNotSetException::ice_throw() const
@@ -772,11 +801,13 @@ IceUtil::IconvInitializationException::ice_print(ostream& out) const
     out << ": " << _reason;
 }
 
+#ifndef ICE_CPP11_MAPPING
 IceUtil::IconvInitializationException*
 IceUtil::IconvInitializationException::ice_clone() const
 {
     return new IconvInitializationException(*this);
 }
+#endif
 
 void
 IceUtil::IconvInitializationException::ice_throw() const

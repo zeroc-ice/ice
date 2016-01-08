@@ -86,7 +86,11 @@ ProxyOutgoingBase::completed(const Ice::Exception& ex)
     _childObserver.detach();
 
     _state = StateFailed;
+#ifdef ICE_CPP11_MAPPING
+    _exception = ex.ice_clone();
+#else
     _exception.reset(ex.ice_clone());
+#endif
     _monitor.notify();
 }
 
@@ -122,7 +126,11 @@ ProxyOutgoingBase::invokeImpl()
             }
 
             _state = StateInProgress;
+#ifdef ICE_CPP11_MAPPING
+            _exception = nullptr;
+#else
             _exception.reset(0);
+#endif
             _sent = false;
 
             _handler = _proxy->__getRequestHandler();
@@ -206,9 +214,9 @@ ProxyOutgoingBase::invokeImpl()
                 }
             }
 
-            if(_exception.get())
+            if(ICE_EXCEPTION_GET(_exception))
             {
-                _exception->ice_throw();
+                ICE_RETHROW_EXCEPTION(_exception);
             }
             else if(_state == StateRetry)
             {
@@ -501,7 +509,11 @@ Outgoing::completed(BasicStream& is)
             ex->id = ident;
             ex->facet = facet;
             ex->operation = operation;
+#ifdef ICE_CPP11_MAPPING
+            _exception = ex->ice_clone();
+#else
             _exception.reset(ex);
+#endif
 
             _state = StateLocalException; // The state must be set last, in case there is an exception.
             break;
@@ -549,15 +561,29 @@ Outgoing::completed(BasicStream& is)
             }
 
             ex->unknown = unknown;
+#ifdef ICE_CPP11_MAPPING
+            _exception = ex->ice_clone();
+#else
             _exception.reset(ex);
-
+#endif
             _state = StateLocalException; // The state must be set last, in case there is an exception.
             break;
         }
 
         default:
         {
+#ifdef ICE_CPP11_MAPPING
+            try
+            {
+                throw UnknownReplyStatusException(__FILE__, __LINE__);
+            }
+            catch(...)
+            {
+                _exception = current_exception();
+            }
+#else
             _exception.reset(new UnknownReplyStatusException(__FILE__, __LINE__));
+#endif
             _state = StateLocalException;
             break;
         }
@@ -635,19 +661,19 @@ ConnectionFlushBatch::invoke()
         else if(!_connection->sendRequest(this, false, false, batchRequestNum))
         {
             Monitor<Mutex>::Lock sync(_monitor);
-            while(!_exception.get() && !_sent)
+            while(!ICE_EXCEPTION_GET(_exception) && !_sent)
             {
                 _monitor.wait();
             }
-            if(_exception.get())
+            if(ICE_EXCEPTION_GET(_exception))
             {
-                _exception->ice_throw();
+                ICE_RETHROW_EXCEPTION(_exception);
             }
         }
     }
     catch(const RetryException& ex)
     {
-        ex.get()->ice_throw();
+        ICE_RETHROW_EXCEPTION(ex.get());
     }
 }
 
@@ -673,7 +699,11 @@ ConnectionFlushBatch::completed(const Ice::Exception& ex)
     Monitor<Mutex>::Lock sync(_monitor);
     _childObserver.failed(ex.ice_name());
     _childObserver.detach();
+#ifdef ICE_CPP11_MAPPING
+    _exception = ex.ice_clone();
+#else
     _exception.reset(ex.ice_clone());
+#endif
     _monitor.notify();
 }
 

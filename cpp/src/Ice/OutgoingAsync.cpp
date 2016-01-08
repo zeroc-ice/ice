@@ -863,10 +863,24 @@ ConnectionFlushBatchAsync::invoke()
     }
     catch(const RetryException& ex)
     {
+#ifdef ICE_CPP11_MAPPING
+        try
+        {
+            rethrow_exception(ex.get());
+        }
+        catch(const Ice::LocalException& ee)
+        {
+            if(completed(ee))
+            {
+                invokeCompletedAsync();
+            }
+        }
+#else
         if(completed(*ex.get()))
         {
             invokeCompletedAsync();
         }
+#endif
     }
     catch(const Exception& ex)
     {

@@ -29,7 +29,11 @@ public:
     virtual std::string ice_name() const;
     virtual void ice_print(std::ostream&) const;
     virtual const char* what() const throw();
+#ifdef ICE_CPP11_MAPPING
+    std::exception_ptr ice_clone() const;
+#else
     virtual Exception* ice_clone() const;
+#endif
     virtual void ice_throw() const;
 
     const char* ice_file() const;
@@ -54,7 +58,9 @@ public:
     NullHandleException(const char*, int);
     virtual ~NullHandleException() throw();
     virtual std::string ice_name() const;
+#ifndef ICE_CPP11_MAPPING
     virtual NullHandleException* ice_clone() const;
+#endif
     virtual void ice_throw() const;
 
 private:
@@ -71,7 +77,9 @@ public:
     virtual ~IllegalArgumentException() throw();
     virtual std::string ice_name() const;
     virtual void ice_print(std::ostream&) const;
+#ifndef ICE_CPP11_MAPPING
     virtual IllegalArgumentException* ice_clone() const;
+#endif
     virtual void ice_throw() const;
 
     std::string reason() const;
@@ -94,7 +102,9 @@ public:
     virtual ~IllegalConversionException() throw();
     virtual std::string ice_name() const;
     virtual void ice_print(std::ostream&) const;
+#ifndef ICE_CPP11_MAPPING
     virtual IllegalConversionException* ice_clone() const;
+#endif
     virtual void ice_throw() const;
 
     std::string reason() const;
@@ -112,7 +122,9 @@ public:
     SyscallException(const char*, int, int);
     virtual std::string ice_name() const;
     virtual void ice_print(std::ostream&) const;
+#ifndef ICE_CPP11_MAPPING
     virtual SyscallException* ice_clone() const;
+#endif
     virtual void ice_throw() const;
 
     int error() const;
@@ -131,7 +143,9 @@ public:
     virtual ~FileLockException() throw();
     virtual std::string ice_name() const;
     virtual void ice_print(std::ostream&) const;
+#ifndef ICE_CPP11_MAPPING
     virtual FileLockException* ice_clone() const;
+#endif
     virtual void ice_throw() const;
 
     std::string path() const;
@@ -151,7 +165,9 @@ public:
     OptionalNotSetException(const char*, int);
     virtual ~OptionalNotSetException() throw();
     virtual std::string ice_name() const;
+#ifndef ICE_CPP11_MAPPING
     virtual OptionalNotSetException* ice_clone() const;
+#endif
     virtual void ice_throw() const;
 
 private:
@@ -168,7 +184,9 @@ public:
     virtual ~IconvInitializationException() throw();
     virtual std::string ice_name() const;
     virtual void ice_print(std::ostream&) const;
+#ifndef ICE_CPP11_MAPPING
     virtual IconvInitializationException* ice_clone() const;
+#endif
     virtual void ice_throw() const;
 
     std::string reason() const;

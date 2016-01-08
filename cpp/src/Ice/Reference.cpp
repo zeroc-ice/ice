@@ -1773,6 +1773,25 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
             virtual void
             setException(const Ice::LocalException& ex)
             {
+#ifdef ICE_CPP11_MAPPING
+                if(!_exception)
+                {
+                    _exception = ex.ice_clone();
+                }
+                
+                try
+                {
+                    rethrow_exception(_exception);
+                }
+                catch(const Ice::LocalException& ee)
+                {
+                    if(++_i == _endpoints.size())
+                    {
+                        _callback->setException(ee);
+                        return;
+                    }
+                }
+#else
                 if(!_exception.get())
                 {
                     _exception.reset(ex.ice_clone());
@@ -1783,7 +1802,7 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
                     _callback->setException(*_exception.get());
                     return;
                 }
-
+#endif
                 const bool more = _i != _endpoints.size() - 1;
                 vector<EndpointIPtr> endpoint;
                 endpoint.push_back(_endpoints[_i]);
@@ -1807,7 +1826,11 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
             const vector<EndpointIPtr> _endpoints;
             const GetConnectionCallbackPtr _callback;
             size_t _i;
+#ifdef ICE_CPP11_MAPPING
+            std::exception_ptr _exception;
+#else
             IceUtil::UniquePtr<Ice::LocalException> _exception;
+#endif
         };
 
         //

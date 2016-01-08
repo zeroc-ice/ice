@@ -13,10 +13,25 @@
 using namespace std;
 using namespace IceInternal;
 
-#ifndef ICE_CPP11_MAPPING
+#ifdef ICE_CPP11_MAPPING
+RetryException::RetryException(std::exception_ptr ex) : _ex(ex)
+{
+}
+
+RetryException::RetryException(const RetryException& ex) : _ex(ex.get())
+{
+}
+
+exception_ptr
+RetryException::get() const
+{
+    assert(_ex);
+    return _ex;
+}
+
+#else
 IceUtil::Shared* IceInternal::upCast(RequestHandler* p) { return p; }
 IceUtil::Shared* IceInternal::upCast(CancellationHandler* p) { return p; }
-#endif
 
 RetryException::RetryException(const Ice::LocalException& ex)
 {
@@ -34,6 +49,7 @@ RetryException::get() const
     assert(_ex.get());
     return _ex.get();
 }
+#endif
 
 RequestHandler::RequestHandler(const ReferencePtr& reference) :
     _reference(reference),

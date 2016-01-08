@@ -19,7 +19,11 @@ public:
 
     virtual IceInternal::NativeInfoPtr getNativeInfo();
 
+#ifdef ICE_CPP11_MAPPING
+    virtual IceInternal::SocketOperation closing(bool, std::exception_ptr);
+#else
     virtual IceInternal::SocketOperation closing(bool, const Ice::LocalException&);
+#endif
     virtual void close();
     virtual IceInternal::SocketOperation write(IceInternal::Buffer&);
     virtual IceInternal::SocketOperation read(IceInternal::Buffer&);

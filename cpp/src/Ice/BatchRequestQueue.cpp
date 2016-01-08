@@ -90,11 +90,10 @@ void
 BatchRequestQueue::prepareBatchRequest(BasicStream* os)
 {
     Lock sync(*this);
-    if(_exception.get())
+    if(ICE_EXCEPTION_GET(_exception))
     {
-        _exception->ice_throw();
+        ICE_RETHROW_EXCEPTION(_exception);
     }
-
     waitStreamInUse(false);
     _batchStreamInUse = true;
     _batchStream.swap(*os);
@@ -207,7 +206,11 @@ void
 BatchRequestQueue::destroy(const Ice::LocalException& ex)
 {
     Lock sync(*this);
+#ifdef ICE_CPP11_MAPPING
+    _exception = ex.ice_clone();
+#else
     _exception.reset(ex.ice_clone());
+#endif
 }
 
 bool

@@ -106,7 +106,11 @@ IceInternal::UdpTransceiver::initialize(Buffer& /*readBuffer*/, Buffer& /*writeB
 }
 
 SocketOperation
+#ifdef ICE_CPP11_MAPPING
+IceInternal::UdpTransceiver::closing(bool, exception_ptr)
+#else
 IceInternal::UdpTransceiver::closing(bool, const Ice::LocalException&)
+#endif
 {
     // Nothing to do.
     return SocketOperationNone;
