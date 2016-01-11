@@ -679,12 +679,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
     Ice::EndpointSeq endpts1 = communicator->stringToProxy("foo:tcp -h 127.0.0.1 -p 10000")->ice_getEndpoints();
     Ice::EndpointSeq endpts2 = communicator->stringToProxy("foo:tcp -h 127.0.0.1 -p 10001")->ice_getEndpoints();
 
-    test(!equal(endpts1.begin(), endpts1.end(), endpts2.begin(), endpts2.end(), Ice::TargetEquals<shared_ptr<Ice::Endpoint>>()));
+    test(endpts1.size() != endpts2.size() ||  !equal(endpts1.begin(), endpts1.end(), endpts2.begin(), Ice::TargetEquals<shared_ptr<Ice::Endpoint>>()));
     test(lexicographical_compare(endpts1.begin(), endpts1.end(), endpts2.begin(), endpts2.end(), Ice::TargetLess<shared_ptr<Ice::Endpoint>>()));
     test(!lexicographical_compare(endpts2.begin(), endpts2.end(), endpts1.begin(), endpts1.end(), Ice::TargetLess<shared_ptr<Ice::Endpoint>>()));
 
     Ice::EndpointSeq endpts3 =  communicator->stringToProxy("foo:tcp -h 127.0.0.1 -p 10000")->ice_getEndpoints();
-    test(equal(endpts1.begin(), endpts1.end(), endpts3.begin(), endpts3.end(), Ice::TargetEquals<shared_ptr<Ice::Endpoint>>()));
+    test(endpts1.size() == endpts3.size() && equal(endpts1.begin(), endpts1.end(), endpts3.begin(), Ice::TargetEquals<shared_ptr<Ice::Endpoint>>()));
 
     test(Ice::targetEquals(compObj1->ice_encodingVersion(Ice::Encoding_1_0), compObj1->ice_encodingVersion(Ice::Encoding_1_0)));
     test(!Ice::targetEquals(compObj1->ice_encodingVersion(Ice::Encoding_1_0), compObj1->ice_encodingVersion(Ice::Encoding_1_1)));

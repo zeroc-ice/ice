@@ -1354,8 +1354,12 @@ IceInternal::RoutableReference::operator==(const Reference& r) const
         return false;
     }
 #ifdef ICE_CPP11_MAPPING
-    if(!equal(_endpoints.begin(), _endpoints.end(), rhs->_endpoints.begin(), rhs->_endpoints.end(), 
-              Ice::TargetEquals<shared_ptr<EndpointI>>()))
+    //
+    // TODO: With C++14 we could use the vesion that receives four iterators and we don't need to explicitly
+    // check the sizesa are equal.
+    //
+    if(_endpoints.size() != rhs->_endpoints.size() || 
+       !equal(_endpoints.begin(), _endpoints.end(), rhs->_endpoints.begin(), Ice::TargetEquals<shared_ptr<EndpointI>>()))
 #else
     if(_endpoints != rhs->_endpoints)
 #endif
