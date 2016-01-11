@@ -40,16 +40,44 @@ public:
     virtual const std::string& ice_id() const;
     static const std::string& ice_staticId();
     
-    virtual ValuePtr ice_clone() const;
+    std::shared_ptr<Value> ice_clone() const;
 
 protected:
-    
+
+    virtual std::shared_ptr<Value> cloneImpl() const = 0;
+
     virtual void __writeImpl(IceInternal::BasicStream*) const {}
     virtual void __readImpl(IceInternal::BasicStream*) {}
 };
 
-ICE_API void ice_writeObject(const OutputStreamPtr&, const ValuePtr&);
-ICE_API void ice_readObject(const InputStreamPtr&, ValuePtr&);
+template<typename T, typename Base> class ValueHelper : public Base
+{
+public:
+
+    using Base::Base;
+
+    ValueHelper() = default;
+
+    std::shared_ptr<T> ice_clone() const
+    {
+        return std::static_pointer_cast<T>(cloneImpl());
+    }
+    
+    virtual const std::string& ice_id() const override
+    {
+        return T::ice_staticId();
+    }
+
+protected:
+
+    virtual std::shared_ptr<Value> cloneImpl() const
+    {
+        return std::make_shared<T>(static_cast<const T&>(*this));
+    }
+};
+
+ICE_API void ice_writeObject(const OutputStreamPtr&, const std::shared_ptr<Value>&);
+ICE_API void ice_readObject(const InputStreamPtr&, std::shared_ptr<Value>&);
 
 }
 #endif // C++11 mapping end

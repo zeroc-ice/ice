@@ -19,7 +19,7 @@ namespace Ice
 {
 
 template<typename T>
-class InterfaceByValue : public Value
+class InterfaceByValue : public Ice::ValueHelper<Ice::InterfaceByValue<T>, Ice::Value>
 {
 public:
 

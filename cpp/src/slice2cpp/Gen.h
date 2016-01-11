@@ -446,7 +446,7 @@ private:
 
     protected:
 
-        bool emitVirtualBaseInitializers(const ClassDefPtr&);
+        bool emitVirtualBaseInitializers(const ClassDefPtr&, const ClassDefPtr&);
         void emitOneShotConstructor(const ClassDefPtr&);
         void emitDataMember(const DataMemberPtr&);
 

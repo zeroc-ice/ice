@@ -68,7 +68,7 @@ Ice::Value::ice_id() const
 ValuePtr
 Ice::Value::ice_clone() const
 {
-    return make_shared<Value>(*this);
+    return cloneImpl();
 }
 
 #endif

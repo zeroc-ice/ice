@@ -7930,18 +7930,17 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     DataMemberList dataMembers = p->dataMembers();
     DataMemberList allDataMembers = p->allDataMembers();
 
-    H << sp << nl << "class " << _dllExport << name << " : ";
-    H.useCurrentPosAsIndent();
+    H << sp << nl << "class " << _dllExport << name << " : public ::Ice::ValueHelper<" << name << ", ";
+
     if(!base || (base && base->isInterface()))
     {
-        H << "public ::Ice::Value";
+        H << "Ice::Value";
     }
     else
     {
-        H << "public " << fixKwd(base->scoped());
+        H << fixKwd(base->scoped());
     }
-
-    H.restoreIndent();
+    H << ">";
     H << sb;
     H.dec();
     H << nl << "public:" << sp;
@@ -7976,10 +7975,6 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     emitOneShotConstructor(p);
     H << sp;
-    H << nl << "virtual ::std::shared_ptr<::Ice::Value> ice_clone() const;";
-    H << sp;
-    H << nl << "const ::std::string& ice_id() const;";
-    H << sp;
     H << nl << "static const ::std::string& ice_staticId();";
     return true;
 }
@@ -7989,6 +7984,7 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
 {
     string scoped = fixKwd(p->scoped());
     string scope = fixKwd(p->scope());
+    string name = fixKwd(p->name());
     ClassList bases = p->bases();
     ClassDefPtr base;
     if(!bases.empty() && !bases.front()->isInterface())
@@ -8058,21 +8054,7 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
     C << eb;
 
     C << sp;
-    C << nl << "::std::shared_ptr<::Ice::Value>";
-    C << nl << scoped.substr(2) << "::ice_clone() const";
-    C << sb;
-    C << nl << "return ::std::make_shared<" << scoped << ">(*this);";
-    C << eb;
-
-    C << sp;
     C << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_staticId()";
-    C << sb;
-    C << nl << "static const ::std::string typeId = \"" << p->scoped() << "\";";
-    C << nl << "return typeId;";
-    C << eb;
-
-    C << sp;
-    C << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_id() const";
     C << sb;
     C << nl << "static const ::std::string typeId = \"" << p->scoped() << "\";";
     C << nl << "return typeId;";
@@ -8172,9 +8154,9 @@ Slice::Gen::Cpp11ValueVisitor::visitOperation(const OperationPtr&)
 
 
 bool
-Slice::Gen::Cpp11ObjectVisitor::emitVirtualBaseInitializers(const ClassDefPtr& p)
+Slice::Gen::Cpp11ObjectVisitor::emitVirtualBaseInitializers(const ClassDefPtr& derived, const ClassDefPtr& base)
 {
-    DataMemberList allDataMembers = p->allDataMembers();
+    DataMemberList allDataMembers = base->allDataMembers();
     if(allDataMembers.empty())
     {
         return false;
@@ -8198,8 +8180,15 @@ Slice::Gen::Cpp11ObjectVisitor::emitVirtualBaseInitializers(const ClassDefPtr& p
     }
     upcall += ")";
 
-    H << nl << fixKwd(p->scoped()) << upcall;
-
+    if(base->isLocal())
+    {
+        H << nl << fixKwd(base->scoped());
+    }
+    else
+    {
+        H << nl << "Ice::ValueHelper<" << fixKwd(derived->scoped()) << ", " << fixKwd(base->scoped()) << ">";
+    }
+    H << upcall;
     return true;
 }
 
@@ -8231,7 +8220,7 @@ Slice::Gen::Cpp11ObjectVisitor::emitOneShotConstructor(const ClassDefPtr& p)
 
         if(!bases.empty() && !bases.front()->isInterface())
         {
-            if(emitVirtualBaseInitializers(bases.front()))
+            if(emitVirtualBaseInitializers(p, bases.front()))
             {
                 if(!dataMembers.empty())
                 {

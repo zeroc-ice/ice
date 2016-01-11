@@ -441,7 +441,7 @@ AsyncResult::cancel(const Ice::LocalException& ex)
         }
         handler = _cancellationHandler;
     }
-    handler->asyncRequestCanceled(ICE_DYNAMIC_CAST(OutgoingAsyncBase, shared_from_this()), ex);
+    handler->asyncRequestCanceled(ICE_DYNAMIC_CAST(OutgoingAsyncBase, ICE_SHARED_FROM_THIS), ex);
 }
 
 void

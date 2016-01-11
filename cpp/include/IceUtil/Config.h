@@ -291,7 +291,7 @@ typedef long long Int64;
 #   define ICE_IN(T) const T&
 #   define ICE_EXCEPTION_GET(T) T.get()
 #   define ICE_RETHROW_EXCEPTION(T) T->ice_throw()
-#   define ICE_RESET_EXCEPTION(T, V) = T.reset(V)
+#   define ICE_RESET_EXCEPTION(T,V) T.reset(V)
 #endif
 
 #endif
