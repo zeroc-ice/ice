@@ -447,7 +447,7 @@ IceInternal::LocatorInfo::Request::addCallback(const ReferencePtr& ref,
         {
             rethrow_exception(_exception);
         }
-        catch(const Ice::LocalException& ex)
+        catch(const Ice::Exception& ex)
         {
             callback->exception(_locatorInfo, ex);
         }
@@ -491,7 +491,7 @@ IceInternal::LocatorInfo::Request::getEndpoints(const ReferencePtr& ref,
         {
             rethrow_exception(_exception);
         }
-        catch(const Ice::LocalException& ex)
+        catch(const Ice::Exception& ex)
         {
             _locatorInfo->getEndpointsException(ref, ex); // This throws.
         }
