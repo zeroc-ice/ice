@@ -2384,11 +2384,7 @@ Ice::ConnectionI::setState(State state, const LocalException& ex)
         // If we are in closed state, an exception must be set.
         //
         assert(_state != StateClosed);
-#ifdef ICE_CPP11_MAPPING
-        _exception = ex.ice_clone();
-#else
-        _exception.reset(ex.ice_clone());
-#endif
+        ICE_RESET_EXCEPTION(_exception, ex.ice_clone());
         //
         // We don't warn if we are not validated.
         //

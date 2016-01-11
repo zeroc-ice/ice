@@ -1777,12 +1777,12 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
             virtual void
             setException(const Ice::LocalException& ex)
             {
-#ifdef ICE_CPP11_MAPPING
-                if(!_exception)
+                if(!ICE_EXCEPTION_GET(_exception))
                 {
-                    _exception = ex.ice_clone();
+                    ICE_RESET_EXCEPTION(_exception, ex.ice_clone());
                 }
-                
+
+#ifdef ICE_CPP11_MAPPING                
                 try
                 {
                     rethrow_exception(_exception);
@@ -1796,11 +1796,6 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
                     }
                 }
 #else
-                if(!_exception.get())
-                {
-                    _exception.reset(ex.ice_clone());
-                }
-
                 if(++_i == _endpoints.size())
                 {
                     _callback->setException(*_exception.get());

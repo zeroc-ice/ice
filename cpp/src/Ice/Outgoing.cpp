@@ -86,11 +86,7 @@ ProxyOutgoingBase::completed(const Ice::Exception& ex)
     _childObserver.detach();
 
     _state = StateFailed;
-#ifdef ICE_CPP11_MAPPING
-    _exception = ex.ice_clone();
-#else
-    _exception.reset(ex.ice_clone());
-#endif
+    ICE_RESET_EXCEPTION(_exception, ex.ice_clone());
     _monitor.notify();
 }
 
@@ -126,11 +122,7 @@ ProxyOutgoingBase::invokeImpl()
             }
 
             _state = StateInProgress;
-#ifdef ICE_CPP11_MAPPING
-            _exception = nullptr;
-#else
-            _exception.reset(0);
-#endif
+            ICE_RESET_EXCEPTION(_exception, ICE_NULLPTR);
             _sent = false;
 
             _handler = _proxy->__getRequestHandler();
@@ -509,12 +501,7 @@ Outgoing::completed(BasicStream& is)
             ex->id = ident;
             ex->facet = facet;
             ex->operation = operation;
-#ifdef ICE_CPP11_MAPPING
-            _exception = ex->ice_clone();
-#else
-            _exception.reset(ex);
-#endif
-
+            ICE_RESET_EXCEPTION(_exception, ex->ice_clone());
             _state = StateLocalException; // The state must be set last, in case there is an exception.
             break;
         }
@@ -561,11 +548,7 @@ Outgoing::completed(BasicStream& is)
             }
 
             ex->unknown = unknown;
-#ifdef ICE_CPP11_MAPPING
-            _exception = ex->ice_clone();
-#else
-            _exception.reset(ex);
-#endif
+            ICE_RESET_EXCEPTION(_exception, ex->ice_clone());
             _state = StateLocalException; // The state must be set last, in case there is an exception.
             break;
         }
@@ -699,11 +682,7 @@ ConnectionFlushBatch::completed(const Ice::Exception& ex)
     Monitor<Mutex>::Lock sync(_monitor);
     _childObserver.failed(ex.ice_name());
     _childObserver.detach();
-#ifdef ICE_CPP11_MAPPING
-    _exception = ex.ice_clone();
-#else
-    _exception.reset(ex.ice_clone());
-#endif
+    ICE_RESET_EXCEPTION(_exception, ex.ice_clone());
     _monitor.notify();
 }
 

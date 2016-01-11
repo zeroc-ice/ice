@@ -272,6 +272,7 @@ typedef long long Int64;
 #   define ICE_IN(T) T
 #   define ICE_EXCEPTION_GET(T) T
 #   define ICE_RETHROW_EXCEPTION(T) ::std::rethrow_exception(T)
+#   define ICE_RESET_EXCEPTION(T, V)  T = V
 #else // C++98 mapping
 #   define ICE_HANDLE ::IceUtil::Handle
 #   define ICE_INTERNAL_HANDLE ::IceInternal::Handle
@@ -290,6 +291,7 @@ typedef long long Int64;
 #   define ICE_IN(T) const T&
 #   define ICE_EXCEPTION_GET(T) T.get()
 #   define ICE_RETHROW_EXCEPTION(T) T->ice_throw()
+#   define ICE_RESET_EXCEPTION(T, V) = T.reset(V)
 #endif
 
 #endif

@@ -555,11 +555,8 @@ IceInternal::LocatorInfo::Request::exception(const Ice::Exception& ex)
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
         _locatorInfo->finishRequest(_ref, _wellKnownRefs, 0, dynamic_cast<const Ice::UserException*>(&ex));
-#ifdef ICE_CPP11_MAPPING
-        _exception = ex.ice_clone();
-#else
-        _exception.reset(ex.ice_clone());
-#endif
+
+        ICE_RESET_EXCEPTION(_exception, ex.ice_clone());
         _monitor.notifyAll();
     }
     for(vector<RequestCallbackPtr>::const_iterator p = _callbacks.begin(); p != _callbacks.end(); ++p)

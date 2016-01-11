@@ -84,11 +84,7 @@ void
 AMDInterceptorI::setActualStatus(const IceUtil::Exception& e)
 {
     IceUtil::Mutex::Lock lock(_mutex);
-#ifdef ICE_CPP11_MAPPING
-    _exception = e.ice_clone();
-#else
-    _exception.reset(e.ice_clone());
-#endif
+    ICE_RESET_EXCEPTION(_exception, e.ice_clone());
     _actualStatus = Ice::DispatchAsync;
 }
 
@@ -121,11 +117,7 @@ AMDInterceptorI::clear()
     InterceptorI::clear();
     IceUtil::Mutex::Lock lock(_mutex);
     _actualStatus = Ice::DispatchAsync;
-#ifdef ICE_CPP11_MAPPING
-    _exception = nullptr;
-#else
-    _exception.reset();
-#endif
+    ICE_RESET_EXCEPTION(_exception, ICE_NULLPTR);
 }
 
 

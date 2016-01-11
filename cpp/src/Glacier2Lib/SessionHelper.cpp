@@ -507,11 +507,7 @@ public:
         _callback(callback),
         _session(session)
     {
-#ifdef ICE_CPP11_MAPPING
-        _ex = ex.ice_clone();
-#else
-        _ex.reset(ex.ice_clone());
-#endif
+        ICE_RESET_EXCEPTION(_ex, ex.ice_clone());
     }
 
     virtual void

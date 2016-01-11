@@ -50,7 +50,7 @@ AsyncResult::getCommunicator() const
 ConnectionPtr 
 AsyncResult::getConnection() const
 {
-    return 0;
+    return ICE_NULLPTR;
 }
 
 ObjectPrxPtr
@@ -299,11 +299,7 @@ AsyncResult::finished(const Ice::Exception& ex)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
     _state |= Done;
-#ifdef ICE_CPP11_MAPPING
-    _exception = ex.ice_clone();
-#else
-    _exception.reset(ex.ice_clone());
-#endif
+    ICE_RESET_EXCEPTION(_exception, ex.ice_clone());
     _cancellationHandler = 0;
     _observer.failed(ex.ice_name());
     if(!_callback)
@@ -438,55 +434,34 @@ AsyncResult::cancel(const Ice::LocalException& ex)
     CancellationHandlerPtr handler;
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
-#ifdef ICE_CPP11_MAPPING
-        _cancellationException = ex.ice_clone();
-#else
-        _cancellationException.reset(ex.ice_clone());  
-#endif
+        ICE_RESET_EXCEPTION(_cancellationException, ex.ice_clone());
         if(!_cancellationHandler)
         {
             return;
         }
         handler = _cancellationHandler;
     }
-#ifdef ICE_CPP11_MAPPING
-    handler->asyncRequestCanceled(dynamic_pointer_cast<OutgoingAsyncBase>(shared_from_this()), ex);
-#else
-    handler->asyncRequestCanceled(OutgoingAsyncBasePtr::dynamicCast(this), ex);
-#endif
+    handler->asyncRequestCanceled(ICE_DYNAMIC_CAST(OutgoingAsyncBase, shared_from_this()), ex);
 }
 
 void
 AsyncResult::cancelable(const CancellationHandlerPtr& handler)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
-#ifdef ICE_CPP11_MAPPING
-    if(_cancellationException)
+    
+
+    if(ICE_EXCEPTION_GET(_cancellationException))
     {
         try
         {
-            rethrow_exception(_cancellationException);
+            ICE_RETHROW_EXCEPTION(_cancellationException);
         }
         catch(const Ice::Exception&)
         {
-            _cancellationException = nullptr;
+            ICE_RESET_EXCEPTION(_cancellationException, ICE_NULLPTR);
             throw;
         }
     }
-#else
-    if(_cancellationException.get())
-    {
-        try
-        {
-            _cancellationException->ice_throw();
-        }
-        catch(const Ice::Exception&)
-        {
-            _cancellationException.reset(0);
-            throw;
-        }
-    }
-#endif
     _cancellationHandler = handler;
 }
 
