@@ -46,12 +46,12 @@ CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 LDFLAGS		:= -L. $(LDFLAGS)
 
 $(TESTLIBNAME): $(SLICE_OBJS)
-	rm -f $@	
+	rm -f $@
 	$(call mklib,$@,$(SLICE_OBJS))
 
 $(CLIENT): $(COBJS) $(TESTLIBNAME)
 	rm -f $@
-	$(call mktest,$@,$(COBJS) -lTestDerived $(TEST_LIBS))
+	$(call mktest,$@,$(COBJS),-lTestDerived $(TEST_LIBS))
 
 $(SERVER): $(SOBJS)
 	rm -f $@
