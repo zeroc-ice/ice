@@ -45,8 +45,8 @@ ifeq ($(GCC_COMPILER),yes)
         CXXARCHFLAGS	+= -march=i586
     endif
 
-    ifeq ($(CPP11), yes)
-        CXXFLAGS += -std=c++1y
+    ifeq ($(CPP11_MAPPING), yes)
+        CXXFLAGS += -std=c++11
     endif
 
     ifeq ($(MACHINE),sparc64)

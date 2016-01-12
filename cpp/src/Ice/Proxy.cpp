@@ -97,7 +97,7 @@ Ice::ObjectPrx::ice_isA_async(const string& typeId,
             os->write(typeId);
         },
         false,
-        [response = move(response)](IceInternal::BasicStream* is)
+        [response](IceInternal::BasicStream* is)
         {
             bool ret;
             is->read(ret);

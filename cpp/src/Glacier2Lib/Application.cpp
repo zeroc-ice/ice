@@ -200,8 +200,9 @@ Glacier2::Application::doMain(Ice::StringSeq& args, const Ice::InitializationDat
                     assert(connection);
                     connection->setACM(acmTimeout, IceUtil::None, Ice::HeartbeatAlways);
 #ifdef ICE_CPP11_MAPPING
+                    auto self = weak_from_this();
                     connection->setCloseCallback(
-                        [self = weak_from_this()](Ice::ConnectionPtr)
+                        [self](Ice::ConnectionPtr)
                         {
                             auto s = self.lock();
                             if(s)

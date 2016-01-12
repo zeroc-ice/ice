@@ -137,8 +137,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             completed = make_shared<promise<void>>();
             promise<bool> sent;
+            auto expected = value;
             hold->set_async(value + 1, IceUtilInternal::random(5),
-                [cond, expected = value, completed](int value)
+                [cond, expected, completed](int value)
                 {
                     if(value != expected)
                     {
@@ -209,10 +210,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             completed = make_shared<promise<void>>();
             promise<bool> sent;
+            auto expected = value;
             holdSerialized->set_async(
                 value + 1,
                 IceUtilInternal::random(1),
-                [cond, expected = value, completed](int value)
+                [cond, expected, completed](int value)
                 {
                     if(value != expected)
                     {

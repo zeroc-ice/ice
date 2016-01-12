@@ -370,8 +370,9 @@ Request::invoke(const Ice::LocatorPrxPtr& l)
         _locatorPrx = l;
         try
         {
+            auto self = shared_from_this();
             l->ice_invoke_async(_operation, _mode, _inParams,
-                                [self = shared_from_this()](bool ok, vector<Ice::Byte> outParams)
+                                [self](bool ok, vector<Ice::Byte> outParams)
                                 {
                                     pair<const Ice::Byte*, const Ice::Byte*> outPair;
                                     if(outParams.empty())
@@ -385,7 +386,7 @@ Request::invoke(const Ice::LocatorPrxPtr& l)
                                     }
                                     self->response(ok, move(outPair));
                                 },
-                                [self = shared_from_this()](exception_ptr e)
+                                [self](exception_ptr e)
                                 {
                                     try
                                     {

@@ -6557,7 +6557,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
         if(ret || !outParams.empty())
         {
             C << nl << "false" << ",";
-            C << nl << "[__response = ::std::move(__response)](::IceInternal::BasicStream* __is)";
+            C << nl << "[__response](::IceInternal::BasicStream* __is)";
             C << sb;
             writeAllocateCode(C, outParams, p, true, _useWstring | TypeContextAMIEnd | TypeContextReadClosure, true);
             writeUnmarshalCode(C, outParams, p, true, _useWstring | TypeContextAMIEnd);

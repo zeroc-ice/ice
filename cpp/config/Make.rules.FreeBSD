@@ -33,7 +33,7 @@ else
 endif
 
 
-ifeq ($(CPP11), yes)
+ifeq ($(CPP11_MAPPING), yes)
     CPPFLAGS            += --std=c++11
     CXXFLAGS            += --stdlib=libc++
 endif

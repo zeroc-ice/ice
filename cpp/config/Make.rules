@@ -170,7 +170,6 @@ ifneq ($(shell test "$(USE_BIN_DIST)" != "yes" -a -d $(top_srcdir)/../$(ice_lang
 endif
 
 ifeq ($(CPP11_MAPPING),yes)
-	CPP11		= yes
 	CPPFLAGS	+= -DICE_CPP11_MAPPING
 endif
 
@@ -297,7 +296,7 @@ SLICE2CPPFLAGS		= $(ICECPPFLAGS)
 
 ifeq ($(ice_dir), $(usr_dir))
     LDFLAGS     = $(LDPLATFORMFLAGS) $(CXXFLAGS)
-    ifeq ($(CPP11),yes)
+    ifeq ($(CPP11_MAPPING),yes)
         LDFLAGS = $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(ice_dir)/$(libsubdir)$(cpp11libdirsuffix)
     endif
 else

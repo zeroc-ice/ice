@@ -415,8 +415,9 @@ LoggerAdminI::attachRemoteLogger(const RemoteLoggerPrx& prx,
 #ifdef ICE_CPP11_MAPPING
     try
     {
+        auto self = shared_from_this();
         remoteLogger->init_async(logger->getPrefix(), initLogMessages,
-            [self =  shared_from_this(), logger, remoteLogger]()
+            [self, logger, remoteLogger]()
             {
                 if(self->_traceLevel > 1)
                 {
@@ -424,7 +425,7 @@ LoggerAdminI::attachRemoteLogger(const RemoteLoggerPrx& prx,
                     trace << "init on `" << remoteLogger << "' completed successfully";
                 }
             },
-            [self =  shared_from_this(), logger, remoteLogger](exception_ptr e)
+            [self, logger, remoteLogger](exception_ptr e)
             {
                 try
                 {
@@ -853,8 +854,9 @@ LoggerAdminLoggerI::run()
             {
 #ifdef ICE_CPP11_MAPPING
                 RemoteLoggerPrxPtr remoteLogger = *p;
+                auto self = shared_from_this();
                 remoteLogger->log_async(job->logMessage,
-                    [self = shared_from_this(), remoteLogger]()
+                    [self, remoteLogger]()
                     {
                         if(self->_loggerAdmin->getTraceLevel() > 1)
                         {
@@ -862,7 +864,7 @@ LoggerAdminLoggerI::run()
                             trace << "log on `" << remoteLogger << "' completed successfully";
                         }
                     },
-                    [self = shared_from_this(), remoteLogger](exception_ptr e)
+                    [self, remoteLogger](exception_ptr e)
                     {
                         try
                         {
