@@ -79,7 +79,7 @@ class LocatorInfo : public IceUtil::Shared, public IceUtil::Mutex
 {
 public:
 
-    class GetEndpointsCallback : virtual public IceUtil::Shared
+    class GetEndpointsCallback : public virtual IceUtil::Shared
     {
     public:
 
@@ -88,7 +88,7 @@ public:
     };
     typedef IceUtil::Handle<GetEndpointsCallback> GetEndpointsCallbackPtr;
 
-    class RequestCallback : virtual public IceUtil::Shared
+    class RequestCallback : public virtual IceUtil::Shared
     {
     public:
 
@@ -105,7 +105,7 @@ public:
     };
     typedef IceUtil::Handle<RequestCallback> RequestCallbackPtr;
 
-    class Request : virtual public IceUtil::Shared
+    class Request : public virtual IceUtil::Shared
     {
     public:
 

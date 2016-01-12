@@ -18,7 +18,7 @@
 namespace IceGrid
 {
 
-class SynchronizationCallback : virtual public IceUtil::Shared
+class SynchronizationCallback : public virtual IceUtil::Shared
 {
 public:
 

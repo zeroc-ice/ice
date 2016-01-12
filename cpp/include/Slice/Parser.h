@@ -309,7 +309,7 @@ protected:
 // Type
 // ----------------------------------------------------------------------
 
-class SLICE_API Type : virtual public SyntaxTreeBase
+class SLICE_API Type : public virtual SyntaxTreeBase
 {
 public:
 
@@ -328,7 +328,7 @@ protected:
 // Builtin
 // ----------------------------------------------------------------------
 
-class SLICE_API Builtin : virtual public Type
+class SLICE_API Builtin : public virtual Type
 {
 public:
 
@@ -371,7 +371,7 @@ protected:
 // Contained
 // ----------------------------------------------------------------------
 
-class SLICE_API Contained : virtual public SyntaxTreeBase
+class SLICE_API Contained : public virtual SyntaxTreeBase
 {
 public:
 
@@ -438,7 +438,7 @@ protected:
 // Container
 // ----------------------------------------------------------------------
 
-class SLICE_API Container : virtual public SyntaxTreeBase
+class SLICE_API Container : public virtual SyntaxTreeBase
 {
 public:
 
@@ -518,7 +518,7 @@ protected:
 // Module
 // ----------------------------------------------------------------------
 
-class SLICE_API Module : virtual public Container, virtual public Contained
+class SLICE_API Module : public virtual Container, public virtual Contained
 {
 public:
 
@@ -537,7 +537,7 @@ protected:
 // Constructed
 // ----------------------------------------------------------------------
 
-class SLICE_API Constructed : virtual public Type, virtual public Contained
+class SLICE_API Constructed : public virtual Type, public virtual Contained
 {
 public:
 
@@ -558,7 +558,7 @@ protected:
 // ClassDecl
 // ----------------------------------------------------------------------
 
-class SLICE_API ClassDecl : virtual public Constructed
+class SLICE_API ClassDecl : public virtual Constructed
 {
 public:
 
@@ -600,7 +600,7 @@ private:
 // Operation
 // ----------------------------------------------------------------------
 
-class SLICE_API Operation : virtual public Contained, virtual public Container
+class SLICE_API Operation : public virtual Contained, public virtual Container
 {
 public:
 
@@ -658,7 +658,7 @@ protected:
 // so if you need the class as a "constructed type", use the
 // declaration() operation to navigate to the class declaration.
 //
-class SLICE_API ClassDef : virtual public Container, virtual public Contained
+class SLICE_API ClassDef : public virtual Container, public virtual Contained
 {
 public:
 
@@ -710,7 +710,7 @@ protected:
 // Proxy
 // ----------------------------------------------------------------------
 
-class SLICE_API Proxy : virtual public Type
+class SLICE_API Proxy : public virtual Type
 {
 public:
 
@@ -734,7 +734,7 @@ protected:
 // ----------------------------------------------------------------------
 
 // No inheritance from Constructed, as this is not a Type
-class SLICE_API Exception : virtual public Container, virtual public Contained
+class SLICE_API Exception : public virtual Container, public virtual Contained
 {
 public:
 
@@ -771,7 +771,7 @@ protected:
 // Struct
 // ----------------------------------------------------------------------
 
-class SLICE_API Struct : virtual public Container, virtual public Constructed
+class SLICE_API Struct : public virtual Container, public virtual Constructed
 {
 public:
 
@@ -799,7 +799,7 @@ protected:
 // Sequence
 // ----------------------------------------------------------------------
 
-class SLICE_API Sequence : virtual public Constructed
+class SLICE_API Sequence : public virtual Constructed
 {
 public:
 
@@ -827,7 +827,7 @@ protected:
 // Dictionary
 // ----------------------------------------------------------------------
 
-class SLICE_API Dictionary : virtual public Constructed
+class SLICE_API Dictionary : public virtual Constructed
 {
 public:
 
@@ -862,7 +862,7 @@ protected:
 // Enum
 // ----------------------------------------------------------------------
 
-class SLICE_API Enum : virtual public Constructed
+class SLICE_API Enum : public virtual Constructed
 {
 public:
 
@@ -896,7 +896,7 @@ protected:
 // Enumerator
 // ----------------------------------------------------------------------
 
-class SLICE_API Enumerator : virtual public Contained
+class SLICE_API Enumerator : public virtual Contained
 {
 public:
 
@@ -924,7 +924,7 @@ protected:
 // Const
 // ----------------------------------------------------------------------
 
-class SLICE_API Const : virtual public Contained
+class SLICE_API Const : public virtual Contained
 {
 public:
 
@@ -955,7 +955,7 @@ protected:
 // ParamDecl
 // ----------------------------------------------------------------------
 
-class SLICE_API ParamDecl : virtual public Contained
+class SLICE_API ParamDecl : public virtual Contained
 {
 public:
 
@@ -983,7 +983,7 @@ protected:
 // DataMember
 // ----------------------------------------------------------------------
 
-class SLICE_API DataMember : virtual public Contained
+class SLICE_API DataMember : public virtual Contained
 {
 public:
 
@@ -1019,7 +1019,7 @@ protected:
 // Unit
 // ----------------------------------------------------------------------
 
-class SLICE_API Unit : virtual public Container
+class SLICE_API Unit : public virtual Container
 {
 public:
 

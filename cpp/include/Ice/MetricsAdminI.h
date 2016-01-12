@@ -121,7 +121,7 @@ protected:
 
 class ICE_API MetricsMapFactory :
 #ifdef ICE_CPP11_MAPPING
-    virtual public Ice::VirtualEnableSharedFromThisBase
+    public virtual Ice::VirtualEnableSharedFromThisBase
 #else
     public Ice::LocalObject
 #endif
@@ -156,7 +156,7 @@ public:
 
     class EntryT :
 #ifdef ICE_CPP11_MAPPING
-        virtual public Ice::VirtualEnableSharedFromThisBase
+        public virtual Ice::VirtualEnableSharedFromThisBase
 #else
         public Ice::LocalObject
 #endif

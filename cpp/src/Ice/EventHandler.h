@@ -23,9 +23,9 @@ namespace IceInternal
 
 class ICE_API EventHandler : 
 #ifdef ICE_CPP11_MAPPING
-    virtual public Ice::VirtualEnableSharedFromThisBase
+    public virtual Ice::VirtualEnableSharedFromThisBase
 #else
-    virtual public Ice::LocalObject
+    public virtual Ice::LocalObject
 #endif
 {
 public:

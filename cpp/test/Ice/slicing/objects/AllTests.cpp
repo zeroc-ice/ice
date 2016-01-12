@@ -489,7 +489,7 @@ public:
 };
 ICE_DEFINE_PTR(CallbackPtr, Callback);
 
-class PNodeI : virtual public PNode
+class PNodeI : public virtual PNode
 {
 public:
 
@@ -528,7 +528,7 @@ public:
 };
 #endif
 
-class PreservedI : virtual public Preserved
+class PreservedI : public virtual Preserved
 {
 public:
 

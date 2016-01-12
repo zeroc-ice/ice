@@ -45,7 +45,7 @@ public:
 
 #else // C++98
 
-template<typename T> class EnableSharedFromThis : virtual public IceUtil::Shared
+template<typename T> class EnableSharedFromThis : public virtual IceUtil::Shared
 {
 public:
 

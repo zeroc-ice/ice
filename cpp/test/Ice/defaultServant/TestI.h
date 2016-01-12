@@ -12,7 +12,7 @@
 
 #include <Test.h>
 
-class MyObjectI : virtual public Test::MyObject
+class MyObjectI : public virtual Test::MyObject
 {
 public:
 

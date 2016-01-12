@@ -23,7 +23,7 @@ namespace IceGrid
 //
 // Callback from asynchronous call to adapter->getDirectProxy() invoked in LocatorI::findAdapterById_async().
 //
-class AdapterGetDirectProxyCallback : virtual public IceUtil::Shared
+class AdapterGetDirectProxyCallback : public virtual IceUtil::Shared
 {
 public:
 
@@ -49,7 +49,7 @@ private:
     const LocatorAdapterInfo _adapter;
 };
 
-class AdapterActivateCallback : virtual public IceUtil::Shared
+class AdapterActivateCallback : public virtual IceUtil::Shared
 {
 public:
 

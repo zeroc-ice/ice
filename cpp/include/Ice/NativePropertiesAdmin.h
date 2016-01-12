@@ -35,7 +35,7 @@ namespace Ice
 
 class ICE_API PropertiesAdminUpdateCallback 
 #ifndef ICE_CPP11_MAPPING
-    : virtual public Ice::LocalObject
+    : public virtual Ice::LocalObject
 #endif
 {
 public:
@@ -46,7 +46,7 @@ ICE_DEFINE_PTR(PropertiesAdminUpdateCallbackPtr, PropertiesAdminUpdateCallback);
 
 class ICE_API NativePropertiesAdmin
 #ifndef ICE_CPP11_MAPPING
-    : virtual public IceUtil::Shared
+    : public virtual IceUtil::Shared
 #endif
 {
 public:

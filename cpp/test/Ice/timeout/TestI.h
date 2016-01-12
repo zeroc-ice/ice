@@ -13,7 +13,7 @@
 #include <Test.h>
 #include <TestCommon.h>
 
-class TimeoutI : virtual public Test::Timeout
+class TimeoutI : public virtual Test::Timeout
 {
 public:
 

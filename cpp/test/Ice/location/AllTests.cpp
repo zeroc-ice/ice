@@ -17,7 +17,7 @@
 using namespace std;
 using namespace Test;
 
-class HelloI : virtual public Hello
+class HelloI : public virtual Hello
 {
 public:
     

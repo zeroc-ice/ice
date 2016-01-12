@@ -12,7 +12,7 @@
 
 #include <ServerPrivateAMD.h>
 
-class TestI : virtual public Test::TestIntf
+class TestI : public virtual Test::TestIntf
 {
 public:
 

@@ -28,7 +28,7 @@ class AcceptorI;
 // Delegate interface implemented by TcpTransceiver or IceSSL::Transceiver or any transport that WS can
 // delegate to.
 //
-class ICE_API WSTransceiverDelegate : virtual public IceUtil::Shared
+class ICE_API WSTransceiverDelegate : public virtual IceUtil::Shared
 {
 public:
 

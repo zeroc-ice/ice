@@ -18,7 +18,7 @@
 namespace Ice
 {
 
-class ICE_API DispatcherCall : virtual public IceUtil::Shared
+class ICE_API DispatcherCall : public virtual IceUtil::Shared
 {
 public:
 
@@ -29,7 +29,7 @@ public:
 
 typedef IceUtil::Handle<DispatcherCall> DispatcherCallPtr;
 
-class ICE_API Dispatcher : virtual public IceUtil::Shared
+class ICE_API Dispatcher : public virtual IceUtil::Shared
 {
 public:
 

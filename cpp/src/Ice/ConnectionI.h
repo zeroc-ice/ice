@@ -147,7 +147,7 @@ public:
     };
     typedef ::std::shared_ptr<StartCallback> StartCallbackPtr;
 #else
-    class StartCallback : virtual public IceUtil::Shared
+    class StartCallback : public virtual IceUtil::Shared
     {
     public:
 

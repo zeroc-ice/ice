@@ -30,7 +30,7 @@ typedef IceUtil::Handle<Timer> TimerPtr;
 //
 class ICE_UTIL_API TimerTask
 #ifndef ICE_CPP11_MAPPING
-    : virtual public IceUtil::Shared
+    : public virtual IceUtil::Shared
 #endif
 {
 public:
@@ -46,7 +46,7 @@ ICE_DEFINE_PTR(TimerTaskPtr, TimerTask);
 // repeated execution. Tasks are executed by the dedicated timer thread 
 // sequentially.
 //
-class ICE_UTIL_API Timer : virtual public IceUtil::Shared, private IceUtil::Thread
+class ICE_UTIL_API Timer : public virtual IceUtil::Shared, private IceUtil::Thread
 {
 public:
 

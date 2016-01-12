@@ -15,7 +15,7 @@
 using namespace std;
 using namespace Test;
 
-class EmptyI : virtual public Empty
+class EmptyI : public virtual Empty
 {
 };
 

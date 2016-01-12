@@ -1611,7 +1611,7 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     H << sp << nl << "class " << _dllExport << name << " : ";
     if(bases.empty())
     {
-        H << "virtual public ::IceProxy::Ice::Object";
+        H << "public virtual ::IceProxy::Ice::Object";
     }
     else
     {
@@ -1619,7 +1619,7 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
         ClassList::const_iterator q = bases.begin();
         while(q != bases.end())
         {
-            H << "virtual public ::IceProxy" << fixKwd((*q)->scoped());
+            H << "public virtual ::IceProxy" << fixKwd((*q)->scoped());
             if(++q != bases.end())
             {
                 H << ',' << nl;
@@ -2405,11 +2405,11 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         if(p->isLocal())
         {
-            H << "virtual public ::Ice::LocalObject";
+            H << "public virtual ::Ice::LocalObject";
         }
         else
         {
-            H << "virtual public ::Ice::Object";
+            H << "public virtual ::Ice::Object";
         }
     }
     else
@@ -3815,7 +3815,7 @@ Slice::Gen::AsyncCallbackVisitor::visitOperation(const OperationPtr& p)
     // Write the callback base class and callback smart pointer.
     //
     string delName = "Callback_" + cl->name() + "_" + p->name();
-    H << sp << nl << "class " << delName << "_Base : virtual public ::IceInternal::CallbackBase { };";
+    H << sp << nl << "class " << delName << "_Base : public virtual ::IceInternal::CallbackBase { };";
     H << nl << "typedef ::IceUtil::Handle< " << delName << "_Base> " << delName << "Ptr;";
 }
 
@@ -4331,10 +4331,10 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
     H << sp;
     H << nl << "class " << name << "I : ";
     H.useCurrentPosAsIndent();
-    H << "virtual public " << fixKwd(name);
+    H << "public virtual " << fixKwd(name);
     for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
     {
-        H << ',' << nl << "virtual public " << fixKwd((*q)->scope());
+        H << ',' << nl << "public virtual " << fixKwd((*q)->scope());
         if((*q)->isAbstract())
         {
             H << (*q)->name() << "I";
@@ -4644,7 +4644,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
     if(cl->hasMetaData("amd") || p->hasMetaData("amd"))
     {
         H << sp << nl << "class " << _dllExport << classNameAMD << '_' << name
-          << " : virtual public ::Ice::AMDCallback";
+          << " : public virtual ::Ice::AMDCallback";
         H << sb;
         H.dec();
         H << nl << "public:";
@@ -6049,7 +6049,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
         base = bases.front();
     }
 
-    H << sp << nl << "class " << _dllExport << p->name() << "Prx : virtual public ::Ice::Proxy<"
+    H << sp << nl << "class " << _dllExport << p->name() << "Prx : public virtual ::Ice::Proxy<"
       << fixKwd(p->name() + "Prx") << ", ";
     if(bases.empty() || (base && base->allOperations().empty()))
     {
@@ -7214,7 +7214,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitClassDefStart(const ClassDefPtr& p)
     H.useCurrentPosAsIndent();
     if(bases.empty() || (base && base->allOperations().empty()))
     {
-        H << "virtual public ::Ice::Object";
+        H << "public virtual ::Ice::Object";
     }
     else
     {
@@ -7224,7 +7224,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitClassDefStart(const ClassDefPtr& p)
             string baseSuffix = (*q)->isInterface() ? "" : "Disp";
             string baseScoped = fixKwd((*q)->scope() + (*q)->name() + baseSuffix);
 
-            H << "virtual public " << baseScoped;
+            H << "public virtual " << baseScoped;
             if(++q != bases.end())
             {
                 H << ',' << nl;

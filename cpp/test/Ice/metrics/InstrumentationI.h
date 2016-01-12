@@ -12,7 +12,7 @@
 
 #include <Ice/Instrumentation.h>
 
-class ObserverI : virtual public Ice::Instrumentation::Observer, public IceUtil::Mutex
+class ObserverI : public virtual Ice::Instrumentation::Observer, public IceUtil::Mutex
 {
 public:
 
@@ -159,7 +159,7 @@ public:
 };
 ICE_DEFINE_PTR(DispatchObserverIPtr, DispatchObserverI);
 
-class ChildInvocationObserverI : virtual public Ice::Instrumentation::ChildInvocationObserver, public ObserverI
+class ChildInvocationObserverI : public virtual Ice::Instrumentation::ChildInvocationObserver, public ObserverI
 {
 public:
 

@@ -34,7 +34,7 @@ struct GroupNodeInfo
     const Ice::ObjectPrx observer;
 };
 
-class Replica : virtual public IceUtil::Shared
+class Replica : public virtual IceUtil::Shared
 {
 public:
 

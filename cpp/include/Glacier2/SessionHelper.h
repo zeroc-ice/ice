@@ -51,7 +51,7 @@ public:
 };
 ICE_DEFINE_PTR(SessionHelperPtr, SessionHelper);
 
-class GLACIER2_API SessionCallback : virtual public ICE_SHARED
+class GLACIER2_API SessionCallback : public virtual ICE_SHARED
 {
 
 public:

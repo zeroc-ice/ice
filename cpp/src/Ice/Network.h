@@ -186,7 +186,7 @@ struct ICE_API AsyncInfo
 delegate void SocketOperationCompletedHandler(int);
 #endif
 
-class ICE_API ReadyCallback : virtual public ::IceUtil::Shared
+class ICE_API ReadyCallback : public virtual ::IceUtil::Shared
 {
 public:
 
@@ -194,7 +194,7 @@ public:
 };
 typedef IceUtil::Handle<ReadyCallback> ReadyCallbackPtr;
 
-class ICE_API NativeInfo : virtual public IceUtil::Shared
+class ICE_API NativeInfo : public virtual IceUtil::Shared
 {
 public:
 

@@ -15,7 +15,7 @@
 namespace Test1
 {
 
-class WstringClassI : virtual public WstringClass
+class WstringClassI : public virtual WstringClass
 {
 public:
 
@@ -37,7 +37,7 @@ public:
 namespace Test2
 {
 
-class WstringClassI : virtual public WstringClass
+class WstringClassI : public virtual WstringClass
 {
 public:
 

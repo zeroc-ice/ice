@@ -14,8 +14,8 @@
 #include <TestCommon.h>
 #include <Ice/NativePropertiesAdmin.h>
 
-class RemoteCommunicatorI : virtual public Test::RemoteCommunicator,
-                            virtual public Ice::PropertiesAdminUpdateCallback,
+class RemoteCommunicatorI : public virtual Test::RemoteCommunicator,
+                            public virtual Ice::PropertiesAdminUpdateCallback,
                             public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:

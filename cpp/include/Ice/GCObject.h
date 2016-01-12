@@ -33,7 +33,7 @@ public:
     virtual bool visit(GCObject*) = 0;
 };
 
-class ICE_API GCObject : virtual public Ice::Object
+class ICE_API GCObject : public virtual Ice::Object
 {
 public:
 

@@ -42,7 +42,7 @@ class NodeI : public Node, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
-    class Update : virtual public IceUtil::Shared
+    class Update : public virtual IceUtil::Shared
     {
     public:
         

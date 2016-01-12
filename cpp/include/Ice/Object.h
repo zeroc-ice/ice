@@ -154,7 +154,7 @@ protected:
 };
 #endif
 
-class ICE_API Blobject : virtual public Object
+class ICE_API Blobject : public virtual Object
 {
 public:
 
@@ -166,7 +166,7 @@ public:
     virtual DispatchStatus __dispatch(IceInternal::Incoming&, const Current&);
 };
 
-class ICE_API BlobjectArray : virtual public Object
+class ICE_API BlobjectArray : public virtual Object
 {
 public:
 
@@ -178,7 +178,7 @@ public:
     virtual DispatchStatus __dispatch(IceInternal::Incoming&, const Current&);
 };
 
-class ICE_API BlobjectAsync : virtual public Object
+class ICE_API BlobjectAsync : public virtual Object
 {
 public:
 
@@ -193,7 +193,7 @@ public:
     virtual DispatchStatus __dispatch(IceInternal::Incoming&, const Current&);
 };
 
-class ICE_API BlobjectArrayAsync : virtual public Object
+class ICE_API BlobjectArrayAsync : public virtual Object
 {
 public:
 

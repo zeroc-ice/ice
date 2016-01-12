@@ -333,7 +333,7 @@ newUpdater(const IceInternal::Handle<T>& updater, void (T::*fn)())
 }
 #endif
 
-template<typename T> class ObserverT : virtual public ::Ice::Instrumentation::Observer
+template<typename T> class ObserverT : public virtual ::Ice::Instrumentation::Observer
 {
 public:
 

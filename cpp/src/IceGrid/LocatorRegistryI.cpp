@@ -88,7 +88,7 @@ newSetDirectProxyCB(const AmdCB& cb, const TraceLevelsPtr& traceLevels, const st
     return new SetDirectProxyCB<AmdCB>(cb, traceLevels, id, p);
 }
 
-class ServerSetProcessCB : virtual public IceUtil::Shared
+class ServerSetProcessCB : public virtual IceUtil::Shared
 {
 public:
 

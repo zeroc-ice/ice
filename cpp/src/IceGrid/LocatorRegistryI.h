@@ -29,7 +29,7 @@ class LocatorRegistryI : public Ice::LocatorRegistry
 {
 public:
     
-    class AdapterSetDirectProxyCB : virtual public IceUtil::Shared
+    class AdapterSetDirectProxyCB : public virtual IceUtil::Shared
     {
     public:
         

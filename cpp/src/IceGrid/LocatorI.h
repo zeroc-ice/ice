@@ -37,7 +37,7 @@ class LocatorI : public Locator, public IceUtil::Mutex
 {
 public:
 
-    class Request : virtual public IceUtil::Shared
+    class Request : public virtual IceUtil::Shared
     {
     public:
 

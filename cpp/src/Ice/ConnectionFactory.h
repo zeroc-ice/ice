@@ -44,11 +44,11 @@ ICE_DEFINE_PTR(ObjectAdapterIPtr, ObjectAdapterI);
 namespace IceInternal
 {
 
-class OutgoingConnectionFactory : virtual public IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mutex>
+class OutgoingConnectionFactory : public virtual IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
-    class CreateConnectionCallback : virtual public IceUtil::Shared
+    class CreateConnectionCallback : public virtual IceUtil::Shared
     {
     public:
 

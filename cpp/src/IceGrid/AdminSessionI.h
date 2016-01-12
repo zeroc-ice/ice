@@ -81,7 +81,7 @@ private:
 };
 typedef IceUtil::Handle<AdminSessionI> AdminSessionIPtr;
 
-class AdminSessionFactory : virtual public IceUtil::Shared
+class AdminSessionFactory : public virtual IceUtil::Shared
 {
 public:
 
@@ -103,7 +103,7 @@ private:
 };
 typedef IceUtil::Handle<AdminSessionFactory> AdminSessionFactoryPtr;
 
-class AdminSessionManagerI : virtual public Glacier2::SessionManager
+class AdminSessionManagerI : public virtual Glacier2::SessionManager
 {
 public:
 
@@ -116,7 +116,7 @@ private:
     const AdminSessionFactoryPtr _factory;
 };
 
-class AdminSSLSessionManagerI : virtual public Glacier2::SSLSessionManager
+class AdminSSLSessionManagerI : public virtual Glacier2::SSLSessionManager
 {
 public:
 

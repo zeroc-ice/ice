@@ -70,7 +70,7 @@ private:
 };
 typedef IceUtil::Handle<AllocationRequest> AllocationRequestPtr;
 
-class Allocatable : virtual public IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mutex>
+class Allocatable : public virtual IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 

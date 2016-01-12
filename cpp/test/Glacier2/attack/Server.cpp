@@ -14,7 +14,7 @@ using namespace std;
 using namespace Ice;
 using namespace Test;
 
-class ServantLocatorI : virtual public ServantLocator
+class ServantLocatorI : public virtual ServantLocator
 {
 public:
 

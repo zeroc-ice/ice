@@ -19,7 +19,7 @@ using namespace std;
 using namespace Test;
 using namespace IceGrid;
 
-class Callback : public IceUtil::Monitor<IceUtil::Mutex>, virtual public IceUtil::Shared
+class Callback : public IceUtil::Monitor<IceUtil::Mutex>, public virtual IceUtil::Shared
 {
 public:
 

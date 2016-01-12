@@ -18,7 +18,7 @@
 namespace IceGrid
 {
 
-class WaitItem : virtual public IceUtil::Shared
+class WaitItem : public virtual IceUtil::Shared
 {
 public:
     

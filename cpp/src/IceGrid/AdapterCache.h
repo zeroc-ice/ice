@@ -42,7 +42,7 @@ struct LocatorAdapterInfo
 };
 typedef std::vector<LocatorAdapterInfo> LocatorAdapterInfoSeq;
 
-class AdapterEntry : virtual public IceUtil::Shared
+class AdapterEntry : public virtual IceUtil::Shared
 {
 public:
     

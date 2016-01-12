@@ -408,7 +408,7 @@ private:
 };
 
 template<typename Prx, typename... Bases>
-class Proxy : virtual public Bases...
+class Proxy : public virtual Bases...
 {
 public:
 
@@ -677,25 +677,25 @@ class LocalException;
 ICE_API void ice_writeObjectPrx(const ::Ice::OutputStreamPtr&, const ObjectPrxPtr&);
 ICE_API void ice_readObjectPrx(const ::Ice::InputStreamPtr&, ObjectPrxPtr&);
 
-class Callback_Object_ice_isA_Base : virtual public ::IceInternal::CallbackBase { };
+class Callback_Object_ice_isA_Base : public virtual ::IceInternal::CallbackBase { };
 typedef ::IceUtil::Handle< Callback_Object_ice_isA_Base> Callback_Object_ice_isAPtr;
 
-class Callback_Object_ice_ping_Base : virtual public ::IceInternal::CallbackBase { };
+class Callback_Object_ice_ping_Base : public virtual ::IceInternal::CallbackBase { };
 typedef ::IceUtil::Handle< Callback_Object_ice_ping_Base> Callback_Object_ice_pingPtr;
 
-class Callback_Object_ice_ids_Base : virtual public ::IceInternal::CallbackBase { };
+class Callback_Object_ice_ids_Base : public virtual ::IceInternal::CallbackBase { };
 typedef ::IceUtil::Handle< Callback_Object_ice_ids_Base> Callback_Object_ice_idsPtr;
 
-class Callback_Object_ice_id_Base : virtual public ::IceInternal::CallbackBase { };
+class Callback_Object_ice_id_Base : public virtual ::IceInternal::CallbackBase { };
 typedef ::IceUtil::Handle< Callback_Object_ice_id_Base> Callback_Object_ice_idPtr;
 
-class Callback_Object_ice_invoke_Base : virtual public ::IceInternal::CallbackBase { };
+class Callback_Object_ice_invoke_Base : public virtual ::IceInternal::CallbackBase { };
 typedef ::IceUtil::Handle< Callback_Object_ice_invoke_Base> Callback_Object_ice_invokePtr;
 
-class Callback_Object_ice_flushBatchRequests_Base : virtual public ::IceInternal::CallbackBase { };
+class Callback_Object_ice_flushBatchRequests_Base : public virtual ::IceInternal::CallbackBase { };
 typedef ::IceUtil::Handle< Callback_Object_ice_flushBatchRequests_Base> Callback_Object_ice_flushBatchRequestsPtr;
 
-class Callback_Object_ice_getConnection_Base : virtual public ::IceInternal::CallbackBase { };
+class Callback_Object_ice_getConnection_Base : public virtual ::IceInternal::CallbackBase { };
 typedef ::IceUtil::Handle< Callback_Object_ice_getConnection_Base> Callback_Object_ice_getConnectionPtr;
 
 }
@@ -1414,7 +1414,7 @@ namespace IceInternal
 // Base template for operation callbacks.
 //
 template<class T>
-class CallbackNC : virtual public CallbackBase
+class CallbackNC : public virtual CallbackBase
 {
 public:
 
@@ -1470,7 +1470,7 @@ private:
 };
 
 template<class T, typename CT>
-class Callback : virtual public CallbackBase
+class Callback : public virtual CallbackBase
 {
 public:
 

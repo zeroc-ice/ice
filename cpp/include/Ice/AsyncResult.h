@@ -193,7 +193,7 @@ public:
 //
 // Base class for generic callbacks.
 //
-class ICE_API GenericCallbackBase : virtual public CallbackBase
+class ICE_API GenericCallbackBase : public virtual CallbackBase
 {
 };
 

@@ -16,7 +16,7 @@
 namespace IceInternal
 {
 
-template<typename T, typename O> class ObserverWithDelegateT : public IceMX::ObserverT<T>, virtual public O
+template<typename T, typename O> class ObserverWithDelegateT : public IceMX::ObserverT<T>, public virtual O
 {
 public:
 

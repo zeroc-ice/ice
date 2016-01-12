@@ -16,7 +16,7 @@
 class TestIntfControllerI;
 ICE_DEFINE_PTR(TestIntfControllerIPtr, TestIntfControllerI);
 
-class TestIntfI : virtual public Test::TestIntf, public IceUtil::Monitor<IceUtil::Mutex>
+class TestIntfI : public virtual Test::TestIntf, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 

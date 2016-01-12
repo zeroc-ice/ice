@@ -178,7 +178,7 @@ struct ToInternalServerDescriptor : std::unary_function<CommunicatorDescriptorPt
     int _iceVersion;
 };
 
-class LoadCB : virtual public IceUtil::Shared
+class LoadCB : public virtual IceUtil::Shared
 {
 public:
 
@@ -245,7 +245,7 @@ private:
     const int _timeout;
 };
 
-class DestroyCB : virtual public IceUtil::Shared
+class DestroyCB : public virtual IceUtil::Shared
 {
 public:
 

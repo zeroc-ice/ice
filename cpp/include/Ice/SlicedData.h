@@ -81,7 +81,7 @@ class ICE_API UnknownSlicedObject
 #ifdef ICE_CPP11_MAPPING
     : public ValueHelper<UnknownSlicedObject, Value>
 #else
-    : virtual public Object, private IceInternal::GCObject
+    : public virtual Object, private IceInternal::GCObject
 #endif
 {
 public:

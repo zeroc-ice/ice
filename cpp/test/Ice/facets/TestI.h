@@ -12,49 +12,49 @@
 
 #include <Test.h>
 
-class AI : virtual public Test::A
+class AI : public virtual Test::A
 {
 public:
 
     virtual std::string callA(const Ice::Current&);
 };
 
-class BI : virtual public Test::B, virtual public AI
+class BI : public virtual Test::B, public virtual AI
 {
 public:
 
     virtual std::string callB(const Ice::Current&);
 };
 
-class CI : virtual public Test::C, virtual public AI
+class CI : public virtual Test::C, public virtual AI
 {
 public:
 
     virtual std::string callC(const Ice::Current&);
 };
 
-class DI : virtual public Test::D, virtual public BI, virtual public CI
+class DI : public virtual Test::D, public virtual BI, public virtual CI
 {
 public:
 
     virtual std::string callD(const Ice::Current&);
 };
 
-class EI : virtual public Test::E
+class EI : public virtual Test::E
 {
 public:
 
     virtual std::string callE(const Ice::Current&);
 };
 
-class FI : virtual public Test::F, virtual public EI
+class FI : public virtual Test::F, public virtual EI
 {
 public:
 
     virtual std::string callF(const Ice::Current&);
 };
 
-class GI : virtual public Test::G
+class GI : public virtual Test::G
 {
 public:
 
@@ -67,7 +67,7 @@ private:
     Ice::CommunicatorPtr _communicator;
 };
 
-class HI : virtual public Test::H, virtual public GI
+class HI : public virtual Test::H, public virtual GI
 {
 public:
 

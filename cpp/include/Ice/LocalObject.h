@@ -23,7 +23,7 @@ class BasicStream;
 namespace Ice
 {
 
-class ICE_API LocalObject : virtual public ::IceUtil::Shared
+class ICE_API LocalObject : public virtual ::IceUtil::Shared
 {
 public:
 

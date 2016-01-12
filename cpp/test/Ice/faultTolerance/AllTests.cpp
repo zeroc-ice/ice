@@ -52,7 +52,7 @@ private:
     bool _called;
 };
 
-class Callback : virtual public IceUtil::Shared, virtual public CallbackBase
+class Callback : public virtual IceUtil::Shared, public virtual CallbackBase
 {
 public:
 

@@ -14,7 +14,7 @@
 using namespace std;
 using namespace Test;
 
-class DestroyCB : virtual public IceUtil::Shared
+class DestroyCB : public virtual IceUtil::Shared
 {
 public:
 

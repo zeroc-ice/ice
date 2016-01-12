@@ -13,7 +13,7 @@
 #include <ServerPrivate.h>
 #include <TestCommon.h>
 
-class TestI : virtual public Test::TestIntf
+class TestI : public virtual Test::TestIntf
 {
 public:
 

@@ -19,7 +19,7 @@
 class BackgroundControllerI;
 ICE_DEFINE_PTR(BackgroundControllerIPtr, BackgroundControllerI);
 
-class BackgroundI : virtual public Test::Background
+class BackgroundI : public virtual Test::Background
 {
 public:
 

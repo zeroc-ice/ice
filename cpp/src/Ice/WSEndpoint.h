@@ -24,7 +24,7 @@ namespace IceInternal
 // Delegate interface implemented by TcpEndpoint or IceSSL::Endpoint or any endpoint that WS can
 // delegate to.
 //
-class ICE_API WSEndpointDelegate : virtual public IceUtil::Shared
+class ICE_API WSEndpointDelegate : public virtual IceUtil::Shared
 {
 public:
 

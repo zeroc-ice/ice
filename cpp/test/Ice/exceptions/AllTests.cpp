@@ -21,11 +21,11 @@ const bool printException = false;
 }
 
 
-class EmptyI : virtual public Empty
+class EmptyI : public virtual Empty
 {
 };
 
-class ServantLocatorI : virtual public Ice::ServantLocator
+class ServantLocatorI : public virtual Ice::ServantLocator
 {
 public:
 
@@ -41,7 +41,7 @@ public:
 };
 
 #ifndef ICE_CPP11_MAPPING // C++98
-class ValueFactoryI : virtual public Ice::ValueFactory
+class ValueFactoryI : public virtual Ice::ValueFactory
 {
 public:
     virtual Ice::ObjectPtr create(const string&) { return 0; }

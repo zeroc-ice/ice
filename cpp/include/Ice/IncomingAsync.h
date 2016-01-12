@@ -17,7 +17,7 @@
 namespace Ice
 {
 
-class ICE_API AMDCallback : virtual public Ice::LocalObject
+class ICE_API AMDCallback : public virtual Ice::LocalObject
 {
 public:
 
@@ -90,7 +90,7 @@ private:
 namespace Ice
 {
 
-class ICE_API AMD_Object_ice_invoke : virtual public Ice::AMDCallback
+class ICE_API AMD_Object_ice_invoke : public virtual Ice::AMDCallback
 {
 public:
     

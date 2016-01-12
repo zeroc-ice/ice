@@ -19,7 +19,7 @@
 namespace IceGrid
 {
 
-class ObserverTopic : public IceUtil::Monitor<IceUtil::Mutex>, virtual public Ice::Object
+class ObserverTopic : public IceUtil::Monitor<IceUtil::Mutex>, public virtual Ice::Object
 {
 public:
 

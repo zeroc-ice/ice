@@ -19,7 +19,7 @@
 namespace IceInternal
 {
 
-class ICE_API Acceptor : virtual public ::IceUtil::Shared
+class ICE_API Acceptor : public virtual ::IceUtil::Shared
 {
 public:
 

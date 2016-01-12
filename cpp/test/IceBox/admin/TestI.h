@@ -12,8 +12,8 @@
 
 #include <Test.h>
 
-class TestFacetI : virtual public ::Test::TestFacet,
-                   virtual public Ice::PropertiesAdminUpdateCallback,
+class TestFacetI : public virtual ::Test::TestFacet,
+                   public virtual Ice::PropertiesAdminUpdateCallback,
                    IceUtil::Monitor<IceUtil::Mutex>
 {
 public:

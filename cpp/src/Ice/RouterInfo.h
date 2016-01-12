@@ -59,7 +59,7 @@ class RouterInfo : public IceUtil::Shared, public IceUtil::Mutex
 {
 public:
 
-    class GetClientEndpointsCallback : virtual public Ice::LocalObject
+    class GetClientEndpointsCallback : public virtual Ice::LocalObject
     {
     public:
         
@@ -70,7 +70,7 @@ public:
 
     class AddProxyCallback 
 #ifndef ICE_CPP11_MAPPING
-        : virtual public IceUtil::Shared
+        : public virtual IceUtil::Shared
 #endif
     {
     public:

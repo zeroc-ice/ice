@@ -415,7 +415,7 @@ AdminI::getServerAdmin(const string& id, const Current& current) const
 namespace
 {
 
-class StartCB : virtual public IceUtil::Shared
+class StartCB : public virtual IceUtil::Shared
 {
 public:
 
@@ -469,7 +469,7 @@ AdminI::startServer_async(const AMD_Admin_startServerPtr& amdCB, const string& i
 namespace
 {
 
-class StopCB : virtual public IceUtil::Shared
+class StopCB : public virtual IceUtil::Shared
 {
 public:
 

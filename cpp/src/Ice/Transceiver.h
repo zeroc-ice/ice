@@ -21,7 +21,7 @@ namespace IceInternal
 
 class Buffer;
 
-class ICE_API Transceiver : virtual public ::IceUtil::Shared
+class ICE_API Transceiver : public virtual ::IceUtil::Shared
 {
 public:
 

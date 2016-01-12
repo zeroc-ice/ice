@@ -20,7 +20,7 @@ using namespace Test;
 // simplicity, we essentially 'alias' all possible requests to a single
 // object adapter and a single servant.
 //
-class ServerLocatorRegistry : virtual public LocatorRegistry
+class ServerLocatorRegistry : public virtual LocatorRegistry
 {
 public:
 
@@ -46,7 +46,7 @@ public:
     }
 };
 
-class ServerLocatorI : virtual public Locator
+class ServerLocatorI : public virtual Locator
 {
 public:
     ServerLocatorI(const BackendPtr& backend, const ObjectAdapterPtr& adapter) :
@@ -82,7 +82,7 @@ private:
     const LocatorRegistryPrx _registryPrx;
 };
 
-class ServantLocatorI : virtual public ServantLocator
+class ServantLocatorI : public virtual ServantLocator
 {
 public:
 
