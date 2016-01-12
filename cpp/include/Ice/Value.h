@@ -28,18 +28,18 @@ namespace Ice
 class ICE_API Value
 {
 public:
-    
+
     virtual ~Value() = default;
-    
+
     virtual void ice_preMarshal();
     virtual void ice_postUnmarshal();
 
     virtual void __write(IceInternal::BasicStream*) const;
     virtual void __read(IceInternal::BasicStream*);
-    
+
     virtual const std::string& ice_id() const;
     static const std::string& ice_staticId();
-    
+
     std::shared_ptr<Value> ice_clone() const;
 
 protected:
@@ -62,7 +62,7 @@ public:
     {
         return std::static_pointer_cast<T>(cloneImpl());
     }
-    
+
     virtual const std::string& ice_id() const override
     {
         return T::ice_staticId();
@@ -70,7 +70,7 @@ public:
 
 protected:
 
-    virtual std::shared_ptr<Value> cloneImpl() const
+    virtual std::shared_ptr<Value> cloneImpl() const override
     {
         return std::make_shared<T>(static_cast<const T&>(*this));
     }
