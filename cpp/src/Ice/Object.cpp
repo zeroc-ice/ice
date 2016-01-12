@@ -304,13 +304,13 @@ operationModeToString(OperationMode mode)
     //
     // This could not happen with C++11 strong type enums
     //
-#ifndef ICE_CPP11_MAPPING
+#ifdef ICE_CPP11_MAPPING
+    assert(false);
+    return "";
+#else
     ostringstream os;
     os << "unknown value (" << mode << ")";
     return os.str();
-#else
-    assert(false);
-    return "";
 #endif
 }
 

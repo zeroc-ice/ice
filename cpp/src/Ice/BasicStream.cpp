@@ -1580,26 +1580,26 @@ IceInternal::BasicStream::read(vector<wstring>& v)
 }
 
 void
-#ifndef ICE_CPP11_MAPPING
-IceInternal::BasicStream::write(const ObjectPrxPtr& v)
+#ifdef ICE_CPP11_MAPPING
+IceInternal::BasicStream::writeProxy(const shared_ptr<ObjectPrx>& v)
 #else
-IceInternal::BasicStream::writeProxy(const ObjectPrxPtr& v)
+IceInternal::BasicStream::write(const ObjectPrx& v)
 #endif
 {
     _instance->proxyFactory()->proxyToStream(v, this);
 }
 
-#ifndef ICE_CPP11_MAPPING
-void
-IceInternal::BasicStream::read(ObjectPrxPtr& v)
-{
-    v = _instance->proxyFactory()->streamToProxy(this);
-}
-#else
-ObjectPrxPtr
+#ifdef ICE_CPP11_MAPPING
+shared_ptr<ObjectPrx>
 IceInternal::BasicStream::readProxy()
 {
     return _instance->proxyFactory()->streamToProxy(this);
+}
+#else
+void
+IceInternal::BasicStream::read(ObjectPrx& v)
+{
+    v = _instance->proxyFactory()->streamToProxy(this);
 }
 #endif
 

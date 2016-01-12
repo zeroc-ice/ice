@@ -592,12 +592,74 @@ Slice::Gen::generate(const UnitPtr& p)
 
     H << sp;
     H.zeroIndent();
-    H << nl << "#ifndef ICE_CPP11_MAPPING // C++98 mapping";
+    H << nl << "#ifdef ICE_CPP11_MAPPING // C++11 mapping";
     H.restoreIndent();
 
     C << sp;
     C.zeroIndent();
-    C << nl << "#ifndef ICE_CPP11_MAPPING // C++98 mapping";
+    C << nl << "#ifdef ICE_CPP11_MAPPING // C++11 mapping";
+    C.restoreIndent();
+    {
+        Cpp11ProxyDeclVisitor proxyDeclVisitor(H, C, _dllExport);
+        p->visit(&proxyDeclVisitor, false);
+
+        Cpp11ObjectDeclVisitor objectDeclVisitor(H, C, _dllExport);
+        p->visit(&objectDeclVisitor, false);
+
+        Cpp11TypesVisitor typesVisitor(H, C, _dllExport);
+        p->visit(&typesVisitor, false);
+
+        Cpp11StreamVisitor streamVisitor(H, C, _dllExport);
+        p->visit(&streamVisitor, false);
+
+        Cpp11ProxyVisitor proxyVisitor(H, C, _dllExport);
+        p->visit(&proxyVisitor, false);
+
+        Cpp11LocalObjectVisitor localObjectVisitor(H, C, _dllExport, _stream);
+        p->visit(&localObjectVisitor, false);
+
+        Cpp11InterfaceVisitor interfaceVisitor(H, C, _dllExport, _stream);
+        p->visit(&interfaceVisitor, false);
+
+        Cpp11ValueVisitor valueVisitor(H, C, _dllExport, _stream);
+        p->visit(&valueVisitor, false);
+
+        // TODO
+        /*if(_impl)
+        {
+            implH << "\n#include <";
+            if(_include.size())
+            {
+                implH << _include << '/';
+            }
+            implH << _base << "." << _headerExtension << ">";
+
+            writeExtraHeaders(implC);
+
+            implC << "\n#include <";
+            if(_include.size())
+            {
+                implC << _include << '/';
+            }
+            implC << _base << "I." << _implHeaderExtension << ">";
+
+            ImplVisitor implVisitor(implH, implC, _dllExport);
+            p->visit(&implVisitor, false);
+        }*/
+
+        Cpp11CompatibilityVisitor compatibilityVisitor(H, C, _dllExport);
+        p->visit(&compatibilityVisitor, false);
+
+        generateChecksumMap(p);
+    }
+    H << sp;
+    H.zeroIndent();
+    H << nl << "#else // C++98 mapping";
+    H.restoreIndent();
+
+    C << sp;
+    C.zeroIndent();
+    C << nl << "#else // C++98 mapping";
     C.restoreIndent();
     {
         ProxyDeclVisitor proxyDeclVisitor(H, C, _dllExport);
@@ -665,78 +727,16 @@ Slice::Gen::generate(const UnitPtr& p)
 
         generateChecksumMap(p);
     }
+    
     H << sp;
     H.zeroIndent();
-    H << nl << "#else // C++11 mapping";
+    H << nl << "#endif";
     H.restoreIndent();
 
     C << sp;
     C.zeroIndent();
-    C << nl << "#else // C++11 mapping";
+    C << nl << "#endif";
     C.restoreIndent();
-    {
-        Cpp11ProxyDeclVisitor proxyDeclVisitor(H, C, _dllExport);
-        p->visit(&proxyDeclVisitor, false);
-
-        Cpp11ObjectDeclVisitor objectDeclVisitor(H, C, _dllExport);
-        p->visit(&objectDeclVisitor, false);
-
-        Cpp11TypesVisitor typesVisitor(H, C, _dllExport);
-        p->visit(&typesVisitor, false);
-
-        Cpp11StreamVisitor streamVisitor(H, C, _dllExport);
-        p->visit(&streamVisitor, false);
-
-        Cpp11ProxyVisitor proxyVisitor(H, C, _dllExport);
-        p->visit(&proxyVisitor, false);
-
-        Cpp11LocalObjectVisitor localObjectVisitor(H, C, _dllExport, _stream);
-        p->visit(&localObjectVisitor, false);
-
-        Cpp11InterfaceVisitor interfaceVisitor(H, C, _dllExport, _stream);
-        p->visit(&interfaceVisitor, false);
-
-        Cpp11ValueVisitor valueVisitor(H, C, _dllExport, _stream);
-        p->visit(&valueVisitor, false);
-
-        // TODO
-        /*if(_impl)
-        {
-            implH << "\n#include <";
-            if(_include.size())
-            {
-                implH << _include << '/';
-            }
-            implH << _base << "." << _headerExtension << ">";
-
-            writeExtraHeaders(implC);
-
-            implC << "\n#include <";
-            if(_include.size())
-            {
-                implC << _include << '/';
-            }
-            implC << _base << "I." << _implHeaderExtension << ">";
-
-            ImplVisitor implVisitor(implH, implC, _dllExport);
-            p->visit(&implVisitor, false);
-        }*/
-
-        Cpp11CompatibilityVisitor compatibilityVisitor(H, C, _dllExport);
-        p->visit(&compatibilityVisitor, false);
-
-        generateChecksumMap(p);
-
-        H << sp;
-        H.zeroIndent();
-        H << nl << "#endif";
-        H.restoreIndent();
-
-        C << sp;
-        C.zeroIndent();
-        C << nl << "#endif";
-        C.restoreIndent();
-    }
 }
 
 void

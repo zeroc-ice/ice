@@ -43,6 +43,15 @@ Ice::SlicedData::__gcVisitMembers(IceInternal::GCVisitor& visitor)
         }
     }
 }
+
+void
+Ice::UnknownSlicedObject::__gcVisitMembers(IceInternal::GCVisitor& _v)
+{
+    if(_slicedData)
+    {
+        _slicedData->__gcVisitMembers(_v);
+    }
+}
 #endif
 
 Ice::UnknownSlicedObject::UnknownSlicedObject(const string& unknownTypeId) : _unknownTypeId(unknownTypeId)
@@ -60,17 +69,6 @@ Ice::UnknownSlicedObject::getSlicedData() const
 {
     return _slicedData;
 }
-
-#ifndef ICE_CPP11_MAPPING
-void
-Ice::UnknownSlicedObject::__gcVisitMembers(IceInternal::GCVisitor& _v)
-{
-    if(_slicedData)
-    {
-        _slicedData->__gcVisitMembers(_v);
-    }
-}
-#endif
 
 void
 Ice::UnknownSlicedObject::__write(IceInternal::BasicStream* __os) const
