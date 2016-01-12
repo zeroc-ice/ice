@@ -6049,25 +6049,25 @@ Slice::Gen::Cpp11ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
         base = bases.front();
     }
 
-    H << sp << nl << "class " << _dllExport << p->name() << "Prx : ";
+    H << sp << nl << "class " << _dllExport << p->name() << "Prx : virtual public ::Ice::Proxy<"
+      << fixKwd(p->name() + "Prx") << ", ";
     if(bases.empty() || (base && base->allOperations().empty()))
     {
-        H << "virtual public ::Ice::ObjectPrx";
+        H << "::Ice::ObjectPrx";
     }
     else
     {
-        H.useCurrentPosAsIndent();
         ClassList::const_iterator q = bases.begin();
         while(q != bases.end())
         {
-            H << "virtual public " << fixKwd((*q)->scoped() + "Prx");
+            H << fixKwd((*q)->scoped() + "Prx");
             if(++q != bases.end())
             {
-                H << ',' << nl;
+                H << ", ";
             }
         }
-        H.restoreIndent();
     }
+    H << ">";
 
     H << sb;
     H.dec();
@@ -6079,126 +6079,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
 void
 Slice::Gen::Cpp11ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
 {
-    //
-    // "Overwrite" various non-virtual functions in ::IceProxy::Ice::Object that return an ObjectPrx and
-    // are more usable when they return a <name>Prx
-    //
-
-    //
-    // No identity!
-    //
-
     string prx = fixKwd(p->name() + "Prx");
-
-    H << nl << "::std::shared_ptr<" << prx << "> ice_context(const ::Ice::Context& __context) const";
-    H << sb;
-    H << nl << "return ::std::dynamic_pointer_cast<" << prx << ">(Ice::ObjectPrx::ice_context(__context));";
-    H << eb;
-
-    //
-    // No facet!
-    //
-
-    H << nl << "::std::shared_ptr<" << prx << "> ice_adapterId(const ::std::string& __id) const";
-    H << sb;
-    H << nl << "return ::std::dynamic_pointer_cast<" << prx << ">(::Ice::ObjectPrx::ice_adapterId(__id));";
-    H << eb;
-
-    H << nl << "::std::shared_ptr<" << prx << "> ice_endpoints(const ::Ice::EndpointSeq& __endpoints) const";
-    H << sb;
-    H << nl << "return ::std::dynamic_pointer_cast<" << prx << ">(::Ice::ObjectPrx::ice_endpoints(__endpoints));";
-    H << eb;
-
-    H << nl << "::std::shared_ptr<" << prx << "> ice_locatorCacheTimeout(int __timeout) const";
-    H << sb;
-    H << nl << "return ::std::dynamic_pointer_cast<" << prx << ">(::Ice::ObjectPrx::ice_locatorCacheTimeout(__timeout));";
-    H << eb;
-
-    H << nl << "::std::shared_ptr<" << prx << "> ice_connectionCached(bool __cached) const";
-    H << sb;
-    H << nl << "return ::std::dynamic_pointer_cast<" << prx << ">(::Ice::ObjectPrx::ice_connectionCached(__cached));";
-    H << eb;
-
-    H << nl << "::std::shared_ptr<" << prx << "> ice_endpointSelection(::Ice::EndpointSelectionType __est) const";
-    H << sb;
-    H << nl << "return ::std::dynamic_pointer_cast<" << prx << ">(::Ice::ObjectPrx::ice_endpointSelection(__est));";
-    H << eb;
-
-    H << nl << "::std::shared_ptr<" << prx << "> ice_secure(bool __secure) const";
-    H << sb;
-    H << nl << "return ::std::dynamic_pointer_cast<" << prx << ">(::Ice::ObjectPrx::ice_secure(__secure));";
-    H << eb;
-
-    H << nl << "::std::shared_ptr<" << prx << "> ice_preferSecure(bool __preferSecure) const";
-    H << sb;
-    H << nl << "return ::std::dynamic_pointer_cast<" << prx << ">(::Ice::ObjectPrx::ice_preferSecure(__preferSecure));";
-    H << eb;
-
-    H << nl << "::std::shared_ptr<" << prx << "> ice_router(const ::std::shared_ptr<::Ice::RouterPrx>& __router) const";
-    H << sb;
-    H << nl << "return ::std::dynamic_pointer_cast<" << prx << ">(::Ice::ObjectPrx::ice_router(__router));";
-    H << eb;
-
-    H << nl << "::std::shared_ptr<" << prx << "> ice_locator(const ::std::shared_ptr<::Ice::LocatorPrx>& __locator) const";
-    H << sb;
-    H << nl << "return ::std::dynamic_pointer_cast<" << prx << ">(::Ice::ObjectPrx::ice_locator(__locator));";
-    H << eb;
-
-    H << nl << "::std::shared_ptr<" << prx << "> ice_collocationOptimized(bool __co) const";
-    H << sb;
-    H << nl << "return ::std::dynamic_pointer_cast<" << prx << ">(::Ice::ObjectPrx::ice_collocationOptimized(__co));";
-    H << eb;
-
-    H << nl << "::std::shared_ptr<" << prx << "> ice_invocationTimeout(int __timeout) const";
-    H << sb;
-    H << nl << "return ::std::dynamic_pointer_cast<" << prx << ">(::Ice::ObjectPrx::ice_invocationTimeout(__timeout));";
-    H << eb;
-
-    H << nl << "::std::shared_ptr<" << prx << "> ice_twoway() const";
-    H << sb;
-    H << nl << "return ::std::dynamic_pointer_cast<" << prx << ">(::Ice::ObjectPrx::ice_twoway());";
-    H << eb;
-
-    H << nl << "::std::shared_ptr<" << prx << "> ice_oneway() const";
-    H << sb;
-    H << nl << "return ::std::dynamic_pointer_cast<" << prx << ">(::Ice::ObjectPrx::ice_oneway());";
-    H << eb;
-
-    H << nl << "::std::shared_ptr<" << prx << "> ice_batchOneway() const";
-    H << sb;
-    H << nl << "return ::std::dynamic_pointer_cast<" << prx << ">(::Ice::ObjectPrx::ice_batchOneway());";
-    H << eb;
-
-    H << nl << "::std::shared_ptr<" << prx << "> ice_datagram() const";
-    H << sb;
-    H << nl << "return ::std::dynamic_pointer_cast<" << prx << ">(::Ice::ObjectPrx::ice_datagram());";
-    H << eb;
-
-    H << nl << "::std::shared_ptr<" << prx << "> ice_batchDatagram() const";
-    H << sb;
-    H << nl << "return ::std::dynamic_pointer_cast<" << prx << ">(::Ice::ObjectPrx::ice_batchDatagram());";
-    H << eb;
-
-    H << nl << "::std::shared_ptr<" << prx << "> ice_compress(bool __compress) const";
-    H << sb;
-    H << nl << "return ::std::dynamic_pointer_cast<" << prx << ">(::Ice::ObjectPrx::ice_compress(__compress));";
-    H << eb;
-
-    H << nl << "::std::shared_ptr<" << prx << "> ice_timeout(int __timeout) const";
-    H << sb;
-    H << nl << "return ::std::dynamic_pointer_cast<" << prx << ">(::Ice::ObjectPrx::ice_timeout(__timeout));";
-    H << eb;
-
-    H << nl << "::std::shared_ptr<" << prx << "> ice_connectionId(const ::std::string& __id) const";
-    H << sb;
-    H << nl << "return ::std::dynamic_pointer_cast<" << prx << ">(::Ice::ObjectPrx::ice_connectionId(__id));";
-    H << eb;
-
-    H << nl << "::std::shared_ptr<" << prx << "> ice_encodingVersion(const ::Ice::EncodingVersion& __v) const";
-    H << sb;
-    H << nl << "return ::std::dynamic_pointer_cast<" << prx << ">(::Ice::ObjectPrx::ice_encodingVersion(__v));";
-    H << eb;
-
 
     H << sp;
     H << nl << "static const ::std::string& ice_staticId();";
@@ -6208,11 +6089,6 @@ Slice::Gen::Cpp11ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     H.inc();
     H << nl << prx << "() = default;";
     H << nl << "friend ::std::shared_ptr<" << prx << "> IceInternal::createProxy<" << prx << ">();";
-    H.dec();
-    H << sp << nl << "private: ";
-    H.inc();
-    H << nl << "virtual ::std::shared_ptr<::Ice::ObjectPrx> __newInstance() const;";
-
     H << eb << ';';
 
     string suffix = p->isInterface() ? "" : "Disp";
@@ -6224,12 +6100,6 @@ Slice::Gen::Cpp11ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     C << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_staticId()";
     C << sb;
     C << nl << "return "<< fixKwd(p->scope() + p->name() + suffix).substr(2) << "::ice_staticId();";
-    C << eb;
-
-    C << sp << nl << "::std::shared_ptr<::Ice::ObjectPrx>";
-    C << nl << scoped.substr(2) << "::__newInstance() const";
-    C << sb;
-    C << nl << "return ::IceInternal::createProxy<" << prx << ">();";
     C << eb;
 
     _useWstring = resetUseWstring(_useWstringHist);

@@ -376,7 +376,7 @@ public:
 
     const ::IceInternal::ReferencePtr& __reference() const { return _reference; }
 
-    void __copyFrom(const ::Ice::ObjectPrxPtr&);
+    void __copyFrom(const std::shared_ptr<::Ice::ObjectPrx>&);
 
     int __handleException(const ::Ice::Exception&, const ::IceInternal::RequestHandlerPtr&, ::Ice::OperationMode,
                           bool, int&);
@@ -405,6 +405,124 @@ private:
     ::IceInternal::RequestHandlerPtr _requestHandler;
     ::IceInternal::BatchRequestQueuePtr _batchRequestQueue;
     IceUtil::Mutex _mutex;
+};
+
+template<typename Prx, typename... Bases>
+class Proxy : virtual public Bases...
+{
+public:
+
+    ::std::shared_ptr<Prx> ice_context(const ::Ice::Context& context) const
+    {
+        return ::std::dynamic_pointer_cast<Prx>(ObjectPrx::ice_context(context));
+    }
+
+    ::std::shared_ptr<Prx> ice_adapterId(const ::std::string& id) const
+    {
+        return ::std::dynamic_pointer_cast<Prx>(ObjectPrx::ice_adapterId(id));
+    }
+
+    ::std::shared_ptr<Prx> ice_endpoints(const ::Ice::EndpointSeq& endpoints) const
+    {
+        return ::std::dynamic_pointer_cast<Prx>(ObjectPrx::ice_endpoints(endpoints));
+    }
+
+    ::std::shared_ptr<Prx> ice_locatorCacheTimeout(int timeout) const
+    {
+        return ::std::dynamic_pointer_cast<Prx>(ObjectPrx::ice_locatorCacheTimeout(timeout));
+    }
+
+    ::std::shared_ptr<Prx> ice_connectionCached(bool cached) const
+    {
+        return ::std::dynamic_pointer_cast<Prx>(ObjectPrx::ice_connectionCached(cached));
+    }
+
+    ::std::shared_ptr<Prx> ice_endpointSelection(::Ice::EndpointSelectionType selection) const
+    {
+        return ::std::dynamic_pointer_cast<Prx>(ObjectPrx::ice_endpointSelection(selection));
+    }
+
+    ::std::shared_ptr<Prx> ice_secure(bool secure) const
+    {
+        return ::std::dynamic_pointer_cast<Prx>(ObjectPrx::ice_secure(secure));
+    }
+
+    ::std::shared_ptr<Prx> ice_preferSecure(bool preferSecure) const
+    {
+        return ::std::dynamic_pointer_cast<Prx>(ObjectPrx::ice_preferSecure(preferSecure));
+    }
+
+    ::std::shared_ptr<Prx> ice_router(const ::std::shared_ptr<::Ice::RouterPrx>& router) const
+    {
+        return ::std::dynamic_pointer_cast<Prx>(ObjectPrx::ice_router(router));
+    }
+
+    ::std::shared_ptr<Prx> ice_locator(const ::std::shared_ptr<::Ice::LocatorPrx>& locator) const
+    {
+        return ::std::dynamic_pointer_cast<Prx>(ObjectPrx::ice_locator(locator));
+    }
+
+    ::std::shared_ptr<Prx> ice_collocationOptimized(bool collocated) const
+    {
+        return ::std::dynamic_pointer_cast<Prx>(ObjectPrx::ice_collocationOptimized(collocated));
+    }
+
+    ::std::shared_ptr<Prx> ice_invocationTimeout(int timeout) const
+    {
+        return ::std::dynamic_pointer_cast<Prx>(ObjectPrx::ice_invocationTimeout(timeout));
+    }
+
+    ::std::shared_ptr<Prx> ice_twoway() const
+    {
+        return ::std::dynamic_pointer_cast<Prx>(ObjectPrx::ice_twoway());
+    }
+
+    ::std::shared_ptr<Prx> ice_oneway() const
+    {
+        return ::std::dynamic_pointer_cast<Prx>(ObjectPrx::ice_oneway());
+    }
+
+    ::std::shared_ptr<Prx> ice_batchOneway() const
+    {
+        return ::std::dynamic_pointer_cast<Prx>(ObjectPrx::ice_batchOneway());
+    }
+
+    ::std::shared_ptr<Prx> ice_datagram() const
+    {
+        return ::std::dynamic_pointer_cast<Prx>(ObjectPrx::ice_datagram());
+    }
+
+    ::std::shared_ptr<Prx> ice_batchDatagram() const
+    {
+        return ::std::dynamic_pointer_cast<Prx>(ObjectPrx::ice_batchDatagram());
+    }
+
+    ::std::shared_ptr<Prx> ice_compress(bool compress) const
+    {
+        return ::std::dynamic_pointer_cast<Prx>(ObjectPrx::ice_compress(compress));
+    }
+
+    ::std::shared_ptr<Prx> ice_timeout(int timeout) const
+    {
+        return ::std::dynamic_pointer_cast<Prx>(ObjectPrx::ice_timeout(timeout));
+    }
+
+    ::std::shared_ptr<Prx> ice_connectionId(const ::std::string& id) const
+    {
+        return ::std::dynamic_pointer_cast<Prx>(ObjectPrx::ice_connectionId(id));
+    }
+
+    ::std::shared_ptr<Prx> ice_encodingVersion(const ::Ice::EncodingVersion& version) const
+    {
+        return ::std::dynamic_pointer_cast<Prx>(ObjectPrx::ice_encodingVersion(version));
+    }
+    
+protected:
+    
+    virtual ::std::shared_ptr<ObjectPrx> __newInstance() const
+    {
+        return IceInternal::createProxy<Prx>();
+    }
 };
 
 ICE_API ::std::ostream& operator<<(::std::ostream&, const ::Ice::ObjectPrx&);
