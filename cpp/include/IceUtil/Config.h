@@ -266,7 +266,7 @@ typedef long long Int64;
 #   define ICE_SHARED_FROM_THIS shared_from_this()
 #   define ICE_CHECKED_CAST(T,V) Ice::checkedCast<T>(V)
 #   define ICE_UNCHECKED_CAST(T,V) Ice::uncheckedCast<T>(V)
-#   define ICE_VALUE_FACTORY ::std::function<::Ice::ValuePtr (const std::string& type)>
+#   define ICE_VALUE_FACTORY ::std::function<::std::shared_ptr<::Ice::Value> (const std::string& type)>
 #   define ICE_CLOSE_CALLBACK ::std::function<void (::std::shared_ptr<::Ice::Connection>)>
 #   define ICE_HEARTBEAT_CALLBACK ::std::function<void (::std::shared_ptr<::Ice::Connection>)>
 #   define ICE_IN(T) T
