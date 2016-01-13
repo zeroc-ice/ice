@@ -2580,10 +2580,10 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 
         H << sp;
         H << nl << "virtual bool ice_isA"
-          << "(const ::std::string&, const ::Ice::Current& = ::Ice::Current()) const;";
+          << "(const ::std::string&, const ::Ice::Current& = ::Ice::noExplicitCurrent) const;";
         H << nl << "virtual ::std::vector< ::std::string> ice_ids"
-          << "(const ::Ice::Current& = ::Ice::Current()) const;";
-        H << nl << "virtual const ::std::string& ice_id(const ::Ice::Current& = ::Ice::Current()) const;";
+          << "(const ::Ice::Current& = ::Ice::noExplicitCurrent) const;";
+        H << nl << "virtual const ::std::string& ice_id(const ::Ice::Current& = ::Ice::noExplicitCurrent) const;";
         H << nl << "static const ::std::string& ice_staticId();";
 
         if(!dataMembers.empty())
@@ -3181,7 +3181,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
             args += ", ";
         }
 
-        params += "const ::Ice::Current& = ::Ice::Current())";
+        params += "const ::Ice::Current& = ::Ice::noExplicitCurrent)";
         paramsDecl += "const ::Ice::Current& __current)";
         args += "__current)";
     }
@@ -3192,7 +3192,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
         args += ')';
     }
 
-    paramsAMD += "const ::Ice::Current& = ::Ice::Current())";
+    paramsAMD += "const ::Ice::Current& = ::Ice::noExplicitCurrent)";
     paramsDeclAMD += "const ::Ice::Current& __current)";
     argsAMD += "__current)";
 
@@ -7168,10 +7168,10 @@ Slice::Gen::Cpp11InterfaceVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     H << sp;
     H << nl << "virtual bool ice_isA"
-      << "(::std::string, const ::Ice::Current& = ::Ice::Current()) const;";
+      << "(::std::string, const ::Ice::Current& = ::Ice::noExplicitCurrent) const;";
     H << nl << "virtual ::std::vector< ::std::string> ice_ids"
-      << "(const ::Ice::Current& = ::Ice::Current()) const;";
-    H << nl << "virtual const ::std::string& ice_id(const ::Ice::Current& = ::Ice::Current()) const;";
+      << "(const ::Ice::Current& = ::Ice::noExplicitCurrent) const;";
+    H << nl << "virtual const ::std::string& ice_id(const ::Ice::Current& = ::Ice::noExplicitCurrent) const;";
     H << nl << "static const ::std::string& ice_staticId();";
 
     string flatName = p->flattenedScope() + p->name() + (p->isInterface() ? "" : "Disp") + "_ids";
@@ -7409,7 +7409,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
         args += ", ";
     }
 
-    params += "const ::Ice::Current& = ::Ice::Current())";
+    params += "const ::Ice::Current& = ::Ice::noExplicitCurrent)";
     paramsDecl += "const ::Ice::Current& __current)";
     args += "__current)";
 

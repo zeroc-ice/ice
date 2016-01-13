@@ -32,6 +32,8 @@ class GCVisitor;
 namespace Ice
 {
 
+ICE_API extern const Current noExplicitCurrent;
+
 enum DispatchStatus
 {
     DispatchOK,
@@ -69,16 +71,16 @@ public:
     virtual bool operator==(const Object&) const;
     virtual bool operator<(const Object&) const;
 
-    virtual bool ice_isA(std::string, const Current& = Current()) const;
+    virtual bool ice_isA(std::string, const Current& = Ice::noExplicitCurrent) const;
     DispatchStatus ___ice_isA(IceInternal::Incoming&, const Current&);
 
-    virtual void ice_ping(const Current&  = Current()) const;
+    virtual void ice_ping(const Current&  = Ice::noExplicitCurrent) const;
     DispatchStatus ___ice_ping(IceInternal::Incoming&, const Current&);
 
-    virtual std::vector< std::string> ice_ids(const Current& = Current()) const;
+    virtual std::vector< std::string> ice_ids(const Current& = Ice::noExplicitCurrent) const;
     DispatchStatus ___ice_ids(IceInternal::Incoming&, const Current&);
 
-    virtual const std::string& ice_id(const Current& = Current()) const;
+    virtual const std::string& ice_id(const Current& = Ice::noExplicitCurrent) const;
     DispatchStatus ___ice_id(IceInternal::Incoming&, const Current&);
 
     static const std::string& ice_staticId();
@@ -100,16 +102,16 @@ public:
     virtual bool operator==(const Object&) const;
     virtual bool operator<(const Object&) const;
 
-    virtual bool ice_isA(const std::string&, const Current& = Current()) const;
+    virtual bool ice_isA(const std::string&, const Current& = Ice::noExplicitCurrent) const;
     DispatchStatus ___ice_isA(IceInternal::Incoming&, const Current&);
 
-    virtual void ice_ping(const Current&  = Current()) const;
+    virtual void ice_ping(const Current&  = Ice::noExplicitCurrent) const;
     DispatchStatus ___ice_ping(IceInternal::Incoming&, const Current&);
 
-    virtual std::vector< std::string> ice_ids(const Current& = Current()) const;
+    virtual std::vector< std::string> ice_ids(const Current& = Ice::noExplicitCurrent) const;
     DispatchStatus ___ice_ids(IceInternal::Incoming&, const Current&);
 
-    virtual const std::string& ice_id(const Current& = Current()) const;
+    virtual const std::string& ice_id(const Current& = Ice::noExplicitCurrent) const;
     DispatchStatus ___ice_id(IceInternal::Incoming&, const Current&);
 
     virtual Int ice_operationAttributes(const std::string&) const;

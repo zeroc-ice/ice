@@ -99,85 +99,85 @@ public:
     virtual IceUtil::Optional< ::Test::ByteSeq> opByteSeq(
         const IceUtil::Optional< ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*> >&,
         IceUtil::Optional< ::Test::ByteSeq>&,
-        const ::Ice::Current& = ::Ice::Current());
+        const ::Ice::Current& = ::Ice::noExplicitCurrent);
 
     virtual IceUtil::Optional< ::Test::BoolSeq> opBoolSeq(
         const IceUtil::Optional< ::std::pair<const bool*, const bool*> >&,
         IceUtil::Optional< ::Test::BoolSeq>&,
-        const ::Ice::Current& = ::Ice::Current());
+        const ::Ice::Current& = ::Ice::noExplicitCurrent);
 
     virtual IceUtil::Optional< ::Test::ShortSeq> opShortSeq(
         const IceUtil::Optional< ::std::pair<const ::Ice::Short*, const ::Ice::Short*> >&,
         IceUtil::Optional< ::Test::ShortSeq>&,
-        const ::Ice::Current& = ::Ice::Current());
+        const ::Ice::Current& = ::Ice::noExplicitCurrent);
 
     virtual IceUtil::Optional< ::Test::IntSeq> opIntSeq(
         const IceUtil::Optional< ::std::pair<const ::Ice::Int*, const ::Ice::Int*> >&,
         IceUtil::Optional< ::Test::IntSeq>&,
-        const ::Ice::Current& = ::Ice::Current());
+        const ::Ice::Current& = ::Ice::noExplicitCurrent);
 
     virtual IceUtil::Optional< ::Test::LongSeq> opLongSeq(
         const IceUtil::Optional< ::std::pair<const ::Ice::Long*, const ::Ice::Long*> >&,
         IceUtil::Optional< ::Test::LongSeq>&,
-        const ::Ice::Current& = ::Ice::Current());
+        const ::Ice::Current& = ::Ice::noExplicitCurrent);
 
     virtual IceUtil::Optional< ::Test::FloatSeq> opFloatSeq(
         const IceUtil::Optional< ::std::pair<const ::Ice::Float*, const ::Ice::Float*> >&,
         IceUtil::Optional< ::Test::FloatSeq>&,
-        const ::Ice::Current& = ::Ice::Current());
+        const ::Ice::Current& = ::Ice::noExplicitCurrent);
 
     virtual IceUtil::Optional< ::Test::DoubleSeq> opDoubleSeq(
         const IceUtil::Optional< ::std::pair<const ::Ice::Double*, const ::Ice::Double*> >&,
         IceUtil::Optional< ::Test::DoubleSeq>&,
-        const ::Ice::Current& = ::Ice::Current());
+        const ::Ice::Current& = ::Ice::noExplicitCurrent);
 
     virtual IceUtil::Optional< ::Test::StringSeq> opStringSeq(
         const IceUtil::Optional< ::std::pair< ::Test::StringSeq::const_iterator,
                                               ::Test::StringSeq::const_iterator> >&,
         IceUtil::Optional< ::Test::StringSeq>&,
-        const ::Ice::Current& = ::Ice::Current());
+        const ::Ice::Current& = ::Ice::noExplicitCurrent);
 
     virtual IceUtil::Optional< ::Test::SmallStructSeq> opSmallStructSeq(
         const IceUtil::Optional< ::std::pair<const ::Test::SmallStruct*, const ::Test::SmallStruct*> >&,
-        IceUtil::Optional< ::Test::SmallStructSeq>&, const ::Ice::Current& = ::Ice::Current());
+        IceUtil::Optional< ::Test::SmallStructSeq>&, const ::Ice::Current& = ::Ice::noExplicitCurrent);
 
     virtual IceUtil::Optional< ::Test::SmallStructList> opSmallStructList(
         const IceUtil::Optional< ::std::pair<const ::Test::SmallStruct*, const ::Test::SmallStruct*> >&,
-        IceUtil::Optional< ::Test::SmallStructList>&, const ::Ice::Current& = ::Ice::Current());
+        IceUtil::Optional< ::Test::SmallStructList>&, const ::Ice::Current& = ::Ice::noExplicitCurrent);
 
     virtual IceUtil::Optional< ::Test::FixedStructSeq> opFixedStructSeq(
         const IceUtil::Optional< ::std::pair<const ::Test::FixedStruct*, const ::Test::FixedStruct*> >&,
-        IceUtil::Optional< ::Test::FixedStructSeq>&, const ::Ice::Current& = ::Ice::Current());
+        IceUtil::Optional< ::Test::FixedStructSeq>&, const ::Ice::Current& = ::Ice::noExplicitCurrent);
 
     virtual IceUtil::Optional< ::Test::FixedStructList> opFixedStructList(
         const IceUtil::Optional< ::std::pair<const ::Test::FixedStruct*, const ::Test::FixedStruct*> >&,
-        IceUtil::Optional< ::Test::FixedStructList>&, const ::Ice::Current& = ::Ice::Current());
+        IceUtil::Optional< ::Test::FixedStructList>&, const ::Ice::Current& = ::Ice::noExplicitCurrent);
 
     virtual IceUtil::Optional< ::Test::VarStructSeq> opVarStructSeq(
         const IceUtil::Optional< ::std::pair< ::Test::VarStructSeq::const_iterator,
                                               ::Test::VarStructSeq::const_iterator> >&,
         IceUtil::Optional< ::Test::VarStructSeq>&,
-        const ::Ice::Current& = ::Ice::Current());
+        const ::Ice::Current& = ::Ice::noExplicitCurrent);
 
     virtual IceUtil::Optional< ::Test::Serializable> opSerializable(
         const IceUtil::Optional< ::Test::Serializable>&,
         IceUtil::Optional< ::Test::Serializable>&,
-        const ::Ice::Current& = ::Ice::Current());
+        const ::Ice::Current& = ::Ice::noExplicitCurrent);
 
     virtual IceUtil::Optional< ::Test::IntIntDict> opIntIntDict(
         const IceUtil::Optional< ::Test::IntIntDict>&,
         IceUtil::Optional< ::Test::IntIntDict>&,
-        const ::Ice::Current& = ::Ice::Current());
+        const ::Ice::Current& = ::Ice::noExplicitCurrent);
 
     virtual IceUtil::Optional< ::Test::StringIntDict> opStringIntDict(
         const IceUtil::Optional< ::Test::StringIntDict>&,
         IceUtil::Optional< ::Test::StringIntDict>&,
-        const ::Ice::Current& = ::Ice::Current());
+        const ::Ice::Current& = ::Ice::noExplicitCurrent);
 
     virtual IceUtil::Optional< ::Test::IntStringDict> opCustomIntStringDict(
         const IceUtil::Optional<std::map<int, Util::string_view> >&,
         IceUtil::Optional< ::Test::IntStringDict>&,
-        const ::Ice::Current& = ::Ice::Current());
+        const ::Ice::Current& = ::Ice::noExplicitCurrent);
 
     virtual void opClassAndUnknownOptional(const Test::APtr&, const Ice::Current&);
 

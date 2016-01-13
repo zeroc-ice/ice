@@ -19,6 +19,11 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
+namespace Ice
+{
+const Current noExplicitCurrent = Current();
+}
+
 #ifndef ICE_CPP11_MAPPING
 Object* Ice::upCast(Object* p) { return p; }
 

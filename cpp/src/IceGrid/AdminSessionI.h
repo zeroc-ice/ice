@@ -35,7 +35,7 @@ public:
 
     virtual void keepAlive(const Ice::Current& current) { BaseSessionI::keepAlive(current); }
 
-    virtual AdminPrx getAdmin(const Ice::Current& = Ice::Current()) const;
+    virtual AdminPrx getAdmin(const Ice::Current& = Ice::noExplicitCurrent) const;
     virtual Ice::ObjectPrx getAdminCallbackTemplate(const Ice::Current&) const;
 
     virtual void setObservers(const RegistryObserverPrx&, const NodeObserverPrx&, const ApplicationObserverPrx&,
