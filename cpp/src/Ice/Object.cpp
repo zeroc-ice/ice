@@ -86,12 +86,14 @@ Ice::Object::ice_staticId()
     return __Ice__Object_ids[0];
 }
 
+#ifndef ICE_CPP11_MAPPING
 Ice::ObjectPtr
 Ice::Object::ice_clone() const
 {
     throw CloneNotImplementedException(__FILE__, __LINE__);
     return 0; // avoid warning with some compilers
 }
+#endif
 
 DispatchStatus
 Ice::Object::___ice_isA(Incoming& __inS, const Current& __current)

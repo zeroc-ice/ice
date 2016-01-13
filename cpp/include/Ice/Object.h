@@ -83,8 +83,6 @@ public:
 
     static const std::string& ice_staticId();
 
-    virtual ObjectPtr ice_clone() const;
-
     static std::string __all[];
 
     virtual DispatchStatus ice_dispatch(Ice::Request&, const DispatchInterceptorAsyncCallbackPtr& = 0);
