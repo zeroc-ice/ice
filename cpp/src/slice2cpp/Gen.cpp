@@ -1607,26 +1607,49 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     string scope = fixKwd(p->scope());
     string scoped = fixKwd(p->scoped());
     ClassList bases = p->bases();
-
-    H << sp << nl << "class " << _dllExport << name << " : ";
-    if(bases.empty())
+    
+    if(bases.size() > 1)
     {
-        H << "public virtual ::IceProxy::Ice::Object";
-    }
-    else
-    {
+        //
+        // Generated helper class to deal with multiple inheritance
+        // when using Proxy template.
+        //
+        H << sp << nl << "class _" << _dllExport << fixKwd(p->name() + "PrxBase") << " : ";
         H.useCurrentPosAsIndent();
-        ClassList::const_iterator q = bases.begin();
-        while(q != bases.end())
+        for(ClassList::const_iterator q = bases.begin(); q != bases.end();)
         {
             H << "public virtual ::IceProxy" << fixKwd((*q)->scoped());
             if(++q != bases.end())
             {
-                H << ',' << nl;
+                H << ", " << nl;
             }
         }
         H.restoreIndent();
+        H << sb;
+
+        H.dec();
+        H << nl << "public:";
+        H.inc();
+    
+        H << sp << nl << "virtual Object* __newInstance() const = 0;";
+        H << eb << ';';
     }
+
+    H << sp << nl << "class " << _dllExport << name << " : ";
+    H << "public virtual ::IceProxy::Ice::Proxy< ::IceProxy" << scoped << ", ";
+    if(bases.empty())
+    {
+        H << "::IceProxy::Ice::Object";
+    }
+    else if(bases.size() == 1)
+    {
+        H << "::IceProxy" << fixKwd(bases.front()->scoped());
+    }
+    else
+    {
+        H << "_" << fixKwd(p->name() + "PrxBase");
+    }
+    H << ">";
 
     H << sb;
     H.dec();
@@ -1676,143 +1699,13 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     string scoped = fixKwd(p->scoped());
     string scope = fixKwd(p->scope());
 
-    //
-    // "Overwrite" various non-virtual functions in ::IceProxy::Ice::Object that return an ObjectPrx and
-    // are more usable when they return a <name>Prx
-    //
-
-    //
-    // No identity!
-    //
-
-    H << nl << nl << "::IceInternal::ProxyHandle<" << name << "> ice_context(const ::Ice::Context& __context) const";
-    H << sb;
-    H << nl << "return dynamic_cast<" << name << "*>(::IceProxy::Ice::Object::ice_context(__context).get());";
-    H << eb;
-
-    //
-    // No facet!
-    //
-
-    H << nl << nl << "::IceInternal::ProxyHandle<" << name << "> ice_adapterId(const ::std::string& __id) const";
-    H << sb;
-    H << nl << "return dynamic_cast<" << name << "*>(::IceProxy::Ice::Object::ice_adapterId(__id).get());";
-    H << eb;
-
-    H << nl << nl << "::IceInternal::ProxyHandle<" << name << "> ice_endpoints(const ::Ice::EndpointSeq& __endpoints) const";
-    H << sb;
-    H << nl << "return dynamic_cast<" << name << "*>(::IceProxy::Ice::Object::ice_endpoints(__endpoints).get());";
-    H << eb;
-
-    H << nl << nl << "::IceInternal::ProxyHandle<" << name << "> ice_locatorCacheTimeout(int __timeout) const";
-    H << sb;
-    H << nl << "return dynamic_cast<" << name << "*>(::IceProxy::Ice::Object::ice_locatorCacheTimeout(__timeout).get());";
-    H << eb;
-
-    H << nl << nl << "::IceInternal::ProxyHandle<" << name << "> ice_connectionCached(bool __cached) const";
-    H << sb;
-    H << nl << "return dynamic_cast<" << name << "*>(::IceProxy::Ice::Object::ice_connectionCached(__cached).get());";
-    H << eb;
-
-    H << nl << nl << "::IceInternal::ProxyHandle<" << name << "> ice_endpointSelection(::Ice::EndpointSelectionType __est) const";
-    H << sb;
-    H << nl << "return dynamic_cast<" << name << "*>(::IceProxy::Ice::Object::ice_endpointSelection(__est).get());";
-    H << eb;
-
-    H << nl << nl << "::IceInternal::ProxyHandle<" << name << "> ice_secure(bool __secure) const";
-    H << sb;
-    H << nl << "return dynamic_cast<" << name << "*>(::IceProxy::Ice::Object::ice_secure(__secure).get());";
-    H << eb;
-
-    H << nl << nl << "::IceInternal::ProxyHandle<" << name << "> ice_preferSecure(bool __preferSecure) const";
-    H << sb;
-    H << nl << "return dynamic_cast<" << name << "*>(::IceProxy::Ice::Object::ice_preferSecure(__preferSecure).get());";
-    H << eb;
-
-    H << nl << nl << "::IceInternal::ProxyHandle<" << name << "> ice_router(const ::Ice::RouterPrx& __router) const";
-    H << sb;
-    H << nl << "return dynamic_cast<" << name << "*>(::IceProxy::Ice::Object::ice_router(__router).get());";
-    H << eb;
-
-    H << nl << nl << "::IceInternal::ProxyHandle<" << name << "> ice_locator(const ::Ice::LocatorPrx& __locator) const";
-    H << sb;
-    H << nl << "return dynamic_cast<" << name << "*>(::IceProxy::Ice::Object::ice_locator(__locator).get());";
-    H << eb;
-
-    H << nl << nl << "::IceInternal::ProxyHandle<" << name << "> ice_collocationOptimized(bool __co) const";
-    H << sb;
-    H << nl << "return dynamic_cast<" << name << "*>(::IceProxy::Ice::Object::ice_collocationOptimized(__co).get());";
-    H << eb;
-
-    H << nl << nl << "::IceInternal::ProxyHandle<" << name << "> ice_invocationTimeout(int __timeout) const";
-    H << sb;
-    H << nl << "return dynamic_cast<" << name << "*>(::IceProxy::Ice::Object::ice_invocationTimeout(__timeout).get());";
-    H << eb;
-
-    H << nl << nl << "::IceInternal::ProxyHandle<" << name << "> ice_twoway() const";
-    H << sb;
-    H << nl << "return dynamic_cast<" << name << "*>(::IceProxy::Ice::Object::ice_twoway().get());";
-    H << eb;
-
-    H << nl << nl << "::IceInternal::ProxyHandle<" << name << "> ice_oneway() const";
-    H << sb;
-    H << nl << "return dynamic_cast<" << name << "*>(::IceProxy::Ice::Object::ice_oneway().get());";
-    H << eb;
-
-    H << nl << nl << "::IceInternal::ProxyHandle<" << name << "> ice_batchOneway() const";
-    H << sb;
-    H << nl << "return dynamic_cast<" << name << "*>(::IceProxy::Ice::Object::ice_batchOneway().get());";
-    H << eb;
-
-    H << nl << nl << "::IceInternal::ProxyHandle<" << name << "> ice_datagram() const";
-    H << sb;
-    H << nl << "return dynamic_cast<" << name << "*>(::IceProxy::Ice::Object::ice_datagram().get());";
-    H << eb;
-
-    H << nl << nl << "::IceInternal::ProxyHandle<" << name << "> ice_batchDatagram() const";
-    H << sb;
-    H << nl << "return dynamic_cast<" << name << "*>(::IceProxy::Ice::Object::ice_batchDatagram().get());";
-    H << eb;
-
-    H << nl << nl << "::IceInternal::ProxyHandle<" << name << "> ice_compress(bool __compress) const";
-    H << sb;
-    H << nl << "return dynamic_cast<" << name << "*>(::IceProxy::Ice::Object::ice_compress(__compress).get());";
-    H << eb;
-
-    H << nl << nl << "::IceInternal::ProxyHandle<" << name << "> ice_timeout(int __timeout) const";
-    H << sb;
-    H << nl << "return dynamic_cast<" << name << "*>(::IceProxy::Ice::Object::ice_timeout(__timeout).get());";
-    H << eb;
-
-    H << nl << nl << "::IceInternal::ProxyHandle<" << name << "> ice_connectionId(const ::std::string& __id) const";
-    H << sb;
-    H << nl << "return dynamic_cast<" << name << "*>(::IceProxy::Ice::Object::ice_connectionId(__id).get());";
-    H << eb;
-
-    H << nl << nl << "::IceInternal::ProxyHandle<" << name
-      << "> ice_encodingVersion(const ::Ice::EncodingVersion& __v) const";
-    H << sb;
-    H << nl << "return dynamic_cast<" << name << "*>(::IceProxy::Ice::Object::ice_encodingVersion(__v).get());";
-    H << eb;
-
     H << nl << nl << "static const ::std::string& ice_staticId();";
-
-    H.dec();
-    H << sp << nl << "private: ";
-    H.inc();
-    H << nl << "virtual ::IceProxy::Ice::Object* __newInstance() const;";
     H << eb << ';';
 
     C << sp;
     C << nl << "const ::std::string&" << nl << "IceProxy" << scoped << "::ice_staticId()";
     C << sb;
     C << nl << "return "<< scoped << "::ice_staticId();";
-    C << eb;
-
-    C << sp << nl << "::IceProxy::Ice::Object*";
-    C << nl << "IceProxy" << scoped << "::__newInstance() const";
-    C << sb;
-    C << nl << "return new " << name << ";";
     C << eb;
 
     _useWstring = resetUseWstring(_useWstringHist);

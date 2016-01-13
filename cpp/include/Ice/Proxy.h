@@ -674,8 +674,8 @@ typedef LocatorPrx LocatorPrxPtr;
 
 class LocalException;
 
-ICE_API void ice_writeObjectPrx(const ::Ice::OutputStreamPtr&, const ObjectPrxPtr&);
-ICE_API void ice_readObjectPrx(const ::Ice::InputStreamPtr&, ObjectPrxPtr&);
+ICE_API void ice_writeObjectPrx(const ::Ice::OutputStreamPtr&, const ObjectPrx&);
+ICE_API void ice_readObjectPrx(const ::Ice::InputStreamPtr&, ObjectPrx&);
 
 class Callback_Object_ice_isA_Base : public virtual ::IceInternal::CallbackBase { };
 typedef ::IceUtil::Handle< Callback_Object_ice_isA_Base> Callback_Object_ice_isAPtr;
@@ -990,37 +990,37 @@ public:
     bool ___end_ice_invoke(::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&, const ::Ice::AsyncResultPtr&);
 
     ::Ice::Identity ice_getIdentity() const;
-    ::Ice::ObjectPrxPtr ice_identity(const ::Ice::Identity&) const;
+    ::Ice::ObjectPrx ice_identity(const ::Ice::Identity&) const;
 
     ::Ice::Context ice_getContext() const;
-    ::Ice::ObjectPrxPtr ice_context(const ::Ice::Context&) const;
+    ::Ice::ObjectPrx ice_context(const ::Ice::Context&) const;
 
     const ::std::string& ice_getFacet() const;
-    ::Ice::ObjectPrxPtr ice_facet(const ::std::string&) const;
+    ::Ice::ObjectPrx ice_facet(const ::std::string&) const;
 
     ::std::string ice_getAdapterId() const;
-    ::Ice::ObjectPrxPtr ice_adapterId(const ::std::string&) const;
+    ::Ice::ObjectPrx ice_adapterId(const ::std::string&) const;
 
     ::Ice::EndpointSeq ice_getEndpoints() const;
-    ::Ice::ObjectPrxPtr ice_endpoints(const ::Ice::EndpointSeq&) const;
+    ::Ice::ObjectPrx ice_endpoints(const ::Ice::EndpointSeq&) const;
 
     ::Ice::Int ice_getLocatorCacheTimeout() const;
-    ::Ice::ObjectPrxPtr ice_locatorCacheTimeout(::Ice::Int) const;
+    ::Ice::ObjectPrx ice_locatorCacheTimeout(::Ice::Int) const;
 
     bool ice_isConnectionCached() const;
-    ::Ice::ObjectPrxPtr ice_connectionCached(bool) const;
+    ::Ice::ObjectPrx ice_connectionCached(bool) const;
 
     ::Ice::EndpointSelectionType ice_getEndpointSelection() const;
-    ::Ice::ObjectPrxPtr ice_endpointSelection(::Ice::EndpointSelectionType) const;
+    ::Ice::ObjectPrx ice_endpointSelection(::Ice::EndpointSelectionType) const;
 
     bool ice_isSecure() const;
-    ::Ice::ObjectPrxPtr ice_secure(bool) const;
+    ::Ice::ObjectPrx ice_secure(bool) const;
 
     ::Ice::EncodingVersion ice_getEncodingVersion() const;
-    ::Ice::ObjectPrxPtr ice_encodingVersion(const ::Ice::EncodingVersion&) const;
+    ::Ice::ObjectPrx ice_encodingVersion(const ::Ice::EncodingVersion&) const;
 
     bool ice_isPreferSecure() const;
-    ::Ice::ObjectPrxPtr ice_preferSecure(bool) const;
+    ::Ice::ObjectPrx ice_preferSecure(bool) const;
 
     ::Ice::RouterPrx ice_getRouter() const;
     ::Ice::ObjectPrx ice_router(const ::Ice::RouterPrx&) const;
@@ -1099,7 +1099,7 @@ public:
 
     ::Ice::Int __hash() const;
 
-    void __copyFrom(const ::Ice::ObjectPrxPtr&);
+    void __copyFrom(const ::Ice::ObjectPrx&);
 
     int __handleException(const ::Ice::Exception&, const ::IceInternal::RequestHandlerPtr&, ::Ice::OperationMode,
                           bool, int&);
@@ -1167,6 +1167,124 @@ private:
     IceUtil::Mutex _mutex;
 };
 
+template<typename Prx, typename Base>
+class ICE_API Proxy : public virtual Base
+{
+public:
+
+    IceInternal::ProxyHandle<Prx> ice_context(const ::Ice::Context& context) const
+    {
+        return dynamic_cast<Prx*>(::IceProxy::Ice::Object::ice_context(context).get());
+    }
+
+    IceInternal::ProxyHandle<Prx> ice_adapterId(const ::std::string& id) const
+    {
+        return dynamic_cast<Prx*>(::IceProxy::Ice::Object::ice_adapterId(id).get());
+    }
+
+    IceInternal::ProxyHandle<Prx> ice_endpoints(const ::Ice::EndpointSeq& endpoints) const
+    {
+        return dynamic_cast<Prx*>(::IceProxy::Ice::Object::ice_endpoints(endpoints).get());
+    }
+
+    IceInternal::ProxyHandle<Prx> ice_locatorCacheTimeout(int timeout) const
+    {
+        return dynamic_cast<Prx*>(::IceProxy::Ice::Object::ice_locatorCacheTimeout(timeout).get());
+    }
+
+    IceInternal::ProxyHandle<Prx> ice_connectionCached(bool cached) const
+    {
+        return dynamic_cast<Prx*>(::IceProxy::Ice::Object::ice_connectionCached(cached).get());
+    }
+
+    IceInternal::ProxyHandle<Prx> ice_endpointSelection(::Ice::EndpointSelectionType selection) const
+    {
+        return dynamic_cast<Prx*>(::IceProxy::Ice::Object::ice_endpointSelection(selection).get());
+    }
+
+    IceInternal::ProxyHandle<Prx> ice_secure(bool secure) const
+    {
+        return dynamic_cast<Prx*>(::IceProxy::Ice::Object::ice_secure(secure).get());
+    }
+
+    IceInternal::ProxyHandle<Prx> ice_preferSecure(bool preferSecure) const
+    {
+        return dynamic_cast<Prx*>(::IceProxy::Ice::Object::ice_preferSecure(preferSecure).get());
+    }
+
+    IceInternal::ProxyHandle<Prx> ice_router(const ::Ice::RouterPrx& router) const
+    {
+        return dynamic_cast<Prx*>(::IceProxy::Ice::Object::ice_router(router).get());
+    }
+
+    IceInternal::ProxyHandle<Prx> ice_locator(const ::Ice::LocatorPrx& locator) const
+    {
+        return dynamic_cast<Prx*>(::IceProxy::Ice::Object::ice_locator(locator).get());
+    }
+
+    IceInternal::ProxyHandle<Prx> ice_collocationOptimized(bool collocated) const
+    {
+        return dynamic_cast<Prx*>(::IceProxy::Ice::Object::ice_collocationOptimized(collocated).get());
+    }
+
+    IceInternal::ProxyHandle<Prx> ice_invocationTimeout(int timeout) const
+    {
+        return dynamic_cast<Prx*>(::IceProxy::Ice::Object::ice_invocationTimeout(timeout).get());
+    }
+
+    IceInternal::ProxyHandle<Prx> ice_twoway() const
+    {
+        return dynamic_cast<Prx*>(::IceProxy::Ice::Object::ice_twoway().get());
+    }
+
+    IceInternal::ProxyHandle<Prx> ice_oneway() const
+    {
+        return dynamic_cast<Prx*>(::IceProxy::Ice::Object::ice_oneway().get());
+    }
+
+    IceInternal::ProxyHandle<Prx> ice_batchOneway() const
+    {
+        return dynamic_cast<Prx*>(::IceProxy::Ice::Object::ice_batchOneway().get());
+    }
+
+    IceInternal::ProxyHandle<Prx> ice_datagram() const
+    {
+        return dynamic_cast<Prx*>(::IceProxy::Ice::Object::ice_datagram().get());
+    }
+
+    IceInternal::ProxyHandle<Prx> ice_batchDatagram() const
+    {
+        return dynamic_cast<Prx*>(::IceProxy::Ice::Object::ice_batchDatagram().get());
+    }
+
+    IceInternal::ProxyHandle<Prx> ice_compress(bool compress) const
+    {
+        return dynamic_cast<Prx*>(::IceProxy::Ice::Object::ice_compress(compress).get());
+    }
+
+    IceInternal::ProxyHandle<Prx> ice_timeout(int timeout) const
+    {
+        return dynamic_cast<Prx*>(::IceProxy::Ice::Object::ice_timeout(timeout).get());
+    }
+
+    IceInternal::ProxyHandle<Prx> ice_connectionId(const ::std::string& id) const
+    {
+        return dynamic_cast<Prx*>(::IceProxy::Ice::Object::ice_connectionId(id).get());
+    }
+
+    IceInternal::ProxyHandle<Prx> ice_encodingVersion(const ::Ice::EncodingVersion& version) const
+    {
+        return dynamic_cast<Prx*>(::IceProxy::Ice::Object::ice_encodingVersion(version).get());
+    }
+    
+protected:
+    
+    virtual Object* __newInstance() const
+    {
+        return new Prx();
+    }
+};
+
 } }
 
 ICE_API ::std::ostream& operator<<(::std::ostream&, const ::IceProxy::Ice::Object&);
@@ -1174,39 +1292,39 @@ ICE_API ::std::ostream& operator<<(::std::ostream&, const ::IceProxy::Ice::Objec
 namespace Ice
 {
 
-ICE_API bool proxyIdentityLess(const ObjectPrxPtr&, const ObjectPrxPtr&);
-ICE_API bool proxyIdentityEqual(const ObjectPrxPtr&, const ObjectPrxPtr&);
+ICE_API bool proxyIdentityLess(const ObjectPrx&, const ObjectPrx&);
+ICE_API bool proxyIdentityEqual(const ObjectPrx&, const ObjectPrx&);
 
-ICE_API bool proxyIdentityAndFacetLess(const ObjectPrxPtr&, const ObjectPrxPtr&);
-ICE_API bool proxyIdentityAndFacetEqual(const ObjectPrxPtr&, const ObjectPrxPtr&);
+ICE_API bool proxyIdentityAndFacetLess(const ObjectPrx&, const ObjectPrx&);
+ICE_API bool proxyIdentityAndFacetEqual(const ObjectPrx&, const ObjectPrx&);
 
-struct ProxyIdentityLess : std::binary_function<bool, ObjectPrxPtr&, ObjectPrxPtr&>
+struct ProxyIdentityLess : std::binary_function<bool, ObjectPrx&, ObjectPrx&>
 {
-    bool operator()(const ObjectPrxPtr& lhs, const ObjectPrxPtr& rhs) const
+    bool operator()(const ObjectPrx& lhs, const ObjectPrx& rhs) const
     {
         return proxyIdentityLess(lhs, rhs);
     }
 };
 
-struct ProxyIdentityEqual : std::binary_function<bool, ObjectPrxPtr&, ObjectPrxPtr&>
+struct ProxyIdentityEqual : std::binary_function<bool, ObjectPrx&, ObjectPrx&>
 {
-    bool operator()(const ObjectPrxPtr& lhs, const ObjectPrxPtr& rhs) const
+    bool operator()(const ObjectPrx& lhs, const ObjectPrx& rhs) const
     {
         return proxyIdentityEqual(lhs, rhs);
     }
 };
 
-struct ProxyIdentityAndFacetLess : std::binary_function<bool, ObjectPrxPtr&, ObjectPrxPtr&>
+struct ProxyIdentityAndFacetLess : std::binary_function<bool, ObjectPrx&, ObjectPrx&>
 {
-    bool operator()(const ObjectPrxPtr& lhs, const ObjectPrxPtr& rhs) const
+    bool operator()(const ObjectPrx& lhs, const ObjectPrx& rhs) const
     {
         return proxyIdentityAndFacetLess(lhs, rhs);
     }
 };
 
-struct ProxyIdentityAndFacetEqual : std::binary_function<bool, ObjectPrxPtr&, ObjectPrxPtr&>
+struct ProxyIdentityAndFacetEqual : std::binary_function<bool, ObjectPrx&, ObjectPrx&>
 {
-    bool operator()(const ObjectPrxPtr& lhs, const ObjectPrxPtr& rhs) const
+    bool operator()(const ObjectPrx& lhs, const ObjectPrx& rhs) const
     {
         return proxyIdentityAndFacetEqual(lhs, rhs);
     }
@@ -1279,7 +1397,7 @@ inline bool operator>=(const ProxyHandle<T>& lhs, const ProxyHandle<U>& rhs)
 // checkedCast and uncheckedCast functions without facet:
 //
 template<typename P> P
-checkedCastImpl(const ::Ice::ObjectPrxPtr& b, const ::Ice::Context& context)
+checkedCastImpl(const ::Ice::ObjectPrx& b, const ::Ice::Context& context)
 {
     P d = 0;
     if(b.get())
@@ -1296,7 +1414,7 @@ checkedCastImpl(const ::Ice::ObjectPrxPtr& b, const ::Ice::Context& context)
 }
 
 template<typename P> P
-uncheckedCastImpl(const ::Ice::ObjectPrxPtr& b)
+uncheckedCastImpl(const ::Ice::ObjectPrx& b)
 {
     P d = 0;
     if(b)
@@ -1320,24 +1438,24 @@ uncheckedCastImpl(const ::Ice::ObjectPrxPtr& b)
 //
 // Helper with type ID.
 //
-ICE_API ::Ice::ObjectPrxPtr checkedCastImpl(const ::Ice::ObjectPrxPtr&, const std::string&, const std::string&,
+ICE_API ::Ice::ObjectPrx checkedCastImpl(const ::Ice::ObjectPrx&, const std::string&, const std::string&,
                                             const ::Ice::Context&);
 
 //
-// Specializations for P = ::Ice::ObjectPrxPtr
+// Specializations for P = ::Ice::ObjectPrx
 // We have to use inline functions for broken compilers such as VC7.
 //
 
-template<> inline ::Ice::ObjectPrxPtr
-checkedCastImpl< ::Ice::ObjectPrxPtr>(const ::Ice::ObjectPrxPtr& b, const std::string& f, const ::Ice::Context& context)
+template<> inline ::Ice::ObjectPrx
+checkedCastImpl< ::Ice::ObjectPrx>(const ::Ice::ObjectPrx& b, const std::string& f, const ::Ice::Context& context)
 {
     return checkedCastImpl(b, f, "::Ice::Object", context);
 }
 
-template<> inline ::Ice::ObjectPrxPtr
-uncheckedCastImpl< ::Ice::ObjectPrxPtr>(const ::Ice::ObjectPrxPtr& b, const std::string& f)
+template<> inline ::Ice::ObjectPrx
+uncheckedCastImpl< ::Ice::ObjectPrx>(const ::Ice::ObjectPrx& b, const std::string& f)
 {
-    ::Ice::ObjectPrxPtr d = 0;
+    ::Ice::ObjectPrx d = 0;
     if(b)
     {
         d = b->ice_facet(f);
@@ -1346,12 +1464,12 @@ uncheckedCastImpl< ::Ice::ObjectPrxPtr>(const ::Ice::ObjectPrxPtr& b, const std:
 }
 
 template<typename P> P
-checkedCastImpl(const ::Ice::ObjectPrxPtr& b, const std::string& f, const ::Ice::Context& context)
+checkedCastImpl(const ::Ice::ObjectPrx& b, const std::string& f, const ::Ice::Context& context)
 {
     P d = 0;
 
     typedef typename P::element_type T;
-    ::Ice::ObjectPrxPtr bb = checkedCastImpl(b, f, T::ice_staticId(), context);
+    ::Ice::ObjectPrx bb = checkedCastImpl(b, f, T::ice_staticId(), context);
 
     if(bb)
     {
@@ -1362,14 +1480,14 @@ checkedCastImpl(const ::Ice::ObjectPrxPtr& b, const std::string& f, const ::Ice:
 }
 
 template<typename P> P
-uncheckedCastImpl(const ::Ice::ObjectPrxPtr& b, const std::string& f)
+uncheckedCastImpl(const ::Ice::ObjectPrx& b, const std::string& f)
 {
     P d = 0;
     if(b)
     {
         typedef typename P::element_type T;
 
-        ::Ice::ObjectPrxPtr bb = b->ice_facet(f);
+        ::Ice::ObjectPrx bb = b->ice_facet(f);
         d = new T;
         d->__copyFrom(bb);
     }
@@ -1396,13 +1514,13 @@ uncheckedCast(const ::IceInternal::ProxyHandle<Y>& b)
 }
 
 template<typename P> inline P
-checkedCast(const ::Ice::ObjectPrxPtr& b, const std::string& f, const ::Ice::Context& ctx = ::Ice::noExplicitContext)
+checkedCast(const ::Ice::ObjectPrx& b, const std::string& f, const ::Ice::Context& ctx = ::Ice::noExplicitContext)
 {
     return ::IceInternal::checkedCastImpl<P>(b, f, ctx);
 }
 
 template<typename P> inline P
-uncheckedCast(const ::Ice::ObjectPrxPtr& b, const std::string& f)
+uncheckedCast(const ::Ice::ObjectPrx& b, const std::string& f)
 {
     return ::IceInternal::uncheckedCastImpl<P>(b, f);
 }
