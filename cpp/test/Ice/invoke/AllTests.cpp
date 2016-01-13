@@ -386,6 +386,39 @@ allTests(const Ice::CommunicatorPtr& communicator)
 #ifdef ICE_CPP11_MAPPING
     
     {
+        Ice::ByteSeq inEncaps;
+        {
+            promise<void> completed;
+            batchOneway->ice_invoke_async("opOneway", ICE_ENUM(OperationMode, Normal), inEncaps,
+                [](bool, const vector<Ice::Byte>)
+                {
+                    test(false);
+                },
+                [](exception_ptr)
+                {
+                    test(false);
+                },
+                [&completed](bool)
+                {
+                    completed.set_value();
+                });
+            completed.get_future().get();
+        }
+        batchOneway->ice_flushBatchRequests();
+    }
+    //
+    // repeat with the future API.
+    //
+    {
+        Ice::ByteSeq inEncaps;
+        test(batchOneway->ice_invoke_async("opOneway", ICE_ENUM(OperationMode, Normal), inEncaps).get().ok);
+        test(batchOneway->ice_invoke_async("opOneway", ICE_ENUM(OperationMode, Normal), inEncaps).get().ok);
+        test(batchOneway->ice_invoke_async("opOneway", ICE_ENUM(OperationMode, Normal), inEncaps).get().ok);
+        test(batchOneway->ice_invoke_async("opOneway", ICE_ENUM(OperationMode, Normal), inEncaps).get().ok);
+        batchOneway->ice_flushBatchRequests();
+    }
+    
+    {
         promise<bool> completed;
         Ice::ByteSeq inEncaps, outEncaps;
         oneway->ice_invoke_async(
@@ -405,6 +438,16 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(completed.get_future().get());
     }
     
+    //
+    // repeat with the future API.
+    //
+
+    {
+        Ice::ByteSeq inEncaps, outEncaps;
+        auto completed = oneway->ice_invoke_async("opOneway", OperationMode::Normal, inEncaps);
+        test(completed.get().ok);
+    }
+
     {
         promise<bool> completed;
         Ice::ByteSeq inEncaps, outEncaps;
@@ -435,6 +478,30 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(s == testString);
         in->endEncapsulation();
     }
+    //
+    // repeat with the future API.
+    //
+    {
+        Ice::ByteSeq inEncaps, outEncaps;
+        Ice::OutputStreamPtr out = Ice::createOutputStream(communicator);
+        out->startEncapsulation();
+        out->write(testString);
+        out->endEncapsulation();
+        out->finished(inEncaps);
+        
+        auto result = cl->ice_invoke_async("opString", OperationMode::Normal, inEncaps).get();
+        test(result.ok);
+        
+        Ice::InputStreamPtr in = Ice::createInputStream(communicator, result.outParams);
+        in->startEncapsulation();
+        string s;
+        in->read(s);
+        test(s == testString);
+        in->read(s);
+        test(s == testString);
+        in->endEncapsulation();
+    }
+    
     
     {
         promise<bool> completed;
@@ -474,7 +541,32 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(s == testString);
         in->endEncapsulation();
     }
-    
+    //
+    // repeat with the future API.
+    //
+    {
+        Ice::ByteSeq inEncaps, outEncaps;
+        Ice::OutputStreamPtr out = Ice::createOutputStream(communicator);
+        out->startEncapsulation();
+        out->write(testString);
+        out->endEncapsulation();
+        out->finished(inEncaps);
+
+        pair<const ::Ice::Byte*, const ::Ice::Byte*> inPair(&inEncaps[0], &inEncaps[0] + inEncaps.size());
+        
+        auto result = cl->ice_invoke_async("opString", OperationMode::Normal, inPair).get();
+        test(result.ok);
+        vector<Ice::Byte>(result.outParams.first, result.outParams.second).swap(outEncaps);
+        Ice::InputStreamPtr in = Ice::createInputStream(communicator, outEncaps);
+        in->startEncapsulation();
+        string s;
+        in->read(s);
+        test(s == testString);
+        in->read(s);
+        test(s == testString);
+        in->endEncapsulation();
+    }
+
     {
         promise<bool> completed;
         promise<void> sent;
@@ -512,9 +604,42 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(false);
         }
     }
+    //
+    // repeat with the future API.
+    //
+    {
+        Ice::ByteSeq inEncaps;
+        auto result = cl->ice_invoke_async("opException", OperationMode::Normal, inEncaps).get();
+        test(!result.ok);
+
+        Ice::InputStreamPtr in = Ice::createInputStream(communicator, result.outParams);
+        in->startEncapsulation();
+        try
+        {
+            in->throwException();
+            test(false);
+        }
+        catch(const Test::MyException&)
+        {
+        }
+        catch(...)
+        {
+            test(false);
+        }
+    }
+    
 #else
     void (::Callback::*nullEx)(const Ice::Exception&) = 0;
     void (::Callback::*nullExWC)(const Ice::Exception&, const CookiePtr&) = 0;
+    
+    {
+        Ice::ByteSeq inEncaps, outEncaps;
+        test(batchOneway->end_ice_invoke(outEncaps, batchOneway->begin_ice_invoke("opOneway", ICE_ENUM(OperationMode, Normal), inEncaps)));
+        test(batchOneway->end_ice_invoke(outEncaps, batchOneway->begin_ice_invoke("opOneway", ICE_ENUM(OperationMode, Normal), inEncaps)));
+        test(batchOneway->end_ice_invoke(outEncaps, batchOneway->begin_ice_invoke("opOneway", ICE_ENUM(OperationMode, Normal), inEncaps)));
+        test(batchOneway->end_ice_invoke(outEncaps, batchOneway->begin_ice_invoke("opOneway", ICE_ENUM(OperationMode, Normal), inEncaps)));
+        batchOneway->ice_flushBatchRequests();
+    }
 
     {
         CookiePtr cookie = new Cookie();

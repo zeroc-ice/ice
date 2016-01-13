@@ -248,6 +248,61 @@ public:
         ::std::function<void (bool)> sent = nullptr,
         const ::Ice::Context& context = ::Ice::noExplicitContext);
     
+    struct Result_invoke1
+    {
+        bool ok;
+        std::vector<::Ice::Byte> outParams;
+    };
+    
+    template<template<typename> class P = std::promise>
+    auto ice_invoke_async(
+        const ::std::string& operation,
+        ::Ice::OperationMode mode,
+        const ::std::vector<::Ice::Byte>& inParams,
+        const ::Ice::Context& context = ::Ice::noExplicitContext)
+        -> decltype(std::declval<P<Result_invoke1>>().get_future())
+    {
+        auto promise = ::std::make_shared<P<Result_invoke1>>();
+        if(ice_isTwoway())
+        {
+            ice_invoke_async(operation, mode, inParams,
+                [promise](bool ok, ::std::vector<::Ice::Byte> outParams)
+                {
+                    Result_invoke1 result = {ok, move(outParams)};
+                    promise->set_value(::std::move(result));
+                },
+                [promise](::std::exception_ptr ex)
+                {
+                    promise->set_exception(::std::move(ex));
+                },
+                nullptr, context);
+        }
+        else if(ice_isOneway() || ice_isDatagram())
+        {
+            ice_invoke_async(operation, mode, inParams,
+                nullptr,
+                [promise](::std::exception_ptr ex)
+                {
+                    promise->set_exception(::std::move(ex));
+                },
+                [promise](bool)
+                {
+                    Result_invoke1 result;
+                    result.ok = true;
+                    promise->set_value(::std::move(result));
+                },
+                context);
+        }
+        else // Batch request
+        {
+            ice_invoke_async(operation, mode, inParams, nullptr, nullptr, nullptr, context);
+            Result_invoke1 result;
+            result.ok = true;
+            promise->set_value(::std::move(result));
+        }
+        return promise->get_future();
+    }
+    
     ::std::function<void ()>
     ice_invoke_async(
         const ::std::string&,
@@ -257,6 +312,61 @@ public:
         ::std::function<void (::std::exception_ptr)> exception = nullptr,
         ::std::function<void (bool)> sent = nullptr,
         const ::Ice::Context& context = ::Ice::noExplicitContext);
+    
+    struct Result_invoke2
+    {
+        bool ok;
+        std::pair<const ::Ice::Byte*, const ::Ice::Byte*> outParams;
+    };
+    
+    template<template<typename> class P = std::promise>
+    auto ice_invoke_async(
+        const ::std::string& operation,
+        ::Ice::OperationMode mode,
+        const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>& inParams,
+        const ::Ice::Context& context = ::Ice::noExplicitContext)
+        -> decltype(std::declval<P<Result_invoke2>>().get_future())
+    {
+        auto promise = ::std::make_shared<P<Result_invoke2>>();
+        if(ice_isTwoway())
+        {
+            ice_invoke_async(operation, mode, inParams,
+                [promise](bool ok, ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*> outParams)
+                {
+                    Result_invoke2 result = {ok, move(outParams)};
+                    promise->set_value(::std::move(result));
+                },
+                [promise](::std::exception_ptr ex)
+                {
+                    promise->set_exception(::std::move(ex));
+                },
+                nullptr, context);
+        }
+        else if(ice_isOneway() || ice_isDatagram())
+        {
+            ice_invoke_async(operation, mode, inParams,
+                nullptr,
+                [promise](::std::exception_ptr ex)
+                {
+                    promise->set_exception(::std::move(ex));
+                },
+                [promise](bool)
+                {
+                    Result_invoke2 result;
+                    result.ok = true;
+                    promise->set_value(::std::move(result));
+                },
+                context);
+        }
+        else // Batch request
+        {
+            ice_invoke_async(operation, mode, inParams, nullptr, nullptr, nullptr, context);
+            Result_invoke2 result;
+            result.ok = true;
+            promise->set_value(::std::move(result));
+        }
+        return promise->get_future();
+    }
 
     ::Ice::Identity ice_getIdentity() const;
     ::std::shared_ptr<::Ice::ObjectPrx> ice_identity(const ::Ice::Identity&) const;
@@ -1168,7 +1278,7 @@ private:
 };
 
 template<typename Prx, typename Base>
-class ICE_API Proxy : public virtual Base
+class Proxy : public virtual Base
 {
 public:
 

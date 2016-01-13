@@ -544,14 +544,14 @@ Ice::ObjectPrx::ice_invoke_async(const string& operation,
     {
     public:
 
-        InvokeCallback(function<void (bool, vector<::Ice::Byte>)> response,
-                       function<void (exception_ptr)> exception,
-                       function<void (bool)> sent,
-                       shared_ptr<ObjectPrx> proxy) :
+        InvokeCallback(shared_ptr<ObjectPrx> proxy,
+                       function<void (bool, vector<::Ice::Byte>)> response = nullptr,
+                       function<void (exception_ptr)> exception = nullptr,
+                       function<void (bool)> sent = nullptr) :
+            _proxy(move(proxy)),
             _response(move(response)),
             _exception(move(exception)),
-            _sent(move(sent)),
-            _proxy(move(proxy))
+            _sent(move(sent))
         {
         }
 
@@ -597,28 +597,55 @@ Ice::ObjectPrx::ice_invoke_async(const string& operation,
 
     private:
 
+        shared_ptr<ObjectPrx> _proxy;
         function<void (bool, vector<::Ice::Byte>)> _response;
         function<void (exception_ptr)> _exception;
         function<void (bool)> _sent;
-        shared_ptr<ObjectPrx> _proxy;
     };
-    auto result = make_shared<OutgoingAsync>(shared_from_this(), ice_invoke_name,
-        make_shared<InvokeCallback>(move(response), move(exception), move(sent), shared_from_this()));
-    try
+    
+    if(ice_isBatchOneway() || ice_isBatchDatagram())
     {
-        result->prepare(operation, mode, context);
-        result->writeParamEncaps(inPair.first, static_cast<Ice::Int>(inEncaps.size()));
-        result->invoke();
-    }
-    catch(const Exception& ex)
-    {
-        result->abort(ex);
-    }
-
-    return [result]()
+        auto result = make_shared<OutgoingAsync>(shared_from_this(), ice_invoke_name,
+            make_shared<InvokeCallback>(shared_from_this()));
+        try
         {
-            result->cancel();
-        };
+            result->prepare(operation, mode, context);
+            result->writeParamEncaps(inPair.first, static_cast<Ice::Int>(inEncaps.size()));
+            result->invoke();
+            if(sent)
+            {
+                sent(true);
+            }
+        }
+        catch(const Exception& ex)
+        {
+            result->abort(ex);
+        }
+        return [result]()
+            {
+                result->cancel();
+            };
+    }
+    else
+    {
+        auto result = make_shared<OutgoingAsync>(shared_from_this(), ice_invoke_name,
+            make_shared<InvokeCallback>(shared_from_this(), move(response), move(exception), move(sent)));
+        try
+        {
+            result->prepare(operation, mode, context);
+            result->writeParamEncaps(inPair.first, static_cast<Ice::Int>(inEncaps.size()));
+            result->invoke();
+        }
+        catch(const Exception& ex)
+        {
+            result->abort(ex);
+        }
+        
+        return [result]()
+            {
+                result->cancel();
+            };
+    }
 }
 
 function<void ()>
@@ -634,14 +661,14 @@ Ice::ObjectPrx::ice_invoke_async(const string& operation,
     {
     public:
 
-        InvokeCallback(function<void (bool, pair<const Byte*, const Byte*>)> response,
-                       function<void (exception_ptr)> exception,
-                       function<void (bool)> sent,
-                       shared_ptr<ObjectPrx> proxy) :
+        InvokeCallback(shared_ptr<ObjectPrx> proxy,
+                       function<void (bool, pair<const Byte*, const Byte*>)> response = nullptr,
+                       function<void (exception_ptr)> exception = nullptr,
+                       function<void (bool)> sent = nullptr) :
+            _proxy(move(proxy)),
             _response(move(response)),
             _exception(move(exception)),
-            _sent(move(sent)),
-            _proxy(move(proxy))
+            _sent(move(sent))
         {
         }
 
@@ -688,28 +715,56 @@ Ice::ObjectPrx::ice_invoke_async(const string& operation,
 
     private:
 
+        shared_ptr<ObjectPrx> _proxy;
         function<void (bool, pair<const Byte*, const Byte*>)> _response;
         function<void (exception_ptr)> _exception;
         function<void (bool)> _sent;
-        shared_ptr<ObjectPrx> _proxy;
     };
-    auto result = make_shared<OutgoingAsync>(shared_from_this(), ice_invoke_name,
-        make_shared<InvokeCallback>(move(response), move(exception), move(sent), shared_from_this()));
-    try
+    
+    if(ice_isBatchOneway() || ice_isBatchDatagram())
     {
-        result->prepare(operation, mode, context);
-        result->writeParamEncaps(inEncaps.first, static_cast<Int>(inEncaps.second - inEncaps.first));
-        result->invoke();
-    }
-    catch(const Exception& ex)
-    {
-        result->abort(ex);
-    }
-
-    return [result]()
+        auto result = make_shared<OutgoingAsync>(shared_from_this(), ice_invoke_name,
+            make_shared<InvokeCallback>(shared_from_this()));
+        try
         {
-            result->cancel();
-        };
+            result->prepare(operation, mode, context);
+            result->writeParamEncaps(inEncaps.first, static_cast<Int>(inEncaps.second - inEncaps.first));
+            result->invoke();
+            if(sent)
+            {
+                sent(true);
+            }
+        }
+        catch(const Exception& ex)
+        {
+            result->abort(ex);
+        }
+        
+        return [result]()
+            {
+                result->cancel();
+            };
+    }
+    else
+    {
+        auto result = make_shared<OutgoingAsync>(shared_from_this(), ice_invoke_name,
+            make_shared<InvokeCallback>(shared_from_this(), move(response), move(exception), move(sent)));
+        try
+        {
+            result->prepare(operation, mode, context);
+            result->writeParamEncaps(inEncaps.first, static_cast<Int>(inEncaps.second - inEncaps.first));
+            result->invoke();
+        }
+        catch(const Exception& ex)
+        {
+            result->abort(ex);
+        }
+        
+        return [result]()
+            {
+                result->cancel();
+            };
+    }
 }
 
 shared_ptr<ObjectPrx>
