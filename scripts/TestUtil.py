@@ -569,10 +569,6 @@ def run(tests, root = False):
         a = '--protocol=ws %s'  % arg
         expanded.append([ (test, a, config) for test,config in tests if "core" in config])
 
-        if isLinux():
-            a = '--protocol=bt %s'  % arg
-            expanded.append([ (test, a, config) for test,config in tests if "core" in config])
-
         if not noipv6:
             a = "--ipv6 --protocol=wss --compress --mx --serialize %s" % arg
             expanded.append([ (test, a, config) for test,config in tests if "core" in config])
