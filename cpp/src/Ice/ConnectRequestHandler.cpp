@@ -226,11 +226,8 @@ ConnectRequestHandler::setException(const Ice::LocalException& ex)
 {
     Lock sync(*this);
     assert(!_initialized && !ICE_EXCEPTION_GET(_exception));
-#ifdef ICE_CPP11_MAPPING
-    _exception = ex.ice_clone();
-#else
-    _exception.reset(ex.ice_clone());
-#endif
+    ICE_RESET_EXCEPTION(_exception, ex.ice_clone());
+
     _proxies.clear();
     _proxy = 0; // Break cyclic reference count.
 

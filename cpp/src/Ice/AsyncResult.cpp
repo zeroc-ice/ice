@@ -456,7 +456,7 @@ AsyncResult::cancelable(const CancellationHandlerPtr& handler)
         {
             ICE_RETHROW_EXCEPTION(_cancellationException);
         }
-        catch(const Ice::Exception&)
+        catch(const Ice::LocalException&)
         {
             ICE_RESET_EXCEPTION(_cancellationException, ICE_NULLPTR);
             throw;
