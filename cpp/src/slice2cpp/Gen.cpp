@@ -270,7 +270,7 @@ writeDataMemberInitializers(IceUtilInternal::Output& C, const DataMemberList& me
 Slice::Gen::Gen(const string& base, const string& headerExtension, const string& sourceExtension,
                 const vector<string>& extraHeaders, const string& include,
                 const vector<string>& includePaths, const string& dllExport, const string& dir,
-                bool imp, bool checksum, bool stream, bool ice) :
+                bool implCpp98, bool implCpp11, bool checksum, bool stream, bool ice) :
     _base(base),
     _headerExtension(headerExtension),
     _implHeaderExtension(headerExtension),
@@ -280,7 +280,8 @@ Slice::Gen::Gen(const string& base, const string& headerExtension, const string&
     _includePaths(includePaths),
     _dllExport(dllExport),
     _dir(dir),
-    _impl(imp),
+    _implCpp98(implCpp98),
+    _implCpp11(implCpp11),
     _checksum(checksum),
     _stream(stream),
     _ice(ice)
@@ -303,7 +304,7 @@ Slice::Gen::~Gen()
     H << "\n#endif\n";
     C << '\n';
 
-    if(_impl)
+    if(_implCpp98 || _implCpp11)
     {
         implH << "\n\n#endif\n";
         implC << '\n';
@@ -356,7 +357,7 @@ Slice::Gen::generate(const UnitPtr& p)
         _headerExtension = headerExtension;
     }
 
-    if(_impl)
+    if(_implCpp98 || _implCpp11)
     {
         string fileImplH = _base + "I." + _implHeaderExtension;
         string fileImplC = _base + "I." + _sourceExtension;
@@ -624,8 +625,7 @@ Slice::Gen::generate(const UnitPtr& p)
         Cpp11ValueVisitor valueVisitor(H, C, _dllExport, _stream);
         p->visit(&valueVisitor, false);
 
-        // TODO
-        /*if(_impl)
+        if(_implCpp11)
         {
             implH << "\n#include <";
             if(_include.size())
@@ -633,7 +633,7 @@ Slice::Gen::generate(const UnitPtr& p)
                 implH << _include << '/';
             }
             implH << _base << "." << _headerExtension << ">";
-
+            implH << nl << "//base";
             writeExtraHeaders(implC);
 
             implC << "\n#include <";
@@ -643,9 +643,9 @@ Slice::Gen::generate(const UnitPtr& p)
             }
             implC << _base << "I." << _implHeaderExtension << ">";
 
-            ImplVisitor implVisitor(implH, implC, _dllExport);
+            Cpp11ImplVisitor implVisitor(implH, implC, _dllExport);
             p->visit(&implVisitor, false);
-        }*/
+        }
 
         Cpp11CompatibilityVisitor compatibilityVisitor(H, C, _dllExport);
         p->visit(&compatibilityVisitor, false);
@@ -703,7 +703,7 @@ Slice::Gen::generate(const UnitPtr& p)
         AsyncCallbackTemplateVisitor asyncCallbackTemplateVisitor(H, C, _dllExport);
         p->visit(&asyncCallbackTemplateVisitor, false);
 
-        if(_impl)
+        if(_implCpp98)
         {
             implH << "\n#include <";
             if(_include.size())
@@ -4019,58 +4019,8 @@ Slice::Gen::ImplVisitor::ImplVisitor(Output& h, Output& c, const string& dllExpo
 {
 }
 
-void
-Slice::Gen::ImplVisitor::writeDecl(Output& out, const string& name, const TypePtr& type, const StringList& metaData)
-{
-    out << nl << typeToString(type, metaData, _useWstring) << ' ' << name;
-
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    if(builtin)
-    {
-        switch(builtin->kind())
-        {
-            case Builtin::KindBool:
-            {
-                out << " = false";
-                break;
-            }
-            case Builtin::KindByte:
-            case Builtin::KindShort:
-            case Builtin::KindInt:
-            case Builtin::KindLong:
-            {
-                out << " = 0";
-                break;
-            }
-            case Builtin::KindFloat:
-            case Builtin::KindDouble:
-            {
-                out << " = 0.0";
-                break;
-            }
-            case Builtin::KindString:
-            case Builtin::KindValue:
-            case Builtin::KindObject:
-            case Builtin::KindObjectProxy:
-            case Builtin::KindLocalObject:
-            {
-                break;
-            }
-        }
-    }
-
-    EnumPtr en = EnumPtr::dynamicCast(type);
-    if(en)
-    {
-        EnumeratorList enumerators = en->getEnumerators();
-        out << " = " << fixKwd(en->scope()) << fixKwd(enumerators.front()->name());
-    }
-
-    out << ';';
-}
-
-void
-Slice::Gen::ImplVisitor::writeReturn(Output& out, const TypePtr& type, const StringList& metaData)
+string
+Slice::Gen::ImplVisitor::defaultValue(const TypePtr& type, const StringList& metaData) const
 {
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
@@ -4079,85 +4029,76 @@ Slice::Gen::ImplVisitor::writeReturn(Output& out, const TypePtr& type, const Str
         {
             case Builtin::KindBool:
             {
-                out << nl << "return false;";
-                break;
+                return "false";
             }
             case Builtin::KindByte:
             case Builtin::KindShort:
             case Builtin::KindInt:
             case Builtin::KindLong:
             {
-                out << nl << "return 0;";
-                break;
+                return "0";
             }
             case Builtin::KindFloat:
             case Builtin::KindDouble:
             {
-                out << nl << "return 0.0;";
-                break;
+                return "0.0";
             }
             case Builtin::KindString:
             {
-                out << nl << "return ::std::string();";
-                break;
+                return "::std::string()";
             }
             case Builtin::KindValue:
             case Builtin::KindObject:
             case Builtin::KindObjectProxy:
             case Builtin::KindLocalObject:
             {
-                out << nl << "return 0;";
-                break;
+                return "0";
             }
         }
     }
     else
     {
         ProxyPtr prx = ProxyPtr::dynamicCast(type);
-        if(prx)
+        
+        if(ProxyPtr::dynamicCast(type) || ClassDeclPtr::dynamicCast(type))
         {
-            out << nl << "return 0;";
+            return "0";
         }
-        else
+        
+        StructPtr st = StructPtr::dynamicCast(type);
+        if(st)
         {
-            ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
-            if(cl)
-            {
-                out << nl << "return 0;";
-            }
-            else
-            {
-                StructPtr st = StructPtr::dynamicCast(type);
-                if(st)
-                {
-                    out << nl << "return " << fixKwd(st->scoped()) << "();";
-                }
-                else
-                {
-                    EnumPtr en = EnumPtr::dynamicCast(type);
-                    if(en)
-                    {
-                        EnumeratorList enumerators = en->getEnumerators();
-                        out << nl << "return " << fixKwd(en->scope()) << fixKwd(enumerators.front()->name()) << ';';
-                    }
-                    else
-                    {
-                        SequencePtr seq = SequencePtr::dynamicCast(type);
-                        if(seq)
-                        {
-                            out << nl << "return " << typeToString(seq, metaData, _useWstring) << "();";
-                        }
-                        else
-                        {
-                            DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
-                            assert(dict);
-                            out << nl << "return " << fixKwd(dict->scoped()) << "();";
-                        }
-                    }
-                }
-            }
+           return fixKwd(st->scoped()) + "()";
+        }
+        
+        EnumPtr en = EnumPtr::dynamicCast(type);
+        if(en)
+        {
+            EnumeratorList enumerators = en->getEnumerators();
+            return fixKwd(en->scope() + enumerators.front()->name());
+        }
+        
+        SequencePtr seq = SequencePtr::dynamicCast(type);
+        if(seq)
+        {
+            return typeToString(seq, metaData, _useWstring, true) + "()";
+        }
+        
+        DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
+        if(dict)
+        {
+            return fixKwd(dict->scoped()) + "()";
         }
     }
+    
+    assert(false);
+    return "???";
+}
+
+void
+Slice::Gen::ImplVisitor::writeReturn(Output& out, const TypePtr& type, const StringList& metaData)
+{
+    out << nl << "return " << defaultValue(type, metaData) << ";";
 }
 
 bool
@@ -4167,32 +4108,8 @@ Slice::Gen::ImplVisitor::visitModuleStart(const ModulePtr& p)
     {
         return false;
     }
-
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
-
-    set<string> includes;
-    ClassList classes = p->classes();
-    for(ClassList::const_iterator q = classes.begin(); q != classes.end(); ++q)
-    {
-        ClassList bases = (*q)->bases();
-        for(ClassList::const_iterator r = bases.begin(); r != bases.end(); ++r)
-        {
-            if((*r)->isAbstract())
-            {
-                includes.insert((*r)->name());
-            }
-        }
-    }
-
-    for(set<string>::const_iterator it = includes.begin(); it != includes.end(); ++it)
-    {
-        H << nl << "#include <" << *it << "I.h>";
-    }
-
-    string name = fixKwd(p->name());
-
-    H << sp << nl << "namespace " << name << nl << '{';
-
+    H << sp << nl << "namespace " << fixKwd(p->name()) << nl << '{';
     return true;
 }
 
@@ -4218,38 +4135,24 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
     string name = p->name();
     string scope = fixKwd(p->scope());
     string cls = scope.substr(2) + name + "I";
-    string classScopedAMD = scope + "AMD_" + name;
     ClassList bases = p->bases();
 
     H << sp;
-    H << nl << "class " << name << "I : ";
-    H.useCurrentPosAsIndent();
-    H << "public virtual " << fixKwd(name);
-    for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
-    {
-        H << ',' << nl << "public virtual " << fixKwd((*q)->scope());
-        if((*q)->isAbstract())
-        {
-            H << (*q)->name() << "I";
-        }
-        else
-        {
-            H << fixKwd((*q)->name());
-        }
-    }
-    H.restoreIndent();
+    H << nl << "class " << name << "I : public virtual " << fixKwd(name);
 
     H << sb;
     H.dec();
     H << nl << "public:";
     H.inc();
 
-    OperationList ops = p->operations();
+    OperationList ops = p->allOperations();
 
     for(OperationList::const_iterator r = ops.begin(); r != ops.end(); ++r)
     {
         OperationPtr op = (*r);
         string opName = op->name();
+        
+        string classScopedAMD = scope + "AMD_" + ClassDefPtr::dynamicCast(op->container())->name();
 
         TypePtr ret = op->returnType();
         string retS = returnTypeToString(ret, op->returnIsOptional(), op->getMetaData(), _useWstring);
@@ -4301,22 +4204,11 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
                     break;
                 }
             }
-            if(ret)
-            {
-                writeDecl(C, result, ret, op->getMetaData());
-            }
-            for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
-            {
-                if((*q)->isOutParam())
-                {
-                    writeDecl(C, fixKwd((*q)->name()), (*q)->type(), (*q)->getMetaData());
-                }
-            }
 
             C << nl << opName << "CB->ice_response(";
             if(ret)
             {
-                C << result;
+                C << defaultValue(ret, op->getMetaData());
             }
             for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
             {
@@ -4326,7 +4218,7 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
                     {
                         C << ", ";
                     }
-                    C << fixKwd((*q)->name());
+                    C << defaultValue((*q)->type(), op->getMetaData());
                 }
             }
             C << ");";
@@ -4344,17 +4236,14 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
                 {
                     H << ',' << nl;
                 }
-                StringList metaData = (*q)->getMetaData();
-                string typeString;
                 if((*q)->isOutParam())
                 {
-                    typeString = outputTypeToString((*q)->type(), (*q)->optional(), metaData, _useWstring);
+                    H << outputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), _useWstring);
                 }
                 else
                 {
-                    typeString = inputTypeToString((*q)->type(), (*q)->optional(), metaData, _useWstring);
+                    H << inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), _useWstring);
                 }
-                H << typeString;
             }
             if(!p->isLocal())
             {
@@ -4379,17 +4268,16 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
                 {
                     C << ',' << nl;
                 }
-                StringList metaData = (*q)->getMetaData();
-                string typeString;
                 if((*q)->isOutParam())
                 {
-                    typeString = outputTypeToString((*q)->type(), (*q)->optional(), metaData, _useWstring);
+                    C << outputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), _useWstring) << " "
+                      << fixKwd((*q)->name());
                 }
                 else
                 {
-                    typeString = inputTypeToString((*q)->type(), (*q)->optional(), metaData, _useWstring);
+                    C << inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), _useWstring) << " /*"
+                      << fixKwd((*q)->name()) << "*/";
                 }
-                C << typeString << ' ' << fixKwd((*q)->name());
             }
             if(!p->isLocal())
             {
@@ -8227,4 +8115,358 @@ Slice::Gen::Cpp11CompatibilityVisitor::visitClassDecl(const ClassDeclPtr& p)
             H << nl << "typedef ::std::shared_ptr<" << p->name() << "Prx> " << p->name() << "PrxPtr;";
         }
     }
+}
+
+Slice::Gen::Cpp11ImplVisitor::Cpp11ImplVisitor(Output& h, Output& c, const string& dllExport) :
+    H(h), C(c), _dllExport(dllExport), _useWstring(false)
+{
+}
+
+string
+Slice::Gen::Cpp11ImplVisitor::defaultValue(const TypePtr& type, const StringList& metaData) const
+{
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    if(builtin)
+    {
+        switch(builtin->kind())
+        {
+            case Builtin::KindBool:
+            {
+                return "false";
+            }
+            case Builtin::KindByte:
+            case Builtin::KindShort:
+            case Builtin::KindInt:
+            case Builtin::KindLong:
+            {
+                return "0";
+            }
+            case Builtin::KindFloat:
+            case Builtin::KindDouble:
+            {
+                return "0.0";
+            }
+            case Builtin::KindString:
+            {
+                return "::std::string()";
+            }
+            case Builtin::KindValue:
+            case Builtin::KindObject:
+            case Builtin::KindObjectProxy:
+            case Builtin::KindLocalObject:
+            {
+                return "nullptr";
+            }
+        }
+    }
+    else
+    {
+        ProxyPtr prx = ProxyPtr::dynamicCast(type);
+        
+        if(ProxyPtr::dynamicCast(type) || ClassDeclPtr::dynamicCast(type))
+        {
+            return "nullptr";
+        }
+        
+        StructPtr st = StructPtr::dynamicCast(type);
+        if(st)
+        {
+           return fixKwd(st->scoped()) + "()";
+        }
+        
+        EnumPtr en = EnumPtr::dynamicCast(type);
+        if(en)
+        {
+            EnumeratorList enumerators = en->getEnumerators();
+            return fixKwd(en->scoped() + "::" + enumerators.front()->name());
+        }
+        
+        SequencePtr seq = SequencePtr::dynamicCast(type);
+        if(seq)
+        {
+            return typeToString(seq, metaData, _useWstring, true) + "()";
+        }
+        
+        DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
+        if(dict)
+        {
+            return fixKwd(dict->scoped()) + "()";
+        }
+    }
+    
+    assert(false);
+    return "???";
+}
+
+void
+Slice::Gen::Cpp11ImplVisitor::writeReturn(Output& out, const TypePtr& type, const StringList& metaData)
+{
+    out << nl << "return " << defaultValue(type, metaData) << ";";
+}
+
+bool
+Slice::Gen::Cpp11ImplVisitor::visitModuleStart(const ModulePtr& p)
+{
+    if(!p->hasClassDefs())
+    {
+        return false;
+    }
+
+    _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
+
+    string name = fixKwd(p->name());
+
+    H << sp << nl << "namespace " << name << nl << '{';
+
+    return true;
+}
+
+void
+Slice::Gen::Cpp11ImplVisitor::visitModuleEnd(const ModulePtr&)
+{
+    H << sp;
+    H << nl << '}';
+
+    _useWstring = resetUseWstring(_useWstringHist);
+}
+
+bool
+Slice::Gen::Cpp11ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
+{
+    if(!p->isAbstract())
+    {
+        return false;
+    }
+
+    _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
+
+    string name = p->name();
+    string scope = fixKwd(p->scope());
+    string cls = scope.substr(2) + name + "I";
+    ClassList bases = p->bases();
+
+    H << sp;
+    H << nl << "class " << name << "I : ";
+    H.useCurrentPosAsIndent();
+    H << "public virtual ";
+    
+    if(p->isInterface() || p->isLocal())
+    {
+        H << fixKwd(name);
+    }
+    else
+    {
+        H << fixKwd(name + "Disp");
+    }
+    H.restoreIndent();
+
+    H << sb;
+    H.dec();
+    H << nl << "public:";
+    H.inc();
+
+    OperationList ops = p->allOperations();
+
+    for(OperationList::const_iterator r = ops.begin(); r != ops.end(); ++r)
+    {
+        OperationPtr op = (*r);
+        string opName = op->name();
+
+        TypePtr ret = op->returnType();
+        string retS = returnTypeToString(ret, op->returnIsOptional(), op->getMetaData(), _useWstring, true);
+        
+        ParamDeclList params = op->parameters();
+        ParamDeclList outParams;
+        ParamDeclList inParams;
+        for(ParamDeclList::const_iterator q = params.begin(); q != params.end(); ++q)
+        {
+            if((*q)->isOutParam())
+            {
+                outParams.push_back(*q);
+            }
+            else
+            {
+                inParams.push_back(*q);
+            }
+        }
+
+        if(!p->isLocal() && (p->hasMetaData("amd") || op->hasMetaData("amd")))
+        {
+            string responseParams;
+            string responseParamsDecl;
+
+            H << sp << nl << "virtual void " << opName << "_async(";
+            H.useCurrentPosAsIndent();
+            
+            for(ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
+            {
+                H << inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), _useWstring, true)
+                  << "," << nl;
+            }
+            
+            if(ret)
+            {
+                string typeString = inputTypeToString(ret, op->returnIsOptional(), op->getMetaData(), _useWstring | TypeContextAMD, true);
+                responseParams = typeString;
+                responseParamsDecl = typeString + " __ret";
+                if(!outParams.empty())
+                {
+                    responseParams += ", ";
+                    responseParamsDecl += ", ";
+                }
+            }
+
+            for(ParamDeclList::iterator q = outParams.begin(); q != outParams.end(); ++q)
+            {
+                if(q != outParams.begin())
+                {
+                    responseParams += ", ";
+                    responseParamsDecl += ", ";
+                }
+                string paramName = fixKwd(string(paramPrefix) + (*q)->name());
+                string typeString = inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), _useWstring | TypeContextAMD, true);
+                responseParams += typeString;
+                responseParamsDecl += typeString + " " + paramName;
+            }
+
+            bool isConst = (op->mode() == Operation::Nonmutating) || op->hasMetaData("cpp:const");
+
+            H << "std::function<void (" << responseParams << ")>,";
+            H << nl << "std::function<void (std::exception_ptr)>,";
+            H << nl << "const Ice::Current&)" << (isConst ? " const" : "") << ';';
+            H.restoreIndent();
+
+            C << sp << nl << "void" << nl << scope << name << "I::" << fixKwd(opName + "_async") << "(";
+            C.useCurrentPosAsIndent();
+
+            for(ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
+            {
+                C << inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), _useWstring, true) 
+                  << ' ' << fixKwd((*q)->name()) << "," << nl;
+            }
+
+            C << "std::function<void (" << responseParams << ")> " << opName << "_response,";
+            C << nl << "std::function<void (std::exception_ptr)>,";
+            C << nl << "const Ice::Current& current)" << (isConst ? " const" : "");
+            C.restoreIndent();
+            C << sb;
+
+            string result = "r";
+            for(ParamDeclList::const_iterator q = params.begin(); q != params.end(); ++q)
+            {
+                if((*q)->name() == result)
+                {
+                    result = "_" + result;
+                    break;
+                }
+            }
+
+            C << nl << opName << "_response(";
+            if(ret)
+            {
+                C << defaultValue(ret, op->getMetaData());
+            }
+            for(ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
+            {
+                if(ret || q != outParams.begin())
+                {
+                    C << ", ";
+                }
+                C << defaultValue((*q)->type(), op->getMetaData());
+            }
+            C << ");";
+
+            C << eb;
+        }
+        else
+        {
+            H << sp << nl << "virtual " << retS << ' ' << fixKwd(opName) << '(';
+            H.useCurrentPosAsIndent();
+            ParamDeclList paramList = op->parameters();
+            for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
+            {
+                if(q != paramList.begin())
+                {
+                    H << ',' << nl;
+                }
+                StringList metaData = (*q)->getMetaData();
+                string typeString;
+                if((*q)->isOutParam())
+                {
+                    typeString = outputTypeToString((*q)->type(), (*q)->optional(), metaData, _useWstring, true);
+                }
+                else
+                {
+                    typeString = inputTypeToString((*q)->type(), (*q)->optional(), metaData, _useWstring, true);
+                }
+                H << typeString;
+            }
+            if(!p->isLocal())
+            {
+                if(!paramList.empty())
+                {
+                    H << ',' << nl;
+                }
+                H << "const Ice::Current&";
+            }
+            H.restoreIndent();
+
+            bool isConst = (op->mode() == Operation::Nonmutating) || op->hasMetaData("cpp:const");
+
+            H << ")" << (isConst ? " const" : "") << ';';
+
+            C << sp << nl << retS << nl;
+            C << scope.substr(2) << name << "I::" << fixKwd(opName) << '(';
+            C.useCurrentPosAsIndent();
+            for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
+            {
+                if(q != paramList.begin())
+                {
+                    C << ',' << nl;
+                }
+                StringList metaData = (*q)->getMetaData();
+                string typeString;
+                if((*q)->isOutParam())
+                {
+                    C << outputTypeToString((*q)->type(), (*q)->optional(), metaData, _useWstring, true) << " "
+                      << fixKwd((*q)->name());
+                }
+                else
+                {
+                    C << inputTypeToString((*q)->type(), (*q)->optional(), metaData, _useWstring, true)<< " /*"
+                      << fixKwd((*q)->name()) << "*/";
+                }
+            }
+            if(!p->isLocal())
+            {
+                if(!paramList.empty())
+                {
+                    C << ',' << nl;
+                }
+                C << "const Ice::Current& current";
+            }
+            C.restoreIndent();
+            C << ')';
+            C << (isConst ? " const" : "");
+            C << sb;
+            
+            for(ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
+            {
+                C << nl << fixKwd((*q)->name()) << " = " << defaultValue((*q)->type(), op->getMetaData()) << ";";
+            }
+
+            if(ret)
+            {
+                writeReturn(C, ret, op->getMetaData());
+            }
+
+            C << eb;
+        }
+    }
+
+    H << eb << ';';
+
+    _useWstring = resetUseWstring(_useWstringHist);
+
+    return true;
 }

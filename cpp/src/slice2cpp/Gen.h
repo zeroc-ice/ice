@@ -31,6 +31,7 @@ public:
         bool,
         bool,
         bool,
+        bool,
         bool);
     ~Gen();
 
@@ -67,7 +68,8 @@ private:
     std::vector<std::string> _includePaths;
     std::string _dllExport;
     std::string _dir;
-    bool _impl;
+    bool _implCpp98;
+    bool _implCpp11;
     bool _checksum;
     bool _stream;
     bool _ice;
@@ -267,10 +269,9 @@ private:
         std::list<int> _useWstringHist;
 
         //
-        // Generate code to emit a local variable declaration and initialize it
-        // if necessary.
+        // Get the default value returned for a type
         //
-        void writeDecl(::IceUtilInternal::Output&, const std::string&, const TypePtr&, const StringList&);
+        std::string defaultValue(const TypePtr&, const StringList&) const;
 
         //
         // Generate code to return a dummy value
@@ -586,6 +587,36 @@ private:
 
         ::IceUtilInternal::Output& H;
         std::string _dllExport;
+    };
+    
+    class Cpp11ImplVisitor : private ::IceUtil::noncopyable, public ParserVisitor
+    {
+    public:
+
+        Cpp11ImplVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
+
+        virtual bool visitModuleStart(const ModulePtr&);
+        virtual void visitModuleEnd(const ModulePtr&);
+        virtual bool visitClassDefStart(const ClassDefPtr&);
+
+    private:
+
+        ::IceUtilInternal::Output& H;
+        ::IceUtilInternal::Output& C;
+
+        std::string _dllExport;
+        int _useWstring;
+        std::list<int> _useWstringHist;
+
+        //
+        // Generate code to return a dummy value
+        //
+        void writeReturn(::IceUtilInternal::Output&, const TypePtr&, const StringList&);
+        
+        //
+        // Get the default value returned for a type
+        //
+        std::string defaultValue(const TypePtr&, const StringList&) const;
     };
 
 private:

@@ -11,7 +11,6 @@ top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules
 
-ifeq ($(CPP11_MAPPING),yes)
 SUBDIRS		= proxy \
                   operations \
                   exceptions \
@@ -28,47 +27,6 @@ SUBDIRS		= proxy \
                   checksum \
                   dispatcher \
                   hold \
-                  binding \
-                  retry \
-                  timeout \
-                  acm \
-                  servantLocator \
-                  interceptor \
-                  stringConverter \
-                  background \
-                  udp \
-                  defaultServant \
-                  defaultValue \
-                  invoke \
-                  properties \
-                  plugin \
-                  admin \
-                  metrics \
-                  enums \
-                  logger \
-                  networkProxy \
-                  services
-else
-SUBDIRS		= proxy \
-                  operations \
-                  exceptions \
-                  ami \
-                  info \
-                  inheritance \
-                  facets \
-                  objects \
-                  optional \
-                  faultTolerance \
-                  location \
-                  adapterDeactivation \
-                  slicing \
-                  gc \
-                  hash \
-                  checksum \
-                  stream \
-                  dispatcher \
-                  hold \
-                  custom \
                   binding \
                   retry \
                   timeout \
@@ -87,10 +45,18 @@ SUBDIRS		= proxy \
                   admin \
                   metrics \
                   enums \
-                  echo \
                   logger \
                   networkProxy \
-                  services
+                  services \
+                  impl
+
+ifneq ($(CPP11_MAPPING),yes)
+SUBDIRS		:= $(SUBDIRS) \
+		  optional \
+		  gc \
+		  stream \
+		  custom \
+		  echo
 endif
 
 .PHONY: $(EVERYTHING) $(SUBDIRS)
