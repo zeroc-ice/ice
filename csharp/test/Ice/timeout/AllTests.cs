@@ -313,10 +313,10 @@ public class AllTests : TestCommon.TestApp
             string[] args = new string[0];
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = communicator.getProperties().ice_clone_();
-            initData.properties.setProperty("Ice.Override.Timeout", "100");
+            initData.properties.setProperty("Ice.Override.Timeout", "250");
             Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
             Test.TimeoutPrx to = Test.TimeoutPrxHelper.checkedCast(comm.stringToProxy(sref));
-            timeout.holdAdapter(500);
+            timeout.holdAdapter(700);
             try
             {
                 to.sendData(seq);
