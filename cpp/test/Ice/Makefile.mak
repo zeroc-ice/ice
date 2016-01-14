@@ -48,7 +48,8 @@ SUBDIRS		= proxy \
 		  enums \
 		  logger \
 		  networkProxy \
-		  services
+		  services \
+		  impl
 !else
 SUBDIRS		= proxy \
 		  operations \
@@ -102,7 +103,8 @@ SUBDIRS		= $(SUBDIRS) \
 		  checksum \
 		  defaultServant \
 		  interceptor \
-		  services
+		  services \
+		  impl
 !endif
 !endif
 

@@ -55,11 +55,11 @@ SLICE2CPPFLAGS = --impl-c++98 $(SLICE2CPPFLAGS)
 
 Test.cpp Test.h:
 	del /q (*F).h $(*F).cpp (*F)I.h $(*F)I.cpp
-	"$(SLICE2CPP)" $(SLICE2CPPFLAGS) $<
+	"$(SLICE2CPP)" $(SLICE2CPPFLAGS) Test.ice
 
 TestAMD.cpp TestAMD.h:
 	del /q (*F).h $(*F).cpp (*F)I.h $(*F)I.cpp
-	"$(SLICE2CPP)" $(SLICE2CPPFLAGS) $<
+	"$(SLICE2CPP)" $(SLICE2CPPFLAGS) TestAMD.ice
 
 $(SERVER)$(EXT): $(SOBJS)
 	$(LINK) $(LD_TESTFLAGS) $(SPDBFLAGS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
