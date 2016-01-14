@@ -367,10 +367,10 @@ public class AllTests
             //
             Ice.InitializationData initData = app.createInitializationData();
             initData.properties = communicator.getProperties()._clone();
-            initData.properties.setProperty("Ice.Override.Timeout", "100");
+            initData.properties.setProperty("Ice.Override.Timeout", "250");
             Ice.Communicator comm = app.initialize(initData);
             TimeoutPrx to = TimeoutPrxHelper.checkedCast(comm.stringToProxy(sref));
-            timeout.holdAdapter(500 * mult);
+            timeout.holdAdapter(700 * mult);
             try
             {
                 to.sendData(seq);
