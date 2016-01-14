@@ -105,4 +105,3 @@ failure, the tests abort with `failed`.
 [5]: http://symas.com/mdb/
 [6]: https://github.com/zeroc-ice/mcpp
 [7]: https://www.nuget.org
-
