@@ -19,13 +19,13 @@ compiler versions listed for our [supported platforms][2].
 Ice has dependencies on a number of third-party packages. Install these packages 
 before building Ice for C++:
 
- - [expat][3] 2.0
- - [OpenSSL][4] 0.9.8 or later
- - [bzip][5] 1.0
- - [LMDB][6] 0.9.16
- - [mcpp][7] 2.7.2 (with patches)
+ - [bzip][3] 1.0
+ - [Expat][4] 2.1
+ - [LMDB][5] 0.9.16 (LMDB is not required with the C++11 mapping)
+ - [mcpp][6] 2.7.2 (with patches)
+ - [OpenSSL][7] 1.0.0 or later
 
-Expat, OpenSSL and bzip are included with most Linux distributions. 
+Bzip, Expat and OpenSSL are included with most Linux distributions. 
 
 ZeroC supplies binary packages for LMDB and mcpp for several Linux distributions 
 that do not include them. You can install these packages as shown below:
@@ -73,13 +73,24 @@ By default, builds on x86_64 are 64-bit. To perform a 32-bit build on an x86_64
 Linux system, set the environment variable `LP64` to no, as shown below:
 
     $ export LP64=no
+    
+### C++11 mapping
+
+The C++ source tree supports two different language mappings (C++98 and C++11), 
+the default build uses the C++98 map. The C++11 mapping is a new mapping that
+uses the new language features.
+
+To build the new C++11 mapping, set the environment variable `CPP11_MAPPING` to
+yes, as shown below:
+
+    $export CPP11_MAPPING=yes
 
 ## Installing a C++ Source Build
 
 Simply run `make install`. This will install Ice in the directory specified by
-the `prefix` variable in `config/Make.rules`.
+the `<prefix>` variable in `config/Make.rules`.
 
-After installation, make sure that the `prefix/bin` directory is in your `PATH`.
+After installation, make sure that the `<prefix>/bin` directory is in your `PATH`.
 
 If you choose to not embed a `runpath` into executables at build time (see your
 build settings in `config/Make.rules`) or did not create a symbolic link from
@@ -88,18 +99,21 @@ library directory to your `LD_LIBRARY_PATH`.
 
 On an x86 system, the library directory is:
 
-    prefix/lib                   (RHEL, SLES, Amazon)
-    prefix/lib/i386-linux-gnu    (Ubuntu)
+    <prefix>/lib                   (RHEL, SLES, Amazon)
+    <prefix>/lib/i386-linux-gnu    (Ubuntu)
 
 On an x86_64 system:
 
-    prefix/lib64                 (RHEL, SLES, Amazon)
-    prefix/lib/x86_64-linux-gnu  (Ubuntu)
+    <prefix>/lib64                 (RHEL, SLES, Amazon)
+    <prefix>/lib/x86_64-linux-gnu  (Ubuntu)
 
-When compiling Ice programs, you must pass the location of the `prefix/include`
+When compiling Ice programs, you must pass the location of the `<prefix>/include`
 directory to the compiler with the `-I` option, and the location of the library
-directory with the `-L` option. If building a C++11 program, you must add the
-`/c++11` suffix to the library directory (such as `prefix/lib/c++11`).
+directory with the `-L` option. 
+
+If building a C++11 program, you must define `ICE_CPP11_MAPPING` macro during
+compilation with the `-D` option as `g++ -DICE_CPP11_MAPING ` and add the `/c++11`
+suffix to the library directory when linking (such as `-L<prefix>/lib/c++11`).
 
 ## Running the Test Suite
 
@@ -115,14 +129,18 @@ After a successful source build, you can run the tests as follows:
 This command is equivalent to:
 
     $ python allTests.py
+    
+For C++11 mapping it also include the`--c++11` argument:
+
+    $ python allTests.py --c++11
 
 If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
 [1]: https://doc.zeroc.com/display/Ice37/Using+the+Linux+Binary+Distributions
 [2]: https://doc.zeroc.com/display/Ice37/Supported+Platforms+for+Ice+3.7.0
-[3]: http://expat.sourceforge.net
-[4]: http://openssl.org
-[5]: http://bzip.org
-[6]: http://symas.com/mdb/
-[7]: https://github.com/zeroc-ice/mcpp
+[3]: http://bzip.org
+[4]: http://expat.sourceforge.net
+[5]: http://symas.com/mdb/
+[6]: https://github.com/zeroc-ice/mcpp
+[7]: http://openssl.org

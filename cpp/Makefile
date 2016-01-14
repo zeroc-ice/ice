@@ -50,5 +50,10 @@ $(EVERYTHING)::
 	    ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
 	done
 
+ifeq ($(CPP11_MAPPING),yes)
+test::
+	@python $(top_srcdir)/allTests.py --c++11
+else
 test::
 	@python $(top_srcdir)/allTests.py
+endif

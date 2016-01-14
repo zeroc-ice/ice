@@ -18,8 +18,8 @@ listed for our [supported platforms][2].
 
 Ice has dependencies on a number of third-party libraries:
 
- - [expat][3] 2.0
- - [bzip][4] 1.0
+ - [bzip][3] 1.0
+ - [expat][4] 2.1
  - [LMDB][5] 0.9.16
  - [mcpp][6] 2.7.2 (with patches)
 
@@ -61,6 +61,17 @@ This will build the Ice core libraries, services, and tests.
 Building Ice for x64 with Visual Studio is like building Ice for x86. You just need to
 perform the build in an "x64 Command Prompt", and not in a regular "Developer Command Prompt".
 
+### C++11 mapping
+
+The C++ source tree supports two different language mappings (C++98 and C++11), 
+the default build uses the C++98 map. The C++11 mapping is a new mapping that
+uses the new language features.
+
+To build the new C++11 mapping, set the environment variable `CPP11_MAPPING` to
+yes, as shown below:
+
+    set CPP11_MAPPING=yes
+
 ## Installing a C++ Source Build
 
 Simply run `nmake /f Makefile.mak install`. This will install Ice in the
@@ -79,14 +90,18 @@ require the Python module `passlib`, which you can install with the command:
 After a successful source build, you can run the tests as follows:
 
     python allTests.py
+    
+For C++11 mapping you need to use the`--c++11` argument:
+
+    $ python allTests.py --c++11
 
 If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
 [1]: https://zeroc.com/download.html
 [2]: https://doc.zeroc.com/display/Ice37/Supported+Platforms+for+Ice+3.7.0
-[3]: http://expat.sourceforge.net
-[4]: http://bzip.org
+[3]: http://bzip.org
+[4]: http://expat.sourceforge.net
 [5]: http://symas.com/mdb/
 [6]: https://github.com/zeroc-ice/mcpp
 [7]: https://www.nuget.org
