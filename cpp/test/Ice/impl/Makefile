@@ -37,15 +37,21 @@ else
 SLICE2CPPFLAGS	:= --impl-c++98 $(SLICE2CPPFLAGS)
 endif
 
-Test.cpp Test.h: Test.ice $(SLICE2CPP)
+Test.cpp: Test.ice $(SLICE2CPP)
 	rm -f $(*F).h $(*F).cpp $(*F)I.h $(*F)I.cpp
 	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(*F).ice
 	@touch $(*F).cpp $(*F)I.cpp
 
-TestAMD.cpp TestAMD.h: TestAMD.ice $(SLICE2CPP)
+Test.h TestI.cpp TestI.h: Test.cpp
+	@touch Test.h TestI.cpp TestI.h
+
+TestAMD.cpp: TestAMD.ice $(SLICE2CPP)
 	rm -f $(*F).h $(*F).cpp $(*F)I.h $(*F)I.cpp
 	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(*F).ice
 	@touch $(*F).cpp $(*F)I.cpp
+
+TestAMD.h TestAMDI.cpp TestAMDI.h: TestAMD.cpp
+	@touch TestAMD.h TestAMDI.cpp TestAMDI.h
 
 $(SERVER): $(SOBJS)
 	rm -f $@
