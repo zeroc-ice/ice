@@ -18,11 +18,11 @@ compiler versions listed for our [supported platforms][2].
 
 Ice has dependencies on a number of third-party libraries:
 
- - [expat][3] 2.0
- - [OpenSSL][4] 0.9.8 or later
- - [bzip][5] 1.0
  - [Berkeley DB][6] 5.3
+ - [bzip][5] 1.0
+ - [expat][3] 2.1
  - [mcpp][7] 2.7.2 (with patches)
+ - [OpenSSL][4] 0.9.8 or later
 
 Expat, OpenSSL and bzip are included with most Linux distributions. ZeroC
 supplies binary packages for Berkeley DB and mcpp on supported Linux

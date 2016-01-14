@@ -18,9 +18,9 @@ listed for our [supported platforms][2].
 
 Ice has dependencies on a number of third-party libraries:
 
- - [expat][3] 2.0
- - [bzip][4] 1.0
  - [Berkeley DB][5] 5.3
+ - [bzip][4] 1.0
+ - [expat][3] 2.1
  - [mcpp][6] 2.7.2 (with patches)
 
 You do not need to build these packages yourself, as ZeroC supplies
