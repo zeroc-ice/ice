@@ -17,12 +17,6 @@
 namespace IceInternal
 {
 
-#ifndef ICE_CPP11_MAPPING
-class ValueFactoryWrapper;
-IceUtil::Shared* upCast(ValueFactoryWrapper*);
-typedef Handle<ValueFactoryWrapper> ValueFactoryWrapperPtr;
-#endif
-
 class ValueFactoryManager;
 IceUtil::Shared* upCast(ValueFactoryManager*);
 typedef Handle<ValueFactoryManager> ValueFactoryManagerPtr;
