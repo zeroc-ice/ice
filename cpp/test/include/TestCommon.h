@@ -50,11 +50,7 @@ class TEST_API RemoteConfig
 public:
 
     RemoteConfig(const std::string&, int, char**, const Ice::CommunicatorPtr&);
-#ifdef ICE_CPP11_MAPPING
-    ~RemoteConfig() noexcept(false);
-#else
-    ~RemoteConfig();
-#endif
+    ~RemoteConfig() ICE_NOEXCEPT_FALSE;
 
     bool isRemote() const;
     void finished(int);
