@@ -116,9 +116,9 @@ IceUtilInternal::freopen(const std::string& path, const std::string& mode, FILE*
     //
     const IceUtil::StringConverterPtr converter = IceUtil::getProcessStringConverter();
     return _wfreopen(IceUtil::stringToWstring(path, converter).c_str(),
-                     IceUtil::stringToWstring(mode, converter).c_str(), stderr);
+                     IceUtil::stringToWstring(mode, converter).c_str(), stream);
 #  else
-    return freopen(path.c_str(), mode.c_str(), stderr);
+    return freopen(path.c_str(), mode.c_str(), stream);
 #  endif
 #endif
 }
@@ -152,7 +152,7 @@ IceUtilInternal::rename(const string& from, const string& to)
     // to Windows API.
     //
     const IceUtil::StringConverterPtr converter = IceUtil::getProcessStringConverter();
-    return ::_wrename(IceUtil::stringToWstring(from, converter).c_str(), 
+    return ::_wrename(IceUtil::stringToWstring(from, converter).c_str(),
                       IceUtil::stringToWstring(to, converter).c_str());
 }
 
@@ -184,7 +184,7 @@ IceUtilInternal::fopen(const string& path, const string& mode)
     // to Windows API.
     //
     const IceUtil::StringConverterPtr converter = IceUtil::getProcessStringConverter();
-    return ::_wfopen(IceUtil::stringToWstring(path, converter).c_str(), 
+    return ::_wfopen(IceUtil::stringToWstring(path, converter).c_str(),
                      IceUtil::stringToWstring(mode, converter).c_str());
 }
 
@@ -197,7 +197,7 @@ IceUtilInternal::open(const string& path, int flags)
     //
     if(flags & _O_CREAT)
     {
-        return ::_wopen(IceUtil::stringToWstring(path, IceUtil::getProcessStringConverter()).c_str(), 
+        return ::_wopen(IceUtil::stringToWstring(path, IceUtil::getProcessStringConverter()).c_str(),
                         flags, _S_IREAD | _S_IWRITE);
     }
     else
@@ -253,7 +253,7 @@ IceUtilInternal::FileLock::FileLock(const std::string& path) :
     // to Windows API.
     //
 #ifndef ICE_OS_WINRT
-    _fd = ::CreateFileW(IceUtil::stringToWstring(path, IceUtil::getProcessStringConverter()).c_str(), 
+    _fd = ::CreateFileW(IceUtil::stringToWstring(path, IceUtil::getProcessStringConverter()).c_str(),
                         GENERIC_WRITE, 0, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 #else
     CREATEFILE2_EXTENDED_PARAMETERS params;
@@ -293,7 +293,7 @@ IceUtilInternal::FileLock::FileLock(const std::string& path) :
     }
 #endif
     //
-    // In Windows implementation we don't write the process pid to the file, as it is 
+    // In Windows implementation we don't write the process pid to the file, as it is
     // not possible to read the file from other process while it is locked here.
     //
 }
@@ -309,7 +309,7 @@ IceUtilInternal::ifstream::ifstream()
 {
 }
 
-IceUtilInternal::ifstream::ifstream(const string& path, ios_base::openmode mode) : 
+IceUtilInternal::ifstream::ifstream(const string& path, ios_base::openmode mode) :
 #ifdef  __MINGW32__
     std::ifstream(path.c_str(), mode)
 #else
@@ -340,7 +340,7 @@ IceUtilInternal::ofstream::ofstream()
 {
 }
 
-IceUtilInternal::ofstream::ofstream(const string& path, ios_base::openmode mode) : 
+IceUtilInternal::ofstream::ofstream(const string& path, ios_base::openmode mode) :
 #ifdef __MINGW32__
     std::ofstream(path.c_str(), mode)
 #else
@@ -462,10 +462,10 @@ IceUtilInternal::FileLock::FileLock(const std::string& path) :
     lock.l_whence = SEEK_SET; // Begining of file
     lock.l_start = 0;
     lock.l_len = 0;
-    
+
     //
-    // F_SETLK tells fcntl to not block if it cannot 
-    // acquire the lock, if the lock cannot be acquired 
+    // F_SETLK tells fcntl to not block if it cannot
+    // acquire the lock, if the lock cannot be acquired
     // it returns -1 without wait.
     //
     if(::fcntl(_fd, F_SETLK, &lock) == -1)
@@ -479,14 +479,14 @@ IceUtilInternal::FileLock::FileLock(const std::string& path) :
     // If there is an error after here, we close the fd,
     // to release the lock.
     //
-    
+
     //
     // Now that we have acquire an excluxive write lock,
     // write the process pid there.
     //
     ostringstream os;
     os << getpid();
-    
+
     if(write(_fd, os.str().c_str(), os.str().size()) == -1)
     {
         IceUtil::FileLockException ex(__FILE__, __LINE__, errno, _path);
