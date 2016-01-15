@@ -96,7 +96,7 @@
 // Support for thread-safe function local static initialization
 // (a.k.a. "magic statics")
 //
-#if defined(__GNUC__) || defined(__clang__)
+#if defined(__GNUC__) || defined(__clang__) || (defined(_MSC_VER) && (_MSC_VER >= 1900))
 #   define ICE_HAS_THREAD_SAFE_LOCAL_STATIC
 #endif
 
