@@ -28,6 +28,7 @@
 #include <Ice/LoggerUtil.h> // For setTcpBufSize
 #include <Ice/Buffer.h>
 #include <IceUtil/Random.h>
+#include <functional>
 
 #if defined(ICE_OS_WINRT)
 #   include <IceUtil/InputUtil.h>
@@ -2757,4 +2758,3 @@ IceInternal::doFinishConnectAsync(SOCKET fd, AsyncInfo& info)
     }
 }
 #endif
-
