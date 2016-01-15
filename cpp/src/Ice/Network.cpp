@@ -87,6 +87,20 @@ using namespace Windows::Networking::Sockets;
 using namespace Windows::Networking::Connectivity;
 #endif
 
+#ifdef _WIN32
+int
+IceInternal::getSystemErrno()
+{
+    return GetLastError();
+}
+#else
+int
+IceInternal::getSystemErrno()
+{
+    return errno;
+}
+#endif
+
 namespace
 {
 
