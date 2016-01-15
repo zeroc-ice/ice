@@ -72,7 +72,6 @@ OBJS	       =  .\Acceptor.obj \
 		  .\Connector.obj \
 		  .\ConnectRequestHandler.obj \
 		  .\DefaultsAndOverrides.obj \
-		  .\DeprecatedStringConverter.obj \
 		  .\DispatchInterceptor.obj \
 		  .\DynamicLibrary.obj \
 		  .\EndpointFactory.obj \
@@ -132,7 +131,6 @@ OBJS	       =  .\Acceptor.obj \
 		  .\Stream.obj \
 		  .\StreamI.obj \
 		  .\StreamSocket.obj \
-		  .\StringConverterPlugin.obj \
 		  .\TcpAcceptor.obj \
 		  .\TcpConnector.obj \
 		  .\TcpEndpointI.obj \

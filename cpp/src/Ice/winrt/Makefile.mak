@@ -31,7 +31,6 @@ OBJS		= $(ARCH)\$(CONFIG)\Acceptor.obj \
 		  $(ARCH)\$(CONFIG)\ConnectionRequestHandler.obj \
 		  $(ARCH)\$(CONFIG)\Current.obj \
 		  $(ARCH)\$(CONFIG)\DefaultsAndOverrides.obj \
-		  $(ARCH)\$(CONFIG)\DeprecatedStringConverter.obj \
 		  $(ARCH)\$(CONFIG)\DispatchInterceptor.obj \
 		  $(ARCH)\$(CONFIG)\DynamicLibrary.obj \
 		  $(ARCH)\$(CONFIG)\EndpointFactoryManager.obj \
@@ -109,7 +108,6 @@ OBJS		= $(ARCH)\$(CONFIG)\Acceptor.obj \
 		  $(ARCH)\$(CONFIG)\SlicedData.obj \
 		  $(ARCH)\$(CONFIG)\StreamI.obj \
 		  $(ARCH)\$(CONFIG)\Stream.obj \
-		  $(ARCH)\$(CONFIG)\StringConverterPlugin.obj \
 		  $(ARCH)\$(CONFIG)\ThreadPool.obj \
 		  $(ARCH)\$(CONFIG)\TraceLevels.obj \
 		  $(ARCH)\$(CONFIG)\TraceUtil.obj \

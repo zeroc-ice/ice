@@ -70,7 +70,6 @@ OBJS		= Acceptor.o \
 		  Connector.o \
 		  ConnectRequestHandler.o \
 		  DefaultsAndOverrides.o \
-		  DeprecatedStringConverter.o \
 		  DispatchInterceptor.o \
 		  DynamicLibrary.o \
 		  EndpointFactory.o \
@@ -129,7 +128,6 @@ OBJS		= Acceptor.o \
 		  Stream.o \
 		  StreamI.o \
 		  StreamSocket.o \
-		  StringConverterPlugin.o \
 		  TcpAcceptor.o \
 		  TcpConnector.o \
 		  TcpEndpointI.o \
