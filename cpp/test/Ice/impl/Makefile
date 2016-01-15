@@ -43,7 +43,7 @@ Test.cpp: Test.ice $(SLICE2CPP)
 	@touch $(*F).cpp
 
 Test.h TestI.cpp TestI.h: Test.cpp
-	@touch TestI.cpp
+	
 
 TestAMD.cpp: TestAMD.ice $(SLICE2CPP)
 	rm -f $(*F).h $(*F).cpp $(*F)I.h $(*F)I.cpp
@@ -51,7 +51,7 @@ TestAMD.cpp: TestAMD.ice $(SLICE2CPP)
 	@touch $(*F).cpp
 
 TestAMD.h TestAMDI.cpp TestAMDI.h: TestAMD.cpp
-	@touch TestAMDI.cpp
+	
 
 $(SERVER): $(SOBJS)
 	rm -f $@

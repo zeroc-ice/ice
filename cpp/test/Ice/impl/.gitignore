@@ -4,6 +4,10 @@
 server
 serveramd
 Test.cpp
+TestI.cpp
 TestAMD.cpp
+TestAMDI.cpp
 Test.h
+TestI.h
 TestAMD.h
+TestAMDI.h
