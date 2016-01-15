@@ -5085,7 +5085,9 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
 
                 {
                     ClassDefPtr cl = ClassDefPtr::dynamicCast(cont);
-                    if(cl && ((cpp && ss == "virtual") || (cpp11 && cl->isLocal() && ss.find("type:") == 0)))
+                    if(cl && ((cpp && ss == "virtual") || 
+                              (cpp11 && cl->isLocal() && ss.find("type:") == 0) ||
+                              (cl->isLocal() && ss == "comparable")))
                     {
                         continue;
                     }
