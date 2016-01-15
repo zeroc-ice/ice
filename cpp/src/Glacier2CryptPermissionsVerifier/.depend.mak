@@ -64,6 +64,7 @@ CryptPermissionsVerifierI.obj: \
     "$(includedir)\Ice\SlicedDataF.h" \
     "$(includedir)\Ice\UserExceptionFactory.h" \
     "$(includedir)\Ice\FactoryTable.h" \
+    "$(includedir)\Ice\VirtualShared.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\BuiltinSequences.h" \
     "$(includedir)\Ice\GCObject.h" \
@@ -86,13 +87,12 @@ CryptPermissionsVerifierI.obj: \
     "$(includedir)\IceUtil\UUID.h" \
     "$(includedir)\Ice\Ice.h" \
     "$(includedir)\Ice\Comparable.h" \
-    "$(includedir)\Ice\DeprecatedStringConverter.h" \
-    "$(includedir)\Ice\Plugin.h" \
-    "$(includedir)\Ice\LoggerF.h" \
     "$(includedir)\Ice\Initialize.h" \
     "$(includedir)\Ice\PropertiesF.h" \
+    "$(includedir)\Ice\LoggerF.h" \
     "$(includedir)\Ice\InstrumentationF.h" \
     "$(includedir)\Ice\Dispatcher.h" \
+    "$(includedir)\Ice\Plugin.h" \
     "$(includedir)\Ice\BatchRequestInterceptor.h" \
     "$(includedir)\Ice\PropertiesAdmin.h" \
     "$(includedir)\Ice\IncomingAsync.h" \
