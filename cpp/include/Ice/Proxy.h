@@ -1606,8 +1606,10 @@ uncheckedCastImpl(const ::Ice::ObjectPrx& b, const std::string& f)
 }
 
 //
-// checkedCast and uncheckedCast functions provided in the global namespace
+// checkedCast and uncheckedCast functions provided in the Ice namespace
 //
+namespace Ice
+{
 
 template<typename P, typename Y> inline P
 checkedCast(const ::IceInternal::ProxyHandle<Y>& b, const ::Ice::Context& ctx = ::Ice::noExplicitContext)
@@ -1633,6 +1635,8 @@ template<typename P> inline P
 uncheckedCast(const ::Ice::ObjectPrx& b, const std::string& f)
 {
     return ::IceInternal::uncheckedCastImpl<P>(b, f);
+}
+
 }
 
 namespace IceInternal

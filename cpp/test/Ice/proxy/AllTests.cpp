@@ -888,19 +888,19 @@ allTests(const Ice::CommunicatorPtr& communicator)
     //
     // Now with alternate API
     //
-    cl = checkedCast<Test::MyClassPrx>(base);
+    cl = Ice::checkedCast<Test::MyClassPrx>(base);
     test(cl);
-    derived = checkedCast<Test::MyDerivedClassPrx>(cl);
+    derived = Ice::checkedCast<Test::MyDerivedClassPrx>(cl);
     test(derived);
     test(cl == base);
     test(derived == base);
     test(cl == derived);
 
-    loc = checkedCast<Ice::LocatorPrx>(base);
+    loc = Ice::checkedCast<Ice::LocatorPrx>(base);
     test(loc == 0);
 
-    cl2 = checkedCast<Test::MyClassPrx>(derived);
-    obj = checkedCast<Ice::ObjectPrx>(derived);
+    cl2 = Ice::checkedCast<Test::MyClassPrx>(derived);
+    obj = Ice::checkedCast<Ice::ObjectPrx>(derived);
     test(cl2);
     test(obj);
     test(cl2 == obj);
@@ -926,11 +926,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
     // Now with alternate API
     //
 #ifndef ICE_CPP11_MAPPING
-    cl = checkedCast<Test::MyClassPrx>(base);
+    cl = Ice::checkedCast<Test::MyClassPrx>(base);
     c = cl->getContext();
     test(c.size() == 0);
 
-    cl = checkedCast<Test::MyClassPrx>(base, c);
+    cl = Ice::checkedCast<Test::MyClassPrx>(base, c);
     c2 = cl->getContext();
     test(c == c2);
 #endif
