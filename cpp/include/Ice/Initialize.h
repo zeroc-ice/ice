@@ -132,8 +132,8 @@ ICE_API OutputStreamPtr createOutputStream(const CommunicatorPtr&, const Encodin
 ICE_API LoggerPtr getProcessLogger();
 ICE_API void setProcessLogger(const LoggerPtr&);
 
-typedef Ice::Plugin* (*PLUGIN_FACTORY)(const ::Ice::CommunicatorPtr&, const std::string&, const ::Ice::StringSeq&);
-ICE_API void registerPluginFactory(const std::string&, PLUGIN_FACTORY, bool);
+typedef Ice::Plugin* (*PluginFactory)(const ::Ice::CommunicatorPtr&, const std::string&, const ::Ice::StringSeq&);
+ICE_API void registerPluginFactory(const std::string&, PluginFactory, bool);
 
 
 //

@@ -364,7 +364,7 @@ Ice::setProcessLogger(const LoggerPtr& logger)
 }
 
 void
-Ice::registerPluginFactory(const std::string& name, PLUGIN_FACTORY factory, bool loadOnInitialize)
+Ice::registerPluginFactory(const std::string& name, PluginFactory factory, bool loadOnInitialize)
 {
     IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
     PluginManagerI::registerPluginFactory(name, factory, loadOnInitialize);
