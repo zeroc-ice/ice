@@ -345,8 +345,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     try
     {
-        string ref = "test:default -p 12010";
-        TestIntfPrxPtr p = ICE_CHECKED_CAST(TestIntfPrx, communicator->stringToProxy(ref));
+        TestIntfPrxPtr p = ICE_CHECKED_CAST(TestIntfPrx,
+                                            communicator->stringToProxy("test:" + getTestEndpoint(communicator, 0)));
 
         cout << "testing Object factory registration... " << flush;
         {

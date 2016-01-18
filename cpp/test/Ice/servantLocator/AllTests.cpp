@@ -141,7 +141,7 @@ testExceptions(const TestIntfPrxPtr& obj)
     {
         test(false);
     }
-    
+
     try
     {
         obj->unknownExceptionWithServantException();
@@ -269,7 +269,8 @@ allTests(const CommunicatorPtr& communicator)
     obj = ICE_CHECKED_CAST(TestIntfPrx, base);
     try
     {
-        ICE_CHECKED_CAST(TestIntfPrx, communicator->stringToProxy("category/unknown:default -p 12010"));
+        ICE_CHECKED_CAST(TestIntfPrx,
+                         communicator->stringToProxy("category/unknown:" + getTestEndpoint(communicator, 0)));
     }
     catch(const ObjectNotExistException&)
     {
@@ -283,7 +284,8 @@ allTests(const CommunicatorPtr& communicator)
     obj = ICE_CHECKED_CAST(TestIntfPrx, base);
     try
     {
-        ICE_CHECKED_CAST(TestIntfPrx, communicator->stringToProxy("anothercategory/unknown:default -p 12010"));
+        ICE_CHECKED_CAST(TestIntfPrx,
+                         communicator->stringToProxy("anothercategory/unknown:" + getTestEndpoint(communicator, 0)));
     }
     catch(const ObjectNotExistException&)
     {
