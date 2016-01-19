@@ -46,7 +46,7 @@ class Callback(CallbackBase):
             raise exc
         except Test.Base as b:
             test(b.b == "Base.b")
-            test(b.ice_name() =="Test::Base")
+            test(b.ice_id() == "::Test::Base")
         except:
             test(False)
         self.called()
@@ -56,7 +56,7 @@ class Callback(CallbackBase):
             raise exc
         except Test.Base as b:
             test(b.b == "UnknownDerived.b")
-            test(b.ice_name() =="Test::Base")
+            test(b.ice_id() == "::Test::Base")
         except:
             test(False)
         self.called()
@@ -67,7 +67,7 @@ class Callback(CallbackBase):
         except Test.KnownDerived as k:
             test(k.b == "KnownDerived.b")
             test(k.kd == "KnownDerived.kd")
-            test(k.ice_name() =="Test::KnownDerived")
+            test(k.ice_id() == "::Test::KnownDerived")
         except:
             test(False)
         self.called()
@@ -78,7 +78,7 @@ class Callback(CallbackBase):
         except Test.KnownDerived as k:
             test(k.b == "KnownDerived.b")
             test(k.kd == "KnownDerived.kd")
-            test(k.ice_name() =="Test::KnownDerived")
+            test(k.ice_id() == "::Test::KnownDerived")
         except:
             test(False)
         self.called()
@@ -88,7 +88,7 @@ class Callback(CallbackBase):
             raise exc
         except Test.Base as b:
             test(b.b == "UnknownIntermediate.b")
-            test(b.ice_name() =="Test::Base")
+            test(b.ice_id() == "::Test::Base")
         except:
             test(False)
         self.called()
@@ -99,7 +99,7 @@ class Callback(CallbackBase):
         except Test.KnownIntermediate as ki:
             test(ki.b == "KnownIntermediate.b")
             test(ki.ki == "KnownIntermediate.ki")
-            test(ki.ice_name() =="Test::KnownIntermediate")
+            test(ki.ice_id() == "::Test::KnownIntermediate")
         except:
             test(False)
         self.called()
@@ -111,7 +111,7 @@ class Callback(CallbackBase):
             test(kmd.b == "KnownMostDerived.b")
             test(kmd.ki == "KnownMostDerived.ki")
             test(kmd.kmd == "KnownMostDerived.kmd")
-            test(kmd.ice_name() =="Test::KnownMostDerived")
+            test(kmd.ice_id() == "::Test::KnownMostDerived")
         except:
             test(False)
         self.called()
@@ -122,7 +122,7 @@ class Callback(CallbackBase):
         except Test.KnownIntermediate as ki:
             test(ki.b == "KnownIntermediate.b")
             test(ki.ki == "KnownIntermediate.ki")
-            test(ki.ice_name() =="Test::KnownIntermediate")
+            test(ki.ice_id() == "::Test::KnownIntermediate")
         except:
             test(False)
         self.called()
@@ -134,7 +134,7 @@ class Callback(CallbackBase):
             test(kmd.b == "KnownMostDerived.b")
             test(kmd.ki == "KnownMostDerived.ki")
             test(kmd.kmd == "KnownMostDerived.kmd")
-            test(kmd.ice_name() =="Test::KnownMostDerived")
+            test(kmd.ice_id() == "::Test::KnownMostDerived")
         except:
             test(False)
         self.called()
@@ -146,7 +146,7 @@ class Callback(CallbackBase):
             test(kmd.b == "KnownMostDerived.b")
             test(kmd.ki == "KnownMostDerived.ki")
             test(kmd.kmd == "KnownMostDerived.kmd")
-            test(kmd.ice_name() =="Test::KnownMostDerived")
+            test(kmd.ice_id() == "::Test::KnownMostDerived")
         except:
             test(False)
         self.called()
@@ -157,7 +157,7 @@ class Callback(CallbackBase):
         except Test.KnownIntermediate as ki:
             test(ki.b == "UnknownMostDerived1.b")
             test(ki.ki == "UnknownMostDerived1.ki")
-            test(ki.ice_name() =="Test::KnownIntermediate")
+            test(ki.ice_id() == "::Test::KnownIntermediate")
         except:
             test(False)
         self.called()
@@ -168,7 +168,7 @@ class Callback(CallbackBase):
         except Test.KnownIntermediate as ki:
             test(ki.b == "UnknownMostDerived1.b")
             test(ki.ki == "UnknownMostDerived1.ki")
-            test(ki.ice_name() =="Test::KnownIntermediate")
+            test(ki.ice_id() == "::Test::KnownIntermediate")
         except:
             test(False)
         self.called()
@@ -178,7 +178,7 @@ class Callback(CallbackBase):
             raise exc
         except Test.Base as b:
             test(b.b == "UnknownMostDerived2.b")
-            test(b.ice_name() =="Test::Base")
+            test(b.ice_id() == "::Test::Base")
         except:
             test(False)
         self.called()
@@ -227,7 +227,7 @@ def allTests(communicator):
         test(false)
     except Test.Base as b:
         test(b.b == "Base.b")
-        test(b.ice_name() == "Test::Base")
+        test(b.ice_id() == "::Test::Base")
     except:
         test(False)
     print("ok")
@@ -246,7 +246,7 @@ def allTests(communicator):
         test(false)
     except Test.Base as b:
         test(b.b == "UnknownDerived.b")
-        test(b.ice_name() == "Test::Base")
+        test(b.ice_id() == "::Test::Base")
     except:
         test(False)
     print("ok")
@@ -266,7 +266,7 @@ def allTests(communicator):
     except Test.KnownDerived as k:
         test(k.b == "KnownDerived.b")
         test(k.kd == "KnownDerived.kd")
-        test(k.ice_name() == "Test::KnownDerived")
+        test(k.ice_id() == "::Test::KnownDerived")
     except:
         test(False)
     print("ok")
@@ -286,7 +286,7 @@ def allTests(communicator):
     except Test.KnownDerived as k:
         test(k.b == "KnownDerived.b")
         test(k.kd == "KnownDerived.kd")
-        test(k.ice_name() == "Test::KnownDerived")
+        test(k.ice_id() == "::Test::KnownDerived")
     except:
         test(False)
     print("ok")
@@ -305,7 +305,7 @@ def allTests(communicator):
         test(false)
     except Test.Base as b:
         test(b.b == "UnknownIntermediate.b")
-        test(b.ice_name() == "Test::Base")
+        test(b.ice_id() == "::Test::Base")
     except:
         test(False)
     print("ok")
@@ -325,7 +325,7 @@ def allTests(communicator):
     except Test.KnownIntermediate as ki:
         test(ki.b == "KnownIntermediate.b")
         test(ki.ki == "KnownIntermediate.ki")
-        test(ki.ice_name() == "Test::KnownIntermediate")
+        test(ki.ice_id() == "::Test::KnownIntermediate")
     except:
         test(False)
     print("ok")
@@ -346,7 +346,7 @@ def allTests(communicator):
         test(kmd.b == "KnownMostDerived.b")
         test(kmd.ki == "KnownMostDerived.ki")
         test(kmd.kmd == "KnownMostDerived.kmd")
-        test(kmd.ice_name() == "Test::KnownMostDerived")
+        test(kmd.ice_id() == "::Test::KnownMostDerived")
     except:
         test(False)
     print("ok")
@@ -366,7 +366,7 @@ def allTests(communicator):
     except Test.KnownIntermediate as ki:
         test(ki.b == "KnownIntermediate.b")
         test(ki.ki == "KnownIntermediate.ki")
-        test(ki.ice_name() == "Test::KnownIntermediate")
+        test(ki.ice_id() == "::Test::KnownIntermediate")
     except:
         test(False)
     print("ok")
@@ -387,7 +387,7 @@ def allTests(communicator):
         test(kmd.b == "KnownMostDerived.b")
         test(kmd.ki == "KnownMostDerived.ki")
         test(kmd.kmd == "KnownMostDerived.kmd")
-        test(kmd.ice_name() == "Test::KnownMostDerived")
+        test(kmd.ice_id() == "::Test::KnownMostDerived")
     except:
         test(False)
     print("ok")
@@ -408,7 +408,7 @@ def allTests(communicator):
         test(kmd.b == "KnownMostDerived.b")
         test(kmd.ki == "KnownMostDerived.ki")
         test(kmd.kmd == "KnownMostDerived.kmd")
-        test(kmd.ice_name() == "Test::KnownMostDerived")
+        test(kmd.ice_id() == "::Test::KnownMostDerived")
     except:
         test(False)
     print("ok")
@@ -428,7 +428,7 @@ def allTests(communicator):
     except Test.KnownIntermediate as ki:
         test(ki.b == "UnknownMostDerived1.b")
         test(ki.ki == "UnknownMostDerived1.ki")
-        test(ki.ice_name() == "Test::KnownIntermediate")
+        test(ki.ice_id() == "::Test::KnownIntermediate")
     except:
         test(False)
     print("ok")
@@ -448,7 +448,7 @@ def allTests(communicator):
     except Test.KnownIntermediate as ki:
         test(ki.b == "UnknownMostDerived1.b")
         test(ki.ki == "UnknownMostDerived1.ki")
-        test(ki.ice_name() == "Test::KnownIntermediate")
+        test(ki.ice_id() == "::Test::KnownIntermediate")
     except:
         test(False)
     print("ok")
@@ -467,7 +467,7 @@ def allTests(communicator):
         test(false)
     except Test.Base as b:
         test(b.b == "UnknownMostDerived2.b")
-        test(b.ice_name() == "Test::Base")
+        test(b.ice_id() == "::Test::Base")
     except:
         test(False)
     print("ok")

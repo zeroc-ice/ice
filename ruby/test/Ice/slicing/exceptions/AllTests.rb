@@ -25,8 +25,10 @@ def allTests(communicator)
         t.baseAsBase()
         test(false)
     rescue Test::Base => b
+        print(b.b)
+        print(b.ice_id())
         test(b.b == "Base.b")
-        test(b.ice_name() == "Test::Base")
+        test(b.ice_id() == "::Test::Base")
     rescue
         test(false)
     end
@@ -39,7 +41,7 @@ def allTests(communicator)
         test(false)
     rescue Test::Base => b
         test(b.b == "UnknownDerived.b")
-        test(b.ice_name() == "Test::Base")
+        test(b.ice_id() == "::Test::Base")
     rescue
         test(false)
     end
@@ -53,7 +55,7 @@ def allTests(communicator)
     rescue Test::KnownDerived => k
         test(k.b == "KnownDerived.b")
         test(k.kd == "KnownDerived.kd")
-        test(k.ice_name() == "Test::KnownDerived")
+        test(k.ice_id() == "::Test::KnownDerived")
     rescue
         test(false)
     end
@@ -67,7 +69,7 @@ def allTests(communicator)
     rescue Test::KnownDerived => k
         test(k.b == "KnownDerived.b")
         test(k.kd == "KnownDerived.kd")
-        test(k.ice_name() == "Test::KnownDerived")
+        test(k.ice_id() == "::Test::KnownDerived")
     rescue
         test(false)
     end
@@ -80,7 +82,7 @@ def allTests(communicator)
         test(false)
     rescue Test::Base => b
         test(b.b == "UnknownIntermediate.b")
-        test(b.ice_name() == "Test::Base")
+        test(b.ice_id() == "::Test::Base")
     rescue
         test(false)
     end
@@ -94,7 +96,7 @@ def allTests(communicator)
     rescue Test::KnownIntermediate => ki
         test(ki.b == "KnownIntermediate.b")
         test(ki.ki == "KnownIntermediate.ki")
-        test(ki.ice_name() == "Test::KnownIntermediate")
+        test(ki.ice_id() == "::Test::KnownIntermediate")
     rescue
         test(false)
     end
@@ -109,7 +111,7 @@ def allTests(communicator)
         test(kmd.b == "KnownMostDerived.b")
         test(kmd.ki == "KnownMostDerived.ki")
         test(kmd.kmd == "KnownMostDerived.kmd")
-        test(kmd.ice_name() == "Test::KnownMostDerived")
+        test(kmd.ice_id() == "::Test::KnownMostDerived")
     rescue
         test(false)
     end
@@ -123,7 +125,7 @@ def allTests(communicator)
     rescue Test::KnownIntermediate => ki
         test(ki.b == "KnownIntermediate.b")
         test(ki.ki == "KnownIntermediate.ki")
-        test(ki.ice_name() == "Test::KnownIntermediate")
+        test(ki.ice_id() == "::Test::KnownIntermediate")
     rescue
         test(false)
     end
@@ -138,7 +140,7 @@ def allTests(communicator)
         test(kmd.b == "KnownMostDerived.b")
         test(kmd.ki == "KnownMostDerived.ki")
         test(kmd.kmd == "KnownMostDerived.kmd")
-        test(kmd.ice_name() == "Test::KnownMostDerived")
+        test(kmd.ice_id() == "::Test::KnownMostDerived")
     rescue
         test(false)
     end
@@ -153,7 +155,7 @@ def allTests(communicator)
         test(kmd.b == "KnownMostDerived.b")
         test(kmd.ki == "KnownMostDerived.ki")
         test(kmd.kmd == "KnownMostDerived.kmd")
-        test(kmd.ice_name() == "Test::KnownMostDerived")
+        test(kmd.ice_id() == "::Test::KnownMostDerived")
     rescue
         test(false)
     end
@@ -167,7 +169,7 @@ def allTests(communicator)
     rescue Test::KnownIntermediate => ki
         test(ki.b == "UnknownMostDerived1.b")
         test(ki.ki == "UnknownMostDerived1.ki")
-        test(ki.ice_name() == "Test::KnownIntermediate")
+        test(ki.ice_id() == "::Test::KnownIntermediate")
     rescue
         test(false)
     end
@@ -181,7 +183,7 @@ def allTests(communicator)
     rescue Test::KnownIntermediate => ki
         test(ki.b == "UnknownMostDerived1.b")
         test(ki.ki == "UnknownMostDerived1.ki")
-        test(ki.ice_name() == "Test::KnownIntermediate")
+        test(ki.ice_id() == "::Test::KnownIntermediate")
     rescue
         test(false)
     end
@@ -194,7 +196,7 @@ def allTests(communicator)
         test(false)
     rescue Test::Base => b
         test(b.b == "UnknownMostDerived2.b")
-        test(b.ice_name() == "Test::Base")
+        test(b.ice_id() == "::Test::Base")
     rescue
         test(false)
     end

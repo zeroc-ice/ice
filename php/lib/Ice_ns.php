@@ -37,6 +37,7 @@ namespace Ice
             parent::__construct($message);
         }
 
+        abstract public function ice_id();
         abstract public function ice_name();
     }
 

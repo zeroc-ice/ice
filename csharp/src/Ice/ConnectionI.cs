@@ -1874,7 +1874,7 @@ namespace Ice
                          _exception is ObjectAdapterDeactivatedException ||
                          (_exception is ConnectionLostException && _state >= StateClosing)))
                     {
-                        _observer.failed(_exception.ice_name());
+                        _observer.failed(_exception.ice_id());
                     }
                 }
             }

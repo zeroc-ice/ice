@@ -2596,7 +2596,7 @@ Ice::ConnectionI::setState(State state)
                     dynamic_cast<const ObjectAdapterDeactivatedException*>(&ex) ||
                     (dynamic_cast<const ConnectionLostException*>(&ex) && _state >= StateClosing)))
                 {
-                    _observer->failed(ex.ice_name());
+                    _observer->failed(ex.ice_id());
                 }
             }
         }
@@ -2610,7 +2610,7 @@ Ice::ConnectionI::setState(State state)
                  dynamic_cast<const ObjectAdapterDeactivatedException*>(_exception.get()) ||
                  (dynamic_cast<const ConnectionLostException*>(_exception.get()) && _state >= StateClosing)))
             {
-                _observer->failed(_exception->ice_name());
+                _observer->failed(_exception->ice_id());
             }
         }
 #endif

@@ -82,7 +82,7 @@ ProxyOutgoingBase::completed(const Ice::Exception& ex)
         return;
     }
 
-    _childObserver.failed(ex.ice_name());
+    _childObserver.failed(ex.ice_id());
     _childObserver.detach();
 
     _state = StateFailed;
@@ -270,7 +270,7 @@ ProxyOutgoingBase::invokeImpl()
             }
             catch(const Ice::Exception& ex)
             {
-                _observer.failed(ex.ice_name());
+                _observer.failed(ex.ice_id());
                 throw;
             }
         }
@@ -680,7 +680,7 @@ void
 ConnectionFlushBatch::completed(const Ice::Exception& ex)
 {
     Monitor<Mutex>::Lock sync(_monitor);
-    _childObserver.failed(ex.ice_name());
+    _childObserver.failed(ex.ice_id());
     _childObserver.detach();
     ICE_RESET_EXCEPTION(_exception, ex.ice_clone());
     _monitor.notify();

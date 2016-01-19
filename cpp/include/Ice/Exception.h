@@ -44,9 +44,13 @@ class ICE_API LocalException : public IceUtil::Exception
 public:
 
     LocalException(const char*, int);
-    virtual ~LocalException() throw();
-    virtual std::string ice_name() const = 0;
+    virtual ~LocalException() ICE_NOEXCEPT;
+
+    virtual std::string ice_id() const = 0;
 #ifndef ICE_CPP11_MAPPING
+    ICE_DEPRECATED_API("ice_name() is deprecated, use ice_id() instead.")
+    virtual std::string ice_name() const = 0;
+    
     virtual LocalException* ice_clone() const = 0;
 #endif
     virtual void ice_throw() const = 0;
@@ -56,8 +60,11 @@ class ICE_API UserException : public IceUtil::Exception
 {
 public:
 
-    virtual std::string ice_name() const = 0;
+    
+    virtual std::string ice_id() const = 0;
 #ifndef ICE_CPP11_MAPPING
+    ICE_DEPRECATED_API("ice_name() is deprecated, use ice_id() instead.")
+    virtual std::string ice_name() const = 0;
     virtual UserException* ice_clone() const = 0;
 #endif
     virtual void ice_throw() const = 0;
@@ -86,9 +93,11 @@ class ICE_API SystemException : public IceUtil::Exception
 public:
 
     SystemException(const char*, int);
-    virtual ~SystemException() throw();
-    virtual std::string ice_name() const = 0;
+    virtual ~SystemException() ICE_NOEXCEPT;
+    virtual std::string ice_id() const = 0;
 #ifndef ICE_CPP11_MAPPING
+    ICE_DEPRECATED_API("ice_name() is deprecated.")
+    virtual std::string ice_name() const = 0;
     virtual SystemException* ice_clone() const = 0;
 #endif
     virtual void ice_throw() const = 0;

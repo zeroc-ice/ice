@@ -311,7 +311,7 @@ IcePy::PyException::raise()
         }
         else
         {
-            PyObjectHandle name = PyObject_CallMethod(ex.get(), STRCAST("ice_name"), 0);
+            PyObjectHandle name = PyObject_CallMethod(ex.get(), STRCAST("ice_id"), 0);
             PyErr_Clear();
             if(!name.get())
             {
@@ -880,7 +880,7 @@ IcePy::convertException(const Ice::Exception& ex)
     }
     catch(const Ice::LocalException& e)
     {
-        type = lookupType(scopedToName(e.ice_name()));
+        type = lookupType(scopedToName(e.ice_id()));
         if(type)
         {
             p = createExceptionInstance(type);

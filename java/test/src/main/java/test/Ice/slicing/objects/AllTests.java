@@ -274,7 +274,7 @@ public class AllTests
         public void
         exception(Ice.LocalException exc)
         {
-            test(exc.ice_name().equals("Ice::NoValueFactoryException"));
+            test(exc.ice_id().equals("::Ice::NoValueFactoryException"));
             callback.called();
         }
 
@@ -805,7 +805,7 @@ public class AllTests
             try
             {
                 BaseException e = (BaseException)exc;
-                test(e.ice_name().equals("Test::BaseException"));
+                test(e.ice_id().equals("::Test::BaseException"));
                 test(e.sbe.equals("sbe"));
                 test(e.pb != null);
                 test(e.pb.sb.equals("sb"));
@@ -850,7 +850,7 @@ public class AllTests
             try
             {
                 DerivedException e = (DerivedException)exc;
-                test(e.ice_name().equals("Test::DerivedException"));
+                test(e.ice_id().equals("::Test::DerivedException"));
                 test(e.sbe.equals("sbe"));
                 test(e.pb != null);
                 test(e.pb.sb.equals("sb1"));
@@ -901,7 +901,7 @@ public class AllTests
             try
             {
                 DerivedException e = (DerivedException)exc;
-                test(e.ice_name().equals("Test::DerivedException"));
+                test(e.ice_id().equals("::Test::DerivedException"));
                 test(e.sbe.equals("sbe"));
                 test(e.pb != null);
                 test(e.pb.sb.equals("sb1"));
@@ -953,7 +953,7 @@ public class AllTests
             try
             {
                 BaseException e = (BaseException)exc;
-                test(e.ice_name().equals("Test::BaseException"));
+                test(e.ice_id().equals("::Test::BaseException"));
                 test(e.sbe.equals("sbe"));
                 test(e.pb != null);
                 test(e.pb.sb.equals("sb d2"));
@@ -2574,7 +2574,7 @@ public class AllTests
             }
             catch(BaseException e)
             {
-                test(e.ice_name().equals("Test::BaseException"));
+                test(e.ice_id().equals("::Test::BaseException"));
                 test(e.sbe.equals("sbe"));
                 test(e.pb != null);
                 test(e.pb.sb.equals("sb"));
@@ -2606,7 +2606,7 @@ public class AllTests
             }
             catch(DerivedException e)
             {
-                test(e.ice_name().equals("Test::DerivedException"));
+                test(e.ice_id().equals("::Test::DerivedException"));
                 test(e.sbe.equals("sbe"));
                 test(e.pb != null);
                 test(e.pb.sb.equals("sb1"));
@@ -2644,7 +2644,7 @@ public class AllTests
             }
             catch(DerivedException e)
             {
-                test(e.ice_name().equals("Test::DerivedException"));
+                test(e.ice_id().equals("::Test::DerivedException"));
                 test(e.sbe.equals("sbe"));
                 test(e.pb != null);
                 test(e.pb.sb.equals("sb1"));
@@ -2682,7 +2682,7 @@ public class AllTests
             }
             catch(BaseException e)
             {
-                test(e.ice_name().equals("Test::BaseException"));
+                test(e.ice_id().equals("::Test::BaseException"));
                 test(e.sbe.equals("sbe"));
                 test(e.pb != null);
                 test(e.pb.sb.equals("sb d2"));

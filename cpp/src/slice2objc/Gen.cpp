@@ -1291,6 +1291,15 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     _M << nl << "return @\"" << p->scoped().substr(2) << "\";";
     _M << eb;
 
+    //
+    // ice_id
+    //
+    _H << nl << "-(NSString *) ice_id;";
+    _M << sp << nl << "-(NSString *) ice_id";
+    _M << sb;
+    _M << nl << "return @\"" << p->scoped() << "\";";
+    _M << eb;
+
     ContainerType ct = p->isLocal() ? LocalException : Other;
     writeInit(p, dataMembers, baseDataMembers, allDataMembers, requiresMemberInit(dataMembers), BaseTypeException, ct);
     writeFactory(p, allDataMembers, BaseTypeException, ct);
@@ -3089,7 +3098,7 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
         _M << sb;
         _M << nl << "[is_ endEncapsulation];";
         _M << nl << "@throw [ICEUnknownUserException unknownUserException:__FILE__ line:__LINE__ "
-           << "unknown:[ex_ ice_name]];";
+           << "unknown:[ex_ ice_id]];";
         _M << eb;
         _M << eb;
 

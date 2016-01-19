@@ -328,13 +328,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-#ifdef ICE_CPP11_MAPPING
-    // TODO
-#else
     cout << "testing UnexpectedObjectException... " << flush;
     testUOE(communicator);
     cout << "ok" << endl;
-#endif
 
     cout << "testing getting ObjectFactory... " << flush;
     test(communicator->findObjectFactory("TestOF"));
@@ -364,7 +360,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             }
             catch(const BaseEx& ex)
             {
-                test(ex.ice_name() == "Test::DerivedEx");
+                test(ex.ice_id() == "::Test::DerivedEx");
             }
         }
         cout << "ok" << endl;

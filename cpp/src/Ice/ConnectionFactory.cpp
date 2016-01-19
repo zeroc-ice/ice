@@ -905,7 +905,7 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::connectionStartFailed(c
 
     if(_observer)
     {
-        _observer->failed(ex.ice_name());
+        _observer->failed(ex.ice_id());
         _observer->detach();
     }
 

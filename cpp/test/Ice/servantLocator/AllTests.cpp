@@ -84,7 +84,7 @@ testExceptions(const TestIntfPrxPtr& obj)
     }
     catch(const UnknownUserException& ex)
     {
-        test(ex.unknown == "Test::TestIntfUserException");
+        test(ex.unknown == "::Test::TestIntfUserException");
     }
     catch(const Ice::OperationNotExistException&)
     {
@@ -241,7 +241,7 @@ allTests(const CommunicatorPtr& communicator)
     }
     catch(const UnknownUserException& ex)
     {
-        test(ex.unknown == "Test::TestIntfUserException");
+        test(ex.unknown == "::Test::TestIntfUserException");
     }
     catch(...)
     {
@@ -256,7 +256,7 @@ allTests(const CommunicatorPtr& communicator)
     }
     catch(const UnknownUserException& ex)
     {
-        test(ex.unknown == "Test::TestIntfUserException");
+        test(ex.unknown == "::Test::TestIntfUserException");
     }
     catch(...)
     {

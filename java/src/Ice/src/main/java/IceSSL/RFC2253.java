@@ -24,7 +24,14 @@ class RFC2253
         {
             this.reason = reason;
         }
-
+        
+        @Override
+        public String
+        ice_id()
+        {
+            return "::RFC2253::ParseException";
+        }
+        
         @Override
         public String
         ice_name()

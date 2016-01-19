@@ -745,7 +745,7 @@ class ShowIceLogDialog extends JDialog
                     @Override
                     public void exception(LocalException ex)
                     {
-                        _parent.getRoot().amiSuccess(prefix, ex.ice_name());
+                        _parent.getRoot().amiSuccess(prefix, ex.ice_id());
                     }
                 };
             
@@ -755,7 +755,7 @@ class ShowIceLogDialog extends JDialog
                 }
                 catch(LocalException ex)
                 {
-                    _parent.getRoot().success(prefix, ex.ice_name());
+                    _parent.getRoot().success(prefix, ex.ice_id());
                 }
             }
         }

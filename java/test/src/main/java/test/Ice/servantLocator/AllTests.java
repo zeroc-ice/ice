@@ -233,7 +233,7 @@ public class AllTests
         }
         catch(UnknownUserException ex)
         {
-            test(ex.unknown.equals("Test::TestIntfUserException"));
+            test(ex.unknown.equals("::Test::TestIntfUserException"));
         }
         catch(Throwable ex)
         {
@@ -248,7 +248,7 @@ public class AllTests
         }
         catch(UnknownUserException ex)
         {
-            test(ex.unknown.equals("Test::TestIntfUserException"));
+            test(ex.unknown.equals("::Test::TestIntfUserException"));
         }
         catch(Throwable ex)
         {

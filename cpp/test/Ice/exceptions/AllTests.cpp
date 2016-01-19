@@ -408,10 +408,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "testing ice_print()/what()... " << flush;
     {
         A a;
-        string aMsg = "Test::A";
+        string aMsg = "::Test::A";
 
         Ice::UnknownLocalException ule("thisFile", 99);
-        string uleMsg = "thisFile:99: Ice::UnknownLocalException:\nunknown local exception";
+        string uleMsg = "thisFile:99: ::Ice::UnknownLocalException:\nunknown local exception";
 
         //
         // Test ice_print().
@@ -454,7 +454,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             E ex("E");
             ostringstream os;
             ex.ice_print(os);
-            test(os.str() == "Test::E");
+            test(os.str() == "::Test::E");
             test(ex.data == "E");
         }
 
@@ -465,7 +465,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             F ex("F");
             ostringstream os;
             ex.ice_print(os);
-            test(os.str() == "Test::F data:'F'");
+            test(os.str() == "::Test::F data:'F'");
             test(ex.data == "F");
         }
 

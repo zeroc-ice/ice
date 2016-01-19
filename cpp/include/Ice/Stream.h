@@ -69,7 +69,11 @@ public:
     virtual void read(const InputStreamPtr&) const = 0;
     virtual bool usesClasses() const = 0;
 
+    virtual ::std::string ice_id() const = 0;
+#ifndef ICE_CPP11_MAPPING
+    ICE_DEPRECATED_API("ice_name() is deprecated, use ice_id() instead.")
     virtual ::std::string ice_name() const = 0;
+#endif
     virtual UserException* ice_clone() const = 0;
     virtual void ice_throw() const = 0;
 
@@ -449,7 +453,11 @@ public:
     virtual void write(const OutputStreamPtr&) const = 0;
     virtual bool usesClasses() const = 0;
 
+    virtual ::std::string ice_id() const = 0;
+#ifndef ICE_CPP11_MAPPING
+    ICE_DEPRECATED_API("ice_name() is deprecated, use ice_id() instead.")
     virtual ::std::string ice_name() const = 0;
+#endif
     virtual UserException* ice_clone() const = 0;
     virtual void ice_throw() const = 0;
 

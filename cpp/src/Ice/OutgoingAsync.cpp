@@ -87,7 +87,7 @@ OutgoingAsyncBase::finished(const Exception& ex)
 {
     if(_childObserver)
     {
-        _childObserver.failed(ex.ice_name());
+        _childObserver.failed(ex.ice_id());
         _childObserver.detach();
     }
     return AsyncResult::finished(ex);
@@ -104,7 +104,7 @@ ProxyOutgoingAsyncBase::completed(const Exception& exc)
 {
     if(_childObserver)
     {
-        _childObserver.failed(exc.ice_name());
+        _childObserver.failed(exc.ice_id());
         _childObserver.detach();
     }
 
@@ -297,7 +297,7 @@ ProxyOutgoingAsyncBase::invokeImpl(bool userThread)
             {
                 if(_childObserver)
                 {
-                    _childObserver.failed(ex.ice_name());
+                    _childObserver.failed(ex.ice_id());
                     _childObserver.detach();
                 }
                 int interval = handleException(ex);
@@ -945,7 +945,7 @@ CommunicatorFlushBatchAsync::flushConnection(const ConnectionIPtr& con)
 
         virtual bool completed(const Exception& ex)
         {
-            _childObserver.failed(ex.ice_name());
+            _childObserver.failed(ex.ice_id());
             _childObserver.detach();
             _outAsync->check(false);
             return false;
@@ -1071,7 +1071,7 @@ OnewayClosureCallback::completed(const AsyncResultPtr& __result) const
                 }
                 catch(const UserException& __ex)
                 {
-                    throw UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
+                    throw UnknownUserException(__FILE__, __LINE__, __ex.ice_id());
                 }
             }
             __result->__readEmptyParams();
@@ -1195,7 +1195,7 @@ TwowayClosureCallback::completed(const AsyncResultPtr& __result) const
                 {
                     __userException(__ex);
                 }
-                throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
+                throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_id());
             }
         }
         else

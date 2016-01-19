@@ -325,7 +325,7 @@ namespace IceInternal
 
                 if(observer_ != null)
                 {
-                    observer_.failed(ex.ice_name());
+                    observer_.failed(ex.ice_id());
                 }
 
                 if(response_)
@@ -384,7 +384,7 @@ namespace IceInternal
 
                 if(observer_ != null)
                 {
-                    observer_.failed(ex.ice_name());
+                    observer_.failed(ex.ice_id());
                 }
 
                 if(response_)
@@ -412,7 +412,7 @@ namespace IceInternal
 
                 if(observer_ != null)
                 {
-                    observer_.failed(ex.ice_name());
+                    observer_.failed(ex.ice_id());
                 }
 
                 if(response_)
@@ -440,7 +440,7 @@ namespace IceInternal
 
                 if(observer_ != null)
                 {
-                    observer_.failed(ex.ice_name());
+                    observer_.failed(ex.ice_id());
                 }
 
                 if(response_)
@@ -468,14 +468,14 @@ namespace IceInternal
 
                 if(observer_ != null)
                 {
-                    observer_.failed(ex.ice_name());
+                    observer_.failed(ex.ice_id());
                 }
 
                 if(response_)
                 {
                     os_.resize(Protocol.headerSize + 4, false); // Reply status position.
                     os_.writeByte(ReplyStatus.replyUnknownUserException);
-                    os_.writeString(ex.ice_name() + "\n" + ex.StackTrace);
+                    os_.writeString(ex.ice_id() + "\n" + ex.StackTrace);
                     if(observer_ != null)
                     {
                         observer_.reply(os_.size() - Protocol.headerSize - 4);
@@ -504,14 +504,14 @@ namespace IceInternal
 
                 if(observer_ != null)
                 {
-                    observer_.failed(ex.ice_name());
+                    observer_.failed(ex.ice_id());
                 }
 
                 if(response_)
                 {
                     os_.resize(Protocol.headerSize + 4, false); // Reply status position.
                     os_.writeByte(ReplyStatus.replyUnknownLocalException);
-                    os_.writeString(ex.ice_name() + "\n" + ex.StackTrace);
+                    os_.writeString(ex.ice_id() + "\n" + ex.StackTrace);
                     if(observer_ != null)
                     {
                         observer_.reply(os_.size() - Protocol.headerSize - 4);

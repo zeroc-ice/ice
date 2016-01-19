@@ -688,7 +688,16 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     //
     _out << sp << nl << "public function ice_name()";
     _out << sb;
+    _out << nl << "trigger_error('ice_name() is deprecated use ice_id() instead.', E_DEPRECATED);";
     _out << nl << "return '" << scoped.substr(2) << "';";
+    _out << eb;
+    
+    //
+    // ice_name
+    //
+    _out << sp << nl << "public function ice_id()";
+    _out << sb;
+    _out << nl << "return '" << scoped << "';";
     _out << eb;
 
     //

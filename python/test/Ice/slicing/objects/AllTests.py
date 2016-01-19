@@ -75,7 +75,7 @@ class Callback(CallbackBase):
         test(False)
 
     def exception_SUnknownAsObject10(self, exc):
-        test(exc.ice_name() == "Ice::NoValueFactoryException")
+        test(exc.ice_id() == "::Ice::NoValueFactoryException")
         self.called()
 
     def response_SUnknownAsObject11(self, o):
@@ -224,7 +224,7 @@ class Callback(CallbackBase):
         self.called()
 
     def exception_throwBaseAsBase(self, ex):
-        test(ex.ice_name() == "Test::BaseException")
+        test(ex.ice_id() == "::Test::BaseException")
         e = ex
         test(isinstance(e, Test.BaseException))
         test(e.sbe == "sbe")
@@ -234,7 +234,7 @@ class Callback(CallbackBase):
         self.called()
 
     def exception_throwDerivedAsBase(self, ex):
-        test(ex.ice_name() == "Test::DerivedException")
+        test(ex.ice_id() == "::Test::DerivedException")
         e = ex
         test(isinstance(e, Test.DerivedException))
         test(e.sbe == "sbe")
@@ -250,7 +250,7 @@ class Callback(CallbackBase):
         self.called()
 
     def exception_throwDerivedAsDerived(self, ex):
-        test(ex.ice_name() == "Test::DerivedException")
+        test(ex.ice_id() == "::Test::DerivedException")
         e = ex
         test(isinstance(e, Test.DerivedException))
         test(e.sbe == "sbe")
@@ -266,7 +266,7 @@ class Callback(CallbackBase):
         self.called()
 
     def exception_throwUnknownDerivedAsBase(self, ex):
-        test(ex.ice_name() == "Test::BaseException")
+        test(ex.ice_id() == "::Test::BaseException")
         e = ex
         test(isinstance(e, Test.BaseException))
         test(e.sbe == "sbe")
@@ -1350,7 +1350,7 @@ def allTests(communicator):
         t.throwBaseAsBase()
         test(False)
     except Test.BaseException as e:
-        test(e.ice_name() == "Test::BaseException")
+        test(e.ice_id() == "::Test::BaseException")
         test(e.sbe == "sbe")
         test(e.pb)
         test(e.pb.sb == "sb")
@@ -1372,7 +1372,7 @@ def allTests(communicator):
         t.throwDerivedAsBase()
         test(False)
     except Test.DerivedException as e:
-        test(e.ice_name() == "Test::DerivedException")
+        test(e.ice_id() == "::Test::DerivedException")
         test(e.sbe == "sbe")
         test(e.pb)
         test(e.pb.sb == "sb1")
@@ -1400,7 +1400,7 @@ def allTests(communicator):
         t.throwDerivedAsDerived()
         test(False)
     except Test.DerivedException as e:
-        test(e.ice_name() == "Test::DerivedException")
+        test(e.ice_id() == "::Test::DerivedException")
         test(e.sbe == "sbe")
         test(e.pb)
         test(e.pb.sb == "sb1")
@@ -1428,7 +1428,7 @@ def allTests(communicator):
         t.throwUnknownDerivedAsBase()
         test(False)
     except Test.BaseException as e:
-        test(e.ice_name() == "Test::BaseException")
+        test(e.ice_id() == "::Test::BaseException")
         test(e.sbe == "sbe")
         test(e.pb)
         test(e.pb.sb == "sb d2")

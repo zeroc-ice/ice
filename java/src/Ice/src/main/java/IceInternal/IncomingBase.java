@@ -344,7 +344,7 @@ class IncomingBase
 
             if(_observer != null)
             {
-                _observer.failed(ex.ice_name());
+                _observer.failed(ex.ice_id());
             }
 
             if(_response)
@@ -403,7 +403,7 @@ class IncomingBase
 
             if(_observer != null)
             {
-                _observer.failed(ex.ice_name());
+                _observer.failed(ex.ice_id());
             }
 
             if(_response)
@@ -431,7 +431,7 @@ class IncomingBase
 
             if(_observer != null)
             {
-                _observer.failed(ex.ice_name());
+                _observer.failed(ex.ice_id());
             }
 
             if(_response)
@@ -459,7 +459,7 @@ class IncomingBase
 
             if(_observer != null)
             {
-                _observer.failed(ex.ice_name());
+                _observer.failed(ex.ice_id());
             }
 
             if(_response)
@@ -495,7 +495,7 @@ class IncomingBase
 
             if(_observer != null)
             {
-                _observer.failed(ex.ice_name());
+                _observer.failed(ex.ice_id());
             }
 
             if(_response)
@@ -504,7 +504,7 @@ class IncomingBase
                 _os.writeByte(ReplyStatus.replyUnknownLocalException);
                 //_os.writeString(ex.toString());
                 java.io.StringWriter sw = new java.io.StringWriter();
-                sw.write(ex.ice_name() + "\n");
+                sw.write(ex.ice_id() + "\n");
                 java.io.PrintWriter pw = new java.io.PrintWriter(sw);
                 ex.printStackTrace(pw);
                 pw.flush();
@@ -529,7 +529,7 @@ class IncomingBase
 
             if(_observer != null)
             {
-                _observer.failed(ex.ice_name());
+                _observer.failed(ex.ice_id());
             }
 
             if(_response)
@@ -538,7 +538,7 @@ class IncomingBase
                 _os.writeByte(ReplyStatus.replyUnknownUserException);
                 //_os.writeString(ex.toString());
                 java.io.StringWriter sw = new java.io.StringWriter();
-                sw.write(ex.ice_name() + "\n");
+                sw.write(ex.ice_id() + "\n");
                 java.io.PrintWriter pw = new java.io.PrintWriter(sw);
                 ex.printStackTrace(pw);
                 pw.flush();
@@ -615,7 +615,7 @@ class IncomingBase
 
         if(_observer != null)
         {
-            _observer.failed(uex.ice_name());
+            _observer.failed(uex.ice_id());
         }
 
         if(_response)

@@ -640,9 +640,9 @@ metricsAllTests(id<ICECommunicator> communicator)
 
     test(cm1.failures == 2 && sm1.failures >= 1);
 
-    checkFailure(clientMetrics, @"Connection", cm1.id_, @"Ice::TimeoutException", 1);
-    checkFailure(clientMetrics, @"Connection", cm1.id_, @"Ice::ConnectTimeoutException", 1);
-    checkFailure(serverMetrics, @"Connection", sm1.id_, @"Ice::ConnectionLostException", 0);
+    checkFailure(clientMetrics, @"Connection", cm1.id_, @"::Ice::TimeoutException", 1);
+    checkFailure(clientMetrics, @"Connection", cm1.id_, @"::Ice::ConnectTimeoutException", 1);
+    checkFailure(serverMetrics, @"Connection", sm1.id_, @"::Ice::ConnectionLostException", 0);
 
     ICEMXMetricsPrx* m = [[metrics ice_timeout:500] ice_connectionId:@"Con1"];
     [m ice_ping];
@@ -714,7 +714,7 @@ metricsAllTests(id<ICECommunicator> communicator)
               objectForKey:@"ConnectionEstablishment"] objectAtIndex:0];
     test([m1.id_ isEqualToString:@"127.0.0.1:12010"] && m1.total == 3 && m1.failures == 2);
 
-    checkFailure(clientMetrics, @"ConnectionEstablishment", m1.id_, @"Ice::ConnectTimeoutException", 2);
+    checkFailure(clientMetrics, @"ConnectionEstablishment", m1.id_, @"::Ice::ConnectTimeoutException", 2);
 
     Connect* c = [Connect connect:metrics];
 
@@ -776,7 +776,7 @@ metricsAllTests(id<ICECommunicator> communicator)
          (!dnsException || m1.failures == 2));
     if(dnsException)
     {
-        checkFailure(clientMetrics, @"EndpointLookup", m1.id_, @"Ice::DNSException", 2);
+        checkFailure(clientMetrics, @"EndpointLookup", m1.id_, @"::Ice::DNSException", 2);
     }
 
     c = [Connect connect:prx];
@@ -858,17 +858,17 @@ metricsAllTests(id<ICECommunicator> communicator)
 
     dm1 = (ICEMXDispatchMetrics*)[map objectForKey:@"opWithLocalException"];
     test(dm1.current <= 1 && dm1.total == 1 && dm1.failures == 1 && dm1.userException == 0);
-    checkFailure(serverMetrics, @"Dispatch", dm1.id_, @"Ice::SyscallException", 1);
+    checkFailure(serverMetrics, @"Dispatch", dm1.id_, @"::Ice::SyscallException", 1);
     test(dm1.size == 39 && dm1.replySize > 7); // Reply contains the exception stack depending on the OS.
 
     dm1 = (ICEMXDispatchMetrics*)[map objectForKey:@"opWithRequestFailedException"];
     test(dm1.current <= 1 && dm1.total == 1 && dm1.failures == 1 && dm1.userException == 0);
-    checkFailure(serverMetrics, @"Dispatch", dm1.id_, @"Ice::ObjectNotExistException", 1);
+    checkFailure(serverMetrics, @"Dispatch", dm1.id_, @"::Ice::ObjectNotExistException", 1);
     test(dm1.size == 47 && dm1.replySize == 40);
 
     dm1 = (ICEMXDispatchMetrics*)[map objectForKey:@"opWithUnknownException"];
     test(dm1.current <= 1 && dm1.total == 1 && dm1.failures == 1 && dm1.userException == 0);
-    checkFailure(serverMetrics, @"Dispatch", dm1.id_, @"IceObjC::Exception", 1);
+    checkFailure(serverMetrics, @"Dispatch", dm1.id_, @"::IceObjC::Exception", 1);
     test(dm1.size == 41 && dm1.replySize > 7); // Reply contains the exception stack depending on the OS.
 
     InvokeOp* op = [InvokeOp invokeOp:metrics];
@@ -1054,20 +1054,20 @@ metricsAllTests(id<ICECommunicator> communicator)
     rim1 = (ICEMXRemoteMetrics*)[im1.remotes objectAtIndex:0];
     test(rim1.current == 0 && rim1.total == 3 && rim1.failures == 0);
     test(rim1.size == 117 && rim1.replySize > 7);
-    checkFailure(clientMetrics, @"Invocation", im1.id_, @"Ice::UnknownLocalException", 3);
+    checkFailure(clientMetrics, @"Invocation", im1.id_, @"::Ice::UnknownLocalException", 3);
 
     im1 = (ICEMXInvocationMetrics*)[map objectForKey:@"opWithRequestFailedException"];
     test(im1.current <= 1 && im1.total == 3 && im1.failures == 3 && im1.retry == 0 && [im1.remotes count] == 1);
     rim1 = (ICEMXRemoteMetrics*)[im1.remotes objectAtIndex:0];
     test(rim1.current == 0 && rim1.total == 3 && rim1.failures == 0);
     test(rim1.size == 141 && rim1.replySize == 120);
-    checkFailure(clientMetrics, @"Invocation", im1.id_, @"Ice::ObjectNotExistException", 3);
+    checkFailure(clientMetrics, @"Invocation", im1.id_, @"::Ice::ObjectNotExistException", 3);
 
     im1 = (ICEMXInvocationMetrics*)[map objectForKey:@"opWithUnknownException"];
     test(im1.current <= 1 && im1.total == 3 && im1.failures == 3 && im1.retry == 0 && [im1.remotes count] == 1);
     rim1 = (ICEMXRemoteMetrics*)[im1.remotes objectAtIndex:0];
     test(rim1.current == 0 && rim1.total == 3 && rim1.failures == 0);
-    checkFailure(clientMetrics, @"Invocation", im1.id_, @"Ice::UnknownException", 3);
+    checkFailure(clientMetrics, @"Invocation", im1.id_, @"::Ice::UnknownException", 3);
 
     im1 = (ICEMXInvocationMetrics*)[map objectForKey:@"fail"];
     test(im1.current <= 1 && im1.total == 3 && im1.failures == 3 && im1.retry == 3 && [im1.remotes count] == 6);
@@ -1096,7 +1096,7 @@ metricsAllTests(id<ICECommunicator> communicator)
          ((ICEMXMetrics*)[im1.remotes objectAtIndex:5]).total == 1 &&
          ((ICEMXMetrics*)[im1.remotes objectAtIndex:5]).failures == 1);
 
-    checkFailure(clientMetrics, @"Invocation", im1.id_, @"Ice::ConnectionLostException", 3);
+    checkFailure(clientMetrics, @"Invocation", im1.id_, @"::Ice::ConnectionLostException", 3);
 
     testAttribute(clientMetrics, clientProps, update, @"Invocation", @"parent", @"Communicator", op);
     testAttribute(clientMetrics, clientProps, update, @"Invocation", @"id", @"metrics -t -e 1.1 [op]", op);

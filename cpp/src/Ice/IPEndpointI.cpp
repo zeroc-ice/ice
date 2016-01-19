@@ -668,7 +668,7 @@ IceInternal::EndpointHostResolver::run()
             }
             if(r.observer)
             {
-                r.observer->failed(ex.ice_name());
+                r.observer->failed(ex.ice_id());
                 r.observer->detach();
             }
             r.callback->exception(ex);
@@ -680,7 +680,7 @@ IceInternal::EndpointHostResolver::run()
         Ice::CommunicatorDestroyedException ex(__FILE__, __LINE__);
         if(p->observer)
         {
-            p->observer->failed(ex.ice_name());
+            p->observer->failed(ex.ice_id());
             p->observer->detach();
         }
         p->callback->exception(ex);

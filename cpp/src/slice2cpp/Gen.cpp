@@ -993,10 +993,17 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     C << sb;
     C << eb;
 
+    H << nl << "ICE_DEPRECATED_API(\"ice_name() is deprecated, use ice_id() instead.\")";
     H << nl << "virtual ::std::string ice_name() const;";
     C << sp << nl << "::std::string" << nl << scoped.substr(2) << "::ice_name() const";
     C << sb;
     C << nl << "return \"" << p->scoped().substr(2) << "\";";
+    C << eb;
+    
+    H << nl << "virtual ::std::string ice_id() const;";
+    C << sp << nl << "::std::string" << nl << scoped.substr(2) << "::ice_id() const";
+    C << sb;
+    C << nl << "return \"" << p->scoped() << "\";";
     C << eb;
 
     StringList metaData = p->getMetaData();
@@ -1994,7 +2001,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         // COMPILERFIX: Don't throw UnknownUserException directly. This is causing access
         // violation errors with Visual C++ 64bits optimized builds. See bug #2962.
         //
-        C << nl << "::Ice::UnknownUserException __uue(__FILE__, __LINE__, __ex.ice_name());";
+        C << nl << "::Ice::UnknownUserException __uue(__FILE__, __LINE__, __ex.ice_id());";
         C << nl << "throw __uue;";
         C << eb;
         C << eb;
@@ -2095,7 +2102,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         }
         C << nl << "catch(const ::Ice::UserException& __ex)";
         C << sb;
-        C << nl << "throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());";
+        C << nl << "throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_id());";
         C << eb;
         C << eb;
         if(ret || !outParams.empty())
@@ -2158,7 +2165,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         }
         C << nl << "catch(const ::Ice::UserException& __ex)";
         C << sb;
-        C << nl << "throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());";
+        C << nl << "throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_id());";
         C << eb;
         C << eb;
 
@@ -5425,10 +5432,10 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         C << sp << nl << "}";
     }
 
-    H << nl << "virtual ::std::string ice_name() const;";
-    C << sp << nl << "::std::string" << nl << scoped.substr(2) << "::ice_name() const";
+    H << nl << "virtual ::std::string ice_id() const;";
+    C << sp << nl << "::std::string" << nl << scoped.substr(2) << "::ice_id() const";
     C << sb;
-    C << nl << "return \"" << p->scoped().substr(2) << "\";";
+    C << nl << "return \"" << p->scoped() << "\";";
     C << eb;
 
     StringList metaData = p->getMetaData();

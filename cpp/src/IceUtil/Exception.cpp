@@ -42,8 +42,7 @@
 #    define DBGHELP_TRANSLATE_TCHAR
 #    include <IceUtil/StringConverter.h>
 #    if _MSC_VER >= 1900
-#       // VS 2015 RC issues this warning for code in DbgHelp.h
-#       pragma warning(disable:4091)
+#       pragma warning(disable:4091) // VS 2015 RC issues this warning for code in DbgHelp.h
 #    endif
 #  endif
 #  include <DbgHelp.h>
@@ -407,16 +406,8 @@ IceUtil::Exception::Exception(const char* file, int line) :
 {
 }
 
-IceUtil::Exception::~Exception() throw()
+IceUtil::Exception::~Exception() ICE_NOEXCEPT
 {
-}
-
-const char* IceUtil::Exception::_name = "IceUtil::Exception";
-
-string
-IceUtil::Exception::ice_name() const
-{
-    return _name;
 }
 
 void
@@ -426,11 +417,11 @@ IceUtil::Exception::ice_print(ostream& out) const
     {
         out << _file << ':' << _line << ": ";
     }
-    out << ice_name();
+    out << ice_id();
 }
 
 const char*
-IceUtil::Exception::what() const throw()
+IceUtil::Exception::what() const ICE_NOEXCEPT
 {
     try
     {
@@ -451,6 +442,12 @@ IceUtil::Exception::what() const throw()
     return "";
 }
 
+string
+IceUtil::Exception::ice_id() const
+{
+    return "::IceUtil::Exception";
+}
+
 #ifdef ICE_CPP11_MAPPING
 exception_ptr
 IceUtil::Exception::ice_clone() const
@@ -467,6 +464,13 @@ IceUtil::Exception::ice_clone() const
     return nullptr; // Make compilers happy
 }
 #else
+
+string
+IceUtil::Exception::ice_name() const
+{
+    return "IceUtil::Exception";
+}
+
 IceUtil::Exception*
 IceUtil::Exception::ice_clone() const
 {
@@ -514,19 +518,23 @@ IceUtil::NullHandleException::NullHandleException(const char* file, int line) :
     }
 }
 
-IceUtil::NullHandleException::~NullHandleException() throw()
+IceUtil::NullHandleException::~NullHandleException() ICE_NOEXCEPT
 {
 }
 
-const char* IceUtil::NullHandleException::_name = "IceUtil::NullHandleException";
-
 string
-IceUtil::NullHandleException::ice_name() const
+IceUtil::NullHandleException::ice_id() const
 {
-    return _name;
+    return "::IceUtil::NullHandleException";
 }
 
 #ifndef ICE_CPP11_MAPPING
+string
+IceUtil::NullHandleException::ice_name() const
+{
+    return "IceUtil::NullHandleException";
+}
+
 IceUtil::NullHandleException*
 IceUtil::NullHandleException::ice_clone() const
 {
@@ -551,16 +559,8 @@ IceUtil::IllegalArgumentException::IllegalArgumentException(const char* file, in
 {
 }
 
-IceUtil::IllegalArgumentException::~IllegalArgumentException() throw()
+IceUtil::IllegalArgumentException::~IllegalArgumentException() ICE_NOEXCEPT
 {
-}
-
-const char* IceUtil::IllegalArgumentException::_name = "IceUtil::IllegalArgumentException";
-
-string
-IceUtil::IllegalArgumentException::ice_name() const
-{
-    return _name;
 }
 
 void
@@ -570,7 +570,19 @@ IceUtil::IllegalArgumentException::ice_print(ostream& out) const
     out << ": " << _reason;
 }
 
+string
+IceUtil::IllegalArgumentException::ice_id() const
+{
+    return "::IceUtil::IllegalArgumentException";
+}
+
 #ifndef ICE_CPP11_MAPPING
+string
+IceUtil::IllegalArgumentException::ice_name() const
+{
+    return "IceUtil::IllegalArgumentException";
+}
+
 IceUtil::IllegalArgumentException*
 IceUtil::IllegalArgumentException::ice_clone() const
 {
@@ -593,9 +605,6 @@ IceUtil::IllegalArgumentException::reason() const
 //
 // IllegalConversionException
 //
-
-const char* IceUtil::IllegalConversionException::_name = "IceUtil::IllegalConversionException";
-
 IceUtil::IllegalConversionException::IllegalConversionException(const char* file, int line):
     Exception(file, line)
 {}
@@ -606,14 +615,8 @@ IceUtil::IllegalConversionException::IllegalConversionException(const char* file
     _reason(reason)
 {}
 
-IceUtil::IllegalConversionException::~IllegalConversionException() throw()
+IceUtil::IllegalConversionException::~IllegalConversionException() ICE_NOEXCEPT
 {}
-
-string
-IceUtil::IllegalConversionException::ice_name() const
-{
-    return _name;
-}
 
 void
 IceUtil::IllegalConversionException::ice_print(ostream& out) const
@@ -623,7 +626,19 @@ IceUtil::IllegalConversionException::ice_print(ostream& out) const
 
 }
 
+string
+IceUtil::IllegalConversionException::ice_id() const
+{
+    return "::IceUtil::IllegalConversionException";
+}
+
 #ifndef ICE_CPP11_MAPPING
+string
+IceUtil::IllegalConversionException::ice_name() const
+{
+    return "IceUtil::IllegalConversionException";
+}
+
 IceUtil::IllegalConversionException*
 IceUtil::IllegalConversionException::ice_clone() const
 {
@@ -651,14 +666,6 @@ IceUtil::SyscallException::SyscallException(const char* file, int line, int err 
 {
 }
 
-const char* IceUtil::SyscallException::_name = "IceUtil::SyscallException";
-
-string
-IceUtil::SyscallException::ice_name() const
-{
-    return _name;
-}
-
 void
 IceUtil::SyscallException::ice_print(ostream& os) const
 {
@@ -669,7 +676,20 @@ IceUtil::SyscallException::ice_print(ostream& os) const
     }
 }
 
+string
+IceUtil::SyscallException::ice_id() const
+{
+    return "::IceUtil::SyscallException";
+}
+
 #ifndef ICE_CPP11_MAPPING
+
+string
+IceUtil::SyscallException::ice_name() const
+{
+    return "IceUtil::SyscallException";
+}
+
 IceUtil::SyscallException*
 IceUtil::SyscallException::ice_clone() const
 {
@@ -697,16 +717,8 @@ IceUtil::FileLockException::FileLockException(const char* file, int line, int er
 {
 }
 
-IceUtil::FileLockException::~FileLockException() throw()
+IceUtil::FileLockException::~FileLockException() ICE_NOEXCEPT
 {
-}
-
-const char* IceUtil::FileLockException::_name = "IceUtil::FileLockException";
-
-string
-IceUtil::FileLockException::ice_name() const
-{
-    return _name;
 }
 
 void
@@ -720,7 +732,19 @@ IceUtil::FileLockException::ice_print(ostream& os) const
     }
 }
 
+string
+IceUtil::FileLockException::ice_id() const
+{
+    return "::IceUtil::FileLockException";
+}
+
 #ifndef ICE_CPP11_MAPPING
+string
+IceUtil::FileLockException::ice_name() const
+{
+    return "IceUtil::FileLockException";
+}
+
 IceUtil::FileLockException*
 IceUtil::FileLockException::ice_clone() const
 {
@@ -749,19 +773,23 @@ IceUtil::OptionalNotSetException::OptionalNotSetException(const char* file, int 
     }
 }
 
-IceUtil::OptionalNotSetException::~OptionalNotSetException() throw()
+IceUtil::OptionalNotSetException::~OptionalNotSetException() ICE_NOEXCEPT
 {
 }
 
-const char* IceUtil::OptionalNotSetException::_name = "IceUtil::OptionalNotSetException";
-
 string
-IceUtil::OptionalNotSetException::ice_name() const
+IceUtil::OptionalNotSetException::ice_id() const
 {
-    return _name;
+    return "::IceUtil::OptionalNotSetException";
 }
 
 #ifndef ICE_CPP11_MAPPING
+string
+IceUtil::OptionalNotSetException::ice_name() const
+{
+    return "IceUtil::OptionalNotSetException";
+}
+
 IceUtil::OptionalNotSetException*
 IceUtil::OptionalNotSetException::ice_clone() const
 {
@@ -782,16 +810,8 @@ IceUtil::IconvInitializationException::IconvInitializationException(const char* 
 {
 }
 
-IceUtil::IconvInitializationException::~IconvInitializationException() throw()
+IceUtil::IconvInitializationException::~IconvInitializationException() ICE_NOEXCEPT
 {
-}
-
-const char* IceUtil::IconvInitializationException::_name = "IceUtil::IconvInitializationException";
-
-string
-IceUtil::IconvInitializationException::ice_name() const
-{
-    return _name;
 }
 
 void
@@ -801,7 +821,19 @@ IceUtil::IconvInitializationException::ice_print(ostream& out) const
     out << ": " << _reason;
 }
 
+string
+IceUtil::IconvInitializationException::ice_id() const
+{
+    return "::IceUtil::IconvInitializationException";
+}
+
 #ifndef ICE_CPP11_MAPPING
+string
+IceUtil::IconvInitializationException::ice_name() const
+{
+    return "IceUtil::IconvInitializationException";
+}
+
 IceUtil::IconvInitializationException*
 IceUtil::IconvInitializationException::ice_clone() const
 {

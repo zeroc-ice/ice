@@ -315,7 +315,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
                 }
                 catch(UserException __ex)
                 {
-                    throw new UnknownUserException(__ex.ice_name(), __ex);
+                    throw new UnknownUserException(__ex.ice_id(), __ex);
                 }
             }
             boolean __ret;
@@ -806,7 +806,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
                 }
                 catch(UserException __ex)
                 {
-                    throw new UnknownUserException(__ex.ice_name(), __ex);
+                    throw new UnknownUserException(__ex.ice_id(), __ex);
                 }
             }
             String[] __ret = null;
@@ -1081,7 +1081,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
                 }
                 catch(UserException __ex)
                 {
-                    throw new UnknownUserException(__ex.ice_name(), __ex);
+                    throw new UnknownUserException(__ex.ice_id(), __ex);
                 }
             }
             String __ret = null;
@@ -2655,7 +2655,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
                     }
                     catch(UserException ex)
                     {
-                        throw new UnknownUserException(ex.ice_name(), ex);
+                        throw new UnknownUserException(ex.ice_id(), ex);
                     }
                 }
                 outAsync.readEmptyParams();

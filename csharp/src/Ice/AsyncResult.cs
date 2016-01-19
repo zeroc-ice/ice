@@ -552,7 +552,7 @@ namespace IceInternal
                 _cancellationHandler = null;
                 if(observer_ != null)
                 {
-                    observer_.failed(ex.ice_name());
+                    observer_.failed(ex.ice_id());
                 }
                 if(_completedCallback == null)
                 {

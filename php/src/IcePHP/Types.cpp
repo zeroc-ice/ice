@@ -3405,10 +3405,18 @@ IcePHP::ExceptionReader::usesClasses() const
 }
 
 string
+IcePHP::ExceptionReader::ice_id() const
+{
+    return _info->id;    
+}
+
+#ifndef ICE_CPP11_MAPPING
+string
 IcePHP::ExceptionReader::ice_name() const
 {
-    return _info->id;
+    return ice_id();
 }
+#endif
 
 IcePHP::ExceptionReader*
 IcePHP::ExceptionReader::ice_clone() const

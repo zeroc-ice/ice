@@ -360,7 +360,7 @@ public class AsyncResultI implements AsyncResult
             _cancellationHandler = null;
             if(_observer != null)
             {
-                _observer.failed(ex.ice_name());
+                _observer.failed(ex.ice_id());
             }
             if(_callback == null)
             {

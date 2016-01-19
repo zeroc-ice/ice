@@ -848,7 +848,7 @@ IceProxy::Ice::Object::ice_isA(const string& typeId, const Context& context)
         }
         catch(const ::Ice::UserException& __ex)
         {
-            throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
+            throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_id());
         }
     }
     bool __ret;
@@ -894,7 +894,7 @@ IceProxy::Ice::Object::end_ice_isA(const AsyncResultPtr& __result)
         }
         catch(const UserException& __ex)
         {
-            throw UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
+            throw UnknownUserException(__FILE__, __LINE__, __ex.ice_id());
         }
     }
     bool __ret;
@@ -920,7 +920,7 @@ IceProxy::Ice::Object::ice_ping(const Context& context)
             }
             catch(const ::Ice::UserException& __ex)
             {
-                throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
+                throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_id());
             }
         }
         __og.readEmptyParams();
@@ -966,7 +966,7 @@ IceProxy::Ice::Object::ice_ids(const Context& context)
         }
         catch(const ::Ice::UserException& __ex)
         {
-            throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
+            throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_id());
         }
     }
     vector<string> __ret;
@@ -990,7 +990,7 @@ IceProxy::Ice::Object::ice_id(const Context& context)
         }
         catch(const ::Ice::UserException& __ex)
         {
-            throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
+            throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_id());
         }
     }
     string __ret;
@@ -1033,7 +1033,7 @@ IceProxy::Ice::Object::end_ice_ids(const AsyncResultPtr& __result)
         }
         catch(const UserException& __ex)
         {
-            throw UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
+            throw UnknownUserException(__FILE__, __LINE__, __ex.ice_id());
         }
     }
     vector<string> __ret;
@@ -1076,7 +1076,7 @@ IceProxy::Ice::Object::end_ice_id(const AsyncResultPtr& __result)
         }
         catch(const UserException& __ex)
         {
-            throw UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
+            throw UnknownUserException(__FILE__, __LINE__, __ex.ice_id());
         }
     }
     string __ret;
@@ -1247,7 +1247,7 @@ IceProxy::Ice::Object::__invoke(Outgoing& __og) const
             }
             catch(const ::Ice::UserException& __ex)
             {
-                ::Ice::UnknownUserException __uue(__FILE__, __LINE__, __ex.ice_name());
+                ::Ice::UnknownUserException __uue(__FILE__, __LINE__, __ex.ice_id());
                 throw __uue;
             }
         }
@@ -1270,7 +1270,7 @@ IceProxy::Ice::Object::__end(const ::Ice::AsyncResultPtr& __result, const std::s
             }
             catch(const UserException& __ex)
             {
-                throw UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
+                throw UnknownUserException(__FILE__, __LINE__, __ex.ice_id());
             }
         }
         __result->__readEmptyParams();
@@ -1935,7 +1935,7 @@ ICE_OBJECT_PRX::ice_getConnection()
             }
             catch(const Exception& exc)
             {
-                observer.failed(exc.ice_name());
+                observer.failed(exc.ice_id());
                 throw;
             }
         }

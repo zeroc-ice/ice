@@ -41,7 +41,7 @@ patchHandle(void* addr, const Ice::ValuePtr& v)
 #ifdef ICE_CPP11_MAPPING
     ::std::shared_ptr<T>* handle = static_cast<::std::shared_ptr<T>*>(addr);
     *handle = ::std::dynamic_pointer_cast<T>(v);
-    if(v && !handle)
+    if(v && !(*handle))
     {
         IceInternal::Ex::throwUOE(T::ice_staticId(), v);
     }

@@ -3710,9 +3710,16 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
     _out << sp;
     emitGeneratedCodeAttribute();
+    _out << nl << "[_System.Obsolete(\"ice_name() is deprecated, use ice_id() instead.\")]";
     _out << nl << "public override string ice_name()";
     _out << sb;
     _out << nl << "return \"" << p->scoped().substr(2) << "\";";
+    _out << eb;
+    
+    emitGeneratedCodeAttribute();
+    _out << nl << "public override string ice_id()";
+    _out << sb;
+    _out << nl << "return \"" << p->scoped() << "\";";
     _out << eb;
 
     _out << sp << nl << "#region Object members";
@@ -5514,7 +5521,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
             _out << nl << "catch(Ice.UserException ex__)";
             _out << sb;
-            _out << nl << "throw new Ice.UnknownUserException(ex__.ice_name(), ex__);";
+            _out << nl << "throw new Ice.UnknownUserException(ex__.ice_id(), ex__);";
             _out << eb;
             _out << eb;
 

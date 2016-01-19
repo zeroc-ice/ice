@@ -26,6 +26,11 @@ public:
 
     virtual std::string ice_name() const
     {
+        return ice_id();
+    }
+    
+    virtual std::string ice_id() const
+    {
         return "SystemFailure";
     }
 

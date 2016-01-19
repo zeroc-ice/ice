@@ -17,8 +17,15 @@ class MySystemException : Ice.SystemException
     {
     }
 
+    [System.Obsolete("ice_name() is deprecated, use ice_id() instead.")]
     override public string 
     ice_name()
+    {
+        return "MySystemException";
+    }
+    
+    override public string 
+    ice_id()
     {
         return "MySystemException";
     }

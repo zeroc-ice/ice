@@ -492,7 +492,7 @@ VALUE convertLocalException(const Ice::LocalException&);
     } \
     catch(const ::Ice::Exception& ex) \
     { \
-        string __ice_msg = "unknown Ice exception: " + ex.ice_name(); \
+        string __ice_msg = "unknown Ice exception: " + ex.ice_id(); \
         ICE_RUBY_RETHROW(rb_exc_new2(rb_eRuntimeError, __ice_msg.c_str())); \
     } \
     catch(const std::bad_alloc& ex) \

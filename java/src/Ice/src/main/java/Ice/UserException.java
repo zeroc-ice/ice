@@ -31,26 +31,37 @@ public abstract class UserException extends java.lang.Exception implements Clone
     @Override
     public UserException clone()
     {
-	UserException c = null;
+        UserException c = null;
 
-	try
-	{
-	    c = (UserException)super.clone();
-	}
-	catch(CloneNotSupportedException ex)
-	{
-	    assert false;
-	}
-	return c;
+        try
+        {
+            c = (UserException)super.clone();
+        }
+        catch(CloneNotSupportedException ex)
+        {
+            assert false;
+        }
+        return c;
     }
 
     /**
      * Returns the name of this exception.
      *
      * @return The name of this exception.
+     *
+     * @deprecated ice_name() is deprecated, use ice_id() instead.
      **/
+    @Deprecated
     public abstract String
     ice_name();
+    
+    /**
+     * Returns the type id of this exception.
+     *
+     * @return The type id of this exception.
+     **/
+    public abstract String
+    ice_id();
 
     /**
      * Returns a string representation of this exception.

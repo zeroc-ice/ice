@@ -25,9 +25,15 @@ MySystemException::~MySystemException() throw()
 }
 
 string
-MySystemException::ice_name() const
+MySystemException::ice_id() const
 {
     return "MySystemException";
+}
+
+string
+MySystemException::ice_name() const
+{
+    return ice_id();
 }
 
 MySystemException*

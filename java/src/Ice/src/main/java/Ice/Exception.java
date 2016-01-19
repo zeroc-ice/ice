@@ -34,26 +34,37 @@ public abstract class Exception extends RuntimeException implements Cloneable
     @Override
     public Exception clone()
     {
-	Exception c = null;
+        Exception c = null;
 
-	try
-	{
-	    c = (Exception)super.clone();
-	}
-	catch(CloneNotSupportedException ex)
-	{
-	    assert false;
-	}
-	return c;
+        try
+        {
+            c = (Exception)super.clone();
+        }
+        catch(CloneNotSupportedException ex)
+        {
+            assert false;
+        }
+        return c;
     }
 
     /**
      * Returns the name of this exception.
      *
      * @return The name of this exception.
+     *
+     * @deprecated ice_name() is deprecated, use ice_id() instead.
      **/
+    @Deprecated
     public abstract String
     ice_name();
+    
+    /**
+     * Returns the type id of this exception.
+     *
+     * @return The type id of this exception.
+     **/
+    public abstract String
+    ice_id();
 
     /**
      * Returns a string representation of this exception.

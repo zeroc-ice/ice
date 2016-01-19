@@ -18,6 +18,13 @@ public class MySystemException extends Ice.SystemException
 
     @Override
     public String
+    ice_id()
+    {
+        return "MySystemException";
+    }
+    
+    @Override
+    public String
     ice_name()
     {
         return "MySystemException";

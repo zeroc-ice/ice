@@ -97,7 +97,7 @@ namespace IceInternal
         {
             if(childObserver_ != null)
             {
-                childObserver_.failed(ex.ice_name());
+                childObserver_.failed(ex.ice_id());
                 childObserver_.detach();
                 childObserver_ = null;
             }
@@ -134,7 +134,7 @@ namespace IceInternal
         {
             if(childObserver_ != null)
             {
-                childObserver_.failed(exc.ice_name());
+                childObserver_.failed(exc.ice_id());
                 childObserver_.detach();
                 childObserver_ = null;
             }
@@ -321,7 +321,7 @@ namespace IceInternal
                     {
                         if(childObserver_ != null)
                         {
-                            childObserver_.failed(ex.ice_name());
+                            childObserver_.failed(ex.ice_id());
                             childObserver_.detach();
                             childObserver_ = null;
                         }
@@ -930,7 +930,7 @@ namespace IceInternal
             {
                 if(childObserver_ != null)
                 {
-                    childObserver_.failed(ex.ice_name());
+                    childObserver_.failed(ex.ice_id());
                     childObserver_.detach();
                     childObserver_ = null;
                 }

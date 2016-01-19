@@ -645,7 +645,7 @@ IcePHP::convertException(const Ice::Exception& ex TSRMLS_DC)
     }
     catch(const Ice::LocalException& e)
     {
-        zend_class_entry* cls = idToClass(e.ice_name() TSRMLS_CC);
+        zend_class_entry* cls = idToClass(e.ice_id() TSRMLS_CC);
         if(cls)
         {
             if(object_init_ex(zex, cls) != SUCCESS)

@@ -800,7 +800,7 @@ namespace Ice
                     }
                     catch(Ice.UserException ex__)
                     {
-                        throw new Ice.UnknownUserException(ex__.ice_name(), ex__);
+                        throw new Ice.UnknownUserException(ex__.ice_id(), ex__);
                     }
                 }
                 bool ret__;
@@ -1093,7 +1093,7 @@ namespace Ice
                     }
                     catch(Ice.UserException ex__)
                     {
-                        throw new Ice.UnknownUserException(ex__.ice_name(), ex__);
+                        throw new Ice.UnknownUserException(ex__.ice_id(), ex__);
                     }
                 }
                 string[] ret__;
@@ -1220,7 +1220,7 @@ namespace Ice
                     }
                     catch(Ice.UserException ex__)
                     {
-                        throw new Ice.UnknownUserException(ex__.ice_name(), ex__);
+                        throw new Ice.UnknownUserException(ex__.ice_id(), ex__);
                     }
                 }
                 string ret__;
@@ -2359,7 +2359,7 @@ namespace Ice
                         }
                         catch(Ice.UserException ex)
                         {
-                            throw new Ice.UnknownUserException(ex.ice_name(), ex);
+                            throw new Ice.UnknownUserException(ex.ice_id(), ex);
                         }
                     }
                     outAsync.readEmptyParams();

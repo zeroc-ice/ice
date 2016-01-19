@@ -98,7 +98,7 @@ void completed(const Ice::AsyncResultPtr& result)
                 catch(const Ice::UserException& ex)
                 {
                     s->endEncapsulation();
-                    throw Ice::UnknownUserException(__FILE__, __LINE__, ex.ice_name());
+                    throw Ice::UnknownUserException(__FILE__, __LINE__, ex.ice_id());
                 }
             }
         }
@@ -558,7 +558,7 @@ BOOL _returnsData;
                 catch(const Ice::UserException& ex)
                 {
                     s->endEncapsulation();
-                    throw Ice::UnknownUserException(__FILE__, __LINE__, ex.ice_name());
+                    throw Ice::UnknownUserException(__FILE__, __LINE__, ex.ice_id());
                 }
             }
         }
@@ -871,7 +871,7 @@ BOOL _returnsData;
                 catch(const Ice::UserException& ex)
                 {
                     s->endEncapsulation();
-                    throw Ice::UnknownUserException(__FILE__, __LINE__, ex.ice_name());
+                    throw Ice::UnknownUserException(__FILE__, __LINE__, ex.ice_id());
                 }
             }
         }

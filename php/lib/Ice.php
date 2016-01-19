@@ -33,6 +33,7 @@ abstract class Ice_Exception extends Exception
     }
 
     abstract public function ice_name();
+    abstract public function ice_id();
 }
 
 abstract class Ice_UserException extends Ice_Exception

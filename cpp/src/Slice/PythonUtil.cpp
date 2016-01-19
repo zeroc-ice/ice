@@ -1089,6 +1089,11 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     // _ice_name
     //
     _out << sp << nl << "_ice_name = '" << scoped.substr(2) << "'";
+    
+    //
+    // _ice_id
+    //
+    _out << sp << nl << "_ice_id = '" << scoped << "'";
 
     _out.dec();
 

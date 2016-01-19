@@ -71,10 +71,18 @@ namespace Ice
 #endif
 
         /// <summary>
+        /// ice_name() is deprecated, use ice_id() instead.
         /// Returns the name of this exception.
         /// </summary>
         /// <returns>The name of this exception.</returns>
+        [System.Obsolete("ice_name() is deprecated, use ice_id() instead.")]
         public abstract string ice_name();
+        
+        /// <summary>
+        /// Returns the type id of this exception.
+        /// </summary>
+        /// <returns>The type id of this exception.</returns>
+        public abstract string ice_id();
 
         /// <summary>
         /// Returns a string representation of this exception, including

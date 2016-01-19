@@ -3653,9 +3653,19 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         }
     }
 
-    out << sp << nl << "public String" << nl << "ice_name()";
+    out << sp;
+    out << nl << "/**";
+    out << nl << " * @deprecated ice_name() is deprecated, use ice_id() instead.";
+    out << nl << " **/";
+    out << nl << "@Deprecated";
+    out << nl << "public String" << nl << "ice_name()";
     out << sb;
     out << nl << "return \"" << scoped.substr(2) << "\";";
+    out << eb;
+
+    out << sp << nl << "public String" << nl << "ice_id()";
+    out << sb;
+    out << nl << "return \"" << scoped << "\";";
     out << eb;
 
     return true;
@@ -4943,7 +4953,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
             out << nl << "catch(Ice.UserException __ex)";
             out << sb;
-            out << nl << "throw new Ice.UnknownUserException(__ex.ice_name(), __ex);";
+            out << nl << "throw new Ice.UnknownUserException(__ex.ice_id(), __ex);";
             out << eb;
             out << eb;
 

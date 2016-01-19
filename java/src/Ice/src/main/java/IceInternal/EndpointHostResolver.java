@@ -73,7 +73,7 @@ class EndpointHostResolver
                             Ice.CommunicatorDestroyedException ex = new Ice.CommunicatorDestroyedException();
                             if(observer != null)
                             {
-                                observer.failed(ex.ice_name());
+                                observer.failed(ex.ice_id());
                                 observer.detach();
                             }
                             callback.exception(ex);
@@ -112,7 +112,7 @@ class EndpointHostResolver
                     {
                         if(observer != null)
                         {
-                            observer.failed(ex.ice_name());
+                            observer.failed(ex.ice_id());
                         }
                         callback.exception(ex);
                     }

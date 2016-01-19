@@ -301,7 +301,7 @@ AsyncResult::finished(const Ice::Exception& ex)
     _state |= Done;
     ICE_RESET_EXCEPTION(_exception, ex.ice_clone());
     _cancellationHandler = 0;
-    _observer.failed(ex.ice_name());
+    _observer.failed(ex.ice_id());
     if(!_callback)
     {
         _observer.detach();

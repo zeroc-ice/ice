@@ -73,7 +73,7 @@ public class CommunicatorFlushBatch extends IceInternal.AsyncResultI
             {
                 if(_childObserver != null)
                 {
-                    _childObserver.failed(ex.ice_name());
+                    _childObserver.failed(ex.ice_id());
                     _childObserver.detach();
                     _childObserver = null;
                 }

@@ -282,9 +282,16 @@ public:
     }
 
     virtual std::string
+    ice_id() const
+    {
+        return [[_ex ice_id] UTF8String];
+    }
+
+    ICE_DEPRECATED_API("ice_name() is deprecated, use ice_id() instead.")
+    virtual std::string
     ice_name() const
     {
-        return [[_ex ice_name] UTF8String];
+        return ice_id();
     }
 
     virtual Ice::UserException*
@@ -329,9 +336,16 @@ public:
     }
 
     virtual std::string
+    ice_id() const
+    {
+        return [[_ex ice_id] UTF8String];
+    }
+
+    ICE_DEPRECATED_API("ice_name() is deprecated, use ice_id() instead.")
+    virtual std::string
     ice_name() const
     {
-        return [[_ex ice_name] UTF8String];
+        return ice_id();
     }
 
     virtual bool

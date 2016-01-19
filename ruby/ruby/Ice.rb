@@ -61,6 +61,10 @@ module Ice
     #
     class Exception < ::StandardError
         def ice_name
+            to_s[2..-1]
+        end
+        
+        def ice_id
             to_s
         end
 

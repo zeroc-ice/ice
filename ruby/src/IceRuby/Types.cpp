@@ -2816,10 +2816,17 @@ IceRuby::ExceptionReader::usesClasses() const
 }
 
 string
-IceRuby::ExceptionReader::ice_name() const
+IceRuby::ExceptionReader::ice_id() const
 {
     return _info->id;
 }
+#ifndef ICE_CPP11_MAPPING
+string
+IceRuby::ExceptionReader::ice_name() const
+{
+    return ice_id();
+}
+#endif
 
 Ice::UserException*
 IceRuby::ExceptionReader::ice_clone() const

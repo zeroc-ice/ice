@@ -254,7 +254,7 @@ toObjCException(const std::exception& ex)
     const Ice::LocalException* lex = dynamic_cast<const Ice::LocalException*>(&ex);
     if(lex)
     {
-        std::string typeId = std::string("ICE") + lex->ice_name().substr(5);
+        std::string typeId = std::string("ICE") + lex->ice_id().substr(7);
         Class c = objc_getClass(typeId.c_str());
         if(c != nil)
         {
@@ -411,6 +411,12 @@ std::string
 IceObjC::Exception::ice_name() const
 {
     return "IceObjC::Exception";
+}
+
+std::string
+IceObjC::Exception::ice_id() const
+{
+    return "::IceObjC::Exception";
 }
 
 void

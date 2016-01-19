@@ -880,7 +880,7 @@ Slice::Ruby::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     //
     _out << sp << nl << "def to_s";
     _out.inc();
-    _out << nl << "'" << scoped.substr(2) << "'";
+    _out << nl << "'" << scoped << "'";
     _out.dec();
     _out << nl << "end";
 

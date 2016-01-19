@@ -71,12 +71,7 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
     adapter->add(ICE_MAKE_SHARED(InitialI, adapter), communicator->stringToIdentity("initial"));
     adapter->add(ICE_MAKE_SHARED(TestIntfI), communicator->stringToIdentity("test"));
 
-#ifdef ICE_CPP11_MAPPING
-    // TODO
-#else
-    UnexpectedObjectExceptionTestIPtr uoet = new UnexpectedObjectExceptionTestI;
-    adapter->add(uoet, communicator->stringToIdentity("uoet"));
-#endif
+    adapter->add(ICE_MAKE_SHARED(UnexpectedObjectExceptionTestI), communicator->stringToIdentity("uoet"));
     adapter->activate();
     TEST_READY
     communicator->waitForShutdown();

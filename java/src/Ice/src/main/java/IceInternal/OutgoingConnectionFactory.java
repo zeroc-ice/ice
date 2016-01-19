@@ -874,7 +874,7 @@ public final class OutgoingConnectionFactory
 
             if(_observer != null)
             {
-                _observer.failed(ex.ice_name());
+                _observer.failed(ex.ice_id());
                 _observer.detach();
             }
 

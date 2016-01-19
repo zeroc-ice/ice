@@ -163,7 +163,7 @@ namespace IceInternal
                 {
                     if(r.observer != null)
                     {
-                        r.observer.failed(ex.ice_name());
+                        r.observer.failed(ex.ice_id());
                     }
                     r.callback.exception(ex);
                 }
@@ -186,7 +186,7 @@ namespace IceInternal
                 Ice.CommunicatorDestroyedException ex = new Ice.CommunicatorDestroyedException();
                 if(entry.observer != null)
                 {
-                    entry.observer.failed(ex.ice_name());
+                    entry.observer.failed(ex.ice_id());
                     entry.observer.detach();
                 }
                 entry.callback.exception(ex);

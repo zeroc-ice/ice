@@ -300,7 +300,7 @@ IceInternal::IncomingBase::__handleException(const std::exception& exc, bool amd
 
         if(_observer)
         {
-            _observer.failed(rfe->ice_name());
+            _observer.failed(rfe->ice_id());
         }
 
         if(_response)
@@ -356,7 +356,7 @@ IceInternal::IncomingBase::__handleException(const std::exception& exc, bool amd
 
         if(_observer)
         {
-            _observer.failed(ex->ice_name());
+            _observer.failed(ex->ice_id());
         }
 
         if(_response)

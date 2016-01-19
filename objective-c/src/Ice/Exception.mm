@@ -21,17 +21,23 @@
 @implementation ICEException
 -(id)init
 {
-    return [super initWithName:[self ice_name] reason:nil userInfo:nil];
+    return [super initWithName:[self ice_id] reason:nil userInfo:nil];
 }
 
 -(id)initWithReason:(NSString*)reason
 {
-    return [super initWithName:[self ice_name] reason:reason userInfo:nil];
+    return [super initWithName:[self ice_id] reason:reason userInfo:nil];
 }
 
 -(NSString*)ice_name
 {
     NSAssert(false, @"ice_name not overriden");
+    return nil;
+}
+
+-(NSString*)ice_id
+{
+    NSAssert(false, @"ice_id not overriden");
     return nil;
 }
 

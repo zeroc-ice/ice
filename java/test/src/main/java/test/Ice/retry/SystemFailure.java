@@ -13,6 +13,13 @@ class SystemFailure extends Ice.SystemException
 {
     @Override
     public String
+    ice_id()
+    {
+        return "SystemFailure";
+    }
+    
+    @Override
+    public String
     ice_name()
     {
         return "SystemFailure";

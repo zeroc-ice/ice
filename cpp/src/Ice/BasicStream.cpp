@@ -1976,7 +1976,6 @@ IceInternal::BasicStream::EncapsDecoder::newInstance(const string& typeId)
         }
 #endif
     }
-
     return v;
 }
 

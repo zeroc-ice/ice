@@ -1835,7 +1835,7 @@ public final class ConnectionI extends IceInternal.EventHandler
                      _exception instanceof ObjectAdapterDeactivatedException ||
                      (_exception instanceof ConnectionLostException && _state >= StateClosing)))
                 {
-                    _observer.failed(_exception.ice_name());
+                    _observer.failed(_exception.ice_id());
                 }
             }
         }

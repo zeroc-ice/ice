@@ -313,9 +313,6 @@ InitialI::throwEDerived(const Ice::Current&)
                    ICE_MAKE_SHARED(A1, "a4"));
 }
 
-#ifdef ICE_CPP11_MAPPING
-// TODO
-#else
 bool
 UnexpectedObjectExceptionTestI::ice_invoke(const std::vector<Ice::Byte>&,
                                            std::vector<Ice::Byte>& outParams,
@@ -324,11 +321,10 @@ UnexpectedObjectExceptionTestI::ice_invoke(const std::vector<Ice::Byte>&,
     Ice::CommunicatorPtr communicator = current.adapter->getCommunicator();
     Ice::OutputStreamPtr out = Ice::createOutputStream(communicator);
     out->startEncapsulation(current.encoding, Ice::DefaultFormat);
-    AlsoEmptyPtr ae = ICE_MAKE_SHARED(AlsoEmpty);
-    out->write(ae);
+    AlsoEmptyPtr obj = ICE_MAKE_SHARED(AlsoEmpty); 
+    out->write(obj);
     out->writePendingObjects();
     out->endEncapsulation();
     out->finished(outParams);
     return true;
 }
-#endif

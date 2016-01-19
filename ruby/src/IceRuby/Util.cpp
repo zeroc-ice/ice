@@ -761,7 +761,7 @@ IceRuby::convertLocalException(const Ice::LocalException& ex)
     //
     try
     {
-        string name = ex.ice_name();
+        string name = ex.ice_id().substr(2);
         volatile VALUE cls = callRuby(rb_path2class, name.c_str());
         if(NIL_P(cls))
         {
@@ -777,7 +777,7 @@ IceRuby::convertLocalException(const Ice::LocalException& ex)
     }
     catch(...)
     {
-        string msg = "failure occurred while converting exception " + ex.ice_name();
+        string msg = "failure occurred while converting exception " + ex.ice_id();
         return rb_exc_new2(rb_eRuntimeError, msg.c_str());
     }
 }

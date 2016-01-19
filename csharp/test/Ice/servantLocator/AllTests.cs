@@ -237,7 +237,7 @@ public class AllTests : TestCommon.TestApp
         }
         catch(UnknownUserException ex)
         {
-            test(ex.unknown.Equals("Test::TestIntfUserException"));
+            test(ex.unknown.Equals("::Test::TestIntfUserException"));
         }
         catch(System.Exception)
         {
@@ -252,7 +252,7 @@ public class AllTests : TestCommon.TestApp
         }
         catch(UnknownUserException ex)
         {
-            test(ex.unknown.Equals("Test::TestIntfUserException"));
+            test(ex.unknown.Equals("::Test::TestIntfUserException"));
         }
         catch(System.Exception)
         {

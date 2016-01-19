@@ -3699,10 +3699,18 @@ IcePy::ExceptionWriter::usesClasses() const
 }
 
 string
-IcePy::ExceptionWriter::ice_name() const
+IcePy::ExceptionWriter::ice_id() const
 {
     return _info->id;
 }
+
+#ifndef ICE_CPP11_MAPPING
+string
+IcePy::ExceptionWriter::ice_name() const
+{
+    return ice_id();
+}
+#endif
 
 Ice::UserException*
 IcePy::ExceptionWriter::ice_clone() const
@@ -3750,10 +3758,18 @@ IcePy::ExceptionReader::usesClasses() const
 }
 
 string
-IcePy::ExceptionReader::ice_name() const
+IcePy::ExceptionReader::ice_id() const
 {
     return _info->id;
 }
+
+#ifndef ICE_CPP11_MAPPING
+string
+IcePy::ExceptionReader::ice_name() const
+{
+    return ice_id();
+}
+#endif
 
 Ice::UserException*
 IcePy::ExceptionReader::ice_clone() const

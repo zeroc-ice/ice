@@ -45,7 +45,7 @@ public abstract class ProxyOutgoingAsyncBase extends OutgoingAsyncBase
     {
         if(_childObserver != null)
         {
-            _childObserver.failed(exc.ice_name());
+            _childObserver.failed(exc.ice_id());
             _childObserver.detach();
             _childObserver = null;
         }
@@ -230,7 +230,7 @@ public abstract class ProxyOutgoingAsyncBase extends OutgoingAsyncBase
                 {
                     if(_childObserver != null)
                     {
-                        _childObserver.failed(ex.ice_name());
+                        _childObserver.failed(ex.ice_id());
                         _childObserver.detach();
                         _childObserver = null;
                     }
