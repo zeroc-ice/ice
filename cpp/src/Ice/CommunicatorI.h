@@ -91,7 +91,9 @@ public:
 
 private:
 
+#ifndef ICE_CPP11_MAPPING
     CommunicatorI() {}
+#endif
 
     static CommunicatorIPtr create(const InitializationData&);
 
