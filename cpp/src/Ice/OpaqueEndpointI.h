@@ -21,9 +21,9 @@ class OpaqueEndpointI : public EndpointI, public Ice::EnableSharedFromThis<Opaqu
 public:
 
     OpaqueEndpointI(std::vector<std::string>&);
-    OpaqueEndpointI(Ice::Short, BasicStream*);
+    OpaqueEndpointI(Ice::Short, Ice::InputStream*);
 
-    virtual void streamWrite(BasicStream*) const;
+    virtual void streamWrite(Ice::OutputStream*) const;
     virtual Ice::EndpointInfoPtr getInfo() const;
     virtual Ice::Short type() const;
     virtual const std::string& protocol() const;

@@ -14,11 +14,16 @@
 using namespace std;
 using namespace Test;
 
-class TestObjectReader : public Ice::ObjectReader
+#ifdef ICE_CPP11_MAPPING
+class TestObjectReader : public Ice::Value
+#else
+class TestObjectReader : public Ice::Object
+#endif
 {
 public:
-    virtual void
-    read(const Ice::InputStreamPtr& in)
+    virtual void __write(Ice::OutputStream*) const { }
+
+    virtual void __read(Ice::InputStream* in)
     {
         in->startObject();
         in->startSlice();
@@ -27,11 +32,16 @@ public:
     }
 };
 
-class BObjectReader : public Ice::ObjectReader
+#ifdef ICE_CPP11_MAPPING
+class BObjectReader : public Ice::Value
+#else
+class BObjectReader : public Ice::Object
+#endif
 {
 public:
-    virtual void
-    read(const Ice::InputStreamPtr& in)
+    virtual void __write(Ice::OutputStream*) const { }
+
+    virtual void __read(Ice::InputStream* in)
     {
         in->startObject();
         // ::Test::B
@@ -47,11 +57,16 @@ public:
     }
 };
 
-class CObjectReader : public Ice::ObjectReader
+#ifdef ICE_CPP11_MAPPING
+class CObjectReader : public Ice::Value
+#else
+class CObjectReader : public Ice::Object
+#endif
 {
 public:
-    virtual void
-    read(const Ice::InputStreamPtr& in)
+    virtual void __write(Ice::OutputStream*) const { }
+
+    virtual void __read(Ice::InputStream* in)
     {
         in->startObject();
         // ::Test::C
@@ -70,12 +85,15 @@ public:
     }
 };
 
-class DObjectWriter : public Ice::ObjectWriter
+#ifdef ICE_CPP11_MAPPING
+class DObjectWriter : public Ice::Value
+#else
+class DObjectWriter : public Ice::Object
+#endif
 {
 public:
 
-    virtual void
-    write(const Ice::OutputStreamPtr& out) const
+    virtual void __write(Ice::OutputStream* out) const
     {
         out->startObject(0);
         // ::Test::D
@@ -104,14 +122,20 @@ public:
         out->endSlice();
         out->endObject();
     }
+
+    virtual void __read(Ice::InputStream*) { }
 };
 
-class DObjectReader : public Ice::ObjectReader
+#ifdef ICE_CPP11_MAPPING
+class DObjectReader : public Ice::Value
+#else
+class DObjectReader : public Ice::Object
+#endif
 {
 public:
+    virtual void __write(Ice::OutputStream*) const { }
 
-    virtual void
-    read(const Ice::InputStreamPtr& in)
+    virtual void __read(Ice::InputStream* in)
     {
         in->startObject();
         // ::Test::D
@@ -147,18 +171,22 @@ private:
     IceUtil::Optional<APtr> a;
 };
 
-class FObjectReader : public Ice::ObjectReader
+#ifdef ICE_CPP11_MAPPING
+class FObjectReader : public Ice::Value
+#else
+class FObjectReader : public Ice::Object
+#endif
 {
 public:
+    virtual void __write(Ice::OutputStream*) const { }
 
-    virtual void
-    read(const Ice::InputStreamPtr& in)
+    virtual void __read(Ice::InputStream* in)
     {
         _f = new F();
         in->startObject();
         in->startSlice();
         // Don't read af on purpose
-        //in->read(1, _f->af);
+        //in.read(1, _f->af);
         in->endSlice();
         in->startSlice();
         in->read(_f->ae);
@@ -235,7 +263,7 @@ InitialPrx
 allTests(const Ice::CommunicatorPtr& communicator, bool)
 {
     FactoryIPtr factory = new FactoryI();
-    communicator->addValueFactory(factory, "");
+    communicator->getValueFactoryManager()->add(factory, "");
 
     cout << "testing stringToProxy... " << flush;
     string ref = "initial:" + getTestEndpoint(communicator, 0);
@@ -563,39 +591,45 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
     test(mo8->ivsd == mo1->ivsd);
     test(!mo8->iood);
 
+    Ice::ByteSeq inEncaps;
+    Ice::ByteSeq outEncaps;
+
     //
     // Send a request using blobjects. Upon receival, we don't read
     // any of the optional members. This ensures the optional members
     // are skipped even if the receiver knows nothing about them.
     //
-    factory->setEnabled(true);
-    Ice::OutputStreamPtr out = Ice::createOutputStream(communicator);
-    out->startEncapsulation();
-    out->write(oo1);
-    out->endEncapsulation();
-    Ice::ByteSeq inEncaps;
-    out->finished(inEncaps);
-    Ice::ByteSeq outEncaps;
-    test(initial->ice_invoke("pingPong", Ice::Normal, inEncaps, outEncaps));
-    Ice::InputStreamPtr in = Ice::createInputStream(communicator, outEncaps);
-    in->startEncapsulation();
-    Ice::ObjectPtr obj;
-    in->read(obj);
-    in->endEncapsulation();
-    test(obj && dynamic_cast<TestObjectReader*>(obj.get()));
+    {
+        factory->setEnabled(true);
+        Ice::OutputStream out(communicator);
+        out.startEncapsulation();
+        out.write(oo1);
+        out.endEncapsulation();
+        out.finished(inEncaps);
+        test(initial->ice_invoke("pingPong", Ice::Normal, inEncaps, outEncaps));
+        Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
+        in.startEncapsulation();
+        Ice::ObjectPtr obj;
+        in.read(obj);
+        in.endEncapsulation();
+        test(obj && dynamic_cast<TestObjectReader*>(obj.get()));
+    }
 
-    out = Ice::createOutputStream(communicator);
-    out->startEncapsulation();
-    out->write(mo1);
-    out->endEncapsulation();
-    out->finished(inEncaps);
-    test(initial->ice_invoke("pingPong", Ice::Normal, inEncaps, outEncaps));
-    in = Ice::createInputStream(communicator, outEncaps);
-    in->startEncapsulation();
-    in->read(obj);
-    in->endEncapsulation();
-    test(obj && dynamic_cast<TestObjectReader*>(obj.get()));
-    factory->setEnabled(false);
+    {
+        Ice::OutputStream out(communicator);
+        out.startEncapsulation();
+        out.write(mo1);
+        out.endEncapsulation();
+        out.finished(inEncaps);
+        test(initial->ice_invoke("pingPong", Ice::Normal, inEncaps, outEncaps));
+        Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
+        in.startEncapsulation();
+        Ice::ObjectPtr obj;
+        in.read(obj);
+        in.endEncapsulation();
+        test(obj && dynamic_cast<TestObjectReader*>(obj.get()));
+        factory->setEnabled(false);
+    }
 
     //
     // Use the 1.0 encoding with operations whose only class parameters are optional.
@@ -659,19 +693,22 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
     test(mc->fss->size() == 300);
     test(mc->ifsd->size() == 300);
 
-    factory->setEnabled(true);
-    out = Ice::createOutputStream(communicator);
-    out->startEncapsulation();
-    out->write(mc);
-    out->endEncapsulation();
-    out->finished(inEncaps);
-    test(initial->ice_invoke("pingPong", Ice::Normal, inEncaps, outEncaps));
-    in = Ice::createInputStream(communicator, outEncaps);
-    in->startEncapsulation();
-    in->read(obj);
-    in->endEncapsulation();
-    test(obj && dynamic_cast<TestObjectReader*>(obj.get()));
-    factory->setEnabled(false);
+    {
+        factory->setEnabled(true);
+        Ice::OutputStream out(communicator);
+        out.startEncapsulation();
+        out.write(mc);
+        out.endEncapsulation();
+        out.finished(inEncaps);
+        test(initial->ice_invoke("pingPong", Ice::Normal, inEncaps, outEncaps));
+        Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
+        in.startEncapsulation();
+        Ice::ObjectPtr obj;
+        in.read(obj);
+        in.endEncapsulation();
+        test(obj && dynamic_cast<TestObjectReader*>(obj.get()));
+        factory->setEnabled(false);
+    }
 
     cout << "ok" << endl;
 
@@ -693,19 +730,22 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
     test(b2->mc == 12);
     test(b2->md == 13);
 
-    factory->setEnabled(true);
-    out = Ice::createOutputStream(communicator);
-    out->startEncapsulation();
-    out->write(b);
-    out->endEncapsulation();
-    out->finished(inEncaps);
-    test(initial->ice_invoke("pingPong", Ice::Normal, inEncaps, outEncaps));
-    in = Ice::createInputStream(communicator, outEncaps);
-    in->startEncapsulation();
-    in->read(obj);
-    in->endEncapsulation();
-    test(obj);
-    factory->setEnabled(false);
+    {
+        factory->setEnabled(true);
+        Ice::OutputStream out(communicator);
+        out.startEncapsulation();
+        out.write(b);
+        out.endEncapsulation();
+        out.finished(inEncaps);
+        test(initial->ice_invoke("pingPong", Ice::Normal, inEncaps, outEncaps));
+        Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
+        in.startEncapsulation();
+        Ice::ObjectPtr obj;
+        in.read(obj);
+        in.endEncapsulation();
+        test(obj);
+        factory->setEnabled(false);
+    }
 
     cout << "ok" << endl;
 
@@ -720,15 +760,16 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         test(rf->ae == *rf->af);
 
         factory->setEnabled(true);
-        out = Ice::createOutputStream(communicator);
-        out->startEncapsulation();
-        out->write(f);
-        out->endEncapsulation();
-        out->finished(inEncaps);
-        in = Ice::createInputStream(communicator, inEncaps);
-        in->startEncapsulation();
-        in->read(obj);
-        in->endEncapsulation();
+        Ice::OutputStream out(communicator);
+        out.startEncapsulation();
+        out.write(f);
+        out.endEncapsulation();
+        out.finished(inEncaps);
+        Ice::InputStream in(communicator, out.getEncoding(), inEncaps);
+        in.startEncapsulation();
+        Ice::ObjectPtr obj;
+        in.read(obj);
+        in.endEncapsulation();
         factory->setEnabled(false);
 
         rf = dynamic_cast<FObjectReader*>(obj.get())->getF();
@@ -754,35 +795,42 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
             CPtr c = new C();
             c->ss = "test";
             c->ms = "testms";
-            out = Ice::createOutputStream(communicator);
-            out->startEncapsulation();
-            out->write(c);
-            out->endEncapsulation();
-            out->finished(inEncaps);
-            factory->setEnabled(true);
-            test(initial->ice_invoke("pingPong", Ice::Normal, inEncaps, outEncaps));
-            in = Ice::createInputStream(communicator, outEncaps);
-            in->startEncapsulation();
-            in->read(obj);
-            in->endEncapsulation();
-            test(dynamic_cast<CObjectReader*>(obj.get()));
-            factory->setEnabled(false);
 
-            factory->setEnabled(true);
-            out = Ice::createOutputStream(communicator);
-            out->startEncapsulation();
-            Ice::ObjectPtr d = new DObjectWriter();
-            out->write(d);
-            out->endEncapsulation();
-            out->finished(inEncaps);
-            test(initial->ice_invoke("pingPong", Ice::Normal, inEncaps, outEncaps));
-            in = Ice::createInputStream(communicator, outEncaps);
-            in->startEncapsulation();
-            in->read(obj);
-            in->endEncapsulation();
-            test(obj && dynamic_cast<DObjectReader*>(obj.get()));
-            dynamic_cast<DObjectReader*>(obj.get())->check();
-            factory->setEnabled(false);
+            {
+                Ice::OutputStream out(communicator);
+                out.startEncapsulation();
+                out.write(c);
+                out.endEncapsulation();
+                out.finished(inEncaps);
+                factory->setEnabled(true);
+                test(initial->ice_invoke("pingPong", Ice::Normal, inEncaps, outEncaps));
+                Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
+                in.startEncapsulation();
+                Ice::ObjectPtr obj;
+                in.read(obj);
+                in.endEncapsulation();
+                test(dynamic_cast<CObjectReader*>(obj.get()));
+                factory->setEnabled(false);
+            }
+
+            {
+                factory->setEnabled(true);
+                Ice::OutputStream out(communicator);
+                out.startEncapsulation();
+                Ice::ObjectPtr d = new DObjectWriter();
+                out.write(d);
+                out.endEncapsulation();
+                out.finished(inEncaps);
+                test(initial->ice_invoke("pingPong", Ice::Normal, inEncaps, outEncaps));
+                Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
+                in.startEncapsulation();
+                Ice::ObjectPtr obj;
+                in.read(obj);
+                in.endEncapsulation();
+                test(obj && dynamic_cast<DObjectReader*>(obj.get()));
+                dynamic_cast<DObjectReader*>(obj.get())->check();
+                factory->setEnabled(false);
+            }
         }
         cout << "ok" << endl;
 
@@ -790,17 +838,17 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         {
             APtr a = new A();
 
-            out = Ice::createOutputStream(communicator);
-            out->startEncapsulation();
-            out->write(a);
-            out->write(1, IceUtil::makeOptional(Ice::ObjectPtr(new DObjectWriter)));
-            out->endEncapsulation();
-            out->finished(inEncaps);
+            Ice::OutputStream out(communicator);
+            out.startEncapsulation();
+            out.write(a);
+            out.write(1, IceUtil::makeOptional(Ice::ObjectPtr(new DObjectWriter)));
+            out.endEncapsulation();
+            out.finished(inEncaps);
             test(initial->ice_invoke("opClassAndUnknownOptional", Ice::Normal, inEncaps, outEncaps));
 
-            in = Ice::createInputStream(communicator, outEncaps);
-            in->startEncapsulation();
-            in->endEncapsulation();
+            Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
+            in.startEncapsulation();
+            in.endEncapsulation();
         }
         cout << "ok" << endl;
     }
@@ -816,26 +864,26 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         p2 = initial->opByte(p1, p3);
         test(p2 == 56 && p3 == 56);
 
-        out = Ice::createOutputStream(communicator);
-        out->startEncapsulation();
-        out->write(2, p1);
-        out->endEncapsulation();
-        out->finished(inEncaps);
+        Ice::OutputStream out(communicator);
+        out.startEncapsulation();
+        out.write(2, p1);
+        out.endEncapsulation();
+        out.finished(inEncaps);
         initial->ice_invoke("opByte", Ice::Normal, inEncaps, outEncaps);
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->read(1, p2);
-        in->read(3, p3);
+        Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
+        in.startEncapsulation();
+        in.read(1, p2);
+        in.read(3, p3);
 
         IceUtil::Optional<Ice::Byte> p4 = 0x08;
-        in->read(89, p4);
+        in.read(89, p4);
 
-        in->endEncapsulation();
+        in.endEncapsulation();
         test(p2 == 56 && p3 == 56 && !p4);
 
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->endEncapsulation();
+        Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
+        in2.startEncapsulation();
+        in2.endEncapsulation();
     }
 
     {
@@ -848,22 +896,22 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         p2 = initial->opBool(p1, p3);
         test(*p2 == true && *p3 == true);
 
-        out = Ice::createOutputStream(communicator);
-        out->startEncapsulation();
-        out->write(2, p1);
-        out->endEncapsulation();
-        out->finished(inEncaps);
+        Ice::OutputStream out(communicator);
+        out.startEncapsulation();
+        out.write(2, p1);
+        out.endEncapsulation();
+        out.finished(inEncaps);
         initial->ice_invoke("opBool", Ice::Normal, inEncaps, outEncaps);
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->read(1, p2);
-        in->read(3, p3);
-        in->endEncapsulation();
+        Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
+        in.startEncapsulation();
+        in.read(1, p2);
+        in.read(3, p3);
+        in.endEncapsulation();
         test(*p2 == true && *p3 == true);
 
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->endEncapsulation();
+        Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
+        in2.startEncapsulation();
+        in2.endEncapsulation();
     }
 
     {
@@ -876,22 +924,22 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         p2 = initial->opShort(p1, p3);
         test(p2 == 56 && p3 == 56);
 
-        out = Ice::createOutputStream(communicator);
-        out->startEncapsulation();
-        out->write(2, p1);
-        out->endEncapsulation();
-        out->finished(inEncaps);
+        Ice::OutputStream out(communicator);
+        out.startEncapsulation();
+        out.write(2, p1);
+        out.endEncapsulation();
+        out.finished(inEncaps);
         initial->ice_invoke("opShort", Ice::Normal, inEncaps, outEncaps);
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->read(1, p2);
-        in->read(3, p3);
-        in->endEncapsulation();
+        Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
+        in.startEncapsulation();
+        in.read(1, p2);
+        in.read(3, p3);
+        in.endEncapsulation();
         test(p2 == 56 && p3 == 56);
 
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->endEncapsulation();
+        Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
+        in2.startEncapsulation();
+        in2.endEncapsulation();
     }
 
     {
@@ -904,22 +952,22 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         p2 = initial->opInt(p1, p3);
         test(p2 == 56 && p3 == 56);
 
-        out = Ice::createOutputStream(communicator);
-        out->startEncapsulation();
-        out->write(2, p1);
-        out->endEncapsulation();
-        out->finished(inEncaps);
+        Ice::OutputStream out(communicator);
+        out.startEncapsulation();
+        out.write(2, p1);
+        out.endEncapsulation();
+        out.finished(inEncaps);
         initial->ice_invoke("opInt", Ice::Normal, inEncaps, outEncaps);
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->read(1, p2);
-        in->read(3, p3);
-        in->endEncapsulation();
+        Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
+        in.startEncapsulation();
+        in.read(1, p2);
+        in.read(3, p3);
+        in.endEncapsulation();
         test(p2 == 56 && p3 == 56);
 
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->endEncapsulation();
+        Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
+        in2.startEncapsulation();
+        in2.endEncapsulation();
     }
 
     {
@@ -932,22 +980,22 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         p2 = initial->opLong(p1, p3);
         test(p2 == 56 && p3 == 56);
 
-        out = Ice::createOutputStream(communicator);
-        out->startEncapsulation();
-        out->write(1, p1);
-        out->endEncapsulation();
-        out->finished(inEncaps);
+        Ice::OutputStream out(communicator);
+        out.startEncapsulation();
+        out.write(1, p1);
+        out.endEncapsulation();
+        out.finished(inEncaps);
         initial->ice_invoke("opLong", Ice::Normal, inEncaps, outEncaps);
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->read(2, p3);
-        in->read(3, p2);
-        in->endEncapsulation();
+        Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
+        in.startEncapsulation();
+        in.read(2, p3);
+        in.read(3, p2);
+        in.endEncapsulation();
         test(p2 == 56 && p3 == 56);
 
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->endEncapsulation();
+        Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
+        in2.startEncapsulation();
+        in2.endEncapsulation();
     }
 
     {
@@ -960,22 +1008,22 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         p2 = initial->opFloat(p1, p3);
         test(p2 == 1.0f && p3 == 1.0f);
 
-        out = Ice::createOutputStream(communicator);
-        out->startEncapsulation();
-        out->write(2, p1);
-        out->endEncapsulation();
-        out->finished(inEncaps);
+        Ice::OutputStream out(communicator);
+        out.startEncapsulation();
+        out.write(2, p1);
+        out.endEncapsulation();
+        out.finished(inEncaps);
         initial->ice_invoke("opFloat", Ice::Normal, inEncaps, outEncaps);
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->read(1, p2);
-        in->read(3, p3);
-        in->endEncapsulation();
+        Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
+        in.startEncapsulation();
+        in.read(1, p2);
+        in.read(3, p3);
+        in.endEncapsulation();
         test(p2 == 1.0f && p3 == 1.0f);
 
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->endEncapsulation();
+        Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
+        in2.startEncapsulation();
+        in2.endEncapsulation();
     }
 
     {
@@ -988,22 +1036,22 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         p2 = initial->opDouble(p1, p3);
         test(p2 == 1.0 && p3 == 1.0);
 
-        out = Ice::createOutputStream(communicator);
-        out->startEncapsulation();
-        out->write(2, p1);
-        out->endEncapsulation();
-        out->finished(inEncaps);
+        Ice::OutputStream out(communicator);
+        out.startEncapsulation();
+        out.write(2, p1);
+        out.endEncapsulation();
+        out.finished(inEncaps);
         initial->ice_invoke("opDouble", Ice::Normal, inEncaps, outEncaps);
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->read(1, p2);
-        in->read(3, p3);
-        in->endEncapsulation();
+        Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
+        in.startEncapsulation();
+        in.read(1, p2);
+        in.read(3, p3);
+        in.endEncapsulation();
         test(p2 == 1.0 && p3 == 1.0);
 
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->endEncapsulation();
+        Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
+        in2.startEncapsulation();
+        in2.endEncapsulation();
     }
 
     {
@@ -1016,22 +1064,22 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         p2 = initial->opString("test", p3);
         test(p2 == "test" && p3 == "test");
 
-        out = Ice::createOutputStream(communicator);
-        out->startEncapsulation();
-        out->write(2, p1);
-        out->endEncapsulation();
-        out->finished(inEncaps);
+        Ice::OutputStream out(communicator);
+        out.startEncapsulation();
+        out.write(2, p1);
+        out.endEncapsulation();
+        out.finished(inEncaps);
         initial->ice_invoke("opString", Ice::Normal, inEncaps, outEncaps);
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->read(1, p2);
-        in->read(3, p3);
-        in->endEncapsulation();
+        Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
+        in.startEncapsulation();
+        in.read(1, p2);
+        in.read(3, p3);
+        in.endEncapsulation();
         test(p2 == "test" && p3 == "test");
 
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->endEncapsulation();
+        Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
+        in2.startEncapsulation();
+        in2.endEncapsulation();
     }
 
     {
@@ -1046,22 +1094,22 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
             p2 = initial->opString("test", p3);
             test(p2 == "test" && p3 == "test");
 
-            out = Ice::createOutputStream(communicator);
-            out->startEncapsulation();
-            out->write(2, p1);
-            out->endEncapsulation();
-            out->finished(inEncaps);
+            Ice::OutputStream out(communicator);
+            out.startEncapsulation();
+            out.write(2, p1);
+            out.endEncapsulation();
+            out.finished(inEncaps);
             initial->ice_invoke("opCustomString", Ice::Normal, inEncaps, outEncaps);
-            in = Ice::createInputStream(communicator, outEncaps);
-            in->startEncapsulation();
-            in->read(1, p2);
-            in->read(3, p3);
-            in->endEncapsulation();
+            Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
+            in.startEncapsulation();
+            in.read(1, p2);
+            in.read(3, p3);
+            in.endEncapsulation();
             test(p2 == "test" && p3 == "test");
 
-            in = Ice::createInputStream(communicator, outEncaps);
-            in->startEncapsulation();
-            in->endEncapsulation();
+            Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
+            in2.startEncapsulation();
+            in2.endEncapsulation();
         }
     }
 
@@ -1075,22 +1123,22 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         p2 = initial->opMyEnum(p1, p3);
         test(p2 == Test::MyEnumMember && p3 == Test::MyEnumMember);
 
-        out = Ice::createOutputStream(communicator);
-        out->startEncapsulation();
-        out->write(2, p1);
-        out->endEncapsulation();
-        out->finished(inEncaps);
+        Ice::OutputStream out(communicator);
+        out.startEncapsulation();
+        out.write(2, p1);
+        out.endEncapsulation();
+        out.finished(inEncaps);
         initial->ice_invoke("opMyEnum", Ice::Normal, inEncaps, outEncaps);
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->read(1, p2);
-        in->read(3, p3);
-        in->endEncapsulation();
+        Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
+        in.startEncapsulation();
+        in.read(1, p2);
+        in.read(3, p3);
+        in.endEncapsulation();
         test(p2 == Test::MyEnumMember && p3 == Test::MyEnumMember);
 
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->endEncapsulation();
+        Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
+        in2.startEncapsulation();
+        in2.endEncapsulation();
     }
 
     {
@@ -1104,22 +1152,22 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         p2 = initial->opSmallStruct(p1, p3);
         test(p2->m == 56 && p3->m == 56);
 
-        out = Ice::createOutputStream(communicator);
-        out->startEncapsulation();
-        out->write(2, p1);
-        out->endEncapsulation();
-        out->finished(inEncaps);
+        Ice::OutputStream out(communicator);
+        out.startEncapsulation();
+        out.write(2, p1);
+        out.endEncapsulation();
+        out.finished(inEncaps);
         initial->ice_invoke("opSmallStruct", Ice::Normal, inEncaps, outEncaps);
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->read(1, p2);
-        in->read(3, p3);
-        in->endEncapsulation();
+        Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
+        in.startEncapsulation();
+        in.read(1, p2);
+        in.read(3, p3);
+        in.endEncapsulation();
         test(p2->m == 56 && p3->m == 56);
 
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->endEncapsulation();
+        Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
+        in2.startEncapsulation();
+        in2.endEncapsulation();
     }
 
     {
@@ -1133,22 +1181,22 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         p2 = initial->opFixedStruct(p1, p3);
         test(p2->m == 56 && p3->m == 56);
 
-        out = Ice::createOutputStream(communicator);
-        out->startEncapsulation();
-        out->write(2, p1);
-        out->endEncapsulation();
-        out->finished(inEncaps);
+        Ice::OutputStream out(communicator);
+        out.startEncapsulation();
+        out.write(2, p1);
+        out.endEncapsulation();
+        out.finished(inEncaps);
         initial->ice_invoke("opFixedStruct", Ice::Normal, inEncaps, outEncaps);
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->read(1, p2);
-        in->read(3, p3);
-        in->endEncapsulation();
+        Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
+        in.startEncapsulation();
+        in.read(1, p2);
+        in.read(3, p3);
+        in.endEncapsulation();
         test(p2->m == 56 && p3->m == 56);
 
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->endEncapsulation();
+        Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
+        in2.startEncapsulation();
+        in2.endEncapsulation();
     }
 
     {
@@ -1162,22 +1210,22 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         p2 = initial->opVarStruct(p1, p3);
         test(p2->m == "test" && p3->m == "test");
 
-        out = Ice::createOutputStream(communicator);
-        out->startEncapsulation();
-        out->write(2, p1);
-        out->endEncapsulation();
-        out->finished(inEncaps);
+        Ice::OutputStream out(communicator);
+        out.startEncapsulation();
+        out.write(2, p1);
+        out.endEncapsulation();
+        out.finished(inEncaps);
         initial->ice_invoke("opVarStruct", Ice::Normal, inEncaps, outEncaps);
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->read(1, p2);
-        in->read(3, p3);
-        in->endEncapsulation();
+        Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
+        in.startEncapsulation();
+        in.read(1, p2);
+        in.read(3, p3);
+        in.endEncapsulation();
         test(p2->m == "test" && p3->m == "test");
 
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->endEncapsulation();
+        Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
+        in2.startEncapsulation();
+        in2.endEncapsulation();
     }
 
     {
@@ -1190,22 +1238,22 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         p2 = initial->opOneOptional(p1, p3);
         test((*p2)->a == 58 && (*p3)->a == 58);
 
-        out = Ice::createOutputStream(communicator);
-        out->startEncapsulation();
-        out->write(2, p1);
-        out->endEncapsulation();
-        out->finished(inEncaps);
+        Ice::OutputStream out(communicator);
+        out.startEncapsulation();
+        out.write(2, p1);
+        out.endEncapsulation();
+        out.finished(inEncaps);
         initial->ice_invoke("opOneOptional", Ice::Normal, inEncaps, outEncaps);
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->read(1, p2);
-        in->read(3, p3);
-        in->endEncapsulation();
+        Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
+        in.startEncapsulation();
+        in.read(1, p2);
+        in.read(3, p3);
+        in.endEncapsulation();
         test((*p2)->a == 58 && (*p3)->a == 58);
 
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->endEncapsulation();
+        Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
+        in2.startEncapsulation();
+        in2.endEncapsulation();
     }
 
     {
@@ -1218,22 +1266,22 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         p2 = initial->opOneOptionalProxy(p1, p3);
         test(p2 == p1 && p3 == p1);
 
-        out = Ice::createOutputStream(communicator);
-        out->startEncapsulation();
-        out->write(2, p1);
-        out->endEncapsulation();
-        out->finished(inEncaps);
+        Ice::OutputStream out(communicator);
+        out.startEncapsulation();
+        out.write(2, p1);
+        out.endEncapsulation();
+        out.finished(inEncaps);
         initial->ice_invoke("opOneOptionalProxy", Ice::Normal, inEncaps, outEncaps);
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->read(1, p2);
-        in->read(3, p3);
-        in->endEncapsulation();
+        Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
+        in.startEncapsulation();
+        in.read(1, p2);
+        in.read(3, p3);
+        in.endEncapsulation();
         test(p2 == p1 && p3 == p1);
 
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->endEncapsulation();
+        Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
+        in2.startEncapsulation();
+        in2.endEncapsulation();
     }
 
     {
@@ -1242,18 +1290,18 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         (*f->af)->requiredA = 56;
         f->ae = *f->af;
 
-        out = Ice::createOutputStream(communicator);
-        out->startEncapsulation();
-        out->write(1, makeOptional(f));
-        out->write(2, makeOptional(f->ae));
-        out->endEncapsulation();
-        out->finished(inEncaps);
+        Ice::OutputStream out(communicator);
+        out.startEncapsulation();
+        out.write(1, makeOptional(f));
+        out.write(2, makeOptional(f->ae));
+        out.endEncapsulation();
+        out.finished(inEncaps);
 
-        in = Ice::createInputStream(communicator, inEncaps);
-        in->startEncapsulation();
+        Ice::InputStream in(communicator, out.getEncoding(), inEncaps);
+        in.startEncapsulation();
         IceUtil::Optional<APtr> a;
-        in->read(2, a);
-        in->endEncapsulation();
+        in.read(2, a);
+        in.endEncapsulation();
         test(a && *a && (*a)->requiredA == 56);
     }
     cout << "ok" << endl;
@@ -1277,22 +1325,22 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         test(p2 && p3);
         test(p2 == bs && p3 == bs);
 
-        out = Ice::createOutputStream(communicator);
-        out->startEncapsulation();
-        out->write(2, p1);
-        out->endEncapsulation();
-        out->finished(inEncaps);
+        Ice::OutputStream out(communicator);
+        out.startEncapsulation();
+        out.write(2, p1);
+        out.endEncapsulation();
+        out.finished(inEncaps);
         initial->ice_invoke("opByteSeq", Ice::Normal, inEncaps, outEncaps);
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->read(1, p2);
-        in->read(3, p3);
-        in->endEncapsulation();
+        Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
+        in.startEncapsulation();
+        in.read(1, p2);
+        in.read(3, p3);
+        in.endEncapsulation();
         test(p2 == bs && p3 == bs);
 
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->endEncapsulation();
+        Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
+        in2.startEncapsulation();
+        in2.endEncapsulation();
     }
 
     {
@@ -1314,22 +1362,22 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         test(p2 && p3);
         test(p2 == bsv && p3 == bsv);
 
-        out = Ice::createOutputStream(communicator);
-        out->startEncapsulation();
-        out->write(2, p1);
-        out->endEncapsulation();
-        out->finished(inEncaps);
+        Ice::OutputStream out(communicator);
+        out.startEncapsulation();
+        out.write(2, p1);
+        out.endEncapsulation();
+        out.finished(inEncaps);
         initial->ice_invoke("opBoolSeq", Ice::Normal, inEncaps, outEncaps);
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->read(1, p2);
-        in->read(3, p3);
-        in->endEncapsulation();
+        Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
+        in.startEncapsulation();
+        in.read(1, p2);
+        in.read(3, p3);
+        in.endEncapsulation();
         test(p2 == bsv && p3 == bsv);
 
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->endEncapsulation();
+        Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
+        in2.startEncapsulation();
+        in2.endEncapsulation();
     }
 
     {
@@ -1350,22 +1398,22 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         test(p2 && p3);
         test(p2 == bs && p3 == bs);
 
-        out = Ice::createOutputStream(communicator);
-        out->startEncapsulation();
-        out->write(2, p1);
-        out->endEncapsulation();
-        out->finished(inEncaps);
+        Ice::OutputStream out(communicator);
+        out.startEncapsulation();
+        out.write(2, p1);
+        out.endEncapsulation();
+        out.finished(inEncaps);
         initial->ice_invoke("opShortSeq", Ice::Normal, inEncaps, outEncaps);
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->read(1, p2);
-        in->read(3, p3);
-        in->endEncapsulation();
+        Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
+        in.startEncapsulation();
+        in.read(1, p2);
+        in.read(3, p3);
+        in.endEncapsulation();
         test(p2 == bs && p3 == bs);
 
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->endEncapsulation();
+        Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
+        in2.startEncapsulation();
+        in2.endEncapsulation();
     }
 
     {
@@ -1386,22 +1434,22 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         test(p2 && p3);
         test(p2 == bs && p3 == bs);
 
-        out = Ice::createOutputStream(communicator);
-        out->startEncapsulation();
-        out->write(2, p1);
-        out->endEncapsulation();
-        out->finished(inEncaps);
+        Ice::OutputStream out(communicator);
+        out.startEncapsulation();
+        out.write(2, p1);
+        out.endEncapsulation();
+        out.finished(inEncaps);
         initial->ice_invoke("opIntSeq", Ice::Normal, inEncaps, outEncaps);
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->read(1, p2);
-        in->read(3, p3);
-        in->endEncapsulation();
+        Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
+        in.startEncapsulation();
+        in.read(1, p2);
+        in.read(3, p3);
+        in.endEncapsulation();
         test(p2 == bs && p3 == bs);
 
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->endEncapsulation();
+        Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
+        in2.startEncapsulation();
+        in2.endEncapsulation();
     }
 
     {
@@ -1422,22 +1470,22 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         test(p2 && p3);
         test(p2 == bs && p3 == bs);
 
-        out = Ice::createOutputStream(communicator);
-        out->startEncapsulation();
-        out->write(2, p1);
-        out->endEncapsulation();
-        out->finished(inEncaps);
+        Ice::OutputStream out(communicator);
+        out.startEncapsulation();
+        out.write(2, p1);
+        out.endEncapsulation();
+        out.finished(inEncaps);
         initial->ice_invoke("opLongSeq", Ice::Normal, inEncaps, outEncaps);
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->read(1, p2);
-        in->read(3, p3);
-        in->endEncapsulation();
+        Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
+        in.startEncapsulation();
+        in.read(1, p2);
+        in.read(3, p3);
+        in.endEncapsulation();
         test(p2 == bs && p3 == bs);
 
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->endEncapsulation();
+        Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
+        in2.startEncapsulation();
+        in2.endEncapsulation();
     }
 
     {
@@ -1458,22 +1506,22 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         test(p2 && p3);
         test(p2 == bs && p3 == bs);
 
-        out = Ice::createOutputStream(communicator);
-        out->startEncapsulation();
-        out->write(2, p1);
-        out->endEncapsulation();
-        out->finished(inEncaps);
+        Ice::OutputStream out(communicator);
+        out.startEncapsulation();
+        out.write(2, p1);
+        out.endEncapsulation();
+        out.finished(inEncaps);
         initial->ice_invoke("opFloatSeq", Ice::Normal, inEncaps, outEncaps);
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->read(1, p2);
-        in->read(3, p3);
-        in->endEncapsulation();
+        Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
+        in.startEncapsulation();
+        in.read(1, p2);
+        in.read(3, p3);
+        in.endEncapsulation();
         test(p2 == bs && p3 == bs);
 
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->endEncapsulation();
+        Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
+        in2.startEncapsulation();
+        in2.endEncapsulation();
     }
 
     {
@@ -1494,22 +1542,22 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         test(p2 && p3);
         test(p2 == bs && p3 == bs);
 
-        out = Ice::createOutputStream(communicator);
-        out->startEncapsulation();
-        out->write(2, p1);
-        out->endEncapsulation();
-        out->finished(inEncaps);
+        Ice::OutputStream out(communicator);
+        out.startEncapsulation();
+        out.write(2, p1);
+        out.endEncapsulation();
+        out.finished(inEncaps);
         initial->ice_invoke("opDoubleSeq", Ice::Normal, inEncaps, outEncaps);
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->read(1, p2);
-        in->read(3, p3);
-        in->endEncapsulation();
+        Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
+        in.startEncapsulation();
+        in.read(1, p2);
+        in.read(3, p3);
+        in.endEncapsulation();
         test(p2 == bs && p3 == bs);
 
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->endEncapsulation();
+        Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
+        in2.startEncapsulation();
+        in2.endEncapsulation();
     }
 
     {
@@ -1530,22 +1578,22 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         test(p2 && p3);
         test(p2 == ss && p3 == ss);
 
-        out = Ice::createOutputStream(communicator);
-        out->startEncapsulation();
-        out->write(2, p1);
-        out->endEncapsulation();
-        out->finished(inEncaps);
+        Ice::OutputStream out(communicator);
+        out.startEncapsulation();
+        out.write(2, p1);
+        out.endEncapsulation();
+        out.finished(inEncaps);
         initial->ice_invoke("opStringSeq", Ice::Normal, inEncaps, outEncaps);
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->read(1, p2);
-        in->read(3, p3);
-        in->endEncapsulation();
+        Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
+        in.startEncapsulation();
+        in.read(1, p2);
+        in.read(3, p3);
+        in.endEncapsulation();
         test(p2 == ss && p3 == ss);
 
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->endEncapsulation();
+        Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
+        in2.startEncapsulation();
+        in2.endEncapsulation();
     }
 
     {
@@ -1581,22 +1629,22 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         test(p2 && p3);
         test(p2 == fssv && p3 == fssv);
 
-        out = Ice::createOutputStream(communicator);
-        out->startEncapsulation();
-        out->write(2, p1);
-        out->endEncapsulation();
-        out->finished(inEncaps);
+        Ice::OutputStream out(communicator);
+        out.startEncapsulation();
+        out.write(2, p1);
+        out.endEncapsulation();
+        out.finished(inEncaps);
         initial->ice_invoke("opFixedStructSeq", Ice::Normal, inEncaps, outEncaps);
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->read(1, p2);
-        in->read(3, p3);
-        in->endEncapsulation();
+        Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
+        in.startEncapsulation();
+        in.read(1, p2);
+        in.read(3, p3);
+        in.endEncapsulation();
         test(p2 == fssv && p3 == fssv);
 
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->endEncapsulation();
+        Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
+        in2.startEncapsulation();
+        in2.endEncapsulation();
     }
 
     {
@@ -1616,22 +1664,22 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         test(p2 && p3);
         test(p2 == ss && p3 == ss);
 
-        out = Ice::createOutputStream(communicator);
-        out->startEncapsulation();
-        out->write(2, p1);
-        out->endEncapsulation();
-        out->finished(inEncaps);
+        Ice::OutputStream out(communicator);
+        out.startEncapsulation();
+        out.write(2, p1);
+        out.endEncapsulation();
+        out.finished(inEncaps);
         initial->ice_invoke("opVarStructSeq", Ice::Normal, inEncaps, outEncaps);
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->read(1, p2);
-        in->read(3, p3);
-        in->endEncapsulation();
+        Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
+        in.startEncapsulation();
+        in.read(1, p2);
+        in.read(3, p3);
+        in.endEncapsulation();
         test(p2 == ss && p3 == ss);
 
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->endEncapsulation();
+        Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
+        in2.startEncapsulation();
+        in2.endEncapsulation();
     }
 
     {
@@ -1647,22 +1695,22 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         test(p2 && p3);
         test(p2 == ss && p3 == ss);
 
-        out = Ice::createOutputStream(communicator);
-        out->startEncapsulation();
-        out->write(2, p1);
-        out->endEncapsulation();
-        out->finished(inEncaps);
+        Ice::OutputStream out(communicator);
+        out.startEncapsulation();
+        out.write(2, p1);
+        out.endEncapsulation();
+        out.finished(inEncaps);
         initial->ice_invoke("opIntIntDict", Ice::Normal, inEncaps, outEncaps);
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->read(1, p2);
-        in->read(3, p3);
-        in->endEncapsulation();
+        Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
+        in.startEncapsulation();
+        in.read(1, p2);
+        in.read(3, p3);
+        in.endEncapsulation();
         test(p2 == ss && p3 == ss);
 
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->endEncapsulation();
+        Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
+        in2.startEncapsulation();
+        in2.endEncapsulation();
     }
 
     {
@@ -1678,22 +1726,22 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         test(p2 && p3);
         test(p2 == ss && p3 == ss);
 
-        out = Ice::createOutputStream(communicator);
-        out->startEncapsulation();
-        out->write(2, p1);
-        out->endEncapsulation();
-        out->finished(inEncaps);
+        Ice::OutputStream out(communicator);
+        out.startEncapsulation();
+        out.write(2, p1);
+        out.endEncapsulation();
+        out.finished(inEncaps);
         initial->ice_invoke("opStringIntDict", Ice::Normal, inEncaps, outEncaps);
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->read(1, p2);
-        in->read(3, p3);
-        in->endEncapsulation();
+        Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
+        in.startEncapsulation();
+        in.read(1, p2);
+        in.read(3, p3);
+        in.endEncapsulation();
         test(p2 == ss && p3 == ss);
 
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->endEncapsulation();
+        Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
+        in2.startEncapsulation();
+        in2.endEncapsulation();
     }
 
     {
@@ -1713,25 +1761,25 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
             test(p2->size() == p1->size());
             test((*p2)[5] == ss[5].to_string());
 
-            out = Ice::createOutputStream(communicator);
-            out->startEncapsulation();
-            out->write(2, p1);
-            out->endEncapsulation();
-            out->finished(inEncaps);
+            Ice::OutputStream out(communicator);
+            out.startEncapsulation();
+            out.write(2, p1);
+            out.endEncapsulation();
+            out.finished(inEncaps);
             initial->ice_invoke("opCustomIntStringDict", Ice::Normal, inEncaps, outEncaps);
-            in = Ice::createInputStream(communicator, outEncaps);
-            in->startEncapsulation();
-            in->read(1, p2);
-            in->read(3, p3);
-            in->endEncapsulation();
+            Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
+            in.startEncapsulation();
+            in.read(1, p2);
+            in.read(3, p3);
+            in.endEncapsulation();
             test(p2 && p3);
             test(p2 == p3);
             test(p2->size() == p1->size());
             test((*p2)[5] == ss[5].to_string());
 
-            in = Ice::createInputStream(communicator, outEncaps);
-            in->startEncapsulation();
-            in->endEncapsulation();
+            Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
+            in2.startEncapsulation();
+            in2.endEncapsulation();
         }
     }
 

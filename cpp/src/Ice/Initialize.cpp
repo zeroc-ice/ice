@@ -13,7 +13,6 @@
 #include <Ice/PropertiesI.h>
 #include <Ice/Initialize.h>
 #include <Ice/LocalException.h>
-#include <Ice/StreamI.h>
 #include <Ice/LoggerI.h>
 #include <Ice/Instance.h>
 #include <Ice/PluginManagerI.h>
@@ -260,85 +259,6 @@ Ice::initialize(const InitializationData& initData, Int version)
     char* argv[] = { 0 };
     communicator->finishSetup(argc, argv);
     return communicator;
-}
-
-namespace
-{
-
-pair<const Byte*, const Byte*>
-makePair(const vector<Byte>& v)
-{
-    if(v.empty())
-    {
-        return pair<const Byte*, const Byte*>(static_cast<Byte*>(0), static_cast<Byte*>(0));
-    }
-    else
-    {
-        return pair<const Byte*, const Byte*>(&v[0], &v[0] + v.size());
-    }
-}
-
-}
-InputStreamPtr
-Ice::createInputStream(const CommunicatorPtr& communicator, const vector<Byte>& bytes)
-{
-    return new InputStreamI(communicator, makePair(bytes), true);
-}
-
-InputStreamPtr
-Ice::createInputStream(const CommunicatorPtr& communicator, const vector<Byte>& bytes, const EncodingVersion& v)
-{
-    return new InputStreamI(communicator, makePair(bytes), v, true);
-}
-
-InputStreamPtr
-Ice::wrapInputStream(const CommunicatorPtr& communicator, const vector<Byte>& bytes)
-{
-    return new InputStreamI(communicator, makePair(bytes), false);
-}
-
-InputStreamPtr
-Ice::wrapInputStream(const CommunicatorPtr& communicator, const vector<Byte>& bytes, const EncodingVersion& v)
-{
-    return new InputStreamI(communicator, makePair(bytes), v, false);
-}
-
-InputStreamPtr
-Ice::createInputStream(const CommunicatorPtr& communicator, const pair<const Ice::Byte*, const Ice::Byte*>& bytes)
-{
-    return new InputStreamI(communicator, bytes, true);
-}
-
-InputStreamPtr
-Ice::createInputStream(const CommunicatorPtr& communicator, const pair<const Ice::Byte*, const Ice::Byte*>& bytes,
-                       const EncodingVersion& v)
-{
-    return new InputStreamI(communicator, bytes, v, true);
-}
-
-InputStreamPtr
-Ice::wrapInputStream(const CommunicatorPtr& communicator, const pair<const Ice::Byte*, const Ice::Byte*>& bytes)
-{
-    return new InputStreamI(communicator, bytes, false);
-}
-
-InputStreamPtr
-Ice::wrapInputStream(const CommunicatorPtr& communicator, const pair<const Ice::Byte*, const Ice::Byte*>& bytes,
-                     const EncodingVersion& v)
-{
-    return new InputStreamI(communicator, bytes, v, false);
-}
-
-OutputStreamPtr
-Ice::createOutputStream(const CommunicatorPtr& communicator)
-{
-    return new OutputStreamI(communicator);
-}
-
-OutputStreamPtr
-Ice::createOutputStream(const CommunicatorPtr& communicator, const EncodingVersion& v)
-{
-    return new OutputStreamI(communicator, v);
 }
 
 LoggerPtr

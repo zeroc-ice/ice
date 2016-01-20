@@ -8,7 +8,6 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <Ice/Stream.h>
 #include <TestCommon.h>
 #include <Test.h>
 
@@ -89,20 +88,20 @@ public:
         Ice::ByteSeq outParams;
         if(result->getProxy()->end_ice_invoke(outParams, result))
         {
-            Ice::InputStreamPtr in = Ice::createInputStream(_communicator, outParams);
-            in->startEncapsulation();
+            Ice::InputStream in(_communicator, result->getProxy()->ice_getEncodingVersion(), outParams);
+            in.startEncapsulation();
             string s;
-            in->read(s);
+            in.read(s);
             test(s == cmp);
-            in->read(s);
+            in.read(s);
             test(s == cmp);
-            in->endEncapsulation();
+            in.endEncapsulation();
             called();
         }
         else
         {
             test(false);
-        };
+        }
     }
 
     void opException(const Ice::AsyncResultPtr& result)
@@ -120,15 +119,15 @@ public:
         }
         else
         {
-            Ice::InputStreamPtr in = Ice::createInputStream(_communicator, outParams);
-            in->startEncapsulation();
+            Ice::InputStream in(_communicator, result->getProxy()->ice_getEncodingVersion(), outParams);
+            in.startEncapsulation();
             try
             {
-                in->throwException();
+                in.throwException();
             }
             catch(const Test::MyException&)
             {
-                in->endEncapsulation();
+                in.endEncapsulation();
                 called();
             }
             catch(...)
@@ -142,14 +141,14 @@ public:
     {
         if(ok)
         {
-            Ice::InputStreamPtr in = Ice::createInputStream(_communicator, outParams);
-            in->startEncapsulation();
+            Ice::InputStream in(_communicator, outParams);
+            in.startEncapsulation();
             string s;
-            in->read(s);
+            in.read(s);
             test(s == testString);
-            in->read(s);
+            in.read(s);
             test(s == testString);
-            in->endEncapsulation();
+            in.endEncapsulation();
             called();
         }
         else
@@ -162,14 +161,14 @@ public:
     {
         if(ok)
         {
-            Ice::InputStreamPtr in = Ice::createInputStream(_communicator, outParams);
-            in->startEncapsulation();
+            Ice::InputStream in(_communicator, outParams);
+            in.startEncapsulation();
             string s;
-            in->read(s);
+            in.read(s);
             test(s == testString);
-            in->read(s);
+            in.read(s);
             test(s == testString);
-            in->endEncapsulation();
+            in.endEncapsulation();
             called();
         }
         else
@@ -182,14 +181,14 @@ public:
     {
         if(ok)
         {
-            Ice::InputStreamPtr in = Ice::createInputStream(_communicator, outParams);
-            in->startEncapsulation();
+            Ice::InputStream in(_communicator, outParams);
+            in.startEncapsulation();
             string s;
-            in->read(s);
+            in.read(s);
             test(s == cookie->getString());
-            in->read(s);
+            in.read(s);
             test(s == cookie->getString());
-            in->endEncapsulation();
+            in.endEncapsulation();
             called();
         }
         else
@@ -206,15 +205,15 @@ public:
         }
         else
         {
-            Ice::InputStreamPtr in = Ice::createInputStream(_communicator, outParams);
-            in->startEncapsulation();
+            Ice::InputStream in(_communicator, outParams);
+            in.startEncapsulation();
             try
             {
-                in->throwException();
+                in.throwException();
             }
             catch(const Test::MyException&)
             {
-                in->endEncapsulation();
+                in.endEncapsulation();
                 called();
             }
             catch(...)
@@ -232,15 +231,15 @@ public:
         }
         else
         {
-            Ice::InputStreamPtr in = Ice::createInputStream(_communicator, outParams);
-            in->startEncapsulation();
+            Ice::InputStream in(_communicator, outParams);
+            in.startEncapsulation();
             try
             {
-                in->throwException();
+                in.throwException();
             }
             catch(const Test::MyException&)
             {
-                in->endEncapsulation();
+                in.endEncapsulation();
                 called();
             }
             catch(...)
@@ -259,15 +258,15 @@ public:
         }
         else
         {
-            Ice::InputStreamPtr in = Ice::createInputStream(_communicator, outParams);
-            in->startEncapsulation();
+            Ice::InputStream in(_communicator, outParams);
+            in.startEncapsulation();
             try
             {
-                in->throwException();
+                in.throwException();
             }
             catch(const Test::MyException&)
             {
-                in->endEncapsulation();
+                in.endEncapsulation();
                 called();
             }
             catch(...)
@@ -313,23 +312,23 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(batchOneway->ice_invoke("opOneway", ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps));
         batchOneway->ice_flushBatchRequests();
 
-        Ice::OutputStreamPtr out = Ice::createOutputStream(communicator);
-        out->startEncapsulation();
-        out->write(testString);
-        out->endEncapsulation();
-        out->finished(inEncaps);
+        Ice::OutputStream out(communicator);
+        out.startEncapsulation();
+        out.write(testString);
+        out.endEncapsulation();
+        out.finished(inEncaps);
 
         // ice_invoke
         if(cl->ice_invoke("opString", ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps))
         {
-            Ice::InputStreamPtr in = Ice::createInputStream(communicator, outEncaps);
-            in->startEncapsulation();
+            Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
+            in.startEncapsulation();
             string s;
-            in->read(s);
+            in.read(s);
             test(s == testString);
-            in->read(s);
+            in.read(s);
             test(s == testString);
-            in->endEncapsulation();
+            in.endEncapsulation();
         }
         else
         {
@@ -340,14 +339,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
         pair<const ::Ice::Byte*, const ::Ice::Byte*> inPair(&inEncaps[0], &inEncaps[0] + inEncaps.size());
         if(cl->ice_invoke("opString", ICE_ENUM(OperationMode, Normal), inPair, outEncaps))
         {
-            Ice::InputStreamPtr in = Ice::createInputStream(communicator, outEncaps);
-            in->startEncapsulation();
+            Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
+            in.startEncapsulation();
             string s;
-            in->read(s);
+            in.read(s);
             test(s == testString);
-            in->read(s);
+            in.read(s);
             test(s == testString);
-            in->endEncapsulation();
+            in.endEncapsulation();
         }
         else
         {
@@ -363,11 +362,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         else
         {
-            Ice::InputStreamPtr in = Ice::createInputStream(communicator, outEncaps);
-            in->startEncapsulation();
+            Ice::InputStream in(communicator, cl->ice_getEncodingVersion(), outEncaps);
+            in.startEncapsulation();
             try
             {
-                in->throwException();
+                in.throwException();
             }
             catch(const Test::MyException&)
             {
@@ -376,7 +375,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             {
                 test(false);
             }
-            in->endEncapsulation();
+            in.endEncapsulation();
         }
     }
 
@@ -451,11 +450,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         promise<bool> completed;
         Ice::ByteSeq inEncaps, outEncaps;
-        Ice::OutputStreamPtr out = Ice::createOutputStream(communicator);
-        out->startEncapsulation();
-        out->write(testString);
-        out->endEncapsulation();
-        out->finished(inEncaps);
+        Ice::OutputStream out(communicator);
+        out.startEncapsulation();
+        out.write(testString);
+        out.endEncapsulation();
+        out.finished(inEncaps);
         
         cl->ice_invoke_async("opString", OperationMode::Normal, inEncaps,
             [&](bool ok, vector<Ice::Byte> outParams)
@@ -469,37 +468,37 @@ allTests(const Ice::CommunicatorPtr& communicator)
             });
         test(completed.get_future().get());
         
-        Ice::InputStreamPtr in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
+        Ice::InputStream in(communicator, outEncaps);
+        in.startEncapsulation();
         string s;
-        in->read(s);
+        in.read(s);
         test(s == testString);
-        in->read(s);
+        in.read(s);
         test(s == testString);
-        in->endEncapsulation();
+        in.endEncapsulation();
     }
     //
     // repeat with the future API.
     //
     {
         Ice::ByteSeq inEncaps, outEncaps;
-        Ice::OutputStreamPtr out = Ice::createOutputStream(communicator);
-        out->startEncapsulation();
-        out->write(testString);
-        out->endEncapsulation();
-        out->finished(inEncaps);
+        Ice::OutputStream out(communicator);
+        out.startEncapsulation();
+        out.write(testString);
+        out.endEncapsulation();
+        out.finished(inEncaps);
         
         auto result = cl->ice_invoke_async("opString", OperationMode::Normal, inEncaps).get();
         test(result.ok);
         
-        Ice::InputStreamPtr in = Ice::createInputStream(communicator, result.outParams);
-        in->startEncapsulation();
+        Ice::InputStream in(communicator, result.outParams);
+        in.startEncapsulation();
         string s;
-        in->read(s);
+        in.read(s);
         test(s == testString);
-        in->read(s);
+        in.read(s);
         test(s == testString);
-        in->endEncapsulation();
+        in.endEncapsulation();
     }
     
     
@@ -507,11 +506,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         promise<bool> completed;
         promise<void> sent;
         Ice::ByteSeq inEncaps, outEncaps;
-        Ice::OutputStreamPtr out = Ice::createOutputStream(communicator);
-        out->startEncapsulation();
-        out->write(testString);
-        out->endEncapsulation();
-        out->finished(inEncaps);
+        Ice::OutputStream out(communicator);
+        out.startEncapsulation();
+        out.write(testString);
+        out.endEncapsulation();
+        out.finished(inEncaps);
 
         pair<const ::Ice::Byte*, const ::Ice::Byte*> inPair(&inEncaps[0], &inEncaps[0] + inEncaps.size());
         
@@ -532,39 +531,39 @@ allTests(const Ice::CommunicatorPtr& communicator)
         sent.get_future().get(); // Ensure sent callback was called
         test(completed.get_future().get());
         
-        Ice::InputStreamPtr in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
+        Ice::InputStream in(communicator, outEncaps);
+        in.startEncapsulation();
         string s;
-        in->read(s);
+        in.read(s);
         test(s == testString);
-        in->read(s);
+        in.read(s);
         test(s == testString);
-        in->endEncapsulation();
+        in.endEncapsulation();
     }
     //
     // repeat with the future API.
     //
     {
         Ice::ByteSeq inEncaps, outEncaps;
-        Ice::OutputStreamPtr out = Ice::createOutputStream(communicator);
-        out->startEncapsulation();
-        out->write(testString);
-        out->endEncapsulation();
-        out->finished(inEncaps);
+        Ice::OutputStream out(communicator);
+        out.startEncapsulation();
+        out.write(testString);
+        out.endEncapsulation();
+        out.finished(inEncaps);
 
         pair<const ::Ice::Byte*, const ::Ice::Byte*> inPair(&inEncaps[0], &inEncaps[0] + inEncaps.size());
         
         auto result = cl->ice_invoke_async("opString", OperationMode::Normal, inPair).get();
         test(result.ok);
         vector<Ice::Byte>(result.outParams.first, result.outParams.second).swap(outEncaps);
-        Ice::InputStreamPtr in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
+        Ice::InputStream in(communicator, outEncaps);
+        in.startEncapsulation();
         string s;
-        in->read(s);
+        in.read(s);
         test(s == testString);
-        in->read(s);
+        in.read(s);
         test(s == testString);
-        in->endEncapsulation();
+        in.endEncapsulation();
     }
 
     {
@@ -589,11 +588,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         sent.get_future().get(); // Ensure sent callback was called
         test(!completed.get_future().get());
 
-        Ice::InputStreamPtr in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
+        Ice::InputStream in(communicator, outEncaps);
+        in.startEncapsulation();
         try
         {
-            in->throwException();
+            in.throwException();
             test(false);
         }
         catch(const Test::MyException&)
@@ -612,11 +611,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         auto result = cl->ice_invoke_async("opException", OperationMode::Normal, inEncaps).get();
         test(!result.ok);
 
-        Ice::InputStreamPtr in = Ice::createInputStream(communicator, result.outParams);
-        in->startEncapsulation();
+        Ice::InputStream in(communicator, result.outParams);
+        in.startEncapsulation();
         try
         {
-            in->throwException();
+            in.throwException();
             test(false);
         }
         catch(const Test::MyException&)
@@ -650,49 +649,49 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             test(false);
         }
-        
-        Ice::OutputStreamPtr out = Ice::createOutputStream(communicator);
-        out->startEncapsulation();
-        out->write(testString);
-        out->endEncapsulation();
-        out->finished(inEncaps);
+
+        Ice::OutputStream out(communicator);
+        out.startEncapsulation();
+        out.write(testString);
+        out.endEncapsulation();
+        out.finished(inEncaps);
 
         // begin_ice_invoke with no callback
         result = cl->begin_ice_invoke("opString", Ice::Normal, inEncaps);
         if(cl->end_ice_invoke(outEncaps, result))
         {
-            Ice::InputStreamPtr in = Ice::createInputStream(communicator, outEncaps);
-            in->startEncapsulation();
+            Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
+            in.startEncapsulation();
             string s;
-            in->read(s);
+            in.read(s);
             test(s == testString);
-            in->read(s);
+            in.read(s);
             test(s == testString);
-            in->endEncapsulation();
+            in.endEncapsulation();
         }
         else
         {
             test(false);
-        };
+        }
 
         // begin_ice_invoke with no callback and array mapping
         pair<const ::Ice::Byte*, const ::Ice::Byte*> inPair(&inEncaps[0], &inEncaps[0] + inEncaps.size());
         result = cl->begin_ice_invoke("opString", Ice::Normal, inPair);
         if(cl->end_ice_invoke(outEncaps, result))
         {
-            Ice::InputStreamPtr in = Ice::createInputStream(communicator, outEncaps);
-            in->startEncapsulation();
+            Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
+            in.startEncapsulation();
             string s;
-            in->read(s);
+            in.read(s);
             test(s == testString);
-            in->read(s);
+            in.read(s);
             test(s == testString);
-            in->endEncapsulation();
+            in.endEncapsulation();
         }
         else
         {
             test(false);
-        };
+        }
 
         // begin_ice_invoke with Callback
         ::CallbackPtr cb = new ::Callback(communicator, false);
@@ -741,11 +740,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         else
         {
-            Ice::InputStreamPtr in = Ice::createInputStream(communicator, outEncaps);
-            in->startEncapsulation();
+            Ice::InputStream in(communicator, cl->ice_getEncodingVersion(), outEncaps);
+            in.startEncapsulation();
             try
             {
-                in->throwException();
+                in.throwException();
             }
             catch(const Test::MyException&)
             {
@@ -754,7 +753,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             {
                 test(false);
             }
-            in->endEncapsulation();
+            in.endEncapsulation();
         }
 
         // begin_ice_invoke with Callback

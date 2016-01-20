@@ -16,7 +16,7 @@
 #include <Ice/Exception.h>
 
 //
-// These macros replace Py_RETURN_FALSE and Py_RETURN TRUE. We use these
+// These macros replace Py_RETURN_FALSE and Py_RETURN_TRUE. We use these
 // instead of the standard ones in order to avoid GCC warnings about
 // strict aliasing and type punning.
 //

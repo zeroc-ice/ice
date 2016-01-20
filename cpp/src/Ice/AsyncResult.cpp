@@ -128,12 +128,12 @@ AsyncResult::__throwUserException()
 {
     try
     {
-        _is.startReadEncaps();
+        _is.startEncapsulation();
         _is.throwException();
     }
     catch(const Ice::UserException&)
     {
-        _is.endReadEncaps();
+        _is.endEncapsulation();
         throw;
     }
 }

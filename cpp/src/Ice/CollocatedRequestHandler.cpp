@@ -31,7 +31,7 @@ class InvokeAll : public DispatchWorkItem
 public:
 
     InvokeAll(OutgoingBase* out,
-              BasicStream* os,
+              OutputStream* os,
               CollocatedRequestHandler* handler,
               Int requestId,
               Int batchRequestNum) :
@@ -59,7 +59,7 @@ public:
 private:
 
     OutgoingBase* _out;
-    BasicStream* _os;
+    OutputStream* _os;
     CollocatedRequestHandlerPtr _handler;
     Int _requestId;
     Int _batchRequestNum;
@@ -70,7 +70,7 @@ class InvokeAllAsync : public DispatchWorkItem
 public:
 
     InvokeAllAsync(const OutgoingAsyncBasePtr& outAsync,
-                   BasicStream* os,
+                   OutputStream* os,
                    const CollocatedRequestHandlerPtr& handler,
                    Int requestId,
                    Int batchRequestNum) :
@@ -90,14 +90,14 @@ public:
 private:
 
     OutgoingAsyncBasePtr _outAsync;
-    BasicStream* _os;
+    OutputStream* _os;
     CollocatedRequestHandlerPtr _handler;
     Int _requestId;
     Int _batchRequestNum;
 };
 
 void
-fillInValue(BasicStream* os, int pos, Int value)
+fillInValue(OutputStream* os, int pos, Int value)
 {
     const Byte* p = reinterpret_cast<const Byte*>(&value);
 #ifdef ICE_BIG_ENDIAN
@@ -316,25 +316,27 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
 }
 
 void
-CollocatedRequestHandler::sendResponse(Int requestId, BasicStream* os, Byte, bool amd)
+CollocatedRequestHandler::sendResponse(Int requestId, OutputStream* os, Byte, bool amd)
 {
     OutgoingAsyncBasePtr outAsync;
     {
         Lock sync(*this);
         assert(_response);
 
-        os->i = os->b.begin() + sizeof(replyHdr) + 4;
+        InputStream is(os->instance(), os->getEncoding(), *os, true); // Adopting the OutputStream's buffer.
+
+        is.i = is.b.begin() + sizeof(replyHdr) + 4;
 
         if(_traceLevels->protocol >= 1)
         {
             fillInValue(os, 10, static_cast<Int>(os->b.size()));
-            traceRecv(*os, _logger, _traceLevels);
+            traceRecv(is, _logger, _traceLevels);
         }
 
         map<int, OutgoingBase*>::iterator p = _requests.find(requestId);
         if(p != _requests.end())
         {
-            p->second->completed(*os);
+            p->second->completed(is);
             _requests.erase(p);
         }
         else
@@ -342,7 +344,7 @@ CollocatedRequestHandler::sendResponse(Int requestId, BasicStream* os, Byte, boo
             map<int, OutgoingAsyncBasePtr>::iterator q = _asyncRequests.find(requestId);
             if(q != _asyncRequests.end())
             {
-                os->swap(*q->second->getIs());
+                is.swap(*q->second->getIs());
                 if(q->second->completed())
                 {
                     outAsync = q->second;
@@ -442,15 +444,17 @@ CollocatedRequestHandler::sentAsync(OutgoingAsyncBase* outAsync)
 }
 
 void
-CollocatedRequestHandler::invokeAll(BasicStream* os, Int requestId, Int batchRequestNum)
+CollocatedRequestHandler::invokeAll(OutputStream* os, Int requestId, Int batchRequestNum)
 {
+    InputStream is(os->instance(), os->getEncoding(), *os);
+
     if(batchRequestNum > 0)
     {
-        os->i = os->b.begin() + sizeof(requestBatchHdr);
+        is.i = is.b.begin() + sizeof(requestBatchHdr);
     }
     else
     {
-        os->i = os->b.begin() + sizeof(requestHdr);
+        is.i = is.b.begin() + sizeof(requestHdr);
     }
 
     if(_traceLevels->protocol >= 1)
@@ -490,7 +494,7 @@ CollocatedRequestHandler::invokeAll(BasicStream* os, Int requestId, Int batchReq
             }
 
             Incoming in(_reference->getInstance().get(), this, 0, _adapter, _response, 0, requestId);
-            in.invoke(servantManager, os);
+            in.invoke(servantManager, &is);
             --invokeNum;
         }
     }

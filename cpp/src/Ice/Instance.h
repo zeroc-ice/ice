@@ -28,7 +28,7 @@
 #include <Ice/ThreadPoolF.h>
 #include <Ice/ConnectionFactoryF.h>
 #include <Ice/ACM.h>
-#include <Ice/ValueFactoryManagerF.h>
+#include <Ice/ObjectFactory.h>
 #include <Ice/ObjectAdapterFactoryF.h>
 #include <Ice/EndpointFactoryManagerF.h>
 #include <Ice/IPEndpointIF.h>
@@ -95,7 +95,6 @@ public:
     RequestHandlerFactoryPtr requestHandlerFactory() const;
     ProxyFactoryPtr proxyFactory() const;
     OutgoingConnectionFactoryPtr outgoingConnectionFactory() const;
-    ValueFactoryManagerPtr servantFactoryManager() const;
     ObjectAdapterFactoryPtr objectAdapterFactory() const;
     ProtocolSupport protocolSupport() const;
     bool preferIPv6() const;
@@ -145,6 +144,11 @@ public:
     void setSndBufSizeWarn(Ice::Short type, int size);
     void setRcvBufSizeWarn(Ice::Short type, int size);
 
+    void addObjectFactory(const Ice::ObjectFactoryPtr&, const std::string&);
+    Ice::ObjectFactoryPtr findObjectFactory(const std::string&) const;
+
+    typedef std::map<std::string, Ice::ObjectFactoryPtr> ObjectFactoryMap;
+
 private:
 
     Instance(const Ice::CommunicatorPtr&, const Ice::InitializationData&);
@@ -183,7 +187,6 @@ private:
     RequestHandlerFactoryPtr _requestHandlerFactory;
     ProxyFactoryPtr _proxyFactory;
     OutgoingConnectionFactoryPtr _outgoingConnectionFactory;
-    ValueFactoryManagerPtr _servantFactoryManager;
     ObjectAdapterFactoryPtr _objectAdapterFactory;
     ProtocolSupport _protocolSupport;
     bool _preferIPv6;
@@ -207,6 +210,8 @@ private:
     IceInternal::MetricsAdminIPtr _metricsAdmin;
     std::map<Ice::Short, BufSizeWarnInfo> _setBufSizeWarn;
     IceUtil::Mutex _setBufSizeWarnMutex;
+    ObjectFactoryMap _objectFactoryMap;
+    mutable ObjectFactoryMap::iterator _objectFactoryMapHint;
 };
 
 class ProcessI : public Ice::Process

@@ -51,7 +51,7 @@ public:
     virtual Ice::Short type() const;
     virtual const std::string& protocol() const;
     virtual bool secure() const;
-    virtual void streamWrite(BasicStream*) const;
+    virtual void streamWrite(Ice::OutputStream*) const;
 
     virtual const std::string& connectionId() const;
     virtual EndpointIPtr connectionId(const ::std::string&) const;
@@ -74,7 +74,7 @@ public:
     const std::string& host() const;
     int port() const;
 
-    virtual void streamWriteImpl(BasicStream*) const;
+    virtual void streamWriteImpl(Ice::OutputStream*) const;
     virtual void hashInit(Ice::Int&) const;
     virtual void fillEndpointInfo(Ice::IPEndpointInfo*) const;
 
@@ -93,7 +93,7 @@ protected:
 
     IPEndpointI(const ProtocolInstancePtr&, const std::string&, int, const Address&, const std::string&);
     IPEndpointI(const ProtocolInstancePtr&);
-    IPEndpointI(const ProtocolInstancePtr&, BasicStream*);
+    IPEndpointI(const ProtocolInstancePtr&, Ice::InputStream*);
 
     const ProtocolInstancePtr _instance;
     const std::string _host;

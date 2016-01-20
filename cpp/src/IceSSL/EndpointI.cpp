@@ -11,7 +11,8 @@
 #include <IceSSL/AcceptorI.h>
 #include <IceSSL/ConnectorI.h>
 #include <IceSSL/Instance.h>
-#include <Ice/BasicStream.h>
+#include <Ice/OutputStream.h>
+#include <Ice/InputStream.h>
 #include <Ice/LocalException.h>
 #include <Ice/DefaultsAndOverrides.h>
 #include <Ice/Object.h>
@@ -42,7 +43,7 @@ IceSSL::EndpointI::EndpointI(const InstancePtr& instance) :
 {
 }
 
-IceSSL::EndpointI::EndpointI(const InstancePtr& instance, IceInternal::BasicStream* s) :
+IceSSL::EndpointI::EndpointI(const InstancePtr& instance, Ice::InputStream* s) :
     IPEndpointI(instance, s),
     _instance(instance),
     _timeout(-1),
@@ -242,7 +243,7 @@ IceSSL::EndpointI::operator<(const Ice::LocalObject& r) const
 }
 
 void
-IceSSL::EndpointI::streamWriteImpl(IceInternal::BasicStream* s) const
+IceSSL::EndpointI::streamWriteImpl(Ice::OutputStream* s) const
 {
     IPEndpointI::streamWriteImpl(s);
     s->write(_timeout);
@@ -361,7 +362,7 @@ IceSSL::EndpointFactoryI::create(vector<string>& args, bool oaEndpoint) const
 }
 
 IceInternal::EndpointIPtr
-IceSSL::EndpointFactoryI::read(IceInternal::BasicStream* s) const
+IceSSL::EndpointFactoryI::read(Ice::InputStream* s) const
 {
     return ICE_MAKE_SHARED(EndpointI, _instance, s);
 }

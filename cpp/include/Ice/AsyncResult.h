@@ -21,7 +21,7 @@
 #include <Ice/RequestHandlerF.h>
 #include <Ice/AsyncResultF.h>
 #include <Ice/ObserverHelper.h>
-#include <Ice/BasicStream.h>
+#include <Ice/InputStream.h>
 #include <Ice/VirtualShared.h>
 
 namespace IceInternal
@@ -77,22 +77,22 @@ public:
 
     const std::string& getOperation() const;
 
-    ::IceInternal::BasicStream* __startReadParams()
+    ::Ice::InputStream* __startReadParams()
     {
-        _is.startReadEncaps();
+        _is.startEncapsulation();
         return &_is;
     }
     void __endReadParams()
     {
-        _is.endReadEncaps();
+        _is.endEncapsulation();
     }
     void __readEmptyParams()
     {
-        _is.skipEmptyEncaps();
+        _is.skipEmptyEncapsulation();
     }
     void __readParamEncaps(const ::Ice::Byte*& encaps, ::Ice::Int& sz)
     {
-        _is.readEncaps(encaps, sz);
+        _is.readEncapsulation(encaps, sz);
     }
     void __throwUserException();
 
@@ -137,7 +137,7 @@ protected:
     Ice::ConnectionPtr _cachedConnection;
     bool _sentSynchronously;
 
-    IceInternal::BasicStream _is;
+    Ice::InputStream _is;
 
     IceUtil::Monitor<IceUtil::Mutex> _monitor;
 

@@ -20,7 +20,7 @@
 #include <Ice/LocatorInfo.h>
 #include <Ice/Locator.h>
 #include <Ice/LoggerUtil.h>
-#include <Ice/BasicStream.h>
+#include <Ice/InputStream.h>
 #include <Ice/Properties.h>
 #include <Ice/DefaultsAndOverrides.h>
 #include <Ice/PropertyNames.h>
@@ -586,7 +586,7 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
 }
 
 ReferencePtr
-IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
+IceInternal::ReferenceFactory::create(const Identity& ident, InputStream* s)
 {
     //
     // Don't read the identity here. Operations calling this
@@ -626,7 +626,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
 
     Ice::ProtocolVersion protocol;
     Ice::EncodingVersion encoding;
-    if(s->getReadEncoding() != Ice::Encoding_1_0)
+    if(s->getEncoding() != Ice::Encoding_1_0)
     {
         s->read(protocol);
         s->read(encoding);

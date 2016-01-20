@@ -10,7 +10,8 @@
 #include <Ice/WSEndpoint.h>
 #include <Ice/WSAcceptor.h>
 #include <Ice/WSConnector.h>
-#include <Ice/BasicStream.h>
+#include <Ice/OutputStream.h>
+#include <Ice/InputStream.h>
 #include <Ice/LocalException.h>
 #include <Ice/IPEndpointI.h>
 #include <Ice/HashUtil.h>
@@ -44,7 +45,7 @@ IceInternal::WSEndpoint::WSEndpoint(const ProtocolInstancePtr& inst, const Endpo
     }
 }
 
-IceInternal::WSEndpoint::WSEndpoint(const ProtocolInstancePtr& instance, const EndpointIPtr& del, BasicStream* s) :
+IceInternal::WSEndpoint::WSEndpoint(const ProtocolInstancePtr& instance, const EndpointIPtr& del, InputStream* s) :
     _instance(instance),
     _delegate(ICE_DYNAMIC_CAST(IPEndpointI, del))
 {
@@ -76,12 +77,12 @@ IceInternal::WSEndpoint::protocol() const
 }
 
 void
-IceInternal::WSEndpoint::streamWrite(BasicStream* s) const
+IceInternal::WSEndpoint::streamWrite(OutputStream* s) const
 {
-    s->startWriteEncaps();
+    s->startEncapsulation();
     _delegate->streamWriteImpl(s);
     s->write(_resource, false);
-    s->endWriteEncaps();
+    s->endEncapsulation();
 }
 
 Int
@@ -409,7 +410,7 @@ IceInternal::WSEndpointFactory::create(vector<string>& args, bool oaEndpoint) co
 }
 
 EndpointIPtr
-IceInternal::WSEndpointFactory::read(BasicStream* s) const
+IceInternal::WSEndpointFactory::read(InputStream* s) const
 {
     return ICE_MAKE_SHARED(WSEndpoint, _instance, _delegate->read(s), s);
 }

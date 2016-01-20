@@ -37,7 +37,6 @@
 #include <Ice/Connection.h>
 #include <Ice/ConnectionAsync.h>
 #include <Ice/Functional.h>
-#include <Ice/Stream.h>
 #include <Ice/ImplicitContext.h>
 #include <Ice/Locator.h>
 #include <Ice/Router.h>

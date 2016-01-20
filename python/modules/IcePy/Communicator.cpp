@@ -16,7 +16,6 @@
 #include <ImplicitContext.h>
 #include <Logger.h>
 #include <ObjectAdapter.h>
-#include <ObjectFactory.h>
 #include <Operation.h>
 #include <Properties.h>
 #include <PropertiesAdmin.h>
@@ -24,6 +23,7 @@
 #include <Thread.h>
 #include <Types.h>
 #include <Util.h>
+#include <ValueFactoryManager.h>
 #include <Ice/ValueFactory.h>
 #include <Ice/Initialize.h>
 #include <Ice/CommunicatorAsync.h>
@@ -142,12 +142,14 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     bool hasArgs = argList != 0;
 
     Ice::InitializationData data;
+
     if(initData)
     {
         PyObjectHandle properties = PyObject_GetAttrString(initData, STRCAST("properties"));
         PyObjectHandle logger = PyObject_GetAttrString(initData, STRCAST("logger"));
         PyObjectHandle threadHook = PyObject_GetAttrString(initData, STRCAST("threadHook"));
         PyObjectHandle batchRequestInterceptor = PyObject_GetAttrString(initData, STRCAST("batchRequestInterceptor"));
+
         PyErr_Clear(); // PyObject_GetAttrString sets an error on failure.
 
         if(properties.get() && properties.get() != Py_None)
@@ -175,6 +177,11 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
             data.batchRequestInterceptor = new BatchRequestInterceptor(batchRequestInterceptor.get());
         }
     }
+
+    //
+    // We always supply our own implementation of ValueFactoryManager.
+    //
+    data.valueFactoryManager = new ValueFactoryManager;
 
     try
     {
@@ -254,8 +261,6 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     delete[] argv;
 
     self->communicator = new Ice::CommunicatorPtr(communicator);
-    ObjectFactoryPtr factory = new ObjectFactory;
-    (*self->communicator)->addObjectFactory(factory, "");
 
     CommunicatorMap::iterator p = _communicatorMap.find(communicator);
     if(p != _communicatorMap.end())
@@ -302,6 +307,10 @@ static PyObject*
 communicatorDestroy(CommunicatorObject* self)
 {
     assert(self->communicator);
+
+    ValueFactoryManagerPtr vfm = ValueFactoryManagerPtr::dynamicCast((*self->communicator)->getValueFactoryManager());
+    assert(vfm);
+
     try
     {
         AllowThreads allowThreads; // Release Python's global interpreter lock to avoid a potential deadlock.
@@ -310,8 +319,9 @@ communicatorDestroy(CommunicatorObject* self)
     catch(const Ice::Exception& ex)
     {
         setPythonException(ex);
-        return 0;
     }
+
+    vfm->destroy();
 
     //
     // Break cyclic reference between this object and its Python wrapper.
@@ -319,8 +329,15 @@ communicatorDestroy(CommunicatorObject* self)
     Py_XDECREF(self->wrapper);
     self->wrapper = 0;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    if(PyErr_Occurred())
+    {
+        return 0;
+    }
+    else
+    {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
 }
 
 #ifdef WIN32
@@ -1169,12 +1186,16 @@ extern "C"
 static PyObject*
 communicatorAddObjectFactory(CommunicatorObject* self, PyObject* args)
 {
-    PyObject* factoryType = lookupType("Ice.ObjectFactory");
-    assert(factoryType);
+    PyObject* objectFactoryType = lookupType("Ice.ObjectFactory");
+    assert(objectFactoryType);
+    PyObject* valueFactoryType = lookupType("types.FunctionType");
+    assert(valueFactoryType);
 
-    PyObject* factory;
+    PyObject* objectFactory;
     PyObject* strObj;
-    if(!PyArg_ParseTuple(args, STRCAST("O!O"), factoryType, &factory, &strObj))
+    PyObject* valueFactory;
+    if(!PyArg_ParseTuple(args, STRCAST("O!OO!"), objectFactoryType, &objectFactory, &strObj, valueFactoryType,
+                         &valueFactory))
     {
         return 0;
     }
@@ -1185,66 +1206,18 @@ communicatorAddObjectFactory(CommunicatorObject* self, PyObject* args)
         return 0;
     }
 
-    ObjectFactoryPtr pof;
+    ValueFactoryManagerPtr vfm = ValueFactoryManagerPtr::dynamicCast((*self->communicator)->getValueFactoryManager());
+    assert(vfm);
+
     try
     {
-        pof = ObjectFactoryPtr::dynamicCast((*self->communicator)->findObjectFactory(""));
-        assert(pof);
+        vfm->add(valueFactory, objectFactory, id);
     }
     catch(const Ice::Exception& ex)
     {
         setPythonException(ex);
         return 0;
 
-    }
-
-    if(!pof->addObjectFactory(factory, id))
-    {
-        return 0;
-    }
-
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-static PyObject*
-communicatorAddValueFactory(CommunicatorObject* self, PyObject* args)
-{
-    PyObject* factoryType = lookupType("types.FunctionType");
-    assert(factoryType);
-
-    PyObject* factory;
-    PyObject* strObj;
-    if(!PyArg_ParseTuple(args, STRCAST("O!O"), factoryType, &factory, &strObj))
-    {
-        return 0;
-    }
-
-    string id;
-    if(!getStringArg(strObj, "id", id))
-    {
-        return 0;
-    }
-
-    ObjectFactoryPtr pof;
-    try
-    {
-        pof = ObjectFactoryPtr::dynamicCast((*self->communicator)->findObjectFactory(""));
-        assert(pof);
-    }
-    catch(const Ice::Exception& ex)
-    {
-        setPythonException(ex);
-        return 0;
-
-    }
-
-    if(!pof->addValueFactory(factory, id))
-    {
-        return 0;
     }
 
     Py_INCREF(Py_None);
@@ -1269,52 +1242,21 @@ communicatorFindObjectFactory(CommunicatorObject* self, PyObject* args)
         return 0;
     }
 
-    ObjectFactoryPtr pof;
-    try
-    {
-        pof = ObjectFactoryPtr::dynamicCast((*self->communicator)->findObjectFactory(""));
-        assert(pof);
-    }
-    catch(const Ice::Exception& ex)
-    {
-        setPythonException(ex);
-        return 0;
-    }
+    ValueFactoryManagerPtr vfm = ValueFactoryManagerPtr::dynamicCast((*self->communicator)->getValueFactoryManager());
+    assert(vfm);
 
-    return pof->findObjectFactory(id);
+    return vfm->findObjectFactory(id);
 }
 
 #ifdef WIN32
 extern "C"
 #endif
 static PyObject*
-communicatorFindValueFactory(CommunicatorObject* self, PyObject* args)
+communicatorGetValueFactoryManager(CommunicatorObject* self)
 {
-    PyObject* strObj;
-    if(!PyArg_ParseTuple(args, STRCAST("O"), &strObj))
-    {
-        return 0;
-    }
+    ValueFactoryManagerPtr vfm = ValueFactoryManagerPtr::dynamicCast((*self->communicator)->getValueFactoryManager());
 
-    string id;
-    if(!getStringArg(strObj, "id", id))
-    {
-        return 0;
-    }
-
-    ObjectFactoryPtr pof;
-    try
-    {
-        pof = ObjectFactoryPtr::dynamicCast((*self->communicator)->findObjectFactory(""));
-        assert(pof);
-    }
-    catch(const Ice::Exception& ex)
-    {
-        setPythonException(ex);
-        return 0;
-    }
-
-    return pof->findValueFactory(id);
+    return vfm->getObject();
 }
 
 #ifdef WIN32
@@ -1648,10 +1590,8 @@ static PyMethodDef CommunicatorMethods[] =
         PyDoc_STR(STRCAST("addObjectFactory(factory, id) -> None")) },
     { STRCAST("findObjectFactory"), reinterpret_cast<PyCFunction>(communicatorFindObjectFactory), METH_VARARGS,
         PyDoc_STR(STRCAST("findObjectFactory(id) -> Ice.ObjectFactory")) },
-    { STRCAST("addValueFactory"), reinterpret_cast<PyCFunction>(communicatorAddValueFactory), METH_VARARGS,
-        PyDoc_STR(STRCAST("addValueFactory(factory, id) -> None")) },
-    { STRCAST("findValueFactory"), reinterpret_cast<PyCFunction>(communicatorFindValueFactory), METH_VARARGS,
-        PyDoc_STR(STRCAST("findValueFactory(id) -> Ice.ValueFactory")) },
+    { STRCAST("getValueFactoryManager"), reinterpret_cast<PyCFunction>(communicatorGetValueFactoryManager), METH_NOARGS,
+        PyDoc_STR(STRCAST("getValueFactoryManager() -> Ice.ValueFactoryManager")) },
     { STRCAST("getImplicitContext"), reinterpret_cast<PyCFunction>(communicatorGetImplicitContext), METH_NOARGS,
       PyDoc_STR(STRCAST("getImplicitContext() -> Ice.ImplicitContext")) },
     { STRCAST("getProperties"), reinterpret_cast<PyCFunction>(communicatorGetProperties), METH_NOARGS,

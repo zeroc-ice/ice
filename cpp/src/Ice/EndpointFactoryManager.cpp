@@ -10,7 +10,8 @@
 #include <Ice/EndpointFactoryManager.h>
 #include <Ice/Endpoint.h>
 #include <Ice/OpaqueEndpointI.h>
-#include <Ice/BasicStream.h>
+#include <Ice/OutputStream.h>
+#include <Ice/InputStream.h>
 #include <Ice/LocalException.h>
 #include <Ice/Instance.h>
 #include <Ice/Properties.h>
@@ -122,7 +123,7 @@ IceInternal::EndpointFactoryManager::create(const string& str, bool oaEndpoint) 
         // Code below left in place for debugging.
 
         EndpointIPtr e = factory->create(str.substr(end), oaEndpoint);
-        BasicStream bs(_instance.get(), Ice::currentProtocolEncoding);
+        OutputStream bs(_instance.get(), Ice::currentProtocolEncoding);
         e->streamWrite(&bs);
         bs.i = bs.b.begin();
         short type;
@@ -155,15 +156,15 @@ IceInternal::EndpointFactoryManager::create(const string& str, bool oaEndpoint) 
             // and ask the factory to read the endpoint data from that stream to create
             // the actual endpoint.
             //
-            BasicStream bs(_instance.get(), Ice::currentProtocolEncoding);
+            OutputStream bs(_instance.get(), Ice::currentProtocolEncoding);
             bs.write(ue->type());
             ue->streamWrite(&bs);
-            bs.i = bs.b.begin();
+            InputStream is(bs.instance(), bs.getEncoding(), bs);
             short type;
-            bs.read(type);
-            bs.startReadEncaps();
-            EndpointIPtr e = factory->read(&bs);
-            bs.endReadEncaps();
+            is.read(type);
+            is.startEncapsulation();
+            EndpointIPtr e = factory->read(&is);
+            is.endEncapsulation();
             return e;
         }
         return ue; // Endpoint is opaque, but we don't have a factory for its type.
@@ -173,7 +174,7 @@ IceInternal::EndpointFactoryManager::create(const string& str, bool oaEndpoint) 
 }
 
 EndpointIPtr
-IceInternal::EndpointFactoryManager::read(BasicStream* s) const
+IceInternal::EndpointFactoryManager::read(InputStream* s) const
 {
     Short type;
     s->read(type);
@@ -181,7 +182,7 @@ IceInternal::EndpointFactoryManager::read(BasicStream* s) const
     EndpointFactoryPtr factory = get(type);
     EndpointIPtr e;
 
-    s->startReadEncaps();
+    s->startEncapsulation();
 
     if(factory)
     {
@@ -192,7 +193,7 @@ IceInternal::EndpointFactoryManager::read(BasicStream* s) const
         e = ICE_MAKE_SHARED(OpaqueEndpointI, type, s);
     }
 
-    s->endReadEncaps();
+    s->endEncapsulation();
 
     return e;
 }

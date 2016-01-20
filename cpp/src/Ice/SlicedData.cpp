@@ -8,7 +8,8 @@
 // **********************************************************************
 
 #include <Ice/SlicedData.h>
-#include <Ice/BasicStream.h>
+#include <Ice/OutputStream.h>
+#include <Ice/InputStream.h>
 
 using namespace std;
 using namespace Ice;
@@ -71,15 +72,15 @@ Ice::UnknownSlicedObject::getSlicedData() const
 }
 
 void
-Ice::UnknownSlicedObject::__write(IceInternal::BasicStream* __os) const
+Ice::UnknownSlicedObject::__write(Ice::OutputStream* __os) const
 {
-    __os->startWriteObject(_slicedData);
-    __os->endWriteObject();
+    __os->startObject(_slicedData);
+    __os->endObject();
 }
 
 void
-Ice::UnknownSlicedObject::__read(IceInternal::BasicStream* __is)
+Ice::UnknownSlicedObject::__read(Ice::InputStream* __is)
 {
-    __is->startReadObject();
-    _slicedData = __is->endReadObject(true);
+    __is->startObject();
+    _slicedData = __is->endObject(true);
 }

@@ -74,7 +74,7 @@ public:
                  const vector<ConnectionI::OutgoingMessage>& sentCBs, Byte compress, Int requestId,
                  Int invokeNum, const ServantManagerPtr& servantManager, const ObjectAdapterPtr& adapter,
                  const OutgoingAsyncBasePtr& outAsync, const ICE_HEARTBEAT_CALLBACK& heartbeatCallback,
-                 BasicStream& stream) :
+                 InputStream& stream) :
         DispatchWorkItem(connection),
         _connection(connection),
         _startCB(startCB),
@@ -110,7 +110,7 @@ private:
     const ObjectAdapterPtr _adapter;
     const OutgoingAsyncBasePtr _outAsync;
     const ICE_HEARTBEAT_CALLBACK _heartbeatCallback;
-    BasicStream _stream;
+    InputStream _stream;
 };
 
 class FinishCall : public DispatchWorkItem
@@ -212,7 +212,7 @@ Ice::ConnectionI::Observer::attach(const Ice::Instrumentation::ConnectionObserve
 
 
 void
-Ice::ConnectionI::OutgoingMessage::adopt(BasicStream* str)
+Ice::ConnectionI::OutgoingMessage::adopt(OutputStream* str)
 {
     if(adopted)
     {
@@ -241,7 +241,7 @@ Ice::ConnectionI::OutgoingMessage::adopt(BasicStream* str)
     }
 
     assert(str);
-    stream = new BasicStream(str->instance(), currentProtocolEncoding);
+    stream = new OutputStream(str->instance(), currentProtocolEncoding);
     stream->swap(*str);
     adopted = true;
 }
@@ -614,7 +614,7 @@ Ice::ConnectionI::monitor(const IceUtil::Time& now, const ACMConfig& acm)
 bool
 Ice::ConnectionI::sendRequest(OutgoingBase* out, bool compress, bool response, int batchRequestNum)
 {
-    BasicStream* os = out->os();
+    OutputStream* os = out->os();
 
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     //
@@ -706,7 +706,7 @@ Ice::ConnectionI::sendRequest(OutgoingBase* out, bool compress, bool response, i
 AsyncStatus
 Ice::ConnectionI::sendAsyncRequest(const OutgoingAsyncBasePtr& out, bool compress, bool response, int batchRequestNum)
 {
-    BasicStream* os = out->getOs();
+    OutputStream* os = out->getOs();
 
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     //
@@ -1248,7 +1248,7 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, con
 }
 
 void
-Ice::ConnectionI::sendResponse(Int, BasicStream* os, Byte compressFlag, bool /*amd*/)
+Ice::ConnectionI::sendResponse(Int, OutputStream* os, Byte compressFlag, bool /*amd*/)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     assert(_state > StateNotValidated);
@@ -1800,7 +1800,7 @@ void
 ConnectionI::dispatch(const StartCallbackPtr& startCB, const vector<OutgoingMessage>& sentCBs,
                       Byte compress, Int requestId, Int invokeNum, const ServantManagerPtr& servantManager,
                       const ObjectAdapterPtr& adapter, const OutgoingAsyncBasePtr& outAsync,
-                      const ICE_HEARTBEAT_CALLBACK& heartbeatCallback, BasicStream& stream)
+                      const ICE_HEARTBEAT_CALLBACK& heartbeatCallback, InputStream& stream)
 {
     int dispatchedCount = 0;
 
@@ -2649,7 +2649,7 @@ Ice::ConnectionI::initiateShutdown()
         //
         // Before we shut down, we send a close connection message.
         //
-        BasicStream os(_instance.get(), Ice::currentProtocolEncoding);
+        OutputStream os(_instance.get(), Ice::currentProtocolEncoding);
         os.write(magic[0]);
         os.write(magic[1]);
         os.write(magic[2]);
@@ -2689,7 +2689,7 @@ Ice::ConnectionI::heartbeat()
 
     if(!_endpoint->datagram())
     {
-        BasicStream os(_instance.get(), Ice::currentProtocolEncoding);
+        OutputStream os(_instance.get(), Ice::currentProtocolEncoding);
         os.write(magic[0]);
         os.write(magic[1]);
         os.write(magic[2]);
@@ -2939,7 +2939,7 @@ Ice::ConnectionI::sendNextMessage(vector<OutgoingMessage>& callbacks)
                 //
                 // Do compression.
                 //
-                BasicStream stream(_instance.get(), Ice::currentProtocolEncoding);
+                OutputStream stream(_instance.get(), Ice::currentProtocolEncoding);
                 doCompress(*message->stream, stream);
 
                 if(message->outAsync)
@@ -3068,7 +3068,7 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
         //
         // Do compression.
         //
-        BasicStream stream(_instance.get(), Ice::currentProtocolEncoding);
+        OutputStream stream(_instance.get(), Ice::currentProtocolEncoding);
         doCompress(*message.stream, stream);
         stream.i = stream.b.begin();
 
@@ -3244,7 +3244,7 @@ getBZ2Error(int bzError)
 }
 
 void
-Ice::ConnectionI::doCompress(BasicStream& uncompressed, BasicStream& compressed)
+Ice::ConnectionI::doCompress(OutputStream& uncompressed, OutputStream& compressed)
 {
     const Byte* p;
 
@@ -3299,7 +3299,7 @@ Ice::ConnectionI::doCompress(BasicStream& uncompressed, BasicStream& compressed)
 }
 
 void
-Ice::ConnectionI::doUncompress(BasicStream& compressed, BasicStream& uncompressed)
+Ice::ConnectionI::doUncompress(InputStream& compressed, InputStream& uncompressed)
 {
     Int uncompressedSize;
     compressed.i = compressed.b.begin() + headerSize;
@@ -3334,7 +3334,7 @@ Ice::ConnectionI::doUncompress(BasicStream& compressed, BasicStream& uncompresse
 #endif
 
 SocketOperation
-Ice::ConnectionI::parseMessage(BasicStream& stream, Int& invokeNum, Int& requestId, Byte& compress,
+Ice::ConnectionI::parseMessage(InputStream& stream, Int& invokeNum, Int& requestId, Byte& compress,
                                ServantManagerPtr& servantManager, ObjectAdapterPtr& adapter,
                                OutgoingAsyncBasePtr& outAsync, ICE_HEARTBEAT_CALLBACK& heartbeatCallback,
                                int& dispatchCount)
@@ -3372,7 +3372,7 @@ Ice::ConnectionI::parseMessage(BasicStream& stream, Int& invokeNum, Int& request
         if(compress == 2)
         {
 #ifdef ICE_HAS_BZIP2
-            BasicStream ustream(_instance.get(), Ice::currentProtocolEncoding);
+            InputStream ustream(_instance.get(), Ice::currentProtocolEncoding);
             doUncompress(stream, ustream);
             stream.b.swap(ustream.b);
 #else
@@ -3602,7 +3602,7 @@ Ice::ConnectionI::parseMessage(BasicStream& stream, Int& invokeNum, Int& request
 }
 
 void
-Ice::ConnectionI::invokeAll(BasicStream& stream, Int invokeNum, Int requestId, Byte compress,
+Ice::ConnectionI::invokeAll(InputStream& stream, Int invokeNum, Int requestId, Byte compress,
                             const ServantManagerPtr& servantManager, const ObjectAdapterPtr& adapter)
 {
     //

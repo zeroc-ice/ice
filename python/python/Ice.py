@@ -565,6 +565,7 @@ threadHook: An object that implements ThreadNotification.
         self.logger = None
         self.threadHook = None
         self.batchRequestInterceptor = None
+        self.valueFactoryManager = None
 
 #
 # Communicator wrapper.
@@ -623,20 +624,14 @@ class CommunicatorI(Communicator):
         return ObjectAdapterI(adapter)
 
     def addObjectFactory(self, factory, id):
-        # Add a ValueFactory and an ObjectFactory. The ValueFactory is the one
-        # which is used. ObjectFactory is for backward compatibility, and must
-        # be added first.
-        self._impl.addObjectFactory(factory, id)
-        self._impl.addValueFactory(lambda s, factory=factory: factory.create(s), id)
+        # The extension implementation requires an extra argument that is a value factory
+        self._impl.addObjectFactory(factory, id, lambda s, factory=factory: factory.create(s))
 
     def findObjectFactory(self, id):
         return self._impl.findObjectFactory(id)
 
-    def addValueFactory(self, factory, id):
-        self._impl.addValueFactory(factory, id)
-
-    def findValueFactory(self, id):
-        return self._impl.findValueFactory(id)
+    def getValueFactoryManager(self):
+        return self._impl.getValueFactoryManager()
 
     def getImplicitContext(self):
         context = self._impl.getImplicitContext()

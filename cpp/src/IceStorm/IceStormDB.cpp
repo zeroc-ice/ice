@@ -169,6 +169,14 @@ Client::run(int argc, char* argv[])
 
             fs.seekg(0, ios::end);
             streampos fileSize = fs.tellg();
+
+            if(!fileSize)
+            {
+                fs.close();
+                cerr << "Empty input file" << endl;
+                return EXIT_FAILURE;
+            }
+
             fs.seekg(0, ios::beg);
 
             vector<Ice::Byte> buf;
@@ -180,15 +188,15 @@ Client::run(int argc, char* argv[])
             string type;
             int version;
 
-            Ice::InputStreamPtr stream = Ice::wrapInputStream(communicator(), buf, dbContext.encoding);
-            stream->read(type);
+            Ice::InputStream stream(communicator(), dbContext.encoding, buf);
+            stream.read(type);
             if(type != "IceStorm")
             {
                 cerr << "Incorrect input file type: " << type << endl;
                 return EXIT_FAILURE;
             }
-            stream->read(version);
-            stream->read(data);
+            stream.read(version);
+            stream.read(data);
 
             {
                 IceDB::Env env(dbPath, 2, mapSize);
@@ -199,7 +207,7 @@ Client::run(int argc, char* argv[])
                     cout << "Writing LLU Map:" << endl;
                 }
 
-                IceDB::Dbi<string, LogUpdate, IceDB::IceContext, Ice::OutputStreamPtr>
+                IceDB::Dbi<string, LogUpdate, IceDB::IceContext, Ice::OutputStream>
                     lluMap(txn, "llu", dbContext, MDB_CREATE);
 
                 for(StringLogUpdateDict::const_iterator p = data.llus.begin(); p != data.llus.end(); ++p)
@@ -216,7 +224,7 @@ Client::run(int argc, char* argv[])
                     cout << "Writing Subscriber Map:" << endl;
                 }
 
-                IceDB::Dbi<SubscriberRecordKey, SubscriberRecord, IceDB::IceContext, Ice::OutputStreamPtr>
+                IceDB::Dbi<SubscriberRecordKey, SubscriberRecord, IceDB::IceContext, Ice::OutputStream>
                     subscriberMap(txn, "subscribers", dbContext, MDB_CREATE);
 
                 for(SubscriberRecordDict::const_iterator q = data.subscribers.begin(); q != data.subscribers.end(); ++q)
@@ -246,13 +254,12 @@ Client::run(int argc, char* argv[])
                     cout << "Reading LLU Map:" << endl;
                 }
 
-                IceDB::Dbi<string, LogUpdate, IceDB::IceContext, Ice::OutputStreamPtr>
+                IceDB::Dbi<string, LogUpdate, IceDB::IceContext, Ice::OutputStream>
                     lluMap(txn, "llu", dbContext, 0);
 
                 string s;
                 LogUpdate llu;
-                IceDB::ReadOnlyCursor<string, LogUpdate, IceDB::IceContext, Ice::OutputStreamPtr>
-                    lluCursor(lluMap, txn);
+                IceDB::ReadOnlyCursor<string, LogUpdate, IceDB::IceContext, Ice::OutputStream> lluCursor(lluMap, txn);
                 while(lluCursor.get(s, llu, MDB_NEXT))
                 {
                     if(debug)
@@ -268,12 +275,12 @@ Client::run(int argc, char* argv[])
                     cout << "Reading Subscriber Map:" << endl;
                 }
 
-                IceDB::Dbi<SubscriberRecordKey, SubscriberRecord, IceDB::IceContext, Ice::OutputStreamPtr>
+                IceDB::Dbi<SubscriberRecordKey, SubscriberRecord, IceDB::IceContext, Ice::OutputStream>
                     subscriberMap(txn, "subscribers", dbContext, 0);
 
                 SubscriberRecordKey key;
                 SubscriberRecord record;
-                IceDB::ReadOnlyCursor<SubscriberRecordKey, SubscriberRecord, IceDB::IceContext, Ice::OutputStreamPtr>
+                IceDB::ReadOnlyCursor<SubscriberRecordKey, SubscriberRecord, IceDB::IceContext, Ice::OutputStream>
                     subCursor(subscriberMap, txn);
                 while(subCursor.get(key, record, MDB_NEXT))
                 {
@@ -290,11 +297,10 @@ Client::run(int argc, char* argv[])
                 env.close();
             }
 
-            Ice::OutputStreamPtr stream = Ice::createOutputStream(communicator(), dbContext.encoding);
-            stream->write("IceStorm");
-            stream->write(ICE_INT_VERSION);
-            stream->write(data);
-            pair<const Ice::Byte*, const Ice::Byte*> buf = stream->finished();
+            Ice::OutputStream stream(communicator(), dbContext.encoding);
+            stream.write("IceStorm");
+            stream.write(ICE_INT_VERSION);
+            stream.write(data);
 
             ofstream fs(dbFile.c_str(), ios::binary);
             if(fs.fail())
@@ -302,7 +308,7 @@ Client::run(int argc, char* argv[])
                 cerr << "Could not open output file: " << strerror(errno) << endl;
                 return EXIT_FAILURE;
             }
-            fs.write(reinterpret_cast<const char*>(buf.first), buf.second - buf.first);
+            fs.write(reinterpret_cast<const char*>(stream.b.begin()), stream.b.size());
             fs.close();
         }
     }

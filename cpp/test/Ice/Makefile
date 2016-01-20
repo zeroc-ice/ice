@@ -54,7 +54,6 @@ ifneq ($(CPP11_MAPPING),yes)
 SUBDIRS		:= $(SUBDIRS) \
 		  optional \
 		  gc \
-		  stream \
 		  custom \
 		  echo
 endif

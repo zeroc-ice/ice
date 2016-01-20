@@ -59,7 +59,6 @@ OBJS		= Acceptor.o \
 		  Application.o \
 	 	  AsyncResult.o \
 		  Base64.o \
-		  BasicStream.o \
 		  BatchRequestQueue.o \
 		  Buffer.o \
 		  CollocatedRequestHandler.o \
@@ -85,6 +84,7 @@ OBJS		= Acceptor.o \
 		  Incoming.o \
 		  IncomingAsync.o \
 		  Initialize.o \
+		  InputStream.o \
 		  Instance.o \
 		  InstrumentationI.o \
 		  IPEndpointI.o \
@@ -104,6 +104,7 @@ OBJS		= Acceptor.o \
 		  OpaqueEndpointI.o \
 		  Outgoing.o \
 		  OutgoingAsync.o \
+		  OutputStream.o \
 		  PluginManagerI.o \
 		  PropertiesAdminI.o \
 	 	  PropertiesI.o \
@@ -125,8 +126,6 @@ OBJS		= Acceptor.o \
 		  ServantManager.o \
 		  SliceChecksums.o \
 		  SlicedData.o \
-		  Stream.o \
-		  StreamI.o \
 		  StreamSocket.o \
 		  TcpAcceptor.o \
 		  TcpConnector.o \
@@ -140,7 +139,7 @@ OBJS		= Acceptor.o \
 		  UdpEndpointI.o \
 		  UdpTransceiver.o \
 		  Value.o \
-		  ValueFactoryManager.o \
+		  ValueFactoryManagerI.o \
 		  WSAcceptor.o \
 		  WSConnector.o \
 		  WSEndpoint.o \

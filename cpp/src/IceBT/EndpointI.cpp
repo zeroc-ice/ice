@@ -14,7 +14,8 @@
 #include <IceBT/Instance.h>
 #include <IceBT/Util.h>
 
-#include <Ice/BasicStream.h>
+#include <Ice/OutputStream.h>
+#include <Ice/InputStream.h>
 #include <Ice/DefaultsAndOverrides.h>
 #include <Ice/HashUtil.h>
 #include <Ice/LocalException.h>
@@ -72,7 +73,7 @@ IceBT::EndpointI::EndpointI(const InstancePtr& instance) :
 {
 }
 
-IceBT::EndpointI::EndpointI(const InstancePtr& instance, IceInternal::BasicStream* s) :
+IceBT::EndpointI::EndpointI(const InstancePtr& instance, InputStream* s) :
     _instance(instance),
     _channel(0),
     _timeout(-1),
@@ -91,17 +92,17 @@ IceBT::EndpointI::EndpointI(const InstancePtr& instance, IceInternal::BasicStrea
 }
 
 void
-IceBT::EndpointI::streamWrite(IceInternal::BasicStream* s) const
+IceBT::EndpointI::streamWrite(OutputStream* s) const
 {
     //
     // _name and _channel are not marshaled.
     //
-    s->startWriteEncaps();
+    s->startEncapsulation();
     s->write(_addr, false);
     s->write(_uuid, false);
     s->write(_timeout);
     s->write(_compress);
-    s->endWriteEncaps();
+    s->endEncapsulation();
 }
 
 Ice::Short
@@ -745,7 +746,7 @@ IceBT::EndpointFactoryI::create(vector<string>& args, bool oaEndpoint) const
 }
 
 IceInternal::EndpointIPtr
-IceBT::EndpointFactoryI::read(IceInternal::BasicStream* s) const
+IceBT::EndpointFactoryI::read(InputStream* s) const
 {
     return ICE_MAKE_SHARED(EndpointI, _instance, s);
 }

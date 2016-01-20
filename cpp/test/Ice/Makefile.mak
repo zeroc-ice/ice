@@ -72,7 +72,6 @@ SUBDIRS		= proxy \
 		  udp \
 		  admin \
 		  plugin \
-		  stream \
 		  metrics \
 		  optional \
 		  enums \

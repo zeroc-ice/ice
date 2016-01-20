@@ -96,8 +96,8 @@ public:
     virtual void __gcVisitMembers(IceInternal::GCVisitor&);
 #endif
 
-    virtual void __write(::IceInternal::BasicStream*) const;
-    virtual void __read(::IceInternal::BasicStream*);
+    virtual void __write(::Ice::OutputStream*) const;
+    virtual void __read(::Ice::InputStream*);
 
 private:
 

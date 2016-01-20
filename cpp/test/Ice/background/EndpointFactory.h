@@ -21,7 +21,7 @@ public:
     virtual ::Ice::Short type() const;
     virtual ::std::string protocol() const;
     virtual IceInternal::EndpointIPtr create(std::vector<std::string>&, bool) const;
-    virtual IceInternal::EndpointIPtr read(IceInternal::BasicStream*) const;
+    virtual IceInternal::EndpointIPtr read(Ice::InputStream*) const;
     virtual void destroy();
 
     virtual IceInternal::EndpointFactoryPtr clone(const IceInternal::ProtocolInstancePtr&) const;

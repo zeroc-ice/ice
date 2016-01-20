@@ -18,6 +18,7 @@
 #include <IceUtil/MutexPtrLock.h>
 
 using namespace std;
+using namespace Ice;
 using namespace Ice::Instrumentation;
 using namespace IceInternal;
 
@@ -105,11 +106,11 @@ IceInternal::IPEndpointI::secure() const
 }
 
 void
-IceInternal::IPEndpointI::streamWrite(BasicStream* s) const
+IceInternal::IPEndpointI::streamWrite(OutputStream* s) const
 {
-    s->startWriteEncaps();
+    s->startEncapsulation();
     streamWriteImpl(s);
-    s->endWriteEncaps();
+    s->endEncapsulation();
 }
 
 const string&
@@ -354,7 +355,7 @@ IceInternal::IPEndpointI::connectors(const vector<Address>& addresses, const Net
 }
 
 void
-IceInternal::IPEndpointI::streamWriteImpl(BasicStream* s) const
+IceInternal::IPEndpointI::streamWriteImpl(OutputStream* s) const
 {
     s->write(_host, false);
     s->write(_port);
@@ -496,7 +497,7 @@ IceInternal::IPEndpointI::IPEndpointI(const ProtocolInstancePtr& instance) :
 {
 }
 
-IceInternal::IPEndpointI::IPEndpointI(const ProtocolInstancePtr& instance, BasicStream* s) :
+IceInternal::IPEndpointI::IPEndpointI(const ProtocolInstancePtr& instance, InputStream* s) :
     _instance(instance),
     _port(0),
     _hashInitialized(false)

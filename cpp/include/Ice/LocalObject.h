@@ -13,13 +13,6 @@
 #include <IceUtil/Shared.h>
 #include <Ice/LocalObjectF.h>
 
-namespace IceInternal
-{
-
-class BasicStream;
-
-}
-
 namespace Ice
 {
 

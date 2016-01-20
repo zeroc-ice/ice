@@ -16,14 +16,20 @@
 #include <Ice/ProxyF.h>
 #include <Ice/IncomingAsyncF.h>
 #include <Ice/Current.h>
-#include <Ice/StreamF.h>
 #include <Ice/Format.h>
+
+namespace Ice
+{
+
+class OutputStream;
+class InpputStream;
+
+}
 
 namespace IceInternal
 {
 
 class Incoming;
-class BasicStream;
 class Direct;
 class GCVisitor;
 
@@ -116,11 +122,8 @@ public:
 
     virtual Int ice_operationAttributes(const std::string&) const;
 
-    virtual void __write(IceInternal::BasicStream*) const;
-    virtual void __read(IceInternal::BasicStream*);
-
-    virtual void __write(const OutputStreamPtr&) const;
-    virtual void __read(const InputStreamPtr&);
+    virtual void __write(Ice::OutputStream*) const;
+    virtual void __read(Ice::InputStream*);
 
     virtual bool __gcVisit(IceInternal::GCVisitor&) { return false; };
     virtual void ice_collectable(bool) { };
@@ -144,11 +147,8 @@ protected:
 
 protected:
 
-    virtual void __writeImpl(IceInternal::BasicStream*) const {}
-    virtual void __readImpl(IceInternal::BasicStream*) {}
-
-    virtual void __writeImpl(const OutputStreamPtr&) const;
-    virtual void __readImpl(const InputStreamPtr&);
+    virtual void __writeImpl(Ice::OutputStream*) const {}
+    virtual void __readImpl(Ice::InputStream*) {}
 
     static void __checkMode(OperationMode, OperationMode);
 };
@@ -208,9 +208,6 @@ public:
 #endif
     virtual DispatchStatus __dispatch(IceInternal::Incoming&, const Current&);
 };
-
-ICE_API void ice_writeObject(const OutputStreamPtr&, const ValuePtr&);
-ICE_API void ice_readObject(const InputStreamPtr&, ValuePtr&);
 
 }
 

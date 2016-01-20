@@ -19,10 +19,10 @@
 #include <Ice/Instance.h>
 #include <Ice/RouterInfo.h>
 #include <Ice/LocatorInfo.h>
-#include <Ice/BasicStream.h>
+#include <Ice/OutputStream.h>
+#include <Ice/InputStream.h>
 #include <Ice/LocalException.h>
 #include <Ice/ConnectionI.h> // To convert from ConnectionIPtr to ConnectionPtr in ice_getConnection().
-#include <Ice/Stream.h>
 #include <Ice/ImplicitContextI.h>
 
 using namespace std;
@@ -92,16 +92,16 @@ Ice::ObjectPrx::ice_isA_async(const string& typeId,
                               const ::Ice::Context& context)
 {
     return TwowayClosureCallback::invoke(ice_isA_name, shared_from_this(), OperationMode::Nonmutating, DefaultFormat,
-        [&typeId](IceInternal::BasicStream* os)
+        [&typeId](Ice::OutputStream* os)
         {
             os->write(typeId);
         },
         false,
-        [response](IceInternal::BasicStream* is)
+        [response](Ice::InputStream* is)
         {
             bool ret;
             is->read(ret);
-            is->endReadEncaps();
+            is->endEncapsulation();
             if(response)
             {
                 response(ret);
@@ -192,11 +192,11 @@ Ice::ObjectPrx::ice_id_async(function<void (string)> response,
 {
     return TwowayClosureCallback::invoke(
         ice_id_name, shared_from_this(), OperationMode::Nonmutating, DefaultFormat, nullptr, false,
-        [response](IceInternal::BasicStream* is)
+        [response](Ice::InputStream* is)
         {
             string ret;
             is->read(ret);
-            is->endReadEncaps();
+            is->endEncapsulation();
             if(response)
             {
                 response(move(ret));
@@ -231,11 +231,11 @@ Ice::ObjectPrx::ice_ids_async(function<void (vector<string>)> response,
 {
     return TwowayClosureCallback::invoke(
         ice_ids_name, shared_from_this(), OperationMode::Nonmutating, DefaultFormat, nullptr, false,
-        [response](IceInternal::BasicStream* is)
+        [response](Ice::InputStream* is)
         {
             vector<string> ret;
             is->read(ret);
-            is->endReadEncaps();
+            is->endEncapsulation();
             if(response)
             {
                 response(move(ret));
@@ -832,7 +832,7 @@ IceProxy::Ice::Object::ice_isA(const string& typeId, const Context& context)
     Outgoing __og(this, ice_isA_name, ::Ice::Nonmutating, context);
     try
     {
-        BasicStream* __os = __og.startWriteParams(DefaultFormat);
+        OutputStream* __os = __og.startWriteParams(DefaultFormat);
         __os->write(typeId, false);
         __og.endWriteParams();
     }
@@ -852,7 +852,7 @@ IceProxy::Ice::Object::ice_isA(const string& typeId, const Context& context)
         }
     }
     bool __ret;
-    BasicStream* __is = __og.startReadParams();
+    InputStream* __is = __og.startReadParams();
     __is->read(__ret);
     __og.endReadParams();
     return __ret;
@@ -869,7 +869,7 @@ IceProxy::Ice::Object::__begin_ice_isA(const string& typeId,
     try
     {
         __result->prepare(ice_isA_name, Nonmutating, ctx);
-        IceInternal::BasicStream* __os = __result->startWriteParams(DefaultFormat);
+        ::Ice::OutputStream* __os = __result->startWriteParams(DefaultFormat);
         __os->write(typeId);
         __result->endWriteParams();
         __result->invoke();
@@ -898,7 +898,7 @@ IceProxy::Ice::Object::end_ice_isA(const AsyncResultPtr& __result)
         }
     }
     bool __ret;
-    IceInternal::BasicStream* __is = __result->__startReadParams();
+    ::Ice::InputStream* __is = __result->__startReadParams();
     __is->read(__ret);
     __result->__endReadParams();
     return __ret;
@@ -970,7 +970,7 @@ IceProxy::Ice::Object::ice_ids(const Context& context)
         }
     }
     vector<string> __ret;
-    BasicStream* __is = __og.startReadParams();
+    InputStream* __is = __og.startReadParams();
     __is->read(__ret, false);
     __og.endReadParams();
     return __ret;
@@ -994,7 +994,7 @@ IceProxy::Ice::Object::ice_id(const Context& context)
         }
     }
     string __ret;
-    BasicStream* __is = __og.startReadParams();
+    InputStream* __is = __og.startReadParams();
     __is->read(__ret, false);
     __og.endReadParams();
     return __ret;
@@ -1037,7 +1037,7 @@ IceProxy::Ice::Object::end_ice_ids(const AsyncResultPtr& __result)
         }
     }
     vector<string> __ret;
-    IceInternal::BasicStream* __is = __result->__startReadParams();
+    ::Ice::InputStream* __is = __result->__startReadParams();
     __is->read(__ret);
     __result->__endReadParams();
     return __ret;
@@ -1080,7 +1080,7 @@ IceProxy::Ice::Object::end_ice_id(const AsyncResultPtr& __result)
         }
     }
     string __ret;
-    IceInternal::BasicStream* __is = __result->__startReadParams();
+    ::Ice::InputStream* __is = __result->__startReadParams();
     __is->read(__ret);
     __result->__endReadParams();
     return __ret;
@@ -1342,18 +1342,6 @@ IceProxy::Ice::Object::__checkTwowayOnly(const string& name) const
         ex.operation = name;
         throw ex;
     }
-}
-
-void
-Ice::ice_writeObjectPrx(const OutputStreamPtr& out, const ObjectPrxPtr& v)
-{
-    out->write(v);
-}
-
-void
-Ice::ice_readObjectPrx(const InputStreamPtr& in, ObjectPrxPtr& v)
-{
-    in->read(v);
 }
 
 #endif
@@ -2118,6 +2106,13 @@ Int
 ICE_OBJECT_PRX::__hash() const
 {
     return _reference->hash();
+}
+
+void
+ICE_OBJECT_PRX::__write(OutputStream& os) const
+{
+    os.write(__reference()->getIdentity());
+    __reference()->streamWrite(&os);
 }
 
 bool

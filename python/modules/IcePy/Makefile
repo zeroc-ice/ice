@@ -26,7 +26,6 @@ OBJS		= BatchRequestInterceptor.o \
 		  Init.o \
 		  Logger.o \
 		  ObjectAdapter.o \
-		  ObjectFactory.o \
 		  Operation.o \
 		  Properties.o \
 		  PropertiesAdmin.o \
@@ -34,7 +33,8 @@ OBJS		= BatchRequestInterceptor.o \
 		  Slice.o \
 		  Thread.o \
 		  Types.o \
-		  Util.o
+		  Util.o \
+		  ValueFactoryManager.o
 
 include $(top_srcdir)/config/Make.rules
 

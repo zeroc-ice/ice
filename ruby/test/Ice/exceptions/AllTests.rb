@@ -29,9 +29,9 @@ def allTests(communicator)
     print "testing value factory registration exception... "
     STDOUT.flush
     vf = ValueFactoryI.new
-    communicator.addValueFactory(vf, "x")
+    communicator.getValueFactoryManager().add(vf, "x")
     begin
-        communicator.addValueFactory(vf, "x")
+        communicator.getValueFactoryManager().add(vf, "x")
         test(false)
     rescue Ice::AlreadyRegisteredException
     end

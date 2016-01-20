@@ -39,6 +39,8 @@
 #include <Ice/BatchRequestQueueF.h>
 #include <Ice/ACM.h>
 #include <Ice/VirtualShared.h>
+#include <Ice/OutputStream.h>
+#include <Ice/InputStream.h>
 
 #include <deque>
 
@@ -93,7 +95,7 @@ public:
 
     struct OutgoingMessage
     {
-        OutgoingMessage(IceInternal::BasicStream* str, bool comp) :
+        OutgoingMessage(Ice::OutputStream* str, bool comp) :
             stream(str), out(0), compress(comp), requestId(0), adopted(false)
 #if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
             , isSent(false), invokeSent(false), receivedReply(false)
@@ -101,7 +103,7 @@ public:
         {
         }
 
-        OutgoingMessage(IceInternal::OutgoingBase* o, IceInternal::BasicStream* str, bool comp, int rid) :
+        OutgoingMessage(IceInternal::OutgoingBase* o, Ice::OutputStream* str, bool comp, int rid) :
             stream(str), out(o), compress(comp), requestId(rid), adopted(false)
 #if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
             , isSent(false), invokeSent(false), receivedReply(false)
@@ -109,7 +111,7 @@ public:
         {
         }
 
-        OutgoingMessage(const IceInternal::OutgoingAsyncBasePtr& o, IceInternal::BasicStream* str,
+        OutgoingMessage(const IceInternal::OutgoingAsyncBasePtr& o, Ice::OutputStream* str,
                         bool comp, int rid) :
             stream(str), out(0), outAsync(o), compress(comp), requestId(rid), adopted(false)
 #if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
@@ -118,12 +120,12 @@ public:
         {
         }
 
-        void adopt(IceInternal::BasicStream*);
+        void adopt(Ice::OutputStream*);
         void canceled(bool);
         bool sent();
         void completed(const Ice::LocalException&);
 
-        IceInternal::BasicStream* stream;
+        Ice::OutputStream* stream;
         IceInternal::OutgoingBase* out;
         IceInternal::OutgoingAsyncBasePtr outAsync;
         bool compress;
@@ -216,7 +218,7 @@ public:
     virtual void requestCanceled(IceInternal::OutgoingBase*, const LocalException&);
     virtual void asyncRequestCanceled(const IceInternal::OutgoingAsyncBasePtr&, const LocalException&);
 
-    virtual void sendResponse(Int, IceInternal::BasicStream*, Byte, bool);
+    virtual void sendResponse(Int, Ice::OutputStream*, Byte, bool);
     virtual void sendNoResponse();
     virtual bool systemException(Int, const SystemException&, bool);
     virtual void invokeException(Ice::Int, const LocalException&, int, bool);
@@ -255,7 +257,7 @@ public:
     void dispatch(const StartCallbackPtr&, const std::vector<OutgoingMessage>&, Byte, Int, Int,
                   const IceInternal::ServantManagerPtr&, const ObjectAdapterPtr&,
                   const IceInternal::OutgoingAsyncBasePtr&,
-                  const ICE_HEARTBEAT_CALLBACK&, IceInternal::BasicStream&);
+                  const ICE_HEARTBEAT_CALLBACK&, Ice::InputStream&);
     void finish(bool);
 
     void closeCallback(const ICE_CLOSE_CALLBACK&);
@@ -300,15 +302,15 @@ private:
     IceInternal::AsyncStatus sendMessage(OutgoingMessage&);
 
 #ifdef ICE_HAS_BZIP2
-    void doCompress(IceInternal::BasicStream&, IceInternal::BasicStream&);
-    void doUncompress(IceInternal::BasicStream&, IceInternal::BasicStream&);
+    void doCompress(Ice::OutputStream&, Ice::OutputStream&);
+    void doUncompress(Ice::InputStream&, Ice::InputStream&);
 #endif
 
-    IceInternal::SocketOperation parseMessage(IceInternal::BasicStream&, Int&, Int&, Byte&,
+    IceInternal::SocketOperation parseMessage(Ice::InputStream&, Int&, Int&, Byte&,
                                               IceInternal::ServantManagerPtr&, ObjectAdapterPtr&,
                                               IceInternal::OutgoingAsyncBasePtr&, ICE_HEARTBEAT_CALLBACK&, int&);
 
-    void invokeAll(IceInternal::BasicStream&, Int, Int, Byte,
+    void invokeAll(Ice::InputStream&, Int, Int, Byte,
                    const IceInternal::ServantManagerPtr&, const ObjectAdapterPtr&);
 
     void scheduleTimeout(IceInternal::SocketOperation status);
@@ -377,9 +379,9 @@ private:
 
     std::deque<OutgoingMessage> _sendStreams;
 
-    IceInternal::BasicStream _readStream;
+    Ice::InputStream _readStream;
     bool _readHeader;
-    IceInternal::BasicStream _writeStream;
+    Ice::OutputStream _writeStream;
 
     Observer _observer;
 

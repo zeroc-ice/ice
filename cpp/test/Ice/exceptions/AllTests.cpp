@@ -646,7 +646,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "testing value factory registration exception... " << flush;
     {
 #ifdef ICE_CPP11_MAPPING
-        communicator->addValueFactory(
+        communicator->getValueFactoryManager()->add(
             [](const std::string&)
             {
                 return nullptr;
@@ -654,7 +654,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             "x");
         try
         {
-            communicator->addValueFactory(
+            communicator->getValueFactoryManager()->add(
                 [](const std::string&)
                 {
                     return nullptr;
@@ -667,10 +667,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
 #else
         Ice::ValueFactoryPtr vf = new ValueFactoryI;
-        communicator->addValueFactory(vf, "x");
+        communicator->getValueFactoryManager()->add(vf, "x");
         try
         {
-            communicator->addValueFactory(vf, "x");
+            communicator->getValueFactoryManager()->add(vf, "x");
             test(false);
         }
         catch(const Ice::AlreadyRegisteredException&)

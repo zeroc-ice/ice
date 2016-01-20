@@ -55,11 +55,11 @@ end
 def allTests(communicator)
 
     factory = MyValueFactory.new
-    communicator.addValueFactory(factory, '::Test::B')
-    communicator.addValueFactory(factory, '::Test::C')
-    #communicator.addValueFactory(factory, '::Test::D')
-    communicator.addValueFactory(factory, '::Test::E')
-    communicator.addValueFactory(factory, '::Test::F')
+    communicator.getValueFactoryManager().add(factory, '::Test::B')
+    communicator.getValueFactoryManager().add(factory, '::Test::C')
+    #communicator.getValueFactoryManager().add(factory, '::Test::D')
+    communicator.getValueFactoryManager().add(factory, '::Test::E')
+    communicator.getValueFactoryManager().add(factory, '::Test::F')
 
     communicator.addObjectFactory(MyObjectFactory.new, 'TestOF')
 
@@ -282,7 +282,7 @@ def allTests(communicator)
 
     print "testing getting ObjectFactory as ValueFactory... "
     STDOUT.flush
-    test(communicator.findValueFactory('TestOF') != nil)
+    test(communicator.getValueFactoryManager().find('TestOF') != nil)
     puts "ok"
 
     return initial

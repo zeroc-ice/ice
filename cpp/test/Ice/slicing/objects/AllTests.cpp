@@ -2875,7 +2875,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         // Register a factory in order to substitute our own subclass of PNode. This provides
         // an easy way to determine how many unmarshaled instances currently exist.
         //
-        communicator->addValueFactory(new NodeFactoryI, PNode::ice_staticId());
+        communicator->getValueFactoryManager()->add(new NodeFactoryI, PNode::ice_staticId());
 
         //
         // Relay a graph through the server. This test uses a preserved class
@@ -2921,7 +2921,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         // Register a factory in order to substitute our own subclass of Preserved. This provides
         // an easy way to determine how many unmarshaled instances currently exist.
         //
-        communicator->addValueFactory(new PreservedFactoryI, Preserved::ice_staticId());
+        communicator->getValueFactoryManager()->add(new PreservedFactoryI, Preserved::ice_staticId());
 
         //
         // Obtain a preserved object from the server where the most-derived

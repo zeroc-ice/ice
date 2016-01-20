@@ -12,6 +12,7 @@
 #include <Ice/Properties.h>
 
 using namespace std;
+using namespace Ice;
 using namespace IceInternal;
 
 IceUtil::Shared* IceInternal::upCast(BatchRequestQueue* p) { return p; }
@@ -87,7 +88,7 @@ BatchRequestQueue::BatchRequestQueue(const InstancePtr& instance, bool datagram)
 }
 
 void
-BatchRequestQueue::prepareBatchRequest(BasicStream* os)
+BatchRequestQueue::prepareBatchRequest(OutputStream* os)
 {
     Lock sync(*this);
     if(ICE_EXCEPTION_GET(_exception))
@@ -100,7 +101,7 @@ BatchRequestQueue::prepareBatchRequest(BasicStream* os)
 }
 
 void
-BatchRequestQueue::finishBatchRequest(BasicStream* os, const Ice::ObjectPrxPtr& proxy, const std::string& operation)
+BatchRequestQueue::finishBatchRequest(OutputStream* os, const Ice::ObjectPrxPtr& proxy, const std::string& operation)
 {
     //
     // No need for synchronization, no other threads are supposed
@@ -156,7 +157,7 @@ BatchRequestQueue::finishBatchRequest(BasicStream* os, const Ice::ObjectPrxPtr& 
 }
 
 void
-BatchRequestQueue::abortBatchRequest(BasicStream* os)
+BatchRequestQueue::abortBatchRequest(OutputStream* os)
 {
     Lock sync(*this);
     if(_batchStreamInUse)
@@ -169,7 +170,7 @@ BatchRequestQueue::abortBatchRequest(BasicStream* os)
 }
 
 int
-BatchRequestQueue::swap(BasicStream* os)
+BatchRequestQueue::swap(OutputStream* os)
 {
     Lock sync(*this);
     if(_batchRequestNum == 0)

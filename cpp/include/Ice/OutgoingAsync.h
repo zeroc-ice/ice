@@ -16,6 +16,7 @@
 #include <Ice/CommunicatorF.h>
 #include <Ice/ConnectionIF.h>
 #include <Ice/ObjectAdapterF.h>
+#include <Ice/OutputStream.h>
 
 #include <exception>
 
@@ -57,12 +58,12 @@ public:
         _childObserver.attach(getObserver().getCollocatedObserver(adapter, requestId, size));
     }
 
-    BasicStream* getOs()
+    Ice::OutputStream* getOs()
     {
         return &_os;
     }
 
-    virtual BasicStream* getIs();
+    virtual Ice::InputStream* getIs();
 
 protected:
 
@@ -77,7 +78,7 @@ protected:
 
     ObserverHelperT<Ice::Instrumentation::ChildInvocationObserver> _childObserver;
 
-    BasicStream _os;
+    Ice::OutputStream _os;
 };
 
 //
@@ -156,32 +157,32 @@ public:
 
     void invoke();
 
-    BasicStream* startWriteParams(Ice::FormatType format)
+    Ice::OutputStream* startWriteParams(Ice::FormatType format)
     {
-        _os.startWriteEncaps(_encoding, format);
+        _os.startEncapsulation(_encoding, format);
         return &_os;
     }
     void endWriteParams()
     {
-        _os.endWriteEncaps();
+        _os.endEncapsulation();
     }
     void writeEmptyParams()
     {
-        _os.writeEmptyEncaps(_encoding);
+        _os.writeEmptyEncapsulation(_encoding);
     }
     void writeParamEncaps(const ::Ice::Byte* encaps, ::Ice::Int size)
     {
         if(size == 0)
         {
-            _os.writeEmptyEncaps(_encoding);
+            _os.writeEmptyEncapsulation(_encoding);
         }
         else
         {
-            _os.writeEncaps(encaps, size);
+            _os.writeEncapsulation(encaps, size);
         }
     }
 
-    virtual BasicStream* getIs()
+    virtual Ice::InputStream* getIs()
     {
         return &_is;
     }
@@ -316,7 +317,7 @@ public:
            const std::shared_ptr<Ice::ObjectPrx>&,
            Ice::OperationMode,
            Ice::FormatType,
-           std::function<void (::IceInternal::BasicStream*)>,
+           std::function<void (::Ice::OutputStream*)>,
            std::function<void ()>,
            std::function<void (::std::exception_ptr)>,
            std::function<void (bool)>,
@@ -338,7 +339,7 @@ public:
     TwowayClosureCallback(const std::string&,
              const std::shared_ptr<Ice::ObjectPrx>&,
              bool,
-             std::function<void (::IceInternal::BasicStream*)>,
+             std::function<void (::Ice::InputStream*)>,
              std::function<void (const ::Ice::UserException&)>,
              std::function<void (::std::exception_ptr)>,
              std::function<void (bool)>);
@@ -357,9 +358,9 @@ public:
            const std::shared_ptr<Ice::ObjectPrx>&,
            Ice::OperationMode,
            Ice::FormatType,
-           std::function<void (::IceInternal::BasicStream*)>,
+           std::function<void (::Ice::OutputStream*)>,
            bool,
-           std::function<void (::IceInternal::BasicStream*)>,
+           std::function<void (::Ice::InputStream*)>,
            std::function<void (const ::Ice::UserException&)>,
            std::function<void (::std::exception_ptr)>,
            std::function<void (bool)>,
@@ -370,7 +371,7 @@ private:
     const std::string& __name;
     std::shared_ptr<Ice::ObjectPrx> __proxy;
     bool __readEmptyParams;
-    std::function<void (::IceInternal::BasicStream*)> __read;
+    std::function<void (::Ice::InputStream*)> __read;
     std::function<void (const ::Ice::UserException&)> __userException;
     std::function<void (::std::exception_ptr)> __exception;
     std::function<void (bool)> __sent;

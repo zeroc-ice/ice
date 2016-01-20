@@ -56,9 +56,7 @@ extern "C"
 static PyObject*
 connectionInfoGetIncoming(ConnectionInfoObject* self)
 {
-    PyObject* result = (*self->connectionInfo)->incoming ? getTrue() : getFalse();
-    Py_INCREF(result);
-    return result;
+    return (*self->connectionInfo)->incoming ? incTrue() : incFalse();
 }
 
 #ifdef WIN32
@@ -212,9 +210,7 @@ sslConnectionInfoGetVerified(ConnectionInfoObject* self)
 {
     IceSSL::ConnectionInfoPtr info = IceSSL::ConnectionInfoPtr::dynamicCast(*self->connectionInfo);
     assert(info);
-    PyObject* result = info->incoming ? getTrue() : getFalse();
-    Py_INCREF(result);
-    return result;
+    return info->incoming ? incTrue() : incFalse();
 }
 
 #ifdef WIN32

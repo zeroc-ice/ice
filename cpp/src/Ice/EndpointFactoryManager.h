@@ -17,10 +17,15 @@
 #include <Ice/EndpointFactoryF.h>
 #include <Ice/EndpointFactoryManagerF.h>
 
-namespace IceInternal
+namespace Ice
 {
 
-class BasicStream;
+class InputStream;
+
+}
+
+namespace IceInternal
+{
 
 class EndpointFactoryManager : public ::IceUtil::Shared, public ::IceUtil::Mutex
 {
@@ -29,7 +34,7 @@ public:
     void add(const EndpointFactoryPtr&);
     EndpointFactoryPtr get(::Ice::Short) const;
     EndpointIPtr create(const std::string&, bool) const;
-    EndpointIPtr read(BasicStream*) const;
+    EndpointIPtr read(Ice::InputStream*) const;
 
 private:
 

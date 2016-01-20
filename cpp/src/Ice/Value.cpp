@@ -8,8 +8,9 @@
 // **********************************************************************
 
 #include <Ice/Value.h>
-#include <Ice/Stream.h>
 #include <Ice/LocalException.h>
+#include <Ice/OutputStream.h>
+#include <Ice/InputStream.h>
 
 #ifdef ICE_CPP11_MAPPING
 
@@ -28,19 +29,19 @@ Ice::Value::ice_postUnmarshal()
 }
 
 void
-Ice::Value::__write(IceInternal::BasicStream* os) const
+Ice::Value::__write(Ice::OutputStream* os) const
 {
-    os->startWriteObject(0);
+    os->startObject(0);
     __writeImpl(os);
-    os->endWriteObject();
+    os->endObject();
 }
 
 void
-Ice::Value::__read(IceInternal::BasicStream* is)
+Ice::Value::__read(Ice::InputStream* is)
 {
-   is->startReadObject();
+   is->startObject();
    __readImpl(is);
-   is->endReadObject(false);
+   is->endObject(false);
 }
 
 namespace

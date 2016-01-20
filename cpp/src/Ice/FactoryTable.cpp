@@ -17,7 +17,7 @@ using namespace std;
 // If the factory is present already, increment its reference count.
 //
 void
-IceInternal::FactoryTable::addExceptionFactory(const string& t, const IceInternal::UserExceptionFactoryPtr& f)
+IceInternal::FactoryTable::addExceptionFactory(const string& t, const Ice::UserExceptionFactoryPtr& f)
 {
     IceUtil::Mutex::Lock lock(_m);
     assert(f);
@@ -35,12 +35,12 @@ IceInternal::FactoryTable::addExceptionFactory(const string& t, const IceInterna
 //
 // Return the exception factory for a given type ID
 //
-IceInternal::UserExceptionFactoryPtr
+Ice::UserExceptionFactoryPtr
 IceInternal::FactoryTable::getExceptionFactory(const string& t) const
 {
     IceUtil::Mutex::Lock lock(_m);
     EFTable::const_iterator i = _eft.find(t);
-    return i != _eft.end() ? i->second.first : IceInternal::UserExceptionFactoryPtr();
+    return i != _eft.end() ? i->second.first : Ice::UserExceptionFactoryPtr();
 }
 
 //

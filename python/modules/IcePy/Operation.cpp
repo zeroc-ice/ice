@@ -125,7 +125,7 @@ protected:
 
     enum MappingType { SyncMapping, AsyncMapping, OldAsyncMapping };
 
-    bool prepareRequest(PyObject*, MappingType, Ice::OutputStreamPtr&, pair<const Ice::Byte*, const Ice::Byte*>&);
+    bool prepareRequest(PyObject*, MappingType, Ice::OutputStream*, pair<const Ice::Byte*, const Ice::Byte*>&);
     PyObject* unmarshalResults(const pair<const Ice::Byte*, const Ice::Byte*>&);
     PyObject* unmarshalException(const pair<const Ice::Byte*, const Ice::Byte*>&);
     bool validateException(PyObject*) const;
@@ -378,27 +378,18 @@ struct AsyncResultObject
 extern PyTypeObject OperationType;
 extern PyTypeObject AMDCallbackType;
 
-class UserExceptionReaderFactoryI : public Ice::UserExceptionReaderFactory
+class UserExceptionFactory : public Ice::UserExceptionFactory
 {
 public:
 
-    UserExceptionReaderFactoryI(const Ice::CommunicatorPtr& communicator) :
-        _communicator(communicator)
-    {
-    }
-
-    virtual void createAndThrow(const string& id) const
+    virtual void createAndThrow(const string& id)
     {
         ExceptionInfoPtr info = lookupExceptionInfo(id);
         if(info)
         {
-            throw ExceptionReader(_communicator, info);
+            throw ExceptionReader(info);
         }
     }
-
-private:
-
-    const Ice::CommunicatorPtr _communicator;
 };
 
 }
@@ -1498,7 +1489,7 @@ IcePy::TypedInvocation::TypedInvocation(const Ice::ObjectPrx& prx, const Operati
 }
 
 bool
-IcePy::TypedInvocation::prepareRequest(PyObject* args, MappingType mapping, Ice::OutputStreamPtr& os,
+IcePy::TypedInvocation::prepareRequest(PyObject* args, MappingType mapping, Ice::OutputStream* os,
                                        pair<const Ice::Byte*, const Ice::Byte*>& params)
 {
     assert(PyTuple_Check(args));
@@ -1536,7 +1527,6 @@ IcePy::TypedInvocation::prepareRequest(PyObject* args, MappingType mapping, Ice:
             //
             // Marshal the in parameters.
             //
-            os = Ice::createOutputStream(_communicator);
             os->startEncapsulation(_prx->ice_getEncodingVersion(), _op->format);
 
             ObjectMap objectMap;
@@ -1591,7 +1581,7 @@ IcePy::TypedInvocation::prepareRequest(PyObject* args, MappingType mapping, Ice:
             {
                 ParamInfoPtr info = *p;
                 PyObject* arg = PyTuple_GET_ITEM(args, info->pos);
-                if(arg != Unset && os->writeOptional(info->tag, info->type->optionalFormat()))
+                if(arg != Unset && os->writeOpt(info->tag, info->type->optionalFormat()))
                 {
                     info->type->marshal(arg, os, &objectMap, true, &info->metaData);
                 }
@@ -1632,17 +1622,17 @@ IcePy::TypedInvocation::unmarshalResults(const pair<const Ice::Byte*, const Ice:
     PyObjectHandle results = PyTuple_New(numResults);
     if(results.get() && numResults > 0)
     {
-        Ice::InputStreamPtr is = Ice::wrapInputStream(_communicator, bytes);
+        Ice::InputStream is(_communicator, bytes);
 
         //
-        // Store a pointer to a local SlicedDataUtil object as the stream's closure.
+        // Store a pointer to a local StreamUtil object as the stream's closure.
         // This is necessary to support object unmarshaling (see ObjectReader).
         //
-        SlicedDataUtil util;
-        assert(!is->closure());
-        is->closure(&util);
+        StreamUtil util;
+        assert(!is.getClosure());
+        is.setClosure(&util);
 
-        is->startEncapsulation();
+        is.startEncapsulation();
 
         ParamInfoList::iterator p;
 
@@ -1655,7 +1645,7 @@ IcePy::TypedInvocation::unmarshalResults(const pair<const Ice::Byte*, const Ice:
             if(!info->optional)
             {
                 void* closure = reinterpret_cast<void*>(info->pos);
-                info->type->unmarshal(is, info, results.get(), closure, false, &info->metaData);
+                info->type->unmarshal(&is, info, results.get(), closure, false, &info->metaData);
             }
         }
 
@@ -1666,7 +1656,7 @@ IcePy::TypedInvocation::unmarshalResults(const pair<const Ice::Byte*, const Ice:
         {
             assert(_op->returnType->pos == 0);
             void* closure = reinterpret_cast<void*>(_op->returnType->pos);
-            _op->returnType->type->unmarshal(is, _op->returnType, results.get(), closure, false, &_op->metaData);
+            _op->returnType->type->unmarshal(&is, _op->returnType, results.get(), closure, false, &_op->metaData);
         }
 
         //
@@ -1675,10 +1665,10 @@ IcePy::TypedInvocation::unmarshalResults(const pair<const Ice::Byte*, const Ice:
         for(p = _op->optionalOutParams.begin(); p != _op->optionalOutParams.end(); ++p)
         {
             ParamInfoPtr info = *p;
-            if(is->readOptional(info->tag, info->type->optionalFormat()))
+            if(is.readOpt(info->tag, info->type->optionalFormat()))
             {
                 void* closure = reinterpret_cast<void*>(info->pos);
-                info->type->unmarshal(is, info, results.get(), closure, true, &info->metaData);
+                info->type->unmarshal(&is, info, results.get(), closure, true, &info->metaData);
             }
             else
             {
@@ -1692,12 +1682,12 @@ IcePy::TypedInvocation::unmarshalResults(const pair<const Ice::Byte*, const Ice:
 
         if(_op->returnsClasses)
         {
-            is->readPendingObjects();
+            is.readPendingObjects();
         }
 
-        is->endEncapsulation();
+        is.endEncapsulation();
 
-        util.update();
+        util.updateSlicedData();
     }
 
     return results.release();
@@ -1706,37 +1696,37 @@ IcePy::TypedInvocation::unmarshalResults(const pair<const Ice::Byte*, const Ice:
 PyObject*
 IcePy::TypedInvocation::unmarshalException(const pair<const Ice::Byte*, const Ice::Byte*>& bytes)
 {
-    Ice::InputStreamPtr is = Ice::wrapInputStream(_communicator, bytes);
+    Ice::InputStream is(_communicator, bytes);
 
     //
-    // Store a pointer to a local SlicedDataUtil object as the stream's closure.
+    // Store a pointer to a local StreamUtil object as the stream's closure.
     // This is necessary to support object unmarshaling (see ObjectReader).
     //
-    SlicedDataUtil util;
-    assert(!is->closure());
-    is->closure(&util);
+    StreamUtil util;
+    assert(!is.getClosure());
+    is.setClosure(&util);
 
-    is->startEncapsulation();
+    is.startEncapsulation();
 
     try
     {
-        Ice::UserExceptionReaderFactoryPtr factory = new UserExceptionReaderFactoryI(_communicator);
-        is->throwException(factory);
+        Ice::UserExceptionFactoryPtr factory = new UserExceptionFactory;
+        is.throwException(factory);
     }
     catch(const ExceptionReader& r)
     {
-        is->endEncapsulation();
+        is.endEncapsulation();
 
         PyObject* ex = r.getException();
 
         if(validateException(ex))
         {
-            util.update();
+            util.updateSlicedData();
 
             Ice::SlicedDataPtr slicedData = r.getSlicedData();
             if(slicedData)
             {
-                SlicedDataUtil::setMember(ex, slicedData);
+                StreamUtil::setSlicedDataMember(ex, slicedData);
             }
 
             Py_INCREF(ex);
@@ -1800,9 +1790,9 @@ IcePy::SyncTypedInvocation::invoke(PyObject* args, PyObject* /* kwds */)
     //
     // Marshal the input parameters to a byte sequence.
     //
-    Ice::OutputStreamPtr os;
+    Ice::OutputStream os(_communicator);
     pair<const Ice::Byte*, const Ice::Byte*> params;
-    if(!prepareRequest(pyparams, SyncMapping, os, params))
+    if(!prepareRequest(pyparams, SyncMapping, &os, params))
     {
         return 0;
     }
@@ -2004,9 +1994,9 @@ IcePy::AsyncTypedInvocation::invoke(PyObject* args, PyObject* /* kwds */)
     //
     // Marshal the input parameters to a byte sequence.
     //
-    Ice::OutputStreamPtr os;
+    Ice::OutputStream os(_communicator);
     pair<const Ice::Byte*, const Ice::Byte*> params;
-    if(!prepareRequest(pyparams, AsyncMapping, os, params))
+    if(!prepareRequest(pyparams, AsyncMapping, &os, params))
     {
         return 0;
     }
@@ -2289,9 +2279,9 @@ IcePy::OldAsyncTypedInvocation::invoke(PyObject* args, PyObject* /* kwds */)
     //
     // Marshal the input parameters to a byte sequence.
     //
-    Ice::OutputStreamPtr os;
+    Ice::OutputStream os(_communicator);
     pair<const Ice::Byte*, const Ice::Byte*> params;
-    if(!prepareRequest(pyparams, OldAsyncMapping, os, params))
+    if(!prepareRequest(pyparams, OldAsyncMapping, &os, params))
     {
         return 0;
     }
@@ -3246,19 +3236,19 @@ IcePy::TypedUpcall::dispatch(PyObject* servant, const pair<const Ice::Byte*, con
 
     if(!_op->inParams.empty())
     {
-        Ice::InputStreamPtr is = Ice::wrapInputStream(_communicator, inBytes);
+        Ice::InputStream is(_communicator, inBytes);
 
         //
-        // Store a pointer to a local SlicedDataUtil object as the stream's closure.
+        // Store a pointer to a local StreamUtil object as the stream's closure.
         // This is necessary to support object unmarshaling (see ObjectReader).
         //
-        SlicedDataUtil util;
-        assert(!is->closure());
-        is->closure(&util);
+        StreamUtil util;
+        assert(!is.getClosure());
+        is.setClosure(&util);
 
         try
         {
-            is->startEncapsulation();
+            is.startEncapsulation();
 
             ParamInfoList::iterator p;
 
@@ -3271,7 +3261,7 @@ IcePy::TypedUpcall::dispatch(PyObject* servant, const pair<const Ice::Byte*, con
                 if(!info->optional)
                 {
                     void* closure = reinterpret_cast<void*>(info->pos + offset);
-                    info->type->unmarshal(is, info, args.get(), closure, false, &info->metaData);
+                    info->type->unmarshal(&is, info, args.get(), closure, false, &info->metaData);
                 }
             }
 
@@ -3281,10 +3271,10 @@ IcePy::TypedUpcall::dispatch(PyObject* servant, const pair<const Ice::Byte*, con
             for(p = _op->optionalInParams.begin(); p != _op->optionalInParams.end(); ++p)
             {
                 ParamInfoPtr info = *p;
-                if(is->readOptional(info->tag, info->type->optionalFormat()))
+                if(is.readOpt(info->tag, info->type->optionalFormat()))
                 {
                     void* closure = reinterpret_cast<void*>(info->pos + offset);
-                    info->type->unmarshal(is, info, args.get(), closure, true, &info->metaData);
+                    info->type->unmarshal(&is, info, args.get(), closure, true, &info->metaData);
                 }
                 else
                 {
@@ -3298,12 +3288,12 @@ IcePy::TypedUpcall::dispatch(PyObject* servant, const pair<const Ice::Byte*, con
 
             if(_op->sendsClasses)
             {
-                is->readPendingObjects();
+                is.readPendingObjects();
             }
 
-            is->endEncapsulation();
+            is.endEncapsulation();
 
-            util.update();
+            util.updateSlicedData();
         }
         catch(const AbortMarshaling&)
         {
@@ -3394,7 +3384,7 @@ IcePy::TypedUpcall::response(PyObject* args, const Ice::EncodingVersion& encodin
         // Marshal the results. If there is more than one value to be returned, then they must be
         // returned in a tuple of the form (result, outParam1, ...).
         //
-        Ice::OutputStreamPtr os = Ice::createOutputStream(_communicator);
+        Ice::OutputStream os(_communicator);
         try
         {
             Py_ssize_t numResults = static_cast<Py_ssize_t>(_op->outParams.size());
@@ -3433,7 +3423,7 @@ IcePy::TypedUpcall::response(PyObject* args, const Ice::EncodingVersion& encodin
             }
             Py_INCREF(args);
 
-            os->startEncapsulation(encoding, _op->format);
+            os.startEncapsulation(encoding, _op->format);
 
             ObjectMap objectMap;
             ParamInfoList::iterator p;
@@ -3478,7 +3468,7 @@ IcePy::TypedUpcall::response(PyObject* args, const Ice::EncodingVersion& encodin
                 if(!info->optional)
                 {
                     PyObject* arg = PyTuple_GET_ITEM(t.get(), info->pos);
-                    info->type->marshal(arg, os, &objectMap, false, &info->metaData);
+                    info->type->marshal(arg, &os, &objectMap, false, &info->metaData);
                 }
             }
 
@@ -3488,7 +3478,7 @@ IcePy::TypedUpcall::response(PyObject* args, const Ice::EncodingVersion& encodin
             if(_op->returnType && !_op->returnType->optional)
             {
                 PyObject* res = PyTuple_GET_ITEM(t.get(), 0);
-                _op->returnType->type->marshal(res, os, &objectMap, false, &_op->metaData);
+                _op->returnType->type->marshal(res, &os, &objectMap, false, &_op->metaData);
             }
 
             //
@@ -3498,21 +3488,21 @@ IcePy::TypedUpcall::response(PyObject* args, const Ice::EncodingVersion& encodin
             {
                 ParamInfoPtr info = *p;
                 PyObject* arg = PyTuple_GET_ITEM(t.get(), info->pos);
-                if(arg != Unset && os->writeOptional(info->tag, info->type->optionalFormat()))
+                if(arg != Unset && os.writeOpt(info->tag, info->type->optionalFormat()))
                 {
-                    info->type->marshal(arg, os, &objectMap, true, &info->metaData);
+                    info->type->marshal(arg, &os, &objectMap, true, &info->metaData);
                 }
             }
 
             if(_op->returnsClasses)
             {
-                os->writePendingObjects();
+                os.writePendingObjects();
             }
 
-            os->endEncapsulation();
+            os.endEncapsulation();
 
             AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
-            _callback->ice_response(true, os->finished());
+            _callback->ice_response(true, os.finished());
         }
         catch(const AbortMarshaling&)
         {
@@ -3569,16 +3559,16 @@ IcePy::TypedUpcall::exception(PyException& ex, const Ice::EncodingVersion& encod
                 }
                 else
                 {
-                    Ice::OutputStreamPtr os = Ice::createOutputStream(_communicator);
-                    os->startEncapsulation(encoding, _op->format);
+                    Ice::OutputStream os(_communicator);
+                    os.startEncapsulation(encoding, _op->format);
 
-                    ExceptionWriter writer(_communicator, ex.ex, info);
-                    os->writeException(writer);
+                    ExceptionWriter writer(ex.ex, info);
+                    os.writeException(writer);
 
-                    os->endEncapsulation();
+                    os.endEncapsulation();
 
                     AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
-                    _callback->ice_response(false, os->finished());
+                    _callback->ice_response(false, os.finished());
                 }
             }
             else

@@ -26,7 +26,6 @@
 //#include <Ice/RouterF.h> // Can't include RouterF.h here, otherwise we have cyclic includes
 //#include <Ice/LocatorF.h> // Can't include RouterF.h here, otherwise we have cyclic includes
 #include <Ice/Current.h>
-#include <Ice/StreamF.h>
 #include <Ice/CommunicatorF.h>
 #include <Ice/ObserverHelper.h>
 #include <Ice/LocalException.h>
@@ -66,10 +65,7 @@ class LocatorPrx;
 typedef ::std::shared_ptr<::Ice::LocatorPrx> LocatorPrxPtr;
 
 class LocalException;
-}
-
-namespace Ice
-{
+class OutputStream;
 
 class ICE_API ObjectPrx : public ::std::enable_shared_from_this<ObjectPrx>
 {
@@ -500,6 +496,8 @@ public:
 
     int __hash() const;
 
+    void __write(OutputStream&) const;
+
 protected:
 
     virtual ::std::shared_ptr<ObjectPrx> __newInstance() const;
@@ -783,9 +781,7 @@ typedef ::IceInternal::ProxyHandle< ::IceProxy::Ice::Locator> LocatorPrx;
 typedef LocatorPrx LocatorPrxPtr;
 
 class LocalException;
-
-ICE_API void ice_writeObjectPrx(const ::Ice::OutputStreamPtr&, const ObjectPrx&);
-ICE_API void ice_readObjectPrx(const ::Ice::InputStreamPtr&, ObjectPrx&);
+class OutputStream;
 
 class Callback_Object_ice_isA_Base : public virtual ::IceInternal::CallbackBase { };
 typedef ::IceUtil::Handle< Callback_Object_ice_isA_Base> Callback_Object_ice_isAPtr;
@@ -1224,6 +1220,8 @@ public:
     ::IceInternal::BatchRequestQueuePtr __getBatchRequestQueue();
     ::IceInternal::RequestHandlerPtr __setRequestHandler(const ::IceInternal::RequestHandlerPtr&);
     void __updateRequestHandler(const ::IceInternal::RequestHandlerPtr&, const ::IceInternal::RequestHandlerPtr&);
+
+    void __write(::Ice::OutputStream&) const;
 
 protected:
 

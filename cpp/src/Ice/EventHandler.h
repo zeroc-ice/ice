@@ -14,7 +14,6 @@
 #include <Ice/EventHandlerF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/ThreadPoolF.h>
-#include <Ice/BasicStream.h>
 #include <Ice/Network.h>
 #include <Ice/VirtualShared.h>
 

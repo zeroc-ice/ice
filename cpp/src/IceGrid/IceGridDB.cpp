@@ -268,6 +268,14 @@ Client::run(int argc, char* argv[])
 
             fs.seekg(0, ios::end);
             streampos fileSize = fs.tellg();
+
+            if(!fileSize)
+            {
+                fs.close();
+                cerr << "Empty input file" << endl;
+                return EXIT_FAILURE;
+            }
+
             fs.seekg(0, ios::beg);
 
             vector<Ice::Byte> buf;
@@ -279,22 +287,22 @@ Client::run(int argc, char* argv[])
             if(!serverVersion.empty())
             {
                 ValueFactoryPtr factory = new ValueFactoryI(serverVersion);
-                communicator()->addValueFactory(factory, "::IceGrid::ServerDescriptor");
-                communicator()->addValueFactory(factory, "::IceGrid::IceBoxDescriptor");
+                communicator()->getValueFactoryManager()->add(factory, "::IceGrid::ServerDescriptor");
+                communicator()->getValueFactoryManager()->add(factory, "::IceGrid::IceBoxDescriptor");
             }
 
-            Ice::InputStreamPtr stream = Ice::wrapInputStream(communicator(), buf, dbContext.encoding);
+            Ice::InputStream stream(communicator(), dbContext.encoding, buf);
 
             string type;
             int version;
 
-            stream->read(type);
+            stream.read(type);
             if(type != "IceGrid")
             {
                 cerr << "Incorrect input file type: " << type << endl;
                 return EXIT_FAILURE;
             }
-            stream->read(version);
+            stream.read(version);
             if(version / 100 == 305)
             {
                 if(debug)
@@ -303,7 +311,7 @@ Client::run(int argc, char* argv[])
                 }
                 skipFilter = true;
             }
-            stream->read(data);
+            stream.read(data);
 
             {
                 IceDB::Env env(dbPath, 5, mapSize);
@@ -314,7 +322,7 @@ Client::run(int argc, char* argv[])
                     cout << "Writing Applications Map:" << endl;
                 }
 
-                IceDB::Dbi<string, ApplicationInfo, IceDB::IceContext, Ice::OutputStreamPtr>
+                IceDB::Dbi<string, ApplicationInfo, IceDB::IceContext, Ice::OutputStream>
                     apps(txn, "applications", dbContext, MDB_CREATE);
 
                 for(ApplicationInfoSeq::const_iterator p = data.applications.begin(); p != data.applications.end(); ++p)
@@ -331,7 +339,7 @@ Client::run(int argc, char* argv[])
                     cout << "Writing Adapters Map:" << endl;
                 }
 
-                IceDB::Dbi<string, AdapterInfo, IceDB::IceContext, Ice::OutputStreamPtr>
+                IceDB::Dbi<string, AdapterInfo, IceDB::IceContext, Ice::OutputStream>
                     adpts(txn, "adapters", dbContext, MDB_CREATE);
 
                 for(AdapterInfoSeq::const_iterator p = data.adapters.begin(); p != data.adapters.end(); ++p)
@@ -348,7 +356,7 @@ Client::run(int argc, char* argv[])
                     cout << "Writing Objects Map:" << endl;
                 }
 
-                IceDB::Dbi<Identity, ObjectInfo, IceDB::IceContext, Ice::OutputStreamPtr>
+                IceDB::Dbi<Identity, ObjectInfo, IceDB::IceContext, Ice::OutputStream>
                     objs(txn, "objects", dbContext, MDB_CREATE);
 
                 for(ObjectInfoSeq::const_iterator p = data.objects.begin(); p != data.objects.end(); ++p)
@@ -365,7 +373,7 @@ Client::run(int argc, char* argv[])
                     cout << "Writing Internal Objects Map:" << endl;
                 }
 
-                IceDB::Dbi<Identity, ObjectInfo, IceDB::IceContext, Ice::OutputStreamPtr>
+                IceDB::Dbi<Identity, ObjectInfo, IceDB::IceContext, Ice::OutputStream>
                     internalObjs(txn, "internal-objects", dbContext, MDB_CREATE);
 
                 for(ObjectInfoSeq::const_iterator p = data.internalObjects.begin(); p != data.internalObjects.end(); ++p)
@@ -382,7 +390,7 @@ Client::run(int argc, char* argv[])
                     cout << "Writing Serials Map:" << endl;
                 }
 
-                IceDB::Dbi<string, Long, IceDB::IceContext, Ice::OutputStreamPtr>
+                IceDB::Dbi<string, Long, IceDB::IceContext, Ice::OutputStream>
                     srls(txn, "serials", dbContext, MDB_CREATE);
 
                 for(StringLongDict::const_iterator p = data.serials.begin(); p != data.serials.end(); ++p)
@@ -411,12 +419,12 @@ Client::run(int argc, char* argv[])
                     cout << "Reading Application Map:" << endl;
                 }
 
-                IceDB::Dbi<string, IceGrid::ApplicationInfo, IceDB::IceContext, Ice::OutputStreamPtr>
+                IceDB::Dbi<string, IceGrid::ApplicationInfo, IceDB::IceContext, Ice::OutputStream>
                     applications(txn, "applications", dbContext, 0);
 
                 string name;
                 ApplicationInfo application;
-                IceDB::ReadOnlyCursor<string, IceGrid::ApplicationInfo, IceDB::IceContext, Ice::OutputStreamPtr>
+                IceDB::ReadOnlyCursor<string, IceGrid::ApplicationInfo, IceDB::IceContext, Ice::OutputStream>
                     appCursor(applications, txn);
                 while(appCursor.get(name, application, MDB_NEXT))
                 {
@@ -433,11 +441,11 @@ Client::run(int argc, char* argv[])
                     cout << "Reading Adapter Map:" << endl;
                 }
 
-                IceDB::Dbi<string, IceGrid::AdapterInfo, IceDB::IceContext, Ice::OutputStreamPtr>
+                IceDB::Dbi<string, IceGrid::AdapterInfo, IceDB::IceContext, Ice::OutputStream>
                     adapters(txn, "adapters", dbContext, 0);
 
                 AdapterInfo adapter;
-                IceDB::ReadOnlyCursor<string, IceGrid::AdapterInfo, IceDB::IceContext, Ice::OutputStreamPtr>
+                IceDB::ReadOnlyCursor<string, IceGrid::AdapterInfo, IceDB::IceContext, Ice::OutputStream>
                     adapterCursor(adapters, txn);
                 while(adapterCursor.get(name, adapter, MDB_NEXT))
                 {
@@ -454,12 +462,12 @@ Client::run(int argc, char* argv[])
                     cout << "Reading Object Map:" << endl;
                 }
 
-                IceDB::Dbi<Identity, IceGrid::ObjectInfo, IceDB::IceContext, Ice::OutputStreamPtr>
+                IceDB::Dbi<Identity, IceGrid::ObjectInfo, IceDB::IceContext, Ice::OutputStream>
                     objects(txn, "objects", dbContext, 0);
 
                 Identity id;
                 ObjectInfo object;
-                IceDB::ReadOnlyCursor<Identity, IceGrid::ObjectInfo, IceDB::IceContext, Ice::OutputStreamPtr>
+                IceDB::ReadOnlyCursor<Identity, IceGrid::ObjectInfo, IceDB::IceContext, Ice::OutputStream>
                     objCursor(objects, txn);
                 while(objCursor.get(id, object, MDB_NEXT))
                 {
@@ -476,10 +484,10 @@ Client::run(int argc, char* argv[])
                     cout << "Reading Internal Object Map:" << endl;
                 }
 
-                IceDB::Dbi<Identity, IceGrid::ObjectInfo, IceDB::IceContext, Ice::OutputStreamPtr>
+                IceDB::Dbi<Identity, IceGrid::ObjectInfo, IceDB::IceContext, Ice::OutputStream>
                     internalObjects(txn, "internal-objects", dbContext, 0);
 
-                IceDB::ReadOnlyCursor<Identity, IceGrid::ObjectInfo, IceDB::IceContext, Ice::OutputStreamPtr>
+                IceDB::ReadOnlyCursor<Identity, IceGrid::ObjectInfo, IceDB::IceContext, Ice::OutputStream>
                     iobjCursor(internalObjects, txn);
                 while(iobjCursor.get(id, object, MDB_NEXT))
                 {
@@ -496,11 +504,11 @@ Client::run(int argc, char* argv[])
                     cout << "Reading Serials Map:" << endl;
                 }
 
-                IceDB::Dbi<string, Long, IceDB::IceContext, Ice::OutputStreamPtr>
+                IceDB::Dbi<string, Long, IceDB::IceContext, Ice::OutputStream>
                     serials(txn, "serials", dbContext, 0);
 
                 Long serial;
-                IceDB::ReadOnlyCursor<string, Long, IceDB::IceContext, Ice::OutputStreamPtr>
+                IceDB::ReadOnlyCursor<string, Long, IceDB::IceContext, Ice::OutputStream>
                     serialCursor(serials, txn);
                 while(serialCursor.get(name, serial, MDB_NEXT))
                 {
@@ -516,11 +524,10 @@ Client::run(int argc, char* argv[])
                 env.close();
             }
 
-            Ice::OutputStreamPtr stream = Ice::createOutputStream(communicator(), dbContext.encoding);
-            stream->write("IceGrid");
-            stream->write(ICE_INT_VERSION);
-            stream->write(data);
-            pair<const Ice::Byte*, const Ice::Byte*> buf = stream->finished();
+            Ice::OutputStream stream(communicator(), dbContext.encoding);
+            stream.write("IceGrid");
+            stream.write(ICE_INT_VERSION);
+            stream.write(data);
 
             ofstream fs(dbFile.c_str(), ios::binary);
             if(fs.fail())
@@ -528,7 +535,7 @@ Client::run(int argc, char* argv[])
                 cerr << "Could not open output file: " << strerror(errno) << endl;
                 return EXIT_FAILURE;
             }
-            fs.write(reinterpret_cast<const char*>(buf.first), buf.second - buf.first);
+            fs.write(reinterpret_cast<const char*>(stream.b.begin()), stream.b.size());
             fs.close();
         }
     }

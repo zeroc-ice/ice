@@ -8,7 +8,6 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <Ice/Stream.h>
 #include <TestCommon.h>
 #include <Test.h>
 
@@ -72,30 +71,37 @@ allTests(const Ice::CommunicatorPtr& communicator)
 #ifndef ICE_CPP11_MAPPING
     cout << "testing enum streaming... " << flush;
 
-    Ice::OutputStreamPtr out;
     Ice::ByteSeq bytes;
 
     const bool encoding_1_0 = communicator->getProperties()->getProperty("Ice.Default.EncodingVersion") == "1.0";
 
-    out = Ice::createOutputStream(communicator);
-    out->write(ICE_ENUM(ByteEnum, benum11));
-    out->finished(bytes);
-    test(bytes.size() == 1); // ByteEnum should require one byte
+    {
+        Ice::OutputStream out(communicator);
+        out.write(ICE_ENUM(ByteEnum, benum11));
+        out.finished(bytes);
+        test(bytes.size() == 1); // ByteEnum should require one byte
+    }
 
-    out = Ice::createOutputStream(communicator);
-    out->write(ICE_ENUM(ShortEnum, senum11));
-    out->finished(bytes);
-    test(bytes.size() == (encoding_1_0 ? 2 : 5));
+    {
+        Ice::OutputStream out(communicator);
+        out.write(ICE_ENUM(ShortEnum, senum11));
+        out.finished(bytes);
+        test(bytes.size() == (encoding_1_0 ? 2 : 5));
+    }
 
-    out = Ice::createOutputStream(communicator);
-    out->write(ICE_ENUM(IntEnum, ienum11));
-    out->finished(bytes);
-    test(bytes.size() == (encoding_1_0 ? 4 : 5));
+    {
+        Ice::OutputStream out(communicator);
+        out.write(ICE_ENUM(IntEnum, ienum11));
+        out.finished(bytes);
+        test(bytes.size() == (encoding_1_0 ? 4 : 5));
+    }
 
-    out = Ice::createOutputStream(communicator);
-    out->write(ICE_ENUM(SimpleEnum, blue));
-    out->finished(bytes);
-    test(bytes.size() == 1); // SimpleEnum should require one byte
+    {
+        Ice::OutputStream out(communicator);
+        out.write(ICE_ENUM(SimpleEnum, blue));
+        out.finished(bytes);
+        test(bytes.size() == 1); // SimpleEnum should require one byte
+    }
 
     cout << "ok" << endl;
 #endif

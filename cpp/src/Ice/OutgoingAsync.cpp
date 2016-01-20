@@ -48,7 +48,7 @@ OutgoingAsyncBase::completed()
     return false;
 }
 
-BasicStream*
+InputStream*
 OutgoingAsyncBase::getIs()
 {
     return 0; // Must be overriden by request that can handle responses
@@ -1107,7 +1107,7 @@ OnewayClosureCallback::invoke(
     const shared_ptr<Ice::ObjectPrx>& __proxy,
     Ice::OperationMode __mode,
     Ice::FormatType __format,
-    function<void (BasicStream*)> __marshal,
+    function<void (OutputStream*)> __marshal,
     function<void ()> __response,
     function<void (exception_ptr)> __exception,
     function<void (bool)> __sent,
@@ -1148,7 +1148,7 @@ TwowayClosureCallback::TwowayClosureCallback(
     const string& name,
     const shared_ptr<Ice::ObjectPrx>& proxy,
     bool readEmptyParams,
-    function<void (BasicStream*)> read,
+    function<void (InputStream*)> read,
     function<void (const UserException&)> userException,
     function<void (exception_ptr)> exception,
     function<void (bool)> sent) :
@@ -1230,9 +1230,9 @@ TwowayClosureCallback::invoke(
     const shared_ptr<Ice::ObjectPrx>& __proxy,
     OperationMode __mode,
     FormatType __format,
-    function<void (BasicStream*)> __write,
+    function<void (OutputStream*)> __write,
     bool __readEmptyParams,
-    function<void (BasicStream*)> __read,
+    function<void (InputStream*)> __read,
     function<void (const UserException&)> __userException,
     function<void (exception_ptr)> __exception,
     function<void (bool)> __sent,

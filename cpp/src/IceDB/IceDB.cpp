@@ -9,7 +9,6 @@
 
 #include <IceDB/IceDB.h>
 #include <Ice/Initialize.h>
-#include <Ice/Stream.h>
 
 #include <lmdb.h>
 

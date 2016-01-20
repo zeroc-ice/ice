@@ -270,9 +270,9 @@ def allTests(communicator):
     sys.stdout.write("testing object factory registration exception... ")
     sys.stdout.flush()
 
-    communicator.addValueFactory(ValueFactory, "x")
+    communicator.getValueFactoryManager().add(ValueFactory, "x")
     try:
-        communicator.addValueFactory(ValueFactory, "x")
+        communicator.getValueFactoryManager().add(ValueFactory, "x")
         test(false)
     except Ice.AlreadyRegisteredException:
         pass

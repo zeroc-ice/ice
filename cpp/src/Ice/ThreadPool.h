@@ -23,7 +23,7 @@
 #include <Ice/PropertiesF.h>
 #include <Ice/EventHandler.h>
 #include <Ice/Selector.h>
-#include <Ice/BasicStream.h>
+#include <Ice/InputStream.h>
 #include <Ice/ObserverHelper.h>
 
 #include <set>
@@ -176,7 +176,7 @@ public:
     ThreadPoolCurrent(const InstancePtr&, const ThreadPoolPtr&, const ThreadPool::EventHandlerThreadPtr&);
 
     SocketOperation operation;
-    BasicStream stream; // A per-thread stream to be used by event handlers for optimization.
+    Ice::InputStream stream; // A per-thread stream to be used by event handlers for optimization.
 
     bool ioCompleted() const
     {

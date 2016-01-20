@@ -25,7 +25,7 @@ public:
     UdpEndpointI(const ProtocolInstancePtr&, const std::string&, Ice::Int, const Address&, const std::string&,
                  Ice::Int, bool, const std::string&, bool);
     UdpEndpointI(const ProtocolInstancePtr&);
-    UdpEndpointI(const ProtocolInstancePtr&, BasicStream*);
+    UdpEndpointI(const ProtocolInstancePtr&, Ice::InputStream*);
 
     virtual Ice::EndpointInfoPtr getInfo() const;
 
@@ -53,7 +53,7 @@ public:
 
 protected:
 
-    virtual void streamWriteImpl(BasicStream*) const;
+    virtual void streamWriteImpl(Ice::OutputStream*) const;
     virtual void hashInit(Ice::Int&) const;
     virtual void fillEndpointInfo(Ice::IPEndpointInfo*) const;
     virtual bool checkOption(const std::string&, const std::string&, const std::string&);
@@ -82,7 +82,7 @@ public:
     virtual Ice::Short type() const;
     virtual std::string protocol() const;
     virtual EndpointIPtr create(std::vector<std::string>&, bool) const;
-    virtual EndpointIPtr read(BasicStream*) const;
+    virtual EndpointIPtr read(Ice::InputStream*) const;
     virtual void destroy();
 
     virtual EndpointFactoryPtr clone(const ProtocolInstancePtr&) const;

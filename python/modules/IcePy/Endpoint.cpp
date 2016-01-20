@@ -99,9 +99,7 @@ endpointCompare(EndpointObject* p1, PyObject* other, int op)
         }
     }
 
-    PyObject* r = result ? getTrue() : getFalse();
-    Py_INCREF(r);
-    return r;
+    return result ? incTrue() : incFalse();
 }
 
 #ifdef WIN32

@@ -15,7 +15,6 @@
 #include <Ice/PropertiesF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/LoggerF.h>
-#include <Ice/StreamF.h>
 #include <Ice/InstrumentationF.h>
 #include <Ice/Dispatcher.h>
 #include <Ice/FactoryTable.h>
@@ -99,6 +98,7 @@ struct InitializationData
     CompactIdResolverPtr compactIdResolver;
     BatchRequestInterceptorPtr batchRequestInterceptor;
 #endif
+    ValueFactoryManagerPtr valueFactoryManager;
 };
 
 ICE_API CommunicatorPtr initialize(int&, char*[], const InitializationData& = InitializationData(),
@@ -110,31 +110,11 @@ ICE_API CommunicatorPtr initialize(Ice::StringSeq&, const InitializationData& = 
 ICE_API CommunicatorPtr initialize(const InitializationData& = InitializationData(),
                                            Int = ICE_INT_VERSION);
 
-ICE_API InputStreamPtr createInputStream(const CommunicatorPtr&, const ::std::vector< Byte >&);
-ICE_API InputStreamPtr createInputStream(const CommunicatorPtr&, const ::std::vector< Byte >&,
-                                         const EncodingVersion&);
-ICE_API InputStreamPtr wrapInputStream(const CommunicatorPtr&, const ::std::vector< Byte >&);
-ICE_API InputStreamPtr wrapInputStream(const CommunicatorPtr&, const ::std::vector< Byte >&, const EncodingVersion&);
-ICE_API InputStreamPtr createInputStream(const CommunicatorPtr&,
-                                         const ::std::pair< const Ice::Byte*, const Ice::Byte*>&);
-ICE_API InputStreamPtr createInputStream(const CommunicatorPtr&,
-                                         const ::std::pair< const Ice::Byte*, const Ice::Byte*>&,
-                                         const EncodingVersion&);
-ICE_API InputStreamPtr wrapInputStream(const CommunicatorPtr&,
-                                       const ::std::pair< const Ice::Byte*, const Ice::Byte*>&);
-ICE_API InputStreamPtr wrapInputStream(const CommunicatorPtr&,
-                                       const ::std::pair< const Ice::Byte*, const Ice::Byte*>&,
-                                       const EncodingVersion&);
-
-ICE_API OutputStreamPtr createOutputStream(const CommunicatorPtr&);
-ICE_API OutputStreamPtr createOutputStream(const CommunicatorPtr&, const EncodingVersion&);
-
 ICE_API LoggerPtr getProcessLogger();
 ICE_API void setProcessLogger(const LoggerPtr&);
 
 typedef Ice::Plugin* (*PluginFactory)(const ::Ice::CommunicatorPtr&, const std::string&, const ::Ice::StringSeq&);
 ICE_API void registerPluginFactory(const std::string&, PluginFactory, bool);
-
 
 //
 // RAII helper class

@@ -457,7 +457,7 @@ function allTests($communicator)
 
     echo "testing getting ObjectFactory as ValueFactory... ";
     flush();
-    test($communicator->findValueFactory("TestOF") != null);
+    test($communicator->getValueFactoryManager()->find("TestOF") != null);
     echo "ok\n";
 
     return $initial;
@@ -465,14 +465,14 @@ function allTests($communicator)
 
 $communicator = Ice_initialize($argv);
 $factory = new MyValueFactory();
-$communicator->addValueFactory($factory, "::Test::B");
-$communicator->addValueFactory($factory, "::Test::C");
-$communicator->addValueFactory($factory, "::Test::D");
-$communicator->addValueFactory($factory, "::Test::E");
-$communicator->addValueFactory($factory, "::Test::F");
-$communicator->addValueFactory($factory, "::Test::I");
-$communicator->addValueFactory($factory, "::Test::J");
-$communicator->addValueFactory($factory, "::Test::H");
+$communicator->getValueFactoryManager()->add($factory, "::Test::B");
+$communicator->getValueFactoryManager()->add($factory, "::Test::C");
+$communicator->getValueFactoryManager()->add($factory, "::Test::D");
+$communicator->getValueFactoryManager()->add($factory, "::Test::E");
+$communicator->getValueFactoryManager()->add($factory, "::Test::F");
+$communicator->getValueFactoryManager()->add($factory, "::Test::I");
+$communicator->getValueFactoryManager()->add($factory, "::Test::J");
+$communicator->getValueFactoryManager()->add($factory, "::Test::H");
 $communicator->addObjectFactory(new MyObjectFactory(), "TestOF");
 $initial = allTests($communicator);
 $initial->shutdown();

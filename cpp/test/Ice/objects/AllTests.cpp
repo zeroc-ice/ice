@@ -336,7 +336,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(communicator->findObjectFactory("TestOF"));
     cout << "ok" << endl;
     cout << "testing getting ObjectFactory as ValueFactory... " << flush;
-    test(communicator->findValueFactory("TestOF"));
+    test(communicator->getValueFactoryManager()->find("TestOF"));
     cout << "ok" << endl;
 
     try

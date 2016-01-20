@@ -46,16 +46,16 @@ typedef IceUtil::Handle<ServerEntry> ServerEntryPtr;
 
 class ApplicationHelper;
 
-typedef IceDB::Dbi<std::string, IceGrid::ApplicationInfo, IceDB::IceContext, Ice::OutputStreamPtr>
+typedef IceDB::Dbi<std::string, IceGrid::ApplicationInfo, IceDB::IceContext, Ice::OutputStream>
     StringApplicationInfoMap;
 
-typedef IceDB::Dbi<Ice::Identity, IceGrid::ObjectInfo, IceDB::IceContext, Ice::OutputStreamPtr> IdentityObjectInfoMap;
-typedef IceDB::Dbi<std::string, Ice::Identity, IceDB::IceContext, Ice::OutputStreamPtr> StringIdentityMap;
+typedef IceDB::Dbi<Ice::Identity, IceGrid::ObjectInfo, IceDB::IceContext, Ice::OutputStream> IdentityObjectInfoMap;
+typedef IceDB::Dbi<std::string, Ice::Identity, IceDB::IceContext, Ice::OutputStream> StringIdentityMap;
 
-typedef IceDB::Dbi<std::string, IceGrid::AdapterInfo, IceDB::IceContext, Ice::OutputStreamPtr> StringAdapterInfoMap;
-typedef IceDB::Dbi<std::string, std::string, IceDB::IceContext, Ice::OutputStreamPtr> StringStringMap;
+typedef IceDB::Dbi<std::string, IceGrid::AdapterInfo, IceDB::IceContext, Ice::OutputStream> StringAdapterInfoMap;
+typedef IceDB::Dbi<std::string, std::string, IceDB::IceContext, Ice::OutputStream> StringStringMap;
 
-typedef IceDB::Dbi<std::string, Ice::Long, IceDB::IceContext, Ice::OutputStreamPtr> StringLongMap;
+typedef IceDB::Dbi<std::string, Ice::Long, IceDB::IceContext, Ice::OutputStream> StringLongMap;
 
 class Database : public IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mutex>
 {

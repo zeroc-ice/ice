@@ -13,14 +13,21 @@
 #include <Ice/LoggerF.h>
 #include <Ice/TraceLevelsF.h>
 
+namespace Ice
+{
+
+class OutputStream;
+class InputStream;
+
+}
+
 namespace IceInternal
 {
 
-class BasicStream;
-
-void traceSend(const BasicStream&, const ::Ice::LoggerPtr&, const TraceLevelsPtr&);
-void traceRecv(const BasicStream&, const ::Ice::LoggerPtr&, const TraceLevelsPtr&);
-void trace(const char*, const BasicStream&, const ::Ice::LoggerPtr&, const TraceLevelsPtr&);
+void traceSend(const ::Ice::OutputStream&, const ::Ice::LoggerPtr&, const TraceLevelsPtr&);
+void traceRecv(const ::Ice::InputStream&, const ::Ice::LoggerPtr&, const TraceLevelsPtr&);
+void trace(const char*, const ::Ice::OutputStream&, const ::Ice::LoggerPtr&, const TraceLevelsPtr&);
+void trace(const char*, const ::Ice::InputStream&, const ::Ice::LoggerPtr&, const TraceLevelsPtr&);
 void traceSlicing(const char*, const ::std::string&, const char *, const ::Ice::LoggerPtr&);
 
 }

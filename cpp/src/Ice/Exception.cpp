@@ -12,8 +12,8 @@
 #include <Ice/Network.h>
 #include <Ice/Plugin.h>
 #include <Ice/SlicedData.h>
-#include <Ice/BasicStream.h>
-#include <Ice/Stream.h>
+#include <Ice/OutputStream.h>
+#include <Ice/InputStream.h>
 #include <IceUtil/StringUtil.h>
 #ifdef ICE_OS_WINRT
 #    include <IceUtil/StringConverter.h>
@@ -103,23 +103,7 @@ throwMarshalException(const char* file, int line, const string& reason)
 }
 
 void
-Ice::UserException::__write(::IceInternal::BasicStream* os) const
-{
-    os->startWriteException(0);
-    __writeImpl(os);
-    os->endWriteException();
-}
-
-void
-Ice::UserException::__read(::IceInternal::BasicStream* is)
-{
-    is->startReadException();
-    __readImpl(is);
-    is->endReadException(false);
-}
-
-void
-Ice::UserException::__write(const Ice::OutputStreamPtr& os) const
+Ice::UserException::__write(::Ice::OutputStream* os) const
 {
     os->startException(0);
     __writeImpl(os);
@@ -127,23 +111,11 @@ Ice::UserException::__write(const Ice::OutputStreamPtr& os) const
 }
 
 void
-Ice::UserException::__read(const Ice::InputStreamPtr& is)
+Ice::UserException::__read(::Ice::InputStream* is)
 {
     is->startException();
     __readImpl(is);
     is->endException(false);
-}
-
-void
-Ice::UserException::__writeImpl(const Ice::OutputStreamPtr&) const
-{
-    throw MarshalException(__FILE__, __LINE__, "user exception was not generated with stream support");
-}
-
-void
-Ice::UserException::__readImpl(const Ice::InputStreamPtr&)
-{
-    throw MarshalException(__FILE__, __LINE__, "user exception was not generated with stream support");
 }
 
 bool

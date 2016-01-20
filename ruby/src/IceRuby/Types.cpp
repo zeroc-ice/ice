@@ -13,7 +13,9 @@
 #include <IceUtil/InputUtil.h>
 #include <IceUtil/OutputUtil.h>
 #include <IceUtil/ScopedArray.h>
+#include <Ice/InputStream.h>
 #include <Ice/LocalException.h>
+#include <Ice/OutputStream.h>
 #include <Ice/SlicedData.h>
 #include <list>
 #include <limits>
@@ -62,22 +64,6 @@ public:
     ~InfoMapDestroyer();
 };
 static InfoMapDestroyer infoMapDestroyer;
-
-class ReadObjectCallback : public Ice::ReadObjectCallback
-{
-public:
-
-    ReadObjectCallback(const ClassInfoPtr&, const UnmarshalCallbackPtr&, VALUE, void*);
-
-    virtual void invoke(const Ice::ObjectPtr&);
-
-private:
-
-    ClassInfoPtr _info;
-    UnmarshalCallbackPtr _cb;
-    VALUE _target;
-    void* _closure;
-};
 
 string
 escapeString(const string& str)
@@ -184,16 +170,16 @@ addExceptionInfo(const string& id, const ExceptionInfoPtr& info)
 }
 
 //
-// SlicedDataUtil implementation
+// StreamUtil implementation
 //
-VALUE IceRuby::SlicedDataUtil::_slicedDataType = Qnil;
-VALUE IceRuby::SlicedDataUtil::_sliceInfoType = Qnil;
+VALUE IceRuby::StreamUtil::_slicedDataType = Qnil;
+VALUE IceRuby::StreamUtil::_sliceInfoType = Qnil;
 
-IceRuby::SlicedDataUtil::SlicedDataUtil()
+IceRuby::StreamUtil::StreamUtil()
 {
 }
 
-IceRuby::SlicedDataUtil::~SlicedDataUtil()
+IceRuby::StreamUtil::~StreamUtil()
 {
     //
     // Make sure we break any cycles among the ObjectReaders in preserved slices.
@@ -216,23 +202,29 @@ IceRuby::SlicedDataUtil::~SlicedDataUtil()
 }
 
 void
-IceRuby::SlicedDataUtil::add(const ObjectReaderPtr& reader)
+IceRuby::StreamUtil::add(const ReadObjectCallbackPtr& callback)
+{
+    _callbacks.push_back(callback);
+}
+
+void
+IceRuby::StreamUtil::add(const ObjectReaderPtr& reader)
 {
     assert(reader->getSlicedData());
     _readers.insert(reader);
 }
 
 void
-IceRuby::SlicedDataUtil::update()
+IceRuby::StreamUtil::updateSlicedData()
 {
     for(set<ObjectReaderPtr>::iterator p = _readers.begin(); p != _readers.end(); ++p)
     {
-        setMember((*p)->getObject(), (*p)->getSlicedData());
+        setSlicedDataMember((*p)->getObject(), (*p)->getSlicedData());
     }
 }
 
 void
-IceRuby::SlicedDataUtil::setMember(VALUE obj, const Ice::SlicedDataPtr& slicedData)
+IceRuby::StreamUtil::setSlicedDataMember(VALUE obj, const Ice::SlicedDataPtr& slicedData)
 {
     //
     // Create a Ruby equivalent of the SlicedData object.
@@ -325,7 +317,7 @@ IceRuby::SlicedDataUtil::setMember(VALUE obj, const Ice::SlicedDataPtr& slicedDa
 // named _ice_slicedData which is an instance of the Ruby class Ice::SlicedData.
 //
 Ice::SlicedDataPtr
-IceRuby::SlicedDataUtil::getMember(VALUE obj, ObjectMap* objectMap)
+IceRuby::StreamUtil::getSlicedDataMember(VALUE obj, ObjectMap* objectMap)
 {
     Ice::SlicedDataPtr slicedData;
 
@@ -544,7 +536,7 @@ IceRuby::PrimitiveInfo::optionalFormat() const
 }
 
 void
-IceRuby::PrimitiveInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectMap*, bool)
+IceRuby::PrimitiveInfo::marshal(VALUE p, Ice::OutputStream* os, ObjectMap*, bool)
 {
     switch(kind)
     {
@@ -625,7 +617,7 @@ IceRuby::PrimitiveInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectM
 }
 
 void
-IceRuby::PrimitiveInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCallbackPtr& cb, VALUE target,
+IceRuby::PrimitiveInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& cb, VALUE target,
                                   void* closure, bool)
 {
     volatile VALUE val = Qnil;
@@ -814,7 +806,7 @@ IceRuby::EnumInfo::optionalFormat() const
 }
 
 void
-IceRuby::EnumInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectMap*, bool)
+IceRuby::EnumInfo::marshal(VALUE p, Ice::OutputStream* os, ObjectMap*, bool)
 {
     assert(callRuby(rb_obj_is_instance_of, p, rubyClass) == Qtrue); // validate() should have caught this.
 
@@ -832,7 +824,7 @@ IceRuby::EnumInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectMap*, 
 }
 
 void
-IceRuby::EnumInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCallbackPtr& cb, VALUE target, void* closure,
+IceRuby::EnumInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& cb, VALUE target, void* closure,
                              bool)
 {
     Ice::Int val = is->readEnum(maxValue);
@@ -995,7 +987,7 @@ IceRuby::StructInfo::usesClasses() const
 }
 
 void
-IceRuby::StructInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectMap* objectMap, bool optional)
+IceRuby::StructInfo::marshal(VALUE p, Ice::OutputStream* os, ObjectMap* objectMap, bool optional)
 {
     assert(NIL_P(p) || callRuby(rb_obj_is_kind_of, p, rubyClass) == Qtrue); // validate() should have caught this.
 
@@ -1041,7 +1033,7 @@ IceRuby::StructInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectMap*
 }
 
 void
-IceRuby::StructInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCallbackPtr& cb, VALUE target,
+IceRuby::StructInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& cb, VALUE target,
                                void* closure, bool optional)
 {
     volatile VALUE obj = callRuby(rb_class_new_instance, 0, static_cast<VALUE*>(0), rubyClass);
@@ -1178,7 +1170,7 @@ IceRuby::SequenceInfo::usesClasses() const
 }
 
 void
-IceRuby::SequenceInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectMap* objectMap, bool optional)
+IceRuby::SequenceInfo::marshal(VALUE p, Ice::OutputStream* os, ObjectMap* objectMap, bool optional)
 {
     PrimitiveInfoPtr pi = PrimitiveInfoPtr::dynamicCast(elementType);
 
@@ -1256,7 +1248,7 @@ IceRuby::SequenceInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectMa
 }
 
 void
-IceRuby::SequenceInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCallbackPtr& cb, VALUE target,
+IceRuby::SequenceInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& cb, VALUE target,
                                  void* closure, bool optional)
 {
     if(optional)
@@ -1355,7 +1347,7 @@ IceRuby::SequenceInfo::destroy()
 }
 
 void
-IceRuby::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, VALUE p, const Ice::OutputStreamPtr& os)
+IceRuby::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, VALUE p, Ice::OutputStream* os)
 {
     volatile VALUE arr = Qnil;
     volatile VALUE str = Qnil;
@@ -1517,14 +1509,14 @@ IceRuby::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, VALU
         {
             seq[i] = getString(RARRAY_PTR(arr)[i]);
         }
-        os->write(seq, true);
+        os->write(&seq[0], &seq[0] + seq.size());
         break;
     }
     }
 }
 
 void
-IceRuby::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, const Ice::InputStreamPtr& is,
+IceRuby::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice::InputStream* is,
                                                   const UnmarshalCallbackPtr& cb, VALUE target, void* closure)
 {
     volatile VALUE result = Qnil;
@@ -1721,7 +1713,7 @@ namespace
 {
 struct DictionaryMarshalIterator : public IceRuby::HashIterator
 {
-    DictionaryMarshalIterator(const IceRuby::DictionaryInfoPtr& d, const Ice::OutputStreamPtr o, IceRuby::ObjectMap* m)
+    DictionaryMarshalIterator(const IceRuby::DictionaryInfoPtr& d, Ice::OutputStream* o, IceRuby::ObjectMap* m)
         : dict(d), os(o), objectMap(m)
     {
     }
@@ -1732,13 +1724,13 @@ struct DictionaryMarshalIterator : public IceRuby::HashIterator
     }
 
     IceRuby::DictionaryInfoPtr dict;
-    Ice::OutputStreamPtr os;
+    Ice::OutputStream* os;
     IceRuby::ObjectMap* objectMap;
 };
 }
 
 void
-IceRuby::DictionaryInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectMap* objectMap, bool optional)
+IceRuby::DictionaryInfo::marshal(VALUE p, Ice::OutputStream* os, ObjectMap* objectMap, bool optional)
 {
     volatile VALUE hash = Qnil;
 
@@ -1791,7 +1783,7 @@ IceRuby::DictionaryInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, Object
 }
 
 void
-IceRuby::DictionaryInfo::marshalElement(VALUE key, VALUE value, const Ice::OutputStreamPtr& os, ObjectMap* objectMap)
+IceRuby::DictionaryInfo::marshalElement(VALUE key, VALUE value, Ice::OutputStream* os, ObjectMap* objectMap)
 {
     if(!keyType->validate(key))
     {
@@ -1808,7 +1800,7 @@ IceRuby::DictionaryInfo::marshalElement(VALUE key, VALUE value, const Ice::Outpu
 }
 
 void
-IceRuby::DictionaryInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCallbackPtr& cb, VALUE target,
+IceRuby::DictionaryInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& cb, VALUE target,
                                    void* closure, bool optional)
 {
     if(optional)
@@ -2062,7 +2054,7 @@ IceRuby::ClassInfo::usesClasses() const
 }
 
 void
-IceRuby::ClassInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectMap* objectMap, bool)
+IceRuby::ClassInfo::marshal(VALUE p, Ice::OutputStream* os, ObjectMap* objectMap, bool)
 {
     if(!defined)
     {
@@ -2071,7 +2063,8 @@ IceRuby::ClassInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectMap* 
 
     if(NIL_P(p))
     {
-        os->writeObject(0);
+        Ice::ObjectPtr nil;
+        os->write(nil);
         return;
     }
 
@@ -2097,19 +2090,40 @@ IceRuby::ClassInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectMap* 
     //
     // Give the writer to the stream. The stream will eventually call write() on it.
     //
-    os->writeObject(writer);
+    os->write(writer);
+}
+
+namespace
+{
+
+void
+patchObject(void* addr, const Ice::ObjectPtr& v)
+{   
+    ReadObjectCallback* cb = static_cast<ReadObjectCallback*>(addr);
+    assert(cb);
+    cb->invoke(v);
+}
+
 }
 
 void
-IceRuby::ClassInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCallbackPtr& cb, VALUE target,
-                              void* closure, bool)
+IceRuby::ClassInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& cb, VALUE target, void* closure, bool)
 {
     if(!defined)
     {
         throw RubyException(rb_eRuntimeError, "class %s is declared but not defined", id.c_str());
     }
 
-    is->readObject(new ReadObjectCallback(this, cb, target, closure));
+    //
+    // This callback is notified when the Slice value is actually read. The StreamUtil object
+    // attached to the stream keeps a reference to the callback object to ensure it lives
+    // long enough.
+    //
+    ReadObjectCallbackPtr rocb = new ReadObjectCallback(this, cb, target, closure);
+    StreamUtil* util = reinterpret_cast<StreamUtil*>(is->getClosure());
+    assert(util);
+    util->add(rocb);
+    is->read(patchObject, rocb.get());
 }
 
 void
@@ -2336,7 +2350,7 @@ IceRuby::ProxyInfo::optionalFormat() const
 }
 
 void
-IceRuby::ProxyInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectMap*, bool optional)
+IceRuby::ProxyInfo::marshal(VALUE p, Ice::OutputStream* os, ObjectMap*, bool optional)
 {
     Ice::OutputStream::size_type sizePos = -1;
     if(optional)
@@ -2361,7 +2375,7 @@ IceRuby::ProxyInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectMap*,
 }
 
 void
-IceRuby::ProxyInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCallbackPtr& cb, VALUE target,
+IceRuby::ProxyInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& cb, VALUE target,
                               void* closure, bool optional)
 {
     if(optional)
@@ -2446,7 +2460,7 @@ IceRuby::ObjectWriter::ice_preMarshal()
 }
 
 void
-IceRuby::ObjectWriter::write(const Ice::OutputStreamPtr& os) const
+IceRuby::ObjectWriter::__write(Ice::OutputStream* os) const
 {
     Ice::SlicedDataPtr slicedData;
 
@@ -2455,7 +2469,7 @@ IceRuby::ObjectWriter::write(const Ice::OutputStreamPtr& os) const
         //
         // Retrieve the SlicedData object that we stored as a hidden member of the Ruby object.
         //
-        slicedData = SlicedDataUtil::getMember(_object, const_cast<ObjectMap*>(_map));
+        slicedData = StreamUtil::getSlicedDataMember(_object, const_cast<ObjectMap*>(_map));
     }
 
     os->startObject(slicedData);
@@ -2480,7 +2494,13 @@ IceRuby::ObjectWriter::write(const Ice::OutputStreamPtr& os) const
 }
 
 void
-IceRuby::ObjectWriter::writeMembers(const Ice::OutputStreamPtr& os, const DataMemberList& members) const
+IceRuby::ObjectWriter::__read(Ice::InputStream*)
+{
+    assert(false);
+}
+
+void
+IceRuby::ObjectWriter::writeMembers(Ice::OutputStream* os, const DataMemberList& members) const
 {
     for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
     {
@@ -2488,7 +2508,7 @@ IceRuby::ObjectWriter::writeMembers(const Ice::OutputStreamPtr& os, const DataMe
 
         volatile VALUE val = callRuby(rb_ivar_get, _object, member->rubyID);
 
-        if(member->optional && (val == Unset || !os->writeOptional(member->tag, member->type->optionalFormat())))
+        if(member->optional && (val == Unset || !os->writeOpt(member->tag, member->type->optionalFormat())))
         {
             continue;
         }
@@ -2531,7 +2551,13 @@ IceRuby::ObjectReader::ice_postUnmarshal()
 }
 
 void
-IceRuby::ObjectReader::read(const Ice::InputStreamPtr& is)
+IceRuby::ObjectReader::__write(Ice::OutputStream*) const
+{
+    assert(false);
+}
+
+void
+IceRuby::ObjectReader::__read(Ice::InputStream* is)
 {
     is->startObject();
 
@@ -2561,7 +2587,7 @@ IceRuby::ObjectReader::read(const Ice::InputStreamPtr& is)
             for(p = info->optionalMembers.begin(); p != info->optionalMembers.end(); ++p)
             {
                 DataMemberPtr member = *p;
-                if(is->readOptional(member->tag, member->type->optionalFormat()))
+                if(is->readOpt(member->tag, member->type->optionalFormat()))
                 {
                     member->type->unmarshal(is, member, _object, 0, true);
                 }
@@ -2581,7 +2607,7 @@ IceRuby::ObjectReader::read(const Ice::InputStreamPtr& is)
 
     if(_slicedData)
     {
-        SlicedDataUtil* util = reinterpret_cast<SlicedDataUtil*>(is->closure());
+        StreamUtil* util = reinterpret_cast<StreamUtil*>(is->getClosure());
         assert(util);
         util->add(this);
 
@@ -2679,7 +2705,7 @@ IceRuby::ReadObjectCallback::invoke(const Ice::ObjectPtr& p)
 // ExceptionInfo implementation.
 //
 VALUE
-IceRuby::ExceptionInfo::unmarshal(const Ice::InputStreamPtr& is)
+IceRuby::ExceptionInfo::unmarshal(Ice::InputStream* is)
 {
     volatile VALUE obj = callRuby(rb_class_new_instance, 0, static_cast<VALUE*>(0), rubyClass);
 
@@ -2702,7 +2728,7 @@ IceRuby::ExceptionInfo::unmarshal(const Ice::InputStreamPtr& is)
         for(q = info->optionalMembers.begin(); q != info->optionalMembers.end(); ++q)
         {
             DataMemberPtr member = *q;
-            if(is->readOptional(member->tag, member->type->optionalFormat()))
+            if(is->readOpt(member->tag, member->type->optionalFormat()))
             {
                 member->type->unmarshal(is, member, obj, 0, true);
             }
@@ -2789,8 +2815,8 @@ IceRuby::ExceptionInfo::printMembers(VALUE value, IceUtilInternal::Output& out, 
 //
 // ExceptionReader implementation.
 //
-IceRuby::ExceptionReader::ExceptionReader(const Ice::CommunicatorPtr& communicator, const ExceptionInfoPtr& info) :
-    Ice::UserExceptionReader(communicator), _info(info)
+IceRuby::ExceptionReader::ExceptionReader(const ExceptionInfoPtr& info) :
+    _info(info)
 {
 }
 
@@ -2799,27 +2825,12 @@ IceRuby::ExceptionReader::~ExceptionReader()
 {
 }
 
-void
-IceRuby::ExceptionReader::read(const Ice::InputStreamPtr& is) const
-{
-    is->startException();
-
-    const_cast<VALUE&>(_ex) = _info->unmarshal(is);
-
-    const_cast<Ice::SlicedDataPtr&>(_slicedData) = is->endException(_info->preserve);
-}
-
-bool
-IceRuby::ExceptionReader::usesClasses() const
-{
-    return _info->usesClasses;
-}
-
 string
 IceRuby::ExceptionReader::ice_id() const
 {
     return _info->id;
 }
+
 #ifndef ICE_CPP11_MAPPING
 string
 IceRuby::ExceptionReader::ice_name() const
@@ -2839,6 +2850,28 @@ void
 IceRuby::ExceptionReader::ice_throw() const
 {
     throw *this;
+}
+
+void
+IceRuby::ExceptionReader::__write(Ice::OutputStream*) const
+{
+    assert(false);
+}
+
+void
+IceRuby::ExceptionReader::__read(Ice::InputStream* is)
+{
+    is->startException();
+
+    const_cast<VALUE&>(_ex) = _info->unmarshal(is);
+
+    const_cast<Ice::SlicedDataPtr&>(_slicedData) = is->endException(_info->preserve);
+}
+
+bool
+IceRuby::ExceptionReader::__usesClasses() const
+{
+    return _info->usesClasses;
 }
 
 VALUE

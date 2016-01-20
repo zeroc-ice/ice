@@ -13,17 +13,12 @@
 #ifdef ICE_CPP11_MAPPING // C++11 mapping
 
 #include <Ice/ValueF.h>
-#include <Ice/StreamF.h>
-
-namespace IceInternal
-{
-
-class BasicStream;
-
-}
 
 namespace Ice
 {
+
+class OutputStream;
+class InputStream;
 
 class ICE_API Value
 {
@@ -34,8 +29,8 @@ public:
     virtual void ice_preMarshal();
     virtual void ice_postUnmarshal();
 
-    virtual void __write(IceInternal::BasicStream*) const;
-    virtual void __read(IceInternal::BasicStream*);
+    virtual void __write(Ice::OutputStream*) const;
+    virtual void __read(Ice::InputStream*);
 
     virtual const std::string& ice_id() const;
     static const std::string& ice_staticId();
@@ -46,8 +41,8 @@ protected:
 
     virtual std::shared_ptr<Value> cloneImpl() const = 0;
 
-    virtual void __writeImpl(IceInternal::BasicStream*) const {}
-    virtual void __readImpl(IceInternal::BasicStream*) {}
+    virtual void __writeImpl(Ice::OutputStream*) const {}
+    virtual void __readImpl(Ice::InputStream*) {}
 };
 
 template<typename T, typename Base> class ValueHelper : public Base
@@ -75,9 +70,6 @@ protected:
         return std::make_shared<T>(static_cast<const T&>(*this));
     }
 };
-
-ICE_API void ice_writeObject(const OutputStreamPtr&, const std::shared_ptr<Value>&);
-ICE_API void ice_readObject(const InputStreamPtr&, std::shared_ptr<Value>&);
 
 }
 #endif // C++11 mapping end

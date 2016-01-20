@@ -27,10 +27,15 @@
 #include <Ice/Protocol.h>
 #include <Ice/Properties.h>
 
-namespace IceInternal
+namespace Ice
 {
 
-class BasicStream;
+class OutputStream;
+
+}
+
+namespace IceInternal
+{
 
 class Reference : public IceUtil::Shared
 {
@@ -120,7 +125,7 @@ public:
     //
     // Marshal the reference.
     //
-    virtual void streamWrite(BasicStream*) const;
+    virtual void streamWrite(Ice::OutputStream*) const;
 
     //
     // Convert the reference to its string form.
@@ -207,7 +212,7 @@ public:
     virtual bool isIndirect() const;
     virtual bool isWellKnown() const;
 
-    virtual void streamWrite(BasicStream*) const;
+    virtual void streamWrite(Ice::OutputStream*) const;
     virtual std::string toString() const;
     virtual Ice::PropertyDict toProperty(const std::string&) const;
 
@@ -265,7 +270,7 @@ public:
     virtual bool isIndirect() const;
     virtual bool isWellKnown() const;
 
-    virtual void streamWrite(BasicStream*) const;
+    virtual void streamWrite(Ice::OutputStream*) const;
     virtual std::string toString() const;
     virtual Ice::PropertyDict toProperty(const std::string&) const;
 

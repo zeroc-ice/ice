@@ -8,7 +8,8 @@
 // **********************************************************************
 
 #include <Ice/OpaqueEndpointI.h>
-#include <Ice/BasicStream.h>
+#include <Ice/OutputStream.h>
+#include <Ice/InputStream.h>
 #include <Ice/Exception.h>
 #include <Ice/DefaultsAndOverrides.h>
 #include <Ice/Base64.h>
@@ -46,10 +47,10 @@ IceInternal::OpaqueEndpointI::OpaqueEndpointI(vector<string>& args) :
     }
 }
 
-IceInternal::OpaqueEndpointI::OpaqueEndpointI(Short type, BasicStream* s) : _type(type)
+IceInternal::OpaqueEndpointI::OpaqueEndpointI(Short type, InputStream* s) : _type(type)
 {
-    _rawEncoding = s->getReadEncoding();
-    Int sz = s->getReadEncapsSize();
+    _rawEncoding = s->getEncoding();
+    Int sz = s->getEncapsSize();
     s->readBlob(const_cast<vector<Byte>&>(_rawBytes), sz);
 }
 
@@ -97,11 +98,11 @@ OpaqueEndpointInfoI::OpaqueEndpointInfoI(Ice::Short type, const Ice::EncodingVer
 }
 
 void
-IceInternal::OpaqueEndpointI::streamWrite(BasicStream* s) const
+IceInternal::OpaqueEndpointI::streamWrite(OutputStream* s) const
 {
-    s->startWriteEncaps(_rawEncoding, DefaultFormat);
+    s->startEncapsulation(_rawEncoding, DefaultFormat);
     s->writeBlob(_rawBytes);
-    s->endWriteEncaps();
+    s->endEncapsulation();
 }
 
 Ice::EndpointInfoPtr

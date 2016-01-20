@@ -974,11 +974,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         // Send request with bogus 1.2 encoding.
         Ice::EncodingVersion version = { 1, 2 };
-        Ice::OutputStreamPtr out = Ice::createOutputStream(communicator);
-        out->startEncapsulation();
-        out->endEncapsulation();
+        Ice::OutputStream out(communicator);
+        out.startEncapsulation();
+        out.endEncapsulation();
         vector<Ice::Byte> inEncaps;
-        out->finished(inEncaps);
+        out.finished(inEncaps);
         inEncaps[4] = version.major;
         inEncaps[5] = version.minor;
         vector<Ice::Byte> outEncaps;
@@ -995,11 +995,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         // Send request with bogus 2.0 encoding.
         Ice::EncodingVersion version = { 2, 0 };
-        Ice::OutputStreamPtr out = Ice::createOutputStream(communicator);
-        out->startEncapsulation();
-        out->endEncapsulation();
+        Ice::OutputStream out(communicator);
+        out.startEncapsulation();
+        out.endEncapsulation();
         vector<Ice::Byte> inEncaps;
-        out->finished(inEncaps);
+        out.finished(inEncaps);
         inEncaps[4] = version.major;
         inEncaps[5] = version.minor;
         vector<Ice::Byte> outEncaps;

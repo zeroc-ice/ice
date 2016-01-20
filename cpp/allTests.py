@@ -57,7 +57,6 @@ tests = [
     ("Ice/gc", ["once", "noc++11"]),
     ("Ice/dispatcher", ["once"]),
     ("Ice/checksum", ["core"]),
-    ("Ice/stream", ["core", "noc++11"]),
     ("Ice/hold", ["core", "bt"]),
     ("Ice/custom", ["core", "nossl", "nows", "noc++11"]),
     ("Ice/retry", ["core"]),

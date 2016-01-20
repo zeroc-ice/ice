@@ -28,9 +28,9 @@ public:
     EndpointI(const InstancePtr&, const std::string&, const std::string&, const std::string&, Ice::Int,
               Ice::Int, const std::string&, bool);
     EndpointI(const InstancePtr&);
-    EndpointI(const InstancePtr&, IceInternal::BasicStream*);
+    EndpointI(const InstancePtr&, Ice::InputStream*);
 
-    virtual void streamWrite(IceInternal::BasicStream*) const;
+    virtual void streamWrite(Ice::OutputStream*) const;
     virtual Ice::Short type() const;
     virtual const std::string& protocol() const;
     virtual Ice::Int timeout() const;
@@ -137,7 +137,7 @@ public:
     virtual Ice::Short type() const;
     virtual std::string protocol() const;
     virtual IceInternal::EndpointIPtr create(std::vector<std::string>&, bool) const;
-    virtual IceInternal::EndpointIPtr read(IceInternal::BasicStream*) const;
+    virtual IceInternal::EndpointIPtr read(Ice::InputStream*) const;
     virtual void destroy();
 
     virtual IceInternal::EndpointFactoryPtr clone(const IceInternal::ProtocolInstancePtr&) const;

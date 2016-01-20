@@ -71,7 +71,7 @@ private:
 
     void convertParams(VALUE, ParamInfoList&, int, bool&);
     ParamInfoPtr convertParam(VALUE, int);
-    void prepareRequest(const Ice::ObjectPrx&, VALUE, Ice::OutputStreamPtr&, pair<const Ice::Byte*, const Ice::Byte*>&);
+    void prepareRequest(const Ice::ObjectPrx&, VALUE, Ice::OutputStream*, pair<const Ice::Byte*, const Ice::Byte*>&);
     VALUE unmarshalResults(const vector<Ice::Byte>&, const Ice::CommunicatorPtr&);
     VALUE unmarshalException(const vector<Ice::Byte>&, const Ice::CommunicatorPtr&);
     bool validateException(VALUE) const;
@@ -79,27 +79,18 @@ private:
 };
 typedef IceUtil::Handle<OperationI> OperationIPtr;
 
-class UserExceptionReaderFactoryI : public Ice::UserExceptionReaderFactory
+class UserExceptionFactory : public Ice::UserExceptionFactory
 {
 public:
 
-    UserExceptionReaderFactoryI(const Ice::CommunicatorPtr& communicator) :
-        _communicator(communicator)
-    {
-    }
-
-    virtual void createAndThrow(const string& id) const
+    virtual void createAndThrow(const string& id)
     {
         ExceptionInfoPtr info = lookupExceptionInfo(id);
         if(info)
         {
-            throw ExceptionReader(_communicator, info);
+            throw ExceptionReader(info);
         }
     }
-
-private:
-
-    const Ice::CommunicatorPtr _communicator;
 };
 
 }
@@ -299,9 +290,9 @@ IceRuby::OperationI::invoke(const Ice::ObjectPrx& proxy, VALUE args, VALUE hctx)
     //
     // Marshal the input parameters to a byte sequence.
     //
-    Ice::OutputStreamPtr os;
+    Ice::OutputStream os(communicator);
     pair<const Ice::Byte*, const Ice::Byte*> params;
-    prepareRequest(proxy, args, os, params);
+    prepareRequest(proxy, args, &os, params);
 
     if(!_deprecateMessage.empty())
     {
@@ -409,7 +400,7 @@ IceRuby::OperationI::convertParam(VALUE v, int pos)
 }
 
 void
-IceRuby::OperationI::prepareRequest(const Ice::ObjectPrx& proxy, VALUE args, Ice::OutputStreamPtr& os,
+IceRuby::OperationI::prepareRequest(const Ice::ObjectPrx& proxy, VALUE args, Ice::OutputStream* os,
                                     pair<const Ice::Byte*, const Ice::Byte*>& params)
 {
     params.first = params.second = static_cast<const Ice::Byte*>(0);
@@ -430,7 +421,6 @@ IceRuby::OperationI::prepareRequest(const Ice::ObjectPrx& proxy, VALUE args, Ice
         //
         // Marshal the in parameters.
         //
-        os = Ice::createOutputStream(proxy->ice_getCommunicator());
         os->startEncapsulation(proxy->ice_getEncodingVersion(), _format);
 
         ObjectMap objectMap;
@@ -471,7 +461,7 @@ IceRuby::OperationI::prepareRequest(const Ice::ObjectPrx& proxy, VALUE args, Ice
         {
             ParamInfoPtr info = *p;
             volatile VALUE arg = RARRAY_PTR(args)[info->pos];
-            if(arg != Unset && os->writeOptional(info->tag, info->type->optionalFormat()))
+            if(arg != Unset && os->writeOpt(info->tag, info->type->optionalFormat()))
             {
                 info->type->marshal(arg, os, &objectMap, true);
             }
@@ -503,17 +493,17 @@ IceRuby::OperationI::unmarshalResults(const vector<Ice::Byte>& bytes, const Ice:
     // Unmarshal the results. If there is more than one value to be returned, then return them
     // in a tuple of the form (result, outParam1, ...). Otherwise just return the value.
     //
-    Ice::InputStreamPtr is = Ice::wrapInputStream(communicator, bytes);
+    Ice::InputStream is(communicator, bytes);
 
     //
-    // Store a pointer to a local SlicedDataUtil object as the stream's closure.
+    // Store a pointer to a local StreamUtil object as the stream's closure.
     // This is necessary to support object unmarshaling (see ObjectReader).
     //
-    SlicedDataUtil util;
-    assert(!is->closure());
-    is->closure(&util);
+    StreamUtil util;
+    assert(!is.getClosure());
+    is.setClosure(&util);
 
-    is->startEncapsulation();
+    is.startEncapsulation();
 
     ParamInfoList::iterator p;
 
@@ -526,7 +516,7 @@ IceRuby::OperationI::unmarshalResults(const vector<Ice::Byte>& bytes, const Ice:
         if(!info->optional)
         {
             void* closure = reinterpret_cast<void*>(info->pos);
-            info->type->unmarshal(is, info, results, closure, false);
+            info->type->unmarshal(&is, info, results, closure, false);
         }
     }
 
@@ -537,7 +527,7 @@ IceRuby::OperationI::unmarshalResults(const vector<Ice::Byte>& bytes, const Ice:
     {
         assert(_returnType->pos == 0);
         void* closure = reinterpret_cast<void*>(_returnType->pos);
-        _returnType->type->unmarshal(is, _returnType, results, closure, false);
+        _returnType->type->unmarshal(&is, _returnType, results, closure, false);
     }
 
     //
@@ -546,10 +536,10 @@ IceRuby::OperationI::unmarshalResults(const vector<Ice::Byte>& bytes, const Ice:
     for(p = _optionalOutParams.begin(); p != _optionalOutParams.end(); ++p)
     {
         ParamInfoPtr info = *p;
-        if(is->readOptional(info->tag, info->type->optionalFormat()))
+        if(is.readOpt(info->tag, info->type->optionalFormat()))
         {
             void* closure = reinterpret_cast<void*>(info->pos);
-            info->type->unmarshal(is, info, results, closure, true);
+            info->type->unmarshal(&is, info, results, closure, true);
         }
         else
         {
@@ -559,12 +549,12 @@ IceRuby::OperationI::unmarshalResults(const vector<Ice::Byte>& bytes, const Ice:
 
     if(_returnsClasses)
     {
-        is->readPendingObjects();
+        is.readPendingObjects();
     }
 
-    is->endEncapsulation();
+    is.endEncapsulation();
 
-    util.update();
+    util.updateSlicedData();
 
     return results;
 }
@@ -572,37 +562,37 @@ IceRuby::OperationI::unmarshalResults(const vector<Ice::Byte>& bytes, const Ice:
 VALUE
 IceRuby::OperationI::unmarshalException(const vector<Ice::Byte>& bytes, const Ice::CommunicatorPtr& communicator)
 {
-    Ice::InputStreamPtr is = Ice::wrapInputStream(communicator, bytes);
+    Ice::InputStream is(communicator, bytes);
 
     //
-    // Store a pointer to a local SlicedDataUtil object as the stream's closure.
+    // Store a pointer to a local StreamUtil object as the stream's closure.
     // This is necessary to support object unmarshaling (see ObjectReader).
     //
-    SlicedDataUtil util;
-    assert(!is->closure());
-    is->closure(&util);
+    StreamUtil util;
+    assert(!is.getClosure());
+    is.setClosure(&util);
 
-    is->startEncapsulation();
+    is.startEncapsulation();
 
     try
     {
-        Ice::UserExceptionReaderFactoryPtr factory = new UserExceptionReaderFactoryI(communicator);
-        is->throwException(factory);
+        Ice::UserExceptionFactoryPtr factory = new UserExceptionFactory;
+        is.throwException(factory);
     }
     catch(const ExceptionReader& r)
     {
-        is->endEncapsulation();
+        is.endEncapsulation();
 
         volatile VALUE ex = r.getException();
 
         if(validateException(ex))
         {
-            util.update();
+            util.updateSlicedData();
 
             Ice::SlicedDataPtr slicedData = r.getSlicedData();
             if(slicedData)
             {
-                SlicedDataUtil::setMember(ex, slicedData);
+                StreamUtil::setSlicedDataMember(ex, slicedData);
             }
 
             return ex;
@@ -622,7 +612,6 @@ IceRuby::OperationI::unmarshalException(const vector<Ice::Byte>& bytes, const Ic
 #ifdef __SUNPRO_CC
     return 0;
 #endif
-
 }
 
 bool

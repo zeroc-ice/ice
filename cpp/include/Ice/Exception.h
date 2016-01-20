@@ -16,12 +16,9 @@
 #include <Ice/Handle.h>
 #include <Ice/ObjectF.h>
 #include <Ice/ValueF.h>
-#include <Ice/StreamF.h>
 
 namespace IceInternal
 {
-
-class BasicStream;
 
 namespace Ex
 {
@@ -36,6 +33,9 @@ ICE_API void throwMarshalException(const char*, int, const std::string&);
 
 namespace Ice
 {
+
+class OutputStream;
+class InputStream;
 
 typedef IceUtil::Exception Exception;
 
@@ -69,21 +69,15 @@ public:
 #endif
     virtual void ice_throw() const = 0;
 
-    virtual void __write(::IceInternal::BasicStream*) const;
-    virtual void __read(::IceInternal::BasicStream*);
-
-    virtual void __write(const OutputStreamPtr&) const;
-    virtual void __read(const InputStreamPtr&);
+    virtual void __write(::Ice::OutputStream*) const;
+    virtual void __read(::Ice::InputStream*);
 
     virtual bool __usesClasses() const;
 
 protected:
 
-    virtual void __writeImpl(::IceInternal::BasicStream*) const = 0;
-    virtual void __readImpl(::IceInternal::BasicStream*) = 0;
-
-    virtual void __writeImpl(const OutputStreamPtr&) const;
-    virtual void __readImpl(const InputStreamPtr&);
+    virtual void __writeImpl(::Ice::OutputStream*) const = 0;
+    virtual void __readImpl(::Ice::InputStream*) = 0;
 };
 
 typedef ::IceInternal::Handle<UserException> UserExceptionPtr;

@@ -18,7 +18,7 @@
 #include <Ice/BatchRequestInterceptor.h>
 #include <Ice/BatchRequestQueueF.h>
 #include <Ice/InstanceF.h>
-#include <Ice/BasicStream.h>
+#include <Ice/OutputStream.h>
 
 namespace IceInternal
 {
@@ -29,11 +29,11 @@ public:
 
     BatchRequestQueue(const InstancePtr&, bool);
 
-    void prepareBatchRequest(BasicStream*);
-    void finishBatchRequest(BasicStream*, const Ice::ObjectPrxPtr&, const std::string&);
-    void abortBatchRequest(BasicStream*);
+    void prepareBatchRequest(Ice::OutputStream*);
+    void finishBatchRequest(Ice::OutputStream*, const Ice::ObjectPrxPtr&, const std::string&);
+    void abortBatchRequest(Ice::OutputStream*);
 
-    int swap(BasicStream*);
+    int swap(Ice::OutputStream*);
 
     void destroy(const Ice::LocalException&);
     bool isEmpty();
@@ -49,7 +49,7 @@ private:
 #else
     Ice::BatchRequestInterceptorPtr _interceptor;
 #endif
-    BasicStream _batchStream;
+    Ice::OutputStream _batchStream;
     bool _batchStreamInUse;
     bool _batchStreamCanFlush;
     int _batchRequestNum;

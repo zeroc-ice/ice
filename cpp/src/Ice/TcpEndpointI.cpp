@@ -12,7 +12,8 @@
 #include <Ice/TcpAcceptor.h>
 #include <Ice/TcpConnector.h>
 #include <Ice/TcpTransceiver.h>
-#include <Ice/BasicStream.h>
+#include <Ice/OutputStream.h>
+#include <Ice/InputStream.h>
 #include <Ice/LocalException.h>
 #include <Ice/ProtocolInstance.h>
 #include <Ice/HashUtil.h>
@@ -52,7 +53,7 @@ IceInternal::TcpEndpointI::TcpEndpointI(const ProtocolInstancePtr& instance) :
 {
 }
 
-IceInternal::TcpEndpointI::TcpEndpointI(const ProtocolInstancePtr& instance, BasicStream* s) :
+IceInternal::TcpEndpointI::TcpEndpointI(const ProtocolInstancePtr& instance, InputStream* s) :
     IPEndpointI(instance, s),
     _timeout(-1),
     _compress(false)
@@ -253,7 +254,7 @@ IceInternal::TcpEndpointI::operator<(const LocalObject& r) const
 }
 
 void
-IceInternal::TcpEndpointI::streamWriteImpl(BasicStream* s) const
+IceInternal::TcpEndpointI::streamWriteImpl(OutputStream* s) const
 {
     IPEndpointI::streamWriteImpl(s);
     s->write(_timeout);
@@ -372,7 +373,7 @@ IceInternal::TcpEndpointFactory::create(vector<string>& args, bool oaEndpoint) c
 }
 
 EndpointIPtr
-IceInternal::TcpEndpointFactory::read(BasicStream* s) const
+IceInternal::TcpEndpointFactory::read(InputStream* s) const
 {
     return ICE_MAKE_SHARED(TcpEndpointI, _instance, s);
 }

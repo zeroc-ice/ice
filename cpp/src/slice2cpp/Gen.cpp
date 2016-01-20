@@ -270,7 +270,7 @@ writeDataMemberInitializers(IceUtilInternal::Output& C, const DataMemberList& me
 Slice::Gen::Gen(const string& base, const string& headerExtension, const string& sourceExtension,
                 const vector<string>& extraHeaders, const string& include,
                 const vector<string>& includePaths, const string& dllExport, const string& dir,
-                bool implCpp98, bool implCpp11, bool checksum, bool stream, bool ice) :
+                bool implCpp98, bool implCpp11, bool checksum, bool ice) :
     _base(base),
     _headerExtension(headerExtension),
     _implHeaderExtension(headerExtension),
@@ -283,7 +283,6 @@ Slice::Gen::Gen(const string& base, const string& headerExtension, const string&
     _implCpp98(implCpp98),
     _implCpp11(implCpp11),
     _checksum(checksum),
-    _stream(stream),
     _ice(ice)
 {
     for(vector<string>::iterator p = _includePaths.begin(); p != _includePaths.end(); ++p)
@@ -517,22 +516,13 @@ Slice::Gen::generate(const UnitPtr& p)
 
     if(p->usesNonLocals())
     {
-        C << "\n#include <Ice/BasicStream.h>";
+        C << "\n#include <Ice/InputStream.h>";
+        C << "\n#include <Ice/OutputStream.h>";
     }
 
-    if(_stream || p->hasNonLocalClassDefs() || p->hasNonLocalExceptions())
+    if(p->hasNonLocalExceptions())
     {
-        if(!p->hasNonLocalClassDefs())
-        {
-            C << "\n#include <Ice/LocalException.h>";
-        }
-
-        H << "\n#include <Ice/StreamF.h>";
-
-        if(_stream)
-        {
-            C << "\n#include <Ice/Stream.h>";
-        }
+        C << "\n#include <Ice/LocalException.h>";
     }
 
     if(p->hasContentsWithMetaData("preserve-slice"))
@@ -616,13 +606,13 @@ Slice::Gen::generate(const UnitPtr& p)
         Cpp11ProxyVisitor proxyVisitor(H, C, _dllExport);
         p->visit(&proxyVisitor, false);
 
-        Cpp11LocalObjectVisitor localObjectVisitor(H, C, _dllExport, _stream);
+        Cpp11LocalObjectVisitor localObjectVisitor(H, C, _dllExport);
         p->visit(&localObjectVisitor, false);
 
-        Cpp11InterfaceVisitor interfaceVisitor(H, C, _dllExport, _stream);
+        Cpp11InterfaceVisitor interfaceVisitor(H, C, _dllExport);
         p->visit(&interfaceVisitor, false);
 
-        Cpp11ValueVisitor valueVisitor(H, C, _dllExport, _stream);
+        Cpp11ValueVisitor valueVisitor(H, C, _dllExport);
         p->visit(&valueVisitor, false);
 
         if(_implCpp11)
@@ -668,7 +658,7 @@ Slice::Gen::generate(const UnitPtr& p)
         ObjectDeclVisitor objectDeclVisitor(H, C, _dllExport);
         p->visit(&objectDeclVisitor, false);
 
-        TypesVisitor typesVisitor(H, C, _dllExport, _stream);
+        TypesVisitor typesVisitor(H, C, _dllExport);
         p->visit(&typesVisitor, false);
 
         StreamVisitor streamVisitor(H, C, _dllExport);
@@ -692,7 +682,7 @@ Slice::Gen::generate(const UnitPtr& p)
         ProxyVisitor proxyVisitor(H, C, _dllExport);
         p->visit(&proxyVisitor, false);
 
-        ObjectVisitor objectVisitor(H, C, _dllExport, _stream);
+        ObjectVisitor objectVisitor(H, C, _dllExport);
         p->visit(&objectVisitor, false);
 
         //
@@ -775,8 +765,8 @@ Slice::Gen::writeExtraHeaders(IceUtilInternal::Output& out)
     }
 }
 
-Slice::Gen::TypesVisitor::TypesVisitor(Output& h, Output& c, const string& dllExport, bool stream) :
-    H(h), C(c), _dllExport(dllExport), _stream(stream), _doneStaticSymbol(false), _useWstring(false)
+Slice::Gen::TypesVisitor::TypesVisitor(Output& h, Output& c, const string& dllExport) :
+    H(h), C(c), _dllExport(dllExport), _doneStaticSymbol(false), _useWstring(false)
 {
 }
 
@@ -1061,126 +1051,66 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
         if(preserved && !basePreserved)
         {
-            H << sp << nl << "virtual void __write(::IceInternal::BasicStream*) const;";
-            H << nl << "virtual void __read(::IceInternal::BasicStream*);";
+            H << sp << nl << "virtual void __write(::Ice::OutputStream*) const;";
+            H << nl << "virtual void __read(::Ice::InputStream*);";
 
-            if(_stream)
-            {
-                H << nl << "virtual void __write(const ::Ice::OutputStreamPtr&) const;";
-                H << nl << "virtual void __read(const ::Ice::InputStreamPtr&);";
-            }
-            else
-            {
-                string baseName = base ? fixKwd(base->scoped()) : string("::Ice::UserException");
-                H << nl << "using " << baseName << "::__write;";
-                H << nl << "using " << baseName << "::__read;";
-            }
+            string baseName = base ? fixKwd(base->scoped()) : string("::Ice::UserException");
+            H << nl << "using " << baseName << "::__write;";
+            H << nl << "using " << baseName << "::__read;";
         }
 
         H.dec();
         H << sp << nl << "protected:";
         H.inc();
 
-        H << nl << "virtual void __writeImpl(::IceInternal::BasicStream*) const;";
-        H << nl << "virtual void __readImpl(::IceInternal::BasicStream*);";
+        H << nl << "virtual void __writeImpl(::Ice::OutputStream*) const;";
+        H << nl << "virtual void __readImpl(::Ice::InputStream*);";
 
-        if(_stream)
-        {
-            H << nl << "virtual void __writeImpl(const ::Ice::OutputStreamPtr&) const;";
-            H << nl << "virtual void __readImpl(const ::Ice::InputStreamPtr&);";
-        }
-        else
-        {
-            string baseName = base ? fixKwd(base->scoped()) : string("::Ice::UserException");
-            H << nl << "using " << baseName << "::__writeImpl;";
-            H << nl << "using " << baseName << "::__readImpl;";
-        }
+        string baseName = base ? fixKwd(base->scoped()) : string("::Ice::UserException");
+        H << nl << "using " << baseName << "::__writeImpl;";
+        H << nl << "using " << baseName << "::__readImpl;";
 
         if(preserved && !basePreserved)
         {
 
             H << sp << nl << "::Ice::SlicedDataPtr __slicedData;";
 
-            C << sp << nl << "void" << nl << scoped.substr(2) << "::__write(::IceInternal::BasicStream* __os) const";
+            C << sp << nl << "void" << nl << scoped.substr(2) << "::__write(::Ice::OutputStream* __os) const";
             C << sb;
-            C << nl << "__os->startWriteException(__slicedData);";
+            C << nl << "__os->startException(__slicedData);";
             C << nl << "__writeImpl(__os);";
-            C << nl << "__os->endWriteException();";
+            C << nl << "__os->endException();";
             C << eb;
 
-            C << sp << nl << "void" << nl << scoped.substr(2) << "::__read(::IceInternal::BasicStream* __is)";
+            C << sp << nl << "void" << nl << scoped.substr(2) << "::__read(::Ice::InputStream* __is)";
             C << sb;
-            C << nl << "__is->startReadException();";
+            C << nl << "__is->startException();";
             C << nl << "__readImpl(__is);";
-            C << nl << "__slicedData = __is->endReadException(true);";
+            C << nl << "__slicedData = __is->endException(true);";
             C << eb;
         }
 
-        C << sp << nl << "void" << nl << scoped.substr(2) << "::__writeImpl(::IceInternal::BasicStream* __os) const";
+        C << sp << nl << "void" << nl << scoped.substr(2) << "::__writeImpl(::Ice::OutputStream* __os) const";
         C << sb;
-        C << nl << "__os->startWriteSlice(\"" << p->scoped() << "\", -1, " << (!base ? "true" : "false") << ");";
+        C << nl << "__os->startSlice(\"" << p->scoped() << "\", -1, " << (!base ? "true" : "false") << ");";
         writeMarshalUnmarshalDataMembers(C, p->dataMembers(), p->orderedOptionalDataMembers(), true);
-        C << nl << "__os->endWriteSlice();";
+        C << nl << "__os->endSlice();";
         if(base)
         {
             emitUpcall(base, "::__writeImpl(__os);");
         }
         C << eb;
 
-        C << sp << nl << "void" << nl << scoped.substr(2) << "::__readImpl(::IceInternal::BasicStream* __is)";
+        C << sp << nl << "void" << nl << scoped.substr(2) << "::__readImpl(::Ice::InputStream* __is)";
         C << sb;
-        C << nl << "__is->startReadSlice();";
+        C << nl << "__is->startSlice();";
         writeMarshalUnmarshalDataMembers(C, p->dataMembers(), p->orderedOptionalDataMembers(), false);
-        C << nl << "__is->endReadSlice();";
+        C << nl << "__is->endSlice();";
         if(base)
         {
             emitUpcall(base, "::__readImpl(__is);");
         }
         C << eb;
-
-        if(_stream)
-        {
-            if(preserved && !basePreserved)
-            {
-                C << sp << nl << "void" << nl << scoped.substr(2) << "::__write(const ::Ice::OutputStreamPtr& __os) const";
-                C << sb;
-                C << nl << "__os->startException(__slicedData);";
-                C << nl << "__writeImpl(__os);";
-                C << nl << "__os->endException();";
-                C << eb;
-
-                C << sp << nl << "void" << nl << scoped.substr(2) << "::__read(const ::Ice::InputStreamPtr& __is)";
-                C << sb;
-                C << nl << "__is->startException();";
-                C << nl << "__readImpl(__is);";
-                C << nl << "__slicedData = __is->endException(true);";
-                C << eb;
-            }
-
-            C << sp << nl << "void" << nl << scoped.substr(2)
-              << "::__writeImpl(const ::Ice::OutputStreamPtr& __os) const";
-            C << sb;
-            C << nl << "__os->startSlice(\"" << p->scoped() << "\", -1, " << (!base ? "true" : "false") << ");";
-            writeMarshalUnmarshalDataMembers(C, p->dataMembers(), p->orderedOptionalDataMembers(), true);
-            C << nl << "__os->endSlice();";
-            if(base)
-            {
-                emitUpcall(base, "::__writeImpl(__os);");
-            }
-            C << eb;
-
-            C << sp << nl << "void" << nl << scoped.substr(2)
-              << "::__readImpl(const ::Ice::InputStreamPtr& __is)";
-            C << sb;
-            C << nl << "__is->startSlice();";
-            writeMarshalUnmarshalDataMembers(C, p->dataMembers(), p->orderedOptionalDataMembers(), false);
-            C << nl << "__is->endSlice();";
-            if(base)
-            {
-                emitUpcall(base, "::__readImpl(__is);");
-            }
-            C << eb;
-        }
     }
     H << eb << ';';
 
@@ -1546,7 +1476,7 @@ Slice::Gen::ProxyDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
     string scoped = fixKwd(p->scoped());
 
     H << sp << nl << "class " << name << ';';
-    H << nl << _dllExport << "void __read(::IceInternal::BasicStream*, ::IceInternal::ProxyHandle< ::IceProxy"
+    H << nl << _dllExport << "void __read(::Ice::InputStream*, ::IceInternal::ProxyHandle< ::IceProxy"
       << scoped << ">&);";
     H << nl << _dllExport << "::IceProxy::Ice::Object* upCast(::IceProxy" << scoped << "*);";
 }
@@ -1680,7 +1610,7 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
       << "* p) { return p; }";
 
     C << sp;
-    C << nl << "void" << nl << "::IceProxy" << scope << "__read(::IceInternal::BasicStream* __is, "
+    C << nl << "void" << nl << "::IceProxy" << scope << "__read(::Ice::InputStream* __is, "
       << "::IceInternal::ProxyHandle< ::IceProxy" << scoped << ">& v)";
     C << sb;
     C << nl << "::Ice::ObjectPrx proxy;";
@@ -1930,7 +1860,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     {
         C << nl << "try";
         C << sb;
-        C << nl<< "::IceInternal::BasicStream* __os = __og.startWriteParams(" << opFormatTypeToString(p) << ");";
+        C << nl<< "::Ice::OutputStream* __os = __og.startWriteParams(" << opFormatTypeToString(p) << ");";
         writeMarshalCode(C, inParams, 0, true, TypeContextInParam);
         if(p->sendsClasses(false))
         {
@@ -2009,7 +1939,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         if(ret || !outParams.empty())
         {
             writeAllocateCode(C, ParamDeclList(), p, true, _useWstring);
-            C << nl << "::IceInternal::BasicStream* __is = __og.startReadParams();";
+            C << nl << "::Ice::InputStream* __is = __og.startReadParams();";
             writeUnmarshalCode(C, outParams, p, true);
             if(p->returnsClasses(false))
             {
@@ -2044,7 +1974,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     }
     else
     {
-        C << nl << "::IceInternal::BasicStream* __os = __result->startWriteParams(" << opFormatTypeToString(p) <<");";
+        C << nl << "::Ice::OutputStream* __os = __result->startWriteParams(" << opFormatTypeToString(p) <<");";
         writeMarshalCode(C, inParams, 0, true, TypeContextInParam);
         if(p->sendsClasses(false))
         {
@@ -2107,7 +2037,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         C << eb;
         if(ret || !outParams.empty())
         {
-            C << nl << "::IceInternal::BasicStream* __is = __result->__startReadParams();";
+            C << nl << "::Ice::InputStream* __is = __result->__startReadParams();";
             writeUnmarshalCode(C, outParams, p, true, _useWstring | TypeContextAMIEnd);
             if(p->returnsClasses(false))
             {
@@ -2171,7 +2101,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
         if(ret || !outParams.empty())
         {
-            C << nl << "::IceInternal::BasicStream* __is = __result->__startReadParams();";
+            C << nl << "::Ice::InputStream* __is = __result->__startReadParams();";
             writeUnmarshalCode(C, outParams, p, true, _useWstring | TypeContextAMIPrivateEnd);
             if(p->returnsClasses(false))
             {
@@ -2249,8 +2179,8 @@ Slice::Gen::ObjectDeclVisitor::visitOperation(const OperationPtr& p)
     }
 }
 
-Slice::Gen::ObjectVisitor::ObjectVisitor(Output& h, Output& c, const string& dllExport, bool stream) :
-    H(h), C(c), _dllExport(dllExport), _stream(stream), _doneStaticSymbol(false), _useWstring(false)
+Slice::Gen::ObjectVisitor::ObjectVisitor(Output& h, Output& c, const string& dllExport) :
+    H(h), C(c), _dllExport(dllExport), _doneStaticSymbol(false), _useWstring(false)
 {
 }
 
@@ -2829,68 +2759,52 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
         if(preserved && !basePreserved)
         {
             H << sp;
-            H << nl << "virtual void __write(::IceInternal::BasicStream*) const;";
-            H << nl << "virtual void __read(::IceInternal::BasicStream*);";
+            H << nl << "virtual void __write(::Ice::OutputStream*) const;";
+            H << nl << "virtual void __read(::Ice::InputStream*);";
 
-            if(_stream)
-            {
-                H << nl << "virtual void __write(const ::Ice::OutputStreamPtr&) const;";
-                H << nl << "virtual void __read(const ::Ice::InputStreamPtr&);";
-            }
-            else
-            {
-                string baseName = base ? fixKwd(base->scoped()) : string("::Ice::Object");
-                H << nl << "using " << baseName << "::__write;";
-                H << nl << "using " << baseName << "::__read;";
-            }
+            string baseName = base ? fixKwd(base->scoped()) : string("::Ice::Object");
+            H << nl << "using " << baseName << "::__write;";
+            H << nl << "using " << baseName << "::__read;";
         }
 
         H.dec();
         H << sp << nl << "protected:";
         H.inc();
 
-        H << nl << "virtual void __writeImpl(::IceInternal::BasicStream*) const;";
-        H << nl << "virtual void __readImpl(::IceInternal::BasicStream*);";
+        H << nl << "virtual void __writeImpl(::Ice::OutputStream*) const;";
+        H << nl << "virtual void __readImpl(::Ice::InputStream*);";
 
-        if(_stream)
-        {
-            H << nl << "virtual void __writeImpl(const ::Ice::OutputStreamPtr&) const;";
-            H << nl << "virtual void __readImpl(const ::Ice::InputStreamPtr&);";
-        }
-        else
-        {
-            string baseName = base ? fixKwd(base->scoped()) : string("::Ice::Object");
-            H << nl << "using " << baseName << "::__writeImpl;";
-            H << nl << "using " << baseName << "::__readImpl;";
-        }
+        string baseName = base ? fixKwd(base->scoped()) : string("::Ice::Object");
+        H << nl << "using " << baseName << "::__writeImpl;";
+        H << nl << "using " << baseName << "::__readImpl;";
 
         if(preserved && !basePreserved)
         {
             C << sp;
             C << nl << "void" << nl << scoped.substr(2)
-              << "::__write(::IceInternal::BasicStream* __os) const";
+              << "::__write(::Ice::OutputStream* __os) const";
             C << sb;
-            C << nl << "__os->startWriteObject(__slicedData);";
+            C << nl << "__os->startObject(__slicedData);";
             C << nl << "__writeImpl(__os);";
-            C << nl << "__os->endWriteObject();";
+            C << nl << "__os->endObject();";
             C << eb;
 
             C << sp;
-            C << nl << "void" << nl << scoped.substr(2) << "::__read(::IceInternal::BasicStream* __is)";
+            C << nl << "void" << nl << scoped.substr(2) << "::__read(::Ice::InputStream* __is)";
             C << sb;
-            C << nl << "__is->startReadObject();";
+            C << nl << "__is->startObject();";
             C << nl << "__readImpl(__is);";
-            C << nl << "__slicedData = __is->endReadObject(true);";
+            C << nl << "__slicedData = __is->endObject(true);";
             C << eb;
         }
 
         C << sp;
         C << nl << "void" << nl << scoped.substr(2)
-          << "::__writeImpl(::IceInternal::BasicStream* __os) const";
+          << "::__writeImpl(::Ice::OutputStream* __os) const";
         C << sb;
-        C << nl << "__os->startWriteSlice(ice_staticId(), " << p->compactId() << (!base ? ", true" : ", false") << ");";
+        C << nl << "__os->startSlice(ice_staticId(), " << p->compactId() << (!base ? ", true" : ", false") << ");";
         writeMarshalUnmarshalDataMembers(C, p->dataMembers(), p->orderedOptionalDataMembers(), true);
-        C << nl << "__os->endWriteSlice();";
+        C << nl << "__os->endSlice();";
         if(base)
         {
             emitUpcall(base, "::__writeImpl(__os);");
@@ -2898,59 +2812,16 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
         C << eb;
 
         C << sp;
-        C << nl << "void" << nl << scoped.substr(2) << "::__readImpl(::IceInternal::BasicStream* __is)";
+        C << nl << "void" << nl << scoped.substr(2) << "::__readImpl(::Ice::InputStream* __is)";
         C << sb;
-        C << nl << "__is->startReadSlice();";
+        C << nl << "__is->startSlice();";
         writeMarshalUnmarshalDataMembers(C, p->dataMembers(), p->orderedOptionalDataMembers(), false);
-        C << nl << "__is->endReadSlice();";
+        C << nl << "__is->endSlice();";
         if(base)
         {
             emitUpcall(base, "::__readImpl(__is);");
         }
         C << eb;
-
-        if(_stream)
-        {
-            if(preserved && !basePreserved)
-            {
-                C << sp << nl << "void" << nl << scoped.substr(2) << "::__write(const ::Ice::OutputStreamPtr& __os) const";
-                C << sb;
-                C << nl << "__os->startObject(__slicedData);";
-                C << nl << "__writeImpl(__os);";
-                C << nl << "__os->endObject();";
-                C << eb;
-
-                C << sp << nl << "void" << nl << scoped.substr(2) << "::__read(const ::Ice::InputStreamPtr& __is)";
-                C << sb;
-                C << nl << "__is->startObject();";
-                C << nl << "__readImpl(__is);";
-                C << nl << "__slicedData = __is->endObject(true);";
-                C << eb;
-            }
-
-            C << sp << nl << "void" << nl << scoped.substr(2)
-              << "::__writeImpl(const ::Ice::OutputStreamPtr& __os) const";
-            C << sb;
-            C << nl << "__os->startSlice(ice_staticId(), " << p->compactId() << (!base ? ", true" : ", false") << ");";
-            writeMarshalUnmarshalDataMembers(C, p->dataMembers(), p->orderedOptionalDataMembers(), true);
-            C << nl << "__os->endSlice();";
-            if(base)
-            {
-                emitUpcall(base, "::__writeImpl(__os);");
-            }
-            C << eb;
-
-            C << sp << nl << "void" << nl << scoped.substr(2) << "::__readImpl(const ::Ice::InputStreamPtr& __is)";
-            C << sb;
-            C << nl << "__is->startSlice();";
-            writeMarshalUnmarshalDataMembers(C, p->dataMembers(), p->orderedOptionalDataMembers(), false);
-            C << nl << "__is->endSlice();";
-            if(base)
-            {
-                emitUpcall(base, "::__readImpl(__is);");
-            }
-            C << eb;
-        }
 
         if(!p->isAbstract() || p->compactId() >= 0)
         {
@@ -3253,7 +3124,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 
             if(!inParams.empty())
             {
-                C << nl << "::IceInternal::BasicStream* __is = __inS.startReadParams();";
+                C << nl << "::Ice::InputStream* __is = __inS.startReadParams();";
                 writeAllocateCode(C, inParams, 0, true, _useWstring | TypeContextInParam);
                 writeUnmarshalCode(C, inParams, 0, true, TypeContextInParam);
                 if(p->sendsClasses(false))
@@ -3281,7 +3152,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
             C << fixKwd(name) << args << ';';
             if(ret || !outParams.empty())
             {
-                C << nl << "::IceInternal::BasicStream* __os = __inS.__startWriteParams("
+                C << nl << "::Ice::OutputStream* __os = __inS.__startWriteParams("
                   << opFormatTypeToString(p) << ");";
                 writeMarshalCode(C, outParams, p, true);
                 if(p->returnsClasses(false))
@@ -3315,7 +3186,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 
             if(!inParams.empty())
             {
-                C << nl << "::IceInternal::BasicStream* __is = __inS.startReadParams();";
+                C << nl << "::Ice::InputStream* __is = __inS.startReadParams();";
                 writeAllocateCode(C, inParams, 0, true, _useWstring | TypeContextInParam);
                 writeUnmarshalCode(C, inParams, 0, true, TypeContextInParam);
                 if(p->sendsClasses(false))
@@ -4620,7 +4491,7 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
     {
         C << nl << "try";
         C << sb;
-        C << nl << "::IceInternal::BasicStream* __os = __startWriteParams(" << opFormatTypeToString(p) << ");";
+        C << nl << "::Ice::OutputStream* __os = __startWriteParams(" << opFormatTypeToString(p) << ");";
         writeMarshalCode(C, outParams, p, false, TypeContextInParam);
         if(p->returnsClasses(false))
         {
@@ -4801,16 +4672,20 @@ Slice::Gen::StreamVisitor::visitStructStart(const StructPtr& p)
             //
             H << nl << "#if defined(ICE_HAS_DECLSPEC_IMPORT_EXPORT) && !defined(";
             H << _dllExport.substr(0, _dllExport.size() - 1) + "_EXPORTS) && !defined(ICE_STATIC_LIBS)";
-            H << nl << "template struct " << _dllExport << "StreamWriter< " << fullStructName << ", ::IceInternal::BasicStream>;";
-            H << nl << "template struct " << _dllExport << "StreamReader< " << fullStructName << ", ::IceInternal::BasicStream>;";
+            H << nl << "template struct " << _dllExport << "StreamWriter< " << fullStructName
+              << ", ::Ice::OutputStream>;";
+            H << nl << "template struct " << _dllExport << "StreamReader< " << fullStructName
+              << ", ::Ice::InputStream>;";
             H << nl << "#endif" << nl;
 
             //
             // The instantations:
             //
             C << nl << "#if defined(ICE_HAS_DECLSPEC_IMPORT_EXPORT) && !defined(ICE_STATIC_LIBS)";
-            C << nl << "template struct " << _dllExport << "StreamWriter< " << fullStructName << ", ::IceInternal::BasicStream>;";
-            C << nl << "template struct " << _dllExport << "StreamReader< " << fullStructName << ", ::IceInternal::BasicStream>;";
+            C << nl << "template struct " << _dllExport << "StreamWriter< " << fullStructName
+              << ", ::Ice::OutputStream>;";
+            C << nl << "template struct " << _dllExport << "StreamReader< " << fullStructName
+              << ", ::Ice::InputStream>;";
             C << nl << "#endif";
         }
     }
@@ -5487,9 +5362,8 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
         if(preserved && !basePreserved)
         {
-            H << sp << nl << "virtual void __write(::IceInternal::BasicStream*) const;";
-            H << nl << "virtual void __read(::IceInternal::BasicStream*);";
-
+            H << sp << nl << "virtual void __write(::Ice::OutputStream*) const;";
+            H << nl << "virtual void __read(::Ice::InputStream*);";
 
             string baseName = base ? fixKwd(base->scoped()) : string("::Ice::UserException");
         }
@@ -5498,45 +5372,45 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         H << sp << nl << "protected:";
         H.inc();
 
-        H << nl << "virtual void __writeImpl(::IceInternal::BasicStream*) const;";
-        H << nl << "virtual void __readImpl(::IceInternal::BasicStream*);";
+        H << nl << "virtual void __writeImpl(::Ice::OutputStream*) const;";
+        H << nl << "virtual void __readImpl(::Ice::InputStream*);";
 
         if(preserved && !basePreserved)
         {
 
             H << sp << nl << "::std::shared_ptr<::Ice::SlicedData> __slicedData;";
 
-            C << sp << nl << "void" << nl << scoped.substr(2) << "::__write(::IceInternal::BasicStream* __os) const";
+            C << sp << nl << "void" << nl << scoped.substr(2) << "::__write(::Ice::OutputStream* __os) const";
             C << sb;
-            C << nl << "__os->startWriteException(__slicedData);";
+            C << nl << "__os->startException(__slicedData);";
             C << nl << "__writeImpl(__os);";
-            C << nl << "__os->endWriteException();";
+            C << nl << "__os->endException();";
             C << eb;
 
-            C << sp << nl << "void" << nl << scoped.substr(2) << "::__read(::IceInternal::BasicStream* __is)";
+            C << sp << nl << "void" << nl << scoped.substr(2) << "::__read(::Ice::InputStream* __is)";
             C << sb;
-            C << nl << "__is->startReadException();";
+            C << nl << "__is->startException();";
             C << nl << "__readImpl(__is);";
-            C << nl << "__slicedData = __is->endReadException(true);";
+            C << nl << "__slicedData = __is->endException(true);";
             C << eb;
         }
 
-        C << sp << nl << "void" << nl << scoped.substr(2) << "::__writeImpl(::IceInternal::BasicStream* __os) const";
+        C << sp << nl << "void" << nl << scoped.substr(2) << "::__writeImpl(::Ice::OutputStream* __os) const";
         C << sb;
-        C << nl << "__os->startWriteSlice(\"" << p->scoped() << "\", -1, " << (!base ? "true" : "false") << ");";
+        C << nl << "__os->startSlice(\"" << p->scoped() << "\", -1, " << (!base ? "true" : "false") << ");";
         writeMarshalUnmarshalDataMembers(C, p->dataMembers(), p->orderedOptionalDataMembers(), true);
-        C << nl << "__os->endWriteSlice();";
+        C << nl << "__os->endSlice();";
         if(base)
         {
             emitUpcall(base, "::__writeImpl(__os);");
         }
         C << eb;
 
-        C << sp << nl << "void" << nl << scoped.substr(2) << "::__readImpl(::IceInternal::BasicStream* __is)";
+        C << sp << nl << "void" << nl << scoped.substr(2) << "::__readImpl(::Ice::InputStream* __is)";
         C << sb;
-        C << nl << "__is->startReadSlice();";
+        C << nl << "__is->startSlice();";
         writeMarshalUnmarshalDataMembers(C, p->dataMembers(), p->orderedOptionalDataMembers(), false);
-        C << nl << "__is->endReadSlice();";
+        C << nl << "__is->endSlice();";
         if(base)
         {
             emitUpcall(base, "::__readImpl(__is);");
@@ -6202,7 +6076,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
     }
     else
     {
-        C << nl << "[&](::IceInternal::BasicStream* __os)";
+        C << nl << "[&](::Ice::OutputStream* __os)";
         C << sb;
         writeMarshalCode(C, inParams, 0, true, TypeContextInParam);
         if(p->sendsClasses(false))
@@ -6217,7 +6091,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
         if(ret || !outParams.empty())
         {
             C << nl << "false" << ",";
-            C << nl << "[__response](::IceInternal::BasicStream* __is)";
+            C << nl << "[__response](::Ice::InputStream* __is)";
             C << sb;
             writeAllocateCode(C, outParams, p, true, _useWstring | TypeContextAMIEnd | TypeContextReadClosure, true);
             writeUnmarshalCode(C, outParams, p, true, _useWstring | TypeContextAMIEnd);
@@ -6225,7 +6099,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
             {
                 C << nl << "__is->readPendingObjects();";
             }
-            C << nl << "__is->endReadEncaps();";
+            C << nl << "__is->endEncapsulation();";
             C << nl << "if(__response)";
             C << sb;
             C << nl << "try";
@@ -6260,7 +6134,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
         else
         {
             C << nl << "true" << ",";
-            C << nl << "[__response](::IceInternal::BasicStream*)";
+            C << nl << "[__response](::Ice::InputStream*)";
             C << sb;
             C << nl << "if(__response)";
             C << sb;
@@ -6556,12 +6430,10 @@ Slice::Gen::Cpp11TypesVisitor::emitUpcall(const ExceptionPtr& base, const string
 
 Slice::Gen::Cpp11ObjectVisitor::Cpp11ObjectVisitor(::IceUtilInternal::Output& h,
                                                    ::IceUtilInternal::Output& c,
-                                                   const std::string& dllExport,
-                                                   bool stream) :
+                                                   const std::string& dllExport) :
     H(h),
     C(c),
     _dllExport(dllExport),
-    _stream(stream),
     _doneStaticSymbol(false),
     _useWstring(false)
 {
@@ -6596,9 +6468,8 @@ Slice::Gen::Cpp11ValueVisitor::emitUpcall(const ClassDefPtr& base, const string&
 
 Slice::Gen::Cpp11LocalObjectVisitor::Cpp11LocalObjectVisitor(::IceUtilInternal::Output& h,
                                                              ::IceUtilInternal::Output& c,
-                                                             const std::string& dllExport,
-                                                             bool stream) :
-    Cpp11ObjectVisitor(h, c, dllExport, stream)
+                                                             const std::string& dllExport) :
+    Cpp11ObjectVisitor(h, c, dllExport)
 {
 }
 
@@ -6949,9 +6820,8 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitOperation(const OperationPtr& p)
 
 Slice::Gen::Cpp11InterfaceVisitor::Cpp11InterfaceVisitor(::IceUtilInternal::Output& h,
                                                          ::IceUtilInternal::Output& c,
-                                                         const std::string& dllExport,
-                                                         bool stream) :
-    Cpp11ObjectVisitor(h, c, dllExport, stream)
+                                                         const std::string& dllExport) :
+    Cpp11ObjectVisitor(h, c, dllExport)
 {
 }
 
@@ -7406,7 +7276,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
 
     if(!inParams.empty())
     {
-        C << nl << "::IceInternal::BasicStream* __is = __inS.startReadParams();";
+        C << nl << "::Ice::InputStream* __is = __inS.startReadParams();";
         writeAllocateCode(C, inParams, 0, true, _useWstring | TypeContextInParam | TypeContextReadClosure, true);
         writeUnmarshalCode(C, inParams, 0, true, TypeContextInParam);
         if(p->sendsClasses(false))
@@ -7540,9 +7410,8 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
 
 Slice::Gen::Cpp11ValueVisitor::Cpp11ValueVisitor(::IceUtilInternal::Output& h,
                                                  ::IceUtilInternal::Output& c,
-                                                 const std::string& dllExport,
-                                                 bool stream) :
-    Cpp11ObjectVisitor(h, c, dllExport, stream)
+                                                 const std::string& dllExport) :
+    Cpp11ObjectVisitor(h, c, dllExport)
 {
 }
 
@@ -7657,44 +7526,44 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
     if(preserved && !basePreserved)
     {
         H << sp;
-        H << nl << "virtual void __write(::IceInternal::BasicStream*) const;";
-        H << nl << "virtual void __read(::IceInternal::BasicStream*);";
+        H << nl << "virtual void __write(::Ice::OutputStream*) const;";
+        H << nl << "virtual void __read(::Ice::InputStream*);";
     }
 
     H.dec();
     H << sp << nl << "protected:";
     H.inc();
 
-    H << nl << "virtual void __writeImpl(::IceInternal::BasicStream*) const;";
-    H << nl << "virtual void __readImpl(::IceInternal::BasicStream*);";
+    H << nl << "virtual void __writeImpl(::Ice::OutputStream*) const;";
+    H << nl << "virtual void __readImpl(::Ice::InputStream*);";
 
     if(preserved && !basePreserved)
     {
         C << sp;
         C << nl << "void" << nl << scoped.substr(2)
-          << "::__write(::IceInternal::BasicStream* __os) const";
+          << "::__write(::Ice::OutputStream* __os) const";
         C << sb;
-        C << nl << "__os->startWriteObject(__slicedData);";
+        C << nl << "__os->startObject(__slicedData);";
         C << nl << "__writeImpl(__os);";
-        C << nl << "__os->endWriteObject();";
+        C << nl << "__os->endObject();";
         C << eb;
 
         C << sp;
-        C << nl << "void" << nl << scoped.substr(2) << "::__read(::IceInternal::BasicStream* __is)";
+        C << nl << "void" << nl << scoped.substr(2) << "::__read(::Ice::InputStream* __is)";
         C << sb;
-        C << nl << "__is->startReadObject();";
+        C << nl << "__is->startObject();";
         C << nl << "__readImpl(__is);";
-        C << nl << "__slicedData = __is->endReadObject(true);";
+        C << nl << "__slicedData = __is->endObject(true);";
         C << eb;
     }
 
     C << sp;
     C << nl << "void" << nl << scoped.substr(2)
-      << "::__writeImpl(::IceInternal::BasicStream* __os) const";
+      << "::__writeImpl(::Ice::OutputStream* __os) const";
     C << sb;
-    C << nl << "__os->startWriteSlice(ice_staticId(), " << p->compactId() << (!base ? ", true" : ", false") << ");";
+    C << nl << "__os->startSlice(ice_staticId(), " << p->compactId() << (!base ? ", true" : ", false") << ");";
     writeMarshalUnmarshalDataMembers(C, p->dataMembers(), p->orderedOptionalDataMembers(), true);
-    C << nl << "__os->endWriteSlice();";
+    C << nl << "__os->endSlice();";
     if(base)
     {
         emitUpcall(base, "::__writeImpl(__os);");
@@ -7702,11 +7571,11 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
     C << eb;
 
     C << sp;
-    C << nl << "void" << nl << scoped.substr(2) << "::__readImpl(::IceInternal::BasicStream* __is)";
+    C << nl << "void" << nl << scoped.substr(2) << "::__readImpl(::Ice::InputStream* __is)";
     C << sb;
-    C << nl << "__is->startReadSlice();";
+    C << nl << "__is->startSlice();";
     writeMarshalUnmarshalDataMembers(C, p->dataMembers(), p->orderedOptionalDataMembers(), false);
-    C << nl << "__is->endReadSlice();";
+    C << nl << "__is->endSlice();";
     if(base)
     {
         emitUpcall(base, "::__readImpl(__is);");
@@ -8035,16 +7904,16 @@ Slice::Gen::Cpp11StreamVisitor::visitStructStart(const StructPtr& p)
             //
             H << nl << "#if defined(ICE_HAS_DECLSPEC_IMPORT_EXPORT) && !defined(";
             H << _dllExport.substr(0, _dllExport.size() - 1) + "_EXPORTS) && !defined(ICE_STATIC_LIBS)";
-            H << nl << "template struct " << _dllExport << "StreamWriter< " << scoped << ", ::IceInternal::BasicStream>;";
-            H << nl << "template struct " << _dllExport << "StreamReader< " << scoped << ", ::IceInternal::BasicStream>;";
+            H << nl << "template struct " << _dllExport << "StreamWriter< " << scoped << ", ::Ice::OutputStream>;";
+            H << nl << "template struct " << _dllExport << "StreamReader< " << scoped << ", ::Ice::InputStream>;";
             H << nl << "#endif" << nl;
 
             //
             // The instantations:
             //
             C << nl << "#if defined(ICE_HAS_DECLSPEC_IMPORT_EXPORT) && !defined(ICE_STATIC_LIBS)";
-            C << nl << "template struct " << _dllExport << "StreamWriter< " << scoped << ", ::IceInternal::BasicStream>;";
-            C << nl << "template struct " << _dllExport << "StreamReader< " << scoped << ", ::IceInternal::BasicStream>;";
+            C << nl << "template struct " << _dllExport << "StreamWriter< " << scoped << ", ::Ice::OutputStream>;";
+            C << nl << "template struct " << _dllExport << "StreamReader< " << scoped << ", ::Ice::InputStream>;";
             C << nl << "#endif";
         }
     }

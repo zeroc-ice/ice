@@ -11,7 +11,8 @@
 #define ICE_INTERFACE_BY_VALUE_H
 
 #include <Ice/Value.h>
-#include <Ice/BasicStream.h>
+#include <Ice/OutputStream.h>
+#include <Ice/InputStream.h>
 
 #ifdef ICE_CPP11_MAPPING
 
@@ -24,17 +25,17 @@ class InterfaceByValue : public Ice::ValueHelper<Ice::InterfaceByValue<T>, Ice::
 public:
 
     virtual void
-    __writeImpl(::IceInternal::BasicStream* __os) const
+    __writeImpl(::Ice::OutputStream* __os) const
     {
-        __os->startWriteSlice(T::ice_staticId(), -1, true);
-        __os->endWriteSlice();
+        __os->startSlice(T::ice_staticId(), -1, true);
+        __os->endSlice();
     }
 
     virtual void
-    __readImpl(::IceInternal::BasicStream* __is)
+    __readImpl(::Ice::InputStream* __is)
     {
-        __is->startReadSlice();
-        __is->endReadSlice();
+        __is->startSlice();
+        __is->endSlice();
     }
     
     virtual const std::string& ice_id() const

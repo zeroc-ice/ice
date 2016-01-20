@@ -22,7 +22,7 @@ REGISTRY_SERVER_R = $(top_srcdir)\bin\icegridregistry.exe
 
 REGISTRY_SERVER	= $(top_srcdir)\bin\icegridregistry$(LIBSUFFIX).exe
 
-TARGETS         = $(ADMIN) $(NODE_SERVER) $(REGISTRY_SERVER) $(DB)
+TARGETS         = $(ADMIN) $(NODE_SERVER) $(REGISTRY_SERVER) #$(DB)
 
 CSLICE_OBJS      = .\Internal.obj \
 		  .\IceLocatorDiscovery.obj

@@ -26,7 +26,7 @@ public:
 
     StreamEndpointI(const ProtocolInstancePtr&, const std::string&, Ice::Int, Ice::Int, const std::string&, bool);
     StreamEndpointI(const ProtocolInstancePtr&);
-    StreamEndpointI(const ProtocolInstancePtr&, BasicStream*);
+    StreamEndpointI(const ProtocolInstancePtr&, Ice::InputStream*);
 
     virtual Ice::EndpointInfoPtr getInfo() const;
     virtual Ice::EndpointInfoPtr getWSInfo(const std::string&) const;
@@ -52,7 +52,7 @@ public:
 
 protected:
 
-    virtual void streamWriteImpl(BasicStream*) const;
+    virtual void streamWriteImpl(Ice::OutputStream*) const;
     virtual void hashInit(Ice::Int&) const;
     virtual void initWithOptions(std::vector<std::string>&, bool);
     virtual void fillEndpointInfo(Ice::IPEndpointInfo*) const;
@@ -80,7 +80,7 @@ public:
     virtual Ice::Short type() const;
     virtual std::string protocol() const;
     virtual EndpointIPtr create(std::vector<std::string>&, bool) const;
-    virtual EndpointIPtr read(BasicStream*) const;
+    virtual EndpointIPtr read(Ice::InputStream*) const;
     virtual void destroy();
 
     virtual EndpointFactoryPtr clone(const ProtocolInstancePtr&) const;

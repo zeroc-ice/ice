@@ -9,7 +9,6 @@
 
 #include <IceUtil/Config.h>
 #include <Ice/HttpParser.h>
-#include <Ice/BasicStream.h>
 #include <Ice/LocalException.h>
 #include <IceUtil/StringUtil.h>
 

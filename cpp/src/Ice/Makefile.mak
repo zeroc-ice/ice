@@ -61,7 +61,6 @@ OBJS	       =  .\Acceptor.obj \
 		  .\Application.obj \
 		  .\AsyncResult.obj \
 		  .\Base64.obj \
-		  .\BasicStream.obj \
 		  .\BatchRequestQueue.obj \
 		  .\Buffer.obj \
 		  .\CollocatedRequestHandler.obj \
@@ -87,6 +86,7 @@ OBJS	       =  .\Acceptor.obj \
 		  .\Incoming.obj \
 		  .\IncomingAsync.obj \
 		  .\Initialize.obj \
+		  .\InputStream.obj \
 		  .\Instance.obj \
 		  .\InstrumentationI.obj \
 		  .\IPEndpointI.obj \
@@ -106,6 +106,7 @@ OBJS	       =  .\Acceptor.obj \
 		  .\OpaqueEndpointI.obj \
 		  .\Outgoing.obj \
 		  .\OutgoingAsync.obj \
+		  .\OutputStream.obj \
 		  .\PluginManagerI.obj \
 		  .\PropertiesAdminI.obj \
 		  .\PropertiesI.obj \
@@ -128,8 +129,6 @@ OBJS	       =  .\Acceptor.obj \
 		  .\Service.obj \
 		  .\SliceChecksums.obj \
 		  .\SlicedData.obj \
-		  .\Stream.obj \
-		  .\StreamI.obj \
 		  .\StreamSocket.obj \
 		  .\TcpAcceptor.obj \
 		  .\TcpConnector.obj \
@@ -143,7 +142,7 @@ OBJS	       =  .\Acceptor.obj \
 		  .\UdpEndpointI.obj \
 		  .\UdpTransceiver.obj \
                   .\Value.obj \
-		  .\ValueFactoryManager.obj \
+		  .\ValueFactoryManagerI.obj \
 		  .\WSAcceptor.obj \
 		  .\WSConnector.obj \
 		  .\WSEndpoint.obj \

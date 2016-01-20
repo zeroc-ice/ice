@@ -12,7 +12,9 @@
 
 #include <Config.h>
 #include <Util.h>
-#include <Ice/Stream.h>
+#include <Ice/FactoryTable.h>
+#include <Ice/Object.h>
+#include <Ice/SlicedData.h>
 #include <IceUtil/OutputUtil.h>
 
 namespace IceRuby
@@ -39,31 +41,6 @@ typedef std::map<VALUE, Ice::ObjectPtr> ObjectMap;
 
 class ObjectReader;
 typedef IceUtil::Handle<ObjectReader> ObjectReaderPtr;
-
-//
-// This class keeps track of Ruby objects (instances of Slice classes
-// and exceptions) that have preserved slices.
-//
-class SlicedDataUtil
-{
-public:
-
-    SlicedDataUtil();
-    ~SlicedDataUtil();
-
-    void add(const ObjectReaderPtr&);
-
-    void update();
-
-    static void setMember(VALUE, const Ice::SlicedDataPtr&);
-    static Ice::SlicedDataPtr getMember(VALUE, ObjectMap*);
-
-private:
-
-    std::set<ObjectReaderPtr> _readers;
-    static VALUE _slicedDataType;
-    static VALUE _sliceInfoType;
-};
 
 struct PrintObjectHistory
 {
@@ -93,6 +70,64 @@ public:
     virtual void unmarshaled(VALUE, VALUE, void*) = 0;
 };
 typedef IceUtil::Handle<UnmarshalCallback> UnmarshalCallbackPtr;
+
+//
+// ReadObjectCallback retains all of the information necessary to store an unmarshaled
+// Slice value as a Ruby object.
+//
+class ReadObjectCallback : public IceUtil::Shared
+{
+public:
+
+    ReadObjectCallback(const ClassInfoPtr&, const UnmarshalCallbackPtr&, VALUE, void*);
+
+    void invoke(const ::Ice::ObjectPtr&);
+
+private:
+
+    ClassInfoPtr _info;
+    UnmarshalCallbackPtr _cb;
+    VALUE _target;
+    void* _closure;
+};
+typedef IceUtil::Handle<ReadObjectCallback> ReadObjectCallbackPtr;
+
+//
+// This class assists during unmarshaling of Slice classes and exceptions.
+// We attach an instance to a stream.
+//
+class StreamUtil
+{
+public:
+
+    StreamUtil();
+    ~StreamUtil();
+
+    //
+    // Keep a reference to a ReadObjectCallback for patching purposes.
+    //
+    void add(const ReadObjectCallbackPtr&);
+
+    //
+    // Keep track of object instances that have preserved slices.
+    //
+    void add(const ObjectReaderPtr&);
+
+    //
+    // Updated the sliced data information for all stored object instances.
+    //
+    void updateSlicedData();
+
+    static void setSlicedDataMember(VALUE, const Ice::SlicedDataPtr&);
+    static Ice::SlicedDataPtr getSlicedDataMember(VALUE, ObjectMap*);
+
+private:
+
+    std::vector<ReadObjectCallbackPtr> _callbacks;
+    std::set<ObjectReaderPtr> _readers;
+    static VALUE _slicedDataType;
+    static VALUE _sliceInfoType;
+};
 
 //
 // Base class for type information.
@@ -125,8 +160,8 @@ public:
     // The marshal and unmarshal functions can raise Ice exceptions, and may raise
     // AbortMarshaling if an error occurs.
     //
-    virtual void marshal(VALUE, const Ice::OutputStreamPtr&, ObjectMap*, bool) = 0;
-    virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, VALUE, void*, bool) = 0;
+    virtual void marshal(VALUE, Ice::OutputStream*, ObjectMap*, bool) = 0;
+    virtual void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, VALUE, void*, bool) = 0;
 
     virtual void print(VALUE, IceUtilInternal::Output&, PrintObjectHistory*) = 0;
 };
@@ -162,8 +197,8 @@ public:
     virtual int wireSize() const;
     virtual Ice::OptionalFormat optionalFormat() const;
 
-    virtual void marshal(VALUE, const Ice::OutputStreamPtr&, ObjectMap*, bool);
-    virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, VALUE, void*, bool);
+    virtual void marshal(VALUE, Ice::OutputStream*, ObjectMap*, bool);
+    virtual void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, VALUE, void*, bool);
 
     virtual void print(VALUE, IceUtilInternal::Output&, PrintObjectHistory*);
 
@@ -192,8 +227,8 @@ public:
     virtual int wireSize() const;
     virtual Ice::OptionalFormat optionalFormat() const;
 
-    virtual void marshal(VALUE, const Ice::OutputStreamPtr&, ObjectMap*, bool);
-    virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, VALUE, void*, bool);
+    virtual void marshal(VALUE, Ice::OutputStream*, ObjectMap*, bool);
+    virtual void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, VALUE, void*, bool);
 
     virtual void print(VALUE, IceUtilInternal::Output&, PrintObjectHistory*);
 
@@ -238,8 +273,8 @@ public:
 
     virtual bool usesClasses() const; // Default implementation returns false.
 
-    virtual void marshal(VALUE, const Ice::OutputStreamPtr&, ObjectMap*, bool);
-    virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, VALUE, void*, bool);
+    virtual void marshal(VALUE, Ice::OutputStream*, ObjectMap*, bool);
+    virtual void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, VALUE, void*, bool);
 
     virtual void print(VALUE, IceUtilInternal::Output&, PrintObjectHistory*);
 
@@ -276,8 +311,8 @@ public:
 
     virtual bool usesClasses() const; // Default implementation returns false.
 
-    virtual void marshal(VALUE, const Ice::OutputStreamPtr&, ObjectMap*, bool);
-    virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, VALUE, void*, bool);
+    virtual void marshal(VALUE, Ice::OutputStream*, ObjectMap*, bool);
+    virtual void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, VALUE, void*, bool);
     virtual void unmarshaled(VALUE, VALUE, void*);
 
     virtual void print(VALUE, IceUtilInternal::Output&, PrintObjectHistory*);
@@ -289,8 +324,8 @@ public:
 
 private:
 
-    void marshalPrimitiveSequence(const PrimitiveInfoPtr&, VALUE, const Ice::OutputStreamPtr&);
-    void unmarshalPrimitiveSequence(const PrimitiveInfoPtr&, const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&,
+    void marshalPrimitiveSequence(const PrimitiveInfoPtr&, VALUE, Ice::OutputStream*);
+    void unmarshalPrimitiveSequence(const PrimitiveInfoPtr&, Ice::InputStream*, const UnmarshalCallbackPtr&,
                                     VALUE, void*);
 };
 typedef IceUtil::Handle<SequenceInfo> SequenceInfoPtr;
@@ -314,9 +349,9 @@ public:
 
     virtual bool usesClasses() const; // Default implementation returns false.
 
-    virtual void marshal(VALUE, const Ice::OutputStreamPtr&, ObjectMap*, bool);
-    virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, VALUE, void*, bool);
-    void marshalElement(VALUE, VALUE, const Ice::OutputStreamPtr&, ObjectMap*);
+    virtual void marshal(VALUE, Ice::OutputStream*, ObjectMap*, bool);
+    virtual void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, VALUE, void*, bool);
+    void marshalElement(VALUE, VALUE, Ice::OutputStream*, ObjectMap*);
     virtual void unmarshaled(VALUE, VALUE, void*);
 
     virtual void print(VALUE, IceUtilInternal::Output&, PrintObjectHistory*);
@@ -365,8 +400,8 @@ public:
 
     virtual bool usesClasses() const; // Default implementation returns false.
 
-    virtual void marshal(VALUE, const Ice::OutputStreamPtr&, ObjectMap*, bool);
-    virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, VALUE, void*, bool);
+    virtual void marshal(VALUE, Ice::OutputStream*, ObjectMap*, bool);
+    virtual void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, VALUE, void*, bool);
 
     virtual void print(VALUE, IceUtilInternal::Output&, PrintObjectHistory*);
 
@@ -410,8 +445,8 @@ public:
     virtual int wireSize() const;
     virtual Ice::OptionalFormat optionalFormat() const;
 
-    virtual void marshal(VALUE, const Ice::OutputStreamPtr&, ObjectMap*, bool);
-    virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, VALUE, void*, bool);
+    virtual void marshal(VALUE, Ice::OutputStream*, ObjectMap*, bool);
+    virtual void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, VALUE, void*, bool);
 
     virtual void print(VALUE, IceUtilInternal::Output&, PrintObjectHistory*);
 
@@ -431,7 +466,7 @@ class ExceptionInfo : public IceUtil::Shared
 {
 public:
 
-    VALUE unmarshal(const Ice::InputStreamPtr&);
+    VALUE unmarshal(Ice::InputStream*);
 
     void print(VALUE, IceUtilInternal::Output&);
     void printMembers(VALUE, IceUtilInternal::Output&, PrintObjectHistory*);
@@ -448,7 +483,7 @@ public:
 //
 // ObjectWriter wraps a Ruby object for marshaling.
 //
-class ObjectWriter : public Ice::ObjectWriter
+class ObjectWriter : public Ice::Object
 {
 public:
 
@@ -457,11 +492,12 @@ public:
 
     virtual void ice_preMarshal();
 
-    virtual void write(const Ice::OutputStreamPtr&) const;
+    virtual void __write(Ice::OutputStream*) const;
+    virtual void __read(Ice::InputStream*);
 
 private:
 
-    void writeMembers(const Ice::OutputStreamPtr&, const DataMemberList&) const;
+    void writeMembers(Ice::OutputStream*, const DataMemberList&) const;
 
     VALUE _object;
     ObjectMap* _map;
@@ -471,7 +507,7 @@ private:
 //
 // ObjectReader unmarshals the state of an Ice object.
 //
-class ObjectReader : public Ice::ObjectReader
+class ObjectReader : public Ice::Object
 {
 public:
 
@@ -480,7 +516,8 @@ public:
 
     virtual void ice_postUnmarshal();
 
-    virtual void read(const Ice::InputStreamPtr&);
+    virtual void __write(Ice::OutputStream*) const;
+    virtual void __read(Ice::InputStream*);
 
     virtual ClassInfoPtr getInfo() const;
 
@@ -498,15 +535,12 @@ private:
 //
 // ExceptionReader creates a Ruby user exception and unmarshals it.
 //
-class ExceptionReader : public Ice::UserExceptionReader
+class ExceptionReader : public Ice::UserException
 {
 public:
 
-    ExceptionReader(const Ice::CommunicatorPtr&, const ExceptionInfoPtr&);
+    ExceptionReader(const ExceptionInfoPtr&);
     ~ExceptionReader() throw();
-
-    virtual void read(const Ice::InputStreamPtr&) const;
-    virtual bool usesClasses() const;
 
     virtual std::string ice_id() const;
 #ifndef ICE_CPP11_MAPPING
@@ -516,9 +550,22 @@ public:
     virtual Ice::UserException* ice_clone() const;
     virtual void ice_throw() const;
 
+    virtual void __write(Ice::OutputStream*) const;
+    virtual void __read(Ice::InputStream*);
+
+    virtual bool __usesClasses() const;
+
     VALUE getException() const;
 
     Ice::SlicedDataPtr getSlicedData() const;
+
+    using Ice::UserException::__read;
+    using Ice::UserException::__write;
+
+protected:
+
+    virtual void __writeImpl(Ice::OutputStream*) const {}
+    virtual void __readImpl(Ice::InputStream*) {}
 
 private:
 

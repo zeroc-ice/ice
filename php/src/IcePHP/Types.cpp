@@ -227,38 +227,13 @@ IcePHP::getExceptionInfo(const string& id TSRMLS_DC)
     return 0;
 }
 
-namespace IcePHP
-{
-
-class ReadObjectCallback : public Ice::ReadObjectCallback
-{
-public:
-
-    ReadObjectCallback(const ClassInfoPtr&, const UnmarshalCallbackPtr&, zval*, void* TSRMLS_DC);
-    ~ReadObjectCallback();
-
-    virtual void invoke(const ::Ice::ObjectPtr&);
-
-private:
-
-    ClassInfoPtr _info;
-    UnmarshalCallbackPtr _cb;
-    zval* _target;
-    void* _closure;
-#if ZTS
-    TSRMLS_D;
-#endif
-};
-
-}
-
 //
-// SlicedDataUtil implementation
+// StreamUtil implementation
 //
-zend_class_entry* IcePHP::SlicedDataUtil::_slicedDataType = 0;
-zend_class_entry* IcePHP::SlicedDataUtil::_sliceInfoType = 0;
+zend_class_entry* IcePHP::StreamUtil::_slicedDataType = 0;
+zend_class_entry* IcePHP::StreamUtil::_sliceInfoType = 0;
 
-IcePHP::SlicedDataUtil::~SlicedDataUtil()
+IcePHP::StreamUtil::~StreamUtil()
 {
     //
     // Make sure we break any cycles among the ObjectReaders in preserved slices.
@@ -281,23 +256,29 @@ IcePHP::SlicedDataUtil::~SlicedDataUtil()
 }
 
 void
-IcePHP::SlicedDataUtil::add(const ObjectReaderPtr& reader)
+IcePHP::StreamUtil::add(const ReadObjectCallbackPtr& callback)
+{
+    _callbacks.push_back(callback);
+}
+
+void
+IcePHP::StreamUtil::add(const ObjectReaderPtr& reader)
 {
     assert(reader->getSlicedData());
     _readers.insert(reader);
 }
 
 void
-IcePHP::SlicedDataUtil::update(TSRMLS_D)
+IcePHP::StreamUtil::updateSlicedData(TSRMLS_D)
 {
     for(set<ObjectReaderPtr>::iterator p = _readers.begin(); p != _readers.end(); ++p)
     {
-        setMember((*p)->getObject(), (*p)->getSlicedData() TSRMLS_CC);
+        setSlicedDataMember((*p)->getObject(), (*p)->getSlicedData() TSRMLS_CC);
     }
 }
 
 void
-IcePHP::SlicedDataUtil::setMember(zval* obj, const Ice::SlicedDataPtr& slicedData TSRMLS_DC)
+IcePHP::StreamUtil::setSlicedDataMember(zval* obj, const Ice::SlicedDataPtr& slicedData TSRMLS_DC)
 {
     //
     // Create a PHP equivalent of the SlicedData object.
@@ -454,7 +435,7 @@ IcePHP::SlicedDataUtil::setMember(zval* obj, const Ice::SlicedDataPtr& slicedDat
 // named _ice_slicedData which is an instance of the PHP class Ice_SlicedData.
 //
 Ice::SlicedDataPtr
-IcePHP::SlicedDataUtil::getMember(zval* obj, ObjectMap* objectMap TSRMLS_DC)
+IcePHP::StreamUtil::getSlicedDataMember(zval* obj, ObjectMap* objectMap TSRMLS_DC)
 {
     Ice::SlicedDataPtr slicedData;
 
@@ -846,7 +827,7 @@ IcePHP::PrimitiveInfo::optionalFormat() const
 }
 
 void
-IcePHP::PrimitiveInfo::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMap*, bool TSRMLS_DC)
+IcePHP::PrimitiveInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap*, bool TSRMLS_DC)
 {
     switch(kind)
     {
@@ -954,7 +935,7 @@ IcePHP::PrimitiveInfo::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectM
 }
 
 void
-IcePHP::PrimitiveInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCallbackPtr& cb,
+IcePHP::PrimitiveInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& cb,
                                  const CommunicatorInfoPtr&, zval* target, void* closure, bool TSRMLS_DC)
 {
     zval* zv;
@@ -1124,7 +1105,7 @@ IcePHP::EnumInfo::optionalFormat() const
 }
 
 void
-IcePHP::EnumInfo::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMap*, bool TSRMLS_DC)
+IcePHP::EnumInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap*, bool TSRMLS_DC)
 {
     assert(Z_TYPE_P(zv) == IS_LONG); // validate() should have caught this.
     const Ice::Int val = static_cast<Ice::Int>(Z_LVAL_P(zv));
@@ -1134,7 +1115,7 @@ IcePHP::EnumInfo::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMap*, 
 }
 
 void
-IcePHP::EnumInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCallbackPtr& cb,
+IcePHP::EnumInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& cb,
                             const CommunicatorInfoPtr&, zval* target, void* closure, bool TSRMLS_DC)
 {
     zval* zv;
@@ -1363,7 +1344,7 @@ IcePHP::StructInfo::usesClasses() const
 }
 
 void
-IcePHP::StructInfo::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMap* objectMap, bool optional TSRMLS_DC)
+IcePHP::StructInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap* objectMap, bool optional TSRMLS_DC)
 {
     assert(Z_TYPE_P(zv) == IS_NULL || (Z_TYPE_P(zv) == IS_OBJECT && Z_OBJCE_P(zv) == zce));
 
@@ -1427,7 +1408,7 @@ IcePHP::StructInfo::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMap*
 }
 
 void
-IcePHP::StructInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCallbackPtr& cb,
+IcePHP::StructInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& cb,
                               const CommunicatorInfoPtr& comm, zval* target, void* closure, bool optional TSRMLS_DC)
 {
     zval* zv;
@@ -1559,7 +1540,7 @@ IcePHP::SequenceInfo::usesClasses() const
 }
 
 void
-IcePHP::SequenceInfo::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMap* objectMap, bool optional TSRMLS_DC)
+IcePHP::SequenceInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap* objectMap, bool optional TSRMLS_DC)
 {
     Ice::Int sz = 0;
     HashTable* arr = 0;
@@ -1623,7 +1604,7 @@ IcePHP::SequenceInfo::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMa
 }
 
 void
-IcePHP::SequenceInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCallbackPtr& cb,
+IcePHP::SequenceInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& cb,
                                 const CommunicatorInfoPtr& comm, zval* target, void* closure, bool optional TSRMLS_DC)
 {
     if(optional)
@@ -1719,8 +1700,7 @@ IcePHP::SequenceInfo::destroy()
 }
 
 void
-IcePHP::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, zval* zv, const Ice::OutputStreamPtr& os
-                                               TSRMLS_DC)
+IcePHP::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, zval* zv, Ice::OutputStream* os TSRMLS_DC)
 {
     HashTable* arr = Z_ARRVAL_P(zv);
 
@@ -1933,14 +1913,14 @@ IcePHP::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, zval*
             seq[i++] = s;
             zend_hash_move_forward_ex(arr, &pos);
         }
-        os->write(seq, true);
+        os->write(seq);
         break;
     }
     }
 }
 
 void
-IcePHP::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, const Ice::InputStreamPtr& is,
+IcePHP::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice::InputStream* is,
                                                  const UnmarshalCallbackPtr& cb, zval* target, void* closure TSRMLS_DC)
 {
     zval* zv;
@@ -2119,7 +2099,7 @@ IcePHP::DictionaryInfo::usesClasses() const
 }
 
 void
-IcePHP::DictionaryInfo::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMap* objectMap, bool optional TSRMLS_DC)
+IcePHP::DictionaryInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap* objectMap, bool optional TSRMLS_DC)
 {
     Ice::Int sz = 0;
     HashTable* arr = 0;
@@ -2266,7 +2246,7 @@ IcePHP::DictionaryInfo::marshal(zval* zv, const Ice::OutputStreamPtr& os, Object
 }
 
 void
-IcePHP::DictionaryInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCallbackPtr& cb,
+IcePHP::DictionaryInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& cb,
                                   const CommunicatorInfoPtr& comm, zval* target, void* closure, bool optional TSRMLS_DC)
 {
     if(optional)
@@ -2548,7 +2528,7 @@ IcePHP::ClassInfo::usesClasses() const
 }
 
 void
-IcePHP::ClassInfo::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMap* objectMap, bool TSRMLS_DC)
+IcePHP::ClassInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap* objectMap, bool TSRMLS_DC)
 {
     if(!defined)
     {
@@ -2558,7 +2538,8 @@ IcePHP::ClassInfo::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMap* 
 
     if(Z_TYPE_P(zv) == IS_NULL)
     {
-        os->writeObject(0);
+        Ice::ObjectPtr nil;
+        os->write(nil);
         return;
     }
 
@@ -2587,11 +2568,24 @@ IcePHP::ClassInfo::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMap* 
     //
     // Give the writer to the stream. The stream will eventually call write() on it.
     //
-    os->writeObject(writer);
+    os->write(writer);
+}
+
+namespace
+{
+
+void
+patchObject(void* addr, const Ice::ObjectPtr& v)
+{   
+    ReadObjectCallback* cb = static_cast<ReadObjectCallback*>(addr);
+    assert(cb);
+    cb->invoke(v);
+}
+
 }
 
 void
-IcePHP::ClassInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCallbackPtr& cb,
+IcePHP::ClassInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& cb,
                              const CommunicatorInfoPtr& comm, zval* target, void* closure, bool TSRMLS_DC)
 {
     if(!defined)
@@ -2600,7 +2594,16 @@ IcePHP::ClassInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCallb
         throw AbortMarshaling();
     }
 
-    is->readObject(new ReadObjectCallback(this, cb, target, closure TSRMLS_CC));
+    //
+    // This callback is notified when the Slice value is actually read. The StreamUtil object
+    // attached to the stream keeps a reference to the callback object to ensure it lives
+    // long enough.
+    //
+    ReadObjectCallbackPtr rocb = new ReadObjectCallback(this, cb, target, closure TSRMLS_CC);
+    StreamUtil* util = reinterpret_cast<StreamUtil*>(is->getClosure());
+    assert(util);
+    util->add(rocb);
+    is->read(patchObject, rocb.get());
 }
 
 void
@@ -2812,7 +2815,7 @@ IcePHP::ProxyInfo::optionalFormat() const
 }
 
 void
-IcePHP::ProxyInfo::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMap*, bool optional TSRMLS_DC)
+IcePHP::ProxyInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap*, bool optional TSRMLS_DC)
 {
     Ice::OutputStream::size_type sizePos = 0;
     if(optional)
@@ -2848,7 +2851,7 @@ IcePHP::ProxyInfo::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMap*,
 }
 
 void
-IcePHP::ProxyInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCallbackPtr& cb,
+IcePHP::ProxyInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& cb,
                              const CommunicatorInfoPtr& comm, zval* target, void* closure, bool optional TSRMLS_DC)
 {
     zval* zv;
@@ -2956,7 +2959,7 @@ IcePHP::ObjectWriter::ice_preMarshal()
 }
 
 void
-IcePHP::ObjectWriter::write(const Ice::OutputStreamPtr& os) const
+IcePHP::ObjectWriter::__write(Ice::OutputStream* os) const
 {
     Ice::SlicedDataPtr slicedData;
 
@@ -2965,7 +2968,7 @@ IcePHP::ObjectWriter::write(const Ice::OutputStreamPtr& os) const
         //
         // Retrieve the SlicedData object that we stored as a hidden member of the PHP object.
         //
-        slicedData = SlicedDataUtil::getMember(_object, const_cast<ObjectMap*>(_map) TSRMLS_CC);
+        slicedData = StreamUtil::getSlicedDataMember(_object, const_cast<ObjectMap*>(_map) TSRMLS_CC);
     }
 
     os->startObject(slicedData);
@@ -2992,7 +2995,13 @@ IcePHP::ObjectWriter::write(const Ice::OutputStreamPtr& os) const
 }
 
 void
-IcePHP::ObjectWriter::writeMembers(const Ice::OutputStreamPtr& os, const DataMemberList& members) const
+IcePHP::ObjectWriter::__read(Ice::InputStream*)
+{
+    assert(false);
+}
+
+void
+IcePHP::ObjectWriter::writeMembers(Ice::OutputStream* os, const DataMemberList& members) const
 {
     for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
     {
@@ -3009,7 +3018,7 @@ IcePHP::ObjectWriter::writeMembers(const Ice::OutputStreamPtr& os, const DataMem
         zval** val = reinterpret_cast<zval**>(data);
 
         if(member->optional && (isUnset(*val TSRMLS_CC) ||
-           !os->writeOptional(member->tag, member->type->optionalFormat())))
+           !os->writeOpt(member->tag, member->type->optionalFormat())))
         {
             continue;
         }
@@ -3057,7 +3066,13 @@ IcePHP::ObjectReader::ice_postUnmarshal()
 }
 
 void
-IcePHP::ObjectReader::read(const Ice::InputStreamPtr& is)
+IcePHP::ObjectReader::__write(Ice::OutputStream*) const
+{
+    assert(false);
+}
+
+void
+IcePHP::ObjectReader::__read(Ice::InputStream* is)
 {
     is->startObject();
 
@@ -3087,7 +3102,7 @@ IcePHP::ObjectReader::read(const Ice::InputStreamPtr& is)
             for(p = info->optionalMembers.begin(); p != info->optionalMembers.end(); ++p)
             {
                 DataMemberPtr member = *p;
-                if(is->readOptional(member->tag, member->type->optionalFormat()))
+                if(is->readOpt(member->tag, member->type->optionalFormat()))
                 {
                     member->type->unmarshal(is, member, _communicator, _object, 0, true TSRMLS_CC);
                 }
@@ -3111,7 +3126,7 @@ IcePHP::ObjectReader::read(const Ice::InputStreamPtr& is)
 
     if(_slicedData)
     {
-        SlicedDataUtil* util = reinterpret_cast<SlicedDataUtil*>(is->closure());
+        StreamUtil* util = reinterpret_cast<StreamUtil*>(is->getClosure());
         assert(util);
         util->add(this);
 
@@ -3216,7 +3231,7 @@ IcePHP::ReadObjectCallback::invoke(const Ice::ObjectPtr& p)
 // ExceptionInfo implementation.
 //
 zval*
-IcePHP::ExceptionInfo::unmarshal(const Ice::InputStreamPtr& is, const CommunicatorInfoPtr& comm TSRMLS_DC)
+IcePHP::ExceptionInfo::unmarshal(Ice::InputStream* is, const CommunicatorInfoPtr& comm TSRMLS_DC)
 {
     zval* zv;
     MAKE_STD_ZVAL(zv);
@@ -3250,7 +3265,7 @@ IcePHP::ExceptionInfo::unmarshal(const Ice::InputStreamPtr& is, const Communicat
         for(q = info->optionalMembers.begin(); q != info->optionalMembers.end(); ++q)
         {
             DataMemberPtr member = *q;
-            if(is->readOptional(member->tag, member->type->optionalFormat()))
+            if(is->readOpt(member->tag, member->type->optionalFormat()))
             {
                 member->type->unmarshal(is, member, comm, zv, 0, true TSRMLS_CC);
             }
@@ -3376,7 +3391,7 @@ IcePHP::ExceptionInfo::isA(const string& typeId) const
 //
 IcePHP::ExceptionReader::ExceptionReader(const CommunicatorInfoPtr& communicatorInfo, const ExceptionInfoPtr& info
                                          TSRMLS_DC) :
-    Ice::UserExceptionReader(communicatorInfo->getCommunicator()), _communicatorInfo(communicatorInfo), _info(info)
+    _communicatorInfo(communicatorInfo), _info(info)
 {
 #ifdef ZTS
     this->TSRMLS_C = TSRMLS_C;
@@ -3386,22 +3401,6 @@ IcePHP::ExceptionReader::ExceptionReader(const CommunicatorInfoPtr& communicator
 IcePHP::ExceptionReader::~ExceptionReader()
     throw()
 {
-}
-
-void
-IcePHP::ExceptionReader::read(const Ice::InputStreamPtr& is) const
-{
-    is->startException();
-
-    const_cast<zval*&>(_ex) = _info->unmarshal(is, _communicatorInfo TSRMLS_CC);
-
-    const_cast<Ice::SlicedDataPtr&>(_slicedData) = is->endException(_info->preserve);
-}
-
-bool
-IcePHP::ExceptionReader::usesClasses() const
-{
-    return _info->usesClasses;
 }
 
 string
@@ -3429,6 +3428,28 @@ void
 IcePHP::ExceptionReader::ice_throw() const
 {
     throw *this;
+}
+
+void
+IcePHP::ExceptionReader::__write(Ice::OutputStream*) const
+{
+    assert(false);
+}
+
+void
+IcePHP::ExceptionReader::__read(Ice::InputStream* is)
+{
+    is->startException();
+
+    const_cast<zval*&>(_ex) = _info->unmarshal(is, _communicatorInfo TSRMLS_CC);
+
+    const_cast<Ice::SlicedDataPtr&>(_slicedData) = is->endException(_info->preserve);
+}
+
+bool
+IcePHP::ExceptionReader::__usesClasses() const
+{
+    return _info->usesClasses;
 }
 
 ExceptionInfoPtr

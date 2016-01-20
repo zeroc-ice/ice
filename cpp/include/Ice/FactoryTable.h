@@ -14,7 +14,6 @@
 #include <Ice/UserExceptionFactory.h>
 #include <Ice/ValueFactory.h>
 
-
 namespace Ice
 {
 
@@ -35,8 +34,8 @@ class ICE_API FactoryTable : private IceUtil::noncopyable
 {
 public:
 
-    void addExceptionFactory(const ::std::string&, const IceInternal::UserExceptionFactoryPtr&);
-    IceInternal::UserExceptionFactoryPtr getExceptionFactory(const ::std::string&) const;
+    void addExceptionFactory(const ::std::string&, const Ice::UserExceptionFactoryPtr&);
+    Ice::UserExceptionFactoryPtr getExceptionFactory(const ::std::string&) const;
     void removeExceptionFactory(const ::std::string&);
 
 #ifdef ICE_CPP11_MAPPING
@@ -55,7 +54,7 @@ private:
 
     IceUtil::Mutex _m;
 
-    typedef ::std::pair<IceInternal::UserExceptionFactoryPtr, int> EFPair;
+    typedef ::std::pair<Ice::UserExceptionFactoryPtr, int> EFPair;
     typedef ::std::map< ::std::string, EFPair> EFTable;
     EFTable _eft;
 

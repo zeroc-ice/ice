@@ -14,7 +14,8 @@
 #include <Ice/ConnectionIF.h>
 #include <Ice/ServantLocatorF.h>
 #include <Ice/ServantManagerF.h>
-#include <Ice/BasicStream.h>
+#include <Ice/OutputStream.h>
+#include <Ice/InputStream.h>
 #include <Ice/Object.h>
 #include <Ice/Current.h>
 #include <Ice/IncomingAsyncF.h>
@@ -32,7 +33,7 @@ public:
 
     void __adopt(IncomingBase&);
 
-    BasicStream* __startWriteParams(Ice::FormatType);
+    Ice::OutputStream* __startWriteParams(Ice::FormatType);
     void __endWriteParams(bool);
     void __writeEmptyParams();
     void __writeParamEncaps(const Ice::Byte*, Ice::Int, bool);
@@ -64,7 +65,7 @@ protected:
     bool _response;
     Ice::Byte _compress;
 
-    BasicStream _os;
+    Ice::OutputStream _os;
 
     //
     // Optimization. The request handler may not be deleted while a
@@ -97,34 +98,34 @@ public:
         return _inParamPos != 0;
     }
 
-    void invoke(const ServantManagerPtr&, BasicStream*);
+    void invoke(const ServantManagerPtr&, Ice::InputStream*);
 
     // Inlined for speed optimization.
-    BasicStream* startReadParams()
+    Ice::InputStream* startReadParams()
     {
         //
         // Remember the encoding used by the input parameters, we'll
         // encode the response parameters with the same encoding.
         //
-        _current.encoding = _is->startReadEncaps();
+        _current.encoding = _is->startEncapsulation();
         return _is;
     }
     void endReadParams() const
     {
-        _is->endReadEncaps();
+        _is->endEncapsulation();
     }
     void readEmptyParams()
     {
-        _current.encoding = _is->skipEmptyEncaps();
+        _current.encoding = _is->skipEmptyEncapsulation();
     }
     void readParamEncaps(const Ice::Byte*& v, Ice::Int& sz)
     {
-        _current.encoding = _is->readEncaps(v, sz);
+        _current.encoding = _is->readEncapsulation(v, sz);
     }
 
 private:
 
-    BasicStream* _is;
+    Ice::InputStream* _is;
     
     IncomingAsyncPtr _cb;
     Ice::Byte* _inParamPos;

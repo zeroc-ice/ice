@@ -20,13 +20,13 @@ OBJS		= Communicator.o \
 		  ImplicitContext.o \
 		  Init.o \
 		  Logger.o \
-		  ObjectFactory.o \
 		  Operation.o \
 		  Properties.o \
 		  Proxy.o \
 		  Slice.o \
 		  Types.o \
-		  Util.o
+		  Util.o \
+		  ValueFactoryManager.o
 
 include $(top_srcdir)/config/Make.rules
 

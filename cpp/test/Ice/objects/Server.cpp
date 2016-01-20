@@ -56,14 +56,14 @@ int
 run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
 #ifdef ICE_CPP11_MAPPING
-    communicator->addValueFactory(makeFactory<II>(), "::Test::I");
-    communicator->addValueFactory(makeFactory<JI>(), "::Test::J");
-    communicator->addValueFactory(makeFactory<HI>(), "::Test::H");
+    communicator->getValueFactoryManager()->add(makeFactory<II>(), "::Test::I");
+    communicator->getValueFactoryManager()->add(makeFactory<JI>(), "::Test::J");
+    communicator->getValueFactoryManager()->add(makeFactory<HI>(), "::Test::H");
 #else
     Ice::ValueFactoryPtr factory = new MyValueFactory;
-    communicator->addValueFactory(factory, "::Test::I");
-    communicator->addValueFactory(factory, "::Test::J");
-    communicator->addValueFactory(factory, "::Test::H");
+    communicator->getValueFactoryManager()->add(factory, "::Test::I");
+    communicator->getValueFactoryManager()->add(factory, "::Test::J");
+    communicator->getValueFactoryManager()->add(factory, "::Test::H");
 #endif
 
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(communicator, 0));

@@ -89,7 +89,7 @@ IceInternal::IncomingBase::__adopt(IncomingBase& other)
     other._responseHandler = 0;
 }
 
-BasicStream*
+OutputStream*
 IncomingBase::__startWriteParams(FormatType format)
 {
     if(!_response)
@@ -100,7 +100,7 @@ IncomingBase::__startWriteParams(FormatType format)
     assert(_os.b.size() == headerSize + 4); // Reply status position.
     assert(_current.encoding >= Ice::Encoding_1_0); // Encoding for reply is known.
     _os.write(static_cast<Ice::Byte>(0));
-    _os.startWriteEncaps(_current.encoding, format);
+    _os.startEncapsulation(_current.encoding, format);
 
     //
     // We still return the stream even if no response is expected. The
@@ -123,7 +123,7 @@ IncomingBase::__endWriteParams(bool ok)
     if(_response)
     {
         *(_os.b.begin() + headerSize + 4) = ok ? replyOK : replyUserException; // Reply status position.
-        _os.endWriteEncaps();
+        _os.endEncapsulation();
     }
 }
 
@@ -135,7 +135,7 @@ IncomingBase::__writeEmptyParams()
         assert(_os.b.size() == headerSize + 4); // Reply status position.
         assert(_current.encoding >= Ice::Encoding_1_0); // Encoding for reply is known.
         _os.write(replyOK);
-        _os.writeEmptyEncaps(_current.encoding);
+        _os.writeEmptyEncapsulation(_current.encoding);
     }
 }
 
@@ -154,11 +154,11 @@ IncomingBase::__writeParamEncaps(const Byte* v, Ice::Int sz, bool ok)
         _os.write(ok ? replyOK : replyUserException);
         if(sz == 0)
         {
-            _os.writeEmptyEncaps(_current.encoding);
+            _os.writeEmptyEncapsulation(_current.encoding);
         }
         else
         {
-            _os.writeEncaps(v, sz);
+            _os.writeEncapsulation(v, sz);
         }
     }
 }
@@ -166,7 +166,7 @@ IncomingBase::__writeParamEncaps(const Byte* v, Ice::Int sz, bool ok)
 void
 IncomingBase::__writeUserException(const Ice::UserException& ex, Ice::FormatType format)
 {
-    ::IceInternal::BasicStream* __os = __startWriteParams(format);
+    ::Ice::OutputStream* __os = __startWriteParams(format);
     __os->write(ex);
     __endWriteParams(false);
 }
@@ -235,9 +235,9 @@ IceInternal::IncomingBase::__servantLocatorFinished(bool amd)
         {
             _os.b.resize(headerSize + 4); // Reply status position.
             _os.write(replyUserException);
-            _os.startWriteEncaps(_current.encoding, DefaultFormat);
+            _os.startEncapsulation(_current.encoding, DefaultFormat);
             _os.write(ex);
-            _os.endWriteEncaps();
+            _os.endEncapsulation();
             _observer.reply(static_cast<Int>(_os.b.size() - headerSize - 4));
             _responseHandler->sendResponse(_current.requestId, &_os, _compress, amd);
         }
@@ -571,11 +571,11 @@ IceInternal::Incoming::setActive(IncomingAsync& cb)
 }
 
 void
-IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, BasicStream* stream)
+IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, InputStream* stream)
 {
     _is = stream;
 
-    BasicStream::Container::iterator start = _is->i;
+    InputStream::Container::iterator start = _is->i;
 
     //
     // Read the current.
@@ -651,16 +651,16 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, BasicStre
                 }
                 catch(const UserException& ex)
                 {
-                    Ice::EncodingVersion encoding = _is->skipEncaps(); // Required for batch requests.
+                    Ice::EncodingVersion encoding = _is->skipEncapsulation(); // Required for batch requests.
 
                     _observer.userException();
 
                     if(_response)
                     {
                         _os.write(replyUserException);
-                        _os.startWriteEncaps(encoding, DefaultFormat);
+                        _os.startEncapsulation(encoding, DefaultFormat);
                         _os.write(ex);
-                        _os.endWriteEncaps();
+                        _os.endEncapsulation();
                         _observer.reply(static_cast<Int>(_os.b.size() - headerSize - 4));
                         _responseHandler->sendResponse(_current.requestId, &_os, _compress, false);
                     }
@@ -675,13 +675,13 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, BasicStre
                 }
                 catch(const std::exception& ex)
                 {
-                    _is->skipEncaps(); // Required for batch requests.
+                    _is->skipEncapsulation(); // Required for batch requests.
                     __handleException(ex, false);
                     return;
                 }
                 catch(...)
                 {
-                    _is->skipEncaps(); // Required for batch requests.
+                    _is->skipEncapsulation(); // Required for batch requests.
                     __handleException(false);
                     return;
                 }
@@ -713,7 +713,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, BasicStre
             // Skip the input parameters, this is required for reading
             // the next batch request if dispatching batch requests.
             //
-            _is->skipEncaps();
+            _is->skipEncapsulation();
 
             if(servantManager && servantManager->hasServant(_current.id))
             {

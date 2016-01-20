@@ -11,7 +11,8 @@
 #include <Ice/Network.h>
 #include <Ice/UdpConnector.h>
 #include <Ice/UdpTransceiver.h>
-#include <Ice/BasicStream.h>
+#include <Ice/OutputStream.h>
+#include <Ice/InputStream.h>
 #include <Ice/LocalException.h>
 #include <Ice/Protocol.h>
 #include <Ice/ProtocolInstance.h>
@@ -56,13 +57,13 @@ IceInternal::UdpEndpointI::UdpEndpointI(const ProtocolInstancePtr& instance) :
 {
 }
 
-IceInternal::UdpEndpointI::UdpEndpointI(const ProtocolInstancePtr& instance, BasicStream* s) :
+IceInternal::UdpEndpointI::UdpEndpointI(const ProtocolInstancePtr& instance, InputStream* s) :
     IPEndpointI(instance, s),
     _mcastTtl(-1),
     _connect(false),
     _compress(false)
 {
-    if(s->getReadEncoding() == Ice::Encoding_1_0)
+    if(s->getEncoding() == Ice::Encoding_1_0)
     {
         Ice::Byte b;
         s->read(b);
@@ -286,10 +287,10 @@ IceInternal::UdpEndpointI::operator<(const LocalObject& r) const
 }
 
 void
-IceInternal::UdpEndpointI::streamWriteImpl(BasicStream* s) const
+IceInternal::UdpEndpointI::streamWriteImpl(OutputStream* s) const
 {
     IPEndpointI::streamWriteImpl(s);
-    if(s->getWriteEncoding() == Ice::Encoding_1_0)
+    if(s->getEncoding() == Ice::Encoding_1_0)
     {
         s->write(Ice::Protocol_1_0);
         s->write(Ice::Encoding_1_0);
@@ -450,7 +451,7 @@ IceInternal::UdpEndpointFactory::create(vector<string>& args, bool oaEndpoint) c
 }
 
 EndpointIPtr
-IceInternal::UdpEndpointFactory::read(BasicStream* s) const
+IceInternal::UdpEndpointFactory::read(InputStream* s) const
 {
     return ICE_MAKE_SHARED(UdpEndpointI, _instance, s);
 }

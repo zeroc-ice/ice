@@ -319,12 +319,12 @@ UnexpectedObjectExceptionTestI::ice_invoke(const std::vector<Ice::Byte>&,
                                            const Ice::Current& current)
 {
     Ice::CommunicatorPtr communicator = current.adapter->getCommunicator();
-    Ice::OutputStreamPtr out = Ice::createOutputStream(communicator);
-    out->startEncapsulation(current.encoding, Ice::DefaultFormat);
+    Ice::OutputStream out(communicator);
+    out.startEncapsulation(current.encoding, Ice::DefaultFormat);
     AlsoEmptyPtr obj = ICE_MAKE_SHARED(AlsoEmpty); 
-    out->write(obj);
-    out->writePendingObjects();
-    out->endEncapsulation();
-    out->finished(outParams);
+    out.write(obj);
+    out.writePendingObjects();
+    out.endEncapsulation();
+    out.finished(outParams);
     return true;
 }

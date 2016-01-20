@@ -17,6 +17,7 @@
 #include <Types.h>
 #include <Connection.h>
 #include <Endpoint.h>
+#include <ValueFactoryManager.h>
 
 using namespace std;
 using namespace IceRuby;
@@ -54,6 +55,7 @@ ICE_DECLSPEC_EXPORT Init_IceRuby()
     initUtil(iceModule);
     initConnection(iceModule);
     initEndpoint(iceModule);
+    initValueFactoryManager(iceModule);
 }
 
 }

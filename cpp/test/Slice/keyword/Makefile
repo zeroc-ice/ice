@@ -21,7 +21,7 @@ OBJS		= $(SLICE_OBJS) \
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
-SLICE2CPPFLAGS	:= --underscore --stream $(SLICE2CPPFLAGS)
+SLICE2CPPFLAGS	:= --underscore $(SLICE2CPPFLAGS)
 
 $(CLIENT): $(OBJS)
 	rm -f $@

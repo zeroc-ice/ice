@@ -1666,7 +1666,7 @@ def allTests(communicator):
         # UCNode. This provides an easy way to determine how many
         # unmarshaled instances currently exist.
         #
-        communicator.addValueFactory(NodeFactoryI, Test.PNode.ice_staticId())
+        communicator.getValueFactoryManager().add(NodeFactoryI, Test.PNode.ice_staticId())
 
         #
         # Relay a graph through the server. This test uses a preserved class
@@ -1753,7 +1753,7 @@ def allTests(communicator):
         # Preserved. This provides an easy way to determine how many
         # unmarshaled instances currently exist.
         #
-        communicator.addValueFactory(PreservedFactoryI, Test.Preserved.ice_staticId())
+        communicator.getValueFactoryManager().add(PreservedFactoryI, Test.Preserved.ice_staticId())
 
         #
         # Obtain a preserved object from the server where the most-derived

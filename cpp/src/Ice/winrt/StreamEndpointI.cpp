@@ -13,7 +13,8 @@
 #include <Ice/winrt/StreamTransceiver.h>
 
 #include <Ice/Network.h>
-#include <Ice/BasicStream.h>
+#include <Ice/OutputStream.h>
+#include <Ice/InputStream.h>
 #include <Ice/LocalException.h>
 #include <Ice/ProtocolInstance.h>
 #include <Ice/DefaultsAndOverrides.h>
@@ -61,7 +62,7 @@ IceInternal::StreamEndpointI::StreamEndpointI(const ProtocolInstancePtr& instanc
 {
 }
 
-IceInternal::StreamEndpointI::StreamEndpointI(const ProtocolInstancePtr& instance, BasicStream* s) :
+IceInternal::StreamEndpointI::StreamEndpointI(const ProtocolInstancePtr& instance, InputStream* s) :
     IPEndpointI(instance, s),
     _timeout(-1),
     _compress(false)
@@ -291,7 +292,7 @@ IceInternal::StreamEndpointI::operator<(const LocalObject& r) const
 }
 
 void
-IceInternal::StreamEndpointI::streamWriteImpl(BasicStream* s) const
+IceInternal::StreamEndpointI::streamWriteImpl(OutputStream* s) const
 {
     IPEndpointI::streamWriteImpl(s);
     s->write(_timeout);
@@ -422,7 +423,7 @@ IceInternal::StreamEndpointFactory::create(vector<string>& args, bool oaEndpoint
 }
 
 EndpointIPtr
-IceInternal::StreamEndpointFactory::read(BasicStream* s) const
+IceInternal::StreamEndpointFactory::read(InputStream* s) const
 {
     return new StreamEndpointI(_instance, s);
 }

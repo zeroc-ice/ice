@@ -37,6 +37,45 @@ IceInternal::Buffer::Container::Container(const_iterator beg, const_iterator end
 {
 }
 
+IceInternal::Buffer::Container::Container(const vector<value_type>& v) :
+    _capacity(0),
+    _shrinkCounter(0)
+{
+    if(v.empty())
+    {
+        _buf = 0;
+        _size = 0;
+    }
+    else
+    {
+        _buf = const_cast<value_type*>(&v[0]);
+        _size = v.size();
+    }
+}
+
+IceInternal::Buffer::Container::Container(Container& other, bool adopt)
+{
+    if(adopt)
+    {
+        _buf = other._buf;
+        _size = other._size;
+        _capacity = other._capacity;
+        _shrinkCounter = other._shrinkCounter;
+
+        other._buf = 0;
+        other._size = 0;
+        other._capacity = 0;
+        other._shrinkCounter = 0;
+    }
+    else
+    {
+        _buf = other._buf;
+        _size = other._size;
+        _capacity = 0;
+        _shrinkCounter = 0;
+    }
+}
+
 IceInternal::Buffer::Container::~Container()
 {
     if(_buf && _capacity > 0)

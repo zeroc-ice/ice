@@ -26,6 +26,7 @@
 #include <Proxy.h>
 #include <Slice.h>
 #include <Types.h>
+#include <ValueFactoryManager.h>
 #include <Ice/Initialize.h>
 
 using namespace std;
@@ -227,6 +228,10 @@ initIcePy(void)
         INIT_RETURN;
     }
     if(!initEndpointInfo(module))
+    {
+        INIT_RETURN;
+    }
+    if(!initValueFactoryManager(module))
     {
         INIT_RETURN;
     }

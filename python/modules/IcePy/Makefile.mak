@@ -25,7 +25,6 @@ OBJS		= .\BatchRequestInterceptor.obj \
 		  .\Init.obj \
 		  .\Logger.obj \
 		  .\ObjectAdapter.obj \
-		  .\ObjectFactory.obj \
 		  .\Operation.obj \
 		  .\Properties.obj \
 		  .\PropertiesAdmin.obj \
@@ -33,7 +32,8 @@ OBJS		= .\BatchRequestInterceptor.obj \
 		  .\Slice.obj \
 		  .\Thread.obj \
 		  .\Types.obj \
-		  .\Util.obj
+		  .\Util.obj \
+		  .\ValueFactoryManager.obj
 
 
 #

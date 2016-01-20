@@ -13,7 +13,7 @@
 #include <IceUtil/Exception.h>
 #include <IceUtil/FileUtil.h>
 #include <Ice/Initialize.h>
-#include <Ice/Stream.h>
+#include <Ice/OutputStream.h>
 
 #include <lmdb.h>
 
@@ -494,41 +494,37 @@ struct IceContext
 };
 
 template<typename T>
-struct Codec<T, IceContext, Ice::OutputStreamPtr>
+struct Codec<T, IceContext, Ice::OutputStream>
 {
     static void read(T& t, const MDB_val& val, const IceContext& ctx)
     {
-        std::pair<const Ice::Byte*, const Ice::Byte*> buf(static_cast<const Ice::Byte*>(val.mv_data),
-                                                          static_cast<const Ice::Byte*>(val.mv_data) + val.mv_size);
-        Ice::InputStreamPtr in = Ice::wrapInputStream(ctx.communicator, buf, ctx.encoding);
-        in->read(t);
+        std::pair<const Ice::Byte*, const Ice::Byte*> p(static_cast<const Ice::Byte*>(val.mv_data),
+                                                        static_cast<const Ice::Byte*>(val.mv_data) + val.mv_size);
+        Ice::InputStream in(ctx.communicator, ctx.encoding, p);
+        in.read(t);
     }
 
-    static void write(const T& t, MDB_val& val, Ice::OutputStreamPtr& holder, const IceContext& ctx)
+    static void write(const T& t, MDB_val& val, Ice::OutputStream& holder, const IceContext& ctx)
     {
-        holder = Ice::createOutputStream(ctx.communicator, ctx.encoding);
-        holder->write(t);
-        std::pair<const Ice::Byte*, const Ice::Byte*> buf = holder->finished();
-        val.mv_size = buf.second - buf.first;
-        val.mv_data = const_cast<Ice::Byte*>(buf.first);
+        holder.initialize(ctx.communicator, ctx.encoding);
+        holder.write(t);
+        val.mv_size = holder.b.size();
+        val.mv_data = &holder.b[0];
     }
 
     static bool write(const T& t, MDB_val& val, const IceContext& ctx)
     {
-        // Cannot use stack-allocated bytes for now
-        Ice::OutputStreamPtr stream = Ice::createOutputStream(ctx.communicator, ctx.encoding);
-        stream->write(t);
-        std::pair<const Ice::Byte*, const Ice::Byte*> buf = stream->finished();
-        size_t sz = static_cast<size_t>(buf.second - buf.first);
-        if(sz > val.mv_size)
+        Ice::OutputStream stream(ctx.communicator, ctx.encoding);
+        stream.write(t);
+        if(stream.b.size() > val.mv_size)
         {
-            val.mv_size = sz;
+            val.mv_size = stream.b.size();
             return false;
         }
         else
         {
-            val.mv_size = sz;
-            memcpy(val.mv_data, buf.first, sz);
+            val.mv_size = stream.b.size();
+            memcpy(val.mv_data, &stream.b[0], stream.b.size());
             return true;
         }
     }
@@ -542,6 +538,7 @@ struct Codec<T, IceContext, Ice::OutputStreamPtr>
 //
 
 ICE_DB_API size_t getMapSize(int);
+
 }
 
 #endif

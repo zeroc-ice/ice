@@ -118,7 +118,7 @@ private:
 };
 typedef IceUtil::Handle<Instance> InstancePtr;
 
-typedef IceDB::ReadWriteCursor<SubscriberRecordKey, SubscriberRecord, IceDB::IceContext, Ice::OutputStreamPtr>
+typedef IceDB::ReadWriteCursor<SubscriberRecordKey, SubscriberRecord, IceDB::IceContext, Ice::OutputStream>
         SubscriberMapRWCursor;
 
 class PersistentInstance : public Instance

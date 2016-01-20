@@ -14,7 +14,6 @@
 #include <Ice/ConnectionFactory.h>
 #include <Ice/ReferenceFactory.h>
 #include <Ice/ProxyFactory.h>
-#include <Ice/ValueFactoryManager.h>
 #include <Ice/ObjectAdapterFactory.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/LocalException.h>
@@ -133,40 +132,14 @@ Ice::CommunicatorI::createObjectAdapterWithRouter(const string& name, const Rout
 void
 Ice::CommunicatorI::addObjectFactory(const ::Ice::ObjectFactoryPtr& factory, const string& id)
 {
-    _instance->servantFactoryManager()->add(factory, id);
+    _instance->addObjectFactory(factory, id);
 }
 
 ::Ice::ObjectFactoryPtr
 Ice::CommunicatorI::findObjectFactory(const string& id) const
 {
-    return _instance->servantFactoryManager()->findObjectFactory(id);
+    return _instance->findObjectFactory(id);
 }
-
-#ifdef ICE_CPP11_MAPPING
-void
-Ice::CommunicatorI::addValueFactory(function<::Ice::ValuePtr (string)> factory, const string& id)
-{
-        _instance->servantFactoryManager()->add(move(factory), id);
-}
-
-function<::Ice::ValuePtr (const string&)>
-Ice::CommunicatorI::findValueFactory(const string& id) const
-{
-    return _instance->servantFactoryManager()->find(id);
-}
-#else
-void
-Ice::CommunicatorI::addValueFactory(const ::Ice::ValueFactoryPtr& factory, const string& id)
-{
-    _instance->servantFactoryManager()->add(factory, id);
-}
-
-::Ice::ValueFactoryPtr
-Ice::CommunicatorI::findValueFactory(const string& id) const
-{
-    return _instance->servantFactoryManager()->find(id);
-}
-#endif
 
 PropertiesPtr
 Ice::CommunicatorI::getProperties() const
@@ -220,6 +193,12 @@ PluginManagerPtr
 Ice::CommunicatorI::getPluginManager() const
 {
     return _instance->pluginManager();
+}
+
+ValueFactoryManagerPtr
+Ice::CommunicatorI::getValueFactoryManager() const
+{
+    return _instance->initializationData().valueFactoryManager;
 }
 
 namespace

@@ -1186,14 +1186,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
         Test::BufferStruct rs = t->opBufferStruct(bs);
         test(rs == bs);
 
-        Ice::OutputStreamPtr os = Ice::createOutputStream(communicator);
-        os->write(rs);
+        Ice::OutputStream os(communicator);
+        os.write(rs);
         Ice::ByteSeq bytes;
-        os->finished(bytes);
+        os.finished(bytes);
 
-        Ice::InputStreamPtr is = Ice::wrapInputStream(communicator, bytes);
+        Ice::InputStream is(communicator, os.getEncoding(), bytes);
         Test::BufferStruct rs2;
-        is->read(rs2);
+        is.read(rs2);
         test(rs == rs2);
     }
     cout << "ok" << endl;

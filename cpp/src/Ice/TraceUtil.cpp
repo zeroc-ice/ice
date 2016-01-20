@@ -16,7 +16,8 @@
 #include <Ice/Proxy.h>
 #include <Ice/TraceLevels.h>
 #include <Ice/Logger.h>
-#include <Ice/BasicStream.h>
+#include <Ice/OutputStream.h>
+#include <Ice/InputStream.h>
 #include <Ice/Protocol.h>
 #include <Ice/ReplyStatus.h>
 #include <set>
@@ -26,7 +27,7 @@ using namespace Ice;
 using namespace IceInternal;
 
 static void
-printIdentityFacetOperation(ostream& s, BasicStream& stream)
+printIdentityFacetOperation(ostream& s, InputStream& stream)
 {
     Identity identity;
     stream.read(identity);
@@ -66,7 +67,7 @@ getMessageTypeAsString(Byte type)
 }
 
 static void
-printRequestHeader(ostream& s, BasicStream& stream)
+printRequestHeader(ostream& s, InputStream& stream)
 {
     printIdentityFacetOperation(s, stream);
 
@@ -114,7 +115,7 @@ printRequestHeader(ostream& s, BasicStream& stream)
         }
     }
 
-    Ice::EncodingVersion v = stream.skipEncaps();
+    Ice::EncodingVersion v = stream.skipEncapsulation();
     if(v > Ice::Encoding_1_0)
     {
         s << "\nencoding = " << v;
@@ -122,7 +123,7 @@ printRequestHeader(ostream& s, BasicStream& stream)
 }
 
 static Byte
-printHeader(ostream& s, BasicStream& stream)
+printHeader(ostream& s, InputStream& stream)
 {
     Byte magicNumber;
     stream.read(magicNumber);   // Don't bother printing the magic number
@@ -187,7 +188,7 @@ printHeader(ostream& s, BasicStream& stream)
 }
 
 static void
-printRequest(ostream& s, BasicStream& stream)
+printRequest(ostream& s, InputStream& stream)
 {
     Int requestId;
     stream.read(requestId);
@@ -201,7 +202,7 @@ printRequest(ostream& s, BasicStream& stream)
 }
 
 static void
-printBatchRequest(ostream& s, BasicStream& stream)
+printBatchRequest(ostream& s, InputStream& stream)
 {
     int batchRequestNum;
     stream.read(batchRequestNum);
@@ -215,7 +216,7 @@ printBatchRequest(ostream& s, BasicStream& stream)
 }
 
 static void
-printReply(ostream& s, BasicStream& stream)
+printReply(ostream& s, InputStream& stream)
 {
     Int requestId;
     stream.read(requestId);
@@ -319,7 +320,7 @@ printReply(ostream& s, BasicStream& stream)
 
     if(replyStatus == replyOK || replyStatus == replyUserException)
     {
-        Ice::EncodingVersion v = stream.skipEncaps();
+        Ice::EncodingVersion v = stream.skipEncapsulation();
         if(v > Ice::Encoding_1_0)
         {
             s << "\nencoding = " << v;
@@ -328,7 +329,7 @@ printReply(ostream& s, BasicStream& stream)
 }
 
 static Byte
-printMessage(ostream& s, BasicStream& stream)
+printMessage(ostream& s, InputStream& stream)
 {
     Byte type = printHeader(s, stream);
 
@@ -408,29 +409,28 @@ IceInternal::traceSlicing(const char* kind, const string& typeId, const char* sl
 }
 
 void
-IceInternal::traceSend(const BasicStream& str, const LoggerPtr& logger, const TraceLevelsPtr& tl)
+IceInternal::traceSend(const OutputStream& str, const LoggerPtr& logger, const TraceLevelsPtr& tl)
 {
     if(tl->protocol >= 1)
     {
-        BasicStream& stream = const_cast<BasicStream&>(str);
-        BasicStream::Container::iterator p = stream.i;
-        stream.i = stream.b.begin();
+        OutputStream& stream = const_cast<OutputStream&>(str);
+        InputStream is(stream.instance(), stream.getEncoding(), stream);
+        is.i = is.b.begin();
 
         ostringstream s;
-        Byte type = printMessage(s, stream);
+        Byte type = printMessage(s, is);
 
         logger->trace(tl->protocolCat, "sending " + getMessageTypeAsString(type) + " " + s.str());
-        stream.i = p;
     }
 }
 
 void
-IceInternal::traceRecv(const BasicStream& str, const LoggerPtr& logger, const TraceLevelsPtr& tl)
+IceInternal::traceRecv(const InputStream& str, const LoggerPtr& logger, const TraceLevelsPtr& tl)
 {
     if(tl->protocol >= 1)
     {
-        BasicStream& stream = const_cast<BasicStream&>(str);
-        BasicStream::Container::iterator p = stream.i;
+        InputStream& stream = const_cast<InputStream&>(str);
+        InputStream::Container::iterator p = stream.i;
         stream.i = stream.b.begin();
 
         ostringstream s;
@@ -442,12 +442,29 @@ IceInternal::traceRecv(const BasicStream& str, const LoggerPtr& logger, const Tr
 }
 
 void
-IceInternal::trace(const char* heading, const BasicStream& str, const LoggerPtr& logger, const TraceLevelsPtr& tl)
+IceInternal::trace(const char* heading, const OutputStream& str, const LoggerPtr& logger, const TraceLevelsPtr& tl)
 {
     if(tl->protocol >= 1)
     {
-        BasicStream& stream = const_cast<BasicStream&>(str);
-        BasicStream::Container::iterator p = stream.i;
+        OutputStream& stream = const_cast<OutputStream&>(str);
+        InputStream is(stream.instance(), stream.getEncoding(), stream);
+        is.i = is.b.begin();
+
+        ostringstream s;
+        s << heading;
+        printMessage(s, is);
+
+        logger->trace(tl->protocolCat, s.str());
+    }
+}
+
+void
+IceInternal::trace(const char* heading, const InputStream& str, const LoggerPtr& logger, const TraceLevelsPtr& tl)
+{
+    if(tl->protocol >= 1)
+    {
+        InputStream& stream = const_cast<InputStream&>(str);
+        InputStream::Container::iterator p = stream.i;
         stream.i = stream.b.begin();
 
         ostringstream s;
@@ -458,4 +475,3 @@ IceInternal::trace(const char* heading, const BasicStream& str, const LoggerPtr&
         stream.i = p;
     }
 }
-

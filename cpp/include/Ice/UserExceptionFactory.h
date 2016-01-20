@@ -14,7 +14,7 @@
 #include <IceUtil/Handle.h>
 #include <Ice/Config.h>
 
-namespace IceInternal
+namespace Ice
 {
 
 class ICE_API UserExceptionFactory : public IceUtil::Shared
@@ -24,11 +24,15 @@ public:
     virtual void createAndThrow(const ::std::string&) = 0;
     virtual ~UserExceptionFactory() {}
 };
-
 typedef ::IceUtil::Handle<UserExceptionFactory> UserExceptionFactoryPtr;
 
+}
+
+namespace IceInternal
+{
+
 template<class E>
-class DefaultUserExceptionFactory : public UserExceptionFactory
+class DefaultUserExceptionFactory : public Ice::UserExceptionFactory
 {
 public:
     

@@ -19,7 +19,6 @@
 #include <Ice/Reference.h>
 #include <Ice/RouterInfo.h>
 #include <Ice/ProxyF.h>
-#include <Ice/BasicStream.h>
 
 #include <deque>
 #include <set>

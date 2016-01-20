@@ -18,10 +18,16 @@
 #include <Ice/AcceptorF.h>
 #include <Ice/VirtualShared.h>
 
-namespace IceInternal
+namespace Ice
 {
 
-class BasicStream;
+class OutputStream;
+class InputStream;
+
+}
+
+namespace IceInternal
+{
 
 class ICE_API EndpointI_connectors : public virtual ICE_SHARED
 {
@@ -40,7 +46,7 @@ public:
     //
     // Marshal the endpoint.
     //
-    virtual void streamWrite(BasicStream*) const = 0;
+    virtual void streamWrite(Ice::OutputStream*) const = 0;
 
     //
     // Return the endpoint type.

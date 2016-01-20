@@ -29,8 +29,6 @@ class LocalException;
 namespace IceInternal
 {
 
-class BasicStream;
-
 class OutgoingBase;
 class ProxyOutgoingBase;
 

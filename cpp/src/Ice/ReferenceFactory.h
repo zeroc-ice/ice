@@ -52,7 +52,7 @@ public:
     //
     // Create a reference by unmarshaling it from a stream.
     //
-    ReferencePtr create(const ::Ice::Identity&, BasicStream*);
+    ReferencePtr create(const ::Ice::Identity&, Ice::InputStream*);
 
     ReferenceFactoryPtr setDefaultRouter(const ::Ice::RouterPrxPtr&);
     ::Ice::RouterPrxPtr getDefaultRouter() const;

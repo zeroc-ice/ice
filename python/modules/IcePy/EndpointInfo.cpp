@@ -135,9 +135,7 @@ extern "C"
 static PyObject*
 endpointInfoGetCompress(EndpointInfoObject* self)
 {
-    PyObject* result = (*self->endpointInfo)->compress ? getTrue() : getFalse();
-    Py_INCREF(result);
-    return result;
+    return (*self->endpointInfo)->compress ? incTrue() : incFalse();
 }
 
 #ifdef WIN32

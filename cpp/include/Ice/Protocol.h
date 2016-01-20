@@ -72,9 +72,6 @@ enum ProtocolSupport
     EnableBoth
 };
 
-// Forward declaration
-class BasicStream;
-
 ICE_API void stringToMajorMinor(const ::std::string&, Ice::Byte&, Ice::Byte&);
 
 template<typename T> std::string
@@ -103,6 +100,16 @@ ICE_API void throwUnsupportedProtocolException(const char*, int, const Ice::Prot
                                                const Ice::ProtocolVersion&);
 ICE_API void throwUnsupportedEncodingException(const char*, int, const Ice::EncodingVersion&, 
                                                const Ice::EncodingVersion&);
+
+const ::Ice::Byte OPTIONAL_END_MARKER        = 0xFF;
+
+const ::Ice::Byte FLAG_HAS_TYPE_ID_STRING    = (1<<0);
+const ::Ice::Byte FLAG_HAS_TYPE_ID_INDEX     = (1<<1);
+const ::Ice::Byte FLAG_HAS_TYPE_ID_COMPACT   = (1<<0) | (1<<1);
+const ::Ice::Byte FLAG_HAS_OPTIONAL_MEMBERS  = (1<<2);
+const ::Ice::Byte FLAG_HAS_INDIRECTION_TABLE = (1<<3);
+const ::Ice::Byte FLAG_HAS_SLICE_SIZE        = (1<<4);
+const ::Ice::Byte FLAG_IS_LAST_SLICE         = (1<<5);
 
 }
 

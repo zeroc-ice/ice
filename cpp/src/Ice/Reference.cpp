@@ -13,7 +13,7 @@
 #include <Ice/Instance.h>
 #include <Ice/EndpointI.h>
 #include <Ice/OpaqueEndpointI.h>
-#include <Ice/BasicStream.h>
+#include <Ice/OutputStream.h>
 #include <Ice/RouterInfo.h>
 #include <Ice/Router.h>
 #include <Ice/LocatorInfo.h>
@@ -187,7 +187,7 @@ Reference::hash() const
 }
 
 void
-IceInternal::Reference::streamWrite(BasicStream* s) const
+IceInternal::Reference::streamWrite(OutputStream* s) const
 {
     //
     // Don't write the identity here. Operations calling streamWrite
@@ -210,7 +210,7 @@ IceInternal::Reference::streamWrite(BasicStream* s) const
 
     s->write(_secure);
 
-    if(s->getWriteEncoding() != Ice::Encoding_1_0)
+    if(s->getEncoding() != Ice::Encoding_1_0)
     {
         s->write(_protocol);
         s->write(_encoding);
@@ -731,7 +731,7 @@ IceInternal::FixedReference::isWellKnown() const
 }
 
 void
-IceInternal::FixedReference::streamWrite(BasicStream*) const
+IceInternal::FixedReference::streamWrite(OutputStream*) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
 }
@@ -1182,7 +1182,7 @@ IceInternal::RoutableReference::isWellKnown() const
 }
 
 void
-IceInternal::RoutableReference::streamWrite(BasicStream* s) const
+IceInternal::RoutableReference::streamWrite(OutputStream* s) const
 {
     Reference::streamWrite(s);
 

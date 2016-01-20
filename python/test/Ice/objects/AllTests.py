@@ -40,14 +40,14 @@ def test(b):
         raise RuntimeError('test assertion failed')
 
 def allTests(communicator):
-    communicator.addValueFactory(MyValueFactory, '::Test::B')
-    communicator.addValueFactory(MyValueFactory, '::Test::C')
-    communicator.addValueFactory(MyValueFactory, '::Test::D')
-    communicator.addValueFactory(MyValueFactory, '::Test::E')
-    communicator.addValueFactory(MyValueFactory, '::Test::F')
-    communicator.addValueFactory(MyValueFactory, '::Test::I')
-    communicator.addValueFactory(MyValueFactory, '::Test::J')
-    communicator.addValueFactory(MyValueFactory, '::Test::H')
+    communicator.getValueFactoryManager().add(MyValueFactory, '::Test::B')
+    communicator.getValueFactoryManager().add(MyValueFactory, '::Test::C')
+    communicator.getValueFactoryManager().add(MyValueFactory, '::Test::D')
+    communicator.getValueFactoryManager().add(MyValueFactory, '::Test::E')
+    communicator.getValueFactoryManager().add(MyValueFactory, '::Test::F')
+    communicator.getValueFactoryManager().add(MyValueFactory, '::Test::I')
+    communicator.getValueFactoryManager().add(MyValueFactory, '::Test::J')
+    communicator.getValueFactoryManager().add(MyValueFactory, '::Test::H')
 
     communicator.addObjectFactory(MyObjectFactory(), "TestOF")
 
@@ -254,7 +254,7 @@ def allTests(communicator):
 
     sys.stdout.write("testing getting ObjectFactory as ValueFactory... ")
     sys.stdout.flush()
-    test(communicator.findValueFactory("TestOF") != None)
+    test(communicator.getValueFactoryManager().find("TestOF") != None)
     print("ok")
 
     return initial

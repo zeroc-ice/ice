@@ -36,7 +36,7 @@ public:
     // (entries in the given context overwrite entries in
     // the underlying context)
     //
-    virtual void write(const Context&, ::IceInternal::BasicStream*) const = 0;
+    virtual void write(const Context&, ::Ice::OutputStream*) const = 0;
 
     //
     // Combines the underlying context plus the given context

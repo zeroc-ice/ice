@@ -11,7 +11,6 @@
 #include <Transceiver.h>
 #include <Connector.h>
 #include <Acceptor.h>
-#include <Ice/BasicStream.h>
 
 #ifdef _MSC_VER
 // For 'Ice::Object::ice_getHash': was declared deprecated
@@ -33,12 +32,12 @@ EndpointI::EndpointI(const IceInternal::EndpointIPtr& endpoint) :
 }
 
 void
-EndpointI::streamWrite(IceInternal::BasicStream* s) const
+EndpointI::streamWrite(Ice::OutputStream* s) const
 {
-    s->startWriteEncaps();
+    s->startEncapsulation();
     s->write(_endpoint->type());
     _endpoint->streamWrite(s);
-    s->endWriteEncaps();
+    s->endEncapsulation();
 }
 
 Ice::Short

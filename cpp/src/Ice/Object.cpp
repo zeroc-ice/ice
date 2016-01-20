@@ -12,7 +12,6 @@
 #include <Ice/IncomingAsync.h>
 #include <Ice/IncomingRequest.h>
 #include <Ice/LocalException.h>
-#include <Ice/Stream.h>
 #include <Ice/SlicedData.h>
 
 using namespace std;
@@ -103,7 +102,7 @@ Ice::Object::ice_clone() const
 DispatchStatus
 Ice::Object::___ice_isA(Incoming& __inS, const Current& __current)
 {
-    BasicStream* __is = __inS.startReadParams();
+    InputStream* __is = __inS.startReadParams();
     string __id;
     __is->read(__id, false);
     __inS.endReadParams();
@@ -112,7 +111,7 @@ Ice::Object::___ice_isA(Incoming& __inS, const Current& __current)
 #else
     bool __ret = ice_isA(__id, __current);
 #endif
-    BasicStream* __os = __inS.__startWriteParams(DefaultFormat);
+    OutputStream* __os = __inS.__startWriteParams(DefaultFormat);
     __os->write(__ret);
     __inS.__endWriteParams(true);
     return DispatchOK;
@@ -132,7 +131,7 @@ Ice::Object::___ice_ids(Incoming& __inS, const Current& __current)
 {
     __inS.readEmptyParams();
     vector<string> __ret = ice_ids(__current);
-    BasicStream* __os = __inS.__startWriteParams(DefaultFormat);
+    OutputStream* __os = __inS.__startWriteParams(DefaultFormat);
     __os->write(&__ret[0], &__ret[0] + __ret.size(), false);
     __inS.__endWriteParams(true);
     return DispatchOK;
@@ -143,7 +142,7 @@ Ice::Object::___ice_id(Incoming& __inS, const Current& __current)
 {
     __inS.readEmptyParams();
     string __ret = ice_id(__current);
-    BasicStream* __os = __inS.__startWriteParams(DefaultFormat);
+    OutputStream* __os = __inS.__startWriteParams(DefaultFormat);
     __os->write(__ret, false);
     __inS.__endWriteParams(true);
     return DispatchOK;
@@ -241,23 +240,7 @@ Ice::Object::ice_postUnmarshal()
 }
 
 void
-Ice::Object::__write(IceInternal::BasicStream* os) const
-{
-    os->startWriteObject(0);
-    __writeImpl(os);
-    os->endWriteObject();
-}
-
-void
-Ice::Object::__read(IceInternal::BasicStream* is)
-{
-   is->startReadObject();
-   __readImpl(is);
-   is->endReadObject(false);
-}
-
-void
-Ice::Object::__write(const OutputStreamPtr& os) const
+Ice::Object::__write(Ice::OutputStream* os) const
 {
     os->startObject(0);
     __writeImpl(os);
@@ -265,23 +248,11 @@ Ice::Object::__write(const OutputStreamPtr& os) const
 }
 
 void
-Ice::Object::__read(const InputStreamPtr& is)
+Ice::Object::__read(Ice::InputStream* is)
 {
-    is->startObject();
+   is->startObject();
    __readImpl(is);
    is->endObject(false);
-}
-
-void
-Ice::Object::__writeImpl(const OutputStreamPtr&) const
-{
-    throw MarshalException(__FILE__, __LINE__, "class was not generated with stream support");
-}
-
-void
-Ice::Object::__readImpl(const InputStreamPtr&)
-{
-    throw MarshalException(__FILE__, __LINE__, "class was not generated with stream support");
 }
 
 Ice::Int
@@ -560,16 +531,4 @@ Ice::BlobjectArrayAsync::__dispatch(Incoming& in, const Current& current)
     }
 #endif
     return DispatchAsync;
-}
-
-void
-Ice::ice_writeObject(const OutputStreamPtr& out, const ValuePtr& p)
-{
-    out->write(p);
-}
-
-void
-Ice::ice_readObject(const InputStreamPtr& in, ValuePtr& p)
-{
-    in->read(p);
 }

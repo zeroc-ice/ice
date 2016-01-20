@@ -49,14 +49,6 @@ public:
     virtual void addObjectFactory(const ObjectFactoryPtr&, const std::string&);
     virtual ObjectFactoryPtr findObjectFactory(const std::string&) const;
 
-#ifdef ICE_CPP11_MAPPING
-    virtual void addValueFactory(std::function<std::shared_ptr<Ice::Value> (std::string)>, const ::std::string&);
-    virtual std::function<::std::shared_ptr<Ice::Value> (const std::string&)> findValueFactory(const std::string&) const;
-#else
-    virtual void addValueFactory(const ValueFactoryPtr&, const std::string&);
-    virtual ValueFactoryPtr findValueFactory(const std::string&) const;
-#endif
-
     virtual ImplicitContextPtr getImplicitContext() const;
 
     virtual PropertiesPtr getProperties() const;
@@ -70,6 +62,8 @@ public:
     virtual void setDefaultLocator(const LocatorPrxPtr&);
 
     virtual PluginManagerPtr getPluginManager() const;
+
+    virtual ValueFactoryManagerPtr getValueFactoryManager() const;
 
     virtual void flushBatchRequests();
 
@@ -97,8 +91,9 @@ public:
 
 private:
 
-    static CommunicatorIPtr
-    create(const InitializationData&);
+    CommunicatorI() {}
+
+    static CommunicatorIPtr create(const InitializationData&);
 
     //
     // Certain initialization tasks need to be completed after the

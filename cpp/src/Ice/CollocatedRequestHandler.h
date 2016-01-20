@@ -15,7 +15,7 @@
 
 #include <Ice/RequestHandler.h>
 #include <Ice/ResponseHandler.h>
-#include <Ice/BasicStream.h>
+#include <Ice/OutputStream.h>
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/LoggerF.h>
 #include <Ice/TraceLevelsF.h>
@@ -55,7 +55,7 @@ public:
     virtual void requestCanceled(OutgoingBase*, const Ice::LocalException&);
     virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, const Ice::LocalException&);
 
-    virtual void sendResponse(Ice::Int, BasicStream*, Ice::Byte, bool);
+    virtual void sendResponse(Ice::Int, Ice::OutputStream*, Ice::Byte, bool);
     virtual void sendNoResponse();
     virtual bool systemException(Ice::Int, const Ice::SystemException&, bool);
     virtual void invokeException(Ice::Int, const Ice::LocalException&, int, bool);
@@ -71,7 +71,7 @@ public:
     bool sent(OutgoingBase*);
     bool sentAsync(OutgoingAsyncBase*);
 
-    void invokeAll(BasicStream*, Ice::Int, Ice::Int);
+    void invokeAll(Ice::OutputStream*, Ice::Int, Ice::Int);
 
 private:
 

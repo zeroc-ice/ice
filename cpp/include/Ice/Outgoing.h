@@ -18,7 +18,8 @@
 #include <Ice/InstanceF.h>
 #include <Ice/ConnectionIF.h>
 #include <Ice/ReferenceF.h>
-#include <Ice/BasicStream.h>
+#include <Ice/OutputStream.h>
+#include <Ice/InputStream.h>
 #include <Ice/Current.h>
 #include <Ice/ObserverHelper.h>
 #include <Ice/ObjectAdapterF.h>
@@ -43,10 +44,10 @@ public:
 
     virtual void sent() = 0;
     virtual void completed(const Ice::Exception&) = 0;
-    virtual void completed(BasicStream&) = 0;
+    virtual void completed(Ice::InputStream&) = 0;
     virtual void retryException(const Ice::Exception&) = 0;
 
-    BasicStream* os() { return &_os; }
+    Ice::OutputStream* os() { return &_os; }
 
     void attachRemoteObserver(const Ice::ConnectionInfoPtr& c, const Ice::EndpointPtr& endpt, Ice::Int requestId)
     {
@@ -64,7 +65,7 @@ protected:
 
     OutgoingBase(Instance*);
 
-    BasicStream _os;
+    Ice::OutputStream _os;
 #ifdef ICE_CPP11_MAPPING
     std::exception_ptr _exception;
 #else
@@ -89,7 +90,7 @@ public:
 
     virtual void sent();
     virtual void completed(const Ice::Exception&);
-    virtual void completed(BasicStream&);
+    virtual void completed(Ice::InputStream&);
     virtual void retryException(const Ice::Exception&);
 
 protected:
@@ -130,49 +131,49 @@ public:
     bool invoke(); // Returns true if ok, false if user exception.
     void abort(const Ice::LocalException&);
 
-    virtual void completed(BasicStream&);
+    virtual void completed(Ice::InputStream&);
 
     // Inlined for speed optimization.
-    BasicStream* startReadParams()
+    Ice::InputStream* startReadParams()
     {
-        _is.startReadEncaps();
+        _is.startEncapsulation();
         return &_is;
     }
     void endReadParams()
     {
-        _is.endReadEncaps();
+        _is.endEncapsulation();
     }
     void readEmptyParams()
     {
-        _is.skipEmptyEncaps();
+        _is.skipEmptyEncapsulation();
     }
     void readParamEncaps(const Ice::Byte*& encaps, Ice::Int& sz)
     {
-        _is.readEncaps(encaps, sz);
+        _is.readEncapsulation(encaps, sz);
     }
 
-    BasicStream* startWriteParams(Ice::FormatType format)
+    Ice::OutputStream* startWriteParams(Ice::FormatType format)
     {
-        _os.startWriteEncaps(_encoding, format);
+        _os.startEncapsulation(_encoding, format);
         return &_os;
     }
     void endWriteParams()
     {
-        _os.endWriteEncaps();
+        _os.endEncapsulation();
     }
     void writeEmptyParams()
     {
-        _os.writeEmptyEncaps(_encoding);
+        _os.writeEmptyEncapsulation(_encoding);
     }
     void writeParamEncaps(const Ice::Byte* encaps, Ice::Int size)
     {
         if(size == 0)
         {
-            _os.writeEmptyEncaps(_encoding);
+            _os.writeEmptyEncapsulation(_encoding);
         }
         else
         {
-            _os.writeEncaps(encaps, size);
+            _os.writeEncapsulation(encaps, size);
         }
     }
 
@@ -186,7 +187,7 @@ public:
 private:
 
     Ice::EncodingVersion _encoding;
-    BasicStream _is;
+    Ice::InputStream _is;
     const std::string& _operation;
 };
 
@@ -216,7 +217,7 @@ public:
 
     virtual void sent();
     virtual void completed(const Ice::Exception&);
-    virtual void completed(BasicStream&);
+    virtual void completed(Ice::InputStream&);
     virtual void retryException(const Ice::Exception&);
 
 private:

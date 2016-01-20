@@ -15,7 +15,8 @@
 #include <Ice/ReferenceFactory.h>
 #include <Ice/LocatorInfo.h>
 #include <Ice/RouterInfo.h>
-#include <Ice/BasicStream.h>
+#include <Ice/OutputStream.h>
+#include <Ice/InputStream.h>
 #include <Ice/Properties.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/TraceLevels.h>
@@ -70,28 +71,13 @@ IceInternal::ProxyFactory::proxyToProperty(const ObjectPrxPtr& proxy, const stri
 }
 
 ObjectPrxPtr
-IceInternal::ProxyFactory::streamToProxy(BasicStream* s) const
+IceInternal::ProxyFactory::streamToProxy(InputStream* s) const
 {
     Identity ident;
     s->read(ident);
 
     ReferencePtr ref = _instance->referenceFactory()->create(ident, s);
     return referenceToProxy(ref);
-}
-
-void
-IceInternal::ProxyFactory::proxyToStream(const ObjectPrxPtr& proxy, BasicStream* s) const
-{
-    if(proxy)
-    {
-        s->write(proxy->__reference()->getIdentity());
-        proxy->__reference()->streamWrite(s);
-    }
-    else
-    {
-        Identity ident;
-        s->write(ident);
-    }
 }
 
 ObjectPrxPtr

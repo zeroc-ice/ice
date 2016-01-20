@@ -91,7 +91,7 @@ ProxyOutgoingBase::completed(const Ice::Exception& ex)
 }
 
 void
-ProxyOutgoingBase::completed(BasicStream& is)
+ProxyOutgoingBase::completed(InputStream&)
 {
     assert(false); // Must be overriden
 }
@@ -406,7 +406,7 @@ Outgoing::abort(const LocalException& ex)
 }
 
 void
-Outgoing::completed(BasicStream& is)
+Outgoing::completed(InputStream& is)
 {
     Monitor<Mutex>::Lock sync(_monitor);
 
@@ -580,12 +580,12 @@ Outgoing::throwUserException()
 {
     try
     {
-        _is.startReadEncaps();
+        _is.startEncapsulation();
         _is.throwException();
     }
     catch(const Ice::UserException&)
     {
-        _is.endReadEncaps();
+        _is.endEncapsulation();
         throw;
     }
 }
@@ -687,7 +687,7 @@ ConnectionFlushBatch::completed(const Ice::Exception& ex)
 }
 
 void
-ConnectionFlushBatch::completed(BasicStream& is)
+ConnectionFlushBatch::completed(InputStream&)
 {
     assert(false);
 }

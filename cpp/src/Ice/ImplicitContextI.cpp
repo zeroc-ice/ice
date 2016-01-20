@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <Ice/ImplicitContextI.h>
-#include <Ice/BasicStream.h>
+#include <Ice/OutputStream.h>
 #include <Ice/Object.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
@@ -31,7 +31,7 @@ public:
     virtual string put(const string&, const string&);
     virtual string remove(const string&);
 
-    virtual void write(const Context&, ::IceInternal::BasicStream*) const;
+    virtual void write(const Context&, ::Ice::OutputStream*) const;
     virtual void combine(const Context&, Context&) const;
 
 private:
@@ -55,7 +55,7 @@ public:
     virtual string put(const string&, const string&);
     virtual string remove(const string&);
 
-    virtual void write(const Context&, ::IceInternal::BasicStream*) const;
+    virtual void write(const Context&, ::Ice::OutputStream*) const;
     virtual void combine(const Context&, Context&) const;
 
     struct Slot
@@ -217,7 +217,7 @@ SharedImplicitContext::remove(const string& k)
 }
 
 void
-SharedImplicitContext::write(const Context& proxyCtx, ::IceInternal::BasicStream* s) const
+SharedImplicitContext::write(const Context& proxyCtx, ::Ice::OutputStream* s) const
 {
     IceUtil::Mutex::Lock lock(_mutex);
     if(proxyCtx.size() == 0)
@@ -577,7 +577,7 @@ PerThreadImplicitContext::remove(const string& k)
 }
 
 void
-PerThreadImplicitContext::write(const Context& proxyCtx, ::IceInternal::BasicStream* s) const
+PerThreadImplicitContext::write(const Context& proxyCtx, ::Ice::OutputStream* s) const
 {
     const Context* threadCtx = getThreadContext(false);
 
