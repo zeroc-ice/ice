@@ -20,16 +20,14 @@ IceUtilInternal::APIException::APIException(const char* file, int line, const st
 {
 }
 
-IceUtilInternal::APIException::~APIException() throw()
+IceUtilInternal::APIException::~APIException() ICE_NOEXCEPT
 {
 }
 
-const char* IceUtilInternal::APIException::_name = "IceUtilInternal::APIException";
-
 string
-IceUtilInternal::APIException::ice_name() const
+IceUtilInternal::APIException::ice_id() const
 {
-    return _name;
+    return "::IceUtilInternal::APIException";
 }
 
 void
@@ -42,11 +40,13 @@ IceUtilInternal::APIException::ice_print(ostream& out) const
     }
 }
 
+#ifndef ICE_CPP11_MAPPING
 IceUtilInternal::APIException*
 IceUtilInternal::APIException::ice_clone() const
 {
     return new APIException(*this);
 }
+#endif
 
 void
 IceUtilInternal::APIException::ice_throw() const
@@ -66,16 +66,14 @@ IceUtilInternal::BadOptException::BadOptException(const char* file, int line, co
 {
 }
 
-IceUtilInternal::BadOptException::~BadOptException() throw()
+IceUtilInternal::BadOptException::~BadOptException() ICE_NOEXCEPT
 {
 }
 
-const char* IceUtilInternal::BadOptException::_name = "IceUtilInternal::BadOptException";
-
 string
-IceUtilInternal::BadOptException::ice_name() const
+IceUtilInternal::BadOptException::ice_id() const
 {
-    return _name;
+    return "::IceUtilInternal::BadOptException";
 }
 
 void
@@ -88,11 +86,13 @@ IceUtilInternal::BadOptException::ice_print(ostream& out) const
     }
 }
 
+#ifndef ICE_CPP11_MAPPING
 IceUtilInternal::BadOptException*
 IceUtilInternal::BadOptException::ice_clone() const
 {
     return new BadOptException(*this);
 }
+#endif
 
 void
 IceUtilInternal::BadOptException::ice_throw() const

@@ -1084,11 +1084,6 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out << nl << "return IcePy.stringifyException(self)";
     _out.dec();
     _out << sp << nl << "__repr__ = __str__";
-
-    //
-    // _ice_name
-    //
-    _out << sp << nl << "_ice_name = '" << scoped.substr(2) << "'";
     
     //
     // _ice_id

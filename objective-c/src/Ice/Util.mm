@@ -408,12 +408,6 @@ IceObjC::Exception::~Exception() throw()
 }
 
 std::string
-IceObjC::Exception::ice_name() const
-{
-    return "IceObjC::Exception";
-}
-
-std::string
 IceObjC::Exception::ice_id() const
 {
     return "::IceObjC::Exception";

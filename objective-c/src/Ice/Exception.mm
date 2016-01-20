@@ -31,8 +31,7 @@
 
 -(NSString*)ice_name
 {
-    NSAssert(false, @"ice_name not overriden");
-    return nil;
+    return [[self ice_id] substringFromIndex:2];
 }
 
 -(NSString*)ice_id

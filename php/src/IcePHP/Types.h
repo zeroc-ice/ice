@@ -598,10 +598,6 @@ public:
     ~ExceptionReader() throw();
 
     virtual std::string ice_id() const;
-#ifndef ICE_CPP11_MAPPING
-    ICE_DEPRECATED_API("ice_name() is deprecated, use ice_id() instead.")
-    virtual std::string ice_name() const;
-#endif
     virtual ExceptionReader* ice_clone() const;
     virtual void ice_throw() const;
 

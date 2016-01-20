@@ -3708,14 +3708,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
     _out << sp << nl << "#endregion"; // Constructors
 
-    _out << sp;
-    emitGeneratedCodeAttribute();
-    _out << nl << "[_System.Obsolete(\"ice_name() is deprecated, use ice_id() instead.\")]";
-    _out << nl << "public override string ice_name()";
-    _out << sb;
-    _out << nl << "return \"" << p->scoped().substr(2) << "\";";
-    _out << eb;
-    
+    _out << sp;    
     emitGeneratedCodeAttribute();
     _out << nl << "public override string ice_id()";
     _out << sb;

@@ -58,9 +58,9 @@ class PluginInitializeFailExeption : public std::exception
 
 public:
 
-    PluginInitializeFailExeption() throw() {}
-    virtual ~PluginInitializeFailExeption() throw() {}
-    virtual const char* what() const throw() { return "PluginInitializeFailExeption"; }
+    PluginInitializeFailExeption() ICE_NOEXCEPT {}
+    virtual ~PluginInitializeFailExeption() ICE_NOEXCEPT {}
+    virtual const char* what() const ICE_NOEXCEPT { return "PluginInitializeFailExeption"; }
 };
 
 class PluginInitializeFail : public Ice::Plugin

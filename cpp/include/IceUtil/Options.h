@@ -27,17 +27,15 @@ class ICE_UTIL_API APIException : public IceUtil::Exception
 public:
 
     APIException(const char*, int, const ::std::string&);
-    virtual ~APIException() throw();
-    virtual ::std::string ice_name() const;
+    virtual ~APIException() ICE_NOEXCEPT;
+    virtual ::std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;
+#ifndef ICE_CPP11_MAPPING
     virtual APIException* ice_clone() const;
+#endif
     virtual void ice_throw() const;
 
     ::std::string reason;
-
-private:
-
-    static const char* _name;
 };
 
 ICE_UTIL_API ::std::ostream& operator<<(::std::ostream&, const APIException&);
@@ -47,17 +45,15 @@ class ICE_UTIL_API BadOptException : public IceUtil::Exception
 public:
 
     BadOptException(const char*, int, const ::std::string&);
-    virtual ~BadOptException() throw();
-    virtual ::std::string ice_name() const;
+    virtual ~BadOptException() ICE_NOEXCEPT;
+    virtual ::std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;
+#ifndef ICE_CPP11_MAPPING
     virtual BadOptException* ice_clone() const;
+#endif
     virtual void ice_throw() const;
 
     ::std::string reason;
-
-private:
-
-    static const char* _name;
 };
 
 ICE_UTIL_API ::std::ostream& operator<<(::std::ostream&, const BadOptException&);

@@ -606,10 +606,8 @@ public:
 
     virtual std::string ice_id() const;
 #ifndef ICE_CPP11_MAPPING
-    ICE_DEPRECATED_API("ice_name() is deprecated, use ice_id() instead.")
-    virtual std::string ice_name() const;
-#endif
     virtual Ice::UserException* ice_clone() const;
+#endif
     virtual void ice_throw() const;
 
     virtual void __write(Ice::OutputStream*) const;
@@ -641,10 +639,8 @@ public:
 
     virtual std::string ice_id() const;
 #ifndef ICE_CPP11_MAPPING
-    ICE_DEPRECATED_API("ice_name() is deprecated, use ice_id() instead.")
-    virtual std::string ice_name() const;
-#endif
     virtual Ice::UserException* ice_clone() const;
+#endif
     virtual void ice_throw() const;
 
     virtual void __write(Ice::OutputStream*) const;

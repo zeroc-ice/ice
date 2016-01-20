@@ -54,11 +54,13 @@ public:
 
     ParserException(const std::string&);
     ParserException(const char*, int, const std::string&);
-    virtual ~ParserException() throw();
+    virtual ~ParserException() ICE_NOEXCEPT;
 
-    virtual std::string ice_name() const;
+    virtual std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;
+#ifndef ICE_CPP11_MAPPING
     virtual ParserException* ice_clone() const;
+#endif
     virtual void ice_throw() const;
 
     std::string reason() const;

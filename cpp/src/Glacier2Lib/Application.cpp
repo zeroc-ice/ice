@@ -45,16 +45,18 @@ private:
 }
 
 string
-Glacier2::RestartSessionException::ice_name() const
+Glacier2::RestartSessionException::ice_id() const
 {
-    return "RestartSessionException";
+    return "::Glacier2::RestartSessionException";
 }
 
+#ifndef ICE_CPP11_MAPPING
 Glacier2::RestartSessionException*
 Glacier2::RestartSessionException::ice_clone() const
 {
     return new RestartSessionException(*this);
 }
+#endif
 
 void
 Glacier2::RestartSessionException::ice_throw() const

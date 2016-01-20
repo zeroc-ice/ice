@@ -10,17 +10,10 @@
 using System;
 
 public class SystemFailure : Ice.SystemException
-{
-    [System.Obsolete("ice_name() is deprecated, use ice_id() instead.")]
-    public override string
-    ice_name()
-    {
-        return "SystemFailure";
-    }
-    
+{    
     public override string
     ice_id()
     {
-        return "SystemFailure";
+        return "::SystemFailure";
     }
 };

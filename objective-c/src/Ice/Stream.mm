@@ -287,13 +287,6 @@ public:
         return [[_ex ice_id] UTF8String];
     }
 
-    ICE_DEPRECATED_API("ice_name() is deprecated, use ice_id() instead.")
-    virtual std::string
-    ice_name() const
-    {
-        return ice_id();
-    }
-
     virtual Ice::UserException*
     ice_clone() const
     {
@@ -339,13 +332,6 @@ public:
     ice_id() const
     {
         return [[_ex ice_id] UTF8String];
-    }
-
-    ICE_DEPRECATED_API("ice_name() is deprecated, use ice_id() instead.")
-    virtual std::string
-    ice_name() const
-    {
-        return ice_id();
     }
 
     virtual bool

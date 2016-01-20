@@ -1283,15 +1283,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     }
 
     //
-    // ice_name
-    //
-    _H << nl << "-(NSString *) ice_name;";
-    _M << sp << nl << "-(NSString *) ice_name";
-    _M << sb;
-    _M << nl << "return @\"" << p->scoped().substr(2) << "\";";
-    _M << eb;
-
-    //
     // ice_id
     //
     _H << nl << "-(NSString *) ice_id;";

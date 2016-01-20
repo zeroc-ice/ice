@@ -58,11 +58,13 @@ class ICE_DB_API LMDBException : public IceUtil::Exception
 public:
 
     LMDBException(const char*, int, int);
-    virtual ~LMDBException() throw();
+    virtual ~LMDBException() ICE_NOEXCEPT;
 
-    virtual std::string ice_name() const;
+    virtual std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;
+#ifndef ICE_CPP11_MAPPING
     virtual LMDBException* ice_clone() const;
+#endif
     virtual void ice_throw() const;
 
     int error() const;
@@ -82,11 +84,13 @@ class ICE_DB_API KeyTooLongException : public IceUtil::Exception
 public:
 
     KeyTooLongException(const char*, int, size_t);
-    virtual ~KeyTooLongException() throw();
+    virtual ~KeyTooLongException() ICE_NOEXCEPT;
 
-    virtual std::string ice_name() const;
+    virtual std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;
+#ifndef ICE_CPP11_MAPPING
     virtual KeyTooLongException* ice_clone() const;
+#endif
     virtual void ice_throw() const;
 
 private:
@@ -104,11 +108,13 @@ class ICE_DB_API BadEnvException : public IceUtil::Exception
 public:
 
     BadEnvException(const char*, int, size_t);
-    virtual ~BadEnvException() throw();
+    virtual ~BadEnvException() ICE_NOEXCEPT;
 
-    virtual std::string ice_name() const;
+    virtual std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;
+#ifndef ICE_CPP11_MAPPING
     virtual BadEnvException* ice_clone() const;
+#endif
     virtual void ice_throw() const;
 
 private:

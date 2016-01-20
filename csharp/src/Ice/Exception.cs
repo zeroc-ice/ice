@@ -76,7 +76,10 @@ namespace Ice
         /// </summary>
         /// <returns>The name of this exception.</returns>
         [System.Obsolete("ice_name() is deprecated, use ice_id() instead.")]
-        public abstract string ice_name();
+        public string ice_name()
+        {
+            return ice_id().Substring(2);
+        }
         
         /// <summary>
         /// Returns the type id of this exception.

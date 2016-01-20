@@ -55,24 +55,19 @@ CtrlCHandlerException::CtrlCHandlerException(const char* file, int line) :
 {
 }
 
-namespace
-{
-
-const char* ctrlCHandlerName = "IceUtil::CtrlCHandlerException";
-
-}
-
 string
-CtrlCHandlerException::ice_name() const
+CtrlCHandlerException::ice_id() const
 {
-    return ctrlCHandlerName;
+    return "::IceUtil::CtrlCHandlerException";
 }
 
+#ifndef ICE_CPP11_MAPPING
 CtrlCHandlerException*
 CtrlCHandlerException::ice_clone() const
 {
     return new CtrlCHandlerException(*this);
 }
+#endif
 
 void
 CtrlCHandlerException::ice_throw() const

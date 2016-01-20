@@ -468,7 +468,7 @@ IceUtil::Exception::ice_clone() const
 string
 IceUtil::Exception::ice_name() const
 {
-    return "IceUtil::Exception";
+    return ice_id().substr(2);
 }
 
 IceUtil::Exception*
@@ -529,12 +529,6 @@ IceUtil::NullHandleException::ice_id() const
 }
 
 #ifndef ICE_CPP11_MAPPING
-string
-IceUtil::NullHandleException::ice_name() const
-{
-    return "IceUtil::NullHandleException";
-}
-
 IceUtil::NullHandleException*
 IceUtil::NullHandleException::ice_clone() const
 {
@@ -577,12 +571,6 @@ IceUtil::IllegalArgumentException::ice_id() const
 }
 
 #ifndef ICE_CPP11_MAPPING
-string
-IceUtil::IllegalArgumentException::ice_name() const
-{
-    return "IceUtil::IllegalArgumentException";
-}
-
 IceUtil::IllegalArgumentException*
 IceUtil::IllegalArgumentException::ice_clone() const
 {
@@ -633,12 +621,6 @@ IceUtil::IllegalConversionException::ice_id() const
 }
 
 #ifndef ICE_CPP11_MAPPING
-string
-IceUtil::IllegalConversionException::ice_name() const
-{
-    return "IceUtil::IllegalConversionException";
-}
-
 IceUtil::IllegalConversionException*
 IceUtil::IllegalConversionException::ice_clone() const
 {
@@ -683,13 +665,6 @@ IceUtil::SyscallException::ice_id() const
 }
 
 #ifndef ICE_CPP11_MAPPING
-
-string
-IceUtil::SyscallException::ice_name() const
-{
-    return "IceUtil::SyscallException";
-}
-
 IceUtil::SyscallException*
 IceUtil::SyscallException::ice_clone() const
 {
@@ -739,12 +714,6 @@ IceUtil::FileLockException::ice_id() const
 }
 
 #ifndef ICE_CPP11_MAPPING
-string
-IceUtil::FileLockException::ice_name() const
-{
-    return "IceUtil::FileLockException";
-}
-
 IceUtil::FileLockException*
 IceUtil::FileLockException::ice_clone() const
 {
@@ -784,12 +753,6 @@ IceUtil::OptionalNotSetException::ice_id() const
 }
 
 #ifndef ICE_CPP11_MAPPING
-string
-IceUtil::OptionalNotSetException::ice_name() const
-{
-    return "IceUtil::OptionalNotSetException";
-}
-
 IceUtil::OptionalNotSetException*
 IceUtil::OptionalNotSetException::ice_clone() const
 {
@@ -828,12 +791,6 @@ IceUtil::IconvInitializationException::ice_id() const
 }
 
 #ifndef ICE_CPP11_MAPPING
-string
-IceUtil::IconvInitializationException::ice_name() const
-{
-    return "IceUtil::IconvInitializationException";
-}
-
 IceUtil::IconvInitializationException*
 IceUtil::IconvInitializationException::ice_clone() const
 {

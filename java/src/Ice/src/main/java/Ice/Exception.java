@@ -55,8 +55,11 @@ public abstract class Exception extends RuntimeException implements Cloneable
      * @deprecated ice_name() is deprecated, use ice_id() instead.
      **/
     @Deprecated
-    public abstract String
-    ice_name();
+    public String
+    ice_name()
+    {
+        return ice_id().substring(2);
+    }
     
     /**
      * Returns the type id of this exception.

@@ -21,10 +21,12 @@ class SLICE_API FileException : public ::IceUtil::Exception
 public:
 
     FileException(const char*, int, const std::string&);
-    ~FileException() throw();
-    virtual std::string ice_name() const;
+    ~FileException() ICE_NOEXCEPT;
+    virtual std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;
+#ifndef ICE_CPP11_MAPPING
     virtual FileException* ice_clone() const;
+#endif
     virtual void ice_throw() const;
 
     std::string reason() const;

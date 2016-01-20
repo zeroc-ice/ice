@@ -28,16 +28,14 @@ IceXML::ParserException::ParserException(const char* file, int line, const strin
 {
 }
 
-IceXML::ParserException::~ParserException() throw()
+IceXML::ParserException::~ParserException() ICE_NOEXCEPT
 {
 }
 
-const char* IceXML::ParserException::_name = "IceXML::ParserException";
-
 string
-IceXML::ParserException::ice_name() const
+IceXML::ParserException::ice_id() const
 {
-    return _name;
+    return "::IceXML::ParserException";
 }
 
 void
@@ -54,11 +52,13 @@ IceXML::ParserException::ice_print(std::ostream& out) const
     }
 }
 
+#ifndef ICE_CPP11_MAPPING
 IceXML::ParserException*
 IceXML::ParserException::ice_clone() const
 {
     return new ParserException(*this);
 }
+#endif
 
 void
 IceXML::ParserException::ice_throw() const

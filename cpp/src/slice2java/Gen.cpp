@@ -3653,16 +3653,6 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         }
     }
 
-    out << sp;
-    out << nl << "/**";
-    out << nl << " * @deprecated ice_name() is deprecated, use ice_id() instead.";
-    out << nl << " **/";
-    out << nl << "@Deprecated";
-    out << nl << "public String" << nl << "ice_name()";
-    out << sb;
-    out << nl << "return \"" << scoped.substr(2) << "\";";
-    out << eb;
-
     out << sp << nl << "public String" << nl << "ice_id()";
     out << sb;
     out << nl << "return \"" << scoped << "\";";

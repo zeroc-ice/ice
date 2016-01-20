@@ -15,22 +15,20 @@
 using namespace IceDB;
 using namespace std;
 
-const char* IceDB::LMDBException::_name = "IceDB::LMDBException";
-
 LMDBException::LMDBException(const char* file, int line, int err) :
     IceUtil::Exception(file, line),
     _error(err)
 {
 }
 
-LMDBException::~LMDBException() throw()
+LMDBException::~LMDBException() ICE_NOEXCEPT
 {
 }
 
 string
-LMDBException::ice_name() const
+LMDBException::ice_id() const
 {
-    return _name;
+    return "::IceDB::LMDBException";
 }
 
 void
@@ -40,11 +38,13 @@ LMDBException::ice_print(ostream& out) const
     out << ": " << mdb_strerror(_error);
 }
 
+#ifndef ICE_CPP11_MAPPING
 LMDBException*
 LMDBException::ice_clone() const
 {
     return new LMDBException(*this);
 }
+#endif
 
 void
 LMDBException::ice_throw() const
@@ -58,22 +58,20 @@ LMDBException::error() const
     return _error;
 }
 
-const char* IceDB::KeyTooLongException::_name = "IceDB::KeyTooLongException";
-
 KeyTooLongException::KeyTooLongException(const char* file, int line, size_t size) :
     IceUtil::Exception(file, line),
     _size(size)
 {
 }
 
-KeyTooLongException::~KeyTooLongException() throw()
+KeyTooLongException::~KeyTooLongException() ICE_NOEXCEPT
 {
 }
 
 string
-KeyTooLongException::ice_name() const
+KeyTooLongException::ice_id() const
 {
-    return _name;
+    return "::IceDB::KeyTooLongException";
 }
 
 void
@@ -88,11 +86,13 @@ KeyTooLongException::ice_print(ostream& out) const
     out << "Max size = " << maxKeySize;
 }
 
+#ifndef ICE_CPP11_MAPPING
 KeyTooLongException*
 KeyTooLongException::ice_clone() const
 {
     return new KeyTooLongException(*this);
 }
+#endif
 
 void
 KeyTooLongException::ice_throw() const
@@ -100,22 +100,20 @@ KeyTooLongException::ice_throw() const
     throw *this;
 }
 
-const char* IceDB::BadEnvException::_name = "IceDB::BadEnvException";
-
 BadEnvException::BadEnvException(const char* file, int line, size_t size) :
     IceUtil::Exception(file, line),
     _size(size)
 {
 }
 
-BadEnvException::~BadEnvException() throw()
+BadEnvException::~BadEnvException() ICE_NOEXCEPT
 {
 }
 
 string
-BadEnvException::ice_name() const
+BadEnvException::ice_id() const
 {
-    return _name;
+    return "::IceDB::BadEnvException";
 }
 
 void
@@ -126,11 +124,13 @@ BadEnvException::ice_print(ostream& out) const
     out << ", IceDB max key size = " << maxKeySize;
 }
 
+#ifndef ICE_CPP11_MAPPING
 BadEnvException*
 BadEnvException::ice_clone() const
 {
     return new BadEnvException(*this);
 }
+#endif
 
 void
 BadEnvException::ice_throw() const

@@ -144,19 +144,21 @@ public:
     {
     }
 
-    virtual ~TestFailedException() throw()
+    virtual ~TestFailedException() ICE_NOEXCEPT
     {
     }
 
-    virtual ::std::string ice_name() const
+    virtual ::std::string ice_id() const
     {
         return "::TestFailedException";
     }
 
+#ifndef ICE_CPP11_MAPPING
     virtual TestFailedException* ice_clone() const
     {
         return new TestFailedException(*this);
     }
+#endif
 
     virtual void ice_throw() const
     {

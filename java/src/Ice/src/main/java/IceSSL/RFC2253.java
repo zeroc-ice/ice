@@ -31,13 +31,6 @@ class RFC2253
         {
             return "::RFC2253::ParseException";
         }
-        
-        @Override
-        public String
-        ice_name()
-        {
-            return "RFC2253::ParseException";
-        }
 
         public String reason;
     }

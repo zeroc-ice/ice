@@ -15,13 +15,6 @@ class SystemFailure extends Ice.SystemException
     public String
     ice_id()
     {
-        return "SystemFailure";
-    }
-    
-    @Override
-    public String
-    ice_name()
-    {
-        return "SystemFailure";
+        return "::SystemFailure";
     }
 };

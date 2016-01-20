@@ -122,13 +122,6 @@ public:
         return [[_ex ice_id] UTF8String];
     }
 
-    ICE_DEPRECATED_API("ice_name() is deprecated, use ice_id() instead.")
-    std::string
-    ice_name() const
-    {
-        return ice_id();
-    }
-
     Ice::UserException*
     ice_clone() const
     {

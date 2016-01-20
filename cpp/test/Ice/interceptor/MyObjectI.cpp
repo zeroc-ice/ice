@@ -20,27 +20,23 @@ MySystemException::MySystemException(const char* file, int line) :
 {
 }
 
-MySystemException::~MySystemException() throw()
+MySystemException::~MySystemException() ICE_NOEXCEPT
 {
 }
 
 string
 MySystemException::ice_id() const
 {
-    return "MySystemException";
+    return "::MySystemException";
 }
 
-string
-MySystemException::ice_name() const
-{
-    return ice_id();
-}
-
+#ifndef ICE_CPP11_MAPPING
 MySystemException*
 MySystemException::ice_clone() const
 {
     return new MySystemException(*this);
 }
+#endif
 
 void
 MySystemException::ice_throw() const

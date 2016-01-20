@@ -230,8 +230,6 @@ public:
     virtual ~Exception() throw();
 
     virtual std::string ice_id() const;
-    ICE_DEPRECATED_API("ice_name() is deprecated, use ice_id() instead.")
-    virtual std::string ice_name() const;
     virtual void ice_print(std::ostream& os) const;
     virtual Exception* ice_clone() const;
     virtual void ice_throw() const;

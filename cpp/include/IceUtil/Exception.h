@@ -33,7 +33,7 @@ public:
     std::exception_ptr ice_clone() const;
 #else
     ICE_DEPRECATED_API("ice_name() is deprecated, use ice_id() instead.")
-    virtual std::string ice_name() const;
+    std::string ice_name() const;
     virtual Exception* ice_clone() const;
 #endif
     virtual void ice_throw() const;
@@ -60,8 +60,6 @@ public:
     virtual ~NullHandleException() ICE_NOEXCEPT;
     virtual std::string ice_id() const;
 #ifndef ICE_CPP11_MAPPING
-    ICE_DEPRECATED_API("ice_name() is deprecated, use ice_id() instead.")
-    virtual std::string ice_name() const;
     virtual NullHandleException* ice_clone() const;
 #endif
     virtual void ice_throw() const;
@@ -77,8 +75,6 @@ public:
     virtual std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;
 #ifndef ICE_CPP11_MAPPING
-    ICE_DEPRECATED_API("ice_name() is deprecated, use ice_id() instead.")
-    virtual std::string ice_name() const;
     virtual IllegalArgumentException* ice_clone() const;
 #endif
     virtual void ice_throw() const;
@@ -103,8 +99,6 @@ public:
     virtual std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;
 #ifndef ICE_CPP11_MAPPING
-    ICE_DEPRECATED_API("ice_name() is deprecated, use ice_id() instead.")
-    virtual std::string ice_name() const;
     virtual IllegalConversionException* ice_clone() const;
 #endif
     virtual void ice_throw() const;
@@ -124,8 +118,6 @@ public:
     virtual std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;
 #ifndef ICE_CPP11_MAPPING
-    ICE_DEPRECATED_API("ice_name() is deprecated, use ice_id() instead.")
-    virtual std::string ice_name() const;
     virtual SyscallException* ice_clone() const;
 #endif
     virtual void ice_throw() const;
@@ -146,8 +138,6 @@ public:
     virtual std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;
 #ifndef ICE_CPP11_MAPPING
-    ICE_DEPRECATED_API("ice_name() is deprecated, use ice_id() instead.")
-    virtual std::string ice_name() const;
     virtual FileLockException* ice_clone() const;
 #endif
     virtual void ice_throw() const;
@@ -169,8 +159,6 @@ public:
     virtual ~OptionalNotSetException() ICE_NOEXCEPT;
     virtual std::string ice_id() const;
 #ifndef ICE_CPP11_MAPPING
-    ICE_DEPRECATED_API("ice_name() is deprecated, use ice_id() instead.")
-    virtual std::string ice_name() const;
     virtual OptionalNotSetException* ice_clone() const;
 #endif
     virtual void ice_throw() const;
@@ -186,8 +174,6 @@ public:
     virtual std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;
 #ifndef ICE_CPP11_MAPPING
-    ICE_DEPRECATED_API("ice_name() is deprecated, use ice_id() instead.")
-    virtual std::string ice_name() const;
     virtual IconvInitializationException* ice_clone() const;
 #endif
     virtual void ice_throw() const;

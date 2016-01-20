@@ -32,9 +32,9 @@ namespace IceSSL
             }
 
             internal string
-            ice_name()
+            ice_id()
             {
-                return "RFC2253::ParseException";
+                return "::RFC2253::ParseException";
             }
 
             internal string reason;

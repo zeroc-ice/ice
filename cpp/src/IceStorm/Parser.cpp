@@ -46,13 +46,14 @@ public:
     }
 
     virtual
-    ~UnknownManagerException() throw()
+    ~UnknownManagerException() ICE_NOEXCEPT
     {
     }
+
     virtual string
-    ice_name() const
+    ice_id() const
     {
-        return "UnknownManagerException";
+        return "::UnknownManagerException";
     }
 
     virtual Exception*
@@ -334,7 +335,7 @@ Parser::replica(const list<string>& args)
             }
             catch(const Exception& ex)
             {
-                cout << p->id << ": " << ex.ice_name() << endl;
+                cout << p->id << ": " << ex.ice_id() << endl;
             }
         }
     }

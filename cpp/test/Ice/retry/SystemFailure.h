@@ -23,21 +23,18 @@ public:
     SystemFailure(const SystemFailure& ex) : Ice::SystemException(ex.ice_file(), ex.ice_line())
     {
     }
-
-    virtual std::string ice_name() const
-    {
-        return ice_id();
-    }
     
     virtual std::string ice_id() const
     {
         return "SystemFailure";
     }
 
+#ifndef ICE_CPP11_MAPPING
     virtual SystemException* ice_clone() const
     {
         return new SystemFailure(*this);
     }
+#endif
 
     virtual void ice_throw() const
     {

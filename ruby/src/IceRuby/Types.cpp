@@ -2098,7 +2098,7 @@ namespace
 
 void
 patchObject(void* addr, const Ice::ObjectPtr& v)
-{   
+{
     ReadObjectCallback* cb = static_cast<ReadObjectCallback*>(addr);
     assert(cb);
     cb->invoke(v);
@@ -2832,19 +2832,13 @@ IceRuby::ExceptionReader::ice_id() const
 }
 
 #ifndef ICE_CPP11_MAPPING
-string
-IceRuby::ExceptionReader::ice_name() const
-{
-    return ice_id();
-}
-#endif
-
 Ice::UserException*
 IceRuby::ExceptionReader::ice_clone() const
 {
     assert(false);
     return 0;
 }
+#endif
 
 void
 IceRuby::ExceptionReader::ice_throw() const

@@ -178,7 +178,7 @@ class Exception(Exception):     # Derives from built-in base 'Exception' class.
 
     def ice_name(self):
         '''Returns the type name of this exception.'''
-        return self._ice_name
+        return self.ice_id()[2:]
     
     def ice_id(self):
         '''Returns the type id of this exception.'''

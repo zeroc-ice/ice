@@ -982,13 +982,6 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     C << scoped.substr(2) << "::~" << name << "() throw()";
     C << sb;
     C << eb;
-
-    H << nl << "ICE_DEPRECATED_API(\"ice_name() is deprecated, use ice_id() instead.\")";
-    H << nl << "virtual ::std::string ice_name() const;";
-    C << sp << nl << "::std::string" << nl << scoped.substr(2) << "::ice_name() const";
-    C << sb;
-    C << nl << "return \"" << p->scoped().substr(2) << "\";";
-    C << eb;
     
     H << nl << "virtual ::std::string ice_id() const;";
     C << sp << nl << "::std::string" << nl << scoped.substr(2) << "::ice_id() const";

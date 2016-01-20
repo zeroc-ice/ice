@@ -60,8 +60,10 @@ class ICE_UTIL_API CtrlCHandlerException : public Exception
 public:
  
     CtrlCHandlerException(const char*, int);
-    virtual std::string ice_name() const;
+    virtual std::string ice_id() const;
+#ifndef ICE_CPP11_MAPPING
     virtual CtrlCHandlerException* ice_clone() const;
+#endif
     virtual void ice_throw() const;
 };
 

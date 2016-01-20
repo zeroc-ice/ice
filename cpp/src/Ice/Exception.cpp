@@ -129,7 +129,7 @@ Ice::LocalException::LocalException(const char* file, int line) :
 {
 }
 
-Ice::LocalException::~LocalException() throw()
+Ice::LocalException::~LocalException() ICE_NOEXCEPT
 {
 }
 
@@ -138,7 +138,7 @@ Ice::SystemException::SystemException(const char* file, int line) :
 {
 }
 
-Ice::SystemException::~SystemException() throw()
+Ice::SystemException::~SystemException() ICE_NOEXCEPT
 {
 }
 

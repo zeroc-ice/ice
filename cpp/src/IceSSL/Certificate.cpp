@@ -47,8 +47,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceSSL;
 
-const char* IceSSL::CertificateReadException::_name = "IceSSL::CertificateReadException";
-
 #if defined(ICE_USE_SECURE_TRANSPORT) || defined(ICE_USE_SCHANNEL)
 //
 // Map a certificate OID to its alias
@@ -429,29 +427,29 @@ CertificateReadException::CertificateReadException(const char* file, int line, c
 {
 }
 
-CertificateReadException::~CertificateReadException() throw()
+CertificateReadException::~CertificateReadException() ICE_NOEXCEPT
 {
 }
 
 string
-CertificateReadException::ice_name() const
+CertificateReadException::ice_id() const
 {
-    return _name;
+    return "::IceSSL::CertificateReadException";
 }
 
+#ifndef ICE_CPP11_MAPPING
 CertificateReadException*
 CertificateReadException::ice_clone() const
 {
     return new CertificateReadException(*this);
 }
+#endif
 
 void
 CertificateReadException::ice_throw() const
 {
     throw *this;
 }
-
-const char* IceSSL::CertificateEncodingException::_name = "IceSSL::CertificateEncodingException";
 
 #ifdef ICE_USE_SECURE_TRANSPORT
 CertificateEncodingException::CertificateEncodingException(const char* file, int line, CFErrorRef err) :
@@ -469,21 +467,23 @@ CertificateEncodingException::CertificateEncodingException(const char* file, int
 {
 }
 
-CertificateEncodingException::~CertificateEncodingException() throw()
+CertificateEncodingException::~CertificateEncodingException() ICE_NOEXCEPT
 {
 }
 
 string
-CertificateEncodingException::ice_name() const
+CertificateEncodingException::ice_id() const
 {
-    return _name;
+    return "::IceSSL::CertificateEncodingException";
 }
 
+#ifndef ICE_CPP11_MAPPING
 CertificateEncodingException*
 CertificateEncodingException::ice_clone() const
 {
     return new CertificateEncodingException(*this);
 }
+#endif
 
 void
 CertificateEncodingException::ice_throw() const
@@ -663,29 +663,29 @@ convertGeneralNames(GENERAL_NAMES* gens)
 }
 #endif
 
-const char* ParseException::_name = "IceSSL::ParseException";
-
 ParseException::ParseException(const char* file, int line, const string& r) :
     Exception(file, line),
     reason(r)
 {
 }
 
-ParseException::~ParseException() throw()
+ParseException::~ParseException() ICE_NOEXCEPT
 {
 }
 
 string
-ParseException::ice_name() const
+ParseException::ice_id() const
 {
-    return _name;
+    return "::IceSSL::ParseException";
 }
 
+#ifndef ICE_CPP11_MAPPING
 ParseException*
 ParseException::ice_clone() const
 {
     return new ParseException(*this);
 }
+#endif
 
 void
 ParseException::ice_throw() const

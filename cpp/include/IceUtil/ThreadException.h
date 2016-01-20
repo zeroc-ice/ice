@@ -21,13 +21,11 @@ class ICE_UTIL_API ThreadSyscallException : public SyscallException
 public:
 
     ThreadSyscallException(const char*, int, int);
-    virtual std::string ice_name() const;
+    virtual std::string ice_id() const;
+#ifndef ICE_CPP11_MAPPING
     virtual ThreadSyscallException* ice_clone() const;
+#endif
     virtual void ice_throw() const;
-
-private:
-
-    static const char* _name;
 };
 
 class ICE_UTIL_API ThreadLockedException : public Exception
@@ -35,13 +33,11 @@ class ICE_UTIL_API ThreadLockedException : public Exception
 public:
 
     ThreadLockedException(const char*, int);
-    virtual std::string ice_name() const;
+    virtual std::string ice_id() const;
+#ifndef ICE_CPP11_MAPPING
     virtual ThreadLockedException* ice_clone() const;
+#endif
     virtual void ice_throw() const;
-
-private:
-
-    static const char* _name;
 };
 
 class ICE_UTIL_API ThreadStartedException : public Exception
@@ -49,13 +45,11 @@ class ICE_UTIL_API ThreadStartedException : public Exception
 public:
 
     ThreadStartedException(const char*, int);
-    virtual std::string ice_name() const;
+    virtual std::string ice_id() const;
+#ifndef ICE_CPP11_MAPPING
     virtual ThreadStartedException* ice_clone() const;
+#endif
     virtual void ice_throw() const;
-
-private:
-
-    static const char* _name;
 };
 
 class ICE_UTIL_API ThreadNotStartedException : public Exception
@@ -63,13 +57,11 @@ class ICE_UTIL_API ThreadNotStartedException : public Exception
 public:
 
     ThreadNotStartedException(const char*, int);
-    virtual std::string ice_name() const;
+    virtual std::string ice_id() const;
+#ifndef ICE_CPP11_MAPPING
     virtual ThreadNotStartedException* ice_clone() const;
+#endif
     virtual void ice_throw() const;
-
-private:
-
-    static const char* _name;
 };
 
 class ICE_UTIL_API BadThreadControlException : public Exception
@@ -77,13 +69,11 @@ class ICE_UTIL_API BadThreadControlException : public Exception
 public:
 
     BadThreadControlException(const char*, int);
-    virtual std::string ice_name() const;
+    virtual std::string ice_id() const;
+#ifndef ICE_CPP11_MAPPING
     virtual BadThreadControlException* ice_clone() const;
+#endif
     virtual void ice_throw() const;
-
-private:
-
-    static const char* _name;
 };
 
 class ICE_UTIL_API InvalidTimeoutException : public Exception
@@ -91,15 +81,16 @@ class ICE_UTIL_API InvalidTimeoutException : public Exception
 public:
 
     InvalidTimeoutException(const char*, int, const Time&);
-    virtual std::string ice_name() const;
+    virtual std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;
+#ifndef ICE_CPP11_MAPPING
     virtual InvalidTimeoutException* ice_clone() const;
+#endif
     virtual void ice_throw() const;
 
 private:
-    
+
     Time _timeout;
-    static const char* _name;
 };
     
 }

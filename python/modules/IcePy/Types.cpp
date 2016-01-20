@@ -3716,18 +3716,12 @@ IcePy::ExceptionWriter::ice_id() const
 }
 
 #ifndef ICE_CPP11_MAPPING
-string
-IcePy::ExceptionWriter::ice_name() const
-{
-    return ice_id();
-}
-#endif
-
 Ice::UserException*
 IcePy::ExceptionWriter::ice_clone() const
 {
     return new ExceptionWriter(*this);
 }
+#endif
 
 void
 IcePy::ExceptionWriter::ice_throw() const
@@ -3776,19 +3770,13 @@ IcePy::ExceptionReader::ice_id() const
 }
 
 #ifndef ICE_CPP11_MAPPING
-string
-IcePy::ExceptionReader::ice_name() const
-{
-    return ice_id();
-}
-#endif
-
 Ice::UserException*
 IcePy::ExceptionReader::ice_clone() const
 {
     assert(false);
     return 0;
 }
+#endif
 
 void
 IcePy::ExceptionReader::ice_throw() const
