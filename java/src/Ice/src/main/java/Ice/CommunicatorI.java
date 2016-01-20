@@ -123,25 +123,21 @@ public final class CommunicatorI implements Communicator
     }
 
     @Override @SuppressWarnings("deprecation")
-    public void
-    addObjectFactory(ObjectFactory factory, String id) { _instance.servantFactoryManager().add(factory, id); }
+    public synchronized void addObjectFactory(ObjectFactory factory, String id)
+    {
+        _instance.addObjectFactory(factory, id);
+    }
 
     @Override @SuppressWarnings("deprecation")
-    public ObjectFactory
-    findObjectFactory(String id) { return _instance.servantFactoryManager().findObjectFactory(id); }
-
-    @Override
-    public void
-    addValueFactory(ValueFactory factory, String id)
+    public synchronized ObjectFactory findObjectFactory(String id)
     {
-        _instance.servantFactoryManager().add(factory, id);
+        return _instance.findObjectFactory(id);
     }
 
     @Override
-    public ValueFactory
-    findValueFactory(String id)
+    public ValueFactoryManager getValueFactoryManager()
     {
-        return _instance.servantFactoryManager().find(id);
+        return _instance.initializationData().valueFactoryManager;
     }
 
     @Override

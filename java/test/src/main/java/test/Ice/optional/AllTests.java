@@ -29,7 +29,7 @@ public class AllTests
         Ice.Communicator communicator = app.communicator();
 
         FactoryI factory = new FactoryI();
-        communicator.addValueFactory(factory, "");
+        communicator.getValueFactoryManager().add(factory, "");
 
         out.print("testing stringToProxy... ");
         out.flush();

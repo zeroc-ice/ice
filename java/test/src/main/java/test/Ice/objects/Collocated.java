@@ -76,14 +76,14 @@ public class Collocated extends test.Util.Application
     {
         Ice.Communicator communicator = communicator();
         Ice.ValueFactory factory = new MyValueFactory();
-        communicator.addValueFactory(factory, "::Test::B");
-        communicator.addValueFactory(factory, "::Test::C");
-        communicator.addValueFactory(factory, "::Test::D");
-        communicator.addValueFactory(factory, "::Test::E");
-        communicator.addValueFactory(factory, "::Test::F");
-        communicator.addValueFactory(factory, "::Test::I");
-        communicator.addValueFactory(factory, "::Test::J");
-        communicator.addValueFactory(factory, "::Test::H");
+        communicator.getValueFactoryManager().add(factory, "::Test::B");
+        communicator.getValueFactoryManager().add(factory, "::Test::C");
+        communicator.getValueFactoryManager().add(factory, "::Test::D");
+        communicator.getValueFactoryManager().add(factory, "::Test::E");
+        communicator.getValueFactoryManager().add(factory, "::Test::F");
+        communicator.getValueFactoryManager().add(factory, "::Test::I");
+        communicator.getValueFactoryManager().add(factory, "::Test::J");
+        communicator.getValueFactoryManager().add(factory, "::Test::H");
 
         communicator.addObjectFactory(new MyObjectFactory(), "TestOF");
 

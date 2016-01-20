@@ -39,9 +39,9 @@ public class Server extends test.Util.Application
     {
         Ice.Communicator communicator = communicator();
         Ice.ValueFactory factory = new MyValueFactory();
-        communicator.addValueFactory(factory, "::Test::I");
-        communicator.addValueFactory(factory, "::Test::J");
-        communicator.addValueFactory(factory, "::Test::H");
+        communicator.getValueFactoryManager().add(factory, "::Test::I");
+        communicator.getValueFactoryManager().add(factory, "::Test::J");
+        communicator.getValueFactoryManager().add(factory, "::Test::H");
 
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.Object object = new InitialI(adapter);

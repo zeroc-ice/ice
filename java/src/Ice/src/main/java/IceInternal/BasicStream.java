@@ -2951,11 +2951,11 @@ public class BasicStream
 
     abstract private static class EncapsDecoder
     {
-        EncapsDecoder(BasicStream stream, boolean sliceObjects, ValueFactoryManager f)
+        EncapsDecoder(BasicStream stream, boolean sliceObjects, Ice.ValueFactoryManager f)
         {
             _stream = stream;
             _sliceObjects = sliceObjects;
-            _servantFactoryManager = f;
+            _valueFactoryManager = f;
             _typeIdIndex = 0;
             _unmarshaledMap = new java.util.TreeMap<Integer, Ice.Object>();
         }
@@ -3013,7 +3013,7 @@ public class BasicStream
             //
             // Try to find a factory registered for the specific type.
             //
-            Ice.ValueFactory userFactory = _servantFactoryManager.find(typeId);
+            Ice.ValueFactory userFactory = _valueFactoryManager.find(typeId);
             Ice.Object v = null;
             if(userFactory != null)
             {
@@ -3026,7 +3026,7 @@ public class BasicStream
             //
             if(v == null)
             {
-                userFactory = _servantFactoryManager.find("");
+                userFactory = _valueFactoryManager.find("");
                 if(userFactory != null)
                 {
                     v = userFactory.create(typeId);
@@ -3174,7 +3174,7 @@ public class BasicStream
 
         protected final BasicStream _stream;
         protected final boolean _sliceObjects;
-        protected ValueFactoryManager _servantFactoryManager;
+        protected Ice.ValueFactoryManager _valueFactoryManager;
 
         // Encapsulation attributes for object un-marshalling
         protected java.util.TreeMap<Integer, java.util.LinkedList<Patcher> > _patchMap;
@@ -3188,7 +3188,7 @@ public class BasicStream
 
     private static final class EncapsDecoder10 extends EncapsDecoder
     {
-        EncapsDecoder10(BasicStream stream, boolean sliceObjects, ValueFactoryManager f)
+        EncapsDecoder10(BasicStream stream, boolean sliceObjects, Ice.ValueFactoryManager f)
         {
             super(stream, sliceObjects, f);
             _sliceType = SliceType.NoSlice;
@@ -3492,7 +3492,7 @@ public class BasicStream
 
     private static class EncapsDecoder11 extends EncapsDecoder
     {
-        EncapsDecoder11(BasicStream stream, boolean sliceObjects, ValueFactoryManager f)
+        EncapsDecoder11(BasicStream stream, boolean sliceObjects, Ice.ValueFactoryManager f)
         {
             super(stream, sliceObjects, f);
             _objectIdIndex = 1;
@@ -4763,7 +4763,7 @@ public class BasicStream
 
         if(_readEncapsStack.decoder == null) // Lazy initialization.
         {
-            ValueFactoryManager factoryManager = _instance.servantFactoryManager();
+            Ice.ValueFactoryManager factoryManager = _instance.initializationData().valueFactoryManager;
             if(_readEncapsStack.encoding_1_0)
             {
                 _readEncapsStack.decoder = new EncapsDecoder10(this, _sliceObjects, factoryManager);

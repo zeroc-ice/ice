@@ -255,16 +255,32 @@ public final class Instance
         return _outgoingConnectionFactory;
     }
 
-    public synchronized ValueFactoryManager
-    servantFactoryManager()
+    @SuppressWarnings("deprecation")
+    public synchronized void addObjectFactory(final Ice.ObjectFactory factory, final String id)
     {
-        if(_state == StateDestroyed)
+        //
+        // Create a ValueFactory wrapper around the given ObjectFactory and register the wrapper
+        // with the value factory manager. This may raise AlreadyRegisteredException.
+        //
+        Ice.ValueFactory wrapper = new Ice.ValueFactory()
         {
-            throw new Ice.CommunicatorDestroyedException();
-        }
+            public Ice.Object create(String id)
+            {
+                return factory.create(id);
+            }
+        };
+        _initData.valueFactoryManager.add(wrapper, id);
 
-        assert(_servantFactoryManager != null);
-        return _servantFactoryManager;
+        //
+        // Also record the object factory in our own map.
+        //
+        _objectFactoryMap.put(id, factory);
+    }
+
+    @SuppressWarnings("deprecation")
+    public synchronized Ice.ObjectFactory findObjectFactory(String id)
+    {
+        return _objectFactoryMap.get(id);
     }
 
     public synchronized ObjectAdapterFactory
@@ -985,9 +1001,12 @@ public final class Instance
 
             _pluginManager = new Ice.PluginManagerI(communicator, this);
 
-            _outgoingConnectionFactory = new OutgoingConnectionFactory(communicator, this);
+            if(_initData.valueFactoryManager == null)
+            {
+                _initData.valueFactoryManager = new Ice.ValueFactoryManagerI();
+            }
 
-            _servantFactoryManager = new ValueFactoryManager();
+            _outgoingConnectionFactory = new OutgoingConnectionFactory(communicator, this);
 
             _objectAdapterFactory = new ObjectAdapterFactory(this, communicator);
 
@@ -1032,7 +1051,6 @@ public final class Instance
             IceUtilInternal.Assert.FinalizerAssert(_requestHandlerFactory == null);
             IceUtilInternal.Assert.FinalizerAssert(_proxyFactory == null);
             IceUtilInternal.Assert.FinalizerAssert(_outgoingConnectionFactory == null);
-            IceUtilInternal.Assert.FinalizerAssert(_servantFactoryManager == null);
             IceUtilInternal.Assert.FinalizerAssert(_objectAdapterFactory == null);
             IceUtilInternal.Assert.FinalizerAssert(_clientThreadPool == null);
             IceUtilInternal.Assert.FinalizerAssert(_serverThreadPool == null);
@@ -1241,6 +1259,7 @@ public final class Instance
     //
     // Only for use by Ice.CommunicatorI
     //
+    @SuppressWarnings("deprecation")
     public void
     destroy()
     {
@@ -1378,14 +1397,15 @@ public final class Instance
 
             //
             // NOTE: at this point destroy() can't be interrupted
-            // anymore. The calls bellow are therefore garanteed to be
+            // anymore. The calls bellow are therefore guaranteed to be
             // called once.
             //
 
-            if(_servantFactoryManager != null)
+            for(java.util.Map.Entry<String, Ice.ObjectFactory> e : _objectFactoryMap.entrySet())
             {
-                _servantFactoryManager.destroy();
+                e.getValue().destroy();
             }
+            _objectFactoryMap.clear();
 
             if(_routerManager != null)
             {
@@ -1436,7 +1456,6 @@ public final class Instance
                 _endpointHostResolver = null;
                 _timer = null;
 
-                _servantFactoryManager = null;
                 _referenceFactory = null;
                 _requestHandlerFactory = null;
                 _proxyFactory = null;
@@ -1724,7 +1743,6 @@ public final class Instance
     private RequestHandlerFactory _requestHandlerFactory;
     private ProxyFactory _proxyFactory;
     private OutgoingConnectionFactory _outgoingConnectionFactory;
-    private ValueFactoryManager _servantFactoryManager;
     private ObjectAdapterFactory _objectAdapterFactory;
     private int _protocolSupport;
     private boolean _preferIPv6;
@@ -1751,4 +1769,8 @@ public final class Instance
     private static boolean _oneOfDone = false;
     private QueueExecutorService _queueExecutorService;
     private QueueExecutor _queueExecutor;
+
+    @SuppressWarnings("deprecation")
+    private java.util.HashMap<String, Ice.ObjectFactory> _objectFactoryMap =
+        new java.util.HashMap<String, Ice.ObjectFactory>();
 }

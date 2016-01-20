@@ -88,4 +88,9 @@ public final class InitializationData implements Cloneable
      * The batch request interceptor.
      **/
     public BatchRequestInterceptor batchRequestInterceptor;
+
+    /**
+     * The value factory manager.
+     **/
+    public ValueFactoryManager valueFactoryManager;
 }

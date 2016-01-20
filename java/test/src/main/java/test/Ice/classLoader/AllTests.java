@@ -181,7 +181,7 @@ public class AllTests
                 test(classLoader.check("test.Ice.classLoader.Test.AbstractClass"));
                 classLoader.reset();
 
-                ic.addValueFactory(new MyValueFactory(), "::Test::AbstractClass");
+                ic.getValueFactoryManager().add(new MyValueFactory(), "::Test::AbstractClass");
                 AbstractClass ac = initial.getAbstractClass();
                 test(ac != null);
                 test(!classLoader.check("Test.AbstractClass"));

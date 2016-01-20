@@ -140,8 +140,8 @@ public class Client extends test.Util.Application
     {
         Ice.Communicator comm = communicator();
         MyClassFactoryWrapper factoryWrapper = new MyClassFactoryWrapper();
-        comm.addValueFactory(factoryWrapper, MyClass.ice_staticId());
-        comm.addValueFactory(new MyInterfaceFactory(), _MyInterfaceDisp.ice_staticId());
+        comm.getValueFactoryManager().add(factoryWrapper, MyClass.ice_staticId());
+        comm.getValueFactoryManager().add(new MyInterfaceFactory(), _MyInterfaceDisp.ice_staticId());
 
         Ice.InputStream in;
         Ice.OutputStream out;

@@ -289,7 +289,7 @@ public class AllTests
         test(communicator.findObjectFactory("TestOF") != null);
         out.println("ok");
         out.print("testing getting ObjectFactory as ValueFactory...");
-        test(communicator.findValueFactory("TestOF") != null);
+        test(communicator.getValueFactoryManager().find("TestOF") != null);
         out.println("ok");
 
         return initial;

@@ -828,10 +828,10 @@ public class AllTests
         {
             out.print("testing value factory registration exception... ");
             Ice.ValueFactory of = new ValueFactoryI();
-            communicator.addValueFactory(of, "::x");
+            communicator.getValueFactoryManager().add(of, "::x");
             try
             {
-                communicator.addValueFactory(of, "::x");
+                communicator.getValueFactoryManager().add(of, "::x");
                 test(false);
             }
             catch(Ice.AlreadyRegisteredException ex)

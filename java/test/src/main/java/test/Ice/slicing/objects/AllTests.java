@@ -2740,7 +2740,7 @@ public class AllTests
         // the Ice run time will install its own internal factory for Preserved upon receiving the
         // first instance.
         //
-        communicator.addValueFactory(new PreservedFactoryI(), Preserved.ice_staticId());
+        communicator.getValueFactoryManager().add(new PreservedFactoryI(), Preserved.ice_staticId());
 
         try
         {
@@ -3063,7 +3063,7 @@ public class AllTests
             // Register a factory in order to substitute our own subclass of PNode. This provides
             // an easy way to determine how many unmarshaled instances currently exist.
             //
-            communicator.addValueFactory(new NodeFactoryI(), PNode.ice_staticId());
+            communicator.getValueFactoryManager().add(new NodeFactoryI(), PNode.ice_staticId());
 
             //
             // Relay a graph through the server.
