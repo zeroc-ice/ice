@@ -285,7 +285,7 @@ bool
 OutgoingAsyncBase::sentImpl(bool done)
 {
     Lock sync(_m);
-    bool alreadySent = _state & Sent;
+    bool alreadySent = (_state & Sent) > 0;
     _state |= Sent;
     if(done)
     {
@@ -429,7 +429,7 @@ bool
 OutgoingAsyncBase::isCompleted() const
 {
     Lock sync(_m);
-    return _state & Done;
+    return (_state & Done) > 0;
 }
 
 void
@@ -446,7 +446,7 @@ bool
 OutgoingAsyncBase::isSent() const
 {
     Lock sync(_m);
-    return _state & Sent;
+    return (_state & Sent) > 0;
 }
 
 void
