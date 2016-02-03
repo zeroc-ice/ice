@@ -306,6 +306,13 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
     }
     else // Optimization: directly call invokeAll if there's no dispatcher.
     {
+        //
+        // Make sure to hold a reference on this handler while the call is being
+        // dispatched. Otherwise, the handler could be deleted during the dispatch
+        // if a retry occurs.
+        //
+        CollocatedRequestHandlerPtr self(shared_from_this());
+
         if(sentAsync(outAsync))
         {
             invokeAll(outAsync->getOs(), requestId, batchRequestNum);
