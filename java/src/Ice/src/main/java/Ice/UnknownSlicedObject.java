@@ -38,18 +38,18 @@ public final class UnknownSlicedObject extends ObjectImpl
 
     @Override
     public void
-    __write(IceInternal.BasicStream __os)
+    __write(OutputStream __os)
     {
-        __os.startWriteObject(_slicedData);
-        __os.endWriteObject();
+        __os.startObject(_slicedData);
+        __os.endObject();
     }
 
     @Override
     public void
-    __read(IceInternal.BasicStream __is)
+    __read(InputStream __is)
     {
-        __is.startReadObject();
-        _slicedData = __is.endReadObject(true);
+        __is.startObject();
+        _slicedData = __is.endObject(true);
     }
 
     private final String _unknownTypeId;

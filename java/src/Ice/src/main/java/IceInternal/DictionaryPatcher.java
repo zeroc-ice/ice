@@ -9,10 +9,10 @@
 
 package IceInternal;
 
-public class DictionaryPatcher<K, V> implements Patcher, Ice.ReadObjectCallback
+public class DictionaryPatcher<K, V> implements Ice.ReadObjectCallback
 {
-    public
-    DictionaryPatcher(java.util.Map<K, V> dict, Class<V> cls, String type, K key)
+    // TBD: Remove _type?
+    public DictionaryPatcher(java.util.Map<K, V> dict, Class<V> cls, String type, K key)
     {
         _dict = dict;
         _cls = cls;
@@ -20,9 +20,7 @@ public class DictionaryPatcher<K, V> implements Patcher, Ice.ReadObjectCallback
         _key = key;
     }
 
-    @Override
-    public void
-    patch(Ice.Object v)
+    public void objectReady(Ice.Object v)
     {
         if(v != null)
         {
@@ -37,20 +35,6 @@ public class DictionaryPatcher<K, V> implements Patcher, Ice.ReadObjectCallback
         }
 
         _dict.put(_key, _cls.cast(v));
-    }
-
-    @Override
-    public String
-    type()
-    {
-        return _type;
-    }
-
-    @Override
-    public void
-    invoke(Ice.Object v)
-    {
-        patch(v);
     }
 
     private java.util.Map<K, V> _dict;

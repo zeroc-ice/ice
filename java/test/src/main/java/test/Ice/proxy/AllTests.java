@@ -722,7 +722,7 @@ public class AllTests
         {
             // Send request with bogus 1.2 encoding.
             Ice.EncodingVersion version = new Ice.EncodingVersion((byte)1, (byte)2);
-            Ice.OutputStream os = Ice.Util.createOutputStream(communicator);
+            Ice.OutputStream os = new Ice.OutputStream(communicator);
             os.startEncapsulation();
             os.endEncapsulation();
             byte[] inEncaps = os.finished();
@@ -742,7 +742,7 @@ public class AllTests
         {
             // Send request with bogus 2.0 encoding.
             Ice.EncodingVersion version = new Ice.EncodingVersion((byte)2, (byte)0);
-            Ice.OutputStream os = Ice.Util.createOutputStream(communicator);
+            Ice.OutputStream os = new Ice.OutputStream(communicator);
             os.startEncapsulation();
             os.endEncapsulation();
             byte[] inEncaps = os.finished();

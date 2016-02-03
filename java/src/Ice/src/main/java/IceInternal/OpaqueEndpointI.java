@@ -31,11 +31,11 @@ final class OpaqueEndpointI extends EndpointI
         calcHashValue();
     }
 
-    public OpaqueEndpointI(short type, BasicStream s)
+    public OpaqueEndpointI(short type, Ice.InputStream s)
     {
         _type = type;
-        _rawEncoding = s.getReadEncoding();
-        int sz = s.getReadEncapsSize();
+        _rawEncoding = s.getEncoding();
+        int sz = s.getEncapsulationSize();
         _rawBytes = s.readBlob(sz);
 
         calcHashValue();
@@ -45,11 +45,11 @@ final class OpaqueEndpointI extends EndpointI
     // Marshal the endpoint
     //
     @Override
-    public void streamWrite(BasicStream s)
+    public void streamWrite(Ice.OutputStream s)
     {
-        s.startWriteEncaps(_rawEncoding, Ice.FormatType.DefaultFormat);
+        s.startEncapsulation(_rawEncoding, Ice.FormatType.DefaultFormat);
         s.writeBlob(_rawBytes);
-        s.endWriteEncaps();
+        s.endEncapsulation();
     }
 
     //

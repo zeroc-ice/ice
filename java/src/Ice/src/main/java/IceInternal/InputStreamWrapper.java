@@ -10,29 +10,27 @@
 package IceInternal;
 
 //
-// Class to provide a java.io.InputStream on top of a BasicStream.
+// Class to provide a java.io.InputStream on top of a ByteBuffer.
 // We use this to deserialize arbitrary Java serializable classes from
-// a Slice byte sequence. This class is a wrapper around a BasicStream
+// a Slice byte sequence. This class is a wrapper around a Buffer
 // that passes all methods through.
 //
 
 public class InputStreamWrapper extends java.io.InputStream
 {
-    public
-    InputStreamWrapper(int size, BasicStream s)
+    public InputStreamWrapper(int size, java.nio.ByteBuffer buf)
     {
-        _s = s;
+        _buf = buf;
         _markPos = 0;
     }
 
     @Override
-    public int
-    read()
+    public int read()
         throws java.io.IOException
     {
         try
         {
-            return _s.getBuffer().b.get();
+            return _buf.get();
         }
         catch(java.lang.Exception ex)
         {
@@ -41,21 +39,19 @@ public class InputStreamWrapper extends java.io.InputStream
     }
 
     @Override
-    public int
-    read(byte[] b)
+    public int read(byte[] b)
         throws java.io.IOException
     {
         return read(b, 0, b.length);
     }
 
     @Override
-    public int
-    read(byte[] b, int offset, int count)
+    public int read(byte[] b, int offset, int count)
         throws java.io.IOException
     {
         try
         {
-            _s.getBuffer().b.get(b, offset, count);
+            _buf.get(b, offset, count);
         }
         catch(java.lang.Exception ex)
         {
@@ -65,41 +61,36 @@ public class InputStreamWrapper extends java.io.InputStream
     }
 
     @Override
-    public int
-    available()
+    public int available()
     {
-        return _s.getBuffer().b.remaining();
+        return _buf.remaining();
     }
 
     @Override
-    public void
-    mark(int readlimit)
+    public void mark(int readlimit)
     {
-        _markPos = _s.pos();
+        _markPos = _buf.position();
     }
 
     @Override
-    public void
-    reset()
+    public void reset()
         throws java.io.IOException
     {
-        _s.pos(_markPos);
+        _buf.position(_markPos);
     }
 
     @Override
-    public boolean
-    markSupported()
+    public boolean markSupported()
     {
         return true;
     }
 
     @Override
-    public void
-    close()
+    public void close()
         throws java.io.IOException
     {
     }
 
-    private BasicStream _s;
+    private java.nio.ByteBuffer _buf;
     private int _markPos;
 }

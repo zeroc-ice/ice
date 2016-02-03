@@ -80,7 +80,6 @@ usage(const char* n)
         "--ice                   Allow reserved Ice prefix in Slice identifiers.\n"
         "--underscore            Allow underscores in Slice identifiers.\n"
         "--checksum CLASS        Generate checksums for Slice definitions into CLASS.\n"
-        "--stream                Generate marshaling support for public stream API.\n"
         "--meta META             Define global metadata directive META.\n"
         ;
 }
@@ -108,7 +107,6 @@ compile(int argc, char* argv[])
     opts.addOpt("", "ice");
     opts.addOpt("", "underscore");
     opts.addOpt("", "checksum", IceUtilInternal::Options::NeedArg);
-    opts.addOpt("", "stream");
     opts.addOpt("", "meta", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
 
 
@@ -188,8 +186,6 @@ compile(int argc, char* argv[])
     bool underscore = opts.isSet("underscore");
 
     string checksumClass = opts.optArg("checksum");
-
-    bool stream = opts.isSet("stream");
 
     bool listGenerated = opts.isSet("list-generated");
 
@@ -353,7 +349,7 @@ compile(int argc, char* argv[])
                     try
                     {
                         Gen gen(argv[0], icecpp->getBaseName(), includePaths, output);
-                        gen.generate(p, stream);
+                        gen.generate(p);
                         if(tie)
                         {
                             gen.generateTie(p);

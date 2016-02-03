@@ -82,11 +82,11 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
     public static DispatchStatus
     ___ice_isA(Ice.Object __obj, IceInternal.Incoming __inS, Current __current)
     {
-        IceInternal.BasicStream __is = __inS.startReadParams();
+        InputStream __is = __inS.startReadParams();
         String __id = __is.readString();
         __inS.endReadParams();
         boolean __ret = __obj.ice_isA(__id, __current);
-        IceInternal.BasicStream __os = __inS.__startWriteParams(Ice.FormatType.DefaultFormat);
+        OutputStream __os = __inS.__startWriteParams(Ice.FormatType.DefaultFormat);
         __os.writeBool(__ret);
         __inS.__endWriteParams(true);
         return DispatchStatus.DispatchOK;
@@ -153,7 +153,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
     {
         __inS.readEmptyParams();
         String[] __ret = __obj.ice_ids(__current);
-        IceInternal.BasicStream __os = __inS.__startWriteParams(Ice.FormatType.DefaultFormat);
+        OutputStream __os = __inS.__startWriteParams(Ice.FormatType.DefaultFormat);
         __os.writeStringSeq(__ret);
         __inS.__endWriteParams(true);
         return DispatchStatus.DispatchOK;
@@ -189,7 +189,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
     {
         __inS.readEmptyParams();
         String __ret = __obj.ice_id(__current);
-        IceInternal.BasicStream __os = __inS.__startWriteParams(Ice.FormatType.DefaultFormat);
+        OutputStream __os = __inS.__startWriteParams(Ice.FormatType.DefaultFormat);
         __os.writeString(__ret);
         __inS.__endWriteParams(true);
         return DispatchStatus.DispatchOK;
@@ -355,60 +355,30 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
 
     @Override
     public void
-    __write(IceInternal.BasicStream os)
-    {
-         os.startWriteObject(null);
-         __writeImpl(os);
-         os.endWriteObject();
-    }
-
-    @Override
-    public void
-    __read(IceInternal.BasicStream is)
-    {
-         is.startReadObject();
-         __readImpl(is);
-         is.endReadObject(false);
-    }
-
-    @Override
-    public void
     __write(OutputStream os)
     {
-        os.startObject(null);
-        __writeImpl(os);
-        os.endObject();
+         os.startObject(null);
+         __writeImpl(os);
+         os.endObject();
     }
 
     @Override
     public void
     __read(InputStream is)
     {
-        is.startObject();
-        __readImpl(is);
-        is.endObject(false);
+         is.startObject();
+         __readImpl(is);
+         is.endObject(false);
     }
 
     protected void
-    __writeImpl(IceInternal.BasicStream os)
-    {
-    }
-
-    protected void
-    __readImpl(IceInternal.BasicStream is)
-    {
-    }
-
-     protected void
     __writeImpl(OutputStream os)
     {
-        throw new MarshalException("class was not generated with stream support");
     }
 
     protected void
     __readImpl(InputStream is)
     {
-        throw new MarshalException("class was not generated with stream support");
     }
 
     private static String

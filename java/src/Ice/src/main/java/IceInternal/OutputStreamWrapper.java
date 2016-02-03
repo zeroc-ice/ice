@@ -12,7 +12,7 @@ package IceInternal;
 import java.io.*;
 
 //
-// Class to provide a java.io.OutputStream on top of a BasicStream.
+// Class to provide a java.io.OutputStream on top of our stream.
 // We use this to serialize arbitrary Java serializable classes into
 //
 // Slice sequences are encoded on the wire as a count of elements, followed
@@ -21,7 +21,7 @@ import java.io.*;
 // data copying, this class mantains a private _bytes array of 254 bytes and,
 // initially, writes data into that array. If more than 254 bytes end up being
 // written, we write a dummy sequence size of 255 (which occupies five bytes
-// on the wire) into the BasicStream and, once this stream is closed, patch
+// on the wire) into the stream and, once this stream is closed, patch
 // that size to match the actual size. Otherwise, if the _bytes buffer contains
 // fewer than 255 bytes when this stream is closed, we write the sequence size
 // as a single byte, followed by the contents of the _bytes buffer.
@@ -30,7 +30,7 @@ import java.io.*;
 public class OutputStreamWrapper extends java.io.OutputStream
 {
     public
-    OutputStreamWrapper(BasicStream s)
+    OutputStreamWrapper(Ice.OutputStream s)
     {
         _s = s;
         _spos = s.pos();
@@ -139,7 +139,7 @@ public class OutputStreamWrapper extends java.io.OutputStream
     flush() throws IOException
     {
         // This does nothing because we do not know the final size of a writable stream until it is closed,
-        // and we cannot write to the BasicStream until we know whether the final size is < 255 or not.
+        // and we cannot write to the stream until we know whether the final size is < 255 or not.
     }
 
     @Override
@@ -171,7 +171,7 @@ public class OutputStreamWrapper extends java.io.OutputStream
         }
     }
 
-    private BasicStream _s;
+    private Ice.OutputStream _s;
     private int _spos;
     private byte[] _bytes;
     private int _pos;

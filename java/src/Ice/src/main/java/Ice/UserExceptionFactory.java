@@ -10,18 +10,17 @@
 package Ice;
 
 /**
- * Creates a UserExceptionReader for extracting a user exception
- * from an input stream.
+ * Instantiates user exceptions.
  *
- * @see InputStream
+ * @see InputStream#throwException
  **/
-public interface UserExceptionReaderFactory
+public interface UserExceptionFactory
 {
     /**
-     * Creates and throws a UserExceptionReader instance.
-     *
-     * @param typeId The Slice type ID of the user exception to be instantiated.
+     * Instantiate a user exception with the given Slice type id (such as <code>::Module::MyException</code>)
+     * and throw it. If the implementation does not throw an exception, the Ice run time will fall back
+     * to using its default behavior for instantiating the user exception.
      **/
     void createAndThrow(String typeId)
-        throws UserExceptionReader;
+        throws UserException;
 }

@@ -78,7 +78,7 @@ final public class Incoming extends IncomingBase implements Ice.Request
     }
 
     public void
-    invoke(ServantManager servantManager, BasicStream stream)
+    invoke(ServantManager servantManager, Ice.InputStream stream)
     {
         _is = stream;
 
@@ -87,7 +87,7 @@ final public class Incoming extends IncomingBase implements Ice.Request
         //
         // Read the current.
         //
-        _current.id.__read(_is);
+        _current.id.ice_read(_is);
 
         //
         // For compatibility with the old FacetPath.
@@ -156,7 +156,7 @@ final public class Incoming extends IncomingBase implements Ice.Request
                     }
                     catch(Ice.UserException ex)
                     {
-                        Ice.EncodingVersion encoding = _is.skipEncaps(); // Required for batch requests.
+                        Ice.EncodingVersion encoding = _is.skipEncapsulation(); // Required for batch requests.
 
                         if(_observer != null)
                         {
@@ -166,9 +166,9 @@ final public class Incoming extends IncomingBase implements Ice.Request
                         if(_response)
                         {
                             _os.writeByte(ReplyStatus.replyUserException);
-                            _os.startWriteEncaps(encoding, Ice.FormatType.DefaultFormat);
-                            _os.writeUserException(ex);
-                            _os.endWriteEncaps();
+                            _os.startEncapsulation(encoding, Ice.FormatType.DefaultFormat);
+                            _os.writeException(ex);
+                            _os.endEncapsulation();
                             if(_observer != null)
                             {
                                 _observer.reply(_os.size() - Protocol.headerSize - 4);
@@ -190,13 +190,13 @@ final public class Incoming extends IncomingBase implements Ice.Request
                     }
                     catch(java.lang.Exception ex)
                     {
-                        _is.skipEncaps(); // Required for batch requests.
+                        _is.skipEncapsulation(); // Required for batch requests.
                         __handleException(ex, false);
                         return;
                     }
                     catch(java.lang.Error ex)
                     {
-                        _is.skipEncaps(); // Required for batch requests.
+                        _is.skipEncapsulation(); // Required for batch requests.
                         __handleError(ex, false); // Always throws.
                     }
                 }
@@ -245,7 +245,7 @@ final public class Incoming extends IncomingBase implements Ice.Request
                 // Skip the input parameters, this is required for reading
                 // the next batch request if dispatching batch requests.
                 //
-                _is.skipEncaps();
+                _is.skipEncapsulation();
 
                 if(servantManager != null && servantManager.hasServant(_current.id))
                 {
@@ -342,7 +342,7 @@ final public class Incoming extends IncomingBase implements Ice.Request
             _is.pos(_inParamPos);
             if(_response)
             {
-                _os.resize(Protocol.headerSize + 4, false);
+                _os.resize(Protocol.headerSize + 4);
             }
         }
     }
@@ -363,35 +363,35 @@ final public class Incoming extends IncomingBase implements Ice.Request
         }
     }
 
-    public final BasicStream
+    public final Ice.InputStream
     startReadParams()
     {
         //
         // Remember the encoding used by the input parameters, we'll
         // encode the response parameters with the same encoding.
         //
-        _current.encoding = _is.startReadEncaps();
+        _current.encoding = _is.startEncapsulation();
         return _is;
     }
 
     public final void
     endReadParams()
     {
-        _is.endReadEncaps();
+        _is.endEncapsulation();
     }
 
     public final void
     readEmptyParams()
     {
         _current.encoding = new Ice.EncodingVersion();
-        _is.skipEmptyEncaps(_current.encoding);
+        _is.skipEmptyEncapsulation(_current.encoding);
     }
 
     public final byte[]
     readParamEncaps()
     {
         _current.encoding = new Ice.EncodingVersion();
-        return _is.readEncaps(_current.encoding);
+        return _is.readEncapsulation(_current.encoding);
     }
 
     final void
@@ -409,7 +409,7 @@ final public class Incoming extends IncomingBase implements Ice.Request
 
     public Incoming next; // For use by ConnectionI.
 
-    private BasicStream _is;
+    private Ice.InputStream _is;
 
     private IncomingAsync _cb;
     private int _inParamPos = -1;

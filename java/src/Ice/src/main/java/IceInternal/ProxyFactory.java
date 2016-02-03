@@ -57,10 +57,10 @@ public final class ProxyFactory
     }
 
     public Ice.ObjectPrx
-    streamToProxy(BasicStream s)
+    streamToProxy(Ice.InputStream s)
     {
         Ice.Identity ident = new Ice.Identity();
-        ident.__read(s);
+        ident.ice_read(s);
 
         Reference ref = _instance.referenceFactory().create(ident, s);
         return referenceToProxy(ref);
@@ -78,25 +78,6 @@ public final class ProxyFactory
         else
         {
             return null;
-        }
-    }
-
-    public void
-    proxyToStream(Ice.ObjectPrx proxy, BasicStream s)
-    {
-        if(proxy != null)
-        {
-            Ice.ObjectPrxHelperBase h = (Ice.ObjectPrxHelperBase)proxy;
-            Reference ref = h.__reference();
-            ref.getIdentity().__write(s);
-            ref.streamWrite(s);
-        }
-        else
-        {
-            Ice.Identity ident = new Ice.Identity();
-            ident.name = "";
-            ident.category = "";
-            ident.__write(s);
         }
     }
 

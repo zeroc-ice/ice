@@ -11,7 +11,7 @@ package IceInternal;
 
 import java.util.concurrent.TimeUnit;
 
-public final class Instance
+public final class Instance implements Ice.ClassResolver, Ice.CompactIdResolver
 {
     static private class ThreadObserverHelper
     {
@@ -253,34 +253,6 @@ public final class Instance
 
         assert(_outgoingConnectionFactory != null);
         return _outgoingConnectionFactory;
-    }
-
-    @SuppressWarnings("deprecation")
-    public synchronized void addObjectFactory(final Ice.ObjectFactory factory, final String id)
-    {
-        //
-        // Create a ValueFactory wrapper around the given ObjectFactory and register the wrapper
-        // with the value factory manager. This may raise AlreadyRegisteredException.
-        //
-        Ice.ValueFactory wrapper = new Ice.ValueFactory()
-        {
-            public Ice.Object create(String id)
-            {
-                return factory.create(id);
-            }
-        };
-        _initData.valueFactoryManager.add(wrapper, id);
-
-        //
-        // Also record the object factory in our own map.
-        //
-        _objectFactoryMap.put(id, factory);
-    }
-
-    @SuppressWarnings("deprecation")
-    public synchronized Ice.ObjectFactory findObjectFactory(String id)
-    {
-        return _objectFactoryMap.get(id);
     }
 
     public synchronized ObjectAdapterFactory
@@ -752,29 +724,134 @@ public final class Instance
         return _initData.classLoader;
     }
 
-    public synchronized String
-    getClassForType(String type)
+    //
+    // From Ice.ClassResolver.
+    //
+    public Class<?> resolveClass(String typeId)
+        throws LinkageError
     {
-        return _typeToClassMap.get(type);
+        Class<?> c = null;
+
+        //
+        // To convert a Slice type id into a Java class, we do the following:
+        //
+        // 1. Convert the Slice type id into a classname (e.g., ::M::X -> M.X).
+        // 2. If that fails, extract the top-level module (if any) from the type id
+        //    and check for an Package property. If found, prepend the property
+        //    value to the classname.
+        // 3. If that fails, check for an Default.Package property. If found,
+        //    prepend the property value to the classname.
+        //
+        String className;
+        boolean addClass = false;
+
+        synchronized(this)
+        {
+            className = _typeToClassMap.get(typeId);
+        }
+
+        if(className == null)
+        {
+            className = Ice.Util.typeIdToClass(typeId);
+            addClass = true;
+        }
+
+        c = getConcreteClass(className);
+
+        if(c == null)
+        {
+            int pos = typeId.indexOf(':', 2);
+            if(pos != -1)
+            {
+                String topLevelModule = typeId.substring(2, pos);
+                String pkg = _initData.properties.getProperty("Ice.Package." + topLevelModule);
+                if(pkg.length() > 0)
+                {
+                    c = getConcreteClass(pkg + "." + className);
+                }
+            }
+        }
+
+        if(c == null)
+        {
+            String pkg = _initData.properties.getProperty("Ice.Default.Package");
+            if(pkg.length() > 0)
+            {
+                c = getConcreteClass(pkg + "." + className);
+            }
+        }
+
+        if(c != null && addClass)
+        {
+            synchronized(this)
+            {
+                className = c.getName();
+                if(_typeToClassMap.containsKey(typeId))
+                {
+                    assert(_typeToClassMap.get(typeId).equals(className));
+                }
+                else
+                {
+                    _typeToClassMap.put(typeId, className);
+                }
+            }
+        }
+
+        return c;
     }
 
-    public synchronized void
-    addClassForType(String type, String className)
+    //
+    // From Ice.CompactIdResolver.
+    //
+    public String resolve(int compactId)
     {
-        if(_typeToClassMap.containsKey(type))
+        String className = "IceCompactId.TypeId_" + Integer.toString(compactId);
+        Class<?> c = getConcreteClass(className);
+        if(c == null)
         {
-            assert(_typeToClassMap.get(type).equals(className));
+            for(String pkg : _packages)
+            {
+                c = getConcreteClass(pkg + "." + className);
+                if(c != null)
+                {
+                    break;
+                }
+            }
         }
-        else
+        if(c != null)
         {
-            _typeToClassMap.put(type, className);
+            try
+            {
+                return (String)c.getField("typeId").get(null);
+            }
+            catch(Exception ex)
+            {
+                assert(false);
+            }
         }
+        return "";
     }
 
-    public String[]
-    getPackages()
+    public Class<?> getConcreteClass(String className)
+        throws LinkageError
     {
-        return _packages;
+        Class<?> c = findClass(className);
+
+        if(c != null)
+        {
+            //
+            // Ensure the class is instantiable. The constants are
+            // defined in the JVM specification (0x200 = interface,
+            // 0x400 = abstract).
+            //
+            final int modifiers = c.getModifiers();
+            if((modifiers & 0x200) == 0 && (modifiers & 0x400) == 0)
+            {
+                return c;
+            }
+        }
+
+        return null;
     }
 
     public boolean
@@ -817,7 +894,7 @@ public final class Instance
 
             synchronized(Instance.class)
             {
-                if(!_oneOfDone)
+                if(!_oneOffDone)
                 {
                     String stdOut = _initData.properties.getProperty("Ice.StdOut");
                     String stdErr = _initData.properties.getProperty("Ice.StdErr");
@@ -867,7 +944,7 @@ public final class Instance
 
                         }
                     }
-                    _oneOfDone = true;
+                    _oneOffDone = true;
                 }
             }
 
@@ -1003,7 +1080,7 @@ public final class Instance
 
             if(_initData.valueFactoryManager == null)
             {
-                _initData.valueFactoryManager = new Ice.ValueFactoryManagerI();
+                _initData.valueFactoryManager = new ValueFactoryManagerI();
             }
 
             _outgoingConnectionFactory = new OutgoingConnectionFactory(communicator, this);
@@ -1401,9 +1478,9 @@ public final class Instance
             // called once.
             //
 
-            for(java.util.Map.Entry<String, Ice.ObjectFactory> e : _objectFactoryMap.entrySet())
+            for(Ice.ObjectFactory f : _objectFactoryMap.values())
             {
-                e.getValue().destroy();
+                f.destroy();
             }
             _objectFactoryMap.clear();
 
@@ -1532,6 +1609,31 @@ public final class Instance
             info.rcvSize = size;
             _setBufSizeWarn.put(type, info);
         }
+    }
+
+    @SuppressWarnings("deprecation")
+    public synchronized void addObjectFactory(final Ice.ObjectFactory factory, String id)
+    {
+        //
+        // Create a ValueFactory wrapper around the given ObjectFactory and register the wrapper
+        // with the value factory manager. This may raise AlreadyRegisteredException.
+        //
+        _initData.valueFactoryManager.add(
+            new Ice.ValueFactory()
+            {
+                public Ice.Object create(String id)
+                {
+                    return factory.create(id);
+                }
+            }, id);
+
+        _objectFactoryMap.put(id, factory);
+    }
+
+    @SuppressWarnings("deprecation")
+    public synchronized Ice.ObjectFactory findObjectFactory(String id)
+    {
+        return _objectFactoryMap.get(id);
     }
 
     private void
@@ -1766,7 +1868,7 @@ public final class Instance
     final private String[] _packages;
     final private boolean _useApplicationClassLoader;
 
-    private static boolean _oneOfDone = false;
+    private static boolean _oneOffDone = false;
     private QueueExecutorService _queueExecutorService;
     private QueueExecutor _queueExecutor;
 

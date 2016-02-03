@@ -39,14 +39,14 @@ final class EndpointFactory implements IceInternal.EndpointFactory
 
     @Override
     public IceInternal.EndpointI
-    read(IceInternal.BasicStream s)
+    read(Ice.InputStream s)
     {
         short type = s.readShort();
         assert(type == _factory.type());
 
-        s.startReadEncaps();
+        s.startEncapsulation();
         IceInternal.EndpointI endpoint = new EndpointI(_configuration, _factory.read(s));
-        s.endReadEncaps();
+        s.endEncapsulation();
         return endpoint;
     }
 

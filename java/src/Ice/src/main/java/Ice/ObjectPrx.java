@@ -1207,4 +1207,6 @@ public interface ObjectPrx
      **/
     @Override
     boolean equals(java.lang.Object r);
+
+    void __write(OutputStream os);
 }

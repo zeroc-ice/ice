@@ -32,7 +32,7 @@ public abstract class IPEndpointI extends EndpointI
         _hashInitialized = false;
     }
 
-    protected IPEndpointI(ProtocolInstance instance, BasicStream s)
+    protected IPEndpointI(ProtocolInstance instance, Ice.InputStream s)
     {
         _instance = instance;
         _host = s.readString();
@@ -43,11 +43,11 @@ public abstract class IPEndpointI extends EndpointI
     }
 
     @Override
-    public void streamWrite(BasicStream s)
+    public void streamWrite(Ice.OutputStream s)
     {
-        s.startWriteEncaps();
+        s.startEncapsulation();
         streamWriteImpl(s);
-        s.endWriteEncaps();
+        s.endEncapsulation();
     }
 
     @Override
@@ -260,7 +260,7 @@ public abstract class IPEndpointI extends EndpointI
         return _port;
     }
 
-    public void streamWriteImpl(BasicStream s)
+    public void streamWriteImpl(Ice.OutputStream s)
     {
         s.writeString(_host);
         s.writeInt(_port);

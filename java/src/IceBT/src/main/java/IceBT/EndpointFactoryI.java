@@ -37,7 +37,7 @@ final class EndpointFactoryI implements IceInternal.EndpointFactory
     }
 
     @Override
-    public IceInternal.EndpointI read(IceInternal.BasicStream s)
+    public IceInternal.EndpointI read(Ice.InputStream s)
     {
         return new EndpointI(_instance, s);
     }

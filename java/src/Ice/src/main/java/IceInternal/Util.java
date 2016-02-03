@@ -230,6 +230,68 @@ public final class Util
     }
 
     //
+    // Translate a Slice type id (such as "::Module::Type") into its equivalent
+    // Java class name (such as "Module.Type").
+    //
+    public static String typeIdToClassName(String typeId)
+    {
+        if(!typeId.startsWith("::"))
+        {
+            return null;
+        }
+
+        StringBuilder buf = new StringBuilder(typeId.length());
+
+        int start = 2;
+        boolean done = false;
+        while(!done)
+        {
+            int end = typeId.indexOf(':', start);
+            String s;
+            if(end != -1)
+            {
+                s = typeId.substring(start, end);
+                start = end + 2;
+            }
+            else
+            {
+                s = typeId.substring(start);
+                done = true;
+            }
+            if(buf.length() > 0)
+            {
+                buf.append('.');
+            }
+            buf.append(fixKwd(s));
+        }
+
+        return buf.toString();
+    }
+
+    private static String fixKwd(String name)
+    {
+        //
+        // Keyword list. *Must* be kept in alphabetical order. Note that checkedCast and uncheckedCast
+        // are not Java keywords, but are in this list to prevent illegal code being generated if
+        // someone defines Slice operations with that name.
+        //
+        final String[] keywordList =
+        {
+            "abstract", "assert", "boolean", "break", "byte", "case", "catch",
+            "char", "checkedCast", "class", "clone", "const", "continue", "default", "do",
+            "double", "else", "enum", "equals", "extends", "false", "final", "finalize",
+            "finally", "float", "for", "getClass", "goto", "hashCode", "if",
+            "implements", "import", "instanceof", "int", "interface", "long",
+            "native", "new", "notify", "notifyAll", "null", "package", "private",
+            "protected", "public", "return", "short", "static", "strictfp", "super", "switch",
+            "synchronized", "this", "throw", "throws", "toString", "transient",
+            "true", "try", "uncheckedCast", "void", "volatile", "wait", "while"
+        };
+        boolean found =  java.util.Arrays.binarySearch(keywordList, name) >= 0;
+        return found ? "_" + name : name;
+    }
+
+    //
     // Return true if we're running on Android.
     //
     public static boolean isAndroid()

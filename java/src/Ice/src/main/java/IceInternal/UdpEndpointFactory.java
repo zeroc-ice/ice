@@ -37,7 +37,7 @@ final class UdpEndpointFactory implements EndpointFactory
     }
 
     @Override
-    public EndpointI read(BasicStream s)
+    public EndpointI read(Ice.InputStream s)
     {
         return new UdpEndpointI(_instance, s);
     }

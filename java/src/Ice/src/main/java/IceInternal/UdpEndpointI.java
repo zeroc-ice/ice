@@ -28,10 +28,10 @@ final class UdpEndpointI extends IPEndpointI
         _compress = false;
     }
 
-    public UdpEndpointI(ProtocolInstance instance, BasicStream s)
+    public UdpEndpointI(ProtocolInstance instance, Ice.InputStream s)
     {
         super(instance, s);
-        if(s.getReadEncoding().equals(Ice.Util.Encoding_1_0))
+        if(s.getEncoding().equals(Ice.Util.Encoding_1_0))
         {
             s.readByte();
             s.readByte();
@@ -252,13 +252,13 @@ final class UdpEndpointI extends IPEndpointI
     // Marshal the endpoint
     //
     @Override
-    public void streamWriteImpl(BasicStream s)
+    public void streamWriteImpl(Ice.OutputStream s)
     {
         super.streamWriteImpl(s);
-        if(s.getWriteEncoding().equals(Ice.Util.Encoding_1_0))
+        if(s.getEncoding().equals(Ice.Util.Encoding_1_0))
         {
-            Ice.Util.Protocol_1_0.__write(s);
-            Ice.Util.Encoding_1_0.__write(s);
+            Ice.Util.Protocol_1_0.ice_write(s);
+            Ice.Util.Encoding_1_0.ice_write(s);
         }
         // Not transmitted.
         //s.writeBool(_connect);

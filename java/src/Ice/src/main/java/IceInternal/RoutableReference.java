@@ -298,7 +298,7 @@ public class RoutableReference extends Reference
 
     @Override
     public void
-    streamWrite(BasicStream s)
+    streamWrite(Ice.OutputStream s)
         throws Ice.MarshalException
     {
         super.streamWrite(s);

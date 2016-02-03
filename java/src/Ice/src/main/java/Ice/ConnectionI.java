@@ -335,7 +335,7 @@ public final class ConnectionI extends IceInternal.EventHandler
     sendAsyncRequest(IceInternal.OutgoingAsyncBase out, boolean compress, boolean response, int batchRequestNum)
             throws IceInternal.RetryException
     {
-        final IceInternal.BasicStream os = out.getOs();
+        final OutputStream os = out.getOs();
 
         if(_exception != null)
         {
@@ -627,7 +627,7 @@ public final class ConnectionI extends IceInternal.EventHandler
     }
 
     @Override
-    synchronized public void sendResponse(int requestId, IceInternal.BasicStream os, byte compressFlag, boolean amd)
+    synchronized public void sendResponse(int requestId, OutputStream os, byte compressFlag, boolean amd)
     {
         assert (_state > StateNotValidated);
 
@@ -887,10 +887,10 @@ public final class ConnectionI extends IceInternal.EventHandler
                             throw ex;
                         }
 
-                        _readProtocol.__read(_readStream);
+                        _readProtocol.ice_read(_readStream);
                         IceInternal.Protocol.checkSupportedProtocol(_readProtocol);
 
-                        _readProtocolEncoding.__read(_readStream);
+                        _readProtocolEncoding.ice_read(_readStream);
                         IceInternal.Protocol.checkSupportedProtocolEncoding(_readProtocolEncoding);
 
                         _readStream.readByte(); // messageType
@@ -1053,8 +1053,7 @@ public final class ConnectionI extends IceInternal.EventHandler
             }
         }
 
-        if(!_dispatcher) // Optimization, call dispatch() directly if there's no
-                         // dispatcher.
+        if(!_dispatcher) // Optimization, call dispatch() directly if there's no dispatcher.
         {
             dispatch(startCB, sentCBs, info);
         }
@@ -1068,8 +1067,8 @@ public final class ConnectionI extends IceInternal.EventHandler
                 // thread pool's thread stream.
                 //
                 assert (info.stream == current.stream);
-                IceInternal.BasicStream stream = info.stream;
-                info.stream = new IceInternal.BasicStream(_instance, IceInternal.Protocol.currentProtocolEncoding);
+                InputStream stream = info.stream;
+                info.stream = new InputStream(_instance, IceInternal.Protocol.currentProtocolEncoding);
                 info.stream.swap(stream);
             }
 
@@ -1529,10 +1528,10 @@ public final class ConnectionI extends IceInternal.EventHandler
         _nextRequestId = 1;
         _messageSizeMax = adapter != null ? adapter.messageSizeMax() : instance.messageSizeMax();
         _batchRequestQueue = new IceInternal.BatchRequestQueue(instance, _endpoint.datagram());
-        _readStream = new IceInternal.BasicStream(instance, IceInternal.Protocol.currentProtocolEncoding);
+        _readStream = new InputStream(instance, IceInternal.Protocol.currentProtocolEncoding);
         _readHeader = false;
         _readStreamPos = -1;
-        _writeStream = new IceInternal.BasicStream(instance, IceInternal.Protocol.currentProtocolEncoding);
+        _writeStream = new OutputStream(instance, IceInternal.Protocol.currentProtocolEncoding);
         _writeStreamPos = -1;
         _dispatchCount = 0;
         _state = StateNotInitialized;
@@ -1872,11 +1871,10 @@ public final class ConnectionI extends IceInternal.EventHandler
             //
             // Before we shut down, we send a close connection message.
             //
-            IceInternal.BasicStream os = new IceInternal.BasicStream(_instance,
-                    IceInternal.Protocol.currentProtocolEncoding);
+            OutputStream os = new OutputStream(_instance, IceInternal.Protocol.currentProtocolEncoding);
             os.writeBlob(IceInternal.Protocol.magic);
-            IceInternal.Protocol.currentProtocol.__write(os);
-            IceInternal.Protocol.currentProtocolEncoding.__write(os);
+            IceInternal.Protocol.currentProtocol.ice_write(os);
+            IceInternal.Protocol.currentProtocolEncoding.ice_write(os);
             os.writeByte(IceInternal.Protocol.closeConnectionMsg);
             os.writeByte((byte) 0); // compression status: always report 0 for
                                     // CloseConnection in Java.
@@ -1906,11 +1904,10 @@ public final class ConnectionI extends IceInternal.EventHandler
 
         if(!_endpoint.datagram())
         {
-            IceInternal.BasicStream os = new IceInternal.BasicStream(_instance,
-                    IceInternal.Protocol.currentProtocolEncoding);
+            OutputStream os = new OutputStream(_instance, IceInternal.Protocol.currentProtocolEncoding);
             os.writeBlob(IceInternal.Protocol.magic);
-            IceInternal.Protocol.currentProtocol.__write(os);
-            IceInternal.Protocol.currentProtocolEncoding.__write(os);
+            IceInternal.Protocol.currentProtocol.ice_write(os);
+            IceInternal.Protocol.currentProtocolEncoding.ice_write(os);
             os.writeByte(IceInternal.Protocol.validateConnectionMsg);
             os.writeByte((byte) 0);
             os.writeInt(IceInternal.Protocol.headerSize); // Message size.
@@ -1960,8 +1957,8 @@ public final class ConnectionI extends IceInternal.EventHandler
                 if(_writeStream.isEmpty())
                 {
                     _writeStream.writeBlob(IceInternal.Protocol.magic);
-                    IceInternal.Protocol.currentProtocol.__write(_writeStream);
-                    IceInternal.Protocol.currentProtocolEncoding.__write(_writeStream);
+                    IceInternal.Protocol.currentProtocol.ice_write(_writeStream);
+                    IceInternal.Protocol.currentProtocolEncoding.ice_write(_writeStream);
                     _writeStream.writeByte(IceInternal.Protocol.validateConnectionMsg);
                     _writeStream.writeByte((byte) 0); // Compression status
                                                       // (always zero for
@@ -2034,10 +2031,10 @@ public final class ConnectionI extends IceInternal.EventHandler
                     throw ex;
                 }
 
-                _readProtocol.__read(_readStream);
+                _readProtocol.ice_read(_readStream);
                 IceInternal.Protocol.checkSupportedProtocol(_readProtocol);
 
-                _readProtocolEncoding.__read(_readStream);
+                _readProtocolEncoding.ice_read(_readStream);
                 IceInternal.Protocol.checkSupportedProtocolEncoding(_readProtocolEncoding);
 
                 byte messageType = _readStream.readByte();
@@ -2058,7 +2055,7 @@ public final class ConnectionI extends IceInternal.EventHandler
             }
         }
 
-        _writeStream.resize(0, false);
+        _writeStream.resize(0);
         _writeStream.pos(0);
 
         _readStream.resize(IceInternal.Protocol.headerSize, true);
@@ -2147,7 +2144,7 @@ public final class ConnectionI extends IceInternal.EventHandler
                 //
                 message = _sendStreams.getFirst();
                 assert (!message.prepared);
-                IceInternal.BasicStream stream = message.stream;
+                OutputStream stream = message.stream;
 
                 message.stream = doCompress(stream, message.compress);
                 message.stream.prepareWrite();
@@ -2224,7 +2221,7 @@ public final class ConnectionI extends IceInternal.EventHandler
 
         assert (!message.prepared);
 
-        IceInternal.BasicStream stream = message.stream;
+        OutputStream stream = message.stream;
 
         message.stream = doCompress(stream, message.compress);
         message.stream.prepareWrite();
@@ -2277,7 +2274,7 @@ public final class ConnectionI extends IceInternal.EventHandler
         return IceInternal.AsyncStatus.Queued;
     }
 
-    private IceInternal.BasicStream doCompress(IceInternal.BasicStream uncompressed, boolean compress)
+    private OutputStream doCompress(OutputStream uncompressed, boolean compress)
     {
         boolean compressionSupported = false;
         if(compress)
@@ -2286,7 +2283,7 @@ public final class ConnectionI extends IceInternal.EventHandler
             // Don't check whether compression support is available unless the
             // proxy is configured for compression.
             //
-            compressionSupported = IceInternal.BasicStream.compressible();
+            compressionSupported = IceInternal.BZip2.supported();
         }
 
         if(compressionSupported && uncompressed.size() >= 100)
@@ -2294,9 +2291,13 @@ public final class ConnectionI extends IceInternal.EventHandler
             //
             // Do compression.
             //
-            IceInternal.BasicStream cstream = uncompressed.compress(IceInternal.Protocol.headerSize, _compressionLevel);
-            if(cstream != null)
+            IceInternal.Buffer cbuf = IceInternal.BZip2.compress(uncompressed.getBuffer(),
+                                                                 IceInternal.Protocol.headerSize, _compressionLevel);
+            if(cbuf != null)
             {
+                OutputStream cstream =
+                    new OutputStream(uncompressed.instance(), uncompressed.getEncoding(), cbuf, true);
+
                 //
                 // Set compression status.
                 //
@@ -2336,12 +2337,12 @@ public final class ConnectionI extends IceInternal.EventHandler
 
     private static class MessageInfo
     {
-        MessageInfo(IceInternal.BasicStream stream)
+        MessageInfo(InputStream stream)
         {
             this.stream = stream;
         }
 
-        IceInternal.BasicStream stream;
+        InputStream stream;
         int invokeNum;
         int requestId;
         byte compress;
@@ -2380,11 +2381,14 @@ public final class ConnectionI extends IceInternal.EventHandler
             info.stream.pos(8);
             byte messageType = info.stream.readByte();
             info.compress = info.stream.readByte();
-            if(info.compress == (byte) 2)
+            if(info.compress == (byte)2)
             {
-                if(IceInternal.BasicStream.compressible())
+                if(IceInternal.BZip2.supported())
                 {
-                    info.stream = info.stream.uncompress(IceInternal.Protocol.headerSize, _messageSizeMax);
+                    IceInternal.Buffer ubuf = IceInternal.BZip2.uncompress(info.stream.getBuffer(),
+                                                                           IceInternal.Protocol.headerSize,
+                                                                           _messageSizeMax);
+                    info.stream = new InputStream(info.stream.instance(), info.stream.getEncoding(), ubuf, true);
                 }
                 else
                 {
@@ -2432,7 +2436,7 @@ public final class ConnectionI extends IceInternal.EventHandler
                     {
                         IceInternal.TraceUtil.trace("received request during closing\n"
                                                     + "(ignored by server, client will retry)", info.stream, _logger,
-                                _traceLevels);
+                                                    _traceLevels);
                     }
                     else
                     {
@@ -2522,8 +2526,8 @@ public final class ConnectionI extends IceInternal.EventHandler
         return _state == StateHolding ? IceInternal.SocketOperation.None : IceInternal.SocketOperation.Read;
     }
 
-    private void invokeAll(IceInternal.BasicStream stream, int invokeNum, int requestId, byte compress,
-            IceInternal.ServantManager servantManager, ObjectAdapter adapter)
+    private void invokeAll(InputStream stream, int invokeNum, int requestId, byte compress,
+                           IceInternal.ServantManager servantManager, ObjectAdapter adapter)
     {
         //
         // Note: In contrast to other private or protected methods, this
@@ -2878,7 +2882,7 @@ public final class ConnectionI extends IceInternal.EventHandler
 
     private static class OutgoingMessage
     {
-        OutgoingMessage(IceInternal.BasicStream stream, boolean compress, boolean adopt)
+        OutgoingMessage(OutputStream stream, boolean compress, boolean adopt)
         {
             this.stream = stream;
             this.compress = compress;
@@ -2886,7 +2890,7 @@ public final class ConnectionI extends IceInternal.EventHandler
             this.requestId = 0;
         }
 
-        OutgoingMessage(IceInternal.OutgoingAsyncBase out, IceInternal.BasicStream stream, boolean compress,
+        OutgoingMessage(IceInternal.OutgoingAsyncBase out, OutputStream stream, boolean compress,
                 int requestId)
         {
             this.stream = stream;
@@ -2905,8 +2909,8 @@ public final class ConnectionI extends IceInternal.EventHandler
         {
             if(adopt)
             {
-                IceInternal.BasicStream stream = new IceInternal.BasicStream(this.stream.instance(),
-                        IceInternal.Protocol.currentProtocolEncoding);
+                OutputStream stream =
+                    new OutputStream(this.stream.instance(), IceInternal.Protocol.currentProtocolEncoding);
                 stream.swap(this.stream);
                 this.stream = stream;
                 adopt = false;
@@ -2930,7 +2934,7 @@ public final class ConnectionI extends IceInternal.EventHandler
             }
         }
 
-        public IceInternal.BasicStream stream;
+        public OutputStream stream;
         public IceInternal.OutgoingAsyncBase outAsync;
         public boolean compress;
         public int requestId;
@@ -2982,9 +2986,9 @@ public final class ConnectionI extends IceInternal.EventHandler
 
     private java.util.LinkedList<OutgoingMessage> _sendStreams = new java.util.LinkedList<OutgoingMessage>();
 
-    private IceInternal.BasicStream _readStream;
+    private InputStream _readStream;
     private boolean _readHeader;
-    private IceInternal.BasicStream _writeStream;
+    private OutputStream _writeStream;
 
     private Ice.Instrumentation.ConnectionObserver _observer;
     private int _readStreamPos;

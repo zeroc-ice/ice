@@ -18,25 +18,18 @@ public abstract class ObjectReader extends ObjectImpl
      * Reads the state of this Slice class from an input stream.
      *
      * @param in The input stream to read from.
-     * @param rid If <code>true</code>, extraction begins by reading a Slice type ID
-     * first. If <code>false</code>, the leading type ID is not read. This is used
-     * by the unmarshaling code in case the type ID has already been read as part
-     * of other unmarshaling activities.
      **/
     public abstract void read(InputStream in);
 
     @Override
-    public void
-    __write(IceInternal.BasicStream os)
+    public void __write(OutputStream os)
     {
         assert(false);
     }
 
     @Override
-    public void
-    __read(IceInternal.BasicStream is)
+    public void __read(InputStream is)
     {
-        InputStream stream = (InputStream)is.closure();
-        read(stream);
+        read(is);
     }
 }

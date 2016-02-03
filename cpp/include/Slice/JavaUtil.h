@@ -185,27 +185,6 @@ protected:
                                            const std::string&, bool, int&, bool, const StringList& = StringList());
 
     //
-    // Generate code to marshal or unmarshal a type using the public stream API.
-    //
-    void writeStreamMarshalUnmarshalCode(::IceUtilInternal::Output&, const std::string&, const TypePtr&, bool, int,
-                                          const std::string&, bool, int&, bool = false,
-                                         const StringList& = StringList(), const std::string& patchParams = "");
-
-    //
-    // Generate code to marshal or unmarshal a dictionary type using the public stream API.
-    //
-    void writeStreamDictionaryMarshalUnmarshalCode(::IceUtilInternal::Output&, const std::string&, const DictionaryPtr&,
-                                                   const std::string&, bool, int&, bool,
-                                                   const StringList& = StringList());
-
-    //
-    // Generate code to marshal or unmarshal a sequence type using the public stream API.
-    //
-    void writeStreamSequenceMarshalUnmarshalCode(::IceUtilInternal::Output&, const std::string&, const SequencePtr&,
-                                                 const std::string&, bool, int&, bool,
-                                                 const StringList& = StringList());
-
-    //
     // Search metadata for an entry with the given prefix and return the entire string.
     //
     static bool findMetaData(const std::string&, const StringList&, std::string&);

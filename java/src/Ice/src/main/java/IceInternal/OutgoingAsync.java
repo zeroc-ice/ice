@@ -31,7 +31,7 @@ public class OutgoingAsync extends ProxyOutgoingAsyncBase
         _is = null;
     }
 
-    public OutgoingAsync(Ice.ObjectPrx prx, String operation, CallbackBase cb, BasicStream is, BasicStream os)
+    public OutgoingAsync(Ice.ObjectPrx prx, String operation, CallbackBase cb, Ice.InputStream is, Ice.OutputStream os)
     {
         super((Ice.ObjectPrxHelperBase)prx, operation, cb, os);
         _encoding = Protocol.getCompatibleEncoding(_proxy.__reference().getEncoding());
@@ -72,7 +72,7 @@ public class OutgoingAsync extends ProxyOutgoingAsyncBase
 
         Reference ref = _proxy.__reference();
 
-        ref.getIdentity().__write(_os);
+        ref.getIdentity().ice_write(_os);
 
         //
         // For compatibility with the old FacetPath.
@@ -134,7 +134,7 @@ public class OutgoingAsync extends ProxyOutgoingAsyncBase
     @Override
     public int invokeCollocated(CollocatedRequestHandler handler)
     {
-        // The BasicStream cannot be cached if the proxy is not a twoway or there is an invocation timeout set.
+        // The stream cannot be cached if the proxy is not a twoway or there is an invocation timeout set.
         if(!_proxy.ice_isTwoway() || _proxy.__reference().getInvocationTimeout() > 0)
         {
             // Disable caching by marking the streams as cached!
@@ -184,7 +184,7 @@ public class OutgoingAsync extends ProxyOutgoingAsyncBase
     }
 
     @Override
-    public final boolean completed(BasicStream is)
+    public final boolean completed(Ice.InputStream is)
     {
         //
         // NOTE: this method is called from ConnectionI.parseMessage
@@ -207,7 +207,7 @@ public class OutgoingAsync extends ProxyOutgoingAsyncBase
             // _is can already be initialized if the invocation is retried
             if(_is == null)
             {
-                _is = new IceInternal.BasicStream(_instance, IceInternal.Protocol.currentProtocolEncoding);
+                _is = new Ice.InputStream(_instance, IceInternal.Protocol.currentProtocolEncoding);
             }
             _is.swap(is);
             replyStatus = _is.readByte();
@@ -233,7 +233,7 @@ public class OutgoingAsync extends ProxyOutgoingAsyncBase
             case ReplyStatus.replyOperationNotExist:
             {
                 Ice.Identity id = new Ice.Identity();
-                id.__read(_is);
+                id.ice_read(_is);
 
                 //
                 // For compatibility with the old FacetPath.
@@ -341,53 +341,53 @@ public class OutgoingAsync extends ProxyOutgoingAsyncBase
         }
     }
 
-    public BasicStream startWriteParams(Ice.FormatType format)
+    public Ice.OutputStream startWriteParams(Ice.FormatType format)
     {
-        _os.startWriteEncaps(_encoding, format);
+        _os.startEncapsulation(_encoding, format);
         return _os;
     }
 
     public void endWriteParams()
     {
-        _os.endWriteEncaps();
+        _os.endEncapsulation();
     }
 
     public void writeEmptyParams()
     {
-        _os.writeEmptyEncaps(_encoding);
+        _os.writeEmptyEncapsulation(_encoding);
     }
 
     public void writeParamEncaps(byte[] encaps)
     {
         if(encaps == null || encaps.length == 0)
         {
-            _os.writeEmptyEncaps(_encoding);
+            _os.writeEmptyEncapsulation(_encoding);
         }
         else
         {
-            _os.writeEncaps(encaps);
+            _os.writeEncapsulation(encaps);
         }
     }
 
-    public IceInternal.BasicStream startReadParams()
+    public Ice.InputStream startReadParams()
     {
-        _is.startReadEncaps();
+        _is.startEncapsulation();
         return _is;
     }
 
     public void endReadParams()
     {
-        _is.endReadEncaps();
+        _is.endEncapsulation();
     }
 
     public void readEmptyParams()
     {
-        _is.skipEmptyEncaps(null);
+        _is.skipEmptyEncapsulation(null);
     }
 
     public byte[] readParamEncaps()
     {
-        return _is.readEncaps(null);
+        return _is.readEncapsulation(null);
     }
 
     public final void throwUserException()
@@ -395,12 +395,12 @@ public class OutgoingAsync extends ProxyOutgoingAsyncBase
     {
         try
         {
-            _is.startReadEncaps();
+            _is.startEncapsulation();
             _is.throwException(null);
         }
         catch(Ice.UserException ex)
         {
-            _is.endReadEncaps();
+            _is.endEncapsulation();
             throw ex;
         }
     }
@@ -433,7 +433,7 @@ public class OutgoingAsync extends ProxyOutgoingAsyncBase
     }
 
     final private Ice.EncodingVersion _encoding;
-    private BasicStream _is;
+    private Ice.InputStream _is;
 
     //
     // If true this AMI request is being used for a generated synchronous invocation.

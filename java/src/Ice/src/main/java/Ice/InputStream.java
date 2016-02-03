@@ -9,314 +9,765 @@
 
 package Ice;
 
+import java.io.IOException;
+
 /**
  * Interface for input streams used to extract Slice types from a sequence
  * of bytes.
  *
  * @see OutputStream
  **/
-public interface InputStream
+public class InputStream
 {
     /**
-     * Returns the communicator for this input stream.
-     *
-     * @return The communicator.
+     * Constructing an InputStream without providing a communicator means the stream will
+     * use the default encoding version. A communicator is required in order to unmarshal
+     * proxies. You can supply a communicator later by calling initialize().
      **/
-    Communicator communicator();
+    public InputStream()
+    {
+        initialize(IceInternal.Protocol.currentEncoding);
+    }
+
+    /**
+     * Constructing an InputStream without providing a communicator means the stream will
+     * use the default encoding version. A communicator is required in order to unmarshal
+     * proxies. You can supply a communicator later by calling initialize().
+     *
+     * @param data The byte array containing encoded Slice types.
+     **/
+    public InputStream(byte[] data)
+    {
+        initialize(IceInternal.Protocol.currentEncoding);
+        _buf = new IceInternal.Buffer(data);
+    }
+
+    /**
+     * Constructing an InputStream without providing a communicator means the stream will
+     * use the default encoding version. A communicator is required in order to unmarshal
+     * proxies. You can supply a communicator later by calling initialize().
+     *
+     * @param buf The byte buffer containing encoded Slice types.
+     **/
+    public InputStream(java.nio.ByteBuffer buf)
+    {
+        initialize(IceInternal.Protocol.currentEncoding);
+        _buf = new IceInternal.Buffer(buf);
+    }
+
+    public InputStream(IceInternal.Buffer buf)
+    {
+        this(buf, false);
+    }
+
+    public InputStream(IceInternal.Buffer buf, boolean adopt)
+    {
+        initialize(IceInternal.Protocol.currentEncoding);
+        _buf = new IceInternal.Buffer(buf, adopt);
+    }
+
+    /**
+     * This constructor uses the communicator's default encoding version.
+     *
+     * @param communicator The communicator to use when initializing the stream.
+     **/
+    public InputStream(Communicator communicator)
+    {
+        initialize(communicator);
+    }
+
+    /**
+     * This constructor uses the communicator's default encoding version.
+     *
+     * @param communicator The communicator to use when initializing the stream.
+     * @param data The byte array containing encoded Slice types.
+     **/
+    public InputStream(Communicator communicator, byte[] data)
+    {
+        initialize(communicator);
+        _buf = new IceInternal.Buffer(data);
+    }
+
+    /**
+     * This constructor uses the communicator's default encoding version.
+     *
+     * @param communicator The communicator to use when initializing the stream.
+     * @param buf The byte buffer containing encoded Slice types.
+     **/
+    public InputStream(Communicator communicator, java.nio.ByteBuffer buf)
+    {
+        initialize(communicator);
+        _buf = new IceInternal.Buffer(buf);
+    }
+
+    public InputStream(Communicator communicator, IceInternal.Buffer buf)
+    {
+        this(communicator, buf, false);
+    }
+
+    public InputStream(Communicator communicator, IceInternal.Buffer buf, boolean adopt)
+    {
+        initialize(communicator);
+        _buf = new IceInternal.Buffer(buf, adopt);
+    }
+
+    /**
+     * This constructor uses the given encoding version.
+     **/
+    public InputStream(EncodingVersion encoding)
+    {
+        initialize(encoding);
+    }
+
+    /**
+     * This constructor uses the given encoding version.
+     *
+     * @param data The byte array containing encoded Slice types.
+     **/
+    public InputStream(EncodingVersion encoding, byte[] data)
+    {
+        initialize(encoding);
+        _buf = new IceInternal.Buffer(data);
+    }
+
+    /**
+     * This constructor uses the given encoding version.
+     *
+     * @param buf The byte buffer containing encoded Slice types.
+     **/
+    public InputStream(EncodingVersion encoding, java.nio.ByteBuffer buf)
+    {
+        initialize(encoding);
+        _buf = new IceInternal.Buffer(buf);
+    }
+
+    public InputStream(EncodingVersion encoding, IceInternal.Buffer buf)
+    {
+        this(encoding, buf, false);
+    }
+
+    public InputStream(EncodingVersion encoding, IceInternal.Buffer buf, boolean adopt)
+    {
+        initialize(encoding);
+        _buf = new IceInternal.Buffer(buf, adopt);
+    }
+
+    /**
+     * This constructor uses the given communicator and encoding version.
+     *
+     * @param communicator The communicator to use when initializing the stream.
+     * @param encoding The desired encoding version.
+     **/
+    public InputStream(Communicator communicator, EncodingVersion encoding)
+    {
+        initialize(communicator, encoding);
+    }
+
+    /**
+     * This constructor uses the given communicator and encoding version.
+     *
+     * @param communicator The communicator to use when initializing the stream.
+     * @param encoding The desired encoding version.
+     * @param data The byte array containing encoded Slice types.
+     **/
+    public InputStream(Communicator communicator, EncodingVersion encoding, byte[] data)
+    {
+        initialize(communicator, encoding);
+        _buf = new IceInternal.Buffer(data);
+    }
+
+    /**
+     * This constructor uses the given communicator and encoding version.
+     *
+     * @param communicator The communicator to use when initializing the stream.
+     * @param encoding The desired encoding version.
+     * @param buf The byte buffer containing encoded Slice types.
+     **/
+    public InputStream(Communicator communicator, EncodingVersion encoding, java.nio.ByteBuffer buf)
+    {
+        initialize(communicator, encoding);
+        _buf = new IceInternal.Buffer(buf);
+    }
+
+    public InputStream(Communicator communicator, EncodingVersion encoding, IceInternal.Buffer buf)
+    {
+        this(communicator, encoding, buf, false);
+    }
+
+    public InputStream(Communicator communicator, EncodingVersion encoding, IceInternal.Buffer buf, boolean adopt)
+    {
+        initialize(communicator, encoding);
+        _buf = new IceInternal.Buffer(buf, adopt);
+    }
+
+    public InputStream(IceInternal.Instance instance, EncodingVersion encoding)
+    {
+        this(instance, encoding, instance.cacheMessageBuffers() > 1);
+    }
+
+    public InputStream(IceInternal.Instance instance, EncodingVersion encoding, boolean direct)
+    {
+        initialize(instance, encoding);
+        _buf = new IceInternal.Buffer(direct);
+    }
+
+    public InputStream(IceInternal.Instance instance, EncodingVersion encoding, byte[] data)
+    {
+        initialize(instance, encoding);
+        _buf = new IceInternal.Buffer(data);
+    }
+
+    public InputStream(IceInternal.Instance instance, EncodingVersion encoding, java.nio.ByteBuffer data)
+    {
+        initialize(instance, encoding);
+        _buf = new IceInternal.Buffer(data);
+    }
+
+    public InputStream(IceInternal.Instance instance, EncodingVersion encoding, IceInternal.Buffer buf, boolean adopt)
+    {
+        initialize(instance, encoding);
+        _buf = new IceInternal.Buffer(buf, adopt);
+    }
+
+    /**
+     * Initializes the stream to use the communicator's default encoding version.
+     *
+     * @param communicator The communicator to use when initializing the stream.
+     **/
+    public void initialize(Communicator communicator)
+    {
+        IceInternal.Instance instance = IceInternal.Util.getInstance(communicator);
+        initialize(instance, instance.defaultsAndOverrides().defaultEncoding);
+    }
+
+    /**
+     * Initializes the stream to use the given communicator and encoding version.
+     *
+     * @param communicator The communicator to use when initializing the stream.
+     * @param encoding The desired encoding version.
+     **/
+    public void initialize(Communicator communicator, EncodingVersion encoding)
+    {
+        IceInternal.Instance instance = IceInternal.Util.getInstance(communicator);
+        initialize(instance, encoding);
+    }
+
+    private void initialize(IceInternal.Instance instance, EncodingVersion encoding)
+    {
+        initialize(encoding);
+
+        _instance = instance;
+        _traceSlicing = _instance.traceLevels().slicing > 0;
+
+        _valueFactoryManager = _instance.initializationData().valueFactoryManager;
+        _logger = _instance.initializationData().logger;
+        _compactIdResolver = _instance;
+        _classResolver = _instance;
+    }
+
+    private void initialize(EncodingVersion encoding)
+    {
+        _instance = null;
+        _encoding = encoding;
+        _encapsStack = null;
+        _encapsCache = null;
+        _traceSlicing = false;
+        _closure = null;
+        _sliceObjects = true;
+        _startSeq = -1;
+        _minSeqSize = 0;
+    }
+
+    /**
+     * Resets this output stream. This method allows the stream to be reused, to avoid creating
+     * unnecessary garbage.
+     **/
+    public void reset()
+    {
+        _buf.reset();
+        clear();
+    }
+
+    /**
+     * Releases any data retained by encapsulations. The {@link #reset} method internally calls </code>clear</code>.
+     **/
+    public void clear()
+    {
+        if(_encapsStack != null)
+        {
+            assert(_encapsStack.next == null);
+            _encapsStack.next = _encapsCache;
+            _encapsCache = _encapsStack;
+            _encapsCache.reset();
+            _encapsStack = null;
+        }
+
+        _startSeq = -1;
+        _sliceObjects = true;
+    }
+
+    /**
+     * Sets the value factory manager to use when marshaling value instances. If the stream
+     * was initialized with a communicator, the communicator's value factory manager will
+     * be used by default.
+     *
+     * @param vfm The value factory manager.
+     **/
+    public void setValueFactoryManager(ValueFactoryManager vfm)
+    {
+        _valueFactoryManager = vfm;
+    }
+
+    /**
+     * Sets the logger to use when logging trace messages. If the stream
+     * was initialized with a communicator, the communicator's logger will
+     * be used by default.
+     *
+     * @param logger The logger to use for logging trace messages.
+     **/
+    public void setLogger(Logger logger)
+    {
+        _logger = logger;
+    }
+
+    /**
+     * Sets the compact ID resolver to use when unmarshaling value and exception
+     * instances. If the stream was initialized with a communicator, the communicator's
+     * resolver will be used by default.
+     *
+     * @param r The compact ID resolver.
+     **/
+    public void setCompactIdResolver(CompactIdResolver r)
+    {
+        _compactIdResolver = r;
+    }
+
+    /**
+     * Sets the class resolver, which the stream will use when attempting to unmarshal
+     * a value or exception. If the stream was initialized with a communicator, the communicator's
+     * resolver will be used by default.
+     *
+     * @param r The class resolver.
+     **/
+    public void setClassResolver(ClassResolver r)
+    {
+        _classResolver = r;
+    }
 
     /**
      * Determines the behavior of the stream when extracting Slice objects.
      * A Slice object is "sliced" when a factory cannot be found for a Slice type ID.
+     * The stream's default behavior is to slice objects.
      *
-     * @param slice If <code>true</code> (the default), slicing is enabled; if <code>false</code>,
+     * @param b If <code>true</code> (the default), slicing is enabled; if <code>false</code>,
      * slicing is disabled. If slicing is disabled and the stream encounters a Slice type ID
      * during decoding for which no value factory is installed, it raises {@link NoValueFactoryException}.
      **/
-    void sliceObjects(boolean slice);
+    public void setSliceObjects(boolean b)
+    {
+        _sliceObjects = b;
+    }
 
     /**
-     * Extracts a boolean value from the stream.
+     * Determines whether the stream logs messages about slicing instances of Slice values.
      *
-     * @return The extracted boolean.
+     * @param b True to enable logging, false to disable logging.
      **/
-    boolean readBool();
+    public void setTraceSlicing(boolean b)
+    {
+        _traceSlicing = b;
+    }
 
     /**
-     * Extracts a sequence of boolean values from the stream.
+     * Retrieves the closure object associated with this stream.
      *
-     * @return The extracted boolean sequence.
+     * @return The closure object.
      **/
-    boolean[] readBoolSeq();
+    public Object getClosure()
+    {
+        return _closure;
+    }
 
     /**
-     * Extracts a byte value from the stream.
+     * Associates a closure object with this stream.
      *
-     * @return The extracted byte.
+     * @param p The new closure object.
+     * @return The previous closure object, or null.
      **/
-    byte readByte();
+    public Object setClosure(Object p)
+    {
+        Object prev = _closure;
+        _closure = p;
+        return prev;
+    }
+
+    public IceInternal.Instance instance()
+    {
+        return _instance;
+    }
 
     /**
-     * Extracts a sequence of byte values from the stream.
+     * Swaps the contents of one stream with another.
      *
-     * @return The extracted byte sequence.
+     * @param other The other stream.
      **/
-    byte[] readByteSeq();
+    public void swap(InputStream other)
+    {
+        assert(_instance == other._instance);
+
+        IceInternal.Buffer tmpBuf = other._buf;
+        other._buf = _buf;
+        _buf = tmpBuf;
+
+        EncodingVersion tmpEncoding = other._encoding;
+        other._encoding = _encoding;
+        _encoding = tmpEncoding;
+
+        boolean tmpTraceSlicing = other._traceSlicing;
+        other._traceSlicing = _traceSlicing;
+        _traceSlicing = tmpTraceSlicing;
+
+        Object tmpClosure = other._closure;
+        other._closure = _closure;
+        _closure = tmpClosure;
+
+        boolean tmpSliceObjects = other._sliceObjects;
+        other._sliceObjects = _sliceObjects;
+        _sliceObjects = tmpSliceObjects;
+
+        //
+        // Swap is never called for streams that have encapsulations being read. However,
+        // encapsulations might still be set in case unmarshaling failed. We just
+        // reset the encapsulations if there are still some set.
+        //
+        resetEncapsulation();
+        other.resetEncapsulation();
+
+        int tmpStartSeq = other._startSeq;
+        other._startSeq = _startSeq;
+        _startSeq = tmpStartSeq;
+
+        int tmpMinSeqSize = other._minSeqSize;
+        other._minSeqSize = _minSeqSize;
+        _minSeqSize = tmpMinSeqSize;
+
+        ValueFactoryManager tmpVfm = other._valueFactoryManager;
+        other._valueFactoryManager = _valueFactoryManager;
+        _valueFactoryManager = tmpVfm;
+
+        Logger tmpLogger = other._logger;
+        other._logger = _logger;
+        _logger = tmpLogger;
+
+        CompactIdResolver tmpCompactIdResolver = other._compactIdResolver;
+        other._compactIdResolver = _compactIdResolver;
+        _compactIdResolver = tmpCompactIdResolver;
+    }
+
+    private void resetEncapsulation()
+    {
+        _encapsStack = null;
+    }
 
     /**
-     * Extracts a sequence of byte values from the stream as a ByteBuffer.
+     * Resizes the stream to a new size.
      *
-     * @return The ByteBuffer wrapping the sequence.
+     * @param sz The new size.
      **/
-    java.nio.ByteBuffer readByteBuffer();
+    public void resize(int sz, boolean reading)
+    {
+        _buf.resize(sz, reading);
+        _buf.b.position(sz);
+    }
 
-    /**
-     * Extracts a serializable Java object from the stream.
-     *
-     * @return The deserialized Java object.
-     **/
-    java.io.Serializable readSerializable();
-
-    /**
-     * Extracts a short value from the stream.
-     *
-     * @return The extracted short value.
-     **/
-    short readShort();
-
-    /**
-     * Extracts a sequence of short values from the stream.
-     *
-     * @return The extracted short sequence.
-     **/
-    short[] readShortSeq();
-
-    /**
-     * Extracts a sequence of short values from the stream as a ShortBuffer.
-     *
-     * @return The ShortBuffer wrapping the sequence.
-     **/
-    java.nio.ShortBuffer readShortBuffer();
-
-    /**
-     * Extracts an integer value from the stream.
-     *
-     * @return The extracted integer.
-     **/
-    int readInt();
-
-    /**
-     * Extracts a sequence of integer values from the stream.
-     *
-     * @return The extracted integer sequence.
-     **/
-    int[] readIntSeq();
-
-    /**
-     * Extracts a sequence of int values from the stream as a IntBuffer.
-     *
-     * @return The IntBuffer wrapping the sequence.
-     **/
-    java.nio.IntBuffer readIntBuffer();
-
-    /**
-     * Extracts a long value from the stream.
-     *
-     * @return The extracted long value.
-     **/
-    long readLong();
-
-    /**
-     * Extracts a sequence of long values from the stream.
-     *
-     * @return The extracted long sequence.
-     **/
-    long[] readLongSeq();
-
-    /**
-     * Extracts a sequence of long values from the stream as a LongBuffer.
-     *
-     * @return The LongBuffer wrapping the sequence.
-     **/
-    java.nio.LongBuffer readLongBuffer();
-
-    /**
-     * Extracts a float value from the stream.
-     *
-     * @return The extracted float value.
-     **/
-    float readFloat();
-
-    /**
-     * Extracts a sequence of float values from the stream.
-     *
-     * @return The extracted float sequence.
-     **/
-    float[] readFloatSeq();
-
-    /**
-     * Extracts a sequence of float values from the stream as a FloatBuffer.
-     *
-     * @return The FloatBuffer wrapping the sequence.
-     **/
-    java.nio.FloatBuffer readFloatBuffer();
-
-    /**
-     * Extracts a double value from the stream.
-     *
-     * @return The extracted double value.
-     **/
-    double readDouble();
-
-    /**
-     * Extracts a sequence of double values from the stream.
-     *
-     * @return The extracted float sequence.
-     **/
-    double[] readDoubleSeq();
-
-    /**
-     * Extracts a sequence of double values from the stream as a DoubleBuffer.
-     *
-     * @return The DoubleBuffer wrapping the sequence.
-     **/
-    java.nio.DoubleBuffer readDoubleBuffer();
-
-    /**
-     * Extracts a string from the stream.
-     *
-     * @return The extracted string.
-     **/
-    String readString();
-
-    /**
-     * Extracts a string sequence from the stream.
-     *
-     * @return The extracted string sequence.
-     */
-    String[] readStringSeq();
-
-    /**
-     * Extracts a size from the stream.
-     *
-     * @return The extracted size.
-     **/
-    int readSize();
-
-    /**
-     * Extracts and check a sequence size from the stream. The check ensures not too much memory will
-     * be pre-allocated for the sequence.
-     *
-     * @param minSize The minimum size of an element of the sequence.
-     *
-     * @return The extracted size.
-     **/
-    int readAndCheckSeqSize(int minSize);
-
-    /**
-     * Extracts a proxy from the stream.
-     *
-     * @return The extracted proxy.
-     **/
-    ObjectPrx readProxy();
-
-    /**
-     * Extracts the index of a Slice class from the stream.
-     *
-     * @param cb The callback to notify the application when the extracted instance is available.
-     * The Ice run time extracts Slice classes in stages. The Ice run time calls {@link ReadObjectCallback#invoke}
-     * when the corresponding instance has been fully unmarshaled.
-     *
-     * @see ReadObjectCallback
-     **/
-    void readObject(ReadObjectCallback cb);
-
-    /**
-     * Read an enumerated value.
-     *
-     * @param maxValue The maximum enumerator value in the definition.
-     * @return The enumerator.
-     **/
-    int readEnum(int maxValue);
-
-    /**
-     * Extracts a user exception from the stream and throws it.
-     **/
-    void throwException() throws UserException;
-
-    /**
-     * Extracts a user exception from the stream and throws it, using the supplied
-     * factory to instantiate a UserExceptionReader.
-     *
-     * @param factory A factory that creates UserExceptionReader instances.
-     **/
-    void throwException(UserExceptionReaderFactory factory) throws UserException;
+    public IceInternal.Buffer getBuffer()
+    {
+        return _buf;
+    }
 
     /**
      * Marks the start of an Ice object.
+     *
+     * @param slicedData Preserved slices for this object, or null.
      **/
-    void startObject();
+    public void startObject()
+    {
+        assert(_encapsStack != null && _encapsStack.decoder != null);
+        _encapsStack.decoder.startInstance(SliceType.ObjectSlice);
+    }
 
     /**
      * Marks the end of an Ice object.
      *
-     * @return A SlicedData object containing the preserved slices for unknown types.
+     * @param preserve Pass true and the stream will preserve the unknown slices of the object, or false
+     * to discard the unknown slices.
+     * @return An object that encapsulates the unknown slice data.
      **/
-    SlicedData endObject(boolean preserve);
+    public SlicedData endObject(boolean preserve)
+    {
+        assert(_encapsStack != null && _encapsStack.decoder != null);
+        return _encapsStack.decoder.endInstance(preserve);
+    }
 
     /**
      * Marks the start of a user exception.
+     *
+     * @param slicedData Preserved slices for this exception, or null.
      **/
-    void startException();
+    public void startException()
+    {
+        assert(_encapsStack != null && _encapsStack.decoder != null);
+        _encapsStack.decoder.startInstance(SliceType.ExceptionSlice);
+    }
 
     /**
      * Marks the end of a user exception.
      *
-     * @return A SlicedData object containing the preserved slices for unknown types.
+     * @param preserve Pass true and the stream will preserve the unknown slices of the exception, or false
+     * to discard the unknown slices.
+     * @return An object that encapsulates the unknown slice data.
      **/
-    SlicedData endException(boolean preserve);
+    public SlicedData endException(boolean preserve)
+    {
+        assert(_encapsStack != null && _encapsStack.decoder != null);
+        return _encapsStack.decoder.endInstance(preserve);
+    }
 
     /**
-     * Reads the start of an object or exception slice.
+     * Writes the start of an encapsulation to the stream.
      *
-     * @return The Slice type ID for this slice.
+     * @return The encoding version used by the encapsulation.
      **/
-    String startSlice();
+    public EncodingVersion startEncapsulation()
+    {
+        Encaps curr = _encapsCache;
+        if(curr != null)
+        {
+            curr.reset();
+            _encapsCache = _encapsCache.next;
+        }
+        else
+        {
+            curr = new Encaps();
+        }
+        curr.next = _encapsStack;
+        _encapsStack = curr;
+
+        _encapsStack.start = _buf.b.position();
+
+        //
+        // I don't use readSize() for encapsulations, because when creating an encapsulation,
+        // I must know in advance how many bytes the size information will require in the data
+        // stream. If I use an Int, it is always 4 bytes. For readSize(), it could be 1 or 5 bytes.
+        //
+        int sz = readInt();
+        if(sz < 6)
+        {
+            throw new UnmarshalOutOfBoundsException();
+        }
+        if(sz - 4 > _buf.b.remaining())
+        {
+            throw new UnmarshalOutOfBoundsException();
+        }
+        _encapsStack.sz = sz;
+
+        EncodingVersion encoding = new EncodingVersion();
+        encoding.ice_read(this);
+        IceInternal.Protocol.checkSupportedEncoding(encoding); // Make sure the encoding is supported.
+        _encapsStack.setEncoding(encoding);
+
+        return encoding;
+    }
 
     /**
-     * Indicates that the end of an object or exception slice has been reached.
+     * Ends the previous encapsulation.
      **/
-    void endSlice();
+    public void endEncapsulation()
+    {
+        assert(_encapsStack != null);
+
+        if(!_encapsStack.encoding_1_0)
+        {
+            skipOpts();
+            if(_buf.b.position() != _encapsStack.start + _encapsStack.sz)
+            {
+                throw new EncapsulationException();
+            }
+        }
+        else if(_buf.b.position() != _encapsStack.start + _encapsStack.sz)
+        {
+            if(_buf.b.position() + 1 != _encapsStack.start + _encapsStack.sz)
+            {
+                throw new EncapsulationException();
+            }
+
+            //
+            // Ice version < 3.3 had a bug where user exceptions with
+            // class members could be encoded with a trailing byte
+            // when dispatched with AMD. So we tolerate an extra byte
+            // in the encapsulation.
+            //
+            try
+            {
+                _buf.b.get();
+            }
+            catch(java.nio.BufferUnderflowException ex)
+            {
+                throw new UnmarshalOutOfBoundsException();
+            }
+        }
+
+        Encaps curr = _encapsStack;
+        _encapsStack = curr.next;
+        curr.next = _encapsCache;
+        _encapsCache = curr;
+        _encapsCache.reset();
+    }
 
     /**
-     * Skips over an object or exception slice.
-     **/
-    void skipSlice();
-
-    /**
-     * Reads the start of an encapsulation.
+     * Skips an empty encapsulation. The encapsulation's encoding version is returned in the argument.
      *
-     * @return The encapsulation encoding version.
+     * @param encoding The encapsulation's encoding version.
      **/
-    EncodingVersion startEncapsulation();
+    public void skipEmptyEncapsulation(EncodingVersion encoding)
+    {
+        int sz = readInt();
+        if(sz != 6)
+        {
+            throw new EncapsulationException();
+        }
+
+        final int pos = _buf.b.position();
+        if(pos + 2 > _buf.size())
+        {
+            throw new UnmarshalOutOfBoundsException();
+        }
+
+        if(encoding != null)
+        {
+            encoding.ice_read(this);
+        }
+        else
+        {
+            _buf.b.position(pos + 2);
+        }
+    }
 
     /**
-     * Indicates that the end of an encapsulation has been reached.
-     **/
-    void endEncapsulation();
-
-    /**
-     * Skips over an encapsulation.
+     * Returns a blob of bytes representing an encapsulation. The encapsulation's encoding version
+     * is returned in the argument.
      *
-     * @return The encapsulation encoding version.
+     * @param encoding The encapsulation's encoding version.
      **/
-    EncodingVersion skipEncapsulation();
+    public byte[] readEncapsulation(EncodingVersion encoding)
+    {
+        int sz = readInt();
+        if(sz < 6)
+        {
+            throw new UnmarshalOutOfBoundsException();
+        }
+
+        if(sz - 4 > _buf.b.remaining())
+        {
+            throw new UnmarshalOutOfBoundsException();
+        }
+
+        if(encoding != null)
+        {
+            encoding.ice_read(this);
+            _buf.b.position(_buf.b.position() - 6);
+        }
+        else
+        {
+            _buf.b.position(_buf.b.position() - 4);
+        }
+
+        byte[] v = new byte[sz];
+        try
+        {
+            _buf.b.get(v);
+            return v;
+        }
+        catch(java.nio.BufferUnderflowException ex)
+        {
+            throw new UnmarshalOutOfBoundsException();
+        }
+    }
 
     /**
      * Determines the current encoding version.
      *
      * @return The encoding version.
      **/
-    EncodingVersion getEncoding();
+    public EncodingVersion getEncoding()
+    {
+        return _encapsStack != null ? _encapsStack.encoding : _encoding;
+    }
+
+    /**
+     * Determines the size of the current encapsulation, excluding the encapsulation header.
+     *
+     * @return The size of the encapsulated data.
+     **/
+    public int getEncapsulationSize()
+    {
+        assert(_encapsStack != null);
+        return _encapsStack.sz - 6;
+    }
+
+    /**
+     * Skips over an encapsulation.
+     *
+     * @return The encoding version of the skipped encapsulation.
+     **/
+    public EncodingVersion skipEncapsulation()
+    {
+        int sz = readInt();
+        if(sz < 6)
+        {
+            throw new UnmarshalOutOfBoundsException();
+        }
+        EncodingVersion encoding = new EncodingVersion();
+        encoding.ice_read(this);
+        try
+        {
+            _buf.b.position(_buf.b.position() + sz - 6);
+        }
+        catch(IllegalArgumentException ex)
+        {
+            throw new UnmarshalOutOfBoundsException();
+        }
+        return encoding;
+    }
+
+    /**
+     * Reads the start of an object or exception slice.
+     *
+     * @return The Slice type ID for this slice.
+     **/
+    public String startSlice() // Returns type ID of next slice
+    {
+        assert(_encapsStack != null && _encapsStack.decoder != null);
+        return _encapsStack.decoder.startSlice();
+    }
+
+    /**
+     * Indicates that the end of an object or exception slice has been reached.
+     **/
+    public void endSlice()
+    {
+        assert(_encapsStack != null && _encapsStack.decoder != null);
+        _encapsStack.decoder.endSlice();
+    }
+
+    /**
+     * Skips over an object or exception slice.
+     **/
+    public void skipSlice()
+    {
+        assert(_encapsStack != null && _encapsStack.decoder != null);
+        _encapsStack.decoder.skipSlice();
+    }
 
     /**
      * Indicates that unmarshaling is complete, except for any Slice objects. The application must call this method
@@ -324,39 +775,2559 @@ public interface InputStream
      * calls to {@link ReadObjectCallback#invoke} that inform the application that unmarshaling of a Slice
      * object is complete.
      **/
-    void readPendingObjects();
+    public void readPendingObjects()
+    {
+        if(_encapsStack != null && _encapsStack.decoder != null)
+        {
+            _encapsStack.decoder.readPendingObjects();
+        }
+        else if(_encapsStack != null ? _encapsStack.encoding_1_0 : _encoding.equals(Util.Encoding_1_0))
+        {
+            //
+            // If using the 1.0 encoding and no objects were read, we
+            // still read an empty sequence of pending objects if
+            // requested (i.e.: if this is called).
+            //
+            // This is required by the 1.0 encoding, even if no objects
+            // are written we do marshal an empty sequence if marshaled
+            // data types use classes.
+            //
+            skipSize();
+        }
+    }
 
     /**
-     * Resets the read position of the stream to the beginning.
-     **/
-    void rewind();
-
-    /**
-     * Skips ahead in the stream.
+     * Extracts a size from the stream.
      *
-     * @param sz The number of bytes to skip.
+     * @return The extracted size.
      **/
-    void skip(int sz);
+    public int readSize()
+    {
+        try
+        {
+            byte b = _buf.b.get();
+            if(b == -1)
+            {
+                int v = _buf.b.getInt();
+                if(v < 0)
+                {
+                    throw new UnmarshalOutOfBoundsException();
+                }
+                return v;
+            }
+            else
+            {
+                return b < 0 ? b + 256 : b;
+            }
+        }
+        catch(java.nio.BufferUnderflowException ex)
+        {
+            throw new UnmarshalOutOfBoundsException();
+        }
+    }
 
     /**
-     * Skips over a size value.
+     * Validates a sequence size.
+     *
+     * @return The extracted size.
      **/
-    void skipSize();
+    public int readAndCheckSeqSize(int minSize)
+    {
+        int sz = readSize();
+
+        if(sz == 0)
+        {
+            return sz;
+        }
+
+        //
+        // The _startSeq variable points to the start of the sequence for which
+        // we expect to read at least _minSeqSize bytes from the stream.
+        //
+        // If not initialized or if we already read more data than _minSeqSize,
+        // we reset _startSeq and _minSeqSize for this sequence (possibly a
+        // top-level sequence or enclosed sequence it doesn't really matter).
+        //
+        // Otherwise, we are reading an enclosed sequence and we have to bump
+        // _minSeqSize by the minimum size that this sequence will  require on
+        // the stream.
+        //
+        // The goal of this check is to ensure that when we start un-marshalling
+        // a new sequence, we check the minimal size of this new sequence against
+        // the estimated remaining buffer size. This estimatation is based on
+        // the minimum size of the enclosing sequences, it's _minSeqSize.
+        //
+        if(_startSeq == -1 || _buf.b.position() > (_startSeq + _minSeqSize))
+        {
+            _startSeq = _buf.b.position();
+            _minSeqSize = sz * minSize;
+        }
+        else
+        {
+            _minSeqSize += sz * minSize;
+        }
+
+        //
+        // If there isn't enough data to read on the stream for the sequence (and
+        // possibly enclosed sequences), something is wrong with the marshalled
+        // data: it's claiming having more data that what is possible to read.
+        //
+        if(_startSeq + _minSeqSize > _buf.size())
+        {
+            throw new UnmarshalOutOfBoundsException();
+        }
+
+        return sz;
+    }
+
+    /**
+     * Reads a blob of bytes from the stream.
+     *
+     * @param sz The number of bytes to read.
+     * @return The requested bytes as a byte array.
+     **/
+    public byte[] readBlob(int sz)
+    {
+        if(_buf.b.remaining() < sz)
+        {
+            throw new UnmarshalOutOfBoundsException();
+        }
+        byte[] v = new byte[sz];
+        try
+        {
+            _buf.b.get(v);
+            return v;
+        }
+        catch(java.nio.BufferUnderflowException ex)
+        {
+            throw new UnmarshalOutOfBoundsException();
+        }
+    }
 
     /**
      * Determine if an optional value is available for reading.
      *
      * @param tag The tag associated with the value.
-     * @param type The optional format for the value.
+     * @param expectedFormat The optional format for the value.
      * @return True if the value is present, false otherwise.
      **/
-    boolean readOptional(int tag, OptionalFormat format);
-
-    int pos();
+    public boolean readOptional(int tag, OptionalFormat expectedFormat)
+    {
+        assert(_encapsStack != null);
+        if(_encapsStack.decoder != null)
+        {
+            return _encapsStack.decoder.readOptional(tag, expectedFormat);
+        }
+        else
+        {
+            return readOptImpl(tag, expectedFormat);
+        }
+    }
 
     /**
-     * Destroys the stream and its associated resources. The application must call <code>destroy</code> prior
-     * to releasing the last reference to a stream; failure to do so may result in resource leaks.
+     * Extracts a byte value from the stream.
+     *
+     * @return The extracted byte.
      **/
-    void destroy();
+    public byte readByte()
+    {
+        try
+        {
+            return _buf.b.get();
+        }
+        catch(java.nio.BufferUnderflowException ex)
+        {
+            throw new UnmarshalOutOfBoundsException();
+        }
+    }
+
+    /**
+     * Extracts an optional byte value from the stream.
+     *
+     * @param tag The numeric tag associated with the value.
+     * @param v Holds the optional value (if any).
+     **/
+    public void readByte(int tag, ByteOptional v)
+    {
+        if(readOptional(tag, OptionalFormat.F1))
+        {
+            v.set(readByte());
+        }
+        else
+        {
+            v.clear();
+        }
+    }
+
+    /**
+     * Extracts a sequence of byte values from the stream.
+     *
+     * @return The extracted byte sequence.
+     **/
+    public byte[] readByteSeq()
+    {
+        try
+        {
+            final int sz = readAndCheckSeqSize(1);
+            byte[] v = new byte[sz];
+            _buf.b.get(v);
+            return v;
+        }
+        catch(java.nio.BufferUnderflowException ex)
+        {
+            throw new UnmarshalOutOfBoundsException();
+        }
+    }
+
+    /**
+     * Extracts an optional byte sequence from the stream.
+     *
+     * @param tag The numeric tag associated with the value.
+     * @param v Holds the optional value (if any).
+     **/
+    public void readByteSeq(int tag, Optional<byte[]> v)
+    {
+        if(readOptional(tag, OptionalFormat.VSize))
+        {
+            v.set(readByteSeq());
+        }
+        else
+        {
+            v.clear();
+        }
+    }
+
+    /**
+     * Returns a byte buffer representing a sequence of bytes. This method does not copy the data.
+     *
+     * @return A byte buffer "slice" of the internal buffer.
+     **/
+    public java.nio.ByteBuffer readByteBuffer()
+    {
+        try
+        {
+            final int sz = readAndCheckSeqSize(1);
+            java.nio.ByteBuffer v = _buf.b.slice();
+            v.limit(sz);
+            _buf.b.position(_buf.b.position() + sz);
+            return v.asReadOnlyBuffer();
+        }
+        catch(java.nio.BufferUnderflowException ex)
+        {
+            throw new UnmarshalOutOfBoundsException();
+        }
+    }
+
+    /**
+     * Extracts a serializable Java object from the stream.
+     *
+     * @return The deserialized Java object.
+     **/
+    public java.io.Serializable readSerializable()
+    {
+        int sz = readAndCheckSeqSize(1);
+        if (sz == 0)
+        {
+            return null;
+        }
+        IceInternal.ObjectInputStream in = null;
+        try
+        {
+            IceInternal.InputStreamWrapper w = new IceInternal.InputStreamWrapper(sz, _buf.b);
+            in = new IceInternal.ObjectInputStream(_instance, w);
+            return (java.io.Serializable)in.readObject();
+        }
+        catch(LocalException ex)
+        {
+            throw ex;
+        }
+        catch(java.lang.Exception ex)
+        {
+            throw new MarshalException("cannot deserialize object", ex);
+        }
+        finally
+        {
+            if(in != null)
+            {
+                try
+                {
+                    in.close();
+                }
+                catch (IOException ex)
+                {
+                    throw new MarshalException("cannot deserialize object", ex);
+                }
+            }
+        }
+    }
+
+    /**
+     * Extracts a boolean value from the stream.
+     *
+     * @return The extracted boolean.
+     **/
+    public boolean readBool()
+    {
+        try
+        {
+            return _buf.b.get() == 1;
+        }
+        catch(java.nio.BufferUnderflowException ex)
+        {
+            throw new UnmarshalOutOfBoundsException();
+        }
+    }
+
+    /**
+     * Extracts an optional boolean value from the stream.
+     *
+     * @param tag The numeric tag associated with the value.
+     * @param v Holds the optional value (if any).
+     **/
+    public void readBool(int tag, BooleanOptional v)
+    {
+        if(readOptional(tag, OptionalFormat.F1))
+        {
+            v.set(readBool());
+        }
+        else
+        {
+            v.clear();
+        }
+    }
+
+    /**
+     * Extracts a sequence of boolean values from the stream.
+     *
+     * @return The extracted boolean sequence.
+     **/
+    public boolean[] readBoolSeq()
+    {
+        try
+        {
+            final int sz = readAndCheckSeqSize(1);
+            boolean[] v = new boolean[sz];
+            for(int i = 0; i < sz; i++)
+            {
+                v[i] = _buf.b.get() == 1;
+            }
+            return v;
+        }
+        catch(java.nio.BufferUnderflowException ex)
+        {
+            throw new UnmarshalOutOfBoundsException();
+        }
+    }
+
+    /**
+     * Extracts an optional boolean sequence from the stream.
+     *
+     * @param tag The numeric tag associated with the value.
+     * @param v Holds the optional value (if any).
+     **/
+    public void readBoolSeq(int tag, Optional<boolean[]> v)
+    {
+        if(readOptional(tag, OptionalFormat.VSize))
+        {
+            v.set(readBoolSeq());
+        }
+        else
+        {
+            v.clear();
+        }
+    }
+
+    /**
+     * Extracts a short value from the stream.
+     *
+     * @return The extracted short.
+     **/
+    public short readShort()
+    {
+        try
+        {
+            return _buf.b.getShort();
+        }
+        catch(java.nio.BufferUnderflowException ex)
+        {
+            throw new UnmarshalOutOfBoundsException();
+        }
+    }
+
+    /**
+     * Extracts an optional short value from the stream.
+     *
+     * @param tag The numeric tag associated with the value.
+     * @param v Holds the optional value (if any).
+     **/
+    public void readShort(int tag, ShortOptional v)
+    {
+        if(readOptional(tag, OptionalFormat.F2))
+        {
+            v.set(readShort());
+        }
+        else
+        {
+            v.clear();
+        }
+    }
+
+    /**
+     * Extracts a sequence of short values from the stream.
+     *
+     * @return The extracted short sequence.
+     **/
+    public short[] readShortSeq()
+    {
+        try
+        {
+            final int sz = readAndCheckSeqSize(2);
+            short[] v = new short[sz];
+            java.nio.ShortBuffer shortBuf = _buf.b.asShortBuffer();
+            shortBuf.get(v);
+            _buf.b.position(_buf.b.position() + sz * 2);
+            return v;
+        }
+        catch(java.nio.BufferUnderflowException ex)
+        {
+            throw new UnmarshalOutOfBoundsException();
+        }
+    }
+
+    /**
+     * Extracts an optional short sequence from the stream.
+     *
+     * @param tag The numeric tag associated with the value.
+     * @param v Holds the optional value (if any).
+     **/
+    public void readShortSeq(int tag, Optional<short[]> v)
+    {
+        if(readOptional(tag, OptionalFormat.VSize))
+        {
+            skipSize();
+            v.set(readShortSeq());
+        }
+        else
+        {
+            v.clear();
+        }
+    }
+
+    /**
+     * Returns a short buffer representing a sequence of shorts. This method does not copy the data.
+     *
+     * @return A short buffer "slice" of the internal buffer.
+     **/
+    public java.nio.ShortBuffer readShortBuffer()
+    {
+        try
+        {
+            final int sz = readAndCheckSeqSize(2);
+            java.nio.ShortBuffer shortBuf = _buf.b.asShortBuffer();
+            java.nio.ShortBuffer v = shortBuf.slice();
+            v.limit(sz);
+            _buf.b.position(_buf.b.position() + sz * 2);
+            return v.asReadOnlyBuffer();
+        }
+        catch(java.nio.BufferUnderflowException ex)
+        {
+            throw new UnmarshalOutOfBoundsException();
+        }
+    }
+
+    /**
+     * Extracts an int value from the stream.
+     *
+     * @return The extracted int.
+     **/
+    public int readInt()
+    {
+        try
+        {
+            return _buf.b.getInt();
+        }
+        catch(java.nio.BufferUnderflowException ex)
+        {
+            throw new UnmarshalOutOfBoundsException();
+        }
+    }
+
+    /**
+     * Extracts an optional int value from the stream.
+     *
+     * @param tag The numeric tag associated with the value.
+     * @param v Holds the optional value (if any).
+     **/
+    public void readInt(int tag, IntOptional v)
+    {
+        if(readOptional(tag, OptionalFormat.F4))
+        {
+            v.set(readInt());
+        }
+        else
+        {
+            v.clear();
+        }
+    }
+
+    /**
+     * Extracts a sequence of int values from the stream.
+     *
+     * @return The extracted int sequence.
+     **/
+    public int[] readIntSeq()
+    {
+        try
+        {
+            final int sz = readAndCheckSeqSize(4);
+            int[] v = new int[sz];
+            java.nio.IntBuffer intBuf = _buf.b.asIntBuffer();
+            intBuf.get(v);
+            _buf.b.position(_buf.b.position() + sz * 4);
+            return v;
+        }
+        catch(java.nio.BufferUnderflowException ex)
+        {
+            throw new UnmarshalOutOfBoundsException();
+        }
+    }
+
+    /**
+     * Extracts an optional int sequence from the stream.
+     *
+     * @param tag The numeric tag associated with the value.
+     * @param v Holds the optional value (if any).
+     **/
+    public void readIntSeq(int tag, Optional<int[]> v)
+    {
+        if(readOptional(tag, OptionalFormat.VSize))
+        {
+            skipSize();
+            v.set(readIntSeq());
+        }
+        else
+        {
+            v.clear();
+        }
+    }
+
+    /**
+     * Returns an int buffer representing a sequence of ints. This method does not copy the data.
+     *
+     * @return An int buffer "slice" of the internal buffer.
+     **/
+    public java.nio.IntBuffer readIntBuffer()
+    {
+        try
+        {
+            final int sz = readAndCheckSeqSize(4);
+            java.nio.IntBuffer intBuf = _buf.b.asIntBuffer();
+            java.nio.IntBuffer v = intBuf.slice();
+            v.limit(sz);
+            _buf.b.position(_buf.b.position() + sz * 4);
+            return v.asReadOnlyBuffer();
+        }
+        catch(java.nio.BufferUnderflowException ex)
+        {
+            throw new UnmarshalOutOfBoundsException();
+        }
+    }
+
+    /**
+     * Extracts a long value from the stream.
+     *
+     * @return The extracted long.
+     **/
+    public long readLong()
+    {
+        try
+        {
+            return _buf.b.getLong();
+        }
+        catch(java.nio.BufferUnderflowException ex)
+        {
+            throw new UnmarshalOutOfBoundsException();
+        }
+    }
+
+    /**
+     * Extracts an optional long value from the stream.
+     *
+     * @param tag The numeric tag associated with the value.
+     * @param v Holds the optional value (if any).
+     **/
+    public void readLong(int tag, LongOptional v)
+    {
+        if(readOptional(tag, OptionalFormat.F8))
+        {
+            v.set(readLong());
+        }
+        else
+        {
+            v.clear();
+        }
+    }
+
+    /**
+     * Extracts a sequence of long values from the stream.
+     *
+     * @return The extracted long sequence.
+     **/
+    public long[] readLongSeq()
+    {
+        try
+        {
+            final int sz = readAndCheckSeqSize(8);
+            long[] v = new long[sz];
+            java.nio.LongBuffer longBuf = _buf.b.asLongBuffer();
+            longBuf.get(v);
+            _buf.b.position(_buf.b.position() + sz * 8);
+            return v;
+        }
+        catch(java.nio.BufferUnderflowException ex)
+        {
+            throw new UnmarshalOutOfBoundsException();
+        }
+    }
+
+    /**
+     * Extracts an optional long sequence from the stream.
+     *
+     * @param tag The numeric tag associated with the value.
+     * @param v Holds the optional value (if any).
+     **/
+    public void readLongSeq(int tag, Optional<long[]> v)
+    {
+        if(readOptional(tag, OptionalFormat.VSize))
+        {
+            skipSize();
+            v.set(readLongSeq());
+        }
+        else
+        {
+            v.clear();
+        }
+    }
+
+    /**
+     * Returns a long buffer representing a sequence of longs. This method does not copy the data.
+     *
+     * @return A long buffer "slice" of the internal buffer.
+     **/
+    public java.nio.LongBuffer readLongBuffer()
+    {
+        try
+        {
+            final int sz = readAndCheckSeqSize(8);
+            java.nio.LongBuffer longBuf = _buf.b.asLongBuffer();
+            java.nio.LongBuffer v = longBuf.slice();
+            v.limit(sz);
+            _buf.b.position(_buf.b.position() + sz * 8);
+            return v.asReadOnlyBuffer();
+        }
+        catch(java.nio.BufferUnderflowException ex)
+        {
+            throw new UnmarshalOutOfBoundsException();
+        }
+    }
+
+    /**
+     * Extracts a float value from the stream.
+     *
+     * @return The extracted float.
+     **/
+    public float readFloat()
+    {
+        try
+        {
+            return _buf.b.getFloat();
+        }
+        catch(java.nio.BufferUnderflowException ex)
+        {
+            throw new UnmarshalOutOfBoundsException();
+        }
+    }
+
+    /**
+     * Extracts an optional float value from the stream.
+     *
+     * @param tag The numeric tag associated with the value.
+     * @param v Holds the optional value (if any).
+     **/
+    public void readFloat(int tag, FloatOptional v)
+    {
+        if(readOptional(tag, OptionalFormat.F4))
+        {
+            v.set(readFloat());
+        }
+        else
+        {
+            v.clear();
+        }
+    }
+
+    /**
+     * Extracts a sequence of float values from the stream.
+     *
+     * @return The extracted float sequence.
+     **/
+    public float[] readFloatSeq()
+    {
+        try
+        {
+            final int sz = readAndCheckSeqSize(4);
+            float[] v = new float[sz];
+            java.nio.FloatBuffer floatBuf = _buf.b.asFloatBuffer();
+            floatBuf.get(v);
+            _buf.b.position(_buf.b.position() + sz * 4);
+            return v;
+        }
+        catch(java.nio.BufferUnderflowException ex)
+        {
+            throw new UnmarshalOutOfBoundsException();
+        }
+    }
+
+    /**
+     * Extracts an optional float sequence from the stream.
+     *
+     * @param tag The numeric tag associated with the value.
+     * @param v Holds the optional value (if any).
+     **/
+    public void readFloatSeq(int tag, Optional<float[]> v)
+    {
+        if(readOptional(tag, OptionalFormat.VSize))
+        {
+            skipSize();
+            v.set(readFloatSeq());
+        }
+        else
+        {
+            v.clear();
+        }
+    }
+
+    /**
+     * Returns a float buffer representing a sequence of floats. This method does not copy the data.
+     *
+     * @return A float buffer "slice" of the internal buffer.
+     **/
+    public java.nio.FloatBuffer readFloatBuffer()
+    {
+        try
+        {
+            final int sz = readAndCheckSeqSize(4);
+            java.nio.FloatBuffer floatBuf = _buf.b.asFloatBuffer();
+            java.nio.FloatBuffer v = floatBuf.slice();
+            v.limit(sz);
+            _buf.b.position(_buf.b.position() + sz * 4);
+            return v.asReadOnlyBuffer();
+        }
+        catch(java.nio.BufferUnderflowException ex)
+        {
+            throw new UnmarshalOutOfBoundsException();
+        }
+    }
+
+    /**
+     * Extracts a double value from the stream.
+     *
+     * @return The extracted double.
+     **/
+    public double readDouble()
+    {
+        try
+        {
+            return _buf.b.getDouble();
+        }
+        catch(java.nio.BufferUnderflowException ex)
+        {
+            throw new UnmarshalOutOfBoundsException();
+        }
+    }
+
+    /**
+     * Extracts an optional double value from the stream.
+     *
+     * @param tag The numeric tag associated with the value.
+     * @param v Holds the optional value (if any).
+     **/
+    public void readDouble(int tag, DoubleOptional v)
+    {
+        if(readOptional(tag, OptionalFormat.F8))
+        {
+            v.set(readDouble());
+        }
+        else
+        {
+            v.clear();
+        }
+    }
+
+    /**
+     * Extracts a sequence of double values from the stream.
+     *
+     * @return The extracted double sequence.
+     **/
+    public double[] readDoubleSeq()
+    {
+        try
+        {
+            final int sz = readAndCheckSeqSize(8);
+            double[] v = new double[sz];
+            java.nio.DoubleBuffer doubleBuf = _buf.b.asDoubleBuffer();
+            doubleBuf.get(v);
+            _buf.b.position(_buf.b.position() + sz * 8);
+            return v;
+        }
+        catch(java.nio.BufferUnderflowException ex)
+        {
+            throw new UnmarshalOutOfBoundsException();
+        }
+    }
+
+    /**
+     * Extracts an optional double sequence from the stream.
+     *
+     * @param tag The numeric tag associated with the value.
+     * @param v Holds the optional value (if any).
+     **/
+    public void readDoubleSeq(int tag, Optional<double[]> v)
+    {
+        if(readOptional(tag, OptionalFormat.VSize))
+        {
+            skipSize();
+            v.set(readDoubleSeq());
+        }
+        else
+        {
+            v.clear();
+        }
+    }
+
+    /**
+     * Returns a double buffer representing a sequence of doubles. This method does not copy the data.
+     *
+     * @return A double buffer "slice" of the internal buffer.
+     **/
+    public java.nio.DoubleBuffer readDoubleBuffer()
+    {
+        try
+        {
+            final int sz = readAndCheckSeqSize(8);
+            java.nio.DoubleBuffer doubleBuf = _buf.b.asDoubleBuffer();
+            java.nio.DoubleBuffer v = doubleBuf.slice();
+            v.limit(sz);
+            _buf.b.position(_buf.b.position() + sz * 8);
+            return v.asReadOnlyBuffer();
+        }
+        catch(java.nio.BufferUnderflowException ex)
+        {
+            throw new UnmarshalOutOfBoundsException();
+        }
+    }
+
+    final static java.nio.charset.Charset _utf8 = java.nio.charset.Charset.forName("UTF8");
+    private java.nio.charset.CharsetEncoder _charEncoder = null;
+
+    /**
+     * Extracts a string from the stream.
+     *
+     * @return The extracted string.
+     **/
+    public String readString()
+    {
+        final int len = readSize();
+
+        if(len == 0)
+        {
+            return "";
+        }
+        else
+        {
+            //
+            // Check the buffer has enough bytes to read.
+            //
+            if(_buf.b.remaining() < len)
+            {
+                throw new UnmarshalOutOfBoundsException();
+            }
+
+            try
+            {
+                //
+                // We reuse the _stringBytes array to avoid creating
+                // excessive garbage.
+                //
+                if(_stringBytes == null || len > _stringBytes.length)
+                {
+                    _stringBytes = new byte[len];
+                }
+                if(_stringChars == null || len > _stringChars.length)
+                {
+                    _stringChars = new char[len];
+                }
+                _buf.b.get(_stringBytes, 0, len);
+
+                //
+                // It's more efficient to construct a string using a
+                // character array instead of a byte array, because
+                // byte arrays require conversion.
+                //
+                for(int i = 0; i < len; i++)
+                {
+                    if(_stringBytes[i] < 0)
+                    {
+                        //
+                        // Multi-byte character found - we must use
+                        // conversion.
+                        //
+                        // TODO: If the string contains garbage bytes
+                        // that won't correctly decode as UTF, the
+                        // behavior of this constructor is
+                        // undefined. It would be better to explicitly
+                        // decode using
+                        // java.nio.charset.CharsetDecoder and to
+                        // throw MarshalException if the string won't
+                        // decode.
+                        //
+                        return new String(_stringBytes, 0, len, "UTF8");
+                    }
+                    else
+                    {
+                        _stringChars[i] = (char)_stringBytes[i];
+                    }
+                }
+                return new String(_stringChars, 0, len);
+            }
+            catch(java.io.UnsupportedEncodingException ex)
+            {
+                assert(false);
+                return "";
+            }
+            catch(java.nio.BufferUnderflowException ex)
+            {
+                throw new UnmarshalOutOfBoundsException();
+            }
+        }
+    }
+
+    /**
+     * Extracts an optional string value from the stream.
+     *
+     * @param tag The numeric tag associated with the value.
+     * @param v Holds the optional value (if any).
+     **/
+    public void readString(int tag, Optional<String> v)
+    {
+        if(readOptional(tag, OptionalFormat.VSize))
+        {
+            v.set(readString());
+        }
+        else
+        {
+            v.clear();
+        }
+    }
+
+    /**
+     * Extracts a sequence of string values from the stream.
+     *
+     * @return The extracted string sequence.
+     **/
+    public String[] readStringSeq()
+    {
+        final int sz = readAndCheckSeqSize(1);
+        String[] v = new String[sz];
+        for(int i = 0; i < sz; i++)
+        {
+            v[i] = readString();
+        }
+        return v;
+    }
+
+    /**
+     * Extracts an optional string sequence from the stream.
+     *
+     * @param tag The numeric tag associated with the value.
+     * @param v Holds the optional value (if any).
+     **/
+    public void readStringSeq(int tag, Optional<String[]> v)
+    {
+        if(readOptional(tag, OptionalFormat.FSize))
+        {
+            skip(4);
+            v.set(readStringSeq());
+        }
+        else
+        {
+            v.clear();
+        }
+    }
+
+    /**
+     * Extracts a proxy from the stream. The stream must have been initialized with a communicator.
+     *
+     * @return The extracted proxy.
+     **/
+    public ObjectPrx readProxy()
+    {
+        if(_instance == null)
+        {
+            throw new MarshalException("cannot unmarshal a proxy without a communicator");
+        }
+
+        return _instance.proxyFactory().streamToProxy(this);
+    }
+
+    /**
+     * Extracts an optional proxy from the stream. The stream must have been initialized with a communicator.
+     *
+     * @param tag The numeric tag associated with the value.
+     * @param v Holds the optional value (if any).
+     **/
+    public void readProxy(int tag, Optional<ObjectPrx> v)
+    {
+        if(readOptional(tag, OptionalFormat.FSize))
+        {
+            skip(4);
+            v.set(readProxy());
+        }
+        else
+        {
+            v.clear();
+        }
+    }
+
+    /**
+     * Read an enumerated value.
+     *
+     * @param maxValue The maximum enumerator value in the definition.
+     * @return The enumerator.
+     **/
+    public int readEnum(int maxValue)
+    {
+        if(getEncoding().equals(Util.Encoding_1_0))
+        {
+            if(maxValue < 127)
+            {
+                return readByte();
+            }
+            else if(maxValue < 32767)
+            {
+                return readShort();
+            }
+            else
+            {
+                return readInt();
+            }
+        }
+        else
+        {
+            return readSize();
+        }
+    }
+
+    /**
+     * Extracts the index of a Slice value from the stream.
+     *
+     * @param cb The callback to notify the application when the extracted instance is available.
+     * The stream extracts Slice values in stages. The Ice run time calls {@link ReadObjectCallback#objectReady}
+     * when the corresponding instance has been fully unmarshaled.
+     *
+     * @see ReadObjectCallback
+     **/
+    public void readObject(ReadObjectCallback cb)
+    {
+        initEncaps();
+        _encapsStack.decoder.readObject(cb);
+    }
+
+    /**
+     * Extracts the index of an optional Slice value from the stream.
+     *
+     * @param v Holds the optional value (if any). If a value is present, it will not be set in the
+     * argument until after {@link #readPendingObjects} has completed.
+     **/
+    public void readObject(int tag, Optional<Ice.Object> v)
+    {
+        if(readOptional(tag, OptionalFormat.Class))
+        {
+            OptionalObject opt = new OptionalObject(v, Ice.Object.class, ObjectImpl.ice_staticId());
+            readObject(opt);
+        }
+        else
+        {
+            v.clear();
+        }
+    }
+
+    /**
+     * Extracts a user exception from the stream and throws it.
+     **/
+    public void throwException()
+        throws UserException
+    {
+        throwException(null);
+    }
+
+    /**
+     * Extracts a user exception from the stream and throws it. The caller can supply a factory
+     * to instantiate exception instances.
+     *
+     * @param factory The user exception factory, or null to use the stream's default behavior.
+     **/
+    public void throwException(UserExceptionFactory factory)
+        throws UserException
+    {
+        initEncaps();
+        _encapsStack.decoder.throwException(factory);
+    }
+
+    private boolean readOptImpl(int readTag, OptionalFormat expectedFormat)
+    {
+        if(isEncoding_1_0())
+        {
+            return false; // Optional members aren't supported with the 1.0 encoding.
+        }
+
+        while(true)
+        {
+            if(_buf.b.position() >= _encapsStack.start + _encapsStack.sz)
+            {
+                return false; // End of encapsulation also indicates end of optionals.
+            }
+
+            final byte b = readByte();
+            final int v = b < 0 ? b + 256 : b;
+            if(v == IceInternal.Protocol.OPTIONAL_END_MARKER)
+            {
+                _buf.b.position(_buf.b.position() - 1); // Rewind.
+                return false;
+            }
+
+            OptionalFormat format = OptionalFormat.valueOf(v & 0x07); // First 3 bits.
+            int tag = v >> 3;
+            if(tag == 30)
+            {
+                tag = readSize();
+            }
+
+            if(tag > readTag)
+            {
+                int offset = tag < 30 ? 1 : (tag < 255 ? 2 : 6); // Rewind
+                _buf.b.position(_buf.b.position() - offset);
+                return false; // No optional data members with the requested tag.
+            }
+            else if(tag < readTag)
+            {
+                skipOpt(format); // Skip optional data members
+            }
+            else
+            {
+                if(format != expectedFormat)
+                {
+                    throw new MarshalException("invalid optional data member `" + tag + "': unexpected format");
+                }
+                return true;
+            }
+        }
+    }
+
+    private void skipOpt(OptionalFormat format)
+    {
+        switch(format)
+        {
+        case F1:
+        {
+            skip(1);
+            break;
+        }
+        case F2:
+        {
+            skip(2);
+            break;
+        }
+        case F4:
+        {
+            skip(4);
+            break;
+        }
+        case F8:
+        {
+            skip(8);
+            break;
+        }
+        case Size:
+        {
+            skipSize();
+            break;
+        }
+        case VSize:
+        {
+            skip(readSize());
+            break;
+        }
+        case FSize:
+        {
+            skip(readInt());
+            break;
+        }
+        case Class:
+        {
+            readObject(null);
+            break;
+        }
+        }
+    }
+
+    private void skipOpts()
+    {
+        //
+        // Skip remaining un-read optional members.
+        //
+        while(true)
+        {
+            if(_buf.b.position() >= _encapsStack.start + _encapsStack.sz)
+            {
+                return; // End of encapsulation also indicates end of optionals.
+            }
+
+            final byte b = readByte();
+            final int v = b < 0 ? b + 256 : b;
+            if(v == IceInternal.Protocol.OPTIONAL_END_MARKER)
+            {
+                return;
+            }
+
+            OptionalFormat format = OptionalFormat.valueOf(v & 0x07); // Read first 3 bits.
+            if((v >> 3) == 30)
+            {
+                skipSize();
+            }
+            skipOpt(format);
+        }
+    }
+
+    /**
+     * Skip the given number of bytes.
+     *
+     * @param size The number of bytes to skip.
+     **/
+    public void skip(int size)
+    {
+        if(size > _buf.b.remaining())
+        {
+            throw new UnmarshalOutOfBoundsException();
+        }
+        _buf.b.position(_buf.b.position() + size);
+    }
+
+    /**
+     * Skip over a size value.
+     **/
+    public void skipSize()
+    {
+        byte b = readByte();
+        if(b == -1)
+        {
+            skip(4);
+        }
+    }
+
+    /**
+     * Determines the current position in the stream.
+     *
+     * @return The current position.
+     **/
+    public int pos()
+    {
+        return _buf.b.position();
+    }
+
+    /**
+     * Sets the current position in the stream.
+     *
+     * @param pos The new position.
+     **/
+    public void pos(int n)
+    {
+        _buf.b.position(n);
+    }
+
+    /**
+     * Determines the current size of the stream.
+     *
+     * @return The current size.
+     **/
+    public int size()
+    {
+        return _buf.size();
+    }
+
+    /**
+     * Determines whether the stream is empty.
+     *
+     * @return True if the internal buffer has no data, false otherwise.
+     **/
+    public boolean isEmpty()
+    {
+        return _buf.empty();
+    }
+
+    private Ice.Object createObject(String id)
+    {
+        Ice.Object obj = null;
+
+        try
+        {
+            if(_classResolver != null)
+            {
+                Class<?> c = _classResolver.resolveClass(id);
+                if(c != null)
+                {
+                    obj = (Ice.Object)c.newInstance();
+                }
+            }
+        }
+        catch(java.lang.Exception ex)
+        {
+            throw new NoValueFactoryException("no value factory", id, ex);
+        }
+
+        return obj;
+    }
+
+    private UserException createUserException(String id)
+    {
+        UserException userEx = null;
+
+        try
+        {
+            if(_classResolver != null)
+            {
+                Class<?> c = _classResolver.resolveClass(id);
+                if(c != null)
+                {
+                    userEx = (UserException)c.newInstance();
+                }
+            }
+        }
+        catch(java.lang.Exception ex)
+        {
+            throw new MarshalException(ex);
+        }
+
+        return userEx;
+    }
+
+    private IceInternal.Instance _instance;
+    private IceInternal.Buffer _buf;
+    private Object _closure;
+    private byte[] _stringBytes; // Reusable array for reading strings.
+    private char[] _stringChars; // Reusable array for reading strings.
+
+    private enum SliceType { NoSlice, ObjectSlice, ExceptionSlice }
+
+    abstract private static class EncapsDecoder
+    {
+        EncapsDecoder(InputStream stream, boolean sliceObjects, ValueFactoryManager f)
+        {
+            _stream = stream;
+            _sliceObjects = sliceObjects;
+            _servantFactoryManager = f;
+            _typeIdIndex = 0;
+            _unmarshaledMap = new java.util.TreeMap<Integer, Ice.Object>();
+        }
+
+        abstract void readObject(ReadObjectCallback cb);
+        abstract void throwException(UserExceptionFactory factory)
+            throws UserException;
+
+        abstract void startInstance(SliceType type);
+        abstract SlicedData endInstance(boolean preserve);
+        abstract String startSlice();
+        abstract void endSlice();
+        abstract void skipSlice();
+
+        boolean readOptional(int tag, OptionalFormat format)
+        {
+            return false;
+        }
+
+        void readPendingObjects()
+        {
+        }
+
+        protected String readTypeId(boolean isIndex)
+        {
+            if(_typeIdMap == null) // Lazy initialization
+            {
+                _typeIdMap = new java.util.TreeMap<Integer, String>();
+            }
+
+            if(isIndex)
+            {
+                int index = _stream.readSize();
+                String typeId = _typeIdMap.get(index);
+                if(typeId == null)
+                {
+                    throw new UnmarshalOutOfBoundsException();
+                }
+                return typeId;
+            }
+            else
+            {
+                String typeId = _stream.readString();
+                _typeIdMap.put(++_typeIdIndex, typeId);
+                return typeId;
+            }
+        }
+
+        protected Ice.Object newInstance(String typeId)
+        {
+            //
+            // Try to find a factory registered for the specific type.
+            //
+            ValueFactory userFactory = _servantFactoryManager.find(typeId);
+            Ice.Object v = null;
+            if(userFactory != null)
+            {
+                v = userFactory.create(typeId);
+            }
+
+            //
+            // If that fails, invoke the default factory if one has been
+            // registered.
+            //
+            if(v == null)
+            {
+                userFactory = _servantFactoryManager.find("");
+                if(userFactory != null)
+                {
+                    v = userFactory.create(typeId);
+                }
+            }
+
+            //
+            // Last chance: try to instantiate the class dynamically.
+            //
+            if(v == null)
+            {
+                v = _stream.createObject(typeId);
+            }
+
+            return v;
+        }
+
+        protected void addPatchEntry(int index, ReadObjectCallback cb)
+        {
+            assert(index > 0);
+
+            //
+            // Check if we have already unmarshalled the object. If that's the case,
+            // just patch the object smart pointer and we're done.
+            //
+            Ice.Object obj = _unmarshaledMap.get(index);
+            if(obj != null)
+            {
+                cb.objectReady(obj);
+                return;
+            }
+
+            if(_patchMap == null) // Lazy initialization
+            {
+                _patchMap = new java.util.TreeMap<Integer, java.util.LinkedList<ReadObjectCallback> >();
+            }
+
+            //
+            // Add patch entry if the object isn't un-marshalled yet,
+            // the smart pointer will be patched when the instance is
+            // un-marshalled.
+            //
+            java.util.LinkedList<ReadObjectCallback> l = _patchMap.get(index);
+            if(l == null)
+            {
+                //
+                // We have no outstanding instances to be patched for this
+                // index, so make a new entry in the patch map.
+                //
+                l = new java.util.LinkedList<ReadObjectCallback>();
+                _patchMap.put(index, l);
+            }
+
+            //
+            // Append a patch entry for this instance.
+            //
+            l.add(cb);
+        }
+
+        protected void unmarshal(int index, Ice.Object v)
+        {
+            //
+            // Add the object to the map of un-marshalled objects, this must
+            // be done before reading the objects (for circular references).
+            //
+            _unmarshaledMap.put(index, v);
+
+            //
+            // Read the object.
+            //
+            v.__read(_stream);
+
+            if(_patchMap != null)
+            {
+                //
+                // Patch all instances now that the object is un-marshalled.
+                //
+                java.util.LinkedList<ReadObjectCallback> l = _patchMap.get(index);
+                if(l != null)
+                {
+                    assert(l.size() > 0);
+
+                    //
+                    // Patch all pointers that refer to the instance.
+                    //
+                    for(ReadObjectCallback cb : l)
+                    {
+                        cb.objectReady(v);
+                    }
+
+                    //
+                    // Clear out the patch map for that index -- there is nothing left
+                    // to patch for that index for the time being.
+                    //
+                    _patchMap.remove(index);
+                }
+            }
+
+            if((_patchMap == null || _patchMap.isEmpty()) && _objectList == null)
+            {
+                try
+                {
+                    v.ice_postUnmarshal();
+                }
+                catch(java.lang.Exception ex)
+                {
+                    String s = "exception raised by ice_postUnmarshal:\n" + IceInternal.Ex.toString(ex);
+                    _stream.instance().initializationData().logger.warning(s);
+                }
+            }
+            else
+            {
+                if(_objectList == null) // Lazy initialization
+                {
+                    _objectList = new java.util.ArrayList<Ice.Object>();
+                }
+                _objectList.add(v);
+
+                if(_patchMap == null || _patchMap.isEmpty())
+                {
+                    //
+                    // Iterate over the object list and invoke ice_postUnmarshal on
+                    // each object.  We must do this after all objects have been
+                    // unmarshaled in order to ensure that any object data members
+                    // have been properly patched.
+                    //
+                    for(Ice.Object p : _objectList)
+                    {
+                        try
+                        {
+                            p.ice_postUnmarshal();
+                        }
+                        catch(java.lang.Exception ex)
+                        {
+                            String s = "exception raised by ice_postUnmarshal:\n" + IceInternal.Ex.toString(ex);
+                            _stream.instance().initializationData().logger.warning(s);
+                        }
+                    }
+                    _objectList.clear();
+                }
+            }
+        }
+
+        protected final InputStream _stream;
+        protected final boolean _sliceObjects;
+        protected ValueFactoryManager _servantFactoryManager;
+
+        // Encapsulation attributes for object un-marshalling
+        protected java.util.TreeMap<Integer, java.util.LinkedList<ReadObjectCallback> > _patchMap;
+
+        // Encapsulation attributes for object un-marshalling
+        private java.util.TreeMap<Integer, Ice.Object> _unmarshaledMap;
+        private java.util.TreeMap<Integer, String> _typeIdMap;
+        private int _typeIdIndex;
+        private java.util.List<Ice.Object> _objectList;
+    }
+
+    private static final class EncapsDecoder10 extends EncapsDecoder
+    {
+        EncapsDecoder10(InputStream stream, boolean sliceObjects, ValueFactoryManager f)
+        {
+            super(stream, sliceObjects, f);
+            _sliceType = SliceType.NoSlice;
+        }
+
+        @Override
+        void readObject(ReadObjectCallback cb)
+        {
+            assert(cb != null);
+
+            //
+            // Object references are encoded as a negative integer in 1.0.
+            //
+            int index = _stream.readInt();
+            if(index > 0)
+            {
+                throw new MarshalException("invalid object id");
+            }
+            index = -index;
+
+            if(index == 0)
+            {
+                cb.objectReady(null);
+            }
+            else
+            {
+                addPatchEntry(index, cb);
+            }
+        }
+
+        @Override
+        void throwException(UserExceptionFactory factory)
+            throws UserException
+        {
+            assert(_sliceType == SliceType.NoSlice);
+
+            //
+            // User exception with the 1.0 encoding start with a boolean flag
+            // that indicates whether or not the exception has classes.
+            //
+            // This allows reading the pending objects even if some part of
+            // the exception was sliced.
+            //
+            boolean usesClasses = _stream.readBool();
+
+            _sliceType = SliceType.ExceptionSlice;
+            _skipFirstSlice = false;
+
+            //
+            // Read the first slice header.
+            //
+            startSlice();
+            final String mostDerivedId = _typeId;
+            while(true)
+            {
+                UserException userEx = null;
+
+                //
+                // Use a factory if one was provided.
+                //
+                if(factory != null)
+                {
+                    try
+                    {
+                        factory.createAndThrow(_typeId);
+                    }
+                    catch(UserException ex)
+                    {
+                        userEx = ex;
+                    }
+                }
+
+                if(userEx == null)
+                {
+                    userEx = _stream.createUserException(_typeId);
+                }
+
+                //
+                // We found the exception.
+                //
+                if(userEx != null)
+                {
+                    userEx.__read(_stream);
+                    if(usesClasses)
+                    {
+                        readPendingObjects();
+                    }
+                    throw userEx;
+
+                    // Never reached.
+                }
+
+                //
+                // Slice off what we don't understand.
+                //
+                skipSlice();
+                try
+                {
+                    startSlice();
+                }
+                catch(UnmarshalOutOfBoundsException ex)
+                {
+                    //
+                    // An oversight in the 1.0 encoding means there is no marker to indicate
+                    // the last slice of an exception. As a result, we just try to read the
+                    // next type ID, which raises UnmarshalOutOfBoundsException when the
+                    // input buffer underflows.
+                    //
+                    // Set the reason member to a more helpful message.
+                    //
+                    ex.reason = "unknown exception type `" + mostDerivedId + "'";
+                    throw ex;
+                }
+            }
+        }
+
+        @Override
+        void startInstance(SliceType sliceType)
+        {
+            assert(_sliceType == sliceType);
+            _skipFirstSlice = true;
+        }
+
+        @Override
+        SlicedData endInstance(boolean preserve)
+        {
+            //
+            // Read the Ice::Object slice.
+            //
+            if(_sliceType == SliceType.ObjectSlice)
+            {
+                startSlice();
+                int sz = _stream.readSize(); // For compatibility with the old AFM.
+                if(sz != 0)
+                {
+                    throw new MarshalException("invalid Object slice");
+                }
+                endSlice();
+            }
+
+            _sliceType = SliceType.NoSlice;
+            return null;
+        }
+
+        @Override
+        String startSlice()
+        {
+            //
+            // If first slice, don't read the header, it was already read in
+            // readInstance or throwException to find the factory.
+            //
+            if(_skipFirstSlice)
+            {
+                _skipFirstSlice = false;
+                return _typeId;
+            }
+
+            //
+            // For objects, first read the type ID boolean which indicates
+            // whether or not the type ID is encoded as a string or as an
+            // index. For exceptions, the type ID is always encoded as a
+            // string.
+            //
+            if(_sliceType == SliceType.ObjectSlice) // For exceptions, the type ID is always encoded as a string
+            {
+                boolean isIndex = _stream.readBool();
+                _typeId = readTypeId(isIndex);
+            }
+            else
+            {
+                _typeId = _stream.readString();
+            }
+
+            _sliceSize = _stream.readInt();
+            if(_sliceSize < 4)
+            {
+                throw new UnmarshalOutOfBoundsException();
+            }
+
+            return _typeId;
+        }
+
+        @Override
+        void endSlice()
+        {
+        }
+
+        @Override
+        void skipSlice()
+        {
+            _stream.traceSkipSlice(_typeId, _sliceType);
+            assert(_sliceSize >= 4);
+            _stream.skip(_sliceSize - 4);
+        }
+
+        @Override
+        void readPendingObjects()
+        {
+            int num;
+            do
+            {
+                num = _stream.readSize();
+                for(int k = num; k > 0; --k)
+                {
+                    readInstance();
+                }
+            }
+            while(num > 0);
+
+            if(_patchMap != null && !_patchMap.isEmpty())
+            {
+                //
+                // If any entries remain in the patch map, the sender has sent an index for an object, but failed
+                // to supply the object.
+                //
+                throw new MarshalException("index for class received, but no instance");
+            }
+        }
+
+        private void readInstance()
+        {
+            int index = _stream.readInt();
+
+            if(index <= 0)
+            {
+                throw new MarshalException("invalid object id");
+            }
+
+            _sliceType = SliceType.ObjectSlice;
+            _skipFirstSlice = false;
+
+            //
+            // Read the first slice header.
+            //
+            startSlice();
+            final String mostDerivedId = _typeId;
+            Ice.Object v = null;
+            while(true)
+            {
+                //
+                // For the 1.0 encoding, the type ID for the base Object class
+                // marks the last slice.
+                //
+                if(_typeId.equals(ObjectImpl.ice_staticId()))
+                {
+                    throw new NoValueFactoryException("", mostDerivedId);
+                }
+
+                v = newInstance(_typeId);
+
+                //
+                // We found a factory, we get out of this loop.
+                //
+                if(v != null)
+                {
+                    break;
+                }
+
+                //
+                // If object slicing is disabled, stop un-marshalling.
+                //
+                if(!_sliceObjects)
+                {
+                    throw new NoValueFactoryException("no value factory found and object slicing is disabled", _typeId);
+                }
+
+                //
+                // Slice off what we don't understand.
+                //
+                skipSlice();
+                startSlice(); // Read next Slice header for next iteration.
+            }
+
+            //
+            // Un-marshal the object and add-it to the map of un-marshaled objects.
+            //
+            unmarshal(index, v);
+        }
+
+        // Object/exception attributes
+        private SliceType _sliceType;
+        private boolean _skipFirstSlice;
+
+        // Slice attributes
+        private int _sliceSize;
+        private String _typeId;
+    }
+
+    private static class EncapsDecoder11 extends EncapsDecoder
+    {
+        EncapsDecoder11(InputStream stream, boolean sliceObjects, ValueFactoryManager f, CompactIdResolver r)
+        {
+            super(stream, sliceObjects, f);
+            _compactIdResolver = r;
+            _current = null;
+            _objectIdIndex = 1;
+        }
+
+        @Override
+        void readObject(ReadObjectCallback cb)
+        {
+            int index = _stream.readSize();
+            if(index < 0)
+            {
+                throw new MarshalException("invalid object id");
+            }
+            else if(index == 0)
+            {
+                if(cb != null)
+                {
+                    cb.objectReady(null);
+                }
+            }
+            else if(_current != null && (_current.sliceFlags & IceInternal.Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
+            {
+                //
+                // When reading an object within a slice and there's an
+                // indirect object table, always read an indirect reference
+                // that points to an object from the indirect object table
+                // marshaled at the end of the Slice.
+                //
+                // Maintain a list of indirect references. Note that the
+                // indirect index starts at 1, so we decrement it by one to
+                // derive an index into the indirection table that we'll read
+                // at the end of the slice.
+                //
+                if(cb != null)
+                {
+                    if(_current.indirectPatchList == null) // Lazy initialization
+                    {
+                        _current.indirectPatchList = new java.util.ArrayDeque<IndirectPatchEntry>();
+                    }
+                    IndirectPatchEntry e = new IndirectPatchEntry();
+                    e.index = index - 1;
+                    e.cb = cb;
+                    _current.indirectPatchList.push(e);
+                }
+            }
+            else
+            {
+                readInstance(index, cb);
+            }
+        }
+
+        @Override
+        void throwException(UserExceptionFactory factory)
+            throws UserException
+        {
+            assert(_current == null);
+
+            push(SliceType.ExceptionSlice);
+
+            //
+            // Read the first slice header.
+            //
+            startSlice();
+            final String mostDerivedId = _current.typeId;
+            while(true)
+            {
+                UserException userEx = null;
+
+                //
+                // Use a factory if one was provided.
+                //
+                if(factory != null)
+                {
+                    try
+                    {
+                        factory.createAndThrow(_current.typeId);
+                    }
+                    catch(UserException ex)
+                    {
+                        userEx = ex;
+                    }
+                }
+
+                if(userEx == null)
+                {
+                    userEx = _stream.createUserException(_current.typeId);
+                }
+
+                //
+                // We found the exception.
+                //
+                if(userEx != null)
+                {
+                    userEx.__read(_stream);
+                    throw userEx;
+
+                    // Never reached.
+                }
+
+                //
+                // Slice off what we don't understand.
+                //
+                skipSlice();
+
+                if((_current.sliceFlags & IceInternal.Protocol.FLAG_IS_LAST_SLICE) != 0)
+                {
+                    if(mostDerivedId.startsWith("::"))
+                    {
+                        throw new UnknownUserException(mostDerivedId.substring(2));
+                    }
+                    else
+                    {
+                        throw new UnknownUserException(mostDerivedId);
+                    }
+                }
+
+                startSlice();
+            }
+        }
+
+        @Override
+        void startInstance(SliceType sliceType)
+        {
+            assert(_current.sliceType == sliceType);
+            _current.skipFirstSlice = true;
+        }
+
+        @Override
+        SlicedData endInstance(boolean preserve)
+        {
+            SlicedData slicedData = null;
+            if(preserve)
+            {
+                slicedData = readSlicedData();
+            }
+            if(_current.slices != null)
+            {
+                _current.slices.clear();
+                _current.indirectionTables.clear();
+            }
+            _current = _current.previous;
+            return slicedData;
+        }
+
+        @Override
+        String startSlice()
+        {
+            //
+            // If first slice, don't read the header, it was already read in
+            // readInstance or throwException to find the factory.
+            //
+            if(_current.skipFirstSlice)
+            {
+                _current.skipFirstSlice = false;
+                return _current.typeId;
+            }
+
+            _current.sliceFlags = _stream.readByte();
+
+            //
+            // Read the type ID, for object slices the type ID is encoded as a
+            // string or as an index, for exceptions it's always encoded as a
+            // string.
+            //
+            if(_current.sliceType == SliceType.ObjectSlice)
+            {
+                if((_current.sliceFlags & IceInternal.Protocol.FLAG_HAS_TYPE_ID_COMPACT) ==
+                    IceInternal.Protocol.FLAG_HAS_TYPE_ID_COMPACT) // Must be checked 1st!
+                {
+                    _current.typeId = "";
+                    _current.compactId = _stream.readSize();
+                }
+                else if((_current.sliceFlags & (IceInternal.Protocol.FLAG_HAS_TYPE_ID_INDEX |
+                            IceInternal.Protocol.FLAG_HAS_TYPE_ID_STRING)) != 0)
+                {
+                    _current.typeId =
+                        readTypeId((_current.sliceFlags & IceInternal.Protocol.FLAG_HAS_TYPE_ID_INDEX) != 0);
+                    _current.compactId = -1;
+                }
+                else
+                {
+                    // Only the most derived slice encodes the type ID for the compact format.
+                    _current.typeId = "";
+                    _current.compactId = -1;
+                }
+            }
+            else
+            {
+                _current.typeId = _stream.readString();
+                _current.compactId = -1;
+            }
+
+            //
+            // Read the slice size if necessary.
+            //
+            if((_current.sliceFlags & IceInternal.Protocol.FLAG_HAS_SLICE_SIZE) != 0)
+            {
+                _current.sliceSize = _stream.readInt();
+                if(_current.sliceSize < 4)
+                {
+                    throw new UnmarshalOutOfBoundsException();
+                }
+            }
+            else
+            {
+                _current.sliceSize = 0;
+            }
+
+            return _current.typeId;
+        }
+
+        @Override
+        void endSlice()
+        {
+            if((_current.sliceFlags & IceInternal.Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0)
+            {
+                _stream.skipOpts();
+            }
+
+            //
+            // Read the indirection table if one is present and transform the
+            // indirect patch list into patch entries with direct references.
+            //
+            if((_current.sliceFlags & IceInternal.Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
+            {
+                //
+                // The table is written as a sequence<size> to conserve space.
+                //
+                int[] indirectionTable = new int[_stream.readAndCheckSeqSize(1)];
+                for(int i = 0; i < indirectionTable.length; ++i)
+                {
+                    indirectionTable[i] = readInstance(_stream.readSize(), null);
+                }
+
+                //
+                // Sanity checks. If there are optional members, it's possible
+                // that not all object references were read if they are from
+                // unknown optional data members.
+                //
+                if(indirectionTable.length == 0)
+                {
+                    throw new MarshalException("empty indirection table");
+                }
+                if((_current.indirectPatchList == null || _current.indirectPatchList.isEmpty()) &&
+                   (_current.sliceFlags & IceInternal.Protocol.FLAG_HAS_OPTIONAL_MEMBERS) == 0)
+                {
+                    throw new MarshalException("no references to indirection table");
+                }
+
+                //
+                // Convert indirect references into direct references.
+                //
+                if(_current.indirectPatchList != null)
+                {
+                    for(IndirectPatchEntry e : _current.indirectPatchList)
+                    {
+                        assert(e.index >= 0);
+                        if(e.index >= indirectionTable.length)
+                        {
+                            throw new MarshalException("indirection out of range");
+                        }
+                        addPatchEntry(indirectionTable[e.index], e.cb);
+                    }
+                    _current.indirectPatchList.clear();
+                }
+            }
+        }
+
+        @Override
+        void skipSlice()
+        {
+            _stream.traceSkipSlice(_current.typeId, _current.sliceType);
+
+            int start = _stream.pos();
+
+            if((_current.sliceFlags & IceInternal.Protocol.FLAG_HAS_SLICE_SIZE) != 0)
+            {
+                assert(_current.sliceSize >= 4);
+                _stream.skip(_current.sliceSize - 4);
+            }
+            else
+            {
+                if(_current.sliceType == SliceType.ObjectSlice)
+                {
+                    throw new NoValueFactoryException("no value factory found and compact format prevents " +
+                                                      "slicing (the sender should use the sliced format instead)",
+                                                      _current.typeId);
+                }
+                else
+                {
+                    if(_current.typeId.startsWith("::"))
+                    {
+                        throw new UnknownUserException(_current.typeId.substring(2));
+                    }
+                    else
+                    {
+                        throw new UnknownUserException(_current.typeId);
+                    }
+                }
+            }
+
+            //
+            // Preserve this slice.
+            //
+            SliceInfo info = new SliceInfo();
+            info.typeId = _current.typeId;
+            info.compactId = _current.compactId;
+            info.hasOptionalMembers = (_current.sliceFlags & IceInternal.Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0;
+            info.isLastSlice = (_current.sliceFlags & IceInternal.Protocol.FLAG_IS_LAST_SLICE) != 0;
+            java.nio.ByteBuffer b = _stream.getBuffer().b;
+            final int end = b.position();
+            int dataEnd = end;
+            if(info.hasOptionalMembers)
+            {
+                //
+                // Don't include the optional member end marker. It will be re-written by
+                // endSlice when the sliced data is re-written.
+                //
+                --dataEnd;
+            }
+            info.bytes = new byte[dataEnd - start];
+            b.position(start);
+            b.get(info.bytes);
+            b.position(end);
+
+            if(_current.slices == null) // Lazy initialization
+            {
+                _current.slices = new java.util.ArrayList<SliceInfo>();
+                _current.indirectionTables = new java.util.ArrayList<int[]>();
+            }
+
+            //
+            // Read the indirect object table. We read the instances or their
+            // IDs if the instance is a reference to an already un-marhsaled
+            // object.
+            //
+            // The SliceInfo object sequence is initialized only if
+            // readSlicedData is called.
+            //
+
+            if((_current.sliceFlags & IceInternal.Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
+            {
+                int[] indirectionTable = new int[_stream.readAndCheckSeqSize(1)];
+                for(int i = 0; i < indirectionTable.length; ++i)
+                {
+                    indirectionTable[i] = readInstance(_stream.readSize(), null);
+                }
+                _current.indirectionTables.add(indirectionTable);
+            }
+            else
+            {
+                _current.indirectionTables.add(null);
+            }
+
+            _current.slices.add(info);
+        }
+
+        @Override
+        boolean readOptional(int readTag, OptionalFormat expectedFormat)
+        {
+            if(_current == null)
+            {
+                return _stream.readOptImpl(readTag, expectedFormat);
+            }
+            else if((_current.sliceFlags & IceInternal.Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0)
+            {
+                return _stream.readOptImpl(readTag, expectedFormat);
+            }
+            return false;
+        }
+
+        private int readInstance(int index, ReadObjectCallback cb)
+        {
+            assert(index > 0);
+
+            if(index > 1)
+            {
+                if(cb != null)
+                {
+                    addPatchEntry(index, cb);
+                }
+                return index;
+            }
+
+            push(SliceType.ObjectSlice);
+
+            //
+            // Get the object ID before we start reading slices. If some
+            // slices are skiped, the indirect object table are still read and
+            // might read other objects.
+            //
+            index = ++_objectIdIndex;
+
+            //
+            // Read the first slice header.
+            //
+            startSlice();
+            final String mostDerivedId = _current.typeId;
+            Ice.Object v = null;
+            while(true)
+            {
+                if(_current.compactId >= 0)
+                {
+                    //
+                    // Translate a compact (numeric) type ID into a string type ID.
+                    //
+                    _current.typeId = "";
+                    if(_compactIdResolver != null)
+                    {
+                        try
+                        {
+                            _current.typeId = _compactIdResolver.resolve(_current.compactId);
+                        }
+                        catch(LocalException ex)
+                        {
+                            throw ex;
+                        }
+                        catch(Throwable ex)
+                        {
+                            throw new MarshalException("exception in CompactIdResolver for ID " +
+                                                           _current.compactId, ex);
+                        }
+                    }
+                }
+
+                if(_current.typeId.length() > 0)
+                {
+                    v = newInstance(_current.typeId);
+
+                    //
+                    // We found a factory, we get out of this loop.
+                    //
+                    if(v != null)
+                    {
+                        break;
+                    }
+                }
+
+                //
+                // If object slicing is disabled, stop un-marshalling.
+                //
+                if(!_sliceObjects)
+                {
+                    throw new NoValueFactoryException("no value factory found and object slicing is disabled",
+                                                      _current.typeId);
+                }
+
+                //
+                // Slice off what we don't understand.
+                //
+                skipSlice();
+
+                //
+                // If this is the last slice, keep the object as an opaque
+                // UnknownSlicedData object.
+                //
+                if((_current.sliceFlags & IceInternal.Protocol.FLAG_IS_LAST_SLICE) != 0)
+                {
+                    //
+                    // Provide a factory with an opportunity to supply the object.
+                    // We pass the "::Ice::Object" ID to indicate that this is the
+                    // last chance to preserve the object.
+                    //
+                    v = newInstance(ObjectImpl.ice_staticId());
+                    if(v == null)
+                    {
+                        v = new UnknownSlicedObject(mostDerivedId);
+                    }
+
+                    break;
+                }
+
+                startSlice(); // Read next Slice header for next iteration.
+            }
+
+            //
+            // Unmarshal the object.
+            //
+            unmarshal(index, v);
+
+            if(_current == null && _patchMap != null && !_patchMap.isEmpty())
+            {
+                //
+                // If any entries remain in the patch map, the sender has sent an index for an object, but failed
+                // to supply the object.
+                //
+                throw new MarshalException("index for class received, but no instance");
+            }
+
+            if(cb != null)
+            {
+                cb.objectReady(v);
+            }
+
+            return index;
+        }
+
+        private SlicedData readSlicedData()
+        {
+            if(_current.slices == null) // No preserved slices.
+            {
+                return null;
+            }
+
+            //
+            // The _indirectionTables member holds the indirection table for each slice
+            // in _slices.
+            //
+            assert(_current.slices.size() == _current.indirectionTables.size());
+            for(int n = 0; n < _current.slices.size(); ++n)
+            {
+                //
+                // We use the "objects" list in SliceInfo to hold references
+                // to the target objects. Note that the objects might not have
+                // been read yet in the case of a circular reference to an
+                // enclosing object.
+                //
+                final int[] table = _current.indirectionTables.get(n);
+                SliceInfo info = _current.slices.get(n);
+                info.objects = new Ice.Object[table != null ? table.length : 0];
+                for(int j = 0; j < info.objects.length; ++j)
+                {
+                    addPatchEntry(table[j], new IceInternal.SequencePatcher(info.objects, Ice.Object.class,
+                                                                            ObjectImpl.ice_staticId(), j));
+                }
+            }
+
+            SliceInfo[] arr = new SliceInfo[_current.slices.size()];
+            _current.slices.toArray(arr);
+            return new SlicedData(arr);
+        }
+
+        private void push(SliceType sliceType)
+        {
+            if(_current == null)
+            {
+                _current = new InstanceData(null);
+            }
+            else
+            {
+                _current = _current.next == null ? new InstanceData(_current) : _current.next;
+            }
+            _current.sliceType = sliceType;
+            _current.skipFirstSlice = false;
+        }
+
+        private static final class IndirectPatchEntry
+        {
+            int index;
+            ReadObjectCallback cb;
+        }
+
+        private static final class InstanceData
+        {
+            InstanceData(InstanceData previous)
+            {
+                if(previous != null)
+                {
+                    previous.next = this;
+                }
+                this.previous = previous;
+                this.next = null;
+            }
+
+            // Instance attributes
+            SliceType sliceType;
+            boolean skipFirstSlice;
+            java.util.List<SliceInfo> slices;     // Preserved slices.
+            java.util.List<int[]> indirectionTables;
+
+            // Slice attributes
+            byte sliceFlags;
+            int sliceSize;
+            String typeId;
+            int compactId;
+            java.util.Deque<IndirectPatchEntry> indirectPatchList;
+
+            final InstanceData previous;
+            InstanceData next;
+        }
+
+        private CompactIdResolver _compactIdResolver;
+        private InstanceData _current;
+        private int _objectIdIndex; // The ID of the next object to un-marshal.
+    }
+
+    private static final class Encaps
+    {
+        void reset()
+        {
+            decoder = null;
+        }
+
+        void setEncoding(EncodingVersion encoding)
+        {
+            this.encoding = encoding;
+            encoding_1_0 = encoding.equals(Util.Encoding_1_0);
+        }
+
+        int start;
+        int sz;
+        EncodingVersion encoding;
+        boolean encoding_1_0;
+
+        EncapsDecoder decoder;
+
+        Encaps next;
+    }
+
+    //
+    // The encoding version to use when there's no encapsulation to
+    // read from. This is for example used to read message
+    // headers.
+    //
+    private EncodingVersion _encoding;
+
+    private boolean isEncoding_1_0()
+    {
+        return _encapsStack != null ? _encapsStack.encoding_1_0 : _encoding.equals(Util.Encoding_1_0);
+    }
+
+    private Encaps _encapsStack;
+    private Encaps _encapsCache;
+
+    private void initEncaps()
+    {
+        if(_encapsStack == null) // Lazy initialization
+        {
+            _encapsStack = _encapsCache;
+            if(_encapsStack != null)
+            {
+                _encapsCache = _encapsCache.next;
+            }
+            else
+            {
+                _encapsStack = new Encaps();
+            }
+            _encapsStack.setEncoding(_encoding);
+            _encapsStack.sz = _buf.b.limit();
+        }
+
+        if(_encapsStack.decoder == null) // Lazy initialization.
+        {
+            if(_encapsStack.encoding_1_0)
+            {
+                _encapsStack.decoder = new EncapsDecoder10(this, _sliceObjects, _valueFactoryManager);
+            }
+            else
+            {
+                _encapsStack.decoder = new EncapsDecoder11(this, _sliceObjects, _valueFactoryManager,
+                                                           _compactIdResolver);
+            }
+        }
+    }
+
+    private void traceSkipSlice(String typeId, SliceType sliceType)
+    {
+        if(_traceSlicing && _logger != null)
+        {
+            IceInternal.TraceUtil.traceSlicing(sliceType == SliceType.ExceptionSlice ? "exception" : "object", typeId,
+                                               "Slicing", _logger);
+        }
+    }
+
+    private boolean _sliceObjects;
+    private boolean _traceSlicing;
+
+    private int _startSeq;
+    private int _minSeqSize;
+
+    private ValueFactoryManager _valueFactoryManager;
+    private Logger _logger;
+    private CompactIdResolver _compactIdResolver;
+    private ClassResolver _classResolver;
 }

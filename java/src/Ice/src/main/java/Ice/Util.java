@@ -440,96 +440,6 @@ public final class Util
     }
 
     /**
-     * Creates an input stream for dynamic invocation and dispatch. The stream uses
-     * the communicator's default encoding version.
-     *
-     * @param communicator The communicator for the stream.
-     * @param bytes An encoded request or reply.
-     * @return The input stream.
-     **/
-    public static InputStream
-    createInputStream(Communicator communicator, byte[] bytes)
-    {
-        return new InputStreamI(communicator, bytes, true);
-    }
-
-    /**
-     * Creates an input stream for dynamic invocation and dispatch. The stream uses
-     * the given encoding version.
-     *
-     * @param communicator The communicator for the stream.
-     * @param bytes An encoded request or reply.
-     * @param v The desired encoding version.
-     * @return The input stream.
-     **/
-    public static InputStream
-    createInputStream(Communicator communicator, byte[] bytes, EncodingVersion v)
-    {
-        return new InputStreamI(communicator, bytes, v, true);
-    }
-
-    /**
-     * Wraps encoded data with an input stream for dynamic invocation
-     * and dispatch. The stream uses the communicator's default
-     * encoding version.
-     *
-     * @param communicator The communicator for the stream.
-     * @param bytes An encoded request or reply.
-     * @param copyBytes True if the given bytes should be copied,
-     * false otherwise.
-     * @return The input stream.
-     **/
-    public static InputStream
-    wrapInputStream(Communicator communicator, byte[] bytes)
-    {
-        return new InputStreamI(communicator, bytes, false);
-    }
-
-    /**
-     * Wraps encoded data with an input stream for dynamic invocation
-     * and dispatch. The stream uses the given encoding version.
-     *
-     * @param communicator The communicator for the stream.
-     * @param bytes An encoded request or reply.
-     * @param v The desired encoding version.
-     * @param copyBytes True if the given bytes should be copied,
-     * false otherwise.
-     * @return The input stream.
-     **/
-    public static InputStream
-    wrapInputStream(Communicator communicator, byte[] bytes, EncodingVersion v)
-    {
-        return new InputStreamI(communicator, bytes, v, false);
-    }
-
-    /**
-     * Creates an output stream for dynamic invocation and dispatch. The stream uses
-     * the communicator's default encoding version.
-     *
-     * @param communicator The communicator for the stream.
-     * @return The output stream.
-     **/
-    public static OutputStream
-    createOutputStream(Communicator communicator)
-    {
-        return new OutputStreamI(communicator);
-    }
-
-    /**
-     * Creates an output stream for dynamic invocation and dispatch. The stream uses
-     * the given encoding version.
-     *
-     * @param communicator The communicator for the stream.
-     * @param v The desired encoding version.
-     * @return The output stream.
-     **/
-    public static OutputStream
-    createOutputStream(Communicator communicator, EncodingVersion v)
-    {
-        return new OutputStreamI(communicator, v);
-    }
-
-    /**
      * Returns the process-wide logger.
      *
      * @return The process-wide logger.
@@ -663,6 +573,70 @@ public final class Util
     currentEncoding()
     {
         return IceInternal.Protocol.currentEncoding.clone();
+    }
+
+    /**
+     * Translates a Slice type id to a Java class name.
+     *
+     * @param id The Slice type id, such as <code>::Module::Type</code>.
+     * @return The equivalent Java class name, or null if the type id is malformed.
+     **/
+    public static String typeIdToClass(String id)
+    {
+        if(!id.startsWith("::"))
+        {
+            return null;
+        }
+
+        StringBuilder buf = new StringBuilder(id.length());
+
+        int start = 2;
+        boolean done = false;
+        while(!done)
+        {
+            int end = id.indexOf(':', start);
+            String s;
+            if(end != -1)
+            {
+                s = id.substring(start, end);
+                start = end + 2;
+            }
+            else
+            {
+                s = id.substring(start);
+                done = true;
+            }
+            if(buf.length() > 0)
+            {
+                buf.append('.');
+            }
+            buf.append(fixKwd(s));
+        }
+
+        return buf.toString();
+    }
+
+    private static String fixKwd(String name)
+    {
+        //
+        // Keyword list. *Must* be kept in alphabetical order. Note that checkedCast and uncheckedCast
+        // are not Java keywords, but are in this list to prevent illegal code being generated if
+        // someone defines Slice operations with that name.
+        //
+        final String[] keywordList =
+        {
+            "abstract", "assert", "boolean", "break", "byte", "case", "catch",
+            "char", "checkedCast", "class", "clone", "const", "continue", "default", "do",
+            "double", "else", "enum", "equals", "extends", "false", "final", "finalize",
+            "finally", "float", "for", "getClass", "goto", "hashCode", "if",
+            "implements", "import", "instanceof", "int", "interface", "long",
+            "native", "new", "notify", "notifyAll", "null", "package", "private",
+            "protected", "public", "return", "short", "static", "strictfp", "super", "switch",
+            "synchronized", "this", "throw", "throws", "toString", "transient",
+            "true", "try", "uncheckedCast", "void", "volatile", "wait", "while"
+        };
+        boolean found =  java.util.Arrays.binarySearch(keywordList, name) >= 0;
+        return found ? "_" + name : name;
     }
 
     static private byte

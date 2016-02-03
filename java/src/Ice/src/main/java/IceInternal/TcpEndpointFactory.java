@@ -37,7 +37,7 @@ final class TcpEndpointFactory implements EndpointFactory
     }
 
     @Override
-    public EndpointI read(BasicStream s)
+    public EndpointI read(Ice.InputStream s)
     {
         return new TcpEndpointI(_instance, s);
     }

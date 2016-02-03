@@ -13,7 +13,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
 {
     private class InvokeAllAsync extends DispatchWorkItem
     {
-        private InvokeAllAsync(OutgoingAsyncBase outAsync, BasicStream os, int requestId, int batchRequestNum)
+        private InvokeAllAsync(OutgoingAsyncBase outAsync, Ice.OutputStream os, int requestId, int batchRequestNum)
         {
             _outAsync = outAsync;
             _os = os;
@@ -31,7 +31,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
         }
 
         private final OutgoingAsyncBase _outAsync;
-        private BasicStream _os;
+        private Ice.OutputStream _os;
         private final int _requestId;
         private final int _batchRequestNum;
     }
@@ -103,23 +103,30 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
 
     @Override
     public void
-    sendResponse(int requestId, final BasicStream os, byte status, boolean amd)
+    sendResponse(int requestId, final Ice.OutputStream os, byte status, boolean amd)
     {
         OutgoingAsyncBase outAsync = null;
         synchronized(this)
         {
             assert(_response);
 
-            os.pos(Protocol.replyHdr.length + 4);
-
             if(_traceLevels.protocol >= 1)
             {
                 fillInValue(os, 10, os.size());
-                TraceUtil.traceRecv(os, _logger, _traceLevels);
+            }
+
+            // Adopt the OutputStream's buffer.
+            Ice.InputStream is = new Ice.InputStream(os.instance(), os.getEncoding(), os.getBuffer(), true);
+
+            is.pos(Protocol.replyHdr.length + 4);
+
+            if(_traceLevels.protocol >= 1)
+            {
+                TraceUtil.traceRecv(is, _logger, _traceLevels);
             }
 
             outAsync = _asyncRequests.remove(requestId);
-            if(outAsync != null && !outAsync.completed(os))
+            if(outAsync != null && !outAsync.completed(is))
             {
                 outAsync = null;
             }
@@ -272,17 +279,8 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
     }
 
     private void
-    invokeAll(BasicStream os, int requestId, int batchRequestNum)
+    invokeAll(Ice.OutputStream os, int requestId, int batchRequestNum)
     {
-        if(batchRequestNum > 0)
-        {
-            os.pos(Protocol.requestBatchHdr.length);
-        }
-        else
-        {
-            os.pos(Protocol.requestHdr.length);
-        }
-
         if(_traceLevels.protocol >= 1)
         {
             fillInValue(os, 10, os.size());
@@ -295,6 +293,17 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
                 fillInValue(os, Protocol.headerSize, batchRequestNum);
             }
             TraceUtil.traceSend(os, _logger, _traceLevels);
+        }
+
+        Ice.InputStream is = new Ice.InputStream(os.instance(), os.getEncoding(), os.getBuffer(), false);
+
+        if(batchRequestNum > 0)
+        {
+            is.pos(Protocol.requestBatchHdr.length);
+        }
+        else
+        {
+            is.pos(Protocol.requestHdr.length);
         }
 
         int invokeNum = batchRequestNum > 0 ? batchRequestNum : 1;
@@ -321,7 +330,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
 
                 Incoming in = new Incoming(_reference.getInstance(), this, null, _adapter, _response, (byte)0,
                                            requestId);
-                in.invoke(servantManager, os);
+                in.invoke(servantManager, is);
                 --invokeNum;
             }
         }
@@ -410,7 +419,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
     }
 
     private void
-    fillInValue(BasicStream os, int pos, int value)
+    fillInValue(Ice.OutputStream os, int pos, int value)
     {
         os.rewriteInt(value, pos);
     }

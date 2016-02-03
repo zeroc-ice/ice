@@ -31,7 +31,7 @@ final class WSEndpoint extends IceInternal.EndpointI
         }
     }
 
-    public WSEndpoint(ProtocolInstance instance, EndpointI del, BasicStream s)
+    public WSEndpoint(ProtocolInstance instance, EndpointI del, Ice.InputStream s)
     {
         _instance = instance;
         _delegate = (IPEndpointI)del;
@@ -58,12 +58,12 @@ final class WSEndpoint extends IceInternal.EndpointI
     }
 
     @Override
-    public void streamWrite(BasicStream s)
+    public void streamWrite(Ice.OutputStream s)
     {
-        s.startWriteEncaps();
+        s.startEncapsulation();
         _delegate.streamWriteImpl(s);
         s.writeString(_resource);
-        s.endWriteEncaps();
+        s.endEncapsulation();
     }
 
     @Override

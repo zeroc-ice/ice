@@ -10,8 +10,8 @@
 package Ice;
 
 /**
- * Callback class to inform an application when a Slice class has been unmarshaled
- * from an input stream.
+ * Callback class to inform an application when an instance of a Slice class has been
+ * unmarshaled from an input stream.
  *
  * @see InputStream#readObject
  **/
@@ -21,7 +21,7 @@ public interface ReadObjectCallback
      * The Ice run time calls this method when it has fully unmarshaled the state
      * of a Slice class.
      *
-     * @param obj The unmarshaled Slice class.
+     * @param obj The unmarshaled Slice class instance.
      **/
-    void invoke(Ice.Object obj);
+    void objectReady(Ice.Object obj);
 }

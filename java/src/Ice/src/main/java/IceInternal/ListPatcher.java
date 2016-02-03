@@ -9,10 +9,10 @@
 
 package IceInternal;
 
-public class ListPatcher<T> implements Patcher, Ice.ReadObjectCallback
+public class ListPatcher<T> implements Ice.ReadObjectCallback
 {
-    public
-    ListPatcher(java.util.List<T> list, Class<T> cls, String type, int index)
+    // TBD: Remove _type?
+    public ListPatcher(java.util.List<T> list, Class<T> cls, String type, int index)
     {
         _list = list;
         _cls = cls;
@@ -20,9 +20,7 @@ public class ListPatcher<T> implements Patcher, Ice.ReadObjectCallback
         _index = index;
     }
 
-    @Override
-    public void
-    patch(Ice.Object v)
+    public void objectReady(Ice.Object v)
     {
         if(v != null)
         {
@@ -42,20 +40,6 @@ public class ListPatcher<T> implements Patcher, Ice.ReadObjectCallback
         // created for each element.
         //
         _list.set(_index, _cls.cast(v));
-    }
-
-    @Override
-    public String
-    type()
-    {
-        return _type;
-    }
-
-    @Override
-    public void
-    invoke(Ice.Object v)
-    {
-        patch(v);
     }
 
     private java.util.List<T> _list;

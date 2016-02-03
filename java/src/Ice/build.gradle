@@ -13,7 +13,7 @@ targetCompatibility = iceTargetCompatibility
 slice {
     java {
         stream {
-            args = "--ice --stream"
+            args = "--ice"
             files = [file("$sliceDir/Ice/BuiltinSequences.ice")]
         }
         nostream {

@@ -15,13 +15,12 @@ package IceInternal;
 //
 public class Buffer
 {
-    public
-    Buffer(boolean direct)
+    public Buffer(boolean direct)
     {
         this(direct, java.nio.ByteOrder.LITTLE_ENDIAN);
     }
 
-    Buffer(boolean direct, java.nio.ByteOrder order)
+    public Buffer(boolean direct, java.nio.ByteOrder order)
     {
         b = _emptyBuffer;
         _size = 0;
@@ -30,12 +29,12 @@ public class Buffer
         _order = order;
     }
 
-    Buffer(byte[] data)
+    public Buffer(byte[] data)
     {
         this(data, java.nio.ByteOrder.LITTLE_ENDIAN);
     }
 
-    Buffer(byte[] data, java.nio.ByteOrder order)
+    public Buffer(byte[] data, java.nio.ByteOrder order)
     {
         b = java.nio.ByteBuffer.wrap(data);
         b.order(order);
@@ -45,12 +44,12 @@ public class Buffer
         _order = order;
     }
 
-    Buffer(java.nio.ByteBuffer data)
+    public Buffer(java.nio.ByteBuffer data)
     {
         this(data, java.nio.ByteOrder.LITTLE_ENDIAN);
     }
 
-    Buffer(java.nio.ByteBuffer data, java.nio.ByteOrder order)
+    public Buffer(java.nio.ByteBuffer data, java.nio.ByteOrder order)
     {
         b = data;
         b.order(order);
@@ -60,24 +59,37 @@ public class Buffer
         _order = order;
     }
 
-    public int
-    size()
+    public Buffer(Buffer buf, boolean adopt)
+    {
+        b = buf.b;
+        _size = buf._size;
+        _capacity = buf._capacity;
+        _direct = buf._direct;
+        _shrinkCounter = buf._shrinkCounter;
+        _order = buf._order;
+
+        if(adopt)
+        {
+            buf.clear();
+        }
+    }
+
+    public int size()
     {
         return _size;
     }
 
-    public boolean
-    empty()
+    public boolean empty()
     {
         return _size == 0;
     }
 
-    public void
-    clear()
+    public void clear()
     {
         b = _emptyBuffer;
         _size = 0;
         _capacity = 0;
+        _shrinkCounter = 0;
     }
 
     //
@@ -86,8 +98,7 @@ public class Buffer
     // expand the buffer if the caller is writing to a location that is
     // already in the buffer.
     //
-    public void
-    expand(int n)
+    public void expand(int n)
     {
         final int sz = (b == _emptyBuffer) ? n : b.position() + n;
         if(sz > _size)
@@ -96,8 +107,7 @@ public class Buffer
         }
     }
 
-    public void
-    resize(int n, boolean reading)
+    public void resize(int n, boolean reading)
     {
         assert(b == _emptyBuffer || _capacity > 0);
 
@@ -120,8 +130,7 @@ public class Buffer
         }
     }
 
-    public void
-    reset()
+    public void reset()
     {
         if(_size > 0 && _size * 2 < _capacity)
         {
@@ -149,8 +158,7 @@ public class Buffer
         }
     }
 
-    private void
-    reserve(int n)
+    private void reserve(int n)
     {
         if(n > _capacity)
         {

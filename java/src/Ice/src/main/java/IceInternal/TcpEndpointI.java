@@ -26,7 +26,7 @@ final class TcpEndpointI extends IPEndpointI implements WSEndpointDelegate
         _compress = false;
     }
 
-    public TcpEndpointI(ProtocolInstance instance, BasicStream s)
+    public TcpEndpointI(ProtocolInstance instance, Ice.InputStream s)
     {
         super(instance, s);
         _timeout = s.readInt();
@@ -253,7 +253,7 @@ final class TcpEndpointI extends IPEndpointI implements WSEndpointDelegate
     }
 
     @Override
-    public void streamWriteImpl(BasicStream s)
+    public void streamWriteImpl(Ice.OutputStream s)
     {
         super.streamWriteImpl(s);
         s.writeInt(_timeout);

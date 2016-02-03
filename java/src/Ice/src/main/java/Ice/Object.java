@@ -155,11 +155,8 @@ public interface Object
 
     DispatchStatus __dispatch(IceInternal.Incoming in, Current current);
 
-    void __write(IceInternal.BasicStream __os);
-    void __read(IceInternal.BasicStream __is);
-
-    void __write(OutputStream __outS);
-    void __read(InputStream __inS);
+    void __write(OutputStream __os);
+    void __read(InputStream __is);
 
     public static final String ice_staticId = "::Ice::Object";
 }

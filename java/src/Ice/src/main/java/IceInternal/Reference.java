@@ -257,7 +257,7 @@ public abstract class Reference implements Cloneable
     // Marshal the reference.
     //
     public void
-    streamWrite(BasicStream s)
+    streamWrite(Ice.OutputStream s)
     {
         //
         // Don't write the identity here. Operations calling streamWrite
@@ -281,10 +281,10 @@ public abstract class Reference implements Cloneable
 
         s.writeBool(_secure);
 
-        if(!s.getWriteEncoding().equals(Ice.Util.Encoding_1_0))
+        if(!s.getEncoding().equals(Ice.Util.Encoding_1_0))
         {
-            _protocol.__write(s);
-            _encoding.__write(s);
+            _protocol.ice_write(s);
+            _encoding.ice_write(s);
         }
 
         // Derived class writes the remainder of the reference.

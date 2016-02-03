@@ -22,15 +22,13 @@ public abstract class ObjectWriter extends ObjectImpl
     public abstract void write(OutputStream out);
 
     @Override
-    public void
-    __write(IceInternal.BasicStream os)
+    public void __write(OutputStream os)
     {
-        OutputStream stream = (OutputStream)os.closure();
-        write(stream);
+        write(os);
     }
 
-    public void
-    __read(IceInternal.BasicStream is, boolean rid)
+    @Override
+    public void __read(Ice.InputStream is)
     {
         assert(false);
     }

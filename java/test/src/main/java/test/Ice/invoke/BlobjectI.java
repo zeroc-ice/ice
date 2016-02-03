@@ -18,9 +18,9 @@ public class BlobjectI extends Ice.Blobject
     ice_invoke(byte[] inParams, Ice.ByteSeqHolder outParams, Ice.Current current)
     {
         Ice.Communicator communicator = current.adapter.getCommunicator();
-        Ice.InputStream in = Ice.Util.createInputStream(communicator, inParams);
+        Ice.InputStream in = new Ice.InputStream(communicator, inParams);
         in.startEncapsulation();
-        Ice.OutputStream out = Ice.Util.createOutputStream(communicator);
+        Ice.OutputStream out = new Ice.OutputStream(communicator);
         out.startEncapsulation();
         if(current.operation.equals("opOneway"))
         {

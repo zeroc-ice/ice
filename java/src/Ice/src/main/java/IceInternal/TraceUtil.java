@@ -12,15 +12,16 @@ package IceInternal;
 public final class TraceUtil
 {
     public static void
-    traceSend(BasicStream str, Ice.Logger logger, TraceLevels tl)
+    traceSend(Ice.OutputStream str, Ice.Logger logger, TraceLevels tl)
     {
         if(tl.protocol >= 1)
         {
             int p = str.pos();
-            str.pos(0);
+            Ice.InputStream is = new Ice.InputStream(str.instance(), str.getEncoding(), str.getBuffer(), false);
+            is.pos(0);
 
             java.io.StringWriter s = new java.io.StringWriter();
-            byte type = printMessage(s, str);
+            byte type = printMessage(s, is);
 
             logger.trace(tl.protocolCat, "sending " + getMessageTypeAsString(type) + " " + s.toString());
 
@@ -29,7 +30,7 @@ public final class TraceUtil
     }
 
     public static void
-    traceRecv(BasicStream str, Ice.Logger logger, TraceLevels tl)
+    traceRecv(Ice.InputStream str, Ice.Logger logger, TraceLevels tl)
     {
         if(tl.protocol >= 1)
         {
@@ -46,7 +47,25 @@ public final class TraceUtil
     }
 
     public static void
-    trace(String heading, BasicStream str, Ice.Logger logger, TraceLevels tl)
+    trace(String heading, Ice.OutputStream str, Ice.Logger logger, TraceLevels tl)
+    {
+        if(tl.protocol >= 1)
+        {
+            int p = str.pos();
+            Ice.InputStream is = new Ice.InputStream(str.instance(), str.getEncoding(), str.getBuffer(), false);
+            is.pos(0);
+
+            java.io.StringWriter s = new java.io.StringWriter();
+            s.write(heading);
+            printMessage(s, is);
+
+            logger.trace(tl.protocolCat, s.toString());
+            str.pos(p);
+        }
+    }
+
+    public static void
+    trace(String heading, Ice.InputStream str, Ice.Logger logger, TraceLevels tl)
     {
         if(tl.protocol >= 1)
         {
@@ -64,7 +83,7 @@ public final class TraceUtil
 
     private static java.util.Set<String> slicingIds = new java.util.HashSet<String>();
 
-    synchronized static void
+    public synchronized static void
     traceSlicing(String kind, String typeId, String slicingCat, Ice.Logger logger)
     {
         if(slicingIds.add(typeId))
@@ -76,7 +95,7 @@ public final class TraceUtil
     }
 
     public static void
-    dumpStream(BasicStream stream)
+    dumpStream(Ice.InputStream stream)
     {
         int pos = stream.pos();
         stream.pos(0);
@@ -143,12 +162,12 @@ public final class TraceUtil
     }
 
     private static void
-    printIdentityFacetOperation(java.io.Writer out, BasicStream stream)
+    printIdentityFacetOperation(java.io.Writer out, Ice.InputStream stream)
     {
         try
         {
             Ice.Identity identity = new Ice.Identity();
-            identity.__read(stream);
+            identity.ice_read(stream);
             out.write("\nidentity = " + stream.instance().identityToString(identity));
 
             String[] facet = stream.readStringSeq();
@@ -168,7 +187,7 @@ public final class TraceUtil
     }
 
     private static void
-    printRequest(java.io.StringWriter s, BasicStream str)
+    printRequest(java.io.StringWriter s, Ice.InputStream str)
     {
         int requestId = str.readInt();
         s.write("\nrequest id = " + requestId);
@@ -181,7 +200,7 @@ public final class TraceUtil
     }
 
     private static void
-    printBatchRequest(java.io.StringWriter s, BasicStream str)
+    printBatchRequest(java.io.StringWriter s, Ice.InputStream str)
     {
         int batchRequestNum = str.readInt();
         s.write("\nnumber of requests = " + batchRequestNum);
@@ -194,7 +213,7 @@ public final class TraceUtil
     }
 
     private static void
-    printReply(java.io.StringWriter s, BasicStream str)
+    printReply(java.io.StringWriter s, Ice.InputStream str)
     {
         int requestId = str.readInt();
         s.write("\nrequest id = " + requestId);
@@ -296,7 +315,7 @@ public final class TraceUtil
 
         if(replyStatus == ReplyStatus.replyOK || replyStatus == ReplyStatus.replyUserException)
         {
-            Ice.EncodingVersion v = str.skipEncaps();
+            Ice.EncodingVersion v = str.skipEncapsulation();
             if(!v.equals(Ice.Util.Encoding_1_0))
             {
                 s.write("\nencoding = ");
@@ -306,7 +325,7 @@ public final class TraceUtil
     }
 
     private static void
-    printRequestHeader(java.io.Writer out, BasicStream stream)
+    printRequestHeader(java.io.Writer out, Ice.InputStream stream)
     {
         printIdentityFacetOperation(out, stream);
 
@@ -354,7 +373,7 @@ public final class TraceUtil
                 }
             }
 
-            Ice.EncodingVersion v = stream.skipEncaps();
+            Ice.EncodingVersion v = stream.skipEncapsulation();
             if(!v.equals(Ice.Util.Encoding_1_0))
             {
                 out.write("\nencoding = ");
@@ -368,7 +387,7 @@ public final class TraceUtil
     }
 
     private static byte
-    printHeader(java.io.Writer out, BasicStream stream)
+    printHeader(java.io.Writer out, Ice.InputStream stream)
     {
         stream.readByte();  // Don't bother printing the magic number
         stream.readByte();
@@ -433,7 +452,7 @@ public final class TraceUtil
     }
 
     static private byte
-    printMessage(java.io.StringWriter s, BasicStream str)
+    printMessage(java.io.StringWriter s, Ice.InputStream str)
     {
         byte type = printHeader(s, str);
 

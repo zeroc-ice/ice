@@ -21,7 +21,7 @@ class IncomingBase
         _compress = compress;
         if(_response)
         {
-            _os = new BasicStream(instance, Protocol.currentProtocolEncoding);
+            _os = new Ice.OutputStream(instance, Protocol.currentProtocolEncoding);
         }
 
         _current = new Ice.Current();
@@ -90,7 +90,7 @@ class IncomingBase
         other._responseHandler = null;
     }
 
-    public BasicStream
+    public Ice.OutputStream
     __startWriteParams(Ice.FormatType format)
     {
         if(!_response)
@@ -101,7 +101,7 @@ class IncomingBase
         assert(_os.size() == Protocol.headerSize + 4); // Reply status position.
         assert(_current.encoding != null); // Encoding for reply is known.
         _os.writeByte((byte)0);
-        _os.startWriteEncaps(_current.encoding, format);
+        _os.startEncapsulation(_current.encoding, format);
         return _os;
     }
 
@@ -119,7 +119,7 @@ class IncomingBase
         _os.pos(Protocol.headerSize + 4); // Reply status position.
         _os.writeByte(ok ? ReplyStatus.replyOK : ReplyStatus.replyUserException);
         _os.pos(save);
-        _os.endWriteEncaps();
+        _os.endEncapsulation();
     }
 
     public void
@@ -130,7 +130,7 @@ class IncomingBase
             assert(_os.size() == Protocol.headerSize + 4); // Reply status position.
             assert(_current.encoding != null); // Encoding for reply is known.
             _os.writeByte(ReplyStatus.replyOK);
-            _os.writeEmptyEncaps(_current.encoding);
+            _os.writeEmptyEncapsulation(_current.encoding);
         }
     }
 
@@ -149,11 +149,11 @@ class IncomingBase
             _os.writeByte(ok ? ReplyStatus.replyOK : ReplyStatus.replyUserException);
             if(v == null || v.length == 0)
             {
-                _os.writeEmptyEncaps(_current.encoding);
+                _os.writeEmptyEncapsulation(_current.encoding);
             }
             else
             {
-                _os.writeEncaps(v);
+                _os.writeEncapsulation(v);
             }
         }
     }
@@ -161,8 +161,8 @@ class IncomingBase
     public void
     __writeUserException(Ice.UserException ex, Ice.FormatType format)
     {
-        BasicStream __os = __startWriteParams(format);
-        __os.writeUserException(ex);
+        Ice.OutputStream __os = __startWriteParams(format);
+        __os.writeException(ex);
         __endWriteParams(false);
     }
 
@@ -195,7 +195,7 @@ class IncomingBase
 
         if(_response && _os == null)
         {
-            _os = new BasicStream(instance, Protocol.currentProtocolEncoding);
+            _os = new Ice.OutputStream(instance, Protocol.currentProtocolEncoding);
         }
 
         _responseHandler = handler;
@@ -277,11 +277,11 @@ class IncomingBase
             //
             if(_response)
             {
-                _os.resize(Protocol.headerSize + 4, false); // Reply status position.
+                _os.resize(Protocol.headerSize + 4); // Reply status position.
                 _os.writeByte(ReplyStatus.replyUserException);
-                _os.startWriteEncaps(_current.encoding, Ice.FormatType.DefaultFormat);
-                _os.writeUserException(ex);
-                _os.endWriteEncaps();
+                _os.startEncapsulation(_current.encoding, Ice.FormatType.DefaultFormat);
+                _os.writeException(ex);
+                _os.endEncapsulation();
                 if(_observer != null)
                 {
                     _observer.reply(_os.size() - Protocol.headerSize - 4);
@@ -349,7 +349,7 @@ class IncomingBase
 
             if(_response)
             {
-                _os.resize(Protocol.headerSize + 4, false); // Reply status position.
+                _os.resize(Protocol.headerSize + 4); // Reply status position.
                 if(ex instanceof Ice.ObjectNotExistException)
                 {
                     _os.writeByte(ReplyStatus.replyObjectNotExist);
@@ -366,7 +366,7 @@ class IncomingBase
                 {
                     assert(false);
                 }
-                ex.id.__write(_os);
+                ex.id.ice_write(_os);
 
                 //
                 // For compatibility with the old FacetPath.
@@ -408,7 +408,7 @@ class IncomingBase
 
             if(_response)
             {
-                _os.resize(Protocol.headerSize + 4, false); // Reply status position.
+                _os.resize(Protocol.headerSize + 4); // Reply status position.
                 _os.writeByte(ReplyStatus.replyUnknownLocalException);
                 _os.writeString(ex.unknown);
                 if(_observer != null)
@@ -436,7 +436,7 @@ class IncomingBase
 
             if(_response)
             {
-                _os.resize(Protocol.headerSize + 4, false); // Reply status position.
+                _os.resize(Protocol.headerSize + 4); // Reply status position.
                 _os.writeByte(ReplyStatus.replyUnknownUserException);
                 _os.writeString(ex.unknown);
                 if(_observer != null)
@@ -464,7 +464,7 @@ class IncomingBase
 
             if(_response)
             {
-                _os.resize(Protocol.headerSize + 4, false); // Reply status position.
+                _os.resize(Protocol.headerSize + 4); // Reply status position.
                 _os.writeByte(ReplyStatus.replyUnknownException);
                 _os.writeString(ex.unknown);
                 if(_observer != null)
@@ -500,7 +500,7 @@ class IncomingBase
 
             if(_response)
             {
-                _os.resize(Protocol.headerSize + 4, false); // Reply status position.
+                _os.resize(Protocol.headerSize + 4); // Reply status position.
                 _os.writeByte(ReplyStatus.replyUnknownLocalException);
                 //_os.writeString(ex.toString());
                 java.io.StringWriter sw = new java.io.StringWriter();
@@ -534,7 +534,7 @@ class IncomingBase
 
             if(_response)
             {
-                _os.resize(Protocol.headerSize + 4, false); // Reply status position.
+                _os.resize(Protocol.headerSize + 4); // Reply status position.
                 _os.writeByte(ReplyStatus.replyUnknownUserException);
                 //_os.writeString(ex.toString());
                 java.io.StringWriter sw = new java.io.StringWriter();
@@ -568,7 +568,7 @@ class IncomingBase
 
             if(_response)
             {
-                _os.resize(Protocol.headerSize + 4, false); // Reply status position.
+                _os.resize(Protocol.headerSize + 4); // Reply status position.
                 _os.writeByte(ReplyStatus.replyUnknownException);
                 //_os.writeString(ex.toString());
                 java.io.StringWriter sw = new java.io.StringWriter();
@@ -620,7 +620,7 @@ class IncomingBase
 
         if(_response)
         {
-            _os.resize(Protocol.headerSize + 4, false); // Reply status position.
+            _os.resize(Protocol.headerSize + 4); // Reply status position.
             _os.writeByte(ReplyStatus.replyUnknownException);
             _os.writeString(uex.unknown);
             if(_observer != null)
@@ -654,7 +654,7 @@ class IncomingBase
     protected boolean _response;
     protected byte _compress;
 
-    protected BasicStream _os;
+    protected Ice.OutputStream _os;
 
     protected ResponseHandler _responseHandler;
 

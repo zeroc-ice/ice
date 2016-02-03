@@ -35,7 +35,7 @@ public abstract class ImplicitContextI implements ImplicitContext
         }
     }
 
-    abstract public void write(java.util.Map<String, String> prxContext, IceInternal.BasicStream os);
+    abstract public void write(java.util.Map<String, String> prxContext, OutputStream os);
     abstract java.util.Map<String, String> combine(java.util.Map<String, String> prxContext);
 
     static class Shared extends ImplicitContextI
@@ -122,7 +122,7 @@ public abstract class ImplicitContextI implements ImplicitContext
         }
 
         @Override
-        public void write(java.util.Map<String, String> prxContext, IceInternal.BasicStream os)
+        public void write(java.util.Map<String, String> prxContext, OutputStream os)
         {
             if(prxContext.isEmpty())
             {
@@ -279,7 +279,7 @@ public abstract class ImplicitContextI implements ImplicitContext
         }
 
         @Override
-        public void write(java.util.Map<String, String> prxContext, IceInternal.BasicStream os)
+        public void write(java.util.Map<String, String> prxContext, OutputStream os)
         {
             java.util.Map<String, String> threadContext = _map.get(Thread.currentThread());
 

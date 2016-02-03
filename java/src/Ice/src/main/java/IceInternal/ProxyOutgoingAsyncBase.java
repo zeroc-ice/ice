@@ -145,7 +145,7 @@ public abstract class ProxyOutgoingAsyncBase extends OutgoingAsyncBase
         _sent = false;
     }
 
-    protected ProxyOutgoingAsyncBase(Ice.ObjectPrxHelperBase prx, String op, CallbackBase delegate, BasicStream os)
+    protected ProxyOutgoingAsyncBase(Ice.ObjectPrxHelperBase prx, String op, CallbackBase delegate, Ice.OutputStream os)
     {
         super(prx.ice_getCommunicator(), prx.__reference().getInstance(), op, delegate, os);
         _proxy = prx;

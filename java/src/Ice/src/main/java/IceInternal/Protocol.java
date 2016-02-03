@@ -185,4 +185,14 @@ final public class Protocol
     {
         return version.major == supported.major && version.minor <= supported.minor;
     }
+
+    public static final int OPTIONAL_END_MARKER            = 0xFF;
+
+    public static final byte FLAG_HAS_TYPE_ID_STRING       = (byte)(1<<0);
+    public static final byte FLAG_HAS_TYPE_ID_INDEX        = (byte)(1<<1);
+    public static final byte FLAG_HAS_TYPE_ID_COMPACT      = (byte)(1<<1 | 1<<0);
+    public static final byte FLAG_HAS_OPTIONAL_MEMBERS     = (byte)(1<<2);
+    public static final byte FLAG_HAS_INDIRECTION_TABLE    = (byte)(1<<3);
+    public static final byte FLAG_HAS_SLICE_SIZE           = (byte)(1<<4);
+    public static final byte FLAG_IS_LAST_SLICE            = (byte)(1<<5);
 }

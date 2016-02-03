@@ -544,7 +544,7 @@ public final class ReferenceFactory
     }
 
     public Reference
-    create(Ice.Identity ident, BasicStream s)
+    create(Ice.Identity ident, Ice.InputStream s)
     {
         //
         // Don't read the identity here. Operations calling this
@@ -584,12 +584,12 @@ public final class ReferenceFactory
 
         Ice.ProtocolVersion protocol;
         Ice.EncodingVersion encoding;
-        if(!s.getReadEncoding().equals(Ice.Util.Encoding_1_0))
+        if(!s.getEncoding().equals(Ice.Util.Encoding_1_0))
         {
             protocol = new Ice.ProtocolVersion();
-            protocol.__read(s);
+            protocol.ice_read(s);
             encoding = new Ice.EncodingVersion();
-            encoding.__read(s);
+            encoding.ice_read(s);
         }
         else
         {

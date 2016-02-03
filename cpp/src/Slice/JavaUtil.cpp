@@ -1259,8 +1259,8 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
             {
                 if(optionalMapping)
                 {
-                    out << nl << "if(" << v << " != null && " << v << ".isSet() && " << stream << ".writeOpt(" << tag
-                        << ", " << getOptionalFormat(type) << "))";
+                    out << nl << "if(" << v << " != null && " << v << ".isSet() && " << stream << ".writeOptional("
+                        << tag << ", " << getOptionalFormat(type) << "))";
                     out << sb;
                     out << nl << "int __pos = " << stream << ".startSize();";
                     out << nl << typeS << "Helper.__write(" << stream << ", " << v << ".get());";
@@ -1269,7 +1269,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                 }
                 else
                 {
-                    out << nl << "if(" << stream << ".writeOpt(" << tag << ", " << getOptionalFormat(type) << "))";
+                    out << nl << "if(" << stream << ".writeOptional(" << tag << ", " << getOptionalFormat(type) << "))";
                     out << sb;
                     out << nl << "int __pos = " << stream << ".startSize();";
                     out << nl << typeS << "Helper.__write(" << stream << ", " << v << ");";
@@ -1292,7 +1292,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
         {
             if(optionalParam)
             {
-                out << nl << "if(" << stream << ".readOpt(" << tag << ", " << getOptionalFormat(type) << "))";
+                out << nl << "if(" << stream << ".readOptional(" << tag << ", " << getOptionalFormat(type) << "))";
                 out << sb;
                 out << nl << stream << ".skip(4);";
                 out << nl << v << ".set(" << typeS << "Helper.__read(" << stream << "));";
@@ -1337,7 +1337,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
             if(optionalParam)
             {
                 string typeS = typeToString(type, TypeModeIn, package);
-                out << nl << "if(" << stream << ".readOpt(" << tag << ", " << getOptionalFormat(type) << "))";
+                out << nl << "if(" << stream << ".readOptional(" << tag << ", " << getOptionalFormat(type) << "))";
                 out << sb;
                 out << nl << stream << ".readObject(new Ice.OptionalObject(" << v << ", " << typeS << ".class, "
                     << getStaticId(type, package) << "));";
@@ -1385,13 +1385,14 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                 {
                     if(optionalMapping)
                     {
-                        out << nl << "if(" << v << " != null && " << v << ".isSet() && " << stream << ".writeOpt("
+                        out << nl << "if(" << v << " != null && " << v << ".isSet() && " << stream << ".writeOptional("
                             << tag << ", " << getOptionalFormat(type) << "))";
                         val = v + ".get()";
                     }
                     else
                     {
-                        out << nl << "if(" << stream << ".writeOpt(" << tag << ", " << getOptionalFormat(type) << "))";
+                        out << nl << "if(" << stream << ".writeOptional(" << tag << ", " << getOptionalFormat(type)
+                            << "))";
                         val = v;
                     }
                     out << sb;
@@ -1404,13 +1405,13 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                 if(st->isVariableLength())
                 {
                     out << nl << "int __pos = " <<  stream << ".startSize();";
-                    out << nl << typeS << ".__write(" << stream << ", " << val << ");";
+                    out << nl << typeS << ".ice_write(" << stream << ", " << val << ");";
                     out << nl << stream << ".endSize(__pos);";
                 }
                 else
                 {
                     out << nl << stream << ".writeSize(" << st->minWireSize() << ");";
-                    out << nl << typeS << ".__write(" << stream << ", " << val << ");";
+                    out << nl << typeS << ".ice_write(" << stream << ", " << val << ");";
                 }
                 if(optionalParam)
                 {
@@ -1419,14 +1420,14 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
             }
             else
             {
-                out << nl << typeS << ".__write(" << stream << ", " << v << ");";
+                out << nl << typeS << ".ice_write(" << stream << ", " << v << ");";
             }
         }
         else
         {
             if(optionalParam)
             {
-                out << nl << "if(" << stream << ".readOpt(" << tag << ", " << getOptionalFormat(type) << "))";
+                out << nl << "if(" << stream << ".readOptional(" << tag << ", " << getOptionalFormat(type) << "))";
                 out << sb;
 
                 if(st->isVariableLength())
@@ -1439,7 +1440,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                 }
 
                 out << nl << typeS << " __tmpOpt = new " << typeS << "();";
-                out << nl << "__tmpOpt.__read(" << stream << ");";
+                out << nl << "__tmpOpt.ice_read(" << stream << ");";
                 out << nl << v << ".set(__tmpOpt);";
 
                 out << eb;
@@ -1462,11 +1463,11 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                 {
                     out << nl << stream << ".skipSize();";
                 }
-                out << nl << v << " = " << typeS << ".__read(" << stream << ", " << v << ");";
+                out << nl << v << " = " << typeS << ".ice_read(" << stream << ", " << v << ");";
             }
             else
             {
-                out << nl << v << " = " << typeS << ".__read(" << stream << ", " << v << ");";
+                out << nl << v << " = " << typeS << ".ice_read(" << stream << ", " << v << ");";
             }
         }
         return;
@@ -1482,32 +1483,32 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
             {
                 if(optionalMapping)
                 {
-                    out << nl << "if(" << v << " != null && " << v << ".isSet() && " << stream << ".writeOpt(" << tag
-                        << ", " << getOptionalFormat(type) << "))";
+                    out << nl << "if(" << v << " != null && " << v << ".isSet() && " << stream << ".writeOptional("
+                        << tag << ", " << getOptionalFormat(type) << "))";
                     out << sb;
-                    out << nl << typeS << ".__write(" << stream << ", " << v << ".get());";
+                    out << nl << typeS << ".ice_write(" << stream << ", " << v << ".get());";
                     out << eb;
                 }
                 else
                 {
-                    out << nl << "if(" << stream << ".writeOpt(" << tag << ", " << getOptionalFormat(type) << "))";
+                    out << nl << "if(" << stream << ".writeOptional(" << tag << ", " << getOptionalFormat(type) << "))";
                     out << sb;
-                    out << nl << typeS << ".__write(" << stream << ", " << v << ");";
+                    out << nl << typeS << ".ice_write(" << stream << ", " << v << ");";
                     out << eb;
                 }
             }
             else
             {
-                out << nl << typeS << ".__write(" << stream << ", " << v << ");";
+                out << nl << typeS << ".ice_write(" << stream << ", " << v << ");";
             }
         }
         else
         {
             if(optionalParam)
             {
-                out << nl << "if(" << stream << ".readOpt(" << tag << ", " << getOptionalFormat(type) << "))";
+                out << nl << "if(" << stream << ".readOptional(" << tag << ", " << getOptionalFormat(type) << "))";
                 out << sb;
-                out << nl << v << ".set(" << typeS << ".__read(" << stream << "));";
+                out << nl << v << ".set(" << typeS << ".ice_read(" << stream << "));";
                 out << eb;
                 if(mode == OptionalOutParam)
                 {
@@ -1519,7 +1520,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
             }
             else
             {
-                out << nl << v << " = " << typeS << ".__read(" << stream << ");";
+                out << nl << v << " = " << typeS << ".ice_read(" << stream << ");";
             }
         }
         return;
@@ -1540,13 +1541,14 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                 {
                     if(optionalMapping)
                     {
-                        out << nl << "if(" << v << " != null && " << v << ".isSet() && " << stream << ".writeOpt("
+                        out << nl << "if(" << v << " != null && " << v << ".isSet() && " << stream << ".writeOptional("
                             << tag << ", " << getOptionalFormat(type) << "))";
                         out << sb;
                     }
                     else
                     {
-                        out << nl << "if(" << stream << ".writeOpt(" << tag << ", " << getOptionalFormat(type) << "))";
+                        out << nl << "if(" << stream << ".writeOptional(" << tag << ", " << getOptionalFormat(type)
+                            << "))";
                         out << sb;
                     }
                 }
@@ -1589,7 +1591,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                 if(optionalParam)
                 {
                     tmpName = "__optDict";
-                    out << nl << "if(" << stream << ".readOpt(" << tag << ", " << getOptionalFormat(type) << "))";
+                    out << nl << "if(" << stream << ".readOptional(" << tag << ", " << getOptionalFormat(type) << "))";
                     out << sb;
                     out << nl << typeS << ' ' << tmpName << ';';
                 }
@@ -1701,12 +1703,13 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                 {
                     if(optionalMapping)
                     {
-                        out << nl << "if(" << v << " != null && " << v << ".isSet() && " << stream << ".writeOpt("
+                        out << nl << "if(" << v << " != null && " << v << ".isSet() && " << stream << ".writeOptional("
                             << tag << ", " << getOptionalFormat(type) << "))";
                     }
                     else
                     {
-                        out << nl << "if(" << stream << ".writeOpt(" << tag << ", " << getOptionalFormat(type) << "))";
+                        out << nl << "if(" << stream << ".writeOptional(" << tag << ", " << getOptionalFormat(type)
+                            << "))";
                     }
 
                     out << sb;
@@ -1793,7 +1796,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                 if(optionalParam)
                 {
                     tmpName = "__optSeq";
-                    out << nl << "if(" << stream << ".readOpt(" << tag << ", " << getOptionalFormat(type) << "))";
+                    out << nl << "if(" << stream << ".readOptional(" << tag << ", " << getOptionalFormat(type) << "))";
                     out << sb;
                     out << nl << typeS << ' ' << tmpName << ';';
                 }
@@ -2562,1199 +2565,6 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                 else
                 {
                     writeMarshalUnmarshalCode(out, package, type, OptionalNone, false, 0, o.str(), false, iter, false);
-                }
-                out << eb;
-                iter++;
-            }
-        }
-    }
-}
-
-void
-Slice::JavaGenerator::writeStreamMarshalUnmarshalCode(Output& out,
-                                                      const string& package,
-                                                      const TypePtr& type,
-                                                      bool optional,
-                                                      int /*tag*/,
-                                                      const string& param,
-                                                      bool marshal,
-                                                      int& iter,
-                                                      bool holder,
-                                                      const StringList& metaData,
-                                                      const string& patchParams)
-{
-    string stream = marshal ? "__outS" : "__inS";
-    string v;
-    if(holder && !optional)
-    {
-        v = param + ".value";
-    }
-    else
-    {
-        v = param;
-    }
-
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    if(builtin)
-    {
-        switch(builtin->kind())
-        {
-            case Builtin::KindByte:
-            {
-                if(marshal)
-                {
-                    out << nl << stream << ".writeByte(" << v << ");";
-                }
-                else
-                {
-                    out << nl << v << " = " << stream << ".readByte();";
-                }
-                break;
-            }
-            case Builtin::KindBool:
-            {
-                if(marshal)
-                {
-                    out << nl << stream << ".writeBool(" << v << ");";
-                }
-                else
-                {
-                    out << nl << v << " = " << stream << ".readBool();";
-                }
-                break;
-            }
-            case Builtin::KindShort:
-            {
-                if(marshal)
-                {
-                    out << nl << stream << ".writeShort(" << v << ");";
-                }
-                else
-                {
-                    out << nl << v << " = " << stream << ".readShort();";
-                }
-                break;
-            }
-            case Builtin::KindInt:
-            {
-                if(marshal)
-                {
-                    out << nl << stream << ".writeInt(" << v << ");";
-                }
-                else
-                {
-                    out << nl << v << " = " << stream << ".readInt();";
-                }
-                break;
-            }
-            case Builtin::KindLong:
-            {
-                if(marshal)
-                {
-                    out << nl << stream << ".writeLong(" << v << ");";
-                }
-                else
-                {
-                    out << nl << v << " = " << stream << ".readLong();";
-                }
-                break;
-            }
-            case Builtin::KindFloat:
-            {
-                if(marshal)
-                {
-                    out << nl << stream << ".writeFloat(" << v << ");";
-                }
-                else
-                {
-                    out << nl << v << " = " << stream << ".readFloat();";
-                }
-                break;
-            }
-            case Builtin::KindDouble:
-            {
-                if(marshal)
-                {
-                    out << nl << stream << ".writeDouble(" << v << ");";
-                }
-                else
-                {
-                    out << nl << v << " = " << stream << ".readDouble();";
-                }
-                break;
-            }
-            case Builtin::KindString:
-            {
-                if(marshal)
-                {
-                    out << nl << stream << ".writeString(" << v << ");";
-                }
-                else
-                {
-                    out << nl << v << " = " << stream << ".readString();";
-                }
-                break;
-            }
-            case Builtin::KindValue:
-            case Builtin::KindObject:
-            {
-                if(marshal)
-                {
-                    out << nl << stream << ".writeObject(" << v << ");";
-                }
-                else
-                {
-                    if(holder && !optional)
-                    {
-                        out << nl << stream << ".readObject(" << param << ");";
-                    }
-                    else
-                    {
-                        if(patchParams.empty())
-                        {
-                            out << nl << stream << ".readObject(new Patcher());";
-                        }
-                        else
-                        {
-                            out << nl << stream << ".readObject(" << patchParams << ");";
-                        }
-                    }
-                }
-                break;
-            }
-            case Builtin::KindObjectProxy:
-            {
-                if(marshal)
-                {
-                    if(optional)
-                    {
-                        out << nl << "int __pos = " <<  stream << ".startSize();";
-                        out << nl << stream << ".writeProxy(" << v << ");";
-                        out << nl << stream << ".endSize(__pos);";
-                    }
-                    else
-                    {
-                        out << nl << stream << ".writeProxy(" << v << ");";
-                    }
-                }
-                else
-                {
-                    if(optional)
-                    {
-                        out << nl << stream << ".skip(4);";
-                    }
-                    out << nl << v << " = " << stream << ".readProxy();";
-                }
-                break;
-            }
-            case Builtin::KindLocalObject:
-            {
-                assert(false);
-                break;
-            }
-        }
-        return;
-    }
-
-    ProxyPtr prx = ProxyPtr::dynamicCast(type);
-    if(prx)
-    {
-        string typeS = typeToString(type, TypeModeIn, package);
-        if(marshal)
-        {
-            if(optional)
-            {
-                out << nl << "int __pos = " <<  stream << ".startSize();";
-                out << nl << typeS << "Helper.write(" << stream << ", " << v << ");";
-                out << nl << stream << ".endSize(__pos);";
-            }
-            else
-            {
-                out << nl << typeS << "Helper.write(" << stream << ", " << v << ");";
-            }
-        }
-        else
-        {
-            if(optional)
-            {
-                out << nl << stream << ".skip(4);";
-            }
-            out << nl << v << " = " << typeS << "Helper.read(" << stream << ");";
-        }
-        return;
-    }
-
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
-    if(cl)
-    {
-        if(marshal)
-        {
-            out << nl << stream << ".writeObject(" << v << ");";
-        }
-        else
-        {
-            if(holder && !optional)
-            {
-                out << nl << stream << ".readObject(" << param << ");";
-            }
-            else
-            {
-                if(patchParams.empty())
-                {
-                    out << nl << stream << ".readObject(new Patcher());";
-                }
-                else
-                {
-                    out << nl << stream << ".readObject(" << patchParams << ");";
-                }
-            }
-        }
-        return;
-    }
-
-    StructPtr st = StructPtr::dynamicCast(type);
-    if(st)
-    {
-        string typeS = typeToString(type, TypeModeIn, package);
-        if(marshal)
-        {
-            if(optional)
-            {
-                if(st->isVariableLength())
-                {
-                    out << nl << "int __pos = " <<  stream << ".startSize();";
-                    out << nl << typeS << ".ice_write(" << stream << ", " << v << ");";
-                    out << nl << stream << ".endSize(__pos);";
-                }
-                else
-                {
-                    out << nl << stream << ".writeSize(" << st->minWireSize() << ");";
-                    out << nl << typeS << ".ice_write(" << stream << ", " << v << ");";
-                }
-            }
-            else
-            {
-                out << nl << typeS << ".ice_write(" << stream << ", " << v << ");";
-            }
-        }
-        else
-        {
-            if(optional)
-            {
-                if(st->isVariableLength())
-                {
-                    out << nl << stream << ".skip(4);";
-                }
-                else
-                {
-                    out << nl << stream << ".skipSize();";
-                }
-            }
-            out << nl << v << " = " << typeS << ".ice_read(" << stream << ", " << v << ");";
-        }
-        return;
-    }
-
-    EnumPtr en = EnumPtr::dynamicCast(type);
-    if(en)
-    {
-        string typeS = typeToString(type, TypeModeIn, package);
-        if(marshal)
-        {
-            out << nl << typeS << ".ice_write(" << stream << ", " << v << ");";
-        }
-        else
-        {
-            out << nl << v << " = " << typeS << ".ice_read(" << stream << ");";
-        }
-        return;
-    }
-
-    DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
-    if(dict)
-    {
-        if(optional)
-        {
-            string typeS = typeToString(type, TypeModeIn, package, metaData);
-            TypePtr keyType = dict->keyType();
-            TypePtr valueType = dict->valueType();
-
-            if(marshal)
-            {
-                if(keyType->isVariableLength() || valueType->isVariableLength())
-                {
-                    out << nl << "int __pos = " <<  stream << ".startSize();";
-                    writeStreamDictionaryMarshalUnmarshalCode(out, package, dict, v, marshal, iter, true, metaData);
-                    out << nl << stream << ".endSize(__pos);";
-                }
-                else
-                {
-                    const size_t wireSize = keyType->minWireSize() + valueType->minWireSize();
-                    out << nl << "final int __optSize = " << v << " == null ? 0 : " << v << ".size();";
-                    out << nl << stream << ".writeSize(__optSize > 254 ? __optSize * " << wireSize
-                        << " + 5 : __optSize * " << wireSize << " + 1);";
-                    writeStreamDictionaryMarshalUnmarshalCode(out, package, dict, v, marshal, iter, true, metaData);
-                }
-            }
-            else
-            {
-                if(keyType->isVariableLength() || valueType->isVariableLength())
-                {
-                    out << nl << stream << ".skip(4);";
-                }
-                else
-                {
-                    out << nl << stream << ".skipSize();";
-                }
-
-                writeStreamDictionaryMarshalUnmarshalCode(out, package, dict, v, marshal, iter, true, metaData);
-            }
-        }
-        else
-        {
-            writeStreamDictionaryMarshalUnmarshalCode(out, package, dict, v, marshal, iter, true, metaData);
-        }
-        return;
-    }
-
-    SequencePtr seq = SequencePtr::dynamicCast(type);
-    if(seq)
-    {
-        if(optional)
-        {
-            string typeS = typeToString(type, TypeModeIn, package, metaData);
-            TypePtr elemType = seq->type();
-            BuiltinPtr elemBuiltin = BuiltinPtr::dynamicCast(elemType);
-
-            string ignore;
-
-            if(marshal)
-            {
-                if(elemType->isVariableLength())
-                {
-                    out << nl << "int __pos = " << stream << ".startSize();";
-                    writeStreamSequenceMarshalUnmarshalCode(out, package, seq, v, marshal, iter, true, metaData);
-                    out << nl << stream << ".endSize(__pos);";
-                }
-                else if(findMetaData("java:type:", metaData, ignore) ||
-                        findMetaData("java:type:", seq->getMetaData(), ignore))
-                {
-                    //
-                    // The sequence is an instance of java.util.List<E>, where E is a fixed-size type.
-                    // If the element type is bool or byte, we do NOT write an extra size.
-                    //
-
-                    if(!elemBuiltin ||
-                       (elemBuiltin->kind() != Builtin::KindByte && elemBuiltin->kind() != Builtin::KindBool))
-                    {
-                        out << nl << "final int __optSize = " << v << " == null ? 0 : " << v << ".size();";
-                        const size_t wireSize = elemType->minWireSize();
-
-                        if(wireSize > 1)
-                        {
-                            out << nl << stream << ".writeSize(__optSize > 254 ? __optSize * " << wireSize
-                                << " + 5 : __optSize * " << wireSize << " + 1);";
-                        }
-                        else
-                        {
-                            //
-                            // The element type could be a struct with a wire size of 1.
-                            //
-                            out << nl << stream << ".writeSize(__optSize > 254 ? __optSize + 5 : __optSize + 1);";
-                        }
-                    }
-                    writeStreamSequenceMarshalUnmarshalCode(out, package, seq, v, marshal, iter, true, metaData);
-                }
-                else if(findMetaData("java:protobuf:", seq->getMetaData(), ignore) ||
-                        findMetaData("java:serializable:", seq->getMetaData(), ignore))
-                {
-                    //
-                    // This just writes a byte sequence.
-                    //
-                    writeStreamSequenceMarshalUnmarshalCode(out, package, seq, v, marshal, iter, true, metaData);
-                }
-                else
-                {
-                    //
-                    // At this point we have a regular Java array of a fixed-size type.
-                    //
-
-                    if(!elemBuiltin || (elemBuiltin->kind() != Builtin::KindByte &&
-                       elemBuiltin->kind() != Builtin::KindBool))
-                    {
-                        out << nl << "final int __optSize = " << v << " == null ? 0 : " << v << ".length;";
-                        const size_t wireSize = elemType->minWireSize();
-
-                        if(wireSize > 1)
-                        {
-                            out << nl << stream << ".writeSize(__optSize > 254 ? __optSize * " << wireSize
-                                << " + 5 : __optSize * " << wireSize << " + 1);";
-                        }
-                        else
-                        {
-                            //
-                            // The element type could be a struct with a wire size of 1.
-                            //
-                            out << nl << stream << ".writeSize(__optSize > 254 ? __optSize + 5 : __optSize + 1);";
-                        }
-                    }
-
-                    writeStreamSequenceMarshalUnmarshalCode(out, package, seq, v, marshal, iter, true, metaData);
-                }
-            }
-            else
-            {
-                if(elemType->isVariableLength())
-                {
-                    out << nl << stream << ".skip(4);";
-                }
-                else if(findMetaData("java:type:", metaData, ignore) ||
-                        findMetaData("java:type:", seq->getMetaData(), ignore))
-                {
-                    //
-                    // The sequence is an instance of java.util.List<E>, where E is a fixed-size type.
-                    // If the element type is bool or byte, we do NOT write an extra size.
-                    //
-
-                    if(!elemBuiltin ||
-                       (elemBuiltin->kind() != Builtin::KindByte && elemBuiltin->kind() != Builtin::KindBool))
-                    {
-                        out << nl << stream << ".skipSize();";
-                    }
-                }
-                else if(!findMetaData("java:protobuf:", seq->getMetaData(), ignore) &&
-                        !findMetaData("java:serializable:", seq->getMetaData(), ignore))
-                {
-                    if(!elemBuiltin ||
-                       (elemBuiltin->kind() != Builtin::KindByte && elemBuiltin->kind() != Builtin::KindBool))
-                    {
-                        out << nl << stream << ".skipSize();";
-                    }
-                }
-
-                writeStreamSequenceMarshalUnmarshalCode(out, package, seq, v, marshal, iter, true, metaData);
-            }
-        }
-        else
-        {
-            writeStreamSequenceMarshalUnmarshalCode(out, package, seq, v, marshal, iter, true, metaData);
-        }
-        return;
-    }
-
-    ConstructedPtr constructed = ConstructedPtr::dynamicCast(type);
-    assert(constructed);
-    string typeS = getAbsolute(constructed, package);
-    if(marshal)
-    {
-        out << nl << typeS << "Helper.write(" << stream << ", " << v << ");";
-    }
-    else
-    {
-        out << nl << v << " = " << typeS << "Helper.read(" << stream << ");";
-    }
-}
-
-void
-Slice::JavaGenerator::writeStreamDictionaryMarshalUnmarshalCode(Output& out,
-                                                                const string& package,
-                                                                const DictionaryPtr& dict,
-                                                                const string& param,
-                                                                bool marshal,
-                                                                int& iter,
-                                                                bool useHelper,
-                                                                const StringList& metaData)
-{
-    string stream = marshal ? "__outS" : "__inS";
-    string v = param;
-
-    //
-    // We have to determine whether it's possible to use the
-    // type's generated helper class for this marshal/unmarshal
-    // task. Since the user may have specified a custom type in
-    // metadata, it's possible that the helper class is not
-    // compatible and therefore we'll need to generate the code
-    // in-line instead.
-    //
-    // Specifically, there may be "local" metadata (i.e., from
-    // a data member or parameter definition) that overrides the
-    // original type. We'll compare the mapped types with and
-    // without local metadata to determine whether we can use
-    // the helper.
-    //
-    string instanceType, formalType;
-    getDictionaryTypes(dict, "", metaData, instanceType, formalType);
-    string origInstanceType, origFormalType;
-    getDictionaryTypes(dict, "", StringList(), origInstanceType, origFormalType);
-    if((formalType != origFormalType) || (!marshal && instanceType != origInstanceType))
-    {
-        useHelper = false;
-    }
-
-    //
-    // If we can use the helper, it's easy.
-    //
-    if(useHelper)
-    {
-        string typeS = getAbsolute(dict, package);
-        if(marshal)
-        {
-            out << nl << typeS << "Helper.write(" << stream << ", " << v << ");";
-        }
-        else
-        {
-            out << nl << v << " = " << typeS << "Helper.read(" << stream << ");";
-        }
-        return;
-    }
-
-    TypePtr key = dict->keyType();
-    TypePtr value = dict->valueType();
-
-    string keyS = typeToString(key, TypeModeIn, package);
-    string valueS = typeToString(value, TypeModeIn, package);
-
-    ostringstream o;
-    o << iter;
-    string iterS = o.str();
-    iter++;
-
-    if(marshal)
-    {
-        out << nl << "if(" << v << " == null)";
-        out << sb;
-        out << nl << "__outS.writeSize(0);";
-        out << eb;
-        out << nl << "else";
-        out << sb;
-        out << nl << "__outS.writeSize(" << v << ".size());";
-        string keyObjectS = typeToObjectString(key, TypeModeIn, package);
-        string valueObjectS = typeToObjectString(value, TypeModeIn, package);
-        out << nl << "for(java.util.Map.Entry<" << keyObjectS << ", " << valueObjectS << "> __e : " << v
-            << ".entrySet())";
-        out << sb;
-        for(int i = 0; i < 2; i++)
-        {
-            string arg;
-            TypePtr type;
-            if(i == 0)
-            {
-                arg = "__e.getKey()";
-                type = key;
-            }
-            else
-            {
-                arg = "__e.getValue()";
-                type = value;
-            }
-            writeStreamMarshalUnmarshalCode(out, package, type, false, 0, arg, true, iter, false);
-        }
-        out << eb;
-        out << eb;
-    }
-    else
-    {
-        out << nl << v << " = new " << instanceType << "();";
-        out << nl << "int __sz" << iterS << " = __inS.readSize();";
-        out << nl << "for(int __i" << iterS << " = 0; __i" << iterS << " < __sz" << iterS << "; __i" << iterS << "++)";
-        out << sb;
-        for(int i = 0; i < 2; i++)
-        {
-            string arg;
-            TypePtr type;
-            string typeS;
-            if(i == 0)
-            {
-                arg = "__key";
-                type = key;
-                typeS = keyS;
-            }
-            else
-            {
-                arg = "__value";
-                type = value;
-                typeS = valueS;
-            }
-
-            BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-            string s = typeToString(type, TypeModeIn, package);
-            if(ClassDeclPtr::dynamicCast(type) || (b && b->kind() == Builtin::KindObject))
-            {
-                string keyTypeStr = typeToObjectString(key, TypeModeIn, package);
-                string valueTypeStr = typeToObjectString(value, TypeModeIn, package);
-                writeStreamMarshalUnmarshalCode(out, package, type, false, 0, arg, false, iter, false,
-                                                StringList(), "new IceInternal.DictionaryPatcher<" + keyTypeStr +
-                                                ", " + valueTypeStr + ">(" + v + ", " + s + ".class, \"" +
-                                                type->typeId() + "\", __key)");
-            }
-            else
-            {
-                if(StructPtr::dynamicCast(type))
-                {
-                    out << nl << s << ' ' << arg << " = null;";
-                }
-                else
-                {
-                    out << nl << s << ' ' << arg << ';';
-                }
-                writeStreamMarshalUnmarshalCode(out, package, type, false, 0, arg, false, iter, false);
-            }
-        }
-        BuiltinPtr builtin = BuiltinPtr::dynamicCast(value);
-        if(!(builtin && (builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue)) &&
-           !ClassDeclPtr::dynamicCast(value))
-        {
-            out << nl << "" << v << ".put(__key, __value);";
-        }
-        out << eb;
-    }
-}
-
-void
-Slice::JavaGenerator::writeStreamSequenceMarshalUnmarshalCode(Output& out,
-                                                              const string& package,
-                                                              const SequencePtr& seq,
-                                                              const string& param,
-                                                              bool marshal,
-                                                              int& iter,
-                                                              bool useHelper,
-                                                              const StringList& metaData)
-{
-    string stream = marshal ? "__outS" : "__inS";
-    string v = param;
-
-    //
-    // If the sequence is a byte sequence, check if there's the serializable or protobuf metadata to
-    // get rid of these two easy cases first.
-    //
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
-    if(builtin && builtin->kind() == Builtin::KindByte)
-    {
-        string meta;
-        static const string protobuf = "java:protobuf:";
-        static const string serializable = "java:serializable:";
-        if(seq->findMetaData(serializable, meta))
-        {
-            if(marshal)
-            {
-                out << nl << stream << ".writeSerializable(" << v << ");";
-            }
-            else
-            {
-                string type = typeToString(seq, TypeModeIn, package);
-                out << nl << v << " = (" << type << ")" << stream << ".readSerializable();";
-            }
-            return;
-        }
-        else if(seq->findMetaData(protobuf, meta))
-        {
-            if(marshal)
-            {
-                out << nl << "if(!" << v << ".isInitialized())";
-                out << sb;
-                out << nl << "throw new Ice.MarshalException(\"type not fully initialized\");";
-                out << eb;
-                out << nl << stream << ".writeByteSeq(" << v << ".toByteArray());";
-            }
-            else
-            {
-                string type = meta.substr(protobuf.size());
-                out << nl << "try";
-                out << sb;
-                out << nl << v << " = " << type << ".parseFrom(" << stream << ".readByteSeq());";
-                out << eb;
-                out << nl << "catch(com.google.protobuf.InvalidProtocolBufferException __ex)";
-                out << sb;
-                out << nl << "Ice.MarshalException __mex = new Ice.MarshalException();";
-                out << nl << "__mex.initCause(__ex);";
-                out << nl << "throw __mex;";
-                out << eb;
-            }
-            return;
-        }
-    }
-
-    if(builtin &&
-       (builtin->kind() == Builtin::KindByte || builtin->kind() == Builtin::KindShort ||
-        builtin->kind() == Builtin::KindInt || builtin->kind() == Builtin::KindLong ||
-        builtin->kind() == Builtin::KindFloat || builtin->kind() == Builtin::KindDouble))
-    {
-        string meta;
-        static const string bytebuffer = "java:buffer";
-        if(seq->findMetaData(bytebuffer, meta) || findMetaData(bytebuffer, metaData, meta))
-        {
-            switch(builtin->kind())
-            {
-                case Builtin::KindByte:
-                {
-                    if(marshal)
-                    {
-                        out << nl << stream << ".writeByteBuffer(" << v << ");";
-                    }
-                    else
-                    {
-                        out << nl << v << " = " << stream << ".readByteBuffer();";
-                    }
-                    break;
-                }
-                case Builtin::KindShort:
-                {
-                    if(marshal)
-                    {
-                        out << nl << stream << ".writeShortBuffer(" << v << ");";
-                    }
-                    else
-                    {
-                        out << nl << v << " = " << stream << ".readShortBuffer();";
-                    }
-                    break;
-                }
-                case Builtin::KindInt:
-                {
-                    if(marshal)
-                    {
-                        out << nl << stream << ".writeIntBuffer(" << v << ");";
-                    }
-                    else
-                    {
-                        out << nl << v << " = " << stream << ".readIntBuffer();";
-                    }
-                    break;
-                }
-                case Builtin::KindLong:
-                {
-                    if(marshal)
-                    {
-                        out << nl << stream << ".writeLongBuffer(" << v << ");";
-                    }
-                    else
-                    {
-                        out << nl << v << " = " << stream << ".readLongBuffer();";
-                    }
-                    break;
-                }
-                case Builtin::KindFloat:
-                {
-                    if(marshal)
-                    {
-                        out << nl << stream << ".writeFloatBuffer(" << v << ");";
-                    }
-                    else
-                    {
-                        out << nl << v << " = " << stream << ".readFloatBuffer();";
-                    }
-                    break;
-                }
-                case Builtin::KindDouble:
-                {
-                    if(marshal)
-                    {
-                        out << nl << stream << ".writeDoubleBuffer(" << v << ");";
-                    }
-                    else
-                    {
-                        out << nl << v << " = " << stream << ".readDoubleBuffer();";
-                    }
-                    break;
-                }
-                case Builtin::KindBool:
-                case Builtin::KindString:
-                case Builtin::KindObject:
-                case Builtin::KindObjectProxy:
-                case Builtin::KindLocalObject:
-                case Builtin::KindValue:
-                {
-                    assert(false);
-                    break;
-                }
-            }
-            return;
-        }
-    }
-
-    //
-    // We have to determine whether it's possible to use the
-    // type's generated helper class for this marshal/unmarshal
-    // task. Since the user may have specified a custom type in
-    // metadata, it's possible that the helper class is not
-    // compatible and therefore we'll need to generate the code
-    // in-line instead.
-    //
-    // Specifically, there may be "local" metadata (i.e., from
-    // a data member or parameter definition) that overrides the
-    // original type. We'll compare the mapped types with and
-    // without local metadata to determine whether we can use
-    // the helper.
-    //
-    string instanceType, formalType;
-    bool customType = getSequenceTypes(seq, "", metaData, instanceType, formalType);
-    string origInstanceType, origFormalType;
-    getSequenceTypes(seq, "", StringList(), origInstanceType, origFormalType);
-    if((formalType != origFormalType) || (!marshal && instanceType != origInstanceType))
-    {
-        useHelper = false;
-    }
-
-    //
-    // If we can use the helper, it's easy.
-    //
-    if(useHelper)
-    {
-        string typeS = getAbsolute(seq, package);
-        if(marshal)
-        {
-            out << nl << typeS << "Helper.write(" << stream << ", " << v << ");";
-        }
-        else
-        {
-            out << nl << v << " = " << typeS << "Helper.read(" << stream << ");";
-        }
-        return;
-    }
-
-    //
-    // Determine sequence depth
-    //
-    int depth = 0;
-    TypePtr origContent = seq->type();
-    SequencePtr s = SequencePtr::dynamicCast(origContent);
-    while(s)
-    {
-        //
-        // Stop if the inner sequence type has a custom, serializable or protobuf type.
-        //
-        if(hasTypeMetaData(s))
-        {
-            break;
-        }
-        depth++;
-        origContent = s->type();
-        s = SequencePtr::dynamicCast(origContent);
-    }
-    string origContentS = typeToString(origContent, TypeModeIn, package);
-
-    TypePtr type = seq->type();
-
-    if(customType)
-    {
-        //
-        // Marshal/unmarshal a custom sequence type.
-        //
-        BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-        string typeS = getAbsolute(seq, package);
-        ostringstream o;
-        o << origContentS;
-        int d = depth;
-        while(d--)
-        {
-            o << "[]";
-        }
-        string cont = o.str();
-        if(marshal)
-        {
-            out << nl << "if(" << v << " == null)";
-            out << sb;
-            out << nl << stream << ".writeSize(0);";
-            out << eb;
-            out << nl << "else";
-            out << sb;
-            out << nl << stream << ".writeSize(" << v << ".size());";
-            string typeS = typeToString(type, TypeModeIn, package);
-            out << nl << "for(" << typeS << " __elem : " << v << ')';
-            out << sb;
-            writeStreamMarshalUnmarshalCode(out, package, type, false, 0, "__elem", true, iter, false);
-            out << eb;
-            out << eb; // else
-        }
-        else
-        {
-            bool isObject = false;
-            ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
-            if((b && (b->kind() == Builtin::KindObject || b->kind() == Builtin::KindValue)) || cl)
-            {
-                isObject = true;
-            }
-            out << nl << v << " = new " << instanceType << "();";
-            out << nl << "final int __len" << iter << " = " << stream << ".readAndCheckSeqSize(" << type->minWireSize()
-                << ");";
-            if(isObject)
-            {
-                if(b)
-                {
-                    out << nl << "final String __type" << iter << " = Ice.ObjectImpl.ice_staticId();";
-                }
-                else
-                {
-                    assert(cl);
-                    if(cl->isInterface())
-                    {
-                        out << nl << "final String __type" << iter << " = "
-                            << getAbsolute(cl, package, "_", "Disp") << ".ice_staticId();";
-                    }
-                    else
-                    {
-                        out << nl << "final String __type" << iter << " = " << origContentS << ".ice_staticId();";
-                    }
-                }
-            }
-            out << nl << "for(int __i" << iter << " = 0; __i" << iter << " < __len" << iter << "; __i" << iter
-                << "++)";
-            out << sb;
-            if(isObject)
-            {
-                //
-                // Add a null value to the list as a placeholder for the element.
-                //
-                out << nl << v << ".add(null);";
-                ostringstream patchParams;
-                patchParams << "new IceInternal.ListPatcher<" << origContentS << ">(" << v << ", " << origContentS
-                            << ".class, __type" << iter << ", __i" << iter << ')';
-                writeStreamMarshalUnmarshalCode(out, package, type, false, 0, "__elem", false, iter, false,
-                                                StringList(), patchParams.str());
-            }
-            else
-            {
-                if(StructPtr::dynamicCast(type))
-                {
-                    out << nl << cont << " __elem = null;";
-                }
-                else
-                {
-                    out << nl << cont << " __elem;";
-                }
-                writeStreamMarshalUnmarshalCode(out, package, type, false, 0, "__elem", false, iter, false);
-            }
-            if(!isObject)
-            {
-                out << nl << v << ".add(__elem);";
-            }
-            out << eb;
-            iter++;
-        }
-    }
-    else
-    {
-        BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-        if(b && b->kind() != Builtin::KindObject &&
-                b->kind() != Builtin::KindValue &&
-                b->kind() != Builtin::KindObjectProxy)
-        {
-            switch(b->kind())
-            {
-                case Builtin::KindByte:
-                {
-                    if(marshal)
-                    {
-                        out << nl << stream << ".writeByteSeq(" << v << ");";
-                    }
-                    else
-                    {
-                        out << nl << v << " = " << stream << ".readByteSeq();";
-                    }
-                    break;
-                }
-                case Builtin::KindBool:
-                {
-                    if(marshal)
-                    {
-                        out << nl << stream << ".writeBoolSeq(" << v << ");";
-                    }
-                    else
-                    {
-                        out << nl << v << " = " << stream << ".readBoolSeq();";
-                    }
-                    break;
-                }
-                case Builtin::KindShort:
-                {
-                    if(marshal)
-                    {
-                        out << nl << stream << ".writeShortSeq(" << v << ");";
-                    }
-                    else
-                    {
-                        out << nl << v << " = " << stream << ".readShortSeq();";
-                    }
-                    break;
-                }
-                case Builtin::KindInt:
-                {
-                    if(marshal)
-                    {
-                        out << nl << stream << ".writeIntSeq(" << v << ");";
-                    }
-                    else
-                    {
-                        out << nl << v << " = " << stream << ".readIntSeq();";
-                    }
-                    break;
-                }
-                case Builtin::KindLong:
-                {
-                    if(marshal)
-                    {
-                        out << nl << stream << ".writeLongSeq(" << v << ");";
-                    }
-                    else
-                    {
-                        out << nl << v << " = " << stream << ".readLongSeq();";
-                    }
-                    break;
-                }
-                case Builtin::KindFloat:
-                {
-                    if(marshal)
-                    {
-                        out << nl << stream << ".writeFloatSeq(" << v << ");";
-                    }
-                    else
-                    {
-                        out << nl << v << " = " << stream << ".readFloatSeq();";
-                    }
-                    break;
-                }
-                case Builtin::KindDouble:
-                {
-                    if(marshal)
-                    {
-                        out << nl << stream << ".writeDoubleSeq(" << v << ");";
-                    }
-                    else
-                    {
-                        out << nl << v << " = " << stream << ".readDoubleSeq();";
-                    }
-                    break;
-                }
-                case Builtin::KindString:
-                {
-                    if(marshal)
-                    {
-                        out << nl << stream << ".writeStringSeq(" << v << ");";
-                    }
-                    else
-                    {
-                        out << nl << v << " = " << stream << ".readStringSeq();";
-                    }
-                    break;
-                }
-                case Builtin::KindObject:
-                case Builtin::KindObjectProxy:
-                case Builtin::KindLocalObject:
-                case Builtin::KindValue:
-                {
-                    assert(false);
-                    break;
-                }
-            }
-        }
-        else
-        {
-            if(marshal)
-            {
-                out << nl << "if(" << v << " == null)";
-                out << sb;
-                out << nl << stream << ".writeSize(0);";
-                out << eb;
-                out << nl << "else";
-                out << sb;
-                out << nl << stream << ".writeSize(" << v << ".length);";
-                out << nl << "for(int __i" << iter << " = 0; __i" << iter << " < " << v << ".length; __i" << iter
-                    << "++)";
-                out << sb;
-                ostringstream o;
-                o << v << "[__i" << iter << "]";
-                iter++;
-                writeStreamMarshalUnmarshalCode(out, package, type, false, 0, o.str(), true, iter, false);
-                out << eb;
-                out << eb;
-            }
-            else
-            {
-                bool isObject = false;
-                ClassDeclPtr cl = ClassDeclPtr::dynamicCast(origContent);
-                if((b && (b->kind() == Builtin::KindObject || b->kind() == Builtin::KindValue)) || cl)
-                {
-                    isObject = true;
-                }
-                out << nl << "final int __len" << iter << " = " << stream << ".readAndCheckSeqSize("
-                    << type->minWireSize() << ");";
-                if(isObject)
-                {
-                    if(b)
-                    {
-                        out << nl << "final String __type" << iter << " = Ice.ObjectImpl.ice_staticId();";
-                    }
-                    else
-                    {
-                        assert(cl);
-                        if(cl->isInterface())
-                        {
-                            out << nl << "final String __type" << iter << " = "
-                                << getAbsolute(cl, package, "_", "Disp") << ".ice_staticId();";
-                        }
-                        else
-                        {
-                            out << nl << "final String __type" << iter << " = " << origContentS << ".ice_staticId();";
-                        }
-                    }
-                }
-                //
-                // We cannot allocate an array of a generic type, such as
-                //
-                // arr = new Map<String, String>[sz];
-                //
-                // Attempting to compile this code results in a "generic array creation" error
-                // message. This problem can occur when the sequence's element type is a
-                // dictionary, or when the element type is a nested sequence that uses a custom
-                // mapping.
-                //
-                // The solution is to rewrite the code as follows:
-                //
-                // arr = (Map<String, String>[])new Map[sz];
-                //
-                // Unfortunately, this produces an unchecked warning during compilation.
-                //
-                // A simple test is to look for a "<" character in the content type, which
-                // indicates the use of a generic type.
-                //
-                string::size_type pos = origContentS.find('<');
-                if(pos != string::npos)
-                {
-                    string nonGenericType = origContentS.substr(0, pos);
-                    out << nl << v << " = (" << origContentS << "[]";
-                    int d = depth;
-                    while(d--)
-                    {
-                        out << "[]";
-                    }
-                    out << ")new " << nonGenericType << "[__len" << iter << "]";
-                }
-                else
-                {
-                    out << nl << v << " = new " << origContentS << "[__len" << iter << "]";
-                }
-                int d = depth;
-                while(d--)
-                {
-                    out << "[]";
-                }
-                out << ';';
-                out << nl << "for(int __i" << iter << " = 0; __i" << iter << " < __len" << iter << "; __i" << iter
-                    << "++)";
-                out << sb;
-                ostringstream o;
-                o << v << "[__i" << iter << "]";
-                ostringstream patchParams;
-                if(isObject)
-                {
-                    patchParams << "new IceInternal.SequencePatcher(" << v << ", " << origContentS
-                                << ".class, __type" << iter << ", __i" << iter << ')';
-                    writeStreamMarshalUnmarshalCode(out, package, type, false, 0, o.str(), false, iter, false,
-                                                    StringList(), patchParams.str());
-                }
-                else
-                {
-                    writeStreamMarshalUnmarshalCode(out, package, type, false, 0, o.str(), false, iter, false);
                 }
                 out << eb;
                 iter++;

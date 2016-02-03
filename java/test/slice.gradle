@@ -47,6 +47,10 @@ task testSliceTask {
                                                      'Ice/throughput/*.ice',
                                                      'Ice/threadPoolPriority/*.ice',
                                                      'Ice/udp/*.ice',
+                                                     'Ice/objects/*.ice',
+                                                     'Ice/optional/*.ice',
+                                                     'Ice/stream/*.ice',
+                                                     'Ice/enums/*.ice',
                                                      'Glacier2/router/*.ice',
                                                      'Glacier2/sessionHelper/*.ice',
                                                      'IceDiscovery/simple/*.ice',
@@ -61,13 +65,6 @@ task testSliceTask {
             set2 {
                 args = "--tie"
                 files = fileTree(dir: testDir, includes:['Ice/operations/*.ice'])
-            }
-            set3 {
-                args = "--stream"
-                files = fileTree(dir: testDir, includes:['Ice/objects/*.ice',
-                                                     'Ice/optional/*.ice',
-                                                     'Ice/stream/*.ice',
-                                                     'Ice/enums/*.ice'])
             }
             set4 {
                 args = "--checksum test.Ice.checksum.Test.SliceChecksums"

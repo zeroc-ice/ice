@@ -33,7 +33,7 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable<En
     //
     // Marshal the endpoint.
     //
-    public abstract void streamWrite(BasicStream s);
+    public abstract void streamWrite(Ice.OutputStream s);
 
     //
     // Return the endpoint type.

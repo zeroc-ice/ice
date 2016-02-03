@@ -21,7 +21,7 @@ public abstract class OutgoingAsyncBase extends IceInternal.AsyncResultI
         return sent(true);
     }
 
-    public boolean completed(BasicStream is)
+    public boolean completed(Ice.InputStream is)
     {
         assert(false); // Must be implemented by classes that handle responses
         return false;
@@ -58,7 +58,7 @@ public abstract class OutgoingAsyncBase extends IceInternal.AsyncResultI
         }
     }
 
-    public final IceInternal.BasicStream getOs()
+    public final Ice.OutputStream getOs()
     {
         return _os;
     }
@@ -66,10 +66,11 @@ public abstract class OutgoingAsyncBase extends IceInternal.AsyncResultI
     protected OutgoingAsyncBase(Ice.Communicator com, Instance instance, String op, CallbackBase del)
     {
         super(com, instance, op, del);
-        _os = new BasicStream(instance, Protocol.currentProtocolEncoding);
+        _os = new Ice.OutputStream(instance, Protocol.currentProtocolEncoding);
     }
 
-    protected OutgoingAsyncBase(Ice.Communicator com, Instance instance, String op, CallbackBase del, BasicStream os)
+    protected OutgoingAsyncBase(Ice.Communicator com, Instance instance, String op, CallbackBase del,
+                                Ice.OutputStream os)
     {
         super(com, instance, op, del);
         _os = os;
@@ -101,6 +102,6 @@ public abstract class OutgoingAsyncBase extends IceInternal.AsyncResultI
         return super.finished(ex);
     }
 
-    protected BasicStream _os;
+    protected Ice.OutputStream _os;
     protected Ice.Instrumentation.ChildInvocationObserver _childObserver;
 }

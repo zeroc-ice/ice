@@ -127,16 +127,16 @@ public final class EndpointFactoryManager
                 // and ask the factory to read the endpoint data from that stream to create
                 // the actual endpoint.
                 //
-                BasicStream bs = new BasicStream(_instance, Protocol.currentProtocolEncoding, false);
-                bs.writeShort(ue.type());
-                ue.streamWrite(bs);
-                Buffer buf = bs.getBuffer();
-                buf.b.position(0);
-                buf.b.limit(buf.size());
-                bs.readShort(); // type
-                bs.startReadEncaps();
-                EndpointI e = factory.read(bs);
-                bs.endReadEncaps();
+                Ice.OutputStream os = new Ice.OutputStream(_instance, Protocol.currentProtocolEncoding, false);
+                os.writeShort(ue.type());
+                ue.streamWrite(os);
+                Ice.InputStream is =
+                    new Ice.InputStream(_instance, Protocol.currentProtocolEncoding, os.getBuffer(), true);
+                is.pos(0);
+                is.readShort(); // type
+                is.startEncapsulation();
+                EndpointI e = factory.read(is);
+                is.endEncapsulation();
                 return e;
             }
             return ue; // Endpoint is opaque, but we don't have a factory for its type.
@@ -145,14 +145,14 @@ public final class EndpointFactoryManager
         return null;
     }
 
-    public synchronized EndpointI read(BasicStream s)
+    public synchronized EndpointI read(Ice.InputStream s)
     {
         short type = s.readShort();
 
         EndpointFactory factory = get(type);
         EndpointI e = null;
 
-        s.startReadEncaps();
+        s.startEncapsulation();
 
         if(factory != null)
         {
@@ -163,7 +163,7 @@ public final class EndpointFactoryManager
             e = new OpaqueEndpointI(type, s);
         }
 
-        s.endReadEncaps();
+        s.endEncapsulation();
 
         return e;
     }

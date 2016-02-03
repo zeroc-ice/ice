@@ -9,10 +9,10 @@
 
 package IceInternal;
 
-public class SequencePatcher implements Patcher, Ice.ReadObjectCallback
+public class SequencePatcher implements Ice.ReadObjectCallback
 {
-    public
-    SequencePatcher(java.lang.Object[] seq, Class<?> cls, String type, int index)
+    // TBD: Remove _type?
+    public SequencePatcher(java.lang.Object[] seq, Class<?> cls, String type, int index)
     {
         _seq = seq;
         _cls = cls;
@@ -20,9 +20,7 @@ public class SequencePatcher implements Patcher, Ice.ReadObjectCallback
         _index = index;
     }
 
-    @Override
-    public void
-    patch(Ice.Object v)
+    public void objectReady(Ice.Object v)
     {
         if(v != null)
         {
@@ -37,20 +35,6 @@ public class SequencePatcher implements Patcher, Ice.ReadObjectCallback
         }
 
         _seq[_index] = v;
-    }
-
-    @Override
-    public String
-    type()
-    {
-        return _type;
-    }
-
-    @Override
-    public void
-    invoke(Ice.Object v)
-    {
-        patch(v);
     }
 
     private java.lang.Object[] _seq;

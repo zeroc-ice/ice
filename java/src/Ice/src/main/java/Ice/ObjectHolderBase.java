@@ -12,7 +12,7 @@ package Ice;
 /**
  * Holder base class for Ice objects that are in- or inout-parameters.
  **/
-public abstract class ObjectHolderBase<T extends Ice.Object> implements ReadObjectCallback, IceInternal.Patcher
+public abstract class ObjectHolderBase<T extends Ice.Object> implements ReadObjectCallback
 {
     /**
      * Instantiates the class with a <code>null</code> value.
@@ -29,18 +29,6 @@ public abstract class ObjectHolderBase<T extends Ice.Object> implements ReadObje
     ObjectHolderBase(T obj)
     {
         this.value = obj;
-    }
-
-    /**
-     * Sets the Ice object of this holder to the passed instance.
-     *
-     * @param obj The new object for this holder.
-     **/
-    @Override
-    public void
-    invoke(Ice.Object obj)
-    {
-        patch(obj);
     }
 
     /**

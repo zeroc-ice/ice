@@ -323,13 +323,17 @@ CollocatedRequestHandler::sendResponse(Int requestId, OutputStream* os, Byte, bo
         Lock sync(*this);
         assert(_response);
 
+        if(_traceLevels->protocol >= 1)
+        {
+            fillInValue(os, 10, static_cast<Int>(os->b.size()));
+        }
+
         InputStream is(os->instance(), os->getEncoding(), *os, true); // Adopting the OutputStream's buffer.
 
         is.i = is.b.begin() + sizeof(replyHdr) + 4;
 
         if(_traceLevels->protocol >= 1)
         {
-            fillInValue(os, 10, static_cast<Int>(os->b.size()));
             traceRecv(is, _logger, _traceLevels);
         }
 
@@ -446,17 +450,6 @@ CollocatedRequestHandler::sentAsync(OutgoingAsyncBase* outAsync)
 void
 CollocatedRequestHandler::invokeAll(OutputStream* os, Int requestId, Int batchRequestNum)
 {
-    InputStream is(os->instance(), os->getEncoding(), *os);
-
-    if(batchRequestNum > 0)
-    {
-        is.i = is.b.begin() + sizeof(requestBatchHdr);
-    }
-    else
-    {
-        is.i = is.b.begin() + sizeof(requestHdr);
-    }
-
     if(_traceLevels->protocol >= 1)
     {
         fillInValue(os, 10, static_cast<Int>(os->b.size()));
@@ -469,6 +462,17 @@ CollocatedRequestHandler::invokeAll(OutputStream* os, Int requestId, Int batchRe
             fillInValue(os, headerSize, batchRequestNum);
         }
         traceSend(*os, _logger, _traceLevels);
+    }
+
+    InputStream is(os->instance(), os->getEncoding(), *os);
+
+    if(batchRequestNum > 0)
+    {
+        is.i = is.b.begin() + sizeof(requestBatchHdr);
+    }
+    else
+    {
+        is.i = is.b.begin() + sizeof(requestHdr);
     }
 
     int invokeNum = batchRequestNum > 0 ? batchRequestNum : 1;

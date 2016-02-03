@@ -123,13 +123,13 @@ public final class CommunicatorI implements Communicator
     }
 
     @Override @SuppressWarnings("deprecation")
-    public synchronized void addObjectFactory(ObjectFactory factory, String id)
+    public void addObjectFactory(ObjectFactory factory, String id)
     {
         _instance.addObjectFactory(factory, id);
     }
 
     @Override @SuppressWarnings("deprecation")
-    public synchronized ObjectFactory findObjectFactory(String id)
+    public ObjectFactory findObjectFactory(String id)
     {
         return _instance.findObjectFactory(id);
     }

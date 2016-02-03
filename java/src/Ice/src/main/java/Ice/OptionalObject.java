@@ -12,7 +12,7 @@ package Ice;
 /**
  * Handles callbacks for an optional object parameter.
  **/
-public class OptionalObject implements ReadObjectCallback, IceInternal.Patcher
+public class OptionalObject implements ReadObjectCallback
 {
     /**
      * Instantiates the class with the given optional.
@@ -36,9 +36,8 @@ public class OptionalObject implements ReadObjectCallback, IceInternal.Patcher
      * @param v The new object for the optional.
      **/
     @SuppressWarnings("unchecked")
-    @Override
     public void
-    patch(Ice.Object v)
+    objectReady(Ice.Object v)
     {
         if(v == null || cls.isInstance(v))
         {
@@ -59,23 +58,11 @@ public class OptionalObject implements ReadObjectCallback, IceInternal.Patcher
      *
      * @return The Slice type ID.
      **/
-    @Override
+    // TBD: Remove
     public String
     type()
     {
         return this.type;
-    }
-
-    /**
-     * Sets the Ice object of the optional to the passed instance.
-     *
-     * @param obj The new object for the optional.
-     **/
-    @Override
-    public void
-    invoke(Ice.Object obj)
-    {
-        patch(obj);
     }
 
     /**

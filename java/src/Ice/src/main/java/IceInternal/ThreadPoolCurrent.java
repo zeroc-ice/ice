@@ -14,7 +14,7 @@ public final class ThreadPoolCurrent
     ThreadPoolCurrent(Instance instance, ThreadPool threadPool, ThreadPool.EventHandlerThread thread)
     {
         operation = SocketOperation.None;
-        stream = new BasicStream(instance, Protocol.currentProtocolEncoding);
+        stream = new Ice.InputStream(instance, Protocol.currentProtocolEncoding);
 
         _threadPool = threadPool;
         _thread = thread;
@@ -23,7 +23,7 @@ public final class ThreadPoolCurrent
     }
 
     public int operation;
-    public BasicStream stream; // A per-thread stream to be used by event handlers for optimization.
+    public Ice.InputStream stream; // A per-thread stream to be used by event handlers for optimization.
 
     public boolean
     ioReady()

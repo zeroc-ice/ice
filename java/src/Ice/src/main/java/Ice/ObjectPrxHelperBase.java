@@ -282,7 +282,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         try
         {
             __result.prepare(__ice_isA_name, OperationMode.Nonmutating, __context, __explicitCtx, __synchronous);
-            IceInternal.BasicStream __os = __result.startWriteParams(Ice.FormatType.DefaultFormat);
+            OutputStream __os = __result.startWriteParams(Ice.FormatType.DefaultFormat);
             __os.writeString(__id);
             __result.endWriteParams();
             __result.invoke();
@@ -319,7 +319,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
                 }
             }
             boolean __ret;
-            IceInternal.BasicStream __is = __result.startReadParams();
+            InputStream __is = __result.startReadParams();
             __ret = __is.readBool();
             __result.endReadParams();
             return __ret;
@@ -810,7 +810,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
                 }
             }
             String[] __ret = null;
-            IceInternal.BasicStream __is = __result.startReadParams();
+            InputStream __is = __result.startReadParams();
             __ret = StringSeqHelper.read(__is);
             __result.endReadParams();
             return __ret;
@@ -1085,7 +1085,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
                 }
             }
             String __ret = null;
-            IceInternal.BasicStream __is = __result.startReadParams();
+            InputStream __is = __result.startReadParams();
             __ret = __is.readString();
             __result.endReadParams();
             return __ret;
@@ -2543,6 +2543,12 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         return false;
     }
 
+    public void __write(OutputStream os)
+    {
+        _reference.getIdentity().ice_write(os);
+        _reference.streamWrite(os);
+    }
+
     public final IceInternal.Reference
     __reference()
     {
@@ -2736,7 +2742,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     }
 
     public void
-    cacheMessageBuffers(IceInternal.BasicStream is, IceInternal.BasicStream os)
+    cacheMessageBuffers(InputStream is, OutputStream os)
     {
         synchronized(this)
         {
@@ -2976,14 +2982,14 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
 
     private static class StreamCacheEntry
     {
-        StreamCacheEntry(IceInternal.BasicStream is, IceInternal.BasicStream os)
+        StreamCacheEntry(InputStream is, OutputStream os)
         {
             this.is = is;
             this.os = os;
         }
 
-        IceInternal.BasicStream is;
-        IceInternal.BasicStream os;
+        InputStream is;
+        OutputStream os;
     }
 
     private transient IceInternal.Reference _reference;

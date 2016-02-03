@@ -47,7 +47,7 @@ public class BatchRequestQueue
         private Ice.ObjectPrx _proxy;
         private String _operation;
         private int _size;
-    };
+    }
 
     public
     BatchRequestQueue(Instance instance, boolean datagram)
@@ -56,7 +56,7 @@ public class BatchRequestQueue
         _interceptor = initData.batchRequestInterceptor;
         _batchStreamInUse = false;
         _batchRequestNum = 0;
-        _batchStream = new BasicStream(instance, Protocol.currentProtocolEncoding);
+        _batchStream = new Ice.OutputStream(instance, Protocol.currentProtocolEncoding);
         _batchStream.writeBlob(Protocol.requestBatchHdr);
         _batchMarker = _batchStream.size();
         _request = new BatchRequestI();
@@ -73,7 +73,7 @@ public class BatchRequestQueue
     }
 
     synchronized public void
-    prepareBatchRequest(BasicStream os)
+    prepareBatchRequest(Ice.OutputStream os)
     {
         if(_exception != null)
         {
@@ -86,7 +86,7 @@ public class BatchRequestQueue
     }
 
     public void
-    finishBatchRequest(BasicStream os, Ice.ObjectPrx proxy, String operation)
+    finishBatchRequest(Ice.OutputStream os, Ice.ObjectPrx proxy, String operation)
     {
         //
         // No need for synchronization, no other threads are supposed
@@ -120,7 +120,7 @@ public class BatchRequestQueue
         {
             synchronized(this)
             {
-                _batchStream.resize(_batchMarker, false);
+                _batchStream.resize(_batchMarker);
                 _batchStreamInUse = false;
                 _batchStreamCanFlush = false;
                 notifyAll();
@@ -129,19 +129,19 @@ public class BatchRequestQueue
     }
 
     synchronized public void
-    abortBatchRequest(BasicStream os)
+    abortBatchRequest(Ice.OutputStream os)
     {
         if(_batchStreamInUse)
         {
             _batchStream.swap(os);
-            _batchStream.resize(_batchMarker, false);
+            _batchStream.resize(_batchMarker);
             _batchStreamInUse = false;
             notifyAll();
         }
     }
 
     synchronized public int
-    swap(BasicStream os)
+    swap(Ice.OutputStream os)
     {
         if(_batchRequestNum == 0)
         {
@@ -157,7 +157,7 @@ public class BatchRequestQueue
             Buffer buffer = _batchStream.getBuffer();
             buffer.b.position(_batchMarker);
             buffer.b.get(lastRequest);
-            _batchStream.resize(_batchMarker, false);
+            _batchStream.resize(_batchMarker);
         }
 
         int requestNum = _batchRequestNum;
@@ -226,7 +226,7 @@ public class BatchRequestQueue
     }
 
     private Ice.BatchRequestInterceptor _interceptor;
-    private BasicStream _batchStream;
+    private Ice.OutputStream _batchStream;
     private boolean _batchStreamInUse;
     private boolean _batchStreamCanFlush;
     private int _batchRequestNum;
@@ -236,4 +236,4 @@ public class BatchRequestQueue
     private int _maxSize;
 
     final private static int _udpOverhead = 20 + 8;
-};
+}

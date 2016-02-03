@@ -36,7 +36,7 @@ final public class WSEndpointFactory implements IceInternal.EndpointFactory
     }
 
     @Override
-    public IceInternal.EndpointI read(IceInternal.BasicStream s)
+    public IceInternal.EndpointI read(Ice.InputStream s)
     {
         return new WSEndpoint(_instance, _delegate.read(s), s);
     }

@@ -17,8 +17,7 @@ package IceInternal;
 
 public class ObjectInputStream extends java.io.ObjectInputStream
 {
-    public
-    ObjectInputStream(Instance instance, java.io.InputStream in)
+    public ObjectInputStream(Instance instance, java.io.InputStream in)
         throws java.io.IOException
     {
         super(in);
@@ -26,10 +25,14 @@ public class ObjectInputStream extends java.io.ObjectInputStream
     }
 
     @Override
-    protected Class<?>
-    resolveClass(java.io.ObjectStreamClass cls)
+    protected Class<?> resolveClass(java.io.ObjectStreamClass cls)
         throws java.io.IOException, ClassNotFoundException
     {
+        if(_instance == null)
+        {
+            throw new Ice.MarshalException("cannot unmarshal a serializable without a communicator");
+        }
+
         try
         {
             Class<?> c = _instance.findClass(cls.getName());

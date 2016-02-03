@@ -28,7 +28,7 @@ final class EndpointI extends IceInternal.IPEndpointI implements IceInternal.WSE
         _compress = false;
     }
 
-    public EndpointI(Instance instance, IceInternal.BasicStream s)
+    public EndpointI(Instance instance, Ice.InputStream s)
     {
         super(instance, s);
         _instance = instance;
@@ -257,7 +257,7 @@ final class EndpointI extends IceInternal.IPEndpointI implements IceInternal.WSE
     }
 
     @Override
-    public void streamWriteImpl(IceInternal.BasicStream s)
+    public void streamWriteImpl(Ice.OutputStream s)
     {
         super.streamWriteImpl(s);
         s.writeInt(_timeout);

@@ -40,7 +40,7 @@ final class EndpointI extends IceInternal.EndpointI
         _compress = false;
     }
 
-    public EndpointI(Instance instance, IceInternal.BasicStream s)
+    public EndpointI(Instance instance, Ice.InputStream s)
     {
         _instance = instance;
 
@@ -71,17 +71,17 @@ final class EndpointI extends IceInternal.EndpointI
     }
 
     @Override
-    public void streamWrite(IceInternal.BasicStream s)
+    public void streamWrite(Ice.OutputStream s)
     {
         //
         // _name and _channel are not marshaled.
         //
-        s.startWriteEncaps();
+        s.startEncapsulation();
         s.writeString(_addr);
         s.writeString(_uuid.toString());
         s.writeInt(_timeout);
         s.writeBool(_compress);
-        s.endWriteEncaps();
+        s.endEncapsulation();
     }
 
     @Override

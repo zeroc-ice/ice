@@ -14,7 +14,7 @@ public interface EndpointFactory
     short type();
     String protocol();
     EndpointI create(java.util.ArrayList<String> args, boolean oaEndpoint);
-    EndpointI read(BasicStream s);
+    EndpointI read(Ice.InputStream s);
     void destroy();
 
     EndpointFactory clone(ProtocolInstance instance);

@@ -87,31 +87,15 @@ public abstract class UserException extends java.lang.Exception implements Clone
     }
 
     public void
-    __write(IceInternal.BasicStream os)
+    __write(OutputStream os)
     {
-        os.startWriteException(null);
-        __writeImpl(os);
-        os.endWriteException();
-    }
-
-    public void
-    __read(IceInternal.BasicStream is)
-    {
-        is.startReadException();
-        __readImpl(is);
-        is.endReadException(false);
-    }
-
-    public void
-    __write(Ice.OutputStream os)
-    {
-         os.startException(null);
+        os.startException(null);
         __writeImpl(os);
         os.endException();
     }
 
     public void
-    __read(Ice.InputStream is)
+    __read(InputStream is)
     {
         is.startException();
         __readImpl(is);
@@ -125,20 +109,8 @@ public abstract class UserException extends java.lang.Exception implements Clone
     }
 
     protected abstract void
-    __writeImpl(IceInternal.BasicStream os);
+    __writeImpl(OutputStream os);
 
     protected abstract void
-    __readImpl(IceInternal.BasicStream is);
-
-    protected void
-    __writeImpl(OutputStream os)
-    {
-        throw new MarshalException("exception was not generated with stream support");
-    }
-
-    protected void
-    __readImpl(InputStream is)
-    {
-        throw new MarshalException("exception was not generated with stream support");
-    }
+    __readImpl(InputStream is);
 }

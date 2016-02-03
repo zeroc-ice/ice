@@ -36,9 +36,8 @@ public final class ObjectHolder extends ObjectHolderBase<Ice.Object>
      *
      * @param v The new object for this holder.
      **/
-    @Override
     public void
-    patch(Ice.Object v)
+    objectReady(Ice.Object v)
     {
         value = v;
     }
@@ -49,7 +48,7 @@ public final class ObjectHolder extends ObjectHolderBase<Ice.Object>
      *
      * @return The Slice type ID.
      **/
-    @Override
+    // TBD: Remove
     public String
     type()
     {
