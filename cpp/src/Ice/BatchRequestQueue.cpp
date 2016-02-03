@@ -91,7 +91,7 @@ void
 BatchRequestQueue::prepareBatchRequest(OutputStream* os)
 {
     Lock sync(*this);
-    if(ICE_EXCEPTION_GET(_exception))
+    if(ICE_EXCEPTION_ISSET(_exception))
     {
         ICE_RETHROW_EXCEPTION(_exception);
     }

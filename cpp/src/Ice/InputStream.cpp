@@ -1321,6 +1321,7 @@ Ice::InputStream::skipOpts()
 void
 Ice::InputStream::throwUnmarshalOutOfBoundsException(const char* file, int line)
 {
+    assert(false);
     throw UnmarshalOutOfBoundsException(file, line);
 }
 
@@ -2087,14 +2088,7 @@ Ice::InputStream::EncapsDecoder11::throwException(const UserExceptionFactoryPtr&
         //
         if(_current->sliceFlags & FLAG_IS_LAST_SLICE)
         {
-            if(mostDerivedId.length() > 2 && mostDerivedId[0] == ':' && mostDerivedId[1] == ':')
-            {
-                throw UnknownUserException(__FILE__, __LINE__, mostDerivedId.substr(2));
-            }
-            else
-            {
-                throw UnknownUserException(__FILE__, __LINE__, mostDerivedId);
-            }
+            throw UnknownUserException(__FILE__, __LINE__, mostDerivedId);
         }
 
         startSlice();
@@ -2262,14 +2256,7 @@ Ice::InputStream::EncapsDecoder11::skipSlice()
         }
         else
         {
-            if(_current->typeId.length() > 2 && _current->typeId[0] == ':' && _current->typeId[1] == ':')
-            {
-                throw UnknownUserException(__FILE__, __LINE__, _current->typeId.substr(2));
-            }
-            else
-            {
-                throw UnknownUserException(__FILE__, __LINE__, _current->typeId);
-            }
+            throw UnknownUserException(__FILE__, __LINE__, _current->typeId);
         }
     }
 

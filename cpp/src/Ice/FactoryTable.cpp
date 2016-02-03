@@ -66,13 +66,8 @@ IceInternal::FactoryTable::removeExceptionFactory(const string& t)
 //
 // Add a factory to the value factory table.
 //
-#ifdef ICE_CPP11_MAPPING
 void
-IceInternal::FactoryTable::addValueFactory(const string& t, function<::Ice::ValuePtr (string)> f)
-#else
-void
-IceInternal::FactoryTable::addValueFactory(const string& t, const ::Ice::ValueFactoryPtr& f)
-#endif
+IceInternal::FactoryTable::addValueFactory(const string& t, ICE_IN(ICE_VALUE_FACTORY) f)
 {
     IceUtil::Mutex::Lock lock(_m);
     assert(f);
@@ -90,23 +85,13 @@ IceInternal::FactoryTable::addValueFactory(const string& t, const ::Ice::ValueFa
 //
 // Return the value factory for a given type ID
 //
-#ifdef ICE_CPP11_MAPPING
-function<Ice::ValuePtr(const string&)>
+ICE_VALUE_FACTORY
 IceInternal::FactoryTable::getValueFactory(const string& t) const
 {
     IceUtil::Mutex::Lock lock(_m);
     VFTable::const_iterator i = _vft.find(t);
-    return i != _vft.end() ? i->second.first : nullptr;
+    return i != _vft.end() ? i->second.first : ICE_VALUE_FACTORY();
 }
-#else
-Ice::ValueFactoryPtr
-IceInternal::FactoryTable::getValueFactory(const string& t) const
-{
-    IceUtil::Mutex::Lock lock(_m);
-    VFTable::const_iterator i = _vft.find(t);
-    return i != _vft.end() ? i->second.first : Ice::ValueFactoryPtr();
-}
-#endif
 
 //
 // Remove a factory from the value factory table. If the factory

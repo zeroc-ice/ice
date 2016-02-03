@@ -33,10 +33,7 @@ const int TypeContextAMIEnd = 2;
 const int TypeContextAMIPrivateEnd = 4;
 const int TypeContextAMICallPrivateEnd = 8;
 const int TypeContextUseWstring = 16;
-const int TypeContextReadClosure = 32;
-const int TypeContextLocalOperation = 64;
-const int TypeContextAMD = 128;
-const int TypeContextDelegate = 256;
+const int TypeContextLocal = 32;
 
 SLICE_API bool isMovable(const TypePtr&);
 

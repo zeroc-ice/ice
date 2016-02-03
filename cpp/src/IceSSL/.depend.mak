@@ -38,7 +38,6 @@ ConnectionInfo.obj: \
     "$(includedir)\Ice\StreamHelpers.h" \
     "$(includedir)\IceUtil\ScopedArray.h" \
     "$(includedir)\IceUtil\Iterator.h" \
-    "$(includedir)\Ice\Traits.h" \
     "$(includedir)\Ice\Proxy.h" \
     "$(includedir)\IceUtil\Mutex.h" \
     "$(includedir)\IceUtil\Lock.h" \
@@ -113,7 +112,6 @@ EndpointInfo.obj: \
     "$(includedir)\Ice\StreamHelpers.h" \
     "$(includedir)\IceUtil\ScopedArray.h" \
     "$(includedir)\IceUtil\Iterator.h" \
-    "$(includedir)\Ice\Traits.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\Endpoint.h" \
     "$(includedir)\Ice\Version.h" \
@@ -175,7 +173,6 @@ AcceptorI.obj: \
     "$(includedir)\Ice\StreamHelpers.h" \
     "$(includedir)\IceUtil\ScopedArray.h" \
     "$(includedir)\IceUtil\Iterator.h" \
-    "$(includedir)\Ice\Traits.h" \
     "$(includedir)\Ice\Proxy.h" \
     "$(includedir)\IceUtil\Mutex.h" \
     "$(includedir)\IceUtil\Lock.h" \
@@ -327,7 +324,6 @@ Certificate.obj: \
     "$(includedir)\Ice\StreamHelpers.h" \
     "$(includedir)\IceUtil\ScopedArray.h" \
     "$(includedir)\IceUtil\Iterator.h" \
-    "$(includedir)\Ice\Traits.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\LoggerF.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
@@ -403,7 +399,6 @@ ConnectorI.obj: \
     "$(includedir)\Ice\StreamHelpers.h" \
     "$(includedir)\IceUtil\ScopedArray.h" \
     "$(includedir)\IceUtil\Iterator.h" \
-    "$(includedir)\Ice\Traits.h" \
     "$(includedir)\Ice\Proxy.h" \
     "$(includedir)\IceUtil\Mutex.h" \
     "$(includedir)\IceUtil\Lock.h" \
@@ -550,7 +545,6 @@ EndpointI.obj: \
     "$(includedir)\Ice\StreamHelpers.h" \
     "$(includedir)\IceUtil\ScopedArray.h" \
     "$(includedir)\IceUtil\Iterator.h" \
-    "$(includedir)\Ice\Traits.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\Version.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
@@ -688,7 +682,6 @@ Instance.obj: \
     "$(includedir)\Ice\StreamHelpers.h" \
     "$(includedir)\IceUtil\ScopedArray.h" \
     "$(includedir)\IceUtil\Iterator.h" \
-    "$(includedir)\Ice\Traits.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
     "$(includedir)\IceUtil\PopDisableWarnings.h" \
@@ -815,7 +808,6 @@ PluginI.obj: \
     "$(includedir)\Ice\StreamHelpers.h" \
     "$(includedir)\IceUtil\ScopedArray.h" \
     "$(includedir)\IceUtil\Iterator.h" \
-    "$(includedir)\Ice\Traits.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\LoggerF.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
@@ -952,7 +944,6 @@ RFC2253.obj: \
     "$(includedir)\Ice\StreamHelpers.h" \
     "$(includedir)\IceUtil\ScopedArray.h" \
     "$(includedir)\IceUtil\Iterator.h" \
-    "$(includedir)\Ice\Traits.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\LoggerF.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
@@ -1027,7 +1018,6 @@ SChannelEngine.obj: \
     "$(includedir)\Ice\StreamHelpers.h" \
     "$(includedir)\IceUtil\ScopedArray.h" \
     "$(includedir)\IceUtil\Iterator.h" \
-    "$(includedir)\Ice\Traits.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\LoggerF.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
@@ -1136,7 +1126,6 @@ SChannelTransceiverI.obj: \
     "$(includedir)\Ice\StreamHelpers.h" \
     "$(includedir)\IceUtil\ScopedArray.h" \
     "$(includedir)\IceUtil\Iterator.h" \
-    "$(includedir)\Ice\Traits.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\LoggerF.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
@@ -1275,7 +1264,6 @@ SSLEngine.obj: \
     "$(includedir)\Ice\StreamHelpers.h" \
     "$(includedir)\IceUtil\ScopedArray.h" \
     "$(includedir)\IceUtil\Iterator.h" \
-    "$(includedir)\Ice\Traits.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\LoggerF.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
@@ -1381,7 +1369,6 @@ TrustManager.obj: \
     "$(includedir)\Ice\StreamHelpers.h" \
     "$(includedir)\IceUtil\ScopedArray.h" \
     "$(includedir)\IceUtil\Iterator.h" \
-    "$(includedir)\Ice\Traits.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
     "$(includedir)\IceUtil\PopDisableWarnings.h" \
@@ -1491,7 +1478,6 @@ Util.obj: \
     "$(includedir)\Ice\StreamHelpers.h" \
     "$(includedir)\IceUtil\ScopedArray.h" \
     "$(includedir)\IceUtil\Iterator.h" \
-    "$(includedir)\Ice\Traits.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\LoggerF.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \

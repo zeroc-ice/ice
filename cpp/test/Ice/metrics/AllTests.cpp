@@ -394,23 +394,13 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
     cout << "testing metrics admin facet checkedCast... " << flush;
     Ice::ObjectPrxPtr admin = communicator->getAdmin();
 
-#ifdef ICE_CPP11_MAPPING
-    Ice::PropertiesAdminPrxPtr clientProps =  Ice::checkedCast<Ice::PropertiesAdminPrx>(admin, "Properties");
-    IceMX::MetricsAdminPrxPtr clientMetrics = Ice::checkedCast<IceMX::MetricsAdminPrx>(admin, "Metrics");
-#else
-    Ice::PropertiesAdminPrx clientProps = Ice::PropertiesAdminPrx::checkedCast(admin, "Properties");
-    IceMX::MetricsAdminPrx clientMetrics = IceMX::MetricsAdminPrx::checkedCast(admin, "Metrics");
-#endif
+    Ice::PropertiesAdminPrxPtr clientProps =  ICE_CHECKED_CAST(Ice::PropertiesAdminPrx, admin, "Properties");
+    IceMX::MetricsAdminPrxPtr clientMetrics = ICE_CHECKED_CAST(IceMX::MetricsAdminPrx, admin, "Metrics");
     test(clientProps && clientMetrics);
 
     admin = metrics->getAdmin();
-#ifdef ICE_CPP11_MAPPING
-    Ice::PropertiesAdminPrxPtr serverProps = Ice::checkedCast<Ice::PropertiesAdminPrx>(admin, "Properties");
-    IceMX::MetricsAdminPrxPtr serverMetrics = Ice::checkedCast<IceMX::MetricsAdminPrx>(admin, "Metrics");
-#else
-    Ice::PropertiesAdminPrx serverProps = Ice::PropertiesAdminPrx::checkedCast(admin, "Properties");
-    IceMX::MetricsAdminPrx serverMetrics = IceMX::MetricsAdminPrx::checkedCast(admin, "Metrics");
-#endif
+    Ice::PropertiesAdminPrxPtr serverProps = ICE_CHECKED_CAST(Ice::PropertiesAdminPrx, admin, "Properties");
+    IceMX::MetricsAdminPrxPtr serverMetrics = ICE_CHECKED_CAST(IceMX::MetricsAdminPrx, admin, "Metrics");
     test(serverProps && serverMetrics);
 
     UpdateCallbackIPtr update = ICE_MAKE_SHARED(UpdateCallbackI, serverProps);
@@ -427,11 +417,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
     updateProps(clientProps, serverProps, update.get(), props);
 
 #ifndef ICE_OS_WINRT
-#   ifdef ICE_CPP11_MAPPING
-    int threadCount = collocated ? 5 : 4;
-#   else
     int threadCount = 4;
-#endif
 #else
     int threadCount = 3; // No endpoint host resolver thread with WinRT.
 #endif

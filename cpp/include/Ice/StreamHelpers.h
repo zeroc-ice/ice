@@ -7,14 +7,13 @@
 //
 // **********************************************************************
 
-#ifndef ICE_STREAM_TRAITS_H
-#define ICE_STREAM_TRAITS_H
+#ifndef ICE_STREAM_HELPERS_H
+#define ICE_STREAM_HELPERS_H
 
 #include <IceUtil/ScopedArray.h>
 #include <IceUtil/Iterator.h>
 
 #include <Ice/ObjectF.h>
-#include <Ice/Traits.h>
 
 namespace Ice
 {
@@ -93,11 +92,57 @@ struct IsMap
     static const bool value = IsContainer<T>::value && sizeof(test<T>(0)) == sizeof(char);
 };
 
+#ifdef ICE_CPP11_MAPPING
+
 //
 // Base traits template.
 // Types with no specialized trait use this trait.
 //
-template<typename T, typename Enabler = void>
+template<typename T,  typename Enabler = void>
+struct StreamableTraits
+{
+    static const StreamHelperCategory helper = StreamHelperCategoryUnknown;
+
+    //
+    // When extracting a sequence<T> from a stream, we can ensure the
+    // stream has at least StreamableTraits<T>::minWireSize * size bytes
+    // For containers, the minWireSize is 1 (just 1 byte for an empty container).
+    //
+    //static const int minWireSize = 1;
+
+    //
+    // Is this type encoded on a fixed number of bytes?
+    // Used only for marshaling/unmarshaling optional data members and parameters.
+    //
+    //static const bool fixedLength = false;
+};
+
+template<typename T>
+struct StreamableTraits<T, typename ::std::enable_if<IsMap<T>::value || IsContainer<T>::value>::type>
+{
+    static const StreamHelperCategory helper = IsMap<T>::value ? StreamHelperCategoryDictionary : StreamHelperCategorySequence;
+    static const int minWireSize = 1;
+    static const bool fixedLength = false;
+};
+
+template<typename T>
+struct StreamableTraits<T, typename ::std::enable_if<::std::is_base_of<::Ice::UserException, T>::value>::type>
+{
+    static const StreamHelperCategory helper = StreamHelperCategoryUserException;
+
+    //
+    // There is no sequence/dictionary of UserException (so no need for minWireSize)
+    // and no optional UserException (so no need for fixedLength)
+    //
+};
+
+#else
+
+//
+// Base traits template.
+// Types with no specialized trait use this trait.
+//
+template<typename T,  typename Enabler = void>
 struct StreamableTraits
 {
     static const StreamHelperCategory helper = IsMap<T>::value ? StreamHelperCategoryDictionary :
@@ -118,19 +163,6 @@ struct StreamableTraits
 };
 
 //
-// StreamableTraits specialization for array / range mapped sequences
-// The type can be a std::pair<T, T> or a
-// std::pair<IceUtil::ScopedArray<T>, std::pair<const T*, const T*> >
-//
-template<typename T, typename U>
-struct StreamableTraits< ::std::pair<T, U> >
-{
-    static const StreamHelperCategory helper = StreamHelperCategorySequence;
-    static const int minWireSize = 1;
-    static const bool fixedLength = false;
-};
-
-//
 // StreamableTraits specialization for user exceptions.
 //
 template<>
@@ -143,7 +175,20 @@ struct StreamableTraits<UserException>
     // and no optional UserException (so no need for fixedLength)
     //
 };
+#endif
 
+//
+// StreamableTraits specialization for array / range mapped sequences
+// The type can be a std::pair<T, T> or a
+// std::pair<IceUtil::ScopedArray<T>, std::pair<const T*, const T*> >
+//
+template<typename T, typename U>
+struct StreamableTraits< ::std::pair<T, U> >
+{
+    static const StreamHelperCategory helper = StreamHelperCategorySequence;
+    static const int minWireSize = 1;
+    static const bool fixedLength = false;
+};
 
 //
 // StreamableTraits specialization for builtins (these are needed for sequence
@@ -236,7 +281,7 @@ struct StreamableTraits< ::std::vector<bool> >
 
 #ifdef ICE_CPP11_MAPPING
 template<typename T>
-struct StreamableTraits<::std::shared_ptr<T>, typename ::std::enable_if<IsProxy<T>::value>::type>
+struct StreamableTraits<::std::shared_ptr<T>, typename ::std::enable_if<::std::is_base_of<::Ice::ObjectPrx, T>::value>::type>
 {
     static const StreamHelperCategory helper = StreamHelperCategoryProxy;
     static const int minWireSize = 2;
@@ -254,7 +299,7 @@ struct StreamableTraits< ::IceInternal::ProxyHandle<T> >
 
 #ifdef ICE_CPP11_MAPPING
 template<typename T>
-struct StreamableTraits<::std::shared_ptr<T>, typename ::std::enable_if<IsValue<T>::value>::type>
+struct StreamableTraits<::std::shared_ptr<T>, typename ::std::enable_if<::std::is_base_of<::Ice::Value, T>::value>::type>
 {
     static const StreamHelperCategory helper = StreamHelperCategoryClass;
     static const int minWireSize = 1;
@@ -322,7 +367,6 @@ struct StreamHelper<T, StreamHelperCategoryStruct>
         StreamReader<T, S>::read(stream, v);
     }
 };
-
 
 // Helper for class structs
 template<typename T>

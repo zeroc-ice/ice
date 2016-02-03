@@ -341,15 +341,19 @@ private:
     //
     // C++11 Visitors
     //
-    class Cpp11ObjectDeclVisitor : private ::IceUtil::noncopyable, public ParserVisitor
+    class Cpp11DeclVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
 
-        Cpp11ObjectDeclVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
+        Cpp11DeclVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
 
+        virtual bool visitUnitStart(const UnitPtr&);
+        virtual void visitUnitEnd(const UnitPtr&);
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
         virtual void visitClassDecl(const ClassDeclPtr&);
+        virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual bool visitExceptionStart(const ExceptionPtr&);
         virtual void visitOperation(const OperationPtr&);
 
     private:
@@ -557,7 +561,6 @@ private:
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
         virtual bool visitStructStart(const StructPtr&);
-        virtual bool visitExceptionStart(const ExceptionPtr&);
         virtual void visitEnum(const EnumPtr&);
 
     private:
@@ -583,7 +586,7 @@ private:
         ::IceUtilInternal::Output& H;
         std::string _dllExport;
     };
-    
+
     class Cpp11ImplVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
@@ -607,7 +610,7 @@ private:
         // Generate code to return a dummy value
         //
         void writeReturn(::IceUtilInternal::Output&, const TypePtr&, const StringList&);
-        
+
         //
         // Get the default value returned for a type
         //

@@ -212,104 +212,30 @@ const ::std::string __flushBatchRequests_name = "flushBatchRequests";
 void
 Ice::CommunicatorI::flushBatchRequests()
 {
-    promise<bool> promise;
-    flushBatchRequests_async(
-        [&](exception_ptr ex)
-        {
-            promise.set_exception(move(ex));
-        },
-        [&](bool sentSynchronously)
-        {
-            promise.set_value(sentSynchronously);
-        });
-    promise.get_future().get();
+    Communicator::flushBatchRequests_async().get();
 }
 
 ::std::function<void ()>
-Ice::CommunicatorI::flushBatchRequests_async(
-    function<void (exception_ptr)> exception,
-    function<void (bool)> sent)
+Ice::CommunicatorI::flushBatchRequests_async(function<void (exception_ptr)> ex, function<void (bool)> sent)
 {
-    class FlushBatchRequestsCallback : public CallbackBase
+    class CommunicatorFlushBatchLambda : public CommunicatorFlushBatchAsync, public LambdaInvoke
     {
     public:
 
-        FlushBatchRequestsCallback(function<void (exception_ptr)> exception,
-                                   function<void (bool)> sent,
-                                   shared_ptr<Communicator> communicator) :
-            _exception(move(exception)),
-            _sent(move(sent)),
-            _communicator(move(communicator))
+        CommunicatorFlushBatchLambda(const InstancePtr& instance,
+                                     std::function<void (std::exception_ptr)> ex,
+                                     std::function<void (bool)> sent) :
+            CommunicatorFlushBatchAsync(instance), LambdaInvoke(std::move(ex), std::move(sent))
         {
         }
-
-        virtual void sent(const AsyncResultPtr& result) const
-        {
-            try
-            {
-                AsyncResult::__check(result, _communicator.get(), __flushBatchRequests_name);
-                result->__wait();
-            }
-            catch(const ::Ice::Exception&)
-            {
-                _exception(current_exception());
-            }
-
-            if(_sent)
-            {
-                _sent(result->sentSynchronously());
-            }
-        }
-
-        virtual bool hasSentCallback() const
-        {
-            return true;
-        }
-
-
-        virtual void
-        completed(const ::Ice::AsyncResultPtr& result) const
-        {
-            try
-            {
-                AsyncResult::__check(result, _communicator.get(), __flushBatchRequests_name);
-                result->__wait();
-            }
-            catch(const ::Ice::Exception&)
-            {
-                _exception(current_exception());
-            }
-        }
-
-    private:
-
-        function<void (exception_ptr)> _exception;
-        function<void (bool)> _sent;
-        shared_ptr<Communicator> _communicator;
     };
-
-    OutgoingConnectionFactoryPtr connectionFactory = _instance->outgoingConnectionFactory();
-    ObjectAdapterFactoryPtr adapterFactory = _instance->objectAdapterFactory();
-
-    auto self = dynamic_pointer_cast<CommunicatorI>(shared_from_this());
-
-    auto result = make_shared<CommunicatorFlushBatchAsync>(self, _instance, __flushBatchRequests_name,
-        make_shared<FlushBatchRequestsCallback>(move(exception), move(sent), self));
-
-    connectionFactory->flushAsyncBatchRequests(result);
-    adapterFactory->flushAsyncBatchRequests(result);
-
-    //
-    // Inform the callback that we have finished initiating all of the
-    // flush requests.
-    //
-    result->ready();
-    return [result]()
-        {
-            result->cancel();
-        };
+    auto outAsync = make_shared<CommunicatorFlushBatchLambda>(_instance, ex, sent);
+    outAsync->invoke(__flushBatchRequests_name);
+    return [outAsync]() { outAsync->cancel(); };
 }
+
 #else
+
 void
 Ice::CommunicatorI::flushBatchRequests()
 {
@@ -338,28 +264,37 @@ Ice::CommunicatorI::begin_flushBatchRequests(const Callback_Communicator_flushBa
 AsyncResultPtr
 Ice::CommunicatorI::__begin_flushBatchRequests(const IceInternal::CallbackBasePtr& cb, const LocalObjectPtr& cookie)
 {
-    OutgoingConnectionFactoryPtr connectionFactory = _instance->outgoingConnectionFactory();
-    ObjectAdapterFactoryPtr adapterFactory = _instance->objectAdapterFactory();
+    class CommunicatorFlushBatchAsyncWithCallback : public CommunicatorFlushBatchAsync, public CallbackCompletion
+    {
+    public:
 
-    //
-    // This callback object receives the results of all invocations
-    // of Connection::begin_flushBatchRequests.
-    //
-    CommunicatorFlushBatchAsyncPtr result = new CommunicatorFlushBatchAsync(ICE_SHARED_FROM_THIS,
-                                                                            _instance,
-                                                                            __flushBatchRequests_name,
-                                                                            cb,
-                                                                            cookie);
+        CommunicatorFlushBatchAsyncWithCallback(const Ice::CommunicatorPtr& communicator,
+                                                const InstancePtr& instance,
+                                                const CallbackBasePtr& callback,
+                                                const Ice::LocalObjectPtr& cookie) :
+            CommunicatorFlushBatchAsync(instance), CallbackCompletion(callback, cookie), _communicator(communicator)
+        {
+            _cookie = cookie;
+        }
 
-    connectionFactory->flushAsyncBatchRequests(result);
-    adapterFactory->flushAsyncBatchRequests(result);
+        virtual Ice::CommunicatorPtr getCommunicator() const
+        {
+            return _communicator;
+        }
 
-    //
-    // Inform the callback that we have finished initiating all of the
-    // flush requests.
-    //
-    result->ready();
+        virtual const std::string&
+        getOperation() const
+        {
+            return __flushBatchRequests_name;
+        }
 
+    private:
+
+        Ice::CommunicatorPtr _communicator;
+    };
+
+    CommunicatorFlushBatchAsyncPtr result = new CommunicatorFlushBatchAsyncWithCallback(this, _instance, cb, cookie);
+    result->invoke(__flushBatchRequests_name);
     return result;
 }
 

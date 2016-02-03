@@ -41,7 +41,7 @@ public:
 
 protected:
 
-    IncomingBase(Instance*, ResponseHandler*, Ice::Connection*, const Ice::ObjectAdapterPtr&, bool, Ice::Byte, 
+    IncomingBase(Instance*, ResponseHandler*, Ice::Connection*, const Ice::ObjectAdapterPtr&, bool, Ice::Byte,
                  Ice::Int);
     IncomingBase(IncomingBase&); // Adopts the argument. It must not be used afterwards.
 
@@ -91,8 +91,8 @@ public:
     void pop();
     void startOver();
     void killAsync();
-    void setActive(IncomingAsync&);
-    
+    void setActive(IncomingAsyncPtr);
+
     bool isRetriable()
     {
         return _inParamPos != 0;
@@ -126,7 +126,7 @@ public:
 private:
 
     Ice::InputStream* _is;
-    
+
     IncomingAsyncPtr _cb;
     Ice::Byte* _inParamPos;
 };

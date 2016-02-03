@@ -20,24 +20,24 @@ namespace Ice
 class VirtualEnableSharedFromThisBase : public std::enable_shared_from_this<VirtualEnableSharedFromThisBase>
 {
 public:
+
      virtual ~VirtualEnableSharedFromThisBase() = default;
 };
 
 template<typename T> class EnableSharedFromThis : public virtual VirtualEnableSharedFromThisBase
 {
-
 public:
 
     std::shared_ptr<T> shared_from_this() const
     {
         return std::dynamic_pointer_cast<T>(
-            std::const_pointer_cast<VirtualEnableSharedFromThisBase>(VirtualEnableSharedFromThisBase::shared_from_this()));
+            std::const_pointer_cast<VirtualEnableSharedFromThisBase>(
+                VirtualEnableSharedFromThisBase::shared_from_this()));
     }
-   
+
     std::weak_ptr<T> weak_from_this() const
     {
-        std::weak_ptr<T> self = shared_from_this();
-        return self;
+        return shared_from_this();
     }
 };
 

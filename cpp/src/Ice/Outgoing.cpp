@@ -206,7 +206,7 @@ ProxyOutgoingBase::invokeImpl()
                 }
             }
 
-            if(ICE_EXCEPTION_GET(_exception))
+            if(ICE_EXCEPTION_ISSET(_exception))
             {
                 ICE_RETHROW_EXCEPTION(_exception);
             }
@@ -644,11 +644,11 @@ ConnectionFlushBatch::invoke()
         else if(!_connection->sendRequest(this, false, false, batchRequestNum))
         {
             Monitor<Mutex>::Lock sync(_monitor);
-            while(!ICE_EXCEPTION_GET(_exception) && !_sent)
+            while(!ICE_EXCEPTION_ISSET(_exception) && !_sent)
             {
                 _monitor.wait();
             }
-            if(ICE_EXCEPTION_GET(_exception))
+            if(ICE_EXCEPTION_ISSET(_exception))
             {
                 ICE_RETHROW_EXCEPTION(_exception);
             }

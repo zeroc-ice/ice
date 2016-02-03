@@ -77,8 +77,8 @@ remove(Map& m, const typename Map::key_type& k, const typename Map::mapped_type&
     assert(false); // Nothing was removed which is an error.
 }
 
-template<typename Map> typename Map::mapped_type
-find(const Map& m, const typename Map::key_type& k, function<bool (const typename Map::mapped_type&)> predicate)
+template<typename Map, typename Predicate> typename Map::mapped_type
+find(const Map& m, const typename Map::key_type& k, Predicate predicate)
 {
     auto pr = m.equal_range(k);
     for(auto q = pr.first; q != pr.second; ++q)
@@ -393,24 +393,9 @@ IceInternal::OutgoingConnectionFactory::findConnection(const vector<EndpointIPtr
 
     DefaultsAndOverridesPtr defaultsAndOverrides = _instance->defaultsAndOverrides();
     assert(!endpoints.empty());
-#ifdef ICE_CPP11_MAPPING
-    //
-    // COMPILERFIX: G++ 4.8 fails to deduce the type of the lambda callback if passed
-    // directly to find.
-    //
-    std::function<bool (const ConnectionIPtr&)> cb = [](const ConnectionIPtr& conn)
-      {
-	return conn->isActiveOrHolding();
-      };
-#endif
     for(vector<EndpointIPtr>::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
     {
-        ConnectionIPtr connection = find(_connectionsByEndpoint, *p, 
-#ifdef ICE_CPP11_MAPPING
-					 cb);
-#else
-					 Ice::constMemFun(&ConnectionI::isActiveOrHolding));
-#endif
+        ConnectionIPtr connection = find(_connectionsByEndpoint, *p, Ice::constMemFun(&ConnectionI::isActiveOrHolding));
         if(connection)
         {
             if(defaultsAndOverrides->overrideCompress)
@@ -440,19 +425,7 @@ IceInternal::OutgoingConnectionFactory::findConnection(const vector<ConnectorInf
             continue;
         }
 
-#ifdef ICE_CPP11_MAPPING
-	std::function<bool (const ConnectionIPtr&)> cb = [](const ConnectionIPtr& conn)
-	  {
-	    return conn->isActiveOrHolding();
-	  };
-#endif
-
-        ConnectionIPtr connection = find(_connections, p->connector,
-#ifdef ICE_CPP11_MAPPING
-					 cb);
-#else
-					 Ice::constMemFun(&ConnectionI::isActiveOrHolding));
-#endif
+        ConnectionIPtr connection = find(_connections, p->connector, Ice::constMemFun(&ConnectionI::isActiveOrHolding));
         if(connection)
         {
             if(defaultsAndOverrides->overrideCompress)

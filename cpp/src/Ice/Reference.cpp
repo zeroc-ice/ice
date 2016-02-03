@@ -1358,7 +1358,7 @@ IceInternal::RoutableReference::operator==(const Reference& r) const
     // TODO: With C++14 we could use the vesion that receives four iterators and we don't need to explicitly
     // check the sizesa are equal.
     //
-    if(_endpoints.size() != rhs->_endpoints.size() || 
+    if(_endpoints.size() != rhs->_endpoints.size() ||
        !equal(_endpoints.begin(), _endpoints.end(), rhs->_endpoints.begin(), Ice::TargetEquals<shared_ptr<EndpointI>>()))
 #else
     if(_endpoints != rhs->_endpoints)
@@ -1493,7 +1493,7 @@ IceInternal::RoutableReference::operator<(const Reference& r) const
 #ifdef ICE_CPP11_MAPPING
     if(lexicographical_compare(_endpoints.begin(), _endpoints.end(), rhs->_endpoints.begin(), rhs->_endpoints.end(),
                                Ice::TargetLess<shared_ptr<EndpointI>>()))
-#else    
+#else
     if(_endpoints < rhs->_endpoints)
 #endif
     {
@@ -1777,31 +1777,24 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
             virtual void
             setException(const Ice::LocalException& ex)
             {
-                if(!ICE_EXCEPTION_GET(_exception))
+                if(!ICE_EXCEPTION_ISSET(_exception))
                 {
                     ICE_RESET_EXCEPTION(_exception, ex.ice_clone());
                 }
 
-#ifdef ICE_CPP11_MAPPING                
-                try
+                if(++_i == _endpoints.size())
                 {
-                    rethrow_exception(_exception);
-                }
-                catch(const Ice::LocalException& ee)
-                {
-                    if(++_i == _endpoints.size())
+                    try
+                    {
+                        ICE_RETHROW_EXCEPTION(_exception);
+                    }
+                    catch(const Ice::LocalException& ee)
                     {
                         _callback->setException(ee);
                         return;
                     }
                 }
-#else
-                if(++_i == _endpoints.size())
-                {
-                    _callback->setException(*_exception.get());
-                    return;
-                }
-#endif
+
                 const bool more = _i != _endpoints.size() - 1;
                 vector<EndpointIPtr> endpoint;
                 endpoint.push_back(_endpoints[_i]);

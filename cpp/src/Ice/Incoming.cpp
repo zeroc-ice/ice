@@ -557,16 +557,16 @@ IceInternal::Incoming::killAsync()
 }
 
 void
-IceInternal::Incoming::setActive(IncomingAsync& cb)
+IceInternal::Incoming::setActive(IncomingAsyncPtr cb)
 {
     assert(_cb == 0);
     //
     // acquires a ref-count
     //
 #ifdef ICE_CPP11_MAPPING
-    _cb = cb.shared_from_this();
+    _cb = move(cb);
 #else
-    _cb = &cb;
+    _cb = cb;
 #endif
 }
 

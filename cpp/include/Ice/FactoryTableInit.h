@@ -34,10 +34,10 @@ class ICE_API CompactIdInit
 public:
 
     CompactIdInit(const char*, int);
-
     ~CompactIdInit();
 
 private:
+
     const int _compactId;
 };
 
@@ -46,19 +46,17 @@ class DefaultUserExceptionFactoryInit
 {
 public:
 
-    DefaultUserExceptionFactoryInit(const char* typeId) :
-        _typeId(typeId)
+    DefaultUserExceptionFactoryInit(const char* tId) : typeId(tId)
     {
-        factoryTable->addExceptionFactory(_typeId, new DefaultUserExceptionFactory<E>(_typeId));
+        factoryTable->addExceptionFactory(typeId, new DefaultUserExceptionFactory<E>(typeId));
     }
 
     ~DefaultUserExceptionFactoryInit()
     {
-        factoryTable->removeExceptionFactory(_typeId);
+        factoryTable->removeExceptionFactory(typeId);
     }
 
-private:
-    const ::std::string _typeId;
+    const ::std::string typeId;
 };
 
 template<class O>
@@ -66,28 +64,25 @@ class DefaultValueFactoryInit
 {
 public:
 
-    DefaultValueFactoryInit(const char* typeId) :
-        _typeId(typeId)
+    DefaultValueFactoryInit(const char* tId) : typeId(tId)
     {
 #ifdef ICE_CPP11_MAPPING
-        factoryTable->addValueFactory(_typeId,
-                                    [](const std::string&)
-                                    {
-                                        return ::std::make_shared<O>();
-                                    });
+        factoryTable->addValueFactory(typeId,
+                                      [](const std::string&)
+                                      {
+                                          return ::std::make_shared<O>();
+                                      });
 #else
-        factoryTable->addValueFactory(_typeId, new DefaultValueFactory<O>(_typeId));
+        factoryTable->addValueFactory(typeId, new DefaultValueFactory<O>(typeId));
 #endif
     }
 
     ~DefaultValueFactoryInit()
     {
-        factoryTable->removeValueFactory(_typeId);
+        factoryTable->removeValueFactory(typeId);
     }
 
-private:
-    const ::std::string _typeId;
-
+    const ::std::string typeId;
 };
 
 }

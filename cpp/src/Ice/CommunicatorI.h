@@ -109,7 +109,9 @@ private:
     friend ICE_API ::IceInternal::InstancePtr IceInternal::getInstance(const ::Ice::CommunicatorPtr&);
     friend ICE_API ::IceUtil::TimerPtr IceInternal::getInstanceTimer(const ::Ice::CommunicatorPtr&);
 
+#ifndef ICE_CPP11_MAPPING
     AsyncResultPtr __begin_flushBatchRequests(const IceInternal::CallbackBasePtr&, const LocalObjectPtr&);
+#endif
 
     const ::IceInternal::InstancePtr _instance;
 

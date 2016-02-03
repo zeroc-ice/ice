@@ -18,7 +18,7 @@
 #include <Ice/RequestHandlerF.h>
 #include <Ice/EndpointF.h>
 #include <Ice/EndpointTypes.h>
-#include <Ice/ObjectF.h>
+#include <Ice/Object.h>
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/ReferenceF.h>
 #include <Ice/BatchRequestQueueF.h>
@@ -27,7 +27,7 @@
 //#include <Ice/LocatorF.h> // Can't include RouterF.h here, otherwise we have cyclic includes
 #include <Ice/Current.h>
 #include <Ice/CommunicatorF.h>
-#include <Ice/ObserverHelper.h>
+#include <Ice/OutgoingAsync.h>
 #include <Ice/LocalException.h>
 #include <iosfwd>
 
@@ -47,11 +47,190 @@ class Outgoing;
 
 namespace IceInternal
 {
+
 template<typename P>
 ::std::shared_ptr<P> createProxy()
 {
     return ::std::shared_ptr<P>(new P());
 }
+
+inline ::std::pair<const Ice::Byte*, const Ice::Byte*>
+makePair(const Ice::ByteSeq& seq)
+{
+    if(seq.empty())
+    {
+        return { nullptr, nullptr };
+    }
+    else
+    {
+        return { &seq[0], &seq[0] + seq.size() };
+    }
+}
+
+template<typename R>
+class InvokeOutgoingAsyncT : public OutgoingAsync
+{
+public:
+
+    using OutgoingAsync::OutgoingAsync;
+
+    void
+    invoke(const std::string& operation,
+           Ice::OperationMode mode,
+           const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>& inParams,
+           const Ice::Context& ctx)
+    {
+        _read = [](bool ok, Ice::InputStream* stream)
+        {
+            const ::Ice::Byte* encaps;
+            ::Ice::Int sz;
+            stream->readEncapsulation(encaps, sz);
+            return R { ok, { encaps, encaps + sz } };
+        };
+
+        try
+        {
+            prepare(operation, mode, ctx);
+            if(inParams.first == inParams.second)
+            {
+                _os.writeEmptyEncapsulation(_encoding);
+            }
+            else
+            {
+                _os.writeEncapsulation(inParams.first, static_cast<Ice::Int>(inParams.second - inParams.first));
+            }
+            OutgoingAsync::invoke(operation);
+        }
+        catch(const Ice::Exception& ex)
+        {
+            abort(ex);
+        }
+    }
+
+protected:
+
+    std::function<R (bool, Ice::InputStream*)> _read;
+};
+
+template<typename R>
+class InvokeLambdaOutgoing : public InvokeOutgoingAsyncT<R>, public LambdaInvoke
+{
+public:
+
+    InvokeLambdaOutgoing(const ::std::shared_ptr<::Ice::ObjectPrx>& proxy,
+                         ::std::function<void (R)> response,
+                         ::std::function<void (::std::exception_ptr)>& ex,
+                         ::std::function<void (bool)>& sent) :
+        InvokeOutgoingAsyncT<R>(proxy), LambdaInvoke(::std::move(ex), ::std::move(sent))
+    {
+        if(response)
+        {
+            _response = [this, response](bool ok)
+            {
+                if(this->_is.b.empty())
+                {
+                    response(R { ok, { 0, 0 }});
+                }
+                else
+                {
+                    response(this->_read(ok, &this->_is));
+                }
+            };
+        }
+    }
+};
+
+template<typename P, typename R>
+class InvokePromiseOutgoing : public InvokeOutgoingAsyncT<R>, public PromiseInvoke<P>
+{
+public:
+
+    InvokePromiseOutgoing(const std::shared_ptr<Ice::ObjectPrx>& proxy, bool synchronous) :
+        InvokeOutgoingAsyncT<R>(proxy)
+    {
+        this->_synchronous = synchronous;
+        this->_response = [this](bool ok)
+        {
+            if(this->_is.b.empty())
+            {
+                this->_promise.set_value(R { ok, { 0, 0 }});
+            }
+            else
+            {
+                this->_promise.set_value(this->_read(ok, &this->_is));
+            }
+        };
+    }
+
+    virtual bool handleSent(bool done, bool) override
+    {
+        if(done)
+        {
+            this->_promise.set_value(R { true, { 0, 0 }});
+        }
+        return false;
+    }
+};
+
+class ProxyGetConnectionLambda : public ProxyGetConnection, public LambdaInvoke
+{
+public:
+
+    ProxyGetConnectionLambda(const ::std::shared_ptr<::Ice::ObjectPrx>& proxy,
+                             ::std::function<::std::shared_ptr<Ice::Connection>()> getConnection,
+                             ::std::function<void (::std::shared_ptr<Ice::Connection>)> response,
+                             ::std::function<void (::std::exception_ptr)>& ex,
+                             ::std::function<void (bool)>& sent) :
+        ProxyGetConnection(proxy), LambdaInvoke(::std::move(ex), ::std::move(sent))
+    {
+        _response = [response, getConnection](bool)
+        {
+            response(getConnection());
+        };
+    }
+};
+
+template<typename P>
+class ProxyGetConnectionPromise : public ProxyGetConnection, public PromiseInvoke<P>
+{
+public:
+
+    ProxyGetConnectionPromise(const ::std::shared_ptr<::Ice::ObjectPrx>& proxy,
+                              ::std::function<::std::shared_ptr<Ice::Connection>()> getConnection) :
+        ProxyGetConnection(proxy)
+    {
+        this->_response = [&, getConnection](bool)
+        {
+            this->_promise.set_value(getConnection());
+        };
+    }
+};
+
+class ProxyFlushBatchLambda : public ProxyFlushBatchAsync, public LambdaInvoke
+{
+public:
+
+    ProxyFlushBatchLambda(const ::std::shared_ptr<::Ice::ObjectPrx>& proxy,
+                          ::std::function<void (::std::exception_ptr)>& ex,
+                          ::std::function<void (bool)>& sent) :
+        ProxyFlushBatchAsync(proxy), LambdaInvoke(::std::move(ex), ::std::move(sent))
+    {
+    }
+};
+
+template<typename P>
+class ProxyFlushBatchPromise : public ProxyFlushBatchAsync, public PromiseInvoke<P>
+{
+public:
+
+    using ProxyFlushBatchAsync::ProxyFlushBatchAsync;
+
+    virtual bool handleSent(bool, bool) override
+    {
+        this->_promise.set_value(_sentSynchronously);
+        return false;
+    }
+};
 
 }
 
@@ -81,287 +260,217 @@ public:
 
     ::std::string ice_toString() const;
 
-    bool ice_isA(const ::std::string& typeId, const ::Ice::Context& context = ::Ice::noExplicitContext);
+    bool
+    ice_isA(const ::std::string& typeId, const ::Ice::Context& ctx = ::Ice::noExplicitContext)
+    {
+        return makePromiseOutgoing<bool>(true, this, &ObjectPrx::__ice_isA, typeId, ctx).get();
+    }
 
     ::std::function<void()>
     ice_isA_async(const ::std::string& typeId,
                   ::std::function<void (bool)> response,
-                  ::std::function<void (::std::exception_ptr)> = nullptr,
+                  ::std::function<void (::std::exception_ptr)> ex = nullptr,
                   ::std::function<void (bool)> sent = nullptr,
-                  const ::Ice::Context& context = ::Ice::noExplicitContext);
+                  const ::Ice::Context& ctx = ::Ice::noExplicitContext)
+    {
+        return makeLambdaOutgoing<bool>(response, ex, sent, this, &ObjectPrx::__ice_isA, typeId, ctx);
+    }
 
-    template<template<typename> class P = std::promise>
-    auto ice_isA_async(const ::std::string& typeId, const ::Ice::Context& context = ::Ice::noExplicitContext)
+    template<template<typename> class P = std::promise> auto
+    ice_isA_async(const ::std::string& typeId, const ::Ice::Context& ctx = ::Ice::noExplicitContext)
         -> decltype(std::declval<P<bool>>().get_future())
     {
-        auto promise = ::std::make_shared<P<bool>>();
-
-        ice_isA_async(
-            typeId,
-            [promise](bool value)
-            {
-                promise->set_value(value);
-            },
-            [promise](::std::exception_ptr ex)
-            {
-                promise->set_exception(::std::move(ex));
-            },
-            nullptr, context);
-
-        return promise->get_future();
+        return makePromiseOutgoing<bool, P>(false, this, &ObjectPrx::__ice_isA, typeId, ctx);
     }
 
     void
-    ice_ping(const ::Ice::Context& context = ::Ice::noExplicitContext);
+    __ice_isA(const ::std::shared_ptr<::IceInternal::OutgoingAsyncT<bool>>&, const ::std::string&, const ::Ice::Context&);
+
+    void
+    ice_ping(const ::Ice::Context& ctx = ::Ice::noExplicitContext)
+    {
+        makePromiseOutgoing(true, this, &ObjectPrx::__ice_ping, ctx).get();
+    }
 
     ::std::function<void()>
     ice_ping_async(::std::function<void ()> response,
-                   ::std::function<void (::std::exception_ptr)> exception = nullptr,
+                   ::std::function<void (::std::exception_ptr)> ex = nullptr,
                    ::std::function<void (bool)> sent = nullptr,
-                   const ::Ice::Context& context = ::Ice::noExplicitContext);
+                   const ::Ice::Context& ctx = ::Ice::noExplicitContext)
+    {
+        return makeLambdaOutgoing(response, ex, sent, this, &ObjectPrx::__ice_ping, ctx);
+    }
 
     template<template<typename> class P = std::promise>
-    auto ice_ping_async(const ::Ice::Context& context = ::Ice::noExplicitContext)
+    auto ice_ping_async(const ::Ice::Context& ctx = ::Ice::noExplicitContext)
         -> decltype(std::declval<P<void>>().get_future())
     {
-        auto promise = ::std::make_shared<P<void>>();
-        if(ice_isTwoway())
-        {
-            ice_ping_async(
-                [promise]()
-                {
-                    promise->set_value();
-                },
-                [promise](::std::exception_ptr ex)
-                {
-                    promise->set_exception(::std::move(ex));
-                },
-                nullptr, context);
-        }
-        else if(ice_isOneway() || ice_isDatagram())
-        {
-            ice_ping_async(
-                nullptr,
-                [promise](::std::exception_ptr ex)
-                {
-                    promise->set_exception(::std::move(ex));
-                },
-                [promise](bool)
-                {
-                    promise->set_value();
-                },
-                context);
-        }
-        else
-        {
-            ice_ping_async(nullptr, nullptr, nullptr, context);
-            promise->set_value();
-        }
-        return promise->get_future();
+        return makePromiseOutgoing<P>(false, this, &ObjectPrx::__ice_ping, ctx);
     }
+
+    void
+    __ice_ping(const ::std::shared_ptr<::IceInternal::OutgoingAsyncT<void>>&, const ::Ice::Context&);
 
     ::std::vector<::std::string>
-    ice_ids(const ::Ice::Context& context = ::Ice::noExplicitContext);
-
-    ::std::function<void()>
-    ice_ids_async(::std::function<void (::std::vector< ::std::string>)> response,
-                  ::std::function<void (::std::exception_ptr)> exception = nullptr,
-                  ::std::function<void (bool)> sent = nullptr,
-                  const ::Ice::Context& context = ::Ice::noExplicitContext);
-
-    template<template<typename> class P = std::promise>
-    auto ice_ids_async(const ::Ice::Context& context = ::Ice::noExplicitContext)
-        -> decltype(std::declval<P<::std::vector<::std::string>>>().get_future())
+    ice_ids(const ::Ice::Context& ctx = ::Ice::noExplicitContext)
     {
-        auto promise = ::std::make_shared<P<::std::vector<::std::string>>>();
-        ice_ids_async(
-            [promise](::std::vector<::std::string> ids)
-            {
-                promise->set_value(::std::move(ids));
-            },
-            [promise](::std::exception_ptr ex)
-            {
-                promise->set_exception(::std::move(ex));
-            },
-            nullptr, context);
-        return promise->get_future();
+        return makePromiseOutgoing<::std::vector<::std::string>>(true, this, &ObjectPrx::__ice_ids, ctx).get();
     }
 
+    ::std::function<void()>
+    ice_ids_async(::std::function<void (::std::vector<::std::string>)> response,
+                  ::std::function<void (::std::exception_ptr)> ex = nullptr,
+                  ::std::function<void (bool)> sent = nullptr,
+                  const ::Ice::Context& ctx = ::Ice::noExplicitContext)
+    {
+        return makeLambdaOutgoing<::std::vector<::std::string>>(response, ex, sent, this, &ObjectPrx::__ice_ids, ctx);
+    }
+
+    template<template<typename> class P = std::promise> auto
+    ice_ids_async(const ::Ice::Context& ctx = ::Ice::noExplicitContext)
+        -> decltype(std::declval<P<::std::vector<::std::string>>>().get_future())
+    {
+        return makePromiseOutgoing<::std::vector<::std::string>, P>(false, this, &ObjectPrx::__ice_ids, ctx);
+    }
+
+    void
+    __ice_ids(const ::std::shared_ptr<::IceInternal::OutgoingAsyncT<::std::vector<::std::string>>>&, const ::Ice::Context&);
+
     ::std::string
-    ice_id(const ::Ice::Context& context = ::Ice::noExplicitContext);
+    ice_id(const ::Ice::Context& ctx = ::Ice::noExplicitContext)
+    {
+        return makePromiseOutgoing<::std::string>(true, this, &ObjectPrx::__ice_id, ctx).get();
+    }
 
     ::std::function<void ()>
     ice_id_async(::std::function<void (::std::string)> response,
-                 ::std::function<void (::std::exception_ptr)> exception = nullptr,
+                 ::std::function<void (::std::exception_ptr)> ex = nullptr,
                  ::std::function<void (bool)> sent = nullptr,
-                 const ::Ice::Context& context = ::Ice::noExplicitContext);
+                 const ::Ice::Context& ctx = ::Ice::noExplicitContext)
+    {
+        return makeLambdaOutgoing<::std::string>(response, ex, sent, this, &ObjectPrx::__ice_id, ctx);
+    }
 
     template<template<typename> class P = std::promise>
-    auto ice_id_async(const ::Ice::Context& context = ::Ice::noExplicitContext)
+    auto ice_id_async(const ::Ice::Context& ctx = ::Ice::noExplicitContext)
         -> decltype(std::declval<P<::std::string>>().get_future())
     {
-        auto promise = ::std::make_shared<P<::std::string>>();
-        ice_id_async(
-            [promise](::std::string id)
-            {
-                promise->set_value(::std::move(id));
-            },
-            [promise](::std::exception_ptr ex)
-            {
-                promise->set_exception(::std::move(ex));
-            },
-            nullptr, context);
-        return promise->get_future();
+        return makePromiseOutgoing<::std::string, P>(false, this, &ObjectPrx::__ice_id, ctx);
     }
+
+    void
+    __ice_id(const ::std::shared_ptr<::IceInternal::OutgoingAsyncT<::std::string>>&, const ::Ice::Context&);
 
     static const ::std::string& ice_staticId()
     {
         return ::Ice::Object::ice_staticId();
     }
 
-    // Returns true if ok, false if user exception.
-    bool
-    ice_invoke(const ::std::string& operation,
-               ::Ice::OperationMode mode,
-               const ::std::vector< ::Ice::Byte>& inParams,
-               ::std::vector< ::Ice::Byte>& outParams,
-               const ::Ice::Context& context = ::Ice::noExplicitContext);
-    
-    bool
-    ice_invoke(const ::std::string& operation,
-               ::Ice::OperationMode mode,
-               const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>& inParams,
-               ::std::vector< ::Ice::Byte>& outParams,
-               const ::Ice::Context& context = ::Ice::noExplicitContext);
-
-    ::std::function<void ()>
-    ice_invoke_async(
-        const ::std::string&,
-        ::Ice::OperationMode,
-        const ::std::vector<::Ice::Byte>&,
-        ::std::function<void (bool, ::std::vector<::Ice::Byte>)> response,
-        ::std::function<void (::std::exception_ptr)> exception = nullptr,
-        ::std::function<void (bool)> sent = nullptr,
-        const ::Ice::Context& context = ::Ice::noExplicitContext);
-    
-    struct Result_invoke1
+    struct Result_ice_invoke
     {
         bool ok;
         std::vector<::Ice::Byte> outParams;
     };
-    
-    template<template<typename> class P = std::promise>
-    auto ice_invoke_async(
-        const ::std::string& operation,
-        ::Ice::OperationMode mode,
-        const ::std::vector<::Ice::Byte>& inParams,
-        const ::Ice::Context& context = ::Ice::noExplicitContext)
-        -> decltype(std::declval<P<Result_invoke1>>().get_future())
+
+    // Returns true if ok, false if user exception.
+    bool
+    ice_invoke(const ::std::string& operation,
+               ::Ice::OperationMode mode,
+               const ::std::vector< ::Ice::Byte>& inP,
+               ::std::vector<::Ice::Byte>& outParams,
+               const ::Ice::Context& ctx = ::Ice::noExplicitContext)
     {
-        auto promise = ::std::make_shared<P<Result_invoke1>>();
-        if(ice_isTwoway())
-        {
-            ice_invoke_async(operation, mode, inParams,
-                [promise](bool ok, ::std::vector<::Ice::Byte> outParams)
-                {
-                    Result_invoke1 result = {ok, move(outParams)};
-                    promise->set_value(::std::move(result));
-                },
-                [promise](::std::exception_ptr ex)
-                {
-                    promise->set_exception(::std::move(ex));
-                },
-                nullptr, context);
-        }
-        else if(ice_isOneway() || ice_isDatagram())
-        {
-            ice_invoke_async(operation, mode, inParams,
-                nullptr,
-                [promise](::std::exception_ptr ex)
-                {
-                    promise->set_exception(::std::move(ex));
-                },
-                [promise](bool)
-                {
-                    Result_invoke1 result;
-                    result.ok = true;
-                    promise->set_value(::std::move(result));
-                },
-                context);
-        }
-        else // Batch request
-        {
-            ice_invoke_async(operation, mode, inParams, nullptr, nullptr, nullptr, context);
-            Result_invoke1 result;
-            result.ok = true;
-            promise->set_value(::std::move(result));
-        }
-        return promise->get_future();
+        return ice_invoke(operation, mode, ::IceInternal::makePair(inP), outParams, ctx);
     }
-    
+
+    bool
+    ice_invoke(const ::std::string& operation,
+               ::Ice::OperationMode mode,
+               const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>& inP,
+               ::std::vector<::Ice::Byte>& outParams,
+               const ::Ice::Context& ctx = ::Ice::noExplicitContext)
+    {
+        using Outgoing = ::IceInternal::InvokePromiseOutgoing<::std::promise<Result_ice_invoke>, Result_ice_invoke>;
+        auto outAsync = ::std::make_shared<Outgoing>(shared_from_this(), true);
+        outAsync->invoke(operation, mode, inP, ctx);
+        auto result = outAsync->getFuture().get();
+        outParams.swap(result.outParams);
+        return result.ok;
+    }
+
     ::std::function<void ()>
-    ice_invoke_async(
-        const ::std::string&,
-        ::Ice::OperationMode,
-        const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>& inParams,
-        ::std::function<void (bool, ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>)> response,
-        ::std::function<void (::std::exception_ptr)> exception = nullptr,
-        ::std::function<void (bool)> sent = nullptr,
-        const ::Ice::Context& context = ::Ice::noExplicitContext);
-    
-    struct Result_invoke2
+    ice_invoke_async(const ::std::string& operation,
+                     ::Ice::OperationMode mode,
+                     const ::std::vector<::Ice::Byte>& inP,
+                     ::std::function<void (bool, ::std::vector<::Ice::Byte>)> response,
+                     ::std::function<void (::std::exception_ptr)> ex = nullptr,
+                     ::std::function<void (bool)> sent = nullptr,
+                     const ::Ice::Context& ctx = ::Ice::noExplicitContext)
+    {
+        using Outgoing = ::IceInternal::InvokeLambdaOutgoing<Result_ice_invoke>;
+        ::std::function<void(Result_ice_invoke&&)> r;
+        if(response)
+        {
+            r = [response](Result_ice_invoke&& result)
+            {
+                response(result.ok, std::move(result.outParams));
+            };
+        }
+        auto outAsync = ::std::make_shared<Outgoing>(shared_from_this(), r, ex, sent);
+        outAsync->invoke(operation, mode, ::IceInternal::makePair(inP), ctx);
+        return [outAsync]() { outAsync->cancel(); };
+    }
+
+    template<template<typename> class P = std::promise> auto
+    ice_invoke_async(const ::std::string& operation,
+                     ::Ice::OperationMode mode,
+                     const ::std::vector<::Ice::Byte>& inP,
+                     const ::Ice::Context& ctx = ::Ice::noExplicitContext)
+        -> decltype(std::declval<P<Result_ice_invoke>>().get_future())
+    {
+        return ice_invoke_async(operation, mode, ::IceInternal::makePair(inP), ctx);
+    }
+
+    template<template<typename> class P = std::promise> auto
+    ice_invoke_async(const ::std::string& operation,
+                     ::Ice::OperationMode mode,
+                     const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>& inP,
+                     const ::Ice::Context& ctx = ::Ice::noExplicitContext)
+        -> decltype(std::declval<P<Result_ice_invoke>>().get_future())
+    {
+        using Outgoing = ::IceInternal::InvokePromiseOutgoing<P<Result_ice_invoke>, Result_ice_invoke>;
+        auto outAsync = ::std::make_shared<Outgoing>(shared_from_this(), false);
+        outAsync->invoke(operation, mode, inP, ctx);
+        return outAsync->getFuture();
+    }
+
+    struct Result_ice_invoke_zerocopy
     {
         bool ok;
         std::pair<const ::Ice::Byte*, const ::Ice::Byte*> outParams;
     };
-    
-    template<template<typename> class P = std::promise>
-    auto ice_invoke_async(
-        const ::std::string& operation,
-        ::Ice::OperationMode mode,
-        const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>& inParams,
-        const ::Ice::Context& context = ::Ice::noExplicitContext)
-        -> decltype(std::declval<P<Result_invoke2>>().get_future())
+
+    ::std::function<void ()>
+    ice_invoke_async(const ::std::string& operation,
+                     ::Ice::OperationMode mode,
+                     const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>& inP,
+                     ::std::function<void (bool, ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>)> response,
+                     ::std::function<void (::std::exception_ptr)> ex = nullptr,
+                     ::std::function<void (bool)> sent = nullptr,
+                     const ::Ice::Context& ctx = ::Ice::noExplicitContext)
     {
-        auto promise = ::std::make_shared<P<Result_invoke2>>();
-        if(ice_isTwoway())
+        using Outgoing = ::IceInternal::InvokeLambdaOutgoing<Result_ice_invoke_zerocopy>;
+        ::std::function<void(Result_ice_invoke_zerocopy&&)> r;
+        if(response)
         {
-            ice_invoke_async(operation, mode, inParams,
-                [promise](bool ok, ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*> outParams)
-                {
-                    Result_invoke2 result = {ok, move(outParams)};
-                    promise->set_value(::std::move(result));
-                },
-                [promise](::std::exception_ptr ex)
-                {
-                    promise->set_exception(::std::move(ex));
-                },
-                nullptr, context);
+            r = [response](Result_ice_invoke_zerocopy&& result)
+            {
+                response(result.ok, std::move(result.outParams));
+            };
         }
-        else if(ice_isOneway() || ice_isDatagram())
-        {
-            ice_invoke_async(operation, mode, inParams,
-                nullptr,
-                [promise](::std::exception_ptr ex)
-                {
-                    promise->set_exception(::std::move(ex));
-                },
-                [promise](bool)
-                {
-                    Result_invoke2 result;
-                    result.ok = true;
-                    promise->set_value(::std::move(result));
-                },
-                context);
-        }
-        else // Batch request
-        {
-            ice_invoke_async(operation, mode, inParams, nullptr, nullptr, nullptr, context);
-            Result_invoke2 result;
-            result.ok = true;
-            promise->set_value(::std::move(result));
-        }
-        return promise->get_future();
+        auto outAsync = ::std::make_shared<Outgoing>(shared_from_this(), r, ex, sent);
+        outAsync->invoke(operation, mode, inP, ctx);
+        return [outAsync]() { outAsync->cancel(); };
     }
 
     ::Ice::Identity ice_getIdentity() const;
@@ -426,59 +535,70 @@ public:
     ::std::shared_ptr<::Ice::ObjectPrx> ice_connectionId(const ::std::string&) const;
     ::std::string ice_getConnectionId() const;
 
-
-    ::std::shared_ptr<::Ice::Connection> ice_getConnection();
+    ::std::shared_ptr<::Ice::Connection>
+    ice_getConnection()
+    {
+        return ice_getConnection_async().get();
+    }
 
     ::std::function<void ()>
-    ice_getConnection_async(
-        ::std::function<void (::std::shared_ptr<::Ice::Connection>)> response,
-        ::std::function<void (::std::exception_ptr)> exception = nullptr,
-        ::std::function<void (bool)> sent = nullptr);
-
-
-    template<template<typename> class P = std::promise>
-    auto ice_getConnection_async()
-        -> decltype(std::declval<P<::std::shared_ptr<::Ice::Connection>>>().get_future())
+    ice_getConnection_async(::std::function<void (::std::shared_ptr<::Ice::Connection>)> response,
+                            ::std::function<void (::std::exception_ptr)> ex = nullptr,
+                            ::std::function<void (bool)> sent = nullptr)
     {
-        auto promise = ::std::make_shared<P<::std::shared_ptr<::Ice::Connection>>>();
-        ice_getConnection_async(
-            [promise](::std::shared_ptr<::Ice::Connection> connection)
-            {
-                promise->set_value(::std::move(connection));
-            },
-            [promise](::std::exception_ptr ex)
-            {
-                promise->set_exception(::std::move(ex));
-            });
-        return promise->get_future();
+        using LambdaOutgoing = ::IceInternal::ProxyGetConnectionLambda;
+        auto outAsync = ::std::make_shared<LambdaOutgoing>(shared_from_this(),
+                                                           [this]()
+                                                           {
+                                                               return ice_getCachedConnection();
+                                                           },
+                                                           response, ex, sent);
+        __ice_getConnection(outAsync);
+        return [outAsync]() { outAsync->cancel(); };
     }
+
+    template<template<typename> class P = std::promise> auto
+    ice_getConnection_async() -> decltype(std::declval<P<::std::shared_ptr<::Ice::Connection>>>().get_future())
+    {
+        using PromiseOutgoing = ::IceInternal::ProxyGetConnectionPromise<P<::std::shared_ptr<::Ice::Connection>>>;
+        auto outAsync = ::std::make_shared<PromiseOutgoing>(shared_from_this(),
+                                                            [this]()
+                                                            {
+                                                                return ice_getCachedConnection();
+                                                            });
+        __ice_getConnection(outAsync);
+        return outAsync->getFuture();
+    }
+
+    void __ice_getConnection(const ::std::shared_ptr<::IceInternal::ProxyGetConnection>&);
 
     ::std::shared_ptr<::Ice::Connection> ice_getCachedConnection() const;
 
-    void ice_flushBatchRequests();
+    bool ice_flushBatchRequests()
+    {
+        return ice_flushBatchRequests_async().get();
+    }
 
     std::function<void ()>
-    ice_flushBatchRequests_async(
-        ::std::function<void (::std::exception_ptr)> exception,
-        ::std::function<void (bool)> sent = nullptr);
-
-
-    template<template<typename> class P = std::promise>
-    auto ice_flushBatchRequests_async()
-        -> decltype(std::declval<P<bool>>().get_future())
+    ice_flushBatchRequests_async(::std::function<void (::std::exception_ptr)> ex,
+                                 ::std::function<void (bool)> sent = nullptr)
     {
-        auto promise = ::std::make_shared<P<bool>>();
-        ice_flushBatchRequests_async(
-            [promise](::std::exception_ptr ex)
-            {
-                promise->set_exception(::std::move(ex));
-            },
-            [promise](bool sent)
-            {
-                promise->set_value(sent);
-            });
-        return promise->get_future();
+        using LambdaOutgoing = ::IceInternal::ProxyFlushBatchLambda;
+        auto outAsync = ::std::make_shared<LambdaOutgoing>(shared_from_this(), ex, sent);
+        __ice_flushBatchRequests(outAsync);
+        return [outAsync]() { outAsync->cancel(); };
     }
+
+    template<template<typename> class P = std::promise> auto
+    ice_flushBatchRequests_async() -> decltype(std::declval<P<bool>>().get_future())
+    {
+        using PromiseOutgoing = ::IceInternal::ProxyFlushBatchPromise<P<bool>>;
+        auto outAsync = ::std::make_shared<PromiseOutgoing>(shared_from_this());
+        __ice_flushBatchRequests(outAsync);
+        return outAsync->getFuture();
+    }
+
+    void __ice_flushBatchRequests(const ::std::shared_ptr<::IceInternal::ProxyFlushBatchAsync>&);
 
     const ::IceInternal::ReferencePtr& __reference() const { return _reference; }
 
@@ -499,6 +619,41 @@ public:
     void __write(OutputStream&) const;
 
 protected:
+
+    template<typename R, template<typename> class P = ::std::promise, typename Obj, typename Fn, typename... Args> auto
+    makePromiseOutgoing(bool sync, Obj obj, Fn fn, Args&&... args) -> decltype(std::declval<P<R>>().get_future())
+    {
+        auto outAsync = ::std::make_shared<::IceInternal::PromiseOutgoing<P<R>, R>>(shared_from_this(), sync);
+        (obj->*fn)(outAsync, std::forward<Args>(args)...);
+        return outAsync->getFuture();
+    }
+
+    template<typename R, typename Re, typename E, typename S, typename Obj, typename Fn, typename... Args>
+    ::std::function<void()> makeLambdaOutgoing(Re r, E e, S s, Obj obj, Fn fn, Args&&... args)
+    {
+        auto outAsync = ::std::make_shared<::IceInternal::LambdaOutgoing<R>>(shared_from_this(), r, e, s);
+        (obj->*fn)(outAsync, std::forward<Args>(args)...);
+        return [outAsync]() { outAsync->cancel(); };
+    }
+
+    //
+    // Specializations for invocation which can be invoked with oneway/batch-oneway.
+    //
+    template<template<typename> class P = ::std::promise, typename Obj, typename Fn, typename... Args> auto
+    makePromiseOutgoing(bool sync, Obj obj, Fn fn, Args&&... args) -> decltype(std::declval<P<void>>().get_future())
+    {
+        auto outAsync = ::std::make_shared<::IceInternal::PromiseOutgoing<P<void>, void>>(shared_from_this(), sync);
+        (obj->*fn)(outAsync, std::forward<Args>(args)...);
+        return outAsync->getFuture();
+    }
+
+    template<typename Re, typename E, typename S, typename Obj, typename Fn, typename... Args>
+    ::std::function<void()> makeLambdaOutgoing(Re r, E e, S s, Obj obj, Fn fn, Args&&... args)
+    {
+        auto outAsync = ::std::make_shared<::IceInternal::LambdaOutgoing<void>>(shared_from_this(), r, e, s);
+        (obj->*fn)(outAsync, std::forward<Args>(args)...);
+        return [outAsync]() { outAsync->cancel(); };
+    }
 
     virtual ::std::shared_ptr<ObjectPrx> __newInstance() const;
     ObjectPrx() = default;
@@ -624,9 +779,9 @@ public:
     {
         return ::std::dynamic_pointer_cast<Prx>(ObjectPrx::ice_encodingVersion(version));
     }
-    
+
 protected:
-    
+
     virtual ::std::shared_ptr<ObjectPrx> __newInstance() const
     {
         return IceInternal::createProxy<Prx>();
@@ -1384,9 +1539,9 @@ public:
     {
         return dynamic_cast<Prx*>(::IceProxy::Ice::Object::ice_encodingVersion(version).get());
     }
-    
+
 protected:
-    
+
     virtual Object* __newInstance() const
     {
         return new Prx();

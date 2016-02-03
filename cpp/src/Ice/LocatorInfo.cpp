@@ -418,7 +418,7 @@ IceInternal::LocatorInfo::Request::addCallback(const ReferencePtr& ref,
     RequestCallbackPtr callback = new RequestCallback(ref, ttl, cb);
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
-        if(!_response && !ICE_EXCEPTION_GET(_exception))
+        if(!_response && !ICE_EXCEPTION_ISSET(_exception))
         {
             _callbacks.push_back(callback);
             if(wellKnownRef) // This request is to resolve the endpoints of a cached well-known object reference
@@ -441,7 +441,7 @@ IceInternal::LocatorInfo::Request::addCallback(const ReferencePtr& ref,
     }
     else
     {
-        assert(ICE_EXCEPTION_GET(_exception));
+        assert(ICE_EXCEPTION_ISSET(_exception));
 #ifdef ICE_CPP11_MAPPING
         try
         {
@@ -464,7 +464,7 @@ IceInternal::LocatorInfo::Request::getEndpoints(const ReferencePtr& ref,
                                                 bool& cached)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
-    if(!_response && !ICE_EXCEPTION_GET(_exception))
+    if(!_response && !ICE_EXCEPTION_ISSET(_exception))
     {
         if(wellKnownRef) // This request is to resolve the endpoints of a cached well-known object reference
         {
@@ -478,13 +478,13 @@ IceInternal::LocatorInfo::Request::getEndpoints(const ReferencePtr& ref,
             sync.acquire();
         }
 
-        while(!_response && !ICE_EXCEPTION_GET(_exception))
+        while(!_response && !ICE_EXCEPTION_ISSET(_exception))
         {
             _monitor.wait();
         }
     }
 
-    if(ICE_EXCEPTION_GET(_exception))
+    if(ICE_EXCEPTION_ISSET(_exception))
     {
 #ifdef ICE_CPP11_MAPPING
         try

@@ -19,13 +19,13 @@ InterceptorI::InterceptorI(const Ice::ObjectPtr& servant) :
 {
 }
 
-    
-Ice::DispatchStatus 
+
+Ice::DispatchStatus
 InterceptorI::dispatch(Ice::Request& request)
 {
     Ice::Current& current = const_cast<Ice::Current&>(request.getCurrent());
     _lastOperation = current.operation;
-    
+
     if(_lastOperation == "addWithRetry")
     {
         for(int i = 0; i < 10; ++i)
@@ -42,26 +42,26 @@ InterceptorI::dispatch(Ice::Request& request)
                 //
             }
         }
-        
+
         current.ctx["retry"] = "no";
     }
     _lastStatus = _servant->ice_dispatch(request);
     return _lastStatus;
 }
-    
-Ice::DispatchStatus 
+
+Ice::DispatchStatus
 InterceptorI::getLastStatus() const
 {
     return _lastStatus;
 }
 
-const std::string& 
+const std::string&
 InterceptorI::getLastOperation() const
 {
     return _lastOperation;
 }
-    
-void 
+
+void
 InterceptorI::clear()
 {
     _lastStatus = Ice::DispatchAsync;

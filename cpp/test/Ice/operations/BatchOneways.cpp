@@ -95,8 +95,9 @@ batchOneways(const Test::MyClassPrxPtr& p)
         {
             batch->opByteSOneway(bs1);
         }
-        catch(const Ice::LocalException&)
+        catch(const Ice::LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
     }

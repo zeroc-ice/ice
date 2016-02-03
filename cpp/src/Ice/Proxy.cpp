@@ -31,7 +31,9 @@ using namespace IceInternal;
 
 namespace Ice
 {
+
 const Context noExplicitContext;
+
 }
 
 namespace
@@ -67,704 +69,50 @@ Ice::ObjectPrx::operator<(const ObjectPrx& r) const
     return _reference < r._reference;
 }
 
-bool
-Ice::ObjectPrx::ice_isA(const string& typeId, const ::Ice::Context& context)
+void
+Ice::ObjectPrx::__ice_isA(const shared_ptr<IceInternal::OutgoingAsyncT<bool>>& outAsync,
+                          const string& typeId,
+                          const Context& ctx)
 {
-    promise<bool> p;
-    ice_isA_async(typeId,
-        [&](bool value)
-        {
-            p.set_value(value);
-        },
-        [&](exception_ptr ex)
-        {
-            p.set_exception(move(ex));
-        },
-        nullptr, context);
-    return p.get_future().get();
-}
-
-function<void()>
-Ice::ObjectPrx::ice_isA_async(const string& typeId,
-                              function<void (bool)> response,
-                              function<void (exception_ptr)> exception,
-                              function<void (bool)> sent,
-                              const ::Ice::Context& context)
-{
-    return TwowayClosureCallback::invoke(ice_isA_name, shared_from_this(), OperationMode::Nonmutating, DefaultFormat,
-        [&typeId](Ice::OutputStream* os)
-        {
-            os->write(typeId);
-        },
-        false,
-        [response](Ice::InputStream* is)
-        {
-            bool ret;
-            is->read(ret);
-            is->endEncapsulation();
-            if(response)
-            {
-                response(ret);
-            }
-        },
-        nullptr, move(exception), move(sent), context);
+    __checkAsyncTwowayOnly("__ice_isA");
+    outAsync->invoke(ice_isA_name, OperationMode::Nonmutating, DefaultFormat, ctx,
+                     [&](Ice::OutputStream* os)
+                     {
+                         os->write(typeId);
+                     },
+                     nullptr);
 }
 
 void
-Ice::ObjectPrx::ice_ping(const ::Ice::Context& context)
+Ice::ObjectPrx::__ice_ping(const shared_ptr<IceInternal::OutgoingAsyncT<void>>& outAsync, const Context& ctx)
 {
-    switch(_reference->getMode())
-    {
-        case Reference::ModeTwoway:
-        {
-            promise<void> p;
-            ice_ping_async(
-                [&]()
-                {
-                    p.set_value();
-                },
-                [&](exception_ptr ex)
-                {
-                    p.set_exception(move(ex));
-                },
-                nullptr, context);
-            p.get_future().get();
-            break;
-        }
-        case Reference::ModeOneway:
-        case Reference::ModeDatagram:
-        {
-            promise<void> p;
-            ice_ping_async(
-                nullptr,
-                [&](exception_ptr ex)
-                {
-                    p.set_exception(move(ex));
-                },
-                [&](bool)
-                {
-                    p.set_value();
-                },
-                context);
-            p.get_future().get();
-            break;
-        }
-        case Reference::ModeBatchOneway:
-        case Reference::ModeBatchDatagram:
-        {
-            ice_ping_async(nullptr, nullptr, nullptr, context);
-        }
-    }
-}
-
-function<void()>
-Ice::ObjectPrx::ice_ping_async(function<void ()> response,
-                               function<void (exception_ptr)> exception,
-                               function<void (bool)> sent,
-                               const ::Ice::Context& context)
-{
-    return OnewayClosureCallback::invoke(ice_ping_name, shared_from_this(), OperationMode::Nonmutating, DefaultFormat,
-                                         nullptr, response, exception, sent, context);
-}
-
-string
-Ice::ObjectPrx::ice_id(const ::Ice::Context& context)
-{
-    promise<string> p;
-    ice_id_async(
-        [&](string id)
-        {
-            p.set_value(move(id));
-        },
-        [&](exception_ptr ex)
-        {
-            p.set_exception(move(ex));
-        },
-        nullptr, context);
-    return p.get_future().get();
-}
-
-function<void()>
-Ice::ObjectPrx::ice_id_async(function<void (string)> response,
-                             function<void (exception_ptr)> exception,
-                             function<void (bool)> sent,
-                             const ::Ice::Context& context)
-{
-    return TwowayClosureCallback::invoke(
-        ice_id_name, shared_from_this(), OperationMode::Nonmutating, DefaultFormat, nullptr, false,
-        [response](Ice::InputStream* is)
-        {
-            string ret;
-            is->read(ret);
-            is->endEncapsulation();
-            if(response)
-            {
-                response(move(ret));
-            }
-        },
-        nullptr, exception, sent, context);
-}
-
-
-vector<string>
-Ice::ObjectPrx::ice_ids(const ::Ice::Context& context)
-{
-    promise<vector<string>> p;
-    ice_ids_async(
-        [&](vector<string> ids)
-        {
-            p.set_value(move(ids));
-        },
-        [&](exception_ptr ex)
-        {
-            p.set_exception(move(ex));
-        },
-        nullptr, context);
-    return p.get_future().get();
-}
-
-function<void()>
-Ice::ObjectPrx::ice_ids_async(function<void (vector<string>)> response,
-                              function<void (exception_ptr)> exception,
-                              function<void (bool)> sent,
-                              const ::Ice::Context& context)
-{
-    return TwowayClosureCallback::invoke(
-        ice_ids_name, shared_from_this(), OperationMode::Nonmutating, DefaultFormat, nullptr, false,
-        [response](Ice::InputStream* is)
-        {
-            vector<string> ret;
-            is->read(ret);
-            is->endEncapsulation();
-            if(response)
-            {
-                response(move(ret));
-            }
-        },
-        nullptr, exception, sent, context);
-}
-
-function<void ()>
-Ice::ObjectPrx::ice_getConnection_async(
-    function<void (shared_ptr<::Ice::Connection>)> response,
-    function<void (exception_ptr)> exception,
-    function<void (bool)> sent)
-{
-
-    class ConnectionCallback : public CallbackBase
-    {
-    public:
-
-        ConnectionCallback(function<void (shared_ptr<::Ice::Connection>)> response,
-                           function<void (exception_ptr)> exception,
-                           function<void (bool)> sent,
-                           shared_ptr<ObjectPrx> proxy) :
-            _response(move(response)),
-            _exception(move(exception)),
-            _sent(move(sent)),
-            _proxy(move(proxy))
-        {
-        }
-
-        virtual void sent(const AsyncResultPtr& result) const
-        {
-            if(_sent)
-            {
-                _sent(result->sentSynchronously());
-            }
-        }
-
-        virtual bool hasSentCallback() const
-        {
-            return _sent != nullptr;
-        }
-
-
-        virtual void
-        completed(const ::Ice::AsyncResultPtr& result) const
-        {
-            shared_ptr<::Ice::Connection> conn;
-            try
-            {
-                AsyncResult::__check(result, _proxy.get(), ice_getConnection_name);
-                result->__wait();
-                conn = _proxy->ice_getCachedConnection();
-            }
-            catch(const ::Ice::Exception&)
-            {
-                _exception(current_exception());
-            }
-
-            if(_response)
-            {
-                _response(move(conn));
-            }
-        }
-
-    private:
-
-        function<void (shared_ptr<::Ice::Connection>)> _response;
-        function<void (exception_ptr)> _exception;
-        function<void (bool)> _sent;
-        shared_ptr<ObjectPrx> _proxy;
-    };
-
-
-    auto result = make_shared<ProxyGetConnection>(shared_from_this(), ice_getConnection_name,
-        make_shared<ConnectionCallback>(move(response), move(exception), move(sent), shared_from_this()));
-    try
-    {
-        result->invoke();
-    }
-    catch(const Exception& ex)
-    {
-        result->abort(ex);
-    }
-
-    return [result]()
-        {
-            result->cancel();
-        };
+    outAsync->invoke(ice_ping_name, OperationMode::Nonmutating, DefaultFormat, ctx, nullptr, nullptr);
 }
 
 void
-Ice::ObjectPrx::ice_flushBatchRequests()
+Ice::ObjectPrx::__ice_ids(const shared_ptr<IceInternal::OutgoingAsyncT<vector<string>>>& outAsync, const Context& ctx)
 {
-    promise<void> p;
-    ice_flushBatchRequests_async(
-        [&](exception_ptr ex)
-        {
-            p.set_exception(ex);
-        },
-        [&](bool)
-        {
-            p.set_value();
-        });
-    p.get_future().get();
+    __checkAsyncTwowayOnly("__ice_ids");
+    outAsync->invoke(ice_ids_name, OperationMode::Nonmutating, DefaultFormat, ctx, nullptr, nullptr);
 }
 
-function<void ()>
-Ice::ObjectPrx::ice_flushBatchRequests_async(function<void (exception_ptr)> exception, function<void (bool)> sent)
+void
+Ice::ObjectPrx::__ice_id(const shared_ptr<IceInternal::OutgoingAsyncT<string>>& outAsync, const Context& ctx)
 {
-    class FlushBatchRequestsCallback : public CallbackBase
-    {
-    public:
-
-        FlushBatchRequestsCallback(function<void (exception_ptr)> exception,
-                                   function<void (bool)> sent,
-                                   shared_ptr<ObjectPrx> proxy) :
-            _exception(move(exception)),
-            _sent(move(sent)),
-            _proxy(move(proxy))
-        {
-        }
-
-        virtual void sent(const AsyncResultPtr& result) const
-        {
-            try
-            {
-                AsyncResult::__check(result, _proxy.get(), ice_flushBatchRequests_name);
-                result->__wait();
-            }
-            catch(const ::Ice::Exception&)
-            {
-                _exception(current_exception());
-            }
-
-            if(_sent)
-            {
-                _sent(result->sentSynchronously());
-            }
-        }
-
-        virtual bool hasSentCallback() const
-        {
-            return true;
-        }
-
-
-        virtual void
-        completed(const ::Ice::AsyncResultPtr& result) const
-        {
-            try
-            {
-                AsyncResult::__check(result, _proxy.get(), ice_flushBatchRequests_name);
-                result->__wait();
-            }
-            catch(const ::Ice::Exception&)
-            {
-                _exception(current_exception());
-            }
-        }
-
-    private:
-
-        function<void (exception_ptr)> _exception;
-        function<void (bool)> _sent;
-        shared_ptr<ObjectPrx> _proxy;
-    };
-
-    auto result = make_shared<ProxyFlushBatchAsync>(shared_from_this(), ice_flushBatchRequests_name,
-                                        make_shared<FlushBatchRequestsCallback>(exception, sent, shared_from_this()));
-    try
-    {
-        result->invoke();
-    }
-    catch(const Exception& ex)
-    {
-        result->abort(ex);
-    }
-    return [result]()
-        {
-            result->cancel();
-        };
+    __checkAsyncTwowayOnly("__ice_id");
+    outAsync->invoke(ice_id_name, OperationMode::Nonmutating, DefaultFormat, ctx, nullptr, nullptr);
 }
 
-bool
-Ice::ObjectPrx::ice_invoke(const string& operation,
-                           ::Ice::OperationMode mode,
-                           const vector<::Ice::Byte>& inParams,
-                           vector<::Ice::Byte>& outParams,
-                           const ::Ice::Context& context)
+void
+Ice::ObjectPrx::__ice_getConnection(const shared_ptr<IceInternal::ProxyGetConnection>& outAsync)
 {
-    switch(_reference->getMode())
-    {
-        case Reference::ModeTwoway:
-        {
-            promise<bool> p;
-            ice_invoke_async(operation, mode, inParams,
-                [&](bool ok, vector<::Ice::Byte> outEncaps)
-                {
-                    outParams = move(outEncaps);
-                    p.set_value(ok);
-                },
-                [&](exception_ptr ex)
-                {
-                    p.set_exception(move(ex));
-                },
-                nullptr, context);
-            return p.get_future().get();
-        }
-        case Reference::ModeOneway:
-        case Reference::ModeDatagram:
-        {
-            promise<bool> p;
-            ice_invoke_async(operation, mode, inParams,
-                nullptr,
-                [&](exception_ptr ex)
-                {
-                    p.set_exception(move(ex));
-                },
-                [&](bool)
-                {
-                    p.set_value(true);
-                },
-                context);
-            return p.get_future().get();
-        }
-        default:
-        {
-            ice_invoke_async(operation, mode, inParams, nullptr, nullptr, nullptr, context);
-            return true;
-        }
-    }
+    outAsync->invoke(ice_getConnection_name);
 }
 
-bool
-Ice::ObjectPrx::ice_invoke(const string& operation,
-                           ::Ice::OperationMode mode,
-                           const pair<const ::Ice::Byte*, const ::Ice::Byte*>& inParams,
-                           vector<::Ice::Byte>& outParams,
-                           const ::Ice::Context& context)
+void
+Ice::ObjectPrx::__ice_flushBatchRequests(const shared_ptr<IceInternal::ProxyFlushBatchAsync>& outAsync)
 {
-    switch(_reference->getMode())
-    {
-        case Reference::ModeTwoway:
-        {
-            promise<bool> p;
-            ice_invoke_async(operation, mode, inParams,
-                [&](bool ok, pair<const ::Ice::Byte*, const ::Ice::Byte*> outEncaps)
-                {
-                    vector<Byte>(outEncaps.first, outEncaps.second).swap(outParams);
-                    p.set_value(ok);
-                },
-                [&](exception_ptr ex)
-                {
-                    p.set_exception(move(ex));
-                },
-                nullptr, context);
-            return p.get_future().get();
-        }
-        case Reference::ModeOneway:
-        case Reference::ModeDatagram:
-        {
-            promise<bool> p;
-            ice_invoke_async(operation, mode, inParams,
-                nullptr,
-                [&](exception_ptr ex)
-                {
-                    p.set_exception(move(ex));
-                },
-                [&](bool)
-                {
-                    p.set_value(true);
-                },
-                context);
-            return p.get_future().get();
-        }
-        default:
-        {
-            ice_invoke_async(operation, mode, inParams, nullptr, nullptr, nullptr, context);
-            return true;
-        }
-    }
-}
-
-function<void ()>
-Ice::ObjectPrx::ice_invoke_async(const string& operation,
-                                 ::Ice::OperationMode mode,
-                                 const vector<::Ice::Byte>& inEncaps,
-                                 function<void (bool, vector<::Ice::Byte>)> response,
-                                 function<void (exception_ptr)> exception,
-                                 function<void (bool)> sent,
-                                 const ::Ice::Context& context)
-{
-    pair<const Byte*, const Byte*> inPair;
-    if(inEncaps.empty())
-    {
-        inPair.first = inPair.second = 0;
-    }
-    else
-    {
-        inPair.first = &inEncaps[0];
-        inPair.second = inPair.first + inEncaps.size();
-    }
-
-    class InvokeCallback : public CallbackBase
-    {
-    public:
-
-        InvokeCallback(shared_ptr<ObjectPrx> proxy,
-                       function<void (bool, vector<::Ice::Byte>)> response = nullptr,
-                       function<void (exception_ptr)> exception = nullptr,
-                       function<void (bool)> sent = nullptr) :
-            _proxy(move(proxy)),
-            _response(move(response)),
-            _exception(move(exception)),
-            _sent(move(sent))
-        {
-        }
-
-        virtual void sent(const AsyncResultPtr& result) const
-        {
-            if(_sent)
-            {
-                _sent(result->sentSynchronously());
-            }
-        }
-
-        virtual bool hasSentCallback() const
-        {
-            return _sent != nullptr;
-        }
-
-        virtual void
-        completed(const ::Ice::AsyncResultPtr& result) const
-        {
-            try
-            {
-                AsyncResult::__check(result, _proxy.get(), ice_invoke_name);
-                bool ok = result->__wait();
-                if(_proxy->_reference->getMode() == Reference::ModeTwoway)
-                {
-                    const Byte* v;
-                    Int sz;
-                    result->__readParamEncaps(v, sz);
-                    if(_response)
-                    {
-                        _response(ok, vector<Byte>(v, v + sz));
-                    }
-                }
-            }
-            catch(const ::Ice::Exception&)
-            {
-                if(_exception)
-                {
-                    _exception(current_exception());
-                }
-            }
-        }
-
-    private:
-
-        shared_ptr<ObjectPrx> _proxy;
-        function<void (bool, vector<::Ice::Byte>)> _response;
-        function<void (exception_ptr)> _exception;
-        function<void (bool)> _sent;
-    };
-    
-    if(ice_isBatchOneway() || ice_isBatchDatagram())
-    {
-        auto result = make_shared<OutgoingAsync>(shared_from_this(), ice_invoke_name,
-            make_shared<InvokeCallback>(shared_from_this()));
-        try
-        {
-            result->prepare(operation, mode, context);
-            result->writeParamEncaps(inPair.first, static_cast<Ice::Int>(inEncaps.size()));
-            result->invoke();
-            if(sent)
-            {
-                sent(true);
-            }
-        }
-        catch(const Exception& ex)
-        {
-            result->abort(ex);
-        }
-        return [result]()
-            {
-                result->cancel();
-            };
-    }
-    else
-    {
-        auto result = make_shared<OutgoingAsync>(shared_from_this(), ice_invoke_name,
-            make_shared<InvokeCallback>(shared_from_this(), move(response), move(exception), move(sent)));
-        try
-        {
-            result->prepare(operation, mode, context);
-            result->writeParamEncaps(inPair.first, static_cast<Ice::Int>(inEncaps.size()));
-            result->invoke();
-        }
-        catch(const Exception& ex)
-        {
-            result->abort(ex);
-        }
-        
-        return [result]()
-            {
-                result->cancel();
-            };
-    }
-}
-
-function<void ()>
-Ice::ObjectPrx::ice_invoke_async(const string& operation,
-                                 ::Ice::OperationMode mode,
-                                 const pair<const Byte*, const Byte*>& inEncaps,
-                                 function<void (bool, pair<const Byte*, const Byte*>)> response,
-                                 function<void (exception_ptr)> exception,
-                                 function<void (bool)> sent,
-                                 const ::Ice::Context& context)
-{
-    class InvokeCallback : public CallbackBase
-    {
-    public:
-
-        InvokeCallback(shared_ptr<ObjectPrx> proxy,
-                       function<void (bool, pair<const Byte*, const Byte*>)> response = nullptr,
-                       function<void (exception_ptr)> exception = nullptr,
-                       function<void (bool)> sent = nullptr) :
-            _proxy(move(proxy)),
-            _response(move(response)),
-            _exception(move(exception)),
-            _sent(move(sent))
-        {
-        }
-
-        virtual void sent(const AsyncResultPtr& result) const
-        {
-            if(_sent)
-            {
-                _sent(result->sentSynchronously());
-            }
-        }
-
-        virtual bool hasSentCallback() const
-        {
-            return _sent != nullptr;
-        }
-
-        virtual void
-        completed(const ::Ice::AsyncResultPtr& result) const
-        {
-            try
-            {
-                AsyncResult::__check(result, _proxy.get(), ice_invoke_name);
-                bool ok = result->__wait();
-                if(_proxy->_reference->getMode() == Reference::ModeTwoway)
-                {
-                    pair<const Byte*, const Byte*> v;
-                    Int sz;
-                    result->__readParamEncaps(v.first, sz);
-                    v.second = v.first + sz;
-                    if(_response)
-                    {
-                        _response(ok, move(v));
-                    }
-                }
-            }
-            catch(const ::Ice::Exception&)
-            {
-                if(_exception)
-                {
-                    _exception(current_exception());
-                }
-            }
-        }
-
-    private:
-
-        shared_ptr<ObjectPrx> _proxy;
-        function<void (bool, pair<const Byte*, const Byte*>)> _response;
-        function<void (exception_ptr)> _exception;
-        function<void (bool)> _sent;
-    };
-    
-    if(ice_isBatchOneway() || ice_isBatchDatagram())
-    {
-        auto result = make_shared<OutgoingAsync>(shared_from_this(), ice_invoke_name,
-            make_shared<InvokeCallback>(shared_from_this()));
-        try
-        {
-            result->prepare(operation, mode, context);
-            result->writeParamEncaps(inEncaps.first, static_cast<Int>(inEncaps.second - inEncaps.first));
-            result->invoke();
-            if(sent)
-            {
-                sent(true);
-            }
-        }
-        catch(const Exception& ex)
-        {
-            result->abort(ex);
-        }
-        
-        return [result]()
-            {
-                result->cancel();
-            };
-    }
-    else
-    {
-        auto result = make_shared<OutgoingAsync>(shared_from_this(), ice_invoke_name,
-            make_shared<InvokeCallback>(shared_from_this(), move(response), move(exception), move(sent)));
-        try
-        {
-            result->prepare(operation, mode, context);
-            result->writeParamEncaps(inEncaps.first, static_cast<Int>(inEncaps.second - inEncaps.first));
-            result->invoke();
-        }
-        catch(const Exception& ex)
-        {
-            result->abort(ex);
-        }
-        
-        return [result]()
-            {
-                result->cancel();
-            };
-    }
+    outAsync->invoke(ice_flushBatchRequests_name);
 }
 
 shared_ptr<ObjectPrx>
@@ -865,14 +213,14 @@ IceProxy::Ice::Object::__begin_ice_isA(const string& typeId,
                                        const ::Ice::LocalObjectPtr& cookie)
 {
     __checkAsyncTwowayOnly(ice_isA_name);
-    OutgoingAsyncPtr __result = new OutgoingAsync(this, ice_isA_name, del, cookie);
+    OutgoingAsyncPtr __result = new CallbackOutgoing(this, ice_isA_name, del, cookie);
     try
     {
         __result->prepare(ice_isA_name, Nonmutating, ctx);
         ::Ice::OutputStream* __os = __result->startWriteParams(DefaultFormat);
         __os->write(typeId);
         __result->endWriteParams();
-        __result->invoke();
+        __result->invoke(ice_isA_name);
     }
     catch(const Exception& __ex)
     {
@@ -932,12 +280,12 @@ IceProxy::Ice::Object::__begin_ice_ping(const Context& ctx,
                                         const ::IceInternal::CallbackBasePtr& del,
                                         const ::Ice::LocalObjectPtr& cookie)
 {
-    OutgoingAsyncPtr __result = new OutgoingAsync(this, ice_ping_name, del, cookie);
+    OutgoingAsyncPtr __result = new CallbackOutgoing(this, ice_ping_name, del, cookie);
     try
     {
         __result->prepare(ice_ping_name, Nonmutating, ctx);
         __result->writeEmptyParams();
-        __result->invoke();
+        __result->invoke(ice_ping_name);
     }
     catch(const Exception& __ex)
     {
@@ -1006,12 +354,12 @@ IceProxy::Ice::Object::__begin_ice_ids(const Context& ctx,
                                        const ::Ice::LocalObjectPtr& cookie)
 {
     __checkAsyncTwowayOnly(ice_ids_name);
-    OutgoingAsyncPtr __result = new OutgoingAsync(this, ice_ids_name, del, cookie);
+    OutgoingAsyncPtr __result = new CallbackOutgoing(this, ice_ids_name, del, cookie);
     try
     {
         __result->prepare(ice_ids_name, Nonmutating, ctx);
         __result->writeEmptyParams();
-        __result->invoke();
+        __result->invoke(ice_ids_name);
     }
     catch(const Exception& __ex)
     {
@@ -1049,12 +397,12 @@ IceProxy::Ice::Object::__begin_ice_id(const Context& ctx,
                                       const ::Ice::LocalObjectPtr& cookie)
 {
     __checkAsyncTwowayOnly(ice_id_name);
-    OutgoingAsyncPtr __result = new OutgoingAsync(this, ice_id_name, del, cookie);
+    OutgoingAsyncPtr __result = new CallbackOutgoing(this, ice_id_name, del, cookie);
     try
     {
         __result->prepare(ice_id_name, Nonmutating, ctx);
         __result->writeEmptyParams();
-        __result->invoke();
+        __result->invoke(ice_id_name);
     }
     catch(const Exception& __ex)
     {
@@ -1177,12 +525,12 @@ IceProxy::Ice::Object::__begin_ice_invoke(const string& operation,
                                           const ::IceInternal::CallbackBasePtr& del,
                                           const ::Ice::LocalObjectPtr& cookie)
 {
-    OutgoingAsyncPtr __result = new OutgoingAsync(this, ice_invoke_name, del, cookie);
+    OutgoingAsyncPtr __result = new CallbackOutgoing(this, ice_invoke_name, del, cookie);
     try
     {
         __result->prepare(operation, mode, ctx);
         __result->writeParamEncaps(inEncaps.first, static_cast<Int>(inEncaps.second - inEncaps.first));
-        __result->invoke();
+        __result->invoke(operation);
     }
     catch(const Exception& __ex)
     {
@@ -1209,10 +557,29 @@ IceProxy::Ice::Object::___end_ice_invoke(pair<const Byte*, const Byte*>& outEnca
 IceProxy::Ice::Object::begin_ice_flushBatchRequestsInternal(const ::IceInternal::CallbackBasePtr& del,
                                                             const ::Ice::LocalObjectPtr& cookie)
 {
-    ProxyFlushBatchAsyncPtr result = new ProxyFlushBatchAsync(this, ice_flushBatchRequests_name, del, cookie);
+    class ProxyFlushBatchAsyncWithCallback : public ProxyFlushBatchAsync, public CallbackCompletion
+    {
+    public:
+
+        ProxyFlushBatchAsyncWithCallback(const ::Ice::ObjectPrx& proxy,
+                                         const CallbackBasePtr& cb,
+                                         const ::Ice::LocalObjectPtr& cookie) :
+            ProxyFlushBatchAsync(proxy), CallbackCompletion(cb, cookie)
+        {
+            _cookie = cookie;
+        }
+
+        virtual const std::string&
+        getOperation() const
+        {
+            return ice_flushBatchRequests_name;
+        }
+    };
+
+    ProxyFlushBatchAsyncPtr result = new ProxyFlushBatchAsyncWithCallback(this, del, cookie);
     try
     {
-        result->invoke();
+        result->invoke(ice_flushBatchRequests_name);
     }
     catch(const Exception& ex)
     {
@@ -1299,14 +666,70 @@ IceProxy::Ice::Object::__newInstance() const
     return new Object;
 }
 
+ConnectionPtr
+IceProxy::Ice::Object::ice_getConnection()
+{
+    InvocationObserver observer(this, "ice_getConnection", ::Ice::noExplicitContext);
+    int cnt = 0;
+    while(true)
+    {
+        RequestHandlerPtr handler;
+        try
+        {
+            handler = __getRequestHandler();
+            return handler->waitForConnection(); // Wait for the connection to be established.
+        }
+        catch(const IceInternal::RetryException&)
+        {
+            __updateRequestHandler(handler, 0); // Clear request handler and retry.
+        }
+        catch(const Exception& ex)
+        {
+            try
+            {
+                int interval = __handleException(ex, handler, ICE_ENUM(OperationMode, Idempotent), false, cnt);
+                observer.retried();
+                if(interval > 0)
+                {
+                    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(interval));
+                }
+            }
+            catch(const Exception& exc)
+            {
+                observer.failed(exc.ice_id());
+                throw;
+            }
+        }
+    }
+}
+
 AsyncResultPtr
 IceProxy::Ice::Object::begin_ice_getConnectionInternal(const ::IceInternal::CallbackBasePtr& del,
                                                        const ::Ice::LocalObjectPtr& cookie)
 {
-    ProxyGetConnectionPtr result = new ProxyGetConnection(this, ice_getConnection_name, del, cookie);
+    class ProxyGetConnectionWithCallback :  public ProxyGetConnection, public CallbackCompletion
+    {
+    public:
+
+        ProxyGetConnectionWithCallback(const ::Ice::ObjectPrx& proxy,
+                                       const ::IceInternal::CallbackBasePtr& cb,
+                                       const ::Ice::LocalObjectPtr& cookie) :
+            ProxyGetConnection(proxy), CallbackCompletion(cb, cookie)
+        {
+            _cookie = cookie;
+        }
+
+        virtual const std::string&
+        getOperation() const
+        {
+            return ice_getConnection_name;
+        }
+    };
+
+    ProxyGetConnectionPtr result = new ProxyGetConnectionWithCallback(this, del, cookie);
     try
     {
-        result->invoke();
+        result->invoke(ice_getConnection_name);
     }
     catch(const Exception& ex)
     {
@@ -1891,43 +1314,6 @@ string
 ICE_OBJECT_PRX::ice_getConnectionId() const
 {
     return _reference->getConnectionId();
-}
-
-ConnectionPtr
-ICE_OBJECT_PRX::ice_getConnection()
-{
-    InvocationObserver observer(ICE_SHARED_FROM_THIS, "ice_getConnection", ::Ice::noExplicitContext);
-    int cnt = 0;
-    while(true)
-    {
-        RequestHandlerPtr handler;
-        try
-        {
-            handler = __getRequestHandler();
-            return handler->waitForConnection(); // Wait for the connection to be established.
-        }
-        catch(const IceInternal::RetryException&)
-        {
-            __updateRequestHandler(handler, 0); // Clear request handler and retry.
-        }
-        catch(const Exception& ex)
-        {
-            try
-            {
-                int interval = __handleException(ex, handler, ICE_ENUM(OperationMode, Idempotent), false, cnt);
-                observer.retried();
-                if(interval > 0)
-                {
-                    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(interval));
-                }
-            }
-            catch(const Exception& exc)
-            {
-                observer.failed(exc.ice_id());
-                throw;
-            }
-        }
-    }
 }
 
 ConnectionPtr

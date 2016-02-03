@@ -56,23 +56,14 @@ Init init;
 IceInternal::IncomingAsync::IncomingAsync(Incoming& in) :
     IncomingBase(in),
     _instanceCopy(_os.instance()),
-#ifdef ICE_CPP11_MAPPING
-    _responseHandlerCopy(dynamic_pointer_cast<ResponseHandler>(_responseHandler->shared_from_this())),
-#else
-    _responseHandlerCopy(_responseHandler),
-#endif
+    _responseHandlerCopy(_responseHandler->shared_from_this()), // Acquire reference on response handler
     _retriable(in.isRetriable()),
     _active(true)
 {
 #ifndef ICE_CPP11_MAPPING
     if(_retriable)
     {
-        //
-        // With C++11 maping we cannot call setActive from the ctor as 
-        // it creates a smart pointer to this object, and with shared_ptr
-        // this requires a fully constructed object.
-        //
-        in.setActive(*this);
+        in.setActive(this);
     }
 #endif
 }
@@ -81,10 +72,10 @@ IceInternal::IncomingAsync::IncomingAsync(Incoming& in) :
 IncomingAsyncPtr
 IceInternal::IncomingAsync::create(Incoming& in)
 {
-    IncomingAsyncPtr self(new IncomingAsync(in));
+    IncomingAsyncPtr self = make_shared<IncomingAsync>(in);
     if(in.isRetriable())
     {
-        in.setActive(*self.get());
+        in.setActive(self->shared_from_this());
     }
     return self;
 }
@@ -136,7 +127,7 @@ IceInternal::IncomingAsync::ice_exception(const ::std::exception& ex)
         {
             return;
         }
-    
+
         IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
         if(!_active)
         {
@@ -187,7 +178,7 @@ IceInternal::IncomingAsync::ice_exception()
         {
             return;
         }
-    
+
         IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
         if(!_active)
         {
@@ -306,7 +297,7 @@ IceInternal::IncomingAsync::__validateResponse(bool ok)
         {
             return false;
         }
-        
+
         IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
         if(!_active)
         {

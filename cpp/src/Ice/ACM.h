@@ -19,6 +19,7 @@
 #include <Ice/InstanceF.h>
 #include <Ice/PropertiesF.h>
 #include <Ice/LoggerF.h>
+#include <Ice/VirtualShared.h>
 #include <set>
 
 namespace IceInternal
@@ -44,14 +45,13 @@ public:
     virtual void remove(const Ice::ConnectionIPtr&) = 0;
     virtual void reap(const Ice::ConnectionIPtr&) = 0;
 
-    virtual ACMMonitorPtr acm(const IceUtil::Optional<int>&, 
-                              const IceUtil::Optional<Ice::ACMClose>&, 
+    virtual ACMMonitorPtr acm(const IceUtil::Optional<int>&,
+                              const IceUtil::Optional<Ice::ACMClose>&,
                               const IceUtil::Optional<Ice::ACMHeartbeat>&) = 0;
     virtual Ice::ACM getACM() = 0;
 };
 
-class FactoryACMMonitor : public ACMMonitor, public ::IceUtil::Mutex,
-                          public Ice::EnableSharedFromThis<FactoryACMMonitor>
+class FactoryACMMonitor : public ACMMonitor, public IceUtil::Mutex, public Ice::EnableSharedFromThis<FactoryACMMonitor>
 {
 public:
 
@@ -62,8 +62,8 @@ public:
     virtual void remove(const Ice::ConnectionIPtr&);
     virtual void reap(const Ice::ConnectionIPtr&);
 
-    virtual ACMMonitorPtr acm(const IceUtil::Optional<int>&, 
-                              const IceUtil::Optional<Ice::ACMClose>&, 
+    virtual ACMMonitorPtr acm(const IceUtil::Optional<int>&,
+                              const IceUtil::Optional<Ice::ACMClose>&,
                               const IceUtil::Optional<Ice::ACMHeartbeat>&);
     virtual Ice::ACM getACM();
 
@@ -86,7 +86,8 @@ private:
     std::vector<Ice::ConnectionIPtr> _reapedConnections;
 };
 
-class ConnectionACMMonitor : public ACMMonitor, public ::IceUtil::Mutex,
+class ConnectionACMMonitor : public ACMMonitor,
+                             public IceUtil::Mutex,
                              public Ice::EnableSharedFromThis<ConnectionACMMonitor>
 {
 public:
@@ -98,8 +99,8 @@ public:
     virtual void remove(const Ice::ConnectionIPtr&);
     virtual void reap(const Ice::ConnectionIPtr&);
 
-    virtual ACMMonitorPtr acm(const IceUtil::Optional<int>&, 
-                              const IceUtil::Optional<Ice::ACMClose>&, 
+    virtual ACMMonitorPtr acm(const IceUtil::Optional<int>&,
+                              const IceUtil::Optional<Ice::ACMClose>&,
                               const IceUtil::Optional<Ice::ACMHeartbeat>&);
     virtual Ice::ACM getACM();
 

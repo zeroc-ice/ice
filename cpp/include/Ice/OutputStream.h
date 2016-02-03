@@ -20,7 +20,6 @@
 #include <Ice/Protocol.h>
 #include <Ice/SlicedDataF.h>
 #include <Ice/StreamHelpers.h>
-#include <Ice/Traits.h>
 
 namespace Ice
 {
@@ -261,12 +260,12 @@ public:
         }
 
         if(writeOpt(tag, StreamOptionalHelper<T,
-                                                   StreamableTraits<T>::helper,
-                                                   StreamableTraits<T>::fixedLength>::optionalFormat))
+                                              StreamableTraits<T>::helper,
+                                              StreamableTraits<T>::fixedLength>::optionalFormat))
         {
             StreamOptionalHelper<T,
-                                      StreamableTraits<T>::helper,
-                                      StreamableTraits<T>::fixedLength>::write(this, *v);
+                                 StreamableTraits<T>::helper,
+                                 StreamableTraits<T>::fixedLength>::write(this, *v);
         }
     }
 

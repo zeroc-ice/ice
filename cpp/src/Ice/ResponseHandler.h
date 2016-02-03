@@ -28,7 +28,7 @@ class OutputStream;
 namespace IceInternal
 {
 
-class ResponseHandler : public virtual ICE_SHARED
+class ResponseHandler : public Ice::EnableSharedFromThis<ResponseHandler>
 {
 public:
 

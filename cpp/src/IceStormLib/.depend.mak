@@ -34,7 +34,6 @@ IceStorm.obj: \
     "$(includedir)\Ice\StreamHelpers.h" \
     "$(includedir)\IceUtil\ScopedArray.h" \
     "$(includedir)\IceUtil\Iterator.h" \
-    "$(includedir)\Ice\Traits.h" \
     "$(includedir)\Ice\Proxy.h" \
     "$(includedir)\IceUtil\Mutex.h" \
     "$(includedir)\IceUtil\Lock.h" \
@@ -122,7 +121,6 @@ Metrics.obj: \
     "$(includedir)\Ice\StreamHelpers.h" \
     "$(includedir)\IceUtil\ScopedArray.h" \
     "$(includedir)\IceUtil\Iterator.h" \
-    "$(includedir)\Ice\Traits.h" \
     "$(includedir)\Ice\Proxy.h" \
     "$(includedir)\IceUtil\Mutex.h" \
     "$(includedir)\IceUtil\Lock.h" \

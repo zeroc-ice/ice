@@ -44,7 +44,6 @@ Blobject.obj: \
     "$(includedir)\Ice\StreamHelpers.h" \
     "$(includedir)\IceUtil\ScopedArray.h" \
     "$(includedir)\IceUtil\Iterator.h" \
-    "$(includedir)\Ice\Traits.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
     "$(includedir)\IceUtil\PopDisableWarnings.h" \
@@ -181,7 +180,6 @@ ClientBlobject.obj: \
     "$(includedir)\Ice\StreamHelpers.h" \
     "$(includedir)\IceUtil\ScopedArray.h" \
     "$(includedir)\IceUtil\Iterator.h" \
-    "$(includedir)\Ice\Traits.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
     "$(includedir)\IceUtil\PopDisableWarnings.h" \
@@ -307,7 +305,6 @@ FilterI.obj: \
     "$(includedir)\Ice\StreamHelpers.h" \
     "$(includedir)\IceUtil\ScopedArray.h" \
     "$(includedir)\IceUtil\Iterator.h" \
-    "$(includedir)\Ice\Traits.h" \
     "$(includedir)\Ice\Proxy.h" \
     "$(includedir)\IceUtil\Mutex.h" \
     "$(includedir)\IceUtil\Lock.h" \
@@ -399,7 +396,6 @@ FilterManager.obj: \
     "$(includedir)\Ice\StreamHelpers.h" \
     "$(includedir)\IceUtil\ScopedArray.h" \
     "$(includedir)\IceUtil\Iterator.h" \
-    "$(includedir)\Ice\Traits.h" \
     "$(includedir)\Ice\Proxy.h" \
     "$(includedir)\IceUtil\Mutex.h" \
     "$(includedir)\IceUtil\Lock.h" \
@@ -558,7 +554,6 @@ Glacier2Router.obj: \
     "$(includedir)\Ice\StreamHelpers.h" \
     "$(includedir)\IceUtil\ScopedArray.h" \
     "$(includedir)\IceUtil\Iterator.h" \
-    "$(includedir)\Ice\Traits.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
     "$(includedir)\IceUtil\PopDisableWarnings.h" \
@@ -698,7 +693,6 @@ Instance.obj: \
     "$(includedir)\Ice\StreamHelpers.h" \
     "$(includedir)\IceUtil\ScopedArray.h" \
     "$(includedir)\IceUtil\Iterator.h" \
-    "$(includedir)\Ice\Traits.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
     "$(includedir)\IceUtil\PopDisableWarnings.h" \
@@ -831,7 +825,6 @@ InstrumentationI.obj: \
     "$(includedir)\Ice\StreamHelpers.h" \
     "$(includedir)\IceUtil\ScopedArray.h" \
     "$(includedir)\IceUtil\Iterator.h" \
-    "$(includedir)\Ice\Traits.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\EndpointF.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
@@ -950,7 +943,6 @@ ProxyVerifier.obj: \
     "$(includedir)\Ice\StreamHelpers.h" \
     "$(includedir)\IceUtil\ScopedArray.h" \
     "$(includedir)\IceUtil\Iterator.h" \
-    "$(includedir)\Ice\Traits.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
     "$(includedir)\IceUtil\PopDisableWarnings.h" \
@@ -1075,7 +1067,6 @@ RequestQueue.obj: \
     "$(includedir)\Ice\StreamHelpers.h" \
     "$(includedir)\IceUtil\ScopedArray.h" \
     "$(includedir)\IceUtil\Iterator.h" \
-    "$(includedir)\Ice\Traits.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
     "$(includedir)\IceUtil\PopDisableWarnings.h" \
@@ -1200,7 +1191,6 @@ RouterI.obj: \
     "$(includedir)\Ice\StreamHelpers.h" \
     "$(includedir)\IceUtil\ScopedArray.h" \
     "$(includedir)\IceUtil\Iterator.h" \
-    "$(includedir)\Ice\Traits.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
     "$(includedir)\IceUtil\PopDisableWarnings.h" \
@@ -1353,7 +1343,6 @@ RoutingTable.obj: \
     "$(includedir)\Ice\StreamHelpers.h" \
     "$(includedir)\IceUtil\ScopedArray.h" \
     "$(includedir)\IceUtil\Iterator.h" \
-    "$(includedir)\Ice\Traits.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
     "$(includedir)\IceUtil\PopDisableWarnings.h" \
@@ -1481,7 +1470,6 @@ ServerBlobject.obj: \
     "$(includedir)\Ice\StreamHelpers.h" \
     "$(includedir)\IceUtil\ScopedArray.h" \
     "$(includedir)\IceUtil\Iterator.h" \
-    "$(includedir)\Ice\Traits.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
     "$(includedir)\IceUtil\PopDisableWarnings.h" \
@@ -1617,7 +1605,6 @@ SessionRouterI.obj: \
     "$(includedir)\Ice\StreamHelpers.h" \
     "$(includedir)\IceUtil\ScopedArray.h" \
     "$(includedir)\IceUtil\Iterator.h" \
-    "$(includedir)\Ice\Traits.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
     "$(includedir)\IceUtil\PopDisableWarnings.h" \
@@ -1751,7 +1738,6 @@ Instrumentation.obj: \
     "$(includedir)\Ice\StreamHelpers.h" \
     "$(includedir)\IceUtil\ScopedArray.h" \
     "$(includedir)\IceUtil\Iterator.h" \
-    "$(includedir)\Ice\Traits.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\Ice\Instrumentation.h" \
     "$(includedir)\Ice\EndpointF.h" \

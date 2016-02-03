@@ -59,9 +59,9 @@ IceInternal::RetryTask::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsyn
             Trace out(_instance->initializationData().logger, _instance->traceLevels()->retryCat);
             out << "operation retry canceled\n" << ex;
         }
-        if(_outAsync->completed(ex))
+        if(_outAsync->exception(ex))
         {
-            _outAsync->invokeCompletedAsync();
+            _outAsync->invokeExceptionAsync();
         }
     }
 }

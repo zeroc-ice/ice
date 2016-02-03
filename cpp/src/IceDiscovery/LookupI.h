@@ -15,6 +15,7 @@
 
 #include <IceUtil/Timer.h>
 #include <Ice/Properties.h>
+#include <Ice/VirtualShared.h>
 
 namespace IceDiscovery
 {
@@ -22,7 +23,6 @@ namespace IceDiscovery
 class LookupI;
 
 #ifdef ICE_CPP11_MAPPING
-
 
 template<class T> class Request : public IceUtil::TimerTask
 {
@@ -200,6 +200,7 @@ private:
     IceUtil::Time _latency;
 };
 typedef IceUtil::Handle<AdapterRequest> AdapterRequestPtr;
+
 #endif
 
 class LookupI : public Lookup,

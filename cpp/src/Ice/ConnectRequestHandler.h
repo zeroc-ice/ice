@@ -53,6 +53,8 @@ public:
 
     virtual void addedProxy();
 
+    using Ice::EnableSharedFromThis<ConnectRequestHandler>::shared_from_this;
+
 private:
 
     bool initialized();

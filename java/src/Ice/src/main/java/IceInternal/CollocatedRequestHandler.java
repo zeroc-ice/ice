@@ -189,7 +189,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
         return null;
     }
 
-    int invokeAsyncRequest(OutgoingAsyncBase outAsync, int batchRequestNum, boolean synchronous)
+    int invokeAsyncRequest(OutgoingAsyncBase outAsync, int batchRequestNum, boolean sync)
     {
         //
         // Increase the direct count to prevent the thread pool from being destroyed before
@@ -221,34 +221,26 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
 
         outAsync.attachCollocatedObserver(_adapter, requestId);
 
-        if(synchronous)
+        if(!sync || !_response || _reference.getInstance().queueRequests() || _reference.getInvocationTimeout() > 0)
         {
-            //
-            // Treat this collocated call as if it is a synchronous invocation.
-            //
-            if(!_response || _reference.getInstance().queueRequests() || _reference.getInvocationTimeout() > 0)
-            {
-                // Don't invoke from the user thread, invocation timeouts wouldn't work otherwise.
-                _adapter.getThreadPool().dispatch(
-                    new InvokeAllAsync(outAsync, outAsync.getOs(), requestId, batchRequestNum));
-            }
-            else if(_dispatcher)
-            {
-                _adapter.getThreadPool().dispatchFromThisThread(
-                    new InvokeAllAsync(outAsync, outAsync.getOs(), requestId, batchRequestNum));
-            }
-            else // Optimization: directly call invokeAll if there's no dispatcher.
-            {
-                if(sentAsync(outAsync))
-                {
-                    invokeAll(outAsync.getOs(), requestId, batchRequestNum);
-                }
-            }
+            _adapter.getThreadPool().dispatch(new InvokeAllAsync(outAsync,
+                                                                 outAsync.getOs(),
+                                                                 requestId,
+                                                                 batchRequestNum));
         }
-        else
+        else if(_dispatcher)
         {
-            _adapter.getThreadPool().dispatch(
-                new InvokeAllAsync(outAsync, outAsync.getOs(), requestId, batchRequestNum));
+            _adapter.getThreadPool().dispatchFromThisThread(new InvokeAllAsync(outAsync,
+                                                                               outAsync.getOs(),
+                                                                               requestId,
+                                                                               batchRequestNum));
+        }
+        else // Optimization: directly call invokeAll if there's no dispatcher.
+        {
+            if(sentAsync(outAsync))
+            {
+                invokeAll(outAsync.getOs(), requestId, batchRequestNum);
+            }
         }
         return AsyncStatus.Queued;
     }

@@ -24,7 +24,6 @@ Key.obj: \
     "$(includedir)\Ice\StreamHelpers.h" \
     "$(includedir)\IceUtil\ScopedArray.h" \
     "$(includedir)\IceUtil\Iterator.h" \
-    "$(includedir)\Ice\Traits.h" \
     "$(includedir)\Ice\Proxy.h" \
     "$(includedir)\IceUtil\Mutex.h" \
     "$(includedir)\IceUtil\Lock.h" \
@@ -120,7 +119,6 @@ Client.obj: \
     "$(includedir)\Ice\StreamHelpers.h" \
     "$(includedir)\IceUtil\ScopedArray.h" \
     "$(includedir)\IceUtil\Iterator.h" \
-    "$(includedir)\Ice\Traits.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
     "$(includedir)\IceUtil\PopDisableWarnings.h" \

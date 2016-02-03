@@ -16,11 +16,7 @@ using namespace Ice;
 using namespace IceInternal;
 
 void
-#ifdef ICE_CPP11_MAPPING
-IceInternal::ValueFactoryManagerI::add(function<Ice::ValuePtr (string)> factory, const string& id)
-#else
-IceInternal::ValueFactoryManagerI::add(const Ice::ValueFactoryPtr& factory, const string& id)
-#endif
+IceInternal::ValueFactoryManagerI::add(ICE_IN(ICE_VALUE_FACTORY) factory, const string& id)
 {
     IceUtil::Mutex::Lock sync(*this);
 

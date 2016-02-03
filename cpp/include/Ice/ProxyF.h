@@ -10,52 +10,11 @@
 #ifndef ICE_PROXY_F_H
 #define ICE_PROXY_F_H
 
-#include <IceUtil/Shared.h>
-
 #include <Ice/Config.h>
 #include <Ice/ProxyHandle.h>
 
 #ifndef ICE_CPP11_MAPPING // C++98 mapping
 namespace IceProxy
-{
-
-namespace Ice
-{
-
-class Object;
-inline Object* upCast(Object* o) { return o; }
-
-}
-
-}
-
-namespace IceDelegate
-{
-
-namespace Ice
-{
-
-class Object;
-inline Object* upCast(Object* o) { return o; }
-
-}
-
-}
-
-namespace IceDelegateM
-{
-
-namespace Ice
-{
-
-class Object;
-inline Object* upCast(Object* o) { return o; }
-
-}
-
-}
-
-namespace IceDelegateD
 {
 
 namespace Ice
@@ -75,7 +34,9 @@ typedef IceInternal::ProxyHandle< ::IceProxy::Ice::Object> ObjectPrx;
 typedef ObjectPrx ObjectPrxPtr;
 
 }
+
 #else // C++11 mapping
+
 namespace Ice
 {
 
@@ -92,20 +53,6 @@ template<typename P>
 
 }
 
-namespace IceProxy
-{
-
-namespace Ice
-{
-
-//
-// ObjectPrx alias for compatibility with C++98 mapping
-//
-typedef ::Ice::ObjectPrx Object;
-
-}
-
-}
 #endif
 
 #endif

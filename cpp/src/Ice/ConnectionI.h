@@ -29,7 +29,7 @@
 #include <Ice/ConnectorF.h>
 #include <Ice/LoggerF.h>
 #include <Ice/TraceLevelsF.h>
-#include <Ice/OutgoingAsyncF.h>
+#include <Ice/OutgoingAsync.h>
 #include <Ice/EventHandler.h>
 #include <Ice/RequestHandler.h>
 #include <Ice/ResponseHandler.h>
@@ -188,10 +188,10 @@ public:
 
     IceInternal::BatchRequestQueuePtr getBatchRequestQueue() const;
 
-    virtual void flushBatchRequests(); // From Connection.
+    virtual void flushBatchRequests();
 
 #ifdef ICE_CPP11_MAPPING
-    virtual ::std::function<void ()>
+    virtual std::function<void ()>
     flushBatchRequests_async(::std::function<void (::std::exception_ptr)>,
                              ::std::function<void (bool)> = nullptr);
 #else
@@ -203,13 +203,9 @@ public:
     virtual void end_flushBatchRequests(const AsyncResultPtr&);
 #endif
 
-#ifdef ICE_CPP11_MAPPING
-    virtual void setCloseCallback(::std::function<void (::std::shared_ptr<::Ice::Connection>)>);
-    virtual void setHeartbeatCallback(::std::function<void (::std::shared_ptr<::Ice::Connection>)>);
-#else
-    virtual void setCloseCallback(const Ice::CloseCallbackPtr&);
-    virtual void setHeartbeatCallback(const Ice::HeartbeatCallbackPtr&);
-#endif
+    virtual void setCloseCallback(ICE_IN(ICE_CLOSE_CALLBACK));
+    virtual void setHeartbeatCallback(ICE_IN(ICE_HEARTBEAT_CALLBACK));
+
     virtual void setACM(const IceUtil::Optional<int>&,
                         const IceUtil::Optional<ACMClose>&,
                         const IceUtil::Optional<ACMHeartbeat>&);
@@ -263,6 +259,8 @@ public:
     void closeCallback(const ICE_CLOSE_CALLBACK&);
 
     virtual ~ConnectionI();
+
+    using EnableSharedFromThis<ConnectionI>::shared_from_this;
 
 private:
 
@@ -324,7 +322,9 @@ private:
 
     void reap();
 
+#ifndef ICE_CPP11_MAPPING
     AsyncResultPtr __begin_flushBatchRequests(const IceInternal::CallbackBasePtr&, const LocalObjectPtr&);
+#endif
 
     Ice::CommunicatorPtr _communicator;
     const IceInternal::InstancePtr _instance;
@@ -394,7 +394,6 @@ private:
 
     ICE_CLOSE_CALLBACK _closeCallback;
     ICE_HEARTBEAT_CALLBACK _heartbeatCallback;
-
 };
 
 }

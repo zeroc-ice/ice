@@ -50,14 +50,14 @@ TestIntfControllerI::holdAdapter(const Ice::Current&)
     test(Dispatcher::isDispatcherThread());
     _adapter->hold();
 }
-    
+
 void
 TestIntfControllerI::resumeAdapter(const Ice::Current&)
 {
     test(Dispatcher::isDispatcherThread());
     _adapter->activate();
 }
-    
+
 TestIntfControllerI::TestIntfControllerI(const Ice::ObjectAdapterPtr& adapter) : _adapter(adapter)
 {
 }

@@ -24,7 +24,6 @@
 #include <Ice/UserExceptionFactory.h>
 #include <Ice/StreamHelpers.h>
 #include <Ice/FactoryTable.h>
-#include <Ice/Traits.h>
 
 namespace Ice
 {
@@ -362,13 +361,13 @@ public:
     template<typename T> void read(Int tag, IceUtil::Optional<T>& v)
     {
         if(readOpt(tag, StreamOptionalHelper<T,
-                                                  StreamableTraits<T>::helper,
-                                                  StreamableTraits<T>::fixedLength>::optionalFormat))
+                                             StreamableTraits<T>::helper,
+                                             StreamableTraits<T>::fixedLength>::optionalFormat))
         {
             v.__setIsSet();
             StreamOptionalHelper<T,
-                                      StreamableTraits<T>::helper,
-                                      StreamableTraits<T>::fixedLength>::read(this, *v);
+                                 StreamableTraits<T>::helper,
+                                 StreamableTraits<T>::fixedLength>::read(this, *v);
         }
         else
         {

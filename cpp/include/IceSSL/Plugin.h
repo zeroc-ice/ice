@@ -12,6 +12,7 @@
 
 #include <IceUtil/Time.h>
 #include <Ice/Plugin.h>
+#include <Ice/VirtualShared.h>
 #include <IceSSL/Config.h>
 #include <IceSSL/ConnectionInfo.h>
 
@@ -178,7 +179,7 @@ ICE_DEFINE_PTR(CertificatePtr, Certificate);
 class ICE_SSL_API PublicKey : public Ice::EnableSharedFromThis<PublicKey>
 {
 public:
-    
+
     PublicKey(const CertificatePtr&, KeyRef);
 
     ~PublicKey();

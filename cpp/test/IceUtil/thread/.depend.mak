@@ -71,7 +71,6 @@ CreateTest.obj: \
     "$(includedir)\Ice\LocalObjectF.h" \
     "$(includedir)\Ice\StreamHelpers.h" \
     "$(includedir)\IceUtil\Iterator.h" \
-    "$(includedir)\Ice\Traits.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
 
@@ -118,7 +117,6 @@ AliveTest.obj: \
     "$(includedir)\Ice\LocalObjectF.h" \
     "$(includedir)\Ice\StreamHelpers.h" \
     "$(includedir)\IceUtil\Iterator.h" \
-    "$(includedir)\Ice\Traits.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
 
@@ -165,7 +163,6 @@ StartTest.obj: \
     "$(includedir)\Ice\LocalObjectF.h" \
     "$(includedir)\Ice\StreamHelpers.h" \
     "$(includedir)\IceUtil\Iterator.h" \
-    "$(includedir)\Ice\Traits.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
 
@@ -212,7 +209,6 @@ SleepTest.obj: \
     "$(includedir)\Ice\LocalObjectF.h" \
     "$(includedir)\Ice\StreamHelpers.h" \
     "$(includedir)\IceUtil\Iterator.h" \
-    "$(includedir)\Ice\Traits.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
 
@@ -259,7 +255,6 @@ RecMutexTest.obj: \
     "$(includedir)\Ice\LocalObjectF.h" \
     "$(includedir)\Ice\StreamHelpers.h" \
     "$(includedir)\IceUtil\Iterator.h" \
-    "$(includedir)\Ice\Traits.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
 
@@ -306,7 +301,6 @@ MutexTest.obj: \
     "$(includedir)\Ice\LocalObjectF.h" \
     "$(includedir)\Ice\StreamHelpers.h" \
     "$(includedir)\IceUtil\Iterator.h" \
-    "$(includedir)\Ice\Traits.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
 
@@ -353,7 +347,6 @@ MonitorMutexTest.obj: \
     "$(includedir)\Ice\LocalObjectF.h" \
     "$(includedir)\Ice\StreamHelpers.h" \
     "$(includedir)\IceUtil\Iterator.h" \
-    "$(includedir)\Ice\Traits.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
 
@@ -400,7 +393,6 @@ MonitorRecMutexTest.obj: \
     "$(includedir)\Ice\LocalObjectF.h" \
     "$(includedir)\Ice\StreamHelpers.h" \
     "$(includedir)\IceUtil\Iterator.h" \
-    "$(includedir)\Ice\Traits.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
 
@@ -448,7 +440,6 @@ CountDownLatchTest.obj: \
     "$(includedir)\Ice\LocalObjectF.h" \
     "$(includedir)\Ice\StreamHelpers.h" \
     "$(includedir)\IceUtil\Iterator.h" \
-    "$(includedir)\Ice\Traits.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
 
@@ -512,7 +503,6 @@ Client.obj: \
     "$(includedir)\Ice\LocalObjectF.h" \
     "$(includedir)\Ice\StreamHelpers.h" \
     "$(includedir)\IceUtil\Iterator.h" \
-    "$(includedir)\Ice\Traits.h" \
     "$(includedir)\IceUtil\Optional.h" \
     "$(includedir)\IceUtil\UndefSysMacros.h" \
     "TestSuite.h" \

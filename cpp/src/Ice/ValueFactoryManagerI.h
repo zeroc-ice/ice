@@ -28,13 +28,8 @@ public:
 
     ValueFactoryManagerI();
 
-#ifdef ICE_CPP11_MAPPING
-    virtual void add(std::function<std::shared_ptr<Ice::Value> (std::string)>, const std::string&);
-    virtual std::function<std::shared_ptr<Ice::Value> (const std::string&)> find(const std::string&) const;
-#else
-    virtual void add(const Ice::ValueFactoryPtr&, const std::string&);
-    virtual Ice::ValueFactoryPtr find(const std::string&) const;
-#endif
+    virtual void add(ICE_IN(ICE_VALUE_FACTORY), const std::string&);
+    virtual ICE_VALUE_FACTORY find(const std::string&) const;
 
 private:
 

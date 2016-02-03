@@ -17,8 +17,10 @@
 #ifdef ICE_CPP11_MAPPING
 namespace IceInternal
 {
+
 class IncomingAsync;
 typedef std::shared_ptr<IncomingAsync> IncomingAsyncPtr;
+
 };
 #else
 namespace IceInternal

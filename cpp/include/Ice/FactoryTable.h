@@ -38,11 +38,7 @@ public:
     Ice::UserExceptionFactoryPtr getExceptionFactory(const ::std::string&) const;
     void removeExceptionFactory(const ::std::string&);
 
-#ifdef ICE_CPP11_MAPPING
-    void addValueFactory(const ::std::string&, ::std::function<::Ice::ValuePtr (::std::string)>);
-#else
-    void addValueFactory(const ::std::string&, const ::Ice::ValueFactoryPtr&);
-#endif
+    void addValueFactory(const ::std::string&, ICE_IN(ICE_VALUE_FACTORY));
     ICE_VALUE_FACTORY getValueFactory(const ::std::string&) const;
     void removeValueFactory(const ::std::string&);
 

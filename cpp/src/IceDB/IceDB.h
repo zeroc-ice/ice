@@ -14,6 +14,7 @@
 #include <IceUtil/FileUtil.h>
 #include <Ice/Initialize.h>
 #include <Ice/OutputStream.h>
+#include <Ice/InputStream.h>
 
 #include <lmdb.h>
 
@@ -138,7 +139,7 @@ private:
 //
 // Write [in] T into [in/out] MDB_val using [in] context C
 // [in] MDB_val contains the destination array
-// write returns true on success, and false if the provided 
+// write returns true on success, and false if the provided
 // array is too small.
 // On failure, MDB_val.mv_size contains the marshaled key
 // size if known, and 0 if not know.
@@ -253,9 +254,9 @@ public:
     {
         unsigned char kbuf[maxKeySize];
         MDB_val mkey = {maxKeySize, kbuf};
-        
+
         if(Codec<K, C, H>::write(key, mkey, _marshalingContext))
-        {   
+        {
             MDB_val mdata;
             if(DbiBase::get(txn, &mkey, &mdata))
             {
@@ -326,7 +327,7 @@ public:
         else
         {
             return false;
-        }     
+        }
     }
 
     C marshalingContext() const
@@ -416,7 +417,7 @@ public:
         else
         {
             return false;
-        } 
+        }
     }
 
     bool find(const K& key, D& data)

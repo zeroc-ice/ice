@@ -10,93 +10,51 @@
 #ifndef ICE_ASYNC_RESULT_H
 #define ICE_ASYNC_RESULT_H
 
+#ifndef ICE_CPP11_MAPPING
+
 #include <IceUtil/Monitor.h>
 #include <IceUtil/Mutex.h>
-#include <IceUtil/UniquePtr.h>
 #include <Ice/LocalObject.h>
 #include <Ice/CommunicatorF.h>
 #include <Ice/ConnectionF.h>
 #include <Ice/ProxyF.h>
-#include <Ice/InstanceF.h>
-#include <Ice/RequestHandlerF.h>
 #include <Ice/AsyncResultF.h>
-#include <Ice/ObserverHelper.h>
-#include <Ice/InputStream.h>
-#include <Ice/VirtualShared.h>
-
-namespace IceInternal
-{
-
-class CallbackBase;
-ICE_DEFINE_PTR(CallbackBasePtr, CallbackBase);
-
-}
 
 namespace Ice
 {
 
-class ICE_API AsyncResult : private IceUtil::noncopyable,
-#ifdef ICE_CPP11_MAPPING
-    public ::std::enable_shared_from_this<::Ice::AsyncResult>
-#else
-    public Ice::LocalObject
-#endif
+class ICE_API AsyncResult : private IceUtil::noncopyable, public Ice::LocalObject
 {
 public:
-    
-#ifdef ICE_CPP11_MAPPING
-    AsyncResult(const CommunicatorPtr&, const IceInternal::InstancePtr&, const std::string&,
-                const IceInternal::CallbackBasePtr&);
-#else
-    AsyncResult(const CommunicatorPtr&, const IceInternal::InstancePtr&, const std::string&,
-                const IceInternal::CallbackBasePtr&, const LocalObjectPtr&);
-#endif
-    virtual ~AsyncResult(); // Must be heap-allocated
 
-    void cancel();
+    virtual void cancel() = 0;
 
-    Int getHash() const;
+    virtual Int getHash() const = 0;
 
-    CommunicatorPtr getCommunicator() const;
-    virtual ConnectionPtr getConnection() const;
-    virtual ObjectPrxPtr getProxy() const;
+    virtual CommunicatorPtr getCommunicator() const = 0;
+    virtual ConnectionPtr getConnection() const = 0;
+    virtual ObjectPrxPtr getProxy() const = 0;
 
-    bool isCompleted() const;
-    void waitForCompleted();
+    virtual bool isCompleted() const = 0;
+    virtual void waitForCompleted() = 0;
 
-    bool isSent() const;
-    void waitForSent();
+    virtual bool isSent() const = 0;
+    virtual void waitForSent() = 0;
 
-    void throwLocalException() const;
+    virtual void throwLocalException() const = 0;
 
-    bool sentSynchronously() const;
+    virtual bool sentSynchronously() const = 0;
 
-#ifndef ICE_CPP11_MAPPING
-    LocalObjectPtr getCookie() const;
-#endif
+    virtual LocalObjectPtr getCookie() const = 0;
 
-    const std::string& getOperation() const;
+    virtual const std::string& getOperation() const = 0;
 
-    ::Ice::InputStream* __startReadParams()
-    {
-        _is.startEncapsulation();
-        return &_is;
-    }
-    void __endReadParams()
-    {
-        _is.endEncapsulation();
-    }
-    void __readEmptyParams()
-    {
-        _is.skipEmptyEncapsulation();
-    }
-    void __readParamEncaps(const ::Ice::Byte*& encaps, ::Ice::Int& sz)
-    {
-        _is.readEncapsulation(encaps, sz);
-    }
-    void __throwUserException();
-
-    bool __wait();
+    virtual bool __wait() = 0;
+    virtual Ice::InputStream* __startReadParams() = 0;
+    virtual void __endReadParams() = 0;
+    virtual void __readEmptyParams() = 0;
+    virtual void __readParamEncaps(const ::Ice::Byte*&, ::Ice::Int&) = 0;
+    virtual void __throwUserException() = 0;
 
     static void __check(const AsyncResultPtr&, const ::IceProxy::Ice::Object*, const ::std::string&);
     static void __check(const AsyncResultPtr&, const Connection*, const ::std::string&);
@@ -105,182 +63,10 @@ public:
 protected:
 
     static void __check(const AsyncResultPtr&, const ::std::string&);
-
-    bool sent(bool);
-    bool finished(bool);
-    bool finished(const Exception&);
-
-    void invokeSentAsync();
-    void invokeCompletedAsync();
-
-    void invokeSent();
-    void invokeCompleted();
-
-    void cancel(const LocalException&);
-    virtual void cancelable(const IceInternal::CancellationHandlerPtr&);
-    void checkCanceled();
-
-    void warning(const std::exception&) const;
-    void warning() const;
-
-    //
-    // This virtual method is necessary for the communicator flush
-    // batch requests implementation.
-    //
-    virtual IceInternal::InvocationObserver& getObserver()
-    {
-        return _observer;
-    }
-
-    const IceInternal::InstancePtr _instance;
-    IceInternal::InvocationObserver _observer;
-    Ice::ConnectionPtr _cachedConnection;
-    bool _sentSynchronously;
-
-    Ice::InputStream _is;
-
-    IceUtil::Monitor<IceUtil::Mutex> _monitor;
-
-private:
-
-    const CommunicatorPtr _communicator;
-    const std::string& _operation;
-    const IceInternal::CallbackBasePtr _callback;
-    const LocalObjectPtr _cookie;
-#ifdef ICE_CPP11_MAPPING
-    std::exception_ptr _exception;
-#else
-    IceUtil::UniquePtr<Exception> _exception;
-#endif
-    
-    IceInternal::CancellationHandlerPtr _cancellationHandler;
-#ifdef ICE_CPP11_MAPPING
-    std::exception_ptr _cancellationException;
-#else
-    IceUtil::UniquePtr<Ice::LocalException> _cancellationException;
-#endif
-
-    static const unsigned char OK;
-    static const unsigned char Done;
-    static const unsigned char Sent;
-    static const unsigned char EndCalled;
-    static const unsigned char Canceled;
-    unsigned char _state;
 };
 
 }
 
-namespace IceInternal
-{
-
-//
-// Base class for all callbacks.
-//
-class ICE_API CallbackBase : public Ice::EnableSharedFromThis<CallbackBase>
-{
-public:
-
-    void checkCallback(bool, bool);
-
-    virtual void completed(const ::Ice::AsyncResultPtr&) const = 0;
-#ifndef ICE_CPP11_MAPPING
-    virtual CallbackBasePtr verify(const ::Ice::LocalObjectPtr&) = 0;
 #endif
-    virtual void sent(const ::Ice::AsyncResultPtr&) const = 0;
-    virtual bool hasSentCallback() const = 0;
-};
-
-//
-// Base class for generic callbacks.
-//
-class ICE_API GenericCallbackBase : public virtual CallbackBase
-{
-};
-
-//
-// See comments in OutgoingAsync.cpp
-//
-extern ICE_API CallbackBasePtr __dummyCallback;
-
-//
-// Generic callback template that requires the caller to down-cast the
-// proxy and the cookie that are obtained from the AsyncResult.
-//
-template<class T>
-class AsyncCallback : public GenericCallbackBase
-{
-public:
-
-    typedef T callback_type;
-    typedef IceUtil::Handle<T> TPtr;
-
-    typedef void (T::*Callback)(const ::Ice::AsyncResultPtr&);
-
-    AsyncCallback(const TPtr& instance, Callback cb, Callback sentcb = 0) :
-        _callback(instance), _completed(cb), _sent(sentcb)
-    {
-        checkCallback(instance, cb != 0);
-    }
-
-    virtual void completed(const ::Ice::AsyncResultPtr& result) const
-    {
-        (_callback.get()->*_completed)(result);
-    }
-
-    virtual CallbackBasePtr verify(const ::Ice::LocalObjectPtr&)
-    {
-        return this; // Nothing to do, the cookie is not type-safe.
-    }
-    
-    virtual void sent(const ::Ice::AsyncResultPtr& result) const
-    {
-        if(_sent)
-        {
-            (_callback.get()->*_sent)(result);
-        }
-    }
-
-    virtual bool hasSentCallback() const
-    {
-        return _sent != 0;
-    }
-    
-private:
-
-    TPtr _callback;
-    Callback _completed;
-    Callback _sent;
-};
-
-}
-
-namespace Ice
-{
-
-#ifndef ICE_CPP11_MAPPING
-typedef IceUtil::Handle< ::IceInternal::GenericCallbackBase> CallbackPtr;
-
-template<class T> CallbackPtr
-newCallback(const IceUtil::Handle<T>& instance,
-            void (T::*cb)(const AsyncResultPtr&),
-            void (T::*sentcb)(const AsyncResultPtr&) = 0)
-{
-    return new ::IceInternal::AsyncCallback<T>(instance, cb, sentcb);
-}
-
-template<class T> CallbackPtr
-newCallback(T* instance,
-            void (T::*cb)(const AsyncResultPtr&),
-            void (T::*sentcb)(const AsyncResultPtr&) = 0)
-{
-    return new ::IceInternal::AsyncCallback<T>(instance, cb, sentcb);
-}
-
-#endif
-}
-
-//
-// Operation callbacks are specified in Proxy.h
-//
 
 #endif

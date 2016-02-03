@@ -22,6 +22,12 @@ using namespace IceInternal;
 using namespace Ice::Instrumentation;
 using namespace IceMX;
 
+#ifdef ICE_CPP11_MAPPING
+#  define ICE_OBJECT_PRX Ice::ObjectPrx
+#else
+#  define ICE_OBJECT_PRX IceProxy::Ice::Object
+#endif
+
 namespace
 {
 
@@ -344,8 +350,8 @@ public:
 
             add("operation", &InvocationHelper::getOperation);
             add("identity", &InvocationHelper::getIdentity);
-            add("facet", &InvocationHelper::getProxy, &IceProxy::Ice::Object::ice_getFacet);
-            add("encoding", &InvocationHelper::getProxy, &IceProxy::Ice::Object::ice_getEncodingVersion);
+            add("facet", &InvocationHelper::getProxy, &ICE_OBJECT_PRX::ice_getFacet);
+            add("encoding", &InvocationHelper::getProxy, &ICE_OBJECT_PRX::ice_getEncodingVersion);
             add("mode", &InvocationHelper::getMode);
             add("proxy", &InvocationHelper::getProxy);
 
@@ -562,7 +568,7 @@ public:
         }
         return _endpointInfo;
     }
-    
+
 private:
 
     const ConnectionInfoPtr& _connectionInfo;

@@ -42,10 +42,25 @@ class ICE_API IncomingAsync : public IncomingBase,
     public virtual Ice::AMDCallback
 #endif
 {
+#ifdef ICE_CPP11_MAPPING
 public:
-    
 
-    
+    //
+    // The constructor is public but it shouldn't be used directly, use create() instead.
+    //
+    IncomingAsync(Incoming&);
+
+    static IncomingAsyncPtr create(Incoming&); // Adopts the argument. It must not be used afterwards.
+
+#else
+
+protected:
+
+    IncomingAsync(Incoming&);
+#endif
+
+public:
+
     void __deactivate(Incoming&);
 
     virtual void ice_exception(const ::std::exception&);
@@ -57,15 +72,6 @@ public:
 
     bool __validateResponse(bool);
 
-#ifdef ICE_CPP11_MAPPING
-    static IncomingAsyncPtr create(Incoming&); // Adopts the argument. It must not be used afterwards.
-
-protected:
-    
-    IncomingAsync(Incoming&); // Adopts the argument. It must not be used afterwards.
-#else
-    IncomingAsync(Incoming&); // Adopts the argument. It must not be used afterwards.
-#endif
 private:
 
     //
@@ -93,7 +99,7 @@ namespace Ice
 class ICE_API AMD_Object_ice_invoke : public virtual Ice::AMDCallback
 {
 public:
-    
+
     virtual void ice_response(bool, const std::vector<Ice::Byte>&) = 0;
     virtual void ice_response(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&) = 0;
 };
@@ -109,9 +115,9 @@ namespace Ice
 class ICE_API AMD_Object_ice_invoke : public ::Ice::AMD_Object_ice_invoke, public IceInternal::IncomingAsync
 {
 public:
-    
+
     AMD_Object_ice_invoke(IceInternal::Incoming&);
-    
+
     virtual void ice_response(bool, const std::vector< ::Ice::Byte>&);
     virtual void ice_response(bool, const std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&);
 };

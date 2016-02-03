@@ -66,12 +66,14 @@ public:
     virtual Ice::ConnectionIPtr waitForConnection();
 
     void invokeRequest(OutgoingBase*, int);
-    AsyncStatus invokeAsyncRequest(OutgoingAsyncBase*, int);
+    AsyncStatus invokeAsyncRequest(OutgoingAsyncBase*, int, bool);
 
     bool sent(OutgoingBase*);
     bool sentAsync(OutgoingAsyncBase*);
 
     void invokeAll(Ice::OutputStream*, Ice::Int, Ice::Int);
+
+    using Ice::EnableSharedFromThis<CollocatedRequestHandler>::shared_from_this;
 
 private:
 
