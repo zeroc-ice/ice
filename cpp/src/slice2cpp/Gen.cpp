@@ -2814,7 +2814,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             if(!p->isAbstract())
             {
                 string initName = p->flattenedScope() + p->name() + "_init";
-                C << nl << "const ::IceInternal::DefaultValueFactoryInit<" << scoped << "> "
+                C << nl << "const ::IceInternal::DefaultValueFactoryInit< " << scoped << "> "
                   << initName << "(\"" << p->scoped() << "\");";
             }
             if(p->compactId() >= 0)
