@@ -71,7 +71,7 @@ public class AllTests
         {
             if(ok)
             {
-                Ice.InputStream inS = Ice.Util.createInputStream(_communicator, outEncaps);
+                Ice.InputStream inS = new Ice.InputStream(_communicator, outEncaps);
                 inS.startEncapsulation();
                 String s = inS.readString();
                 test(s.equals(testString));
@@ -119,7 +119,7 @@ public class AllTests
             }
             else
             {
-                Ice.InputStream inS = Ice.Util.createInputStream(_communicator, outEncaps);
+                Ice.InputStream inS = new Ice.InputStream(_communicator, outEncaps);
                 inS.startEncapsulation();
                 try
                 {
@@ -167,7 +167,7 @@ public class AllTests
         out.flush();
 
         {
-            Ice.OutputStream outS = Ice.Util.createOutputStream(communicator);
+            Ice.OutputStream outS = new Ice.OutputStream(communicator);
             outS.startEncapsulation();
             outS.writeString(testString);
             outS.endEncapsulation();
