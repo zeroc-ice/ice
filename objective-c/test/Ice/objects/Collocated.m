@@ -17,35 +17,35 @@ ICEValueFactory factory = ^ICEObject* (NSString* type)
 {
     if([type isEqualToString:@"::Test::B"])
     {
-        return  [[TestObjectsBI alloc] init];
+        return  ICE_AUTORELEASE([[TestObjectsBI alloc] init]);
     }
     else if([type isEqualToString:@"::Test::C"])
     {
-        return [[TestObjectsCI alloc] init];
+        return ICE_AUTORELEASE([[TestObjectsCI alloc] init]);
     }
     else if([type isEqualToString:@"::Test::D"])
     {
-        return [[TestObjectsDI alloc] init];
+        return ICE_AUTORELEASE([[TestObjectsDI alloc] init]);
     }
     else if([type isEqualToString:@"::Test::E"])
     {
-        return [[TestObjectsEI alloc] init];
+        return ICE_AUTORELEASE([[TestObjectsEI alloc] init]);
     }
     else if([type isEqualToString:@"::Test::F"])
     {
-        return [[TestObjectsFI alloc] init];
+        return ICE_AUTORELEASE([[TestObjectsFI alloc] init]);
     }
     else if([type isEqualToString:@"::Test::I"])
     {
-        return [[TestObjectsI alloc] init];
+        return ICE_AUTORELEASE([[TestObjectsI alloc] init]);
     }
     else if([type isEqualToString:@"::Test::J"])
     {
-        return [[TestObjectsJI alloc] init];
+        return ICE_AUTORELEASE([[TestObjectsJI alloc] init]);
     }
     else if([type isEqualToString:@"::Test::H"])
     {
-        return [[TestObjectsHI alloc] init];
+        return ICE_AUTORELEASE([[TestObjectsHI alloc] init]);
     }
     else
     {
@@ -73,14 +73,15 @@ ICEValueFactory factory = ^ICEObject* (NSString* type)
 static int
 run(id<ICECommunicator> communicator)
 {
-    [communicator addValueFactory:factory sliceId:@"::Test::B"];
-    [communicator addValueFactory:factory sliceId:@"::Test::C"];
-    [communicator addValueFactory:factory sliceId:@"::Test::D"];
-    [communicator addValueFactory:factory sliceId:@"::Test::E"];
-    [communicator addValueFactory:factory sliceId:@"::Test::F"];
-    [communicator addValueFactory:factory sliceId:@"::Test::I"];
-    [communicator addValueFactory:factory sliceId:@"::Test::J"];
-    [communicator addValueFactory:factory sliceId:@"::Test::H"];
+    id<ICEValueFactoryManager> manager = [communicator getValueFactoryManager];
+    [manager add:factory sliceId:@"::Test::B"];
+    [manager add:factory sliceId:@"::Test::C"];
+    [manager add:factory sliceId:@"::Test::D"];
+    [manager add:factory sliceId:@"::Test::E"];
+    [manager add:factory sliceId:@"::Test::F"];
+    [manager add:factory sliceId:@"::Test::I"];
+    [manager add:factory sliceId:@"::Test::J"];
+    [manager add:factory sliceId:@"::Test::H"];
 
     id<ICEObjectFactory> objectFactory = ICE_AUTORELEASE([[ClientMyObjectFactory alloc] init]);
     [communicator addObjectFactory:objectFactory sliceId:@"TestOF" ];

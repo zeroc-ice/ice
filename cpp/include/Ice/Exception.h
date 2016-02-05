@@ -47,7 +47,7 @@ public:
     virtual ~LocalException() ICE_NOEXCEPT;
 
     virtual std::string ice_id() const = 0;
-#ifndef ICE_CPP11_MAPPING    
+#ifndef ICE_CPP11_MAPPING
     virtual LocalException* ice_clone() const = 0;
 #endif
     virtual void ice_throw() const = 0;
@@ -57,7 +57,6 @@ class ICE_API UserException : public IceUtil::Exception
 {
 public:
 
-    
     virtual std::string ice_id() const = 0;
 #ifndef ICE_CPP11_MAPPING
     virtual UserException* ice_clone() const = 0;

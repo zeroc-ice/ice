@@ -633,6 +633,11 @@ public:
         return i - b.begin();
     }
 
+    void pos(size_type p)
+    {
+        i = b.begin() + p;
+    }
+
     InputStream(IceInternal::Instance*, const EncodingVersion&);
     InputStream(IceInternal::Instance*, const EncodingVersion&, IceInternal::Buffer&, bool = false);
 

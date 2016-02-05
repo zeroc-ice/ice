@@ -23,7 +23,7 @@
 
 #include <Ice/Locator.h>
 #include <Ice/ServantLocator.h>
-#include <Ice/Stream.h>
+#include <Ice/OutputStream.h>
 
 namespace
 {
@@ -88,12 +88,11 @@ private:
 };
 typedef IceUtil::Handle<Cookie> CookiePtr;
 
-class ExceptionWriter : public Ice::UserExceptionWriter
+class ExceptionWriter : public Ice::UserException
 {
 public:
 
-    ExceptionWriter(const Ice::CommunicatorPtr& communicator, ICEUserException* ex) :
-        Ice::UserExceptionWriter(communicator), _ex(ex)
+    ExceptionWriter(ICEUserException* ex) : _ex(ex)
     {
     }
 
@@ -103,15 +102,21 @@ public:
     }
 
     void
-    write(const Ice::OutputStreamPtr& s) const
+    __write(Ice::OutputStream* s) const
     {
-        ICEOutputStream* os = [ICEOutputStream localObjectWithCxxObjectNoAutoRelease:s.get()];
+        ICEOutputStream* os = [[ICEOutputStream alloc] initWithCxxStream:s];
         [_ex write__:os];
         [os release];
     }
 
+    void
+    __read(Ice::InputStream*)
+    {
+        assert(false);
+    }
+
     bool
-    usesClasses() const
+    __usesClasses() const
     {
         return [_ex usesClasses__];
     }
@@ -133,6 +138,11 @@ public:
     {
         throw *this;
     }
+
+protected:
+
+    virtual void __writeImpl(Ice::OutputStream*) const {}
+    virtual void __readImpl(Ice::InputStream*) {}
 
 private:
 
@@ -184,7 +194,7 @@ public:
         {
             if([ex isKindOfClass:[ICEUserException class]])
             {
-                throw ExceptionWriter(current.adapter->getCommunicator(), (ICEUserException*)ex);
+                throw ExceptionWriter((ICEUserException*)ex);
             }
             rethrowCxxException(ex, true); // True = release the exception.
         }
@@ -215,7 +225,7 @@ public:
         {
             if([ex isKindOfClass:[ICEUserException class]])
             {
-                throw ExceptionWriter(current.adapter->getCommunicator(), (ICEUserException*)ex);
+                throw ExceptionWriter((ICEUserException*)ex);
             }
             rethrowCxxException(ex, true); // True = release the exception.
         }

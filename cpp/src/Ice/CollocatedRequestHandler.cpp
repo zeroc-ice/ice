@@ -335,8 +335,7 @@ CollocatedRequestHandler::sendResponse(Int requestId, OutputStream* os, Byte, bo
         }
 
         InputStream is(os->instance(), os->getEncoding(), *os, true); // Adopting the OutputStream's buffer.
-
-        is.i = is.b.begin() + sizeof(replyHdr) + 4;
+        is.pos(sizeof(replyHdr) + 4);
 
         if(_traceLevels->protocol >= 1)
         {
@@ -469,11 +468,11 @@ CollocatedRequestHandler::invokeAll(OutputStream* os, Int requestId, Int batchRe
 
     if(batchRequestNum > 0)
     {
-        is.i = is.b.begin() + sizeof(requestBatchHdr);
+        is.pos(sizeof(requestBatchHdr));
     }
     else
     {
-        is.i = is.b.begin() + sizeof(requestHdr);
+        is.pos(sizeof(requestHdr));
     }
 
     int invokeNum = batchRequestNum > 0 ? batchRequestNum : 1;

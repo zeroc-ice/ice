@@ -79,7 +79,7 @@ testExceptions(id<TestServantLocatorTestIntfPrx> obj)
     }
     @catch(ICEUnknownUserException* ex)
     {
-        test([ex.unknown isEqual:@"Test::TestIntfUserException"]);
+        test([ex.unknown isEqual:@"::Test::TestIntfUserException"]);
     }
     @catch(ICEOperationNotExistException*)
     {
@@ -197,7 +197,7 @@ servantLocatorAllTests(id<ICECommunicator> communicator)
     }
     @catch(ICEUnknownUserException* ex)
     {
-        test([ex.unknown isEqual:@"Test::TestIntfUserException"]);
+        test([ex.unknown isEqual:@"::Test::TestIntfUserException"]);
     }
     @catch(id)
     {
@@ -212,7 +212,7 @@ servantLocatorAllTests(id<ICECommunicator> communicator)
     }
     @catch(ICEUnknownUserException* ex)
     {
-        test([ex.unknown isEqual:@"Test::TestIntfUserException"]);
+        test([ex.unknown isEqual:@"::Test::TestIntfUserException"]);
     }
     @catch(id)
     {

@@ -179,12 +179,6 @@ Ice::InputStream::initialize(const EncodingVersion& encoding)
     _sliceObjects = true;
     _startSeq = -1;
     _minSeqSize = 0;
-
-    //
-    // Initialize the encoding members of our pre-allocated encapsulation, in case
-    // this stream is used without an explicit encapsulation.
-    //
-    _preAllocatedEncaps.encoding = encoding;
 }
 
 void
@@ -267,20 +261,15 @@ Ice::InputStream::setClosure(void* p)
 void
 Ice::InputStream::swap(InputStream& other)
 {
-    assert(_instance == other._instance);
-
     swapBuffer(other);
 
+    std::swap(_instance, other._instance);
     std::swap(_encoding, other._encoding);
-
 #ifndef ICE_CPP11_MAPPING
     std::swap(_collectObjects, other._collectObjects);
 #endif
-
     std::swap(_traceSlicing, other._traceSlicing);
-
     std::swap(_closure, other._closure);
-
     std::swap(_sliceObjects, other._sliceObjects);
 
     //
@@ -1278,6 +1267,10 @@ Ice::InputStream::skipOpt(OptionalFormat type)
     {
         Int sz;
         read(sz);
+        if(sz < 0)
+        {
+            throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
+        }
         skip(sz);
         break;
     }
@@ -1321,7 +1314,6 @@ Ice::InputStream::skipOpts()
 void
 Ice::InputStream::throwUnmarshalOutOfBoundsException(const char* file, int line)
 {
-    assert(false);
     throw UnmarshalOutOfBoundsException(file, line);
 }
 
@@ -1487,6 +1479,7 @@ Ice::InputStream::initEncaps()
     if(!_currentEncaps) // Lazy initialization.
     {
         _currentEncaps = &_preAllocatedEncaps;
+        _currentEncaps->encoding = _encoding;
         _currentEncaps->sz = static_cast<Ice::Int>(b.size());
     }
 

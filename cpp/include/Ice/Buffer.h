@@ -81,7 +81,7 @@ public:
         }
 
         void swap(Container&);
-        
+
         void clear();
 
         void resize(size_type n) // Inlined for performance reasons.
@@ -98,7 +98,7 @@ public:
             }
             _size = n;
         }
-        
+
         void reset()
         {
             assert(!_buf || _capacity > 0);
@@ -141,7 +141,7 @@ public:
             assert(n < _size);
             return _buf[n];
         }
-        
+
     private:
 
         Container(const Container&);

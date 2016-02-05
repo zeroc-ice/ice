@@ -21,14 +21,14 @@
 namespace IceObjC
 {
 
-class ObjectWrapper : virtual public Ice::Object
+class ServantWrapper : virtual public Ice::Object
 {
 public:
 
-    virtual ~ObjectWrapper() { }
-    virtual ICEObject* getObject() = 0;
+    virtual ~ServantWrapper() { }
+    virtual ICEObject* getServant() = 0;
 };
-typedef IceUtil::Handle<ObjectWrapper> ObjectWrapperPtr;
+typedef IceUtil::Handle<ServantWrapper> ServantWrapperPtr;
 
 };
 
@@ -36,9 +36,9 @@ typedef IceUtil::Handle<ObjectWrapper> ObjectWrapperPtr;
 -(Ice::Object*) object__;
 @end
 
-@interface ICEObjectWrapper : ICEObject
+@interface ICEServantWrapper : ICEObject
 {
     Ice::Object* object__;
 }
-+(id) objectWrapperWithCxxObject:(Ice::Object*)arg;
++(id) servantWrapperWithCxxObject:(Ice::Object*)arg;
 @end

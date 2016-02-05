@@ -20,119 +20,18 @@
 #import <ProxyI.h>
 #import <LocalObjectI.h>
 #import <ObjectI.h>
+#import <ValueFactoryI.h>
 
 #include <Ice/Router.h>
 #include <Ice/Locator.h>
-#include <Ice/ObjectFactory.h>
-#include <Ice/ValueFactory.h>
 
 #import <objc/Ice/Router.h>
 #import <objc/Ice/Locator.h>
-#import <objc/Ice/ObjectFactory.h>
-#import <objc/Ice/ValueFactory.h>
+#import <objc/Ice/Initialize.h>
 
 #import <objc/runtime.h>
 
 #define COMMUNICATOR dynamic_cast<Ice::Communicator*>(static_cast<IceUtil::Shared*>(cxxObject_))
-
-namespace IceObjC
-{
-
-class UnknownSlicedValueFactoryI : public Ice::ValueFactory
-{
-public:
-
-    virtual Ice::ObjectPtr
-    create(const std::string&)
-    {
-        ICEUnknownSlicedObject* obj = [[ICEUnknownSlicedObject alloc] init];
-        Ice::ObjectPtr o = [ICEInputStream createObjectReader:obj];
-        [obj release];
-        return o;
-    }
-};
-
-class ValueFactoryI : public Ice::ValueFactory
-{
-public:
-
-    // We must explicitely CFRetain/CFRelease so that the garbage
-    // collector does not trash the dictionaries.
-    ValueFactoryI(NSDictionary* factories, NSDictionary* prefixTable) :
-        _factories(factories), _prefixTable(prefixTable)
-    {
-        CFRetain(_factories);
-        CFRetain(_prefixTable);
-    }
-
-    ~ValueFactoryI()
-    {
-        CFRelease(_factories);
-        CFRelease(_prefixTable);
-    }
-
-    virtual Ice::ObjectPtr
-    create(const std::string& type)
-    {
-        NSString* sliceId = [[NSString alloc] initWithUTF8String:type.c_str()];
-        @try
-        {
-            ICEValueFactory factory = nil;
-            @synchronized(_factories)
-            {
-                factory = [_factories objectForKey:sliceId];
-                if(factory == nil)
-                {
-                    factory = [_factories objectForKey:@""];
-                }
-            }
-
-            ICEObject* obj = nil;
-            if(factory != nil)
-            {
-                obj = [factory(sliceId) retain];
-            }
-
-            if(obj == nil)
-            {
-                std::string tId = toObjCSliceId(type, _prefixTable);
-                Class c = objc_lookUpClass(tId.c_str());
-                if(c == nil)
-                {
-                    return 0; // No value factory.
-                }
-                if([c isSubclassOfClass:[ICEObject class]])
-                {
-                    obj = (ICEObject*)[[c alloc] init];
-                }
-            }
-
-            Ice::ObjectPtr o;
-            if(obj != nil)
-            {
-                o = [ICEInputStream createObjectReader:obj];
-                [obj release];
-            }
-            return o;
-        }
-        @catch(id ex)
-        {
-            rethrowCxxException(ex);
-        }
-        @finally
-        {
-            [sliceId release];
-        }
-        return nil; // Keep the compiler happy.
-    }
-
-private:
-
-    NSDictionary* _factories;
-    NSDictionary* _prefixTable;
-};
-
-}
 
 @interface ICEInternalPrefixTable(ICEInternal)
 +(NSDictionary*) newPrefixTable;
@@ -161,27 +60,26 @@ private:
 @end
 
 @implementation ICECommunicator
--(void)setup:(NSDictionary*)prefixTable
+-(void)setup:(ICEInitializationData*)initData
 {
-    valueFactories_ = [[NSMutableDictionary alloc] init];
-    objectFactories_ = [[NSMutableDictionary alloc] init];
-    if(prefixTable)
+    if(initData.prefixTable__)
     {
-        prefixTable_ = [prefixTable retain];
+        prefixTable_ = [initData.prefixTable__ retain];
     }
     else
     {
         prefixTable_ = [ICEInternalPrefixTable newPrefixTable];
     }
     adminFacets_ = [[NSMutableDictionary alloc] init];
-    COMMUNICATOR->addValueFactory(new IceObjC::UnknownSlicedValueFactoryI, "::Ice::Object");
-    COMMUNICATOR->addValueFactory(new IceObjC::ValueFactoryI(valueFactories_, prefixTable_), "");
+
+    valueFactoryManager_ = [[ICEValueFactoryManager alloc] init:COMMUNICATOR prefixTable:prefixTable_];
+    objectFactories_ = [[NSMutableDictionary alloc] init];
 }
 -(void) dealloc
 {
-    [prefixTable_ release];
-    [valueFactories_ release];
+    [valueFactoryManager_ release];
     [objectFactories_ release];
+    [prefixTable_ release];
     [adminFacets_ release];
     [super dealloc];
 }
@@ -421,44 +319,32 @@ private:
     @throw nsex;
     return nil; // Keep the compiler happy.
 }
+
 -(void) addObjectFactory:(id<ICEObjectFactory>)factory sliceId:(NSString*)sliceId
 {
-    @synchronized(valueFactories_)
+    @synchronized(objectFactories_)
     {
         [objectFactories_ setObject:factory forKey:sliceId];
-
-        ICEValueFactory valueFactoryWrapper = ^(NSString* s)
-        {
-            return [factory create:s];
-        };
-
-        [valueFactories_ setObject:ICE_AUTORELEASE([valueFactoryWrapper copy]) forKey:sliceId];
     }
+    ICEValueFactory valueFactoryWrapper = ^(NSString* s)
+    {
+        return [factory create:s];
+    };
+    [valueFactoryManager_ add:valueFactoryWrapper sliceId:sliceId];
 }
+
 -(id<ICEObjectFactory>) findObjectFactory:(NSString*)sliceId
 {
-    @synchronized(valueFactories_)
+    @synchronized(objectFactories_)
     {
         return [objectFactories_ objectForKey:sliceId];
     }
     return nil; // Keep the compiler happy.
 }
 
--(void) addValueFactory:(ICEValueFactory)factory sliceId:(NSString*)sliceId
+-(id<ICEValueFactoryManager>) getValueFactoryManager
 {
-    @synchronized(valueFactories_)
-    {
-        [valueFactories_ setObject:ICE_AUTORELEASE([factory copy]) forKey:sliceId];
-    }
-}
-
--(ICEValueFactory) findValueFactory:(NSString*)sliceId
-{
-    @synchronized(valueFactories_)
-    {
-        return [valueFactories_ objectForKey:sliceId];
-    }
-    return nil; // Keep the compiler happy.
+    return valueFactoryManager_;
 }
 
 -(id<ICEImplicitContext>) getImplicitContext

@@ -24,7 +24,7 @@
 -(Ice::Properties*)properties;
 @end
 
-@interface ICENativePropertiesAdmin : ICEObjectWrapper<ICENativePropertiesAdmin>
+@interface ICENativePropertiesAdmin : ICEServantWrapper<ICENativePropertiesAdmin>
 {
     IceUtil::Mutex mutex_;
     std::vector<Ice::PropertiesAdminUpdateCallbackPtr> callbacks_;

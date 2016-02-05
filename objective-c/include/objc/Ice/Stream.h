@@ -17,7 +17,6 @@
 //
 @class ICEObject;
 @protocol ICEObjectPrx;
-@protocol ICECommunicator;
 @protocol ICESlicedData;
 @class ICEUserException;
 @class ICEEncodingVersion;
@@ -54,9 +53,7 @@ typedef struct
 
 ICE_API @protocol ICEInputStream <NSObject>
 
--(id<ICECommunicator>) communicator;
-
--(void) sliceObjects:(BOOL)b;
+-(void) setSliceObjects:(BOOL)b;
 
 -(BOOL) readBool;
 -(NSMutableData*) newBoolSeq;
@@ -145,8 +142,6 @@ ICE_API @protocol ICEInputStream <NSObject>
 @end
 
 ICE_API @protocol ICEOutputStream <NSObject>
-
--(id<ICECommunicator>) communicator;
 
 -(void) writeBool:(BOOL)v;
 -(void) writeBoolSeq:(NSData*)v;

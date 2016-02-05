@@ -74,6 +74,7 @@ OBJCXX_OBJS	= BatchRequestInterceptor.o \
 		  Stream.o \
 		  SlicedData.o \
 		  Util.o \
+		  ValueFactoryI.o \
 		  VersionI.o
 
 OBJS		:= $(OBJC_OBJS) $(OBJCXX_OBJS)

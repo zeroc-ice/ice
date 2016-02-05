@@ -45,10 +45,12 @@ class BeginInvokeAsyncCallback : public IceUtil::Shared
 {
 public:
 
-BeginInvokeAsyncCallback(void (^completed)(id<ICEInputStream>, BOOL),
+BeginInvokeAsyncCallback(const Ice::CommunicatorPtr& communicator,
+                         void (^completed)(id<ICEInputStream>, BOOL),
                          void (^exception)(ICEException*),
                          void (^sent)(BOOL),
                          BOOL returnsData) :
+    _communicator(communicator),
     _completed(Block_copy(completed)),
     _exception(Block_copy(exception)),
     _sent(Block_copy(sent)),
@@ -63,41 +65,36 @@ virtual ~BeginInvokeAsyncCallback()
     Block_release(_sent);
 }
 
-void completed(const Ice::AsyncResultPtr& result)
+void response(bool ok, const std::pair<const Ice::Byte*, const Ice::Byte*>& outParams)
 {
-    BOOL ok = YES; // Keep the compiler happy.
     id<ICEInputStream> is = nil;
     NSException* nsex = nil;
-    Ice::ObjectPrx proxy = result->getProxy();
     try
     {
-        std::vector<Ice::Byte> outParams;
-        ok = proxy->end_ice_invoke(outParams, result);
         if(_returnsData)
         {
-            Ice::InputStreamPtr s = Ice::createInputStream(proxy->ice_getCommunicator(), outParams);
-            is = [ICEInputStream localObjectWithCxxObjectNoAutoRelease:s.get()];
+            is = [[ICEInputStream alloc] initWithCxxCommunicator:_communicator.get() data:outParams];
         }
-        else if(!outParams.empty())
+        else if(outParams.first != outParams.second)
         {
             if(ok)
             {
-                if(outParams.size() != 6)
+                if((outParams.second - outParams.first) != 6)
                 {
                     throw Ice::EncapsulationException(__FILE__, __LINE__);
                 }
             }
             else
             {
-                Ice::InputStreamPtr s = Ice::createInputStream(proxy->ice_getCommunicator(), outParams);
+                Ice::InputStream s(_communicator.get(), outParams);
                 try
                 {
-                    s->startEncapsulation();
-                    s->throwException();
+                    s.startEncapsulation();
+                    s.throwException();
                 }
                 catch(const Ice::UserException& ex)
                 {
-                    s->endEncapsulation();
+                    s.endEncapsulation();
                     throw Ice::UnknownUserException(__FILE__, __LINE__, ex.ice_id());
                 }
             }
@@ -152,7 +149,38 @@ void completed(const Ice::AsyncResultPtr& result)
     }
 }
 
-void sent(const Ice::AsyncResultPtr& result)
+void exception(const Ice::Exception& ex)
+{
+    NSException* exception = nil;
+    @autoreleasepool
+    {
+        @try
+        {
+            @throw toObjCException(ex);
+        }
+        @catch(ICEException* ex)
+        {
+            if(_exception)
+            {
+                @try
+                {
+                    _exception(ex);
+                }
+                @catch(id e)
+                {
+                    exception = [e retain];
+                }
+            }
+            return;
+        }
+    }
+    if(exception != nil)
+    {
+        rethrowCxxException(exception, true); // True = release the exception.
+    }
+}
+
+void sent(bool sentSynchronously)
 {
     if(!_sent)
     {
@@ -164,7 +192,7 @@ void sent(const Ice::AsyncResultPtr& result)
     {
         @try
         {
-            _sent(result->sentSynchronously());
+            _sent(sentSynchronously);
         }
         @catch(id e)
         {
@@ -180,6 +208,7 @@ void sent(const Ice::AsyncResultPtr& result)
 
 private:
 
+const Ice::CommunicatorPtr _communicator;
 void (^_completed)(id<ICEInputStream>, BOOL);
 void (^_exception)(ICEException*);
 void (^_sent)(BOOL);
@@ -444,8 +473,7 @@ BOOL _returnsData;
     NSException* nsex = nil;
     try
     {
-        Ice::OutputStreamPtr os = Ice::createOutputStream(OBJECTPRX->ice_getCommunicator());
-        return [ICEOutputStream localObjectWithCxxObjectNoAutoRelease:os.get()];
+        return [[ICEOutputStream alloc] initWithCxxCommunicator:OBJECTPRX->ice_getCommunicator().get()];
     }
     catch(const std::exception& ex)
     {
@@ -507,8 +535,6 @@ BOOL _returnsData;
         }
     }
 
-    BOOL ok = YES; // Keep the compiler happy.
-    ICEInputStream<ICEInputStream>* is = nil;
     NSException* nsex = nil;
     try
     {
@@ -521,6 +547,7 @@ BOOL _returnsData;
             os = nil;
         }
 
+        BOOL ok = YES; // Keep the compiler happy.
         std::vector<Ice::Byte> outParams;
         if(context != nil)
         {
@@ -535,8 +562,22 @@ BOOL _returnsData;
 
         if(unmarshal)
         {
-            Ice::InputStreamPtr s = Ice::createInputStream(OBJECTPRX->ice_getCommunicator(), outParams);
-            is = [ICEInputStream localObjectWithCxxObjectNoAutoRelease:s.get()];
+            if(outParams.empty())
+            {
+                throw Ice::EncapsulationException(__FILE__, __LINE__);
+            }
+            std::pair<const Ice::Byte*, const Ice::Byte*> p(&outParams[0], &outParams[0] + outParams.size());
+            ICEInputStream<ICEInputStream>* is;
+            is = [[ICEInputStream alloc] initWithCxxCommunicator:OBJECTPRX->ice_getCommunicator().get() data:p];
+            @try
+            {
+                unmarshal(is, ok);
+            }
+            @catch(id e)
+            {
+                nsex = [e retain];
+            }
+            [is release];
         }
         else if(!outParams.empty())
         {
@@ -549,15 +590,15 @@ BOOL _returnsData;
             }
             else
             {
-                Ice::InputStreamPtr s = Ice::createInputStream(OBJECTPRX->ice_getCommunicator(), outParams);
+                Ice::InputStream s(OBJECTPRX->ice_getCommunicator(), outParams);
                 try
                 {
-                    s->startEncapsulation();
-                    s->throwException();
+                    s.startEncapsulation();
+                    s.throwException();
                 }
                 catch(const Ice::UserException& ex)
                 {
-                    s->endEncapsulation();
+                    s.endEncapsulation();
                     throw Ice::UnknownUserException(__FILE__, __LINE__, ex.ice_id());
                 }
             }
@@ -570,11 +611,6 @@ BOOL _returnsData;
             [os release];
             os = nil;
         }
-        if(is != nil)
-        {
-            [is release];
-            is = nil;
-        }
         nsex = toObjCException(ex);
     }
     if(nsex != nil)
@@ -583,17 +619,6 @@ BOOL _returnsData;
     }
 
     NSAssert(os == nil, @"output stream not cleared");
-    if(is)
-    {
-        @try
-        {
-            unmarshal(is, ok);
-        }
-        @finally
-        {
-            [is release];
-        }
-    }
 }
 
 -(id<ICEAsyncResult>) begin_invoke__:(NSString*)operation
@@ -742,9 +767,12 @@ BOOL _returnsData;
             os = nil;
         }
 
-        Ice::CallbackPtr cb = Ice::newCallback(new BeginInvokeAsyncCallback(completed, exception, sent, returnsData),
-                                               &BeginInvokeAsyncCallback::completed,
-                                               &BeginInvokeAsyncCallback::sent);
+        Ice::Callback_Object_ice_invokePtr cb = Ice::newCallback_Object_ice_invoke(
+            new BeginInvokeAsyncCallback(OBJECTPRX->ice_getCommunicator(), completed, exception, sent, returnsData),
+            &BeginInvokeAsyncCallback::response,
+            &BeginInvokeAsyncCallback::exception,
+            &BeginInvokeAsyncCallback::sent);
+
         Ice::AsyncResultPtr r;
         if(context != nil)
         {
@@ -843,34 +871,33 @@ BOOL _returnsData;
     ICEInputStream* is = nil;
     try
     {
-        std::vector<Ice::Byte> outParams;
-        ok = OBJECTPRX->end_ice_invoke(outParams, [result asyncResult__]);
+        std::pair<const Ice::Byte*, const Ice::Byte*> outParams;
+        ok = OBJECTPRX->___end_ice_invoke(outParams, [result asyncResult__]);
 
         if(unmarshal)
         {
-            Ice::InputStreamPtr s = Ice::createInputStream(OBJECTPRX->ice_getCommunicator(), outParams);
-            is = [ICEInputStream localObjectWithCxxObjectNoAutoRelease:s.get()];
+            is = [[ICEInputStream alloc] initWithCxxCommunicator:OBJECTPRX->ice_getCommunicator().get() data:outParams];
         }
-        else if(!outParams.empty())
+        else if(outParams.first != outParams.second)
         {
             if(ok)
             {
-                if(outParams.size() != 6)
+                if((outParams.second - outParams.first) != 6)
                 {
                     throw Ice::EncapsulationException(__FILE__, __LINE__);
                 }
             }
             else
             {
-                Ice::InputStreamPtr s = Ice::createInputStream(OBJECTPRX->ice_getCommunicator(), outParams);
+                Ice::InputStream s(OBJECTPRX->ice_getCommunicator(), outParams);
                 try
                 {
-                    s->startEncapsulation();
-                    s->throwException();
+                    s.startEncapsulation();
+                    s.throwException();
                 }
                 catch(const Ice::UserException& ex)
                 {
-                    s->endEncapsulation();
+                    s.endEncapsulation();
                     throw Ice::UnknownUserException(__FILE__, __LINE__, ex.ice_id());
                 }
             }
@@ -1294,15 +1321,7 @@ BOOL _returnsData;
           inEncaps:(NSData*)inEncaps
          outEncaps:(NSMutableData**)outEncaps
 {
-    __block BOOL ret__;
-    cppCall(^ {
-            std::pair<const Ice::Byte*, const Ice::Byte*> inP((ICEByte*)[inEncaps bytes],
-                                                              (ICEByte*)[inEncaps bytes] + [inEncaps length]);
-            std::vector<Ice::Byte> outP;
-            ret__ = OBJECTPRX->ice_invoke(fromNSString(operation), (Ice::OperationMode)mode, inP, outP);
-            *outEncaps = [NSMutableData dataWithBytes:&outP[0] length:outP.size()];
-        });
-    return ret__;
+    return [self end_ice_invoke:outEncaps result:[self begin_ice_invoke:operation mode:mode inEncaps:inEncaps]];
 }
 
 -(BOOL) ice_invoke:(NSString*)operation
@@ -1311,16 +1330,10 @@ BOOL _returnsData;
          outEncaps:(NSMutableData**)outEncaps
            context:(ICEContext*)context
 {
-    __block BOOL ret__;
-    cppCall(^(const Ice::Context& ctx) {
-            std::pair<const Ice::Byte*, const Ice::Byte*> inP((ICEByte*)[inEncaps bytes],
-                                                              (ICEByte*)[inEncaps bytes] + [inEncaps length]);
-            std::vector<Ice::Byte> outP;
-            ret__ = OBJECTPRX->ice_invoke(fromNSString(operation), (Ice::OperationMode)mode, inP, outP, ctx);
-            *outEncaps = [NSMutableData dataWithBytes:&outP[0] length:outP.size()];
-        }, context);
-    return ret__;
+    return [self end_ice_invoke:outEncaps
+        result:[self begin_ice_invoke:operation mode:mode inEncaps:inEncaps context:context]];
 }
+
 -(id<ICEAsyncResult>) begin_ice_invoke:(NSString*)operation mode:(ICEOperationMode)mode inEncaps:(NSData*)inEncaps
 {
     return beginCppCall(^(Ice::AsyncResultPtr& result)
@@ -1384,10 +1397,10 @@ BOOL _returnsData;
                         ^(const Ice::AsyncResultPtr& result) {
                             std::pair<const ::Ice::Byte*, const ::Ice::Byte*> outP;
                             BOOL ret__ = OBJECTPRX->___end_ice_invoke(outP, result);
-                            NSMutableData* outEncaps =
-                                [NSMutableData dataWithBytes:outP.first length:(outP.second - outP.first)];
                             if(response)
                             {
+                                NSMutableData* outEncaps =
+                                    [NSMutableData dataWithBytes:outP.first length:(outP.second - outP.first)];
                                 response(ret__, outEncaps);
                             }
                         },
@@ -1415,10 +1428,10 @@ BOOL _returnsData;
                         ^(const Ice::AsyncResultPtr& result) {
                             std::pair<const ::Ice::Byte*, const ::Ice::Byte*> outP;
                             BOOL ret__ = OBJECTPRX->___end_ice_invoke(outP, result);
-                            NSMutableData* outEncaps =
-                                [NSMutableData dataWithBytes:outP.first length:(outP.second - outP.first)];
                             if(response)
                             {
+                                NSMutableData* outEncaps =
+                                    [NSMutableData dataWithBytes:outP.first length:(outP.second - outP.first)];
                                 response(ret__, outEncaps);
                             }
                         },
@@ -1430,9 +1443,9 @@ BOOL _returnsData;
     __block BOOL ret__;
     endCppCall(^(const Ice::AsyncResultPtr& r)
                {
-                   std::vector<Ice::Byte> outP;
-                   ret__ = OBJECTPRX->end_ice_invoke(outP, r);
-                   *outEncaps = [NSMutableData dataWithBytes:&outP[0] length:outP.size()];
+                   std::pair<const ::Ice::Byte*, const ::Ice::Byte*> outP;
+                   ret__ = OBJECTPRX->___end_ice_invoke(outP, r);
+                   *outEncaps = [NSMutableData dataWithBytes:outP.first length:(outP.second - outP.first)];
                }, result);
     return ret__;
 }

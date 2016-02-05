@@ -2016,7 +2016,7 @@ public class InputStream
      **/
     public void skip(int size)
     {
-        if(size > _buf.b.remaining())
+        if(size < 0 || size > _buf.b.remaining())
         {
             throw new UnmarshalOutOfBoundsException();
         }

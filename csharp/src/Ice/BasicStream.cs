@@ -3217,7 +3217,7 @@ namespace IceInternal
 
         public void skip(int size)
         {
-            if(size > _buf.b.remaining())
+            if(size < 0 || size > _buf.b.remaining())
             {
                 throw new Ice.UnmarshalOutOfBoundsException();
             }

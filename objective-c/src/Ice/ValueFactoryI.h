@@ -7,12 +7,13 @@
 //
 // **********************************************************************
 
-#import <objc/Ice/Config.h>
-#import <objc/Ice/Object.h>
+#import <objc/Ice/ValueFactory.h>
 
-typedef ICEObject* (^ICEValueFactory)(NSString*);
+#include <Ice/Communicator.h>
 
-ICE_API @protocol ICEValueFactoryManager <NSObject>
--(void) add:(ICEValueFactory)factory sliceId:(NSString*)id_;
--(ICEValueFactory) find:(NSString*)id_;
+@interface ICEValueFactoryManager : NSObject<ICEValueFactoryManager>
+{
+    NSMutableDictionary* valueFactories_;
+}
+-(id) init:(Ice::Communicator*)communicator prefixTable:(NSDictionary*)prefixTable;
 @end

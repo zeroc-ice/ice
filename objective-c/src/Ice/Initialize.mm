@@ -389,7 +389,7 @@ private:
         }
 
         ICECommunicator* c = [ICECommunicator localObjectWithCxxObject:communicator.get()];
-        [c setup:initData.prefixTable__];
+        [c setup:initData];
         return c;
     }
     catch(const std::exception& ex)
@@ -400,23 +400,12 @@ private:
     return nil; // Keep the compiler happy.
 }
 
-+(id<ICEInputStream>) createInputStream:(id<ICECommunicator>)communicator data:(NSData*)data
++(id<ICEInputStream>) createInputStream:(id<ICECommunicator>)c data:(NSData*)data
 {
     NSException* nsex = nil;
     try
     {
-        Ice::CommunicatorPtr com = [(ICECommunicator*)communicator communicator];
-        Ice::Byte* start = (Ice::Byte*)[data bytes];
-        Ice::Byte* end = (Ice::Byte*)[data bytes] + [data length];
-        Ice::InputStreamPtr is = Ice::createInputStream(com, std::make_pair(start, end));
-        if(is)
-        {
-            return [ICEInputStream localObjectWithCxxObject:is.get()];
-        }
-        else
-        {
-            return nil;
-        }
+        return [[[ICEInputStream alloc] initWithCommunicator:c data:data encoding:nil] autorelease];
     }
     catch(const std::exception& ex)
     {
@@ -431,70 +420,7 @@ private:
     NSException* nsex = nil;
     try
     {
-        Ice::CommunicatorPtr com = [(ICECommunicator*)c communicator];
-        Ice::Byte* start = (Ice::Byte*)[data bytes];
-        Ice::Byte* end = (Ice::Byte*)[data bytes] + [data length];
-        Ice::InputStreamPtr is = Ice::createInputStream(com, std::make_pair(start, end), [e encodingVersion]);
-        if(is)
-        {
-            return [ICEInputStream localObjectWithCxxObject:is.get()];
-        }
-        else
-        {
-            return nil;
-        }
-    }
-    catch(const std::exception& ex)
-    {
-        nsex = toObjCException(ex);
-    }
-    @throw nsex;
-    return nil; // Keep the compiler happy.
-}
-
-+(id<ICEInputStream>) wrapInputStream:(id<ICECommunicator>)communicator data:(NSData*)data
-{
-    NSException* nsex = nil;
-    try
-    {
-        Ice::CommunicatorPtr com = [(ICECommunicator*)communicator communicator];
-        Ice::Byte* start = (Ice::Byte*)[data bytes];
-        Ice::Byte* end = (Ice::Byte*)[data bytes] + [data length];
-        Ice::InputStreamPtr is = Ice::wrapInputStream(com, std::make_pair(start, end));
-        if(is)
-        {
-            return [ICEInputStream localObjectWithCxxObject:is.get()];
-        }
-        else
-        {
-            return nil;
-        }
-    }
-    catch(const std::exception& ex)
-    {
-        nsex = toObjCException(ex);
-    }
-    @throw nsex;
-    return nil; // Keep the compiler happy.
-}
-
-+(id<ICEInputStream>) wrapInputStream:(id<ICECommunicator>)c data:(NSData*)data encoding:(ICEEncodingVersion*)e
-{
-    NSException* nsex = nil;
-    try
-    {
-        Ice::CommunicatorPtr com = [(ICECommunicator*)c communicator];
-        Ice::Byte* start = (Ice::Byte*)[data bytes];
-        Ice::Byte* end = (Ice::Byte*)[data bytes] + [data length];
-        Ice::InputStreamPtr is = Ice::wrapInputStream(com, std::make_pair(start, end), [e encodingVersion]);
-        if(is)
-        {
-            return [ICEInputStream localObjectWithCxxObject:is.get()];
-        }
-        else
-        {
-            return nil;
-        }
+        return [[[ICEInputStream alloc] initWithCommunicator:c data:data encoding:e] autorelease];
     }
     catch(const std::exception& ex)
     {
@@ -509,16 +435,7 @@ private:
     NSException* nsex = nil;
     try
     {
-        Ice::CommunicatorPtr com = [(ICECommunicator*)communicator communicator];
-        Ice::OutputStreamPtr os = Ice::createOutputStream(com);
-        if(os)
-        {
-            return [ICEOutputStream localObjectWithCxxObject:os.get()];
-        }
-        else
-        {
-            return nil;
-        }
+        return [[[ICEOutputStream alloc] initWithCommunicator:communicator encoding:nil] autorelease];
     }
     catch(const std::exception& ex)
     {
@@ -533,16 +450,7 @@ private:
     NSException* nsex = nil;
     try
     {
-        Ice::CommunicatorPtr com = [(ICECommunicator*)communicator communicator];
-        Ice::OutputStreamPtr os = Ice::createOutputStream(com, [encoding encodingVersion]);
-        if(os)
-        {
-            return [ICEOutputStream localObjectWithCxxObject:os.get()];
-        }
-        else
-        {
-            return nil;
-        }
+        return [[[ICEOutputStream alloc] initWithCommunicator:communicator encoding:encoding] autorelease];
     }
     catch(const std::exception& ex)
     {

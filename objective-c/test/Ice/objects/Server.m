@@ -17,15 +17,15 @@ ICEValueFactory factory = ^ICEObject* (NSString* type)
 {
     if([type isEqualToString:@"::Test::I"])
     {
-        return [[TestObjectsI alloc] init];
+        return ICE_AUTORELEASE([[TestObjectsI alloc] init]);
     }
     else if([type isEqualToString:@"::Test::J"])
     {
-        return [[TestObjectsJI alloc] init];
+        return ICE_AUTORELEASE([[TestObjectsJI alloc] init]);
     }
     else if([type isEqualToString:@"::Test::H"])
     {
-        return [[TestObjectsHI alloc] init];
+        return ICE_AUTORELEASE([[TestObjectsHI alloc] init]);
     }
     else
     {
@@ -37,9 +37,9 @@ ICEValueFactory factory = ^ICEObject* (NSString* type)
 static int
 run(id<ICECommunicator> communicator)
 {
-    [communicator addValueFactory:factory sliceId:@"::Test::I"];
-    [communicator addValueFactory:factory sliceId:@"::Test::J"];
-    [communicator addValueFactory:factory sliceId:@"::Test::H"];
+    [[communicator getValueFactoryManager] add:factory sliceId:@"::Test::I"];
+    [[communicator getValueFactoryManager] add:factory sliceId:@"::Test::J"];
+    [[communicator getValueFactoryManager] add:factory sliceId:@"::Test::H"];
 
     [[communicator getProperties] setProperty:@"TestAdapter.Endpoints" value:@"default -p 12010"];
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAdapter"];

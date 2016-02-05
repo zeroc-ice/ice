@@ -18,7 +18,8 @@
 
 #import <objc/Ice/LocalException.h>
 
-#include <Ice/Stream.h>
+#include <Ice/OutputStream.h>
+#include <Ice/InputStream.h>
 #include <Ice/SlicedData.h>
 
 #import <objc/runtime.h>
@@ -28,20 +29,41 @@ ICE_API id ICENone = nil;
 namespace IceObjC
 {
 
-class ObjectWriter : public Ice::ObjectWriter
+class ValueWrapper : public Ice::Object
 {
 public:
 
-    ObjectWriter(ICEObject* obj, ICEOutputStream* stream) : _obj(obj), _stream(stream)
+    // We must explicitely CFRetain/CFRelease so that the garbage
+    // collector does not trash the _obj.
+    ValueWrapper(ICEObject* obj) : _obj(obj)
     {
+        CFRetain(_obj);
+    }
+
+    virtual ~ValueWrapper()
+    {
+        CFRelease(_obj);
     }
 
     virtual void
-    write(const Ice::OutputStreamPtr& stream) const
+    __write(Ice::OutputStream* stream) const
     {
         @try
         {
-            [_obj write__:_stream];
+            [_obj write__:static_cast<ICEOutputStream*>(stream->getClosure())];
+        }
+        @catch(id ex)
+        {
+            rethrowCxxException(ex);
+        }
+    }
+
+    virtual void
+    __read(Ice::InputStream* stream)
+    {
+        @try
+        {
+            [_obj read__:static_cast<ICEInputStream*>(stream->getClosure())];
         }
         @catch(id ex)
         {
@@ -54,71 +76,37 @@ public:
         [_obj ice_preMarshal];
     }
 
-private:
-
-    ICEObject* _obj;
-    ICEOutputStream* _stream;
-};
-
-class ObjectReader : public Ice::ObjectReader
-{
-public:
-
-    // We must explicitely CFRetain/CFRelease so that the garbage
-    // collector does not trash the _obj.
-    ObjectReader(ICEObject* obj) : _obj(obj)
-    {
-        CFRetain(_obj);
-    }
-
-    virtual ~ObjectReader()
-    {
-        CFRelease(_obj);
-    }
-
-    virtual void
-    read(const Ice::InputStreamPtr& stream)
-    {
-        @try
-        {
-            //
-            // TODO: explain why calling getLocalObjectWithCxxObjectNoAutoRelease is safe here
-            //
-            ICEInputStream* is = [ICEInputStream getLocalObjectWithCxxObjectNoAutoRelease:stream.get()];
-            assert(is != 0);
-            [_obj read__:is];
-        }
-        @catch(id ex)
-        {
-            rethrowCxxException(ex);
-        }
-    }
-
-    ICEObject*
-    getObject()
-    {
-        return _obj;
-    }
-
     virtual void ice_postUnmarshal()
     {
         [_obj ice_postUnmarshal];
     }
 
+    ICEObject*
+    getValue()
+    {
+        return _obj;
+    }
+
 private:
 
     ICEObject* _obj;
 };
-typedef IceUtil::Handle<ObjectReader> ObjectReaderPtr;
+typedef IceUtil::Handle<ValueWrapper> ValueWrapperPtr;
 
-class ReadObjectBase : public Ice::ReadObjectCallback
+class ReadValueBase
 {
 public:
 
-    ReadObjectBase(Class expectedType) : _expectedType(expectedType)
+    ReadValueBase(Class expectedType) : _expectedType(expectedType)
     {
     }
 
+    virtual
+    ~ReadValueBase()
+    {
+    }
+
+    virtual void invoke(const Ice::ValuePtr&) = 0;
     void checkType(ICEObject*);
 
 private:
@@ -127,7 +115,15 @@ private:
 };
 
 void
-ReadObjectBase::checkType(ICEObject* o)
+patchFunc(void* obj, const Ice::ValuePtr& value)
+{
+    ReadValueBase* reader = static_cast<ReadValueBase*>(obj);
+    reader->invoke(value);
+    delete reader;
+}
+
+void
+ReadValueBase::checkType(ICEObject* o)
 {
     if(o != nil && ![o isKindOfClass:_expectedType])
     {
@@ -144,23 +140,23 @@ ReadObjectBase::checkType(ICEObject* o)
     }
 }
 
-class ReadObject : public ReadObjectBase
+class ReadValue : public ReadValueBase
 {
 public:
 
-    ReadObject(ICEObject** addr, Class expectedType, bool autorelease) :
-        ReadObjectBase(expectedType), _addr(addr), _autorelease(autorelease)
+    ReadValue(ICEObject** addr, Class expectedType, bool autorelease) :
+        ReadValueBase(expectedType), _addr(addr), _autorelease(autorelease)
     {
     }
 
     virtual void
-    invoke(const Ice::ObjectPtr& obj)
+    invoke(const Ice::ValuePtr& obj)
     {
         @try
         {
             if(obj)
             {
-                ICEObject* o = ObjectReaderPtr::dynamicCast(obj)->getObject();
+                ICEObject* o = ValueWrapperPtr::dynamicCast(obj)->getValue();
                 checkType(o);
                 *_addr = [o retain];
                 if(_autorelease)
@@ -185,23 +181,23 @@ private:
     bool _autorelease;
 };
 
-class ReadObjectAtIndex : public ReadObjectBase
+class ReadValueAtIndex : public ReadValueBase
 {
 public:
 
-    ReadObjectAtIndex(NSMutableArray* array, ICEInt index, Class expectedType) :
-        ReadObjectBase(expectedType), _array(array), _index(index)
+    ReadValueAtIndex(NSMutableArray* array, ICEInt index, Class expectedType) :
+        ReadValueBase(expectedType), _array(array), _index(index)
     {
     }
 
     virtual void
-    invoke(const Ice::ObjectPtr& obj)
+    invoke(const Ice::ValuePtr& obj)
     {
         @try
         {
             if(obj)
             {
-                ICEObject* o = ObjectReaderPtr::dynamicCast(obj)->getObject();
+                ICEObject* o = ValueWrapperPtr::dynamicCast(obj)->getValue();
                 checkType(o);
                 [_array replaceObjectAtIndex:_index withObject:o];
             }
@@ -218,31 +214,31 @@ private:
     ICEInt _index;
 };
 
-class ReadObjectForKey : public ReadObjectBase
+class ReadValueForKey : public ReadValueBase
 {
 public:
 
     // We must explicitely CFRetain/CFRelease so that the garbage
     // collector does not trash the _key.
-    ReadObjectForKey(NSMutableDictionary* dict, id key, Class expectedType) :
-        ReadObjectBase(expectedType), _dict(dict), _key(key)
+    ReadValueForKey(NSMutableDictionary* dict, id key, Class expectedType) :
+        ReadValueBase(expectedType), _dict(dict), _key(key)
     {
         CFRetain(_key);
     }
 
-    virtual ~ReadObjectForKey()
+    virtual ~ReadValueForKey()
     {
         CFRelease(_key);
     }
 
     virtual void
-    invoke(const Ice::ObjectPtr& obj)
+    invoke(const Ice::ValuePtr& obj)
     {
         @try
         {
             if(obj)
             {
-                ICEObject* o = ObjectReaderPtr::dynamicCast(obj)->getObject();
+                ICEObject* o = ValueWrapperPtr::dynamicCast(obj)->getValue();
                 checkType(o);
                 [_dict setObject:o forKey:_key];
             }
@@ -263,20 +259,16 @@ private:
     id _key;
 };
 
-class ExceptionWriter : public Ice::UserExceptionWriter
+class ExceptionWrapper : public Ice::UserException
 {
 public:
 
-    ExceptionWriter(const Ice::CommunicatorPtr& communicator, ICEOutputStream* stream, ICEUserException* ex) :
-        Ice::UserExceptionWriter(communicator),
-        _stream(stream),
-        _ex(ex)
+    ExceptionWrapper(ICEUserException* ex) : _ex(ex)
     {
-
     }
 
     virtual bool
-    usesClasses() const
+    __usesClasses() const
     {
         return [_ex usesClasses__];
     }
@@ -290,7 +282,7 @@ public:
     virtual Ice::UserException*
     ice_clone() const
     {
-        return new ExceptionWriter(*this);
+        return new ExceptionWrapper(*this);
     }
 
     virtual void
@@ -300,97 +292,55 @@ public:
     }
 
     virtual void
-    write(const Ice::OutputStreamPtr& stream) const
+    __write(Ice::OutputStream* s) const
     {
-        [_ex write__:_stream];
-    }
-
-private:
-
-    ICEOutputStream* _stream;
-    ICEUserException* _ex;
-};
-
-class ExceptionReader : public Ice::UserExceptionReader
-{
-public:
-
-    ExceptionReader(const Ice::CommunicatorPtr& communicator, ICEInputStream* stream, ICEUserException* ex) :
-        Ice::UserExceptionReader(communicator),
-        _stream(stream),
-        _ex(ex)
-    {
-    }
-
-    void
-    read(const Ice::InputStreamPtr& stream) const
-    {
-        [_ex read__:_stream];
-    }
-
-    virtual std::string
-    ice_id() const
-    {
-        return [[_ex ice_id] UTF8String];
-    }
-
-    virtual bool
-    usesClasses() const
-    {
-        return [_ex usesClasses__];
-    }
-
-    virtual Ice::UserException*
-    ice_clone() const
-    {
-        assert(false);
-        return 0;
+        [_ex write__:static_cast<ICEOutputStream*>(s->getClosure())];
     }
 
     virtual void
-    ice_throw() const
+    __read(Ice::InputStream* s)
     {
-        throw *this;
+        [_ex read__:static_cast<ICEInputStream*>(s->getClosure())];
     }
 
-    ICEUserException* getException() const
+    ICEUserException*
+    getException() const
     {
         return _ex;
     }
 
+protected:
+
+    virtual void __writeImpl(Ice::OutputStream*) const {}
+    virtual void __readImpl(Ice::InputStream*) {}
+
 private:
 
-    ICEInputStream* _stream;
     ICEUserException* _ex;
 };
 
-class UserExceptionReaderFactoryI : public Ice::UserExceptionReaderFactory
+class UserExceptionFactoryI : public Ice::UserExceptionFactory
 {
 public:
 
-    UserExceptionReaderFactoryI(const Ice::CommunicatorPtr& communicator, ICEInputStream* is) :
-        _communicator(communicator),
-        _is(is)
+    UserExceptionFactoryI(NSDictionary* prefixTable) : _prefixTable(prefixTable)
     {
     }
 
-    virtual void createAndThrow(const std::string& typeId) const
+    virtual void createAndThrow(const std::string& typeId)
     {
         ICEUserException* ex = nil;
-        std::string objcId = toObjCSliceId(typeId,
-                                   [[ICECommunicator localObjectWithCxxObject:_communicator.get()] getPrefixTable]);
-        Class c = objc_lookUpClass(objcId.c_str());
+        Class c = objc_lookUpClass(toObjCSliceId(typeId, _prefixTable).c_str());
         if(c != nil)
         {
             ex = [[c alloc] init];
-            throw ExceptionReader(_communicator, _is, ex);
+            throw ExceptionWrapper(ex);
         }
     }
 
 private:
 
-    Ice::CommunicatorPtr _communicator;
-    ICEInputStream* _is;
+    NSDictionary* _prefixTable;
 };
 
 }
@@ -428,20 +378,55 @@ private:
 @end
 
 @implementation ICEInputStream
--(id) initWithCxxObject:(IceUtil::Shared*)cxxObject
+-(id) initWithCxxCommunicator:(Ice::Communicator*)com data:(const std::pair<const Byte*, const Byte*>&)data
 {
-    self = [super initWithCxxObject:cxxObject];
+    self = [super init];
     if(!self)
     {
         return nil;
     }
-    is_ = dynamic_cast<Ice::InputStream*>(cxxObject);
+    Ice::InputStream(com, data).swap(stream_);
+    is_ = &stream_;
+    is_->setClosure(self);
+    data_ = nil;
+    prefixTable_ = [[[ICECommunicator localObjectWithCxxObject:com] getPrefixTable] retain];
     return self;
+}
+
+-(id) initWithCommunicator:(id<ICECommunicator>)communicator data:(NSData*)data encoding:(ICEEncodingVersion*)e
+{
+    self = [super init];
+    if(!self)
+    {
+        return nil;
+    }
+    ICECommunicator* com = (ICECommunicator*)communicator;
+    std::pair<const Ice::Byte*, const Ice::Byte*> p((Ice::Byte*)[data bytes], (Ice::Byte*)[data bytes] + [data length]);
+    if(e != nil)
+    {
+        Ice::InputStream([com communicator], [e encodingVersion], p).swap(stream_);
+    }
+    else
+    {
+        Ice::InputStream([com communicator], p).swap(stream_);
+    }
+    is_ = &stream_;
+    is_->setClosure(self);
+    data_ = [data retain];
+    prefixTable_ = [[com getPrefixTable] retain];
+    return self;
+}
+
+-(void) dealloc
+{
+    [data_ release];
+    [prefixTable_ release];
+    [super dealloc];
 }
 
 +(Ice::Object*)createObjectReader:(ICEObject*)obj
 {
-    return new IceObjC::ObjectReader(obj);
+    return new IceObjC::ValueWrapper(obj);
 }
 
 -(Ice::InputStream*) is
@@ -451,17 +436,12 @@ private:
 
 // @protocol ICEInputStream methods
 
--(id<ICECommunicator>) communicator
-{
-    return [ICECommunicator localObjectWithCxxObject:is_->communicator().get()];
-}
-
--(void) sliceObjects:(BOOL)b
+-(void) setSliceObjects:(BOOL)b
 {
     NSException* nsex = nil;
     try
     {
-        is_->sliceObjects(b);
+        is_->setSliceObjects(b);
     }
     catch(const std::exception& ex)
     {
@@ -934,15 +914,9 @@ private:
     NSException* nsex = nil;
     try
     {
-	Ice::ObjectPrx p = is_->readProxy();
-	if(!p)
-	{
-	     return nil;
-	}
-        else
-        {
-            return [[type alloc] initWithObjectPrx__:p];
-        }
+    	Ice::ObjectPrx p;
+        is_->read(p);
+	    return p ? [[type alloc] initWithObjectPrx__:p] : nil;
     }
     catch(const std::exception& ex)
     {
@@ -960,7 +934,7 @@ private:
     NSException* nsex = nil;
     try
     {
-        is_->readObject(new IceObjC::ReadObject(object, type, true));
+        is_->read(IceObjC::patchFunc, new IceObjC::ReadValue(object, type, true));
     }
     catch(const std::exception& ex)
     {
@@ -980,7 +954,7 @@ private:
     NSException* nsex = nil;
     try
     {
-        is_->readObject(new IceObjC::ReadObject(object, type, false));
+        is_->read(IceObjC::patchFunc, new IceObjC::ReadValue(object, type, false));
     }
     catch(const std::exception& ex)
     {
@@ -1009,7 +983,7 @@ private:
         for(i = 0; i < sz; i++)
         {
             [arr addObject:null];
-            is_->readObject(new IceObjC::ReadObjectAtIndex(arr, i, type));
+            is_->read(IceObjC::patchFunc, new IceObjC::ReadValueAtIndex(arr, i, type));
         }
     }
     catch(const std::exception& ex)
@@ -1049,7 +1023,7 @@ private:
         NSException* nsex = nil;
         try
         {
-            is_->readObject(new IceObjC::ReadObjectForKey(dictionary, key, type));
+            is_->read(IceObjC::patchFunc, new IceObjC::ReadValueForKey(dictionary, key, type));
         }
         catch(const std::exception& ex)
         {
@@ -1145,7 +1119,7 @@ private:
     NSException* nsex = nil;
     try
     {
-        return is_->readOptional(tag, static_cast<Ice::OptionalFormat>(format));
+        return is_->readOpt(tag, static_cast<Ice::OptionalFormat>(format));
     }
     catch(const std::exception& ex)
     {
@@ -1164,13 +1138,11 @@ private:
     NSException* nsex = nil;
     try
     {
-        Ice::UserExceptionReaderFactoryPtr factory =
-            new IceObjC::UserExceptionReaderFactoryI(is_->communicator().get(), self);
-        is_->throwException(factory);
+        is_->throwException(new IceObjC::UserExceptionFactoryI(prefixTable_));
     }
-    catch(const IceObjC::ExceptionReader& reader)
+    catch(const IceObjC::ExceptionWrapper& e)
     {
-        ex = reader.getException();
+        ex = e.getException();
         @throw [ex autorelease]; // NOTE: exceptions are always auto-released, no need for the caller to do it.
     }
     catch(const std::exception& ex)
@@ -1383,7 +1355,8 @@ private:
     NSException* nsex = nil;
     try
     {
-        is_->rewind();
+        is_->pos(0);
+        is_->clear();
     }
     catch(const std::exception& ex)
     {
@@ -1394,6 +1367,7 @@ private:
         @throw nsex;
     }
 }
+
 
 -(void) skip:(ICEInt)sz
 {
@@ -1432,14 +1406,51 @@ private:
 @end
 
 @implementation ICEOutputStream
--(id) initWithCxxObject:(IceUtil::Shared*)cxxObject
+-(id) initWithCxxCommunicator:(Ice::Communicator*)com
 {
-    self = [super initWithCxxObject:cxxObject];
+    self = [super init];
     if(!self)
     {
         return nil;
     }
-    os_ = dynamic_cast<Ice::OutputStream*>(cxxObject);
+    Ice::OutputStream(com).swap(stream_);
+    os_ = &stream_;
+    os_->setClosure(self);
+    objectWriters_ = 0;
+    return self;
+}
+
+-(id) initWithCxxStream:(Ice::OutputStream*)stream
+{
+    self = [super init];
+    if(!self)
+    {
+        return nil;
+    }
+    os_ = stream;
+    os_->setClosure(self);
+    objectWriters_ = 0;
+    return self;
+}
+
+-(id) initWithCommunicator:(id<ICECommunicator>)communicator encoding:(ICEEncodingVersion*)e
+{
+    self = [super init];
+    if(!self)
+    {
+        return nil;
+    }
+    ICECommunicator* com = (ICECommunicator*)communicator;
+    if(e != nil)
+    {
+        Ice::OutputStream([com communicator], [e encodingVersion]).swap(stream_);
+    }
+    else
+    {
+        Ice::OutputStream([com communicator]).swap(stream_);
+    }
+    os_ = &stream_;
+    os_->setClosure(self);
     objectWriters_ = 0;
     return self;
 }
@@ -1459,11 +1470,6 @@ private:
 }
 
 // @protocol ICEOutputStream methods
-
--(id<ICECommunicator>) communicator
-{
-    return [ICECommunicator localObjectWithCxxObject:os_->communicator().get()];
-}
 
 -(void)writeBool:(BOOL)v
 {
@@ -1487,8 +1493,7 @@ private:
     NSException* nsex = nil;
     try
     {
-        v == nil ? os_->writeSize(0)
-	         : os_->write((bool*)[v bytes], (bool*)[v bytes] + [v length] / sizeof(BOOL));
+        v == nil ? os_->writeSize(0) : os_->write((bool*)[v bytes], (bool*)[v bytes] + [v length] / sizeof(BOOL));
     }
     catch(const std::exception& ex)
     {
@@ -1522,8 +1527,7 @@ private:
     NSException* nsex = nil;
     try
     {
-        v == nil ? os_->writeSize(0)
-                 : os_->write((ICEByte*)[v bytes], (ICEByte*)[v bytes] + [v length]);
+        v == nil ? os_->writeSize(0) : os_->write((ICEByte*)[v bytes], (ICEByte*)[v bytes] + [v length]);
     }
     catch(const std::exception& ex)
     {
@@ -1789,7 +1793,7 @@ private:
     NSException* nsex = nil;
     try
     {
-        return os_->writeOptional(tag, static_cast<Ice::OptionalFormat>(format));
+        return os_->writeOpt(tag, static_cast<Ice::OptionalFormat>(format));
     }
     catch(const std::exception& ex)
     {
@@ -1899,7 +1903,7 @@ private:
     NSException* nsex = nil;
     try
     {
-        os_->writeProxy([(ICEObjectPrx*)v objectPrx__]);
+        os_->write(Ice::ObjectPrx([(ICEObjectPrx*)v objectPrx__]));
     }
     catch(const std::exception& ex)
     {
@@ -1918,11 +1922,11 @@ private:
     {
         if(v == nil)
         {
-            os_->writeObject(0);
+            os_->write(Ice::ValuePtr());
         }
         else
         {
-            os_->writeObject([self addObject:v]);
+            os_->write(Ice::ValuePtr([self addObject:v]));
         }
     }
     catch(const std::exception& ex)
@@ -1975,7 +1979,7 @@ private:
 
 -(void) writeException:(ICEUserException*)ex
 {
-    IceObjC::ExceptionWriter writer(os_->communicator().get(), self, ex);
+    IceObjC::ExceptionWrapper writer(ex);
     os_->writeException(writer);
 }
 
@@ -2206,7 +2210,8 @@ private:
     NSException* nsex = nil;
     try
     {
-        os_->reset(clearBuffer);
+        os_->clear();
+        os_->resize(0);
     }
     catch(const std::exception& ex)
     {
@@ -2221,23 +2226,23 @@ private:
 -(Ice::Object*) addObject:(ICEObject*)object
 {
     //
-    // Ice::ObjectWriter is a subclass of Ice::Object that wraps an Objective-C object for marshaling.
+    // Ice::ValueWrapper is a subclass of Ice::Object that wraps an Objective-C object for marshaling.
     // It is possible that this Objective-C object has already been marshaled, therefore we first must
-    // check the object map to see if this object is present. If so, we use the existing ObjectWriter,
+    // check the object map to see if this object is present. If so, we use the existing ValueWrapper,
     // otherwise we create a new one.
     //
     if(!objectWriters_)
     {
-        objectWriters_ = new std::map<ICEObject*, Ice::ObjectPtr>();
+        objectWriters_ = new std::map<ICEObject*, Ice::ValuePtr>();
     }
-    std::map<ICEObject*, Ice::ObjectPtr>::const_iterator p = objectWriters_->find(object);
+    std::map<ICEObject*, Ice::ValuePtr>::const_iterator p = objectWriters_->find(object);
     if(p != objectWriters_->end())
     {
         return p->second.get();
     }
     else
     {
-        Ice::ObjectWriterPtr writer = new IceObjC::ObjectWriter(object, self);
+        IceObjC::ValueWrapperPtr writer = new IceObjC::ValueWrapper(object);
         objectWriters_->insert(std::make_pair(object, writer));
         return writer.get();
     }
@@ -2257,12 +2262,12 @@ private:
         info->hasOptionalMembers = (*p)->hasOptionalMembers;
         info->isLastSlice = (*p)->isLastSlice;
 
-        for(std::vector<Ice::ObjectPtr>::const_iterator q = (*p)->objects.begin(); q != (*p)->objects.end(); ++q)
+        for(std::vector<Ice::ValuePtr>::const_iterator q = (*p)->objects.begin(); q != (*p)->objects.end(); ++q)
         {
             if(*q)
             {
-                assert(IceObjC::ObjectReaderPtr::dynamicCast(*q));
-                info->objects.push_back([self addObject:IceObjC::ObjectReaderPtr::dynamicCast(*q)->getObject()]);
+                assert(IceObjC::ValueWrapperPtr::dynamicCast(*q));
+                info->objects.push_back([self addObject:IceObjC::ValueWrapperPtr::dynamicCast(*q)->getValue()]);
             }
             else
             {

@@ -79,11 +79,6 @@ Ice::OutputStream::OutputStream() :
     _format(CompactFormat),
     _currentEncaps(0)
 {
-    //
-    // Initialize the encoding member of our pre-allocated encapsulation, in case
-    // this stream is used without an explicit encapsulation.
-    //
-    _preAllocatedEncaps.encoding = _encoding;
 }
 
 Ice::OutputStream::OutputStream(const CommunicatorPtr& communicator) :
@@ -111,16 +106,15 @@ void
 Ice::OutputStream::initialize(const CommunicatorPtr& communicator)
 {
     assert(communicator);
-    InstancePtr instance = getInstance(communicator);
-    initialize(instance.get(), instance->defaultsAndOverrides()->defaultEncoding);
+    Instance* instance = getInstance(communicator).get();
+    initialize(instance, instance->defaultsAndOverrides()->defaultEncoding);
 }
 
 void
 Ice::OutputStream::initialize(const CommunicatorPtr& communicator, const EncodingVersion& encoding)
 {
     assert(communicator);
-    InstancePtr instance = getInstance(communicator);
-    initialize(instance.get(), encoding);
+    initialize(getInstance(communicator).get(), encoding);
 }
 
 void
@@ -135,12 +129,6 @@ Ice::OutputStream::initialize(Instance* instance, const EncodingVersion& encodin
     _wstringConverter = _instance->getWstringConverter();
 
     _format = _instance->defaultsAndOverrides()->defaultFormat;
-
-    //
-    // Initialize the encoding member of our pre-allocated encapsulation, in case
-    // this stream is used without an explicit encapsulation.
-    //
-    _preAllocatedEncaps.encoding = encoding;
 }
 
 void
@@ -184,11 +172,12 @@ Ice::OutputStream::setClosure(void* p)
 void
 Ice::OutputStream::swap(OutputStream& other)
 {
-    assert(_instance == other._instance);
-
     swapBuffer(other);
 
+    std::swap(_instance, other._instance);
     std::swap(_closure, other._closure);
+    std::swap(_encoding, other._encoding);
+    std::swap(_format, other._format);
 
     //
     // Swap is never called for streams that have encapsulations being written. However,
@@ -877,6 +866,7 @@ Ice::OutputStream::initEncaps()
     {
         _currentEncaps = &_preAllocatedEncaps;
         _currentEncaps->start = b.size();
+        _currentEncaps->encoding = _encoding;
     }
 
     if(_currentEncaps->format == Ice::DefaultFormat)

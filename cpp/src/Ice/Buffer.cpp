@@ -87,10 +87,7 @@ IceInternal::Buffer::Container::~Container()
 void
 IceInternal::Buffer::Container::swap(Container& other)
 {
-    assert(!_buf || _capacity > 0);
-
     std::swap(_buf, other._buf);
-
     std::swap(_size, other._size);
     std::swap(_capacity, other._capacity);
     std::swap(_shrinkCounter, other._shrinkCounter);
@@ -99,9 +96,10 @@ IceInternal::Buffer::Container::swap(Container& other)
 void
 IceInternal::Buffer::Container::clear()
 {
-    assert(!_buf || _capacity > 0);
-
-    free(_buf);
+    if(_buf && _capacity > 0)
+    {
+        free(_buf);
+    }
     _buf = 0;
     _size = 0;
     _capacity = 0;

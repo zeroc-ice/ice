@@ -92,7 +92,6 @@ public:
     void resize(Container::size_type sz)
     {
         b.resize(sz);
-        i = b.end();
     }
 
     void startObject(const SlicedDataPtr& data)
@@ -468,7 +467,7 @@ public:
 
     size_type pos()
     {
-        return i - b.begin();
+        return b.size();
     }
 
     void rewrite(Int value, size_type p)

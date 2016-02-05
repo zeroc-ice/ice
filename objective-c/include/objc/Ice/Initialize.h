@@ -71,8 +71,6 @@ ICE_API @interface ICEUtil : NSObject
 +(id<ICECommunicator>) createCommunicator:(int*)argc argv:(char*[])argv initData:(ICEInitializationData *)initData;
 +(id<ICEInputStream>) createInputStream:(id<ICECommunicator>)communicator data:(NSData*)data;
 +(id<ICEInputStream>) createInputStream:(id<ICECommunicator>)c data:(NSData*)data encoding:(ICEEncodingVersion*)e;
-+(id<ICEInputStream>) wrapInputStream:(id<ICECommunicator>)communicator data:(NSData*)data;
-+(id<ICEInputStream>) wrapInputStream:(id<ICECommunicator>)c data:(NSData*)data encoding:(ICEEncodingVersion*)e;
 +(id<ICEOutputStream>) createOutputStream:(id<ICECommunicator>)communicator;
 +(id<ICEOutputStream>) createOutputStream:(id<ICECommunicator>)c encoding:(ICEEncodingVersion*)e;
 +(NSString*) generateUUID;

@@ -44,12 +44,6 @@ run(id<ICECommunicator> communicator)
         v = [in readBool];
         test(v);
         [in endEncapsulation];
-
-        in = [ICEUtil wrapInputStream:communicator data:data];
-        [in startEncapsulation];
-        v = [in readBool];
-        test(v);
-        [in endEncapsulation];
     }
 
     {
@@ -236,7 +230,7 @@ run(id<ICECommunicator> communicator)
     }
 
     {
-	BOOL buf[] = { YES, YES, NO, YES };
+    	BOOL buf[] = { YES, YES, NO, YES };
         ICEBoolSeq* arr = [ICEBoolSeq dataWithBytes:buf length:sizeof(buf)];
 
         out = [ICEUtil createOutputStream:communicator];

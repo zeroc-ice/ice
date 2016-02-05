@@ -10,20 +10,32 @@
 #import <objc/Ice/Stream.h>
 #import <objc/Ice/LocalObject.h>
 
-#include <Ice/Stream.h>
+#include <Ice/InputStream.h>
+#include <Ice/OutputStream.h>
 
-@interface ICEInputStream : ICELocalObject<ICEInputStream>
+@protocol ICECommunicator;
+
+@interface ICEInputStream : NSObject<ICEInputStream>
 {
     Ice::InputStream* is_;
+    Ice::InputStream stream_;
+    NSDictionary* prefixTable_;
+    NSData* data_;
 }
 +(Ice::Object*)createObjectReader:(ICEObject*)obj;
+-initWithCxxCommunicator:(Ice::Communicator*)com data:(const std::pair<const Byte*, const Byte*>&)data;
+-initWithCommunicator:(id<ICECommunicator>)com data:(NSData*)data encoding:(ICEEncodingVersion*)e;
 -(Ice::InputStream*) is;
 @end
 
-@interface ICEOutputStream : ICELocalObject<ICEOutputStream>
+@interface ICEOutputStream : NSObject<ICEOutputStream>
 {
     Ice::OutputStream* os_;
+    Ice::OutputStream stream_;
     std::map<ICEObject*, Ice::ObjectPtr>* objectWriters_;
 }
+-initWithCxxCommunicator:(Ice::Communicator*)communicator;
+-initWithCxxStream:(Ice::OutputStream*)stream;
+-initWithCommunicator:(id<ICECommunicator>)com encoding:(ICEEncodingVersion*)e;
 -(Ice::OutputStream*) os;
 @end

@@ -25,7 +25,7 @@
 namespace
 {
 
-std::map<Ice::Object*, ICEObjectWrapper*> cachedObjects;
+std::map<Ice::Object*, ICEServantWrapper*> cachedObjects;
 
 NSString*
 operationModeToString(ICEOperationMode mode)
@@ -46,7 +46,7 @@ operationModeToString(ICEOperationMode mode)
     }
 }
 
-class ObjectI : public IceObjC::ObjectWrapper, public Ice::BlobjectArrayAsync
+class ObjectI : public IceObjC::ServantWrapper, public Ice::BlobjectArrayAsync
 {
 public:
 
@@ -56,7 +56,7 @@ public:
                                   const std::pair<const Ice::Byte*, const Ice::Byte*>&,
                                   const Ice::Current&);
 
-    virtual ICEObject* getObject()
+    virtual ICEObject* getServant()
     {
         return _object;
     }
@@ -78,7 +78,7 @@ private:
     ICEServant* _object;
 };
 
-class BlobjectI : public IceObjC::ObjectWrapper, public Ice::BlobjectArrayAsync
+class BlobjectI : public IceObjC::ServantWrapper, public Ice::BlobjectArrayAsync
 {
 public:
 
@@ -88,7 +88,7 @@ public:
                                   const std::pair<const Ice::Byte*, const Ice::Byte*>&,
                                   const Ice::Current&);
 
-    virtual ICEObject* getObject()
+    virtual ICEObject* getServant()
     {
         return _blobject;
     }
@@ -117,19 +117,12 @@ ObjectI::ObjectI(ICEServant* object) : _object(object)
 
 void
 ObjectI::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb,
-                                   const std::pair<const Ice::Byte*, const Ice::Byte*>& inParams,
-                                   const Ice::Current& current)
+                          const std::pair<const Ice::Byte*, const Ice::Byte*>& inParams,
+                          const Ice::Current& current)
 {
-    ICEInputStream* is = nil;
-    ICEOutputStream* os = nil;
-    {
-        Ice::InputStreamPtr s = Ice::createInputStream(current.adapter->getCommunicator(), inParams);
-        is = [ICEInputStream localObjectWithCxxObjectNoAutoRelease:s.get()];
-    }
-    {
-        Ice::OutputStreamPtr s = Ice::createOutputStream(current.adapter->getCommunicator());
-        os = [ICEOutputStream localObjectWithCxxObjectNoAutoRelease:s.get()];
-    }
+    Ice::Communicator* communicator = current.adapter->getCommunicator().get();
+    ICEInputStream* is = [[ICEInputStream alloc] initWithCxxCommunicator:communicator data:inParams];
+    ICEOutputStream* os = [[ICEOutputStream alloc] initWithCxxCommunicator:communicator];
 
     NSException* exception = nil;
     BOOL ok = YES; // Keep the compiler happy
@@ -157,11 +150,8 @@ ObjectI::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb,
         rethrowCxxException(exception, true); // True = release the exception.
     }
 
-    std::vector<Ice::Byte> outParams;
-    [os os]->finished(outParams);
+    cb->ice_response(ok, [os os]->finished());
     [os release];
-
-    cb->ice_response(ok, std::make_pair(&outParams[0], &outParams[0] + outParams.size()));
 }
 
 BlobjectI::BlobjectI(ICEBlobject* blobject) : _blobject(blobject), _target([blobject target__])
@@ -170,8 +160,8 @@ BlobjectI::BlobjectI(ICEBlobject* blobject) : _blobject(blobject), _target([blob
 
 void
 BlobjectI::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb,
-                                     const std::pair<const Ice::Byte*, const Ice::Byte*>& inEncaps,
-                                     const Ice::Current& current)
+                            const std::pair<const Ice::Byte*, const Ice::Byte*>& inEncaps,
+                            const Ice::Current& current)
 {
     NSException* exception = nil;
     BOOL ok = YES; // Keep the compiler happy.
@@ -412,7 +402,7 @@ static NSString* ICEObject_all__[4] =
 {
     if(object__)
     {
-        delete static_cast<IceObjC::ObjectWrapper*>(object__);
+        delete static_cast<IceObjC::ServantWrapper*>(object__);
         object__ = 0;
     }
     [delegate__ release];
@@ -570,10 +560,10 @@ static NSString* ICEObject_all__[4] =
             // reference to the object (without this, servants added to the object adapter
             // couldn't be retained or released easily).
             //
-            object__ = static_cast<IceObjC::ObjectWrapper*>(new ObjectI(self));
+            object__ = static_cast<IceObjC::ServantWrapper*>(new ObjectI(self));
         }
     }
-    return static_cast<IceObjC::ObjectWrapper*>(object__);
+    return static_cast<IceObjC::ServantWrapper*>(object__);
 }
 @end
 
@@ -592,14 +582,14 @@ static NSString* ICEObject_all__[4] =
             // reference to the object (without this, servants added to the object adapter
             // couldn't be retained or released easily).
             //
-            object__ = static_cast<IceObjC::ObjectWrapper*>(new BlobjectI(self));
+            object__ = static_cast<IceObjC::ServantWrapper*>(new BlobjectI(self));
         }
     }
-    return static_cast<IceObjC::ObjectWrapper*>(object__);
+    return static_cast<IceObjC::ServantWrapper*>(object__);
 }
 @end
 
-@implementation ICEObjectWrapper
+@implementation ICEServantWrapper
 -(id) initWithCxxObject:(Ice::Object*)arg
 {
     self = [super init];
@@ -620,18 +610,18 @@ static NSString* ICEObject_all__[4] =
     object__->__decRef();
     [super dealloc];
 }
-+(id) objectWrapperWithCxxObject:(Ice::Object*)arg
++(id) servantWrapperWithCxxObject:(Ice::Object*)arg
 {
-    @synchronized([ICEObjectWrapper class])
+    @synchronized([ICEServantWrapper class])
     {
-        std::map<Ice::Object*, ICEObjectWrapper*>::const_iterator p = cachedObjects.find(arg);
+        std::map<Ice::Object*, ICEServantWrapper*>::const_iterator p = cachedObjects.find(arg);
         if(p != cachedObjects.end())
         {
             return [p->second retain];
         }
         else
         {
-            return [[(ICEObjectWrapper*)[self alloc] initWithCxxObject:arg] autorelease];
+            return [[(ICEServantWrapper*)[self alloc] initWithCxxObject:arg] autorelease];
         }
     }
 }
@@ -642,7 +632,7 @@ static NSString* ICEObject_all__[4] =
 }
 -(oneway void) release
 {
-    @synchronized([ICEObjectWrapper class])
+    @synchronized([ICEServantWrapper class])
     {
         if(NSDecrementExtraRefCountWasZero(self))
         {
