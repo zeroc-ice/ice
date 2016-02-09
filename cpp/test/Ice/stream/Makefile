@@ -23,7 +23,7 @@ OBJS		= $(COBJS)
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
-SLICE2CPPFLAGS	:= --stream $(SLICE2CPPFLAGS) -I$(slicedir)
+SLICE2CPPFLAGS	:= $(SLICE2CPPFLAGS) -I$(slicedir)
 
 $(CLIENT): $(COBJS)
 	rm -f $@

@@ -213,7 +213,7 @@ public:
 
         if(_currentEncaps->encoding != Encoding_1_0)
         {
-            skipOpts();
+            skipOptionals();
             if(i != b.begin() + _currentEncaps->start + _currentEncaps->sz)
             {
                 throwEncapsulationException(__FILE__, __LINE__);
@@ -360,7 +360,7 @@ public:
 
     template<typename T> void read(Int tag, IceUtil::Optional<T>& v)
     {
-        if(readOpt(tag, StreamOptionalHelper<T,
+        if(readOptional(tag, StreamOptionalHelper<T,
                                              StreamableTraits<T>::helper,
                                              StreamableTraits<T>::fixedLength>::optionalFormat))
         {
@@ -376,12 +376,12 @@ public:
     }
 
     // Read type and tag for optionals
-    bool readOpt(Int tag, OptionalFormat expectedFormat)
+    bool readOptional(Int tag, OptionalFormat expectedFormat)
     {
         assert(_currentEncaps);
         if(_currentEncaps->decoder)
         {
-            return _currentEncaps->decoder->readOpt(tag, expectedFormat);
+            return _currentEncaps->decoder->readOptional(tag, expectedFormat);
         }
         else
         {
@@ -605,9 +605,8 @@ public:
     void throwException(const Ice::UserExceptionFactoryPtr& = 0);
 
     // Read/write/skip optionals
-    bool readOptImpl(Int, OptionalFormat);
-    void skipOpt(OptionalFormat);
-    void skipOpts();
+    void skipOptional(OptionalFormat);
+    void skipOptionals();
 
     // Skip bytes from the stream
     void skip(size_type size)
@@ -642,6 +641,8 @@ public:
     InputStream(IceInternal::Instance*, const EncodingVersion&, IceInternal::Buffer&, bool = false);
 
     void initialize(IceInternal::Instance*, const EncodingVersion&);
+
+    bool readOptImpl(Int, OptionalFormat);
 
 private:
 
@@ -703,7 +704,7 @@ private:
         virtual void endSlice() = 0;
         virtual void skipSlice() = 0;
 
-        virtual bool readOpt(Int, OptionalFormat)
+        virtual bool readOptional(Int, OptionalFormat)
         {
             return false;
         }
@@ -804,7 +805,7 @@ private:
         virtual void endSlice();
         virtual void skipSlice();
 
-        virtual bool readOpt(Int, OptionalFormat);
+        virtual bool readOptional(Int, OptionalFormat);
 
     private:
 

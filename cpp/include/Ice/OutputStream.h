@@ -258,7 +258,7 @@ public:
             return; // Optional not set
         }
 
-        if(writeOpt(tag, StreamOptionalHelper<T,
+        if(writeOptional(tag, StreamOptionalHelper<T,
                                               StreamableTraits<T>::helper,
                                               StreamableTraits<T>::fixedLength>::optionalFormat))
         {
@@ -292,12 +292,12 @@ public:
     }
 
     // Write type and tag for optionals
-    bool writeOpt(Int tag, OptionalFormat format)
+    bool writeOptional(Int tag, OptionalFormat format)
     {
         assert(_currentEncaps);
         if(_currentEncaps->encoder)
         {
-            return _currentEncaps->encoder->writeOpt(tag, format);
+            return _currentEncaps->encoder->writeOptional(tag, format);
         }
         else
         {
@@ -462,9 +462,6 @@ public:
     // Exception
     void writeException(const UserException&);
 
-    // Optionals
-    bool writeOptImpl(Int, OptionalFormat);
-
     size_type pos()
     {
         return b.size();
@@ -481,6 +478,9 @@ public:
 
     void finished(std::vector<Byte>&);
     virtual std::pair<const Byte*, const Byte*> finished();
+
+    // Optionals
+    bool writeOptImpl(Int, OptionalFormat);
 
 private:
 
@@ -527,7 +527,7 @@ private:
         virtual void startSlice(const std::string&, int, bool) = 0;
         virtual void endSlice() = 0;
 
-        virtual bool writeOpt(Int, OptionalFormat)
+        virtual bool writeOptional(Int, OptionalFormat)
         {
             return false;
         }
@@ -611,7 +611,7 @@ private:
         virtual void startSlice(const std::string&, int, bool);
         virtual void endSlice();
 
-        virtual bool writeOpt(Int, OptionalFormat);
+        virtual bool writeOptional(Int, OptionalFormat);
 
     private:
 

@@ -48,7 +48,8 @@ SUBDIRS		= proxy \
                   logger \
                   networkProxy \
                   services \
-                  impl
+                  impl \
+                  stream
 
 ifneq ($(CPP11_MAPPING),yes)
 SUBDIRS		:= $(SUBDIRS) \

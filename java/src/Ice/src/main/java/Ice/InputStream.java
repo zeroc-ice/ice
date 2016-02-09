@@ -588,7 +588,7 @@ public class InputStream
 
         if(!_encapsStack.encoding_1_0)
         {
-            skipOpts();
+            skipOptionals();
             if(_buf.b.position() != _encapsStack.start + _encapsStack.sz)
             {
                 throw new EncapsulationException();
@@ -1921,7 +1921,7 @@ public class InputStream
             }
             else if(tag < readTag)
             {
-                skipOpt(format); // Skip optional data members
+                skipOptional(format); // Skip optional data members
             }
             else
             {
@@ -1934,7 +1934,7 @@ public class InputStream
         }
     }
 
-    private void skipOpt(OptionalFormat format)
+    private void skipOptional(OptionalFormat format)
     {
         switch(format)
         {
@@ -1981,7 +1981,7 @@ public class InputStream
         }
     }
 
-    private void skipOpts()
+    private void skipOptionals()
     {
         //
         // Skip remaining un-read optional members.
@@ -2005,7 +2005,7 @@ public class InputStream
             {
                 skipSize();
             }
-            skipOpt(format);
+            skipOptional(format);
         }
     }
 
@@ -2872,7 +2872,7 @@ public class InputStream
         {
             if((_current.sliceFlags & IceInternal.Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0)
             {
-                _stream.skipOpts();
+                _stream.skipOptionals();
             }
 
             //

@@ -49,7 +49,8 @@ SUBDIRS		= proxy \
 		  logger \
 		  networkProxy \
 		  services \
-		  impl
+		  impl \
+		  stream
 !else
 SUBDIRS		= proxy \
 		  operations \
@@ -72,6 +73,7 @@ SUBDIRS		= proxy \
 		  udp \
 		  admin \
 		  plugin \
+		  stream \
 		  metrics \
 		  optional \
 		  enums \

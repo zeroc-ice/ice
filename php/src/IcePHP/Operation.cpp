@@ -528,7 +528,7 @@ IcePHP::TypedInvocation::prepareRequest(int argc, zval** args, Ice::OutputStream
             {
                 ParamInfoPtr info = *p;
                 zval* arg = args[info->pos];
-                if(!isUnset(arg TSRMLS_CC) && os->writeOpt(info->tag, info->type->optionalFormat()))
+                if(!isUnset(arg TSRMLS_CC) && os->writeOptional(info->tag, info->type->optionalFormat()))
                 {
                     info->type->marshal(arg, os, &objectMap, true TSRMLS_CC);
                 }
@@ -623,7 +623,7 @@ IcePHP::TypedInvocation::unmarshalResults(int argc, zval** args, zval* ret,
             outParamCallbacks[info->pos] = cb;
         }
 
-        if(is.readOpt(info->tag, info->type->optionalFormat()))
+        if(is.readOptional(info->tag, info->type->optionalFormat()))
         {
             info->type->unmarshal(&is, cb, _communicator, 0, 0, true TSRMLS_CC);
         }

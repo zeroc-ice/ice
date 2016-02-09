@@ -21,6 +21,7 @@ enum MyEnum
     enum3
 };
 
+interface MyInterface;
 class MyClass;
 
 ["cpp:comparable"] struct SmallStruct
@@ -34,7 +35,7 @@ class MyClass;
     double d;
     string str;
     MyEnum e;
-    MyClass* p;
+    MyInterface* p;
 };
 
 ["cpp:class"] struct ClassStruct

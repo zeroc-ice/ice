@@ -1265,7 +1265,7 @@ Ice::OutputStream::EncapsEncoder11::endSlice()
 }
 
 bool
-Ice::OutputStream::EncapsEncoder11::writeOpt(Ice::Int tag, Ice::OptionalFormat format)
+Ice::OutputStream::EncapsEncoder11::writeOptional(Ice::Int tag, Ice::OptionalFormat format)
 {
     if(!_current)
     {

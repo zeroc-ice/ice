@@ -1212,7 +1212,7 @@ Ice::InputStream::readOptImpl(Int readTag, OptionalFormat expectedFormat)
         }
         else if(tag < readTag)
         {
-            skipOpt(format); // Skip optional data members
+            skipOptional(format); // Skip optional data members
         }
         else
         {
@@ -1229,7 +1229,7 @@ Ice::InputStream::readOptImpl(Int readTag, OptionalFormat expectedFormat)
 }
 
 void
-Ice::InputStream::skipOpt(OptionalFormat type)
+Ice::InputStream::skipOptional(OptionalFormat type)
 {
     switch(type)
     {
@@ -1283,7 +1283,7 @@ Ice::InputStream::skipOpt(OptionalFormat type)
 }
 
 void
-Ice::InputStream::skipOpts()
+Ice::InputStream::skipOptionals()
 {
     //
     // Skip remaining un-read optional members.
@@ -1307,7 +1307,7 @@ Ice::InputStream::skipOpts()
         {
             skipSize();
         }
-        skipOpt(format);
+        skipOptional(format);
     }
 }
 
@@ -2181,7 +2181,7 @@ Ice::InputStream::EncapsDecoder11::endSlice()
 {
     if(_current->sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS)
     {
-        _stream->skipOpts();
+        _stream->skipOptionals();
     }
 
     //
@@ -2298,7 +2298,7 @@ Ice::InputStream::EncapsDecoder11::skipSlice()
 }
 
 bool
-Ice::InputStream::EncapsDecoder11::readOpt(Ice::Int readTag, Ice::OptionalFormat expectedFormat)
+Ice::InputStream::EncapsDecoder11::readOptional(Ice::Int readTag, Ice::OptionalFormat expectedFormat)
 {
     if(!_current)
     {

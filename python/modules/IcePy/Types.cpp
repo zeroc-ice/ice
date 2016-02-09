@@ -3291,7 +3291,7 @@ IcePy::ObjectWriter::writeMembers(Ice::OutputStream* os, const DataMemberList& m
             }
         }
         else if(member->optional &&
-                (val.get() == Unset || !os->writeOpt(member->tag, member->type->optionalFormat())))
+                (val.get() == Unset || !os->writeOptional(member->tag, member->type->optionalFormat())))
         {
             continue;
         }
@@ -3372,7 +3372,7 @@ IcePy::ObjectReader::__read(Ice::InputStream* is)
             for(p = info->optionalMembers.begin(); p != info->optionalMembers.end(); ++p)
             {
                 DataMemberPtr member = *p;
-                if(is->readOpt(member->tag, member->type->optionalFormat()))
+                if(is->readOptional(member->tag, member->type->optionalFormat()))
                 {
                     member->type->unmarshal(is, member, _object, 0, true, &member->metaData);
                 }
@@ -3563,7 +3563,7 @@ IcePy::ExceptionInfo::writeMembers(PyObject* p, Ice::OutputStream* os, const Dat
             }
         }
         else if(member->optional &&
-                (val.get() == Unset || !os->writeOpt(member->tag, member->type->optionalFormat())))
+                (val.get() == Unset || !os->writeOptional(member->tag, member->type->optionalFormat())))
         {
             continue;
         }
@@ -3603,7 +3603,7 @@ IcePy::ExceptionInfo::unmarshal(Ice::InputStream* is)
         for(q = info->optionalMembers.begin(); q != info->optionalMembers.end(); ++q)
         {
             DataMemberPtr member = *q;
-            if(is->readOpt(member->tag, member->type->optionalFormat()))
+            if(is->readOptional(member->tag, member->type->optionalFormat()))
             {
                 member->type->unmarshal(is, member, p.get(), 0, true, &member->metaData);
             }

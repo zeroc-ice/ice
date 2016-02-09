@@ -3018,7 +3018,7 @@ IcePHP::ObjectWriter::writeMembers(Ice::OutputStream* os, const DataMemberList& 
         zval** val = reinterpret_cast<zval**>(data);
 
         if(member->optional && (isUnset(*val TSRMLS_CC) ||
-           !os->writeOpt(member->tag, member->type->optionalFormat())))
+           !os->writeOptional(member->tag, member->type->optionalFormat())))
         {
             continue;
         }
@@ -3102,7 +3102,7 @@ IcePHP::ObjectReader::__read(Ice::InputStream* is)
             for(p = info->optionalMembers.begin(); p != info->optionalMembers.end(); ++p)
             {
                 DataMemberPtr member = *p;
-                if(is->readOpt(member->tag, member->type->optionalFormat()))
+                if(is->readOptional(member->tag, member->type->optionalFormat()))
                 {
                     member->type->unmarshal(is, member, _communicator, _object, 0, true TSRMLS_CC);
                 }
@@ -3265,7 +3265,7 @@ IcePHP::ExceptionInfo::unmarshal(Ice::InputStream* is, const CommunicatorInfoPtr
         for(q = info->optionalMembers.begin(); q != info->optionalMembers.end(); ++q)
         {
             DataMemberPtr member = *q;
-            if(is->readOpt(member->tag, member->type->optionalFormat()))
+            if(is->readOptional(member->tag, member->type->optionalFormat()))
             {
                 member->type->unmarshal(is, member, comm, zv, 0, true TSRMLS_CC);
             }

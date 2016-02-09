@@ -2508,7 +2508,7 @@ IceRuby::ObjectWriter::writeMembers(Ice::OutputStream* os, const DataMemberList&
 
         volatile VALUE val = callRuby(rb_ivar_get, _object, member->rubyID);
 
-        if(member->optional && (val == Unset || !os->writeOpt(member->tag, member->type->optionalFormat())))
+        if(member->optional && (val == Unset || !os->writeOptional(member->tag, member->type->optionalFormat())))
         {
             continue;
         }
@@ -2587,7 +2587,7 @@ IceRuby::ObjectReader::__read(Ice::InputStream* is)
             for(p = info->optionalMembers.begin(); p != info->optionalMembers.end(); ++p)
             {
                 DataMemberPtr member = *p;
-                if(is->readOpt(member->tag, member->type->optionalFormat()))
+                if(is->readOptional(member->tag, member->type->optionalFormat()))
                 {
                     member->type->unmarshal(is, member, _object, 0, true);
                 }
@@ -2728,7 +2728,7 @@ IceRuby::ExceptionInfo::unmarshal(Ice::InputStream* is)
         for(q = info->optionalMembers.begin(); q != info->optionalMembers.end(); ++q)
         {
             DataMemberPtr member = *q;
-            if(is->readOpt(member->tag, member->type->optionalFormat()))
+            if(is->readOptional(member->tag, member->type->optionalFormat()))
             {
                 member->type->unmarshal(is, member, obj, 0, true);
             }
