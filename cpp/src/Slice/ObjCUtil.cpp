@@ -1009,11 +1009,11 @@ Slice::ObjCGenerator::writeOptParamMarshalUnmarshalCode(Output &out, const TypeP
         out << nl;
         if(marshal)
         {
-            out << "[" << helper << " writeOpt:" << param << " stream:os_ tag:" << tag << "];";
+            out << "[" << helper << " writeOptional:" << param << " stream:os_ tag:" << tag << "];";
         }
         else
         {
-            out << "[" << helper << " readOpt:&" << param << " stream:is_ tag:" << tag << "];";
+            out << "[" << helper << " readOptional:&" << param << " stream:is_ tag:" << tag << "];";
         }
         return;
     }
@@ -1021,11 +1021,11 @@ Slice::ObjCGenerator::writeOptParamMarshalUnmarshalCode(Output &out, const TypeP
     out << nl;
     if(marshal)
     {
-        out << "[" << helper << " writeOpt:" << param << " stream:os_ tag:" << tag << "];";
+        out << "[" << helper << " writeOptional:" << param << " stream:os_ tag:" << tag << "];";
     }
     else
     {
-        out << param << " = [" << helper << " readOpt:is_ tag:" << tag << "];";
+        out << param << " = [" << helper << " readOptional:is_ tag:" << tag << "];";
     }
 }
 

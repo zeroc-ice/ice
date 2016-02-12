@@ -1119,7 +1119,7 @@ private:
     NSException* nsex = nil;
     try
     {
-        return is_->readOpt(tag, static_cast<Ice::OptionalFormat>(format));
+        return is_->readOptional(tag, static_cast<Ice::OptionalFormat>(format));
     }
     catch(const std::exception& ex)
     {
@@ -1793,7 +1793,7 @@ private:
     NSException* nsex = nil;
     try
     {
-        return os_->writeOpt(tag, static_cast<Ice::OptionalFormat>(format));
+        return os_->writeOptional(tag, static_cast<Ice::OptionalFormat>(format));
     }
     catch(const std::exception& ex)
     {
@@ -2295,17 +2295,17 @@ private:
 {
     NSAssert(NO, @"requires override");
 }
-+(id) readOptRetained:(id<ICEInputStream>)stream tag:(ICEInt)tag
++(id) readOptionalRetained:(id<ICEInputStream>)stream tag:(ICEInt)tag
 {
     NSAssert(NO, @"requires override");
     return nil;
 }
-+(id) readOpt:(id<ICEInputStream>)stream tag:(ICEInt)tag
++(id) readOptional:(id<ICEInputStream>)stream tag:(ICEInt)tag
 {
-    return [[self readOptRetained:stream tag:tag] autorelease];
+    return [[self readOptionalRetained:stream tag:tag] autorelease];
     return nil;
 }
-+(void) writeOpt:(id)obj stream:(id<ICEOutputStream>)stream tag:(ICEInt)tag
++(void) writeOptional:(id)obj stream:(id<ICEOutputStream>)stream tag:(ICEInt)tag
 {
     NSAssert(NO, @"requires override");
 }
@@ -2329,7 +2329,7 @@ private:
     }
     [stream writeBool:[obj boolValue]];
 }
-+(id)readOptRetained:(id<ICEInputStream>)stream tag:(ICEInt)tag
++(id)readOptionalRetained:(id<ICEInputStream>)stream tag:(ICEInt)tag
 {
     if([stream readOptional:tag format:ICEOptionalFormatF1])
     {
@@ -2337,7 +2337,7 @@ private:
     }
     return ICENone;
 }
-+(void) writeOpt:(id)v stream:(id<ICEOutputStream>)stream tag:(ICEInt)tag
++(void) writeOptional:(id)v stream:(id<ICEOutputStream>)stream tag:(ICEInt)tag
 {
     BOOL value;
     if([ICEOptionalGetter getBool:v value:&value] && [stream writeOptional:tag format:ICEOptionalFormatF1])
@@ -2364,7 +2364,7 @@ private:
     }
     [stream writeByte:[obj unsignedCharValue]];
 }
-+(id)readOptRetained:(id<ICEInputStream>)stream tag:(ICEInt)tag
++(id)readOptionalRetained:(id<ICEInputStream>)stream tag:(ICEInt)tag
 {
     if([stream readOptional:tag format:ICEOptionalFormatF1])
     {
@@ -2372,7 +2372,7 @@ private:
     }
     return ICENone;
 }
-+(void) writeOpt:(id)v stream:(id<ICEOutputStream>)stream tag:(ICEInt)tag
++(void) writeOptional:(id)v stream:(id<ICEOutputStream>)stream tag:(ICEInt)tag
 {
     ICEByte value;
     if([ICEOptionalGetter getByte:v value:&value] && [stream writeOptional:tag format:ICEOptionalFormatF1])
@@ -2399,7 +2399,7 @@ private:
     }
     [stream writeShort:[obj shortValue]];
 }
-+(id)readOptRetained:(id<ICEInputStream>)stream tag:(ICEInt)tag
++(id)readOptionalRetained:(id<ICEInputStream>)stream tag:(ICEInt)tag
 {
     if([stream readOptional:tag format:ICEOptionalFormatF2])
     {
@@ -2407,7 +2407,7 @@ private:
     }
     return ICENone;
 }
-+(void) writeOpt:(id)v stream:(id<ICEOutputStream>)stream tag:(ICEInt)tag
++(void) writeOptional:(id)v stream:(id<ICEOutputStream>)stream tag:(ICEInt)tag
 {
     ICEShort value;
     if([ICEOptionalGetter getShort:v value:&value] && [stream writeOptional:tag format:ICEOptionalFormatF2])
@@ -2434,7 +2434,7 @@ private:
     }
     [stream writeInt:[obj intValue]];
 }
-+(id)readOptRetained:(id<ICEInputStream>)stream tag:(ICEInt)tag
++(id)readOptionalRetained:(id<ICEInputStream>)stream tag:(ICEInt)tag
 {
     if([stream readOptional:tag format:ICEOptionalFormatF4])
     {
@@ -2442,7 +2442,7 @@ private:
     }
     return ICENone;
 }
-+(void) writeOpt:(id)v stream:(id<ICEOutputStream>)stream tag:(ICEInt)tag
++(void) writeOptional:(id)v stream:(id<ICEOutputStream>)stream tag:(ICEInt)tag
 {
     ICEInt value;
     if([ICEOptionalGetter getInt:v value:&value] && [stream writeOptional:tag format:ICEOptionalFormatF4])
@@ -2469,7 +2469,7 @@ private:
     }
     [stream writeLong:[obj longValue]];
 }
-+(id)readOptRetained:(id<ICEInputStream>)stream tag:(ICEInt)tag
++(id)readOptionalRetained:(id<ICEInputStream>)stream tag:(ICEInt)tag
 {
     if([stream readOptional:tag format:ICEOptionalFormatF8])
     {
@@ -2477,7 +2477,7 @@ private:
     }
     return ICENone;
 }
-+(void) writeOpt:(id)v stream:(id<ICEOutputStream>)stream tag:(ICEInt)tag
++(void) writeOptional:(id)v stream:(id<ICEOutputStream>)stream tag:(ICEInt)tag
 {
     ICELong value;
     if([ICEOptionalGetter getLong:v value:&value] && [stream writeOptional:tag format:ICEOptionalFormatF8])
@@ -2504,7 +2504,7 @@ private:
     }
     [stream writeFloat:[obj floatValue]];
 }
-+(id)readOptRetained:(id<ICEInputStream>)stream tag:(ICEInt)tag
++(id)readOptionalRetained:(id<ICEInputStream>)stream tag:(ICEInt)tag
 {
     if([stream readOptional:tag format:ICEOptionalFormatF4])
     {
@@ -2512,7 +2512,7 @@ private:
     }
     return ICENone;
 }
-+(void) writeOpt:(id)v stream:(id<ICEOutputStream>)stream tag:(ICEInt)tag
++(void) writeOptional:(id)v stream:(id<ICEOutputStream>)stream tag:(ICEInt)tag
 {
     ICEFloat value;
     if([ICEOptionalGetter getFloat:v value:&value] && [stream writeOptional:tag format:ICEOptionalFormatF4])
@@ -2539,7 +2539,7 @@ private:
     }
     [stream writeDouble:[obj doubleValue]];
 }
-+(id)readOptRetained:(id<ICEInputStream>)stream tag:(ICEInt)tag
++(id)readOptionalRetained:(id<ICEInputStream>)stream tag:(ICEInt)tag
 {
     if([stream readOptional:tag format:ICEOptionalFormatF8])
     {
@@ -2547,7 +2547,7 @@ private:
     }
     return ICENone;
 }
-+(void) writeOpt:(id)v stream:(id<ICEOutputStream>)stream tag:(ICEInt)tag
++(void) writeOptional:(id)v stream:(id<ICEOutputStream>)stream tag:(ICEInt)tag
 {
     ICEDouble value;
     if([ICEOptionalGetter getDouble:v value:&value] && [stream writeOptional:tag format:ICEOptionalFormatF8])
@@ -2574,7 +2574,7 @@ private:
     }
     [stream writeString:obj];
 }
-+(id)readOptRetained:(id<ICEInputStream>)stream tag:(ICEInt)tag
++(id)readOptionalRetained:(id<ICEInputStream>)stream tag:(ICEInt)tag
 {
     if([stream readOptional:tag format:ICEOptionalFormatVSize])
     {
@@ -2582,7 +2582,7 @@ private:
     }
     return ICENone;
 }
-+(void) writeOpt:(id)v stream:(id<ICEOutputStream>)stream tag:(ICEInt)tag
++(void) writeOptional:(id)v stream:(id<ICEOutputStream>)stream tag:(ICEInt)tag
 {
     NSString* value;
     if([ICEOptionalGetter get:v value:&value type:[NSString class]] &&
@@ -2610,7 +2610,7 @@ private:
     }
     [stream writeEnumerator:[obj intValue] min:[self getMinValue] max:[self getMaxValue]];
 }
-+(id)readOptRetained:(id<ICEInputStream>)stream tag:(ICEInt)tag
++(id)readOptionalRetained:(id<ICEInputStream>)stream tag:(ICEInt)tag
 {
     if([stream readOptional:tag format:ICEOptionalFormatSize])
     {
@@ -2618,7 +2618,7 @@ private:
     }
     return ICENone;
 }
-+(void) writeOpt:(id)v stream:(id<ICEOutputStream>)stream tag:(ICEInt)tag
++(void) writeOptional:(id)v stream:(id<ICEOutputStream>)stream tag:(ICEInt)tag
 {
     ICEInt value;
     if([ICEOptionalGetter getInt:v value:&value] && [stream writeOptional:tag format:ICEOptionalFormatSize])
@@ -2665,7 +2665,7 @@ private:
 {
     [stream writeObject:obj];
 }
-+(id)readOptRetained:(id<ICEInputStream>)stream tag:(ICEInt)tag
++(id)readOptionalRetained:(id<ICEInputStream>)stream tag:(ICEInt)tag
 {
     if([stream readOptional:tag format:ICEOptionalFormatClass])
     {
@@ -2673,7 +2673,7 @@ private:
     }
     return ICENone;
 }
-+(void) writeOpt:(id)v stream:(id<ICEOutputStream>)stream tag:(ICEInt)tag
++(void) writeOptional:(id)v stream:(id<ICEOutputStream>)stream tag:(ICEInt)tag
 {
     ICEObject* value;
     if([ICEOptionalGetter get:v value:&value type:[ICEObject class]] &&
@@ -2682,7 +2682,7 @@ private:
         [self write:value stream:stream];
     }
 }
-+(void)readOptRetained:(id *)v stream:(id<ICEInputStream>)stream tag:(ICEInt)tag
++(void)readOptionalRetained:(id *)v stream:(id<ICEInputStream>)stream tag:(ICEInt)tag
 {
     if([stream readOptional:tag format:ICEOptionalFormatClass])
     {
@@ -2693,7 +2693,7 @@ private:
         *v = ICENone;
     }
 }
-+(void)readOpt:(id *)v stream:(id<ICEInputStream>)stream tag:(ICEInt)tag
++(void)readOptional:(id *)v stream:(id<ICEInputStream>)stream tag:(ICEInt)tag
 {
     if([stream readOptional:tag format:ICEOptionalFormatClass])
     {
@@ -2719,7 +2719,7 @@ private:
 {
     [stream writeProxy:obj];
 }
-+(id)readOptRetained:(id<ICEInputStream>)stream tag:(ICEInt)tag
++(id)readOptionalRetained:(id<ICEInputStream>)stream tag:(ICEInt)tag
 {
     if([stream readOptional:tag format:ICEOptionalFormatFSize])
     {
@@ -2727,7 +2727,7 @@ private:
     }
     return ICENone;
 }
-+(void) writeOpt:(id)v stream:(id<ICEOutputStream>)stream tag:(ICEInt)tag
++(void) writeOptional:(id)v stream:(id<ICEOutputStream>)stream tag:(ICEInt)tag
 {
     ICEObjectPrx* value;
     if([ICEOptionalGetter get:v value:&value type:[ICEObjectPrx class]] &&
@@ -2792,7 +2792,7 @@ private:
         [obj write__:stream];
     }
 }
-+(id) readOptRetained:(id<ICEInputStream>)stream tag:(ICEInt)tag
++(id) readOptionalRetained:(id<ICEInputStream>)stream tag:(ICEInt)tag
 {
     Class helper = [self getOptionalHelper];
     if([stream readOptional:tag format:[helper optionalFormat]])
@@ -2801,7 +2801,7 @@ private:
     }
     return ICENone;
 }
-+(void) writeOpt:(id)v stream:(id<ICEOutputStream>)s tag:(ICEInt)tag
++(void) writeOptional:(id)v stream:(id<ICEOutputStream>)s tag:(ICEInt)tag
 {
     Class helper = [self getOptionalHelper];
     NSObject* a;
@@ -2836,7 +2836,7 @@ private:
 {
     [stream writeSequence:obj helper:[self getElementHelper]];
 }
-+(id) readOptRetained:(id<ICEInputStream>)stream tag:(ICEInt)tag
++(id) readOptionalRetained:(id<ICEInputStream>)stream tag:(ICEInt)tag
 {
     Class helper = [self getOptionalHelper];
     if([stream readOptional:tag format:[helper optionalFormat]])
@@ -2845,7 +2845,7 @@ private:
     }
     return ICENone;
 }
-+(void) writeOpt:(id)v stream:(id<ICEOutputStream>)s tag:(ICEInt)tag
++(void) writeOptional:(id)v stream:(id<ICEOutputStream>)s tag:(ICEInt)tag
 {
     Class helper = [self getOptionalHelper];
     NSArray* a;
@@ -2884,7 +2884,7 @@ private:
 {
     NSAssert(NO, @"write requires override");
 }
-+(id) readOptRetained:(id<ICEInputStream>)stream tag:(ICEInt)tag
++(id) readOptionalRetained:(id<ICEInputStream>)stream tag:(ICEInt)tag
 {
     if([stream readOptional:tag format:ICEOptionalFormatVSize])
     {
@@ -2892,7 +2892,7 @@ private:
     }
     return ICENone;
 }
-+(void) writeOpt:(id)v stream:(id<ICEOutputStream>)stream tag:(ICEInt)tag
++(void) writeOptional:(id)v stream:(id<ICEOutputStream>)stream tag:(ICEInt)tag
 {
     NSData* a;
     if([ICEOptionalGetter get:v value:&a type:[NSData class]] &&
@@ -2924,7 +2924,7 @@ private:
 {
     [stream writeBoolSeq:obj];
 }
-+(id) readOptRetained:(id<ICEInputStream>)stream tag:(ICEInt)tag
++(id) readOptionalRetained:(id<ICEInputStream>)stream tag:(ICEInt)tag
 {
     if([stream readOptional:tag format:ICEOptionalFormatVSize])
     {
@@ -2932,7 +2932,7 @@ private:
     }
     return ICENone;
 }
-+(void) writeOpt:(id)v stream:(id<ICEOutputStream>)stream tag:(ICEInt)tag
++(void) writeOptional:(id)v stream:(id<ICEOutputStream>)stream tag:(ICEInt)tag
 {
     NSData* a;
     if([ICEOptionalGetter get:v value:&a type:[NSData class]] &&
@@ -2956,7 +2956,7 @@ private:
 {
     [stream writeByteSeq:obj];
 }
-+(id) readOptRetained:(id<ICEInputStream>)stream tag:(ICEInt)tag
++(id) readOptionalRetained:(id<ICEInputStream>)stream tag:(ICEInt)tag
 {
     if([stream readOptional:tag format:ICEOptionalFormatVSize])
     {
@@ -2964,7 +2964,7 @@ private:
     }
     return ICENone;
 }
-+(void) writeOpt:(id)v stream:(id<ICEOutputStream>)stream tag:(ICEInt)tag
++(void) writeOptional:(id)v stream:(id<ICEOutputStream>)stream tag:(ICEInt)tag
 {
     NSData* a;
     if([ICEOptionalGetter get:v value:&a type:[NSData class]] &&
@@ -3123,7 +3123,7 @@ private:
 {
     [stream writeDictionary:obj helper:[self getKeyValueHelper]];
 }
-+(id) readOptRetained:(id<ICEInputStream>)stream tag:(ICEInt)tag
++(id) readOptionalRetained:(id<ICEInputStream>)stream tag:(ICEInt)tag
 {
     Class helper = [self getOptionalHelper];
     if([stream readOptional:tag format:[helper optionalFormat]])
@@ -3132,7 +3132,7 @@ private:
     }
     return ICENone;
 }
-+(void) writeOpt:(id)v stream:(id<ICEOutputStream>)s tag:(ICEInt)tag
++(void) writeOptional:(id)v stream:(id<ICEOutputStream>)s tag:(ICEInt)tag
 {
     Class helper = [self getOptionalHelper];
     NSDictionary* a;

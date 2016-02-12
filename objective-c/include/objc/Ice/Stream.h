@@ -216,9 +216,9 @@ ICE_API @protocol ICEStreamHelper
 +(id) readRetained:(id<ICEInputStream>)stream NS_RETURNS_RETAINED;
 +(id) read:(id<ICEInputStream>)stream;
 +(void) write:(id)obj stream:(id<ICEOutputStream>)stream;
-+(id) readOptRetained:(id<ICEInputStream>)stream tag:(ICEInt)tag;
-+(id) readOpt:(id<ICEInputStream>)stream tag:(ICEInt)tag;
-+(void) writeOpt:(id)obj stream:(id<ICEOutputStream>)stream tag:(ICEInt)tag;
++(id) readOptionalRetained:(id<ICEInputStream>)stream tag:(ICEInt)tag;
++(id) readOptional:(id<ICEInputStream>)stream tag:(ICEInt)tag;
++(void) writeOptional:(id)obj stream:(id<ICEOutputStream>)stream tag:(ICEInt)tag;
 +(ICEInt) minWireSize;
 @end
 
@@ -254,7 +254,7 @@ ICE_API @interface ICEStringHelper : ICEStreamHelper
 
 ICE_API @interface ICEObjectHelper : ICEStreamHelper
 +(void)read:(ICEObject**)v stream:(id<ICEInputStream>)stream;
-+(void)readOpt:(id*)v stream:(id<ICEInputStream>)stream tag:(ICEInt)tag;
++(void)readOptional:(id*)v stream:(id<ICEInputStream>)stream tag:(ICEInt)tag;
 @end
 
 ICE_API @interface ICEProxyHelper : ICEStreamHelper
