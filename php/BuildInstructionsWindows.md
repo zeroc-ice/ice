@@ -18,25 +18,15 @@ distribution or compile from source yourself.
 
 ## Building the PHP Extension
 
-The Ice installer for Windows includes a pre-compiled extension for PHP 5.6
-built with Visual Studio 2012 (Visual C++ 11) and compatible with the "Thread-
-safe VC11" distribution of PHP available on [php.net](). We encourage you to use
-this extension if possible, together with a compatible Web server.
-
-> *The Apache binaries provided by the Apache Software Foundation are compiled
-with Visual C++ 6 and therefore are not compatible with the Ice for PHP
-extension included in our Windows installer. A VC11 build of Apache is available
-from alternate sources.*
-
 The most common motivation for compiling the Ice extension yourself is to create
 an extension that is compatible with your existing environment, such as when
 your Web server or PHP interpreter is built with a different compiler.
 
-To build the Ice extension, first download the PHP5 binary archive or Windows
+To build the Ice extension, first download the PHP binary archive or Windows
 installer and install the distribution.
 
-You will also need to download and extract the PHP5 sources (Ice for PHP
-requires the PHP header files). Change to the PHP5 source directory and run the
+You will also need to download and extract the PHP sources (Ice for PHP
+requires the PHP header files). Change to the PHP source directory and run the
 following commands:
 
     > buildconf
@@ -81,7 +71,7 @@ directive by running the command-line version of PHP with the `-i` option:
 
 Review the output for a line like this:
 
-    extension_dir => C:\php5 => C:\php5
+    extension_dir => C:\php => C:\php
 
 The directive may also be set to a relative path, such as:
 
@@ -209,5 +199,5 @@ installation directory, you can modify the access rights as shown below:
     cacls bzip2.dll /G SYSTEM:F Administrators:F
     ...
 
-[1]: https://zeroc.com/download.html
-[2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+3.6.1
+[1]: https://zeroc.com/downloads/ice
+[2]: https://doc.zeroc.com/display/Ice37/Supported+Platforms+for+Ice+3.7.0

@@ -27,10 +27,11 @@ First, change to the `php` source subdirectory:
     $ cd php
 
 Edit `config/Make.rules` and review the build settings. For example, you may
-want to enable `OPTIMIZE`. If your PHP installation resides in a non-standard
-location, modify the `PHP_HOME` setting to contain the installation directory.
-If you are using PHP 5.3 or later and wish to use PHP namespaces, set
-`USE_NAMESPACES=yes`.
+want to enable `OPTIMIZE`. If you are using PHP 5.3 or later and wish to use PHP
+namespaces, set `USE_NAMESPACES=yes`.
+
+Ensure that `php` and `php-config` for the version of PHP you wish to
+build against are first in your path.
 
 If you have not built Ice for C++ from the `cpp` subdirectory, then set the
 `ICE_HOME` environment variable to the directory containing your Ice
