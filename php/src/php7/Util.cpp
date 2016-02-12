@@ -335,6 +335,7 @@ IcePHP::extractStringMap(zval* zv, map<string, string>& ctx)
         }
 
         ctx[key->val] = Z_STRVAL_P(val);
+        (void)num_key; // Avoids error from older versions of GCC about unused variable num_key.
     }
     ZEND_HASH_FOREACH_END();
 
