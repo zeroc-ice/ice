@@ -1907,7 +1907,7 @@ def getTestEnv(lang, testdir):
             addPathToEnv("NODE_PATH", os.path.join(getIceDir("js", testdir), "src"), env)
 
 
-    if isWin32() and lang in ["cpp", "java", "csharp", "python", "ruby"]:
+    if isWin32() and lang in ["cpp", "java", "csharp", "python", "ruby", "php"]:
         if not iceHome:
             mode = getBuildMode(os.path.join(getIceDir("cpp"), "bin"))
             configuration = "Debug" if mode == "debug" else "Release"

@@ -43,7 +43,7 @@ USE_NAMESPACES		= no
 # Set PHP_HOME to your PHP source directory.
 #
 !if "$(PHP_HOME)" == ""
-PHP_HOME		= C:\php-5.6.6
+PHP_HOME		= C:\php-7.0.3
 !endif
 
 #
@@ -132,22 +132,22 @@ ICE_LDFLAGS     = /LIBPATH:"$(ice_dir)\lib$(libsuff)"
 slicedir        = $(ice_dir)\slice
 
 !if "$(PHP_ZTS)" == "yes"
-PHP_LIB_PREFIX	= php5ts
+PHP_LIB_PREFIX	= php7ts
 !else
-PHP_LIB_PREFIX	= php5
+PHP_LIB_PREFIX	= php7
 !endif
 
 !if "$(OPTIMIZE)" != "yes"
 PHP_LDFLAGS	= /LIBPATH:"$(PHP_BIN_HOME)"
-PHP_LIBS	= $(PHP_LIB_PREFIX)_debug.lib
+PHP_LIBS	= $(PHP_LIB_PREFIX)_debug.lib IceDiscoveryd.lib IceLocatorDiscoveryd.lib
 PHP_ZEND_DEBUG	= 1
 !else
 PHP_LDFLAGS	= /LIBPATH:"$(PHP_BIN_HOME)\dev"
-PHP_LIBS	= $(PHP_LIB_PREFIX).lib
+PHP_LIBS	= $(PHP_LIB_PREFIX).lib  IceDiscovery.lib IceLocatorDiscovery.lib
 PHP_ZEND_DEBUG	= 0
 !endif
 
-PHP_CPPFLAGS	= -I"$(PHP_HOME)" -I"$(PHP_HOME)\main" -I"$(PHP_HOME)\TSRM" -I"$(PHP_HOME)\Zend" -DPHP_WIN32 -DZEND_WIN32 -DZEND_DEBUG=$(PHP_ZEND_DEBUG) -DWIN32
+PHP_CPPFLAGS	= -I"$(PHP_HOME)" -I"$(PHP_HOME)\main" -I"$(PHP_HOME)\TSRM" -I"$(PHP_HOME)\Zend" -DPHP_WIN32 -DZEND_WIN32 -DZEND_DEBUG=$(PHP_ZEND_DEBUG) -DWIN32 -DZEND_WIN32_KEEP_INLINE
 !if "$(PHP_ZTS)" == "yes"
 PHP_CPPFLAGS	= $(PHP_CPPFLAGS) -DZTS
 !endif

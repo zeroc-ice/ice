@@ -11,7 +11,11 @@ top_srcdir	= ..
 
 include $(top_srcdir)/config/Make.rules.php
 
-SUBDIRS		= IcePHP
+ifeq ($(shell echo $(shell php-config --vernum)\>=70000 | bc),1)
+SUBDIRS		= php7
+else
+SUBDIRS		= php5
+endif
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

@@ -9,9 +9,19 @@
 
 top_srcdir	= ..
 
+#
+# Get Make.common.rules.mak to figure out CPP_COMPILER by setting it
+# to "auto"
+#
+CPP_COMPILER=auto
+
 !include $(top_srcdir)\config\Make.rules.mak.php
 
-SUBDIRS		= IcePHP
+!if "$(CPP_COMPILER)" == "VC140"
+SUBDIRS		= php7
+!else
+SUBDIRS		= php5
+!endif
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \
