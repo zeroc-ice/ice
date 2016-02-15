@@ -388,7 +388,7 @@ class ICE_API LambdaInvoke : virtual public OutgoingAsyncCompletionCallback
 public:
 
     LambdaInvoke(std::function<void (::std::exception_ptr)>&& exception, std::function<void (bool)>&& sent) :
-        _exception(move(exception)), _sent(move(sent))
+        _exception(std::move(exception)), _sent(std::move(sent))
     {
     }
 
@@ -486,7 +486,7 @@ public:
             stream->read(v);
             return v;
         };
-        _userException = userException;
+        _userException = std::move(userException);
         OutgoingAsync::invoke(operation, mode, format, ctx, write);
     }
 
@@ -499,8 +499,8 @@ public:
            std::function<void (const Ice::UserException&)>&& userException,
            std::function<T (Ice::InputStream*)>&& read)
     {
-        _read = read;
-        _userException = userException;
+        _read = std::move(read);
+        _userException = std::move(userException);
         OutgoingAsync::invoke(operation, mode, format, ctx, write);
     }
 
@@ -524,7 +524,7 @@ public:
            std::function<void (Ice::OutputStream*)>&& write,
            std::function<void (const Ice::UserException&)>&& userException)
     {
-        _userException = userException;
+        _userException = std::move(userException);
         OutgoingAsync::invoke(operation, mode, format, ctx, write);
     }
 };
@@ -540,16 +540,16 @@ public:
                    std::function<void (bool)>& sent) :
         OutgoingAsyncT<R>(proxy), LambdaInvoke(std::move(ex), std::move(sent))
     {
-        if(response)
+        _response = [this, response](bool ok)
         {
-            _response = [this, response](bool ok)
+            if(ok)
             {
-                if(ok)
+                assert(this->_read);
+                this->_is.startEncapsulation();
+                R v = this->_read(&this->_is);
+                this->_is.endEncapsulation();
+                if(response)
                 {
-                    assert(this->_read);
-                    this->_is.startEncapsulation();
-                    R v = this->_read(&this->_is);
-                    this->_is.endEncapsulation();
                     try
                     {
                         response(std::move(v));
@@ -559,12 +559,12 @@ public:
                         throw std::current_exception();
                     }
                 }
-                else
-                {
-                    this->throwUserException();
-                }
-            };
-        }
+            }
+            else
+            {
+                this->throwUserException();
+            }
+        };
     }
 };
 
@@ -579,17 +579,17 @@ public:
                    std::function<void (bool)>& sent) :
         OutgoingAsyncT<void>(proxy), LambdaInvoke(std::move(ex), std::move(sent))
     {
-        if(response)
+        _response = [this, response](bool ok)
         {
-            _response = [this, response](bool ok)
+            if(this->_is.b.empty())
             {
-                if(this->_is.b.empty())
+                //
+                // If there's no response (oneway, batch-oneway proxies), we just set the promise
+                // on completion without reading anything from the input stream. This is required for
+                // batch invocations.
+                //
+                if(response)
                 {
-                    //
-                    // If there's no response (oneway, batch-oneway proxies), we just set the promise
-                    // on completion without reading anything from the input stream. This is required for
-                    // batch invocations.
-                    //
                     try
                     {
                         response();
@@ -599,9 +599,12 @@ public:
                         throw std::current_exception();
                     }
                 }
-                else if(ok)
+            }
+            else if(ok)
+            {
+                this->_is.skipEmptyEncapsulation();
+                if(response)
                 {
-                    this->_is.skipEmptyEncapsulation();
                     try
                     {
                         response();
@@ -611,12 +614,12 @@ public:
                         throw std::current_exception();
                     }
                 }
-                else
-                {
-                    this->throwUserException();
-                }
-            };
-        }
+            }
+            else
+            {
+                this->throwUserException();
+            }
+        };
     }
 };
 
