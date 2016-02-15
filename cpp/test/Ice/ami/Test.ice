@@ -26,6 +26,8 @@ interface TestIntf
     int opWithResult();
     void opWithUE()
         throws TestIntfException;
+    int opWithResultAndUE()
+        throws TestIntfException;
     void opBatch();
 
     void opWithArgs(out int one, out int two, out int three, out int four, out int five, out int six, out int seven,

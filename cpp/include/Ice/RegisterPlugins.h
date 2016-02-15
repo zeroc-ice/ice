@@ -16,7 +16,7 @@
 // Register functions for Ice plugins are declared here.
 //
 // These functions can be used to explicitly link with a plugin rather
-// thanrelying on the loading of the plugin at runtime. The application
+// than relying on the loading of the plugin at runtime. The application
 // must call the register function before initializing the communicator.
 //
 

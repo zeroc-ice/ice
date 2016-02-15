@@ -25,6 +25,7 @@ public:
     virtual void op(const Ice::Current&);
     virtual int opWithResult(const Ice::Current&);
     virtual void opWithUE(const Ice::Current&);
+    virtual int opWithResultAndUE(const Ice::Current&);
     virtual void opWithPayload(ICE_IN(Ice::ByteSeq), const Ice::Current&);
     virtual void opBatch(const Ice::Current&);
     virtual Ice::Int opBatchCount(const Ice::Current&);

@@ -35,6 +35,12 @@ TestIntfI::opWithUE(const Ice::Current&)
     throw Test::TestIntfException();
 }
 
+int
+TestIntfI::opWithResultAndUE(const Ice::Current&)
+{
+    throw Test::TestIntfException();
+}
+
 void
 TestIntfI::opWithPayload(ICE_IN(Ice::ByteSeq), const Ice::Current&)
 {
