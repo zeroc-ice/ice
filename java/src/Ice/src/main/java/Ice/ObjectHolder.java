@@ -17,16 +17,14 @@ public final class ObjectHolder extends ObjectHolderBase<Ice.Object>
     /**
      * Instantiates the class with a <code>null</code> value.
      **/
-    public
-    ObjectHolder()
+    public ObjectHolder()
     {
     }
 
     /**
      * Instantiates the class with the passed Ice object.
      **/
-    public
-    ObjectHolder(Ice.Object value)
+    public ObjectHolder(Ice.Object value)
     {
         super(value);
     }
@@ -36,22 +34,8 @@ public final class ObjectHolder extends ObjectHolderBase<Ice.Object>
      *
      * @param v The new object for this holder.
      **/
-    public void
-    objectReady(Ice.Object v)
+    public void objectReady(Ice.Object v)
     {
         value = v;
-    }
-
-    /**
-     * Returns the Slice type ID of the most-derived Slice type supported
-     * by this instance.
-     *
-     * @return The Slice type ID.
-     **/
-    // TBD: Remove
-    public String
-    type()
-    {
-        return Ice.ObjectImpl.ice_staticId();
     }
 }

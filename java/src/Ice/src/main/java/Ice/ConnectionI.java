@@ -906,7 +906,7 @@ public final class ConnectionI extends IceInternal.EventHandler
                         }
                         if(size > _readStream.size())
                         {
-                            _readStream.resize(size, true);
+                            _readStream.resize(size);
                         }
                         _readStream.pos(pos);
                     }
@@ -1022,7 +1022,7 @@ public final class ConnectionI extends IceInternal.EventHandler
                 {
                     _logger.warning("maximum datagram size of " + _readStream.pos() + " exceeded");
                 }
-                _readStream.resize(IceInternal.Protocol.headerSize, true);
+                _readStream.resize(IceInternal.Protocol.headerSize);
                 _readStream.pos(0);
                 _readHeader = true;
                 return;
@@ -1041,7 +1041,7 @@ public final class ConnectionI extends IceInternal.EventHandler
                         String s = "datagram connection exception:\n" + ex + '\n' + _desc;
                         _logger.warning(s);
                     }
-                    _readStream.resize(IceInternal.Protocol.headerSize, true);
+                    _readStream.resize(IceInternal.Protocol.headerSize);
                     _readStream.pos(0);
                     _readHeader = true;
                 }
@@ -1995,7 +1995,7 @@ public final class ConnectionI extends IceInternal.EventHandler
             {
                 if(_readStream.isEmpty())
                 {
-                    _readStream.resize(IceInternal.Protocol.headerSize, true);
+                    _readStream.resize(IceInternal.Protocol.headerSize);
                     _readStream.pos(0);
                 }
 
@@ -2058,7 +2058,7 @@ public final class ConnectionI extends IceInternal.EventHandler
         _writeStream.resize(0);
         _writeStream.pos(0);
 
-        _readStream.resize(IceInternal.Protocol.headerSize, true);
+        _readStream.resize(IceInternal.Protocol.headerSize);
         _readStream.pos(0);
         _readHeader = true;
 
@@ -2358,7 +2358,7 @@ public final class ConnectionI extends IceInternal.EventHandler
         assert (_state > StateNotValidated && _state < StateClosed);
 
         _readStream.swap(info.stream);
-        _readStream.resize(IceInternal.Protocol.headerSize, true);
+        _readStream.resize(IceInternal.Protocol.headerSize);
         _readStream.pos(0);
         _readHeader = true;
 

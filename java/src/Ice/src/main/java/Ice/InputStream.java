@@ -484,9 +484,9 @@ public class InputStream
      *
      * @param sz The new size.
      **/
-    public void resize(int sz, boolean reading)
+    public void resize(int sz)
     {
-        _buf.resize(sz, reading);
+        _buf.resize(sz, true);
         _buf.b.position(sz);
     }
 
