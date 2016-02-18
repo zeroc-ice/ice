@@ -21,7 +21,7 @@ namespace IceInternal
     public interface WSEndpointDelegate
     {
         Ice.EndpointInfo getWSInfo(string resource);
-    };
+    }
 
     sealed class WSEndpoint : EndpointI
     {
@@ -45,7 +45,7 @@ namespace IceInternal
             }
         }
 
-        internal WSEndpoint(ProtocolInstance instance, EndpointI del, BasicStream s)
+        internal WSEndpoint(ProtocolInstance instance, EndpointI del, Ice.InputStream s)
         {
             _instance = instance;
             _delegate = (IPEndpointI)del;
@@ -94,12 +94,12 @@ namespace IceInternal
             return _delegate.protocol();
         }
 
-        public override void streamWrite(BasicStream s)
+        public override void streamWrite(Ice.OutputStream s)
         {
-            s.startWriteEncaps();
+            s.startEncapsulation();
             _delegate.streamWriteImpl(s);
             s.writeString(_resource);
-            s.endWriteEncaps();
+            s.endEncapsulation();
         }
 
         public override int timeout()
@@ -356,7 +356,7 @@ namespace IceInternal
             return new WSEndpoint(_instance, _delegate.create(args, oaEndpoint), args);
         }
 
-        public EndpointI read(BasicStream s)
+        public EndpointI read(Ice.InputStream s)
         {
             return new WSEndpoint(_instance, _delegate.read(s), s);
         }

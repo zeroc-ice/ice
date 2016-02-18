@@ -1474,7 +1474,7 @@ public final class Instance implements Ice.ClassResolver, Ice.CompactIdResolver
 
             //
             // NOTE: at this point destroy() can't be interrupted
-            // anymore. The calls bellow are therefore guaranteed to be
+            // anymore. The calls below are therefore guaranteed to be
             // called once.
             //
 

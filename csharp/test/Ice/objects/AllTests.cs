@@ -96,14 +96,14 @@ public class AllTests : TestCommon.TestApp
     public static InitialPrx allTests(Ice.Communicator communicator)
 #endif
     {
-        communicator.addValueFactory(MyValueFactory, "::Test::B");
-        communicator.addValueFactory(MyValueFactory, "::Test::C");
-        communicator.addValueFactory(MyValueFactory, "::Test::D");
-        communicator.addValueFactory(MyValueFactory, "::Test::E");
-        communicator.addValueFactory(MyValueFactory, "::Test::F");
-        communicator.addValueFactory(MyValueFactory, "::Test::I");
-        communicator.addValueFactory(MyValueFactory, "::Test::J");
-        communicator.addValueFactory(MyValueFactory, "::Test::H");
+        communicator.getValueFactoryManager().add(MyValueFactory, "::Test::B");
+        communicator.getValueFactoryManager().add(MyValueFactory, "::Test::C");
+        communicator.getValueFactoryManager().add(MyValueFactory, "::Test::D");
+        communicator.getValueFactoryManager().add(MyValueFactory, "::Test::E");
+        communicator.getValueFactoryManager().add(MyValueFactory, "::Test::F");
+        communicator.getValueFactoryManager().add(MyValueFactory, "::Test::I");
+        communicator.getValueFactoryManager().add(MyValueFactory, "::Test::J");
+        communicator.getValueFactoryManager().add(MyValueFactory, "::Test::H");
 
 // Disable Obsolete warning/error
 #pragma warning disable 612, 618
@@ -335,7 +335,7 @@ public class AllTests : TestCommon.TestApp
         WriteLine("ok");
         Write("testing getting ObjectFactory as ValueFactory...");
         Flush();
-        test(communicator.findValueFactory("TestOF") != null);
+        test(communicator.getValueFactoryManager().find("TestOF") != null);
         WriteLine("ok");
 #pragma warning restore 612, 618
 

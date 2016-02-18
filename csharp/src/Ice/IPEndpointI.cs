@@ -38,7 +38,7 @@ namespace IceInternal
             _hashInitialized = false;
         }
 
-        public IPEndpointI(ProtocolInstance instance, BasicStream s)
+        public IPEndpointI(ProtocolInstance instance, Ice.InputStream s)
         {
             instance_ = instance;
             host_ = s.readString();
@@ -80,11 +80,11 @@ namespace IceInternal
             return info;
         }
 
-        public override void streamWrite(BasicStream s)
+        public override void streamWrite(Ice.OutputStream s)
         {
-            s.startWriteEncaps();
+            s.startEncapsulation();
             streamWriteImpl(s);
-            s.endWriteEncaps();
+            s.endEncapsulation();
         }
 
         public override short type()
@@ -272,7 +272,7 @@ namespace IceInternal
             return port_;
         }
 
-        public virtual void streamWriteImpl(BasicStream s)
+        public virtual void streamWriteImpl(Ice.OutputStream s)
         {
             s.writeString(host_);
             s.writeInt(port_);

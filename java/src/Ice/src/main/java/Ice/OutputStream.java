@@ -240,6 +240,10 @@ public class OutputStream
         other._buf = _buf;
         _buf = tmpBuf;
 
+        EncodingVersion tmpEncoding = other._encoding;
+        other._encoding = _encoding;
+        _encoding = tmpEncoding;
+
         Object tmpClosure = other._closure;
         other._closure = _closure;
         _closure = tmpClosure;

@@ -13,9 +13,9 @@ public class BlobjectI : Ice.Blobject
     ice_invoke(byte[] inParams, out byte[] outParams, Ice.Current current)
     {
         Ice.Communicator communicator = current.adapter.getCommunicator();
-        Ice.InputStream inS = Ice.Util.createInputStream(communicator, inParams);
+        Ice.InputStream inS = new Ice.InputStream(communicator, inParams);
         inS.startEncapsulation();
-        Ice.OutputStream outS = Ice.Util.createOutputStream(communicator);
+        Ice.OutputStream outS = new Ice.OutputStream(communicator);
         outS.startEncapsulation();
         if(current.operation.Equals("opOneway"))
         {
@@ -77,9 +77,9 @@ public class BlobjectAsyncI : Ice.BlobjectAsync
     ice_invoke_async(Ice.AMD_Object_ice_invoke cb, byte[] inParams, Ice.Current current)
     {
         Ice.Communicator communicator = current.adapter.getCommunicator();
-        Ice.InputStream inS = Ice.Util.createInputStream(communicator, inParams);
+        Ice.InputStream inS = new Ice.InputStream(communicator, inParams);
         inS.startEncapsulation();
-        Ice.OutputStream outS = Ice.Util.createOutputStream(communicator);
+        Ice.OutputStream outS = new Ice.OutputStream(communicator);
         outS.startEncapsulation();
         if(current.operation.Equals("opOneway"))
         {

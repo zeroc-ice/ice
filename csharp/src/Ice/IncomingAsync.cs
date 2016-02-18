@@ -152,7 +152,7 @@ namespace IceInternal
             }
         }
         
-        protected internal BasicStream getOs__()
+        protected internal Ice.OutputStream getOs__()
         {
             return os_;
         }

@@ -36,10 +36,10 @@ namespace IceInternal
             _compress = false;
         }
 
-        public UdpEndpointI(ProtocolInstance instance, BasicStream s) :
+        public UdpEndpointI(ProtocolInstance instance, Ice.InputStream s) :
             base(instance, s)
         {
-            if(s.getReadEncoding().Equals(Ice.Util.Encoding_1_0))
+            if(s.getEncoding().Equals(Ice.Util.Encoding_1_0))
             {
                 s.readByte();
                 s.readByte();
@@ -254,10 +254,10 @@ namespace IceInternal
         //
         // Marshal the endpoint
         //
-        public override void streamWriteImpl(BasicStream s)
+        public override void streamWriteImpl(Ice.OutputStream s)
         {
             base.streamWriteImpl(s);
-            if(s.getWriteEncoding().Equals(Ice.Util.Encoding_1_0))
+            if(s.getEncoding().Equals(Ice.Util.Encoding_1_0))
             {
                 Ice.Util.Protocol_1_0.write__(s);
                 Ice.Util.Encoding_1_0.write__(s);
@@ -428,7 +428,7 @@ namespace IceInternal
             return endpt;
         }
 
-        public EndpointI read(BasicStream s)
+        public EndpointI read(Ice.InputStream s)
         {
             return new UdpEndpointI(_instance, s);
         }

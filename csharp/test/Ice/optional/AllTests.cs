@@ -32,7 +32,7 @@ public class AllTests : TestCommon.TestApp
 #endif
     {
         FactoryI factory = new FactoryI();
-        communicator.addValueFactory(factory.create, "");
+        communicator.getValueFactoryManager().add(factory.create, "");
 
         Write("testing stringToProxy... ");
         Flush();
@@ -385,29 +385,29 @@ public class AllTests : TestCommon.TestApp
         // are skipped even if the receiver knows nothing about them.
         //
         factory.setEnabled(true);
-        Ice.OutputStream os = Ice.Util.createOutputStream(communicator);
+        Ice.OutputStream os = new Ice.OutputStream(communicator);
         os.startEncapsulation();
         os.writeObject(oo1);
         os.endEncapsulation();
         byte[] inEncaps = os.finished();
         byte[] outEncaps;
         test(initial.ice_invoke("pingPong", Ice.OperationMode.Normal, inEncaps, out outEncaps));
-        Ice.InputStream @in = Ice.Util.createInputStream(communicator, outEncaps);
+        Ice.InputStream @in = new Ice.InputStream(communicator, outEncaps);
         @in.startEncapsulation();
         ReadObjectCallbackI cb = new ReadObjectCallbackI();
-        @in.readObject(cb);
+        @in.readObject(cb.invoke);
         @in.endEncapsulation();
         test(cb.obj != null && cb.obj is TestObjectReader);
 
-        os = Ice.Util.createOutputStream(communicator);
+        os = new Ice.OutputStream(communicator);
         os.startEncapsulation();
         os.writeObject(mo1);
         os.endEncapsulation();
         inEncaps = os.finished();
         test(initial.ice_invoke("pingPong", Ice.OperationMode.Normal, inEncaps, out outEncaps));
-        @in = Ice.Util.createInputStream(communicator, outEncaps);
+        @in = new Ice.InputStream(communicator, outEncaps);
         @in.startEncapsulation();
-        @in.readObject(cb);
+        @in.readObject(cb.invoke);
         @in.endEncapsulation();
         test(cb.obj != null && cb.obj is TestObjectReader);
         factory.setEnabled(false);
@@ -473,15 +473,15 @@ public class AllTests : TestCommon.TestApp
         test(mc.ifsd.Value.Count == 300);
 
         factory.setEnabled(true);
-        os = Ice.Util.createOutputStream(communicator);
+        os = new Ice.OutputStream(communicator);
         os.startEncapsulation();
         os.writeObject(mc);
         os.endEncapsulation();
         inEncaps = os.finished();
         test(initial.ice_invoke("pingPong", Ice.OperationMode.Normal, inEncaps, out outEncaps));
-        @in = Ice.Util.createInputStream(communicator, outEncaps);
+        @in = new Ice.InputStream(communicator, outEncaps);
         @in.startEncapsulation();
-        @in.readObject(cb);
+        @in.readObject(cb.invoke);
         @in.endEncapsulation();
         test(cb.obj != null && cb.obj is TestObjectReader);
         factory.setEnabled(false);
@@ -509,15 +509,15 @@ public class AllTests : TestCommon.TestApp
             test(b2.md.Value == 13);
 
             factory.setEnabled(true);
-            os = Ice.Util.createOutputStream(communicator);
+            os = new Ice.OutputStream(communicator);
             os.startEncapsulation();
             os.writeObject(b);
             os.endEncapsulation();
             inEncaps = os.finished();
             test(initial.ice_invoke("pingPong", Ice.OperationMode.Normal, inEncaps, out outEncaps));
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
-            @in.readObject(cb);
+            @in.readObject(cb.invoke);
             @in.endEncapsulation();
             test(cb.obj != null);
             factory.setEnabled(false);
@@ -536,15 +536,15 @@ public class AllTests : TestCommon.TestApp
             test(rf.ae == rf.af.Value);
 
             factory.setEnabled(true);
-            os = Ice.Util.createOutputStream(communicator);
+            os = new Ice.OutputStream(communicator);
             os.startEncapsulation();
             os.writeObject(f);
             os.endEncapsulation();
             inEncaps = os.finished();
-            @in = Ice.Util.createInputStream(communicator, inEncaps);
+            @in = new Ice.InputStream(communicator, inEncaps);
             @in.startEncapsulation();
             ReadObjectCallbackI rocb = new ReadObjectCallbackI();
-            @in.readObject(rocb);
+            @in.readObject(rocb.invoke);
             @in.endEncapsulation();
             factory.setEnabled(false);
             rf = ((FObjectReader)rocb.obj).getF();
@@ -574,31 +574,31 @@ public class AllTests : TestCommon.TestApp
                 Test.C c = new Test.C();
                 c.ss = "test";
                 c.ms = "testms";
-                os = Ice.Util.createOutputStream(communicator);
+                os = new Ice.OutputStream(communicator);
                 os.startEncapsulation();
                 os.writeObject(c);
                 os.endEncapsulation();
                 inEncaps = os.finished();
                 factory.setEnabled(true);
                 test(initial.ice_invoke("pingPong", Ice.OperationMode.Normal, inEncaps, out outEncaps));
-                @in = Ice.Util.createInputStream(communicator, outEncaps);
+                @in = new Ice.InputStream(communicator, outEncaps);
                 @in.startEncapsulation();
-                @in.readObject(cb);
+                @in.readObject(cb.invoke);
                 @in.endEncapsulation();
                 test(cb.obj is CObjectReader);
                 factory.setEnabled(false);
 
                 factory.setEnabled(true);
-                os = Ice.Util.createOutputStream(communicator);
+                os = new Ice.OutputStream(communicator);
                 os.startEncapsulation();
                 Ice.Object d = new DObjectWriter();
                 os.writeObject(d);
                 os.endEncapsulation();
                 inEncaps = os.finished();
                 test(initial.ice_invoke("pingPong", Ice.OperationMode.Normal, inEncaps, out outEncaps));
-                @in = Ice.Util.createInputStream(communicator, outEncaps);
+                @in = new Ice.InputStream(communicator, outEncaps);
                 @in.startEncapsulation();
-                @in.readObject(cb);
+                @in.readObject(cb.invoke);
                 @in.endEncapsulation();
                 test(cb.obj != null && cb.obj is DObjectReader);
                 ((DObjectReader)cb.obj).check();
@@ -611,7 +611,7 @@ public class AllTests : TestCommon.TestApp
             {
                 Test.A a = new Test.A();
 
-                os = Ice.Util.createOutputStream(communicator);
+                os = new Ice.OutputStream(communicator);
                 os.startEncapsulation();
                 os.writeObject(a);
                 os.writeOptional(1, Ice.OptionalFormat.Class);
@@ -621,7 +621,7 @@ public class AllTests : TestCommon.TestApp
                 test(initial.ice_invoke("opClassAndUnknownOptional", Ice.OperationMode.Normal, inEncaps,
                                         out outEncaps));
 
-                @in = Ice.Util.createInputStream(communicator, outEncaps);
+                @in = new Ice.InputStream(communicator, outEncaps);
                 @in.startEncapsulation();
                 @in.endEncapsulation();
             }
@@ -653,14 +653,14 @@ public class AllTests : TestCommon.TestApp
             p2 = initial.opByte(new Ice.Optional<byte>(), out p3);
             test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
 
-            os = Ice.Util.createOutputStream(communicator);
+            os = new Ice.OutputStream(communicator);
             os.startEncapsulation();
             os.writeOptional(2, Ice.OptionalFormat.F1);
             os.writeByte(p1.Value);
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opByte", Ice.OperationMode.Normal, inEncaps, out outEncaps);
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             test(@in.readOptional(1, Ice.OptionalFormat.F1));
             test(@in.readByte() == 56);
@@ -668,7 +668,7 @@ public class AllTests : TestCommon.TestApp
             test(@in.readByte() == 56);
             @in.endEncapsulation();
 
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             @in.endEncapsulation();
         }
@@ -696,14 +696,14 @@ public class AllTests : TestCommon.TestApp
             p2 = initial.opBool(new Ice.Optional<bool>(), out p3);
             test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
 
-            os = Ice.Util.createOutputStream(communicator);
+            os = new Ice.OutputStream(communicator);
             os.startEncapsulation();
             os.writeOptional(2, Ice.OptionalFormat.F1);
             os.writeBool(p1.Value);
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opBool", Ice.OperationMode.Normal, inEncaps, out outEncaps);
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             test(@in.readOptional(1, Ice.OptionalFormat.F1));
             test(@in.readBool() == true);
@@ -711,7 +711,7 @@ public class AllTests : TestCommon.TestApp
             test(@in.readBool() == true);
             @in.endEncapsulation();
 
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             @in.endEncapsulation();
         }
@@ -739,14 +739,14 @@ public class AllTests : TestCommon.TestApp
             p2 = initial.opShort(new Ice.Optional<short>(), out p3);
             test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
 
-            os = Ice.Util.createOutputStream(communicator);
+            os = new Ice.OutputStream(communicator);
             os.startEncapsulation();
             os.writeOptional(2, Ice.OptionalFormat.F2);
             os.writeShort(p1.Value);
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opShort", Ice.OperationMode.Normal, inEncaps, out outEncaps);
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             test(@in.readOptional(1, Ice.OptionalFormat.F2));
             test(@in.readShort() == 56);
@@ -754,7 +754,7 @@ public class AllTests : TestCommon.TestApp
             test(@in.readShort() == 56);
             @in.endEncapsulation();
 
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             @in.endEncapsulation();
         }
@@ -782,14 +782,14 @@ public class AllTests : TestCommon.TestApp
             p2 = initial.opInt(new Ice.Optional<int>(), out p3);
             test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
 
-            os = Ice.Util.createOutputStream(communicator);
+            os = new Ice.OutputStream(communicator);
             os.startEncapsulation();
             os.writeOptional(2, Ice.OptionalFormat.F4);
             os.writeInt(p1.Value);
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opInt", Ice.OperationMode.Normal, inEncaps, out outEncaps);
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             test(@in.readOptional(1, Ice.OptionalFormat.F4));
             test(@in.readInt() == 56);
@@ -797,7 +797,7 @@ public class AllTests : TestCommon.TestApp
             test(@in.readInt() == 56);
             @in.endEncapsulation();
 
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             @in.endEncapsulation();
         }
@@ -825,14 +825,14 @@ public class AllTests : TestCommon.TestApp
             p2 = initial.opLong(new Ice.Optional<long>(), out p3);
             test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
 
-            os = Ice.Util.createOutputStream(communicator);
+            os = new Ice.OutputStream(communicator);
             os.startEncapsulation();
             os.writeOptional(1, Ice.OptionalFormat.F8);
             os.writeLong(p1.Value);
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opLong", Ice.OperationMode.Normal, inEncaps, out outEncaps);
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             test(@in.readOptional(2, Ice.OptionalFormat.F8));
             test(@in.readLong() == 56);
@@ -840,7 +840,7 @@ public class AllTests : TestCommon.TestApp
             test(@in.readLong() == 56);
             @in.endEncapsulation();
 
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             @in.endEncapsulation();
         }
@@ -868,14 +868,14 @@ public class AllTests : TestCommon.TestApp
             p2 = initial.opFloat(new Ice.Optional<float>(), out p3);
             test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
 
-            os = Ice.Util.createOutputStream(communicator);
+            os = new Ice.OutputStream(communicator);
             os.startEncapsulation();
             os.writeOptional(2, Ice.OptionalFormat.F4);
             os.writeFloat(p1.Value);
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opFloat", Ice.OperationMode.Normal, inEncaps, out outEncaps);
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             test(@in.readOptional(1, Ice.OptionalFormat.F4));
             test(@in.readFloat() == 1.0);
@@ -883,7 +883,7 @@ public class AllTests : TestCommon.TestApp
             test(@in.readFloat() == 1.0);
             @in.endEncapsulation();
 
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             @in.endEncapsulation();
         }
@@ -911,14 +911,14 @@ public class AllTests : TestCommon.TestApp
             p2 = initial.opDouble(new Ice.Optional<double>(), out p3);
             test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
 
-            os = Ice.Util.createOutputStream(communicator);
+            os = new Ice.OutputStream(communicator);
             os.startEncapsulation();
             os.writeOptional(2, Ice.OptionalFormat.F8);
             os.writeDouble(p1.Value);
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opDouble", Ice.OperationMode.Normal, inEncaps, out outEncaps);
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             test(@in.readOptional(1, Ice.OptionalFormat.F8));
             test(@in.readDouble() == 1.0);
@@ -926,7 +926,7 @@ public class AllTests : TestCommon.TestApp
             test(@in.readDouble() == 1.0);
             @in.endEncapsulation();
 
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             @in.endEncapsulation();
         }
@@ -956,14 +956,14 @@ public class AllTests : TestCommon.TestApp
             p2 = initial.opString(new Ice.Optional<string>(), out p3);
             test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
 
-            os = Ice.Util.createOutputStream(communicator);
+            os = new Ice.OutputStream(communicator);
             os.startEncapsulation();
             os.writeOptional(2, Ice.OptionalFormat.VSize);
             os.writeString(p1.Value);
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opString", Ice.OperationMode.Normal, inEncaps, out outEncaps);
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             test(@in.readOptional(1, Ice.OptionalFormat.VSize));
             test(@in.readString().Equals("test"));
@@ -971,7 +971,7 @@ public class AllTests : TestCommon.TestApp
             test(@in.readString().Equals("test"));
             @in.endEncapsulation();
 
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             @in.endEncapsulation();
         }
@@ -999,14 +999,14 @@ public class AllTests : TestCommon.TestApp
             p2 = initial.opMyEnum(new Ice.Optional<Test.MyEnum>(), out p3);
             test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
 
-            os = Ice.Util.createOutputStream(communicator);
+            os = new Ice.OutputStream(communicator);
             os.startEncapsulation();
             os.writeOptional(2, Ice.OptionalFormat.Size);
             os.writeEnum((int)p1.Value, 1);
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opMyEnum", Ice.OperationMode.Normal, inEncaps, out outEncaps);
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             test(@in.readOptional(1, Ice.OptionalFormat.Size));
             test((Test.MyEnum)@in.readEnum(1) == Test.MyEnum.MyEnumMember);
@@ -1014,7 +1014,7 @@ public class AllTests : TestCommon.TestApp
             test((Test.MyEnum)@in.readEnum(1) == Test.MyEnum.MyEnumMember);
             @in.endEncapsulation();
 
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             @in.endEncapsulation();
         }
@@ -1042,28 +1042,28 @@ public class AllTests : TestCommon.TestApp
             p2 = initial.opSmallStruct(new Ice.Optional<Test.SmallStruct>(), out p3);
             test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
 
-            os = Ice.Util.createOutputStream(communicator);
+            os = new Ice.OutputStream(communicator);
             os.startEncapsulation();
             os.writeOptional(2, Ice.OptionalFormat.VSize);
             os.writeSize(1);
-            p1.Value.ice_write(os);
+            p1.Value.write__(os);
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opSmallStruct", Ice.OperationMode.Normal, inEncaps, out outEncaps);
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             test(@in.readOptional(1, Ice.OptionalFormat.VSize));
             @in.skipSize();
             Test.SmallStruct f = new Test.SmallStruct();
-            f.ice_read(@in);
+            f.read__(@in);
             test(f.m == (byte)56);
             test(@in.readOptional(3, Ice.OptionalFormat.VSize));
             @in.skipSize();
-            f.ice_read(@in);
+            f.read__(@in);
             test(f.m == (byte)56);
             @in.endEncapsulation();
 
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             @in.endEncapsulation();
         }
@@ -1091,28 +1091,28 @@ public class AllTests : TestCommon.TestApp
             p2 = initial.opFixedStruct(new Ice.Optional<Test.FixedStruct>(), out p3);
             test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
 
-            os = Ice.Util.createOutputStream(communicator);
+            os = new Ice.OutputStream(communicator);
             os.startEncapsulation();
             os.writeOptional(2, Ice.OptionalFormat.VSize);
             os.writeSize(4);
-            p1.Value.ice_write(os);
+            p1.Value.write__(os);
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opFixedStruct", Ice.OperationMode.Normal, inEncaps, out outEncaps);
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             test(@in.readOptional(1, Ice.OptionalFormat.VSize));
             @in.skipSize();
             Test.FixedStruct f = new Test.FixedStruct();
-            f.ice_read(@in);
+            f.read__(@in);
             test(f.m == 56);
             test(@in.readOptional(3, Ice.OptionalFormat.VSize));
             @in.skipSize();
-            f.ice_read(@in);
+            f.read__(@in);
             test(f.m == 56);
             @in.endEncapsulation();
 
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             @in.endEncapsulation();
         }
@@ -1145,29 +1145,29 @@ public class AllTests : TestCommon.TestApp
             p2 = initial.opVarStruct(new Ice.Optional<Test.VarStruct>(), out p3);
             test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
 
-            os = Ice.Util.createOutputStream(communicator);
+            os = new Ice.OutputStream(communicator);
             os.startEncapsulation();
             os.writeOptional(2, Ice.OptionalFormat.FSize);
             int pos = os.startSize();
-            p1.Value.ice_write(os);
+            p1.Value.write__(os);
             os.endSize(pos);
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opVarStruct", Ice.OperationMode.Normal, inEncaps, out outEncaps);
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             test(@in.readOptional(1, Ice.OptionalFormat.FSize));
             @in.skip(4);
             Test.VarStruct v = new Test.VarStruct();
-            v.ice_read(@in);
+            v.read__(@in);
             test(v.m.Equals("test"));
             test(@in.readOptional(3, Ice.OptionalFormat.FSize));
             @in.skip(4);
-            v.ice_read(@in);
+            v.read__(@in);
             test(v.m.Equals("test"));
             @in.endEncapsulation();
 
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             @in.endEncapsulation();
         }
@@ -1200,25 +1200,25 @@ public class AllTests : TestCommon.TestApp
             p2 = initial.opOneOptional(new Ice.Optional<Test.OneOptional>(), out p3);
             test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
 
-            os = Ice.Util.createOutputStream(communicator);
+            os = new Ice.OutputStream(communicator);
             os.startEncapsulation();
             os.writeOptional(2, Ice.OptionalFormat.Class);
             os.writeObject(p1.Value);
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opOneOptional", Ice.OperationMode.Normal, inEncaps, out outEncaps);
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             test(@in.readOptional(1, Ice.OptionalFormat.Class));
             ReadObjectCallbackI p2cb = new ReadObjectCallbackI();
-            @in.readObject(p2cb);
+            @in.readObject(p2cb.invoke);
             test(@in.readOptional(3, Ice.OptionalFormat.Class));
             ReadObjectCallbackI p3cb = new ReadObjectCallbackI();
-            @in.readObject(p3cb);
+            @in.readObject(p3cb.invoke);
             @in.endEncapsulation();
             test(((Test.OneOptional)p2cb.obj).a.Value == 58 && ((Test.OneOptional)p3cb.obj).a.Value == 58);
 
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             @in.endEncapsulation();
         }
@@ -1256,7 +1256,7 @@ public class AllTests : TestCommon.TestApp
             p2 = initial.opOneOptionalProxy(new Ice.Optional<Test.OneOptionalPrx>(), out p3);
             test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
 
-            os = Ice.Util.createOutputStream(communicator);
+            os = new Ice.OutputStream(communicator);
             os.startEncapsulation();
             os.writeOptional(2, Ice.OptionalFormat.FSize);
             int pos = os.startSize();
@@ -1265,7 +1265,7 @@ public class AllTests : TestCommon.TestApp
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opOneOptionalProxy", Ice.OperationMode.Normal, inEncaps, out outEncaps);
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             test(@in.readOptional(1, Ice.OptionalFormat.FSize));
             @in.skip(4);
@@ -1275,7 +1275,7 @@ public class AllTests : TestCommon.TestApp
             test(@in.readProxy().Equals(p1.Value));
             @in.endEncapsulation();
 
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             @in.endEncapsulation();
         }
@@ -1306,14 +1306,14 @@ public class AllTests : TestCommon.TestApp
             p2 = initial.opByteSeq(new Ice.Optional<byte[]>(), out p3);
             test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
 
-            os = Ice.Util.createOutputStream(communicator);
+            os = new Ice.OutputStream(communicator);
             os.startEncapsulation();
             os.writeOptional(2, Ice.OptionalFormat.VSize);
             os.writeByteSeq(p1.Value);
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opByteSeq", Ice.OperationMode.Normal, inEncaps, out outEncaps);
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             test(@in.readOptional(1, Ice.OptionalFormat.VSize));
             test(ArraysEqual(@in.readByteSeq(), p1.Value));
@@ -1321,7 +1321,7 @@ public class AllTests : TestCommon.TestApp
             test(ArraysEqual(@in.readByteSeq(), p1.Value));
             @in.endEncapsulation();
 
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             @in.endEncapsulation();
         }
@@ -1352,14 +1352,14 @@ public class AllTests : TestCommon.TestApp
             p2 = initial.opBoolSeq(new Ice.Optional<bool[]>(), out p3);
             test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
 
-            os = Ice.Util.createOutputStream(communicator);
+            os = new Ice.OutputStream(communicator);
             os.startEncapsulation();
             os.writeOptional(2, Ice.OptionalFormat.VSize);
             os.writeBoolSeq(p1.Value);
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opBoolSeq", Ice.OperationMode.Normal, inEncaps, out outEncaps);
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             test(@in.readOptional(1, Ice.OptionalFormat.VSize));
             test(ArraysEqual(@in.readBoolSeq(), p1.Value));
@@ -1367,7 +1367,7 @@ public class AllTests : TestCommon.TestApp
             test(ArraysEqual(@in.readBoolSeq(), p1.Value));
             @in.endEncapsulation();
 
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             @in.endEncapsulation();
         }
@@ -1398,7 +1398,7 @@ public class AllTests : TestCommon.TestApp
             p2 = initial.opShortSeq(new Ice.Optional<short[]>(), out p3);
             test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
 
-            os = Ice.Util.createOutputStream(communicator);
+            os = new Ice.OutputStream(communicator);
             os.startEncapsulation();
             os.writeOptional(2, Ice.OptionalFormat.VSize);
             os.writeSize(p1.Value.Length * 2 + (p1.Value.Length > 254 ? 5 : 1));
@@ -1406,7 +1406,7 @@ public class AllTests : TestCommon.TestApp
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opShortSeq", Ice.OperationMode.Normal, inEncaps, out outEncaps);
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             test(@in.readOptional(1, Ice.OptionalFormat.VSize));
             @in.skipSize();
@@ -1416,7 +1416,7 @@ public class AllTests : TestCommon.TestApp
             test(ArraysEqual(@in.readShortSeq(), p1.Value));
             @in.endEncapsulation();
 
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             @in.endEncapsulation();
         }
@@ -1447,7 +1447,7 @@ public class AllTests : TestCommon.TestApp
             p2 = initial.opIntSeq(new Ice.Optional<int[]>(), out p3);
             test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
 
-            os = Ice.Util.createOutputStream(communicator);
+            os = new Ice.OutputStream(communicator);
             os.startEncapsulation();
             os.writeOptional(2, Ice.OptionalFormat.VSize);
             os.writeSize(p1.Value.Length * 4 + (p1.Value.Length > 254 ? 5 : 1));
@@ -1455,7 +1455,7 @@ public class AllTests : TestCommon.TestApp
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opIntSeq", Ice.OperationMode.Normal, inEncaps, out outEncaps);
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             test(@in.readOptional(1, Ice.OptionalFormat.VSize));
             @in.skipSize();
@@ -1465,7 +1465,7 @@ public class AllTests : TestCommon.TestApp
             test(ArraysEqual(@in.readIntSeq(), p1.Value));
             @in.endEncapsulation();
 
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             @in.endEncapsulation();
         }
@@ -1496,7 +1496,7 @@ public class AllTests : TestCommon.TestApp
             p2 = initial.opLongSeq(new Ice.Optional<long[]>(), out p3);
             test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
 
-            os = Ice.Util.createOutputStream(communicator);
+            os = new Ice.OutputStream(communicator);
             os.startEncapsulation();
             os.writeOptional(2, Ice.OptionalFormat.VSize);
             os.writeSize(p1.Value.Length * 8 + (p1.Value.Length > 254 ? 5 : 1));
@@ -1504,7 +1504,7 @@ public class AllTests : TestCommon.TestApp
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opLongSeq", Ice.OperationMode.Normal, inEncaps, out outEncaps);
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             test(@in.readOptional(1, Ice.OptionalFormat.VSize));
             @in.skipSize();
@@ -1514,7 +1514,7 @@ public class AllTests : TestCommon.TestApp
             test(ArraysEqual(@in.readLongSeq(), p1.Value));
             @in.endEncapsulation();
 
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             @in.endEncapsulation();
         }
@@ -1545,7 +1545,7 @@ public class AllTests : TestCommon.TestApp
             p2 = initial.opFloatSeq(new Ice.Optional<float[]>(), out p3);
             test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
 
-            os = Ice.Util.createOutputStream(communicator);
+            os = new Ice.OutputStream(communicator);
             os.startEncapsulation();
             os.writeOptional(2, Ice.OptionalFormat.VSize);
             os.writeSize(p1.Value.Length * 4 + (p1.Value.Length > 254 ? 5 : 1));
@@ -1553,7 +1553,7 @@ public class AllTests : TestCommon.TestApp
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opFloatSeq", Ice.OperationMode.Normal, inEncaps, out outEncaps);
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             test(@in.readOptional(1, Ice.OptionalFormat.VSize));
             @in.skipSize();
@@ -1563,7 +1563,7 @@ public class AllTests : TestCommon.TestApp
             test(ArraysEqual(@in.readFloatSeq(), p1.Value));
             @in.endEncapsulation();
 
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             @in.endEncapsulation();
         }
@@ -1594,7 +1594,7 @@ public class AllTests : TestCommon.TestApp
             p2 = initial.opDoubleSeq(new Ice.Optional<double[]>(), out p3);
             test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
 
-            os = Ice.Util.createOutputStream(communicator);
+            os = new Ice.OutputStream(communicator);
             os.startEncapsulation();
             os.writeOptional(2, Ice.OptionalFormat.VSize);
             os.writeSize(p1.Value.Length * 8 + (p1.Value.Length > 254 ? 5 : 1));
@@ -1602,7 +1602,7 @@ public class AllTests : TestCommon.TestApp
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opDoubleSeq", Ice.OperationMode.Normal, inEncaps, out outEncaps);
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             test(@in.readOptional(1, Ice.OptionalFormat.VSize));
             @in.skipSize();
@@ -1612,7 +1612,7 @@ public class AllTests : TestCommon.TestApp
             test(ArraysEqual(@in.readDoubleSeq(), p1.Value));
             @in.endEncapsulation();
 
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             @in.endEncapsulation();
         }
@@ -1643,7 +1643,7 @@ public class AllTests : TestCommon.TestApp
             p2 = initial.opStringSeq(new Ice.Optional<String[]>(), out p3);
             test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
 
-            os = Ice.Util.createOutputStream(communicator);
+            os = new Ice.OutputStream(communicator);
             os.startEncapsulation();
             os.writeOptional(2, Ice.OptionalFormat.FSize);
             int pos = os.startSize();
@@ -1652,7 +1652,7 @@ public class AllTests : TestCommon.TestApp
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opStringSeq", Ice.OperationMode.Normal, inEncaps, out outEncaps);
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             test(@in.readOptional(1, Ice.OptionalFormat.FSize));
             @in.skip(4);
@@ -1662,7 +1662,7 @@ public class AllTests : TestCommon.TestApp
             test(ArraysEqual(@in.readStringSeq(), p1.Value));
             @in.endEncapsulation();
 
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             @in.endEncapsulation();
         }
@@ -1696,7 +1696,7 @@ public class AllTests : TestCommon.TestApp
             p2 = initial.opSmallStructSeq(new Ice.Optional<Test.SmallStruct[]>(), out p3);
             test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
 
-            os = Ice.Util.createOutputStream(communicator);
+            os = new Ice.OutputStream(communicator);
             os.startEncapsulation();
             os.writeOptional(2, Ice.OptionalFormat.VSize);
             os.writeSize(p1.Value.Length + (p1.Value.Length > 254 ? 5 : 1));
@@ -1704,7 +1704,7 @@ public class AllTests : TestCommon.TestApp
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opSmallStructSeq", Ice.OperationMode.Normal, inEncaps, out outEncaps);
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             test(@in.readOptional(1, Ice.OptionalFormat.VSize));
             @in.skipSize();
@@ -1716,7 +1716,7 @@ public class AllTests : TestCommon.TestApp
             test(ArraysEqual(arr, p1.Value));
             @in.endEncapsulation();
 
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             @in.endEncapsulation();
         }
@@ -1750,7 +1750,7 @@ public class AllTests : TestCommon.TestApp
             p2 = initial.opSmallStructList(new Ice.Optional<List<Test.SmallStruct>>(), out p3);
             test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
 
-            os = Ice.Util.createOutputStream(communicator);
+            os = new Ice.OutputStream(communicator);
             os.startEncapsulation();
             os.writeOptional(2, Ice.OptionalFormat.VSize);
             os.writeSize(p1.Value.Count + (p1.Value.Count > 254 ? 5 : 1));
@@ -1758,7 +1758,7 @@ public class AllTests : TestCommon.TestApp
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opSmallStructList", Ice.OperationMode.Normal, inEncaps, out outEncaps);
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             test(@in.readOptional(1, Ice.OptionalFormat.VSize));
             @in.skipSize();
@@ -1770,7 +1770,7 @@ public class AllTests : TestCommon.TestApp
             test(ListsEqual(arr, p1.Value));
             @in.endEncapsulation();
 
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             @in.endEncapsulation();
         }
@@ -1804,7 +1804,7 @@ public class AllTests : TestCommon.TestApp
             p2 = initial.opFixedStructSeq(new Ice.Optional<Test.FixedStruct[]>(), out p3);
             test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
 
-            os = Ice.Util.createOutputStream(communicator);
+            os = new Ice.OutputStream(communicator);
             os.startEncapsulation();
             os.writeOptional(2, Ice.OptionalFormat.VSize);
             os.writeSize(p1.Value.Length * 4 + (p1.Value.Length > 254 ? 5 : 1));
@@ -1812,7 +1812,7 @@ public class AllTests : TestCommon.TestApp
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opFixedStructSeq", Ice.OperationMode.Normal, inEncaps, out outEncaps);
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             test(@in.readOptional(1, Ice.OptionalFormat.VSize));
             @in.skipSize();
@@ -1824,7 +1824,7 @@ public class AllTests : TestCommon.TestApp
             test(ArraysEqual(arr, p1.Value));
             @in.endEncapsulation();
 
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             @in.endEncapsulation();
         }
@@ -1858,7 +1858,7 @@ public class AllTests : TestCommon.TestApp
             p2 = initial.opFixedStructList(new Ice.Optional<LinkedList<Test.FixedStruct>>(), out p3);
             test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
 
-            os = Ice.Util.createOutputStream(communicator);
+            os = new Ice.OutputStream(communicator);
             os.startEncapsulation();
             os.writeOptional(2, Ice.OptionalFormat.VSize);
             os.writeSize(p1.Value.Count * 4 + (p1.Value.Count > 254 ? 5 : 1));
@@ -1866,7 +1866,7 @@ public class AllTests : TestCommon.TestApp
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opFixedStructList", Ice.OperationMode.Normal, inEncaps, out outEncaps);
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             test(@in.readOptional(1, Ice.OptionalFormat.VSize));
             @in.skipSize();
@@ -1878,7 +1878,7 @@ public class AllTests : TestCommon.TestApp
             test(ListsEqual(arr, p1.Value));
             @in.endEncapsulation();
 
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             @in.endEncapsulation();
         }
@@ -1912,7 +1912,7 @@ public class AllTests : TestCommon.TestApp
             p2 = initial.opVarStructSeq(new Ice.Optional<Test.VarStruct[]>(), out p3);
             test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
 
-            os = Ice.Util.createOutputStream(communicator);
+            os = new Ice.OutputStream(communicator);
             os.startEncapsulation();
             os.writeOptional(2, Ice.OptionalFormat.FSize);
             int pos = os.startSize();
@@ -1921,7 +1921,7 @@ public class AllTests : TestCommon.TestApp
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opVarStructSeq", Ice.OperationMode.Normal, inEncaps, out outEncaps);
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             test(@in.readOptional(1, Ice.OptionalFormat.FSize));
             @in.skip(4);
@@ -1933,7 +1933,7 @@ public class AllTests : TestCommon.TestApp
             test(ArraysEqual(arr, p1.Value));
             @in.endEncapsulation();
 
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             @in.endEncapsulation();
         }
@@ -1963,14 +1963,14 @@ public class AllTests : TestCommon.TestApp
             p2 = initial.opSerializable(new Ice.Optional<Test.SerializableClass>(), out p3);
             test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
 
-            os = Ice.Util.createOutputStream(communicator);
+            os = new Ice.OutputStream(communicator);
             os.startEncapsulation();
             os.writeOptional(2, Ice.OptionalFormat.VSize);
             os.writeSerializable(p1.Value);
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opSerializable", Ice.OperationMode.Normal, inEncaps, out outEncaps);
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             test(@in.readOptional(1, Ice.OptionalFormat.VSize));
             Test.SerializableClass sc = Test.SerializableHelper.read(@in);
@@ -1980,7 +1980,7 @@ public class AllTests : TestCommon.TestApp
             test(sc.Equals(p1.Value));
             @in.endEncapsulation();
 
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             @in.endEncapsulation();
         }
@@ -2013,7 +2013,7 @@ public class AllTests : TestCommon.TestApp
             p2 = initial.opIntIntDict(new Ice.Optional<Dictionary<int, int>>(), out p3);
             test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
 
-            os = Ice.Util.createOutputStream(communicator);
+            os = new Ice.OutputStream(communicator);
             os.startEncapsulation();
             os.writeOptional(2, Ice.OptionalFormat.VSize);
             os.writeSize(p1.Value.Count * 8 + (p1.Value.Count > 254 ? 5 : 1));
@@ -2021,7 +2021,7 @@ public class AllTests : TestCommon.TestApp
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opIntIntDict", Ice.OperationMode.Normal, inEncaps, out outEncaps);
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             test(@in.readOptional(1, Ice.OptionalFormat.VSize));
             @in.skipSize();
@@ -2033,7 +2033,7 @@ public class AllTests : TestCommon.TestApp
             test(MapsEqual(m, p1.Value));
             @in.endEncapsulation();
 
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             @in.endEncapsulation();
         }
@@ -2065,7 +2065,7 @@ public class AllTests : TestCommon.TestApp
             p2 = initial.opStringIntDict(new Ice.Optional<Dictionary<string, int>>(), out p3);
             test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
 
-            os = Ice.Util.createOutputStream(communicator);
+            os = new Ice.OutputStream(communicator);
             os.startEncapsulation();
             os.writeOptional(2, Ice.OptionalFormat.FSize);
             int pos = os.startSize();
@@ -2074,7 +2074,7 @@ public class AllTests : TestCommon.TestApp
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opStringIntDict", Ice.OperationMode.Normal, inEncaps, out outEncaps);
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             test(@in.readOptional(1, Ice.OptionalFormat.FSize));
             @in.skip(4);
@@ -2086,7 +2086,7 @@ public class AllTests : TestCommon.TestApp
             test(MapsEqual(m, p1.Value));
             @in.endEncapsulation();
 
-            @in = Ice.Util.createInputStream(communicator, outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
             @in.startEncapsulation();
             @in.endEncapsulation();
 
@@ -2095,7 +2095,7 @@ public class AllTests : TestCommon.TestApp
             f.af.Value.requiredA = 56;
             f.ae = f.af.Value;
 
-            os = Ice.Util.createOutputStream(communicator);
+            os = new Ice.OutputStream(communicator);
             os.startEncapsulation();
             os.writeOptional(1, Ice.OptionalFormat.Class);
             os.writeObject(f);
@@ -2104,11 +2104,11 @@ public class AllTests : TestCommon.TestApp
             os.endEncapsulation();
             inEncaps = os.finished();
 
-            @in = Ice.Util.createInputStream(communicator, inEncaps);
+            @in = new Ice.InputStream(communicator, inEncaps);
             @in.startEncapsulation();
             test(@in.readOptional(2, Ice.OptionalFormat.Class));
             ReadObjectCallbackI rocb = new ReadObjectCallbackI();
-            @in.readObject(rocb);
+            @in.readObject(rocb.invoke);
             @in.endEncapsulation();
             Test.A a = (Test.A)rocb.obj;
             test(a != null && a.requiredA == 56);
@@ -2429,7 +2429,7 @@ public class AllTests : TestCommon.TestApp
             test(o.Length == 4 &&
                  o[0].Equals("test1") && o[1].Equals("test2") && o[2].Equals("test3") && o[3].Equals("test4"));
             test(@in.readOptional(1000, Ice.OptionalFormat.Class));
-            @in.readObject(a);
+            @in.readObject(a.invoke);
             @in.endSlice();
             // ::Test::B
             @in.startSlice();
@@ -2462,7 +2462,7 @@ public class AllTests : TestCommon.TestApp
             @in.endSlice();
             @in.startSlice();
             ReadObjectCallbackI rocb = new ReadObjectCallbackI();
-            @in.readObject(rocb);
+            @in.readObject(rocb.invoke);
             @in.endSlice();
             @in.endObject(false);
             _f.ae = (Test.A)rocb.obj;
@@ -2521,7 +2521,7 @@ public class AllTests : TestCommon.TestApp
         private bool _enabled;
     }
 
-    private class ReadObjectCallbackI : Ice.ReadObjectCallback
+    private class ReadObjectCallbackI
     {
         public void invoke(Ice.Object obj)
         {

@@ -385,7 +385,7 @@ namespace Ice
         public bool sendAsyncRequest(IceInternal.OutgoingAsyncBase og, bool compress, bool response,
                                      int batchRequestNum, out Ice.AsyncCallback sentCallback)
         {
-            IceInternal.BasicStream os = og.getOs();
+            OutputStream os = og.getOs();
 
             lock(this)
             {
@@ -657,7 +657,7 @@ namespace Ice
             }
         }
 
-        public void sendResponse(int requestId, IceInternal.BasicStream os, byte compressFlag, bool amd)
+        public void sendResponse(int requestId, OutputStream os, byte compressFlag, bool amd)
         {
             lock(this)
             {
@@ -1051,7 +1051,7 @@ namespace Ice
                                 }
                                 if(size > _readStream.size())
                                 {
-                                    _readStream.resize(size, true);
+                                    _readStream.resize(size);
                                 }
                                 _readStream.pos(pos);
                             }
@@ -1160,7 +1160,7 @@ namespace Ice
                         {
                             _logger.warning("maximum datagram size of " + _readStream.pos() + " exceeded");
                         }
-                        _readStream.resize(IceInternal.Protocol.headerSize, true);
+                        _readStream.resize(IceInternal.Protocol.headerSize);
                         _readStream.pos(0);
                         _readHeader = true;
                         return;
@@ -1179,7 +1179,7 @@ namespace Ice
                                 String s = "datagram connection exception:\n" + ex + '\n' + _desc;
                                 _logger.warning(s);
                             }
-                            _readStream.resize(IceInternal.Protocol.headerSize, true);
+                            _readStream.resize(IceInternal.Protocol.headerSize);
                             _readStream.pos(0);
                             _readHeader = true;
                         }
@@ -1566,7 +1566,7 @@ namespace Ice
 
         static ConnectionI()
         {
-            _compressionSupported = IceInternal.BasicStream.compressible();
+            _compressionSupported = IceInternal.BZip2.supported();
         }
 
         internal ConnectionI(Communicator communicator, IceInternal.Instance instance,
@@ -1604,10 +1604,10 @@ namespace Ice
             _nextRequestId = 1;
             _messageSizeMax = adapter != null ? adapter.messageSizeMax() : instance.messageSizeMax();
             _batchRequestQueue = new IceInternal.BatchRequestQueue(instance, _endpoint.datagram());
-            _readStream = new IceInternal.BasicStream(instance, Util.currentProtocolEncoding);
+            _readStream = new InputStream(instance, Util.currentProtocolEncoding);
             _readHeader = false;
             _readStreamPos = -1;
-            _writeStream = new IceInternal.BasicStream(instance, Util.currentProtocolEncoding);
+            _writeStream = new OutputStream(instance, Util.currentProtocolEncoding);
             _writeStreamPos = -1;
             _dispatchCount = 0;
             _state = StateNotInitialized;
@@ -1911,7 +1911,7 @@ namespace Ice
                 //
                 // Before we shut down, we send a close connection message.
                 //
-                IceInternal.BasicStream os = new IceInternal.BasicStream(_instance, Util.currentProtocolEncoding);
+                OutputStream os = new OutputStream(_instance, Util.currentProtocolEncoding);
                 os.writeBlob(IceInternal.Protocol.magic);
                 Ice.Util.currentProtocol.write__(os);
                 Ice.Util.currentProtocolEncoding.write__(os);
@@ -1942,7 +1942,7 @@ namespace Ice
 
             if(!_endpoint.datagram())
             {
-                IceInternal.BasicStream os = new IceInternal.BasicStream(_instance, Util.currentProtocolEncoding);
+                OutputStream os = new OutputStream(_instance, Util.currentProtocolEncoding);
                 os.writeBlob(IceInternal.Protocol.magic);
                 Ice.Util.currentProtocol.write__(os);
                 Ice.Util.currentProtocolEncoding.write__(os);
@@ -2025,7 +2025,7 @@ namespace Ice
                 {
                     if(_readStream.size() == 0)
                     {
-                        _readStream.resize(IceInternal.Protocol.headerSize, true);
+                        _readStream.resize(IceInternal.Protocol.headerSize);
                         _readStream.pos(0);
                     }
 
@@ -2086,10 +2086,10 @@ namespace Ice
                 }
             }
 
-            _writeStream.resize(0, false);
+            _writeStream.resize(0);
             _writeStream.pos(0);
 
-            _readStream.resize(IceInternal.Protocol.headerSize, true);
+            _readStream.resize(IceInternal.Protocol.headerSize);
             _readStream.pos(0);
             _readHeader = true;
 
@@ -2180,7 +2180,7 @@ namespace Ice
                     //
                     message = _sendStreams.First.Value;
                     Debug.Assert(!message.prepared);
-                    IceInternal.BasicStream stream = message.stream;
+                    OutputStream stream = message.stream;
 
                     message.stream = doCompress(message.stream, message.compress);
                     message.stream.prepareWrite();
@@ -2257,7 +2257,7 @@ namespace Ice
 
             Debug.Assert(!message.prepared);
 
-            IceInternal.BasicStream stream = message.stream;
+            OutputStream stream = message.stream;
 
             message.stream = doCompress(stream, message.compress);
             message.stream.prepareWrite();
@@ -2305,7 +2305,7 @@ namespace Ice
             return false;
         }
 
-        private IceInternal.BasicStream doCompress(IceInternal.BasicStream uncompressed, bool compress)
+        private OutputStream doCompress(OutputStream uncompressed, bool compress)
         {
             if(_compressionSupported)
             {
@@ -2314,9 +2314,14 @@ namespace Ice
                     //
                     // Do compression.
                     //
-                    IceInternal.BasicStream cstream = null;
-                    if(uncompressed.compress(ref cstream, IceInternal.Protocol.headerSize, _compressionLevel))
+                    IceInternal.Buffer cbuf = IceInternal.BZip2.compress(uncompressed.getBuffer(),
+                                                                         IceInternal.Protocol.headerSize,
+                                                                         _compressionLevel);
+                    if(cbuf != null)
                     {
+                        OutputStream cstream =
+                            new OutputStream(uncompressed.instance(), uncompressed.getEncoding(), cbuf, true);
+
                         //
                         // Set compression status.
                         //
@@ -2356,7 +2361,7 @@ namespace Ice
 
         private struct MessageInfo
         {
-            public IceInternal.BasicStream stream;
+            public InputStream stream;
             public int invokeNum;
             public int requestId;
             public byte compress;
@@ -2372,9 +2377,9 @@ namespace Ice
         {
             Debug.Assert(_state > StateNotValidated && _state < StateClosed);
 
-            info.stream = new IceInternal.BasicStream(_instance, Util.currentProtocolEncoding);
+            info.stream = new InputStream(_instance, Util.currentProtocolEncoding);
             _readStream.swap(info.stream);
-            _readStream.resize(IceInternal.Protocol.headerSize, true);
+            _readStream.resize(IceInternal.Protocol.headerSize);
             _readStream.pos(0);
             _readHeader = true;
 
@@ -2400,7 +2405,10 @@ namespace Ice
                 {
                     if(_compressionSupported)
                     {
-                        info.stream = info.stream.uncompress(IceInternal.Protocol.headerSize, _messageSizeMax);
+                        IceInternal.Buffer ubuf = IceInternal.BZip2.uncompress(info.stream.getBuffer(),
+                                                                               IceInternal.Protocol.headerSize,
+                                                                               _messageSizeMax);
+                        info.stream = new InputStream(info.stream.instance(), info.stream.getEncoding(), ubuf, true);
                     }
                     else
                     {
@@ -2556,7 +2564,7 @@ namespace Ice
             return _state == StateHolding ? IceInternal.SocketOperation.None : IceInternal.SocketOperation.Read;
         }
 
-        private void invokeAll(IceInternal.BasicStream stream, int invokeNum, int requestId, byte compress,
+        private void invokeAll(InputStream stream, int invokeNum, int requestId, byte compress,
                                IceInternal.ServantManager servantManager, ObjectAdapter adapter)
         {
             //
@@ -2861,7 +2869,7 @@ namespace Ice
 
         private class OutgoingMessage
         {
-            internal OutgoingMessage(IceInternal.BasicStream stream, bool compress, bool adopt)
+            internal OutgoingMessage(OutputStream stream, bool compress, bool adopt)
             {
                 this.stream = stream;
                 this.compress = compress;
@@ -2870,7 +2878,7 @@ namespace Ice
                 this.requestId = 0;
             }
 
-            internal OutgoingMessage(IceInternal.OutgoingAsyncBase outAsync, IceInternal.BasicStream stream,
+            internal OutgoingMessage(IceInternal.OutgoingAsyncBase outAsync, OutputStream stream,
                                      bool compress, int requestId)
             {
                 this.stream = stream;
@@ -2890,8 +2898,7 @@ namespace Ice
             {
                 if(_adopt)
                 {
-                    IceInternal.BasicStream stream = new IceInternal.BasicStream(this.stream.instance(),
-                                                                                 Util.currentProtocolEncoding);
+                    OutputStream stream = new OutputStream(this.stream.instance(), Util.currentProtocolEncoding);
                     stream.swap(this.stream);
                     this.stream = stream;
                     _adopt = false;
@@ -2919,7 +2926,7 @@ namespace Ice
                 }
             }
 
-            internal IceInternal.BasicStream stream;
+            internal OutputStream stream;
             internal IceInternal.OutgoingAsyncBase outAsync;
             internal bool receivedReply;
             internal bool compress;
@@ -2973,9 +2980,9 @@ namespace Ice
 
         private LinkedList<OutgoingMessage> _sendStreams = new LinkedList<OutgoingMessage>();
 
-        private IceInternal.BasicStream _readStream;
+        private InputStream _readStream;
         private bool _readHeader;
-        private IceInternal.BasicStream _writeStream;
+        private OutputStream _writeStream;
 
         private ConnectionObserver _observer;
         private int _readStreamPos;

@@ -198,23 +198,23 @@ namespace Ice
     /// <summary>
     /// Handles callbacks for an optional object parameter.
     /// </summary>
-    public class OptionalPatcher<T> : IceInternal.Patcher
+    public class OptionalPatcher<T>
         where T : Ice.Object
     {
         /// <summary>
         /// Instantiates the class with the given optional.
         /// </summary>
         /// <param name="type">The Slice type ID corresponding to the formal type.</param>
-        public OptionalPatcher(string type) :
-            base(type)
+        public OptionalPatcher(string type)
         {
+            _type = type;
         }
 
         /// <summary>
         /// Sets the Ice object of the optional to the passed instance.
         /// </summary>
         /// <param name="v">The new object for the optional.</param>
-        public override void patch(Ice.Object v)
+        public void patch(Ice.Object v)
         {
             if(v == null || typeof(T).IsAssignableFrom(v.GetType()))
             {
@@ -231,7 +231,7 @@ namespace Ice
             }
             else
             {
-                IceInternal.Ex.throwUOE(type(), v.ice_id());
+                IceInternal.Ex.throwUOE(_type, v.ice_id());
             }
         }
 
@@ -239,6 +239,7 @@ namespace Ice
         /// The target optional.
         /// </summary>
         public Optional<T> value = new Optional<T>();
+        private string _type;
     }
 
     /// <summary>

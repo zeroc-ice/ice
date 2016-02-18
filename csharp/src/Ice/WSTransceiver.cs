@@ -23,7 +23,7 @@ namespace IceInternal
     public interface WSTransceiverDelegate
     {
         Ice.ConnectionInfo getWSInfo(Dictionary<string, string> headers);
-    };
+    }
 
     sealed class WSTransceiver : Transceiver
     {

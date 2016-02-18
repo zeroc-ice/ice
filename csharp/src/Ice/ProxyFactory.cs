@@ -20,7 +20,7 @@ namespace IceInternal
             Reference r = instance_.referenceFactory().create(str, null);
             return referenceToProxy(r);
         }
-        
+
         public string proxyToString(Ice.ObjectPrx proxy)
         {
             if(proxy != null)
@@ -33,7 +33,7 @@ namespace IceInternal
                 return "";
             }
         }
-        
+
         public Ice.ObjectPrx propertyToProxy(string prefix)
         {
             string proxy = instance_.initializationData().properties.getProperty(prefix);
@@ -41,8 +41,7 @@ namespace IceInternal
             return referenceToProxy(r);
         }
 
-        public Dictionary<string, string>
-        proxyToProperty(Ice.ObjectPrx proxy, string prefix)
+        public Dictionary<string, string> proxyToProperty(Ice.ObjectPrx proxy, string prefix)
         {
             if(proxy != null)
             {
@@ -54,16 +53,16 @@ namespace IceInternal
                 return new Dictionary<string, string>();
             }
         }
-        
-        public Ice.ObjectPrx streamToProxy(BasicStream s)
+
+        public Ice.ObjectPrx streamToProxy(Ice.InputStream s)
         {
             Ice.Identity ident = new Ice.Identity();
             ident.read__(s);
-            
+
             Reference r = instance_.referenceFactory().create(ident, s);
             return referenceToProxy(r);
         }
-        
+
         public Ice.ObjectPrx referenceToProxy(Reference r)
         {
             if(r != null)
@@ -77,25 +76,7 @@ namespace IceInternal
                 return null;
             }
         }
-        
-        public void proxyToStream(Ice.ObjectPrx proxy, BasicStream s)
-        {
-            if(proxy != null)
-            {
-                Ice.ObjectPrxHelperBase h = (Ice.ObjectPrxHelperBase)proxy;
-                Reference r = h.reference__();
-                r.getIdentity().write__(s);
-                r.streamWrite(s);
-            }
-            else
-            {
-                Ice.Identity ident = new Ice.Identity();
-                ident.name = "";
-                ident.category = "";
-                ident.write__(s);
-            }
-        }
-        
+
         public int checkRetryAfterException(Ice.LocalException ex, Reference @ref, ref int cnt)
         {
             TraceLevels traceLevels = instance_.traceLevels();
@@ -202,7 +183,7 @@ namespace IceInternal
             //
             // Don't retry invocation timeouts.
             //
-            if(ex is Ice.InvocationTimeoutException || ex is Ice.InvocationCanceledException) 
+            if(ex is Ice.InvocationTimeoutException || ex is Ice.InvocationCanceledException)
             {
                 throw ex;
             }
@@ -253,17 +234,17 @@ namespace IceInternal
         internal ProxyFactory(Instance instance)
         {
             instance_ = instance;
-            
+
             string[] arr = instance_.initializationData().properties.getPropertyAsList("Ice.RetryIntervals");
 
             if(arr.Length > 0)
             {
                 _retryIntervals = new int[arr.Length];
-                
+
                 for (int i = 0; i < arr.Length; i++)
                 {
                     int v;
-                    
+
                     try
                     {
                         v = System.Int32.Parse(arr[i], CultureInfo.InvariantCulture);
@@ -272,16 +253,16 @@ namespace IceInternal
                     {
                         v = 0;
                     }
-                    
+
                     //
                     // If -1 is the first value, no retry and wait intervals.
-                    // 
+                    //
                     if(i == 0 && v == -1)
                     {
                         _retryIntervals = new int[0];
                         break;
                     }
-                    
+
                     _retryIntervals[i] = v > 0?v:0;
                 }
             }
@@ -291,7 +272,7 @@ namespace IceInternal
                 _retryIntervals[0] = 0;
             }
         }
-        
+
         private Instance instance_;
         private int[] _retryIntervals;
     }

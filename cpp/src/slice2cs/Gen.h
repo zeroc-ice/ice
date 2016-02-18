@@ -29,11 +29,9 @@ protected:
     void writePostUnmarshalParams(const ParamDeclList&, const OperationPtr&);
     void writeMarshalDataMember(const DataMemberPtr&, const std::string&);
     void writeUnmarshalDataMember(const DataMemberPtr&, const std::string&, bool, int&);
-    void writeStreamMarshalDataMember(const DataMemberPtr&, const std::string&);
-    void writeStreamUnmarshalDataMember(const DataMemberPtr&, const std::string&, bool, int&);
 
     virtual void writeInheritedOperations(const ClassDefPtr&);
-    virtual void writeDispatchAndMarshalling(const ClassDefPtr&, bool);
+    virtual void writeDispatchAndMarshalling(const ClassDefPtr&);
     virtual std::vector<std::string> getParams(const OperationPtr&);
     virtual std::vector<std::string> getParamsAsync(const OperationPtr&, bool);
     virtual std::vector<std::string> getParamsAsyncCB(const OperationPtr&, bool, bool);
@@ -80,7 +78,6 @@ public:
         const std::vector<std::string>&,
         const std::string&,
         bool,
-        bool,
         bool);
     ~Gen();
 
@@ -97,8 +94,6 @@ private:
     IceUtilInternal::Output _impl;
 
     std::vector<std::string> _includePaths;
-
-    bool _stream;
 
     void printHeader();
 
@@ -126,7 +121,7 @@ private:
     {
     public:
 
-        TypesVisitor(::IceUtilInternal::Output&, bool);
+        TypesVisitor(::IceUtilInternal::Output&);
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
@@ -147,8 +142,6 @@ private:
 
         void writeMemberHashCode(const DataMemberList&, int);
         void writeMemberEquals(const DataMemberList&, int);
-
-        bool _stream;
     };
 
     class AsyncDelegateVisitor : public CsVisitor
@@ -195,7 +188,7 @@ private:
     {
     public:
 
-        HelperVisitor(::IceUtilInternal::Output&, bool);
+        HelperVisitor(::IceUtilInternal::Output&);
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
@@ -203,25 +196,17 @@ private:
         virtual void visitClassDefEnd(const ClassDefPtr&);
         virtual void visitSequence(const SequencePtr&);
         virtual void visitDictionary(const DictionaryPtr&);
-
-    private:
-
-        bool _stream;
     };
 
     class DispatcherVisitor : public CsVisitor
     {
     public:
 
-        DispatcherVisitor(::IceUtilInternal::Output&, bool);
+        DispatcherVisitor(::IceUtilInternal::Output&);
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
         virtual bool visitClassDefStart(const ClassDefPtr&);
-
-    private:
-
-        bool _stream;
     };
 
     class AsyncVisitor : public CsVisitor

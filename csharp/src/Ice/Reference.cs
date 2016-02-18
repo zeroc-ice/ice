@@ -244,7 +244,7 @@ namespace IceInternal
         //
         // Marshal the reference.
         //
-        public virtual void streamWrite(BasicStream s)
+        public virtual void streamWrite(Ice.OutputStream s)
         {
             //
             // Don't write the identity here. Operations calling streamWrite
@@ -268,7 +268,7 @@ namespace IceInternal
 
             s.writeBool(secure_);
 
-            if(!s.getWriteEncoding().Equals(Ice.Util.Encoding_1_0))
+            if(!s.getEncoding().Equals(Ice.Util.Encoding_1_0))
             {
                 protocol_.write__(s);
                 encoding_.write__(s);
@@ -651,7 +651,7 @@ namespace IceInternal
             return false;
         }
 
-        public override void streamWrite(BasicStream s)
+        public override void streamWrite(Ice.OutputStream s)
         {
             throw new Ice.FixedProxyException();
         }
@@ -1005,7 +1005,7 @@ namespace IceInternal
             return _endpoints.Length == 0 && _adapterId.Length == 0;
         }
 
-        public override void streamWrite(BasicStream s)
+        public override void streamWrite(Ice.OutputStream s)
         {
             base.streamWrite(s);
 

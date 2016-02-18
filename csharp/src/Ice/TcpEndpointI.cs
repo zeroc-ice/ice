@@ -32,7 +32,7 @@ namespace IceInternal
             _compress = false;
         }
 
-        public TcpEndpointI(ProtocolInstance instance, BasicStream s) :
+        public TcpEndpointI(ProtocolInstance instance, Ice.InputStream s) :
             base(instance, s)
         {
             _timeout = s.readInt();
@@ -227,7 +227,7 @@ namespace IceInternal
             return base.CompareTo(p);
         }
 
-        public override void streamWriteImpl(BasicStream s)
+        public override void streamWriteImpl(Ice.OutputStream s)
         {
             base.streamWriteImpl(s);
             s.writeInt(_timeout);
@@ -350,7 +350,7 @@ namespace IceInternal
             return endpt;
         }
 
-        public EndpointI read(BasicStream s)
+        public EndpointI read(Ice.InputStream s)
         {
             return new TcpEndpointI(_instance, s);
         }

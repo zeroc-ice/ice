@@ -42,6 +42,33 @@ namespace IceInternal
             _order = order;
         }
 
+        public Buffer(ByteBuffer data) : this(data, ByteBuffer.ByteOrder.LITTLE_ENDIAN)
+        {
+        }
+
+        public Buffer(ByteBuffer data, ByteBuffer.ByteOrder order)
+        {
+            b = data;
+            b.order(order);
+            _size = data.remaining();
+            _capacity = 0;
+            _order = order;
+        }
+
+        public Buffer(Buffer buf, bool adopt)
+        {
+            b = buf.b;
+            _size = buf._size;
+            _capacity = buf._capacity;
+            _shrinkCounter = buf._shrinkCounter;
+            _order = buf._order;
+
+            if(adopt)
+            {
+                buf.clear();
+            }
+        }
+
         public int size()
         {
             return _size;
@@ -57,6 +84,7 @@ namespace IceInternal
             b = _emptyBuffer;
             _size = 0;
             _capacity = 0;
+            _shrinkCounter = 0;
         }
 
         //

@@ -39,9 +39,9 @@ public class Server
 
     private static int run(string[] args, Ice.Communicator communicator)
     {
-        communicator.addValueFactory(MyValueFactory, "::Test::I");
-        communicator.addValueFactory(MyValueFactory, "::Test::J");
-        communicator.addValueFactory(MyValueFactory, "::Test::H");
+        communicator.getValueFactoryManager().add(MyValueFactory, "::Test::I");
+        communicator.getValueFactoryManager().add(MyValueFactory, "::Test::J");
+        communicator.getValueFactoryManager().add(MyValueFactory, "::Test::H");
 
         communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");

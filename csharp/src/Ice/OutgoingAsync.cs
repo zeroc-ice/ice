@@ -58,12 +58,12 @@ namespace IceInternal
             }
         }
 
-        public IceInternal.BasicStream getOs()
+        public Ice.OutputStream getOs()
         {
             return os_;
         }
 
-        public virtual IceInternal.BasicStream getIs()
+        public virtual Ice.InputStream getIs()
         {
             return null; // Must be implemented by classes that handle responses
         }
@@ -71,10 +71,11 @@ namespace IceInternal
         protected OutgoingAsyncBase(Ice.Communicator com, Instance instance, string op, object cookie) :
             base(com, instance, op, cookie)
         {
-            os_ = new BasicStream(instance, Ice.Util.currentProtocolEncoding);
+            os_ = new Ice.OutputStream(instance, Ice.Util.currentProtocolEncoding);
         }
 
-        protected OutgoingAsyncBase(Ice.Communicator com, Instance instance, string op, object cookie, BasicStream os) :
+        protected OutgoingAsyncBase(Ice.Communicator com, Instance instance, string op, object cookie,
+                                    Ice.OutputStream os) :
             base(com, instance, op, cookie)
         {
             os_ = os;
@@ -104,7 +105,7 @@ namespace IceInternal
             return base.finished(ex);
         }
 
-        protected BasicStream os_;
+        protected Ice.OutputStream os_;
         protected Ice.Instrumentation.ChildInvocationObserver childObserver_;
     }
 
@@ -246,7 +247,7 @@ namespace IceInternal
             _sent = false;
         }
 
-        protected ProxyOutgoingAsyncBase(Ice.ObjectPrxHelperBase prx, string op, object cookie, BasicStream os) :
+        protected ProxyOutgoingAsyncBase(Ice.ObjectPrxHelperBase prx, string op, object cookie, Ice.OutputStream os) :
             base(prx.ice_getCommunicator(), prx.reference__().getInstance(), op, cookie, os)
         {
             proxy_ = prx;
@@ -414,7 +415,8 @@ namespace IceInternal
             _is = null;
         }
 
-        public OutgoingAsync(Ice.ObjectPrx prx, string operation, object cookie, BasicStream istr, BasicStream ostr) :
+        public OutgoingAsync(Ice.ObjectPrx prx, string operation, object cookie, Ice.InputStream istr,
+                             Ice.OutputStream ostr) :
             base((Ice.ObjectPrxHelperBase)prx, operation, cookie, ostr)
         {
             _encoding = Protocol.getCompatibleEncoding(proxy_.reference__().getEncoding());
@@ -514,7 +516,7 @@ namespace IceInternal
 
         public override bool invokeCollocated(CollocatedRequestHandler handler, out Ice.AsyncCallback sentCB)
         {
-            // The BasicStream cannot be cached if the proxy is not a twoway or there is an invocation timeout set.
+            // The stream cannot be cached if the proxy is not a twoway or there is an invocation timeout set.
             if(!proxy_.ice_isTwoway() || proxy_.reference__().getInvocationTimeout() != -1)
             {
                 // Disable caching by marking the streams as cached!
@@ -706,62 +708,62 @@ namespace IceInternal
             }
         }
 
-        public BasicStream startWriteParams(Ice.FormatType format)
+        public Ice.OutputStream startWriteParams(Ice.FormatType format)
         {
-            os_.startWriteEncaps(_encoding, format);
+            os_.startEncapsulation(_encoding, format);
             return os_;
         }
 
         public void endWriteParams()
         {
-            os_.endWriteEncaps();
+            os_.endEncapsulation();
         }
 
         public void writeEmptyParams()
         {
-            os_.writeEmptyEncaps(_encoding);
+            os_.writeEmptyEncapsulation(_encoding);
         }
 
         public void writeParamEncaps(byte[] encaps)
         {
             if(encaps == null || encaps.Length == 0)
             {
-                os_.writeEmptyEncaps(_encoding);
+                os_.writeEmptyEncapsulation(_encoding);
             }
             else
             {
-                os_.writeEncaps(encaps);
+                os_.writeEncapsulation(encaps);
             }
         }
 
-        public IceInternal.BasicStream startReadParams()
+        public Ice.InputStream startReadParams()
         {
-            _is.startReadEncaps();
+            _is.startEncapsulation();
             return _is;
         }
 
         public void endReadParams()
         {
-            _is.endReadEncaps();
+            _is.endEncapsulation();
         }
 
         public void readEmptyParams()
         {
-            _is.skipEmptyEncaps();
+            _is.skipEmptyEncapsulation();
         }
 
         public byte[] readParamEncaps()
         {
             Ice.EncodingVersion encoding;
-            return _is.readEncaps(out encoding);
+            return _is.readEncapsulation(out encoding);
         }
 
-        override public BasicStream getIs()
+        override public Ice.InputStream getIs()
         {
             // _is can already be initialized if the invocation is retried
             if(_is == null)
             {
-                _is = new IceInternal.BasicStream(instance_, Ice.Util.currentProtocolEncoding);
+                _is = new Ice.InputStream(instance_, Ice.Util.currentProtocolEncoding);
             }
             return _is;
         }
@@ -770,12 +772,12 @@ namespace IceInternal
         {
             try
             {
-                _is.startReadEncaps();
+                _is.startEncapsulation();
                 _is.throwException(null);
             }
             catch(Ice.UserException ex)
             {
-                _is.endReadEncaps();
+                _is.endEncapsulation();
                 throw ex;
             }
         }
@@ -807,7 +809,7 @@ namespace IceInternal
         }
 
         private Ice.EncodingVersion _encoding;
-        private BasicStream _is;
+        private Ice.InputStream _is;
 
         //
         // If true this AMI request is being used for a generated synchronous invocation.
@@ -944,7 +946,7 @@ namespace IceInternal
             }
 
             private CommunicatorFlushBatch _outAsync;
-        };
+        }
         private int _useCount;
     }
 
@@ -1157,8 +1159,8 @@ namespace IceInternal
         {
         }
 
-        public OutgoingAsync(Ice.ObjectPrxHelperBase prx, string operation, object cookie, BasicStream iss,
-                             BasicStream os) :
+        public OutgoingAsync(Ice.ObjectPrxHelperBase prx, string operation, object cookie, Ice.InputStream iss,
+                             Ice.OutputStream os) :
             base(prx, operation, cookie, iss, os)
         {
         }
@@ -1208,7 +1210,7 @@ namespace IceInternal
         }
 
         public TwowayOutgoingAsync(Ice.ObjectPrxHelperBase prx, string operation, ProxyTwowayCallback<T> cb,
-                                   object cookie, BasicStream iss, BasicStream os) :
+                                   object cookie, Ice.InputStream iss, Ice.OutputStream os) :
             base(prx, operation, cookie, iss, os)
         {
             Debug.Assert(cb != null);
@@ -1234,7 +1236,7 @@ namespace IceInternal
         }
 
         public OnewayOutgoingAsync(Ice.ObjectPrxHelperBase prx, string operation, ProxyOnewayCallback<T> cb,
-                                   object cookie, BasicStream iss, BasicStream os) :
+                                   object cookie, Ice.InputStream iss, Ice.OutputStream os) :
             base(prx, operation, cookie, iss, os)
         {
             Debug.Assert(cb != null);

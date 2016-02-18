@@ -77,7 +77,7 @@ namespace IceInternal
         }
 
         protected O delegate_;
-    };
+    }
 
     public class ObserverFactoryWithDelegate<T, OImpl, O> : ObserverFactory<T, OImpl>
         where T : Metrics, new() 
@@ -171,7 +171,7 @@ namespace IceInternal
                     Debug.Assert(false);
                 }
             }
-        };
+        }
         static AttributeResolver _attributes = new AttributeResolverI();
         
         public ConnectionHelper(Ice.ConnectionInfo con, Ice.Endpoint endpt, Ice.Instrumentation.ConnectionState state) 
@@ -263,7 +263,7 @@ namespace IceInternal
         readonly private Ice.Instrumentation.ConnectionState _state;
         private string _id;
         private Ice.EndpointInfo _endpointInfo;
-    };
+    }
 
     class DispatchHelper : MetricsHelper<DispatchMetrics>
     {
@@ -291,7 +291,7 @@ namespace IceInternal
                     Debug.Assert(false);
                 }
             }
-        };
+        }
         static AttributeResolver _attributes = new AttributeResolverI();
         
         public DispatchHelper(Ice.Current current, int size) : base(_attributes)
@@ -389,7 +389,7 @@ namespace IceInternal
         readonly private int _size;
         private string _id;
         private Ice.EndpointInfo _endpointInfo;
-    };
+    }
 
     class InvocationHelper : MetricsHelper<InvocationMetrics>
     {
@@ -417,7 +417,7 @@ namespace IceInternal
                     Debug.Assert(false);
                 }
             }
-        };
+        }
         static AttributeResolver _attributes = new AttributeResolverI();
         
         public InvocationHelper(Ice.ObjectPrx proxy, string op, Dictionary<string, string> ctx) : base(_attributes)
@@ -538,7 +538,7 @@ namespace IceInternal
         private string _id;
 
         readonly static private Ice.Endpoint[] emptyEndpoints = new Ice.Endpoint[0];
-    };
+    }
     
     class ThreadHelper : MetricsHelper<ThreadMetrics>
     {
@@ -557,7 +557,7 @@ namespace IceInternal
                     Debug.Assert(false);
                 }
             }
-        };
+        }
         static AttributeResolver _attributes = new AttributeResolverI();
 
         public ThreadHelper(string parent, string id, Ice.Instrumentation.ThreadState state) : base(_attributes)
@@ -588,7 +588,7 @@ namespace IceInternal
         readonly public string _parent;
         readonly public string _id;
         readonly private Ice.Instrumentation.ThreadState _state;
-    };
+    }
 
     class EndpointHelper : MetricsHelper<Metrics>
     {
@@ -608,7 +608,7 @@ namespace IceInternal
                     Debug.Assert(false);
                 }
             }
-        };
+        }
         static AttributeResolver _attributes = new AttributeResolverI();
 
         public EndpointHelper(Ice.Endpoint endpt, string id) : base(_attributes)
@@ -653,7 +653,7 @@ namespace IceInternal
         readonly private Ice.Endpoint _endpoint;
         private string _id;
         private Ice.EndpointInfo _endpointInfo;
-    };
+    }
     
     public class RemoteInvocationHelper : MetricsHelper<RemoteMetrics>
     {
@@ -674,7 +674,7 @@ namespace IceInternal
                     Debug.Assert(false);
                 }
             }
-        };
+        }
         static AttributeResolver _attributes = new AttributeResolverI();
 
         public RemoteInvocationHelper(Ice.ConnectionInfo con, Ice.Endpoint endpt, int requestId, int size) :
@@ -746,7 +746,7 @@ namespace IceInternal
         readonly private int _requestId;
         private string _id;
         private Ice.EndpointInfo _endpointInfo;
-    };
+    }
 
     public class CollocatedInvocationHelper : MetricsHelper<CollocatedMetrics>
     {
@@ -766,7 +766,7 @@ namespace IceInternal
                     Debug.Assert(false);
                 }
             }
-        };
+        }
         static AttributeResolver _attributes = new AttributeResolverI();
 
         public CollocatedInvocationHelper(Ice.ObjectAdapter adapter, int requestId, int size) :
@@ -800,11 +800,11 @@ namespace IceInternal
         readonly private int _size;
         readonly private int _requestId;
         readonly private string _id;
-    };
+    }
 
     public class ObserverWithDelegateI : ObserverWithDelegate<Metrics, Ice.Instrumentation.Observer>
     {
-    };
+    }
 
     public class ConnectionObserverI : ObserverWithDelegate<ConnectionMetrics, Ice.Instrumentation.ConnectionObserver>,
         Ice.Instrumentation.ConnectionObserver
@@ -841,7 +841,7 @@ namespace IceInternal
 
         private int _sentBytes;
         private int _receivedBytes;
-    };
+    }
 
     public class DispatchObserverI : ObserverWithDelegate<DispatchMetrics, Ice.Instrumentation.DispatchObserver>,
         Ice.Instrumentation.DispatchObserver
@@ -1014,7 +1014,7 @@ namespace IceInternal
 
         private Ice.Instrumentation.ThreadState _oldState;
         private Ice.Instrumentation.ThreadState _newState;
-    };
+    }
 
     public class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
     {

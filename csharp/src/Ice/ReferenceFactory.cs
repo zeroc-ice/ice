@@ -551,7 +551,7 @@ namespace IceInternal
             throw ex;
         }
 
-        public Reference create(Ice.Identity ident, BasicStream s)
+        public Reference create(Ice.Identity ident, Ice.InputStream s)
         {
             //
             // Don't read the identity here. Operations calling this
@@ -591,7 +591,7 @@ namespace IceInternal
 
             Ice.ProtocolVersion protocol;
             Ice.EncodingVersion encoding;
-            if(!s.getReadEncoding().Equals(Ice.Util.Encoding_1_0))
+            if(!s.getEncoding().Equals(Ice.Util.Encoding_1_0))
             {
                 protocol = new Ice.ProtocolVersion();
                 protocol.read__(s);

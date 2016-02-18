@@ -19,7 +19,7 @@ namespace IceInternal
     public class CollocatedRequestHandler : RequestHandler, ResponseHandler
     {
         private void
-        fillInValue(BasicStream os, int pos, int value)
+        fillInValue(Ice.OutputStream os, int pos, int value)
         {
             os.rewriteInt(value, pos);
         }
@@ -88,7 +88,7 @@ namespace IceInternal
             }
         }
 
-        public void sendResponse(int requestId, BasicStream os, byte status, bool amd)
+        public void sendResponse(int requestId, Ice.OutputStream os, byte status, bool amd)
         {
             Ice.AsyncCallback cb = null;
             OutgoingAsyncBase outAsync;
@@ -96,18 +96,25 @@ namespace IceInternal
             {
                 Debug.Assert(_response);
 
-                os.pos(Protocol.replyHdr.Length + 4);
-
                 if(_traceLevels.protocol >= 1)
                 {
                     fillInValue(os, 10, os.size());
-                    TraceUtil.traceRecv(os, _logger, _traceLevels);
+                }
+
+                // Adopt the OutputStream's buffer.
+                Ice.InputStream iss = new Ice.InputStream(os.instance(), os.getEncoding(), os.getBuffer(), true);
+
+                iss.pos(Protocol.replyHdr.Length + 4);
+
+                if(_traceLevels.protocol >= 1)
+                {
+                    TraceUtil.traceRecv(iss, _logger, _traceLevels);
                 }
 
                 if(_asyncRequests.TryGetValue(requestId, out outAsync))
                 {
                     _asyncRequests.Remove(requestId);
-                    outAsync.getIs().swap(os);
+                    outAsync.getIs().swap(iss);
                     cb = outAsync.completed();
                 }
             }
@@ -259,17 +266,8 @@ namespace IceInternal
             return true;
         }
 
-        private void invokeAll(BasicStream os, int requestId, int batchRequestNum)
+        private void invokeAll(Ice.OutputStream os, int requestId, int batchRequestNum)
         {
-            if(batchRequestNum > 0)
-            {
-                os.pos(Protocol.requestBatchHdr.Length);
-            }
-            else
-            {
-                os.pos(Protocol.requestHdr.Length);
-            }
-
             if(_traceLevels.protocol >= 1)
             {
                 fillInValue(os, 10, os.size());
@@ -282,6 +280,17 @@ namespace IceInternal
                     fillInValue(os, Protocol.headerSize, batchRequestNum);
                 }
                 TraceUtil.traceSend(os, _logger, _traceLevels);
+            }
+
+            Ice.InputStream iss = new Ice.InputStream(os.instance(), os.getEncoding(), os.getBuffer(), false);
+
+            if(batchRequestNum > 0)
+            {
+                iss.pos(Protocol.requestBatchHdr.Length);
+            }
+            else
+            {
+                iss.pos(Protocol.requestHdr.Length);
             }
 
             int invokeNum = batchRequestNum > 0 ? batchRequestNum : 1;
@@ -308,7 +317,7 @@ namespace IceInternal
 
                     Incoming @in = new Incoming(_reference.getInstance(), this, null, _adapter, _response, (byte)0,
                                                requestId);
-                    @in.invoke(servantManager, os);
+                    @in.invoke(servantManager, iss);
                     --invokeNum;
                 }
             }

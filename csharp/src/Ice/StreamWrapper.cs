@@ -17,36 +17,30 @@ namespace IceInternal
     using System.Text;
 
     //
-    // Class to provide a System.IO.Stream interface on top of a BasicStream.
+    // Classes to provide a System.IO.Stream interface on top of an Ice stream.
     // We use this to serialize arbitrary .NET serializable classes into
     // a Slice byte sequence.
     //
-    // For input streams, this class is a wrapper around the BasicStream
+    // For input streams, this class is a wrapper around the InputStream
     // class that passes all methods through.
     //
-    // For output streams, we use a different stragegy:
+    // For output streams, we use a different strategy:
     // Slice sequences are encoded on the wire as a count of elements, followed
     // by the sequence contents. For arbitrary .NET classes, we do not know how
     // big the sequence that is eventually written will be. To avoid excessive
-    // data copying, this class mantains a private bytes_ array of 254 bytes and,
+    // data copying, this class maintains a private bytes_ array of 254 bytes and,
     // initially, writes data into that array. If more than 254 bytes end up being
     // written, we write a dummy sequence size of 255 (which occupies five bytes
-    // on the wire) into the BasicStream and, once this class is disposed, patch
+    // on the wire) into the stream and, once this class is disposed, patch
     // that size to match the actual size. Otherwise, if the bytes_ buffer contains
     // fewer than 255 bytes when this class is disposed, we write the sequence size
     // as a single byte, followed by the contents of the bytes_ buffer.
     //
 
-    enum StreamType { Read, Write };
-
-    public class StreamWrapper : System.IO.Stream, System.IDisposable
+    public class OutputStreamWrapper : System.IO.Stream, System.IDisposable
     {
-        //
-        // Writeable stream constructor
-        //
-        public StreamWrapper(BasicStream s)
+        public OutputStreamWrapper(Ice.OutputStream s)
         {
-            type_ = StreamType.Write;
             s_ = s;
             spos_ = s.pos();
             bytes_ = new byte[254];
@@ -54,48 +48,20 @@ namespace IceInternal
             length_ = 0;
         }
 
-        //
-        // Readable stream constructor
-        //
-        public StreamWrapper(int size, BasicStream s)
-        {
-            type_ = StreamType.Read;
-            s_ = s;
-            spos_ = 0;
-            bytes_ = null;
-            pos_ = 0;
-            length_ = size;
-        }
-
         public override int Read(byte[] buffer, int offset, int count)
         {
-            Debug.Assert(buffer != null && offset >= 0 && count >= 0 && offset + count <= buffer.Length);
-            try
-            {
-                s_.getBuffer().b.get(buffer, offset, count);
-            }
-            catch(System.Exception ex)
-            {
-                throw new IOException("could not read from stream", ex);
-            }
-            return count;
+            Debug.Assert(false);
+            return 0;
         }
 
         public override int ReadByte()
         {
-            try
-            {
-                return s_.getBuffer().b.get();
-            }
-            catch(System.Exception ex)
-            {
-                throw new IOException("could not read from stream", ex);
-            }
+            Debug.Assert(false);
+            return 0;
         }
 
         public override void Write(byte[] array, int offset, int count)
         {
-            Debug.Assert(type_ == StreamType.Write);
             Debug.Assert(array != null && offset >= 0 && count >= 0 && offset + count <= array.Length);
             try
             {
@@ -140,7 +106,6 @@ namespace IceInternal
 
         public override void WriteByte(byte value)
         {
-            Debug.Assert(type_ == StreamType.Write);
             try
             {
                 if(bytes_ != null)
@@ -185,7 +150,7 @@ namespace IceInternal
         {
             get
             {
-                return true;
+                return false;
             }
         }
 
@@ -193,7 +158,7 @@ namespace IceInternal
         {
             get
             {
-                return type_ == StreamType.Write;
+                return true;
             }
         }
 
@@ -201,18 +166,7 @@ namespace IceInternal
         {
             get
             {
-                if(AssemblyUtil.runtime_ == AssemblyUtil.Runtime.Mono)
-                {
-                    //
-                    // The Mono deserialization implementation has a bug that causes a call to Seek() such
-                    // that the reading position is set to -1.
-                    //
-                    return false;
-                }
-                else
-                {
-                    return type_ == StreamType.Read;
-                }
+                return false;
             }
         }
 
@@ -265,8 +219,130 @@ namespace IceInternal
 
         public override long Seek(long offset, SeekOrigin origin)
         {
-            Debug.Assert(type_ != StreamType.Write);
+            Debug.Assert(false);
+            return 0;
+        }
 
+        public override void SetLength(long value)
+        {
+            Debug.Assert(value >= 0);
+            length_ = value;
+        }
+
+        private Ice.OutputStream s_;
+        private int spos_;
+        private byte[] bytes_;
+        private int pos_;
+        private long length_;
+    }
+
+    public class InputStreamWrapper : System.IO.Stream, System.IDisposable
+    {
+        public InputStreamWrapper(int size, Ice.InputStream s)
+        {
+            s_ = s;
+            pos_ = 0;
+            length_ = size;
+        }
+
+        public override int Read(byte[] buffer, int offset, int count)
+        {
+            Debug.Assert(buffer != null && offset >= 0 && count >= 0 && offset + count <= buffer.Length);
+            try
+            {
+                s_.getBuffer().b.get(buffer, offset, count);
+            }
+            catch(System.Exception ex)
+            {
+                throw new IOException("could not read from stream", ex);
+            }
+            return count;
+        }
+
+        public override int ReadByte()
+        {
+            try
+            {
+                return s_.getBuffer().b.get();
+            }
+            catch(System.Exception ex)
+            {
+                throw new IOException("could not read from stream", ex);
+            }
+        }
+
+        public override void Write(byte[] array, int offset, int count)
+        {
+            Debug.Assert(false);
+        }
+
+        public override void WriteByte(byte value)
+        {
+            Debug.Assert(false);
+        }
+
+        public override bool CanRead
+        {
+            get
+            {
+                return true;
+            }
+        }
+
+        public override bool CanWrite
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        public override bool CanSeek
+        {
+            get
+            {
+                if(AssemblyUtil.runtime_ == AssemblyUtil.Runtime.Mono)
+                {
+                    //
+                    // The Mono deserialization implementation has a bug that causes a call to Seek() such
+                    // that the reading position is set to -1.
+                    //
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+        }
+
+        public override void Flush()
+        {
+        }
+
+        public override long Length
+        {
+            get
+            {
+                return length_;
+            }
+        }
+
+        public override long Position
+        {
+            get
+            {
+                return pos_;
+            }
+
+            set
+            {
+                Seek(value, SeekOrigin.Begin);
+            }
+        }
+
+        public override long Seek(long offset, SeekOrigin origin)
+        {
             // Deliberately no size check here--positioning beyond the limit of the stream is legal.
             switch(origin)
             {
@@ -297,14 +373,10 @@ namespace IceInternal
 
         public override void SetLength(long value)
         {
-            Debug.Assert(type_ == StreamType.Write && value >= 0);
-            length_ = value;
+            Debug.Assert(false);
         }
 
-        private StreamType type_;
-        private BasicStream s_;
-        private int spos_;
-        private byte[] bytes_;
+        private Ice.InputStream s_;
         private int pos_;
         private long length_;
     }

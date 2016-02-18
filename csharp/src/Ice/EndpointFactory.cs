@@ -16,7 +16,7 @@ namespace IceInternal
         short type();
         string protocol();
         EndpointI create(List<string> args, bool oaEndpoint);
-        EndpointI read(BasicStream s);
+        EndpointI read(Ice.InputStream s);
         void destroy();
 
         EndpointFactory clone(ProtocolInstance instance);

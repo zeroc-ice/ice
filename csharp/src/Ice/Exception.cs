@@ -218,20 +218,6 @@ namespace Ice
         protected UserException(SerializationInfo info, StreamingContext context) : base(info, context) {}
 #endif
 
-        public virtual void write__(IceInternal.BasicStream os__)
-        {
-            os__.startWriteException(null);
-            writeImpl__(os__);
-            os__.endWriteException();
-        }
-
-        public virtual void read__(IceInternal.BasicStream is__)
-        {
-            is__.startReadException();
-            readImpl__(is__);
-            is__.endReadException(false);
-        }
-
         public virtual void write__(OutputStream os__)
         {
             os__.startException(null);
@@ -251,18 +237,8 @@ namespace Ice
             return false;
         }
 
-        protected abstract void writeImpl__(IceInternal.BasicStream os__);
-        protected abstract void readImpl__(IceInternal.BasicStream is__);
-
-        protected virtual void writeImpl__(OutputStream os__)
-        {
-            throw new MarshalException("exception was not generated with stream support");
-        }
-
-        protected virtual void readImpl__(InputStream is__)
-        {
-            throw new MarshalException("exception was not generated with stream support");
-        }
+        protected abstract void writeImpl__(OutputStream os__);
+        protected abstract void readImpl__(InputStream is__);
     }
 }
 

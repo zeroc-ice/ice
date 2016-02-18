@@ -116,7 +116,7 @@ namespace IceInternal
             {
                 overrideCompress = true;
                 overrideCompressValue = properties.getPropertyAsInt("Ice.Override.Compress") > 0;
-                if(!BasicStream.compressible() && overrideCompressValue)
+                if(!BZip2.supported() && overrideCompressValue)
                 {
                     string lib = AssemblyUtil.runtime_ == AssemblyUtil.Runtime.Mono ? "bzip2 library" : "bzip2.dll";
                     Console.Error.WriteLine("warning: " + lib + " not found, Ice.Override.Compress ignored.");
@@ -125,7 +125,7 @@ namespace IceInternal
             }
             else
             {
-                overrideCompress = !BasicStream.compressible();
+                overrideCompress = !BZip2.supported();
                 overrideCompressValue = false;
             }
 #endif

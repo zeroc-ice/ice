@@ -26,7 +26,7 @@ namespace IceInternal
             compress_ = compress;
             if(response_)
             {
-                os_ = new BasicStream(instance, Ice.Util.currentProtocolEncoding);
+                os_ = new Ice.OutputStream(instance, Ice.Util.currentProtocolEncoding);
             }
 
             current_ = new Ice.Current();
@@ -94,7 +94,7 @@ namespace IceInternal
             inc.responseHandler_ = null;
         }
 
-        public BasicStream startWriteParams__(Ice.FormatType format)
+        public Ice.OutputStream startWriteParams__(Ice.FormatType format)
         {
             if(!response_)
             {
@@ -103,7 +103,7 @@ namespace IceInternal
 
             Debug.Assert(os_.size() == Protocol.headerSize + 4); // Reply status position.
             os_.writeByte((byte)0);
-            os_.startWriteEncaps(current_.encoding, format);
+            os_.startEncapsulation(current_.encoding, format);
             return os_;
         }
 
@@ -120,7 +120,7 @@ namespace IceInternal
                 os_.pos(Protocol.headerSize + 4); // Reply status position.
                 os_.writeByte(ok ? ReplyStatus.replyOK : ReplyStatus.replyUserException);
                 os_.pos(save);
-                os_.endWriteEncaps();
+                os_.endEncapsulation();
             }
         }
 
@@ -130,7 +130,7 @@ namespace IceInternal
             {
                 Debug.Assert(os_.size() == Protocol.headerSize + 4); // Reply status position.
                 os_.writeByte(ReplyStatus.replyOK);
-                os_.writeEmptyEncaps(current_.encoding);
+                os_.writeEmptyEncapsulation(current_.encoding);
             }
         }
 
@@ -147,19 +147,19 @@ namespace IceInternal
                 os_.writeByte(ok ? ReplyStatus.replyOK : ReplyStatus.replyUserException);
                 if(v == null || v.Length == 0)
                 {
-                    os_.writeEmptyEncaps(current_.encoding);
+                    os_.writeEmptyEncapsulation(current_.encoding);
                 }
                 else
                 {
-                    os_.writeEncaps(v);
+                    os_.writeEncapsulation(v);
                 }
             }
         }
 
         public void writeUserException__(Ice.UserException ex, Ice.FormatType format)
         {
-            BasicStream os__ = startWriteParams__(format);
-            os__.writeUserException(ex);
+            Ice.OutputStream os__ = startWriteParams__(format);
+            os__.writeException(ex);
             endWriteParams__(false);
         }
 
@@ -188,7 +188,7 @@ namespace IceInternal
 
             if(response_ && os_ == null)
             {
-                os_ = new BasicStream(instance, Ice.Util.currentProtocolEncoding);
+                os_ = new Ice.OutputStream(instance, Ice.Util.currentProtocolEncoding);
             }
 
             responseHandler_ = handler;
@@ -263,11 +263,11 @@ namespace IceInternal
                 //
                 if(response_)
                 {
-                    os_.resize(Protocol.headerSize + 4, false); // Reply status position.
+                    os_.resize(Protocol.headerSize + 4); // Reply status position.
                     os_.writeByte(ReplyStatus.replyUserException);
-                    os_.startWriteEncaps(current_.encoding, Ice.FormatType.DefaultFormat);
-                    os_.writeUserException(ex);
-                    os_.endWriteEncaps();
+                    os_.startEncapsulation(current_.encoding, Ice.FormatType.DefaultFormat);
+                    os_.writeException(ex);
+                    os_.endEncapsulation();
                     if(observer_ != null)
                     {
                         observer_.reply(os_.size() - Protocol.headerSize - 4);
@@ -330,7 +330,7 @@ namespace IceInternal
 
                 if(response_)
                 {
-                    os_.resize(Protocol.headerSize + 4, false); // Reply status position.
+                    os_.resize(Protocol.headerSize + 4); // Reply status position.
                     if(ex is Ice.ObjectNotExistException)
                     {
                         os_.writeByte(ReplyStatus.replyObjectNotExist);
@@ -389,7 +389,7 @@ namespace IceInternal
 
                 if(response_)
                 {
-                    os_.resize(Protocol.headerSize + 4, false); // Reply status position.
+                    os_.resize(Protocol.headerSize + 4); // Reply status position.
                     os_.writeByte(ReplyStatus.replyUnknownLocalException);
                     os_.writeString(ex.unknown);
                     if(observer_ != null)
@@ -417,7 +417,7 @@ namespace IceInternal
 
                 if(response_)
                 {
-                    os_.resize(Protocol.headerSize + 4, false); // Reply status position.
+                    os_.resize(Protocol.headerSize + 4); // Reply status position.
                     os_.writeByte(ReplyStatus.replyUnknownUserException);
                     os_.writeString(ex.unknown);
                     if(observer_ != null)
@@ -445,7 +445,7 @@ namespace IceInternal
 
                 if(response_)
                 {
-                    os_.resize(Protocol.headerSize + 4, false); // Reply status position.
+                    os_.resize(Protocol.headerSize + 4); // Reply status position.
                     os_.writeByte(ReplyStatus.replyUnknownException);
                     os_.writeString(ex.unknown);
                     if(observer_ != null)
@@ -473,7 +473,7 @@ namespace IceInternal
 
                 if(response_)
                 {
-                    os_.resize(Protocol.headerSize + 4, false); // Reply status position.
+                    os_.resize(Protocol.headerSize + 4); // Reply status position.
                     os_.writeByte(ReplyStatus.replyUnknownUserException);
                     os_.writeString(ex.ice_id() + "\n" + ex.StackTrace);
                     if(observer_ != null)
@@ -509,7 +509,7 @@ namespace IceInternal
 
                 if(response_)
                 {
-                    os_.resize(Protocol.headerSize + 4, false); // Reply status position.
+                    os_.resize(Protocol.headerSize + 4); // Reply status position.
                     os_.writeByte(ReplyStatus.replyUnknownLocalException);
                     os_.writeString(ex.ice_id() + "\n" + ex.StackTrace);
                     if(observer_ != null)
@@ -537,7 +537,7 @@ namespace IceInternal
 
                 if(response_)
                 {
-                    os_.resize(Protocol.headerSize + 4, false); // Reply status position.
+                    os_.resize(Protocol.headerSize + 4); // Reply status position.
                     os_.writeByte(ReplyStatus.replyUnknownException);
                     os_.writeString(ex.ToString());
                     if(observer_ != null)
@@ -570,7 +570,7 @@ namespace IceInternal
         protected internal bool response_;
         protected internal byte compress_;
 
-        protected internal BasicStream os_;
+        protected internal Ice.OutputStream os_;
 
         protected ResponseHandler responseHandler_;
 
@@ -636,7 +636,7 @@ namespace IceInternal
             base.reclaim();
         }
 
-        public void invoke(ServantManager servantManager, BasicStream stream)
+        public void invoke(ServantManager servantManager, Ice.InputStream stream)
         {
             _is = stream;
 
@@ -714,7 +714,7 @@ namespace IceInternal
                         }
                         catch(Ice.UserException ex)
                         {
-                            Ice.EncodingVersion encoding = _is.skipEncaps(); // Required for batch requests.
+                            Ice.EncodingVersion encoding = _is.skipEncapsulation(); // Required for batch requests.
 
                             if(observer_ != null)
                             {
@@ -724,9 +724,9 @@ namespace IceInternal
                             if(response_)
                             {
                                 os_.writeByte(ReplyStatus.replyUserException);
-                                os_.startWriteEncaps(encoding, Ice.FormatType.DefaultFormat);
-                                os_.writeUserException(ex);
-                                os_.endWriteEncaps();
+                                os_.startEncapsulation(encoding, Ice.FormatType.DefaultFormat);
+                                os_.writeException(ex);
+                                os_.endEncapsulation();
                                 if(observer_ != null)
                                 {
                                     observer_.reply(os_.size() - Protocol.headerSize - 4);
@@ -748,7 +748,7 @@ namespace IceInternal
                         }
                         catch(System.Exception ex)
                         {
-                            _is.skipEncaps(); // Required for batch requests.
+                            _is.skipEncapsulation(); // Required for batch requests.
                             handleException__(ex, false);
                             return;
                         }
@@ -783,7 +783,7 @@ namespace IceInternal
                     // Skip the input parameters, this is required for reading
                     // the next batch request if dispatching batch requests.
                     //
-                    _is.skipEncaps();
+                    _is.skipEncapsulation();
 
                     if(servantManager != null && servantManager.hasServant(current_.id))
                     {
@@ -869,7 +869,7 @@ namespace IceInternal
                 _is.pos(_inParamPos);
                 if(response_)
                 {
-                    os_.resize(Protocol.headerSize + 4, false);
+                    os_.resize(Protocol.headerSize + 4);
                 }
             }
         }
@@ -889,29 +889,29 @@ namespace IceInternal
             }
         }
 
-        public BasicStream startReadParams()
+        public Ice.InputStream startReadParams()
         {
             //
             // Remember the encoding used by the input parameters, we'll
             // encode the response parameters with the same encoding.
             //
-            current_.encoding = _is.startReadEncaps();
+            current_.encoding = _is.startEncapsulation();
             return _is;
         }
 
         public void endReadParams()
         {
-            _is.endReadEncaps();
+            _is.endEncapsulation();
         }
 
         public void readEmptyParams()
         {
-            current_.encoding = _is.skipEmptyEncaps();
+            current_.encoding = _is.skipEmptyEncapsulation();
         }
 
         public byte[] readParamEncaps()
         {
-            return _is.readEncaps(out current_.encoding);
+            return _is.readEncapsulation(out current_.encoding);
         }
 
         internal void setActive(IncomingAsync cb)
@@ -927,7 +927,7 @@ namespace IceInternal
 
         public Incoming next; // For use by Connection.
 
-        private BasicStream _is;
+        private Ice.InputStream _is;
 
         private IncomingAsync _cb;
         private int _inParamPos = -1;

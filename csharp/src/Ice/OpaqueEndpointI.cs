@@ -36,11 +36,11 @@ namespace IceInternal
             calcHashValue();
         }
 
-        public OpaqueEndpointI(short type, BasicStream s)
+        public OpaqueEndpointI(short type, Ice.InputStream s)
         {
             _type = type;
-            _rawEncoding = s.getReadEncoding();
-            int sz = s.getReadEncapsSize();
+            _rawEncoding = s.getEncoding();
+            int sz = s.getEncapsulationSize();
             _rawBytes = new byte[sz];
             s.readBlob(_rawBytes);
 
@@ -50,11 +50,11 @@ namespace IceInternal
         //
         // Marshal the endpoint
         //
-        public override void streamWrite(BasicStream s)
+        public override void streamWrite(Ice.OutputStream s)
         {
-            s.startWriteEncaps(_rawEncoding, Ice.FormatType.DefaultFormat);
+            s.startEncapsulation(_rawEncoding, Ice.FormatType.DefaultFormat);
             s.writeBlob(_rawBytes);
-            s.endWriteEncaps();
+            s.endEncapsulation();
         }
 
         //

@@ -174,20 +174,6 @@ namespace IceInternal
             }
         }
 
-        public ValueFactoryManager servantFactoryManager()
-        {
-            lock(this)
-            {
-                if(_state == StateDestroyed)
-                {
-                    throw new Ice.CommunicatorDestroyedException();
-                }
-
-                Debug.Assert(_servantFactoryManager != null);
-                return _servantFactoryManager;
-            }
-        }
-
         public ObjectAdapterFactory objectAdapterFactory()
         {
             lock(this)
@@ -689,6 +675,47 @@ namespace IceInternal
             _initData.threadHook = threadHook;
         }
 
+        public Type resolveClass(string id)
+        {
+            Type c = AssemblyUtil.findType(this, typeToClass(id));
+
+            //
+            // Ensure the class is instantiable.
+            //
+            if(c != null && !c.IsAbstract && !c.IsInterface)
+            {
+                return c;
+            }
+
+            return null;
+        }
+
+        public string resolveCompactId(int compactId)
+        {
+            String className = "IceCompactId.TypeId_" + compactId;
+            try
+            {
+                Type c = AssemblyUtil.findType(this, className);
+                if(c != null)
+                {
+                    return (string)c.GetField("typeId").GetValue(null);
+                }
+            }
+            catch(Exception)
+            {
+            }
+            return "";
+        }
+
+        private static string typeToClass(string id)
+        {
+            if(!id.StartsWith("::", StringComparison.Ordinal))
+            {
+                throw new Ice.MarshalException("expected type id but received `" + id + "'");
+            }
+            return id.Substring(2).Replace("::", ".");
+        }
+
         //
         // Only for use by Ice.CommunicatorI
         //
@@ -706,7 +733,7 @@ namespace IceInternal
 #if !SILVERLIGHT && !UNITY
                 lock(_staticLock)
                 {
-                    if(!_oneOfDone)
+                    if(!_oneOffDone)
                     {
                         string stdOut = _initData.properties.getProperty("Ice.StdOut");
                         string stdErr = _initData.properties.getProperty("Ice.StdErr");
@@ -754,7 +781,7 @@ namespace IceInternal
                             }
                         }
 
-                        _oneOfDone = true;
+                        _oneOffDone = true;
                     }
                 }
 #endif
@@ -914,9 +941,12 @@ namespace IceInternal
                 _pluginManager = new Ice.PluginManagerI(communicator);
 #endif
 
-                _outgoingConnectionFactory = new OutgoingConnectionFactory(communicator, this);
+                if(_initData.valueFactoryManager == null)
+                {
+                    _initData.valueFactoryManager = new ValueFactoryManagerI();
+                }
 
-                _servantFactoryManager = new ValueFactoryManager();
+                _outgoingConnectionFactory = new OutgoingConnectionFactory(communicator, this);
 
                 _objectAdapterFactory = new ObjectAdapterFactory(this, communicator);
 
@@ -1264,10 +1294,14 @@ namespace IceInternal
             }
 #endif
 
-            if(_servantFactoryManager != null)
+            foreach(Ice.ObjectFactory factory in _objectFactoryMap.Values)
             {
-                _servantFactoryManager.destroy();
+// Disable Obsolete warning/error
+#pragma warning disable 612, 618
+                factory.destroy();
+#pragma warning restore 612, 618
             }
+            _objectFactoryMap.Clear();
 
             if(_routerManager != null)
             {
@@ -1321,7 +1355,6 @@ namespace IceInternal
 #endif
                 _timer = null;
 
-                _servantFactoryManager = null;
                 _referenceFactory = null;
                 _requestHandlerFactory = null;
                 _proxyFactory = null;
@@ -1379,6 +1412,32 @@ namespace IceInternal
                 info.rcvWarn = true;
                 info.rcvSize = size;
                 _setBufSizeWarn[type] = info;
+            }
+        }
+
+        public void addObjectFactory(Ice.ObjectFactory factory, string id)
+        {
+            lock(this)
+            {
+                //
+                // Create a ValueFactory wrapper around the given ObjectFactory and register the wrapper
+                // with the value factory manager. This may raise AlreadyRegisteredException.
+                //
+// Disable Obsolete warning/error
+#pragma warning disable 612, 618
+                _initData.valueFactoryManager.add((string type) => { return factory.create(type); }, id);
+#pragma warning restore 612, 618
+                _objectFactoryMap.Add(id, factory);
+            }
+        }
+
+        public Ice.ObjectFactory findObjectFactory(string id)
+        {
+            lock(this)
+            {
+                Ice.ObjectFactory factory = null;
+                _objectFactoryMap.TryGetValue(id, out factory);
+                return factory;
             }
         }
 
@@ -1546,7 +1605,6 @@ namespace IceInternal
         private RequestHandlerFactory _requestHandlerFactory;
         private ProxyFactory _proxyFactory;
         private OutgoingConnectionFactory _outgoingConnectionFactory;
-        private ValueFactoryManager _servantFactoryManager;
         private ObjectAdapterFactory _objectAdapterFactory;
         private int _protocolSupport;
         private bool _preferIPv6;
@@ -1573,8 +1631,10 @@ namespace IceInternal
 #endif
 
 #if !SILVERLIGHT && !UNITY
-        private static bool _oneOfDone = false;
+        private static bool _oneOffDone = false;
 #endif
+
+        private Dictionary<string, Ice.ObjectFactory> _objectFactoryMap = new Dictionary<string, Ice.ObjectFactory>();
 
         private static System.Object _staticLock = new System.Object();
     }

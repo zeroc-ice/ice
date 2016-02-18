@@ -33,7 +33,7 @@ namespace IceSSL
             _compress = false;
         }
 
-        internal EndpointI(Instance instance, IceInternal.BasicStream s) :
+        internal EndpointI(Instance instance, Ice.InputStream s) :
             base(instance, s)
         {
             _instance = instance;
@@ -261,7 +261,7 @@ namespace IceSSL
             return base.CompareTo(p);
         }
 
-        public override void streamWriteImpl(IceInternal.BasicStream s)
+        public override void streamWriteImpl(Ice.OutputStream s)
         {
             base.streamWriteImpl(s);
             s.writeInt(_timeout);
@@ -386,7 +386,7 @@ namespace IceSSL
             return endpt;
         }
 
-        public IceInternal.EndpointI read(IceInternal.BasicStream s)
+        public IceInternal.EndpointI read(Ice.InputStream s)
         {
             return new EndpointI(_instance, s);
         }

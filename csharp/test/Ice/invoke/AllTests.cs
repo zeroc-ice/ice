@@ -80,7 +80,7 @@ public class AllTests : TestCommon.TestApp
             byte[] outEncaps;
             if(result.getProxy().end_ice_invoke(out outEncaps, result))
             {
-                Ice.InputStream inS = Ice.Util.createInputStream(_communicator, outEncaps);
+                Ice.InputStream inS = new Ice.InputStream(_communicator, outEncaps);
                 inS.startEncapsulation();
                 string s = inS.readString();
                 test(s.Equals(cmp));
@@ -99,7 +99,7 @@ public class AllTests : TestCommon.TestApp
         {
             if(ok)
             {
-                Ice.InputStream inS = Ice.Util.createInputStream(_communicator, outEncaps);
+                Ice.InputStream inS = new Ice.InputStream(_communicator, outEncaps);
                 inS.startEncapsulation();
                 string s = inS.readString();
                 test(s.Equals(testString));
@@ -129,7 +129,7 @@ public class AllTests : TestCommon.TestApp
             }
             else
             {
-                Ice.InputStream inS = Ice.Util.createInputStream(_communicator, outEncaps);
+                Ice.InputStream inS = new Ice.InputStream(_communicator, outEncaps);
                 inS.startEncapsulation();
                 try
                 {
@@ -155,7 +155,7 @@ public class AllTests : TestCommon.TestApp
             }
             else
             {
-                Ice.InputStream inS = Ice.Util.createInputStream(_communicator, outEncaps);
+                Ice.InputStream inS = new Ice.InputStream(_communicator, outEncaps);
                 inS.startEncapsulation();
                 try
                 {
@@ -219,7 +219,7 @@ public class AllTests : TestCommon.TestApp
             test(batchOneway.ice_invoke("opOneway", Ice.OperationMode.Normal, null, out outEncaps));
             batchOneway.ice_flushBatchRequests();
 
-            Ice.OutputStream outS = Ice.Util.createOutputStream(communicator);
+            Ice.OutputStream outS = new Ice.OutputStream(communicator);
             outS.startEncapsulation();
             outS.writeString(testString);
             outS.endEncapsulation();
@@ -227,7 +227,7 @@ public class AllTests : TestCommon.TestApp
 
             if(cl.ice_invoke("opString", Ice.OperationMode.Normal, inEncaps, out outEncaps))
             {
-                Ice.InputStream inS = Ice.Util.createInputStream(communicator, outEncaps);
+                Ice.InputStream inS = new Ice.InputStream(communicator, outEncaps);
                 inS.startEncapsulation();
                 string s = inS.readString();
                 test(s.Equals(testString));
@@ -249,7 +249,7 @@ public class AllTests : TestCommon.TestApp
             }
             else
             {
-                Ice.InputStream inS = Ice.Util.createInputStream(communicator, outEncaps);
+                Ice.InputStream inS = new Ice.InputStream(communicator, outEncaps);
                 inS.startEncapsulation();
                 try
                 {
@@ -279,7 +279,7 @@ public class AllTests : TestCommon.TestApp
                 test(false);
             }
 
-            Ice.OutputStream outS = Ice.Util.createOutputStream(communicator);
+            Ice.OutputStream outS = new Ice.OutputStream(communicator);
             outS.startEncapsulation();
             outS.writeString(testString);
             outS.endEncapsulation();
@@ -289,7 +289,7 @@ public class AllTests : TestCommon.TestApp
             result = cl.begin_ice_invoke("opString", Ice.OperationMode.Normal, inEncaps);
             if(cl.end_ice_invoke(out outEncaps, result))
             {
-                Ice.InputStream inS = Ice.Util.createInputStream(communicator, outEncaps);
+                Ice.InputStream inS = new Ice.InputStream(communicator, outEncaps);
                 inS.startEncapsulation();
                 string s = inS.readString();
                 test(s.Equals(testString));
@@ -328,7 +328,7 @@ public class AllTests : TestCommon.TestApp
             }
             else
             {
-                Ice.InputStream inS = Ice.Util.createInputStream(communicator, outEncaps);
+                Ice.InputStream inS = new Ice.InputStream(communicator, outEncaps);
                 inS.startEncapsulation();
                 try
                 {

@@ -49,8 +49,7 @@ namespace IceInternal
         private Ice.ObjectPrx _proxy;
         private string _operation;
         private int _size;
-    };
-
+    }
 
     public sealed class BatchRequestQueue
     {
@@ -60,7 +59,7 @@ namespace IceInternal
             _interceptor = initData.batchRequestInterceptor;
             _batchStreamInUse = false;
             _batchRequestNum = 0;
-            _batchStream = new BasicStream(instance, Ice.Util.currentProtocolEncoding);
+            _batchStream = new Ice.OutputStream(instance, Ice.Util.currentProtocolEncoding);
             _batchStream.writeBlob(Protocol.requestBatchHdr);
             _batchMarker = _batchStream.size();
             _request = new BatchRequestI(this);
@@ -78,7 +77,7 @@ namespace IceInternal
         }
 
         public void
-        prepareBatchRequest(BasicStream os)
+        prepareBatchRequest(Ice.OutputStream os)
         {
             lock(this)
             {
@@ -93,7 +92,7 @@ namespace IceInternal
         }
 
         public void
-        finishBatchRequest(BasicStream os, Ice.ObjectPrx proxy, string operation)
+        finishBatchRequest(Ice.OutputStream os, Ice.ObjectPrx proxy, string operation)
         {
             //
             // No need for synchronization, no other threads are supposed
@@ -127,7 +126,7 @@ namespace IceInternal
             {
                 lock(this)
                 {
-                    _batchStream.resize(_batchMarker, false);
+                    _batchStream.resize(_batchMarker);
                     _batchStreamInUse = false;
                     _batchStreamCanFlush = false;
                     System.Threading.Monitor.PulseAll(this);
@@ -136,14 +135,14 @@ namespace IceInternal
         }
 
         public void
-        abortBatchRequest(BasicStream os)
+        abortBatchRequest(Ice.OutputStream os)
         {
             lock(this)
             {
                 if(_batchStreamInUse)
                 {
                     _batchStream.swap(os);
-                    _batchStream.resize(_batchMarker, false);
+                    _batchStream.resize(_batchMarker);
                     _batchStreamInUse = false;
                     System.Threading.Monitor.PulseAll(this);
                 }
@@ -151,7 +150,7 @@ namespace IceInternal
         }
 
         public int
-        swap(BasicStream os)
+        swap(Ice.OutputStream os)
         {
             lock(this)
             {
@@ -169,7 +168,7 @@ namespace IceInternal
                     Buffer buffer = _batchStream.getBuffer();
                     buffer.b.position(_batchMarker);
                     buffer.b.get(lastRequest);
-                    _batchStream.resize(_batchMarker, false);
+                    _batchStream.resize(_batchMarker);
                 }
 
                 int requestNum = _batchRequestNum;
@@ -230,7 +229,7 @@ namespace IceInternal
         }
 
         private Ice.BatchRequestInterceptor _interceptor;
-        private BasicStream _batchStream;
+        private Ice.OutputStream _batchStream;
         private bool _batchStreamInUse;
         private bool _batchStreamCanFlush;
         private int _batchRequestNum;
@@ -241,4 +240,4 @@ namespace IceInternal
 
         private static int _udpOverhead = 20 + 8;
     }
-};
+}

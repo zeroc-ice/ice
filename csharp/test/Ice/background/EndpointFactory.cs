@@ -32,14 +32,14 @@ internal class EndpointFactory : IceInternal.EndpointFactory
         return new EndpointI(_factory.create(args, server));
     }
 
-    public IceInternal.EndpointI read(IceInternal.BasicStream s)
+    public IceInternal.EndpointI read(Ice.InputStream s)
     {
         short type = s.readShort();
         Debug.Assert(type == _factory.type());
 
-        s.startReadEncaps();
+        s.startEncapsulation();
         IceInternal.EndpointI endpoint = new EndpointI(_factory.read(s));
-        s.endReadEncaps();
+        s.endEncapsulation();
         return endpoint;
     }
 

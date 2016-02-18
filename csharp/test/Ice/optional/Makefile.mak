@@ -30,7 +30,7 @@ SERIAL_REF	= -r:$(SERIAL_DLL)
 
 MCSFLAGS	= $(MCSFLAGS) -target:exe
 
-SLICE2CSFLAGS	= $(SLICE2CSFLAGS) -I. -I"$(slicedir)" --stream
+SLICE2CSFLAGS	= $(SLICE2CSFLAGS) -I. -I"$(slicedir)"
 
 client.exe: $(C_SRCS) $(GEN_SRCS) $(SERIAL_DLL)
 	$(MCS) $(MCSFLAGS) -out:$@ -r:"$(refdir)\Ice.dll" $(SERIAL_REF) $(C_SRCS) $(GEN_SRCS)

@@ -79,7 +79,7 @@ public class Client extends test.Util.Application
 
     private static class MyInterfaceI extends _MyInterfaceDisp
     {
-    };
+    }
 
     private static class MyInterfaceFactory implements Ice.ValueFactory
     {

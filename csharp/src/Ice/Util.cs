@@ -113,6 +113,11 @@ namespace Ice
         /// The batch request interceptor.
         /// </summary>
         public BatchRequestInterceptor batchRequestInterceptor;
+
+        /// <summary>
+        /// The value factory manager.
+        /// </summary>
+        public ValueFactoryManager valueFactoryManager;
     }
 
     /// <summary>
@@ -444,79 +449,6 @@ namespace Ice
                     return string.CompareOrdinal(lhsFacet, rhsFacet);
                 }
             }
-        }
-
-        /// <summary>
-        /// Creates an input stream for dynamic invocation and dispatch. The stream uses
-        /// the communicator's default encoding version. The given data is copied.
-        /// </summary>
-        /// <param name="communicator">The communicator for the stream.</param>
-        /// <param name="bytes">An encoded request or reply.</param>
-        /// <returns>The input stream.</returns>
-        public static InputStream createInputStream(Communicator communicator, byte[] bytes)
-        {
-            return new InputStreamI(communicator, bytes, true);
-        }
-
-        /// <summary>
-        /// Creates an input stream for dynamic invocation and dispatch. The stream uses
-        /// the given encoding version.
-        /// </summary>
-        /// <param name="communicator">The communicator for the stream.</param>
-        /// <param name="bytes">An encoded request or reply.</param>
-        /// <param name="v">The desired encoding version.</param>
-        /// <returns>The input stream.</returns>
-        public static InputStream createInputStream(Communicator communicator, byte[] bytes, EncodingVersion v)
-        {
-            return new InputStreamI(communicator, bytes, v, true);
-        }
-
-        /// <summary>
-        /// Wraps encoded data with an input stream for dynamic invocation and dispatch.
-        /// The stream uses the communicator's default encoding version.
-        /// </summary>
-        /// <param name="communicator">The communicator for the stream.</param>
-        /// <param name="bytes">An encoded request or reply.</param>
-        /// <returns>The input stream.</returns>
-        public static InputStream wrapInputStream(Communicator communicator, byte[] bytes)
-        {
-            return new InputStreamI(communicator, bytes, false);
-        }
-
-        /// <summary>
-        /// Wraps encoded data with an input stream for dynamic invocation and dispatch.
-        /// The stream uses the given encoding version.
-        /// </summary>
-        /// <param name="communicator">The communicator for the stream.</param>
-        /// <param name="bytes">An encoded request or reply.</param>
-        /// <param name="v">The desired encoding version.</param>
-        /// <returns>The input stream.</returns>
-        public static InputStream wrapInputStream(Communicator communicator, byte[] bytes, EncodingVersion v)
-        {
-            return new InputStreamI(communicator, bytes, v, false);
-        }
-
-        /// <summary>
-        /// Creates an output stream for dynamic invocation and dispatch. The stream uses
-        /// the communicator's default encoding version.
-        /// </summary>
-        /// <param name="communicator">The communicator for the stream.</param>
-        /// <returns>The output stream.</returns>
-        public static OutputStream createOutputStream(Communicator communicator)
-        {
-            return new OutputStreamI(communicator);
-        }
-
-        /// <summary>
-        /// Creates an output stream for dynamic invocation and dispatch. The stream uses
-        /// the given encoding version.
-        /// </summary>
-        /// <param name="communicator">The communicator for the stream.</param>
-        /// <param name="v">The desired encoding version.</param>
-        /// <returns>The output stream.</returns>
-        public static OutputStream createOutputStream(Communicator communicator, EncodingVersion v)
-        {
-            return new OutputStreamI(communicator, v);
         }
 
         /// <summary>

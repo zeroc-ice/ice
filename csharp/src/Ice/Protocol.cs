@@ -10,7 +10,7 @@
 namespace IceInternal
 {
 
-    sealed class Protocol
+    public sealed class Protocol
     {
         //
         // Size of the Ice protocol header
@@ -42,6 +42,16 @@ namespace IceInternal
 
         internal const byte encodingMajor = 1;
         internal const byte encodingMinor = 1;
+
+        public const byte OPTIONAL_END_MARKER           = 0xFF;
+
+        public const byte FLAG_HAS_TYPE_ID_STRING       = (byte)(1<<0);
+        public const byte FLAG_HAS_TYPE_ID_INDEX        = (byte)(1<<1);
+        public const byte FLAG_HAS_TYPE_ID_COMPACT      = (byte)(1<<1 | 1<<0);
+        public const byte FLAG_HAS_OPTIONAL_MEMBERS     = (byte)(1<<2);
+        public const byte FLAG_HAS_INDIRECTION_TABLE    = (byte)(1<<3);
+        public const byte FLAG_HAS_SLICE_SIZE           = (byte)(1<<4);
+        public const byte FLAG_IS_LAST_SLICE            = (byte)(1<<5);
         
         //
         // The Ice protocol message types
@@ -96,7 +106,7 @@ namespace IceInternal
             }
         }
 
-        internal static void
+        public static void
         checkSupportedProtocolEncoding(Ice.EncodingVersion v)
         {
             if(v.major != protocolEncodingMajor || v.minor > protocolEncodingMinor)

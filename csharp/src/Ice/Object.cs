@@ -147,11 +147,8 @@ namespace Ice
 
         DispatchStatus dispatch__(IceInternal.Incoming inc, Current current);
 
-        void write__(IceInternal.BasicStream os__);
-        void read__(IceInternal.BasicStream is__);
-       
-        void write__(OutputStream outS__);
-        void read__(InputStream inS__);
+        void write__(OutputStream os__);
+        void read__(InputStream is__);
     }
 
     /// <summary>
@@ -204,11 +201,11 @@ namespace Ice
 
         public static DispatchStatus ice_isA___(Ice.Object __obj, IceInternal.Incoming inS__, Current __current)
         {
-            IceInternal.BasicStream is__ = inS__.startReadParams();
+            InputStream is__ = inS__.startReadParams();
             string __id = is__.readString();
             inS__.endReadParams();
             bool __ret = __obj.ice_isA(__id, __current);
-            IceInternal.BasicStream os__ = inS__.startWriteParams__(FormatType.DefaultFormat);
+            OutputStream os__ = inS__.startWriteParams__(FormatType.DefaultFormat);
             os__.writeBool(__ret);
             inS__.endWriteParams__(true);
             return DispatchStatus.DispatchOK;
@@ -262,7 +259,7 @@ namespace Ice
         {
             inS__.readEmptyParams();
             string[] ret__ = __obj.ice_ids(__current);
-            IceInternal.BasicStream os__ = inS__.startWriteParams__(FormatType.DefaultFormat);
+            OutputStream os__ = inS__.startWriteParams__(FormatType.DefaultFormat);
             os__.writeStringSeq(ret__);
             inS__.endWriteParams__(true);
             return DispatchStatus.DispatchOK;
@@ -291,7 +288,7 @@ namespace Ice
         {
             inS__.readEmptyParams();
             string __ret = __obj.ice_id(__current);
-            IceInternal.BasicStream os__ = inS__.startWriteParams__(FormatType.DefaultFormat);
+            OutputStream os__ = inS__.startWriteParams__(FormatType.DefaultFormat);
             os__.writeString(__ret);
             inS__.endWriteParams__(true);
             return DispatchStatus.DispatchOK;
@@ -399,20 +396,6 @@ namespace Ice
             throw new Ice.OperationNotExistException(current.id, current.facet, current.operation);
         }
 
-        public virtual void write__(IceInternal.BasicStream os__)
-        {
-            os__.startWriteObject(null);
-            writeImpl__(os__);
-            os__.endWriteObject();
-        }
-
-        public virtual void read__(IceInternal.BasicStream is__)
-        {
-             is__.startReadObject();
-             readImpl__(is__);
-             is__.endReadObject(false);
-        }
-
         public virtual void write__(OutputStream os__)
         {
             os__.startObject(null);
@@ -427,22 +410,12 @@ namespace Ice
              is__.endObject(false);
         }
 
-        protected virtual void writeImpl__(IceInternal.BasicStream os__)
-        {
-        }
-
-        protected virtual void readImpl__(IceInternal.BasicStream is__)
-        {
-        }
-
         protected virtual void writeImpl__(OutputStream os__)
         {
-            throw new MarshalException("class was not generated with stream support");
         }
 
         protected virtual void readImpl__(InputStream is__)
         {
-            throw new MarshalException("class was not generated with stream support");
         }
 
         private static string operationModeToString(OperationMode mode)

@@ -88,23 +88,23 @@ public class AllTests : TestCommon.TestApp
 
         bool encoding_1_0 = communicator.getProperties().getProperty("Ice.Default.EncodingVersion").Equals("1.0");
 
-        ostr = Ice.Util.createOutputStream(communicator);
-        ByteEnumHelper.write(ostr, ByteEnum.benum11);
+        ostr = new Ice.OutputStream(communicator);
+        ostr.writeEnum((int)ByteEnum.benum11, (int)ByteEnum.benum11);
         bytes = ostr.finished();
         test(bytes.Length == 1); // ByteEnum should require one byte
 
-        ostr = Ice.Util.createOutputStream(communicator);
-        ShortEnumHelper.write(ostr, ShortEnum.senum11);
+        ostr = new Ice.OutputStream(communicator);
+        ostr.writeEnum((int)ShortEnum.senum11, (int)ShortEnum.senum11);
         bytes = ostr.finished();
         test(bytes.Length == (encoding_1_0 ? 2 : 5));
 
-        ostr = Ice.Util.createOutputStream(communicator);
-        IntEnumHelper.write(ostr, IntEnum.ienum11);
+        ostr = new Ice.OutputStream(communicator);
+        ostr.writeEnum((int)IntEnum.ienum11, (int)IntEnum.ienum12);
         bytes = ostr.finished();
         test(bytes.Length == (encoding_1_0 ? 4 : 5));
 
-        ostr = Ice.Util.createOutputStream(communicator);
-        SimpleEnumHelper.write(ostr, SimpleEnum.blue);
+        ostr = new Ice.OutputStream(communicator);
+        ostr.writeEnum((int)SimpleEnum.blue, (int)SimpleEnum.blue);
         bytes = ostr.finished();
         test(bytes.Length == 1); // SimpleEnum should require one byte
 
@@ -202,71 +202,6 @@ public class AllTests : TestCommon.TestApp
                 test(s1[i] == s2[i]);
                 test(s1[i] == s3[i]);
             }
-        }
-
-        Console.Out.WriteLine("ok");
-
-        Console.Out.Write("testing enum exceptions... ");
-        Console.Out.Flush();
-
-        try
-        {
-            ostr = Ice.Util.createOutputStream(communicator);
-            ostr.writeByte((byte)128); // Invalid enumerator
-            Ice.InputStream istr = Ice.Util.createInputStream(communicator, ostr.finished());
-            ByteEnumHelper.read(istr);
-            test(false);
-        }
-        catch(Ice.MarshalException)
-        {
-        }
-
-        try
-        {
-            ostr = Ice.Util.createOutputStream(communicator);
-            ostr.writeShort((short)-1); // Negative enumerators are not supported
-            Ice.InputStream istr = Ice.Util.createInputStream(communicator, ostr.finished());
-            ShortEnumHelper.read(istr);
-            test(false);
-        }
-        catch(Ice.MarshalException)
-        {
-        }
-
-        try
-        {
-            ostr = Ice.Util.createOutputStream(communicator);
-            ostr.writeShort((short)0); // Invalid enumerator
-            Ice.InputStream istr = Ice.Util.createInputStream(communicator, ostr.finished());
-            ShortEnumHelper.read(istr);
-            test(false);
-        }
-        catch(Ice.MarshalException)
-        {
-        }
-
-        try
-        {
-            ostr = Ice.Util.createOutputStream(communicator);
-            ostr.writeShort((short)32767); // Invalid enumerator
-            Ice.InputStream istr = Ice.Util.createInputStream(communicator, ostr.finished());
-            ShortEnumHelper.read(istr);
-            test(false);
-        }
-        catch(Ice.MarshalException)
-        {
-        }
-
-        try
-        {
-            ostr = Ice.Util.createOutputStream(communicator);
-            ostr.writeInt(-1); // Negative enumerators are not supported
-            Ice.InputStream istr = Ice.Util.createInputStream(communicator, ostr.finished());
-            IntEnumHelper.read(istr);
-            test(false);
-        }
-        catch(Ice.MarshalException)
-        {
         }
 
         Console.Out.WriteLine("ok");

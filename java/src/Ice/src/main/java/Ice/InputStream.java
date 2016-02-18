@@ -27,6 +27,7 @@ public class InputStream
     public InputStream()
     {
         initialize(IceInternal.Protocol.currentEncoding);
+        _buf = new IceInternal.Buffer(false);
     }
 
     /**
@@ -73,7 +74,9 @@ public class InputStream
      **/
     public InputStream(Communicator communicator)
     {
-        initialize(communicator);
+        IceInternal.Instance instance = IceInternal.Util.getInstance(communicator);
+        initialize(instance, instance.defaultsAndOverrides().defaultEncoding);
+        _buf = new IceInternal.Buffer(instance.cacheMessageBuffers() > 1);
     }
 
     /**
@@ -117,6 +120,7 @@ public class InputStream
     public InputStream(EncodingVersion encoding)
     {
         initialize(encoding);
+        _buf = new IceInternal.Buffer(false);
     }
 
     /**
@@ -160,7 +164,9 @@ public class InputStream
      **/
     public InputStream(Communicator communicator, EncodingVersion encoding)
     {
-        initialize(communicator, encoding);
+        IceInternal.Instance instance = IceInternal.Util.getInstance(communicator);
+        initialize(instance, encoding);
+        _buf = new IceInternal.Buffer(instance.cacheMessageBuffers() > 1);
     }
 
     /**
@@ -279,7 +285,7 @@ public class InputStream
     }
 
     /**
-     * Resets this output stream. This method allows the stream to be reused, to avoid creating
+     * Resets this stream. This method allows the stream to be reused, to avoid creating
      * unnecessary garbage.
      **/
     public void reset()
@@ -462,6 +468,10 @@ public class InputStream
         CompactIdResolver tmpCompactIdResolver = other._compactIdResolver;
         other._compactIdResolver = _compactIdResolver;
         _compactIdResolver = tmpCompactIdResolver;
+
+        ClassResolver tmpClassResolver = other._classResolver;
+        other._classResolver = _classResolver;
+        _classResolver = tmpClassResolver;
     }
 
     private void resetEncapsulation()
@@ -487,8 +497,6 @@ public class InputStream
 
     /**
      * Marks the start of an Ice object.
-     *
-     * @param slicedData Preserved slices for this object, or null.
      **/
     public void startObject()
     {
@@ -534,7 +542,7 @@ public class InputStream
     }
 
     /**
-     * Writes the start of an encapsulation to the stream.
+     * Reads the start of an encapsulation.
      *
      * @return The encoding version used by the encapsulation.
      **/
@@ -658,6 +666,7 @@ public class InputStream
      * is returned in the argument.
      *
      * @param encoding The encapsulation's encoding version.
+     * @return The encoded encapuslation.
      **/
     public byte[] readEncapsulation(EncodingVersion encoding)
     {
@@ -772,7 +781,7 @@ public class InputStream
     /**
      * Indicates that unmarshaling is complete, except for any Slice objects. The application must call this method
      * only if the stream actually contains Slice objects. Calling <code>readPendingObjects</code> triggers the
-     * calls to {@link ReadObjectCallback#invoke} that inform the application that unmarshaling of a Slice
+     * calls to {@link ReadObjectCallback#objectReady} that inform the application that unmarshaling of a Slice
      * object is complete.
      **/
     public void readPendingObjects()
@@ -827,7 +836,7 @@ public class InputStream
     }
 
     /**
-     * Validates a sequence size.
+     * Reads and validates a sequence size.
      *
      * @return The extracted size.
      **/
@@ -2135,7 +2144,7 @@ public class InputStream
         {
             _stream = stream;
             _sliceObjects = sliceObjects;
-            _servantFactoryManager = f;
+            _valueFactoryManager = f;
             _typeIdIndex = 0;
             _unmarshaledMap = new java.util.TreeMap<Integer, Ice.Object>();
         }
@@ -2189,7 +2198,7 @@ public class InputStream
             //
             // Try to find a factory registered for the specific type.
             //
-            ValueFactory userFactory = _servantFactoryManager.find(typeId);
+            ValueFactory userFactory = _valueFactoryManager.find(typeId);
             Ice.Object v = null;
             if(userFactory != null)
             {
@@ -2202,7 +2211,7 @@ public class InputStream
             //
             if(v == null)
             {
-                userFactory = _servantFactoryManager.find("");
+                userFactory = _valueFactoryManager.find("");
                 if(userFactory != null)
                 {
                     v = userFactory.create(typeId);
@@ -2348,7 +2357,7 @@ public class InputStream
 
         protected final InputStream _stream;
         protected final boolean _sliceObjects;
-        protected ValueFactoryManager _servantFactoryManager;
+        protected ValueFactoryManager _valueFactoryManager;
 
         // Encapsulation attributes for object un-marshalling
         protected java.util.TreeMap<Integer, java.util.LinkedList<ReadObjectCallback> > _patchMap;
@@ -3267,8 +3276,7 @@ public class InputStream
 
     //
     // The encoding version to use when there's no encapsulation to
-    // read from. This is for example used to read message
-    // headers.
+    // read from. This is for example used to read message headers.
     //
     private EncodingVersion _encoding;
 

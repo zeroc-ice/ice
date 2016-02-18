@@ -53,7 +53,7 @@ namespace IceMX
                 }
                 
                 readonly protected string _name;
-            };
+            }
 
             class FieldResolverI : Resolver
             {
@@ -69,7 +69,7 @@ namespace IceMX
                 }
                 
                 readonly private System.Reflection.FieldInfo _field;
-            };
+            }
  
             class MethodResolverI : Resolver
             {
@@ -85,7 +85,7 @@ namespace IceMX
                 }
                 
                 readonly private System.Reflection.MethodInfo _method;
-            };
+            }
 
             class MemberFieldResolverI : Resolver
             {
@@ -110,7 +110,7 @@ namespace IceMX
                 
                 readonly private System.Reflection.MethodInfo _method;
                 readonly private System.Reflection.FieldInfo _field;
-            };
+            }
  
             class MemberMethodResolverI : Resolver
             {
@@ -135,7 +135,7 @@ namespace IceMX
                 
                 readonly private System.Reflection.MethodInfo _method;
                 readonly private System.Reflection.MethodInfo _subMethod;
-            };
+            }
 
             protected AttributeResolver()
             {
@@ -185,7 +185,7 @@ namespace IceMX
             }
 
             private Dictionary<string, Resolver> _attributes = new Dictionary<string, Resolver>();
-        };
+        }
 
         protected MetricsHelper(AttributeResolver attributes)
         {
@@ -208,7 +208,7 @@ namespace IceMX
         }
 
         private AttributeResolver _attributes;
-    };
+    }
 
     public class Observer<T> : Stopwatch, Ice.Instrumentation.Observer where T : Metrics, new()
     {
@@ -314,7 +314,7 @@ namespace IceMX
     
         private List<MetricsMap<T>.Entry> _objects;
         private long _previousDelay = 0;
-    };
+    }
 
     public class ObserverFactory<T, O> where T : Metrics, new() where O : Observer<T>, new()
     {
@@ -450,5 +450,5 @@ namespace IceMX
 #else
         private System.Action _updater;
 #endif
-    };
+    }
 }

@@ -234,7 +234,7 @@ namespace IceInternal
             return put(b, 0, System.Buffer.ByteLength(b));
         }
 
-        public ByteBuffer put(byte[]b, int offset, int length)
+        public ByteBuffer put(byte[] b, int offset, int length)
         {
             if(offset < 0)
             {

@@ -701,6 +701,8 @@ namespace Ice
         AsyncResult begin_ice_flushBatchRequests(AsyncCallback cb__, object cookie__);
 
         void end_ice_flushBatchRequests(AsyncResult r__);
+
+        void write__(OutputStream os);
     }
 
     /// <summary>
@@ -804,7 +806,7 @@ namespace Ice
                     }
                 }
                 bool ret__;
-                IceInternal.BasicStream is__ = outAsync__.startReadParams();
+                InputStream is__ = outAsync__.startReadParams();
                 ret__ = is__.readBool();
                 outAsync__.endReadParams();
                 return ret__;
@@ -837,7 +839,7 @@ namespace Ice
             try
             {
                 result__.prepare(__ice_isA_name, OperationMode.Nonmutating, context__, explicitCtx__, synchronous__);
-                IceInternal.BasicStream os__ = result__.startWriteParams(FormatType.DefaultFormat);
+                OutputStream os__ = result__.startWriteParams(FormatType.DefaultFormat);
                 os__.writeString(id);
                 result__.endWriteParams();
                 result__.invoke();
@@ -850,11 +852,11 @@ namespace Ice
         }
 
         protected IceInternal.TwowayOutgoingAsync<T>
-        getTwowayOutgoingAsync<T>(string operation, IceInternal.ProxyTwowayCallback<T> cb,
-            object cookie) {
+        getTwowayOutgoingAsync<T>(string operation, IceInternal.ProxyTwowayCallback<T> cb, object cookie)
+        {
             bool haveEntry = false;
-            IceInternal.BasicStream iss = null;
-            IceInternal.BasicStream os = null;
+            InputStream iss = null;
+            OutputStream os = null;
 
             if(_reference.getInstance().cacheMessageBuffers() > 0)
             {
@@ -881,11 +883,11 @@ namespace Ice
         }
 
         protected IceInternal.OnewayOutgoingAsync<T>
-        getOnewayOutgoingAsync<T>(string operation, IceInternal.ProxyOnewayCallback<T> cb,
-            object cookie) {
+        getOnewayOutgoingAsync<T>(string operation, IceInternal.ProxyOnewayCallback<T> cb, object cookie)
+        {
             bool haveEntry = false;
-            IceInternal.BasicStream iss = null;
-            IceInternal.BasicStream os = null;
+            InputStream iss = null;
+            OutputStream os = null;
 
             if(_reference.getInstance().cacheMessageBuffers() > 0)
             {
@@ -911,7 +913,7 @@ namespace Ice
         }
 
         public void
-        cacheMessageBuffers(IceInternal.BasicStream iss, IceInternal.BasicStream os)
+        cacheMessageBuffers(InputStream iss, OutputStream os)
         {
             lock(this)
             {
@@ -1097,7 +1099,7 @@ namespace Ice
                     }
                 }
                 string[] ret__;
-                IceInternal.BasicStream is__ = outAsync__.startReadParams();
+                InputStream is__ = outAsync__.startReadParams();
                 ret__ = is__.readStringSeq();
                 outAsync__.endReadParams();
                 return ret__;
@@ -1224,7 +1226,7 @@ namespace Ice
                     }
                 }
                 string ret__;
-                IceInternal.BasicStream is__ = outAsync__.startReadParams();
+                InputStream is__ = outAsync__.startReadParams();
                 ret__ = is__.readString();
                 outAsync__.endReadParams();
                 return ret__;
@@ -2254,6 +2256,12 @@ namespace Ice
             return !Equals(lhs, rhs);
         }
 
+        public void write__(OutputStream os)
+        {
+            _reference.getIdentity().write__(os);
+            _reference.streamWrite(os);
+        }
+
         public IceInternal.Reference reference__()
         {
             return _reference;
@@ -2468,8 +2476,8 @@ namespace Ice
         private IceInternal.BatchRequestQueue _batchRequestQueue;
         private struct StreamCacheEntry
         {
-            public IceInternal.BasicStream iss;
-            public IceInternal.BasicStream os;
+            public InputStream iss;
+            public OutputStream os;
         }
 
         private LinkedList<StreamCacheEntry> _streamCache;

@@ -24,11 +24,11 @@ SRCS		= Acceptor.cs \
 		  AsyncIOThread.cs \
 		  AsyncResult.cs \
 		  Base64.cs \
-		  BasicStream.cs \
 		  BatchRequestInterceptor.cs \
 		  BatchRequestQueue.cs \
 		  Buffer.cs \
 		  ByteBuffer.cs \
+		  BZip2.cs \
 		  CollectionBase.cs \
 		  Collections.cs \
 		  CollocatedRequestHandler.cs \
@@ -53,6 +53,7 @@ SRCS		= Acceptor.cs \
 		  ImplicitContextI.cs \
 		  Incoming.cs \
 		  IncomingAsync.cs \
+		  InputStream.cs \
 		  Instance.cs \
 		  InstrumentationI.cs \
 		  IPEndpointI.cs \
@@ -74,6 +75,7 @@ SRCS		= Acceptor.cs \
 		  Options.cs \
 		  OutgoingAsync.cs \
 		  OutputBase.cs \
+		  OutputStream.cs \
 		  Patcher.cs \
 		  PluginManagerI.cs \
 		  ProcessI.cs \
@@ -99,8 +101,6 @@ SRCS		= Acceptor.cs \
 		  SliceChecksums.cs \
 		  SlicedData.cs \
 		  SocketOperation.cs \
-		  Stream.cs \
-		  StreamI.cs \
 		  StreamSocket.cs \
 		  StreamWrapper.cs \
 		  StringUtil.cs \
@@ -195,8 +195,3 @@ install:: all
 clean::
 	echo $(GEN_SRCS)
 	-rm -f $(assembliesdir)/$(PKG).xml
-
-$(GDIR)/BuiltinSequences.cs: $(SDIR)/BuiltinSequences.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	rm -f $(GDIR)/BuiltinSequences.cs
-	$(SLICE2CS) $(SLICE2CSFLAGS) --stream $(SDIR)/BuiltinSequences.ice
-	mv BuiltinSequences.cs $(GDIR)

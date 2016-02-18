@@ -21,29 +21,29 @@ namespace IceInternal
         IceMX.MetricsFailures[] getFailures();
         IceMX.MetricsFailures getFailures(string id);
         Dictionary<string, string> getProperties();
-    };
+    }
 
     interface ISubMap
     {
         void addSubMapToMetrics(IceMX.Metrics metrics);
-    };
+    }
 
     interface ISubMapCloneFactory
     {
         ISubMap create();
-    };
+    }
 
     interface ISubMapFactory
     {
         ISubMapCloneFactory createCloneFactory(string subMapPrefix, Ice.Properties properties);
-    };
+    }
 
     internal interface IMetricsMapFactory
     {
         void registerSubMap<S>(string subMap, System.Reflection.FieldInfo field) where S : IceMX.Metrics, new();
         void update();
         IMetricsMap create(string mapPrefix, Ice.Properties properties);
-    };
+    }
     
     internal class SubMap<S> : ISubMap where S : IceMX.Metrics, new()
     {
@@ -72,7 +72,7 @@ namespace IceInternal
             
         readonly private MetricsMap<S> _map;
         readonly private System.Reflection.FieldInfo _field;
-    };
+    }
 
     internal class SubMapCloneFactory<S> : ISubMapCloneFactory where S : IceMX.Metrics, new()
     {
@@ -89,7 +89,7 @@ namespace IceInternal
         
         readonly private MetricsMap<S> _map;
         readonly private System.Reflection.FieldInfo _field;
-    };
+    }
 
     class SubMapFactory<S> : ISubMapFactory where S : IceMX.Metrics, new()
     {
@@ -104,7 +104,7 @@ namespace IceInternal
         }
 
         readonly private System.Reflection.FieldInfo _field;
-    };
+    }
 
     public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
     {
@@ -231,7 +231,7 @@ namespace IceInternal
             private T _object;
             private Dictionary<string, int> _failures;
             private Dictionary<string, ISubMap> _subMaps;
-        };
+        }
 
         internal MetricsMap(string mapPrefix, Ice.Properties props, Dictionary<string, ISubMapFactory> subMaps)
         {
@@ -543,7 +543,7 @@ namespace IceInternal
         readonly private Dictionary<string, Entry> _objects = new Dictionary<string, Entry>();
         readonly private Dictionary<string, ISubMapCloneFactory> _subMaps;
         private LinkedList<Entry> _detachedQueue;
-    };
+    }
 
     internal class MetricsViewI
     {
@@ -661,7 +661,7 @@ namespace IceInternal
         
         readonly private string _name;
         readonly private Dictionary<string, IMetricsMap> _maps = new Dictionary<string, IMetricsMap>();
-    };
+    }
 
     public class MetricsAdminI : IceMX.MetricsAdminDisp_, Ice.PropertiesAdminUpdateCallback
     {
@@ -745,7 +745,7 @@ namespace IceInternal
             readonly private System.Action _updater;
 #endif
             readonly private Dictionary<string, ISubMapFactory> _subMaps = new Dictionary<string, ISubMapFactory>();
-        };
+        }
 
         public MetricsAdminI(Ice.Properties properties, Ice.Logger logger)
         {

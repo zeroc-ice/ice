@@ -34,7 +34,7 @@ namespace IceInternal
             else
             {
                 timeoutProperty = prefix + ".Timeout";
-            };
+            }
         
             timeout = p.getPropertyAsIntWithDefault(timeoutProperty, dflt.timeout / 1000) * 1000;
 
@@ -71,7 +71,7 @@ namespace IceInternal
         public int timeout;
         public Ice.ACMHeartbeat heartbeat;
         public Ice.ACMClose close;
-    };
+    }
 
     public interface ACMMonitor : TimerTask
     {
@@ -81,7 +81,7 @@ namespace IceInternal
     
         ACMMonitor acm(Ice.Optional<int> timeout, Ice.Optional<Ice.ACMClose> c, Ice.Optional<Ice.ACMHeartbeat> h);
         Ice.ACM getACM();
-    };
+    }
 
     class FactoryACMMonitor : ACMMonitor
     {
@@ -95,7 +95,7 @@ namespace IceInternal
 
             public readonly Ice.ConnectionI connection;
             public readonly bool remove;
-        };
+        }
 
         internal FactoryACMMonitor(Instance instance, ACMConfig config)
         {
@@ -269,7 +269,7 @@ namespace IceInternal
         private HashSet<Ice.ConnectionI> _connections = new HashSet<Ice.ConnectionI>();
         private List<Change> _changes = new List<Change>();
         private List<Ice.ConnectionI> _reapedConnections = new List<Ice.ConnectionI>();
-    };
+    }
 
     internal class ConnectionACMMonitor : ACMMonitor
     {
@@ -352,5 +352,5 @@ namespace IceInternal
         readonly private ACMConfig _config;
 
         private Ice.ConnectionI _connection;
-    };
+    }
 }

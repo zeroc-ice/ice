@@ -790,7 +790,7 @@ namespace IceInternal
 
             private Ice.Identity _id;
             private Ice.EncodingVersion _encoding;
-        };
+        }
 
         internal LocatorManager(Ice.Properties properties)
         {

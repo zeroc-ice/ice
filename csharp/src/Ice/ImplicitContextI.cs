@@ -46,8 +46,7 @@ namespace Ice
         public abstract string put(string key, string value);
         public abstract string remove(string key);
 
-        abstract public void write(Dictionary<string, string> prxContext,
-                                   IceInternal.BasicStream os);
+        abstract public void write(Dictionary<string, string> prxContext, OutputStream os);
         abstract internal Dictionary<string, string> combine(Dictionary<string, string> prxContext);
     }
         
@@ -158,7 +157,7 @@ namespace Ice
             }
         }
             
-        public override void write(Dictionary<string, string> prxContext, IceInternal.BasicStream os)
+        public override void write(Dictionary<string, string> prxContext, OutputStream os)
         {
             if(prxContext.Count == 0)
             {
@@ -345,7 +344,7 @@ namespace Ice
             return val;
         }
 
-        public override void write(Dictionary<string, string> prxContext, IceInternal.BasicStream os)
+        public override void write(Dictionary<string, string> prxContext, OutputStream os)
         {
             Dictionary<string, string> threadContext = null;
             lock(this)

@@ -142,16 +142,16 @@ namespace IceInternal
                     // and ask the factory to read the endpoint data from that stream to create
                     // the actual endpoint.
                     //
-                    BasicStream bs = new BasicStream(instance_, Ice.Util.currentProtocolEncoding);
-                    bs.writeShort(ue.type());
-                    ue.streamWrite(bs);
-                    Buffer buf = bs.getBuffer();
-                    buf.b.position(0);
-                    buf.b.limit(buf.size());
-                    bs.readShort(); // type
-                    bs.startReadEncaps();
-                    EndpointI e = factory.read(bs);
-                    bs.endReadEncaps();
+                    Ice.OutputStream os = new Ice.OutputStream(instance_, Ice.Util.currentProtocolEncoding);
+                    os.writeShort(ue.type());
+                    ue.streamWrite(os);
+                    Ice.InputStream iss =
+                        new Ice.InputStream(instance_, Ice.Util.currentProtocolEncoding, os.getBuffer(), true);
+                    iss.pos(0);
+                    iss.readShort(); // type
+                    iss.startEncapsulation();
+                    EndpointI e = factory.read(iss);
+                    iss.endEncapsulation();
                     return e;
                 }
                 return ue; // Endpoint is opaque, but we don't have a factory for its type.
@@ -160,7 +160,7 @@ namespace IceInternal
             return null;
         }
 
-        public EndpointI read(BasicStream s)
+        public EndpointI read(Ice.InputStream s)
         {
             lock(this)
             {
@@ -169,7 +169,7 @@ namespace IceInternal
                 EndpointFactory factory = get(type);
                 EndpointI e = null;
 
-                s.startReadEncaps();
+                s.startEncapsulation();
 
                 if(factory != null)
                 {
@@ -180,7 +180,7 @@ namespace IceInternal
                     e = new OpaqueEndpointI(type, s);
                 }
 
-                s.endReadEncaps();
+                s.endEncapsulation();
 
                 return e;
             }

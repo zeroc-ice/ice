@@ -102,22 +102,17 @@ namespace Ice
 
         public void addObjectFactory(ObjectFactory factory, string id)
         {
-            instance_.servantFactoryManager().add(factory, id);
+            instance_.addObjectFactory(factory, id);
         }
 
         public ObjectFactory findObjectFactory(string id)
         {
-            return instance_.servantFactoryManager().findObjectFactory(id);
+            return instance_.findObjectFactory(id);
         }
 
-        public void addValueFactory(ValueFactory factory, string id)
+        public ValueFactoryManager getValueFactoryManager()
         {
-            instance_.servantFactoryManager().add(factory, id);
-        }
-
-        public ValueFactory findValueFactory(string id)
-        {
-            return instance_.servantFactoryManager().find(id);
+            return instance_.initializationData().valueFactoryManager;
         }
 
         public Properties getProperties()
