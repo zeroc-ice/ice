@@ -49,6 +49,7 @@ clean {
     ['src/main/java/test/IceGrid/simple/db'].each {
         delete fileTree(dir: it)
     }
+    delete("src/main/java/test/Slice/generation/classes")
 }
 
 
