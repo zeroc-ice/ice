@@ -267,7 +267,6 @@ public class InputStream
 
         _valueFactoryManager = _instance.initializationData().valueFactoryManager;
         _logger = _instance.initializationData().logger;
-        _compactIdResolver = _instance;
         _classResolver = _instance;
     }
 
@@ -2084,29 +2083,6 @@ public class InputStream
         return _buf.empty();
     }
 
-    private Ice.Object createObject(String id)
-    {
-        Ice.Object obj = null;
-
-        try
-        {
-            if(_classResolver != null)
-            {
-                Class<?> c = _classResolver.resolveClass(id);
-                if(c != null)
-                {
-                    obj = (Ice.Object)c.newInstance();
-                }
-            }
-        }
-        catch(java.lang.Exception ex)
-        {
-            throw new NoValueFactoryException("no value factory", id, ex);
-        }
-
-        return obj;
-    }
-
     private UserException createUserException(String id)
     {
         UserException userEx = null;
@@ -2140,11 +2116,12 @@ public class InputStream
 
     abstract private static class EncapsDecoder
     {
-        EncapsDecoder(InputStream stream, boolean sliceObjects, ValueFactoryManager f)
+        EncapsDecoder(InputStream stream, boolean sliceObjects, ValueFactoryManager f, ClassResolver cr)
         {
             _stream = stream;
             _sliceObjects = sliceObjects;
             _valueFactoryManager = f;
+            _classResolver = cr;
             _typeIdIndex = 0;
             _unmarshaledMap = new java.util.TreeMap<Integer, Ice.Object>();
         }
@@ -2193,6 +2170,41 @@ public class InputStream
             }
         }
 
+        protected Class<?> resolveClass(String typeId)
+        {
+            Class<?> cls = null;
+            if(_typeIdCache == null)
+            {
+                _typeIdCache = new java.util.HashMap<String, Class<?> >(); // Lazy initialization.
+            }
+            else
+            {
+                cls = _typeIdCache.get(typeId);
+            }
+
+            if(cls == EncapsDecoder.class) // Marker for non-existent class.
+            {
+                cls = null;
+            }
+            else if(cls == null)
+            {
+                try
+                {
+                    if(_classResolver != null)
+                    {
+                        cls = _classResolver.resolveClass(typeId);
+                        _typeIdCache.put(typeId, cls != null ? cls : EncapsDecoder.class);
+                    }
+                }
+                catch(java.lang.Exception ex)
+                {
+                    throw new NoValueFactoryException("no value factory", typeId, ex);
+                }
+            }
+
+            return cls;
+        }
+
         protected Ice.Object newInstance(String typeId)
         {
             //
@@ -2223,7 +2235,19 @@ public class InputStream
             //
             if(v == null)
             {
-                v = _stream.createObject(typeId);
+                Class<?> cls = resolveClass(typeId);
+
+                if(cls != null)
+                {
+                    try
+                    {
+                        v = (Ice.Object)cls.newInstance();
+                    }
+                    catch(java.lang.Exception ex)
+                    {
+                        throw new NoValueFactoryException("no value factory", typeId, ex);
+                    }
+                }
             }
 
             return v;
@@ -2358,22 +2382,24 @@ public class InputStream
         protected final InputStream _stream;
         protected final boolean _sliceObjects;
         protected ValueFactoryManager _valueFactoryManager;
+        protected ClassResolver _classResolver;
 
-        // Encapsulation attributes for object un-marshalling
+        //
+        // Encapsulation attributes for object unmarshaling.
+        //
         protected java.util.TreeMap<Integer, java.util.LinkedList<ReadObjectCallback> > _patchMap;
-
-        // Encapsulation attributes for object un-marshalling
         private java.util.TreeMap<Integer, Ice.Object> _unmarshaledMap;
         private java.util.TreeMap<Integer, String> _typeIdMap;
         private int _typeIdIndex;
         private java.util.List<Ice.Object> _objectList;
+        private java.util.HashMap<String, Class<?> > _typeIdCache;
     }
 
     private static final class EncapsDecoder10 extends EncapsDecoder
     {
-        EncapsDecoder10(InputStream stream, boolean sliceObjects, ValueFactoryManager f)
+        EncapsDecoder10(InputStream stream, boolean sliceObjects, ValueFactoryManager f, ClassResolver cr)
         {
-            super(stream, sliceObjects, f);
+            super(stream, sliceObjects, f, cr);
             _sliceType = SliceType.NoSlice;
         }
 
@@ -2662,9 +2688,10 @@ public class InputStream
 
     private static class EncapsDecoder11 extends EncapsDecoder
     {
-        EncapsDecoder11(InputStream stream, boolean sliceObjects, ValueFactoryManager f, CompactIdResolver r)
+        EncapsDecoder11(InputStream stream, boolean sliceObjects, ValueFactoryManager f, ClassResolver cr,
+                        CompactIdResolver r)
         {
-            super(stream, sliceObjects, f);
+            super(stream, sliceObjects, f, cr);
             _compactIdResolver = r;
             _current = null;
             _objectIdIndex = 1;
@@ -2846,7 +2873,9 @@ public class InputStream
                 }
                 else
                 {
+                    //
                     // Only the most derived slice encodes the type ID for the compact format.
+                    //
                     _current.typeId = "";
                     _current.compactId = -1;
                 }
@@ -3066,41 +3095,88 @@ public class InputStream
             Ice.Object v = null;
             while(true)
             {
+                boolean updateCache = false;
+
                 if(_current.compactId >= 0)
                 {
+                    updateCache = true;
+
                     //
-                    // Translate a compact (numeric) type ID into a string type ID.
+                    // Translate a compact (numeric) type ID into a class.
                     //
-                    _current.typeId = "";
-                    if(_compactIdResolver != null)
+                    if(_compactIdCache == null)
                     {
-                        try
+                        _compactIdCache = new java.util.TreeMap<Integer, Class<?> >(); // Lazy initialization.
+                    }
+                    else
+                    {
+                        //
+                        // Check the cache to see if we've already translated the compact type ID into a class.
+                        //
+                        Class<?> cls = _compactIdCache.get(_current.compactId);
+                        if(cls != null)
                         {
-                            _current.typeId = _compactIdResolver.resolve(_current.compactId);
+                            try
+                            {
+                                v = (Ice.Object)cls.newInstance();
+                                updateCache = false;
+                            }
+                            catch(java.lang.Exception ex)
+                            {
+                                throw new NoValueFactoryException("no value factory", "compact ID " +
+                                                                  _current.compactId, ex);
+                            }
                         }
-                        catch(LocalException ex)
+                    }
+
+                    //
+                    // If we haven't already cached a class for the compact ID, then try to translate the
+                    // compact ID into a type ID.
+                    //
+                    if(v == null)
+                    {
+                        _current.typeId = "";
+                        if(_compactIdResolver != null)
                         {
-                            throw ex;
+                            try
+                            {
+                                _current.typeId = _compactIdResolver.resolve(_current.compactId);
+                            }
+                            catch(Ice.LocalException ex)
+                            {
+                                throw ex;
+                            }
+                            catch(Throwable ex)
+                            {
+                                throw new Ice.MarshalException("exception in CompactIdResolver for ID " +
+                                                               _current.compactId, ex);
+                            }
                         }
-                        catch(Throwable ex)
+
+                        if(_current.typeId.isEmpty())
                         {
-                            throw new MarshalException("exception in CompactIdResolver for ID " +
-                                                           _current.compactId, ex);
+                            _current.typeId = _stream.instance().resolveCompactId(_current.compactId);
                         }
                     }
                 }
 
-                if(_current.typeId.length() > 0)
+                if(v == null && !_current.typeId.isEmpty())
                 {
                     v = newInstance(_current.typeId);
+                }
+
+                if(v != null)
+                {
+                    if(updateCache)
+                    {
+                        assert(_current.compactId >= 0);
+                        _compactIdCache.put(_current.compactId, v.getClass());
+                    }
 
                     //
-                    // We found a factory, we get out of this loop.
+                    // We have an instance, get out of this loop.
                     //
-                    if(v != null)
-                    {
-                        break;
-                    }
+                    break;
                 }
 
                 //
@@ -3248,7 +3324,8 @@ public class InputStream
 
         private CompactIdResolver _compactIdResolver;
         private InstanceData _current;
-        private int _objectIdIndex; // The ID of the next object to un-marshal.
+        private int _objectIdIndex; // The ID of the next object to unmarshal.
+        private java.util.TreeMap<Integer, Class<?> > _compactIdCache; // Cache of compact type IDs.
     }
 
     private static final class Encaps
@@ -3309,11 +3386,11 @@ public class InputStream
         {
             if(_encapsStack.encoding_1_0)
             {
-                _encapsStack.decoder = new EncapsDecoder10(this, _sliceObjects, _valueFactoryManager);
+                _encapsStack.decoder = new EncapsDecoder10(this, _sliceObjects, _valueFactoryManager, _classResolver);
             }
             else
             {
-                _encapsStack.decoder = new EncapsDecoder11(this, _sliceObjects, _valueFactoryManager,
+                _encapsStack.decoder = new EncapsDecoder11(this, _sliceObjects, _valueFactoryManager, _classResolver,
                                                            _compactIdResolver);
             }
         }

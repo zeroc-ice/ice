@@ -11,7 +11,7 @@ package IceInternal;
 
 import java.util.concurrent.TimeUnit;
 
-public final class Instance implements Ice.ClassResolver, Ice.CompactIdResolver
+public final class Instance implements Ice.ClassResolver
 {
     static private class ThreadObserverHelper
     {
@@ -800,10 +800,7 @@ public final class Instance implements Ice.ClassResolver, Ice.CompactIdResolver
         return c;
     }
 
-    //
-    // From Ice.CompactIdResolver.
-    //
-    public String resolve(int compactId)
+    public String resolveCompactId(int compactId)
     {
         String className = "IceCompactId.TypeId_" + Integer.toString(compactId);
         Class<?> c = getConcreteClass(className);
