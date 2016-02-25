@@ -267,7 +267,6 @@ namespace Ice
 
             _valueFactoryManager = instance_.initializationData().valueFactoryManager;
             _logger = instance_.initializationData().logger;
-            _compactIdResolver = instance_.resolveCompactId;
             _classResolver = instance_.resolveClass;
         }
 
@@ -2669,32 +2668,6 @@ namespace Ice
             }
         }
 
-        private Ice.Object createObject(string id)
-        {
-            Ice.Object obj = null;
-
-            try
-            {
-                if(_classResolver != null)
-                {
-                    Type c = _classResolver(id);
-                    if(c != null)
-                    {
-                        Debug.Assert(!c.IsAbstract && !c.IsInterface);
-                        obj = (Ice.Object)IceInternal.AssemblyUtil.createInstance(c);
-                    }
-                }
-            }
-            catch(Exception ex)
-            {
-                Ice.NoValueFactoryException e = new Ice.NoValueFactoryException(ex);
-                e.type = id;
-                throw e;
-            }
-
-            return obj;
-        }
-
         private Ice.UserException createUserException(string id)
         {
             Ice.UserException userEx = null;
@@ -2728,12 +2701,14 @@ namespace Ice
 
         abstract private class EncapsDecoder
         {
-            internal EncapsDecoder(InputStream stream, Encaps encaps, bool sliceObjects, ValueFactoryManager f)
+            internal EncapsDecoder(InputStream stream, Encaps encaps, bool sliceObjects, ValueFactoryManager f,
+                                   ClassResolver cr)
             {
                 _stream = stream;
                 _encaps = encaps;
                 _sliceObjects = sliceObjects;
                 _valueFactoryManager = f;
+                _classResolver = cr;
                 _typeIdIndex = 0;
                 _unmarshaledMap = new Dictionary<int, Ice.Object>();
             }
@@ -2781,12 +2756,47 @@ namespace Ice
                 }
             }
 
+            protected Type resolveClass(string typeId)
+            {
+                Type cls = null;
+                if(_typeIdCache == null)
+                {
+                    _typeIdCache = new Dictionary<string, Type>(); // Lazy initialization.
+                }
+                else
+                {
+                    _typeIdCache.TryGetValue(typeId, out cls);
+                }
+
+                if(cls == typeof(EncapsDecoder)) // Marker for non-existent class.
+                {
+                    cls = null;
+                }
+                else if(cls == null)
+                {
+                    try
+                    {
+                        if(_classResolver != null)
+                        {
+                            cls = _classResolver(typeId);
+                            _typeIdCache.Add(typeId, cls != null ? cls : typeof(EncapsDecoder));
+                        }
+                    }
+                    catch(Exception ex)
+                    {
+                        throw new NoValueFactoryException("no value factory", typeId, ex);
+                    }
+                }
+
+                return cls;
+            }
+
             protected Ice.Object newInstance(string typeId)
             {
                 //
                 // Try to find a factory registered for the specific type.
                 //
-                Ice.ValueFactory userFactory = _valueFactoryManager.find(typeId);
+                ValueFactory userFactory = _valueFactoryManager.find(typeId);
                 Ice.Object v = null;
                 if(userFactory != null)
                 {
@@ -2811,7 +2821,20 @@ namespace Ice
                 //
                 if(v == null)
                 {
-                    v = _stream.createObject(typeId);
+                    Type cls = resolveClass(typeId);
+
+                    if(cls != null)
+                    {
+                        try
+                        {
+                            Debug.Assert(!cls.IsAbstract && !cls.IsInterface);
+                            v = (Ice.Object)IceInternal.AssemblyUtil.createInstance(cls);
+                        }
+                        catch(Exception ex)
+                        {
+                            throw new NoValueFactoryException("no value factory", typeId, ex);
+                        }
+                    }
                 }
 
                 return v;
@@ -2947,21 +2970,24 @@ namespace Ice
             protected readonly Encaps _encaps;
             protected readonly bool _sliceObjects;
             protected ValueFactoryManager _valueFactoryManager;
+            protected ClassResolver _classResolver;
 
-            // Encapsulation attributes for object un-marshalling
+            //
+            // Encapsulation attributes for object unmarshaling.
+            //
             protected Dictionary<int, LinkedList<ReadObjectCallback> > _patchMap;
-
-            // Encapsulation attributes for object un-marshalling
             private Dictionary<int, Ice.Object> _unmarshaledMap;
             private Dictionary<int, string> _typeIdMap;
             private int _typeIdIndex;
             private List<Ice.Object> _objectList;
+            private Dictionary<string, Type> _typeIdCache;
         }
 
         private sealed class EncapsDecoder10 : EncapsDecoder
         {
-            internal EncapsDecoder10(InputStream stream, Encaps encaps, bool sliceObjects, ValueFactoryManager f)
-                : base(stream, encaps, sliceObjects, f)
+            internal EncapsDecoder10(InputStream stream, Encaps encaps, bool sliceObjects, ValueFactoryManager f,
+                                     ClassResolver cr)
+                : base(stream, encaps, sliceObjects, f, cr)
             {
                 _sliceType = SliceType.NoSlice;
             }
@@ -3210,7 +3236,7 @@ namespace Ice
                     //
                     if(_typeId.Equals(Ice.ObjectImpl.ice_staticId()))
                     {
-                        throw new Ice.NoValueFactoryException("", mostDerivedId);
+                        throw new NoValueFactoryException("", mostDerivedId);
                     }
 
                     v = newInstance(_typeId);
@@ -3228,8 +3254,8 @@ namespace Ice
                     //
                     if(!_sliceObjects)
                     {
-                        throw new Ice.NoValueFactoryException("no value factory found and object slicing is disabled",
-                                                               _typeId);
+                        throw new NoValueFactoryException("no value factory found and object slicing is disabled",
+                                                          _typeId);
                     }
 
                     //
@@ -3257,8 +3283,8 @@ namespace Ice
         private sealed class EncapsDecoder11 : EncapsDecoder
         {
             internal EncapsDecoder11(InputStream stream, Encaps encaps, bool sliceObjects, ValueFactoryManager f,
-                                     CompactIdResolver r)
-                : base(stream, encaps, sliceObjects, f)
+                                     ClassResolver cr, CompactIdResolver r)
+                : base(stream, encaps, sliceObjects, f, cr)
             {
                 _compactIdResolver = r;
                 _current = null;
@@ -3549,9 +3575,9 @@ namespace Ice
                 {
                     if(_current.sliceType == SliceType.ObjectSlice)
                     {
-                        throw new Ice.NoValueFactoryException("no value factory found and compact format prevents " +
-                                                               "slicing (the sender should use the sliced format " +
-                                                               "instead)", _current.typeId);
+                        throw new NoValueFactoryException("no value factory found and compact format prevents " +
+                                                          "slicing (the sender should use the sliced format " +
+                                                          "instead)", _current.typeId);
                     }
                     else
                     {
@@ -3664,41 +3690,90 @@ namespace Ice
                 Ice.Object v = null;
                 while(true)
                 {
+                    bool updateCache = false;
+
                     if(_current.compactId >= 0)
                     {
+                        updateCache = true;
+
                         //
-                        // Translate a compact (numeric) type ID into a string type ID.
+                        // Translate a compact (numeric) type ID into a class.
                         //
-                        _current.typeId = "";
-                        if(_compactIdResolver != null)
+                        if(_compactIdCache == null)
                         {
-                            try
+                            _compactIdCache = new Dictionary<int, Type>(); // Lazy initialization.
+                        }
+                        else
+                        {
+                            //
+                            // Check the cache to see if we've already translated the compact type ID into a class.
+                            //
+                            Type cls = null;
+                            _compactIdCache.TryGetValue(_current.compactId, out cls);
+                            if(cls != null)
                             {
-                                _current.typeId = _compactIdResolver(_current.compactId);
+                                try
+                                {
+                                    Debug.Assert(!cls.IsAbstract && !cls.IsInterface);
+                                    v = (Ice.Object)IceInternal.AssemblyUtil.createInstance(cls);
+                                    updateCache = false;
+                                }
+                                catch(Exception ex)
+                                {
+                                    throw new NoValueFactoryException("no value factory", "compact ID " +
+                                                                      _current.compactId, ex);
+                                }
                             }
-                            catch(Ice.LocalException)
+                        }
+
+                        //
+                        // If we haven't already cached a class for the compact ID, then try to translate the
+                        // compact ID into a type ID.
+                        //
+                        if(v == null)
+                        {
+                            _current.typeId = "";
+                            if(_compactIdResolver != null)
                             {
-                                throw;
+                                try
+                                {
+                                    _current.typeId = _compactIdResolver(_current.compactId);
+                                }
+                                catch(Ice.LocalException)
+                                {
+                                    throw;
+                                }
+                                catch(System.Exception ex)
+                                {
+                                    throw new Ice.MarshalException("exception in CompactIdResolver for ID " +
+                                                                   _current.compactId, ex);
+                                }
                             }
-                            catch(System.Exception ex)
+
+                            if(_current.typeId.Length == 0)
                             {
-                                throw new Ice.MarshalException("exception in CompactIdResolver for ID " +
-                                                               _current.compactId, ex);
+                                _current.typeId = _stream.instance().resolveCompactId(_current.compactId);
                             }
                         }
                     }
 
-                    if(_current.typeId.Length > 0)
+                    if(v == null && _current.typeId.Length > 0)
                     {
                         v = newInstance(_current.typeId);
+                    }
+
+                    if(v != null)
+                    {
+                        if(updateCache)
+                        {
+                            Debug.Assert(_current.compactId >= 0);
+                            _compactIdCache.Add(_current.compactId, v.GetType());
+                        }
 
                         //
-                        // We found a factory, we get out of this loop.
+                        // We have an instance, get out of this loop.
                         //
-                        if(v != null)
-                        {
-                            break;
-                        }
+                        break;
                     }
 
                     //
@@ -3706,8 +3781,8 @@ namespace Ice
                     //
                     if(!_sliceObjects)
                     {
-                        throw new Ice.NoValueFactoryException("no value factory found and object slicing is disabled",
-                                                               _current.typeId);
+                        throw new NoValueFactoryException("no value factory found and object slicing is disabled",
+                                                          _current.typeId);
                     }
 
                     //
@@ -3845,6 +3920,7 @@ namespace Ice
             private CompactIdResolver _compactIdResolver;
             private InstanceData _current;
             private int _objectIdIndex; // The ID of the next object to un-marshal.
+            private Dictionary<int, Type> _compactIdCache;
         }
 
         private sealed class Encaps
@@ -3905,12 +3981,13 @@ namespace Ice
             {
                 if(_encapsStack.encoding_1_0)
                 {
-                    _encapsStack.decoder = new EncapsDecoder10(this, _encapsStack, _sliceObjects, _valueFactoryManager);
+                    _encapsStack.decoder = new EncapsDecoder10(this, _encapsStack, _sliceObjects, _valueFactoryManager,
+                                                               _classResolver);
                 }
                 else
                 {
                     _encapsStack.decoder = new EncapsDecoder11(this, _encapsStack, _sliceObjects, _valueFactoryManager,
-                                                               _compactIdResolver);
+                                                               _classResolver, _compactIdResolver);
                 }
             }
         }
