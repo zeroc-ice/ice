@@ -190,15 +190,43 @@
 #   if !defined(ICE_STATIC_LIBS) && (!defined(_DLL) || !defined(_MT))
 #       error "Only multi-threaded DLL libraries can be used with Ice!"
 #   endif
-//
-//  Automatically link with IceUtil[D].lib
-//
-#   if !defined(ICE_BUILDING_ICE_UTIL)
-#      if defined(_DEBUG) && !defined(ICE_OS_WINRT)
-#          pragma comment(lib, "IceUtilD.lib")
+
+#   ifdef ICE_CPP11_MAPPING
+#      if defined(_DEBUG)
+#         if defined(ICE_OS_WINRT)
+#            define ICE_LIBNAME(NAME) NAME "37uwp++11D.lib"
+#         else
+#            define ICE_LIBNAME(NAME) NAME "37++11D.lib"
+#         endif
 #      else
-#          pragma comment(lib, "IceUtil.lib")
+#         if defined(ICE_OS_WINRT)
+#            define ICE_LIBNAME(NAME) NAME "37uwp++11.lib"
+#         else
+#            define ICE_LIBNAME(NAME) NAME "37++11.lib"
+#         endif
 #      endif
+#   else
+#      if defined(_DEBUG)
+#         if defined(ICE_OS_WINRT)
+#            define ICE_LIBNAME(NAME) NAME "37uwpD.lib"
+#         else
+#            define ICE_LIBNAME(NAME) NAME "37D.lib"
+#         endif
+#      else
+#         if defined(ICE_OS_WINRT)
+#            define ICE_LIBNAME(NAME) NAME "37uwp.lib"
+#         else
+#            define ICE_LIBNAME(NAME) NAME "37.lib"
+#         endif
+#      endif
+#   endif
+
+//
+//  Automatically link with IceUtil[D|++11|++11D].lib
+//
+
+#   ifndef ICE_BUILDING_ICE_UTIL
+#      pragma comment(lib, ICE_LIBNAME("IceUtil"))
 #   endif
 #endif
 

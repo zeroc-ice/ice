@@ -65,7 +65,7 @@ IceInternal::TcpEndpointI::TcpEndpointI(const ProtocolInstancePtr& instance, Inp
 EndpointInfoPtr
 IceInternal::TcpEndpointI::getInfo() const
 {
-    TCPEndpointInfoPtr info = ICE_MAKE_SHARED(InfoI<Ice::TCPEndpointInfo>, 
+    TCPEndpointInfoPtr info = ICE_MAKE_SHARED(InfoI<Ice::TCPEndpointInfo>,
                                               ICE_DYNAMIC_CAST(TcpEndpointI, shared_from_this()));
     fillEndpointInfo(info.get());
     return info;

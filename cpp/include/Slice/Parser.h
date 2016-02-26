@@ -21,21 +21,15 @@
 #include <stdio.h>
 
 //
-// Automatically link Slice[D].lib with Visual C++
+// Automatically link Slice[D|++11|++11D].lib with Visual C++
 //
 
 #if !defined(ICE_BUILDING_SLICE) && defined(SLICE_API_EXPORTS)
 #   define ICE_BUILDING_SLICE
 #endif
 
-#if defined(_MSC_VER)
-#   if !defined(ICE_BUILDING_SLICE)
-#      if defined(_DEBUG) && !defined(ICE_OS_WINRT)
-#          pragma comment(lib, "SliceD.lib")
-#      else
-#          pragma comment(lib, "Slice.lib")
-#      endif
-#   endif
+#if defined(_MSC_VER) && !defined(ICE_BUILDING_SLICE)
+#   pragma comment(lib, ICE_LIBNAME("Slice"))
 #endif
 
 #ifndef SLICE_API

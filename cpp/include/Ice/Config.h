@@ -33,21 +33,15 @@
 #endif
 
 //
-// Automatically link Ice[D].lib with Visual C++
+// Automatically link Ice[D|++11|++11D].lib with Visual C++
 //
 
 #if !defined(ICE_BUILDING_ICE) && defined(ICE_API_EXPORTS)
 #   define ICE_BUILDING_ICE
 #endif
 
-#if defined(_MSC_VER)
-#   if !defined(ICE_BUILDING_ICE)
-#      if defined(_DEBUG) && !defined(ICE_OS_WINRT)
-#          pragma comment(lib, "IceD.lib")
-#      else
-#          pragma comment(lib, "Ice.lib")
-#      endif
-#   endif
+#if defined(_MSC_VER) && !defined(ICE_BUILDING_ICE)
+#   pragma comment(lib, ICE_LIBNAME("Ice"))
 #endif
 
 //

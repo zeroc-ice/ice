@@ -10,7 +10,7 @@
 #include <IceUtil/DisableWarnings.h>
 #include <IceUtil/Functional.h>
 #include <IceUtil/StringUtil.h>
-#include <Gen.h>
+#include "Gen.h"
 #include <limits>
 #include <sys/stat.h>
 #ifndef _WIN32

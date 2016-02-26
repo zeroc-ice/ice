@@ -30,4 +30,9 @@ IceGridAdmin.nreplicas=0
 
 IceGridAdmin.registryOptions += " --Ice.Plugin.RegistryPlugin=RegistryPlugin:createRegistryPlugin"
 
-IceGridAdmin.iceGridTest("application.xml", "--Ice.RetryIntervals=\"0 50 100 250\"", "icebox.exe='%s'" % TestUtil.getIceBox())
+
+TestUtil.addAdditionalBinDirectories([os.path.join(os.getcwd(), TestUtil.getTestDirectory("registryplugin"))])
+TestUtil.addAdditionalBinDirectories([os.path.join(os.getcwd(), TestUtil.getTestDirectory("testservice"))])
+
+IceGridAdmin.iceGridTest("application.xml",
+    "--Ice.RetryIntervals=\"0 50 100 250\"", "icebox.exe='%s' server.dir='%s'" % (TestUtil.getIceBox(), TestUtil.getTestDirectory("server")))

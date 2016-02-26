@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\..\Client4.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Slice Files">
+      <UniqueIdentifier>{7bc3de33-3469-4bf7-bd99-d1055dcc8523}</UniqueIdentifier>
+      <Extensions>ice</Extensions>
+    </Filter>
+  </ItemGroup>
+</Project>

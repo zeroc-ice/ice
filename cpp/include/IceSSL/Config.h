@@ -13,21 +13,14 @@
 #include <Ice/Config.h>
 
 //
-// Automatically link IceSSL[D].lib with Visual C++
+// Automatically link IceSSL[D|++11|++11D].lib with Visual C++
 //
-
 #if !defined(ICE_BUILDING_ICE_SSL) && defined(ICE_SSL_API_EXPORTS)
 #   define ICE_BUILDING_ICE_SSL
 #endif
 
-#if defined(_MSC_VER)
-#   if !defined(ICE_BUILDING_ICE_SSL)
-#      if defined(_DEBUG) && !defined(ICE_OS_WINRT)
-#          pragma comment(lib, "IceSSLD.lib")
-#      else
-#          pragma comment(lib, "IceSSL.lib")
-#      endif
-#   endif
+#if defined(_MSC_VER) && !defined(ICE_BUILDING_ICE_SSL)
+#   pragma comment(lib, ICE_LIBNAME("IceSSL"))
 #endif
 
 #if defined(__APPLE__)

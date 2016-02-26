@@ -1,0 +1,148 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\BatchRequestInterceptor.cpp" />
+    <ClCompile Include="..\Communicator.cpp" />
+    <ClCompile Include="..\Connection.cpp" />
+    <ClCompile Include="..\ConnectionInfo.cpp" />
+    <ClCompile Include="..\Current.cpp" />
+    <ClCompile Include="..\Endpoint.cpp" />
+    <ClCompile Include="..\EndpointInfo.cpp" />
+    <ClCompile Include="..\ImplicitContext.cpp" />
+    <ClCompile Include="..\Init.cpp" />
+    <ClCompile Include="..\Logger.cpp" />
+    <ClCompile Include="..\ObjectAdapter.cpp" />
+    <ClCompile Include="..\Operation.cpp" />
+    <ClCompile Include="..\Properties.cpp" />
+    <ClCompile Include="..\PropertiesAdmin.cpp" />
+    <ClCompile Include="..\Proxy.cpp" />
+    <ClCompile Include="..\Slice.cpp" />
+    <ClCompile Include="..\Thread.cpp" />
+    <ClCompile Include="..\Types.cpp" />
+    <ClCompile Include="..\Util.cpp" />
+    <ClCompile Include="..\ValueFactoryManager.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\BatchRequestInterceptor.h" />
+    <ClInclude Include="..\Communicator.h" />
+    <ClInclude Include="..\Config.h" />
+    <ClInclude Include="..\Connection.h" />
+    <ClInclude Include="..\ConnectionInfo.h" />
+    <ClInclude Include="..\Current.h" />
+    <ClInclude Include="..\Endpoint.h" />
+    <ClInclude Include="..\EndpointInfo.h" />
+    <ClInclude Include="..\ImplicitContext.h" />
+    <ClInclude Include="..\Logger.h" />
+    <ClInclude Include="..\ObjectAdapter.h" />
+    <ClInclude Include="..\Operation.h" />
+    <ClInclude Include="..\Properties.h" />
+    <ClInclude Include="..\PropertiesAdmin.h" />
+    <ClInclude Include="..\Proxy.h" />
+    <ClInclude Include="..\Slice.h" />
+    <ClInclude Include="..\Thread.h" />
+    <ClInclude Include="..\Types.h" />
+    <ClInclude Include="..\Util.h" />
+    <ClInclude Include="..\ValueFactoryManager.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\IcePy.rc" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{18BF13D3-85D3-43A5-8C96-E52EB0672F72}</ProjectGuid>
+    <RootNamespace>IceGrid</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\..\msbuild\ice.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\..\msbuild\ice.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\..\msbuild\ice.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\..\msbuild\ice.props" />
+  </ImportGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <TargetName>IcePy_d</TargetName>
+    <OutDir>..\..\..\python\$(Platform)\$(Configuration)\</OutDir>
+    <TargetExt>.pyd</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <TargetName>IcePy_d</TargetName>
+    <OutDir>..\..\..\python\$(Platform)\$(Configuration)\</OutDir>
+    <TargetExt>.pyd</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <TargetName>IcePy</TargetName>
+    <OutDir>..\..\..\python\$(Platform)\$(Configuration)\</OutDir>
+    <TargetExt>.pyd</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <TargetName>IcePy</TargetName>
+    <OutDir>..\..\..\python\$(Platform)\$(Configuration)\</OutDir>
+    <TargetExt>.pyd</TargetExt>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <DisableSpecificWarnings>4302;4311;4312;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <DisableSpecificWarnings>4302;4311;4312;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

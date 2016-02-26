@@ -20,4 +20,4 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0], "scripts"))
 import TestUtil
 
-TestUtil.simpleTest(os.path.join(os.getcwd(), "client"))
+TestUtil.simpleTest(os.path.join(os.getcwd(), TestUtil.getTestExecutable("client")))

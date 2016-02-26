@@ -20,9 +20,9 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0], "scripts"))
 import TestUtil
 
-server = os.path.join(os.getcwd(), "server")
+server = os.path.join(os.getcwd(), TestUtil.getTestExecutable("server"))
 router = TestUtil.getGlacier2Router()
-client = os.path.join(os.getcwd(), "client")
+client = os.path.join(os.getcwd(), TestUtil.getTestExecutable("client"))
 
 targets = []
 if TestUtil.appverifier:

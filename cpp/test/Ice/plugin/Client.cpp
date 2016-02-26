@@ -126,10 +126,27 @@ main(int argc, char* argv[])
     }
     cout << "ok" << endl;
 
-#ifdef ICE_OS_WINRT
+#if !defined(_WIN32)
+	string pluginDir = "plugins/";
+#elif defined(ICE_OS_WINRT)
     string pluginDir = "plugins/winrt/";
 #else
-    string pluginDir = "plugins/";
+	string pluginDir = "msbuild/testplugin/";
+#   if defined(_M_X64)
+	pluginDir += "x64/";
+#   else
+	pluginDir += "Win32/";
+#   endif
+
+#   if defined(ICE_CPP11_MAPPING)
+	pluginDir += "Cpp11-";
+#   endif
+
+#   if defined(_DEBUG)
+	pluginDir += "Debug/";
+#   else
+	pluginDir += "Release/";
+#   endif
 #endif
 
     cout << "testing a simple plug-in... " << flush;

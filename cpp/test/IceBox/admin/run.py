@@ -24,6 +24,7 @@ icebox = TestUtil.getIceBox()
 
 config = os.path.join(os.getcwd(), "config.icebox")
 
+TestUtil.addAdditionalBinDirectories([os.path.join(os.getcwd(), TestUtil.getTestDirectory("testservice"))])
 TestUtil.clientServerTest(additionalServerOptions= '--Ice.Config=\"%s\"' % config, server = icebox)
 
 sys.stdout.write("testing iceboxadmin... ")

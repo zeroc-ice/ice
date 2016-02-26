@@ -366,7 +366,7 @@ Ice::CommunicatorI::create(const InitializationData& initData)
 
 Ice::CommunicatorI::~CommunicatorI()
 {
-    if(!_instance->destroyed())
+    if(_instance && !_instance->destroyed())
     {
         Warning out(_instance->initializationData().logger);
         out << "Ice::Communicator::destroy() has not been called";

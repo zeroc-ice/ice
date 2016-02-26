@@ -14,21 +14,15 @@
 #include <IceStorm/IceStorm.h>
 
 //
-// Automatically link with IceStormService[D].lib
+// Automatically link with IceStormService[D|++11|++11D].lib
 //
 
 #if !defined(ICE_BUILDING_ICE_STORM_SERVICE) && defined(ICE_STORM_SERVICE_API_EXPORTS)
 #   define ICE_BUILDING_ICE_STORM_SERVICE
 #endif
 
-#ifdef _MSC_VER
-#   if !defined(ICE_BUILDING_ICE_STORM_SERVICE)
-#      if defined(_DEBUG) && !defined(ICE_OS_WINRT)
-#          pragma comment(lib, "IceStormServiceD.lib")
-#      else
-#          pragma comment(lib, "IceStormService.lib")
-#      endif
-#   endif
+#if defined(_MSC_VER) && !defined(ICE_BUILDING_ICE_STORM_SERVICE)
+#   pragma comment(lib, ICE_LIBNAME("IceStormService"))
 #endif
 
 #ifndef ICE_STORM_SERVICE_API

@@ -20,7 +20,7 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0], "scripts"))
 import TestUtil
 
-client = os.path.join(os.getcwd(), "client")
+client = os.path.join(os.getcwd(), TestUtil.getTestExecutable("client"))
 
 print("Running test with default encoding...")
 TestUtil.simpleTest(client)

@@ -234,7 +234,7 @@ Selector::completed(EventHandler* handler, SocketOperation op)
     }
 #else
     IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
-    _events.push_back(SelectEvent(handler, op));
+    _events.push_back(SelectEvent(std::dynamic_pointer_cast<EventHandler>(handler->shared_from_this()), op));
     _monitor.notify();
 #endif
 }

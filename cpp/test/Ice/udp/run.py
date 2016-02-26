@@ -29,8 +29,8 @@ if TestUtil.isSolaris() and TestUtil.ipv6:
     print("test not supported on Solaris with IPv6")
     sys.exit(0)
 
-server = os.path.join(os.getcwd(), "server")
-client = os.path.join(os.getcwd(), "client")
+server = os.path.join(os.getcwd(), TestUtil.getTestExecutable("server"))
+client = os.path.join(os.getcwd(), TestUtil.getTestExecutable("client"))
 
 num = 5
 

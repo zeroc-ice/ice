@@ -9,15 +9,16 @@
 # **********************************************************************
 
 import sys, os, platform
-sys.path.insert(1, os.path.join(os.path.dirname(sys.argv[0]), "..", "python"))
 
+basepath = os.path.dirname(os.path.realpath(__file__))
+print(basepath)
 if sys.platform == "win32":
-    os.putenv("PATH", "{0};{1};{2}".format(
-        os.getenv('PATH'),
-        os.path.join(os.path.dirname(sys.argv[0]), "..", "..", "cpp", "bin"),
-        os.path.join(os.path.dirname(sys.argv[0]), "..", "..", "cpp", "third-party-packages", 
-            "bzip2.v100", "build", "native", "bin",
-            "Win32" if "32bit" in platform.architecture() else "x64", "Release")))
+    platformName = "Win32" if "32bit" in platform.architecture() else "x64"
+    configurationName = os.getenv("CPP_CONFIGURATION", "Release")
+    sys.path.insert(1, os.path.join(basepath, "..", "python", platformName, configurationName))
+    os.putenv("PATH", os.path.join(basepath, "..", "..", "cpp", "bin", platformName, configurationName))
+else:
+    sys.path.insert(1, os.path.join(basepath, "..", "python", platformName, configurationName))
 
 import IcePy
 

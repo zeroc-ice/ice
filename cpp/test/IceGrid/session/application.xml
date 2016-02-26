@@ -34,7 +34,7 @@
                        manager="TestIceGrid/AdminSessionManager"
                        ssl-manager="TestIceGrid/AdminSSLSessionManager"/>
 
-      <server id="PermissionsVerifierServer" exe="${test.dir}/server" activation="on-demand">
+      <server id="PermissionsVerifierServer" exe="${server.dir}/server" activation="on-demand">
         <adapter name="Server" endpoints="default -h 127.0.0.1">
           <object identity="ClientPermissionsVerifier"/>
           <object identity="SSLPermissionsVerifier"/>

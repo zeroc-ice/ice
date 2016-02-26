@@ -10,7 +10,7 @@
        <parameter name="directory"/>
 
        <server id="${instance-name}"
-               exe="${ice.bindir}/icepatch2server" 
+               exe="${ice.bindir}/icepatch2server"
                application-distrib="false" activation="manual">
          <adapter name="IcePatch2" endpoints="${endpoints}">
            <object identity="${instance-name}/server" type="::IcePatch2::FileServer"/>
@@ -32,10 +32,10 @@
       <server-instance template="IcePatch2" directory="${icepatch.directory}"/>
       <server-instance template="IcePatch2"
                        directory="${icepatch.directory}"
-                       instance-name="IcePatch2-Direct" 
+                       instance-name="IcePatch2-Direct"
                        endpoints="default -p 12001"/>
 
-      <server id="server-all" exe="${test.dir}/server" activation="on-demand">
+      <server id="server-all" exe="${server.dir}/server" activation="on-demand">
         <adapter name="Server" endpoints="default">
 	  <object identity="${server}"/>
 	</adapter>
@@ -46,7 +46,7 @@
         </properties>
       </server>
 
-      <server id="server-all-direct" exe="${test.dir}/server" activation="on-demand">
+      <server id="server-all-direct" exe="${server.dir}/server" activation="on-demand">
         <adapter name="Server" endpoints="default">
 	  <object identity="${server}"/>
 	</adapter>
@@ -57,7 +57,7 @@
         </properties>
       </server>
 
-      <server id="server-dir1" exe="${test.dir}/server" activation="on-demand">
+      <server id="server-dir1" exe="${server.dir}/server" activation="on-demand">
         <adapter name="Server" endpoints="default">
 	  <object identity="${server}"/>
 	</adapter>

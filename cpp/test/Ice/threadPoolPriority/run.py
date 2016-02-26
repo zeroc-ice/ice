@@ -22,5 +22,5 @@ import TestUtil
 
 TestUtil.queueClientServerTest(message = "Running test with default server thread pool.")
 TestUtil.queueClientServerTest(configName = "custom", message = "Running test with custom server thread pool.",
-                               server = "servercustom")
+                               server = TestUtil.getTestExecutable("servercustom"))
 TestUtil.runQueuedTests()

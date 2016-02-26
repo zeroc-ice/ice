@@ -54,6 +54,12 @@ ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceLocatorDiscovery(bool = true
 ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceBT(bool = true);
 #endif
 
+
+#if defined(_MSC_VER) && !defined(ICE_BUILDING_SRC)
+#   pragma comment(lib, ICE_LIBNAME("IceDiscovery"))
+#   pragma comment(lib, ICE_LIBNAME("IceLocatorDiscovery"))
+#   pragma comment(lib, ICE_LIBNAME("IceSSL"))
+#endif
 }
 
 #endif

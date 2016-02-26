@@ -21,8 +21,8 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0], "scripts"))
 import TestUtil, IceStormUtil
 
-publisher = os.path.join(os.getcwd(), "publisher")
-subscriber = os.path.join(os.getcwd(), "subscriber")
+publisher = os.path.join(os.getcwd(), TestUtil.getTestExecutable("publisher"))
+subscriber = os.path.join(os.getcwd(), TestUtil.getTestExecutable("subscriber"))
 
 targets = []
 if TestUtil.appverifier:

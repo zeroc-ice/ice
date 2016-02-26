@@ -1,3 +1,0 @@
-
-Test.php: \
-    Test.ice

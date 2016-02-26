@@ -20,6 +20,7 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0], "scripts"))
 import TestUtil
 
-client = os.path.join(os.getcwd(), "client")
+TestUtil.addAdditionalBinDirectories([os.path.join(os.getcwd(), TestUtil.getTestDirectory("interceptortest"))])
+client = os.path.join(os.getcwd(), TestUtil.getTestExecutable("client"))
 
 TestUtil.simpleTest(client, " --Ice.Warn.Dispatch=0")

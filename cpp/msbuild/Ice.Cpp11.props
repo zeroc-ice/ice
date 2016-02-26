@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <PropertyGroup>
+        <Ice_BuildingSrc>yes</Ice_BuildingSrc>
+        <Ice_CppMapping>cpp11</Ice_CppMapping>
+    </PropertyGroup>
+
+    <Import Project="$(MSBuildThisFileDirectory)\ice.cpp.props" />
+
+    <PropertyGroup Condition="'$(Ice_Configuration)|$(ConfigurationType)' == 'Debug|DynamicLibrary'">
+        <TargetName>$(ProjectName.Replace("++11", "37++11d"))</TargetName>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Ice_Configuration)|$(ConfigurationType)' == 'Release|DynamicLibrary'">
+        <TargetName>$(ProjectName.Replace("++11", "37++11"))</TargetName>
+    </PropertyGroup>
+</Project>

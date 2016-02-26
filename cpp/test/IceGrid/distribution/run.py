@@ -26,8 +26,8 @@ def icepatch2Calc(datadir, dirname):
     commandProc.waitTestSuccess()
 
 datadir = os.path.join(os.getcwd(), "data")
- 
-files = [ 
+
+files = [
   [ "original/rootfile", "rootfile" ],
   [ "original/dir1/file1", "dummy-file1"],
   [ "original/dir1/file2", "dummy-file2"],
@@ -50,7 +50,7 @@ for [file, content] in files:
     file = os.path.join(datadir, file)
     if not os.path.exists(os.path.dirname(file)):
         os.makedirs(os.path.dirname(file))
-    f = open(file, 'w')    
+    f = open(file, 'w')
     f.write(content)
     f.close()
 
@@ -58,8 +58,7 @@ icepatch2Calc(datadir, "original")
 icepatch2Calc(datadir, "updated")
 print("ok")
 
-IceGridAdmin.iceGridTest("application.xml")
+IceGridAdmin.iceGridTest("application.xml", "", "server.dir='%s'" % TestUtil.getTestDirectory("server"))
 
 IceGridAdmin.cleanDbDir(datadir)
 os.rmdir(datadir)
-

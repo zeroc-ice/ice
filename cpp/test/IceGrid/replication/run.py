@@ -22,8 +22,9 @@ import TestUtil, IceGridAdmin
 
 TestUtil.addLdPath(os.getcwd())
 
-variables = ("properties-override='%s' icegridnode.exe='%s' icegridregistry.exe='%s'" % 
-			 (IceGridAdmin.iceGridNodePropertiesOverride(), TestUtil.getIceGridNode(), TestUtil.getIceGridRegistry()))
+serverdir = os.path.join(os.getcwd(), TestUtil.getTestDirectory("server"))
+variables = ("properties-override='%s' icegridnode.exe='%s' icegridregistry.exe='%s' server.dir='%s'" %
+			 (IceGridAdmin.iceGridNodePropertiesOverride(), TestUtil.getIceGridNode(), TestUtil.getIceGridRegistry(), serverdir))
 
-IceGridAdmin.iceGridTest("application.xml", '--IceDir="%s" --TestDir="%s"' % (TestUtil.toplevel, os.getcwd()),
+IceGridAdmin.iceGridTest("application.xml", '--IceDir="%s" --ServerDir="%s"' % (TestUtil.toplevel, serverdir),
                          variables)

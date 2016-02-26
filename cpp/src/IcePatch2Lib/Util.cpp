@@ -20,8 +20,6 @@
 #include <IceUtil/FileUtil.h>
 #include <IceUtil/SHA1.h>
 #include <IceUtil/Exception.h>
-
-#define ICE_PATCH2_API_EXPORTS
 #include <IcePatch2Lib/Util.h>
 #include <IcePatch2/FileServer.h>
 #include <bzlib.h>
@@ -1239,4 +1237,3 @@ IcePatch2Internal::getFileTree0(const LargeFileInfoSeq& infoSeq, FileTree0& tree
         fill(tree0.checksum.begin(), tree0.checksum.end(), 0);
     }
 }
-

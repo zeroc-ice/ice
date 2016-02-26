@@ -20,5 +20,8 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0], "scripts"))
 import TestUtil, IceGridAdmin
 
-IceGridAdmin.iceGridTest("application.xml", "", "properties-override='%s' icegridnode.exe='%s'" % 
-	(IceGridAdmin.iceGridNodePropertiesOverride(), TestUtil.getIceGridNode()))
+IceGridAdmin.iceGridTest("application.xml",
+    applicationOptions = ("properties-override='%s' icegridnode.exe='%s' server.dir='%s'" %
+	                     (IceGridAdmin.iceGridNodePropertiesOverride(),
+                          TestUtil.getIceGridNode(),
+                          TestUtil.getTestDirectory("server"))))

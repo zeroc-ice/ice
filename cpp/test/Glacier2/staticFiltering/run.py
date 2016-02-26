@@ -26,8 +26,8 @@ fqdn = socket.getfqdn().lower()
 limitedTests = False
 
 router = TestUtil.getGlacier2Router()
-clientCmd = os.path.join(os.getcwd(), 'client')
-serverCmd = os.path.join(os.getcwd(), 'server')
+clientCmd = os.path.join(os.getcwd(), TestUtil.getTestExecutable('client'))
+serverCmd = os.path.join(os.getcwd(), TestUtil.getTestExecutable('server'))
 
 #
 # Generate the crypt passwords file
@@ -39,12 +39,12 @@ if TestUtil.appverifier:
     targets = [serverCmd, clientCmd, router]
     TestUtil.setAppVerifierSettings(targets)
 
-# 
+#
 # Try and figure out what tests are reasonable with this host's
 # configuration.
 #
 if fqdn.endswith("localdomain") or fqdn.endswith("local") or fqdn.endswith("domain"):
-    # 
+    #
     # No real configured domain name, this means that anything that
     # requires a domain name isn't likely going to work. Furthermore, it
     # might be the case that the hostname contains this suffix, so we
@@ -56,7 +56,7 @@ if fqdn.endswith("localdomain") or fqdn.endswith("local") or fqdn.endswith("doma
     domainname = ""
     limitedTests = True
 elif hostname.startswith("localhost"):
-    # 
+    #
     # No configured host name (and possibly no domain name), minimal
     # tests.
     #
@@ -110,13 +110,13 @@ testcases = [
                 ('', '', '', 'foo "a cat with spaces"', '', ''),
                 [(True, 'foo/helloA:tcp -h 127.0.0.1 -p 12010'),
                 (True, '"a cat with spaces/helloB":tcp -h 127.0.0.1 -p 12010'),
-                (False, 'nocat/helloC:tcp -h 127.0.0.1 -p 12010'), 
+                (False, 'nocat/helloC:tcp -h 127.0.0.1 -p 12010'),
                 (False, 'cat/helloD:tcp -h 127.0.0.1 -p 12010')], []),
         ('testing adapter id filter',
                 ('', '*', '', '', '', 'foo "an adapter with spaces"'),
                 [(False, 'foo/helloA:tcp -h 127.0.0.1 -p 12010'),
                 (False, '"a cat with spaces/helloB":tcp -h 127.0.0.1 -p 12010'),
-                (False, 'nocat/helloC:tcp -h 127.0.0.1 -p 12010'), 
+                (False, 'nocat/helloC:tcp -h 127.0.0.1 -p 12010'),
                 (False, 'cat/helloD:tcp -h 127.0.0.1 -p 12010'),
                 (False, 'helloE @ bar'),
                 (True, 'helloF1 @ "an adapter with spaces"'),
@@ -124,7 +124,7 @@ testcases = [
         ('test identity filters',
                 ('', '', '', '', 'myident cata/fooa "a funny id/that might mess it up"', ''),
                 [(False, '"a cat with spaces/helloB":tcp -h 127.0.0.1 -p 12010'),
-                (False, 'nocat/helloC:tcp -h 127.0.0.1 -p 12010'), 
+                (False, 'nocat/helloC:tcp -h 127.0.0.1 -p 12010'),
                 (False, 'cat/helloD:tcp -h 127.0.0.1 -p 12010'),
                 (False, 'baz/myident:tcp -h 127.0.0.1 -p 12010'),
                 (False, 'cata/foo:tcp -h 127.0.0.1 -p 12010'),
@@ -133,10 +133,10 @@ testcases = [
                 (True, 'cata/fooa:tcp -h 127.0.0.1 -p 12010'),
                 (True, '"a funny id/that might mess it up":tcp -h 127.0.0.1 -p 12010')], []),
         ('test mixing filters',
-                ('', '', '', 'mycat "a sec cat"', 'myident cata/fooa "a funny id/that might mess it up" "a\\"nother"', 
+                ('', '', '', 'mycat "a sec cat"', 'myident cata/fooa "a funny id/that might mess it up" "a\\"nother"',
                     'myadapter'),
                 [(False, '"a cat with spaces/helloB":tcp -h 127.0.0.1 -p 12010'),
-                (False, 'nocat/helloC:tcp -h 127.0.0.1 -p 12010'), 
+                (False, 'nocat/helloC:tcp -h 127.0.0.1 -p 12010'),
                 (False, 'cat/helloD:tcp -h 127.0.0.1 -p 12010'),
                 (False, 'baz/myident:tcp -h 127.0.0.1 -p 12010'),
                 (False, 'cata/foo:tcp -h 127.0.0.1 -p 12010'),
@@ -153,7 +153,7 @@ testcases = [
         ('test mixing filters (indirect only)',
                 ('', '*', '', 'mycat "a sec cat"', 'myident cata/fooa "a funny id/that might mess it up"', 'myadapter'),
                 [(False, '"a cat with spaces/helloB":tcp -h 127.0.0.1 -p 12010'),
-                (False, 'nocat/helloC:tcp -h 127.0.0.1 -p 12010'), 
+                (False, 'nocat/helloC:tcp -h 127.0.0.1 -p 12010'),
                 (False, 'cat/helloD:tcp -h 127.0.0.1 -p 12010'),
                 (False, 'baz/myident:tcp -h 127.0.0.1 -p 12010'),
                 (False, 'cata/foo:tcp -h 127.0.0.1 -p 12010'),
@@ -263,12 +263,12 @@ for testcase in testcases:
             rejects +=1
         attackcfg.write(proxy + '\n')
 
-    attackcfg.close()    
+    attackcfg.close()
     pingProgress()
 
     hostArg = ""
     if limitedTests:
-        hostArg = " --Ice.Default.Host=127.0.0.1" 
+        hostArg = " --Ice.Default.Host=127.0.0.1"
     #
     # This test causes connections to be terminated which will cause
     # warnings if we use the default test flags. So we need to define
@@ -279,7 +279,7 @@ for testcase in testcases:
             ' --Ice.ServerIdleTime=600 --Ice.ThreadPool.Server.Size=2 --Ice.ThreadPool.Server.SizeMax=10' + \
             ' --Glacier2.RoutingTable.MaxSize=10 --Ice.Warn.Connections=0 ' + hostArg
 
-    # 
+    #
     # We cannot use the TestUtil options because they use localhost as the default host which doesn't really work for
     # these tests.
     #
@@ -302,7 +302,7 @@ for testcase in testcases:
 
     #
     # We configure the AddProxy constraints as a configuration file.
-    # Regular expression syntax can easily confuse the command line. 
+    # Regular expression syntax can easily confuse the command line.
     #
     if not len(acceptFilter) == 0:
         routerConfig.write("Glacier2.Filter.Address.Accept=%s\n" % acceptFilter)
@@ -327,13 +327,13 @@ for testcase in testcases:
     if routerDriver.host == None:
         routerDriver.host = ""
     routerDriver.overrides = commonServerOptions + routerArgs
-    
+
     starterProc = TestUtil.startServer(router, config=routerDriver, count=2)
     pingProgress()
 
     if TestUtil.protocol != "ssl":
         serverConfig = open(os.path.join(os.getcwd(), "server.cfg"), "w")
-        serverOptions = ' --Ice.Config="' + os.path.join(os.getcwd(), "server.cfg") + '" ' 
+        serverOptions = ' --Ice.Config="' + os.path.join(os.getcwd(), "server.cfg") + '" '
         serverConfig.write("BackendAdapter.Endpoints=tcp -p 12010\n")
         serverConfig.close()
     else:

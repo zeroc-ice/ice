@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>ice.v140</id>
+    <version>3.7.0.0</version>
+    <authors>ZeroC, Inc</authors>
+    <licenseUrl>https://zeroc.com/licensing</licenseUrl>
+    <projectUrl>http://www.zeroc.com</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>A comprehensive rpc framework.</description>
+    <releaseNotes>TODO</releaseNotes>
+    <tags>ice native</tags>
+  </metadata>
+</package>

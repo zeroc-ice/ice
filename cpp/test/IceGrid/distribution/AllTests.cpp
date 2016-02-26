@@ -19,7 +19,7 @@ using namespace std;
 using namespace Test;
 using namespace IceGrid;
 
-void 
+void
 allTests(const Ice::CommunicatorPtr& communicator)
 {
     IceGrid::RegistryPrx registry = IceGrid::RegistryPrx::checkedCast(
@@ -31,7 +31,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     AdminPrx admin = session->getAdmin();
     test(admin);
-    
+
     cout << "testing distributions... " << flush;
     {
         admin->startServer("Test.IcePatch2");
@@ -125,7 +125,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         update.name = "Test";
         update.variables["icepatch.directory"] = "${test.dir}/data/updated";
         admin->updateApplication(update);
-        
+
         admin->startServer("Test.IcePatch2");
         admin->startServer("IcePatch2-Direct");
 
@@ -142,7 +142,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             copy(ex.reasons.begin(), ex.reasons.end(), ostream_iterator<string>(cerr, "\n"));
             test(false);
         }
- 
+
         test(test->getServerFile("rootfile") == "rootfile-updated!");
         test(test->getServerFile("dir1/file1") == "");
         test(test->getServerFile("dir1/file2") == "dummy-file2-updated!");
@@ -211,11 +211,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         ApplicationDescriptor app = admin->getApplicationInfo("Test").descriptor;
         admin->removeApplication("Test");
-        
+
         app.variables["icepatch.directory"] = "${test.dir}/data/original";
         test(app.nodes["localnode"].servers[2]->id == "server-dir1");
         app.nodes["localnode"].servers[2]->applicationDistrib = false;
-        
+
         admin->addApplication(app);
         admin->startServer("Test.IcePatch2");
 
@@ -246,7 +246,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         admin->addApplication(app);
         admin->startServer("Test.IcePatch2");
         admin->startServer("IcePatch2-Direct");
-        
+
         try
         {
             admin->patchApplication("Test", true);
@@ -276,7 +276,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         admin->addApplication(app);
         admin->startServer("Test.IcePatch2");
         admin->startServer("IcePatch2-Direct");
-        
+
         try
         {
             admin->patchServer("server-dir1", true);

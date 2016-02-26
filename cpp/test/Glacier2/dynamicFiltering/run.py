@@ -20,8 +20,8 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0], "scripts"))
 import TestUtil
 
-server = os.path.join(os.getcwd(), "server")
-client = os.path.join(os.getcwd(), "client")
+server = os.path.join(os.getcwd(), TestUtil.getTestExecutable("server"))
+client = os.path.join(os.getcwd(), TestUtil.getTestExecutable("client"))
 router = os.path.join(TestUtil.getGlacier2Router())
 
 targets = []
@@ -45,7 +45,7 @@ args = r' --Glacier2.Client.Endpoints="default -p 12347"' + \
 
 sys.stdout.write("starting router... ")
 sys.stdout.flush()
-starterProc = TestUtil.startServer(router, args, count=2) 
+starterProc = TestUtil.startServer(router, args, count=2)
 print("ok")
 
 sys.stdout.write("starting client... ")

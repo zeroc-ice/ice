@@ -10,6 +10,12 @@
 #ifndef TEST_COMMON_H
 #define TEST_COMMON_H
 
+#include <IceUtil/Config.h>
+
+#if defined(_MSC_VER) && !defined(TEST_API_EXPORTS)
+#   pragma comment(lib, ICE_LIBNAME("testcommon"))
+#endif
+
 #include <Ice/CommunicatorF.h>
 #include <Ice/ProxyF.h>
 

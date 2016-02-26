@@ -22,7 +22,7 @@ using namespace std;
 IceUtil::Shared* IceInternal::upCast(DynamicLibrary* p) { return p; }
 IceUtil::Shared* IceInternal::upCast(DynamicLibraryList* p) { return p; }
 
-IceInternal::DynamicLibrary::DynamicLibrary() : 
+IceInternal::DynamicLibrary::DynamicLibrary() :
     _hnd(0)
 {
 }
@@ -130,6 +130,13 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
 #ifdef _WIN32
     lib += libName;
     lib += version;
+#  ifdef ICE_OS_WINRT
+    lib += "uwp";
+#  endif
+
+#  ifdef ICE_CPP11_MAPPING
+    lib += "++11";
+#  endif
 
 #   if defined(_DEBUG) && !defined(__MINGW32__)
     lib += 'd';
@@ -278,4 +285,3 @@ IceInternal::DynamicLibraryList::add(const DynamicLibraryPtr& library)
 {
     _libraries.push_back(library);
 }
-

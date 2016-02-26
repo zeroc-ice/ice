@@ -22,8 +22,8 @@ import TestUtil, IceStormUtil, Expect
 
 iceStormAdmin = os.path.join(TestUtil.getCppBinDir(), "icestormadmin")
 
-publisher = os.path.join(os.getcwd(), "publisher")
-subscriber = os.path.join(os.getcwd(), "subscriber")
+publisher = os.path.join(os.getcwd(), TestUtil.getTestExecutable("publisher"))
+subscriber = os.path.join(os.getcwd(), TestUtil.getTestExecutable("subscriber"))
 
 targets = []
 if TestUtil.appverifier:

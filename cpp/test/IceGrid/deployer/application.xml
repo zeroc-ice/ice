@@ -105,11 +105,11 @@
         </properties>
       </server-instance>
 
-      <server id="SimpleServer" exe="${test.dir}/server" activation="on-demand" pwd=".">
+      <server id="SimpleServer" exe="${server.dir}/server" activation="on-demand" pwd=".">
         <description>SERVER ${NodeVar}</description>
         <adapter name="Server" endpoints="default">
           <description>ADAPTER ${NodeVar}</description>
-  	  <object identity="${server}" type="::Test"/>
+	      <object identity="${server}" type="::Test"/>
           <object identity="cat\/cat/name\/name" type="::Test"/>
           <object identity="${ObjectId}" type="::TestId1"/>
           <object identity="${ObjectCategory1}/${ObjectName1}" type="::TestId2"/>
@@ -173,15 +173,15 @@
           Param2="${AppVarOverrided}" ParamEscaped="${varpe}" ParamDoubleEscaped="${varpde}"/>
       </target>
 
-      <server id="LogServer" exe="${test.dir}/server" activation="on-demand" pwd=".">
+      <server id="LogServer" exe="${server.dir}/server" activation="on-demand" pwd=".">
         <adapter name="Server" endpoints="default">
-  	  <object identity="${server}" type="::Test"/>
+  	      <object identity="${server}" type="::Test"/>
         </adapter>
 
-        <log path="${test.dir}/log1.txt"/>
-        <log path="${test.dir}/log2.txt"/>
-        <log path="${test.dir}/log3.txt"/>
-        <log path="${test.dir}/log4.txt"/>
+        <log path="${server.dir}/log1.txt"/>
+        <log path="${server.dir}/log2.txt"/>
+        <log path="${server.dir}/log3.txt"/>
+        <log path="${server.dir}/log4.txt"/>
         <env>MY_ENV_VARIABLE=12</env>
         <env>MY_UNIX_COMPOSED_VARIABLE=BAR;$MY_FOO</env>
         <env>MY_WINDOWS_COMPOSED_VARIABLE=BAR;%MY_FOO%</env>

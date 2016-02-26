@@ -1180,7 +1180,7 @@ convertDataMembers(PyObject* members, DataMemberList& reqMembers, DataMemberList
     {
         PyObject* m = PyTuple_GET_ITEM(members, i);
         assert(PyTuple_Check(m));
-        assert(PyTuple_GET_SIZE(m) == allowOptional ? 5 : 3);
+        assert(PyTuple_GET_SIZE(m) == (allowOptional ? 5 : 3));
 
         PyObject* name = PyTuple_GET_ITEM(m, 0); // Member name.
         assert(checkString(name));
@@ -2914,7 +2914,7 @@ namespace
 
 void
 patchObject(void* addr, const Ice::ObjectPtr& v)
-{   
+{
     ReadObjectCallback* cb = static_cast<ReadObjectCallback*>(addr);
     assert(cb);
     cb->invoke(v);

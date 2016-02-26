@@ -11,21 +11,15 @@
 #define ICE_BOX_CONFIG_H
 
 //
-// Automatically link with IceBox[D].lib
+// Automatically link with IceBox[D|++11|++11D].lib
 //
 
 #if !defined(ICE_BUILDING_ICE_BOX) && defined(ICE_BOX_API_EXPORTS)
 #   define ICE_BUILDING_ICE_BOX
 #endif
 
-#ifdef _MSC_VER
-#   if !defined(ICE_BUILDING_ICE_BOX)
-#      if defined(_DEBUG) && !defined(ICE_OS_WINRT)
-#          pragma comment(lib, "IceBoxD.lib")
-#      else
-#          pragma comment(lib, "IceBox.lib")
-#      endif
-#   endif
+#if defined(_MSC_VER) && !defined(ICE_BUILDING_ICE_BOX)
+#   pragma comment(lib, ICE_LIBNAME("IceBox"))
 #endif
 
 #endif

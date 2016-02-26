@@ -398,7 +398,7 @@ Slice::Gen::generate(const UnitPtr& p)
         }
         FileTracker::instance()->addFile(fileImplC);
 
-        string s = fileImplH;
+        string s = _base + "I." + _implHeaderExtension;
         if(_include.size())
         {
             s = _include + '/' + s;
@@ -441,7 +441,7 @@ Slice::Gen::generate(const UnitPtr& p)
     printGeneratedHeader(C, _base + ".ice");
 
 
-    string s = fileH;
+    string s = _base + "." + _headerExtension;;
     if(_include.size())
     {
         s = _include + '/' + s;
@@ -1053,8 +1053,8 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         H << nl << "virtual void __readImpl(::Ice::InputStream*);";
 
         string baseName = base ? fixKwd(base->scoped()) : string("::Ice::UserException");
-        H << nl << "using " << baseName << "::__writeImpl;";
-        H << nl << "using " << baseName << "::__readImpl;";
+        //H << nl << "using " << baseName << "::__writeImpl;";
+        //H << nl << "using " << baseName << "::__readImpl;";
 
         if(preserved && !basePreserved)
         {

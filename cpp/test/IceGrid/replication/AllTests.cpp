@@ -929,7 +929,7 @@ allTests(const Ice::CommunicatorPtr& comm)
 
         ServerDescriptorPtr server = new ServerDescriptor();
         server->id = "Server";
-        server->exe = comm->getProperties()->getProperty("TestDir") + "/server";
+        server->exe = comm->getProperties()->getProperty("ServerDir") + "/server";
         server->pwd = ".";
         server->applicationDistrib = false;
         server->allocatable = false;
@@ -1156,7 +1156,7 @@ allTests(const Ice::CommunicatorPtr& comm)
 
         ServerDescriptorPtr server = new ServerDescriptor();
         server->id = "Server";
-        server->exe = comm->getProperties()->getProperty("TestDir") + "/server";
+        server->exe = comm->getProperties()->getProperty("ServerDir") + "/server";
         server->pwd = ".";
         server->applicationDistrib = false;
         server->allocatable = false;
@@ -1296,7 +1296,7 @@ allTests(const Ice::CommunicatorPtr& comm)
 
         ServerDescriptorPtr server = new ServerDescriptor();
         server->id = "Server";
-        server->exe = comm->getProperties()->getProperty("TestDir") + "/server";
+        server->exe = comm->getProperties()->getProperty("ServerDir") + "/server";
         server->pwd = ".";
         server->applicationDistrib = false;
         server->allocatable = false;

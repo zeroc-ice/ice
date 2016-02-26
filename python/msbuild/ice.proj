@@ -1,0 +1,53 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup Condition="'$(Configuration)' == ''">
+        <Configuration>Release</Configuration>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Platform)' == ''">
+      <Platform>Win32</Platform>
+    </PropertyGroup>
+    <Choose>
+        <!--
+            If BuildAllConfigurations is set to yes we build all configurations that are
+            part of the binary distribution, otherwise we just build the specific platform
+            and configuration.
+        -->
+        <When Condition="'$(BuildAllConfigurations)' == 'yes'">
+            <ItemGroup>
+                <DistProjects Include="ice.sln">
+                  <Properties>Configuration=Release;Platform=x86</Properties>
+                </DistProjects>
+                <DistProjects Include="ice.sln">
+                  <Properties>Configuration=Release;Platform=x64</Properties>
+                </DistProjects>
+                <DistProjects Include="..\python\**\msbuild\*.proj">
+                  <Properties>Configuration=Release;Platform=Win32</Properties>
+                </DistProjects>
+            </ItemGroup>
+        </When>
+        <Otherwise>
+            <ItemGroup>
+                <DistProjects Include="ice.sln">
+                    <Properties>Configuration=$(Configuration);Platform=$(Platform)</Properties>
+                </DistProjects>
+
+                <DistProjects Include="..\python\**\msbuild\*.proj">
+                    <Properties>Configuration=$(Configuration);Platform=$(Platform)</Properties>
+                </DistProjects>
+            </ItemGroup>
+        </Otherwise>
+    </Choose>
+
+    <Target Name="Build">
+        <MSBuild Projects="@(DistProjects)"
+                 BuildInParallel="false"
+                 Properties="%(Properties)" />
+    </Target>
+
+    <Target Name="Clean">
+        <MSBuild Projects="@(DistProjects)"
+                 BuildInParallel="true"
+                 Properties="%(Properties)"
+                 Targets="Clean" />
+    </Target>
+</Project>

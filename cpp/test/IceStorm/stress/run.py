@@ -22,8 +22,8 @@ import TestUtil, IceStormUtil
 
 iceStormAdmin = TestUtil.getIceStormAdmin()
 
-publisher = os.path.join(os.getcwd(), "publisher")
-subscriber = os.path.join(os.getcwd(), "subscriber")
+publisher = os.path.join(os.getcwd(), TestUtil.getTestExecutable("publisher"))
+subscriber = os.path.join(os.getcwd(), TestUtil.getTestExecutable("subscriber"))
 
 targets = []
 if TestUtil.appverifier:
@@ -156,7 +156,7 @@ def runtest(type):
     runAdmin("link TestIceStorm1/fed1 TestIceStorm2/fed1")
     sys.stdout.write("Sending 20000 unordered events with erratic subscriber across a link... ")
     sys.stdout.flush()
-    doTest(server1, server2, 
+    doTest(server1, server2,
          [ '--events 20000' + server1.reference(),
            '--erratic 5 --qos "reliability,ordered" --events 20000 ' + server1.reference(),
            '--erratic 5 --events 20000 ' + server1.reference(),

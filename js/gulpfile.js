@@ -30,14 +30,30 @@ var sliceDir   = path.resolve(__dirname, '..', 'slice');
 
 var useBinDist = process.env.USE_BIN_DIST == "yes";
 
+var platform = process.env.CPP_PLATFORM;
+var configuration = process.env.CPP_CONFIGURATION;
+
 function slice2js(options) {
     var defaults = {};
     var opts = options || {};
+    if(process.platform == "win32" && !opts.exe)
+    {
+        if(!platform || (platform != "Win32" && platform != "x64"))
+        {
+            console.log("Error: CPP_PLATFORM environment variable must be set to `Win32' or `x64', in order to locate slice2js.exe");
+            process.exit(1);
+        }
 
+        if(!configuration || (configuration != "Debug" && configuration != "Release"))
+        {
+            console.log("Error: CPP_CONFIGURATION environment variable must be set to `Debug' or `Release', in order to locate slice2js.exe");
+            process.exit(1);
+        }
+    }
     defaults.args = opts.args || [];
     defaults.dest = opts.dest;
     defaults.exe = useBinDist ? undefined : (opts.exe || path.resolve(
-            path.join("../cpp/bin", process.platform == "win32" ? "slice2js.exe" : "slice2js")));
+            path.join("../cpp/bin", process.platform == "win32" ? path.join(platform, configuration, "slice2js.exe") : "slice2js")));
     defaults.args = defaults.args.concat(useBinDist ? [] : ["-I" + sliceDir]);
     return iceBuilder.compile(defaults);
 }

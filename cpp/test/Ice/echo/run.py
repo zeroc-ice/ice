@@ -22,7 +22,7 @@ import TestUtil
 
 sys.stdout.write("starting server... ")
 sys.stdout.flush()
-server = server = os.path.join(os.getcwd(), "server")
+server = server = os.path.join(os.getcwd(), TestUtil.getTestExecutable("server"))
 p = TestUtil.startServer(server)
 print("ok")
 sys.stdout.flush()

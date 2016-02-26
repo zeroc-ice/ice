@@ -96,7 +96,7 @@ bundle for the graphical IceGrid administrative tool.
 The Maven package id for the application bundler package is as follows:
 
     groupId=com.oracle, version=1.0, artifactId=appbundler
- 
+
 ## Compiling Ice for Java
 
 ### Preparing to Build
@@ -112,6 +112,18 @@ on Unix:
 On Windows:
 
     > set ICE_HOME=C:\Program Files (x86)\ZeroC\Ice-3.6.1
+
+You will also need to set `CPP_PLATFORM` and `CPP_CONFIGURATION` to much your C++
+build configuration in order for gradle o locate the slice2java compiler
+
+For example if you build C++ sources for `x64` platform in `Release` mode set
+this properties as:
+
+    > set CPP_PLATFORM=x64
+    > set CPP_CONFIGURATION=Debug
+
+The supported values for `CPP_PLATFORM` are `Win32` and `x64`and the supported
+values for `CPP_CONFIGURATION` are `Debug` and `Release`
 
 Before building Ice for Java, review the settings in the file
 `gradle.properties` and edit as necessary.

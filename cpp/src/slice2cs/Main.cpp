@@ -14,7 +14,7 @@
 #include <Slice/Preprocessor.h>
 #include <Slice/FileTracker.h>
 #include <Slice/Util.h>
-#include <Gen.h>
+#include "Gen.h"
 
 using namespace std;
 using namespace Slice;

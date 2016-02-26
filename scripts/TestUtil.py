@@ -26,6 +26,9 @@ x86 = False                     # Binary distribution is 32-bit
 global armv7l
 armv7l = False                  # Binary distribution is armv7l
 cpp11 = False                   # Binary distribution is c++11
+global buildMode
+buildMode = None
+
 extraArgs = []
 clientTraceFilters = []
 serverTraceFilters = []
@@ -53,6 +56,17 @@ controller = None
 configName = None
 
 queuedTests = []
+
+global additionalBinDirectories
+additionalBinDirectories = []
+
+def addAdditionalBinDirectories(directories):
+    global additionalBinDirectories
+    additionalBinDirectories += directories
+
+def resetAdditionalBinDirectories():
+    global additionalBinDirectories
+    additionalBinDirectories = []
 
 #
 # Linux distribution
@@ -143,31 +157,25 @@ def getCppCompiler():
     elif isMINGW():
         compiler = "MINGW"
     else:
-        config = open(os.path.join(toplevel, "cpp", "config", "Make.rules.mak"), "r")
-        compiler = re.search("CPP_COMPILER[\t\s]*= ([A-Z0-9]*)", config.read()).group(1)
-        if compiler != "VC100" and compiler != "VC110" and compiler != "VC120" and compiler != "VC140":
-            compiler = ""
-
-        if compiler == "":
-            p = subprocess.Popen("cl", stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
-            if not p or not p.stdout:
-                print("Cannot detect C++ compiler")
-                compiler = VC120
+        p = subprocess.Popen("cl", stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+        if not p or not p.stdout:
+            print("Cannot detect C++ compiler")
+            compiler = VC120
+        else:
+            l = p.stdout.readline().decode("utf-8").strip()
+            if l.find("Version 16.") != -1:
+                compiler = "VC100"
+            elif l.find("Version 17.") != -1:
+                compiler = "VC110"
+            elif l.find("Version 18.") != -1:
+                compiler = "VC120"
+            elif l.find("Version 19.") != -1:
+                compiler = "VC140"
             else:
-                l = p.stdout.readline().decode("utf-8").strip()
-                if l.find("Version 16.") != -1:
-                    compiler = "VC100"
-                elif l.find("Version 17.") != -1:
-                    compiler = "VC110"
-                elif l.find("Version 18.") != -1:
-                    compiler = "VC120"
-                elif l.find("Version 19.") != -1:
-                    compiler = "VC140"
-                else:
-                    #
-                    # Cannot detect C++ compiler use default
-                    #
-                    compiler = "VC120"
+                #
+                # Cannot detect C++ compiler use default
+                #
+                compiler = "VC140"
     return compiler
 
 def isMINGW():
@@ -444,6 +452,7 @@ def run(tests, root = False):
           --socks              Use SOCKS proxy running on localhost.
           --no-ipv6            Don't use IPv6 addresses.
           --ice-home=<path>    Use the binary distribution from the given path.
+          --mode=debug|release Run the tests with debug or release mode builds (win32 only)."
           --x86                Binary distribution is 32-bit.
           --x64                Binary distribution is 64-bit.
           --c++11              Binary distribution is c++11.
@@ -465,7 +474,7 @@ def run(tests, root = False):
         opts, args = getopt.getopt(sys.argv[1:], "lr:R:",
                                    ["start=", "start-after=", "filter=", "rfilter=", "all", "all-cross", "loop",
                                     "debug", "protocol=", "compress", "valgrind", "host=", "serialize", "continue",
-                                    "ipv6", "no-ipv6", "socks", "ice-home=", "cross=", "client-home=", "x64", "x86",
+                                    "ipv6", "no-ipv6", "socks", "ice-home=", "mode=", "cross=", "client-home=", "x64", "x86",
                                     "script", "env", "arg=", "service-dir=", "appverifier", "compact",
                                     "winrt", "server", "mx", "c++11", "controller=", "configName="])
     except getopt.GetoptError:
@@ -545,7 +554,7 @@ def run(tests, root = False):
             global x64
             x64 = True
         if o in ( "--cross", "--protocol", "--host", "--debug", "--compress", "--valgrind", "--serialize", "--ipv6", \
-                  "--socks", "--ice-home", "--x86", "--x64", "--c++11", "--env", \
+                  "--socks", "--ice-home", "--mode", "--x86", "--x64", "--c++11", "--env", \
                   "--service-dir", "--appverifier", "--compact", "--winrt", \
                   "--server", "--mx", "--client-home", "--controller", "--configName"):
             arg += " " + o
@@ -713,8 +722,9 @@ def phpSetup(clientConfig = False, iceOptions = None, iceProfile = None):
     if isWin32():
         ext = "php_ice.dll"
         if not iceHome:
-            extDir = os.path.abspath(os.path.join(getIceDir("php"), "lib"))
-            incDir = extDir
+            extDir = os.path.abspath(os.path.join(getIceDir("php"), "lib", "x64" if x64 else "Win32",
+                "Debug" if buildMode == "debug" else "Release"))
+            incDir = os.path.abspath(os.path.join(getIceDir("php"), "lib"))
         else:
             extDir = os.path.join(iceHome, "php")
             incDir = extDir
@@ -796,8 +806,8 @@ def getIceBox():
     if lang == "cpp":
         iceBox = "icebox"
         if isWin32():
-            if isDebug():
-                iceBox += "d"
+            if cpp11:
+                iceBox += "++11"
             iceBox += ".exe"
         elif isLinux():
             if not x64 and not armv7l:
@@ -834,16 +844,10 @@ def getIceStormAdmin():
     return getIceExe("icestormadmin")
 
 def getIceGridNode():
-    exe = "icegridnode"
-    if isWin32() and isDebug():
-        exe += "d"
-    return getIceExe(exe)
+    return getIceExe("icegridnode")
 
 def getIceGridRegistry():
-    exe = "icegridregistry"
-    if isWin32() and isDebug():
-        exe += "d"
-    return getIceExe(exe)
+    return getIceExe("icegridregistry")
 
 def getGlacier2Router():
     return getIceExe("glacier2router")
@@ -1230,9 +1234,11 @@ def directoryToPackage():
         raise RuntimeError("cannot find language dir")
     return ".".join(after)
 
-def getDefaultServerFile():
+def getDefaultServerFile(baseDir = os.getcwd()):
     lang = getDefaultMapping()
-    if lang in ["js", "ruby", "php", "cpp", "csharp", "objective-c"]:
+    if lang in ["cpp", "js", "ruby", "php"]:
+        return getTestExecutable("server", baseDir)
+    if lang in ["csharp", "objective-c"]:
         return "server"
     if lang == "python":
         return "Server.py"
@@ -1246,6 +1252,8 @@ def getDefaultServerFile():
 def getDefaultClientFile(lang = None):
     if lang is None:
         lang = getDefaultMapping()
+    if lang == "cpp":
+        return getTestExecutable("client")
     if lang == "ruby":
         return "Client.rb"
     if lang == "php":
@@ -1265,31 +1273,18 @@ def getDefaultClientFile(lang = None):
 
 def getDefaultCollocatedFile():
     lang = getDefaultMapping()
+    if lang == "cpp":
+        return getTestExecutable("collocated")
     if lang == "ruby":
         return "Collocated.rb"
     if lang == "php":
         return "Collocated.php"
-    if lang in ["cpp", "csharp", "objective-c"]:
+    if lang in ["csharp", "objective-c"]:
         return "collocated"
     if lang == "python":
         return "Collocated.py"
     if lang == "java":
         return directoryToPackage() + ".Collocated"
-
-def isDebug():
-    #
-    # Read the build.txt file from the test directory to figure out
-    # how the IceBox service was built ("debug" vs. "release") and
-    # decide which icebox executable to use.
-    #
-    if os.path.isfile(os.path.join(os.getcwd(), "build.txt")):
-        return open(os.path.join(os.getcwd(), "build.txt"), "r").read().strip() == "debug"
-    #
-    # Try to guess, if icebox release executable exists in the C++ bin dir
-    # we assume is a release build or bin dist, tests that depends on debug
-    # or release (C++) need to create the build.txt file.
-    #
-    return not os.path.isfile(os.path.join(getCppBinDir("cpp"), "icebox%s" % (".exe" if isWin32() else "")))
 
 import Expect
 
@@ -1472,21 +1467,25 @@ def getClientCrossTestDir(base):
 def clientServerTest(cfgName = None, additionalServerOptions = "", additionalClientOptions = "",
                      server = None, client = None, serverenv = None, clientenv = None,
                      interpreterOptions = ""):
-    if server is None:
-        server = getDefaultServerFile()
-    if client is None:
-        client = getDefaultClientFile()
-    serverDesc = server
-    clientDesc = client
-
     lang = getDefaultMapping()
     testdir = os.getcwd()
-
     # Setup the server.
     if lang in ["ruby", "php", "js"]:
         serverdir = getMirrorDir(testdir, "cpp")
     else:
         serverdir = testdir
+
+    if server is None:
+        server = getDefaultServerFile(serverdir)
+    elif lang in ["ruby", "php", "js"]:
+        server = getTestExecutable(server, serverdir)
+
+    if client is None:
+        client = getDefaultClientFile()
+
+    serverDesc = server
+    clientDesc = client
+
     if lang != "java":
         server = os.path.join(serverdir, server)
 
@@ -1613,21 +1612,25 @@ def collocatedTest(additionalOptions = ""):
 
 def clientEchoTest(additionalServerOptions = "", additionalClientOptions = "",
                    server = None, client = None, serverenv = None, clientenv = None):
-    if server is None:
-        server = getDefaultServerFile()
-    if client is None:
-        client = getDefaultClientFile()
-    serverDesc = server
-    clientDesc = client
 
     lang = getDefaultMapping()
     testdir = os.getcwd()
 
     # Setup the server.
     if lang in ["ruby", "php", "js"]:
-        serverdir = getMappingDir(testdir, "cpp", ["test", "Ice", "echo"])
+       serverdir = getMappingDir(testdir, "cpp", ["test", "Ice", "echo"])
     else:
-        serverdir = testdir
+       serverdir = testdir
+
+    print("serverdir: " + serverdir)
+
+    if server is None:
+        server = getDefaultServerFile(serverdir)
+    if client is None:
+        client = getDefaultClientFile()
+    serverDesc = server
+    clientDesc = client
+
     if lang != "java":
         server = os.path.join(serverdir, server)
 
@@ -1782,6 +1785,10 @@ def createConfig(path, lines, enc=None):
 
 def getCppBinDir(lang = None):
     binDir = os.path.join(getIceDir("cpp"), "bin")
+
+    if isWin32():
+        binDir = os.path.join(binDir, "x64" if x64 else "Win32", "Debug" if buildMode == "debug" else "Release")
+
     if isMINGW() and x64:
         binDir = os.path.join(binDir, "x64")
     if iceHome:
@@ -1840,42 +1847,6 @@ def getServiceDir():
             serviceDir = "C:\\Program Files\ZeroC\Ice-" + iceVersion + "\\bin"
     return serviceDir
 
-def getBuildMode(d):
-  if os.path.isfile(os.path.join(d, "build.txt")):
-    return open(os.path.join(d, "build.txt"), "r").read().strip()
-  import glob
-  executables = glob.glob(os.path.join(d, "*.exe"))
-  if not executables:
-    return "release"
-  p = subprocess.Popen("dumpbin /DEPENDENTS %s" % executables[0], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
-  if not p or not p.stdout:
-    print("unable to get executable information!")
-    sys.exit(1)
-  debug = "MSVCP%sD.dll"
-  release = "MSVCP%s.dll"
-
-  if isVC100():
-    debug = debug % "100"
-    release = release % "100"
-  elif isVC110():
-    debug = debug % "110"
-    release = release % "110"
-  elif isVC120():
-    debug = debug % "120"
-    release = release % "120"
-  elif isVC140():
-    debug = debug % "140"
-    release = release % "140"
-
-  l = p.stdout.readline()
-  while l:
-    l = l.decode("utf-8").strip()
-    if l.find(debug) != -1:
-      return "debug"
-    elif l.find(release) != -1:
-      return "release"
-    l = p.stdout.readline()
-
 def getTestEnv(lang, testdir):
     global compact
     env = os.environ.copy()
@@ -1889,6 +1860,15 @@ def getTestEnv(lang, testdir):
 
     # First sanitize the environment.
     env["CLASSPATH"] = sanitize(os.getenv("CLASSPATH", ""))
+
+    for d in additionalBinDirectories:
+        addLdPath(d, env)
+
+    #
+    # Add cpp/test/Common output directory to the env
+    #
+    if lang == "cpp":
+        addLdPath(getTestDirectory("testcommon", os.path.join(toplevel, "cpp", "test", "Common")), env)
 
     # Make sure bzip2 can be found by x86 C# builds on x64 platforms
     if lang == "csharp" and not x64:
@@ -1909,36 +1889,13 @@ def getTestEnv(lang, testdir):
 
     if isWin32() and lang in ["cpp", "java", "csharp", "python", "ruby", "php"]:
         if not iceHome:
-            mode = getBuildMode(os.path.join(getIceDir("cpp"), "bin"))
-            configuration = "Debug" if mode == "debug" else "Release"
+            configuration = "Debug" if buildMode == "debug" else "Release"
             platform = "x64" if x64 else "Win32"
             pkgdir = os.path.join(getIceDir("cpp"), "third-party-packages")
             pkgsubdir = os.path.join("build", "native", "bin", platform)
 
             if isMINGW():
                 addPathToEnv("PATH", os.path.join(pkgdir, "bzip2.mingw4.7.2", pkgsubdir), env)
-            else:
-                platformtoolset = ""
-                if isVC100():
-                    platformtoolset = "v100"
-                elif isVC110():
-                    platformtoolset = "v110"
-                elif isVC120():
-                    platformtoolset = "v120"
-                elif isVC140():
-                    platformtoolset = "v140"
-
-                #
-                # For Debug builds we need to add Release binaries to path
-                # to be able to use protocol compression with .NET
-                #
-                if configuration == "Debug":
-                  addPathToEnv("PATH", os.path.join(pkgdir, "bzip2.{0}".format(platformtoolset), pkgsubdir,
-                               "Release"), env)
-
-                for package in ["bzip2.{0}", "expat.{0}"]:
-                    addPathToEnv("PATH", os.path.join(pkgdir, package.format(platformtoolset), pkgsubdir,
-                                 configuration), env)
 
     #
     # If Ice is installed on the system, set the CLASSPATH for Java and
@@ -1987,8 +1944,9 @@ def getTestEnv(lang, testdir):
         #
         if lang == "python":
             pythonDir = os.path.join(getIceDir("python", testdir), "python")
-            if isWin32() and x64 and os.path.exists(os.path.join(pythonDir, "x64")):
-                pythonDir = os.path.join(pythonDir, "x64")
+            if isWin32():
+                addPathToEnv("PYTHONPATH", pythonDir, env)
+                pythonDir = os.path.join(pythonDir, "Win32" if x86 else "x64", "Debug" if buildMode == "debug" else "Release")
             addPathToEnv("PYTHONPATH", pythonDir, env)
 
         #
@@ -2084,6 +2042,7 @@ def processCmdLine():
           --ipv6               Use IPv6 addresses.
           --socks              Use SOCKS proxy running on localhost.
           --ice-home=<path>    Use the binary distribution from the given path.
+          --mode=debug|release Run the tests with debug or release mode builds (win32 only)."
           --x86                Binary distribution is 32-bit.
           --x64                Binary distribution is 64-bit.
           --c++11              Binary distribution is c++11.
@@ -2103,7 +2062,7 @@ def processCmdLine():
     try:
         opts, args = getopt.getopt(
             sys.argv[1:], "", ["debug", "trace=", "protocol=", "compress", "valgrind", "host=", "serialize", "ipv6", \
-                               "socks", "ice-home=", "x86", "x64", "cross=", "client-home=", "env", \
+                               "socks", "ice-home=", "mode=", "x86", "x64", "cross=", "client-home=", "env", \
                                "service-dir=", "appverifier", "arg=", \
                                "compact", "winrt", "server", "mx", "c++11", "controller=", "configName="])
     except getopt.GetoptError:
@@ -2114,10 +2073,15 @@ def processCmdLine():
 
     global serverOnly
     global winrt
+    global buildMode
     for o, a in opts:
         if o == "--ice-home":
             global iceHome
             iceHome = a
+        elif o == "--mode":
+            if a not in ( "debug", "release"):
+                usage()
+            buildMode = a
         elif o == "--cross":
             global cross
             cross.append(a)
@@ -2216,6 +2180,10 @@ def processCmdLine():
 
     if len(args) > 0:
         usage()
+
+    if isWin32() and not buildMode:
+        print("Error: please define --mode=debug or --mode=release")
+        sys.exit(1)
 
     if not os.environ.get("TESTCONTROLLER"):
         if iceHome:
@@ -2535,3 +2503,25 @@ if os.path.split(frame.f_code.co_filename)[1] == "run.py":
     if os.path.normpath(d) != os.getcwd():
         os.chdir(d)
     processCmdLine()
+
+def getTestDirectory(name, baseDir = os.getcwd()):
+    if isWin32():
+        platform = "x64" if x64 else "Win32"
+        if cpp11:
+            configuration = "Cpp11-Debug" if buildMode == "debug" else "Cpp11-Release"
+        else:
+            configuration = "Debug" if buildMode == "debug" else "Release"
+
+        if isWin32():
+            if os.path.isdir(os.path.join(baseDir, "msbuild", name)):
+                return os.path.join(baseDir, "msbuild", name, platform, configuration)
+            else:
+                return os.path.join(baseDir, "msbuild", platform, configuration)
+    else:
+        return "name"
+
+def getTestExecutable(name, baseDir = os.getcwd()):
+    if isWin32():
+        return os.path.join(getTestDirectory(name, baseDir), name)
+    else:
+        return name

@@ -22,6 +22,6 @@ import TestUtil
 
 TestUtil.queueClientServerTest()
 TestUtil.queueClientServerTest(configName = "amd", localOnly = True, message = "Running test with AMD server.",
-                               server = "serveramd")
+                               server = TestUtil.getTestExecutable("serveramd"))
 TestUtil.queueCollocatedTest()
 TestUtil.runQueuedTests()

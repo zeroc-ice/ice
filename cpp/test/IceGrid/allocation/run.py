@@ -20,4 +20,5 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0], "scripts"))
 import TestUtil, IceGridAdmin
 
-IceGridAdmin.iceGridTest("application.xml")
+IceGridAdmin.iceGridTest("application.xml", applicationOptions = "server.dir='%s' verifier.dir='%s'" %
+        (TestUtil.getTestDirectory("server"), TestUtil.getTestDirectory("verifier")))

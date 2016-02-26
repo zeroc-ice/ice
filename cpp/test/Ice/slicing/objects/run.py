@@ -23,15 +23,15 @@ import TestUtil
 TestUtil.queueClientServerTest(configName = "sliced", message = "Running test with sliced format.")
 
 TestUtil.queueClientServerTest(configName = "1.0", message = "Running test with 1.0 encoding.",
-                               additionalClientOptions="--Ice.Default.EncodingVersion=1.0", 
+                               additionalClientOptions="--Ice.Default.EncodingVersion=1.0",
                                additionalServerOptions="--Ice.Default.EncodingVersion=1.0")
 
 TestUtil.queueClientServerTest(configName = "slicedAMD", localOnly = True,
-                               message = "Running test with sliced format and AMD server.", server="serveramd")
+                               message = "Running test with sliced format and AMD server.", server=TestUtil.getTestExecutable("serveramd"))
 
 TestUtil.queueClientServerTest(configName = "1.0AMD", localOnly = True,
                                message = "Running test with 1.0 encoding and AMD server.",
-                               server="serveramd", 
-                               additionalClientOptions="--Ice.Default.EncodingVersion=1.0", 
+                               server=TestUtil.getTestExecutable("serveramd"),
+                               additionalClientOptions="--Ice.Default.EncodingVersion=1.0",
                                additionalServerOptions="--Ice.Default.EncodingVersion=1.0")
 TestUtil.runQueuedTests()

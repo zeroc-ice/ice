@@ -54,7 +54,7 @@
       <parameter name="replicaGroup"/>
       <parameter name="priority" default="0"/>
       <parameter name="encoding" default=""/>
-      <server id="${id}" exe="${test.dir}/server" activation="on-demand" pwd=".">
+      <server id="${id}" exe="${server.dir}/server" activation="on-demand" pwd=".">
         <adapter name="ReplicatedAdapter" endpoints="default" replica-group="${replicaGroup}" priority="${priority}">
           <object identity="${server}" type="::Test::TestIntf2"/>
         </adapter>

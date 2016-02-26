@@ -37,7 +37,7 @@ namespace Ice
             parent::__construct($message);
         }
 
-        abstract public function ice_id()
+        abstract public function ice_id();
         public function ice_name()
         {
             trigger_error('ice_name() is deprecated use ice_id() instead.', E_DEPRECATED);

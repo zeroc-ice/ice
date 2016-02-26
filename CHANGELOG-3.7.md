@@ -49,6 +49,8 @@ These are the changes since Ice 3.6.2.
   Also replaced `setCallback` by `setCloseCallback` and `setHeartbeatCallback` on
   the `Connection` interface.
 
+- Updating Windows build system to use MSBuild instead of nmake.
+
 ## Java Changes
 
 - Fixed a bug where unmarshaling Ice objects was really slow when using

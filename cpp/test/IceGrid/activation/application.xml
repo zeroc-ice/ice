@@ -9,7 +9,7 @@
       <parameter name="activation-delay" default="0"/>
       <parameter name="deactivation-delay" default="0"/>
       <parameter name="fail-on-startup" default="0"/>
-      <server id="${id}" exe="${test.dir}/server"
+      <server id="${id}" exe="${server.dir}/server"
                          activation="${activation}"
                          activation-timeout="${activation-timeout}"
                          deactivation-timeout="${deactivation-timeout}">

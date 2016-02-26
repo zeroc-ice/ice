@@ -23,6 +23,6 @@ import TestUtil
 TestUtil.queueClientServerTest(additionalClientOptions = "--Ice.Warn.AMICallback=0")
 TestUtil.queueClientServerTest(configName = "amd", localOnly = True, message = "Running test with AMD server.",
                                additionalClientOptions = "--Ice.Warn.AMICallback=0",
-                               server = "serveramd")
+                               server = TestUtil.getTestExecutable("serveramd"))
 TestUtil.queueCollocatedTest()
 TestUtil.runQueuedTests()

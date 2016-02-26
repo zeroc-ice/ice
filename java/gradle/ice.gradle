@@ -20,7 +20,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath group: 'com.zeroc.gradle.ice-builder', name: 'slice', version: '1.0.2'
+        classpath group: 'com.zeroc.gradle.ice-builder', name: 'slice', version: '1.0.6'
     }
 }
 
@@ -47,9 +47,34 @@ def env = System.getenv()
 def isWindows = false
 def programFiles
 def slice2java = "slice2java"
+
+def platform
+def configuration
+
 if (System.properties['os.name'].toLowerCase().contains('windows')) {
+
+    if(ext.cppPlatform != null && ext.cppPlatform.length() > 0)
+    {
+        platform = ext.cppPlatform
+    }
+
+    if(ext.cppConfiguration != null && ext.cppConfiguration.length() > 0)
+    {
+        configuration = ext.cppConfiguration
+    }
+
+    if(platform == null)
+    {
+        platform = env['CPP_PLATFORM']
+    }
+
+    if(configuration == null)
+    {
+        configuration = env['CPP_CONFIGURATION']
+    }
+
     isWindows = true
-    slice2java = "slice2java.exe"
+    slice2java = "${platform}/${configuration}/slice2java.exe"
 
     def arch1 = env['PROCESSOR_ARCHITECTURE']
     def arch2 = env['PROCESSOR_ARCHITEW6432']
@@ -124,8 +149,9 @@ if (!iceBinDist) {
         } else {
             iceCppDir = iceDir + "/cpp"
             slice.srcDist = true
+            slice.cppPlatform = platform
+            slice.cppConfiguration = configuration
         }
-
         slice.iceHome = iceCppDir
     }
 }
@@ -249,4 +275,3 @@ def localDependency(artifactId) {
 ext {
     localDependency = this.&localDependency
 }
-

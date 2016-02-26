@@ -10,7 +10,7 @@
     <parameter name="ParamDoubleEscaped"/>
     <parameter name="DefaultParam" default="VALUE"/>
 
-    <server id="${name}" exe="${test.dir}/server" activation="on-demand" pwd=".">
+    <server id="${name}" exe="${server.dir}/server" activation="on-demand" pwd=".">
 
       <option>--Test.Test=2</option>
       <option>--Test.Test1=0</option>
@@ -32,8 +32,8 @@
 	<property name="Name" value="${name}"/>
 	<property name="NameName" value="${name}${name}"/>
 	<property name="NameEscaped" value="$${name}"/>
-	<property name="NameEscapeEscaped" value="$$${name}"/> 
-	<property name="NameEscapedEscapeEscaped" value="$$$${name}"/> 
+	<property name="NameEscapeEscaped" value="$$${name}"/>
+	<property name="NameEscapedEscapeEscaped" value="$$$${name}"/>
 	<property name="ManyEscape" value="$$$$$$$${name}"/>
 	<property name="Ice.Warn.Connections" value="1"/>
 

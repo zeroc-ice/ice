@@ -23,27 +23,27 @@ import TestUtil
 TestUtil.queueClientServerTest(configName = "compact", message = "Running test with compact (default) format.")
 
 TestUtil.queueClientServerTest(configName = "sliced", message = "Running test with sliced format.",
-                               additionalClientOptions="--Ice.Default.SlicedFormat", 
+                               additionalClientOptions="--Ice.Default.SlicedFormat",
                                additionalServerOptions="--Ice.Default.SlicedFormat")
 
 TestUtil.queueClientServerTest(configName = "1.0", message = "Running test with 1.0 encoding.",
-                               additionalClientOptions="--Ice.Default.EncodingVersion=1.0", 
+                               additionalClientOptions="--Ice.Default.EncodingVersion=1.0",
                                additionalServerOptions="--Ice.Default.EncodingVersion=1.0")
 
 TestUtil.queueClientServerTest(configName = "compactAMD", localOnly = True,
                                message = "Running test with compact (default) format and AMD server.",
-                               server="serveramd")
+                               server=TestUtil.getTestExecutable("serveramd"))
 
 TestUtil.queueClientServerTest(configName = "slicedAMD", localOnly = True,
                                message = "Running test with sliced format and AMD server.",
-                               server="serveramd", 
-                               additionalClientOptions="--Ice.Default.SlicedFormat", 
+                               server=TestUtil.getTestExecutable("serveramd"),
+                               additionalClientOptions="--Ice.Default.SlicedFormat",
                                additionalServerOptions="--Ice.Default.SlicedFormat")
 
 TestUtil.queueClientServerTest(configName = "1.0AMD", localOnly = True,
                                message = "Running test with 1.0 encoding and AMD server.",
-                               server="serveramd", 
-                               additionalClientOptions="--Ice.Default.EncodingVersion=1.0", 
+                               server=TestUtil.getTestExecutable("serveramd"),
+                               additionalClientOptions="--Ice.Default.EncodingVersion=1.0",
                                additionalServerOptions="--Ice.Default.EncodingVersion=1.0")
 
 TestUtil.queueCollocatedTest()

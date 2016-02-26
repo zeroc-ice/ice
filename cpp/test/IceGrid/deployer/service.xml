@@ -27,7 +27,7 @@
       <property name="PropertyWithEscapeSpace" value="foo\ "/>
       <property name="PropertyWithProperty"
                 value="Plugin.EntryPoint=foo:bar --Ice.Config=\\\server\foo bar\file.cfg"/>
-      
+
       <include file="varproperties.xml"/>
 
       <property name="AppVarOverridedByParamProp" value="${AppVarOverridedByParam}"/>

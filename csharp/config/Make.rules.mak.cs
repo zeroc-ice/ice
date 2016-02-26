@@ -61,6 +61,16 @@ DEBUG			= yes
 #FRAMEWORK 		= 3.5
 
 #
+# C++ Platform Win32|x64 used to locate slice2cs.exe
+#
+#CPP_PLATFORM		= Win32
+
+#
+# C++ Configuration Debug|Release used to locate slice2cs.exe
+#
+#CPP_CONFIGURATION 	= Debug
+
+#
 # Set the key file used for strong name signing of assemblies.
 #
 !if "$(KEYFILE)" == ""
@@ -97,6 +107,22 @@ install_bindir          = $(prefix)\bin
 install_assembliesdir   = $(prefix)\Assemblies
 install_configdir   	= $(prefix)\config
 install_libdir		= $(prefix)\lib
+
+!if "$(CPP_PLATFORM)" == ""
+CPP_PLATFORM = Win32
+!endif
+
+!if "$(CPP_PLATFORM)" != "Win32" && "$(CPP_PLATFORM)" != "x64"
+!error Error: CPP_PLATFORM must be set to "Win32" or "x64", in order to locate slice2cs.exe
+!endif
+
+!if "$(CPP_CONFIGURATION)" == ""
+CPP_CONFIGURATION = Debug
+!endif
+
+!if "$(CPP_CONFIGURATION)" != "Debug" && "$(CPP_CONFIGURATION)" != "Release"
+!error Error: CPP_CONFIGURATION must be set to "Debug" or "Release", in order to locate slice2cs.exe
+!endif
 
 !if "$(ice_src_dist)" != ""
 refdir = $(assembliesdir)
@@ -164,10 +190,10 @@ MCSFLAGS 		= $(MCSFLAGS) -noconfig -nostdlib $(UNITY_LIBS)
 
 !if "$(ice_src_dist)" != ""
 !if "$(ice_cpp_dir)" == "$(ice_dir)\cpp"
-SLICE2CS		= $(ice_cpp_dir)\bin\slice2cs.exe
-SLICEPARSERLIB		= $(ice_cpp_dir)\lib\slice.lib
+SLICE2CS		= $(ice_cpp_dir)\bin\$(CPP_PLATFORM)\$(CPP_CONFIGURATION)\slice2cs.exe
+SLICEPARSERLIB		= $(ice_cpp_dir)\lib\$(CPP_PLATFORM)\$(CPP_CONFIGURATION)\slice37.lib
 !if !exist ("$(SLICEPARSERLIB)")
-SLICEPARSERLIB		= $(ice_cpp_dir)\lib\sliced.lib
+SLICEPARSERLIB		= $(ice_cpp_dir)\lib\$(CPP_PLATFORM)\$(CPP_CONFIGURATION)\slice37d.lib
 !endif
 !else
 SLICE2CS		= $(ice_cpp_dir)\bin$(x64suffix)\slice2cs.exe

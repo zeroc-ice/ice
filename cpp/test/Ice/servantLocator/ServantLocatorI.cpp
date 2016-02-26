@@ -8,7 +8,11 @@
 // **********************************************************************
 
 #include <ServantLocatorI.h>
-#include <Test.h>
+#ifdef ICE_AMD_TEST
+#   include <TestAMD.h>
+#else
+#   include <Test.h>
+#endif
 #include <TestCommon.h>
 
 #include <stdexcept>

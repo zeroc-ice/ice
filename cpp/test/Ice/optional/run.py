@@ -25,5 +25,5 @@ TestUtil.queueClientServerTest(configName = "sliced", message = "Running test wi
                                additionalClientOptions="--Ice.Default.SlicedFormat",
                                additionalServerOptions="--Ice.Default.SlicedFormat")
 TestUtil.queueClientServerTest(configName = "amd", localOnly = True, message = "Running test with AMD server.",
-                               server = "serveramd")
+                               server = TestUtil.getTestExecutable("serveramd"))
 TestUtil.runQueuedTests()

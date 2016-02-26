@@ -20,11 +20,11 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0], "scripts"))
 import TestUtil
 
-workqueue = os.path.join(os.getcwd(), "workqueue")
+workqueue = os.path.join(os.getcwd(), TestUtil.getTestExecutable("workqueue"))
 
 TestUtil.simpleTest(workqueue)
 
-match = os.path.join(os.getcwd(), "match")
+match = os.path.join(os.getcwd(), TestUtil.getTestExecutable("match"))
 
 TestUtil.simpleTest(match)
 

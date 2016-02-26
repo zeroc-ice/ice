@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\..\cpp\msbuild\Ice.Cpp98.props" />
+  <PropertyGroup Label="UserMacros" Condition="'$(Platform)'=='Win32'">
+    <PythonHome>C:\Python35</PythonHome>
+  </PropertyGroup>
+  <PropertyGroup Label="UserMacros" Condition="'$(Platform)'=='x64'">
+    <PythonHome>C:\Python35-x64</PythonHome>
+  </PropertyGroup>
+  <ItemGroup>
+    <BuildMacro Include="PythonHome">
+      <Value>$(PythonHome)</Value>
+    </BuildMacro>
+  </ItemGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>..;$(PythonHome)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(PythonHome)\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+</Project>
