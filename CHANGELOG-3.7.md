@@ -13,7 +13,7 @@ particular aspect of Ice.
 
 # Changes in Ice 3.7.0
 
-These are the changes since Ice 3.6.1.
+These are the changes since Ice 3.6.2.
 
 ## General Changes
 
@@ -40,14 +40,19 @@ These are the changes since Ice 3.6.1.
 
 - `ObjectFactory` has been deprecated in favor of the new local interface
   `ValueFactory`. Communicator operations `addObjectFactory`and
-  `findObjectFactory` have been deprecated in favor of `addValueFactory` and
-  `findValueFactory`.
+  `findObjectFactory` have been deprecated in favor of similar operations on the
+  new interface `ValueFactoryManager`.
 
 - Renamed local interface metadata `async` to `async-oneway`.
 
 - Replaced `ConnectionCallback` by delegates `CloseCallback` and `HeartbeatCallback`.
   Also replaced `setCallback` by `setCloseCallback` and `setHeartbeatCallback` on
   the `Connection` interface.
+
+## Java Changes
+
+- Fixed a bug where unmarshaling Ice objects was really slow when using
+  compact type IDs.
 
 ## PHP Changes
 
