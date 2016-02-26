@@ -11,14 +11,14 @@
 import sys, os, platform
 
 basepath = os.path.dirname(os.path.realpath(__file__))
-print(basepath)
+
 if sys.platform == "win32":
     platformName = "Win32" if "32bit" in platform.architecture() else "x64"
     configurationName = os.getenv("CPP_CONFIGURATION", "Release")
     sys.path.insert(1, os.path.join(basepath, "..", "python", platformName, configurationName))
     os.putenv("PATH", os.path.join(basepath, "..", "..", "cpp", "bin", platformName, configurationName))
 else:
-    sys.path.insert(1, os.path.join(basepath, "..", "python", platformName, configurationName))
+    sys.path.insert(1, os.path.join(basepath, "..", "python"))
 
 import IcePy
 
