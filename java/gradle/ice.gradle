@@ -20,7 +20,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath group: 'com.zeroc.gradle.ice-builder', name: 'slice', version: '1.0.6'
+        classpath group: 'com.zeroc.gradle.ice-builder', name: 'slice', version: '1.2.0'
     }
 }
 
