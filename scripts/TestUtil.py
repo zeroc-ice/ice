@@ -2518,7 +2518,7 @@ def getTestDirectory(name, baseDir = os.getcwd()):
             else:
                 return os.path.join(baseDir, "msbuild", platform, configuration)
     else:
-        return "name"
+        return "."
 
 def getTestExecutable(name, baseDir = os.getcwd()):
     if isWin32():
