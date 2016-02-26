@@ -10,17 +10,24 @@
 top_srcdir	= ../../..
 
 CLIENT		= $(call mktestname,client)
+SERVER		= $(call mktestname,server)
 
-TARGETS		= $(CLIENT)
+TARGETS		= $(CLIENT) $(SERVER)
 
 
-SLICE_OBJS	= Test.o Types.o
+SLICE_OBJS	= Test.o ServerTypes.o ClientTypes.o
 
-COBJS		= $(SLICE_OBJS) \
+COBJS		= Test.o \
+		  ClientTypes.o \
 		  Client.o \
 		  AllTests.o
+		  
+SOBJS		= Test.o \
+		  ServerTypes.o \
+		  Server.o \
+		  TestI.o
 
-OBJS		= $(COBJS)
+OBJS		= $(COBJS) $(SOBJS)
 
 include $(top_srcdir)/config/Make.rules
 
@@ -33,20 +40,6 @@ $(CLIENT): $(COBJS)
 	rm -f $@
 	$(call mktest,$@,$(COBJS),$(TEST_LIBS))
 
-SUBDIRS		= server
-
-.PHONY: $(EVERYTHING) $(SUBDIRS)
-
-all:: $(SUBDIRS)
-
-$(SUBDIRS):
-	@echo "making all in $@"
-	@$(MAKE) all --directory=$@
-
-
-$(EVERYTHING_EXCEPT_ALL)::
-	@for subdir in $(SUBDIRS); \
-	do \
-	    echo "making $@ in $$subdir"; \
-	    ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
-	done
+$(SERVER): $(SOBJS)
+	rm -f $@
+	$(call mktest,$@,$(SOBJS),$(TEST_LIBS))
