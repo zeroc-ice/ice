@@ -9,6 +9,8 @@
 
 package Ice;
 
+import java.net.URLEncoder;
+
 public final class PluginManagerI implements PluginManager
 {
     private static String _kindOfObject = "plugin";
@@ -411,6 +413,7 @@ public final class PluginManagerI implements PluginManager
                     {
                         classDir += java.io.File.separator;
                     }
+                    classDir = URLEncoder.encode(classDir);
 
                     //
                     // Reuse an existing class loader if we have already loaded a plug-in with

@@ -9,6 +9,8 @@
 
 package IceBox;
 
+import java.net.URLEncoder;
+
 //
 // NOTE: the class isn't final on purpose to allow users to eventually
 // extend it.
@@ -521,6 +523,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
                 {
                     classDir += java.io.File.separator;
                 }
+                classDir = URLEncoder.encode(classDir);
 
                 //
                 // Reuse an existing class loader if we have already loaded a plug-in with
