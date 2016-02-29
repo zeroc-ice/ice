@@ -958,7 +958,7 @@ Ice::ObjectAdapterI::initialize(const RouterPrx& router)
                 if(_routerInfo->getAdapter())
                 {
                     throw AlreadyRegisteredException(__FILE__, __LINE__, "object adapter with router",
-                                                     Ice::identityToString(router->ice_getIdentity()));
+                                                     _instance->identityToString(router->ice_getIdentity()));
                 }
 
                 //

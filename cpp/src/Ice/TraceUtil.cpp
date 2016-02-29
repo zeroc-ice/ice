@@ -30,7 +30,7 @@ printIdentityFacetOperation(ostream& s, BasicStream& stream)
 {
     Identity identity;
     stream.read(identity);
-    s << "\nidentity = " << Ice::identityToString(identity);
+    s << "\nidentity = " << stream.instance()->identityToString(identity);
 
     vector<string> facet;
     stream.read(facet);

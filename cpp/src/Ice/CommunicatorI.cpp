@@ -83,13 +83,13 @@ Ice::CommunicatorI::proxyToProperty(const ObjectPrx& proxy, const string& proper
 Identity
 Ice::CommunicatorI::stringToIdentity(const string& s) const
 {
-    return Ice::stringToIdentity(s);
+    return _instance->stringToIdentity(s);
 }
 
 string
 Ice::CommunicatorI::identityToString(const Identity& ident) const
 {
-    return Ice::identityToString(ident);
+    return _instance->identityToString(ident);
 }
 
 ObjectAdapterPtr

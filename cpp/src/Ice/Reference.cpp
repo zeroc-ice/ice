@@ -233,7 +233,7 @@ IceInternal::Reference::toString() const
     // the reference parser uses as separators, then we enclose
     // the identity string in quotes.
     //
-    string id = Ice::identityToString(_identity);
+    string id = _instance->identityToString(_identity);
     if(id.find_first_of(" :@") != string::npos)
     {
         s << '"' << id << '"';

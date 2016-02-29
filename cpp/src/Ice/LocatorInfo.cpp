@@ -745,12 +745,12 @@ IceInternal::LocatorInfo::getEndpointsException(const ReferencePtr& ref, const I
             Trace out(ref->getInstance()->initializationData().logger,
                       ref->getInstance()->traceLevels()->locationCat);
             out << "object not found" << "\n";
-            out << "object = " << Ice::identityToString(ref->getIdentity());
+            out << "object = " << ref->getInstance()->identityToString(ref->getIdentity());
         }
 
         NotRegisteredException ex(__FILE__, __LINE__);
         ex.kindOfObject = "object";
-        ex.id = Ice::identityToString(ref->getIdentity());
+        ex.id = ref->getInstance()->identityToString(ref->getIdentity());
         throw ex;
     }
     catch(const NotRegisteredException&)
@@ -765,7 +765,7 @@ IceInternal::LocatorInfo::getEndpointsException(const ReferencePtr& ref, const I
             out << "couldn't contact the locator to retrieve adapter endpoints\n";
             if(ref->getAdapterId().empty())
             {
-                out << "object = " << Ice::identityToString(ref->getIdentity()) << "\n";
+                out << "object = " << ref->getInstance()->identityToString(ref->getIdentity()) << "\n";
             }
             else
             {
@@ -800,7 +800,7 @@ IceInternal::LocatorInfo::getEndpointsTrace(const ReferencePtr& ref,
         if(ref->getAdapterId().empty())
         {
             out << "object\n";
-            out << "object = " << Ice::identityToString(ref->getIdentity());
+            out << "object = " << ref->getInstance()->identityToString(ref->getIdentity());
         }
         else
         {
@@ -823,7 +823,7 @@ IceInternal::LocatorInfo::trace(const string& msg, const ReferencePtr& ref, cons
     }
     else
     {
-        out << "object = "  << Ice::identityToString(ref->getIdentity()) << '\n';
+        out << "object = "  << ref->getInstance()->identityToString(ref->getIdentity()) << '\n';
     }
 
     const char* sep = endpoints.size() > 1 ? ":" : "";
@@ -861,7 +861,7 @@ IceInternal::LocatorInfo::getObjectRequest(const ReferencePtr& ref)
     if(ref->getInstance()->traceLevels()->location >= 1)
     {
         Trace out(ref->getInstance()->initializationData().logger, ref->getInstance()->traceLevels()->locationCat);
-        out << "searching for object by id\nobject = " << Ice::identityToString(ref->getIdentity());
+        out << "searching for object by id\nobject = " << ref->getInstance()->identityToString(ref->getIdentity());
     }
 
     map<Ice::Identity, RequestPtr>::const_iterator p = _objectRequests.find(ref->getIdentity());
