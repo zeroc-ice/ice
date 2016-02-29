@@ -155,7 +155,7 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
     //
     // Parsing the identity may raise IdentityParseException.
     //
-    Identity ident = _instance->stringToIdentity(idstr);
+    Identity ident = Ice::stringToIdentity(idstr);
     if(ident.name.empty())
     {
         //

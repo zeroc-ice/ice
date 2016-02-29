@@ -52,6 +52,10 @@ These are the changes since Ice 3.6.1.
 - Fixed potential deadlock that could occur when using collocation optimization and
   serialized server thread pools.
 
+- Added Ice::identityToString and Ice::stringToIdentity non member functions, with the
+  same semantics than Ice::Communicator member functions Ice::Communicator::identityToString
+  and Ice::Communicator::stringToIdentity.
+
 ## C# Changes
 
 - Minor fixes to release the memory used by the transports to send and receive

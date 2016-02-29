@@ -125,6 +125,8 @@ ICE_API void setProcessLogger(const LoggerPtr&);
 typedef Ice::Plugin* (*PLUGIN_FACTORY)(const ::Ice::CommunicatorPtr&, const std::string&, const ::Ice::StringSeq&);
 ICE_API void registerPluginFactory(const std::string&, PLUGIN_FACTORY, bool);
 
+ICE_API Identity stringToIdentity(const std::string&);
+ICE_API std::string identityToString(const Identity&);
 }
 
 namespace IceInternal

@@ -172,7 +172,7 @@ IceInternal::IncomingBase::__warning(const Exception& ex) const
     Warning out(_os.instance()->initializationData().logger);
 
     out << "dispatch exception: " << ex;
-    out << "\nidentity: " << _os.instance()->identityToString(_current.id);
+    out << "\nidentity: " << Ice::identityToString(_current.id);
     out << "\nfacet: " << IceUtilInternal::escapeString(_current.facet, "");
     out << "\noperation: " << _current.operation;
 
@@ -193,7 +193,7 @@ IceInternal::IncomingBase::__warning(const string& msg) const
     Warning out(_os.instance()->initializationData().logger);
 
     out << "dispatch exception: " << msg;
-    out << "\nidentity: " << _os.instance()->identityToString(_current.id);
+    out << "\nidentity: " << Ice::identityToString(_current.id);
     out << "\nfacet: " << IceUtilInternal::escapeString(_current.facet, "");
     out << "\noperation: " << _current.operation;
 
