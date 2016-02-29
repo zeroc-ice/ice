@@ -44,7 +44,7 @@ IceInternal::ServantManager::addServant(const ObjectPtr& object, const Identity&
         {
             AlreadyRegisteredException ex(__FILE__, __LINE__);
             ex.kindOfObject = "servant";
-            ex.id = _instance->identityToString(ident);
+            ex.id = Ice::identityToString(ident);
             if(!facet.empty())
             {
                 string fs = nativeToUTF8(facet, _instance->getStringConverter());
@@ -104,7 +104,7 @@ IceInternal::ServantManager::removeServant(const Identity& ident, const string& 
     {
         NotRegisteredException ex(__FILE__, __LINE__);
         ex.kindOfObject = "servant";
-        ex.id = _instance->identityToString(ident);
+        ex.id = Ice::identityToString(ident);
         if(!facet.empty())
         {
             string fs = nativeToUTF8(facet, _instance->getStringConverter());
@@ -178,7 +178,7 @@ IceInternal::ServantManager::removeAllFacets(const Identity& ident)
     {
         NotRegisteredException ex(__FILE__, __LINE__);
         ex.kindOfObject = "servant";
-        ex.id = _instance->identityToString(ident);
+        ex.id = Ice::identityToString(ident);
         throw ex;
     }
 

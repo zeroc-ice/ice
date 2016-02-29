@@ -1210,17 +1210,7 @@ string
 Glacier2::SessionFactoryHelper::createProxyStr(const Ice::Identity& ident)
 {
     ostringstream os;
-    os << "\"";
-    //
-    // TODO replace with identityToString, we cannot use the Communicator::identityToString
-    // current implementation because we need to do that before the communicator has been
-    // initialized.
-    //
-    if(!ident.category.empty())
-    {
-        os << ident.category << "/";
-    }
-    os << ident.name << "\":" << _protocol << " -p " << getPortInternal() << " -h \"" << _routerHost << "\"";
+    os << "\"" << Ice::identityToString(ident) << "\":" << _protocol << " -p " << getPortInternal() << " -h \"" << _routerHost << "\"";
     if(_timeout > 0)
     {
         os << " -t " << _timeout;

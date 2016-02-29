@@ -112,8 +112,6 @@ public:
     bool collectObjects() const { return _collectObjects; }
     const ACMConfig& clientACM() const;
     const ACMConfig& serverACM() const;
-    Ice::Identity stringToIdentity(const std::string&) const;
-    std::string identityToString(const Ice::Identity&) const;
 
     Ice::ObjectPrxPtr createAdmin(const Ice::ObjectAdapterPtr&, const Ice::Identity&);
     Ice::ObjectPrxPtr getAdmin();
