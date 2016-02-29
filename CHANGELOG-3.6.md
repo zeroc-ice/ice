@@ -49,14 +49,23 @@ These are the changes since Ice 3.6.1.
 - Fixed El Capitan build issues caused by a new security feature that no longer
   exports DYLD_LIBRARY_PATH to child processes.
 
-- Fixed potential deadlock that could occur when using collocation
-  optimization and serialized server thread pools.
+- Fixed potential deadlock that could occur when using collocation optimization and
+  serialized server thread pools.
+
+- Added Ice::identityToString and Ice::stringToIdentity non member functions, with the
+  same semantics than Ice::Communicator member functions Ice::Communicator::identityToString
+  and Ice::Communicator::stringToIdentity.
 
 ## C# Changes
 
 - Minor fixes to release the memory used by the transports to send and receive
-  data sooner. This garbage collector can therefore collect this memory sooner
+  data sooner. The garbage collector can therefore collect this memory sooner
   as well.
+
+## Java Changes
+
+- Fixed a bug where unmarshaling Ice objects was really slow when using
+  compact type IDs.
 
 # Changes in Ice 3.6.1
 

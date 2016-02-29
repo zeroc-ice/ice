@@ -151,6 +151,8 @@ private:
     CommunicatorPtr  _communicator;
 };
 
+ICE_API Identity stringToIdentity(const std::string&);
+ICE_API std::string identityToString(const Identity&);
 }
 
 namespace IceInternal

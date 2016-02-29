@@ -16,6 +16,7 @@
 #include <Ice/LoggerI.h>
 #include <Ice/Instance.h>
 #include <Ice/PluginManagerI.h>
+#include <IceUtil/StringUtil.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
 #include <IceUtil/StringConverter.h>
@@ -353,3 +354,117 @@ IceInternal::getInstanceTimer(const CommunicatorPtr& communicator)
     return p->_instance->timer();
 }
 
+Identity
+Ice::stringToIdentity(const string& s)
+{
+    //
+    // This method only accepts printable ascii. Since printable ascii is a subset
+    // of all narrow string encodings, it is not necessary to convert the string
+    // from the native string encoding. Any characters other than printable-ASCII
+    // will cause an IllegalArgumentException. Note that it can contain Unicode
+    // encoded in the escaped form which is the reason why we call fromUTF8 after
+    // unespcaping the printable ASCII string.
+    //
+
+    Identity ident;
+
+    //
+    // Find unescaped separator; note that the string may contain an escaped
+    // backslash before the separator.
+    //
+    string::size_type slash = string::npos, pos = 0;
+    while((pos = s.find('/', pos)) != string::npos)
+    {
+        int escapes = 0;
+        while(static_cast<int>(pos)- escapes > 0 && s[pos - escapes - 1] == '\\')
+        {
+            escapes++;
+        }
+
+        //
+        // We ignore escaped escapes
+        //
+        if(escapes % 2 == 0)
+        {
+            if(slash == string::npos)
+            {
+                slash = pos;
+            }
+            else
+            {
+                //
+                // Extra unescaped slash found.
+                //
+                IdentityParseException ex(__FILE__, __LINE__);
+                ex.str = "unescaped backslash in identity `" + s + "'";
+                throw ex;
+            }
+        }
+        pos++;
+    }
+
+    if(slash == string::npos)
+    {
+        try
+        {
+            ident.name = IceUtilInternal::unescapeString(s, 0, s.size());
+        }
+        catch(const IceUtil::IllegalArgumentException& e)
+        {
+            IdentityParseException ex(__FILE__, __LINE__);
+            ex.str = "invalid identity name `" + s + "': " + e.reason();
+            throw ex;
+        }
+    }
+    else
+    {
+        try
+        {
+            ident.category = IceUtilInternal::unescapeString(s, 0, slash);
+        }
+        catch(const IceUtil::IllegalArgumentException& e)
+        {
+            IdentityParseException ex(__FILE__, __LINE__);
+            ex.str = "invalid category in identity `" + s + "': " + e.reason();
+            throw ex;
+        }
+        if(slash + 1 < s.size())
+        {
+            try
+            {
+                ident.name = IceUtilInternal::unescapeString(s, slash + 1, s.size());
+            }
+            catch(const IceUtil::IllegalArgumentException& e)
+            {
+                IdentityParseException ex(__FILE__, __LINE__);
+                ex.str = "invalid name in identity `" + s + "': " + e.reason();
+                throw ex;
+            }
+        }
+    }
+
+    ident.name = UTF8ToNative(ident.name, IceUtil::getProcessStringConverter());
+    ident.category = UTF8ToNative(ident.category, IceUtil::getProcessStringConverter());
+
+    return ident;
+}
+
+string
+Ice::identityToString(const Identity& ident)
+{
+    //
+    // This method returns the stringified identity. The returned string only
+    // contains printable ascii. It can contain UTF8 in the escaped form.
+    //
+    string name = nativeToUTF8(ident.name, IceUtil::getProcessStringConverter());
+    string category = nativeToUTF8(ident.category, IceUtil::getProcessStringConverter());
+
+    if(category.empty())
+    {
+        return IceUtilInternal::escapeString(name, "/");
+    }
+    else
+    {
+        return IceUtilInternal::escapeString(category, "/") + '/' + IceUtilInternal::escapeString(name, "/");
+    }
+}

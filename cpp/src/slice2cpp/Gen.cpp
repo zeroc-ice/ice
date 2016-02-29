@@ -2136,8 +2136,6 @@ Slice::Gen::ObjectDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
     string scoped = fixKwd(p->scoped());
 
     H << sp << nl << "class " << name << ';';
-    H << nl << "bool operator==(const " << name << "&, const " << name << "&);";
-    H << nl << "bool operator<(const " << name << "&, const " << name << "&);";
     if(!p->isLocal())
     {
         H << nl << _dllExport << "::Ice::Object* upCast(" << scoped << "*);";

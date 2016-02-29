@@ -63,6 +63,10 @@ ice_language     = php
 ice_require_cpp  = yes
 slice_translator = slice2php
 
+ifeq ($(shell php-config --libs /dev/null && echo 0),0)
+    $(error php-config not found review your PHP installation and ensure php-config is in your PATH)
+endif
+
 ifeq ($(shell test -f $(top_srcdir)/config/Make.common.rules && echo 0),0)
     include $(top_srcdir)/config/Make.common.rules
 else
