@@ -23,6 +23,8 @@ ZEND_FUNCTION(Ice_register);
 ZEND_FUNCTION(Ice_unregister);
 ZEND_FUNCTION(Ice_find);
 ZEND_FUNCTION(Ice_getProperties);
+ZEND_FUNCTION(Ice_identityToString);
+ZEND_FUNCTION(Ice_stringToIdentity);
 }
 
 namespace IcePHP

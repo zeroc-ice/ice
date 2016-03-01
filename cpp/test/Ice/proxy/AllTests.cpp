@@ -259,10 +259,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
     Ice::Identity id = { "test", ",X2QNUAzSBcJ_e$AV;E\\" };
     Ice::Identity id2 = communicator->stringToIdentity(communicator->identityToString(id));
     test(id == id2);
+    id2 = Ice::stringToIdentity(Ice::identityToString(id));
+    test(id == id2);
 
     id.name = "test";
     id.category = ",X2QNUAz\\SB\\/cJ_e$AV;E\\\\";
     id2 = communicator->stringToIdentity(communicator->identityToString(id));
+    test(id == id2);
+    id2 = Ice::stringToIdentity(Ice::identityToString(id));
     test(id == id2);
 
     cout << "ok" << endl;
@@ -445,6 +449,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "testing proxy methods... " << flush;
     test(communicator->identityToString(base->ice_identity(communicator->stringToIdentity("other"))->ice_getIdentity())
          == "other");
+    test(Ice::identityToString(base->ice_identity(Ice::stringToIdentity("other"))->ice_getIdentity()) == "other");
     test(base->ice_facet("facet")->ice_getFacet() == "facet");
     test(base->ice_adapterId("id")->ice_getAdapterId() == "id");
     test(base->ice_twoway()->ice_isTwoway());

@@ -706,6 +706,18 @@ the list that were recognized by the Ice run time.
     return CommunicatorI(communicator)
 
 #
+# Ice.identityToString
+#
+def identityToString(id):
+    return IcePy.identityToString(id)
+
+#
+# Ice.stringToIdentity
+#
+def stringToIdentity(str):
+    return IcePy.stringToIdentity(str)
+
+#
 # ObjectAdapter wrapper.
 #
 class ObjectAdapterI(ObjectAdapter):

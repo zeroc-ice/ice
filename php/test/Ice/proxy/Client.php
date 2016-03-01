@@ -38,6 +38,9 @@ function allTests($communicator)
     $random = $NS ? constant("Ice\\EndpointSelectionType::Random") : constant("Ice_EndpointSelectionType::Random");
     $ordered = $NS ? constant("Ice\\EndpointSelectionType::Ordered") : constant("Ice_EndpointSelectionType::Ordered");
     $encodingVersion = $NS ? "Ice\\EncodingVersion" : "Ice_EncodingVersion";
+    
+    $identityToString = $NS ? "Ice\\identityToString" : "Ice_identityToString";
+    $stringToIdentity = $NS ? "Ice\\stringToIdentity" : "Ice_stringToIdentity";
 
     echo "testing stringToProxy... ";
     flush();
@@ -435,6 +438,7 @@ function allTests($communicator)
     echo "testing proxy methods... ";
     flush();
     test($communicator->identityToString($base->ice_identity($communicator->stringToIdentity("other"))->ice_getIdentity()) == "other");
+    test($identityToString($base->ice_identity($stringToIdentity("other"))->ice_getIdentity()) == "other");
     test($base->ice_facet("facet")->ice_getFacet() == "facet");
     test($base->ice_adapterId("id")->ice_getAdapterId() == "id");
     test($base->ice_twoway()->ice_isTwoway());

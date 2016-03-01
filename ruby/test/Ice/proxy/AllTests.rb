@@ -355,6 +355,7 @@ def allTests(communicator)
     print "testing proxy methods... "
     STDOUT.flush
     test(communicator.identityToString(base.ice_identity(communicator.stringToIdentity("other")).ice_getIdentity()) == "other")
+    test(Ice::identityToString(base.ice_identity(Ice::stringToIdentity("other")).ice_getIdentity()) == "other")
     test(base.ice_facet("facet").ice_getFacet() == "facet")
     test(base.ice_adapterId("id").ice_getAdapterId() == "id")
     test(base.ice_twoway().ice_isTwoway())

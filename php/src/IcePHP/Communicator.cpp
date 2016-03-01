@@ -1109,6 +1109,58 @@ ZEND_FUNCTION(Ice_getProperties)
     }
 }
 
+ZEND_FUNCTION(Ice_identityToString)
+{
+    zend_class_entry* identityClass = idToClass("::Ice::Identity" TSRMLS_CC);
+    assert(identityClass);
+
+    zval* zv;
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("O"), &zv, identityClass) != SUCCESS)
+    {
+        RETURN_NULL();
+    }
+    Ice::Identity id;
+    if(!extractIdentity(zv, id TSRMLS_CC))
+    {
+        RETURN_NULL();
+    }
+
+    try
+    {
+        string str = Ice::identityToString(id);
+        RETURN_STRINGL(STRCAST(str.c_str()), static_cast<int>(str.length()), 1);
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
+        RETURN_NULL();
+    }
+}
+
+ZEND_FUNCTION(Ice_stringToIdentity)
+{
+    char* str;
+    int strLen;
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("s"), &str, &strLen) != SUCCESS)
+    {
+        RETURN_NULL();
+    }
+    string s(str, strLen);
+
+    try
+    {
+        Ice::Identity id = Ice::stringToIdentity(s);
+        if(!createIdentity(return_value, id TSRMLS_CC))
+        {
+            RETURN_NULL();
+        }
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
+        RETURN_NULL();
+    }
+}
 
 //
 // Necessary to suppress warnings from zend_function_entry in php-5.2
