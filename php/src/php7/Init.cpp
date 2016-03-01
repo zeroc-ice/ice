@@ -33,7 +33,9 @@ ZEND_END_ARG_INFO()
     ZEND_FE(Ice_register, NULL) \
     ZEND_FE(Ice_unregister, NULL) \
     ZEND_FE(Ice_find, NULL) \
-    ZEND_FE(Ice_getProperties, NULL)
+    ZEND_FE(Ice_getProperties, NULL) \
+    ZEND_FE(Ice_identityToString, NULL) \
+    ZEND_FE(Ice_stringToIdentity, NULL)
 
 #ifdef ICEPHP_USE_NAMESPACES
 #   define ICEPHP_COMMUNICATOR_NS_FUNCTIONS \
@@ -41,7 +43,9 @@ ZEND_END_ARG_INFO()
     ZEND_NS_FALIAS("Ice", register, Ice_register, NULL) \
     ZEND_NS_FALIAS("Ice", unregister, Ice_unregister, NULL) \
     ZEND_NS_FALIAS("Ice", find, Ice_find, NULL) \
-    ZEND_NS_FALIAS("Ice", getProperties, Ice_getProperties, NULL)
+    ZEND_NS_FALIAS("Ice", getProperties, Ice_getProperties, NULL) \
+    ZEND_NS_FALIAS("Ice", identityToString, Ice_identityToString, NULL) \
+    ZEND_NS_FALIAS("Ice", stringToIdentity, Ice_stringToIdentity, NULL)
 #else
 #   define ICEPHP_COMMUNICATOR_NS_FUNCTIONS
 #endif

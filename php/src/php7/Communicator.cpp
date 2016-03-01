@@ -1356,6 +1356,59 @@ ZEND_FUNCTION(Ice_getProperties)
     }
 }
 
+ZEND_FUNCTION(Ice_identityToString)
+{
+    zend_class_entry* identityClass = idToClass("::Ice::Identity");
+    assert(identityClass);
+
+    zval* zv;
+    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("O"), &zv, identityClass) != SUCCESS)
+    {
+        RETURN_NULL();
+    }
+    Ice::Identity id;
+    if(!extractIdentity(zv, id))
+    {
+        RETURN_NULL();
+    }
+
+    try
+    {
+        string str = _this->getCommunicator()->identityToString(id);
+        RETURN_STRINGL(STRCAST(str.c_str()), static_cast<int>(str.length()));
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex);
+        RETURN_NULL();
+    }
+}
+
+ZEND_FUNCTION(Ice_stringToIdentity)
+{
+    char* str;
+    size_t strLen;
+    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("s"), &str, &strLen) != SUCCESS)
+    {
+        RETURN_NULL();
+    }
+    string s(str, strLen);
+
+    try
+    {
+        Ice::Identity id = _this->getCommunicator()->stringToIdentity(s);
+        if(!createIdentity(return_value, id))
+        {
+            RETURN_NULL();
+        }
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex);
+        RETURN_NULL();
+    }
+}
+
 //
 // Necessary to suppress warnings from zend_function_entry in php-5.2
 // and INI_STR macro.
