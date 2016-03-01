@@ -225,6 +225,34 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE self)
 
 extern "C"
 VALUE
+IceRuby_stringToIdentity(VALUE self, VALUE str)
+{
+    ICE_RUBY_TRY
+    {
+        string s = getString(str);
+        Ice::Identity ident = Ice::stringToIdentity(s);
+        return createIdentity(ident);
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
+extern "C"
+VALUE
+IceRuby_identityToString(VALUE self, VALUE id)
+{
+    ICE_RUBY_TRY
+    {
+        Ice::Identity ident = getIdentity(id);
+        string str = Ice::identityToString(ident);
+        return createString(str);
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
+extern "C"
+VALUE
 IceRuby_Communicator_destroy(VALUE self)
 {
     Ice::CommunicatorPtr p = getCommunicator(self);
@@ -574,6 +602,8 @@ void
 IceRuby::initCommunicator(VALUE iceModule)
 {
     rb_define_module_function(iceModule, "initialize", CAST_METHOD(IceRuby_initialize), -1);
+    rb_define_module_function(iceModule, "identityToString", CAST_METHOD(IceRuby_identityToString), 1);
+    rb_define_module_function(iceModule, "stringToIdentity", CAST_METHOD(IceRuby_stringToIdentity), 1);
 
     _communicatorClass = rb_define_class_under(iceModule, "CommunicatorI", rb_cObject);
     rb_define_method(_communicatorClass, "destroy", CAST_METHOD(IceRuby_Communicator_destroy), 0);

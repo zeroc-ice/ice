@@ -32,4 +32,7 @@ extern "C" PyObject* IcePy_initializeWithProperties(PyObject*, PyObject*);
 extern "C" PyObject* IcePy_initializeWithLogger(PyObject*, PyObject*);
 extern "C" PyObject* IcePy_initializeWithPropertiesAndLogger(PyObject*, PyObject*);
 
+extern "C" PyObject* IcePy_identityToString(PyObject*, PyObject*);
+extern "C" PyObject* IcePy_stringToIdentity(PyObject*, PyObject*);
+
 #endif

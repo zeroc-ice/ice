@@ -1737,3 +1737,52 @@ IcePy::getCommunicatorWrapper(const Ice::CommunicatorPtr& communicator)
     Py_INCREF(obj->wrapper);
     return obj->wrapper;
 }
+
+extern "C"
+PyObject*
+IcePy_identityToString(PyObject* /*self*/, PyObject* obj)
+{
+    Ice::Identity id;
+    if(!getIdentity(obj, id))
+    {
+        return 0;
+    }
+    
+    string str;
+
+    try
+    {
+        str = Ice::identityToString(id);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return 0;
+    }
+
+    return createString(str);
+}
+
+extern "C"
+PyObject*
+IcePy_stringToIdentity(PyObject* /*self*/, PyObject* obj)
+{
+    string str;
+    if(!getStringArg(obj, "str", str))
+    {
+        return 0;
+    }
+
+    Ice::Identity id;
+    try
+    {
+        id = Ice::stringToIdentity(str);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return 0;
+    }
+
+    return createIdentity(id);
+}
