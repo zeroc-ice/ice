@@ -2027,9 +2027,128 @@ Slice::CsVisitor::writeDocCommentOp(const OperationPtr& p)
 }
 
 void
-Slice::CsVisitor::writeDocCommentAsync(const OperationPtr& p, ParamDir paramType, const string& extraParam, bool amd)
+Slice::CsVisitor::writeDocCommentAMI(const OperationPtr& p, ParamDir paramType, const string& deprecateReason,
+                                     const string& extraParam1, const string& extraParam2, const string& extraParam3)
 {
-    // TODO: this needs fixing for AMI (amd == false)
+    StringList summaryLines;
+    StringList remarksLines;
+    splitComment(p, summaryLines, remarksLines);
+
+    if(summaryLines.empty() && deprecateReason.empty())
+    {
+        return;
+    }
+
+    //
+    // Output the leading comment block up until the first tag.
+    //
+    _out << nl << "/// <summary>";
+    for(StringList::const_iterator i = summaryLines.begin(); i != summaryLines.end(); ++i)
+    {
+        _out << nl << "/// " << *i;
+    }
+
+    bool done = false;
+    for(StringList::const_iterator i = remarksLines.begin(); i != remarksLines.end() && !done; ++i)
+    {
+        string::size_type pos = i->find('<');
+        done = true;
+        if(pos != string::npos)
+        {
+            if(pos != 0)
+            {
+                _out << nl << "/// " << i->substr(0, pos);
+            }
+        }
+        else
+        {
+            _out << nl << "/// " << *i;
+        }
+    }
+    _out << nl << "/// </summary>";
+
+    //
+    // Write the comments for the parameters.
+    //
+    writeDocCommentParam(p, paramType, false);
+
+    if(!extraParam1.empty())
+    {
+        _out << nl << "/// " << extraParam1;
+    }
+
+    if(!extraParam2.empty())
+    {
+        _out << nl << "/// " << extraParam2;
+    }
+
+    if(!extraParam3.empty())
+    {
+        _out << nl << "/// " << extraParam3;
+    }
+
+    if(paramType == InParam)
+    {
+        _out << nl << "/// <returns>An asynchronous result object.</returns>";
+    }
+    else if(p->returnType())
+    {
+        //
+        // Find the comment for the return value (if any).
+        //
+        static const string returnsTag = "<returns>";
+        static const string returnsCloseTag = "</returns>";
+        bool doneReturn = false;
+        bool foundReturn = false;
+        for(StringList::const_iterator i = remarksLines.begin(); i != remarksLines.end() && !doneReturn; ++i)
+        {
+            if(!foundReturn)
+            {
+                string::size_type pos = i->find(returnsTag);
+                if(pos != string::npos)
+                {
+                    foundReturn = true;
+                    string::size_type endpos = i->find(returnsCloseTag, pos + 1);
+                    if(endpos != string::npos)
+                    {
+                        _out << nl << "/// " << i->substr(pos, endpos - pos + returnsCloseTag.size());
+                        doneReturn = true;
+                    }
+                    else
+                    {
+                        _out << nl << "/// " << i->substr(pos);
+                    }
+                }
+            }
+            else
+            {
+                string::size_type pos = i->find(returnsCloseTag);
+                if(pos != string::npos)
+                {
+                    _out << nl << "/// " << i->substr(0, pos + returnsCloseTag.size());
+                    doneReturn = true;
+                }
+                else
+                {
+                    _out << nl << "/// " << *i;
+                }
+            }
+        }
+        if(foundReturn && !doneReturn)
+        {
+            _out << returnsCloseTag;
+        }
+    }
+
+    if(!deprecateReason.empty())
+    {
+        _out << nl << "/// <para>" << deprecateReason << "</para>";
+    }
+}
+
+void
+Slice::CsVisitor::writeDocCommentAMD(const OperationPtr& p, ParamDir paramType, const string& extraParam)
+{
     ContainerPtr container = p->container();
     ClassDefPtr contained = ClassDefPtr::dynamicCast(container);
     string deprecateReason = getDeprecateReason(p, contained, "operation");
@@ -2043,16 +2162,12 @@ Slice::CsVisitor::writeDocCommentAsync(const OperationPtr& p, ParamDir paramType
         return;
     }
 
-
     if(paramType == OutParam)
     {
-        if(amd)
-        {
-            _out << nl << "/// <summary>";
-            _out << nl << "/// ice_response indicates that";
-            _out << nl << "/// the operation completed successfully.";
-            _out << nl << "/// </summary>";
-        }
+        _out << nl << "/// <summary>";
+        _out << nl << "/// ice_response indicates that";
+        _out << nl << "/// the operation completed successfully.";
+        _out << nl << "/// </summary>";
 
         //
         // Find the comment for the return value (if any) and rewrite that as a <param> comment.
@@ -2134,7 +2249,7 @@ Slice::CsVisitor::writeDocCommentAsync(const OperationPtr& p, ParamDir paramType
     //
     // Write the comments for the parameters.
     //
-    writeDocCommentParam(p, paramType, amd);
+    writeDocCommentParam(p, paramType, true);
 
     if(!extraParam.empty())
     {
@@ -4264,6 +4379,7 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     ClassList bases = p->bases();
 
     _out << sp;
+    writeDocComment(p, getDeprecateReason(p, 0, p->isInterface() ? "interface" : "class"));
     emitGeneratedCodeAttribute();
     _out << nl << "public interface " << name << "Prx : ";
     if(bases.empty())
@@ -4303,36 +4419,28 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     ParamDeclList paramList = p->parameters();
     string retS = typeToString(p->returnType(), p->returnIsOptional());
 
+    string deprecateReason = getDeprecateReason(p, cl, "operation");
+
+    //
+    // Write two versions of the operation - with and without a context parameter.
+    //
     _out << sp;
-
-    string deprecateMetadata, deprecateReason;
-    if(p->findMetaData("deprecate", deprecateMetadata) || cl->findMetaData("deprecate", deprecateMetadata))
-    {
-        deprecateReason = "This operation has been deprecated.";
-        if(deprecateMetadata.find("deprecate:") == 0 && deprecateMetadata.size() > 10)
-        {
-            deprecateReason = deprecateMetadata.substr(10);
-        }
-    }
-
-    // TODO: need to add doc comments for all of these.
-
-    //
-    // Write two versions of the operation - with and without a
-    // context parameter.
-    //
+    writeDocComment(p, deprecateReason);
     if(!deprecateReason.empty())
     {
         _out << nl << "[_System.Obsolete(\"" << deprecateReason << "\")]";
     }
     _out << nl << retS << " " << name << spar << params << epar << ';';
 
+    _out << sp;
+    writeDocComment(p, deprecateReason,
+        "<param name=\"ctx__\">The Context map to send with the invocation.</param>");
     if(!deprecateReason.empty())
     {
         _out << nl << "[_System.Obsolete(\"" << deprecateReason << "\")]";
     }
     _out << nl << retS << " " << name << spar << params
-         << "_System.Collections.Generic.Dictionary<string, string> context__" << epar << ';';
+         << "_System.Collections.Generic.Dictionary<string, string> ctx__" << epar << ';';
 
     //
     // Write the operations for the new async mapping.
@@ -4342,16 +4450,20 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     string delType = clScope + "Callback_" + cl->name() + "_" + p->name();
 
     _out << sp;
+    writeDocCommentAMI(p, InParam, deprecateReason);
     if(!deprecateReason.empty())
     {
         _out << nl << "[_System.Obsolete(\"" << deprecateReason << "\")]";
     }
     _out << nl << "Ice.AsyncResult<" << delType << "> begin_" << p->name() << spar << paramsNewAsync << epar << ';';
 
+    _out << sp;
     if(!deprecateReason.empty())
     {
         _out << nl << "[_System.Obsolete(\"" << deprecateReason << "\")]";
     }
+    writeDocCommentAMI(p, InParam, deprecateReason,
+        "<param name=\"ctx__\">The Context map to send with the invocation.</param>");
     _out << nl << "Ice.AsyncResult<" << delType << "> begin_" << p->name() << spar << paramsNewAsync
          << "_System.Collections.Generic.Dictionary<string, string> ctx__" << epar << ';';
 
@@ -4359,6 +4471,9 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     // Type-unsafe begin_ methods.
     //
     _out << sp;
+    writeDocCommentAMI(p, InParam, deprecateReason,
+        "<param name=\"cb__\">Asynchronous callback invoked when the operation completes.</param>",
+        "<param name=\"cookie__\">Application data to store in the asynchronous result object.</param>");
     if(!deprecateReason.empty())
     {
         _out << nl << "[_System.Obsolete(\"" << deprecateReason << "\")]";
@@ -4366,6 +4481,11 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     _out << nl << "Ice.AsyncResult begin_" << p->name() << spar << paramsNewAsync << "Ice.AsyncCallback cb__"
          << "object cookie__" << epar << ';';
 
+    _out << sp;
+    writeDocCommentAMI(p, InParam, deprecateReason,
+        "<param name=\"ctx__\">The Context map to send with the invocation.</param>",
+        "<param name=\"cb__\">Asynchronous callback invoked when the operation completes.</param>",
+        "<param name=\"cookie__\">Application data to store in the asynchronous result object.</param>");
     if(!deprecateReason.empty())
     {
         _out << nl << "[_System.Obsolete(\"" << deprecateReason << "\")]";
@@ -4378,8 +4498,14 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     // end_ method.
     //
     _out << sp;
-    _out << nl << retS << " end_" << p->name() << spar << getParamsAsyncCB(p, false, true) << "Ice.AsyncResult r__" << epar
-         << ';';
+    writeDocCommentAMI(p, OutParam, deprecateReason,
+        "<param name=\"r__\">The asynchronous result object for the invocation.</param>");
+    if(!deprecateReason.empty())
+    {
+        _out << nl << "[_System.Obsolete(\"" << deprecateReason << "\")]";
+    }
+    _out << nl << retS << " end_" << p->name() << spar << getParamsAsyncCB(p, false, true) << "Ice.AsyncResult r__"
+         << epar << ';';
 }
 
 Slice::Gen::AsyncDelegateVisitor::AsyncDelegateVisitor(IceUtilInternal::Output& out)
@@ -4564,7 +4690,7 @@ Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
         }
         if(amd)
         {
-            writeDocCommentAsync(*r, InParam, extraCurrent, true);
+            writeDocCommentAMD(*r, InParam, extraCurrent);
         }
         else
         {
@@ -4622,7 +4748,6 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     ClassList bases = p->bases();
 
     _out << sp;
-    writeDocComment(p, getDeprecateReason(p, 0, p->isInterface() ? "interface" : "class"));
     emitComVisibleAttribute();
     emitGeneratedCodeAttribute();
     _out << nl << "public sealed class " << name << "PrxHelper : Ice.ObjectPrxHelperBase, " << name << "Prx";
@@ -4680,7 +4805,6 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 #endif
 
         _out << sp;
-        writeDocComment(op, deprecateReason);
         _out << nl << "public " << retS << " " << opName << spar << params << epar;
         _out << sb;
         _out << nl;
@@ -4692,17 +4816,15 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << eb;
 
         _out << sp;
-        writeDocComment(op, deprecateReason,
-                        "<param name=\"context__\">The Context map to send with the invocation.</param>");
         _out << nl << "public " << retS << " " << opName << spar << params
-             << "_System.Collections.Generic.Dictionary<string, string> context__" << epar;
+             << "_System.Collections.Generic.Dictionary<string, string> ctx__" << epar;
         _out << sb;
         _out << nl;
         if(ret)
         {
             _out << "return ";
         }
-        _out << "this." << opName << spar << args << "context__" << "true" << epar << ';';
+        _out << "this." << opName << spar << args << "ctx__" << "true" << epar << ';';
         _out << eb;
 
         _out << sp << nl << "private " << retS << " " << opName << spar << params
@@ -4791,8 +4913,6 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << eb;
 
         _out << sp;
-        writeDocCommentAsync(op, InParam,
-                             "<param name=\"ctx__\">The Context map to send with the invocation.</param>", false);
         _out << nl << "public Ice.AsyncResult<" << delType << "> begin_" << opName << spar << paramsAMI
              << "_System.Collections.Generic.Dictionary<string, string> ctx__" << epar;
         _out << sb;
@@ -4804,18 +4924,17 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << nl << "public Ice.AsyncResult begin_" << opName << spar << paramsAMI
              << "Ice.AsyncCallback cb__" << "object cookie__" << epar;
         _out << sb;
-        _out << nl << "return begin_" << opName << spar << argsAMI << "null" << "false" << "false" << "cb__" << "cookie__"
-             << epar << ';';
+        _out << nl << "return begin_" << opName << spar << argsAMI << "null" << "false" << "false" << "cb__"
+             << "cookie__" << epar << ';';
         _out << eb;
 
         _out << sp;
-        // TODO writeDocCommentAsync(op, InParam, "", false);
         _out << nl << "public Ice.AsyncResult begin_" << opName << spar << paramsAMI
              << "_System.Collections.Generic.Dictionary<string, string> ctx__" << "Ice.AsyncCallback cb__"
              << "object cookie__" << epar;
         _out << sb;
-        _out << nl << "return begin_" << opName << spar << argsAMI << "ctx__" << "true" << "false" << "cb__" << "cookie__"
-             << epar << ';';
+        _out << nl << "return begin_" << opName << spar << argsAMI << "ctx__" << "true" << "false" << "cb__"
+             << "cookie__" << epar << ';';
         _out << eb;
 
         //
@@ -4958,7 +5077,8 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << sp;
         _out << nl << "private Ice.AsyncResult<" << delType << "> begin_" << opName << spar << paramsAMI
              << "_System.Collections.Generic.Dictionary<string, string> ctx__"
-             << "bool explicitContext__" << "bool synchronous__" << "Ice.AsyncCallback cb__" << "object cookie__" << epar;
+             << "bool explicitContext__" << "bool synchronous__" << "Ice.AsyncCallback cb__" << "object cookie__"
+             << epar;
         _out << sb;
         if(op->returnsData())
         {
@@ -5657,7 +5777,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         _out << nl << "public interface " << classNameAMD << '_' << name << " : Ice.AMDCallback";
         _out << sb;
         _out << sp;
-        writeDocCommentAsync(p, OutParam, "", true);
+        writeDocCommentAMD(p, OutParam, "");
         _out << nl << "void ice_response" << spar << paramsAMD << epar << ';';
         _out << eb;
 
