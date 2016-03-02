@@ -66,7 +66,9 @@ protected:
     void writeDocCommentOp(const OperationPtr&);
 
     enum ParamDir { InParam, OutParam };
-    void writeDocCommentAsync(const OperationPtr&, ParamDir, const std::string&, bool);
+    void writeDocCommentAMI(const OperationPtr&, ParamDir, const std::string&, const std::string& = "",
+                            const std::string& = "", const std::string& = "");
+    void writeDocCommentAMD(const OperationPtr&, ParamDir, const std::string&);
     void writeDocCommentParam(const OperationPtr&, ParamDir, bool);
 
     ::IceUtilInternal::Output& _out;
