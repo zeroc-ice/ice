@@ -5309,14 +5309,14 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 
         Output& out2 = output();
 
-        out << sp;
-        writeDocComment(out, getDeprecateReason(p, 0, p->isInterface() ? "interface" : "class"),
+        out2 << sp;
+        writeDocComment(out2, getDeprecateReason(p, 0, p->isInterface() ? "interface" : "class"),
                         "Provides type-specific helper functions.");
         out2 << nl << "public final class " << name << "Helper";
         out2 << sb;
 
-        out << sp;
-        writeDocComment(out, "",
+        out2 << sp;
+        writeDocComment(out2, "",
                         "Writes an instance to the stream.\n"
                         "@param __outS The output stream.\n"
                         "@param __v The instance to write. A null value is legal.");
@@ -5325,8 +5325,8 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         out2 << nl << "__outS.writeObject(__v);";
         out2 << eb;
 
-        out << sp;
-        writeDocComment(out, "",
+        out2 << sp;
+        writeDocComment(out2, "",
                         "Reads an instance from the stream.\n"
                         "@param __inS The input stream.\n"
                         "@param __h A holder to contain the instance when it is eventually unmarshaled.");
@@ -5335,8 +5335,8 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         out2 << nl << "__inS.readObject(__h);";
         out2 << eb;
 
-        out << sp;
-        writeDocComment(out, "",
+        out2 << sp;
+        writeDocComment(out2, "",
                         "Provides the optional format for an instance of this type.\n"
                         "@return The optional format.");
         out2 << nl << "public static Ice.OptionalFormat optionalFormat()";
