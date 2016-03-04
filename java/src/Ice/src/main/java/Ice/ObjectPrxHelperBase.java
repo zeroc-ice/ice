@@ -297,14 +297,14 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     /**
      * Completes the asynchronous ice_isA request.
      *
-     * @param __result The asynchronous result.
+     * @param __r The asynchronous result.
      * @return <code>true</code> if this proxy supports the specified interface; <code>false</code>, otherwise.
      **/
     @Override
     public final boolean
-    end_ice_isA(AsyncResult __iresult)
+    end_ice_isA(AsyncResult __r)
     {
-        IceInternal.OutgoingAsync __result = IceInternal.OutgoingAsync.check(__iresult, this, __ice_isA_name);
+        IceInternal.OutgoingAsync __result = IceInternal.OutgoingAsync.check(__r, this, __ice_isA_name);
         try
         {
             if(!__result.__wait())
@@ -333,7 +333,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         }
     }
 
-    static public void __ice_isA_completed(TwowayCallbackBool __cb, Ice.AsyncResult __result)
+    static public void __ice_isA_completed(TwowayCallbackBool __cb, AsyncResult __result)
     {
         boolean __ret = false;
         try
@@ -787,15 +787,15 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     /**
      * Completes the asynchronous ice_ids request.
      *
-     * @param __result The asynchronous result.
+     * @param __r The asynchronous result.
      * @return The Slice type IDs of the interfaces supported by the target object, in base-to-derived
      * order. The first element of the returned array is always <code>::Ice::Object</code>.
      **/
     @Override
     public final String[]
-    end_ice_ids(AsyncResult __iresult)
+    end_ice_ids(AsyncResult __r)
     {
-        IceInternal.OutgoingAsync __result = IceInternal.OutgoingAsync.check(__iresult, this, __ice_ids_name);
+        IceInternal.OutgoingAsync __result = IceInternal.OutgoingAsync.check(__r, this, __ice_ids_name);
         try
         {
             if(!__result.__wait())
@@ -1063,14 +1063,14 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     /**
      * Completes the asynchronous ice_id request.
      *
-     * @param __result The asynchronous result.
+     * @param __r The asynchronous result.
      * @return The Slice type ID of the most-derived interface.
      **/
     @Override
     public final String
-    end_ice_id(AsyncResult __iresult)
+    end_ice_id(AsyncResult __r)
     {
-        IceInternal.OutgoingAsync __result = IceInternal.OutgoingAsync.check(__iresult, this, __ice_id_name);
+        IceInternal.OutgoingAsync __result = IceInternal.OutgoingAsync.check(__r, this, __ice_id_name);
         try
         {
             if(!__result.__wait())
@@ -1151,7 +1151,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param inParams The encoded in-parameters for the operation.
      * @param outParams The encoded out-paramaters and return value
      * for the operation. The return value follows any out-parameters.
-     * @param __context The context map for the invocation.
+     * @param context The context map for the invocation.
      * @return If the operation was invoked synchronously (because there
      * was no need to queue the request), the return value is <code>true</code>;
      * otherwise, if the invocation was queued, the return value is <code>false</code>.
@@ -1306,9 +1306,9 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param mode The operation mode (normal or idempotent).
      * @param inParams The encoded in-parameters for the operation.
      * for the operation. The return value follows any out-parameters.
-     * @param __responseCb The asynchronous response callback object.
-     * @param __exceptionCb The asynchronous exception callback object.
-     * @param __sentCb The asynchronous sent callback object.
+     * @param responseCb The asynchronous response callback object.
+     * @param exceptionCb The asynchronous exception callback object.
+     * @param sentCb The asynchronous sent callback object.
      * @return The asynchronous result object.
      *
      * @see Blobject
@@ -1330,8 +1330,8 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param mode The operation mode (normal or idempotent).
      * @param inParams The encoded in-parameters for the operation.
      * for the operation. The return value follows any out-parameters.
-     * @param __responseCb The asynchronous response callback object.
-     * @param __exceptionCb The asynchronous exception callback object.
+     * @param responseCb The asynchronous response callback object.
+     * @param exceptionCb The asynchronous exception callback object.
      * @return The asynchronous result object.
      *
      * @see Blobject
@@ -1351,11 +1351,11 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param operation The name of the operation to invoke.
      * @param mode The operation mode (normal or idempotent).
      * @param inParams The encoded in-parameters for the operation.
-     * @param __context The context map for the invocation.
+     * @param context The context map for the invocation.
      * for the operation. The return value follows any out-parameters.
-     * @param __responseCb The asynchronous response callback object.
-     * @param __exceptionCb The asynchronous exception callback object.
-     * @param __sentCb The asynchronous sent callback object.
+     * @param responseCb The asynchronous response callback object.
+     * @param exceptionCb The asynchronous exception callback object.
+     * @param sentCb The asynchronous sent callback object.
      * @return The asynchronous result object.
      *
      * @see Blobject
@@ -1377,10 +1377,10 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param operation The name of the operation to invoke.
      * @param mode The operation mode (normal or idempotent).
      * @param inParams The encoded in-parameters for the operation.
-     * @param __context The context map for the invocation.
+     * @param context The context map for the invocation.
      * for the operation. The return value follows any out-parameters.
-     * @param __responseCb The asynchronous response callback object.
-     * @param __exceptionCb The asynchronous exception callback object.
+     * @param responseCb The asynchronous response callback object.
+     * @param exceptionCb The asynchronous exception callback object.
      * @return The asynchronous result object.
      *
      * @see Blobject
@@ -1453,7 +1453,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * Completes the asynchronous ice_invoke request.
      *
      * @param outParams The encoded out-paramaters and return value.
-     * @param __result The asynchronous result.
+     * @param __r The asynchronous result.
      * @return If the operation completed successfully, the return value
      * is <code>true</code>. If the operation raises a user exception,
      * the return value is <code>false</code>; in this case, <code>outParams</code>
@@ -1462,9 +1462,9 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      **/
     @Override
     public final boolean
-    end_ice_invoke(ByteSeqHolder outParams, AsyncResult __iresult)
+    end_ice_invoke(ByteSeqHolder outParams, AsyncResult __r)
     {
-        IceInternal.OutgoingAsync __result = IceInternal.OutgoingAsync.check(__iresult, this, __ice_invoke_name);
+        IceInternal.OutgoingAsync __result = IceInternal.OutgoingAsync.check(__r, this, __ice_invoke_name);
         try
         {
             boolean ok = __result.__wait();
@@ -1853,7 +1853,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     /**
      * Creates a new proxy that is identical to this proxy, except for its endpoints.
      *
-     * @param If <code>b</code> is <code>true</code>, only endpoints that use a secure transport are
+     * @param b If <code>b</code> is <code>true</code>, only endpoints that use a secure transport are
      * retained for the new proxy. If <code>b</code> is false, the returned proxy is identical to this proxy.
      * @return The new proxy with possible different endpoints.k
      **/
@@ -1990,7 +1990,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     /**
      * Creates a new proxy that is identical to this proxy, except for the locator.
      *
-     * @param The locator for the new proxy.
+     * @param locator The locator for the new proxy.
      * @return The new proxy with the specified locator.
      **/
     @Override
@@ -2239,7 +2239,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     /**
      * Creates a new proxy that is identical to this proxy, except for its connection ID.
      *
-     * @param connectionId The connection ID for the new proxy. An empty string removes the
+     * @param id The connection ID for the new proxy. An empty string removes the
      * connection ID.
      *
      * @return A new proxy with the specified connection ID.

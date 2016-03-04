@@ -1118,7 +1118,7 @@ public interface ObjectPrx
     /**
      * Asynchronously gets the connection for this proxy. The call does not block.
      *
-     * @param cb The callback object to notify the application when the operation is complete.
+     * @param __cb The callback object to notify the application when the operation is complete.
      * @return The asynchronous result object.
      **/
     AsyncResult begin_ice_getConnection(Callback_Object_ice_getConnection __cb);
@@ -1126,9 +1126,9 @@ public interface ObjectPrx
     /**
      * Asynchronously gets the connection for this proxy. The call does not block.
      *
-     * @param __responseCb The callback object to notify the application when the there is a response available.
-     * @param __exceptionCb The callback object to notify the application when the there is an exception getting
-     * connection.
+     * @param __responseCb The callback object to notify the application when there is a response available.
+     * @param __exceptionCb The callback object to notify the application when an exception occurs while getting
+     * the connection.
      * @return The asynchronous result object.
      **/
     AsyncResult begin_ice_getConnection(IceInternal.Functional_GenericCallback1<Ice.Connection> __responseCb,
@@ -1176,7 +1176,7 @@ public interface ObjectPrx
     /**
      * Asynchronously flushes any pending batched requests for this communicator. The call does not block.
      *
-     * @param cb The callback object to notify the application when the flush is complete.
+     * @param __cb The callback object to notify the application when the flush is complete.
      * @return The asynchronous result object.
      **/
     AsyncResult begin_ice_flushBatchRequests(Callback_Object_ice_flushBatchRequests __cb);
@@ -1184,7 +1184,9 @@ public interface ObjectPrx
     /**
      * Asynchronously flushes any pending batched requests for this communicator. The call does not block.
      *
-     * @param __cb The callback object to notify the application when the flush is complete.
+     * @param __responseCb The asynchronous completion callback object.
+     * @param __exceptionCb The asynchronous exception callback object.
+     * @param __sentCb The asynchronous sent callback object.
      * @return The asynchronous result object.
      **/
     AsyncResult begin_ice_flushBatchRequests(IceInternal.Functional_VoidCallback __responseCb,

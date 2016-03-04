@@ -25,7 +25,7 @@ module Ice
  * communicator, such as support for a protocol.
  *
  * The communicator loads its plug-ins in two stages: the first stage
- * creates the plug-ins, and the second stage invokes {@link Plugin.initialize} on
+ * creates the plug-ins, and the second stage invokes {@link Plugin#initialize} on
  * each one.
  *
  **/

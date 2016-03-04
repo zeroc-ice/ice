@@ -14,8 +14,8 @@ package Ice;
  * The <code>hashCode</code> and <code>equals</code> methods are based on the object identity and
  * the facet of the proxy.
  *
- * @see ProxyIdentityAndFacetCompare
- * @see ProxyIdentityCompare
+ * @see Util#proxyIdentityAndFacetCompare
+ * @see Util#proxyIdentityCompare
  * @see ProxyIdentityKey
  *
  **/

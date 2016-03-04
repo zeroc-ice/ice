@@ -348,8 +348,8 @@ public final class Util
      * compare equal; 1, otherwise.
      *
      * @see ProxyIdentityKey
-     * @see ProxyIdentityAndFacetKey
-     * @see ProxyIdentityAndFacetCompare
+     * @see ProxyIdentityFacetKey
+     * @see #proxyIdentityAndFacetCompare
      **/
     public static int
     proxyIdentityCompare(ObjectPrx lhs, ObjectPrx rhs)
@@ -388,9 +388,9 @@ public final class Util
      * less than the identity and facet in <code>rhs</code>; 0 if the identities
      * and facets compare equal; 1, otherwise.
      *
-     * @see ProxyIdentityAndFacetKey
+     * @see ProxyIdentityFacetKey
      * @see ProxyIdentityKey
-     * @see ProxyIdentityCompare
+     * @see #proxyIdentityCompare
      **/
     public static int
     proxyIdentityAndFacetCompare(ObjectPrx lhs, ObjectPrx rhs)
@@ -475,8 +475,6 @@ public final class Util
      *
      * @param communicator The communicator for the stream.
      * @param bytes An encoded request or reply.
-     * @param copyBytes True if the given bytes should be copied,
-     * false otherwise.
      * @return The input stream.
      **/
     public static InputStream
@@ -492,8 +490,6 @@ public final class Util
      * @param communicator The communicator for the stream.
      * @param bytes An encoded request or reply.
      * @param v The desired encoding version.
-     * @param copyBytes True if the given bytes should be copied,
-     * false otherwise.
      * @return The input stream.
      **/
     public static InputStream

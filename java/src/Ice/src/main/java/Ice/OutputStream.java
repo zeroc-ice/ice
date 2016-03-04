@@ -226,14 +226,14 @@ public interface OutputStream
      * Write an enumerated value.
      *
      * @param v The enumerator.
-     * @param limit The maximum enumerator value in the definition.
+     * @param maxValue The maximum enumerator value in the definition.
      **/
     void writeEnum(int v, int maxValue);
 
     /**
      * Writes a user exception to the stream.
      *
-     * @param id The user exception to write.
+     * @param ex The user exception to write.
      **/
     void writeException(UserException ex);
 
@@ -316,7 +316,7 @@ public interface OutputStream
      * Write the header information for an optional value.
      *
      * @param tag The numeric tag associated with the value.
-     * @param type The optional format of the value.
+     * @param format The optional format of the value.
      **/
     boolean writeOptional(int tag, Ice.OptionalFormat format);
 
@@ -347,7 +347,7 @@ public interface OutputStream
      * Computes the amount of data written since the previous call to startSize and
      * writes that value at the saved position.
      *
-     * @param The saved position.
+     * @param pos The saved position.
      **/
     void endSize(int pos);
 

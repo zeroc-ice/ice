@@ -10,7 +10,7 @@
 package Ice;
 
 /**
- * Callback object for {@link ObjectPrx#.begin_ice_flushBatchRequests}.
+ * Callback object for {@link ObjectPrx#begin_ice_flushBatchRequests}.
  **/
 public abstract class Callback_Object_ice_flushBatchRequests extends OnewayCallback
 {

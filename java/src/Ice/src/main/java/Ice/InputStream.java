@@ -347,7 +347,7 @@ public interface InputStream
      * Determine if an optional value is available for reading.
      *
      * @param tag The tag associated with the value.
-     * @param type The optional format for the value.
+     * @param format The optional format for the value.
      * @return True if the value is present, false otherwise.
      **/
     boolean readOptional(int tag, OptionalFormat format);

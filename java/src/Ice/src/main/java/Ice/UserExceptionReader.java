@@ -30,7 +30,7 @@ public abstract class UserExceptionReader extends UserException
      *
      * @param in The input stream.
      **/
-    public abstract void read(Ice.InputStream is);
+    public abstract void read(Ice.InputStream in);
 
     @Override
     public void __write(IceInternal.BasicStream os)
