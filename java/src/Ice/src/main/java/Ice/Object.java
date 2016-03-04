@@ -90,7 +90,7 @@ public interface Object
     /**
      * Returns the Freeze metadata attributes for an operation.
      *
-     * @param The name of the operation.
+     * @param operation The name of the operation.
      * @return The least significant bit indicates whether the operation is a read
      * or write operation. If the bit is set, the operation is a write operation.
      * The expression <code>ice_operationAttributes("op") & 0x1</code> is true if
@@ -110,7 +110,7 @@ public interface Object
      *   <dd><code>["freeze:read:never"]</code></dd>
      * </dl>
      *
-     * @see Freeze.TransactionalEvictor
+     * Refer to the Freeze manual for more information on the TransactionalEvictor.
      **/
     int ice_operationAttributes(String operation);
 

@@ -17,13 +17,9 @@ module Ice
 
 /**
  *
- * A factory for objects. Object factories are used in several
- * places, for example, when receiving "objects by value" and
- * when Freeze restores a persistent object. Object factories
- * must be implemented by the application writer, and registered
+ * A factory for objects. Object factories are used when receiving "objects by value".
+ * An object factory must be implemented by the application writer and registered
  * with the communicator.
- *
- * @see Freeze
  *
  **/
 

@@ -175,7 +175,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
      * Returns the Slice type ID of the most-derived interface supported by this object.
      *
      * @param current The current object for the invocation.
-     * @return The return value is always {@link IceObject}.
+     * @return A Slice type ID.
      **/
     @Override
     public String
@@ -209,7 +209,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
     /**
      * Returns the Freeze metadata attributes for an operation.
      *
-     * @param The name of the operation.
+     * @param operation The name of the operation.
      * @return The least significant bit indicates whether the operation is a read
      * or write operation. If the bit is set, the operation is a write operation.
      * The expression <code>ice_operationAttributes("op") & 0x1</code> is true if
@@ -229,7 +229,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
      *   <dd><code>["freeze:read:never"]</code></dd>
      * </dl>
      *
-     * @see Freeze.TransactionalEvictor
+     * Refer to the Freeze manual for more information on the TransactionalEvictor.
      **/
     @Override
     public int ice_operationAttributes(String operation)

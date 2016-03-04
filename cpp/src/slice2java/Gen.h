@@ -43,7 +43,7 @@ protected:
     
     std::string getAsyncCallbackInterface(const OperationPtr&, const std::string&);
     std::string getAsyncCallbackBaseClass(const OperationPtr&, bool);
-    std::string getLambdaResposeCB(const OperationPtr&, const std::string&);
+    std::string getLambdaResponseCB(const OperationPtr&, const std::string&);
     std::vector<std::string> getParamsAsyncLambda(const OperationPtr&, const std::string&, 
                                                   bool context = false, bool sentCB = false, 
                                                   bool optionalMapping = false,
@@ -110,12 +110,14 @@ protected:
     static StringList splitComment(const ContainedPtr&);
     static void writeDocComment(::IceUtilInternal::Output&, const ContainedPtr&,
                                 const std::string&, const std::string& = "");
+    static void writeDocComment(::IceUtilInternal::Output&, const std::string&, const std::string&);
     static void writeDocCommentOp(::IceUtilInternal::Output&, const OperationPtr&);
 
     static void writeDocCommentAsync(::IceUtilInternal::Output&, const OperationPtr&,
                                      ParamDir, const std::string& = "");
     static void writeDocCommentAMI(::IceUtilInternal::Output&, const OperationPtr&, ParamDir, const std::string& = "",
-                                   const std::string& = "", const std::string& = "");
+                                   const std::string& = "", const std::string& = "", const std::string& = "",
+                                   const std::string& = "");
     static void writeDocCommentParam(::IceUtilInternal::Output&, const OperationPtr&, ParamDir, bool = true);
 };
 

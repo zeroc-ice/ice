@@ -436,7 +436,7 @@ Slice::JavaVisitor::getAsyncCallbackBaseClass(const OperationPtr& op, bool funct
 }
 
 string
-Slice::JavaVisitor::getLambdaResposeCB(const OperationPtr& op, const string& package)
+Slice::JavaVisitor::getLambdaResponseCB(const OperationPtr& op, const string& package)
 {
     TypePtr ret = op->returnType();
     ParamDeclList outParams = getOutParams(op);
@@ -506,7 +506,7 @@ Slice::JavaVisitor::getParamsAsyncLambda(const OperationPtr& op, const string& p
         params.push_back("java.util.Map<String, String> __ctx");
     }
 
-    params.push_back(getLambdaResposeCB(op, package) + " __responseCb");
+    params.push_back(getLambdaResponseCB(op, package) + " __responseCb");
 
     if(!op->throws().empty())
     {
@@ -1934,7 +1934,8 @@ Slice::JavaVisitor::writeDocComment(Output& out, const ContainedPtr& p, const st
             doneExtraParam = true;
         }
         out << nl << " *";
-        if(!(*i).empty()) {
+        if(!(*i).empty())
+        {
             out << " " << *i;
         }
     }
@@ -1946,6 +1947,30 @@ Slice::JavaVisitor::writeDocComment(Output& out, const ContainedPtr& p, const st
         // if the operation returns a void or doesn't have an @return.
         //
         out << nl << " * " << extraParam;
+    }
+
+    if(!deprecateReason.empty())
+    {
+        out << nl << " * @deprecated " << deprecateReason;
+    }
+
+    out << nl << " **/";
+}
+
+void
+Slice::JavaVisitor::writeDocComment(Output& out, const string& deprecateReason, const string& summary)
+{
+    vector<string> lines;
+    IceUtilInternal::splitString(summary, "\n", lines);
+
+    out << nl << "/**";
+    for(vector<string>::const_iterator i = lines.begin(); i != lines.end(); ++i)
+    {
+        out << nl << " *";
+        if(!(*i).empty())
+        {
+            out << " " << *i;
+        }
     }
 
     if(!deprecateReason.empty())
@@ -2089,7 +2114,8 @@ Slice::JavaVisitor::writeDocCommentAsync(Output& out, const OperationPtr& p, Par
 
 void
 Slice::JavaVisitor::writeDocCommentAMI(Output& out, const OperationPtr& p, ParamDir paramType,
-                                       const string& extraParam1, const string& extraParam2, const string& extraParam3)
+                                       const string& extraParam1, const string& extraParam2, const string& extraParam3,
+                                       const string& extraParam4, const string& extraParam5)
 {
     ContainerPtr container = p->container();
     ClassDefPtr contained = ClassDefPtr::dynamicCast(container);
@@ -2137,6 +2163,16 @@ Slice::JavaVisitor::writeDocCommentAMI(Output& out, const OperationPtr& p, Param
     if(!extraParam3.empty())
     {
         out << nl << " * " << extraParam3;
+    }
+
+    if(!extraParam4.empty())
+    {
+        out << nl << " * " << extraParam4;
+    }
+
+    if(!extraParam5.empty())
+    {
+        out << nl << " * " << extraParam5;
     }
 
     if(paramType == InParam)
@@ -4586,7 +4622,8 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     // by applications (e.g., checkedCast, etc.)
     //
     out << sp;
-    writeDocComment(out, p, getDeprecateReason(p, 0, p->isInterface() ? "interface" : "class"));
+    writeDocComment(out, getDeprecateReason(p, 0, p->isInterface() ? "interface" : "class"),
+                    "Provides type-specific helper functions.");
     out << nl << "public final class " << name << "PrxHelper extends Ice.ObjectPrxHelperBase implements " << name
         << "Prx";
 
@@ -4631,7 +4668,6 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         const string retS = typeToString(ret, TypeModeReturn, package, op->getMetaData(), true, op->returnIsOptional());
 
         out << sp;
-        writeDocCommentAsync(out, op, OutParam);
         out << nl << "public " << retS << " end_" << op->name() << spar << outParams << "Ice.AsyncResult __iresult"
             << epar;
         writeThrowsClause(package, throws);
@@ -4813,38 +4849,77 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
     }
 
-    out << sp << nl << "public static " << name << "Prx checkedCast(Ice.ObjectPrx __obj)";
+    out << sp;
+    writeDocComment(out, "",
+                    "Contacts the remote server to verify that the object implements this type.\n"
+                    "Raises a local exception if a communication error occurs.\n"
+                    "@param __obj The untyped proxy.\n"
+                    "@return A proxy for this type, or null if the object does not support this type.");
+    out << nl << "public static " << name << "Prx checkedCast(Ice.ObjectPrx __obj)";
     out << sb;
     out << nl << "return checkedCastImpl(__obj, ice_staticId(), " << name << "Prx.class, "
         << name << "PrxHelper.class);";
     out << eb;
 
-    out << sp << nl << "public static " << name << "Prx checkedCast(Ice.ObjectPrx __obj, " << contextParam << ')';
+    out << sp;
+    writeDocComment(out, "",
+                    "Contacts the remote server to verify that the object implements this type.\n"
+                    "Raises a local exception if a communication error occurs.\n"
+                    "@param __obj The untyped proxy.\n"
+                    "@param __ctx The Context map to send with the invocation.\n"
+                    "@return A proxy for this type, or null if the object does not support this type.");
+    out << nl << "public static " << name << "Prx checkedCast(Ice.ObjectPrx __obj, " << contextParam << ')';
     out << sb;
     out << nl << "return checkedCastImpl(__obj, __ctx, ice_staticId(), " << name
         << "Prx.class, " << name << "PrxHelper.class);";
     out << eb;
 
-    out << sp << nl << "public static " << name << "Prx checkedCast(Ice.ObjectPrx __obj, String __facet)";
+    out << sp;
+    writeDocComment(out, "",
+                    "Contacts the remote server to verify that a facet of the object implements this type.\n"
+                    "Raises a local exception if a communication error occurs.\n"
+                    "@param __obj The untyped proxy.\n"
+                    "@param __facet The name of the desired facet.\n"
+                    "@return A proxy for this type, or null if the object does not support this type.");
+    out << nl << "public static " << name << "Prx checkedCast(Ice.ObjectPrx __obj, String __facet)";
     out << sb;
     out << nl << "return checkedCastImpl(__obj, __facet, ice_staticId(), " << name
         << "Prx.class, " << name << "PrxHelper.class);";
     out << eb;
 
-    out << sp << nl << "public static " << name << "Prx checkedCast(Ice.ObjectPrx __obj, String __facet, "
+    out << sp;
+    writeDocComment(out, "",
+                    "Contacts the remote server to verify that a facet of the object implements this type.\n"
+                    "Raises a local exception if a communication error occurs.\n"
+                    "@param __obj The untyped proxy.\n"
+                    "@param __facet The name of the desired facet.\n"
+                    "@param __ctx The Context map to send with the invocation.\n"
+                    "@return A proxy for this type, or null if the object does not support this type.");
+    out << nl << "public static " << name << "Prx checkedCast(Ice.ObjectPrx __obj, String __facet, "
         << contextParam << ')';
     out << sb;
     out << nl << "return checkedCastImpl(__obj, __facet, __ctx, ice_staticId(), " << name
         << "Prx.class, " << name << "PrxHelper.class);";
     out << eb;
 
-    out << sp << nl << "public static " << name << "Prx uncheckedCast(Ice.ObjectPrx __obj)";
+    out << sp;
+    writeDocComment(out, "",
+                    "Downcasts the given proxy to this type without contacting the remote server.\n"
+                    "@param __obj The untyped proxy.\n"
+                    "@return A proxy for this type.");
+    out << nl << "public static " << name << "Prx uncheckedCast(Ice.ObjectPrx __obj)";
     out << sb;
     out << nl << "return uncheckedCastImpl(__obj, " << name << "Prx.class, " << name
         << "PrxHelper.class);";
     out << eb;
 
-    out << sp << nl << "public static " << name << "Prx uncheckedCast(Ice.ObjectPrx __obj, String __facet)";
+    out << sp;
+    writeDocComment(out, "",
+                    "Downcasts the given proxy to this type without contacting the remote server.\n"
+                    "@param __obj The untyped proxy.\n"
+                    "@param __facet The name of the desired facet.\n"
+                    "@return A proxy for this type.");
+    out << nl << "public static " << name << "Prx uncheckedCast(Ice.ObjectPrx __obj, String __facet)";
     out << sb;
     out << nl << "return uncheckedCastImpl(__obj, __facet, " << name << "Prx.class, " << name
         << "PrxHelper.class);";
@@ -4878,7 +4953,11 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     out << eb << ';';
 
-    out << sp << nl << "public static String ice_staticId()";
+    out << sp;
+    writeDocComment(out, "",
+                    "Provides the Slice type ID of this type.\n"
+                    "@return The Slice type ID.");
+    out << nl << "public static String ice_staticId()";
     out << sb;
     out << nl << "return __ids[" << scopedPos << "];";
     out << eb;
@@ -5110,16 +5189,11 @@ Slice::Gen::HelperVisitor::writeOperation(const ClassDefPtr& p, const string& pa
     throws.sort();
     throws.unique();
 
-    const string deprecateReason = getDeprecateReason(op, cl, "operation");
-    const string contextDoc = "@param __ctx The Context map to send with the invocation.";
-
     //
     // Write two synchronous versions of the operation - with and without a
     // context parameter.
     //
-    out << sp;
-    writeDocComment(out, op, deprecateReason);
-    out << nl << "public " << retS << ' ' << opName << spar << params << epar;
+    out << sp << nl << "public " << retS << ' ' << opName << spar << params << epar;
     writeThrowsClause(package, throws);
     out << sb;
     out << nl;
@@ -5130,9 +5204,7 @@ Slice::Gen::HelperVisitor::writeOperation(const ClassDefPtr& p, const string& pa
     out << opName << spar << args << "null" << "false" << epar << ';';
     out << eb;
 
-    out << sp;
-    writeDocComment(out, op, deprecateReason, contextDoc);
-    out << nl << "public " << retS << ' ' << opName << spar << params << contextParam << epar;
+    out << sp << nl << "public " << retS << ' ' << opName << spar << params << contextParam << epar;
     writeThrowsClause(package, throws);
     out << sb;
     out << nl;
@@ -5195,33 +5267,29 @@ Slice::Gen::HelperVisitor::writeOperation(const ClassDefPtr& p, const string& pa
         //
         // Type-unsafe begin methods
         //
-        out << sp;
-        writeDocCommentAsync(out, op, InParam);
-        out << nl << "public Ice.AsyncResult begin_" << op->name() << spar << inParams << epar;
+        out << sp << nl << "public Ice.AsyncResult begin_" << op->name() << spar << inParams << epar;
         out << sb;
-        out << nl << "return begin_" << op->name() << spar << inArgs << "null" << "false" << "false" << "null" << epar << ';';
+        out << nl << "return begin_" << op->name() << spar << inArgs << "null" << "false" << "false" << "null" << epar
+            << ';';
         out << eb;
 
-        out << sp;
-        writeDocCommentAsync(out, op, InParam, contextDoc);
-        out << nl << "public Ice.AsyncResult begin_" << op->name() << spar << inParams << contextParam << epar;
+        out << sp << nl << "public Ice.AsyncResult begin_" << op->name() << spar << inParams << contextParam << epar;
         out << sb;
-        out << nl << "return begin_" << op->name() << spar << inArgs << "__ctx" << "true" << "false" << "null" << epar << ';';
+        out << nl << "return begin_" << op->name() << spar << inArgs << "__ctx" << "true" << "false" << "null" << epar
+            << ';';
         out << eb;
 
-        out << sp;
-        writeDocCommentAsync(out, op, InParam);
-        out << nl << "public Ice.AsyncResult begin_" << op->name() << spar << inParams << callbackParam << epar;
+        out << sp << nl << "public Ice.AsyncResult begin_" << op->name() << spar << inParams << callbackParam << epar;
         out << sb;
-        out << nl << "return begin_" << op->name() << spar << inArgs << "null" << "false" << "false" << "__cb" << epar << ';';
+        out << nl << "return begin_" << op->name() << spar << inArgs << "null" << "false" << "false" << "__cb" << epar
+            << ';';
         out << eb;
 
-        out << sp;
-        writeDocCommentAsync(out, op, InParam, contextDoc);
-        out << nl << "public Ice.AsyncResult begin_" << op->name() << spar << inParams << contextParam
+        out << sp << nl << "public Ice.AsyncResult begin_" << op->name() << spar << inParams << contextParam
             << callbackParam << epar;
         out << sb;
-        out << nl << "return begin_" << op->name() << spar << inArgs << "__ctx" << "true" << "false" << "__cb" << epar << ';';
+        out << nl << "return begin_" << op->name() << spar << inArgs << "__ctx" << "true" << "false" << "__cb" << epar
+            << ';';
         out << eb;
 
         //
@@ -5238,20 +5306,18 @@ Slice::Gen::HelperVisitor::writeOperation(const ClassDefPtr& p, const string& pa
         string opClassName = getAbsolute(cl, package, "Callback_", '_' + op->name());
         typeSafeCallbackParam = opClassName + " __cb";
 
-        out << sp;
-        writeDocCommentAsync(out, op, InParam);
-        out << nl << "public Ice.AsyncResult begin_" << op->name() << spar << inParams << typeSafeCallbackParam
+        out << sp << nl << "public Ice.AsyncResult begin_" << op->name() << spar << inParams << typeSafeCallbackParam
             << epar;
         out << sb;
-        out << nl << "return begin_" << op->name() << spar << inArgs << "null" << "false" << "false" << "__cb" << epar << ';';
+        out << nl << "return begin_" << op->name() << spar << inArgs << "null" << "false" << "false" << "__cb" << epar
+            << ';';
         out << eb;
 
-        out << sp;
-        writeDocCommentAsync(out, op, InParam, contextDoc);
-        out << nl << "public Ice.AsyncResult begin_" << op->name() << spar << inParams << contextParam
+        out << sp << nl << "public Ice.AsyncResult begin_" << op->name() << spar << inParams << contextParam
             << typeSafeCallbackParam << epar;
         out << sb;
-        out << nl << "return begin_" << op->name() << spar << inArgs << "__ctx" << "true" << "false" << "__cb" << epar << ';';
+        out << nl << "return begin_" << op->name() << spar << inArgs << "__ctx" << "true" << "false" << "__cb" << epar
+            << ';';
         out << eb;
 
         //
@@ -5283,7 +5349,8 @@ Slice::Gen::HelperVisitor::writeOperation(const ClassDefPtr& p, const string& pa
         out << nl << "public Ice.AsyncResult begin_" << op->name();
         writeParamList(out, getParamsAsyncLambda(op, package, true, true, optionalMapping));
         out << sb;
-        out << nl << "return begin_" << op->name() << spar << getArgsAsyncLambda(op, package, true, true) << epar << ';';
+        out << nl << "return begin_" << op->name() << spar << getArgsAsyncLambda(op, package, true, true) << epar
+            << ';';
         out << eb;
 
         vector<string> params = inParams;
@@ -5314,7 +5381,7 @@ Slice::Gen::HelperVisitor::writeOperation(const ClassDefPtr& p, const string& pa
         else if((ret && !outParams.empty()) || (outParams.size() > 1))
         {
             params.clear();
-            params.push_back(getLambdaResposeCB(op, package) + " responseCb");
+            params.push_back(getLambdaResponseCB(op, package) + " responseCb");
             if(!throws.empty())
             {
                 params.push_back("IceInternal.Functional_GenericCallback1<Ice.UserException> userExceptionCb");
@@ -5357,9 +5424,8 @@ Slice::Gen::HelperVisitor::writeOperation(const ClassDefPtr& p, const string& pa
             out << nl << p->name() << "PrxHelper.__" << op->name() << "_completed(this, __result);";
             out << eb;
             out << sp;
-            out << nl << "private final " << getLambdaResposeCB(op, package) << " __responseCb;";
+            out << nl << "private final " << getLambdaResponseCB(op, package) << " __responseCb;";
             out << eb;
-
 
             out << nl << "return begin_" << op->name() << spar << getInOutArgs(op, InParam) << "__ctx"
                 << "__explicitCtx"
@@ -5378,8 +5444,9 @@ Slice::Gen::HelperVisitor::writeOperation(const ClassDefPtr& p, const string& pa
             const string baseClass = getAsyncCallbackBaseClass(op, true);
             out << nl << "return begin_" << op->name();
             writeParamList(out, params, false, false);
-            out << nl << (throws.empty() ? "new " + baseClass + "(__responseCb, __exceptionCb, __sentCb)" :
-                                           "new " + baseClass + "(__responseCb, __userExceptionCb, __exceptionCb, __sentCb)");
+            out << nl
+                << (throws.empty() ? "new " + baseClass + "(__responseCb, __exceptionCb, __sentCb)" :
+                                     "new " + baseClass + "(__responseCb, __userExceptionCb, __exceptionCb, __sentCb)");
             out.inc();
             out << sb;
             out << nl << "public final void __completed(Ice.AsyncResult __result)";
@@ -5533,12 +5600,15 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     string deprecateReason = getDeprecateReason(p, cl, "operation");
     string contextDoc = "@param __ctx The Context map to send with the invocation.";
     string contextParam = "java.util.Map<String, String> __ctx";
+    string lambdaResponseDoc = "@param __responseCb The lambda response callback.";
+    string lambdaUserExDoc = "@param __userExceptionCb The lambda user exception callback.";
+    string lambdaExDoc = "@param __exceptionCb The lambda exception callback.";
+    string lambdaSentDoc = "@param __sentCb The lambda sent callback.";
 
     const bool optional = p->sendsOptionals();
 
     //
-    // Write two synchronous versions of the operation - with and without a
-    // context parameter.
+    // Write two synchronous versions of the operation - with and without a context parameter.
     //
     out << sp;
     writeDocComment(out, p, deprecateReason);
@@ -5563,14 +5633,12 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
         out << sp;
         writeDocComment(out, p, deprecateReason);
-
         out << nl << "public " << retS << ' ' << name << spar << reqParams << epar;
         writeThrowsClause(package, throws);
         out << ';';
 
         out << sp;
         writeDocComment(out, p, deprecateReason, contextDoc);
-
         out << nl << "public " << retS << ' ' << name << spar << reqParams << contextParam << epar;
         writeThrowsClause(package, throws);
         out << ';';
@@ -5628,9 +5696,9 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
             << typeSafeCallbackParam << epar << ';';
 
         //
-        // Generate the Callback Response interface if the operation has more that one
+        // Generate the Callback Response interface if the operation has more than one
         // return parameter. Operations with just one return parameter use one of the
-        // builtin async callbacks interfaces.
+        // builtin async callback interfaces.
         //
         {
             ParamDeclList outParams = getOutParams(p);
@@ -5638,7 +5706,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
             {
                 vector<string> params = getParamsAsyncCB(p, package, false, true);
                 out << sp;
-                out << nl << "public interface " << getLambdaResposeCB(p, package);
+                out << nl << "public interface " << getLambdaResponseCB(p, package);
                 out << sb;
                 out << nl << "void apply" << spar << params << epar << ';';
                 out << eb;
@@ -5650,21 +5718,28 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         //
         {
             out << sp;
+            writeDocCommentAMI(out, p, InParam, lambdaResponseDoc, throws.empty() ? "" : lambdaUserExDoc, lambdaExDoc);
             out << nl << "public Ice.AsyncResult begin_" << p->name();
             writeParamList(out, getParamsAsyncLambda(p, package, false, false, true));
             out << ';';
 
             out << sp;
+            writeDocCommentAMI(out, p, InParam, lambdaResponseDoc, throws.empty() ? "" : lambdaUserExDoc, lambdaExDoc,
+                               lambdaSentDoc);
             out << nl << "public Ice.AsyncResult begin_" << p->name();
             writeParamList(out, getParamsAsyncLambda(p, package, false, true, true));
             out << ';';
 
             out << sp;
+            writeDocCommentAMI(out, p, InParam, contextDoc, lambdaResponseDoc, throws.empty() ? "" : lambdaUserExDoc,
+                               lambdaExDoc);
             out << nl << "public Ice.AsyncResult begin_" << p->name();
             writeParamList(out, getParamsAsyncLambda(p, package, true, false, true));
             out << ';';
 
             out << sp;
+            writeDocCommentAMI(out, p, InParam, contextDoc, lambdaResponseDoc, throws.empty() ? "" : lambdaUserExDoc,
+                               lambdaExDoc, lambdaSentDoc);
             out << nl << "public Ice.AsyncResult begin_" << p->name();
             writeParamList(out, getParamsAsyncLambda(p, package, true, true, true));
             out << ';';
@@ -5711,21 +5786,28 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         //
         {
             out << sp;
+            writeDocCommentAMI(out, p, InParam, lambdaResponseDoc, throws.empty() ? "" : lambdaUserExDoc, lambdaExDoc);
             out << nl << "public Ice.AsyncResult begin_" << p->name();
             writeParamList(out, getParamsAsyncLambda(p, package));
             out << ';';
 
             out << sp;
+            writeDocCommentAMI(out, p, InParam, lambdaResponseDoc, throws.empty() ? "" : lambdaUserExDoc, lambdaExDoc,
+                               lambdaSentDoc);
             out << nl << "public Ice.AsyncResult begin_" << p->name();
             writeParamList(out, getParamsAsyncLambda(p, package, false, true));
             out << ';';
 
             out << sp;
+            writeDocCommentAMI(out, p, InParam, contextDoc, lambdaResponseDoc, throws.empty() ? "" : lambdaUserExDoc,
+                               lambdaExDoc);
             out << nl << "public Ice.AsyncResult begin_" << p->name();
             writeParamList(out, getParamsAsyncLambda(p, package, true));
             out << ';';
 
             out << sp;
+            writeDocCommentAMI(out, p, InParam, contextDoc, lambdaResponseDoc, throws.empty() ? "" : lambdaUserExDoc,
+                               lambdaExDoc, lambdaSentDoc);
             out << nl << "public Ice.AsyncResult begin_" << p->name();
             writeParamList(out, getParamsAsyncLambda(p, package, true, true));
             out << ';';

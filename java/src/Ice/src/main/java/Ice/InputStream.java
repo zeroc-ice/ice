@@ -518,8 +518,6 @@ public class InputStream
 
     /**
      * Marks the start of a user exception.
-     *
-     * @param slicedData Preserved slices for this exception, or null.
      **/
     public void startException()
     {
@@ -2056,7 +2054,7 @@ public class InputStream
     /**
      * Sets the current position in the stream.
      *
-     * @param pos The new position.
+     * @param n The new position.
      **/
     public void pos(int n)
     {

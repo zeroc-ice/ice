@@ -10,7 +10,7 @@
 package Ice;
 
 /**
- * Callback object for {@link ObjectPrx#.begin_ice_id}.
+ * Callback object for {@link ObjectPrx#begin_ice_id}.
  **/
 public abstract class Callback_Object_ice_id extends IceInternal.TwowayCallback
     implements Ice.TwowayCallbackArg1<String>

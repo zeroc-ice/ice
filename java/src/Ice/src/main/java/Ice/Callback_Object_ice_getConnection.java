@@ -10,7 +10,7 @@
 package Ice;
 
 /**
- * Callback object for {@link ObjectPrx#.begin_ice_getConnection}.
+ * Callback object for {@link ObjectPrx#begin_ice_getConnection}.
  **/
 public abstract class Callback_Object_ice_getConnection extends IceInternal.TwowayCallback
     implements Ice.TwowayCallbackArg1<Ice.Connection>

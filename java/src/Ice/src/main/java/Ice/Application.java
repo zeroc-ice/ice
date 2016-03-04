@@ -52,7 +52,7 @@ public abstract class Application
      * The application must call <code>main</code> after it has
      * instantiated the derived class. <code>main</code> creates
      * a communicator, establishes the specified signal policy, and,
-     * once {@link #run} returns, destroys the communicator.
+     * once <code>run</code> returns, destroys the communicator.
      * <p>
      * The method prints an error message for any exception that propagates
      * out of <code>run</code> and ensures that the communicator is
@@ -75,10 +75,10 @@ public abstract class Application
      * The application must call <code>main</code> after it has
      * instantiated the derived class. <code>main</code> creates
      * a communicator, establishes the specified signal policy, and,
-     * once {@link run} returns, destroys the communicator.
+     * once <code>run</code> returns, destroys the communicator.
      * <p>
      * The method prints an error message for any exception that propagates
-     * out of <code>#run</code> and ensures that the communicator is
+     * out of <code>run</code> and ensures that the communicator is
      * destroyed correctly even if <code>run</code> completes abnormally.
      *
      * @param appName The name of the application. This parameter is used to initialize
@@ -122,7 +122,7 @@ public abstract class Application
      * The application must call <code>main</code> after it has
      * instantiated the derived class. <code>main</code> creates
      * a communicator, establishes the specified signal policy, and,
-     * once {@link #run} returns, destroys the communicator.
+     * once <code>run</code> returns, destroys the communicator.
      * <p>
      * The method prints an error message for any exception that propagates
      * out of <code>run</code> and ensures that the communicator is
@@ -434,7 +434,7 @@ public abstract class Application
     /**
      * Installs a custom shutdown hook. The implementation of the shutdown
      * hook can do whatever cleanup is necessary to shut down the application.
-     * The hook is unregistered once {@link #run} returns.
+     * The hook is unregistered once <code>run</code> returns.
      * Note that the hook must obey the rules for shutdown hooks; specifically,
      * it must not call <code>exit</code>.
      *
@@ -464,7 +464,7 @@ public abstract class Application
     }
 
     /**
-     * Clears any shutdown hooks, including any hook established with {@link #destroyOnInterrupt}code> or
+     * Clears any shutdown hooks, including any hook established with {@link #destroyOnInterrupt} or
      * {@link #shutdownOnInterrupt}.
      **/
     public static void

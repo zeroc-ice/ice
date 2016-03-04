@@ -892,8 +892,9 @@ local exception UnmarshalOutOfBoundsException extends MarshalException
  * unmarshaling of a Slice class instance.
  *
  * @see ValueFactory
- * @see Communicator#addValueFactory
- * @see Communicator#findValueFactory
+ * @see Communicator#getValueFactoryManager
+ * @see ValueFactoryManager#add
+ * @see ValueFactoryManager#find
  *
  **/
 ["cpp:ice_print"]

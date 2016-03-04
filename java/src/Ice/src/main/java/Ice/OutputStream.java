@@ -296,7 +296,7 @@ public class OutputStream
     /**
      * Marks the start of an Ice object.
      *
-     * @param slicedData Preserved slices for this object, or null.
+     * @param data Preserved slices for this object, or null.
      **/
     public void startObject(SlicedData data)
     {
@@ -316,7 +316,7 @@ public class OutputStream
     /**
      * Marks the start of a user exception.
      *
-     * @param slicedData Preserved slices for this exception, or null.
+     * @param data Preserved slices for this exception, or null.
      **/
     public void startException(SlicedData data)
     {
@@ -497,7 +497,7 @@ public class OutputStream
     /**
      * Writes a size to the stream.
      *
-     * @param sz The size to write.
+     * @param v The size to write.
      **/
     public void writeSize(int v)
     {
@@ -1724,7 +1724,7 @@ public class OutputStream
     /**
      * Sets the current position in the stream.
      *
-     * @param pos The new position.
+     * @param n The new position.
      **/
     public void pos(int n)
     {

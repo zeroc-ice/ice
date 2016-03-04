@@ -155,9 +155,9 @@ local interface ObjectAdapter
      *
      * Destroys the object adapter and cleans up all resources held by
      * the object adapter. If the object adapter has not yet been
-     * deactivated, {@link #destroy} implicitly initiates the deactivation
-     * and waits for it to finish. Subsequent calls to {@link destroy} are
-     * ignored. Once {@link destroy} has returned, it is possible to create
+     * deactivated, destroy implicitly initiates the deactivation
+     * and waits for it to finish. Subsequent calls to destroy are
+     * ignored. Once destroy has returned, it is possible to create
      * another object adapter with the same name.
      *
      * @see #deactivate
