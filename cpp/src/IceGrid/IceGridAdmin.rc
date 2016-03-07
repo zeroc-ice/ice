@@ -21,7 +21,7 @@ BEGIN
             VALUE "FileDescription", "IceGrid Admin\0"
             VALUE "FileVersion", "3.7.0\0"
             VALUE "InternalName", "icegridadmin\0"
-            VALUE "LegalCopyright", "\251 2003-2015 ZeroC, Inc.\0"
+            VALUE "LegalCopyright", "\251 2003-2016 ZeroC, Inc.\0"
             VALUE "OriginalFilename", "icegridadmin.exe\0"
             VALUE "ProductName", "Ice\0"
             VALUE "ProductVersion", "3.7.0\0"
