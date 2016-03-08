@@ -153,7 +153,7 @@ Client::usage()
         "--dbpath DIR           Source or target database environment.\n"
         "--mapsize VALUE        Set LMDB map size in MB (optional, import only).\n"
         "--server-version VER   Set Ice version for IceGrid servers (optional, import only).\n"
-        "-d, --debug            Print debug messages."
+        "-d, --debug            Print debug messages.\n"
         ;
 }
 
@@ -178,7 +178,7 @@ Client::run(int argc, char* argv[])
     }
     catch(const IceUtilInternal::BadOptException& e)
     {
-        cerr << e.reason << endl;
+        cerr << argv[0] << ": " << e.reason << endl;
         usage();
         return EXIT_FAILURE;
     }
@@ -203,14 +203,14 @@ Client::run(int argc, char* argv[])
 
     if(!(opts.isSet("import") ^ opts.isSet("export")))
     {
-        cerr << "Either --import or --export must be set" << endl;
+        cerr << argv[0] << ": either --import or --export must be set" << endl;
         usage();
         return EXIT_FAILURE;
     }
 
     if(!(opts.isSet("dbhome") ^ opts.isSet("dbpath")))
     {
-        cerr << "Set the database environment directory with either --dbhome or --dbpath" << endl;
+        cerr << argv[0] << ": set the database environment directory with either --dbhome or --dbpath" << endl;
         usage();
         return EXIT_FAILURE;
     }
@@ -247,21 +247,21 @@ Client::run(int argc, char* argv[])
 
             if(!IceUtilInternal::directoryExists(dbPath))
             {
-                cerr << "Output directory does not exist: " << dbPath << endl;
+                cerr << argv[0] << ": output directory does not exist: " << dbPath << endl;
                 return EXIT_FAILURE;
             }
 
             StringSeq files = IcePatch2Internal::readDirectory(dbPath);
             if(!files.empty())
             {
-                cerr << "Output directory is not empty: " << dbPath << endl;
+                cerr << argv[0] << ": output directory is not empty: " << dbPath << endl;
                 return EXIT_FAILURE;
             }
 
             ifstream fs(dbFile.c_str(), ios::binary);
             if(fs.fail())
             {
-                cerr << "Could not open input file: " << strerror(errno) << endl;
+                cerr << argv[0] << ": could not open input file: " << strerror(errno) << endl;
                 return EXIT_FAILURE;
             }
             fs.unsetf(ios::skipws);
@@ -272,7 +272,7 @@ Client::run(int argc, char* argv[])
             if(!fileSize)
             {
                 fs.close();
-                cerr << "Empty input file" << endl;
+                cerr << argv[0] << ": empty input file" << endl;
                 return EXIT_FAILURE;
             }
 
@@ -299,7 +299,7 @@ Client::run(int argc, char* argv[])
             stream.read(type);
             if(type != "IceGrid")
             {
-                cerr << "Incorrect input file type: " << type << endl;
+                cerr << argv[0] << ": incorrect input file type: " << type << endl;
                 return EXIT_FAILURE;
             }
             stream.read(version);
@@ -376,7 +376,8 @@ Client::run(int argc, char* argv[])
                 IceDB::Dbi<Identity, ObjectInfo, IceDB::IceContext, Ice::OutputStream>
                     internalObjs(txn, "internal-objects", dbContext, MDB_CREATE);
 
-                for(ObjectInfoSeq::const_iterator p = data.internalObjects.begin(); p != data.internalObjects.end(); ++p)
+                for(ObjectInfoSeq::const_iterator p = data.internalObjects.begin(); p != data.internalObjects.end();
+                    ++p)
                 {
                     if(debug)
                     {
@@ -532,7 +533,7 @@ Client::run(int argc, char* argv[])
             ofstream fs(dbFile.c_str(), ios::binary);
             if(fs.fail())
             {
-                cerr << "Could not open output file: " << strerror(errno) << endl;
+                cerr << argv[0] << ": could not open output file: " << strerror(errno) << endl;
                 return EXIT_FAILURE;
             }
             fs.write(reinterpret_cast<const char*>(stream.b.begin()), stream.b.size());
@@ -541,7 +542,7 @@ Client::run(int argc, char* argv[])
     }
     catch(const IceUtil::Exception& ex)
     {
-        cerr << (import ? "Import" : "Export") << " failed:\n" << ex << endl;
+        cerr << argv[0] << ": " << (import ? "import" : "export") << " failed:\n" << ex << endl;
         return EXIT_FAILURE;
     }
 
