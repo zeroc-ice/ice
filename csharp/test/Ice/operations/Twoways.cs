@@ -54,10 +54,91 @@ class Twoways
 
     internal static void twoways(Ice.Communicator communicator, Test.MyClassPrx p)
     {
+
+        string[] literals = p.opStringLiterals();
+        
+        test(Test.s0.value.Equals("\\") &&
+             Test.s0.value.Equals(Test.sw0.value) &&
+             Test.s0.value.Equals(literals[0]) &&
+             Test.s0.value.Equals(literals[11]));
+
+        test(Test.s1.value.Equals("A") &&
+             Test.s1.value.Equals(Test.sw1.value) &&
+             Test.s1.value.Equals(literals[1]) &&
+             Test.s1.value.Equals(literals[12]));
+
+        test(Test.s2.value.Equals("Ice") &&
+             Test.s2.value.Equals(Test.sw2.value) &&
+             Test.s2.value.Equals(literals[2]) &&
+             Test.s2.value.Equals(literals[13]));
+        
+        test(Test.s3.value.Equals("A21") && 
+             Test.s3.value.Equals(Test.sw3.value) &&
+             Test.s3.value.Equals(literals[3]) &&
+             Test.s3.value.Equals(literals[14]));
+
+        test(Test.s4.value.Equals("\\u0041 \\U00000041") &&
+             Test.s4.value.Equals(Test.sw4.value) &&
+             Test.s4.value.Equals(literals[4]) &&
+             Test.s4.value.Equals(literals[15]));
+
+        test(Test.s5.value.Equals("\u00FF") &&
+             Test.s5.value.Equals(Test.sw5.value) &&
+             Test.s5.value.Equals(literals[5]) &&
+             Test.s5.value.Equals(literals[16]));
+
+        test(Test.s6.value.Equals("\u03FF") &&
+             Test.s6.value.Equals(Test.sw6.value) &&
+             Test.s6.value.Equals(literals[6]) &&
+             Test.s6.value.Equals(literals[17]));
+
+        test(Test.s7.value.Equals("\u05F0") &&
+             Test.s7.value.Equals(Test.sw7.value) &&
+             Test.s7.value.Equals(literals[7]) &&
+             Test.s7.value.Equals(literals[18]));
+
+        test(Test.s8.value.Equals("\U00010000") &&
+             Test.s8.value.Equals(Test.sw8.value) &&
+             Test.s8.value.Equals(literals[8]) &&
+             Test.s8.value.Equals(literals[19]));
+        
+        test(Test.s9.value.Equals("\U0001F34C") &&
+             Test.s9.value.Equals(Test.sw9.value) &&
+             Test.s9.value.Equals(literals[9]) &&
+             Test.s9.value.Equals(literals[20]));
+
+        test(Test.s10.value.Equals("\u0DA7") &&
+             Test.s10.value.Equals(Test.sw10.value) &&
+             Test.s10.value.Equals(literals[10]) &&
+             Test.s10.value.Equals(literals[21]));
+    
+        test(Test.ss0.value.Equals("\'\"\u003f\\\a\b\f\n\r\t\v") &&
+             Test.ss0.value.Equals(Test.ss1.value) &&
+             Test.ss0.value.Equals(Test.ss2.value) &&
+             Test.ss0.value.Equals(literals[22]) &&
+             Test.ss0.value.Equals(literals[23]) &&
+             Test.ss0.value.Equals(literals[24]));
+        
+        test(Test.ss3.value.Equals("\\\\U\\u\\") &&
+             Test.ss3.value.Equals(literals[25]));
+
+        test(Test.ss4.value.Equals("\\A\\") &&
+             Test.ss4.value.Equals(literals[26]));
+
+        test(Test.ss5.value.Equals("\\u0041\\") &&
+             Test.ss5.value.Equals(literals[27]));
+             
+        test(Test.su0.value.Equals(Test.su1.value) &&
+             Test.su0.value.Equals(Test.su2.value) &&
+             Test.su0.value.Equals(literals[28]) &&
+             Test.su0.value.Equals(literals[29]) &&
+             Test.su0.value.Equals(literals[30]));
+
         p.ice_ping();
 
-	test(Test.MyClassPrxHelper.ice_staticId().Equals(Test.MyClass.ice_staticId()));
-	test(Ice.ObjectPrxHelper.ice_staticId().Equals(Ice.ObjectImpl.ice_staticId()));
+        
+        test(Test.MyClassPrxHelper.ice_staticId().Equals(Test.MyClass.ice_staticId()));
+        test(Ice.ObjectPrxHelper.ice_staticId().Equals(Ice.ObjectImpl.ice_staticId()));
 
 
         test(p.ice_isA(Test.MyClass.ice_staticId()));

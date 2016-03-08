@@ -10,7 +10,9 @@
 #include <IceUtil/DisableWarnings.h>
 #include <IceUtil/Functional.h>
 #include <IceUtil/StringUtil.h>
-#include "Gen.h"
+#include <IceUtil/InputUtil.h>
+#include <Gen.h>
+
 #include <limits>
 #include <sys/stat.h>
 #ifndef _WIN32
@@ -20,6 +22,7 @@
 #endif
 #include <IceUtil/Iterator.h>
 #include <IceUtil/UUID.h>
+#include <IceUtil/Unicode.h>
 #include <Slice/Checksum.h>
 #include <Slice/DotNetNames.h>
 #include <Slice/FileTracker.h>
@@ -33,6 +36,45 @@ using namespace IceUtilInternal;
 
 namespace
 {
+
+string
+u16CodePoint(unsigned short value)
+{
+    ostringstream s;
+    s << "\\u";
+    s << hex;
+    s.width(4);
+    s.fill('0');
+    s << value;
+    return s.str();
+}
+
+
+void
+writeU8Buffer(const vector<unsigned char>& u8buffer, ::IceUtilInternal::Output& out)
+{
+    vector<unsigned short> u16buffer;
+    IceUtilInternal::ConversionResult result = convertUTF8ToUTF16(u8buffer, u16buffer, IceUtil::lenientConversion);
+    switch(result)
+    {
+        case conversionOK:
+            break;
+        case sourceExhausted:
+            throw IceUtil::IllegalConversionException(__FILE__, __LINE__, "string source exhausted");
+        case sourceIllegal:
+            throw IceUtil::IllegalConversionException(__FILE__, __LINE__, "string source illegal");
+        default:
+        {
+            assert(0);
+            throw IceUtil::IllegalConversionException(__FILE__, __LINE__);
+        }
+    }
+
+    for(vector<unsigned short>::const_iterator c = u16buffer.begin(); c != u16buffer.end(); ++c)
+    {
+        out << u16CodePoint(*c);
+    }
+}
 
 string
 sliceModeToIceMode(Operation::Mode opMode)
@@ -1544,39 +1586,118 @@ Slice::CsVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePt
             // here because they are sensitive to the current locale.
             //
             static const string basicSourceChars = "abcdefghijklmnopqrstuvwxyz"
-                                                   "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                                                   "0123456789"
-                                                   "_{}[]#()<>%:;.?*+-/^&|~!=,\\\"' ";
+                                                    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                                    "0123456789"
+                                                    "_{}[]#()<>%:;.?*+-/^&|~!=,\\\"' ";
+
             static const set<char> charSet(basicSourceChars.begin(), basicSourceChars.end());
 
             _out << "\"";                                    // Opening "
 
-            for(string::const_iterator c = value.begin(); c != value.end(); ++c)
+            vector<unsigned char> u8buffer;                  // Buffer to convert multibyte characters
+
+            for(size_t i = 0; i < value.size();)
             {
-                if(charSet.find(*c) == charSet.end())
+                if(charSet.find(value[i]) == charSet.end())
                 {
-                    unsigned char uc = *c;                   // char may be signed, so make it positive
-                    ostringstream s;
-                    s << "\\u";                      // Print as unicode if not in basic source character set
-                    s << hex;
-                    s.width(4);
-                    s.fill('0');
-                    s << static_cast<unsigned>(uc);
-                    _out << s.str();
+                    if(static_cast<unsigned char>(value[i]) < 128) // Single byte character
+                    {
+                        //
+                        // Print as unicode if not in basic source character set
+                        //
+                        _out << u16CodePoint(static_cast<unsigned int>(value[i]));
+                    }
+                    else
+                    {
+                        u8buffer.push_back(value[i]);
+                    }
                 }
                 else
                 {
-                   switch(*c)
+                    //
+                    // Write any pedding characters in the utf8 buffer
+                    //
+                    if(!u8buffer.empty())
+                    {
+                        writeU8Buffer(u8buffer, _out);
+                        u8buffer.clear();
+                    }
+                    switch(value[i])
                     {
                         case '\\':
+                        {
+                            string s = "\\";
+                            size_t j = i + 1;
+                            for(; j < value.size(); ++j)
+                            {
+                                if(value[j] != '\\')
+                                {
+                                    break;
+                                }
+                                s += "\\";
+                            }
+
+                            //
+                            // An even number of slash \ will escape the backslash and
+                            // the codepoint will be interpreted as its charaters
+                            //
+                            // \\U00000041  - ['\\', 'U', '0', '0', '0', '0', '0', '0', '4', '1']
+                            // \\\U00000041 - ['\\', 'A'] (41 is the codepoint for 'A')
+                            //
+                            if(s.size() % 2 != 0 && value[j] == 'U')
+                            {
+                                _out << s.substr(0, s.size() - 1);
+                                i = j + 1;
+
+                                string codepoint = value.substr(j + 1, 8);
+                                assert(codepoint.size() ==  8);
+
+                                IceUtil::Int64 v = IceUtilInternal::strToInt64(codepoint.c_str(), 0, 16);
+
+
+                                //
+                                // Unicode character in the range U+10000 to U+10FFFF is not permitted in a character literal
+                                // and is represented using a Unicode surrogate pair.
+                                //
+                                if(v > 0xFFFF)
+                                {
+                                    unsigned int high = ((static_cast<unsigned int>(v) - 0x10000) / 0x400) + 0xD800;
+                                    unsigned int low = ((static_cast<unsigned int>(v) - 0x10000) % 0x400) + 0xDC00;
+                                    _out << u16CodePoint(high);
+                                    _out << u16CodePoint(low);
+                                }
+                                else
+                                {
+                                    _out << "\\U" << codepoint;
+                                }
+
+                                i = j + 1 + 8;
+                            }
+                            else
+                            {
+                                _out << s;
+                                i = j;
+                            }
+                            continue;
+                        }
                         case '"':
                         {
                             _out << "\\";
                             break;
                         }
                     }
-                    _out << *c;                              // Print normally if in basic source character set
+                    _out << value[i];                        // Print normally if in basic source character set
                 }
+                i++;
+            }
+
+            //
+            // Write any pedding characters in the utf8 buffer
+            //
+            if(!u8buffer.empty())
+            {
+                writeU8Buffer(u8buffer, _out);
+                u8buffer.clear();
             }
 
             _out << "\"";                                    // Closing "

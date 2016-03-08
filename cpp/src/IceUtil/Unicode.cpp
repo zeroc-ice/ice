@@ -128,4 +128,42 @@ IceUtilInternal::convertUTF8ToUTFWstring(const Byte*& sourceStart, const Byte* s
     return result;
 }
 
+ConversionResult
+IceUtilInternal::convertUTF8ToUTF16(const vector<unsigned char>& source, vector<unsigned short>& target, ConversionFlags flags)
+{
+    target.resize(source.size());
+    const unsigned char* sourceStart = &source[0];
+    const unsigned char* sourceEnd = &source[0] + source.size();
+    
+    unsigned short* targetStart = &target[0]; 
+    unsigned short* targetEnd = &target[0] + target.size();
+    ConversionResult result = ConvertUTF8toUTF16(&sourceStart, sourceEnd, &targetStart, targetEnd, flags);
+    
+    if(result == conversionOK)
+    {
+        target.resize(targetStart - &target[0]);
+    }
+    return result;
+}
+
+ConversionResult
+IceUtilInternal::convertUTF32ToUTF8(const vector<unsigned int>& source, vector<unsigned char>& target, ConversionFlags flags)
+{
+    target.resize(source.size() * 4);
+
+    const unsigned int* sourceStart = &source[0];
+    const unsigned int* sourceEnd = &source[0] + source.size();
+    
+    unsigned char* targetStart = &target[0]; 
+    unsigned char* targetEnd = &target[0] + target.size();
+    ConversionResult result = ConvertUTF32toUTF8(&sourceStart, sourceEnd, &targetStart, targetEnd, flags);
+    
+    if(result == conversionOK)
+    {
+        target.resize(targetStart - &target[0]);
+    }
+    return result;
+}
+
+
 

@@ -851,6 +851,48 @@ public final class AMDTieMyDerivedClassI implements _MyDerivedClassOperations
     {
         cb.ice_response(value);
     }
+    
+    @Override
+    public void opStringLiterals_async(AMD_MyClass_opStringLiterals cb, Ice.Current current)
+    {
+        cb.ice_response(new String[]
+            {
+                s0.value,
+                s1.value,
+                s2.value,
+                s3.value,
+                s4.value,
+                s5.value,
+                s6.value,
+                s7.value,
+                s8.value,
+                s9.value,
+                s10.value,
+                
+                sw0.value,
+                sw1.value,
+                sw2.value,
+                sw3.value,
+                sw4.value,
+                sw5.value,
+                sw6.value,
+                sw7.value,
+                sw8.value,
+                sw9.value,
+                sw10.value,
+                
+                ss0.value,
+                ss1.value,
+                ss2.value,
+                ss3.value,
+                ss4.value,
+                ss5.value,
+                
+                su0.value,
+                su1.value,
+                su2.value
+            });
+    }
 
     private Thread _opVoidThread;
     private int _opByteSOnewayCallCount = 0;

@@ -249,6 +249,8 @@ dictionary<MyEnum, MyEnumS> MyEnumMyEnumSD;
     ByteBoolD opByteBoolD1(ByteBoolD opByteBoolD1);
     StringS opStringS2(StringS stringS);
     ByteBoolD opByteBoolD2(ByteBoolD byteBoolD);
+    
+    StringS opStringLiterals();
 };
 
 struct MyStruct1
@@ -276,5 +278,70 @@ class MyClass1
 {
     Ice::Context getContext();
 };
+
+//
+// String literals
+//
+
+const string s0 = "\u005c";                           // backslash
+const string s1 = "\u0041";                           // A
+const string s2 = "\u0049\u0063\u0065";               // Ice
+const string s3 = "\u004121";                         // A21
+const string s4 = "\\u0041 \\U00000041";              // \\u0041 \\U00000041
+const string s5 = "\u00FF";                           // ÿ
+const string s6 = "\u03FF";                           // GREEK CAPITAL REVERSED DOTTED LUNATE SIGMA SYMBOL (U+03FF)
+const string s7 = "\u05F0";                           // HEBREW LIGATURE YIDDISH DOUBLE VAV (U+05F0)
+const string s8 = "\U00010000";                       // LINEAR B SYLLABLE B008 A (U+10000)
+const string s9 = "\U0001F34C";                       // BANANA (U+1F34C)
+const string s10 = "\u0DA7";                          // Sinhala Letter Alpapraana Ttayanna
+
+const string sw0 = "\U0000005c";                      // backslash
+const string sw1 = "\U00000041";                      // A
+const string sw2 = "\U00000049\U00000063\U00000065";  // Ice
+const string sw3 = "\U0000004121";                    // A21
+const string sw4 = "\\u0041 \\U00000041";             // \\u0041 \\U00000041
+const string sw5 = "\U000000FF";                      // ÿ
+const string sw6 = "\U000003FF";                      // GREEK CAPITAL REVERSED DOTTED LUNATE SIGMA SYMBOL (U+03FF)
+const string sw7 = "\U000005F0";                      // HEBREW LIGATURE YIDDISH DOUBLE VAV (U+05F0)
+const string sw8 = "\U00010000";                      // LINEAR B SYLLABLE B008 A (U+10000)
+const string sw9 = "\U0001F34C";                      // BANANA (U+1F34C)
+const string sw10 = "\U00000DA7";                     // Sinhala Letter Alpapraana Ttayanna
+
+/**
+\'	single quote	byte 0x27 in ASCII encoding
+\"	double quote	byte 0x22 in ASCII encoding
+\?	question mark	byte 0x3f in ASCII encoding
+\\	backslash	byte 0x5c in ASCII encoding
+\a	audible bell	byte 0x07 in ASCII encoding
+\b	backspace	byte 0x08 in ASCII encoding
+\f	form feed - new page	byte 0x0c in ASCII encoding
+\n	line feed - new line	byte 0x0a in ASCII encoding
+\r	carriage return	byte 0x0d in ASCII encoding
+\t	horizontal tab	byte 0x09 in ASCII encoding
+\v	vertical tab	byte 0x0b in ASCII encoding
+**/
+
+const string ss0 = "\'\"\?\\\a\b\f\n\r\t\v";
+const string ss1 = "\u0027\u0022\u003f\u005c\u0007\u0008\u000c\u000a\u000d\u0009\u000b";
+const string ss2 = "\U00000027\U00000022\U0000003f\U0000005c\U00000007\U00000008\U0000000c\U0000000a\U0000000d\U00000009\U0000000b";
+
+const string ss3 = "\\\\U\\u\\"; /* \\U\u\  */
+const string ss4 = "\\\u0041\\"; /* \A\     */
+const string ss5 = "\\u0041\\";  /* \u0041\ */
+
+//
+// ÿ - Unicode Character 'LATIN SMALL LETTER Y WITH DIAERESIS' (U+00FF)
+// Ā - Unicode Character 'LATIN CAPITAL LETTER A WITH MACRON' (U+0100)
+// ἀ - Unicode Character 'GREEK SMALL LETTER ALPHA WITH PSILI' (U+1F00)
+// 𐆔 - Unicode Character 'ROMAN DIMIDIA SEXTULA SIGN' (U+10194)
+// 𐅪 - Unicode Character 'GREEK ACROPHONIC THESPIAN ONE HUNDRED' (U+1016A)
+// 𐆘 - Unicode Character 'ROMAN SESTERTIUS SIGN' (U+10198)
+// 🍀 - Unicode Character 'FOUR LEAF CLOVER' (U+1F340)
+// 🍁 - Unicode Character 'MAPLE LEAF' (U+1F341)
+// 🍂 - Unicode Character 'FALLEN LEAF' (U+1F342)
+// 🍃 - Unicode Character 'LEAF FLUTTERING IN WIND' (U+1F343)
+const string su0 = "ÿĀἀ𐆔𐅪𐆘🍀🍁🍂🍃";
+const string su1 = "\u00FF\u0100\u1F00\U00010194\U0001016A\U00010198\U0001F340\U0001F341\U0001F342\U0001F343";
+const string su2 = "\U000000FF\U00000100\U00001F00\U00010194\U0001016A\U00010198\U0001F340\U0001F341\U0001F342\U0001F343";
 
 };

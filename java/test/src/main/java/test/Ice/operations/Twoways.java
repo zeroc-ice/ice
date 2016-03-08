@@ -55,6 +55,85 @@ class Twoways
     twoways(Application app, MyClassPrx p)
     {
         Communicator communicator = app.communicator();
+        
+        String[] literals = p.opStringLiterals();
+        
+        test(s0.value.equals("\\") &&
+             s0.value.equals(sw0.value) &&
+             s0.value.equals(literals[0]) &&
+             s0.value.equals(literals[11]));
+
+        test(s1.value.equals("A") &&
+             s1.value.equals(sw1.value) &&
+             s1.value.equals(literals[1]) &&
+             s1.value.equals(literals[12]));
+
+        test(s2.value.equals("Ice") &&
+             s2.value.equals(sw2.value) &&
+             s2.value.equals(literals[2]) &&
+             s2.value.equals(literals[13]));
+        
+        test(s3.value.equals("A21") && 
+             s3.value.equals(sw3.value) &&
+             s3.value.equals(literals[3]) &&
+             s3.value.equals(literals[14]));
+
+        test(s4.value.equals("\\u0041 \\U00000041") &&
+             s4.value.equals(sw4.value) &&
+             s4.value.equals(literals[4]) &&
+             s4.value.equals(literals[15]));
+
+        test(s5.value.equals("\u00FF") &&
+             s5.value.equals(sw5.value) &&
+             s5.value.equals(literals[5]) &&
+             s5.value.equals(literals[16]));
+
+        test(s6.value.equals("\u03FF") &&
+             s6.value.equals(sw6.value) &&
+             s6.value.equals(literals[6]) &&
+             s6.value.equals(literals[17]));
+
+        test(s7.value.equals("\u05F0") &&
+             s7.value.equals(sw7.value) &&
+             s7.value.equals(literals[7]) &&
+             s7.value.equals(literals[18]));
+
+        test(s8.value.equals("\uD800\uDC00") &&
+             s8.value.equals(sw8.value) &&
+             s8.value.equals(literals[8]) &&
+             s8.value.equals(literals[19]));
+        
+        test(s9.value.equals("\uD83C\uDF4C") &&
+             s9.value.equals(sw9.value) &&
+             s9.value.equals(literals[9]) &&
+             s9.value.equals(literals[20]));
+
+        test(s10.value.equals("\u0DA7") &&
+             s10.value.equals(sw10.value) &&
+             s10.value.equals(literals[10]) &&
+             s10.value.equals(literals[21]));
+    
+        test(ss0.value.equals("\'\"\u003f\\\u0007\b\f\n\r\t\u000b") &&
+             ss0.value.equals(ss1.value) &&
+             ss0.value.equals(ss2.value) &&
+             ss0.value.equals(literals[22]) &&
+             ss0.value.equals(literals[23]) &&
+             ss0.value.equals(literals[24]));
+        
+        test(ss3.value.equals("\\\\U\\u\\") &&
+             ss3.value.equals(literals[25]));
+
+        test(ss4.value.equals("\\A\\") &&
+             ss4.value.equals(literals[26]));
+
+        test(ss5.value.equals("\\u0041\\") &&
+             ss5.value.equals(literals[27]));
+             
+        test(su0.value.equals(su1.value) &&
+             su0.value.equals(su2.value) &&
+             su0.value.equals(literals[28]) &&
+             su0.value.equals(literals[29]) &&
+             su0.value.equals(literals[30]));
 
         p.ice_ping();
 

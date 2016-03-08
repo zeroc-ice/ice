@@ -44,6 +44,15 @@ ConversionResult
 convertUTF8ToUTFWstring(const IceUtil::Byte*& sourceStart, const IceUtil::Byte* sourceEnd, 
                         std::wstring& target, IceUtil::ConversionFlags flags);
 
+
+ICE_UTIL_API ConversionResult
+convertUTF8ToUTF16(const std::vector<unsigned char>&, std::vector<unsigned short>&,
+                   IceUtil::ConversionFlags);
+
+ICE_UTIL_API ConversionResult
+convertUTF32ToUTF8(const std::vector<unsigned int>&, std::vector<unsigned char>&,
+                   IceUtil::ConversionFlags);
+
 }
 
 #endif

@@ -568,6 +568,8 @@ char *slice_text;
 #include <Slice/Grammar.h>
 #include <IceUtil/InputUtil.h>
 
+#include <iomanip>
+
 #include <stdlib.h>
 #include <math.h>
 
@@ -630,7 +632,7 @@ int checkKeyword(string&);
 
 
 
-#line 633 "lex.yy.c"
+#line 635 "lex.yy.c"
 
 #define INITIAL 0
 #define BOMSCAN 1
@@ -849,10 +851,10 @@ YY_DECL
 		}
 
 	{
-#line 92 "Scanner.l"
+#line 94 "Scanner.l"
 
 
-#line 855 "lex.yy.c"
+#line 857 "lex.yy.c"
 
 	while ( 1 )		/* loops until end-of-file is reached */
 		{
@@ -911,7 +913,7 @@ case 1:
 (yy_c_buf_p) = yy_cp -= 1;
 YY_DO_BEFORE_ACTION; /* set up slice_text again */
 YY_RULE_SETUP
-#line 94 "Scanner.l"
+#line 96 "Scanner.l"
 {
     if(unit->scanPosition(slice_text))
     {
@@ -926,7 +928,7 @@ YY_LINENO_REWIND_TO(yy_cp - 1);
 (yy_c_buf_p) = yy_cp -= 1;
 YY_DO_BEFORE_ACTION; /* set up slice_text again */
 YY_RULE_SETUP
-#line 101 "Scanner.l"
+#line 103 "Scanner.l"
 {
     if(unit->scanPosition(slice_text))
     {
@@ -939,7 +941,7 @@ case 3:
 (yy_c_buf_p) = yy_cp -= 1;
 YY_DO_BEFORE_ACTION; /* set up slice_text again */
 YY_RULE_SETUP
-#line 108 "Scanner.l"
+#line 110 "Scanner.l"
 {
     if(unit->scanPosition(slice_text))
     {
@@ -954,7 +956,7 @@ YY_LINENO_REWIND_TO(yy_cp - 1);
 (yy_c_buf_p) = yy_cp -= 1;
 YY_DO_BEFORE_ACTION; /* set up slice_text again */
 YY_RULE_SETUP
-#line 115 "Scanner.l"
+#line 117 "Scanner.l"
 {
     if(unit->scanPosition(slice_text))
     {
@@ -964,7 +966,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 122 "Scanner.l"
+#line 124 "Scanner.l"
 {
     // C++-style comment
     BEGIN(MAINSCAN);
@@ -982,7 +984,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 137 "Scanner.l"
+#line 139 "Scanner.l"
 {
     // C-style comment
     BEGIN(MAINSCAN);
@@ -1026,7 +1028,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 178 "Scanner.l"
+#line 180 "Scanner.l"
 {
     BEGIN(MAINSCAN);
     return ICE_SCOPE_DELIMITER;
@@ -1034,7 +1036,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 183 "Scanner.l"
+#line 185 "Scanner.l"
 {
     BEGIN(MAINSCAN);
     return ICE_METADATA_OPEN;
@@ -1042,7 +1044,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 188 "Scanner.l"
+#line 190 "Scanner.l"
 {
     BEGIN(MAINSCAN);
     return ICE_METADATA_CLOSE;
@@ -1050,7 +1052,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 193 "Scanner.l"
+#line 195 "Scanner.l"
 {
     BEGIN(MAINSCAN);
     return ICE_GLOBAL_METADATA_OPEN;
@@ -1058,7 +1060,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 198 "Scanner.l"
+#line 200 "Scanner.l"
 {
     BEGIN(MAINSCAN);
     return ICE_GLOBAL_METADATA_CLOSE;
@@ -1067,7 +1069,7 @@ YY_RULE_SETUP
 case 12:
 /* rule 12 can match eol */
 YY_RULE_SETUP
-#line 203 "Scanner.l"
+#line 205 "Scanner.l"
 {
     BEGIN(MAINSCAN);
     StringTokPtr ident = new StringTok;
@@ -1095,7 +1097,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 228 "Scanner.l"
+#line 230 "Scanner.l"
 {
     BEGIN(MAINSCAN);
     StringTokPtr ident = new StringTok;
@@ -1106,7 +1108,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 236 "Scanner.l"
+#line 238 "Scanner.l"
 {
     BEGIN(MAINSCAN);
     StringTokPtr str = new StringTok;
@@ -1135,32 +1137,42 @@ YY_RULE_SETUP
             switch(next)
             {
                 case '\\':
+                {
+                    str->v += '\\';
+                    str->v += '\\';
+                    break;
+                }
                 case '"':
                 case '\'':
                 {
                     str->v += next;
                     break;
                 }
+            
                 case 'n':
                 {
                     str->v += '\n';
                     break;
                 }
+            
                 case 'r':
                 {
                     str->v += '\r';
                     break;
                 }
+
                 case 't':
                 {
                     str->v += '\t';
                     break;
                 }
+            
                 case 'v':
                 {
                     str->v += '\v';
                     break;
                 }
+            
                 case 'f':
                 {
                     str->v += '\f';
@@ -1185,68 +1197,181 @@ YY_RULE_SETUP
                     break;
                 }
 
+                //
+                // Octal value \nnn limited to three octal digits but terminate at the first character 
+                // that is not a valid octal digit if encountered sooner.
+                //
                 case '0':
                 case '1':
                 case '2':
                 case '3':
+                case '4':
+                case '5':
+                case '7':
                 {
                     static string octalDigits = "01234567";
-                    unsigned short us = next - '0';
-                    if(octalDigits.find_first_of(next = static_cast<char>(yyinput())) != string::npos)
+                    IceUtil::Int64 value = 0;
+                    string escape;
+                    escape += next;
+                    for(int i = 0; i < 2; ++i)
                     {
-                        str->literal += next;
-                        us = us * 8 + next - '0';
-                        if(octalDigits.find_first_of(next = static_cast<char>(yyinput())) != string::npos)
-                        {
-                            us = us * 8 + next - '0';
-                        }
-                        else
+                        next = static_cast<char>(yyinput());
+                        if(octalDigits.find_first_of(next) == string::npos)
                         {
                             unput(next);
+                            break;
                         }
+                        escape += next;                        
                     }
-                    else
-                    {
-                        unput(next);
-                    }
-                    if(us == 0)
+                    str->literal += escape;
+                    value = IceUtilInternal::strToInt64(escape.c_str(), 0, 8);
+                    
+                    if(value == 0)
                     {
                         unit->error("illegal NUL character in string constant");
                     }
-                    str->v += static_cast<char>(us);
+                    else if(value > 255)
+                    {
+                        ostringstream os;
+                        os << "octal escape sequence out of range: '\\" << oct << value << "'";
+                        unit->warning(os.str());
+                    }
+                    str->v += static_cast<char>(value);
                     break;
                 }
                 case 'x':
                 {
-                    IceUtil::Int64 ull = 0;
+                    IceUtil::Int64 value = 0;
+                    string escape = "";
                     while(isxdigit(static_cast<unsigned char>(next = static_cast<char>(yyinput()))))
                     {
-                        str->literal += next;
-                        ull *= 16;
-                        if(isdigit(static_cast<unsigned char>(next)))
-                        {
-                            ull += next - '0';
-                        }
-                        else if(islower(static_cast<unsigned char>(next)))
-                        {
-                            ull += next - 'a' + 10;
-                        }
-                        else
-                        {
-                            ull += next - 'A' + 10;
-                        }
+                        escape += next;
                     }
                     unput(next);
-                    if(ull == 0)
+                    
+                    str->literal += escape;
+                    value = IceUtilInternal::strToInt64(escape.c_str(), 0, 16);
+
+                    if(value == 0)
                     {
                         unit->error("illegal NUL character in string constant");
                     }
-                    str->v += static_cast<char>(ull);
+                    else if(value > 255)
+                    {
+                        ostringstream os;
+                        os << "hex escape sequence out of range: '\\x" << hex << value << "'";
+                        unit->warning(os.str());
+                    }
+                    str->v += static_cast<char>(value);
                     break;
                 }
-                // TODO: add universal character names
+        
+                //
+                // Universal character name \unnnn code point U+nnnn
+                //
+                case 'u':
+                {
+                    IceUtil::Int64 value = 0;
+                    string escape = "";
+
+                    for(int i = 0; i < 4; ++i)
+                    {
+                        next = static_cast<char>(yyinput());
+                        str->literal += next;
+                        if(!isxdigit(static_cast<unsigned char>(next)))
+                        {
+                            unit->error("unknown escape sequence in string constant: " + str->literal);
+                            break;
+                        }
+                        escape += next;
+                    }
+                    
+                    value = escape.size() == 4 ? IceUtilInternal::strToInt64(escape.c_str(), 0, 16) : -1;
+
+                    ostringstream os;
+                    os << '\\' << 'u';
+                    os.fill('0');
+                    os.width(4);
+                    os << hex << value;
+                    
+                    if(value == 0)
+                    {
+                        unit->error("illegal NUL character in string constant");
+                    }
+                    
+                    
+                    //
+                    // Determine if a character is a surrogate:
+                    // 
+                    // * High surrogate code point, ranging from 0xd800 to 0xdbff, inclusive
+                    // * Low surrogate code point, ranging from 0xdc00 to 0xdfff, inclusive.
+                    //
+                    else if((value >= 0xd800 && value <= 0xdbff) || (value >= 0xdc00 && value <= 0xdfff))
+                    {
+                        unit->error("unknown escape sequence in string constant: '" + os.str() + "'");
+                    }
+
+                    str->v += os.str();
+                    
+                    break;
+                }
+                
+                case 'U':
+                {
+                    IceUtil::Int64 value = 0;
+                    string escape = "";
+                    
+                    for(int i = 0; i < 8; ++i)
+                    {
+                        next = static_cast<char>(yyinput());
+                        str->literal += next;
+                        if(!isxdigit(static_cast<unsigned char>(next)))
+                        {
+
+                            unit->error("unknown escape sequence in string constant: " + str->literal);
+                            break;
+                        }
+                        escape += next;
+                    }
+                    
+                    value = escape.size() == 8 ? IceUtilInternal::strToInt64(escape.c_str(), 0, 16) : -1;
+
+                    ostringstream os;
+                    os << '\\' << 'U';
+                    os.fill('0');
+                    os.width(8);
+                    os << hex << value;
+                    
+                    if(value == 0)
+                    {
+                        unit->error("illegal NUL character in string constant");
+                    }
+                    
+                    //
+                    // Determine if a character is a surrogate:
+                    // 
+                    // * High surrogate code point, ranging from 0xd800 to 0xdbff, inclusive
+                    // * Low surrogate code point, ranging from 0xdc00 to 0xdfff, inclusive.
+                    //
+                    else if((value >= 0xd800 && value <= 0xdbff) || (value >= 0xdc00 && value <= 0xdfff))
+                    {
+                        unit->error("unknown escape sequence in string constant: '" + os.str() + "'");
+                    }
+
+                    str->v += os.str();
+                    break;
+                }
+
                 default:
                 {
+                    ostringstream os;
+                    os << "unknown escape sequence '\\" << next << "'";
+                    unit->warning(os.str());
+                    //
+                    // We escape the backslack in a unknown escape sequence 
+                    // to keep compativility with 3.6"
+                    //
+                    str->v += '\\';
                     str->v += c;
                     unput(next);
                 }
@@ -1263,7 +1388,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 390 "Scanner.l"
+#line 515 "Scanner.l"
 {
     BEGIN(MAINSCAN);
     IntegerTokPtr itp = new IntegerTok;
@@ -1282,7 +1407,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 406 "Scanner.l"
+#line 531 "Scanner.l"
 {
     BEGIN(MAINSCAN);
     errno = 0;
@@ -1316,7 +1441,7 @@ YY_RULE_SETUP
 case 17:
 /* rule 17 can match eol */
 YY_RULE_SETUP
-#line 436 "Scanner.l"
+#line 561 "Scanner.l"
 {
     // Ignore white-space
 
@@ -1332,7 +1457,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 449 "Scanner.l"
+#line 574 "Scanner.l"
 {
     // Ignore UTF-8 BOM, rule only active when parsing start of file.
 
@@ -1341,7 +1466,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 455 "Scanner.l"
+#line 580 "Scanner.l"
 {
     BEGIN(MAINSCAN);
     if(slice_text[0] < 32 || slice_text[0] > 126)
@@ -1360,10 +1485,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 471 "Scanner.l"
+#line 596 "Scanner.l"
 ECHO;
 	YY_BREAK
-#line 1366 "lex.yy.c"
+#line 1491 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(BOMSCAN):
 case YY_STATE_EOF(MAINSCAN):
@@ -2364,7 +2489,7 @@ void slice_free (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 470 "Scanner.l"
+#line 595 "Scanner.l"
 
 
 
