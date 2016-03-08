@@ -420,6 +420,14 @@
         opMyStruct1_async: function(cb, value, current)
         {
             return cb.ice_response(value);
+        },
+        opStringLiterals_async: function(cb, current)
+        {
+            return cb.ice_response([
+                TestAMD.s0, TestAMD.s1, TestAMD.s2, TestAMD.s3, TestAMD.s4, TestAMD.s5, TestAMD.s6, TestAMD.s7, TestAMD.s8, TestAMD.s9, TestAMD.s10,
+                TestAMD.sw0, TestAMD.sw1, TestAMD.sw2, TestAMD.sw3, TestAMD.sw4, TestAMD.sw5, TestAMD.sw6, TestAMD.sw7, TestAMD.sw8, TestAMD.sw9, TestAMD.sw10,
+                TestAMD.ss0, TestAMD.ss1, TestAMD.ss2, TestAMD.ss3, TestAMD.ss4, TestAMD.ss5,
+                TestAMD.su0, TestAMD.su1, TestAMD.su2]);
         }
     });
 
