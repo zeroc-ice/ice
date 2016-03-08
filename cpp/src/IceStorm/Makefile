@@ -156,3 +156,4 @@ install:: all
 	$(call installdata,$(top_srcdir)/../man/man1/icestormadmin.1,$(DESTDIR)$(install_mandir))
 	$(call installprogram,$(MIGRATE),$(DESTDIR)$(install_bindir))
 	$(call installdata,$(top_srcdir)/../man/man1/icestormmigrate.1,$(DESTDIR)$(install_mandir))
+	$(call installdata,$(top_srcdir)/../man/man1/icestormdb.1,$(DESTDIR)$(install_mandir))

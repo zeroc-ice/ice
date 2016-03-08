@@ -186,3 +186,4 @@ install:: all
 	$(call installdata,$(top_srcdir)/../man/man1/icegridnode.1,$(DESTDIR)$(install_mandir))
 	$(call installprogram,$(REGISTRY_SERVER),$(DESTDIR)$(install_bindir))
 	$(call installdata,$(top_srcdir)/../man/man1/icegridregistry.1,$(DESTDIR)$(install_mandir))
+	$(call installdata,$(top_srcdir)/../man/man1/icegriddb.1,$(DESTDIR)$(install_mandir))
