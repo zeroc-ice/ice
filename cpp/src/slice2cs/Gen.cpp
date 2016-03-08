@@ -68,7 +68,7 @@ writeU8Buffer(const vector<unsigned char>& u8buffer, ::IceUtilInternal::Output& 
             throw IceUtil::IllegalConversionException(__FILE__, __LINE__);
         }
     }
-    
+
     for(vector<unsigned short>::const_iterator c = u16buffer.begin(); c != u16buffer.end(); ++c)
     {
         out << u16CodePoint(*c);
@@ -1557,7 +1557,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
             }
             string memberName = fixId((*d)->name(), DotNet::ICloneable, true);
             string memberType = typeToString((*d)->type(), (*d)->optional());
-            
+
             if(ClassDeclPtr::dynamicCast((*d)->type()))
             {
                 _out << nl << "_instance." << memberName << " = (" << memberType << ")v;";
@@ -1566,14 +1566,14 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
             {
                 _out << nl << "_instance." << memberName << " = v;";
             }
-            
+
             if(classMembers.size() > 1)
             {
                 _out << nl << "break;";
             }
             memberCount++;
         }
-        
+
         for(DataMemberList::const_iterator d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
         {
             TypePtr paramType = (*d)->type();
@@ -1618,7 +1618,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
                 memberCount++;
             }
         }
-        
+
         if(classMembers.size() > 1)
         {
             _out << eb;
@@ -2033,7 +2033,7 @@ Slice::CsVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePt
             _out << "\"";                                    // Opening "
 
             vector<unsigned char> u8buffer;                  // Buffer to convert multibyte characters
-            
+
             for(size_t i = 0; i < value.size();)
             {
                 if(charSet.find(value[i]) == charSet.end())
@@ -2074,7 +2074,7 @@ Slice::CsVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePt
                                 }
                                 s += "\\";
                             }
-                            
+
                             //
                             // An even number of slash \ will escape the backslash and
                             // the codepoint will be interpreted as its charaters
@@ -2091,16 +2091,16 @@ Slice::CsVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePt
                                 assert(codepoint.size() ==  8);
 
                                 IceUtil::Int64 v = IceUtilInternal::strToInt64(codepoint.c_str(), 0, 16);
-                                
-                                
+
+
                                 //
                                 // Unicode character in the range U+10000 to U+10FFFF is not permitted in a character literal
-                                // and is represented using a Unicode surrogate pair. 
+                                // and is represented using a Unicode surrogate pair.
                                 //
                                 if(v > 0xFFFF)
                                 {
-                                    unsigned int high = ((v - 0x10000) / 0x400) + 0xD800;
-                                    unsigned int low = ((v - 0x10000) % 0x400) + 0xDC00;
+                                    unsigned int high = ((static_cast<unsigned int>(v) - 0x10000) / 0x400) + 0xD800;
+                                    unsigned int low = ((static_cast<unsigned int>(v) - 0x10000) % 0x400) + 0xDC00;
                                     _out << u16CodePoint(high);
                                     _out << u16CodePoint(low);
                                 }
@@ -2108,7 +2108,7 @@ Slice::CsVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePt
                                 {
                                     _out << "\\U" << codepoint;
                                 }
-                                
+
                                 i = j + 1 + 8;
                             }
                             else
@@ -2128,7 +2128,7 @@ Slice::CsVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePt
                 }
                 i++;
             }
-            
+
             //
             // Write any pedding characters in the utf8 buffer
             //
@@ -2137,7 +2137,7 @@ Slice::CsVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePt
                 writeU8Buffer(u8buffer, _out);
                 u8buffer.clear();
             }
-                    
+
             _out << "\"";                                    // Closing "
         }
         else if(bp && bp->kind() == Builtin::KindLong)
@@ -4098,7 +4098,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         }
         _out << eb;
 
-        
+
         if(classMembers.size() != 0)
         {
             _out << sp;
@@ -4177,7 +4177,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
                 }
                 memberCount++;
             }
-            
+
             for(DataMemberList::const_iterator q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
             {
 
@@ -4223,7 +4223,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
                     memberCount++;
                 }
             }
-            
+
             if(classMembers.size() > 1)
             {
                 _out << eb;
@@ -4248,7 +4248,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         _out << nl << "protected override void readImpl__(IceInternal.BasicStream is__)";
         _out << sb;
         _out << nl << "is__.startReadSlice();";
-        
+
         int patchIter = 0;
         const bool needCustomPatcher = classMembers.size() > 1;
         for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)

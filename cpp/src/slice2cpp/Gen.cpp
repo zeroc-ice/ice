@@ -13,6 +13,8 @@
 #include <Slice/CPlusPlusUtil.h>
 #include <IceUtil/Functional.h>
 #include <IceUtil/Iterator.h>
+#include <IceUtil/InputUtil.h>
+#include <IceUtil/Unicode.h>
 #include <Slice/Checksum.h>
 #include <Slice/FileTracker.h>
 
@@ -76,11 +78,11 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
             }
             out << "\"";                                    // Opening "
 
-            for(string::const_iterator c = value.begin(); c != value.end(); ++c)
+            for(size_t i = 0; i < value.size();)
             {
-                if(charSet.find(*c) == charSet.end())
+                if(charSet.find(value[i]) == charSet.end())
                 {
-                    unsigned char uc = *c;                  // char may be signed, so make it positive
+                    unsigned char uc = value[i];                  // char may be signed, so make it positive
                     ostringstream s;
                     s << "\\";                              // Print as octal if not in basic source character set
                     s.width(3);
@@ -91,8 +93,83 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
                 }
                 else
                 {
-                    switch(*c)
+                    switch(value[i])
                     {
+                        case '\\':
+                        {
+                            string s = "\\";
+                            size_t j = i + 1;
+                            for(; j < value.size(); ++j)
+                            {
+                                if(value[j] != '\\')
+                                {
+                                    break;
+                                }
+                                s += "\\";
+                            }
+
+                            //
+                            // An even number of slash \ will escape the backslash and
+                            // the codepoint will be interpreted as its charaters
+                            //
+                            // \\U00000041  - ['\\', 'U', '0', '0', '0', '0', '0', '0', '4', '1']
+                            // \\\U00000041 - ['\\', 'A'] (41 is the codepoint for 'A')
+                            //
+                            if(s.size() % 2 != 0 && (value[j] == 'U' || value[j] == 'u'))
+                            {
+                                //
+                                // Convert codepoint to UTF8 bytes and write the escaped bytes
+                                //
+                                out << s.substr(0, s.size() - 1);
+
+                                size_t sz = value[j] == 'U' ? 8 : 4;
+                                string codepoint = value.substr(j + 1, sz);
+                                assert(codepoint.size() ==  sz);
+
+                                IceUtil::Int64 v = IceUtilInternal::strToInt64(codepoint.c_str(), 0, 16);
+
+
+                                vector<unsigned int> u32buffer;
+                                u32buffer.push_back(static_cast<unsigned int>(v));
+
+                                vector<unsigned char> u8buffer;
+
+                                IceUtilInternal::ConversionResult result = convertUTF32ToUTF8(u32buffer, u8buffer, IceUtil::lenientConversion);
+                                switch(result)
+                                {
+                                    case conversionOK:
+                                        break;
+                                    case sourceExhausted:
+                                        throw IceUtil::IllegalConversionException(__FILE__, __LINE__, "string source exhausted");
+                                    case sourceIllegal:
+                                        throw IceUtil::IllegalConversionException(__FILE__, __LINE__, "string source illegal");
+                                    default:
+                                    {
+                                        assert(0);
+                                        throw IceUtil::IllegalConversionException(__FILE__, __LINE__);
+                                    }
+                                }
+
+                                ostringstream s;
+                                for(vector<unsigned char>::const_iterator q = u8buffer.begin(); q != u8buffer.end(); ++q)
+                                {
+                                    s << "\\";
+                                    s.fill('0');
+                                    s.width(3);
+                                    s << oct;
+                                    s << static_cast<unsigned int>(*q);
+                                }
+                                out << s.str();
+
+                                i = j + 1 + sz;
+                            }
+                            else
+                            {
+                                out << s;
+                                i = j;
+                            }
+                            continue;
+                        }
                         case '"':
                         {
                             out << "\\";
@@ -100,8 +177,9 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
                         }
                     }
                     
-                    out << *c;                              // Print normally if in basic source character set
+                    out << value[i];                              // Print normally if in basic source character set
                 }
+                ++i;
             }
 
             out << "\"";                                    // Closing "

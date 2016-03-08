@@ -66,7 +66,7 @@ writeU8Buffer(const vector<unsigned char>& u8buffer, ::IceUtilInternal::Output& 
             throw IceUtil::IllegalConversionException(__FILE__, __LINE__);
         }
     }
-    
+
     for(vector<unsigned short>::const_iterator c = u16buffer.begin(); c != u16buffer.end(); ++c)
     {
         out << u16CodePoint(*c);
@@ -519,11 +519,11 @@ Slice::JsVisitor::writeConstantValue(const string& scope, const TypePtr& type, c
             _out << "\"";                                    // Opening "
 
             vector<unsigned char> u8buffer;                  // Buffer to convert multibyte characters
-            
+
             for(size_t i = 0; i < value.size();)
             {
                 if(charSet.find(value[i]) == charSet.end())
-                {                    
+                {
                     if(static_cast<unsigned char>(value[i]) < 128) // Single byte character
                     {
                         //
@@ -560,7 +560,7 @@ Slice::JsVisitor::writeConstantValue(const string& scope, const TypePtr& type, c
                                 }
                                 s += "\\";
                             }
-                            
+
                             //
                             // An even number of slash \ will escape the backslash and
                             // the codepoint will be interpreted as its charaters
@@ -577,24 +577,24 @@ Slice::JsVisitor::writeConstantValue(const string& scope, const TypePtr& type, c
                                 assert(codepoint.size() ==  8);
 
                                 IceUtil::Int64 v = IceUtilInternal::strToInt64(codepoint.c_str(), 0, 16);
-                                
-                                
+
+
                                 //
                                 // Unicode character in the range U+10000 to U+10FFFF is not permitted in a character literal
-                                // and is represented using a Unicode surrogate pair. 
+                                // and is represented using a Unicode surrogate pair.
                                 //
                                 if(v > 0xFFFF)
                                 {
-                                    unsigned int high = ((v - 0x10000) / 0x400) + 0xD800;
-                                    unsigned int low = ((v - 0x10000) % 0x400) + 0xDC00;
+                                    unsigned int high = ((static_cast<unsigned int>(v) - 0x10000) / 0x400) + 0xD800;
+                                    unsigned int low = ((static_cast<unsigned int>(v) - 0x10000) % 0x400) + 0xDC00;
                                     _out << u16CodePoint(high);
                                     _out << u16CodePoint(low);
                                 }
                                 else
                                 {
-                                    _out << u16CodePoint(v);
+                                    _out << u16CodePoint(static_cast<unsigned int>(v));
                                 }
-                                
+
                                 i = j + 1 + 8;
                             }
                             else
@@ -614,7 +614,7 @@ Slice::JsVisitor::writeConstantValue(const string& scope, const TypePtr& type, c
                 }
                 i++;
             }
-            
+
             //
             // Write any pedding characters in the utf8 buffer
             //
@@ -623,7 +623,7 @@ Slice::JsVisitor::writeConstantValue(const string& scope, const TypePtr& type, c
                 writeU8Buffer(u8buffer, _out);
                 u8buffer.clear();
             }
-                    
+
             _out << "\"";                                    // Closing "
         }
         else if(bp && bp->kind() == Builtin::KindLong)

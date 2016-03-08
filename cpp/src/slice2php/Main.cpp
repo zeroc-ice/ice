@@ -1288,7 +1288,7 @@ CodeVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePtr& va
                     }
                     case '\\':
                     {
-                        
+
                         string s = "\\";
                         size_t j = i + 1;
                         for(; j < value.size(); ++j)
@@ -1299,7 +1299,7 @@ CodeVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePtr& va
                             }
                             s += "\\";
                         }
-                        
+
                         //
                         // An even number of slash \ will escape the backslash and
                         // the codepoint will be interpreted as its charaters
@@ -1313,19 +1313,19 @@ CodeVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePtr& va
                             // Convert codepoint to UTF8 bytes and write the escaped bytes
                             //
                             _out << s.substr(0, s.size() - 1);
-                            
+
                             size_t sz = value[j] == 'U' ? 8 : 4;
                             string codepoint = value.substr(j + 1, sz);
                             assert(codepoint.size() ==  sz);
 
                             IceUtil::Int64 v = IceUtilInternal::strToInt64(codepoint.c_str(), 0, 16);
-                            
-                            
+
+
                             vector<unsigned int> u32buffer;
-                            u32buffer.push_back(v);
-                            
+                            u32buffer.push_back(static_cast<unsigned int>(v));
+
                             vector<unsigned char> u8buffer;
-                            
+
                             IceUtilInternal::ConversionResult result = convertUTF32ToUTF8(u32buffer, u8buffer, IceUtil::lenientConversion);
                             switch(result)
                             {
@@ -1341,7 +1341,7 @@ CodeVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePtr& va
                                     throw IceUtil::IllegalConversionException(__FILE__, __LINE__);
                                 }
                             }
-                            
+
                             ostringstream s;
                             for(vector<unsigned char>::const_iterator q = u8buffer.begin(); q != u8buffer.end(); ++q)
                             {
@@ -1352,7 +1352,7 @@ CodeVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePtr& va
                                 s << static_cast<unsigned int>(*q);
                             }
                             _out << s.str();
-                            
+
                             i = j + 1 + sz;
                         }
                         else

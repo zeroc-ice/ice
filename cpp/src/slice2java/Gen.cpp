@@ -55,7 +55,7 @@ writeU8Buffer(const vector<unsigned char>& u8buffer, ::IceUtilInternal::Output& 
             throw IceUtil::IllegalConversionException(__FILE__, __LINE__);
         }
     }
-    
+
     for(vector<unsigned short>::const_iterator c = u16buffer.begin(); c != u16buffer.end(); ++c)
     {
         out << u16CodePoint(*c);
@@ -1902,9 +1902,9 @@ Slice::JavaVisitor::writeConstantValue(Output& out, const TypePtr& type, const S
                                                            "_{}[]#()<>%:;.?*+-/^&|~!=,\\\"' ";
                     static const set<char> charSet(basicSourceChars.begin(), basicSourceChars.end());
                     out << "\"";
-                    
+
                     vector<unsigned char> u8buffer;                  // Buffer to convert multibyte characters
-                    
+
                     for(size_t i = 0; i < value.size();)
                     {
                         if(charSet.find(value[i]) == charSet.end())
@@ -1967,7 +1967,7 @@ Slice::JavaVisitor::writeConstantValue(Output& out, const TypePtr& type, const S
                                         }
                                         s += "\\";
                                     }
-                                    
+
                                     //
                                     // An even number of slash \ will escape the backslash and
                                     // the codepoint will be interpreted as its charaters
@@ -1985,8 +1985,8 @@ Slice::JavaVisitor::writeConstantValue(Output& out, const TypePtr& type, const S
                                         assert(codepoint.size() ==  sz);
 
                                         IceUtil::Int64 v = IceUtilInternal::strToInt64(codepoint.c_str(), 0, 16);
-                                        
-                                        
+
+
                                         //
                                         // Java doesn't like this special characters encoded as universal characters
                                         //
@@ -2008,20 +2008,20 @@ Slice::JavaVisitor::writeConstantValue(Output& out, const TypePtr& type, const S
                                         }
                                         //
                                         // Unicode character in the range U+10000 to U+10FFFF is not permitted in a character literal
-                                        // and is represented using a Unicode surrogate pair. 
+                                        // and is represented using a Unicode surrogate pair.
                                         //
                                         else if(v > 0xFFFF)
                                         {
-                                            unsigned int high = ((v - 0x10000) / 0x400) + 0xD800;
-                                            unsigned int low = ((v - 0x10000) % 0x400) + 0xDC00;
+                                            unsigned int high = ((static_cast<unsigned int>(v) - 0x10000) / 0x400) + 0xD800;
+                                            unsigned int low = ((static_cast<unsigned int>(v) - 0x10000) % 0x400) + 0xDC00;
                                             out << u16CodePoint(high);
                                             out << u16CodePoint(low);
                                         }
                                         else
                                         {
-                                            out << u16CodePoint(v);
+                                            out << u16CodePoint(static_cast<unsigned int>(v));
                                         }
-                                        
+
                                         i = j + 1 + sz;
                                     }
                                     else
