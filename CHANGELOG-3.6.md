@@ -32,7 +32,7 @@ These are the changes since Ice 3.6.1.
 
 ## General Changes
 
-- Added two new tools, icegriddb36 and icestormdb36, used to import/export the
+- Added two new tools, icegriddb and icestormdb, used to import/export the
   IceGrid and IceStorm databases.
 
 - Fixed a bug that affects Java and C# generated code. The generated patcher for
