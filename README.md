@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/zeroc-ice/ice.svg?branch=master)](https://travis-ci.org/zeroc-ice/ice)
+[![Build Status](https://travis-ci.org/zeroc-ice/ice.svg?branch=3.6)](https://travis-ci.org/zeroc-ice/ice)
 
 # Internet Communications Engine (Ice)
 
