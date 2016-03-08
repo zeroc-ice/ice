@@ -1601,7 +1601,7 @@ Slice::Ruby::CodeVisitor::writeConstantValue(const TypePtr& type, const SyntaxTr
                     ++i;
                 }
 
-                _out << "\"";                                   // Closing "
+                _out << "\".force_encoding(\"utf-8\")";                                   // Closing "
                 break;
             }
 
@@ -1705,7 +1705,6 @@ Slice::Ruby::CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, MemberI
 void
 Slice::Ruby::generate(const UnitPtr& un, bool all, bool checksum, const vector<string>& includePaths, Output& out)
 {
-    out <<"# encoding: utf-8";
     out << nl << "require 'Ice'";
 
     if(!all)

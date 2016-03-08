@@ -7,79 +7,80 @@
 #
 # **********************************************************************
 
+
 def twoways(communicator, p)
     
     literals = p.opStringLiterals();
     
-    test(Test::S0 == "\\" &&
+    test(Test::S0 == "\\".force_encoding("utf-8") &&
          Test::S0 == Test::Sw0 &&
          Test::S0 == literals[0] &&
          Test::S0 == literals[11]);
 
-    test(Test::S1 == "A" &&
+    test(Test::S1 == "A".force_encoding("utf-8") &&
          Test::S1 == Test::Sw1 &&
          Test::S1 == literals[1] &&
          Test::S1 == literals[12]);
 
-    test(Test::S2 == "Ice" &&
+    test(Test::S2 == "Ice".force_encoding("utf-8") &&
          Test::S2 == Test::Sw2 &&
          Test::S2 == literals[2] &&
          Test::S2 == literals[13]);
     
-    test(Test::S3 == "A21" && 
+    test(Test::S3 == "A21".force_encoding("utf-8") && 
          Test::S3 == Test::Sw3 &&
          Test::S3 == literals[3] &&
          Test::S3 == literals[14]);
 
-    test(Test::S4 == "\\u0041 \\U00000041" &&
+    test(Test::S4 == "\\u0041 \\U00000041".force_encoding("utf-8") &&
          Test::S4 == Test::Sw4 &&
          Test::S4 == literals[4] &&
          Test::S4 == literals[15]);
 
-    test(Test::S5 == "\xC3\xBF");
-    test(Test::S5 == Test::Sw5);
-    test(Test::S5 == literals[5]);
-    test(Test::S5 == literals[16]);
+    test(Test::S5 == "\xc3\xbf".force_encoding("utf-8") &&
+         Test::S5 == Test::Sw5 &&
+         Test::S5 == literals[5] &&
+         Test::S5 == literals[16]);
 
-    test(Test::S6 == "\xcf\xbf" &&
+    test(Test::S6 == "\xcf\xbf".force_encoding("utf-8") &&
          Test::S6 == Test::Sw6 &&
          Test::S6 == literals[6] &&
          Test::S6 == literals[17]);
 
-    test(Test::S7 == "\xd7\xb0");
-    test(Test::S7 == Test::Sw7);
-    test(Test::S7 == literals[7]);
-    test(Test::S7 == literals[18]);
+    test(Test::S7 == "\xd7\xb0".force_encoding("utf-8") &&
+         Test::S7 == Test::Sw7 &&
+         Test::S7 == literals[7] &&
+         Test::S7 == literals[18]);
 
-    test(Test::S8 == "\xf0\x90\x80\x80" &&
+    test(Test::S8 == "\xf0\x90\x80\x80".force_encoding("utf-8") &&
          Test::S8 == Test::Sw8 &&
          Test::S8 == literals[8] &&
          Test::S8 == literals[19]);
     
-    test(Test::S9 == "\xf0\x9f\x8d\x8c" &&
+    test(Test::S9 == "\xf0\x9f\x8d\x8c".force_encoding("utf-8") &&
          Test::S9 == Test::Sw9 &&
          Test::S9 == literals[9] &&
          Test::S9 == literals[20]);
 
-    test(Test::S10 == "\xe0\xb6\xa7" &&
+    test(Test::S10 == "\xe0\xb6\xa7".force_encoding("utf-8") &&
          Test::S10 == Test::Sw10 &&
          Test::S10 == literals[10] &&
          Test::S10 == literals[21]);
 
-    test(Test::Ss0 == "\'\"\x3f\\\a\b\f\n\r\t\v" &&
+    test(Test::Ss0 == "\'\"\x3f\\\a\b\f\n\r\t\v".force_encoding("utf-8") &&
          Test::Ss0 == Test::Ss1 &&
          Test::Ss0 == Test::Ss2 &&
          Test::Ss0 == literals[22] &&
          Test::Ss0 == literals[23] &&
          Test::Ss0 == literals[24]);
     
-    test(Test::Ss3 == "\\\\U\\u\\" &&
+    test(Test::Ss3 == "\\\\U\\u\\".force_encoding("utf-8") &&
          Test::Ss3 == literals[25]);
 
-    test(Test::Ss4 == "\\A\\" &&
+    test(Test::Ss4 == "\\A\\".force_encoding("utf-8") &&
          Test::Ss4 == literals[26]);
 
-    test(Test::Ss5 == "\\u0041\\" &&
+    test(Test::Ss5 == "\\u0041\\".force_encoding("utf-8") &&
          Test::Ss5 == literals[27]);
             
     test(Test::Su0 == Test::Su1 &&
