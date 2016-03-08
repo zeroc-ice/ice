@@ -12,6 +12,7 @@
 #include <Slice/Util.h>
 #include <IceUtil/Functional.h>
 #include <IceUtil/InputUtil.h>
+#include <IceUtil/Unicode.h>
 #include <iterator>
 
 using namespace std;
@@ -1470,65 +1471,134 @@ Slice::Ruby::CodeVisitor::writeConstantValue(const TypePtr& type, const SyntaxTr
 
                 _out << "\"";                                      // Opening "
 
-                for(string::const_iterator c = value.begin(); c != value.end(); ++c)
+                for(size_t i = 0; i < value.size();)
                 {
-                    switch(*c)
+                    char c = value[i];
+                    switch(c)
                     {
-                    case '"':
-                    {
-                        _out << "\\\"";
-                        break;
-                    }
-                    case '\\':
-                    {
-                        _out << "\\\\";
-                        break;
-                    }
-                    case '\r':
-                    {
-                        _out << "\\r";
-                        break;
-                    }
-                    case '\n':
-                    {
-                        _out << "\\n";
-                        break;
-                    }
-                    case '\t':
-                    {
-                        _out << "\\t";
-                        break;
-                    }
-                    case '\b':
-                    {
-                        _out << "\\b";
-                        break;
-                    }
-                    case '\f':
-                    {
-                        _out << "\\f";
-                        break;
-                    }
-                    default:
-                    {
-                        if(charSet.find(*c) == charSet.end())
+                        case '"':
                         {
-                            unsigned char uc = *c;              // Char may be signed, so make it positive.
-                            stringstream s;
-                            s << "\\";                          // Print as octal if not in basic source character set.
-                            s.flags(ios_base::oct);
-                            s.width(3);
-                            s.fill('0');
-                            s << static_cast<unsigned>(uc);
-                            _out << s.str();
+                            _out << "\\\"";
+                            break;
                         }
-                        else
+                        case '\\':
                         {
-                            _out << *c;                         // Print normally if in basic source character set.
+                            string s = "\\";
+                            size_t j = i + 1;
+                            for(; j < value.size(); ++j)
+                            {
+                                if(value[j] != '\\')
+                                {
+                                    break;
+                                }
+                                s += "\\";
+                            }
+                            
+                            //
+                            // An even number of slash \ will escape the backslash and
+                            // the codepoint will be interpreted as its charaters
+                            //
+                            // \\u00000041  - ['\\', 'u', '0', '0', '0', '0', '0', '0', '4', '1']
+                            // \\\u00000041 - ['\\', 'A'] (41 is the codepoint for 'A')
+                            //
+                            if(s.size() % 2 != 0 && (value[j] == 'U' || value[j] == 'u'))
+                            {
+                                //
+                                // Convert codepoint to UTF8 bytes and write the escaped bytes
+                                //
+                                _out << s.substr(0, s.size() - 1);
+                                
+                                size_t sz = value[j] == 'U' ? 8 : 4;
+                                string codepoint = value.substr(j + 1, sz);
+                                assert(codepoint.size() == sz);
+                                IceUtil::Int64 v = IceUtilInternal::strToInt64(codepoint.c_str(), 0, 16);
+                                
+                                vector<unsigned int> u32buffer;
+                                u32buffer.push_back(v);
+                                
+                                vector<unsigned char> u8buffer;
+                                IceUtilInternal::ConversionResult result = convertUTF32ToUTF8(u32buffer, u8buffer, IceUtil::lenientConversion);
+                                switch(result)
+                                {
+                                    case conversionOK:
+                                        break;
+                                    case sourceExhausted:
+                                        throw IceUtil::IllegalConversionException(__FILE__, __LINE__, "string source exhausted");
+                                    case sourceIllegal:
+                                        throw IceUtil::IllegalConversionException(__FILE__, __LINE__, "string source illegal");
+                                    default:
+                                    {
+                                        assert(0);
+                                        throw IceUtil::IllegalConversionException(__FILE__, __LINE__);
+                                    }
+                                }
+                                
+                                ostringstream s;
+                                for(vector<unsigned char>::const_iterator q = u8buffer.begin(); q != u8buffer.end(); ++q)
+                                {
+                                    s << "\\";
+                                    s.fill('0');
+                                    s.width(3);
+                                    s << oct;
+                                    s << static_cast<unsigned int>(*q);
+                                }
+                                _out << s.str();
+                                
+                                i = j + 1 + sz;
+                            }
+                            else
+                            {
+                                _out << s;
+                                i = j;
+                            }
+                            continue;
                         }
-                        break;
+                        case '\r':
+                        {
+                            _out << "\\r";
+                            break;
+                        }
+                        case '\n':
+                        {
+                            _out << "\\n";
+                            break;
+                        }
+                        case '\t':
+                        {
+                            _out << "\\t";
+                            break;
+                        }
+                        case '\b':
+                        {
+                            _out << "\\b";
+                            break;
+                        }
+                        case '\f':
+                        {
+                            _out << "\\f";
+                            break;
+                        }
+                        default:
+                        {
+                            if(charSet.find(c) == charSet.end())
+                            {
+                                unsigned char uc = c;              // Char may be signed, so make it positive.
+                                stringstream s;
+                                s << "\\";                         // Print as octal if not in basic source character set.
+                                s.flags(ios_base::oct);
+                                s.width(3);
+                                s.fill('0');
+                                s << static_cast<unsigned>(uc);
+                                _out << s.str();
+                            }
+                            else
+                            {
+                                _out << c;                         // Print normally if in basic source character set.
+                            }
+                            break;
+                        }
                     }
-                    }
+                    ++i;
                 }
 
                 _out << "\"";                                   // Closing "
@@ -1635,6 +1705,7 @@ Slice::Ruby::CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, MemberI
 void
 Slice::Ruby::generate(const UnitPtr& un, bool all, bool checksum, const vector<string>& includePaths, Output& out)
 {
+    out <<"# encoding: utf-8";
     out << nl << "require 'Ice'";
 
     if(!all)

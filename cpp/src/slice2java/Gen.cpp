@@ -14,6 +14,7 @@
 #include <IceUtil/Iterator.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/InputUtil.h>
+#include <IceUtil/Unicode.h>
 #include <cstring>
 
 #include <limits>
@@ -22,6 +23,44 @@ using namespace std;
 using namespace Slice;
 using namespace IceUtil;
 using namespace IceUtilInternal;
+
+string
+u16CodePoint(unsigned short value)
+{
+    ostringstream s;
+    s << "\\u";
+    s << hex;
+    s.width(4);
+    s.fill('0');
+    s << value;
+    return s.str();
+}
+
+void
+writeU8Buffer(const vector<unsigned char>& u8buffer, ::IceUtilInternal::Output& out)
+{
+    vector<unsigned short> u16buffer;
+    IceUtilInternal::ConversionResult result = convertUTF8ToUTF16(u8buffer, u16buffer, IceUtil::lenientConversion);
+    switch(result)
+    {
+        case conversionOK:
+            break;
+        case sourceExhausted:
+            throw IceUtil::IllegalConversionException(__FILE__, __LINE__, "string source exhausted");
+        case sourceIllegal:
+            throw IceUtil::IllegalConversionException(__FILE__, __LINE__, "string source illegal");
+        default:
+        {
+            assert(0);
+            throw IceUtil::IllegalConversionException(__FILE__, __LINE__);
+        }
+    }
+    
+    for(vector<unsigned short>::const_iterator c = u16buffer.begin(); c != u16buffer.end(); ++c)
+    {
+        out << u16CodePoint(*c);
+    }
+}
 
 static string
 sliceModeToIceMode(Operation::Mode opMode)
@@ -1863,54 +1902,153 @@ Slice::JavaVisitor::writeConstantValue(Output& out, const TypePtr& type, const S
                                                            "_{}[]#()<>%:;.?*+-/^&|~!=,\\\"' ";
                     static const set<char> charSet(basicSourceChars.begin(), basicSourceChars.end());
                     out << "\"";
-
-                    for(string::const_iterator c = value.begin(); c != value.end(); ++c)
+                    
+                    vector<unsigned char> u8buffer;                  // Buffer to convert multibyte characters
+                    
+                    for(size_t i = 0; i < value.size();)
                     {
-                        if(charSet.find(*c) == charSet.end())
+                        if(charSet.find(value[i]) == charSet.end())
                         {
-                            switch(*c)
+                            char c = value[i];
+                            if(static_cast<unsigned char>(c) < 128) // Single byte character
                             {
                                 //
-                                // Java doesn't want '\n' or '\r\n' encoded as universal
-                                // characters, that gives an error "unclosed string literal"
+                                // Print as unicode if not in basic source character set
                                 //
-                                case '\r':
+                                switch(c)
                                 {
-                                    out << "\\r";
-                                    break;
+                                    //
+                                    // Java doesn't want '\n' or '\r\n' encoded as universal
+                                    // characters, that gives an error "unclosed string literal"
+                                    //
+                                    case '\r':
+                                    {
+                                        out << "\\r";
+                                        break;
+                                    }
+                                    case '\n':
+                                    {
+                                        out << "\\n";
+                                        break;
+                                    }
+                                    default:
+                                    {
+                                        out << u16CodePoint(c);
+                                        break;
+                                    }
                                 }
-                                case '\n':
-                                {
-                                    out << "\\n";
-                                    break;
-                                }
-                                default:
-                                {
-                                    unsigned char uc = *c;
-                                    ostringstream s;
-                                    s << "\\u";
-                                    s.flags(ios_base::hex);
-                                    s.width(4);
-                                    s.fill('0');
-                                    s << static_cast<unsigned>(uc);
-                                    out << s.str();
-                                    break;
-                                }
+                            }
+                            else
+                            {
+                                u8buffer.push_back(value[i]);
                             }
                         }
                         else
                         {
-                            switch(*c)
+                            //
+                            // Write any pedding characters in the utf8 buffer
+                            //
+                            if(!u8buffer.empty())
+                            {
+                                writeU8Buffer(u8buffer, out);
+                                u8buffer.clear();
+                            }
+                            switch(value[i])
                             {
                                 case '\\':
+                                {
+                                    string s = "\\";
+                                    size_t j = i + 1;
+                                    for(; j < value.size(); ++j)
+                                    {
+                                        if(value[j] != '\\')
+                                        {
+                                            break;
+                                        }
+                                        s += "\\";
+                                    }
+                                    
+                                    //
+                                    // An even number of slash \ will escape the backslash and
+                                    // the codepoint will be interpreted as its charaters
+                                    //
+                                    // \\U00000041  - ['\\', 'U', '0', '0', '0', '0', '0', '0', '4', '1']
+                                    // \\\U00000041 - ['\\', 'A'] (41 is the codepoint for 'A')
+                                    //
+                                    if(s.size() % 2 != 0 && (value[j] == 'U' || value[j] == 'u'))
+                                    {
+                                        size_t sz = value[j] == 'U' ? 8 : 4;
+                                        out << s.substr(0, s.size() - 1);
+                                        i = j + 1;
+
+                                        string codepoint = value.substr(j + 1, sz);
+                                        assert(codepoint.size() ==  sz);
+
+                                        IceUtil::Int64 v = IceUtilInternal::strToInt64(codepoint.c_str(), 0, 16);
+                                        
+                                        
+                                        //
+                                        // Java doesn't like this special characters encoded as universal characters
+                                        //
+                                        if(v == 0x5c)
+                                        {
+                                            out << "\\\\";
+                                        }
+                                        else if(v == 0xa)
+                                        {
+                                            out << "\\n";
+                                        }
+                                        else if(v == 0xd)
+                                        {
+                                            out << "\\r";
+                                        }
+                                        else if(v == 0x22)
+                                        {
+                                            out << "\\\"";
+                                        }
+                                        //
+                                        // Unicode character in the range U+10000 to U+10FFFF is not permitted in a character literal
+                                        // and is represented using a Unicode surrogate pair. 
+                                        //
+                                        else if(v > 0xFFFF)
+                                        {
+                                            unsigned int high = ((v - 0x10000) / 0x400) + 0xD800;
+                                            unsigned int low = ((v - 0x10000) % 0x400) + 0xDC00;
+                                            out << u16CodePoint(high);
+                                            out << u16CodePoint(low);
+                                        }
+                                        else
+                                        {
+                                            out << u16CodePoint(v);
+                                        }
+                                        
+                                        i = j + 1 + sz;
+                                    }
+                                    else
+                                    {
+                                        out << s;
+                                        i = j;
+                                    }
+                                    continue;
+                                }
                                 case '"':
                                 {
                                     out << "\\";
                                     break;
                                 }
                             }
-                            out << *c;
+                            out << value[i];                        // Print normally if in basic source character set
                         }
+                        i++;
+                    }
+
+                    //
+                    // Write any pedding characters in the utf8 buffer
+                    //
+                    if(!u8buffer.empty())
+                    {
+                        writeU8Buffer(u8buffer, out);
+                        u8buffer.clear();
                     }
 
                     out << "\"";

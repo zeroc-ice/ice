@@ -62,6 +62,85 @@ private:
 void
 twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 {
+    Test::StringS literals = p->opStringLiterals();
+    
+    test(Test::s0 == "\\" && 
+         Test::s0 == Test::sw0 &&
+         Test::s0 == literals[0] &&
+         Test::s0 == literals[11]);
+
+    test(Test::s1 == "A" &&
+         Test::s1 == Test::sw1 &&
+         Test::s1 == literals[1] &&
+         Test::s1 == literals[12]);
+
+    test(Test::s2 == "Ice" &&
+         Test::s2 == Test::sw2 &&
+         Test::s2 == literals[2] &&
+         Test::s2 == literals[13]);
+    
+    test(Test::s3 == "A21" && 
+         Test::s3 == Test::sw3 &&
+         Test::s3 == literals[3] &&
+         Test::s3 == literals[14]);
+
+    test(Test::s4 == "\\u0041 \\U00000041" &&
+         Test::s4 == Test::sw4 &&
+         Test::s4 == literals[4] &&
+         Test::s4 == literals[15]);
+
+    test(Test::s5 == "\u00FF" &&
+         Test::s5 == Test::sw5 &&
+         Test::s5 == literals[5] &&
+         Test::s5 == literals[16]);
+    
+    test(Test::s6 == "\u03FF" &&
+         Test::s6 == Test::sw6 &&
+         Test::s6 == literals[6] &&
+         Test::s6 == literals[17]);
+    
+    test(Test::s7 == "\u05F0" &&
+         Test::s7 == Test::sw7 &&
+         Test::s7 == literals[7] &&
+         Test::s7 == literals[18]);
+    
+    test(Test::s8 == "\U00010000" &&
+         Test::s8 == Test::sw8 &&
+         Test::s8 == literals[8] &&
+         Test::s8 == literals[19]);
+    
+    test(Test::s9 == "\U0001F34C" &&
+         Test::s9 == Test::sw9 &&
+         Test::s9 == literals[9] &&
+         Test::s9 == literals[20]);
+
+    test(Test::s10 == "\u0DA7" &&
+         Test::s10 == Test::sw10 &&
+         Test::s10 == literals[10] &&
+         Test::s10 == literals[21]);
+    
+    test(Test::ss0 == "\'\"\?\\\a\b\f\n\r\t\v" &&
+         Test::ss0 == Test::ss1 &&
+         Test::ss0 == Test::ss2 &&
+         Test::ss0 == literals[22] &&
+         Test::ss0 == literals[23] &&
+         Test::ss0 == literals[24]);
+    
+    test(Test::ss3 == "\\\\U\\u\\" &&
+         Test::ss3 == literals[25]);
+    
+    test(Test::ss4 == "\\A\\" &&
+         Test::ss4 == literals[26]);
+    
+    test(Test::ss5 == "\\u0041\\" &&
+         Test::ss5 == literals[27]);
+    
+    test(Test::su0 == Test::su1 &&
+         Test::su0 == Test::su2 &&
+         Test::su0 == literals[28] &&
+         Test::su0 == literals[29] &&
+         Test::su0 == literals[30]);
+    
     {
         p->ice_ping();
     }

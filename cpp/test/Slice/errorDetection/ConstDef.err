@@ -21,6 +21,15 @@ ConstDef.ice:124: initializer `-1' for constant `b3' out of range for type byte
 ConstDef.ice:125: initializer `256' for constant `b4' out of range for type byte
 ConstDef.ice:127: illegal NUL character in string constant
 ConstDef.ice:128: illegal NUL character in string constant
-ConstDef.ice:135: initializer `32767' for constant `c5' out of range for type byte
-ConstDef.ice:136: initializer `2147483647' for constant `c6' out of range for type short
-ConstDef.ice:137: initializer `9223372036854775807' for constant `c7' out of range for type int
+ConstDef.ice:129: illegal NUL character in string constant
+ConstDef.ice:130: illegal NUL character in string constant
+ConstDef.ice:137: initializer `32767' for constant `c5' out of range for type byte
+ConstDef.ice:138: initializer `2147483647' for constant `c6' out of range for type short
+ConstDef.ice:139: initializer `9223372036854775807' for constant `c7' out of range for type int
+ConstDef.ice:150: warning: unknown escape sequence '\g'
+ConstDef.ice:151: unknown escape sequence in string constant: "a\u000N
+ConstDef.ice:152: unknown escape sequence in string constant: "a\U0000000K
+ConstDef.ice:153: warning: octal escape sequence out of range: '\455'
+ConstDef.ice:154: warning: hex escape sequence out of range: '\xfff'
+ConstDef.ice:155: unknown escape sequence in string constant: '\ud83c'
+ConstDef.ice:155: unknown escape sequence in string constant: '\udf4c'

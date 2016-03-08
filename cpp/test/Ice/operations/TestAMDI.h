@@ -275,6 +275,9 @@ public:
     virtual void opMyClass1_async(const Test::AMD_MyDerivedClass_opMyClass1Ptr&,
                                   const Test::MyClass1Ptr&,
                                   const Ice::Current&);
+    
+    virtual void opStringLiterals_async(const Test::AMD_MyClass_opStringLiteralsPtr&,
+                                       const Ice::Current&);
 
 private:
     IceUtil::ThreadPtr _opVoidThread;

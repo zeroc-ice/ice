@@ -268,6 +268,8 @@ public:
     virtual Test::MyStruct1 opMyStruct1(const Test::MyStruct1&, const Ice::Current&);
 
     virtual Test::MyClass1Ptr opMyClass1(const Test::MyClass1Ptr&, const Ice::Current&);
+    
+    virtual Test::StringS opStringLiterals(const Ice::Current&);
 
 private:
 

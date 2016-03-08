@@ -93,13 +93,13 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
                 {
                     switch(*c)
                     {
-                        case '\\':
                         case '"':
                         {
                             out << "\\";
                             break;
                         }
                     }
+                    
                     out << *c;                              // Print normally if in basic source character set
                 }
             }
