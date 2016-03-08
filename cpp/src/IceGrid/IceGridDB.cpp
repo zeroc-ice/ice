@@ -60,7 +60,7 @@ Client::usage()
         "--import FILE          Import database from FILE.\n"
         "--export FILE          Export database to FILE.\n"
         "--dbhome DIR           The database directory.\n"
-        "-d, --debug            Print debug messages."
+        "-d, --debug            Print debug messages.\n"
         ;
 }
 
@@ -282,7 +282,7 @@ Client::run(int argc, char* argv[])
                     cout << "Reading Application Map:" << endl;
                 }
 
-                IceGrid::StringApplicationInfoDict applications(connection, "applications");
+                IceGrid::StringApplicationInfoDict applications(connection, "applications", false);
                 for(IceGrid::StringApplicationInfoDict::const_iterator p = applications.begin();
                     p != applications.end();
                     ++p)
@@ -299,7 +299,7 @@ Client::run(int argc, char* argv[])
                     cout << "Reading Adapter Map:" << endl;
                 }
 
-                StringAdapterInfoDict adapters(connection, "adapters");
+                StringAdapterInfoDict adapters(connection, "adapters", false);
                 for(StringAdapterInfoDict::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
                 {
                     if(debug)
@@ -315,7 +315,7 @@ Client::run(int argc, char* argv[])
                     cout << "Reading Object Map:" << endl;
                 }
 
-                IdentityObjectInfoDict objects(connection, "objects");
+                IdentityObjectInfoDict objects(connection, "objects", false);
                 for(IdentityObjectInfoDict::const_iterator p = objects.begin(); p != objects.end(); ++p)
                 {
                     if(debug)
@@ -330,7 +330,7 @@ Client::run(int argc, char* argv[])
                     cout << "Reading Internal Object Map:" << endl;
                 }
 
-                IdentityObjectInfoDict internalObjects(connection, "internal-objects");
+                IdentityObjectInfoDict internalObjects(connection, "internal-objects", false);
                 for(IdentityObjectInfoDict::const_iterator p = internalObjects.begin();
                     p != internalObjects.end();
                     ++p)
@@ -347,7 +347,7 @@ Client::run(int argc, char* argv[])
                     cout << "Reading Serials Map:" << endl;
                 }
 
-                SerialsDict serials(connection, "serials");
+                SerialsDict serials(connection, "serials", false);
                 for(SerialsDict::const_iterator p = serials.begin(); p != serials.end(); ++p)
                 {
                     if(debug)

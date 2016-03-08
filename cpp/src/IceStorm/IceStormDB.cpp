@@ -57,7 +57,7 @@ Client::usage()
         "--import FILE          Import database from FILE.\n"
         "--export FILE          Export database to FILE.\n"
         "--dbhome DIR           The database directory.\n"
-        "-d, --debug            Print debug messages."
+        "-d, --debug            Print debug messages.\n"
         ;
 }
 
@@ -79,7 +79,7 @@ Client::run(int argc, char* argv[])
     }
     catch(const IceUtilInternal::BadOptException& e)
     {
-        cerr << e.reason << endl;
+        cerr << argv[0] << ": " << e.reason << endl;
         usage();
         return EXIT_FAILURE;
     }
@@ -104,14 +104,14 @@ Client::run(int argc, char* argv[])
 
     if((!opts.isSet("import") && !opts.isSet("export")) || (opts.isSet("import") && opts.isSet("export")))
     {
-        cerr << "Either --import or --export must be set" << endl;
+        cerr << argv[0] << ": either --import or --export must be set" << endl;
         usage();
         return EXIT_FAILURE;
     }
 
     if(!opts.isSet("dbhome"))
     {
-        cerr << "Database path must be specified" << endl;
+        cerr << argv[0] << ": database path must be specified" << endl;
         usage();
         return EXIT_FAILURE;
     }
@@ -125,7 +125,7 @@ Client::run(int argc, char* argv[])
     {
         IceStorm::AllData data;
 
-        EncodingVersion encoding; 
+        EncodingVersion encoding;
         encoding.major = 1;
         encoding.minor = 1;
 
@@ -137,21 +137,21 @@ Client::run(int argc, char* argv[])
 
             if(!IceUtilInternal::directoryExists(dbPath))
             {
-                cerr << "Output directory does not exist: " << dbPath << endl;
+                cerr << argv[0] << ": output directory does not exist: " << dbPath << endl;
                 return EXIT_FAILURE;
             }
 
             StringSeq files = IcePatch2Internal::readDirectory(dbPath);
             if(!files.empty())
             {
-                cerr << "Output directory is not empty: " << dbPath << endl;
+                cerr << argv[0] << ": output directory is not empty: " << dbPath << endl;
                 return EXIT_FAILURE;
             }
 
             ifstream fs(dbFile.c_str(), ios::binary);
             if(fs.fail())
             {
-                cerr << "Could not open input file: " << strerror(errno) << endl;
+                cerr << argv[0] << ": could not open input file: " << strerror(errno) << endl;
                 return EXIT_FAILURE;
             }
             fs.unsetf(ios::skipws);
@@ -173,7 +173,7 @@ Client::run(int argc, char* argv[])
             stream->read(type);
             if(type != "IceStorm")
             {
-                cerr << "Incorrect input file type: " << type << endl;
+                cerr << argv[0] << ": incorrect input file type: " << type << endl;
                 return EXIT_FAILURE;
             }
             stream->read(version);
@@ -229,7 +229,7 @@ Client::run(int argc, char* argv[])
                     cout << "Reading LLU Map:" << endl;
                 }
 
-                IceStorm::LLUMap llumap(connection, "llu");
+                IceStorm::LLUMap llumap(connection, "llu", false);
                 for(IceStorm::LLUMap::const_iterator p = llumap.begin(); p != llumap.end(); ++p)
                 {
                     if(debug)
@@ -244,7 +244,7 @@ Client::run(int argc, char* argv[])
                     cout << "Reading Subscriber Map:" << endl;
                 }
 
-                IceStorm::SubscriberMap subscribers(connection, "subscribers");
+                IceStorm::SubscriberMap subscribers(connection, "subscribers", false);
                 for(IceStorm::SubscriberMap::const_iterator q = subscribers.begin(); q != subscribers.end(); ++q)
                 {
                     if(debug)
@@ -265,7 +265,7 @@ Client::run(int argc, char* argv[])
             ofstream fs(dbFile.c_str(), ios::binary);
             if(fs.fail())
             {
-                cerr << "Could not open output file: " << strerror(errno) << endl;
+                cerr << argv[0] << ": could not open output file: " << strerror(errno) << endl;
                 return EXIT_FAILURE;
             }
             fs.write(reinterpret_cast<const char*>(buf.first), buf.second - buf.first);
@@ -274,7 +274,7 @@ Client::run(int argc, char* argv[])
     }
     catch(const IceUtil::Exception& ex)
     {
-        cerr << (import ? "Import" : "Export") << " failed:\n" << ex << endl;
+        cerr << argv[0] << ": " << (import ? "import" : "export") << " failed:\n" << ex << endl;
         return EXIT_FAILURE;
     }
 

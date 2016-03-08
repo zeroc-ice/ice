@@ -13,11 +13,12 @@ LIBNAME		= $(top_srcdir)\lib\icestormservice$(LIBSUFFIX).lib
 DLLNAME		= $(top_srcdir)\bin\icestormservice$(SOVERSION)$(LIBSUFFIX)$(COMPSUFFIX).dll
 
 ADMIN		= $(top_srcdir)\bin\icestormadmin.exe
+DB		= $(top_srcdir)\bin\icestormdb.exe
 MIGRATE		= $(top_srcdir)\bin\icestormmigrate.exe
 
-TARGETS		= $(LIBNAME) $(DLLNAME) $(ADMIN) $(MIGRATE)
+TARGETS		= $(LIBNAME) $(DLLNAME) $(ADMIN) $(MIGRATE) $(DB)
 
-SLICE_OBJS      = .\Election.obj \
+CSLICE_OBJS     = .\Election.obj \
 		  .\IceStormInternal.obj \
 		  .\Instrumentation.obj \
 		  .\LinkRecord.obj \
@@ -25,6 +26,8 @@ SLICE_OBJS      = .\Election.obj \
 		  .\SubscriberRecord.obj \
 		  .\V31Format.obj \
 		  .\V32Format.obj
+
+DSLICE_OBJS     = .\DBTypes.obj
 
 BISON_FLEX_OBJS = .\Grammar.obj \
                   .\Scanner.obj
@@ -45,11 +48,11 @@ LIB_OBJS	= .\Instance.obj \
 		  .\Util.obj \
 		  .\V31FormatDB.obj \
 		  .\V32FormatDB.obj \
-                  $(SLICE_OBJS)
+                  $(CSLICE_OBJS)
 
 AOBJS		= .\Admin.obj \
 		  .\Parser.obj \
-                  $(SLICE_OBJS) \
+                  $(CSLICE_OBJS) \
                   $(BISON_FLEX_OBJS)
 
 MOBJS		= .\LLUMap.obj \
@@ -57,11 +60,20 @@ MOBJS		= .\LLUMap.obj \
                   .\SubscriberMap.obj \
                   .\V31FormatDB.obj \
 		  .\V32FormatDB.obj \
-                  $(SLICE_OBJS)
+                  $(CSLICE_OBJS)
+
+DOBJS		= .\IceStormDB.obj \
+                  .\LLUMap.obj \
+                  .\SubscriberMap.obj \
+                  $(DSLICE_OBJS)
 
 OBJS		= $(LIB_OBJS) \
 		  $(AOBJS) \
-		  $(MOBJS)
+		  $(MOBJS) \
+		  $(DOBJS)
+
+SLICE_OBJS	= $(CSLICE_OBJS) \
+		  $(DSLICE_OBJS)
 
 HDIR		= $(headerdir)\IceStorm
 SDIR		= $(slicedir)\IceStorm
@@ -70,9 +82,9 @@ SLICE2FREEZECMD = $(SLICE2FREEZE) -I.. --ice --include-dir IceStorm $(ICECPPFLAG
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-CPPFLAGS	= -I.. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
+CPPFLAGS	= -I. -I.. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 ICECPPFLAGS	= $(ICECPPFLAGS) -I..
-SLICE2CPPFLAGS	= --ice --include-dir IceStorm $(SLICE2CPPFLAGS)
+SLICE2CPPFLAGS	= --ice --include-dir IceStorm -I. $(SLICE2CPPFLAGS)
 LINKWITH 	= $(LIBS)
 ALINKWITH 	= $(LIBS) 
 MLINKWITH 	= $(LIBS)
@@ -80,11 +92,13 @@ MLINKWITH 	= $(LIBS)
 !if "$(GENERATE_PDB)" == "yes"
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 APDBFLAGS       = /pdb:$(ADMIN:.exe=.pdb)
+DPDBFLAGS       = /pdb:$(DB:.exe=.pdb)
 MPDBFLAGS       = /pdb:$(MIGRATE:.exe=.pdb)
 !endif
 
 RES_FILE        = IceStormService.res
 ARES_FILE       = IceStormAdmin.res
+DRES_FILE       = IceStormDB.res
 MRES_FILE       = IceStormMigrate.res
 
 $(LIBNAME): $(DLLNAME)
@@ -100,6 +114,13 @@ $(DLLNAME): $(LIB_OBJS) $(RES_FILE)
 
 $(ADMIN): $(AOBJS) $(ARES_FILE)
 	$(LINK) $(LD_EXEFLAGS) $(APDBFLAGS) $(AOBJS) $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(ALINKWITH) $(ARES_FILE)
+	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
+	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
+	@if defined SIGN_CERTIFICATE echo ^ ^ ^ Signing $@ && \
+		signtool sign /f "$(SIGN_CERTIFICATE)" /p $(SIGN_PASSWORD) /t $(SIGN_TIMESTAMPSERVER) $@
+
+$(DB): $(DOBJS) $(DRES_FILE)
+	$(LINK) $(LD_EXEFLAGS) $(DPDBFLAGS) $(DOBJS) $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(LINKWITH) $(DRES_FILE)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 	@if defined SIGN_CERTIFICATE echo ^ ^ ^ Signing $@ && \
@@ -139,7 +160,8 @@ V31FormatDB.h V31FormatDB.cpp: V31Format.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	V31FormatDB V31Format.ice
 
 clean::
-	-del /q Election.cpp Election.h
+	-del /q DBTypes.cpp DBTypes.h
+	-del /q LLUMap.h LLUMap.cpp
 	-del /q IceStormInternal.cpp IceStormInternal.h
 	-del /q Instrumentation.cpp Instrumentation.h
 	-del /q LinkRecord.cpp LinkRecord.h
@@ -158,12 +180,14 @@ install:: all
 	copy $(LIBNAME) "$(install_libdir)"
 	copy $(DLLNAME) "$(install_bindir)"
 	copy $(ADMIN) "$(install_bindir)"
+	copy $(DB) "$(install_bindir)"
 	copy $(MIGRATE) "$(install_bindir)"
 
 !if "$(GENERATE_PDB)" == "yes"
 
 install:: all
         copy $(ADMIN:.exe=.pdb) "$(install_bindir)"
+        copy $(DB:.exe=.pdb) "$(install_bindir)"
         copy $(MIGRATE:.exe=.pdb) "$(install_bindir)"
         copy $(DLLNAME:.dll=.pdb) "$(install_bindir)"
 

@@ -11,21 +11,24 @@ top_srcdir	= ..\..
 
 ADMIN		= $(top_srcdir)\bin\icegridadmin.exe
 
+DB		= $(top_srcdir)\bin\icegriddb.exe
+
 NODE_SERVER_D	= $(top_srcdir)\bin\icegridnoded.exe
 NODE_SERVER_R	= $(top_srcdir)\bin\icegridnode.exe
 
 NODE_SERVER	= $(top_srcdir)\bin\icegridnode$(LIBSUFFIX).exe
-
 
 REGISTRY_SERVER_D = $(top_srcdir)\bin\icegridregistryd.exe
 REGISTRY_SERVER_R = $(top_srcdir)\bin\icegridregistry.exe
 
 REGISTRY_SERVER	= $(top_srcdir)\bin\icegridregistry$(LIBSUFFIX).exe
 
-TARGETS         = $(ADMIN) $(NODE_SERVER) $(REGISTRY_SERVER)
+TARGETS         = $(ADMIN) $(NODE_SERVER) $(REGISTRY_SERVER) $(DB)
 
-SLICE_OBJS      = .\Internal.obj \
+CSLICE_OBJS     = .\Internal.obj \
 		  .\IceLocatorDiscovery.obj
+
+DSLICE_OBJS     = .\DBTypes.obj
 
 all:: StringApplicationInfoDict.h StringApplicationInfoDict.cpp \
 	  IdentityObjectInfoDict.h IdentityObjectInfoDict.cpp \
@@ -42,7 +45,7 @@ ADMIN_OBJS	= .\Client.obj \
 		  .\FileParserI.obj \
 		  .\Parser.obj \
 		  .\Util.obj \
-		  $(SLICE_OBJS) \
+		  $(CSLICE_OBJS) \
                   $(BISON_FLEX_OBJS)
 
 COMMON_OBJS	= .\AdminRouter.obj \
@@ -52,7 +55,7 @@ COMMON_OBJS	= .\AdminRouter.obj \
 		  .\PlatformInfo.obj \
 		  .\SessionManager.obj \
 		  .\TraceLevels.obj \
-		  $(SLICE_OBJS)
+		  $(CSLICE_OBJS)
 
 NODE_OBJS	= .\Activator.obj \
 		  .\NodeAdminRouter.obj \
@@ -105,9 +108,16 @@ REGISTRY_SVR_OBJS = \
 		  $(REGISTRY_OBJS) \
 		  .\IceGridRegistry.obj
 
+DB_OBJS		= .\IceGridDB.obj \
+		  .\IdentityObjectInfoDict.obj \
+		  .\SerialsDict.obj \
+		  .\StringAdapterInfoDict.obj \
+		  $(DSLICE_OBJS)
+
 OBJS            = $(ADMIN_OBJS) \
 		  $(NODE_SVR_OBJS) \
-		  $(REGISTRY_SVR_OBJS)
+		  $(REGISTRY_SVR_OBJS) \
+		  $(DB_OBJS)
 
 HDIR		= $(headerdir)\IceGrid
 SDIR		= $(slicedir)\IceGrid
@@ -130,11 +140,19 @@ NPDBFLAGS       = /pdb:$(NODE_SERVER:.exe=.pdb)
 !endif
 
 ARES_FILE       = IceGridAdmin.res
+DRES_FILE       = IceGridDB.res
 RRES_FILE       = IceGridRegistry.res
 NRES_FILE       = IceGridNode.res
 
 $(ADMIN): $(ADMIN_OBJS) IceGridAdmin.res
 	$(LINK) $(LD_EXEFLAGS) $(APDBFLAGS) $(ADMIN_OBJS) $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(ALINKWITH) $(ARES_FILE)
+	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) &&\
+	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
+	@if defined SIGN_CERTIFICATE echo ^ ^ ^ Signing $@ && \
+		signtool sign /f "$(SIGN_CERTIFICATE)" /p $(SIGN_PASSWORD) /t $(SIGN_TIMESTAMPSERVER) $@
+
+$(DB): $(DB_OBJS) IceGridDB.res
+	$(LINK) $(LD_EXEFLAGS) $(APDBFLAGS) $(DB_OBJS) $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(LINKWITH) $(DRES_FILE)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) &&\
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 	@if defined SIGN_CERTIFICATE echo ^ ^ ^ Signing $@ && \
@@ -163,7 +181,6 @@ IceLocatorDiscovery.h IceLocatorDiscovery.cpp: $(slicedir)\IceLocatorDiscovery\I
 	@echo Generating dependencies for $<
 	@"$(SLICE2CPP)" $(SLICE2CPPFLAGS) --depend $< | cscript /NoLogo $(top_srcdir)\..\config\makedepend-slice.vbs $(*F).ice
 
-
 StringApplicationInfoDict.h StringApplicationInfoDict.cpp: $(SDIR)\Admin.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	del /q StringApplicationInfoDict.h StringApplicationInfoDict.cpp
 	$(SLICE2FREEZECMD) --dict IceGrid::StringApplicationInfoDict,string,IceGrid::ApplicationInfo \
@@ -185,26 +202,29 @@ SerialsDict.h SerialsDict.cpp: $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	$(SLICE2FREEZECMD) --dict IceGrid::SerialsDict,string,long SerialsDict
 
 clean::
+	-del /q DBTypes.cpp DBTypes.h
 	-del /q Internal.cpp Internal.h
 	-del /q StringApplicationInfoDict.h StringApplicationInfoDict.cpp
 	-del /q StringAdapterInfoDict.h StringAdapterInfoDict.cpp
 	-del /q IdentityObjectInfoDict.h IdentityObjectInfoDict.cpp
 	-del /q SerialsDict.h SerialsDict.cpp
 	-del /q $(ADMIN:.exe=.*)
+	-del /q $(DB:.exe=.*)
 	-del /q $(NODE_SERVER_D:.exe=.*) $(NODE_SERVER_R:.exe=.*)
 	-del /q $(REGISTRY_SERVER_D:.exe=.*) $(REGISTRY_SERVER_R:.exe=.*)
 	-del /q IceGridAdmin.res IceGridNode.res IceGridRegistry.res
 
 install:: all
 	copy $(ADMIN) "$(install_bindir)"
+	copy $(DB) "$(install_bindir)"
 	copy $(NODE_SERVER) "$(install_bindir)"
 	copy $(REGISTRY_SERVER) "$(install_bindir)"
-
 
 !if "$(GENERATE_PDB)" == "yes"
 
 install:: all
 	copy $(ADMIN:.exe=.pdb) "$(install_bindir)"
+	copy $(DB:.exe=.pdb) "$(install_bindir)"
 	copy $(NODE_SERVER:.exe=.pdb) "$(install_bindir)"
 	copy $(REGISTRY_SERVER:.exe=.pdb) "$(install_bindir)"
 

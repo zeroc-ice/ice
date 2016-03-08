@@ -14,11 +14,12 @@ SONAME       	= $(call mksoname,IceStormService,$(SOVERSION))
 LIBNAME	     	= $(call mklibname,IceStormService)
 
 ADMIN		= $(bindir)/icestormadmin
+DB		= $(bindir)/icestormdb
 MIGRATE		= $(bindir)/icestormmigrate
 LIBTARGETS   	= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)$(cpp11libdirsuffix)/$(LIBNAME))
-TARGETS         = $(LIBTARGETS) $(ADMIN) $(MIGRATE)
+TARGETS         = $(LIBTARGETS) $(ADMIN) $(MIGRATE) $(DB)
 
-SLICE_OBJS	= Election.o \
+CSLICE_OBJS	= Election.o \
 		  IceStormInternal.o \
 		  Instrumentation.o \
 		  LinkRecord.o \
@@ -43,24 +44,35 @@ LIB_OBJS	= Instance.o \
 		  Util.o \
 		  V31FormatDB.o \
 		  V32FormatDB.o \
-		  $(SLICE_OBJS)
+		  $(CSLICE_OBJS)
 
 AOBJS		= Admin.o \
 		  Grammar.o \
 		  Parser.o \
 		  Scanner.o \
-		  $(SLICE_OBJS)
+		  $(CSLICE_OBJS)
 
 MOBJS		= LLUMap.o \
 		  Migrate.o \
 		  SubscriberMap.o \
 		  V31FormatDB.o \
 		  V32FormatDB.o \
-		  $(SLICE_OBJS)
+		  $(CSLICE_OBJS)
+
+DSLICE_OBJS	= DBTypes.o
+
+DOBJS		= IceStormDB.o \
+		  LLUMap.o \
+		  SubscriberMap.o \
+		  $(DSLICE_OBJS)
 
 OBJS		= $(LIB_OBJS) \
 		  $(AOBJS) \
-		  $(MOBJS)
+		  $(MOBJS) \
+		  $(DOBJS)
+
+SLICE_OBJS	= $(CSLICE_OBJS) \
+		  $(DSLICE_OBJS)
 
 RPATH_DIR	= $(LOADER_PATH)/../$(libsubdir)
 
@@ -68,9 +80,9 @@ SLICE2FREEZECMD = $(SLICE2FREEZE) -I../.. --ice --include-dir IceStorm $(ICECPPF
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= $(CPPFLAGS) -I.. $(READLINE_FLAGS)
+CPPFLAGS	:= $(CPPFLAGS) -I. -I.. $(READLINE_FLAGS)
 ICECPPFLAGS	:= $(ICECPPFLAGS) -I..
-SLICE2CPPFLAGS	:= --ice --include-dir IceStorm $(SLICE2CPPFLAGS)
+SLICE2CPPFLAGS	:= --ice --include-dir IceStorm -I. $(SLICE2CPPFLAGS)
 LINKWITH	:= $(BZIP2_RPATH_LINK) -lIceStorm -lIceGrid -lGlacier2 -lFreeze -lIceBox -lIce -lIceUtil
 
 $(libdir)/$(LIBFILENAME): $(LIB_OBJS)
@@ -90,6 +102,10 @@ $(libdir)$(cpp11libdirsuffix)/$(LIBNAME): $(libdir)/$(SONAME)
 $(ADMIN): $(AOBJS) $(LIBTARGETS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(AOBJS) -lIceStorm $(READLINE_LIBS) $(LIBS)
+
+$(DB): $(DOBJS) $(LIBTARGETS)
+	rm -f $@
+	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(DOBJS) -lIceStorm -lIcePatch2 -lFreeze $(LIBS)
 
 $(MIGRATE): $(MOBJS)
 	rm -f $@
@@ -136,6 +152,7 @@ clean::
 install:: all
 	$(call installlib,$(DESTDIR)$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
 	$(call installprogram,$(ADMIN),$(DESTDIR)$(install_bindir))
+	$(call installprogram,$(DB),$(DESTDIR)$(install_bindir))
 	$(call installdata,$(top_srcdir)/../man/man1/icestormadmin.1,$(DESTDIR)$(install_mandir))
 	$(call installprogram,$(MIGRATE),$(DESTDIR)$(install_bindir))
 	$(call installdata,$(top_srcdir)/../man/man1/icestormmigrate.1,$(DESTDIR)$(install_mandir))

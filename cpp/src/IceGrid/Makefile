@@ -10,12 +10,13 @@
 top_srcdir	= ../..
 
 ADMIN		= $(bindir)/icegridadmin
+DB		= $(bindir)/icegriddb
 NODE_SERVER	= $(bindir)/icegridnode
 REGISTRY_SERVER	= $(bindir)/icegridregistry
 
-TARGETS         = $(NODE_SERVER) $(REGISTRY_SERVER) $(ADMIN)
+TARGETS         = $(NODE_SERVER) $(REGISTRY_SERVER) $(ADMIN) $(DB)
 
-SLICE_OBJS      = Internal.o \
+CSLICE_OBJS     = Internal.o \
 		  IceLocatorDiscovery.o
 
 ADMIN_OBJS	= Client.o \
@@ -27,7 +28,7 @@ ADMIN_OBJS	= Client.o \
 		  Parser.o \
 		  Scanner.o \
 		  Util.o \
-		  $(SLICE_OBJS)
+		  $(CSLICE_OBJS)
 
 COMMON_OBJS	= AdminRouter.o \
 		  DescriptorBuilder.o \
@@ -36,7 +37,7 @@ COMMON_OBJS	= AdminRouter.o \
 		  PlatformInfo.o \
 		  SessionManager.o \
 		  TraceLevels.o \
-		  $(SLICE_OBJS)
+		  $(CSLICE_OBJS)
 
 NODE_OBJS	= Activator.o \
 		  NodeAdminRouter.o \
@@ -89,11 +90,24 @@ REGISTRY_SVR_OBJS = \
 		  $(REGISTRY_OBJS) \
 		  IceGridRegistry.o
 
+DSLICE_OBJS	= DBTypes.o
+
+DB_OBJS		= IceGridDB.o \
+		  StringApplicationInfoDict.o \
+		  IdentityObjectInfoDict.o \
+		  StringAdapterInfoDict.o \
+		  SerialsDict.o \
+		  $(DSLICE_OBJS)
+
 OBJS		= $(ADMIN_OBJS) \
 		  $(COMMON_OBJS) \
 		  $(NODE_OBJS) \
 		  $(NODE_SVR_OBJS) \
-		  $(REGISTRY_SVR_OBJS)
+		  $(REGISTRY_SVR_OBJS) \
+		  $(DB_OBJS)
+
+SLICE_OBJS	= $(CSLICE_OBJS) \
+		  $(DSLICE_OBJS)
 
 SDIR		= $(slicedir)/IceGrid
 
@@ -101,7 +115,7 @@ RPATH_DIR	= $(LOADER_PATH)/../$(libsubdir)
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= $(CPPFLAGS) -I.. $(READLINE_FLAGS)
+CPPFLAGS	:= $(CPPFLAGS) -I. -I.. $(READLINE_FLAGS)
 ICECPPFLAGS	:= $(ICECPPFLAGS) -I..
 SLICE2CPPFLAGS 	:= --checksum --ice --include-dir IceGrid $(SLICE2CPPFLAGS)
 SLICE2FREEZECMD	:= $(SLICE2FREEZE) --ice --include-dir IceGrid $(ICECPPFLAGS)
@@ -110,6 +124,10 @@ $(ADMIN): $(ADMIN_OBJS) $(LIBTARGETS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(ADMIN_OBJS) -lGlacier2 $(EXPAT_RPATH_LINK) -lIceXML -lIceGrid -lIcePatch2 -lIceBox \
 	$(LIBS) $(READLINE_LIBS) $(OPENSSL_RPATH_LINK)
+
+$(DB): $(DB_OBJS) $(LIBTARGETS)
+	rm -f $@
+	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(DB_OBJS) -lIceGrid -lGlacier2 -lIcePatch2 -lFreeze $(LIBS)
 
 $(REGISTRY_SERVER): $(REGISTRY_SVR_OBJS) $(LIBTARGETS)
 	rm -f $@
@@ -162,6 +180,7 @@ clean::
 
 install:: all
 	$(call installprogram,$(ADMIN),$(DESTDIR)$(install_bindir))
+	$(call installprogram,$(DB),$(DESTDIR)$(install_bindir))
 	$(call installdata,$(top_srcdir)/../man/man1/icegridadmin.1,$(DESTDIR)$(install_mandir))
 	$(call installprogram,$(NODE_SERVER),$(DESTDIR)$(install_bindir))
 	$(call installdata,$(top_srcdir)/../man/man1/icegridnode.1,$(DESTDIR)$(install_mandir))
