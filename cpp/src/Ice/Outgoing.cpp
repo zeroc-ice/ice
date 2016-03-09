@@ -501,7 +501,7 @@ Outgoing::completed(InputStream& is)
             ex->id = ident;
             ex->facet = facet;
             ex->operation = operation;
-            ICE_RESET_EXCEPTION(_exception, ex->ice_clone());
+            ICE_RESET_EXCEPTION(_exception, ex);
             _state = StateLocalException; // The state must be set last, in case there is an exception.
             break;
         }
