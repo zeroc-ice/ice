@@ -126,6 +126,13 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
             {
                 out << 'L';
             }
+            //
+            // In C++11 use utf-8 string literals for narrow strings
+            //
+            else if(cpp11)
+            {
+                out << "u8";
+            }
             out << "\"";                                    // Opening "
 
             for(size_t i = 0; i < value.size();)
@@ -147,6 +154,15 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
                     {
                         case '\\':
                         {
+                            //
+                            // In C++98 UCN \unnnn and \Unnnnnnnn are converted to a sequence of OCT escaped 
+                            // bytes representing the UTF-8 encoding of the universal character, in C++11 UCN
+                            // are not converted.
+                            //
+                            if(cpp11)
+                            {
+                                break;
+                            }
                             string s = "\\";
                             size_t j = i + 1;
                             for(; j < value.size(); ++j)

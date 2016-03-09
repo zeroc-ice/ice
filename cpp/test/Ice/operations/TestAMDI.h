@@ -375,6 +375,10 @@ public:
                                   ::std::function<void (const ::std::shared_ptr<Test::MyClass1>&)>,
                                   ::std::function<void (std::exception_ptr)>,
                                   const Ice::Current&);
+
+    virtual void opStringLiterals_async(::std::function<void (const Test::StringS&)>,
+                                        ::std::function<void (std::exception_ptr)>,
+                                        const Ice::Current&);
 #else
     virtual void shutdown_async(const Test::AMD_MyClass_shutdownPtr&,
                                 const Ice::Current&);

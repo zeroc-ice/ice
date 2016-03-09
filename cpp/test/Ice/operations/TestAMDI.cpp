@@ -913,6 +913,49 @@ MyDerivedClassI::opMyClass1_async(shared_ptr<Test::MyClass1> c,
     response(c);
 }
 
+void
+MyDerivedClassI::opStringLiterals_async(function<void (const Test::StringS&)> response,
+                                        function<void (exception_ptr)>,
+                                        const Ice::Current&)
+{
+    Test::StringS data;
+    data.push_back(Test::s0);
+    data.push_back(Test::s1);
+    data.push_back(Test::s2);
+    data.push_back(Test::s3);
+    data.push_back(Test::s4);
+    data.push_back(Test::s5);
+    data.push_back(Test::s6);
+    data.push_back(Test::s7);
+    data.push_back(Test::s8);
+    data.push_back(Test::s9);
+    data.push_back(Test::s10);
+
+    data.push_back(Test::sw0);
+    data.push_back(Test::sw1);
+    data.push_back(Test::sw2);
+    data.push_back(Test::sw3);
+    data.push_back(Test::sw4);
+    data.push_back(Test::sw5);
+    data.push_back(Test::sw6);
+    data.push_back(Test::sw7);
+    data.push_back(Test::sw8);
+    data.push_back(Test::sw9);
+    data.push_back(Test::sw10);
+
+    data.push_back(Test::ss0);
+    data.push_back(Test::ss1);
+    data.push_back(Test::ss2);
+    data.push_back(Test::ss3);
+    data.push_back(Test::ss4);
+    data.push_back(Test::ss5);
+
+    data.push_back(Test::su0);
+    data.push_back(Test::su1);
+    data.push_back(Test::su2);
+
+    response(data);
+}
 #else
 
 class Thread_opVoid : public IceUtil::Thread
