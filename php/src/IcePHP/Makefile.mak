@@ -51,7 +51,7 @@ CPPFLAGS = $(CPPFLAGS) -D_USE_32BIT_TIME_T
 PDBFLAGS        = /pdb:$(LIBNAME:.lib=.pdb)
 !endif
 
-LINKWITH        = $(ICE_LIBS) $(PHP_LIBS) $(CXXLIBS)
+LINKWITH        = $(ICE_LIBS) $(PHP_LIBS) $(CXXLIBS) icediscovery$(LIBSUFFIX).lib icelocatordiscovery$(LIBSUFFIX).lib
 
 $(LIBNAME): $(DLLNAME)
 
