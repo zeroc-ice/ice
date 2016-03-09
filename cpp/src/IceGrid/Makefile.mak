@@ -137,6 +137,7 @@ CPPFLAGS	= -I. -I.. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN -Zm200
 
 !if "$(GENERATE_PDB)" == "yes"
 APDBFLAGS       = /pdb:$(ADMIN:.exe=.pdb)
+DBPDBFLAGS      = /pdb:$(DB:.exe=.pdb)
 RPDBFLAGS       = /pdb:$(REGISTRY_SERVER:.exe=.pdb)
 NPDBFLAGS       = /pdb:$(NODE_SERVER:.exe=.pdb)
 !endif
@@ -154,7 +155,7 @@ $(ADMIN): $(ADMIN_OBJS) IceGridAdmin.res
 		signtool sign /f "$(SIGN_CERTIFICATE)" /p $(SIGN_PASSWORD) /t $(SIGN_TIMESTAMPSERVER) $@
 
 $(DB): $(DB_OBJS) IceGridDB.res
-	$(LINK) $(LD_EXEFLAGS) $(APDBFLAGS) $(DB_OBJS) $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(DLINKWITH) $(DRES_FILE)
+	$(LINK) $(LD_EXEFLAGS) $(DBPDBFLAGS) $(DB_OBJS) $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(DLINKWITH) $(DRES_FILE)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) &&\
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 	@if defined SIGN_CERTIFICATE echo ^ ^ ^ Signing $@ && \
