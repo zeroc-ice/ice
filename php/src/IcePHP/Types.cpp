@@ -759,7 +759,12 @@ IcePHP::PrimitiveInfo::validate(zval* zv TSRMLS_DC)
         if(Z_TYPE_P(zv) == IS_DOUBLE)
         {
             double val = Z_DVAL_P(zv);
-            return (val <= numeric_limits<float>::max() && val >= -numeric_limits<float>::max()) || !isfinite(val);
+            return (val <= numeric_limits<float>::max() && val >= -numeric_limits<float>::max()) || 
+#if defined(_MSC_VER) && (_MSC_VER <= 1700)
+                !_finite(val);
+#else
+                !isfinite(val);
+#endif
         }
         break;
     }
