@@ -86,8 +86,6 @@ public:
 
         void resize(size_type n) // Inlined for performance reasons.
         {
-            assert(!_buf || _capacity > 0);
-
             if(n == 0)
             {
                 clear();
@@ -101,14 +99,12 @@ public:
 
         void reset()
         {
-            assert(!_buf || _capacity > 0);
-
             if(_size > 0 && _size * 2 < _capacity)
             {
                 //
                 // If the current buffer size is smaller than the
                 // buffer capacity, we shrink the buffer memory to the
-                // current size. This is to avoid holding on too much
+                // current size. This is to avoid holding onto too much
                 // memory if it's not needed anymore.
                 //
                 if(++_shrinkCounter > 2)
@@ -152,6 +148,7 @@ public:
         size_type _size;
         size_type _capacity;
         int _shrinkCounter;
+        bool _owned;
     };
 
     Container b;

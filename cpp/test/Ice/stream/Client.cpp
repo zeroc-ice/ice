@@ -1241,6 +1241,39 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
         }
     }
 
+    //
+    // Test marshaling to user-supplied buffer.
+    //
+    {
+        Ice::Byte buf[128];
+        pair<Ice::Byte*, Ice::Byte*> p(&buf[0], &buf[0] + sizeof(buf));
+        Ice::OutputStream out(communicator, Ice::currentEncoding, p);
+        vector<Ice::Byte> v;
+        v.resize(127);
+        out.write(v);
+        test(out.pos() == 128); // 127 bytes + leading size (1 byte)
+        test(out.b.begin() == buf); // Verify the stream hasn't reallocated.
+    }
+    {
+        Ice::Byte buf[128];
+        pair<Ice::Byte*, Ice::Byte*> p(&buf[0], &buf[0] + sizeof(buf));
+        Ice::OutputStream out(communicator, Ice::currentEncoding, p);
+        vector<Ice::Byte> v;
+        v.resize(127);
+        ::memset(&v[0], 0xFF, v.size());
+        out.write(v);
+        out.write(Ice::Byte(0xFF)); // This extra byte should make the stream reallocate.
+        test(out.pos() == 129); // 127 bytes + leading size (1 byte) + 1 byte
+        test(out.b.begin() != buf); // Verify the stream was reallocated.
+        out.finished(data);
+
+        Ice::InputStream in(communicator, data);
+        vector<Ice::Byte> v2;
+        in.read(v2);
+        test(v2.size() == 127);
+        test(v == v2); // Make sure the original buffer was preserved.
+    }
+
     cout << "ok" << endl;
     return 0;
 }

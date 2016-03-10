@@ -95,6 +95,16 @@ Ice::OutputStream::OutputStream(const CommunicatorPtr& communicator, const Encod
     initialize(communicator, encoding);
 }
 
+Ice::OutputStream::OutputStream(const CommunicatorPtr& communicator, const EncodingVersion& encoding,
+                                const pair<const Byte*, const Byte*>& buf) :
+    Buffer(buf.first, buf.second),
+    _closure(0),
+    _currentEncaps(0)
+{
+    initialize(communicator, encoding);
+    b.reset();
+}
+
 Ice::OutputStream::OutputStream(Instance* instance, const EncodingVersion& encoding) :
     _closure(0),
     _currentEncaps(0)

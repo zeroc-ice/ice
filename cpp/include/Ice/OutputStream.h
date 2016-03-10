@@ -49,6 +49,13 @@ public:
     //
     OutputStream(const CommunicatorPtr&, const EncodingVersion&);
 
+    //
+    // This constructor uses the given communicator and encoding version. The byte pair denotes
+    // application-supplied memory that the stream uses as its initial marshaling buffer. The
+    // stream will reallocate if the size of the marshaled data exceeds the application's buffer.
+    //
+    OutputStream(const CommunicatorPtr&, const EncodingVersion&, const std::pair<const Byte*, const Byte*>&);
+
     ~OutputStream()
     {
         // Inlined for performance reasons.

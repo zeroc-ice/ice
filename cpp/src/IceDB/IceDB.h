@@ -515,19 +515,13 @@ struct Codec<T, IceContext, Ice::OutputStream>
 
     static bool write(const T& t, MDB_val& val, const IceContext& ctx)
     {
-        Ice::OutputStream stream(ctx.communicator, ctx.encoding);
+        const size_t limit = val.mv_size;
+        std::pair<Ice::Byte*, Ice::Byte*> p(reinterpret_cast<Ice::Byte*>(val.mv_data),
+                                            reinterpret_cast<Ice::Byte*>(val.mv_data) + limit);
+        Ice::OutputStream stream(ctx.communicator, ctx.encoding, p);
         stream.write(t);
-        if(stream.b.size() > val.mv_size)
-        {
-            val.mv_size = stream.b.size();
-            return false;
-        }
-        else
-        {
-            val.mv_size = stream.b.size();
-            memcpy(val.mv_data, &stream.b[0], stream.b.size());
-            return true;
-        }
+        val.mv_size = stream.b.size();
+        return stream.b.size() > limit ? false : true;
     }
 };
 
