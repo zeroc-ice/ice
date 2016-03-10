@@ -137,11 +137,93 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& p)
     test(Test::ss5 == "\\u0041\\" &&
          Test::ss5 == literals[27]);
 
-    test(Test::su0 == Test::su1);
-    test(Test::su0 == Test::su2);
-    test(Test::su0 == literals[28]);
-    test(Test::su0 == literals[29]);
-    test(Test::su0 == literals[30]);
+    test(Test::su0 == Test::su1 &&
+         Test::su0 == Test::su2 &&
+         Test::su0 == literals[28] &&
+         Test::su0 == literals[29] &&
+         Test::su0 == literals[30]);
+    
+    //
+    // Same but using wide strings
+    //
+    Test::WStringS wliterals = p->opWStringLiterals();
+
+    test(Test::ws0 == L"\\" &&
+         Test::ws0 == Test::wsw0 &&
+         Test::ws0 == wliterals[0] &&
+         Test::ws0 == wliterals[11]);
+
+    test(Test::ws1 == L"A" &&
+         Test::ws1 == Test::wsw1 &&
+         Test::ws1 == wliterals[1] &&
+         Test::ws1 == wliterals[12]);
+
+    test(Test::ws2 == L"Ice" &&
+         Test::ws2 == Test::wsw2 &&
+         Test::ws2 == wliterals[2] &&
+         Test::ws2 == wliterals[13]);
+
+    test(Test::ws3 == L"A21" &&
+         Test::ws3 == Test::wsw3 &&
+         Test::ws3 == wliterals[3] &&
+         Test::ws3 == wliterals[14]);
+
+    test(Test::ws4 == L"\\u0041 \\U00000041" &&
+         Test::ws4 == Test::wsw4 &&
+         Test::ws4 == wliterals[4] &&
+         Test::ws4 == wliterals[15]);
+
+    test(Test::ws5 == L"\u00FF" &&
+         Test::ws5 == Test::wsw5 &&
+         Test::ws5 == wliterals[5] &&
+         Test::ws5 == wliterals[16]);
+
+    test(Test::ws6 == L"\u03FF" &&
+         Test::ws6 == Test::wsw6 &&
+         Test::ws6 == wliterals[6] &&
+         Test::ws6 == wliterals[17]);
+
+    test(Test::ws7 == L"\u05F0" &&
+         Test::ws7 == Test::wsw7 &&
+         Test::ws7 == wliterals[7] &&
+         Test::ws7 == wliterals[18]);
+
+    test(Test::ws8 == L"\U00010000" &&
+         Test::ws8 == Test::wsw8 &&
+         Test::ws8 == wliterals[8] &&
+         Test::ws8 == wliterals[19]);
+
+    test(Test::ws9 == L"\U0001F34C" &&
+         Test::ws9 == Test::wsw9 &&
+         Test::ws9 == wliterals[9] &&
+         Test::ws9 == wliterals[20]);
+
+    test(Test::ws10 == L"\u0DA7" &&
+         Test::ws10 == Test::wsw10 &&
+         Test::ws10 == wliterals[10] &&
+         Test::ws10 == wliterals[21]);
+
+    test(Test::wss0 == L"\'\"\?\\\a\b\f\n\r\t\v" &&
+         Test::wss0 == Test::wss1 &&
+         Test::wss0 == Test::wss2 &&
+         Test::wss0 == wliterals[22] &&
+         Test::wss0 == wliterals[23] &&
+         Test::wss0 == wliterals[24]);
+
+    test(Test::wss3 == L"\\\\U\\u\\" &&
+         Test::wss3 == wliterals[25]);
+
+    test(Test::wss4 == L"\\A\\" &&
+         Test::wss4 == wliterals[26]);
+
+    test(Test::wss5 == L"\\u0041\\" &&
+         Test::wss5 == wliterals[27]);
+
+    test(Test::wsu0 == Test::wsu1 &&
+         Test::wsu0 == Test::wsu2 &&
+         Test::wsu0 == wliterals[28] &&
+         Test::wsu0 == wliterals[29] &&
+         Test::wsu0 == wliterals[30]);
 
     {
         p->ice_ping();

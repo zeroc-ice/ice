@@ -43,6 +43,7 @@ sequence<long> LongS;
 sequence<float> FloatS;
 sequence<double> DoubleS;
 sequence<string> StringS;
+sequence<["cpp:type:wstring"]string> WStringS;
 sequence<MyEnum> MyEnumS;
 sequence<MyClass*> MyClassS;
 
@@ -253,6 +254,7 @@ class MyClass
     ByteBoolD opByteBoolD2(ByteBoolD byteBoolD);
     
     StringS opStringLiterals();
+    WStringS opWStringLiterals();
 };
 
 struct MyStruct1
@@ -340,6 +342,71 @@ const string ss5 = "\\u0041\\";  /* \u0041\ */
 const string su0 = "ÿĀἀ𐆔𐅪𐆘🍀🍁🍂🍃";
 const string su1 = "\u00FF\u0100\u1F00\U00010194\U0001016A\U00010198\U0001F340\U0001F341\U0001F342\U0001F343";
 const string su2 = "\U000000FF\U00000100\U00001F00\U00010194\U0001016A\U00010198\U0001F340\U0001F341\U0001F342\U0001F343";
+
+//
+// Wide string literals
+//
+
+const ["cpp:type:wstring"]string ws0 = "\u005c";                           // backslash
+const ["cpp:type:wstring"]string ws1 = "\u0041";                           // A
+const ["cpp:type:wstring"]string ws2 = "\u0049\u0063\u0065";               // Ice
+const ["cpp:type:wstring"]string ws3 = "\u004121";                         // A21
+const ["cpp:type:wstring"]string ws4 = "\\u0041 \\U00000041";              // \\u0041 \\U00000041
+const ["cpp:type:wstring"]string ws5 = "\u00FF";                           // ÿ
+const ["cpp:type:wstring"]string ws6 = "\u03FF";                           // GREEK CAPITAL REVERSED DOTTED LUNATE SIGMA SYMBOL (U+03FF)
+const ["cpp:type:wstring"]string ws7 = "\u05F0";                           // HEBREW LIGATURE YIDDISH DOUBLE VAV (U+05F0)
+const ["cpp:type:wstring"]string ws8 = "\U00010000";                       // LINEAR B SYLLABLE B008 A (U+10000)
+const ["cpp:type:wstring"]string ws9 = "\U0001F34C";                       // BANANA (U+1F34C)
+const ["cpp:type:wstring"]string ws10 = "\u0DA7";                          // Sinhala Letter Alpapraana Ttayanna
+
+const ["cpp:type:wstring"]string wsw0 = "\U0000005c";                      // backslash
+const ["cpp:type:wstring"]string wsw1 = "\U00000041";                      // A
+const ["cpp:type:wstring"]string wsw2 = "\U00000049\U00000063\U00000065";  // Ice
+const ["cpp:type:wstring"]string wsw3 = "\U0000004121";                    // A21
+const ["cpp:type:wstring"]string wsw4 = "\\u0041 \\U00000041";             // \\u0041 \\U00000041
+const ["cpp:type:wstring"]string wsw5 = "\U000000FF";                      // ÿ
+const ["cpp:type:wstring"]string wsw6 = "\U000003FF";                      // GREEK CAPITAL REVERSED DOTTED LUNATE SIGMA SYMBOL (U+03FF)
+const ["cpp:type:wstring"]string wsw7 = "\U000005F0";                      // HEBREW LIGATURE YIDDISH DOUBLE VAV (U+05F0)
+const ["cpp:type:wstring"]string wsw8 = "\U00010000";                      // LINEAR B SYLLABLE B008 A (U+10000)
+const ["cpp:type:wstring"]string wsw9 = "\U0001F34C";                      // BANANA (U+1F34C)
+const ["cpp:type:wstring"]string wsw10 = "\U00000DA7";                     // Sinhala Letter Alpapraana Ttayanna
+
+/**
+\'	single quote	byte 0x27 in ASCII encoding
+\"	double quote	byte 0x22 in ASCII encoding
+\?	question mark	byte 0x3f in ASCII encoding
+\\	backslash	byte 0x5c in ASCII encoding
+\a	audible bell	byte 0x07 in ASCII encoding
+\b	backspace	byte 0x08 in ASCII encoding
+\f	form feed - new page	byte 0x0c in ASCII encoding
+\n	line feed - new line	byte 0x0a in ASCII encoding
+\r	carriage return	byte 0x0d in ASCII encoding
+\t	horizontal tab	byte 0x09 in ASCII encoding
+\v	vertical tab	byte 0x0b in ASCII encoding
+**/
+
+const ["cpp:type:wstring"]string wss0 = "\'\"\?\\\a\b\f\n\r\t\v";
+const ["cpp:type:wstring"]string wss1 = "\u0027\u0022\u003f\u005c\u0007\u0008\u000c\u000a\u000d\u0009\u000b";
+const ["cpp:type:wstring"]string wss2 = "\U00000027\U00000022\U0000003f\U0000005c\U00000007\U00000008\U0000000c\U0000000a\U0000000d\U00000009\U0000000b";
+
+const ["cpp:type:wstring"]string wss3 = "\\\\U\\u\\"; /* \\U\u\  */
+const ["cpp:type:wstring"]string wss4 = "\\\u0041\\"; /* \A\     */
+const ["cpp:type:wstring"]string wss5 = "\\u0041\\";  /* \u0041\ */
+
+//
+// ÿ - Unicode Character 'LATIN SMALL LETTER Y WITH DIAERESIS' (U+00FF)
+// Ā - Unicode Character 'LATIN CAPITAL LETTER A WITH MACRON' (U+0100)
+// ἀ - Unicode Character 'GREEK SMALL LETTER ALPHA WITH PSILI' (U+1F00)
+// 𐆔 - Unicode Character 'ROMAN DIMIDIA SEXTULA SIGN' (U+10194)
+// 𐅪 - Unicode Character 'GREEK ACROPHONIC THESPIAN ONE HUNDRED' (U+1016A)
+// 𐆘 - Unicode Character 'ROMAN SESTERTIUS SIGN' (U+10198)
+// 🍀 - Unicode Character 'FOUR LEAF CLOVER' (U+1F340)
+// 🍁 - Unicode Character 'MAPLE LEAF' (U+1F341)
+// 🍂 - Unicode Character 'FALLEN LEAF' (U+1F342)
+// 🍃 - Unicode Character 'LEAF FLUTTERING IN WIND' (U+1F343)
+const ["cpp:type:wstring"]string wsu0 = "ÿĀἀ𐆔𐅪𐆘🍀🍁🍂🍃";
+const ["cpp:type:wstring"]string wsu1 = "\u00FF\u0100\u1F00\U00010194\U0001016A\U00010198\U0001F340\U0001F341\U0001F342\U0001F343";
+const ["cpp:type:wstring"]string wsu2 = "\U000000FF\U00000100\U00001F00\U00010194\U0001016A\U00010198\U0001F340\U0001F341\U0001F342\U0001F343";
 
 };
 

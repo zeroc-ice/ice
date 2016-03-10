@@ -253,6 +253,7 @@ class MyClass
     ByteBoolD opByteBoolD2(ByteBoolD byteBoolD);
     
     StringS opStringLiterals();
+    StringS opWStringLiterals();
 };
 
 struct MyStruct1

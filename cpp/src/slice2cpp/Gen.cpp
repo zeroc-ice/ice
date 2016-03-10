@@ -82,6 +82,45 @@ isConstexprType(const TypePtr& type)
 }
 
 string
+u32CodePoint(unsigned int value)
+{
+    ostringstream s;
+    s << "\\U";
+    s << hex;
+    s.width(8);
+    s.fill('0');
+    s << value;
+    return s.str();
+}
+
+
+void
+writeU8Buffer(const vector<unsigned char>& u8buffer, ::IceUtilInternal::Output& out)
+{
+    vector<unsigned int> u32buffer;
+    IceUtilInternal::ConversionResult result = convertUTF8ToUTF32(u8buffer, u32buffer, IceUtil::lenientConversion);
+    switch(result)
+    {
+        case conversionOK:
+            break;
+        case sourceExhausted:
+            throw IceUtil::IllegalConversionException(__FILE__, __LINE__, "string source exhausted");
+        case sourceIllegal:
+            throw IceUtil::IllegalConversionException(__FILE__, __LINE__, "string source illegal");
+        default:
+        {
+            assert(0);
+            throw IceUtil::IllegalConversionException(__FILE__, __LINE__);
+        }
+    }
+
+    for(vector<unsigned int>::const_iterator c = u32buffer.begin(); c != u32buffer.end(); ++c)
+    {
+        out << u32CodePoint(*c);
+    }
+}
+
+string
 getDeprecateSymbol(const ContainedPtr& p1, const ContainedPtr& p2)
 {
     string deprecateMetadata, deprecateSymbol;
@@ -121,134 +160,176 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
                                                    "0123456789"
                                                    "_{}[]#()<>%:;.?*+-/^&|~!=,\\\"' ";
             static const set<char> charSet(basicSourceChars.begin(), basicSourceChars.end());
+            bool wide = (useWstring & TypeContextUseWstring) || findMetaData(metaData) == "wstring";
+            if(wide || cpp11)
+            {
+                //
+                // Wide strings or C++11 narrow string
+                //
+                vector<unsigned char> u8buffer;                  // Buffer to convert multibyte characters
 
-            if((useWstring & TypeContextUseWstring) || findMetaData(metaData) == "wstring")
-            {
-                out << 'L';
-            }
-            //
-            // In C++11 use utf-8 string literals for narrow strings
-            //
-            else if(cpp11)
-            {
-                out << "u8";
-            }
-            out << "\"";                                    // Opening "
-
-            for(size_t i = 0; i < value.size();)
-            {
-                if(charSet.find(value[i]) == charSet.end())
+                out << (wide ? "L\"" : "u8\"";
+                for(size_t i = 0; i < value.size();)
                 {
-                    unsigned char uc = value[i];                  // char may be signed, so make it positive
-                    ostringstream s;
-                    s << "\\";                              // Print as octal if not in basic source character set
-                    s.width(3);
-                    s.fill('0');
-                    s << oct;
-                    s << static_cast<unsigned>(uc);
-                    out << s.str();
-                }
-                else
-                {
-                    switch(value[i])
+                    if(charSet.find(value[i]) == charSet.end())
                     {
-                        case '\\':
+                        if(static_cast<unsigned char>(value[i]) < 128) // Single byte character
                         {
                             //
-                            // In C++98 UCN \unnnn and \Unnnnnnnn are converted to a sequence of OCT escaped 
-                            // bytes representing the UTF-8 encoding of the universal character, in C++11 UCN
-                            // are not converted.
+                            // Print as unicode if not in basic source character set
                             //
-                            if(cpp11)
-                            {
-                                break;
-                            }
-                            string s = "\\";
-                            size_t j = i + 1;
-                            for(; j < value.size(); ++j)
-                            {
-                                if(value[j] != '\\')
-                                {
-                                    break;
-                                }
-                                s += "\\";
-                            }
-
-                            //
-                            // An even number of slash \ will escape the backslash and
-                            // the codepoint will be interpreted as its charaters
-                            //
-                            // \\U00000041  - ['\\', 'U', '0', '0', '0', '0', '0', '0', '4', '1']
-                            // \\\U00000041 - ['\\', 'A'] (41 is the codepoint for 'A')
-                            //
-                            if(s.size() % 2 != 0 && (value[j] == 'U' || value[j] == 'u'))
-                            {
-                                //
-                                // Convert codepoint to UTF8 bytes and write the escaped bytes
-                                //
-                                out << s.substr(0, s.size() - 1);
-
-                                size_t sz = value[j] == 'U' ? 8 : 4;
-                                string codepoint = value.substr(j + 1, sz);
-                                assert(codepoint.size() ==  sz);
-
-                                IceUtil::Int64 v = IceUtilInternal::strToInt64(codepoint.c_str(), 0, 16);
-
-
-                                vector<unsigned int> u32buffer;
-                                u32buffer.push_back(static_cast<unsigned int>(v));
-
-                                vector<unsigned char> u8buffer;
-
-                                IceUtilInternal::ConversionResult result = convertUTF32ToUTF8(u32buffer, u8buffer, IceUtil::lenientConversion);
-                                switch(result)
-                                {
-                                    case conversionOK:
-                                        break;
-                                    case sourceExhausted:
-                                        throw IceUtil::IllegalConversionException(__FILE__, __LINE__, "string source exhausted");
-                                    case sourceIllegal:
-                                        throw IceUtil::IllegalConversionException(__FILE__, __LINE__, "string source illegal");
-                                    default:
-                                    {
-                                        assert(0);
-                                        throw IceUtil::IllegalConversionException(__FILE__, __LINE__);
-                                    }
-                                }
-
-                                ostringstream s;
-                                for(vector<unsigned char>::const_iterator q = u8buffer.begin(); q != u8buffer.end(); ++q)
-                                {
-                                    s << "\\";
-                                    s.fill('0');
-                                    s.width(3);
-                                    s << oct;
-                                    s << static_cast<unsigned int>(*q);
-                                }
-                                out << s.str();
-
-                                i = j + 1 + sz;
-                            }
-                            else
-                            {
-                                out << s;
-                                i = j;
-                            }
-                            continue;
+                            out << u32CodePoint(static_cast<unsigned int>(value[i]));
                         }
-                        case '"':
+                        else
                         {
-                            out << "\\";
-                            break;
+                            u8buffer.push_back(value[i]);
                         }
                     }
+                    else
+                    {
+                        //
+                        // Write any pedding characters in the utf8 buffer
+                        //
+                        if(!u8buffer.empty())
+                        {
+                            writeU8Buffer(u8buffer, out);
+                            u8buffer.clear();
+                        }
+                        
+                        switch(value[i])
+                        {
+                            case '"':
+                            {
+                                out << "\\";
+                                break;
+                            }
+                        }
+                        
+                        out << value[i];                              // Print normally if in basic source character set
+                    }
+                    i++;
                     
-                    out << value[i];                              // Print normally if in basic source character set
                 }
-                ++i;
+                
+                //
+                // Write any pedding characters in the utf8 buffer
+                //
+                if(!u8buffer.empty())
+                {
+                    writeU8Buffer(u8buffer, out);
+                    u8buffer.clear();
+                }
+                out << "\"";
             }
+            else // C++98 narrow strings
+            {
+                out << "\"";                                    // Opening "
 
-            out << "\"";                                    // Closing "
+                for(size_t i = 0; i < value.size();)
+                {
+                    if(charSet.find(value[i]) == charSet.end())
+                    {
+                        unsigned char uc = value[i];                  // char may be signed, so make it positive
+                        ostringstream s;
+                        s << "\\";                                    // Print as octal if not in basic source character set
+                        s.width(3);
+                        s.fill('0');
+                        s << oct;
+                        s << static_cast<unsigned>(uc);
+                        out << s.str();
+                    }
+                    else
+                    {
+                        switch(value[i])
+                        {
+                            case '\\':
+                            {
+                                string s = "\\";
+                                size_t j = i + 1;
+                                for(; j < value.size(); ++j)
+                                {
+                                    if(value[j] != '\\')
+                                    {
+                                        break;
+                                    }
+                                    s += "\\";
+                                }
+
+                                //
+                                // An even number of slash \ will escape the backslash and
+                                // the codepoint will be interpreted as its charaters
+                                //
+                                // \\U00000041  - ['\\', 'U', '0', '0', '0', '0', '0', '0', '4', '1']
+                                // \\\U00000041 - ['\\', 'A'] (41 is the codepoint for 'A')
+                                //
+                                if(s.size() % 2 != 0 && (value[j] == 'U' || value[j] == 'u'))
+                                {
+                                    //
+                                    // Convert codepoint to UTF8 bytes and write the escaped bytes
+                                    //
+                                    out << s.substr(0, s.size() - 1);
+
+                                    size_t sz = value[j] == 'U' ? 8 : 4;
+                                    string codepoint = value.substr(j + 1, sz);
+                                    assert(codepoint.size() ==  sz);
+
+                                    IceUtil::Int64 v = IceUtilInternal::strToInt64(codepoint.c_str(), 0, 16);
+
+
+                                    vector<unsigned int> u32buffer;
+                                    u32buffer.push_back(static_cast<unsigned int>(v));
+
+                                    vector<unsigned char> u8buffer;
+
+                                    IceUtilInternal::ConversionResult result = convertUTF32ToUTF8(u32buffer, u8buffer, IceUtil::lenientConversion);
+                                    switch(result)
+                                    {
+                                        case conversionOK:
+                                            break;
+                                        case sourceExhausted:
+                                            throw IceUtil::IllegalConversionException(__FILE__, __LINE__, "string source exhausted");
+                                        case sourceIllegal:
+                                            throw IceUtil::IllegalConversionException(__FILE__, __LINE__, "string source illegal");
+                                        default:
+                                        {
+                                            assert(0);
+                                            throw IceUtil::IllegalConversionException(__FILE__, __LINE__);
+                                        }
+                                    }
+
+                                    ostringstream s;
+                                    for(vector<unsigned char>::const_iterator q = u8buffer.begin(); q != u8buffer.end(); ++q)
+                                    {
+                                        s << "\\";
+                                        s.fill('0');
+                                        s.width(3);
+                                        s << oct;
+                                        s << static_cast<unsigned int>(*q);
+                                    }
+                                    out << s.str();
+
+                                    i = j + 1 + sz;
+                                }
+                                else
+                                {
+                                    out << s;
+                                    i = j;
+                                }
+                                continue;
+                            }
+                            case '"':
+                            {
+                                out << "\\";
+                                break;
+                            }
+                        }
+                        
+                        out << value[i];                              // Print normally if in basic source character set
+                    }
+                    ++i;
+                }
+                out << "\"";                                    // Closing "
+            }
         }
         else if(bp && bp->kind() == Builtin::KindLong)
         {

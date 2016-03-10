@@ -300,6 +300,8 @@ public:
     virtual Test::MyClass1Ptr opMyClass1(ICE_IN(Test::MyClass1Ptr), const Ice::Current&);
     
     virtual Test::StringS opStringLiterals(const Ice::Current&);
+    
+    virtual Test::WStringS opWStringLiterals(const Ice::Current&);
 
 private:
 

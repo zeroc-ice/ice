@@ -870,6 +870,11 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
                 Test.su2.value
             };
     }
+    
+    public override string[] opWStringLiterals(Ice.Current current)
+    {
+        return opStringLiterals(current);
+    }
 
     private int _opByteSOnewayCallCount = 0;
 }

@@ -379,6 +379,10 @@ public:
     virtual void opStringLiterals_async(::std::function<void (const Test::StringS&)>,
                                         ::std::function<void (std::exception_ptr)>,
                                         const Ice::Current&);
+    
+    virtual void opWStringLiterals_async(::std::function<void (const Test::WStringS&)>,
+                                         ::std::function<void (std::exception_ptr)>,
+                                         const Ice::Current&);
 #else
     virtual void shutdown_async(const Test::AMD_MyClass_shutdownPtr&,
                                 const Ice::Current&);
@@ -631,6 +635,9 @@ public:
 
     virtual void opStringLiterals_async(const Test::AMD_MyClass_opStringLiteralsPtr&,
                                         const Ice::Current&);
+    
+    virtual void opWStringLiterals_async(const Test::AMD_MyClass_opWStringLiteralsPtr&,
+                                         const Ice::Current&);
 #endif
 
 private:
