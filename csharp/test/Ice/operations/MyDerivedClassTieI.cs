@@ -846,5 +846,10 @@ public sealed class MyDerivedClassTieI : Test.MyDerivedClassOperations_
             };
     }
 
+    public string[] opWStringLiterals(Ice.Current current)
+    {
+        return opStringLiterals(current);
+    }
+
     private int _opByteSOnewayCallCount = 0;
 }

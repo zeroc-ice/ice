@@ -910,6 +910,47 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
                 Test.su2.value
             });
     }
+    
+    public override void opWStringLiterals_async(Test.AMD_MyClass_opWStringLiterals cb, Ice.Current current)
+    {
+        cb.ice_response(new string[]
+            {
+                Test.s0.value,
+                Test.s1.value,
+                Test.s2.value,
+                Test.s3.value,
+                Test.s4.value,
+                Test.s5.value,
+                Test.s6.value,
+                Test.s7.value,
+                Test.s8.value,
+                Test.s9.value,
+                Test.s10.value,
+                
+                Test.sw0.value,
+                Test.sw1.value,
+                Test.sw2.value,
+                Test.sw3.value,
+                Test.sw4.value,
+                Test.sw5.value,
+                Test.sw6.value,
+                Test.sw7.value,
+                Test.sw8.value,
+                Test.sw9.value,
+                Test.sw10.value,
+                
+                Test.ss0.value,
+                Test.ss1.value,
+                Test.ss2.value,
+                Test.ss3.value,
+                Test.ss4.value,
+                Test.ss5.value,
+                
+                Test.su0.value,
+                Test.su1.value,
+                Test.su2.value
+            });
+    }
 
     private Thread_opVoid _opVoidThread;
     private int _opByteSOnewayCallCount = 0;

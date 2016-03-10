@@ -780,7 +780,6 @@ MyDerivedClassI::opMyClass1_async(const Test::AMD_MyDerivedClass_opMyClass1Ptr& 
     cb->ice_response(c);
 }
 
-
 void
 MyDerivedClassI::opStringLiterals_async(const Test::AMD_MyClass_opStringLiteralsPtr& cb,
                                         const Ice::Current&)
@@ -820,5 +819,47 @@ MyDerivedClassI::opStringLiterals_async(const Test::AMD_MyClass_opStringLiterals
     data.push_back(Test::su0);
     data.push_back(Test::su1);
     data.push_back(Test::su2);
+    cb->ice_response(data);
+}
+
+void
+MyDerivedClassI::opWStringLiterals_async(const Test::AMD_MyClass_opWStringLiteralsPtr& cb,
+                                         const Ice::Current&)
+{
+    Test::WStringS data;
+    data.push_back(Test::ws0);
+    data.push_back(Test::ws1);
+    data.push_back(Test::ws2);
+    data.push_back(Test::ws3);
+    data.push_back(Test::ws4);
+    data.push_back(Test::ws5);
+    data.push_back(Test::ws6);
+    data.push_back(Test::ws7);
+    data.push_back(Test::ws8);
+    data.push_back(Test::ws9);
+    data.push_back(Test::ws10);
+
+    data.push_back(Test::wsw0);
+    data.push_back(Test::wsw1);
+    data.push_back(Test::wsw2);
+    data.push_back(Test::wsw3);
+    data.push_back(Test::wsw4);
+    data.push_back(Test::wsw5);
+    data.push_back(Test::wsw6);
+    data.push_back(Test::wsw7);
+    data.push_back(Test::wsw8);
+    data.push_back(Test::wsw9);
+    data.push_back(Test::wsw10);
+
+    data.push_back(Test::wss0);
+    data.push_back(Test::wss1);
+    data.push_back(Test::wss2);
+    data.push_back(Test::wss3);
+    data.push_back(Test::wss4);
+    data.push_back(Test::wss5);
+
+    data.push_back(Test::wsu0);
+    data.push_back(Test::wsu1);
+    data.push_back(Test::wsu2);
     cb->ice_response(data);
 }

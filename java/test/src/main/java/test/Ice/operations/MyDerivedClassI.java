@@ -875,5 +875,11 @@ public final class MyDerivedClassI extends MyDerivedClass
             };
     }
 
+    @Override
+    public String[] opWStringLiterals(Ice.Current current)
+    {
+        return opStringLiterals(current);
+    }
+
     private int _opByteSOnewayCallCount = 0;
 }

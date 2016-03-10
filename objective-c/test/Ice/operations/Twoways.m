@@ -81,6 +81,90 @@ void
 twoways(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
 {
     {
+        TestOperationsStringS *literals = [p opStringLiterals];
+        
+        test([TestOperationss0  isEqualToString:[literals objectAtIndex: 0]]);
+        
+        
+        test([TestOperationss0 isEqualToString:@"\\"] &&
+             [TestOperationss0 isEqualToString:TestOperationssw0] &&
+             [TestOperationss0 isEqualToString:[literals objectAtIndex:0]] &&
+             [TestOperationss0 isEqualToString:[literals objectAtIndex:11]]);
+
+        test([TestOperationss1 isEqualToString:@"A"] &&
+             [TestOperationss1 isEqualToString:TestOperationssw1] &&
+             [TestOperationss1 isEqualToString:[literals objectAtIndex:1]] &&
+             [TestOperationss1 isEqualToString:[literals objectAtIndex:12]]);
+             
+        test([TestOperationss2 isEqualToString:@"Ice"] &&
+             [TestOperationss2 isEqualToString:TestOperationssw2] &&
+             [TestOperationss2 isEqualToString:[literals objectAtIndex:2]] &&
+             [TestOperationss2 isEqualToString:[literals objectAtIndex:13]]);
+
+        test([TestOperationss3 isEqualToString:@"A21"] &&
+             [TestOperationss3 isEqualToString:TestOperationssw3] &&
+             [TestOperationss3 isEqualToString:[literals objectAtIndex:3]] &&
+             [TestOperationss3 isEqualToString:[literals objectAtIndex:14]]);
+
+        test([TestOperationss4 isEqualToString:@"\\u0041 \\U00000041"] &&
+             [TestOperationss4 isEqualToString:TestOperationssw4] &&
+             [TestOperationss4 isEqualToString:[literals objectAtIndex:4]] &&
+             [TestOperationss4 isEqualToString:[literals objectAtIndex:15]]);
+             
+        test([TestOperationss5 isEqualToString:@"ÿ"] &&
+             [TestOperationss5 isEqualToString:TestOperationssw5] &&
+             [TestOperationss5 isEqualToString:[literals objectAtIndex:5]] &&
+             [TestOperationss5 isEqualToString:[literals objectAtIndex:16]]);
+
+        test([TestOperationss6 isEqualToString:@"Ͽ"] &&
+             [TestOperationss6 isEqualToString:TestOperationssw6] &&
+             [TestOperationss6 isEqualToString:[literals objectAtIndex:6]] &&
+             [TestOperationss6 isEqualToString:[literals objectAtIndex:17]]);
+
+        test([TestOperationss7 isEqualToString:@"װ"] &&
+             [TestOperationss7 isEqualToString:TestOperationssw7] &&
+             [TestOperationss7 isEqualToString:[literals objectAtIndex:7]] &&
+             [TestOperationss7 isEqualToString:[literals objectAtIndex:18]]);
+
+        test([TestOperationss8 isEqualToString:@"\U00010000"] &&
+             [TestOperationss8 isEqualToString:TestOperationssw8] &&
+             [TestOperationss8 isEqualToString:[literals objectAtIndex:8]] &&
+             [TestOperationss8 isEqualToString:[literals objectAtIndex:19]]);
+
+        test([TestOperationss9 isEqualToString:@"\U0001F34C"] &&
+             [TestOperationss9 isEqualToString:TestOperationssw9] &&
+             [TestOperationss9 isEqualToString:[literals objectAtIndex:9]] &&
+             [TestOperationss9 isEqualToString:[literals objectAtIndex:20]]);
+            
+        test([TestOperationss10 isEqualToString:@"ට"] &&
+             [TestOperationss10 isEqualToString:TestOperationssw10] &&
+             [TestOperationss10 isEqualToString:[literals objectAtIndex:10]] &&
+             [TestOperationss10 isEqualToString:[literals objectAtIndex:21]]);
+             
+        test([TestOperationsss0 isEqualToString:@"\'\"\?\\\a\b\f\n\r\t\v"] &&
+             [TestOperationsss0 isEqualToString:TestOperationsss1] &&
+             [TestOperationsss0 isEqualToString:TestOperationsss2] &&
+             [TestOperationsss0 isEqualToString:[literals objectAtIndex:22]] &&
+             [TestOperationsss0 isEqualToString:[literals objectAtIndex:23]] &&
+             [TestOperationsss0 isEqualToString:[literals objectAtIndex:24]]);
+
+        test([TestOperationsss3 isEqualToString:@"\\\\U\\u\\"] &&
+             [TestOperationsss3 isEqualToString:[literals objectAtIndex:25]]);
+
+        test([TestOperationsss4 isEqualToString:@"\\A\\"] &&
+             [TestOperationsss4 isEqualToString:[literals objectAtIndex:26]]);
+
+        test([TestOperationsss5 isEqualToString:@"\\u0041\\"] &&
+             [TestOperationsss5 isEqualToString:[literals objectAtIndex:27]]);
+
+        test([TestOperationssu0 isEqualToString:TestOperationssu1] &&
+             [TestOperationssu0 isEqualToString:TestOperationssu1] &&
+             [TestOperationssu0 isEqualToString:[literals objectAtIndex:28]] &&
+             [TestOperationssu0 isEqualToString:[literals objectAtIndex:29]] &&
+             [TestOperationssu0 isEqualToString:[literals objectAtIndex:30]]);
+    }
+
+    {
         [p opVoid];
     }
 

@@ -145,6 +145,10 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE self)
             ostringstream codeStream;
             IceUtilInternal::Output out(codeStream);
             out.setUseTab(false);
+            //
+            // Ruby magic comment to set the file encoding, it must be first or second line
+            //
+            out << "# encoding: utf-8\n";
             generate(u, all, checksum, includePaths, out);
             u->destroy();
 

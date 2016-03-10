@@ -1601,7 +1601,7 @@ Slice::Ruby::CodeVisitor::writeConstantValue(const TypePtr& type, const SyntaxTr
                     ++i;
                 }
 
-                _out << "\".force_encoding(\"utf-8\")";                                   // Closing "
+                _out << "\"";                                      // Closing "
                 break;
             }
 

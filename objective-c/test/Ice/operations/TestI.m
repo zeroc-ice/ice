@@ -719,6 +719,51 @@
     return p;
 }
 
+-(TestOperationsStringS *) opStringLiterals:(ICECurrent *)current
+{
+    TestOperationsStringS *s = [NSArray arrayWithObjects:TestOperationss0,
+                                                         TestOperationss1,
+                                                         TestOperationss2,
+                                                         TestOperationss3,
+                                                         TestOperationss4,
+                                                         TestOperationss5,
+                                                         TestOperationss6,
+                                                         TestOperationss7,
+                                                         TestOperationss8,
+                                                         TestOperationss9,
+                                                         TestOperationss10,
+
+                                                         TestOperationssw0,
+                                                         TestOperationssw1,
+                                                         TestOperationssw2,
+                                                         TestOperationssw3,
+                                                         TestOperationssw4,
+                                                         TestOperationssw5,
+                                                         TestOperationssw6,
+                                                         TestOperationssw7,
+                                                         TestOperationssw8,
+                                                         TestOperationssw9,
+                                                         TestOperationssw10,
+
+                                                         TestOperationsss0,
+                                                         TestOperationsss1,
+                                                         TestOperationsss2,
+                                                         TestOperationsss3,
+                                                         TestOperationsss4,
+                                                         TestOperationsss5,
+
+                                                         TestOperationssu0,
+                                                         TestOperationssu1,
+                                                         TestOperationssu2,
+                                                         nil];
+    return s;
+}
+
+-(TestOperationsStringS *) opWStringLiterals:(ICECurrent *)current
+{
+    return [self opStringLiterals:current];
+}
+
 -(TestOperationsMyClass1*) opMyClass1:(TestOperationsMyClass1*)p current:(ICECurrent*)current
 {
     return p;
