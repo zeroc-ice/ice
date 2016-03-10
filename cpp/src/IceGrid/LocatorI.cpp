@@ -26,7 +26,7 @@ class AdapterGetDirectProxyCallback : virtual public IceUtil::Shared
 {
 public:
 
-    AdapterGetDirectProxyCallback(const LocatorIPtr& locator, const LocatorAdapterInfo& adapter) : 
+    AdapterGetDirectProxyCallback(const LocatorIPtr& locator, const LocatorAdapterInfo& adapter) :
         _locator(locator), _adapter(adapter)
     {
     }
@@ -38,7 +38,7 @@ public:
     }
 
     virtual void exception(const ::Ice::Exception& e)
-    { 
+    {
         _locator->getDirectProxyException(_adapter, e);
     }
 
@@ -52,7 +52,7 @@ class AdapterActivateCallback : virtual public IceUtil::Shared
 {
 public:
 
-    AdapterActivateCallback(const LocatorIPtr& locator, const LocatorAdapterInfo& adapter) : 
+    AdapterActivateCallback(const LocatorIPtr& locator, const LocatorAdapterInfo& adapter) :
         _locator(locator), _adapter(adapter)
     {
     }
@@ -81,7 +81,7 @@ class AMD_Locator_findAdapterByIdI : public Ice::AMD_Locator_findAdapterById
 {
 public:
 
-    AMD_Locator_findAdapterByIdI(const Ice::AMD_Locator_findObjectByIdPtr& cb, const Ice::ObjectPrx& obj) : 
+    AMD_Locator_findAdapterByIdI(const Ice::AMD_Locator_findObjectByIdPtr& cb, const Ice::ObjectPrx& obj) :
         _cb(cb),
         _obj(obj)
     {
@@ -118,7 +118,7 @@ public:
             //
             // We couldn't find the adapter, we ignore and return the
             // original proxy containing the adapter id.
-            // 
+            //
             _cb->ice_response(_obj);
             return;
         }
@@ -130,7 +130,7 @@ public:
             _cb->ice_exception(ex);
             return;
         }
-        
+
         assert(false);
     }
 
@@ -145,7 +145,7 @@ public:
     }
 
 private:
-    
+
     const Ice::AMD_Locator_findObjectByIdPtr _cb;
     const Ice::ObjectPrx _obj;
 };
@@ -154,10 +154,10 @@ class AdapterRequest : public LocatorI::Request
 {
 public:
 
-    AdapterRequest(const Ice::AMD_Locator_findAdapterByIdPtr& amdCB, 
-                   const LocatorIPtr& locator, 
+    AdapterRequest(const Ice::AMD_Locator_findAdapterByIdPtr& amdCB,
+                   const LocatorIPtr& locator,
                    const Ice::EncodingVersion& encoding,
-                   const LocatorAdapterInfo& adapter) : 
+                   const LocatorAdapterInfo& adapter) :
         _amdCB(amdCB),
         _locator(locator),
         _encoding(encoding),
@@ -179,7 +179,7 @@ public:
         // Nothing to do.
     }
 
-    virtual void 
+    virtual void
     response(const std::string& id, const Ice::ObjectPrx& proxy)
     {
         assert(proxy);
@@ -189,10 +189,10 @@ public:
         //
         if(!IceInternal::isSupported(_encoding, proxy->ice_getEncodingVersion()))
         {
-            exception(id, Ice::UnsupportedEncodingException(__FILE__, 
-                                                            __LINE__, 
+            exception(id, Ice::UnsupportedEncodingException(__FILE__,
+                                                            __LINE__,
                                                             "server doesn't support requested encoding",
-                                                            _encoding, 
+                                                            _encoding,
                                                             proxy->ice_getEncodingVersion()));
             return;
         }
@@ -200,7 +200,7 @@ public:
         _amdCB->ice_response(proxy->ice_identity(_locator->getCommunicator()->stringToIdentity("dummy")));
     }
 
-    virtual void 
+    virtual void
     exception(const std::string&, const Ice::Exception& ex)
     {
         if(_traceLevels->locator > 0)
@@ -224,13 +224,13 @@ class ReplicaGroupRequest : public LocatorI::Request, public IceUtil::Mutex
 {
 public:
 
-    ReplicaGroupRequest(const Ice::AMD_Locator_findAdapterByIdPtr& amdCB, 
+    ReplicaGroupRequest(const Ice::AMD_Locator_findAdapterByIdPtr& amdCB,
                         const LocatorIPtr& locator,
                         const string& id,
                         const Ice::EncodingVersion& encoding,
                         const LocatorAdapterInfoSeq& adapters,
                         int count,
-                        Ice::ObjectPrx firstProxy) : 
+                        Ice::ObjectPrx firstProxy) :
         _amdCB(amdCB),
         _locator(locator),
         _id(id),
@@ -289,8 +289,8 @@ public:
                 return;
             }
         }
-        
-    
+
+
         for(LocatorAdapterInfoSeq::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
         {
             if(_locator->getDirectProxy(*p, this))
@@ -304,7 +304,7 @@ public:
     activating(const string&)
     {
         //
-        // An adapter is being activated. Don't wait for the activation to complete. Instead, 
+        // An adapter is being activated. Don't wait for the activation to complete. Instead,
         // we query the next adapter which might be already active.
         //
         LocatorAdapterInfo adapter;
@@ -320,7 +320,7 @@ public:
         }
         while(_locator->getDirectProxy(adapter, this));
     }
-    
+
     virtual void
     exception(const string& /*id*/, const Ice::Exception& ex)
     {
@@ -331,16 +331,16 @@ public:
             {
                 return;
             }
-            
+
             if(!_exception.get())
             {
                 _exception.reset(ex.ice_clone());
             }
-            
+
             if(_lastAdapter == _adapters.end())
             {
                 --_count; // Expect one less adapter proxy if there's no more adapters to query.
-                
+
                 //
                 // If we received all the required proxies, it's time to send the
                 // answer back to the client.
@@ -372,16 +372,16 @@ public:
         //
         // Ensure the server supports the request encoding.
         //
-        if(proxy->ice_getEncodingVersion() < _encoding)
+        if(!IceInternal::isSupported(_encoding, proxy->ice_getEncodingVersion()))
         {
-            exception(id, Ice::UnsupportedEncodingException(__FILE__, 
-                                                            __LINE__, 
+            exception(id, Ice::UnsupportedEncodingException(__FILE__,
+                                                            __LINE__,
                                                             "server doesn't support requested encoding",
-                                                            _encoding, 
+                                                            _encoding,
                                                             proxy->ice_getEncodingVersion()));
             return;
         }
-        
+
         Lock sync(*this);
         assert(proxy);
         if(_proxies.size() == _count) // Nothing to do if we already sent the response.
@@ -390,7 +390,7 @@ public:
         }
 
         _proxies[id] = proxy->ice_identity(_locator->getCommunicator()->stringToIdentity("dummy"));
-        
+
         //
         // If we received all the required proxies, it's time to send the
         // answer back to the client.
@@ -413,7 +413,7 @@ private:
         else if(_proxies.empty())
         {
             //
-            // If there's no proxies, it's either because we couldn't contact the adapters or 
+            // If there's no proxies, it's either because we couldn't contact the adapters or
             // because the replica group has no members.
             //
             assert(_exception.get() || _adapters.empty());
@@ -460,7 +460,7 @@ class RoundRobinRequest : public LocatorI::Request, SynchronizationCallback, pub
 {
 public:
 
-    RoundRobinRequest(const Ice::AMD_Locator_findAdapterByIdPtr& amdCB, 
+    RoundRobinRequest(const Ice::AMD_Locator_findAdapterByIdPtr& amdCB,
                       const LocatorIPtr& locator,
                       const DatabasePtr database,
                       const string& id,
@@ -480,7 +480,7 @@ public:
         assert(_adapters.empty() || _count > 0);
     }
 
-    virtual void 
+    virtual void
     execute()
     {
         if(_adapters.empty())
@@ -502,7 +502,7 @@ public:
         }
     }
 
-    virtual void 
+    virtual void
     activating(const string& id)
     {
         LocatorAdapterInfo adapter;
@@ -520,18 +520,18 @@ public:
         while(adapter.proxy && _locator->getDirectProxy(adapter, this));
     }
 
-    virtual void 
+    virtual void
     response(const std::string& id, const Ice::ObjectPrx& proxy)
     {
         //
         // Ensure the server supports the request encoding.
         //
-        if(proxy->ice_getEncodingVersion() < _encoding)
+        if(!IceInternal::isSupported(_encoding, proxy->ice_getEncodingVersion()))
         {
-            exception(id, Ice::UnsupportedEncodingException(__FILE__, 
-                                                            __LINE__, 
+            exception(id, Ice::UnsupportedEncodingException(__FILE__,
+                                                            __LINE__,
                                                             "server doesn't support requested encoding",
-                                                            _encoding, 
+                                                            _encoding,
                                                             proxy->ice_getEncodingVersion()));
             return;
         }
@@ -546,7 +546,7 @@ public:
         if(_count > 1)
         {
             Ice::ObjectPrx p = proxy->ice_identity(_locator->getCommunicator()->stringToIdentity("dummy"));
-            LocatorI::RequestPtr request = 
+            LocatorI::RequestPtr request =
                 new ReplicaGroupRequest(_amdCB, _locator, _id, _encoding, _adapters, _count, p);
             request->execute();
         }
@@ -557,7 +557,7 @@ public:
         _adapters.clear();
     }
 
-    virtual void 
+    virtual void
     exception(const std::string& id, const Ice::Exception& ex)
     {
         LocatorAdapterInfo adapter;
@@ -633,15 +633,15 @@ public:
     }
 
 private:
-    
+
     LocatorAdapterInfo
     nextAdapter()
     {
         bool replicaGroup;
         bool roundRobin;
-        
+
         _adapters.clear();
-        
+
         try
         {
             while(true)
@@ -650,14 +650,14 @@ private:
                 {
                     if(!_waitForActivation)
                     {
-                        _database->getLocatorAdapterInfo(_id, _adapters, _count, replicaGroup, roundRobin, 
+                        _database->getLocatorAdapterInfo(_id, _adapters, _count, replicaGroup, roundRobin,
                                                          _activatingOrFailed);
                     }
-                    
+
                     if(_waitForActivation || (_adapters.empty() && _activatingOrFailed.size() > _failed.size()))
                     {
                         //
-                        // If there are no more adapters to try and some servers were being activated, we 
+                        // If there are no more adapters to try and some servers were being activated, we
                         // try again but this time we wait for the server activation.
                         //
                         _database->getLocatorAdapterInfo(_id, _adapters, _count, replicaGroup, roundRobin, _failed);
@@ -673,7 +673,7 @@ private:
                     {
                         callback = _database->addAdapterSyncCallback(_id, this, _activatingOrFailed);
                     }
-                    else 
+                    else
                     {
                         callback = _database->addAdapterSyncCallback(_id, this, _failed);
                     }
@@ -690,7 +690,7 @@ private:
                 {
                     Ice::Current current;
                     current.encoding = _encoding;
-                    _locator->findAdapterById_async(_amdCB, _id, current); 
+                    _locator->findAdapterById_async(_amdCB, _id, current);
                 }
                 catch(const Ice::Exception& ex)
                 {
@@ -752,15 +752,15 @@ private:
 class FindAdapterByIdCallback : public SynchronizationCallback
 {
 public:
-                
-    FindAdapterByIdCallback(const LocatorIPtr& locator, 
-                            const Ice::AMD_Locator_findAdapterByIdPtr& cb, 
+
+    FindAdapterByIdCallback(const LocatorIPtr& locator,
+                            const Ice::AMD_Locator_findAdapterByIdPtr& cb,
                             const string& id,
                             const Ice::Current& current) : _locator(locator), _cb(cb), _id(id), _current(current)
     {
     }
 
-    virtual void 
+    virtual void
     synchronized()
     {
         try
@@ -773,7 +773,7 @@ public:
         }
     }
 
-    virtual void 
+    virtual void
     synchronized(const Ice::Exception& ex)
     {
         try
@@ -796,7 +796,7 @@ public:
     }
 
 private:
-    
+
     const LocatorIPtr _locator;
     const Ice::AMD_Locator_findAdapterByIdPtr _cb;
     const string _id;
@@ -806,8 +806,8 @@ private:
 };
 
 
-LocatorI::LocatorI(const Ice::CommunicatorPtr& communicator, 
-                   const DatabasePtr& database, 
+LocatorI::LocatorI(const Ice::CommunicatorPtr& communicator,
+                   const DatabasePtr& database,
                    const Ice::LocatorRegistryPrx& locatorRegistry,
                    const RegistryPrx& registry,
                    const QueryPrx& query) :
@@ -824,8 +824,8 @@ LocatorI::LocatorI(const Ice::CommunicatorPtr& communicator,
 // registry.
 //
 void
-LocatorI::findObjectById_async(const Ice::AMD_Locator_findObjectByIdPtr& cb, 
-                               const Ice::Identity& id, 
+LocatorI::findObjectById_async(const Ice::AMD_Locator_findObjectByIdPtr& cb,
+                               const Ice::Identity& id,
                                const Ice::Current&) const
 {
     try
@@ -843,8 +843,8 @@ LocatorI::findObjectById_async(const Ice::AMD_Locator_findObjectByIdPtr& cb,
 // registry. If found, we try to get its direct proxy.
 //
 void
-LocatorI::findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr& cb, 
-                                const string& id, 
+LocatorI::findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr& cb,
+                                const string& id,
                                 const Ice::Current& current) const
 {
     LocatorIPtr self = const_cast<LocatorI*>(this);
@@ -853,7 +853,7 @@ LocatorI::findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr& cb,
     {
         //
         // NOTE: getProxies() might throw if the adapter is a server
-        // adapter and the node is unreachable (it doesn't throw for 
+        // adapter and the node is unreachable (it doesn't throw for
         // replica groups).
         //
         int count;
@@ -965,14 +965,14 @@ LocatorI::getDirectProxy(const LocatorAdapterInfo& adapter, const RequestPtr& re
             p->second.push_back(request);
             return _activating.find(adapter.id) != _activating.end();
         }
-        
+
         PendingRequests requests;
         requests.push_back(request);
         _pendingRequests.insert(make_pair(adapter.id, requests));
     }
     adapter.proxy->begin_getDirectProxy(newCallback_Adapter_getDirectProxy(
                                             new AdapterGetDirectProxyCallback(this, adapter),
-                                            &AdapterGetDirectProxyCallback::response, 
+                                            &AdapterGetDirectProxyCallback::response,
                                             &AdapterGetDirectProxyCallback::exception));
     return false;
 }
@@ -1021,7 +1021,7 @@ LocatorI::getDirectProxyException(const LocatorAdapterInfo& adapter, const Ice::
     catch(const Ice::Exception&)
     {
     }
-        
+
     PendingRequests requests;
     {
         Lock sync(*this);
@@ -1050,7 +1050,7 @@ LocatorI::getDirectProxyException(const LocatorAdapterInfo& adapter, const Ice::
         int timeout = adapter.activationTimeout + adapter.deactivationTimeout;
         AdapterPrx::uncheckedCast(adapter.proxy->ice_timeout(timeout * 1000))->begin_activate(
             newCallback_Adapter_activate(new AdapterActivateCallback(this, adapter),
-                                         &AdapterActivateCallback::response, 
+                                         &AdapterActivateCallback::response,
                                          &AdapterActivateCallback::exception));
     }
     else

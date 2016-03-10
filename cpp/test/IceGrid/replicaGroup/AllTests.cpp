@@ -187,7 +187,7 @@ allTests(const Ice::CommunicatorPtr& comm)
 
         QueryPrx query = IceGrid::QueryPrx::checkedCast(comm->stringToProxy("IceGrid/Query"));
         test(query);
-        
+
         TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("dummy@RoundRobin"));
         Ice::ObjectProxySeq objs = query->findAllReplicas(obj);
         test(objs.size() == 3);
@@ -201,7 +201,7 @@ allTests(const Ice::CommunicatorPtr& comm)
         test(serverReplicaIds.find(objs[0]->ice_getAdapterId()) != serverReplicaIds.end());
         test(serverReplicaIds.find(objs[1]->ice_getAdapterId()) != serverReplicaIds.end());
         test(serverReplicaIds.find(objs[2]->ice_getAdapterId()) != serverReplicaIds.end());
-        
+
         obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("dummy@dummy"));
         objs = query->findAllReplicas(obj);
         test(objs.empty());
@@ -217,7 +217,7 @@ allTests(const Ice::CommunicatorPtr& comm)
         obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("dummy@Ordered"));
         objs = query->findAllReplicas(obj);
         test(objs.empty());
-        
+
         removeServer(admin, "Server1");
         removeServer(admin, "Server2");
         removeServer(admin, "Server3");
@@ -241,7 +241,7 @@ allTests(const Ice::CommunicatorPtr& comm)
         {
             test(obj->getReplicaIdAndShutdown() == "Server1.ReplicatedAdapter");
             test(obj->getReplicaIdAndShutdown() == "Server2.ReplicatedAdapter");
-            test(obj->getReplicaIdAndShutdown() == "Server3.ReplicatedAdapter");        
+            test(obj->getReplicaIdAndShutdown() == "Server3.ReplicatedAdapter");
 
             admin->enableServer("Server1", false);
             admin->enableServer("Server2", false);
@@ -277,7 +277,7 @@ allTests(const Ice::CommunicatorPtr& comm)
                     previousId = id;
                 }
             }
-            
+
             int i;
             for(i = 0; i < 3; i++)
             {
@@ -405,7 +405,7 @@ allTests(const Ice::CommunicatorPtr& comm)
                 test(false);
             }
         }
-        
+
         admin->stopServer("Server1");
         admin->stopServer("Server2");
         admin->stopServer("Server3");
@@ -422,7 +422,7 @@ allTests(const Ice::CommunicatorPtr& comm)
         catch(const Ice::NoEndpointException&)
         {
         }
-        
+
         admin->enableServer("Server1", true);
         admin->enableServer("Server2", true);
         admin->enableServer("Server3", true);
@@ -592,7 +592,7 @@ allTests(const Ice::CommunicatorPtr& comm)
             admin->stopServer("Server3");
 
             obj->ice_locatorCacheTimeout(0)->ice_ping();
-            int nRetry = 500; 
+            int nRetry = 500;
             while(replicaIds.size() != 2 && --nRetry > 0)
             {
                 replicaIds.insert(obj->getReplicaId());
@@ -686,7 +686,7 @@ allTests(const Ice::CommunicatorPtr& comm)
         QueryPrx query = IceGrid::QueryPrx::checkedCast(comm->stringToProxy("IceGrid/Query"));
         obj = TestIntfPrx::uncheckedCast(query->findObjectByTypeOnLeastLoadedNode("::Test::TestIntf", LoadSample1));
         test(obj->getReplicaId() == "Server2.ReplicatedAdapter");
-        
+
         removeServer(admin, "Server1");
         removeServer(admin, "Server2");
 
@@ -790,7 +790,7 @@ allTests(const Ice::CommunicatorPtr& comm)
                 test(false);
             }
         }
-        
+
         removeServer(admin, "Server2");
         removeServer(admin, "Server1");
 
@@ -874,16 +874,16 @@ allTests(const Ice::CommunicatorPtr& comm)
             params["id"] = "Server3";
             params["encoding"] = "1.0";
             instantiateServer(admin, "Server", "localnode", params);
-            
+
             TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy(*p));
             obj = obj->ice_locatorCacheTimeout(0);
             obj = obj->ice_connectionCached(false);
-            
+
             for(int i = 0; i < 30; ++i)
             {
                 test(obj->getReplicaId() == "Server2.ReplicatedAdapter");
             }
-            
+
             obj = obj->ice_encodingVersion(Ice::Encoding_1_0);
             set<string> replicaIds = serverReplicaIds;
             while(!replicaIds.empty())
@@ -898,12 +898,77 @@ allTests(const Ice::CommunicatorPtr& comm)
                     test(false);
                 }
             }
-            
+
             removeServer(admin, "Server1");
             removeServer(admin, "Server2");
             removeServer(admin, "Server3");
         }
     };
+    cout << "ok" << endl;
+
+    cout << "testing replication with dynamically registered replica group... " << flush;
+    {
+        map<string, string> params;
+        params["replicaGroup"] = "DynamicRandom";
+        params["id"] = "Server1";
+        instantiateServer(admin, "DynamicallyRegisteredServer", "localnode", params);
+        params["id"] = "Server2";
+        instantiateServer(admin, "DynamicallyRegisteredServer", "localnode", params);
+        params["id"] = "Server3";
+        params["encoding"] = "1.0";
+        instantiateServer(admin, "DynamicallyRegisteredServer", "localnode", params);
+
+        TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("DynamicRandom@DynamicRandom"));
+        obj = obj->ice_locatorCacheTimeout(0);
+        obj = obj->ice_connectionCached(false);
+        obj = obj->ice_encodingVersion(Ice::Encoding_1_1);
+        set<string> replicaIds = serverReplicaIds;
+        replicaIds.erase("Server3.ReplicatedAdapter"); // Only supports encoding 1.0
+        test(replicaIds.size() == 2);
+        int nRetry = 20;
+        while(!replicaIds.empty())
+        {
+            try
+            {
+                string replicaId = obj->getReplicaId();
+                test(replicaId != "Server3.ReplicatedAdapter");
+                replicaIds.erase(replicaId);
+            }
+            catch(const Ice::NotRegisteredException&)
+            {
+                if(--nRetry == 0)
+                {
+                    throw;
+                }
+                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
+            }
+            catch(const Ice::LocalException& ex)
+            {
+                cerr << ex << endl;
+                test(false);
+            }
+        }
+        test(replicaIds.empty());
+
+        replicaIds = serverReplicaIds;
+        obj = obj->ice_encodingVersion(Ice::Encoding_1_0);
+        while(!replicaIds.empty())
+        {
+            try
+            {
+                replicaIds.erase(obj->getReplicaId());
+            }
+            catch(const Ice::LocalException& ex)
+            {
+                cerr << ex << endl;
+                test(false);
+            }
+        }
+
+        removeServer(admin, "Server1");
+        removeServer(admin, "Server2");
+        removeServer(admin, "Server3");
+    }
     cout << "ok" << endl;
 
     keepAlive->destroy();

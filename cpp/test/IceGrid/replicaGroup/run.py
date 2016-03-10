@@ -44,6 +44,8 @@ if TestUtil.isDarwin():
 else:
     iceBox = TestUtil.getIceBox()
 
+IceGridAdmin.registryOptions += " --IceGrid.Registry.DynamicRegistration"
+
 IceGridAdmin.iceGridTest("application.xml", "--Ice.RetryIntervals=\"0 50 100 250\"", "icebox.exe='%s'" % iceBox)
 
 if TestUtil.isDarwin():

@@ -49,6 +49,20 @@
       </server>
     </server-template>
 
+    <server-template id="DynamicallyRegisteredServer">
+      <parameter name="id"/>
+      <parameter name="replicaGroup"/>
+      <parameter name="encoding" default=""/>
+      <server id="${id}" exe="${test.dir}/server" activation="on-demand" pwd=".">
+        <property name="Identity" value="${replicaGroup}"/>
+        <property name="Ice.Admin.DelayCreation" value="1"/>
+        <property name="Ice.Default.EncodingVersion" value="${encoding}"/>
+        <property name="ReplicatedAdapter.Endpoints" value="default"/>
+        <property name="ReplicatedAdapter.AdapterId" value="${id}.ReplicatedAdapter"/>
+        <property name="ReplicatedAdapter.ReplicaGroupId" value="${replicaGroup}"/>
+      </server>
+    </server-template>
+
     <service-template id="Service">
       <parameter name="name"/>
       <parameter name="replicaGroup"/>
