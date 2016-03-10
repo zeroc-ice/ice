@@ -35,14 +35,49 @@ string
 u32CodePoint(unsigned int value)
 {
     ostringstream s;
-    s << "\\U";
-    s << hex;
-    s.width(8);
-    s.fill('0');
-    s << value;
+    //
+    // COMPILERFIX:
+    // With VC++ < 140 characters in the range of 0 to 0x9f cannot be represented
+    // with a universal character name (UCN).
+    //
+    if(value <= 0x9f)
+    {
+        switch(value)
+        {
+            case 0x22:
+            {
+                s << "\\\"";
+                break;
+            }
+            case 0x5c:
+            {
+                s << "\\\\";
+                break;
+            }
+            default:
+            {
+                s << "\\";
+                s << oct;
+                s.width(3);
+                s.fill('0');
+                s << value;
+                break;
+            }
+        }
+    }
+    //
+    // UCN valid characters
+    //
+    else
+    {
+        s << "\\U";
+        s << hex;
+        s.width(8);
+        s.fill('0');
+        s << value;
+    }
     return s.str();
 }
-
 
 void
 writeU8Buffer(const vector<unsigned char>& u8buffer, ::IceUtilInternal::Output& out)
@@ -117,7 +152,6 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
                 // Wide strings
                 //
                 vector<unsigned char> u8buffer;                  // Buffer to convert multibyte characters
-
                 out << "L\"";
                 for(size_t i = 0; i < value.size();)
                 {
@@ -125,10 +159,7 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
                     {
                         if(static_cast<unsigned char>(value[i]) < 128) // Single byte character
                         {
-                            //
-                            // Print as unicode if not in basic source character set
-                            //
-                            out << u32CodePoint(static_cast<unsigned int>(value[i]));
+                            out << u32CodePoint(static_cast<unsigned char>(value[i]));
                         }
                         else
                         {
@@ -145,22 +176,65 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
                             writeU8Buffer(u8buffer, out);
                             u8buffer.clear();
                         }
-                        
+
                         switch(value[i])
                         {
+                            case '\\':
+                            {
+                                string s = "\\";
+                                size_t j = i + 1;
+                                for(; j < value.size(); ++j)
+                                {
+                                    if(value[j] != '\\')
+                                    {
+                                        break;
+                                    }
+                                    s += "\\";
+                                }
+
+                                //
+                                // An even number of slash \ will escape the backslash and
+                                // the codepoint will be interpreted as its charaters
+                                //
+                                // \\U00000041  - ['\\', 'U', '0', '0', '0', '0', '0', '0', '4', '1']
+                                // \\\U00000041 - ['\\', 'A'] (41 is the codepoint for 'A')
+                                //
+                                if(s.size() % 2 != 0 && (value[j] == 'U' || value[j] == 'u'))
+                                {
+                                    //
+                                    // Convert codepoint to UTF8 bytes and write the escaped bytes
+                                    //
+                                    out << s.substr(0, s.size() - 1);
+
+                                    size_t sz = value[j] == 'U' ? 8 : 4;
+                                    string codepoint = value.substr(j + 1, sz);
+                                    assert(codepoint.size() ==  sz);
+
+                                    IceUtil::Int64 v = IceUtilInternal::strToInt64(codepoint.c_str(), 0, 16);
+                                    out << u32CodePoint(static_cast<unsigned int>(v));
+
+                                    i = j + 1 + sz;
+                                }
+                                else
+                                {
+                                    out << s;
+                                    i = j;
+                                }
+                                continue;
+                            }
                             case '"':
                             {
                                 out << "\\";
                                 break;
                             }
                         }
-                        
+
                         out << value[i];                              // Print normally if in basic source character set
                     }
                     i++;
-                    
+
                 }
-                
+
                 //
                 // Write any pedding characters in the utf8 buffer
                 //
@@ -273,7 +347,7 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
                                 break;
                             }
                         }
-                        
+
                         out << value[i];                              // Print normally if in basic source character set
                     }
                     ++i;
