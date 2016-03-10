@@ -168,7 +168,7 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
                 //
                 vector<unsigned char> u8buffer;                  // Buffer to convert multibyte characters
 
-                out << (wide ? "L\"" : "u8\"";
+                out << (wide ? "L\"" : "u8\"");
                 for(size_t i = 0; i < value.size();)
                 {
                     if(charSet.find(value[i]) == charSet.end())
