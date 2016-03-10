@@ -4579,12 +4579,12 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     _out << nl << "Ice.AsyncResult<" << delType << "> begin_" << p->name() << spar << paramsNewAsync << epar << ';';
 
     _out << sp;
+    writeDocCommentAMI(p, InParam, deprecateReason,
+        "<param name=\"ctx__\">The Context map to send with the invocation.</param>");
     if(!deprecateReason.empty())
     {
         _out << nl << "[_System.Obsolete(\"" << deprecateReason << "\")]";
     }
-    writeDocCommentAMI(p, InParam, deprecateReason,
-        "<param name=\"ctx__\">The Context map to send with the invocation.</param>");
     _out << nl << "Ice.AsyncResult<" << delType << "> begin_" << p->name() << spar << paramsNewAsync
          << "_System.Collections.Generic.Dictionary<string, string> ctx__" << epar << ';';
 
