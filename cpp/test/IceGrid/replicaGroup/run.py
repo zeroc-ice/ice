@@ -29,5 +29,6 @@ import TestUtil, IceGridAdmin
 IceGridAdmin.nreplicas=0
 
 IceGridAdmin.registryOptions += " --Ice.Plugin.RegistryPlugin=RegistryPlugin:createRegistryPlugin"
+IceGridAdmin.registryOptions += " --IceGrid.Registry.DynamicRegistration"
 
 IceGridAdmin.iceGridTest("application.xml", "--Ice.RetryIntervals=\"0 50 100 250\"", "icebox.exe='%s'" % TestUtil.getIceBox())
