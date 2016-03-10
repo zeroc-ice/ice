@@ -844,4 +844,3 @@ MyDerivedClassI::opWStringLiterals(const Ice::Current&)
 
     return data;
 }
-

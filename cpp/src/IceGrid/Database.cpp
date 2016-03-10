@@ -1096,7 +1096,7 @@ Database::getAdapterDirectProxy(const string& id, const Ice::EncodingVersion& en
     filterAdapterInfos("", id, _pluginFacade, con, ctx, infos);
     for(unsigned int i = 0; i < infos.size(); ++i)
     {
-        if(infos[i].proxy->ice_getEncodingVersion() < encoding)
+        if(IceInternal::isSupported(encoding, infos[i].proxy->ice_getEncodingVersion()))
         {
             Ice::EndpointSeq edpts = infos[i].proxy->ice_getEndpoints();
             endpoints.insert(endpoints.end(), edpts.begin(), edpts.end());

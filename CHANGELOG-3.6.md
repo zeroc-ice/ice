@@ -44,6 +44,10 @@ These are the changes since Ice 3.6.1.
 - Fixed a bug that prevented scripting languages (Python, Ruby, Javascript and PHP)
   from marshaling NaN or Infinity as a floating point value.
 
+- Fixed an IceGrid bug where resolving endpoints of dynamically registered replica
+  groups would fail unless the client was using an encoding superior to the encoding
+  of the dynamically registered object adapters.
+
 ## C++ Changes
 
 - Fixed El Capitan build issues caused by a new security feature that no longer

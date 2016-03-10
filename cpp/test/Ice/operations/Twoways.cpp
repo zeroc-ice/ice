@@ -137,12 +137,12 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& p)
     test(Test::ss5 == "\\u0041\\" &&
          Test::ss5 == literals[27]);
 
-    test(Test::su0 == Test::su1 &&
-         Test::su0 == Test::su2 &&
-         Test::su0 == literals[28] &&
-         Test::su0 == literals[29] &&
-         Test::su0 == literals[30]);
-    
+    test(Test::su0 == Test::su1);
+    test(Test::su0 == Test::su2);
+    test(Test::su0 == literals[28]);
+    test(Test::su0 == literals[29]);
+    test(Test::su0 == literals[30]);
+
     //
     // Same but using wide strings
     //
