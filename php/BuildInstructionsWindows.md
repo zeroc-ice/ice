@@ -121,9 +121,9 @@ information about installing the Ice extension.
 PHP will need to be able to locate the libraries for the Ice run-time libraries
 and its third-party dependencies. On Windows, these DLLs are required:
 
-    ice36.dll
-    iceutil36.dll
-    slice36.dll
+    ice37.dll
+    iceutil37.dll
+    slice37.dll
     bzip2.dll
 
 In general, these libraries must reside in a directory of the user's PATH. For
