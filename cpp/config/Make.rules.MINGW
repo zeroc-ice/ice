@@ -80,7 +80,7 @@ BZIP2_FLAGS		= -I$(BZIP2_HOME)/build/native/include
 BZIP2_LIBS		= -L$(BZIP2_HOME)/build/native/bin/$(PLATFORM) -lbzip2$(COMPSUFFIX)
 BZIP2_NUPKG		= $(BZIP2_HOME)/bzip2.$(PLATFORMTOOLSET).nupkg
 
-MCPP_VERSION		= 2.7.2.4
+MCPP_VERSION		= 2.7.2.8
 MCPP_HOME		= $(PKG_DIR)/mcpp.$(PLATFORMTOOLSET)
 MCPP_LIBS		= -L$(MCPP_HOME)/build/native/lib/$(PLATFORM) -lmcpp
 MCPP_NUPKG		= $(MCPP_HOME)/mcpp.$(PLATFORMTOOLSET).nupkg
