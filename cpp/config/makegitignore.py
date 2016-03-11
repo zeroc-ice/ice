@@ -101,9 +101,9 @@ def usage():
     print "-h    Show this message."
     print
 
-icee = False
+
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "he")
+    opts, args = getopt.getopt(sys.argv[1:], "h")
 except getopt.GetoptError:
     usage()
     sys.exit(1)
@@ -111,8 +111,7 @@ for o, a in opts:
     if o == "-h":
         usage()
         sys.exit(0)
-    elif o == "-e":
-        icee = True
+
 if len(args) != 0:
     usage()
     sys.exit(1)
@@ -129,10 +128,8 @@ else:
     print("cannot find top-level directory")
     sys.exit(1)
 
-if icee:
-    makefiles = find(os.path.join(toplevel, "cppe"), "Makefile")
-else:
-    makefiles = find(os.path.join(toplevel, "cpp"), "Makefile")
+
+makefiles = find(os.path.join(toplevel, "cpp"), "Makefile")
 cwd = os.getcwd()
 gitIgnoreFiles = { }
 for i in makefiles:
@@ -149,15 +146,15 @@ for i in makefiles:
     
 os.chdir(cwd)
 
-excludePath = [ os.path.join(toplevel, "cpp", "bin"), os.path.join(toplevel, "cpp", "lib"), \
-                os.path.join(toplevel, "cppe", "bin"), os.path.join(toplevel, "cppe", "lib") ]
+excludePath = [ os.path.join(toplevel, "cpp", "bin"), os.path.join(toplevel, "cpp", "lib") ]
 for (path, files) in gitIgnoreFiles.iteritems():
     if os.path.dirname(path) in excludePath:
         continue
     if not os.path.exists(path):
         print files
-    gitIgnore = open(path, "w")
-    gitIgnore.write(preamble);
-    gitIgnore.writelines(files)
-    gitIgnore.close()
+    if os.path.isdir(os.path.dirname(path)):
+        gitIgnore = open(path, "w")
+        gitIgnore.write(preamble);
+        gitIgnore.writelines(files)
+        gitIgnore.close()
 
