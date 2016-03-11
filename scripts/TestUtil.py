@@ -1812,7 +1812,7 @@ def getJavaLibraryPath():
         if "LD_LIBRARY_PATH" in os.environ:
             libpath = os.environ["LD_LIBRARY_PATH"] + ":" + libpath
         return "-Djava.library.path=%s " % libpath
-    elif isUbuntu():
+    elif isUbuntu() or isDebian():
         libpath = ("/usr/lib/x86_64-linux-gnu" if x64 else "/usr/lib/i386-linux-gnu")
         if "LD_LIBRARY_PATH" in os.environ:
             libpath = os.environ["LD_LIBRARY_PATH"] + ":" + libpath
