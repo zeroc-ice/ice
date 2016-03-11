@@ -141,12 +141,12 @@ have not built Ice for C++ in this source distribution, you must set the
 `ICE_HOME` environment variable with the path name of your Ice installation.
 For example, on Unix:
 
-    $ export ICE_HOME=/opt/Ice-3.6.1 (For local build)
+    $ export ICE_HOME=/opt/Ice-3.6.2 (For local build)
     $ export ICE_HOME=/usr (For RPM installation)
 
 On Windows:
 
-    > set ICE_HOME=C:\Program Files (x86)\ZeroC\Ice-3.6.1
+    > set ICE_HOME=C:\Program Files (x86)\ZeroC\Ice-3.6.2
 
 Before building Ice for Java, review the settings in the file
 `gradle.properties` and edit as necessary.
@@ -174,16 +174,16 @@ To install Ice for Java in the directory specified by the `prefix` variable in
 
 The installation installs the following JAR files to `<prefix>/lib`.
 
-    freeze-3.6.1.jar
-    glacier2-3.6.1.jar
-    ice-3.6.1.jar
-    icebox-3.6.1.jar
-    icediscovery-3.6.1.jar
-    icegrid-3.6.1.jar
+    freeze-3.6.2.jar
+    glacier2-3.6.2.jar
+    ice-3.6.2.jar
+    icebox-3.6.2.jar
+    icediscovery-3.6.2.jar
+    icegrid-3.6.2.jar
     icegridgui.jar
-    icelocatordiscovery-3.6.1.jar
-    icepatch2-3.6.1.jar
-    icestorm-3.6.1.jar
+    icelocatordiscovery-3.6.2.jar
+    icepatch2-3.6.2.jar
+    icestorm-3.6.2.jar
 
 POM files are also installed for ease of deployment to a maven-based
 distribution system.
@@ -195,12 +195,12 @@ C++ distribution. If you have not built Ice for C++ in this source distribution
 then you must set the `ICE_HOME` environment variable with the path name of your
 Ice installation. On Unix:
 
-    $ export ICE_HOME=/opt/Ice-3.6.1 (For local build)
+    $ export ICE_HOME=/opt/Ice-3.6.2 (For local build)
     $ export ICE_HOME=/usr (For RPM installation)
 
 On Windows:
 
-    > set ICE_HOME=c:\Program Files (x86)\ZeroC\Ice-3.6.1
+    > set ICE_HOME=c:\Program Files (x86)\ZeroC\Ice-3.6.2
 
 Python is required to run the test suite. To run the tests, open a command
 window and change to the top-level directory. At the command prompt, execute:
@@ -238,6 +238,6 @@ and WinRT test suites to start the required servers.
 
 
 [1]: https://zeroc.com/download.html
-[2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+3.6.1
+[2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+3.6.2
 [3]: http://gradle.org
 [4]: http://proguard.sourceforge.net
