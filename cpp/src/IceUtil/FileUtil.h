@@ -41,7 +41,7 @@ ICE_UTIL_API bool fileExists(const std::string&);
 ICE_UTIL_API bool directoryExists(const std::string&);
 
 //
-// Determinte if a directory exists and is empty
+// Determine if a directory exists and is empty.
 //
 ICE_UTIL_API bool isEmptyDirectory(const std::string&);
 

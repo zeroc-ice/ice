@@ -94,7 +94,7 @@ IceUtilInternal::directoryExists(const string& path)
 }
 
 //
-// Determinte if a directory exists and is empty
+// Determine if a directory exists and is empty.
 //
 #ifndef ICE_OS_WINRT
 bool
