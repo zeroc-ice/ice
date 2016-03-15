@@ -165,7 +165,27 @@ private:
     void collectClassMembers(const ClassDefPtr&, MemberInfoList&, bool);
     void collectExceptionMembers(const ExceptionPtr&, MemberInfoList&, bool);
 
-    string editComment(const string&);
+    typedef vector<string> StringVec;
+
+    StringVec stripMarkup(const string&);
+
+    void writeDocstring(const string&, const string& = "");
+    void writeDocstring(const string&, const DataMemberList&);
+    void writeDocstring(const string&, const EnumeratorList&);
+
+    typedef map<string, string> StringMap;
+    struct OpComment
+    {
+        StringVec description;
+        StringMap params;
+        string returns;
+        StringMap exceptions;
+    };
+    bool parseOpComment(const string&, OpComment&);
+
+    enum DocstringMode { DocSync, DocAsyncBegin, DocAsyncEnd, DocDispatch, DocAsyncDispatch };
+
+    void writeDocstring(const OperationPtr&, DocstringMode, bool);
 
     Output& _out;
     set<string>& _moduleHistory;
@@ -352,11 +372,7 @@ Slice::Python::CodeVisitor::visitModuleStart(const ModulePtr& p)
     }
     _out << nl << "__name__ = '" << abs << "'";
 
-    string comment = p->comment();
-    if(!comment.empty())
-    {
-        _out << nl << "_M_" << abs << ".__doc__ = '''" << editComment(comment) << "'''";
-    }
+    writeDocstring(p->comment(), "_M_" + abs + ".__doc__ = ");
 
     _moduleStack.push_front(abs);
     return true;
@@ -449,11 +465,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     _out.inc();
 
-    string comment = p->comment();
-    if(!comment.empty())
-    {
-        _out << nl << "'''" << editComment(comment) << "'''";
-    }
+    writeDocstring(p->comment(), p->dataMembers());
 
     //
     // __init__
@@ -582,11 +594,9 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 }
                 _out << "):";
                 _out.inc();
-                comment = (*oli)->comment();
-                if(!comment.empty())
-                {
-                    _out << nl << "'''" << editComment(comment) << "'''";
-                }
+
+                writeDocstring(*oli, DocAsyncDispatch, false);
+
                 _out << nl << "pass";
                 _out.dec();
             }
@@ -609,11 +619,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 }
                 _out << "):";
                 _out.inc();
-                comment = (*oli)->comment();
-                if(!comment.empty())
-                {
-                    _out << nl << "'''" << editComment(comment) << "'''";
-                }
+                writeDocstring(*oli, DocDispatch, p->isLocal());
                 _out << nl << "pass";
                 _out.dec();
             }
@@ -680,17 +686,8 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 }
             }
 
-            comment = (*oli)->comment();
-            if(!comment.empty())
-            {
-                comment = "'''" + editComment(comment) + "'''";
-            }
-
             _out << sp;
-            if(!comment.empty())
-            {
-                _out << nl << comment;
-            }
+            writeDocstring(*oli, DocSync, false);
             _out << nl << "def " << fixedOpName << "(self";
             if(!inParams.empty())
             {
@@ -710,10 +707,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             // Async operations.
             //
             _out << sp;
-            if(!comment.empty())
-            {
-                _out << nl << comment;
-            }
+            writeDocstring(*oli, DocAsyncBegin, false);
             _out << nl << "def begin_" << (*oli)->name() << "(self";
             if(!inParams.empty())
             {
@@ -730,10 +724,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out.dec();
 
             _out << sp;
-            if(!comment.empty())
-            {
-                _out << nl << comment;
-            }
+            writeDocstring(*oli, DocAsyncEnd, false);
             _out << nl << "def end_" << (*oli)->name() << "(self, _r):";
             _out.inc();
             _out << nl << "return _M_" << abs << "._op_" << (*oli)->name() << ".end(self, _r)";
@@ -1032,13 +1023,9 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out << "):";
     _out.inc();
 
-    string comment = p->comment();
-    if(!comment.empty())
-    {
-        _out << nl << "'''" << editComment(comment) << "'''";
-    }
-
     DataMemberList members = p->dataMembers();
+
+    writeDocstring(p->comment(), members);
 
     //
     // __init__
@@ -1160,10 +1147,10 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     string scoped = p->scoped();
     string abs = getAbsolute(p);
     string name = fixIdent(p->name());
+    DataMemberList members = p->dataMembers();
     MemberInfoList memberList;
 
     {
-        DataMemberList members = p->dataMembers();
         for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
         {
             memberList.push_back(MemberInfo());
@@ -1179,11 +1166,7 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     _out << nl << "class " << name << "(object):";
     _out.inc();
 
-    string comment = p->comment();
-    if(!comment.empty())
-    {
-        _out << nl << "'''" << editComment(comment) << "'''";
-    }
+    writeDocstring(p->comment(), members);
 
     _out << nl << "def __init__(self";
     writeConstructorParams(memberList);
@@ -1513,11 +1496,7 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
     _out << nl << "class " << name << "(Ice.EnumBase):";
     _out.inc();
 
-    string comment = p->comment();
-    if(!comment.empty())
-    {
-        _out << nl << "'''" << editComment(comment) << "'''";
-    }
+    writeDocstring(p->comment(), enums);
 
     _out << sp << nl << "def __init__(self, _n, _v):";
     _out.inc();
@@ -2133,25 +2112,25 @@ Slice::Python::CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, Membe
     }
 }
 
-string
-Slice::Python::CodeVisitor::editComment(const string& comment)
+Slice::Python::CodeVisitor::StringVec
+Slice::Python::CodeVisitor::stripMarkup(const string& comment)
 {
     //
     // Strip HTML markup and javadoc links.
     //
-    string result = comment;
+    string text = comment;
     string::size_type pos = 0;
     do
     {
-        pos = result.find('<', pos);
+        pos = text.find('<', pos);
         if(pos != string::npos)
         {
-            string::size_type endpos = result.find('>', pos);
+            string::size_type endpos = text.find('>', pos);
             if(endpos == string::npos)
             {
                 break;
             }
-            result.erase(pos, endpos - pos + 1);
+            text.erase(pos, endpos - pos + 1);
         }
     } while(pos != string::npos);
 
@@ -2159,18 +2138,18 @@ Slice::Python::CodeVisitor::editComment(const string& comment)
     pos = 0;
     do
     {
-        pos = result.find(link, pos);
+        pos = text.find(link, pos);
         if(pos != string::npos)
         {
-            result.erase(pos, link.size());
-            string::size_type endpos = result.find('}', pos);
+            text.erase(pos, link.size());
+            string::size_type endpos = text.find('}', pos);
             if(endpos != string::npos)
             {
-                string::size_type identpos = result.find_first_not_of(" \t#", pos);
+                string::size_type identpos = text.find_first_not_of(" \t#", pos);
                 if(identpos != string::npos && identpos < endpos)
                 {
-                    string ident = result.substr(identpos, endpos - identpos);
-                    result.replace(pos, endpos - pos + 1, fixIdent(ident));
+                    string ident = text.substr(identpos, endpos - identpos);
+                    text.replace(pos, endpos - pos + 1, fixIdent(ident));
                 }
             }
         }
@@ -2187,92 +2166,17 @@ Slice::Python::CodeVisitor::editComment(const string& comment)
         // Look for the next @ and delete up to that, or
         // to the end of the string, if not found.
         //
-        pos = result.find(seeTag, pos);
+        pos = text.find(seeTag, pos);
         if(pos != string::npos)
         {
-            string::size_type next = result.find('@', pos + seeTag.size());
+            string::size_type next = text.find('@', pos + seeTag.size());
             if(next != string::npos)
             {
-                result.erase(pos, next - pos);
+                text.erase(pos, next - pos);
             }
             else
             {
-                result.erase(pos, string::npos);
-            }
-        }
-    } while(pos != string::npos);
-
-    //
-    // Reformat @param, @return, and @throws.
-    //
-    static const string paramTag = "@param";
-    pos = 0;
-    bool first = true;
-    do
-    {
-        pos = result.find(paramTag, pos);
-        if(pos != string::npos)
-        {
-            result.replace(pos, paramTag.size() + 1, "    ");
-
-            if(first)
-            {
-                string::size_type bol = result.rfind('\n', pos);
-                if(bol == string::npos)
-                {
-                    bol = 0;
-                }
-                else
-                {
-                    bol++;
-                }
-                result.insert(bol, "Arguments:\n");
-                first = false;
-            }
-        }
-    } while(pos != string::npos);
-
-    static const string returnTag = "@return";
-    pos = result.find(returnTag);
-    first = true;
-    if(pos != string::npos)
-    {
-        result.replace(pos, returnTag.size() + 1, "    ");
-        string::size_type bol = result.rfind('\n', pos);
-        if(bol == string::npos)
-        {
-            bol = 0;
-        }
-        else
-        {
-            bol++;
-        }
-        result.insert(bol, "Returns:\n");
-    }
-
-    static const string throwsTag = "@throws";
-    pos = 0;
-    first = true;
-    do
-    {
-        pos = result.find(throwsTag, pos);
-        if(pos != string::npos)
-        {
-            result.replace(pos, throwsTag.size() + 1, "    ");
-
-            if(first)
-            {
-                string::size_type bol = result.rfind('\n', pos);
-                if(bol == string::npos)
-                {
-                    bol = 0;
-                }
-                else
-                {
-                    bol++;
-                }
-                result.insert(bol, "Exceptions:\n");
-                first = false;
+                text.erase(pos, string::npos);
             }
         }
     } while(pos != string::npos);
@@ -2280,17 +2184,20 @@ Slice::Python::CodeVisitor::editComment(const string& comment)
     //
     // Escape triple quotes.
     //
-    static const string quotes = "'''";
+    static const string singleQuotes = "'''";
     pos = 0;
-    do
+    while((pos = text.find(singleQuotes, pos)) != string::npos)
     {
-        pos = result.find(quotes, pos);
-        if(pos != string::npos)
-        {
-            result.insert(pos, "\\");
-            pos += quotes.size() + 1;
-        }
-    } while(pos != string::npos);
+        text.insert(pos, "\\");
+        pos += singleQuotes.size() + 1;
+    }
+    static const string doubleQuotes = "\"\"\"";
+    pos = 0;
+    while((pos = text.find(doubleQuotes, pos)) != string::npos)
+    {
+        text.insert(pos, "\\");
+        pos += doubleQuotes.size() + 1;
+    }
 
     //
     // Fold multiple empty lines.
@@ -2298,7 +2205,7 @@ Slice::Python::CodeVisitor::editComment(const string& comment)
     pos = 0;
     while(true)
     {
-        pos = result.find('\n', pos);
+        pos = text.find('\n', pos);
         if(pos == string::npos)
         {
             break;
@@ -2307,11 +2214,11 @@ Slice::Python::CodeVisitor::editComment(const string& comment)
         //
         // Skip the next LF or CR/LF, if present.
         //
-        if(pos < result.size() - 1 && result[pos + 1] == '\n')
+        if(pos < text.size() - 1 && text[pos + 1] == '\n')
         {
             pos += 2;
         }
-        else if(pos < result.size() - 2 && result[pos + 1] == '\r' && result[pos + 2] == '\n')
+        else if(pos < text.size() - 2 && text[pos + 1] == '\r' && text[pos + 2] == '\n')
         {
             pos += 3;
         }
@@ -2324,23 +2231,574 @@ Slice::Python::CodeVisitor::editComment(const string& comment)
         //
         // Erase any more CR/LF characters.
         //
-        string::size_type next = result.find_first_not_of("\r\n", pos);
+        string::size_type next = text.find_first_not_of("\r\n", pos);
         if(next != string::npos)
         {
-            result.erase(pos, next - pos);
+            text.erase(pos, next - pos);
         }
     }
 
     //
     // Remove trailing whitespace.
     //
-    pos = result.find_last_not_of(" \t\r\n");
+    pos = text.find_last_not_of(" \t\r\n");
     if(pos != string::npos)
     {
-        result.erase(pos + 1, result.size() - pos - 1);
+        text.erase(pos + 1, text.size() - pos - 1);
     }
 
-    return result;
+    //
+    // Split text into lines.
+    //
+    StringVec lines;
+    if(!text.empty())
+    {
+        string::size_type start = 0;
+        while(start != string::npos)
+        {
+            string::size_type nl = text.find_first_of("\r\n", start);
+            string line;
+            if(nl != string::npos)
+            {
+                line = text.substr(start, nl - start);
+                start = nl;
+            }
+            else
+            {
+                line = text.substr(start);
+                start = text.size();
+            }
+
+            lines.push_back(line);
+
+            start = text.find_first_not_of("\r\n", start);
+        }
+    }
+
+    return lines;
+}
+
+void
+Slice::Python::CodeVisitor::writeDocstring(const string& comment, const string& prefix)
+{
+    StringVec lines = stripMarkup(comment);
+    if(lines.empty())
+    {
+        return;
+    }
+
+    _out << nl << prefix << "\"\"\"";
+
+    for(StringVec::const_iterator q = lines.begin(); q != lines.end(); ++q)
+    {
+        if(q != lines.begin())
+        {
+            _out << nl;
+        }
+        _out << *q;
+    }
+
+    _out << "\"\"\"";
+}
+
+void
+Slice::Python::CodeVisitor::writeDocstring(const string& comment, const DataMemberList& members)
+{
+    StringVec lines = stripMarkup(comment);
+    if(lines.empty())
+    {
+        return;
+    }
+
+    _out << nl << "\"\"\"";
+
+    for(StringVec::const_iterator q = lines.begin(); q != lines.end(); ++q)
+    {
+        if(q != lines.begin())
+        {
+            _out << nl;
+        }
+        _out << *q;
+    }
+
+    if(!members.empty())
+    {
+        //
+        // Collect docstrings (if any) for the members.
+        //
+        map<string, StringVec> docs;
+        for(DataMemberList::const_iterator m = members.begin(); m != members.end(); ++m)
+        {
+            StringVec doc = stripMarkup((*m)->comment());
+            if(!doc.empty())
+            {
+                docs[(*m)->name()] = doc;
+            }
+        }
+        //
+        // Only emit members if there's a docstring for at least one member.
+        //
+        if(!docs.empty())
+        {
+            _out << nl << "Members:";
+            for(DataMemberList::const_iterator m = members.begin(); m != members.end(); ++m)
+            {
+                _out << nl << fixIdent((*m)->name()) << " -- ";
+                map<string, StringVec>::iterator p = docs.find((*m)->name());
+                if(p != docs.end())
+                {
+                    for(StringVec::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
+                    {
+                        if(q != p->second.begin())
+                        {
+                            _out << nl;
+                        }
+                        _out << *q;
+                    }
+                }
+            }
+        }
+    }
+
+    _out << "\"\"\"";
+}
+
+void
+Slice::Python::CodeVisitor::writeDocstring(const string& comment, const EnumeratorList& enums)
+{
+    StringVec lines = stripMarkup(comment);
+    if(lines.empty())
+    {
+        return;
+    }
+
+    _out << nl << "\"\"\"";
+
+    for(StringVec::const_iterator q = lines.begin(); q != lines.end(); ++q)
+    {
+        if(q != lines.begin())
+        {
+            _out << nl;
+        }
+        _out << *q;
+    }
+
+    if(!enums.empty())
+    {
+        //
+        // Collect docstrings (if any) for the enumerators.
+        //
+        map<string, StringVec> docs;
+        for(EnumeratorList::const_iterator e = enums.begin(); e != enums.end(); ++e)
+        {
+            StringVec doc = stripMarkup((*e)->comment());
+            if(!doc.empty())
+            {
+                docs[(*e)->name()] = doc;
+            }
+        }
+        //
+        // Only emit enumerators if there's a docstring for at least one enumerator.
+        //
+        if(!docs.empty())
+        {
+            _out << nl << "Enumerators:";
+            for(EnumeratorList::const_iterator e = enums.begin(); e != enums.end(); ++e)
+            {
+                _out << nl << fixIdent((*e)->name()) << " -- ";
+                map<string, StringVec>::iterator p = docs.find((*e)->name());
+                if(p != docs.end())
+                {
+                    for(StringVec::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
+                    {
+                        if(q != p->second.begin())
+                        {
+                            _out << nl;
+                        }
+                        _out << *q;
+                    }
+                }
+            }
+        }
+    }
+
+    _out << "\"\"\"";
+}
+
+bool
+Slice::Python::CodeVisitor::parseOpComment(const string& comment, OpComment& c)
+{
+    //
+    // Remove most javadoc & HTML markup.
+    //
+    StringVec lines = stripMarkup(comment);
+    if(lines.empty())
+    {
+        return false;
+    }
+
+    //
+    // Extract the descriptions of parameters, exceptions and return values.
+    //
+    string name;
+    bool inParam = false, inException = false, inReturn = false;
+    vector<string>::size_type i = 0;
+    while(i < lines.size())
+    {
+        string l = lines[i];
+        string::size_type paramTag = l.find("@param");
+        string::size_type throwTag = l.find("@throw");
+        string::size_type returnTag = l.find("@return");
+
+        if(paramTag != string::npos)
+        {
+            string::size_type pos = l.find_first_of(" \t", paramTag);
+            if(pos != string::npos)
+            {
+                pos = l.find_first_not_of(" \t", pos);
+            }
+            if(pos != string::npos)
+            {
+                string::size_type namePos = pos;
+                pos = l.find_first_of(" \t", pos);
+                inParam = true;
+                inException = false;
+                inReturn = false;
+                if(pos == string::npos)
+                {
+                    //
+                    // Doc assumed to have the format
+                    //
+                    // @param foo
+                    // Description of foo...
+                    //
+                    name = l.substr(namePos);
+                    c.params[name] = "";
+                }
+                else
+                {
+                    name = l.substr(namePos, pos - namePos);
+                    pos = l.find_first_not_of(" \t", pos);
+                    if(pos != string::npos)
+                    {
+                        c.params[name] = l.substr(pos);
+                    }
+                    else
+                    {
+                        c.params[name] = "";
+                    }
+                }
+            }
+            lines.erase(lines.begin() + i);
+            continue;
+        }
+        else if(throwTag != string::npos)
+        {
+            string::size_type pos = l.find_first_of(" \t", throwTag);
+            if(pos != string::npos)
+            {
+                pos = l.find_first_not_of(" \t", pos);
+            }
+            if(pos != string::npos)
+            {
+                string::size_type namePos = pos;
+                pos = l.find_first_of(" \t", pos);
+                inException = true;
+                inParam = false;
+                inReturn = false;
+                if(pos == string::npos)
+                {
+                    //
+                    // Doc assumed to have the format
+                    //
+                    // @throw foo
+                    // Description of foo...
+                    //
+                    name = l.substr(namePos);
+                    c.exceptions[name] = "";
+                }
+                else
+                {
+                    name = l.substr(namePos, pos - namePos);
+                    pos = l.find_first_not_of(" \t", pos);
+                    if(pos != string::npos)
+                    {
+                        c.exceptions[name] = l.substr(pos);
+                    }
+                    else
+                    {
+                        c.exceptions[name] = "";
+                    }
+                }
+            }
+            lines.erase(lines.begin() + i);
+            continue;
+        }
+        else if(returnTag != string::npos)
+        {
+            string::size_type pos = l.find_first_of(" \t", returnTag);
+            if(pos != string::npos)
+            {
+                pos = l.find_first_not_of(" \t", pos);
+            }
+            if(pos != string::npos)
+            {
+                inReturn = true;
+                inException = false;
+                inParam = false;
+                c.returns = l.substr(pos);
+            }
+            lines.erase(lines.begin() + i);
+            continue;
+        }
+        else
+        {
+            //
+            // We didn't find a tag so we assume this line is a continuation of a
+            // previous description.
+            //
+            string::size_type pos = l.find_first_not_of(" \t");
+            if(pos != string::npos && l[pos] != '@')
+            {
+                if(inParam)
+                {
+                    assert(!name.empty());
+                    if(!c.params[name].empty())
+                    {
+                        c.params[name] += " ";
+                    }
+                    c.params[name] += l.substr(pos);
+                    lines.erase(lines.begin() + i);
+                    continue;
+                }
+                else if(inException)
+                {
+                    assert(!name.empty());
+                    if(!c.exceptions[name].empty())
+                    {
+                        c.exceptions[name] += " ";
+                    }
+                    c.exceptions[name] += l.substr(pos);
+                    lines.erase(lines.begin() + i);
+                    continue;
+                }
+                else if(inReturn)
+                {
+                    if(!c.returns.empty())
+                    {
+                        c.returns += " ";
+                    }
+                    c.returns += l.substr(pos);
+                    lines.erase(lines.begin() + i);
+                    continue;
+                }
+            }
+        }
+
+        i++;
+    }
+
+    //
+    // All remaining lines become the general description.
+    //
+    for(vector<string>::iterator p = lines.begin(); p != lines.end(); ++p)
+    {
+        if(p->find_first_not_of(" \t\n\r") != string::npos)
+        {
+            c.description.push_back(*p);
+        }
+    }
+
+    return true;
+}
+
+void
+Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode mode, bool local)
+{
+    OpComment comment;
+    if(!parseOpComment(op->comment(), comment))
+    {
+        return;
+    }
+
+    TypePtr ret = op->returnType();
+    ParamDeclList params = op->parameters();
+    vector<string> inParams, outParams;
+    for(ParamDeclList::iterator p = params.begin(); p != params.end(); ++p)
+    {
+        if((*p)->isOutParam())
+        {
+            outParams.push_back((*p)->name());
+        }
+        else
+        {
+            inParams.push_back((*p)->name());
+        }
+    }
+
+    if(comment.description.empty())
+    {
+        if((mode == DocSync || mode == DocDispatch) && comment.params.empty() && comment.exceptions.empty() &&
+           comment.returns.empty())
+        {
+            return;
+        }
+        else if(mode == DocAsyncBegin && inParams.empty())
+        {
+            return;
+        }
+        else if(mode == DocAsyncEnd && outParams.empty() && comment.returns.empty())
+        {
+            return;
+        }
+        else if(mode == DocAsyncDispatch && inParams.empty() && comment.exceptions.empty())
+        {
+            return;
+        }
+    }
+
+    //
+    // Emit the general description.
+    //
+    _out << nl << "\"\"\"";
+    if(!comment.description.empty())
+    {
+        for(StringVec::const_iterator q = comment.description.begin(); q != comment.description.end(); ++q)
+        {
+            if(q != comment.description.begin())
+            {
+                _out << nl;
+            }
+            _out << *q;
+        }
+    }
+
+    //
+    // Emit arguments.
+    //
+    bool needArgs = false;
+    switch(mode)
+    {
+    case DocSync:
+    case DocAsyncBegin:
+    case DocDispatch:
+        needArgs = !local || !inParams.empty();
+        break;
+    case DocAsyncEnd:
+    case DocAsyncDispatch:
+        needArgs = true;
+        break;
+    }
+
+    if(needArgs)
+    {
+        _out << nl << "Arguments:";
+        if(mode == DocAsyncDispatch)
+        {
+            _out << nl << "_cb -- The asynchronous callback object.";
+        }
+        for(vector<string>::iterator q = inParams.begin(); q != inParams.end(); ++q)
+        {
+            string fixed = fixIdent(*q);
+            _out << nl << fixed << " -- ";
+            StringMap::const_iterator r = comment.params.find(*q);
+            if(r == comment.params.end())
+            {
+                r = comment.params.find(fixed); // Just in case.
+            }
+            if(r != comment.params.end())
+            {
+                _out << r->second;
+            }
+        }
+        if(mode == DocAsyncBegin)
+        {
+            _out << nl << "_response -- The asynchronous response callback."
+                 << nl << "_ex -- The asynchronous exception callback."
+                 << nl << "_sent -- The asynchronous sent callback.";
+        }
+        if(!local && (mode == DocSync || mode == DocAsyncBegin))
+        {
+            _out << nl << "_ctx -- The request context for the invocation.";
+        }
+        if(!local && (mode == DocDispatch || mode == DocAsyncDispatch))
+        {
+            _out << nl << "current -- The Current object for the invocation.";
+        }
+    }
+    else if(mode == DocAsyncEnd)
+    {
+        _out << nl << "Arguments:"
+             << nl << "_r - The asynchronous result object for the invocation.";
+    }
+
+    //
+    // Emit return value(s).
+    //
+    if(mode == DocAsyncBegin)
+    {
+        _out << nl << "Returns: An asynchronous result object for the invocation.";
+    }
+
+    if((mode == DocSync || mode == DocAsyncEnd || mode == DocDispatch) && (ret || !outParams.empty()))
+    {
+        if((outParams.size() + (ret ? 1 : 0)) > 1)
+        {
+            _out << nl << "Returns a tuple containing the following:";
+            if(ret)
+            {
+                _out << nl << "_retval -- " << comment.returns;
+            }
+            for(vector<string>::iterator q = outParams.begin(); q != outParams.end(); ++q)
+            {
+                string fixed = fixIdent(*q);
+                _out << nl << fixed << " -- ";
+                StringMap::const_iterator r = comment.params.find(*q);
+                if(r == comment.params.end())
+                {
+                    r = comment.params.find(fixed); // Just in case.
+                }
+                if(r != comment.params.end())
+                {
+                    _out << r->second;
+                }
+            }
+        }
+        else if(ret && !comment.returns.empty())
+        {
+            _out << nl << "Returns: " << comment.returns;
+        }
+        else if(!outParams.empty())
+        {
+            assert(outParams.size() == 1);
+            _out << nl << "Returns:";
+            string fixed = fixIdent(outParams[0]);
+            _out << nl << fixed << " -- ";
+            StringMap::const_iterator r = comment.params.find(outParams[0]);
+            if(r == comment.params.end())
+            {
+                r = comment.params.find(fixed); // Just in case.
+            }
+            if(r != comment.params.end())
+            {
+                _out << r->second;
+            }
+        }
+    }
+
+    //
+    // Emit exceptions.
+    //
+    if((mode == DocSync || mode == DocAsyncEnd || mode == DocDispatch || mode == DocAsyncDispatch) &&
+       !comment.exceptions.empty())
+    {
+        _out << nl << "Throws:";
+        for(StringMap::const_iterator r = comment.exceptions.begin(); r != comment.exceptions.end(); ++r)
+        {
+            _out << nl << r->first << " -- " << r->second;
+        }
+    }
+    _out << "\"\"\"";
 }
 
 void
