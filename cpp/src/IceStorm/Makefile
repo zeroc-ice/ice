@@ -105,7 +105,7 @@ $(ADMIN): $(AOBJS) $(LIBTARGETS)
 
 $(DB): $(DOBJS) $(LIBTARGETS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(DOBJS) -lIceStorm -lIcePatch2 -lFreeze $(LIBS)
+	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(DOBJS) -lIceStorm -lFreeze $(LIBS)
 
 $(MIGRATE): $(MOBJS)
 	rm -f $@

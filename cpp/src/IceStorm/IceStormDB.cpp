@@ -12,7 +12,6 @@
 #include <IceUtil/FileUtil.h>
 #include <Ice/Application.h>
 #include <Freeze/Freeze.h>
-#include <IcePatch2Lib/Util.h>
 #include <DBTypes.h>
 #include <LLUMap.h>
 #include <SubscriberMap.h>
@@ -141,8 +140,7 @@ Client::run(int argc, char* argv[])
                 return EXIT_FAILURE;
             }
 
-            StringSeq files = IcePatch2Internal::readDirectory(dbPath);
-            if(!files.empty())
+            if(!IceUtilInternal::isEmptyDirectory(dbPath))
             {
                 cerr << argv[0] << ": output directory is not empty: " << dbPath << endl;
                 return EXIT_FAILURE;

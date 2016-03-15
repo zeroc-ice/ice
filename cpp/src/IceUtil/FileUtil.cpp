@@ -17,8 +17,12 @@
 #ifdef _WIN32
 #  include <process.h>
 #  include <io.h>
+#  ifndef ICE_OS_WINRT
+#    include <Shlwapi.h>
+#  endif
 #else
 #  include <unistd.h>
+#  include <dirent.h>
 #endif
 
 using namespace std;
@@ -88,6 +92,41 @@ IceUtilInternal::directoryExists(const string& path)
     }
     return true;
 }
+
+//
+// Determinte if a directory exists and is empty
+//
+#ifndef ICE_OS_WINRT
+bool
+IceUtilInternal::isEmptyDirectory(const string& path)
+{
+#   ifdef _WIN32
+    return PathIsDirectoryEmptyW(IceUtil::stringToWstring(path, IceUtil::getProcessStringConverter()).c_str());
+#   else
+    struct dirent* d;
+    DIR* dir = opendir(path.c_str());
+    if(dir)
+    {
+        bool empty = true;
+        while((d = readdir(dir)))
+        {
+            string name(d->d_name);
+            if(name != "." && name != "..")
+            {
+                empty = false;
+                break;
+            }
+        }
+        closedir(dir);
+        return empty;
+    }
+    else
+    {
+        return false;
+    }
+#   endif
+}
+#endif
 
 //
 // Determine if a regular file exists.

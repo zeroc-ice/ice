@@ -166,7 +166,7 @@ RCFLAGS         = -nologo
 !endif
 
 !if "$(WINRT)" != "yes"
-ICEUTIL_OS_LIBS         = rpcrt4.lib advapi32.lib DbgHelp.lib
+ICEUTIL_OS_LIBS         = rpcrt4.lib advapi32.lib DbgHelp.lib Shlwapi.lib
 ICE_OS_LIBS             = advapi32.lib ws2_32.lib Iphlpapi.lib
 SSL_OS_LIBS             = advapi32.lib secur32.lib crypt32.lib ws2_32.lib
 

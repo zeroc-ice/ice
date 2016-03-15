@@ -127,7 +127,7 @@ $(ADMIN): $(ADMIN_OBJS) $(LIBTARGETS)
 
 $(DB): $(DB_OBJS) $(LIBTARGETS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(DB_OBJS) -lIceGrid -lGlacier2 -lIcePatch2 -lFreeze $(LIBS)
+	$(CXX) $(LDFLAGS) $(LDEXEFLAGS) -o $@ $(DB_OBJS) -lIceGrid -lGlacier2 -lFreeze $(LIBS)
 
 $(REGISTRY_SERVER): $(REGISTRY_SVR_OBJS) $(LIBTARGETS)
 	rm -f $@
