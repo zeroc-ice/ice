@@ -71,6 +71,10 @@ These are the changes since Ice 3.6.1.
 - Fixed a bug where unmarshaling Ice objects was really slow when using
   compact type IDs.
 
+## Ruby Changes
+
+- Added compatibility with Ruby 2.3.
+
 # Changes in Ice 3.6.1
 
 These are the changes since Ice 3.6.0.

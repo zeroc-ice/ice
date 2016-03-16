@@ -188,7 +188,7 @@ IceRuby_ObjectPrx_ice_ids(int argc, VALUE* argv, VALUE self)
         long i = 0;
         for(vector<string>::iterator q = ids.begin(); q != ids.end(); ++q, ++i)
         {
-            RARRAY_PTR(result)[i] = createString(*q);
+            RARRAY_ASET(result, i, createString(*q));
         }
 
         return result;
@@ -352,7 +352,7 @@ IceRuby_ObjectPrx_ice_getEndpoints(VALUE self)
         long i = 0;
         for(Ice::EndpointSeq::iterator q = seq.begin(); q != seq.end(); ++q, ++i)
         {
-            RARRAY_PTR(result)[i] = createEndpoint(*q);
+            RARRAY_ASET(result, i, createEndpoint(*q));
         }
         return result;
     }
@@ -383,11 +383,11 @@ IceRuby_ObjectPrx_ice_endpoints(VALUE self, VALUE seq)
             }
             for(long i = 0; i < RARRAY_LEN(arr); ++i)
             {
-                if(!checkEndpoint(RARRAY_PTR(arr)[i]))
+                if(!checkEndpoint(RARRAY_AREF(arr, i)))
                 {
                     throw RubyException(rb_eTypeError, "array element is not an Ice::Endpoint");
                 }
-                Ice::EndpointPtr* e = reinterpret_cast<Ice::EndpointPtr*>(DATA_PTR(RARRAY_PTR(arr)[i]));
+                Ice::EndpointPtr* e = reinterpret_cast<Ice::EndpointPtr*>(DATA_PTR(RARRAY_AREF(arr, i)));
                 assert(e);
                 endpoints.push_back(*e);
             }

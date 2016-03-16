@@ -445,7 +445,7 @@ VALUE createArrayHelper(long);
 // VALUE arr = createArray(size);
 // for(long i = 0; i < size; ++i)
 // {
-//     RARRAY_PTR(arr)[i] = ...;
+//     RARRAY_ASET(arr, i, val);
 // }
 //
 template<typename T>
