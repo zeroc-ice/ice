@@ -192,11 +192,17 @@ IceRuby::ValueFactoryManager::mark()
 void
 IceRuby::ValueFactoryManager::markSelf()
 {
-    Lock lock(*this);
+    volatile VALUE self;
 
-    if(!NIL_P(_self))
     {
-        rb_gc_mark(_self);
+        Lock lock(*this);
+
+        self = _self;
+    }
+
+    if(!NIL_P(self))
+    {
+        rb_gc_mark(self);
     }
 }
 
