@@ -87,4 +87,15 @@ typedef VALUE(*ICE_RUBY_ENTRY_POINT)(...);
 #   define RFLOAT_VALUE(v) RFLOAT(v)->value
 #endif
 
+//
+// The RARRAY_AREF and RARRAY_ASET macros were added in Ruby 2.1.
+//
+#ifndef RARRAY_AREF
+#   define RARRAY_AREF(a, i) (RARRAY_PTR(a)[i])
+#endif
+
+#ifndef RARRAY_ASET
+#   define RARRAY_ASET(a, i, v) RARRAY_PTR(a)[i] = v
+#endif
+
 #endif

@@ -378,8 +378,8 @@ IceRuby::arrayToStringSeq(VALUE val, vector<string>& seq)
     }
     for(long i = 0; i < RARRAY_LEN(arr); ++i)
     {
-        string s = getString(RARRAY_PTR(arr)[i]);
-        seq.push_back(getString(RARRAY_PTR(arr)[i]));
+        string s = getString(RARRAY_AREF(arr, i));
+        seq.push_back(getString(RARRAY_AREF(arr, i)));
     }
     return true;
 }
@@ -393,7 +393,7 @@ IceRuby::stringSeqToArray(const vector<string>& seq)
     {
         for(vector<string>::const_iterator p = seq.begin(); p != seq.end(); ++p, ++i)
         {
-            RARRAY_PTR(result)[i] = createString(*p);
+            RARRAY_ASET(result, i, createString(*p));
         }
     }
     return result;

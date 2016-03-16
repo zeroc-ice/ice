@@ -175,7 +175,7 @@ IceRuby::ParamInfo::unmarshaled(VALUE val, VALUE target, void* closure)
 #else
     long i = reinterpret_cast<long>(closure);
 #endif
-    RARRAY_PTR(target)[i] = val;
+    RARRAY_ASET(target, i, val);
 }
 
 //
@@ -287,7 +287,7 @@ IceRuby::OperationI::OperationI(VALUE name, VALUE mode, VALUE sendMode, VALUE am
     //
     for(long i = 0; i < RARRAY_LEN(exceptions); ++i)
     {
-        _exceptions.push_back(getException(RARRAY_PTR(exceptions)[i]));
+        _exceptions.push_back(getException(RARRAY_AREF(exceptions, i)));
     }
 }
 
@@ -359,7 +359,7 @@ IceRuby::OperationI::invoke(const Ice::ObjectPrx& proxy, VALUE args, VALUE hctx)
             }
             else
             {
-                return RARRAY_PTR(results)[0];
+                return RARRAY_AREF(results, 0);
             }
         }
     }
@@ -387,7 +387,7 @@ IceRuby::OperationI::convertParams(VALUE v, ParamInfoList& params, int posOffset
 
     for(long i = 0; i < RARRAY_LEN(v); ++i)
     {
-        ParamInfoPtr param = convertParam(RARRAY_PTR(v)[i], i + posOffset);
+        ParamInfoPtr param = convertParam(RARRAY_AREF(v, i), i + posOffset);
         params.push_back(param);
         if(!param->optional && !usesClasses)
         {
@@ -401,9 +401,9 @@ IceRuby::OperationI::convertParam(VALUE v, int pos)
 {
     assert(TYPE(v) == T_ARRAY);
     ParamInfoPtr param = new ParamInfo;
-    param->type = getType(RARRAY_PTR(v)[0]);
-    param->optional = static_cast<bool>(RTEST(RARRAY_PTR(v)[1]));
-    param->tag = static_cast<int>(getInteger(RARRAY_PTR(v)[2]));
+    param->type = getType(RARRAY_AREF(v, 0));
+    param->optional = static_cast<bool>(RTEST(RARRAY_AREF(v, 1)));
+    param->tag = static_cast<int>(getInteger(RARRAY_AREF(v, 2)));
     param->pos = pos;
     return param;
 }
@@ -442,7 +442,7 @@ IceRuby::OperationI::prepareRequest(const Ice::ObjectPrx& proxy, VALUE args, Ice
         for(p = _inParams.begin(); p != _inParams.end(); ++p)
         {
             ParamInfoPtr info = *p;
-            volatile VALUE arg = RARRAY_PTR(args)[info->pos];
+            volatile VALUE arg = RARRAY_AREF(args, info->pos);
             if((!info->optional || arg != Unset) && !info->type->validate(arg))
             {
                 string opName = fixIdent(_name, IdentNormal);
@@ -459,7 +459,7 @@ IceRuby::OperationI::prepareRequest(const Ice::ObjectPrx& proxy, VALUE args, Ice
             ParamInfoPtr info = *p;
             if(!info->optional)
             {
-                volatile VALUE arg = RARRAY_PTR(args)[info->pos];
+                volatile VALUE arg = RARRAY_AREF(args, info->pos);
                 info->type->marshal(arg, os, &objectMap, false);
             }
         }
@@ -470,7 +470,7 @@ IceRuby::OperationI::prepareRequest(const Ice::ObjectPrx& proxy, VALUE args, Ice
         for(p = _optionalInParams.begin(); p != _optionalInParams.end(); ++p)
         {
             ParamInfoPtr info = *p;
-            volatile VALUE arg = RARRAY_PTR(args)[info->pos];
+            volatile VALUE arg = RARRAY_AREF(args, info->pos);
             if(arg != Unset && os->writeOptional(info->tag, info->type->optionalFormat()))
             {
                 info->type->marshal(arg, os, &objectMap, true);
@@ -553,7 +553,7 @@ IceRuby::OperationI::unmarshalResults(const vector<Ice::Byte>& bytes, const Ice:
         }
         else
         {
-            RARRAY_PTR(results)[info->pos] = Unset;
+            RARRAY_ASET(results, info->pos, Unset);
         }
     }
 
