@@ -171,7 +171,8 @@ function test($b)
     if(!$b)
     {
         $bt = debug_backtrace();
-        die("\ntest failed in ".$bt[0]["file"]." line ".$bt[0]["line"]."\n");
+        echo "\ntest failed in ".$bt[0]["file"]." line ".$bt[0]["line"]."\n";
+        exit(1);
     }
 }
 
@@ -346,7 +347,7 @@ function allTests($communicator)
     $h = $initial->getH();
     test($h != null and $h instanceof Test_H);
     echo "ok\n";
-    
+
     echo "getting D1... ";
     flush();
     $d1 = $initial->getD1(new Test_D1(new Test_A1("a1"), new Test_A1("a2"), new Test_A1("a3"), new Test_A1("a4")));
@@ -355,7 +356,7 @@ function allTests($communicator)
     test($d1->a3->name == "a3");
     test($d1->a4->name == "a4");
     echo "ok\n";
-    
+
     echo "throw EDerived... ";
     flush();
     try

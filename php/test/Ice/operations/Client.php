@@ -25,7 +25,8 @@ function test($b)
     if(!$b)
     {
         $bt = debug_backtrace();
-        die("\ntest failed in ".$bt[0]["file"]." line ".$bt[0]["line"]."\n");
+        echo "\ntest failed in ".$bt[0]["file"]." line ".$bt[0]["line"]."\n";
+        exit(1);
     }
 }
 
@@ -41,8 +42,8 @@ function twoways($communicator, $p)
     $myDerivedClass = $NS ? "Test\\MyDerivedClass" : "Test_MyDerivedClass";
     $myClass = $NS ? "Test\\MyClass" : "Test_MyClass";
     $objectPrxHelper = $NS ? "Ice\\ObjectPrxHelper" : "Ice_ObjectPrxHelper";
-    
-    
+
+
     $s0 = $NS ? constant("Test\\s0") : constant("Test_s0");
     $s1 = $NS ? constant("Test\\s1") : constant("Test_s1");
     $s2 = $NS ? constant("Test\\s2") : constant("Test_s2");
@@ -54,7 +55,7 @@ function twoways($communicator, $p)
     $s8 = $NS ? constant("Test\\s8") : constant("Test_s8");
     $s9 = $NS ? constant("Test\\s9") : constant("Test_s9");
     $s10 = $NS ? constant("Test\\s10") : constant("Test_s10");
-    
+
     $sw0 = $NS ? constant("Test\\sw0") : constant("Test_sw0");
     $sw1 = $NS ? constant("Test\\sw1") : constant("Test_sw1");
     $sw2 = $NS ? constant("Test\\sw2") : constant("Test_sw2");
@@ -81,7 +82,7 @@ function twoways($communicator, $p)
     {
         $literals = $p->opStringLiterals();
 
-        test($s0 == "\\" && 
+        test($s0 == "\\" &&
              $s0 == $sw0 &&
              $s0 == $literals[0] &&
              $s0 == $literals[11]);
@@ -95,8 +96,8 @@ function twoways($communicator, $p)
              $s2 == $sw2 &&
              $s2 == $literals[2] &&
              $s2 == $literals[13]);
-        
-        test($s3 == "A21" && 
+
+        test($s3 == "A21" &&
              $s3 == $sw3 &&
              $s3 == $literals[3] &&
              $s3 == $literals[14]);
@@ -110,22 +111,22 @@ function twoways($communicator, $p)
              $s5 == $sw5 &&
              $s5 == $literals[5] &&
              $s5 == $literals[16]);
-        
+
         test($s6 == "\xcf\xbf" &&
              $s6 == $sw6 &&
              $s6 == $literals[6] &&
              $s6 == $literals[17]);
-        
+
         test($s7 == "\xd7\xb0" &&
              $s7 == $sw7 &&
              $s7 == $literals[7] &&
              $s7 == $literals[18]);
-        
+
         test($s8 == "\xf0\x90\x80\x80" &&
              $s8 == $sw8 &&
              $s8 == $literals[8] &&
              $s8 == $literals[19]);
-        
+
         test($s9 == "\xf0\x9f\x8d\x8c" &&
              $s9 == $sw9 &&
              $s9 == $literals[9] &&
@@ -135,23 +136,23 @@ function twoways($communicator, $p)
              $s10 == $sw10 &&
              $s10 == $literals[10] &&
              $s10 == $literals[21]);
-        
+
         test($ss0 == "'\"?\\\007\010\f\n\r\t\v" &&
              $ss0 == $ss1 &&
              $ss1 == $ss2 &&
              $ss0 == $literals[22] &&
              $ss0 == $literals[23] &&
              $ss0 == $literals[24]);
-        
+
         test($ss3 == "\\\\U\\u\\" &&
              $ss3 == $literals[25]);
-        
+
         test($ss4 == "\\A\\" &&
              $ss4 == $literals[26]);
-        
+
         test($ss5 == "\\u0041\\" &&
              $ss5 == $literals[27]);
-        
+
         test($su0 == $su1 &&
              $su0 == $su2 &&
              $su0 == $literals[28] &&

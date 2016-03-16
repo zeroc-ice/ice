@@ -25,7 +25,8 @@ function test($b)
     if(!$b)
     {
         $bt = debug_backtrace();
-        die("\ntest failed in ".$bt[0]["file"]." line ".$bt[0]["line"]."\n");
+        echo "\ntest failed in ".$bt[0]["file"]." line ".$bt[0]["line"]."\n";
+        exit(1);
     }
 }
 
@@ -337,12 +338,12 @@ function allTests($communicator)
     test($oo != Ice_Unset);
     $initial->ice_encodingVersion($Ice_Encoding_1_0)->returnOptionalClass(true, $oo);
     test($oo == Ice_Unset);
-    
-    
+
+
     $gcls = $NS ? "Test\\G" : "Test_G";
     $g1cls = $NS ? "Test\\G1" : "Test_G1";
     $g2cls = $NS ? "Test\\G2" : "Test_G2";
-    
+
     $g = new $gcls;
     $g->gg1Opt = new $g1cls("gg1Opt");
     $g->gg2 = new $g2cls(10);

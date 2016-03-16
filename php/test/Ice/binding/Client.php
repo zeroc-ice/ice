@@ -25,7 +25,8 @@ function test($b)
     if(!$b)
     {
         $bt = debug_backtrace();
-        die("\ntest failed in ".$bt[0]["file"]." line ".$bt[0]["line"]."\n");
+        echo "\ntest failed in ".$bt[0]["file"]." line ".$bt[0]["line"]."\n";
+        exit(1);
     }
 }
 
@@ -187,7 +188,7 @@ function allTests($communicator)
         //
         $com->deactivateObjectAdapter($adapters[2]);
         $test = createTestIntfPrx($adapters);
-        test($test->getAdapterName() == "Adapter12");   
+        test($test->getAdapterName() == "Adapter12");
 
         deactivate($com, $adapters);
     }
@@ -280,7 +281,7 @@ function allTests($communicator)
         //
         // Now, re-activate the adapters with the same endpoints in the opposite
         // order.
-        // 
+        //
         $adapters[] = $com->createObjectAdapter("Adapter36", $endpoints[2]->toString());
         for($i = 0; $i < $nRetry && $test->getAdapterName() == "Adapter36"; $i++);
         test($i == $nRetry);
@@ -419,7 +420,7 @@ function allTests($communicator)
         //
         // Now, re-activate the adapters with the same endpoints in the opposite
         // order.
-        // 
+        //
         $adapters[] = $com->createObjectAdapter("Adapter66", $endpoints[2]->toString());
         for($i = 0; $i < $nRetry && $test->getAdapterName() == "Adapter66"; $i++);
         test($i == $nRetry);
