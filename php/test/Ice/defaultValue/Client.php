@@ -55,7 +55,7 @@ function allTests()
         test($v->l == 4);
         test($v->f == 5.1);
         test($v->d == 6.2);
-        test($v->str == "foo \\ \"bar\n \r\n\t\013\f\007\b? \007 \007");
+        test($v->str == "foo \\ \"bar\n \r\n\t\013\f\007\010? \007 \007");
         test($v->c1 == $red);
         test($v->c2 == $green);
         test($v->c3 == $blue);
@@ -105,7 +105,7 @@ function allTests()
         test($v->l == 4);
         test($v->f == 5.1);
         test($v->d == 6.2);
-        test($v->str == "foo \\ \"bar\n \r\n\t\013\f\007\b? \007 \007");
+        test($v->str == "foo \\ \"bar\n \r\n\t\013\f\007\010? \007 \007");
         test(strlen($v->noDefault) == 0);
         test($v->zeroI == 0);
         test($v->zeroL == 0);
@@ -125,7 +125,7 @@ function allTests()
         test($v->l == 4);
         test($v->f == 5.1);
         test($v->d == 6.2);
-        test($v->str == "foo \\ \"bar\n \r\n\t\013\f\007\b? \007 \007");
+        test($v->str == "foo \\ \"bar\n \r\n\t\013\f\007\010? \007 \007");
         test(strlen($v->noDefault) == 0);
         test($v->c1 == $red);
         test($v->c2 == $green);
@@ -151,7 +151,7 @@ function allTests()
         test($v->l == 4);
         test($v->f == 5.1);
         test($v->d == 6.2);
-        test($v->str == "foo \\ \"bar\n \r\n\t\013\f\007\b? \007 \007");
+        test($v->str == "foo \\ \"bar\n \r\n\t\013\f\007\010? \007 \007");
         test(strlen($v->noDefault) == 0);
         test($v->zeroI == 0);
         test($v->zeroL == 0);
@@ -171,7 +171,7 @@ function allTests()
         test($v->l == 4);
         test($v->f == 5.1);
         test($v->d == 6.2);
-        test($v->str == "foo \\ \"bar\n \r\n\t\013\f\007\b? \007 \007");
+        test($v->str == "foo \\ \"bar\n \r\n\t\013\f\007\010? \007 \007");
         test(strlen($v->noDefault) == 0);
         test($v->c1 == $red);
         test($v->c2 == $green);
