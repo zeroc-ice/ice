@@ -52,6 +52,12 @@ These are the changes since Ice 3.6.1.
   groups would fail unless the client was using an encoding superior to the encoding
   of the dynamically registered object adapters.
 
+- Added missing functions Ice::identityToString and Ice::stringToIdentity
+  (C++, Objective-C, PHP, Python and Ruby).
+
+- Added support for universal character names (\uNNNN and \UNNNNNNNN) in Slice string
+  constants.
+
 ## C++ Changes
 
 - Fixed El Capitan build issues caused by a new security feature that no longer
@@ -59,10 +65,6 @@ These are the changes since Ice 3.6.1.
 
 - Fixed potential deadlock that could occur when using collocation optimization and
   serialized server thread pools.
-
-- Added Ice::identityToString and Ice::stringToIdentity non member functions, with the
-  same semantics than Ice::Communicator member functions Ice::Communicator::identityToString
-  and Ice::Communicator::stringToIdentity.
 
 ## C# Changes
 
