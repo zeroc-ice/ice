@@ -826,12 +826,12 @@
                         var p = new Promise();
 
                         var start = Date.now();
-
                         p = p.succeed(10).delay(500).then(
                             function(i)
                             {
                                 test(i == 10);
-                                test(Date.now() - start >= 450 && Date.now() - start <= 650);
+                                test(Date.now() - start >= 450);
+                                test(Date.now() - start <= 900);
                             }
                         ).then(
                             function()
@@ -841,7 +841,8 @@
                                     function(i)
                                     {
                                         test(i == 10);
-                                        test(Date.now() - start >= 450 && Date.now() - start <= 650);
+                                        test(Date.now() - start >= 450);
+                                        test(Date.now() - start <= 900);
                                     }
                                 )
                             }
@@ -858,7 +859,8 @@
                                     function(ex)
                                     {
                                         test(ex == "failed");
-                                        test(Date.now() - start >= 450 && Date.now() - start <= 650);
+                                        test(Date.now() - start >= 450);
+                                        test(Date.now() - start <= 900);
                                         out.writeLine("ok");
                                         promise.succeed();
                                     }
