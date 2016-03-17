@@ -17,7 +17,8 @@ function test($b)
     if(!$b)
     {
         $bt = debug_backtrace();
-        die("\ntest failed in ".$bt[0]["file"]." line ".$bt[0]["line"]."\n");
+        echo "\ntest failed in ".$bt[0]["file"]." line ".$bt[0]["line"]."\n";
+        exit(1);
     }
 }
 

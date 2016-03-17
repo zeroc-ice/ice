@@ -25,7 +25,8 @@ function test($b)
     if(!$b)
     {
         $bt = debug_backtrace();
-        die("\ntest failed in ".$bt[0]["file"]." line ".$bt[0]["line"]."\n");
+        echo "\ntest failed in ".$bt[0]["file"]." line ".$bt[0]["line"]."\n";
+        exit(1);
     }
 }
 
@@ -38,7 +39,7 @@ function allTests($communicator)
     $random = $NS ? constant("Ice\\EndpointSelectionType::Random") : constant("Ice_EndpointSelectionType::Random");
     $ordered = $NS ? constant("Ice\\EndpointSelectionType::Ordered") : constant("Ice_EndpointSelectionType::Ordered");
     $encodingVersion = $NS ? "Ice\\EncodingVersion" : "Ice_EncodingVersion";
-    
+
     $identityToString = $NS ? "Ice\\identityToString" : "Ice_identityToString";
     $stringToIdentity = $NS ? "Ice\\stringToIdentity" : "Ice_stringToIdentity";
 
@@ -490,7 +491,7 @@ function allTests($communicator)
     {
         $cl20->ice_ping();
         test(false);
-    } 
+    }
     catch(Exception $ex)
     {
         // Server 2.0 endpoint doesn't support 1.1 version.
@@ -685,7 +686,7 @@ function allTests($communicator)
     $p1 = $communicator->stringToProxy("test -e 1.1:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
     $pstr = $communicator->proxyToString($p1);
     test($pstr == "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000");
-    
+
     // Opaque endpoint encoded with 1.1 encoding.
     $p2 = $communicator->stringToProxy("test -e 1.1:opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
     test($communicator->proxyToString($p2) == "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000");

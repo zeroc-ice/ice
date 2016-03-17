@@ -40,6 +40,11 @@ ICE_UTIL_API bool fileExists(const std::string&);
 //
 ICE_UTIL_API bool directoryExists(const std::string&);
 
+//
+// Determine if a directory exists and is empty.
+//
+ICE_UTIL_API bool isEmptyDirectory(const std::string&);
+
 #ifdef _WIN32
 
 #if defined(__MINGW32__)

@@ -8,23 +8,27 @@ We recommend that you use the release notes as a guide for migrating your
 applications to this release, and the manual for complete details on a
 particular aspect of Ice.
 
-- [Changes in Ice 3.6.1](#changes-in-ice-361)
-  - [C++ Changes](#c-changes)
-- [Changes in Ice 3.6.1](#changes-in-ice-361)
+- [Changes in Ice 3.6.2](#changes-in-ice-362)
   - [General Changes](#general-changes)
-  - [C++ Changes](#c-changes-1)
+  - [C++ Changes](#c-changes)
+  - [C# Changes](#c-changes-1)
+  - [Java Changes](#java-changes)
+  - [Ruby Changes](#ruby-changes)
+- [Changes in Ice 3.6.1](#changes-in-ice-361)
+  - [General Changes](#general-changes-1)
+  - [C++ Changes](#c-changes-2)
   - [JavaScript Changes](#javascript-changes)
   - [PHP Changes](#php-changes)
 - [Changes in Ice 3.6.0](#changes-in-ice-360)
-  - [General Changes](#general-changes-1)
-  - [C++ Changes](#c-changes-2)
-  - [C# Changes](#c#-changes)
-  - [Java Changes](#java-changes)
+  - [General Changes](#general-changes-2)
+  - [C++ Changes](#c-changes-3)
+  - [C# Changes](#c-changes-4)
+  - [Java Changes](#java-changes-1)
   - [JavaScript Changes](#javascript-changes-1)
   - [Objective-C Changes](#objective-c-changes)
   - [PHP Changes](#php-changes-1)
   - [Python Changes](#python-changes)
-  - [Ruby Changes](#ruby-changes)
+  - [Ruby Changes](#ruby-changes-1)
 
 # Changes in Ice 3.6.2
 
