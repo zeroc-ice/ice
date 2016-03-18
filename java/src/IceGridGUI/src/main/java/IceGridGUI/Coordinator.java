@@ -1260,7 +1260,7 @@ public class Coordinator
         //
         _transientCert = null;
         _liveDeploymentRoot.clear();
-        
+
         destroyCommunicator();
 
         Ice.InitializationData initData = _initData;
@@ -1682,12 +1682,12 @@ public class Coordinator
             }
             return;
         }
-        
+
         final String finderStr = "Ice/" + (info.getDirect() ? "LocatorFinder" : "RouterFinder") + ":" +
             (info.getDefaultEndpoint() ?
                 ((info.getSSL() ? "ssl" : "tcp") + " -h " + info.getHost() + " -p " + info.getPort()) :
                 info.getEndpoint());
-        
+
         class ConnectionCallback
         {
             synchronized public void setSession(AdminSessionPrx session)
@@ -2522,7 +2522,7 @@ public class Coordinator
     {
         return _saveLogFileChooser;
     }
-    
+
     public JFileChooser getSaveIceLogChooser()
     {
         return _saveIceLogChooser;
@@ -2613,7 +2613,7 @@ public class Coordinator
                     return ".xml files";
                 }
             });
-        
+
         _openChooser = new JFileChooser(_saveXMLChooser.getCurrentDirectory());
         _openChooser.addChoosableFileFilter(_saveXMLChooser.getChoosableFileFilters()[1]);
 
@@ -2636,7 +2636,7 @@ public class Coordinator
                     return ".out .err .log .txt files";
                 }
             });
-        
+
         _saveIceLogChooser = new JFileChooser(_prefs.get("current directory", null));
         _saveIceLogChooser.addChoosableFileFilter(new FileFilter()
             {
@@ -2652,7 +2652,7 @@ public class Coordinator
                     return ".cvs files";
                 }
             });
-        
+
         javax.swing.UIManager.put("FileChooser.readOnly", Boolean.TRUE);
 
         final int MENU_MASK = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
@@ -3482,15 +3482,9 @@ public class Coordinator
         int width = windowPrefs.getInt("width", 0);
         int height = windowPrefs.getInt("height", 0);
         _mainFrame.setBounds(new Rectangle(x, y, width, height));
-        //
-        // This doesn't work well with OS X 10.8
-        //
-        if(!System.getProperty("os.name").startsWith("Mac OS"))
+        if(windowPrefs.getBoolean("maximized", false))
         {
-            if(windowPrefs.getBoolean("maximized", false))
-            {
-                _mainFrame.setExtendedState(Frame.MAXIMIZED_BOTH);
-            }
+            _mainFrame.setExtendedState(Frame.MAXIMIZED_BOTH);
         }
         return true;
     }
@@ -3503,13 +3497,7 @@ public class Coordinator
         windowPrefs.putInt("y", rect.y);
         windowPrefs.putInt("width", rect.width);
         windowPrefs.putInt("height", rect.height);
-        //
-        // This doesn't work well with OS X 10.8
-        //
-        if(!System.getProperty("os.name").startsWith("Mac OS"))
-        {
-            windowPrefs.putBoolean("maximized", _mainFrame.getExtendedState() == Frame.MAXIMIZED_BOTH);
-        }
+        windowPrefs.putBoolean("maximized", _mainFrame.getExtendedState() == Frame.MAXIMIZED_BOTH);
     }
 
     public AdminSessionPrx getSession()

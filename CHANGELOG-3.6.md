@@ -80,6 +80,8 @@ These are the changes since Ice 3.6.1.
 - Fixed an IceGridGUI bug where metrics attributes for Glacier2 and IceStorm
   were not displayed.
 
+- Fixed an IceGridGUI bug where the GUI started minimized in OS X.
+
 ## Ruby Changes
 
 - Added compatibility with Ruby 2.3.
