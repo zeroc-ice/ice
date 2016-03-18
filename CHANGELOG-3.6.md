@@ -77,6 +77,9 @@ These are the changes since Ice 3.6.1.
 - Fixed a bug where unmarshaling Ice objects was really slow when using
   compact type IDs.
 
+- Fixed an IceGridGUI bug where metrics attributes for Glacier2 and IceStorm
+  were not displayed.
+
 ## Ruby Changes
 
 - Added compatibility with Ruby 2.3.
