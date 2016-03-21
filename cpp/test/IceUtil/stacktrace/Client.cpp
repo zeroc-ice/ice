@@ -16,7 +16,7 @@ using namespace IceUtil;
 using namespace std;
 
 #if defined(__GNUC__) && !defined(__sun) && !defined(__FreeBSD__) && !defined(__MINGW32__) && \
-    !(defined(__ARMEL__) && defined(__linux))
+    !defined(ICE_STATIC_LIBS)
 #  define HAS_STACK_TRACES
 #endif
 
