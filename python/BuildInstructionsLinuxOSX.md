@@ -14,7 +14,7 @@ operating systems and compiler versions listed for our [supported platforms][2].
 
 ### Python Versions
 
-Ice for Python supports Python versions 2.6, 2.7, 3.3 or 3.4. Note however that
+Ice for Python supports Python versions 2.6, 2.7, and 3.5. Note however that
 your Python installation must have been built with a C++ compiler that is
 compatible with the one used to build Ice for C++.
 

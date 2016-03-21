@@ -13,6 +13,7 @@ particular aspect of Ice.
   - [C++ Changes](#c-changes)
   - [C# Changes](#c-changes-1)
   - [Java Changes](#java-changes)
+  - [Python Changes](#python-changes)
   - [Ruby Changes](#ruby-changes)
 - [Changes in Ice 3.6.1](#changes-in-ice-361)
   - [General Changes](#general-changes-1)
@@ -27,7 +28,7 @@ particular aspect of Ice.
   - [JavaScript Changes](#javascript-changes-1)
   - [Objective-C Changes](#objective-c-changes)
   - [PHP Changes](#php-changes-1)
-  - [Python Changes](#python-changes)
+  - [Python Changes](#python-changes-1)
   - [Ruby Changes](#ruby-changes-1)
 
 # Changes in Ice 3.6.2
@@ -81,6 +82,10 @@ These are the changes since Ice 3.6.1.
   were not displayed.
 
 - Fixed an IceGridGUI bug where the GUI started minimized in OS X.
+
+## Python Changes
+
+- Added compatibility with Python 3.5.
 
 ## Ruby Changes
 
