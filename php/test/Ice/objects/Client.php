@@ -23,9 +23,11 @@ require_once 'Test.php';
 if($NS)
 {
     $code = <<<EOT
+        class Test_A1 extends Test\A1 {}
         abstract class Test_B extends Test\B {}
         abstract class Test_C extends Test\C {}
         abstract class Test_D extends Test\D {}
+        class Test_D1 extends Test\D1 {}
         abstract class Test_E extends Test\E {}
         abstract class Test_F extends Test\F {}
         interface Test_I extends Test\I {}
@@ -364,12 +366,17 @@ function allTests($communicator)
         $initial->throwEDerived();
         test(false);
     }
-    catch(Test_EDerived $e)
+    catch(Exception $ex)
     {
-        test($e->a1->name == "a1");
-        test($e->a2->name == "a2");
-        test($e->a3->name == "a3");
-        test($e->a4->name == "a4");
+        $ed = $NS ? "Test\\EDerived" : "Test_EDerived";
+        if(!($ex instanceof $ed))
+        {
+            throw $ex;
+        }
+        test($ex->a1->name == "a1");
+        test($ex->a2->name == "a2");
+        test($ex->a3->name == "a3");
+        test($ex->a4->name == "a4");
     }
     echo "ok\n";
 
