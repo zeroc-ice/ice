@@ -159,12 +159,12 @@ int main(int argc, char* argv[])
         //
         // For Windows we only run the test against bindist if PDBs were installed
         //
-    	string pdb = getIceHome() + "\\bin\\icebox.pdb";
-    	if(!ifstream(pdb))
-    	{
-    	   cout << "Test requires PDBs to be installed" << endl;
-	       return EXIT_SUCCESS;
-	   }
+        string pdb = getIceHome() + "\\bin\\icebox.pdb";
+        if(!ifstream(pdb))
+        {
+            cout << "Test requires PDBs to be installed" << endl;
+            return EXIT_SUCCESS;
+        }
     }
     else if(optimized)
     {
@@ -203,7 +203,7 @@ int main(int argc, char* argv[])
 #   if(_MSC_VER == 1800)
         filename += "-vc120";
 #   elif(_MSC_VER == 1900)
-	filename += "-vc140";
+        filename += "-vc140";
 #   endif
 #endif
     }
@@ -249,12 +249,12 @@ int main(int argc, char* argv[])
             test(stack == expected);
         }
 #else
-    vector<string> actual = splitLines(stack);
-    test(expected.size() <= actual.size());
-    for(size_t i = 0; i < expected.size(); ++i)
-    {
-        test(actual[i].find(expected[i]) != string::npos);
-    }
+        vector<string> actual = splitLines(stack);
+        test(expected.size() <= actual.size());
+        for(size_t i = 0; i < expected.size(); ++i)
+        {
+            test(actual[i].find(expected[i]) != string::npos);
+        }
 #endif
     }
     cout << "ok" << endl;
