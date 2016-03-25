@@ -40,7 +40,7 @@ public class Collocated
         int status = 0;
         Ice.Communicator communicator = null;
 
-#if !COMPACT
+#if !COMPACT && !UNITY
         Debug.Listeners.Add(new ConsoleTraceListener());
 #endif
 

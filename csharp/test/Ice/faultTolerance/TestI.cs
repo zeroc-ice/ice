@@ -26,7 +26,9 @@ public sealed class TestI : TestIntfDisp_
     
     private void commitSuicide()
     {
+#if !UNITY
         _p.Kill();
+#endif
         Thread.Sleep(5000); // Give other threads time to die.
     }
 
