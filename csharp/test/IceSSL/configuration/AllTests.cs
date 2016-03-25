@@ -1205,11 +1205,13 @@ public class AllTests
                 Console.Out.Flush();
                 {
                     initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "");
+                    initData.properties.setProperty("IceSSL.UsePlatformCAs", "1");
                     Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
                     Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                     test(fact != null);
                     d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca2", "");
                     d["IceSSL.VerifyPeer"] = "2";
+                    d["IceSSL.UsePlatformCAs"] = "1";
                     store.Add(caCert1);
                     store.Add(caCert2);
                     Test.ServerPrx server = fact.createServer(d);
@@ -2045,59 +2047,81 @@ public class AllTests
                 Console.Out.Write("testing IceSSL.KeySet... ");
                 Console.Out.Flush();
                 {
-                    initData = createClientProps(defaultProperties, defaultDir, defaultHost);
-                    initData.properties.setProperty("IceSSL.DefaultDir", defaultDir);
-                    initData.properties.setProperty("IceSSL.ImportCert.LocalMachine.Root", "cacert1.pem");
-                    initData.properties.setProperty("IceSSL.CertFile", "c_rsa_ca1.p12");
-                    initData.properties.setProperty("IceSSL.KeySet", "MachineKeySet");
-                    Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
-
-                    Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                    d = createServerProps(defaultProperties, defaultDir, defaultHost);
-                    d["IceSSL.ImportCert.LocalMachine.Root"] = "cacert1.pem";
-                    d["IceSSL.KeySet"] = "MachineKeySet";
-                    d["IceSSL.CertFile"] = "s_rsa_ca1.p12";
-
-                    Test.ServerPrx server = fact.createServer(d);
                     try
                     {
-                        server.ice_ping();
-                    }
-                    catch(Ice.LocalException)
-                    {
-                        test(false);
-                    }
-                    fact.destroyServer(server);
+                        initData = createClientProps(defaultProperties, defaultDir, defaultHost);
+                        initData.properties.setProperty("IceSSL.DefaultDir", defaultDir);
+                        initData.properties.setProperty("IceSSL.ImportCert.LocalMachine.Root", "cacert1.pem");
+                        initData.properties.setProperty("IceSSL.CertFile", "c_rsa_ca1.p12");
+                        initData.properties.setProperty("IceSSL.KeySet", "MachineKeySet");
+                        initData.properties.setProperty("IceSSL.Password", "password");
+                        initData.properties.setProperty("IceSSL.UsePlatformCAs", "1");
+                        Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 
-                    comm.destroy();
-                    X509Store certStore = new X509Store("Root", StoreLocation.LocalMachine);
-                    certStore.Open(OpenFlags.ReadWrite);
+                        Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                        d = createServerProps(defaultProperties, defaultDir, defaultHost);
+                        d["IceSSL.ImportCert.LocalMachine.Root"] = "cacert1.pem";
+                        d["IceSSL.KeySet"] = "MachineKeySet";
+                        d["IceSSL.CertFile"] = "s_rsa_ca1.p12";
+                        d["IceSSL.Password"] = "password";
+                        d["IceSSL.UsePlatformCAs"] = "1";
+
+                        Test.ServerPrx server = fact.createServer(d);
+                        try
+                        {
+                            server.ice_ping();
+                        }
+                        catch(Ice.LocalException)
+                        {
+                            test(false);
+                        }
+                        fact.destroyServer(server);
+
+                        comm.destroy();
+                    }
+                    finally
+                    {
+                        X509Store certStore = new X509Store("Root", StoreLocation.LocalMachine);
+                        certStore.Open(OpenFlags.ReadWrite);
+                        certStore.Remove(caCert1);
+                    }
                 }
                 {
-                    initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "");
-                    initData.properties.setProperty("IceSSL.ImportCert.CurrentUser.Root", "cacert1.pem");
-                    initData.properties.setProperty("IceSSL.KeySet", "UserKeySet");
-                    Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
-
-                    Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                    d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "");
-                    d["IceSSL.ImportCert.CurrentUser.Root"] = "cacert1.pem";
-                    d["IceSSL.KeySet"] = "UserKeySet";
-
-                    Test.ServerPrx server = fact.createServer(d);
                     try
                     {
-                        server.ice_ping();
-                    }
-                    catch(Ice.LocalException)
-                    {
-                        test(false);
-                    }
-                    fact.destroyServer(server);
+                        initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "");
+                        initData.properties.setProperty("IceSSL.ImportCert.CurrentUser.Root", "cacert1.pem");
+                        initData.properties.setProperty("IceSSL.KeySet", "UserKeySet");
+                        initData.properties.setProperty("IceSSL.Password", "password");
+                        initData.properties.setProperty("IceSSL.UsePlatformCAs", "1");
+                        Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 
-                    comm.destroy();
-                    X509Store certStore = new X509Store("Root", StoreLocation.CurrentUser);
-                    certStore.Open(OpenFlags.ReadWrite);
+                        Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                        d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "");
+                        d["IceSSL.ImportCert.CurrentUser.Root"] = "cacert1.pem";
+                        d["IceSSL.KeySet"] = "UserKeySet";
+                        d["IceSSL.Password"] = "password";
+                        d["IceSSL.UsePlatformCAs"] = "1";
+
+                        Test.ServerPrx server = fact.createServer(d);
+                        try
+                        {
+                            server.ice_ping();
+                        }
+                        catch(Ice.LocalException)
+                        {
+                            test(false);
+                        }
+                        fact.destroyServer(server);
+
+                        comm.destroy();
+                    }
+                    finally
+                    {
+                        X509Store certStore = new X509Store("Root", StoreLocation.CurrentUser);
+                        certStore.Open(OpenFlags.ReadWrite);
+                        certStore.Remove(caCert1);
+                    }
                 }
                 Console.Out.WriteLine("ok");
             }
