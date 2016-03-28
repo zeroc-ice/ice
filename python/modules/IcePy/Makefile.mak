@@ -43,11 +43,16 @@ CPP_COMPILER=auto
 
 !include $(top_srcdir)\config\Make.rules.mak
 
+!if exist ($(PYTHON_HOME)\python35.dll)
+REQUIRED_COMPILER	= VC140
+!else
+REQUIRED_COMPILER	= VC100
+!endif
 #
 # Ensure we're using VC100
 #
-!if "$(CPP_COMPILER)" != "VC100"
-!error Invalid CPP_COMPILER setting: $(CPP_COMPILER). Must be set to VC100.
+!if "$(CPP_COMPILER)" != "$(REQUIRED_COMPILER)"
+!error Invalid CPP_COMPILER setting: $(CPP_COMPILER). Must be set to $(REQUIRED_COMPILER).
 !endif
 
 CPPFLAGS	= -I. $(CPPFLAGS) $(ICE_CPPFLAGS) $(PYTHON_CPPFLAGS) -DWIN32_LEAN_AND_MEAN

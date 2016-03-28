@@ -27,9 +27,10 @@ distribution or compile from source yourself.
 
 The Python interpreter is readily available on Windows platforms. You can build
 it yourself using Microsoft Visual C++, or obtain a binary distribution from the
-Python web site. The Python 3.4.x binary distribution is compiled with Visual
-C++ 10, and you should use this binary distribution if you want to compile the
-Ice extension with Visual C++ 10.
+Python web site. The Python 3.5.x binary distribution is compiled with Visual
+C++ 14, Python 3.4.x and Python 2.7.x are compiled with Visual C++ 10, you should
+compile the Ice extension with the same Visual C++ version that your Python binary
+distribution was compiled.
 
 Open a command prompt that supports command-line compilation with Visual C++.
 For example, you can execute the Visual C++ batch file `vcvars32.bat` to
