@@ -1028,6 +1028,7 @@ def getCommandLineProperties(exe, config):
     # Turn on network tracing.
     #
     #components.append("--Ice.Trace.Network=3")
+    #components.append("--Ice.Trace.Protocol=1")
 
     #
     # Now we add additional components dependent on the desired
