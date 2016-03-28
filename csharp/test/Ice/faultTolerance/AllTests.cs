@@ -76,6 +76,7 @@ public class AllTests : TestCommon.TestApp
         }
         catch(Exception)
         {
+            WriteLine(ex.ToString());
             test(false);
         }
     }
@@ -114,14 +115,14 @@ public class AllTests : TestCommon.TestApp
         Ice.ObjectPrx basePrx = communicator.stringToProxy(refString);
         test(basePrx != null);
         WriteLine("ok");
-        
+
         Write("testing checked cast... ");
         Flush();
         TestIntfPrx obj = TestIntfPrxHelper.checkedCast(basePrx);
         test(obj != null);
         test(obj.Equals(basePrx));
         WriteLine("ok");
-        
+
         if(IceInternal.AssemblyUtil.runtime_ == IceInternal.AssemblyUtil.Runtime.Mono)
         {
             WriteLine("");
@@ -164,6 +165,7 @@ public class AllTests : TestCommon.TestApp
                     },
                     (Ice.Exception ex) =>
                     {
+                        WriteLine(ex.ToString());
                         test(false);
                     });
                 cb.check();
@@ -171,7 +173,7 @@ public class AllTests : TestCommon.TestApp
                 WriteLine("ok");
                 oldPid = pid;
             }
-            
+
             if(j == 0)
             {
                 if(!ami)
@@ -192,6 +194,7 @@ public class AllTests : TestCommon.TestApp
                         },
                         (Ice.Exception ex) =>
                         {
+                            WriteLine(ex.ToString());
                             test(false);
                         });
                     cb.check();
@@ -290,7 +293,7 @@ public class AllTests : TestCommon.TestApp
                 Debug.Assert(false);
             }
         }
-        
+
         Write("testing whether all servers are gone... ");
         Flush();
         try

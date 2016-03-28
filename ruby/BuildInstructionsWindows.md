@@ -29,8 +29,8 @@ environment:
 
 1. You have installed the Ice 3.7.0 distribution using the ZeroC installer. The
 default installation directory is `C:\Program Files (x86)\ZeroC\Ice-3.7.0`.
-2. You have installed Ruby 2.2.1 using the Windows installer. The default
-installation directory is `C:\Ruby221`.
+2. You have installed Ruby 2.2.4 using the Windows installer. The default
+installation directory is `C:\Ruby224`.
 3. You have installed the Ruby Development Kit 4.7.2 in `C:\RubyDevKit-4.7.2`.
 4. For 32-bit builds, you have installed mingw 4.7.3 in `C:\mingw-4.7.3`.
 
@@ -41,7 +41,7 @@ relevant path names in the steps below to match your configuration.
 
 Open a Windows command prompt and add Ruby to your environment:
 
-    > C:\Ruby221\bin\setrbvars.bat
+    > C:\Ruby224\bin\setrbvars.bat
 
 Run the `devkitvars.bat` batch file from the Ruby development kit to setup your
 environment:

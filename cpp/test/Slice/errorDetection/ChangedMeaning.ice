@@ -16,7 +16,7 @@ sequence<long> ls;
 
 struct s00
 {
-    ls ls;      // OK as Ice 3.6 (data member has its own scope)
+    ls ls;      // OK as of Ice 3.6 (data member has its own scope)
     ls l;
 };
 
@@ -28,7 +28,7 @@ struct s0
 struct s1
 {
     ls mem;
-    long ls;    // OK as Ice 3.6 (data member has its own scope)
+    long ls;    // OK as of Ice 3.6 (data member has its own scope)
 };
 
 struct s2
@@ -124,15 +124,15 @@ interface ParamTest
 {
     void op(long param);
     void op2(counter param);
-    void param(counter counter);        // OK as Ice 3.6 (parameters has its own scope)
-    void op3(long counter, counter x);  // OK as Ice 3.6.1 (Second "counter" is not a type)
+    void param(counter counter);        // OK as of Ice 3.6 (parameters have their own scope)
+    void op3(long counter, counter x);  // OK as of Ice 3.6.1 (second "counter" is not a type)
     void op4(long param, long param);
 };
 
 sequence<int> IS;
 struct x
 {
-    IS is;                              // OK as Ice 3.6 (parameters has its own scope)
+    IS is;                              // OK as of Ice 3.6 (data member has its own scope)
 };
 
 struct y

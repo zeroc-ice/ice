@@ -73,8 +73,8 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
     //
     public static class ButtonRenderer extends DefaultTableCellRenderer
     {
-        @Override public Component 
-        getTableCellRendererComponent(JTable table, Object value, boolean selected, boolean hasFocus, int row, 
+        @Override public Component
+        getTableCellRendererComponent(JTable table, Object value, boolean selected, boolean hasFocus, int row,
                                       int column)
         {
             if(value == null)
@@ -92,10 +92,10 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                 button.setForeground(table.getForeground());
                 button.setBackground(UIManager.getColor("Button.background"));
             }
-            return button;  
+            return button;
         }
     }
-    
+
     //
     // This class allow to render a number with a format
     //
@@ -113,13 +113,13 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                                       int row, int column)
         {
             if(value != null)
-            { 
-                setText(_format.format(Double.parseDouble(value.toString()))); 
-            } 
+            {
+                setText(_format.format(Double.parseDouble(value.toString())));
+            }
             else
-            { 
-                setText(""); 
-            } 
+            {
+                setText("");
+            }
             this.setHorizontalAlignment(RIGHT);
 
             if(isSelected)
@@ -132,10 +132,10 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                 setForeground(table.getForeground());
                 setBackground(table.getBackground());
             }
-            return this; 
+            return this;
         }
-        
-        private final DecimalFormat _format; 
+
+        private final DecimalFormat _format;
     }
 
     //
@@ -148,11 +148,11 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             _table = table;
         }
 
-        @Override public void 
+        @Override public void
         mouseClicked(MouseEvent e)
         {
             int column = _table.getColumnModel().getColumnIndexAtX(e.getX());
-            int row = e.getY() / _table.getRowHeight(); 
+            int row = e.getY() / _table.getRowHeight();
 
             if(row < _table.getRowCount() && row >= 0 && column < _table.getColumnCount() && column >= 0)
             {
@@ -180,12 +180,12 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             //
             // If selected node is a MetricsView and it is enabled; start the refresh thread.
             //
-            if(e.isAddedPath() && e.getPath().getLastPathComponent() instanceof MetricsView && 
+            if(e.isAddedPath() && e.getPath().getLastPathComponent() instanceof MetricsView &&
                ((MetricsView )e.getPath().getLastPathComponent()).isEnabled())
             {
                 MetricsViewEditor.startRefresh((MetricsView)e.getPath().getLastPathComponent());
             }
-            
+
             if(e.isAddedPath())
             {
                 MetricsViewEditor.setSelectedPath(e.getPath());
@@ -197,7 +197,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
     {
         Coordinator coord = root.getCoordinator();
         _prefs = coord.getPrefs().node("MetricsView");
-            
+
         if(_properties == null)
         {
             JTree tree = root.getTree();
@@ -208,7 +208,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
 
             _properties.load("metrics.cfg");
             sectionSort.addAll(java.util.Arrays.asList(_properties.getPropertyAsList("IceGridGUI.Metrics")));
-            
+
             String metricsDefs = coord.getProperties().getProperty("IceGridAdmin.MetricsConfigs");
             if(!metricsDefs.isEmpty())
             {
@@ -234,7 +234,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                     _sectionNames.put(name, displayName);
                 }
             }
-            
+
             _sectionSort = sectionSort.toArray(new String[sectionSort.size()]);
         }
     }
@@ -255,7 +255,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             {
                 node.fetchMetricsView();
             }
-            
+
         }, 0, _refreshPeriod, java.util.concurrent.TimeUnit.SECONDS);
     }
 
@@ -267,7 +267,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             _refreshFuture = null;
         }
     }
-    
+
     static void setSelectedPath(TreePath path)
     {
         _selectedPath = path;
@@ -402,7 +402,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             {
                 _samples++;
                 _last = value.doubleValue();
-                
+
                 _average = _average + (_last - _average) / _samples;
                 if(_last < _min || _samples == 1)
                 {
@@ -510,7 +510,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             {
                 try
                 {
-                    _flavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType +  
+                    _flavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType +
                                              ";class=\"" + MetricsViewTransferableData.class.getName() + "\"");
                 }
                 catch(ClassNotFoundException ex)
@@ -533,7 +533,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
         int[] selectedRows = table.getSelectedRows();
         int[] selectedColumns = table.getSelectedColumns();
         Map<String, List<MetricsCell>> rows = new HashMap<String, List<MetricsCell>>();
-        
+
         if(selectedRows.length > 0 && selectedColumns.length > 0)
         {
             TableModel model = (TableModel)table.getModel();
@@ -559,7 +559,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                        columnClass.equals(float.class) || columnClass.equals(Float.class) ||
                        columnClass.equals(double.class) || columnClass.equals(Double.class))
                     {
-                        cells.add(new MetricsCell(id, field.createField()));                        
+                        cells.add(new MetricsCell(id, field.createField()));
                     }
                 }
                 if(cells.size() > 0)
@@ -592,7 +592,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             JTable table = (JTable)component;
             TableModel model = (TableModel)table.getModel();
             Map<String, List<MetricsCell>> rows = getSelectedRows(table, true);
-                
+
             if(rows.size() > 0)
             {
                 return new Transferable(new MetricsViewTransferableData(
@@ -726,7 +726,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                                                 Coordinator.IGraphView view = node.getCoordinator().createGraphView();
                                                 if(view != null)
                                                 {
-                                                    view.addSeries(new MetricsViewTransferableData(new MetricsViewInfo(node), 
+                                                    view.addSeries(new MetricsViewTransferableData(new MetricsViewInfo(node),
                                                                                                    entry.getKey(), rows));
                                                 }
                                             }
@@ -743,7 +743,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                                             @Override
                                             public void actionPerformed(ActionEvent e)
                                             {
-                                                view.addSeries(new MetricsViewTransferableData(new MetricsViewInfo(node), 
+                                                view.addSeries(new MetricsViewTransferableData(new MetricsViewInfo(node),
                                                                                                entry.getKey(), rows));
                                             }
                                         });
@@ -821,13 +821,13 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
         }
     }
 
-    private static MetricsField createField(MetricsView node, String prefix, String mapName, String name, 
+    private static MetricsField createField(MetricsView node, String prefix, String mapName, String name,
                                             Field objectField, MetricsFieldContext context)
     {
         String className = _properties.getPropertyWithDefault(
                                                     prefix + ".fieldClass",
                                                     "IceGridGUI.LiveDeployment.MetricsViewEditor$DeclaredMetricsField");
-        
+
         Class<?> cls = IceInternal.Util.findClass(className, null);
         if(cls == null)
         {
@@ -836,7 +836,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
         }
         try
         {
-            java.lang.reflect.Constructor<?> ctor = cls.getDeclaredConstructor(MetricsView.class, String.class, 
+            java.lang.reflect.Constructor<?> ctor = cls.getDeclaredConstructor(MetricsView.class, String.class,
                                                                                String.class, String.class, Field.class);
             MetricsField field = (MetricsField)ctor.newInstance(node, prefix, mapName, name, objectField);
             field.setContext(context);
@@ -858,7 +858,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
 
                 String setterName = propEntry.getKey().substring(propEntry.getKey().lastIndexOf(".") + 1);
                 setterName = "set" + Character.toUpperCase(setterName.charAt(0)) + setterName.substring(1);
-                
+
                 try
                 {
                     java.lang.reflect.Method setter = cls.getMethod(setterName, new Class[]{String.class});
@@ -900,7 +900,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
         JSplitPane current = null;
         JSplitPane top = null;
         Map<String, JTable> tables = new HashMap<String, JTable>(_tables);
-        
+
         StringBuilder sb = new StringBuilder();
         Object[] elements = _selectedPath.getPath();
         for(Object element : elements)
@@ -908,9 +908,9 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             sb.append(element.toString());
             sb.append(".");
         }
-        
+
         for(String name : _sectionSort)
-        {                                                        
+        {
             JTable table = tables.remove(name);
             if(table == null)
             {
@@ -945,20 +945,21 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
     private JSplitPane createScrollTable(JSplitPane currentPane,final String key, String title, JTable table)
     {
         JPanel panel = new JPanel();
-        TitledBorder border = BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), 
+        TitledBorder border = BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(),
                                                                title, TitledBorder.LEFT, TitledBorder.CENTER);
         panel.setBorder(border);
-        panel.setLayout(new BorderLayout());
+        panel.setLayout(new BorderLayout(0, 0));
         panel.add(new JScrollPane(table),  BorderLayout.CENTER);
-        
+
         JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         splitPane.setTopComponent(panel);
         if(currentPane != null)
         {
             currentPane.setBottomComponent(splitPane);
+            currentPane.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
         }
         splitPane.setDividerLocation(_prefs.getInt(key, 120));
-        splitPane.addPropertyChangeListener(JSplitPane.DIVIDER_LOCATION_PROPERTY, 
+        splitPane.addPropertyChangeListener(JSplitPane.DIVIDER_LOCATION_PROPERTY,
                                             new PropertyChangeListener()
                                                 {
                                                     @Override
@@ -971,7 +972,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                                                         }
                                                         catch(java.util.prefs.BackingStoreException ex)
                                                         {
-                                                            JOptionPane.showMessageDialog(null, 
+                                                            JOptionPane.showMessageDialog(null,
                                                                                           ex.toString(),
                                                                                           "Error saving preferences",
                                                                                           JOptionPane.ERROR_MESSAGE);
@@ -987,7 +988,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
         super.buildPropertiesPanel();
         _propertiesPanel.setName("Metrics Report");
     }
-    
+
     public static class TableModel extends DefaultTableModel
     {
         public TableModel(String metricsName)
@@ -1061,7 +1062,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
 
     private static java.util.concurrent.Future<?> _refreshFuture;
     private Map<String, JTable> _tables = new HashMap<String, JTable>();
-    
+
 
     static class ColumnInfo
     {
@@ -1338,9 +1339,9 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             else
             {
                 return (float)(((m2.totalLifetime - m1.totalLifetime) / _scaleFactor) /
-                                (m2.total - m1.total) - (m2.current - m1.current)); 
+                                (m2.total - m1.total) - (m2.current - m1.current));
             }
-        } 
+        }
 
             private double _scaleFactor = 1.0d;
             private String _columnName;
@@ -1428,7 +1429,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             d2.timestamp =  timestamp;
 
             _deltas.put(m.id, d2);
-            
+
             if(d1 == null)
             {
                 //
@@ -1511,7 +1512,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                             model.addColumn("Type");
                             model.addColumn("Identity");
                             final JTable table = new JTable(model);
-                            
+
                             //
                             // Adjust row height for larger fonts
                             //
@@ -1613,7 +1614,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                                                                         Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                             getMetricsNode().fetchMetricsFailures(getMetricsName(), m.id, cb);
 
-                            JOptionPane.showMessageDialog(getMetricsNode().getCoordinator().getMainFrame(), scrollPane, 
+                            JOptionPane.showMessageDialog(getMetricsNode().getCoordinator().getMainFrame(), scrollPane,
                                                           "Metrics Failures", JOptionPane.PLAIN_MESSAGE);
                             getMetricsNode().getCoordinator().getMainFrame().setCursor(
                                                                     Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -1678,8 +1679,8 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                                     {
                                     }
                                     MetricsField field = MetricsViewEditor.createField(getMetricsNode(),
-                                                                                       prefix + "." + name, 
-                                                                                       getFieldName(), name, 
+                                                                                       prefix + "." + name,
+                                                                                       getFieldName(), name,
                                                                                        objectField,
                                                                                        getContext());
                                     if(field != null)
@@ -1714,7 +1715,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                                     };
                                 table.addMouseListener(new ButtonMouseListener(table));
                                 table.setAutoCreateRowSorter(true);
-                                
+
                                 //
                                 // Adjust row height for larger fonts
                                 //
@@ -1724,7 +1725,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                                 {
                                     table.setRowHeight(minRowHeight);
                                 }
-                                
+
                                 for(Map.Entry<Integer, MetricsField> fieldEntry : model.getMetricFields().entrySet())
                                 {
                                     if(fieldEntry.getValue().getCellRenderer() != null)
@@ -1734,7 +1735,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                                     }
                                 }
 
-                                int idColumn = table.getColumnModel().getColumnIndex(_properties.getProperty(prefix + 
+                                int idColumn = table.getColumnModel().getColumnIndex(_properties.getProperty(prefix +
                                                                                                      ".id.columnName"));
 
                                 for(IceMX.Metrics m : objects)
@@ -1744,7 +1745,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
 
                                 JScrollPane scrollPane = new JScrollPane(table);
                                 scrollPane.setPreferredSize(new Dimension(800, 600));
-                                JOptionPane.showMessageDialog(getMetricsNode().getCoordinator().getMainFrame(), 
+                                JOptionPane.showMessageDialog(getMetricsNode().getCoordinator().getMainFrame(),
                                                               scrollPane, getColumnName(), JOptionPane.PLAIN_MESSAGE);
 
                             }
@@ -1772,4 +1773,3 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
     private static TreePath _selectedPath;
     final private Preferences _prefs;
 }
-

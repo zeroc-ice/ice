@@ -44,19 +44,19 @@ public class ControllerServer extends Ice.Application
                     {
                         final BufferedReader reader = new BufferedReader(new InputStreamReader(_is));
 
-                        String line = null;
-                        while((line = reader.readLine()) != null)
+                        String line = reader.readLine();
+                        while(line != null)
                         {
                             if(_started == 0)
                             {
                                 _processOutput.append(line + "\n");
                             }
 
-                            if(line.matches(Pattern.quote("starting server...") + ".*ok") ||
-                               line.matches(Pattern.quote("starting serveramd...") + ".*ok") ||
-                               line.matches(Pattern.quote("starting servertie...") + ".*ok") ||
-                               line.matches(Pattern.quote("starting serveramdtie...") + ".*ok") ||
-                               line.matches("starting test.*" + Pattern.quote("Server...") + ".*ok"))
+                            if(line.matches(Pattern.quote("starting server...") + ".*ok.*") ||
+                               line.matches(Pattern.quote("starting serveramd...") + ".*ok.*") ||
+                               line.matches(Pattern.quote("starting servertie...") + ".*ok.*") ||
+                               line.matches(Pattern.quote("starting serveramdtie...") + ".*ok.*") ||
+                               line.matches("starting test.*" + Pattern.quote("Server...") + ".*ok.*"))
                             {
                                 synchronized(ServerI.this)
                                 {
@@ -64,7 +64,17 @@ public class ControllerServer extends Ice.Application
                                     ServerI.this.notifyAll();
                                 }
                             }
+                            else if(line.matches(Pattern.quote("starting server...") + ".*") ||
+                                    line.matches(Pattern.quote("starting serveramd...") + ".*") ||
+                                    line.matches(Pattern.quote("starting servertie...") + ".*") ||
+                                    line.matches(Pattern.quote("starting serveramdtie...") + ".*") ||
+                                    line.matches("starting test.*" + Pattern.quote("Server...")  + ".*"))
+                            {
+                                line += reader.readLine();
+                                continue;
+                            }
                             System.out.println(line);
+                            line = reader.readLine();
                         }
                     }
                     catch(java.io.IOException ex)

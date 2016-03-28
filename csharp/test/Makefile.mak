@@ -17,8 +17,12 @@ SUBDIRS		= Slice \
 		  IceBox \
 		  Glacier2 \
 		  IceGrid \
-		  IceSSL \
 		  IceDiscovery
+
+!if "$(UNITY)" != "yes"
+SUBDIRS		= $(SUBDIRS) \
+		  IceSSL
+!endif
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

@@ -31,19 +31,24 @@ if os.path.exists(os.path.join(testdir, "Test")):
 
 if os.environ.get("USE_BIN_DIST", "no") == "yes":
     if TestUtil.isDarwin():
-        slice2py = "/usr/local/bin/slice2py"
+        slice2py = sys.executable + " /usr/local/bin/slice2py"
     elif TestUtil.isWin32():
         pythonHome = os.path.dirname(sys.executable)
-        slice2py = os.path.join(pythonHome, "Scripts", "slice2py.exe")
+        slice2py = sys.executable + " " + os.path.join(pythonHome, "Scripts", "slice2py.exe")
+    elif TestUtil.isDebian() or TestUtil.isYocto():
+        slice2py = os.path.join(TestUtil.getCppBinDir(), "slice2py")
     else:
         import slice2py
-        slice2py = os.path.normpath(os.path.join(slice2py.__file__, '..', '..', '..', '..', 'bin', 'slice2py'))
+        slice2py = sys.executable + " " + os.path.normpath(os.path.join(slice2py.__file__, "..", "..", "..", "..", "bin", "slice2py"))
 else:
-    slice2py = os.path.join(path[0], "python", "config", "s2py.py")
+    if TestUtil.isDebian() or TestUtil.isYocto():
+        slice2py = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "..", "..", "..", "cpp", "bin", "slice2py")
+    else:
+        slice2py = sys.executable + " " + os.path.join(path[0], "python", "config", "s2py.py")
 
-s2p = TestUtil.spawn(sys.executable + " " + slice2py + " Test1.ice")
+s2p = TestUtil.spawn(slice2py + " Test1.ice")
 s2p.waitTestSuccess()
-s2p = TestUtil.spawn(sys.executable + " " + slice2py + " Test2.ice")
+s2p = TestUtil.spawn(slice2py + " Test2.ice")
 s2p.waitTestSuccess()
 
 sys.stdout.write("starting client... ")

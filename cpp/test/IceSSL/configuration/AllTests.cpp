@@ -1359,7 +1359,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             // OpenSSL < 1.0 doesn't support tls 1.1 so it will also fail, we ignore in this
             // case.
             //
-#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER >= 0x10000000L
+#if defined(ICE_USE_SCHANNEL) || (defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER >= 0x10000000L)
             cerr << ex << endl;
             test(false);
 #endif

@@ -40,6 +40,8 @@ dependencies {
       compile project(':ice')
       compile project(':icelocatordiscovery')
       compile project(':icebox')
+      compile project(':icestorm')
+      compile project(':glacier2')
       compile project(':icegrid')
       compile 'com.jgoodies:jgoodies-common:1.8.0'
       compile 'com.jgoodies:jgoodies-looks:2.6.0'
@@ -169,4 +171,3 @@ task install(dependsOn: copyJars)
 if(macosx) {
     install.dependsOn(copyBundle)
 }
-

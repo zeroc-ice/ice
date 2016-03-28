@@ -13,6 +13,7 @@ particular aspect of Ice.
   - [C++ Changes](#c-changes)
   - [C# Changes](#c-changes-1)
   - [Java Changes](#java-changes)
+  - [Python Changes](#python-changes)
   - [Ruby Changes](#ruby-changes)
 - [Changes in Ice 3.6.1](#changes-in-ice-361)
   - [General Changes](#general-changes-1)
@@ -27,7 +28,7 @@ particular aspect of Ice.
   - [JavaScript Changes](#javascript-changes-1)
   - [Objective-C Changes](#objective-c-changes)
   - [PHP Changes](#php-changes-1)
-  - [Python Changes](#python-changes)
+  - [Python Changes](#python-changes-1)
   - [Ruby Changes](#ruby-changes-1)
 
 # Changes in Ice 3.6.2
@@ -52,6 +53,12 @@ These are the changes since Ice 3.6.1.
   groups would fail unless the client was using an encoding superior to the encoding
   of the dynamically registered object adapters.
 
+- Added missing functions Ice::identityToString and Ice::stringToIdentity
+  (C++, Objective-C, PHP, Python and Ruby).
+
+- Added support for universal character names (\uNNNN and \UNNNNNNNN) in Slice string
+  constants.
+
 ## C++ Changes
 
 - Fixed El Capitan build issues caused by a new security feature that no longer
@@ -59,10 +66,6 @@ These are the changes since Ice 3.6.1.
 
 - Fixed potential deadlock that could occur when using collocation optimization and
   serialized server thread pools.
-
-- Added Ice::identityToString and Ice::stringToIdentity non member functions, with the
-  same semantics than Ice::Communicator member functions Ice::Communicator::identityToString
-  and Ice::Communicator::stringToIdentity.
 
 ## C# Changes
 
@@ -74,6 +77,15 @@ These are the changes since Ice 3.6.1.
 
 - Fixed a bug where unmarshaling Ice objects was really slow when using
   compact type IDs.
+
+- Fixed an IceGridGUI bug where metrics attributes for Glacier2 and IceStorm
+  were not displayed.
+
+- Fixed an IceGridGUI bug where the GUI started minimized in OS X.
+
+## Python Changes
+
+- Added compatibility with Python 3.5.
 
 ## Ruby Changes
 

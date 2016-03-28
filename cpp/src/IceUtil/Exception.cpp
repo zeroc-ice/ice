@@ -30,7 +30,7 @@
 
 
 #if defined(__GNUC__) && !defined(__sun) && !defined(__FreeBSD__) && !defined(__MINGW32__) && \
-    !(defined(__ARMEL__) && defined(__linux))
+    !defined(ICE_STATIC_LIBS)
 #  include <execinfo.h>
 #  include <cxxabi.h>
 #  define ICE_GCC_STACK_TRACES

@@ -16,7 +16,7 @@ using namespace IceUtil;
 using namespace std;
 
 #if defined(__GNUC__) && !defined(__sun) && !defined(__FreeBSD__) && !defined(__MINGW32__) && \
-    !(defined(__ARMEL__) && defined(__linux))
+    !defined(ICE_STATIC_LIBS)
 #  define HAS_STACK_TRACES
 #endif
 
@@ -84,7 +84,7 @@ getIceHome()
     string iceHome = (ret > 0 && ret < buf.size()) ? IceUtil::wstringToString(&buf[0]) : string("");
     if(!iceHome.empty())
     {
-	return iceHome;
+        return iceHome;
     }
     else
     {
@@ -133,8 +133,9 @@ splitLines(const string& str)
     vector<string> result;
     istringstream is(str);
     string line;
-    while(std::getline(is, line)) {
-	result.push_back(line);
+    while(std::getline(is, line))
+    {
+        result.push_back(line);
     };
     return result;
 }
@@ -162,12 +163,12 @@ int main(int argc, char* argv[])
         //
         // For Windows we only run the test against bindist if PDBs were installed
         //
-    	string pdb = getIceHome() + "\\bin\\icebox.pdb";
-    	if(!ifstream(pdb))
-    	{
-    	   cout << "Test requires PDBs to be installed" << endl;
-	       return EXIT_SUCCESS;
-	   }
+        string pdb = getIceHome() + "\\bin\\icebox.pdb";
+        if(!ifstream(pdb))
+        {
+            cout << "Test requires PDBs to be installed" << endl;
+            return EXIT_SUCCESS;
+        }
     }
     else if(optimized)
     {
@@ -202,8 +203,12 @@ int main(int argc, char* argv[])
 #endif
     {
         filename += "release";
-#if defined(_MSC_VER) && (_MSC_VER == 1800)
+#if defined(_MSC_VER)
+#   if(_MSC_VER == 1800)
         filename += "-vc120";
+#   elif(_MSC_VER == 1900)
+        filename += "-vc140";
+#   endif
 #endif
     }
     else
@@ -249,11 +254,11 @@ int main(int argc, char* argv[])
         }
 #else
         vector<string> actual = splitLines(stack);
-	    test(expected.size() <= actual.size());
-	    for(size_t i = 0; i < expected.size(); ++i)
-	    {
+        test(expected.size() <= actual.size());
+        for(size_t i = 0; i < expected.size(); ++i)
+        {
             test(actual[i].find(expected[i]) != string::npos);
-	    }
+        }
 #endif
     }
     cout << "ok" << endl;
