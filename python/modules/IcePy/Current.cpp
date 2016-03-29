@@ -113,7 +113,7 @@ currentGetter(CurrentObject* self, void* closure)
 
     assert(self->current);
 
-    long field = reinterpret_cast<long>(closure);
+    Py_ssize_t field = reinterpret_cast<Py_ssize_t>(closure);
     switch(field)
     {
     case CURRENT_ADAPTER:
