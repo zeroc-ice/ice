@@ -19,6 +19,7 @@ sourceSets {
                 exclude '**/lambda'
             }
             exclude 'plugins'
+            exclude 'controller'
             exclude 'ejb'
         }
     }
@@ -34,6 +35,7 @@ dependencies {
     compile localDependency('icestorm')
     compile localDependency('icegrid')
     compile project(':testPlugins')
+    compile project(':testController')
     compile files(dbJar)
     runtime "org.apache.tools:bzip2:1.0"
 }
@@ -58,5 +60,3 @@ clean {
     }
     delete("src/main/java/test/Slice/generation/classes")
 }
-
-
