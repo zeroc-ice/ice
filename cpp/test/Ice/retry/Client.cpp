@@ -49,6 +49,9 @@ main(int argc, char* argv[])
         //
         initData.properties->setProperty("Ice.Warn.Connections", "0");
 
+        // Disable PrintStackTraces otherwise the test can fail on Windows/Debug
+        initData.properties->setProperty("Ice.PrintStackTraces", "0");
+
         initData.properties->setProperty("Ice.RetryIntervals", "0 1 10 1");
         communicator = Ice::initialize(argc, argv, initData);
 
