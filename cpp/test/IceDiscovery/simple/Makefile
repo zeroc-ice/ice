@@ -31,9 +31,15 @@ include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
+ifneq ($(findstring MINGW,$(UNAME)),)
+ICEDISOVERY_LIBS        = -licediscovery$(SOVERSION)$(COMPSUFFIX)
+else
+ICEDISOVERY_LIBS        = -lIceDiscovery
+endif
+
 $(CLIENT): $(COBJS)
 	rm -f $@
-	$(call mktest,$@,$(COBJS), -lIceDiscovery $(LIBS))
+	$(call mktest,$@,$(COBJS), $(ICEDISOVERY_LIBS) $(LIBS))
 
 $(SERVER): $(SOBJS)
 	rm -f $@

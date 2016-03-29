@@ -51,8 +51,11 @@ SUBDIRS		= proxy \
                   enums \
                   echo \
                   logger \
-                  networkProxy \
-		  services
+                  networkProxy
+
+ifeq ($(findstring MINGW,$(UNAME)),)
+SUBDIRS := $(SUBDIRS) services
+endif
 
 .PHONY: $(EVERYTHING) $(SUBDIRS)
 
