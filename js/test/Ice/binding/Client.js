@@ -1165,8 +1165,22 @@
         return p;
     };
 
-    exports.__test__ = run;
-    exports.__runServer__ = true;
+    if(typeof(navigator) !== 'undefined' && isSafari() && isWorker())
+    {
+        //
+        // With Safari 9.1 and WebWorkers, this test hangs in communicator destruction. The
+        // web socket send() method never returns for the sending of close connection message.
+        //
+        exports.__test__ = function(out, id)
+        {
+            out.writeLine("Test not supported with Safari web workers.");
+        }
+    }
+    else
+    {
+        exports.__test__ = run;
+        exports.__runServer__ = true;
+    }
 }
 (typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
  typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice.__require,
