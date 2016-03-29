@@ -256,7 +256,7 @@ int main(int argc, char* argv[])
             test(expected.size() <= actual.size());
             for(size_t i = 0; i < expected.size(); ++i)
             {
-                if(actual[i].find(expected[i]) != string::npos)
+                if(actual[i].find(expected[i]) == string::npos)
                 {
 #if defined(_WIN32) && defined(NDEBUG)
                     //
@@ -273,7 +273,7 @@ int main(int argc, char* argv[])
                         test(false);
                     }
 #else
-                    test(false)
+                    test(false);
 #endif
                 }
             }
