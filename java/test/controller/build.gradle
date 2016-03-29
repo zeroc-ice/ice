@@ -11,7 +11,7 @@ sourceCompatibility = iceSourceCompatibility
 targetCompatibility = iceTargetCompatibility
 
 dependencies {
-    compile project(':ice')
+    compile localDependency('ice')
 }
 
 jar {
@@ -19,4 +19,4 @@ jar {
         attributes("Main-Class": "Test.Common.ControllerServer")
         attributes("Class-Path": configurations.runtime.resolve().collect { it.toURI() }.join(' '))
     }
-}                                                                                                                                    
+}
