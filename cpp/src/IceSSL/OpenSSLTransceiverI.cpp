@@ -440,7 +440,7 @@ IceSSL::TransceiverI::write(IceInternal::Buffer& buf)
 }
 
 IceInternal::SocketOperation
-IceSSL::TransceiverI::read(IceInternal::Buffer& buf, bool&)
+IceSSL::TransceiverI::read(IceInternal::Buffer& buf, bool& hasMoreData)
 {
     if(!_stream->isConnected())
     {
@@ -547,6 +547,11 @@ IceSSL::TransceiverI::read(IceInternal::Buffer& buf, bool&)
             packetSize = static_cast<int>(buf.b.end() - buf.i);
         }
     }
+
+    //
+    // Check if there's still buffered data to read. In this case, set hasMoreData to true.
+    //
+    hasMoreData = SSL_pending(_ssl) > 0;
 
     return IceInternal::SocketOperationNone;
 }

@@ -64,8 +64,12 @@ These are the changes since Ice 3.6.1.
 - Fixed El Capitan build issues caused by a new security feature that no longer
   exports DYLD_LIBRARY_PATH to child processes.
 
-- Fixed potential deadlock that could occur when using collocation optimization and
-  serialized server thread pools.
+- Fixed potential deadlock that could occur when using collocation optimization
+  and serialized server thread pools.
+
+- Fixed IceSSL bug that would only show up with WSS servers running on OS X
+  and Linux. The WSS server could stop reading requests if the client sent
+  multiple requests within the same SSL record.
 
 ## C# Changes
 

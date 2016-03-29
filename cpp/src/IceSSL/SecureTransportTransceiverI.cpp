@@ -396,19 +396,12 @@ IceSSL::TransceiverI::write(IceInternal::Buffer& buf)
 }
 
 IceInternal::SocketOperation
-IceSSL::TransceiverI::read(IceInternal::Buffer& buf, bool&)
+IceSSL::TransceiverI::read(IceInternal::Buffer& buf, bool& hasMoreData)
 {
     if(!_stream->isConnected())
     {
         return _stream->read(buf);
     }
-
-    //
-    // Note: we don't set the hasMoreData flag in this implementation.
-    // We assume that SecureTransport doesn't read more SSL records
-    // than necessary to fill the requested data and that the sender
-    // sends Ice messages in individual SSL records.
-    //
 
     if(buf.i == buf.b.end())
     {
@@ -461,6 +454,18 @@ IceSSL::TransceiverI::read(IceInternal::Buffer& buf, bool&)
             packetSize = buf.b.end() - buf.i;
         }
     }
+
+    //
+    // Check if there's still buffered data to read. In this case, set hasMoreData to true.
+    //
+    size_t buffered = 0;
+    OSStatus err = SSLGetBufferedReadSize(_ssl, &buffered);
+    if(err)
+    {
+        errno = err;
+        throw SocketException(__FILE__, __LINE__, IceInternal::getSocketErrno());
+    }
+    hasMoreData = buffered > 0;
     return IceInternal::SocketOperationNone;
 }
 
