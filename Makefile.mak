@@ -21,7 +21,7 @@ TEST_SUBDIRS		= cpp python
 SUBDIRS			= cpp java js csharp
 CLEAN_SUBDIRS		= cpp java js csharp
 DEPEND_SUBDIRS		= cpp java js csharp
-INSTALL_SUBDIRS		= cpp java js csharp
+INSTALL_SUBDIRS		= cpp java csharp
 TEST_SUBDIRS		= cpp java js csharp
 !endif
 
@@ -39,7 +39,7 @@ all::
 	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $(MAKEFLAGS) all" || exit 1
 
 clean::
-	@for %i in ( $(SUBDIRS) ) do \
+	@for %i in ( $(CLEAN_SUBDIRS) ) do \
 	    @echo "making clean in %i" && \
 	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $(MAKEFLAGS) clean" || exit 1
 
@@ -49,12 +49,12 @@ depend::
 	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $(MAKEFLAGS) depend" || exit 1
 
 install::
-	@for %i in ( $(TEST_SUBDIRS) ) do \
+	@for %i in ( $(INSTALL_SUBDIRS) ) do \
 	    @echo "making install in %i" && \
 	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $(MAKEFLAGS) install" || exit 1
 
 test::
-	@for %i in ( $(SUBDIRS) ) do \
+	@for %i in ( $(TEST_SUBDIRS) ) do \
 	    @echo "making test in %i" && \
 	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $(MAKEFLAGS) test" || exit 1
 
@@ -78,3 +78,6 @@ php::
 	@echo "making all in php" && \
 	cmd /c "cd php && $(MAKE) -nologo -f Makefile.mak $(MAKEFLAGS) all" || exit 1
 
+js::
+	@echo "making all in js" && \
+	cmd /c "cd js && $(MAKE) -nologo -f Makefile.mak $(MAKEFLAGS) all" || exit 1
