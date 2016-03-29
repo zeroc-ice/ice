@@ -220,42 +220,66 @@ int main(int argc, char* argv[])
     filename += ".Linux";
 #endif
 
-    ifstream ifs(filename.c_str());
-    stringstream sstr;
-    sstr << ifs.rdbuf();
+    while(true)
+    {
+        ifstream ifs(filename.c_str());
+        stringstream sstr;
+        sstr << ifs.rdbuf();
 #if defined(__APPLE__)
-    string expected = sstr.str();
-    standardizeVersion(expected);
+        string expected = sstr.str();
+        standardizeVersion(expected);
 #else
-    vector<string> expected = splitLines(sstr.str());
+        vector<string> expected = splitLines(sstr.str());
 #endif
 
-    ThrowerPtr thrower = new Thrower();
-    try
-    {
-        thrower->first();
-    }
-    catch(const IceUtil::Exception& ex)
-    {
-        string stack = ex.ice_stackTrace();
+        ThrowerPtr thrower = new Thrower();
+        try
+        {
+            thrower->first();
+        }
+        catch(const IceUtil::Exception& ex)
+        {
+            string stack = ex.ice_stackTrace();
 #ifdef __APPLE__
-        standardizeVersion(stack);
-        if(expected.size() < stack.size())
-        {
-            test(stack.compare(0, expected.size(), expected) == 0);
-        }
-        else
-        {
-            test(stack == expected);
-        }
+            standardizeVersion(stack);
+            if(expected.size() < stack.size())
+            {
+                test(stack.compare(0, expected.size(), expected) == 0);
+            }
+            else
+            {
+                test(stack == expected);
+            }
+            break;
 #else
-        vector<string> actual = splitLines(stack);
-        test(expected.size() <= actual.size());
-        for(size_t i = 0; i < expected.size(); ++i)
-        {
-            test(actual[i].find(expected[i]) != string::npos);
-        }
+            vector<string> actual = splitLines(stack);
+            test(expected.size() <= actual.size());
+            for(size_t i = 0; i < expected.size(); ++i)
+            {
+                if(actual[i].find(expected[i]) != string::npos)
+                {
+#if defined(_WIN32) && defined(NDEBUG)
+                    //
+                    // With windows optimized builds retry with the alternate
+                    // expect file.
+                    //
+                    if(filename != "StackTrace.release.Win32")
+                    {
+                        filename = "StackTrace.release.Win32";
+                        continue;
+                    }
+                    else
+                    {
+                        test(false);
+                    }
+#else
+                    test(false)
 #endif
+                }
+            }
+            break;
+#endif
+        }
     }
     cout << "ok" << endl;
 #else
