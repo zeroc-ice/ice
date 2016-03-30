@@ -62,6 +62,10 @@ These are the changes since Ice 3.6.1.
 - Fixed Glacier2 router bug where requests from client to server could be lost
   if forwarded as batch requests with the _fwd=O context.
 
+- Fixed Glacier2 bug which would occur in un-buffered mode and when forwarding
+  one-way requests. The Glacier2 router could eventually leak and hang on
+  shutdown.
+
 ## C++ Changes
 
 - Fixed El Capitan build issues caused by a new security feature that no longer

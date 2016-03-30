@@ -48,7 +48,7 @@ Glacier2::Blobject::Blobject(const InstancePtr& instance, const ConnectionPtr& r
                         _instance->properties()->getPropertyAsInt(clientTraceOverride)),
     _context(context)
 {
-    RequestQueueThreadPtr t = _reverseConnection ? _instance->serverRequestQueueThread() : 
+    RequestQueueThreadPtr t = _reverseConnection ? _instance->serverRequestQueueThread() :
                                                    _instance->clientRequestQueueThread();
     if(t)
     {
@@ -86,17 +86,14 @@ Glacier2::Blobject::invokeResponse(bool ok, const pair<const Byte*, const Byte*>
 }
 
 void
-Glacier2::Blobject::invokeSent(bool sent, const AMD_Object_ice_invokePtr& amdCB)
+Glacier2::Blobject::invokeSent(bool, const AMD_Object_ice_invokePtr& amdCB)
 {
-    if(sent)
-    {
 #if (defined(_MSC_VER) && (_MSC_VER >= 1600))
-        amdCB->ice_response(true, pair<const Byte*, const Byte*>(static_cast<const Byte*>(nullptr), 
-                                                                 static_cast<const Byte*>(nullptr)));
+    amdCB->ice_response(true, pair<const Byte*, const Byte*>(static_cast<const Byte*>(nullptr),
+                                                             static_cast<const Byte*>(nullptr)));
 #else
-        amdCB->ice_response(true, pair<const Byte*, const Byte*>(0, 0));
+    amdCB->ice_response(true, pair<const Byte*, const Byte*>(0, 0));
 #endif
-    }
 }
 
 void
@@ -124,7 +121,7 @@ Glacier2::Blobject::invokeException(const Exception& ex, const AMD_Object_ice_in
 }
 
 void
-Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amdCB, 
+Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amdCB,
                            const std::pair<const Byte*, const Byte*>& inParams, const Current& current)
 {
     //
@@ -171,7 +168,7 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amd
                     proxy = proxy->ice_twoway();
                     break;
                 }
-                
+
                 case 'o':
                 {
                     if(_alwaysBatch && _requestQueue)
@@ -184,7 +181,7 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amd
                     }
                     break;
                 }
-                
+
                 case 'd':
                 {
                     if(_alwaysBatch && _requestQueue)
@@ -197,7 +194,7 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amd
                     }
                     break;
                 }
-                
+
                 case 'O':
                 {
                     if(_requestQueue)
@@ -210,7 +207,7 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amd
                     }
                     break;
                 }
-                
+
                 case 'D':
                 {
                     if(_requestQueue)
@@ -223,19 +220,19 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amd
                     }
                     break;
                 }
-                
+
                 case 's':
                 {
                     proxy = proxy->ice_secure(true);
                     break;
                 }
-                
+
                 case 'z':
                 {
                     proxy = proxy->ice_compress(true);
                     break;
                 }
-                
+
                 default:
                 {
                     Warning out(_instance->logger());
@@ -245,7 +242,7 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amd
             }
         }
     }
-    
+
     if(_requestTraceLevel >= 1)
     {
         Trace out(_instance->logger(), "Glacier2");
@@ -284,7 +281,7 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amd
     }
 
     if(_requestQueue)
-    {    
+    {
         //
         // If we are in buffered mode, we create a new request and add
         // it to the request queue. If the request is twoway, we use
