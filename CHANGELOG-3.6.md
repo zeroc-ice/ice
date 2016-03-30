@@ -40,24 +40,27 @@ These are the changes since Ice 3.6.1.
 - Added two new tools, icegriddb and icestormdb, used to import/export the
   IceGrid and IceStorm databases.
 
-- Fixed a bug that affects Java and C# generated code. The generated patcher for
-  reading class data members was bogus when the class had more than one class data
-  member and derived from a class that contained class data members. The same
-  issue was true for exceptions with class data members deriving from exceptions
-  with class data members.
+- Fixed a bug that affects Java and C# generated code. The generated patcher
+  for reading class data members was bogus when the class had more than one
+  class data member and derived from a class that contained class data
+  members. The same issue was true for exceptions with class data members
+  deriving from exceptions with class data members.
 
-- Fixed a bug that prevented scripting languages (Python, Ruby, Javascript and PHP)
-  from marshaling NaN or Infinity as a floating point value.
+- Fixed a bug that prevented scripting languages (Python, Ruby, Javascript and
+  PHP) from marshaling NaN or Infinity as a floating point value.
 
-- Fixed an IceGrid bug where resolving endpoints of dynamically registered replica
-  groups would fail unless the client was using an encoding superior to the encoding
-  of the dynamically registered object adapters.
+- Fixed an IceGrid bug where resolving endpoints of dynamically registered
+  replica groups would fail unless the client was using an encoding superior
+  to the encoding   of the dynamically registered object adapters.
 
 - Added missing functions Ice::identityToString and Ice::stringToIdentity
   (C++, Objective-C, PHP, Python and Ruby).
 
-- Added support for universal character names (\uNNNN and \UNNNNNNNN) in Slice string
-  constants.
+- Added support for universal character names (\uNNNN and \UNNNNNNNN) in Slice
+  string constants.
+
+- Fixed Glacier2 router bug where requests from client to server could be lost
+  if forwarded as batch requests with the _fwd=O context.
 
 ## C++ Changes
 

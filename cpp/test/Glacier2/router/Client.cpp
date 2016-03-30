@@ -612,7 +612,10 @@ CallbackClient::run(int argc, char* argv[])
         Context context;
         context["_fwd"] = "o";
         oneway->initiateCallback(onewayR, context);
-        callbackReceiverImpl->callbackOK();
+        oneway->initiateCallback(onewayR, context);
+        oneway->initiateCallback(onewayR, context);
+        oneway->initiateCallback(onewayR, context);
+        callbackReceiverImpl->callbackOK(4);
         cout << "ok" << endl;
     }
 
@@ -621,7 +624,27 @@ CallbackClient::run(int argc, char* argv[])
         Context context;
         context["_fwd"] = "t";
         twoway->initiateCallback(twowayR, context);
-        callbackReceiverImpl->callbackOK();
+        twoway->initiateCallback(twowayR, context);
+        twoway->initiateCallback(twowayR, context);
+        twoway->initiateCallback(twowayR, context);
+        callbackReceiverImpl->callbackOK(4);
+        cout << "ok" << endl;
+    }
+
+    {
+        cout << "testing batch oneway callback... " << flush;
+        Context context;
+        context["_fwd"] = "O";
+        CallbackPrx batchOneway = CallbackPrx::uncheckedCast(twoway->ice_batchOneway());
+        CallbackReceiverPrx onewayR = CallbackReceiverPrx::uncheckedCast(twowayR->ice_oneway());
+        batchOneway->initiateCallback(onewayR, context);
+        batchOneway->initiateCallback(onewayR, context);
+        batchOneway->initiateCallback(onewayR, context);
+        batchOneway->initiateCallback(onewayR, context);
+        batchOneway->initiateCallback(onewayR, context);
+        batchOneway->initiateCallback(onewayR, context);
+        batchOneway->ice_flushBatchRequests();
+        callbackReceiverImpl->callbackOK(6);
         cout << "ok" << endl;
     }
 

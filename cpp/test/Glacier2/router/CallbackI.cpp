@@ -109,7 +109,7 @@ public:
 typedef IceUtil::Handle<AsyncCB> AsyncCBPtr;
 
 CallbackReceiverI::CallbackReceiverI() :
-    _callback(false),
+    _callback(0),
     _waitCallback(false),
     _callbackWithPayload(false),
     _finishWaitCallback(false)
@@ -120,8 +120,7 @@ void
 CallbackReceiverI::callback(const Current&)
 {
     Lock sync(*this);
-    assert(!_callback);
-    _callback = true;
+    ++_callback;
     notifyAll();
 }
 
@@ -179,16 +178,15 @@ CallbackReceiverI::callbackWithPayload(const Ice::ByteSeq&, const Current&)
 }
 
 void
-CallbackReceiverI::callbackOK()
+CallbackReceiverI::callbackOK(int expected)
 {
     Lock sync(*this);
 
-    while(!_callback)
+    while(_callback != expected)
     {
         wait();
     }
-
-    _callback = false;
+    _callback = 0;
 }
 
 void
@@ -254,8 +252,8 @@ CallbackI::initiateCallback_async(const AMD_Callback_initiateCallbackPtr& cb,
     if(proxy->ice_isTwoway())
     {
         AsyncCBPtr acb = new AsyncCB();
-        proxy->begin_callback(current.ctx, 
-            newCallback_CallbackReceiver_callback(acb, &AsyncCB::responseCallback, &AsyncCB::exceptionCallback), 
+        proxy->begin_callback(current.ctx,
+            newCallback_CallbackReceiver_callback(acb, &AsyncCB::responseCallback, &AsyncCB::exceptionCallback),
             newCookie(cb));
     }
     else
@@ -272,8 +270,8 @@ CallbackI::initiateCallbackEx_async(const AMD_Callback_initiateCallbackExPtr& cb
     if(proxy->ice_isTwoway())
     {
         AsyncCBPtr acb = new AsyncCB();
-        proxy->begin_callbackEx(current.ctx, 
-            newCallback_CallbackReceiver_callbackEx(acb, &AsyncCB::responseCallbackEx, &AsyncCB::exceptionCallbackEx), 
+        proxy->begin_callbackEx(current.ctx,
+            newCallback_CallbackReceiver_callbackEx(acb, &AsyncCB::responseCallbackEx, &AsyncCB::exceptionCallbackEx),
             newCookie(cb));
     }
     else
@@ -290,32 +288,32 @@ CallbackI::initiateConcurrentCallback_async(const AMD_Callback_initiateConcurren
                                             const Current& current)
 {
     AsyncCBPtr acb = new AsyncCB();
-    proxy->begin_concurrentCallback(number, current.ctx, 
+    proxy->begin_concurrentCallback(number, current.ctx,
         newCallback_CallbackReceiver_concurrentCallback(acb, &AsyncCB::responseConcurrentCallback,
-                                                        &AsyncCB::exceptionConcurrentCallback), 
+                                                        &AsyncCB::exceptionConcurrentCallback),
         newCookie(cb));
 }
 
 void
 CallbackI::initiateWaitCallback_async(const AMD_Callback_initiateWaitCallbackPtr& cb,
-                                      const CallbackReceiverPrx& proxy, 
+                                      const CallbackReceiverPrx& proxy,
                                       const Current& current)
 {
     AsyncCBPtr acb = new AsyncCB();
-    proxy->begin_waitCallback(current.ctx, 
+    proxy->begin_waitCallback(current.ctx,
         newCallback_CallbackReceiver_waitCallback(acb, &AsyncCB::responseWaitCallback, &AsyncCB::exceptionWaitCallback),
         newCookie(cb));
 }
 
 void
-CallbackI::initiateCallbackWithPayload_async(const AMD_Callback_initiateCallbackWithPayloadPtr& cb, 
-                                             const CallbackReceiverPrx& proxy, 
+CallbackI::initiateCallbackWithPayload_async(const AMD_Callback_initiateCallbackWithPayloadPtr& cb,
+                                             const CallbackReceiverPrx& proxy,
                                              const Current& current)
 {
     Ice::ByteSeq seq(1000 * 1024, 0);
     AsyncCBPtr acb = new AsyncCB();
-    proxy->begin_callbackWithPayload(seq, current.ctx, 
-        newCallback_CallbackReceiver_callbackWithPayload(acb, &AsyncCB::responseCallbackWithPayload, 
+    proxy->begin_callbackWithPayload(seq, current.ctx,
+        newCallback_CallbackReceiver_callbackWithPayload(acb, &AsyncCB::responseCallbackWithPayload,
                                                          &AsyncCB::exceptionCallbackWithPayload),
         newCookie(cb));
 }
