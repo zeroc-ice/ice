@@ -1374,7 +1374,7 @@ ZEND_FUNCTION(Ice_identityToString)
 
     try
     {
-        string str = _this->getCommunicator()->identityToString(id);
+        string str = Ice::identityToString(id);
         RETURN_STRINGL(STRCAST(str.c_str()), static_cast<int>(str.length()));
     }
     catch(const IceUtil::Exception& ex)
@@ -1396,7 +1396,7 @@ ZEND_FUNCTION(Ice_stringToIdentity)
 
     try
     {
-        Ice::Identity id = _this->getCommunicator()->stringToIdentity(s);
+        Ice::Identity id = Ice::stringToIdentity(s);
         if(!createIdentity(return_value, id))
         {
             RETURN_NULL();
