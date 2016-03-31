@@ -70,7 +70,13 @@ public class ControllerServer extends Ice.Application
                                     line.matches(Pattern.quote("starting serveramdtie...") + ".*") ||
                                     line.matches("starting test.*" + Pattern.quote("Server...")  + ".*"))
                             {
-                                line += reader.readLine();
+                                String s = reader.readLine();
+                                if(s == null)
+                                {
+                                    System.out.println(line);
+                                    break;
+                                }
+                                line += s;
                                 continue;
                             }
                             System.out.println(line);
@@ -122,7 +128,6 @@ public class ControllerServer extends Ice.Application
                     {
                     }
                 }
-
                 current.adapter.remove(current.id);
                 System.out.println("ok");
             }
