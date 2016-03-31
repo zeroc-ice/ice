@@ -222,7 +222,9 @@ int main(int argc, char* argv[])
 
     while(true)
     {
+#if defined(_WIN32) && defined(NDEBUG)
         bool match = true;
+#endif
         ifstream ifs(filename.c_str());
         stringstream sstr;
         sstr << ifs.rdbuf();
