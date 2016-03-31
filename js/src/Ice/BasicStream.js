@@ -54,6 +54,16 @@ var FLAG_HAS_INDIRECTION_TABLE    = (1<<3);
 var FLAG_HAS_SLICE_SIZE           = (1<<4);
 var FLAG_IS_LAST_SLICE            = (1<<5);
 
+//
+// Number.isNaN polyfill for compatibility with IE 
+//
+// see: https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Number/isNaN
+//
+Number.isNaN = Number.isNaN || function(value)
+{
+    return typeof value === "number" && isNaN(value);
+}
+
 var IndirectPatchEntry = function(index, patcher)
 {
     this.index = index;
@@ -2898,7 +2908,7 @@ var defineBuiltinHelper = function(write, read, sz, format, min, max)
         writeOpt: function(os, tag, v) { os.writeOptValue(tag, format, write, v); },
         readOpt: function(is, tag) { return is.readOptValue(tag, format, read); },
     };
-    
+
     if(min !== undefined && max !== undefined)
     {
         helper.validate = function(v) {
@@ -2932,13 +2942,13 @@ var MAX_INT32_VALUE = 0x7FFFFFFF;
 var MIN_FLOAT32_VALUE = -3.4028234664e+38;
 var MAX_FLOAT32_VALUE = 3.4028234664e+38;
 
-Ice.ByteHelper = defineBuiltinHelper(stream.writeByte, stream.readByte, 1, Ice.OptionalFormat.F1, 
+Ice.ByteHelper = defineBuiltinHelper(stream.writeByte, stream.readByte, 1, Ice.OptionalFormat.F1,
                                      MIN_UINT8_VALUE, MAX_UINT8_VALUE);
 
 Ice.ShortHelper = defineBuiltinHelper(stream.writeShort, stream.readShort, 2, Ice.OptionalFormat.F2,
                                       MIN_INT16_VALUE, MAX_INT16_VALUE);
 
-Ice.IntHelper = defineBuiltinHelper(stream.writeInt, stream.readInt, 4, Ice.OptionalFormat.F4, 
+Ice.IntHelper = defineBuiltinHelper(stream.writeInt, stream.readInt, 4, Ice.OptionalFormat.F4,
                                     MIN_INT32_VALUE, MAX_INT32_VALUE);
 
 Ice.FloatHelper = defineBuiltinHelper(stream.writeFloat, stream.readFloat, 4, Ice.OptionalFormat.F4,
@@ -2964,7 +2974,7 @@ Ice.LongHelper.validate = function(v)
     //
     // For a long to be valid both words must be within the range of UINT32
     //
-    return v.low >= MIN_UINT32_VALUE && v.low <= MAX_UINT32_VALUE && 
+    return v.low >= MIN_UINT32_VALUE && v.low <= MAX_UINT32_VALUE &&
            v.high >= MIN_UINT32_VALUE && v.high <= MAX_UINT32_VALUE;
 };
 
