@@ -39,6 +39,7 @@ main(int argc, char* argv[])
         Ice::InitializationData initData;
         initData.properties = Ice::createProperties(argc, argv);
         initData.properties->setProperty("Ice.Warn.Dispatch", "0");
+        initData.properties->setProperty("Ice.PrintStackTraces", "0");
         Ice::CommunicatorHolder ich = Ice::initialize(argc, argv, initData);
         return run(argc, argv, ich.communicator());
     }

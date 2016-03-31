@@ -1026,7 +1026,7 @@ void
 IcePy::ParamInfo::unmarshaled(PyObject* val, PyObject* target, void* closure)
 {
     assert(PyTuple_Check(target));
-    long i = reinterpret_cast<long>(closure);
+    Py_ssize_t i = reinterpret_cast<Py_ssize_t>(closure);
     PyTuple_SET_ITEM(target, i, val);
     Py_INCREF(val); // PyTuple_SET_ITEM steals a reference.
 }
@@ -1644,7 +1644,7 @@ IcePy::TypedInvocation::unmarshalResults(const pair<const Ice::Byte*, const Ice:
             ParamInfoPtr info = *p;
             if(!info->optional)
             {
-                void* closure = reinterpret_cast<void*>(info->pos);
+                void* closure = reinterpret_cast<void*>(static_cast<Py_ssize_t>(info->pos));
                 info->type->unmarshal(&is, info, results.get(), closure, false, &info->metaData);
             }
         }
@@ -1655,7 +1655,7 @@ IcePy::TypedInvocation::unmarshalResults(const pair<const Ice::Byte*, const Ice:
         if(_op->returnType && !_op->returnType->optional)
         {
             assert(_op->returnType->pos == 0);
-            void* closure = reinterpret_cast<void*>(_op->returnType->pos);
+            void* closure = reinterpret_cast<void*>(static_cast<Py_ssize_t>(_op->returnType->pos));
             _op->returnType->type->unmarshal(&is, _op->returnType, results.get(), closure, false, &_op->metaData);
         }
 
@@ -1667,7 +1667,7 @@ IcePy::TypedInvocation::unmarshalResults(const pair<const Ice::Byte*, const Ice:
             ParamInfoPtr info = *p;
             if(is.readOptional(info->tag, info->type->optionalFormat()))
             {
-                void* closure = reinterpret_cast<void*>(info->pos);
+                void* closure = reinterpret_cast<void*>(static_cast<Py_ssize_t>(info->pos));
                 info->type->unmarshal(&is, info, results.get(), closure, true, &info->metaData);
             }
             else

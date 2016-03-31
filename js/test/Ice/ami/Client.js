@@ -429,7 +429,7 @@
                         return testController.resumeAdapter().then(
                             function()
                             {
-                                p.ice_ping().then(
+                                return p.ice_ping().then(
                                     function()
                                     {
                                         test(!r1.isSent() && r1.isCompleted());

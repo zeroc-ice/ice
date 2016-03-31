@@ -717,7 +717,7 @@ IcePy::PrimitiveInfo::validate(PyObject* p)
         {
             // Ensure double does not exceed maximum float value before casting
             double val = PyFloat_AsDouble(p);
-            return (val <= numeric_limits<float>::max() && val >= -numeric_limits<float>::max()) || 
+            return (val <= numeric_limits<float>::max() && val >= -numeric_limits<float>::max()) ||
 #if defined(_MSC_VER) && (_MSC_VER <= 1700)
                 !_finite(val);
 #else
@@ -1679,7 +1679,7 @@ IcePy::SequenceInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr&
 
     for(Ice::Int i = 0; i < sz; ++i)
     {
-        void* cl = reinterpret_cast<void*>(i);
+        void* cl = reinterpret_cast<void*>(static_cast<Py_ssize_t>(i));
         elementType->unmarshal(is, sm, result.get(), cl, false);
     }
 
@@ -2335,7 +2335,7 @@ IcePy::SequenceInfo::SequenceMapping::SequenceMapping(const Ice::StringSeq& meta
 void
 IcePy::SequenceInfo::SequenceMapping::unmarshaled(PyObject* val, PyObject* target, void* closure)
 {
-    long i = reinterpret_cast<long>(closure);
+    Py_ssize_t i = reinterpret_cast<Py_ssize_t>(closure);
     if(type == SEQ_DEFAULT || type == SEQ_LIST)
     {
         PyList_SET_ITEM(target, i, val);

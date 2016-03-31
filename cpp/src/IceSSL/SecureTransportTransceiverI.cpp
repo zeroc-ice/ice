@@ -407,16 +407,12 @@ IceSSL::TransceiverI::read(IceInternal::Buffer& buf)
         return _stream->read(buf);
     }
 
-    //
-    // Note: we assume that SecureTransport doesn't read more SSL records
-    // than necessary to fill the requested data and that the sender sends
-    // Ice messages in individual SSL records.
-    //
-
     if(buf.i == buf.b.end())
     {
         return  IceInternal::SocketOperationNone;
     }
+
+    _stream->ready(IceInternal::SocketOperationRead, false);
 
     size_t packetSize = std::min(static_cast<size_t>(buf.b.end() - buf.i), _maxRecvPacketSize);
     while(buf.i != buf.b.end())
@@ -464,6 +460,18 @@ IceSSL::TransceiverI::read(IceInternal::Buffer& buf)
             packetSize = buf.b.end() - buf.i;
         }
     }
+
+    //
+    // Check if there's still buffered data to read. In this case, set the read ready status.
+    //
+    size_t buffered = 0;
+    OSStatus err = SSLGetBufferedReadSize(_ssl, &buffered);
+    if(err)
+    {
+        errno = err;
+        throw SocketException(__FILE__, __LINE__, IceInternal::getSocketErrno());
+    }
+    _stream->ready(IceInternal::SocketOperationRead, buffered > 0);
     return IceInternal::SocketOperationNone;
 }
 

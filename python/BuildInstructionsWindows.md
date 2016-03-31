@@ -26,14 +26,9 @@ compatible with the one used to build Ice for C++.
 The Python interpreter is readily available on Windows platforms. You can build
 it yourself using Microsoft Visual C++, or obtain a binary distribution from the
 Python web site. The Python 3.5.x binary distribution is compiled with Visual
-C++ 14, and you should use this binary distribution if you want to compile the
-Ice extension with Visual C++ 14.
-
-Open a command prompt for example, when using Visual Studio 2015, you have
-several alternatives:
-
-- VS2015 x86 Native Tools Command Prompt
-- VS2015 x64 Native Tools Command Prompt
+C++ 14, Python 3.4.x and Python 2.7.x are compiled with Visual C++ 10, you
+should compile the Ice extension with the same Visual C++ version that your
+Python binary distribution was compiled.
 
 Using the first configurations produces 32-bit binaries, while the second
 configurations produce 64-bit binaries.
@@ -67,28 +62,29 @@ The debug version of the extension for `x64` platform will be placed in
 
 The supported values for the `Configuration` property are `Debug` and `Release`.
 
-If you wan to build the extension for other platform that the command prompt default
-platform, you need to set the MSbuild `Platform` property, the supported values for
-this property are `Win32` and `x64`.
+If you wan to build the extension for other platform that the command prompt
+default platform, you need to set the MSbuild `Platform` property, the supported
+values for this property are `Win32` and `x64`.
 
-The following command will build the extension `x64` platform binaries with `Release`
-configuration:
+The following command will build the extension `x64` platform binaries with
+`Release` configuration:
 
   > MSbuild msbuild\ice.proj /p:Configuration=Release /p:Platform=x64
 
-And the next command will build the extension `Win32` platform binaries with `Release`
-configuration:
+And the next command will build the extension `Win32` platform binaries with
+`Release` configuration:
 
   > MSbuild msbuild\ice.proj /p:Configuration=Release /p:Platform=Win32
 
-> *When using the MSBuild Platform property the build platform doesn't depend on the
-command prompt default platform*
+> *When using the MSBuild Platform property the build platform doesn't depend on
+the command prompt default platform*
 
-The build will use a default Python location defined in `python\msbuild\ice.props`,
-it can be override by setting the `PythonHome` MSBuild property.
+The build will use a default Python location defined in
+`python\msbuild\ice.props`, it can be override by setting the `PythonHome`
+MSBuild property.
 
-The following command will use Python installation from `C:\Python35-AMD64` instead of
-the default location:
+The following command will use Python installation from `C:\Python35-AMD64`
+instead of the default location:
 
     > MSbuild msbuild\ice.proj /p:Configuration=Release /p:Platform=x64 /p:PythonHome=C:\Python35-AMD64
 

@@ -36,10 +36,10 @@ public:
 
     Request(const Ice::ObjectPrx&, const std::pair<const Ice::Byte*, const Ice::Byte*>&, const Ice::Current&, bool,
             const Ice::Context&, const Ice::AMD_Object_ice_invokePtr&);
-    
+
     Ice::AsyncResultPtr invoke(const Ice::Callback_Object_ice_invokePtr& callback);
     bool override(const RequestPtr&) const;
-    const Ice::ObjectPrx& getProxy() const { return _proxy; }
+    void addBatchProxy(std::set<Ice::ObjectPrx>&);
     bool hasOverride() const { return !_override.empty(); }
 
 private:
@@ -65,7 +65,7 @@ public:
     RequestQueue(const RequestQueueThreadPtr&, const InstancePtr&, const Ice::ConnectionPtr&);
 
     bool addRequest(const RequestPtr&);
-    void flushRequests(std::set<Ice::ObjectPrx>&);
+    void flushRequests();
 
     void destroy();
 
@@ -76,12 +76,11 @@ private:
     void destroyInternal();
 
     void flush();
-    void flush(std::set<Ice::ObjectPrx>&);
 
     void response(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&, const RequestPtr&);
     void exception(const Ice::Exception&, const RequestPtr&);
     void sent(bool, const RequestPtr&);
-    
+
     const RequestQueueThreadPtr _requestQueueThread;
     const InstancePtr _instance;
     const Ice::ConnectionPtr _connection;
@@ -89,6 +88,7 @@ private:
     const Ice::Callback_Connection_flushBatchRequestsPtr _flushCallback;
 
     std::deque<RequestPtr> _requests;
+    std::set<Ice::ObjectPrx> _batchProxies;
     bool _pendingSend;
     RequestPtr _pendingSendRequest;
     bool _destroyed;

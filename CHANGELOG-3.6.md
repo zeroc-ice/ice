@@ -40,32 +40,43 @@ These are the changes since Ice 3.6.1.
 - Added two new tools, icegriddb and icestormdb, used to import/export the
   IceGrid and IceStorm databases.
 
-- Fixed a bug that affects Java and C# generated code. The generated patcher for
-  reading class data members was bogus when the class had more than one class data
-  member and derived from a class that contained class data members. The same
-  issue was true for exceptions with class data members deriving from exceptions
-  with class data members.
+- Fixed a bug that affects Java and C# generated code. The generated patcher
+  for reading class data members was bogus when the class had more than one
+  class data member and derived from a class that contained class data
+  members. The same issue was true for exceptions with class data members
+  deriving from exceptions with class data members.
 
-- Fixed a bug that prevented scripting languages (Python, Ruby, Javascript and PHP)
-  from marshaling NaN or Infinity as a floating point value.
+- Fixed a bug that prevented scripting languages (Python, Ruby, Javascript and
+  PHP) from marshaling NaN or Infinity as a floating point value.
 
-- Fixed an IceGrid bug where resolving endpoints of dynamically registered replica
-  groups would fail unless the client was using an encoding superior to the encoding
-  of the dynamically registered object adapters.
+- Fixed an IceGrid bug where resolving endpoints of dynamically registered
+  replica groups would fail unless the client was using an encoding superior
+  to the encoding   of the dynamically registered object adapters.
 
 - Added missing functions Ice::identityToString and Ice::stringToIdentity
   (C++, Objective-C, PHP, Python and Ruby).
 
-- Added support for universal character names (\uNNNN and \UNNNNNNNN) in Slice string
-  constants.
+- Added support for universal character names (\uNNNN and \UNNNNNNNN) in Slice
+  string constants.
+
+- Fixed Glacier2 router bug where requests from client to server could be lost
+  if forwarded as batch requests with the _fwd=O context.
+
+- Fixed Glacier2 bug which would occur in un-buffered mode and when forwarding
+  one-way requests. The Glacier2 router could eventually leak and hang on
+  shutdown.
 
 ## C++ Changes
 
 - Fixed El Capitan build issues caused by a new security feature that no longer
   exports DYLD_LIBRARY_PATH to child processes.
 
-- Fixed potential deadlock that could occur when using collocation optimization and
-  serialized server thread pools.
+- Fixed potential deadlock that could occur when using collocation optimization
+  and serialized server thread pools.
+
+- Fixed IceSSL bug that would only show up with WSS servers running on OS X
+  and Linux. The WSS server could stop reading requests if the client sent
+  multiple requests within the same SSL record.
 
 ## C# Changes
 

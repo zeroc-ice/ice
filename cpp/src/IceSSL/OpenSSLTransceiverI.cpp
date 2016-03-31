@@ -466,6 +466,8 @@ IceSSL::TransceiverI::read(IceInternal::Buffer& buf)
         return IceInternal::SocketOperationNone;
     }
 
+    _stream->ready(IceInternal::SocketOperationRead, false);
+
     //
     // It's impossible for packetSize to be more than an Int.
     //
@@ -554,6 +556,11 @@ IceSSL::TransceiverI::read(IceInternal::Buffer& buf)
             packetSize = static_cast<int>(buf.b.end() - buf.i);
         }
     }
+
+    //
+    // Check if there's still buffered data to read, set the read ready status.
+    //
+    _stream->ready(IceInternal::SocketOperationRead, SSL_pending(_ssl) > 0);
 
     return IceInternal::SocketOperationNone;
 }

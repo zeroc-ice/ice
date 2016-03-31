@@ -23,7 +23,7 @@ CXX          = c++
 ICE_WIN32_WINNT := 0x601
 
 CXXFLAGS		= $(CXXARCHFLAGS) -mthreads -Wall -Werror -D_WIN32_WINNT=$(ICE_WIN32_WINNT) -DWIN32_LEAN_AND_MEAN
-LDFLAGS			= -Wl,-no-undefined 
+LDFLAGS			= -Wl,-no-undefined
 
 ifeq ($(STATICLIBS),yes)
     CXXFLAGS		+= -DICE_STATIC_LIBS
@@ -105,7 +105,7 @@ libdir			:= $(top_srcdir)/$(libsubdir)
 bindir			:= $(top_srcdir)/$(binsubdir)
 
 installlib		= $(INSTALL) $(2)/$(3) $(1); \
-			  chmod a+rx $(1)/$(3) 
+			  chmod a+rx $(1)/$(3)
 
 installprogram		= $(INSTALL_PROGRAM) $(1) $(2); \
 			  chmod a+rx $(2)/$(notdir $(1))
@@ -114,16 +114,16 @@ SSL_OS_LIBS		= -lsecur32 -lcrypt32 -lws2_32
 
 ifeq ($(STATICLIBS),yes)
 BASELIBS		= -liceutil $(ICEUTIL_OS_LIBS)
-LIBS			= -lice $(BASELIBS) 
+LIBS			= -lice $(BASELIBS)
 ICESSL_LIBS             = -licessl
 SLICE_LIBS		= -lslice $(BASELIBS)
 else
 BASELIBS		= -liceutil$(SOVERSION)$(COMPSUFFIX) $(ICEUTIL_OS_LIBS)
-LIBS			= -lice$(SOVERSION)$(COMPSUFFIX) $(BASELIBS) 
+LIBS			= -lice$(SOVERSION)$(COMPSUFFIX) $(BASELIBS)
 ICESSL_LIBS             = -licessl$(SOVERSION)$(COMPSUFFIX)
 SLICE_LIBS		= -lslice$(SOVERSION)$(COMPSUFFIX) $(BASELIBS)
 endif
 
-ICEUTIL_OS_LIBS		= -lrpcrt4  -ladvapi32
+ICEUTIL_OS_LIBS		= -lrpcrt4  -ladvapi32 -lshlwapi
 ICE_OS_LIBS		= $(ICEUTIL_OS_LIBS) -lIphlpapi -lws2_32
 EXE_EXT                 = .exe
