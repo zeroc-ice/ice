@@ -23,6 +23,18 @@ Ice.__M.require(module,
     ]);
 var IceSSL = Ice.__M.module("IceSSL");
 
+//
+// With Firefox and Chrome we don't want to close the socket while
+// connection is in progress, see comments on close implementation
+// below.
+//
+// We need to check for Edge browser as it include Firefox and Chrome
+// in its user agent.
+//
+var CloseOnConnecting = navigator.userAgent.indexOf("Edge/") !== -1 ||
+                       (navigator.userAgent.indexOf("Firefox/") === -1 &&
+                        navigator.userAgent.indexOf("Chrome/") === -1);
+
 var Debug = Ice.Debug;
 var ExUtil = Ice.ExUtil;
 var Network = Ice.Network;
@@ -37,8 +49,6 @@ var StateConnectPending = 1;
 var StateConnected = 2;
 var StateClosePending = 3;
 var StateClosed = 4;
-
-var IsFirefox = navigator.userAgent.indexOf("Firefox") !== -1;
 
 var WSTransceiver = Ice.Class({
     __init__: function(instance)
@@ -133,15 +143,18 @@ var WSTransceiver = Ice.Class({
         }
 
         //
-        // WORKAROUND: With Firefox, calling close() if the websocket isn't connected
-        // yet doesn't close the connection. The server doesn't receive any close frame
-        // and the underlying socket isn't closed causing the server to hang on closing
-        // the connection until the browser exits.
+        // With Firefox calling close() if  the websocket isn't connected yet
+        // doesn't close the connection.  The server doesn't receive any close
+        // frame and the underlying socket isn't closed causing the server to
+        // hang on closing the connection until the browser exits.
         //
-        // To workaround this problem, we always wait for the socket to be connected
-        // or closed before closing the socket.
+        // With Chrome calling close() the websocket isn't connected yet doesn't
+        // abort the connection attempt.
         //
-        if(this._fd.readyState === WebSocket.CONNECTING && IsFirefox)
+        // To workaround these problems, we always wait for the socket to be
+        // connected or closed before closing the socket.
+        //
+        if(!CloseOnConnecting && this._fd.readyState === WebSocket.CONNECTING)
         {
             this._state = StateClosePending;
             return;
@@ -175,15 +188,20 @@ var WSTransceiver = Ice.Class({
         {
             return true;
         }
-
         Debug.assert(this._fd);
 
         var transceiver = this;
         var write = function()
         {
-            if(transceiver.write(byteBuffer))
+            //
+            // The connection might have been closed.
+            //
+            if(transceiver._state !== StateClosed)
             {
-                transceiver._bytesWrittenCallback(0, 0);
+                if(transceiver.write(byteBuffer))
+                {
+                    transceiver._bytesWrittenCallback(0, 0);
+                }
             }
         };
 
