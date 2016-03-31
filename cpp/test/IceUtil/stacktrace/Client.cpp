@@ -222,6 +222,7 @@ int main(int argc, char* argv[])
 
     while(true)
     {
+        bool match = true;
         ifstream ifs(filename.c_str());
         stringstream sstr;
         sstr << ifs.rdbuf();
@@ -259,14 +260,14 @@ int main(int argc, char* argv[])
                 if(actual[i].find(expected[i]) == string::npos)
                 {
 #if defined(_WIN32) && defined(NDEBUG)
+                    match = false;
                     //
                     // With windows optimized builds retry with the alternate
                     // expect file.
                     //
                     if(filename != "StackTrace.release.Win32")
                     {
-                        filename = "StackTrace.release.Win32";
-                        continue;
+                        break;
                     }
                     else
                     {
@@ -277,6 +278,14 @@ int main(int argc, char* argv[])
 #endif
                 }
             }
+
+#if defined(_WIN32) && defined(NDEBUG)
+            if(!match && filename != "StackTrace.release.Win32")
+            {
+                filename = "StackTrace.release.Win32";
+                continue;
+            }
+#endif
             break;
 #endif
         }
