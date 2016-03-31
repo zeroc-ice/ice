@@ -46,6 +46,7 @@ SUBDIRS		= proxy \
                   metrics \
                   enums \
                   logger \
+                  networkProxy \
                   impl \
                   stream
 
@@ -54,8 +55,7 @@ SUBDIRS		:= $(SUBDIRS) \
 		  optional \
 		  gc \
 		  custom \
-		  echo \
-                  networkProxy
+		  echo
 endif
 
 ifeq ($(findstring MINGW,$(UNAME)),)
