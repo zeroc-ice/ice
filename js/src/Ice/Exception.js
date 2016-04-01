@@ -33,16 +33,8 @@ var toString = function(key, object, objectTable, ident)
     {
         return "\n" + ident + key + ": (recursive)";
     }
-    
+
     objectTable.push(object);
-    //
-    // For objects use the toString function if one is provided.
-    //
-    if(typeof object.toString == "function")
-    {
-        return "\n" + ident + key + ":" + object.toString();
-    }
-    
     var s = "\n" + ident + key + ":";
     for(var k in object)
     {
@@ -77,16 +69,31 @@ var Exception = Class(Error, {
     },
     toString: function()
     {
+        //
+        // We have a guard here to prevent being re-entered. With some browsers (IE), accessing
+        // the stack property ends up calling toString on the exception to print it out with the
+        // stack.
+        //
+        if(this._inToStringAlready)
+        {
+            return "";
+        }
+
+        this._inToStringAlready = true;
         var s = this.ice_name();
         for(var key in this)
         {
-            s += toString(key, this[key], [], "");
+            if(key != "_inToStringAlready")
+            {
+                s += toString(key, this[key], [], "");
+            }
         }
 
         if(Ice.__printStackTraces === true && this.stack)
         {
             s += "\n" + this.stack;
         }
+        this._inToStringAlready = false;
         return s;
     }
 });
