@@ -1174,7 +1174,7 @@
         exports.__test__ = function(out, id)
         {
             out.writeLine("Test not supported with Safari web workers.");
-        }
+        };
     }
     else
     {

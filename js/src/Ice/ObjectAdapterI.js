@@ -23,7 +23,6 @@ Ice.__M.require(module,
         "../Ice/UUID"
     ]);
 
-
 var AsyncResultBase = Ice.AsyncResultBase;
 var Debug = Ice.Debug;
 var Identity = Ice.Identity;
