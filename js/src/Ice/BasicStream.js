@@ -54,6 +54,16 @@ var FLAG_HAS_INDIRECTION_TABLE    = (1<<3);
 var FLAG_HAS_SLICE_SIZE           = (1<<4);
 var FLAG_IS_LAST_SLICE            = (1<<5);
 
+//
+// Number.isNaN polyfill for compatibility with IE
+//
+// see: https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Number/isNaN
+//
+Number.isNaN = Number.isNaN || function(value)
+{
+    return typeof value === "number" && isNaN(value);
+};
+
 var IndirectPatchEntry = function(index, patcher)
 {
     this.index = index;

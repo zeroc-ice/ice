@@ -442,7 +442,8 @@
         if(typeof(navigator) !== "undefined" &&
            (navigator.userAgent.indexOf("MSIE") != -1 ||
             navigator.userAgent.indexOf("Trident/7.0") != -1 ||
-            navigator.userAgent.indexOf("Edge/12") != -1))
+            navigator.userAgent.indexOf("Edge/12") != -1 ||
+            navigator.userAgent.indexOf("Edge/13") != -1))
         {
             tests.push(new HeartbeatOnIdleTest(com, out));
             tests.push(new HeartbeatAlwaysTest(com, out));

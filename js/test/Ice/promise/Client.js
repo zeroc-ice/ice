@@ -843,8 +843,7 @@
                                         test(i == 10);
                                         test(Date.now() - start >= 450);
                                         test(Date.now() - start <= 900);
-                                    }
-                                )
+                                    });
                             }
                         ).then(
                             function()
@@ -863,8 +862,7 @@
                                         test(Date.now() - start <= 900);
                                         out.writeLine("ok");
                                         promise.succeed();
-                                    }
-                                )
+                                    });
                             }
                         ).exception(
                             function(ex)

@@ -44,7 +44,8 @@
                 test(obj !== null);
 
                 mult = 1;
-                if(communicator.getProperties().getPropertyWithDefault("Ice.Default.Protocol", "tcp") === "ssl")
+                if(communicator.getProperties().getPropertyWithDefault("Ice.Default.Protocol", "tcp") === "ssl" ||
+                   communicator.getProperties().getPropertyWithDefault("Ice.Default.Protocol", "tcp") === "wss")
                 {
                     mult = 4;
                 }
@@ -332,26 +333,6 @@
         ).then(
             function()
             {
-                //
-                // Some browsers (Chrome) appear to not cancel the
-                // connection establishment even of the web socket is
-                // closed and the next connect succeeds. We perform
-                // another connection establishment and close the
-                // connection.
-                //
-                return to.ice_getConnection();
-            }
-        ).then(
-            function(con)
-            {
-                con.close(true);
-            },
-            function(ex)
-            {
-            }
-        ).then(
-            function()
-            {
                 return timeout.holdAdapter(750 * mult);
             }
         ).then(
@@ -431,8 +412,7 @@
             function()
             {
                 p.succeed();
-            }
-        );
+            });
         return p;
     };
 
