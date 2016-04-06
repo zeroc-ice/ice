@@ -1,5 +1,5 @@
 sudo: false
-language: python
+language: generic
 addons:
   apt:
     sources:
@@ -15,10 +15,11 @@ addons:
     - libdbus-glib-1-dev
     - libbluetooth-dev
 
-cache:
-  directories:
-  - $HOME/.gradle
-  - js/node_modules
+os:
+  - linux
+  - osx
+
+osx_image: xcode7.3
 
 env:
   global:
@@ -29,14 +30,28 @@ env:
     - LMDB_REVISION=0.9.16
     - LMDB_BUILD_DIR=${TRAVIS_BUILD_DIR}/lmdb-LMDB_${LMDB_REVISION}
     - LMDB_HOME=${TRAVIS_BUILD_DIR}/lmdb
+    - PYTHONUSERBASE=${HOME}/python-deps
+    - PYTHONPATH=${PYTHONUSERBASE}
+
   matrix:
     - WORK_DIR=${TRAVIS_BUILD_DIR}/cpp CPP11_MAPPING=yes BUILD_ICE_BT=no TEST_FLAGS="--c++11"
     - WORK_DIR=${TRAVIS_BUILD_DIR}
 
-python:
-- "2.7"
+cache:
+  directories:
+  - $HOME/.gradle
+  - $HOME/python-deps
+  - $TRAVIS_BUILD_DIR/js/node_modules
 
 before_install:
+- if [ "${TRAVIS_OS_NAME}" == "osx" ]; then
+      sw_vers -productVersion
+      brew update;
+      brew upgrade --all;
+      brew tap zeroc-ice/tap;
+      brew tap homebrew/homebrew-php;
+      brew install berkeley-db53 python python3 ruby node php70;
+  fi
 - git clone https://github.com/zeroc-ice/mcpp.git mcpp
 - wget https://github.com/LMDB/lmdb/archive/LMDB_${LMDB_REVISION}.tar.gz
 - tar xvf LMDB_${LMDB_REVISION}.tar.gz
@@ -49,12 +64,12 @@ install:
 - mkdir -p ${LMDB_HOME}/man/man1
 - CPPFLAGS=-fPIC make -C ${LMDB_BUILD_DIR}/libraries/liblmdb install prefix=${LMDB_HOME}
 - rm -f ${LMDB_HOME}/lib/liblmdb.so
-- pip install passlib
+- pip install --user passlib
 - make -C ${WORK_DIR} -j3
 
 script:
 - cd ${WORK_DIR}
-- python allTests.py ${TEST_FLAGS} --debug --env --protocol=ssl
+- python allTests.py ${TEST_FLAGS} --protocol=ssl
 
 notifications:
   email: travis-ci@zeroc.com

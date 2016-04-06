@@ -423,6 +423,7 @@ void verify(const IceSSL::CertificatePtr& cert, const IceSSL::CertificatePtr& ca
 void
 allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, bool shutdown)
 {
+    bool elCapitanUpdate2OrLower = false;
 #ifdef __APPLE__
     bool isElCapitan = false;
     vector<char> s(256);
@@ -431,6 +432,13 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
     if(ret == 0)
     {
         isElCapitan = string(&s[0]).find("15.") == 0;
+        if(isElCapitan)
+        {
+            size_t first = string(&s[0]).find_first_of(".");
+            size_t last = string(&s[0]).find_last_of(".");
+            int minorVersion = atoi(string(&s[0]).substr(first + 1, last - first - 1).c_str());
+            elCapitanUpdate2OrLower = minorVersion <= 2;
+        }
     }
 #endif
 
@@ -1559,12 +1567,15 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             Test::ServerPrxPtr server = fact->createServer(d);
             try
             {
-                // OS X 10.11 versions prior to 10.11.2 will throw an exception as SSLv3 is totally disabled.
                 server->ice_ping();
             }
             catch(const LocalException&)
             {
-                test(false);
+                // OS X 10.11 versions prior to 10.11.2 will throw an exception as SSLv3 is totally disabled.
+                if(!elCapitanUpdate2OrLower)
+                {
+                    test(false);
+                }
             }
             fact->destroyServer(server);
             comm->destroy();
@@ -1845,43 +1856,48 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
     }
 
     //
-    // This should fail because we disabled all anonymous ciphers and the server doesn't
-    // provide a certificate.
-    //
-    InitializationData initData;
-    initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12);
+    // El Capitan SSLHandshake segfaults with this test, Apple bug #22148512
+    // This is fixed in 10.11.3
+    if(!elCapitanUpdate2OrLower)
+    {
+        //
+        // This should fail because we disabled all anonymous ciphers and the server doesn't
+        // provide a certificate.
+        //
+        InitializationData initData;
+        initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12);
 #  ifdef ICE_USE_OPENSSL
-    initData.properties->setProperty("IceSSL.Ciphers", "ALL:!ADH");
+        initData.properties->setProperty("IceSSL.Ciphers", "ALL:!ADH");
 #  else
-    initData.properties->setProperty("IceSSL.Ciphers", "ALL !(DH_anon*)");
+        initData.properties->setProperty("IceSSL.Ciphers", "ALL !(DH_anon*)");
 #  endif
-    CommunicatorPtr comm = initialize(initData);
-    Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
-    test(fact);
-    Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12);
-    d["IceSSL.VerifyPeer"] = "0";
-    Test::ServerPrxPtr server = fact->createServer(d);
-    try
-    {
-        server->ice_ping();
-        test(false);
+        CommunicatorPtr comm = initialize(initData);
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
+        test(fact);
+        Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12);
+        d["IceSSL.VerifyPeer"] = "0";
+        Test::ServerPrxPtr server = fact->createServer(d);
+        try
+        {
+            server->ice_ping();
+            test(false);
+        }
+        catch(const ProtocolException&)
+        {
+            // Expected
+        }
+        catch(const ConnectionLostException&)
+        {
+            // Expected
+        }
+        catch(const LocalException& ex)
+        {
+            cerr << ex << endl;
+            test(false);
+        }
+        fact->destroyServer(server);
+        comm->destroy();
     }
-    catch(const ProtocolException&)
-    {
-        // Expected
-    }
-    catch(const ConnectionLostException&)
-    {
-        // Expected
-    }
-    catch(const LocalException& ex)
-    {
-        cerr << ex << endl;
-        test(false);
-    }
-    fact->destroyServer(server);
-    comm->destroy();
-
 #  ifdef ICE_USE_SECURE_TRANSPORT
     {
         //
