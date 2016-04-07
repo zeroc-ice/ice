@@ -40,12 +40,11 @@ These are the changes since Ice 3.6.2.
 
 ## C++ Changes
 
-- Added support for archiving log files, the property Ice.LogFile.SizeMax
-  controls the maximum size in bytes that a log file is allowed to grow,
-  when the log file maximum size is exceed the log file contents are archived
-  and a new log file is started. The Ice.LogFile.SizeMax property is set to 0
-  by default in this case the log file size is unlimited and log files are
-  never archived.
+- Added support for archiving log files. The property Ice.LogFile.SizeMax
+  controls the maximum size in bytes of log files; when a log file reaches
+  this size, the log file is renamed and a new log file is started. 
+  The Ice.LogFile.SizeMax property is set to 0 by default, which means the
+  log file size is unlimited and a single log file is created.
 
 # Changes in Ice 3.6.2
 
