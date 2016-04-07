@@ -54,7 +54,7 @@ public:
 
     std::string toDateTime() const;
     std::string toDuration() const;
-    std::string toFormatString(const std::string&) const;
+    std::string toString(const std::string&) const;
 
     Time operator-() const
     {
