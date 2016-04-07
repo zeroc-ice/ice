@@ -28,7 +28,7 @@ public:
     // No copy constructor and assignment operator necessary. The
     // automatically generated copy constructor and assignment
     // operator do the right thing.
-    
+
     enum Clock { Realtime, Monotonic };
     static Time now(Clock = Realtime);
 
@@ -39,7 +39,7 @@ public:
     static Time secondsDouble(double);
     static Time milliSecondsDouble(double);
     static Time microSecondsDouble(double);
-    
+
 #ifndef _WIN32
     operator timeval() const;
 #endif
@@ -54,6 +54,7 @@ public:
 
     std::string toDateTime() const;
     std::string toDuration() const;
+    std::string toFormatString(const std::string&) const;
 
     Time operator-() const
     {

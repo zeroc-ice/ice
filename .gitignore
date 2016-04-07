@@ -86,3 +86,9 @@ passwords
 
 # Nuget
 cpp/third-party-packages
+
+
+#
+# Logger test
+#
+cpp/test/Ice/logger/*.log

@@ -8,6 +8,8 @@ We recommend that you use the release notes as a guide for migrating your
 applications to this release, and the manual for complete details on a
 particular aspect of Ice.
 
+- [Changes in Ice 3.6.3](#changes-in-ice-363)
+  - [C++ Changes](#c-changes)
 - [Changes in Ice 3.6.2](#changes-in-ice-362)
   - [General Changes](#general-changes)
   - [C++ Changes](#c-changes)
@@ -30,6 +32,20 @@ particular aspect of Ice.
   - [PHP Changes](#php-changes-1)
   - [Python Changes](#python-changes-1)
   - [Ruby Changes](#ruby-changes-1)
+
+
+# Changes in Ice 3.6.3
+
+These are the changes since Ice 3.6.2.
+
+## C++ Changes
+
+- Added support for archiving log files, the property Ice.LogFile.SizeMax
+  controls the maximum size in bytes that a log file is allowed to grow,
+  when the log file maximum size is exceed the log file contents are archived
+  and a new log file is started. The Ice.LogFile.SizeMax property is set to 0
+  by default in this case the log file size is unlimited and log files are
+  never archived.
 
 # Changes in Ice 3.6.2
 

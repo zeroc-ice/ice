@@ -9,11 +9,11 @@
 
 #include <IceUtil/Time.h>
 #include <Ice/LoggerI.h>
+#include <IceUtil/StringUtil.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
 
 #ifdef _WIN32
-#  include <IceUtil/StringUtil.h>
 #  include <IceUtil/ScopedArray.h>
 #endif
 
@@ -49,14 +49,15 @@ Init init;
 }
 
 Ice::LoggerI::LoggerI(const string& prefix, const string& file,
-                      bool convert, const IceUtil::StringConverterPtr& converter) :
+                      bool convert, const IceUtil::StringConverterPtr& converter,
+                      size_t sizeMax) :
     _prefix(prefix),
     _convert(convert),
-    _converter(converter)
+    _converter(converter),
 #if defined(_WIN32) && !defined(ICE_OS_WINRT)
-    , _consoleConverter(new IceUtil::WindowsStringConverter(GetConsoleOutputCP()))
+    _consoleConverter(new IceUtil::WindowsStringConverter(GetConsoleOutputCP())),
 #endif
-
+    _sizeMax(sizeMax)
 {
     if(!prefix.empty())
     {
@@ -144,6 +145,67 @@ Ice::LoggerI::write(const string& message, bool indent)
 
     if(_out.is_open())
     {
+        if(_sizeMax > 0)
+        {
+            _out.seekp(0, _out.end);
+            
+            //
+            // If file size + message size exceed max size we archive the log file,
+            // but we do not archive empty files or truncate messages.
+            //
+            size_t sz = static_cast<size_t>(_out.tellp());
+            if(sz > 0 && sz + message.size() >= _sizeMax)
+            {
+
+                string basename = _file;
+                string ext;
+
+                size_t i = basename.rfind(".");
+                if(i != string::npos && i + 1 < basename.size())
+                {
+                    ext = basename.substr(i + 1);
+                    basename = basename.substr(0, i);
+                }
+                _out.close();
+
+                int id = 0;
+                string archive;
+                string date = IceUtil::Time::now().toFormatString("%Y%m%d-%H%M%S");
+                while(true)
+                {
+                    ostringstream s;
+                    s << basename << "-" << date;
+                    if(id > 0)
+                    {
+                        s << "-" << id;
+                    }
+                    if(!ext.empty())
+                    {
+                        s << "." << ext;
+                    }
+                    if(IceUtilInternal::fileExists(s.str()))
+                    {
+                        id++;
+                        continue;
+                    }
+                    archive = s.str();
+                    break;
+                }
+
+                int error = IceUtilInternal::rename(_file, archive);
+                if(error)
+                {
+                    throw InitializationException(__FILE__, __LINE__, "FileLogger: cannot rename " + _file + "\n" +
+                                                                      IceUtilInternal::lastErrorToString());
+                }
+
+                _out.open(_file, fstream::out | fstream::app);
+                if(!_out.is_open())
+                {
+                    throw InitializationException(__FILE__, __LINE__, "FileLogger: cannot open " + _file);
+                }
+            }
+        }
         _out << s << endl;
     }
     else

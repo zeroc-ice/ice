@@ -355,6 +355,7 @@ generated from the section label.
         <property name="IPv4" />
         <property name="IPv6" />
         <property name="LogFile" />
+        <property name="LogFile.SizeMax" />
         <property name="LogStdErr.Convert"/>
         <property name="MessageSizeMax" />
         <property name="Nohup" />
