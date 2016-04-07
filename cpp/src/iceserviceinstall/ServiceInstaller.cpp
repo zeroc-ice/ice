@@ -205,7 +205,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
     {
         grantPermissions(_configFile);
     }
-    
+
     string eventLog = properties->getProperty("EventLog");
     if(eventLog == "")
     {
@@ -576,18 +576,18 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
         }
 
         LUID unusedId = { 0 };
-        
+
         if(!AuthzInitializeContextFromSid(0, _sid, manager, 0, unusedId, 0, &clientContext))
         {
             throw "AuthzInitializeContextFromSid failed: " + IceUtilInternal::lastErrorToString();
         }
 
-        AUTHZ_ACCESS_REQUEST accessRequest = { 0 }; 
+        AUTHZ_ACCESS_REQUEST accessRequest = { 0 };
         accessRequest.DesiredAccess = MAXIMUM_ALLOWED;
         accessRequest.PrincipalSelfSid = 0;
         accessRequest.ObjectTypeList = 0;
         accessRequest.ObjectTypeListLength = 0;
-        accessRequest.OptionalArguments = 0; 
+        accessRequest.OptionalArguments = 0;
 
         ACCESS_MASK accessMask = 0;
         DWORD accessUnused = 0;
@@ -650,7 +650,7 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
             {
                 ea.grfInheritance = NO_INHERITANCE;
             }
-            
+
             TRUSTEE_W trustee;
             BuildTrusteeWithSidW(&trustee, _sid);
             ea.Trustee = trustee;
@@ -663,7 +663,7 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
             {
                 throw "Could not modify ACL for " + path + ": " + IceUtilInternal::errorToString(res);
             }
-            
+
             res = SetNamedSecurityInfoW(const_cast<wchar_t*>(IceUtil::stringToWstring(path).c_str()), type,
                                         DACL_SECURITY_INFORMATION, 0, 0, newAcl, 0);
             if(res != ERROR_SUCCESS)
@@ -856,7 +856,7 @@ IceServiceInstaller::removeSource(const string& source) const
             // use string converters in calls to stringToWstring.
             //
             LONG delRes = RegDeleteKeyW(HKEY_LOCAL_MACHINE,
-                                        IceUtil::stringToWstring(createSource(source, 
+                                        IceUtil::stringToWstring(createSource(source,
                                             IceUtil::wstringToString(subkey))).c_str());
             if(delRes == ERROR_SUCCESS)
             {
@@ -935,18 +935,19 @@ IceServiceInstaller::getIceDLLPath(const string& imagePath) const
     //
     int majorVersion = (ICE_INT_VERSION / 10000);
     int minorVersion = (ICE_INT_VERSION / 100) - majorVersion * 100;
+    int patchVersion = ICE_INT_VERSION % 100;
+
     ostringstream os;
     os << majorVersion * 10 + minorVersion;
-
-    int patchVersion = ICE_INT_VERSION % 100;
-    if(patchVersion > 50)
+    if(patchVersion > 70)
     {
-        os << 'b';
-        if(patchVersion >= 52)
-        {
-            os << (patchVersion - 50);
-        }
+        os << 'b' << (patchVersion - 71);
     }
+    else if(patchVersion > 50)
+    {
+        os << 'a' << (patchVersion - 51);
+    }
+
     string version = os.str();
 
     string result = imagePathDir + '\\' + "ice" + version + ".dll";

@@ -211,13 +211,12 @@ def getIceSoVersion():
     majorVersion = int(intVersion / 10000)
     minorVersion = int(intVersion / 100) - 100 * majorVersion
     patchVersion = intVersion % 100
-    if patchVersion > 50:
-        if patchVersion >= 52:
-            return '%db%d' % (majorVersion * 10 + minorVersion, patchVersion - 50)
-        else:
-            return '%db' % (majorVersion * 10 + minorVersion)
-    else:
+    if patchVersion <= 50:
         return '%d' % (majorVersion * 10 + minorVersion)
+    elif patchVersion <= 70:
+        return '%da%d' % (majorVersion * 10 + minorVersion, patchVersion - 51)
+    else:
+        return '%db%d' % (majorVersion * 10 + minorVersion, patchVersion - 71)
 
 def getJdkVersion():
     process = subprocess.Popen("java -version", stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
@@ -382,7 +381,7 @@ try:
         config = open(os.path.join(toplevel, "config", "Make.common.rules.mak"), "r")
     else:
         config = open(os.path.join(toplevel, "config", "Make.common.rules"), "r")
-    iceVersion = re.search("VERSION[\t\s]*= ([0-9]+\.[0-9]+(\.[0-9]+|b[0-9]*))", config.read()).group(1)
+    iceVersion = re.search("VERSION[\t\s]*= ([0-9]+\.[0-9]+(\.[0-9]+|[ab][0-9]*))", config.read()).group(1)
     config.close()
 except:
     print("error: couldn't figure Ice version")

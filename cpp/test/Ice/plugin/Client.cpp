@@ -167,17 +167,17 @@ main(int argc, char* argv[])
     {
         int majorVersion = (ICE_INT_VERSION / 10000);
         int minorVersion = (ICE_INT_VERSION / 100) - majorVersion * 100;
+        int patchVersion = ICE_INT_VERSION % 100;
         ostringstream os;
         os << pluginDir << "TestPlugin,";
         os << majorVersion * 10 + minorVersion;
-        int patchVersion = ICE_INT_VERSION % 100;
-        if(patchVersion > 50)
+        if(patchVersion > 70)
         {
-            os << 'b';
-            if(patchVersion >= 52)
-            {
-                os << (patchVersion - 50);
-            }
+            os << 'b' << (patchVersion - 71);
+        }
+        else if(patchVersion > 50)
+        {
+            os << 'a' << (patchVersion - 51);
         }
         os << ":createPlugin";
         Ice::InitializationData initData;
