@@ -247,22 +247,8 @@ IceUtil::Time::toMicroSecondsDouble() const
 std::string
 IceUtil::Time::toDateTime() const
 {
-    time_t time = static_cast<long>(_usec / 1000000);
-
-    struct tm* t;
-#ifdef _WIN32
-    t = localtime(&time);
-#else
-    struct tm tr;
-    localtime_r(&time, &tr);
-    t = &tr;
-#endif
-
-    char buf[32];
-    strftime(buf, sizeof(buf), "%x %H:%M:%S", t);
-
     std::ostringstream os;
-    os << buf << ".";
+    os << toFormatString("%x %H:%M:%S") << ".";
     os.fill('0');
     os.width(3);
     os << static_cast<long>(_usec % 1000000 / 1000);
@@ -292,6 +278,28 @@ IceUtil::Time::toDuration() const
     }
 
     return os.str();
+}
+
+std::string
+IceUtil::Time::toFormatString(const std::string& format) const
+{
+    time_t time = static_cast<long>(_usec / 1000000);
+
+    struct tm* t;
+#ifdef _WIN32
+    t = localtime(&time);
+#else
+    struct tm tr;
+    localtime_r(&time, &tr);
+    t = &tr;
+#endif
+
+    char buf[32];
+    if(strftime(buf, sizeof(buf), format.c_str(), t) == 0)
+    {
+        return std::string();
+    }
+    return std::string(buf);
 }
 
 Time::Time(Int64 usec) :

@@ -9,7 +9,7 @@
 #
 # **********************************************************************
 
-import os, sys, subprocess
+import os, sys, subprocess, glob, atexit
 
 path = [ ".", "..", "../..", "../../..", "../../../..", "../../../../.." ]
 head = os.path.dirname(sys.argv[0])
@@ -51,4 +51,65 @@ if TestUtil.isWin32():
     test(os.path.join(os.getcwd(), TestUtil.getTestExecutable("client4")), b'aplicaci\xc3\xb3n', "UTF8")
 else:
     test(os.path.join(os.getcwd(), TestUtil.getTestExecutable("client4")), b'aplicaci\xf3n', "ISO-8859-15")
+print("ok")
+
+sys.stdout.write("testing logger file rotation... ")
+
+def cleanup():
+    for f in glob.glob("client5-*.log"):
+        os.remove(f)
+
+cleanup()
+
+atexit.register(cleanup)
+
+def client5():
+    p = subprocess.Popen(os.path.join(os.getcwd(), "client5"), stdout=subprocess.PIPE, stderr=subprocess.STDOUT, env=env)
+    out, err = p.communicate()
+    ret = p.poll()
+    if ret != 0:
+        print("failed! status %s " % ret)
+        sys.exit(1)
+
+client5()
+
+if (not os.path.isfile("client5-0.log") or
+    not os.stat("client5-0.log").st_size == 512 or
+    len(glob.glob("client5-0-*.log")) != 19):
+    print("failed!")
+    sys.exit(1)
+
+for f in glob.glob("client5-0-*.log"):
+    if not os.stat(f).st_size == 512:
+        print("failed! file {0} size: {1} unexpected".format(f, os.stat(f).st_size))
+        sys.exit(1)
+
+if (not os.path.isfile("client5-1.log") or
+    not os.stat("client5-1.log").st_size == 1024 or
+    len(glob.glob("client5-1-*.log")) != 0):
+    print("failed!")
+    sys.exit(1)
+
+if (not os.path.isfile("client5-2.log") or
+    not os.stat("client5-2.log").st_size == 128 or
+    len(glob.glob("client5-2-*.log")) != 7):
+    print("failed!")
+    sys.exit(1)
+
+for f in glob.glob("client5-2-*.log"):
+    if not os.stat(f).st_size == 128:
+        print("failed! file {0} size: {1} unexpected".format(f, os.stat(f).st_size))
+        sys.exit(1)
+        
+if (not os.path.isfile("client5-3.log") or
+    not os.stat("client5-2.log").st_size == 128 or
+    len(glob.glob("client5-2-*.log")) != 7):
+    print("failed!")
+    sys.exit(1)
+
+for f in glob.glob("client5-3-*.log"):
+    if not os.stat(f).st_size == 128:
+        print("failed! file {0} size: {1} unexpected".format(f, os.stat(f).st_size))
+        sys.exit(1)
+
 print("ok")
