@@ -1,17 +1,17 @@
 #include "winver.h"
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 3,7,0,0
- PRODUCTVERSION 3,7,0,0
+ FILEVERSION 3,7,51,0
+ PRODUCTVERSION 3,7,51,0
  FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
 #ifdef _DEBUG
  FILEFLAGS VS_FF_DEBUG
- #define INTERNALNAME "ice37d\0"
- #define ORIGINALFILENAME "ice37d.dll\0"
+ #define INTERNALNAME "ice37a0d\0"
+ #define ORIGINALFILENAME "ice37a0d.dll\0"
 #else
  FILEFLAGS 0x0L
- #define INTERNALNAME "ice37\0"
- #define ORIGINALFILENAME "ice37.dll\0"
+ #define INTERNALNAME "ice37a0\0"
+ #define ORIGINALFILENAME "ice37a0.dll\0"
 #endif
  FILEOS 0x4L
  FILETYPE VFT_DLL
@@ -23,12 +23,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "ZeroC, Inc.\0"
             VALUE "FileDescription", "Ice C++ Core Library\0"
-            VALUE "FileVersion", "3.7.0\0"
+            VALUE "FileVersion", "3.7a0\0"
             VALUE "InternalName", INTERNALNAME
             VALUE "LegalCopyright", "\251 2003-2016 ZeroC, Inc.\0"
             VALUE "OriginalFilename", ORIGINALFILENAME
             VALUE "ProductName", "Ice\0"
-            VALUE "ProductVersion", "3.7.0\0"
+            VALUE "ProductVersion", "3.7a0\0"
         END
     END
     BLOCK "VarFileInfo"

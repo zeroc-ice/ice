@@ -1,8 +1,8 @@
 #include "winver.h"
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 3,7,0,0
- PRODUCTVERSION 3,7,0,0
+ FILEVERSION 3,7,51,0
+ PRODUCTVERSION 3,7,51,0
  FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
 #ifdef _DEBUG
  FILEFLAGS VS_FF_DEBUG
@@ -19,12 +19,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "ZeroC, Inc.\0"
             VALUE "FileDescription", "Install Ice Services as Windows Services\0"
-            VALUE "FileVersion", "3.7.0\0"
+            VALUE "FileVersion", "3.7a0\0"
             VALUE "InternalName", "iceserviceinstall\0"
             VALUE "LegalCopyright", "\251 2003-2016 ZeroC, Inc.\0"
             VALUE "OriginalFilename", "iceserviceinstall.exe\0"
             VALUE "ProductName", "Ice\0"
-            VALUE "ProductVersion", "3.7.0\0"
+            VALUE "ProductVersion", "3.7a0\0"
         END
     END
     BLOCK "VarFileInfo"

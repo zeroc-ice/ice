@@ -136,9 +136,9 @@ following command:
 
     > npm pack
 
-This will generate the file `ice-3.7.0.tgz`, which can be installed by running:
+This will generate the file `ice-3.7a0.tgz`, which can be installed by running:
 
-    > npm install <path_to_file>/ice-3.7.0.tgz
+    > npm install <path_to_file>/ice-3.7a0.tgz
 
 To use Ice for JavaScript with a browser, copy the appropriate JavaScript
 library files located in the `lib` directory to your web server.
