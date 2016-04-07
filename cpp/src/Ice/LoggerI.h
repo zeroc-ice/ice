@@ -44,6 +44,12 @@ private:
 
     std::string _file;
     std::size_t _sizeMax;
+    
+    //
+    // In case of a log file rename failure is set to the time in milliseconds
+    // after which rename could be attempted again. Otherwise is set to zero.
+    //
+    Ice::Long _nextRetry;
 #if defined(_WIN32) && !defined(ICE_OS_WINRT)
     const IceUtil::StringConverterPtr _consoleConverter;
 #endif

@@ -135,4 +135,25 @@ main(int argc, char* argv[])
             return EXIT_FAILURE;
         }
     }
+    
+    //
+    // Run Client application configured to generate 1024 bytes, the application is configured
+    // to archive log files greater than 512 bytes, but the log directory is set to read only
+    // after the log file is created, there must not be any archived log files and the log file
+    // will contain an error indicating the failure to archive the log file
+    //
+    {
+        Ice::InitializationData id;
+        id.properties = Ice::createProperties();
+        id.properties->load("config.client");
+        id.properties->setProperty("Client.Iterations", "8");
+        id.properties->setProperty("Client.Message", message);
+        id.properties->setProperty("Ice.LogFile", "log/client5-4.log");
+        id.properties->setProperty("Ice.LogFile.SizeMax", "512");
+        Client c;
+        if(c.main(argc, argv, id) != EXIT_SUCCESS)
+        {
+            return EXIT_FAILURE;
+        }
+    }
 }

@@ -46,6 +46,11 @@ public:
 
 Init init;
 
+//
+// Timeout in milliseconds after which rename will be attempted
+// in case of failures renaming files. That is set to 5 minutes.
+//
+const Ice::Long retryTimeout = 5 * 60 * 1000;
 }
 
 Ice::LoggerI::LoggerI(const string& prefix, const string& file,
@@ -57,7 +62,8 @@ Ice::LoggerI::LoggerI(const string& prefix, const string& file,
 #if defined(_WIN32) && !defined(ICE_OS_WINRT)
     _consoleConverter(new IceUtil::WindowsStringConverter(GetConsoleOutputCP())),
 #endif
-    _sizeMax(sizeMax)
+    _sizeMax(sizeMax),
+    _nextRetry(0)
 {
     if(!prefix.empty())
     {
@@ -71,6 +77,11 @@ Ice::LoggerI::LoggerI(const string& prefix, const string& file,
         if(!_out.is_open())
         {
             throw InitializationException(__FILE__, __LINE__, "FileLogger: cannot open " + _file);
+        }
+
+        if(_sizeMax > 0)
+        {
+            _out.seekp(0, _out.end);
         }
     }
 }
@@ -147,14 +158,13 @@ Ice::LoggerI::write(const string& message, bool indent)
     {
         if(_sizeMax > 0)
         {
-            _out.seekp(0, _out.end);
-            
             //
             // If file size + message size exceed max size we archive the log file,
             // but we do not archive empty files or truncate messages.
             //
             size_t sz = static_cast<size_t>(_out.tellp());
-            if(sz > 0 && sz + message.size() >= _sizeMax)
+            if(sz > 0 && sz + message.size() >= _sizeMax &&
+               (_nextRetry == 0 || _nextRetry <= IceUtil::Time::now().toMilliSeconds()))
             {
 
                 string basename = _file;
@@ -170,7 +180,7 @@ Ice::LoggerI::write(const string& message, bool indent)
 
                 int id = 0;
                 string archive;
-                string date = IceUtil::Time::now().toFormatString("%Y%m%d-%H%M%S");
+                string date = IceUtil::Time::now().toString("%Y%m%d-%H%M%S");
                 while(true)
                 {
                     ostringstream s;
@@ -192,17 +202,35 @@ Ice::LoggerI::write(const string& message, bool indent)
                     break;
                 }
 
-                int error = IceUtilInternal::rename(_file, archive);
-                if(error)
-                {
-                    throw InitializationException(__FILE__, __LINE__, "FileLogger: cannot rename " + _file + "\n" +
-                                                                      IceUtilInternal::lastErrorToString());
-                }
+                int err = IceUtilInternal::rename(_file, archive);
 
                 _out.open(_file, fstream::out | fstream::app);
+
+                if(err)
+                {
+                    _nextRetry = retryTimeout + IceUtil::Time::now().toMilliSeconds();
+                    //
+                    // We temporally set the maximum size to 0 to ensure that there isn't any rename attempts
+                    // in the nested error call.
+                    //
+                    size_t sizeMax = _sizeMax;
+                    _sizeMax = 0;
+                    sync.release();
+                    error("FileLogger: cannot rename " + _file + "\n" + IceUtilInternal::lastErrorToString());
+                    sync.acquire();
+                    _sizeMax = sizeMax;
+                }
+                else if(_nextRetry != 0)
+                {
+                    _nextRetry = 0;
+                }
+
                 if(!_out.is_open())
                 {
-                    throw InitializationException(__FILE__, __LINE__, "FileLogger: cannot open " + _file);
+                    sync.release();
+                    error("FileLogger: cannot open " + _file + " log messages will be send to stderr");
+                    write(message, indent);
+                    return;
                 }
             }
         }
