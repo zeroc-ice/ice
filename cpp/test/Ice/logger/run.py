@@ -72,7 +72,7 @@ if not os.path.exists("log"):
 open("log/client5-4.log", 'a').close()
 
 if TestUtil.isWin32():
-    os.system("echo Y|cacls log /P %USERNAME%:R")
+    os.system("echo Y|cacls log /P %USERNAME%:R 1> nul")
 else:
     os.system("chmod -w log")
 
@@ -85,7 +85,7 @@ if ret != 0:
     sys.exit(1)
 
 if TestUtil.isWin32():
-    os.system("echo Y|cacls log /P %USERNAME%:F")
+    os.system("echo Y|cacls log /P %USERNAME%:F 1> nul")
 else:
     os.system("chmod +w log")
 
@@ -116,7 +116,7 @@ for f in glob.glob("client5-2-*.log"):
     if not os.stat(f).st_size == 128:
         print("failed! file {0} size: {1} unexpected".format(f, os.stat(f).st_size))
         sys.exit(1)
-        
+
 if (not os.path.isfile("client5-3.log") or
     not os.stat("client5-2.log").st_size == 128 or
     len(glob.glob("client5-2-*.log")) != 7):
