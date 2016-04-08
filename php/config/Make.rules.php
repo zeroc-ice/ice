@@ -132,9 +132,9 @@ ifdef ice_src_dist
     endif
 else
     SLICE2PHP 	= $(ice_dir)/$(binsubdir)/slice2php
-    SLICEPARSERLIB	= $(ice_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
+    SLICEPARSERLIB	= $(ice_dir)/$(libsubdir)/$(call mksoname,Slice)
     ifeq ($(wildcard $(SLICEPARSERLIB)),)
-        SLICEPARSERLIB  = $(ice_dir)/$(lib64subdir)/$(call mklibfilename,Slice,$(VERSION))
+        SLICEPARSERLIB  = $(ice_dir)/$(lib64subdir)/$(call mksoname,Slice)
     endif
 endif
 
