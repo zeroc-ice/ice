@@ -1,4 +1,4 @@
-version = 3.6.2
+version = 3.6.3
 mono_root = /usr
 
 name = IceBox

@@ -141,12 +141,12 @@ have not built Ice for C++ in this source distribution, you must set the
 `ICE_HOME` environment variable with the path name of your Ice installation.
 For example, on Unix:
 
-    $ export ICE_HOME=/opt/Ice-3.6.2 (For local build)
+    $ export ICE_HOME=/opt/Ice-3.6.3 (For local build)
     $ export ICE_HOME=/usr (For RPM installation)
 
 On Windows:
 
-    > set ICE_HOME=C:\Program Files (x86)\ZeroC\Ice-3.6.2
+    > set ICE_HOME=C:\Program Files (x86)\ZeroC\Ice-3.6.3
 
 Before building Ice for Java, review the settings in the file
 `gradle.properties` and edit as necessary.
@@ -176,7 +176,7 @@ The installation installs the following JAR files to `<prefix>/lib`.
 
     freeze-3.6.2.jar
     glacier2-3.6.2.jar
-    ice-3.6.2.jar
+    ice-3.6.3.jar
     icebox-3.6.2.jar
     icediscovery-3.6.2.jar
     icegrid-3.6.2.jar
@@ -195,12 +195,12 @@ C++ distribution. If you have not built Ice for C++ in this source distribution
 then you must set the `ICE_HOME` environment variable with the path name of your
 Ice installation. On Unix:
 
-    $ export ICE_HOME=/opt/Ice-3.6.2 (For local build)
+    $ export ICE_HOME=/opt/Ice-3.6.3 (For local build)
     $ export ICE_HOME=/usr (For RPM installation)
 
 On Windows:
 
-    > set ICE_HOME=c:\Program Files (x86)\ZeroC\Ice-3.6.2
+    > set ICE_HOME=c:\Program Files (x86)\ZeroC\Ice-3.6.3
 
 Python is required to run the test suite. To run the tests, open a command
 window and change to the top-level directory. At the command prompt, execute:

@@ -3,8 +3,8 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup Label="IceHome" Condition="'$(ICE_HOME)' != ''">
         <IceHome>$(ICE_HOME)</IceHome>
-        <IceVersion>3.6.2</IceVersion>
-        <IceIntVersion>30602</IceIntVersion>
+        <IceVersion>3.6.3</IceVersion>
+        <IceIntVersion>30603</IceIntVersion>
         <IceVersionMM>3.6</IceVersionMM>
     </PropertyGroup>
 </Project>
