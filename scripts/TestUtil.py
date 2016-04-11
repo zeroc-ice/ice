@@ -218,6 +218,18 @@ def getIceSoVersion():
     else:
         return '%db%d' % (majorVersion * 10 + minorVersion, patchVersion - 71)
 
+def getIceJsonVersion():
+    r = re.search(r"([0-9]+)\.([0-9]+)(\.[0-9]+|[ab][0-9]+)", iceVersion)
+    major = int(r.group(1))
+    minor = int(r.group(2))
+    v = ("%d.%d" % (major, minor)).strip()
+    if r.group(3).startswith("a"):
+        return v + ".0-" + r.group(3).replace("a", "alpha").strip()
+    elif r.group(3).startswith("b"):
+        return v + ".0-" + r.group(3).replace("b", "beta").strip()
+    else:
+        return ("%s%s" % (v, r.group(3))).strip()
+
 def getJdkVersion():
     process = subprocess.Popen("java -version", stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
     if not process or not process.stdout:
@@ -1850,7 +1862,7 @@ def getTestEnv(lang, testdir):
     #
     iceJARs = ["ice", "glacier2", "freeze", "icebox", "icestorm", "icegrid", "icepatch2", "icediscovery",
                "icelocatordiscovery"]
-    jarSuffix = "-" + iceVersion + ".jar"
+    jarSuffix = "-" + getIceJsonVersion() + ".jar"
 
     # First sanitize the environment.
     env["CLASSPATH"] = sanitize(os.getenv("CLASSPATH", ""))
