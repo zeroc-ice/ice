@@ -17,6 +17,7 @@
         <IceBuilderOutputDir>$(Platform)\$(Configuration)</IceBuilderOutputDir>
         <IceBuilderAllowIcePrefix>true</IceBuilderAllowIcePrefix>
         <LinkIncremental>false</LinkIncremental>
+        <IceSoVersion>37a0</IceSoVersion>
     </PropertyGroup>
 
     <Choose>
@@ -154,33 +155,33 @@
         <!-- C++11 mapping target names -->
         <When Condition="'$(Ice_CppMapping)' == 'cpp11'">
             <PropertyGroup Condition="'$(Ice_Configuration)|$(ConfigurationType)' == 'Debug|DynamicLibrary'">
-                <TargetName>$(ProjectName.Replace("++11", "37++11d"))</TargetName>
+                <TargetName>$(ProjectName.Replace("++11", "$(IceSoVersion)++11d"))</TargetName>
             </PropertyGroup>
 
             <PropertyGroup Condition="'$(Ice_Configuration)|$(ConfigurationType)' == 'Release|DynamicLibrary'">
-                <TargetName>$(ProjectName.Replace("++11", "37++11"))</TargetName>
+                <TargetName>$(ProjectName.Replace("++11", "$(IceSoVersion)++11"))</TargetName>
             </PropertyGroup>
         </When>
 
         <!-- UWP mapping target names -->
         <When Condition="'$(Ice_CppMapping)' == 'uwp'">
             <PropertyGroup Condition="'$(Ice_Configuration)|$(ConfigurationType)' == 'Debug|StaticLibrary'">
-                <TargetName>$(ProjectName.Replace("uwp++11", "37uwp++11d"))</TargetName>
+                <TargetName>$(ProjectName.Replace("uwp++11", "$(IceSoVersion)uwp++11d"))</TargetName>
             </PropertyGroup>
 
             <PropertyGroup Condition="'$(Ice_Configuration)|$(ConfigurationType)' == 'Release|StaticLibrary'">
-                <TargetName>$(ProjectName.Replace("uwp++11", "37uwp++11"))</TargetName>
+                <TargetName>$(ProjectName.Replace("uwp++11", "$(IceSoVersion)uwp++11"))</TargetName>
             </PropertyGroup>
         </When>
 
         <!-- C++98 mapping target names -->
         <Otherwise>
             <PropertyGroup Condition="'$(Ice_Configuration)|$(ConfigurationType)' == 'Debug|DynamicLibrary'">
-                <TargetName>$(ProjectName)37d</TargetName>
+                <TargetName>$(ProjectName)$(IceSoVersion)d</TargetName>
             </PropertyGroup>
 
             <PropertyGroup Condition="'$(Ice_Configuration)|$(ConfigurationType)' == 'Release|DynamicLibrary'">
-                <TargetName>$(ProjectName)37</TargetName>
+                <TargetName>$(ProjectName)$(IceSoVersion)</TargetName>
             </PropertyGroup>
         </Otherwise>
     </Choose>

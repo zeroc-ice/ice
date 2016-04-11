@@ -182,6 +182,13 @@
 #   include <TargetConditionals.h>
 #endif
 
+//
+// The Ice version.
+//
+#define ICE_STRING_VERSION "3.7a0" // "A.B.C", with A=major, B=minor, C=patch
+#define ICE_INT_VERSION 30751      // AABBCC, with AA=major, BB=minor, CC=patch
+#define ICE_SO_VERSION "37a0"      // "ABC", with A=major, B=minor, C=patch
+
 #if !defined(ICE_BUILDING_ICE_UTIL) && defined(ICE_UTIL_API_EXPORTS)
 #   define ICE_BUILDING_ICE_UTIL
 #endif
@@ -194,29 +201,29 @@
 #   ifdef ICE_CPP11_MAPPING
 #      if defined(_DEBUG)
 #         if defined(ICE_OS_WINRT)
-#            define ICE_LIBNAME(NAME) NAME "37uwp++11D.lib"
+#            define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION "uwp++11D.lib"
 #         else
-#            define ICE_LIBNAME(NAME) NAME "37++11D.lib"
+#            define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION "++11D.lib"
 #         endif
 #      else
 #         if defined(ICE_OS_WINRT)
-#            define ICE_LIBNAME(NAME) NAME "37uwp++11.lib"
+#            define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION "uwp++11.lib"
 #         else
-#            define ICE_LIBNAME(NAME) NAME "37++11.lib"
+#            define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION "++11.lib"
 #         endif
 #      endif
 #   else
 #      if defined(_DEBUG)
 #         if defined(ICE_OS_WINRT)
-#            define ICE_LIBNAME(NAME) NAME "37uwpD.lib"
+#            define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION "uwpD.lib"
 #         else
-#            define ICE_LIBNAME(NAME) NAME "37D.lib"
+#            define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION "D.lib"
 #         endif
 #      else
 #         if defined(ICE_OS_WINRT)
-#            define ICE_LIBNAME(NAME) NAME "37uwp.lib"
+#            define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION "uwp.lib"
 #         else
-#            define ICE_LIBNAME(NAME) NAME "37.lib"
+#            define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION ".lib"
 #         endif
 #      endif
 #   endif
@@ -270,12 +277,6 @@ typedef long long Int64;
 #endif
 
 }
-
-//
-// The Ice version.
-//
-#define ICE_STRING_VERSION "3.7a0" // "A.B.C", with A=major, B=minor, C=patch
-#define ICE_INT_VERSION 30751      // AABBCC, with AA=major, BB=minor, CC=patch
 
 //
 // Macros to facilitate C++98 -> C++11 transition

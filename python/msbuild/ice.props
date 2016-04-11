@@ -5,7 +5,7 @@
     <PythonHome>C:\Python35</PythonHome>
   </PropertyGroup>
   <PropertyGroup Label="UserMacros" Condition="'$(Platform)'=='x64'">
-    <PythonHome>C:\Python35-x64</PythonHome>
+    <PythonHome>C:\Python35-amd64</PythonHome>
   </PropertyGroup>
   <ItemGroup>
     <BuildMacro Include="PythonHome">

@@ -117,13 +117,13 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>..\interceptortest\$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>interceptortest37d.lib</AdditionalDependencies>
+      <AdditionalDependencies>interceptortest$(IceSoVersion)d.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">
     <Link>
       <AdditionalLibraryDirectories>..\interceptortest\$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>interceptortest37++11d.lib</AdditionalDependencies>
+      <AdditionalDependencies>interceptortest$(IceSoVersion)++11d.lib</AdditionalDependencies>
     </Link>
     <ClCompile>
       <AdditionalIncludeDirectories>..\..\;..\interceptortest\$(Platform)\$(Configuration)\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -132,7 +132,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Link>
       <AdditionalLibraryDirectories>..\interceptortest\$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>interceptortest37d.lib</AdditionalDependencies>
+      <AdditionalDependencies>interceptortest$(IceSoVersion)d.lib</AdditionalDependencies>
     </Link>
     <ClCompile>
       <AdditionalIncludeDirectories>..\..\;..\interceptortest\$(Platform)\$(Configuration)\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -141,7 +141,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Link>
       <AdditionalLibraryDirectories>..\interceptortest\$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>interceptortest37.lib</AdditionalDependencies>
+      <AdditionalDependencies>interceptortest$(IceSoVersion).lib</AdditionalDependencies>
     </Link>
     <ClCompile>
       <AdditionalIncludeDirectories>..\..\;..\interceptortest\$(Platform)\$(Configuration)\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -150,7 +150,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">
     <Link>
       <AdditionalLibraryDirectories>..\interceptortest\$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>interceptortest37++11.lib</AdditionalDependencies>
+      <AdditionalDependencies>interceptortest$(IceSoVersion)++11.lib</AdditionalDependencies>
     </Link>
     <ClCompile>
       <AdditionalIncludeDirectories>..\..\;..\interceptortest\$(Platform)\$(Configuration)\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -159,7 +159,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|Win32'">
     <Link>
       <AdditionalLibraryDirectories>..\interceptortest\$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>interceptortest37++11d.lib</AdditionalDependencies>
+      <AdditionalDependencies>interceptortest$(IceSoVersion)++11d.lib</AdditionalDependencies>
     </Link>
     <ClCompile>
       <AdditionalIncludeDirectories>..\..\;..\interceptortest\$(Platform)\$(Configuration)\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -168,7 +168,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Link>
       <AdditionalLibraryDirectories>..\interceptortest\$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>interceptortest37.lib</AdditionalDependencies>
+      <AdditionalDependencies>interceptortest$(IceSoVersion).lib</AdditionalDependencies>
     </Link>
     <ClCompile>
       <AdditionalIncludeDirectories>..\..\;..\interceptortest\$(Platform)\$(Configuration)\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -177,7 +177,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">
     <Link>
       <AdditionalLibraryDirectories>..\interceptortest\$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>interceptortest37++11.lib</AdditionalDependencies>
+      <AdditionalDependencies>interceptortest$(IceSoVersion)++11.lib</AdditionalDependencies>
     </Link>
     <ClCompile>
       <AdditionalIncludeDirectories>..\..\;..\interceptortest\$(Platform)\$(Configuration)\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>

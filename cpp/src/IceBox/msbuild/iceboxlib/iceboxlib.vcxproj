@@ -65,16 +65,16 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <TargetName>icebox37d</TargetName>
+    <TargetName>icebox$(IceSoVersion)d</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <TargetName>icebox37d</TargetName>
+    <TargetName>icebox$(IceSoVersion)d</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <TargetName>icebox37</TargetName>
+    <TargetName>icebox$(IceSoVersion)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <TargetName>icebox37</TargetName>
+    <TargetName>icebox$(IceSoVersion)</TargetName>
   </PropertyGroup>
   <PropertyGroup Label="IceBuilder">
     <IceBuilderHeaderOutputDir>$(Ice_SrcRootDir)\include\generated\cpp98\$(Platform)\$(Configuration)\IceBox\</IceBuilderHeaderOutputDir>

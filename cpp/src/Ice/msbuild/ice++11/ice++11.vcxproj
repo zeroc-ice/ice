@@ -63,19 +63,6 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <TargetName>ice37++11d</TargetName>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <TargetName>ice37++11d</TargetName>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <TargetName>ice37++11</TargetName>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <TargetName>ice37++11</TargetName>
-  </PropertyGroup>
   <PropertyGroup Label="IceBuilder">
     <IceBuilderHeaderOutputDir>$(Ice_SrcRootDir)\include\generated\cpp11\$(Platform)\$(Configuration)\Ice\</IceBuilderHeaderOutputDir>
     <IceBuilderBaseDirectoryForGeneratedInclude>Ice</IceBuilderBaseDirectoryForGeneratedInclude>

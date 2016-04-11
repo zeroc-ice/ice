@@ -65,7 +65,6 @@ cleanup()
 
 atexit.register(cleanup)
 
-
 if not os.path.exists("log"):
     os.makedirs("log")
 
@@ -76,8 +75,7 @@ if TestUtil.isWin32():
 else:
     os.system("chmod -w log")
 
-
-p = subprocess.Popen(os.path.join(os.getcwd(), "client5"), stdout=subprocess.PIPE, stderr=subprocess.STDOUT, env=env)
+p = subprocess.Popen(os.path.join(os.getcwd(), TestUtil.getTestExecutable("client5")), stdout=subprocess.PIPE, stderr=subprocess.STDOUT, env=env)
 out, err = p.communicate()
 ret = p.poll()
 if ret != 0:

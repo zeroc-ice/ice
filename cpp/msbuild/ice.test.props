@@ -26,19 +26,19 @@
 
     <!-- C++11 import library settings -->
     <PropertyGroup Condition="'$(Configuration)|$(ConfigurationType)' == 'Cpp11-Debug|DynamicLibrary'">
-        <TargetName>$(ProjectName)37++11d</TargetName>
+        <TargetName>$(ProjectName)$(IceSoVersion)++11d</TargetName>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(ConfigurationType)' == 'Cpp11-Release|DynamicLibrary'">
-        <TargetName>$(ProjectName)37++11</TargetName>
+        <TargetName>$(ProjectName)$(IceSoVersion)++11</TargetName>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(ConfigurationType)' == 'Debug|DynamicLibrary'">
-        <TargetName>$(ProjectName)37d</TargetName>
+        <TargetName>$(ProjectName)$(IceSoVersion)d</TargetName>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(ConfigurationType)' == 'Release|DynamicLibrary'">
-        <TargetName>$(ProjectName)37</TargetName>
+        <TargetName>$(ProjectName)$(IceSoVersion)</TargetName>
     </PropertyGroup>
 
     <ItemDefinitionGroup Condition="'$(ConfigurationType)' == 'DynamicLibrary'">

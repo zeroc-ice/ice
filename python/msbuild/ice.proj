@@ -15,7 +15,7 @@
         <When Condition="'$(BuildAllConfigurations)' == 'yes'">
             <ItemGroup>
                 <DistProjects Include="ice.sln">
-                  <Properties>Configuration=Release;Platform=x86</Properties>
+                  <Properties>Configuration=Release;Platform=Win32</Properties>
                 </DistProjects>
                 <DistProjects Include="ice.sln">
                   <Properties>Configuration=Release;Platform=x64</Properties>

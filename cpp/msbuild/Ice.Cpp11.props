@@ -7,12 +7,4 @@
     </PropertyGroup>
 
     <Import Project="$(MSBuildThisFileDirectory)\ice.cpp.props" />
-
-    <PropertyGroup Condition="'$(Ice_Configuration)|$(ConfigurationType)' == 'Debug|DynamicLibrary'">
-        <TargetName>$(ProjectName.Replace("++11", "37++11d"))</TargetName>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Ice_Configuration)|$(ConfigurationType)' == 'Release|DynamicLibrary'">
-        <TargetName>$(ProjectName.Replace("++11", "37++11"))</TargetName>
-    </PropertyGroup>
 </Project>
