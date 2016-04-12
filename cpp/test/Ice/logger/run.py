@@ -135,7 +135,7 @@ if (not os.path.isfile("log/client5-4.log") or
     sys.exit(1)
 
 with open("log/client5-4.log", 'r') as f:
-    if f.read().count("error: FileLogger: cannot rename log/client5-4.log") != 1:
+    if f.read().count("error: FileLogger: cannot rename `log/client5-4.log'") != 1:
         print("failed!")
         sys.exit(1)
 
