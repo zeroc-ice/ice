@@ -191,9 +191,9 @@ MCSFLAGS 		= $(MCSFLAGS) -noconfig -nostdlib $(UNITY_LIBS)
 !if "$(ice_src_dist)" != ""
 !if "$(ice_cpp_dir)" == "$(ice_dir)\cpp"
 SLICE2CS		= $(ice_cpp_dir)\bin\$(CPP_PLATFORM)\$(CPP_CONFIGURATION)\slice2cs.exe
-SLICEPARSERLIB		= $(ice_cpp_dir)\lib\$(CPP_PLATFORM)\$(CPP_CONFIGURATION)\slice37.lib
+SLICEPARSERLIB		= $(ice_cpp_dir)\lib\$(CPP_PLATFORM)\$(CPP_CONFIGURATION)\slice37a0.lib
 !if !exist ("$(SLICEPARSERLIB)")
-SLICEPARSERLIB		= $(ice_cpp_dir)\lib\$(CPP_PLATFORM)\$(CPP_CONFIGURATION)\slice37d.lib
+SLICEPARSERLIB		= $(ice_cpp_dir)\lib\$(CPP_PLATFORM)\$(CPP_CONFIGURATION)\slice37a0d.lib
 !endif
 !else
 SLICE2CS		= $(ice_cpp_dir)\bin$(x64suffix)\slice2cs.exe
