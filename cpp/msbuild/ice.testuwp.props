@@ -22,4 +22,12 @@
             <AdditionalDependencies>Windowsapp.lib</AdditionalDependencies>
         </Link>
     </ItemDefinitionGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(ConfigurationType)' == 'Debug|DynamicLibrary'">
+        <TargetName>$(ProjectName)$(IceSoVersion)uwp++11d</TargetName>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(ConfigurationType)' == 'Release|DynamicLibrary'">
+        <TargetName>$(ProjectName)$(IceSoVersion)uwp++11</TargetName>
+    </PropertyGroup>
 </Project>

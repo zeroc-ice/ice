@@ -196,9 +196,6 @@
     <None Include="..\..\Ice\proxy\msbuild\uwp\server\x64\Debug\Ice_proxy_server.dll">
       <Filter>Tests\x64\Debug</Filter>
     </None>
-    <None Include="..\..\Common\msbuild\uwp\x64\Debug\testcommon37uwp++11d.dll">
-      <Filter>Tests\x64\Debug</Filter>
-    </None>
     <None Include="..\..\Ice\proxy\msbuild\uwp\collocated\x64\Debug\Ice_proxy_collocated.dll">
       <Filter>Tests\x64\Debug</Filter>
     </None>
@@ -545,9 +542,6 @@
       <Filter>Tests\Win32\Debug</Filter>
     </None>
     <None Include="..\..\Ice\udp\msbuild\uwp\server\x64\Debug\Ice_udp_server.dll">
-      <Filter>Tests\Win32\Debug</Filter>
-    </None>
-    <None Include="..\..\Common\msbuild\uwp\Win32\Debug\testcommon37uwp++11d.dll">
       <Filter>Tests\Win32\Debug</Filter>
     </None>
     <None Include="..\..\Ice\acm\msbuild\uwp\client\Win32\Debug\Ice_acm_client.dll">
@@ -1429,17 +1423,23 @@
     <None Include="..\..\Ice\udp\msbuild\uwp\server\ARM\Debug\Ice_udp_server.dll">
       <Filter>Tests\ARM\Debug</Filter>
     </None>
-    <None Include="..\..\Common\msbuild\uwp\ARM\Debug\testcommon37uwp++11d.dll">
-      <Filter>Tests\ARM\Debug</Filter>
+    <None Include="..\..\Common\msbuild\uwp\Win32\Release\testcommon$(IceSoVersion)uwp++11.dll">
+      <Filter>Tests\Win32\Release</Filter>
     </None>
-    <None Include="..\..\Common\msbuild\uwp\x64\Release\testcommon37uwp++11.dll">
+    <None Include="..\..\Common\msbuild\uwp\x64\Release\testcommon$(IceSoVersion)uwp++11.dll">
       <Filter>Tests\x64\Release</Filter>
     </None>
-    <None Include="..\..\Common\msbuild\uwp\ARM\Release\testcommon37uwp++11.dll">
+    <None Include="..\..\Common\msbuild\uwp\ARM\Release\testcommon$(IceSoVersion)uwp++11.dll">
       <Filter>Tests\ARM\Release</Filter>
     </None>
-    <None Include="..\..\Common\msbuild\uwp\Win32\Release\testcommon37uwp++11.dll">
-      <Filter>Tests\Win32\Release</Filter>
+    <None Include="..\..\Common\msbuild\uwp\x64\Debug\testcommon$(IceSoVersion)uwp++11d.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\Common\msbuild\uwp\ARM\Debug\testcommon$(IceSoVersion)uwp++11d.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\Common\msbuild\uwp\Win32\Debug\testcommon$(IceSoVersion)uwp++11d.dll">
+      <Filter>Tests\Win32\Debug</Filter>
     </None>
   </ItemGroup>
 </Project>
