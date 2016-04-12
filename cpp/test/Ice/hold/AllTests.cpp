@@ -15,7 +15,7 @@
 using namespace std;
 using namespace Test;
 
-namespace 
+namespace
 {
 
 class Condition : public IceUtil::Mutex, public IceUtil::Shared
@@ -39,9 +39,9 @@ public:
         Lock sync(*this);
         return _value;
     }
-    
+
 private:
-    
+
     bool _value;
 };
 typedef IceUtil::Handle<Condition> ConditionPtr;
@@ -99,7 +99,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 #endif
     HoldPrxPtr holdSerialized = ICE_CHECKED_CAST(HoldPrx, baseSerialized);
     test(holdSerialized);
-    
+
 #ifdef ICE_CPP11_MAPPING
     test(Ice::targetEquals(holdSerialized, baseSerialized));
 #else
@@ -136,7 +136,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         while(cond->value())
         {
             completed = make_shared<promise<void>>();
-            promise<bool> sent;
+            auto sent = make_shared<promise<bool>>();
             auto expected = value;
             hold->set_async(value + 1, IceUtilInternal::random(5),
                 [cond, expected, completed](int value)
@@ -151,17 +151,17 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 {
                     completed->set_value();
                 },
-                [&sent](bool sentSynchronously)
+                [sent](bool sentSynchronously)
                 {
-                    sent.set_value(sentSynchronously);
+                    sent->set_value(sentSynchronously);
                 });
-            
+
             ++value;
             if(value % 100 == 0)
             {
-                sent.get_future().get();;
+                sent->get_future().get();
             }
-            
+
             if(value > 1000000)
             {
                 // Don't continue, it's possible that out-of-order dispatch doesn't occur
@@ -173,11 +173,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(value > 100000 || !cond->value());
         completed->get_future().get();
 #else
-        
+
         Ice::AsyncResultPtr result;
         while(cond->value())
         {
-            result = hold->begin_set(value + 1, 
+            result = hold->begin_set(value + 1,
                                      IceUtilInternal::random(5),
                                      newCallback_Hold_set(new SetCB(cond, value), &SetCB::response, &SetCB::exception));
             ++value;
@@ -209,7 +209,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         while(value < 3000 && cond->value())
         {
             completed = make_shared<promise<void>>();
-            promise<bool> sent;
+			auto sent = make_shared<promise<bool>>();
             auto expected = value;
             holdSerialized->set_async(
                 value + 1,
@@ -226,14 +226,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 {
                     completed->set_value();
                 },
-                [&sent](bool sentSynchronously)
+                [sent](bool sentSynchronously)
                 {
-                    sent.set_value(sentSynchronously);
+                    sent->set_value(sentSynchronously);
                 });
             ++value;
             if(value % 100 == 0)
             {
-                sent.get_future().get();
+                sent->get_future().get();
             }
         }
 #else
@@ -242,8 +242,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             result = holdSerialized->begin_set(value + 1,
                                                IceUtilInternal::random(1),
-                                               newCallback_Hold_set(new SetCB(cond, value), 
-                                                                    &SetCB::response, 
+                                               newCallback_Hold_set(new SetCB(cond, value),
+                                                                    &SetCB::response,
                                                                     &SetCB::exception));
             ++value;
             if(value % 100 == 0)
