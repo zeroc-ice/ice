@@ -636,7 +636,7 @@ IcePHP::PrimitiveInfo::validate(zval* zv)
             invalidArgument("expected short value but received %s", s.c_str());
             return false;
         }
-        long val = static_cast<long>(Z_LVAL_P(zv));
+        zend_long val = Z_LVAL_P(zv);
         if(val < SHRT_MIN || val > SHRT_MAX)
         {
             invalidArgument("value %ld is out of range for a short", val);
@@ -652,7 +652,7 @@ IcePHP::PrimitiveInfo::validate(zval* zv)
             invalidArgument("expected int value but received %s", s.c_str());
             return false;
         }
-        long val = static_cast<long>(Z_LVAL_P(zv));
+        zend_long val = Z_LVAL_P(zv);
         if(val < INT_MIN || val > INT_MAX)
         {
             invalidArgument("value %ld is out of range for an int", val);
@@ -672,13 +672,10 @@ IcePHP::PrimitiveInfo::validate(zval* zv)
             invalidArgument("expected long value but received %s", s.c_str());
             return false;
         }
-        Ice::Long val;
-        if(Z_TYPE_P(zv) == IS_LONG)
+
+        if(Z_TYPE_P(zv) != IS_LONG)
         {
-            val = static_cast<long>(Z_LVAL_P(zv));
-        }
-        else
-        {
+            Ice::Long val;
             string sval(Z_STRVAL_P(zv), Z_STRLEN_P(zv));
             if(!IceUtilInternal::stringToInt64(sval, val))
             {
