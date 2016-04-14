@@ -10,12 +10,13 @@ particular aspect of Ice.
 
 - [Changes in Ice 3.6.3](#changes-in-ice-363)
   - [C++ Changes](#c-changes)
+  - [Python Changes](#python-changes)
 - [Changes in Ice 3.6.2](#changes-in-ice-362)
   - [General Changes](#general-changes)
   - [C++ Changes](#c-changes)
   - [C# Changes](#c-changes-1)
   - [Java Changes](#java-changes)
-  - [Python Changes](#python-changes)
+  - [Python Changes](#python-changes-1)
   - [Ruby Changes](#ruby-changes)
 - [Changes in Ice 3.6.1](#changes-in-ice-361)
   - [General Changes](#general-changes-1)
@@ -30,7 +31,7 @@ particular aspect of Ice.
   - [JavaScript Changes](#javascript-changes-1)
   - [Objective-C Changes](#objective-c-changes)
   - [PHP Changes](#php-changes-1)
-  - [Python Changes](#python-changes-1)
+  - [Python Changes](#python-changes-2)
   - [Ruby Changes](#ruby-changes-1)
 
 
@@ -45,6 +46,11 @@ These are the changes since Ice 3.6.2.
   this size, the log file is renamed and a new log file is started. 
   The Ice.LogFile.SizeMax property is set to 0 by default, which means the
   log file size is unlimited and a single log file is created.
+
+## Python Changes
+
+- Fixed a bug in the Slice compiler in which a Slice comment that begins or
+  ends with a double quote could generate a bogus Python docstring.
 
 # Changes in Ice 3.6.2
 
