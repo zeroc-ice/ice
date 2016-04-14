@@ -5531,7 +5531,7 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         H << nl << "//";
         H << nl << "#ifdef __APPLE__";
         H.restoreIndent();
-        H << sp << nl << name << "() {};";
+        H << sp << nl << name << "() {}";
         H.zeroIndent();
         H << nl << "#else";
         H.restoreIndent();
