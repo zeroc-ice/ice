@@ -25,6 +25,10 @@ SUBDIRS		:= $(SUBDIRS) \
 		IceStorm
 endif
 
+ifeq ($(BUILD_ICE_BT),yes)
+SUBDIRS		:= $(SUBDIRS) \
+		IceBT
+endif
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
