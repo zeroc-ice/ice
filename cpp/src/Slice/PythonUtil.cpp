@@ -2294,14 +2294,10 @@ Slice::Python::CodeVisitor::writeDocstring(const string& comment, const string& 
 
     for(StringVec::const_iterator q = lines.begin(); q != lines.end(); ++q)
     {
-        if(q != lines.begin())
-        {
-            _out << nl;
-        }
-        _out << *q;
+        _out << nl << *q;
     }
 
-    _out << "\"\"\"";
+    _out << nl << "\"\"\"";
 }
 
 void
@@ -2317,11 +2313,7 @@ Slice::Python::CodeVisitor::writeDocstring(const string& comment, const DataMemb
 
     for(StringVec::const_iterator q = lines.begin(); q != lines.end(); ++q)
     {
-        if(q != lines.begin())
-        {
-            _out << nl;
-        }
-        _out << *q;
+        _out << nl << *q;
     }
 
     if(!members.empty())
@@ -2363,7 +2355,7 @@ Slice::Python::CodeVisitor::writeDocstring(const string& comment, const DataMemb
         }
     }
 
-    _out << "\"\"\"";
+    _out << nl << "\"\"\"";
 }
 
 void
@@ -2379,11 +2371,7 @@ Slice::Python::CodeVisitor::writeDocstring(const string& comment, const Enumerat
 
     for(StringVec::const_iterator q = lines.begin(); q != lines.end(); ++q)
     {
-        if(q != lines.begin())
-        {
-            _out << nl;
-        }
-        _out << *q;
+        _out << nl << *q;
     }
 
     if(!enums.empty())
@@ -2425,7 +2413,7 @@ Slice::Python::CodeVisitor::writeDocstring(const string& comment, const Enumerat
         }
     }
 
-    _out << "\"\"\"";
+    _out << nl << "\"\"\"";
 }
 
 bool
@@ -2668,11 +2656,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
     {
         for(StringVec::const_iterator q = comment.description.begin(); q != comment.description.end(); ++q)
         {
-            if(q != comment.description.begin())
-            {
-                _out << nl;
-            }
-            _out << *q;
+            _out << nl << *q;
         }
     }
 
@@ -2801,7 +2785,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
             _out << nl << r->first << " -- " << r->second;
         }
     }
-    _out << "\"\"\"";
+    _out << nl << "\"\"\"";
 }
 
 void

@@ -50,7 +50,8 @@ Init init;
 // Timeout in milliseconds after which rename will be attempted
 // in case of failures renaming files. That is set to 5 minutes.
 //
-const Ice::Long retryTimeout = 5 * 60 * 1000;
+const IceUtil::Time retryTimeout = IceUtil::Time::seconds(5 * 60);
+
 }
 
 Ice::LoggerI::LoggerI(const string& prefix, const string& file,
@@ -62,8 +63,7 @@ Ice::LoggerI::LoggerI(const string& prefix, const string& file,
 #if defined(_WIN32) && !defined(ICE_OS_WINRT)
     _consoleConverter(new IceUtil::WindowsStringConverter(GetConsoleOutputCP())),
 #endif
-    _sizeMax(sizeMax),
-    _nextRetry(0)
+    _sizeMax(sizeMax)
 {
     if(!prefix.empty())
     {
@@ -159,14 +159,12 @@ Ice::LoggerI::write(const string& message, bool indent)
         if(_sizeMax > 0)
         {
             //
-            // If file size + message size exceed max size we archive the log file,
+            // If file size + message size exceeds max size we archive the log file,
             // but we do not archive empty files or truncate messages.
             //
             size_t sz = static_cast<size_t>(_out.tellp());
-            if(sz > 0 && sz + message.size() >= _sizeMax &&
-               (_nextRetry == 0 || _nextRetry <= IceUtil::Time::now().toMilliSeconds()))
+            if(sz > 0 && sz + message.size() >= _sizeMax && _nextRetry <= IceUtil::Time::now())
             {
-
                 string basename = _file;
                 string ext;
 
@@ -208,27 +206,28 @@ Ice::LoggerI::write(const string& message, bool indent)
 
                 if(err)
                 {
-                    _nextRetry = retryTimeout + IceUtil::Time::now().toMilliSeconds();
+                    _nextRetry = IceUtil::Time::now() + retryTimeout;
+
                     //
-                    // We temporally set the maximum size to 0 to ensure that there isn't any rename attempts
+                    // We temporarily set the maximum size to 0 to ensure there isn't more rename attempts
                     // in the nested error call.
                     //
                     size_t sizeMax = _sizeMax;
                     _sizeMax = 0;
                     sync.release();
-                    error("FileLogger: cannot rename " + _file + "\n" + IceUtilInternal::lastErrorToString());
+                    error("FileLogger: cannot rename `" + _file + "'\n" + IceUtilInternal::lastErrorToString());
                     sync.acquire();
                     _sizeMax = sizeMax;
                 }
-                else if(_nextRetry != 0)
+                else
                 {
-                    _nextRetry = 0;
+                    _nextRetry = IceUtil::Time();
                 }
 
                 if(!_out.is_open())
                 {
                     sync.release();
-                    error("FileLogger: cannot open " + _file + " log messages will be send to stderr");
+                    error("FileLogger: cannot open `" + _file + "':\nlog messages will be sent to stderr");
                     write(message, indent);
                     return;
                 }
