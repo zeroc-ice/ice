@@ -14,18 +14,37 @@ buildscript {
         ext.iceMavenRepo = "repo.zeroc.com"
     }
 
+    //
+    // If the ice-builder-gradle repository exists add it to the local maven repositories,
+    // so we can build using a local plugin version
+    //
+    def builder  = new File([project(':ice').projectDir, "..", "..", "..", "..",
+                             "ice-builder-gradle", "build", "libs"].join(File.separator))
+
+    if(builder.exists()) {
+        repositories {
+            flatDir dirs: "file://${builder.getCanonicalPath()}"
+        }
+    }
+
     repositories {
         maven {
             url "https://${iceMavenRepo}/nexus/content/repositories/releases"
         }
     }
     dependencies {
-        classpath group: 'com.zeroc.gradle.ice-builder', name: 'slice', version: '1.2.1'
+        classpath group: 'com.zeroc.gradle.ice-builder', name: 'slice', version: '1.3.0'
     }
 }
 
 if (!project.plugins.findPlugin(com.zeroc.gradle.icebuilder.slice.SlicePlugin)) {
     project.apply(plugin: com.zeroc.gradle.icebuilder.slice.SlicePlugin)
+}
+
+if(System.env.USE_BIN_DIST != "yes") {
+    slice {
+        iceHome = new File([project(':ice').projectDir, "..", "..", ".."].join(File.separator)).getCanonicalPath()
+    }
 }
 
 ext.generatedDir = "$project.buildDir/generated"
@@ -44,24 +63,9 @@ try {
 def env = System.getenv()
 
 // Determine the name of the Slice-to-Java translator
-def isWindows = false
-def programFiles
-def slice2java = "slice2java"
-if (System.properties['os.name'].toLowerCase().contains('windows')) {
-    isWindows = true
-    slice2java = "slice2java.exe"
+def isWindows = System.properties['os.name'].toLowerCase().contains('windows')
 
-    def arch1 = env['PROCESSOR_ARCHITECTURE']
-    def arch2 = env['PROCESSOR_ARCHITEW6432']
-    if (arch1 == "AMD64" || arch1 == "IA64" || arch2 == "AMD64" || arch2 == "IA64") {
-        programFiles = System.getenv('ProgramFiles(x86)')
-    } else {
-        programFiles = System.getenv('ProgramFiles')
-    }
-}
-
-
-if (prefix == null || prefix.length() == 0) {
+if (prefix) {
     // If the prefix isn't set use these default locations.
     if (isWindows) {
         prefix = "C:\\Ice-${project.version}"
@@ -82,106 +86,10 @@ if ((prefix.startsWith("/usr") || prefix.startsWith("/usr/local")) && !prefix.st
     ext.binDir = prefix + "/bin"
 }
 
-// First check if ICE_HOME is set and it points at a valid installation
-def iceHome = env['ICE_HOME']
-if (iceHome != null && iceHome.length() > 0) {
-    def translator = new File("$iceHome/bin/$slice2java")
-    if (!translator.exists()) {
-        //
-        // Make sure ICE_HOME is not just pointing to the source distribution
-        //
-        translator = new File("$iceHome/cpp/bin/$slice2java")
-        if (!translator.exists()) {
-            throw new GradleException("Unable to find $slice2java in $iceHome, please verify ICE_HOME is " +
-                                      "properly configured and Ice is correctly installed.")
-        }
-        iceHome = null
-    }
-}
-
-def iceBinDist = false
-if(env['USE_BIN_DIST'] == "yes") {
-    iceBinDist = true
-}
-
 // Check if we are building against source distribution
-def iceDir
-def iceCppDir
+def iceCppDir = slice.srcDist ? [slice.iceHome, "cpp"].join(File.separator) : slice.iceHome
 def iceSrcDist = false
-if (!iceBinDist) {
-    def f1 = new File("$rootProject.projectDir/../java/src/Ice/src/main/java/Ice/Util.java")
-    if (f1.exists()) {
-        iceDir = "$rootProject.projectDir/.."
-        iceSrcDist = true
 
-        if (iceHome != null && iceHome.length() > 0) {
-            iceCppDir = iceHome
-
-            def f2 = new File("$iceDir/cpp/bin/$slice2java")
-            if (f2.exists()) {
-                println "Found $slice2java in both $iceCppDir/bin and $iceDir/cpp/bin, $iceCppDir/bin/$slice2java will be used!"
-            }
-        } else {
-            iceCppDir = iceDir + "/cpp"
-            slice.srcDist = true
-        }
-
-        slice.iceHome = iceCppDir
-    }
-}
-
-// Then, check if we're building against a binary distribution.
-if (!iceDir) {
-    if (iceHome != null && iceHome.length() > 0) {
-        iceDir = iceHome
-    }
-
-    if (iceDir == null) {
-        def f1 = new File("/usr/bin/$slice2java")
-        if (f1.exists()) {
-            iceDir = "/usr"
-        }
-    }
-
-    if (iceDir == null && isWindows) {
-        iceDir = "${programFiles}\\ZeroC\\Ice-${project.version}"
-    }
-
-    if (iceDir == null) {
-        def f1 = new File("/usr/local/bin/${slice2java}")
-        if (f1.exists()) {
-            iceDir = "/usr/local"
-        }
-    }
-
-    if (iceDir == null) {
-        def f1 = new File("/opt/Ice-${project.version}/bin/${slice2java}")
-        if (f1.exists())
-        {
-            iceDir = "/opt/Ice-${project.version}"
-        }
-    }
-
-    if (iceDir == null) {
-        throw new GradleException("Unable to find a valid Ice distribution, please verify ICE_HOME is properly " +
-                                  "configured and Ice is correctly installed.")
-    }
-
-    slice.iceHome = iceDir
-    slice.srcDist = false
-}
-
-// Set the slice and java jar directory
-if (iceDir == "/usr") {
-    ext.sliceDir = "/usr/share/Ice-${project.version}/slice"
-    ext.distJarDir = "/usr/share/java"
-} else if (iceDir == "/usr/local") {
-    ext.sliceDir = "/usr/local/share/slice"
-    ext.distJarDir = "/usr/local/share/java"
-} else {
-    ext.sliceDir = "${iceDir}/slice"
-    ext.distJarDir = iceSrcDist ? null : "${iceDir}/lib"
-}
 
 // Check is DESTDIR is set (non-Windows)
 if (isWindows) {
@@ -240,10 +148,10 @@ ext {
 }
 
 def localDependency(artifactId) {
-    if (distJarDir != null) {
-        return "com.zeroc:${artifactId}:${project.version}"
-    } else {
+    if (project.slice.srcDist) {
         return project(":${artifactId}")
+    } else {
+        return "com.zeroc:${artifactId}:${project.version}"
     }
 }
 ext {
@@ -256,8 +164,7 @@ def dbVersion
 def dbPackage
 
 if (isWindows) {
-localappdata = env['LOCALAPPDATA']
-nuget = "${localappdata}/ZeroC/nuget/nuget.exe"
+nuget = "${System.env.LOCALAPPDATA}/ZeroC/nuget/nuget.exe"
 dbVersion = "5.3.28.1"
 dbPackage = "${iceCppDir}/third-party-packages/berkeley.db.java7"
 
@@ -290,9 +197,7 @@ if (!android) {
     } else {
         def subdirs
         if (isWindows) {
-            if(iceBinDist){
-                subdirs = [ "${iceDir}/lib/" ]
-            } else {
+            if(slice.srcDist){
                 if(!new File(nuget).exists()) {
                     nugetInstall.execute()
                 }
@@ -300,6 +205,8 @@ if (!android) {
                     nugetInstallBerkeleyDb.execute()
                 }
                 subdirs = [ "${dbPackage}/build/native/lib/" ]
+            } else {
+                subdirs = [ "${slice.iceHome}/lib/" ]
             }
         } else {
             subdirs = [
@@ -324,6 +231,7 @@ if (!android) {
             new File(it).exists()
         }
     }
+
 
     if(!ext.dbJar || !new File(ext.dbJar).exists()) {
         throw new GradleException("Unable to locate the required third party BerkeleyDB jar file `db.jar'.")
