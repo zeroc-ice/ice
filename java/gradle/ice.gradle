@@ -65,7 +65,7 @@ def env = System.getenv()
 // Determine the name of the Slice-to-Java translator
 def isWindows = System.properties['os.name'].toLowerCase().contains('windows')
 
-if (prefix) {
+if (!prefix) {
     // If the prefix isn't set use these default locations.
     if (isWindows) {
         prefix = "C:\\Ice-${project.version}"
