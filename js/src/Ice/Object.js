@@ -64,15 +64,15 @@ var IceObject = Class({
     },
     __write: function(os)
     {
-        os.startWriteObject(null);
+        os.startObject(null);
         __writeImpl(this, os, this.__mostDerivedType());
-        os.endWriteObject();
+        os.endObject();
     },
     __read: function(is)
     {
-        is.startReadObject();
+        is.startObject();
         __readImpl(this, is, this.__mostDerivedType());
-        is.endReadObject(false);
+        is.endObject(false);
     },
     ice_instanceof: function(T)
     {
@@ -118,9 +118,9 @@ IceObject.write = function(os, v)
     os.writeObject(v);
 };
 
-IceObject.writeOpt = function(os, tag, v)
+IceObject.writeOptional = function(os, tag, v)
 {
-    os.writeOptObject(tag, v);
+    os.writeOptionalObject(tag, v);
 };
 
 IceObject.read = function(is)
@@ -130,10 +130,10 @@ IceObject.read = function(is)
     return v;
 };
 
-IceObject.readOpt = function(is, tag)
+IceObject.readOptional = function(is, tag)
 {
     var v = { value: undefined };
-    is.readOptObject(tag, function(o) { v.value = o; }, IceObject);
+    is.readOptionalObject(tag, function(o) { v.value = o; }, IceObject);
     return v;
 };
 
@@ -186,12 +186,12 @@ var __writeImpl = function(obj, os, type)
         return; // Don't marshal anything for IceObject
     }
 
-    os.startWriteSlice(type.__id, type.__compactId, type.__parent === IceObject);
+    os.startSlice(type.__id, type.__compactId, type.__parent === IceObject);
     if(type.prototype.__writeMemberImpl)
     {
         type.prototype.__writeMemberImpl.call(obj, os);
     }
-    os.endWriteSlice();
+    os.endSlice();
     __writeImpl(obj, os, type.__parent);
 };
 
@@ -208,12 +208,12 @@ var __readImpl = function(obj, is, type)
         return; // Don't marshal anything for IceObject
     }
 
-    is.startReadSlice();
+    is.startSlice();
     if(type.prototype.__readMemberImpl)
     {
         type.prototype.__readMemberImpl.call(obj, is);
     }
-    is.endReadSlice();
+    is.endSlice();
     __readImpl(obj, is, type.__parent);
 };
 
@@ -223,9 +223,9 @@ var __writePreserved = function(os)
     // For Slice classes which are marked "preserved", the implementation of this method
     // replaces the Ice.Object.prototype.__write method.
     //
-    os.startWriteObject(this.__slicedData);
+    os.startObject(this.__slicedData);
     __writeImpl(this, os, this.__mostDerivedType());
-    os.endWriteObject();
+    os.endObject();
 };
 
 var __readPreserved = function(is)
@@ -234,9 +234,9 @@ var __readPreserved = function(is)
     // For Slice classes which are marked "preserved", the implementation of this method
     // replaces the Ice.Object.prototype.__read method.
     //
-    is.startReadObject();
+    is.startObject();
     __readImpl(this, is, this.__mostDerivedType());
-    this.__slicedData = is.endReadObject(true);
+    this.__slicedData = is.endObject(true);
 };
 
 Ice.Object = IceObject;
@@ -275,9 +275,9 @@ Slice.defineObject = function(constructor, base, intfs, scope, ids, compactId, w
     {
         os.writeObject(v);
     };
-    obj.writeOpt = function(os, tag, v)
+    obj.writeOptional = function(os, tag, v)
     {
-        os.writeOptObject(tag, v);
+        os.writeOptionalObject(tag, v);
     };
     obj.read = function(is)
     {
@@ -285,10 +285,10 @@ Slice.defineObject = function(constructor, base, intfs, scope, ids, compactId, w
         is.readObject(function(o) { v.value = o; }, obj);
         return v;
     };
-    obj.readOpt = function(is, tag)
+    obj.readOptional = function(is, tag)
     {
         var v = { value: undefined };
-        is.readOptObject(tag, function(o) { v.value = o; }, obj);
+        is.readOptionalObject(tag, function(o) { v.value = o; }, obj);
         return v;
     };
 

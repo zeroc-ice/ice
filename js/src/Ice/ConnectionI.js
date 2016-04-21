@@ -12,7 +12,7 @@ Ice.__M.require(module,
     [
         "../Ice/Class",
         "../Ice/AsyncStatus",
-        "../Ice/BasicStream",
+        "../Ice/Stream",
         "../Ice/OutgoingAsync",
         "../Ice/Debug",
         "../Ice/ExUtil",
@@ -32,7 +32,8 @@ Ice.__M.require(module,
 
 var AsyncStatus = Ice.AsyncStatus;
 var AsyncResultBase = Ice.AsyncResultBase;
-var BasicStream = Ice.BasicStream;
+var InputStream = Ice.InputStream;
+var OutputStream = Ice.OutputStream;
 var BatchRequestQueue = Ice.BatchRequestQueue;
 var ConnectionFlushBatch = Ice.ConnectionFlushBatch;
 var Debug = Ice.Debug;
@@ -61,7 +62,7 @@ var StateFinished = 6;
 
 var MessageInfo = function(instance)
 {
-    this.stream = new BasicStream(instance, Protocol.currentProtocolEncoding);
+    this.stream = new InputStream(instance, Protocol.currentProtocolEncoding);
 
     this.invokeNum = 0;
     this.requestId = 0;
@@ -106,9 +107,9 @@ var ConnectionI = Class({
 
         this._sendStreams = [];
 
-        this._readStream = new BasicStream(instance, Protocol.currentProtocolEncoding);
+        this._readStream = new InputStream(instance, Protocol.currentProtocolEncoding);
         this._readHeader = false;
-        this._writeStream = new BasicStream(instance, Protocol.currentProtocolEncoding);
+        this._writeStream = new OutputStream(instance, Protocol.currentProtocolEncoding);
 
         this._readStreamPos = -1;
         this._writeStreamPos = -1;
@@ -1411,7 +1412,7 @@ var ConnectionI = Class({
             // Before we shut down, we send a close connection
             // message.
             //
-            var os = new BasicStream(this._instance, Protocol.currentProtocolEncoding);
+            var os = new OutputStream(this._instance, Protocol.currentProtocolEncoding);
             os.writeBlob(Protocol.magic);
             Protocol.currentProtocol.__write(os);
             Protocol.currentProtocolEncoding.__write(os);
@@ -1445,7 +1446,7 @@ var ConnectionI = Class({
 
         if(!this._endpoint.datagram())
         {
-            var os = new BasicStream(this._instance, Protocol.currentProtocolEncoding);
+            var os = new OutputStream(this._instance, Protocol.currentProtocolEncoding);
             os.writeBlob(Protocol.magic);
             Protocol.currentProtocol.__write(os);
             Protocol.currentProtocolEncoding.__write(os);
@@ -1636,7 +1637,7 @@ var ConnectionI = Class({
 
                 if(message.outAsync !== null)
                 {
-                    TraceUtil.trace("sending asynchronous request", stream, this._logger, this._traceLevels);
+                    TraceUtil.traceOut("sending asynchronous request", stream, this._logger, this._traceLevels);
                 }
                 else
                 {
@@ -1699,7 +1700,7 @@ var ConnectionI = Class({
 
         if(message.outAsync)
         {
-            TraceUtil.trace("sending asynchronous request", message.stream, this._logger, this._traceLevels);
+            TraceUtil.traceOut("sending asynchronous request", message.stream, this._logger, this._traceLevels);
         }
         else
         {
@@ -1789,9 +1790,9 @@ var ConnectionI = Class({
                 {
                     if(this._state === StateClosing)
                     {
-                        TraceUtil.trace("received request during closing\n" +
-                                        "(ignored by server, client will retry)",
-                                        info.stream, this._logger, this._traceLevels);
+                        TraceUtil.traceIn("received request during closing\n" +
+                                          "(ignored by server, client will retry)",
+                                          info.stream, this._logger, this._traceLevels);
                     }
                     else
                     {
@@ -1809,9 +1810,9 @@ var ConnectionI = Class({
                 {
                     if(this._state === StateClosing)
                     {
-                        TraceUtil.trace("received batch request during closing\n" +
-                                        "(ignored by server, client will retry)",
-                                        info.stream, this._logger, this._traceLevels);
+                        TraceUtil.traceIn("received batch request during closing\n" +
+                                          "(ignored by server, client will retry)",
+                                          info.stream, this._logger, this._traceLevels);
                     }
                     else
                     {
@@ -1860,8 +1861,8 @@ var ConnectionI = Class({
 
                 default:
                 {
-                    TraceUtil.trace("received unknown message\n(invalid, closing connection)",
-                                    info.stream, this._logger, this._traceLevels);
+                    TraceUtil.traceIn("received unknown message\n(invalid, closing connection)",
+                                      info.stream, this._logger, this._traceLevels);
                     throw new Ice.UnknownMessageException();
                 }
             }
@@ -2104,7 +2105,7 @@ var OutgoingMessage = Class({
     {
         if(this.adopt)
         {
-            var stream = new BasicStream(this.stream.instance, Protocol.currentProtocolEncoding);
+            var stream = new OutputStream(this.stream.instance, Protocol.currentProtocolEncoding);
             stream.swap(this.stream);
             this.stream = stream;
             this.adopt = false;

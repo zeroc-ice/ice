@@ -13,7 +13,7 @@ Ice.__M.require(module,
         "../Ice/Class",
         "../Ice/AsyncResult",
         "../Ice/AsyncStatus",
-        "../Ice/BasicStream",
+        "../Ice/Stream",
         "../Ice/ConnectionRequestHandler",
         "../Ice/Debug",
         "../Ice/ExUtil",
@@ -27,7 +27,6 @@ Ice.__M.require(module,
 
 var AsyncResult = Ice.AsyncResult;
 var AsyncStatus = Ice.AsyncStatus;
-var BasicStream = Ice.BasicStream;
 var ConnectionRequestHandler = Ice.ConnectionRequestHandler;
 var Debug = Ice.Debug;
 var ExUtil = Ice.ExUtil;

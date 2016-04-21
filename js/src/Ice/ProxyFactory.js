@@ -123,20 +123,6 @@ var ProxyFactory = Ice.Class({
             return null;
         }
     },
-    proxyToStream: function(proxy, s)
-    {
-        if(proxy !== null)
-        {
-            var ref = proxy.__reference();
-            ref.getIdentity().__write(s);
-            ref.streamWrite(s);
-        }
-        else
-        {
-            var ident = new Identity("", "");
-            ident.__write(s);
-        }
-    },
     checkRetryAfterException: function(ex, ref, sleepInterval, cnt)
     {
         var traceLevels = this._instance.traceLevels();
@@ -172,7 +158,7 @@ var ProxyFactory = Ice.Class({
                 if(traceLevels.retry >= 1)
                 {
                     logger.trace(traceLevels.retryCat, "retrying operation call to add proxy to router\n" +
-                                                    ex.toString());
+                                 ex.toString());
                 }
 
                 if(sleepInterval !== null)

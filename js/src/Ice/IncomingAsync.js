@@ -11,7 +11,7 @@ var Ice = require("../Ice/ModuleRegistry").Ice;
 Ice.__M.require(module,
     [
         "../Ice/Class",
-        "../Ice/BasicStream",
+        "../Ice/Stream",
         "../Ice/BuiltinSequences",
         "../Ice/Connection",
         "../Ice/Current",
@@ -24,7 +24,7 @@ Ice.__M.require(module,
         "../Ice/StringUtil"
     ]);
 
-var BasicStream = Ice.BasicStream;
+var OutputStream = Ice.OutputStream;
 var Current = Ice.Current;
 var Debug = Ice.Debug;
 var FormatType = Ice.FormatType;
@@ -41,7 +41,7 @@ var IncomingAsync = Ice.Class({
         this._compress = compress;
         if(this._response)
         {
-            this._os = new BasicStream(instance, Protocol.currentProtocolEncoding);
+            this._os = new OutputStream(instance, Protocol.currentProtocolEncoding);
         }
         this._connection = connection;
 
@@ -83,7 +83,7 @@ var IncomingAsync = Ice.Class({
         Debug.assert(this._os.size == Protocol.headerSize + 4); // Reply status position.
         Debug.assert(this._current.encoding !== null); // Encoding for reply is known.
         this._os.writeByte(0);
-        this._os.startWriteEncaps(this._current.encoding, format);
+        this._os.startEncapsulation(this._current.encoding, format);
         return this._os;
     },
     __endWriteParams: function(ok)
@@ -94,7 +94,7 @@ var IncomingAsync = Ice.Class({
             this._os.pos = Protocol.headerSize + 4; // Reply status position.
             this._os.writeByte(ok ? Protocol.replyOK : Protocol.replyUserException);
             this._os.pos = save;
-            this._os.endWriteEncaps();
+            this._os.endEncapsulation();
         }
     },
     __writeEmptyParams: function()
@@ -104,7 +104,7 @@ var IncomingAsync = Ice.Class({
             Debug.assert(this._os.size === Protocol.headerSize + 4); // Reply status position.
             Debug.assert(this._current.encoding !== null); // Encoding for reply is known.
             this._os.writeByte(Protocol.replyOK);
-            this._os.writeEmptyEncaps(this._current.encoding);
+            this._os.writeEmptyEncapsulation(this._current.encoding);
         }
     },
     __writeParamEncaps: function(v, ok)
@@ -116,11 +116,11 @@ var IncomingAsync = Ice.Class({
             this._os.writeByte(ok ? Protocol.replyOK : Protocol.replyUserException);
             if(v === null || v.length === 0)
             {
-                this._os.writeEmptyEncaps(this._current.encoding);
+                this._os.writeEmptyEncapsulation(this._current.encoding);
             }
             else
             {
-                this._os.writeEncaps(v);
+                this._os.writeEncapsulation(v);
             }
         }
     },
@@ -176,9 +176,9 @@ var IncomingAsync = Ice.Class({
                 {
                     this._os.resize(Protocol.headerSize + 4); // Reply status position.
                     this._os.writeByte(Protocol.replyUserException);
-                    this._os.startWriteEncaps();
+                    this._os.startEncapsulation();
                     this._os.writeUserException(ex);
-                    this._os.endWriteEncaps();
+                    this._os.endEncapsulation();
                     this._connection.sendResponse(this._os, this._compress);
                 }
                 else
@@ -463,14 +463,14 @@ var IncomingAsync = Ice.Class({
                     {
                         if(ex instanceof Ice.UserException)
                         {
-                            var encoding = this._is.skipEncaps(); // Required for batch requests.
+                            var encoding = this._is.skipEncapsulation(); // Required for batch requests.
 
                             if(this._response)
                             {
                                 this._os.writeByte(Protocol.replyUserException);
-                                this._os.startWriteEncaps(encoding, FormatType.DefaultFormat);
+                                this._os.startEncapsulation(encoding, FormatType.DefaultFormat);
                                 this._os.writeUserException(ex);
-                                this._os.endWriteEncaps();
+                                this._os.endEncapsulation();
                                 this._connection.sendResponse(this._os, this._compress);
                             }
                             else
@@ -483,7 +483,7 @@ var IncomingAsync = Ice.Class({
                         }
                         else
                         {
-                            this._is.skipEncaps(); // Required for batch requests.
+                            this._is.skipEncapsulation(); // Required for batch requests.
                             this.__handleException(ex);
                             return;
                         }
@@ -519,7 +519,7 @@ var IncomingAsync = Ice.Class({
                 // Skip the input parameters, this is required for reading
                 // the next batch request if dispatching batch requests.
                 //
-                this._is.skipEncaps();
+                this._is.skipEncapsulation();
 
                 if(servantManager !== null && servantManager.hasServant(this._current.id))
                 {
@@ -568,22 +568,22 @@ var IncomingAsync = Ice.Class({
         // Remember the encoding used by the input parameters, we'll
         // encode the response parameters with the same encoding.
         //
-        this._current.encoding = this._is.startReadEncaps();
+        this._current.encoding = this._is.startEncapsulation();
         return this._is;
     },
     endReadParams: function()
     {
-        this._is.endReadEncaps();
+        this._is.endEncapsulation();
     },
     readEmptyParams: function()
     {
         this._current.encoding = new Ice.EncodingVersion();
-        this._is.skipEmptyEncaps(this._current.encoding);
+        this._is.skipEmptyEncapsulation(this._current.encoding);
     },
     readParamEncaps: function()
     {
         this._current.encoding = new Ice.EncodingVersion();
-        return this._is.readEncaps(this._current.encoding);
+        return this._is.readEncapsulation(this._current.encoding);
     },
     __response: function()
     {

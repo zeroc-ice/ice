@@ -459,6 +459,11 @@ var ObjectPrx = Ice.Class({
 
         return false;
     },
+    __write: function(os)
+    {
+        this._reference.getIdentity().__write(os);
+        this._reference.streamWrite(os);
+    },
     __reference: function()
     {
         return this._reference;
@@ -872,14 +877,14 @@ ObjectPrx.read = function(is)
     return is.readProxy(this);
 };
 
-ObjectPrx.writeOpt = function(os, tag, v)
+ObjectPrx.writeOptional = function(os, tag, v)
 {
-    os.writeOptProxy(tag, v);
+    os.writeOptionalProxy(tag, v);
 };
 
-ObjectPrx.readOpt = function(is, tag)
+ObjectPrx.readOptional = function(is, tag)
 {
-    return is.readOptProxy(tag, this);
+    return is.readOptionalProxy(tag, this);
 };
 
 ObjectPrx.__instanceof = function(T)
@@ -925,9 +930,9 @@ Slice.defineProxy = function(base, staticId, prxInterfaces)
     prx.checkedCast = ObjectPrx.checkedCast;
     prx.uncheckedCast = ObjectPrx.uncheckedCast;
     prx.write = ObjectPrx.write;
-    prx.writeOpt = ObjectPrx.writeOpt;
+    prx.writeOptional = ObjectPrx.writeOptional;
     prx.read = ObjectPrx.read;
-    prx.readOpt = ObjectPrx.readOpt;
+    prx.readOptional = ObjectPrx.readOptional;
 
     prx.__instanceof = ObjectPrx.__instanceof;
 

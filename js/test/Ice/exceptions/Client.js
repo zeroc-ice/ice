@@ -229,10 +229,10 @@
             {
                 out.write("testing value factory registration exception... ");
 
-                communicator.addValueFactory(ValueFactoryI, "::x");
+                communicator.getValueFactoryManager().add(ValueFactoryI, "::x");
                 try
                 {
-                    communicator.addValueFactory(ValueFactoryI, "::x");
+                    communicator.getValueFactoryManager().add(ValueFactoryI, "::x");
                     test(false);
                 }
                 catch(ex)

@@ -16,7 +16,7 @@ Ice.__M.require(module,
         "../Ice/Promise",
         "../Ice/Protocol",
         "../Ice/Exception",
-        "../Ice/BasicStream"
+        "../Ice/Stream"
     ]);
 
 var AsyncResultBase = Ice.AsyncResultBase;
@@ -24,7 +24,7 @@ var Debug = Ice.Debug;
 var Promise = Ice.Promise;
 var Protocol = Ice.Protocol;
 var UserException = Ice.UserException;
-var BasicStream = Ice.BasicStream;
+var OutputStream = Ice.OutputStream;
 
 var AsyncResult = Ice.Class(AsyncResultBase, {
     __init__: function(com, op, connection, proxy, adapter, completedFn)
@@ -41,7 +41,7 @@ var AsyncResult = Ice.Class(AsyncResultBase, {
         
         this._completed = completedFn;
         this._is = null;
-        this._os = com !== null ? new BasicStream(this._instance, Protocol.currentProtocolEncoding) : null;
+        this._os = com !== null ? new OutputStream(this._instance, Protocol.currentProtocolEncoding) : null;
         this._state = 0;
         this._exception = null;
         this._sentSynchronously = false;
@@ -139,20 +139,20 @@ var AsyncResult = Ice.Class(AsyncResultBase, {
     },
     __startReadParams: function()
     {
-        this._is.startReadEncaps();
+        this._is.startEncapsulation();
         return this._is;
     },
     __endReadParams: function()
     {
-        this._is.endReadEncaps();
+        this._is.endEncapsulation();
     },
     __readEmptyParams: function()
     {
-        this._is.skipEmptyEncaps(null);
+        this._is.skipEmptyEncapsulation(null);
     },
     __readParamEncaps: function()
     {
-        return this._is.readEncaps(null);
+        return this._is.readEncapsulation(null);
     },
     __throwUserException: function()
     {
@@ -161,14 +161,14 @@ var AsyncResult = Ice.Class(AsyncResultBase, {
         {
             try
             {
-                this._is.startReadEncaps();
+                this._is.startEncapsulation();
                 this._is.throwException();
             }
             catch(ex)
             {
                 if(ex instanceof UserException)
                 {
-                    this._is.endReadEncaps();
+                    this._is.endEncapsulation();
                 }
                 throw ex;
             }

@@ -19,9 +19,9 @@ var StreamHelpers = {};
 
 StreamHelpers.FSizeOptHelper = function()
 {
-    this.writeOpt = function(os, tag, v)
+    this.writeOptional = function(os, tag, v)
     {
-        if(v !== undefined && os.writeOpt(tag, OptionalFormat.FSize))
+        if(v !== undefined && os.writeOptional(tag, OptionalFormat.FSize))
         {
             var pos = os.startSize();
             this.write(os, v);
@@ -29,10 +29,10 @@ StreamHelpers.FSizeOptHelper = function()
         }
     };
 
-    this.readOpt = function(is, tag)
+    this.readOptional = function(is, tag)
     {
         var v;
-        if(is.readOpt(tag, OptionalFormat.FSize))
+        if(is.readOptional(tag, OptionalFormat.FSize))
         {
             is.skip(4);
             v = this.read(is);
@@ -43,19 +43,19 @@ StreamHelpers.FSizeOptHelper = function()
 
 StreamHelpers.VSizeOptHelper = function()
 {
-    this.writeOpt = function(os, tag, v)
+    this.writeOptional = function(os, tag, v)
     {
-        if(v !== undefined && os.writeOpt(tag, OptionalFormat.VSize))
+        if(v !== undefined && os.writeOptional(tag, OptionalFormat.VSize))
         {
             os.writeSize(this.minWireSize);
             this.write(os, v);
         }
     };
 
-    this.readOpt = function(is, tag)
+    this.readOptional = function(is, tag)
     {
         var v;
-        if(is.readOpt(tag, OptionalFormat.VSize))
+        if(is.readOptional(tag, OptionalFormat.VSize))
         {
             is.skipSize();
             v = this.read(is);
@@ -66,9 +66,9 @@ StreamHelpers.VSizeOptHelper = function()
 
 StreamHelpers.VSizeContainerOptHelper = function(elementSize)
 {
-    this.writeOpt = function(os, tag, v)
+    this.writeOptional = function(os, tag, v)
     {
-        if(v !== undefined && os.writeOpt(tag, OptionalFormat.VSize))
+        if(v !== undefined && os.writeOptional(tag, OptionalFormat.VSize))
         {
             var sz = this.size(v);
             os.writeSize(sz > 254 ? sz * elementSize + 5 : sz * elementSize + 1);
@@ -76,10 +76,10 @@ StreamHelpers.VSizeContainerOptHelper = function(elementSize)
         }
     };
 
-    this.readOpt = function(is, tag)
+    this.readOptional = function(is, tag)
     {
         var v;
-        if(is.readOpt(tag, OptionalFormat.VSize))
+        if(is.readOptional(tag, OptionalFormat.VSize))
         {
             is.skipSize();
             v = this.read(is);
@@ -90,18 +90,18 @@ StreamHelpers.VSizeContainerOptHelper = function(elementSize)
 
 StreamHelpers.VSizeContainer1OptHelper = function()
 {
-    this.writeOpt = function(os, tag, v)
+    this.writeOptional = function(os, tag, v)
     {
-        if(v !== undefined && os.writeOpt(tag, OptionalFormat.VSize))
+        if(v !== undefined && os.writeOptional(tag, OptionalFormat.VSize))
         {
             this.write(os, v);
         }
     };
 
-    this.readOpt = function(is, tag)
+    this.readOptional = function(is, tag)
     {
         var v;
-        if(is.readOpt(tag, OptionalFormat.VSize))
+        if(is.readOptional(tag, OptionalFormat.VSize))
         {
             v = this.read(is);
         }

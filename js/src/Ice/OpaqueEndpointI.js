@@ -42,9 +42,9 @@ var OpaqueEndpointI = Class(Ice.EndpointI, {
     //
     streamWrite: function(s)
     {
-        s.startWriteEncaps(this._rawEncoding, Ice.FormatType.DefaultFormat);
+        s.startEncapsulation(this._rawEncoding, Ice.FormatType.DefaultFormat);
         s.writeBlob(this._rawBytes);
-        s.endWriteEncaps();
+        s.endEncapsulation();
     },
     //
     // Return the endpoint information.
@@ -378,8 +378,8 @@ var OpaqueEndpointI = Class(Ice.EndpointI, {
     },
     initWithStream: function(s)
     {
-        this._rawEncoding = s.getReadEncoding();
-        var sz = s.getReadEncapsSize();
+        this._rawEncoding = s.getEncoding();
+        var sz = s.getEncapsulationSize();
         this._rawBytes = s.readBlob(sz);
     }
 });

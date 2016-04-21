@@ -11,13 +11,13 @@ var Ice = require("../Ice/ModuleRegistry").Ice;
 Ice.__M.require(module,
     [
         "../Ice/Class",
-        "../Ice/BasicStream",
+        "../Ice/Stream",
         "../Ice/Debug",
         "../Ice/ExUtil",
         "../Ice/Protocol",
     ]);
 
-var BasicStream = Ice.BasicStream;
+var OutputStream = Ice.OutputStream;
 var Debug = Ice.Debug;
 var ExUtil = Ice.ExUtil;
 var Class = Ice.Class;
@@ -30,7 +30,7 @@ var BatchRequestQueue = Class({
     {
         this._batchStreamInUse = false;
         this._batchRequestNum = 0;
-        this._batchStream = new BasicStream(instance, Protocol.currentProtocolEncoding);
+        this._batchStream = new OutputStream(instance, Protocol.currentProtocolEncoding);
         this._batchStream.writeBlob(Protocol.requestBatchHdr);
         this._batchMarker = this._batchStream.size;
         this._exception = null;

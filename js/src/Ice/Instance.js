@@ -21,7 +21,7 @@ Ice.__M.require(module,
         "../Ice/LocatorManager",
         "../Ice/Logger",
         "../Ice/ObjectAdapterFactory",
-        "../Ice/ValueFactoryManager",
+        "../Ice/ValueFactoryManagerI",
         "../Ice/OutgoingConnectionFactory",
         "../Ice/Promise",
         "../Ice/Properties",
@@ -52,7 +52,7 @@ var ImplicitContextI = Ice.ImplicitContextI;
 var LocatorManager = Ice.LocatorManager;
 var Logger = Ice.Logger;
 var ObjectAdapterFactory = Ice.ObjectAdapterFactory;
-var ValueFactoryManager = Ice.ValueFactoryManager;
+var ValueFactoryManagerI = Ice.ValueFactoryManagerI;
 var OutgoingConnectionFactory = Ice.OutgoingConnectionFactory;
 var Promise = Ice.Promise;
 var Properties = Ice.Properties;
@@ -90,11 +90,11 @@ var Instance = Ice.Class({
         this._requestHandlerFactory = null;
         this._proxyFactory = null;
         this._outgoingConnectionFactory = null;
-        this._servantFactoryManager = null;
         this._objectAdapterFactory = null;
         this._retryQueue = null;
         this._endpointHostResolver = null;
         this._endpointFactoryManager = null;
+        this._objectFactoryMap = null;
     },
     initializationData: function()
     {
@@ -177,16 +177,6 @@ var Instance = Ice.Class({
 
         Debug.assert(this._outgoingConnectionFactory !== null);
         return this._outgoingConnectionFactory;
-    },
-    servantFactoryManager: function()
-    {
-        if(this._state === StateDestroyed)
-        {
-            throw new Ice.CommunicatorDestroyedException();
-        }
-
-        Debug.assert(this._servantFactoryManager !== null);
-        return this._servantFactoryManager;
     },
     objectAdapterFactory: function()
     {
@@ -381,7 +371,11 @@ var Instance = Ice.Class({
             this._endpointFactoryManager.add(wssEndpointFactory);
 
             this._outgoingConnectionFactory = new OutgoingConnectionFactory(communicator, this);
-            this._servantFactoryManager = new ValueFactoryManager();
+
+            if(this._initData.valueFactoryManager === null)
+            {
+                this._initData.valueFactoryManager = new ValueFactoryManagerI();
+            }
 
             this._objectAdapterFactory = new ObjectAdapterFactory(this, communicator);
 
@@ -500,10 +494,15 @@ var Instance = Ice.Class({
                     self._timer.destroy();
                 }
 
-                if(self._servantFactoryManager)
+                if(self._objectFactoryMap !== null)
                 {
-                    self._servantFactoryManager.destroy();
+                    self._objectFactoryMap.forEach(function(arg, id, factory)
+                        {
+                            factory.destroy();
+                        });
+                    self._objectFactoryMap.clear();
                 }
+
                 if(self._routerManager)
                 {
                     self._routerManager.destroy();
@@ -539,7 +538,6 @@ var Instance = Ice.Class({
                 self._retryQueue = null;
                 self._timer = null;
 
-                self._servantFactoryManager = null;
                 self._referenceFactory = null;
                 self._requestHandlerFactory = null;
                 self._proxyFactory = null;
@@ -573,6 +571,33 @@ var Instance = Ice.Class({
         );
         return promise;
     },
+    addObjectFactory: function(factory, id)
+    {
+        //
+        // Create a ValueFactory wrapper around the given ObjectFactory and register the wrapper
+        // with the value factory manager. This may raise AlreadyRegisteredException.
+        //
+        this._initData.valueFactoryManager.add(function(typeId)
+            {
+                return factory.create(typeId);
+            }, id);
+
+        if(this._objectFactoryMap === null)
+        {
+            this._objectFactoryMap = new HashMap();
+        }
+
+        this._objectFactoryMap.set(id, factory);
+    },
+    findObjectFactory: function(id)
+    {
+        var factory = null;
+        if(this._objectFactoryMap !== null)
+        {
+            factory = this._objectFactoryMap.get(id);
+        }
+        return factory !== undefined ? factory : null;
+    }
 });
 
 Ice.Instance = Instance;

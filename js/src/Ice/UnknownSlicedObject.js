@@ -62,13 +62,13 @@ var UnknownSlicedObject = Ice.Class(Ice.Object,
         },
         __write: function(os)
         {
-            os.startWriteObject(this._slicedData);
-            os.endWriteObject();
+            os.startObject(this._slicedData);
+            os.endObject();
         },
         __read: function(is)
         {
-            is.startReadObject();
-            this._slicedData = is.endReadObject(true);
+            is.startObject();
+            this._slicedData = is.endObject(true);
         }
     });
 Ice.UnknownSlicedObject = UnknownSlicedObject;

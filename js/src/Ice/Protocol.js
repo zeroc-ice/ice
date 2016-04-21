@@ -253,6 +253,15 @@ Ice.encodingVersionToString = function(v)
     return majorMinorToString(v.major, v.minor);
 };
 
+Protocol.OPTIONAL_END_MARKER        = 0xFF;
+Protocol.FLAG_HAS_TYPE_ID_STRING    = (1<<0);
+Protocol.FLAG_HAS_TYPE_ID_INDEX     = (1<<1);
+Protocol.FLAG_HAS_TYPE_ID_COMPACT   = (1<<1 | 1<<0);
+Protocol.FLAG_HAS_OPTIONAL_MEMBERS  = (1<<2);
+Protocol.FLAG_HAS_INDIRECTION_TABLE = (1<<3);
+Protocol.FLAG_HAS_SLICE_SIZE        = (1<<4);
+Protocol.FLAG_IS_LAST_SLICE         = (1<<5);
+
 Ice.Protocol = Protocol;
 module.exports.Ice = Ice;
 

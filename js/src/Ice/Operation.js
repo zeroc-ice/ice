@@ -221,7 +221,7 @@ function unmarshalParams(is, retvalInfo, allParamInfo, optParamInfo, usesClasses
     for(i = 0; i < optParamInfo.length; ++i)
     {
         p = optParamInfo[i];
-        v = p.type.readOpt(is, p.tag);
+        v = p.type.readOptional(is, p.tag);
         params[p.pos + offset] = v;
     }
 
@@ -261,7 +261,7 @@ function marshalParams(os, params, retvalInfo, paramInfo, optParamInfo, usesClas
     for(i = 0; i < optParamInfo.length; ++i)
     {
         p = optParamInfo[i];
-        p.type.writeOpt(os, p.tag, params[p.pos]);
+        p.type.writeOptional(os, p.tag, params[p.pos]);
     }
 
     if(usesClasses)
@@ -333,7 +333,7 @@ var Upcall = Class({
                 retvalInfo = this.op.returns;
             }
             marshalParams(__os, results, retvalInfo, this.op.outParams, this.op.outParamsOpt,
-                            this.op.returnsClasses);
+                          this.op.returnsClasses);
             this.incomingAsync.__endWriteParams(true);
         }
     },

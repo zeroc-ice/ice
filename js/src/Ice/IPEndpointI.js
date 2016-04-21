@@ -38,9 +38,9 @@ var IPEndpointI = Class(Ice.EndpointI, {
     //
     streamWrite: function(s)
     {
-        s.startWriteEncaps();
+        s.startEncapsulation();
         this.streamWriteImpl(s);
-        s.endWriteEncaps();
+        s.endEncapsulation();
     },
     getInfo: function()
     {

@@ -600,7 +600,7 @@ var ReferenceFactory = Class({
 
         var protocol = null;
         var encoding = null;
-        if(!s.getReadEncoding().equals(Ice.Encoding_1_0))
+        if(!s.getEncoding().equals(Ice.Encoding_1_0))
         {
             protocol = new Ice.ProtocolVersion();
             protocol.__read(s);
@@ -1212,7 +1212,7 @@ var Reference = Class({
 
         s.writeBool(this._secure);
 
-        if(!s.getWriteEncoding().equals(Ice.Encoding_1_0))
+        if(!s.getEncoding().equals(Ice.Encoding_1_0))
         {
             this._protocol.__write(s);
             this._encoding.__write(s);

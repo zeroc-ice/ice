@@ -598,11 +598,11 @@ Slice::JsGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
     {
         if(marshal)
         {
-            out << nl << stream << ".writeOptObject(" << tag << ", " << param << ");";
+            out << nl << stream << ".writeOptionalObject(" << tag << ", " << param << ");";
         }
         else
         {
-            out << nl << stream << ".readOptObject(" << tag << ", function(__o){ " << fixSuffix(param)
+            out << nl << stream << ".readOptionalObject(" << tag << ", function(__o){ " << fixSuffix(param)
                 << " = __o; }, " << typeToString(type) << ");";
         }
         return;
@@ -623,11 +623,11 @@ Slice::JsGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
 
     if(marshal)
     {
-        out << nl << getHelper(type) <<".writeOpt(" << stream << ", " << tag << ", " << param << ");";
+        out << nl << getHelper(type) <<".writeOptional(" << stream << ", " << tag << ", " << param << ");";
     }
     else
     {
-        out << nl << param << " = " << getHelper(type) << ".readOpt(" << stream << ", " << tag << ");";
+        out << nl << param << " = " << getHelper(type) << ".readOptional(" << stream << ", " << tag << ");";
     }
 }
 

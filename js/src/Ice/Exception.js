@@ -162,15 +162,15 @@ var UserException = Class(Exception, {
     },
     __write: function(os)
     {
-        os.startWriteException(null);
+        os.startException(null);
         __writeImpl(this, os, this.__mostDerivedType());
-        os.endWriteException();
+        os.endException();
     },
     __read: function(is)
     {
-        is.startReadException();
+        is.startException();
         __readImpl(this, is, this.__mostDerivedType());
-        is.endReadException(false);
+        is.endException(false);
     },
     __usesClasses: function()
     {
@@ -196,12 +196,12 @@ var __writeImpl = function(obj, os, type)
         return; // Don't marshal anything for Ice.UserException
     }
 
-    os.startWriteSlice(type.__id, -1, type.__parent === UserException);
+    os.startSlice(type.__id, -1, type.__parent === UserException);
     if(type.prototype.__writeMemberImpl)
     {
         type.prototype.__writeMemberImpl.call(obj, os);
     }
-    os.endWriteSlice();
+    os.endSlice();
     __writeImpl(obj, os, type.__parent);
 };
 
@@ -218,12 +218,12 @@ var __readImpl = function(obj, is, type)
         return; // Don't marshal anything for UserException
     }
 
-    is.startReadSlice();
+    is.startSlice();
     if(type.prototype.__readMemberImpl)
     {
         type.prototype.__readMemberImpl.call(obj, is);
     }
-    is.endReadSlice();
+    is.endSlice();
     __readImpl(obj, is, type.__parent);
 };
 
@@ -233,9 +233,9 @@ var __writePreserved = function(os)
     // For Slice exceptions which are marked "preserved", the implementation of this method
     // replaces the Ice.Object.prototype.__write method.
     //
-    os.startWriteException(this.__slicedData);
+    os.startException(this.__slicedData);
     __writeImpl(this, os, this.__mostDerivedType());
-    os.endWriteException();
+    os.endException();
 };
 
 var __readPreserved = function(is)
@@ -244,9 +244,9 @@ var __readPreserved = function(is)
     // For Slice exceptions which are marked "preserved", the implementation of this method
     // replaces the Ice.Object.prototype.__read method.
     //
-    is.startReadException();
+    is.startException();
     __readImpl(this, is, this.__mostDerivedType());
-    this.__slicedData = is.endReadException(true);
+    this.__slicedData = is.endException(true);
 };
 
 Slice.defineUserException = function(constructor, base, name, writeImpl, readImpl, preserved, usesClasses)

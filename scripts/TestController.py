@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import os, sys, threading, subprocess, getopt, signal
+import os, sys, threading, subprocess, getopt, signal, re
 
 path = [ ".", "..", "../..", "../../..", "../../../.." ]
 head = os.path.dirname(sys.argv[0])
@@ -45,7 +45,9 @@ if TestUtil.isDarwin():
     except getopt.GetoptError:
         pass
 
-iceVersion = "3.7.0"
+props = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "java", "gradle.properties"), "r")
+iceVersion = re.search("iceVersion *= *([-.0-9a-z]*)", props.read()).group(1)
+
 jar = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..",
                    "java/test/controller/build/libs/testController-%(iceVersion)s.jar" % {"iceVersion": iceVersion})
 

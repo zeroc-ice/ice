@@ -117,19 +117,15 @@ var Communicator = Ice.Class({
     },
     addObjectFactory: function(factory, id)
     {
-        this._instance.servantFactoryManager().addObjectFactory(factory, id);
+        this._instance.addObjectFactory(factory, id);
     },
     findObjectFactory: function(id)
     {
-        return this._instance.servantFactoryManager().findObjectFactory(id);
+        return this._instance.findObjectFactory(id);
     },
-    addValueFactory: function(factory, id)
+    getValueFactoryManager: function()
     {
-        this._instance.servantFactoryManager().add(factory, id);
-    },
-    findValueFactory: function(id)
-    {
-        return this._instance.servantFactoryManager().find(id);
+        return this._instance.initializationData().valueFactoryManager;
     },
     getImplicitContext: function()
     {

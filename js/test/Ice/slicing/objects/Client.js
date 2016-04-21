@@ -676,7 +676,7 @@
                 // the Ice run time will install its own internal factory for Preserved upon receiving the
                 // first instance.
                 //
-                communicator.addValueFactory(PreservedFactoryI, Test.Preserved.ice_staticId());
+                communicator.getValueFactoryManager().add(PreservedFactoryI, Test.Preserved.ice_staticId());
 
                 //
                 // Server knows the most-derived class PDerived.

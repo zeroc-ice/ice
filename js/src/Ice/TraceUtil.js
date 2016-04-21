@@ -27,6 +27,7 @@ var Protocol = Ice.Protocol;
 var StringUtil = Ice.StringUtil;
 var OperationMode = Ice.OperationMode;
 var Identity = Ice.Identity;
+var InputStream = Ice.InputStream;
 
 var TraceUtil = {};
 
@@ -35,10 +36,11 @@ TraceUtil.traceSend = function(stream, logger, traceLevels)
     if(traceLevels.protocol >= 1)
     {
         var p = stream.pos;
-        stream.pos = 0;
+        var is = new InputStream(stream.instance, stream.getEncoding(), stream.buffer);
+        is.pos = 0;
 
         var s = [];
-        var type = printMessage(s, stream);
+        var type = printMessage(s, is);
 
         logger.trace(traceLevels.protocolCat, "sending " + getMessageTypeAsString(type) + " " + s.join(""));
 
@@ -62,7 +64,24 @@ TraceUtil.traceRecv = function(stream, logger, traceLevels)
     }
 };
 
-TraceUtil.trace = function(heading, stream, logger, traceLevels)
+TraceUtil.traceOut = function(heading, stream, logger, traceLevels)
+{
+    if(traceLevels.protocol >= 1)
+    {
+        var p = stream.pos;
+        var is = new InputStream(stream.instance, stream.getEncoding(), stream.buffer);
+        is.pos = 0;
+
+        var s = [];
+        s.push(heading);
+        printMessage(s, is);
+
+        logger.trace(traceLevels.protocolCat, s.join(""));
+        stream.pos = p;
+    }
+};
+
+TraceUtil.traceIn = function(heading, stream, logger, traceLevels)
 {
     if(traceLevels.protocol >= 1)
     {
@@ -305,7 +324,7 @@ function printReply(s, stream)
 
     if(replyStatus === Protocol.replyOK || replyStatus === Protocol.replyUserException)
     {
-        var ver = stream.skipEncaps();
+        var ver = stream.skipEncapsulation();
         if(!ver.equals(Ice.Encoding_1_0))
         {
             s.push("\nencoding = ");
@@ -360,7 +379,7 @@ function printRequestHeader(s, stream)
         }
     }
 
-    var ver = stream.skipEncaps();
+    var ver = stream.skipEncapsulation();
     if(!ver.equals(Ice.Encoding_1_0))
     {
         s.push("\nencoding = ");

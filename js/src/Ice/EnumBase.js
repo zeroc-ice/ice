@@ -65,7 +65,7 @@ var EnumHelper = Ice.Class({
     {
         this._enumType.__write(os, v);
     },
-    writeOpt: function(os, tag, v)
+    writeOptional: function(os, tag, v)
     {
         this._enumType.__writeOpt(os, tag, v);
     },
@@ -73,7 +73,7 @@ var EnumHelper = Ice.Class({
     {
         return this._enumType.__read(is);
     },
-    readOpt: function(is, tag)
+    readOptional: function(is, tag)
     {
         return this._enumType.__readOpt(is, tag);
     }
@@ -137,7 +137,7 @@ Slice.defineEnum = function(enumerators)
     {
         if(v !== undefined)
         {
-            if(os.writeOpt(tag, Ice.OptionalFormat.Size))
+            if(os.writeOptional(tag, Ice.OptionalFormat.Size))
             {
                 type.__write(os, v);
             }
@@ -145,7 +145,7 @@ Slice.defineEnum = function(enumerators)
     };
     type.__readOpt = function(is, tag)
     {
-        return is.readOptEnum(tag, type);
+        return is.readOptionalEnum(tag, type);
     };
 
     type.__helper = new EnumHelper(type);

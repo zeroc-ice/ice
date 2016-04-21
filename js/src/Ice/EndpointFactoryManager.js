@@ -12,7 +12,7 @@ Ice.__M.require(module,
     [
         "../Ice/Class",
         "../Ice/StringUtil",
-        "../Ice/BasicStream",
+        "../Ice/Stream",
         "../Ice/Debug",
         "../Ice/OpaqueEndpointI",
         "../Ice/Protocol",
@@ -23,7 +23,8 @@ Ice.__M.require(module,
 // Local aliases.
 //
 var Debug = Ice.Debug;
-var BasicStream = Ice.BasicStream;
+var InputStream = Ice.InputStream;
+var OutputStream = Ice.OutputStream;
 var EndpointParseException = Ice.EndpointParseException;
 var OpaqueEndpointI = Ice.OpaqueEndpointI;
 var Protocol = Ice.Protocol;
@@ -113,15 +114,16 @@ var EndpointFactoryManager = Ice.Class({
                     // and ask the factory to read the endpoint data from that stream to create
                     // the actual endpoint.
                     //
-                    var bs = new BasicStream(this._instance, Protocol.currentProtocolEncoding);
-                    bs.writeShort(ue.type());
-                    ue.streamWrite(bs);
-                    bs.pos = 0;
-                    bs.readShort(); // type
-                    bs.startReadEncaps();
-                    var endpoint = this._factories[i].read(bs);
-                    bs.endReadEncaps();
-                    return endpoint;
+                    var os = new OutputStream(this._instance, Protocol.currentProtocolEncoding);
+                    os.writeShort(ue.type());
+                    ue.streamWrite(os);
+                    var is = new InputStream(this._instance, Protocol.currentProtocolEncoding, os.buffer);
+                    is.pos = 0;
+                    is.readShort(); // type
+                    is.startEncapsulation();
+                    var e = this._factories[i].read(is);
+                    is.endEncapsulation();
+                    return e;
                 }
             }
             return ue; // Endpoint is opaque, but we don't have a factory for its type.
@@ -137,16 +139,16 @@ var EndpointFactoryManager = Ice.Class({
         {
             if(this._factories[i].type() == type)
             {
-                s.startReadEncaps();
+                s.startEncapsulation();
                 e = this._factories[i].read(s);
-                s.endReadEncaps();
+                s.endEncapsulation();
                 return e;
             }
         }
-        s.startReadEncaps();
+        s.startEncapsulation();
         e = new OpaqueEndpointI(type);
         e.initWithStream(s);
-        s.endReadEncaps();
+        s.endEncapsulation();
         return e;
     },
     destroy: function()

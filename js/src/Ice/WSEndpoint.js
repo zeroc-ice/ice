@@ -50,10 +50,10 @@ var WSEndpoint = Class(EndpointI, {
     },
     streamWrite: function(s)
     {
-        s.startWriteEncaps();
+        s.startEncapsulation();
         this._delegate.streamWriteImpl(s);
         s.writeString(this._resource);
-        s.endWriteEncaps();
+        s.endEncapsulation();
     },
     timeout: function()
     {

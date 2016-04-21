@@ -13,7 +13,7 @@ Ice.__M.require(module,
         "../Ice/Class",
         "../Ice/AsyncStatus",
         "../Ice/AsyncResult",
-        "../Ice/BasicStream",
+        "../Ice/Stream",
         "../Ice/Debug",
         "../Ice/HashMap",
         "../Ice/RetryException",
@@ -27,7 +27,8 @@ Ice.__M.require(module,
 
 var AsyncStatus = Ice.AsyncStatus;
 var AsyncResult = Ice.AsyncResult;
-var BasicStream = Ice.BasicStream;
+var InputStream = Ice.InputStream;
+var OutputStream = Ice.OutputStream;
 var Debug = Ice.Debug;
 var HashMap = Ice.HashMap;
 var RetryException = Ice.RetryException;
@@ -41,7 +42,7 @@ var OutgoingAsyncBase = Ice.Class(AsyncResult, {
         if(communicator !== undefined)
         {
             AsyncResult.call(this, communicator, operation, connection, proxy, adapter);
-            this._os = new BasicStream(this._instance, Protocol.currentProtocolEncoding);
+            this._os = new OutputStream(this._instance, Protocol.currentProtocolEncoding);
         }
         else
         {
@@ -327,7 +328,7 @@ var OutgoingAsync = Ice.Class(ProxyOutgoingAsyncBase, {
         {
             if(this._is === null) // _is can already be initialized if the invocation is retried
             {
-                this._is = new BasicStream(this._instance, Protocol.currentProtocolEncoding);
+                this._is = new InputStream(this._instance, Protocol.currentProtocolEncoding);
             }
             this._is.swap(istr);
             replyStatus = this._is.readByte();
@@ -454,26 +455,26 @@ var OutgoingAsync = Ice.Class(ProxyOutgoingAsyncBase, {
     },
     __startWriteParams: function(format)
     {
-        this._os.startWriteEncaps(this._encoding, format);
+        this._os.startEncapsulation(this._encoding, format);
         return this._os;
     },
     __endWriteParams: function()
     {
-        this._os.endWriteEncaps();
+        this._os.endEncapsulation();
     },
     __writeEmptyParams: function()
     {
-        this._os.writeEmptyEncaps(this._encoding);
+        this._os.writeEmptyEncapsulation(this._encoding);
     },
     __writeParamEncaps: function(encaps)
     {
         if(encaps === null || encaps.length === 0)
         {
-            this._os.writeEmptyEncaps(this._encoding);
+            this._os.writeEmptyEncapsulation(this._encoding);
         }
         else
         {
-            this._os.writeEncaps(encaps);
+            this._os.writeEncapsulation(encaps);
         }
     },
     __is: function()
@@ -482,20 +483,20 @@ var OutgoingAsync = Ice.Class(ProxyOutgoingAsyncBase, {
     },
     __startReadParams: function()
     {
-        this._is.startReadEncaps();
+        this._is.startEncapsulation();
         return this._is;
     },
     __endReadParams: function()
     {
-        this._is.endReadEncaps();
+        this._is.endEncapsulation();
     },
     __readEmptyParams: function()
     {
-        this._is.skipEmptyEncaps(null);
+        this._is.skipEmptyEncapsulation(null);
     },
     __readParamEncaps: function()
     {
-        return this._is.readEncaps(null);
+        return this._is.readEncapsulation(null);
     },
     __throwUserException: function()
     {
@@ -504,14 +505,14 @@ var OutgoingAsync = Ice.Class(ProxyOutgoingAsyncBase, {
         {
             try
             {
-                this._is.startReadEncaps();
+                this._is.startEncapsulation();
                 this._is.throwException();
             }
             catch(ex)
             {
                 if(ex instanceof Ice.UserException)
                 {
-                    this._is.endReadEncaps();
+                    this._is.endEncapsulation();
                 }
                 throw ex;
             }

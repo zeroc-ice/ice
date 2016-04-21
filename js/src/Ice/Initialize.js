@@ -25,6 +25,7 @@ Ice.InitializationData = function()
 {
     this.properties = null;
     this.logger = null;
+    this.valueFactoryManager = null;
 };
 
 Ice.InitializationData.prototype.clone = function()
@@ -32,6 +33,7 @@ Ice.InitializationData.prototype.clone = function()
     var r = new Ice.InitializationData();
     r.properties = this.properties;
     r.logger = this.logger;
+    r.valueFactoryManager = this.valueFactoryManager;
     return r;
 };
 
