@@ -24,7 +24,6 @@
     <Compile Include="generated\Descriptor.cs" />
     <Compile Include="generated\Exception.cs" />
     <Compile Include="generated\FileParser.cs" />
-    <Compile Include="generated\IceLocatorDiscovery.cs" />
     <Compile Include="generated\PluginFacade.cs" />
     <Compile Include="generated\Registry.cs" />
     <Compile Include="generated\Session.cs" />
