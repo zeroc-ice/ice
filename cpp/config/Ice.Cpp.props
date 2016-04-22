@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <Import Project="$(MSBuildThisFileDirectory)Ice.props"
-            Condition="Exists('$(MSBuildThisFileDirectory)Ice.props')"/>
-
     <PropertyGroup Condition="'$(UseDebugLibraries)' == 'true'">
         <Ice_Configuration>Debug</Ice_Configuration>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(UseDebugLibraries)' != 'true'">
         <Ice_Configuration>Release</Ice_Configuration>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Ice_CppMapping)' == ''">
+        <Ice_CppMapping>cpp98</Ice_CppMapping>
     </PropertyGroup>
 
     <!-- Ice binary distribution -->

@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <ProjectGuid>{6479EE9D-5730-44BC-B564-97211E1B54C5}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>IcePatch2</AssemblyName>
+    <ProjectTypeGuids>{3C53C28F-DC44-46B0-8B85-0C96B85B2042};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+  </PropertyGroup>
+  <Import Project="$(MSBuildThisFileDirectory)..\..\..\msbuild\ice.common.props" />
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\AssemblyInfo.cs">
+      <Link>AssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="generated\FileInfo.cs" />
+    <Compile Include="generated\FileServer.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\..\slice\IcePatch2\FileInfo.ice">
+      <Link>FileInfo.ice</Link>
+    </None>
+    <None Include="..\..\..\..\slice\IcePatch2\FileServer.ice">
+      <Link>FileServer.ice</Link>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Ice\msbuild\ice.csproj">
+      <Project>{7cb4715e-dd8b-48f8-b478-27b8bd4008c7}</Project>
+      <Name>ice</Name>
+      <Private>False</Private>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(LOCALAPPDATA)\ZeroC\IceBuilder\IceBuilder.CSharp.props" />
+  <PropertyGroup Label="IceBuilder">
+    <IceBuilderIncludeDirectories>$(IceHome)\slice</IceBuilderIncludeDirectories>
+    <IceBuilderAllowIcePrefix>yes</IceBuilderAllowIcePrefix>
+  </PropertyGroup>
+  <Import Project="$(LOCALAPPDATA)\ZeroC\IceBuilder\IceBuilder.CSharp.targets" />
+</Project>

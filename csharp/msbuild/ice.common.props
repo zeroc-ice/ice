@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>TRACE</DefineConstants>
+    <SignAssembly>true</SignAssembly>
+    <AssembliesDirectory>$(MSBuildThisFileDirectory)\..\Assemblies\</AssembliesDirectory>
+    <ExeDirectory>$(MSBuildThisFileDirectory)\..\bin\</ExeDirectory>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(KeyFile)' == ''">
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)..\..\config\IceDevKey.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Managed)' == 'yes'">
+    <DefineConstants>MANAGED;$(DefineConstants)</DefineConstants>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <DefineConstants>DEBUG;$(DefineConstants)</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(OutputType)' == 'Library' ">
+      <OutputPath>$(AssembliesDirectory)</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(OutputType)' == 'Exe' ">
+      <OutputPath>$(ExeDirectory)</OutputPath>
+  </PropertyGroup>
+</Project>

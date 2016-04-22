@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2009-2016 ZeroC, Inc. All rights reserved. -->
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <IceVersion>3.7a0</IceVersion>
+        <IceIntVersion>30751</IceIntVersion>
+        <IceVersionMM>3.7</IceVersionMM>
+        <IceNugetPackageVersion>3.7.0.0</IceNugetPackageVersion>
+        <IceHome>$(MSBuildThisFileDirectory)..</IceHome>
+        <IceToolsBin>$(IceHome)\tools</IceToolsBin>
+    </PropertyGroup>
+
+    <!-- Whenever or not HintPath must be set for Ice
+         assembly references -->
+    <PropertyGroup Condition="'$(IceRerencesUseHintPath)' == ''">
+        <IceRerencesUseHintPath>yes</IceRerencesUseHintPath>
+    </PropertyGroup>
+
+</Project>

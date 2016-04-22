@@ -1,6 +1,8 @@
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
 
+    <Import Project="$(MSBuildThisFileDirectory)\..\..\config\Ice.common.targets" />
+
     <PropertyGroup Condition="'$(Configuration)' == ''">
       <Configuration>Debug</Configuration>
     </PropertyGroup>
@@ -8,29 +10,6 @@
     <PropertyGroup Condition="'$(Platform)' == ''">
       <Platform>Win32</Platform>
     </PropertyGroup>
-
-    <!-- Custom task to download files -->
-    <UsingTask TaskName="DownloadFile"
-               TaskFactory="CodeTaskFactory"
-               AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
-        <ParameterGroup>
-            <Address ParameterType="System.String" Required="true"/>
-            <FileName ParameterType="System.String" Required="true" />
-        </ParameterGroup>
-        <Task>
-            <Reference Include="System" />
-            <Code Type="Fragment" Language="cs">
-                <![CDATA[
-                new System.Net.WebClient().DownloadFile(Address, FileName);
-                ]]>
-            </Code>
-        </Task>
-    </UsingTask>
-
-    <!-- Download nuget.exe if not present -->
-    <Target Name="GetNuget" Condition="!Exists('$(MSBuildThisFileDirectory)nuget.exe')">
-        <DownloadFile Address="http://nuget.org/nuget.exe" FileName="$(MSBuildThisFileDirectory)nuget.exe" />
-    </Target>
 
     <!-- Restore Nuget packages -->
     <Target Name="NugetRestore" DependsOnTargets="GetNuget">

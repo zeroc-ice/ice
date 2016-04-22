@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>ZeroC.Ice.NET</id>
+        <title>ZeroC Ice for .NET</title>
+        <version>3.7.0.0</version>
+        <authors>ZeroC, Inc</authors>
+        <owners>ZeroC, Inc</owners>
+        <licenseUrl>https://zeroc.com/licensing</licenseUrl>
+        <projectUrl>http://www.zeroc.com</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>A comprehensive rpc framework.</description>
+        <releaseNotes>TODO</releaseNotes>
+        <tags>ice native</tags>
+
+        <references>
+            <reference file="Ice.dll" />
+        </references>
+    </metadata>
+</package>
