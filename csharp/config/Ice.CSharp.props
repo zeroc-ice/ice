@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <!-- Import Ice version settings from the top level config directory -->
-    
+
 
     <!-- Source distributions -->
     <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
         <Ice_Configuration>Debug</Ice_Configuration>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(Configuration)' != 'Release'">
+    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
         <Ice_Configuration>Release</Ice_Configuration>
     </PropertyGroup>
 
