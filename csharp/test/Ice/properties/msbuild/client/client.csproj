@@ -61,7 +61,6 @@
     <Compile Include="..\..\Client.cs">
       <Link>Client.cs</Link>
     </Compile>
-    <Compile Include="generated\Test.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\client.exe.config">
