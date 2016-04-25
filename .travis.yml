@@ -15,12 +15,6 @@ addons:
     - libdbus-glib-1-dev
     - libbluetooth-dev
 
-os:
-  - linux
-  - osx
-
-osx_image: xcode7.3
-
 env:
   global:
     - CXX=g++-5
@@ -44,14 +38,6 @@ cache:
   - $TRAVIS_BUILD_DIR/js/node_modules
 
 before_install:
-- if [ "${TRAVIS_OS_NAME}" == "osx" ]; then
-      sw_vers -productVersion
-      brew update;
-      brew upgrade --all;
-      brew tap zeroc-ice/tap;
-      brew tap homebrew/homebrew-php;
-      brew install berkeley-db53 python python3 ruby node php70;
-  fi
 - git clone https://github.com/zeroc-ice/mcpp.git mcpp
 - wget https://github.com/LMDB/lmdb/archive/LMDB_${LMDB_REVISION}.tar.gz
 - tar xvf LMDB_${LMDB_REVISION}.tar.gz
