@@ -460,13 +460,30 @@ namespace IceInternal
         public Ice.EncodingVersion skipEmptyEncaps()
         {
             int sz = readInt();
-            if(sz != 6)
+            if(sz < 6)
             {
                 throw new Ice.EncapsulationException();
+            }
+            if(sz - 4 > _buf.b.remaining())
+            {
+                throw new Ice.UnmarshalOutOfBoundsException();
             }
 
             Ice.EncodingVersion encoding = new Ice.EncodingVersion();
             encoding.read__(this);
+            if(encoding.Equals(Ice.Util.Encoding_1_0))
+            {
+                if(sz != 6)
+                {
+                    throw new Ice.EncapsulationException();
+                }
+            }
+            else
+            {
+                // Skip the optional content of the encapsulation if we are expecting an
+                // empty encapsulation.
+                _buf.b.position(_buf.b.position() + sz - 6);
+            }
             return encoding;
         }
 
@@ -4380,7 +4397,7 @@ namespace IceInternal
                     if(_current.sliceType == SliceType.ObjectSlice)
                     {
                         throw new Ice.NoObjectFactoryException("no object factory found and compact format prevents " +
-                                                               "slicing (the sender should use the sliced format " + 
+                                                               "slicing (the sender should use the sliced format " +
                                                                "instead)", _current.typeId);
                     }
                     else

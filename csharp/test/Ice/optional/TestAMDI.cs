@@ -254,10 +254,15 @@ public class InitialI : Test.Initial
     {
         cb.ice_response(new Test.OneOptional(53));
     }
-    
+
     public override void opG_async(Test.AMD_Initial_opG cb, Test.G g, Ice.Current current)
     {
         cb.ice_response(g);
+    }
+
+    public override void opVoid_async(Test.AMD_Initial_opVoid cb, Ice.Current current)
+    {
+        cb.ice_response();
     }
 
     public override void supportsRequiredParams_async(Test.AMD_Initial_supportsRequiredParams cb, Ice.Current current)

@@ -444,7 +444,19 @@ public class AllTests : TestCommon.TestApp
         test(10 == g.gg2.a);
         test(20 == g.gg2Opt.Value.a);
         test("gg1".Equals(g.gg1.a));
-            
+
+        initial.opVoid();
+
+        os = Ice.Util.createOutputStream(communicator);
+        os.startEncapsulation();
+        os.writeOptional(1, Ice.OptionalFormat.F4);
+        os.writeInt(15);
+        os.writeOptional(1, Ice.OptionalFormat.VSize);
+        os.writeString("test");
+        os.endEncapsulation();
+        inEncaps = os.finished();
+        test(initial.ice_invoke("opVoid", Ice.OperationMode.Normal, inEncaps, out outEncaps));
+
         WriteLine("ok");
 
         Write("testing marshaling of large containers with fixed size elements... ");

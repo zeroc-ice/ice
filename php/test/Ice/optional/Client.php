@@ -355,6 +355,10 @@ function allTests($communicator)
     test($r->gg2Opt->a == 20);
     test($r->gg1->a == "gg1");
 
+    $initial2 = $NS ? eval("return Test\\Initial2PrxHelper::uncheckedCast(\$base);") :
+                      eval("return Test_Initial2PrxHelper::uncheckedCast(\$base);");
+    $initial2->opVoid(15, "test");
+
     echo "ok\n";
 
     echo "testing marshaling of large containers with fixed size elements... ";

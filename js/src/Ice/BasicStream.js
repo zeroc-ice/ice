@@ -1952,29 +1952,34 @@ var BasicStream = Class({
         this._readEncapsCache = curr;
         this._readEncapsCache.reset();
     },
-    skipEmptyEncaps: function(encoding)
+    skipEmptyEncaps: function()
     {
-        Debug.assert(encoding !== undefined);
         var sz = this.readInt();
-        if(sz !== 6)
+        if(sz < 6)
         {
             throw new Ice.EncapsulationException();
         }
-
-        var pos = this._buf.position;
-        if(pos + 2 > this._buf.limit)
+        if(sz - 4 > this._buf.remaining)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
 
-        if(encoding !== null)
+        var encoding = new Ice.EncodingVersion();
+        encoding.__read(this);
+        if(encoding.equals(Ice.Encoding_1_0))
         {
-            encoding.__read(this);
+            if(sz != 6)
+            {
+                throw new Ice.EncapsulationException();
+            }
         }
         else
         {
-            this._buf.position = pos + 2;
+            // Skip the optional content of the encapsulation if we are expecting an
+            // empty encapsulation.
+            this._buf.position = this._buf.position + sz - 6;
         }
+        return encoding;
     },
     endReadEncapsChecked: function() // Used by public stream API.
     {

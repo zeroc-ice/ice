@@ -621,7 +621,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
     RecursivePtr outer = new Recursive();
     outer->value = recursive1;
     initial->pingPong(outer);
-    
+
     GPtr g = new G();
     g->gg1Opt = new G1("gg1Opt");
     g->gg2 = new G2(10);
@@ -632,6 +632,16 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
     test(10 == r->gg2->a);
     test(20 == r->gg2Opt.get()->a);
     test("gg1" == r->gg1->a);
+
+    initial->opVoid();
+
+    out = Ice::createOutputStream(communicator);
+    out->startEncapsulation();
+    out->write(1, IceUtil::Optional<int>(15));
+    out->write(2, IceUtil::Optional<string>("test"));
+    out->endEncapsulation();
+    out->finished(inEncaps);
+    test(initial->ice_invoke("opVoid", Ice::Normal, inEncaps, outEncaps));
 
     cout << "ok" << endl;
 

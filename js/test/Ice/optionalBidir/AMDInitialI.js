@@ -359,6 +359,10 @@
         {
             cb.ice_response(g);
         },
+        opVoid_async: function(cb, current)
+        {
+            cb.ice_response();
+        },
         supportsRequiredParams_async: function(cb, current)
         {
             cb.ice_response(false);

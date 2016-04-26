@@ -564,12 +564,19 @@ public final class AMDInitialI extends Initial
     {
         cb.ice_response(new Ice.Optional<OneOptional>(new OneOptional(53)));
     }
-    
+
     @Override
     public void
     opG_async(AMD_Initial_opG cb, G g, Ice.Current current)
     {
         cb.ice_response(g);
+    }
+
+    @Override
+    public void
+    opVoid_async(AMD_Initial_opVoid cb, Ice.Current current)
+    {
+        cb.ice_response();
     }
 
     @Override

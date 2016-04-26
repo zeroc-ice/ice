@@ -11,6 +11,7 @@
 {
     var Ice = require("ice").Ice;
     var Test = require("Test").Test;
+    var ClientPrivate = require("../optional/ClientPrivate").Test;
 
     var Promise = Ice.Promise;
     var ArrayUtil = Ice.ArrayUtil;
@@ -355,7 +356,16 @@
                 test(g.gg2.a.equals(new Ice.Long(0, 10)));
                 test(g.gg2Opt.a.equals(new Ice.Long(0, 20)));
                 test(g.gg1.a == "gg1");
-                
+            }
+        ).then(
+            function()
+            {
+                var init2 = ClientPrivate.Initial2Prx.uncheckedCast(initial)
+                return init2.opVoid(5, "test");
+            }
+        ).then(
+            function()
+            {
                 out.writeLine("ok");
                 out.write("testing marshaling of large containers with fixed size elements... ");
                 var mc = new Test.MultiOptional();

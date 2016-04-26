@@ -491,7 +491,7 @@ var OutgoingAsync = Ice.Class(ProxyOutgoingAsyncBase, {
     },
     __readEmptyParams: function()
     {
-        this._is.skipEmptyEncaps(null);
+        this._is.skipEmptyEncaps();
     },
     __readParamEncaps: function()
     {

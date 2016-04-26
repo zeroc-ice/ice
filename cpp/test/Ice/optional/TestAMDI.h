@@ -190,10 +190,13 @@ public:
     virtual void returnOptionalClass_async(const ::Test::AMD_Initial_returnOptionalClassPtr&,
                                            bool,
                                            const Ice::Current&);
-    
+
     virtual void opG_async(const ::Test::AMD_Initial_opGPtr&,
                            const ::Test::GPtr&,
                            const Ice::Current&);
+
+    virtual void opVoid_async(const ::Test::AMD_Initial_opVoidPtr&,
+                              const Ice::Current&);
 
     virtual void supportsRequiredParams_async(const ::Test::AMD_Initial_supportsRequiredParamsPtr&,
                                               const Ice::Current&);

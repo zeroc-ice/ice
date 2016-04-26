@@ -301,8 +301,10 @@ class Initial
     void sendOptionalClass(bool req, optional(1) OneOptional o);
 
     void returnOptionalClass(bool req, out optional(1) OneOptional o);
-    
+
     G opG(G g);
+
+    void opVoid();
 
     bool supportsRequiredParams();
 

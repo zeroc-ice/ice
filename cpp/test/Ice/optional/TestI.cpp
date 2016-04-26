@@ -389,6 +389,11 @@ InitialI::opG(const GPtr& g, const Ice::Current&)
     return g;
 }
 
+void
+InitialI::opVoid(const Ice::Current&)
+{
+}
+
 bool
 InitialI::supportsRequiredParams(const Ice::Current&)
 {

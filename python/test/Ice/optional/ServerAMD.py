@@ -138,9 +138,12 @@ class InitialI(Test.Initial):
 
     def returnOptionalClass_async(self, cb, req, current=None):
         cb.ice_response(Test.OneOptional(5))
-        
+
     def opG_async(self, cb, g, current=None):
         cb.ice_response(g)
+
+    def opVoid_async(self, cb, current=None):
+        cb.ice_response()
 
     def supportsRequiredParams_async(self, cb, current=None):
         cb.ice_response(False)
