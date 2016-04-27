@@ -352,13 +352,25 @@ IceInternal::StreamTransceiver::StreamTransceiver(const ProtocolInstancePtr& ins
     NativeInfo(fd),
     _instance(instance),
     _state(connected ? StateConnected : StateNeedConnect),
-    _desc(connected ? fdToString(_fd) : string()),
     _verified(false)
 {
     StreamSocket^ streamSocket = safe_cast<StreamSocket^>(_fd);
     _writer = ref new DataWriter(streamSocket->OutputStream);
     _reader = ref new DataReader(streamSocket->InputStream);
     _reader->InputStreamOptions = InputStreamOptions::Partial;
+
+    if(connected)
+    {
+        try
+        {
+            _desc = fdToString(_fd);
+        }
+        catch(const Ice::Exception&)
+        {
+            closeSocketNoThrow(_fd);
+            throw;
+        }
+    }
 
     setTcpBufSize(_fd, _instance);
 
