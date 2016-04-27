@@ -49,14 +49,17 @@
     <Reference Include="Glacier2, Version=3.7.51.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <Private>False</Private>
+      <HintPath>$(IceAssembliesDir)\Glacier2.dll</HintPath>
     </Reference>
     <Reference Include="Ice, Version=3.7.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <Private>False</Private>
+      <HintPath>$(IceAssembliesDir)\Ice.dll</HintPath>
     </Reference>
     <Reference Include="IceGrid, Version=3.7.51.0, Culture=neutral, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
       <Private>False</Private>
+      <HintPath>$(IceAssembliesDir)\IceGrid.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

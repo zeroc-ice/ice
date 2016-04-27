@@ -6,5 +6,5 @@
         <Ice_CppMapping>cpp98</Ice_CppMapping>
     </PropertyGroup>
 
-    <Import Project="$(MSBuildThisFileDirectory)\Ice.Cpp.props" />
+    <Import Project="$(MSBuildThisFileDirectory)\ice.cpp.props" />
 </Project>

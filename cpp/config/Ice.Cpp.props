@@ -12,14 +12,6 @@
         <Ice_CppMapping>cpp98</Ice_CppMapping>
     </PropertyGroup>
 
-    <!-- Ice binary distribution -->
-    <PropertyGroup Condition="!Exists('$(IceSourceHome)')">
-        <IceToolsBin>$(IceHome)\ice.$(PlatformToolset)\build\native\bin\Win32\Release</IceToolsBin>
-        <Path>$(IceHome)\ice.$(PlatformToolset)\build\native\bin\$(Platform)\$(Ice_Configuration)%$(IceToolsBin);%(Path)</Path>
-        <LibraryPath>$(IceHome)\ice.$(PlatformToolset)\build\native\lib\$(Platform)\$(Ice_Configuration);$(LibraryPath)</LibraryPath>
-        <IncludePath>$(IceHome)\ice.$(PlatformToolset)\include;$(IncludePath)</IncludePath>
-    </PropertyGroup>
-
     <PropertyGroup Condition="'$(Platform)'=='Win32'">
         <Ice_Platform>Win32</Ice_Platform>
     </PropertyGroup>

@@ -52,7 +52,7 @@
 
     <!-- Copy source files in Win32 Release, the files are identical in all configurations -->
     <Target Name="CopySources" Condition="'$(Platform)|$(Configuration)' == 'Win32|Release'">
-        <Copy SourceFiles="@(Sources)" DestinationFolder="$(PackageDirectory)\build\native\src\%(Sources.RecursiveDir)" />
+        <Copy SourceFiles="@(Sources)" DestinationFolder="$(PackageDirectory)\src\%(Sources.RecursiveDir)" />
     </Target>
 
     <!-- Copy PDB files in Debug configurations -->

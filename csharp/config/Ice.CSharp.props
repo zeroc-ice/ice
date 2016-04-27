@@ -36,8 +36,6 @@
         <!-- IceToolsBin must point to the location of slice2cs Slice CSharp compiler -->
         <IceToolsBin>$(IceHome)\cpp\bin\$(Ice_Platform)\$(Ice_Configuration)</IceToolsBin>
 
-        <!-- Do not set HintPath when using Ice source distribution, references will be located
-             by the AssemblyFolderEx registry setting -->
-        <IceRerencesUseHintPath>no</IceRerencesUseHintPath>
+        <IceAssembliesDir>$(IceHome)\csharp\Assemblies</IceAssembliesDir>
     </PropertyGroup>
 </Project>

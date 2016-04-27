@@ -42,52 +42,7 @@
         <MSBuild Projects="@(TestSoution)" BuildInParallel="true" Targets="Clean" Properties="%(Properties)" />
     </Target>
 
-    <PropertyGroup>
-        <Ice_PackageDir>$(MSBuildThisFileDirectory)zeroc.ice.net</Ice_PackageDir>
-        <Ice_SrcRootDir>$(MSBuildThisFileDirectory)..\</Ice_SrcRootDir>
-    </PropertyGroup>
-
-    <!-- Assemblies -->
-    <ItemGroup>
-        <Assemblies Include="$(Ice_SrcRootDir)Assemblies\*.dll"/>
-        <Assemblies Include="$(Ice_SrcRootDir)Assemblies\*.pdb"/>
-        <Assemblies Include="$(Ice_SrcRootDir)Assemblies\*.xml"/>
-    </ItemGroup>
-
-    <!-- Binaries -->
-    <ItemGroup>
-        <Executables Include="$(Ice_SrcRootDir)bin\*.exe"/>
-        <Executables Include="$(Ice_SrcRootDir)bin\*.exe.config"/>
-        <Executables Include="$(Ice_SrcRootDir)bin\*.pdb"/>
-
-        <Executables Include="$(Ice_SrcRootDir)..\cpp\bin\Win32\Release\slice2cs.exe" />
-        <Executables Include="$(Ice_SrcRootDir)..\cpp\bin\Win32\Release\Slice37a0.dll" />
-        <Executables Include="$(Ice_SrcRootDir)..\cpp\bin\Win32\Release\IceUtil37a0.dll" />
-    </ItemGroup>
-
-    <!-- Slice files -->
-    <ItemGroup>
-        <SliceSources Include="$(Ice_SrcRootDir)..\slice\**\*.ice" />
-    </ItemGroup>
-
     <Target Name="NugetPack" DependsOnTargets="BuildDist">
-        <RemoveDir Directories="$(Ice_PackageDir)" />
-
-        <Copy SourceFiles="@(Executables)"
-              DestinationFolder="$(Ice_PackageDir)\tools" />
-
-        <Copy SourceFiles="@(Assemblies)"
-              DestinationFolder="$(Ice_PackageDir)\lib" />
-
-        <Copy SourceFiles="zeroc.ice.net.nuspec"
-              DestinationFolder="$(Ice_PackageDir)" />
-
-        <Copy SourceFiles="zeroc.ice.net.props"
-              DestinationFolder="$(Ice_PackageDir)\build" />
-
-        <Copy SourceFiles="@(SliceSources)" DestinationFolder="$(Ice_PackageDir)\slice\%(SliceSources.RecursiveDir)" />
-
-        <Exec Command="$(NugetExe) pack -NoPackageAnalysis -NonInteractive"
-              WorkingDirectory="$(Ice_PackageDir)"/>
+        <MSBuild Projects="ice.nuget.targets" Properties="NugetExe=$(NugetExe)"/>
     </Target>
 </Project>

@@ -11,8 +11,9 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DefineConstants>TRACE</DefineConstants>
     <SignAssembly>true</SignAssembly>
-    <AssembliesDirectory>$(MSBuildThisFileDirectory)\..\Assemblies\</AssembliesDirectory>
-    <ExeDirectory>$(MSBuildThisFileDirectory)\..\bin\</ExeDirectory>
+    <AssembliesDirectory>$(MSBuildThisFileDirectory)..\Assemblies\</AssembliesDirectory>
+    <ExeDirectory>$(MSBuildThisFileDirectory)..\bin\</ExeDirectory>
+    <IceHome>$(MSBuildThisFileDirectory)..\..\</IceHome>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(KeyFile)' == ''">

@@ -1,14 +1,16 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>ice.v120</id>
-    <version>3.7.0.0</version>
+    <id>zeroc.ice.v120</id>
+    <title>ZeroC Ice C++ for Visual Studio 2013</title>
+    <version>3.7.0-alpha0</version>
     <authors>ZeroC, Inc</authors>
     <licenseUrl>https://zeroc.com/licensing</licenseUrl>
     <projectUrl>http://www.zeroc.com</projectUrl>
+    <iconUrl>https://zeroc.com/images/logos/zeroc/zeroc_logo-64x64.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>A comprehensive rpc framework.</description>
-    <releaseNotes>TODO</releaseNotes>
+    <releaseNotes>https://doc.zeroc.com/display/Ice37/Ice+Release+Notes</releaseNotes>
     <tags>ice native</tags>
   </metadata>
 </package>

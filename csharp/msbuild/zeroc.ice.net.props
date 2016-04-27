@@ -8,12 +8,6 @@
         <IceNugetPackageVersion>3.7.0.0</IceNugetPackageVersion>
         <IceHome>$(MSBuildThisFileDirectory)..</IceHome>
         <IceToolsBin>$(IceHome)\tools</IceToolsBin>
+        <IceAssembliesDir>$(IceHome)\lib</IceAssembliesDir>
     </PropertyGroup>
-
-    <!-- Whenever or not HintPath must be set for Ice
-         assembly references -->
-    <PropertyGroup Condition="'$(IceRerencesUseHintPath)' == ''">
-        <IceRerencesUseHintPath>yes</IceRerencesUseHintPath>
-    </PropertyGroup>
-
 </Project>

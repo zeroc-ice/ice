@@ -85,7 +85,11 @@ cpp/SDKs
 passwords
 
 # Nuget
-cpp/third-party-packages
+cpp/msbuild/packages
+cpp/msbuild/zeroc.ice.v120
+cpp/msbuild/zeroc.ice.v140
+cpp/msbuild/zeroc.ice.uwp
+csharp/msbuild/zeroc.ice.net
 
 # VS
 *.opendb

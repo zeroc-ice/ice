@@ -78,6 +78,7 @@
             <Optimization>Disabled</Optimization>
             <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
             <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+            <ProgramDataBaseFileName>$(OutDir)$(TargetName).pdb</ProgramDataBaseFileName>
         </ClCompile>
         <ResourceCompile>
             <PreprocessorDefinitions>_DEBUG</PreprocessorDefinitions>
