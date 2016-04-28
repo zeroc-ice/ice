@@ -665,6 +665,10 @@ Slice::Python::compile(int argc, char* argv[])
                             }
                             FileTracker::instance()->addFile(file);
 
+                            //
+                            // Python magic comment to set the file encoding, it must be first or second line
+                            //
+                            out << "# -*- coding: utf-8 -*-\n";
                             printHeader(out);
                             printGeneratedHeader(out, base + ".ice", "#");
                             //
