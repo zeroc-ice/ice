@@ -27,7 +27,7 @@ public class StreamSocket
             init();
             if(Network.doConnect(_fd, _proxy != null ? _proxy.getAddress() : _addr, sourceAddr))
             {
-                _state = StateConnected;
+                _state = _proxy != null ? StateProxyWrite : StateConnected;
             }
         }
         catch(Ice.LocalException ex)

@@ -32,7 +32,7 @@ StreamSocket::StreamSocket(const ProtocolInstancePtr& instance,
 #ifndef ICE_USE_IOCP
     if(doConnect(_fd, _proxy ? _proxy->getAddress() : _addr, sourceAddr))
     {
-        _state = StateConnected;
+        _state = _proxy ? StateProxyWrite : StateConnected;
     }
 #endif
     try
