@@ -807,26 +807,9 @@ var ConnectCallback = Class({
     connectionStartFailed: function(connection, ex)
     {
         Debug.assert(this._current !== null);
-
-        if(ex instanceof Ice.LocalException)
+        if(this.connectionStartFailedImpl(ex))
         {
-            this._factory.handleConnectionException(ex, this._hasMore || this._index < this._endpoints.length);
-            if(ex instanceof Ice.CommunicatorDestroyedException) // No need to continue.
-            {
-                this._factory.finishGetConnectionEx(this._endpoints, ex, this);
-            }
-            else if(this._index < this._endpoints.length) // Try the next endpoint.
-            {
-                this.nextEndpoint();
-            }
-            else
-            {
-                this._factory.finishGetConnectionEx(this._endpoints, ex, this);
-            }
-        }
-        else
-        {
-            this._factory.finishGetConnectionEx(this._endpoints, ex, this);
+            this.nextEndpoint();
         }
     },
     setConnection: function(connection, compress)
@@ -929,50 +912,80 @@ var ConnectCallback = Class({
     },
     nextEndpoint: function()
     {
-        var connection = null;
-        var traceLevels = this._factory._instance.traceLevels();
-        try
+        while(true)
         {
-            Debug.assert(this._index < this._endpoints.length);
-            this._current = this._endpoints[this._index++];
-
-            if(traceLevels.network >= 2)
+            var traceLevels = this._factory._instance.traceLevels();
+            try
             {
-                var s = [];
-                s.push("trying to establish ");
-                s.push(this._current.protocol());
-                s.push(" connection to ");
-                s.push(this._current.toConnectorString());
-                this._factory._instance.initializationData().logger.trace(traceLevels.networkCat, s.join(""));
-            }
+                Debug.assert(this._index < this._endpoints.length);
+                this._current = this._endpoints[this._index++];
 
-            connection = this._factory.createConnection(this._current.connect(), this._current);
-            var self = this;
-            connection.start().then(
-                function()
+                if(traceLevels.network >= 2)
                 {
-                    self.connectionStartCompleted(connection);
-                },
-                function(ex)
+                    var s = [];
+                    s.push("trying to establish ");
+                    s.push(this._current.protocol());
+                    s.push(" connection to ");
+                    s.push(this._current.toConnectorString());
+                    this._factory._instance.initializationData().logger.trace(traceLevels.networkCat, s.join(""));
+                }
+
+                var connection = this._factory.createConnection(this._current.connect(), this._current);
+                var self = this;
+                connection.start().then(
+                    function()
+                    {
+                        self.connectionStartCompleted(connection);
+                    },
+                    function(ex)
+                    {
+                        self.connectionStartFailed(connection, ex);
+                    });
+            }
+            catch(ex)
+            {
+                if(traceLevels.network >= 2)
                 {
-                    self.connectionStartFailed(connection, ex);
-                });
+                    var s = [];
+                    s.push("failed to establish ");
+                    s.push(this._current.protocol());
+                    s.push(" connection to ");
+                    s.push(this._current.toString());
+                    s.push("\n");
+                    s.push(ex.toString());
+                    this._factory._instance.initializationData().logger.trace(traceLevels.networkCat, s.join(""));
+                }
+
+                if(this.connectionStartFailedImpl(ex))
+                {
+                    continue;
+                }
+            }
+            break;
         }
-        catch(ex)
+    },
+    connectionStartFailedImpl: function(ex)
+    {
+        if(ex instanceof Ice.LocalException)
         {
-            if(traceLevels.network >= 2)
+            this._factory.handleConnectionException(ex, this._hasMore || this._index < this._endpoints.length);
+            if(ex instanceof Ice.CommunicatorDestroyedException) // No need to continue.
             {
-                var s = [];
-                s.push("failed to establish ");
-                s.push(this._current.protocol());
-                s.push(" connection to ");
-                s.push(this._current.toString());
-                s.push("\n");
-                s.push(ex.toString());
-                this._factory._instance.initializationData().logger.trace(traceLevels.networkCat, s.join(""));
+                this._factory.finishGetConnectionEx(this._endpoints, ex, this);
             }
-
-            this.connectionStartFailed(connection, ex);
+            else if(this._index < this._endpoints.length) // Try the next endpoint.
+            {
+                return true;
+            }
+            else
+            {
+                this._factory.finishGetConnectionEx(this._endpoints, ex, this);
+            }
         }
+        else
+        {
+            this._factory.finishGetConnectionEx(this._endpoints, ex, this);
+        }
+        return false;
     }
 });

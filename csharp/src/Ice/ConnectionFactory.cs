@@ -848,23 +848,9 @@ namespace IceInternal
 
             public void connectionStartFailed(Ice.ConnectionI connection, Ice.LocalException ex)
             {
-                if(_observer != null)
-                {
-                    _observer.failed(ex.ice_name());
-                    _observer.detach();
-                }
-                _factory.handleConnectionException(ex, _hasMore || _iter < _connectors.Count);
-                if(ex is Ice.CommunicatorDestroyedException) // No need to continue.
-                {
-                    _factory.finishGetConnection(_connectors, ex, this);
-                }
-                else if(_iter < _connectors.Count) // Try the next connector.
+                if(connectionStartFailedImpl(ex))
                 {
                     nextConnector();
-                }
-                else
-                {
-                    _factory.finishGetConnection(_connectors, ex, this);
                 }
             }
 
@@ -1023,52 +1009,81 @@ namespace IceInternal
 
             internal void nextConnector()
             {
-                Ice.ConnectionI connection = null;
-                try
+                while(true)
                 {
-                    Debug.Assert(_iter < _connectors.Count);
-                    _current = _connectors[_iter++];
-
-                    Ice.Instrumentation.CommunicatorObserver obsv = _factory._instance.initializationData().observer;
-                    if(obsv != null)
+                    try
                     {
-                        _observer = obsv.getConnectionEstablishmentObserver(_current.endpoint,
-                                                                            _current.connector.ToString());
-                        if(_observer != null)
+                        Debug.Assert(_iter < _connectors.Count);
+                        _current = _connectors[_iter++];
+
+                        Ice.Instrumentation.CommunicatorObserver obsv = _factory._instance.initializationData().observer;
+                        if(obsv != null)
                         {
-                            _observer.attach();
+                            _observer = obsv.getConnectionEstablishmentObserver(_current.endpoint,
+                                                                                _current.connector.ToString());
+                            if(_observer != null)
+                            {
+                                _observer.attach();
+                            }
+                        }
+
+                        if(_factory._instance.traceLevels().network >= 2)
+                        {
+                            StringBuilder s = new StringBuilder("trying to establish ");
+                            s.Append(_current.endpoint.protocol());
+                            s.Append(" connection to ");
+                            s.Append(_current.connector.ToString());
+                            _factory._instance.initializationData().logger.trace(
+                                                _factory._instance.traceLevels().networkCat, s.ToString());
+                        }
+
+                        Ice.ConnectionI connection = _factory.createConnection(_current.connector.connect(), _current);
+                        connection.start(this);
+                    }
+                    catch(Ice.LocalException ex)
+                    {
+                        if(_factory._instance.traceLevels().network >= 2)
+                        {
+                            StringBuilder s = new StringBuilder("failed to establish ");
+                            s.Append(_current.endpoint.protocol());
+                            s.Append(" connection to ");
+                            s.Append(_current.connector.ToString());
+                            s.Append("\n");
+                            s.Append(ex);
+                            _factory._instance.initializationData().logger.trace(
+                                                _factory._instance.traceLevels().networkCat, s.ToString());
+                        }
+
+                        if(connectionStartFailedImpl(ex))
+                        {
+                            continue;
                         }
                     }
-
-                    if(_factory._instance.traceLevels().network >= 2)
-                    {
-                        StringBuilder s = new StringBuilder("trying to establish ");
-                        s.Append(_current.endpoint.protocol());
-                        s.Append(" connection to ");
-                        s.Append(_current.connector.ToString());
-                        _factory._instance.initializationData().logger.trace(
-                                            _factory._instance.traceLevels().networkCat, s.ToString());
-                    }
-
-                    connection = _factory.createConnection(_current.connector.connect(), _current);
-                    connection.start(this);
+                    break;
                 }
-                catch(Ice.LocalException ex)
+            }
+
+            private bool connectionStartFailedImpl(Ice.LocalException ex)
+            {
+                if(_observer != null)
                 {
-                    if(_factory._instance.traceLevels().network >= 2)
-                    {
-                        StringBuilder s = new StringBuilder("failed to establish ");
-                        s.Append(_current.endpoint.protocol());
-                        s.Append(" connection to ");
-                        s.Append(_current.connector.ToString());
-                        s.Append("\n");
-                        s.Append(ex);
-                        _factory._instance.initializationData().logger.trace(
-                                            _factory._instance.traceLevels().networkCat, s.ToString());
-                    }
-
-                    connectionStartFailed(connection, ex);
+                    _observer.failed(ex.ice_name());
+                    _observer.detach();
                 }
+                _factory.handleConnectionException(ex, _hasMore || _iter < _connectors.Count);
+                if(ex is Ice.CommunicatorDestroyedException) // No need to continue.
+                {
+                    _factory.finishGetConnection(_connectors, ex, this);
+                }
+                else if(_iter < _connectors.Count) // Try the next connector.
+                {
+                    return true;
+                }
+                else
+                {
+                    _factory.finishGetConnection(_connectors, ex, this);
+                }
+                return false;
             }
 
             private OutgoingConnectionFactory _factory;

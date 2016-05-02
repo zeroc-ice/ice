@@ -116,6 +116,8 @@ private:
 
     private:
 
+        bool connectionStartFailedImpl(const Ice::LocalException&);
+
         const InstancePtr _instance;
         const OutgoingConnectionFactoryPtr _factory;
         const std::vector<EndpointIPtr> _endpoints;
