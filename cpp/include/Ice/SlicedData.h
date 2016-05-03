@@ -69,7 +69,13 @@ public:
 //
 // Unknown sliced object holds instance of unknown type.
 //
+
+#ifdef __IBMCPP__
+// xlC does not handle properly the public/private multiple inheritance from Object
+class ICE_API UnknownSlicedObject : public IceInternal::GCObject
+#else
 class ICE_API UnknownSlicedObject : virtual public Object, private IceInternal::GCObject
+#endif
 {
 public:
 

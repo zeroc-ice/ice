@@ -7,22 +7,17 @@
 #
 # **********************************************************************
 
-$(warning ===================================================================) 
-$(warning AIX is currently an unsupported platform. The Ice team does)
-$(warning not maintain AIX specific portions of the source code or build)
-$(warning system. Contact sales@zeroc.com if you wish to sponsor official)
-$(warning support.)
-$(warning ===================================================================) 
-
 #
 # This file is included by Make.rules when uname is AIX.
 #
 
 CXX			= xlC_r
-CC			= xlc_r -qcpluscmt
+CC			= xlc_r
 
-# 
-# -qstaticinline: make inline functions that were not inlined (typically 
+XLC_COMPILER            = yes
+
+#
+# -qstaticinline: make inline functions that were not inlined (typically
 # in debug mode or when the function is too big) static instead of
 # extern (the default). This eliminates lots of "Duplicate symbol"
 # warnings at link time, and surprisingly reduces the size of the
@@ -33,27 +28,51 @@ CC			= xlc_r -qcpluscmt
 # std::_LSF_ON. It would be nice to find a better solution, and get
 # rid of this define.
 #
-# -qalign=natural: You should add this option if you plan to use or 
-# build Ice with libraries built with GCC. The default alignment for GCC 
+# -qalign=natural: You should add this option if you plan to use or
+# build Ice with libraries built with GCC. The default alignment for GCC
 # is "natural", while the default for xlC is "power".
 #
 
 ifneq ($(OBJECT_MODE),64)
-    CXXARCHFLAGS	+= -D_LARGE_FILES 
+    CXXARCHFLAGS	+= -D_LARGE_FILES
 endif
 
-CXXFLAGS		= -brtl -qrtti=all -qstaticinline $(CXXARCHFLAGS)
+CXXFLAGS		= -brtl -qrtti=all -qstaticinline -qhalt=i $(CXXARCHFLAGS)
+
+MAKEDEPENDFLAGS         = -qmakedep=gcc
 
 ifeq ($(OPTIMIZE),yes)
-     CXXFLAGS		+= -O2 -DNDEBUG -qinline
+     CXXFLAGS		+= -O2 -DNDEBUG -qinline -qmaxmem=65536
 else
      CXXFLAGS		+= -g
 endif
 
+ifeq ($(embedded_runpath),yes)
+    #
+    # Our default for embedded runpath prefix on AIX is $(prefix)
+    #
+    ifeq ($(embedded_runpath_prefix),)
+        embedded_runpath_prefix = $(prefix)
+    endif
+endif
+
+#
+# Note that this -blibpath is only useful for programs; for shared objects,
+# such as libFreze.so.xx, it's only there "for info".
+# When embedded_runpath_prefix and DB_HOME are both set, we embed DB_HOME/lib as
+# well because icebox needs it to load successfully the IceStormService.
+#
 ifneq ($(embedded_runpath_prefix),)
-   LDPLATFORMFLAGS      = -Wl,-blibpath:$(runpath_libdir):/usr/lpp/xlopt:/usr/lib/threads:/usr/vacpp/lib:/usr/lib:/lib
+
+    ifneq ($(DB_HOME),)
+        runpath_libdir  = $(embedded_runpath_prefix)/$(libsubdir):$(DB_HOME)/$(libsubdir)
+    else
+        runpath_libdir  = $(embedded_runpath_prefix)/$(libsubdir)
+    endif
+
+    LDPLATFORMFLAGS     = -Wl,-blibpath:$(runpath_libdir):/usr/lib
 else
-   LDPLATFORMFLAGS	= -Wl,-blibpath:/usr/lpp/xlopt:/usr/lib/threads:/usr/vacpp/lib:/usr/lib:/lib
+    LDPLATFORMFLAGS	= -Wl,-blibpath:/usr/lib
 endif
 
 mklibfilename		= lib$(1).a
@@ -74,6 +93,8 @@ installlib		= $(INSTALL) $(2)/$(3) $(1)
 
 BASELIBS		= -lIceUtil
 LIBS			= -lIce $(BASELIBS)
+
+ICONV_LIB               = -liconv
 
 ICEUTIL_OS_LIBS		= -lcrypto
 ICE_OS_LIBS		=

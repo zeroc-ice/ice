@@ -61,7 +61,7 @@
 #   include <sys/types.h>
 #endif
 
-#if defined(__linux) || defined(__sun)
+#if defined(__linux) || defined(__sun) || defined(_AIX)
 #   include <grp.h> // for initgroups
 #endif
 

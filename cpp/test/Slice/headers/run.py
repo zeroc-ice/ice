@@ -37,6 +37,7 @@ os.symlink("a3.ice", os.path.join("slices", "dir1", "linktoa3.ice"))
 os.symlink("dir2", os.path.join("slices", "linktodir2"))
 
 slice2cpp = TestUtil.getSliceTranslator()
+TestUtil.addLdPath(TestUtil.getCppLibDir())
 
 basedir = os.path.dirname(os.path.abspath(__file__))
 slicedir = TestUtil.getSliceDir()

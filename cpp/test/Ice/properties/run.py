@@ -9,7 +9,7 @@
 #
 # **********************************************************************
 
-import os, sys
+import os, sys, locale
 
 path = [ ".", "..", "../..", "../../..", "../../../..", "../../../../.." ]
 head = os.path.dirname(sys.argv[0])
@@ -22,6 +22,13 @@ sys.path.append(os.path.join(path[0], "scripts"))
 import TestUtil
 
 client = os.path.join(os.getcwd(), "client")
+
+if TestUtil.isAIX():
+    encoding = locale.getdefaultlocale()[1]
+    if encoding != "UTF-8":
+        print("Please set LC_ALL to xx_xx.UTF-8, for example FR_FR.UTF-8")
+        print("Skipping test")
+        sys.exit(0)
 
 #
 # Write config

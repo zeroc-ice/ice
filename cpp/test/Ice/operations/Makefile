@@ -54,7 +54,12 @@ OBJS		= $(COBJS) \
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
+CPPFLAGS       := -I. -I../../include $(CPPFLAGS)
+
+ifeq ($(XLC_COMPILER),yes)
+    CPPFLAGS   := -qsuppress="1540-0895" $(CPPFLAGS)
+endif
+
 
 $(CLIENT): $(COBJS)
 	rm -f $@

@@ -116,7 +116,7 @@ IceInternal::RetryQueue::destroy()
     Lock sync(*this);
     assert(_instance);
 
-    set<RetryTaskPtr>::const_iterator p = _requests.begin();
+    set<RetryTaskPtr>::iterator p = _requests.begin();
     while(p != _requests.end())
     {
         if(_instance->timer()->cancel(*p))

@@ -15,19 +15,6 @@
 
 namespace Freeze
 {
-
-#if defined(_MSC_VER) && (_MSC_VER <= 1200) || defined(__IBMCPP__)
-
-    enum 
-    { 
-      clean = 0,
-      created = 1,
-      modified = 2,
-      destroyed = 3,
-      dead = 4
-    };
-    
-#else 
     //
     // Clean object; can become modified or destroyed
     //
@@ -54,9 +41,6 @@ namespace Freeze
     // destroyed on disk but is still in use. Can become created.
     //
     static const Ice::Byte dead = 4;
-
-#endif
-
 
 class BackgroundSaveEvictorI;
 

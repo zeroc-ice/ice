@@ -18,6 +18,9 @@ CXX			= xcrun clang++
 CPPFLAGS		+= -pthread -fvisibility=hidden
 CXXFLAGS		+= -Wall -Werror -mmacosx-version-min=$(OSX_TARGET_MIN_SDK_VERSION)
 
+# clang++ accepts most g++ options
+GCC_COMPILER            := yes
+
 # If MAXWARN is set then enable extra warnings
 ifeq ($(MAXWARN),yes)
     CXXFLAGS		+= -Wextra -Wshadow -Wredundant-decls

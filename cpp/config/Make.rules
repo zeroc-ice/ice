@@ -292,6 +292,10 @@ else
     endif
 endif
 
+ifeq ($(MAKEDEPENDFLAGS),)
+    MAKEDEPENDFLAGS := -MMD
+endif
+
 ifeq ($(FLEX_NOLINE),yes)
     FLEXFLAGS := -L
 else
@@ -382,9 +386,8 @@ endif
 all:: $(TARGETS)
 
 .cpp.o:
-	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
 	@mkdir -p .depend
-	@$(CXX) -DMAKEDEPEND -MM $(CPPFLAGS) $< > .depend/$(*F).d
+	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $(MAKEDEPENDFLAGS) $< -MF .depend/$(*F).d
 
 .c.o:
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) $<

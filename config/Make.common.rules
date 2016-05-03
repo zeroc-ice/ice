@@ -337,7 +337,7 @@ ifneq ($(ice_dir), $(usr_dir))
 
     #
     # We always set library path because the build needs to work
-    # whe slice compiler was built without RPATH
+    # when slice compiler was built without RPATH
     #
     ifeq ($(UNAME),Linux)
         export LD_LIBRARY_PATH := $(ice_lib_dir):$(LD_LIBRARY_PATH)

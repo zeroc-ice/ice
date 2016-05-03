@@ -27,7 +27,13 @@ SDIR		= $(slicedir)/IcePatch2
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I. -I.. $(CPPFLAGS) $(BZIP2_FLAGS) -Wno-deprecated-declarations
+CPPFLAGS	:= -I. -I.. $(CPPFLAGS) $(BZIP2_FLAGS)
+
+ifeq ($(GCC_COMPILER),yes)
+        CPPFLAGS := $(CPPFLAGS) -Wno-deprecated-declarations
+endif
+
+
 SLICE2CPPFLAGS	:= --ice --include-dir IcePatch2 --dll-export ICE_PATCH2_API $(SLICE2CPPFLAGS)
 LINKWITH	:= $(BZIP2_RPATH_LINK) -lIce -lIceUtil $(BZIP2_LIBS)
 

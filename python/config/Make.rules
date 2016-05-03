@@ -137,6 +137,10 @@ ICECPPFLAGS		= -I$(slicedir)
 SLICE2PYFLAGS	= $(ICECPPFLAGS)
 LDFLAGS			= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir)
 
+ifeq ($(MAKEDEPENDFLAGS),)
+    MAKEDEPENDFLAGS := -MMD
+endif
+
 ifdef ice_src_dist
     SLICE2PY    = $(PYTHON) $(top_srcdir)/config/s2py.py
     SLICEPARSERLIB	= $(ice_cpp_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
@@ -156,9 +160,15 @@ endif
 # A Python extension library cannot have a "lib" prefix, so Python-specific
 # functions are defined that strip "lib" from the regular library name.
 #
-mkpylibfilename = $(subst dy,dylib,$(subst lib,,$(call mklibfilename,$(1),$(2))))
-mkpysoname      = $(subst dy,dylib,$(subst lib,,$(call mksoname,$(1),$(2))))
-mkpylibname     = $(subst dy,dylib,$(subst lib,,$(call mklibname,$(1))))
+ifndef mkpylibfilename
+    mkpylibfilename = $(subst dy,dylib,$(subst lib,,$(call mklibfilename,$(1),$(2))))
+endif
+ifndef mkpysoname
+    mkpysoname      = $(subst dy,dylib,$(subst lib,,$(call mksoname,$(1),$(2))))
+endif
+ifndef mkpylibname
+    mkpylibname     = $(subst dy,dylib,$(subst lib,,$(call mklibname,$(1))))
+endif
 
 EVERYTHING	= all depend clean install
 
@@ -174,10 +184,9 @@ all:: $(SRCS)
 	@$(SLICE2PY) $(SLICE2PYFLAGS) $< > .depend/$(*F).ice.d
 
 .cpp.o:
-	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
 	@mkdir -p .depend
-	@$(CXX) -DMAKEDEPEND -MM $(CPPFLAGS) $< > .depend/$(*F).d
-
+	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $(MAKEDEPENDFLAGS) $< -MF .depend/$(*F).d
+	
 clean::
 	-rm -f $(TARGETS)
 	-rm -f core *.o *.pyc *.bak

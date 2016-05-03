@@ -2093,28 +2093,28 @@ Freeze::MapIndexI::secondaryKeyCreate(Db* /*secondary*/, const Dbt* /*dbKey*/, c
 // Print for the various exception types.
 //
 void
-Freeze::DeadlockException::ice_print(ostream& out) const
+Freeze::DeadlockException::ice_print(std::ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\ndatabase deadlock:\n" << message;
 }
 
 void
-Freeze::NotFoundException::ice_print(ostream& out) const
+Freeze::NotFoundException::ice_print(std::ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\ndatabase record not found:\n" << message;
 }
 
 void
-Freeze::DatabaseException::ice_print(ostream& out) const
+Freeze::DatabaseException::ice_print(std::ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\n" << message;
 }
 
 void
-Freeze::IndexNotFoundException::ice_print(ostream& out) const
+Freeze::IndexNotFoundException::ice_print(std::ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\ncould not find index \"" << indexName << "\" on map \"" << mapName << "\"";

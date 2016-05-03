@@ -18,7 +18,7 @@ using namespace IceGrid;
 namespace
 {
 
-RegistryPluginFacadePtr pluginFacade;
+RegistryPluginFacade* pluginFacade = 0;
 
 };
 
@@ -38,5 +38,13 @@ IceGrid::getRegistryPluginFacade()
 void
 IceGrid::setRegistryPluginFacade(const RegistryPluginFacadePtr& facade)
 {
-    pluginFacade = facade;
+    if(pluginFacade)
+    {
+        pluginFacade->__decRef();
+    }
+    pluginFacade = facade.get();
+    if(pluginFacade)
+    {
+        pluginFacade->__incRef();
+    }
 }
