@@ -7,35 +7,44 @@
 #
 # **********************************************************************
 
-top_srcdir	= .
+top_srcdir	:= ..
+lang_srcdir	:= $(top_srcdir)/php
 
-include $(top_srcdir)/config/Make.rules.php
+include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= src lib
+#
+# Load C++ dependencies
+#
+$(eval $(call load-translator-dependencies,$(top_srcdir)/cpp/src/slice2php))
+$(eval $(call load-dependencies,$(addprefix $(top_srcdir)/cpp/src/,IceUtil Slice Ice IceSSL IceDiscovery IceLocatorDiscovery)))
 
-ifneq ($(MAKECMDGOALS),install)
-SUBDIRS		:= $(SUBDIRS) test
+#
+# Load php rules after loading C++ dependencies
+#
+include $(lang_srcdir)/config/Make.rules
+
+#
+# Load Makefile.mk fragments
+#
+ifeq ($(shell [ $$(php-config --vernum) -lt 70000 ] && echo true),true)
+include $(lang_srcdir)/src/php5/Makefile.mk
+else
+include $(lang_srcdir)/src/php7/Makefile.mk
 endif
 
-INSTALL_SUBDIRS = $(install_phpdir) $(install_libdir)
+#
+# Make the projects (this expands all the build configuration and defines rules for all
+# the components).
+#
+$(foreach p,$(projects),$(eval $(call make-project,$(p))))
 
-install:: install-common
-	@for subdir in $(INSTALL_SUBDIRS); \
-	do \
-	    if test ! -d $(DESTDIR)$$subdir ; \
-	    then \
-		echo "Creating $(DESTDIR)$$subdir..." ; \
-		mkdir -p $(DESTDIR)$$subdir ; \
-		chmod a+rx $(DESTDIR)$$subdir ; \
-	    fi ; \
-	done
+install:: | $(DESTDIR)$(install_phpdir)
+	$(E) "Installing generated code"
+	$(Q)$(INSTALL) $(lang_srcdir)/lib/*.php $(DESTDIR)$(install_phpdir)
 
-$(EVERYTHING)::
-	@for subdir in $(SUBDIRS); \
-	do \
-	    echo "making $@ in $$subdir"; \
-	    ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
-	done
-
-test::
-	@python $(top_srcdir)/allTests.py
+$(eval $(call make-php-package,$(slicedir),$(lang_srcdir)/lib,Ice))
+$(eval $(call make-php-package,$(slicedir),$(lang_srcdir)/lib,Glacier2))
+$(eval $(call make-php-package,$(slicedir),$(lang_srcdir)/lib,IceBox))
+$(eval $(call make-php-package,$(slicedir),$(lang_srcdir)/lib,IceGrid))
+$(eval $(call make-php-package,$(slicedir),$(lang_srcdir)/lib,IcePatch2))
+$(eval $(call make-php-package,$(slicedir),$(lang_srcdir)/lib,IceStorm))

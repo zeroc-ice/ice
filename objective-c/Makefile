@@ -7,47 +7,31 @@
 #
 # **********************************************************************
 
-top_srcdir	= .
+top_srcdir	:= ..
+lang_srcdir 	:= $(top_srcdir)/objective-c
 
 include $(top_srcdir)/config/Make.rules
+include $(lang_srcdir)/config/Make.rules
 
-SUBDIRS		= src include
+#
+# Load C++ dependencies
+#
+$(eval $(call load-translator-dependencies,$(top_srcdir)/cpp/src/slice2objc))
+$(eval $(call load-dependencies,$(addprefix $(top_srcdir)/cpp/src/,IceUtil Slice Ice IceSSL)))
 
-ifneq ($(MAKECMDGOALS),install)
-    SUBDIRS	:= $(SUBDIRS) test
-endif
+#
+# Load source projects
+#
+projects :=
+include $(shell find $(lang_srcdir)/src -name Makefile.mk)
+$(foreach p,$(projects),$(eval $(call make-objc-src-project,$(p)))) # Make the source projects
 
-INSTALL_SUBDIRS	= $(install_libdir)$(cpp11libdirsuffix) $(install_includedir)
+#
+# Now, create and load test projects.
+#
+projects :=
+tests := $(tests-without-project-makefile)
+include $(shell find $(lang_srcdir)/test -name Makefile.mk)
+$(foreach t,$(tests),$(eval $(call create-objc-test-project,$(t))))
+$(foreach p,$(projects),$(eval $(call make-objc-test-project,$(p))))
 
-install:: install-common
-	@for subdir in $(INSTALL_SUBDIRS); \
-	do \
-	    if test ! -d $(DESTDIR)$$subdir ; \
-	    then \
-		echo "Creating $(DESTDIR)$$subdir..." ; \
-		mkdir -p $(DESTDIR)$$subdir ; \
-		chmod a+rx $(DESTDIR)$$subdir ; \
-	    fi ; \
-	done
-ifeq ($(create_runpath_symlink),yes)
-	@if test -h $(embedded_runpath_prefix) ; \
-	then \
-	     if `\rm -f $(embedded_runpath_prefix) 2>/dev/null`; \
-              then echo "Removed symbolic link $(embedded_runpath_prefix)"; fi \
-        fi
-	@if ! test -d $(embedded_runpath_prefix) ; \
-	then \
-	     if `ln -s $(prefix) $(embedded_runpath_prefix) 2>/dev/null`; \
-              then echo "Created symbolic link $(embedded_runpath_prefix) --> $(prefix)"; fi \
-	fi
-endif
-
-$(EVERYTHING)::
-	@for subdir in $(SUBDIRS); \
-	do \
-	    echo "making $@ in $$subdir"; \
-	    ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
-	done
-
-test::
-	@python $(top_srcdir)/allTests.py

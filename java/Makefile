@@ -11,6 +11,14 @@ ifneq ($(prefix),)
 INSTALL_FLAGS += -Dorg.gradle.project.prefix=$(prefix)
 endif
 
+ifneq ($(install_javadir),)
+INSTALL_FLAGS += -Dorg.gradle.project.jarDir=$(install_javadir)
+endif
+
+ifneq ($(install_bindir),)
+INSTALL_FLAGS += -Dorg.gradle.project.binDir=$(install_bindir)
+endif
+
 ifneq ($(DESTDIR),)
 INSTALL_FLAGS += -Dorg.gradle.project.DESTDIR=$(DESTDIR)
 endif
@@ -22,16 +30,22 @@ endif
 all:
 	$(GRADLE) $(BUILD_FLAGS) build
 
-dist:
+srcs:
 	$(GRADLE) $(BUILD_FLAGS) :Ice:assemble :Glacier2:assemble :IceGrid:assemble \
 		:IceBox:assemble :IceBT:assemble :IceDiscovery:assemble :IcePatch2:assemble :IceStorm:assemble \
 		:IceGridGUI:assemble
 
-clean:
+tests:
+	$(GRADLE) $(BUILD_FLAGS) :test:assemble
+
+distclean clean:
 	$(GRADLE) clean
 
 install::
 	$(GRADLE) $(INSTALL_FLAGS) install
+
+install-icegridgui::
+	$(GRADLE) $(INSTALL_FLAGS) :IceGridGUI:install
 
 test::
 	@python ./allTests.py

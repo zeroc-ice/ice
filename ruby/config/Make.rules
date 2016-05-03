@@ -8,221 +8,91 @@
 # **********************************************************************
 
 #
-# Select an installation base directory. The directory will be created
-# if it does not exist.
+# Override to use another ruby version
 #
-
-prefix			?= /opt/Ice-$(VERSION)
-
-#
-# The "root directory" for runpath embedded in executables. Can be set
-# to change the runpath added to Ice executables. The default is
-# platform dependent (Linux only, on OS X the embedded runpath is always
-# based on @loader_path).
-#
-#embedded_runpath_prefix ?= /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
-
-#
-# Define embedded_runpath as no if you don't want any RPATH added to
-# the executables (Linux only, on OS X we always add a runpath).
-#
-embedded_runpath 	?= yes
-
-#
-# Define OPTIMIZE as yes if you want to build with optimization.
-# Otherwise the Ice extension is built with debug information.
-#
-
-#OPTIMIZE		= yes
-
-#
-# Define LP64 as yes if you want to build in 64 bit mode on a platform
-# that supports both 32 and 64 bit.
-#
-#LP64			:= yes
-
-#
-# If you have not built Ice for C++ from the cpp subdirectory or if
-# you have installed the Ice for C++ development kit in a
-# non-standard location, set the ICE_HOME to the installation directory.
-#
-#ICE_HOME		= C:\Program Files\ZeroC\Ice-$(VERSION)
-
-#
-# If the Ruby interpreter is in your PATH, the settings below will
-# work properly in most cases. If you want to use a particular
-# installation of Ruby, set RUBY_HOME with the installation directory.
-#
-
-ifneq ($(RUBY_HOME),)
-    RUBY = $(RUBY_HOME)/bin/ruby
-else
-    RUBY = ruby
-endif
-
-ifeq ($(RUBY18), yes)
-    RUBY_MAJOR_VERSION = $(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("$$(MAJOR)")')
-    RUBY_MINOR_VERSION = $(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("$$(MINOR)")')
-	ifeq ("$(RUBY_MAJOR_VERSION).$(RUBY_MINOR_VERSION)", "1.8")
-        RUBY_FLAGS = -I$(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("$$(archdir)")')
-	else
-        RUBY_FLAGS = -I$(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("$$(rubyhdrdir)")') \
-                     -I$(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("$$(rubyhdrdir)/$$(arch)")')
-    endif
-
-    LIB_DIR = $(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("$$(libdir)")')
-
-    RUBY_SHARED = $(shell $(RUBY) -e 'require "rbconfig"; puts Config::MAKEFILE_CONFIG["ENABLE_SHARED"]')
-
-    ifeq ("$(RUBY_SHARED)","yes")
-        RUBY_LIB = $(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("-l$$(RUBY_SO_NAME)")')
-    else
-        RUBY_LIB = $(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("-l$$(RUBY_SO_NAME)-static")')
-    endif
-    RUBY_LIBS = -L$(LIB_DIR) $(RUBY_LIB)
-else
-    RUBY_MAJOR_VERSION = $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(MAJOR)")')
-    RUBY_MINOR_VERSION = $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(MINOR)")')
-
-    RUBY_LIB_DIR = $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(rubylibdir)")')
-    RUBY_ARCH = $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(arch)")')
-
-    ifeq ("$(RUBY_MAJOR_VERSION).$(RUBY_MINOR_VERSION)", "1.8")
-        RUBY_FLAGS = -I$(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(archdir)")')
-    else
-        RUBY_FLAGS = -I$(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(rubyhdrdir)")')
-        RUBY_CONFIG_DIR = $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(includedir)/$$(arch)/ruby-$$(ruby_version)")')
-        ifneq ($(wildcard $(RUBY_CONFIG_DIR)/ruby/config.h),)
-            RUBY_FLAGS := $(RUBY_FLAGS) -I$(RUBY_CONFIG_DIR)
-        else
-            RUBY_CONFIG_DIR = $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(rubyhdrdir)/$$(arch)")')
-            ifneq ($(wildcard $(RUBY_CONFIG_DIR)/ruby/config.h),)
-                RUBY_FLAGS := $(RUBY_FLAGS) -I$(RUBY_CONFIG_DIR)
-            endif
-        endif
-    endif
-
-    RUBY_LIBS = $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(LIBRUBYARG)")')
-
-    ifneq ($(findstring MINGW, $(shell uname)),)
-        RUBY_BIN_DIR = $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(bindir)")')
-        RUBY_LIBS := -L$(RUBY_BIN_DIR) $(RUBY_LIBS)
-    else
-        LIB_DIR = $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(libdir)")')
-        ifneq ($(LIB_DIR),)
-            RUBY_LIBS := -L$(LIB_DIR) $(RUBY_LIBS)
-        endif
-    endif
-endif
-
-#
-# The build architectures for gcc based builds. The format of these
-# build flags are OS dependent. For example, under OS X to build
-# binaries which support both i386 and x86_64 you would use "-arch
-# i386 -arch x86_64".  The default is OS version dependent. Be aware
-# that this value may conflict with the setting of LP64 above.
-#
-#CXXARCHFLAGS                = -arch i386 -arch x86_64
+RUBY ?= ruby
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
 
-#
-# Common definitions
-#
-ice_language     = ruby
-ice_require_cpp  = yes
+ruby-call = $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$1")')
 
-ifeq ($(shell test -f $(top_srcdir)/config/Make.common.rules && echo 0),0)
-    include $(top_srcdir)/config/Make.common.rules
-else
-    include $(top_srcdir)/../config/Make.common.rules
+# Ruby compiler flags
+ruby_cppflags	:= -I$(call ruby-call,$$(rubyhdrdir))
+ruby_config_dir := $(call ruby-call,$$(includedir)/$$(arch)/ruby-$$(ruby_version))
+ruby_arch	:= $(call ruby-call,$$(arch))
+ifeq ($(wildcard $(ruby_config_dir)/ruby/config.h),)
+    ruby_config_dir := $(call ruby-call,$$(rubyhdrdir)/$$(arch))
 endif
-
-libdir			= $(top_srcdir)/ruby
-ifeq ($(UNAME),MINGW)
-ifneq ($(findstring x64,$(RUBY_ARCH)),)
-install_rubydir		= $(prefix)/ruby/x64
-install_libdir		= $(prefix)/ruby/x64
-else
-install_rubydir		= $(prefix)/ruby
-install_libdir		= $(prefix)/ruby
-endif
-else
-ifndef usr_dir_install
-install_rubydir		= $(prefix)/ruby
-install_libdir		= $(prefix)/ruby
-else
-install_rubydir		= $(RUBY_LIB_DIR)
-install_libdir		= $(RUBY_LIB_DIR)/$(RUBY_ARCH)
-endif
+ifneq ($(wildcard $(ruby_config_dir)/ruby/config.h),)
+    ruby_cppflags += -I$(ruby_config_dir)
 endif
 
-install_bindir		= $(prefix)/$(binsubdir)
+# Ruby linker flags
+ruby_ldflags	:= $(call ruby-call,$$(LIBRUBYARG))
+ruby_libdir 	:= $(call ruby-call,$(if $(findstring MINGW,$(shell uname)),$$(bindir),$$(libdir)))
+ifneq ($(ruby_libdir),)
+    ruby_ldflags := -L$(call ruby-call,$$(libdir)) $(ruby_ldflags)
+endif
 
 #
-# Platform specific definitions
+# On the default platform, always write the module in the ruby directory.
 #
-ifeq ($(shell test -f $(top_srcdir)/config/Make.rules.$(UNAME) && echo 0),0)
-    configdir = $(top_srcdir)/config
-else
-    configdir = $(top_srcdir)/../cpp/config
+$(foreach p,$(supported-platforms),$(eval $$p_targetdir := /$$p))
+$(firstword $(supported-platforms))_targetdir :=
+
+#
+# Ruby installation directory
+#
+install_rubydir		= $(if $(usr_dir_install),$(ruby_libdir),$(prefix)/ruby)
+install_rubylibdir  	= $(if $(usr_dir_install),$(ruby_libdir)/$(ruby_arch),$(prefix)/ruby)
+
+#
+# Rules to build a ruby module. We just compute the name of the ruby module
+# and delegate to make-shared-module.
+#
+mkrbmodulename			?= $(patsubst lib%,%,$(call mkshlibname,$(1)))
+make-shared-ruby-module 	= $(call make-shared-module,$(call mkrbmodulename,$1),$2,$3,$4,$5,$6,$7)
+get-shared-ruby-module-targets 	= $(call get-shared-module-targets,$(call mkrbmodulename,$1),$2)
+install-shared-ruby-module	= $(call install-shared-module,$(call mkrbmodulename,$1),$2,$3)
+
+$(DESTDIR)$(install_rubydir):
+	$(Q)$(MKDIR) -p $@
+installdirs += $(install_rubydir)
+
+#
+# $(call make-ruby-package,$1=slicedir,$2=generateddir,$3=package,$4=sliceflags)
+#
+# Compile slice files from $(slicedir)/<package> to ruby/<package>.
+#
+define make-ruby-package
+
+$2/$3/.depend/%.ice.d: | $2/$3/.depend ;
+
+$2/$3/.depend:
+	$(Q)$(MKDIR) -p $$@
+
+.PRECIOUS: $2/$3/.depend/%.ice.d
+
+ifeq ($(filter %clean,$(MAKECMDGOALS)),)
+    # Include the dependencies
+    -include $(addprefix $2/$3/.depend/,$(call source-to-dependency,$(wildcard $1/$3/*.ice)))
 endif
 
-ifndef usr_dir_install
-    RPATH_DIR   = $(prefix)/$(libsubdir)
-endif
-
-include	 $(configdir)/Make.rules.$(UNAME)
-
-ifdef ice_src_dist
-    ICE_LIB_DIR = -L$(ice_cpp_dir)/$(libsubdir)
-    ICE_FLAGS 	= -I$(ice_cpp_dir)/include
-else
-    ICE_LIB_DIR	= -L$(ice_dir)/$(libsubdir)
-    ICE_FLAGS	= -I$(ice_dir)/include
-endif
-ICE_LIBS = $(ICE_LIB_DIR) -lIceDiscovery -lIce -lIceSSL -lSlice -lIceUtil
-
-CPPFLAGS		=
-ICECPPFLAGS		= -I$(slicedir)
-SLICE2RBFLAGS		= $(ICECPPFLAGS)
-LDFLAGS			= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir)
-
-ifdef ice_src_dist
-    SLICEPARSERLIB	= $(ice_cpp_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
-	SLICE2RB	= $(top_srcdir)/config/s2rb.rb
-else
-    SLICEPARSERLIB	=
-    SLICE2RB		= slice2rb
-endif
-
-EVERYTHING		= all depend clean install
-
-.SUFFIXES:
-.SUFFIXES:		.cpp .o .rb
-
-all:: $(SRCS)
-
-%.rb: $(SDIR)/%.ice
-	rm -f $(*F).rb
-	$(SLICE2RB) $(SLICE2RBFLAGS) $<
-	@mkdir -p .depend
-	@$(SLICE2RB) $(SLICE2RBFLAGS) $< > .depend/$(*F).ice.d
-
-.cpp.o:
-	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
-	@mkdir -p .depend
-	@$(CXX) -DMAKEDEPEND -MM $(CPPFLAGS) $< > .depend/$(*F).d
+$2/$3/%.rb: $1/$3/%.ice $2/$3/.depend/%.ice.d IceRuby[$(firstword $(platforms))-shared]
+	$(E) "Compiling $$<"
+	$(Q)$(RUBY) $(lang_srcdir)/config/s2rb.rb -I$1 --ice --output-dir $2/$3 $4 --depend $$< | \
+		sed 's/\(.*: \\\)/$(subst /,\/,$2)\/$3\/\1/' > $2/$3/.depend/$$(*F).ice.d
+	$(Q)$(RUBY) $(lang_srcdir)/config/s2rb.rb -I$1 --ice --output-dir $2/$3 $4 $$<
 
 clean::
-	-rm -f $(TARGETS)
-	-rm -f core *.o *.bak
-	-rm -rf .depend
+	$(E) "Cleaning package $3"
+	$(Q)$(RM) -r $2/$3/.depend
+	$(Q)$(RM) $(patsubst $1/$3/%.ice,$2/$3/%.rb,$(wildcard $1/$3/*.ice))
 
-all:: $(SRCS) $(TARGETS)
+srcs all:: $(patsubst $1/$3/%.ice,$2/$3/%.rb,$(wildcard $1/$3/*.ice))
 
-include $(wildcard .depend/*.d)
+$$(eval $$(call install-data-files,$(patsubst $1/$3/%.ice,$2/$3/%.rb,$(wildcard $1/$3/*.ice)),$2,$(install_rubydir),install))
 
-install::
+endef

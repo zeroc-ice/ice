@@ -1,0 +1,84 @@
+# **********************************************************************
+#
+# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+# ----------------------------------------------------------------------
+# Don't change anything below this line!
+# ----------------------------------------------------------------------
+
+ifeq ($(shell php-config --libs /dev/null && echo 0),0)
+    $(error php-config not found review your PHP installation and ensure php-config is in your PATH)
+endif
+
+php_cppflags     := $(shell php-config --includes)
+
+ifeq ($(os),Darwin)
+php_ldflags      := ${wl}-flat_namespace ${wl}-undefined ${wl}suppress
+endif
+
+#
+# On the default platform, always write/install the module in the lib directory.
+#
+$(foreach p,$(supported-platforms),$(eval $$p_targetdir := /$$p))
+$(firstword $(supported-platforms))_targetdir :=
+$(firstword $(supported-platforms))_installdir :=
+
+#
+# PHP installation directory
+#
+install_phpdir  	?= $(if $(usr_dir_install),$(prefix)/share/php,$(prefix)/php)
+install_phplibdir	?= $(if $(usr_dir_install),$(shell php -r "echo(ini_get('extension_dir'));"),$(prefix)/php)
+
+#
+# Rules to build a php module. We just compute the name of the php module
+# and delegate to make-shared-module.
+#
+mkphpmodulename              	?= $(patsubst lib%,%,$(call mkshlibname,$(1)))
+make-shared-php-module       	= $(call make-shared-module,$(call mkphpmodulename,$1),$2,$3,$4,$5,$6,$7)
+get-shared-php-module-targets	= $(call get-shared-module-targets,$(call mkphpmodulename,$1),$2)
+install-shared-php-module	= $(call install-shared-module,$(call mkphpmodulename,$1),$2,$3)
+
+$(DESTDIR)$(install_phpdir):
+	$(Q)$(MKDIR) -p $@
+installdirs += $(install_phpdir)
+
+#
+# $(call make-php-package,$1=slicedir,$2=generateddir,$3=package,$4=sliceflags)
+#
+# Compile slice files from $(slicedir)/<package> to php/<package>.
+#
+define make-php-package
+
+$2/$3/.depend/%.ice.d: | $2/$3/.depend ;
+
+$2/$3/.depend:
+	$(Q)$(MKDIR) -p $$@
+
+.PRECIOUS: $2/$3/.depend/%.ice.d
+
+ifeq ($(filter %clean,$(MAKECMDGOALS)),)
+    # Include the dependencies
+    -include $(addprefix $2/$3/.depend/,$(call source-to-dependency,$(wildcard $1/$3/*.ice)))
+endif
+
+$2/$3/%.php: $1/$3/%.ice $2/$3/.depend/%.ice.d $(slice2php_path)
+	$(E) "Compiling $$<"
+	$(Q)$(slice2php_path) -I$1 --ice --output-dir $2/$3 $4 --depend $$< | \
+		sed 's/\(.*: \\\)/$(subst /,\/,$2)\/$3\/\1/' > $2/$3/.depend/$$(*F).ice.d
+	$(Q)$(slice2php_path) -I$1 --ice --output-dir $2/$3 $4 $$<
+
+clean::
+	$(E) "Cleaning package $3"
+	$(Q)$(RM) -r $2/$3/.depend
+	$(Q)$(RM) $(patsubst $1/$3/%.ice,$2/$3/%.php,$(wildcard $1/$3/*.ice))
+
+srcs all:: $(patsubst $1/$3/%.ice,$2/$3/%.php,$(wildcard $1/$3/*.ice))
+
+$$(eval $$(call install-data-files,$(patsubst $1/$3/%.ice,$2/$3/%.php,$(wildcard $1/$3/*.ice)),$2,$(install_phpdir),install))
+
+endef

@@ -84,6 +84,21 @@ main(int argc, char* argv[])
     int status = EXIT_SUCCESS;
     Ice::CommunicatorPtr communicator;
 
+    if(argc < 2)
+    {
+        cerr << "usage: " << argv[0] << " <plugindir>";
+    }
+
+    //
+    // Plugin directory is provided as the last argument
+    //
+#if defined(ICE_OS_WINRT)
+    string pluginDir = "plugins/winrt/";
+#else
+    string pluginDir = argv[argc - 1];
+    pluginDir += "/";
+#endif
+
     Ice::registerPluginFactory("Static1", createMyPlugin, true); // true = Load on communicator initialization
     Ice::registerPluginFactory("Static2", createMyPlugin, false);
 
@@ -125,29 +140,6 @@ main(int argc, char* argv[])
         test(false);
     }
     cout << "ok" << endl;
-
-#if !defined(_WIN32)
-	string pluginDir = "plugins/";
-#elif defined(ICE_OS_WINRT)
-    string pluginDir = "plugins/winrt/";
-#else
-	string pluginDir = "msbuild/testplugin/";
-#   if defined(_M_X64)
-	pluginDir += "x64/";
-#   else
-	pluginDir += "Win32/";
-#   endif
-
-#   if defined(ICE_CPP11_MAPPING)
-	pluginDir += "Cpp11-";
-#   endif
-
-#   if defined(_DEBUG)
-	pluginDir += "Debug/";
-#   else
-	pluginDir += "Release/";
-#   endif
-#endif
 
     cout << "testing a simple plug-in... " << flush;
     try

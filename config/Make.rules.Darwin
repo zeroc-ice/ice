@@ -1,0 +1,69 @@
+# **********************************************************************
+#
+# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+supported-platforms		= osx iphoneos iphonesimulator
+supported-languages		= cpp java python ruby php objective-c
+
+osx_ar 				= libtool
+osx_cppflags			= -mmacosx-version-min=10.9 -arch x86_64
+osx_ldflags			= $(osx_cppflags)
+osx_targetdir			= $(if $(filter %/build,$($1_targetdir)),/osx)
+
+iphoneos_ar			= libtool
+iphoneos_cc			= xcrun -sdk iphoneos clang
+iphoneos_cxx			= xcrun -sdk iphoneos clang++
+iphoneos_cppflags		= -miphoneos-version-min=7.1 -arch armv7 -arch armv7s -arch arm64
+iphoneos_ldflags		= $(iphoneos_cppflags)
+iphoneos_configs		= xcodesdk
+iphoneos_projects		= src/%
+
+iphonesimulator_ar		= libtool
+iphonesimulator_cc		= xcrun -sdk iphonesimulator clang
+iphonesimulator_cxx		= xcrun -sdk iphonesimulator clang++
+iphonesimulator_cppflags	= -mios-simulator-version-min=7.1 -arch i386 -arch x86_64
+iphonesimulator_ldflags		= $(iphonesimulator_cppflags)
+iphonesimulator_configs		= xcodesdk
+iphonesimulator_projects	= src/%
+
+CXXFLAGS	+= -fvisibility=hidden -Wall -Werror -pthread
+
+ifeq ($(MAXWARN),yes)
+    CXXFLAGS	+= -Wextra -Wshadow -Wredundant-decls
+endif
+
+ifeq ($(OPTIMIZE),yes)
+    CXXFLAGS	+= -O2 -DNDEBUG
+else
+    CXXFLAGS	+= -g
+endif
+
+loader_path     = @loader_path
+
+mklib 		= $(or $($3_ar),$(AR)) -static -no_warning_for_no_symbols -o $1 $2
+mkshlib   	= $(or $($5_cxx),$(CXX)) -dynamiclib $(LDFLAGS) -o $1 $(if $3,-install_name @rpath/$3) $2 $4
+
+mklibname 	= lib$(1).a
+mksoname      	= lib$(1).$(soversion).dylib
+mkshlibfilename = lib$(1).$(version).dylib
+mkshlibname     = lib$(1).dylib
+
+mkpymodulename	= $1.so
+mkrbmodulename	= $1.bundle
+mkphpmodulename = $1.dy
+
+#
+# System libraries
+#
+ICEUTIL_OS_LIBS	=
+ICE_OS_LIBS     = -ldl
+CRYPT_OS_LIBS   = -framework Security -framework CoreFoundation
+SSL_OS_LIBS     = $(CRYPT_OS_LIBS)
+
+# clean::
+# 	rm -f *.keychain *.fl*

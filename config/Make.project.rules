@@ -1,0 +1,777 @@
+
+# **********************************************************************
+#
+# Copyright (c) 2003-2015 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+#
+# $(call project,[$1])
+#
+# Returns the project name, $(top_srcdir) is removed from the begining
+# of the path so for example ./src/Ice is transformed to src/Ice.
+#
+project = $(patsubst $(lang_srcdir)/%,%,$(if $1,$1,$(currentdir)))
+
+#
+# The list of platforms to build for the given component. We iterate over the platform
+# list (which is the value of PLATFORMS or the default platform) and check if the
+# component is either included/excluded for this platform based on the <platform>_excludes,
+# <platform>_components and <platform>_projects variables.
+#
+component-platforms 	= $(call unique,$(foreach p,$(platforms),\
+			    $(if $(and $(if $(filter $($p_excludes),$1 $2),,true),\
+			 		 $(or $(filter $($p_components),$2),\
+			 		   $(filter $(or $($p_projects),$(if $($p_components),,%)),$1))),\
+			      $(strip $p))))
+
+#
+# Same as the above but for configurations
+#
+component-configs   	= $(call unique,$(foreach c,$(configs),\
+			    $(if $(strip $(foreach s,$(subst -,$(space),$c),\
+			      $(if $(and $(if $(filter $($s_excludes),$1 $2),,true),\
+			          	   $(or $(filter $($s_components),$2),\
+			        	     $(filter $($s_projects),$1))),,$s))),,\
+			      $(strip $c))))
+
+# $(call install-data,$1=filename,$2=srcdir,$3=destdist)
+install-data		= $(INSTALL) $2/$1 $(DESTDIR)$3/$1; $(CHMOD) a+r $(DESTDIR)$(3)/$(1)
+
+#
+# $(call install-data-files,$1=files,$2=$srcdir,$3=$destdir,$4=target,$5=text-output)
+#
+define install-data-files
+
+$4:: $(patsubst $2/%,$(DESTDIR)$3/%,$1)
+	$(if $5,$(E) $5)
+
+ifeq ($(filter $(or $(call files-to-dirs,$(patsubst $2/%,$3/%,$1)),$3),$(installdirs)),)
+$(or $(call files-to-dirs,$(patsubst $2/%,$(DESTDIR)$3/%,$1)),$(DESTDIR)$3):
+	$(Q)$(MKDIR) -p $$@
+installdirs += $(or $(call files-to-dirs,$(patsubst $2/%,$3/%,$1)),$3)
+endif
+
+$(patsubst $2/%,$(DESTDIR)$3/%,$1): $(DESTDIR)$3/%: $2/% | \
+	$(or $(call files-to-dirs,$(patsubst $2/%,$(DESTDIR)$3/%,$1)),$(DESTDIR)$3)
+	$(Q)$(call install-data,$$(*),$2,$3)
+
+endef
+
+#
+# $(call make-objects,$1=srcdir,$2=generateddir,$3=objdir,$4=sources,$5=dependencies,$6=cppflags,$7=slicecompiler,
+#	              $8=platform,$9=config)
+#
+# Defines pattern rules to build object files into directory objdir. The sources
+# are specified by sources. The srcdir and generateddir specifies where the
+# sources and generated sources are located.
+#
+define make-objects
+
+#
+# If there's no dependency yet, ensure the objects depend on all the modules dependencies
+# and on the generated sources to ensure that all the Slice files from this module and
+# other modules are built first.
+#
+ifeq ($(wildcard $3/*.d),)
+$(addprefix $3/,$(call source-to-object,$4)): $(addprefix $2/,$(call generated-to-source,$4,$($7_targetext))) $5
+endif
+
+$3/%.d: ;
+
+.PRECIOUS: $3/%.d
+
+ifeq ($(filter %clean,$(MAKECMDGOALS)),)
+    # Include the dependencies
+    -include $(addprefix $3/,$(call source-to-dependency,$4))
+endif
+
+ifneq ($(filter %.ice,$4),)
+# Rules to build generated sources from <srcdir>/generated
+$3/%.o: $2/%.$($7_targetext)
+$3/%.o: $2/%.$($7_targetext) $3/%.$($7_targetext).d
+	$(E) "Compiling [$8-$9] $$<"
+	$(Q)$(or $($8_cxx),$(platform_cxx)) $(strip $6) -MT $$@ -MMD -MP -MF $3/$$*.Td $(CXXFLAGS) $(CPPFLAGS) -c $$< -o $$@
+	$(Q)$(MV) $3/$$*.Td $3/$$*.$($7_targetext).d
+endif
+
+ifneq ($(filter %.cpp,$4),)
+# Rules to build C++ sources from <srcdir>
+$3/%.o: $1/%.cpp
+$3/%.o: $1/%.cpp $3/%.cpp.d
+	$(E) "Compiling [$8-$9] $$<"
+	$(Q)$(or $($8_cxx),$(platform_cxx)) $(strip $6) -MT $$@ -MMD -MP -MF $3/$$*.Td $(CXXFLAGS) $(CPPFLAGS) -c $$< -o $$@
+	$(Q)$(MV) $3/$$*.Td $3/$$*.cpp.d
+endif
+
+ifneq ($(filter %.mm,$4),)
+# Rules to build Objective-C++ sources from <srcdir>
+$3/%.o: $1/%.mm
+$3/%.o: $1/%.mm $3/%.mm.d
+	$(E) "Compiling [$8-$9] $$<"
+	$(Q)$(or $($8_cxx),$(platform_cxx)) $(strip $6) -MT $$@ -MMD -MP -MF $3/$$*.Td $(CXXFLAGS) $(CPPFLAGS) -c $$< -o $$@
+	$(Q)$(MV) $3/$$*.Td $3/$$*.mm.d
+endif
+
+ifneq ($(filter %.m,$4),)
+# Rules to build Objetive-C sources from <srcdir>
+$3/%.o: $1/%.m
+$3/%.o: $1/%.m $3/%.m.d
+	$(E) "Compiling [$8-$9] $$<"
+	$(Q)$(or $($8_cxx),$(platform_cxx)) $(strip $6) -MT $$@ -MMD -MP -MF $3/$$*.Td $(CXXFLAGS) $(CPPFLAGS) -c $$< -o $$@
+	$(Q)$(MV) $3/$$*.Td $3/$$*.m.d
+endif
+
+endef
+
+#
+# $(call make-slices,$1=slicedir,$2=generateddir,$3=includedir,$4=slices,$5=sliceflags,$6=slice_compiler)
+#
+# Defines a pattern rule for <includedir>/%.h <generateddir>/%.cpp: <slicedir>/%.ice
+#
+define make-slices
+
+$2/%.ice.d: ;
+
+.PRECIOUS: $2/%.ice.d
+
+ifeq ($(filter %clean,$(MAKECMDGOALS)),)
+    # Include the dependencies
+    -include $(addprefix $2/,$(call source-to-dependency,$4))
+endif
+
+$3/%.h $2/%.$($6_targetext): $1/%.ice $2/%.ice.d $($6_path) | $3
+	$(E) "Compiling $$<"
+	$(Q)$(RM) $3/$$*.h $2/$$*.$($6_targetext)
+	$(Q)$($6_path) $(strip $5) --depend $$< > $2/$$*.ice.d
+	$(Q)$($6_path) $(strip $5) --output-dir $2 $$<
+	$(if $(filter-out $2,$3),$(Q)$(MV) $2/$$*.h $3/)
+
+endef
+
+ifeq ($(BISON_FLEX),yes)
+%.h %.cpp: %.y
+	$(RM) $*.h $*.cpp
+	bison -dvt -o $*.cpp $<
+	$(MV) $*.hpp $*.h
+	$(RM) $*.output
+
+%.cpp: %.l
+	$(RM) $@
+	echo '#include <IceUtil/ScannerConfig.h>' >> $@
+	flex -t $< >> $@
+else
+%.h %.cpp: %.y
+
+%.cpp: %.l
+
+endif
+
+#
+# $(call make-static-library,$1=libname,$2=libdir,$3=objects,$4=dependencies,$5=ldflags,$6=platform,$7=config)
+#
+# Defines rules for building the static library <libname> in <libdir> with the objects <objects>
+#
+define make-static-library
+$2/$(call mklibname,$1): $3
+	$(E) "Linking [$6-$7] $$@"
+	$(Q)$(MKDIR) -p $2
+	$(Q)$(call mklib,$$@,$$^,$6)
+endef
+
+# $(call install-static-library,$1=libname,$2=libdir,$3=installdir)
+define install-static-library
+$(DESTDIR)$3/$(call mklibname,$1): $2/$(call mklibname,$1) | $(DESTDIR)$3
+	$(E) "Installing $$@"
+	$(Q)$(INSTALL) $$< $(DESTDIR)$3
+endef
+
+# $(call get-static-library-targets,$1=libname,$2=libdir)
+get-static-library-targets = $2/$(call mklibname,$1)
+
+#
+# $(call make-shared-library,$1=libname,$2=libdir,$3=objects,$4=dependencies,$5=ldflags,$6=platform,$7=config)
+#
+# Defines rules for building the shared library <libname> in <libdir> with the objects <objects>
+#
+define make-shared-library
+
+$2/$(call mkshlibfilename,$1): $3
+	$(E) "Linking [$6-$7] $$@"
+	$(Q)$(MKDIR) -p $2
+	$(Q)$(call mkshlib,$$@,$(strip $3),$(call mksoname,$1),$(strip $5),$6)
+
+$2/$(call mksoname,$1): $2/$(call mkshlibfilename,$1)
+	@$(RM) $$@ ; ln -s $$(<F) $$@
+
+$2/$(call mkshlibname,$1): $2/$(call mksoname,$1)
+	@$(RM) $$@ ; ln -s $$(<F) $$@
+
+endef
+
+# $(call install-shared-library,$1=libname,$2=libdir,$3=installdir)
+define install-shared-library
+
+$(DESTDIR)$3/$(call mkshlibfilename,$1): $2/$(call mkshlibfilename,$1) | $(DESTDIR)$3
+	$(E) "Installing $$@"
+	$(Q)$(INSTALL) $$< $(DESTDIR)$3
+	$(Q)$(CHMOD) a+rx $$@
+
+$(DESTDIR)$3/$(call mksoname,$1): $(DESTDIR)$3/$(call mkshlibfilename,$1) $2/$(call mksoname,$1)
+	@$(RM) $$@ ; ln -s $$(<F) $$@
+
+$(DESTDIR)$3/$(call mkshlibname,$1): $(DESTDIR)$3/$(call mksoname,$1) $2/$(call mkshlibname,$1)
+	@$(RM) $$@ ; ln -s $$(<F) $$@
+
+endef
+
+# $(call get-shared-library-targets,$1=libname,$2=libdir)
+get-shared-library-targets 	= $(addprefix $2/,$(call mkshlibfilename,$1) $(call mksoname,$1) $(call mkshlibname,$1))
+
+#
+# $(call make-shared-module,$1=libname,$2=libdir,$3=objects,$4=dependencies,$5=ldflags,$6=platform,$7=config)
+#
+# Defines rules for building the shared module (this is used to build the Python/Ruby/PHP modules)
+#
+define make-shared-module
+$2/$1: $3 $4
+	$(E) "Linking [$6-$7] $$@"
+	$(Q)$(MKDIR) -p $2
+	$(Q)$(call mkshlib,$$@,$(strip $3),,$(strip $5),$6)
+endef
+
+# $(call install-shared-module,$1=libname,$2=libdir,$3=installdir)
+define install-shared-module
+$(DESTDIR)$3/$1: $2/$1 | $(DESTDIR)$3
+	$(E) "Installing $$@"
+	$(Q)$(INSTALL) $$< $(DESTDIR)$3
+	$(Q)$(CHMOD) a+rx $$@
+endef
+
+# $(call get-shared-module-targets,$1=libname,$2=libdir)
+get-shared-module-targets = $2/$1
+
+#
+# $(call make-program,$1=exename,$2=bindir,$3=objects,$4=dependencies,$5=ldflags,$6=platform,$7=config)
+#
+# Defines a rule for building the program <exename> in <bindir> with the objects <objects>
+#
+define make-program
+$2/$1$(EXE_EXT): $3 $(if $(filter static%,$7),$4)
+	$(E) "Linking [$6-$7] $$@"
+	$(Q)$(MKDIR) -p $2
+	@$(RM) $$@
+	$(Q)$(or $($6_cxx),$(CXX)) $(LDFLAGS) -o $$@ $3 $(strip $5)
+endef
+
+# $(call install-program,$1=exename,$2=bindir,$3=installdir)
+define install-program
+$(DESTDIR)$3/$1$(EXE_EXT): $2/$1$(EXE_EXT) | $(DESTDIR)$3
+	$(E) "Installing $$@"
+	$(Q)$(INSTALL) $$< $(DESTDIR)$3
+	$(Q)$(CHMOD) a+rx $$@
+endef
+
+# $(call get-program-targets,$1=exename,$2=bindir)
+get-program-targets = $2/$1$(EXE_EXT)
+
+#
+# $(call create-component-with-config-targets,$1=project,$2=component,$3=platform,$4=config,$5=comp[platform-config])
+#
+# Defines target variables for the given component/paltform/configuration
+#
+define create-component-with-config-targets
+
+#
+# Transform the dependencies to [platform-configuration] specific dependencies.
+#
+$5_dependencies	= $$(foreach d,$$($2_dependencies),$$(call make-dependency,$$d,$2,$3,$4))
+
+#
+# The installation directory
+#
+ifndef $1_noinstall
+$5_installdir 	:= $$($2_installdir)$$(call platform-var,installdir,$2,$3,$4)
+endif
+
+#
+# Compute the target rule and name for this platform/configuration combination.
+#
+$5_targetrule	:= $$(call platform-and-config-var,targetrule,$2,$3,$4)$$($2_target)
+$5_targetname	:= $$($2_targetname)$$(subst $$(space),,$$(or $$(call platform-and-config-var,targetname,$2,$3,$4)))
+
+#
+# Compute the target directory. If this is a project from src/ the target goes
+# either to the lib or bin directory instead of a sub-directory of the project.
+#
+$5_targetdir 	:= $$($2_targetdir)
+$5_targetdir 	:= $$($5_targetdir)$$(call platform-var,targetdir,$2,$3,$4)
+$5_targetdir 	:= $$($5_targetdir)$$(patsubst %/,%,/$$(subst $$(space),-,$$(call config-var,targetdir,$2,$3,$4)))
+
+$5_targets 	:= $$(call get-$$($5_targetrule)-targets,$$($5_targetname),$$($5_targetdir))
+
+#
+# We define a secondary target for component[platform-config]. This is necessary
+# to allow dependencies to be used as prerequesties. For example, objects for
+# IceSSL[osx-shared] depend on Ice[osx-shared], see make-objects.
+#
+.SECONDARY: $5
+$5: $$($5_targets)
+
+endef
+
+#
+# $(call create-component-targets,$1=project,$2=component,$3=type)
+#
+# Create the target variables for the given component.
+#
+define create-component-targets
+
+$2_target 	:= $$(or $$($2_target),$3)
+$2_targetname	:= $$(or $$($2_targetname),$(patsubst $1_%,%,$2))
+$2_targetdir 	:= $$(or $$($2_targetdir),$$($1_targetdir))
+
+$2_platforms	:= $$(call unique,$$(or $$($2_platforms),$$($1_platforms),$(call component-platforms,$1,$2)))
+$2_configs	:= $$(call unique,$$(or $$($2_configs),$$($1_configs),$(call component-configs,$1,$2)))
+
+#
+# The installation directory (install_bindir if program, install_libdir otherwise)
+#
+$2_installdir	:= $$(or $$($2_installdir),$$(if $$(filter program,$$($2_target)),$(install_bindir),$(install_libdir)))
+
+$$(foreach p,$$($2_platforms),\
+    $$(foreach c,$$(filter $$(or $$($$p_configs),%),$$($2_configs)),\
+        $$(eval $$(call create-component-with-config-targets,$1,$2,$$p,$$c,$2[$$p-$$c]))))
+
+$$(foreach c,$$($2_always_enable_configs),\
+    $$(if $$($2[$(build-platform)-$$c]_config),,\
+	$$(eval $$(call create-component-with-config-targets,$1,$2,$(build-platform),$$c,$2[$(build-platform)-$$c]))))
+
+endef
+
+#
+# $(call create-project-targets,$1=project)
+#
+# Creates all the target variables which are necessary to depend on the components
+# from the given project. This is used by various language mappings to depend on C++
+# components such as the translators or the C++ IceUtil or Ice libraries.
+#
+define create-project-targets
+$1_targetdir 	:= $$(or $$($1_targetdir),$1/build)
+
+$$(foreach p,$$($1_programs),$$(eval $$(call create-component-targets,$1,$$p,program)))
+$$(foreach l,$$($1_libraries),$$(eval $$(call create-component-targets,$1,$$l,library)))
+endef
+
+#
+# $(call make-component-with-config,$1=project,$2=component,$3=platform,$4=config,$5=component[platform-config])
+#
+# Defines rules to build the given component with the given platform/configuration
+#
+define make-component-with-config
+
+$5_platform 	:= $3
+$5_config 	:= $4
+
+#
+# The object directory <component-objdir>/<platform-objdir>/<config-objdir>.
+# We also append the directory to the project's object directories.
+#
+$5_objdir 	:= $$($2_objdir)
+$5_objdir 	:= $$($5_objdir)$$(patsubst %/,%,/$$(call platform-var,objdir,$2,$3,$4))
+$5_objdir	:= $$($5_objdir)$$(patsubst %/,%,/$$(subst $$(space),-,$$(call config-var,objdir,$2,$3,$4)))
+$1_objdirs	+= $$($5_objdir)
+
+#
+# Add platform/configuration specific cppflags and ldflags.
+#
+$5_cppflags	= $$($2_cppflags) $$(call platform-and-config-var,cppflags,$2,$3,$4,$5)
+$5_ldflags	= $$($2_ldflags) $$(call platform-and-config-var,ldflags,$2,$3,$4,$5)
+
+#
+# Computes the list of objects to build based on the sources.
+#
+$5_objects 	:= $$(call unique,$$(addprefix $$($5_objdir)/,$$(call source-to-object,$$($2_sources))))
+
+#
+# Order only prerequisties to ensure the object directory is created
+# before we start building the objects
+#
+$$($5_objdir)/$$(call source-to-dependency,$$($2_sources)): | $$($5_objdir)
+
+#
+# Object rules
+#
+$$(eval $$(call make-objects,$$($2_srcdir),$$($1_generated_srcdir),$$($5_objdir),\
+	$$($2_sources),$$($5_dependencies),$$($5_cppflags),$$($1_slicecompiler),$$($5_platform),$$($5_config)))
+
+#
+# Target rule
+#
+$$(eval $$(call make-$$($5_targetrule),$$($5_targetname),$$($5_targetdir),\
+	$$($5_objects),$$($5_dependencies),$$($5_ldflags),$$($5_platform),$$($5_config)))
+
+#
+# component[platform-config]_* specific targets
+#
+# NOTE: The component[platform-config] target is specified in create-component-with-config-targets
+#
+.PHONY: $5_clean $5_distclean $5_install
+
+$2:: $5
+
+$5_clean:
+	$(Q)$(RM) -r $$($5_objdir)
+	$(Q)$(RM) $$($5_targets)
+
+# Only clean if platform/configuration matches (this prevents slice2cpp from being cleaned)
+ifneq ($(and $(filter $3,$(platforms)),$(filter $4,$(configs))),)
+$2_clean:: $5_clean
+endif
+
+$5_distclean:
+	$(Q)$(RM) $$($5_targets)
+
+$2_distclean:: $5_distclean
+
+ifndef $1_noinstall
+
+ifeq ($$(filter $$($5_installdir),$$(installdirs)),)
+installdirs += $$($5_installdir)
+$(DESTDIR)$$($5_installdir):
+	$(Q)$(MKDIR) -p $$@
+endif
+
+$5_install: $$(patsubst $$($5_targetdir)/%,$(DESTDIR)$$($5_installdir)/%,$$($5_targets))
+
+$$(eval $$(call install-$$($5_targetrule),$$($5_targetname),$$($5_targetdir),$$($5_installdir)))
+
+ifneq ($$(and $$(filter $3,$$($2_install_platforms)),$$(filter $4,$$($2_install_configs))),)
+$2_install:: $5_install
+endif
+
+endif
+
+endef
+
+#
+# $(call make-component,$1=project,$2=component,$3=type)
+#
+define make-component
+
+#
+# Slice files for a given project are generated in a common generated directory. We
+# don't support generating Slice files with different compiler options for different
+# components in the same project.
+#
+# For single-component projects we allow setting the sliceflags and the component,
+# the flags are moved to the project level in this case.
+#
+ifneq ($$(and $$($2_sliceflags),$$($1_multicomp)),)
+$$(error sliceflags are not supported for $2 component in multi-component project $1)
+else ifneq ($$($2_sliceflags),)
+$1_sliceflags := $$($1_sliceflags) $$($2_sliceflags)
+$2_sliceflags :=
+endif
+
+$2_project		:= $1
+$2_install_platforms	:= $$(or $$($2_install_platforms),$$($1_install_platforms),$$($2_platforms))
+$2_install_configs	:= $$(or $$($2_install_configs),$$($1_install_configs),$$($2_configs))
+
+#
+#
+# If component specific cppflags are set and multiple components are configured for
+# the project, we build the component objects in a component specific directory.
+#
+# The source directory can be set at the component or project level.
+#
+$2_objdir 	:= $$($1_objdir)$$(if $$(and $$(filter $$($1_cppflags),$$($2_cppflags)),$$($1_multicomp)),/$2)
+$2_srcdir	:= $$(or $$($2_srcdir),$$($1_srcdir))
+
+#
+# Combine settings set at the project and component levels.
+#
+$2_dependencies	:= $$(call unique,$$($2_dependencies) $$($1_dependencies))
+$2_libs		:= $$(call unique,$$($2_libs) $$($1_libs))
+$2_system_libs	:= $$($2_system_libs) $$($1_system_libs)
+$2_sliceflags	:= $$($2_sliceflags) $$($1_sliceflags)
+$2_cppflags	:= $$($2_cppflags) $$($1_cppflags)
+$2_ldflags	:= $$($2_ldflags) $$($1_ldflags)
+
+#
+# If we're compiling a library, we check for a ../slice/<component> directory.
+# If it exists, we assume the Slice files from this directory are public and we
+# generate the headers in include/<component>.
+#
+ifeq ($3,library)
+$2_slicedir	:= $$(or $$($2_slicedir),$$(if $$(wildcard $(slicedir)/$2/*.ice),$(slicedir)/$2))
+$2_includedir	:= $$(or $$($2_includedir),$$(if $$(wildcard $(includedir)/$2/*.h),$(includedir)/$2))
+
+ifneq ($$(filter $(includedir)/%,$$($2_includedir)),)
+# Generate headers in include/generated sub-directory instead of the include directory
+$2_generated_includedir	:= $$(patsubst $(includedir)/%,$(includedir)/generated/%,$$($2_includedir))
+else
+$2_generated_includedir	:= $$(or $$($2_generated_includedir),$$($1_generated_includedir))
+endif
+
+endif
+
+#
+# If sources are not specified for the component, we search for them in
+# the source directory and eventualy the slice directory if set.
+#
+ifeq ($$($2_sources),)
+$2_sources 	:= $$(foreach e,$(source-extensions),$$(wildcard $$($2_srcdir)/*.$$(e)))
+ifneq ($$($2_slicedir),)
+    $2_sources 	+= $$(wildcard $$($2_slicedir)/*.ice)
+endif
+$2_sources      := $$(call unique,$$($2_sources))
+endif
+$2_sources	:= $$(filter-out $$(patsubst $(lang_srcdir)/%,%,$$($2_excludes)),$$($2_sources))
+
+#
+# Compute the list of slice files from the sources and gather the location
+# of the slice files.
+#
+$2_slices 	:= $$(filter %.ice,$$($2_sources))
+$2_slicedirs 	:= $$(call files-to-dirs,$$($2_slices),ice)
+
+#
+# Append the slice directories and slice files which are not in the
+# slice/<component> directory to the project slice directories and
+# list of slice files.
+#
+$1_slicedirs	+= $$(filter-out $$($2_slicedir),$$($2_slicedirs))
+$1_slices       += $$(filter-out $$($2_slicedir)/%,$$($2_slices))
+
+#
+# Define slice rules for the component Slice files from $(slicedir)/<component>
+# if it exists. Rules for other slice files are specified at the project level.
+#
+ifneq ($$($2_slicedir),)
+
+# Add an order-only prerequisities on the directory to trigger its creation if it doesn't exist.
+$$($1_generated_srcdir)/$$(call source-to-dependency,$$($2_slices)): | $$($1_generated_srcdir)
+
+ifneq ($$($1_generated_includedir),$$($2_generated_includedir))
+$$($2_generated_includedir):
+	$(Q)$(MKDIR) -p $$@
+endif
+
+$$(eval $$(call make-slices,$$($2_slicedir),$$($1_generated_srcdir),$$($2_generated_includedir),$$($2_slices),\
+	$$($2_sliceflags),$$($1_slicecompiler)))
+
+$2_generated_headers := $$(call generated-to-header,$$(filter $$($2_slicedir)/%,$$($2_sources)))
+$2_generated_headers := $$(addprefix $$($2_generated_includedir)/,$$($2_generated_headers))
+$1_generated += $$($2_generated_headers)
+
+endif
+
+#
+# Define per-<platform-config> rules for this component.
+#
+$$(foreach p,$$($2_platforms),\
+    $$(foreach c,$$(filter $$(or $$($$p_configs),%),$$($2_configs)),\
+        $$(eval $$(call make-component-with-config,$1,$2,$$p,$$c,$2[$$p-$$c]))))
+
+$$(foreach c,$$($2_always_enable_configs),\
+    $$(if $$($2[$(build-platform)-$$c]_config),,\
+	$$(eval $$(call make-component-with-config,$1,$2,$(build-platform),$$c,$2[$(build-platform)-$$c]))))
+
+#
+# Component targets to build the component with the specified platforms/configurations
+#
+.PHONY: $2 $2_clean $2_distclean $2_install
+
+$2::
+$2_clean::
+$2_install::
+$2_distclean::
+
+#
+# Install public header files if building a library
+#
+ifneq ($(and $(filter library,$3),$$(filter $(includedir)/%,$$($2_includedir))),)
+$$(eval $$(call install-data-files,$$(wildcard $$($2_includedir)/*.h),$(includedir),$(install_includedir),$2_install))
+ifneq ($$($2_generated_headers),)
+$$(eval $$(call install-data-files,$$($2_generated_headers),$(includedir)/generated,$(install_includedir),$2_install))
+endif
+endif
+
+ifneq ($(filter program,$3),)
+$$(eval $$(call install-data-files,$$(wildcard $(top_srcdir)/man/man1/$2.1),$(top_srcdir)/man,$(install_mandir),$2_install))
+endif
+
+$1:: $2
+$1_clean:: $2_clean
+$1_install:: $2_install
+$1_distclean:: $2_distclean
+
+endef
+
+#
+# $(call make-project,$1=project)
+#
+define make-project
+
+$1_objdir		:= $$(or $$($1_objdir),$1/build)
+$1_srcdir 		:= $$(or $$($1_srcdir),$1)
+$1_generated_srcdir 	:= $$(or $$($1_generated_srcdir),$1/generated)
+$1_generated_includedir := $$(or $$($1_generated_includedir),$1/generated)
+
+# Is this a multi-component project?
+$1_multicomp	:= $(word 2,$($1_programs) $($1_libraries))
+
+#
+# Create target variables for this project.
+#
+$$(eval $$(call create-project-targets,$1))
+
+#
+# Components add slice and object directories, slice files, generated
+# header files to these variables. This is used to collect the slice
+# directories for which to generate Slice rules. The list of generated
+# header files is used to clean them.
+#
+$1_slicedirs	:=
+$1_slices 	:=
+$1_generated	:=
+$1_objdirs	:=
+
+$$(foreach p,$$($1_programs),$$(eval $$(call make-component,$1,$$p,program)))
+$$(foreach l,$$($1_libraries),$$(eval $$(call make-component,$1,$$l,library)))
+
+$1_slicedirs	:= $$(call unique,$$($1_slicedirs))
+$1_slices 	:= $$(call unique,$$($1_slices))
+$1_generated	:= $$(call unique,$$($1_generated))
+$1_objdirs	:= $$(call unique,$$($1_objdirs))
+
+#
+# Create object directories and generated directory if we're not cleaning.
+#
+ifeq ($(filter %clean,$(MAKECMDGOALS)),)
+
+ifneq ($$($1_objdirs),)
+$$($1_objdirs):
+	$(Q)mkdir -p $$@
+endif
+
+$$($1_generated_srcdir):
+	$(Q)mkdir -p $$@
+
+endif
+
+#
+# Rules for slice files for each of the directories where Slice files are
+# located for this project.
+#
+ifneq ($$($1_slicedirs),)
+
+# Add an order-only prerequisities on the directory to trigger its creation if it doesn't exist.
+$$($1_generated_srcdir)/$$(call source-to-dependency,$$($1_slices)): | $$($1_generated_srcdir)
+
+# Create generated include directory if different from generated source directory
+ifneq ($$($1_generated_includedir),$$($1_generated_srcdir))
+$$($1_generated_includedir):
+	$(Q)$(MKDIR) -p $$@
+endif
+
+$$(foreach d,$$($1_slicedirs),$$(eval $$(call make-slices,\
+    $$(d),$$($1_generated_srcdir),$$($1_generated_includedir),$$($1_slices),$$($1_sliceflags),$$($1_slicecompiler))))
+
+$1_generated += $$(addprefix $$($1_generated_includedir)/,$$(call generated-to-header,$$($1_slices)))
+
+endif
+
+#
+# Project targets
+#
+.PHONY: $1 $1_clean $1_install $1_distclean
+
+$1::
+
+$1_clean::
+	$(E) "Cleaning $1"
+	$$(if $$($1_cleanfiles),$(Q)$(RM) $$(addprefix $$($1_srcdir)/,$$($1_cleanfiles)))
+	$$(if $$($1_cleandirs),$(Q)$(RM) -r $$(addprefix $$($1_srcdir)/,$$($1_cleandirs)))
+
+$1_install::
+
+$1_distclean::
+	$(E) "Cleaning $1"
+	$(Q)$(RM) -r $$($1_objdir) $$($1_generated_srcdir)
+	$$(if $$($1_generated),$(Q)$(RM) $$($1_generated))
+	$$(if $$($1_cleanfiles),$(Q)$(RM) $$($1_cleanfiles))
+	$$(if $$($1_cleandirs),$(Q)$(RM) -r $$($1_cleandirs))
+
+#
+# Global targets
+#
+all:: $1
+clean:: $1_clean
+install:: $1_install
+distclean:: $1_distclean
+
+endef
+
+#
+# $(call load-dependencies,$1=projects)
+#
+# Load the given projects and create the project targets
+#
+define load-dependencies
+tmp_projects := $$(projects)
+projects :=
+
+include $(addsuffix /Makefile.mk,$1)
+
+$$(foreach p,$$(projects),$$(eval $$(call create-project-targets,$$p)))
+
+projects := $$(tmp_projects)
+endef
+
+#
+# $(call make-translator-project,$1=project)
+#
+# Defines a project for the given translator
+#
+define create-translator-project
+$1_programs	:= $(notdir $1)
+$1_dependencies	:= Slice IceUtil
+$1_cppflags	:= -I$1
+$1_targetdir	:= $(call bindir,$1)
+
+#
+# Only build the translator with the static configuration
+# and on the default platform.
+#
+$1_configs	:= static
+$1_platforms	:= $(build-platform)
+
+#
+# Defines the target extension and path of the slice translator
+# component. This is used by make-slices to create a dependency
+# on the translator for slice files.
+#
+$(notdir $1)_targetext	:= $$(or $$($(notdir $1)_targetext),$(patsubst slice2%,%,$(or $2,$(notdir $1))))
+$(notdir $1)_path 	= $$($(notdir $1)[$$(firstword $$(supported-platforms))-static]_targetdir)/$(notdir $1)
+
+projects 	+= $(project)
+endef
+
+#
+# $(call load-translator-dependencies,$1=project)
+#
+# Define the translator project and create the project targets.
+#
+define load-translator-dependencies
+tmp_projects := $$(projects)
+projects :=
+$(call create-translator-project,$1)
+$(call create-project-targets,$1)
+projects := $$(tmp_projects)
+endef
+

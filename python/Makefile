@@ -7,31 +7,44 @@
 #
 # **********************************************************************
 
-top_srcdir	= .
+top_srcdir 	:= ..
+lang_srcdir	:= $(top_srcdir)/python
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= modules python
+#
+# Load C++ dependencies
+#
+$(eval $(call load-dependencies,$(addprefix $(top_srcdir)/cpp/src/,IceUtil Slice Ice IceSSL)))
 
-INSTALL_SUBDIRS = $(install_pythondir) $(install_libdir)
+#
+# Load python rules after loading C++ dependencies
+#
+include $(lang_srcdir)/config/Make.rules
 
-install:: install-common
-	@for subdir in $(INSTALL_SUBDIRS); \
-	do \
-	    if test ! -d $(DESTDIR)$$subdir ; \
-	    then \
-		echo "Creating $(DESTDIR)$$subdir..." ; \
-		mkdir -p $(DESTDIR)$$subdir ; \
-		chmod a+rx $(DESTDIR)$$subdir ; \
-	    fi ; \
-	done
+#
+# Load Makefile.mk fragments
+#
+include $(shell find $(lang_srcdir) -name Makefile.mk)
 
-$(EVERYTHING)::
-	@for subdir in $(SUBDIRS); \
-	do \
-	    echo "making $@ in $$subdir"; \
-	    ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
-	done
+#
+# Make the projects (this expands all the build configuration and defines rules for all
+# the components).
+#
+$(foreach p,$(projects),$(eval $(call make-project,$(p))))
 
-test::
-	@python $(top_srcdir)/allTests.py
+#
+# We use a separate Makefile for building the python packages because their building
+# requires .NOTPARALLEL
+#
+all::
+	$(Q)$(MAKE) -C python all
+
+clean::
+	$(Q)$(MAKE) -C python clean
+
+distclean::
+	$(Q)$(MAKE) -C python clean
+
+install::
+	$(Q)$(MAKE) -C python install

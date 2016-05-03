@@ -527,7 +527,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         addProperty(service, "Ice.Warn.UnknownProperties", "0");
         //addProperty(service, "Ice.Trace.Admin.Properties", "1");
         service->name = "Service1";
-        service->entry = "./TestService:create";
+        service->entry = properties->getProperty("ServerDir") + "/TestService:create";
         adapter = AdapterDescriptor();
         adapter.name = "${service}";
         adapter.id = "${server}.${service}";
@@ -631,7 +631,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         cout << "testing service update... " << flush;
         try
         {
-            icebox->services[0].descriptor->entry = "TestService:create2";
+            icebox->services[0].descriptor->entry = properties->getProperty("ServerDir") + "/TestService:create2";
             admin->updateApplicationWithoutRestart(update);
             test(false);
         }

@@ -20,8 +20,8 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0], "scripts"))
 import TestUtil
 
-server = os.path.join(os.getcwd(), "server")
-client = os.path.join(os.getcwd(), "client")
+server = os.path.join(os.getcwd(), TestUtil.getTestExecutable("server"))
+client = os.path.join(os.getcwd(),TestUtil.getTestExecutable("client"))
 
 num = 12
 base = 13340

@@ -7,73 +7,34 @@
 #
 # **********************************************************************
 
-SUBDIRS		= cpp java js python ruby php
-CLEAN_SUBDIRS	= js java python ruby php cpp
-DEPEND_SUBDIRS	= cpp python ruby php
-INSTALL_SUBDIRS	= cpp java python ruby php
+top_srcdir := .
 
-ifeq ($(shell uname),Darwin)
-SUBDIRS		+= objective-c
-CLEAN_SUBDIRS	+= objective-c
-DEPEND_SUBDIRS	+= objective-c
-INSTALL_SUBDIRS	+= objective-c
-endif
+include $(top_srcdir)/config/Make.rules
 
-all::
-	@for subdir in $(SUBDIRS); \
+define make-global-rule
+$1::
+	@for subdir in $2; \
 	do \
-	    echo "making all in $$subdir"; \
-	    ( cd $$subdir && $(MAKE) all ) || exit 1; \
+	    echo "making all in $$$$subdir"; \
+	    ( cd $$$$subdir && $(MAKE) $1 ) || exit 1; \
 	done
+endef
 
-clean::
-	@for subdir in $(CLEAN_SUBDIRS); \
-	do \
-	    echo "making clean in $$subdir"; \
-	    ( cd $$subdir && $(MAKE) clean ) || exit 1; \
-	done
+$(eval $(call make-global-rule,srcs,$(languages)))
+$(eval $(call make-global-rule,tests,$(languages)))
+$(eval $(call make-global-rule,all,$(languages)))
+$(eval $(call make-global-rule,clean,$(languages)))
+$(eval $(call make-global-rule,distclean,$(languages)))
+$(eval $(call make-global-rule,install,$(languages)))
 
-depend::
-	@for subdir in $(DEPEND_SUBDIRS); \
-	do \
-	    echo "making depend in $$subdir"; \
-	    ( cd $$subdir && $(MAKE) depend ) || exit 1; \
-	done
 
-install::
-	@for subdir in $(INSTALL_SUBDIRS); \
-	do \
-	    echo "making install in $$subdir"; \
-	    ( cd $$subdir && $(MAKE) install ) || exit 1; \
-	done
+#
+# Install documentation and slice files
+#
+install:: install-doc install-slice
 
-test::
-	@for subdir in $(SUBDIRS); \
-	do \
-	    echo "making test in $$subdir"; \
-	    ( cd $$subdir && $(MAKE) test ) || exit 1; \
-	done
+$(eval $(call install-data-files,$(wildcard $(slicedir)/*/*.ice),$(slicedir),$(install_slicedir),\
+	install-slice,"Installing slice files"))
 
-cpp::
-	echo "making all in cpp";
-	( cd cpp && $(MAKE) all ) || exit 1;
-
-java::
-	echo "making all in java";
-	( cd java && $(MAKE) all ) || exit 1;
-
-cs::
-	echo "making all in cs";
-	( cd cs && $(MAKE) all ) || exit 1;
-
-python::
-	echo "making all in python";
-	( cd python && $(MAKE) all ) || exit 1;
-
-ruby::
-	echo "making all in ruby";
-	( cd ruby && $(MAKE) all ) || exit 1;
-
-php::
-	echo "making all in php";
-	( cd php && $(MAKE) all ) || exit 1;
+$(eval $(call install-data-files,$(wildcard $(top_srcdir)/*LICENSE),$(top_srcdir),$(install_docdir),\
+	install-doc,"Installing documentation files"))

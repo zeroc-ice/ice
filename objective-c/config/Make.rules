@@ -7,169 +7,90 @@
 #
 # **********************************************************************
 
-#
-# Select an installation base directory. The directory will be created
-# if it does not exist.
-#
-prefix			?= /opt/Ice-$(VERSION)
-
-#
-# Define OPTIMIZE as yes if you want to build with
-# optimization. Otherwise Ice is build with debug information.
-#
-#OPTIMIZE		= yes
-
-#
-# The build architectures for gcc/llvm based builds. The format of
-# these build flags are OS dependent. For example, under OS X to
-# build binaries which support both i386 and x86_64 you would use
-# "-arch i386 -arch x86_64".  The default is OS version dependent. Be
-# aware that this value may conflict with the setting of LP64 above.
-#
-#OBJCARCHFLAGS		= -arch i386 -arch x86_64
-
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
 
 #
-# Common definitions
+# Objective-C mapping configurations
 #
-ice_language     = objective-c
-slice_translator = slice2objc
-
-ifeq ($(shell test -f $(top_srcdir)/config/Make.common.rules && echo 0),0)
-    include $(top_srcdir)/config/Make.common.rules
-else
-    include $(top_srcdir)/../config/Make.common.rules
-endif
-
-bindir	= $(top_srcdir)/bin
-ifdef ice_src_dist
-    libdir      = $(top_srcdir)/lib
-    includedir	= $(top_srcdir)/include
-else
-    libdir	= $(ice_dir)/$(libsubdir)
-    testlibdir  = $(top_srcdir)/lib
-    includedir	= $(ice_dir)/include
-endif
-headerdir	= $(top_srcdir)/include
-
-install_includedir  := $(prefix)/include/objc
-install_libdir	:= $(prefix)/$(libsubdir)
-install_bindir	:= $(prefix)/$(binsubdir)
+supported-configs	= shared static arc-shared arc-static
 
 #
-# Platform specific definitions
+# Build only few components with the static configuration (libraries)
 #
-include	 $(top_srcdir)/config/Make.rules.$(UNAME)
+static_components 	= Ice IceObjC IceSSLObjC Glacier2ObjC IceStormObjC IceGridObjC
+static_projects		= test/%
 
-ICECPPFLAGS		= -I$(slicedir)
-SLICE2OBJCFLAGS	= $(ICECPPFLAGS)
-FLEXFLAGS		=
-BISONFLAGS		= -dvt
-CPPFLAGS		+= -I$(includedir)
-LDFLAGS			= $(OBJCFLAGS) $(ARCFLAGS) -L$(libdir)
-ifndef ice_src_dist
-    LDFLAGS += -L$(testlibdir)
+#
+# Build only the tests with the ARC configuration
+#
+arc_projects		= test/Ice/%
+
+#
+# Define the arc configuration to build the tests with ARC support.
+#
+# Note that we clear the dependency variable to not include the "arc"
+# sub-configuration into the dependency name (for example, if "client"
+# depends on "IceObjC", client[osx-arc-shared] will still depend on
+# Ice[osx-shared] not Ice[osx-arc-shared]). This is necessary since
+# we don't have an ARC specific build of the libraries.
+#
+arc_cppflags 		:= -fobjc-arc -fobjc-arc-exceptions
+arc_dependency	 	:=
+
+#
+# Define slice2objc target extension since it can't be figured out
+# automatically from the slice2objc translator name.
+#
+slice2objc_targetext	= m
+
+# Rule for installing headers file from include/objc directory
+ifneq ($(USE_BIN_DIST),yes)
+$(DESTDIR)$(install_includedir)/objc:
+	$(Q)$(MKDIR) -p $(DESTDIR)$(install_includedir)/objc
+
+$(DESTDIR)$(install_includedir)/objc/%.h: $(includedir)/objc/%.h | $(DESTDIR)$(install_includedir)/objc
+	$(Q)$(call install-data,objc/$(*).h,$(includedir),$(DESTDIR)$(install_includedir))
 endif
 
-ifdef ice_src_dist
-    ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
-        SLICE2OBJC = $(ice_cpp_dir)/bin/slice2objc
-    else
-        SLICE2OBJC = $(ice_cpp_dir)/$(binsubdir)/slice2objc
-    endif
+#
+# $(make-objc-src-project $1=project)
+#
+define make-objc-src-project
+ifeq ($(USE_BIN_DIST),yes)
+$(create-project-targets)
 else
-    SLICE2OBJC = $(ice_dir)/$(binsubdir)/slice2objc
+$1_slicecompiler 	:= slice2objc
+$1_sliceflags		+= --ice -I$(slicedir)
+$1_cppflags 		+= -I$(includedir) -I$(includedir)/generated
+$1_ldflags		+= -framework Foundation
+$(make-project)
+srcs:: $1
 endif
+endef
 
-# This cannot use .cpp:.o as we have multiple types of source files.
-
-EVERYTHING		= all clean install
-EVERYTHING_EXCEPT_ALL   = clean install
-
-.SUFFIXES:
-.SUFFIXES:		.mm .m .o .cpp  .c
-
-ifneq ($(SLICE_OBJS),)
--include $(addprefix .depend/, $(SLICE_OBJS:.o=.ice.d))
+#
+# $(make-objc-test-project $1=project)
+#
+define make-objc-test-project
+$1_slicecompiler 	:= slice2objc
+$1_sliceflags		:= -I$(slicedir) $$($1_sliceflags)
+$1_cppflags		:= -I$(includedir) -Itest/include -I$1 -I$1/generated $$($1_cppflags)
+$1_ldflags		+= -framework Foundation
+ifneq ($(USE_BIN_DIST),yes)
+$1_cppflags		+= -I$(includedir)/generated
 endif
+$(make-project)
+tests:: $1
+endef
 
-ifneq ($(OBJS),)
--include $(addprefix .depend/, $(OBJS:.o=.d))
-endif
-
-ifeq ($(wildcard .depend/*.d),)
-ifneq ($(OBJCXX_OBJS),)
-$(OBJS): $(SLICE_OBJS:.o=.m) $(OBJC_OBJS:.o=.m) $(OBJCXX_OBJS:.o=.mm)
-else
-$(OBJS): $(OBJS:.o=.m)
-endif
-endif
-
-all:: $(TARGETS)
-
-.m.o:
-	$(CC) -c $(ARCFLAGS) $(CPPFLAGS) $(OBJCFLAGS) $<
-	@mkdir -p .depend
-	@$(CXX) -DMAKEDEPEND -MM $(CPPFLAGS) $< > .depend/$(*F).d
-
-.mm.o:
-	$(CXX) -c $(ARCFLAGS) $(CPPFLAGS) $(OBJCFLAGS) $<
-	@mkdir -p .depend
-	@$(CXX) -DMAKEDEPEND -MM $(CPPFLAGS) $< > .depend/$(*F).d
-
-$(HDIR)/%F.h: $(SDIR)/%F.ice $(SLICE2OBJC)
-	rm -f $(HDIR)/$(*F)F.h $(*F)F.m
-	$(SLICE2OBJC) $(SLICE2OBJCFLAGS) $<
-	mv $(*F)F.h $(HDIR)
-	@touch $(*F)F.m
-	@mkdir -p .depend
-	@$(SLICE2OBJC) $(SLICE2OBJCFLAGS) --depend $< | sed 's/\(.*: \\\)/\$$(HDIR)\/\1/' > .depend/$(*F)F.ice.d
-
-$(HDIR)/%.h %.m: $(SDIR)/%.ice $(SLICE2OBJC)
-	rm -f $(HDIR)/$(*F).h $(*F).m
-	$(SLICE2OBJC) $(SLICE2OBJCFLAGS) $<
-	mv $(*F).h $(HDIR)
-	@touch $(*F).m
-	@mkdir -p .depend
-	@$(SLICE2OBJC) $(SLICE2OBJCFLAGS) --depend $< | sed 's/\(.*: \\\)/\$$(HDIR)\/\1/' > .depend/$(*F).ice.d
-
-%.h %.m: %.ice $(SLICE2OBJC)
-	rm -f $(*F).h $(*F).m
-	$(SLICE2OBJC) $(SLICE2OBJCFLAGS) $<
-	@touch $(*F).m
-	@mkdir -p .depend
-	@$(SLICE2OBJC) $(SLICE2OBJCFLAGS) --depend $(*F).ice > .depend/$(*F).ice.d
-
-%.h %.m: %.y
-	rm -f $(*F).h $(*F).c
-	bison $(BISONFLAGS) $<
-	mv $(*F).tab.c $(*F).m
-	mv $(*F).tab.h $(*F).h
-	rm -f $(*F).output
-
-%.m: %.l
-	flex $(FLEXFLAGS) $<
-	rm -f $@
-	cat lex.yy.c >> $@
-	rm -f lex.yy.c
-
-clean::
-	-rm -f $(TARGETS)
-	-rm -f core *.o *.bak
-	-rm -rf .depend
-
-ifneq ($(SLICE_OBJS),)
-clean::
-	rm -f $(addsuffix .m, $(basename $(notdir $(SLICE_OBJS))))
-	rm -f $(addsuffix .h, $(basename $(notdir $(SLICE_OBJS))))
-endif
-
-ifneq ($(HDIR),)
-clean::
-	rm -f $(addprefix $(HDIR)/, $(addsuffix .h, $(basename $(SLICE_OBJS))))
-endif
-
-install::
+#
+# $(create-objc-test-project $1=test)
+#
+define create-objc-test-project
+$1_srcext		:= m
+$1_dependencies 	:= $$(or $$($1_dependencies),TestCommonObjC IceObjC)
+$1_cppflags		+= -Itest/Ice
+$(make-test)
+endef

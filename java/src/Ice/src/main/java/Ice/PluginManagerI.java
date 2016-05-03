@@ -432,7 +432,7 @@ public final class PluginManagerI implements PluginManager
 
                     if(cl == null)
                     {
-                        final java.net.URL[] url = new java.net.URL[] { new java.net.URL("file:///" + classDir) };
+                        final java.net.URL[] url = new java.net.URL[] { new java.net.URL("file", null, classDir) };
 
                         //
                         // Use the custom class loader (if any) as the parent.

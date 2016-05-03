@@ -1,0 +1,90 @@
+# **********************************************************************
+#
+# Copyright (c) 2003-2015 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+#
+# $(call test,[$1])
+#
+# Returns the test project name (./test/Ice/operations -> test/Ice/operations)
+#
+test = $(patsubst $(lang_srcdir)/%,%,$(if $1,$1,$(currentdir)))
+
+#
+# $(call test-sources,$1=sources,$2=dir,$3=main-src extra-srcs)
+#
+# Returns sources if set, otherwise if main-src exists return main-src + extra-srcs, if it
+# doesn't exist, returns an empty value.
+#
+test-sources = $(call unique,$(if $1,$(foreach f,$1,$(notdir $(wildcard $2/$f))),\
+		 $(if $(wildcard $2/$(firstword $3)),$(foreach f,$3,$(notdir $(wildcard $2/$f))))))
+
+#
+# The test executables to try to build in each test directory
+#
+test-programs 		= client server serveramd collocated
+
+#
+# The default test sources for each test executable.
+#
+test-client-sources 	= Client.$1 *Test.ice AllTests.$1
+test-server-sources 	= Server.$1 *Test.ice TestI.$1
+test-serveramd-sources 	= ServerAMD.$1 *TestAMD.ice TestAMDI.$1
+test-collocated-sources = Collocated.$1
+
+#
+# $(call make-test,test)
+#
+# Defines a project for the given test.
+#
+# The following variables can be defined to customize the build of the test:
+#
+# <name>_cleandirs
+# <name>_clean
+# <name>_bindir
+# <name>_libdir
+# <name>_sliceflags
+# <name>_cppflags
+# <name>_dependencies
+# <name>_programs
+# <name>_libraries
+#
+# The following variables allows to specify per-target (program or library) configuration
+#
+# <name>_<target>_sources
+# <name>_<target>_sources
+#
+define make-test
+
+$1_srcdir	:= $1
+$1_programs	:= $$(or $$($1_programs),$(test-programs))
+$1_noinstall	:= 1
+
+$1_client_sources 	:= $$(call test-sources,$$(call $1_client_sources,$$($1_srcext)),$$($1_srcdir),\
+				$$(call test-client-sources,$$($1_srcext)))
+
+$1_server_sources 	:= $$(call test-sources,$$(call $1_server_sources,$$($1_srcext)),$$($1_srcdir),\
+				$$(call test-server-sources,$$($1_srcext)))
+
+$1_serveramd_sources 	:= $$(call test-sources,$$(call $1_serveramd_sources,$$($1_srcext)),$$($1_srcdir),\
+				$$(call test-serveramd-sources,$$($1_srcext)))
+
+$1_collocated_sources 	:= $$(call test-sources,$$(call $1_collocated_sources,$$($1_srcext)),$$($1_srcdir),\
+				$$(call test-collocated-sources,$$($1_srcext)) \
+					$$(filter-out Server.$$($1_srcext) Client.$$($1_srcext),\
+						$$(notdir $$($1_client_sources) $$($1_server_sources))))
+
+$1_programs	:= $$(foreach p,$$($1_programs),$$(if $$($1_$$(p)_sources),$1_$$(p)))
+
+$$(foreach m,$$($1_programs) $$($1_libraries),$$(eval $$m_sources := $$(addprefix $$($1_srcdir)/,$$($$m_sources))))
+
+projects += $(project)
+
+endef
+
+tests-without-project-makefile = $(foreach d,$(patsubst %/run.py,%,$(shell find $(lang_srcdir)/test -name run.py)),\
+			 	     $(if $(wildcard $d/Makefile.mk),,$(call test,$d)))

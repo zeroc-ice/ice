@@ -51,7 +51,7 @@ Confluence::ConfluenceOutput::ConfluenceOutput(const char* s) :
 }
 
 void
-Confluence::ConfluenceOutput::print(const char* s)
+Confluence::ConfluenceOutput::print(const string& s)
 {
     if(_se)
     {
@@ -62,7 +62,7 @@ Confluence::ConfluenceOutput::print(const char* s)
     if(_escape)
     {
         string escaped = escape(s);
-        OutputBase::print(escaped.c_str());
+        OutputBase::print(escaped);
     }
     else
     {

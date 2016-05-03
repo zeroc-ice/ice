@@ -1,0 +1,105 @@
+# **********************************************************************
+#
+# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+linux_id		= $(shell . /etc/os-release && echo $${ID})
+
+is-bin-program		= $(and $(filter-out %/build,$($1_targetdir)),$(filter $($1_target),program))
+
+ifneq ($(filter centos rhel fedora,$(linux_id)),)
+
+#
+# MultiLib Linux (x64 libraries go in the lib64 directory, x86 executable names are suffixed with 32)
+#
+supported-platforms     = x64 x86
+multilib-platform	= yes
+
+x64_cppflags            = -m64
+x64_ldflags             = $(x64_cppflags)
+x64_targetdir  		= $(if $(filter %/build,$($1_targetdir)),/x64,$(if $(filter-out $($1_target),program),64))
+x64_installdir 		= $(if $(and $(filter-out $($1_target),program),$(filter-out %64,$($1_installdir))),64)
+
+x86_cppflags            = -m32
+x86_ldflags             = $(x86_cppflags)
+x86_targetdir  		= $(if $(filter %/build,$($1_targetdir)),/x86)
+x86_targetname		= $(if $(call is-bin-program,$1),32)
+
+else ifneq ($(filter debian ubuntu,$(linux_id)),)
+
+#
+# MultiArch Linux (libraries are installed in lib/<arch>, executables are installed in bin/<arch>
+# except for the build architecture where executables are installed in bin/).
+#
+build-platform		?= $(shell dpkg --print-architecture)
+foreign-platforms	?= $(shell dpkg --print-foreign-architectures)
+
+supported-platforms     = $(build-platform) $(foreign-platforms)
+
+dpkg-arch 		= $(shell dpkg-architecture -f -a$1 -q$2 2> /dev/null)
+
+# $(call make-platform-config,$1=platform)
+define make-platform-config
+$1_gnu_type	= $(call dpkg-arch,$1,DEB_HOST_GNU_TYPE)
+$1_multiarch	= $(call dpkg-arch,$1,DEB_HOST_MULTIARCH)
+
+$1_cc		= $$($1_gnu_type)-gcc
+$1_cxx		= $$($1_gnu_type)-g++
+$1_libtool	= $$($1_gnu_type)-ar
+$1_targetdir 	= /$$($1_multiarch)
+$1_installdir 	= /$$($1_multiarch)
+$1_installdir 	= $$(if $$(and $(call is-bin-program,$1),$(usr_dir_install)),,/$$($1_multiarch))
+
+$1_excludes	= $(if $(filter-out $1,$(build-platform)),Slice)
+endef
+
+$(foreach p,$(supported-platforms),$(eval $(call make-platform-config,$p)))
+
+# For the build platform architecture, build and install executables in bin, libraries in lib/<arch>
+$(build-platform)_targetdir 	= $(if $(call is-bin-program,$1),,/$($(build-platform)_multiarch))
+$(build-platform)_installdir 	= $(if $(call is-bin-program,$1),,/$($(build-platform)_multiarch))
+
+else
+
+#
+# Single architecture Linux
+#
+
+supported-platforms     = default
+
+endif
+
+CXXFLAGS        += -fvisibility=hidden -Wall -Werror -pthread
+LDFLAGS         += -pthread
+
+ifeq ($(MAXWARN),yes)
+    CXXFLAGS    += -Wextra -Wshadow -Wredundant-decls
+endif
+
+ifeq ($(OPTIMIZE),yes)
+    CXXFLAGS    += -O2 -DNDEBUG
+else
+    CXXFLAGS    += -g
+endif
+
+loader_path     = \$$ORIGIN
+
+mklib           = $(or $($3_ar),$(AR)) cr $1 $2
+mkshlib         = $(or $($5_cxx),$(CXX)) -shared $(LDFLAGS) -o $1 $(if $3,-Wl$(comma)-h$(comma)$3) $2 $4
+
+mklibname       = lib$(1).a
+mksoname        = lib$(1).so.$(soversion)
+mkshlibfilename = lib$(1).so.$(version)
+mkshlibname     = lib$(1).so
+
+# Clear the iconv ldflags, iconv is part of libc on Linux
+iconv_ldflags   :=
+
+ICEUTIL_OS_LIBS = -lrt -lcrypto
+ICE_OS_LIBS     = -ldl
+CRYPT_OS_LIBS   = -lcrypt
+SSL_OS_LIBS     = -lssl -lcrypto

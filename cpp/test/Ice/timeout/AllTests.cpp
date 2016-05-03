@@ -195,7 +195,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         // Expect InvocationTimeoutException.
         //
         TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, obj->ice_invocationTimeout(100));
-        
+
 #ifdef ICE_CPP11_MAPPING
         auto f = to->sleep_async(750);
         try
@@ -462,7 +462,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         // Keep the server thread pool busy.
 #ifdef ICE_CPP11_MAPPING
-        timeout->ice_invocationTimeout(-1)->sleep_async(300); 
+        timeout->ice_invocationTimeout(-1)->sleep_async(300);
 #else
         timeout->ice_invocationTimeout(-1)->begin_sleep(300);
 #endif
@@ -481,7 +481,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         // Keep the server thread pool busy.
 #ifdef ICE_CPP11_MAPPING
-        timeout->ice_invocationTimeout(-1)->sleep_async(300); 
+        timeout->ice_invocationTimeout(-1)->sleep_async(300);
 #else
         timeout->ice_invocationTimeout(-1)->begin_sleep(300);
 #endif

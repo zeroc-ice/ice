@@ -15,59 +15,59 @@ namespace Confluence
 class ConfluenceOutput : public IceUtilInternal::OutputBase
 {
 public:
-    
+
     ConfluenceOutput();
     ConfluenceOutput(std::ostream&);
     ConfluenceOutput(const char*);
-    
+
     virtual ~ConfluenceOutput(){};
-    
-    virtual void print(const char*); // Print a string.
-    
+
+    virtual void print(const std::string&); // Print a string.
+
     virtual void newline(); // Print newline.
-    
+
     void startElement(const std::string&); // Start an element.
     void endElement(); // End an element.
     void attr(const std::string&, const std::string&); // Add an attribute to an element.
-    
+
     std::string convertCommentHTML(std::string comment);
     std::string escapeComment(std::string comment);
-    
+
     std::string getAnchorMarkup(const std::string&, const std::string& = "");
     std::string getLinkMarkup(const std::string&, const std::string& = "", const std::string& = "", const std::string& = "");
     std::string getImageMarkup(const std::string&, const std::string& = "");
     std::string getNavMarkup(const std::string&, const std::string&);
-    
+
     void startEscapes();
     void endEscapes();
-    
+
     std::string currentElement() const;
-    
+
     /**
      * Wrap sections in these markers to prevent them from being confluence-escaped.
      * The regular confluence-escaping process will remove these markers.
      */
     const static std::string TEMP_ESCAPER_START; // wrap sections
     const static std::string TEMP_ESCAPER_END; // wrap sections
-    
+
     /**
      * Gets the start and end positions of all TEMP_ESCAPED sections of the given string.
      */
     std::list<std::pair<unsigned int,unsigned int> > getMarkerLimits(const std::string&);
-    
+
     std::string removeMarkers(std::string);
-    
+
 private:
-    
+
     std::string escape(const ::std::string&) const;
-    
+
     std::stack<std::string> _elementStack;
-    
+
     bool _se;
     bool _text;
-    
+
     bool _escape;
-    
+
     std::string _listMarkers;
     std::string _commentListMarkers;
 };
@@ -114,13 +114,13 @@ operator<<(ConfluenceOutput& o, const EndElement&)
 class StartElement
 {
 public:
-    
+
     StartElement(const std::string&);
-    
+
     const std::string& getName() const;
-    
+
 private:
-    
+
     const std::string _name;
 };
 
@@ -137,14 +137,14 @@ operator<<(ConfluenceOutput& o, const StartElement& e)
 class Attribute
 {
 public:
-    
+
     Attribute(const ::std::string&, const ::std::string&);
-    
+
     const ::std::string& getName() const;
     const ::std::string& getValue() const;
-    
+
 private:
-    
+
     const ::std::string _name;
     const ::std::string _value;
 };

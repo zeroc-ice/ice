@@ -22,4 +22,4 @@ import TestUtil
 
 TestUtil.addAdditionalBinDirectories([os.path.join(os.getcwd(), TestUtil.getTestDirectory("testplugin"))])
 client = os.path.join(os.getcwd(), TestUtil.getTestExecutable("client"))
-TestUtil.simpleTest(client)
+TestUtil.simpleTest(client, options=TestUtil.getTestDirectory("testplugin"))

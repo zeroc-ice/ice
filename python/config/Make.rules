@@ -8,184 +8,93 @@
 # **********************************************************************
 
 #
-# Select an installation base directory. The directory will be created
-# if it does not exist.
-#
-prefix			?= /opt/Ice-$(VERSION)
-
-#
-# The "root directory" for runpath embedded in executables. Can be set
-# to change the runpath added to Ice executables. The default is
-# platform dependent (Linux only, on OS X the embedded runpath is always
-# based on @loader_path).
-#
-#embedded_runpath_prefix ?= /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
-
-#
-# Define embedded_runpath as no if you don't want any RPATH added to
-# the executables (Linux only, on OS X we always add a runpath).
-#
-embedded_runpath 	?= yes
-
-#
-# Define OPTIMIZE as yes if you want to build with optimization.
-# Otherwise the Ice extension is built with debug information.
-#
-
-#OPTIMIZE		= yes
-
-#
-# Define LP64 as yes if you want to build in 64 bit mode on a platform
-# that supports both 32 and 64 bit.
-#
-#LP64			:= yes
-
-#
-# The values below can be overridden by defining them as environment
-# variables.
-#
-
-#
 # If multiple versions of Python are installed and you want a specific
-# version used for building the Ice extension, then set PYTHON to
-# the specific to the location of the python interpreter.
+# version to be used for building the Ice extension, set PYTHON to the
+# location of the python interpreter.
 #
 PYTHON              ?= python
-
-PYTHON_VERSION      ?= python$(shell $(PYTHON) -c "import sys; import distutils.sysconfig as ds; sys.stdout.write(ds.get_python_version())")
-
-PYTHON_BASE_VERSION ?= $(shell $(PYTHON) -c "import sys; import distutils.sysconfig as ds; sys.stdout.write(ds.get_python_version())")
-
-PYTHON_INCLUDE_DIR  ?= $(shell $(PYTHON) -c "import sys; import distutils.sysconfig as ds; sys.stdout.write(ds.get_python_inc())")
-
-PYTHON_LIB_DIR	    ?= $(shell $(PYTHON) -c "import sys; import distutils.sysconfig as ds; sys.stdout.write(ds.get_config_var('LIBPL'))")
-
-PYTHON_LIB_SUFFIX   ?= $(shell $(PYTHON) -c "import sys; sys.stdout.write(sys.__dict__['abiflags'] if 'abiflags' in sys.__dict__ else '')")
-
-PYTHON_LIB_NAME	    ?= $(PYTHON_VERSION)$(PYTHON_LIB_SUFFIX)
-
-PYTHON_FLAGS	    ?= -I$(PYTHON_INCLUDE_DIR)
-PYTHON_LIBS	    ?= -L$(PYTHON_LIB_DIR) -l$(PYTHON_LIB_NAME)
-
-#
-# The build architectures for gcc based builds. The format of these
-# build flags are OS dependent. For example, under OS X to build
-# binaries which support both i386 and x86_64 you would use "-arch
-# i386 -arch x86_64".  The default is OS version dependent. Be aware
-# that this value may conflict with the setting of LP64 above.
-#
-#CXXARCHFLAGS                = -arch i386 -arch x86_64
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
 
-#
-# Common definitions
-#
-ice_language     = python
-ice_require_cpp  = yes
+python-call		= $(shell $(PYTHON) -c "import sys; import distutils.sysconfig as ds; sys.stdout.write($1)")
 
-ifeq ($(shell test -f $(top_srcdir)/config/Make.common.rules && echo 0),0)
-    include $(top_srcdir)/config/Make.common.rules
-else
-    include $(top_srcdir)/../config/Make.common.rules
-endif
+PYTHON_VERSION 		?= python$(PYTHON_BASE_VERSION)
+PYTHON_BASE_VERSION 	?= $(call python-call,ds.get_python_version())
+PYTHON_INCLUDE_DIR  	?= $(call python-call,ds.get_python_inc())
+PYTHON_LIB_DIR	    	?= $(call python-call,ds.get_config_var('LIBPL'))
+PYTHON_LIB_SUFFIX   	?= $(call python-call,sys.__dict__['abiflags'] if 'abiflags' in sys.__dict__ else '')
+PYTHON_LIB_NAME	    	?= $(PYTHON_VERSION)$(PYTHON_LIB_SUFFIX)
 
-install_bindir          = $(prefix)/$(binsubdir)
+python_cppflags		:= -I$(PYTHON_INCLUDE_DIR)
+python_ldflags		:= -L$(PYTHON_LIB_DIR) -l$(PYTHON_LIB_NAME)
 
 #
-# Platform specific definitions
+# On the default platform, always write the module in the python directory.
 #
-ifeq ($(shell test -f $(top_srcdir)/config/Make.rules.$(UNAME) && echo 0),0)
-    include $(top_srcdir)/config/Make.rules.$(UNAME)
-else
-    include $(top_srcdir)/../cpp/config/Make.rules.$(UNAME)
-endif
-
-libdir                  = $(top_srcdir)/python
-
-ifndef usr_dir_install
-    install_pythondir	= $(prefix)/python
-    install_libdir	= $(prefix)/python
-else
-    #
-    # The install_dir script says where python wants site-packages installed.
-    #
-    install_pythondir 	= $(shell $(PYTHON) $(top_srcdir)/config/install_dir)
-    install_libdir 	= $(install_pythondir)
-endif
-
-ifeq ($(UNAME),SunOS)
-    ifeq ($(LP64),yes)
-	libdir            = $(top_srcdir)/python$(lp64suffix)
-	install_libdir    = $(prefix)/python$(lp64suffix)
-    endif
-endif
-
-ifdef ice_src_dist
-    ICE_LIB_DIR = -L$(ice_cpp_dir)/$(libsubdir)
-    ICE_FLAGS 	= -I$(ice_cpp_dir)/include
-else
-    ICE_LIB_DIR = -L$(ice_dir)/$(libsubdir)
-    ICE_FLAGS	= -I$(ice_dir)/include
-endif
-ICE_LIBS = $(ICE_LIB_DIR) -lIceSSL -lIce -lSlice -lIceUtil
-
-CPPFLAGS		=
-ICECPPFLAGS		= -I$(slicedir)
-SLICE2PYFLAGS	= $(ICECPPFLAGS)
-LDFLAGS			= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir)
-
-ifdef ice_src_dist
-    SLICE2PY    = $(PYTHON) $(top_srcdir)/config/s2py.py
-    SLICEPARSERLIB	= $(ice_cpp_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
-    ifeq ($(wildcard $(SLICEPARSERLIB)),)
-        SLICEPARSERLIB  = $(ice_cpp_dir)/$(lib64subdir)/$(call mklibfilename,Slice,$(VERSION))
-    endif
-else
-    ifeq ($(UNAME),Darwin)
-        SLICE2PY = /usr/local/bin/slice2py
-    else
-        SLICE2PY = $(shell $(PYTHON) -c "import os, sys, slice2py; sys.stdout.write(os.path.normpath(os.path.join(slice2py.__file__, '..', '..', '..', '..', 'bin', 'slice2py')))")
-    endif
-    SLICEPARSERLIB =
-endif
+$(foreach p,$(supported-platforms),$(eval $$p_targetdir := /$$p))
+$(firstword $(supported-platforms))_targetdir :=
 
 #
-# A Python extension library cannot have a "lib" prefix, so Python-specific
-# functions are defined that strip "lib" from the regular library name.
+# Python installation directory
 #
-mkpylibfilename = $(subst dy,dylib,$(subst lib,,$(call mklibfilename,$(1),$(2))))
-mkpysoname      = $(subst dy,dylib,$(subst lib,,$(call mksoname,$(1),$(2))))
-mkpylibname     = $(subst dy,dylib,$(subst lib,,$(call mklibname,$(1))))
+install_pythondir  = $(if $(usr_dir_install),$(shell $(PYTHON) $(lang_srcdir)/config/install_dir),$(prefix)/python)
 
-EVERYTHING	= all depend clean install
+#
+# Rules to build a python module. We just compute the name of the python module
+# and delegate to make-shared-module.
+#
+mkpymodulename			?= $(patsubst lib%,%,$(call mkshlibname,$(1)))
+make-shared-python-module 	 = $(call make-shared-module,$(call mkpymodulename,$1),$2,$3,$4,$5,$6,$7)
+get-shared-python-module-targets = $(call get-shared-module-targets,$(call mkpymodulename,$1),$2)
+install-shared-python-module	 = $(call install-shared-module,$(call mkpymodulename,$1),$2,$3)
 
-.SUFFIXES:
-.SUFFIXES:	.cpp .o .py
+$(DESTDIR)$(install_pythondir):
+	$(Q)$(MKDIR) -p $@
+installdirs += $(install_pythondir)
 
-all:: $(SRCS)
+#
+# $(call make-python-package,$1=slicedir,$2=generateddir,$3=package,$4=sliceflags)
+#
+# Compile slice files from $(slicedir)/<package> to python/<package>.
+#
+define make-python-package
 
-%_ice.py: $(slicedir)/%.ice
-	rm -f $(*F).py
-	$(SLICE2PY) $(SLICE2PYFLAGS) $<
-	@mkdir -p .depend
-	@$(SLICE2PY) $(SLICE2PYFLAGS) $< > .depend/$(*F).ice.d
+$2/$3/.depend/%.ice.d: | $2/$3/.depend ;
 
-.cpp.o:
-	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
-	@mkdir -p .depend
-	@$(CXX) -DMAKEDEPEND -MM $(CPPFLAGS) $< > .depend/$(*F).d
+$2/$3/.depend:
+	$(Q)$(MKDIR) -p $$@
+
+.PRECIOUS: $2/$3/.depend/%.ice.d
+
+ifeq ($(filter %clean,$(MAKECMDGOALS)),)
+    # Include the dependencies
+    -include $(addprefix $2/.depend/,$(call source-to-dependency,$(wildcard $1/$3/*.ice)))
+endif
+
+$$(eval $$(call make-python-slice,$1,$2,$3,,$4))
 
 clean::
-	-rm -f $(TARGETS)
-	-rm -f core *.o *.pyc *.bak
-	-rm -rf __pycache__
-	-rm -rf .depend
+	$(E) "Cleaning package $3"
+	$(Q)$(RM) -r $2/$3/.depend
+	$(Q)$(if $(findstring --no-package,$4),,$(RM) $2/$3/.__init__.py)
+	$(Q)$(RM) $(patsubst $1/$3/%.ice,$2/$3_%_ice.py,$(wildcard $1/$3/*.ice))
 
-all:: $(SRCS) $(TARGETS)
+srcs all:: $(patsubst $1/$3/%.ice,$2/$3_%_ice.py,$(wildcard $1/$3/*.ice))
 
-include $(wildcard .depend/*.d)
+$$(eval $$(call install-data-files,$(patsubst $1/$3/%.ice,$2/$3_%_ice.py,$(wildcard $1/$3/*.ice)),$2,$(install_pythondir),install))
 
-install::
+endef
+
+#
+# $(call make-python-slice,$1=slicedir,$2=generateddir,$3=package,$4=file,$5=sliceflags)
+#
+define make-python-slice
+
+$2/$3_$(or $4,%)_ice.py: $1/$3/$(or $4,%).ice $2/$3/.depend/$(or $4,%).ice.d $(slice2py_path)
+	$(E) "Compiling $$<"
+	$(Q)$(slice2py_path) -I$1 --ice --output-dir $2 $5 --depend $$< > $2/$3/.depend/$(or $4,$$(*F)).ice.d
+	$(Q)$(slice2py_path) -I$1 --ice --output-dir $2 --prefix $3_ --checksum $5 $$<
+
+endef

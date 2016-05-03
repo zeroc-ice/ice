@@ -26,6 +26,7 @@ x86 = False                     # Binary distribution is 32-bit
 global armv7l
 armv7l = False                  # Binary distribution is armv7l
 cpp11 = False                   # Binary distribution is c++11
+static = False                  # Static build
 global buildMode
 buildMode = None
 
@@ -389,11 +390,8 @@ else:
 #
 iceVersion = None
 try:
-    if isWin32():
-        config = open(os.path.join(toplevel, "config", "Make.common.rules.mak"), "r")
-    else:
-        config = open(os.path.join(toplevel, "config", "Make.common.rules"), "r")
-    iceVersion = re.search("VERSION[\t\s]*= ([0-9]+\.[0-9]+(\.[0-9]+|[ab][0-9]*))", config.read()).group(1)
+    config = open(os.path.join(toplevel, "config", "Make.rules"), "r")
+    iceVersion = re.search("version[\t\s]*= ([0-9]+\.[0-9]+(\.[0-9]+|[ab][0-9]*))", config.read()).group(1)
     config.close()
 except:
     print("error: couldn't figure Ice version")
@@ -467,6 +465,7 @@ def run(tests, root = False):
           --x86                Binary distribution is 32-bit.
           --x64                Binary distribution is 64-bit.
           --c++11              Binary distribution is c++11.
+          --static             Binary distribution is static.
           --cross=lang         Run cross language test.
           --client-home=<dir>  Run cross test clients from the given Ice source distribution.
           --script             Generate a script to run the tests.
@@ -487,7 +486,7 @@ def run(tests, root = False):
                                     "debug", "protocol=", "compress", "valgrind", "host=", "serialize", "continue",
                                     "ipv6", "no-ipv6", "socks", "ice-home=", "mode=", "cross=", "client-home=", "x64", "x86",
                                     "script", "env", "arg=", "service-dir=", "appverifier", "compact",
-                                    "winrt", "server", "mx", "c++11", "controller=", "configName="])
+                                    "winrt", "server", "mx", "c++11", "static", "controller=", "configName="])
     except getopt.GetoptError:
         usage()
 
@@ -558,6 +557,9 @@ def run(tests, root = False):
         elif o == "--c++11":
             global cpp11
             cpp11 = True
+        elif o == "--static":
+            global static
+            static = True
         elif o == "--x86":
             global x86
             x86 = True
@@ -565,7 +567,7 @@ def run(tests, root = False):
             global x64
             x64 = True
         if o in ( "--cross", "--protocol", "--host", "--debug", "--compress", "--valgrind", "--serialize", "--ipv6", \
-                  "--socks", "--ice-home", "--mode", "--x86", "--x64", "--c++11", "--env", \
+                  "--socks", "--ice-home", "--mode", "--x86", "--x64", "--c++11", "--static", "--env", \
                   "--service-dir", "--appverifier", "--compact", "--winrt", \
                   "--server", "--mx", "--client-home", "--controller", "--configName"):
             arg += " " + o
@@ -980,6 +982,7 @@ class DriverConfig:
     x64 = False
     x86 = False
     cpp11 = False
+    static = False
     serviceDir = None
     mx = False
     controller = None
@@ -998,6 +1001,7 @@ class DriverConfig:
         global x64
         global x86
         global cpp11
+        global static
         global serviceDir
         global compact
         global mx
@@ -1017,6 +1021,7 @@ class DriverConfig:
         self.x64 = x64
         self.x86 = x86
         self.cpp11 = cpp11
+        self.static = static
         self.serviceDir = serviceDir
         self.compact = compact
         self.mx = mx
@@ -1242,9 +1247,9 @@ def directoryToPackage():
 
 def getDefaultServerFile(baseDir = os.getcwd()):
     lang = getDefaultMapping()
-    if lang in ["cpp", "js", "ruby", "php"]:
+    if lang in ["cpp", "objective-c", "js", "ruby", "php"]:
         return getTestExecutable("server", baseDir)
-    if lang in ["csharp", "objective-c"]:
+    if lang in ["csharp"]:
         return "server"
     if lang == "python":
         return "Server.py"
@@ -1258,13 +1263,13 @@ def getDefaultServerFile(baseDir = os.getcwd()):
 def getDefaultClientFile(lang = None):
     if lang is None:
         lang = getDefaultMapping()
-    if lang == "cpp":
+    if lang in ["cpp", "objective-c"]:
         return getTestExecutable("client")
     if lang == "ruby":
         return "Client.rb"
     if lang == "php":
         return "Client.php"
-    if lang in ["cpp", "csharp", "objective-c"]:
+    if lang in ["csharp"]:
         return "client"
     if lang == "python":
         return "Client.py"
@@ -1279,13 +1284,13 @@ def getDefaultClientFile(lang = None):
 
 def getDefaultCollocatedFile():
     lang = getDefaultMapping()
-    if lang == "cpp":
+    if lang in ["cpp", "objective-c"]:
         return getTestExecutable("collocated")
     if lang == "ruby":
         return "Collocated.rb"
     if lang == "php":
         return "Collocated.php"
-    if lang in ["csharp", "objective-c"]:
+    if lang in ["csharp"]:
         return "collocated"
     if lang == "python":
         return "Collocated.py"
@@ -1489,8 +1494,8 @@ def clientServerTest(cfgName = None, additionalServerOptions = "", additionalCli
     if client is None:
         client = getDefaultClientFile()
 
-    serverDesc = server
-    clientDesc = client
+    serverDesc = os.path.basename(server)
+    clientDesc = os.path.basename(client)
 
     if lang != "java":
         server = os.path.join(serverdir, server)
@@ -1520,6 +1525,7 @@ def clientServerTest(cfgName = None, additionalServerOptions = "", additionalCli
 
             clientCfg.lang = clientLang
             client = getDefaultClientFile(clientLang)
+            clientDesc = client
             if clientHome:
                 clientdir = getMirrorDir(getClientCrossTestDir(testdir), clientLang)
             else:
@@ -2051,6 +2057,7 @@ def processCmdLine():
           --x86                Binary distribution is 32-bit.
           --x64                Binary distribution is 64-bit.
           --c++11              Binary distribution is c++11.
+          --static             Binary distribution is static.
           --env                Print important environment variables.
           --cross=lang         Run cross language test.
           --client-home=<dir>  Run cross test clients from the given Ice source distribution.
@@ -2069,7 +2076,7 @@ def processCmdLine():
             sys.argv[1:], "", ["debug", "trace=", "protocol=", "compress", "valgrind", "host=", "serialize", "ipv6", \
                                "socks", "ice-home=", "mode=", "x86", "x64", "cross=", "client-home=", "env", \
                                "service-dir=", "appverifier", "arg=", \
-                               "compact", "winrt", "server", "mx", "c++11", "controller=", "configName="])
+                               "compact", "winrt", "server", "mx", "c++11", "static", "controller=", "configName="])
     except getopt.GetoptError:
         usage()
 
@@ -2109,6 +2116,9 @@ def processCmdLine():
         elif o == "--c++11":
             global cpp11
             cpp11 = True
+        elif o == "--static":
+            global static
+            static = True
         elif o == "--compress":
             global compress
             compress = True
@@ -2304,6 +2314,10 @@ def runTests(start, expanded, num = 0, script = False):
 
             if cpp11 and "noc++11" in config:
                 print("%s*** test not supported with C++11%s" % (prefix, suffix))
+                continue
+
+            if static and "nostatic" in config:
+                print("%s*** test not supported with static%s" % (prefix, suffix))
                 continue
 
             if x86 and iceHome and "nomultiarch" in config:
@@ -2511,22 +2525,26 @@ if os.path.split(frame.f_code.co_filename)[1] == "run.py":
 
 def getTestDirectory(name, baseDir = os.getcwd()):
     if isWin32():
+        buildDir = "msbuild"
         platform = "x64" if x64 else "Win32"
         if cpp11:
             configuration = "Cpp11-Debug" if buildMode == "debug" else "Cpp11-Release"
         else:
             configuration = "Debug" if buildMode == "debug" else "Release"
-
-        if isWin32():
-            if os.path.isdir(os.path.join(baseDir, "msbuild", name)):
-                return os.path.join(baseDir, "msbuild", name, platform, configuration)
-            else:
-                return os.path.join(baseDir, "msbuild", platform, configuration)
     else:
-        return "."
+        buildDir = "build"
+        if isDarwin():
+            platform = "osx"
+        elif isUbuntu() or isDebian():
+            platform = "x86_64-linux-gnu" if x64 else "i386-linux-gnu"
+        else:
+            platform = "x64" if x64 else "x86"
+        configuration = ("cpp11-" if cpp11 else "") + ("static" if static else "shared")
+
+    if os.path.isdir(os.path.join(baseDir, buildDir, name)):
+        return os.path.join(buildDir, name, platform, configuration)
+    else:
+        return os.path.join(buildDir, platform, configuration)
 
 def getTestExecutable(name, baseDir = os.getcwd()):
-    if isWin32():
-        return os.path.join(getTestDirectory(name, baseDir), name)
-    else:
-        return name
+    return os.path.join(getTestDirectory(name, baseDir), name)

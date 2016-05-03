@@ -7,53 +7,29 @@
 #
 # **********************************************************************
 
-top_srcdir	= .
+top_srcdir 	:= ..
+lang_srcdir	:= $(top_srcdir)/cpp
 
 include $(top_srcdir)/config/Make.rules
+include $(lang_srcdir)/config/Make.rules
 
-SUBDIRS		= config src include
+#
+# Create projects for all the Slice translators from src/slice2* and load source projects.
+#
+projects :=
+$(foreach t,$(wildcard $(lang_srcdir)/src/slice2*),$(eval $(call create-translator-project,$(call project,$t))))
+include $(shell find $(lang_srcdir)/src -name Makefile.mk)
+$(foreach p,$(projects),$(eval $(call make-cpp-src-project,$(p)))) # Make the source projects.
 
-ifneq ($(MAKECMDGOALS),install)
-    SUBDIRS		:= $(SUBDIRS) test
-endif
+#
+# Now, create and load test projects.
+#
+projects :=
+tests := $(tests-without-project-makefile)
+include $(shell find $(lang_srcdir)/test -name Makefile.mk)
+$(foreach t,$(tests),$(eval $(call create-cpp-test-project,$(t))))
+$(foreach p,$(projects),$(eval $(call make-cpp-test-project,$(p)))) # Make the test projects.
 
-INSTALL_SUBDIRS	= $(install_bindir) $(install_libdir)$(cpp11libdirsuffix) $(install_includedir) \
-	$(install_configdir) $(install_mandir)
+install:: | $(DESTDIR)$(install_configdir)
+	$(Q)$(INSTALL) $(lang_srcdir)/config/templates.xml $(DESTDIR)$(install_configdir)
 
-install:: install-common
-	@for subdir in $(INSTALL_SUBDIRS); \
-	do \
-	    if test ! -d $(DESTDIR)$$subdir ; \
-	    then \
-		echo "Creating $(DESTDIR)$$subdir..." ; \
-		mkdir -p $(DESTDIR)$$subdir ; \
-		chmod a+rx $(DESTDIR)$$subdir ; \
-	    fi ; \
-	done
-ifeq ($(create_runpath_symlink),yes)
-	@if test -h $(embedded_runpath_prefix) ; \
-	then \
-	     if `\rm -f $(embedded_runpath_prefix) 2>/dev/null`; \
-              then echo "Removed symbolic link $(embedded_runpath_prefix)"; fi \
-        fi
-	@if ! test -d $(embedded_runpath_prefix) ; \
-	then \
-	     if `ln -s $(prefix) $(embedded_runpath_prefix) 2>/dev/null`; \
-              then echo "Created symbolic link $(embedded_runpath_prefix) --> $(prefix)"; fi \
-	fi
-endif
-
-$(EVERYTHING)::
-	@for subdir in $(SUBDIRS); \
-	do \
-	    echo "making $@ in $$subdir"; \
-	    ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
-	done
-
-ifeq ($(CPP11_MAPPING),yes)
-test::
-	@python $(top_srcdir)/allTests.py --c++11
-else
-test::
-	@python $(top_srcdir)/allTests.py
-endif
