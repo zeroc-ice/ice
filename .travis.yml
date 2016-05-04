@@ -28,7 +28,9 @@ env:
     - PYTHONPATH=${PYTHONUSERBASE}
 
   matrix:
-    - WORK_DIR=${TRAVIS_BUILD_DIR}/cpp CPP11_MAPPING=yes BUILD_ICE_BT=no TEST_FLAGS="--c++11"
+    - WORK_DIR=${TRAVIS_BUILD_DIR}/cpp CONFIGS="cpp11-shared" TEST_FLAGS="--c++11"
+    - WORK_DIR=${TRAVIS_BUILD_DIR}/cpp CONFIGS="cpp11-static" TEST_FLAGS="--static"
+    - WORK_DIR=${TRAVIS_BUILD_DIR}/cpp CONFIGS="static" TEST_FLAGS="--static"
     - WORK_DIR=${TRAVIS_BUILD_DIR}
 
 cache:
@@ -51,7 +53,6 @@ install:
 - CPPFLAGS=-fPIC make -C ${LMDB_BUILD_DIR}/libraries/liblmdb install prefix=${LMDB_HOME}
 - rm -f ${LMDB_HOME}/lib/liblmdb.so
 - pip install --user passlib
-- make -C ${WORK_DIR} -j3
 
 script:
 - cd ${WORK_DIR}
