@@ -68,8 +68,11 @@ else
 #
 # Single architecture Linux
 #
-
 supported-platforms     = default
+
+# No platform specific sub-directories for targets
+default_targetdir  	:=
+default_installdir 	:=
 
 endif
 
