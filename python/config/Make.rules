@@ -75,13 +75,13 @@ endif
 
 $$(eval $$(call make-python-slice,$1,$2,$3,,$4))
 
-clean::
+distclean clean::
 	$(E) "Cleaning package $3"
 	$(Q)$(RM) -r $2/$3/.depend
 	$(Q)$(if $(findstring --no-package,$4),,$(RM) $2/$3/.__init__.py)
 	$(Q)$(RM) $(patsubst $1/$3/%.ice,$2/$3_%_ice.py,$(wildcard $1/$3/*.ice))
 
-srcs all:: $(patsubst $1/$3/%.ice,$2/$3_%_ice.py,$(wildcard $1/$3/*.ice))
+generate-srcs srcs all:: $(patsubst $1/$3/%.ice,$2/$3_%_ice.py,$(wildcard $1/$3/*.ice))
 
 $$(eval $$(call install-data-files,$(patsubst $1/$3/%.ice,$2/$3_%_ice.py,$(wildcard $1/$3/*.ice)),$2,$(install_pythondir),install))
 

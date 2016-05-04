@@ -714,6 +714,7 @@ all:: $1
 clean:: $1_clean
 install:: $1_install
 distclean:: $1_distclean
+generate-srcs:: $$($1_generated)
 
 endef
 

@@ -40,6 +40,9 @@ $(foreach p,$(projects),$(eval $(call make-project,$(p))))
 all::
 	$(Q)$(MAKE) -C python all
 
+generate-srcs::
+	$(Q)$(MAKE) -C python generate-srcs
+
 clean::
 	$(Q)$(MAKE) -C python clean
 
