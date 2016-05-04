@@ -97,6 +97,13 @@ HANDLE process = 0;
 
 #ifdef ICE_LIBBACKTRACE
 backtrace_state* bstate = 0;
+
+void
+ignoreErrorCallback(void*, const char* msg, int errnum)
+{
+    // cerr << "Error callback:" << msg << ", errnum = " << errnum << endl;
+}
+
 #endif
 
 class Init
@@ -109,7 +116,7 @@ public:
 #ifdef ICE_LIBBACKTRACE
 	// Leaked, as libbacktrace does not provide an API to free
 	// this state
-	bstate = backtrace_create_state(0, 1, 0, 0);
+	bstate = backtrace_create_state(0, 1, ignoreErrorCallback, 0);
 #endif
     }
 
@@ -260,6 +267,7 @@ printFrame(void* data, uintptr_t pc, const char* filename, int lineno, const cha
 #endif
 
 #ifdef ICE_LIBBACKTRACE
+
 int
 addFrame(void* sf, uintptr_t pc)
 {
@@ -298,7 +306,7 @@ getStackFrames()
     stackFrames.resize(frameCount);
 #elif defined(ICE_LIBBACKTRACE)
 
-    backtrace_simple(bstate, 1, addFrame, 0, &stackFrames);
+    backtrace_simple(bstate, 1, addFrame, ignoreErrorCallback, &stackFrames);
 
 #elif defined(ICE_BACKTRACE)
 
@@ -488,7 +496,8 @@ getStackTrace(const vector<void*>& stackFrames)
 	}
 
 #   if defined(ICE_LIBBACKTRACE)
-	if(backtrace_pcinfo(bstate, reinterpret_cast<uintptr_t>(*p), printFrame, 0, &frameInfo) != 0)
+	if(backtrace_pcinfo(bstate, reinterpret_cast<uintptr_t>(*p), printFrame,
+			    ignoreErrorCallback, &frameInfo) != 0)
 	{
 #       if defined(ICE_BACKTRACE)
 	    if(!backtraceStringsInitialized)

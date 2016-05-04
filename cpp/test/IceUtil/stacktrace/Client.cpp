@@ -141,6 +141,13 @@ int main(int argc, char* argv[])
     optimized = true;
 #endif
 
+    if(!IceUtilInternal::canCaptureStackTrace())
+    {
+	cout << "This IceUtil build cannot capture stack traces" << endl;
+	return EXIT_SUCCESS;
+    }
+
+
 #if defined(_WIN32)
     bool binDist = false;
     vector<wchar_t> buf(256);
@@ -220,6 +227,13 @@ int main(int argc, char* argv[])
 	bool match = true;
 #endif
 	ifstream ifs(filename.c_str());
+
+	if(!ifs)
+	{
+	    cout << "cannot open `" << filename << "`, failed!" << endl;
+	    return EXIT_FAILURE;
+	}
+
 	stringstream sstr;
 	sstr << ifs.rdbuf();
 #if defined(__APPLE__)
@@ -238,6 +252,15 @@ int main(int argc, char* argv[])
 	{
 	    string stack = ex.ice_stackTrace();
 	    // cerr << "\n full stack trace is \n" << stack << endl;
+
+#ifdef __linux
+	    if(optimized && stack.empty())
+	    {
+		// Expected for optimized static builds with GCC 5.3+
+		cout << "empty... ";
+		break;
+	    }
+#endif
 
 #ifdef __APPLE__
 	    standardizeVersion(stack);
