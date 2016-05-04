@@ -29,8 +29,6 @@ env:
 
   matrix:
     - WORK_DIR=${TRAVIS_BUILD_DIR}/cpp SKIP="IceBT" CONFIGS="cpp11-shared" TEST_FLAGS="--c++11"
-    - WORK_DIR=${TRAVIS_BUILD_DIR}/cpp SKIP="IceBT" CONFIGS="cpp11-static" TEST_FLAGS="--static"
-    - WORK_DIR=${TRAVIS_BUILD_DIR}/cpp CONFIGS="static" TEST_FLAGS="--static"
     - WORK_DIR=${TRAVIS_BUILD_DIR}
 
 cache:
