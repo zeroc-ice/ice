@@ -48,7 +48,7 @@ icestormadmin_sources	   	:= $(addprefix $(currentdir)/,Admin.cpp \
 
 icestormdb_targetdir		:= $(bindir)
 icestormdb_dependencies 	:= IcePatch2 IceDB
-IceStormdb_libs			:= lmdb
+icestormdb_libs			:= lmdb
 icestormdb_sources	   	:= $(addprefix $(currentdir)/,IceStormDB.cpp DBTypes.ice)
 
 projects += $(project)

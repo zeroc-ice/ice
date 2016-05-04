@@ -264,7 +264,7 @@ $2/$1$(EXE_EXT): $3 $(if $(filter static%,$7),$4)
 	$(E) "Linking [$6-$7] $$@"
 	$(Q)$(MKDIR) -p $2
 	@$(RM) $$@
-	$(Q)$(or $($6_cxx),$(CXX)) $(LDFLAGS) -o $$@ $3 $(strip $5)
+	$(Q)$(or $($6_cxx),$(platform_cxx)) $(LDFLAGS) -o $$@ $3 $(strip $5)
 endef
 
 # $(call install-program,$1=exename,$2=bindir,$3=installdir)

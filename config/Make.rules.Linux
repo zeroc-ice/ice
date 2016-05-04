@@ -47,9 +47,9 @@ define make-platform-config
 $1_gnu_type	= $(call dpkg-arch,$1,DEB_HOST_GNU_TYPE)
 $1_multiarch	= $(call dpkg-arch,$1,DEB_HOST_MULTIARCH)
 
-$1_cc		= $$($1_gnu_type)-gcc
-$1_cxx		= $$($1_gnu_type)-g++
-$1_libtool	= $$($1_gnu_type)-ar
+$1_cc		= $$($1_gnu_type)-$(CC)
+$1_cxx		= $$($1_gnu_type)-$(CXX)
+$1_libtool	= $$($1_gnu_type)-$(AR)
 $1_targetdir 	= /$$($1_multiarch)
 $1_installdir 	= /$$($1_multiarch)
 $1_installdir 	= $$(if $$(and $(call is-bin-program,$1),$(usr_dir_install)),,/$$($1_multiarch))
