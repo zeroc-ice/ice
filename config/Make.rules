@@ -118,18 +118,25 @@ Q 			:= $(if $(V),,@)
 E 			:= $(if $(V),@:,@echo)
 
 #
-# 3rd party library defaults
+# Support for 3rd party libraries
 #
+thirdparties		:= mcpp iconv expat bz2 lmdb
 mcpp_home 		:= $(MCPP_HOME)
-mcpp_ldflags		?= -lmcpp
 iconv_home 		:= $(ICONV_HOME)
-iconv_ldflags		?= -liconv
 expat_home 		:= $(EXPAT_HOME)
-expat_ldflags		?= -lexpat
 bz2_home 		:= $(BZ2_HOME)
-bz2_ldflags		?= -lbz2
 lmdb_home 		:= $(LMDB_HOME)
-lmdb_ldflags		?= -llmdb
+
+define make-thirdparty
+ifneq ($($1_home),)
+# Check for 3rd party libraries either in home/lib<platform specific subdir> or home/lib
+$1_libdir	?= $$(if $$(wildcard $$($1_home)/lib$$(call platform-var,installdir,$$1,$$2,$$3)),\
+			$$($1_home)/lib$$(call platform-var,installdir,$$1,$$2,$$3),$$($1_home)/lib)
+$1_includedir	?= $$($1_home)/include
+endif
+$1_ldflags	?= -l$1
+endef
+$(foreach l,$(thirdparties),$(eval $(call make-thirdparty,$l)))
 
 #
 # Languages, platforms and configurations to build
@@ -155,19 +162,19 @@ config_dependency	= $5
 
 # Static configuration for static builds
 static_targetrule	= $(if $(filter-out program,$($1_target)),static-)
-static_cppflags		= $$(strip $$(call make-lib-cppflags,$1))
+static_cppflags		= $$(strip $$(call make-lib-cppflags,$1,$2,$3))
 static_ldflags		= $$(call unique,$$(foreach d,$$(call get-all-deps,$4),$$(call make-static-dep-ldflags,$$d)))\
-			  $$(strip $$(foreach d,$$(call get-all-deps,$1) $1,$$(call make-lib-ldflags,$$d)))\
-			  $$(strip $$(foreach d,$$(call get-all-deps,$1) $1,$$(call make-system-lib-ldflags,$$d)))
+			  $$(strip $$(foreach d,$$(call get-all-deps,$1) $1,$$(call make-lib-ldflags,$$d,$2,$3)))\
+			  $$(strip $$(foreach d,$$(call get-all-deps,$1) $1,$$(call make-system-lib-ldflags,$$d,$2,$3)))
 
 # Shared configuration for shared builds
 shared_projects		= %
 shared_objdir		= $(if $(filter-out program,$($1_target)),shared/pic,shared/nopic)
 shared_targetrule	= $(if $(filter-out program,$($1_target)),shared-)
-shared_cppflags		= $$(strip $$(call make-lib-cppflags,$1)) $(if $(filter-out program,$($1_target)),-fPIC)
+shared_cppflags		= $$(strip $$(call make-lib-cppflags,$1,$2,$3)) $(if $(filter-out program,$($1_target)),-fPIC)
 shared_ldflags		= $$(call unique,$$(foreach d,$$($4_dependencies),$$(call make-shared-dep-ldflags,$$d,$4)))\
-			  $$(strip $$(call make-lib-ldflags,$1))\
-			  $$(strip $$(call make-system-lib-ldflags,$1))
+			  $$(strip $$(call make-lib-ldflags,$1,$2,$3))\
+			  $$(strip $$(call make-system-lib-ldflags,$1,$2,$3))
 
 #
 # Platform variables
@@ -265,8 +272,8 @@ endif
 make-static-dep-ldflags	= $($1_targetdir)/$(call mklibname,$($1_targetname))
 make-system-lib-ldflags = $($1_system_libs)
 
-make-lib-ldflags 	= $(foreach l,$($1_libs),$(if $($l_home),-L$($l_home)/lib) $($l_ldflags))
-make-lib-cppflags 	= $(foreach l,$($1_libs),$(if $($l_home),-I$($l_home)/include) $($l_cppflags))
+make-lib-ldflags 	= $(foreach l,$($1_libs),$(if $($l_libdir),-L$(call $l_libdir,$l,$2,$3)) $($l_ldflags))
+make-lib-cppflags 	= $(foreach l,$($1_libs),$(if $($l_includedir),-I$(call $l_includedir,$l,$2,$3)) $($l_cppflags))
 
 #
 # $(call repathfromdir,path), returns reversed relative path for directory (e.g.: test/Ice/operations
