@@ -102,7 +102,7 @@ mkshlibname     = lib$(1).so
 # Clear the iconv ldflags, iconv is part of libc on Linux
 iconv_ldflags   :=
 
-ICEUTIL_OS_LIBS = -lrt -lcrypto
+ICEUTIL_OS_LIBS = -lrt -lcrypto -lbacktrace
 ICE_OS_LIBS     = -ldl
 CRYPT_OS_LIBS   = -lcrypt
 SSL_OS_LIBS     = -lssl -lcrypto

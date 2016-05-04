@@ -188,4 +188,9 @@ private:
 
 }
 
+namespace IceUtilInternal
+{
+  ICE_UTIL_API bool canCaptureStackTrace();
+}
+
 #endif
