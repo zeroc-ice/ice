@@ -48,3 +48,10 @@ $(eval $(call make-php-package,$(slicedir),$(lang_srcdir)/lib,IceBox))
 $(eval $(call make-php-package,$(slicedir),$(lang_srcdir)/lib,IceGrid))
 $(eval $(call make-php-package,$(slicedir),$(lang_srcdir)/lib,IcePatch2))
 $(eval $(call make-php-package,$(slicedir),$(lang_srcdir)/lib,IceStorm))
+
+#
+# Translate the Slice files from test directories
+#
+tests := $(tests-without-project-makefile)
+include $(shell find $(lang_srcdir)/test -name Makefile.mk)
+$(foreach t,$(tests),$(eval $(call make-php-test-project,$(t))))
