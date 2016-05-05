@@ -190,7 +190,11 @@ private:
 
 namespace IceUtilInternal
 {
-  ICE_UTIL_API bool canCaptureStackTrace();
+
+enum StackTraceImpl { STNone, STDbghelp, STLibbacktrace, STLibbacktracePlus, STBacktrace };
+
+ICE_UTIL_API StackTraceImpl stackTraceImpl();
+
 }
 
 #endif

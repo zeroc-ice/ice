@@ -29,21 +29,15 @@
 #include <cstdlib>
 
 #ifdef __GNUC__
-#   define GCC_VERSION (__GNUC__ * 1000 + __GNUC_MINOR__)
-
-#   if defined(__linux) && ((GCC_VERSION >= 5003) || ((GCC_VERSION >= 4008) && (!defined(NDEBUG))))
-   //  On Linux with GCC, we use libbacktrace:
-   //  - all the time with GCC >= 5.3
-   //  - only for release builds with GCC >= 4.8 and < 5.3
-   //    in practice, for GCC 4.8, libbacktrace does not seem to work when the final
-   //    executable is built without debug information
-
+#   if defined(ICE_LIBBACKTRACE)
 #       include <backtrace.h>
 #       include <backtrace-supported.h>
 #       if BACKTRACE_SUPPORTED && BACKTRACE_SUPPORTS_THREADS
 #           include <algorithm>
 #           include <cxxabi.h>
-#           define ICE_LIBBACKTRACE
+#       else
+	    // It's available but we cant' use it - shouldn't happen
+#           undef ICE_LIBBACKTRACE
 #       endif
 #   endif
 
@@ -76,12 +70,21 @@ namespace IceUtilInternal
 bool ICE_UTIL_API printStackTraces = false;
 bool ICE_UTIL_API nullHandleAbort = false;
 
-bool canCaptureStackTrace()
+StackTraceImpl
+stackTraceImpl()
 {
-#if defined(ICE_DBGHELP) || defined(ICE_LIBBACKTRACE) || defined(ICE_BACKTRACE)
-    return true;
+#if defined(ICE_DBGHELP)
+    return STDbghelp;
+#elif defined(ICE_LIBBACKTRACE)
+#   if defined(ICE_BACKTRACE)
+    return STLibbacktracePlus;
+#   else
+    return STLibbacktrace;
+#   endif
+#elif defined(ICE_BACKTRACE)
+    return STBacktrace;
 #else
-    return false;
+    return STNone;
 #endif
 }
 }
@@ -101,7 +104,7 @@ backtrace_state* bstate = 0;
 void
 ignoreErrorCallback(void*, const char* msg, int errnum)
 {
-    // cerr << "Error callback:" << msg << ", errnum = " << errnum << endl;
+    // cerr << "Error callback: " << msg << ", errnum = " << errnum << endl;
 }
 
 #endif
@@ -140,14 +143,18 @@ Init init;
 
 struct FrameInfo
 {
-    explicit FrameInfo(int i) :
+    FrameInfo(int i, uintptr_t p) :
 	index(i),
-	fallback(0)
+	pc(p),
+	fallback(0),
+	setByErrorCb(false)
     {
     }
 
     int index;
+    uintptr_t pc;
     const char* fallback;
+    bool setByErrorCb;
     string output;
 };
 
@@ -268,6 +275,17 @@ printFrame(void* data, uintptr_t pc, const char* filename, int lineno, const cha
 
 #ifdef ICE_LIBBACKTRACE
 
+void
+handlePcInfoError(void* data, const char* msg, int errnum)
+{
+    // cerr << "pcinfo error callback: " << msg << ", " << errnum << endl;
+
+    FrameInfo& frameInfo = *reinterpret_cast<FrameInfo*>(data);
+    printFrame(&frameInfo, frameInfo.pc, 0, 0, 0);
+    frameInfo.setByErrorCb = true;
+}
+
+
 int
 addFrame(void* sf, uintptr_t pc)
 {
@@ -304,6 +322,7 @@ getStackFrames()
     USHORT frameCount = CaptureStackBackTrace(1, static_cast<DWORD>(stackFrames.size()), &stackFrames.front(), 0);
 
     stackFrames.resize(frameCount);
+
 #elif defined(ICE_LIBBACKTRACE)
 
     backtrace_simple(bstate, 1, addFrame, ignoreErrorCallback, &stackFrames);
@@ -449,20 +468,20 @@ getStackTrace(const vector<void*>& stackFrames)
 	    ok = SymGetLineFromAddr64(process, address, &displacement, &line);
 	    if(ok)
 	    {
-                s << " at "
+		s << " at "
 #ifdef DBGHELP_TRANSLATE_TCHAR
 		  << IceUtil::wstringToString(line.FileName, converter)
 #else
 		  << line.FileName
 #endif
-                  << ":" << line.LineNumber;
+		  << ":" << line.LineNumber;
 	    }
 	}
 	else
 	{
-            s << hex << setw(sizeof(DWORD64) * 2) << setfill('0') << address;
+	    s << hex << setw(sizeof(DWORD64) * 2) << setfill('0') << address;
 	}
-        s << "\n";
+	s << "\n";
 	stackTrace += s.str();
     }
     lock.release();
@@ -487,7 +506,7 @@ getStackTrace(const vector<void*>& stackFrames)
 
     do
     {
-	FrameInfo frameInfo(frameIndex);
+	FrameInfo frameInfo(frameIndex, reinterpret_cast<uintptr_t>(*p));
 	bool retry = false;
 
 	if(backtraceStrings)
@@ -496,8 +515,10 @@ getStackTrace(const vector<void*>& stackFrames)
 	}
 
 #   if defined(ICE_LIBBACKTRACE)
-	if(backtrace_pcinfo(bstate, reinterpret_cast<uintptr_t>(*p), printFrame,
-			    ignoreErrorCallback, &frameInfo) != 0)
+	bool failed = backtrace_pcinfo(bstate, frameInfo.pc, printFrame, handlePcInfoError, &frameInfo) != 0;
+
+	// When error callback is called, pcinfo returns 0
+	if(failed || frameInfo.setByErrorCb)
 	{
 #       if defined(ICE_BACKTRACE)
 	    if(!backtraceStringsInitialized)
@@ -511,7 +532,7 @@ getStackTrace(const vector<void*>& stackFrames)
 #       endif
 	}
 #   else // not using libbacktrace:
-	printFrame(&frameInfo, reinterpret_cast<uintptr_t>(*p), 0, 0, 0);
+	printFrame(&frameInfo, frameInfo.pc, 0, 0, 0);
 #   endif
 	if(!retry)
 	{

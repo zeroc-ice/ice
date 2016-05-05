@@ -1,9 +1,9 @@
-  0 IceUtil::Exception::Exception(char const*, int) at
-  1 IceUtil::NullHandleException::NullHandleException(char const*, int) at
-  2 fifth at
-  3 forth at
-  4 third at
-  5 second at
-  6 first at
-  7 main at
-  8
+  0 IceUtil::Exception::Exception(char const*, int) in
+  1 IceUtil::NullHandleException::NullHandleException(char const*, int) in
+client
+client
+client
+client
+client
+client
+  8 __libc_start_main

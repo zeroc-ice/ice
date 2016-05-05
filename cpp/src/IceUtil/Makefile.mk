@@ -20,4 +20,8 @@ ifeq ($(DEFAULT_MUTEX_PROTOCOL), PrioInherit)
     IceUtil_cppflags += -DICE_PRIO_INHERIT
 endif
 
+ifeq ($(libbacktrace),yes)
+    IceUtil_cppflags += -DICE_LIBBACKTRACE
+endif
+
 projects += $(project)

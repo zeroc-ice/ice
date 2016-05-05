@@ -136,17 +136,16 @@ splitLines(const string& str)
 
 int main(int argc, char* argv[])
 {
+    if(IceUtilInternal::stackTraceImpl() == IceUtilInternal::STNone)
+    {
+	cout << "This IceUtil build cannot capture stack traces" << endl;
+        return EXIT_SUCCESS;
+    }
+
     bool optimized = false;
 #ifdef NDEBUG
     optimized = true;
 #endif
-
-    if(!IceUtilInternal::canCaptureStackTrace())
-    {
-	cout << "This IceUtil build cannot capture stack traces" << endl;
-	return EXIT_SUCCESS;
-    }
-
 
 #if defined(_WIN32)
     bool binDist = false;
@@ -219,6 +218,12 @@ int main(int argc, char* argv[])
     filename += ".OSX";
 #else
     filename += ".Linux";
+   
+    if(!optimized && IceUtilInternal::stackTraceImpl() == IceUtilInternal::STLibbacktracePlus)
+    {
+	filename += ".libbacktrace+";
+    }
+
 #endif
 
     while(true)
@@ -252,15 +257,6 @@ int main(int argc, char* argv[])
 	{
 	    string stack = ex.ice_stackTrace();
 	    // cerr << "\n full stack trace is \n" << stack << endl;
-
-#ifdef __linux
-	    if(optimized && stack.empty())
-	    {
-		// Expected for optimized static builds with GCC 5.3+
-		cout << "empty... ";
-		break;
-	    }
-#endif
 
 #ifdef __APPLE__
 	    standardizeVersion(stack);
