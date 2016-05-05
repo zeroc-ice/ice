@@ -22,6 +22,8 @@
     <ProjectGuid>{6485EC94-6B47-428D-B42D-AAA11F08DB59}</ProjectGuid>
     <RootNamespace>Ice</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <IceBuilderCppProps Condition="!Exists('$(IceBuilderCppProps)')">$([System.IO.Directory]::GetFiles('$(LocalAppData)\Microsoft\VisualStudio\$(VisualStudioVersion)\Extensions', 'IceBuilder.Cpp.props', SearchOption.AllDirectories))</IceBuilderCppProps>
+    <IceBuilderCppTargets Condition="!Exists('$(IceBuilderCppTargets)')">$([System.IO.Directory]::GetFiles('$(LocalAppData)\Microsoft\VisualStudio\$(VisualStudioVersion)\Extensions', 'IceBuilder.Cpp.targets', SearchOption.AllDirectories))</IceBuilderCppTargets>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -46,7 +48,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <Import Project="$(MSBuildThisFileDirectory)\..\..\..\..\msbuild\ice.cpp98.props" />
-  <Import Project="$(LOCALAPPDATA)\ZeroC\IceBuilder\IceBuilder.Cpp.props" />
+  <Import Project="$(IceBuilderCppProps)" Condition="Exists('$(IceBuilderCppProps)')" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
   <ImportGroup Label="Shared">
@@ -1852,7 +1854,7 @@
     </ClInclude>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <Import Project="$(LOCALAPPDATA)\ZeroC\IceBuilder\IceBuilder.Cpp.targets" />
+  <Import Project="$(IceBuilderCppTargets)" Condition="Exists('$(IceBuilderCppTargets)')" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\..\..\..\msbuild\packages\bzip2.v120.1.0.6.4\build\native\bzip2.v120.targets" Condition="Exists('..\..\..\..\msbuild\packages\bzip2.v120.1.0.6.4\build\native\bzip2.v120.targets')" />
     <Import Project="..\..\..\..\msbuild\packages\bzip2.v140.1.0.6.4\build\native\bzip2.v140.targets" Condition="Exists('..\..\..\..\msbuild\packages\bzip2.v140.1.0.6.4\build\native\bzip2.v140.targets')" />

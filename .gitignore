@@ -17,6 +17,10 @@
 *.ncb
 # .sdf is the Visual Studio 2010 equivalent to .ncb
 *.sdf
+# .VC.db is is the new IntelliSense database, it replaces the old .sdf
+*.VC.db
+# Visual Studio Hosting process configuration files
+*.vshost.exe.*
 *.opt
 *.user
 *.res

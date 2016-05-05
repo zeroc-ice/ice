@@ -7,6 +7,10 @@
   <PropertyGroup Label="UserMacros" Condition="'$(Platform)'=='x64'">
     <PythonHome>C:\Python35-amd64</PythonHome>
   </PropertyGroup>
+  <PropertyGroup>
+    <IceBuilderPythonProps Condition="!Exists('$(IceBuilderPythonProps)')">$([System.IO.Directory]::GetFiles('$(LocalAppData)\Microsoft\VisualStudio\$(VisualStudioVersion)\Extensions', 'IceBuilder.Python.props', SearchOption.AllDirectories))</IceBuilderPythonProps>
+    <IceBuilderPythonTargets Condition="!Exists('$(IceBuilderPythonTargets)')">$([System.IO.Directory]::GetFiles('$(LocalAppData)\Microsoft\VisualStudio\$(VisualStudioVersion)\Extensions', 'IceBuilder.Python.targets', SearchOption.AllDirectories))</IceBuilderPythonTargets>
+  </PropertyGroup>
   <ItemGroup>
     <BuildMacro Include="PythonHome">
       <Value>$(PythonHome)</Value>

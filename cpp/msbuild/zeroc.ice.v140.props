@@ -10,13 +10,20 @@
         <Ice_Configuration>Release</Ice_Configuration>
     </PropertyGroup>
 
-    <PropertyGroup>
+    <PropertyGroup Condition="'$(PlatformToolset)' == 'v140'">
         <IceVersion>3.7a0</IceVersion>
         <IceIntVersion>30751</IceIntVersion>
         <IceVersionMM>3.7</IceVersionMM>
+        <IceSoVersion>37a0</IceSoVersion>
+        <IceNugetPackageVersion>3.7.0.0</IceNugetPackageVersion>
         <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
-        <IceToolsBin>$(IceHome)\build\native\bin\Win32\Release</IceToolsBin>
-        <Path>$(IceToolsBin);%(Path)</Path>
+
+        <IceToolsPath>$(IceHome)\build\native\bin\Win32\Release</IceToolsPath>
+        <IceBinPath>$(IceHome)\build\native\bin\$(Platform)\$(Ice_Configuration)</IceBinPath>
+        <IceLibraryPath>$(IceHome)\build\native\lib\$(Platform)\$(Ice_Configuration)</IceLibraryPath>
+        <IceIncludePath>$(IceHome)\build\native\include</IceIncludePath>
+
+        <Path>$(IceBinPath);$(IceToolsPath);%(Path)</Path>
     </PropertyGroup>
 
 </Project>

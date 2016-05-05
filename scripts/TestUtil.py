@@ -390,8 +390,12 @@ else:
 #
 iceVersion = None
 try:
-    config = open(os.path.join(toplevel, "config", "Make.rules"), "r")
-    iceVersion = re.search("version[\t\s]*= ([0-9]+\.[0-9]+(\.[0-9]+|[ab][0-9]*))", config.read()).group(1)
+    if isWin32():
+        config = open(os.path.join(toplevel, "config", "Ice.props"), "r")
+        iceVersion = re.search("<IceVersion>[\t\s]*([0-9]+\.[0-9]+(\.[0-9]+|[ab][0-9]*))</IceVersion>", config.read()).group(1)
+    else:
+        config = open(os.path.join(toplevel, "config", "Make.rules"), "r")
+        iceVersion = re.search("version[\t\s]*= ([0-9]+\.[0-9]+(\.[0-9]+|[ab][0-9]*))", config.read()).group(1)
     config.close()
 except:
     print("error: couldn't figure Ice version")

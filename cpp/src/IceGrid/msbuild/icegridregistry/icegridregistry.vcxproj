@@ -21,6 +21,8 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{64490115-464B-4DC3-B7C6-D0AF1B68B6F9}</ProjectGuid>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <IceBuilderCppProps Condition="!Exists('$(IceBuilderCppProps)')">$([System.IO.Directory]::GetFiles('$(LocalAppData)\Microsoft\VisualStudio\$(VisualStudioVersion)\Extensions', 'IceBuilder.Cpp.props', SearchOption.AllDirectories))</IceBuilderCppProps>
+    <IceBuilderCppTargets Condition="!Exists('$(IceBuilderCppTargets)')">$([System.IO.Directory]::GetFiles('$(LocalAppData)\Microsoft\VisualStudio\$(VisualStudioVersion)\Extensions', 'IceBuilder.Cpp.targets', SearchOption.AllDirectories))</IceBuilderCppTargets>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -45,7 +47,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <Import Project="$(MSBuildThisFileDirectory)\..\..\..\..\msbuild\ice.cpp98.props" />
-  <Import Project="$(LOCALAPPDATA)\ZeroC\IceBuilder\IceBuilder.Cpp.props" />
+  <Import Project="$(IceBuilderCppProps)" Condition="Exists('$(IceBuilderCppProps)')" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
   <ImportGroup Label="Shared">
@@ -236,7 +238,7 @@
     </ClInclude>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <Import Project="$(LOCALAPPDATA)\ZeroC\IceBuilder\IceBuilder.Cpp.targets" />
+  <Import Project="$(IceBuilderCppTargets)" Condition="Exists('$(IceBuilderCppTargets)')" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\..\..\..\msbuild\packages\lmdb.v120.0.9.18.0\build\native\lmdb.v120.targets" Condition="Exists('..\..\..\..\msbuild\packages\lmdb.v120.0.9.18.0\build\native\lmdb.v120.targets')" />
     <Import Project="..\..\..\..\msbuild\packages\lmdb.v140.0.9.18.0\build\native\lmdb.v140.targets" Condition="Exists('..\..\..\..\msbuild\packages\lmdb.v140.0.9.18.0\build\native\lmdb.v140.targets')" />

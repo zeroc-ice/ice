@@ -1,17 +1,25 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-
-  <Import Project="..\..\..\msbuild\ice.props" />
-  <Import Project="$(LOCALAPPDATA)\ZeroC\IceBuilder\IceBuilder.Python.props" />
-  <ItemGroup>
-	  <IceBuilder Include="..\..\..\..\slice\IceStorm\Metrics.ice" />
-  </ItemGroup>
-  <PropertyGroup Label="IceBuilder">
-      <IceBuilderAllowIcePrefix>true</IceBuilderAllowIcePrefix>
-      <IceBuilderPrefix>IceStorm_</IceBuilderPrefix>
-      <IceBuilderOutputDir>..\..</IceBuilderOutputDir>
-  </PropertyGroup>
-  <Target Name="Build"/>
-  <Target Name="Clean"/>
-  <Import Project="$(LOCALAPPDATA)\ZeroC\IceBuilder\IceBuilder.Python.targets" />
+    <PropertyGroup Label="Globals">
+        <IceBuilderPythonProps Condition="!Exists('$(IceBuilderPythonProps)')">$([System.IO.Directory]::GetFiles('$(LocalAppData)\Microsoft\VisualStudio\$(VisualStudioVersion)\Extensions', 'IceBuilder.Python.props', SearchOption.AllDirectories))</IceBuilderPythonProps>
+        <IceBuilderPythonTargets Condition="!Exists('$(IceBuilderPythonTargets)')">$([System.IO.Directory]::GetFiles('$(LocalAppData)\Microsoft\VisualStudio\$(VisualStudioVersion)\Extensions', 'IceBuilder.Python.targets', SearchOption.AllDirectories))</IceBuilderPythonTargets>
+        <IntDir>$(MSbuildThisFileDirectory)$(Configuration)\$(Platform)\icestorm</IntDir>
+        <IceBuilderDependFile>$(IntDir)\IceBuilder.d</IceBuilderDependFile>
+        <IceBuilderCommandLog>$(IntDir)\IceBuilder.command.log</IceBuilderCommandLog>
+    </PropertyGroup>
+    <Import Project="..\..\..\msbuild\ice.props" />
+    <Import Project="$(IceBuilderPythonProps)" />
+    <ItemGroup>
+        <IceBuilder Include="..\..\..\..\slice\IceStorm\Metrics.ice" />
+    </ItemGroup>
+    <PropertyGroup Label="IceBuilder">
+        <IceBuilderAllowIcePrefix>true</IceBuilderAllowIcePrefix>
+        <IceBuilderPrefix>IceStorm_</IceBuilderPrefix>
+        <IceBuilderOutputDir>..\..</IceBuilderOutputDir>
+        <IceBuilderDependFile>$(MSBuildProjectDirectory)\icestorm\IceBuilder.d</IceBuilderDependFile>
+        <IceBuilderCommandLog>$(MSBuildProjectDirectory)\icestorm\IceBuilder.command.log</IceBuilderCommandLog>
+    </PropertyGroup>
+    <Target Name="Build"/>
+    <Target Name="Clean"/>
+    <Import Project="$(IceBuilderPythonTargets)" />
 </Project>

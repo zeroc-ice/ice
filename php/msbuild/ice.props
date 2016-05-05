@@ -5,7 +5,7 @@
   <PropertyGroup Label="UserMacros">
 
     <!-- Set PhpHome to your PHP source directory -->
-    <PhpHome>C:\php-7.0.3</PhpHome>
+    <PhpHome>C:\php-7.0.6</PhpHome>
 
     <!-- Set PhpThreadSafe to "no" (or comment it out) to disable Zend Thread Safety. -->
     <PhpThreadSafe>yes</PhpThreadSafe>
@@ -31,6 +31,11 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(PhpThreadSafe)'!='yes'">
     <PhpLibPrefix>php7</PhpLibPrefix>
+  </PropertyGroup>
+
+  <PropertyGroup>
+      <IceBuilderPhpProps Condition="!Exists('$(IceBuilderPhpProps)')">$([System.IO.Directory]::GetFiles('$(LocalAppData)\Microsoft\VisualStudio\$(VisualStudioVersion)\Extensions', 'IceBuilder.Php.props', SearchOption.AllDirectories))</IceBuilderPhpProps>
+      <IceBuilderPhpTargets Condition="!Exists('$(IceBuilderPhpTargets)')">$([System.IO.Directory]::GetFiles('$(LocalAppData)\Microsoft\VisualStudio\$(VisualStudioVersion)\Extensions', 'IceBuilder.Php.targets', SearchOption.AllDirectories))</IceBuilderPhpTargets>
   </PropertyGroup>
 
   <ItemGroup>

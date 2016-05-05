@@ -27,9 +27,14 @@
 
     <!-- Source distributions library, binary and  include paths -->
     <PropertyGroup Condition="Exists('$(IceSourceHome)')">
-        <IceToolsBin>$(IceHome)\cpp\bin\$(Ice_Platform)\$(Ice_Configuration)</IceToolsBin>
-        <Path>$(IceHome)\cpp\bin\$(Platform)$(Ice_Configuration);%(IceToolsBin);%(Path)</Path>
-        <LibraryPath>$(IceHome)\cpp\lib\$(Ice_Platform)\$(Ice_Configuration);$(LibraryPath)</LibraryPath>
-        <IncludePath>$(IceHome)\cpp\include;$(IceHome)\cpp\include\generated\$(Ice_CppMapping)\$(Platform)\$(Ice_Configuration);$(IncludePath)</IncludePath>
+        <IceBinPath>$(IceHome)\cpp\bin\$(Platform)\$(Ice_Configuration)</IceBinPath>
+        <IceLibraryPath>$(IceHome)\cpp\lib\$(Ice_Platform)\$(Ice_Configuration)</IceLibraryPath>
+        <IceIncludePath>$(IceHome)\cpp\include;$(IceHome)\cpp\include\generated\$(Ice_CppMapping)\$(Platform)\$(Ice_Configuration)</IceIncludePath>
+
+        <IceToolsPath>$(IceBinPath)</IceToolsPath>
+        <Path>$(IceBinPath);$(Path)</Path>
+        <LibraryPath>$(IceLibraryPath);$(LibraryPath)</LibraryPath>
+        <IncludePath>$(IceIncludePath);$(IncludePath)</IncludePath>
+
     </PropertyGroup>
 </Project>

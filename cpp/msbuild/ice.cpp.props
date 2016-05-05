@@ -5,19 +5,19 @@
          yes, set IceHome to point to this source distribution -->
     <PropertyGroup Condition="'$(UseBinDist)' != 'yes' or '$(Ice_BuildingSrc)' == yes">
         <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
-        <IceVersion>3.7.0</IceVersion>
-        <IceIntVersion>30700</IceIntVersion>
+        <IceVersion>3.7a0</IceVersion>
+        <IceIntVersion>30751</IceIntVersion>
         <IceVersionMM>3.7</IceVersionMM>
+        <IceSoVersion>37a0</IceSoVersion>
     </PropertyGroup>
 
     <!-- Define some common properties -->
     <PropertyGroup>
         <Ice_SrcRootDir>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)\..'))</Ice_SrcRootDir>
         <IntDir>$(Platform)\$(Configuration)\</IntDir>
-        <IceBuilderOutputDir>$(Platform)\$(Configuration)</IceBuilderOutputDir>
-        <IceBuilderAllowIcePrefix>true</IceBuilderAllowIcePrefix>
+        <IceBuilderOutputDir Condition="'$(IceBuilderOutputDir)' == ''">$(Platform)\$(Configuration)</IceBuilderOutputDir>
+        <IceBuilderAllowIcePrefix Condition="'$(IceBuilderAllowIcePrefix)' == ''">true</IceBuilderAllowIcePrefix>
         <LinkIncremental>false</LinkIncremental>
-        <IceSoVersion>37a0</IceSoVersion>
     </PropertyGroup>
 
     <Choose>
@@ -64,6 +64,9 @@
             <OmitFramePointers>false</OmitFramePointers>
             <PrecompiledHeader>NotUsing</PrecompiledHeader>
             <AdditionalIncludeDirectories>$(Ice_SrcRootDir)\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+            <!-- PDB settings -->
+            <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+            <ProgramDataBaseFileName>$(OutDir)$(TargetName).pdb</ProgramDataBaseFileName>
         </ClCompile>
         <Link>
             <AdditionalDependencies />
@@ -77,8 +80,6 @@
         <ClCompile>
             <Optimization>Disabled</Optimization>
             <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-            <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-            <ProgramDataBaseFileName>$(OutDir)$(TargetName).pdb</ProgramDataBaseFileName>
         </ClCompile>
         <ResourceCompile>
             <PreprocessorDefinitions>_DEBUG</PreprocessorDefinitions>
@@ -87,13 +88,13 @@
 
     <!-- GenerateDebugInformation supported values change from v120 to v140, we set it conditionally
          to the platform tool set -->
-    <ItemDefinitionGroup Condition="'$(Ice_Configuration)|$(DefaultPlatformToolset)'=='Debug|v140'">
+    <ItemDefinitionGroup Condition="'$(DefaultPlatformToolset)'=='v140'">
         <Link>
             <GenerateDebugInformation>Debug</GenerateDebugInformation>
         </Link>
     </ItemDefinitionGroup>
 
-    <ItemDefinitionGroup Condition="'$(Ice_Configuration)|$(DefaultPlatformToolset)'=='Debug|v120'">
+    <ItemDefinitionGroup Condition="'$(DefaultPlatformToolset)'=='v120'">
         <Link>
             <GenerateDebugInformation>Yes</GenerateDebugInformation>
         </Link>
@@ -105,8 +106,6 @@
             <Optimization>MaxSpeed</Optimization>
             <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
             <WholeProgramOptimization>false</WholeProgramOptimization>
-            <DebugInformationFormat>None</DebugInformationFormat>
-            <ProgramDataBaseFileName></ProgramDataBaseFileName>
         </ClCompile>
         <Link>
             <GenerateDebugInformation>No</GenerateDebugInformation>

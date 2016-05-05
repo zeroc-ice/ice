@@ -1,19 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-
-  <Import Project="..\..\..\msbuild\ice.props" />
-  <Import Project="$(LOCALAPPDATA)\ZeroC\IceBuilder\IceBuilder.Python.props" />
-
-  <ItemGroup>
-      <IceBuilder Include="..\..\..\..\slice\IcePatch2\FileServer.ice" />
-	  <IceBuilder Include="..\..\..\..\slice\IcePatch2\FileInfo.ice" />
-  </ItemGroup>
-  <PropertyGroup Label="IceBuilder">
-      <IceBuilderAllowIcePrefix>true</IceBuilderAllowIcePrefix>
-      <IceBuilderPrefix>IcePatch2_</IceBuilderPrefix>
-      <IceBuilderOutputDir>..\..</IceBuilderOutputDir>
-  </PropertyGroup>
-  <Target Name="Build"/>
-  <Target Name="Clean"/>
-  <Import Project="$(LOCALAPPDATA)\ZeroC\IceBuilder\IceBuilder.Python.targets" />
+    <PropertyGroup Label="IceBuilder">
+        <IceBuilderAllowIcePrefix>true</IceBuilderAllowIcePrefix>
+        <IceBuilderPrefix>IcePatch2_</IceBuilderPrefix>
+        <IceBuilderOutputDir>..\..</IceBuilderOutputDir>
+        <IceBuilderDependFile>$(MSBuildProjectDirectory)\IceBuilder.d</IceBuilderDependFile>
+        <IceBuilderCommandLog>$(MSBuildProjectDirectory)\IceBuilder.command.log</IceBuilderCommandLog>
+    </PropertyGroup>
+    <Import Project="..\..\..\msbuild\ice.props" />
+    <Import Project="$(IceBuilderPythonProps)" />
+    <ItemGroup>
+        <IceBuilder Include="..\..\..\..\slice\IcePatch2\FileServer.ice" />
+        <IceBuilder Include="..\..\..\..\slice\IcePatch2\FileInfo.ice" />
+    </ItemGroup>
+    <Target Name="Build"/>
+    <Target Name="Clean"/>
+    <Import Project="$(IceBuilderPythonTargets)" />
 </Project>

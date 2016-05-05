@@ -1,16 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <!-- Ice binary distribution -->
-    <PropertyGroup Condition="!Exists('$(IceSourceHome)')">
-        <IceToolsBin>$(IceHome)\ice.$(PlatformToolset)\build\native\bin\Win32\Release</IceToolsBin>
-    </PropertyGroup>
-
     <PropertyGroup Condition="'$(Configuration)' == ''">
         <Configuration>Debug</Configuration>
     </PropertyGroup>
-
-    <!-- Source distributions  -->
-    <PropertyGroup Condition="Exists('$(IceSourceHome)')">
-        <IceToolsBin>$(IceHome)\cpp\bin\$(Platform)\$(Configuration)</IceToolsBin>
-    </PropertyGroup>
+    <Import Project="$(MSBuildThisFileDirectory)\..\..\cpp\config\ice.cpp.props" />
 </Project>

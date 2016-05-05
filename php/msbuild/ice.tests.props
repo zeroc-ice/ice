@@ -9,6 +9,10 @@
     <PropertyGroup Condition="'$(PhpUseNamespaces)' == 'yes'">
       <IceBuilderNamespace>yes</IceBuilderNamespace>
     </PropertyGroup>
+    <PropertyGroup>
+        <IceBuilderPhpProps Condition="!Exists('$(IceBuilderPhpProps)')">$([System.IO.Directory]::GetFiles('$(LocalAppData)\Microsoft\VisualStudio\$(VisualStudioVersion)\Extensions', 'IceBuilder.Php.props', SearchOption.AllDirectories))</IceBuilderPhpProps>
+        <IceBuilderPhpTargets Condition="!Exists('$(IceBuilderPhpTargets)')">$([System.IO.Directory]::GetFiles('$(LocalAppData)\Microsoft\VisualStudio\$(VisualStudioVersion)\Extensions', 'IceBuilder.Php.targets', SearchOption.AllDirectories))</IceBuilderPhpTargets>
+    </PropertyGroup>
     <Target Name="Build"/>
     <Target Name="Clean"/>
 </Project>
