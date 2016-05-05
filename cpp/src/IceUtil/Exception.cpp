@@ -20,6 +20,13 @@
 #  endif
 #endif
 
+//
+// For UINTPTR_MAX on Ubuntu Precise
+//
+#ifndef __STDC_CONSTANT_MACROS 
+#   define __STDC_CONSTANT_MACROS
+#endif
+
 #include <IceUtil/Exception.h>
 #include <IceUtil/MutexPtrLock.h>
 #include <IceUtil/Mutex.h>
