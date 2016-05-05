@@ -141,7 +141,7 @@ $(foreach l,$(thirdparties),$(eval $(call make-thirdparty,$l)))
 #
 # Languages, platforms and configurations to build
 #
-supported-languages	?= cpp java python ruby php
+supported-languages	?= cpp java python js ruby php
 supported-configs	?= shared
 
 platforms 		= $(if $(filter all,$(PLATFORMS)),$(supported-platforms),$(PLATFORMS))

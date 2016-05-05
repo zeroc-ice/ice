@@ -27,7 +27,6 @@ $(eval $(call make-global-rule,clean,$(languages)))
 $(eval $(call make-global-rule,distclean,$(languages)))
 $(eval $(call make-global-rule,install,$(languages)))
 
-
 #
 # Install documentation and slice files
 #

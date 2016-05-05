@@ -8,7 +8,7 @@
 # **********************************************************************
 
 supported-platforms		= osx iphoneos iphonesimulator
-supported-languages		= cpp java python ruby php objective-c
+supported-languages		= cpp java python js ruby php objective-c
 
 osx_ar 				= libtool
 osx_cppflags			= -mmacosx-version-min=10.9 -arch x86_64
