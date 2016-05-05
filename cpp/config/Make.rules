@@ -52,7 +52,7 @@ static_projects		= test/%
 #
 # Components and projects which are built with C++11
 #
-cpp11_components	= $(coreandstub_components) icebox iceboxadmin
+cpp11_components	= $(coreandstub_components) icebox
 
 cpp11_projects		= test/Common \
                 	  test/IceUtil/% \

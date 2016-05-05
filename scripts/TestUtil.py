@@ -838,13 +838,10 @@ def getIceBox():
     return iceBox
 
 def getIceBoxAdmin():
-    
-    lang = getDefaultMapping()
-    if lang == "java":
-        iceBoxAdmin = "IceBox.Admin"
+    if getDefaultMapping() == "java":
+        return "IceBox.Admin"
     else:
-        iceBoxAdmin = string.replace(getIceBox(), "icebox", "iceboxadmin")
-    return iceBoxAdmin
+        return getIceExe("iceboxadmin")
 
 def getIceGridAdmin():
     return getIceExe("icegridadmin")

@@ -81,7 +81,7 @@ tests = [
     ("Ice/services", ["once", "nomingw"]),
     ("IceSSL/configuration", ["once", "novalgrind"]), # valgrind doesn't work well with openssl
     ("IceBox/configuration", ["core", "noipv6", "novc100", "nomingw", "nomx"]),
-    ("IceBox/admin", ["core", "noipv6", "novc100", "nomingw", "nomx"]),
+    ("IceBox/admin", ["core", "noipv6", "novc100", "nomingw", "nomx", "noc++11"]),
     ("IceStorm/single", ["service", "novc100", "noappverifier", "nomingw", "noc++11"]), # This test doesn't work with appverifier
     ("IceStorm/federation", ["service", "novc100", "nomingw", "noc++11"]),
     ("IceStorm/federation2", ["service", "novc100", "nomingw", "noc++11"]),
