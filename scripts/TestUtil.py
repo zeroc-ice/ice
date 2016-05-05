@@ -838,16 +838,12 @@ def getIceBox():
     return iceBox
 
 def getIceBoxAdmin():
-    #
-    # Get and return the path of the IceBoxAdmin executable
-    #
+    
     lang = getDefaultMapping()
     if lang == "java":
         iceBoxAdmin = "IceBox.Admin"
     else:
-        return getIceExe("iceboxadmin")
-        iceBoxAdmin = "iceboxadmin"
-
+        iceBoxAdmin = string.replace(getIceBox(), "icebox", "iceboxadmin")
     return iceBoxAdmin
 
 def getIceGridAdmin():
