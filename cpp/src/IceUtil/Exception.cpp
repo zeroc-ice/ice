@@ -515,10 +515,10 @@ getStackTrace(const vector<void*>& stackFrames)
 	}
 
 #   if defined(ICE_LIBBACKTRACE)
-	bool failed = backtrace_pcinfo(bstate, frameInfo.pc, printFrame, handlePcInfoError, &frameInfo) != 0;
+	bool ok = backtrace_pcinfo(bstate, frameInfo.pc, printFrame, handlePcInfoError, &frameInfo) == 0;
 
 	// When error callback is called, pcinfo returns 0
-	if(failed || frameInfo.setByErrorCb)
+	if(!ok || frameInfo.setByErrorCb)
 	{
 #       if defined(ICE_BACKTRACE)
 	    if(!backtraceStringsInitialized)
