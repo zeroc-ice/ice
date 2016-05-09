@@ -19,16 +19,18 @@
 
 #import <stdlib.h>
 
-#define ICE_DEPRECATED_API(msg) __attribute__((deprecated(msg)))          
+#define ICE_DEPRECATED_API(msg) __attribute__((deprecated(msg)))
 #define ICE_DECLSPEC_EXPORT __attribute__((visibility ("default")))
 #define ICE_DECLSPEC_IMPORT __attribute__((visibility ("default")))
 
 #ifndef ICE_API
-#   ifdef ICE_API_EXPORTS
+#   if defined(ICE_STATIC_LIBS)
+#       define ICE_API /**/
+#   elif defined(ICE_API_EXPORTS)
 #       define ICE_API ICE_DECLSPEC_EXPORT
-#    else
+#   else
 #       define ICE_API ICE_DECLSPEC_IMPORT
-#    endif
+#   endif
 #endif
 
 //

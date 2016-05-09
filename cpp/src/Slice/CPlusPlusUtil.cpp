@@ -433,10 +433,10 @@ Slice::printDllExportStuff(Output& out, const string& dllExport)
     {
         out << sp;
         out << "\n#ifndef " << dllExport;
-        out << "\n#   ifdef " << dllExport << "_EXPORTS";
-        out << "\n#       define " << dllExport << " ICE_DECLSPEC_EXPORT";
-        out << "\n#   elif defined(ICE_STATIC_LIBS)";
+        out << "\n#   if defined(ICE_STATIC_LIBS)";
         out << "\n#       define " << dllExport << " /**/";
+        out << "\n#   elif defined(" << dllExport << "_EXPORTS)";
+        out << "\n#       define " << dllExport << " ICE_DECLSPEC_EXPORT";
         out << "\n#   else";
         out << "\n#       define " << dllExport << " ICE_DECLSPEC_IMPORT";
         out << "\n#   endif";

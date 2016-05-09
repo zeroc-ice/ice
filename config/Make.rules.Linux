@@ -76,6 +76,9 @@ default_installdir 	:=
 
 endif
 
+# If building objects for a shared library, enable fPIC
+shared_cppflags	= $(if $(filter-out program,$($1_target)),-fPIC)
+
 CXXFLAGS        += -fvisibility=hidden -Wall -Werror -pthread
 LDFLAGS         += -pthread
 

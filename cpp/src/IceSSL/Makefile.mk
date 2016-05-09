@@ -11,7 +11,7 @@ $(project)_libraries	:= IceSSL
 
 IceSSL_targetdir	:= $(libdir)
 IceSSL_dependencies	:= Ice IceUtil
-IceSSL_cppflags[shared]	:= -DICESSL_API_EXPORTS
+IceSSL_cppflags		:= -DICESSL_API_EXPORTS
 IceSSL_system_libs	:= $(SSL_OS_LIBS)
 IceSSL_sliceflags	:= --include-dir IceSSL --dll-export ICESSL_API
 

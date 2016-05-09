@@ -10,7 +10,7 @@
 $(project)_libraries 	= IceUtil
 
 IceUtil_targetdir		:= $(libdir)
-IceUtil_cppflags[shared]	:= -DICE_UTIL_API_EXPORTS
+IceUtil_cppflags		:= -DICE_UTIL_API_EXPORTS
 IceUtil_system_libs		:= $(ICEUTIL_OS_LIBS)
 
 # Always enable the static configuration for the IceUtil library

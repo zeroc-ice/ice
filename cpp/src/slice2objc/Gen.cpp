@@ -784,10 +784,10 @@ Slice::Gen::generate(const UnitPtr& p)
 
         _H << nl;
         _H << nl << "#ifndef " << _dllExport;
-        _H << nl << "#   ifdef " << _dllExport << "_EXPORTS";
-        _H << nl << "#       define " << _dllExport << " ICE_DECLSPEC_EXPORT";
-        _H << nl << "#   elif defined(ICE_STATIC_LIBS)";
+        _H << nl << "#   if defined(ICE_STATIC_LIBS)";
         _H << nl << "#       define " << _dllExport << " /**/";
+        _H << nl << "#   elif defined(" << _dllExport << "_EXPORTS)";
+        _H << nl << "#       define " << _dllExport << " ICE_DECLSPEC_EXPORT";
         _H << nl << "#   else";
         _H << nl << "#       define " << _dllExport << " ICE_DECLSPEC_IMPORT";
         _H << nl << "#   endif";
@@ -1633,7 +1633,7 @@ Slice::Gen::TypesVisitor::writeConstantValue(IceUtilInternal::Output& out, const
                         break;
                     }
                 }
-                
+
                 out << val[i];                              // Print normally if in basic source character set
             }
             ++i;

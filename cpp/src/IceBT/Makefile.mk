@@ -13,8 +13,7 @@ $(project)_libraries	:= IceBT
 
 IceBT_targetdir		:= $(libdir)
 IceBT_dependencies	:= IceXML Ice IceUtil
-IceBT_cppflags		:= `pkg-config --cflags dbus-1`
-IceBT_cppflags[shared] 	:= -DICEBT_API_EXPORTS
+IceBT_cppflags		:= -DICEBT_API_EXPORTS `pkg-config --cflags dbus-1`
 IceBT_system_libs	:= $(SSL_OS_LIBS) `pkg-config --libs dbus-1`
 IceBT_sliceflags	:= --include-dir IceBT --dll-export ICESSL_API
 

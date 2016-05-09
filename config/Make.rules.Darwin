@@ -31,6 +31,9 @@ iphonesimulator_ldflags		= $(iphonesimulator_cppflags)
 iphonesimulator_configs		= xcodesdk
 iphonesimulator_projects	= src/%
 
+# If building objects for a shared library, enable fPIC
+shared_cppflags	= $(if $(filter-out program,$($1_target)),-fPIC)
+
 CXXFLAGS	+= -fvisibility=hidden -Wall -Werror -pthread
 
 ifeq ($(MAXWARN),yes)

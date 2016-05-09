@@ -162,8 +162,8 @@ config_dependency	= $5
 
 # Static configuration for static builds
 static_targetrule	= $(if $(filter-out program,$($1_target)),static-)
-static_cppflags		= $$(strip $$(call make-lib-cppflags,$1,$2,$3)) -DICE_STATIC_LIBS
-static_ldflags		= $$(call unique,$$(foreach d,$$(call get-all-deps,$4),$$(call make-static-dep-ldflags,$$d)))\
+static_cppflags		+= $$(strip $$(call make-lib-cppflags,$1,$2,$3)) -DICE_STATIC_LIBS
+static_ldflags		+= $$(call unique,$$(foreach d,$$(call get-all-deps,$4),$$(call make-static-dep-ldflags,$$d)))\
 			  $$(strip $$(foreach d,$$(call get-all-deps,$4) $1,$$(call make-lib-ldflags,$$d,$2,$3)))\
 			  $$(strip $$(foreach d,$$(call get-all-deps,$4) $1,$$(call make-system-lib-ldflags,$$d,$2,$3)))
 
@@ -171,8 +171,8 @@ static_ldflags		= $$(call unique,$$(foreach d,$$(call get-all-deps,$4),$$(call m
 shared_projects		= %
 shared_objdir		= $(if $(filter-out program,$($1_target)),shared/pic,shared/nopic)
 shared_targetrule	= $(if $(filter-out program,$($1_target)),shared-)
-shared_cppflags		= $$(strip $$(call make-lib-cppflags,$1,$2,$3)) $(if $(filter-out program,$($1_target)),-fPIC)
-shared_ldflags		= $$(call unique,$$(foreach d,$$($4_dependencies),$$(call make-shared-dep-ldflags,$$d,$4)))\
+shared_cppflags		+= $$(strip $$(call make-lib-cppflags,$1,$2,$3))
+shared_ldflags		+= $$(call unique,$$(foreach d,$$($4_dependencies),$$(call make-shared-dep-ldflags,$$d,$4)))\
 			  $$(strip $$(call make-lib-ldflags,$1,$2,$3))\
 			  $$(strip $$(call make-system-lib-ldflags,$1,$2,$3))
 

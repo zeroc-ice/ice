@@ -19,10 +19,10 @@
 #include <lmdb.h>
 
 #ifndef ICE_DB_API
-#   ifdef ICE_DB_API_EXPORTS
-#       define ICE_DB_API ICE_DECLSPEC_EXPORT
-#   elif defined(ICE_STATIC_LIBS)
+#   if defined(ICE_STATIC_LIBS)
 #       define ICE_DB_API /**/
+#   elif defined(ICE_DB_API_EXPORTS)
+#       define ICE_DB_API ICE_DECLSPEC_EXPORT
 #   else
 #       define ICE_DB_API ICE_DECLSPEC_IMPORT
 #   endif

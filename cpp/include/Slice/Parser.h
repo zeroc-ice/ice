@@ -33,10 +33,10 @@
 #endif
 
 #ifndef SLICE_API
-#   ifdef SLICE_API_EXPORTS
-#       define SLICE_API ICE_DECLSPEC_EXPORT
-#   elif defined(ICE_STATIC_LIBS)
+#   if defined(ICE_STATIC_LIBS)
 #       define SLICE_API /**/
+#   elif defined(SLICE_API_EXPORTS)
+#       define SLICE_API ICE_DECLSPEC_EXPORT
 #   else
 #       define SLICE_API ICE_DECLSPEC_IMPORT
 #   endif

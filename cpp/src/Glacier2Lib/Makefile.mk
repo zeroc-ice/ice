@@ -11,7 +11,7 @@ $(project)_libraries	:= Glacier2
 
 Glacier2_targetdir		:= $(libdir)
 Glacier2_dependencies		:= Ice IceUtil
-Glacier2_cppflags[shared] 	:= -DGLACIER2_API_EXPORTS
+Glacier2_cppflags	 	:= -DGLACIER2_API_EXPORTS
 Glacier2_sliceflags		:= --include-dir Glacier2 --dll-export GLACIER2_API
 
 projects += $(project)
