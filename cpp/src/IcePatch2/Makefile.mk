@@ -8,7 +8,7 @@
 # **********************************************************************
 
 $(project)_programs		:= icepatch2server icepatch2client icepatch2calc
-$(project)_dependencies		:= IcePatch2 Ice IceUtil
+$(project)_dependencies		:= IcePatch2 Ice
 $(project)_targetdir		:= $(bindir)
 
 icepatch2server_sources	    	:= $(addprefix $(currentdir)/,FileServerI.cpp Server.cpp)

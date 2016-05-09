@@ -411,8 +411,8 @@ $$($5_objdir)/$$(call source-to-dependency,$$($2_sources)): | $$($5_objdir)
 #
 # Object rules
 #
-$$(eval $$(call make-objects,$$($2_srcdir),$$($1_generated_srcdir),$$($5_objdir),\
-	$$($2_sources),$$($5_dependencies),$$($5_cppflags),$$($1_slicecompiler),$$($5_platform),$$($5_config)))
+$$(foreach d,$$($2_srcdirs),$$(eval $$(call make-objects,$$d,$$($1_generated_srcdir),$$($5_objdir),\
+	$$($2_sources),$$($5_dependencies),$$($5_cppflags),$$($1_slicecompiler),$$($5_platform),$$($5_config))))
 
 #
 # Target rule
@@ -534,9 +534,11 @@ $2_sources 	:= $$(foreach e,$(source-extensions),$$(wildcard $$($2_srcdir)/*.$$(
 ifneq ($$($2_slicedir),)
     $2_sources 	+= $$(wildcard $$($2_slicedir)/*.ice)
 endif
+$2_sources      += $$($2_extra_sources)
 $2_sources      := $$(call unique,$$($2_sources))
 endif
 $2_sources	:= $$(filter-out $$(patsubst $(lang_srcdir)/%,%,$$($2_excludes)),$$($2_sources))
+$2_srcdirs	:= $$(call files-to-dirs,$$($2_sources))
 
 #
 # Compute the list of slice files from the sources and gather the location

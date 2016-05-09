@@ -8,6 +8,6 @@
 # **********************************************************************
 
 $(test)_client_sources = Test.ice TestI.cpp Client.cpp AllTests.cpp
-$(test)_dependencies = IceSSL Ice IceUtil TestCommon
+$(test)_dependencies = IceSSL Ice TestCommon
 
 tests += $(test)

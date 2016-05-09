@@ -13,9 +13,15 @@ IceRuby_target		:= ruby-module
 IceRuby_targetname	:= IceRuby
 IceRuby_targetdir	:= $(lang_srcdir)/ruby
 IceRuby_installdir	:= $(install_rubylibdir)
-IceRuby_cppflags  	:= -I$(project) -I$(top_srcdir)/cpp/include -I$(top_srcdir)/cpp/include/generated $(ruby_cppflags)
+IceRuby_cppflags  	:= -I$(project) -I$(top_srcdir)/cpp/include -I$(top_srcdir)/cpp/include/generated \
+			   -I$(top_srcdir)/cpp/src -DSLICE_API_EXPORTS $(ruby_cppflags)
 IceRuby_ldflags		:= $(ruby_ldflags)
-IceRuby_dependencies	:= IceSSL Ice Slice IceUtil
+IceRuby_dependencies	:= IceSSL Ice
+IceRuby_libs            := mcpp
+IceRuby_extra_sources   := $(filter-out %Util.cpp %Python.cpp %DotNetNames.cpp,\
+				$(wildcard $(top_srcdir)/cpp/src/Slice/*.cpp)) \
+			   $(top_srcdir)/cpp/src/Slice/SliceUtil.cpp \
+			   $(top_srcdir)/cpp/src/Slice/RubyUtil.cpp
 
 projects += $(project)
 srcs:: $(project)

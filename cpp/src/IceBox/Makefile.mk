@@ -9,7 +9,7 @@
 
 $(project)_libraries 	:= IceBox
 $(project)_programs	:= icebox iceboxadmin
-$(project)_dependencies	:= Ice IceUtil
+$(project)_dependencies	:= Ice
 $(project)_sliceflags	:= --include-dir IceBox --dll-export ICEBOX_API
 
 IceBox_targetdir	:= $(libdir)

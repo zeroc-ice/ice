@@ -67,7 +67,7 @@ local_admin_srcs	= Internal.ice \
 $(project)_programs 		= icegridnode icegridregistry icegridadmin icegriddb
 $(project)_sliceflags		:= -Isrc --include-dir IceGrid
 $(project)_generated_includedir := $(project)/generated/IceGrid
-$(project)_dependencies 	:= IceGrid Glacier2 Ice IceUtil
+$(project)_dependencies 	:= IceGrid Glacier2 Ice
 $(project)_targetdir		:= $(bindir)
 
 icegridnode_sources	 	:= $(addprefix $(currentdir)/,$(local_node_srcs) $(local_registry_srcs) IceGridNode.cpp)

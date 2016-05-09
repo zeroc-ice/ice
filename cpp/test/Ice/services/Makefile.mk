@@ -7,6 +7,6 @@
 #
 # **********************************************************************
 
-$(test)_dependencies = Glacier2 IceStorm IceGrid Ice IceUtil TestCommon
+$(test)_dependencies = Glacier2 IceStorm IceGrid Ice TestCommon
 
 tests += $(test)

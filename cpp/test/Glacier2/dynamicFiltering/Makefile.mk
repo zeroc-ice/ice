@@ -7,7 +7,7 @@
 #
 # **********************************************************************
 
-$(test)_dependencies = Glacier2 Ice IceUtil TestCommon
+$(test)_dependencies = Glacier2 Ice TestCommon
 
 $(test)_client_sources = Client.cpp Test.ice
 

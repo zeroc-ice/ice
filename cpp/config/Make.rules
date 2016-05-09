@@ -39,9 +39,11 @@ coreandstub_components	+= IceXML IceBT
 endif
 
 #
-# Build all the projects with the shared configuration
+# Build all the projects with the shared configuration, except IceUtil and Slice
+# that are static-only
 #
 shared_projects		= %
+shared_excludes         = IceUtil Slice
 
 #
 # Build only few components with the static configuration (core and stubs)
@@ -133,7 +135,7 @@ endef
 #
 define create-cpp-test-project
 $1_srcext		:= cpp
-$1_dependencies 	:= $$(or $$($1_dependencies),TestCommon Ice IceUtil)
+$1_dependencies 	:= $$(or $$($1_dependencies),TestCommon Ice)
 
 # Also link with IceSSL and IceBT (Debian/Ubuntu) when compiling with the static configuration
 $1_dependencies[static]	:= $$(or $$($1_dependencies[static]),IceSSL $(if $(filter debian ubuntu,$(linux_id)),IceBT))
