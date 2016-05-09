@@ -61,6 +61,28 @@ main(int argc, char* argv[])
         IceUtil::setProcessStringConverter(new IceUtil::IconvStringConverter<char>("iso815"));
     }
     IceUtil::setProcessWstringConverter(new IceUtil::IconvStringConverter<wchar_t>("ucs4"));
+    
+#elif defined(_AIX)
+    
+    // Always big-endian
+    
+    if(useLocale)
+    {
+	IceUtil::setProcessStringConverter(new IceUtil::IconvStringConverter<char>());
+    }
+    else
+    {
+        IceUtil::setProcessStringConverter(new IceUtil::IconvStringConverter<char>("ISO8859-15"));
+    }
+
+    if(sizeof(wchar_t) == 4)
+    {
+	IceUtil::setProcessWstringConverter(new IceUtil::IconvStringConverter<wchar_t>("UTF-32"));
+    }
+    else
+    {  
+	IceUtil::setProcessWstringConverter(new IceUtil::IconvStringConverter<wchar_t>("UTF-16"));
+    }    
 #else
 
     if(useLocale)

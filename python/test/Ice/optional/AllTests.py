@@ -324,7 +324,7 @@ def allTests(communicator):
     outer = Test.Recursive()
     outer.value = recursive1
     initial.pingPong(outer)
-    
+
     g = Test.G()
     g.gg1Opt = Test.G1("gg1Opt")
     g.gg2 = Test.G2(10)
@@ -335,6 +335,9 @@ def allTests(communicator):
     test(r.gg2.a == 10)
     test(r.gg2Opt.a == 20)
     test(r.gg1.a == "gg1")
+
+    initial2 = Test.Initial2Prx.uncheckedCast(base)
+    initial2.opVoid(15, "test")
 
     print("ok")
 

@@ -670,6 +670,11 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
         //
         // Invoke the factory function.
         //
+#ifdef __IBMCPP__
+      // xlC warns when casting a void* to function pointer
+#   pragma report(disable, "1540-0216")
+#endif
+      
         SERVICE_FACTORY factory = reinterpret_cast<SERVICE_FACTORY>(sym);
         try
         {

@@ -382,7 +382,7 @@ public class OutgoingAsync extends ProxyOutgoingAsyncBase
 
     public void readEmptyParams()
     {
-        _is.skipEmptyEncapsulation(null);
+        _is.skipEmptyEncapsulation();
     }
 
     public byte[] readParamEncaps()

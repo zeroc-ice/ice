@@ -416,6 +416,18 @@ public class AllTests
         test(20 == g.getGg2Opt().a);
         test("gg1".equals(g.gg1.a));
 
+        initial.opVoid();
+
+        os = new Ice.OutputStream(communicator);
+        os.startEncapsulation();
+        os.writeOptional(1, Ice.OptionalFormat.F4);
+        os.writeInt(15);
+        os.writeOptional(1, Ice.OptionalFormat.VSize);
+        os.writeString("test");
+        os.endEncapsulation();
+        inEncaps = os.finished();
+        test(initial.ice_invoke("opVoid", Ice.OperationMode.Normal, inEncaps, outEncaps));
+
         out.println("ok");
 
         out.print("testing marshaling of large containers with fixed size elements... ");

@@ -634,6 +634,14 @@ optionalAllTests(id<ICECommunicator> communicator)
     test(r.gg2.a == 10);
     test(r.gg2Opt.a == 20);
 
+    os = [ICEUtil createOutputStream:communicator];
+    [os startEncapsulation];
+    [ICEIntHelper writeOpt:@15 stream:os tag:1];
+    [ICEStringHelper writeOpt:@"test" stream:os tag:2];
+    [os endEncapsulation];
+    inEncaps = [os finished];
+    test([initial ice_invoke:@"opVoid" mode:ICENormal inEncaps:inEncaps outEncaps:&outEncaps]);
+
     tprintf("ok\n");
 
     tprintf("testing marshalling of large containers with fixed size elements...");

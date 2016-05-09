@@ -227,6 +227,9 @@
 {
     return g;
 }
+-(void) opVoid:(ICECurrent*)current
+{
+}
 
 -(BOOL) supportsRequiredParams:(ICECurrent*)current
 {

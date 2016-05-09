@@ -875,25 +875,9 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::connectionStartFailed(c
                                                                                const LocalException& ex)
 {
     assert(_iter != _connectors.end());
-
-    if(_observer)
-    {
-        _observer->failed(ex.ice_id());
-        _observer->detach();
-    }
-
-    _factory->handleConnectionException(ex, _hasMore || _iter != _connectors.end() - 1);
-    if(dynamic_cast<const Ice::CommunicatorDestroyedException*>(&ex)) // No need to continue.
-    {
-        _factory->finishGetConnection(_connectors, ex, shared_from_this());
-    }
-    else if(++_iter != _connectors.end()) // Try the next connector.
+    if(connectionStartFailedImpl(ex))
     {
         nextConnector();
-    }
-    else
-    {
-        _factory->finishGetConnection(_connectors, ex, shared_from_this());
     }
 }
 
@@ -1020,39 +1004,46 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::getConnection()
 void
 IceInternal::OutgoingConnectionFactory::ConnectCallback::nextConnector()
 {
-    Ice::ConnectionIPtr connection;
-    try
+    while(true)
     {
-        const CommunicatorObserverPtr& obsv = _factory->_instance->initializationData().observer;
-        if(obsv)
+        try
         {
-            _observer = obsv->getConnectionEstablishmentObserver(_iter->endpoint, _iter->connector->toString());
-            if(_observer)
+            const CommunicatorObserverPtr& obsv = _factory->_instance->initializationData().observer;
+            if(obsv)
             {
-                _observer->attach();
+                _observer = obsv->getConnectionEstablishmentObserver(_iter->endpoint, _iter->connector->toString());
+                if(_observer)
+                {
+                    _observer->attach();
+                }
+            }
+
+            assert(_iter != _connectors.end());
+
+            if(_instance->traceLevels()->network >= 2)
+            {
+                Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);
+                out << "trying to establish " << _iter->endpoint->protocol() << " connection to "
+                    << _iter->connector->toString();
+            }
+            Ice::ConnectionIPtr connection = _factory->createConnection(_iter->connector->connect(), *_iter);
+            connection->start(ICE_SHARED_FROM_THIS);
+        }
+        catch(const Ice::LocalException& ex)
+        {
+            if(_instance->traceLevels()->network >= 2)
+            {
+                Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);
+                out << "failed to establish " << _iter->endpoint->protocol() << " connection to "
+                    << _iter->connector->toString() << "\n" << ex;
+            }
+
+            if(connectionStartFailedImpl(ex))
+            {
+                continue; // More connectors to try, continue.
             }
         }
-
-        assert(_iter != _connectors.end());
-
-        if(_instance->traceLevels()->network >= 2)
-        {
-            Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);
-            out << "trying to establish " << _iter->endpoint->protocol() << " connection to "
-                << _iter->connector->toString();
-        }
-        connection = _factory->createConnection(_iter->connector->connect(), *_iter);
-        connection->start(ICE_SHARED_FROM_THIS);
-    }
-    catch(const Ice::LocalException& ex)
-    {
-        if(_instance->traceLevels()->network >= 2)
-        {
-            Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);
-            out << "failed to establish " << _iter->endpoint->protocol() << " connection to "
-                << _iter->connector->toString() << "\n" << ex;
-        }
-        connectionStartFailed(connection, ex);
+        break;
     }
 }
 
@@ -1109,6 +1100,31 @@ bool
 IceInternal::OutgoingConnectionFactory::ConnectCallback::operator<(const ConnectCallback& rhs) const
 {
     return this < &rhs;
+}
+
+bool
+IceInternal::OutgoingConnectionFactory::ConnectCallback::connectionStartFailedImpl(const Ice::LocalException& ex)
+{
+    if(_observer)
+    {
+        _observer->failed(ex.ice_id());
+        _observer->detach();
+    }
+
+    _factory->handleConnectionException(ex, _hasMore || _iter != _connectors.end() - 1);
+    if(dynamic_cast<const Ice::CommunicatorDestroyedException*>(&ex)) // No need to continue.
+    {
+        _factory->finishGetConnection(_connectors, ex, ICE_SHARED_FROM_THIS);
+    }
+    else if(++_iter != _connectors.end()) // Try the next connector.
+    {
+        return true;
+    }
+    else
+    {
+        _factory->finishGetConnection(_connectors, ex, ICE_SHARED_FROM_THIS);
+    }
+    return false;
 }
 
 void

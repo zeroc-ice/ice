@@ -1286,7 +1286,6 @@ IceInternal::fdToLocalAddress(SOCKET fd, Address& addr)
     socklen_t len = static_cast<socklen_t>(sizeof(sockaddr_storage));
     if(getsockname(fd, &addr.sa, &len) == SOCKET_ERROR)
     {
-        closeSocketNoThrow(fd);
         SocketException ex(__FILE__, __LINE__);
         ex.error = getSocketErrno();
         throw ex;
@@ -1320,7 +1319,6 @@ IceInternal::fdToRemoteAddress(SOCKET fd, Address& addr)
         }
         else
         {
-            closeSocketNoThrow(fd);
             SocketException ex(__FILE__, __LINE__);
             ex.error = getSocketErrno();
             throw ex;
@@ -2339,12 +2337,20 @@ repeatConnect:
     // port as the server).
     //
     Address localAddr;
-    fdToLocalAddress(fd, localAddr);
-    if(compareAddress(addr, localAddr) == 0)
+    try
     {
-        ConnectionRefusedException ex(__FILE__, __LINE__);
-        ex.error = 0; // No appropriate errno
-        throw ex;
+        fdToLocalAddress(fd, localAddr);
+        if(compareAddress(addr, localAddr) == 0)
+        {
+            ConnectionRefusedException ex(__FILE__, __LINE__);
+            ex.error = 0; // No appropriate errno
+            throw ex;
+        }
+    }
+    catch(const LocalException&)
+    {
+        closeSocketNoThrow(fd);
+        throw;
     }
 #endif
     return true;

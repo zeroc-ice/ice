@@ -871,25 +871,9 @@ public final class OutgoingConnectionFactory
         connectionStartFailed(Ice.ConnectionI connection, Ice.LocalException ex)
         {
             assert(_current != null);
-
-            if(_observer != null)
-            {
-                _observer.failed(ex.ice_id());
-                _observer.detach();
-            }
-
-            _factory.handleConnectionException(ex, _hasMore || _iter.hasNext());
-            if(ex instanceof Ice.CommunicatorDestroyedException) // No need to continue.
-            {
-                _factory.finishGetConnection(_connectors, ex, this);
-            }
-            else if(_iter.hasNext()) // Try the next connector.
+            if(connectionStartFailedImpl(ex))
             {
                 nextConnector();
-            }
-            else
-            {
-                _factory.finishGetConnection(_connectors, ex, this);
             }
         }
 
@@ -1059,52 +1043,83 @@ public final class OutgoingConnectionFactory
         private void
         nextConnector()
         {
-            Ice.ConnectionI connection = null;
-            try
+            while(true)
             {
-                assert(_iter.hasNext());
-                _current = _iter.next();
-
-                Ice.Instrumentation.CommunicatorObserver obsv = _factory._instance.initializationData().observer;
-                if(obsv != null)
+                try
                 {
-                    _observer = obsv.getConnectionEstablishmentObserver(_current.endpoint,
-                                                                        _current.connector.toString());
-                    if(_observer != null)
+                    assert(_iter.hasNext());
+                    _current = _iter.next();
+
+                    Ice.Instrumentation.CommunicatorObserver obsv = _factory._instance.initializationData().observer;
+                    if(obsv != null)
                     {
-                        _observer.attach();
+                        _observer = obsv.getConnectionEstablishmentObserver(_current.endpoint,
+                                                                            _current.connector.toString());
+                        if(_observer != null)
+                        {
+                            _observer.attach();
+                        }
+                    }
+
+                    if(_factory._instance.traceLevels().network >= 2)
+                    {
+                        StringBuffer s = new StringBuffer("trying to establish ");
+                        s.append(_current.endpoint.protocol());
+                        s.append(" connection to ");
+                        s.append(_current.connector.toString());
+                        _factory._instance.initializationData().logger.trace(_factory._instance.traceLevels().networkCat,
+                                                                             s.toString());
+                    }
+
+                    Ice.ConnectionI connection = _factory.createConnection(_current.connector.connect(), _current);
+                    connection.start(this);
+                }
+                catch(Ice.LocalException ex)
+                {
+                    if(_factory._instance.traceLevels().network >= 2)
+                    {
+                        StringBuffer s = new StringBuffer("failed to establish ");
+                        s.append(_current.endpoint.protocol());
+                        s.append(" connection to ");
+                        s.append(_current.connector.toString());
+                        s.append("\n");
+                        s.append(ex);
+                        _factory._instance.initializationData().logger.trace(_factory._instance.traceLevels().networkCat,
+                                                                             s.toString());
+                    }
+
+                    if(connectionStartFailedImpl(ex))
+                    {
+                        continue;
                     }
                 }
-
-                if(_factory._instance.traceLevels().network >= 2)
-                {
-                    StringBuffer s = new StringBuffer("trying to establish ");
-                    s.append(_current.endpoint.protocol());
-                    s.append(" connection to ");
-                    s.append(_current.connector.toString());
-                    _factory._instance.initializationData().logger.trace(_factory._instance.traceLevels().networkCat,
-                                                                         s.toString());
-                }
-
-                connection = _factory.createConnection(_current.connector.connect(), _current);
-                connection.start(this);
+                break;
             }
-            catch(Ice.LocalException ex)
+        }
+
+        private boolean
+        connectionStartFailedImpl(Ice.LocalException ex)
+        {
+            if(_observer != null)
             {
-                if(_factory._instance.traceLevels().network >= 2)
-                {
-                    StringBuffer s = new StringBuffer("failed to establish ");
-                    s.append(_current.endpoint.protocol());
-                    s.append(" connection to ");
-                    s.append(_current.connector.toString());
-                    s.append("\n");
-                    s.append(ex);
-                    _factory._instance.initializationData().logger.trace(_factory._instance.traceLevels().networkCat,
-                                                                         s.toString());
-                }
-
-                connectionStartFailed(connection, ex);
+                _observer.failed(ex.ice_id());
+                _observer.detach();
             }
+
+            _factory.handleConnectionException(ex, _hasMore || _iter.hasNext());
+            if(ex instanceof Ice.CommunicatorDestroyedException) // No need to continue.
+            {
+                _factory.finishGetConnection(_connectors, ex, this);
+            }
+            else if(_iter.hasNext()) // Try the next connector.
+            {
+                return true;
+            }
+            else
+            {
+                _factory.finishGetConnection(_connectors, ex, this);
+            }
+            return false;
         }
 
         private final OutgoingConnectionFactory _factory;

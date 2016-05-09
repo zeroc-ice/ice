@@ -518,17 +518,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         //
         ClassList allBases = p->allBases();
         StringList ids;
-#if defined(__IBMCPP__) && defined(NDEBUG)
-//
-// VisualAge C++ 6.0 does not see that ClassDef is a Contained,
-// when inlining is on. The code below issues a warning: better
-// than an error!
-//
-        transform(allBases.begin(), allBases.end(), back_inserter(ids),
-                  IceUtil::constMemFun<string,ClassDef>(&Contained::scoped));
-#else
         transform(allBases.begin(), allBases.end(), back_inserter(ids), IceUtil::constMemFun(&Contained::scoped));
-#endif
         StringList other;
         other.push_back(scoped);
         other.push_back("::Ice::Object");

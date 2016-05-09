@@ -2046,9 +2046,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
 #endif
 
     //
-    // No DSA support in Secure Transport.
+    // No DSA support in Secure Transport / AIX 7.1
     //
-#ifndef ICE_USE_SECURE_TRANSPORT
+#if !defined(ICE_USE_SECURE_TRANSPORT) && !defined(_AIX)
     {
 
     //
@@ -3214,6 +3214,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
 #endif
     }
 
+#ifndef _AIX
+    // On AIX 6.1, the default root certificates don't validate demo.zeroc.com
+
     cout << "testing system CAs... " << flush;
     {
         InitializationData initData;
@@ -3257,6 +3260,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         comm->destroy();
     }
     cout << "ok" << endl;
+#endif
 
     if(shutdown)
     {

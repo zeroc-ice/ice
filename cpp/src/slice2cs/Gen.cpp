@@ -415,18 +415,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p)
     StringList ids;
     ClassList bases = p->bases();
     bool hasBaseClass = !bases.empty() && !bases.front()->isInterface();
-
-#if defined(__IBMCPP__) && defined(NDEBUG)
-    //
-    // VisualAge C++ 6.0 does not see that ClassDef is a Contained,
-    // when inlining is on. The code below issues a warning: better
-    // than an error!
-    //
-    transform(allBases.begin(), allBases.end(), back_inserter(ids), constMemFun<string,ClassDef>(&Contained::scoped));
-#else
     transform(allBases.begin(), allBases.end(), back_inserter(ids), constMemFun(&Contained::scoped));
-#endif
-
     StringList other;
     other.push_back(p->scoped());
     other.push_back("::Ice::Object");
@@ -831,14 +820,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p)
     if(!allOps.empty() || (!p->isInterface() && !hasBaseClass))
     {
         StringList allOpNames;
-#if defined(__IBMCPP__) && defined(NDEBUG)
-        //
-        // See comment for transform above
-        //
-        transform(allOps.begin(), allOps.end(), back_inserter(allOpNames), constMemFun<string,Operation>(&Contained::name));
-#else
         transform(allOps.begin(), allOps.end(), back_inserter(allOpNames), constMemFun(&Contained::name));
-#endif
         allOpNames.push_back("ice_id");
         allOpNames.push_back("ice_ids");
         allOpNames.push_back("ice_isA");
@@ -5428,16 +5410,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     string scoped = p->scoped();
     ClassList allBases = p->allBases();
     StringList ids;
-#if defined(__IBMCPP__) && defined(NDEBUG)
-    //
-    // VisualAge C++ 6.0 does not see that ClassDef is a Contained,
-    // when inlining is on. The code below issues a warning: better
-    // than an error!
-    //
-    transform(allBases.begin(), allBases.end(), back_inserter(ids), ::IceUtil::constMemFun<string,ClassDef>(&Contained::scoped));
-#else
     transform(allBases.begin(), allBases.end(), back_inserter(ids), ::IceUtil::constMemFun(&Contained::scoped));
-#endif
     StringList other;
     other.push_back(p->scoped());
     other.push_back("::Ice::Object");

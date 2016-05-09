@@ -352,6 +352,9 @@
         {
             return g;
         },
+        opVoid: function()
+        {
+        },
         returnOptionalClass: function(req, current)
         {
             return new Test.OneOptional(53);

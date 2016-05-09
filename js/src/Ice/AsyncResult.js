@@ -38,7 +38,7 @@ var AsyncResult = Ice.Class(AsyncResultBase, {
         {
             return;
         }
-        
+
         this._completed = completedFn;
         this._is = null;
         this._os = com !== null ? new OutputStream(this._instance, Protocol.currentProtocolEncoding) : null;
@@ -148,7 +148,7 @@ var AsyncResult = Ice.Class(AsyncResultBase, {
     },
     __readEmptyParams: function()
     {
-        this._is.skipEmptyEncapsulation(null);
+        this._is.skipEmptyEncapsulation();
     },
     __readParamEncaps: function()
     {

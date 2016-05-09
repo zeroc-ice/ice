@@ -41,7 +41,15 @@ namespace IceInternal
             _instance = instance;
             _fd = fd;
             _state = StateConnected;
-            _desc = IceInternal.Network.fdToString(_fd);
+            try
+            {
+                _desc = IceInternal.Network.fdToString(_fd);
+            }
+            catch(Exception ex)
+            {
+                Network.closeSocketNoThrow(_fd);
+                throw ex;
+            }
             init();
         }
 
@@ -394,11 +402,7 @@ namespace IceInternal
             Debug.Assert(_fd != null);
             try
             {
-                _fd.Close();
-            }
-            catch(SocketException ex)
-            {
-                throw new Ice.SocketException(ex);
+                Network.closeSocket(_fd);
             }
             finally
             {

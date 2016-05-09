@@ -577,8 +577,7 @@ var IncomingAsync = Ice.Class({
     },
     readEmptyParams: function()
     {
-        this._current.encoding = new Ice.EncodingVersion();
-        this._is.skipEmptyEncapsulation(this._current.encoding);
+        this._current.encoding = this._is.skipEmptyEncapsulation();
     },
     readParamEncaps: function()
     {

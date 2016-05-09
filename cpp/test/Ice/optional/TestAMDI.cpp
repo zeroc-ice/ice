@@ -385,6 +385,13 @@ InitialI::opG_async(const ::Test::AMD_Initial_opGPtr& cb,
 }
 
 void
+InitialI::opVoid_async(const ::Test::AMD_Initial_opVoidPtr& cb,
+                       const Ice::Current&)
+{
+    cb->ice_response();
+}
+
+void
 InitialI::supportsRequiredParams_async(const ::Test::AMD_Initial_supportsRequiredParamsPtr& cb,
                                        const Ice::Current&)
 {

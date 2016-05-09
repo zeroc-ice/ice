@@ -161,6 +161,10 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
         ostringstream codeStream;
         IceUtilInternal::Output out(codeStream);
         out.setUseTab(false);
+        //
+        // Python magic comment to set the file encoding, it must be first or second line
+        //
+        out << "# -*- coding: utf-8 -*-\n";
         generate(u, all, checksum, includePaths, out);
         u->destroy();
 

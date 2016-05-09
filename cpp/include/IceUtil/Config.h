@@ -182,6 +182,16 @@
 #   include <TargetConditionals.h>
 #endif
 
+#if defined(_AIX) && defined(_LARGE_FILES)
+    // defines macros such as open that we want to use consistently everywhere
+#   include <fcntl.h>
+#endif
+
+#ifdef __IBMCPP__
+// TODO: better fix for this warning
+#   pragma report(disable, "1540-0198") // private inheritance without private keyword
+#endif
+
 //
 // The Ice version.
 //

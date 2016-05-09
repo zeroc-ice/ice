@@ -39,11 +39,21 @@ particular aspect of Ice.
 
 These are the changes since Ice 3.6.2.
 
+## General Changes
+
+- Fixed a bug in the un-marshalling code where passing optional input
+  parameters to an operation with no required input parameters would
+  cause an Ice::EncapsulationException to be thrown if the receiver
+  didn't expect the optional input parameters. The same applies for
+  passing optional output parameters to operations without required
+  output parameters.
+
+
 ## C++ Changes
 
 - Added support for archiving log files. The property Ice.LogFile.SizeMax
   controls the maximum size in bytes of log files; when a log file reaches
-  this size, the log file is renamed and a new log file is started. 
+  this size, the log file is renamed and a new log file is started.
   The Ice.LogFile.SizeMax property is set to 0 by default, which means the
   log file size is unlimited and a single log file is created.
 

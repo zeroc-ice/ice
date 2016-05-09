@@ -32,10 +32,18 @@ StreamSocket::StreamSocket(const ProtocolInstancePtr& instance,
 #ifndef ICE_USE_IOCP
     if(doConnect(_fd, _proxy ? _proxy->getAddress() : _addr, sourceAddr))
     {
-        _state = StateConnected;
+        _state = _proxy ? StateProxyWrite : StateConnected;
     }
 #endif
-    _desc = fdToString(_fd, _proxy, _addr);
+    try
+    {
+        _desc = fdToString(_fd, _proxy, _addr);
+    }
+    catch(const Ice::Exception&)
+    {
+        closeSocketNoThrow(_fd);
+        throw;
+    }
 }
 
 StreamSocket::StreamSocket(const ProtocolInstancePtr& instance, SOCKET fd) :
@@ -48,7 +56,15 @@ StreamSocket::StreamSocket(const ProtocolInstancePtr& instance, SOCKET fd) :
 #endif
 {
     init();
-    _desc = fdToString(fd);
+    try
+    {
+        _desc = fdToString(fd);
+    }
+    catch(const Ice::Exception&)
+    {
+        closeSocketNoThrow(fd);
+        throw;
+    }
 }
 
 StreamSocket::~StreamSocket()

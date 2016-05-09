@@ -383,8 +383,7 @@ final public class Incoming extends IncomingBase implements Ice.Request
     public final void
     readEmptyParams()
     {
-        _current.encoding = new Ice.EncodingVersion();
-        _is.skipEmptyEncapsulation(_current.encoding);
+        _current.encoding = _is.skipEmptyEncapsulation();
     }
 
     public final byte[]

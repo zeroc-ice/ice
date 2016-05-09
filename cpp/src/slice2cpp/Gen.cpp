@@ -2726,16 +2726,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 
         ClassList allBases = p->allBases();
         StringList ids;
-#if defined(__IBMCPP__) && defined(NDEBUG)
-//
-// VisualAge C++ 6.0 does not see that ClassDef is a Contained,
-// when inlining is on. The code below issues a warning: better
-// than an error!
-//
-        transform(allBases.begin(), allBases.end(), back_inserter(ids), ::IceUtil::constMemFun<string,ClassDef>(&Contained::scoped));
-#else
         transform(allBases.begin(), allBases.end(), back_inserter(ids), ::IceUtil::constMemFun(&Contained::scoped));
-#endif
         StringList other;
         other.push_back(p->scoped());
         other.push_back("::Ice::Object");
@@ -2849,16 +2840,9 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
         if(!allOps.empty())
         {
             StringList allOpNames;
-#if defined(__IBMCPP__) && defined(NDEBUG)
-//
-// See comment for transform above
-//
-            transform(allOps.begin(), allOps.end(), back_inserter(allOpNames),
-                      ::IceUtil::constMemFun<string,Operation>(&Contained::name));
-#else
             transform(allOps.begin(), allOps.end(), back_inserter(allOpNames),
                       ::IceUtil::constMemFun(&Contained::name));
-#endif
+	    
             allOpNames.push_back("ice_id");
             allOpNames.push_back("ice_ids");
             allOpNames.push_back("ice_isA");

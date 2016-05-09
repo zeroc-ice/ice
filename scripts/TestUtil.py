@@ -128,7 +128,7 @@ def isSparc():
         return False
 
 def isAIX():
-    return sys.platform in ['aix4', 'aix5']
+    return sys.platform.startswith("aix")
 
 def isDarwin():
     return sys.platform == "darwin"
@@ -341,6 +341,9 @@ toplevel = path[0]
 #
 if isWin32():
     if os.environ.get("PLATFORM", "").upper() == "X64":
+        x64 = True
+elif isAIX():
+    if os.environ.get("OBJECT_MODE", "") == "64":
         x64 = True
 else:
     p = subprocess.Popen("uname -m", shell = True, stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
@@ -1925,7 +1928,10 @@ def getTestEnv(lang, testdir):
         if lang == "java":
             addLdPath(os.path.join(getIceDir("cpp"), "bin", "x64" if x64 else ""), env) # Add bin for db53_vc100.dll
         addLdPath(getCppLibDir(lang), env)
+    elif isAIX():
+        addLdPath(getCppLibDir(lang), env)
     elif lang in ["python", "ruby", "php", "js", "objective-c"]:
+        # C++ binaries use rpath $ORIGIN or similar to find the Ice libraries 
         addLdPath(getCppLibDir(lang), env)
 
     if lang == "java":

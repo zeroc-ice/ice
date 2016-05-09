@@ -77,11 +77,14 @@ public:
 //
 // Unknown sliced object holds instance of unknown type.
 //
-class ICE_API UnknownSlicedObject
-#ifdef ICE_CPP11_MAPPING
-    : public ValueHelper<UnknownSlicedObject, Value>
+class ICE_API UnknownSlicedObject :
+#if defined(ICE_CPP11_MAPPING)
+    public ValueHelper<UnknownSlicedObject, Value>
+#elif defined(__IBMCPP__)
+// xlC does not handle properly the public/private multiple inheritance from Object
+    public IceInternal::GCObject
 #else
-    : public virtual Object, private IceInternal::GCObject
+    virtual public Object, private IceInternal::GCObject
 #endif
 {
 public:
