@@ -11,7 +11,7 @@ $(project)_libraries	= Ice
 
 Ice_targetdir		:= $(libdir)
 Ice_dependencies	:= IceUtil
-Ice_cppflags  		:= -DICE_API_EXPORTS
+Ice_cppflags[shared]  	:= -DICE_API_EXPORTS
 Ice_sliceflags		:= --include-dir Ice --dll-export ICE_API
 Ice_libs		:= bz2
 Ice_system_libs		:= $(ICE_OS_LIBS)

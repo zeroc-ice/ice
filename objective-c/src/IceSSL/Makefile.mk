@@ -10,7 +10,8 @@
 $(project)_libraries		= IceSSLObjC
 
 IceSSLObjC_targetdir		:= $(libdir)
-IceSSLObjC_cppflags  		:= -DICESSL_API_EXPORTS -Isrc/Ice -I$(top_srcdir)/cpp/include -I$(top_srcdir)/cpp/include/generated
+IceSSLObjC_cppflags  		:= -Isrc/Ice -I$(top_srcdir)/cpp/include -I$(top_srcdir)/cpp/include/generated
+IceSSLObjC_cppflags[shared]	:= -DICESSL_API_EXPORTS
 IceSSLObjC_sliceflags		:= --include-dir objc/IceSSL --dll-export ICESSL_API
 IceSSLObjC_dependencies 	:= IceObjC Ice IceUtil
 IceSSLObjC_slicedir		:= $(slicedir)/IceSSL

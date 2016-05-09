@@ -134,5 +134,9 @@ endef
 define create-cpp-test-project
 $1_srcext		:= cpp
 $1_dependencies 	:= $$(or $$($1_dependencies),TestCommon Ice IceUtil)
+
+# Also link with IceSSL and IceBT (Debian/Ubuntu) when compiling with the static configuration
+$1_dependencies[static]	:= $$(or $$($1_dependencies[static]),IceSSL $(if $(filter debian ubuntu,$(linux_id)),IceBT))
+
 $(create-test-project)
 endef

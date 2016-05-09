@@ -20,7 +20,7 @@ namespace IceInternal
 class ICE_API Connector : public ::IceUtil::Shared
 {
 public:
-    
+
     virtual TransceiverPtr connect() = 0;
 
     virtual Ice::Short type() const = 0;

@@ -76,7 +76,8 @@ define make-objects
 # other modules are built first.
 #
 ifeq ($(wildcard $3/*.d),)
-$(addprefix $3/,$(call source-to-object,$4)): $(addprefix $2/,$(call generated-to-source,$4,$($7_targetext))) $($5_targets)
+$(addprefix $3/,$(call source-to-object,$4)): $(addprefix $2/,$(call generated-to-source,$4,$($7_targetext))) \
+						$(foreach d,$5,$($d_targets))
 endif
 
 $3/%.d: ;
@@ -287,7 +288,11 @@ define create-component-with-config-targets
 #
 # Transform the dependencies to [platform-configuration] specific dependencies.
 #
-$5_dependencies	= $$(foreach d,$$($2_dependencies),$$(call make-dependency,$$d,$2,$3,$4))
+$5_dependencies = $$(foreach d,$$(call platform-and-config-var,dependencies,$2,$3,$4),$$(call make-dependency,$$d,$2,$3,$4))
+$5_dependencies	+= $$(foreach d,$$($2_dependencies),$$(call make-dependency,$$d,$2,$3,$4))
+
+$5_libs		:= $$($2_libs)
+$5_system_libs	:= $$($2_system_libs)
 
 #
 # The installation directory

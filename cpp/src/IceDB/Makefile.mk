@@ -12,7 +12,7 @@ $(project)_libraries	= IceDB
 IceDB_targetdir		:= $(libdir)
 IceDB_dependencies  	:= Ice IceUtil
 IceDB_libs          	:= lmdb
-IceDB_cppflags      	:= -DICE_DB_API_EXPORTS
+IceDB_cppflags[shared] := -DICE_DB_API_EXPORTS
 
 projects += $(project)
 
