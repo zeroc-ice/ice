@@ -31,7 +31,7 @@ include $(shell find $(lang_srcdir) -name Makefile.mk)
 # Make the projects (this expands all the build configuration and defines rules for all
 # the components).
 #
-$(foreach p,$(projects),$(eval $(call make-project,$(p))))
+$(call make-projects,$(projects))
 
 #
 # We use a separate Makefile for building the python packages because their building

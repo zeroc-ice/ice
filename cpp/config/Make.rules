@@ -134,5 +134,5 @@ endef
 define create-cpp-test-project
 $1_srcext		:= cpp
 $1_dependencies 	:= $$(or $$($1_dependencies),TestCommon Ice IceUtil)
-$(make-test)
+$(create-test-project)
 endef

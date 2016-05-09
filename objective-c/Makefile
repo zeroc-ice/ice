@@ -24,7 +24,7 @@ $(eval $(call load-dependencies,$(addprefix $(top_srcdir)/cpp/src/,IceUtil Slice
 #
 projects :=
 include $(shell find $(lang_srcdir)/src -name Makefile.mk)
-$(foreach p,$(projects),$(eval $(call make-objc-src-project,$(p)))) # Make the source projects
+$(call make-projects,$(projects),make-objc-src-project)
 
 #
 # Now, create and load test projects.
@@ -33,5 +33,5 @@ projects :=
 tests := $(tests-without-project-makefile)
 include $(shell find $(lang_srcdir)/test -name Makefile.mk)
 $(foreach t,$(tests),$(eval $(call create-objc-test-project,$(t))))
-$(foreach p,$(projects),$(eval $(call make-objc-test-project,$(p))))
+$(call make-projects,$(projects),make-objc-test-project)
 

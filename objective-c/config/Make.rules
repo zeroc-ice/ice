@@ -92,5 +92,5 @@ define create-objc-test-project
 $1_srcext		:= m
 $1_dependencies 	:= $$(or $$($1_dependencies),TestCommonObjC IceObjC)
 $1_cppflags		+= -Itest/Ice
-$(make-test)
+$(create-test-project)
 endef

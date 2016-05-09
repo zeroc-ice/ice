@@ -32,7 +32,7 @@ include $(shell find $(lang_srcdir) -name Makefile.mk)
 # Make the projects (this expands all the build configuration and defines rules for all
 # the components).
 #
-$(foreach p,$(projects),$(eval $(call make-project,$(p))))
+$(call make-projects,$(projects))
 
 install:: | $(DESTDIR)$(install_rubydir)
 	$(E) "Installing generated code"

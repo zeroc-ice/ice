@@ -36,7 +36,7 @@ endif
 # Make the projects (this expands all the build configuration and defines rules for all
 # the components).
 #
-$(foreach p,$(projects),$(eval $(call make-project,$(p))))
+$(call make-projects,$(projects))
 
 install:: | $(DESTDIR)$(install_phpdir)
 	$(E) "Installing generated code"

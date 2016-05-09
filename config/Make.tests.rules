@@ -37,7 +37,7 @@ test-serveramd-sources 	= ServerAMD.$1 *TestAMD.ice TestAMDI.$1
 test-collocated-sources = Collocated.$1
 
 #
-# $(call make-test,test)
+# $(call create-test-project,test)
 #
 # Defines a project for the given test.
 #
@@ -58,7 +58,7 @@ test-collocated-sources = Collocated.$1
 # <name>_<target>_sources
 # <name>_<target>_sources
 #
-define make-test
+define create-test-project
 
 $1_srcdir	:= $1
 $1_programs	:= $$(or $$($1_programs),$(test-programs))
