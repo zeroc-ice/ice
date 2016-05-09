@@ -622,13 +622,30 @@ namespace Ice
         public EncodingVersion skipEmptyEncapsulation()
         {
             int sz = readInt();
-            if(sz != 6)
+            if(sz < 6)
             {
-                throw new EncapsulationException();
+                throw new Ice.EncapsulationException();
+            }
+            if(sz - 4 > _buf.b.remaining())
+            {
+                throw new Ice.UnmarshalOutOfBoundsException();
             }
 
-            EncodingVersion encoding = new EncodingVersion();
+            Ice.EncodingVersion encoding = new Ice.EncodingVersion();
             encoding.read__(this);
+            if(encoding.Equals(Ice.Util.Encoding_1_0))
+            {
+                if(sz != 6)
+                {
+                    throw new Ice.EncapsulationException();
+                }
+            }
+            else
+            {
+                // Skip the optional content of the encapsulation if we are expecting an
+                // empty encapsulation.
+                _buf.b.position(_buf.b.position() + sz - 6);
+            }
             return encoding;
         }
 

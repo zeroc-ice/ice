@@ -634,28 +634,34 @@ public class InputStream
      *
      * @param encoding The encapsulation's encoding version.
      **/
-    public void skipEmptyEncapsulation(EncodingVersion encoding)
+    public Ice.EncodingVersion skipEmptyEncapsulation()
     {
         int sz = readInt();
-        if(sz != 6)
+        if(sz < 6)
         {
-            throw new EncapsulationException();
+            throw new Ice.EncapsulationException();
+        }
+        if(sz - 4 > _buf.b.remaining())
+        {
+            throw new Ice.UnmarshalOutOfBoundsException();
         }
 
-        final int pos = _buf.b.position();
-        if(pos + 2 > _buf.size())
+        Ice.EncodingVersion encoding = new Ice.EncodingVersion();
+        encoding.ice_read(this);
+        if(encoding.equals(Ice.Util.Encoding_1_0))
         {
-            throw new UnmarshalOutOfBoundsException();
-        }
-
-        if(encoding != null)
-        {
-            encoding.ice_read(this);
+            if(sz != 6)
+            {
+                throw new Ice.EncapsulationException();
+            }
         }
         else
         {
-            _buf.b.position(pos + 2);
+            // Skip the optional content of the encapsulation if we are expecting an
+            // empty encapsulation.
+            _buf.b.position(_buf.b.position() + sz - 6);
         }
+        return encoding;
     }
 
     /**
