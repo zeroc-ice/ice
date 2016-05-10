@@ -11,7 +11,7 @@ top_srcdir	= ..
 
 !include $(top_srcdir)\config\Make.rules.mak.php
 
-SUBDIRS		= IcePHP
+SUBDIRS		= php5
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \
