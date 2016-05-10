@@ -46,6 +46,8 @@ else
     CXXFLAGS	+= -g
 endif
 
+nodeprecatedwarnings-cppflags := -Wno-deprecated-declarations
+
 loader_path     = @loader_path
 
 mklib 		= $(or $($3_ar),$(AR)) -static -no_warning_for_no_symbols -o $1 $2

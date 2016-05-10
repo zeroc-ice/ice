@@ -92,6 +92,8 @@ else
     CXXFLAGS    += -g
 endif
 
+nodeprecatedwarnings-cppflags := -Wno-deprecated-declarations
+
 loader_path     = \$$ORIGIN
 
 mklib           = $(or $($3_ar),$(AR)) cr $1 $2

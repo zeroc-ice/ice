@@ -13,6 +13,6 @@ IcePatch2_targetdir	:= $(libdir)
 IcePatch2_dependencies	:= Ice
 IcePatch2_libs		:= bz2
 IcePatch2_sliceflags	:= --include-dir IcePatch2 --dll-export ICE_PATCH2_API
-IcePatch2_cppflags	:= -Wno-deprecated-declarations
+IcePatch2_cppflags	:= $(nodeprecatedwarnings-cppflags)
 
 projects += $(project)
