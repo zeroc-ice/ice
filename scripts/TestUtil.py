@@ -946,8 +946,11 @@ if isWin32():
 
 sslConfigTree["python"] = sslConfigTree["cpp"]
 sslConfigTree["ruby"] = sslConfigTree["cpp"]
-sslConfigTree["php"] = sslConfigTree["cpp"]
+sslConfigTree["php"] = sslConfigTree["cpp"].copy()
 sslConfigTree["objective-c"] = sslConfigTree["cpp"]
+
+if isUbuntu():
+    sslConfigTree["php"]["client"] += " --IceSSL.InitOpenSSL=0"
 
 def getDefaultMapping():
     """Try to guess the language mapping from the current path"""
@@ -1931,7 +1934,7 @@ def getTestEnv(lang, testdir):
     elif isAIX():
         addLdPath(getCppLibDir(lang), env)
     elif lang in ["python", "ruby", "php", "js", "objective-c"]:
-        # C++ binaries use rpath $ORIGIN or similar to find the Ice libraries 
+        # C++ binaries use rpath $ORIGIN or similar to find the Ice libraries
         addLdPath(getCppLibDir(lang), env)
 
     if lang == "java":
