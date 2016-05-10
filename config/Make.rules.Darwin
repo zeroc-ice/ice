@@ -49,7 +49,7 @@ endif
 loader_path     = @loader_path
 
 mklib 		= $(or $($3_ar),$(AR)) -static -no_warning_for_no_symbols -o $1 $2
-mkshlib   	= $(or $($5_cxx),$(CXX)) -dynamiclib $(LDFLAGS) -o $1 $(if $3,-install_name @rpath/$3) $2 $4
+mkshlib   	= $(or $($5_cxx),$(CXX)) -dynamiclib $(LDFLAGS) -o $1 $(if $3,-install_name @rpath/$(call mksoname,$3)) $2 $4
 
 mklibname 	= lib$(1).a
 mksoname      	= lib$(1).$(soversion).dylib

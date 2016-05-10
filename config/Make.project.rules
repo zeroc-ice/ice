@@ -202,7 +202,7 @@ define make-shared-library
 $2/$(call mkshlibfilename,$1): $3 $(foreach d,$4,$($d_targets))
 	$(E) "Linking [$6-$7] $$@"
 	$(Q)$(MKDIR) -p $2
-	$(Q)$(call mkshlib,$$@,$(strip $3),$(call mksoname,$1),$(strip $5),$6)
+	$(Q)$(call mkshlib,$$@,$(strip $3),$1,$(strip $5),$6)
 
 ifneq ($(filter-out undefined,$(origin mksoname)),)
 $2/$(call mksoname,$1): $2/$(call mkshlibfilename,$1)

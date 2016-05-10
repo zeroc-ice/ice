@@ -95,7 +95,7 @@ endif
 loader_path     = \$$ORIGIN
 
 mklib           = $(or $($3_ar),$(AR)) cr $1 $2
-mkshlib         = $(or $($5_cxx),$(CXX)) -shared $(LDFLAGS) -o $1 $(if $3,-Wl$(comma)-h$(comma)$3) $2 $4
+mkshlib         = $(or $($5_cxx),$(CXX)) -shared $(LDFLAGS) -o $1 $(if $3,-Wl$(comma)-h$(comma)$(call mksoname,$3)) $2 $4
 
 mklibname       = lib$(1).a
 mksoname        = lib$(1).so.$(soversion)
