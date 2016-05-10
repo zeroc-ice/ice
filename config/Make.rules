@@ -130,8 +130,8 @@ lmdb_home 		:= $(LMDB_HOME)
 define make-thirdparty
 ifneq ($($1_home),)
 # Check for 3rd party libraries either in home/lib<platform specific subdir> or home/lib
-$1_libdir	?= $$(if $$(wildcard $$($1_home)/lib$$(call platform-var,installdir,$$1,$$2,$$3)),\
-			$$($1_home)/lib$$(call platform-var,installdir,$$1,$$2,$$3),$$($1_home)/lib)
+$1_libdir	?= $$(strip $$(if $$(wildcard $$($1_home)/lib$$(call platform-var,installdir,$$1,$$2,$$3)),\
+			$$($1_home)/lib$$(call platform-var,installdir,$$1,$$2,$$3),$$($1_home)/lib))
 $1_includedir	?= $$($1_home)/include
 endif
 $1_ldflags	?= -l$1

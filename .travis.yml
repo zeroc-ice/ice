@@ -51,7 +51,7 @@ install:
 - CPPFLAGS=-fPIC make -C ${LMDB_BUILD_DIR}/libraries/liblmdb install prefix=${LMDB_HOME}
 - rm -f ${LMDB_HOME}/lib/liblmdb.so
 - pip install --user passlib
-- make -C ${WORK_DIR} -j3
+- make -C ${WORK_DIR} -j3 V=1
 
 script:
 - cd ${WORK_DIR}
