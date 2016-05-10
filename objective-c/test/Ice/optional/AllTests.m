@@ -636,8 +636,8 @@ optionalAllTests(id<ICECommunicator> communicator)
 
     os = [ICEUtil createOutputStream:communicator];
     [os startEncapsulation];
-    [ICEIntHelper writeOpt:@15 stream:os tag:1];
-    [ICEStringHelper writeOpt:@"test" stream:os tag:2];
+    [ICEIntHelper writeOptional:@15 stream:os tag:1];
+    [ICEStringHelper writeOptional:@"test" stream:os tag:2];
     [os endEncapsulation];
     inEncaps = [os finished];
     test([initial ice_invoke:@"opVoid" mode:ICENormal inEncaps:inEncaps outEncaps:&outEncaps]);
