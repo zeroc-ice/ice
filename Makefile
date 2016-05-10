@@ -13,7 +13,7 @@ include $(top_srcdir)/config/Make.rules
 
 define make-global-rule
 $1::
-	@for subdir in $2; \
+	+@for subdir in $2; \
 	do \
 	    echo "making all in $$$$subdir"; \
 	    ( cd $$$$subdir && $(MAKE) $1 ) || exit 1; \

@@ -37,17 +37,5 @@ $(call make-projects,$(projects))
 # We use a separate Makefile for building the python packages because their building
 # requires .NOTPARALLEL
 #
-all::
-	$(Q)$(MAKE) -C python all
-
-generate-srcs::
-	$(Q)$(MAKE) -C python generate-srcs
-
-clean::
-	$(Q)$(MAKE) -C python clean
-
-distclean::
-	$(Q)$(MAKE) -C python clean
-
-install::
-	$(Q)$(MAKE) -C python install
+all generate-srcs clean distclean install::
+	+$(Q)$(MAKE) -C python $@
