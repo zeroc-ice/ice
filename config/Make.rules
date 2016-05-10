@@ -192,7 +192,19 @@ platform_targetdir	?= /$2
 platform_installdir	?=
 platform_dependency	?= $2
 
+#
+# Other variables which can be overriden by Make.rules.<platform>
+#
+
+# $(call depend_cppflags,$1=dependencyfile,$2=targetfile)
+depend-cppflags		?= -MT $2 -MMD -MP -MF $1
+
+# $(call rpath-ldflag,$1=rpath)
+rpath-ldflag 		?= -Wl,-rpath,$1
+
+#
 # The projects and tests variable are used to load projects/tests in Makefile.mk fragments
+#
 projects :=
 tests :=
 
@@ -250,8 +262,6 @@ get-all-deps		= $(call unique,$(if $($1_dependencies),\
 #
 # Helpers to compute cppflags/ldflags for dependencies, libraries and system libraries
 #
-rpath-ldflag 		?= -Wl,-rpath,$1
-
 ifneq ($(embedded_runpath),no)
 ifeq ($(embedded_runpath_prefix),)
 # Add rpath relative to the path of the loader if linking with library from different directory.

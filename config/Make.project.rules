@@ -94,7 +94,7 @@ ifneq ($(filter %.ice,$4),)
 $3/%.o: $2/%.$($7_targetext)
 $3/%.o: $2/%.$($7_targetext) $3/%.$($7_targetext).d
 	$(E) "Compiling [$8-$9] $$<"
-	$(Q)$(or $($8_cxx),$(platform_cxx)) $(strip $6) -MT $$@ -MMD -MP -MF $3/$$*.Td $(CXXFLAGS) $(CPPFLAGS) -c $$< -o $$@
+	$(Q)$(or $($8_cxx),$(platform_cxx)) $(strip $6) $(call depend-cppflags,$3/$$*.Td,$$@) $(CXXFLAGS) $(CPPFLAGS) -c $$< -o $$@
 	$(Q)$(MV) $3/$$*.Td $3/$$*.$($7_targetext).d
 endif
 
@@ -103,7 +103,7 @@ ifneq ($(filter %.cpp,$4),)
 $3/%.o: $1/%.cpp
 $3/%.o: $1/%.cpp $3/%.cpp.d
 	$(E) "Compiling [$8-$9] $$<"
-	$(Q)$(or $($8_cxx),$(platform_cxx)) $(strip $6) -MT $$@ -MMD -MP -MF $3/$$*.Td $(CXXFLAGS) $(CPPFLAGS) -c $$< -o $$@
+	$(Q)$(or $($8_cxx),$(platform_cxx)) $(strip $6) $(call depend-cppflags,$3/$$*.Td,$$@) $(CXXFLAGS) $(CPPFLAGS) -c $$< -o $$@
 	$(Q)$(MV) $3/$$*.Td $3/$$*.cpp.d
 endif
 
@@ -112,7 +112,7 @@ ifneq ($(filter %.mm,$4),)
 $3/%.o: $1/%.mm
 $3/%.o: $1/%.mm $3/%.mm.d
 	$(E) "Compiling [$8-$9] $$<"
-	$(Q)$(or $($8_cxx),$(platform_cxx)) $(strip $6) -MT $$@ -MMD -MP -MF $3/$$*.Td $(CXXFLAGS) $(CPPFLAGS) -c $$< -o $$@
+	$(Q)$(or $($8_cxx),$(platform_cxx)) $(strip $6) $(call depend-cppflags,$3/$$*.Td,$$@) $(CXXFLAGS) $(CPPFLAGS) -c $$< -o $$@
 	$(Q)$(MV) $3/$$*.Td $3/$$*.mm.d
 endif
 
@@ -121,7 +121,7 @@ ifneq ($(filter %.m,$4),)
 $3/%.o: $1/%.m
 $3/%.o: $1/%.m $3/%.m.d
 	$(E) "Compiling [$8-$9] $$<"
-	$(Q)$(or $($8_cxx),$(platform_cxx)) $(strip $6) -MT $$@ -MMD -MP -MF $3/$$*.Td $(CXXFLAGS) $(CPPFLAGS) -c $$< -o $$@
+	$(Q)$(or $($8_cxx),$(platform_cxx)) $(strip $6) $(call depend-cppflags,$3/$$*.Td,$$@) $(CXXFLAGS) $(CPPFLAGS) -c $$< -o $$@
 	$(Q)$(MV) $3/$$*.Td $3/$$*.m.d
 endif
 
@@ -204,11 +204,16 @@ $2/$(call mkshlibfilename,$1): $3 $(foreach d,$4,$($d_targets))
 	$(Q)$(MKDIR) -p $2
 	$(Q)$(call mkshlib,$$@,$(strip $3),$(call mksoname,$1),$(strip $5),$6)
 
+$(warning $(filter-out undefined,$(origin mksoname)))
+ifneq ($(filter-out undefined,$(origin mksoname)),)
 $2/$(call mksoname,$1): $2/$(call mkshlibfilename,$1)
 	@$(RM) $$@ ; ln -s $$(<F) $$@
 
+ifneq ($(filter-out undefined,$(origin mkshlibname)),)
 $2/$(call mkshlibname,$1): $2/$(call mksoname,$1)
 	@$(RM) $$@ ; ln -s $$(<F) $$@
+endif
+endif
 
 endef
 
@@ -220,16 +225,24 @@ $(DESTDIR)$3/$(call mkshlibfilename,$1): $2/$(call mkshlibfilename,$1) | $(DESTD
 	$(Q)$(INSTALL) $$< $(DESTDIR)$3
 	$(Q)$(CHMOD) a+rx $$@
 
+ifneq ($(filter-out undefined,$(origin mksoname)),)
 $(DESTDIR)$3/$(call mksoname,$1): $(DESTDIR)$3/$(call mkshlibfilename,$1) $2/$(call mksoname,$1)
 	@$(RM) $$@ ; ln -s $$(<F) $$@
 
+ifneq ($(filter-out undefined,$(origin mkshlibname)),)
 $(DESTDIR)$3/$(call mkshlibname,$1): $(DESTDIR)$3/$(call mksoname,$1) $2/$(call mkshlibname,$1)
 	@$(RM) $$@ ; ln -s $$(<F) $$@
+endif
+endif
 
 endef
 
 # $(call get-shared-library-targets,$1=libname,$2=libdir)
-get-shared-library-targets 	= $(addprefix $2/,$(call mkshlibfilename,$1) $(call mksoname,$1) $(call mkshlibname,$1))
+get-shared-library-targets 	= $(addprefix $2/,\
+				      $(call mkshlibfilename,$1) \
+				      $(if $(filter-out undefined,$(origin mksoname)),$(call mksoname,$1)) \
+				      $(if $(filter-out undefined,$(origin mkshlibname)),$(call mkshlibname,$1)))
+
 
 #
 # $(call make-shared-module,$1=libname,$2=libdir,$3=objects,$4=dependencies,$5=ldflags,$6=platform,$7=config)
