@@ -1067,7 +1067,7 @@ namespace IceInternal
             {
                 if(_observer != null)
                 {
-                    _observer.failed(ex.ice_name());
+                    _observer.failed(ex.ice_id());
                     _observer.detach();
                 }
                 _factory.handleConnectionException(ex, _hasMore || _iter < _connectors.Count);
