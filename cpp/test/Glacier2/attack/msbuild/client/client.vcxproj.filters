@@ -105,9 +105,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\TestI.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="x64\Cpp11-Debug\Backend.h">
       <Filter>Header Files\x64\Cpp11-Debug</Filter>
     </ClInclude>
