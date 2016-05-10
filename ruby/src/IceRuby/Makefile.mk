@@ -23,5 +23,12 @@ IceRuby_extra_sources   := $(filter-out %Util.cpp %Python.cpp %DotNetNames.cpp,\
 			   $(top_srcdir)/cpp/src/Slice/SliceUtil.cpp \
 			   $(top_srcdir)/cpp/src/Slice/RubyUtil.cpp
 
+
+#
+# On the default platform, always write the module in the ruby directory.
+#
+$(foreach p,$(supported-platforms),$(eval $$p_targetdir[IceRuby] := /$$p))
+$(firstword $(supported-platforms))_targetdir[IceRuby] :=
+
 projects += $(project)
 srcs:: $(project)

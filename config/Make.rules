@@ -306,8 +306,12 @@ relpathfromdir 	= $(if $(findstring /,$1),$(call relpathfromdir,$(call dirname,$
 # This also supports default value for platform/configuration variables. So if
 # osx_objdir isn't defined, we'll use the default value platform_objdir.
 #
-var-or-dflt		= $(call $(if $(filter undefined,$(origin $1_$3)),$2_$3,$1_$3),$4,$5,$6,$7,$8) \
-			  $(call $4_$3[$1],$3,$4,$5,$6,$7) $(call $($4_project)_$3[$1],$3,$4,$5,$6,$7)
+var-or-dflt		= $(call $(if $(filter-out undefined,$(origin $1_$3[$4])),$1_$3[$4],\
+				 $(if $(filter-out undefined,$(origin $2_$3[$4])),$2_$3[$4],\
+				 $(if $(filter-out undefined,$(origin $1_$3[$($4_project)])),$1_$3[$($4_project)],\
+				 $(if $(filter-out undefined,$(origin $2_$3[$($4_project)])),$2_$3[$($4_project)],\
+				 $(if $(filter-out undefined,$(origin $1_$3)),$1_$3,\
+				 $2_$3))))),$4,$5,$6,$7,$8)
 platform-var		= $(strip $(foreach c,$3,$(call var-or-dflt,$c,platform,$1,$2,$3,$4,$5)))
 config-var		= $(strip $(foreach c,$(subst -,$(space),$4),$(call var-or-dflt,$c,config,$1,$2,$3,$4,$5,$c)))
 platform-and-config-var = $(strip $(platform-var) $(config-var))

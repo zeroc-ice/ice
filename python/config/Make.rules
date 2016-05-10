@@ -31,12 +31,6 @@ python_cppflags		:= -I$(PYTHON_INCLUDE_DIR)
 python_ldflags		:= -L$(PYTHON_LIB_DIR) -l$(PYTHON_LIB_NAME)
 
 #
-# On the default platform, always write the module in the python directory.
-#
-$(foreach p,$(supported-platforms),$(eval $$p_targetdir := /$$p))
-$(firstword $(supported-platforms))_targetdir :=
-
-#
 # Python installation directory
 #
 install_pythondir  = $(if $(usr_dir_install),$(shell $(PYTHON) $(lang_srcdir)/config/install_dir),$(prefix)/python)

@@ -24,9 +24,9 @@ endif
 #
 # On the default platform, always write/install the module in the lib directory.
 #
-$(foreach p,$(supported-platforms),$(eval $$p_targetdir := /$$p))
-$(firstword $(supported-platforms))_targetdir :=
-$(firstword $(supported-platforms))_installdir :=
+$(foreach p,$(supported-platforms),$(eval $$p_targetdir[IcePHP] := /$$p))
+$(firstword $(supported-platforms))_targetdir[IcePHP] :=
+$(firstword $(supported-platforms))_installdir[IcePHP] :=
 
 #
 # PHP installation directory

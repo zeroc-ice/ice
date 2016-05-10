@@ -13,7 +13,8 @@ IcePHP_target		:= php-module
 IcePHP_targetname	:= IcePHP
 IcePHP_targetdir	:= $(lang_srcdir)/lib
 IcePHP_installdir	:= $(install_phplibdir)
-IcePHP_cppflags  	:= -I$(project) -I$(top_srcdir)/cpp/include -I$(top_srcdir)/cpp/include/generated -I$(top_srcdir)/cpp/src -DSLICE_API_EXPORTS $(php_cppflags)
+IcePHP_cppflags  	:= -I$(project) -I$(top_srcdir)/cpp/include -I$(top_srcdir)/cpp/include/generated \
+			   -I$(top_srcdir)/cpp/src -DSLICE_API_EXPORTS $(php_cppflags)
 IcePHP_ldflags		:= $(php_ldflags)
 IcePHP_dependencies	:= IceDiscovery IceLocatorDiscovery IceSSL Ice
 IcePHP_libs             := mcpp
