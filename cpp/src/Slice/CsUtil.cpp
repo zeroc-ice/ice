@@ -36,7 +36,7 @@ lookupKwd(const string& name, int baseTypes, bool mangleCasts = false)
     //
     static const string keywordList[] =
     {
-        "abstract", "as", "async", "away", "base", "bool", "break", "byte", "case", "catch", "char", "checked", "class", "const",
+        "abstract", "as", "async", "await", "base", "bool", "break", "byte", "case", "catch", "char", "checked", "class", "const",
         "continue", "decimal", "default", "delegate", "do", "double", "else", "enum", "event", "explicit", "extern",
         "false", "finally", "fixed", "float", "for", "foreach", "goto", "if", "implicit", "in", "int", "interface",
         "internal", "is", "lock", "long", "namespace", "new", "null", "object", "operator", "out", "override",
