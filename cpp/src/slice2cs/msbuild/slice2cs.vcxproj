@@ -102,12 +102,16 @@
   <ItemGroup>
     <ClCompile Include="..\Gen.cpp" />
     <ClCompile Include="..\Main.cpp" />
+    <ClCompile Include="..\CsUtil.cpp" />
+    <ClCompile Include="..\DotNetNames.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\Slice2Cs.rc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Gen.h" />
+    <ClInclude Include="..\CsUtil.h" />
+    <ClInclude Include="..\DotNetNames.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -10,7 +10,7 @@
 #ifndef GEN_H
 #define GEN_H
 
-#include <Slice/CsUtil.h>
+#include <CsUtil.h>
 
 namespace Slice
 {

@@ -261,19 +261,19 @@ namespace Ice
         }
 
         /// <summary>
-        /// Marks the start of an Ice object.
+        /// Marks the start of a class instance.
         /// </summary>
-        /// <param name="data">Preserved slices for this object, or null.</param>
-        public void startObject(Ice.SlicedData data)
+        /// <param name="data">Preserved slices for this instance, or null.</param>
+        public void startValue(Ice.SlicedData data)
         {
             Debug.Assert(_encapsStack != null && _encapsStack.encoder != null);
-            _encapsStack.encoder.startInstance(SliceType.ObjectSlice, data);
+            _encapsStack.encoder.startInstance(SliceType.ValueSlice, data);
         }
 
         /// <summary>
-        /// Marks the end of an Ice object.
+        /// Marks the end of a class instance.
         /// </summary>
-        public void endObject()
+        public void endValue()
         {
             Debug.Assert(_encapsStack != null && _encapsStack.encoder != null);
             _encapsStack.encoder.endInstance();
@@ -403,7 +403,7 @@ namespace Ice
         }
 
         /// <summary>
-        /// Marks the start of a new slice for an Ice object or user exception.
+        /// Marks the start of a new slice for a class instance or user exception.
         /// </summary>
         /// <param name="typeId">The Slice type ID corresponding to this slice.</param>
         /// <param name="compactId">The Slice compact type ID corresponding to this slice or -1 if no compact ID
@@ -416,7 +416,7 @@ namespace Ice
         }
 
         /// <summary>
-        /// Marks the end of a slice for an Ice object or user exception.
+        /// Marks the end of a slice for a class instance or user exception.
         /// </summary>
         public void endSlice()
         {
@@ -425,23 +425,23 @@ namespace Ice
         }
 
         /// <summary>
-        /// Writes the state of Slice classes whose index was previously written with writeObject() to the stream.
+        /// Writes the state of Slice classes whose index was previously written with writeValue() to the stream.
         /// </summary>
-        public void writePendingObjects()
+        public void writePendingValues()
         {
             if(_encapsStack != null && _encapsStack.encoder != null)
             {
-                _encapsStack.encoder.writePendingObjects();
+                _encapsStack.encoder.writePendingValues();
             }
             else if(_encapsStack != null ?
                     _encapsStack.encoding_1_0 : _encoding.Equals(Ice.Util.Encoding_1_0))
             {
                 //
-                // If using the 1.0 encoding and no objects were written, we
-                // still write an empty sequence for pending objects if
+                // If using the 1.0 encoding and no instances were written, we
+                // still write an empty sequence for pending instances if
                 // requested (i.e.: if this is called).
                 //
-                // This is required by the 1.0 encoding, even if no objects
+                // This is required by the 1.0 encoding, even if no instances
                 // are written we do marshal an empty sequence if marshaled
                 // data types use classes.
                 //
@@ -2050,40 +2050,40 @@ namespace Ice
         }
 
         /// <summary>
-        /// Writes a Slice value to the stream.
+        /// Writes a class instance to the stream.
         /// </summary>
         /// <param name="v">The value to write. This method writes the index of an instance; the state of the value is
-        /// written once writePendingObjects() is called.</param>
-        public void writeObject(Ice.Object v)
+        /// written once writePendingValues() is called.</param>
+        public void writeValue(Ice.Object v)
         {
             initEncaps();
-            _encapsStack.encoder.writeObject(v);
+            _encapsStack.encoder.writeValue(v);
         }
 
         /// <summary>
-        /// Writes an optional value to the stream.
+        /// Writes an optional class instance to the stream.
         /// </summary>
         /// <param name="tag">The optional tag.</param>
         /// <param name="v">The optional value to write.</param>
-        public void writeObject<T>(int tag, Ice.Optional<T> v)
+        public void writeValue<T>(int tag, Ice.Optional<T> v)
             where T : Ice.Object
         {
             if(v.HasValue)
             {
-                writeObject(tag, v.Value);
+                writeValue(tag, v.Value);
             }
         }
 
         /// <summary>
-        /// Writes an optional value to the stream.
+        /// Writes an optional class instance to the stream.
         /// </summary>
         /// <param name="tag">The optional tag.</param>
         /// <param name="v">The value to write.</param>
-        public void writeObject(int tag, Ice.Object v)
+        public void writeValue(int tag, Ice.Object v)
         {
             if(writeOptional(tag, Ice.OptionalFormat.Class))
             {
-                writeObject(v);
+                writeValue(v);
             }
         }
 
@@ -2169,7 +2169,7 @@ namespace Ice
         private object _closure;
         private FormatType _format;
 
-        private enum SliceType { NoSlice, ObjectSlice, ExceptionSlice }
+        private enum SliceType { NoSlice, ValueSlice, ExceptionSlice }
 
         abstract private class EncapsEncoder
         {
@@ -2181,7 +2181,7 @@ namespace Ice
                 _marshaledMap = new Dictionary<Ice.Object, int>();
             }
 
-            internal abstract void writeObject(Ice.Object v);
+            internal abstract void writeValue(Ice.Object v);
             internal abstract void writeException(Ice.UserException v);
 
             internal abstract void startInstance(SliceType type, Ice.SlicedData data);
@@ -2194,7 +2194,7 @@ namespace Ice
                 return false;
             }
 
-            internal virtual void writePendingObjects()
+            internal virtual void writePendingValues()
             {
             }
 
@@ -2220,10 +2220,10 @@ namespace Ice
             protected readonly OutputStream _stream;
             protected readonly Encaps _encaps;
 
-            // Encapsulation attributes for object marshalling.
+            // Encapsulation attributes for instance marshaling.
             protected readonly Dictionary<Ice.Object, int> _marshaledMap;
 
-            // Encapsulation attributes for object marshalling.
+            // Encapsulation attributes for instance marshaling.
             private Dictionary<string, int> _typeIdMap;
             private int _typeIdIndex;
         }
@@ -2233,18 +2233,18 @@ namespace Ice
             internal EncapsEncoder10(OutputStream stream, Encaps encaps) : base(stream, encaps)
             {
                 _sliceType = SliceType.NoSlice;
-                _objectIdIndex = 0;
+                _valueIdIndex = 0;
                 _toBeMarshaledMap = new Dictionary<Ice.Object, int>();
             }
 
-            internal override void writeObject(Ice.Object v)
+            internal override void writeValue(Ice.Object v)
             {
                 //
                 // Object references are encoded as a negative integer in 1.0.
                 //
                 if(v != null)
                 {
-                    _stream.writeInt(-registerObject(v));
+                    _stream.writeInt(-registerValue(v));
                 }
                 else
                 {
@@ -2259,7 +2259,7 @@ namespace Ice
                 // flag that indicates whether or not the exception uses
                 // classes.
                 //
-                // This allows reading the pending objects even if some part of
+                // This allows reading the pending instances even if some part of
                 // the exception was sliced.
                 //
                 bool usesClasses = v.usesClasses__();
@@ -2267,7 +2267,7 @@ namespace Ice
                 v.write__(_stream);
                 if(usesClasses)
                 {
-                    writePendingObjects();
+                    writePendingValues();
                 }
             }
 
@@ -2278,7 +2278,7 @@ namespace Ice
 
             internal override void endInstance()
             {
-                if(_sliceType == SliceType.ObjectSlice)
+                if(_sliceType == SliceType.ValueSlice)
                 {
                     //
                     // Write the Object slice.
@@ -2293,11 +2293,11 @@ namespace Ice
             internal override void startSlice(string typeId, int compactId, bool last)
             {
                 //
-                // For object slices, encode a bool to indicate how the type ID
+                // For instance slices, encode a bool to indicate how the type ID
                 // is encoded and the type ID either as a string or index. For
                 // exception slices, always encode the type ID as a string.
                 //
-                if(_sliceType == SliceType.ObjectSlice)
+                if(_sliceType == SliceType.ValueSlice)
                 {
                     int index = registerTypeId(typeId);
                     if(index < 0)
@@ -2330,15 +2330,15 @@ namespace Ice
                 _stream.rewriteInt(sz, _writeSlice - 4);
             }
 
-            internal override void writePendingObjects()
+            internal override void writePendingValues()
             {
                 while(_toBeMarshaledMap.Count > 0)
                 {
                     //
-                    // Consider the to be marshalled objects as marshalled now,
+                    // Consider the to be marshalled instances as marshalled now,
                     // this is necessary to avoid adding again the "to be
-                    // marshalled objects" into _toBeMarshaledMap while writing
-                    // objects.
+                    // marshalled instances" into _toBeMarshaledMap while writing
+                    // instances.
                     //
                     foreach(KeyValuePair<Ice.Object, int> e in _toBeMarshaledMap)
                     {
@@ -2373,7 +2373,7 @@ namespace Ice
                 _stream.writeSize(0); // Zero marker indicates end of sequence of sequences of instances.
             }
 
-            private int registerObject(Ice.Object v)
+            private int registerValue(Ice.Object v)
             {
                 Debug.Assert(v != null);
 
@@ -2398,8 +2398,8 @@ namespace Ice
                 // We haven't seen this instance previously, create a new
                 // index, and insert it into the to-be-marshaled map.
                 //
-                _toBeMarshaledMap.Add(v, ++_objectIdIndex);
-                return _objectIdIndex;
+                _toBeMarshaledMap.Add(v, ++_valueIdIndex);
+                return _valueIdIndex;
             }
 
             // Instance attributes
@@ -2408,8 +2408,8 @@ namespace Ice
             // Slice attributes
             private int _writeSlice;        // Position of the slice data members
 
-            // Encapsulation attributes for object marshalling.
-            private int _objectIdIndex;
+            // Encapsulation attributes for instance marshaling.
+            private int _valueIdIndex;
             private Dictionary<Ice.Object, int> _toBeMarshaledMap;
         }
 
@@ -2418,10 +2418,10 @@ namespace Ice
             internal EncapsEncoder11(OutputStream stream, Encaps encaps) : base(stream, encaps)
             {
                 _current = null;
-                _objectIdIndex = 1;
+                _valueIdIndex = 1;
             }
 
-            internal override void writeObject(Ice.Object v)
+            internal override void writeValue(Ice.Object v)
             {
                 if(v == null)
                 {
@@ -2436,8 +2436,8 @@ namespace Ice
                     }
 
                     //
-                    // If writing an object within a slice and using the sliced
-                    // format, write an index from the object indirection table.
+                    // If writing an instance within a slice and using the sliced
+                    // format, write an index from the instance indirection table.
                     //
                     int index;
                     if(!_current.indirectionMap.TryGetValue(v, out index))
@@ -2510,11 +2510,11 @@ namespace Ice
                 _stream.writeByte((byte)0); // Placeholder for the slice flags
 
                 //
-                // For object slices, encode the flag and the type ID either as a
+                // For instance slices, encode the flag and the type ID either as a
                 // string or index. For exception slices, always encode the type
                 // ID a string.
                 //
-                if(_current.sliceType == SliceType.ObjectSlice)
+                if(_current.sliceType == SliceType.ValueSlice)
                 {
                     //
                     // Encode the type ID (only in the first slice for the compact
@@ -2587,7 +2587,7 @@ namespace Ice
                     _current.sliceFlags |= Protocol.FLAG_HAS_INDIRECTION_TABLE;
 
                     //
-                    // Write the indirection object table.
+                    // Write the indirect instance table.
                     //
                     _stream.writeSize(_current.indirectionTable.Count);
                     foreach(Ice.Object v in _current.indirectionTable)
@@ -2631,7 +2631,7 @@ namespace Ice
                 //
                 // We only remarshal preserved slices if we are using the sliced
                 // format. Otherwise, we ignore the preserved slices, which
-                // essentially "slices" the object into the most-derived type
+                // essentially "slices" the instance into the most-derived type
                 // known by the sender.
                 //
                 if(_encaps.format != Ice.FormatType.SlicedFormat)
@@ -2654,16 +2654,16 @@ namespace Ice
                     }
 
                     //
-                    // Make sure to also re-write the object indirection table.
+                    // Make sure to also re-write the instance indirection table.
                     //
-                    if(info.objects != null && info.objects.Length > 0)
+                    if(info.instances != null && info.instances.Length > 0)
                     {
                         if(_current.indirectionTable == null)
                         {
                             _current.indirectionTable = new List<Ice.Object>();
                             _current.indirectionMap = new Dictionary<Ice.Object, int>();
                         }
-                        foreach(Ice.Object o in info.objects)
+                        foreach(Ice.Object o in info.instances)
                         {
                             _current.indirectionTable.Add(o);
                         }
@@ -2691,7 +2691,7 @@ namespace Ice
                 // We haven't seen this instance previously, create a new ID,
                 // insert it into the marshaled map, and write the instance.
                 //
-                _marshaledMap.Add(v, ++_objectIdIndex);
+                _marshaledMap.Add(v, ++_valueIdIndex);
 
                 try
                 {
@@ -2736,7 +2736,7 @@ namespace Ice
 
             private InstanceData _current;
 
-            private int _objectIdIndex; // The ID of the next object to marhsal
+            private int _valueIdIndex; // The ID of the next instance to marhsal
         }
 
         private sealed class Encaps
@@ -2814,12 +2814,12 @@ namespace Ice
     }
 
     /// <summary>
-    /// Base class for writing objects to an output stream.
+    /// Base class for writing class instances to an output stream.
     /// </summary>
-    public abstract class ObjectWriter : ObjectImpl
+    public abstract class ValueWriter : ObjectImpl
     {
         /// <summary>
-        /// Writes the state of this Slice class to an output stream.
+        /// Writes the state of this Slice class instance to an output stream.
         /// </summary>
         /// <param name="outStream">The stream to write to.</param>
         public abstract void write(OutputStream outStream);

@@ -398,16 +398,16 @@ namespace Ice
 
         public virtual void write__(OutputStream os__)
         {
-            os__.startObject(null);
+            os__.startValue(null);
             writeImpl__(os__);
-            os__.endObject();
+            os__.endValue();
         }
 
         public virtual void read__(InputStream is__)
         {
-             is__.startObject();
+             is__.startValue();
              readImpl__(is__);
-             is__.endObject(false);
+             is__.endValue(false);
         }
 
         protected virtual void writeImpl__(OutputStream os__)

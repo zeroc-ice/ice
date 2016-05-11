@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#include <Slice/DotNetNames.h>
+#include <DotNetNames.h>
 #include <ctype.h>
 #include <cstring>
 

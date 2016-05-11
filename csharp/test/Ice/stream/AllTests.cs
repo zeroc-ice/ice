@@ -60,9 +60,9 @@ public class AllTests : TestCommon.TestApp
         return true;
     }
 
-    private class TestObjectWriter : Ice.ObjectWriter
+    private class TestValueWriter : Ice.ValueWriter
     {
-        public TestObjectWriter(Test.MyClass obj)
+        public TestValueWriter(Test.MyClass obj)
         {
             this.obj = obj;
         }
@@ -77,7 +77,7 @@ public class AllTests : TestCommon.TestApp
         internal bool called = false;
     }
 
-    private class TestObjectReader : Ice.ObjectReader
+    private class TestValueReader : Ice.ValueReader
     {
         public override void read(Ice.InputStream @in)
         {
@@ -103,10 +103,10 @@ public class AllTests : TestCommon.TestApp
     private static Ice.Object TestObjectFactory(string type)
     {
         Debug.Assert(type.Equals(Test.MyClass.ice_staticId()));
-        return new TestObjectReader();
+        return new TestValueReader();
     }
 
-    private class TestReadObjectCallback
+    private class TestReadValueCallback
     {
         public void invoke(Ice.Object obj)
         {
@@ -259,12 +259,11 @@ public class AllTests : TestCommon.TestApp
         Flush();
 
         {
-            int max = 2;
             @out = new Ice.OutputStream(communicator);
-            @out.writeEnum((int)Test.MyEnum.enum3, max);
+            Test.MyEnumHelper.write(@out, Test.MyEnum.enum3);
             byte[] data = @out.finished();
             @in = new Ice.InputStream(communicator, data);
-            Test.MyEnum e = (Test.MyEnum)@in.readEnum(max);
+            Test.MyEnum e = Test.MyEnumHelper.read(@in);
             test(e == Test.MyEnum.enum3);
         }
 
@@ -296,13 +295,13 @@ public class AllTests : TestCommon.TestApp
             o.by = (byte)5;
             o.sh = 4;
             o.i = 3;
-            @out.writeObject(o);
-            @out.writePendingObjects();
+            @out.writeValue(o);
+            @out.writePendingValues();
             byte[] data = @out.finished();
             @in = new Ice.InputStream(communicator, data);
-            TestReadObjectCallback cb = new TestReadObjectCallback();
-            @in.readObject(cb.invoke);
-            @in.readPendingObjects();
+            TestReadValueCallback cb = new TestReadValueCallback();
+            @in.readValue(cb.invoke);
+            @in.readPendingValues();
             OptionalClass o2 = (OptionalClass)cb.obj;
             test(o2.bo == o.bo);
             test(o2.by == o.by);
@@ -325,13 +324,13 @@ public class AllTests : TestCommon.TestApp
             o.by = 5;
             o.sh = 4;
             o.i = 3;
-            @out.writeObject(o);
-            @out.writePendingObjects();
+            @out.writeValue(o);
+            @out.writePendingValues();
             byte[] data = @out.finished();
             @in = new Ice.InputStream(communicator, Ice.Util.Encoding_1_0, data);
-            TestReadObjectCallback cb = new TestReadObjectCallback();
-            @in.readObject(cb.invoke);
-            @in.readPendingObjects();
+            TestReadValueCallback cb = new TestReadValueCallback();
+            @in.readValue(cb.invoke);
+            @in.readPendingValues();
             OptionalClass o2 = (OptionalClass)cb.obj;
             test(o2.bo == o.bo);
             test(o2.by == o.by);
@@ -652,11 +651,11 @@ public class AllTests : TestCommon.TestApp
         {
             @out = new Ice.OutputStream(communicator);
             Test.MyClassSHelper.write(@out, myClassArray);
-            @out.writePendingObjects();
+            @out.writePendingValues();
             byte[] data = @out.finished();
             @in = new Ice.InputStream(communicator, data);
             Test.MyClass[] arr2 = Test.MyClassSHelper.read(@in);
-            @in.readPendingObjects();
+            @in.readPendingValues();
             test(arr2.Length == myClassArray.Length);
             for (int i = 0; i < arr2.Length; ++i)
             {
@@ -696,13 +695,13 @@ public class AllTests : TestCommon.TestApp
         {
             Test.MyInterface i = new MyInterfaceI();
             @out = new Ice.OutputStream(communicator);
-            @out.writeObject(i);
-            @out.writePendingObjects();
+            @out.writeValue(i);
+            @out.writePendingValues();
             byte[] data = @out.finished();
             @in = new Ice.InputStream(communicator, data);
-            TestReadObjectCallback cb = new TestReadObjectCallback();
-            @in.readObject(cb.invoke);
-            @in.readPendingObjects();
+            TestReadValueCallback cb = new TestReadValueCallback();
+            @in.readValue(cb.invoke);
+            @in.readPendingValues();
             test(cb.obj != null);
         }
 
@@ -711,19 +710,19 @@ public class AllTests : TestCommon.TestApp
             Test.MyClass obj = new Test.MyClass();
             obj.s = new Test.SmallStruct();
             obj.s.e = Test.MyEnum.enum2;
-            TestObjectWriter writer = new TestObjectWriter(obj);
-            @out.writeObject(writer);
-            @out.writePendingObjects();
+            TestValueWriter writer = new TestValueWriter(obj);
+            @out.writeValue(writer);
+            @out.writePendingValues();
             byte[] data = @out.finished();
             test(writer.called);
             factoryWrapper.setFactory(TestObjectFactory);
             @in = new Ice.InputStream(communicator, data);
-            TestReadObjectCallback cb = new TestReadObjectCallback();
-            @in.readObject(cb.invoke);
-            @in.readPendingObjects();
+            TestReadValueCallback cb = new TestReadValueCallback();
+            @in.readValue(cb.invoke);
+            @in.readPendingValues();
             test(cb.obj != null);
-            test(cb.obj is TestObjectReader);
-            TestObjectReader reader = (TestObjectReader)cb.obj;
+            test(cb.obj is TestValueReader);
+            TestValueReader reader = (TestValueReader)cb.obj;
             test(reader.called);
             test(reader.obj != null);
             test(reader.obj.s.e == Test.MyEnum.enum2);
@@ -843,11 +842,11 @@ public class AllTests : TestCommon.TestApp
             dict.Add("key2", c);
             @out = new Ice.OutputStream(communicator);
             Test.StringMyClassDHelper.write(@out, dict);
-            @out.writePendingObjects();
+            @out.writePendingValues();
             byte[] data = @out.finished();
             @in = new Ice.InputStream(communicator, data);
             Dictionary<string, Test.MyClass> dict2 = Test.StringMyClassDHelper.read(@in);
-            @in.readPendingObjects();
+            @in.readPendingValues();
             test(dict2.Count == dict.Count);
             test(dict2["key1"].s.e == Test.MyEnum.enum2);
             test(dict2["key2"].s.e == Test.MyEnum.enum3);
@@ -922,11 +921,11 @@ public class AllTests : TestCommon.TestApp
             @out = new Ice.OutputStream(communicator);
             List<Test.MyClass> l = new List<Test.MyClass>(myClassArray);
             Test.MyClassListHelper.write(@out, l);
-            @out.writePendingObjects();
+            @out.writePendingValues();
             byte[] data = @out.finished();
             @in = new Ice.InputStream(communicator, data);
             List<Test.MyClass> l2 = Test.MyClassListHelper.read(@in);
-            @in.readPendingObjects();
+            @in.readPendingValues();
             test(l2.Count == l.Count);
             for (int i = 0; i < l2.Count; ++i)
             {

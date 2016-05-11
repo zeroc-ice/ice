@@ -21,9 +21,6 @@
     <ClCompile Include="..\CPlusPlusUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\CsUtil.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\DotNetNames.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -90,9 +87,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\include\Slice\CPlusPlusUtil.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\include\Slice\CsUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\include\Slice\DotNetNames.h">

@@ -18,11 +18,11 @@ namespace Ice
     using Protocol = IceInternal.Protocol;
 
     /// <summary>
-    /// After a call to readPendingObjects(), delegates are called to supply the
-    /// unmarshaled objects.
+    /// After a call to readPendingValues(), delegates are called to supply the
+    /// unmarshaled class instances.
     /// </summary>
-    /// <param name="obj">The unmarshaled object.</param>
-    public delegate void ReadObjectCallback(Ice.Object obj);
+    /// <param name="obj">The unmarshaled instance.</param>
+    public delegate void ReadValueCallback(Ice.Object obj);
 
     /// <summary>
     /// A ClassResolver translates a Slice type Id into a type using
@@ -481,20 +481,20 @@ namespace Ice
         }
 
         /// <summary>
-        /// Marks the start of an Ice object.
+        /// Marks the start of a class instance.
         /// </summary>
-        public void startObject()
+        public void startValue()
         {
             Debug.Assert(_encapsStack != null && _encapsStack.decoder != null);
-            _encapsStack.decoder.startInstance(SliceType.ObjectSlice);
+            _encapsStack.decoder.startInstance(SliceType.ValueSlice);
         }
 
         /// <summary>
-        /// Marks the end of an Ice object.
+        /// Marks the end of a class instance.
         /// </summary>
         /// <param name="preserve">True if unknown slices should be preserved, false otherwise.</param>
         /// <returns>A SlicedData object containing the preserved slices for unknown types.</returns>
-        public SlicedData endObject(bool preserve)
+        public SlicedData endValue(bool preserve)
         {
             Debug.Assert(_encapsStack != null && _encapsStack.decoder != null);
             return _encapsStack.decoder.endInstance(preserve);
@@ -723,7 +723,7 @@ namespace Ice
         }
 
         /// <summary>
-        /// Reads the start of an object or exception slice.
+        /// Reads the start of a class instance or exception slice.
         /// </summary>
         /// <returns>The Slice type ID for this slice.</returns>
         public string startSlice() // Returns type ID of next slice
@@ -733,7 +733,7 @@ namespace Ice
         }
 
         /// <summary>
-        /// Indicates that the end of an object or exception slice has been reached.
+        /// Indicates that the end of a class instance or exception slice has been reached.
         /// </summary>
         public void endSlice()
         {
@@ -742,7 +742,7 @@ namespace Ice
         }
 
         /// <summary>
-        /// Skips over an object or exception slice.
+        /// Skips over a class instance or exception slice.
         /// </summary>
         public void skipSlice()
         {
@@ -751,25 +751,25 @@ namespace Ice
         }
 
         /// <summary>
-        /// Indicates that unmarshaling is complete, except for any Slice objects. The application must call this
-        /// method only if the stream actually contains Slice objects. Calling readPendingObjects triggers the
-        /// calls the ReadObjectCallback delegates to inform the application that unmarshaling of a Slice
-        /// object is complete.
+        /// Indicates that unmarshaling is complete, except for any class instances. The application must call this
+        /// method only if the stream actually contains class instances. Calling readPendingValues triggers the
+        /// calls to the ReadValueCallback delegates to inform the application that unmarshaling of an instance
+        /// is complete.
         /// </summary>
-        public void readPendingObjects()
+        public void readPendingValues()
         {
             if(_encapsStack != null && _encapsStack.decoder != null)
             {
-                _encapsStack.decoder.readPendingObjects();
+                _encapsStack.decoder.readPendingValues();
             }
             else if(_encapsStack != null ? _encapsStack.encoding_1_0 : _encoding.Equals(Ice.Util.Encoding_1_0))
             {
                 //
-                // If using the 1.0 encoding and no objects were read, we
-                // still read an empty sequence of pending objects if
+                // If using the 1.0 encoding and no instances were read, we
+                // still read an empty sequence of pending instances if
                 // requested (i.e.: if this is called).
                 //
-                // This is required by the 1.0 encoding, even if no objects
+                // This is required by the 1.0 encoding, even if no instances
                 // are written we do marshal an empty sequence if marshaled
                 // data types use classes.
                 //
@@ -2453,10 +2453,10 @@ namespace Ice
         /// <param name="cb">The callback to notify the application when the extracted instance is available.
         /// The stream extracts Slice values in stages. The Ice run time invokes the delegate when the
         /// corresponding instance has been fully unmarshaled.</param>
-        public void readObject(ReadObjectCallback cb)
+        public void readValue(ReadValueCallback cb)
         {
             initEncaps();
-            _encapsStack.decoder.readObject(cb);
+            _encapsStack.decoder.readValue(cb);
         }
 
         /// <summary>
@@ -2466,11 +2466,11 @@ namespace Ice
         /// <param name="cb">The callback to notify the application when the extracted instance is available (if any).
         /// The stream extracts Slice values in stages. The Ice run time invokes the delegate when the
         /// corresponding instance has been fully unmarshaled.</param>
-        public void readObject(int tag, ReadObjectCallback cb)
+        public void readValue(int tag, ReadValueCallback cb)
         {
             if(readOptional(tag, Ice.OptionalFormat.Class))
             {
-                readObject(cb);
+                readValue(cb);
             }
         }
 
@@ -2643,7 +2643,7 @@ namespace Ice
             }
             case Ice.OptionalFormat.Class:
             {
-                readObject(null);
+                readValue(null);
                 break;
             }
             }
@@ -2705,7 +2705,7 @@ namespace Ice
         private object _closure;
         private byte[] _stringBytes; // Reusable array for reading strings.
 
-        private enum SliceType { NoSlice, ObjectSlice, ExceptionSlice }
+        private enum SliceType { NoSlice, ValueSlice, ExceptionSlice }
 
         abstract private class EncapsDecoder
         {
@@ -2721,7 +2721,7 @@ namespace Ice
                 _unmarshaledMap = new Dictionary<int, Ice.Object>();
             }
 
-            internal abstract void readObject(ReadObjectCallback cb);
+            internal abstract void readValue(ReadValueCallback cb);
             internal abstract void throwException(UserExceptionFactory factory);
 
             internal abstract void startInstance(SliceType type);
@@ -2735,7 +2735,7 @@ namespace Ice
                 return false;
             }
 
-            internal virtual void readPendingObjects()
+            internal virtual void readPendingValues()
             {
             }
 
@@ -2848,13 +2848,13 @@ namespace Ice
                 return v;
             }
 
-            protected void addPatchEntry(int index, ReadObjectCallback cb)
+            protected void addPatchEntry(int index, ReadValueCallback cb)
             {
                 Debug.Assert(index > 0);
 
                 //
-                // Check if already un-marshalled the object. If that's the case,
-                // just patch the object smart pointer and we're done.
+                // Check if we already unmarshaled the instance. If that's the case,
+                // just call the callback and we're done.
                 //
                 Ice.Object obj;
                 if(_unmarshaledMap.TryGetValue(index, out obj))
@@ -2865,22 +2865,22 @@ namespace Ice
 
                 if(_patchMap == null)
                 {
-                    _patchMap = new Dictionary<int, LinkedList<ReadObjectCallback>>();
+                    _patchMap = new Dictionary<int, LinkedList<ReadValueCallback>>();
                 }
 
                 //
-                // Add patch entry if the object isn't un-marshalled yet,
-                // the smart pointer will be patched when the instance is
-                // un-marshalled.
+                // Add patch entry if the instance isn't unmarshaled yet,
+                // the callback will be called when the instance is
+                // unmarshaled.
                 //
-                LinkedList<ReadObjectCallback> l;
+                LinkedList<ReadValueCallback> l;
                 if(!_patchMap.TryGetValue(index, out l))
                 {
                     //
                     // We have no outstanding instances to be patched for this
                     // index, so make a new entry in the patch map.
                     //
-                    l = new LinkedList<ReadObjectCallback>();
+                    l = new LinkedList<ReadValueCallback>();
                     _patchMap.Add(index, l);
                 }
 
@@ -2893,22 +2893,22 @@ namespace Ice
             protected void unmarshal(int index, Ice.Object v)
             {
                 //
-                // Add the object to the map of un-marshalled objects, this must
-                // be done before reading the objects (for circular references).
+                // Add the instance to the map of unmarshaled instances, this must
+                // be done before reading the instances (for circular references).
                 //
                 _unmarshaledMap.Add(index, v);
 
                 //
-                // Read the object.
+                // Read the instance.
                 //
                 v.read__(_stream);
 
                 if(_patchMap != null)
                 {
                     //
-                    // Patch all instances now that the object is un-marshalled.
+                    // Patch all instances now that the instance is unmarshaled.
                     //
-                    LinkedList<ReadObjectCallback> l;
+                    LinkedList<ReadValueCallback> l;
                     if(_patchMap.TryGetValue(index, out l))
                     {
                         Debug.Assert(l.Count > 0);
@@ -2916,7 +2916,7 @@ namespace Ice
                         //
                         // Patch all pointers that refer to the instance.
                         //
-                        foreach(ReadObjectCallback cb in l)
+                        foreach(ReadValueCallback cb in l)
                         {
                             cb(v);
                         }
@@ -2929,7 +2929,7 @@ namespace Ice
                     }
                 }
 
-                if((_patchMap == null || _patchMap.Count == 0) && _objectList == null)
+                if((_patchMap == null || _patchMap.Count == 0) && _valueList == null)
                 {
                     try
                     {
@@ -2943,21 +2943,21 @@ namespace Ice
                 }
                 else
                 {
-                    if(_objectList == null)
+                    if(_valueList == null)
                     {
-                        _objectList = new List<Ice.Object>();
+                        _valueList = new List<Ice.Object>();
                     }
-                    _objectList.Add(v);
+                    _valueList.Add(v);
 
                     if(_patchMap == null || _patchMap.Count == 0)
                     {
                         //
-                        // Iterate over the object list and invoke ice_postUnmarshal on
-                        // each object.  We must do this after all objects have been
-                        // unmarshaled in order to ensure that any object data members
+                        // Iterate over the instance list and invoke ice_postUnmarshal on
+                        // each instance. We must do this after all instances have been
+                        // unmarshaled in order to ensure that any instance data members
                         // have been properly patched.
                         //
-                        foreach(Ice.Object p in _objectList)
+                        foreach(Ice.Object p in _valueList)
                         {
                             try
                             {
@@ -2969,7 +2969,7 @@ namespace Ice
                                 _stream.instance().initializationData().logger.warning(s);
                             }
                         }
-                        _objectList.Clear();
+                        _valueList.Clear();
                     }
                 }
             }
@@ -2983,11 +2983,11 @@ namespace Ice
             //
             // Encapsulation attributes for object unmarshaling.
             //
-            protected Dictionary<int, LinkedList<ReadObjectCallback> > _patchMap;
+            protected Dictionary<int, LinkedList<ReadValueCallback> > _patchMap;
             private Dictionary<int, Ice.Object> _unmarshaledMap;
             private Dictionary<int, string> _typeIdMap;
             private int _typeIdIndex;
-            private List<Ice.Object> _objectList;
+            private List<Ice.Object> _valueList;
             private Dictionary<string, Type> _typeIdCache;
         }
 
@@ -3000,7 +3000,7 @@ namespace Ice
                 _sliceType = SliceType.NoSlice;
             }
 
-            internal override void readObject(ReadObjectCallback cb)
+            internal override void readValue(ReadValueCallback cb)
             {
                 Debug.Assert(cb != null);
 
@@ -3032,7 +3032,7 @@ namespace Ice
                 // User exception with the 1.0 encoding start with a bool flag
                 // that indicates whether or not the exception has classes.
                 //
-                // This allows reading the pending objects even if some part of
+                // This allows reading the pending instances even if some part of
                 // the exception was sliced.
                 //
                 bool usesClasses = _stream.readBool();
@@ -3077,7 +3077,7 @@ namespace Ice
                         userEx.read__(_stream);
                         if(usesClasses)
                         {
-                            readPendingObjects();
+                            readPendingValues();
                         }
                         throw userEx;
 
@@ -3119,7 +3119,7 @@ namespace Ice
                 //
                 // Read the Ice::Object slice.
                 //
-                if(_sliceType == SliceType.ObjectSlice)
+                if(_sliceType == SliceType.ValueSlice)
                 {
                     startSlice();
                     int sz = _stream.readSize(); // For compatibility with the old AFM.
@@ -3147,12 +3147,12 @@ namespace Ice
                 }
 
                 //
-                // For objects, first read the type ID bool which indicates
+                // For instances, first read the type ID bool which indicates
                 // whether or not the type ID is encoded as a string or as an
                 // index. For exceptions, the type ID is always encoded as a
                 // string.
                 //
-                if(_sliceType == SliceType.ObjectSlice) // For exceptions, the type ID is always encoded as a string
+                if(_sliceType == SliceType.ValueSlice) // For exceptions, the type ID is always encoded as a string
                 {
                     bool isIndex = _stream.readBool();
                     _typeId = readTypeId(isIndex);
@@ -3181,7 +3181,7 @@ namespace Ice
                 {
                     Ice.Logger logger = _stream.instance().initializationData().logger;
                     string slicingCat = _stream.instance().traceLevels().slicingCat;
-                    if(_sliceType == SliceType.ObjectSlice)
+                    if(_sliceType == SliceType.ValueSlice)
                     {
                         IceInternal.TraceUtil.traceSlicing("object", _typeId, slicingCat, logger);
                     }
@@ -3195,7 +3195,7 @@ namespace Ice
                 _stream.skip(_sliceSize - 4);
             }
 
-            internal override void readPendingObjects()
+            internal override void readPendingValues()
             {
                 int num;
                 do
@@ -3211,8 +3211,8 @@ namespace Ice
                 if(_patchMap != null && _patchMap.Count > 0)
                 {
                     //
-                    // If any entries remain in the patch map, the sender has sent an index for an object, but failed
-                    // to supply the object.
+                    // If any entries remain in the patch map, the sender has sent an index for an instance, but failed
+                    // to supply the instance.
                     //
                     throw new Ice.MarshalException("index for class received, but no instance");
                 }
@@ -3227,7 +3227,7 @@ namespace Ice
                     throw new Ice.MarshalException("invalid object id");
                 }
 
-                _sliceType = SliceType.ObjectSlice;
+                _sliceType = SliceType.ValueSlice;
                 _skipFirstSlice = false;
 
                 //
@@ -3258,12 +3258,11 @@ namespace Ice
                     }
 
                     //
-                    // If object slicing is disabled, stop un-marshalling.
+                    // If slicing is disabled, stop unmarshaling.
                     //
                     if(!_sliceValues)
                     {
-                        throw new NoValueFactoryException("no value factory found and object slicing is disabled",
-                                                          _typeId);
+                        throw new NoValueFactoryException("no value factory found and slicing is disabled", _typeId);
                     }
 
                     //
@@ -3274,7 +3273,7 @@ namespace Ice
                 }
 
                 //
-                // Un-marshal the object and add-it to the map of un-marshaled objects.
+                // Unmarshal the instance and add it to the map of unmarshaled instances.
                 //
                 unmarshal(index, v);
             }
@@ -3296,10 +3295,10 @@ namespace Ice
             {
                 _compactIdResolver = r;
                 _current = null;
-                _objectIdIndex = 1;
+                _valueIdIndex = 1;
             }
 
-            internal override void readObject(ReadObjectCallback cb)
+            internal override void readValue(ReadValueCallback cb)
             {
                 int index = _stream.readSize();
                 if(index < 0)
@@ -3316,9 +3315,9 @@ namespace Ice
                 else if(_current != null && (_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
                 {
                     //
-                    // When reading an object within a slice and there's an
-                    // indirect object table, always read an indirect reference
-                    // that points to an object from the indirect object table
+                    // When reading an instance within a slice and there's an
+                    // indirect instance table, always read an indirect reference
+                    // that points to an instance from the indirect instance table
                     // marshaled at the end of the Slice.
                     //
                     // Maintain a list of indirect references. Note that the
@@ -3448,11 +3447,11 @@ namespace Ice
                 _current.sliceFlags = _stream.readByte();
 
                 //
-                // Read the type ID, for object slices the type ID is encoded as a
+                // Read the type ID, for instance slices the type ID is encoded as a
                 // string or as an index, for exceptions it's always encoded as a
                 // string.
                 //
-                if(_current.sliceType == SliceType.ObjectSlice)
+                if(_current.sliceType == SliceType.ValueSlice)
                 {
                     //
                     // Must be checked first!
@@ -3524,7 +3523,7 @@ namespace Ice
 
                     //
                     // Sanity checks. If there are optional members, it's possible
-                    // that not all object references were read if they are from
+                    // that not all instance references were read if they are from
                     // unknown optional data members.
                     //
                     if(indirectionTable.Length == 0)
@@ -3581,7 +3580,7 @@ namespace Ice
                 }
                 else
                 {
-                    if(_current.sliceType == SliceType.ObjectSlice)
+                    if(_current.sliceType == SliceType.ValueSlice)
                     {
                         throw new NoValueFactoryException("no value factory found and compact format prevents " +
                                                           "slicing (the sender should use the sliced format " +
@@ -3631,12 +3630,9 @@ namespace Ice
                 }
 
                 //
-                // Read the indirect object table. We read the instances or their
-                // IDs if the instance is a reference to an already un-marhsaled
-                // object.
-                //
-                // The SliceInfo object sequence is initialized only if
-                // readSlicedData is called.
+                // Read the indirect instance table. We read the instances or their
+                // IDs if the instance is a reference to an already unmarshaled
+                // instance.
                 //
                 if((_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
                 {
@@ -3668,7 +3664,7 @@ namespace Ice
                 return false;
             }
 
-            private int readInstance(int index, ReadObjectCallback cb)
+            private int readInstance(int index, ReadValueCallback cb)
             {
                 Debug.Assert(index > 0);
 
@@ -3681,14 +3677,14 @@ namespace Ice
                     return index;
                 }
 
-                push(SliceType.ObjectSlice);
+                push(SliceType.ValueSlice);
 
                 //
-                // Get the object ID before we start reading slices. If some
-                // slices are skiped, the indirect object table are still read and
-                // might read other objects.
+                // Get the instance ID before we start reading slices. If some
+                // slices are skipped, the indirect instance table are still read and
+                // might read other instances.
                 //
-                index = ++_objectIdIndex;
+                index = ++_valueIdIndex;
 
                 //
                 // Read the first slice header.
@@ -3785,11 +3781,11 @@ namespace Ice
                     }
 
                     //
-                    // If object slicing is disabled, stop un-marshalling.
+                    // If slicing is disabled, stop unmarshaling.
                     //
                     if(!_sliceValues)
                     {
-                        throw new NoValueFactoryException("no value factory found and object slicing is disabled",
+                        throw new NoValueFactoryException("no value factory found and slicing is disabled",
                                                           _current.typeId);
                     }
 
@@ -3799,20 +3795,20 @@ namespace Ice
                     skipSlice();
 
                     //
-                    // If this is the last slice, keep the object as an opaque
-                    // UnknownSlicedData object.
+                    // If this is the last slice, keep the instance as an opaque
+                    // UnknownSlicedValue object.
                     //
                     if((_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0)
                     {
                         //
-                        // Provide a factory with an opportunity to supply the object.
+                        // Provide a factory with an opportunity to supply the instance.
                         // We pass the "::Ice::Object" ID to indicate that this is the
-                        // last chance to preserve the object.
+                        // last chance to preserve the instance.
                         //
                         v = newInstance(Ice.ObjectImpl.ice_staticId());
                         if(v == null)
                         {
-                            v = new Ice.UnknownSlicedObject(mostDerivedId);
+                            v = new Ice.UnknownSlicedValue(mostDerivedId);
                         }
 
                         break;
@@ -3822,15 +3818,15 @@ namespace Ice
                 }
 
                 //
-                // Un-marshal the object
+                // Unmarshal the instance.
                 //
                 unmarshal(index, v);
 
                 if(_current == null && _patchMap != null && _patchMap.Count > 0)
                 {
                     //
-                    // If any entries remain in the patch map, the sender has sent an index for an object, but failed
-                    // to supply the object.
+                    // If any entries remain in the patch map, the sender has sent an index for an instance, but failed
+                    // to supply the instance.
                     //
                     throw new Ice.MarshalException("index for class received, but no instance");
                 }
@@ -3857,18 +3853,18 @@ namespace Ice
                 for(int n = 0; n < _current.slices.Count; ++n)
                 {
                     //
-                    // We use the "objects" list in SliceInfo to hold references
-                    // to the target objects. Note that the objects might not have
+                    // We use the "instances" list in SliceInfo to hold references
+                    // to the target instances. Note that the instances might not have
                     // been read yet in the case of a circular reference to an
-                    // enclosing object.
+                    // enclosing instance.
                     //
                     int[] table = _current.indirectionTables[n];
                     Ice.SliceInfo info = _current.slices[n];
-                    info.objects = new Ice.Object[table != null ? table.Length : 0];
-                    for(int j = 0; j < info.objects.Length; ++j)
+                    info.instances = new Ice.Object[table != null ? table.Length : 0];
+                    for(int j = 0; j < info.instances.Length; ++j)
                     {
                         IceInternal.ArrayPatcher<Ice.Object> patcher =
-                            new IceInternal.ArrayPatcher<Ice.Object>(Ice.ObjectImpl.ice_staticId(), info.objects, j);
+                            new IceInternal.ArrayPatcher<Ice.Object>(Ice.ObjectImpl.ice_staticId(), info.instances, j);
                         addPatchEntry(table[j], patcher.patch);
                     }
                 }
@@ -3893,7 +3889,7 @@ namespace Ice
             private sealed class IndirectPatchEntry
             {
                 public int index;
-                public ReadObjectCallback patcher;
+                public ReadValueCallback patcher;
             }
 
             private sealed class InstanceData
@@ -3927,7 +3923,7 @@ namespace Ice
 
             private CompactIdResolver _compactIdResolver;
             private InstanceData _current;
-            private int _objectIdIndex; // The ID of the next object to un-marshal.
+            private int _valueIdIndex; // The ID of the next instance to unmarshal.
             private Dictionary<int, Type> _compactIdCache;
         }
 
@@ -4013,12 +4009,12 @@ namespace Ice
     }
 
     /// <summary>
-    /// Base class for extracting objects from an input stream.
+    /// Base class for extracting class instances from an input stream.
     /// </summary>
-    public abstract class ObjectReader : ObjectImpl
+    public abstract class ValueReader : ObjectImpl
     {
         /// <summary>
-        /// Read the object's data members.
+        /// Read the instance's data members.
         /// </summary>
         /// <param name="inStream">The input stream to read from.</param>
         public abstract void read(InputStream inStream);

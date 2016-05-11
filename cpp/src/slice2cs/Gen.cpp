@@ -26,9 +26,9 @@
 #include <IceUtil/UUID.h>
 #include <IceUtil/Unicode.h>
 #include <Slice/Checksum.h>
-#include <Slice/DotNetNames.h>
 #include <Slice/FileTracker.h>
 #include <Slice/Util.h>
+#include <DotNetNames.h>
 #include <string.h>
 
 using namespace std;
@@ -670,7 +670,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p)
             writeMarshalUnmarshalParams(inParams, 0, false);
             if(op->sendsClasses(false))
             {
-                _out << nl << "is__.readPendingObjects();";
+                _out << nl << "is__.readPendingValues();";
             }
             _out << nl << "inS__.endReadParams();";
         }
@@ -744,7 +744,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p)
                 writeMarshalUnmarshalParams(outParams, op, true);
                 if(op->returnsClasses(false))
                 {
-                    _out << nl << "os__.writePendingObjects();";
+                    _out << nl << "os__.writePendingValues();";
                 }
                 _out << nl << "inS__.endWriteParams__(true);";
             }
@@ -1053,9 +1053,9 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p)
 
         _out << nl << "public " << qualifier << "void write__(Ice.OutputStream os__)";
         _out << sb;
-        _out << nl << "os__.startObject(slicedData__);";
+        _out << nl << "os__.startValue(slicedData__);";
         _out << nl << "writeImpl__(os__);";
-        _out << nl << "os__.endObject();";
+        _out << nl << "os__.endValue();";
         _out << eb;
 
         _out << sp;
@@ -1065,9 +1065,9 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p)
         }
         _out << nl << "public " << qualifier << "void read__(Ice.InputStream is__)";
         _out << sb;
-        _out << nl << "is__.startObject();";
+        _out << nl << "is__.startValue();";
         _out << nl << "readImpl__(is__);";
-        _out << nl << "slicedData__ = is__.endObject(true);";
+        _out << nl << "slicedData__ = is__.endValue(true);";
         _out << eb;
     }
     else if (!p->isInterface() && !hasBaseClass)
@@ -1076,18 +1076,18 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p)
         emitGeneratedCodeAttribute();
         _out << nl << "public virtual void write__(Ice.OutputStream os__)";
         _out << sb;
-        _out << nl << "os__.startObject(null);";
+        _out << nl << "os__.startValue(null);";
         _out << nl << "writeImpl__(os__);";
-        _out << nl << "os__.endObject();";
+        _out << nl << "os__.endValue();";
         _out << eb;
 
         _out << sp;
         emitGeneratedCodeAttribute();
         _out << nl << "public virtual void read__(Ice.InputStream is__)";
         _out << sb;
-        _out << nl << "is__.startObject();";
+        _out << nl << "is__.startValue();";
         _out << nl << "readImpl__(is__);";
-        _out << nl << "is__.endObject(false);";
+        _out << nl << "is__.endValue(false);";
         _out << eb;
     }
 
@@ -3921,11 +3921,12 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         }
         _out << eb;
 
+        _out << sp;
+        emitGeneratedCodeAttribute();
+        _out << nl << "public static void write(Ice.OutputStream os__, " << name << " v__)";
+        _out << sb;
         if(isClass)
         {
-            emitGeneratedCodeAttribute();
-            _out << nl << "public static void write__(Ice.OutputStream os__, " << name << " v__)";
-            _out << sb;
             _out << nl << "if(v__ == null)";
             _out << sb;
             _out << nl << "nullMarshalValue__.write__(os__);";
@@ -3934,20 +3935,21 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
             _out << sb;
             _out << nl << "v__.write__(os__);";
             _out << eb;
-            _out << eb;
-
-            _out << sp;
-            emitGeneratedCodeAttribute();
-            _out << nl << "public static " << name << " read__(Ice.InputStream is__, " << name << " v__)";
-            _out << sb;
-            _out << nl << "if(v__ == null)";
-            _out << sb;
-            _out << nl << "v__ = new " << name << "();";
-            _out << eb;
-            _out << nl << "v__.read__(is__);";
-            _out << nl << "return v__;";
-            _out << eb;
         }
+        else
+        {
+            _out << nl << "v__.write__(os__);";
+        }
+        _out << eb;
+
+        _out << sp;
+        emitGeneratedCodeAttribute();
+        _out << nl << "public static " << name << " read(Ice.InputStream is__)";
+        _out << sb;
+        _out << nl << name << " v__ = new " << name << "();";
+        _out << nl << "v__.read__(is__);";
+        _out << nl << "return v__;";
+        _out << eb;
 
         if(isClass)
         {
@@ -3991,6 +3993,30 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         }
     }
     _out << eb;
+
+    if(!p->isLocal())
+    {
+        _out << sp;
+        emitGeneratedCodeAttribute();
+        _out << nl << "public sealed class " << p->name() << "Helper";
+        _out << sb;
+        _out << sp;
+        _out << nl << "public static void write(Ice.OutputStream os__, " << name << " v__)";
+        _out << sb;
+        writeMarshalUnmarshalCode(_out, p, "v__", true);
+        _out << eb;
+
+        _out << sp;
+        emitGeneratedCodeAttribute();
+        _out << nl << "public static " << name << " read(Ice.InputStream is__)";
+        _out << sb;
+        _out << nl << name << " v__;";
+        writeMarshalUnmarshalCode(_out, p, "v__", false);
+        _out << nl << "return v__;";
+        _out << eb;
+
+        _out << eb;
+    }
 }
 
 void
@@ -4706,15 +4732,18 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
 
         _out << "end_" << op->name() << "(";
-        if(!outParams.empty()) {
-            for(ParamDeclList::const_iterator p = outParams.begin(); p != outParams.end(); ++p) {
+        if(!outParams.empty())
+        {
+            for(ParamDeclList::const_iterator p = outParams.begin(); p != outParams.end(); ++p)
+            {
                 _out << "out " << fixId((*p)->name()) << ", ";
             }
         }
         _out << "begin_" << op->name() << "(";
         if(!inParams.empty())
         {
-            for(ParamDeclList::const_iterator p = inParams.begin(); p != inParams.end(); ++p) {
+            for(ParamDeclList::const_iterator p = inParams.begin(); p != inParams.end(); ++p)
+            {
                 _out << fixId((*p)->name()) << ", ";
             }
         }
@@ -4904,7 +4933,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
                 writeMarshalUnmarshalParams(outParams, op, false);
                 if(op->returnsClasses(false))
                 {
-                    _out << nl << "is__.readPendingObjects();";
+                    _out << nl << "is__.readPendingValues();";
                 }
                 _out << nl << "outAsync__.endReadParams();";
                 writePostUnmarshalParams(outParams, op);
@@ -4964,12 +4993,11 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 
         if(!inParams.empty())
         {
-            _out << nl << "Ice.OutputStream os__ = result__.startWriteParams("
-                 << opFormatTypeToString(op) << ");";
+            _out << nl << "Ice.OutputStream os__ = result__.startWriteParams(" << opFormatTypeToString(op) << ");";
             writeMarshalUnmarshalParams(inParams, 0, true);
             if(op->sendsClasses(false))
             {
-                _out << nl << "os__.writePendingObjects();";
+                _out << nl << "os__.writePendingValues();";
             }
             _out << nl << "result__.endWriteParams();";
         }
@@ -5204,12 +5232,12 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     _out << sp << nl << "#region Marshaling support";
 
-    _out << sp << nl << "public static void write__(Ice.OutputStream os__, " << name << "Prx v__)";
+    _out << sp << nl << "public static void write(Ice.OutputStream os__, " << name << "Prx v__)";
     _out << sb;
     _out << nl << "os__.writeProxy(v__);";
     _out << eb;
 
-    _out << sp << nl << "public static " << name << "Prx read__(Ice.InputStream is__)";
+    _out << sp << nl << "public static " << name << "Prx read(Ice.InputStream is__)";
     _out << sb;
     _out << nl << "Ice.ObjectPrx proxy = is__.readProxy();";
     _out << nl << "if(proxy != null)";
@@ -5670,7 +5698,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
             writeMarshalUnmarshalParams(outParams, p, true);
             if(p->returnsClasses(false))
             {
-                _out << nl << "os__.writePendingObjects();";
+                _out << nl << "os__.writePendingValues();";
             }
             _out << nl << "endWriteParams__(true);";
             _out << eb;

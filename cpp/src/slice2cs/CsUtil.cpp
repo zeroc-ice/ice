@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#include <Slice/CsUtil.h>
-#include <Slice/DotNetNames.h>
+#include <CsUtil.h>
+#include <DotNetNames.h>
 #include <Slice/Util.h>
 #include <IceUtil/Functional.h>
 
@@ -542,11 +542,11 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
             {
                 if(marshal)
                 {
-                    out << nl << stream << ".writeObject(" << param << ");";
+                    out << nl << stream << ".writeValue(" << param << ");";
                 }
                 else
                 {
-                    out << nl << stream << ".readObject(" << param << ");";
+                    out << nl << stream << ".readValue(" << param << ");";
                 }
                 break;
             }
@@ -578,11 +578,11 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
         string typeS = typeToString(type);
         if(marshal)
         {
-            out << nl << typeS << "Helper.write__(" << stream << ", " << param << ");";
+            out << nl << typeS << "Helper.write(" << stream << ", " << param << ");";
         }
         else
         {
-            out << nl << param << " = " << typeS << "Helper.read__(" << stream << ");";
+            out << nl << param << " = " << typeS << "Helper.read(" << stream << ");";
         }
         return;
     }
@@ -592,11 +592,11 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
     {
         if(marshal)
         {
-            out << nl << stream << ".writeObject(" << param << ");";
+            out << nl << stream << ".writeValue(" << param << ");";
         }
         else
         {
-            out << nl << stream << ".readObject(" << param << ");";
+            out << nl << stream << ".readValue(" << param << ");";
         }
         return;
     }
@@ -608,7 +608,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
         {
             if(!isValueType(st))
             {
-                out << nl << typeToString(st) << ".write__(" << stream << ", " << param << ");";
+                out << nl << typeToString(st) << ".write(" << stream << ", " << param << ");";
             }
             else
             {
@@ -619,7 +619,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
         {
             if(!isValueType(st))
             {
-                out << nl << param << " = " << typeToString(type) << ".read__(" << stream << ", " << param << ");";
+                out << nl << param << " = " << typeToString(type) << ".read(" << stream << ");";
             }
             else
             {
@@ -787,11 +787,11 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
             {
                 if(marshal)
                 {
-                    out << nl << stream << ".writeObject(" << tag << ", " << param << ");";
+                    out << nl << stream << ".writeValue(" << tag << ", " << param << ");";
                 }
                 else
                 {
-                    out << nl << stream << ".readObject(" << tag << ", " << param << ");";
+                    out << nl << stream << ".readValue(" << tag << ", " << param << ");";
                 }
                 break;
             }
@@ -855,11 +855,11 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
     {
         if(marshal)
         {
-            out << nl << stream << ".writeObject(" << tag << ", " << param << ");";
+            out << nl << stream << ".writeValue(" << tag << ", " << param << ");";
         }
         else
         {
-            out << nl << stream << ".readObject(" << tag << ", " << param << ");";
+            out << nl << stream << ".readValue(" << tag << ", " << param << ");";
         }
         return;
     }
@@ -1112,7 +1112,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                             out << nl << "while(e__.MoveNext())";
                             out << sb;
                             string func = (builtin->kind() == Builtin::KindObject ||
-                                           builtin->kind() == Builtin::KindValue) ? "writeObject" : "writeProxy";
+                                           builtin->kind() == Builtin::KindValue) ? "writeValue" : "writeProxy";
                             out << nl << stream << '.' << func << "(e__.Current);";
                             out << eb;
                         }
@@ -1122,7 +1122,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                         out << nl << "for(int ix__ = 0; ix__ < " << param << '.' << limitID << "; ++ix__)";
                         out << sb;
                         string func = (builtin->kind() == Builtin::KindObject ||
-                                       builtin->kind() == Builtin::KindValue) ? "writeObject" : "writeProxy";
+                                       builtin->kind() == Builtin::KindValue) ? "writeValue" : "writeProxy";
                         out << nl << stream << '.' << func << '(' << param << "[ix__]);";
                         out << eb;
                     }
@@ -1177,7 +1177,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                         }
                         out << nl << "IceInternal." << patcherName << "Patcher<Ice.Object> p__ = new IceInternal."
                             << patcherName << "Patcher<Ice.Object>(\"::Ice::Object\", " << param << ", ix__);";
-                        out << nl << stream << ".readObject(p__.patch);";
+                        out << nl << stream << ".readValue(p__.patch);";
                     }
                     else
                     {
@@ -1304,14 +1304,14 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                     << "> e__ = " << param << ".GetEnumerator();";
                 out << nl << "while(e__.MoveNext())";
                 out << sb;
-                out << nl << stream << ".writeObject(e__.Current);";
+                out << nl << stream << ".writeValue(e__.Current);";
                 out << eb;
             }
             else
             {
                 out << nl << "for(int ix__ = 0; ix__ < " << param << '.' << limitID << "; ++ix__)";
                 out << sb;
-                out << nl << stream << ".writeObject(" << param << "[ix__]);";
+                out << nl << stream << ".writeValue(" << param << "[ix__]);";
                 out << eb;
             }
             out << eb;
@@ -1367,7 +1367,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             string scoped = ContainedPtr::dynamicCast(type)->scoped();
             out << nl << "IceInternal." << patcherName << "Patcher<" << typeS << "> spx = new IceInternal."
                 << patcherName << "Patcher<" << typeS << ">(\"" << scoped << "\", " << param << ", ix__);";
-            out << nl << stream << ".readObject(spx.patch);";
+            out << nl << stream << ".readValue(spx.patch);";
             out << eb;
             out << eb;
         }
@@ -1629,10 +1629,6 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     if(marshal)
     {
         func = "write";
-        if(ProxyPtr::dynamicCast(type))
-        {
-           func += "__";
-        }
         out << nl << "if(" << param << " == null)";
         out << sb;
         out << nl << stream << ".writeSize(0);";
@@ -1675,10 +1671,6 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     else
     {
         func = "read";
-        if(ProxyPtr::dynamicCast(type))
-        {
-           func += "__";
-        }
         out << sb;
         out << nl << "int szx__ = " << stream << ".readAndCheckSeqSize("
             << static_cast<unsigned>(type->minWireSize()) << ");";

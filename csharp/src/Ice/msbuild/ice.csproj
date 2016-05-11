@@ -330,8 +330,8 @@
     <Compile Include="..\UdpTransceiver.cs">
       <Link>UdpTransceiver.cs</Link>
     </Compile>
-    <Compile Include="..\UnknownSlicedObject.cs">
-      <Link>UnknownSlicedObject.cs</Link>
+    <Compile Include="..\UnknownSlicedValue.cs">
+      <Link>UnknownSlicedValue.cs</Link>
     </Compile>
     <Compile Include="..\Util.cs">
       <Link>Util.cs</Link>

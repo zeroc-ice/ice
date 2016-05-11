@@ -353,8 +353,8 @@ public class AllTests : TestCommon.TestApp
             {
                 Ice.Object o = testPrx.SUnknownAsObject();
                 test(!testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0));
-                test(o is Ice.UnknownSlicedObject);
-                test((o as Ice.UnknownSlicedObject).getUnknownTypeId().Equals("::Test::SUnknown"));
+                test(o is Ice.UnknownSlicedValue);
+                test((o as Ice.UnknownSlicedValue).getUnknownTypeId().Equals("::Test::SUnknown"));
                 testPrx.checkSUnknown(o);
             }
             catch(Ice.NoValueFactoryException)
@@ -392,8 +392,8 @@ public class AllTests : TestCommon.TestApp
                     testPrx.begin_SUnknownAsObject().whenCompleted(
                         (Ice.Object o) =>
                         {
-                            test(o is Ice.UnknownSlicedObject);
-                            test((o as Ice.UnknownSlicedObject).getUnknownTypeId().Equals("::Test::SUnknown"));
+                            test(o is Ice.UnknownSlicedValue);
+                            test((o as Ice.UnknownSlicedValue).getUnknownTypeId().Equals("::Test::SUnknown"));
                             cb.called();
                         },
                         (Ice.Exception ex) =>

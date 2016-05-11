@@ -100,8 +100,6 @@
   <ItemGroup>
     <ClCompile Include="..\Checksum.cpp" />
     <ClCompile Include="..\CPlusPlusUtil.cpp" />
-    <ClCompile Include="..\CsUtil.cpp" />
-    <ClCompile Include="..\DotNetNames.cpp" />
     <ClCompile Include="..\FileTracker.cpp" />
     <ClCompile Include="..\Grammar.cpp" />
     <ClCompile Include="..\JavaUtil.cpp" />
@@ -121,8 +119,6 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\include\Slice\Checksum.h" />
     <ClInclude Include="..\..\..\include\Slice\CPlusPlusUtil.h" />
-    <ClInclude Include="..\..\..\include\Slice\CsUtil.h" />
-    <ClInclude Include="..\..\..\include\Slice\DotNetNames.h" />
     <ClInclude Include="..\..\..\include\Slice\FileTracker.h" />
     <ClInclude Include="..\..\..\include\Slice\JavaUtil.h" />
     <ClInclude Include="..\..\..\include\Slice\ObjCUtil.h" />

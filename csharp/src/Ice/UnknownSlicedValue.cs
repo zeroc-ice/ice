@@ -10,15 +10,15 @@
 namespace Ice
 {
     /// <summary>
-    /// Unknown sliced object holds an instance of unknown type.
+    /// Unknown sliced value holds an instance of an unknown Slice class type.
     /// </summary>
-    public sealed class UnknownSlicedObject : ObjectImpl
+    public sealed class UnknownSlicedValue : ObjectImpl
     {
         /// <summary>
-        /// Instantiates the class for an Ice object having the given Slice type.
+        /// Represents an instance of a Slice class type having the given Slice type.
         /// </summary>
         /// <param name="unknownTypeId">The Slice type ID of the unknown object.</param>
-        public UnknownSlicedObject(string unknownTypeId)
+        public UnknownSlicedValue(string unknownTypeId)
         {
             _unknownTypeId = unknownTypeId;
         }
@@ -34,14 +34,14 @@ namespace Ice
 
         public override void write__(OutputStream os__)
         {
-            os__.startObject(_slicedData);
-            os__.endObject();
+            os__.startValue(_slicedData);
+            os__.endValue();
         }
 
         public override void read__(InputStream is__)
         {
-            is__.startObject();
-            _slicedData = is__.endObject(true);
+            is__.startValue();
+            _slicedData = is__.endValue(true);
         }
 
         private string _unknownTypeId;
