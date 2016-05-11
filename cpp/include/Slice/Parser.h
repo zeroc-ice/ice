@@ -20,27 +20,6 @@
 #include <set>
 #include <stdio.h>
 
-//
-// Automatically link Slice[D|++11|++11D].lib with Visual C++
-//
-
-#if !defined(ICE_BUILDING_SLICE) && defined(SLICE_API_EXPORTS)
-#   define ICE_BUILDING_SLICE
-#endif
-
-#if defined(_MSC_VER) && !defined(ICE_BUILDING_SLICE)
-#   pragma comment(lib, ICE_LIBNAME("Slice"))
-#endif
-
-#ifndef SLICE_API
-#   if defined(ICE_STATIC_LIBS)
-#       define SLICE_API /**/
-#   elif defined(SLICE_API_EXPORTS)
-#       define SLICE_API ICE_DECLSPEC_EXPORT
-#   else
-#       define SLICE_API ICE_DECLSPEC_IMPORT
-#   endif
-#endif
 
 namespace Slice
 {
@@ -183,7 +162,7 @@ struct OptionalDef
 // CICompare -- function object to do case-insensitive string comparison.
 // ----------------------------------------------------------------------
 
-class SLICE_API CICompare : public std::binary_function<std::string, std::string, bool>
+class CICompare : public std::binary_function<std::string, std::string, bool>
 {
 public:
 
@@ -191,7 +170,7 @@ public:
 };
 
 #if defined(__SUNPRO_CC)
-SLICE_API bool cICompare(const std::string&, const std::string&);
+bool cICompare(const std::string&, const std::string&);
 #endif
 
 // ----------------------------------------------------------------------
@@ -199,7 +178,7 @@ SLICE_API bool cICompare(const std::string&, const std::string&);
 // most-derived to least-derived order.
 // ----------------------------------------------------------------------
 
-class SLICE_API DerivedToBaseCompare : public std::binary_function<std::string, std::string, bool>
+class DerivedToBaseCompare : public std::binary_function<std::string, std::string, bool>
 {
 public:
 
@@ -207,14 +186,14 @@ public:
 };
 
 #if defined(__SUNPRO_CC)
-SLICE_API bool derivedToBaseCompare(const ExceptionPtr&, const ExceptionPtr&);
+bool derivedToBaseCompare(const ExceptionPtr&, const ExceptionPtr&);
 #endif
 
 // ----------------------------------------------------------------------
 // ParserVisitor
 // ----------------------------------------------------------------------
 
-class SLICE_API ParserVisitor
+class ParserVisitor
 {
 public:
 
@@ -243,7 +222,7 @@ public:
 // DefinitionContext
 // ----------------------------------------------------------------------
 
-class SLICE_API DefinitionContext : public ::IceUtil::SimpleShared
+class DefinitionContext : public ::IceUtil::SimpleShared
 {
 public:
 
@@ -274,7 +253,7 @@ typedef ::IceUtil::Handle<DefinitionContext> DefinitionContextPtr;
 // GrammarBase
 // ----------------------------------------------------------------------
 
-class SLICE_API GrammarBase : public ::IceUtil::SimpleShared
+class GrammarBase : public ::IceUtil::SimpleShared
 {
 };
 
@@ -282,7 +261,7 @@ class SLICE_API GrammarBase : public ::IceUtil::SimpleShared
 // SyntaxTreeBase
 // ----------------------------------------------------------------------
 
-class SLICE_API SyntaxTreeBase : public GrammarBase
+class SyntaxTreeBase : public GrammarBase
 {
 public:
 
@@ -303,7 +282,7 @@ protected:
 // Type
 // ----------------------------------------------------------------------
 
-class SLICE_API Type : public virtual SyntaxTreeBase
+class Type : public virtual SyntaxTreeBase
 {
 public:
 
@@ -322,7 +301,7 @@ protected:
 // Builtin
 // ----------------------------------------------------------------------
 
-class SLICE_API Builtin : public virtual Type
+class Builtin : public virtual Type
 {
 public:
 
@@ -365,7 +344,7 @@ protected:
 // Contained
 // ----------------------------------------------------------------------
 
-class SLICE_API Contained : public virtual SyntaxTreeBase
+class Contained : public virtual SyntaxTreeBase
 {
 public:
 
@@ -432,7 +411,7 @@ protected:
 // Container
 // ----------------------------------------------------------------------
 
-class SLICE_API Container : public virtual SyntaxTreeBase
+class Container : public virtual SyntaxTreeBase
 {
 public:
 
@@ -512,7 +491,7 @@ protected:
 // Module
 // ----------------------------------------------------------------------
 
-class SLICE_API Module : public virtual Container, public virtual Contained
+class Module : public virtual Container, public virtual Contained
 {
 public:
 
@@ -531,7 +510,7 @@ protected:
 // Constructed
 // ----------------------------------------------------------------------
 
-class SLICE_API Constructed : public virtual Type, public virtual Contained
+class Constructed : public virtual Type, public virtual Contained
 {
 public:
 
@@ -552,7 +531,7 @@ protected:
 // ClassDecl
 // ----------------------------------------------------------------------
 
-class SLICE_API ClassDecl : public virtual Constructed
+class ClassDecl : public virtual Constructed
 {
 public:
 
@@ -594,7 +573,7 @@ private:
 // Operation
 // ----------------------------------------------------------------------
 
-class SLICE_API Operation : public virtual Contained, public virtual Container
+class Operation : public virtual Contained, public virtual Container
 {
 public:
 
@@ -652,7 +631,7 @@ protected:
 // so if you need the class as a "constructed type", use the
 // declaration() operation to navigate to the class declaration.
 //
-class SLICE_API ClassDef : public virtual Container, public virtual Contained
+class ClassDef : public virtual Container, public virtual Contained
 {
 public:
 
@@ -704,7 +683,7 @@ protected:
 // Proxy
 // ----------------------------------------------------------------------
 
-class SLICE_API Proxy : public virtual Type
+class Proxy : public virtual Type
 {
 public:
 
@@ -728,7 +707,7 @@ protected:
 // ----------------------------------------------------------------------
 
 // No inheritance from Constructed, as this is not a Type
-class SLICE_API Exception : public virtual Container, public virtual Contained
+class Exception : public virtual Container, public virtual Contained
 {
 public:
 
@@ -765,7 +744,7 @@ protected:
 // Struct
 // ----------------------------------------------------------------------
 
-class SLICE_API Struct : public virtual Container, public virtual Constructed
+class Struct : public virtual Container, public virtual Constructed
 {
 public:
 
@@ -793,7 +772,7 @@ protected:
 // Sequence
 // ----------------------------------------------------------------------
 
-class SLICE_API Sequence : public virtual Constructed
+class Sequence : public virtual Constructed
 {
 public:
 
@@ -821,7 +800,7 @@ protected:
 // Dictionary
 // ----------------------------------------------------------------------
 
-class SLICE_API Dictionary : public virtual Constructed
+class Dictionary : public virtual Constructed
 {
 public:
 
@@ -856,7 +835,7 @@ protected:
 // Enum
 // ----------------------------------------------------------------------
 
-class SLICE_API Enum : public virtual Constructed
+class Enum : public virtual Constructed
 {
 public:
 
@@ -890,7 +869,7 @@ protected:
 // Enumerator
 // ----------------------------------------------------------------------
 
-class SLICE_API Enumerator : public virtual Contained
+class Enumerator : public virtual Contained
 {
 public:
 
@@ -918,7 +897,7 @@ protected:
 // Const
 // ----------------------------------------------------------------------
 
-class SLICE_API Const : public virtual Contained
+class Const : public virtual Contained
 {
 public:
 
@@ -949,7 +928,7 @@ protected:
 // ParamDecl
 // ----------------------------------------------------------------------
 
-class SLICE_API ParamDecl : public virtual Contained
+class ParamDecl : public virtual Contained
 {
 public:
 
@@ -977,7 +956,7 @@ protected:
 // DataMember
 // ----------------------------------------------------------------------
 
-class SLICE_API DataMember : public virtual Contained
+class DataMember : public virtual Contained
 {
 public:
 
@@ -1013,7 +992,7 @@ protected:
 // Unit
 // ----------------------------------------------------------------------
 
-class SLICE_API Unit : public virtual Container
+class Unit : public virtual Container
 {
 public:
 
@@ -1114,7 +1093,7 @@ private:
     std::map< std::string, std::set<std::string> > _fileTopLevelModules;
 };
 
-extern SLICE_API Unit* unit; // The current parser for bison/flex
+extern Unit* unit; // The current parser for bison/flex
 
 }
 

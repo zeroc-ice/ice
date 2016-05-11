@@ -19,6 +19,11 @@
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/Timer.h>
 
+#ifdef getcwd
+#undef getcwd
+#endif
+#include <IceUtil/FileUtil.h>
+
 using namespace std;
 using namespace IcePHP;
 
@@ -1526,7 +1531,7 @@ parseProfiles(const string& file)
     // ice.config = config-file
     // ice.options = args
     //
-    ifstream in(file.c_str());
+    IceUtilInternal::ifstream in(file);
     if(!in)
     {
         php_error_docref(0, E_WARNING, "unable to open Ice profiles in %s", file.c_str());

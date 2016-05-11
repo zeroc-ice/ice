@@ -123,9 +123,9 @@
 #endif
 
 //
-// Let's use these extensions with IceUtil:
+// Let's use these extensions with Ice:
 //
-#if defined(ICE_UTIL_API_EXPORTS)
+#if defined(ICE_API_EXPORTS)
 #   define ICE_UTIL_API ICE_DECLSPEC_EXPORT
 #elif defined(ICE_STATIC_LIBS)
 #   define ICE_UTIL_API /**/
@@ -199,8 +199,8 @@
 #define ICE_INT_VERSION 30751      // AABBCC, with AA=major, BB=minor, CC=patch
 #define ICE_SO_VERSION "37a0"      // "ABC", with A=major, B=minor, C=patch
 
-#if !defined(ICE_BUILDING_ICE_UTIL) && defined(ICE_UTIL_API_EXPORTS)
-#   define ICE_BUILDING_ICE_UTIL
+#if !defined(ICE_BUILDING_ICE) && defined(ICE_API_EXPORTS)
+#   define ICE_BUILDING_ICE
 #endif
 
 #if defined(_MSC_VER)
@@ -239,11 +239,10 @@
 #   endif
 
 //
-//  Automatically link with IceUtil[D|++11|++11D].lib
+//  Automatically link with Ice[D|++11|++11D].lib
 //
-
-#   ifndef ICE_BUILDING_ICE_UTIL
-#      pragma comment(lib, ICE_LIBNAME("IceUtil"))
+#   if !defined(ICE_STATIC_LIBS) && !defined(ICE_BUILDING_ICE)
+#      pragma comment(lib, ICE_LIBNAME("Ice"))
 #   endif
 #endif
 

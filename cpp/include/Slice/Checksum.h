@@ -19,7 +19,7 @@ namespace Slice
 
 typedef std::map<std::string, std::vector<unsigned char> > ChecksumMap;
 
-SLICE_API ChecksumMap createChecksums(const UnitPtr&);
+ChecksumMap createChecksums(const UnitPtr&);
 
 }
 

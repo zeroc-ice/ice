@@ -16,7 +16,7 @@
 namespace Slice
 {
 
-class SLICE_API FileException : public ::IceUtil::Exception
+class FileException : public ::IceUtil::Exception
 {
 public:
 
@@ -40,7 +40,7 @@ private:
 class FileTracker;
 typedef IceUtil::Handle<FileTracker> FileTrackerPtr;
 
-class SLICE_API FileTracker : public ::IceUtil::SimpleShared
+class FileTracker : public ::IceUtil::SimpleShared
 {
 public:
 

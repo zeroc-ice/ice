@@ -54,11 +54,21 @@ typedef struct _stat64i32 structstat;
 #endif
 
 #ifdef _MSC_VER
+#ifndef O_RDONLY
 #   define O_RDONLY _O_RDONLY
-#   define O_BINARY _O_BINARY
+#endif
 
+#ifndef O_BINARY
+#   define O_BINARY _O_BINARY
+#endif
+
+#ifndef S_ISDIR
 #   define S_ISDIR(mode) ((mode) & _S_IFDIR)
+#endif
+
+#ifndef S_ISREG
 #   define S_ISREG(mode) ((mode) & _S_IFREG)
+#endif
 #endif
 
 #else

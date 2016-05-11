@@ -48,7 +48,7 @@ typedef ::IceUtil::Handle<ClassIdTok> ClassIdTokPtr;
 // StringTok
 // ----------------------------------------------------------------------
 
-class SLICE_API StringTok : public GrammarBase
+class StringTok : public GrammarBase
 {
 public:
 
@@ -61,7 +61,7 @@ public:
 // StringListTok
 // ----------------------------------------------------------------------
 
-class SLICE_API StringListTok : public GrammarBase
+class StringListTok : public GrammarBase
 {
 public:
 
@@ -73,7 +73,7 @@ public:
 // TypeStringTok
 // ----------------------------------------------------------------------
 
-class SLICE_API TypeStringTok : public GrammarBase
+class TypeStringTok : public GrammarBase
 {
 public:
 
@@ -85,7 +85,7 @@ public:
 // TypeStringListTok
 // ----------------------------------------------------------------------
 
-class SLICE_API TypeStringListTok : public GrammarBase
+class TypeStringListTok : public GrammarBase
 {
 public:
 
@@ -97,7 +97,7 @@ public:
 // IntegerTok
 // ----------------------------------------------------------------------
 
-class SLICE_API IntegerTok : public GrammarBase
+class IntegerTok : public GrammarBase
 {
 public:
 
@@ -110,7 +110,7 @@ public:
 // FloatingTok
 // ----------------------------------------------------------------------
 
-class SLICE_API FloatingTok : public GrammarBase
+class FloatingTok : public GrammarBase
 {
 public:
 
@@ -123,7 +123,7 @@ public:
 // BoolTok
 // ----------------------------------------------------------------------
 
-class SLICE_API BoolTok : public GrammarBase
+class BoolTok : public GrammarBase
 {
 public:
 
@@ -135,7 +135,7 @@ public:
 // ExceptionListTok
 // ----------------------------------------------------------------------
 
-class SLICE_API ExceptionListTok : public GrammarBase
+class ExceptionListTok : public GrammarBase
 {
 public:
 
@@ -147,7 +147,7 @@ public:
 // ClassListTok
 // ----------------------------------------------------------------------
 
-class SLICE_API ClassListTok : public GrammarBase
+class ClassListTok : public GrammarBase
 {
 public:
 
@@ -159,7 +159,7 @@ public:
 // EnumeratorListTok
 // ----------------------------------------------------------------------
 
-class SLICE_API EnumeratorListTok : public GrammarBase
+class EnumeratorListTok : public GrammarBase
 {
 public:
 
@@ -171,7 +171,7 @@ public:
 // ConstDefTok
 // ----------------------------------------------------------------------
 
-class SLICE_API ConstDefTok : public GrammarBase
+class ConstDefTok : public GrammarBase
 {
 public:
 
@@ -183,7 +183,7 @@ public:
 // OptionalDefTok
 // ----------------------------------------------------------------------
 
-class SLICE_API OptionalDefTok : public GrammarBase
+class OptionalDefTok : public GrammarBase
 {
 public:
 
@@ -195,7 +195,7 @@ public:
 // ClassIdTok
 // ----------------------------------------------------------------------
 
-class SLICE_API ClassIdTok : public GrammarBase
+class ClassIdTok : public GrammarBase
 {
 public:
 

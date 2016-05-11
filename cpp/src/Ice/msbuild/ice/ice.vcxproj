@@ -80,7 +80,7 @@
       <PreprocessorDefinitions>ICE_API_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>advapi32.lib;ws2_32.lib;Iphlpapi.lib</AdditionalDependencies>
+      <AdditionalDependencies>advapi32.lib;ws2_32.lib;Iphlpapi.lib;rpcrt4.lib;DbgHelp.lib;Shlwapi.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -88,7 +88,7 @@
       <PreprocessorDefinitions>ICE_API_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>advapi32.lib;ws2_32.lib;Iphlpapi.lib</AdditionalDependencies>
+      <AdditionalDependencies>advapi32.lib;ws2_32.lib;Iphlpapi.lib;rpcrt4.lib;DbgHelp.lib;Shlwapi.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -96,7 +96,7 @@
       <PreprocessorDefinitions>ICE_API_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>advapi32.lib;ws2_32.lib;Iphlpapi.lib</AdditionalDependencies>
+      <AdditionalDependencies>advapi32.lib;ws2_32.lib;Iphlpapi.lib;rpcrt4.lib;DbgHelp.lib;Shlwapi.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -104,7 +104,7 @@
       <PreprocessorDefinitions>ICE_API_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>advapi32.lib;ws2_32.lib;Iphlpapi.lib</AdditionalDependencies>
+      <AdditionalDependencies>advapi32.lib;ws2_32.lib;Iphlpapi.lib;rpcrt4.lib;DbgHelp.lib;Shlwapi.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -193,6 +193,7 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp" />
     <ClCompile Include="..\..\Acceptor.cpp" />
     <ClCompile Include="..\..\ACM.cpp" />
     <ClCompile Include="..\..\Application.cpp" />

@@ -20,13 +20,13 @@ namespace PHP
 //
 // Convert a scoped name into a PHP name.
 //
-SLICE_API std::string scopedToName(const std::string&, bool);
+std::string scopedToName(const std::string&, bool);
 
 //
 // Check the given identifier against PHP's list of reserved words. If it matches
 // a reserved word, then an escaped version is returned with a leading underscore.
 //
-SLICE_API std::string fixIdent(const std::string&);
+std::string fixIdent(const std::string&);
 
 //
 // Get the fully-qualified name of the given definition. If a suffix is provided,
@@ -36,13 +36,13 @@ SLICE_API std::string fixIdent(const std::string&);
 // COMPILERFIX: MSVC 6 seems to have a problem with const std::string
 // = std::string(), const std::string = std::string().
 //
-SLICE_API std::string getAbsolute(const Slice::ContainedPtr&, bool, const std::string& = "", const std::string& = "");
+std::string getAbsolute(const Slice::ContainedPtr&, bool, const std::string& = "", const std::string& = "");
 
 //
 // Since PHP uses the backslash character as the namespace separator, we have
 // to escape backslash characters when they appear in a string literal.
 //
-SLICE_API std::string escapeName(const std::string&);
+std::string escapeName(const std::string&);
 
 }
 }

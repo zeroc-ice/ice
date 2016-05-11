@@ -23,7 +23,7 @@ enum BaseType
     BaseTypeException
 };
 
-class SLICE_API ObjCGenerator : private ::IceUtil::noncopyable
+class ObjCGenerator : private ::IceUtil::noncopyable
 {
 public:
 

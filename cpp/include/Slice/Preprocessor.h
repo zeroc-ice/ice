@@ -14,23 +14,13 @@
 #include <IceUtil/Handle.h>
 #include <vector>
 
-#ifndef SLICE_API
-#   if defined(ICE_STATIC_LIBS)
-#       define SLICE_API /**/
-#   elif defined(SLICE_API_EXPORTS)
-#       define SLICE_API ICE_DECLSPEC_EXPORT
-#   else
-#       define SLICE_API ICE_DECLSPEC_IMPORT
-#   endif
-#endif
-
 namespace Slice
 {
 
 class Preprocessor;
 typedef IceUtil::Handle<Preprocessor> PreprocessorPtr;
 
-class SLICE_API Preprocessor : public IceUtil::SimpleShared
+class Preprocessor : public IceUtil::SimpleShared
 {
 public:
 

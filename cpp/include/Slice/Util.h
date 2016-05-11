@@ -19,19 +19,19 @@
 namespace Slice
 {
 
-SLICE_API std::string fullPath(const std::string&);
-SLICE_API std::string changeInclude(const std::string&, const std::vector<std::string>&);
-SLICE_API void setErrorStream(std::ostream&);
-SLICE_API std::ostream& getErrorStream();
-SLICE_API void emitError(const std::string&, int, const std::string&);
-SLICE_API void emitWarning(const std::string&, int, const std::string&);
-SLICE_API void emitError(const std::string&, const std::string&, const std::string&);
-SLICE_API void emitWarning(const std::string&, const std::string&, const std::string&);
-SLICE_API void emitRaw(const char*);
-SLICE_API std::vector<std::string> filterMcppWarnings(const std::string&);
-SLICE_API void printGeneratedHeader(IceUtilInternal::Output& out, const std::string&, const std::string& commentStyle = "//");
+std::string fullPath(const std::string&);
+std::string changeInclude(const std::string&, const std::vector<std::string>&);
+void setErrorStream(std::ostream&);
+std::ostream& getErrorStream();
+void emitError(const std::string&, int, const std::string&);
+void emitWarning(const std::string&, int, const std::string&);
+void emitError(const std::string&, const std::string&, const std::string&);
+void emitWarning(const std::string&, const std::string&, const std::string&);
+void emitRaw(const char*);
+std::vector<std::string> filterMcppWarnings(const std::string&);
+void printGeneratedHeader(IceUtilInternal::Output& out, const std::string&, const std::string& commentStyle = "//");
 
-class SLICE_API DependOutputUtil : IceUtil::noncopyable
+class DependOutputUtil : IceUtil::noncopyable
 {
 public:
 

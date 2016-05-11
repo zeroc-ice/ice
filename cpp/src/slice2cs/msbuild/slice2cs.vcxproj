@@ -66,22 +66,38 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <AdditionalIncludeDirectories>..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>ICE_STATIC_LIBS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <Link>
+      <AdditionalDependencies>rpcrt4.lib;advapi32.lib;DbgHelp.lib;Shlwapi.lib</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <AdditionalIncludeDirectories>..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>ICE_STATIC_LIBS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <Link>
+      <AdditionalDependencies>rpcrt4.lib;advapi32.lib;DbgHelp.lib;Shlwapi.lib</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>ICE_STATIC_LIBS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <Link>
+      <AdditionalDependencies>rpcrt4.lib;advapi32.lib;DbgHelp.lib;Shlwapi.lib</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>ICE_STATIC_LIBS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <Link>
+      <AdditionalDependencies>rpcrt4.lib;advapi32.lib;DbgHelp.lib;Shlwapi.lib</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Gen.cpp" />
@@ -93,7 +109,27 @@
   <ItemGroup>
     <ClInclude Include="..\Gen.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\IceUtil\msbuild\iceutil\iceutil.vcxproj">
+      <Project>{4d1a5110-3176-44ba-8bbb-57bf56519b9f}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Slice\msbuild\slice.vcxproj">
+      <Project>{57cd6ac2-0c9d-4648-9e9d-5df60c90f18a}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\..\..\msbuild\packages\mcpp.v140.2.7.2.9\build\native\mcpp.v140.targets" Condition="Exists('..\..\..\msbuild\packages\mcpp.v140.2.7.2.9\build\native\mcpp.v140.targets')" />
+    <Import Project="..\..\..\msbuild\packages\mcpp.v120.2.7.2.9\build\native\mcpp.v120.targets" Condition="Exists('..\..\..\msbuild\packages\mcpp.v120.2.7.2.9\build\native\mcpp.v120.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\..\..\msbuild\packages\mcpp.v140.2.7.2.9\build\native\mcpp.v140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\mcpp.v140.2.7.2.9\build\native\mcpp.v140.targets'))" />
+    <Error Condition="!Exists('..\..\..\msbuild\packages\mcpp.v120.2.7.2.9\build\native\mcpp.v120.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\mcpp.v120.2.7.2.9\build\native\mcpp.v120.targets'))" />
+  </Target>
 </Project>

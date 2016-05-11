@@ -16,17 +16,17 @@
 namespace Slice
 {
 
-SLICE_API extern FeatureProfile featureProfile;
-SLICE_API extern std::string paramPrefix;
+extern FeatureProfile featureProfile;
+extern std::string paramPrefix;
 
 struct ToIfdef
 {
-    SLICE_API char operator()(char);
+    char operator()(char);
 };
 
-SLICE_API void printHeader(::IceUtilInternal::Output&);
-SLICE_API void printVersionCheck(::IceUtilInternal::Output&);
-SLICE_API void printDllExportStuff(::IceUtilInternal::Output&, const std::string&);
+void printHeader(::IceUtilInternal::Output&);
+void printVersionCheck(::IceUtilInternal::Output&);
+void printDllExportStuff(::IceUtilInternal::Output&, const std::string&);
 
 const int TypeContextInParam = 1;
 const int TypeContextAMIEnd = 2;
@@ -35,37 +35,37 @@ const int TypeContextAMICallPrivateEnd = 8;
 const int TypeContextUseWstring = 16;
 const int TypeContextLocal = 32;
 
-SLICE_API bool isMovable(const TypePtr&);
+bool isMovable(const TypePtr&);
 
-SLICE_API std::string typeToString(const TypePtr&, const StringList& = StringList(), int = 0, bool = false);
-SLICE_API std::string typeToString(const TypePtr&, bool, const StringList& = StringList(), int = 0, bool = false);
-SLICE_API std::string returnTypeToString(const TypePtr&, bool, const StringList& = StringList(), int = 0, bool = false);
-SLICE_API std::string inputTypeToString(const TypePtr&, bool, const StringList& = StringList(), int = 0, bool = false);
-SLICE_API std::string outputTypeToString(const TypePtr&, bool, const StringList& = StringList(), int = 0, bool = false);
-SLICE_API std::string operationModeToString(Operation::Mode, bool cpp11 = false);
-SLICE_API std::string opFormatTypeToString(const OperationPtr&);
+std::string typeToString(const TypePtr&, const StringList& = StringList(), int = 0, bool = false);
+std::string typeToString(const TypePtr&, bool, const StringList& = StringList(), int = 0, bool = false);
+std::string returnTypeToString(const TypePtr&, bool, const StringList& = StringList(), int = 0, bool = false);
+std::string inputTypeToString(const TypePtr&, bool, const StringList& = StringList(), int = 0, bool = false);
+std::string outputTypeToString(const TypePtr&, bool, const StringList& = StringList(), int = 0, bool = false);
+std::string operationModeToString(Operation::Mode, bool cpp11 = false);
+std::string opFormatTypeToString(const OperationPtr&);
 
-SLICE_API std::string fixKwd(const std::string&);
+std::string fixKwd(const std::string&);
 
-SLICE_API void writeMarshalUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, bool, int, const std::string&,
+void writeMarshalUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, bool, int, const std::string&,
                                          bool, const StringList& = StringList(), int = 0, const std::string& = "",
                                          bool = true);
 
-SLICE_API void writeMarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool, int = 0);
-SLICE_API void writeUnmarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool, int = 0);
-SLICE_API void writeAllocateCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool, int = 0, bool = false);
+void writeMarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool, int = 0);
+void writeUnmarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool, int = 0);
+void writeAllocateCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool, int = 0, bool = false);
 
-SLICE_API std::string getEndArg(const TypePtr&, const StringList&, const std::string&);
-SLICE_API void writeEndCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool = false);
+std::string getEndArg(const TypePtr&, const StringList&, const std::string&);
+void writeEndCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool = false);
 
-SLICE_API bool findMetaData(const std::string&, const ClassDeclPtr&, std::string&);
-SLICE_API bool findMetaData(const std::string&, const StringList&, std::string&);
-SLICE_API std::string findMetaData(const StringList&, int = 0);
-SLICE_API bool inWstringModule(const SequencePtr&);
+bool findMetaData(const std::string&, const ClassDeclPtr&, std::string&);
+bool findMetaData(const std::string&, const StringList&, std::string&);
+std::string findMetaData(const StringList&, int = 0);
+bool inWstringModule(const SequencePtr&);
 
-SLICE_API std::string getDataMemberRef(const DataMemberPtr&);
+std::string getDataMemberRef(const DataMemberPtr&);
 
-SLICE_API std::string classDefToDelegateString(const ClassDefPtr&, int = 0, bool = false);
+std::string classDefToDelegateString(const ClassDefPtr&, int = 0, bool = false);
 }
 
 #endif
