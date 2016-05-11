@@ -2548,9 +2548,9 @@ def getTestDirectory(name, baseDir = os.getcwd()):
         configuration = ("cpp11-" if cpp11 else "") + ("static" if static else "shared")
 
     if os.path.isdir(os.path.join(baseDir, buildDir, name)):
-        return os.path.join(buildDir, name, platform, configuration)
+        return os.path.join(baseDir, buildDir, name, platform, configuration)
     else:
-        return os.path.join(buildDir, platform, configuration)
+        return os.path.join(baseDir, buildDir, platform, configuration)
 
 def getTestExecutable(name, baseDir = os.getcwd()):
     return os.path.join(getTestDirectory(name, baseDir), name)

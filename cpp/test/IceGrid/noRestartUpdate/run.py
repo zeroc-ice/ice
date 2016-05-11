@@ -35,11 +35,10 @@ else:
     IceGridAdmin.cleanDbDir(node2Dir)
 
 
-TestUtil.addAdditionalBinDirectories([os.path.join(os.getcwd(), TestUtil.getTestDirectory("testservice"))])
-
-nodeOverrideOptions = '--IceBinDir="%s" --ServerDir="%s" --NodePropertiesOverride="%s Ice.ServerIdleTime=0 Ice.PrintProcessId=0 Ice.PrintAdapterReady=0"' % (
+nodeOverrideOptions = '--IceBinDir="%s" --ServerDir="%s" --ServiceDir="%s" --NodePropertiesOverride="%s Ice.ServerIdleTime=0 Ice.PrintProcessId=0 Ice.PrintAdapterReady=0"' % (
     TestUtil.getCppBinDir("cpp"),
     TestUtil.getTestDirectory("server"),
+    TestUtil.getTestDirectory("testservice"),
     TestUtil.getCommandLine("", TestUtil.DriverConfig("server")).replace("--", ""))
 
 IceGridAdmin.iceGridTest("", nodeOverrideOptions)
