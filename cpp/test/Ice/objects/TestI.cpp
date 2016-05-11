@@ -323,7 +323,7 @@ UnexpectedObjectExceptionTestI::ice_invoke(const std::vector<Ice::Byte>&,
     out.startEncapsulation(current.encoding, Ice::DefaultFormat);
     AlsoEmptyPtr obj = ICE_MAKE_SHARED(AlsoEmpty); 
     out.write(obj);
-    out.writePendingObjects();
+    out.writePendingValues();
     out.endEncapsulation();
     out.finished(outParams);
     return true;

@@ -10,17 +10,17 @@
 package Ice;
 
 /**
- * Unknown sliced object holds an instance of unknown type.
+ * Unknown sliced value holds an instance of an unknown Slice class type.
  **/
-public final class UnknownSlicedObject extends ObjectImpl
+public final class UnknownSlicedValue extends ObjectImpl
 {
     /**
-     * Instantiates the class for an Ice object having the given Slice type.
+     * Represents an instance of a Slice class type having the given Slice type.
      *
      * @param unknownTypeId The Slice type ID of the unknown object.
      **/
     public
-    UnknownSlicedObject(String unknownTypeId)
+    UnknownSlicedValue(String unknownTypeId)
     {
         _unknownTypeId = unknownTypeId;
     }
@@ -30,26 +30,23 @@ public final class UnknownSlicedObject extends ObjectImpl
      *
      * @return The type ID.
      **/
-    public String
-    getUnknownTypeId()
+    public String getUnknownTypeId()
     {
         return _unknownTypeId;
     }
 
     @Override
-    public void
-    __write(OutputStream __os)
+    public void __write(OutputStream __os)
     {
-        __os.startObject(_slicedData);
-        __os.endObject();
+        __os.startValue(_slicedData);
+        __os.endValue();
     }
 
     @Override
-    public void
-    __read(InputStream __is)
+    public void __read(InputStream __is)
     {
-        __is.startObject();
-        _slicedData = __is.endObject(true);
+        __is.startValue();
+        _slicedData = __is.endValue(true);
     }
 
     private final String _unknownTypeId;

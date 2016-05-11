@@ -20,8 +20,8 @@ public final class UnexpectedObjectExceptionTestI extends Ice.Blobject
         Ice.Communicator communicator = current.adapter.getCommunicator();
         Ice.OutputStream out = new Ice.OutputStream(communicator);
         out.startEncapsulation(current.encoding, Ice.FormatType.DefaultFormat);
-        out.writeObject(new AlsoEmpty());
-        out.writePendingObjects();
+        out.writeValue(new AlsoEmpty());
+        out.writePendingValues();
         out.endEncapsulation();
         outParams.value = out.finished();
         return true;

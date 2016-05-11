@@ -50,7 +50,7 @@ IceInternal::OpaqueEndpointI::OpaqueEndpointI(vector<string>& args) :
 IceInternal::OpaqueEndpointI::OpaqueEndpointI(Short type, InputStream* s) : _type(type)
 {
     _rawEncoding = s->getEncoding();
-    Int sz = s->getEncapsSize();
+    Int sz = s->getEncapsulationSize();
     s->readBlob(const_cast<vector<Byte>&>(_rawBytes), sz);
 }
 

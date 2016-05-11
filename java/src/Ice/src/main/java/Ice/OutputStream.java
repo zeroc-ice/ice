@@ -294,20 +294,20 @@ public class OutputStream
     }
 
     /**
-     * Marks the start of an Ice object.
+     * Marks the start of a class instance.
      *
-     * @param data Preserved slices for this object, or null.
+     * @param data Preserved slices for this instance, or null.
      **/
-    public void startObject(SlicedData data)
+    public void startValue(SlicedData data)
     {
         assert(_encapsStack != null && _encapsStack.encoder != null);
-        _encapsStack.encoder.startInstance(SliceType.ObjectSlice, data);
+        _encapsStack.encoder.startInstance(SliceType.ValueSlice, data);
     }
 
     /**
-     * Marks the end of an Ice object.
+     * Marks the end of a class instance.
      **/
-    public void endObject()
+    public void endValue()
     {
         assert(_encapsStack != null && _encapsStack.encoder != null);
         _encapsStack.encoder.endInstance();
@@ -384,7 +384,7 @@ public class OutputStream
         _encapsStack.start = _buf.size();
 
         writeInt(0); // Placeholder for the encapsulation length.
-        _encapsStack.encoding.ice_write(this);
+        _encapsStack.encoding.__write(this);
     }
 
     /**
@@ -415,7 +415,7 @@ public class OutputStream
     {
         IceInternal.Protocol.checkSupportedEncoding(encoding);
         writeInt(6); // Size
-        encoding.ice_write(this);
+        encoding.__write(this);
     }
 
     /**
@@ -444,7 +444,7 @@ public class OutputStream
     }
 
     /**
-     * Marks the start of a new slice for an Ice object or user exception.
+     * Marks the start of a new slice for a class instance or user exception.
      *
      * @param typeId The Slice type ID corresponding to this slice.
 
@@ -461,7 +461,7 @@ public class OutputStream
     }
 
     /**
-     * Marks the end of a slice for an Ice object or user exception.
+     * Marks the end of a slice for a class instance or user exception.
      **/
     public void endSlice()
     {
@@ -471,22 +471,22 @@ public class OutputStream
 
     /**
      * Writes the state of Slice classes whose index was previously
-     * written with {@link #writeObject} to the stream.
+     * written with {@link #writeValue} to the stream.
      **/
-    public void writePendingObjects()
+    public void writePendingValues()
     {
         if(_encapsStack != null && _encapsStack.encoder != null)
         {
-            _encapsStack.encoder.writePendingObjects();
+            _encapsStack.encoder.writePendingValues();
         }
         else if(_encapsStack != null ? _encapsStack.encoding_1_0 : _encoding.equals(Util.Encoding_1_0))
         {
             //
-            // If using the 1.0 encoding and no objects were written, we
-            // still write an empty sequence for pending objects if
+            // If using the 1.0 encoding and no instances were written, we
+            // still write an empty sequence for pending instances if
             // requested (i.e.: if this is called).
             //
-            // This is required by the 1.0 encoding, even if no objects
+            // This is required by the 1.0 encoding, even if no instances
             // are written we do marshal an empty sequence if marshaled
             // data types use classes.
             //
@@ -1575,7 +1575,7 @@ public class OutputStream
         else
         {
             Identity ident = new Identity();
-            ident.ice_write(this);
+            ident.__write(this);
         }
     }
 
@@ -1642,12 +1642,12 @@ public class OutputStream
      * Writes a Slice value to the stream.
      *
      * @param v The value to write. This method writes the index of an instance; the state of the value is
-     * written once {@link #writePendingObjects} is called.
+     * written once {@link #writePendingValues} is called.
      **/
-    public void writeObject(Ice.Object v)
+    public void writeValue(Ice.Object v)
     {
         initEncaps();
-        _encapsStack.encoder.writeObject(v);
+        _encapsStack.encoder.writeValue(v);
     }
 
     /**
@@ -1656,11 +1656,11 @@ public class OutputStream
      * @param tag The optional tag.
      * @param v The optional value to write to the stream.
      **/
-    public <T extends Ice.Object> void writeObject(int tag, Optional<T> v)
+    public <T extends Ice.Object> void writeValue(int tag, Optional<T> v)
     {
         if(v != null && v.isSet())
         {
-            writeObject(tag, v.get());
+            writeValue(tag, v.get());
         }
     }
 
@@ -1670,11 +1670,11 @@ public class OutputStream
      * @param tag The optional tag.
      * @param v The value to write to the stream.
      **/
-    public void writeObject(int tag, Ice.Object v)
+    public void writeValue(int tag, Ice.Object v)
     {
         if(writeOptional(tag, OptionalFormat.Class))
         {
-            writeObject(v);
+            writeValue(v);
         }
     }
 
@@ -1768,7 +1768,7 @@ public class OutputStream
     private byte[] _stringBytes; // Reusable array for string operations.
     private char[] _stringChars; // Reusable array for string operations.
 
-    private enum SliceType { NoSlice, ObjectSlice, ExceptionSlice }
+    private enum SliceType { NoSlice, ValueSlice, ExceptionSlice }
 
     abstract private static class EncapsEncoder
     {
@@ -1780,7 +1780,7 @@ public class OutputStream
             _marshaledMap = new java.util.IdentityHashMap<Ice.Object, Integer>();
         }
 
-        abstract void writeObject(Ice.Object v);
+        abstract void writeValue(Ice.Object v);
         abstract void writeException(UserException v);
 
         abstract void startInstance(SliceType type, SlicedData data);
@@ -1793,7 +1793,7 @@ public class OutputStream
             return false;
         }
 
-        void writePendingObjects()
+        void writePendingValues()
         {
         }
 
@@ -1819,7 +1819,7 @@ public class OutputStream
         final protected OutputStream _stream;
         final protected Encaps _encaps;
 
-        // Encapsulation attributes for object marshalling.
+        // Encapsulation attributes for instance marshaling.
         final protected java.util.IdentityHashMap<Ice.Object, Integer> _marshaledMap;
         private java.util.TreeMap<String, Integer> _typeIdMap;
         private int _typeIdIndex;
@@ -1831,19 +1831,19 @@ public class OutputStream
         {
             super(stream, encaps);
             _sliceType = SliceType.NoSlice;
-            _objectIdIndex = 0;
+            _valueIdIndex = 0;
             _toBeMarshaledMap = new java.util.IdentityHashMap<Ice.Object, Integer>();
         }
 
         @Override
-        void writeObject(Ice.Object v)
+        void writeValue(Ice.Object v)
         {
             //
             // Object references are encoded as a negative integer in 1.0.
             //
             if(v != null)
             {
-                _stream.writeInt(-registerObject(v));
+                _stream.writeInt(-registerValue(v));
             }
             else
             {
@@ -1859,7 +1859,7 @@ public class OutputStream
             // flag that indicates whether or not the exception uses
             // classes.
             //
-            // This allows reading the pending objects even if some part of
+            // This allows reading the pending instances even if some part of
             // the exception was sliced.
             //
             boolean usesClasses = v.__usesClasses();
@@ -1867,7 +1867,7 @@ public class OutputStream
             v.__write(_stream);
             if(usesClasses)
             {
-                writePendingObjects();
+                writePendingValues();
             }
         }
 
@@ -1880,7 +1880,7 @@ public class OutputStream
         @Override
         void endInstance()
         {
-            if(_sliceType == SliceType.ObjectSlice)
+            if(_sliceType == SliceType.ValueSlice)
             {
                 //
                 // Write the Object slice.
@@ -1896,11 +1896,11 @@ public class OutputStream
         void startSlice(String typeId, int compactId, boolean last)
         {
             //
-            // For object slices, encode a boolean to indicate how the type ID
+            // For instance slices, encode a boolean to indicate how the type ID
             // is encoded and the type ID either as a string or index. For
             // exception slices, always encode the type ID as a string.
             //
-            if(_sliceType == SliceType.ObjectSlice)
+            if(_sliceType == SliceType.ValueSlice)
             {
                 int index = registerTypeId(typeId);
                 if(index < 0)
@@ -1935,15 +1935,15 @@ public class OutputStream
         }
 
         @Override
-        void writePendingObjects()
+        void writePendingValues()
         {
             while(_toBeMarshaledMap.size() > 0)
             {
                 //
-                // Consider the to be marshalled objects as marshalled now,
+                // Consider the to be marshalled instances as marshaled now,
                 // this is necessary to avoid adding again the "to be
-                // marshalled objects" into _toBeMarshaledMap while writing
-                // objects.
+                // marshaled instances" into _toBeMarshaledMap while writing
+                // instances.
                 //
                 _marshaledMap.putAll(_toBeMarshaledMap);
 
@@ -1975,7 +1975,7 @@ public class OutputStream
             _stream.writeSize(0); // Zero marker indicates end of sequence of sequences of instances.
         }
 
-        private int registerObject(Ice.Object v)
+        private int registerValue(Ice.Object v)
         {
             assert(v != null);
 
@@ -2001,8 +2001,8 @@ public class OutputStream
             // We haven't seen this instance previously, create a new
             // index, and insert it into the to-be-marshaled map.
             //
-            _toBeMarshaledMap.put(v, ++_objectIdIndex);
-            return _objectIdIndex;
+            _toBeMarshaledMap.put(v, ++_valueIdIndex);
+            return _valueIdIndex;
         }
 
         // Instance attributes
@@ -2011,8 +2011,8 @@ public class OutputStream
         // Slice attributes
         private int _writeSlice;        // Position of the slice data members
 
-        // Encapsulation attributes for object marshalling.
-        private int _objectIdIndex;
+        // Encapsulation attributes for instance marshaling.
+        private int _valueIdIndex;
         private java.util.IdentityHashMap<Ice.Object, Integer> _toBeMarshaledMap;
     }
 
@@ -2022,11 +2022,11 @@ public class OutputStream
         {
             super(stream, encaps);
             _current = null;
-            _objectIdIndex = 1;
+            _valueIdIndex = 1;
         }
 
         @Override
-        void writeObject(Ice.Object v)
+        void writeValue(Ice.Object v)
         {
             if(v == null)
             {
@@ -2041,9 +2041,9 @@ public class OutputStream
                 }
 
                 //
-                // If writing an object within a slice and using the sliced
-                // format, write an index from the object indirection
-                // table. The indirect object table is encoded at the end of
+                // If writing an instance within a slice and using the sliced
+                // format, write an index from the instance indirection
+                // table. The indirect instance table is encoded at the end of
                 // each slice and is always read (even if the Slice is
                 // unknown).
                 //
@@ -2120,11 +2120,11 @@ public class OutputStream
             _stream.writeByte((byte)0); // Placeholder for the slice flags
 
             //
-            // For object slices, encode the flag and the type ID either as a
+            // For instance slices, encode the flag and the type ID either as a
             // string or index. For exception slices, always encode the type
             // ID a string.
             //
-            if(_current.sliceType == SliceType.ObjectSlice)
+            if(_current.sliceType == SliceType.ValueSlice)
             {
                 //
                 // Encode the type ID (only in the first slice for the compact
@@ -2198,7 +2198,7 @@ public class OutputStream
                 _current.sliceFlags |= IceInternal.Protocol.FLAG_HAS_INDIRECTION_TABLE;
 
                 //
-                // Write the indirection object table.
+                // Write the indirection instance table.
                 //
                 _stream.writeSize(_current.indirectionTable.size());
                 for(Ice.Object v : _current.indirectionTable)
@@ -2243,7 +2243,7 @@ public class OutputStream
             //
             // We only remarshal preserved slices if we are using the sliced
             // format. Otherwise, we ignore the preserved slices, which
-            // essentially "slices" the object into the most-derived type
+            // essentially "slices" the instance into the most-derived type
             // known by the sender.
             //
             if(_encaps.format != FormatType.SlicedFormat)
@@ -2266,16 +2266,16 @@ public class OutputStream
                 }
 
                 //
-                // Make sure to also re-write the object indirection table.
+                // Make sure to also re-write the instance indirection table.
                 //
-                if(info.objects != null && info.objects.length > 0)
+                if(info.instances != null && info.instances.length > 0)
                 {
                     if(_current.indirectionTable == null) // Lazy initialization
                     {
                         _current.indirectionTable = new java.util.ArrayList<Ice.Object>();
                         _current.indirectionMap = new java.util.IdentityHashMap<Ice.Object, Integer>();
                     }
-                    for(Ice.Object o : info.objects)
+                    for(Ice.Object o : info.instances)
                     {
                         _current.indirectionTable.add(o);
                     }
@@ -2303,7 +2303,7 @@ public class OutputStream
             // We haven't seen this instance previously, create a new ID,
             // insert it into the marshaled map, and write the instance.
             //
-            _marshaledMap.put(v, ++_objectIdIndex);
+            _marshaledMap.put(v, ++_valueIdIndex);
 
             try
             {
@@ -2315,7 +2315,7 @@ public class OutputStream
                 _stream.instance().initializationData().logger.warning(s);
             }
 
-            _stream.writeSize(1); // Object instance marker.
+            _stream.writeSize(1); // Class instance marker.
             v.__write(_stream);
         }
 
@@ -2348,7 +2348,7 @@ public class OutputStream
 
         private InstanceData _current;
 
-        private int _objectIdIndex; // The ID of the next object to marhsal
+        private int _valueIdIndex; // The ID of the next instance to marhsal
     }
 
     private static final class Encaps

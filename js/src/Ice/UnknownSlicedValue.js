@@ -28,9 +28,9 @@ var SliceInfo = function()
     this.bytes = [];
 
     /**
-    * The Ice objects referenced by this slice.
+    * The class instances referenced by this slice.
     **/
-    this.objects = [];
+    this.instances = [];
 
     /**
     * Whether or not the slice contains optional members.
@@ -50,7 +50,7 @@ var SlicedData = function(slices)
 };
 Ice.SlicedData = SlicedData;
 
-var UnknownSlicedObject = Ice.Class(Ice.Object,
+var UnknownSlicedValue = Ice.Class(Ice.Object,
     {
         __init__: function(unknownTypeId)
         {
@@ -62,15 +62,15 @@ var UnknownSlicedObject = Ice.Class(Ice.Object,
         },
         __write: function(os)
         {
-            os.startObject(this._slicedData);
-            os.endObject();
+            os.startValue(this._slicedData);
+            os.endValue();
         },
         __read: function(is)
         {
-            is.startObject();
-            this._slicedData = is.endObject(true);
+            is.startValue();
+            this._slicedData = is.endValue(true);
         }
     });
-Ice.UnknownSlicedObject = UnknownSlicedObject;
+Ice.UnknownSlicedValue = UnknownSlicedValue;
 
 module.exports.Ice = Ice;

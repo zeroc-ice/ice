@@ -12,7 +12,7 @@ package Ice;
 /**
  * Holder base class for Ice objects that are in- or inout-parameters.
  **/
-public abstract class ObjectHolderBase<T extends Ice.Object> implements ReadObjectCallback
+public abstract class ObjectHolderBase<T extends Ice.Object> implements ReadValueCallback
 {
     /**
      * Instantiates the class with a <code>null</code> value.

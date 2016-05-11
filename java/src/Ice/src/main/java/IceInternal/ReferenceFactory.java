@@ -587,9 +587,9 @@ public final class ReferenceFactory
         if(!s.getEncoding().equals(Ice.Util.Encoding_1_0))
         {
             protocol = new Ice.ProtocolVersion();
-            protocol.ice_read(s);
+            protocol.__read(s);
             encoding = new Ice.EncodingVersion();
-            encoding.ice_read(s);
+            encoding.__read(s);
         }
         else
         {

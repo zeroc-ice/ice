@@ -129,22 +129,22 @@ public class AllTests
             communicator.getProperties().getProperty("Ice.Default.EncodingVersion").equals("1.0");
 
         os = new Ice.OutputStream(communicator);
-        ByteEnum.benum11.ice_write(os);
+        ByteEnum.write(os, ByteEnum.benum11);
         bytes = os.finished();
         test(bytes.length == 1); // ByteEnum should require one byte
 
         os = new Ice.OutputStream(communicator);
-        ShortEnum.senum11.ice_write(os);
+        ShortEnum.write(os, ShortEnum.senum11);
         bytes = os.finished();
         test(bytes.length == (encoding_1_0 ? 2 : 5));
 
         os = new Ice.OutputStream(communicator);
-        IntEnum.ienum11.ice_write(os);
+        IntEnum.write(os, IntEnum.ienum11);
         bytes = os.finished();
         test(bytes.length == (encoding_1_0 ? 4 : 5));
 
         os = new Ice.OutputStream(communicator);
-        SimpleEnum.blue.ice_write(os);
+        SimpleEnum.write(os, SimpleEnum.blue);
         bytes = os.finished();
         test(bytes.length == 1); // SimpleEnum should require one byte
 
@@ -250,7 +250,7 @@ public class AllTests
             os = new Ice.OutputStream(communicator);
             os.writeByte((byte)2); // Invalid enumerator
             Ice.InputStream in = new Ice.InputStream(communicator, os.finished());
-            ByteEnum.ice_read(in);
+            ByteEnum.read(in);
             test(false);
         }
         catch(Ice.MarshalException ex)
@@ -262,7 +262,7 @@ public class AllTests
             os = new Ice.OutputStream(communicator);
             os.writeByte((byte)128); // Invalid enumerator
             Ice.InputStream in = new Ice.InputStream(communicator, os.finished());
-            ByteEnum.ice_read(in);
+            ByteEnum.read(in);
             test(false);
         }
         catch(Ice.MarshalException ex)
@@ -274,7 +274,7 @@ public class AllTests
             os = new Ice.OutputStream(communicator);
             os.writeShort((short)-1); // Negative enumerators are not supported
             Ice.InputStream in = new Ice.InputStream(communicator, os.finished());
-            ShortEnum.ice_read(in);
+            ShortEnum.read(in);
             test(false);
         }
         catch(Ice.MarshalException ex)
@@ -286,7 +286,7 @@ public class AllTests
             os = new Ice.OutputStream(communicator);
             os.writeShort((short)0); // Invalid enumerator
             Ice.InputStream in = new Ice.InputStream(communicator, os.finished());
-            ShortEnum.ice_read(in);
+            ShortEnum.read(in);
             test(false);
         }
         catch(Ice.MarshalException ex)
@@ -298,7 +298,7 @@ public class AllTests
             os = new Ice.OutputStream(communicator);
             os.writeShort((short)32767); // Invalid enumerator
             Ice.InputStream in = new Ice.InputStream(communicator, os.finished());
-            ShortEnum.ice_read(in);
+            ShortEnum.read(in);
             test(false);
         }
         catch(Ice.MarshalException ex)
@@ -310,7 +310,7 @@ public class AllTests
             os = new Ice.OutputStream(communicator);
             os.writeInt(-1); // Negative enumerators are not supported
             Ice.InputStream in = new Ice.InputStream(communicator, os.finished());
-            IntEnum.ice_read(in);
+            IntEnum.read(in);
             test(false);
         }
         catch(Ice.MarshalException ex)
@@ -322,7 +322,7 @@ public class AllTests
             os = new Ice.OutputStream(communicator);
             os.writeInt(2); // Invalid enumerator
             Ice.InputStream in = new Ice.InputStream(communicator, os.finished());
-            IntEnum.ice_read(in);
+            IntEnum.read(in);
             test(false);
         }
         catch(Ice.MarshalException ex)

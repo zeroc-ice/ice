@@ -176,7 +176,7 @@ Ice::InputStream::initialize(const EncodingVersion& encoding)
 #endif
     _traceSlicing = false;
     _closure = 0;
-    _sliceObjects = true;
+    _sliceValues = true;
     _startSeq = -1;
     _minSeqSize = 0;
 }
@@ -192,7 +192,7 @@ Ice::InputStream::clear()
     }
 
     _startSeq = -1;
-    _sliceObjects = true;
+    _sliceValues = true;
 }
 
 void
@@ -233,9 +233,9 @@ Ice::InputStream::setCollectObjects(bool b)
 #endif
 
 void
-Ice::InputStream::setSliceObjects(bool b)
+Ice::InputStream::setSliceValues(bool b)
 {
-    _sliceObjects = b;
+    _sliceValues = b;
 }
 
 void
@@ -270,7 +270,7 @@ Ice::InputStream::swap(InputStream& other)
 #endif
     std::swap(_traceSlicing, other._traceSlicing);
     std::swap(_closure, other._closure);
-    std::swap(_sliceObjects, other._sliceObjects);
+    std::swap(_sliceValues, other._sliceValues);
 
     //
     // Swap is never called for streams that have encapsulations being read. However,
@@ -304,7 +304,7 @@ Ice::InputStream::resetEncapsulation()
 }
 
 Int
-Ice::InputStream::getEncapsSize()
+Ice::InputStream::getEncapsulationSize()
 {
     assert(_currentEncaps);
     return _currentEncaps->sz - static_cast<Int>(sizeof(Int)) - 2;
@@ -331,20 +331,20 @@ Ice::InputStream::skipEncapsulation()
 }
 
 void
-Ice::InputStream::readPendingObjects()
+Ice::InputStream::readPendingValues()
 {
     if(_currentEncaps && _currentEncaps->decoder)
     {
-        _currentEncaps->decoder->readPendingObjects();
+        _currentEncaps->decoder->readPendingValues();
     }
     else if(getEncoding() == Ice::Encoding_1_0)
     {
         //
-        // If using the 1.0 encoding and no objects were read, we
-        // still read an empty sequence of pending objects if
+        // If using the 1.0 encoding and no instances were read, we
+        // still read an empty sequence of pending instances if
         // requested (i.e.: if this is called).
         //
-        // This is required by the 1.0 encoding, even if no objects
+        // This is required by the 1.0 encoding, even if no instances
         // are written we do marshal an empty sequence if marshaled
         // data types use classes.
         //
@@ -1488,11 +1488,11 @@ Ice::InputStream::initEncaps()
         ValueFactoryManagerPtr vfm = valueFactoryManager();
         if(_currentEncaps->encoding == Encoding_1_0)
         {
-            _currentEncaps->decoder = new EncapsDecoder10(this, _currentEncaps, _sliceObjects, vfm);
+            _currentEncaps->decoder = new EncapsDecoder10(this, _currentEncaps, _sliceValues, vfm);
         }
         else
         {
-            _currentEncaps->decoder = new EncapsDecoder11(this, _currentEncaps, _sliceObjects, vfm);
+            _currentEncaps->decoder = new EncapsDecoder11(this, _currentEncaps, _sliceValues, vfm);
         }
     }
 }
@@ -1595,7 +1595,7 @@ Ice::InputStream::EncapsDecoder::addPatchEntry(Int index, PatchFunc patchFunc, v
     assert(index > 0);
 
     //
-    // Check if already un-marshalled the object. If that's the case,
+    // Check if we already unmarshaled the object. If that's the case,
     // just patch the object smart pointer and we're done.
     //
     IndexToPtrMap::iterator p = _unmarshaledMap.find(index);
@@ -1606,9 +1606,9 @@ Ice::InputStream::EncapsDecoder::addPatchEntry(Int index, PatchFunc patchFunc, v
     }
 
     //
-    // Add patch entry if the object isn't un-marshalled yet, the
+    // Add a patch entry if the object isn't unmarshaled yet, the
     // smart pointer will be patched when the instance is
-    // un-marshalled.
+    // unmarshaled.
     //
 
     PatchMap::iterator q = _patchMap.find(index);
@@ -1634,8 +1634,8 @@ void
 Ice::InputStream::EncapsDecoder::unmarshal(Int index, const Ice::ValuePtr& v)
 {
     //
-    // Add the object to the map of un-marshalled objects, this must
-    // be done before reading the objects (for circular references).
+    // Add the object to the map of unmarshaled instances, this must
+    // be done before reading the instances (for circular references).
     //
     _unmarshaledMap.insert(make_pair(index, v));
 
@@ -1645,7 +1645,7 @@ Ice::InputStream::EncapsDecoder::unmarshal(Int index, const Ice::ValuePtr& v)
     v->__read(_stream);
 
     //
-    // Patch all instances now that the object is un-marshalled.
+    // Patch all instances now that the object is unmarshaled.
     //
     PatchMap::iterator patchPos = _patchMap.find(index);
     if(patchPos != _patchMap.end())
@@ -1667,27 +1667,27 @@ Ice::InputStream::EncapsDecoder::unmarshal(Int index, const Ice::ValuePtr& v)
         _patchMap.erase(patchPos);
     }
 
-    if(_objectList.empty() && _patchMap.empty())
+    if(_valueList.empty() && _patchMap.empty())
     {
         _stream->postUnmarshal(v);
     }
     else
     {
-        _objectList.push_back(v);
+        _valueList.push_back(v);
 
         if(_patchMap.empty())
         {
             //
-            // Iterate over the object list and invoke ice_postUnmarshal on
-            // each object.  We must do this after all objects have been
-            // unmarshaled in order to ensure that any object data members
+            // Iterate over the value list and invoke ice_postUnmarshal on
+            // each value. We must do this after all values have been
+            // unmarshaled in order to ensure that any value data members
             // have been properly patched.
             //
-            for(ObjectList::iterator p = _objectList.begin(); p != _objectList.end(); ++p)
+            for(ValueList::iterator p = _valueList.begin(); p != _valueList.end(); ++p)
             {
                 _stream->postUnmarshal(*p);
             }
-            _objectList.clear();
+            _valueList.clear();
         }
     }
 }
@@ -1732,7 +1732,7 @@ Ice::InputStream::EncapsDecoder10::throwException(const UserExceptionFactoryPtr&
     // User exception with the 1.0 encoding start with a boolean flag
     // that indicates whether or not the exception has classes.
     //
-    // This allows reading the pending objects even if some part of
+    // This allows reading the pending values even if some part of
     // the exception was sliced.
     //
     bool usesClasses;
@@ -1776,7 +1776,7 @@ Ice::InputStream::EncapsDecoder10::throwException(const UserExceptionFactoryPtr&
                 ex.__read(_stream);
                 if(usesClasses)
                 {
-                    readPendingObjects();
+                    readPendingValues();
                 }
                 throw;
 
@@ -1823,9 +1823,9 @@ SlicedDataPtr
 Ice::InputStream::EncapsDecoder10::endInstance(bool)
 {
     //
-    // Read the Ice::Object slice.
+    // Read the Ice::Value slice.
     //
-    if(_sliceType == ObjectSlice)
+    if(_sliceType == ValueSlice)
     {
         startSlice();
         Int sz = _stream->readSize(); // For compatibility with the old AFM.
@@ -1853,12 +1853,12 @@ Ice::InputStream::EncapsDecoder10::startSlice()
     }
 
     //
-    // For objects, first read the type ID boolean which indicates
+    // For values, first read the type ID boolean which indicates
     // whether or not the type ID is encoded as a string or as an
     // index. For exceptions, the type ID is always encoded as a
     // string.
     //
-    if(_sliceType == ObjectSlice)
+    if(_sliceType == ValueSlice)
     {
         bool isIndex;
         _stream->read(isIndex);
@@ -1891,7 +1891,7 @@ Ice::InputStream::EncapsDecoder10::skipSlice()
 }
 
 void
-Ice::InputStream::EncapsDecoder10::readPendingObjects()
+Ice::InputStream::EncapsDecoder10::readPendingValues()
 {
     Int num;
     do
@@ -1925,7 +1925,7 @@ Ice::InputStream::EncapsDecoder10::readInstance()
         throw MarshalException(__FILE__, __LINE__, "invalid object id");
     }
 
-    _sliceType = ObjectSlice;
+    _sliceType = ValueSlice;
     _skipFirstSlice = false;
 
     //
@@ -1956,11 +1956,11 @@ Ice::InputStream::EncapsDecoder10::readInstance()
         }
 
         //
-        // If object slicing is disabled, stop un-marshalling.
+        // If value slicing is disabled, stop unmarshaling.
         //
-        if(!_sliceObjects)
+        if(!_sliceValues)
         {
-            throw NoValueFactoryException(__FILE__, __LINE__, "no value factory found and object slicing is disabled",
+            throw NoValueFactoryException(__FILE__, __LINE__, "no value factory found and value slicing is disabled",
                                            _typeId);
         }
 
@@ -1972,7 +1972,7 @@ Ice::InputStream::EncapsDecoder10::readInstance()
     }
 
     //
-    // Un-marshal the object and add-it to the map of un-marshaled objects.
+    // Unmarshal the instance and add it to the map of unmarshaled instances.
     //
     unmarshal(index, v);
 }
@@ -2129,11 +2129,11 @@ Ice::InputStream::EncapsDecoder11::startSlice()
     _stream->read(_current->sliceFlags);
 
     //
-    // Read the type ID, for object slices the type ID is encoded as a
+    // Read the type ID, for value slices the type ID is encoded as a
     // string or as an index, for exceptions it's always encoded as a
     // string.
     //
-    if(_current->sliceType == ObjectSlice)
+    if(_current->sliceType == ValueSlice)
     {
         if((_current->sliceFlags & FLAG_HAS_TYPE_ID_COMPACT) == FLAG_HAS_TYPE_ID_COMPACT) // Must be checked first!
         {
@@ -2240,7 +2240,7 @@ Ice::InputStream::EncapsDecoder11::skipSlice()
     }
     else
     {
-        if(_current->sliceType == ObjectSlice)
+        if(_current->sliceType == ValueSlice)
         {
             throw NoValueFactoryException(__FILE__, __LINE__,
                                           "no value factory found and compact format prevents "
@@ -2325,14 +2325,14 @@ Ice::InputStream::EncapsDecoder11::readInstance(Int index, PatchFunc patchFunc, 
         return index;
     }
 
-    push(ObjectSlice);
+    push(ValueSlice);
 
     //
     // Get the object ID before we start reading slices. If some
     // slices are skiped, the indirect object table are still read and
-    // might read other objects.
+    // might read other instances.
     //
-    index = ++_objectIdIndex;
+    index = ++_valueIdIndex;
 
     //
     // Read the first slice header.
@@ -2368,11 +2368,11 @@ Ice::InputStream::EncapsDecoder11::readInstance(Int index, PatchFunc patchFunc, 
         }
 
         //
-        // If object slicing is disabled, stop un-marshalling.
+        // If value slicing is disabled, stop unmarshaling.
         //
-        if(!_sliceObjects)
+        if(!_sliceValues)
         {
-            throw NoValueFactoryException(__FILE__, __LINE__, "no value factory found and object slicing is disabled",
+            throw NoValueFactoryException(__FILE__, __LINE__, "no value factory found and value slicing is disabled",
                                           _current->typeId);
         }
 
@@ -2382,7 +2382,7 @@ Ice::InputStream::EncapsDecoder11::readInstance(Int index, PatchFunc patchFunc, 
         skipSlice();
 
         //
-        // If this is the last slice, keep the object as an opaque UnknownSlicedObject.
+        // If this is the last slice, keep the object as an opaque UnknownSlicedValue.
         //
         if(_current->sliceFlags & FLAG_IS_LAST_SLICE)
         {
@@ -2394,7 +2394,7 @@ Ice::InputStream::EncapsDecoder11::readInstance(Int index, PatchFunc patchFunc, 
             v = newInstance(Object::ice_staticId());
             if(!v)
             {
-                v = ICE_MAKE_SHARED(UnknownSlicedObject, mostDerivedId);
+                v = ICE_MAKE_SHARED(UnknownSlicedValue, mostDerivedId);
             }
 
             break;
@@ -2404,7 +2404,7 @@ Ice::InputStream::EncapsDecoder11::readInstance(Int index, PatchFunc patchFunc, 
     }
 
     //
-    // Un-marshal the object
+    // Unmarshal the object.
     //
     unmarshal(index, v);
 
@@ -2440,21 +2440,21 @@ Ice::InputStream::EncapsDecoder11::readSlicedData()
     for(SliceInfoSeq::size_type n = 0; n < _current->slices.size(); ++n)
     {
         //
-        // We use the "objects" list in SliceInfo to hold references
-        // to the target objects. Note that the objects might not have
+        // We use the "instances" list in SliceInfo to hold references
+        // to the target instances. Note that the instances might not have
         // been read yet in the case of a circular reference to an
-        // enclosing object.
+        // enclosing instance.
         //
         const IndexList& table = _current->indirectionTables[n];
-        vector<ValuePtr>& objects = _current->slices[n]->objects;
-        objects.resize(table.size());
+        vector<ValuePtr>& instances = _current->slices[n]->instances;
+        instances.resize(table.size());
         IndexList::size_type j = 0;
         for(IndexList::const_iterator p = table.begin(); p != table.end(); ++p)
         {
 #ifdef ICE_CPP11_MAPPING
-            addPatchEntry(*p, &patchHandle<Value>, &objects[j++]);
+            addPatchEntry(*p, &patchHandle<Value>, &instances[j++]);
 #else
-            addPatchEntry(*p, &patchHandle<Object>, &objects[j++]);
+            addPatchEntry(*p, &patchHandle<Object>, &instances[j++]);
 #endif
         }
     }

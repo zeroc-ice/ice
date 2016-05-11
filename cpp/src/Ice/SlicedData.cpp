@@ -17,7 +17,7 @@ using namespace Ice;
 #ifndef ICE_CPP11_MAPPING
 IceUtil::Shared* Ice::upCast(SliceInfo* p) { return p; }
 IceUtil::Shared* Ice::upCast(SlicedData* p) { return p; }
-IceUtil::Shared* Ice::upCast(UnknownSlicedObject* p) { return p; }
+IceUtil::Shared* Ice::upCast(UnknownSlicedValue* p) { return p; }
 #endif
 
 Ice::SlicedData::SlicedData(const SliceInfoSeq& seq) :
@@ -35,7 +35,7 @@ Ice::SlicedData::__gcVisitMembers(IceInternal::GCVisitor& visitor)
     //
     for(SliceInfoSeq::const_iterator p = slices.begin(); p != slices.end(); ++p)
     {
-        for(vector<ObjectPtr>::iterator q = (*p)->objects.begin(); q != (*p)->objects.end(); ++q)
+        for(vector<ObjectPtr>::iterator q = (*p)->instances.begin(); q != (*p)->instances.end(); ++q)
         {
             if(q->get()->__gcVisit(visitor))
             {
@@ -46,7 +46,7 @@ Ice::SlicedData::__gcVisitMembers(IceInternal::GCVisitor& visitor)
 }
 
 void
-Ice::UnknownSlicedObject::__gcVisitMembers(IceInternal::GCVisitor& _v)
+Ice::UnknownSlicedValue::__gcVisitMembers(IceInternal::GCVisitor& _v)
 {
     if(_slicedData)
     {
@@ -55,32 +55,32 @@ Ice::UnknownSlicedObject::__gcVisitMembers(IceInternal::GCVisitor& _v)
 }
 #endif
 
-Ice::UnknownSlicedObject::UnknownSlicedObject(const string& unknownTypeId) : _unknownTypeId(unknownTypeId)
+Ice::UnknownSlicedValue::UnknownSlicedValue(const string& unknownTypeId) : _unknownTypeId(unknownTypeId)
 {
 }
 
 const string&
-Ice::UnknownSlicedObject::getUnknownTypeId() const
+Ice::UnknownSlicedValue::getUnknownTypeId() const
 {
     return _unknownTypeId;
 }
 
 SlicedDataPtr
-Ice::UnknownSlicedObject::getSlicedData() const
+Ice::UnknownSlicedValue::getSlicedData() const
 {
     return _slicedData;
 }
 
 void
-Ice::UnknownSlicedObject::__write(Ice::OutputStream* __os) const
+Ice::UnknownSlicedValue::__write(Ice::OutputStream* __os) const
 {
-    __os->startObject(_slicedData);
-    __os->endObject();
+    __os->startValue(_slicedData);
+    __os->endValue();
 }
 
 void
-Ice::UnknownSlicedObject::__read(Ice::InputStream* __is)
+Ice::UnknownSlicedValue::__read(Ice::InputStream* __is)
 {
-    __is->startObject();
-    _slicedData = __is->endObject(true);
+    __is->startValue();
+    _slicedData = __is->endValue(true);
 }

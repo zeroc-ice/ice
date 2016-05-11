@@ -60,7 +60,7 @@ public final class ProxyFactory
     streamToProxy(Ice.InputStream s)
     {
         Ice.Identity ident = new Ice.Identity();
-        ident.ice_read(s);
+        ident.__read(s);
 
         Reference ref = _instance.referenceFactory().create(ident, s);
         return referenceToProxy(ref);

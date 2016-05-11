@@ -9,18 +9,16 @@
 
 package IceInternal;
 
-public class SequencePatcher implements Ice.ReadObjectCallback
+public class SequencePatcher implements Ice.ReadValueCallback
 {
-    // TBD: Remove _type?
-    public SequencePatcher(java.lang.Object[] seq, Class<?> cls, String type, int index)
+    public SequencePatcher(java.lang.Object[] seq, Class<?> cls, int index)
     {
         _seq = seq;
         _cls = cls;
-        _type = type;
         _index = index;
     }
 
-    public void objectReady(Ice.Object v)
+    public void valueReady(Ice.Object v)
     {
         if(v != null)
         {
@@ -39,6 +37,5 @@ public class SequencePatcher implements Ice.ReadObjectCallback
 
     private java.lang.Object[] _seq;
     private Class<?> _cls;
-    private String _type;
     private int _index;
 }

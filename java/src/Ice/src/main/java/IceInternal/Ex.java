@@ -18,10 +18,10 @@ public class Ex
         // value factory, in this case raise a NoValueFactoryException
         // instead.
         //
-        if(v instanceof Ice.UnknownSlicedObject)
+        if(v instanceof Ice.UnknownSlicedValue)
         {
-            Ice.UnknownSlicedObject uso = (Ice.UnknownSlicedObject)v;
-            throw new Ice.NoValueFactoryException("", uso.getUnknownTypeId());
+            Ice.UnknownSlicedValue usv = (Ice.UnknownSlicedValue)v;
+            throw new Ice.NoValueFactoryException("", usv.getUnknownTypeId());
         }
 
         String type = v.ice_id();

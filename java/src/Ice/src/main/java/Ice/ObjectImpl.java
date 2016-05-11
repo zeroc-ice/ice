@@ -357,18 +357,18 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
     public void
     __write(OutputStream os)
     {
-         os.startObject(null);
+         os.startValue(null);
          __writeImpl(os);
-         os.endObject();
+         os.endValue();
     }
 
     @Override
     public void
     __read(InputStream is)
     {
-         is.startObject();
+         is.startValue();
          __readImpl(is);
-         is.endObject(false);
+         is.endValue(false);
     }
 
     protected void

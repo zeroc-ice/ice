@@ -96,7 +96,7 @@
         "Timer.js",
         "TraceLevels.js",
         "TraceUtil.js",
-        "UnknownSlicedObject.js",
+        "UnknownSlicedValue.js",
         "UUID.js",
         "ValueFactoryManagerI.js",
         "WSEndpoint.js",

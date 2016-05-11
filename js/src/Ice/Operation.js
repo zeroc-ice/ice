@@ -227,7 +227,7 @@ function unmarshalParams(is, retvalInfo, allParamInfo, optParamInfo, usesClasses
 
     if(usesClasses)
     {
-        is.readPendingObjects();
+        is.readPendingValues();
     }
 }
 
@@ -266,7 +266,7 @@ function marshalParams(os, params, retvalInfo, paramInfo, optParamInfo, usesClas
 
     if(usesClasses)
     {
-        os.writePendingObjects();
+        os.writePendingValues();
     }
 }
 

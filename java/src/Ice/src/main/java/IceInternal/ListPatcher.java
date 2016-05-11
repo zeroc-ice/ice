@@ -9,18 +9,16 @@
 
 package IceInternal;
 
-public class ListPatcher<T> implements Ice.ReadObjectCallback
+public class ListPatcher<T> implements Ice.ReadValueCallback
 {
-    // TBD: Remove _type?
-    public ListPatcher(java.util.List<T> list, Class<T> cls, String type, int index)
+    public ListPatcher(java.util.List<T> list, Class<T> cls, int index)
     {
         _list = list;
         _cls = cls;
-        _type = type;
         _index = index;
     }
 
-    public void objectReady(Ice.Object v)
+    public void valueReady(Ice.Object v)
     {
         if(v != null)
         {
@@ -44,6 +42,5 @@ public class ListPatcher<T> implements Ice.ReadObjectCallback
 
     private java.util.List<T> _list;
     private Class<T> _cls;
-    private String _type;
     private int _index;
 }

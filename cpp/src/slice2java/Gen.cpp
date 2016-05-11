@@ -845,7 +845,7 @@ void
 Slice::JavaVisitor::writePatcher(Output& out, const string& package, const DataMemberList& classMembers,
                                  const DataMemberList& optionalMembers)
 {
-    out << sp << nl << "private class Patcher implements Ice.ReadObjectCallback";
+    out << sp << nl << "private class Patcher implements Ice.ReadValueCallback";
     out << sb;
     if(classMembers.size() > 1)
     {
@@ -855,7 +855,7 @@ Slice::JavaVisitor::writePatcher(Output& out, const string& package, const DataM
         out << eb;
     }
 
-    out << sp << nl << "public void" << nl << "objectReady(Ice.Object v)";
+    out << sp << nl << "public void" << nl << "valueReady(Ice.Object v)";
     out << sb;
     if(classMembers.size() > 1)
     {
@@ -1302,7 +1302,7 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
                 writeMarshalUnmarshalParams(out, package, inParams, 0, iter, false, true, true);
                 if(op->sendsClasses(false))
                 {
-                    out << nl << "__is.readPendingObjects();";
+                    out << nl << "__is.readPendingValues();";
                 }
                 out << nl << "__inS.endReadParams();";
             }
@@ -1367,7 +1367,7 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
                 writeMarshalUnmarshalParams(out, package, outParams, op, iter, true, optionalMapping, true);
                 if(op->returnsClasses(false))
                 {
-                    out << nl << "__os.writePendingObjects();";
+                    out << nl << "__os.writePendingValues();";
                 }
                 out << nl << "__inS.__endWriteParams(true);";
             }
@@ -1449,7 +1449,7 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
                 writeMarshalUnmarshalParams(out, package, inParams, 0, iter, false, true, true);
                 if(op->sendsClasses(false))
                 {
-                    out << nl << "__is.readPendingObjects();";
+                    out << nl << "__is.readPendingValues();";
                 }
                 out << nl << "__inS.endReadParams();";
             }
@@ -1664,16 +1664,16 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
     {
         out << sp << nl << "public void __write(Ice.OutputStream __os)";
         out << sb;
-        out << nl << "__os.startObject(__slicedData);";
+        out << nl << "__os.startValue(__slicedData);";
         out << nl << "__writeImpl(__os);";
-        out << nl << "__os.endObject();";
+        out << nl << "__os.endValue();";
         out << eb;
 
         out << sp << nl << "public void __read(Ice.InputStream __is)";
         out << sb;
-        out << nl << "__is.startObject();";
+        out << nl << "__is.startValue();";
         out << nl << "__readImpl(__is);";
-        out << nl << "__slicedData = __is.endObject(true);";
+        out << nl << "__slicedData = __is.endValue(true);";
         out << eb;
     }
 
@@ -4047,7 +4047,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     if(!p->isLocal())
     {
-        out << sp << nl << "public void" << nl << "ice_write(Ice.OutputStream __os)";
+        out << sp << nl << "public void" << nl << "__write(Ice.OutputStream __os)";
         out << sb;
         iter = 0;
         for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
@@ -4063,7 +4063,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
             writePatcher(out, package, classMembers, DataMemberList());
         }
 
-        out << sp << nl << "public void" << nl << "ice_read(Ice.InputStream __is)";
+        out << sp << nl << "public void" << nl << "__read(Ice.InputStream __is)";
         out << sb;
         iter = 0;
         int patchIter = 0;
@@ -4074,25 +4074,25 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         }
         out << eb;
 
-        out << sp << nl << "static public void" << nl << "ice_write(Ice.OutputStream __os, " << name << " __v)";
+        out << sp << nl << "static public void" << nl << "write(Ice.OutputStream __os, " << name << " __v)";
         out << sb;
         out << nl << "if(__v == null)";
         out << sb;
-        out << nl << "__nullMarshalValue.ice_write(__os);";
+        out << nl << "__nullMarshalValue.__write(__os);";
         out << eb;
         out << nl << "else";
         out << sb;
-        out << nl << "__v.ice_write(__os);";
+        out << nl << "__v.__write(__os);";
         out << eb;
         out << eb;
 
-        out << sp << nl << "static public " << name << nl << "ice_read(Ice.InputStream __is, " << name << " __v)";
+        out << sp << nl << "static public " << name << nl << "read(Ice.InputStream __is, " << name << " __v)";
         out << sb;
         out << nl << "if(__v == null)";
         out << sb;
         out << nl << " __v = new " << name << "();";
         out << eb;
-        out << nl << "__v.ice_read(__is);";
+        out << nl << "__v.__read(__is);";
         out << nl << "return __v;";
         out << eb;
 
@@ -4465,12 +4465,12 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     if(!p->isLocal())
     {
-        out << sp << nl << "public void" << nl << "ice_write(Ice.OutputStream __os)";
+        out << sp << nl << "public void" << nl << "__write(Ice.OutputStream __os)";
         out << sb;
         out << nl << "__os.writeEnum(value(), " << p->maxValue() << ");";
         out << eb;
 
-        out << sp << nl << "public static void" << nl << "ice_write(Ice.OutputStream __os, " << name << " __v)";
+        out << sp << nl << "public static void" << nl << "write(Ice.OutputStream __os, " << name << " __v)";
         out << sb;
         out << nl << "if(__v == null)";
         out << sb;
@@ -4483,7 +4483,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         out << eb;
         out << eb;
 
-        out << sp << nl << "public static " << name << nl << "ice_read(Ice.InputStream __is)";
+        out << sp << nl << "public static " << name << nl << "read(Ice.InputStream __is)";
         out << sb;
         out << nl << "int __v = __is.readEnum(" << p->maxValue() << ");";
         out << nl << "return __validate(__v);";
@@ -4686,7 +4686,7 @@ Slice::Gen::HolderVisitor::writeHolder(const TypePtr& p)
         out << eb;
 
         out << sp << nl << "public void";
-        out << nl << "objectReady(Ice.Object v)";
+        out << nl << "valueReady(Ice.Object v)";
         out << sb;
         out << nl << "if(v == null || v instanceof " << typeS << ")";
         out << sb;
@@ -4862,7 +4862,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
                 writeMarshalUnmarshalParams(out, package, pl, op, iter, false, true);
                 if(op->returnsClasses(false))
                 {
-                    out << nl << "__is.readPendingObjects();";
+                    out << nl << "__is.readPendingValues();";
                 }
                 out << nl << "__result.endReadParams();";
             }
@@ -5100,12 +5100,12 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "return __ids[" << scopedPos << "];";
     out << eb;
 
-    out << sp << nl << "public static void __write(Ice.OutputStream __os, " << name << "Prx v)";
+    out << sp << nl << "public static void write(Ice.OutputStream __os, " << name << "Prx v)";
     out << sb;
     out << nl << "__os.writeProxy(v);";
     out << eb;
 
-    out << sp << nl << "public static " << name << "Prx __read(Ice.InputStream __is)";
+    out << sp << nl << "public static " << name << "Prx read(Ice.InputStream __is)";
     out << sb;
     out << nl << "Ice.ObjectPrx proxy = __is.readProxy();";
     out << nl << "if(proxy != null)";
@@ -5639,7 +5639,7 @@ Slice::Gen::HelperVisitor::writeOperation(const ClassDefPtr& p, const string& pa
             writeMarshalUnmarshalParams(out, package, pl, 0, iter, true, optionalMapping);
             if(op->sendsClasses(false))
             {
-                out << nl << "__os.writePendingObjects();";
+                out << nl << "__os.writePendingValues();";
             }
             out << nl << "__result.endWriteParams();";
         }
@@ -6621,7 +6621,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
                 writeMarshalUnmarshalParams(out, classPkg, outParams, p, iter, true, optionalMapping, false);
                 if(p->returnsClasses(false))
                 {
-                    out << nl << "__os.writePendingObjects();";
+                    out << nl << "__os.writePendingValues();";
                 }
                 out << nl << "this.__endWriteParams(true);";
                 out << eb;

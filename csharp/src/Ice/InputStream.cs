@@ -273,7 +273,7 @@ namespace Ice
             _encapsCache = null;
             _traceSlicing = false;
             _closure = null;
-            _sliceObjects = true;
+            _sliceValues = true;
             _startSeq = -1;
             _minSeqSize = 0;
         }
@@ -303,7 +303,7 @@ namespace Ice
             }
 
             _startSeq = -1;
-            _sliceObjects = true;
+            _sliceValues = true;
         }
 
         /// <summary>
@@ -351,17 +351,17 @@ namespace Ice
         }
 
         /// <summary>
-        /// Determines the behavior of the stream when extracting Slice objects.
-        /// A Slice object is "sliced" when a factory cannot be found for a Slice type ID.
-        /// The stream's default behavior is to slice objects.
+        /// Determines the behavior of the stream when extracting instances of Slice classes.
+        /// An instance is "sliced" when a factory cannot be found for a Slice type ID.
+        /// The stream's default behavior is to slice instances.
         /// </summary>
         /// <param name="b">If true (the default), slicing is enabled; if false,
         /// slicing is disabled. If slicing is disabled and the stream encounters a Slice type ID
         /// during decoding for which no value factory is installed, it raises NoValueFactoryException.
         /// </param>
-        public void setSliceObjects(bool b)
+        public void setSliceValues(bool b)
         {
-            _sliceObjects = b;
+            _sliceValues = b;
         }
 
         /// <summary>
@@ -423,9 +423,9 @@ namespace Ice
             other._closure = _closure;
             _closure = tmpClosure;
 
-            bool tmpSliceObjects = other._sliceObjects;
-            other._sliceObjects = _sliceObjects;
-            _sliceObjects = tmpSliceObjects;
+            bool tmpSliceValues = other._sliceValues;
+            other._sliceValues = _sliceValues;
+            _sliceValues = tmpSliceValues;
 
             //
             // Swap is never called for InputStreams that have encapsulations being read. However,
@@ -2709,12 +2709,12 @@ namespace Ice
 
         abstract private class EncapsDecoder
         {
-            internal EncapsDecoder(InputStream stream, Encaps encaps, bool sliceObjects, ValueFactoryManager f,
+            internal EncapsDecoder(InputStream stream, Encaps encaps, bool sliceValues, ValueFactoryManager f,
                                    ClassResolver cr)
             {
                 _stream = stream;
                 _encaps = encaps;
-                _sliceObjects = sliceObjects;
+                _sliceValues = sliceValues;
                 _valueFactoryManager = f;
                 _classResolver = cr;
                 _typeIdIndex = 0;
@@ -2976,7 +2976,7 @@ namespace Ice
 
             protected readonly InputStream _stream;
             protected readonly Encaps _encaps;
-            protected readonly bool _sliceObjects;
+            protected readonly bool _sliceValues;
             protected ValueFactoryManager _valueFactoryManager;
             protected ClassResolver _classResolver;
 
@@ -2993,9 +2993,9 @@ namespace Ice
 
         private sealed class EncapsDecoder10 : EncapsDecoder
         {
-            internal EncapsDecoder10(InputStream stream, Encaps encaps, bool sliceObjects, ValueFactoryManager f,
+            internal EncapsDecoder10(InputStream stream, Encaps encaps, bool sliceValues, ValueFactoryManager f,
                                      ClassResolver cr)
-                : base(stream, encaps, sliceObjects, f, cr)
+                : base(stream, encaps, sliceValues, f, cr)
             {
                 _sliceType = SliceType.NoSlice;
             }
@@ -3260,7 +3260,7 @@ namespace Ice
                     //
                     // If object slicing is disabled, stop un-marshalling.
                     //
-                    if(!_sliceObjects)
+                    if(!_sliceValues)
                     {
                         throw new NoValueFactoryException("no value factory found and object slicing is disabled",
                                                           _typeId);
@@ -3290,9 +3290,9 @@ namespace Ice
 
         private sealed class EncapsDecoder11 : EncapsDecoder
         {
-            internal EncapsDecoder11(InputStream stream, Encaps encaps, bool sliceObjects, ValueFactoryManager f,
+            internal EncapsDecoder11(InputStream stream, Encaps encaps, bool sliceValues, ValueFactoryManager f,
                                      ClassResolver cr, CompactIdResolver r)
-                : base(stream, encaps, sliceObjects, f, cr)
+                : base(stream, encaps, sliceValues, f, cr)
             {
                 _compactIdResolver = r;
                 _current = null;
@@ -3787,7 +3787,7 @@ namespace Ice
                     //
                     // If object slicing is disabled, stop un-marshalling.
                     //
-                    if(!_sliceObjects)
+                    if(!_sliceValues)
                     {
                         throw new NoValueFactoryException("no value factory found and object slicing is disabled",
                                                           _current.typeId);
@@ -3989,18 +3989,18 @@ namespace Ice
             {
                 if(_encapsStack.encoding_1_0)
                 {
-                    _encapsStack.decoder = new EncapsDecoder10(this, _encapsStack, _sliceObjects, _valueFactoryManager,
+                    _encapsStack.decoder = new EncapsDecoder10(this, _encapsStack, _sliceValues, _valueFactoryManager,
                                                                _classResolver);
                 }
                 else
                 {
-                    _encapsStack.decoder = new EncapsDecoder11(this, _encapsStack, _sliceObjects, _valueFactoryManager,
+                    _encapsStack.decoder = new EncapsDecoder11(this, _encapsStack, _sliceValues, _valueFactoryManager,
                                                                _classResolver, _compactIdResolver);
                 }
             }
         }
 
-        private bool _sliceObjects;
+        private bool _sliceValues;
         private bool _traceSlicing;
 
         private int _startSeq;

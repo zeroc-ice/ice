@@ -25,10 +25,10 @@ public:
 
     virtual void __read(Ice::InputStream* in)
     {
-        in->startObject();
+        in->startValue();
         in->startSlice();
         in->endSlice();
-        in->endObject(false);
+        in->endValue(false);
     }
 };
 
@@ -43,7 +43,7 @@ public:
 
     virtual void __read(Ice::InputStream* in)
     {
-        in->startObject();
+        in->startValue();
         // ::Test::B
         in->startSlice();
         Ice::Int v;
@@ -53,7 +53,7 @@ public:
         in->startSlice();
         in->read(v);
         in->endSlice();
-        in->endObject(false);
+        in->endValue(false);
     }
 };
 
@@ -68,7 +68,7 @@ public:
 
     virtual void __read(Ice::InputStream* in)
     {
-        in->startObject();
+        in->startValue();
         // ::Test::C
         in->startSlice();
         in->skipSlice();
@@ -81,7 +81,7 @@ public:
         in->startSlice();
         in->read(v);
         in->endSlice();
-        in->endObject(false);
+        in->endValue(false);
     }
 };
 
@@ -95,7 +95,7 @@ public:
 
     virtual void __write(Ice::OutputStream* out) const
     {
-        out->startObject(0);
+        out->startValue(0);
         // ::Test::D
         out->startSlice("::Test::D", -1, false);
         string s = "test";
@@ -120,7 +120,7 @@ public:
         out->startSlice(A::ice_staticId(), -1, true);
         out->write(v);
         out->endSlice();
-        out->endObject();
+        out->endValue();
     }
 
     virtual void __read(Ice::InputStream*) { }
@@ -137,7 +137,7 @@ public:
 
     virtual void __read(Ice::InputStream* in)
     {
-        in->startObject();
+        in->startValue();
         // ::Test::D
         in->startSlice();
         string s;
@@ -158,7 +158,7 @@ public:
         in->startSlice();
         in->read(v);
         in->endSlice();
-        in->endObject(false);
+        in->endValue(false);
     }
 
     void check()
@@ -183,7 +183,7 @@ public:
     virtual void __read(Ice::InputStream* in)
     {
         _f = new F();
-        in->startObject();
+        in->startValue();
         in->startSlice();
         // Don't read af on purpose
         //in.read(1, _f->af);
@@ -191,7 +191,7 @@ public:
         in->startSlice();
         in->read(_f->ae);
         in->endSlice();
-        in->endObject(false);
+        in->endValue(false);
     }
 
     FPtr

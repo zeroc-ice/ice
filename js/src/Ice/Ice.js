@@ -37,7 +37,7 @@ module.exports.Ice = __M.require(module,
         "../Ice/ObjectFactory",
         "../Ice/Buffer",
         "../Ice/ArrayUtil",
-        "../Ice/UnknownSlicedObject",
+        "../Ice/UnknownSlicedValue",
         "../Ice/Process"
     ]).Ice;
 

@@ -160,21 +160,21 @@ defineProperty(byteSeqHelper, "elementHelper", {
 });
 StreamHelpers.VSizeContainer1OptHelper.call(byteSeqHelper);
 
-// Read method for object sequences
-var objectSequenceHelperRead = function(is)
+// Read method for value sequences
+var valueSequenceHelperRead = function(is)
 {
     var sz = is.readAndCheckSeqSize(1);
     var v = [];
     v.length = sz;
     var elementType = this.elementType;
-    var readObjectAtIndex = function(idx)
+    var readValueAtIndex = function(idx)
     {
-        is.readObject(function(obj) { v[idx] = obj; }, elementType);
+        is.readValue(function(obj) { v[idx] = obj; }, elementType);
     };
 
     for(var i = 0; i < sz; ++i)
     {
-        readObjectAtIndex(i);
+        readValueAtIndex(i);
     }
     return v;
 };
@@ -212,7 +212,7 @@ StreamHelpers.generateSeqHelper = function(elementHelper, fixed, elementType)
         defineProperty(helper, "elementType", {
             get: function(){ return elementType; }
         });
-        helper.read = objectSequenceHelperRead;
+        helper.read = valueSequenceHelperRead;
     }
 
     return helper;
@@ -263,23 +263,23 @@ Object.defineProperty(DictionaryHelper.prototype, "minWireSize", {
     get: function(){ return 1; }
 });
 
-// Read method for dictionaries of objects
-var objectDictionaryHelperRead = function(is)
+// Read method for dictionaries of values
+var valueDictionaryHelperRead = function(is)
 {
     var sz = is.readSize();
     var mapType = this.mapType;
     var v = new mapType();
     var valueType = this.valueType;
 
-    var readObjectForKey = function(key)
+    var readValueForKey = function(key)
     {
-        is.readObject(function(obj) { v.set(key, obj); }, valueType);
+        is.readValue(function(obj) { v.set(key, obj); }, valueType);
     };
 
     var keyHelper = this.keyHelper;
     for(var i = 0; i < sz; ++i)
     {
-        readObjectForKey(keyHelper.read(is));
+        readValueForKey(keyHelper.read(is));
     }
     return v;
 };
@@ -310,7 +310,7 @@ StreamHelpers.generateDictHelper = function(keyHelper, valueHelper, fixed, value
         defineProperty(helper, "valueType", {
             get: function(){ return valueType; }
         });
-        helper.read = objectDictionaryHelperRead;
+        helper.read = valueDictionaryHelperRead;
     }
 
     return helper;

@@ -149,7 +149,7 @@
             function(obj)
             {
                 test(!prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0));
-                test(obj instanceof Ice.UnknownSlicedObject);
+                test(obj instanceof Ice.UnknownSlicedValue);
                 test(obj.getUnknownTypeId() == "::Test::SUnknown");
                 return prx.checkSUnknown(obj);
             },

@@ -278,7 +278,7 @@ public class InputStream
         _encapsCache = null;
         _traceSlicing = false;
         _closure = null;
-        _sliceObjects = true;
+        _sliceValues = true;
         _startSeq = -1;
         _minSeqSize = 0;
     }
@@ -308,7 +308,7 @@ public class InputStream
         }
 
         _startSeq = -1;
-        _sliceObjects = true;
+        _sliceValues = true;
     }
 
     /**
@@ -360,17 +360,17 @@ public class InputStream
     }
 
     /**
-     * Determines the behavior of the stream when extracting Slice objects.
-     * A Slice object is "sliced" when a factory cannot be found for a Slice type ID.
-     * The stream's default behavior is to slice objects.
+     * Determines the behavior of the stream when extracting instances of Slice classes.
+     * An instance is "sliced" when a factory cannot be found for a Slice type ID.
+     * The stream's default behavior is to slice instances.
      *
      * @param b If <code>true</code> (the default), slicing is enabled; if <code>false</code>,
      * slicing is disabled. If slicing is disabled and the stream encounters a Slice type ID
      * during decoding for which no value factory is installed, it raises {@link NoValueFactoryException}.
      **/
-    public void setSliceObjects(boolean b)
+    public void setSliceValues(boolean b)
     {
-        _sliceObjects = b;
+        _sliceValues = b;
     }
 
     /**
@@ -436,9 +436,9 @@ public class InputStream
         other._closure = _closure;
         _closure = tmpClosure;
 
-        boolean tmpSliceObjects = other._sliceObjects;
-        other._sliceObjects = _sliceObjects;
-        _sliceObjects = tmpSliceObjects;
+        boolean tmpSliceValues = other._sliceValues;
+        other._sliceValues = _sliceValues;
+        _sliceValues = tmpSliceValues;
 
         //
         // Swap is never called for streams that have encapsulations being read. However,
@@ -495,22 +495,22 @@ public class InputStream
     }
 
     /**
-     * Marks the start of an Ice object.
+     * Marks the start of a class instance.
      **/
-    public void startObject()
+    public void startValue()
     {
         assert(_encapsStack != null && _encapsStack.decoder != null);
-        _encapsStack.decoder.startInstance(SliceType.ObjectSlice);
+        _encapsStack.decoder.startInstance(SliceType.ValueSlice);
     }
 
     /**
-     * Marks the end of an Ice object.
+     * Marks the end of a class instance.
      *
-     * @param preserve Pass true and the stream will preserve the unknown slices of the object, or false
+     * @param preserve Pass true and the stream will preserve the unknown slices of the instance, or false
      * to discard the unknown slices.
      * @return An object that encapsulates the unknown slice data.
      **/
-    public SlicedData endObject(boolean preserve)
+    public SlicedData endValue(boolean preserve)
     {
         assert(_encapsStack != null && _encapsStack.decoder != null);
         return _encapsStack.decoder.endInstance(preserve);
@@ -577,7 +577,7 @@ public class InputStream
         _encapsStack.sz = sz;
 
         EncodingVersion encoding = new EncodingVersion();
-        encoding.ice_read(this);
+        encoding.__read(this);
         IceInternal.Protocol.checkSupportedEncoding(encoding); // Make sure the encoding is supported.
         _encapsStack.setEncoding(encoding);
 
@@ -630,11 +630,11 @@ public class InputStream
     }
 
     /**
-     * Skips an empty encapsulation. The encapsulation's encoding version is returned in the argument.
+     * Skips an empty encapsulation.
      *
-     * @param encoding The encapsulation's encoding version.
+     * @return The encapsulation's encoding version.
      **/
-    public Ice.EncodingVersion skipEmptyEncapsulation()
+    public EncodingVersion skipEmptyEncapsulation()
     {
         int sz = readInt();
         if(sz < 6)
@@ -646,8 +646,7 @@ public class InputStream
             throw new Ice.UnmarshalOutOfBoundsException();
         }
 
-        Ice.EncodingVersion encoding = new Ice.EncodingVersion();
-        encoding.ice_read(this);
+        EncodingVersion encoding = EncodingVersion.read(this, null);
         if(encoding.equals(Ice.Util.Encoding_1_0))
         {
             if(sz != 6)
@@ -657,8 +656,10 @@ public class InputStream
         }
         else
         {
+            //
             // Skip the optional content of the encapsulation if we are expecting an
             // empty encapsulation.
+            //
             _buf.b.position(_buf.b.position() + sz - 6);
         }
         return encoding;
@@ -686,7 +687,7 @@ public class InputStream
 
         if(encoding != null)
         {
-            encoding.ice_read(this);
+            encoding.__read(this);
             _buf.b.position(_buf.b.position() - 6);
         }
         else
@@ -740,7 +741,7 @@ public class InputStream
             throw new UnmarshalOutOfBoundsException();
         }
         EncodingVersion encoding = new EncodingVersion();
-        encoding.ice_read(this);
+        encoding.__read(this);
         try
         {
             _buf.b.position(_buf.b.position() + sz - 6);
@@ -753,7 +754,7 @@ public class InputStream
     }
 
     /**
-     * Reads the start of an object or exception slice.
+     * Reads the start of a value or exception slice.
      *
      * @return The Slice type ID for this slice.
      **/
@@ -764,7 +765,7 @@ public class InputStream
     }
 
     /**
-     * Indicates that the end of an object or exception slice has been reached.
+     * Indicates that the end of a value or exception slice has been reached.
      **/
     public void endSlice()
     {
@@ -773,7 +774,7 @@ public class InputStream
     }
 
     /**
-     * Skips over an object or exception slice.
+     * Skips over a value or exception slice.
      **/
     public void skipSlice()
     {
@@ -782,25 +783,25 @@ public class InputStream
     }
 
     /**
-     * Indicates that unmarshaling is complete, except for any Slice objects. The application must call this method
-     * only if the stream actually contains Slice objects. Calling <code>readPendingObjects</code> triggers the
-     * calls to {@link ReadObjectCallback#objectReady} that inform the application that unmarshaling of a Slice
-     * object is complete.
+     * Indicates that unmarshaling is complete, except for any class instances. The application must call this method
+     * only if the stream actually contains class instances. Calling <code>readPendingValues</code> triggers the
+     * calls to {@link ReadValueCallback#valueReady} that inform the application that unmarshaling of an instance
+     * is complete.
      **/
-    public void readPendingObjects()
+    public void readPendingValues()
     {
         if(_encapsStack != null && _encapsStack.decoder != null)
         {
-            _encapsStack.decoder.readPendingObjects();
+            _encapsStack.decoder.readPendingValues();
         }
         else if(_encapsStack != null ? _encapsStack.encoding_1_0 : _encoding.equals(Util.Encoding_1_0))
         {
             //
-            // If using the 1.0 encoding and no objects were read, we
-            // still read an empty sequence of pending objects if
+            // If using the 1.0 encoding and no instances were read, we
+            // still read an empty sequence of pending instances if
             // requested (i.e.: if this is called).
             //
-            // This is required by the 1.0 encoding, even if no objects
+            // This is required by the 1.0 encoding, even if no instances
             // are written we do marshal an empty sequence if marshaled
             // data types use classes.
             //
@@ -1844,29 +1845,29 @@ public class InputStream
      * Extracts the index of a Slice value from the stream.
      *
      * @param cb The callback to notify the application when the extracted instance is available.
-     * The stream extracts Slice values in stages. The Ice run time calls {@link ReadObjectCallback#objectReady}
+     * The stream extracts Slice values in stages. The Ice run time calls {@link ReadValueCallback#valueReady}
      * when the corresponding instance has been fully unmarshaled.
      *
-     * @see ReadObjectCallback
+     * @see ReadValueCallback
      **/
-    public void readObject(ReadObjectCallback cb)
+    public void readValue(ReadValueCallback cb)
     {
         initEncaps();
-        _encapsStack.decoder.readObject(cb);
+        _encapsStack.decoder.readValue(cb);
     }
 
     /**
      * Extracts the index of an optional Slice value from the stream.
      *
      * @param v Holds the optional value (if any). If a value is present, it will not be set in the
-     * argument until after {@link #readPendingObjects} has completed.
+     * argument until after {@link #readPendingValues} has completed.
      **/
-    public void readObject(int tag, Optional<Ice.Object> v)
+    public void readValue(int tag, Optional<Ice.Object> v)
     {
         if(readOptional(tag, OptionalFormat.Class))
         {
             OptionalObject opt = new OptionalObject(v, Ice.Object.class, ObjectImpl.ice_staticId());
-            readObject(opt);
+            readValue(opt);
         }
         else
         {
@@ -1987,7 +1988,7 @@ public class InputStream
         }
         case Class:
         {
-            readObject(null);
+            readValue(null);
             break;
         }
         }
@@ -2116,21 +2117,21 @@ public class InputStream
     private byte[] _stringBytes; // Reusable array for reading strings.
     private char[] _stringChars; // Reusable array for reading strings.
 
-    private enum SliceType { NoSlice, ObjectSlice, ExceptionSlice }
+    private enum SliceType { NoSlice, ValueSlice, ExceptionSlice }
 
     abstract private static class EncapsDecoder
     {
-        EncapsDecoder(InputStream stream, boolean sliceObjects, ValueFactoryManager f, ClassResolver cr)
+        EncapsDecoder(InputStream stream, boolean sliceValues, ValueFactoryManager f, ClassResolver cr)
         {
             _stream = stream;
-            _sliceObjects = sliceObjects;
+            _sliceValues = sliceValues;
             _valueFactoryManager = f;
             _classResolver = cr;
             _typeIdIndex = 0;
             _unmarshaledMap = new java.util.TreeMap<Integer, Ice.Object>();
         }
 
-        abstract void readObject(ReadObjectCallback cb);
+        abstract void readValue(ReadValueCallback cb);
         abstract void throwException(UserExceptionFactory factory)
             throws UserException;
 
@@ -2145,7 +2146,7 @@ public class InputStream
             return false;
         }
 
-        void readPendingObjects()
+        void readPendingValues()
         {
         }
 
@@ -2257,39 +2258,39 @@ public class InputStream
             return v;
         }
 
-        protected void addPatchEntry(int index, ReadObjectCallback cb)
+        protected void addPatchEntry(int index, ReadValueCallback cb)
         {
             assert(index > 0);
 
             //
-            // Check if we have already unmarshalled the object. If that's the case,
-            // just patch the object smart pointer and we're done.
+            // Check if we have already unmarshalled the instance. If that's the case,
+            // just invoke the callback and we're done.
             //
             Ice.Object obj = _unmarshaledMap.get(index);
             if(obj != null)
             {
-                cb.objectReady(obj);
+                cb.valueReady(obj);
                 return;
             }
 
             if(_patchMap == null) // Lazy initialization
             {
-                _patchMap = new java.util.TreeMap<Integer, java.util.LinkedList<ReadObjectCallback> >();
+                _patchMap = new java.util.TreeMap<Integer, java.util.LinkedList<ReadValueCallback> >();
             }
 
             //
-            // Add patch entry if the object isn't un-marshalled yet,
-            // the smart pointer will be patched when the instance is
-            // un-marshalled.
+            // Add patch entry if the instance isn't unmarshaled yet,
+            // the callback will be called when the instance is
+            // unmarshaled.
             //
-            java.util.LinkedList<ReadObjectCallback> l = _patchMap.get(index);
+            java.util.LinkedList<ReadValueCallback> l = _patchMap.get(index);
             if(l == null)
             {
                 //
                 // We have no outstanding instances to be patched for this
                 // index, so make a new entry in the patch map.
                 //
-                l = new java.util.LinkedList<ReadObjectCallback>();
+                l = new java.util.LinkedList<ReadValueCallback>();
                 _patchMap.put(index, l);
             }
 
@@ -2302,22 +2303,22 @@ public class InputStream
         protected void unmarshal(int index, Ice.Object v)
         {
             //
-            // Add the object to the map of un-marshalled objects, this must
-            // be done before reading the objects (for circular references).
+            // Add the instance to the map of unmarshaled instances, this must
+            // be done before reading the instances (for circular references).
             //
             _unmarshaledMap.put(index, v);
 
             //
-            // Read the object.
+            // Read the instance.
             //
             v.__read(_stream);
 
             if(_patchMap != null)
             {
                 //
-                // Patch all instances now that the object is un-marshalled.
+                // Patch all instances now that the instance is unmarshaled.
                 //
-                java.util.LinkedList<ReadObjectCallback> l = _patchMap.get(index);
+                java.util.LinkedList<ReadValueCallback> l = _patchMap.get(index);
                 if(l != null)
                 {
                     assert(l.size() > 0);
@@ -2325,9 +2326,9 @@ public class InputStream
                     //
                     // Patch all pointers that refer to the instance.
                     //
-                    for(ReadObjectCallback cb : l)
+                    for(ReadValueCallback cb : l)
                     {
-                        cb.objectReady(v);
+                        cb.valueReady(v);
                     }
 
                     //
@@ -2338,7 +2339,7 @@ public class InputStream
                 }
             }
 
-            if((_patchMap == null || _patchMap.isEmpty()) && _objectList == null)
+            if((_patchMap == null || _patchMap.isEmpty()) && _valueList == null)
             {
                 try
                 {
@@ -2352,21 +2353,21 @@ public class InputStream
             }
             else
             {
-                if(_objectList == null) // Lazy initialization
+                if(_valueList == null) // Lazy initialization
                 {
-                    _objectList = new java.util.ArrayList<Ice.Object>();
+                    _valueList = new java.util.ArrayList<Ice.Object>();
                 }
-                _objectList.add(v);
+                _valueList.add(v);
 
                 if(_patchMap == null || _patchMap.isEmpty())
                 {
                     //
-                    // Iterate over the object list and invoke ice_postUnmarshal on
-                    // each object.  We must do this after all objects have been
-                    // unmarshaled in order to ensure that any object data members
+                    // Iterate over the instance list and invoke ice_postUnmarshal on
+                    // each instance. We must do this after all instances have been
+                    // unmarshaled in order to ensure that any instance data members
                     // have been properly patched.
                     //
-                    for(Ice.Object p : _objectList)
+                    for(Ice.Object p : _valueList)
                     {
                         try
                         {
@@ -2378,37 +2379,37 @@ public class InputStream
                             _stream.instance().initializationData().logger.warning(s);
                         }
                     }
-                    _objectList.clear();
+                    _valueList.clear();
                 }
             }
         }
 
         protected final InputStream _stream;
-        protected final boolean _sliceObjects;
+        protected final boolean _sliceValues;
         protected ValueFactoryManager _valueFactoryManager;
         protected ClassResolver _classResolver;
 
         //
-        // Encapsulation attributes for object unmarshaling.
+        // Encapsulation attributes for value unmarshaling.
         //
-        protected java.util.TreeMap<Integer, java.util.LinkedList<ReadObjectCallback> > _patchMap;
+        protected java.util.TreeMap<Integer, java.util.LinkedList<ReadValueCallback> > _patchMap;
         private java.util.TreeMap<Integer, Ice.Object> _unmarshaledMap;
         private java.util.TreeMap<Integer, String> _typeIdMap;
         private int _typeIdIndex;
-        private java.util.List<Ice.Object> _objectList;
+        private java.util.List<Ice.Object> _valueList;
         private java.util.HashMap<String, Class<?> > _typeIdCache;
     }
 
     private static final class EncapsDecoder10 extends EncapsDecoder
     {
-        EncapsDecoder10(InputStream stream, boolean sliceObjects, ValueFactoryManager f, ClassResolver cr)
+        EncapsDecoder10(InputStream stream, boolean sliceValues, ValueFactoryManager f, ClassResolver cr)
         {
-            super(stream, sliceObjects, f, cr);
+            super(stream, sliceValues, f, cr);
             _sliceType = SliceType.NoSlice;
         }
 
         @Override
-        void readObject(ReadObjectCallback cb)
+        void readValue(ReadValueCallback cb)
         {
             assert(cb != null);
 
@@ -2424,7 +2425,7 @@ public class InputStream
 
             if(index == 0)
             {
-                cb.objectReady(null);
+                cb.valueReady(null);
             }
             else
             {
@@ -2442,7 +2443,7 @@ public class InputStream
             // User exception with the 1.0 encoding start with a boolean flag
             // that indicates whether or not the exception has classes.
             //
-            // This allows reading the pending objects even if some part of
+            // This allows reading the pending instances even if some part of
             // the exception was sliced.
             //
             boolean usesClasses = _stream.readBool();
@@ -2487,7 +2488,7 @@ public class InputStream
                     userEx.__read(_stream);
                     if(usesClasses)
                     {
-                        readPendingObjects();
+                        readPendingValues();
                     }
                     throw userEx;
 
@@ -2531,7 +2532,7 @@ public class InputStream
             //
             // Read the Ice::Object slice.
             //
-            if(_sliceType == SliceType.ObjectSlice)
+            if(_sliceType == SliceType.ValueSlice)
             {
                 startSlice();
                 int sz = _stream.readSize(); // For compatibility with the old AFM.
@@ -2560,12 +2561,12 @@ public class InputStream
             }
 
             //
-            // For objects, first read the type ID boolean which indicates
+            // For class instances, first read the type ID boolean which indicates
             // whether or not the type ID is encoded as a string or as an
             // index. For exceptions, the type ID is always encoded as a
             // string.
             //
-            if(_sliceType == SliceType.ObjectSlice) // For exceptions, the type ID is always encoded as a string
+            if(_sliceType == SliceType.ValueSlice) // For exceptions, the type ID is always encoded as a string
             {
                 boolean isIndex = _stream.readBool();
                 _typeId = readTypeId(isIndex);
@@ -2598,7 +2599,7 @@ public class InputStream
         }
 
         @Override
-        void readPendingObjects()
+        void readPendingValues()
         {
             int num;
             do
@@ -2630,7 +2631,7 @@ public class InputStream
                 throw new MarshalException("invalid object id");
             }
 
-            _sliceType = SliceType.ObjectSlice;
+            _sliceType = SliceType.ValueSlice;
             _skipFirstSlice = false;
 
             //
@@ -2661,11 +2662,11 @@ public class InputStream
                 }
 
                 //
-                // If object slicing is disabled, stop un-marshalling.
+                // If slicing is disabled, stop unmarshaling.
                 //
-                if(!_sliceObjects)
+                if(!_sliceValues)
                 {
-                    throw new NoValueFactoryException("no value factory found and object slicing is disabled", _typeId);
+                    throw new NoValueFactoryException("no value factory found and slicing is disabled", _typeId);
                 }
 
                 //
@@ -2676,12 +2677,12 @@ public class InputStream
             }
 
             //
-            // Un-marshal the object and add-it to the map of un-marshaled objects.
+            // Unmarshal the instance and add it to the map of unmarshaled instances.
             //
             unmarshal(index, v);
         }
 
-        // Object/exception attributes
+        // Value/exception attributes
         private SliceType _sliceType;
         private boolean _skipFirstSlice;
 
@@ -2692,17 +2693,17 @@ public class InputStream
 
     private static class EncapsDecoder11 extends EncapsDecoder
     {
-        EncapsDecoder11(InputStream stream, boolean sliceObjects, ValueFactoryManager f, ClassResolver cr,
+        EncapsDecoder11(InputStream stream, boolean sliceValues, ValueFactoryManager f, ClassResolver cr,
                         CompactIdResolver r)
         {
-            super(stream, sliceObjects, f, cr);
+            super(stream, sliceValues, f, cr);
             _compactIdResolver = r;
             _current = null;
-            _objectIdIndex = 1;
+            _valueIdIndex = 1;
         }
 
         @Override
-        void readObject(ReadObjectCallback cb)
+        void readValue(ReadValueCallback cb)
         {
             int index = _stream.readSize();
             if(index < 0)
@@ -2713,15 +2714,15 @@ public class InputStream
             {
                 if(cb != null)
                 {
-                    cb.objectReady(null);
+                    cb.valueReady(null);
                 }
             }
             else if(_current != null && (_current.sliceFlags & IceInternal.Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
             {
                 //
-                // When reading an object within a slice and there's an
-                // indirect object table, always read an indirect reference
-                // that points to an object from the indirect object table
+                // When reading a class instance within a slice and there's an
+                // indirect instance table, always read an indirect reference
+                // that points to an instance from the indirect instance table
                 // marshaled at the end of the Slice.
                 //
                 // Maintain a list of indirect references. Note that the
@@ -2856,11 +2857,11 @@ public class InputStream
             _current.sliceFlags = _stream.readByte();
 
             //
-            // Read the type ID, for object slices the type ID is encoded as a
+            // Read the type ID, for value slices the type ID is encoded as a
             // string or as an index, for exceptions it's always encoded as a
             // string.
             //
-            if(_current.sliceType == SliceType.ObjectSlice)
+            if(_current.sliceType == SliceType.ValueSlice)
             {
                 if((_current.sliceFlags & IceInternal.Protocol.FLAG_HAS_TYPE_ID_COMPACT) ==
                     IceInternal.Protocol.FLAG_HAS_TYPE_ID_COMPACT) // Must be checked 1st!
@@ -2934,7 +2935,7 @@ public class InputStream
 
                 //
                 // Sanity checks. If there are optional members, it's possible
-                // that not all object references were read if they are from
+                // that not all instance references were read if they are from
                 // unknown optional data members.
                 //
                 if(indirectionTable.length == 0)
@@ -2980,7 +2981,7 @@ public class InputStream
             }
             else
             {
-                if(_current.sliceType == SliceType.ObjectSlice)
+                if(_current.sliceType == SliceType.ValueSlice)
                 {
                     throw new NoValueFactoryException("no value factory found and compact format prevents " +
                                                       "slicing (the sender should use the sliced format instead)",
@@ -3030,9 +3031,9 @@ public class InputStream
             }
 
             //
-            // Read the indirect object table. We read the instances or their
-            // IDs if the instance is a reference to an already un-marhsaled
-            // object.
+            // Read the indirect instance table. We read the instances or their
+            // IDs if the instance is a reference to an already unmarhsaled
+            // instance.
             //
             // The SliceInfo object sequence is initialized only if
             // readSlicedData is called.
@@ -3069,7 +3070,7 @@ public class InputStream
             return false;
         }
 
-        private int readInstance(int index, ReadObjectCallback cb)
+        private int readInstance(int index, ReadValueCallback cb)
         {
             assert(index > 0);
 
@@ -3082,14 +3083,14 @@ public class InputStream
                 return index;
             }
 
-            push(SliceType.ObjectSlice);
+            push(SliceType.ValueSlice);
 
             //
-            // Get the object ID before we start reading slices. If some
-            // slices are skiped, the indirect object table are still read and
-            // might read other objects.
+            // Get the instance ID before we start reading slices. If some
+            // slices are skipped, the indirect instance table is still read and
+            // might read other instances.
             //
-            index = ++_objectIdIndex;
+            index = ++_valueIdIndex;
 
             //
             // Read the first slice header.
@@ -3184,11 +3185,11 @@ public class InputStream
                 }
 
                 //
-                // If object slicing is disabled, stop un-marshalling.
+                // If slicing is disabled, stop unmarshaling.
                 //
-                if(!_sliceObjects)
+                if(!_sliceValues)
                 {
-                    throw new NoValueFactoryException("no value factory found and object slicing is disabled",
+                    throw new NoValueFactoryException("no value factory found and slicing is disabled",
                                                       _current.typeId);
                 }
 
@@ -3198,20 +3199,20 @@ public class InputStream
                 skipSlice();
 
                 //
-                // If this is the last slice, keep the object as an opaque
-                // UnknownSlicedData object.
+                // If this is the last slice, keep the instance as an opaque
+                // UnknownSlicedValue object.
                 //
                 if((_current.sliceFlags & IceInternal.Protocol.FLAG_IS_LAST_SLICE) != 0)
                 {
                     //
-                    // Provide a factory with an opportunity to supply the object.
+                    // Provide a factory with an opportunity to supply the instance.
                     // We pass the "::Ice::Object" ID to indicate that this is the
-                    // last chance to preserve the object.
+                    // last chance to preserve the instance.
                     //
                     v = newInstance(ObjectImpl.ice_staticId());
                     if(v == null)
                     {
-                        v = new UnknownSlicedObject(mostDerivedId);
+                        v = new UnknownSlicedValue(mostDerivedId);
                     }
 
                     break;
@@ -3221,22 +3222,22 @@ public class InputStream
             }
 
             //
-            // Unmarshal the object.
+            // Unmarshal the instance.
             //
             unmarshal(index, v);
 
             if(_current == null && _patchMap != null && !_patchMap.isEmpty())
             {
                 //
-                // If any entries remain in the patch map, the sender has sent an index for an object, but failed
-                // to supply the object.
+                // If any entries remain in the patch map, the sender has sent an index for an instance, but failed
+                // to supply the instance.
                 //
                 throw new MarshalException("index for class received, but no instance");
             }
 
             if(cb != null)
             {
-                cb.objectReady(v);
+                cb.valueReady(v);
             }
 
             return index;
@@ -3257,18 +3258,17 @@ public class InputStream
             for(int n = 0; n < _current.slices.size(); ++n)
             {
                 //
-                // We use the "objects" list in SliceInfo to hold references
-                // to the target objects. Note that the objects might not have
+                // We use the "instances" list in SliceInfo to hold references
+                // to the target instances. Note that the instances might not have
                 // been read yet in the case of a circular reference to an
-                // enclosing object.
+                // enclosing instance.
                 //
                 final int[] table = _current.indirectionTables.get(n);
                 SliceInfo info = _current.slices.get(n);
-                info.objects = new Ice.Object[table != null ? table.length : 0];
-                for(int j = 0; j < info.objects.length; ++j)
+                info.instances = new Ice.Object[table != null ? table.length : 0];
+                for(int j = 0; j < info.instances.length; ++j)
                 {
-                    addPatchEntry(table[j], new IceInternal.SequencePatcher(info.objects, Ice.Object.class,
-                                                                            ObjectImpl.ice_staticId(), j));
+                    addPatchEntry(table[j], new IceInternal.SequencePatcher(info.instances, Ice.Object.class, j));
                 }
             }
 
@@ -3294,7 +3294,7 @@ public class InputStream
         private static final class IndirectPatchEntry
         {
             int index;
-            ReadObjectCallback cb;
+            ReadValueCallback cb;
         }
 
         private static final class InstanceData
@@ -3328,7 +3328,7 @@ public class InputStream
 
         private CompactIdResolver _compactIdResolver;
         private InstanceData _current;
-        private int _objectIdIndex; // The ID of the next object to unmarshal.
+        private int _valueIdIndex; // The ID of the next instance to unmarshal.
         private java.util.TreeMap<Integer, Class<?> > _compactIdCache; // Cache of compact type IDs.
     }
 
@@ -3390,11 +3390,11 @@ public class InputStream
         {
             if(_encapsStack.encoding_1_0)
             {
-                _encapsStack.decoder = new EncapsDecoder10(this, _sliceObjects, _valueFactoryManager, _classResolver);
+                _encapsStack.decoder = new EncapsDecoder10(this, _sliceValues, _valueFactoryManager, _classResolver);
             }
             else
             {
-                _encapsStack.decoder = new EncapsDecoder11(this, _sliceObjects, _valueFactoryManager, _classResolver,
+                _encapsStack.decoder = new EncapsDecoder11(this, _sliceValues, _valueFactoryManager, _classResolver,
                                                            _compactIdResolver);
             }
         }
@@ -3409,7 +3409,7 @@ public class InputStream
         }
     }
 
-    private boolean _sliceObjects;
+    private boolean _sliceValues;
     private boolean _traceSlicing;
 
     private int _startSeq;

@@ -101,12 +101,12 @@ public:
         b.resize(sz);
     }
 
-    void startObject(const SlicedDataPtr& data)
+    void startValue(const SlicedDataPtr& data)
     {
         assert(_currentEncaps && _currentEncaps->encoder);
-        _currentEncaps->encoder->startInstance(ObjectSlice, data);
+        _currentEncaps->encoder->startInstance(ValueSlice, data);
     }
-    void endObject()
+    void endValue()
     {
         assert(_currentEncaps && _currentEncaps->encoder);
         _currentEncaps->encoder->endInstance();
@@ -200,7 +200,7 @@ public:
         _currentEncaps->encoder->endSlice();
     }
 
-    void writePendingObjects();
+    void writePendingValues();
 
     void writeSize(Int v) // Inlined for performance reasons.
     {
@@ -516,9 +516,9 @@ private:
     void* _closure;
 
     class Encaps;
-    enum SliceType { NoSlice, ObjectSlice, ExceptionSlice };
+    enum SliceType { NoSlice, ValueSlice, ExceptionSlice };
 
-    typedef std::vector<ValuePtr> ObjectList;
+    typedef std::vector<ValuePtr> ValueList;
 
     class ICE_API EncapsEncoder : private ::IceUtil::noncopyable
     {
@@ -539,7 +539,7 @@ private:
             return false;
         }
 
-        virtual void writePendingObjects()
+        virtual void writePendingValues()
         {
         }
 
@@ -557,12 +557,12 @@ private:
         typedef std::map<ValuePtr, Int> PtrToIndexMap;
         typedef std::map<std::string, Int> TypeIdMap;
 
-        // Encapsulation attributes for object marshalling.
+        // Encapsulation attributes for value marshaling.
         PtrToIndexMap _marshaledMap;
 
     private:
 
-        // Encapsulation attributes for object marshalling.
+        // Encapsulation attributes for value marshaling.
         TypeIdMap _typeIdMap;
         Int _typeIdIndex;
     };
@@ -572,7 +572,7 @@ private:
     public:
 
         EncapsEncoder10(OutputStream* stream, Encaps* encaps) :
-            EncapsEncoder(stream, encaps), _sliceType(NoSlice), _objectIdIndex(0)
+            EncapsEncoder(stream, encaps), _sliceType(NoSlice), _valueIdIndex(0)
         {
         }
 
@@ -584,11 +584,11 @@ private:
         virtual void startSlice(const std::string&, int, bool);
         virtual void endSlice();
 
-        virtual void writePendingObjects();
+        virtual void writePendingValues();
 
     private:
 
-        Int registerObject(const ValuePtr&);
+        Int registerValue(const ValuePtr&);
 
         // Instance attributes
         SliceType _sliceType;
@@ -596,8 +596,8 @@ private:
         // Slice attributes
         Container::size_type _writeSlice; // Position of the slice data members
 
-        // Encapsulation attributes for object marshalling.
-        Int _objectIdIndex;
+        // Encapsulation attributes for value marshaling.
+        Int _valueIdIndex;
         PtrToIndexMap _toBeMarshaledMap;
     };
 
@@ -606,7 +606,7 @@ private:
     public:
 
         EncapsEncoder11(OutputStream* stream, Encaps* encaps) :
-            EncapsEncoder(stream, encaps), _preAllocatedInstanceData(0), _current(0), _objectIdIndex(1)
+            EncapsEncoder(stream, encaps), _preAllocatedInstanceData(0), _current(0), _valueIdIndex(1)
         {
         }
 
@@ -652,7 +652,7 @@ private:
             Container::size_type writeSlice;    // Position of the slice data members
             Container::size_type sliceFlagsPos; // Position of the slice flags
             PtrToIndexMap indirectionMap;
-            ObjectList indirectionTable;
+            ValueList indirectionTable;
 
             InstanceData* previous;
             InstanceData* next;
@@ -660,7 +660,7 @@ private:
         InstanceData _preAllocatedInstanceData;
         InstanceData* _current;
 
-        Int _objectIdIndex; // The ID of the next object to marhsal
+        Int _valueIdIndex; // The ID of the next value to marhsal
     };
 
     class Encaps : private ::IceUtil::noncopyable

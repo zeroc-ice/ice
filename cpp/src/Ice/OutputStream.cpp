@@ -231,20 +231,20 @@ Ice::OutputStream::startEncapsulation()
 }
 
 void
-Ice::OutputStream::writePendingObjects()
+Ice::OutputStream::writePendingValues()
 {
     if(_currentEncaps && _currentEncaps->encoder)
     {
-        _currentEncaps->encoder->writePendingObjects();
+        _currentEncaps->encoder->writePendingValues();
     }
     else if(getEncoding() == Ice::Encoding_1_0)
     {
         //
-        // If using the 1.0 encoding and no objects were written, we
-        // still write an empty sequence for pending objects if
+        // If using the 1.0 encoding and no instances were written, we
+        // still write an empty sequence for pending instances if
         // requested (i.e.: if this is called).
         //
-        // This is required by the 1.0 encoding, even if no objects
+        // This is required by the 1.0 encoding, even if no instances
         // are written we do marshal an empty sequence if marshaled
         // data types use classes.
         //
@@ -920,7 +920,7 @@ Ice::OutputStream::EncapsEncoder10::write(const ValuePtr& v)
     //
     if(v)
     {
-        _stream->write(-registerObject(v));
+        _stream->write(-registerValue(v));
     }
     else
     {
@@ -936,7 +936,7 @@ Ice::OutputStream::EncapsEncoder10::write(const UserException& v)
     // flag that indicates whether or not the exception uses
     // classes.
     //
-    // This allows reading the pending objects even if some part of
+    // This allows reading the pending instances even if some part of
     // the exception was sliced.
     //
     bool usesClasses = v.__usesClasses();
@@ -944,7 +944,7 @@ Ice::OutputStream::EncapsEncoder10::write(const UserException& v)
     v.__write(_stream);
     if(usesClasses)
     {
-        writePendingObjects();
+        writePendingValues();
     }
 }
 
@@ -957,7 +957,7 @@ Ice::OutputStream::EncapsEncoder10::startInstance(SliceType sliceType, const Sli
 void
 Ice::OutputStream::EncapsEncoder10::endInstance()
 {
-    if(_sliceType == ObjectSlice)
+    if(_sliceType == ValueSlice)
     {
         //
         // Write the Object slice.
@@ -973,11 +973,11 @@ void
 Ice::OutputStream::EncapsEncoder10::startSlice(const string& typeId, int, bool /*last*/)
 {
     //
-    // For object slices, encode a boolean to indicate how the type ID
+    // For instance slices, encode a boolean to indicate how the type ID
     // is encoded and the type ID either as a string or index. For
     // exception slices, always encode the type ID as a string.
     //
-    if(_sliceType == ObjectSlice)
+    if(_sliceType == ValueSlice)
     {
         Int index = registerTypeId(typeId);
         if(index < 0)
@@ -1013,15 +1013,15 @@ Ice::OutputStream::EncapsEncoder10::endSlice()
 }
 
 void
-Ice::OutputStream::EncapsEncoder10::writePendingObjects()
+Ice::OutputStream::EncapsEncoder10::writePendingValues()
 {
     while(!_toBeMarshaledMap.empty())
     {
         //
-        // Consider the to be marshalled objects as marshalled now,
+        // Consider the to be marshalled instances as marshalled now,
         // this is necessary to avoid adding again the "to be
-        // marshalled objects" into _toBeMarshaledMap while writing
-        // objects.
+        // marshalled instances" into _toBeMarshaledMap while writing
+        // instances.
         //
         _marshaledMap.insert(_toBeMarshaledMap.begin(), _toBeMarshaledMap.end());
 
@@ -1059,7 +1059,7 @@ Ice::OutputStream::EncapsEncoder10::writePendingObjects()
 }
 
 Int
-Ice::OutputStream::EncapsEncoder10::registerObject(const ValuePtr& v)
+Ice::OutputStream::EncapsEncoder10::registerValue(const ValuePtr& v)
 {
     assert(v);
 
@@ -1085,8 +1085,8 @@ Ice::OutputStream::EncapsEncoder10::registerObject(const ValuePtr& v)
     // We haven't seen this instance previously, create a new
     // index, and insert it into the to-be-marshaled map.
     //
-    _toBeMarshaledMap.insert(make_pair(v, ++_objectIdIndex));
-    return _objectIdIndex;
+    _toBeMarshaledMap.insert(make_pair(v, ++_valueIdIndex));
+    return _valueIdIndex;
 }
 
 void
@@ -1099,9 +1099,9 @@ Ice::OutputStream::EncapsEncoder11::write(const ValuePtr& v)
     else if(_current && _encaps->format == SlicedFormat)
     {
         //
-        // If writting an object within a slice and using the sliced
-        // format, write an index from the object indirection
-        // table. The indirect object table is encoded at the end of
+        // If writing an instance within a slice and using the sliced
+        // format, write an index from the instance indirection
+        // table. The indirect instance table is encoded at the end of
         // each slice and is always read (even if the Slice is
         // unknown).
         //
@@ -1176,11 +1176,11 @@ Ice::OutputStream::EncapsEncoder11::startSlice(const string& typeId, int compact
     _stream->write(Byte(0)); // Placeholder for the slice flags
 
     //
-    // For object slices, encode the flag and the type ID either as a
+    // For instance slices, encode the flag and the type ID either as a
     // string or index. For exception slices, always encode the type
     // ID a string.
     //
-    if(_current->sliceType == ObjectSlice)
+    if(_current->sliceType == ValueSlice)
     {
         //
         // Encode the type ID (only in the first slice for the compact
@@ -1255,10 +1255,10 @@ Ice::OutputStream::EncapsEncoder11::endSlice()
         _current->sliceFlags |= FLAG_HAS_INDIRECTION_TABLE;
 
         //
-        // Write the indirection object table.
+        // Write the indirect instance table.
         //
         _stream->writeSize(static_cast<Int>(_current->indirectionTable.size()));
-        ObjectList::const_iterator p;
+        ValueList::const_iterator p;
         for(p = _current->indirectionTable.begin(); p != _current->indirectionTable.end(); ++p)
         {
             writeInstance(*p);
@@ -1303,7 +1303,7 @@ Ice::OutputStream::EncapsEncoder11::writeSlicedData(const SlicedDataPtr& slicedD
     //
     // We only remarshal preserved slices if we are using the sliced
     // format. Otherwise, we ignore the preserved slices, which
-    // essentially "slices" the object into the most-derived type
+    // essentially "slices" the instance into the most-derived type
     // known by the sender.
     //
     if(_encaps->format != SlicedFormat)
@@ -1326,9 +1326,9 @@ Ice::OutputStream::EncapsEncoder11::writeSlicedData(const SlicedDataPtr& slicedD
         }
 
         //
-        // Make sure to also re-write the object indirection table.
+        // Make sure to also re-write the instance indirection table.
         //
-        _current->indirectionTable = (*p)->objects;
+        _current->indirectionTable = (*p)->instances;
 
         endSlice();
     }
@@ -1353,7 +1353,7 @@ Ice::OutputStream::EncapsEncoder11::writeInstance(const ValuePtr& v)
     // We haven't seen this instance previously, create a new ID,
     // insert it into the marshaled map, and write the instance.
     //
-    _marshaledMap.insert(make_pair(v, ++_objectIdIndex));
+    _marshaledMap.insert(make_pair(v, ++_valueIdIndex));
 
     try
     {

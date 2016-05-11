@@ -92,11 +92,10 @@ public class Client extends test.Util.Application
         }
     }
 
-    private static class TestReadObjectCallback implements Ice.ReadObjectCallback
+    private static class TestReadValueCallback implements Ice.ReadValueCallback
     {
         @Override
-        public void
-        objectReady(Ice.Object obj)
+        public void valueReady(Ice.Object obj)
         {
             this.obj = obj;
         }
@@ -252,10 +251,10 @@ public class Client extends test.Util.Application
 
         {
             out = new Ice.OutputStream(comm);
-            MyEnum.enum3.ice_write(out);
+            MyEnum.write(out, MyEnum.enum3);
             byte[] data = out.finished();
             in = new Ice.InputStream(comm, data);
-            test(MyEnum.ice_read(in) == MyEnum.enum3);
+            test(MyEnum.read(in) == MyEnum.enum3);
         }
 
         {
@@ -271,11 +270,10 @@ public class Client extends test.Util.Application
             s.str = "7";
             s.e = MyEnum.enum2;
             s.p = MyClassPrxHelper.uncheckedCast(comm.stringToProxy("test:default"));
-            s.ice_write(out);
+            SmallStruct.write(out, s);
             byte[] data = out.finished();
             in = new Ice.InputStream(comm, data);
-            SmallStruct s2 = new SmallStruct();
-            s2.ice_read(in);
+            SmallStruct s2 = SmallStruct.read(in, null);
             test(s2.equals(s));
         }
 
@@ -286,13 +284,13 @@ public class Client extends test.Util.Application
             o.by = (byte)5;
             o.setSh((short)4);
             o.setI(3);
-            out.writeObject(o);
-            out.writePendingObjects();
+            out.writeValue(o);
+            out.writePendingValues();
             byte[] data = out.finished();
             in = new Ice.InputStream(comm, data);
-            TestReadObjectCallback cb = new TestReadObjectCallback();
-            in.readObject(cb);
-            in.readPendingObjects();
+            TestReadValueCallback cb = new TestReadValueCallback();
+            in.readValue(cb);
+            in.readPendingValues();
             OptionalClass o2 = (OptionalClass)cb.obj;
             test(o2.bo == o.bo);
             test(o2.by == o.by);
@@ -315,13 +313,13 @@ public class Client extends test.Util.Application
             o.by = (byte)5;
             o.setSh((short)4);
             o.setI(3);
-            out.writeObject(o);
-            out.writePendingObjects();
+            out.writeValue(o);
+            out.writePendingValues();
             byte[] data = out.finished();
             in = new Ice.InputStream(comm, Ice.Util.Encoding_1_0, data);
-            TestReadObjectCallback cb = new TestReadObjectCallback();
-            in.readObject(cb);
-            in.readPendingObjects();
+            TestReadValueCallback cb = new TestReadValueCallback();
+            in.readValue(cb);
+            in.readPendingValues();
             OptionalClass o2 = (OptionalClass)cb.obj;
             test(o2.bo == o.bo);
             test(o2.by == o.by);
@@ -625,11 +623,11 @@ public class Client extends test.Util.Application
             }
             out = new Ice.OutputStream(comm);
             MyClassSHelper.write(out, arr);
-            out.writePendingObjects();
+            out.writePendingValues();
             byte[] data = out.finished();
             in = new Ice.InputStream(comm, data);
             MyClass[] arr2 = MyClassSHelper.read(in);
-            in.readPendingObjects();
+            in.readPendingValues();
             test(arr2.length == arr.length);
             for(int i = 0; i < arr2.length; ++i)
             {
@@ -669,13 +667,13 @@ public class Client extends test.Util.Application
         {
             MyInterface i = new MyInterfaceI();
             out = new Ice.OutputStream(comm);
-            out.writeObject(i);
-            out.writePendingObjects();
+            out.writeValue(i);
+            out.writePendingValues();
             byte[] data = out.finished();
             in = new Ice.InputStream(comm, data);
             MyInterfaceHolder j = new MyInterfaceHolder();
-            in.readObject(j);
-            in.readPendingObjects();
+            in.readValue(j);
+            in.readPendingValues();
             test(j.value != null);
         }
 
@@ -685,8 +683,8 @@ public class Client extends test.Util.Application
             obj.s = new SmallStruct();
             obj.s.e = MyEnum.enum2;
             TestObjectWriter writer = new TestObjectWriter(obj);
-            out.writeObject(writer);
-            out.writePendingObjects();
+            out.writeValue(writer);
+            out.writePendingValues();
             out.finished();
             test(writer.called);
         }
@@ -697,15 +695,15 @@ public class Client extends test.Util.Application
             obj.s = new SmallStruct();
             obj.s.e = MyEnum.enum2;
             TestObjectWriter writer = new TestObjectWriter(obj);
-            out.writeObject(writer);
-            out.writePendingObjects();
+            out.writeValue(writer);
+            out.writePendingValues();
             byte[] data = out.finished();
             test(writer.called);
             factoryWrapper.setFactory(new TestValueFactory());
             in = new Ice.InputStream(comm, data);
-            TestReadObjectCallback cb = new TestReadObjectCallback();
-            in.readObject(cb);
-            in.readPendingObjects();
+            TestReadValueCallback cb = new TestReadValueCallback();
+            in.readValue(cb);
+            in.readPendingValues();
             test(cb.obj != null);
             test(cb.obj instanceof TestObjectReader);
             TestObjectReader reader = (TestObjectReader)cb.obj;
@@ -829,11 +827,11 @@ public class Client extends test.Util.Application
             dict.put("key2", c);
             out = new Ice.OutputStream(comm);
             StringMyClassDHelper.write(out, dict);
-            out.writePendingObjects();
+            out.writePendingValues();
             byte[] data = out.finished();
             in = new Ice.InputStream(comm, data);
             java.util.Map<String, MyClass> dict2 = StringMyClassDHelper.read(in);
-            in.readPendingObjects();
+            in.readPendingValues();
             test(dict2.size() == dict.size());
             test(dict2.get("key1").s.e == MyEnum.enum2);
             test(dict2.get("key2").s.e == MyEnum.enum3);

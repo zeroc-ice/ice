@@ -30,11 +30,11 @@ public final class ObjectHolder extends ObjectHolderBase<Ice.Object>
     }
 
     /**
-     * Sets the Ice object of this holder to the passed instance.
+     * Sets the value of this holder to the passed instance.
      *
-     * @param v The new object for this holder.
+     * @param v The new value for this holder.
      **/
-    public void objectReady(Ice.Object v)
+    public void valueReady(Ice.Object v)
     {
         value = v;
     }

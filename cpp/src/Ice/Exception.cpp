@@ -73,10 +73,10 @@ throwUOE(const string& expectedType, const ValuePtr& v)
     // value factory, in this case raise a NoValueFactoryException
     // instead.
     //
-    UnknownSlicedObject* uso = dynamic_cast<UnknownSlicedObject*>(v.get());
-    if(uso)
+    UnknownSlicedValue* usv = dynamic_cast<UnknownSlicedValue*>(v.get());
+    if(usv)
     {
-        throw NoValueFactoryException(__FILE__, __LINE__, "", uso->getUnknownTypeId());
+        throw NoValueFactoryException(__FILE__, __LINE__, "", usv->getUnknownTypeId());
     }
 
     string type = v->ice_id();

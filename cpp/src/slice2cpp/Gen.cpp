@@ -2098,7 +2098,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         writeMarshalCode(C, inParams, 0, true, TypeContextInParam);
         if(p->sendsClasses(false))
         {
-            C << nl << "__os->writePendingObjects();";
+            C << nl << "__os->writePendingValues();";
         }
         C << nl << "__og.endWriteParams();";
         C << eb;
@@ -2177,7 +2177,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
             writeUnmarshalCode(C, outParams, p, true);
             if(p->returnsClasses(false))
             {
-                C << nl << "__is->readPendingObjects();";
+                C << nl << "__is->readPendingValues();";
             }
             C << nl << "__og.endReadParams();";
         }
@@ -2212,7 +2212,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         writeMarshalCode(C, inParams, 0, true, TypeContextInParam);
         if(p->sendsClasses(false))
         {
-            C << nl << "__os->writePendingObjects();";
+            C << nl << "__os->writePendingValues();";
         }
         C << nl << "__result->endWriteParams();";
     }
@@ -2275,7 +2275,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
             writeUnmarshalCode(C, outParams, p, true, _useWstring | TypeContextAMIEnd);
             if(p->returnsClasses(false))
             {
-                C << nl << "__is->readPendingObjects();";
+                C << nl << "__is->readPendingValues();";
             }
             C << nl << "__result->__endReadParams();";
         }
@@ -2339,7 +2339,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
             writeUnmarshalCode(C, outParams, p, true, _useWstring | TypeContextAMIPrivateEnd);
             if(p->returnsClasses(false))
             {
-                C << nl << "__is->readPendingObjects();";
+                C << nl << "__is->readPendingValues();";
             }
             C << nl << "__result->__endReadParams();";
         }
@@ -2999,17 +2999,17 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             C << sp;
             C << nl << "void" << nl << scoped.substr(2) << "::__write(::Ice::OutputStream* __os) const";
             C << sb;
-            C << nl << "__os->startObject(__slicedData);";
+            C << nl << "__os->startValue(__slicedData);";
             C << nl << "__writeImpl(__os);";
-            C << nl << "__os->endObject();";
+            C << nl << "__os->endValue();";
             C << eb;
 
             C << sp;
             C << nl << "void" << nl << scoped.substr(2) << "::__read(::Ice::InputStream* __is)";
             C << sb;
-            C << nl << "__is->startObject();";
+            C << nl << "__is->startValue();";
             C << nl << "__readImpl(__is);";
-            C << nl << "__slicedData = __is->endObject(true);";
+            C << nl << "__slicedData = __is->endValue(true);";
             C << eb;
         }
 
@@ -3340,7 +3340,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
                 writeUnmarshalCode(C, inParams, 0, true, TypeContextInParam);
                 if(p->sendsClasses(false))
                 {
-                    C << nl << "__is->readPendingObjects();";
+                    C << nl << "__is->readPendingValues();";
                 }
                 C << nl << "__inS.endReadParams();";
             }
@@ -3368,7 +3368,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
                 writeMarshalCode(C, outParams, p, true);
                 if(p->returnsClasses(false))
                 {
-                    C << nl << "__os->writePendingObjects();";
+                    C << nl << "__os->writePendingValues();";
                 }
                 C << nl << "__inS.__endWriteParams(true);";
             }
@@ -3402,7 +3402,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
                 writeUnmarshalCode(C, inParams, 0, true, TypeContextInParam);
                 if(p->sendsClasses(false))
                 {
-                    C << nl << "__is->readPendingObjects();";
+                    C << nl << "__is->readPendingValues();";
                 }
                 C << nl << "__inS.endReadParams();";
             }
@@ -4704,7 +4704,7 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
         writeMarshalCode(C, outParams, p, false, TypeContextInParam);
         if(p->returnsClasses(false))
         {
-            C << nl << "__os->writePendingObjects();";
+            C << nl << "__os->writePendingValues();";
         }
         C << nl << "__endWriteParams(true);";
         C << eb;
@@ -6335,7 +6335,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
         writeMarshalCode(C, inParams, 0, true, TypeContextInParam);
         if(p->sendsClasses(false))
         {
-            C << nl << "__os->writePendingObjects();";
+            C << nl << "__os->writePendingValues();";
         }
         C << eb;
     }
@@ -6445,7 +6445,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
         }
         if(p->returnsClasses(false))
         {
-            C << nl << "__is->readPendingObjects();";
+            C << nl << "__is->readPendingValues();";
         }
         C << nl << "return v;";
         C << eb;
@@ -6488,7 +6488,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
             ParamDeclPtr q = (*outParams.begin());
             writeMarshalUnmarshalCode(C, q->type(), false, 0, "v", false, q->getMetaData());
         }
-        C << nl << "__is->readPendingObjects();";
+        C << nl << "__is->readPendingValues();";
         C << nl << "return v;";
         C << eb;
     }
@@ -7325,7 +7325,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
         writeUnmarshalCode(C, inParams, 0, true, TypeContextInParam);
         if(p->sendsClasses(false))
         {
-            C << nl << "__is->readPendingObjects();";
+            C << nl << "__is->readPendingValues();";
         }
         C << nl << "__inS.endReadParams();";
     }
@@ -7354,7 +7354,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
             writeMarshalCode(C, outParams, p, true);
             if(p->returnsClasses(false))
             {
-                C << nl << "__os->writePendingObjects();";
+                C << nl << "__os->writePendingValues();";
             }
             C << nl << "__inS.__endWriteParams(true);";
         }
@@ -7429,7 +7429,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
             writeMarshalCode(C, outParams, p, true);
             if(p->returnsClasses(false))
             {
-                C << nl << "__os->writePendingObjects();";
+                C << nl << "__os->writePendingValues();";
             }
             C << nl << "inS->__endWriteParams(true);";
         }
@@ -7587,17 +7587,17 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
         C << sp;
         C << nl << "void" << nl << scoped.substr(2) << "::__write(::Ice::OutputStream* __os) const";
         C << sb;
-        C << nl << "__os->startObject(__slicedData);";
+        C << nl << "__os->startValue(__slicedData);";
         C << nl << "__writeImpl(__os);";
-        C << nl << "__os->endObject();";
+        C << nl << "__os->endValue();";
         C << eb;
 
         C << sp;
         C << nl << "void" << nl << scoped.substr(2) << "::__read(::Ice::InputStream* __is)";
         C << sb;
-        C << nl << "__is->startObject();";
+        C << nl << "__is->startValue();";
         C << nl << "__readImpl(__is);";
-        C << nl << "__slicedData = __is->endObject(true);";
+        C << nl << "__slicedData = __is->endValue(true);";
         C << eb;
     }
 

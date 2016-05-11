@@ -26,9 +26,7 @@ __M.require(module,
         "../Ice/Version",
         "../Ice/CompactIdRegistry",
         "../Ice/ArrayUtil",
-        "../Ice/UnknownSlicedObject",
-        //"../Ice/Communicator",
-        //"../Ice/Instance"
+        "../Ice/UnknownSlicedValue"
     ]);
 
 var Debug = Ice.Debug;
@@ -45,7 +43,7 @@ var Class = Ice.Class;
 
 var SliceType = {};
 SliceType.NoSlice = 0;
-SliceType.ObjectSlice = 1;
+SliceType.ValueSlice = 1;
 SliceType.ExceptionSlice = 2;
 
 //
@@ -69,23 +67,23 @@ var IndirectPatchEntry = function(index, cb)
 };
 
 var EncapsDecoder = Class({
-    __init__: function(stream, encaps, sliceObjects, f)
+    __init__: function(stream, encaps, sliceValues, f)
     {
         this._stream = stream;
         this._encaps = encaps;
-        this._sliceObjects = sliceObjects;
+        this._sliceValues = sliceValues;
         this._valueFactoryManager = f;
         this._patchMap = null; // Lazy initialized, HashMap<int, Patcher[] >()
         this._unmarshaledMap = new HashMap(); // HashMap<int, Ice.Object>()
         this._typeIdMap = null; // Lazy initialized, HashMap<int, String>
         this._typeIdIndex = 0;
-        this._objectList = null; // Lazy initialized. Ice.Object[]
+        this._valueList = null; // Lazy initialized. Ice.Object[]
     },
     readOptional: function()
     {
         return false;
     },
-    readPendingObjects: function()
+    readPendingValues: function()
     {
     },
     readTypeId: function(isIndex)
@@ -143,7 +141,7 @@ var EncapsDecoder = Class({
         //
         if(v === null || v === undefined)
         {
-            v = this._stream.createObject(typeId);
+            v = this._stream.createInstance(typeId);
         }
 
         return v;
@@ -153,8 +151,8 @@ var EncapsDecoder = Class({
         Debug.assert(index > 0);
 
         //
-        // Check if we have already unmarshaled the object. If that's the case,
-        // just patch the object smart pointer and we're done.
+        // Check if we have already unmarshaled the instance. If that's the case,
+        // just call the callback and we're done.
         //
         var obj = this._unmarshaledMap.get(index);
         if(obj !== undefined && obj !== null)
@@ -169,8 +167,8 @@ var EncapsDecoder = Class({
         }
 
         //
-        // Add patch entry if the object isn't unmarshaled yet,
-        // the smart pointer will be patched when the instance is
+        // Add a patch entry if the instance isn't unmarshaled yet,
+        // the callback will be called when the instance is
         // unmarshaled.
         //
         var l = this._patchMap.get(index);
@@ -180,7 +178,7 @@ var EncapsDecoder = Class({
             // We have no outstanding instances to be patched for this
             // index, so make a new entry in the patch map.
             //
-            l = []; // ReadObjectCallback[]
+            l = []; // ReadValueCallback[]
             this._patchMap.set(index, l);
         }
 
@@ -194,20 +192,20 @@ var EncapsDecoder = Class({
         var i, length, l;
 
         //
-        // Add the object to the map of unmarshaled objects, this must
-        // be done before reading the objects (for circular references).
+        // Add the instance to the map of unmarshaled instances, this must
+        // be done before reading the instances (for circular references).
         //
         this._unmarshaledMap.set(index, v);
 
         //
-        // Read the object.
+        // Read the instance.
         //
         v.__read(this._stream);
 
         if(this._patchMap !== null)
         {
             //
-            // Patch all instances now that the object is unmarshaled.
+            // Patch all instances now that the instance is unmarshaled.
             //
             l = this._patchMap.get(index);
             if(l !== undefined)
@@ -230,7 +228,7 @@ var EncapsDecoder = Class({
             }
         }
 
-        if((this._patchMap === null || this._patchMap.size === 0) && this._objectList === null)
+        if((this._patchMap === null || this._patchMap.size === 0) && this._valueList === null)
         {
             try
             {
@@ -244,25 +242,25 @@ var EncapsDecoder = Class({
         }
         else
         {
-            if(this._objectList === null) // Lazy initialization
+            if(this._valueList === null) // Lazy initialization
             {
-                this._objectList = []; // Ice.Object[]
+                this._valueList = []; // Ice.Object[]
             }
-            this._objectList.push(v);
+            this._valueList.push(v);
 
             if(this._patchMap === null || this._patchMap.size === 0)
             {
                 //
-                // Iterate over the object list and invoke ice_postUnmarshal on
-                // each object. We must do this after all objects have been
-                // unmarshaled in order to ensure that any object data members
+                // Iterate over the instance list and invoke ice_postUnmarshal on
+                // each instance. We must do this after all instances have been
+                // unmarshaled in order to ensure that any instance data members
                 // have been properly patched.
                 //
-                for(i = 0, length = this._objectList.length; i < length; i++)
+                for(i = 0, length = this._valueList.length; i < length; i++)
                 {
                     try
                     {
-                        this._objectList[i].ice_postUnmarshal();
+                        this._valueList[i].ice_postUnmarshal();
                     }
                     catch(ex)
                     {
@@ -270,24 +268,24 @@ var EncapsDecoder = Class({
                             "exception raised by ice_postUnmarshal:\n" + ex.toString());
                     }
                 }
-                this._objectList = [];
+                this._valueList = [];
             }
         }
     }
 });
 
 var EncapsDecoder10 = Class(EncapsDecoder, {
-    __init__: function(stream, encaps, sliceObjects, f)
+    __init__: function(stream, encaps, sliceValues, f)
     {
-        EncapsDecoder.call(this, stream, encaps, sliceObjects, f);
+        EncapsDecoder.call(this, stream, encaps, sliceValues, f);
         this._sliceType = SliceType.NoSlice;
     },
-    readObject: function(cb)
+    readValue: function(cb)
     {
         Debug.assert(cb !== null);
 
         //
-        // Object references are encoded as a negative integer in 1.0.
+        // Instance references are encoded as a negative integer in 1.0.
         //
         var index = this._stream.readInt();
         if(index > 0)
@@ -313,7 +311,7 @@ var EncapsDecoder10 = Class(EncapsDecoder, {
         // User exceptions with the 1.0 encoding start with a boolean flag
         // that indicates whether or not the exception has classes.
         //
-        // This allows reading the pending objects even if some part of
+        // This allows reading the pending instances even if some part of
         // the exception was sliced.
         //
         var usesClasses = this._stream.readBool();
@@ -338,7 +336,7 @@ var EncapsDecoder10 = Class(EncapsDecoder, {
                 userEx.__read(this._stream);
                 if(usesClasses)
                 {
-                    this.readPendingObjects();
+                    this.readPendingValues();
                 }
                 throw userEx;
 
@@ -382,7 +380,7 @@ var EncapsDecoder10 = Class(EncapsDecoder, {
         //
         // Read the Ice::Object slice.
         //
-        if(this._sliceType === SliceType.ObjectSlice)
+        if(this._sliceType === SliceType.ValueSlice)
         {
             this.startSlice();
             sz = this._stream.readSize(); // For compatibility with the old AFM.
@@ -410,12 +408,12 @@ var EncapsDecoder10 = Class(EncapsDecoder, {
         }
 
         //
-        // For objects, first read the type ID boolean which indicates
+        // For instances, first read the type ID boolean which indicates
         // whether or not the type ID is encoded as a string or as an
         // index. For exceptions, the type ID is always encoded as a
         // string.
         //
-        if(this._sliceType === SliceType.ObjectSlice) // For exceptions, the type ID is always encoded as a string
+        if(this._sliceType === SliceType.ValueSlice) // For exceptions, the type ID is always encoded as a string
         {
             isIndex = this._stream.readBool();
             this._typeId = this.readTypeId(isIndex);
@@ -442,7 +440,7 @@ var EncapsDecoder10 = Class(EncapsDecoder, {
         Debug.assert(this._sliceSize >= 4);
         this._stream.skip(this._sliceSize - 4);
     },
-    readPendingObjects: function()
+    readPendingValues: function()
     {
         var k, num;
         do
@@ -458,8 +456,8 @@ var EncapsDecoder10 = Class(EncapsDecoder, {
         if(this._patchMap !== null && this._patchMap.size !== 0)
         {
             //
-            // If any entries remain in the patch map, the sender has sent an index for an object, but failed
-            // to supply the object.
+            // If any entries remain in the patch map, the sender has sent an index for an instance, but failed
+            // to supply the instance.
             //
             throw new Ice.MarshalException("index for class received, but no instance");
         }
@@ -475,7 +473,7 @@ var EncapsDecoder10 = Class(EncapsDecoder, {
             throw new Ice.MarshalException("invalid object id");
         }
 
-        this._sliceType = SliceType.ObjectSlice;
+        this._sliceType = SliceType.ValueSlice;
         this._skipFirstSlice = false;
 
         //
@@ -505,11 +503,11 @@ var EncapsDecoder10 = Class(EncapsDecoder, {
             }
 
             //
-            // If object slicing is disabled, stop unmarshaling.
+            // If slicing is disabled, stop unmarshaling.
             //
-            if(!this._sliceObjects)
+            if(!this._sliceValues)
             {
-                throw new Ice.NoValueFactoryException("no value factory found and object slicing is disabled",
+                throw new Ice.NoValueFactoryException("no value factory found and slicing is disabled",
                                                        this._typeId);
             }
 
@@ -521,21 +519,21 @@ var EncapsDecoder10 = Class(EncapsDecoder, {
         }
 
         //
-        // Un-marshal the object and add-it to the map of unmarshaled objects.
+        // Unmarshal the instance and add it to the map of unmarshaled instances.
         //
         this.unmarshal(index, v);
     }
 });
 
 var EncapsDecoder11 = Class(EncapsDecoder, {
-    __init__: function(stream, encaps, sliceObjects, f, r)
+    __init__: function(stream, encaps, sliceValues, f, r)
     {
-        EncapsDecoder.call(this, stream, encaps, sliceObjects, f);
+        EncapsDecoder.call(this, stream, encaps, sliceValues, f);
         this._compactIdResolver = r;
         this._current = null;
-        this._objectIdIndex = 1;
+        this._valueIdIndex = 1;
     },
-    readObject: function(cb)
+    readValue: function(cb)
     {
         var index = this._stream.readSize();
         if(index < 0)
@@ -552,9 +550,9 @@ var EncapsDecoder11 = Class(EncapsDecoder, {
         else if(this._current !== null && (this._current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) !== 0)
         {
             //
-            // When reading an object within a slice and there's an
-            // indirect object table, always read an indirect reference
-            // that points to an object from the indirect object table
+            // When reading an instance within a slice and there's an
+            // indirect instance table, always read an indirect reference
+            // that points to an instance from the indirect instance table
             // marshaled at the end of the Slice.
             //
             // Maintain a list of indirect references. Note that the
@@ -659,11 +657,11 @@ var EncapsDecoder11 = Class(EncapsDecoder, {
         this._current.sliceFlags = this._stream.readByte();
 
         //
-        // Read the type ID, for object slices the type ID is encoded as a
+        // Read the type ID, for instance slices the type ID is encoded as a
         // string or as an index, for exceptions it's always encoded as a
         // string.
         //
-        if(this._current.sliceType === SliceType.ObjectSlice)
+        if(this._current.sliceType === SliceType.ValueSlice)
         {
             if((this._current.sliceFlags & Protocol.FLAG_HAS_TYPE_ID_COMPACT) ===
                 Protocol.FLAG_HAS_TYPE_ID_COMPACT) // Must be checked 1st!
@@ -740,7 +738,7 @@ var EncapsDecoder11 = Class(EncapsDecoder, {
 
             //
             // Sanity checks. If there are optional members, it's possible
-            // that not all object references were read if they are from
+            // that not all instance references were read if they are from
             // unknown optional data members.
             //
             if(indirectionTable.length === 0)
@@ -785,7 +783,7 @@ var EncapsDecoder11 = Class(EncapsDecoder, {
         }
         else
         {
-            if(this._current.sliceType === SliceType.ObjectSlice)
+            if(this._current.sliceType === SliceType.ValueSlice)
             {
                 throw new Ice.NoValueFactoryException("no value factory found and compact format prevents slicing " +
                                                        "(the sender should use the sliced format instead)",
@@ -836,12 +834,9 @@ var EncapsDecoder11 = Class(EncapsDecoder, {
         }
 
         //
-        // Read the indirect object table. We read the instances or their
+        // Read the indirect instance table. We read the instances or their
         // IDs if the instance is a reference to an already unmarshaled
-        // object.
-        //
-        // The SliceInfo object sequence is initialized only if
-        // readSlicedData is called.
+        // instance.
         //
 
         if((this._current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) !== 0)
@@ -889,14 +884,14 @@ var EncapsDecoder11 = Class(EncapsDecoder, {
             return index;
         }
 
-        this.push(SliceType.ObjectSlice);
+        this.push(SliceType.ValueSlice);
 
         //
-        // Get the object ID before we start reading slices. If some
-        // slices are skipped, the indirect object table are still read and
-        // might read other objects.
+        // Get the instance ID before we start reading slices. If some
+        // slices are skipped, the indirect instance table is still read and
+        // might read other instances.
         //
-        index = ++this._objectIdIndex;
+        index = ++this._valueIdIndex;
 
         //
         // Read the first slice header.
@@ -948,11 +943,11 @@ var EncapsDecoder11 = Class(EncapsDecoder, {
             }
 
             //
-            // If object slicing is disabled, stop unmarshaling.
+            // If slicing is disabled, stop unmarshaling.
             //
-            if(!this._sliceObjects)
+            if(!this._sliceValues)
             {
-                throw new Ice.NoValueFactoryException("no value factory found and object slicing is disabled",
+                throw new Ice.NoValueFactoryException("no value factory found and slicing is disabled",
                                                        this._current.typeId);
             }
 
@@ -962,12 +957,12 @@ var EncapsDecoder11 = Class(EncapsDecoder, {
             this.skipSlice();
 
             //
-            // If this is the last slice, keep the object as an opaque
-            // UnknownSlicedData object.
+            // If this is the last slice, keep the instance as an opaque
+            // UnknownSlicedValue object.
             //
             if((this._current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) !== 0)
             {
-                v = new Ice.UnknownSlicedObject(mostDerivedId);
+                v = new Ice.UnknownSlicedValue(mostDerivedId);
                 break;
             }
 
@@ -975,15 +970,15 @@ var EncapsDecoder11 = Class(EncapsDecoder, {
         }
 
         //
-        // Unmarshal the object.
+        // Unmarshal the instance.
         //
         this.unmarshal(index, v);
 
         if(this._current === null && this._patchMap !== null && this._patchMap.size !== 0)
         {
             //
-            // If any entries remain in the patch map, the sender has sent an index for an object, but failed
-            // to supply the object.
+            // If any entries remain in the patch map, the sender has sent an index for an instance, but failed
+            // to supply the instance.
             //
             throw new Ice.MarshalException("index for class received, but no instance");
         }
@@ -1012,18 +1007,18 @@ var EncapsDecoder11 = Class(EncapsDecoder, {
         for(i = 0, ii = this._current.slices.length; i < ii; ++i)
         {
             //
-            // We use the "objects" list in SliceInfo to hold references
-            // to the target objects. Note that the objects might not have
+            // We use the "instances" list in SliceInfo to hold references
+            // to the target instances. Note that the instances might not have
             // been read yet in the case of a circular reference to an
-            // enclosing object.
+            // enclosing instance.
             //
             table = this._current.indirectionTables[i];
             info = this._current.slices[i];
-            info.objects = [];
+            info.instances = [];
             jj = table ? table.length : 0;
             for(j = 0; j < jj; ++j)
             {
-                this.addPatchEntry(table[j], sequencePatcher(info.objects, j, IceObject));
+                this.addPatchEntry(table[j], sequencePatcher(info.instances, j, IceObject));
             }
         }
         return new SlicedData(ArrayUtil.clone(this._current.slices));
@@ -1181,7 +1176,7 @@ var InputStream = Class({
         this._encapsStack = null;
         this._encapsCache = null;
         this._closure = null;
-        this._sliceObjects = true;
+        this._sliceValues = true;
         this._startSeq = -1;
         this._sizePos = -1;
         this._compactIdResolver = null;
@@ -1240,13 +1235,13 @@ var InputStream = Class({
         }
 
         this._startSeq = -1;
-        this._sliceObjects = true;
+        this._sliceValues = true;
     },
     swap: function(other)
     {
         Debug.assert(this._instance === other._instance);
 
-        var tmpBuf, tmpEncoding, tmpTraceSlicing, tmpClosure, tmpSliceObjects, tmpStartSeq, tmpMinSeqSize, tmpSizePos,
+        var tmpBuf, tmpEncoding, tmpTraceSlicing, tmpClosure, tmpSliceValues, tmpStartSeq, tmpMinSeqSize, tmpSizePos,
             tmpVfm, tmpLogger, tmpCompactIdResolver;
 
         tmpBuf = other._buf;
@@ -1265,9 +1260,9 @@ var InputStream = Class({
         other._closure = this._closure;
         this._closure = tmpClosure;
 
-        tmpSliceObjects = other._sliceObjects;
-        other._sliceObjects = this._sliceObjects;
-        this._sliceObjects = tmpSliceObjects;
+        tmpSliceValues = other._sliceValues;
+        other._sliceValues = this._sliceValues;
+        this._sliceValues = tmpSliceValues;
 
         //
         // Swap is never called for InputStreams that have encapsulations being read/write. However,
@@ -1310,12 +1305,12 @@ var InputStream = Class({
         this._buf.resize(sz);
         this._buf.position = sz;
     },
-    startObject: function()
+    startValue: function()
     {
         Debug.assert(this._encapsStack !== null && this._encapsStack.decoder !== null);
-        this._encapsStack.decoder.startInstance(SliceType.ObjectSlice);
+        this._encapsStack.decoder.startInstance(SliceType.ValueSlice);
     },
-    endObject: function(preserve)
+    endValue: function(preserve)
     {
         Debug.assert(this._encapsStack !== null && this._encapsStack.decoder !== null);
         return this._encapsStack.decoder.endInstance(preserve);
@@ -1517,21 +1512,21 @@ var InputStream = Class({
         Debug.assert(this._encapsStack !== null && this._encapsStack.decoder !== null);
         this._encapsStack.decoder.skipSlice();
     },
-    readPendingObjects: function()
+    readPendingValues: function()
     {
         if(this._encapsStack !== null && this._encapsStack.decoder !== null)
         {
-            this._encapsStack.decoder.readPendingObjects();
+            this._encapsStack.decoder.readPendingValues();
         }
         else if((this._encapsStack !== null && this._encapsStack.encoding_1_0) ||
                 (this._encapsStack === null && this._encoding.equals(Ice.Encoding_1_0)))
         {
             //
-            // If using the 1.0 encoding and no objects were read, we
-            // still read an empty sequence of pending objects if
+            // If using the 1.0 encoding and no instances were read, we
+            // still read an empty sequence of pending instances if
             // requested (i.e.: if this is called).
             //
-            // This is required by the 1.0 encoding, even if no objects
+            // This is required by the 1.0 encoding, even if no instances
             // are written we do marshal an empty sequence if marshaled
             // data types use classes.
             //
@@ -1631,7 +1626,7 @@ var InputStream = Class({
         }
         return this.readOptImpl(tag, expectedFormat);
     },
-    readOptionalValue: function(tag, format, read)
+    readOptionalHelper: function(tag, format, read)
     {
         if(this.readOptional(tag, format))
         {
@@ -1804,16 +1799,16 @@ var InputStream = Class({
             return undefined;
         }
     },
-    readObject: function(cb, T)
+    readValue: function(cb, T)
     {
         this.initEncaps();
         //
         // BUGFIX:
-        // With Chrome on Linux the invocation of readObject on the decoder sometimes
-        // calls InputStream.readObject with the decoder object as this param.
+        // With Chrome on Linux the invocation of readValue on the decoder sometimes
+        // calls InputStream.readValue with the decoder object as this param.
         // Use call instead of directly invoking the method to workaround this bug.
         //
-        this._encapsStack.decoder.readObject.call(
+        this._encapsStack.decoder.readValue.call(
             this._encapsStack.decoder,
             function(obj)
             {
@@ -1824,11 +1819,11 @@ var InputStream = Class({
                 cb(obj);
             });
     },
-    readOptionalObject: function(tag, cb, T)
+    readOptionalValue: function(tag, cb, T)
     {
         if(this.readOptional(tag, OptionalFormat.Class))
         {
-            this.readObject(cb, T);
+            this.readValue(cb, T);
         }
         else
         {
@@ -1917,7 +1912,7 @@ var InputStream = Class({
                 this.skip(this.readInt());
                 break;
             case OptionalFormat.Class:
-                this.readObject(null, Ice.Object);
+                this.readValue(null, Ice.Object);
                 break;
         }
     },
@@ -1973,7 +1968,7 @@ var InputStream = Class({
     {
         this._buf.expand(n);
     },
-    createObject: function(id)
+    createInstance: function(id)
     {
         var obj = null, Class;
         try
@@ -2046,12 +2041,12 @@ var InputStream = Class({
         {
             if(this._encapsStack.encoding_1_0)
             {
-                this._encapsStack.decoder = new EncapsDecoder10(this, this._encapsStack, this._sliceObjects,
+                this._encapsStack.decoder = new EncapsDecoder10(this, this._encapsStack, this._sliceValues,
                                                                 this._valueFactoryManager);
             }
             else
             {
-                this._encapsStack.decoder = new EncapsDecoder11(this, this._encapsStack, this._sliceObjects,
+                this._encapsStack.decoder = new EncapsDecoder11(this, this._encapsStack, this._sliceValues,
                                                                 this._valueFactoryManager, this._compactIdResolver);
             }
         }
@@ -2099,17 +2094,17 @@ defineProperty(InputStream.prototype, "compactIdResolver", {
 });
 
 //
-// Determines the behavior of the stream when extracting Slice objects.
-// A Slice object is "sliced" when a factory cannot be found for a Slice type ID.
-// The stream's default behavior is to slice objects.
+// Determines the behavior of the stream when extracting instances of Slice classes.
+// A instance is "sliced" when a factory cannot be found for a Slice type ID.
+// The stream's default behavior is to slice instances.
 //
 // If slicing is disabled and the stream encounters a Slice type ID
 // during decoding for which no value factory is installed, it raises
 // NoValueFactoryException.
 //
-defineProperty(InputStream.prototype, "sliceObjects", {
-    get: function() { return this._sliceObjects; },
-    set: function(b) { this._sliceObjects = b; }
+defineProperty(InputStream.prototype, "sliceValues", {
+    get: function() { return this._sliceValues; },
+    set: function(b) { this._sliceValues = b; }
 });
 
 //
@@ -2159,7 +2154,7 @@ var EncapsEncoder = Class({
     {
         return false;
     },
-    writePendingObjects: function()
+    writePendingValues: function()
     {
         return undefined;
     },
@@ -2189,10 +2184,10 @@ var EncapsEncoder10 = Class(EncapsEncoder, {
         EncapsEncoder.call(this, stream, encaps);
         this._sliceType = SliceType.NoSlice;
         this._writeSlice = 0;        // Position of the slice data members
-        this._objectIdIndex = 0;
+        this._valueIdIndex = 0;
         this._toBeMarshaledMap = new HashMap(); // HashMap<Ice.Object, Integer>();
     },
-    writeObject: function(v)
+    writeValue: function(v)
     {
         Debug.assert(v !== undefined);
         //
@@ -2200,7 +2195,7 @@ var EncapsEncoder10 = Class(EncapsEncoder, {
         //
         if(v !== null)
         {
-            this._stream.writeInt(-this.registerObject(v));
+            this._stream.writeInt(-this.registerValue(v));
         }
         else
         {
@@ -2215,7 +2210,7 @@ var EncapsEncoder10 = Class(EncapsEncoder, {
         // flag that indicates whether or not the exception uses
         // classes.
         //
-        // This allows reading the pending objects even if some part of
+        // This allows reading the pending instances even if some part of
         // the exception was sliced.
         //
         var usesClasses = v.__usesClasses();
@@ -2223,7 +2218,7 @@ var EncapsEncoder10 = Class(EncapsEncoder, {
         v.__write(this._stream);
         if(usesClasses)
         {
-            this.writePendingObjects();
+            this.writePendingValues();
         }
     },
     startInstance: function(sliceType)
@@ -2232,7 +2227,7 @@ var EncapsEncoder10 = Class(EncapsEncoder, {
     },
     endInstance: function()
     {
-        if(this._sliceType === SliceType.ObjectSlice)
+        if(this._sliceType === SliceType.ValueSlice)
         {
             //
             // Write the Object slice.
@@ -2246,11 +2241,11 @@ var EncapsEncoder10 = Class(EncapsEncoder, {
     startSlice: function(typeId)
     {
         //
-        // For object slices, encode a boolean to indicate how the type ID
+        // For instance slices, encode a boolean to indicate how the type ID
         // is encoded and the type ID either as a string or index. For
         // exception slices, always encode the type ID as a string.
         //
-        if(this._sliceType === SliceType.ObjectSlice)
+        if(this._sliceType === SliceType.ValueSlice)
         {
             var index = this.registerTypeId(typeId);
             if(index < 0)
@@ -2281,7 +2276,7 @@ var EncapsEncoder10 = Class(EncapsEncoder, {
         var sz = this._stream.pos - this._writeSlice + 4;
         this._stream.rewriteInt(sz, this._writeSlice - 4);
     },
-    writePendingObjects: function()
+    writePendingValues: function()
     {
         var self = this,
             writeCB = function(key, value)
@@ -2310,10 +2305,10 @@ var EncapsEncoder10 = Class(EncapsEncoder, {
         while(this._toBeMarshaledMap.size > 0)
         {
             //
-            // Consider the to be marshalled objects as marshalled now,
+            // Consider the to be marshalled instances as marshalled now,
             // this is necessary to avoid adding again the "to be
-            // marshalled objects" into _toBeMarshaledMap while writing
-            // objects.
+            // marshalled instances" into _toBeMarshaledMap while writing
+            // instances.
             //
             this._marshaledMap.merge(this._toBeMarshaledMap);
 
@@ -2324,7 +2319,7 @@ var EncapsEncoder10 = Class(EncapsEncoder, {
         }
         this._stream.writeSize(0); // Zero marker indicates end of sequence of sequences of instances.
     },
-    registerObject: function(v)
+    registerValue: function(v)
     {
         Debug.assert(v !== null);
 
@@ -2350,8 +2345,8 @@ var EncapsEncoder10 = Class(EncapsEncoder, {
         // We haven't seen this instance previously, create a new
         // index, and insert it into the to-be-marshaled map.
         //
-        this._toBeMarshaledMap.set(v, ++this._objectIdIndex);
-        return this._objectIdIndex;
+        this._toBeMarshaledMap.set(v, ++this._valueIdIndex);
+        return this._valueIdIndex;
     }
 });
 
@@ -2360,9 +2355,9 @@ var EncapsEncoder11 = Class(EncapsEncoder, {
     {
         EncapsEncoder.call(this, stream, encaps);
         this._current = null;
-        this._objectIdIndex = 1;
+        this._valueIdIndex = 1;
     },
-    writeObject: function(v)
+    writeValue: function(v)
     {
         Debug.assert(v !== undefined);
         var index, idx;
@@ -2379,9 +2374,9 @@ var EncapsEncoder11 = Class(EncapsEncoder, {
             }
 
             //
-            // If writing an object within a slice and using the sliced
-            // format, write an index from the object indirection
-            // table. The indirect object table is encoded at the end of
+            // If writing an instance within a slice and using the sliced
+            // format, write an index from the instance indirection
+            // table. The indirect instance table is encoded at the end of
             // each slice and is always read (even if the Slice is
             // unknown).
             //
@@ -2403,7 +2398,7 @@ var EncapsEncoder11 = Class(EncapsEncoder, {
             this.writeInstance(v); // Write the instance or a reference if already marshaled.
         }
     },
-    writePendingObjects: function()
+    writePendingValues: function()
     {
         return undefined;
     },
@@ -2456,11 +2451,11 @@ var EncapsEncoder11 = Class(EncapsEncoder, {
         this._stream.writeByte(0); // Placeholder for the slice flags
 
         //
-        // For object slices, encode the flag and the type ID either as a
+        // For instance slices, encode the flag and the type ID either as a
         // string or index. For exception slices, always encode the type
         // ID a string.
         //
-        if(this._current.sliceType === SliceType.ObjectSlice)
+        if(this._current.sliceType === SliceType.ValueSlice)
         {
             //
             // Encode the type ID (only in the first slice for the compact
@@ -2534,7 +2529,7 @@ var EncapsEncoder11 = Class(EncapsEncoder, {
             this._current.sliceFlags |= Protocol.FLAG_HAS_INDIRECTION_TABLE;
 
             //
-            // Write the indirection object table.
+            // Write the indirection instance table.
             //
             this._stream.writeSize(this._current.indirectionTable.length);
             for(i = 0, length = this._current.indirectionTable.length; i < length; ++i)
@@ -2572,7 +2567,7 @@ var EncapsEncoder11 = Class(EncapsEncoder, {
         //
         // We only remarshal preserved slices if we are using the sliced
         // format. Otherwise, we ignore the preserved slices, which
-        // essentially "slices" the object into the most-derived type
+        // essentially "slices" the instance into the most-derived type
         // known by the sender.
         //
         if(this._encaps.format !== FormatType.SlicedFormat)
@@ -2599,9 +2594,9 @@ var EncapsEncoder11 = Class(EncapsEncoder, {
             }
 
             //
-            // Make sure to also re-write the object indirection table.
+            // Make sure to also re-write the instance indirection table.
             //
-            if(info.objects !== null && info.objects.length > 0)
+            if(info.instances !== null && info.instances.length > 0)
             {
                 if(this._current.indirectionTable === null) // Lazy initialization
                 {
@@ -2609,9 +2604,9 @@ var EncapsEncoder11 = Class(EncapsEncoder, {
                     this._current.indirectionMap = new HashMap(); // HashMap<Ice.Object, int>
                 }
 
-                for(j = 0, jj = info.objects.length; j < jj; ++j)
+                for(j = 0, jj = info.instances.length; j < jj; ++j)
                 {
-                    this._current.indirectionTable.push(info.objects[j]);
+                    this._current.indirectionTable.push(info.instances[j]);
                 }
             }
 
@@ -2636,7 +2631,7 @@ var EncapsEncoder11 = Class(EncapsEncoder, {
         // We haven't seen this instance previously, create a new ID,
         // insert it into the marshaled map, and write the instance.
         //
-        this._marshaledMap.set(v, ++this._objectIdIndex);
+        this._marshaledMap.set(v, ++this._valueIdIndex);
 
         try
         {
@@ -2822,12 +2817,12 @@ var OutputStream = Class({
         this._buf.position = 0;
         return this._buf;
     },
-    startObject: function(data)
+    startValue: function(data)
     {
         Debug.assert(this._encapsStack !== null && this._encapsStack.encoder !== null);
-        this._encapsStack.encoder.startInstance(SliceType.ObjectSlice, data);
+        this._encapsStack.encoder.startInstance(SliceType.ValueSlice, data);
     },
-    endObject: function()
+    endValue: function()
     {
         Debug.assert(this._encapsStack !== null && this._encapsStack.encoder !== null);
         this._encapsStack.encoder.endInstance();
@@ -2930,21 +2925,21 @@ var OutputStream = Class({
         Debug.assert(this._encapsStack !== null && this._encapsStack.encoder !== null);
         this._encapsStack.encoder.endSlice();
     },
-    writePendingObjects: function()
+    writePendingValues: function()
     {
         if(this._encapsStack !== null && this._encapsStack.encoder !== null)
         {
-            this._encapsStack.encoder.writePendingObjects();
+            this._encapsStack.encoder.writePendingValues();
         }
         else if((this._encapsStack !== null && this._encapsStack.encoding_1_0) ||
                 (this._encapsStack === null && this._encoding.equals(Ice.Encoding_1_0)))
         {
             //
-            // If using the 1.0 encoding and no objects were written, we
-            // still write an empty sequence for pending objects if
+            // If using the 1.0 encoding and no instances were written, we
+            // still write an empty sequence for pending instances if
             // requested (i.e.: if this is called).
             //
-            // This is required by the 1.0 encoding, even if no objects
+            // This is required by the 1.0 encoding, even if no instances
             // are written we do marshal an empty sequence if marshaled
             // data types use classes.
             //
@@ -2995,7 +2990,7 @@ var OutputStream = Class({
         }
         return this.writeOptImpl(tag, format);
     },
-    writeOptionalValue: function(tag, format, write, v)
+    writeOptionalHelper: function(tag, format, write, v)
     {
         if(v !== undefined)
         {
@@ -3122,18 +3117,18 @@ var OutputStream = Class({
             this.writeSize(v.value);
         }
     },
-    writeObject: function(v)
+    writeValue: function(v)
     {
         this.initEncaps();
-        this._encapsStack.encoder.writeObject(v);
+        this._encapsStack.encoder.writeValue(v);
     },
-    writeOptionalObject: function(tag, v)
+    writeOptionalValue: function(tag, v)
     {
         if(v !== undefined)
         {
             if(this.writeOptional(tag, OptionalFormat.Class))
             {
-                this.writeObject(v);
+                this.writeValue(v);
             }
         }
     },
@@ -3245,8 +3240,8 @@ var defineBuiltinHelper = function(write, read, sz, format, min, max)
     var helper = {
         write: function(os, v) { return write.call(os, v); },
         read: function(is) { return read.call(is); },
-        writeOptional: function(os, tag, v) { os.writeOptionalValue(tag, format, write, v); },
-        readOptional: function(is, tag) { return is.readOptionalValue(tag, format, read); },
+        writeOptional: function(os, tag, v) { os.writeOptionalHelper(tag, format, write, v); },
+        readOptional: function(is, tag) { return is.readOptionalHelper(tag, format, read); },
     };
 
     if(min !== undefined && max !== undefined)
@@ -3323,22 +3318,22 @@ Ice.StringHelper = defineBuiltinHelper(ostr.writeString, istr.readString, 1, Ice
 Ice.ObjectHelper = {
     write: function(os, v)
     {
-        os.writeObject(v);
+        os.writeValue(v);
     },
     read: function(is)
     {
         var o;
-        is.readObject(function(v) { o = v; }, Ice.Object);
+        is.readValue(function(v) { o = v; }, Ice.Object);
         return o;
     },
     writeOptional: function(os, tag, v)
     {
-        os.writeOptionalValue(tag, Ice.OptionalFormat.Class, ostr.writeObject, v);
+        os.writeOptionalValue(tag, Ice.OptionalFormat.Class, ostr.writeValue, v);
     },
     readOptional: function(is, tag)
     {
         var o;
-        is.readOptionalObject(tag, function(v) { o = v; }, Ice.Object);
+        is.readOptionalValue(tag, function(v) { o = v; }, Ice.Object);
         return o;
     },
 };

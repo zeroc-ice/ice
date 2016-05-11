@@ -41,9 +41,9 @@ struct ICE_API SliceInfo
     ::std::vector<Byte> bytes;
 
     //
-    // The Ice objects referenced by this slice.
+    // The class instances referenced by this slice.
     //
-    ::std::vector<ValuePtr> objects;
+    ::std::vector<ValuePtr> instances;
 
     //
     // Whether or not the slice contains optional members.
@@ -77,9 +77,9 @@ public:
 //
 // Unknown sliced object holds instance of unknown type.
 //
-class ICE_API UnknownSlicedObject :
+class ICE_API UnknownSlicedValue :
 #if defined(ICE_CPP11_MAPPING)
-    public ValueHelper<UnknownSlicedObject, Value>
+    public ValueHelper<UnknownSlicedValue, Value>
 #elif defined(__IBMCPP__)
 // xlC does not handle properly the public/private multiple inheritance from Object
     public IceInternal::GCObject
@@ -89,7 +89,7 @@ class ICE_API UnknownSlicedObject :
 {
 public:
 
-    UnknownSlicedObject(const std::string&);
+    UnknownSlicedValue(const std::string&);
 
     const std::string& getUnknownTypeId() const;
 

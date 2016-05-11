@@ -400,12 +400,12 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
         o->sh = 4;
         o->i = 3;
         out.write(o);
-        out.writePendingObjects();
+        out.writePendingValues();
         out.finished(data);
         Ice::InputStream in(communicator, data);
         OptionalClassPtr o2;
         in.read(o2);
-        in.readPendingObjects();
+        in.readPendingValues();
         test(o2->bo == o->bo);
         test(o2->by == o->by);
         if(in.getEncoding() == Ice::Encoding_1_0)
@@ -428,12 +428,12 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
         o->sh = 4;
         o->i = 3;
         out.write(o);
-        out.writePendingObjects();
+        out.writePendingValues();
         out.finished(data);
         Ice::InputStream in(communicator, Ice::Encoding_1_0, data);
         OptionalClassPtr o2;
         in.read(o2);
-        in.readPendingObjects();
+        in.readPendingValues();
         test(o2->bo == o->bo);
         test(o2->by == o->by);
         test(!o2->sh);
@@ -724,12 +724,12 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
         }
         Ice::OutputStream out(communicator);
         out.write(arr);
-        out.writePendingObjects();
+        out.writePendingValues();
         out.finished(data);
         Ice::InputStream in(communicator, data);
         SmallStructS arr2;
         in.read(arr2);
-        in.readPendingObjects();
+        in.readPendingValues();
         test(arr2.size() == arr.size());
 #ifndef ICE_CPP11_MAPPING
         //
@@ -825,12 +825,12 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
         }
         Ice::OutputStream out(communicator);
         out.write(arr);
-        out.writePendingObjects();
+        out.writePendingValues();
         out.finished(data);
         Ice::InputStream in(communicator, data);
         MyClassS arr2;
         in.read(arr2);
-        in.readPendingObjects();
+        in.readPendingValues();
         test(arr2.size() == arr.size());
         for(MyClassS::size_type j = 0; j < arr2.size(); ++j)
         {
@@ -876,12 +876,12 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
         MyInterfacePtr i = new MyInterface();
         Ice::OutputStream out(communicator);
         out.write(i);
-        out.writePendingObjects();
+        out.writePendingValues();
         out.finished(data);
         Ice::InputStream in(communicator, data);
         i = 0;
         in.read(i);
-        in.readPendingObjects();
+        in.readPendingValues();
         test(i);
     }
 #endif
@@ -897,7 +897,7 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
 #else
         out.write(Ice::ObjectPtr(writer));
 #endif
-        out.writePendingObjects();
+        out.writePendingValues();
         out.finished(data);
         test(writer->called);
     }
@@ -913,7 +913,7 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
 #else
         out.write(Ice::ObjectPtr(writer));
 #endif
-        out.writePendingObjects();
+        out.writePendingValues();
         out.finished(data);
         test(writer->called);
 #ifdef ICE_CPP11_MAPPING
@@ -928,7 +928,7 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
         Ice::ObjectPtr p;
 #endif
         in.read(&patchObject, &p);
-        in.readPendingObjects();
+        in.readPendingValues();
         test(p);
         TestObjectReaderPtr reader = ICE_DYNAMIC_CAST(TestObjectReader, p);
         test(reader);
@@ -1086,12 +1086,12 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
         dict["key2"]->s.e = ICE_ENUM(MyEnum, enum3);
         Ice::OutputStream out(communicator);
         out.write(dict);
-        out.writePendingObjects();
+        out.writePendingValues();
         out.finished(data);
         Ice::InputStream in(communicator, data);
         StringMyClassD dict2;
         in.read(dict2);
-        in.readPendingObjects();
+        in.readPendingValues();
         test(dict2.size() == dict.size());
         test(dict2["key1"] && (dict2["key1"]->s.e == ICE_ENUM(MyEnum, enum2)));
         test(dict2["key2"] && (dict2["key2"]->s.e == ICE_ENUM(MyEnum, enum3)));

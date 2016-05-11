@@ -358,27 +358,27 @@ public class AllTests
         factory.setEnabled(true);
         Ice.OutputStream os = new Ice.OutputStream(communicator);
         os.startEncapsulation();
-        os.writeObject(oo1);
+        os.writeValue(oo1);
         os.endEncapsulation();
         byte[] inEncaps = os.finished();
         Ice.ByteSeqHolder outEncaps = new Ice.ByteSeqHolder();
         test(initial.ice_invoke("pingPong", Ice.OperationMode.Normal, inEncaps, outEncaps));
         Ice.InputStream in = new Ice.InputStream(communicator, outEncaps.value);
         in.startEncapsulation();
-        ReadObjectCallbackI cb = new ReadObjectCallbackI();
-        in.readObject(cb);
+        ReadValueCallbackI cb = new ReadValueCallbackI();
+        in.readValue(cb);
         in.endEncapsulation();
         test(cb.obj != null && cb.obj instanceof TestObjectReader);
 
         os = new Ice.OutputStream(communicator);
         os.startEncapsulation();
-        os.writeObject(mo1);
+        os.writeValue(mo1);
         os.endEncapsulation();
         inEncaps = os.finished();
         test(initial.ice_invoke("pingPong", Ice.OperationMode.Normal, inEncaps, outEncaps));
         in = new Ice.InputStream(communicator, outEncaps.value);
         in.startEncapsulation();
-        in.readObject(cb);
+        in.readValue(cb);
         in.endEncapsulation();
         test(cb.obj != null && cb.obj instanceof TestObjectReader);
         factory.setEnabled(false);
@@ -458,14 +458,14 @@ public class AllTests
         factory.setEnabled(true);
         os = new Ice.OutputStream(communicator);
         os.startEncapsulation();
-        os.writeObject(mc);
+        os.writeValue(mc);
         os.endEncapsulation();
         inEncaps = os.finished();
         outEncaps = new Ice.ByteSeqHolder();
         test(initial.ice_invoke("pingPong", Ice.OperationMode.Normal, inEncaps, outEncaps));
         in = new Ice.InputStream(communicator, outEncaps.value);
         in.startEncapsulation();
-        in.readObject(cb);
+        in.readValue(cb);
         in.endEncapsulation();
         test(cb.obj != null && cb.obj instanceof TestObjectReader);
         factory.setEnabled(false);
@@ -495,14 +495,14 @@ public class AllTests
             factory.setEnabled(true);
             os = new Ice.OutputStream(communicator);
             os.startEncapsulation();
-            os.writeObject(b);
+            os.writeValue(b);
             os.endEncapsulation();
             inEncaps = os.finished();
             outEncaps = new Ice.ByteSeqHolder();
             test(initial.ice_invoke("pingPong", Ice.OperationMode.Normal, inEncaps, outEncaps));
             in = new Ice.InputStream(communicator, outEncaps.value);
             in.startEncapsulation();
-            in.readObject(cb);
+            in.readValue(cb);
             in.endEncapsulation();
             test(cb.obj != null);
             factory.setEnabled(false);
@@ -523,16 +523,16 @@ public class AllTests
             factory.setEnabled(true);
             os = new Ice.OutputStream(communicator);
             os.startEncapsulation();
-            os.writeObject(f);
+            os.writeValue(f);
             os.endEncapsulation();
             inEncaps = os.finished();
             in = new Ice.InputStream(communicator, inEncaps);
             in.startEncapsulation();
             final FHolder fholder = new FHolder();
-            in.readObject(new Ice.ReadObjectCallback()
+            in.readValue(new Ice.ReadValueCallback()
                 {
                     @Override
-                    public void objectReady(Ice.Object obj)
+                    public void valueReady(Ice.Object obj)
                     {
                         fholder.value = ((FObjectReader)obj).getF();
                     }
@@ -568,14 +568,14 @@ public class AllTests
                 c.setMs("testms");
                 os = new Ice.OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeObject(c);
+                os.writeValue(c);
                 os.endEncapsulation();
                 inEncaps = os.finished();
                 factory.setEnabled(true);
                 test(initial.ice_invoke("pingPong", Ice.OperationMode.Normal, inEncaps, outEncaps));
                 in = new Ice.InputStream(communicator, outEncaps.value);
                 in.startEncapsulation();
-                in.readObject(cb);
+                in.readValue(cb);
                 in.endEncapsulation();
                 test(cb.obj instanceof CObjectReader);
                 factory.setEnabled(false);
@@ -584,13 +584,13 @@ public class AllTests
                 os = new Ice.OutputStream(communicator);
                 os.startEncapsulation();
                 Ice.Object d = new DObjectWriter();
-                os.writeObject(d);
+                os.writeValue(d);
                 os.endEncapsulation();
                 inEncaps = os.finished();
                 test(initial.ice_invoke("pingPong", Ice.OperationMode.Normal, inEncaps, outEncaps));
                 in = new Ice.InputStream(communicator, outEncaps.value);
                 in.startEncapsulation();
-                in.readObject(cb);
+                in.readValue(cb);
                 in.endEncapsulation();
                 test(cb.obj != null && cb.obj instanceof DObjectReader);
                 ((DObjectReader)cb.obj).check();
@@ -605,9 +605,9 @@ public class AllTests
 
                 os = new Ice.OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeObject(a);
+                os.writeValue(a);
                 os.writeOptional(1, Ice.OptionalFormat.Class);
-                os.writeObject(new DObjectWriter());
+                os.writeValue(new DObjectWriter());
                 os.endEncapsulation();
                 inEncaps = os.finished();
                 test(initial.ice_invoke("opClassAndUnknownOptional", Ice.OperationMode.Normal, inEncaps, outEncaps));
@@ -1005,16 +1005,16 @@ public class AllTests
                 os = new Ice.OutputStream(communicator);
                 os.startEncapsulation();
                 os.writeOptional(2, Ice.OptionalFormat.Size);
-                p1.get().ice_write(os);
+                MyEnum.write(os, p1.get());
                 os.endEncapsulation();
                 inEncaps = os.finished();
                 initial.ice_invoke("opMyEnumReq", Ice.OperationMode.Normal, inEncaps, outEncaps);
                 in = new Ice.InputStream(communicator, outEncaps.value);
                 in.startEncapsulation();
                 test(in.readOptional(1, Ice.OptionalFormat.Size));
-                test(MyEnum.ice_read(in) == MyEnum.MyEnumMember);
+                test(MyEnum.read(in) == MyEnum.MyEnumMember);
                 test(in.readOptional(3, Ice.OptionalFormat.Size));
-                test(MyEnum.ice_read(in) == MyEnum.MyEnumMember);
+                test(MyEnum.read(in) == MyEnum.MyEnumMember);
                 in.endEncapsulation();
 
                 in = new Ice.InputStream(communicator, outEncaps.value);
@@ -1052,7 +1052,7 @@ public class AllTests
                 os.startEncapsulation();
                 os.writeOptional(2, Ice.OptionalFormat.VSize);
                 os.writeSize(1);
-                p1.get().ice_write(os);
+                SmallStruct.write(os, p1.get());
                 os.endEncapsulation();
                 inEncaps = os.finished();
                 initial.ice_invoke("opSmallStructReq", Ice.OperationMode.Normal, inEncaps, outEncaps);
@@ -1060,12 +1060,11 @@ public class AllTests
                 in.startEncapsulation();
                 test(in.readOptional(1, Ice.OptionalFormat.VSize));
                 in.skipSize();
-                SmallStruct f = new SmallStruct();
-                f.ice_read(in);
+                SmallStruct f = SmallStruct.read(in, null);
                 test(f.m == (byte)56);
                 test(in.readOptional(3, Ice.OptionalFormat.VSize));
                 in.skipSize();
-                f.ice_read(in);
+                SmallStruct.read(in, f);
                 test(f.m == (byte)56);
                 in.endEncapsulation();
 
@@ -1102,7 +1101,7 @@ public class AllTests
                 os.startEncapsulation();
                 os.writeOptional(2, Ice.OptionalFormat.VSize);
                 os.writeSize(4);
-                p1.get().ice_write(os);
+                FixedStruct.write(os, p1.get());
                 os.endEncapsulation();
                 inEncaps = os.finished();
                 initial.ice_invoke("opFixedStructReq", Ice.OperationMode.Normal, inEncaps, outEncaps);
@@ -1110,12 +1109,11 @@ public class AllTests
                 in.startEncapsulation();
                 test(in.readOptional(1, Ice.OptionalFormat.VSize));
                 in.skipSize();
-                FixedStruct f = new FixedStruct();
-                f.ice_read(in);
+                FixedStruct f = FixedStruct.read(in, null);
                 test(f.m == 56);
                 test(in.readOptional(3, Ice.OptionalFormat.VSize));
                 in.skipSize();
-                f.ice_read(in);
+                FixedStruct.read(in, f);
                 test(f.m == 56);
                 in.endEncapsulation();
 
@@ -1152,7 +1150,7 @@ public class AllTests
                 os.startEncapsulation();
                 os.writeOptional(2, Ice.OptionalFormat.FSize);
                 int pos = os.startSize();
-                p1.get().ice_write(os);
+                VarStruct.write(os, p1.get());
                 os.endSize(pos);
                 os.endEncapsulation();
                 inEncaps = os.finished();
@@ -1161,12 +1159,11 @@ public class AllTests
                 in.startEncapsulation();
                 test(in.readOptional(1, Ice.OptionalFormat.FSize));
                 in.skip(4);
-                VarStruct v = new VarStruct();
-                v.ice_read(in);
+                VarStruct v = VarStruct.read(in, null);
                 test(v.m.equals("test"));
                 test(in.readOptional(3, Ice.OptionalFormat.FSize));
                 in.skip(4);
-                v.ice_read(in);
+                VarStruct.read(in, v);
                 test(v.m.equals("test"));
                 in.endEncapsulation();
 
@@ -1202,18 +1199,18 @@ public class AllTests
                 os = new Ice.OutputStream(communicator);
                 os.startEncapsulation();
                 os.writeOptional(2, Ice.OptionalFormat.Class);
-                os.writeObject(p1.get());
+                os.writeValue(p1.get());
                 os.endEncapsulation();
                 inEncaps = os.finished();
                 initial.ice_invoke("opOneOptionalReq", Ice.OperationMode.Normal, inEncaps, outEncaps);
                 in = new Ice.InputStream(communicator, outEncaps.value);
                 in.startEncapsulation();
                 test(in.readOptional(1, Ice.OptionalFormat.Class));
-                ReadObjectCallbackI p2cb = new ReadObjectCallbackI();
-                in.readObject(p2cb);
+                ReadValueCallbackI p2cb = new ReadValueCallbackI();
+                in.readValue(p2cb);
                 test(in.readOptional(3, Ice.OptionalFormat.Class));
-                ReadObjectCallbackI p3cb = new ReadObjectCallbackI();
-                in.readObject(p3cb);
+                ReadValueCallbackI p3cb = new ReadValueCallbackI();
+                in.readValue(p3cb);
                 in.endEncapsulation();
                 test(((OneOptional)p2cb.obj).getA() == 58 && ((OneOptional)p3cb.obj).getA() == 58);
 
@@ -2128,9 +2125,9 @@ public class AllTests
             os = new Ice.OutputStream(communicator);
             os.startEncapsulation();
             os.writeOptional(1, Ice.OptionalFormat.Class);
-            os.writeObject(f);
+            os.writeValue(f);
             os.writeOptional(2, Ice.OptionalFormat.Class);
-            os.writeObject(f.ae);
+            os.writeValue(f.ae);
             os.endEncapsulation();
             inEncaps = os.finished();
 
@@ -2138,10 +2135,10 @@ public class AllTests
             in.startEncapsulation();
             test(in.readOptional(2, Ice.OptionalFormat.Class));
             final AHolder a = new AHolder();
-            in.readObject(new Ice.ReadObjectCallback()
+            in.readValue(new Ice.ReadValueCallback()
                 {
                     @Override
-                    public void objectReady(Ice.Object obj)
+                    public void valueReady(Ice.Object obj)
                     {
                         a.value = (A)obj;
                     }
@@ -2315,10 +2312,10 @@ public class AllTests
         @Override
         public void read(Ice.InputStream in)
         {
-            in.startObject();
+            in.startValue();
             in.startSlice();
             in.endSlice();
-            in.endObject(false);
+            in.endValue(false);
         }
     }
 
@@ -2327,7 +2324,7 @@ public class AllTests
         @Override
         public void read(Ice.InputStream in)
         {
-            in.startObject();
+            in.startValue();
             // ::Test::B
             in.startSlice();
             in.readInt();
@@ -2336,7 +2333,7 @@ public class AllTests
             in.startSlice();
             in.readInt();
             in.endSlice();
-            in.endObject(false);
+            in.endValue(false);
         }
     }
 
@@ -2345,7 +2342,7 @@ public class AllTests
         @Override
         public void read(Ice.InputStream in)
         {
-            in.startObject();
+            in.startValue();
             // ::Test::C
             in.startSlice();
             in.skipSlice();
@@ -2357,7 +2354,7 @@ public class AllTests
             in.startSlice();
             in.readInt();
             in.endSlice();
-            in.endObject(false);
+            in.endValue(false);
         }
     }
 
@@ -2366,7 +2363,7 @@ public class AllTests
         @Override
         public void write(Ice.OutputStream out)
         {
-            out.startObject(null);
+            out.startValue(null);
             // ::Test::D
             out.startSlice("::Test::D", -1, false);
             out.writeString("test");
@@ -2378,7 +2375,7 @@ public class AllTests
             A a = new A();
             a.setMc(18);
             out.writeOptional(1000, Ice.OptionalFormat.Class);
-            out.writeObject(a);
+            out.writeValue(a);
             out.endSlice();
             // ::Test::B
             out.startSlice(B.ice_staticId(), -1, false);
@@ -2389,7 +2386,7 @@ public class AllTests
             out.startSlice(A.ice_staticId(), -1, true);
             out.writeInt(v);
             out.endSlice();
-            out.endObject();
+            out.endValue();
         }
     }
 
@@ -2398,7 +2395,7 @@ public class AllTests
         @Override
         public void read(Ice.InputStream in)
         {
-            in.startObject();
+            in.startValue();
             // ::Test::D
             in.startSlice();
             String s = in.readString();
@@ -2409,7 +2406,7 @@ public class AllTests
             test(o.length == 4 &&
                  o[0].equals("test1") && o[1].equals("test2") && o[2].equals("test3") && o[3].equals("test4"));
             test(in.readOptional(1000, Ice.OptionalFormat.Class));
-            in.readObject(a);
+            in.readValue(a);
             in.endSlice();
             // ::Test::B
             in.startSlice();
@@ -2419,7 +2416,7 @@ public class AllTests
             in.startSlice();
             in.readInt();
             in.endSlice();
-            in.endObject(false);
+            in.endValue(false);
         }
 
         void check()
@@ -2427,7 +2424,7 @@ public class AllTests
             test(((A)a.obj).getMc() == 18);
         }
 
-        private ReadObjectCallbackI a = new ReadObjectCallbackI();
+        private ReadValueCallbackI a = new ReadValueCallbackI();
     }
 
     private static class FObjectReader extends Ice.ObjectReader
@@ -2436,22 +2433,22 @@ public class AllTests
         public void read(Ice.InputStream in)
         {
             _f = new F();
-            in.startObject();
+            in.startValue();
             in.startSlice();
             // Don't read af on purpose
             //in.read(1, _f.af);
             in.endSlice();
             in.startSlice();
-            in.readObject(new Ice.ReadObjectCallback()
+            in.readValue(new Ice.ReadValueCallback()
                 {
                     @Override
-                    public void objectReady(Ice.Object obj)
+                    public void valueReady(Ice.Object obj)
                     {
                         _f.ae = (A)obj;
                     }
                 });
             in.endSlice();
-            in.endObject(false);
+            in.endValue(false);
         }
 
         F getF()
@@ -2508,10 +2505,10 @@ public class AllTests
         private boolean _enabled;
     }
 
-    private static class ReadObjectCallbackI implements Ice.ReadObjectCallback
+    private static class ReadValueCallbackI implements Ice.ReadValueCallback
     {
         @Override
-        public void objectReady(Ice.Object obj)
+        public void valueReady(Ice.Object obj)
         {
             this.obj = obj;
         }

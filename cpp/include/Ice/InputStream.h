@@ -129,7 +129,7 @@ public:
     void setCollectObjects(bool);
 #endif
 
-    void setSliceObjects(bool);
+    void setSliceValues(bool);
 
     void setTraceSlicing(bool);
 
@@ -146,12 +146,12 @@ public:
         i = b.end();
     }
 
-    void startObject()
+    void startValue()
     {
         assert(_currentEncaps && _currentEncaps->decoder);
-        _currentEncaps->decoder->startInstance(ObjectSlice);
+        _currentEncaps->decoder->startInstance(ValueSlice);
     }
-    SlicedDataPtr endObject(bool preserve)
+    SlicedDataPtr endValue(bool preserve)
     {
         assert(_currentEncaps && _currentEncaps->decoder);
         return _currentEncaps->decoder->endInstance(preserve);
@@ -301,7 +301,7 @@ public:
         return _currentEncaps ? _currentEncaps->encoding : _encoding;
     }
 
-    Int getEncapsSize();
+    Int getEncapsulationSize();
     EncodingVersion skipEncapsulation();
 
     std::string startSlice()
@@ -320,7 +320,7 @@ public:
         _currentEncaps->decoder->skipSlice();
     }
 
-    void readPendingObjects();
+    void readPendingValues();
 
     Int readSize() // Inlined for performance reasons.
     {
@@ -678,7 +678,7 @@ private:
     void postUnmarshal(const ValuePtr&) const;
 
     class Encaps;
-    enum SliceType { NoSlice, ObjectSlice, ExceptionSlice };
+    enum SliceType { NoSlice, ValueSlice, ExceptionSlice };
 
     void traceSkipSlice(const std::string&, SliceType) const;
 
@@ -698,7 +698,7 @@ private:
     //
     IceInternal::Instance* _instance;
 
-    typedef std::vector<ValuePtr> ObjectList;
+    typedef std::vector<ValuePtr> ValueList;
 
     class ICE_API EncapsDecoder : private ::IceUtil::noncopyable
     {
@@ -720,14 +720,14 @@ private:
             return false;
         }
 
-        virtual void readPendingObjects()
+        virtual void readPendingValues()
         {
         }
 
     protected:
 
-        EncapsDecoder(InputStream* stream, Encaps* encaps, bool sliceObjects, const Ice::ValueFactoryManagerPtr& f) :
-            _stream(stream), _encaps(encaps), _sliceObjects(sliceObjects), _valueFactoryManager(f), _typeIdIndex(0)
+        EncapsDecoder(InputStream* stream, Encaps* encaps, bool sliceValues, const Ice::ValueFactoryManagerPtr& f) :
+            _stream(stream), _encaps(encaps), _sliceValues(sliceValues), _valueFactoryManager(f), _typeIdIndex(0)
         {
         }
 
@@ -750,7 +750,7 @@ private:
 
         InputStream* _stream;
         Encaps* _encaps;
-        const bool _sliceObjects;
+        const bool _sliceValues;
         Ice::ValueFactoryManagerPtr _valueFactoryManager;
 
         // Encapsulation attributes for object un-marshalling
@@ -762,15 +762,15 @@ private:
         IndexToPtrMap _unmarshaledMap;
         TypeIdMap _typeIdMap;
         Int _typeIdIndex;
-        ObjectList _objectList;
+        ValueList _valueList;
     };
 
     class ICE_API EncapsDecoder10 : public EncapsDecoder
     {
     public:
 
-        EncapsDecoder10(InputStream* stream, Encaps* encaps, bool sliceObjects, const Ice::ValueFactoryManagerPtr& f) :
-            EncapsDecoder(stream, encaps, sliceObjects, f), _sliceType(NoSlice)
+        EncapsDecoder10(InputStream* stream, Encaps* encaps, bool sliceValues, const Ice::ValueFactoryManagerPtr& f) :
+            EncapsDecoder(stream, encaps, sliceValues, f), _sliceType(NoSlice)
         {
         }
 
@@ -783,7 +783,7 @@ private:
         virtual void endSlice();
         virtual void skipSlice();
 
-        virtual void readPendingObjects();
+        virtual void readPendingValues();
 
     private:
 
@@ -802,8 +802,8 @@ private:
     {
     public:
 
-        EncapsDecoder11(InputStream* stream, Encaps* encaps, bool sliceObjects, const Ice::ValueFactoryManagerPtr& f) :
-            EncapsDecoder(stream, encaps, sliceObjects, f), _preAllocatedInstanceData(0), _current(0), _objectIdIndex(1)
+        EncapsDecoder11(InputStream* stream, Encaps* encaps, bool sliceValues, const Ice::ValueFactoryManagerPtr& f) :
+            EncapsDecoder(stream, encaps, sliceValues, f), _preAllocatedInstanceData(0), _current(0), _valueIdIndex(1)
         {
         }
 
@@ -885,7 +885,7 @@ private:
             _current->skipFirstSlice = false;
         }
 
-        Int _objectIdIndex; // The ID of the next object to un-marshal.
+        Int _valueIdIndex; // The ID of the next value to unmarshal.
     };
 
     class Encaps : private ::IceUtil::noncopyable
@@ -939,7 +939,7 @@ private:
 
     void* _closure;
 
-    bool _sliceObjects;
+    bool _sliceValues;
 
     int _startSeq;
     int _minSeqSize;

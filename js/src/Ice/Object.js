@@ -64,15 +64,15 @@ var IceObject = Class({
     },
     __write: function(os)
     {
-        os.startObject(null);
+        os.startValue(null);
         __writeImpl(this, os, this.__mostDerivedType());
-        os.endObject();
+        os.endValue();
     },
     __read: function(is)
     {
-        is.startObject();
+        is.startValue();
         __readImpl(this, is, this.__mostDerivedType());
-        is.endObject(false);
+        is.endValue(false);
     },
     ice_instanceof: function(T)
     {
@@ -115,25 +115,25 @@ var IceObject = Class({
 //
 IceObject.write = function(os, v)
 {
-    os.writeObject(v);
+    os.writeValue(v);
 };
 
 IceObject.writeOptional = function(os, tag, v)
 {
-    os.writeOptionalObject(tag, v);
+    os.writeOptionalValue(tag, v);
 };
 
 IceObject.read = function(is)
 {
     var v = { value: null };
-    is.readObject(function(o) { v.value = o; }, IceObject);
+    is.readValue(function(o) { v.value = o; }, IceObject);
     return v;
 };
 
 IceObject.readOptional = function(is, tag)
 {
     var v = { value: undefined };
-    is.readOptionalObject(tag, function(o) { v.value = o; }, IceObject);
+    is.readOptionalValue(tag, function(o) { v.value = o; }, IceObject);
     return v;
 };
 
@@ -223,9 +223,9 @@ var __writePreserved = function(os)
     // For Slice classes which are marked "preserved", the implementation of this method
     // replaces the Ice.Object.prototype.__write method.
     //
-    os.startObject(this.__slicedData);
+    os.startValue(this.__slicedData);
     __writeImpl(this, os, this.__mostDerivedType());
-    os.endObject();
+    os.endValue();
 };
 
 var __readPreserved = function(is)
@@ -234,9 +234,9 @@ var __readPreserved = function(is)
     // For Slice classes which are marked "preserved", the implementation of this method
     // replaces the Ice.Object.prototype.__read method.
     //
-    is.startObject();
+    is.startValue();
     __readImpl(this, is, this.__mostDerivedType());
-    this.__slicedData = is.endObject(true);
+    this.__slicedData = is.endValue(true);
 };
 
 Ice.Object = IceObject;
@@ -273,22 +273,22 @@ Slice.defineObject = function(constructor, base, intfs, scope, ids, compactId, w
     //
     obj.write = function(os, v)
     {
-        os.writeObject(v);
+        os.writeValue(v);
     };
     obj.writeOptional = function(os, tag, v)
     {
-        os.writeOptionalObject(tag, v);
+        os.writeOptionalValue(tag, v);
     };
     obj.read = function(is)
     {
         var v = { value: null };
-        is.readObject(function(o) { v.value = o; }, obj);
+        is.readValue(function(o) { v.value = o; }, obj);
         return v;
     };
     obj.readOptional = function(is, tag)
     {
         var v = { value: undefined };
-        is.readOptionalObject(tag, function(o) { v.value = o; }, obj);
+        is.readOptionalValue(tag, function(o) { v.value = o; }, obj);
         return v;
     };
 

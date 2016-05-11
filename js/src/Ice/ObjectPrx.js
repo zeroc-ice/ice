@@ -749,8 +749,8 @@ ObjectPrx.__returns_ObjectPrx = function(__is, __results)
 //
 ObjectPrx.__returns_Object = function(__is, __results)
 {
-    __is.readObject(function(obj){ __results.push(obj); }, Ice.Object);
-    __is.readPendingObjects();
+    __is.readValue(function(obj){ __results.push(obj); }, Ice.Object);
+    __is.readPendingValues();
 };
 
 //

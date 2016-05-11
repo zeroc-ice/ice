@@ -9,18 +9,16 @@
 
 package IceInternal;
 
-public class DictionaryPatcher<K, V> implements Ice.ReadObjectCallback
+public class DictionaryPatcher<K, V> implements Ice.ReadValueCallback
 {
-    // TBD: Remove _type?
-    public DictionaryPatcher(java.util.Map<K, V> dict, Class<V> cls, String type, K key)
+    public DictionaryPatcher(java.util.Map<K, V> dict, Class<V> cls, K key)
     {
         _dict = dict;
         _cls = cls;
-        _type = type;
         _key = key;
     }
 
-    public void objectReady(Ice.Object v)
+    public void valueReady(Ice.Object v)
     {
         if(v != null)
         {
@@ -39,6 +37,5 @@ public class DictionaryPatcher<K, V> implements Ice.ReadObjectCallback
 
     private java.util.Map<K, V> _dict;
     private Class<V> _cls;
-    private String _type;
     private K _key;
 }

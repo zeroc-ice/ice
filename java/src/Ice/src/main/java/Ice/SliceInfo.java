@@ -30,9 +30,9 @@ public class SliceInfo
     public byte[] bytes;
 
     /**
-     * The Ice objects referenced by this slice.
+     * The class instances referenced by this slice.
      **/
-    public Ice.Object[] objects;
+    public Ice.Object[] instances;
 
     /**
      * Whether or not the slice contains optional members.
