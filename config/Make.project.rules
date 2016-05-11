@@ -474,8 +474,7 @@ endif
 
 $5_install: $$(patsubst $$($5_targetdir)/%,$(DESTDIR)$$($5_installdir)/%,$$($5_targets))
 
-$$(eval $$(call install-$$($5_targetrule),$$($5_targetname),$$($5_targetdir),$$($2_version),$$($2_soversion),\
-		$$($5_installdir)))
+$$(eval $$(call install-$$($5_targetrule),$$($5_targetname),$$($5_targetdir),$$($2_version),$$($2_soversion),$$($5_installdir)))
 
 ifneq ($$(and $$(filter $3,$$($2_install_platforms)),$$(filter $4,$$($2_install_configs))),)
 $2_install:: $5_install
