@@ -31,17 +31,17 @@ Ice::Value::ice_postUnmarshal()
 void
 Ice::Value::__write(Ice::OutputStream* os) const
 {
-    os->startObject(0);
+    os->startValue(0);
     __writeImpl(os);
-    os->endObject();
+    os->endValue();
 }
 
 void
 Ice::Value::__read(Ice::InputStream* is)
 {
-   is->startObject();
+   is->startValue();
    __readImpl(is);
-   is->endObject(false);
+   is->endValue(false);
 }
 
 namespace
