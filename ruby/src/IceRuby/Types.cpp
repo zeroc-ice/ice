@@ -190,13 +190,13 @@ IceRuby::StreamUtil::~StreamUtil()
         for(Ice::SliceInfoSeq::const_iterator q = slicedData->slices.begin(); q != slicedData->slices.end(); ++q)
         {
             //
-            // Don't just call (*q)->objects.clear(), as releasing references
-            // to the objects could have unexpected side effects. We exchange
+            // Don't just call (*q)->instances.clear(), as releasing references
+            // to the instances could have unexpected side effects. We exchange
             // the vector into a temporary and then let the temporary fall out
             // of scope.
             //
             vector<Ice::ObjectPtr> tmp;
-            tmp.swap((*q)->objects);
+            tmp.swap((*q)->instances);
         }
     }
 }
@@ -280,23 +280,23 @@ IceRuby::StreamUtil::setSlicedDataMember(VALUE obj, const Ice::SlicedDataPtr& sl
         callRuby(rb_iv_set, slice, "@bytes", bytes);
 
         //
-        // objects
+        // instances
         //
-        volatile VALUE objects = createArray((*p)->objects.size());
-        callRuby(rb_iv_set, slice, "@objects", objects);
+        volatile VALUE instances = createArray((*p)->instances.size());
+        callRuby(rb_iv_set, slice, "@instances", instances);
 
         int j = 0;
-        for(vector<Ice::ObjectPtr>::iterator q = (*p)->objects.begin(); q != (*p)->objects.end(); ++q)
+        for(vector<Ice::ObjectPtr>::iterator q = (*p)->instances.begin(); q != (*p)->instances.end(); ++q)
         {
             //
-            // Each element in the objects list is an instance of ObjectReader that wraps a Ruby object.
+            // Each element in the instances list is an instance of ObjectReader that wraps a Ruby object.
             //
             assert(*q);
             ObjectReaderPtr r = ObjectReaderPtr::dynamicCast(*q);
             assert(r);
             VALUE o = r->getObject();
             assert(o != Qnil); // Should be non-nil.
-            RARRAY_ASET(objects, j, o);
+            RARRAY_ASET(instances, j, o);
             j++;
         }
 
@@ -361,12 +361,12 @@ IceRuby::StreamUtil::getSlicedDataMember(VALUE obj, ObjectMap* objectMap)
                     info->bytes.swap(vtmp);
                 }
 
-                volatile VALUE objects = callRuby(rb_iv_get, s, "@objects");
-                assert(TYPE(objects) == T_ARRAY);
-                long osz = RARRAY_LEN(objects);
+                volatile VALUE instances = callRuby(rb_iv_get, s, "@instances");
+                assert(TYPE(instances) == T_ARRAY);
+                long osz = RARRAY_LEN(instances);
                 for(long j = 0; j < osz; ++j)
                 {
-                    VALUE o = RARRAY_AREF(objects, j);
+                    VALUE o = RARRAY_AREF(instances, j);
 
                     Ice::ObjectPtr writer;
 
@@ -381,7 +381,7 @@ IceRuby::StreamUtil::getSlicedDataMember(VALUE obj, ObjectMap* objectMap)
                         writer = i->second;
                     }
 
-                    info->objects.push_back(writer);
+                    info->instances.push_back(writer);
                 }
 
                 volatile VALUE hasOptionalMembers = callRuby(rb_iv_get, s, "@hasOptionalMembers");
@@ -2480,7 +2480,7 @@ IceRuby::ObjectWriter::__write(Ice::OutputStream* os) const
         slicedData = StreamUtil::getSlicedDataMember(_object, const_cast<ObjectMap*>(_map));
     }
 
-    os->startObject(slicedData);
+    os->startValue(slicedData);
 
     if(_info->id != "::Ice::UnknownSlicedObject")
     {
@@ -2498,7 +2498,7 @@ IceRuby::ObjectWriter::__write(Ice::OutputStream* os) const
         }
     }
 
-    os->endObject();
+    os->endValue();
 }
 
 void
@@ -2567,7 +2567,7 @@ IceRuby::ObjectReader::__write(Ice::OutputStream*) const
 void
 IceRuby::ObjectReader::__read(Ice::InputStream* is)
 {
-    is->startObject();
+    is->startValue();
 
     const bool unknown = _info->id == "::Ice::UnknownSlicedObject";
 
@@ -2611,7 +2611,7 @@ IceRuby::ObjectReader::__read(Ice::InputStream* is)
         }
     }
 
-    _slicedData = is->endObject(_info->preserve);
+    _slicedData = is->endValue(_info->preserve);
 
     if(_slicedData)
     {

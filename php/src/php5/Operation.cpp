@@ -536,7 +536,7 @@ IcePHP::TypedInvocation::prepareRequest(int argc, zval** args, Ice::OutputStream
 
             if(_op->sendsClasses)
             {
-                os->writePendingObjects();
+                os->writePendingValues();
             }
 
             os->endEncapsulation();
@@ -635,7 +635,7 @@ IcePHP::TypedInvocation::unmarshalResults(int argc, zval** args, zval* ret,
 
     if(_op->returnsClasses)
     {
-        is.readPendingObjects();
+        is.readPendingValues();
     }
 
     is.endEncapsulation();

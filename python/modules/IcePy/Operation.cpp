@@ -1589,7 +1589,7 @@ IcePy::TypedInvocation::prepareRequest(PyObject* args, MappingType mapping, Ice:
 
             if(_op->sendsClasses)
             {
-                os->writePendingObjects();
+                os->writePendingValues();
             }
 
             os->endEncapsulation();
@@ -1682,7 +1682,7 @@ IcePy::TypedInvocation::unmarshalResults(const pair<const Ice::Byte*, const Ice:
 
         if(_op->returnsClasses)
         {
-            is.readPendingObjects();
+            is.readPendingValues();
         }
 
         is.endEncapsulation();
@@ -3288,7 +3288,7 @@ IcePy::TypedUpcall::dispatch(PyObject* servant, const pair<const Ice::Byte*, con
 
             if(_op->sendsClasses)
             {
-                is.readPendingObjects();
+                is.readPendingValues();
             }
 
             is.endEncapsulation();
@@ -3496,7 +3496,7 @@ IcePy::TypedUpcall::response(PyObject* args, const Ice::EncodingVersion& encodin
 
             if(_op->returnsClasses)
             {
-                os.writePendingObjects();
+                os.writePendingValues();
             }
 
             os.endEncapsulation();

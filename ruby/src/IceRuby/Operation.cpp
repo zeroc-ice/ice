@@ -469,7 +469,7 @@ IceRuby::OperationI::prepareRequest(const Ice::ObjectPrx& proxy, VALUE args, Ice
 
         if(_sendsClasses)
         {
-            os->writePendingObjects();
+            os->writePendingValues();
         }
 
         os->endEncapsulation();
@@ -549,7 +549,7 @@ IceRuby::OperationI::unmarshalResults(const vector<Ice::Byte>& bytes, const Ice:
 
     if(_returnsClasses)
     {
-        is.readPendingObjects();
+        is.readPendingValues();
     }
 
     is.endEncapsulation();

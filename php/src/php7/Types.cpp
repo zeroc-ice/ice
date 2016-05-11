@@ -244,13 +244,13 @@ IcePHP::StreamUtil::~StreamUtil()
         for(Ice::SliceInfoSeq::const_iterator q = slicedData->slices.begin(); q != slicedData->slices.end(); ++q)
         {
             //
-            // Don't just call (*q)->objects.clear(), as releasing references
-            // to the objects could have unexpected side effects. We exchange
+            // Don't just call (*q)->instances.clear(), as releasing references
+            // to the instances could have unexpected side effects. We exchange
             // the vector into a temporary and then let the temporary fall out
             // of scope.
             //
             vector<Ice::ObjectPtr> tmp;
-            tmp.swap((*q)->objects);
+            tmp.swap((*q)->instances);
         }
     }
 }
@@ -368,27 +368,27 @@ IcePHP::StreamUtil::setSlicedDataMember(zval* obj, const Ice::SlicedDataPtr& sli
         }
 
         //
-        // objects
+        // instances
         //
-        zval objects;
-        array_init(&objects);
-        AutoDestroy objectsDestroyer(&objects);
-        if(add_property_zval(&slice, STRCAST("objects"), &objects) != SUCCESS)
+        zval instances;
+        array_init(&instances);
+        AutoDestroy instancesDestroyer(&instances);
+        if(add_property_zval(&slice, STRCAST("instances"), &instances) != SUCCESS)
         {
             throw AbortMarshaling();
         }
 
-        for(vector<Ice::ObjectPtr>::const_iterator q = (*p)->objects.begin(); q != (*p)->objects.end(); ++q)
+        for(vector<Ice::ObjectPtr>::const_iterator q = (*p)->instances.begin(); q != (*p)->instances.end(); ++q)
         {
             //
-            // Each element in the objects list is an instance of ObjectReader that wraps a PHP object.
+            // Each element in the instances list is an instance of ObjectReader that wraps a PHP object.
             //
             assert(*q);
             ObjectReaderPtr r = ObjectReaderPtr::dynamicCast(*q);
             assert(r);
             zval* o = r->getObject();
             assert(Z_TYPE_P(o) == IS_OBJECT); // Should be non-nil.
-            add_next_index_zval(&objects, o); // Steals a reference.
+            add_next_index_zval(&instances, o); // Steals a reference.
             Z_ADDREF_P(o);
         }
 
@@ -486,11 +486,11 @@ IcePHP::StreamUtil::getSlicedDataMember(zval* obj, ObjectMap* objectMap)
                 }
                 ZEND_HASH_FOREACH_END();
 
-                zval* objects = zend_hash_str_find(Z_OBJPROP_P(s), STRCAST("objects"), sizeof("objects") - 1);
-                assert(Z_TYPE_P(objects) == IS_INDIRECT);
-                objects = Z_INDIRECT_P(objects);
-                assert(objects && Z_TYPE_P(objects) == IS_ARRAY);
-                HashTable* oarr = Z_ARRVAL_P(objects);
+                zval* instances = zend_hash_str_find(Z_OBJPROP_P(s), STRCAST("instances"), sizeof("instances") - 1);
+                assert(Z_TYPE_P(instances) == IS_INDIRECT);
+                instances = Z_INDIRECT_P(instances);
+                assert(instances && Z_TYPE_P(instances) == IS_ARRAY);
+                HashTable* oarr = Z_ARRVAL_P(instances);
                 zval* o;
 
                 ZEND_HASH_FOREACH_VAL(oarr, o)
@@ -510,7 +510,7 @@ IcePHP::StreamUtil::getSlicedDataMember(zval* obj, ObjectMap* objectMap)
                         writer = i->second;
                     }
 
-                    info->objects.push_back(writer);
+                    info->instances.push_back(writer);
                 }
                 ZEND_HASH_FOREACH_END();
 
@@ -2893,7 +2893,7 @@ IcePHP::ObjectWriter::__write(Ice::OutputStream* os) const
         slicedData = StreamUtil::getSlicedDataMember(const_cast<zval*>(&_object), const_cast<ObjectMap*>(_map));
     }
 
-    os->startObject(slicedData);
+    os->startValue(slicedData);
 
     if(_info->id != "::Ice::UnknownSlicedObject")
     {
@@ -2913,7 +2913,7 @@ IcePHP::ObjectWriter::__write(Ice::OutputStream* os) const
         }
     }
 
-    os->endObject();
+    os->endValue();
 }
 
 void
@@ -2998,7 +2998,7 @@ IcePHP::ObjectReader::__write(Ice::OutputStream*) const
 void
 IcePHP::ObjectReader::__read(Ice::InputStream* is)
 {
-    is->startObject();
+    is->startValue();
 
     const bool unknown = _info->id == "::Ice::UnknownSlicedObject";
 
@@ -3046,7 +3046,7 @@ IcePHP::ObjectReader::__read(Ice::InputStream* is)
         }
     }
 
-    _slicedData = is->endObject(_info->preserve);
+    _slicedData = is->endValue(_info->preserve);
 
     if(_slicedData)
     {

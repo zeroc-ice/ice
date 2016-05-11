@@ -278,13 +278,13 @@ IcePy::StreamUtil::~StreamUtil()
         for(Ice::SliceInfoSeq::const_iterator q = slicedData->slices.begin(); q != slicedData->slices.end(); ++q)
         {
             //
-            // Don't just call (*q)->objects.clear(), as releasing references
-            // to the objects could have unexpected side effects. We exchange
+            // Don't just call (*q)->instances.clear(), as releasing references
+            // to the instances could have unexpected side effects. We exchange
             // the vector into a temporary and then let the temporary fall out
             // of scope.
             //
             vector<Ice::ObjectPtr> tmp;
-            tmp.swap((*q)->objects);
+            tmp.swap((*q)->instances);
         }
     }
 }
@@ -421,27 +421,27 @@ IcePy::StreamUtil::setSlicedDataMember(PyObject* obj, const Ice::SlicedDataPtr& 
         }
 
         //
-        // objects
+        // instances
         //
-        PyObjectHandle objects = PyTuple_New((*p)->objects.size());
-        if(!objects.get() || PyObject_SetAttrString(slice.get(), STRCAST("objects"), objects.get()) < 0)
+        PyObjectHandle instances = PyTuple_New((*p)->instances.size());
+        if(!instances.get() || PyObject_SetAttrString(slice.get(), STRCAST("instances"), instances.get()) < 0)
         {
             assert(PyErr_Occurred());
             throw AbortMarshaling();
         }
 
         int j = 0;
-        for(vector<Ice::ObjectPtr>::iterator q = (*p)->objects.begin(); q != (*p)->objects.end(); ++q)
+        for(vector<Ice::ObjectPtr>::iterator q = (*p)->instances.begin(); q != (*p)->instances.end(); ++q)
         {
             //
-            // Each element in the objects list is an instance of ObjectReader that wraps a Python object.
+            // Each element in the instances list is an instance of ObjectReader that wraps a Python object.
             //
             assert(*q);
             ObjectReaderPtr r = ObjectReaderPtr::dynamicCast(*q);
             assert(r);
             PyObject* obj = r->getObject();
             assert(obj != Py_None); // Should be non-nil.
-            PyTuple_SET_ITEM(objects.get(), j++, obj);
+            PyTuple_SET_ITEM(instances.get(), j++, obj);
             Py_INCREF(obj); // PyTuple_SET_ITEM steals a reference.
         }
 
@@ -528,13 +528,13 @@ IcePy::StreamUtil::getSlicedDataMember(PyObject* obj, ObjectMap* objectMap)
                 vector<Ice::Byte> vtmp(reinterpret_cast<Ice::Byte*>(str), reinterpret_cast<Ice::Byte*>(str + strsz));
                 info->bytes.swap(vtmp);
 
-                PyObjectHandle objects = PyObject_GetAttrString(s.get(), STRCAST("objects"));
-                assert(objects.get());
-                assert(PyTuple_Check(objects.get()));
-                Py_ssize_t osz = PyTuple_GET_SIZE(objects.get());
+                PyObjectHandle instances = PyObject_GetAttrString(s.get(), STRCAST("instances"));
+                assert(instances.get());
+                assert(PyTuple_Check(instances.get()));
+                Py_ssize_t osz = PyTuple_GET_SIZE(instances.get());
                 for(Py_ssize_t j = 0; j < osz; ++j)
                 {
-                    PyObject* o = PyTuple_GET_ITEM(objects.get(), j);
+                    PyObject* o = PyTuple_GET_ITEM(instances.get(), j);
 
                     Ice::ObjectPtr writer;
 
@@ -549,7 +549,7 @@ IcePy::StreamUtil::getSlicedDataMember(PyObject* obj, ObjectMap* objectMap)
                         writer = i->second;
                     }
 
-                    info->objects.push_back(writer);
+                    info->instances.push_back(writer);
                 }
 
                 PyObjectHandle hasOptionalMembers = PyObject_GetAttrString(s.get(), STRCAST("hasOptionalMembers"));
@@ -3244,7 +3244,7 @@ IcePy::ObjectWriter::__write(Ice::OutputStream* os) const
         slicedData = StreamUtil::getSlicedDataMember(_object, const_cast<ObjectMap*>(_map));
     }
 
-    os->startObject(slicedData);
+    os->startValue(slicedData);
 
     if(_info->id != "::Ice::UnknownSlicedObject")
     {
@@ -3262,7 +3262,7 @@ IcePy::ObjectWriter::__write(Ice::OutputStream* os) const
         }
     }
 
-    os->endObject();
+    os->endValue();
 }
 
 void
@@ -3349,7 +3349,7 @@ IcePy::ObjectReader::__write(Ice::OutputStream*) const
 void
 IcePy::ObjectReader::__read(Ice::InputStream* is)
 {
-    is->startObject();
+    is->startValue();
 
     const bool unknown = _info->id == "::Ice::UnknownSlicedObject";
 
@@ -3394,7 +3394,7 @@ IcePy::ObjectReader::__read(Ice::InputStream* is)
         }
     }
 
-    _slicedData = is->endObject(_info->preserve);
+    _slicedData = is->endValue(_info->preserve);
 
     if(_slicedData)
     {
