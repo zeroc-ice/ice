@@ -8,7 +8,6 @@
 // **********************************************************************
 
 using System;
-using System.Diagnostics;
 using System.Reflection;
 
 [assembly: CLSCompliant(true)]
@@ -26,9 +25,9 @@ public class Server
         int port = 12010;
         try
         {
-            port += args.Length == 1 ? System.Int32.Parse(args[0]) : 0;
+            port += args.Length == 1 ? Int32.Parse(args[0]) : 0;
         }
-        catch(System.FormatException)
+        catch(FormatException)
         {
         }
         properties.setProperty("ControlAdapter.Endpoints", "tcp -p " + port);
@@ -85,9 +84,9 @@ public class Server
             communicator = Ice.Util.initialize(ref args, initData);
             status = run(args, communicator);
         }
-        catch(System.Exception ex)
+        catch(Exception ex)
         {
-            System.Console.Error.WriteLine(ex);
+            Console.Error.WriteLine(ex);
             status = 1;
         }
 
@@ -99,7 +98,7 @@ public class Server
             }
             catch(Ice.LocalException ex)
             {
-                System.Console.Error.WriteLine(ex);
+                Console.Error.WriteLine(ex);
                 status = 1;
             }
         }

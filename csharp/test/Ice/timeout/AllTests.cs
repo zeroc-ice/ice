@@ -7,13 +7,8 @@
 //
 // **********************************************************************
 
-using System;
 using System.Diagnostics;
 using System.Threading;
-
-#if SILVERLIGHT
-using System.Windows.Controls;
-#endif
 
 public class AllTests : TestCommon.TestApp
 {
@@ -30,7 +25,7 @@ public class AllTests : TestCommon.TestApp
             {
                 while(!_called)
                 {
-                    System.Threading.Monitor.Wait(this);
+                    Monitor.Wait(this);
                 }
 
                 _called = false;
@@ -43,42 +38,14 @@ public class AllTests : TestCommon.TestApp
             {
                 Debug.Assert(!_called);
                 _called = true;
-                System.Threading.Monitor.Pulse(this);
+                Monitor.Pulse(this);
             }
         }
 
         private bool _called;
     }
 
-#if SILVERLIGHT
-    public override Ice.InitializationData initData()
-    {
-        Ice.InitializationData initData = new Ice.InitializationData();
-        initData.properties = Ice.Util.createProperties();
-
-        //
-        // We need to send messages large enough to cause the transport
-        // buffers to fill up.
-        //
-        initData.properties.setProperty("Ice.MessageSizeMax", "20000");
-
-        //
-        // For this test, we want to disable retries.
-        //
-        initData.properties.setProperty("Ice.RetryIntervals", "-1");
-
-        //
-        // This test kills connections, so we don't want warnings.
-        //
-        initData.properties.setProperty("Ice.Warn.Connections", "0");
-        return initData;
-    }
-
-    override
-    public void run(Ice.Communicator communicator)
-#else
     public static Test.TimeoutPrx allTests(Ice.Communicator communicator)
-#endif
     {
         string sref = "timeout:default -p 12010";
         Ice.ObjectPrx obj = communicator.stringToProxy(sref);
@@ -473,11 +440,6 @@ public class AllTests : TestCommon.TestApp
             adapter.destroy();
         }
         WriteLine("ok");
-
-#if SILVERLIGHT
-        timeout.shutdown();
-#else
         return timeout;
-#endif
     }
 }

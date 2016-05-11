@@ -8,7 +8,6 @@
 // **********************************************************************
 
 using System;
-using System.Diagnostics;
 using System.Reflection;
 
 [assembly: CLSCompliant(true)]
@@ -44,7 +43,7 @@ public class Client
             communicator = Ice.Util.initialize(ref args);
             status = run(args, communicator);
         }
-        catch(System.Exception ex)
+        catch(Exception ex)
         {
             Console.Error.WriteLine(ex);
             status = 1;

@@ -57,7 +57,6 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
     //
     // Override the Object "pseudo" operations to verify the operation mode.
     //
-
     public override bool ice_isA(String id, Ice.Current current)
     {
         test(current.mode == Ice.OperationMode.Nonmutating);
@@ -96,7 +95,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
 
     public override void delay_async(Test.AMD_MyClass_delay cb, int ms, Ice.Current current)
     {
-        System.Threading.Thread.Sleep(ms);
+        Thread.Sleep(ms);
         cb.ice_response();
     }
 

@@ -7,8 +7,6 @@
 //
 // **********************************************************************
 
-using Ice;
-
 public abstract class BasePlugin : Ice.Plugin
 {
     public BasePlugin(Ice.Communicator communicator)

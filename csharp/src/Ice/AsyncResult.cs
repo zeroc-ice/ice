@@ -205,11 +205,7 @@ namespace IceInternal
                 {
                     if(_waitHandle == null)
                     {
-#if SILVERLIGHT
-                        _waitHandle = new ManualResetEvent(false);
-#else
                         _waitHandle = new EventWaitHandle(false, EventResetMode.ManualReset);
-#endif
                     }
                     if((state_ & StateDone) != 0)
                     {

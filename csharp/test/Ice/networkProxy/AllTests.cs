@@ -7,29 +7,9 @@
 //
 // **********************************************************************
 
-using System;
-using System.Diagnostics;
-using System.Threading;
-
-#if SILVERLIGHT
-using System.Windows.Controls;
-#endif
-
 public class AllTests : TestCommon.TestApp
 {
-#if SILVERLIGHT
-    public override Ice.InitializationData initData()
-    {
-        Ice.InitializationData initData = new Ice.InitializationData();
-        initData.properties = Ice.Util.createProperties();
-        return initData;
-    }
-
-    override
-    public void run(Ice.Communicator communicator)
-#else
     public static void allTests(Ice.Communicator communicator)
-#endif
     {
         string sref = "test:default -p 12010";
         Ice.ObjectPrx obj = communicator.stringToProxy(sref);

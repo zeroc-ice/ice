@@ -9,11 +9,6 @@
 
 public sealed class TestI : Test.TestIntfDisp_
 {
-    public
-    TestI()
-    {
-    }
-
     public override void
     shutdown(Ice.Current current)
     {

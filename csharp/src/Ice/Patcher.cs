@@ -210,42 +210,6 @@ namespace IceInternal
         private int _index; // The index at which to patch the array.
     }
 
-    public sealed class SequencePatcher<T>
-    {
-        public SequencePatcher(string type, IceInternal.CollectionBase<T> seq, int index)
-        {
-            _type = type;
-            _seq = seq;
-            _index = index;
-        }
-
-        public void patch(Ice.Object v)
-        {
-            if(v != null && !typeof(T).IsAssignableFrom(v.GetType()))
-            {
-                IceInternal.Ex.throwUOE(_type, v.ice_id());
-            }
-
-            int count = _seq.Count;
-            if(_index >= count) // Need to grow the sequence.
-            {
-                for(int i = count; i < _index; i++)
-                {
-                    _seq.Add(default(T));
-                }
-                _seq.Add((T)v);
-            }
-            else
-            {
-                _seq[_index] = (T)v;
-            }
-        }
-
-        private string _type;
-        private IceInternal.CollectionBase<T> _seq;
-        private int _index; // The index at which to patch the sequence.
-    }
-
     public sealed class ListPatcher<T>
     {
         public ListPatcher(string type, List<T> seq, int index)

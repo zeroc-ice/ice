@@ -10,12 +10,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading;
 using Test;
-
-#if SILVERLIGHT
-using System.Windows.Controls;
-#endif
 
 public class AllTests : TestCommon.TestApp
 {
@@ -81,20 +76,7 @@ public class AllTests : TestCommon.TestApp
             return null;
     }
 
-#if SILVERLIGHT
-    public override Ice.InitializationData initData()
-    {
-        Ice.InitializationData initData = new Ice.InitializationData();
-        initData.properties = Ice.Util.createProperties();
-        initData.properties.setProperty("Ice.FactoryAssemblies", "objects,version=1.0.0.0");
-        return initData;
-    }
-
-    override
-    public void run(Ice.Communicator communicator)
-#else
     public static TestIntfPrx allTests(Ice.Communicator communicator, bool collocated)
-#endif
     {
         Write("testing stringToProxy... ");
         Flush();
@@ -1414,16 +1396,16 @@ public class AllTests : TestCommon.TestApp
                     ss2d3.pd3 = ss1d1;
 
                     SS1 ss1 = new SS1();
-                    ss1.s = new BSeq(3);
-                    ss1.s.Add(ss1b);
-                    ss1.s.Add(ss1d1);
-                    ss1.s.Add(ss1d3);
+                    ss1.s = new B[3];
+                    ss1.s[0] = ss1b;
+                    ss1.s[1] = ss1d1;
+                    ss1.s[2] = ss1d3;
 
                     SS2 ss2 = new SS2();
-                    ss2.s = new BSeq(3);
-                    ss2.s.Add(ss2b);
-                    ss2.s.Add(ss2d1);
-                    ss2.s.Add(ss2d3);
+                    ss2.s = new B[3];
+                    ss2.s[0] = ss2b;
+                    ss2.s[1] = ss2d1;
+                    ss2.s[2] = ss2d3;
 
                     ss = testPrx.sequenceTest(ss1, ss2);
                 }
@@ -1502,16 +1484,16 @@ public class AllTests : TestCommon.TestApp
                 ss2d3.pd3 = ss1d1;
 
                 SS1 ss1 = new SS1();
-                ss1.s = new BSeq();
-                ss1.s.Add(ss1b);
-                ss1.s.Add(ss1d1);
-                ss1.s.Add(ss1d3);
+                ss1.s = new B[3];
+                ss1.s[0] = ss1b;
+                ss1.s[1] = ss1d1;
+                ss1.s[2] = ss1d3;
 
                 SS2 ss2 = new SS2();
-                ss2.s = new BSeq();
-                ss2.s.Add(ss2b);
-                ss2.s.Add(ss2d1);
-                ss2.s.Add(ss2d3);
+                ss2.s = new B[3];
+                ss2.s[0] = ss2b;
+                ss2.s[1] = ss2d1;
+                ss2.s[2] = ss2d3;
 
                 Callback cb = new Callback();
                 testPrx.begin_sequenceTest(ss1, ss2).whenCompleted(
@@ -2429,11 +2411,6 @@ public class AllTests : TestCommon.TestApp
         }
 
         WriteLine("ok");
-
-#if SILVERLIGHT
-        testPrx.shutdown();
-#else
         return testPrx;
-#endif
     }
 }

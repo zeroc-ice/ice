@@ -10,26 +10,10 @@
 using System;
 using Test;
 using System.Collections.Generic;
-#if SILVERLIGHT
-using System.Windows.Controls;
-#endif
 
 public class AllTests : TestCommon.TestApp
 {
-#if SILVERLIGHT
-    public override Ice.InitializationData initData()
-    {
-        Ice.InitializationData initData = new Ice.InitializationData();
-        initData.properties = Ice.Util.createProperties();
-        initData.properties.setProperty("Ice.Default.Locator", "locator:default -p 12010");
-        return initData;
-    }
-
-    override
-    public void run(Ice.Communicator communicator)
-#else
     public static void allTests(Ice.Communicator communicator)
-#endif
     {
         ServerManagerPrx manager = ServerManagerPrxHelper.checkedCast(
                                         communicator.stringToProxy("ServerManager :default -p 12010"));
@@ -600,8 +584,7 @@ public class AllTests : TestCommon.TestApp
         {
         }
         WriteLine("ok");
-        
-#if !SILVERLIGHT
+
         Write("testing indirect proxies to collocated objects... ");
         Flush();
 
@@ -630,8 +613,5 @@ public class AllTests : TestCommon.TestApp
         Flush();
         manager.shutdown();
         WriteLine("ok");
-#else
-        manager.shutdown();
-#endif
     }
 }

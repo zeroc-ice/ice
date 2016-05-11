@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+using System;
 using System.Diagnostics;
 using Test;
 
@@ -131,7 +132,7 @@ public class ThrowerI : ThrowerDisp_
 
     public override void throwNonIceException_async(AMD_Thrower_throwNonIceException cb, Ice.Current current)
     {
-        throw new System.Exception();
+        throw new Exception();
     }
 
     public override void throwAssertException_async(AMD_Thrower_throwAssertException cb, Ice.Current current)
@@ -155,13 +156,13 @@ public class ThrowerI : ThrowerDisp_
     {
         cb.ice_response();
 
-        throw new System.Exception();
+        throw new Exception();
     }
 
     public override void throwAfterException_async(AMD_Thrower_throwAfterException cb, Ice.Current current)
     {
         cb.ice_exception(new A());
 
-        throw new System.Exception();
+        throw new Exception();
     }
 }

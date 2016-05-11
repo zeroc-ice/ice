@@ -9,7 +9,6 @@
 
 namespace IceInternal
 {
-
     public sealed class Protocol
     {
         //

@@ -8,14 +8,9 @@
 // **********************************************************************
 
 using Test;
-using System.Diagnostics;
 
 public sealed class CallbackI : Test.CallbackDisp_
 {
-    public CallbackI()
-    {
-    }
-
     public override void
     initiateCallback(CallbackReceiverPrx proxy, Ice.Current current)
     {

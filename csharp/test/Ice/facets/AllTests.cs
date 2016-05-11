@@ -11,26 +11,10 @@ using System;
 using System.Collections.Generic;
 using Test;
 
-#if SILVERLIGHT
-using System.Net;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Ink;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Shapes;
-#endif
 
 public class AllTests : TestCommon.TestApp
-{    
-#if SILVERLIGHT
-    override
-    public void run(Ice.Communicator communicator)
-#else
+{
     public static GPrx allTests(Ice.Communicator communicator)
-#endif
     {
         
         Write("testing Ice.Admin.Facets property... ");
@@ -54,7 +38,6 @@ public class AllTests : TestCommon.TestApp
         communicator.getProperties().setProperty("Ice.Admin.Facets", "");
         WriteLine("ok");
 
-#if !SILVERLIGHT
         Write("testing facet registration exceptions... ");
         communicator.getProperties().setProperty("FacetExceptionTestAdapter.Endpoints", "default");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("FacetExceptionTestAdapter");
@@ -110,7 +93,7 @@ public class AllTests : TestCommon.TestApp
         WriteLine("ok");
 
         adapter.deactivate();
-#endif
+
         Write("testing stringToProxy... ");
         Flush();
         string @ref = "d:default -p 12010";
@@ -201,11 +184,6 @@ public class AllTests : TestCommon.TestApp
         test(hf.callG().Equals("G"));
         test(hf.callH().Equals("H"));
         WriteLine("ok");
-        
-#if SILVERLIGHT
-        gf.shutdown();
-#else
         return gf;
-#endif
     }
 }

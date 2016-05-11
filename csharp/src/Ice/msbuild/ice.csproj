@@ -63,9 +63,6 @@
     <Compile Include="..\BZip2.cs">
       <Link>BZip2.cs</Link>
     </Compile>
-    <Compile Include="..\CollectionBase.cs">
-      <Link>CollectionBase.cs</Link>
-    </Compile>
     <Compile Include="..\Collections.cs">
       <Link>Collections.cs</Link>
     </Compile>
@@ -96,9 +93,6 @@
     <Compile Include="..\DefaultsAndOverrides.cs">
       <Link>DefaultsAndOverrides.cs</Link>
     </Compile>
-    <Compile Include="..\DictionaryBase.cs">
-      <Link>DictionaryBase.cs</Link>
-    </Compile>
     <Compile Include="..\DispatchInterceptor.cs">
       <Link>DispatchInterceptor.cs</Link>
     </Compile>
@@ -122,9 +116,6 @@
     </Compile>
     <Compile Include="..\FormatType.cs">
       <Link>FormatType.cs</Link>
-    </Compile>
-    <Compile Include="..\HashSet.cs">
-      <Link>HashSet.cs</Link>
     </Compile>
     <Compile Include="..\HttpParser.cs">
       <Link>HttpParser.cs</Link>
@@ -342,9 +333,6 @@
     <Compile Include="..\UnknownSlicedObject.cs">
       <Link>UnknownSlicedObject.cs</Link>
     </Compile>
-    <Compile Include="..\UserExceptionFactory.cs">
-      <Link>UserExceptionFactory.cs</Link>
-    </Compile>
     <Compile Include="..\Util.cs">
       <Link>Util.cs</Link>
     </Compile>
@@ -368,40 +356,27 @@
     </Compile>
     <Compile Include="generated\BuiltinSequences.cs" />
     <Compile Include="generated\Communicator.cs" />
-    <Compile Include="generated\CommunicatorF.cs" />
     <Compile Include="generated\Connection.cs" />
-    <Compile Include="generated\ConnectionF.cs" />
     <Compile Include="generated\Current.cs" />
     <Compile Include="generated\Endpoint.cs" />
-    <Compile Include="generated\EndpointF.cs" />
     <Compile Include="generated\EndpointTypes.cs" />
     <Compile Include="generated\FacetMap.cs" />
     <Compile Include="generated\Identity.cs" />
     <Compile Include="generated\ImplicitContext.cs" />
-    <Compile Include="generated\ImplicitContextF.cs" />
     <Compile Include="generated\Instrumentation.cs" />
-    <Compile Include="generated\InstrumentationF.cs" />
     <Compile Include="generated\LocalException.cs" />
     <Compile Include="generated\Locator.cs" />
-    <Compile Include="generated\LocatorF.cs" />
     <Compile Include="generated\Logger.cs" />
-    <Compile Include="generated\LoggerF.cs" />
     <Compile Include="generated\Metrics.cs" />
     <Compile Include="generated\ObjectAdapter.cs" />
-    <Compile Include="generated\ObjectAdapterF.cs" />
     <Compile Include="generated\ObjectFactory.cs" />
     <Compile Include="generated\Plugin.cs" />
-    <Compile Include="generated\PluginF.cs" />
     <Compile Include="generated\Process.cs" />
-    <Compile Include="generated\ProcessF.cs" />
     <Compile Include="generated\Properties.cs" />
     <Compile Include="generated\PropertiesAdmin.cs" />
-    <Compile Include="generated\PropertiesF.cs" />
     <Compile Include="generated\RemoteLogger.cs" />
     <Compile Include="generated\Router.cs" />
-    <Compile Include="generated\RouterF.cs" />
     <Compile Include="generated\ServantLocator.cs" />
-    <Compile Include="generated\ServantLocatorF.cs" />
     <Compile Include="generated\SliceChecksumDict.cs" />
     <Compile Include="generated\ValueFactory.cs" />
     <Compile Include="generated\Version.cs" />
@@ -413,23 +388,14 @@
     <None Include="..\..\..\..\slice\Ice\Communicator.ice">
       <Link>Communicator.ice</Link>
     </None>
-    <None Include="..\..\..\..\slice\Ice\CommunicatorF.ice">
-      <Link>CommunicatorF.ice</Link>
-    </None>
     <None Include="..\..\..\..\slice\Ice\Connection.ice">
       <Link>Connection.ice</Link>
-    </None>
-    <None Include="..\..\..\..\slice\Ice\ConnectionF.ice">
-      <Link>ConnectionF.ice</Link>
     </None>
     <None Include="..\..\..\..\slice\Ice\Current.ice">
       <Link>Current.ice</Link>
     </None>
     <None Include="..\..\..\..\slice\Ice\Endpoint.ice">
       <Link>Endpoint.ice</Link>
-    </None>
-    <None Include="..\..\..\..\slice\Ice\EndpointF.ice">
-      <Link>EndpointF.ice</Link>
     </None>
     <None Include="..\..\..\..\slice\Ice\EndpointTypes.ice">
       <Link>EndpointTypes.ice</Link>
@@ -443,14 +409,8 @@
     <None Include="..\..\..\..\slice\Ice\ImplicitContext.ice">
       <Link>ImplicitContext.ice</Link>
     </None>
-    <None Include="..\..\..\..\slice\Ice\ImplicitContextF.ice">
-      <Link>ImplicitContextF.ice</Link>
-    </None>
     <None Include="..\..\..\..\slice\Ice\Instrumentation.ice">
       <Link>Instrumentation.ice</Link>
-    </None>
-    <None Include="..\..\..\..\slice\Ice\InstrumentationF.ice">
-      <Link>InstrumentationF.ice</Link>
     </None>
     <None Include="..\..\..\..\slice\Ice\LocalException.ice">
       <Link>LocalException.ice</Link>
@@ -458,14 +418,8 @@
     <None Include="..\..\..\..\slice\Ice\Locator.ice">
       <Link>Locator.ice</Link>
     </None>
-    <None Include="..\..\..\..\slice\Ice\LocatorF.ice">
-      <Link>LocatorF.ice</Link>
-    </None>
     <None Include="..\..\..\..\slice\Ice\Logger.ice">
       <Link>Logger.ice</Link>
-    </None>
-    <None Include="..\..\..\..\slice\Ice\LoggerF.ice">
-      <Link>LoggerF.ice</Link>
     </None>
     <None Include="..\..\..\..\slice\Ice\Metrics.ice">
       <Link>Metrics.ice</Link>
@@ -473,23 +427,14 @@
     <None Include="..\..\..\..\slice\Ice\ObjectAdapter.ice">
       <Link>ObjectAdapter.ice</Link>
     </None>
-    <None Include="..\..\..\..\slice\Ice\ObjectAdapterF.ice">
-      <Link>ObjectAdapterF.ice</Link>
-    </None>
     <None Include="..\..\..\..\slice\Ice\ObjectFactory.ice">
       <Link>ObjectFactory.ice</Link>
     </None>
     <None Include="..\..\..\..\slice\Ice\Plugin.ice">
       <Link>Plugin.ice</Link>
     </None>
-    <None Include="..\..\..\..\slice\Ice\PluginF.ice">
-      <Link>PluginF.ice</Link>
-    </None>
     <None Include="..\..\..\..\slice\Ice\Process.ice">
       <Link>Process.ice</Link>
-    </None>
-    <None Include="..\..\..\..\slice\Ice\ProcessF.ice">
-      <Link>ProcessF.ice</Link>
     </None>
     <None Include="..\..\..\..\slice\Ice\Properties.ice">
       <Link>Properties.ice</Link>
@@ -497,23 +442,14 @@
     <None Include="..\..\..\..\slice\Ice\PropertiesAdmin.ice">
       <Link>PropertiesAdmin.ice</Link>
     </None>
-    <None Include="..\..\..\..\slice\Ice\PropertiesF.ice">
-      <Link>PropertiesF.ice</Link>
-    </None>
     <None Include="..\..\..\..\slice\Ice\RemoteLogger.ice">
       <Link>RemoteLogger.ice</Link>
     </None>
     <None Include="..\..\..\..\slice\Ice\Router.ice">
       <Link>Router.ice</Link>
     </None>
-    <None Include="..\..\..\..\slice\Ice\RouterF.ice">
-      <Link>RouterF.ice</Link>
-    </None>
     <None Include="..\..\..\..\slice\Ice\ServantLocator.ice">
       <Link>ServantLocator.ice</Link>
-    </None>
-    <None Include="..\..\..\..\slice\Ice\ServantLocatorF.ice">
-      <Link>ServantLocatorF.ice</Link>
     </None>
     <None Include="..\..\..\..\slice\Ice\SliceChecksumDict.ice">
       <Link>SliceChecksumDict.ice</Link>

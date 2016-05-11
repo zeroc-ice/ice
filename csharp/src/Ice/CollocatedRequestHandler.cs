@@ -191,10 +191,10 @@ namespace IceInternal
                     _sendAsyncRequests.Add(outAsync, requestId);
                 }
             }
-            catch(System.Exception ex)
+            catch(System.Exception)
             {
                 _adapter.decDirectCount();
-                throw ex;
+                throw;
             }
 
             outAsync.attachCollocatedObserver(_adapter, requestId);

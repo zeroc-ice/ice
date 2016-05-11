@@ -8,24 +8,9 @@
 // **********************************************************************
 
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading;
 using Test;
 
-#if SILVERLIGHT
-using System.Net;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Ink;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Shapes;
-#endif
 
 public class AllTests : TestCommon.TestApp
 {
@@ -90,21 +75,7 @@ public class AllTests : TestCommon.TestApp
         private bool _called;
     }
 
-#if SILVERLIGHT
-    public override Ice.InitializationData initData()
-    {
-        Ice.InitializationData initData = new Ice.InitializationData();
-        initData.properties = Ice.Util.createProperties();
-        initData.properties.setProperty("Ice.Warn.AMICallback", "0");
-        initData.dispatcher = new Dispatcher().dispatch;
-        return initData;
-    }
-
-    override
-    public void run(Ice.Communicator communicator)
-#else
     public static void allTests(Ice.Communicator communicator)
-#endif
     {
         string sref = "test:default -p 12010";
         Ice.ObjectPrx obj = communicator.stringToProxy(sref);

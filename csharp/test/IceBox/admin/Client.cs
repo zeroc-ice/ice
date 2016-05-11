@@ -35,10 +35,7 @@ public class Client
     {
         int status = 0;
         Ice.Communicator communicator = null;
-
-#if !COMPACT && !UNITY
         Debug.Listeners.Add(new ConsoleTraceListener());
-#endif
 
         try
         {
@@ -48,7 +45,7 @@ public class Client
             communicator = Ice.Util.initialize(ref args, initData);
             status = run(args, communicator);
         }
-        catch(System.Exception ex)
+        catch(Exception ex)
         {
             Console.Error.WriteLine(ex);
             status = 1;

@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-using System;
 using Test;
 
 public sealed class ServantLocatorI : Ice.ServantLocator

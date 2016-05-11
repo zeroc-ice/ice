@@ -9,7 +9,6 @@
 
 namespace IceInternal
 {
-
     public sealed class TraceLevels
     {
         internal TraceLevels(Ice.Properties properties)

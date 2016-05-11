@@ -11,10 +11,6 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 
-#if SILVERLIGHT
-using System.Windows.Controls;
-#endif
-
 public class AllTests : TestCommon.TestApp
 {
     private class Callback
@@ -30,7 +26,7 @@ public class AllTests : TestCommon.TestApp
             {
                 while(!_called)
                 {
-                    System.Threading.Monitor.Wait(this);
+                    Monitor.Wait(this);
                 }
 
                 _called = false;
@@ -43,54 +39,14 @@ public class AllTests : TestCommon.TestApp
             {
                 Debug.Assert(!_called);
                 _called = true;
-                System.Threading.Monitor.Pulse(this);
+                Monitor.Pulse(this);
             }
         }
 
         private bool _called;
     }
 
-#if SILVERLIGHT
-    public override Ice.InitializationData initData()
-    {
-        Ice.InitializationData initData = new Ice.InitializationData();
-        initData.properties = Ice.Util.createProperties();
-        initData.observer = Instrumentation.getObserver();
-
-        initData.properties.setProperty("Ice.RetryIntervals", "0 1 10 1");
-
-        //
-        // This test kills connections, so we don't want warnings.
-        //
-        initData.properties.setProperty("Ice.Warn.Connections", "0");
-        return initData;
-    }
-
-    public override void run(Ice.Communicator communicator)
-    {
-        //
-        // Configure a second communicator for the invocation timeout
-        // + retry test, we need to configure a large retry interval
-        // to avoid time-sensitive failures.
-        //
-        Ice.InitializationData initData2 = new Ice.InitializationData();
-        initData2.properties = communicator.getProperties().ice_clone_();
-        initData2.properties.setProperty("Ice.RetryIntervals", "0 1 10000");
-        initData2.observer = Instrumentation.getObserver();
-        Ice.Communicator communicator2 = Ice.Util.initialize(initData2);
-        try
-        {
-            allTests(communicator, communicator2, "retry:default -p 12010");
-        }
-        finally
-        {
-            communicator2.destroy();
-        }
-    }
-    public void
-#else
     static public Test.RetryPrx
-#endif
     allTests(Ice.Communicator communicator, Ice.Communicator communicator2, string rf)
     {
         Write("testing stringToProxy... ");
@@ -292,11 +248,6 @@ public class AllTests : TestCommon.TestApp
             Instrumentation.testRetryCount(-1);
         }
         WriteLine("ok");
-
-#if SILVERLIGHT
-        retry1.shutdown();
-#else
         return retry1;
-#endif
     }
 }

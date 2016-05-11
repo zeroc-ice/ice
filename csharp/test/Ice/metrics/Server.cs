@@ -38,11 +38,7 @@ public class Server
     {
         int status = 0;
         Ice.Communicator communicator = null;
-
-#if !COMPACT && !UNITY
         Debug.Listeners.Add(new ConsoleTraceListener());
-#endif
-
         try
         {
             Ice.InitializationData initData = new Ice.InitializationData();
@@ -58,7 +54,7 @@ public class Server
             communicator = Ice.Util.initialize(ref args, initData);
             status = run(args, communicator);
         }
-        catch(System.Exception ex)
+        catch(Exception ex)
         {
             Console.Error.WriteLine(ex);
             status = 1;

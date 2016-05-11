@@ -15,7 +15,7 @@ public class AllTests
     {
         if(!b)
         {
-            throw new System.Exception();
+            throw new Exception();
         }
     }
 

@@ -75,7 +75,7 @@ public sealed class MyDerivedClassTieI : Test.MyDerivedClassOperations_
 
     public void delay_async(Test.AMD_MyClass_delay cb, int ms, Ice.Current current)
     {
-        System.Threading.Thread.Sleep(ms);
+        Thread.Sleep(ms);
         cb.ice_response();
     }
 

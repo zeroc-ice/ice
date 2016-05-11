@@ -10,7 +10,6 @@
 namespace IceSSL
 {
     using System;
-    using System.ComponentModel;
     using System.Diagnostics;
     using System.Collections.Generic;
     using System.IO;
@@ -19,7 +18,6 @@ namespace IceSSL
     using System.Net.Sockets;
     using System.Security.Authentication;
     using System.Security.Cryptography.X509Certificates;
-    using System.Threading;
     using System.Text;
 
     sealed class TransceiverI : IceInternal.Transceiver, IceInternal.WSTransceiverDelegate
@@ -364,12 +362,10 @@ namespace IceSSL
             X509Certificate2Collection caCerts = _instance.engine().caCerts();
             if(caCerts != null)
             {
-#if !UNITY
                 //
                 // We need to set this flag to be able to use a certificate authority from the extra store.
                 //
                 _chain.ChainPolicy.VerificationFlags = X509VerificationFlags.AllowUnknownCertificateAuthority;
-#endif
                 foreach(X509Certificate2 cert in caCerts)
                 {
                     _chain.ChainPolicy.ExtraStore.Add(cert);
@@ -396,9 +392,6 @@ namespace IceSSL
             }
             if(_sslStream != null)
             {
-#if UNITY
-                info.cipher = "";
-#else
                 info.cipher = _sslStream.CipherAlgorithm.ToString();
                 if(_chain.ChainElements != null && _chain.ChainElements.Count > 0)
                 {
@@ -408,10 +401,8 @@ namespace IceSSL
                         nativeCerts[i] = _chain.ChainElements[i].Certificate;
                     }
                 }
-#endif
 
                 List<string> certs = new List<string>();
-#if !UNITY
                 if(nativeCerts != null)
                 {
                     foreach(X509Certificate2 cert in nativeCerts)
@@ -423,7 +414,6 @@ namespace IceSSL
                         certs.Add(s.ToString());
                     }
                 }
-#endif
                 info.certs = certs.ToArray();
                 info.verified = _verified;
             }
@@ -451,9 +441,6 @@ namespace IceSSL
                 }
                 else
                 {
-#if UNITY
-                    throw new Ice.FeatureNotSupportedException("ssl server socket");
-#else
                     //
                     // Server authentication.
                     //
@@ -472,7 +459,6 @@ namespace IceSSL
                                                                         _instance.checkCRL() > 0,
                                                                         writeCompleted,
                                                                         state);
-#endif
                 }
             }
             catch(IOException ex)
@@ -487,14 +473,12 @@ namespace IceSSL
                 }
                 throw new Ice.SocketException(ex);
             }
-#if !UNITY
             catch(AuthenticationException ex)
             {
                 Ice.SecurityException e = new Ice.SecurityException(ex);
                 e.reason = ex.Message;
                 throw e;
             }
-#endif
             catch(Exception ex)
             {
                 throw new Ice.SyscallException(ex);
@@ -531,14 +515,12 @@ namespace IceSSL
                 }
                 throw new Ice.SocketException(ex);
             }
-#if !UNITY
             catch(AuthenticationException ex)
             {
                 Ice.SecurityException e = new Ice.SecurityException(ex);
                 e.reason = ex.Message;
                 throw e;
             }
-#endif
             catch(Exception ex)
             {
                 throw new Ice.SyscallException(ex);
@@ -580,7 +562,6 @@ namespace IceSSL
         private bool validationCallback(object sender, X509Certificate certificate, X509Chain chainEngine,
                                         SslPolicyErrors policyErrors)
         {
-#if !UNITY
             string message = "";
             int errors = (int)policyErrors;
             if(certificate != null)
@@ -758,7 +739,6 @@ namespace IceSSL
                 _instance.logger().trace(_instance.securityTraceCategory(),
                                          "SSL certificate validation status:" + message);
             }
-#endif
             return true;
         }
 

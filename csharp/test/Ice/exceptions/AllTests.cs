@@ -12,18 +12,6 @@ using System.Diagnostics;
 using System.Threading;
 using Test;
 
-#if SILVERLIGHT
-using System.Net;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Ink;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Shapes;
-#endif
-
 public class AllTests : TestCommon.TestApp
 {
     private class Callback
@@ -39,7 +27,7 @@ public class AllTests : TestCommon.TestApp
             {
                 while(!_called)
                 {
-                    System.Threading.Monitor.Wait(this);
+                    Monitor.Wait(this);
                 }
 
                 _called = false;
@@ -52,36 +40,16 @@ public class AllTests : TestCommon.TestApp
             {
                 Debug.Assert(!_called);
                 _called = true;
-                System.Threading.Monitor.Pulse(this);
+                Monitor.Pulse(this);
             }
         }
 
         private bool _called;
     }
 
-#if SILVERLIGHT
-    public override Ice.InitializationData initData()
-    {
-        Ice.InitializationData initData = new Ice.InitializationData();
-        initData.properties = Ice.Util.createProperties();
-        WriteLine("setting Ice.FactoryAssemblies");
-        initData.properties.setProperty("Ice.FactoryAssemblies", "exceptions,version=1.0.0.0");
-        initData.properties.setProperty("Ice.MessageSizeMax", "10");
-	initData.properties.setProperty("Ice.Warn.Connections", "0");
-        return initData;
-    }
 
-    override
-    public void run(Ice.Communicator communicator)
-#else
     public static ThrowerPrx allTests(Ice.Communicator communicator)
-#endif
     {
-#if SILVERLIGHT
-        WriteLine("Ice.FactoryAssemblies: " + communicator.getProperties().getProperty("Ice.FactoryAssemblies"));
-#endif
-
-#if !SILVERLIGHT
         {
             Write("testing object adapter registration exceptions... ");
             Ice.ObjectAdapter first;
@@ -190,7 +158,7 @@ public class AllTests : TestCommon.TestApp
             adapter.deactivate();
             WriteLine("ok");
         }
-#endif
+
         {
             Write("testing object factory registration exception... ");
             communicator.getValueFactoryManager().add( _ => { return null; }, "::x");
@@ -1395,10 +1363,6 @@ public class AllTests : TestCommon.TestApp
         }
 
         WriteLine("ok");
-#if SILVERLIGHT
-        thrower.shutdown();
-#else
         return thrower;
-#endif
     }
 }

@@ -10,7 +10,6 @@
 using System;
 using System.Diagnostics;
 using System.Threading;
-using System.Collections.Generic;
 
 public class OnewaysAMI
 {
@@ -18,7 +17,7 @@ public class OnewaysAMI
     {
         if(!b)
         {
-            throw new System.SystemException();
+            throw new SystemException();
         }
     }
 
@@ -35,7 +34,7 @@ public class OnewaysAMI
             {
                 while(!_called)
                 {
-                    System.Threading.Monitor.Wait(this);
+                    Monitor.Wait(this);
                 }
                 _called = false;
             }
@@ -47,7 +46,7 @@ public class OnewaysAMI
             {
                 Debug.Assert(!_called);
                 _called = true;
-                System.Threading.Monitor.Pulse(this);
+                Monitor.Pulse(this);
             }
         }
 
@@ -103,7 +102,7 @@ public class OnewaysAMI
                 p.begin_ice_isA("::Test::MyClass");
                 test(false);
             }
-            catch(System.ArgumentException)
+            catch(ArgumentException)
             {
             }
         }
@@ -114,7 +113,7 @@ public class OnewaysAMI
                 p.begin_ice_id();
                 test(false);
             }
-            catch(System.ArgumentException)
+            catch(ArgumentException)
             {
             }
         }
@@ -125,7 +124,7 @@ public class OnewaysAMI
                 p.begin_ice_ids();
                 test(false);
             }
-            catch(System.ArgumentException)
+            catch(ArgumentException)
             {
             }
         }
@@ -199,7 +198,7 @@ public class OnewaysAMI
                 p.begin_opByte((byte)0xff, (byte)0x0f);
                 test(false);
             }
-            catch(System.ArgumentException)
+            catch(ArgumentException)
             {
             }
         }

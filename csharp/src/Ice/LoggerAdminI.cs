@@ -86,7 +86,7 @@ sealed class LoggerAdminI : Ice.LoggerAdminDisp_
         catch(Ice.LocalException ex)
         {
             deadRemoteLogger(remoteLogger, _logger, ex, "init");
-            throw ex;
+            throw;
         }    
     }
     

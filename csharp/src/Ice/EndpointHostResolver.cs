@@ -7,10 +7,8 @@
 //
 // **********************************************************************
 
-#if !SILVERLIGHT
 namespace IceInternal
 {
-    using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Net;
@@ -289,4 +287,3 @@ namespace IceInternal
         private HelperThread _thread;
     }
 }
-#endif

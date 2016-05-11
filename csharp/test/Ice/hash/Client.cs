@@ -8,7 +8,6 @@
 // **********************************************************************
 
 using System;
-using System.Diagnostics;
 using System.Reflection;
 using System.Collections.Generic;
 
@@ -24,7 +23,7 @@ public class Client
     {
         if(!b)
         {
-            throw new System.Exception();
+            throw new Exception();
         }
     }
 
@@ -35,8 +34,8 @@ public class Client
 
         try
         {
-            System.Console.Error.Write("testing proxy & endpoint hash algorithm collisions... ");
-            System.Console.Error.Flush();
+            Console.Error.Write("testing proxy & endpoint hash algorithm collisions... ");
+            Console.Error.Flush();
             Dictionary<int, Ice.ObjectPrx> seenProxy = new Dictionary<int, Ice.ObjectPrx>();
             Dictionary<int, Ice.Endpoint> seenEndpoint = new Dictionary<int, Ice.Endpoint>();
             int proxyCollisions = 0;
@@ -50,7 +49,7 @@ public class Client
             //initData.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL:IceSSL.PluginFactory");
             communicator = Ice.Util.initialize(ref args, initData);
             {
-                System.Random rand = new System.Random();
+                Random rand = new Random();
                 for(i = 0; proxyCollisions < maxCollisions && 
                         endpointCollisions < maxCollisions  && 
                         i < maxIterations; ++i)
@@ -146,7 +145,7 @@ public class Client
             }
 
             {
-                System.Random rand = new System.Random();
+                Random rand = new Random();
                 Ice.ProxyIdentityFacetKey comparer = new Ice.ProxyIdentityFacetKey();
                 proxyCollisions = 0;
                 seenProxy = new Dictionary<int, Ice.ObjectPrx>();
@@ -236,13 +235,13 @@ public class Client
             test(iComparer.GetHashCode(prx9) == iComparer.GetHashCode(prx9));
             test(ifComparer.GetHashCode(prx9) == ifComparer.GetHashCode(prx9));
 
-            System.Console.Error.WriteLine("ok");
+            Console.Error.WriteLine("ok");
 
-            System.Console.Error.Write("testing exceptions hash algorithm collisions... ");
+            Console.Error.Write("testing exceptions hash algorithm collisions... ");
 
             {
                 Dictionary<int,Test.OtherException> seenException = new Dictionary<int, Test.OtherException>();
-                System.Random rand = new System.Random();
+                Random rand = new Random();
 
                 int exceptionCollisions = 0;
                 for(i = 0; i < maxIterations && 
@@ -274,7 +273,7 @@ public class Client
             //
             {
                 Dictionary<int,Test.OtherException> seenException = new Dictionary<int, Test.OtherException>();
-                System.Random rand = new System.Random();
+                Random rand = new Random();
 
                 int exceptionCollisions = 0;
                 for(i = 0; i < maxIterations && 
@@ -303,7 +302,7 @@ public class Client
 
             {
                 Dictionary<int,Test.BaseException> seenException = new Dictionary<int, Test.BaseException>();
-                System.Random rand = new System.Random();
+                Random rand = new Random();
 
                 int exceptionCollisions = 0;
                 for(i = 0; i < maxIterations && 
@@ -350,12 +349,12 @@ public class Client
                 }
                 test(exceptionCollisions < maxCollisions);
             }
-            System.Console.Error.WriteLine("ok");
+            Console.Error.WriteLine("ok");
 
-            System.Console.Error.Write("testing struct hash algorithm collisions... ");
+            Console.Error.Write("testing struct hash algorithm collisions... ");
             {
                 Dictionary<int,Test.PointF> seenPointF = new Dictionary<int, Test.PointF>();
-                System.Random rand = new System.Random();
+                Random rand = new Random();
                 int structCollisions = 0;
                 for(i = 0; i < maxIterations && structCollisions < maxCollisions; ++i)
                 {
@@ -520,7 +519,7 @@ public class Client
                 }
                 test(structCollisions < maxCollisions);
             }
-            System.Console.Error.WriteLine("ok");
+            Console.Error.WriteLine("ok");
 
             if(communicator != null)
             {
@@ -530,7 +529,7 @@ public class Client
                 }
                 catch(Ice.LocalException ex)
                 {
-                    System.Console.Error.WriteLine(ex);
+                    Console.Error.WriteLine(ex);
                     status = 1;
                 }
             }

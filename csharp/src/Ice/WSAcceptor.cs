@@ -9,8 +9,6 @@
 
 namespace IceInternal
 {
-    using System.Diagnostics;
-
     class WSAcceptor : Acceptor
     {
         public void close()

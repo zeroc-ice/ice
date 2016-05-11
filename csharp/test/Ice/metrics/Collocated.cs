@@ -39,11 +39,7 @@ public class Collocated
     {
         int status = 0;
         Ice.Communicator communicator = null;
-
-#if !COMPACT && !UNITY
         Debug.Listeners.Add(new ConsoleTraceListener());
-#endif
-
         try
         {
             Ice.InitializationData initData = new Ice.InitializationData();
@@ -57,18 +53,11 @@ public class Collocated
             initData.properties.setProperty("Ice.Warn.Dispatch", "0");
             initData.properties.setProperty("Ice.MessageSizeMax", "50000");
             initData.properties.setProperty("Ice.Default.Host", "127.0.0.1");
-#if COMPACT
-            //
-            // When using Ice for .NET Compact Framework, we need to specify
-            // the assembly so that Ice can locate classes and exceptions.
-            //
-            initData.properties.setProperty("Ice.FactoryAssemblies", "collocated");
-#endif
             initData.observer = _observer;
             communicator = Ice.Util.initialize(ref args, initData);
             status = run(args, communicator);
         }
-        catch(System.Exception ex)
+        catch(Exception ex)
         {
             Console.Error.WriteLine(ex);
             status = 1;

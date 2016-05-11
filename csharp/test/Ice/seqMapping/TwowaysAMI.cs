@@ -108,16 +108,6 @@ public class TwowaysAMI
             callback.called();
         }
 
-        public void opCByteSI(Ice.AsyncResult result)
-        {
-            CByteS i = (CByteS)result.AsyncState;
-            CByteS o;
-            CByteS r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opCByteS(out o, result);
-            test(Ice.CollectionComparer.Equals(i, o));
-            test(Ice.CollectionComparer.Equals(i, r));
-            callback.called();
-        }
-
         public void opABoolSI(Ice.AsyncResult result)
         {
             bool[] i = (bool[])result.AsyncState;
@@ -163,16 +153,6 @@ public class TwowaysAMI
             Stack<bool> i = (Stack<bool>)result.AsyncState;
             Stack<bool> o;
             Stack<bool> r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opSBoolS(out o, result);
-            test(Ice.CollectionComparer.Equals(i, o));
-            test(Ice.CollectionComparer.Equals(i, r));
-            callback.called();
-        }
-
-        public void opCBoolSI(Ice.AsyncResult result)
-        {
-            CBoolS i = (CBoolS)result.AsyncState;
-            CBoolS o;
-            CBoolS r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opCBoolS(out o, result);
             test(Ice.CollectionComparer.Equals(i, o));
             test(Ice.CollectionComparer.Equals(i, r));
             callback.called();
@@ -228,16 +208,6 @@ public class TwowaysAMI
             callback.called();
         }
 
-        public void opCShortSI(Ice.AsyncResult result)
-        {
-            CShortS i = (CShortS)result.AsyncState;
-            CShortS o;
-            CShortS r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opCShortS(out o, result);
-            test(Ice.CollectionComparer.Equals(i, o));
-            test(Ice.CollectionComparer.Equals(i, r));
-            callback.called();
-        }
-
         public void opAIntSI(Ice.AsyncResult result)
         {
             int[] i = (int[])result.AsyncState;
@@ -283,16 +253,6 @@ public class TwowaysAMI
             Stack<int> i = (Stack<int>)result.AsyncState;
             Stack<int> o;
             Stack<int> r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opSIntS(out o, result);
-            test(Ice.CollectionComparer.Equals(i, o));
-            test(Ice.CollectionComparer.Equals(i, r));
-            callback.called();
-        }
-
-        public void opCIntSI(Ice.AsyncResult result)
-        {
-            CIntS i = (CIntS)result.AsyncState;
-            CIntS o;
-            CIntS r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opCIntS(out o, result);
             test(Ice.CollectionComparer.Equals(i, o));
             test(Ice.CollectionComparer.Equals(i, r));
             callback.called();
@@ -348,16 +308,6 @@ public class TwowaysAMI
             callback.called();
         }
 
-        public void opCLongSI(Ice.AsyncResult result)
-        {
-            CLongS i = (CLongS)result.AsyncState;
-            CLongS o;
-            CLongS r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opCLongS(out o, result);
-            test(Ice.CollectionComparer.Equals(i, o));
-            test(Ice.CollectionComparer.Equals(i, r));
-            callback.called();
-        }
-
         public void opAFloatSI(Ice.AsyncResult result)
         {
             float[] i = (float[])result.AsyncState;
@@ -403,16 +353,6 @@ public class TwowaysAMI
             Stack<float> i = (Stack<float>)result.AsyncState;
             Stack<float> o;
             Stack<float> r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opSFloatS(out o, result);
-            test(Ice.CollectionComparer.Equals(i, o));
-            test(Ice.CollectionComparer.Equals(i, r));
-            callback.called();
-        }
-
-        public void opCFloatSI(Ice.AsyncResult result)
-        {
-            CFloatS i = (CFloatS)result.AsyncState;
-            CFloatS o;
-            CFloatS r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opCFloatS(out o, result);
             test(Ice.CollectionComparer.Equals(i, o));
             test(Ice.CollectionComparer.Equals(i, r));
             callback.called();
@@ -468,16 +408,6 @@ public class TwowaysAMI
             callback.called();
         }
 
-        public void opCDoubleSI(Ice.AsyncResult result)
-        {
-            CDoubleS i = (CDoubleS)result.AsyncState;
-            CDoubleS o;
-            CDoubleS r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opCDoubleS(out o, result);
-            test(Ice.CollectionComparer.Equals(i, o));
-            test(Ice.CollectionComparer.Equals(i, r));
-            callback.called();
-        }
-
         public void opAStringSI(Ice.AsyncResult result)
         {
             string[] i = (string[])result.AsyncState;
@@ -528,16 +458,6 @@ public class TwowaysAMI
             callback.called();
         }
 
-        public void opCStringSI(Ice.AsyncResult result)
-        {
-            CStringS i = (CStringS)result.AsyncState;
-            CStringS o;
-            CStringS r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opCStringS(out o, result);
-            test(Ice.CollectionComparer.Equals(i, o));
-            test(Ice.CollectionComparer.Equals(i, r));
-            callback.called();
-        }
-
         public void opAObjectSI(Ice.AsyncResult result)
         {
             Ice.Object[] i = (Ice.Object[])result.AsyncState;
@@ -560,23 +480,6 @@ public class TwowaysAMI
             List<Ice.Object> i = (List<Ice.Object>)result.AsyncState;
             List<Ice.Object> o;
             List<Ice.Object> r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opLObjectS(out o, result);
-            IEnumerator<Ice.Object> eo = o.GetEnumerator();
-            IEnumerator<Ice.Object> er = r.GetEnumerator();
-            foreach(CV obj in i)
-            {
-                eo.MoveNext();
-                er.MoveNext();
-                test(obj.i == ((CV)eo.Current).i);
-                test(obj.i == ((CV)er.Current).i);
-            }
-            callback.called();
-        }
-
-        public void opCObjectSI(Ice.AsyncResult result)
-        {
-            CObjectS i = (CObjectS)result.AsyncState;
-            CObjectS o;
-            CObjectS r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opCObjectS(out o, result);
             IEnumerator<Ice.Object> eo = o.GetEnumerator();
             IEnumerator<Ice.Object> er = r.GetEnumerator();
             foreach(CV obj in i)
@@ -640,16 +543,6 @@ public class TwowaysAMI
             callback.called();
         }
 
-        public void opCObjectPrxSI(Ice.AsyncResult result)
-        {
-            CObjectPrxS i = (CObjectPrxS)result.AsyncState;
-            CObjectPrxS o;
-            CObjectPrxS r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opCObjectPrxS(out o, result);
-            test(Ice.CollectionComparer.Equals(i, o));
-            test(Ice.CollectionComparer.Equals(i, r));
-            callback.called();
-        }
-
         public void opAStructSI(Ice.AsyncResult result)
         {
             S[] i = (S[])result.AsyncState;
@@ -695,16 +588,6 @@ public class TwowaysAMI
             Stack<S> i = (Stack<S>)result.AsyncState;
             Stack<S> o;
             Stack<S> r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opSStructS(out o, result);
-            test(Ice.CollectionComparer.Equals(i, o));
-            test(Ice.CollectionComparer.Equals(i, r));
-            callback.called();
-        }
-
-        public void opCStructSI(Ice.AsyncResult result)
-        {
-            CStructS i = (CStructS)result.AsyncState;
-            CStructS o;
-            CStructS r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opCStructS(out o, result);
             test(Ice.CollectionComparer.Equals(i, o));
             test(Ice.CollectionComparer.Equals(i, r));
             callback.called();
@@ -760,16 +643,6 @@ public class TwowaysAMI
             callback.called();
         }
 
-        public void opCStructSDI(Ice.AsyncResult result)
-        {
-            CStructSD i = (CStructSD)result.AsyncState;
-            CStructSD o;
-            CStructSD r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opCStructSD(out o, result);
-            test(Ice.CollectionComparer.Equals(i, o));
-            test(Ice.CollectionComparer.Equals(i, r));
-            callback.called();
-        }
-
         public void opACVSI(Ice.AsyncResult result)
         {
             CV[] i = (CV[])result.AsyncState;
@@ -794,23 +667,6 @@ public class TwowaysAMI
             List<CV> r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opLCVS(out o, result);
             IEnumerator<CV> eo = o.GetEnumerator();
             IEnumerator<CV> er = r.GetEnumerator();
-            foreach(CV obj in i)
-            {
-                eo.MoveNext();
-                er.MoveNext();
-                test(obj.i == ((CV)eo.Current).i);
-                test(obj.i == ((CV)er.Current).i);
-            }
-            callback.called();
-        }
-
-        public void opCCVSI(Ice.AsyncResult result)
-        {
-            CCVS i = (CCVS)result.AsyncState;
-            CCVS o;
-            CCVS r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opCCVS(out o, result);
-            IEnumerator<CV> eo = (IEnumerator<CV>)o.GetEnumerator();
-            IEnumerator<CV> er = (IEnumerator<CV>)r.GetEnumerator();
             foreach(CV obj in i)
             {
                 eo.MoveNext();
@@ -872,16 +728,6 @@ public class TwowaysAMI
             callback.called();
         }
 
-        public void opCCVPrxSI(Ice.AsyncResult result)
-        {
-            CCVPrxS i = (CCVPrxS)result.AsyncState;
-            CCVPrxS o;
-            CCVPrxS r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opCCVPrxS(out o, result);
-            test(Ice.CollectionComparer.Equals(i, o));
-            test(Ice.CollectionComparer.Equals(i, r));
-            callback.called();
-        }
-
         public void opACRSI(Ice.AsyncResult result)
         {
             CR[] i = (CR[])result.AsyncState;
@@ -906,23 +752,6 @@ public class TwowaysAMI
             List<CR> r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opLCRS(out o, result);
             IEnumerator<CR> eo = o.GetEnumerator();
             IEnumerator<CR> er = r.GetEnumerator();
-            foreach(CR obj in i)
-            {
-                eo.MoveNext();
-                er.MoveNext();
-                test(obj.v.i == ((CR)eo.Current).v.i);
-                test(obj.v.i == ((CR)er.Current).v.i);
-            }
-            callback.called();
-        }
-
-        public void opCCRSI(Ice.AsyncResult result)
-        {
-            CCRS i = (CCRS)result.AsyncState;
-            CCRS o;
-            CCRS r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opCCRS(out o, result);
-            IEnumerator<CR> eo = (IEnumerator<CR>)o.GetEnumerator();
-            IEnumerator<CR> er = (IEnumerator<CR>)r.GetEnumerator();
             foreach(CR obj in i)
             {
                 eo.MoveNext();
@@ -978,16 +807,6 @@ public class TwowaysAMI
             Stack<En> i = (Stack<En>)result.AsyncState;
             Stack<En> o;
             Stack<En> r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opSEnS(out o, result);
-            test(Ice.CollectionComparer.Equals(i, o));
-            test(Ice.CollectionComparer.Equals(i, r));
-            callback.called();
-        }
-
-        public void opCEnSI(Ice.AsyncResult result)
-        {
-            CEnS i = (CEnS)result.AsyncState;
-            CEnS o;
-            CEnS r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opCEnS(out o, result);
             test(Ice.CollectionComparer.Equals(i, o));
             test(Ice.CollectionComparer.Equals(i, r));
             callback.called();
@@ -1070,7 +889,6 @@ public class TwowaysAMI
             callback.called();
         }
 
-#if !COMPACT && !SILVERLIGHT
         public void opSerialSmallCSharpNullI(Ice.AsyncResult result)
         {
             try
@@ -1166,7 +984,6 @@ public class TwowaysAMI
                 // OK, talking to non-C# server.
             }
         }
-#endif
 
         public virtual void check()
         {
@@ -1175,7 +992,6 @@ public class TwowaysAMI
 
         private CallbackBase callback = new CallbackBase();
     }
-
 
     static int _length = 100;
 
@@ -1242,18 +1058,6 @@ public class TwowaysAMI
         }
 
         {
-            CByteS i = new CByteS();
-            for(int c = 0; c < _length; ++c)
-            {
-                i.Add((byte)c);
-            }
-
-            Callback cb = new Callback();
-            p.begin_opCByteS(i, null, cb.opCByteSI, i);
-            cb.check();
-        }
-
-        {
             bool[] i = new bool[_length];
             for(int c = 0; c < _length; ++c)
             {
@@ -1310,18 +1114,6 @@ public class TwowaysAMI
 
             Callback cb = new Callback();
             p.begin_opSBoolS(i, null, cb.opSBoolSI, i);
-            cb.check();
-        }
-
-        {
-            CBoolS i = new CBoolS();
-            for(int c = 0; c < _length; ++c)
-            {
-                i.Add(c % 1 == 1);
-            }
-
-            Callback cb = new Callback();
-            p.begin_opCBoolS(i, null, cb.opCBoolSI, i);
             cb.check();
         }
 
@@ -1386,18 +1178,6 @@ public class TwowaysAMI
         }
 
         {
-            CShortS i = new CShortS();
-            for(int c = 0; c < _length; ++c)
-            {
-                i.Add((short)c);
-            }
-
-            Callback cb = new Callback();
-            p.begin_opCShortS(i, null, cb.opCShortSI, i);
-            cb.check();
-        }
-
-        {
             int[] i = new int[_length];
             for(int c = 0; c < _length; ++c)
             {
@@ -1454,18 +1234,6 @@ public class TwowaysAMI
 
             Callback cb = new Callback();
             p.begin_opSIntS(i, null, cb.opSIntSI, i);
-            cb.check();
-        }
-
-        {
-            CIntS i = new CIntS();
-            for(int c = 0; c < _length; ++c)
-            {
-                i.Add((int)c);
-            }
-
-            Callback cb = new Callback();
-            p.begin_opCIntS(i, null, cb.opCIntSI, i);
             cb.check();
         }
 
@@ -1530,18 +1298,6 @@ public class TwowaysAMI
         }
 
         {
-            CLongS i = new CLongS();
-            for(int c = 0; c < _length; ++c)
-            {
-                i.Add((long)c);
-            }
-
-            Callback cb = new Callback();
-            p.begin_opCLongS(i, null, cb.opCLongSI, i);
-            cb.check();
-        }
-
-        {
             float[] i = new float[_length];
             for(int c = 0; c < _length; ++c)
             {
@@ -1598,18 +1354,6 @@ public class TwowaysAMI
 
             Callback cb = new Callback();
             p.begin_opSFloatS(i, null, cb.opSFloatSI, i);
-            cb.check();
-        }
-
-        {
-            CFloatS i = new CFloatS();
-            for(int c = 0; c < _length; ++c)
-            {
-                i.Add((float)c);
-            }
-
-            Callback cb = new Callback();
-            p.begin_opCFloatS(i, null, cb.opCFloatSI, i);
             cb.check();
         }
 
@@ -1674,18 +1418,6 @@ public class TwowaysAMI
         }
 
         {
-            CDoubleS i = new CDoubleS();
-            for(int c = 0; c < _length; ++c)
-            {
-                i.Add((double)c);
-            }
-
-            Callback cb = new Callback();
-            p.begin_opCDoubleS(i, null, cb.opCDoubleSI, i);
-            cb.check();
-        }
-
-        {
             string[] i = new string[_length];
             for(int c = 0; c < _length; ++c)
             {
@@ -1746,18 +1478,6 @@ public class TwowaysAMI
         }
 
         {
-            CStringS i = new CStringS();
-            for(int c = 0; c < _length; ++c)
-            {
-                i.Add(c.ToString());
-            }
-
-            Callback cb = new Callback();
-            p.begin_opCStringS(i, null, cb.opCStringSI, i);
-            cb.check();
-        }
-
-        {
             Ice.Object[] i = new Ice.Object[_length];
             for(int c = 0; c < _length; ++c)
             {
@@ -1778,18 +1498,6 @@ public class TwowaysAMI
 
             Callback cb = new Callback();
             p.begin_opLObjectS(i, null, cb.opLObjectSI, i);
-            cb.check();
-        }
-
-        {
-            CObjectS i = new CObjectS();
-            for(int c = 0; c < _length; ++c)
-            {
-                i.Add(new CV(c));
-            }
-
-            Callback cb = new Callback();
-            p.begin_opCObjectS(i, null, cb.opCObjectSI, i);
             cb.check();
         }
 
@@ -1854,18 +1562,6 @@ public class TwowaysAMI
         }
 
         {
-            CObjectPrxS i = new CObjectPrxS();
-            for(int c = 0; c < _length; ++c)
-            {
-                i.Add(communicator.stringToProxy(c.ToString()));
-            }
-
-            Callback cb = new Callback();
-            p.begin_opCObjectPrxS(i, null, cb.opCObjectPrxSI, i);
-            cb.check();
-        }
-
-        {
             S[] i = new S[_length];
             for(int c = 0; c < _length; ++c)
             {
@@ -1926,18 +1622,6 @@ public class TwowaysAMI
         }
 
         {
-            CStructS i = new CStructS();
-            for(int c = 0; c < _length; ++c)
-            {
-                i.Add(new S(c));
-            }
-
-            Callback cb = new Callback();
-            p.begin_opCStructS(i, null, cb.opCStructSI, i);
-            cb.check();
-        }
-
-        {
             CV[] i = new CV[_length];
             for(int c = 0; c < _length; ++c)
             {
@@ -1958,18 +1642,6 @@ public class TwowaysAMI
 
             Callback cb = new Callback();
             p.begin_opLCVS(i, null, cb.opLCVSI, i);
-            cb.check();
-        }
-
-        {
-            CCVS i = new CCVS();
-            for(int c = 0; c < _length; ++c)
-            {
-                i.Add(new CV(c));
-            }
-
-            Callback cb = new Callback();
-            p.begin_opCCVS(i, null, cb.opCCVSI, i);
             cb.check();
         }
 
@@ -2034,18 +1706,6 @@ public class TwowaysAMI
         }
 
         {
-            CCVPrxS i = new CCVPrxS();
-            for(int c = 0; c < _length; ++c)
-            {
-                i.Add(CVPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString())));
-            }
-
-            Callback cb = new Callback();
-            p.begin_opCCVPrxS(i, null, cb.opCCVPrxSI, i);
-            cb.check();
-        }
-
-        {
             CR[] i = new CR[_length];
             for(int c = 0; c < _length; ++c)
             {
@@ -2066,18 +1726,6 @@ public class TwowaysAMI
 
             Callback cb = new Callback();
             p.begin_opLCRS(i, null, cb.opLCRSI, i);
-            cb.check();
-        }
-
-        {
-            CCRS i = new CCRS();
-            for(int c = 0; c < _length; ++c)
-            {
-                i.Add(new CR(new CV(c)));
-            }
-
-            Callback cb = new Callback();
-            p.begin_opCCRS(i, null, cb.opCCRSI, i);
             cb.check();
         }
 
@@ -2142,18 +1790,6 @@ public class TwowaysAMI
         }
 
         {
-            CEnS i = new CEnS();
-            for(int c = 0; c < _length; ++c)
-            {
-                i.Add((En)(c % 3));
-            }
-
-            Callback cb = new Callback();
-            p.begin_opCEnS(i, null, cb.opCEnSI, i);
-            cb.check();
-        }
-
-        {
             Custom<int> i = new Custom<int>();
             for(int c = 0; c < _length; ++c)
             {
@@ -2211,7 +1847,6 @@ public class TwowaysAMI
             cb.check();
         }
 
-#if !COMPACT && !SILVERLIGHT
         {
             Serialize.Small i = null;
 
@@ -2258,6 +1893,5 @@ public class TwowaysAMI
             p.begin_opSerialStructCSharp(i, null, cb.opSerialStructCSharpI, i);
             cb.check();
         }
-#endif
     }
 }

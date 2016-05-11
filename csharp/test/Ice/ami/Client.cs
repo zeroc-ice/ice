@@ -8,7 +8,6 @@
 // **********************************************************************
 
 using System;
-using System.Diagnostics;
 using System.Reflection;
 
 [assembly: CLSCompliant(true)]
@@ -35,13 +34,6 @@ public class Client
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties(ref args);
             initData.properties.setProperty("Ice.Warn.AMICallback", "0");
-#if COMPACT
-            //
-            // When using Ice for .NET Compact Framework, we need to specify
-            // the assembly so that Ice can locate classes and exceptions.
-            //
-            initData.properties.setProperty("Ice.FactoryAssemblies", "client");
-#endif
             //
             // Limit the send buffer size, this test relies on the socket
             // send() blocking after sending a given amount of data.

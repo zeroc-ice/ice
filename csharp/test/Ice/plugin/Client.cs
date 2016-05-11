@@ -8,9 +8,7 @@
 // **********************************************************************
 
 using System;
-using System.Diagnostics;
 using System.Reflection;
-using Ice;
 
 [assembly: CLSCompliant(true)]
 
@@ -24,7 +22,7 @@ public class Client
     {
         if(!b)
         {
-            throw new System.Exception();
+            throw new Exception();
         }
     }
 

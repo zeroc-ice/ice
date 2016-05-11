@@ -38,17 +38,13 @@ namespace IceMX
                         }
                         return "";
                     }
-                    catch(ArgumentOutOfRangeException ex)
+                    catch(ArgumentOutOfRangeException)
                     {
-                        throw ex;
+                        throw;
                     }
                     catch(Exception ex)
                     {
-#if COMPACT
-                        throw new ArgumentOutOfRangeException(_name, ex.ToString());
-#else
                         throw new ArgumentOutOfRangeException(_name, ex);
-#endif
                     }
                 }
                 
@@ -407,11 +403,7 @@ namespace IceMX
 
         public void update()
         {
-#if COMPACT
-            Ice.VoidAction updater;
-#else
-            System.Action updater;      
-#endif
+            System.Action updater;
             lock(this)
             {
                 _maps.Clear();
@@ -429,11 +421,7 @@ namespace IceMX
             }
         }
 
-#if COMPACT
-        public void setUpdater(Ice.VoidAction updater)
-#else
         public void setUpdater(System.Action updater)
-#endif
         {
             lock(this)
             {
@@ -445,10 +433,6 @@ namespace IceMX
         private readonly string _name;
         private List<MetricsMap<T>> _maps = new List<MetricsMap<T>>();
         private volatile bool _enabled;
-#if COMPACT
-        private Ice.VoidAction _updater;
-#else
         private System.Action _updater;
-#endif
     }
 }

@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-
 public sealed class MyObjectI : Test.MyObjectDisp_
 {
     public override void

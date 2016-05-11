@@ -7,15 +7,10 @@
 //
 // **********************************************************************
 
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Test;
-
-#if SILVERLIGHT
-using System.Windows.Controls;
-#endif
 
 public class AllTests : TestCommon.TestApp
 {
@@ -145,20 +140,7 @@ public class AllTests : TestCommon.TestApp
         private Ice.ValueFactory _factory;
     }
 
-#if SILVERLIGHT
-    public override Ice.InitializationData initData()
-    {
-        Ice.InitializationData initData = new Ice.InitializationData();
-        initData.properties = Ice.Util.createProperties();
-        initData.properties.setProperty("Ice.FactoryAssemblies", "stream,version=1.0.0.0");
-        return initData;
-    }
-
-    override
-    public void run(Ice.Communicator communicator)
-#else
     static public int run(Ice.Communicator communicator)
-#endif
     {
         MyClassFactoryWrapper factoryWrapper = new MyClassFactoryWrapper();
 
@@ -415,7 +397,6 @@ public class AllTests : TestCommon.TestApp
             test(Compare(arr2S, arrS));
         }
 
-#if !COMPACT && !SILVERLIGHT
         {
             Serialize.Small small = new Serialize.Small();
             small.i = 99;
@@ -426,7 +407,6 @@ public class AllTests : TestCommon.TestApp
             Serialize.Small small2 = (Serialize.Small)@in.readSerializable();
             test(small2.i == 99);
         }
-#endif
 
         {
             short[] arr =
@@ -1161,119 +1141,6 @@ public class AllTests : TestCommon.TestApp
         }
 
         {
-            bool[] arr =
-            {
-                true,
-                false,
-                true,
-                false
-            };
-            @out = new Ice.OutputStream(communicator);
-            Test.BoolCollection l = new Test.BoolCollection(arr);
-            Test.BoolCollectionHelper.write(@out, l);
-            byte[] data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            Test.BoolCollection l2 = Test.BoolCollectionHelper.read(@in);
-            test(Compare(l, l2));
-        }
-
-        {
-            int[] arr =
-            {
-                0x01,
-                0x11,
-                0x12,
-                0x22
-            };
-            @out = new Ice.OutputStream(communicator);
-            Test.IntCollection l = new Test.IntCollection(arr);
-            Test.IntCollectionHelper.write(@out, l);
-            byte[] data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            Test.IntCollection l2 = Test.IntCollectionHelper.read(@in);
-            test(Compare(l2, l));
-        }
-
-        {
-            string[] arr =
-            {
-                "string1",
-                "string2",
-                "string3",
-                "string4"
-            };
-            @out = new Ice.OutputStream(communicator);
-            Test.StringCollection l = new Test.StringCollection(arr);
-            Test.StringCollectionHelper.write(@out, l);
-            byte[] data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            Test.StringCollection l2 = Test.StringCollectionHelper.read(@in);
-            test(Compare(l2, l));
-        }
-
-        {
-            Test.MyEnum[] arr =
-            {
-                Test.MyEnum.enum3,
-                Test.MyEnum.enum2,
-                Test.MyEnum.enum1,
-                Test.MyEnum.enum2
-            };
-            @out = new Ice.OutputStream(communicator);
-            Test.MyEnumCollection l = new Test.MyEnumCollection(arr);
-            Test.MyEnumCollectionHelper.write(@out, l);
-            byte[] data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            Test.MyEnumCollection l2 = Test.MyEnumCollectionHelper.read(@in);
-            test(Compare(l2, l));
-        }
-
-        {
-            @out = new Ice.OutputStream(communicator);
-            Test.SmallStructCollection l = new Test.SmallStructCollection(smallStructArray);
-            Test.SmallStructCollectionHelper.write(@out, l);
-            byte[] data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            Test.SmallStructCollection l2 = Test.SmallStructCollectionHelper.read(@in);
-            test(l2.Count == l.Count);
-            IEnumerator<Test.SmallStruct> e = l.GetEnumerator();
-            IEnumerator<Test.SmallStruct> e2 = l2.GetEnumerator();
-            while (e.MoveNext() && e2.MoveNext())
-            {
-                test(e.Current.Equals(e2.Current));
-            }
-        }
-
-        {
-            @out = new Ice.OutputStream(communicator);
-            Test.MyClassCollection l = new Test.MyClassCollection(myClassArray);
-            Test.MyClassCollectionHelper.write(@out, l);
-            @out.writePendingObjects();
-            byte[] data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            Test.MyClassCollection l2 = Test.MyClassCollectionHelper.read(@in);
-            @in.readPendingObjects();
-            test(l2.Count == l.Count);
-            for (int i = 0; i < l2.Count; ++i)
-            {
-                test(l2[i] != null);
-                test(l2[i].c == l2[i]);
-                test(l2[i].o == l2[i]);
-                test(l2[i].s.e == Test.MyEnum.enum2);
-                test(Compare(l2[i].seq1, l[i].seq1));
-                test(Compare(l2[i].seq2, l[i].seq2));
-                test(Compare(l2[i].seq3, l[i].seq3));
-                test(Compare(l2[i].seq4, l[i].seq4));
-                test(Compare(l2[i].seq5, l[i].seq5));
-                test(Compare(l2[i].seq6, l[i].seq6));
-                test(Compare(l2[i].seq7, l[i].seq7));
-                test(Compare(l2[i].seq8, l[i].seq8));
-                test(Compare(l2[i].seq9, l[i].seq9));
-                test(l2[i].d["hi"].Equals(l2[i]));
-            }
-        }
-
-        {
             string[] arr =
             {
                 "string1",
@@ -1318,13 +1185,9 @@ public class AllTests : TestCommon.TestApp
             Stack<string[]> l2 = Test.StringSStackHelper.read(@in);
             test(Compare(l2, l));
         }
-#if !SILVERLIGHT
+
         {
-#if COMPACT
-            SortedList<string, string> dict = new SortedList<string, string>();
-#else
             SortedDictionary<string, string> dict = new SortedDictionary<string, string>();
-#endif
             dict.Add("key1", "value1");
             dict.Add("key2", "value2");
             @out = new Ice.OutputStream(communicator);
@@ -1335,21 +1198,7 @@ public class AllTests : TestCommon.TestApp
             test(Ice.CollectionComparer.Equals(dict2, dict));
         }
 
-        {
-            Test.StringIntDCollection dict = new Test.StringIntDCollection();
-            dict.Add("key1", 1);
-            dict.Add("key2", 2);
-            @out = new Ice.OutputStream(communicator);
-            Test.StringIntDCollectionHelper.write(@out, dict);
-            byte[] data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            Test.StringIntDCollection dict2 = Test.StringIntDCollectionHelper.read(@in);
-            test(Ice.CollectionComparer.Equals(dict2, dict));
-        }
-#endif
         WriteLine("ok");
-#if !SILVERLIGHT
         return 0;
-#endif
     }
 }

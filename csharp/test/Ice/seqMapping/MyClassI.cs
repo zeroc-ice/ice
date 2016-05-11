@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-using System;
 using System.Collections.Generic;
 using Test;
 
@@ -48,12 +47,6 @@ public sealed class MyClassI : Test.MyClass
         return i;
     }
 
-    public override CByteS opCByteS(CByteS i, out CByteS o, Ice.Current current)
-    {
-        o = i;
-        return i;
-    }
-
     public override bool[] opABoolS(bool[] i, out bool[] o, Ice.Current current)
     {
         o = i;
@@ -79,12 +72,6 @@ public sealed class MyClassI : Test.MyClass
     }
 
     public override Stack<bool> opSBoolS(Stack<bool> i, out Stack<bool> o, Ice.Current current)
-    {
-        o = i;
-        return i;
-    }
-
-    public override CBoolS opCBoolS(CBoolS i, out CBoolS o, Ice.Current current)
     {
         o = i;
         return i;
@@ -120,12 +107,6 @@ public sealed class MyClassI : Test.MyClass
         return i;
     }
 
-    public override CShortS opCShortS(CShortS i, out CShortS o, Ice.Current current)
-    {
-        o = i;
-        return i;
-    }
-
     public override int[] opAIntS(int[] i, out int[] o, Ice.Current current)
     {
         o = i;
@@ -151,12 +132,6 @@ public sealed class MyClassI : Test.MyClass
     }
 
     public override Stack<int> opSIntS(Stack<int> i, out Stack<int> o, Ice.Current current)
-    {
-        o = i;
-        return i;
-    }
-
-    public override CIntS opCIntS(CIntS i, out CIntS o, Ice.Current current)
     {
         o = i;
         return i;
@@ -192,12 +167,6 @@ public sealed class MyClassI : Test.MyClass
         return i;
     }
 
-    public override CLongS opCLongS(CLongS i, out CLongS o, Ice.Current current)
-    {
-        o = i;
-        return i;
-    }
-
     public override float[] opAFloatS(float[] i, out float[] o, Ice.Current current)
     {
         o = i;
@@ -223,12 +192,6 @@ public sealed class MyClassI : Test.MyClass
     }
 
     public override Stack<float> opSFloatS(Stack<float> i, out Stack<float> o, Ice.Current current)
-    {
-        o = i;
-        return i;
-    }
-
-    public override CFloatS opCFloatS(CFloatS i, out CFloatS o, Ice.Current current)
     {
         o = i;
         return i;
@@ -264,12 +227,6 @@ public sealed class MyClassI : Test.MyClass
         return i;
     }
 
-    public override CDoubleS opCDoubleS(CDoubleS i, out CDoubleS o, Ice.Current current)
-    {
-        o = i;
-        return i;
-    }
-
     public override string[] opAStringS(string[] i, out string[] o, Ice.Current current)
     {
         o = i;
@@ -300,12 +257,6 @@ public sealed class MyClassI : Test.MyClass
         return i;
     }
 
-    public override CStringS opCStringS(CStringS i, out CStringS o, Ice.Current current)
-    {
-        o = i;
-        return i;
-    }
-
     public override Ice.Object[] opAObjectS(Ice.Object[] i, out Ice.Object[] o, Ice.Current current)
     {
         o = i;
@@ -313,12 +264,6 @@ public sealed class MyClassI : Test.MyClass
     }
 
     public override List<Ice.Object> opLObjectS(List<Ice.Object> i, out List<Ice.Object> o, Ice.Current current)
-    {
-        o = i;
-        return i;
-    }
-
-    public override CObjectS opCObjectS(CObjectS i, out CObjectS o, Ice.Current current)
     {
         o = i;
         return i;
@@ -354,12 +299,6 @@ public sealed class MyClassI : Test.MyClass
         return i;
     }
 
-    public override CObjectPrxS opCObjectPrxS(CObjectPrxS i, out CObjectPrxS o, Ice.Current current)
-    {
-        o = i;
-        return i;
-    }
-
     public override S[] opAStructS(S[] i, out S[] o, Ice.Current current)
     {
         o = i;
@@ -385,12 +324,6 @@ public sealed class MyClassI : Test.MyClass
     }
 
     public override Stack<S> opSStructS(Stack<S> i, out Stack<S> o, Ice.Current current)
-    {
-        o = i;
-        return i;
-    }
-
-    public override CStructS opCStructS(CStructS i, out CStructS o, Ice.Current current)
     {
         o = i;
         return i;
@@ -426,12 +359,6 @@ public sealed class MyClassI : Test.MyClass
         return i;
     }
 
-    public override CStructSD opCStructSD(CStructSD i, out CStructSD o, Ice.Current current)
-    {
-        o = i;
-        return i;
-    }
-
     public override CV[] opACVS(CV[] i, out CV[] o, Ice.Current current)
     {
         o = i;
@@ -444,12 +371,6 @@ public sealed class MyClassI : Test.MyClass
         return i;
     }
 
-    public override CCVS opCCVS(CCVS i, out CCVS o, Ice.Current current)
-    {
-        o = i;
-        return i;
-    }
-
     public override CR[] opACRS(CR[] i, out CR[] o, Ice.Current current)
     {
         o = i;
@@ -457,12 +378,6 @@ public sealed class MyClassI : Test.MyClass
     }
 
     public override List<CR> opLCRS(List<CR> i, out List<CR> o, Ice.Current current)
-    {
-        o = i;
-        return i;
-    }
-
-    public override CCRS opCCRS(CCRS i, out CCRS o, Ice.Current current)
     {
         o = i;
         return i;
@@ -498,12 +413,6 @@ public sealed class MyClassI : Test.MyClass
         return i;
     }
 
-    public override CEnS opCEnS(CEnS i, out CEnS o, Ice.Current current)
-    {
-        o = i;
-        return i;
-    }
-
     public override CVPrx[] opACVPrxS(CVPrx[] i, out CVPrx[] o, Ice.Current current)
     {
         o = i;
@@ -529,12 +438,6 @@ public sealed class MyClassI : Test.MyClass
     }
 
     public override Stack<CVPrx> opSCVPrxS(Stack<CVPrx> i, out Stack<CVPrx> o, Ice.Current current)
-    {
-        o = i;
-        return i;
-    }
-
-    public override CCVPrxS opCCVPrxS(CCVPrxS i, out CCVPrxS o, Ice.Current current)
     {
         o = i;
         return i;

@@ -7,14 +7,6 @@
 //
 // **********************************************************************
 
-//
-// .NET and Silverlight use the new socket asynchronous APIs whereas
-// the compact framework and mono still use the old Begin/End APIs.
-//
-#if !COMPACT && !__MonoCS__ && !UNITY
-#define ICE_SOCKET_ASYNC_API
-#endif
-
 namespace IceInternal
 {
     using System;
@@ -45,20 +37,18 @@ namespace IceInternal
             {
                 _desc = IceInternal.Network.fdToString(_fd);
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 Network.closeSocketNoThrow(_fd);
-                throw ex;
+                throw;
             }
             init();
         }
 
-#if !SILVERLIGHT
         public void setBlock(bool block)
         {
             Network.setBlock(_fd, block);
         }
-#endif
 
         public int connect(Buffer readBuffer, Buffer writeBuffer, ref bool moreData)
         {
@@ -69,7 +59,6 @@ namespace IceInternal
             }
             else if(_state <= StateConnectPending)
             {
-#if ICE_SOCKET_ASYNC_API
                 if(_writeEventArgs.SocketError != SocketError.Success)
                 {
                     SocketException ex = new SocketException((int)_writeEventArgs.SocketError);
@@ -82,10 +71,6 @@ namespace IceInternal
                         throw new Ice.ConnectFailedException(ex);
                     }
                 }
-#else
-                Network.doFinishConnectAsync(_fd, _writeResult);
-                _writeResult = null;
-#endif
                 _desc = Network.fdToString(_fd, _proxy, _addr);
                 _state = _proxy != null ? StateProxyWrite : StateConnected;
             }
@@ -186,25 +171,15 @@ namespace IceInternal
 
         public bool startRead(Buffer buf, AsyncCallback callback, object state)
         {
-#if ICE_SOCKET_ASYNC_API
             Debug.Assert(_fd != null && _readEventArgs != null);
-#else
-            Debug.Assert(_fd != null && _readResult == null);
-#endif
 
             int packetSize = getRecvPacketSize(buf.b.remaining());
             try
             {
                 _readCallback = callback;
-#if ICE_SOCKET_ASYNC_API
                 _readEventArgs.UserToken = state;
                 _readEventArgs.SetBuffer(buf.b.rawBytes(), buf.b.position(), packetSize);
                 return !_fd.ReceiveAsync(_readEventArgs);
-#else
-                _readResult = _fd.BeginReceive(buf.b.rawBytes(), buf.b.position(), packetSize, SocketFlags.None,
-                                               readCompleted, state);
-                return _readResult.CompletedSynchronously;
-#endif
             }
             catch(SocketException ex)
             {
@@ -220,30 +195,19 @@ namespace IceInternal
         {
             if(_fd == null) // Transceiver was closed
             {
-#if !ICE_SOCKET_ASYNC_API
-                _readResult = null;
-#endif
                 return;
             }
 
-#if ICE_SOCKET_ASYNC_API
             Debug.Assert(_fd != null && _readEventArgs != null);
-#else
-            Debug.Assert(_fd != null && _readResult != null);
-#endif
             try
             {
-#if ICE_SOCKET_ASYNC_API
                 if(_readEventArgs.SocketError != SocketError.Success)
                 {
                     throw new SocketException((int)_readEventArgs.SocketError);
                 }
                 int ret = _readEventArgs.BytesTransferred;
                 _readEventArgs.SetBuffer(null, 0, 0);
-#else
-                int ret = _fd.EndReceive(_readResult);
-                _readResult = null;
-#endif
+
                 if(ret == 0)
                 {
                     throw new Ice.ConnectionLostException();
@@ -273,12 +237,7 @@ namespace IceInternal
 
         public bool startWrite(Buffer buf, AsyncCallback callback, object state, out bool completed)
         {
-#if ICE_SOCKET_ASYNC_API
             Debug.Assert(_fd != null && _writeEventArgs != null);
-#else
-            Debug.Assert(_fd != null && _writeResult == null);
-#endif
-
             if(_state == StateConnectPending)
             {
                 completed = false;
@@ -286,14 +245,9 @@ namespace IceInternal
                 try
                 {
                     EndPoint addr = _proxy != null ? _proxy.getAddress() : _addr;
-#if ICE_SOCKET_ASYNC_API
                     _writeEventArgs.RemoteEndPoint = addr;
                     _writeEventArgs.UserToken = state;
                     return !_fd.ConnectAsync(_writeEventArgs);
-#else
-                    _writeResult = Network.doConnectAsync(_fd, addr, _sourceAddr, callback, state);
-                    return _writeResult.CompletedSynchronously;
-#endif
                 }
                 catch(Exception ex)
                 {
@@ -305,15 +259,9 @@ namespace IceInternal
             try
             {
                 _writeCallback = callback;
-#if ICE_SOCKET_ASYNC_API
                 _writeEventArgs.UserToken = state;
                 _writeEventArgs.SetBuffer(buf.b.rawBytes(), buf.b.position(), packetSize);
                 bool completedSynchronously = !_fd.SendAsync(_writeEventArgs);
-#else
-                _writeResult = _fd.BeginSend(buf.b.rawBytes(), buf.b.position(), packetSize, SocketFlags.None,
-                                             writeCompleted, state);
-                bool completedSynchronously = _writeResult.CompletedSynchronously;
-#endif
                 completed = packetSize == buf.b.remaining();
                 return completedSynchronously;
             }
@@ -339,17 +287,10 @@ namespace IceInternal
                 {
                     buf.b.position(buf.b.limit()); // Assume all the data was sent for at-most-once semantics.
                 }
-#if !ICE_SOCKET_ASYNC_API
-                _writeResult = null;
-#endif
                 return;
             }
 
-#if ICE_SOCKET_ASYNC_API
             Debug.Assert(_fd != null && _writeEventArgs != null);
-#else
-            Debug.Assert(_fd != null && _writeResult != null);
-#endif
 
             if(_state < StateConnected && _state != StateProxyWrite)
             {
@@ -358,17 +299,12 @@ namespace IceInternal
 
             try
             {
-#if ICE_SOCKET_ASYNC_API
                 if(_writeEventArgs.SocketError != SocketError.Success)
                 {
                     throw new SocketException((int)_writeEventArgs.SocketError);
                 }
                 int ret = _writeEventArgs.BytesTransferred;
                 _writeEventArgs.SetBuffer(null, 0, 0);
-#else
-                int ret = _fd.EndSend(_writeResult);
-                _writeResult = null;
-#endif
                 if(ret == 0)
                 {
                     throw new Ice.ConnectionLostException();
@@ -412,11 +348,9 @@ namespace IceInternal
 
         public void destroy()
         {
-#if ICE_SOCKET_ASYNC_API
             Debug.Assert(_readEventArgs != null && _writeEventArgs != null);
             _readEventArgs.Dispose();
             _writeEventArgs.Dispose();
-#endif
         }
 
         public override string ToString()
@@ -427,16 +361,6 @@ namespace IceInternal
         private int read(ByteBuffer buf)
         {
             Debug.Assert(_fd != null);
-
-#if COMPACT || SILVERLIGHT
-            //
-            // Silverlight and the Compact .NET Framework don't
-            // support the use of synchronous socket operations on a
-            // non-blocking socket. Returning 0 here forces the caller
-            // to schedule an asynchronous operation.
-            //
-            return 0;
-#else
             int read = 0;
             while(buf.hasRemaining())
             {
@@ -469,22 +393,11 @@ namespace IceInternal
                 }
             }
             return read;
-#endif
         }
 
         private int write(ByteBuffer buf)
         {
             Debug.Assert(_fd != null);
-
-#if COMPACT || SILVERLIGHT
-            //
-            // Silverlight and the Compact .NET Frameworks don't
-            // support the use of synchronous socket operations on a
-            // non-blocking socket. Returning 0 here forces the caller
-            // to schedule an asynchronous operation.
-            //
-            return 0;
-#else
 
             int packetSize = buf.remaining();
             if(AssemblyUtil.platform_ == AssemblyUtil.Platform.Windows)
@@ -529,10 +442,7 @@ namespace IceInternal
                 }
             }
             return sent;
-#endif
         }
-
-#if ICE_SOCKET_ASYNC_API
         private void ioCompleted(object sender, SocketAsyncEventArgs e)
         {
             switch (e.LastOperation)
@@ -548,50 +458,17 @@ namespace IceInternal
                 throw new ArgumentException("The last operation completed on the socket was not a receive or send");
             }
         }
-#else
-        private void readCompleted(IAsyncResult result)
-        {
-            if(!result.CompletedSynchronously)
-            {
-                _readCallback(result.AsyncState);
-            }
-        }
-
-        private void writeCompleted(IAsyncResult result)
-        {
-            if(!result.CompletedSynchronously)
-            {
-                _writeCallback(result.AsyncState);
-            }
-        }
-#endif
 
         private void init()
         {
-#if !SILVERLIGHT
             Network.setBlock(_fd, false);
-#endif
             Network.setTcpBufSize(_fd, _instance);
 
-#if ICE_SOCKET_ASYNC_API
             _readEventArgs = new SocketAsyncEventArgs();
             _readEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(ioCompleted);
 
             _writeEventArgs = new SocketAsyncEventArgs();
             _writeEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(ioCompleted);
-#  if SILVERLIGHT
-            String policy = _instance.properties().getProperty("Ice.ClientAccessPolicyProtocol");
-            if(policy.Equals("Http"))
-            {
-                _readEventArgs.SocketClientAccessPolicyProtocol = SocketClientAccessPolicyProtocol.Http;
-                _writeEventArgs.SocketClientAccessPolicyProtocol = SocketClientAccessPolicyProtocol.Http;
-            }
-            else if(!String.IsNullOrEmpty(policy))
-            {
-                _instance.logger().warning("Ignoring invalid Ice.ClientAccessPolicyProtocol value `" + policy + "'");
-            }
-#  endif
-#endif
 
             //
             // For timeouts to work properly, we need to receive/send
@@ -628,13 +505,8 @@ namespace IceInternal
         private int _state;
         private string _desc;
 
-#if ICE_SOCKET_ASYNC_API
         private SocketAsyncEventArgs _writeEventArgs;
         private SocketAsyncEventArgs _readEventArgs;
-#else
-        private IAsyncResult _writeResult;
-        private IAsyncResult _readResult;
-#endif
 
         AsyncCallback _writeCallback;
         AsyncCallback _readCallback;

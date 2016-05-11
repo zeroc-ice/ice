@@ -20,12 +20,8 @@ namespace Ice
     /// <summary>
     /// Encapsulates an optional value. Instances of this type are immutable.
     /// </summary>
-#if SILVERLIGHT
-    public struct Optional<T>
-#else
     [Serializable]
     public struct Optional<T> : ISerializable
-#endif
     {
         /// <summary>
         /// Creates an optional value whose state is unset.
@@ -54,7 +50,6 @@ namespace Ice
             _isSet = v._isSet;
         }
 
-#if !SILVERLIGHT
         /// <summary>
         /// Initializes a new instance of the exception with serialized data.
         /// </summary>
@@ -72,7 +67,6 @@ namespace Ice
                 _value = default(T);
             }
         }
-#endif
 
         /// <summary>
         /// Conversion operator to the underlying type; a cast is required. An exception
@@ -175,7 +169,6 @@ namespace Ice
             }
         }
 
-#if !SILVERLIGHT
         /// <summary>
         /// Serializes an optional value.
         /// </summary>
@@ -189,7 +182,6 @@ namespace Ice
                 info.AddValue("value", _value, typeof(T));
             }
         }
-#endif
 
         private T _value;
         private bool _isSet;

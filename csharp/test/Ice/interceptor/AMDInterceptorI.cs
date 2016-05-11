@@ -65,7 +65,7 @@ class AMDInterceptorI : InterceptorI, Ice.DispatchInterceptorAsyncCallback
         return true;
     }
 
-    public bool exception(System.Exception ex)
+    public bool exception(Exception ex)
     {
         setActualStatus(ex);
         return true;
@@ -93,7 +93,7 @@ class AMDInterceptorI : InterceptorI, Ice.DispatchInterceptorAsyncCallback
     }
 
     internal void 
-    setActualStatus(System.Exception ex)
+    setActualStatus(Exception ex)
     {
         lock(this)
         {
@@ -111,7 +111,7 @@ class AMDInterceptorI : InterceptorI, Ice.DispatchInterceptorAsyncCallback
         }
     }
 
-    internal System.Exception
+    internal Exception
     getException()
     {
         lock(this)
@@ -121,5 +121,5 @@ class AMDInterceptorI : InterceptorI, Ice.DispatchInterceptorAsyncCallback
     }
 
     private Ice.DispatchStatus actualStatus_;
-    private System.Exception exception_;
+    private Exception exception_;
 }

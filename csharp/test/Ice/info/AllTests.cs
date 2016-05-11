@@ -7,32 +7,13 @@
 //
 // **********************************************************************
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
-using Test;
 
-#if SILVERLIGHT
-using System.Windows.Controls;
-#endif
+using System.Collections.Generic;
+using Test;
 
 public class AllTests : TestCommon.TestApp
 {
-#if SILVERLIGHT
-    public override Ice.InitializationData initData()
-    {
-        Ice.InitializationData initData = new Ice.InitializationData();
-        initData.properties = Ice.Util.createProperties();
-        initData.properties.setProperty("Ice.Default.Host", "127.0.0.1");
-        return initData;
-    }
-
-    override
-    public void run(Ice.Communicator communicator)
-#else
     public static void allTests(Ice.Communicator communicator)
-#endif
     {
         Write("testing proxy endpoint information... ");
         Flush();
@@ -53,15 +34,7 @@ public class AllTests : TestCommon.TestApp
             test(ipEndpoint.compress);
             test(!ipEndpoint.datagram());
 
-#if __MonoCS__
-            test(ipEndpoint.type() == Ice.TCPEndpointType.value && !ipEndpoint.secure() ||
-                 ipEndpoint.type() == Ice.WSEndpointType.value && !ipEndpoint.secure());
-            test(ipEndpoint.type() == Ice.TCPEndpointType.value && ipEndpoint is Ice.TCPEndpointInfo ||
-                 ipEndpoint.type() == Ice.WSEndpointType.value && ipEndpoint is Ice.WSEndpointInfo);
-#elif COMPACT || SILVERLIGHT
-            test(ipEndpoint.type() == Ice.TCPEndpointType.value && !ipEndpoint.secure());
-            test(ipEndpoint.type() == Ice.TCPEndpointType.value && ipEndpoint is Ice.TCPEndpointInfo);
-#else
+
             test(ipEndpoint.type() == Ice.TCPEndpointType.value && !ipEndpoint.secure() ||
                  ipEndpoint.type() == IceSSL.EndpointType.value && ipEndpoint.secure() ||
                  ipEndpoint.type() == Ice.WSEndpointType.value && !ipEndpoint.secure() ||
@@ -70,7 +43,6 @@ public class AllTests : TestCommon.TestApp
                  ipEndpoint.type() == IceSSL.EndpointType.value && ipEndpoint is IceSSL.EndpointInfo ||
                  ipEndpoint.type() == Ice.WSEndpointType.value && ipEndpoint is Ice.WSEndpointInfo ||
                  ipEndpoint.type() == Ice.WSSEndpointType.value && ipEndpoint is IceSSL.WSSEndpointInfo);
-#endif
 
             Ice.UDPEndpointInfo udpEndpoint = (Ice.UDPEndpointInfo)endps[1].getInfo();
             test(udpEndpoint.host.Equals("udphost"));
@@ -91,7 +63,6 @@ public class AllTests : TestCommon.TestApp
         WriteLine("ok");
 
         string defaultHost = communicator.getProperties().getProperty("Ice.Default.Host");
-#if !SILVERLIGHT
         Ice.ObjectAdapter adapter;
         Write("test object adapter endpoint information... ");
         Flush();
@@ -105,14 +76,9 @@ public class AllTests : TestCommon.TestApp
             test(IceUtilInternal.Arrays.Equals(endpoints, publishedEndpoints));
 
             Ice.IPEndpointInfo ipEndpoint = (Ice.IPEndpointInfo)endpoints[0].getInfo();
-#  if __MonoCS__
-            test(ipEndpoint.type() == Ice.TCPEndpointType.value || ipEndpoint.type() == Ice.WSEndpointType.value);
-#  elif COMPACT
-            test(ipEndpoint.type() == Ice.TCPEndpointType.value);
-#  else
             test(ipEndpoint.type() == Ice.TCPEndpointType.value || ipEndpoint.type() == IceSSL.EndpointType.value ||
                  ipEndpoint.type() == Ice.WSEndpointType.value || ipEndpoint.type() == Ice.WSSEndpointType.value);
-#  endif
+
             test(ipEndpoint.host.Equals(defaultHost));
             test(ipEndpoint.port > 0);
             test(ipEndpoint.timeout == 15000);
@@ -146,7 +112,6 @@ public class AllTests : TestCommon.TestApp
             adapter.destroy();
         }
         WriteLine("ok");
-#endif
 
         Ice.ObjectPrx @base = communicator.stringToProxy("test:default -p 12010:udp -p 12010");
         TestIntfPrx testIntf = TestIntfPrxHelper.checkedCast(@base);
@@ -166,12 +131,10 @@ public class AllTests : TestCommon.TestApp
             int port = System.Int32.Parse(ctx["port"]);
             test(port > 0);
 
-#if !SILVERLIGHT
             info = @base.ice_datagram().ice_getConnection().getEndpoint().getInfo();
             Ice.UDPEndpointInfo udp = (Ice.UDPEndpointInfo)info;
             test(udp.port == 12010);
             test(udp.host.Equals(defaultHost));
-#endif
         }
         WriteLine("ok");
 
@@ -185,14 +148,10 @@ public class AllTests : TestCommon.TestApp
             test(!info.incoming);
             test(info.adapterName.Length == 0);
             test(info.remotePort == 12010);
-#if !SILVERLIGHT
             test(info.localPort > 0);
-#endif
             if(defaultHost.Equals("127.0.0.1"))
             {
-#if !SILVERLIGHT
                 test(info.localAddress.Equals(defaultHost));
-#endif
                 test(info.remoteAddress.Equals(defaultHost));
             }
             test(info.rcvSize >= 1024);
@@ -201,7 +160,6 @@ public class AllTests : TestCommon.TestApp
             Dictionary<string, string> ctx = testIntf.getConnectionInfoAsContext();
             test(ctx["incoming"].Equals("true"));
             test(ctx["adapterName"].Equals("TestAdapter"));
-#if !SILVERLIGHT
             test(ctx["remoteAddress"].Equals(info.localAddress));
             test(ctx["localAddress"].Equals(info.remoteAddress));
             test(ctx["remotePort"].Equals(info.localPort.ToString()));
@@ -237,14 +195,12 @@ public class AllTests : TestCommon.TestApp
             test(!info.incoming);
             test(info.adapterName.Length == 0);
             test(info.localPort > 0);
-#endif
             test(info.remotePort == 12010);
+
             if(defaultHost.Equals("127.0.0.1"))
             {
                 test(info.remoteAddress.Equals(defaultHost));
-#if !SILVERLIGHT
                 test(info.localAddress.Equals(defaultHost));
-#endif
             }
             test(info.rcvSize >= 2048);
             test(info.sndSize >= 1024);

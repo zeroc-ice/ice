@@ -10,26 +10,9 @@
 using System;
 using System.Collections.Generic;
 
-#if SILVERLIGHT
-using System.Windows.Controls;
-#endif
-
 public class AllTests : TestCommon.TestApp
 {
-#if SILVERLIGHT
-    public override Ice.InitializationData initData()
-    {
-        Ice.InitializationData initData = new Ice.InitializationData();
-        initData.properties = Ice.Util.createProperties();
-        initData.properties.setProperty("Ice.FactoryAssemblies", "optional,version=1.0.0.0");
-        return initData;
-    }
-
-    override
-    public void run(Ice.Communicator communicator)
-#else
     public static Test.InitialPrx allTests(Ice.Communicator communicator)
-#endif
     {
         FactoryI factory = new FactoryI();
         communicator.getValueFactoryManager().add(factory.create, "");
@@ -105,10 +88,7 @@ public class AllTests : TestCommon.TestApp
         mo1.ioopd.Value.Add(5, Test.OneOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test")));
 
         mo1.bos = new bool[] { false, true, false };
-
-#if !COMPACT && !SILVERLIGHT
         mo1.ser = new Test.SerializableClass(56);
-#endif
 
         test(mo1.a.Value == (byte)15);
         test(mo1.b.Value);
@@ -142,10 +122,7 @@ public class AllTests : TestCommon.TestApp
         test(mo1.ioopd.Value[5].Equals(Test.OneOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test"))));
 
         test(ArraysEqual(mo1.bos.Value, new bool[] { false, true, false }));
-
-#if !COMPACT && !SILVERLIGHT
         test(mo1.ser.Value.Equals(new Test.SerializableClass(56)));
-#endif
 
         WriteLine("ok");
 
@@ -192,7 +169,6 @@ public class AllTests : TestCommon.TestApp
 
         test(!mo4.bos.HasValue);
 
-#if !SILVERLIGHT
         test(!mo4.ser.HasValue);
 
         bool supportsCsharpSerializable = initial.supportsCsharpSerializable();
@@ -200,7 +176,6 @@ public class AllTests : TestCommon.TestApp
         {
             mo1.ser = Ice.Util.None;
         }
-#endif
 
         Test.MultiOptional mo5 = (Test.MultiOptional)initial.pingPong(mo1);
         test(mo5.a.Value == mo1.a.Value);
@@ -234,13 +209,10 @@ public class AllTests : TestCommon.TestApp
         test(mo5.ioopd.Value[5].Equals(Test.OneOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test"))));
 
         test(ArraysEqual(mo5.bos.Value, new bool[] { false, true, false }));
-
-#if !COMPACT && !SILVERLIGHT
         if(supportsCsharpSerializable)
         {
             test(mo5.ser.Value.Equals(new Test.SerializableClass(56)));
         }
-#endif
 
         // Clear the first half of the optional members
         Test.MultiOptional mo6 = new Test.MultiOptional();
@@ -292,10 +264,7 @@ public class AllTests : TestCommon.TestApp
         test(!mo7.ioopd.HasValue);
 
         test(ArraysEqual(mo7.bos.Value, new bool[] { false, true, false }));
-
-#if !SILVERLIGHT
         test(!mo7.ser.HasValue);
-#endif
 
         // Clear the second half of the optional members
         Test.MultiOptional mo8 = new Test.MultiOptional();
@@ -316,13 +285,10 @@ public class AllTests : TestCommon.TestApp
         mo8.ied = mo5.ied;
         mo8.ivsd = mo5.ivsd;
         mo8.ioopd = mo5.ioopd;
-
-#if !COMPACT && !SILVERLIGHT
         if(supportsCsharpSerializable)
         {
             mo8.ser = new Test.SerializableClass(56);
         }
-#endif
 
         Test.MultiOptional mo9 = (Test.MultiOptional)initial.pingPong(mo8);
         test(mo9.a.Equals(mo1.a));
@@ -357,13 +323,10 @@ public class AllTests : TestCommon.TestApp
         test(mo9.ioopd.Value[5].Equals(Test.OneOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test"))));
 
         test(!mo9.bos.HasValue);
-
-#if !COMPACT && !SILVERLIGHT
         if(supportsCsharpSerializable)
         {
             test(mo9.ser.Value.Equals(new Test.SerializableClass(56)));
         }
-#endif
 
         {
             Test.OptionalWithCustom owc1 = new Test.OptionalWithCustom();
@@ -1950,7 +1913,6 @@ public class AllTests : TestCommon.TestApp
             @in.endEncapsulation();
         }
 
-#if !COMPACT && !SILVERLIGHT
         if(supportsCsharpSerializable)
         {
             Ice.Optional<Test.SerializableClass> p1 = new Ice.Optional<Test.SerializableClass>();
@@ -1996,7 +1958,6 @@ public class AllTests : TestCommon.TestApp
             @in.startEncapsulation();
             @in.endEncapsulation();
         }
-#endif
 
         {
             Ice.Optional<Dictionary<int, int>> p1 = new Ice.Optional<Dictionary<int, int>>();
@@ -2240,12 +2201,7 @@ public class AllTests : TestCommon.TestApp
             }
         }
         WriteLine("ok");
-
-#if SILVERLIGHT
-        initial.shutdown();
-#else
         return initial;
-#endif
     }
 
     internal static bool ArraysEqual<T>(T[] a1, T[] a2)

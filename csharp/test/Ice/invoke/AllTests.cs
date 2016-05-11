@@ -7,13 +7,10 @@
 //
 // **********************************************************************
 
+
 using System;
 using System.Diagnostics;
-using System.Threading;
 
-#if SILVERLIGHT
-using System.Windows.Controls;
-#endif
 
 public class AllTests : TestCommon.TestApp
 {
@@ -140,7 +137,7 @@ public class AllTests : TestCommon.TestApp
                     inS.endEncapsulation();
                     callback.called();
                 }
-                catch(System.Exception)
+                catch(Exception)
                 {
                     test(false);
                 }
@@ -166,7 +163,7 @@ public class AllTests : TestCommon.TestApp
                     inS.endEncapsulation();
                     callback.called();
                 }
-                catch(System.Exception)
+                catch(Exception)
                 {
                     test(false);
                 }
@@ -183,20 +180,8 @@ public class AllTests : TestCommon.TestApp
 
         private CallbackBase callback = new CallbackBase();
     }
-#if SILVERLIGHT
-    public override Ice.InitializationData initData()
-    {
-        Ice.InitializationData initData = new Ice.InitializationData();
-        initData.properties = Ice.Util.createProperties();
-        initData.properties.setProperty("Ice.FactoryAssemblies", "invoke,version=1.0.0.0");
-        return initData;
-    }
 
-    override
-    public void run(Ice.Communicator communicator)
-#else
     public static Test.MyClassPrx allTests(Ice.Communicator communicator)
-#endif
     {
         Ice.ObjectPrx baseProxy = communicator.stringToProxy("test:default -p 12010");
         Test.MyClassPrx cl = Test.MyClassPrxHelper.checkedCast(baseProxy);
@@ -259,7 +244,7 @@ public class AllTests : TestCommon.TestApp
                 {
                     inS.endEncapsulation();
                 }
-                catch(System.Exception)
+                catch(Exception)
                 {
                     test(false);
                 }
@@ -338,7 +323,7 @@ public class AllTests : TestCommon.TestApp
                 {
                     inS.endEncapsulation();
                 }
-                catch(System.Exception)
+                catch(Exception)
                 {
                     test(false);
                 }
@@ -361,11 +346,6 @@ public class AllTests : TestCommon.TestApp
         }
 
         WriteLine("ok");
-
-#if SILVERLIGHT
-        cl.shutdown();
-#else
         return cl;
-#endif
     }
 }

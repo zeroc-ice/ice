@@ -9,10 +9,7 @@
 
 namespace IceInternal
 {
-    using System;
-    using System.Diagnostics;
     using System.Net;
-    using System.Net.Sockets;
 
     sealed class TcpConnector : Connector
     {

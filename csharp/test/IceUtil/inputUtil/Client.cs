@@ -8,7 +8,6 @@
 // **********************************************************************
 
 using System;
-using System.Diagnostics;
 
 public class Client
 {
@@ -22,8 +21,8 @@ public class Client
 
     public static void Main(string[] argvs)
     {
-        System.Console.Out.Write("testing string to command line arguments... ");
-        System.Console.Out.Flush();
+        Console.Out.Write("testing string to command line arguments... ");
+        Console.Out.Flush();
         string[] args;
 
         try
@@ -104,10 +103,10 @@ public class Client
             }
         }
 
-        System.Console.Out.WriteLine("ok");
+        Console.Out.WriteLine("ok");
 
-        System.Console.Out.Write("checking string splitting... ");
-        System.Console.Out.Flush();
+        Console.Out.Write("checking string splitting... ");
+        Console.Out.Flush();
         {
             string[] arr;
 
@@ -163,6 +162,6 @@ public class Client
 
             test(IceUtilInternal.StringUtil.splitString("a\"b", ":") == null);
         }
-        System.Console.Out.WriteLine("ok");
+        Console.Out.WriteLine("ok");
     }
 }

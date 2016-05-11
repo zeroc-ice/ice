@@ -9,10 +9,6 @@
 
 using System;
 using System.Diagnostics;
-using System.Collections.Generic;
-using System.Threading;
-
-#if !SILVERLIGHT
 
 namespace Glacier2
 {
@@ -32,7 +28,7 @@ public abstract class Application : Ice.Application
     /// <summary>
     /// This exception is raised if the session should be restarted.
     /// </summary>
-    public class RestartSessionException : System.Exception
+    public class RestartSessionException : Exception
     {
     }
 
@@ -454,4 +450,3 @@ public abstract class Application : Ice.Application
 }
 
 }
-#endif

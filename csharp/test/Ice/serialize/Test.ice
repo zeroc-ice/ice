@@ -53,16 +53,12 @@ sequence<ValStruct> ValStructLinkedList;
 sequence<ValStruct> ValStructStack;
 ["clr:generic:Queue"]
 sequence<ValStruct> ValStructQueue;
-["clr:collection"]
-sequence<ValStruct> ValStructCollection;
 
 dictionary<int, string> IntStringD;
 dictionary<int, ValStruct> IntValStructD;
 dictionary<int, MyClass*> IntProxyD;
 ["clr:generic:SortedDictionary"]
 dictionary<int, string> IntStringSD;
-["clr:collection"]
-dictionary<int, string> IntStringDC;
 
 class Base
 {
@@ -96,13 +92,11 @@ exception MyException
     ValStructLinkedList vsll;
     ValStructStack vssk;
     ValStructQueue vsq;
-    ValStructCollection vsc;
 
     IntStringD isd;
     IntValStructD ivd;
     IntProxyD ipd;
     IntStringSD issd;
-    IntStringDC isdc;
 
     optional(1) string optName;
     optional(2) int optInt;

@@ -39,18 +39,15 @@ class delegate
 class explicit extends delegate implements decimal, case
 {
 };
-["clr:collection"] sequence<as> extern;
+
 dictionary<string, break> while;
-["clr:collection"] dictionary<string, as> finally;
 
 class optionalMembers
 {
     optional(1) break for;
     optional(2) as goto;
     optional(3) explicit if;
-    optional(4) extern catch;
     optional(5) while internal;
-    optional(6) finally is;
     optional(7) string namespace;
     optional(8) explicit* null;
 };
@@ -59,35 +56,27 @@ interface optionalParams
 {
     optional(1) break for(optional(2) as goto,
                           optional(3) explicit if,
-                          optional(4) extern catch,
                           optional(5) while internal,
-                          optional(6) finally is,
                           optional(7) string namespace,
                           optional(8) explicit* null);
 
     ["amd"]
     optional(1) break continue(optional(2) as goto,
                                optional(3) explicit if,
-                               optional(4) extern catch,
                                optional(5) while internal,
-                               optional(6) finally is,
                                optional(7) string namespace,
                                optional(8) explicit* null);
 
     optional(1) break in(out optional(2) as goto,
                          out optional(3) explicit if,
-                         out optional(4) extern catch,
                          out optional(5) while internal,
-                         out optional(6) finally is,
                          out optional(7) string namespace,
                          out optional(8) explicit* null);
 
     ["amd"]
     optional(1) break foreach(out optional(2) as goto,
                               out optional(3) explicit if,
-                              out optional(4) extern catch,
                               out optional(5) while internal,
-                              out optional(6) finally is,
                               out optional(7) string namespace,
                               out optional(8) explicit* null);
 };

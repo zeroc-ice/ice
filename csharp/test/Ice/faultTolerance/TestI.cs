@@ -7,10 +7,8 @@
 //
 // **********************************************************************
 
-using System;
 using System.Diagnostics;
 using System.Threading;
-using IceInternal;
 using Test;
 
 public sealed class TestI : TestIntfDisp_
@@ -26,9 +24,7 @@ public sealed class TestI : TestIntfDisp_
     
     private void commitSuicide()
     {
-#if !UNITY
         _p.Kill();
-#endif
         Thread.Sleep(5000); // Give other threads time to die.
     }
 

@@ -15,10 +15,8 @@ namespace Ice
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Reflection;
-#if !COMPACT && !SILVERLIGHT
     using System.Runtime.Serialization;
     using System.Runtime.Serialization.Formatters.Binary;
-#endif
     using System.Threading;
     using Protocol = IceInternal.Protocol;
 
@@ -728,7 +726,6 @@ namespace Ice
         /// <param name="o">The serializable object to write.</param>
         public void writeSerializable(object o)
         {
-#if !COMPACT && !SILVERLIGHT
             if(o == null)
             {
                 writeSize(0);
@@ -745,9 +742,6 @@ namespace Ice
             {
                 throw new Ice.MarshalException("cannot serialize object:", ex);
             }
-#else
-            throw new Ice.MarshalException("serialization not supported");
-#endif
         }
 
         /// <summary>

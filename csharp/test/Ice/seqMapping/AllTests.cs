@@ -7,32 +7,10 @@
 //
 // **********************************************************************
 
-using System;
-
-#if SILVERLIGHT
-using System.Windows.Controls;
-#endif
-
 public class AllTests : TestCommon.TestApp
 {
-#if SILVERLIGHT
-    public override Ice.InitializationData initData()
-    {
-        Ice.InitializationData initData = new Ice.InitializationData();
-        initData.properties = Ice.Util.createProperties();
-        initData.properties.setProperty("Ice.FactoryAssemblies", "seqMapping,version=1.0.0.0");
-        return initData;
-    }
-
-    override
-    public void run(Ice.Communicator communicator)
-#else
     public static Test.MyClassPrx allTests(Ice.Communicator communicator, bool collocated)
-#endif
     {
-#if SILVERLIGHT
-        bool collocated = false;
-#endif
         Flush();
         string rf = "test:default -p 12010";
         Ice.ObjectPrx baseProxy = communicator.stringToProxy(rf);
@@ -50,10 +28,6 @@ public class AllTests : TestCommon.TestApp
             TwowaysAMI.twowaysAMI(communicator, cl);
             WriteLine("ok");
         }
-#if SILVERLIGHT
-        cl.shutdown();
-#else
         return cl;
-#endif
     }
 }

@@ -36,7 +36,7 @@ public sealed class ServantLocatorI : Ice.ServantLocator
         }
     }
     
-    public Ice.Object locate(Ice.Current current, out System.Object cookie)
+    public Ice.Object locate(Ice.Current current, out object cookie)
     {
         lock(this)
         {

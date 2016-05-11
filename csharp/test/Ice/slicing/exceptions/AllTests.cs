@@ -12,10 +12,6 @@ using System.Diagnostics;
 using System.Threading;
 using Test;
 
-#if SILVERLIGHT
-using System.Windows.Controls;
-#endif
-
 public class AllTests : TestCommon.TestApp
 {
     private class Callback
@@ -31,7 +27,7 @@ public class AllTests : TestCommon.TestApp
             {
                 while(!_called)
                 {
-                    System.Threading.Monitor.Wait(this);
+                    Monitor.Wait(this);
                 }
 
                 _called = false;
@@ -44,7 +40,7 @@ public class AllTests : TestCommon.TestApp
             {
                 Debug.Assert(!_called);
                 _called = true;
-                System.Threading.Monitor.Pulse(this);
+                Monitor.Pulse(this);
             }
         }
 
@@ -94,19 +90,7 @@ public class AllTests : TestCommon.TestApp
         }
     }
 
-#if SILVERLIGHT
-    public override Ice.InitializationData initData()
-    {
-        Ice.InitializationData initData = new Ice.InitializationData();
-        initData.properties = Ice.Util.createProperties();
-        initData.properties.setProperty("Ice.FactoryAssemblies", "exceptions,version=1.0.0.0");
-        return initData;
-    }
-
-    public override void run(Ice.Communicator communicator)
-#else
     public static TestIntfPrx allTests(Ice.Communicator communicator, bool collocated)
-#endif
     {
         Write("testing stringToProxy... ");
         Flush();
@@ -829,10 +813,6 @@ public class AllTests : TestCommon.TestApp
         }
         WriteLine("ok");
 
-        //
-        // No server side in Silverlight
-        //
-#if !SILVERLIGHT
         Write("preserved exceptions... ");
         Flush();
         {
@@ -955,12 +935,6 @@ public class AllTests : TestCommon.TestApp
             adapter.destroy();
         }
         WriteLine("ok");
-#endif
-
-#if SILVERLIGHT
-        testPrx.shutdown();
-#else
         return testPrx;
-#endif
     }
 }

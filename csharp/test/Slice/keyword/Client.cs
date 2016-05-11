@@ -126,10 +126,6 @@ public class Client
             f1.@default();
         }
         test(f1 == null);
-        @abstract.@extern l = new @abstract.@extern();
-        test(l != null);
-        @abstract.@finally g = new @abstract.@finally();
-        test(g != null);
         Dictionary<string, @abstract.@break> g2 = new Dictionary<string, @abstract.@break>();
         test(g2 != null);
         @abstract.@fixed h = new @abstract.@fixed();

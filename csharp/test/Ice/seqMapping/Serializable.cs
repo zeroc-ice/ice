@@ -6,7 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
-#if !SILVERLIGHT
+
 using System;
 
 [assembly: CLSCompliant(true)]
@@ -45,4 +45,3 @@ public class Struct // Used to test that null members marshal correctly.
 }
 
 }
-#endif

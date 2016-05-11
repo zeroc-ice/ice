@@ -9,8 +9,6 @@
 
 namespace IceInternal
 {
-
-    using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Threading;
@@ -196,8 +194,6 @@ namespace IceInternal
                 stackSize = 0;
             }
             _stackSize = stackSize;
-
-#if !SILVERLIGHT
             _hasPriority = properties.getProperty(_prefix + ".ThreadPriority").Length > 0;
             _priority = IceInternal.Util.stringToThreadPriority(properties.getProperty(_prefix + ".ThreadPriority"));
             if(!_hasPriority)
@@ -205,7 +201,6 @@ namespace IceInternal
                 _hasPriority = properties.getProperty("Ice.ThreadPriority").Length > 0;
                 _priority = IceInternal.Util.stringToThreadPriority(properties.getProperty("Ice.ThreadPriority"));
             }
-#endif
 
             if(_instance.traceLevels().threadPool >= 1)
             {
@@ -222,7 +217,6 @@ namespace IceInternal
                 for(int i = 0; i < _size; ++i)
                 {
                     WorkerThread thread = new WorkerThread(this, _threadPrefix + "-" + _threadIndex++);
-#if !SILVERLIGHT
                     if(_hasPriority)
                     {
                         thread.start(_priority);
@@ -231,9 +225,6 @@ namespace IceInternal
                     {
                         thread.start(ThreadPriority.Normal);
                     }
-#else
-                    thread.start();
-#endif
                     _threads.Add(thread);
                 }
             }
@@ -351,11 +342,7 @@ namespace IceInternal
             }
         }
 
-#if COMPACT
-        public void dispatchFromThisThread(Ice.VoidAction call, Ice.Connection con)
-#else
         public void dispatchFromThisThread(System.Action call, Ice.Connection con)
-#endif
         {
             if(_dispatcher != null)
             {
@@ -378,11 +365,7 @@ namespace IceInternal
             }
         }
 
-#if COMPACT
-        public void dispatch(Ice.VoidAction call, Ice.Connection con)
-#else
         public void dispatch(System.Action call, Ice.Connection con)
-#endif
         {
             lock(this)
             {
@@ -415,7 +398,6 @@ namespace IceInternal
                     try
                     {
                         WorkerThread t = new WorkerThread(this, _threadPrefix + "-" + _threadIndex++);
-#if !SILVERLIGHT
                         if(_hasPriority)
                         {
                             t.start(_priority);
@@ -424,9 +406,6 @@ namespace IceInternal
                         {
                             t.start(ThreadPriority.Normal);
                         }
-#else
-                        t.start();
-#endif
                         _threads.Add(t);
                     }
                     catch(System.Exception ex)
@@ -778,7 +757,6 @@ namespace IceInternal
                 _thread.Join();
             }
 
-#if !SILVERLIGHT
             public void start(ThreadPriority priority)
             {
                 if(_threadPool._stackSize == 0)
@@ -794,15 +772,6 @@ namespace IceInternal
                 _thread.Priority = priority;
                 _thread.Start();
             }
-#else
-            public void start()
-            {
-                _thread = new Thread(new ThreadStart(Run));
-                _thread.IsBackground = true;
-                _thread.Name = _name;
-                _thread.Start();
-            }
-#endif
 
             public void Run()
             {
@@ -858,10 +827,8 @@ namespace IceInternal
         private readonly int _sizeMax; // Maximum number of threads.
         private readonly int _sizeWarn; // If _inUse reaches _sizeWarn, a "low on threads" warning will be printed.
         private readonly bool _serialize; // True if requests need to be serialized over the connection.
-#if !SILVERLIGHT
         private readonly ThreadPriority _priority;
         private readonly bool _hasPriority = false;
-#endif
         private readonly int _serverIdleTime;
         private readonly int _threadIdleTime;
         private readonly int _stackSize;

@@ -83,13 +83,6 @@ namespace IceInternal
             return _defaultsAndOverrides;
         }
 
-#if COMPACT || SILVERLIGHT
-        public string[] factoryAssemblies()
-        {
-            return _factoryAssemblies;
-        }
-#endif
-
         public RouterManager routerManager()
         {
             lock(this)
@@ -259,7 +252,6 @@ namespace IceInternal
             }
         }
 
-#if !SILVERLIGHT
         public EndpointHostResolver endpointHostResolver()
         {
             lock(this)
@@ -273,7 +265,7 @@ namespace IceInternal
                 return _endpointHostResolver;
             }
         }
-#endif
+
         public RetryQueue
         retryQueue()
         {
@@ -730,7 +722,7 @@ namespace IceInternal
                 {
                     _initData.properties = Ice.Util.createProperties();
                 }
-#if !SILVERLIGHT && !UNITY
+
                 lock(_staticLock)
                 {
                     if(!_oneOffDone)
@@ -784,11 +776,9 @@ namespace IceInternal
                         _oneOffDone = true;
                     }
                 }
-#endif
 
                 if(_initData.logger == null)
                 {
-#if !SILVERLIGHT && !UNITY
                     string logfile = _initData.properties.getProperty("Ice.LogFile");
                     if(_initData.properties.getPropertyAsInt("Ice.UseSyslog") > 0 &&
                        AssemblyUtil.platform_ != AssemblyUtil.Platform.Windows)
@@ -811,23 +801,17 @@ namespace IceInternal
                         //
                         // Ice.ConsoleListener is enabled by default.
                         //
-#  if COMPACT
-                        _initData.logger =
-                            new Ice.ConsoleLoggerI(_initData.properties.getProperty("Ice.ProgramName"));
-#  else
                         bool console =
                             _initData.properties.getPropertyAsIntWithDefault("Ice.ConsoleListener", 1) > 0;
                         _initData.logger =
                             new Ice.TraceLoggerI(_initData.properties.getProperty("Ice.ProgramName"), console);
-#  endif
                     }
-#else
+
                     if(Ice.Util.getProcessLogger() is Ice.LoggerI)
                     {
                         _initData.logger =
                             new Ice.ConsoleLoggerI(_initData.properties.getProperty("Ice.ProgramName"));
                     }
-#endif
                     else
                     {
                         _initData.logger = Ice.Util.getProcessLogger();
@@ -850,10 +834,6 @@ namespace IceInternal
                                            new ACMConfig(_initData.properties, _initData.logger, "Ice.ACM",
                                                          new ACMConfig(true)));
 
-#if COMPACT || SILVERLIGHT
-                char[] separators = { ' ', '\t', '\n', '\r' };
-                _factoryAssemblies = _initData.properties.getProperty("Ice.FactoryAssemblies").Split(separators);
-#endif
                 {
                     const int defaultMessageSizeMax = 1024;
                     int num =
@@ -936,10 +916,7 @@ namespace IceInternal
 
                 ProtocolInstance udpInstance = new ProtocolInstance(this, Ice.UDPEndpointType.value, "udp", false);
                 _endpointFactoryManager.add(new UdpEndpointFactory(udpInstance));
-
-#if !SILVERLIGHT
                 _pluginManager = new Ice.PluginManagerI(communicator);
-#endif
 
                 if(_initData.valueFactoryManager == null)
                 {
@@ -965,10 +942,8 @@ namespace IceInternal
             // Load plug-ins.
             //
             Debug.Assert(_serverThreadPool == null);
-#if !SILVERLIGHT
             Ice.PluginManagerI pluginManagerImpl = (Ice.PluginManagerI)_pluginManager;
             pluginManagerImpl.loadPlugins(ref args);
-#endif
 
             //
             // Add WS and WSS endpoint factories if TCP/SSL factories are installed.
@@ -1077,7 +1052,6 @@ namespace IceInternal
             //
             try
             {
-#if !SILVERLIGHT
                 if(initializationData().properties.getProperty("Ice.ThreadPriority").Length > 0)
                 {
                     ThreadPriority priority = IceInternal.Util.stringToThreadPriority(
@@ -1088,9 +1062,6 @@ namespace IceInternal
                 {
                     _timer = new Timer(this);
                 }
-#else
-                _timer = new Timer(this);
-#endif
             }
             catch(System.Exception ex)
             {
@@ -1099,7 +1070,6 @@ namespace IceInternal
                 throw;
             }
 
-#if !SILVERLIGHT
             try
             {
                 _endpointHostResolver = new EndpointHostResolver(this);
@@ -1110,7 +1080,6 @@ namespace IceInternal
                 _initData.logger.error(s);
                 throw;
             }
-#endif
             _clientThreadPool = new ThreadPool(this, "Ice.ThreadPool.Client", 0);
 
             //
@@ -1140,7 +1109,6 @@ namespace IceInternal
             //
             // Show process id if requested (but only once).
             //
-#if !SILVERLIGHT
             lock(this)
             {
                 if(!_printProcessIdDone && _initData.properties.getPropertyAsInt("Ice.PrintProcessId") > 0)
@@ -1152,7 +1120,6 @@ namespace IceInternal
                     _printProcessIdDone = true;
                 }
             }
-#endif
 
             //
             // Server thread pool initialization is lazy in serverThreadPool().
@@ -1163,12 +1130,11 @@ namespace IceInternal
             // initialization until after it has interacted directly with the
             // plug-ins.
             //
-#if !SILVERLIGHT
             if(_initData.properties.getPropertyAsIntWithDefault("Ice.InitPlugins", 1) > 0)
             {
                 pluginManagerImpl.initializePlugins();
             }
-#endif
+
             //
             // This must be done last as this call creates the Ice.Admin object adapter
             // and eventually registers a process proxy with the Ice locator (allowing
@@ -1261,12 +1227,10 @@ namespace IceInternal
             {
                 _asyncIOThread.destroy();
             }
-#if !SILVERLIGHT
             if(_endpointHostResolver != null)
             {
                 _endpointHostResolver.destroy();
             }
-#endif
 
             //
             // Wait for all the threads to be finished.
@@ -1287,12 +1251,10 @@ namespace IceInternal
             {
                 _asyncIOThread.joinWithThread();
             }
-#if !SILVERLIGHT
             if(_endpointHostResolver != null)
             {
                 _endpointHostResolver.joinWithThread();
             }
-#endif
 
             foreach(Ice.ObjectFactory factory in _objectFactoryMap.Values)
             {
@@ -1350,9 +1312,7 @@ namespace IceInternal
                 _serverThreadPool = null;
                 _clientThreadPool = null;
                 _asyncIOThread = null;
-#if !SILVERLIGHT
                 _endpointHostResolver = null;
-#endif
                 _timer = null;
 
                 _referenceFactory = null;
@@ -1469,12 +1429,10 @@ namespace IceInternal
                 }
                 Debug.Assert(_objectAdapterFactory != null);
                 _objectAdapterFactory.updateThreadObservers();
-#if !SILVERLIGHT
                 if(_endpointHostResolver != null)
                 {
                     _endpointHostResolver.updateObserver();
                 }
-#endif
                 if(_asyncIOThread != null)
                 {
                     _asyncIOThread.updateObserver();
@@ -1590,9 +1548,6 @@ namespace IceInternal
         private Ice.InitializationData _initData; // Immutable, not reset by destroy().
         private TraceLevels _traceLevels; // Immutable, not reset by destroy().
         private DefaultsAndOverrides _defaultsAndOverrides; // Immutable, not reset by destroy().
-#if COMPACT || SILVERLIGHT
-        private string[] _factoryAssemblies; // Immutable, not reset by destroy().
-#endif
         private int _messageSizeMax; // Immutable, not reset by destroy().
         private int _batchAutoFlushSize; // Immutable, not reset by destroy().
         private int _cacheMessageBuffers; // Immutable, not reset by destroy().
@@ -1612,9 +1567,7 @@ namespace IceInternal
         private ThreadPool _clientThreadPool;
         private ThreadPool _serverThreadPool;
         private AsyncIOThread _asyncIOThread;
-#if !SILVERLIGHT
         private EndpointHostResolver _endpointHostResolver;
-#endif
         private Timer _timer;
         private RetryQueue _retryQueue;
         private EndpointFactoryManager _endpointFactoryManager;
@@ -1625,17 +1578,9 @@ namespace IceInternal
         private HashSet<string> _adminFacetFilter = new HashSet<string>();
         private Ice.Identity _adminIdentity;
         private Dictionary<short, BufSizeWarnInfo> _setBufSizeWarn = new Dictionary<short, BufSizeWarnInfo>();
-
-#if !SILVERLIGHT
         private static bool _printProcessIdDone = false;
-#endif
-
-#if !SILVERLIGHT && !UNITY
         private static bool _oneOffDone = false;
-#endif
-
         private Dictionary<string, Ice.ObjectFactory> _objectFactoryMap = new Dictionary<string, Ice.ObjectFactory>();
-
         private static System.Object _staticLock = new System.Object();
     }
 }

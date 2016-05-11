@@ -9,10 +9,8 @@
 
 namespace IceInternal
 {
-    using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Net;
     using System.Threading;
 
     public class AsyncIOThread
@@ -23,7 +21,6 @@ namespace IceInternal
 
             _thread = new HelperThread(this);
             updateObserver();
-#if !SILVERLIGHT
             if(instance.initializationData().properties.getProperty("Ice.ThreadPriority").Length > 0)
             {
                 ThreadPriority priority = IceInternal.Util.stringToThreadPriority(
@@ -34,9 +31,6 @@ namespace IceInternal
             {
                 _thread.Start(ThreadPriority.Normal);
             }
-#else
-            _thread.Start();
-#endif
         }
 
         public void
@@ -178,18 +172,11 @@ namespace IceInternal
                 return _name;
             }
 
-#if !SILVERLIGHT
             public void Start(ThreadPriority priority)
-#else
-            public void Start()
-#endif
             {
                 _thread = new Thread(new ThreadStart(Run));
                 _thread.IsBackground = true;
                 _thread.Name = _name;
-#if !SILVERLIGHT
-                _thread.Priority = priority;
-#endif
                 _thread.Start();
             }
 

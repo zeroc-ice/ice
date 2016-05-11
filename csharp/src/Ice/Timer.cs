@@ -15,10 +15,8 @@
     
 namespace IceInternal
 {
-    using System;
     using System.Diagnostics;
     using System.Threading;
-    using System.Collections;
     using System.Collections.Generic;
 
     public interface TimerTask
@@ -61,16 +59,7 @@ namespace IceInternal
                 try
                 {
                     _tasks.Add(task, token);
-#if SILVERLIGHT
-                    int index = _tokens.BinarySearch(token);
-                    Debug.Assert(index < 0);
-                    if(index < 0)
-                    {
-                        _tokens.Insert(~index, token);
-                    }
-#else
                     _tokens.Add(token, null);
-#endif
                 }
                 catch(System.ArgumentException)
                 {
@@ -98,16 +87,7 @@ namespace IceInternal
                 try
                 {
                     _tasks.Add(task, token);
-#if SILVERLIGHT
-                    int index = _tokens.BinarySearch(token);
-                    Debug.Assert(index < 0);
-                    if(index < 0)
-                    {
-                        _tokens.Insert(~index, token);
-                    }
-#else
                     _tokens.Add(token, null);
-#endif
                 }
                 catch(System.ArgumentException)
                 {
@@ -144,27 +124,17 @@ namespace IceInternal
         //
         // Only for use by Instance.
         //
-#if !SILVERLIGHT
         internal Timer(IceInternal.Instance instance, ThreadPriority priority)
         {
             init(instance, priority, true);
         }
-#endif
         
         internal Timer(IceInternal.Instance instance)
         {
-#if !SILVERLIGHT
             init(instance, ThreadPriority.Normal, false);
-#else
-            init(instance);
-#endif
         }
 
-#if !SILVERLIGHT
         internal void init(IceInternal.Instance instance, ThreadPriority priority,  bool hasPriority)
-#else
-        internal void init(IceInternal.Instance instance)
-#endif
         {
             _instance = instance;
 
@@ -177,12 +147,10 @@ namespace IceInternal
             _thread = new Thread(new ThreadStart(Run));
             _thread.IsBackground = true;
             _thread.Name = threadName + "Ice.Timer";
-#if !SILVERLIGHT
             if(hasPriority)
             {
                 _thread.Priority = priority;
             }
-#endif
             _thread.Start();
         }
 
@@ -220,16 +188,7 @@ namespace IceInternal
                             if(_tasks.ContainsKey(token.task))
                             {
                                 token.scheduledTime = Time.currentMonotonicTimeMillis() + token.delay;
-#if SILVERLIGHT
-                                int index = _tokens.BinarySearch(token);
-                                Debug.Assert(index < 0);
-                                if(index < 0)
-                                {
-                                    _tokens.Insert(~index, token);
-                                }
-#else
                                 _tokens.Add(token, null);
-#endif
                             }
                         }
                     }
@@ -256,11 +215,7 @@ namespace IceInternal
                         long now = Time.currentMonotonicTimeMillis();
 
                         Token first = null;
-#if SILVERLIGHT
-                        foreach(Token t in _tokens)
-#else
                         foreach(Token t in _tokens.Keys)
-#endif
                         {
                             first = t;
                             break;
@@ -389,13 +344,7 @@ namespace IceInternal
             public TimerTask task;
         }
 
-#if COMPACT
-        private IDictionary<Token, object> _tokens = new SortedList<Token, object>();
-#elif SILVERLIGHT
-        private List<Token> _tokens = new List<Token>();
-#else
         private IDictionary<Token, object> _tokens = new SortedDictionary<Token, object>();
-#endif
         private IDictionary<TimerTask, Token> _tasks = new Dictionary<TimerTask, Token>();
         private Instance _instance;
         private long _wakeUpTime = System.Int64.MaxValue;

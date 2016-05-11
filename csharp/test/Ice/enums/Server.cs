@@ -37,9 +37,7 @@ public class Server
         int status = 0;
         Ice.Communicator communicator = null;
 
-#if !COMPACT && !UNITY
         Debug.Listeners.Add(new ConsoleTraceListener());
-#endif
 
         try
         {
@@ -49,9 +47,9 @@ public class Server
             communicator = Ice.Util.initialize(ref args, initData);
             status = run(args, communicator);
         }
-        catch(System.Exception ex)
+        catch(Exception ex)
         {
-            System.Console.Error.WriteLine(ex);
+            Console.Error.WriteLine(ex);
             status = 1;
         }
 
@@ -63,7 +61,7 @@ public class Server
             }
             catch(Ice.LocalException ex)
             {
-                System.Console.Error.WriteLine(ex);
+                Console.Error.WriteLine(ex);
                 status = 1;
             }
         }

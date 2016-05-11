@@ -8,7 +8,6 @@
 // **********************************************************************
 
 using System;
-using System.Diagnostics;
 using System.Reflection;
 
 [assembly: CLSCompliant(true)]
@@ -21,7 +20,7 @@ public class Client
 {
     private static void usage()
     {
-        System.Console.Error.WriteLine("Usage: client port...");
+        Console.Error.WriteLine("Usage: client port...");
     }
 
     private static int run(string[] args, Ice.Communicator communicator)
@@ -32,11 +31,11 @@ public class Client
             int port = 0;
             try
             {
-                port = System.Int32.Parse(args[i]);
+                port = Int32.Parse(args[i]);
             }
-            catch(System.FormatException ex)
+            catch(FormatException ex)
             {
-                System.Console.Error.WriteLine(ex);
+                Console.Error.WriteLine(ex);
                 return 1;
             }
             ports.Add(port);
@@ -44,7 +43,7 @@ public class Client
 
         if(ports.Count == 0)
         {
-            System.Console.Error.WriteLine("Client: no ports specified");
+            Console.Error.WriteLine("Client: no ports specified");
             usage();
             return 1;
         }
@@ -70,9 +69,9 @@ public class Client
             communicator = Ice.Util.initialize(ref args, initData);
             status = run(args, communicator);
         }
-        catch(System.Exception ex)
+        catch(Exception ex)
         {
-            System.Console.Error.WriteLine(ex);
+            Console.Error.WriteLine(ex);
             status = 1;
         }
 
@@ -84,7 +83,7 @@ public class Client
             }
             catch(Ice.LocalException ex)
             {
-                System.Console.Error.WriteLine(ex);
+                Console.Error.WriteLine(ex);
                 status = 1;
             }
         }

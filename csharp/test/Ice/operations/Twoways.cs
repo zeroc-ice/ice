@@ -17,7 +17,7 @@ class Twoways
     {
         if(!b)
         {
-            throw new System.Exception();
+            throw new Exception();
         }
     }
 
@@ -1478,7 +1478,7 @@ class Twoways
                     {
                         combined.Add(e.Key, e.Value);
                     }
-                    catch(System.ArgumentException)
+                    catch(ArgumentException)
                     {
                         // Ignore.
                     }

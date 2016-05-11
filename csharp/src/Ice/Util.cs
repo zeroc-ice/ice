@@ -37,22 +37,11 @@ namespace Ice
         void stop();
     }
 
-#if COMPACT
-    /// <summary>
-    /// A delegate for an action taking no parameters.
-    /// </summary>
-    public delegate void VoidAction();
-#endif
-
     /// <summary>
     /// A delegate for the dispatcher. The dispatcher is called by the Ice
     /// runtime to dispatch servant calls and AMI callbacks.
     /// </summary>
-#if COMPACT
-    public delegate void Dispatcher(VoidAction call, Connection con);
-#else
     public delegate void Dispatcher(System.Action call, Connection con);
-#endif
 
     /// <summary>
     /// Applications that make use of compact type IDs to conserve space
@@ -700,7 +689,6 @@ namespace IceInternal
             return new ProtocolPluginFacadeI(communicator);
         }
 
-#if !SILVERLIGHT
         public static System.Threading.ThreadPriority stringToThreadPriority(string s)
         {
             if(String.IsNullOrEmpty(s))
@@ -733,16 +721,5 @@ namespace IceInternal
             }
             return ThreadPriority.Normal;
         }
-#endif
     }
 }
-
-#if SILVERLIGHT
-namespace System
-{
-    public interface ICloneable
-    {
-        Object Clone();
-    }
-}
-#endif

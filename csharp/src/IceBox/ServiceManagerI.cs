@@ -725,14 +725,14 @@ class ServiceManagerI : ServiceManagerDisp_
                 info.status = ServiceStatus.Started;
                 _services.Add(info);
             }
-            catch(System.Exception ex)
+            catch(System.Exception)
             {
                 if(info.communicator != null)
                 {
                     destroyServiceCommunicator(service, info.communicator);
                 }
 
-                throw ex;
+                throw;
             }
 
         }

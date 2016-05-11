@@ -94,7 +94,7 @@ public sealed class ThrowerI : ThrowerDisp_
     
     public override void throwNonIceException(Ice.Current current)
     {
-        throw new System.Exception();
+        throw new Exception();
     }
 
     public override void throwAssertException(Ice.Current current)

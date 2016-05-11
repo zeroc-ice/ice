@@ -18,7 +18,7 @@ public class TwowaysAMI
     {
         if(!b)
         {
-            throw new System.SystemException();
+            throw new SystemException();
         }
     }
 
@@ -35,7 +35,7 @@ public class TwowaysAMI
             {
                 while(!_called)
                 {
-                    System.Threading.Monitor.Wait(this);
+                    Monitor.Wait(this);
                 }
                 _called = false;
             }
@@ -47,7 +47,7 @@ public class TwowaysAMI
             {
                 Debug.Assert(!_called);
                 _called = true;
-                System.Threading.Monitor.Pulse(this);
+                Monitor.Pulse(this);
             }
         }
 

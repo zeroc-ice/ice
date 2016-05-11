@@ -107,10 +107,6 @@ namespace IceInternal
                 overrideCloseTimeoutValue = -1;
             }
 
-#if COMPACT
-            overrideCompress = false;
-            overrideCompressValue = false;
-#else
             val = properties.getProperty("Ice.Override.Compress");
             if(val.Length > 0)
             {
@@ -128,7 +124,6 @@ namespace IceInternal
                 overrideCompress = !BZip2.supported();
                 overrideCompressValue = false;
             }
-#endif
 
             val = properties.getProperty("Ice.Override.Secure");
             if(val.Length > 0)

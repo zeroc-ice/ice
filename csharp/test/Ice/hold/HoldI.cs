@@ -7,8 +7,6 @@
 //
 // **********************************************************************
 
-using System;
-using System.Diagnostics;
 using Test;
 
 public sealed class HoldI : HoldDisp_

@@ -9,13 +9,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
-
-#if SILVERLIGHT
-using System.Windows.Controls;
-#endif
 
 using Test;
 
@@ -97,12 +92,7 @@ public class AllTests : TestCommon.TestApp
         }
     }
 
-#if SILVERLIGHT
-    override
-    public void run(Ice.Communicator communicator)
-#else
     public static void allTests(Ice.Communicator communicator)
-#endif
     {
         Write("testing communicator operations... ");
         Flush();

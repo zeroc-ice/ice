@@ -12,13 +12,9 @@ namespace IceInternal
 
     using System;
     using System.Diagnostics;
-#if !COMPACT && !SILVERLIGHT
     using System.Runtime.InteropServices;
-    using System.Runtime.Serialization;
-    using System.Runtime.Serialization.Formatters.Binary;
-#endif
 
-#if !MANAGED && !COMPACT && !SILVERLIGHT
+#if !MANAGED
     internal static class NativeMethods
     {
         [DllImport("bzip2.dll")]
@@ -47,7 +43,7 @@ namespace IceInternal
     {
         static BZip2()
         {
-#if MANAGED || COMPACT || SILVERLIGHT
+#if MANAGED
             //
             // Protocol compression is not supported when using managed code.
             //
@@ -94,7 +90,7 @@ namespace IceInternal
 #endif
         }
 
-#if !MANAGED && !COMPACT && !SILVERLIGHT
+#if !MANAGED
         static string getBZ2Error(int error)
         {
             string rc;
@@ -165,7 +161,7 @@ namespace IceInternal
         {
             Debug.Assert(supported());
 
-#if MANAGED || COMPACT || SILVERLIGHT
+#if MANAGED
             return null;
 #else
             //
@@ -227,7 +223,7 @@ namespace IceInternal
         {
             Debug.Assert(supported());
 
-#if MANAGED || COMPACT || SILVERLIGHT
+#if MANAGED
             return null;
 #else
             buf.b.position(headerSize);

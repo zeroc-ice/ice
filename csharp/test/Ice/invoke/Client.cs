@@ -8,7 +8,6 @@
 // **********************************************************************
 
 using System;
-using System.Diagnostics;
 using System.Reflection;
 
 [assembly: CLSCompliant(true)]
@@ -35,17 +34,10 @@ public class Client
         {
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties(ref args);
-#if COMPACT
-            //
-            // When using Ice for .NET Compact Framework, we need to specify
-            // the assembly so that Ice can locate classes and exceptions.
-            //
-            initData.properties.setProperty("Ice.FactoryAssemblies", "client");
-#endif
             communicator = Ice.Util.initialize(ref args, initData);
             status = run(args, communicator);
         }
-        catch(System.Exception ex)
+        catch(Exception ex)
         {
             Console.Error.WriteLine(ex);
             status = 1;

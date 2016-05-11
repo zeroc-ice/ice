@@ -8,8 +8,6 @@
 // **********************************************************************
 
 using System;
-using System.Collections;
-using System.Diagnostics;
 
 class InterceptorI : Ice.DispatchInterceptor
 {

@@ -101,21 +101,6 @@ class Twoways
         }
 
         {
-            CByteS i = new CByteS(_length);
-            for(int c = 0; c < _length; ++c)
-            {
-                i.Add((byte)c);
-            }
-            CByteS o;
-            CByteS r;
-
-            r = p.opCByteS(i, out o);
-
-            test(Ice.CollectionComparer.Equals(i, o));
-            test(Ice.CollectionComparer.Equals(i, r));
-        }
-
-        {
             bool[] i = new bool[_length];
             for(int c = 0; c < _length; ++c)
             {
@@ -185,21 +170,6 @@ class Twoways
             Stack<bool> r;
 
             r = p.opSBoolS(i, out o);
-
-            test(Ice.CollectionComparer.Equals(i, o));
-            test(Ice.CollectionComparer.Equals(i, r));
-        }
-
-        {
-            CBoolS i = new CBoolS(_length);
-            for(int c = 0; c < _length; ++c)
-            {
-                i.Add(c % 1 == 1);
-            }
-            CBoolS o;
-            CBoolS r;
-
-            r = p.opCBoolS(i, out o);
 
             test(Ice.CollectionComparer.Equals(i, o));
             test(Ice.CollectionComparer.Equals(i, r));
@@ -282,21 +252,6 @@ class Twoways
         }
 
         {
-            CShortS i = new CShortS(_length);
-            for(int c = 0; c < _length; ++c)
-            {
-                i.Add((short)c);
-            }
-            CShortS o;
-            CShortS r;
-
-            r = p.opCShortS(i, out o);
-
-            test(Ice.CollectionComparer.Equals(i, o));
-            test(Ice.CollectionComparer.Equals(i, r));
-        }
-
-        {
             int[] i = new int[_length];
             for(int c = 0; c < _length; ++c)
             {
@@ -366,21 +321,6 @@ class Twoways
             Stack<int> r;
 
             r = p.opSIntS(i, out o);
-
-            test(Ice.CollectionComparer.Equals(i, o));
-            test(Ice.CollectionComparer.Equals(i, r));
-        }
-
-        {
-            CIntS i = new CIntS(_length);
-            for(int c = 0; c < _length; ++c)
-            {
-                i.Add((int)c);
-            }
-            CIntS o;
-            CIntS r;
-
-            r = p.opCIntS(i, out o);
 
             test(Ice.CollectionComparer.Equals(i, o));
             test(Ice.CollectionComparer.Equals(i, r));
@@ -462,21 +402,6 @@ class Twoways
         }
 
         {
-            CLongS i = new CLongS(_length);
-            for(int c = 0; c < _length; ++c)
-            {
-                i.Add((long)c);
-            }
-            CLongS o;
-            CLongS r;
-
-            r = p.opCLongS(i, out o);
-
-            test(Ice.CollectionComparer.Equals(i, o));
-            test(Ice.CollectionComparer.Equals(i, r));
-        }
-
-        {
             float[] i = new float[_length];
             for(int c = 0; c < _length; ++c)
             {
@@ -546,21 +471,6 @@ class Twoways
             Stack<float> r;
 
             r = p.opSFloatS(i, out o);
-
-            test(Ice.CollectionComparer.Equals(i, o));
-            test(Ice.CollectionComparer.Equals(i, r));
-        }
-
-        {
-            CFloatS i = new CFloatS(_length);
-            for(int c = 0; c < _length; ++c)
-            {
-                i.Add((float)c);
-            }
-            CFloatS o;
-            CFloatS r;
-
-            r = p.opCFloatS(i, out o);
 
             test(Ice.CollectionComparer.Equals(i, o));
             test(Ice.CollectionComparer.Equals(i, r));
@@ -642,21 +552,6 @@ class Twoways
         }
 
         {
-            CDoubleS i = new CDoubleS(_length);
-            for(int c = 0; c < _length; ++c)
-            {
-                i.Add((double)c);
-            }
-            CDoubleS o;
-            CDoubleS r;
-
-            r = p.opCDoubleS(i, out o);
-
-            test(Ice.CollectionComparer.Equals(i, o));
-            test(Ice.CollectionComparer.Equals(i, r));
-        }
-
-        {
             string[] i = new string[_length];
             for(int c = 0; c < _length; ++c)
             {
@@ -732,21 +627,6 @@ class Twoways
         }
 
         {
-            CStringS i = new CStringS(_length);
-            for(int c = 0; c < _length; ++c)
-            {
-                i.Add(c.ToString());
-            }
-            CStringS o;
-            CStringS r;
-
-            r = p.opCStringS(i, out o);
-
-            test(Ice.CollectionComparer.Equals(i, o));
-            test(Ice.CollectionComparer.Equals(i, r));
-        }
-
-        {
             Ice.Object[] i = new CV[_length];
             for(int c = 0; c < _length; ++c)
             {
@@ -781,28 +661,6 @@ class Twoways
 
             IEnumerator<Ice.Object> eo = o.GetEnumerator();
             IEnumerator<Ice.Object> er = r.GetEnumerator();
-            foreach(CV obj in i)
-            {
-                eo.MoveNext();
-                er.MoveNext();
-                test(obj.i == ((CV)eo.Current).i);
-                test(obj.i == ((CV)er.Current).i);
-            }
-        }
-
-        {
-            CObjectS i = new CObjectS(_length);
-            for(int c = 0; c < _length; ++c)
-            {
-                i.Add(new CV(c));
-            }
-            CObjectS o;
-            CObjectS r;
-
-            r = p.opCObjectS(i, out o);
-
-            IEnumerator<Ice.Object> eo = (IEnumerator<Ice.Object>)o.GetEnumerator();
-            IEnumerator<Ice.Object> er = (IEnumerator<Ice.Object>)r.GetEnumerator();
             foreach(CV obj in i)
             {
                 eo.MoveNext();
@@ -888,21 +746,6 @@ class Twoways
         }
 
         {
-            CObjectPrxS i = new CObjectPrxS(_length);
-            for(int c = 0; c < _length; ++c)
-            {
-                i.Add(communicator.stringToProxy(c.ToString()));
-            }
-            CObjectPrxS o;
-            CObjectPrxS r;
-
-            r = p.opCObjectPrxS(i, out o);
-
-            test(Ice.CollectionComparer.Equals(i, o));
-            test(Ice.CollectionComparer.Equals(i, r));
-        }
-
-        {
             S[] i = new S[_length];
             for(int c = 0; c < _length; ++c)
             {
@@ -973,21 +816,6 @@ class Twoways
 
 
             r = p.opSStructS(i, out o);
-
-            test(Ice.CollectionComparer.Equals(i, o));
-            test(Ice.CollectionComparer.Equals(i, r));
-        }
-
-        {
-            CStructS i = new CStructS(_length);
-            for(int c = 0; c < _length; ++c)
-            {
-                i.Add(new S(c));
-            }
-            CStructS o;
-            CStructS r;
-
-            r = p.opCStructS(i, out o);
 
             test(Ice.CollectionComparer.Equals(i, o));
             test(Ice.CollectionComparer.Equals(i, r));
@@ -1070,21 +898,6 @@ class Twoways
         }
 
         {
-            CStructSD i = new CStructSD(_length);
-            for(int c = 0; c < _length; ++c)
-            {
-                i.Add(new SD(c));
-            }
-            CStructSD o;
-            CStructSD r;
-
-            r = p.opCStructSD(i, out o);
-
-            test(Ice.CollectionComparer.Equals(i, o));
-            test(Ice.CollectionComparer.Equals(i, r));
-        }
-
-        {
             CV[] i = new CV[_length];
             for(int c = 0; c < _length; ++c)
             {
@@ -1129,28 +942,6 @@ class Twoways
         }
 
         {
-            CCVS i = new CCVS(_length);
-            for(int c = 0; c < _length; ++c)
-            {
-                i.Add(new CV(c));
-            }
-            CCVS o;
-            CCVS r;
-
-            r = p.opCCVS(i, out o);
-
-            IEnumerator<CV> eo = (IEnumerator<CV>)o.GetEnumerator();
-            IEnumerator<CV> er = (IEnumerator<CV>)r.GetEnumerator();
-            foreach(CV obj in i)
-            {
-                eo.MoveNext();
-                er.MoveNext();
-                test(obj.i == eo.Current.i);
-                test(obj.i == er.Current.i);
-            }
-        }
-
-        {
             CR[] i = new CR[_length];
             for(int c = 0; c < _length; ++c)
             {
@@ -1185,28 +976,6 @@ class Twoways
 
             IEnumerator<CR> eo = o.GetEnumerator();
             IEnumerator<CR> er = r.GetEnumerator();
-            foreach(CR obj in i)
-            {
-                eo.MoveNext();
-                er.MoveNext();
-                test(obj.v.i == eo.Current.v.i);
-                test(obj.v.i == er.Current.v.i);
-            }
-        }
-
-        {
-            CCRS i = new CCRS(_length);
-            for(int c = 0; c < _length; ++c)
-            {
-                i.Add(new CR(new CV(c)));
-            }
-            CCRS o;
-            CCRS r;
-
-            r = p.opCCRS(i, out o);
-
-            IEnumerator<CR> eo = (IEnumerator<CR>)o.GetEnumerator();
-            IEnumerator<CR> er = (IEnumerator<CR>)r.GetEnumerator();
             foreach(CR obj in i)
             {
                 eo.MoveNext();
@@ -1292,21 +1061,6 @@ class Twoways
         }
 
         {
-            CEnS i = new CEnS(_length);
-            for(int c = 0; c < _length; ++c)
-            {
-                i.Add((En)(c % 3));
-            }
-            CEnS o;
-            CEnS r;
-
-            r = p.opCEnS(i, out o);
-
-            test(Ice.CollectionComparer.Equals(i, o));
-            test(Ice.CollectionComparer.Equals(i, r));
-        }
-
-        {
             CVPrx[] i = new CVPrx[_length];
             for(int c = 0; c < _length; ++c)
             {
@@ -1376,21 +1130,6 @@ class Twoways
             Stack<CVPrx> r;
 
             r = p.opSCVPrxS(i, out o);
-
-            test(Ice.CollectionComparer.Equals(i, o));
-            test(Ice.CollectionComparer.Equals(i, r));
-        }
-
-        {
-            CCVPrxS i = new CCVPrxS(_length);
-            for(int c = 0; c < _length; ++c)
-            {
-                i.Add(CVPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString())));
-            }
-            CCVPrxS o;
-            CCVPrxS r;
-
-            r = p.opCCVPrxS(i, out o);
 
             test(Ice.CollectionComparer.Equals(i, o));
             test(Ice.CollectionComparer.Equals(i, r));
@@ -1504,7 +1243,6 @@ class Twoways
             }
         }
 
-#if !COMPACT && !SILVERLIGHT
         {
             Serialize.Small i = null;
             Serialize.Small o;
@@ -1612,6 +1350,5 @@ class Twoways
                 // OK, talking to non-C# server.
             }
         }
-#endif
     }
 }

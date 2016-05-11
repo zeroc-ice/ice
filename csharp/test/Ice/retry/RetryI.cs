@@ -7,8 +7,6 @@
 //
 // **********************************************************************
 
-using System;
-
 public sealed class RetryI : Test.RetryDisp_
 {
     public RetryI()

@@ -7,14 +7,10 @@
 //
 // **********************************************************************
 
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 
-#if SILVERLIGHT
-using System.Windows.Controls;
-#endif
 using Test;
 
 public class AllTests : TestCommon.TestApp
@@ -34,7 +30,7 @@ public class AllTests : TestCommon.TestApp
                 // to get an accurate sentBytes metric. The sentBytes metric is updated before the response
                 // to the operation is sent and getMetricsView can be dispatched before the metric is really
                 // updated.
-                System.Threading.Thread.Sleep(100);
+                Thread.Sleep(100);
                 s = (IceMX.ConnectionMetrics)metrics.getMetricsView("View", out timestamp)["Connection"][0];
             }
             return s;
@@ -58,7 +54,7 @@ public class AllTests : TestCommon.TestApp
             lock(this)
             {
                 _wait = false;
-                System.Threading.Monitor.Pulse(this);
+                Monitor.Pulse(this);
             }
         }
 
@@ -73,7 +69,7 @@ public class AllTests : TestCommon.TestApp
             {
                 while(_wait)
                 {
-                    System.Threading.Monitor.Wait(this);
+                    Monitor.Wait(this);
                 }
                 _wait = true;
             }
@@ -142,7 +138,7 @@ public class AllTests : TestCommon.TestApp
             {
                 while(!_updated)
                 {
-                    System.Threading.Monitor.Wait(this);
+                    Monitor.Wait(this);
                 }
             }
 
@@ -164,7 +160,7 @@ public class AllTests : TestCommon.TestApp
             lock(this)
             {
                 _updated = true;
-                System.Threading.Monitor.Pulse(this);
+                Monitor.Pulse(this);
             }
         }
 
@@ -193,7 +189,7 @@ public class AllTests : TestCommon.TestApp
             {
                 break;
             }
-            System.Threading.Thread.Sleep(50);
+            Thread.Sleep(50);
         }
     }
 
@@ -204,11 +200,7 @@ public class AllTests : TestCommon.TestApp
                   string map,
                   string attr,
                   string value,
-#if COMPACT
-                  Ice.VoidAction func)
-#else
                   System.Action func)
-#endif
     {
         Dictionary<string, string> dict = new Dictionary<string, string>();
         dict.Add("IceMX.Metrics.View.Map." + map + ".GroupBy", attr);
@@ -375,11 +367,7 @@ public class AllTests : TestCommon.TestApp
         return m;
     }
 
-#if SILVERLIGHT
-    override public void run(Ice.Communicator communicator, CommunicatorObserverI obsv)
-#else
     public static MetricsPrx allTests(Ice.Communicator communicator, CommunicatorObserverI obsv)
-#endif
     {
         MetricsPrx metrics = MetricsPrxHelper.checkedCast(communicator.stringToProxy("metrics:default -p 12010"));
         bool collocated = metrics.ice_getConnection() == null;
@@ -598,7 +586,7 @@ public class AllTests : TestCommon.TestApp
                 {
                     break;
                 }
-                System.Threading.Thread.Sleep(10);
+                Thread.Sleep(10);
             }
             test(cm1.failures == 2 && sm1.failures >= 2);
 
@@ -673,11 +661,7 @@ public class AllTests : TestCommon.TestApp
 
             checkFailure(clientMetrics, "ConnectionEstablishment", m1.id, "::Ice::ConnectTimeoutException", 2);
 
-#if COMPACT
-            Ice.VoidAction c = () => { connect(metrics); };
-#else
             System.Action c = () => { connect(metrics); };
-#endif
             testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "parent", "Communicator", c);
             testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "id", "127.0.0.1:12010", c);
             testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpoint",
@@ -837,12 +821,7 @@ public class AllTests : TestCommon.TestApp
         checkFailure(serverMetrics, "Dispatch", dm1.id, "System.ArgumentOutOfRangeException", 1);
         test(dm1.size == 41 && dm1.replySize > 7); // Reply contains the exception stack depending on the OS.
 
-#if COMPACT
-        Ice.VoidAction op = () => { invokeOp(metrics); };
-#else
         System.Action op = () => { invokeOp(metrics); };
-#endif
-
         testAttribute(serverMetrics, serverProps, update, "Dispatch", "parent", "TestAdapter", op);
         testAttribute(serverMetrics, serverProps, update, "Dispatch", "id", "metrics [op]", op);
 
@@ -1225,11 +1204,6 @@ public class AllTests : TestCommon.TestApp
         test(obsv.invocationObserver.userExceptionCount > 0);
 
         WriteLine("ok");
-
-#if SILVERLIGHT
-        metrics.shutdown();
-#else
         return metrics;
-#endif
     }
 }

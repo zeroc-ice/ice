@@ -15,11 +15,13 @@
 
 #include <limits>
 #include <sys/stat.h>
+
 #ifndef _WIN32
-#include <unistd.h>
+#   include <unistd.h>
 #else
-#include <direct.h>
+#   include <direct.h>
 #endif
+
 #include <IceUtil/Iterator.h>
 #include <IceUtil/UUID.h>
 #include <IceUtil/Unicode.h>
@@ -2722,25 +2724,12 @@ Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
     if(p->hasOnlyDictionaries(dicts))
     {
         //
-        // If this module contains only dictionaries and they
-        // all use the new dictionary mapping, we don't need to generate
+        // If this module contains only dictionaries, we don't need to generate
         // anything for the dictionary types. The early return prevents
-        // an empty namespace from being emitted--the namespace will
-        // be emitted later by the dictionary helper (which is generated
-        // for both old and new dictionaries).
+        // an empty namespace from being emitted, the namespace will
+        // be emitted later by the dictionary helper .
         //
-        bool foundOld = false;
-        for(DictionaryList::const_iterator i = dicts.begin(); i != dicts.end() && !foundOld; ++i)
-        {
-            if((*i)->hasMetaData("clr:collection"))
-            {
-                foundOld = true;
-            }
-        }
-        if(!foundOld)
-        {
-            return false;
-        }
+        return false;
     }
 
     string name = fixId(p->name());
@@ -2801,15 +2790,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         emitComVisibleAttribute();
         emitPartialTypeAttributes();
-
-        _out.zeroIndent();
-        _out << nl << "#if !SILVERLIGHT";
-        _out.restoreIndent();
         _out << nl << "[_System.Serializable]";
-        _out.zeroIndent();
-        _out << nl << "#endif";
-        _out.restoreIndent();
-
         if(p->allOperations().size() > 0) // See bug 4747
         {
             _out << nl << "[_System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Design\", \"CA1012\")]";
@@ -3136,116 +3117,8 @@ void
 Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 {
     //
-    // No need to generate anything if the sequence is mapped as an array.
+    // No need to generate anything for sequences.
     //
-    if(!p->hasMetaData("clr:collection"))
-    {
-        return;
-    }
-
-    //
-    // No need to generate anything for custom sequences.
-    //
-    string prefix = "clr:type:";
-    string meta;
-    if(p->findMetaData(prefix, meta))
-    {
-        return;
-    }
-
-    //
-    // No need to generate anything for serializable sequences.
-    //
-    prefix = "clr:serializable:";
-    if(p->findMetaData(prefix, meta))
-    {
-        return;
-    }
-
-    string name = fixId(p->name());
-    string s = typeToString(p->type());
-
-    _out << sp;
-
-    emitDeprecate(p, 0, _out, "type");
-
-    emitAttributes(p);
-    emitComVisibleAttribute();
-    emitGeneratedCodeAttribute();
-    if(isSerializable(p->type()))
-    {
-        _out.zeroIndent();
-        _out << nl << "#if !SILVERLIGHT";
-        _out.restoreIndent();
-        _out << nl << "[_System.Serializable]";
-        _out.zeroIndent();
-        _out << nl << "#endif";
-        _out.restoreIndent();
-    }
-    _out << nl << "public class " << name
-         << " : IceInternal.CollectionBase<" << s << ">, _System.ICloneable";
-    _out << sb;
-
-    _out << sp << nl << "#region Constructors";
-
-    _out << sp << nl << "public " << name << "() : base()";
-    _out << sb;
-    _out << eb;
-
-    _out << sp << nl << "public " << name << "(int capacity) : base(capacity)";
-    _out << sb;
-    _out << eb;
-
-    _out << sp << nl << "public " << name << "(" << s << "[] a__) : base(a__)";
-    _out << sb;
-    _out << eb;
-
-    _out << sp << nl << "public " << name << "(_System.Collections.Generic.IEnumerable<" << s << "> l__) : base(l__)";
-    _out << sb;
-    _out << eb;
-
-    _out << sp << nl << "#endregion"; // Constructors
-
-    _out << sp << nl << "#region Implicit conversion to generic List";
-
-    _out << sp << nl << "public static implicit operator _System.Collections.Generic.List<"
-         << s << ">(" << name << " s__)";
-    _out << sb;
-    _out << nl << "return s__.list_;";
-    _out << eb;
-
-    _out << sp << nl << "#endregion"; // Implicit conversion to generic List
-
-    _out << sp << nl << "#region Operations returning a new sequence";
-
-    _out << sp << nl << "public virtual " << name << " GetRange(int index, int count)";
-    _out << sb;
-    _out << nl << "_System.Collections.Generic.List<" << s << "> l = list_.GetRange(index, count);";
-    _out << nl << name << " r = new " << name << "(l.Count);";
-    _out << nl << "r.list_.AddRange(l);";
-    _out << nl << "return r;";
-    _out << eb;
-
-    _out << sp << nl << "public static " << name << " Repeat(" << s << " value, int count)";
-    _out << sb;
-    _out << nl << name << " r = new " << name << "(count);";
-    _out << nl << "for(int i = 0; i < count; ++i)";
-    _out << sb;
-    _out << nl << "r.Add(value);";
-    _out << eb;
-    _out << nl << "return r;";
-    _out << eb;
-
-    _out << sp << nl << "public object Clone()";
-    _out << sb;
-    _out << nl << name << " s = new " << name << "(Count);";
-    _out << nl << "s.list_.AddRange(list_);";
-    _out << nl << "return s;";
-    _out << eb;
-
-    _out << sp << nl << "#endregion"; // Operations returning a new sequence
-
-    _out << eb;
 }
 
 bool
@@ -3263,14 +3136,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     // Suppress FxCop diagnostic about a missing constructor MyException(String).
     //
     _out << nl << "[_System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Design\", \"CA1032\")]";
-
-    _out.zeroIndent();
-    _out << nl << "#if !SILVERLIGHT";
-    _out.restoreIndent();
     _out << nl << "[_System.Serializable]";
-    _out.zeroIndent();
-    _out << nl << "#endif";
-    _out.restoreIndent();
 
     emitPartialTypeAttributes();
     _out << nl << "public partial class " << name << " : ";
@@ -3372,11 +3238,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         _out << nl << "initDM__();";
     }
     _out << eb;
-
-    _out.zeroIndent();
-    _out << nl << "#if !SILVERLIGHT";
-    _out.restoreIndent();
-
     _out << sp;
     emitGeneratedCodeAttribute();
     _out << nl << "public " << name << "(_System.Runtime.Serialization.SerializationInfo info__, "
@@ -3388,10 +3249,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         writeSerializeDeserializeCode(_out, (*q)->type(), name, (*q)->optional(), (*q)->tag(), false);
     }
     _out << eb;
-
-    _out.zeroIndent();
-    _out << nl << "#endif";
-    _out.restoreIndent();
 
     if(!allDataMembers.empty())
     {
@@ -3499,10 +3356,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
     if(!dataMembers.empty())
     {
-        _out.zeroIndent();
-        _out << nl << "#if !SILVERLIGHT";
-        _out.restoreIndent();
-
         _out << sp;
         emitGeneratedCodeAttribute();
         _out << nl << "public override void GetObjectData(_System.Runtime.Serialization.SerializationInfo info__, "
@@ -3515,10 +3368,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         }
         _out << sp << nl << "base.GetObjectData(info__, context__);";
         _out << eb;
-
-        _out.zeroIndent();
-        _out << nl << "#endif";
-        _out.restoreIndent();
     }
 
     _out << sp << nl << "#endregion"; // Object members
@@ -3786,15 +3635,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     emitAttributes(p);
     emitPartialTypeAttributes();
-
-    _out.zeroIndent();
-    _out << nl << "#if !SILVERLIGHT";
-    _out.restoreIndent();
     _out << nl << "[_System.Serializable]";
-    _out.zeroIndent();
-    _out << nl << "#endif";
-    _out.restoreIndent();
-
     _out << nl << "public partial " << (isValueType(p) ? "struct" : "class") << ' ' << name;
 
     StringList baseNames;
@@ -4121,68 +3962,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 void
 Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 {
-    if(!p->hasMetaData("clr:collection"))
-    {
-        return;
-    }
-
-    string name = fixId(p->name());
-    string ks = typeToString(p->keyType());
-    string vs = typeToString(p->valueType());
-
-    _out << sp;
-    emitDeprecate(p, 0, _out, "type");
-    emitAttributes(p);
-    emitComVisibleAttribute();
-    emitGeneratedCodeAttribute();
-    if(isSerializable(p->keyType()) && isSerializable(p->valueType()))
-    {
-        _out.zeroIndent();
-        _out << nl << "#if !SILVERLIGHT";
-        _out.restoreIndent();
-        _out << nl << "[_System.Serializable]";
-        _out.zeroIndent();
-        _out << nl << "#endif";
-        _out.restoreIndent();
-    }
-    _out << nl << "public class " << name
-         << " : IceInternal.DictionaryBase<" << ks << ", " << vs << ">, _System.ICloneable";
-    _out << sb;
-
-    _out << sp << nl << "#region " << name << " members";
-
-    _out << sp << nl << "public void AddRange(" << name << " d__)";
-    _out << sb;
-    _out << nl << "foreach(_System.Collections.Generic.KeyValuePair<" << ks << ", " << vs << "> e in d__.dict_)";
-    _out << sb;
-    _out << nl << "try";
-    _out << sb;
-    _out << nl << "dict_.Add(e.Key, e.Value);";
-    _out << eb;
-    _out << nl << "catch(_System.ArgumentException)";
-    _out << sb;
-    _out << nl << "// ignore";
-    _out << eb;
-    _out << eb;
-    _out << eb;
-
-    _out << sp << nl << "#endregion"; // <name> members
-
-    _out << sp << nl << "#region ICloneable members";
-
-    _out << sp << nl << "public object Clone()";
-    _out << sb;
-    _out << nl << name << " d = new " << name << "();";
-    _out << nl << "foreach(_System.Collections.Generic.KeyValuePair<" << ks << ", " << vs <<"> e in dict_)";
-    _out << sb;
-    _out << nl << "d.dict_.Add(e.Key, e.Value);";
-    _out << eb;
-    _out << nl << "return d;";
-    _out << eb;
-
-    _out << sp << nl << "#endregion"; // ICloneable members
-
-    _out << eb;
 }
 
 void
@@ -4285,13 +4064,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 
     if(!isSerializable(p->type()))
     {
-        _out.zeroIndent();
-        _out << nl << "#if !SILVERLIGHT";
-        _out.restoreIndent();
         _out << nl << "[_System.NonSerialized]";
-        _out.zeroIndent();
-        _out << nl << "#endif";
-        _out.restoreIndent();
     }
 
     if(isProperty)
@@ -4381,7 +4154,7 @@ Slice::Gen::TypesVisitor::writeMemberEquals(const DataMemberList& dataMembers, i
                 string meta;
                 bool isSerializable = seq->findMetaData("clr:serializable:", meta);
                 bool isGeneric = seq->findMetaData("clr:generic:", meta);
-                bool isArray = !isSerializable && !isGeneric && !seq->hasMetaData("clr:collection");
+                bool isArray = !isSerializable && !isGeneric;
                 if(isArray)
                 {
                     //
@@ -4397,34 +4170,17 @@ Slice::Gen::TypesVisitor::writeMemberEquals(const DataMemberList& dataMembers, i
                     _out << nl << "if(!IceUtilInternal.Collections.SequenceEquals(" << memberName << ", o__."
                          << memberName << "))";
                 }
-                else
-                {
-                    //
-                    // Equals() for CollectionBase has value semantics.
-                    //
-                    _out << nl << "if(!" << memberName << ".Equals(o__." << memberName << "))";
-                }
             }
             else
             {
                 DictionaryPtr dict = DictionaryPtr::dynamicCast(memberType);
                 if(dict)
                 {
-                    if(dict->hasMetaData("clr:collection"))
-                    {
-                        //
-                        // Equals() for DictionaryBase has value semantics.
-                        //
-                        _out << nl << "if(!" << memberName << ".Equals(o__." << memberName << "))";
-                    }
-                    else
-                    {
-                        //
-                        // Equals() for generic types does not have value semantics.
-                        //
-                        _out << nl << "if(!IceUtilInternal.Collections.DictionaryEquals(" << memberName << ", o__."
-                             << memberName << "))";
-                    }
+                    //
+                    // Equals() for generic types does not have value semantics.
+                    //
+                    _out << nl << "if(!IceUtilInternal.Collections.DictionaryEquals(" << memberName << ", o__."
+                            << memberName << "))";
                 }
                 else
                 {
@@ -5559,7 +5315,6 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     TypePtr value = p->valueType();
 
     string meta;
-    bool isNewMapping = !p->hasMetaData("clr:collection");
 
     string prefix = "clr:generic:";
     string genericType;
@@ -5574,9 +5329,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 
     string keyS = typeToString(key);
     string valueS = typeToString(value);
-    string name = isNewMapping
-                        ? "_System.Collections.Generic." + genericType + "<" + keyS + ", " + valueS + ">"
-                        : fixId(p->name());
+    string name = "_System.Collections.Generic." + genericType + "<" + keyS + ", " + valueS + ">";
 
     _out << sp;
     emitGeneratedCodeAttribute();
@@ -5597,20 +5350,11 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     _out << sb;
     _out << nl << "os__.writeSize(v__.Count);";
     _out << nl << "foreach(_System.Collections.";
-    if(isNewMapping)
-    {
-        _out << "Generic.KeyValuePair<" << keyS << ", " << valueS << ">";
-    }
-    else
-    {
-        _out << "DictionaryEntry";
-    }
+    _out << "Generic.KeyValuePair<" << keyS << ", " << valueS << ">";
     _out << " e__ in v__)";
     _out << sb;
-    string keyArg = isNewMapping ? string("e__.Key") : "((" + keyS + ")e__.Key)";
-    writeMarshalUnmarshalCode(_out, key, keyArg, true);
-    string valueArg = isNewMapping ? string("e__.Value") : "((" + valueS + ")e__.Value)";
-    writeMarshalUnmarshalCode(_out, value, valueArg, true);
+    writeMarshalUnmarshalCode(_out, key, "e__.Key", true);
+    writeMarshalUnmarshalCode(_out, value, "e__.Value", true);
     _out << eb;
     _out << eb;
     _out << eb;

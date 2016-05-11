@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-using System;
 using System.Threading;
 
 internal class ActivateAdapterThread

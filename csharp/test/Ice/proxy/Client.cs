@@ -8,7 +8,6 @@
 // **********************************************************************
 
 using System;
-using System.Diagnostics;
 using System.Reflection;
 
 [assembly: CLSCompliant(true)]
@@ -22,9 +21,7 @@ public class Client
     private static int run(String[] args, Ice.Communicator communicator)
     {
         Test.MyClassPrx myClass = AllTests.allTests(communicator);
-
         myClass.shutdown();
-
         return 0;
     }
 
@@ -41,7 +38,7 @@ public class Client
             communicator = Ice.Util.initialize(ref args, initData);
             status = run(args, communicator);
         }
-        catch(System.Exception ex)
+        catch(Exception ex)
         {
             Console.Error.WriteLine(ex);
             status = 1;

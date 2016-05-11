@@ -713,11 +713,7 @@ namespace IceInternal
 
         class MetricsMapFactory<T> : IMetricsMapFactory where T : IceMX.Metrics, new()
         {
-#if COMPACT
-            public MetricsMapFactory(Ice.VoidAction updater)
-#else
             public MetricsMapFactory(System.Action updater)
-#endif
             {
                 _updater = updater;
             }
@@ -739,11 +735,7 @@ namespace IceInternal
                 _subMaps.Add(subMap, new SubMapFactory<S>(field));
             }
 
-#if COMPACT
-            readonly private Ice.VoidAction _updater;
-#else
             readonly private System.Action _updater;
-#endif
             readonly private Dictionary<string, ISubMapFactory> _subMaps = new Dictionary<string, ISubMapFactory>();
         }
 
@@ -903,11 +895,7 @@ namespace IceInternal
             }
         }
 
-#if COMPACT
-        public void registerMap<T>(string map, Ice.VoidAction updater)
-#else
         public void registerMap<T>(string map, System.Action updater)
-#endif
             where T : IceMX.Metrics, new()
         {
             bool updated;

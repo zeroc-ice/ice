@@ -8,23 +8,9 @@
 // **********************************************************************
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading;
 using Test;
-
-#if SILVERLIGHT
-using System.Net;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Ink;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Shapes;
-#endif
 
 public class AllTests : TestCommon.TestApp
 {
@@ -103,12 +89,7 @@ public class AllTests : TestCommon.TestApp
         }
     };
 
-#if SILVERLIGHT
-    override
-    public void run(Ice.Communicator communicator)
-#else
     public static void allTests(Ice.Communicator communicator)
-#endif
     {
         string @ref = "communicator:default -p 12010";
         RemoteCommunicatorPrx com = RemoteCommunicatorPrxHelper.uncheckedCast(communicator.stringToProxy(@ref));
@@ -749,7 +730,6 @@ public class AllTests : TestCommon.TestApp
         }
         WriteLine("ok");
 
-#if !SILVERLIGHT
         Write("testing endpoint mode filtering... ");
         Flush();
         {
@@ -771,7 +751,6 @@ public class AllTests : TestCommon.TestApp
             }
         }
         WriteLine("ok");
-#endif
         if(communicator.getProperties().getProperty("Ice.Plugin.IceSSL").Length > 0)
         {
             Write("testing unsecure vs. secure endpoints... ");
@@ -828,7 +807,6 @@ public class AllTests : TestCommon.TestApp
             WriteLine("ok");
         }
 
-#if !SILVERLIGHT && !COMPACT && !UNITY && !DOTNET3_5
         {
             Write("testing ipv4 & ipv6 connections... ");
             Flush();
@@ -967,8 +945,6 @@ public class AllTests : TestCommon.TestApp
             
             WriteLine("ok");
         }
-#endif
-
         com.shutdown();
     }
 

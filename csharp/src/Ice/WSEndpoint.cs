@@ -12,7 +12,6 @@ namespace IceInternal
     using System;
     using System.Diagnostics;
     using System.Collections.Generic;
-    using System.Globalization;
 
     //
     // Delegate interface implemented by TcpEndpoint or IceSSL.EndpointI or any endpoint that WS can

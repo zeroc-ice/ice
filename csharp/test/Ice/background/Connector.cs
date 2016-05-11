@@ -7,9 +7,6 @@
 //
 // **********************************************************************
 
-using System.Diagnostics;
-using System.Net.Sockets;
-
 internal class Connector : IceInternal.Connector
 {
     public IceInternal.Transceiver connect()

@@ -9,10 +9,8 @@
 
 namespace IceInternal
 {
-    using System.Diagnostics;
     using System.Collections.Generic;
     using System.Net;
-    using System;
     using System.Globalization;
 
     sealed class TcpEndpointI : IPEndpointI, WSEndpointDelegate
@@ -150,20 +148,14 @@ namespace IceInternal
 
         public override Acceptor acceptor(string adapterName)
         {
-#if SILVERLIGHT
-            throw new Ice.FeatureNotSupportedException("server endpoint not supported for `" + ToString() + "'");
-#else
             return new TcpAcceptor(this, instance_, host_, port_);
-#endif
         }
 
-#if !SILVERLIGHT
         public TcpEndpointI endpoint(TcpAcceptor acceptor)
         {
             return new TcpEndpointI(instance_, host_, acceptor.effectivePort(), sourceAddr_, _timeout, connectionId_,
                                     _compress);
         }
-#endif
 
         public override string options()
         {

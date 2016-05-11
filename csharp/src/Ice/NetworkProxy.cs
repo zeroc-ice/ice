@@ -39,7 +39,6 @@ namespace IceInternal
         //
         void finish(Buffer readBuffer, Buffer writeBuffer);
 
-#if !SILVERLIGHT
         //
         // If the proxy host needs to be resolved, this should return
         // a new NetworkProxy containing the IP address of the proxy.
@@ -47,7 +46,7 @@ namespace IceInternal
         // it's safe if this this method blocks.
         //
         NetworkProxy resolveHost(int protocolSupport);
-#endif
+
         //
         // Returns the IP address of the network proxy. This method
         // must not block. It's only called on a network proxy object
@@ -70,12 +69,8 @@ namespace IceInternal
     {
         public SOCKSNetworkProxy(string host, int port)
         {
-#if SILVERLIGHT
-            _address = new DnsEndPoint(host, port, AddressFamily.InterNetwork);
-#else
             _host = host;
             _port = port;
-#endif
         }
 
         private SOCKSNetworkProxy(EndPoint address)
@@ -144,7 +139,6 @@ namespace IceInternal
             }
         }
 
-#if !SILVERLIGHT
         public NetworkProxy resolveHost(int protocolSupport)
         {
             Debug.Assert(_host != null);
@@ -155,7 +149,6 @@ namespace IceInternal
                                                               false,
                                                               true)[0]);
         }
-#endif
 
         public EndPoint getAddress()
         {
@@ -173,10 +166,8 @@ namespace IceInternal
             return Network.EnableIPv4;
         }
 
-#if !SILVERLIGHT
         private readonly string _host;
         private readonly int _port;
-#endif
         private readonly EndPoint _address;
     }
 
@@ -184,14 +175,9 @@ namespace IceInternal
     {
         public HTTPNetworkProxy(string host, int port)
         {
-#if SILVERLIGHT
-            _address = new DnsEndPoint(host, port, AddressFamily.InterNetwork);
-            _protocolSupport = Network.EnableIPv4;
-#else
             _host = host;
             _port = port;
             _protocolSupport = Network.EnableBoth;
-#endif
         }
 
         private HTTPNetworkProxy(EndPoint address, int protocolSupport)
@@ -209,12 +195,7 @@ namespace IceInternal
             str.Append(" HTTP/1.1\r\nHost: ");
             str.Append(addr);
             str.Append("\r\n\r\n");
-
-#if SILVERLIGHT
-            byte[] b = System.Text.Encoding.UTF8.GetBytes(str.ToString());
-#else
             byte[] b = System.Text.Encoding.ASCII.GetBytes(str.ToString());
-#endif
 
             //
             // HTTP connect request
@@ -271,7 +252,6 @@ namespace IceInternal
             }
         }
 
-#if !SILVERLIGHT
         public NetworkProxy resolveHost(int protocolSupport)
         {
             Debug.Assert(_host != null);
@@ -283,7 +263,6 @@ namespace IceInternal
                                                              true)[0],
                                         protocolSupport);
         }
-#endif
 
         public EndPoint getAddress()
         {
@@ -301,10 +280,8 @@ namespace IceInternal
             return _protocolSupport;
         }
 
-#if !SILVERLIGHT
         private readonly string _host;
         private readonly int _port;
-#endif
         private readonly EndPoint _address;
         private readonly int _protocolSupport;
     }

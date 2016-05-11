@@ -11,10 +11,6 @@ using System;
 using System.Diagnostics;
 using Test;
 
-#if SILVERLIGHT
-using System.Windows.Controls;
-#endif
-
 public class AllTests : TestCommon.TestApp
 {
     public static Ice.Object MyValueFactory(string type)
@@ -81,20 +77,7 @@ public class AllTests : TestCommon.TestApp
         private bool _destroyed;
     }
 
-#if SILVERLIGHT
-    public override Ice.InitializationData initData()
-    {
-        Ice.InitializationData initData = new Ice.InitializationData();
-        initData.properties = Ice.Util.createProperties();
-        initData.properties.setProperty("Ice.FactoryAssemblies", "objects,version=1.0.0.0");
-        return initData;
-    }
-
-    override
-    public void run(Ice.Communicator communicator)
-#else
     public static InitialPrx allTests(Ice.Communicator communicator)
-#endif
     {
         communicator.getValueFactoryManager().add(MyValueFactory, "::Test::B");
         communicator.getValueFactoryManager().add(MyValueFactory, "::Test::C");
@@ -339,10 +322,6 @@ public class AllTests : TestCommon.TestApp
         WriteLine("ok");
 #pragma warning restore 612, 618
 
-#if SILVERLIGHT
-        initial.shutdown();
-#else
         return initial;
-#endif
     }
 }

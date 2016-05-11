@@ -9,20 +9,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-
-#if SILVERLIGHT
-using System.Windows.Controls;
-#endif
 
 public class AllTests : TestCommon.TestApp
 {
-#if SILVERLIGHT
-    override
-    public void run(Ice.Communicator communicator)
-#else
     public static Test.MyClassPrx allTests(Ice.Communicator communicator)
-#endif
     {
         Write("testing stringToProxy... ");
         Flush();
@@ -295,7 +285,7 @@ public class AllTests : TestCommon.TestApp
         }
         catch(Exception ex)
         {
-                System.Console.WriteLine(ex.ToString());
+                Console.WriteLine(ex.ToString());
         }
         property = propertyPrefix + ".LocatorCacheTimeout";
         test(b1.ice_getLocatorCacheTimeout() == -1);
@@ -481,7 +471,7 @@ public class AllTests : TestCommon.TestApp
             baseProxy.ice_timeout(0);
             test(false);
         }
-        catch(System.ArgumentException)
+        catch(ArgumentException)
         {
         }
 
@@ -489,7 +479,7 @@ public class AllTests : TestCommon.TestApp
         {
             baseProxy.ice_timeout(-1);
         }
-        catch(System.ArgumentException)
+        catch(ArgumentException)
         {
             test(false);
         }
@@ -499,7 +489,7 @@ public class AllTests : TestCommon.TestApp
             baseProxy.ice_timeout(-2);
             test(false);
         }
-        catch(System.ArgumentException)
+        catch(ArgumentException)
         {
         }
 
@@ -508,7 +498,7 @@ public class AllTests : TestCommon.TestApp
             baseProxy.ice_invocationTimeout(0);
             test(false);
         }
-        catch(System.ArgumentException)
+        catch(ArgumentException)
         {
         }
 
@@ -517,7 +507,7 @@ public class AllTests : TestCommon.TestApp
             baseProxy.ice_invocationTimeout(-1);
             baseProxy.ice_invocationTimeout(-2);
         }
-        catch(System.ArgumentException)
+        catch(ArgumentException)
         {
             test(false);
         }
@@ -527,7 +517,7 @@ public class AllTests : TestCommon.TestApp
             baseProxy.ice_invocationTimeout(-3);
             test(false);
         }
-        catch(System.ArgumentException)
+        catch(ArgumentException)
         {
         }
 
@@ -535,7 +525,7 @@ public class AllTests : TestCommon.TestApp
         {
             baseProxy.ice_locatorCacheTimeout(0);
         }
-        catch(System.ArgumentException)
+        catch(ArgumentException)
         {
             test(false);
         }
@@ -544,7 +534,7 @@ public class AllTests : TestCommon.TestApp
         {
             baseProxy.ice_locatorCacheTimeout(-1);
         }
-        catch(System.ArgumentException)
+        catch(ArgumentException)
         {
             test(false);
         }
@@ -554,7 +544,7 @@ public class AllTests : TestCommon.TestApp
             baseProxy.ice_locatorCacheTimeout(-2);
             test(false);
         }
-        catch(System.ArgumentException)
+        catch(ArgumentException)
         {
         }
 
@@ -931,10 +921,6 @@ public class AllTests : TestCommon.TestApp
         }
 
         WriteLine("ok");
-#if SILVERLIGHT
-        cl.shutdown();
-#else
         return cl;
-#endif
     }
 }

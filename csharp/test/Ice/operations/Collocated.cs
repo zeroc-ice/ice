@@ -8,7 +8,6 @@
 // **********************************************************************
 
 using System;
-using System.Diagnostics;
 using System.Reflection;
 
 [assembly: CLSCompliant(true)]
@@ -29,7 +28,7 @@ public class Collocated
 
         if(prx.ice_getConnection() != null)
         {
-            throw new System.Exception();
+            throw new Exception();
         }
 
         AllTests.allTests(communicator);
@@ -60,7 +59,7 @@ public class Collocated
             communicator = Ice.Util.initialize(ref args, initData);
             status = run(args, communicator);
         }
-        catch(System.Exception ex)
+        catch(Exception ex)
         {
             Console.Error.WriteLine(ex);
             status = 1;

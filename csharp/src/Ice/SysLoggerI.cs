@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-#if !SILVERLIGHT
 using System.Net.Sockets;
 
 namespace Ice
@@ -231,4 +230,3 @@ namespace Ice
     }
 
 }
-#endif

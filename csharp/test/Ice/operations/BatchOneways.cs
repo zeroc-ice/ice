@@ -15,7 +15,7 @@ class BatchOneways
     {
         if(!b)
         {
-            throw new System.Exception();
+            throw new Exception();
         }
     }
 

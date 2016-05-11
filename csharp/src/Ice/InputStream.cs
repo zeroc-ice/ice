@@ -11,15 +11,10 @@ namespace Ice
 {
 
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Reflection;
-#if !COMPACT && !SILVERLIGHT
     using System.Runtime.Serialization;
     using System.Runtime.Serialization.Formatters.Binary;
-#endif
-    using System.Threading;
     using Protocol = IceInternal.Protocol;
 
     /// <summary>
@@ -1094,7 +1089,6 @@ namespace Ice
         /// <returns>The serializable object.</returns>
         public object readSerializable()
         {
-#if !COMPACT && !SILVERLIGHT
             int sz = readAndCheckSeqSize(1);
             if(sz == 0)
             {
@@ -1110,9 +1104,6 @@ namespace Ice
             {
                 throw new Ice.MarshalException("cannot deserialize object:", ex);
             }
-#else
-            throw new Ice.MarshalException("serialization not supported");
-#endif
         }
 
         /// <summary>
@@ -3112,7 +3103,7 @@ namespace Ice
                         // Set the reason member to a more helpful message.
                         //
                         ex.reason = "unknown exception type `" + mostDerivedId + "'";
-                        throw ex;
+                        throw;
                     }
                 }
             }

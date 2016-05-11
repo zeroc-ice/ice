@@ -9,21 +9,8 @@
 
 using System;
 using System.Diagnostics;
-using System.Threading;
 using System.Collections.Generic;
 using Test;
-
-#if SILVERLIGHT
-using System.Net;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Ink;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Shapes;
-#endif
 
 public class AllTests : TestCommon.TestApp
 {
@@ -60,7 +47,8 @@ public class AllTests : TestCommon.TestApp
         private bool _called;
     }
 
-    private static void exceptAbortI(Ice.Exception ex) {
+    private static void exceptAbortI(Ice.Exception ex)
+    {
         try
         {
             throw ex;
@@ -81,30 +69,8 @@ public class AllTests : TestCommon.TestApp
         }
     }
 
-#if SILVERLIGHT
-    public override Ice.InitializationData initData()
-    {
-        Ice.InitializationData initData = new Ice.InitializationData();
-        initData.properties = Ice.Util.createProperties();
-        initData.properties.setProperty("Ice.Warn.Connections", "0");
-        return initData;
-    }
-    override
-    public void run(Ice.Communicator communicator)
-#else
     public static void allTests(Ice.Communicator communicator, List<int> ports)
-#endif
     {
-#if SILVERLIGHT
-        List<int> ports = new List<int>();
-        {
-            int basePort = 12340;
-            for (int i = 0; i < 12; i++)
-            {
-                ports.Add(basePort + i);
-            }
-        }
-#endif
         Write("testing stringToProxy... ");
         Flush();
         string refString = "test";

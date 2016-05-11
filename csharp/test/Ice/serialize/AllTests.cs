@@ -7,17 +7,12 @@
 //
 // **********************************************************************
 
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using Test;
-
-#if SILVERLIGHT
-using System.Windows.Controls;
-#endif
 
 public class AllTests : TestCommon.TestApp
 {
@@ -67,20 +62,7 @@ public class AllTests : TestCommon.TestApp
         return true;
     }
 
-#if SILVERLIGHT
-    public override Ice.InitializationData initData()
-    {
-        Ice.InitializationData initData = new Ice.InitializationData();
-        initData.properties = Ice.Util.createProperties();
-        initData.properties.setProperty("Ice.FactoryAssemblies", "serialize,version=1.0.0.0");
-        return initData;
-    }
-
-    override
-    public void run(Ice.Communicator communicator)
-#else
     static public int run(Ice.Communicator communicator)
-#endif
     {
         Write("testing serialization... ");
         Flush();
@@ -96,12 +78,10 @@ public class AllTests : TestCommon.TestApp
         ex.vsll = new LinkedList<ValStruct>();
         ex.vssk = new Stack<ValStruct>();
         ex.vsq = new Queue<ValStruct>();
-        ex.vsc = new ValStructCollection();
         ex.isd = new Dictionary<int, string>();
         ex.ivd = new Dictionary<int, ValStruct>();
         ex.ipd = null;
         ex.issd = new SortedDictionary<int, string>();
-        ex.isdc = new IntStringDC();
         ex.optName = new Ice.Optional<string>();
         ex.optInt = new Ice.Optional<int>();
         ex.optValStruct = new Ice.Optional<ValStruct>();
@@ -128,8 +108,6 @@ public class AllTests : TestCommon.TestApp
         ex.vssk.Push(ex.vs);
         ex.vsq = new Queue<ValStruct>();
         ex.vsq.Enqueue(ex.vs);
-        ex.vsc = new ValStructCollection();
-        ex.vsc.Add(ex.vs);
         ex.isd = new Dictionary<int, string>();
         ex.isd[5] = "five";
         ex.ivd = new Dictionary<int, ValStruct>();
@@ -137,8 +115,6 @@ public class AllTests : TestCommon.TestApp
         ex.ipd = new Dictionary<int, MyClassPrx>();
         ex.issd = new SortedDictionary<int, string>();
         ex.issd[3] = "three";
-        ex.isdc = new IntStringDC();
-        ex.isdc[4] = "four";
         ex.optName = new Ice.Optional<string>("MyException");
         ex.optInt = new Ice.Optional<int>(99);
         ex.optValStruct = new Ice.Optional<ValStruct>(ex.vs);
@@ -196,9 +172,7 @@ public class AllTests : TestCommon.TestApp
         test(c2.s.Equals(c.s));
 
         WriteLine("ok");
-#if !SILVERLIGHT
         return 0;
-#endif
     }
 
     private static T inOut<T>(T o)

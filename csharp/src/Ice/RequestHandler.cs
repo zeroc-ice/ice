@@ -7,9 +7,6 @@
 //
 // **********************************************************************
 
-using System.Collections.Generic;
-using Ice.Instrumentation;
-
 namespace IceInternal
 {
     public interface CancellationHandler

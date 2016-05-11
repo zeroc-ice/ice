@@ -8,25 +8,11 @@
 // **********************************************************************
 
 using System;
-using System.Diagnostics;
 using Test;
 
 public class AllTests : TestCommon.TestApp
 {
-#if SILVERLIGHT
-    public override Ice.InitializationData initData()
-    {
-        Ice.InitializationData initData = new Ice.InitializationData();
-        initData.properties = Ice.Util.createProperties();
-        initData.properties.setProperty("Ice.FactoryAssemblies", "optional,version=1.0.0.0");
-        return initData;
-    }
-
-    override
-    public void run(Ice.Communicator communicator)
-#else
     public static TestIntfPrx allTests(Ice.Communicator communicator)
-#endif
     {
         string sref = "test:default -p 12010";
         Ice.ObjectPrx obj = communicator.stringToProxy(sref);
@@ -205,10 +191,6 @@ public class AllTests : TestCommon.TestApp
         }
 
         Console.Out.WriteLine("ok");
-#if SILVERLIGHT
-        proxy.shutdown();
-#else
         return proxy;
-#endif
     }
 }

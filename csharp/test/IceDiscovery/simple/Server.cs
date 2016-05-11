@@ -8,7 +8,6 @@
 // **********************************************************************
 
 using System;
-using System.Diagnostics;
 using System.Reflection;
 
 [assembly: CLSCompliant(true)]
@@ -26,9 +25,9 @@ public class Server
         int num = 0;
         try
         {
-            num =  System.Int32.Parse(args[0]);
+            num =  Int32.Parse(args[0]);
         }
-        catch(System.FormatException)
+        catch(FormatException)
         {
         }
 
@@ -54,9 +53,9 @@ public class Server
             communicator = Ice.Util.initialize(ref args);
             status = run(args, communicator);
         }
-        catch(System.Exception ex)
+        catch(Exception ex)
         {
-            System.Console.Error.WriteLine(ex);
+            Console.Error.WriteLine(ex);
             status = 1;
         }
 
@@ -68,7 +67,7 @@ public class Server
             }
             catch(Ice.LocalException ex)
             {
-                System.Console.Error.WriteLine(ex);
+                Console.Error.WriteLine(ex);
                 status = 1;
             }
         }

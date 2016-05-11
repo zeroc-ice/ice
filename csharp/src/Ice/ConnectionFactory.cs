@@ -11,13 +11,9 @@ namespace IceInternal
 {
 
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Net.Sockets;
-    using System.Threading;
     using System.Text;
-    using IceUtilInternal;
 
     public class MultiDictionary<K, V> : Dictionary<K, ICollection<V>>
     {
@@ -28,7 +24,7 @@ namespace IceInternal
             if(!this.TryGetValue(key, out list))
             {
                 list = new List<V>();
-                this.Add(key, list);
+                Add(key, list);
             }
             list.Add(value);
         }
@@ -40,7 +36,7 @@ namespace IceInternal
             list.Remove(value);
             if(list.Count == 0)
             {
-                this.Remove(key);
+                Remove(key);
             }
         }
     }
@@ -147,7 +143,6 @@ namespace IceInternal
                 _monitor.destroy();
             }
         }
-
 
         public void create(EndpointI[] endpts, bool hasMore, Ice.EndpointSelectionType selType,
                            CreateConnectionCallback callback)
@@ -1303,9 +1298,7 @@ namespace IceInternal
                 }
                 finally
                 {
-#if !COMPACT && !SILVERLIGHT
                     System.Environment.FailFast(s);
-#endif
                 }
                 return false;
             }
@@ -1329,9 +1322,7 @@ namespace IceInternal
                     }
                     finally
                     {
-#if !COMPACT && !SILVERLIGHT
                         System.Environment.FailFast(s);
-#endif
                     }
                     return false;
                 }
@@ -1409,9 +1400,7 @@ namespace IceInternal
                             }
                             finally
                             {
-#if !COMPACT && !SILVERLIGHT
                                 System.Environment.FailFast(s);
-#endif
                             }
                         }
 
@@ -1725,13 +1714,13 @@ namespace IceInternal
                     _adapter.getThreadPool().unregister(this, SocketOperation.Read);
                 }
             }
-            catch(SystemException ex)
+            catch(SystemException)
             {
                 if(_acceptor != null)
                 {
                     _acceptor.close();
                 }
-                throw ex;
+                throw;
             }
         }
 

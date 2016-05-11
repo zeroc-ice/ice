@@ -15,7 +15,7 @@ public class RemoteObjectAdapterI : RemoteObjectAdapterDisp_
     {
         _adapter = adapter;
         _testIntf = TestIntfPrxHelper.uncheckedCast(_adapter.add(new TestI(), 
-                                                        _adapter.getCommunicator().stringToIdentity("test")));
+                                                    _adapter.getCommunicator().stringToIdentity("test")));
         _adapter.activate();
     }
 

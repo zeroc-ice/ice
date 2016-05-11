@@ -7,11 +7,8 @@
 //
 // **********************************************************************
 
-using Glacier2;
 using Test;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Reflection;
 using System.Threading;
 
@@ -32,11 +29,7 @@ public class Client
             _initData = new Ice.InitializationData();
             _initData.properties = Ice.Util.createProperties(ref args);
             _initData.properties.setProperty("Ice.Default.Router", "Glacier2/router:default -p 12347");
-#if COMPACT
-            _initData.dispatcher = delegate(Ice.VoidAction action, Ice.Connection connection)
-#else
-            _initData.dispatcher = delegate(System.Action action, Ice.Connection connection)
-#endif
+            _initData.dispatcher = delegate(Action action, Ice.Connection connection)
                 {
                     action();
                 };
@@ -57,7 +50,7 @@ public class Client
             }
 
             public void
-            connectFailed(Glacier2.SessionHelper session, System.Exception exception)
+            connectFailed(Glacier2.SessionHelper session, Exception exception)
             {
                 try
                 {
@@ -71,7 +64,7 @@ public class Client
                         wakeUp();
                     }
                 }
-                catch(System.Exception)
+                catch(Exception)
                 {
                     test(false);
                 }
@@ -107,7 +100,7 @@ public class Client
             }
 
             public void
-            connectFailed(Glacier2.SessionHelper session, System.Exception ex)
+            connectFailed(Glacier2.SessionHelper session, Exception ex)
             {
                 Console.Out.WriteLine(ex.ToString());
                 test(false);
@@ -135,7 +128,7 @@ public class Client
             }
 
             public void
-            connectFailed(Glacier2.SessionHelper session, System.Exception exception)
+            connectFailed(Glacier2.SessionHelper session, Exception exception)
             {
                 try
                 {
@@ -149,7 +142,7 @@ public class Client
                         wakeUp();
                     }
                 }
-                catch(System.Exception)
+                catch(Exception)
                 {
                     test(false);
                 }
@@ -177,7 +170,7 @@ public class Client
             }
 
             public void
-            connectFailed(Glacier2.SessionHelper session, System.Exception exception)
+            connectFailed(Glacier2.SessionHelper session, Exception exception)
             {
                 try
                 {
@@ -191,7 +184,7 @@ public class Client
                         wakeUp();
                     }
                 }
-                catch(System.Exception)
+                catch(Exception)
                 {
                     test(false);
                 }
@@ -227,19 +220,14 @@ public class Client
                 _session = _factory.connect("userid", "xxx");
                 while(true)
                 {
-#if COMPACT
-                    System.Threading.Monitor.Wait(this);
-                    break;
-#else
                     try
                     {
-                        System.Threading.Monitor.Wait(this);
+                        Monitor.Wait(this);
                         break;
                     }
                     catch(ThreadInterruptedException)
                     {
                     }
-#endif
                 }
             }
 
@@ -254,24 +242,19 @@ public class Client
                 _factory.setProtocol(protocol);
                 _session = _factory.connect("userid", "abc123");
 
-                System.Threading.Thread.Sleep(100);
+                Thread.Sleep(100);
                 _session.destroy();
 
                 while(true)
                 {
-#if COMPACT
-                    System.Threading.Monitor.Wait(this);
-                    break;
-#else
                     try
                     {
-                        System.Threading.Monitor.Wait(this);
+                        Monitor.Wait(this);
                         break;
                     }
                     catch(ThreadInterruptedException)
                     {
                     }
-#endif
                 }
             }
 
@@ -286,19 +269,14 @@ public class Client
                 _session = _factory.connect("userid", "abc123");
                 while(true)
                 {
-#if COMPACT
-                    System.Threading.Monitor.Wait(this);
-                    break;
-#else
                     try
                     {
-                        System.Threading.Monitor.Wait(this);
+                        Monitor.Wait(this);
                         break;
                     }
                     catch(ThreadInterruptedException)
                     {
                     }
-#endif
                 }
 
                 Console.Out.Write("testing SessionHelper isConnected after connect... ");
@@ -354,19 +332,14 @@ public class Client
                 _session.destroy();
                 while(true)
                 {
-#if COMPACT
-                    System.Threading.Monitor.Wait(this);
-                    break;
-#else
                     try
                     {
-                        System.Threading.Monitor.Wait(this);
+                        Monitor.Wait(this);
                         break;
                     }
                     catch(ThreadInterruptedException)
                     {
                     }
-#endif
                 }
 
                 Console.Out.Write("testing SessionHelper isConnected after destroy... ");
@@ -457,19 +430,14 @@ public class Client
                 _session = _factory.connect("userid", "abc123");
                 while(true)
                 {
-#if COMPACT
-                    System.Threading.Monitor.Wait(this);
-                    break;
-#else
                     try
                     {
-                        System.Threading.Monitor.Wait(this);
+                        Monitor.Wait(this);
                         break;
                     }
                     catch(ThreadInterruptedException)
                     {
                     }
-#endif
                 }
 
                 Console.Out.Write("testing SessionHelper isConnect after connect failure... ");
@@ -502,7 +470,7 @@ public class Client
         public static void
         wakeUp()
         {
-            System.Threading.Monitor.Pulse(me);
+            Monitor.Pulse(me);
         }
 
         private static void

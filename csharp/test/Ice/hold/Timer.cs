@@ -43,7 +43,7 @@ public class Timer
 
     public Timer()
     {
-        _t = new System.Threading.Thread(new System.Threading.ThreadStart(run));
+        _t = new Thread(new ThreadStart(run));
         _t.Start();
     }
 
@@ -56,7 +56,7 @@ public class Timer
             e.when = currentMonotonicTimeMillis() + milliseconds;
             _tasks.Add(e);
             _tasks.Sort();
-            System.Threading.Monitor.Pulse(this);
+            Monitor.Pulse(this);
         }
     }
 
@@ -69,7 +69,7 @@ public class Timer
             e.when = 0;
             _tasks.Add(e);
             _tasks.Sort();
-            System.Threading.Monitor.Pulse(this);
+            Monitor.Pulse(this);
         }
     }
 
@@ -89,7 +89,7 @@ public class Timer
                 {
                     while(_tasks.Count == 0)
                     {
-                        System.Threading.Monitor.Wait(this);
+                        Monitor.Wait(this);
                     }
 
                     e = _tasks[0];
@@ -103,7 +103,7 @@ public class Timer
                         _tasks.RemoveAt(0);
                         break;
                     }
-                    System.Threading.Monitor.Wait(this, (int)(e.when - now));
+                    Monitor.Wait(this, (int)(e.when - now));
                 }
             }
             e.task();
@@ -111,20 +111,12 @@ public class Timer
 
     }
 
-#if SILVERLIGHT
-    private long currentMonotonicTimeMillis()
-    {
-        return (System.DateTime.Now.Ticks - _begin) / 10000;
-    }
-    private long _begin = System.DateTime.Now.Ticks;
-#else
     private long currentMonotonicTimeMillis()
     {
         return _sw.ElapsedMilliseconds;
     }
     private Stopwatch _sw = Stopwatch.StartNew();
-#endif
 
-    private System.Threading.Thread _t;
+    private Thread _t;
     private List<Entry> _tasks = new List<Entry>();
 }

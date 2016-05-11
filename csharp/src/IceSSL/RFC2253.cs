@@ -20,7 +20,7 @@ namespace IceSSL
 
     class RFC2253
     {
-        internal class ParseException : System.Exception
+        internal class ParseException : Exception
         {
             internal ParseException()
             {

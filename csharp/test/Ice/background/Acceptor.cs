@@ -7,10 +7,6 @@
 //
 // **********************************************************************
 
-using System;
-using System.Diagnostics;
-using System.Net.Sockets;
-
 internal class Acceptor : IceInternal.Acceptor
 {
     public void close()

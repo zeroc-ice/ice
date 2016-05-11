@@ -7,8 +7,6 @@
 //
 // **********************************************************************
 
-#if !SILVERLIGHT
-
 using System;
 
 [assembly: CLSCompliant(true)]
@@ -43,5 +41,3 @@ public class SerializableClass
 }
 
 }
-
-#endif

@@ -7,8 +7,6 @@
 //
 // **********************************************************************
 
-#if !SILVERLIGHT
-
 namespace IceInternal
 {
     using System;
@@ -136,9 +134,7 @@ namespace IceInternal
                 _addr = (IPEndPoint)Network.getAddressForServer(host, port, protocol, _instance.preferIPv6());
                 _fd = Network.createServerSocket(false, _addr.AddressFamily, protocol);
                 Network.setBlock(_fd, false);
-#  if !COMPACT
                 Network.setTcpBufSize(_fd, _instance);
-#  endif
                 if(AssemblyUtil.platform_ != AssemblyUtil.Platform.Windows)
                 {
                     //
@@ -173,4 +169,3 @@ namespace IceInternal
         private IAsyncResult _result;
     }
 }
-#endif

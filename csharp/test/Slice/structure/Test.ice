@@ -11,7 +11,7 @@ module Test
 {
 
 sequence<string> StringSeq;
-["clr:collection"] sequence<int> IntList;
+sequence<int> IntList;
 dictionary<string, string> StringDict;
 
 class C

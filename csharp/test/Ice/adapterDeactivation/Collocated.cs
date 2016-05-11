@@ -7,9 +7,7 @@
 //
 // **********************************************************************
 
-using Test;
 using System;
-using System.Diagnostics;
 using System.Reflection;
 
 [assembly: CLSCompliant(true)]

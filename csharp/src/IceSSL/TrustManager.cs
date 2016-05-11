@@ -130,9 +130,6 @@ namespace IceSSL
             //
             if(info.nativeCerts != null && info.nativeCerts.Length > 0)
             {
-#if UNITY
-                throw new Ice.FeatureNotSupportedException("certificate subjectName not available");
-#else
                 X500DistinguishedName subjectDN = info.nativeCerts[0].SubjectName;
                 string subjectName = subjectDN.Name;
                 Debug.Assert(subjectName != null);
@@ -218,7 +215,6 @@ namespace IceSSL
                 // At this point we accept the connection if there are no explicit accept rules.
                 //
                 return accept.Count == 0;
-#endif
             }
 
             return false;

@@ -76,7 +76,6 @@ class MyObjectI : Test.MyObjectDisp_
     //
     // AMD
     //
-
     public override void 
     amdAdd_async(Test.AMD_MyObject_amdAdd cb, int x, int y, Ice.Current current)
     {

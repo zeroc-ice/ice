@@ -8,7 +8,6 @@
 // **********************************************************************
 
 using Test;
-using System.Threading;
 
 public class TestI : TestIntfDisp_
 {

@@ -347,7 +347,7 @@ namespace IceInternal
                 //
                 if(userThread)
                 {
-                    throw ex;
+                    throw;
                 }
                 Ice.AsyncCallback cb = finished(ex); // No retries, we're done
                 if(cb != null)
@@ -775,10 +775,10 @@ namespace IceInternal
                 _is.startEncapsulation();
                 _is.throwException(null);
             }
-            catch(Ice.UserException ex)
+            catch(Ice.UserException)
             {
                 _is.endEncapsulation();
-                throw ex;
+                throw;
             }
         }
 
@@ -868,10 +868,10 @@ namespace IceInternal
                 }
                 Debug.Assert(sentCB == null);
             }
-            catch(Ice.LocalException ex)
+            catch(Ice.LocalException)
             {
                 doCheck(false);
-                throw ex;
+                throw;
             }
         }
 

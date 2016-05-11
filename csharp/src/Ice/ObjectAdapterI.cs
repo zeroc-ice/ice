@@ -1018,36 +1018,6 @@ namespace Ice
             }
         }
 
-        /*
-        ~ObjectAdapterI()
-        {
-            if(!_deactivated)
-            {
-                string msg = "object adapter `" + getName() + "' has not been deactivated";
-                if(!Environment.HasShutdownStarted)
-                {
-                    instance_.initializationData().logger.warning(msg);
-                }
-                else
-                {
-                    Console.Error.WriteLine(msg);
-                }
-            }
-            else if(!_destroyed)
-            {
-                string msg = "object adapter `" + getName() + "' has not been destroyed";
-                if(!Environment.HasShutdownStarted)
-                {
-                    instance_.initializationData().logger.warning(msg);
-                }
-                else
-                {
-                    Console.Error.WriteLine(msg);
-                }
-            }
-        }
-        */
-
         private ObjectPrx newProxy(Identity ident, string facet)
         {
             if(_id.Length == 0)
@@ -1205,25 +1175,6 @@ namespace Ice
                 EndpointI endp = instance_.endpointFactoryManager().create(s, oaEndpoints);
                 if(endp == null)
                 {
-#if COMPACT
-                    if(s.StartsWith("ssl", StringComparison.Ordinal) || s.StartsWith("wss", StringComparison.Ordinal))
-                    {
-                        instance_.initializationData().logger.warning(
-                            "ignoring endpoint `" + s +
-                            "': IceSSL is not supported with the .NET Compact Framework");
-                        ++end;
-                        continue;
-                    }
-#else
-                    if(AssemblyUtil.runtime_ == AssemblyUtil.Runtime.Mono &&
-                       (s.StartsWith("ssl", StringComparison.Ordinal) || s.StartsWith("wss", StringComparison.Ordinal)))
-                    {
-                        instance_.initializationData().logger.warning(
-                            "ignoring endpoint `" + s + "': IceSSL is not supported with Mono");
-                        ++end;
-                        continue;
-                    }
-#endif
                     Ice.EndpointParseException e2 = new Ice.EndpointParseException();
                     e2.str = "invalid object adapter endpoint `" + s + "'";
                     throw e2;

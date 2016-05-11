@@ -9,7 +9,6 @@
 
 using System;
 using System.IO;
-using System.Diagnostics;
 using System.Reflection;
 
 [assembly: CLSCompliant(true)]

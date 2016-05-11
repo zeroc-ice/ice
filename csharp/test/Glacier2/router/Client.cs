@@ -7,11 +7,9 @@
 //
 // **********************************************************************
 
-using Glacier2;
 using Test;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Reflection;
 
 [assembly: CLSCompliant(true)]
@@ -27,7 +25,6 @@ public class Client
         public override int run(string[] args)
         {
             Ice.ObjectPrx routerBase;
-
             {
                 Console.Out.Write("testing stringToProxy for router... ");
                 Console.Out.Flush();
@@ -36,7 +33,6 @@ public class Client
             }
 
             Glacier2.RouterPrx router;
-
             {
                 Console.Out.Write("testing checked cast for router... ");
                 Console.Out.Flush();
@@ -451,15 +447,6 @@ public class Client
         initData.properties = Ice.Util.createProperties(ref args);
 
         initData.properties.setProperty("Ice.Warn.Connections", "0");
-
-#if COMPACT
-        //
-        // When using Ice for .NET Compact Framework, we need to specify
-        // the assembly so that Ice can locate classes and exceptions.
-        //
-        initData.properties.setProperty("Ice.FactoryAssemblies", "client");
-#endif
-
         App app = new App();
         return app.main(args, initData);
     }

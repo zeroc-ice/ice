@@ -313,10 +313,6 @@ namespace Ice
         
         public void load(string file)
         {
-#if UNITY
-            throw new FeatureNotSupportedException("File I/O not supported in UNITY build");
-#else
-#   if !SILVERLIGHT
             if(IceInternal.AssemblyUtil.platform_ == IceInternal.AssemblyUtil.Platform.Windows &&
                (file.StartsWith("HKLM\\", StringComparison.Ordinal)))
             {
@@ -339,7 +335,6 @@ namespace Ice
             }
             else
             {
-#   endif
                 try
                 {
                     using(System.IO.StreamReader sr = new System.IO.StreamReader(file))
@@ -353,10 +348,7 @@ namespace Ice
                     fe.path = file;
                     throw fe;
                 }
-#   if !SILVERLIGHT
             }
-#   endif
-#endif
         }
         
         public Properties ice_clone_()
@@ -662,8 +654,6 @@ namespace Ice
         private void loadConfig()
         {
             string val = getProperty("Ice.Config");
-
-#if !COMPACT && !SILVERLIGHT
             if(val.Length == 0 || val.Equals("1"))
             {
                 string s = System.Environment.GetEnvironmentVariable("ICE_CONFIG");
@@ -672,7 +662,6 @@ namespace Ice
                     val = s;
                 }
             }
-#endif
 
             if(val.Length > 0)
             {

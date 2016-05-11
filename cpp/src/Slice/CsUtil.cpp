@@ -36,7 +36,7 @@ lookupKwd(const string& name, int baseTypes, bool mangleCasts = false)
     //
     static const string keywordList[] =
     {
-        "abstract", "as", "base", "bool", "break", "byte", "case", "catch", "char", "checked", "class", "const",
+        "abstract", "as", "async", "away", "base", "bool", "break", "byte", "case", "catch", "char", "checked", "class", "const",
         "continue", "decimal", "default", "delegate", "do", "double", "else", "enum", "event", "explicit", "extern",
         "false", "finally", "fixed", "float", "for", "foreach", "goto", "if", "implicit", "in", "int", "interface",
         "internal", "is", "lock", "long", "namespace", "new", "null", "object", "operator", "out", "override",
@@ -300,11 +300,6 @@ Slice::CsGenerator::typeToString(const TypePtr& type, bool optional)
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if(seq)
     {
-        if(seq->hasMetaData("clr:collection"))
-        {
-            return fixId(seq->scoped());
-        }
-
         string prefix = "clr:generic:";
         string meta;
         if(seq->findMetaData(prefix, meta))
@@ -333,11 +328,6 @@ Slice::CsGenerator::typeToString(const TypePtr& type, bool optional)
     DictionaryPtr d = DictionaryPtr::dynamicCast(type);
     if(d)
     {
-        if(d->hasMetaData("clr:collection"))
-        {
-            return fixId(d->scoped());
-        }
-
         string prefix = "clr:generic:";
         string meta;
         string typeName;
@@ -1079,8 +1069,8 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             isCustom = true;
         }
     }
-    const bool isCollection = seq->hasMetaData("clr:collection");
-    const bool isArray = !isGeneric && !isCollection;
+
+    const bool isArray = !isGeneric;
     const string limitID = isArray ? "Length" : "Count";
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
@@ -1250,11 +1240,6 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                     {
                         out << nl << stream << ".write" << func << "Seq(" << param << ");";
                     }
-                    else if(isCollection)
-                    {
-                        out << nl << stream << ".write" << func << "Seq(" << param << " == null ? null : "
-                            << param << ".ToArray());";
-                    }
                     else if(isCustom)
                     {
                         out << nl << stream << ".write" << func << "Seq(" << param << " == null ? 0 : "
@@ -1284,11 +1269,6 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                         out << nl << param << ".Add(" << stream << ".read" << func << "());";
                         out << eb;
                         out << eb;
-                    }
-                    else if(isCollection)
-                    {
-                        out << nl << param << " = new " << fixId(seq->scoped())
-                            << '(' << stream << ".read" << func << "Seq());";
                     }
                     else
                     {
@@ -1760,7 +1740,7 @@ Slice::CsGenerator::writeOptionalSequenceMarshalUnmarshalCode(Output& out,
     const string seqS = typeToString(seq);
 
     string meta;
-    const bool isArray = !seq->findMetaData("clr:generic:", meta) && !seq->hasMetaData("clr:collection");
+    const bool isArray = !seq->findMetaData("clr:generic:", meta);
     const string length = isArray ? param + ".Value.Length" : param + ".Value.Count";
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
@@ -2375,7 +2355,6 @@ Slice::CsGenerator::MetaDataVisitor::visitConst(const ConstPtr& p)
 void
 Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
 {
-    static set<string> collectionWarnings;
     const string msg = "ignoring invalid metadata";
 
     StringList localMetaData = cont->getMetaData();
@@ -2392,14 +2371,6 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                 SequencePtr seq = SequencePtr::dynamicCast(cont);
                 if(seq)
                 {
-                    if(s.substr(prefix.size()) == "collection")
-                    {
-                        if(collectionWarnings.find(cont->file()) == collectionWarnings.end()) {
-                            emitWarning(cont->file(), cont->line(), "the \"" + s + "\" metadata has been deprecated");
-                            collectionWarnings.insert(cont->file());
-                        }
-                        continue;
-                    }
                     static const string clrGenericPrefix = prefix + "generic:";
                     if(s.find(clrGenericPrefix) == 0)
                     {
@@ -2423,8 +2394,7 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                     if(s.find(clrSerializablePrefix) == 0)
                     {
                         string meta;
-                        if(cont->findMetaData(prefix + "collection", meta)
-                           || cont->findMetaData(prefix + "generic:", meta))
+                        if(cont->findMetaData(prefix + "generic:", meta))
                         {
                             emitWarning(cont->file(), cont->line(), msg + " `" + meta + "':\n" +
                                         "serialization can only be used with the array mapping for byte sequences");
@@ -2467,14 +2437,6 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                 }
                 else if(DictionaryPtr::dynamicCast(cont))
                 {
-                    if(s.substr(prefix.size()) == "collection")
-                    {
-                        if(collectionWarnings.find(cont->file()) == collectionWarnings.end()) {
-                            emitWarning(cont->file(), cont->line(), "the \"" + s + "\" metadata has been deprecated");
-                            collectionWarnings.insert(cont->file());
-                        }
-                        continue;
-                    }
                     static const string clrGenericPrefix = prefix + "generic:";
                     if(s.find(clrGenericPrefix) == 0)
                     {

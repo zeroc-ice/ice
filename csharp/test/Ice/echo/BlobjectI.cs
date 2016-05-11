@@ -7,11 +7,7 @@
 //
 // **********************************************************************
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading;
-using Test;
 
 public class BlobjectI : Ice.BlobjectAsync
 {

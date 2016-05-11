@@ -10,11 +10,8 @@
 
 namespace IceInternal
 {
-
-    using System;
     using System.Diagnostics;
     using System.IO;
-    using System.Text;
 
     //
     // Classes to provide a System.IO.Stream interface on top of an Ice stream.

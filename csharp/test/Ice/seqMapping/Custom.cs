@@ -9,7 +9,6 @@
 
 using System;
 using System.Collections.Generic;
-using Test;
 
 public class Custom<T> : IEnumerable<T>
 {
@@ -79,7 +78,7 @@ public class Custom<T> : IEnumerable<T>
             }
             return true;
         }
-        catch(System.Exception)
+        catch(Exception)
         {
             return false;
         }

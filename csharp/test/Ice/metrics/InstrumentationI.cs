@@ -11,8 +11,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-using Test;
-
 public class ObserverI : Ice.Instrumentation.Observer
 {
     virtual public void 

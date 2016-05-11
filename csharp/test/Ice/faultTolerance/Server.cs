@@ -8,7 +8,6 @@
 // **********************************************************************
 
 using System;
-using System.Diagnostics;
 using System.Reflection;
 
 [assembly: CLSCompliant(true)]
@@ -21,7 +20,7 @@ public class Server
 {
     private static void usage()
     {
-        System.Console.Error.WriteLine("Usage: Server port");
+        Console.Error.WriteLine("Usage: Server port");
     }
 
     private static int run(string[] args, Ice.Communicator communicator)
@@ -31,25 +30,25 @@ public class Server
         {
             if(args[i][0] == '-')
             {
-                System.Console.Error.WriteLine("Server: unknown option `" + args[i] + "'");
+                Console.Error.WriteLine("Server: unknown option `" + args[i] + "'");
                 usage();
                 return 1;
             }
 
             if(port != 0)
             {
-                System.Console.Error.WriteLine("Server: only one port can be specified");
+                Console.Error.WriteLine("Server: only one port can be specified");
                 usage();
                 return 1;
             }
 
             try
             {
-                port = System.Int32.Parse(args[i]);
+                port = int.Parse(args[i]);
             }
-            catch(System.FormatException)
+            catch(FormatException)
             {
-                System.Console.Error.WriteLine("Server: invalid port");
+                Console.Error.WriteLine("Server: invalid port");
                 usage();
                 return 1;
             }
@@ -57,7 +56,7 @@ public class Server
 
         if(port <= 0)
         {
-            System.Console.Error.WriteLine("Server: no port specified");
+            Console.Error.WriteLine("Server: no port specified");
             usage();
             return 1;
         }
@@ -90,9 +89,9 @@ public class Server
             communicator = Ice.Util.initialize(ref args, initData);
             status = run(args, communicator);
         }
-        catch(System.Exception ex)
+        catch(Exception ex)
         {
-            System.Console.Error.WriteLine(ex);
+            Console.Error.WriteLine(ex);
             status = 1;
         }
 
@@ -104,7 +103,7 @@ public class Server
             }
             catch(Ice.LocalException ex)
             {
-                System.Console.Error.WriteLine(ex);
+                Console.Error.WriteLine(ex);
                 status = 1;
             }
         }
