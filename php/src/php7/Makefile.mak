@@ -10,7 +10,7 @@
 top_srcdir	= ..\..
 
 LIBNAME		= php_ice$(LIBSUFFIX).lib
-DLLNAME         = $(libdir)\php_ice$(LIBSUFFIX).dll
+DLLNAME		= $(libdir)\php_ice$(LIBSUFFIX).dll
 
 TARGETS		= $(LIBNAME) $(DLLNAME)
 
@@ -25,23 +25,9 @@ OBJS		= .\Communicator.obj \
 		  .\Types.obj \
 		  .\Util.obj
 
-
-#
-# Get Make.common.rules.mak to figure out CPP_COMPILER by setting it
-# to "auto"
-#
-CPP_COMPILER=auto
-
 !include $(top_srcdir)\config\Make.rules.mak.php
 
-#
-# Ensure we're using VC110
-#
-!if "$(CPP_COMPILER)" != "VC110"
-!error Invalid CPP_COMPILER setting: $(CPP_COMPILER). Must be set to VC110.
-!endif
-
-CPPFLAGS	= -I. -I.. $(CPPFLAGS) $(ICE_CPPFLAGS) $(PHP_CPPFLAGS) 
+CPPFLAGS	= -I. -I.. $(CPPFLAGS) $(ICE_CPPFLAGS) $(PHP_CPPFLAGS) -DZEND_WIN32_KEEP_INLINE
 
 !if "$(ARCH)" == "x86"
 CPPFLAGS = $(CPPFLAGS) -D_USE_32BIT_TIME_T

@@ -11,7 +11,7 @@ top_srcdir	= ..
 
 !include $(top_srcdir)\config\Make.rules.mak.php
 
-SUBDIRS		= php5
+SUBDIRS		= $(php_version)
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

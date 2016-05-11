@@ -78,13 +78,6 @@ extern zend_module_entry ice_module_entry;
 #include "TSRM.h"
 #endif
 
-//
-// The PHP header files define a macro named "inline".
-//
-#ifdef inline
-#   undef inline
-#endif
-
 ZEND_MINIT_FUNCTION(ice);
 ZEND_MSHUTDOWN_FUNCTION(ice);
 ZEND_RINIT_FUNCTION(ice);

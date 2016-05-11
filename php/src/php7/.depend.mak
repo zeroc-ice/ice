@@ -11,6 +11,7 @@ Communicator.obj: \
     "$(ice_cpp_dir)\include\Ice\CommunicatorF.h" \
     "$(ice_cpp_dir)\include\Ice\ProxyF.h" \
     "$(ice_cpp_dir)\include\IceUtil\Shared.h" \
+    "$(ice_cpp_dir)\include\IceUtil\Atomic.h" \
     "$(ice_cpp_dir)\include\Ice\ProxyHandle.h" \
     "$(ice_cpp_dir)\include\IceUtil\Handle.h" \
     "$(ice_cpp_dir)\include\IceUtil\Exception.h" \
@@ -50,6 +51,7 @@ Communicator.obj: \
     "$(ice_cpp_dir)\include\Ice\EndpointTypes.h" \
     "$(ice_cpp_dir)\include\Ice\ObjectAdapterF.h" \
     "$(ice_cpp_dir)\include\Ice\ReferenceF.h" \
+    "$(ice_cpp_dir)\include\Ice\BatchRequestQueueF.h" \
     "$(ice_cpp_dir)\include\Ice\AsyncResult.h" \
     "$(ice_cpp_dir)\include\IceUtil\UniquePtr.h" \
     "$(ice_cpp_dir)\include\Ice\ConnectionF.h" \
@@ -72,6 +74,7 @@ Communicator.obj: \
     "$(ice_cpp_dir)\include\Ice\FactoryTable.h" \
     "$(ice_cpp_dir)\include\Ice\InstrumentationF.h" \
     "$(ice_cpp_dir)\include\Ice\Dispatcher.h" \
+    "$(ice_cpp_dir)\include\Ice\BatchRequestInterceptor.h" \
     "$(ice_cpp_dir)\include\Ice\LocalException.h" \
     "$(ice_cpp_dir)\include\Ice\PropertiesAdmin.h" \
     "$(ice_cpp_dir)\include\Ice\GCObject.h" \
@@ -115,7 +118,10 @@ Communicator.obj: \
     "$(ice_cpp_dir)\include\Ice\DispatchInterceptor.h" \
     "$(ice_cpp_dir)\include\Ice\NativePropertiesAdmin.h" \
     "$(ice_cpp_dir)\include\Ice\Metrics.h" \
+    "$(ice_cpp_dir)\include\Ice\SliceChecksums.h" \
+    "$(ice_cpp_dir)\include\Ice\SliceChecksumDict.h" \
     "$(ice_cpp_dir)\include\Ice\Service.h" \
+    "$(ice_cpp_dir)\include\Ice\RegisterPlugins.h" \
     "Logger.h" \
     "Properties.h" \
     "Proxy.h" \
@@ -139,6 +145,7 @@ Connection.obj: \
     "$(ice_cpp_dir)\include\Ice\CommunicatorF.h" \
     "$(ice_cpp_dir)\include\Ice\ProxyF.h" \
     "$(ice_cpp_dir)\include\IceUtil\Shared.h" \
+    "$(ice_cpp_dir)\include\IceUtil\Atomic.h" \
     "$(ice_cpp_dir)\include\Ice\ProxyHandle.h" \
     "$(ice_cpp_dir)\include\IceUtil\Handle.h" \
     "$(ice_cpp_dir)\include\IceUtil\Exception.h" \
@@ -178,6 +185,7 @@ Connection.obj: \
     "$(ice_cpp_dir)\include\Ice\EndpointTypes.h" \
     "$(ice_cpp_dir)\include\Ice\ObjectAdapterF.h" \
     "$(ice_cpp_dir)\include\Ice\ReferenceF.h" \
+    "$(ice_cpp_dir)\include\Ice\BatchRequestQueueF.h" \
     "$(ice_cpp_dir)\include\Ice\AsyncResult.h" \
     "$(ice_cpp_dir)\include\IceUtil\UniquePtr.h" \
     "$(ice_cpp_dir)\include\Ice\ConnectionF.h" \
@@ -200,6 +208,7 @@ Connection.obj: \
     "$(ice_cpp_dir)\include\Ice\FactoryTable.h" \
     "$(ice_cpp_dir)\include\Ice\InstrumentationF.h" \
     "$(ice_cpp_dir)\include\Ice\Dispatcher.h" \
+    "$(ice_cpp_dir)\include\Ice\BatchRequestInterceptor.h" \
     "$(ice_cpp_dir)\include\Ice\LocalException.h" \
     "$(ice_cpp_dir)\include\Ice\PropertiesAdmin.h" \
     "$(ice_cpp_dir)\include\Ice\GCObject.h" \
@@ -243,13 +252,21 @@ Connection.obj: \
     "$(ice_cpp_dir)\include\Ice\DispatchInterceptor.h" \
     "$(ice_cpp_dir)\include\Ice\NativePropertiesAdmin.h" \
     "$(ice_cpp_dir)\include\Ice\Metrics.h" \
+    "$(ice_cpp_dir)\include\Ice\SliceChecksums.h" \
+    "$(ice_cpp_dir)\include\Ice\SliceChecksumDict.h" \
     "$(ice_cpp_dir)\include\Ice\Service.h" \
+    "$(ice_cpp_dir)\include\Ice\RegisterPlugins.h" \
     "Endpoint.h" \
     "Types.h" \
     "Communicator.h" \
     "Operation.h" \
     "$(ice_cpp_dir)\include\IceUtil\OutputUtil.h" \
     "Util.h" \
+    "$(ice_cpp_dir)\include\IceSSL\IceSSL.h" \
+    "$(ice_cpp_dir)\include\IceSSL\Plugin.h" \
+    "$(ice_cpp_dir)\include\IceSSL\Config.h" \
+    "$(ice_cpp_dir)\include\IceSSL\ConnectionInfo.h" \
+    "$(ice_cpp_dir)\include\IceSSL\EndpointInfo.h" \
 
 Endpoint.obj: \
 	Endpoint.cpp \
@@ -263,6 +280,7 @@ Endpoint.obj: \
     "$(ice_cpp_dir)\include\Ice\CommunicatorF.h" \
     "$(ice_cpp_dir)\include\Ice\ProxyF.h" \
     "$(ice_cpp_dir)\include\IceUtil\Shared.h" \
+    "$(ice_cpp_dir)\include\IceUtil\Atomic.h" \
     "$(ice_cpp_dir)\include\Ice\ProxyHandle.h" \
     "$(ice_cpp_dir)\include\IceUtil\Handle.h" \
     "$(ice_cpp_dir)\include\IceUtil\Exception.h" \
@@ -302,6 +320,7 @@ Endpoint.obj: \
     "$(ice_cpp_dir)\include\Ice\EndpointTypes.h" \
     "$(ice_cpp_dir)\include\Ice\ObjectAdapterF.h" \
     "$(ice_cpp_dir)\include\Ice\ReferenceF.h" \
+    "$(ice_cpp_dir)\include\Ice\BatchRequestQueueF.h" \
     "$(ice_cpp_dir)\include\Ice\AsyncResult.h" \
     "$(ice_cpp_dir)\include\IceUtil\UniquePtr.h" \
     "$(ice_cpp_dir)\include\Ice\ConnectionF.h" \
@@ -324,6 +343,7 @@ Endpoint.obj: \
     "$(ice_cpp_dir)\include\Ice\FactoryTable.h" \
     "$(ice_cpp_dir)\include\Ice\InstrumentationF.h" \
     "$(ice_cpp_dir)\include\Ice\Dispatcher.h" \
+    "$(ice_cpp_dir)\include\Ice\BatchRequestInterceptor.h" \
     "$(ice_cpp_dir)\include\Ice\LocalException.h" \
     "$(ice_cpp_dir)\include\Ice\PropertiesAdmin.h" \
     "$(ice_cpp_dir)\include\Ice\GCObject.h" \
@@ -367,8 +387,12 @@ Endpoint.obj: \
     "$(ice_cpp_dir)\include\Ice\DispatchInterceptor.h" \
     "$(ice_cpp_dir)\include\Ice\NativePropertiesAdmin.h" \
     "$(ice_cpp_dir)\include\Ice\Metrics.h" \
+    "$(ice_cpp_dir)\include\Ice\SliceChecksums.h" \
+    "$(ice_cpp_dir)\include\Ice\SliceChecksumDict.h" \
     "$(ice_cpp_dir)\include\Ice\Service.h" \
+    "$(ice_cpp_dir)\include\Ice\RegisterPlugins.h" \
     "Util.h" \
+    "$(ice_cpp_dir)\include\IceSSL\EndpointInfo.h" \
 
 Init.obj: \
 	Init.cpp \
@@ -382,6 +406,7 @@ Init.obj: \
     "$(ice_cpp_dir)\include\Ice\CommunicatorF.h" \
     "$(ice_cpp_dir)\include\Ice\ProxyF.h" \
     "$(ice_cpp_dir)\include\IceUtil\Shared.h" \
+    "$(ice_cpp_dir)\include\IceUtil\Atomic.h" \
     "$(ice_cpp_dir)\include\Ice\ProxyHandle.h" \
     "$(ice_cpp_dir)\include\IceUtil\Handle.h" \
     "$(ice_cpp_dir)\include\IceUtil\Exception.h" \
@@ -421,6 +446,7 @@ Init.obj: \
     "$(ice_cpp_dir)\include\Ice\EndpointTypes.h" \
     "$(ice_cpp_dir)\include\Ice\ObjectAdapterF.h" \
     "$(ice_cpp_dir)\include\Ice\ReferenceF.h" \
+    "$(ice_cpp_dir)\include\Ice\BatchRequestQueueF.h" \
     "$(ice_cpp_dir)\include\Ice\AsyncResult.h" \
     "$(ice_cpp_dir)\include\IceUtil\UniquePtr.h" \
     "$(ice_cpp_dir)\include\Ice\ConnectionF.h" \
@@ -443,6 +469,7 @@ Init.obj: \
     "$(ice_cpp_dir)\include\Ice\FactoryTable.h" \
     "$(ice_cpp_dir)\include\Ice\InstrumentationF.h" \
     "$(ice_cpp_dir)\include\Ice\Dispatcher.h" \
+    "$(ice_cpp_dir)\include\Ice\BatchRequestInterceptor.h" \
     "$(ice_cpp_dir)\include\Ice\LocalException.h" \
     "$(ice_cpp_dir)\include\Ice\PropertiesAdmin.h" \
     "$(ice_cpp_dir)\include\Ice\GCObject.h" \
@@ -486,7 +513,10 @@ Init.obj: \
     "$(ice_cpp_dir)\include\Ice\DispatchInterceptor.h" \
     "$(ice_cpp_dir)\include\Ice\NativePropertiesAdmin.h" \
     "$(ice_cpp_dir)\include\Ice\Metrics.h" \
+    "$(ice_cpp_dir)\include\Ice\SliceChecksums.h" \
+    "$(ice_cpp_dir)\include\Ice\SliceChecksumDict.h" \
     "$(ice_cpp_dir)\include\Ice\Service.h" \
+    "$(ice_cpp_dir)\include\Ice\RegisterPlugins.h" \
     "Connection.h" \
     "Endpoint.h" \
     "Logger.h" \
@@ -509,6 +539,7 @@ Logger.obj: \
     "$(ice_cpp_dir)\include\Ice\CommunicatorF.h" \
     "$(ice_cpp_dir)\include\Ice\ProxyF.h" \
     "$(ice_cpp_dir)\include\IceUtil\Shared.h" \
+    "$(ice_cpp_dir)\include\IceUtil\Atomic.h" \
     "$(ice_cpp_dir)\include\Ice\ProxyHandle.h" \
     "$(ice_cpp_dir)\include\IceUtil\Handle.h" \
     "$(ice_cpp_dir)\include\IceUtil\Exception.h" \
@@ -548,6 +579,7 @@ Logger.obj: \
     "$(ice_cpp_dir)\include\Ice\EndpointTypes.h" \
     "$(ice_cpp_dir)\include\Ice\ObjectAdapterF.h" \
     "$(ice_cpp_dir)\include\Ice\ReferenceF.h" \
+    "$(ice_cpp_dir)\include\Ice\BatchRequestQueueF.h" \
     "$(ice_cpp_dir)\include\Ice\AsyncResult.h" \
     "$(ice_cpp_dir)\include\IceUtil\UniquePtr.h" \
     "$(ice_cpp_dir)\include\Ice\ConnectionF.h" \
@@ -570,6 +602,7 @@ Logger.obj: \
     "$(ice_cpp_dir)\include\Ice\FactoryTable.h" \
     "$(ice_cpp_dir)\include\Ice\InstrumentationF.h" \
     "$(ice_cpp_dir)\include\Ice\Dispatcher.h" \
+    "$(ice_cpp_dir)\include\Ice\BatchRequestInterceptor.h" \
     "$(ice_cpp_dir)\include\Ice\LocalException.h" \
     "$(ice_cpp_dir)\include\Ice\PropertiesAdmin.h" \
     "$(ice_cpp_dir)\include\Ice\GCObject.h" \
@@ -613,7 +646,10 @@ Logger.obj: \
     "$(ice_cpp_dir)\include\Ice\DispatchInterceptor.h" \
     "$(ice_cpp_dir)\include\Ice\NativePropertiesAdmin.h" \
     "$(ice_cpp_dir)\include\Ice\Metrics.h" \
+    "$(ice_cpp_dir)\include\Ice\SliceChecksums.h" \
+    "$(ice_cpp_dir)\include\Ice\SliceChecksumDict.h" \
     "$(ice_cpp_dir)\include\Ice\Service.h" \
+    "$(ice_cpp_dir)\include\Ice\RegisterPlugins.h" \
     "Util.h" \
 
 Operation.obj: \
@@ -628,6 +664,7 @@ Operation.obj: \
     "$(ice_cpp_dir)\include\Ice\CommunicatorF.h" \
     "$(ice_cpp_dir)\include\Ice\ProxyF.h" \
     "$(ice_cpp_dir)\include\IceUtil\Shared.h" \
+    "$(ice_cpp_dir)\include\IceUtil\Atomic.h" \
     "$(ice_cpp_dir)\include\Ice\ProxyHandle.h" \
     "$(ice_cpp_dir)\include\IceUtil\Handle.h" \
     "$(ice_cpp_dir)\include\IceUtil\Exception.h" \
@@ -667,6 +704,7 @@ Operation.obj: \
     "$(ice_cpp_dir)\include\Ice\EndpointTypes.h" \
     "$(ice_cpp_dir)\include\Ice\ObjectAdapterF.h" \
     "$(ice_cpp_dir)\include\Ice\ReferenceF.h" \
+    "$(ice_cpp_dir)\include\Ice\BatchRequestQueueF.h" \
     "$(ice_cpp_dir)\include\Ice\AsyncResult.h" \
     "$(ice_cpp_dir)\include\IceUtil\UniquePtr.h" \
     "$(ice_cpp_dir)\include\Ice\ConnectionF.h" \
@@ -689,6 +727,7 @@ Operation.obj: \
     "$(ice_cpp_dir)\include\Ice\FactoryTable.h" \
     "$(ice_cpp_dir)\include\Ice\InstrumentationF.h" \
     "$(ice_cpp_dir)\include\Ice\Dispatcher.h" \
+    "$(ice_cpp_dir)\include\Ice\BatchRequestInterceptor.h" \
     "$(ice_cpp_dir)\include\Ice\LocalException.h" \
     "$(ice_cpp_dir)\include\Ice\PropertiesAdmin.h" \
     "$(ice_cpp_dir)\include\Ice\GCObject.h" \
@@ -732,7 +771,10 @@ Operation.obj: \
     "$(ice_cpp_dir)\include\Ice\DispatchInterceptor.h" \
     "$(ice_cpp_dir)\include\Ice\NativePropertiesAdmin.h" \
     "$(ice_cpp_dir)\include\Ice\Metrics.h" \
+    "$(ice_cpp_dir)\include\Ice\SliceChecksums.h" \
+    "$(ice_cpp_dir)\include\Ice\SliceChecksumDict.h" \
     "$(ice_cpp_dir)\include\Ice\Service.h" \
+    "$(ice_cpp_dir)\include\Ice\RegisterPlugins.h" \
     "Communicator.h" \
     "Proxy.h" \
     "Types.h" \
@@ -753,6 +795,7 @@ Properties.obj: \
     "$(ice_cpp_dir)\include\Ice\CommunicatorF.h" \
     "$(ice_cpp_dir)\include\Ice\ProxyF.h" \
     "$(ice_cpp_dir)\include\IceUtil\Shared.h" \
+    "$(ice_cpp_dir)\include\IceUtil\Atomic.h" \
     "$(ice_cpp_dir)\include\Ice\ProxyHandle.h" \
     "$(ice_cpp_dir)\include\IceUtil\Handle.h" \
     "$(ice_cpp_dir)\include\IceUtil\Exception.h" \
@@ -792,6 +835,7 @@ Properties.obj: \
     "$(ice_cpp_dir)\include\Ice\EndpointTypes.h" \
     "$(ice_cpp_dir)\include\Ice\ObjectAdapterF.h" \
     "$(ice_cpp_dir)\include\Ice\ReferenceF.h" \
+    "$(ice_cpp_dir)\include\Ice\BatchRequestQueueF.h" \
     "$(ice_cpp_dir)\include\Ice\AsyncResult.h" \
     "$(ice_cpp_dir)\include\IceUtil\UniquePtr.h" \
     "$(ice_cpp_dir)\include\Ice\ConnectionF.h" \
@@ -814,6 +858,7 @@ Properties.obj: \
     "$(ice_cpp_dir)\include\Ice\FactoryTable.h" \
     "$(ice_cpp_dir)\include\Ice\InstrumentationF.h" \
     "$(ice_cpp_dir)\include\Ice\Dispatcher.h" \
+    "$(ice_cpp_dir)\include\Ice\BatchRequestInterceptor.h" \
     "$(ice_cpp_dir)\include\Ice\LocalException.h" \
     "$(ice_cpp_dir)\include\Ice\PropertiesAdmin.h" \
     "$(ice_cpp_dir)\include\Ice\GCObject.h" \
@@ -857,7 +902,10 @@ Properties.obj: \
     "$(ice_cpp_dir)\include\Ice\DispatchInterceptor.h" \
     "$(ice_cpp_dir)\include\Ice\NativePropertiesAdmin.h" \
     "$(ice_cpp_dir)\include\Ice\Metrics.h" \
+    "$(ice_cpp_dir)\include\Ice\SliceChecksums.h" \
+    "$(ice_cpp_dir)\include\Ice\SliceChecksumDict.h" \
     "$(ice_cpp_dir)\include\Ice\Service.h" \
+    "$(ice_cpp_dir)\include\Ice\RegisterPlugins.h" \
     "Util.h" \
 
 Proxy.obj: \
@@ -872,6 +920,7 @@ Proxy.obj: \
     "$(ice_cpp_dir)\include\Ice\CommunicatorF.h" \
     "$(ice_cpp_dir)\include\Ice\ProxyF.h" \
     "$(ice_cpp_dir)\include\IceUtil\Shared.h" \
+    "$(ice_cpp_dir)\include\IceUtil\Atomic.h" \
     "$(ice_cpp_dir)\include\Ice\ProxyHandle.h" \
     "$(ice_cpp_dir)\include\IceUtil\Handle.h" \
     "$(ice_cpp_dir)\include\IceUtil\Exception.h" \
@@ -911,6 +960,7 @@ Proxy.obj: \
     "$(ice_cpp_dir)\include\Ice\EndpointTypes.h" \
     "$(ice_cpp_dir)\include\Ice\ObjectAdapterF.h" \
     "$(ice_cpp_dir)\include\Ice\ReferenceF.h" \
+    "$(ice_cpp_dir)\include\Ice\BatchRequestQueueF.h" \
     "$(ice_cpp_dir)\include\Ice\AsyncResult.h" \
     "$(ice_cpp_dir)\include\IceUtil\UniquePtr.h" \
     "$(ice_cpp_dir)\include\Ice\ConnectionF.h" \
@@ -933,6 +983,7 @@ Proxy.obj: \
     "$(ice_cpp_dir)\include\Ice\FactoryTable.h" \
     "$(ice_cpp_dir)\include\Ice\InstrumentationF.h" \
     "$(ice_cpp_dir)\include\Ice\Dispatcher.h" \
+    "$(ice_cpp_dir)\include\Ice\BatchRequestInterceptor.h" \
     "$(ice_cpp_dir)\include\Ice\LocalException.h" \
     "$(ice_cpp_dir)\include\Ice\PropertiesAdmin.h" \
     "$(ice_cpp_dir)\include\Ice\GCObject.h" \
@@ -976,7 +1027,10 @@ Proxy.obj: \
     "$(ice_cpp_dir)\include\Ice\DispatchInterceptor.h" \
     "$(ice_cpp_dir)\include\Ice\NativePropertiesAdmin.h" \
     "$(ice_cpp_dir)\include\Ice\Metrics.h" \
+    "$(ice_cpp_dir)\include\Ice\SliceChecksums.h" \
+    "$(ice_cpp_dir)\include\Ice\SliceChecksumDict.h" \
     "$(ice_cpp_dir)\include\Ice\Service.h" \
+    "$(ice_cpp_dir)\include\Ice\RegisterPlugins.h" \
     "Communicator.h" \
     "Types.h" \
     "Operation.h" \
@@ -997,6 +1051,7 @@ Types.obj: \
     "$(ice_cpp_dir)\include\Ice\CommunicatorF.h" \
     "$(ice_cpp_dir)\include\Ice\ProxyF.h" \
     "$(ice_cpp_dir)\include\IceUtil\Shared.h" \
+    "$(ice_cpp_dir)\include\IceUtil\Atomic.h" \
     "$(ice_cpp_dir)\include\Ice\ProxyHandle.h" \
     "$(ice_cpp_dir)\include\IceUtil\Handle.h" \
     "$(ice_cpp_dir)\include\IceUtil\Exception.h" \
@@ -1036,6 +1091,7 @@ Types.obj: \
     "$(ice_cpp_dir)\include\Ice\EndpointTypes.h" \
     "$(ice_cpp_dir)\include\Ice\ObjectAdapterF.h" \
     "$(ice_cpp_dir)\include\Ice\ReferenceF.h" \
+    "$(ice_cpp_dir)\include\Ice\BatchRequestQueueF.h" \
     "$(ice_cpp_dir)\include\Ice\AsyncResult.h" \
     "$(ice_cpp_dir)\include\IceUtil\UniquePtr.h" \
     "$(ice_cpp_dir)\include\Ice\ConnectionF.h" \
@@ -1058,6 +1114,7 @@ Types.obj: \
     "$(ice_cpp_dir)\include\Ice\FactoryTable.h" \
     "$(ice_cpp_dir)\include\Ice\InstrumentationF.h" \
     "$(ice_cpp_dir)\include\Ice\Dispatcher.h" \
+    "$(ice_cpp_dir)\include\Ice\BatchRequestInterceptor.h" \
     "$(ice_cpp_dir)\include\Ice\LocalException.h" \
     "$(ice_cpp_dir)\include\Ice\PropertiesAdmin.h" \
     "$(ice_cpp_dir)\include\Ice\GCObject.h" \
@@ -1101,7 +1158,10 @@ Types.obj: \
     "$(ice_cpp_dir)\include\Ice\DispatchInterceptor.h" \
     "$(ice_cpp_dir)\include\Ice\NativePropertiesAdmin.h" \
     "$(ice_cpp_dir)\include\Ice\Metrics.h" \
+    "$(ice_cpp_dir)\include\Ice\SliceChecksums.h" \
+    "$(ice_cpp_dir)\include\Ice\SliceChecksumDict.h" \
     "$(ice_cpp_dir)\include\Ice\Service.h" \
+    "$(ice_cpp_dir)\include\Ice\RegisterPlugins.h" \
     "Communicator.h" \
     "Operation.h" \
     "$(ice_cpp_dir)\include\IceUtil\OutputUtil.h" \
@@ -1123,6 +1183,7 @@ Util.obj: \
     "$(ice_cpp_dir)\include\Ice\CommunicatorF.h" \
     "$(ice_cpp_dir)\include\Ice\ProxyF.h" \
     "$(ice_cpp_dir)\include\IceUtil\Shared.h" \
+    "$(ice_cpp_dir)\include\IceUtil\Atomic.h" \
     "$(ice_cpp_dir)\include\Ice\ProxyHandle.h" \
     "$(ice_cpp_dir)\include\IceUtil\Handle.h" \
     "$(ice_cpp_dir)\include\IceUtil\Exception.h" \
@@ -1162,6 +1223,7 @@ Util.obj: \
     "$(ice_cpp_dir)\include\Ice\EndpointTypes.h" \
     "$(ice_cpp_dir)\include\Ice\ObjectAdapterF.h" \
     "$(ice_cpp_dir)\include\Ice\ReferenceF.h" \
+    "$(ice_cpp_dir)\include\Ice\BatchRequestQueueF.h" \
     "$(ice_cpp_dir)\include\Ice\AsyncResult.h" \
     "$(ice_cpp_dir)\include\IceUtil\UniquePtr.h" \
     "$(ice_cpp_dir)\include\Ice\ConnectionF.h" \
@@ -1184,6 +1246,7 @@ Util.obj: \
     "$(ice_cpp_dir)\include\Ice\FactoryTable.h" \
     "$(ice_cpp_dir)\include\Ice\InstrumentationF.h" \
     "$(ice_cpp_dir)\include\Ice\Dispatcher.h" \
+    "$(ice_cpp_dir)\include\Ice\BatchRequestInterceptor.h" \
     "$(ice_cpp_dir)\include\Ice\LocalException.h" \
     "$(ice_cpp_dir)\include\Ice\PropertiesAdmin.h" \
     "$(ice_cpp_dir)\include\Ice\GCObject.h" \
@@ -1227,7 +1290,10 @@ Util.obj: \
     "$(ice_cpp_dir)\include\Ice\DispatchInterceptor.h" \
     "$(ice_cpp_dir)\include\Ice\NativePropertiesAdmin.h" \
     "$(ice_cpp_dir)\include\Ice\Metrics.h" \
+    "$(ice_cpp_dir)\include\Ice\SliceChecksums.h" \
+    "$(ice_cpp_dir)\include\Ice\SliceChecksumDict.h" \
     "$(ice_cpp_dir)\include\Ice\Service.h" \
+    "$(ice_cpp_dir)\include\Ice\RegisterPlugins.h" \
     "$(ice_cpp_dir)\include\IceUtil\UUID.h" \
     "$(ice_cpp_dir)\include\Slice\PHPUtil.h" \
     "$(ice_cpp_dir)\include\Slice\Parser.h" \
