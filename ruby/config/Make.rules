@@ -37,13 +37,19 @@ ifneq ($(ruby_libdir),)
 endif
 
 #
+# Ruby installation directory
+#
+install_rubydir                	= $(if $(usr_dir_install),$(ruby_libdir),$(prefix)/ruby)
+install_rubylibdir     		= $(if $(usr_dir_install),$(ruby_libdir)/$(ruby_arch),$(prefix)/ruby)
+
+#
 # Rules to build a ruby module. We just compute the name of the ruby module
 # and delegate to make-shared-module.
 #
 mkrbmodulename			?= $(patsubst lib%,%,$(call mkshlibname,$(1)))
-make-shared-ruby-module 	= $(call make-shared-module,$(call mkrbmodulename,$1),$2,$3,$4,$5,$6,$7)
-get-shared-ruby-module-targets 	= $(call get-shared-module-targets,$(call mkrbmodulename,$1),$2)
-install-shared-ruby-module	= $(call install-shared-module,$(call mkrbmodulename,$1),$2,$3)
+make-shared-ruby-module 	= $(call make-shared-module,$(call mkrbmodulename,$1),$2,$3,$4,$5,$6,$7,$8,$9)
+get-shared-ruby-module-targets 	= $(call get-shared-module-targets,$(call mkrbmodulename,$1),$2,$3,$4)
+install-shared-ruby-module	= $(call install-shared-module,$(call mkrbmodulename,$1),$2,$3,$4,$5)
 
 $(DESTDIR)$(install_rubydir):
 	$(Q)$(MKDIR) -p $@

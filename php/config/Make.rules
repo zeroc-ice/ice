@@ -39,9 +39,9 @@ install_phplibdir	?= $(if $(usr_dir_install),$(shell php -r "echo(ini_get('exten
 # and delegate to make-shared-module.
 #
 mkphpmodulename              	?= $(patsubst lib%,%,$(call mkshlibname,$(1)))
-make-shared-php-module       	= $(call make-shared-module,$(call mkphpmodulename,$1),$2,$3,$4,$5,$6,$7)
-get-shared-php-module-targets	= $(call get-shared-module-targets,$(call mkphpmodulename,$1),$2)
-install-shared-php-module	= $(call install-shared-module,$(call mkphpmodulename,$1),$2,$3)
+make-shared-php-module       	= $(call make-shared-module,$(call mkphpmodulename,$1),$2,$3,$4,$5,$6,$7,$8,$9)
+get-shared-php-module-targets	= $(call get-shared-module-targets,$(call mkphpmodulename,$1),$2,$3,$4)
+install-shared-php-module	= $(call install-shared-module,$(call mkphpmodulename,$1),$2,$3,$4,$5)
 
 $(DESTDIR)$(install_phpdir):
 	$(Q)$(MKDIR) -p $@

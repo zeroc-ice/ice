@@ -260,6 +260,11 @@ get-all-deps		= $(call unique,$(if $($1_dependencies),\
 				$(foreach d,$($1_dependencies),$d $(call get-all-deps,$d)),$1))
 
 #
+# Return the variable value or the default if the variable is not defined
+#
+var-with-default 	= $(if $(filter undefined,$(origin $1)),$($2),$($1))
+
+#
 # Helpers to compute cppflags/ldflags for dependencies, libraries and system libraries
 #
 ifneq ($(embedded_runpath),no)

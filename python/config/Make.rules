@@ -39,10 +39,10 @@ install_pythondir  = $(if $(usr_dir_install),$(shell $(PYTHON) $(lang_srcdir)/co
 # Rules to build a python module. We just compute the name of the python module
 # and delegate to make-shared-module.
 #
-mkpymodulename			?= $(patsubst lib%,%,$(call mkshlibname,$(1)))
-make-shared-python-module 	 = $(call make-shared-module,$(call mkpymodulename,$1),$2,$3,$4,$5,$6,$7)
-get-shared-python-module-targets = $(call get-shared-module-targets,$(call mkpymodulename,$1),$2)
-install-shared-python-module	 = $(call install-shared-module,$(call mkpymodulename,$1),$2,$3)
+mkpymodulename			 ?= $(patsubst lib%,%,$(call mkshlibname,$(1)))
+make-shared-python-module 	 = $(call make-shared-module,$(call mkpymodulename,$1),$2,$3,$4,$5,$6,$7,$8,$9)
+get-shared-python-module-targets = $(call get-shared-module-targets,$(call mkpymodulename,$1),$2,$3,$4)
+install-shared-python-module	 = $(call install-shared-module,$(call mkpymodulename,$1),$2,$3,$4,$5)
 
 $(DESTDIR)$(install_pythondir):
 	$(Q)$(MKDIR) -p $@
