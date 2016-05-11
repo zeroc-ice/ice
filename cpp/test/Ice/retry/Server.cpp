@@ -33,7 +33,7 @@ main(int argc, char* argv[])
 #ifdef ICE_STATIC_LIBS
     Ice::registerIceSSL();
 #endif
-    int status;
+    int status = EXIT_FAILURE;
     try
     {
         Ice::InitializationData initData;
@@ -41,7 +41,7 @@ main(int argc, char* argv[])
         initData.properties->setProperty("Ice.Warn.Dispatch", "0");
         initData.properties->setProperty("Ice.PrintStackTraces", "0");
         Ice::CommunicatorHolder ich = Ice::initialize(argc, argv, initData);
-        return run(argc, argv, ich.communicator());
+        status = run(argc, argv, ich.communicator());
     }
     catch(const Ice::Exception& ex)
     {

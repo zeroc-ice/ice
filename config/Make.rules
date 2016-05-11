@@ -26,7 +26,7 @@ prefix			?= /opt/Ice-$(version)
 # Define embedded_runpath as no if you don't want any runpath added to
 # the executables. If not set, defaults to to "yes"
 #
-#embedded_runpath 	?= yes
+embedded_runpath 	?= yes
 
 #
 # Define OPTIMIZE as yes if you want to build with optimization.
@@ -267,7 +267,7 @@ var-with-default 	= $(if $(filter undefined,$(origin $1)),$($2),$($1))
 #
 # Helpers to compute cppflags/ldflags for dependencies, libraries and system libraries
 #
-ifneq ($(embedded_runpath),no)
+ifeq ($(embedded_runpath),yes)
 ifeq ($(embedded_runpath_prefix),)
 # Add rpath relative to the path of the loader if linking with library from different directory.
 make-rpath-ldflag = $(if $(filter-out $1,$2),\

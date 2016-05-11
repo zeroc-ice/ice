@@ -2543,6 +2543,8 @@ def getTestDirectory(name, baseDir = os.getcwd()):
             platform = "osx"
         elif isUbuntu() or isDebian():
             platform = "x86_64-linux-gnu" if x64 else "i386-linux-gnu"
+        elif isAIX():
+            platform = "ppc64" if x64 else "ppc"
         else:
             platform = "x64" if x64 else "x86"
         configuration = ("cpp11-" if cpp11 else "") + ("static" if static else "shared")

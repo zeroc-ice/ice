@@ -17,4 +17,8 @@ $(test)_client_sources 	= Test.ice \
 		          BatchOneways.cpp \
 		          BatchOnewaysAMI.cpp
 
+ifeq ($(xlc_compiler),yes)
+    $(test)_cppflags += -qsuppress="1540-0895"
+endif
+
 tests += $(test)
