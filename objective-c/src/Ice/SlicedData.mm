@@ -39,7 +39,7 @@
 
 @end
 
-@implementation ICEUnknownSlicedObject
+@implementation ICEUnknownSlicedValue
 
 -(id) init
 {
@@ -72,14 +72,14 @@
 
 -(void) write__:(id<ICEOutputStream>)os
 {
-    [os startObject:slicedData_];
-    [os endObject];
+    [os startValue:slicedData_];
+    [os endValue];
 }
 
 -(void) read__:(id<ICEInputStream>)is
 {
-    [is startObject];
-    slicedData_ = [is endObject:YES];
+    [is startValue];
+    slicedData_ = [is endValue:YES];
 
     // Initialize unknown type ID to type ID of first slice.
     Ice::SlicedData* slicedData = [((ICESlicedData*)slicedData_) slicedData];

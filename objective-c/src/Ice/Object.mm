@@ -519,16 +519,16 @@ static NSString* ICEObject_all__[4] =
 
 -(void) write__:(id<ICEOutputStream>)os
 {
-    [os startObject:nil];
+    [os startValue:nil];
     [self writeImpl__:os];
-    [os endObject];
+    [os endValue];
 }
 
 -(void) read__:(id<ICEInputStream>)is
 {
-    [is startObject];
+    [is startValue];
     [self readImpl__:is];
-    [is endObject:NO];
+    [is endValue:NO];
 }
 
 -(void) writeImpl__:(id<ICEOutputStream>)os

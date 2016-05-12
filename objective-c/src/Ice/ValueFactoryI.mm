@@ -29,7 +29,7 @@ public:
     virtual Ice::ObjectPtr
     create(const std::string&)
     {
-        ICEUnknownSlicedObject* obj = [[ICEUnknownSlicedObject alloc] init];
+        ICEUnknownSlicedValue* obj = [[ICEUnknownSlicedValue alloc] init];
         Ice::ObjectPtr o = [ICEInputStream createObjectReader:obj];
         [obj release];
         return o;

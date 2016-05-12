@@ -319,8 +319,8 @@
     id<ICEOutputStream> o = [ICEUtil createOutputStream:communicator];
     [o startEncapsulation];
     TestObjectsAlsoEmpty* ae = [TestObjectsAlsoEmpty alsoEmpty];
-    [o writeObject:ae];
-    [o writePendingObjects];
+    [o writeValue:ae];
+    [o writePendingValues];
     [o endEncapsulation];
     *outEncaps = [o finished];
     return YES;

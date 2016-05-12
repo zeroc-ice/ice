@@ -14,7 +14,7 @@
 ICE_API @protocol ICESlicedData<NSObject>
 @end
 
-ICE_API @interface ICEUnknownSlicedObject : ICEObject
+ICE_API @interface ICEUnknownSlicedValue : ICEObject
 {
 @private
     NSString* unknownTypeId_;

@@ -21,10 +21,10 @@
 @implementation TestObjectReader
 -(void) read__:(id<ICEInputStream>)is
 {
-    [is startObject];
+    [is startValue];
     [is startSlice];
     [is endSlice];
-    [is endObject:NO];
+    [is endValue:NO];
 }
 @end
 
@@ -36,7 +36,7 @@
 @implementation BObjectReader
 -(void) read__:(id<ICEInputStream>)is
 {
-    [is startObject];
+    [is startValue];
     // ::Test::B
     [is startSlice];
     [is readInt];
@@ -45,7 +45,7 @@
     [is startSlice];
     [is readInt];
     [is endSlice];
-    [is endObject:NO];
+    [is endValue:NO];
 };
 @end
 
@@ -57,7 +57,7 @@
 @implementation CObjectReader
 -(void) read__:(id<ICEInputStream>)is
 {
-    [is startObject];
+    [is startValue];
     // ::Test::C
     [is startSlice];
     [is skipSlice];
@@ -69,7 +69,7 @@
     [is startSlice];
     [is readInt];
     [is endSlice];
-    [is endObject:NO];
+    [is endValue:NO];
 };
 @end
 
@@ -81,7 +81,7 @@
 @implementation DObjectWriter
 -(void) write__:(id<ICEOutputStream>)os
 {
-    [os startObject:0];
+    [os startValue:0];
     // ::Test::D
     [os startSlice:@"::Test::D" compactId:-1 lastSlice:NO];
     [os writeString:@"test"];
@@ -98,7 +98,7 @@
     {
         TestOptionalA* a = [TestOptionalA a];
         a.mc = 18;
-        [os writeObject:a];
+        [os writeValue:a];
     }
     [os endSlice];
     // ::Test::B
@@ -109,7 +109,7 @@
     [os startSlice:@"::Test::A" compactId:-1 lastSlice:YES];
     [os writeInt:14];
     [os endSlice];
-    [os endObject];
+    [os endValue];
 }
 @end
 
@@ -129,7 +129,7 @@
 #endif
 -(void) read__:(id<ICEInputStream>)is
 {
-    [is startObject];
+    [is startValue];
     // ::Test::D
     [is startSlice];
     NSString* s = [is readString];
@@ -142,7 +142,7 @@
          [[o objectAtIndex:2] isEqualToString:@"test3"] &&
          [[o objectAtIndex:3] isEqualToString:@"test4"]);
     test([is readOptional:1000 format:ICEOptionalFormatClass]);
-    [is newObject:(ICEObject**)&a_ expectedType:[TestOptionalA class]];
+    [is newValue:(ICEObject**)&a_ expectedType:[TestOptionalA class]];
     [is endSlice];
 
     // ::Test::B
@@ -153,7 +153,7 @@
     [is startSlice];
     [is readInt];
     [is endSlice];
-    [is endObject:NO];
+    [is endValue:NO];
 }
 -(void) check
 {
@@ -185,16 +185,16 @@
         ICE_RELEASE(f_);
     }
     f_ = [TestOptionalF new];
-    [is startObject];
+    [is startValue];
     [is startSlice];
     // Don't read optional af on purpose
-    //[is_ readObject:(ICEObject**)&self->af expectedType:[TestOptionalA class]];
+    //[is_ readValue:(ICEObject**)&self->af expectedType:[TestOptionalA class]];
     [is endSlice];
     [is startSlice];
     TestOptionalA* ICE_AUTORELEASING_QUALIFIER ae;
-    [is readObject:(ICEObject**)&ae expectedType:[TestOptionalA class]];
+    [is readValue:(ICEObject**)&ae expectedType:[TestOptionalA class]];
     [is endSlice];
-    [is endObject:NO];
+    [is endValue:NO];
     f_.ae = ae;
 }
 
@@ -585,7 +585,7 @@ optionalAllTests(id<ICECommunicator> communicator)
     [factory setEnabled:YES];
     id<ICEOutputStream> os = [ICEUtil createOutputStream:communicator];
     [os startEncapsulation];
-    [os writeObject:oo1];
+    [os writeValue:oo1];
     [os endEncapsulation];
     ICEByteSeq* inEncaps = [os finished];
     ICEMutableByteSeq* outEncaps;
@@ -593,19 +593,19 @@ optionalAllTests(id<ICECommunicator> communicator)
     id<ICEInputStream> is = [ICEUtil createInputStream:communicator data:outEncaps];
     [is startEncapsulation];
     ICEObject* obj;
-    [is readObject:&obj];
+    [is readValue:&obj];
     [is endEncapsulation];
     test(obj != nil && [obj isKindOfClass:[TestObjectReader class]]);
 
     os = [ICEUtil createOutputStream:communicator];
     [os startEncapsulation];
-    [os writeObject:mo1];
+    [os writeValue:mo1];
     [os endEncapsulation];
     inEncaps = [os finished];
     test([initial ice_invoke:@"pingPong" mode:ICENormal inEncaps:inEncaps outEncaps:&outEncaps]);
     is = [ICEUtil createInputStream:communicator data:outEncaps];
     [is startEncapsulation];
-    [is readObject:&obj];
+    [is readValue:&obj];
     [is endEncapsulation];
     test(obj != nil && [obj isKindOfClass:[TestObjectReader class]]);
     [factory setEnabled:false];
@@ -670,14 +670,14 @@ optionalAllTests(id<ICECommunicator> communicator)
     [factory setEnabled:YES];
     os = [ICEUtil createOutputStream:communicator];
     [os startEncapsulation];
-    [os writeObject:mc];
+    [os writeValue:mc];
     [os endEncapsulation];
     inEncaps = [os finished];
 
     test([initial ice_invoke:@"pingPong" mode:ICENormal inEncaps:inEncaps outEncaps:&outEncaps]);
     is = [ICEUtil createInputStream:communicator data:outEncaps];
     [is startEncapsulation];
-    [is readObject:&obj];
+    [is readValue:&obj];
     [is endEncapsulation];
     test(obj != nil && [obj isKindOfClass:[TestObjectReader class]]);
     [factory setEnabled:NO];
@@ -705,13 +705,13 @@ optionalAllTests(id<ICECommunicator> communicator)
     [factory setEnabled:YES];
     os = [ICEUtil createOutputStream:communicator];
     [os startEncapsulation];
-    [os writeObject:b];
+    [os writeValue:b];
     [os endEncapsulation];
     inEncaps = [os finished];
     test([initial ice_invoke:@"pingPong" mode:ICENormal inEncaps:inEncaps outEncaps:&outEncaps]);
     is = [ICEUtil createInputStream:communicator data:outEncaps];
     [is startEncapsulation];
-    [is readObject:&obj];
+    [is readValue:&obj];
     [is endEncapsulation];
     test(obj != nil);
     [factory setEnabled:NO];
@@ -731,12 +731,12 @@ optionalAllTests(id<ICECommunicator> communicator)
         [factory setEnabled:YES];
         os = [ICEUtil createOutputStream:communicator];
         [os startEncapsulation];
-        [os writeObject:f];
+        [os writeValue:f];
         [os endEncapsulation];
         inEncaps = [os finished];
         is = [ICEUtil createInputStream:communicator data:inEncaps];
         [is startEncapsulation];
-        [is readObject:&obj];
+        [is readValue:&obj];
         [is endEncapsulation];
         [factory setEnabled:NO];
 
@@ -766,14 +766,14 @@ optionalAllTests(id<ICECommunicator> communicator)
             c.ms = @"testms";
             os = [ICEUtil createOutputStream:communicator];
             [os startEncapsulation];
-            [os writeObject:c];
+            [os writeValue:c];
             [os endEncapsulation];
             inEncaps = [os finished];
             [factory setEnabled:YES];
             test([initial ice_invoke:@"pingPong" mode:ICENormal inEncaps:inEncaps outEncaps:&outEncaps]);
             is = [ICEUtil createInputStream:communicator data:outEncaps];
             [is startEncapsulation];
-            [is readObject:&obj];
+            [is readValue:&obj];
             [is endEncapsulation];
             test(obj != nil && [obj isKindOfClass:[CObjectReader class]]);
             [factory setEnabled:NO];
@@ -782,14 +782,14 @@ optionalAllTests(id<ICECommunicator> communicator)
             os = [ICEUtil createOutputStream:communicator];
             [os startEncapsulation];
             ICEObject* d = [DObjectWriter new];
-            [os writeObject:d];
+            [os writeValue:d];
             ICE_RELEASE(d);
             [os endEncapsulation];
             inEncaps = [os finished];
             test([initial ice_invoke:@"pingPong" mode:ICENormal inEncaps:inEncaps outEncaps:&outEncaps]);
             is = [ICEUtil createInputStream:communicator data:outEncaps];
             [is startEncapsulation];
-            [is readObject:&obj];
+            [is readValue:&obj];
             [is endEncapsulation];
             test(obj != nil && [obj isKindOfClass:[DObjectReader class]]);
             [(DObjectReader*)obj check];
@@ -803,7 +803,7 @@ optionalAllTests(id<ICECommunicator> communicator)
 
             os = [ICEUtil createOutputStream:communicator];
             [os startEncapsulation];
-            [os writeObject:a];
+            [os writeValue:a];
             DObjectWriter* writer = [DObjectWriter new];
             [ICEObjectHelper writeOptional:writer stream:os tag:1];
             ICE_RELEASE(writer);

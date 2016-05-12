@@ -774,8 +774,8 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
         {
             o = [test SUnknownAsObject];
             test(![[test ice_getEncodingVersion] isEqual:ICEEncoding_1_0]);
-            test([o isKindOfClass:[ICEUnknownSlicedObject class]]);
-            test([[((ICEUnknownSlicedObject*)o) getUnknownTypeId] isEqualToString:@"::Test::SUnknown"]);
+            test([o isKindOfClass:[ICEUnknownSlicedValue class]]);
+            test([[((ICEUnknownSlicedValue*)o) getUnknownTypeId] isEqualToString:@"::Test::SUnknown"]);
             [test checkSUnknown:o];
         }
         @catch(ICENoValueFactoryException*)

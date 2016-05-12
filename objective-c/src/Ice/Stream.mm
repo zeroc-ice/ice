@@ -436,12 +436,12 @@ private:
 
 // @protocol ICEInputStream methods
 
--(void) setSliceObjects:(BOOL)b
+-(void) setSliceValues:(BOOL)b
 {
     NSException* nsex = nil;
     try
     {
-        is_->setSliceObjects(b);
+        is_->setSliceValues(b);
     }
     catch(const std::exception& ex)
     {
@@ -925,11 +925,11 @@ private:
     @throw nsex;
     return nil; // Keep the compiler happy.
 }
--(void) readObject:(ICEObject**)object
+-(void) readValue:(ICEObject**)object
 {
-    [self readObject:object expectedType:[ICEObject class]];
+    [self readValue:object expectedType:[ICEObject class]];
 }
--(void) readObject:(ICEObject**)object expectedType:(Class)type
+-(void) readValue:(ICEObject**)object expectedType:(Class)type
 {
     NSException* nsex = nil;
     try
@@ -945,11 +945,11 @@ private:
         @throw nsex;
     }
 }
--(void) newObject:(ICEObject*ICE_STRONG_QUALIFIER*)object
+-(void) newValue:(ICEObject*ICE_STRONG_QUALIFIER*)object
 {
-    [self newObject:object expectedType:[ICEObject class]];
+    [self newValue:object expectedType:[ICEObject class]];
 }
--(void) newObject:(ICEObject*ICE_STRONG_QUALIFIER*)object expectedType:(Class)type
+-(void) newValue:(ICEObject*ICE_STRONG_QUALIFIER*)object expectedType:(Class)type
 {
     NSException* nsex = nil;
     try
@@ -966,12 +966,12 @@ private:
     }
 }
 
--(NSMutableArray*) readObjectSeq:(Class)type
+-(NSMutableArray*) readValueSeq:(Class)type
 {
-    return [[self newObjectSeq:(Class)type] autorelease];
+    return [[self newValueSeq:(Class)type] autorelease];
 }
 
--(NSMutableArray*) newObjectSeq:(Class)type
+-(NSMutableArray*) newValueSeq:(Class)type
 {
     ICEInt sz = [self readAndCheckSeqSize:1];
     NSMutableArray* arr = [[NSMutableArray alloc] initWithCapacity:sz];
@@ -998,12 +998,12 @@ private:
     return arr;
 }
 
--(NSMutableDictionary*) readObjectDict:(Class)keyHelper expectedType:(Class)type
+-(NSMutableDictionary*) readValueDict:(Class)keyHelper expectedType:(Class)type
 {
-    return [[self newObjectDict:(Class)keyHelper expectedType:(Class)type] autorelease];
+    return [[self newValueDict:(Class)keyHelper expectedType:(Class)type] autorelease];
 }
 
--(NSMutableDictionary*) newObjectDict:(Class)keyHelper expectedType:(Class)type
+-(NSMutableDictionary*) newValueDict:(Class)keyHelper expectedType:(Class)type
 {
     ICEInt sz = [self readAndCheckSeqSize:[keyHelper minWireSize] + 1];
     NSMutableDictionary* dictionary = [[NSMutableDictionary alloc] initWithCapacity:sz];
@@ -1152,12 +1152,12 @@ private:
     }
 }
 
--(void) startObject
+-(void) startValue
 {
     NSException* nsex = nil;
     try
     {
-        is_->startObject();
+        is_->startValue();
     }
     catch(const std::exception& ex)
     {
@@ -1169,12 +1169,12 @@ private:
     }
 }
 
--(id<ICESlicedData>) endObject:(BOOL)preserve
+-(id<ICESlicedData>) endValue:(BOOL)preserve
 {
     NSException* nsex = nil;
     try
     {
-        Ice::SlicedDataPtr slicedData = is_->endObject(preserve);
+        Ice::SlicedDataPtr slicedData = is_->endValue(preserve);
         return slicedData ? [[ICESlicedData alloc] initWithSlicedData:slicedData.get()] : nil;
     }
     catch(const std::exception& ex)
@@ -1333,12 +1333,12 @@ private:
     return [ICEEncodingVersion encodingVersionWithEncodingVersion:is_->getEncoding()];
 }
 
--(void) readPendingObjects
+-(void) readPendingValues
 {
     NSException* nsex = nil;
     try
     {
-        is_->readPendingObjects();
+        is_->readPendingValues();
     }
     catch(const std::exception& ex)
     {
@@ -1915,7 +1915,7 @@ private:
     }
 }
 
--(void) writeObject:(ICEObject*)v
+-(void) writeValue:(ICEObject*)v
 {
     NSException* nsex = nil;
     try
@@ -1939,7 +1939,7 @@ private:
     }
 }
 
--(void) writeObjectSeq:(NSArray*)arr
+-(void) writeValueSeq:(NSArray*)arr
 {
     if(arr == nil)
     {
@@ -1950,11 +1950,11 @@ private:
     [self writeSize:[arr count]];
     for(id i in arr)
     {
-        [self writeObject:(i == [NSNull null] ? nil : i)];
+        [self writeValue:(i == [NSNull null] ? nil : i)];
     }
 }
 
--(void) writeObjectDict:(NSDictionary*)dictionary helper:(Class)helper
+-(void) writeValueDict:(NSDictionary*)dictionary helper:(Class)helper
 {
     if(dictionary == nil)
     {
@@ -1973,7 +1973,7 @@ private:
 	}
 	[helper write:key stream:self];
 	id obj = [dictionary objectForKey:key];
-        [self writeObject:(obj == [NSNull null] ? nil : obj)];
+        [self writeValue:(obj == [NSNull null] ? nil : obj)];
     }
 }
 
@@ -1983,18 +1983,18 @@ private:
     os_->writeException(writer);
 }
 
--(void) startObject:(id<ICESlicedData>)slicedData
+-(void) startValue:(id<ICESlicedData>)slicedData
 {
     NSException* nsex = nil;
     try
     {
         if(slicedData != nil)
         {
-            os_->startObject([self writeSlicedData:slicedData]);
+            os_->startValue([self writeSlicedData:slicedData]);
         }
         else
         {
-            os_->startObject(0);
+            os_->startValue(0);
         }
     }
     catch(const std::exception& ex)
@@ -2007,12 +2007,12 @@ private:
     }
 }
 
--(void) endObject
+-(void) endValue
 {
     NSException* nsex = nil;
     try
     {
-        os_->endObject();
+        os_->endValue();
     }
     catch(const std::exception& ex)
     {
@@ -2155,12 +2155,12 @@ private:
     return [ICEEncodingVersion encodingVersionWithEncodingVersion:os_->getEncoding()];
 }
 
--(void) writePendingObjects
+-(void) writePendingValues
 {
     NSException* nsex = nil;
     try
     {
-        os_->writePendingObjects();
+        os_->writePendingValues();
     }
     catch(const std::exception& ex)
     {
@@ -2262,16 +2262,16 @@ private:
         info->hasOptionalMembers = (*p)->hasOptionalMembers;
         info->isLastSlice = (*p)->isLastSlice;
 
-        for(std::vector<Ice::ValuePtr>::const_iterator q = (*p)->objects.begin(); q != (*p)->objects.end(); ++q)
+        for(std::vector<Ice::ValuePtr>::const_iterator q = (*p)->instances.begin(); q != (*p)->instances.end(); ++q)
         {
             if(*q)
             {
                 assert(IceObjC::ValueWrapperPtr::dynamicCast(*q));
-                info->objects.push_back([self addObject:IceObjC::ValueWrapperPtr::dynamicCast(*q)->getValue()]);
+                info->instances.push_back([self addObject:IceObjC::ValueWrapperPtr::dynamicCast(*q)->getValue()]);
             }
             else
             {
-                info->objects.push_back(0);
+                info->instances.push_back(0);
             }
         }
         slices.push_back(info);
@@ -2650,20 +2650,20 @@ private:
     // objects are read when readPendingObjects is called.
     //
     ICEObject* obj;
-    [stream newObject:&obj];
+    [stream newValue:&obj];
     return (id)obj;
 }
 +(void)readRetained:(ICEObject**)v stream:(id<ICEInputStream>)stream
 {
-    [stream newObject:v];
+    [stream newValue:v];
 }
 +(void)read:(ICEObject**)v stream:(id<ICEInputStream>)stream
 {
-    [stream readObject:v];
+    [stream readValue:v];
 }
 +(void) write:(id)obj stream:(id<ICEOutputStream>)stream
 {
-    [stream writeObject:obj];
+    [stream writeValue:obj];
 }
 +(id)readOptionalRetained:(id<ICEInputStream>)stream tag:(ICEInt)tag
 {
@@ -3087,11 +3087,11 @@ private:
 @implementation ICEObjectSequenceHelper
 +(id) readRetained:(id<ICEInputStream>)stream
 {
-    return [stream newObjectSeq:[ICEObject class]];
+    return [stream newValueSeq:[ICEObject class]];
 }
 +(void) write:(id)obj stream:(id<ICEOutputStream>)stream
 {
-    [stream writeObjectSeq:obj];
+    [stream writeValueSeq:obj];
 }
 +(Class) getElementHelper
 {

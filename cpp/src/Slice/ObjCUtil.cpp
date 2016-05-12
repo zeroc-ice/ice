@@ -702,17 +702,17 @@ Slice::ObjCGenerator::writeMarshalUnmarshalCode(Output &out, const TypePtr& type
         {
             if(marshal)
             {
-                out << nl << "[" << stream << " writeObject:" << param << "];";
+                out << nl << "[" << stream << " writeValue:" << param << "];";
             }
             else
             {
                 if(autoreleased)
                 {
-                    out << nl << "[" << stream << " readObject:&" << param << "];";
+                    out << nl << "[" << stream << " readValue:&" << param << "];";
                 }
                 else
                 {
-                    out << nl << "[" << stream << " newObject:&" << param << "];";
+                    out << nl << "[" << stream << " newValue:&" << param << "];";
                 }
             }
         }
@@ -796,17 +796,17 @@ Slice::ObjCGenerator::writeMarshalUnmarshalCode(Output &out, const TypePtr& type
         if(marshal)
         {
             // Cast avoids warning for forward-declared classes.
-            out << nl << "[" << stream << " writeObject:(ICEObject*)" << param << "];";
+            out << nl << "[" << stream << " writeValue:(ICEObject*)" << param << "];";
         }
         else
         {
             if(autoreleased)
             {
-                out << nl << "[" << stream << " " << "readObject:(ICEObject**)&" << param;
+                out << nl << "[" << stream << " " << "readValue:(ICEObject**)&" << param;
             }
             else
             {
-                out << nl << "[" << stream << " " << "newObject:(ICEObject**)&" << param;
+                out << nl << "[" << stream << " " << "newValue:(ICEObject**)&" << param;
             }
 
             if(cl->isInterface())

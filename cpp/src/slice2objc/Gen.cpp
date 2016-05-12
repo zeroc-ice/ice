@@ -251,7 +251,7 @@ Slice::ObjCVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p)
         writeMarshalUnmarshalParams(inParams, 0, false);
         if(op->sendsClasses(false))
         {
-            _M << nl << "[is_ readPendingObjects];";
+            _M << nl << "[is_ readPendingValues];";
         }
         _M << nl << "[is_ endEncapsulation];";
         if(!throws.empty())
@@ -290,7 +290,7 @@ Slice::ObjCVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p)
         writeMarshalUnmarshalParams(outParams, op, true);
         if(op->returnsClasses(false))
         {
-            _M << nl << "[os_ writePendingObjects];";
+            _M << nl << "[os_ writePendingValues];";
         }
         if(!throws.empty())
         {
@@ -1123,16 +1123,16 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         {
             _M << nl << "-(void) write__:(id<ICEOutputStream>)os";
             _M << sb;
-            _M << nl << "[os startObject:slicedData__];";
+            _M << nl << "[os startValue:slicedData__];";
             _M << nl << "[self writeImpl__:os];";
-            _M << nl << "[os endObject];";
+            _M << nl << "[os endValue];";
             _M << eb;
 
             _M << nl << "-(void) read__:(id<ICEInputStream>)is";
             _M << sb;
-            _M << nl << "[is startObject];";
+            _M << nl << "[is startValue];";
             _M << nl << "[self readImpl__:is];";
-            _M << nl << "slicedData__ = [is endObject:YES];";
+            _M << nl << "slicedData__ = [is endValue:YES];";
             _M << eb;
         }
     }
@@ -2435,7 +2435,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             _M << sp << nl << "@implementation " << name;
             _M << nl << "+(void) readRetained:(ICEObject*ICE_STRONG_QUALIFIER*)obj stream:(id<ICEInputStream>)stream";
             _M << sb;
-            _M << nl << "[stream newObject:obj expectedType:[" << fixName(p) << " class]];";
+            _M << nl << "[stream newValue:obj expectedType:[" << fixName(p) << " class]];";
             _M << eb;
             _M << nl << "@end";
         }
@@ -2516,7 +2516,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
         _M << sp << nl << "@implementation " << name;
         _M << nl << "+(id) readRetained:(id<ICEInputStream>)stream";
         _M << sb;
-        _M << nl << "return [stream newObjectSeq:[" << fixName(cl) << " class]];";
+        _M << nl << "return [stream newValueSeq:[" << fixName(cl) << " class]];";
         _M << eb;
         _M << nl << "@end";
         return;
@@ -2597,16 +2597,16 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
         if(valueClass && !valueClass->isInterface())
         {
             valueS = fixName(valueClass);
-            _M << nl << "return [stream newObjectDict:[" << keyS << " class] expectedType:[" << valueS << " class]];";
+            _M << nl << "return [stream newValueDict:[" << keyS << " class] expectedType:[" << valueS << " class]];";
         }
         else
         {
-            _M << nl << "return [stream newObjectDict:[" << keyS << " class] expectedType:[ICEObject class]];";
+            _M << nl << "return [stream newValueDict:[" << keyS << " class] expectedType:[ICEObject class]];";
         }
         _M << eb;
         _M << nl << "+(void) write:(id)obj stream:(id<ICEOutputStream>)stream";
         _M << sb;
-        _M << nl << "[stream writeObjectDict:obj helper:[" << keyS << " class]];";
+        _M << nl << "[stream writeValueDict:obj helper:[" << keyS << " class]];";
         _M << eb;
         _M << nl << "@end";
         return;
@@ -3102,7 +3102,7 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
         writeMarshalUnmarshalParams(inParams, 0, true);
         if(p->sendsClasses(false))
         {
-            _M << nl << "[os_ writePendingObjects];";
+            _M << nl << "[os_ writePendingValues];";
         }
         _M << eb;
     }
@@ -3187,7 +3187,7 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
             writeMarshalUnmarshalParams(outParams, p, false, true);
             if(p->returnsClasses(false))
             {
-                _M << nl << "[is_ readPendingObjects];";
+                _M << nl << "[is_ readPendingValues];";
             }
             _M << nl << "[is_ endEncapsulation];";
             _M << eb;
