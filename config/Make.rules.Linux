@@ -118,11 +118,13 @@ ifneq ($(libbacktrace_fullpath),libbacktrace.a)
    libbacktrace = yes
 endif
 
-ICE_OS_LIBS     = -ldl -lrt -lcrypto
+ICEUTIL_OS_LIBS     = -lrt -lcrypto
 
 ifeq ($(libbacktrace),yes)
-ICE_OS_LIBS     += -lbacktrace
+ICEUTIL_OS_LIBS     += -lbacktrace
 endif
+
+ICE_OS_LIBS         = -ldl $(ICEUTIL_OS_LIBS)
 
 CRYPT_OS_LIBS   = -lcrypt
 SSL_OS_LIBS     = -lssl -lcrypto

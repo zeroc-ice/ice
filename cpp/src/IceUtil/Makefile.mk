@@ -10,6 +10,7 @@
 $(project)_libraries 	= IceUtil
 
 IceUtil_targetdir	:= $(libdir)
+IceUtil_system_libs     := $(ICEUTIL_OS_LIBS)
 
 # Always enable the static configuration for the IceUtil library
 IceUtil_always_enable_configs := static
