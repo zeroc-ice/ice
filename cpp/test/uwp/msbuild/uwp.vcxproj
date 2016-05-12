@@ -264,9 +264,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\Common\msbuild\uwp\Win32\Debug\testcommon$(IceSoVersion)uwp++11d.dll">
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
-    </None>
     <None Include="..\..\Ice\acm\msbuild\uwp\client\Win32\Debug\Ice_acm_client.dll">
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
     </None>
@@ -446,9 +443,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\Common\msbuild\uwp\Win32\Release\testcommon$(IceSoVersion)uwp++11.dll">
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</DeploymentContent>
-    </None>
     <None Include="..\..\Ice\acm\msbuild\uwp\client\Win32\Release\Ice_acm_client.dll">
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</DeploymentContent>
     </None>
@@ -628,9 +622,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\Common\msbuild\uwp\x64\Debug\testcommon$(IceSoVersion)uwp++11d.dll">
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
-    </None>
     <None Include="..\..\Ice\acm\msbuild\uwp\client\x64\Debug\Ice_acm_client.dll">
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
     </None>
@@ -810,9 +801,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\Common\msbuild\uwp\x64\Release\testcommon$(IceSoVersion)uwp++11.dll">
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
-    </None>
     <None Include="..\..\Ice\acm\msbuild\uwp\client\x64\Release\Ice_acm_client.dll">
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
     </None>
@@ -992,9 +980,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\Common\msbuild\uwp\ARM\Release\testcommon$(IceSoVersion)uwp++11.dll">
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</DeploymentContent>
-    </None>
     <None Include="..\..\Ice\acm\msbuild\uwp\client\ARM\Release\Ice_acm_client.dll">
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</DeploymentContent>
     </None>
@@ -1174,9 +1159,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\Common\msbuild\uwp\ARM\Debug\testcommon$(IceSoVersion)uwp++11d.dll">
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">true</DeploymentContent>
-    </None>
     <None Include="..\..\Ice\acm\msbuild\uwp\client\ARM\Debug\Ice_acm_client.dll">
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">true</DeploymentContent>
     </None>
