@@ -77,9 +77,9 @@
 #endif
 
 //
-// Visual Studio 2012 or later, without Windows XP/2003 support
+// Visual Studio 2015 or later
 //
-#if defined(_MSC_VER) && (_MSC_VER >= 1700) && !defined(_USING_V110_SDK71_)
+#if defined(_MSC_VER) && (_MSC_VER >= 1900)
 
 //
 // Check if building for WinRT

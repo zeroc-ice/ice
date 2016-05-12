@@ -100,6 +100,13 @@
         </Link>
     </ItemDefinitionGroup>
 
+    <!-- Common properties set for all static libraries -->
+    <ItemDefinitionGroup Condition="'$(ConfigurationType)'=='StaticLibrary'">
+      <ClCompile>
+        <PreprocessorDefinitions>ICE_STATIC_LIBS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      </ClCompile>
+    </ItemDefinitionGroup>
+
     <!-- Common properties set for all release builds and platforms -->
     <ItemDefinitionGroup Condition="'$(Ice_Configuration)'=='Release'">
         <ClCompile>
@@ -182,6 +189,14 @@
 
             <PropertyGroup Condition="'$(Ice_Configuration)|$(ConfigurationType)' == 'Release|DynamicLibrary'">
                 <TargetName>$(ProjectName)$(IceSoVersion)</TargetName>
+            </PropertyGroup>
+
+            <PropertyGroup Condition="'$(Ice_Configuration)|$(ConfigurationType)' == 'Debug|StaticLibrary'">
+                <TargetName>$(ProjectName)d</TargetName>
+            </PropertyGroup>
+
+            <PropertyGroup Condition="'$(Ice_Configuration)|$(ConfigurationType)' == 'Release|StaticLibrary'">
+                <TargetName>$(ProjectName)</TargetName>
             </PropertyGroup>
         </Otherwise>
     </Choose>
