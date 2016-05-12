@@ -74,8 +74,8 @@ using namespace std;
 namespace IceUtilInternal
 {
 
-bool ICE_UTIL_API printStackTraces = false;
-bool ICE_UTIL_API nullHandleAbort = false;
+bool ICE_API printStackTraces = false;
+bool ICE_API nullHandleAbort = false;
 
 StackTraceImpl
 stackTraceImpl()

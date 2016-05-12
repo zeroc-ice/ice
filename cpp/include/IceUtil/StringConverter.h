@@ -25,14 +25,14 @@ enum ConversionFlags
 
 typedef unsigned char Byte;
 
-ICE_UTIL_API bool
+ICE_API bool
 isLegalUTF8Sequence(const Byte* source, const Byte* end);
 
 //
 // Provides bytes to toUTF8. Can raise std::bad_alloc or Ice::MemoryLimitException 
 // when too many bytes are requested.
 //
-class ICE_UTIL_API UTF8Buffer
+class ICE_API UTF8Buffer
 {
 public:
     virtual Byte* getMoreBytes(size_t howMany, Byte* firstUnused) = 0;
@@ -73,7 +73,7 @@ typedef IceUtil::Handle<WstringConverter> WstringConverterPtr;
 //
 // Converts to and from UTF-16 or UTF-32 depending on sizeof(wchar_t)
 //
-class ICE_UTIL_API UnicodeWstringConverter : public WstringConverter
+class ICE_API UnicodeWstringConverter : public WstringConverter
 {
 public:
 
@@ -92,7 +92,7 @@ private:
 //
 // Converts to/from UTF-8 using MultiByteToWideChar and WideCharToMultiByte
 //
-class ICE_UTIL_API WindowsStringConverter : public StringConverter
+class ICE_API WindowsStringConverter : public StringConverter
 {
 public:
 
@@ -111,22 +111,22 @@ private:
 //
 // Retrieve the per process narrow string converter.
 //
-ICE_UTIL_API StringConverterPtr getProcessStringConverter();
+ICE_API StringConverterPtr getProcessStringConverter();
 
 //
 // Set the per process narrow string converter.
 //
-ICE_UTIL_API void setProcessStringConverter(const StringConverterPtr&);
+ICE_API void setProcessStringConverter(const StringConverterPtr&);
 
 //
 // Retrieve the per process wide string converter.
 //
-ICE_UTIL_API WstringConverterPtr getProcessWstringConverter();
+ICE_API WstringConverterPtr getProcessWstringConverter();
 
 //
 // Set the per process wide string converter.
 //
-ICE_UTIL_API void setProcessWstringConverter(const WstringConverterPtr&);
+ICE_API void setProcessWstringConverter(const WstringConverterPtr&);
 
 
 //
@@ -137,7 +137,7 @@ ICE_UTIL_API void setProcessWstringConverter(const WstringConverterPtr&);
 // If the WstringConverter parameter is null, the input's wstring 
 // encoding is UTF-16 or UTF-32 depending on the size of wchar_t.
 //
-ICE_UTIL_API std::string
+ICE_API std::string
 wstringToString(const std::wstring&, const StringConverterPtr& = 0, 
                 const WstringConverterPtr& = 0, ConversionFlags = lenientConversion);
 
@@ -149,7 +149,7 @@ wstringToString(const std::wstring&, const StringConverterPtr& = 0,
 // If the WstringConverter parameter is null, the result's wstring 
 // encoding is UTF-16 or UTF-32 depending on the size of wchar_t.
 //
-ICE_UTIL_API std::wstring
+ICE_API std::wstring
 stringToWstring(const std::string&, const StringConverterPtr& = 0, 
                 const WstringConverterPtr& = 0, ConversionFlags = lenientConversion);
 
@@ -159,7 +159,7 @@ stringToWstring(const std::string&, const StringConverterPtr& = 0,
 // UTF-8 using the given converter. If the converter is null, returns
 // the given string.
 //
-ICE_UTIL_API std::string
+ICE_API std::string
 nativeToUTF8(const std::string&, const StringConverterPtr&);
 
 //
@@ -167,7 +167,7 @@ nativeToUTF8(const std::string&, const StringConverterPtr&);
 // encoding using the given converter. If the converter is null,
 // returns the given string.
 //
-ICE_UTIL_API std::string
+ICE_API std::string
 UTF8ToNative(const std::string&, const StringConverterPtr&);
 
 }

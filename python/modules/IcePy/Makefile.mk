@@ -14,7 +14,7 @@ IcePy_targetname	:= IcePy
 IcePy_targetdir		:= $(lang_srcdir)/python
 IcePy_installdir	:= $(install_pythondir)
 IcePy_cppflags  	:= -I$(project) -I$(top_srcdir)/cpp/include -I$(top_srcdir)/cpp/include/generated \
-                           -I$(top_srcdir)/cpp/src -DSLICE_API_EXPORTS $(python_cppflags)
+                           -I$(top_srcdir)/cpp/src $(python_cppflags)
 IcePy_ldflags		:= $(python_ldflags)
 IcePy_dependencies	:= IceSSL Ice
 IcePy_libs              := mcpp

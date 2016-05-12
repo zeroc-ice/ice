@@ -10,8 +10,6 @@
 $(project)_libraries	:= Slice
 
 Slice_targetdir		:= $(libdir)
-Slice_dependencies	:= IceUtil
-Slice_cppflags	 	:= -DSLICE_API_EXPORTS
 Slice_libs		:= mcpp
 
 # Always enable the static configuration for the Slice library

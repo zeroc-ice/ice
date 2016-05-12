@@ -22,7 +22,7 @@
 namespace IceUtilInternal
 {
 
-class ICE_UTIL_API APIException : public IceUtil::Exception
+class ICE_API APIException : public IceUtil::Exception
 {
 public:
 
@@ -38,9 +38,9 @@ public:
     ::std::string reason;
 };
 
-ICE_UTIL_API ::std::ostream& operator<<(::std::ostream&, const APIException&);
+ICE_API ::std::ostream& operator<<(::std::ostream&, const APIException&);
 
-class ICE_UTIL_API BadOptException : public IceUtil::Exception
+class ICE_API BadOptException : public IceUtil::Exception
 {
 public:
 
@@ -56,9 +56,9 @@ public:
     ::std::string reason;
 };
 
-ICE_UTIL_API ::std::ostream& operator<<(::std::ostream&, const BadOptException&);
+ICE_API ::std::ostream& operator<<(::std::ostream&, const BadOptException&);
 
-class ICE_UTIL_API Options
+class ICE_API Options
 {
 public:
 

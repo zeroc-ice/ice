@@ -25,7 +25,7 @@ namespace IceUtil
 
 class Time;
 
-class ICE_UTIL_API ThreadControl
+class ICE_API ThreadControl
 {
 public:
 
@@ -112,7 +112,7 @@ private:
 #endif
 };
 
-class ICE_UTIL_API Thread : public virtual IceUtil::Shared
+class ICE_API Thread : public virtual IceUtil::Shared
 {
 public:
 

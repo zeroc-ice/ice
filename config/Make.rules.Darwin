@@ -71,7 +71,6 @@ mkphpmodulename = $1.dy
 #
 # System libraries
 #
-ICEUTIL_OS_LIBS	=
 ICE_OS_LIBS     = -ldl
 CRYPT_OS_LIBS   = -framework Security -framework CoreFoundation
 SSL_OS_LIBS     = $(CRYPT_OS_LIBS)

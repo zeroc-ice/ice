@@ -19,7 +19,7 @@ namespace IceUtilInternal
 // See java.util.concurrent.CountDownLatch in Java 1.5
 //
 
-class ICE_UTIL_API CountDownLatch
+class ICE_API CountDownLatch
 {
 public:
     

@@ -68,7 +68,7 @@ typedef int ATOMIC_T;
 // This is temporary and very partial placeholder for std::atomic,
 // which is not yet widely available.
 //
-class ICE_UTIL_API Atomic : public IceUtil::noncopyable
+class ICE_API Atomic : public IceUtil::noncopyable
 {
 public:
 

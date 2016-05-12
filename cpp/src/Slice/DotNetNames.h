@@ -7,22 +7,28 @@
 //
 // **********************************************************************
 
-#ifndef ICE_UTIL_MUTEX_PROTOCOL_H
-#define ICE_UTIL_MUTEX_PROTOCOL_H
+#ifndef DOTNETNAMES_H
+#define DOTNETNAMES_H
 
-#include <IceUtil/Config.h>
+#include <string>
 
-namespace IceUtil
+namespace Slice
 {
 
-enum MutexProtocol
+namespace DotNet
 {
-    PrioInherit,
-    PrioNone
+
+enum BaseType
+{
+    Object=1, ICloneable=2, Exception=4, END=8
 };
 
-ICE_API MutexProtocol getDefaultMutexProtocol();
+extern const char * manglePrefix;
 
-} // End namespace IceUtil
+std::string mangleName(const std::string&, int baseTypes = 0);
+
+}
+
+}
 
 #endif

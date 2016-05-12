@@ -16,7 +16,7 @@
 namespace IceUtil
 {
 
-class ICE_UTIL_API ThreadSyscallException : public SyscallException
+class ICE_API ThreadSyscallException : public SyscallException
 {
 public:
 
@@ -28,7 +28,7 @@ public:
     virtual void ice_throw() const;
 };
 
-class ICE_UTIL_API ThreadLockedException : public Exception
+class ICE_API ThreadLockedException : public Exception
 {
 public:
 
@@ -40,7 +40,7 @@ public:
     virtual void ice_throw() const;
 };
 
-class ICE_UTIL_API ThreadStartedException : public Exception
+class ICE_API ThreadStartedException : public Exception
 {
 public:
 
@@ -52,7 +52,7 @@ public:
     virtual void ice_throw() const;
 };
 
-class ICE_UTIL_API ThreadNotStartedException : public Exception
+class ICE_API ThreadNotStartedException : public Exception
 {
 public:
 
@@ -64,7 +64,7 @@ public:
     virtual void ice_throw() const;
 };
 
-class ICE_UTIL_API BadThreadControlException : public Exception
+class ICE_API BadThreadControlException : public Exception
 {
 public:
 
@@ -76,7 +76,7 @@ public:
     virtual void ice_throw() const;
 };
 
-class ICE_UTIL_API InvalidTimeoutException : public Exception
+class ICE_API InvalidTimeoutException : public Exception
 {
 public:
 

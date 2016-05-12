@@ -15,7 +15,7 @@
 namespace IceUtil
 {
 
-ICE_UTIL_API std::string generateUUID();
+ICE_API std::string generateUUID();
 
 }
 

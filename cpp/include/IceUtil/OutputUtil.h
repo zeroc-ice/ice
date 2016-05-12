@@ -18,7 +18,7 @@
 namespace IceUtilInternal
 {
 
-ICE_UTIL_API std::string int64ToString(IceUtil::Int64);
+ICE_API std::string int64ToString(IceUtil::Int64);
 
 // ----------------------------------------------------------------------
 // OutputBase
@@ -31,7 +31,7 @@ ICE_UTIL_API std::string int64ToString(IceUtil::Int64);
 // manually I've decided to leave them as virtual.
 //
 
-class ICE_UTIL_API OutputBase : private ::IceUtil::noncopyable
+class ICE_API OutputBase : private ::IceUtil::noncopyable
 {
 public:
 
@@ -74,21 +74,21 @@ protected:
     bool _separator;
 };
 
-class ICE_UTIL_API NextLine
+class ICE_API NextLine
 {
 };
-extern ICE_UTIL_API NextLine nl;
+extern ICE_API NextLine nl;
 
-class ICE_UTIL_API Separator
+class ICE_API Separator
 {
 };
-extern ICE_UTIL_API Separator sp;
+extern ICE_API Separator sp;
 
 // ----------------------------------------------------------------------
 // Output
 // ----------------------------------------------------------------------
 
-class ICE_UTIL_API Output : public OutputBase
+class ICE_API Output : public OutputBase
 {
 public:
 
@@ -148,10 +148,10 @@ operator<<(Output& o, const Separator&)
     return o;
 }
 
-class ICE_UTIL_API StartBlock
+class ICE_API StartBlock
 {
 };
-extern ICE_UTIL_API StartBlock sb;
+extern ICE_API StartBlock sb;
 
 template<>
 inline Output&
@@ -161,10 +161,10 @@ operator<<(Output& o, const StartBlock&)
     return o;
 }
 
-class ICE_UTIL_API EndBlock
+class ICE_API EndBlock
 {
 };
-extern ICE_UTIL_API EndBlock eb;
+extern ICE_API EndBlock eb;
 
 template<>
 inline Output&
@@ -174,10 +174,10 @@ operator<<(Output& o, const EndBlock&)
     return o;
 }
 
-class ICE_UTIL_API StartPar
+class ICE_API StartPar
 {
 };
-extern ICE_UTIL_API StartPar spar;
+extern ICE_API StartPar spar;
 
 template<>
 inline Output&
@@ -187,10 +187,10 @@ operator<<(Output& o, const StartPar&)
     return o;
 }
 
-class ICE_UTIL_API EndPar
+class ICE_API EndPar
 {
 };
-extern ICE_UTIL_API EndPar epar;
+extern ICE_API EndPar epar;
 
 template<>
 inline Output&
@@ -200,13 +200,13 @@ operator<<(Output& o, const EndPar&)
     return o;
 }
 
-ICE_UTIL_API Output& operator<<(Output&, std::ios_base& (*)(std::ios_base&));
+ICE_API Output& operator<<(Output&, std::ios_base& (*)(std::ios_base&));
 
 // ----------------------------------------------------------------------
 // XMLOutput
 // ----------------------------------------------------------------------
 
-class ICE_UTIL_API XMLOutput : public OutputBase
+class ICE_API XMLOutput : public OutputBase
 {
 public:
 
@@ -265,10 +265,10 @@ operator<<(XMLOutput& o, const Separator&)
     return o;
 }
 
-class ICE_UTIL_API EndElement
+class ICE_API EndElement
 {
 };
-extern ICE_UTIL_API EndElement ee;
+extern ICE_API EndElement ee;
 
 template<>
 inline XMLOutput&
@@ -278,7 +278,7 @@ operator<<(XMLOutput& o, const EndElement&)
     return o;
 }
 
-class ICE_UTIL_API StartElement
+class ICE_API StartElement
 {
 public:
 
@@ -301,7 +301,7 @@ operator<<(XMLOutput& o, const StartElement& e)
     return o;
 }
 
-class ICE_UTIL_API Attribute
+class ICE_API Attribute
 {
 public:
 
@@ -326,15 +326,15 @@ operator<<(XMLOutput& o, const Attribute& e)
     return o;
 }
 
-class ICE_UTIL_API StartEscapes
+class ICE_API StartEscapes
 {
 };
-extern ICE_UTIL_API StartEscapes startEscapes;
+extern ICE_API StartEscapes startEscapes;
 
-class ICE_UTIL_API EndEscapes
+class ICE_API EndEscapes
 {
 };
-extern ICE_UTIL_API EndEscapes endEscapes;
+extern ICE_API EndEscapes endEscapes;
 
 template<>
 inline XMLOutput&
@@ -352,7 +352,7 @@ operator<<(XMLOutput& o, const EndEscapes&)
     return o;
 }
 
-ICE_UTIL_API XMLOutput& operator<<(XMLOutput&, std::ios_base& (*)(std::ios_base&));
+ICE_API XMLOutput& operator<<(XMLOutput&, std::ios_base& (*)(std::ios_base&));
 
 }
 

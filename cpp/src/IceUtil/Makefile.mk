@@ -9,16 +9,10 @@
 
 $(project)_libraries 	= IceUtil
 
-IceUtil_targetdir		:= $(libdir)
-IceUtil_cppflags		:= -DICE_UTIL_API_EXPORTS
-IceUtil_system_libs		:= $(ICEUTIL_OS_LIBS)
+IceUtil_targetdir	:= $(libdir)
 
 # Always enable the static configuration for the IceUtil library
 IceUtil_always_enable_configs := static
-
-ifeq ($(DEFAULT_MUTEX_PROTOCOL), PrioInherit)
-    IceUtil_cppflags += -DICE_PRIO_INHERIT
-endif
 
 ifeq ($(libbacktrace),yes)
     IceUtil_cppflags += -DICE_LIBBACKTRACE

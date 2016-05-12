@@ -27,7 +27,7 @@ class Semaphore
 public:
 
     Semaphore(long = 0);
-    ICE_UTIL_API ~Semaphore();
+    ICE_API ~Semaphore();
 
     void wait() const;
     bool timedWait(const IceUtil::Time&) const;
@@ -55,7 +55,7 @@ class Mutex;
 // Condition variable implementation. Conforms to the same semantics
 // as a POSIX threads condition variable.
 //
-class ICE_UTIL_API Cond : private noncopyable
+class ICE_API Cond : private noncopyable
 {
 public:
 

@@ -83,17 +83,17 @@
     <ClCompile Include="..\SliceUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\include\Slice\Checksum.h" />
-    <ClInclude Include="..\..\..\include\Slice\CPlusPlusUtil.h" />
-    <ClInclude Include="..\..\..\include\Slice\FileTracker.h" />
-    <ClInclude Include="..\..\..\include\Slice\JavaUtil.h" />
-    <ClInclude Include="..\..\..\include\Slice\ObjCUtil.h" />
-    <ClInclude Include="..\..\..\include\Slice\Parser.h" />
-    <ClInclude Include="..\..\..\include\Slice\PHPUtil.h" />
-    <ClInclude Include="..\..\..\include\Slice\Preprocessor.h" />
-    <ClInclude Include="..\..\..\include\Slice\PythonUtil.h" />
-    <ClInclude Include="..\..\..\include\Slice\RubyUtil.h" />
-    <ClInclude Include="..\..\..\include\Slice\Util.h" />
+    <ClInclude Include="..\Checksum.h" />
+    <ClInclude Include="..\CPlusPlusUtil.h" />
+    <ClInclude Include="..\FileTracker.h" />
+    <ClInclude Include="..\JavaUtil.h" />
+    <ClInclude Include="..\ObjCUtil.h" />
+    <ClInclude Include="..\Parser.h" />
+    <ClInclude Include="..\PHPUtil.h" />
+    <ClInclude Include="..\Preprocessor.h" />
+    <ClInclude Include="..\PythonUtil.h" />
+    <ClInclude Include="..\RubyUtil.h" />
+    <ClInclude Include="..\Util.h" />
     <ClInclude Include="..\Grammar.h" />
     <ClInclude Include="..\GrammarUtil.h" />
     <ClInclude Include="..\MD5.h" />

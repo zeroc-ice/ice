@@ -31,7 +31,7 @@
 namespace IceUtil
 {
 
-class ICE_UTIL_API SimpleShared
+class ICE_API SimpleShared
 {
 public:
 
@@ -81,7 +81,7 @@ private:
     bool _noDelete;
 };
 
-class ICE_UTIL_API Shared
+class ICE_API Shared
 {
 public:
 

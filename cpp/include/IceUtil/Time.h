@@ -19,7 +19,7 @@
 namespace IceUtil
 {
 
-class ICE_UTIL_API Time
+class ICE_API Time
 {
 public:
 
@@ -203,7 +203,7 @@ private:
     Int64 _usec;
 };
 
-ICE_UTIL_API std::ostream& operator<<(std::ostream&, const Time&);
+ICE_API std::ostream& operator<<(std::ostream&, const Time&);
 
 } // End namespace IceUtil
 

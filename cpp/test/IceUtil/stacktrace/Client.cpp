@@ -18,7 +18,7 @@ using namespace std;
 
 namespace IceUtilInternal
 {
-extern bool ICE_UTIL_API printStackTraces;
+extern bool ICE_API printStackTraces;
 }
 
 namespace

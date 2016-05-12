@@ -63,8 +63,6 @@ mkshlibfilename = lib$(1).a
 
 mkpymodulename  = $(1).so
 
-ICEUTIL_OS_LIBS = -lcrypto
-
-ICE_OS_LIBS     =
+ICE_OS_LIBS     = -lcrypto
 CRYPT_OS_LIBS   = -lcrypt
 SSL_OS_LIBS     = -lssl -lcrypto

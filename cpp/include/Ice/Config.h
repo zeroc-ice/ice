@@ -33,18 +33,6 @@
 #endif
 
 //
-// Automatically link Ice[D|++11|++11D].lib with Visual C++
-//
-
-#if !defined(ICE_BUILDING_ICE) && defined(ICE_API_EXPORTS)
-#   define ICE_BUILDING_ICE
-#endif
-
-#if defined(_MSC_VER) && !defined(ICE_BUILDING_ICE)
-#   pragma comment(lib, ICE_LIBNAME("Ice"))
-#endif
-
-//
 // Define the Ice and IceInternal namespace, so that we can use the following
 // everywhere in our code:
 //
@@ -58,16 +46,6 @@ namespace Ice
 namespace IceInternal
 {
 }
-
-#ifndef ICE_API
-#   if defined(ICE_STATIC_LIBS)
-#       define ICE_API /**/
-#   elif defined(ICE_API_EXPORTS)
-#       define ICE_API ICE_DECLSPEC_EXPORT
-#   else
-#       define ICE_API ICE_DECLSPEC_IMPORT
-#   endif
-#endif
 
 namespace Ice
 {

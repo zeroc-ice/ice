@@ -26,7 +26,7 @@ class Cond;
 //
 // Recursive Mutex implementation.
 //
-class ICE_UTIL_API RecMutex
+class ICE_API RecMutex
 {
 public:
 

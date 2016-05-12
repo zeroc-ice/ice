@@ -21,9 +21,6 @@
     <ClCompile Include="..\CPlusPlusUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\DotNetNames.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\FileTracker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -83,40 +80,37 @@
     <ClInclude Include="..\MD5I.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\Slice\Checksum.h">
+    <ClInclude Include="..\Checksum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\Slice\CPlusPlusUtil.h">
+    <ClInclude Include="..\CPlusPlusUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\Slice\DotNetNames.h">
+    <ClInclude Include="..\FileTracker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\Slice\FileTracker.h">
+    <ClInclude Include="..\JavaUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\Slice\JavaUtil.h">
+    <ClInclude Include="..\ObjCUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\Slice\ObjCUtil.h">
+    <ClInclude Include="..\Parser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\Slice\Parser.h">
+    <ClInclude Include="..\Preprocessor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\Slice\Preprocessor.h">
+    <ClInclude Include="..\RubyUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\Slice\RubyUtil.h">
+    <ClInclude Include="..\Util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\Slice\Util.h">
+    <ClInclude Include="..\PHPUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\Slice\PHPUtil.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\include\Slice\PythonUtil.h">
+    <ClInclude Include="..\PythonUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

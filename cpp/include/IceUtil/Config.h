@@ -126,11 +126,11 @@
 // Let's use these extensions with Ice:
 //
 #if defined(ICE_API_EXPORTS)
-#   define ICE_UTIL_API ICE_DECLSPEC_EXPORT
+#   define ICE_API ICE_DECLSPEC_EXPORT
 #elif defined(ICE_STATIC_LIBS)
-#   define ICE_UTIL_API /**/
+#   define ICE_API /**/
 #else
-#   define ICE_UTIL_API ICE_DECLSPEC_IMPORT
+#   define ICE_API ICE_DECLSPEC_IMPORT
 #endif
 
 
@@ -188,7 +188,7 @@
 #endif
 
 #ifdef __IBMCPP__
-// TODO: better fix for this warning
+    // TODO: better fix for this warning
 #   pragma report(disable, "1540-0198") // private inheritance without private keyword
 #endif
 
@@ -252,7 +252,7 @@ namespace IceUtil
 //
 // By deriving from this class, other classes are made non-copyable.
 //
-class ICE_UTIL_API noncopyable
+class ICE_API noncopyable
 {
 protected:
 

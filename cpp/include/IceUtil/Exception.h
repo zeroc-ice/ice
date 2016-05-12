@@ -18,7 +18,7 @@
 namespace IceUtil
 {
 
-class ICE_UTIL_API Exception : public std::exception
+class ICE_API Exception : public std::exception
 {
 public:
 
@@ -50,9 +50,9 @@ private:
     mutable ::std::string _str; // Initialized lazily in what().
 };
 
-ICE_UTIL_API std::ostream& operator<<(std::ostream&, const Exception&);
+ICE_API std::ostream& operator<<(std::ostream&, const Exception&);
 
-class ICE_UTIL_API NullHandleException : public Exception
+class ICE_API NullHandleException : public Exception
 {
 public:
 
@@ -65,7 +65,7 @@ public:
     virtual void ice_throw() const;
 };
 
-class ICE_UTIL_API IllegalArgumentException : public Exception
+class ICE_API IllegalArgumentException : public Exception
 {
 public:
 
@@ -89,7 +89,7 @@ private:
 //
 // IllegalConversionException is raised to report a string conversion error
 //
-class ICE_UTIL_API IllegalConversionException : public Exception
+class ICE_API IllegalConversionException : public Exception
 {
 public:
 
@@ -110,7 +110,7 @@ private:
 };
 
 
-class ICE_UTIL_API SyscallException : public Exception
+class ICE_API SyscallException : public Exception
 {
 public:
 
@@ -129,7 +129,7 @@ private:
     const int _error;
 };
 
-class ICE_UTIL_API FileLockException : public Exception
+class ICE_API FileLockException : public Exception
 {
 public:
 
@@ -151,7 +151,7 @@ private:
     std::string _path;
 };
 
-class ICE_UTIL_API OptionalNotSetException : public Exception
+class ICE_API OptionalNotSetException : public Exception
 {
 public:
 
@@ -165,7 +165,7 @@ public:
 };
 
 #ifndef _WIN32
-class ICE_UTIL_API IconvInitializationException : public Exception
+class ICE_API IconvInitializationException : public Exception
 {
 public:
 
@@ -193,7 +193,7 @@ namespace IceUtilInternal
 
 enum StackTraceImpl { STNone, STDbghelp, STLibbacktrace, STLibbacktracePlus, STBacktrace };
 
-ICE_UTIL_API StackTraceImpl stackTraceImpl();
+ICE_API StackTraceImpl stackTraceImpl();
 
 }
 

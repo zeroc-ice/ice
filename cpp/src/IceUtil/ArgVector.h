@@ -17,7 +17,7 @@
 namespace IceUtilInternal
 {
 
-class ICE_UTIL_API ArgVector
+class ICE_API ArgVector
 {
 public:
 

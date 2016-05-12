@@ -74,8 +74,8 @@ using namespace IceInternal;
 namespace IceUtilInternal
 {
 
-extern bool ICE_UTIL_API nullHandleAbort;
-extern bool ICE_UTIL_API printStackTraces;
+extern bool nullHandleAbort;
+extern bool printStackTraces;
 
 };
 

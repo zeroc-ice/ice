@@ -18,11 +18,11 @@
 namespace IceUtilInternal
 {
 
-ICE_UTIL_API void 
+ICE_API void 
 sha1(const unsigned char*, std::size_t, std::vector<unsigned char>&);
     
 #ifndef ICE_OS_WINRT
-class ICE_UTIL_API SHA1
+class ICE_API SHA1
 {
 public:
     
