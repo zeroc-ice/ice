@@ -18,6 +18,8 @@ PYTHON              ?= python
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
 
+-include        $(lang_srcdir)/config/Make.rules.$(os)
+
 python-call		= $(shell $(PYTHON) -c "import sys; import distutils.sysconfig as ds; sys.stdout.write($1)")
 
 PYTHON_VERSION 		?= python$(PYTHON_BASE_VERSION)

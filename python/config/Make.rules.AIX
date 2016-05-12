@@ -7,19 +7,6 @@
 #
 # **********************************************************************
 
-#
-# This file is itself included by Make.rules
-#
+# $(call mkshlib,$1=target,$2=objects,$3=libname,$4=version,$5=soversion,$6=ldflags,$7=platform)
+mkshlib        = $(or $($7_cxx),$(CXX)) -qmkshrobj -o $1 $2 $6
 
-include $(top_srcdir)/../cpp/config/Make.rules.$(UNAME)
-
-#
-# Need .so for Python extension
-#
-# Note: Python also loads the extension in IcePy.a if IcePy.so points to it
-#
-
-mkpylibfilename = $(1).so
-mkylibname      = $(1).so
-
-mkshlib         = $(CXX) -qmkshrobj $(LDFLAGS) -o $(1) $(3) $(4)
