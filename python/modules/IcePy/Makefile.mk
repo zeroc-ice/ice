@@ -18,7 +18,7 @@ IcePy_cppflags  	:= -I$(project) -I$(top_srcdir)/cpp/include -I$(top_srcdir)/cpp
 IcePy_ldflags		:= $(python_ldflags)
 IcePy_dependencies	:= IceSSL Ice
 IcePy_libs              := mcpp
-IcePy_extra_sources     := $(filter-out %Util.cpp %Ruby.cpp %DotNetNames.cpp,\
+IcePy_extra_sources     := $(filter-out %Util.cpp %Ruby.cpp,\
 				$(wildcard $(top_srcdir)/cpp/src/Slice/*.cpp)) \
 			   $(top_srcdir)/cpp/src/Slice/SliceUtil.cpp \
 			   $(top_srcdir)/cpp/src/Slice/PythonUtil.cpp

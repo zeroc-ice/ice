@@ -18,7 +18,7 @@ IcePHP_cppflags  	:= -I$(project) -I$(top_srcdir)/cpp/include -I$(top_srcdir)/cp
 IcePHP_ldflags		:= $(php_ldflags)
 IcePHP_dependencies	:= IceDiscovery IceLocatorDiscovery IceSSL Ice
 IcePHP_libs             := mcpp
-IcePHP_extra_sources    := $(filter-out %Util.cpp %Python.cpp %Ruby.cpp %DotNetNames.cpp,\
+IcePHP_extra_sources    := $(filter-out %Util.cpp %Python.cpp %Ruby.cpp,\
 				$(wildcard $(top_srcdir)/cpp/src/Slice/*.cpp)) \
 			   $(top_srcdir)/cpp/src/Slice/SliceUtil.cpp \
 			   $(top_srcdir)/cpp/src/Slice/PHPUtil.cpp
