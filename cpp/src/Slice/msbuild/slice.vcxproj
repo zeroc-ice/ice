@@ -63,6 +63,26 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>ICE_BUILDING_SLICE_COMPILERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>ICE_BUILDING_SLICE_COMPILERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>ICE_BUILDING_SLICE_COMPILERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>ICE_BUILDING_SLICE_COMPILERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Checksum.cpp" />
     <ClCompile Include="..\CPlusPlusUtil.cpp" />
@@ -71,7 +91,6 @@
     <ClCompile Include="..\JavaUtil.cpp" />
     <ClCompile Include="..\MD5.cpp" />
     <ClCompile Include="..\MD5I.cpp" />
-    <ClCompile Include="..\ObjCUtil.cpp" />
     <ClCompile Include="..\Parser.cpp" />
     <ClCompile Include="..\PHPUtil.cpp" />
     <ClCompile Include="..\Preprocessor.cpp" />
@@ -87,7 +106,6 @@
     <ClInclude Include="..\CPlusPlusUtil.h" />
     <ClInclude Include="..\FileTracker.h" />
     <ClInclude Include="..\JavaUtil.h" />
-    <ClInclude Include="..\ObjCUtil.h" />
     <ClInclude Include="..\Parser.h" />
     <ClInclude Include="..\PHPUtil.h" />
     <ClInclude Include="..\Preprocessor.h" />

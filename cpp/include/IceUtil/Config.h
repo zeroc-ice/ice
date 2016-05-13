@@ -241,7 +241,7 @@
 //
 //  Automatically link with Ice[D|++11|++11D].lib
 //
-#   if !defined(ICE_STATIC_LIBS) && !defined(ICE_BUILDING_ICE)
+#   if !defined(ICE_BUILDING_ICE) && !defined(ICE_BUILDING_SLICE_COMPILERS)
 #      pragma comment(lib, ICE_LIBNAME("Ice"))
 #   endif
 #endif

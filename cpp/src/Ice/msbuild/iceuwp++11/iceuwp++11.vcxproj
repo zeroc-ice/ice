@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|ARM">
@@ -132,10 +132,10 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\IceUtil\ArgVector.cpp" />
-    <ClCompile Include="..\..\..\IceUtil\Cond.cpp" />
+    <ClCompile Include="..\..\ArgVector.cpp" />
+    <ClCompile Include="..\..\Cond.cpp" />
     <ClCompile Include="..\..\..\IceUtil\ConvertUTF.cpp" />
-    <ClCompile Include="..\..\..\IceUtil\CountDownLatch.cpp" />
+    <ClCompile Include="..\..\CountDownLatch.cpp" />
     <ClCompile Include="..\..\..\IceUtil\FileUtil.cpp" />
     <ClCompile Include="..\..\..\IceUtil\InputUtil.cpp" />
     <ClCompile Include="..\..\..\IceUtil\MutexProtocol.cpp" />
@@ -143,14 +143,14 @@
     <ClCompile Include="..\..\..\IceUtil\OutputUtil.cpp" />
     <ClCompile Include="..\..\..\IceUtil\Random.cpp" />
     <ClCompile Include="..\..\..\IceUtil\RecMutex.cpp" />
-    <ClCompile Include="..\..\..\IceUtil\SHA1.cpp" />
+    <ClCompile Include="..\..\SHA1.cpp" />
     <ClCompile Include="..\..\..\IceUtil\Shared.cpp" />
     <ClCompile Include="..\..\..\IceUtil\StringConverter.cpp" />
     <ClCompile Include="..\..\..\IceUtil\StringUtil.cpp" />
-    <ClCompile Include="..\..\..\IceUtil\Thread.cpp" />
+    <ClCompile Include="..\..\Thread.cpp" />
     <ClCompile Include="..\..\..\IceUtil\ThreadException.cpp" />
     <ClCompile Include="..\..\..\IceUtil\Time.cpp" />
-    <ClCompile Include="..\..\..\IceUtil\Timer.cpp" />
+    <ClCompile Include="..\..\Timer.cpp" />
     <ClCompile Include="..\..\..\IceUtil\Unicode.cpp" />
     <ClCompile Include="..\..\..\IceUtil\UtilException.cpp" />
     <ClCompile Include="..\..\..\IceUtil\UUID.cpp" />

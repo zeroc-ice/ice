@@ -65,7 +65,7 @@
   <PropertyGroup Label="UserMacros" />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>ICE_STATIC_LIBS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ICE_STATIC_LIBS;ICE_BUILDING_SLICE_COMPILERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>rpcrt4.lib;advapi32.lib;DbgHelp.lib;Shlwapi.lib</AdditionalDependencies>
@@ -73,7 +73,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>ICE_STATIC_LIBS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ICE_STATIC_LIBS;ICE_BUILDING_SLICE_COMPILERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>rpcrt4.lib;advapi32.lib;DbgHelp.lib;Shlwapi.lib</AdditionalDependencies>
@@ -81,7 +81,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PreprocessorDefinitions>ICE_STATIC_LIBS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ICE_STATIC_LIBS;ICE_BUILDING_SLICE_COMPILERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>rpcrt4.lib;advapi32.lib;DbgHelp.lib;Shlwapi.lib</AdditionalDependencies>
@@ -89,7 +89,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <PreprocessorDefinitions>ICE_STATIC_LIBS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ICE_STATIC_LIBS;ICE_BUILDING_SLICE_COMPILERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>rpcrt4.lib;advapi32.lib;DbgHelp.lib;Shlwapi.lib</AdditionalDependencies>

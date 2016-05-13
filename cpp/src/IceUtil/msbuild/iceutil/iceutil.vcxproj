@@ -61,29 +61,42 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>  
+  </ImportGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>ICE_BUILDING_SLICE_COMPILERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>ICE_BUILDING_SLICE_COMPILERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>ICE_BUILDING_SLICE_COMPILERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>ICE_BUILDING_SLICE_COMPILERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\ArgVector.cpp" />
-    <ClCompile Include="..\..\Cond.cpp" />
     <ClCompile Include="..\..\ConvertUTF.cpp" />
-    <ClCompile Include="..\..\CountDownLatch.cpp" />
     <ClCompile Include="..\..\CtrlCHandler.cpp" />
+    <ClCompile Include="..\..\OutputUtil.cpp" />
+    <ClCompile Include="..\..\RecMutex.cpp" />
+    <ClCompile Include="..\..\StringConverter.cpp" />
+    <ClCompile Include="..\..\ThreadException.cpp" />
+    <ClCompile Include="..\..\Time.cpp" />
     <ClCompile Include="..\..\UtilException.cpp" />
     <ClCompile Include="..\..\FileUtil.cpp" />
     <ClCompile Include="..\..\InputUtil.cpp" />
-    <ClCompile Include="..\..\MutexProtocol.cpp" />
     <ClCompile Include="..\..\Options.cpp" />
-    <ClCompile Include="..\..\OutputUtil.cpp" />
     <ClCompile Include="..\..\Random.cpp" />
-    <ClCompile Include="..\..\RecMutex.cpp" />
-    <ClCompile Include="..\..\SHA1.cpp" />
     <ClCompile Include="..\..\Shared.cpp" />
-    <ClCompile Include="..\..\StringConverter.cpp" />
     <ClCompile Include="..\..\StringUtil.cpp" />
-    <ClCompile Include="..\..\Thread.cpp" />
-    <ClCompile Include="..\..\ThreadException.cpp" />
-    <ClCompile Include="..\..\Time.cpp" />
-    <ClCompile Include="..\..\Timer.cpp" />
     <ClCompile Include="..\..\Unicode.cpp" />
     <ClCompile Include="..\..\UUID.cpp" />
   </ItemGroup>
