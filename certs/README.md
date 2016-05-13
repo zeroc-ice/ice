@@ -17,7 +17,7 @@ We've included the Python script `makecerts.py` to simplify this task.
 You'll need Python to run the script. The script also depends on a utility package
 from a separate [ZeroC repository][1]. You can install this package as follows:
 
-    pip install zeroc-ice-certutils
+    pip install zeroc-icecertutils
 
 ## Usage
 
@@ -44,4 +44,4 @@ You can specify an alternate IP address using `--ip` and an alternate DNS name
 using `--dns`. The `--use-dns` flag forces the script to use the DNS name as
 the server's Common Name instead of the IP address.
 
-[1]: https://github.com/zeroc-ice/ice-certutils
+[1]: https://github.com/zeroc-ice/icecertutils
