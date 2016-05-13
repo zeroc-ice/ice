@@ -159,7 +159,7 @@ class Ice_SliceInfo
 {
     public $typeId;
     public $bytes;
-    public $objects;
+    public $instances;
 }
 
 class Ice_FormatType

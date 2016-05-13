@@ -164,7 +164,7 @@ namespace Ice
     {
         public $typeId;
         public $bytes;
-        public $objects;
+        public $instances;
     }
 
     class FormatType
