@@ -125,14 +125,15 @@
 //
 // Let's use these extensions with Ice:
 //
-#if defined(ICE_API_EXPORTS)
-#   define ICE_API ICE_DECLSPEC_EXPORT
-#elif defined(ICE_STATIC_LIBS)
-#   define ICE_API /**/
-#else
-#   define ICE_API ICE_DECLSPEC_IMPORT
+#ifndef ICE_API
+#   if defined(ICE_STATIC_LIBS)
+#      define ICE_API /**/
+#   elif defined(ICE_API_EXPORTS)
+#      define ICE_API ICE_DECLSPEC_EXPORT
+#   else
+#      define ICE_API ICE_DECLSPEC_IMPORT
+#   endif
 #endif
-
 
 #if defined(_MSC_VER)
 #   define ICE_DEPRECATED_API(msg) __declspec(deprecated(msg))

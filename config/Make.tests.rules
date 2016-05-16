@@ -86,5 +86,13 @@ projects += $(project)
 
 endef
 
+#
+# Returns the tests which don't have a Makefile.mk fragment specified
+#
 tests-without-project-makefile = $(foreach d,$(patsubst %/run.py,%,$(shell find $(lang_srcdir)/test -name run.py)),\
 			 	     $(if $(wildcard $d/Makefile.mk),,$(call test,$d)))
+
+#
+# The tests variable is used to load tests in Makefile.mk fragments
+#
+tests :=

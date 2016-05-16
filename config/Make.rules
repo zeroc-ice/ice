@@ -76,9 +76,9 @@ CONFIGS			?= $(firstword $(supported-configs))
 
 os			?= $(shell uname)
 
+include	$(top_srcdir)/config/Make.rules.$(os)
 include	$(top_srcdir)/config/Make.project.rules
 include	$(top_srcdir)/config/Make.tests.rules
-include	$(top_srcdir)/config/Make.rules.$(os)
 
 ifeq ($(USE_BIN_DIST),yes)
 prefix 			:= $(or $(ICE_HOME),$(if $(filter Darwin,$(os)),/usr/local,/usr))
@@ -108,15 +108,6 @@ version     		= 3.7a0
 mmversion		= 3.7
 soversion   		= 37a0
 
-INSTALL			= cp -fp
-MV  			= mv -f
-RM  			= rm -f
-MKDIR 			= mkdir
-CHMOD			= chmod
-
-Q 			:= $(if $(V),,@)
-E 			:= $(if $(V),@:,@echo)
-
 #
 # Support for 3rd party libraries
 #
@@ -143,192 +134,4 @@ $(foreach l,$(thirdparties),$(eval $(call make-thirdparty,$l)))
 #
 supported-languages	?= cpp java python js ruby php
 supported-configs	?= shared
-
-platforms 		= $(if $(filter all,$(PLATFORMS)),$(supported-platforms),$(PLATFORMS))
-configs 		= $(if $(filter all,$(CONFIGS)),$(supported-configs),$(CONFIGS))
-languages 		= $(if $(filter all,$(or $(LANGUAGES),all)),$(supported-languages),$(LANGUAGES))
-build-platform		:= $(or $(build-platform),$(firstword $(supported-platforms)))
-
-#
-# Configuration variables
-#
-# The variables defined below are called with ($1=component,$2=platform,$3=config,$4=$1[$2-$3][,$5=subconfig])
-#
-
-# Defaults for configurations which don't override the specified variable
-config_targetdir	= $(if $(filter %/build,$($1_targetdir)),$5)
-config_objdir		= $5
-config_dependency	= $5
-
-# Static configuration for static builds
-static_targetrule	= $(if $(filter-out program,$($1_target)),static-)
-static_cppflags		+= $$(strip $$(call make-lib-cppflags,$1,$2,$3)) -DICE_STATIC_LIBS
-static_ldflags		+= $$(call unique,$$(foreach d,$$(call get-all-deps,$4),$$(call make-static-dep-ldflags,$$d)))\
-			  $$(strip $$(foreach d,$$(call get-all-deps,$4) $1,$$(call make-lib-ldflags,$$d,$2,$3)))\
-			  $$(strip $$(foreach d,$$(call get-all-deps,$4) $1,$$(call make-system-lib-ldflags,$$d,$2,$3)))
-
-# Shared configuration for shared builds
-shared_projects		= %
-shared_objdir		= $(if $(filter-out program,$($1_target)),shared/pic,shared/nopic)
-shared_targetrule	= $(if $(filter-out program,$($1_target)),shared-)
-shared_cppflags		+= $$(strip $$(call make-lib-cppflags,$1,$2,$3))
-shared_ldflags		+= $$(call unique,$$(foreach d,$$($4_dependencies),$$(call make-shared-dep-ldflags,$$d,$4)))\
-			  $$(strip $$(call make-lib-ldflags,$1,$2,$3))\
-			  $$(strip $$(call make-system-lib-ldflags,$1,$2,$3))
-
-#
-# Platform variables
-#
-# The variables defined below are called with ($1=component,$2=platform,$3=config,$4=$1[$2-$3])
-#
-
-# Defaults for platforms which don't override the specified variable
-platform_cc		?= $(CC)
-platform_cxx		?= $(CXX)
-platform_ld 		?= $(CXX)
-platform_ar		?= $(AR)
-platform_objdir		?= $2
-platform_targetdir	?= /$2
-platform_installdir	?=
-platform_dependency	?= $2
-
-#
-# Other variables which can be overriden by Make.rules.<platform>
-#
-
-# $(call depend_cppflags,$1=dependencyfile,$2=targetfile)
-depend-cppflags		?= -MT $2 -MMD -MP -MF $1
-
-# $(call rpath-ldflag,$1=rpath)
-rpath-ldflag 		?= -Wl,-rpath,$1
-
-#
-# The projects and tests variable are used to load projects/tests in Makefile.mk fragments
-#
-projects :=
-tests :=
-
-#
-# Global targets
-#
-.PHONY: all
-all::
-
-.PHONY: clean
-clean::
-
-.PHONY: distclean
-distclean::
-
-.PHONY: install
-install::
-
-#
-# Rule to view the value of a variable (e.g.: make debug V=Ice_sources to print out the variable Ice_sources).
-#
-print:
-	$(foreach v,$(filter $(V),$(.VARIABLES)),$(warning $v = $($v)))
-
-#
-# Helper functions
-#
-dirname 	= $(patsubst %/,%,$(if $(findstring /,$1),$(dir $1)))
-currentdir 	= $(call dirname,$(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST)))
-unique		= $(strip $(if $1,$(firstword $1) $(call unique,$(filter-out $(firstword $1),$1))))
-files-to-dirs 	= $(call unique,$(call dirname,$(filter $(if $2,$(addprefix %.,$2),%),$1)))
-
-empty 		:=
-space 		:= $(empty) $(empty)
-comma 		:= ,
-
-mappingdir2 	= $(if $(filter ../%,$1),$(call mappingdir2,$(patsubst ../%,%,$1)),$(firstword $(subst /, ,$1)))
-mappingdir  	= $(patsubst $(lang_srcdir)/%,%,$(if $(filter-out ../%,$1),$2,$(top_srcdir)/$(call mappingdir2,$1)/$2))
-
-#
-# $(call make-dependency,$1=dependency,$2=component,$3=platform,$4=config)
-#
-# Computes dependency[config-platform] for given component.
-#
-make-dependency		= $1[$(subst $(space),-,$(call platform-and-config-var,dependency,$2,$3,$4))]
-
-#
-# Get direct and transitive dependencies
-#
-# $(call get-all-deps,component)
-#
-get-all-deps		= $(call unique,$(if $($1_dependencies),\
-				$(foreach d,$($1_dependencies),$d $(call get-all-deps,$d)),$1))
-
-#
-# Return the variable value or the default if the variable is not defined
-#
-var-with-default 	= $(if $(filter undefined,$(origin $1)),$($2),$($1))
-
-#
-# Helpers to compute cppflags/ldflags for dependencies, libraries and system libraries
-#
-ifeq ($(embedded_runpath),yes)
-ifeq ($(embedded_runpath_prefix),)
-# Add rpath relative to the path of the loader if linking with library from different directory.
-make-rpath-ldflag = $(if $(filter-out $1,$2),\
-			$(if $(filter /%,$1),\
-			    $(call rpath-ldflag,$1),\
-		            $(call rpath-ldflag,$(loader_path)/$(call relpathfromdir,$(patsubst $(lang_srcdir)/%,%,$2))/$1)))
-make-shared-dep-ldflags	= $(call make-rpath-ldflag,$($1_targetdir),$($2_targetdir)) -L$($1_targetdir) -l$($1_targetname)
-else
-# Add rpath with $(embedded_runpath_prefix) if linking with library installed in different directory.
-make-rpath-ldflag = $(if $(filter-out $1,$2),$(call rpath-ldflag,$(patsubst $(prefix)/%,$(embedded_runpath_prefix)/%,$1)))
-make-shared-dep-ldflags	= $(call make-rpath-ldflag,$($1_installdir),$($2_installdir)) -L$($1_targetdir) -l$($1_targetname)
-endif
-else
-make-shared-dep-ldflags	= -L$($1_targetdir) -l$($1_targetname)
-endif
-
-make-static-dep-ldflags	= $($1_targetdir)/$(call mklibname,$($1_targetname))
-make-system-lib-ldflags = $($1_system_libs)
-
-make-lib-ldflags 	= $(foreach l,$($1_libs),$(if $($l_libdir),-L$(call $l_libdir,$l,$2,$3)) $($l_ldflags))
-make-lib-cppflags 	= $(foreach l,$($1_libs),$(if $($l_includedir),-I$(call $l_includedir,$l,$2,$3)) $($l_cppflags))
-
-#
-# $(call repathfromdir,path), returns reversed relative path for directory (e.g.: test/Ice/operations
-# is transformed to ../../..). This is used for rpath computations.
-#
-relpathfromdir 	= $(if $(findstring /,$1),$(call relpathfromdir,$(call dirname,$1))/..,..)
-
-#
-# $(call platform-and-config-var,$1=variable,$2=component,$3=platform,$4=configuration)
-#
-# Check for platform and configuration specific variable. For example, if variable
-# is `objdir', for the configuration `cpp11-static' and the `osx' platform, the
-# resulting value will be: $(osx_objdir) $(cpp11_objdir) $(static_objdir).
-#
-# The configuration value is decomposed based on the dash character and the value
-# of each individual configurations is recomposed with a dash (so for the config
-# cfg1-cfg2-...-cfgN, we return the value $(cfg1_VAR) $(cfg2_VAR) ... $(cfgN_VAR)
-# for the variable VAR).
-#
-# This also supports default value for platform/configuration variables. So if
-# osx_objdir isn't defined, we'll use the default value platform_objdir.
-#
-var-or-dflt		= $(call $(if $(filter-out undefined,$(origin $1_$3[$4])),$1_$3[$4],\
-				 $(if $(filter-out undefined,$(origin $2_$3[$4])),$2_$3[$4],\
-				 $(if $(filter-out undefined,$(origin $1_$3[$($4_project)])),$1_$3[$($4_project)],\
-				 $(if $(filter-out undefined,$(origin $2_$3[$($4_project)])),$2_$3[$($4_project)],\
-				 $(if $(filter-out undefined,$(origin $1_$3)),$1_$3,\
-				 $2_$3))))),$4,$5,$6,$7,$8)
-platform-var		= $(strip $(foreach c,$3,$(call var-or-dflt,$c,platform,$1,$2,$3,$4,$5)))
-config-var		= $(strip $(foreach c,$(subst -,$(space),$4),$(call var-or-dflt,$c,config,$1,$2,$3,$4,$5,$c)))
-platform-and-config-var = $(strip $(platform-var) $(config-var))
-
-#
-# Functions to transform a list of source filenames to generated source/header, object or dependency filenames.
-# 
-generated-extensions := ice $(if $(filter yes,$(BISON_FLEX)),y l)
-source-extensions    := ice y l cpp m mm
-
-generated-to-source  = $(notdir $(foreach ext,$(generated-extensions),$(patsubst %.$(ext),%.$2,$(filter %.$(ext),$1))))
-generated-to-header  = $(notdir $(foreach ext,$(generated-extensions),$(patsubst %.$(ext),%.h,$(filter %.$(ext),$1))))
-source-to-object     = $(notdir $(foreach ext,$(source-extensions),$(patsubst %.$(ext),%.o,$(filter %.$(ext),$1))))
-source-to-dependency = $(patsubst %,%.d,$(notdir $1))
 
