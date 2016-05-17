@@ -26,10 +26,12 @@ include $(lang_srcdir)/config/Make.rules
 #
 # Load Makefile.mk fragments
 #
-ifeq ($(shell [ $$(php-config --vernum) -lt 70000 ] && echo true),true)
-include $(lang_srcdir)/src/php5/Makefile.mk
-else
-include $(lang_srcdir)/src/php7/Makefile.mk
+ifeq ($(filter tests,$(MAKECMDGOALS)),)
+    ifeq ($(shell [ $$(php-config --vernum) -lt 70000 ] && echo true),true)
+        include $(lang_srcdir)/src/php5/Makefile.mk
+    else
+        include $(lang_srcdir)/src/php7/Makefile.mk
+    endif
 endif
 
 #

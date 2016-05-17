@@ -11,14 +11,16 @@
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
 
-ifeq ($(shell php-config --libs /dev/null && echo 0),0)
-    $(error php-config not found review your PHP installation and ensure php-config is in your PATH)
-endif
+ifeq ($(filter clean distclean tests,$(MAKECMDGOALS)),)
+    ifneq ($(shell php-config --libs >& /dev/null && echo 0),0)
+        $(error php-config not found review your PHP installation and ensure php-config is in your PATH)
+    endif
 
-php_cppflags     := $(shell php-config --includes)
+    php_cppflags     := $(shell php-config --includes)
 
-ifeq ($(os),Darwin)
-php_ldflags      := ${wl}-flat_namespace ${wl}-undefined ${wl}suppress
+    ifeq ($(os),Darwin)
+        php_ldflags      := ${wl}-flat_namespace ${wl}-undefined ${wl}suppress
+    endif
 endif
 
 #
@@ -111,7 +113,7 @@ distclean clean::
 	$(Q)$(RM) -r $1/.depend
 	$(Q)$(RM) $(patsubst $1/%.ice,$1/%.php,$(wildcard $1/*.ice))
 
-generate-srcs srcs all:: $(patsubst $1/%.ice,$1/%.php,$(wildcard $1/*.ice))
+tests generate-srcs srcs all:: $(patsubst $1/%.ice,$1/%.php,$(wildcard $1/*.ice))
 
 endef
 
