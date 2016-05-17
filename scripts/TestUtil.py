@@ -1883,7 +1883,8 @@ def getTestEnv(lang, testdir):
     # Add cpp/test/Common output directory to the env
     #
     if lang == "cpp":
-        addLdPath(getTestDirectory("testcommon", os.path.join(toplevel, "cpp", "test", "Common")), env)
+        baseDir = os.path.join(toplevel, "cpp", "test", "Common")
+        addLdPath(os.path.join(baseDir, getTestDirectory("testcommon", baseDir)), env)
 
     # Make sure bzip2 can be found by x86 C# builds on x64 platforms
     if lang == "csharp" and not x64:
@@ -2550,9 +2551,9 @@ def getTestDirectory(name, baseDir = os.getcwd()):
         configuration = ("cpp11-" if cpp11 else "") + ("static" if static else "shared")
 
     if os.path.isdir(os.path.join(baseDir, buildDir, name)):
-        return os.path.join(baseDir, buildDir, name, platform, configuration)
+        return os.path.join(buildDir, name, platform, configuration)
     else:
-        return os.path.join(baseDir, buildDir, platform, configuration)
+        return os.path.join(buildDir, platform, configuration)
 
 def getTestExecutable(name, baseDir = os.getcwd()):
     return os.path.join(getTestDirectory(name, baseDir), name)
