@@ -12,7 +12,7 @@
 # ----------------------------------------------------------------------
 
 ifeq ($(filter clean distclean tests,$(MAKECMDGOALS)),)
-    ifneq ($(shell php-config --libs >& /dev/null && echo 0),0)
+    ifneq ($(shell php-config --libs > /dev/null 2>&1 && echo 0),0)
         $(error php-config not found review your PHP installation and ensure php-config is in your PATH)
     endif
 
