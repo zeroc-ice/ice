@@ -97,7 +97,7 @@ ifeq ($(filter %clean,$(MAKECMDGOALS)),)
     -include $(addprefix $3/,$(call source-to-dependency,$4))
 endif
 
-ifneq ($(filter %.ice,$4),)
+ifneq ($(filter %.ice $2/%.$7,$4),)
 # Rules to build generated sources from <srcdir>/generated
 $3/%.o: $2/%.$7
 $3/%.o: $2/%.$7 $3/%.$7.d
@@ -608,6 +608,10 @@ $1_generated += $$($2_generated_headers)
 
 endif
 
+ifneq ($$($1_component_extensions),)
+$$(foreach e,$$($1_component_extensions),$$(eval $$(call $$e,$1,$2,$3)))
+endif
+
 #
 # Define per-<platform-config> rules for this component.
 #
@@ -690,11 +694,11 @@ ifeq ($(filter %clean,$(MAKECMDGOALS)),)
 
 ifneq ($$($1_objdirs),)
 $$($1_objdirs):
-	$(Q)mkdir -p $$@
+	$(Q)$(MKDIR) -p $$@
 endif
 
 $$($1_generated_srcdir):
-	$(Q)mkdir -p $$@
+	$(Q)$(MKDIR) -p $$@
 
 endif
 endif
