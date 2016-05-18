@@ -48,6 +48,8 @@ These are the changes since Ice 3.6.2.
   passing optional output parameters to operations without required
   output parameters.
 
+- Fixed a bug in icegridadmin and IceGridGUI which was preventing to get
+  properties for IceBox services using the IceBox shared communicator.
 
 ## C++ Changes
 
