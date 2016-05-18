@@ -1267,7 +1267,7 @@ def getDefaultClientFile(lang = None):
     if lang is None:
         lang = getDefaultMapping()
     if lang in ["cpp", "objective-c"]:
-        return getTestExecutable("client")
+        return getTestExecutable("client", "")
     if lang == "ruby":
         return "Client.rb"
     if lang == "php":
@@ -1522,13 +1522,14 @@ def clientServerTest(cfgName = None, additionalServerOptions = "", additionalCli
     for clientLang in cross:
         clientCfg = DriverConfig("client")
         if clientLang != lang:
-            if clientDesc != getDefaultClientFile():
+            if clientDesc != os.path.basename(getDefaultClientFile()):
                 print("** skipping cross test")
                 return
 
             clientCfg.lang = clientLang
             client = getDefaultClientFile(clientLang)
-            clientDesc = client
+            clientDesc = os.path.basename(client)
+
             if clientHome:
                 clientdir = getMirrorDir(getClientCrossTestDir(testdir), clientLang)
             else:
