@@ -843,7 +843,9 @@ empty 		:=
 space 		:= $(empty) $(empty)
 comma 		:= ,
 
-mappingdir2 	= $(if $(filter ../%,$1),$(call mappingdir2,$(patsubst ../%,%,$1)),$(firstword $(subst /, ,$1)))
+mappings	= cpp objective-c python ruby php
+mappingdir3	= $(if $(filter $(mappings),$(notdir $1)),$1,$(call mappingdir3,$(call dirname,$1)))
+mappingdir2 	= $(if $(filter ../%,$1),$(call mappingdir2,$(patsubst ../%,%,$1)),$(call mappingdir3,$1))
 mappingdir  	= $(patsubst $(lang_srcdir)/%,%,$(if $(filter-out ../%,$1),$2,$(top_srcdir)/$(call mappingdir2,$1)/$2))
 
 #
