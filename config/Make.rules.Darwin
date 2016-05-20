@@ -34,6 +34,17 @@ iphonesimulator_projects	= src/%
 # If building objects for a shared library, enable fPIC
 shared_cppflags	= $(if $(filter-out program,$($1_target)),-fPIC)
 
+#
+# Xcode configuration to build Xcode SDKs.
+#
+xcodesdk_targetdir	= $(if $(filter program,$($1_target)),SDKs/bin,SDKs/$2.sdk/usr/lib)
+xcodesdk_components	= slice2cpp Ice Glacier2 IceStorm IceGrid
+xcodesdk_cppflags	+= $$(strip $$(call make-lib-cppflags,$1,$2,$3))
+xcodesdk_targetrule	= $(if $(filter-out program,$($1_target)),static-)
+xcodesdk_ldflags	+= $$(call unique,$$(foreach d,$$(call get-all-deps,$4),$$(call make-static-dep-ldflags,$$d)))\
+			   $$(strip $$(foreach d,$$(call get-all-deps,$4) $1,$$(call make-lib-ldflags,$$d,$2,$3)))\
+			   $$(strip $$(foreach d,$$(call get-all-deps,$4) $1,$$(call make-system-lib-ldflags,$$d,$2,$3)))
+
 CXXFLAGS	+= -fvisibility=hidden -Wall -Werror -pthread
 
 ifeq ($(MAXWARN),yes)

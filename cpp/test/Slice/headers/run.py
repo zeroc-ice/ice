@@ -130,7 +130,7 @@ if not re.search(re.escape('#include <Ice/Identity.h>'), f.read()):
     print("failed!")
     sys.exit(1)
 
-clean()    
+clean()
 
 #
 # symlink directory with extra / at end
@@ -141,7 +141,7 @@ os.system("mkdir -p tmp/Ice")
 os.system("cd tmp/Ice && ln -s ../Ice-x.y.z/slice/ .")
 f = open("tmp/Ice-x.y.z/slice/Ice/Identity.ice", "w")
 f.write("// dumy file")
-
+f.close()
 os.system("mkdir -p project1")
 f = open("project1/A.ice", "w")
 f.write("#include <Ice/Identity.ice>")

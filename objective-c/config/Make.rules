@@ -16,6 +16,11 @@
 #
 supported-configs	= shared static arc-shared arc-static
 
+ifneq ($(filter arc-%,$(CONFIGS)),)
+# Make sure that the non-ARC configuration is also enabled
+override CONFIGS := $(call unique,$(CONFIGS) $(patsubst arc-%,%,$(CONFIGS)))
+endif
+
 #
 # Build only few components with the static configuration (libraries)
 #

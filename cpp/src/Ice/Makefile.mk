@@ -26,4 +26,9 @@ Ice_system_libs		:= $(ICE_OS_LIBS)
 Ice_extra_sources       := $(wildcard src/IceUtil/*.cpp)
 Ice_excludes		:= $(currentdir)/DLLMain.cpp
 
+Ice_extra_sources[iphoneos] 		:= $(wildcard $(addprefix $(currentdir)/ios/,*.cpp *.mm))
+#Ice_excludes[iphoneos] 			:= $(wildcard $(addprefix $(currentdir)/RegistryPlugins.cpp))
+Ice_extra_sources[iphonesimulator] 	:= $(wildcard $(addprefix $(currentdir)/ios/,*.cpp *.mm))
+#Ice_excludes[iphonesimulator]		:= $(wildcard $(addprefix $(currentdir)/RegistryPlugins.cpp))
+
 projects += $(project)

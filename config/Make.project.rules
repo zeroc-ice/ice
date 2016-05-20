@@ -359,7 +359,7 @@ endef
 #
 define create-component-targets
 
-$2_project		:= $1
+$2_project	:= $1
 
 $2_target 	:= $$(call var-with-default,$2_target,$3)
 $2_targetname	:= $$(call var-with-default,$2_targetname,$(patsubst $1_%,%,$2))

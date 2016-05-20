@@ -37,3 +37,14 @@ $(eval $(call install-data-files,$(wildcard $(slicedir)/*/*.ice),$(slicedir),$(i
 
 $(eval $(call install-data-files,$(wildcard $(top_srcdir)/*LICENSE),$(top_srcdir),$(install_docdir),\
 	install-doc,"Installing documentation files"))
+
+#
+# Create a symlink for the slice directory
+#
+ifneq ($(usr_dir_install),)
+install-slice:: $(DESTDIR)$(prefix)/share/slice
+
+$(DESTDIR)$(prefix)/share/slice:
+	$(Q)$(MKDIR) -p $@
+	$(Q)ln -s Ice-$(version)/slice $(DESTDIR)$(prefix)/share/slice
+endif
