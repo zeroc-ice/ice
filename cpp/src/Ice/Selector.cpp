@@ -547,7 +547,13 @@ Selector::finish(EventHandler* handler, bool closeNow)
         //
         updateSelector();
     }
-#endif
+#elif !defined(ICE_USE_EPOLL)
+    if(!_changes.empty())
+    {
+	return false;
+    }
+#endif    
+    
     return closeNow;
 }
 
