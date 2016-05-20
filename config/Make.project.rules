@@ -679,6 +679,10 @@ $1_slices 	:=
 $1_generated	:=
 $1_objdirs	:=
 
+ifneq ($$($1_extensions),)
+$$(foreach e,$$($1_extensions),$$(eval $$(call $$e,$1)))
+endif
+
 $$(foreach p,$$($1_programs),$$(if $$(filter $(SKIP),$$p),,$$(eval $$(call make-component,$1,$$p,program))))
 $$(foreach l,$$($1_libraries),$$(if $$(filter $(SKIP),$$l),,$$(eval $$(call make-component,$1,$$l,library))))
 
