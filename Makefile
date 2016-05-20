@@ -45,6 +45,6 @@ ifneq ($(usr_dir_install),)
 install-slice:: $(DESTDIR)$(prefix)/share/slice
 
 $(DESTDIR)$(prefix)/share/slice:
-	$(Q)$(MKDIR) -p $@
+	$(Q)$(MKDIR) -p $(DESTDIR)$(prefix)/share
 	$(Q)ln -s Ice-$(version)/slice $(DESTDIR)$(prefix)/share/slice
 endif
