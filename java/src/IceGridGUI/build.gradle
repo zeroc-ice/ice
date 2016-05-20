@@ -10,6 +10,9 @@
 sourceCompatibility = iceSourceCompatibility
 targetCompatibility = iceTargetCompatibility
 
+project.ext.displayName = "IceGridGUI"
+project.ext.description = ""
+
 def macosx = System.properties['os.name'] == "Mac OS X"
 
 // Check for JavaFX support

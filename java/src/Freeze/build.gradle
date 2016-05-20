@@ -10,6 +10,9 @@
 sourceCompatibility = iceSourceCompatibility
 targetCompatibility = iceTargetCompatibility
 
+project.ext.displayName = "Freeze"
+project.ext.description = "Persistent storage for Ice objects"
+
 slice {
     java {
         args = "--ice"

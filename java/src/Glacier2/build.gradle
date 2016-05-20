@@ -10,6 +10,9 @@
 sourceCompatibility = iceSourceCompatibility
 targetCompatibility = iceTargetCompatibility
 
+project.ext.displayName = "Glacier2"
+project.ext.description = "Firewall traversal for Ice"
+
 slice {
     java {
         set1 {
