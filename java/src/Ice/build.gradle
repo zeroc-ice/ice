@@ -10,6 +10,10 @@
 sourceCompatibility = iceSourceCompatibility
 targetCompatibility = iceTargetCompatibility
 
+project.ext.displayName = "Ice"
+project.ext.description = "Ice is a comprehensive RPC framework that helps you build distributed applications" +
+                          " with minimal effort using familiar object-oriented idioms"
+
 slice {
     java {
         stream {

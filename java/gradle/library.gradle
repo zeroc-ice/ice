@@ -8,15 +8,22 @@
 // **********************************************************************
 
 apply plugin: 'maven'
+apply plugin: 'signing'
 
 def pomName = "${libDir}/${project.name}-${project.version}.pom"
-task writeNewPom {
-    outputs.file file(pomName)
-} << {
+
+ext.projectPom = {
     pom {
         project {
+            name project.ext.displayName
+            description project.ext.description
             url 'https://zeroc.com'
             packaging 'jar'
+            scm {
+                connection 'scm:git:git@github.com/zeroc-ice/ice.git'
+                developerConnection 'scm:git:git@github.com/zeroc-ice/ice.git'
+                url 'git://github.com/zeroc-ice/ice.git'
+            }
             licenses {
                 license {
                     name 'GNU General Public License, version 2'
@@ -24,9 +31,24 @@ task writeNewPom {
                     distribution 'repo'
                 }
             }
+            developers {
+                developer {
+                    name 'ZeroC Developers'
+                    email 'info@zeroc.com'
+                    organization 'ZeroC, Inc.'
+                    organizationUrl 'https://zeroc.com'
+                }
+            }
         }
-    }.writeTo(pomName)
+    }
 }
+
+task writeNewPom {
+    outputs.file file(pomName)
+} << {
+    projectPom().writeTo(pomName)
+}
+
 jar.dependsOn(writeNewPom)
 
 jar {
@@ -35,10 +57,60 @@ jar {
 
 task jarSources(type:Jar, dependsOn: jar){
     from sourceSets.main.allSource
-    classifier = 'source'
+    classifier = 'sources'
     destinationDir = new File("${libDir}")
 }
+
 assemble.dependsOn(jarSources)
+
+javadoc {
+    failOnError = false
+    options.header = project.displayName
+    classpath =project.sourceSets.main.compileClasspath
+    if (JavaVersion.current().isJava8Compatible()) {
+        options.addStringOption('Xdoclint:none', '-quiet')
+    }
+}.onlyIf{gradle.taskGraph.hasTask("signArchives") || gradle.taskGraph.hasTask("uploadArchives")}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc
+    destinationDir = new File("${libDir}")
+}
+
+artifacts {
+    archives jar, jarSources, javadocJar
+}
+
+signing {
+    required { gradle.taskGraph.hasTask("signArchives") || gradle.taskGraph.hasTask("uploadArchives") }
+    sign configurations.archives
+}
+
+ext.mavenRepo = rootProject.hasProperty('mavenRepo')?project.mavenRepo:System.getenv('MAVEN_REPO')?:''
+ext.mavenSnapshotRepo = rootProject.hasProperty('mavenSnapshotRepo')?project.mavenSnapshotRepo:System.getenv('MAVEN_SNAPSHOT_REPO')?:''
+ext.mavenUser = rootProject.hasProperty('mavenUser')?project.mavenUser:System.getenv('MAVEN_USER')?:''
+ext.mavenPassword = rootProject.hasProperty('mavenPassword')?project.mavenPassword:System.getenv('MAVEN_PASSWORD')?:''
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            // url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            repository(url: mavenRepo) {
+                authentication(userName: mavenUser, password: mavenPassword)
+            }
+
+            // url: "https://oss.sonatype.org/content/repositories/snapshots/"
+            snapshotRepository(url: mavenSnapshotRepo) {
+                authentication(userName: mavenUser, password: mavenPassword)
+            }
+
+            pom = projectPom()
+        }
+    }
+}
 
 clean {
     delete("${libDir}/${jar.archiveName}")

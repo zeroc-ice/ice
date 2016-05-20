@@ -10,6 +10,9 @@
 sourceCompatibility = iceSourceCompatibility
 targetCompatibility = iceTargetCompatibility
 
+project.ext.displayName = "IceBox"
+project.ext.description = "IceBox is an easy-to-use framework for Ice application services"
+
 slice {
     java {
         set1 {
