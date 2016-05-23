@@ -121,6 +121,6 @@ clean {
 task install(type: Copy, dependsOn: jarSources, overwrite: true) {
     from "${pomName}"
     from "${libDir}/${jar.archiveName}"
-    from "${libDir}/${project.name}-${project.version}-source.jar"
+    from "${libDir}/${project.name}-${project.version}-sources.jar"
     into "${DESTDIR}${jarDir}"
 }
