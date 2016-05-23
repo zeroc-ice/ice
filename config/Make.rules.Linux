@@ -70,9 +70,15 @@ else
 #
 supported-platforms     = default
 
-# No platform specific sub-directories for targets
-default_targetdir  	:=
-default_installdir 	:=
+#
+# Add 64 suffix for library directory if building on a 64 bits machine.
+#
+ifeq ($(shell uname -m),x86_64)
+default_targetdir  	= $(if $(filter %/build,$($1_targetdir)),/x64,$(if $(filter-out $($1_target),program),64))
+default_installdir 	= $(if $(and $(filter-out $($1_target),program),$(filter-out %64,$($1_installdir))),64)
+else
+default_targetdir  	= $(if $(filter %/build,$($1_targetdir)),/x86)
+endif
 
 endif
 
