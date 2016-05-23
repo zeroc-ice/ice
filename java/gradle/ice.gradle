@@ -15,15 +15,16 @@ buildscript {
     }
 
     //
-    // If the ice-builder-gradle repository exists add it to the local maven repositories,
+    // If iceBuilderHome is set add its lib directory it to the local maven repositories
     // so we can build using a local plugin version
     //
-    def builder  = new File([project(':ice').projectDir, "..", "..", "..", "..",
-                             "ice-builder-gradle", "build", "libs"].join(File.separator))
+    if (iceBuilderHome) {
+        def builder  = new File([iceBuilderHome, "build", "libs"].join(File.separator))
 
-    if(builder.exists()) {
-        repositories {
-            flatDir dirs: "file://${builder.getCanonicalPath()}"
+        if(builder.exists()) {
+            repositories {
+                flatDir dirs: "file://${builder.getCanonicalPath()}"
+            }
         }
     }
 
