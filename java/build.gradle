@@ -15,7 +15,6 @@ subprojects {
     apply plugin: 'idea'
     apply from: "$rootProject.projectDir/gradle/ice.gradle"
 
-
     repositories {
         if (slice.jarDir) {
             flatDir {
