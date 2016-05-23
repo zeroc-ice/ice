@@ -170,28 +170,24 @@ public class Service extends ListArrayTreeNode
     {
         if(_showIceLogDialog == null)
         {
-            Ice.ObjectPrx serverAdmin = ((Server)_parent).getServerAdmin();
-            if(serverAdmin == null)
+            Ice.LoggerAdminPrx loggerAdmin = Ice.LoggerAdminPrxHelper.uncheckedCast(getAdminFacet("Logger"));
+            if(loggerAdmin == null)
             {
-                JOptionPane.showMessageDialog(getCoordinator().getMainFrame(), "Admin not available", 
+                JOptionPane.showMessageDialog(getCoordinator().getMainFrame(), "Admin not available",
                         "No Admin for server " + _parent.getId(), JOptionPane.ERROR_MESSAGE);
                 return;
             }
-        
-            // TODO: add support for shared communicator
-            
-            Ice.LoggerAdminPrx loggerAdmin = Ice.LoggerAdminPrxHelper.uncheckedCast(
-                    serverAdmin.ice_facet("IceBox.Service." + _id + ".Logger"));
+
             String title = "Service " + _parent.getId() + "/" + _id + " Ice log";
-            _showIceLogDialog = new ShowIceLogDialog(this, title, loggerAdmin, _parent.getId() + "-" + _id, 
+            _showIceLogDialog = new ShowIceLogDialog(this, title, loggerAdmin, _parent.getId() + "-" + _id,
                     getRoot().getLogMaxLines(), getRoot().getLogInitialLines());
-        }      
+        }
         else
         {
             _showIceLogDialog.toFront();
         }
     }
-    
+
     @Override
     public void retrieveLogFile()
     {
@@ -311,14 +307,14 @@ public class Service extends ListArrayTreeNode
         la.setTarget(this);
         return _popup;
     }
-    
+
     @Override
     public void clearShowIceLogDialog()
     {
         _showIceLogDialog = null;
     }
-    
-    
+
+
     Service(Server parent, String serviceName, Utils.Resolver resolver, ServiceInstanceDescriptor descriptor,
             ServiceDescriptor serviceDescriptor, PropertySetDescriptor serverInstancePSDescriptor)
     {
@@ -344,7 +340,7 @@ public class Service extends ListArrayTreeNode
             _showIceLogDialog.stopped();
         }
     }
-    
+
     boolean updateAdapter(AdapterDynamicInfo info)
     {
         for(Adapter p : _adapters)
@@ -415,9 +411,8 @@ public class Service extends ListArrayTreeNode
 
     void showRuntimeProperties()
     {
-        Ice.ObjectPrx serverAdmin = ((Server)_parent).getServerAdmin();
-
-        if(serverAdmin == null)
+        Ice.PropertiesAdminPrx propAdmin = Ice.PropertiesAdminPrxHelper.uncheckedCast(getAdminFacet("Properties"));
+        if(propAdmin == null)
         {
             _editor.setBuildId("", this);
         }
@@ -467,9 +462,6 @@ public class Service extends ListArrayTreeNode
 
             try
             {
-                Ice.PropertiesAdminPrx propAdmin =
-                    Ice.PropertiesAdminPrxHelper.uncheckedCast(serverAdmin.ice_facet("IceBox.Service." + _id +
-                        ".Properties"));
                 propAdmin.begin_getPropertiesForPrefix("", cb);
             }
             catch(Ice.LocalException e)
@@ -550,15 +542,12 @@ public class Service extends ListArrayTreeNode
             return; // Already loaded.
         }
 
-        Ice.ObjectPrx serverAdmin = ((Server)_parent).getServerAdmin();
-        if(serverAdmin == null)
+        final IceMX.MetricsAdminPrx metricsAdmin = IceMX.MetricsAdminPrxHelper.uncheckedCast(getAdminFacet("Metrics"));
+        if(metricsAdmin == null)
         {
             return;
         }
         _metricsRetrieved = true;
-        final IceMX.MetricsAdminPrx metricsAdmin =
-                    IceMX.MetricsAdminPrxHelper.uncheckedCast(serverAdmin.ice_facet("IceBox.Service." + _id +
-                        ".Metrics"));
 
         IceMX.Callback_MetricsAdmin_getMetricsViewNames cb = new IceMX.Callback_MetricsAdmin_getMetricsViewNames()
             {
@@ -603,7 +592,7 @@ public class Service extends ListArrayTreeNode
                                 else
                                 {
                                     e.printStackTrace();
-                                    JOptionPane.showMessageDialog(getCoordinator().getMainFrame(), 
+                                    JOptionPane.showMessageDialog(getCoordinator().getMainFrame(),
                                                                   "Error: " + e.toString(), "Error",
                                                                   JOptionPane.ERROR_MESSAGE);
                                 }
@@ -653,6 +642,27 @@ public class Service extends ListArrayTreeNode
         getRoot().getTreeModel().nodeStructureChanged(this);
     }
 
+    private Ice.ObjectPrx getAdminFacet(String facet)
+    {
+        Server parent = (Server)_parent;
+        Ice.ObjectPrx serverAdmin = parent.getServerAdmin();
+        if(serverAdmin == null)
+        {
+            return null;
+        }
+        try
+        {
+            if(Integer.valueOf(parent.getProperties().get("IceBox.UseSharedCommunicator." + _id)) > 0)
+            {
+                return serverAdmin.ice_facet("IceBox.SharedCommunicator." + facet);
+            }
+        }
+        catch(NumberFormatException ex)
+        {
+        }
+        return serverAdmin.ice_facet("IceBox.Service." + _id + "." + facet);
+    }
+
     private final ServiceInstanceDescriptor _instanceDescriptor;
     private final ServiceDescriptor _serviceDescriptor;
     private final PropertySetDescriptor _serverInstancePSDescriptor;
@@ -666,7 +676,7 @@ public class Service extends ListArrayTreeNode
     private boolean _metricsRetrieved = false;
 
     private ShowIceLogDialog _showIceLogDialog;
-    
+
     static private ServiceEditor _editor;
     static private DefaultTreeCellRenderer _cellRenderer;
     static private JPopupMenu _popup;

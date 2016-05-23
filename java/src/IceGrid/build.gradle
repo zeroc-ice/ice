@@ -10,6 +10,9 @@
 sourceCompatibility = iceSourceCompatibility
 targetCompatibility = iceTargetCompatibility
 
+project.ext.displayName = "IceGrid"
+project.ext.description = "Locate, deploy, and manage Ice servers"
+
 slice {
     java {
         set1 {
