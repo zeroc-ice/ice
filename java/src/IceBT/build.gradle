@@ -10,6 +10,9 @@
 sourceCompatibility = iceSourceCompatibility
 targetCompatibility = iceTargetCompatibility
 
+project.ext.displayName = "IceBT"
+project.ext.description = "Bluetooth support for Ice"
+
 slice {
     java {
         set1 {
