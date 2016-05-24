@@ -1917,6 +1917,8 @@ def getTestEnv(lang, testdir):
 
             if isMINGW():
                 addPathToEnv("PATH", os.path.join(pkgdir, "bzip2.mingw4.7.2", pkgsubdir), env)
+            if lang == "java" and javaLibraryPath:
+                addPathToEnv("PATH", javaLibraryPath, env)
 
     #
     # If Ice is installed on the system, set the CLASSPATH for Java and
