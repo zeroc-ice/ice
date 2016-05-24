@@ -38,6 +38,7 @@ serverTraceFilters = []
 
 javaHome = os.environ.get("JAVA_HOME", "")
 javaCmd = '"%s"' % os.path.join(javaHome, "bin", "java") if javaHome else "java"
+javaLibraryPath = None
 
 valgrind = False                # Set to True to use valgrind for C++ executables.
 appverifier = False             # Set to True to use appverifier for C++ executables, This is windows only feature
@@ -322,6 +323,7 @@ def addPathToEnv(variable, path, env = None):
 defaultMapping = None
 testErrors = []
 toplevel = None
+testToplevel = None
 
 path = [ ".", "..", "../..", "../../..", "../../../..", "../../../../..", "../../../../../..",
          "../../../../../../..", "../../../../../../../..", "../../../../../../../../.." ]
@@ -334,6 +336,7 @@ path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "scri
 if len(path) == 0:
     raise RuntimeError("can't find toplevel directory!")
 toplevel = path[0]
+testToplevel = toplevel
 
 #
 # Set the default arch to x64 on x64 machines, this could be overriden
@@ -1193,6 +1196,8 @@ def getCommandLine(exe, config, options = "", interpreterOptions = "", cfgName =
             output.write("-d64 ")
         if not config.ipv6:
             output.write("-Djava.net.preferIPv4Stack=true ")
+        if javaLibraryPath:
+            output.write("-Djava.library.path=" + javaLibraryPath)
         if interpreterOptions:
             output.write(" " + interpreterOptions)
         output.write(" " + exe + " ")
@@ -1895,7 +1900,7 @@ def getTestEnv(lang, testdir):
     if lang == "cpp":
         addLdPath(os.path.join(testdir), env)
     elif lang == "java":
-        addClasspath(os.path.join(toplevel, "java", "lib", "test.jar"), env)
+        addClasspath(os.path.join(testToplevel, "java", "lib", "test.jar"), env)
     elif lang == "js":
         addPathToEnv("NODE_PATH", os.path.join(testdir), env)
 
@@ -2239,9 +2244,9 @@ def runTests(start, expanded, num = 0, script = False):
 
             # Deal with Java's different directory structure
             if i.find(os.path.join("java","test")) != -1:
-                dir = os.path.join(toplevel, "java", "test", "src", "main", i)
+                dir = os.path.join(testToplevel, "java", "test", "src", "main", i)
             else:
-                dir = os.path.join(toplevel, i)
+                dir = os.path.join(testToplevel, i)
             dir = os.path.normpath(dir)
 
             sys.stdout.write("\n")
@@ -2558,3 +2563,14 @@ def getTestDirectory(name, baseDir = os.getcwd()):
 
 def getTestExecutable(name, baseDir = os.getcwd()):
     return os.path.join(getTestDirectory(name, baseDir), name)
+
+#
+# Used for tests which have Ice as a submodule
+#
+def setTestToplevel(path):
+    global testToplevel
+    testToplevel = path
+
+def setJavaLibraryPath(path):
+    global javaLibraryPath
+    javaLibraryPath = path
