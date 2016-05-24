@@ -12,6 +12,12 @@ apply plugin: 'signing'
 
 def pomName = "${libDir}/${project.name}-${project.version}.pom"
 
+def scmData = [
+    connection : 'scm:git:git@github.com/zeroc-ice/ice.git',
+    developerConnection : 'scm:git:git@github.com/zeroc-ice/ice.git',
+    url : 'git://github.com/zeroc-ice/ice.git'
+].collectEntries { key, value -> [key, project.hasProperty(key) ? project.property(key) : value] }
+
 ext.projectPom = {
     pom {
         project {
@@ -20,9 +26,9 @@ ext.projectPom = {
             url 'https://zeroc.com'
             packaging 'jar'
             scm {
-                connection 'scm:git:git@github.com/zeroc-ice/ice.git'
-                developerConnection 'scm:git:git@github.com/zeroc-ice/ice.git'
-                url 'git://github.com/zeroc-ice/ice.git'
+                connection scmData.connection
+                developerConnection scmData.developerConnection
+                url scmData.url
             }
             licenses {
                 license {
