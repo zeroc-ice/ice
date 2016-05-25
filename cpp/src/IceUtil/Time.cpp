@@ -63,7 +63,7 @@ InitializeFrequency frequencyInitializer;
 }
 #endif
 
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(__FreeBSD__)
 namespace
 {
 
@@ -137,7 +137,7 @@ IceUtil::Time::now(Clock clock)
 #  endif
             return Time(static_cast<Int64>(tb.time) * ICE_INT64(1000000) + tb.millitm * 1000);
         }
-#elif defined(__hpux)
+#elif defined(__hppa)
         //
         // HP does not support CLOCK_MONOTONIC
         //
@@ -148,7 +148,7 @@ IceUtil::Time::now(Clock clock)
             throw SyscallException(__FILE__, __LINE__, errno);
         }
         return Time(tv.tv_sec * ICE_INT64(1000000) + tv.tv_usec);
-#elif defined(__APPLE__)
+#elif defined(__APPLE__) || defined(__FreeBSD__)
        return Time(mach_absolute_time() * machMultiplier);
 #else
         struct timespec ts;
