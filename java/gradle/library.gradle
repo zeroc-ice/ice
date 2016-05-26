@@ -41,7 +41,7 @@ ext.projectPom = {
                 developer {
                     name 'ZeroC Developers'
                     email 'info@zeroc.com'
-                    organization 'ZeroC, Inc.'
+                    organization = 'ZeroC, Inc.'
                     organizationUrl 'https://zeroc.com'
                 }
             }
