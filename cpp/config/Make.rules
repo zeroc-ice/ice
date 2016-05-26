@@ -109,7 +109,7 @@ $(create-project-targets)
 else
 $1_slicecompiler 	:= slice2cpp
 $1_sliceflags		+= --ice -I$(slicedir)
-$1_cppflags 		+= -Isrc -I$(includedir) -I$(includedir)/generated -I$1/generated
+$1_cppflags 		+= -Isrc -I$1/generated -I$(includedir) -I$(includedir)/generated 
 $(make-project)
 srcs:: $1
 endif

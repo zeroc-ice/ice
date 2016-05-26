@@ -11,7 +11,6 @@
 #include <Ice/Application.h>
 #include <IceDB/IceDB.h>
 #include <IceStorm/DBTypes.h>
-#include <IcePatch2Lib/Util.h>
 #include <IceUtil/DisableWarnings.h>
 
 using namespace std;

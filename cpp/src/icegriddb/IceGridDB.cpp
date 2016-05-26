@@ -12,7 +12,6 @@
 #include <IceDB/IceDB.h>
 #include <IceGrid/Admin.h>
 #include <IceGrid/DBTypes.h>
-#include <IcePatch2Lib/Util.h>
 #include <IceUtil/DisableWarnings.h>
 
 using namespace std;
@@ -22,7 +21,7 @@ using namespace IceGrid;
 namespace
 {
 
-bool skipFilter = false;
+bool skipReplicaGroupFilter = false;
 
 class ServerDescriptorI : public IceGrid::ServerDescriptor
 {
@@ -95,25 +94,33 @@ private:
 
 }
 
+
+//
+// This custom version of the StreamReader allows us to customize the
+// reading of ReplicaGroupDescriptor
+//
 namespace Ice
 {
+
 template<>
-struct StreamReader< ::IceGrid::ReplicaGroupDescriptor, Ice::InputStream>
+struct StreamReader<IceGrid::ReplicaGroupDescriptor, Ice::InputStream>
 {
-    static void read(Ice::InputStream* __is, ::IceGrid::ReplicaGroupDescriptor& v)
+    static void read(Ice::InputStream* is, IceGrid::ReplicaGroupDescriptor& v)
     {
-        __is->read(v.id);
-        __is->read(v.loadBalancing);
-        __is->read(v.proxyOptions);
-        __is->read(v.objects);
-        __is->read(v.description);
-        if(!skipFilter)
+        // cerr << "Custom read" << endl;
+        is->read(v.id);
+        is->read(v.loadBalancing);
+        is->read(v.proxyOptions);
+        is->read(v.objects);
+        is->read(v.description);
+        if(!skipReplicaGroupFilter)
         {
-            __is->read(v.filter);
+            is->read(v.filter);
         }
     }
 };
 }
+
 
 class Client : public Application
 {
@@ -308,7 +315,7 @@ Client::run(int argc, char* argv[])
                 {
                     cout << "Reading Ice 3.5.x data" << endl;
                 }
-                skipFilter = true;
+                skipReplicaGroupFilter = true;
             }
             stream.read(data);
 
