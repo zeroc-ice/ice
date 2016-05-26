@@ -64,7 +64,7 @@ local_admin_srcs	= Internal.ice \
 		     	  Scanner.cpp \
 		     	  Util.cpp
 
-$(project)_programs 		= icegridnode icegridregistry icegridadmin
+$(project)_programs 		= icegridadmin icegridnode icegridregistry
 $(project)_sliceflags		:= -Isrc --include-dir IceGrid
 $(project)_generated_includedir := $(project)/generated/IceGrid
 $(project)_dependencies 	:= IceGrid Glacier2 Ice
@@ -81,5 +81,6 @@ icegridregistry_libs		:= lmdb
 icegridadmin_dependencies 	:= IcePatch2 IceBox IceXML
 icegridadmin_sources	 	:= $(slicedir)/IceLocatorDiscovery/IceLocatorDiscovery.ice \
 				   $(addprefix $(currentdir)/,$(local_admin_srcs))
+
 
 projects += $(project)
