@@ -1238,7 +1238,17 @@ IceInternal::closeSocket(SOCKET fd)
     WSASetLastError(error);
 #else
     int error = errno;
+    
+#  if defined(__FreeBSD__)
+    //
+    // FreeBSD returns ECONNRESET if the underlying object was 
+    // a stream socket that was shut down by the peer before all
+    // pending data was delivered.
+    //
+    if(close(fd) == SOCKET_ERROR && getSocketErrno() != ECONNRESET)
+#  else
     if(close(fd) == SOCKET_ERROR)
+#  endif
     {
         SocketException ex(__FILE__, __LINE__);
         ex.error = getSocketErrno();

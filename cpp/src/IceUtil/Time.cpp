@@ -63,7 +63,7 @@ InitializeFrequency frequencyInitializer;
 }
 #endif
 
-#if defined(__APPLE__) || defined(__FreeBSD__)
+#if defined(__APPLE__)
 namespace
 {
 
@@ -148,7 +148,7 @@ IceUtil::Time::now(Clock clock)
             throw SyscallException(__FILE__, __LINE__, errno);
         }
         return Time(tv.tv_sec * ICE_INT64(1000000) + tv.tv_usec);
-#elif defined(__APPLE__) || defined(__FreeBSD__)
+#elif defined(__APPLE__)
        return Time(mach_absolute_time() * machMultiplier);
 #else
         struct timespec ts;
