@@ -107,10 +107,6 @@
 #if defined(_WIN32)
 #   define ICE_DECLSPEC_EXPORT __declspec(dllexport)
 #   define ICE_DECLSPEC_IMPORT __declspec(dllimport)
-//
-//  ICE_HAS_DECLSPEC_IMPORT_EXPORT defined only for compilers with distinct
-//  declspec for IMPORT and EXPORT
-#   define ICE_HAS_DECLSPEC_IMPORT_EXPORT
 #elif defined(__GNUC__)
 #   define ICE_DECLSPEC_EXPORT __attribute__((visibility ("default")))
 #   define ICE_DECLSPEC_IMPORT __attribute__((visibility ("default")))

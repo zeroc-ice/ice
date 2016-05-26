@@ -4873,30 +4873,6 @@ Slice::Gen::StreamVisitor::visitStructStart(const StructPtr& p)
         }
         H << eb;
         H << eb << ";" << nl;
-
-        if(!_dllExport.empty())
-        {
-            //
-            // We tell "importers" that the implementation exports these instantiations
-            //
-            H << nl << "#if defined(ICE_HAS_DECLSPEC_IMPORT_EXPORT) && !defined(";
-            H << _dllExport.substr(0, _dllExport.size() - 1) + "_EXPORTS) && !defined(ICE_STATIC_LIBS)";
-            H << nl << "template struct " << _dllExport << "StreamWriter< " << fullStructName
-              << ", ::Ice::OutputStream>;";
-            H << nl << "template struct " << _dllExport << "StreamReader< " << fullStructName
-              << ", ::Ice::InputStream>;";
-            H << nl << "#endif" << nl;
-
-            //
-            // The instantations:
-            //
-            C << nl << "#if defined(ICE_HAS_DECLSPEC_IMPORT_EXPORT) && !defined(ICE_STATIC_LIBS)";
-            C << nl << "template struct " << _dllExport << "StreamWriter< " << fullStructName
-              << ", ::Ice::OutputStream>;";
-            C << nl << "template struct " << _dllExport << "StreamReader< " << fullStructName
-              << ", ::Ice::InputStream>;";
-            C << nl << "#endif";
-        }
     }
     return false;
 }
@@ -7906,25 +7882,6 @@ Slice::Gen::Cpp11StreamVisitor::visitStructStart(const StructPtr& p)
     H << eb;
     H << eb << ";" << nl;
 
-    if(!_dllExport.empty())
-    {
-        //
-        // We tell "importers" that the implementation exports these instantiations
-        //
-        H << nl << "#if defined(ICE_HAS_DECLSPEC_IMPORT_EXPORT) && !defined(";
-        H << _dllExport.substr(0, _dllExport.size() - 1) + "_EXPORTS) && !defined(ICE_STATIC_LIBS)";
-        H << nl << "template struct " << _dllExport << "StreamWriter< " << scoped << ", ::Ice::OutputStream>;";
-        H << nl << "template struct " << _dllExport << "StreamReader< " << scoped << ", ::Ice::InputStream>;";
-        H << nl << "#endif" << nl;
-
-        //
-        // The instantations:
-        //
-        C << nl << "#if defined(ICE_HAS_DECLSPEC_IMPORT_EXPORT) && !defined(ICE_STATIC_LIBS)";
-        C << nl << "template struct " << _dllExport << "StreamWriter< " << scoped << ", ::Ice::OutputStream>;";
-        C << nl << "template struct " << _dllExport << "StreamReader< " << scoped << ", ::Ice::InputStream>;";
-        C << nl << "#endif";
-    }
     return false;
 }
 
