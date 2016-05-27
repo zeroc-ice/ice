@@ -12,6 +12,7 @@
 
 //
 // Use the system headers as preferred way to detect endianness
+// and fallback to architecture based checks.
 //
 //
 #if defined(__GLIBC__)
@@ -36,14 +37,6 @@
 #      define ICE_BIG_ENDIAN
 #   endif
 #else
-
-//
-// Fallback to architecture based checks
-//
-// Most CPUs support only one endianness, with the notable exceptions
-// of Itanium (IA64) and MIPS.
-//
-
 #   if defined(__i386)      || \
        defined(_M_IX86)     || \
        defined(__x86_64)    || \
@@ -76,10 +69,10 @@
 
          
 //
-// Use system headers as preferred way to detect 32 or 64 bit mode
+// Use system headers as preferred way to detect 32 or 64 bit mode and
+// fallback to architecture based checks
 //
-#include <stdint.h>
-#include <limits.h>         
+#include <stdint.h>         
          
 #ifdef __WORDSIZE
 #   if (__WORDSIZE == 64)
@@ -88,9 +81,6 @@
 #      define ICE_32
 #   endif
 #else
-//
-// Fallback to architecture based checks
-//
 #   if defined(__sun) && (defined(__sparcv9) || defined(__x86_64))  || \
        defined(__linux) && defined(__x86_64)                        || \
        defined(__APPLE__) && defined(__x86_64)                      || \
