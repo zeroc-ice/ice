@@ -67,17 +67,16 @@ jar {
 }
 
 buildscript {
-
-    if(icegridguiProguard.toBoolean()) {
         repositories {
             maven {
                 url "https://${iceMavenRepo}/nexus/content/repositories/thirdparty"
             }
         }
         dependencies {
-            classpath group: 'net.sourceforge', name: 'proguard', version: '5.0'
+            if(icegridguiProguard.toBoolean()) {
+                classpath group: 'net.sourceforge', name: 'proguard', version: '5.0'
+            }
         }
-    }
 }
 
 def libJars = []
