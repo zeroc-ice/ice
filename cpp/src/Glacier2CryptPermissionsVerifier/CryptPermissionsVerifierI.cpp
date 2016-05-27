@@ -35,7 +35,7 @@ using namespace Glacier2;
 namespace
 {
     
-#if defined(__FreeBSD__) && !define(__GLIBC__)
+#if defined(__FreeBSD__) && !defined(__GLIBC__)
     
 //
 // FreeBSD crypt is no reentrat we use this global mutex
