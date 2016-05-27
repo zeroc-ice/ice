@@ -3244,6 +3244,10 @@ IcePHP::ExceptionInfo::printMembers(zval* zv, IceUtilInternal::Output& out, Prin
         zval* val =  zend_hash_str_find(Z_OBJPROP_P(zv),
                                      STRCAST(member->name.c_str()),
                                      static_cast<int>(member->name.size()));
+
+        assert(Z_TYPE_P(val) == IS_INDIRECT);
+        val = Z_INDIRECT_P(val);
+
         if(val)
         {
             member->type->print(val, out, history);
@@ -3262,6 +3266,10 @@ IcePHP::ExceptionInfo::printMembers(zval* zv, IceUtilInternal::Output& out, Prin
         zval* val = zend_hash_str_find(Z_OBJPROP_P(zv),
                                      STRCAST(member->name.c_str()),
                                      static_cast<int>(member->name.size()));
+
+        assert(Z_TYPE_P(val) == IS_INDIRECT);
+        val = Z_INDIRECT_P(val);
+
         if(val)
         {
             if(isUnset(val))
