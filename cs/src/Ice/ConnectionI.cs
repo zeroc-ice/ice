@@ -1648,6 +1648,15 @@ namespace Ice
             _asyncRequests.Clear();
 
             //
+            // Don't wait to be reaped to reclaim memory allocated by read/write streams.
+            //
+            _writeStream.clear();
+            _writeStream.getBuffer().clear();
+            _readStream.clear();
+            _readStream.getBuffer().clear();
+            _incomingCache = null;
+
+            //
             // This must be done last as this will cause waitUntilFinished() to return (and communicator
             // objects such as the timer might be destroyed too).
             //

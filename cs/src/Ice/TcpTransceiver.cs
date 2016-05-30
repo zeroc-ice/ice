@@ -358,6 +358,7 @@ namespace IceInternal
                     throw new SocketException((int)_readEventArgs.SocketError);
                 }
                 int ret = _readEventArgs.BytesTransferred;
+                _readEventArgs.SetBuffer(null, 0, 0);
 #else
                 int ret = _fd.EndReceive(_readResult);
                 _readResult = null;
@@ -521,6 +522,7 @@ namespace IceInternal
                     throw new SocketException((int)_writeEventArgs.SocketError);
                 }
                 int ret = _writeEventArgs.BytesTransferred;
+                _writeEventArgs.SetBuffer(null, 0, 0);
 #else
                 int ret = _fd.EndSend(_writeResult);
                 _writeResult = null;
