@@ -213,12 +213,12 @@ def getIceSoVersion():
     majorVersion = int(intVersion / 10000)
     minorVersion = int(intVersion / 100) - 100 * majorVersion
     patchVersion = intVersion % 100
-    if patchVersion <= 50:
+    if patchVersion < 50:
         return '%d' % (majorVersion * 10 + minorVersion)
-    elif patchVersion <= 70:
-        return '%da%d' % (majorVersion * 10 + minorVersion, patchVersion - 51)
+    elif patchVersion < 60:
+        return '%da%d' % (majorVersion * 10 + minorVersion, patchVersion - 50)
     else:
-        return '%db%d' % (majorVersion * 10 + minorVersion, patchVersion - 71)
+        return '%db%d' % (majorVersion * 10 + minorVersion, patchVersion - 60)
 
 def getIceJsonVersion():
     r = re.search(r"([0-9]+)\.([0-9]+)(\.[0-9]+|[ab][0-9]+)", iceVersion)
