@@ -194,7 +194,7 @@
 //
 #define ICE_STRING_VERSION "3.7a2" // "A.B.C", with A=major, B=minor, C=patch
 #define ICE_INT_VERSION 30752      // AABBCC, with AA=major, BB=minor, CC=patch
-#define ICE_SO_VERSION "37a0"      // "ABC", with A=major, B=minor, C=patch
+#define ICE_SO_VERSION "37a2"      // "ABC", with A=major, B=minor, C=patch
 
 #if !defined(ICE_BUILDING_ICE) && defined(ICE_API_EXPORTS)
 #   define ICE_BUILDING_ICE
