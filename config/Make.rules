@@ -104,14 +104,14 @@ install_docdir 		?= $(prefix)$(if $(usr_dir_install),/share/Ice-$(version))
 install_mandir		?= $(prefix)$(if $(usr_dir_install),/share)/man
 install_configdir 	?= $(prefix)$(if $(usr_dir_install),/share/Ice-$(version),/config)
 
-version     		= 3.7a0
+version     		= 3.7a2
 mmversion		= 3.7
-soversion   		= 37a0
+soversion   		= 37a2
 
 #
 # The compatversion is the lowest patch release with the same API.
 # For example, if 3.7.2 introduces no new API compared to 3.7.1, we
-# would set version = 3.7.2 and compatversion = 3.7.1.
+# would set version to 3.7.2 and compatversion to 3.7.1.
 # Used for OS X libraries.
 #
 compatversion           = $(version)
