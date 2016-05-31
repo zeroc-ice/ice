@@ -614,7 +614,7 @@ IcePHP::PrimitiveInfo::getId() const
 }
 
 bool
-IcePHP::PrimitiveInfo::validate(zval* zv)
+IcePHP::PrimitiveInfo::validate(zval* zv, bool throwException)
 {
     switch(kind)
     {
@@ -623,7 +623,10 @@ IcePHP::PrimitiveInfo::validate(zval* zv)
         if(!(Z_TYPE_P(zv) == IS_TRUE || Z_TYPE_P(zv) == IS_FALSE))
         {
             string s = zendTypeToString(Z_TYPE_P(zv));
-            invalidArgument("expected boolean value but received %s", s.c_str());
+            if(throwException)
+            {
+                invalidArgument("expected boolean value but received %s", s.c_str());
+            }
             return false;
         }
         break;
@@ -633,13 +636,19 @@ IcePHP::PrimitiveInfo::validate(zval* zv)
         if(Z_TYPE_P(zv) != IS_LONG)
         {
             string s = zendTypeToString(Z_TYPE_P(zv));
-            invalidArgument("expected byte value but received %s", s.c_str());
+            if(throwException)
+            {
+                invalidArgument("expected byte value but received %s", s.c_str());
+            }
             return false;
         }
         long val = static_cast<long>(Z_LVAL_P(zv));
         if(val < 0 || val > 255)
         {
-            invalidArgument("value %ld is out of range for a byte", val);
+            if(throwException)
+            {
+                invalidArgument("value %ld is out of range for a byte", val);
+            }
             return false;
         }
         break;
@@ -649,13 +658,19 @@ IcePHP::PrimitiveInfo::validate(zval* zv)
         if(Z_TYPE_P(zv) != IS_LONG)
         {
             string s = zendTypeToString(Z_TYPE_P(zv));
-            invalidArgument("expected short value but received %s", s.c_str());
+            if(throwException)
+            {
+                invalidArgument("expected short value but received %s", s.c_str());
+            }
             return false;
         }
         zend_long val = Z_LVAL_P(zv);
         if(val < SHRT_MIN || val > SHRT_MAX)
         {
-            invalidArgument("value %ld is out of range for a short", val);
+            if(throwException)
+            {
+                invalidArgument("value %ld is out of range for a short", val);
+            }
             return false;
         }
         break;
@@ -665,13 +680,19 @@ IcePHP::PrimitiveInfo::validate(zval* zv)
         if(Z_TYPE_P(zv) != IS_LONG)
         {
             string s = zendTypeToString(Z_TYPE_P(zv));
-            invalidArgument("expected int value but received %s", s.c_str());
+            if(throwException)
+            {
+                invalidArgument("expected int value but received %s", s.c_str());
+            }
             return false;
         }
         zend_long val = Z_LVAL_P(zv);
         if(val < INT_MIN || val > INT_MAX)
         {
-            invalidArgument("value %ld is out of range for an int", val);
+            if(throwException)
+            {
+                invalidArgument("value %ld is out of range for an int", val);
+            }
             return false;
         }
         break;
@@ -685,7 +706,10 @@ IcePHP::PrimitiveInfo::validate(zval* zv)
         if(Z_TYPE_P(zv) != IS_LONG && Z_TYPE_P(zv) != IS_STRING)
         {
             string s = zendTypeToString(Z_TYPE_P(zv));
-            invalidArgument("expected long value but received %s", s.c_str());
+            if(throwException)
+            {
+                invalidArgument("expected long value but received %s", s.c_str());
+            }
             return false;
         }
 
@@ -695,7 +719,10 @@ IcePHP::PrimitiveInfo::validate(zval* zv)
             string sval(Z_STRVAL_P(zv), Z_STRLEN_P(zv));
             if(!IceUtilInternal::stringToInt64(sval, val))
             {
-                invalidArgument("invalid long value `%s'", Z_STRVAL_P(zv));
+                if(throwException)
+                {
+                    invalidArgument("invalid long value `%s'", Z_STRVAL_P(zv));
+                }
                 return false;
             }
         }
@@ -706,7 +733,10 @@ IcePHP::PrimitiveInfo::validate(zval* zv)
         if(Z_TYPE_P(zv) != IS_DOUBLE && Z_TYPE_P(zv) != IS_LONG)
         {
             string s = zendTypeToString(Z_TYPE_P(zv));
-            invalidArgument("expected float value but received %s", s.c_str());
+            if(throwException)
+            {
+                invalidArgument("expected float value but received %s", s.c_str());
+            }
             return false;
         }
         if(Z_TYPE_P(zv) == IS_DOUBLE)
@@ -726,7 +756,10 @@ IcePHP::PrimitiveInfo::validate(zval* zv)
         if(Z_TYPE_P(zv) != IS_DOUBLE && Z_TYPE_P(zv) != IS_LONG)
         {
             string s = zendTypeToString(Z_TYPE_P(zv));
-            invalidArgument("expected double value but received %s", s.c_str());
+            if(throwException)
+            {
+                invalidArgument("expected double value but received %s", s.c_str());
+            }
             return false;
         }
         break;
@@ -736,7 +769,10 @@ IcePHP::PrimitiveInfo::validate(zval* zv)
         if(Z_TYPE_P(zv) != IS_STRING && Z_TYPE_P(zv) != IS_NULL)
         {
             string s = zendTypeToString(Z_TYPE_P(zv));
-            invalidArgument("expected string value but received %s", s.c_str());
+            if(throwException)
+            {
+                invalidArgument("expected string value but received %s", s.c_str());
+            }
             return false;
         }
         break;
@@ -996,7 +1032,7 @@ IcePHP::PrimitiveInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalC
 void
 IcePHP::PrimitiveInfo::print(zval* zv, IceUtilInternal::Output& out, PrintObjectHistory*)
 {
-    if(!validate(zv))
+    if(!validate(zv, false))
     {
         out << "<invalid value - expected " << getId() << ">";
         return;
@@ -1045,7 +1081,7 @@ IcePHP::EnumInfo::getId() const
 }
 
 bool
-IcePHP::EnumInfo::validate(zval* zv)
+IcePHP::EnumInfo::validate(zval* zv, bool)
 {
     if(Z_TYPE_P(zv) == IS_LONG)
     {
@@ -1105,7 +1141,7 @@ IcePHP::EnumInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCallba
 void
 IcePHP::EnumInfo::print(zval* zv, IceUtilInternal::Output& out, PrintObjectHistory*)
 {
-    if(!validate(zv))
+    if(!validate(zv, false))
     {
         out << "<invalid value - expected " << id << ">";
         return;
@@ -1255,7 +1291,7 @@ IcePHP::StructInfo::getId() const
 }
 
 bool
-IcePHP::StructInfo::validate(zval* zv)
+IcePHP::StructInfo::validate(zval* zv, bool throwException)
 {
     if(Z_TYPE_P(zv) == IS_NULL)
     {
@@ -1263,8 +1299,11 @@ IcePHP::StructInfo::validate(zval* zv)
     }
     else if(Z_TYPE_P(zv) != IS_OBJECT)
     {
-        string s = zendTypeToString(Z_TYPE_P(zv));
-        invalidArgument("expected struct value of type %s but received %s", zce->name, s.c_str());
+        if(throwException)
+        {
+            string s = zendTypeToString(Z_TYPE_P(zv));
+            invalidArgument("expected struct value of type %s but received %s", zce->name->val, s.c_str());
+        }
         return false;
     }
 
@@ -1274,7 +1313,7 @@ IcePHP::StructInfo::validate(zval* zv)
     zend_class_entry* ce = Z_OBJCE_P(zv);
     if(ce != zce)
     {
-        invalidArgument("expected struct value of type %s but received %s", zce->name, ce->name);
+        invalidArgument("expected struct value of type %s but received %s", zce->name->val, ce->name->val);
         return false;
     }
 
@@ -1324,7 +1363,7 @@ IcePHP::StructInfo::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMap*
         {
             if(object_init_ex(&_nullMarshalValue, const_cast<zend_class_entry*>(zce)) != SUCCESS)
             {
-                runtimeError("unable to initialize object of type %s", zce->name);
+                runtimeError("unable to initialize object of type %s", zce->name->val);
                 throw AbortMarshaling();
             }
 
@@ -1366,7 +1405,7 @@ IcePHP::StructInfo::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMap*
             val = Z_INDIRECT_P(val);
         }
 
-        if(!member->type->validate(val))
+        if(!member->type->validate(val, false))
         {
             invalidArgument("invalid value for %s member `%s'", id.c_str(), member->name.c_str());
             throw AbortMarshaling();
@@ -1389,7 +1428,7 @@ IcePHP::StructInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCall
     AutoDestroy destroy(&zv);
     if(object_init_ex(&zv, const_cast<zend_class_entry*>(zce)) != SUCCESS)
     {
-        runtimeError("unable to initialize object of type %s", zce->name);
+        runtimeError("unable to initialize object of type %s", zce->name->val);
         throw AbortMarshaling();
     }
 
@@ -1417,7 +1456,7 @@ IcePHP::StructInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCall
 void
 IcePHP::StructInfo::print(zval* zv, IceUtilInternal::Output& out, PrintObjectHistory* history)
 {
-    if(!validate(zv))
+    if(!validate(zv, false))
     {
         out << "<invalid value - expected " << id << ">";
         return;
@@ -1481,7 +1520,7 @@ IcePHP::SequenceInfo::getId() const
 }
 
 bool
-IcePHP::SequenceInfo::validate(zval* zv)
+IcePHP::SequenceInfo::validate(zval* zv, bool)
 {
     return Z_TYPE_P(zv) == IS_NULL || Z_TYPE_P(zv) == IS_ARRAY;
 }
@@ -1554,7 +1593,7 @@ IcePHP::SequenceInfo::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMa
         zval* val;
         ZEND_HASH_FOREACH_VAL(arr, val)
         {
-            if(!elementType->validate(val))
+            if(!elementType->validate(val, false))
             {
                 invalidArgument("invalid value for sequence element `%s'", id.c_str());
                 throw AbortMarshaling();
@@ -1619,7 +1658,7 @@ IcePHP::SequenceInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCa
 void
 IcePHP::SequenceInfo::print(zval* zv, IceUtilInternal::Output& out, PrintObjectHistory* history)
 {
-    if(!validate(zv))
+    if(!validate(zv, false))
     {
         out << "<invalid value - expected " << id << ">";
         return;
@@ -1701,7 +1740,7 @@ IcePHP::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, zval*
         zval* val;
         ZEND_HASH_FOREACH_VAL(arr, val)
         {
-            if(!pi->validate(val))
+            if(!pi->validate(val, true))
             {
                 throw AbortMarshaling();
             }
@@ -1723,7 +1762,7 @@ IcePHP::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, zval*
         zval* val;
         ZEND_HASH_FOREACH_VAL(arr, val)
         {
-            if(!pi->validate(val))
+            if(!pi->validate(val, true))
             {
                 throw AbortMarshaling();
             }
@@ -1743,7 +1782,7 @@ IcePHP::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, zval*
         zval* val;
         ZEND_HASH_FOREACH_VAL(arr, val)
         {
-            if(!pi->validate(val))
+            if(!pi->validate(val, true))
             {
                 throw AbortMarshaling();
             }
@@ -1763,7 +1802,7 @@ IcePHP::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, zval*
         zval* val;
         ZEND_HASH_FOREACH_VAL(arr, val)
         {
-            if(!pi->validate(val))
+            if(!pi->validate(val, true))
             {
                 throw AbortMarshaling();
             }
@@ -1783,7 +1822,7 @@ IcePHP::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, zval*
         zval* val;
         ZEND_HASH_FOREACH_VAL(arr, val)
         {
-            if(!pi->validate(val))
+            if(!pi->validate(val, true))
             {
                 throw AbortMarshaling();
             }
@@ -1816,7 +1855,7 @@ IcePHP::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, zval*
         zval* val;
         ZEND_HASH_FOREACH_VAL(arr, val)
         {
-            if(!pi->validate(val))
+            if(!pi->validate(val, true))
             {
                 throw AbortMarshaling();
             }
@@ -1847,7 +1886,7 @@ IcePHP::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, zval*
         zval* val;
         ZEND_HASH_FOREACH_VAL(arr, val)
         {
-            if(!pi->validate(val))
+            if(!pi->validate(val, true))
             {
                 throw AbortMarshaling();
             }
@@ -1878,7 +1917,7 @@ IcePHP::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, zval*
         zval* val;
         ZEND_HASH_FOREACH_VAL(arr, val)
         {
-            if(!pi->validate(val))
+            if(!pi->validate(val, true))
             {
                 throw AbortMarshaling();
             }
@@ -2046,7 +2085,7 @@ IcePHP::DictionaryInfo::getId() const
 }
 
 bool
-IcePHP::DictionaryInfo::validate(zval* zv)
+IcePHP::DictionaryInfo::validate(zval* zv, bool)
 {
     return Z_TYPE_P(zv) == IS_NULL || Z_TYPE_P(zv) == IS_ARRAY;
 }
@@ -2184,7 +2223,7 @@ IcePHP::DictionaryInfo::marshal(zval* zv, const Ice::OutputStreamPtr& os, Object
             //
             // Marshal the key.
             //
-            if(!keyType->validate(&zkey))
+            if(!keyType->validate(&zkey, false))
             {
                 invalidArgument("invalid key in `%s' element", id.c_str());
                 throw AbortMarshaling();
@@ -2194,7 +2233,7 @@ IcePHP::DictionaryInfo::marshal(zval* zv, const Ice::OutputStreamPtr& os, Object
             //
             // Marshal the value.
             //
-            if(!valueType->validate(val))
+            if(!valueType->validate(val, false))
             {
                 invalidArgument("invalid value in `%s' element", id.c_str());
                 throw AbortMarshaling();
@@ -2266,7 +2305,7 @@ IcePHP::DictionaryInfo::unmarshal(const Ice::InputStreamPtr& is, const Unmarshal
 void
 IcePHP::DictionaryInfo::print(zval* zv, IceUtilInternal::Output& out, PrintObjectHistory* history)
 {
-    if(!validate(zv))
+    if(!validate(zv, false))
     {
         out << "<invalid value - expected " << id << ">";
         return;
@@ -2439,7 +2478,7 @@ IcePHP::ClassInfo::getId() const
 }
 
 bool
-IcePHP::ClassInfo::validate(zval* val)
+IcePHP::ClassInfo::validate(zval* val, bool)
 {
     if(Z_TYPE_P(val) == IS_OBJECT)
     {
@@ -2531,7 +2570,7 @@ IcePHP::ClassInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCallb
 void
 IcePHP::ClassInfo::print(zval* zv, IceUtilInternal::Output& out, PrintObjectHistory* history)
 {
-    if(!validate(zv))
+    if(!validate(zv, false))
     {
         out << "<invalid value - expected " << id << ">";
         return;
@@ -2705,14 +2744,17 @@ IcePHP::ProxyInfo::getId() const
 }
 
 bool
-IcePHP::ProxyInfo::validate(zval* zv)
+IcePHP::ProxyInfo::validate(zval* zv, bool throwException)
 {
     if(Z_TYPE_P(zv) != IS_NULL)
     {
         if(Z_TYPE_P(zv) != IS_OBJECT || (Z_TYPE_P(zv) == IS_OBJECT && Z_OBJCE_P(zv) != proxyClassEntry))
         {
-            string s = zendTypeToString(Z_TYPE_P(zv));
-            invalidArgument("expected proxy value or null but received %s", s.c_str());
+            if(throwException)
+            {
+                string s = zendTypeToString(Z_TYPE_P(zv));
+                invalidArgument("expected proxy value or null but received %s", s.c_str());
+            }
             return false;
         }
     }
@@ -2812,7 +2854,7 @@ IcePHP::ProxyInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCallb
 void
 IcePHP::ProxyInfo::print(zval* zv, IceUtilInternal::Output& out, PrintObjectHistory*)
 {
-    if(!validate(zv))
+    if(!validate(zv, false))
     {
         out << "<invalid value - expected " << id << ">";
         return;
@@ -2942,7 +2984,7 @@ IcePHP::ObjectWriter::writeMembers(const Ice::OutputStreamPtr& os, const DataMem
             continue;
         }
 
-        if(!member->type->validate(val))
+        if(!member->type->validate(val, false))
         {
             invalidArgument("invalid value for %s member `%s'", _info->id.c_str(), member->name.c_str());
             throw AbortMarshaling();
@@ -3136,7 +3178,7 @@ IcePHP::ExceptionInfo::unmarshal(const Ice::InputStreamPtr& is, const Communicat
 
     if(object_init_ex(zv, zce) != SUCCESS)
     {
-        runtimeError("unable to initialize object of type %s", zce->name);
+        runtimeError("unable to initialize object of type %s", zce->name->val);
         throw AbortMarshaling();
     }
 
@@ -3186,10 +3228,14 @@ IcePHP::ExceptionInfo::unmarshal(const Ice::InputStreamPtr& is, const Communicat
 void
 IcePHP::ExceptionInfo::print(zval* zv, IceUtilInternal::Output& out)
 {
+    out << "exception " << id;
+    out.sb();
+
     if(Z_TYPE_P(zv) != IS_OBJECT)
     {
         string s = zendTypeToString(Z_TYPE_P(zv));
-        invalidArgument("expected exception value of type %s but received %s", zce->name, s.c_str());
+        out << nl << "expected exception value of type " << zce->name->val << " but received " << s;
+        out.eb();
         return;
     }
 
@@ -3199,15 +3245,14 @@ IcePHP::ExceptionInfo::print(zval* zv, IceUtilInternal::Output& out)
     zend_class_entry* ce = Z_OBJCE_P(zv);
     if(ce != zce)
     {
-        invalidArgument("expected exception value of type %s but received %s", zce->name, ce->name);
+        out << nl << "expected exception value of type " << zce->name->val << " but received " << ce->name->val;
+        out.eb();
         return;
     }
 
     PrintObjectHistory history;
     history.index = 0;
 
-    out << "exception " << id;
-    out.sb();
     printMembers(zv, out, &history);
     out.eb();
 }
