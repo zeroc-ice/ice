@@ -9,8 +9,7 @@
 
 linux_id		= $(shell . /etc/os-release && echo $${ID})
 
-is-bin-program		= $(and $(filter-out %/build,$(or $($1_targetdir),$($($1_project)_targetdir))),\
-				$(filter $($1_target),program))
+is-bin-program		= $(and $(filter-out %/build,$($4_targetdir)),$(filter $($1_target),program))
 
 ifneq ($(filter centos rhel fedora,$(linux_id)),)
 
@@ -60,8 +59,8 @@ endef
 $(foreach p,$(supported-platforms),$(eval $(call make-platform-config,$p)))
 
 # For the build platform architecture, build and install executables in bin, libraries in lib/<arch>
-$(build-platform)_targetdir 	= $(if $(is-bin-program),,/$($(build-platform)_multiarch))
-$(build-platform)_installdir 	= $(if $(is-bin-program),,/$($(build-platform)_multiarch))
+$(build-platform)_targetdir 	= $(if $(or $(filter %/build,$5),$(filter-out $($1_target),program)),/$($2_multiarch))
+$(build-platform)_installdir 	= $(if $(is-bin-program),,/$($2_multiarch))
 
 else
 
