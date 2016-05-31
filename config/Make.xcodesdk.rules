@@ -39,7 +39,7 @@ $$(eval $$(call install-data-files,\
 $$(eval $$(call install-data-files,\
 	$$(wildcard $(top_srcdir)/slice/*/*.ice),$(top_srcdir)/slice,$(install_libdir)/IceSDK/slice,install))
 
-all:: $$(foreach p,$$(platforms),$(top_srcdir)/IceSDK/$$p.sdk/SDKSettings.plist) \
+srcs all:: $$(foreach p,$$(platforms),$(top_srcdir)/IceSDK/$$p.sdk/SDKSettings.plist) \
 	$(top_srcdir)/IceSDK/bin/$(notdir $1)
 
 install:: $$(foreach p,$$(platforms),$(install_libdir)/IceSDK/$$p.sdk/SDKSettings.plist) \
