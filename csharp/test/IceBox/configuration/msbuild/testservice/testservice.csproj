@@ -55,12 +55,12 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Ice, Version=3.7.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Ice, Version=3.7.52.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <Private>False</Private>
       <HintPath>$(IceAssembliesDir)\Ice.dll</HintPath>
     </Reference>
-    <Reference Include="IceBox, Version=3.7.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="IceBox, Version=3.7.52.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <Private>False</Private>
       <HintPath>$(IceAssembliesDir)\IceBox.dll</HintPath>

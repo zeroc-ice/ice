@@ -64,7 +64,7 @@
     <OutputPath>..\..\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Ice, Version=3.7.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Ice, Version=3.7.52.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <Private>False</Private>
       <HintPath>$(IceAssembliesDir)\Ice.dll</HintPath>
