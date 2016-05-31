@@ -50,19 +50,25 @@ nodeprecatedwarnings-cppflags := -Wno-deprecated-declarations
 
 loader_path     = @loader_path
 
+# $(call machoversion,$1=version)
+machoversion    = $(subst b,.6,$(subst a,.5,$1))
+
 # $(call mklib,$1=target,$2=objects,$3=libname,$4=version,$5=soversion,$6=ldflags,$7=platform)
 mklib 		= $(or $($7_ar),$(AR)) -static -no_warning_for_no_symbols -o $1 $2
 
 # $(call mkshlib,$1=target,$2=objects,$3=libname,$4=version,$5=soversion,$6=ldflags,$7=platform)
-mkshlib   	= $(or $($7_cxx),$(CXX)) -dynamiclib $(if $5,-install_name @rpath/$(call mksoname,$3,$4,$5)) -o $1 $2 $6
+mkshlib   	= $(or $($7_cxx),$(CXX)) -dynamiclib $(if $5,-install_name @rpath/$(call mksoname,$3,$4,$5))\
+                  $(if $4,-current_version $(call machoversion,$4) -compatibility_version \
+                     $(call machoversion,$(if $(filter $4,$(version)),$(compatversion),$4))) \
+                  -o $1 $2 $6
 
 #
 # $(call mkxxx,$1=libname,$2=version,$3=soversion)
 #
-mklibname 	= lib$1.a
-mksoname      	= lib$1$(if $3,.$3).dylib
-mkshlibfilename = lib$1$(if $2,.$2).dylib
-mkshlibname     = lib$1.dylib
+mksoname      	  = lib$1$(if $3,.$3).dylib
+mkshlibfilename   = lib$1$(if $2,.$2).dylib
+mkshlibname       = lib$1.dylib
+mkshlibnametarget = $(mkshlibfilename)
 
 mkpymodulename	= $1.so
 mkrbmodulename	= $1.bundle

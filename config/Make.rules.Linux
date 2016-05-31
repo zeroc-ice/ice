@@ -105,7 +105,6 @@ mkshlib         = $(or $($7_cxx),$(CXX)) -shared $(if $5,-Wl$(comma)-h$(comma)$(
 #
 # $(call mkxxx,$1=libname,$2=version,$3=soversion)
 #
-mklibname       = lib$(1).a
 mksoname        = lib$(1).so$(if $3,.$3)
 mkshlibfilename = lib$(1).so$(if $2,.$2)
 mkshlibname     = lib$(1).so

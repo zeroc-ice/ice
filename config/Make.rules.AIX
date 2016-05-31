@@ -56,7 +56,6 @@ mkshlib         ?= $(or $($7_cxx),$(CXX)) -qmkshrobj -o $(call tmpsofile,$1,$3,$
 #
 # $(call mkxxx,$1=libname,$2=version,$3=soversion)
 #
-mklibname       = lib$(1).a
 mkshlibfilename = lib$(1).a
 
 mkpymodulename  = $(1).so

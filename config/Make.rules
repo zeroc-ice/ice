@@ -109,6 +109,14 @@ mmversion		= 3.7
 soversion   		= 37a0
 
 #
+# The compatversion is the lowest patch release with the same API.
+# For example, if 3.7.2 introduces no new API compared to 3.7.1, we
+# would set version = 3.7.2 and compatversion = 3.7.1.
+# Used for OS X libraries.
+#
+compatversion           = $(version)
+
+#
 # Support for 3rd party libraries
 #
 thirdparties		:= mcpp iconv expat bz2 lmdb
