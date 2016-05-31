@@ -61,6 +61,13 @@ ifneq ($(filter src/%,$1),)
 
 $(make-xcodesdk-component-with-config)
 
+ifneq ($(and $(filter iphone%,$3),$(filter Ice,$2)),)
+$$(eval $$(call install-data-files,$$(wildcard include/IceUtil/*.h),include,\
+	$(top_srcdir)/IceSDK/$3.sdk/usr/include,$5))
+$$(eval $$(call install-data-files,$$(wildcard include/IceUtil/*.h),include,\
+	$(install_libdir)/IceSDK/$3.sdk/usr/include,$5_install))
+endif
+
 $5_clean::
 	$(Q)$(RM) -r $(top_srcdir)/IceSDK/$3.sdk/usr/include/$2
 
