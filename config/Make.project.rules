@@ -419,17 +419,22 @@ $5_platform 	:= $3
 $5_config 	:= $4
 
 #
-# Compute the path of the object directory and add it to the project's
-# list of object directories.
-#
-$5_objdir	:= $$(call var-value,objdir,$1,$2,$3,$4,make-dirwsuffix)
-$1_objdirs	+= $$($5_objdir)
-
-#
 # Compute the compiler/linker flags.
 #
 $5_cppflags	:= $$(call var-compound,cppflags,$1,$2,$3,$4,make-flags)
 $5_ldflags	:= $$(call var-compound,ldflags,$1,$2,$3,$4,make-flags)
+
+#
+# If component specific cppflags are set and multiple components are configured for
+# the project, we build the component objects in a component specific directory.
+#
+# Compute the path of the object directory and add it to the project's
+# list of object directories.
+#
+$5_objdir	:= $$(call var-value,objdir,$1,$2,$3,$4,make-dirwsuffix)
+$5_objdir       := $$($5_objdir)$$(if $$(and $$($1_multicomp),\
+			$$(filter-out $$(call var-compound,cppflags,$1,,$3,$4,make-flags),$$($5_cppflags))),/$2)
+$1_objdirs	+= $$($5_objdir)
 
 $5_sources 	:= $$(patsubst $(lang_srcdir)/%,%,$$(call unique,$$(call var-compound,extra_sources,$1,$2,$3,$4) \
 						  $$(call var-compound,sources,$1,$2,$3,$4)))
@@ -529,13 +534,8 @@ $2_install_platforms	:= $$(or $$($2_install_platforms),$$($1_install_platforms),
 $2_install_configs	:= $$(or $$($2_install_configs),$$($1_install_configs),$$($2_configs))
 
 #
-#
-# If component specific cppflags are set and multiple components are configured for
-# the project, we build the component objects in a component specific directory.
-#
 # The source directory can be set at the component or project level.
 #
-$2_objdir 	:= $$($1_objdir)$$(if $$(and $$(filter $$($1_cppflags),$$($2_cppflags)),$$($1_multicomp)),/$2)
 $2_srcdir	:= $$(or $$($2_srcdir),$$($1_srcdir))
 
 #
@@ -861,7 +861,8 @@ mappingdir  	= $(patsubst $(lang_srcdir)/%,%,$(if $(filter-out ../%,$1),$2,$(top
 # $(call subconfigs,$1=config)
 subconfigs = $(subst -,$(space),$1)
 
-var-names = $3[$4-$5]_$1 $3[$4]_$1 $(foreach c,$(call subconfigs,$5),$3[$c]_$1) $3_$1 \
+# $(call var-names,$1=varname,$2=project,$3=component,$4=platform,$5=config)
+var-names = $(if $3,$3[$4-$5]_$1 $3[$4]_$1 $(foreach c,$(call subconfigs,$5),$3[$c]_$1) $3_$1) \
 	    $2[$4-$5]_$1 $2[$4]_$1 $(foreach c,$(call subconfigs,$5),$2[$c]_$1) $2_$1
 
 #
@@ -932,8 +933,8 @@ endif
 make-static-dep-ldflags	= $($1_targetdir)/$(call mklibname,$($1_targetname))
 make-system-lib-ldflags = $($1_system_libs)
 
+make-lib-cppflags      	= $(foreach l,$($1_libs),$(if $($l_includedir),-I$(call $l_includedir,$l,$1)) $($l_cppflags))
 make-lib-ldflags 	= $(foreach l,$($1_libs),$(if $($l_libdir),-L$(call $l_libdir,$l,$1)) $($l_ldflags))
-make-lib-cppflags 	= $(foreach l,$($1_libs),$(if $($l_includedir),-I$(call $l_includedir,$l,$1)) $($l_cppflags))
 
 #
 # Helper to define third-party library flags
@@ -943,7 +944,7 @@ make-lib-cppflags 	= $(foreach l,$($1_libs),$(if $($l_includedir),-I$(call $l_in
 define make-lib
 ifneq ($($1_home),)
 # Check for 3rd party libraries either in home/lib<platform specific subdir> or home/lib
-$1_installdir 	= $$($1_home)/lib$$(call platform-var,installdir,$$1,$$($$1_platform),$$($$1_config),$$1)
+$1_installdir 	= $$($1_home)/lib$$(call platform-var,installdir,$1,$$($$2_platform),$$($$2_config),$$2,$$($1_home)/lib)
 $1_libdir	?= $$(strip $$(if $$(wildcard $$($1_installdir)),$$($1_installdir),$$($1_home)/lib))
 $1_includedir	?= $$($1_home)/include
 endif
@@ -1007,19 +1008,19 @@ config_dependency	= $6
 
 # Static configuration for static builds
 static_targetrule	= $(if $(filter-out program,$($1_target)),static)
-static_cppflags		+= $$(strip $$(call make-lib-cppflags,$4)) -DICE_STATIC_LIBS
-static_ldflags		+= $$(call unique,$$(foreach d,$$(call get-all-deps,$4),$$(call make-static-dep-ldflags,$$d)))\
-			   $$(strip $$(foreach d,$$(call get-all-deps,$4) $4,$$(call make-lib-ldflags,$$d)))\
-			   $$(strip $$(foreach d,$$(call get-all-deps,$4) $4,$$(call make-system-lib-ldflags,$$d)))
+static_cppflags		+= $(strip $(call make-lib-cppflags,$4)) -DICE_STATIC_LIBS
+static_ldflags		+= $(call unique,$(foreach d,$(call get-all-deps,$4),$(call make-static-dep-ldflags,$d)))\
+			   $(strip $(foreach d,$(call get-all-deps,$4) $4,$(call make-lib-ldflags,$d)))\
+			   $(strip $(foreach d,$(call get-all-deps,$4) $4,$(call make-system-lib-ldflags,$d)))
 
 # Shared configuration for shared builds
 shared_projects		= %
 shared_objdir		= $(if $(filter-out program,$($1_target)),shared/pic,shared/nopic)
 shared_targetrule	= $(if $(filter-out program,$($1_target)),shared)
-shared_cppflags		+= $$(strip $$(call make-lib-cppflags,$4))
-shared_ldflags		+= $$(call unique,$$(foreach d,$$($4_dependencies),$$(call make-shared-dep-ldflags,$$d,$4)))\
-			   $$(strip $$(call make-lib-ldflags,$4))\
-			   $$(strip $$(call make-system-lib-ldflags,$4))
+shared_cppflags		+= $(strip $(call make-lib-cppflags,$4))
+shared_ldflags		+= $(call unique,$(foreach d,$($4_dependencies),$(call make-shared-dep-ldflags,$d,$4)))\
+			   $(strip $(call make-lib-ldflags,$4))\
+			   $(strip $(call make-system-lib-ldflags,$4))
 
 #
 # Platform variables
