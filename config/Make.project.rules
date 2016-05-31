@@ -1009,18 +1009,18 @@ config_dependency	= $6
 # Static configuration for static builds
 static_targetrule	= $(if $(filter-out program,$($1_target)),static)
 static_cppflags		+= $(strip $(call make-lib-cppflags,$4)) -DICE_STATIC_LIBS
-static_ldflags		+= $(call unique,$(foreach d,$(call get-all-deps,$4),$(call make-static-dep-ldflags,$d)))\
-			   $(strip $(foreach d,$(call get-all-deps,$4) $4,$(call make-lib-ldflags,$d)))\
-			   $(strip $(foreach d,$(call get-all-deps,$4) $4,$(call make-system-lib-ldflags,$d)))
+static_ldflags		+= $$(call unique,$$(foreach d,$$(call get-all-deps,$4),$$(call make-static-dep-ldflags,$$d)))\
+			   $$(strip $$(foreach d,$$(call get-all-deps,$4) $4,$$(call make-lib-ldflags,$$d)))\
+			   $$(strip $$(foreach d,$$(call get-all-deps,$4) $4,$$(call make-system-lib-ldflags,$$d)))
 
 # Shared configuration for shared builds
 shared_projects		= %
 shared_objdir		= $(if $(filter-out program,$($1_target)),shared/pic,shared/nopic)
 shared_targetrule	= $(if $(filter-out program,$($1_target)),shared)
 shared_cppflags		+= $(strip $(call make-lib-cppflags,$4))
-shared_ldflags		+= $(call unique,$(foreach d,$($4_dependencies),$(call make-shared-dep-ldflags,$d,$4)))\
-			   $(strip $(call make-lib-ldflags,$4))\
-			   $(strip $(call make-system-lib-ldflags,$4))
+shared_ldflags		+= $$(call unique,$$(foreach d,$($4_dependencies),$$(call make-shared-dep-ldflags,$$d,$4)))\
+			   $$(strip $$(call make-lib-ldflags,$4))\
+			   $$(strip $$(call make-system-lib-ldflags,$4))
 
 #
 # Platform variables
