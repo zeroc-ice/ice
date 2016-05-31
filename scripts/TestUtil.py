@@ -2549,7 +2549,7 @@ def getTestDirectory(name, baseDir = os.getcwd()):
     else:
         buildDir = "build"
         if isDarwin():
-            platform = "osx"
+            platform = "macosx"
         elif isUbuntu() or isDebian():
             platform = "x86_64-linux-gnu" if x64 else "i386-linux-gnu"
         elif isAIX():

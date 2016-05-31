@@ -1,0 +1,71 @@
+# **********************************************************************
+#
+# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+#
+# Xcode configuration to build Xcode IceSDK.
+#
+xcodesdk_objdir		= static
+xcodesdk_cppflags	= $(static_cppflags)
+xcodesdk_ldflags	= $(static_ldflags)
+
+ifneq ($(USE_BIN_DIST),yes)
+$(foreach d,Ice IceSSL Glacier2 IceStorm IceGrid IceDiscovery IceLocatorDiscovery \
+	    IceObjC IceSSLObjC Glacier2ObjC IceStormObjC IceGridObjC,$(eval $d[xcodesdk]_targetdir := $(top_srcdir)))
+endif
+
+#
+# $(call make-xcodesdk,$1=translator)
+#
+define make-xcodesdk
+
+$(install_libdir)/IceSDK/%.sdk/SDKSettings.plist $(top_srcdir)/IceSDK/%.sdk/SDKSettings.plist: \
+	$(top_srcdir)/config/%-SDKSettings.plist
+	$(Q)$(MKDIR) -p $$(@D)
+	$(Q)$(INSTALL) $$< $$@
+
+$(install_libdir)/IceSDK/bin/$(notdir $1) $(top_srcdir)/IceSDK/bin/$(notdir $1): $1
+	$(Q)$(MKDIR) -p $$(dir $$@)
+	$(Q)$(INSTALL) $1 $$@
+
+$$(eval $$(call install-data-files,\
+	$$(wildcard $(top_srcdir)/slice/*/*.ice),$(top_srcdir)/slice,$(top_srcdir)/IceSDK/slice,all))
+
+$$(eval $$(call install-data-files,\
+	$$(wildcard $(top_srcdir)/slice/*/*.ice),$(top_srcdir)/slice,$(install_libdir)/IceSDK/slice,install))
+
+all:: $$(foreach p,$$(platforms),$(top_srcdir)/IceSDK/$$p.sdk/SDKSettings.plist) \
+	$(top_srcdir)/IceSDK/bin/$(notdir $1)
+
+install:: $$(foreach p,$$(platforms),$(install_libdir)/IceSDK/$$p.sdk/SDKSettings.plist) \
+	$(install_libdir)/IceSDK/bin/$(notdir $1)
+
+clean::
+	$(Q)$(RM) $(top_srcdir)/IceSDK/bin/$(notdir $1)
+
+distclean::
+	$(Q)$(RM) -r $(top_srcdir)/IceSDK
+
+endef
+
+#
+# $(call make-xcodesdk-component-with-config,$1=project,$2=component,$3=platform,$4=config,$5=comp[platform-config])
+#
+define make-xcodesdk-component-with-config
+
+$$(eval $$(call install-data-files,$$(wildcard $$($2_includedir)/*.h),include,\
+	$(top_srcdir)/IceSDK/$3.sdk/usr/include,$5))
+$$(eval $$(call install-data-files,$$(filter include/generated/%,$$($2_generated_headers)),include/generated,\
+	$(top_srcdir)/IceSDK/$3.sdk/usr/include,$5))
+
+$$(eval $$(call install-data-files,$$(wildcard $$($2_includedir)/*.h),include,\
+	$(install_libdir)/IceSDK/$3.sdk/usr/include,$5_install))
+$$(eval $$(call install-data-files,$$(filter include/generated/%,$$($2_generated_headers)),include/generated,\
+	$(install_libdir)/IceSDK/$3.sdk/usr/include,$5_install))
+
+endef

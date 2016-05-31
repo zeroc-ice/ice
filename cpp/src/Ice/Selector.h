@@ -227,7 +227,7 @@ class EventHandlerWrapper : public SelectorReadyCallback
 {
 public:
 
-    EventHandlerWrapper(const EventHandlerPtr&, Selector&);
+    EventHandlerWrapper(EventHandler*, Selector&);
     ~EventHandlerWrapper();
 
     void updateRunLoop();

@@ -34,4 +34,3 @@ tests := $(tests-without-project-makefile)
 include $(shell find $(lang_srcdir)/test -name Makefile.mk)
 $(foreach t,$(tests),$(eval $(call create-objc-test-project,$(t))))
 $(call make-projects,$(projects),make-objc-test-project)
-

@@ -44,6 +44,7 @@ sgenerated
 /cppe/lib
 /csharp/bin
 /csharp/Assemblies
+/objective-c/lib
 *#
 .#*
 *~
@@ -346,3 +347,8 @@ IceBuilder.d
 # Logger test
 #
 cpp/test/Ice/logger/*.log
+
+xcuserdata
+xcshareddata
+IceSDK
+cpp/test/ios/Bundles*

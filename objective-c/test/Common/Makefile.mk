@@ -10,8 +10,12 @@
 $(project)_libraries	= TestCommonObjC
 $(project)_noinstall	= 1
 
-TestCommonObjC_targetdir	:= $(libdir)
-TestCommonObjC_dependencies 	:= IceObjC
-TestCommonObjC_cppflags		:= -DTEST_API_EXPORTS -I$(includedir) -Itest/include
+#
+# Put the shared TestCommon library in the lib directory for convenience on platforms
+# which don't support something like @loader_path.
+#
+TestCommonObjC[shared]_targetdir	:= $(libdir)
+TestCommonObjC_dependencies 		:= IceObjC
+TestCommonObjC_cppflags			:= -DTEST_API_EXPORTS -I$(includedir) -Itest/include
 
 projects += $(project)

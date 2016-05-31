@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CanonicalName</key>
+	<string>Ice SDK 3.7.0</string>
+	<key>DefaultProperties</key>
+	<dict>
+		<key>MACOSX_DEPLOYMENT_TARGET</key>
+		<string>10.9</string>
+		<key>PLATFORM_NAME</key>
+		<string>macosx</string>
+	</dict>
+	<key>DisplayName</key>
+	<string>Ice SDK 3.7.0</string>
+	<key>FamilyIdentifier</key>
+	<string>macosx</string>
+	<key>FamilyName</key>
+	<string>Mac OS X</string>
+	<key>MinimalDisplayName</key>
+	<string>10.10</string>
+	<key>MinimumSupportedToolsVersion</key>
+	<string>6.1</string>
+	<key>Version</key>
+	<string>3.7.0</string>
+	<key>IsBaseSDK</key>
+	<string>NO</string>
+</dict>
+</plist>

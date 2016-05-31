@@ -513,7 +513,6 @@ local exception SocketException extends SyscallException
  * This exception indicates CFNetwork errors.
  *
  **/
-#ifdef ICE_USE_CFSTREAM
 ["cpp:ice_print"]
 local exception CFNetworkException extends SocketException
 {
@@ -524,7 +523,6 @@ local exception CFNetworkException extends SocketException
      **/
     string domain;
 };
-#endif
 
 /**
  *

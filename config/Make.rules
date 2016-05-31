@@ -60,7 +60,7 @@ CONFIGS			?= $(firstword $(supported-configs))
 #
 # Third-party libraries
 #
-# If a third-party library is not installed in a standard location
+# If a third-party library is not inlled in a standard location
 # where the compiler can find it, set the corresponding variable
 # below to the installation directory of the library.
 #
@@ -118,16 +118,7 @@ expat_home 		:= $(EXPAT_HOME)
 bz2_home 		:= $(BZ2_HOME)
 lmdb_home 		:= $(LMDB_HOME)
 
-define make-thirdparty
-ifneq ($($1_home),)
-# Check for 3rd party libraries either in home/lib<platform specific subdir> or home/lib
-$1_libdir	?= $$(strip $$(if $$(wildcard $$($1_home)/lib$$(call platform-var,installdir,$$1,$$2,$$3)),\
-			$$($1_home)/lib$$(call platform-var,installdir,$$1,$$2,$$3),$$($1_home)/lib))
-$1_includedir	?= $$($1_home)/include
-endif
-$1_ldflags	?= -l$1
-endef
-$(foreach l,$(thirdparties),$(eval $(call make-thirdparty,$l)))
+$(foreach l,$(thirdparties),$(eval $(call make-lib,$l)))
 
 #
 # Languages, platforms and configurations to build

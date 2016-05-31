@@ -17,8 +17,8 @@ include $(lang_srcdir)/config/Make.rules
 # Create projects for all the Slice translators from src/slice2* and load source projects.
 #
 projects :=
-include $(shell find $(lang_srcdir)/src -name Makefile.mk)
 $(foreach t,$(wildcard $(lang_srcdir)/src/slice2*),$(eval $(call create-translator-project,$(call project,$t))))
+include $(shell find $(lang_srcdir)/src -name Makefile.mk)
 $(call make-projects,$(projects),make-cpp-src-project)
 
 #
@@ -32,4 +32,3 @@ $(call make-projects,$(projects),make-cpp-test-project)
 
 install:: | $(DESTDIR)$(install_configdir)
 	$(Q)$(INSTALL) $(lang_srcdir)/config/templates.xml $(DESTDIR)$(install_configdir)
-

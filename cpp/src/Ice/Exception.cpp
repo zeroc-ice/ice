@@ -803,11 +803,9 @@ Ice::ResponseSentException::ice_print(ostream& out) const
     out << ":\nresponse sent exception";
 }
 
-#ifdef ICE_USE_CFSTREAM
 void
 Ice::CFNetworkException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nnetwork exception: domain: " << domain << " error: " << error;
 }
-#endif

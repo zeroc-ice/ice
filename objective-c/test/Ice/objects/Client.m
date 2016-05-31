@@ -17,7 +17,7 @@
 
 // Note that the factory must not autorelease the
 // returned objects.
-ICEValueFactory factory = ^ICEObject* (NSString* type)
+static ICEValueFactory factory = ^ICEObject* (NSString* type)
 {
     if([type isEqualToString:@"::Test::B"])
     {

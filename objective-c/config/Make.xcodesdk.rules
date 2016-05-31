@@ -1,0 +1,55 @@
+# **********************************************************************
+#
+# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+include $(top_srcdir)/config/Make.xcodesdk.rules
+
+supported-configs	+= xcodesdk
+
+#
+# Xcode configuration to build Xcode IceSDK.
+#
+xcodesdk_targetdir	= $(if $(filter %/build,$5),xcodesdk,IceSDK/$2.sdk/usr/lib)
+xcodesdk_installdir	= $(if $(filter %/build,$5),xcodesdk,IceSDK/$2.sdk/usr/lib)
+xcodesdk_targetrule	= $(if $(filter-out program,$($1_target)),static)
+
+xcodesdk_components	= Ice IceObjC IceSSLObjC Glacier2ObjC IceStormObjC IceGridObjC TestCommonObjC
+xcodesdk_projects	= test/Ice/%
+
+iphoneos_excludes	 = test/%
+iphonesimulator_excludes = test/%
+
+ifneq ($(findstring xcodesdk,$(configs)),)
+$(eval $(call make-xcodesdk,../cpp/bin/slice2objc))
+component_with_config_extensions := make-objc-xcodesdk-component-with-config
+endif
+
+#
+# $(call make-xcodesdk-component-with-config,$1=project,$2=component,$3=platform,$4=config,$5=comp[platform-config])
+#
+define make-objc-xcodesdk-component-with-config
+ifneq ($(filter src/%,$1),)
+
+$(make-xcodesdk-component-with-config)
+
+$(top_srcdir)/IceSDK/$3.sdk/usr/include/objc/%.h: include/objc/%.h
+	$(Q)$(call install-data,objc/$$(*).h,include,$(top_srcdir)/IceSDK/$3.sdk/usr/include)
+
+$(install_libdir)/IceSDK/$3.sdk/usr/include/objc/%.h: include/objc/%.h
+	$(Q)$(call install-data,objc/$$(*).h,include,$(install_libdir)/IceSDK/$3.sdk/usr/include)
+
+$5:: $(top_srcdir)/IceSDK/$3.sdk/usr/include/objc/$(subst ObjC,,$2).h
+
+$5_install:: $(install_libdir)/IceSDK/$3.sdk/usr/include/objc/$(subst ObjC,,$2).h
+
+$5_clean::
+	$(Q)$(RM) $(top_srcdir)/IceSDK/$3.sdk/usr/include/objc/$(subst ObjC,,$2).h
+	$(Q)$(RM) -r $(top_srcdir)/IceSDK/$3.sdk/usr/include/objc/$(subst ObjC,,$2)
+
+endif
+endef

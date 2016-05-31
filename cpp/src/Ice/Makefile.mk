@@ -10,25 +10,20 @@
 $(project)_libraries	= Ice
 
 Ice_targetdir		:= $(libdir)
-Ice_cppflags  		= -DICE_API_EXPORTS
+Ice_cppflags  		= -DICE_API_EXPORTS $(IceUtil_cppflags)
 
 ifeq ($(DEFAULT_MUTEX_PROTOCOL), PrioInherit)
     Ice_cppflags        += -DICE_PRIO_INHERIT
 endif
 
-ifeq ($(libbacktrace),yes)
-    Ice_cppflags        += -DICE_LIBBACKTRACE
-endif
-
 Ice_sliceflags		:= --include-dir Ice --dll-export ICE_API
 Ice_libs		:= bz2
-Ice_system_libs		:= $(ICE_OS_LIBS)
 Ice_extra_sources       := $(wildcard src/IceUtil/*.cpp)
 Ice_excludes		:= $(currentdir)/DLLMain.cpp
 
-Ice_extra_sources[iphoneos] 		:= $(wildcard $(addprefix $(currentdir)/ios/,*.cpp *.mm))
-#Ice_excludes[iphoneos] 			:= $(wildcard $(addprefix $(currentdir)/RegistryPlugins.cpp))
-Ice_extra_sources[iphonesimulator] 	:= $(wildcard $(addprefix $(currentdir)/ios/,*.cpp *.mm))
-#Ice_excludes[iphonesimulator]		:= $(wildcard $(addprefix $(currentdir)/RegistryPlugins.cpp))
+Ice[iphoneos]_extra_sources 		:= $(wildcard $(addprefix $(currentdir)/ios/,*.cpp *.mm))
+Ice[iphoneos]_excludes	 		:= $(currentdir)/RegisterPluginsInit.cpp
+Ice[iphonesimulator]_extra_sources	= $(Ice[iphoneos]_extra_sources)
+Ice[iphonesimulator]_excludes	 	= $(Ice[iphoneos]_excludes)
 
 projects += $(project)

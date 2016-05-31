@@ -20,7 +20,7 @@
 namespace IceInternal
 {
 
-class ICE_API EventHandler : 
+class ICE_API EventHandler :
 #ifdef ICE_CPP11_MAPPING
     public virtual Ice::VirtualEnableSharedFromThisBase
 #else

@@ -11,17 +11,19 @@
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
 
--include	$(lang_srcdir)/config/Make.rules.$(os)
-
 #
 # Supported configurations
 #
 supported-configs	= shared static cpp11-shared cpp11-static
 
+-include	$(lang_srcdir)/config/Make.rules.$(os)
+ifeq ($(os),Darwin)
+include		$(lang_srcdir)/config/Make.xcodesdk.rules
+endif
+
 #
 # Define which projects to build for the different configurations.
 #
-
 coreandstub_components	= IceUtil \
 			  Ice \
 			  IceSSL \
@@ -95,21 +97,13 @@ cpp11_targetname 	= $(if $(or $(filter-out $($1_target),program),$(filter-out %/
 cpp11_targetdir		= $(if $(filter %/build,$($1_targetdir)),cpp11)
 
 #
-# Create top-level include/config dir
-#
-$(DESTDIR)$(install_includedir) $(DESTDIR)$(install_configdir):
-	$(Q)$(MKDIR) $@
-
-#
 # $(call make-cpp-src-project,$1=project)
 #
 define make-cpp-src-project
-ifeq ($(USE_BIN_DIST),yes)
-$(create-project-targets)
-else
+ifneq ($(USE_BIN_DIST),yes)
 $1_slicecompiler 	:= slice2cpp
 $1_sliceflags		+= --ice -I$(slicedir)
-$1_cppflags 		+= -Isrc -I$1/generated -I$(includedir) -I$(includedir)/generated 
+$1_cppflags 		+= -Isrc -I$1/generated -I$(includedir) -I$(includedir)/generated
 $(make-project)
 srcs:: $1
 endif
@@ -120,12 +114,11 @@ endef
 #
 define make-cpp-test-project
 $1_slicecompiler 	:= slice2cpp
-$1_sliceflags		:= -I$(slicedir) $$($1_sliceflags)
-$1_cppflags		:= -I$(includedir) -Itest/include -I$1 -I$1/generated $$($1_cppflags)
+$1_sliceflags		+= -I$(slicedir)
+$1_cppflags		+= -I$1/generated -I$1 -Itest/include -I$(includedir)
 ifneq ($(USE_BIN_DIST),yes)
 $1_cppflags		+= -I$(includedir)/generated
 endif
-
 $(make-project)
 tests:: $1
 endef
@@ -138,7 +131,20 @@ $1_srcext		:= cpp
 $1_dependencies 	:= $$(or $$($1_dependencies),TestCommon Ice)
 
 # Also link with IceSSL and IceBT (Debian/Ubuntu) when compiling the project with the static configuration
-static_dependencies[$1]	:= $$(or $$($1_dependencies[static]),IceSSL $(if $(filter debian ubuntu,$(linux_id)),IceBT))
+$1[static]_dependencies	:= IceSSL $(if $(filter debian ubuntu,$(linux_id)),IceBT)
+
+# Dependencies and target dirs for Xcode SDK test projects
+$1[xcodesdk]_dependencies 			:= IceSSL
+$1[iphoneos-xcodesdk]_targetdir			:= test/ios/Bundles-iphoneos/$(subst /,_,$1)
+$1[iphonesimulator-xcodesdk]_targetdir		:= test/ios/Bundles-iphonesimulator/$(subst /,_,$1)
+$1[iphoneos-cpp11-xcodesdk]_targetdir		:= test/ios/Bundles++11-iphoneos/$(subst /,_,$1)
+$1[iphonesimulator-cpp11-xcodesdk]_targetdir	:= test/ios/Bundles++11-iphonesimulator/$(subst /,_,$1)
 
 $(create-test-project)
 endef
+
+#
+# Create top-level include/config dir
+#
+$(DESTDIR)$(install_includedir) $(DESTDIR)$(install_configdir):
+	$(Q)$(MKDIR) $@

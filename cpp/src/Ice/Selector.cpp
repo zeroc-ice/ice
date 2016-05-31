@@ -552,8 +552,8 @@ Selector::finish(EventHandler* handler, bool closeNow)
     {
 	return false;
     }
-#endif    
-    
+#endif
+
     return closeNow;
 }
 
@@ -844,7 +844,7 @@ Selector::checkReady(EventHandler* handler)
     if(handler->_ready & ~handler->_disabled & handler->_registered)
     {
 #ifdef ICE_CPP11_MAPPING
-        _readyHandlers.insert(make_pair(dynamic_pointer_cast<EventHandler>(handler->shared_from_this()), 
+        _readyHandlers.insert(make_pair(dynamic_pointer_cast<EventHandler>(handler->shared_from_this()),
                                         SocketOperationNone));
 #else
         _readyHandlers.insert(make_pair(handler, SocketOperationNone));
@@ -854,7 +854,7 @@ Selector::checkReady(EventHandler* handler)
     else
     {
 #ifdef ICE_CPP11_MAPPING
-        map<EventHandlerPtr, SocketOperation>::iterator p = 
+        map<EventHandlerPtr, SocketOperation>::iterator p =
             _readyHandlers.find(dynamic_pointer_cast<EventHandler>(handler->shared_from_this()));
 #else
         map<EventHandlerPtr, SocketOperation>::iterator p = _readyHandlers.find(handler);
@@ -1038,8 +1038,12 @@ toCFCallbacks(SocketOperation op)
 
 }
 
-EventHandlerWrapper::EventHandlerWrapper(const EventHandlerPtr& handler, Selector& selector) :
+EventHandlerWrapper::EventHandlerWrapper(EventHandler* handler, Selector& selector) :
+#ifdef ICE_CPP11_MAPPING
+    _handler(std::dynamic_pointer_cast<EventHandler>(handler->shared_from_this())),
+#else
     _handler(handler),
+#endif
     _streamNativeInfo(StreamNativeInfoPtr::dynamicCast(handler->getNativeInfo())),
     _selector(selector),
     _ready(SocketOperationNone),

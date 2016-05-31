@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>AlternateSDK</key>
+	<string>Ice SDK 3.6.0</string>
+	<key>CanonicalName</key>
+	<string>Ice SDK 3.7.0</string>
+	<key>CustomProperties</key>
+	<dict/>
+	<key>DefaultProperties</key>
+	<dict>
+		<key>IPHONEOS_DEPLOYMENT_TARGET</key>
+		<string>7.1</string>
+		<key>MACOSX_DEPLOYMENT_TARGET</key>
+		<string>10.9</string>
+		<key>PLATFORM_NAME</key>
+		<string>iphoneos</string>
+	</dict>
+	<key>DisplayName</key>
+	<string>Ice SDK 3.7.0</string>
+	<key>FamilyIdentifier</key>
+	<string>iphoneos</string>
+	<key>FamilyName</key>
+	<string>iPhone OS</string>
+	<key>IsBaseSDK</key>
+	<string>NO</string>
+	<key>MaximumOSDeploymentTarget</key>
+	<string>10.10</string>
+	<key>MinimalDisplayName</key>
+	<string>Device</string>
+	<key>MinimumSupportedToolsVersion</key>
+	<string>6.0</string>
+	<key>Version</key>
+	<string>3.7.0</string>
+</dict>
+</plist>

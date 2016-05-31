@@ -16,6 +16,10 @@
 #
 supported-configs	= shared static arc-shared arc-static
 
+ifeq ($(os),Darwin)
+include		$(lang_srcdir)/config/Make.xcodesdk.rules
+endif
+
 ifneq ($(filter arc-%,$(CONFIGS)),)
 # Make sure that the non-ARC configuration is also enabled
 override CONFIGS := $(call unique,$(CONFIGS) $(patsubst arc-%,%,$(CONFIGS)))
@@ -26,6 +30,7 @@ endif
 #
 static_components 	= Ice IceObjC IceSSLObjC Glacier2ObjC IceStormObjC IceGridObjC
 static_projects		= test/%
+static_ldflags		+= $(if $(filter program,$($1_target)),-ObjC)
 
 #
 # Build only the tests with the ARC configuration
@@ -55,17 +60,15 @@ ifneq ($(USE_BIN_DIST),yes)
 $(DESTDIR)$(install_includedir)/objc:
 	$(Q)$(MKDIR) -p $(DESTDIR)$(install_includedir)/objc
 
-$(DESTDIR)$(install_includedir)/objc/%.h: $(includedir)/objc/%.h | $(DESTDIR)$(install_includedir)/objc
-	$(Q)$(call install-data,objc/$(*).h,$(includedir),$(DESTDIR)$(install_includedir))
+$(DESTDIR)$(install_includedir)/objc/%.h: include/objc/%.h | $(DESTDIR)$(install_includedir)/objc
+	$(Q)$(call install-data,objc/$(*).h,include,$(DESTDIR)$(install_includedir))
 endif
 
 #
 # $(make-objc-src-project $1=project)
 #
 define make-objc-src-project
-ifeq ($(USE_BIN_DIST),yes)
-$(create-project-targets)
-else
+ifneq ($(USE_BIN_DIST),yes)
 $1_slicecompiler 	:= slice2objc
 $1_sliceflags		+= --ice -I$(slicedir)
 $1_cppflags 		+= -I$(includedir) -I$(includedir)/generated

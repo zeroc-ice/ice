@@ -10,13 +10,9 @@
 $(project)_libraries 	= IceUtil
 
 IceUtil_targetdir	:= $(libdir)
-IceUtil_system_libs     := $(ICEUTIL_OS_LIBS)
+IceUtil_cppflags 	:= $(if $(filter yes,$(libbacktrace)),-DICE_LIBBACKTRACE)
 
 # Always enable the static configuration for the IceUtil library
 IceUtil_always_enable_configs := static
-
-ifeq ($(libbacktrace),yes)
-    IceUtil_cppflags += -DICE_LIBBACKTRACE
-endif
 
 projects += $(project)

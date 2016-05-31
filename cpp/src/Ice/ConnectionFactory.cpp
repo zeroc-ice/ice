@@ -32,8 +32,8 @@
 namespace IceInternal
 {
 
-bool registerForBackgroundNotification(IceInternal::IncomingConnectionFactory*);
-void unregisterForBackgroundNotification(IceInternal::IncomingConnectionFactory*);
+bool registerForBackgroundNotification(const IceInternal::IncomingConnectionFactoryPtr&);
+void unregisterForBackgroundNotification(const IceInternal::IncomingConnectionFactoryPtr&);
 
 }
 #endif
@@ -1461,7 +1461,7 @@ IceInternal::IncomingConnectionFactory::finished(ThreadPoolCurrent&, bool close)
 
 #if TARGET_OS_IPHONE != 0
     sync.release();
-    unregisterForBackgroundNotification(this);
+    unregisterForBackgroundNotification(shared_from_this());
 #endif
 }
 
@@ -1581,7 +1581,7 @@ IceInternal::IncomingConnectionFactory::stopAcceptor()
         return;
     }
 
-    if(_adapter->getThreadPool()->finish(this, true))
+    if(_adapter->getThreadPool()->finish(shared_from_this(), true))
     {
         _acceptorStarted = false;
         closeAcceptor();
@@ -1625,7 +1625,7 @@ IceInternal::IncomingConnectionFactory::initialize()
             // start the acceptor if necessary.
             //
             _acceptorStarted = false;
-            registerForBackgroundNotification(this);
+            registerForBackgroundNotification(shared_from_this());
 #else
             createAcceptor();
 #endif

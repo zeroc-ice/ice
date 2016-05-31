@@ -56,6 +56,20 @@ const short WSSEndpointType = 5;
 
 /**
  *
+ * Uniquely identifies iAP-based endpoints.
+ *
+ **/
+const short iAPEndpointType = 6;
+
+/**
+ *
+ * Uniquely identifies SSL iAP-based endpoints.
+ *
+ **/
+const short iAPSEndpointType = 7;
+
+/**
+ *
  * Base class providing access to the endpoint details.
  *
  **/

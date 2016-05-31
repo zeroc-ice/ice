@@ -9,7 +9,8 @@
 
 linux_id		= $(shell . /etc/os-release && echo $${ID})
 
-is-bin-program		= $(and $(filter-out %/build,$($1_targetdir)),$(filter $($1_target),program))
+is-bin-program		= $(and $(filter-out %/build,$(or $($1_targetdir),$($($1_project)_targetdir))),\
+				$(filter $($1_target),program))
 
 ifneq ($(filter centos rhel fedora,$(linux_id)),)
 
@@ -21,13 +22,13 @@ multilib-platform	= yes
 
 x64_cppflags            = -m64
 x64_ldflags             = $(x64_cppflags)
-x64_targetdir  		= $(if $(filter %/build,$($1_targetdir)),/x64,$(if $(filter-out $($1_target),program),64))
-x64_installdir 		= $(if $(and $(filter-out $($1_target),program),$(filter-out %64,$($1_installdir))),64)
+x64_targetdir  		= $(if $(filter %/build,$5),/x64,$(if $(filter-out $($1_target),program),64))
+x64_installdir 		= $(if $(and $(filter-out $($1_target),program),$(filter-out %64,$5)),64)
 
 x86_cppflags            = -m32
 x86_ldflags             = $(x86_cppflags)
-x86_targetdir  		= $(if $(filter %/build,$($1_targetdir)),/x86)
-x86_targetname		= $(if $(call is-bin-program,$1),32)
+x86_targetdir  		= $(if $(filter %/build,$5),/x86)
+x86_targetname		= $(if $(is-bin-program),32)
 
 else ifneq ($(filter debian ubuntu,$(linux_id)),)
 
@@ -51,8 +52,7 @@ $1_cc		= $$($1_gnu_type)-$(CC)
 $1_cxx		= $$($1_gnu_type)-$(CXX)
 $1_libtool	= $$($1_gnu_type)-$(AR)
 $1_targetdir 	= /$$($1_multiarch)
-$1_installdir 	= /$$($1_multiarch)
-$1_installdir 	= $$(if $$(and $(call is-bin-program,$1),$(usr_dir_install)),,/$$($1_multiarch))
+$1_installdir 	= $$(if $$(and $(is-bin-program),$(usr_dir_install)),,/$$($1_multiarch))
 
 $1_excludes	= $(if $(filter-out $1,$(build-platform)),Slice)
 endef
@@ -60,8 +60,8 @@ endef
 $(foreach p,$(supported-platforms),$(eval $(call make-platform-config,$p)))
 
 # For the build platform architecture, build and install executables in bin, libraries in lib/<arch>
-$(build-platform)_targetdir 	= $(if $(call is-bin-program,$1),,/$($(build-platform)_multiarch))
-$(build-platform)_installdir 	= $(if $(call is-bin-program,$1),,/$($(build-platform)_multiarch))
+$(build-platform)_targetdir 	= $(if $(is-bin-program),,/$($(build-platform)_multiarch))
+$(build-platform)_installdir 	= $(if $(is-bin-program),,/$($(build-platform)_multiarch))
 
 else
 
@@ -119,13 +119,7 @@ ifneq ($(libbacktrace_fullpath),libbacktrace.a)
    libbacktrace = yes
 endif
 
-ICEUTIL_OS_LIBS     = -lrt -lcrypto
-
-ifeq ($(libbacktrace),yes)
-ICEUTIL_OS_LIBS     += -lbacktrace
-endif
-
-ICE_OS_LIBS         = -ldl $(ICEUTIL_OS_LIBS)
-
-CRYPT_OS_LIBS   = -lcrypt
-SSL_OS_LIBS     = -lssl -lcrypto
+IceUtil_system_libs     			= -lrt -lcrypto $(if $(filter yes,$(libbacktrace)),-lbacktrace)
+Ice_system_libs         			= -ldl $(IceUtil_system_libs)
+IceSSL_system_libs				= -lssl -lcrypto
+Glacier2CryptPermissionsVerifier_system_libs 	= -lcrypt

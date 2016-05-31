@@ -49,7 +49,7 @@ public:
     virtual std::string toDetailedString() const = 0;
     virtual Ice::ConnectionInfoPtr getInfo() const = 0;
     virtual void checkSendSize(const Buffer&) = 0;
-    virtual void setBufferSize(int rcvSize, int sndSize) = 0;
+    virtual void setBufferSize(int, int) = 0;
 };
 
 }
