@@ -938,15 +938,13 @@ make-lib-cppflags 	= $(foreach l,$($1_libs),$(if $($l_includedir),-I$(call $l_in
 #
 # Helper to define third-party library flags
 #
-# $(call makelib,$1=libname,$2=component[platform-config])
+# $(call make-lib,$1=libname)
 #
 define make-lib
 ifneq ($($1_home),)
 # Check for 3rd party libraries either in home/lib<platform specific subdir> or home/lib
-$1_libdir	?= $$(strip \
-	$$(if $$(wildcard $$($1_home)/lib$$(call platform-var,installdir,$$1,$$($2_platform),$$($2_config))),\
-		$$($1_home)/lib$$(call platform-var,installdir,$$1,$$($2_platform),$$($2_config)),\
-		$$($1_home)/lib))
+$1_installdir 	= $$($1_home)/lib$$(call platform-var,installdir,$$1,$$($$1_platform),$$($$1_config),$$1)
+$1_libdir	?= $$(strip $$(if $$(wildcard $$($1_installdir)),$$($1_installdir),$$($1_home)/lib))
 $1_includedir	?= $$($1_home)/include
 endif
 $1_ldflags	?= -l$1
