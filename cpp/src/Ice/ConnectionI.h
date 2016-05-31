@@ -44,7 +44,7 @@
 
 #include <deque>
 
-#if TARGET_OS_IPHONE == 0 && !defined(ICE_OS_WINRT)
+#if !defined(ICE_OS_WINRT)
 #    ifndef ICE_HAS_BZIP2
 #        define ICE_HAS_BZIP2
 #    endif
