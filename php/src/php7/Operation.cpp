@@ -462,7 +462,7 @@ IcePHP::TypedInvocation::prepareRequest(int argc, zval* args, Ice::OutputStream*
                 zval* arg = &args[info->pos];
                 assert(!Z_ISREF_P(arg));
 
-                if((!info->optional || !isUnset(arg)) && !info->type->validate(arg))
+                if((!info->optional || !isUnset(arg)) && !info->type->validate(arg, false))
                 {
                     invalidArgument("invalid value for argument %d in operation `%s'", info->pos + 1,
                                     _op->name.c_str());

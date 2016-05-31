@@ -145,7 +145,7 @@ public:
 
     virtual std::string getId() const = 0;
 
-    virtual bool validate(zval*) = 0;
+    virtual bool validate(zval*, bool) = 0; // Validate type data. Bool enables excpetion throwing.
 
     virtual bool variableLength() const = 0;
     virtual int wireSize() const = 0;
@@ -184,7 +184,7 @@ public:
 
     virtual std::string getId() const;
 
-    virtual bool validate(zval*);
+    virtual bool validate(zval*, bool);
 
     virtual bool variableLength() const;
     virtual int wireSize() const;
@@ -223,7 +223,7 @@ public:
 
     virtual std::string getId() const;
 
-    virtual bool validate(zval*);
+    virtual bool validate(zval*, bool);
 
     virtual bool variableLength() const;
     virtual int wireSize() const;
@@ -269,7 +269,7 @@ public:
 
     virtual std::string getId() const;
 
-    virtual bool validate(zval*);
+    virtual bool validate(zval*, bool);
 
     virtual bool variableLength() const;
     virtual int wireSize() const;
@@ -309,7 +309,7 @@ public:
 
     virtual std::string getId() const;
 
-    virtual bool validate(zval*);
+    virtual bool validate(zval*, bool);
 
     virtual bool variableLength() const;
     virtual int wireSize() const;
@@ -349,7 +349,7 @@ public:
 
     virtual std::string getId() const;
 
-    virtual bool validate(zval*);
+    virtual bool validate(zval*, bool);
 
     virtual bool variableLength() const;
     virtual int wireSize() const;
@@ -418,7 +418,7 @@ public:
 
     virtual std::string getId() const;
 
-    virtual bool validate(zval*);
+    virtual bool validate(zval*, bool);
 
     virtual bool variableLength() const;
     virtual int wireSize() const;
@@ -470,7 +470,7 @@ public:
 
     virtual std::string getId() const;
 
-    virtual bool validate(zval*);
+    virtual bool validate(zval*, bool);
 
     virtual bool variableLength() const;
     virtual int wireSize() const;
