@@ -322,6 +322,9 @@ get-program-targets = $2/$1$(EXE_EXT)
 #
 define create-component-with-config-targets
 
+$5_platform 	:= $3
+$5_config 	:= $4
+
 #
 # Compute the target and installation directories.
 #
@@ -414,9 +417,6 @@ endef
 # Defines rules to build the given component with the given platform/configuration
 #
 define make-component-with-config
-
-$5_platform 	:= $3
-$5_config 	:= $4
 
 #
 # Compute the compiler/linker flags.
