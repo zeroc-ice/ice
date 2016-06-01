@@ -9,7 +9,7 @@
 
 linux_id		= $(shell . /etc/os-release && echo $${ID})
 
-is-bin-program		= $(and $(filter-out %/build,$($4_targetdir)),$(filter $($1_target),program))
+is-bin-program		= $(and $(filter $(bindir)%,$($4_targetdir)),$(filter $($1_target),program))
 
 ifneq ($(filter centos rhel fedora,$(linux_id)),)
 

@@ -11,12 +11,12 @@ supported-platforms     = ppc ppc64
 
 ppc_cppflags            = -q32 -D_LARGE_FILES
 ppc_ldflags             = $(ppc_cppflags)
-ppc_targetdir		= $(if $(filter %/build,$5),/ppc)
+ppc_targetdir           = $(if $(filter %/build,$5),/ppc)
 
 ppc64_cppflags          = -q64
 ppc64_ldflags           = $(ppc64_cppflags)
-ppc64_targetdir		= $(if $(filter %/build,$5),/ppc64,$(if $(filter-out $($1_target),program),64))
-ppc64_targetname	= $(if $(and $(filter-out %/build,$($4_targetdir)),$(filter $($1_target),program)),_64)
+ppc64_targetdir         = $(if $(filter %/build,$5),/ppc64,$(if $(filter-out $($1_target),program),64))
+ppc64_targetname        = $(if $(and $(filter $(bindir)%,$($4_targetdir)),$(filter $($1_target),program)),_64)
 
 shared_cppflags		= -brtl
 static_targetdir	= $(if $(and $(filter-out %/build,$5),$(filter $($1_target),program)),,static)
