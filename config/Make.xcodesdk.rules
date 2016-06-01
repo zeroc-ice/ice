@@ -58,8 +58,8 @@ endef
 #
 define make-xcodesdk-component-with-config
 
-ifneq ($$(filter-out $$($2_sdk_includedirs),$2),)
-$2_sdk_includedirs += $2
+ifneq ($$(filter-out $$($2_sdk_includedirs),$3-$2),)
+$2_sdk_includedirs += $3-$2
 
 $$(eval $$(call install-data-files,$$(wildcard $$($2_includedir)/*.h),include,\
 	$(top_srcdir)/IceSDK/$3.sdk/usr/include,$5))
