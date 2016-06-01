@@ -671,8 +671,9 @@ $1_generated_includedir := $$(or $$($1_generated_includedir),$1/generated)
 # Is this a multi-component project?
 $1_multicomp	:= $(word 2,$($1_programs) $($1_libraries))
 
-$1_component_extensions 		:= $$(1_component_extensions) $(component_extensions)
-$1_component_with_config_extensions	:= $$(1_component_with_config_extensions) $(component_with_config_extensions)
+$1_extensions 				:= $$($1_extensions) $(project_extensions)
+$1_component_extensions 		:= $$($1_component_extensions) $(component_extensions)
+$1_component_with_config_extensions	:= $$($1_component_with_config_extensions) $(component_with_config_extensions)
 
 #
 # Components add slice and object directories, slice files, generated

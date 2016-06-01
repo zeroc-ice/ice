@@ -58,6 +58,9 @@ endef
 #
 define make-xcodesdk-component-with-config
 
+ifneq ($$(filter-out $$($2_sdk_includedirs),$2),)
+$2_sdk_includedirs += $2
+
 $$(eval $$(call install-data-files,$$(wildcard $$($2_includedir)/*.h),include,\
 	$(top_srcdir)/IceSDK/$3.sdk/usr/include,$5))
 $$(eval $$(call install-data-files,$$(filter include/generated/%,$$($2_generated_headers)),include/generated,\
@@ -67,5 +70,6 @@ $$(eval $$(call install-data-files,$$(wildcard $$($2_includedir)/*.h),include,\
 	$(install_libdir)/IceSDK/$3.sdk/usr/include,$5_install))
 $$(eval $$(call install-data-files,$$(filter include/generated/%,$$($2_generated_headers)),include/generated,\
 	$(install_libdir)/IceSDK/$3.sdk/usr/include,$5_install))
+endif
 
 endef
