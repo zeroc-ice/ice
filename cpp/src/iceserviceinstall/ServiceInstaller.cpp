@@ -939,13 +939,13 @@ IceServiceInstaller::getIceDLLPath(const string& imagePath) const
 
     ostringstream os;
     os << majorVersion * 10 + minorVersion;
-    if(patchVersion > 70)
+    if(patchVersion >= 60)
     {
-        os << 'b' << (patchVersion - 71);
+        os << 'b' << (patchVersion - 60);
     }
-    else if(patchVersion > 50)
+    else if(patchVersion >= 50)
     {
-        os << 'a' << (patchVersion - 51);
+        os << 'a' << (patchVersion - 50);
     }
 
     string version = os.str();
