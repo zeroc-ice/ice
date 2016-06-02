@@ -5,10 +5,10 @@
          yes, set IceHome to point to this source distribution -->
     <PropertyGroup Condition="'$(UseBinDist)' != 'yes' or '$(Ice_BuildingSrc)' == yes">
         <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
-        <IceVersion>3.7a0</IceVersion>
-        <IceIntVersion>30751</IceIntVersion>
+        <IceVersion>3.7a2</IceVersion>
+        <IceIntVersion>30752</IceIntVersion>
         <IceVersionMM>3.7</IceVersionMM>
-        <IceSoVersion>37a0</IceSoVersion>
+        <IceSoVersion>37a2</IceSoVersion>
     </PropertyGroup>
 
     <!-- Define some common properties -->

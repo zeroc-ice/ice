@@ -12,11 +12,11 @@
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(PlatformToolset)' == 'v120'">
-        <IceVersion>3.7a0</IceVersion>
-        <IceIntVersion>30751</IceIntVersion>
+        <IceVersion>3.7a2</IceVersion>
+        <IceIntVersion>30752</IceIntVersion>
         <IceVersionMM>3.7</IceVersionMM>
-        <IceSoVersion>37a0</IceSoVersion>
-        <IceNugetPackageVersion>3.7.0.0</IceNugetPackageVersion>
+        <IceSoVersion>37a2</IceSoVersion>
+        <IceNugetPackageVersion>3.7.52.0</IceNugetPackageVersion>
         <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
 
         <SliceLibraryName>slice$(IceSoVersion)$(Ice_LibrarySuffix).dll</SliceLibraryName>
