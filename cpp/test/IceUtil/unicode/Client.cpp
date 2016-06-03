@@ -210,6 +210,25 @@ main(int argc, char* argv[])
 	test(ns == good);
 	test(ws == IceUtil::stringToWstring(ns));
 
+	vector<Byte> u8 = vector<Byte>(reinterpret_cast<const Byte*>(ns.data()),
+				       reinterpret_cast<const Byte*>(ns.data() + ns.length()));
+
+	vector<unsigned short> u16 = IceUtilInternal::toUTF16(u8);
+	test(u16.size() == 4);
+	test(u16[0] == 0x20ac);
+	test(u16[1] == 0x20ac);
+	test(u16[2] == 0xd801);
+	test(u16[3] == 0xdc37);
+
+	vector<unsigned int> u32 = IceUtilInternal::toUTF32(u8);
+	test(u32.size() == 3);
+	test(u32[0] == 0x20ac);
+	test(u32[1] == 0x20ac);
+	test(u32[2] == 0x10437);
+
+	vector<Byte> nu8 = IceUtilInternal::fromUTF32(u32);
+	test(nu8 == u8);
+
 	cout << "ok" << endl;
     }
 
