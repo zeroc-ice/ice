@@ -20,7 +20,7 @@
 #include <direct.h>
 #endif
 #include <IceUtil/Iterator.h>
-#include <IceUtil/Unicode.h>
+#include <IceUtil/StringConverter.h>
 #include <IceUtil/UUID.h>
 #include <Slice/Checksum.h>
 #include <Slice/FileTracker.h>
@@ -50,23 +50,8 @@ u16CodePoint(unsigned short value)
 void
 writeU8Buffer(const vector<unsigned char>& u8buffer, ::IceUtilInternal::Output& out)
 {
-    vector<unsigned short> u16buffer;
-    IceUtilInternal::ConversionResult result = convertUTF8ToUTF16(u8buffer, u16buffer, IceUtil::lenientConversion);
-    switch(result)
-    {
-        case conversionOK:
-            break;
-        case sourceExhausted:
-            throw IceUtil::IllegalConversionException(__FILE__, __LINE__, "string source exhausted");
-        case sourceIllegal:
-            throw IceUtil::IllegalConversionException(__FILE__, __LINE__, "string source illegal");
-        default:
-        {
-            assert(0);
-            throw IceUtil::IllegalConversionException(__FILE__, __LINE__);
-        }
-    }
-
+    vector<unsigned short> u16buffer = toUTF16(u8buffer);
+    
     for(vector<unsigned short>::const_iterator c = u16buffer.begin(); c != u16buffer.end(); ++c)
     {
         out << u16CodePoint(*c);

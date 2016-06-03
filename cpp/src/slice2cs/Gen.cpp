@@ -24,7 +24,7 @@
 
 #include <IceUtil/Iterator.h>
 #include <IceUtil/UUID.h>
-#include <IceUtil/Unicode.h>
+#include <IceUtil/StringConverter.h>
 #include <Slice/Checksum.h>
 #include <Slice/FileTracker.h>
 #include <Slice/Util.h>
@@ -55,22 +55,7 @@ u16CodePoint(unsigned short value)
 void
 writeU8Buffer(const vector<unsigned char>& u8buffer, ::IceUtilInternal::Output& out)
 {
-    vector<unsigned short> u16buffer;
-    IceUtilInternal::ConversionResult result = convertUTF8ToUTF16(u8buffer, u16buffer, IceUtil::lenientConversion);
-    switch(result)
-    {
-        case conversionOK:
-            break;
-        case sourceExhausted:
-            throw IceUtil::IllegalConversionException(__FILE__, __LINE__, "string source exhausted");
-        case sourceIllegal:
-            throw IceUtil::IllegalConversionException(__FILE__, __LINE__, "string source illegal");
-        default:
-        {
-            assert(0);
-            throw IceUtil::IllegalConversionException(__FILE__, __LINE__);
-        }
-    }
+    vector<unsigned short> u16buffer = toUTF16(u8buffer);
 
     for(vector<unsigned short>::const_iterator c = u16buffer.begin(); c != u16buffer.end(); ++c)
     {
@@ -3300,7 +3285,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
     _out << sp << nl << "#endregion"; // Constructors
 
-    _out << sp;    
+    _out << sp;
     emitGeneratedCodeAttribute();
     _out << nl << "public override string ice_id()";
     _out << sb;

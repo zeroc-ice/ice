@@ -12,6 +12,10 @@ $(project)_libraries 	= IceUtil
 IceUtil_targetdir	:= $(libdir)
 IceUtil_cppflags 	:= $(if $(filter yes,$(libbacktrace)),-DICE_LIBBACKTRACE)
 
+ifeq ($(os),Darwin)
+IceUtil_excludes        = src/IceUtil/ConvertUTF.cpp src/IceUtil/Unicode.cpp
+endif
+
 # Always enable the static configuration for the IceUtil library
 IceUtil_always_enable_configs := static
 

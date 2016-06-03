@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -83,7 +83,6 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\ConvertUTF.cpp" />
     <ClCompile Include="..\..\CtrlCHandler.cpp" />
     <ClCompile Include="..\..\OutputUtil.cpp" />
     <ClCompile Include="..\..\RecMutex.cpp" />
@@ -97,7 +96,6 @@
     <ClCompile Include="..\..\Random.cpp" />
     <ClCompile Include="..\..\Shared.cpp" />
     <ClCompile Include="..\..\StringUtil.cpp" />
-    <ClCompile Include="..\..\Unicode.cpp" />
     <ClCompile Include="..\..\UUID.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -142,9 +140,7 @@
     <ClInclude Include="..\..\..\..\include\IceUtil\UniquePtr.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\UUID.h" />
     <ClInclude Include="..\..\ArgVector.h" />
-    <ClInclude Include="..\..\ConvertUTF.h" />
     <ClInclude Include="..\..\StopWatch.h" />
-    <ClInclude Include="..\..\Unicode.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

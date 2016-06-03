@@ -76,6 +76,17 @@
 #   define ICE_NOEXCEPT_FALSE /**/
 #endif
 
+
+//
+// Does the C++ compiler library provide std::codecvt_utf8 and
+// std::codecvt_utf8_utf16?
+//
+#if (defined(_MSC_VER) && (_MSC_VER >= 1800)) || \
+    defined(__clang__)                        || \
+    (defined(ICE_CPP11_COMPILER) && defined(__GNUC__) && (__GNUC__ >= 5))
+#define ICE_HAS_CODECVT_UTF8
+#endif
+
 //
 // Visual Studio 2015 or later
 //
@@ -262,6 +273,9 @@ private:
     noncopyable(const noncopyable&);
     const noncopyable& operator=(const noncopyable&);
 };
+
+
+typedef unsigned char Byte;
 
 //
 // Int64 typedef and ICE_INT64 macro for Int64 literal values

@@ -24,13 +24,6 @@ public:
 
     virtual wstring widen(ICE_IN(string) msg, const Ice::Current&)
     {
-        const Ice::Byte* cmsg = reinterpret_cast<const Ice::Byte*>(msg.c_str());
-
-        if(!IceUtil::isLegalUTF8Sequence(cmsg, cmsg + msg.size()))
-        {
-            throw Test::BadEncodingException();
-        }
-
         return IceUtil::stringToWstring(msg, IceUtil::getProcessStringConverter(),
                                         IceUtil::getProcessWstringConverter());
     }

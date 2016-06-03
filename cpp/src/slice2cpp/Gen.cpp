@@ -14,7 +14,7 @@
 #include <IceUtil/Functional.h>
 #include <IceUtil/Iterator.h>
 #include <IceUtil/InputUtil.h>
-#include <IceUtil/Unicode.h>
+#include <IceUtil/StringConverter.h>
 #include <Slice/Checksum.h>
 #include <Slice/FileTracker.h>
 
@@ -132,22 +132,7 @@ u32CodePoint(unsigned int value, bool cpp11)
 void
 writeU8Buffer(const vector<unsigned char>& u8buffer, ::IceUtilInternal::Output& out, bool cpp11)
 {
-    vector<unsigned int> u32buffer;
-    IceUtilInternal::ConversionResult result = convertUTF8ToUTF32(u8buffer, u32buffer, IceUtil::lenientConversion);
-    switch(result)
-    {
-        case conversionOK:
-            break;
-        case sourceExhausted:
-            throw IceUtil::IllegalConversionException(__FILE__, __LINE__, "string source exhausted");
-        case sourceIllegal:
-            throw IceUtil::IllegalConversionException(__FILE__, __LINE__, "string source illegal");
-        default:
-        {
-            assert(0);
-            throw IceUtil::IllegalConversionException(__FILE__, __LINE__);
-        }
-    }
+    vector<unsigned int> u32buffer = toUTF32(u8buffer);
 
     for(vector<unsigned int>::const_iterator c = u32buffer.begin(); c != u32buffer.end(); ++c)
     {
@@ -353,23 +338,7 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
                                     vector<unsigned int> u32buffer;
                                     u32buffer.push_back(static_cast<unsigned int>(v));
 
-                                    vector<unsigned char> u8buffer;
-
-                                    IceUtilInternal::ConversionResult result = convertUTF32ToUTF8(u32buffer, u8buffer, IceUtil::lenientConversion);
-                                    switch(result)
-                                    {
-                                        case conversionOK:
-                                            break;
-                                        case sourceExhausted:
-                                            throw IceUtil::IllegalConversionException(__FILE__, __LINE__, "string source exhausted");
-                                        case sourceIllegal:
-                                            throw IceUtil::IllegalConversionException(__FILE__, __LINE__, "string source illegal");
-                                        default:
-                                        {
-                                            assert(0);
-                                            throw IceUtil::IllegalConversionException(__FILE__, __LINE__);
-                                        }
-                                    }
+                                    vector<unsigned char> u8buffer = fromUTF32(u32buffer);
 
                                     ostringstream s;
                                     for(vector<unsigned char>::const_iterator q = u8buffer.begin(); q != u8buffer.end(); ++q)

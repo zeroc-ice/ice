@@ -12,7 +12,13 @@
 #include <IceUtil/Mutex.h>
 #include <IceUtil/ScopedArray.h>
 #include <IceUtil/StringUtil.h>
+
+#ifdef ICE_HAS_CODECVT_UTF8
+#include <codecvt>
+#include <locale>
+#else
 #include <IceUtil/Unicode.h>
+#endif
 
 using namespace IceUtil;
 using namespace IceUtilInternal;
@@ -25,6 +31,234 @@ IceUtil::Mutex* processStringConverterMutex = 0;
 IceUtil::StringConverterPtr processStringConverter;
 IceUtil::WstringConverterPtr processWstringConverter;
 
+#ifndef ICE_HAS_THREAD_SAFE_LOCAL_STATIC
+IceUtil::WstringConverterPtr unicodeWstringConverter;
+#endif
+
+#ifdef ICE_HAS_CODECVT_UTF8
+
+template<size_t wcharSize>
+struct SelectCodeCvt;
+
+template<>
+struct SelectCodeCvt<2>
+{
+#ifdef ICE_LITTLE_ENDIAN
+    typedef std::codecvt_utf8_utf16<wchar_t, 0x10ffff, little_endian> Type;
+#else
+    typedef std::codecvt_utf8_utf16<wchar_t> Type;
+#endif
+};
+
+template<>
+struct SelectCodeCvt<4>
+{
+    typedef std::codecvt_utf8<wchar_t> Type;
+};
+
+class UnicodeWstringConverter : public WstringConverter
+{
+public:
+
+#if defined(_MSC_VER) && (_MSC_VER <= 1800)
+    //
+    // VS 2013 needs a default ctor
+    //
+    UnicodeWstringConverter()
+    {
+    }
+#endif
+
+    virtual Byte* toUTF8(const wchar_t* sourceStart, const wchar_t* sourceEnd, UTF8Buffer& buffer) const
+    {
+        //
+        // Max bytes for a character encoding in UTF-8 is 4,
+        // however MSVC returns 6
+        //
+#ifdef _MSC_VER
+        assert(_codecvt.max_length() == 4 || _codecvt.max_length() == 6);
+#else
+        assert(_codecvt.max_length() == 4);
+#endif
+        if(sourceStart == sourceEnd)
+        {
+            return buffer.getMoreBytes(1, 0);
+        }
+
+        char* targetStart = 0;
+        char* targetEnd = 0;
+        char* targetNext = 0;
+
+        mbstate_t state = mbstate_t(); // must be initialized!
+        const wchar_t* sourceNext = sourceStart;
+
+        bool more = false;
+
+        //
+        // The number of bytes we request from buffer for each remaining source character
+        //
+        size_t factor = 2;
+
+        do
+        {
+            assert(factor <= 4);
+            const size_t chunkSize = std::max<size_t>((sourceEnd - sourceStart) * factor, 4);
+            ++factor; // at the next round, we'll allocate more bytes per remaining source character
+
+            targetStart = reinterpret_cast<char*>(buffer.getMoreBytes(chunkSize, reinterpret_cast<Byte*>(targetNext)));
+            targetEnd = targetStart + chunkSize;
+            targetNext = targetStart;
+
+            codecvt_base::result result =
+                _codecvt.out(state, sourceStart, sourceEnd, sourceNext, targetStart, targetEnd, targetNext);
+
+            switch(result)
+            {
+                case codecvt_base::ok:
+                    //
+                    // MSVC returns ok when target is exhausted
+                    //
+                    more = sourceNext < sourceEnd;
+                    break;
+
+                case codecvt_base::partial:
+                    //
+                    // clang/libc++ and g++5 return partial when target is exhausted
+                    //
+                    more = true;
+                    assert(sourceNext < sourceEnd);
+                    break;
+
+                case codecvt_base::noconv:
+                    //
+                    // Unexpected
+                    //
+                    assert(0);
+                    throw IllegalConversionException(__FILE__, __LINE__, "codecvt.out noconv");
+
+                default:
+                    throw IllegalConversionException(__FILE__, __LINE__, "codecvt.out error");
+            }
+
+            if(targetStart == targetNext)
+            {
+                // We didn't convert a single character
+                throw IllegalConversionException(__FILE__, __LINE__,
+                                                 "no character converted by codecvt.out");
+            }
+
+            sourceStart = sourceNext;
+        } while (more);
+
+        return reinterpret_cast<Byte*>(targetNext);
+    }
+
+    virtual void fromUTF8(const Byte* sourceStart, const Byte* sourceEnd, wstring& target) const
+    {
+        if(sourceStart == sourceEnd)
+        {
+            target = L"";
+        }
+        else
+        {
+            //
+            // TODO: consider reimplementing without the wstring_convert helper
+            // to improve performance
+            // Note that wstring_convert is "stateful" and cannot be a shared data member
+            //
+            wstring_convert<CodeCvt> convert;
+
+            try
+            {
+                target = convert.from_bytes(reinterpret_cast<const char*>(sourceStart),
+                                            reinterpret_cast<const char*>(sourceEnd));
+            }
+            catch(const std::range_error& ex)
+            {
+                throw IllegalConversionException(__FILE__, __LINE__, ex.what());
+            }
+        }
+    }
+
+private:
+
+    typedef SelectCodeCvt<sizeof(wchar_t)>::Type CodeCvt;
+    const CodeCvt _codecvt;
+};
+
+#else
+
+class UnicodeWstringConverter : public WstringConverter
+{
+public:
+
+    virtual Byte* toUTF8(const wchar_t* sourceStart, const wchar_t* sourceEnd, UTF8Buffer& buffer) const
+    {
+        if(sourceStart == sourceEnd)
+        {
+            return buffer.getMoreBytes(1, 0);
+        }
+
+        Byte* targetStart = 0;
+        Byte* targetEnd = 0;
+
+        //
+        // The number of bytes we request from buffer for each remaining source character
+        //
+        size_t factor = 2;
+
+        do
+        {
+            assert(factor <= 4);
+            const size_t chunkSize = std::max<size_t>((sourceEnd - sourceStart) * factor, 4);
+            ++factor; // at the next round, we'll allocate more bytes per remaining source character
+
+            targetStart = buffer.getMoreBytes(chunkSize, targetStart);
+            targetEnd = targetStart + chunkSize;
+
+        }
+        while(convertUTFWstringToUTF8(sourceStart, sourceEnd, targetStart, targetEnd) == false);
+
+        return targetStart;
+    }
+
+
+    virtual void fromUTF8(const Byte* sourceStart, const Byte* sourceEnd, wstring& target) const
+    {
+        if(sourceStart == sourceEnd)
+        {
+            target = L"";
+        }
+        else
+        {
+            convertUTF8ToUTFWstring(sourceStart, sourceEnd, target);
+        }
+    }
+};
+
+#endif
+
+#ifdef _WIN32
+
+//
+// Converts to/from UTF-8 using MultiByteToWideChar and WideCharToMultiByte
+//
+class WindowsStringConverter : public StringConverter
+{
+public:
+
+    explicit WindowsStringConverter(unsigned int);
+
+    virtual Byte* toUTF8(const char*, const char*, UTF8Buffer&) const;
+
+    virtual void fromUTF8(const Byte*, const Byte*, string& target) const;
+
+private:
+    unsigned int _cp;
+};
+#endif
+
+
 class Init
 {
 public:
@@ -32,6 +266,9 @@ public:
     Init()
     {
         processStringConverterMutex = new IceUtil::Mutex;
+#ifndef ICE_HAS_THREAD_SAFE_LOCAL_STATIC
+        unicodeWstringConverter = ICE_MAKE_SHARED(UnicodeWstringConverter);
+#endif
     }
 
     ~Init()
@@ -43,10 +280,16 @@ public:
 
 Init init;
 
+
+const WstringConverterPtr&
+getUnicodeWstringConverter()
+{
+#ifdef ICE_HAS_THREAD_SAFE_LOCAL_STATIC
+    static const WstringConverterPtr unicodeWstringConverter = ICE_MAKE_SHARED(UnicodeWstringConverter);
+#endif
+    return unicodeWstringConverter;
 }
 
-namespace
-{
 
 class UTF8BufferI : public UTF8Buffer
 {
@@ -68,18 +311,27 @@ public:
         if(_buffer == 0)
         {
             _buffer = static_cast<Byte*>(malloc(howMany));
+            if(!_buffer)
+            {
+                throw std::bad_alloc();
+            }
         }
         else
         {
             assert(firstUnused != 0);
             _offset = firstUnused - _buffer;
-            _buffer = static_cast<Byte*>(realloc(_buffer, _offset + howMany));
+            Byte* newBuffer = static_cast<Byte*>(realloc(_buffer, _offset + howMany));
+            if(!newBuffer)
+            {
+                reset();
+                throw std::bad_alloc();
+            }
+            else
+            {
+                _buffer = newBuffer;
+            }
         }
-        
-        if(!_buffer)
-        {
-            throw std::bad_alloc();
-        }
+
         return _buffer + _offset;
     }
 
@@ -94,93 +346,12 @@ public:
         _buffer = 0;
         _offset = 0;
     }
-    
+
 private:
 
-    IceUtil::Byte* _buffer;
+    Byte* _buffer;
     size_t _offset;
 };
-
-}
-
-
-
-UnicodeWstringConverter::UnicodeWstringConverter(ConversionFlags flags) :
-    _conversionFlags(flags)
-{
-}
-
-Byte* 
-UnicodeWstringConverter::toUTF8(const wchar_t* sourceStart, 
-                                const wchar_t* sourceEnd,
-                                UTF8Buffer& buffer) const
-{
-    //
-    // The "chunk size" is the maximum of the number of characters in the
-    // source and 6 (== max bytes necessary to encode one Unicode character).
-    //
-    size_t chunkSize = std::max<size_t>(static_cast<size_t>(sourceEnd - sourceStart), 6);
-
-    Byte* targetStart = buffer.getMoreBytes(chunkSize, 0);
-    Byte* targetEnd = targetStart + chunkSize;
-
-    ConversionResult result;
-
-    while((result =
-          convertUTFWstringToUTF8(sourceStart, sourceEnd, 
-                                  targetStart, targetEnd, _conversionFlags))
-          == targetExhausted)
-    {
-        targetStart = buffer.getMoreBytes(chunkSize, targetStart);
-        targetEnd = targetStart + chunkSize;
-    }
-    
-    switch(result)
-    {
-        case conversionOK:
-            break;
-        case sourceExhausted:
-            throw IceUtil::IllegalConversionException(__FILE__, __LINE__, "wide string source exhausted");
-        case sourceIllegal:
-            throw IceUtil::IllegalConversionException(__FILE__, __LINE__, "wide string source illegal");
-        default:
-        {
-            assert(0);
-            throw IceUtil::IllegalConversionException(__FILE__, __LINE__);
-        }
-    }
-    return targetStart;
-}
-
-
-void 
-UnicodeWstringConverter::fromUTF8(const Byte* sourceStart, const Byte* sourceEnd,
-                                  wstring& target) const
-{
-    if(sourceStart == sourceEnd)
-    {
-        target = L"";
-        return;
-    }
-
-    ConversionResult result = 
-        convertUTF8ToUTFWstring(sourceStart, sourceEnd, target, _conversionFlags);
-
-    switch(result)
-    {
-        case conversionOK:
-            break;
-        case sourceExhausted:
-            throw IceUtil::IllegalConversionException(__FILE__, __LINE__, "UTF-8 string source exhausted");
-        case sourceIllegal:
-            throw IceUtil::IllegalConversionException(__FILE__, __LINE__, "UTF-8 string source illegal");
-        default:
-        {
-            assert(0);
-            throw IceUtil::IllegalConversionException(__FILE__, __LINE__);
-        }
-    }
-}
 
 #ifdef _WIN32
 WindowsStringConverter::WindowsStringConverter(unsigned int cp) :
@@ -205,16 +376,16 @@ WindowsStringConverter::toUTF8(const char* sourceStart,
     int size = 0;
     int writtenWchar = 0;
     ScopedArray<wchar_t> wbuffer;
-    
+
     //
     // The following code pages doesn't support MB_ERR_INVALID_CHARS flag
     // see http://msdn.microsoft.com/en-us/library/windows/desktop/dd319072(v=vs.85).aspx
     //
     DWORD flags =
         (_cp == 50220 || _cp == 50221 || _cp == 50222 ||
-         _cp == 50225 || _cp == 50227 || _cp == 50229 || 
+         _cp == 50225 || _cp == 50227 || _cp == 50229 ||
          _cp == 65000 || _cp == 42 || (_cp >= 57002 && _cp <= 57011)) ? 0 : MB_ERR_INVALID_CHARS;
-    
+
     do
     {
         size = size == 0 ? sourceSize + 2 : 2 * size;
@@ -232,7 +403,7 @@ WindowsStringConverter::toUTF8(const char* sourceStart,
     //
     // Then convert this UTF-16 wbuffer into UTF-8
     //
-    return _unicodeWstringConverter.toUTF8(wbuffer.get(), wbuffer.get() + writtenWchar, buffer);
+    return getUnicodeWstringConverter()->toUTF8(wbuffer.get(), wbuffer.get() + writtenWchar, buffer);
 }
 
 void
@@ -256,7 +427,7 @@ WindowsStringConverter::fromUTF8(const Byte* sourceStart, const Byte* sourceEnd,
     // First convert to wstring (UTF-16)
     //
     wstring wtarget;
-    _unicodeWstringConverter.fromUTF8(sourceStart, sourceEnd, wtarget);
+    getUnicodeWstringConverter()->fromUTF8(sourceStart, sourceEnd, wtarget);
 
     //
     // WC_ERR_INVALID_CHARS conversion flag is only supported with 65001 (UTF-8) and
@@ -284,7 +455,23 @@ WindowsStringConverter::fromUTF8(const Byte* sourceStart, const Byte* sourceEnd,
 
     target.assign(buffer.get(), writtenChar);
 }
+#endif
 
+}
+
+
+WstringConverterPtr
+IceUtil::createUnicodeWstringConverter()
+{
+    return getUnicodeWstringConverter();
+}
+
+#ifdef _WIN32
+StringConverterPtr
+IceUtil::createWindowsStringConverter(unsigned int cp)
+{
+    return ICE_MAKE_SHARED(WindowsStringConverter, cp);
+}
 #endif
 
 
@@ -298,8 +485,8 @@ IceUtil::getProcessStringConverter()
 void
 IceUtil::setProcessStringConverter(const StringConverterPtr& converter)
 {
-   IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(processStringConverterMutex);
-   processStringConverter = converter;
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(processStringConverterMutex);
+    processStringConverter = converter;
 }
 
 WstringConverterPtr
@@ -312,61 +499,33 @@ IceUtil::getProcessWstringConverter()
 void
 IceUtil::setProcessWstringConverter(const WstringConverterPtr& converter)
 {
-   IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(processStringConverterMutex);
-   processWstringConverter = converter;
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(processStringConverterMutex);
+    processWstringConverter = converter;
 }
 
 string
-IceUtil::wstringToString(const wstring& v, const StringConverterPtr& converter, const WstringConverterPtr& wConverter,
-                         IceUtil::ConversionFlags flags)
+IceUtil::wstringToString(const wstring& v, const StringConverterPtr& converter, const WstringConverterPtr& wConverter)
 {
     string target;
     if(!v.empty())
     {
-        //
-        // First convert to UTF8 narrow string.
-        //
-        if(wConverter)
-        {
-            UTF8BufferI buffer;
-            Byte* last = wConverter->toUTF8(v.data(), v.data() + v.size(), buffer);
-            target = string(reinterpret_cast<const char*>(buffer.getBuffer()), last - buffer.getBuffer());
-        }
-        else
-        {
-            size_t size = v.size() * 4 * sizeof(char);
-
-            Byte* outBuf = new Byte[size];
-            Byte* targetStart = outBuf; 
-            Byte* targetEnd = outBuf + size;
-
-            const wchar_t* sourceStart = v.data();
-  
-            ConversionResult cr = 
-                convertUTFWstringToUTF8(
-                    sourceStart, sourceStart + v.size(), 
-                    targetStart, targetEnd, flags);
-                
-            if(cr != conversionOK)
-            {
-                delete[] outBuf;
-                assert(cr == sourceExhausted || cr == sourceIllegal);
-                throw IllegalConversionException(__FILE__, __LINE__, 
-                                                 cr == sourceExhausted ? "partial character" : "bad encoding");
-            }
-            
-            target = string(reinterpret_cast<char*>(outBuf), static_cast<size_t>(targetStart - outBuf));
-            delete[] outBuf;
-        }
+        const WstringConverterPtr& wConverterWithDefault = wConverter ? wConverter : getUnicodeWstringConverter();
 
         //
-        // If narrow string converter is present convert to the native narrow string encoding, otherwise 
+        // First convert to UTF-8 narrow string.
+        //
+        UTF8BufferI buffer;
+        Byte* last = wConverterWithDefault->toUTF8(v.data(), v.data() + v.size(), buffer);
+        target = string(reinterpret_cast<const char*>(buffer.getBuffer()), last - buffer.getBuffer());
+
+        //
+        // If narrow string converter is present convert to the native narrow string encoding, otherwise
         // native narrow string encoding is UTF8 and we are done.
         //
         if(converter)
         {
             string tmp;
-            converter->fromUTF8(reinterpret_cast<const Byte*>(target.data()), 
+            converter->fromUTF8(reinterpret_cast<const Byte*>(target.data()),
                                 reinterpret_cast<const Byte*>(target.data() + target.size()), tmp);
             tmp.swap(target);
         }
@@ -375,8 +534,8 @@ IceUtil::wstringToString(const wstring& v, const StringConverterPtr& converter, 
 }
 
 wstring
-IceUtil::stringToWstring(const string& v, const StringConverterPtr& converter, 
-                         const WstringConverterPtr& wConverter, IceUtil::ConversionFlags flags)
+IceUtil::stringToWstring(const string& v, const StringConverterPtr& converter,
+                         const WstringConverterPtr& wConverter)
 {
     wstring target;
     if(!v.empty())
@@ -397,29 +556,14 @@ IceUtil::stringToWstring(const string& v, const StringConverterPtr& converter,
             tmp = v;
         }
 
-        //
-        // If there is a wide string converter use fromUTF8 to convert to the wide string native encoding.
-        //
-        if(wConverter)
-        {
-            wConverter->fromUTF8(reinterpret_cast<const Byte*>(tmp.data()), 
-                                 reinterpret_cast<const Byte*>(tmp.data() + tmp.size()), target);
-        }
-        else
-        {
-            const Byte* sourceStart = reinterpret_cast<const Byte*>(tmp.data());
-            
-            ConversionResult cr = 
-                convertUTF8ToUTFWstring(sourceStart, sourceStart + tmp.size(), target, flags);
+        const WstringConverterPtr& wConverterWithDefault = wConverter ? wConverter : getUnicodeWstringConverter();
 
-            if(cr != conversionOK)
-            {
-                assert(cr == sourceExhausted || cr == sourceIllegal);
+        //
+        // Convert from UTF-8 to the wide string encoding
+        //
+        wConverterWithDefault->fromUTF8(reinterpret_cast<const Byte*>(tmp.data()),
+                                        reinterpret_cast<const Byte*>(tmp.data() + tmp.size()), target);
 
-                throw IllegalConversionException(__FILE__, __LINE__,
-                                                 cr == sourceExhausted ? "partial character" : "bad encoding");
-            }
-        }
     }
     return target;
 }
@@ -430,7 +574,7 @@ IceUtil::nativeToUTF8(const string& str, const IceUtil::StringConverterPtr& conv
     if(!converter || str.empty())
     {
         return str;
-    }    
+    }
     UTF8BufferI buffer;
     Byte* last = converter->toUTF8(str.data(), str.data() + str.size(), buffer);
     return string(reinterpret_cast<const char*>(buffer.getBuffer()), last - buffer.getBuffer());
@@ -447,4 +591,126 @@ IceUtil::UTF8ToNative(const string& str, const IceUtil::StringConverterPtr& conv
     converter->fromUTF8(reinterpret_cast<const Byte*>(str.data()),
                         reinterpret_cast<const Byte*>(str.data() + str.size()), tmp);
     return tmp;
+}
+
+#ifdef ICE_HAS_CODECVT_UTF8
+
+#if defined(_MSC_VER) && (_MSC_VER == 1900)
+//
+// Workaround for compiler bug - see http://stackoverflow.com/questions/32055357
+//
+typedef unsigned short Char16T;
+typedef unsigned int Char32T;
+
+#else
+typedef char16_t Char16T;
+typedef char32_t Char32T;
+#endif
+
+#endif
+
+
+vector<unsigned short>
+IceUtilInternal::toUTF16(const vector<Byte>& source)
+{
+    vector<unsigned short> result;
+    if(!source.empty())
+    {
+
+#ifdef ICE_HAS_CODECVT_UTF8
+    assert(sizeof(Char16T) == sizeof(unsigned short));
+
+#ifdef ICE_LITTLE_ENDIAN
+    typedef wstring_convert<codecvt_utf8_utf16<Char16T, 0x10ffff, little_endian>, Char16T> Convert;
+#else
+    typedef wstring_convert<codecvt_utf8_utf16<Char16T>, Char16T> Convert;
+#endif
+
+    Convert convert;
+
+    try
+    {
+        Convert::wide_string ws = convert.from_bytes(reinterpret_cast<const char*>(&source.front()),
+                                                     reinterpret_cast<const char*>(&source.front() + source.size()));
+
+        result = vector<unsigned short>(reinterpret_cast<const unsigned short*>(ws.data()),
+                                        reinterpret_cast<const unsigned short*>(ws.data()) + ws.length());
+    }
+    catch(const std::range_error& ex)
+    {
+        throw IllegalConversionException(__FILE__, __LINE__, ex.what());
+    }
+
+#else
+    convertUTF8ToUTF16(source, result);
+#endif
+    }
+    return result;
+}
+
+vector<unsigned int>
+IceUtilInternal::toUTF32(const vector<Byte>& source)
+{
+    vector<unsigned int> result;
+    if(!source.empty())
+    {
+
+#ifdef ICE_HAS_CODECVT_UTF8
+    assert(sizeof(Char32T) == sizeof(unsigned int));
+
+    typedef wstring_convert<codecvt_utf8<Char32T>, Char32T> Convert;
+    Convert convert;
+
+    try
+    {
+        Convert::wide_string ws = convert.from_bytes(reinterpret_cast<const char*>(&source.front()),
+                                                     reinterpret_cast<const char*>(&source.front() + source.size()));
+
+        result = vector<unsigned int>(reinterpret_cast<const unsigned int*>(ws.data()),
+                                      reinterpret_cast<const unsigned int*>(ws.data()) + ws.length());
+    }
+    catch(const std::range_error& ex)
+    {
+        throw IllegalConversionException(__FILE__, __LINE__, ex.what());
+    }
+
+#else
+    convertUTF8ToUTF32(source, result);
+#endif
+    }
+    return result;
+}
+
+
+vector<Byte>
+IceUtilInternal::fromUTF32(const vector<unsigned int>& source)
+{
+    vector<Byte> result;
+    if(!source.empty())
+    {
+
+#ifdef ICE_HAS_CODECVT_UTF8
+    assert(sizeof(Char32T) == sizeof(unsigned int));
+
+    typedef wstring_convert<codecvt_utf8<Char32T>, Char32T> Convert;
+    Convert convert;
+
+    try
+    {
+        Convert::byte_string bs = convert.to_bytes(reinterpret_cast<const Char32T*>(&source.front()),
+                                                   reinterpret_cast<const Char32T*>(&source.front() + source.size()));
+
+        result = vector<Byte>(reinterpret_cast<const Byte*>(bs.data()),
+                              reinterpret_cast<const Byte*>(bs.data()) + bs.length());
+        }
+    catch(const std::range_error& ex)
+    {
+        throw IllegalConversionException(__FILE__, __LINE__, ex.what());
+    }
+
+#else
+    convertUTF32ToUTF8(source, result);
+#endif
+    }
+    return result;
 }

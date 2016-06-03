@@ -42,9 +42,9 @@ main(int argc, char* argv[])
     // 28605 == ISO 8859-15 codepage
     //
     SetConsoleOutputCP(28605);
-    IceUtil::setProcessStringConverter(new IceUtil::WindowsStringConverter(1250));
+    IceUtil::setProcessStringConverter(IceUtil::createWindowsStringConverter(1250));
 #else
-    IceUtil::setProcessStringConverter(new IceUtil::IconvStringConverter<char>("ISO8859-15"));
+    IceUtil::setProcessStringConverter(IceUtil::createIconvStringConverter<char>("ISO8859-15"));
 #endif
     Ice::InitializationData id;
     id.properties = Ice::createProperties();

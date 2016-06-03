@@ -25,7 +25,7 @@
 #   define ICE_CONST_ICONV_INBUF 1
 #endif
 
-namespace IceUtil
+namespace IceUtilInternal
 {
 
 //
@@ -36,7 +36,7 @@ namespace IceUtil
 //
 //
 template<typename charT>
-class IconvStringConverter : public BasicStringConverter<charT>
+class IconvStringConverter : public IceUtil::BasicStringConverter<charT>
 {
 public:
 
@@ -44,10 +44,10 @@ public:
 
     virtual ~IconvStringConverter();
 
-    virtual Byte* toUTF8(const charT*, const charT*, UTF8Buffer&) const;
-    
-    virtual void fromUTF8(const Byte*, const Byte*, std::basic_string<charT>&) const;
-    
+    virtual IceUtil::Byte* toUTF8(const charT*, const charT*, IceUtil::UTF8Buffer&) const;
+
+    virtual void fromUTF8(const IceUtil::Byte*, const IceUtil::Byte*, std::basic_string<charT>&) const;
+
 private:
 
     std::pair<iconv_t, iconv_t> createDescriptors() const;
@@ -82,9 +82,9 @@ IconvStringConverter<charT>::IconvStringConverter(const char* internalCode) :
     {
         close(createDescriptors());
     }
-    catch(const IllegalConversionException& sce)
+    catch(const IceUtil::IllegalConversionException& sce)
     {
-        throw IconvInitializationException(__FILE__, __LINE__, sce.reason());
+        throw IceUtil::IconvInitializationException(__FILE__, __LINE__, sce.reason());
     }
 
     //
@@ -98,7 +98,7 @@ IconvStringConverter<charT>::IconvStringConverter(const char* internalCode) :
 
     if(rs != 0)
     {
-        throw ThreadSyscallException(__FILE__, __LINE__, rs);
+        throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, rs);
     }
 }
 
@@ -128,16 +128,16 @@ IconvStringConverter<charT>::createDescriptors() const
     {
         std::ostringstream os;
         os << "iconv cannot convert from " << externalCode << " to " << _internalCode;
-        throw IllegalConversionException(__FILE__, __LINE__, os.str());
+        throw IceUtil::IllegalConversionException(__FILE__, __LINE__, os.str());
     }
-    
+
     cdp.second = iconv_open(externalCode, _internalCode.c_str());
     if(cdp.second == iconv_t(-1))
     {
         iconv_close(cdp.first);
         std::ostringstream os;
         os << "iconv cannot convert from " << _internalCode << " to " << externalCode;
-        throw IllegalConversionException(__FILE__, __LINE__, os.str());
+        throw IceUtil::IllegalConversionException(__FILE__, __LINE__, os.str());
     }
     return cdp;
 }
@@ -156,7 +156,7 @@ IconvStringConverter<charT>::getDescriptors() const
         int rs = pthread_setspecific(_key, new std::pair<iconv_t, iconv_t>(cdp));
         if(rs != 0)
         {
-            throw ThreadSyscallException(__FILE__, __LINE__, rs);
+            throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, rs);
         }
         return cdp;
     }
@@ -185,12 +185,14 @@ IconvStringConverter<charT>::close(std::pair<iconv_t, iconv_t> cdp)
     iconv_close(cdp.second);
 #endif
 }
- 
-template<typename charT> Byte* 
-IconvStringConverter<charT>::toUTF8(const charT* sourceStart, const charT* sourceEnd, UTF8Buffer& buf) const
-{ 
+
+template<typename charT> IceUtil::Byte*
+IconvStringConverter<charT>::toUTF8(const charT* sourceStart,
+                                    const charT* sourceEnd,
+                                    IceUtil::UTF8Buffer& buf) const
+{
     iconv_t cd = getDescriptors().second;
-    
+
     //
     // Reset cd
     //
@@ -208,31 +210,34 @@ IconvStringConverter<charT>::toUTF8(const charT* sourceStart, const charT* sourc
 #endif
     size_t inbytesleft = (sourceEnd - sourceStart) * sizeof(charT);
     char* outbuf  = 0;
-  
-    size_t count = 0; 
+
+    size_t count = 0;
     //
     // Loop while we need more buffer space
     //
     do
     {
         size_t howMany = std::max(inbytesleft, size_t(4));
-        outbuf = reinterpret_cast<char*>(buf.getMoreBytes(howMany, reinterpret_cast<Byte*>(outbuf)));
+        outbuf = reinterpret_cast<char*>(buf.getMoreBytes(howMany,
+                                                          reinterpret_cast<IceUtil::Byte*>(outbuf)));
         count = iconv(cd, &inbuf, &inbytesleft, &outbuf, &howMany);
     } while(count == size_t(-1) && errno == E2BIG);
 
     if(count == size_t(-1))
     {
-        throw IllegalConversionException(__FILE__, __LINE__, errno != 0 ? strerror(errno) : "Unknown error");
+        throw IceUtil::IllegalConversionException(__FILE__,
+                                                  __LINE__,
+                                                  errno != 0 ? strerror(errno) : "Unknown error");
     }
-    return reinterpret_cast<Byte*>(outbuf);
+    return reinterpret_cast<IceUtil::Byte*>(outbuf);
 }
-  
+
 template<typename charT> void
-IconvStringConverter<charT>::fromUTF8(const Byte* sourceStart, const Byte* sourceEnd,
+IconvStringConverter<charT>::fromUTF8(const IceUtil::Byte* sourceStart, const IceUtil::Byte* sourceEnd,
                                       std::basic_string<charT>& target) const
 {
     iconv_t cd = getDescriptors().first;
-    
+
     //
     // Reset cd
     //
@@ -246,7 +251,7 @@ IconvStringConverter<charT>::fromUTF8(const Byte* sourceStart, const Byte* sourc
 #ifdef ICE_CONST_ICONV_INBUF
     const char* inbuf = reinterpret_cast<const char*>(sourceStart);
 #else
-    char* inbuf = reinterpret_cast<char*>(const_cast<Byte*>(sourceStart));
+    char* inbuf = reinterpret_cast<char*>(const_cast<IceUtil::Byte*>(sourceStart));
 #endif
     size_t inbytesleft = sourceEnd - sourceStart;
 
@@ -273,28 +278,42 @@ IconvStringConverter<charT>::fromUTF8(const Byte* sourceStart, const Byte* sourc
         if(newbuf == 0)
         {
             free(buf);
-            throw IllegalConversionException(__FILE__, __LINE__, "Out of memory");
+            throw IceUtil::IllegalConversionException(__FILE__, __LINE__, "Out of memory");
         }
 
         outbuf = newbuf + (outbuf - buf);
         outbytesleft += increment;
 
         buf = newbuf;
-        
+
         count = iconv(cd, &inbuf, &inbytesleft, &outbuf, &outbytesleft);
     } while(count == size_t(-1) && errno == E2BIG);
 
     if(count == size_t(-1))
     {
         free(buf);
-        throw IllegalConversionException(__FILE__, __LINE__, errno != 0 ? strerror(errno) : "Unknown error");
+        throw IceUtil::IllegalConversionException(__FILE__,
+						  __LINE__,
+						  errno != 0 ? strerror(errno) : "Unknown error");
     }
-    
+
     size_t length = (bufsize - outbytesleft) / sizeof(charT);
-    
+
     std::basic_string<charT> result(reinterpret_cast<charT*>(buf), length);
     target.swap(result);
     free(buf);
+}
+
+}
+
+namespace IceUtil
+{
+
+template<typename charT>
+ICE_HANDLE <BasicStringConverter<charT> >
+createIconvStringConverter(const char* internalCode = nl_langinfo(CODESET))
+{
+    return ICE_MAKE_SHARED(IceUtilInternal::IconvStringConverter<charT>, internalCode);
 }
 
 }

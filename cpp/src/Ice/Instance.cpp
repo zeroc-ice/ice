@@ -1003,12 +1003,15 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 
 #ifdef NDEBUG
                 if(_initData.properties->getPropertyAsIntWithDefault("Ice.PrintStackTraces", 0) > 0)
-#else
-                if(_initData.properties->getPropertyAsIntWithDefault("Ice.PrintStackTraces", 1) > 0)
-#endif
                 {
                     IceUtilInternal::printStackTraces = true;
                 }
+#else
+                if(_initData.properties->getPropertyAsIntWithDefault("Ice.PrintStackTraces", 1) == 0)
+                {
+                    IceUtilInternal::printStackTraces = false;
+                }
+#endif
 
 #ifndef _WIN32
                 string newUser = _initData.properties->getProperty("Ice.ChangeUser");
@@ -1250,7 +1253,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         //
         if(!_wstringConverter)
         {
-            _wstringConverter = new IceUtil::UnicodeWstringConverter;
+            _wstringConverter = IceUtil::createUnicodeWstringConverter();
         }
 
         __setNoDelete(false);
@@ -1346,9 +1349,9 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[], const Ice::Communica
     {
         _wstringConverter = newWstringConverter;
     }
-    else if(!dynamic_cast<IceUtil::UnicodeWstringConverter*>(_wstringConverter.get()))
+    else
     {
-        _wstringConverter = new IceUtil::UnicodeWstringConverter;
+        _wstringConverter = IceUtil::createUnicodeWstringConverter();
     }
 
     //

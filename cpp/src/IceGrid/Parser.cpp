@@ -2923,7 +2923,7 @@ Parser::Parser(const CommunicatorPtr& communicator,
 #ifdef _WIN32
     if(!windowsConsoleConverter)
     {
-        windowsConsoleConverter = new IceUtil::WindowsStringConverter(GetConsoleOutputCP());
+        windowsConsoleConverter = IceUtil::createWindowsStringConverter(GetConsoleOutputCP());
     }
 #endif
 }

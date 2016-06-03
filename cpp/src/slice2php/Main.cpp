@@ -16,7 +16,7 @@
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
-#include <IceUtil/Unicode.h>
+#include <IceUtil/StringConverter.h>
 #include <Slice/Checksum.h>
 #include <Slice/Preprocessor.h>
 #include <Slice/FileTracker.h>
@@ -393,10 +393,10 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << nl << "return $proxy->ice_uncheckedCast('" << scoped << "', $facet);";
         _out << eb;
 
-	_out << sp << nl << "public static function ice_staticId()";
-	_out << sb;
-	_out << nl << "return '" << scoped << "';";
-	_out << eb;
+        _out << sp << nl << "public static function ice_staticId()";
+        _out << sb;
+        _out << nl << "return '" << scoped << "';";
+        _out << eb;
 
         _out << eb;
     }
@@ -1327,23 +1327,7 @@ CodeVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePtr& va
                             vector<unsigned int> u32buffer;
                             u32buffer.push_back(static_cast<unsigned int>(v));
 
-                            vector<unsigned char> u8buffer;
-
-                            IceUtilInternal::ConversionResult result = convertUTF32ToUTF8(u32buffer, u8buffer, IceUtil::lenientConversion);
-                            switch(result)
-                            {
-                                case conversionOK:
-                                    break;
-                                case sourceExhausted:
-                                    throw IceUtil::IllegalConversionException(__FILE__, __LINE__, "string source exhausted");
-                                case sourceIllegal:
-                                    throw IceUtil::IllegalConversionException(__FILE__, __LINE__, "string source illegal");
-                                default:
-                                {
-                                    assert(0);
-                                    throw IceUtil::IllegalConversionException(__FILE__, __LINE__);
-                                }
-                            }
+                            vector<unsigned char> u8buffer = fromUTF32(u32buffer);
 
                             ostringstream s;
                             for(vector<unsigned char>::const_iterator q = u8buffer.begin(); q != u8buffer.end(); ++q)

@@ -74,7 +74,12 @@ using namespace std;
 namespace IceUtilInternal
 {
 
+#ifdef NDEBUG 
 bool ICE_API printStackTraces = false;
+#else
+bool ICE_API printStackTraces = true;
+#endif
+
 bool ICE_API nullHandleAbort = false;
 
 StackTraceImpl
@@ -477,7 +482,7 @@ getStackTrace(const vector<void*>& stackFrames)
 	    {
 		s << " at "
 #ifdef DBGHELP_TRANSLATE_TCHAR
-		  << IceUtil::wstringToString(line.FileName, converter)
+                  << IceUtil::wstringToString(line.FileName, converter)
 #else
 		  << line.FileName
 #endif

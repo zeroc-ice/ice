@@ -47,9 +47,15 @@
 
 ------------------------------------------------------------------------ */
 
+#include <IceUtil/Config.h>
+
+#ifndef ICE_HAS_CODECVT_UTF8
+//
+// It's better to exclude the file from the build, but it's not always
+// easy to do.
+//
 
 #include <IceUtil/ConvertUTF.h>
-#include <IceUtil/StringConverter.h>
 
 #ifdef CVTUTF_DEBUG
 #include <stdio.h>
@@ -439,12 +445,7 @@ ConversionResult ConvertUTF8toUTF32 (
     similarly unrolled loops.
 
    --------------------------------------------------------------------- */
-}
 
-namespace IceUtil
-{
-
-using namespace IceUtilInternal;
 
 /* --------------------------------------------------------------------- */
 
@@ -473,5 +474,6 @@ Boolean isLegalUTF8Sequence(const UTF8 *source, const UTF8 *sourceEnd) {
         }
     }
 }
-
 }
+
+#endif

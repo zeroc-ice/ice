@@ -19,7 +19,11 @@ endif
 Ice_sliceflags		:= --include-dir Ice --dll-export ICE_API
 Ice_libs		:= bz2
 Ice_extra_sources       := $(wildcard src/IceUtil/*.cpp)
-Ice_excludes		:= $(currentdir)/DLLMain.cpp
+Ice_excludes		= src/Ice/DLLMain.cpp
+
+ifeq ($(os),Darwin)
+Ice_excludes            += src/IceUtil/ConvertUTF.cpp src/IceUtil/Unicode.cpp
+endif
 
 Ice[iphoneos]_extra_sources 		:= $(wildcard $(addprefix $(currentdir)/ios/,*.cpp *.mm))
 Ice[iphoneos]_excludes	 		:= $(currentdir)/RegisterPluginsInit.cpp

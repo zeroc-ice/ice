@@ -61,7 +61,7 @@ Ice::LoggerI::LoggerI(const string& prefix, const string& file,
     _convert(convert),
     _converter(converter),
 #if defined(_WIN32) && !defined(ICE_OS_WINRT)
-    _consoleConverter(new IceUtil::WindowsStringConverter(GetConsoleOutputCP())),
+    _consoleConverter(IceUtil::createWindowsStringConverter(GetConsoleOutputCP())),
 #endif
     _sizeMax(sizeMax)
 {
