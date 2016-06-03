@@ -278,17 +278,18 @@ ICECPPFLAGS		= -I$(slicedir)
 
 SLICE2CPPFLAGS		= $(ICECPPFLAGS)
 
+LDFLAGS += $(LDPLATFORMFLAGS) $(CXXFLAGS)
+
 ifeq ($(ice_dir), $(usr_dir))
-    LDFLAGS		= $(LDPLATFORMFLAGS) $(CXXFLAGS)
     ifeq ($(CPP11),yes)
-        LDFLAGS = $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(ice_dir)/$(libsubdir)$(cpp11libdirsuffix)
+        LDFLAGS += -L$(ice_dir)/$(libsubdir)$(cpp11libdirsuffix)
     endif
 else
     CPPFLAGS	+= -I$(includedir)
     ifdef ice_src_dist
-	LDFLAGS	= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir)$(cpp11libdirsuffix)
+	LDFLAGS += -L$(libdir)$(cpp11libdirsuffix)
     else
-	LDFLAGS	= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(ice_dir)/$(libsubdir)$(cpp11libdirsuffix)
+	LDFLAGS	+= -L$(ice_dir)/$(libsubdir)$(cpp11libdirsuffix)
     endif
 endif
 
