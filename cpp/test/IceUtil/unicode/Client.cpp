@@ -206,7 +206,8 @@ main(int argc, char* argv[])
 
 	string ns = IceUtil::wstringToString(ws);
 
-	test(ns.length() == 10);
+	const string good = "\xE2\x82\xAC\xE2\x82\xAC\xF0\x90\x90\xB7";
+	test(ns == good);
 	test(ws == IceUtil::stringToWstring(ns));
 
 	cout << "ok" << endl;
