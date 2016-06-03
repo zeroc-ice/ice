@@ -120,7 +120,8 @@ uploadArchives {
 
 clean {
     delete("${libDir}/${jar.archiveName}")
-    delete("${libDir}/${project.name}-${project.version}-source.jar")
+    delete("${libDir}/${project.name}-${project.version}-doc.jar")
+    delete("${libDir}/${project.name}-${project.version}-sources.jar")
     delete(pomName)
 }
 
