@@ -43,11 +43,7 @@ struct SelectCodeCvt;
 template<>
 struct SelectCodeCvt<2>
 {
-#ifdef ICE_LITTLE_ENDIAN
-    typedef std::codecvt_utf8_utf16<wchar_t, 0x10ffff, little_endian> Type;
-#else
     typedef std::codecvt_utf8_utf16<wchar_t> Type;
-#endif
 };
 
 template<>
@@ -155,28 +151,35 @@ public:
 
     virtual void fromUTF8(const Byte* sourceStart, const Byte* sourceEnd, wstring& target) const
     {
-        if(sourceStart == sourceEnd)
+        const size_t sourceSize = sourceEnd - sourceStart;
+
+        if(sourceSize == 0)
         {
             target = L"";
         }
         else
         {
-            //
-            // TODO: consider reimplementing without the wstring_convert helper
-            // to improve performance
-            // Note that wstring_convert is "stateful" and cannot be a shared data member
-            //
-            wstring_convert<CodeCvt> convert;
+            target.resize(sourceSize);
+            wchar_t* targetStart = const_cast<wchar_t*>(target.data());
+            wchar_t* targetEnd = targetStart + sourceSize;
+            wchar_t* targetNext = targetStart;
 
-            try
+            const char* sourceNext = reinterpret_cast<const char*>(sourceStart);
+
+            mbstate_t state = mbstate_t();
+
+            codecvt_base::result result = _codecvt.in(state,
+                                                      reinterpret_cast<const char*>(sourceStart),
+                                                      reinterpret_cast<const char*>(sourceEnd),
+                                                      sourceNext,
+                                                      targetStart, targetEnd, targetNext);
+
+            if(result != codecvt_base::ok)
             {
-                target = convert.from_bytes(reinterpret_cast<const char*>(sourceStart),
-                                            reinterpret_cast<const char*>(sourceEnd));
+                throw IllegalConversionException(__FILE__, __LINE__, "codecvt.in failure");
             }
-            catch(const std::range_error& ex)
-            {
-                throw IllegalConversionException(__FILE__, __LINE__, ex.what());
-            }
+
+            target.resize(targetNext - targetStart);
         }
     }
 
@@ -215,13 +218,11 @@ public:
 
             targetStart = buffer.getMoreBytes(chunkSize, targetStart);
             targetEnd = targetStart + chunkSize;
-
         }
         while(convertUTFWstringToUTF8(sourceStart, sourceEnd, targetStart, targetEnd) == false);
 
         return targetStart;
     }
-
 
     virtual void fromUTF8(const Byte* sourceStart, const Byte* sourceEnd, wstring& target) const
     {
@@ -290,67 +291,38 @@ getUnicodeWstringConverter()
     return unicodeWstringConverter;
 }
 
-
 class UTF8BufferI : public UTF8Buffer
 {
 public:
 
-    UTF8BufferI() :
-        _buffer(0),
-        _offset(0)
-    {
-    }
-
-    ~UTF8BufferI()
-    {
-        free(_buffer);
-    }
-
+    //
+    // Returns the first unused byte in the resized buffer
+    // 
     Byte* getMoreBytes(size_t howMany, Byte* firstUnused)
     {
-        if(_buffer == 0)
+        size_t bytesUsed = 0;
+        if(firstUnused != 0)
         {
-            _buffer = static_cast<Byte*>(malloc(howMany));
-            if(!_buffer)
-            {
-                throw std::bad_alloc();
-            }
-        }
-        else
-        {
-            assert(firstUnused != 0);
-            _offset = firstUnused - _buffer;
-            Byte* newBuffer = static_cast<Byte*>(realloc(_buffer, _offset + howMany));
-            if(!newBuffer)
-            {
-                reset();
-                throw std::bad_alloc();
-            }
-            else
-            {
-                _buffer = newBuffer;
-            }
+            bytesUsed = firstUnused - reinterpret_cast<const Byte*>(_buffer.data());
         }
 
-        return _buffer + _offset;
+        if(_buffer.size() < howMany + bytesUsed)
+        {
+            _buffer.resize(bytesUsed + howMany);
+        } 
+        
+        return const_cast<Byte*>(reinterpret_cast<const Byte*>(_buffer.data())) + bytesUsed;
     }
 
-    Byte* getBuffer()
+    void swap(string& other, const Byte* tail)
     {
-        return _buffer;
-    }
-
-    void reset()
-    {
-        free(_buffer);
-        _buffer = 0;
-        _offset = 0;
+        assert(tail >= reinterpret_cast<const Byte*>(_buffer.data()));
+        _buffer.resize(tail - reinterpret_cast<const Byte*>(_buffer.data()));
+        other.swap(_buffer);
     }
 
 private:
-
-    Byte* _buffer;
-    size_t _offset;
+    string _buffer;
 };
 
 #ifdef _WIN32
@@ -516,8 +488,8 @@ IceUtil::wstringToString(const wstring& v, const StringConverterPtr& converter, 
         //
         UTF8BufferI buffer;
         Byte* last = wConverterWithDefault->toUTF8(v.data(), v.data() + v.size(), buffer);
-        target = string(reinterpret_cast<const char*>(buffer.getBuffer()), last - buffer.getBuffer());
-
+        buffer.swap(target, last);
+       
         //
         // If narrow string converter is present convert to the native narrow string encoding, otherwise
         // native narrow string encoding is UTF8 and we are done.
@@ -534,8 +506,7 @@ IceUtil::wstringToString(const wstring& v, const StringConverterPtr& converter, 
 }
 
 wstring
-IceUtil::stringToWstring(const string& v, const StringConverterPtr& converter,
-                         const WstringConverterPtr& wConverter)
+IceUtil::stringToWstring(const string& v, const StringConverterPtr& converter, const WstringConverterPtr& wConverter)
 {
     wstring target;
     if(!v.empty())
@@ -549,7 +520,7 @@ IceUtil::stringToWstring(const string& v, const StringConverterPtr& converter,
         {
             UTF8BufferI buffer;
             Byte* last = converter->toUTF8(v.data(), v.data() + v.size(), buffer);
-            tmp = string(reinterpret_cast<const char*>(buffer.getBuffer()), last - buffer.getBuffer());
+            buffer.swap(tmp, last);
         }
         else
         {
@@ -577,7 +548,9 @@ IceUtil::nativeToUTF8(const string& str, const IceUtil::StringConverterPtr& conv
     }
     UTF8BufferI buffer;
     Byte* last = converter->toUTF8(str.data(), str.data() + str.size(), buffer);
-    return string(reinterpret_cast<const char*>(buffer.getBuffer()), last - buffer.getBuffer());
+    string result;
+    buffer.swap(result, last);
+    return result;
 }
 
 string
@@ -620,11 +593,7 @@ IceUtilInternal::toUTF16(const vector<Byte>& source)
 #ifdef ICE_HAS_CODECVT_UTF8
     assert(sizeof(Char16T) == sizeof(unsigned short));
 
-#ifdef ICE_LITTLE_ENDIAN
-    typedef wstring_convert<codecvt_utf8_utf16<Char16T, 0x10ffff, little_endian>, Char16T> Convert;
-#else
     typedef wstring_convert<codecvt_utf8_utf16<Char16T>, Char16T> Convert;
-#endif
 
     Convert convert;
 
