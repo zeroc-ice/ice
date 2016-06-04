@@ -255,15 +255,8 @@ IconvStringConverter<charT>::fromUTF8(const IceUtil::Byte* sourceStart, const Ic
 #endif
     size_t inbytesleft = sourceEnd - sourceStart;
 
-    //
-    // Result buffer
-    //
-    char* buf = 0;
-    size_t bufsize = 0;
-
     char* outbuf = 0;
     size_t outbytesleft = 0;
-
     size_t count = 0;
 
     //
@@ -271,39 +264,30 @@ IconvStringConverter<charT>::fromUTF8(const IceUtil::Byte* sourceStart, const Ic
     //
     do
     {
-        size_t increment = std::max(inbytesleft * sizeof(wchar_t), size_t(8));
-        bufsize += increment;
-        char* newbuf = static_cast<char*>(realloc(buf, bufsize));
-
-        if(newbuf == 0)
+        size_t bytesused = 0;
+        if(outbuf != 0)
         {
-            free(buf);
-            throw IceUtil::IllegalConversionException(__FILE__, __LINE__, "Out of memory");
+            bytesused = outbuf - reinterpret_cast<const char*>(target.data());
         }
 
-        outbuf = newbuf + (outbuf - buf);
-        outbytesleft += increment;
-
-        buf = newbuf;
+        const size_t increment = std::max<size_t>(inbytesleft, 4);
+        target.resize(target.size() + increment);
+        outbuf = const_cast<char*>(reinterpret_cast<const char*>(target.data())) + bytesused;
+        outbytesleft += increment * sizeof(charT);
 
         count = iconv(cd, &inbuf, &inbytesleft, &outbuf, &outbytesleft);
+
     } while(count == size_t(-1) && errno == E2BIG);
 
     if(count == size_t(-1))
     {
-        free(buf);
         throw IceUtil::IllegalConversionException(__FILE__,
-						  __LINE__,
-						  errno != 0 ? strerror(errno) : "Unknown error");
+                                                  __LINE__,
+                                                  errno != 0 ? strerror(errno) : "Unknown error");
     }
 
-    size_t length = (bufsize - outbytesleft) / sizeof(charT);
-
-    std::basic_string<charT> result(reinterpret_cast<charT*>(buf), length);
-    target.swap(result);
-    free(buf);
+    target.resize(target.size() - (outbytesleft / sizeof(charT)));
 }
-
 }
 
 namespace IceUtil
