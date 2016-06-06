@@ -87,13 +87,6 @@ endif
 ifeq ($(UNAME),Linux)
    ifeq ($(MACHINE_TYPE),x86_64)
       #
-      # Ubuntu.
-      #
-      ifeq ($(shell test -d $(usr_dir)/lib/x86_64-linux-gnu && echo 0),0)
-         lp64suffix	= /x86_64-linux-gnu
-      endif
-
-      #
       # Rhel/SLES
       #
       ifeq ($(shell test -d $(usr_dir)/lib64 && echo 0),0)
@@ -109,10 +102,6 @@ ifeq ($(UNAME),Linux)
 	    binsuffix     = 32
 	endif
     endif
-endif
-
-ifeq ($(shell test -d $(usr_dir)/lib/i386-linux-gnu && echo 0),0)
-    lp32suffix     = /i386-linux-gnu
 endif
 
 ifeq ($(CPP11),yes)
@@ -132,6 +121,21 @@ ifneq ($(findstring MINGW,$(UNAME)),)
         LP64                    := yes
     endif
 endif
+
+#
+# Debian
+#
+ifeq ($(wildcard /etc/debian_version),)
+    ifeq ($(DEB_BUILD_GNU_TYPE),)
+        lp64suffix	:= /x86_64-linux-gnu
+        lp32suffix	:= /i386-linux-gnu
+    else
+        lp64suffix      := /$(DEB_BUILD_GNU_TYPE)
+        lp32suffix      := /$(DEB_BUILD_GNU_TYPE)
+    endif
+endif
+
+
 
 ifeq ($(LP64),yes)
     libsubdir		:= lib$(lp64suffix)
