@@ -126,12 +126,12 @@ endif
 # Debian
 #
 ifeq ($(wildcard /etc/debian_version),)
-    ifeq ($(DEB_BUILD_GNU_TYPE),)
+    ifeq ($(DEB_HOST_MULTIARCH),)
         lp64suffix	:= /x86_64-linux-gnu
         lp32suffix	:= /i386-linux-gnu
     else
-        lp64suffix      := /$(DEB_BUILD_GNU_TYPE)
-        lp32suffix      := /$(DEB_BUILD_GNU_TYPE)
+        lp64suffix      := /$(DEB_HOST_MULTIARCH)
+        lp32suffix      := /$(DEB_HOST_MULTIARCH)
     endif
 endif
 
