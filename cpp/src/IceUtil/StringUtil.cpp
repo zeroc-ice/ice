@@ -11,10 +11,6 @@
 #include <IceUtil/StringConverter.h>
 #include <cstring>
 
-#ifdef ICE_OS_WINRT
-#  include <IceUtil/ScopedArray.h>
-#endif
-
 using namespace std;
 using namespace IceUtil;
 
@@ -502,9 +498,7 @@ IceUtilInternal::errorToString(int error, LPCVOID source)
     {
 #ifdef ICE_OS_WINRT
 
-        int size = 256;
-        IceUtil::ScopedArray<wchar_t> lpMsgBuf(new wchar_t[size]);
-
+        wstring lpMsgBuf(256, wchar_t());
         DWORD stored = 0;
         
         while(stored == 0)
@@ -516,8 +510,8 @@ IceUtilInternal::errorToString(int error, LPCVOID source)
                 source,
                 error,
                 MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-                lpMsgBuf.get(),
-                size,
+                const_cast<wchar_t*>(lpMsgBuf.data()),
+                static_cast<int>(lpMsgBuf.size()),
                 NULL);
 
             if(stored == 0)
@@ -525,15 +519,13 @@ IceUtilInternal::errorToString(int error, LPCVOID source)
                 DWORD err = GetLastError();
                 if(err == ERROR_INSUFFICIENT_BUFFER)
                 {
-                    if(size == 65536)
+                    if(lpMsgBuf.size() >= 65536)
                     {
                         break; // already at the max size
                     }
                     else
                     {
-                        size *= 4;
-                        size = max(size, 65536);
-                        lpMsgBuf.reset(new wchar_t[size]);
+                        lpMsgBuf.resize(min<size_t>(lpMsgBuf.size() * 4, 65536));
                     }
                 }
                 else
@@ -543,7 +535,7 @@ IceUtilInternal::errorToString(int error, LPCVOID source)
             }
         }
 
-        LPWSTR msg = lpMsgBuf.get();
+        LPWSTR msg = const_cast<wchar_t*>(lpMsgBuf.data());
 
 #else
         LPWSTR msg = 0;
@@ -579,12 +571,6 @@ IceUtilInternal::errorToString(int error, LPCVOID source)
         }
         else
         {
-#ifndef ICE_OS_WINRT
-            if(msg)
-            {
-                LocalFree(msg);
-            }
-#endif
             ostringstream os;
             os << "unknown error: " << error;
             return os.str();

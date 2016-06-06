@@ -439,30 +439,31 @@ IceServiceInstaller::initializeSid(const string& name)
 {
     {
         DWORD sidSize = 32;
-        _sidBuffer.reset(new IceUtil::Byte[sidSize]);
+        _sidBuffer.resize(sidSize);
 
         DWORD domainNameSize = 32;
-        IceUtil::ScopedArray<wchar_t> domainName(new wchar_t[domainNameSize]);
+        wstring domainName(domainNameSize, wchar_t());
 
         //
         // We don't support to use a string converter with this tool, so don't need to
         // use string converters in calls to stringToWstring.
         //
         SID_NAME_USE nameUse;
-        while(LookupAccountNameW(0, IceUtil::stringToWstring(name).c_str(), _sidBuffer.get(), &sidSize, domainName.get(),
-              &domainNameSize, &nameUse) == false)
+        while(LookupAccountNameW(0, IceUtil::stringToWstring(name).c_str(),
+                                 _sidBuffer.data(), &sidSize,
+                                 const_cast<wchar_t*>(domainName.data()), &domainNameSize, &nameUse) == false)
         {
             DWORD res = GetLastError();
 
             if(res == ERROR_INSUFFICIENT_BUFFER)
             {
-                _sidBuffer.reset(new IceUtil::Byte[sidSize]);
-                domainName.reset(new wchar_t[domainNameSize]);
+                _sidBuffer.resize(sidSize);
+                domainName.resize(domainNameSize);
                 continue;
             }
             throw "Could not retrieve Security ID for " + name + ": " + IceUtilInternal::errorToString(res);
         }
-        _sid = reinterpret_cast<SID*>(_sidBuffer.get());
+        _sid = reinterpret_cast<SID*>(_sidBuffer.data());
     }
 
     //
