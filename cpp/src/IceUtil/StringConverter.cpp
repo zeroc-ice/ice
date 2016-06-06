@@ -10,7 +10,6 @@
 #include <IceUtil/StringConverter.h>
 #include <IceUtil/MutexPtrLock.h>
 #include <IceUtil/Mutex.h>
-#include <IceUtil/ScopedArray.h>
 #include <IceUtil/StringUtil.h>
 
 #ifdef ICE_HAS_CODECVT_UTF8
@@ -297,7 +296,7 @@ public:
 
     //
     // Returns the first unused byte in the resized buffer
-    // 
+    //
     Byte* getMoreBytes(size_t howMany, Byte* firstUnused)
     {
         size_t bytesUsed = 0;
@@ -309,8 +308,8 @@ public:
         if(_buffer.size() < howMany + bytesUsed)
         {
             _buffer.resize(bytesUsed + howMany);
-        } 
-        
+        }
+
         return const_cast<Byte*>(reinterpret_cast<const Byte*>(_buffer.data())) + bytesUsed;
     }
 
@@ -332,9 +331,7 @@ WindowsStringConverter::WindowsStringConverter(unsigned int cp) :
 }
 
 Byte*
-WindowsStringConverter::toUTF8(const char* sourceStart,
-                               const char* sourceEnd,
-                               UTF8Buffer& buffer) const
+WindowsStringConverter::toUTF8(const char* sourceStart, const char* sourceEnd, UTF8Buffer& buffer) const
 {
     //
     // First convert to UTF-16
@@ -345,9 +342,8 @@ WindowsStringConverter::toUTF8(const char* sourceStart,
         return buffer.getMoreBytes(1, 0);
     }
 
-    int size = 0;
     int writtenWchar = 0;
-    ScopedArray<wchar_t> wbuffer;
+    wstring wbuffer;
 
     //
     // The following code pages doesn't support MB_ERR_INVALID_CHARS flag
@@ -360,11 +356,9 @@ WindowsStringConverter::toUTF8(const char* sourceStart,
 
     do
     {
-        size = size == 0 ? sourceSize + 2 : 2 * size;
-        wbuffer.reset(new wchar_t[size]);
-
-        writtenWchar = MultiByteToWideChar(_cp, flags, sourceStart,
-                                           sourceSize, wbuffer.get(), size);
+        wbuffer.resize(wbuffer.size() == 0 ? sourceSize + 2 : 2 * wbuffer.size());
+        writtenWchar = MultiByteToWideChar(_cp, flags, sourceStart, sourceSize,
+                                           const_cast<wchar_t*>(wbuffer.data()), static_cast<int>(wbuffer.size()));
     } while(writtenWchar == 0 && GetLastError() == ERROR_INSUFFICIENT_BUFFER);
 
     if(writtenWchar == 0)
@@ -372,15 +366,16 @@ WindowsStringConverter::toUTF8(const char* sourceStart,
         throw IllegalConversionException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
     }
 
+    wbuffer.resize(static_cast<size_t>(writtenWchar));
+
     //
     // Then convert this UTF-16 wbuffer into UTF-8
     //
-    return getUnicodeWstringConverter()->toUTF8(wbuffer.get(), wbuffer.get() + writtenWchar, buffer);
+    return getUnicodeWstringConverter()->toUTF8(wbuffer.data(), wbuffer.data() + wbuffer.size(), buffer);
 }
 
 void
-WindowsStringConverter::fromUTF8(const Byte* sourceStart, const Byte* sourceEnd,
-                                 string& target) const
+WindowsStringConverter::fromUTF8(const Byte* sourceStart, const Byte* sourceEnd, string& target) const
 {
     if(sourceStart == sourceEnd)
     {
@@ -406,18 +401,20 @@ WindowsStringConverter::fromUTF8(const Byte* sourceStart, const Byte* sourceEnd,
     // 54936 (GB18030 Simplified Chinese)
     //
     DWORD flags = (_cp == 65001 || _cp == 54936) ? WC_ERR_INVALID_CHARS : 0;
+
     //
     // And then to a multi-byte narrow string
     //
-    int size = 0;
-    int writtenChar = 0;
-    ScopedArray<char> buffer;
+    int writtenChar = -1;
     do
     {
-        size = size == 0 ? static_cast<int>(sourceEnd - sourceStart) + 2 : 2 * size;
-        buffer.reset(new char[size]);
+        target.resize(writtenChar == -1 ?
+                      std::max<size_t>(sourceEnd - sourceStart + 2, target.size()) :
+                      2 * target.size());
+
         writtenChar = WideCharToMultiByte(_cp, flags, wtarget.data(), static_cast<int>(wtarget.size()),
-                                          buffer.get(), size, 0, 0);
+                                          const_cast<char*>(target.data()), static_cast<int>(target.size()),
+                                          0, 0);
     } while(writtenChar == 0 && GetLastError() == ERROR_INSUFFICIENT_BUFFER);
 
     if(writtenChar == 0)
@@ -425,7 +422,7 @@ WindowsStringConverter::fromUTF8(const Byte* sourceStart, const Byte* sourceEnd,
         throw IllegalConversionException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
     }
 
-    target.assign(buffer.get(), writtenChar);
+    target.resize(static_cast<size_t>(writtenChar));
 }
 #endif
 
@@ -489,7 +486,7 @@ IceUtil::wstringToString(const wstring& v, const StringConverterPtr& converter, 
         UTF8BufferI buffer;
         Byte* last = wConverterWithDefault->toUTF8(v.data(), v.data() + v.size(), buffer);
         buffer.swap(target, last);
-       
+
         //
         // If narrow string converter is present convert to the native narrow string encoding, otherwise
         // native narrow string encoding is UTF8 and we are done.

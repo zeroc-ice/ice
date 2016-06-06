@@ -13,10 +13,6 @@
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
 
-#ifdef _WIN32
-#  include <IceUtil/ScopedArray.h>
-#endif
-
 #include <Ice/LocalException.h>
 
 using namespace std;
