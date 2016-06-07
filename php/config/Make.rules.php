@@ -52,6 +52,11 @@ embedded_runpath 	?= yes
 #
 #USE_NAMESPACES          ?= yes
 
+#
+# Use specific PHP version
+#
+PHP_CONFIG		?= php-config
+
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
@@ -63,8 +68,8 @@ ice_language     = php
 ice_require_cpp  = yes
 slice_translator = slice2php
 
-ifeq ($(shell php-config --libs /dev/null && echo 0),0)
-    $(error php-config not found review your PHP installation and ensure php-config is in your PATH)
+ifeq ($(shell $(PHP_CONFIG) --libs /dev/null && echo 0),0)
+    $(error $(PHP_CONFIG) not found review your PHP installation and ensure $(PHP_CONFIG) is in your PATH)
 endif
 
 ifeq ($(shell test -f $(top_srcdir)/config/Make.common.rules && echo 0),0)
@@ -80,7 +85,7 @@ ifndef usr_dir_install
     install_libdir  	= $(prefix)/php
 else
     install_phpdir  	= $(prefix)/share/php
-    install_libdir  	= $(shell php -r "echo(ini_get('extension_dir'));")
+    install_libdir  	= $(shell $(PHP_CONFIG) --extension-dir)
 endif
 
 ifdef ice_src_dist

@@ -12,7 +12,7 @@ top_srcdir	= ..
 include $(top_srcdir)/config/Make.rules.php
 
 
-ifeq ($(shell [ $$(php-config --vernum) -lt 70000 ] && echo true),true)
+ifeq ($(shell [ $$($(PHP_CONFIG) --vernum) -lt 70000 ] && echo true),true)
 SUBDIRS		= php5
 else
 SUBDIRS		= php7
