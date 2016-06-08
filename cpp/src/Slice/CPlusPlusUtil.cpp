@@ -1265,7 +1265,8 @@ Slice::writeMarshalUnmarshalDataMemberInHolder(IceUtilInternal::Output& C,
 }
 
 void
-Slice::writeStreamHelpers(Output& out, const ContainedPtr& c, DataMemberList dataMembers, bool checkClassMetaData)
+Slice::writeStreamHelpers(Output& out, bool checkClassMetaData, const ContainedPtr& c, DataMemberList dataMembers,
+                          DataMemberList optionalDataMembers)
 {
     string scoped = c->scoped();
     bool classMetaData = false;
@@ -1285,6 +1286,13 @@ Slice::writeStreamHelpers(Output& out, const ContainedPtr& c, DataMemberList dat
     out << sb;
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
+        if(!(*q)->optional())
+        {
+            writeMarshalUnmarshalDataMemberInHolder(out, holder, *q, true);
+        }
+    }
+    for(DataMemberList::const_iterator q = optionalDataMembers.begin(); q != optionalDataMembers.end(); ++q)
+    {
         writeMarshalUnmarshalDataMemberInHolder(out, holder, *q, true);
     }
     out << eb;
@@ -1296,6 +1304,13 @@ Slice::writeStreamHelpers(Output& out, const ContainedPtr& c, DataMemberList dat
     out << nl << "static void read(S* __is, " << fullName << "& v)";
     out << sb;
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    {
+        if(!(*q)->optional())
+        {
+            writeMarshalUnmarshalDataMemberInHolder(out, holder, *q, false);
+        }
+    }
+    for(DataMemberList::const_iterator q = optionalDataMembers.begin(); q != optionalDataMembers.end(); ++q)
     {
         writeMarshalUnmarshalDataMemberInHolder(out, holder, *q, false);
     }

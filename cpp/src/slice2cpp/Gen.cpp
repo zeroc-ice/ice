@@ -1270,7 +1270,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         C << sb;
         C << nl << "__os->startSlice(\"" << p->scoped() << "\", -1, " << (!base ? "true" : "false") << ");";
         C << nl << "Ice::StreamWriter<" << scoped.substr(2) << ", ::Ice::OutputStream>::write(__os, *this);";
-
         C << nl << "__os->endSlice();";
         if(base)
         {
@@ -4750,7 +4749,7 @@ Slice::Gen::StreamVisitor::visitClassDefStart(const ClassDefPtr& c)
 {
     if(!c->isLocal())
     {
-        writeStreamHelpers(H, c, c->dataMembers(), true);
+        writeStreamHelpers(H, true, c, c->dataMembers(), c->orderedOptionalDataMembers());
     }
     return false;
 }
@@ -4767,7 +4766,7 @@ Slice::Gen::StreamVisitor::visitExceptionStart(const ExceptionPtr& p)
         H << nl << "static const StreamHelperCategory helper = StreamHelperCategoryUserException;";
         H << eb << ";" << nl;
 
-        writeStreamHelpers(H, p, p->dataMembers(), true);
+        writeStreamHelpers(H, true, p, p->dataMembers(), p->orderedOptionalDataMembers());
     }
     return false;
 }
@@ -4806,7 +4805,7 @@ Slice::Gen::StreamVisitor::visitStructStart(const StructPtr& p)
         }
         H << eb << ";" << nl;
 
-        writeStreamHelpers(H, p, p->dataMembers(), true);
+        writeStreamHelpers(H, true, p, p->dataMembers(), DataMemberList());
     }
     return false;
 }
@@ -7741,7 +7740,7 @@ Slice::Gen::Cpp11StreamVisitor::visitStructStart(const StructPtr& p)
     H << nl << "static const bool fixedLength = " << (p->isVariableLength() ? "false" : "true") << ";";
     H << eb << ";" << nl;
 
-    writeStreamHelpers(H, p, p->dataMembers());
+    writeStreamHelpers(H, true, p, p->dataMembers());
 
     return false;
 }
@@ -7751,7 +7750,7 @@ Slice::Gen::Cpp11StreamVisitor::visitClassDefStart(const ClassDefPtr& c)
 {
     if(!c->isLocal() && !c->isInterface())
     {
-        writeStreamHelpers(H, c, c->dataMembers(), true);
+        writeStreamHelpers(H, true, c, c->dataMembers(), c->orderedOptionalDataMembers());
     }
     return false;
 }
@@ -7761,7 +7760,7 @@ Slice::Gen::Cpp11StreamVisitor::visitExceptionEnd(const ExceptionPtr& p)
 {
     if(!p->isLocal())
     {
-        writeStreamHelpers(H, p, p->dataMembers(), true);
+        writeStreamHelpers(H, true, p, p->dataMembers(), p->orderedOptionalDataMembers());
     }
 }
 

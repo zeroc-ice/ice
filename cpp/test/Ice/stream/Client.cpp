@@ -80,26 +80,29 @@ ICE_DEFINE_PTR(TestObjectReaderPtr, TestObjectReader);
 
 // Required for ValueHelper<>'s __readImpl and __writeIpml
 #ifdef ICE_CPP11_MAPPING
+namespace Ice
+{
 template<class S>
-struct Ice::StreamWriter<TestObjectWriter, S>
+struct StreamWriter<TestObjectWriter, S>
 {
     static void write(S* __os, const TestObjectWriter&) { assert(false); }
 };
 template<class S>
-struct Ice::StreamReader<TestObjectWriter, S>
+struct StreamReader<TestObjectWriter, S>
 {
     static void read(S* __is, TestObjectWriter&) { assert(false); }
 };
 template<class S>
-struct Ice::StreamWriter<TestObjectReader, S>
+struct StreamWriter<TestObjectReader, S>
 {
     static void write(S* __os, const TestObjectReader&) { assert(false); }
 };
 template<class S>
-struct Ice::StreamReader<TestObjectReader, S>
+struct StreamReader<TestObjectReader, S>
 {
     static void read(S* __is, TestObjectReader&) { assert(false); }
 };
+}
 #endif
 
 #ifndef ICE_CPP11_MAPPING
