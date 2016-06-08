@@ -125,9 +125,32 @@ clean {
     delete(pomName)
 }
 
-task install(type: Copy, dependsOn: jarSources, overwrite: true) {
-    from "${pomName}"
-    from "${libDir}/${jar.archiveName}"
-    from "${libDir}/${project.name}-${project.version}-sources.jar"
-    into "${DESTDIR}${jarDir}"
+//
+// Check if we need to update the JARs class-path
+//
+if(jarsClassPath.toBoolean()){
+    task copyJars(type: Copy, dependsOn: jarSources, overwrite: true) {
+        from "${pomName}"
+        from "${libDir}/${jar.archiveName}"
+        from "${libDir}/${project.name}-${project.version}-sources.jar"
+        into "${DESTDIR}${jarDir}"
+    }
+
+    task updateInstallManifest(dependsOn: copyJars) << {
+        ant.jar(update: true, destfile: "${DESTDIR}${jarDir}/${jar.archiveName}") {
+            delegate.manifest {
+                attribute(name: "Built-By", value: "ZeroC, Inc.")
+                attribute(name: "Class-Path", value: configurations.runtime.resolve().collect { it.toURI() }.join(' ').replaceAll("${libDir}", "${jarDir}"))
+            }
+        }
+    }
+    
+    install.dependsOn(updateInstallManifest)
+} else {
+    task install(type: Copy, dependsOn: jarSources, overwrite: true) {
+        from "${pomName}"
+        from "${libDir}/${jar.archiveName}"
+        from "${libDir}/${project.name}-${project.version}-sources.jar"
+        into "${DESTDIR}${jarDir}"
+    }
 }
