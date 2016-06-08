@@ -109,7 +109,6 @@ if(icegridguiProguard.toBoolean()) {
                 delegate.manifest {
                     attribute(name: 'Main-Class', value: 'IceGridGUI.MainProxy')
                     attribute(name: 'Built-By', value: 'Zeroc, Inc.')
-                    attribute(name: 'Class-Path', value: '../resources/')
                 }
             }
         }
@@ -134,8 +133,7 @@ if(icegridguiProguard.toBoolean()) {
             delegate.manifest {
                 attribute(name: "Main-Class", value: "IceGridGUI.Main")
                 attribute(name: "Built-By", value: "ZeroC, Inc.")
-                attribute(name: "Class-Path", value: "../resources/ " + 
-                    configurations.runtime.resolve().collect { it.toURI() }.join(' '))
+                attribute(name: "Class-Path", value: configurations.runtime.resolve().collect { it.toURI() }.join(' '))
             }
         }
     }
@@ -158,8 +156,7 @@ if(icegridguiProguard.toBoolean()) {
             delegate.manifest {
                 attribute(name: "Main-Class", value: "IceGridGUI.Main")
                 attribute(name: "Built-By", value: "ZeroC, Inc.")
-                attribute(name: "Class-Path", value: "../resources/ " + 
-                    configurations.runtime.resolve().collect { it.toURI() }.join(' ').replaceAll("${libDir}", "${jarDir}"))
+                attribute(name: "Class-Path", value: configurations.runtime.resolve().collect { it.toURI() }.join(' ').replaceAll("${libDir}", "${jarDir}"))
             }
         }
     }
