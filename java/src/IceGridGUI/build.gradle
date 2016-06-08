@@ -133,7 +133,7 @@ if(icegridguiProguard.toBoolean()) {
             delegate.manifest {
                 attribute(name: "Main-Class", value: "IceGridGUI.Main")
                 attribute(name: "Built-By", value: "ZeroC, Inc.")
-                attribute(name: "Class-Path", value: configurations.runtime.resolve().collect { it.toURI() }.join(' '))
+                attribute(name: "Class-Path", value: configurations.runtime.resolve().collect { "file://${it.absolutePath}" }.join(' '))
             }
         }
     }
@@ -156,7 +156,7 @@ if(icegridguiProguard.toBoolean()) {
             delegate.manifest {
                 attribute(name: "Main-Class", value: "IceGridGUI.Main")
                 attribute(name: "Built-By", value: "ZeroC, Inc.")
-                attribute(name: "Class-Path", value: configurations.runtime.resolve().collect { it.toURI() }.join(' ').replaceAll("${libDir}", "${jarDir}"))
+                attribute(name: "Class-Path", value: configurations.runtime.resolve().collect { "file://${it.absolutePath}" }.join(' ').replaceAll("${libDir}", "${jarDir}"))
             }
         }
     }
