@@ -23,7 +23,7 @@
 //
 // For UINTPTR_MAX on Ubuntu Precise
 //
-#ifndef __STDC_LIMIT_MACROS 
+#ifndef __STDC_LIMIT_MACROS
 #   define __STDC_LIMIT_MACROS
 #endif
 

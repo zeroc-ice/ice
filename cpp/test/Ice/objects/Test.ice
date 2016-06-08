@@ -184,7 +184,7 @@ class Initial
     I getI();
     I getJ();
     I getH();
-    
+
     D1 getD1(D1 d1);
     void throwEDerived() throws EDerived;
 

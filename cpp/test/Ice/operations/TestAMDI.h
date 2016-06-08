@@ -14,7 +14,7 @@
 #include <TestAMD.h>
 #include <TestCommon.h>
 
-class MyDerivedClassI : 
+class MyDerivedClassI :
 #ifdef ICE_CPP11_MAPPING
     public Test::MyDerivedClassDisp
 #else
@@ -22,7 +22,7 @@ class MyDerivedClassI :
 #endif
 {
 public:
-    
+
     MyDerivedClassI();
 
     //
@@ -31,7 +31,11 @@ public:
     virtual bool ice_isA(ICE_IN(std::string), const Ice::Current&) const;
     virtual void ice_ping(const Ice::Current&) const;
     virtual std::vector<std::string> ice_ids(const Ice::Current&) const;
+#ifdef ICE_CPP11_MAPPING
+    virtual std::string ice_id(const Ice::Current&) const;
+#else
     virtual const std::string& ice_id(const Ice::Current&) const;
+#endif
 
 #ifdef ICE_CPP11_MAPPING
     virtual void shutdown_async(::std::function<void ()>,
@@ -285,7 +289,7 @@ public:
                                      ::std::function<void ()>,
                                      ::std::function<void (std::exception_ptr)>,
                                      const Ice::Current&);
-    
+
     virtual void opByteSOnewayCallCount_async(::std::function<void (int)>,
                                               ::std::function<void (std::exception_ptr)>,
                                               const Ice::Current&);
@@ -355,12 +359,12 @@ public:
                                     ::std::function<void (const Test::ByteBoolD&)>,
                                     ::std::function<void (std::exception_ptr)>,
                                     const Ice::Current&);
-    
+
     virtual void opStringS2_async(Test::StringS,
                                   ::std::function<void (const Test::StringS&)>,
                                   ::std::function<void (std::exception_ptr)>,
                                   const Ice::Current&);
-    
+
     virtual void opByteBoolD2_async(Test::ByteBoolD,
                                     ::std::function<void (const Test::ByteBoolD&)>,
                                     ::std::function<void (std::exception_ptr)>,
@@ -379,7 +383,7 @@ public:
     virtual void opStringLiterals_async(::std::function<void (const Test::StringS&)>,
                                         ::std::function<void (std::exception_ptr)>,
                                         const Ice::Current&);
-    
+
     virtual void opWStringLiterals_async(::std::function<void (const Test::WStringS&)>,
                                          ::std::function<void (std::exception_ptr)>,
                                          const Ice::Current&);
@@ -616,16 +620,16 @@ public:
     virtual void opByteBoolD1_async(const Test::AMD_MyClass_opByteBoolD1Ptr&,
                                     const Test::ByteBoolD&,
                                     const Ice::Current&);
-    
+
     virtual void opStringS2_async(const Test::AMD_MyClass_opStringS2Ptr&,
                                   const Test::StringS&,
                                   const Ice::Current&);
-    
+
     virtual void opByteBoolD2_async(const Test::AMD_MyClass_opByteBoolD2Ptr&,
                                     const Test::ByteBoolD&,
                                     const Ice::Current&);
 
-    virtual void opMyStruct1_async(const Test::AMD_MyDerivedClass_opMyStruct1Ptr&, 
+    virtual void opMyStruct1_async(const Test::AMD_MyDerivedClass_opMyStruct1Ptr&,
                                    const Test::MyStruct1&,
                                    const Ice::Current&);
 
@@ -635,7 +639,7 @@ public:
 
     virtual void opStringLiterals_async(const Test::AMD_MyClass_opStringLiteralsPtr&,
                                         const Ice::Current&);
-    
+
     virtual void opWStringLiterals_async(const Test::AMD_MyClass_opWStringLiteralsPtr&,
                                          const Ice::Current&);
 #endif

@@ -78,6 +78,30 @@ public:
 };
 ICE_DEFINE_PTR(TestObjectReaderPtr, TestObjectReader);
 
+// Required for ValueHelper<>'s __readImpl and __writeIpml
+#ifdef ICE_CPP11_MAPPING
+template<class S>
+struct Ice::StreamWriter<TestObjectWriter, S>
+{
+    static void write(S* __os, const TestObjectWriter&) { assert(false); }
+};
+template<class S>
+struct Ice::StreamReader<TestObjectWriter, S>
+{
+    static void read(S* __is, TestObjectWriter&) { assert(false); }
+};
+template<class S>
+struct Ice::StreamWriter<TestObjectReader, S>
+{
+    static void write(S* __os, const TestObjectReader&) { assert(false); }
+};
+template<class S>
+struct Ice::StreamReader<TestObjectReader, S>
+{
+    static void read(S* __is, TestObjectReader&) { assert(false); }
+};
+#endif
+
 #ifndef ICE_CPP11_MAPPING
 class TestValueFactory : public Ice::ValueFactory
 {
@@ -104,7 +128,7 @@ public:
 #ifdef ICE_CPP11_MAPPING
 void
 patchObject(void* addr, const Ice::ValuePtr& v)
-{   
+{
     Ice::ValuePtr* p = static_cast<Ice::ValuePtr*>(addr);
     assert(p);
     *p = v;
@@ -112,7 +136,7 @@ patchObject(void* addr, const Ice::ValuePtr& v)
 #else
 void
 patchObject(void* addr, const Ice::ObjectPtr& v)
-{   
+{
     Ice::ObjectPtr* p = static_cast<Ice::ObjectPtr*>(addr);
     assert(p);
     *p = v;

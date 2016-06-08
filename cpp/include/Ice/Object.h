@@ -86,7 +86,7 @@ public:
     virtual std::vector< std::string> ice_ids(const Current& = Ice::noExplicitCurrent) const;
     DispatchStatus ___ice_ids(IceInternal::Incoming&, const Current&);
 
-    virtual const std::string& ice_id(const Current& = Ice::noExplicitCurrent) const;
+    virtual std::string ice_id(const Current& = Ice::noExplicitCurrent) const;
     DispatchStatus ___ice_id(IceInternal::Incoming&, const Current&);
 
     static const std::string& ice_staticId();
@@ -183,7 +183,7 @@ class ICE_API BlobjectAsync : public virtual Object
 public:
 
 #ifdef ICE_CPP11_MAPPING
-    virtual void ice_invoke_async(std::vector<Byte>, 
+    virtual void ice_invoke_async(std::vector<Byte>,
                                   std::function<void (bool, std::vector<Byte>)>,
                                   std::function<void (std::exception_ptr)>,
                                   const Current&) = 0;
@@ -198,7 +198,7 @@ class ICE_API BlobjectArrayAsync : public virtual Object
 public:
 
 #ifdef ICE_CPP11_MAPPING
-    virtual void ice_invoke_async(std::pair<const Byte*, const Byte*>, 
+    virtual void ice_invoke_async(std::pair<const Byte*, const Byte*>,
                                   std::function<void (bool, std::pair<const Byte*, const Byte*>)>,
                                   std::function<void (std::exception_ptr)>,
                                   const Current&) = 0;

@@ -55,7 +55,11 @@ MyDerivedClassI::ice_ids(const Ice::Current& current) const
 #endif
 }
 
+#ifdef ICE_CPP11_MAPPING
+std::string
+#else
 const std::string&
+#endif
 MyDerivedClassI::ice_id(const Ice::Current& current) const
 {
     test(current.mode == ICE_ENUM(OperationMode, Nonmutating));
@@ -89,7 +93,7 @@ private:
 
 void
 MyDerivedClassI::shutdown_async(function<void ()> response,
-                                function<void (exception_ptr)>, 
+                                function<void (exception_ptr)>,
                                 const Ice::Current& current)
 {
     {
@@ -133,7 +137,7 @@ MyDerivedClassI::opVoid_async(function<void ()> response,
 }
 
 
-void 
+void
 MyDerivedClassI::opByte_async(Ice::Byte p1,
                               Ice::Byte p2,
                               function<void (Ice::Byte, Ice::Byte)> response,
@@ -143,7 +147,7 @@ MyDerivedClassI::opByte_async(Ice::Byte p1,
     response(p1, p1 ^ p2);
 }
 
-void 
+void
 MyDerivedClassI::opBool_async(bool p1,
                               bool p2,
                               function<void (bool, bool)> response,
@@ -211,7 +215,7 @@ MyDerivedClassI::opMyClass_async(shared_ptr<Test::MyClassPrx> p1,
 }
 
 void
-MyDerivedClassI::opStruct_async(Test::Structure p1, 
+MyDerivedClassI::opStruct_async(Test::Structure p1,
                                 Test::Structure p2,
                                 function<void (const Test::Structure&, const Test::Structure&)> response,
                                 function<void (exception_ptr)>,
@@ -756,7 +760,7 @@ MyDerivedClassI::opContext_async(function<void (const Ice::Context&)> response,
 
 void
 MyDerivedClassI::opDoubleMarshaling_async(Ice::Double p1,
-                                          Test::DoubleS p2, 
+                                          Test::DoubleS p2,
                                           function<void ()> response,
                                           function<void (exception_ptr)>,
                                           const Ice::Current&)
@@ -1605,7 +1609,7 @@ MyDerivedClassI::opByteSOneway_async(const Test::AMD_MyClass_opByteSOnewayPtr& c
 }
 
 void
-MyDerivedClassI::opByteSOnewayCallCount_async(const Test::AMD_MyClass_opByteSOnewayCallCountPtr& cb, 
+MyDerivedClassI::opByteSOnewayCallCount_async(const Test::AMD_MyClass_opByteSOnewayCallCountPtr& cb,
                                               const Ice::Current&)
 {
     IceUtil::Mutex::Lock sync(_mutex);

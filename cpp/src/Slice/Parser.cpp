@@ -1649,7 +1649,26 @@ Slice::Container::hasNonLocalExceptions() const
     return false;
 }
 
+bool
+Slice::Container::hasExceptions() const
+{
+    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    {
+        ExceptionPtr q = ExceptionPtr::dynamicCast(*p);
+        if(q)
+        {
+            return true;
+        }
 
+        ContainerPtr container = ContainerPtr::dynamicCast(*p);
+        if(container && container->hasExceptions())
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
 
 bool
 Slice::Container::hasClassDecls() const

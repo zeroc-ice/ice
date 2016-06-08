@@ -47,6 +47,7 @@ public:
     virtual ~LocalException() ICE_NOEXCEPT;
 
     virtual std::string ice_id() const = 0;
+    static const std::string& ice_staticId();
 #ifndef ICE_CPP11_MAPPING
     virtual LocalException* ice_clone() const = 0;
 #endif
@@ -58,6 +59,7 @@ class ICE_API UserException : public IceUtil::Exception
 public:
 
     virtual std::string ice_id() const = 0;
+    static const std::string& ice_staticId();
 #ifndef ICE_CPP11_MAPPING
     virtual UserException* ice_clone() const = 0;
 #endif
@@ -70,11 +72,9 @@ public:
 
 protected:
 
-    virtual void __writeImpl(::Ice::OutputStream*) const = 0;
-    virtual void __readImpl(::Ice::InputStream*) = 0;
+    virtual void __writeImpl(::Ice::OutputStream*) const {};
+    virtual void __readImpl(::Ice::InputStream*) {};
 };
-
-typedef ::IceInternal::Handle<UserException> UserExceptionPtr;
 
 class ICE_API SystemException : public IceUtil::Exception
 {
@@ -88,8 +88,6 @@ public:
 #endif
     virtual void ice_throw() const = 0;
 };
-
-typedef ::IceInternal::Handle<SystemException> SystemExceptionPtr;
 
 #if defined(__SUNPRO_CC)
 //

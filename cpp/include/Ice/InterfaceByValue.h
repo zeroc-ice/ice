@@ -23,22 +23,7 @@ template<typename T>
 class InterfaceByValue : public Ice::ValueHelper<Ice::InterfaceByValue<T>, Ice::Value>
 {
 public:
-
-    virtual void
-    __writeImpl(::Ice::OutputStream* __os) const
-    {
-        __os->startSlice(T::ice_staticId(), -1, true);
-        __os->endSlice();
-    }
-
-    virtual void
-    __readImpl(::Ice::InputStream* __is)
-    {
-        __is->startSlice();
-        __is->endSlice();
-    }
-    
-    virtual const std::string& ice_id() const
+    virtual std::string ice_id() const
     {
         return T::ice_staticId();
     }
@@ -49,7 +34,20 @@ public:
     }
 };
 
+template<typename S, typename T>
+struct StreamWriter<Ice::InterfaceByValue<T>, S>
+{
+    static void write(S* __os, const Ice::InterfaceByValue<T>& v) { }
+};
+
+template<typename S, typename T>
+struct StreamReader<Ice::InterfaceByValue<T>, S>
+{
+    static void read(S* __is, Ice::InterfaceByValue<T>& v) { }
+};
+
 }
+
 #endif
 
 #endif

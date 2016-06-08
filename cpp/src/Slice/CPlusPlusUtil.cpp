@@ -1254,6 +1254,55 @@ Slice::writeEndCode(Output& out, const ParamDeclList& params, const OperationPtr
     }
 }
 
+void
+Slice::writeMarshalUnmarshalDataMemberInHolder(IceUtilInternal::Output& C,
+                                               const string& holder,
+                                               const DataMemberPtr& p,
+                                               bool marshal)
+{
+    writeMarshalUnmarshalCode(C, p->type(), p->optional(), p->tag(), holder + fixKwd(p->name()), marshal,
+                              p->getMetaData());
+}
+
+void
+Slice::writeStreamHelpers(Output& out, const ContainedPtr& c, DataMemberList dataMembers, bool checkClassMetaData)
+{
+    string scoped = c->scoped();
+    bool classMetaData = false;
+
+    if(checkClassMetaData)
+    {
+        classMetaData = findMetaData(c->getMetaData(), false) == "%class";
+    }
+
+    string fullName = classMetaData ? fixKwd(scoped + "Ptr") : fixKwd(scoped);
+    string holder = classMetaData ? "v->" : "v.";
+
+    out << nl << "template<typename S>";
+    out << nl << "struct StreamWriter< " << fullName << ", S>";
+    out << sb;
+    out << nl << "static void write(S* __os, const " <<  fullName << "& v)";
+    out << sb;
+    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    {
+        writeMarshalUnmarshalDataMemberInHolder(out, holder, *q, true);
+    }
+    out << eb;
+    out << eb << ";" << nl;
+
+    out << nl << "template<typename S>";
+    out << nl << "struct StreamReader< " << fullName << ", S>";
+    out << sb;
+    out << nl << "static void read(S* __is, " << fullName << "& v)";
+    out << sb;
+    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    {
+        writeMarshalUnmarshalDataMemberInHolder(out, holder, *q, false);
+    }
+    out << eb;
+    out << eb << ";" << nl;
+}
+
 bool
 Slice::findMetaData(const string& prefix, const ClassDeclPtr& cl, string& value)
 {

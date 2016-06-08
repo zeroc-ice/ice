@@ -427,37 +427,6 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
 }
 
 void
-writeMarshalUnmarshalDataMember(IceUtilInternal::Output& C, const DataMemberPtr& p, bool marshal)
-{
-    writeMarshalUnmarshalCode(C, p->type(), p->optional(), p->tag(), fixKwd(p->name()), marshal, p->getMetaData());
-}
-
-void
-writeMarshalUnmarshalDataMemberInHolder(IceUtilInternal::Output& C, const string& holder, const DataMemberPtr& p, bool marshal)
-{
-    writeMarshalUnmarshalCode(C, p->type(), p->optional(), p->tag(), holder + fixKwd(p->name()), marshal, p->getMetaData());
-}
-
-void
-writeMarshalUnmarshalDataMembers(IceUtilInternal::Output& C,
-                                 const DataMemberList& dataMembers,
-                                 const DataMemberList& optionalDataMembers,
-                                 bool marshal)
-{
-    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-    {
-        if(!(*q)->optional())
-        {
-            writeMarshalUnmarshalDataMember(C, *q, marshal);
-        }
-    }
-    for(DataMemberList::const_iterator q = optionalDataMembers.begin(); q != optionalDataMembers.end(); ++q)
-    {
-        writeMarshalUnmarshalDataMember(C, *q, marshal);
-    }
-}
-
-void
 writeDataMemberInitializers(IceUtilInternal::Output& C, const DataMemberList& members, int useWstring, bool cpp11 = false)
 {
     bool first = true;
@@ -729,6 +698,11 @@ Slice::Gen::generate(const UnitPtr& p)
     H << "\n#include <IceUtil/ScopedArray.h>";
     H << "\n#include <IceUtil/Optional.h>";
 
+    if(p->hasExceptions())
+    {
+        H << "\n#include <Ice/ExceptionHelpers.h>";
+    }
+
     if(p->usesNonLocals())
     {
         C << "\n#include <Ice/InputStream.h>";
@@ -812,9 +786,6 @@ Slice::Gen::generate(const UnitPtr& p)
         Cpp11TypesVisitor typesVisitor(H, C, _dllExport);
         p->visit(&typesVisitor, false);
 
-        Cpp11StreamVisitor streamVisitor(H, C, _dllExport);
-        p->visit(&streamVisitor, false);
-
         Cpp11ProxyVisitor proxyVisitor(H, C, _dllExport);
         p->visit(&proxyVisitor, false);
 
@@ -826,6 +797,9 @@ Slice::Gen::generate(const UnitPtr& p)
 
         Cpp11ValueVisitor valueVisitor(H, C, _dllExport);
         p->visit(&valueVisitor, false);
+
+        Cpp11StreamVisitor streamVisitor(H, C, _dllExport);
+        p->visit(&streamVisitor, false);
 
         if(_implCpp11)
         {
@@ -873,9 +847,6 @@ Slice::Gen::generate(const UnitPtr& p)
         TypesVisitor typesVisitor(H, C, _dllExport);
         p->visit(&typesVisitor, false);
 
-        StreamVisitor streamVisitor(H, C, _dllExport);
-        p->visit(&streamVisitor, false);
-
         AsyncVisitor asyncVisitor(H, C, _dllExport);
         p->visit(&asyncVisitor, false);
 
@@ -896,6 +867,9 @@ Slice::Gen::generate(const UnitPtr& p)
 
         ObjectVisitor objectVisitor(H, C, _dllExport);
         p->visit(&objectVisitor, false);
+
+        StreamVisitor streamVisitor(H, C, _dllExport);
+        p->visit(&streamVisitor, false);
 
         //
         // We need to delay generating the template after the proxy
@@ -1271,8 +1245,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         H << nl << "virtual void __readImpl(::Ice::InputStream*);";
 
         string baseName = base ? fixKwd(base->scoped()) : string("::Ice::UserException");
-        //H << nl << "using " << baseName << "::__writeImpl;";
-        //H << nl << "using " << baseName << "::__readImpl;";
 
         if(preserved && !basePreserved)
         {
@@ -1297,7 +1269,8 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         C << sp << nl << "void" << nl << scoped.substr(2) << "::__writeImpl(::Ice::OutputStream* __os) const";
         C << sb;
         C << nl << "__os->startSlice(\"" << p->scoped() << "\", -1, " << (!base ? "true" : "false") << ");";
-        writeMarshalUnmarshalDataMembers(C, p->dataMembers(), p->orderedOptionalDataMembers(), true);
+        C << nl << "Ice::StreamWriter<" << scoped.substr(2) << ", ::Ice::OutputStream>::write(__os, *this);";
+
         C << nl << "__os->endSlice();";
         if(base)
         {
@@ -1308,7 +1281,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         C << sp << nl << "void" << nl << scoped.substr(2) << "::__readImpl(::Ice::InputStream* __is)";
         C << sb;
         C << nl << "__is->startSlice();";
-        writeMarshalUnmarshalDataMembers(C, p->dataMembers(), p->orderedOptionalDataMembers(), false);
+        C << nl << "Ice::StreamReader<" << scoped.substr(2) << ", ::Ice::InputStream>::read(__is, *this);";
         C << nl << "__is->endSlice();";
         if(base)
         {
@@ -2811,7 +2784,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             StringList allOpNames;
             transform(allOps.begin(), allOps.end(), back_inserter(allOpNames),
                       ::IceUtil::constMemFun(&Contained::name));
-	    
+
             allOpNames.push_back("ice_id");
             allOpNames.push_back("ice_ids");
             allOpNames.push_back("ice_isA");
@@ -2962,6 +2935,11 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
         string baseName = base ? fixKwd(base->scoped()) : string("::Ice::Object");
         H << nl << "using " << baseName << "::__writeImpl;";
         H << nl << "using " << baseName << "::__readImpl;";
+        H << sp;
+        H << nl << "template<typename T, typename S>";
+        H << nl << "friend struct Ice::StreamWriter;";
+        H << nl << "template<typename T, typename S>";
+        H << nl << "friend struct Ice::StreamReader;";
 
         if(preserved && !basePreserved)
         {
@@ -2986,7 +2964,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
         C << nl << "void" << nl << scoped.substr(2) << "::__writeImpl(::Ice::OutputStream* __os) const";
         C << sb;
         C << nl << "__os->startSlice(ice_staticId(), " << p->compactId() << (!base ? ", true" : ", false") << ");";
-        writeMarshalUnmarshalDataMembers(C, p->dataMembers(), p->orderedOptionalDataMembers(), true);
+        C << nl << "Ice::StreamWriter<" << scoped.substr(2) << ", ::Ice::OutputStream>::write(__os, *this);";
         C << nl << "__os->endSlice();";
         if(base)
         {
@@ -2998,7 +2976,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
         C << nl << "void" << nl << scoped.substr(2) << "::__readImpl(::Ice::InputStream* __is)";
         C << sb;
         C << nl << "__is->startSlice();";
-        writeMarshalUnmarshalDataMembers(C, p->dataMembers(), p->orderedOptionalDataMembers(), false);
+        C << nl << "Ice::StreamReader<" << scoped.substr(2) << ", ::Ice::InputStream>::read(__is, *this);";
         C << nl << "__is->endSlice();";
         if(base)
         {
@@ -4733,6 +4711,7 @@ Slice::Gen::StreamVisitor::visitModuleStart(const ModulePtr& m)
 {
     if(!m->hasNonLocalContained(Contained::ContainedTypeStruct) &&
        !m->hasNonLocalContained(Contained::ContainedTypeEnum) &&
+       !m->hasNonLocalContained(Contained::ContainedTypeClass) &&
        !m->hasNonLocalContained(Contained::ContainedTypeException))
     {
         return false;
@@ -4767,6 +4746,16 @@ Slice::Gen::StreamVisitor::visitModuleEnd(const ModulePtr& m)
 }
 
 bool
+Slice::Gen::StreamVisitor::visitClassDefStart(const ClassDefPtr& c)
+{
+    if(!c->isLocal())
+    {
+        writeStreamHelpers(H, c, c->dataMembers(), true);
+    }
+    return false;
+}
+
+bool
 Slice::Gen::StreamVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
     if(!p->isLocal())
@@ -4777,6 +4766,8 @@ Slice::Gen::StreamVisitor::visitExceptionStart(const ExceptionPtr& p)
         H << sb;
         H << nl << "static const StreamHelperCategory helper = StreamHelperCategoryUserException;";
         H << eb << ";" << nl;
+
+        writeStreamHelpers(H, p, p->dataMembers(), true);
     }
     return false;
 }
@@ -4815,33 +4806,7 @@ Slice::Gen::StreamVisitor::visitStructStart(const StructPtr& p)
         }
         H << eb << ";" << nl;
 
-        DataMemberList dataMembers = p->dataMembers();
-
-        string holder = classMetaData ? "v->" : "v.";
-
-        H << nl << "template<class S>";
-        H << nl << "struct StreamWriter< " << fullStructName << ", S>";
-        H << sb;
-        H << nl << "static void write(S* __os, const " <<  fullStructName << "& v)";
-        H << sb;
-        for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-        {
-            writeMarshalUnmarshalDataMemberInHolder(H, holder, *q, true);
-        }
-        H << eb;
-        H << eb << ";" << nl;
-
-        H << nl << "template<class S>";
-        H << nl << "struct StreamReader< " << fullStructName << ", S>";
-        H << sb;
-        H << nl << "static void read(S* __is, " << fullStructName << "& v)";
-        H << sb;
-        for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-        {
-            writeMarshalUnmarshalDataMemberInHolder(H, holder, *q, false);
-        }
-        H << eb;
-        H << eb << ";" << nl;
+        writeStreamHelpers(H, p, p->dataMembers(), true);
     }
     return false;
 }
@@ -5425,18 +5390,12 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         }
     }
 
-    H << sp << nl << "class " << _dllExport << name << " : ";
-    H.useCurrentPosAsIndent();
-    H << "public ";
-    if(!base)
-    {
-        H << (p->isLocal() ? "::Ice::LocalException" : "::Ice::UserException");
-    }
-    else
-    {
-        H << fixKwd(base->scoped());
-    }
-    H.restoreIndent();
+    string helperClass = p->isLocal() ? "Ice::LocalExceptionHelper" : "Ice::UserExceptionHelper";
+    string baseClass = base ? fixKwd(base->scoped()) : (p->isLocal() ? "::Ice::LocalException" : "::Ice::UserException");
+    string templateParameters = name + ", " + baseClass;
+
+    H << sp << nl;
+    H << "class " << _dllExport << name << " : public ::" << helperClass << "<" << templateParameters << ">";
     H << sb;
 
     H.dec();
@@ -5446,7 +5405,8 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     if(p->isLocal())
     {
         H << sp << nl << name << "(const char* __ice_file, int __ice_line) : ";
-        H << (base ? fixKwd(base->scoped()) : "::Ice::LocalException") << "(__ice_file, __ice_line)";
+        H << "::Ice::LocalExceptionHelper" << "<" << templateParameters << ">";
+        H << "(__ice_file, __ice_line)";
         H << sb;
         H << eb;
     }
@@ -5494,7 +5454,7 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         H.inc();
         if(base && (p->isLocal() || !baseDataMembers.empty()))
         {
-            H << nl << fixKwd(base->scoped()) << "(";
+            H << nl << "::" << helperClass << "<" << templateParameters << ">" << "(";
             if(p->isLocal())
             {
                 H << "__ice_file, __ice_line";
@@ -5528,7 +5488,8 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         }
         else if(p->isLocal())
         {
-            H << nl << "::Ice::LocalException(__ice_file, __ice_line)";
+            H << " ::Ice::LocalExceptionHelper" << "<" << templateParameters << ">";
+            H << "(__ice_file, __ice_line)";
             if(!dataMembers.empty())
             {
                 H << ",";
@@ -5557,12 +5518,22 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
     H << sp;
 
-    H << nl << "virtual ::std::string ice_id() const;";
-    C << sp << nl << "::std::string" << nl << scoped.substr(2) << "::ice_id() const";
+    H << nl << "static const ::std::string& ice_staticId();";
+
+    if(p->isLocal())
+    {
+        C << sp << nl << "namespace" << sb;
+        C.dec();
+        C << nl << "const std::string " << p->flattenedScope() << p->name() << "_id = \"" << p->scoped() << "\";";
+        C.inc();
+        C << eb;
+    }
+
+    C << sp << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_staticId()";
     C << sb;
     if(p->isLocal())
     {
-        C << nl << "return \"" << p->scoped() << "\";" << ";";
+        C << nl << "return " << p->flattenedScope() << p->name() << "_id;";
     }
     else
     {
@@ -5575,12 +5546,6 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     {
         H << nl << "virtual void ice_print(::std::ostream&) const;";
     }
-
-    H << nl << "virtual void ice_throw() const;";
-    C << sp << nl << "void" << nl << scoped.substr(2) << "::ice_throw() const";
-    C << sb;
-    C << nl << "throw *this;";
-    C << eb;
 
     if(!p->isLocal() && p->usesClasses(false))
     {
@@ -5616,20 +5581,12 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         ExceptionPtr base = p->base();
         bool basePreserved = p->inheritsMetaData("preserve-slice");
         bool preserved = p->hasMetaData("preserve-slice");
-        string typeId = p->flattenedScope() + p->name() + "_init.typeId";
 
         if(preserved && !basePreserved)
         {
             H << sp << nl << "virtual void __write(::Ice::OutputStream*) const;";
             H << nl << "virtual void __read(::Ice::InputStream*);";
         }
-
-        H.dec();
-        H << sp << nl << "protected:";
-        H.inc();
-        H << sp;
-        H << nl << "virtual void __writeImpl(::Ice::OutputStream*) const;";
-        H << nl << "virtual void __readImpl(::Ice::InputStream*);";
 
         if(preserved && !basePreserved)
         {
@@ -5649,28 +5606,6 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             C << nl << "__slicedData = __is->endException(true);";
             C << eb;
         }
-
-        C << sp << nl << "void" << nl << scoped.substr(2) << "::__writeImpl(::Ice::OutputStream* __os) const";
-        C << sb;
-        C << nl << "__os->startSlice(" << typeId << ", -1, " << (!base ? "true" : "false") << ");";
-        writeMarshalUnmarshalDataMembers(C, p->dataMembers(), p->orderedOptionalDataMembers(), true);
-        C << nl << "__os->endSlice();";
-        if(base)
-        {
-            emitUpcall(base, "::__writeImpl(__os);");
-        }
-        C << eb;
-
-        C << sp << nl << "void" << nl << scoped.substr(2) << "::__readImpl(::Ice::InputStream* __is)";
-        C << sb;
-        C << nl << "__is->startSlice();";
-        writeMarshalUnmarshalDataMembers(C, p->dataMembers(), p->orderedOptionalDataMembers(), false);
-        C << nl << "__is->endSlice();";
-        if(base)
-        {
-            emitUpcall(base, "::__readImpl(__is);");
-        }
-        C << eb;
     }
     H << eb << ';';
 
@@ -6993,7 +6928,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitClassDefStart(const ClassDefPtr& p)
     H << sp;
     H << nl << "virtual bool ice_isA(::std::string, const ::Ice::Current& = ::Ice::noExplicitCurrent) const;";
     H << nl << "virtual ::std::vector< ::std::string> ice_ids(const ::Ice::Current& = ::Ice::noExplicitCurrent) const;";
-    H << nl << "virtual const ::std::string& ice_id(const ::Ice::Current& = ::Ice::noExplicitCurrent) const;";
+    H << nl << "virtual ::std::string ice_id(const ::Ice::Current& = ::Ice::noExplicitCurrent) const;";
     H << nl << "static const ::std::string& ice_staticId();";
 
     string flatName = p->flattenedScope() + p->name() + "_ids";
@@ -7011,7 +6946,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitClassDefStart(const ClassDefPtr& p)
     C << eb;
 
     C << sp;
-    C << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_id(const ::Ice::Current&) const";
+    C << nl << "::std::string" << nl << scoped.substr(2) << "::ice_id(const ::Ice::Current&) const";
     C << sb;
     C << nl << "return " << flatName << '[' << scopedPos << "];";
     C << eb;
@@ -7523,9 +7458,12 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
     H.dec();
     H << sp << nl << "protected:";
     H.inc();
+
     H << sp;
-    H << nl << "virtual void __writeImpl(::Ice::OutputStream*) const;";
-    H << nl << "virtual void __readImpl(::Ice::InputStream*);";
+    H << nl << "template<typename T, typename S>";
+    H << nl << "friend struct Ice::StreamWriter;";
+    H << nl << "template<typename T, typename S>";
+    H << nl << "friend struct Ice::StreamReader;";
 
     if(preserved && !basePreserved)
     {
@@ -7545,30 +7483,6 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
         C << nl << "__slicedData = __is->endValue(true);";
         C << eb;
     }
-
-    C << sp;
-    C << nl << "void" << nl << scoped.substr(2) << "::__writeImpl(::Ice::OutputStream* __os) const";
-    C << sb;
-    C << nl << "__os->startSlice(" << typeId << ", " << p->compactId() << (!base ? ", true" : ", false") << ");";
-    writeMarshalUnmarshalDataMembers(C, p->dataMembers(), p->orderedOptionalDataMembers(), true);
-    C << nl << "__os->endSlice();";
-    if(base)
-    {
-        emitUpcall(base, "::__writeImpl(__os);");
-    }
-    C << eb;
-
-    C << sp;
-    C << nl << "void" << nl << scoped.substr(2) << "::__readImpl(::Ice::InputStream* __is)";
-    C << sb;
-    C << nl << "__is->startSlice();";
-    writeMarshalUnmarshalDataMembers(C, p->dataMembers(), p->orderedOptionalDataMembers(), false);
-    C << nl << "__is->endSlice();";
-    if(base)
-    {
-        emitUpcall(base, "::__readImpl(__is);");
-    }
-    C << eb;
 
     C << sp;
     C << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_staticId()";
@@ -7769,7 +7683,9 @@ bool
 Slice::Gen::Cpp11StreamVisitor::visitModuleStart(const ModulePtr& m)
 {
     if(!m->hasNonLocalContained(Contained::ContainedTypeStruct) &&
-       !m->hasNonLocalContained(Contained::ContainedTypeEnum))
+       !m->hasNonLocalContained(Contained::ContainedTypeEnum) &&
+       !m->hasNonLocalContained(Contained::ContainedTypeException) &&
+       !m->hasNonLocalContained(Contained::ContainedTypeClass))
     {
         return false;
     }
@@ -7825,33 +7741,28 @@ Slice::Gen::Cpp11StreamVisitor::visitStructStart(const StructPtr& p)
     H << nl << "static const bool fixedLength = " << (p->isVariableLength() ? "false" : "true") << ";";
     H << eb << ";" << nl;
 
-    DataMemberList dataMembers = p->dataMembers();
-
-    H << nl << "template<class S>";
-    H << nl << "struct StreamWriter<" << scoped << ", S>";
-    H << sb;
-    H << nl << "static void write(S* __os, const " <<  scoped << "& v)";
-    H << sb;
-    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-    {
-        writeMarshalUnmarshalDataMemberInHolder(H, "v.", *q, true);
-    }
-    H << eb;
-    H << eb << ";" << nl;
-
-    H << nl << "template<class S>";
-    H << nl << "struct StreamReader<" << scoped << ", S>";
-    H << sb;
-    H << nl << "static void read(S* __is, " << scoped << "& v)";
-    H << sb;
-    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-    {
-        writeMarshalUnmarshalDataMemberInHolder(H, "v.", *q, false);
-    }
-    H << eb;
-    H << eb << ";" << nl;
+    writeStreamHelpers(H, p, p->dataMembers());
 
     return false;
+}
+
+bool
+Slice::Gen::Cpp11StreamVisitor::visitClassDefStart(const ClassDefPtr& c)
+{
+    if(!c->isLocal() && !c->isInterface())
+    {
+        writeStreamHelpers(H, c, c->dataMembers(), true);
+    }
+    return false;
+}
+
+void
+Slice::Gen::Cpp11StreamVisitor::visitExceptionEnd(const ExceptionPtr& p)
+{
+    if(!p->isLocal())
+    {
+        writeStreamHelpers(H, p, p->dataMembers(), true);
+    }
 }
 
 void

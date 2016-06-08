@@ -448,6 +448,7 @@ public:
     bool hasLocalClassDefsWithAsync() const;
     bool hasNonLocalSequences() const;
     bool hasNonLocalExceptions() const;
+    bool hasExceptions() const;
     bool hasDictionaries() const;
     bool hasOnlyDictionaries(DictionaryList&) const;
     bool hasClassDecls() const;

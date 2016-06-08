@@ -108,6 +108,19 @@ private:
     SlicedDataPtr _slicedData;
 };
 
+#if defined(ICE_CPP11_MAPPING)
+template<typename S>
+struct StreamWriter<UnknownSlicedValue, S>
+{
+    static void write(S* __os, const UnknownSlicedValue& v) { }
+};
+template<typename S>
+struct StreamReader<UnknownSlicedValue, S>
+{
+    static void read(S* __is, UnknownSlicedValue& v) { }
+};
+#endif
+
 }
 
 #endif

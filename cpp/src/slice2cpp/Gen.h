@@ -329,6 +329,7 @@ private:
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
         virtual bool visitStructStart(const StructPtr&);
+        virtual bool visitClassDefStart(const ClassDefPtr&);
         virtual bool visitExceptionStart(const ExceptionPtr&);
         virtual void visitEnum(const EnumPtr&);
 
@@ -561,6 +562,8 @@ private:
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
         virtual bool visitStructStart(const StructPtr&);
+        virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual void visitExceptionEnd(const ExceptionPtr&);
         virtual void visitEnum(const EnumPtr&);
 
     private:

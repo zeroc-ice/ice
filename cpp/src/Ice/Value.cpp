@@ -54,14 +54,14 @@ const string __Ice__Object_ids[] =
 
 }
 
-const string&
-Ice::Value::ice_staticId()
+string
+Ice::Value::ice_id() const
 {
     return __Ice__Object_ids[0];
 }
 
 const string&
-Ice::Value::ice_id() const
+Ice::Value::ice_staticId()
 {
     return __Ice__Object_ids[0];
 }

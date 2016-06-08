@@ -78,7 +78,11 @@ Ice::Object::ice_ids(const Current&) const
     return vector<string>(&__Ice__Object_ids[0], &__Ice__Object_ids[1]);
 }
 
+#ifdef ICE_CPP11_MAPPING
+string
+#else
 const string&
+#endif
 Ice::Object::ice_id(const Current&) const
 {
     return __Ice__Object_ids[0];
@@ -388,7 +392,7 @@ Ice::BlobjectAsync::__dispatch(Incoming& in, const Current& current)
     auto async = IncomingAsync::create(in);
     try
     {
-        ice_invoke_async(vector<Byte>(inEncaps, inEncaps + sz), 
+        ice_invoke_async(vector<Byte>(inEncaps, inEncaps + sz),
             [async](bool ok, const vector<Byte>& outEncaps)
             {
                 if(async->__validateResponse(ok))
@@ -470,7 +474,7 @@ Ice::BlobjectArrayAsync::__dispatch(Incoming& in, const Current& current)
     auto async = IncomingAsync::create(in);
     try
     {
-        ice_invoke_async(inEncaps, 
+        ice_invoke_async(inEncaps,
             [async](bool ok, const pair<const Byte*, const Byte*>& outEncaps)
             {
                 if(async->__validateResponse(ok))

@@ -41,7 +41,7 @@ MyDerivedClassI::ice_ping(const Ice::Current& current) const
 #ifdef ICE_CPP11_MAPPING
     Test::MyDerivedClassDisp::ice_ping(current);
 #else
-    Test::MyDerivedClass::ice_ping(current);    
+    Test::MyDerivedClass::ice_ping(current);
 #endif
 }
 
@@ -56,7 +56,11 @@ MyDerivedClassI::ice_ids(const Ice::Current& current) const
 #endif
 }
 
+#ifdef ICE_CPP11_MAPPING
+std::string
+#else
 const std::string&
+#endif
 MyDerivedClassI::ice_id(const Ice::Current& current) const
 {
     test(current.mode == ICE_ENUM(OperationMode, Nonmutating));
