@@ -96,9 +96,22 @@ ifeq ($(UNAME),Linux)
       ifeq ($(LP64),)
           LP64      	= yes
       endif
+
+      #
+      # x86 binaries build on x86_64 machine use 32 binsuffix
+      #
+      ifneq ($(STATICLIBS),yes)
+          ifneq ($(LP64),yes)
+              binsuffix	= 32
+          endif
+      endif
    endif
+
+   #
+   # x86 builds uses 32 binsuffix
+   #
    ifneq ($(STATICLIBS),yes)
-	ifneq ($(LP64),yes)
+	ifeq ($(findstring $(MACHINE_TYPE),i386 i486 i586 i686),$(MACHINE_TYPE))
 	    binsuffix     = 32
 	endif
     endif
