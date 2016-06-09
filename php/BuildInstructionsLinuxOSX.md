@@ -66,26 +66,18 @@ examining the output of `php -i` and looking for the presence of
 `--with-config-file-scan-dir` in the "Configure Command" entry. If present,
 you can create a file in `/etc/php.d` that contains the directive to load the
 Ice extension. For example, create the file `/etc/php.d/ice.ini` containing
-the following line on Linux:
+the following line:
 
     extension = IcePHP.so
-
-Or on OS X:
-
-    extension = IcePHP.dy
 
 If PHP does not support the `/etc/php.d` directory, determine the path name of
 PHP's configuration file as reported by the `php -i` command:
 
     Configuration File (php.ini) Path => /etc/php.ini
 
-Open the configuration file and append the following line on Linux:
+Open the configuration file and append the following line:
 
     extension = IcePHP.so
-
-Or on OS X:
-
-    extension = IcePHP.dy
 
 You can verify that PHP is loading the Ice extension by running the command
 shown below:

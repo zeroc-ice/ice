@@ -72,7 +72,7 @@ mkshlibnametarget = $(mkshlibfilename)
 
 mkpymodulename	= $1.so
 mkrbmodulename	= $1.bundle
-mkphpmodulename = $1.dy
+mkphpmodulename = $1.so
 
 #
 # System libraries
