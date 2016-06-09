@@ -7740,7 +7740,7 @@ Slice::Gen::Cpp11StreamVisitor::visitStructStart(const StructPtr& p)
     H << nl << "static const bool fixedLength = " << (p->isVariableLength() ? "false" : "true") << ";";
     H << eb << ";" << nl;
 
-    writeStreamHelpers(H, true, p, p->dataMembers());
+    writeStreamHelpers(H, false, p, p->dataMembers());
 
     return false;
 }
