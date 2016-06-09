@@ -17,6 +17,10 @@ ifneq ($(MAKECMDGOALS),install)
     SUBDIRS		:= $(SUBDIRS) test
 endif
 
+ifeq ($(NOTEST),yes)
+    SUBDIRS		:= $(filter-out test, $(SUBDIRS))
+endif
+
 INSTALL_SUBDIRS	= $(install_bindir) $(install_libdir)$(cpp11libdirsuffix) $(install_includedir) \
 	$(install_configdir) $(install_mandir)
 
