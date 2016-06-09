@@ -53,7 +53,9 @@ class ICE_DB_API LMDBException : public IceUtil::Exception
 public:
 
     LMDBException(const char*, int, int);
-    virtual ~LMDBException() ICE_NOEXCEPT;
+#ifndef ICE_CPP11_COMPILER
+    virtual ~LMDBException() throw();
+#endif
 
     virtual std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;
@@ -79,7 +81,9 @@ class ICE_DB_API KeyTooLongException : public IceUtil::Exception
 public:
 
     KeyTooLongException(const char*, int, size_t);
-    virtual ~KeyTooLongException() ICE_NOEXCEPT;
+#ifndef ICE_CPP11_COMPILER
+    virtual ~KeyTooLongException() throw();
+#endif
 
     virtual std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;
@@ -103,7 +107,9 @@ class ICE_DB_API BadEnvException : public IceUtil::Exception
 public:
 
     BadEnvException(const char*, int, size_t);
-    virtual ~BadEnvException() ICE_NOEXCEPT;
+#ifndef ICE_CPP11_COMPILER
+    virtual ~BadEnvException() throw();
+#endif
 
     virtual std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;

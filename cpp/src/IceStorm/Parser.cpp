@@ -38,17 +38,19 @@ namespace
 class UnknownManagerException : public Exception
 {
 public:
-    
+
     UnknownManagerException(const string& name, const char* file, int line) :
         Exception(file, line),
         name(name)
     {
     }
 
+#ifndef ICE_CPP11_COMPILER
     virtual
-    ~UnknownManagerException() ICE_NOEXCEPT
+    ~UnknownManagerException() throw()
     {
     }
+#endif
 
     virtual string
     ice_id() const
@@ -61,7 +63,7 @@ public:
     {
         return new UnknownManagerException(*this);
     }
-    
+
     virtual void
     ice_throw() const
     {
@@ -157,8 +159,8 @@ Parser::link(const list<string>& args)
     }
 
     try
-    {    
-        list<string>::const_iterator p = args.begin(); 
+    {
+        list<string>::const_iterator p = args.begin();
 
         TopicPrx fromTopic = findTopic(*p++);
         TopicPrx toTopic = findTopic(*p++);
@@ -182,7 +184,7 @@ Parser::unlink(const list<string>& args)
     }
 
     try
-    {   
+    {
         list<string>::const_iterator p = args.begin();
 
         TopicPrx fromTopic = findTopic(*p++);
@@ -405,7 +407,7 @@ Parser::showBanner()
 }
 
 //
-// With older flex version <= 2.5.35 YY_INPUT second 
+// With older flex version <= 2.5.35 YY_INPUT second
 // paramenter is of type int&, in newer versions it
 // changes to size_t&
 //
@@ -493,7 +495,7 @@ Parser::getInput(char* buf, size_t& result, size_t maxSize)
                 break;
             }
         }
-        
+
         result = line.length();
         if(result > maxSize)
         {

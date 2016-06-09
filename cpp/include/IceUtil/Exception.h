@@ -24,19 +24,20 @@ public:
 
     Exception();
     Exception(const char*, int);
-
-    virtual ~Exception() ICE_NOEXCEPT;
-    virtual std::string ice_id() const;
+#ifndef ICE_CPP11_COMPILER
+    virtual ~Exception() throw();
+#endif
+    virtual std::string ice_id() const = 0;
     virtual void ice_print(std::ostream&) const;
     virtual const char* what() const ICE_NOEXCEPT;
 #ifdef ICE_CPP11_MAPPING
     std::exception_ptr ice_clone() const;
 #else
+    virtual Exception* ice_clone() const = 0;
     ICE_DEPRECATED_API("ice_name() is deprecated, use ice_id() instead.")
     std::string ice_name() const;
-    virtual Exception* ice_clone() const;
 #endif
-    virtual void ice_throw() const;
+    virtual void ice_throw() const = 0;
 
     const char* ice_file() const;
     int ice_line() const;
@@ -57,7 +58,9 @@ class ICE_API NullHandleException : public Exception
 public:
 
     NullHandleException(const char*, int);
-    virtual ~NullHandleException() ICE_NOEXCEPT;
+#ifndef ICE_CPP11_COMPILER
+    virtual ~NullHandleException() throw();
+#endif
     virtual std::string ice_id() const;
 #ifndef ICE_CPP11_MAPPING
     virtual NullHandleException* ice_clone() const;
@@ -71,7 +74,9 @@ public:
 
     IllegalArgumentException(const char*, int);
     IllegalArgumentException(const char*, int, const std::string&);
-    virtual ~IllegalArgumentException() ICE_NOEXCEPT;
+#ifndef ICE_CPP11_COMPILER
+    virtual ~IllegalArgumentException() throw();
+#endif
     virtual std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;
 #ifndef ICE_CPP11_MAPPING
@@ -95,7 +100,9 @@ public:
 
     IllegalConversionException(const char*, int);
     IllegalConversionException(const char*, int, const std::string&);
-    virtual ~IllegalConversionException() ICE_NOEXCEPT;
+#ifndef ICE_CPP11_COMPILER
+    virtual ~IllegalConversionException() throw();
+#endif
     virtual std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;
 #ifndef ICE_CPP11_MAPPING
@@ -134,7 +141,9 @@ class ICE_API FileLockException : public Exception
 public:
 
     FileLockException(const char*, int, int, const std::string&);
-    virtual ~FileLockException() ICE_NOEXCEPT;
+#ifndef ICE_CPP11_COMPILER
+    virtual ~FileLockException() throw();
+#endif
     virtual std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;
 #ifndef ICE_CPP11_MAPPING
@@ -156,7 +165,9 @@ class ICE_API OptionalNotSetException : public Exception
 public:
 
     OptionalNotSetException(const char*, int);
-    virtual ~OptionalNotSetException() ICE_NOEXCEPT;
+#ifndef ICE_CPP11_COMPILER
+    virtual ~OptionalNotSetException() throw();
+#endif
     virtual std::string ice_id() const;
 #ifndef ICE_CPP11_MAPPING
     virtual OptionalNotSetException* ice_clone() const;
@@ -170,7 +181,9 @@ class ICE_API IconvInitializationException : public Exception
 public:
 
     IconvInitializationException(const char*, int, const std::string&);
-    virtual ~IconvInitializationException() ICE_NOEXCEPT;
+#ifndef ICE_CPP11_COMPILER
+    virtual ~IconvInitializationException() throw();
+#endif
     virtual std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;
 #ifndef ICE_CPP11_MAPPING

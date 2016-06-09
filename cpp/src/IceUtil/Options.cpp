@@ -20,9 +20,11 @@ IceUtilInternal::APIException::APIException(const char* file, int line, const st
 {
 }
 
-IceUtilInternal::APIException::~APIException() ICE_NOEXCEPT
+#ifndef ICE_CPP11_COMPILER
+IceUtilInternal::APIException::~APIException() throw()
 {
 }
+#endif
 
 string
 IceUtilInternal::APIException::ice_id() const
@@ -66,9 +68,11 @@ IceUtilInternal::BadOptException::BadOptException(const char* file, int line, co
 {
 }
 
-IceUtilInternal::BadOptException::~BadOptException() ICE_NOEXCEPT
+#ifndef ICE_CPP11_COMPILER
+IceUtilInternal::BadOptException::~BadOptException() throw()
 {
 }
+#endif
 
 string
 IceUtilInternal::BadOptException::ice_id() const
@@ -174,7 +178,7 @@ void
 IceUtilInternal::Options::addOpt(const string& shortOpt, const string& longOpt, ArgType at, string dflt, RepeatType rt)
 {
     RecMutex::Lock sync(_m);
-    
+
     if(parseCalled)
     {
         throw APIException(__FILE__, __LINE__, "cannot add options after parse() was called");
@@ -465,7 +469,7 @@ IceUtilInternal::Options::split(const string& line)
 
                                 Int64 ull = 0;
                                 string::size_type j;
-                                for(j = i + 1; j < i + 3 && j < l.size() && 
+                                for(j = i + 1; j < i + 3 && j < l.size() &&
                                     isxdigit(static_cast<unsigned char>(c = l[j])); ++j)
                                 {
                                     ull *= 16;

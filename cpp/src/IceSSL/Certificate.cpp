@@ -427,9 +427,11 @@ CertificateReadException::CertificateReadException(const char* file, int line, c
 {
 }
 
-CertificateReadException::~CertificateReadException() ICE_NOEXCEPT
+#ifndef ICE_CPP11_COMPILER
+CertificateReadException::~CertificateReadException() throw()
 {
 }
+#endif
 
 string
 CertificateReadException::ice_id() const
@@ -467,9 +469,11 @@ CertificateEncodingException::CertificateEncodingException(const char* file, int
 {
 }
 
-CertificateEncodingException::~CertificateEncodingException() ICE_NOEXCEPT
+#ifndef ICE_CPP11_COMPILER
+CertificateEncodingException::~CertificateEncodingException() throw()
 {
 }
+#endif
 
 string
 CertificateEncodingException::ice_id() const
@@ -669,9 +673,11 @@ ParseException::ParseException(const char* file, int line, const string& r) :
 {
 }
 
-ParseException::~ParseException() ICE_NOEXCEPT
+#ifndef ICE_CPP11_COMPILER
+ParseException::~ParseException() throw()
 {
 }
+#endif
 
 string
 ParseException::ice_id() const

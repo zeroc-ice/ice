@@ -44,31 +44,31 @@ class ICE_API LocalException : public IceUtil::Exception
 public:
 
     LocalException(const char*, int);
-    virtual ~LocalException() ICE_NOEXCEPT;
+#ifndef ICE_CPP11_COMPILER
+    virtual ~LocalException() throw();
+#endif
 
-    virtual std::string ice_id() const = 0;
     static const std::string& ice_staticId();
+
 #ifndef ICE_CPP11_MAPPING
     virtual LocalException* ice_clone() const = 0;
 #endif
-    virtual void ice_throw() const = 0;
 };
 
 class ICE_API UserException : public IceUtil::Exception
 {
 public:
 
-    virtual std::string ice_id() const = 0;
     static const std::string& ice_staticId();
-#ifndef ICE_CPP11_MAPPING
-    virtual UserException* ice_clone() const = 0;
-#endif
-    virtual void ice_throw() const = 0;
 
     virtual void __write(::Ice::OutputStream*) const;
     virtual void __read(::Ice::InputStream*);
 
     virtual bool __usesClasses() const;
+
+#ifndef ICE_CPP11_MAPPING
+    virtual UserException* ice_clone() const = 0;
+#endif
 
 protected:
 
@@ -81,33 +81,17 @@ class ICE_API SystemException : public IceUtil::Exception
 public:
 
     SystemException(const char*, int);
-    virtual ~SystemException() ICE_NOEXCEPT;
-    virtual std::string ice_id() const = 0;
+#ifndef ICE_CPP11_COMPILER
+    virtual ~SystemException() throw();
+#endif
+
+    static const std::string& ice_staticId();
+
 #ifndef ICE_CPP11_MAPPING
     virtual SystemException* ice_clone() const = 0;
 #endif
-    virtual void ice_throw() const = 0;
-};
 
-#if defined(__SUNPRO_CC)
-//
-// COMPILERFIX: With Sun CC the presence of the overloaded operator
-// in ProxyHandle.h
-//
-//   template<class OStream, class Y>
-//   OStream& operator<<(OStream& os, ::IceInternal::ProxyHandle<Y> p)
-//
-// prevents the compiler from using the overloaded operator for
-// Exception in IceUtil/Exception.h
-//
-//   std::ostream& operator<<(std::ostream&, const Exception&);
-//
-// thus causing a compile error and making these overloads necessary.
-//
-ICE_API std::ostream& operator<<(std::ostream&, const LocalException&);
-ICE_API std::ostream& operator<<(std::ostream&, const UserException&);
-ICE_API std::ostream& operator<<(std::ostream&, const SystemException&);
-#endif
+};
 
 }
 

@@ -150,9 +150,11 @@ public:
     {
     }
 
-    virtual ~TestFailedException() ICE_NOEXCEPT
+#ifndef ICE_CPP11_COMPILER
+    virtual ~TestFailedException() throw()
     {
     }
+#endif
 
     virtual ::std::string ice_id() const
     {

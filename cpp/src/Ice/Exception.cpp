@@ -102,6 +102,22 @@ throwMarshalException(const char* file, int line, const string& reason)
 }
 }
 
+namespace
+{
+
+const string __Ice__UserException_ids[] =
+{
+    "::Ice::UserException"
+};
+
+}
+
+const std::string&
+Ice::UserException::ice_staticId()
+{
+    return __Ice__UserException_ids[0];
+};
+
 void
 Ice::UserException::__write(::Ice::OutputStream* os) const
 {
@@ -129,8 +145,26 @@ Ice::LocalException::LocalException(const char* file, int line) :
 {
 }
 
-Ice::LocalException::~LocalException() ICE_NOEXCEPT
+#ifndef ICE_CPP11_COMPILER
+Ice::LocalException::~LocalException() throw()
 {
+}
+#endif
+
+namespace
+{
+
+const string __Ice__LocalException_ids[] =
+{
+    "::Ice::LocalException"
+};
+
+}
+
+const std::string&
+Ice::LocalException::ice_staticId()
+{
+    return __Ice__LocalException_ids[0];
 }
 
 Ice::SystemException::SystemException(const char* file, int line) :
@@ -138,32 +172,27 @@ Ice::SystemException::SystemException(const char* file, int line) :
 {
 }
 
-Ice::SystemException::~SystemException() ICE_NOEXCEPT
+#ifndef ICE_CPP11_COMPILER
+Ice::SystemException::~SystemException() throw()
 {
-}
-
-#if defined(__SUNPRO_CC)
-ostream&
-Ice::operator<<(ostream& out, const Ice::UserException& ex)
-{
-    ex.ice_print(out);
-    return out;
-}
-
-ostream&
-Ice::operator<<(ostream& out, const Ice::LocalException& ex)
-{
-    ex.ice_print(out);
-    return out;
-}
-
-ostream&
-Ice::operator<<(ostream& out, const Ice::SystemException& ex)
-{
-    ex.ice_print(out);
-    return out;
 }
 #endif
+
+namespace
+{
+
+const string __Ice__SystemException_ids[] =
+{
+    "::Ice::SystemException"
+};
+
+}
+
+const std::string&
+Ice::SystemException::ice_staticId()
+{
+    return __Ice__SystemException_ids[0];
+}
 
 void
 Ice::InitializationException::ice_print(ostream& out) const

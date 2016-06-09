@@ -48,7 +48,9 @@ public:
 
     ParserException(const std::string&);
     ParserException(const char*, int, const std::string&);
-    virtual ~ParserException() ICE_NOEXCEPT;
+#ifndef ICE_CPP11_COMPILER
+    virtual ~ParserException() throw();
+#endif
 
     virtual std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;

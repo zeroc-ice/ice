@@ -28,9 +28,11 @@ IceXML::ParserException::ParserException(const char* file, int line, const strin
 {
 }
 
-IceXML::ParserException::~ParserException() ICE_NOEXCEPT
+#ifndef ICE_CPP11_COMPILER
+IceXML::ParserException::~ParserException() throw()
 {
 }
+#endif
 
 string
 IceXML::ParserException::ice_id() const
@@ -433,7 +435,7 @@ IceXML::Parser::parse(istream& in, Handler& handler)
             }
             if(XML_Parse(parser, buff, static_cast<int>(in.gcount()), isFinal) != 1)
             {
-                handler.error(XML_ErrorString(XML_GetErrorCode(parser)), 
+                handler.error(XML_ErrorString(XML_GetErrorCode(parser)),
                               static_cast<int>(XML_GetCurrentLineNumber(parser)),
                               static_cast<int>(XML_GetCurrentColumnNumber(parser)));
                 return;

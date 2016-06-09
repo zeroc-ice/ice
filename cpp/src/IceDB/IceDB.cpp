@@ -21,9 +21,11 @@ LMDBException::LMDBException(const char* file, int line, int err) :
 {
 }
 
-LMDBException::~LMDBException() ICE_NOEXCEPT
+#ifndef ICE_CPP11_COMPILER
+LMDBException::~LMDBException() throw()
 {
 }
+#endif
 
 string
 LMDBException::ice_id() const
@@ -64,9 +66,11 @@ KeyTooLongException::KeyTooLongException(const char* file, int line, size_t size
 {
 }
 
-KeyTooLongException::~KeyTooLongException() ICE_NOEXCEPT
+#ifndef ICE_CPP11_COMPILER
+KeyTooLongException::~KeyTooLongException() throw()
 {
 }
+#endif
 
 string
 KeyTooLongException::ice_id() const
@@ -106,9 +110,11 @@ BadEnvException::BadEnvException(const char* file, int line, size_t size) :
 {
 }
 
-BadEnvException::~BadEnvException() ICE_NOEXCEPT
+#ifndef ICE_CPP11_COMPILER
+BadEnvException::~BadEnvException() throw()
 {
 }
+#endif
 
 string
 BadEnvException::ice_id() const
@@ -472,11 +478,11 @@ CursorBase::renew(const ReadOnlyTxn& txn)
 
 
 //
-// On Windows, we use a default LMDB map size of 10MB, whereas on other platforms 
+// On Windows, we use a default LMDB map size of 10MB, whereas on other platforms
 // (Linux, OS X), we use a default of 100MB.
 //
 // On Windows, LMDB does not use sparse files and allocates immediately the file
-// with the given (max) size. This is why we need a fairly small default map size 
+// with the given (max) size. This is why we need a fairly small default map size
 // on Windows, and a larger value on other platforms.
 
 size_t

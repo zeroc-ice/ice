@@ -23,9 +23,11 @@ Slice::FileException::FileException(const char* file, int line, const string& r)
 {
 }
 
-Slice::FileException::~FileException() ICE_NOEXCEPT
+#ifndef ICE_CPP11_COMPILER
+Slice::FileException::~FileException() throw()
 {
 }
+#endif
 
 string
 Slice::FileException::ice_id() const

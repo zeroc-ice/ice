@@ -59,7 +59,9 @@ class PluginInitializeFailExeption : public std::exception
 public:
 
     PluginInitializeFailExeption() ICE_NOEXCEPT {}
-    virtual ~PluginInitializeFailExeption() ICE_NOEXCEPT {}
+#ifndef ICE_CPP11_COMPILER
+    virtual ~PluginInitializeFailExeption() throw() {}
+#endif
     virtual const char* what() const ICE_NOEXCEPT { return "PluginInitializeFailExeption"; }
 };
 

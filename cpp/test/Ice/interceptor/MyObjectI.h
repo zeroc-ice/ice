@@ -15,10 +15,12 @@
 class MySystemException : public Ice::SystemException
 {
 public:
-  
+
     MySystemException(const char*, int);
 
-    virtual ~MySystemException() ICE_NOEXCEPT;
+#ifndef ICE_CPP11_COMPILER
+    virtual ~MySystemException() throw();
+#endif
 
     virtual std::string ice_id() const;
 #ifndef ICE_CPP11_MAPPING
@@ -36,7 +38,7 @@ public:
     virtual int badAdd(int, int, const Ice::Current&);
     virtual int notExistAdd(int, int, const Ice::Current&);
     virtual int badSystemAdd(int, int, const Ice::Current&);
-    
+
 #ifdef ICE_CPP11_MAPPING
     virtual void amdAddAsync(int, int, std::function<void (int)>, std::function<void (std::exception_ptr)>, const Ice::Current&);
     virtual void amdAddWithRetryAsync(int, int, std::function<void (int)>, std::function<void (std::exception_ptr)>, const Ice::Current&);

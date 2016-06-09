@@ -106,7 +106,9 @@ class ICE_SSL_API CertificateReadException : public IceUtil::Exception
 public:
 
     CertificateReadException(const char*, int, const std::string&);
-    virtual ~CertificateReadException() ICE_NOEXCEPT;
+#ifndef ICE_CPP11_COMPILER
+    virtual ~CertificateReadException() throw();
+#endif
     virtual std::string ice_id() const;
 #ifndef ICE_CPP11_MAPPING
     virtual CertificateReadException* ice_clone() const;
@@ -131,7 +133,9 @@ public:
 #ifdef ICE_USE_SECURE_TRANSPORT
     CertificateEncodingException(const char*, int, CFErrorRef);
 #endif
-    virtual ~CertificateEncodingException() ICE_NOEXCEPT;
+#ifndef ICE_CPP11_COMPILER
+    virtual ~CertificateEncodingException() throw();
+#endif
     virtual std::string ice_id() const;
 #ifndef ICE_CPP11_MAPPING
     virtual CertificateEncodingException* ice_clone() const;
@@ -153,7 +157,9 @@ class ICE_SSL_API ParseException : public IceUtil::Exception
 public:
 
     ParseException(const char*, int, const std::string&);
-    virtual ~ParseException() ICE_NOEXCEPT;
+#ifndef ICE_CPP11_COMPILER
+    virtual ~ParseException() throw();
+#endif
     virtual std::string ice_id() const;
 #ifndef ICE_CPP11_MAPPING
     virtual ParseException* ice_clone() const;

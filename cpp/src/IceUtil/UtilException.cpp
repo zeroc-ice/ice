@@ -74,7 +74,7 @@ using namespace std;
 namespace IceUtilInternal
 {
 
-#ifdef NDEBUG 
+#ifdef NDEBUG
 bool ICE_API printStackTraces = false;
 #else
 bool ICE_API printStackTraces = true;
@@ -578,9 +578,11 @@ IceUtil::Exception::Exception(const char* file, int line) :
 {
 }
 
-IceUtil::Exception::~Exception() ICE_NOEXCEPT
+#ifndef ICE_CPP11_COMPILER
+IceUtil::Exception::~Exception() throw()
 {
 }
+#endif
 
 void
 IceUtil::Exception::ice_print(ostream& out) const
@@ -614,12 +616,6 @@ IceUtil::Exception::what() const ICE_NOEXCEPT
     return "";
 }
 
-string
-IceUtil::Exception::ice_id() const
-{
-    return "::IceUtil::Exception";
-}
-
 #ifdef ICE_CPP11_MAPPING
 exception_ptr
 IceUtil::Exception::ice_clone() const
@@ -642,19 +638,7 @@ IceUtil::Exception::ice_name() const
 {
     return ice_id().substr(2);
 }
-
-IceUtil::Exception*
-IceUtil::Exception::ice_clone() const
-{
-    return new Exception(*this);
-}
 #endif
-
-void
-IceUtil::Exception::ice_throw() const
-{
-    throw *this;
-}
 
 const char*
 IceUtil::Exception::ice_file() const
@@ -690,9 +674,11 @@ IceUtil::NullHandleException::NullHandleException(const char* file, int line) :
     }
 }
 
-IceUtil::NullHandleException::~NullHandleException() ICE_NOEXCEPT
+#ifndef ICE_CPP11_COMPILER
+IceUtil::NullHandleException::~NullHandleException() throw()
 {
 }
+#endif
 
 string
 IceUtil::NullHandleException::ice_id() const
@@ -725,9 +711,11 @@ IceUtil::IllegalArgumentException::IllegalArgumentException(const char* file, in
 {
 }
 
-IceUtil::IllegalArgumentException::~IllegalArgumentException() ICE_NOEXCEPT
+#ifndef ICE_CPP11_COMPILER
+IceUtil::IllegalArgumentException::~IllegalArgumentException() throw()
 {
 }
+#endif
 
 void
 IceUtil::IllegalArgumentException::ice_print(ostream& out) const
@@ -775,8 +763,11 @@ IceUtil::IllegalConversionException::IllegalConversionException(const char* file
     _reason(reason)
 {}
 
-IceUtil::IllegalConversionException::~IllegalConversionException() ICE_NOEXCEPT
-{}
+#ifndef ICE_CPP11_COMPILER
+IceUtil::IllegalConversionException::~IllegalConversionException() throw()
+{
+}
+#endif
 
 void
 IceUtil::IllegalConversionException::ice_print(ostream& out) const
@@ -864,9 +855,11 @@ IceUtil::FileLockException::FileLockException(const char* file, int line, int er
 {
 }
 
-IceUtil::FileLockException::~FileLockException() ICE_NOEXCEPT
+#ifndef ICE_CPP11_COMPILER
+IceUtil::FileLockException::~FileLockException() throw()
 {
 }
+#endif
 
 void
 IceUtil::FileLockException::ice_print(ostream& os) const
@@ -914,9 +907,11 @@ IceUtil::OptionalNotSetException::OptionalNotSetException(const char* file, int 
     }
 }
 
-IceUtil::OptionalNotSetException::~OptionalNotSetException() ICE_NOEXCEPT
+#ifndef ICE_CPP11_COMPILER
+IceUtil::OptionalNotSetException::~OptionalNotSetException() throw()
 {
 }
+#endif
 
 string
 IceUtil::OptionalNotSetException::ice_id() const
@@ -945,9 +940,11 @@ IceUtil::IconvInitializationException::IconvInitializationException(const char* 
 {
 }
 
-IceUtil::IconvInitializationException::~IconvInitializationException() ICE_NOEXCEPT
+#ifndef ICE_CPP11_COMPILER
+IceUtil::IconvInitializationException::~IconvInitializationException() throw()
 {
 }
+#endif
 
 void
 IceUtil::IconvInitializationException::ice_print(ostream& out) const
