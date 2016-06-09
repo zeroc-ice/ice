@@ -780,6 +780,8 @@ Slice::Gen::generate(const UnitPtr& p)
     C << nl << "#ifdef ICE_CPP11_MAPPING // C++11 mapping";
     C.restoreIndent();
     {
+        normalizeMetaData(p, true);
+
         Cpp11DeclVisitor declVisitor(H, C, _dllExport);
         p->visit(&declVisitor, false);
 
@@ -838,6 +840,8 @@ Slice::Gen::generate(const UnitPtr& p)
     C << nl << "#else // C++98 mapping";
     C.restoreIndent();
     {
+        normalizeMetaData(p, false);
+
         ProxyDeclVisitor proxyDeclVisitor(H, C, _dllExport);
         p->visit(&proxyDeclVisitor, false);
 
@@ -1940,7 +1944,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
     //
     // Check if we need to generate a private ___end_ method. This is the case if the
-    // when using certain mapping features such as cpp:array or cpp:range:array. While
+    // when using certain mapping features such as cpp:array. While
     // the regular end_ method can't return pair<const TYPE*, const TYPE*> because the
     // pointers would be invalid once end_ returns, we still want to allow using this
     // alternate mapping with AMI response callbacks (to allow zero-copy for instance).
@@ -4842,6 +4846,7 @@ Slice::Gen::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
 
     //
     // Validate global metadata in the top-level file and all included files.
+    // Note that these metadata can only be cpp:, never cpp98: or cpp11:
     //
     StringList files = p->allFiles();
 
@@ -5035,18 +5040,35 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
 {
     static const string cppPrefix = "cpp:";
     static const string cpp11Prefix = "cpp11:";
+    static const string cpp98Prefix  = "cpp98:";
 
     for(StringList::const_iterator p = metaData.begin(); p != metaData.end(); ++p)
     {
         string s = *p;
+
         if(_history.count(s) == 0)
         {
-            bool cpp = s.find(cppPrefix) == 0;
-            bool cpp11 = s.find(cpp11Prefix) == 0;
-            if(cpp || cpp11)
-            {
-                const string prefix = cpp ? cppPrefix : cpp11Prefix;
+            string prefix;
+            bool cpp98 = false;
+            bool cpp11 = false;
 
+            if(s.find(cppPrefix) == 0)
+            {
+                prefix = cppPrefix;
+            }
+            else if(s.find(cpp98Prefix) == 0)
+            {
+                prefix = cpp98Prefix;
+                cpp98 = true;
+            }
+            else if(s.find(cpp11Prefix) == 0)
+            {
+                prefix = cpp11Prefix;
+                cpp11 = true;
+            }
+
+            if(!prefix.empty())
+            {
                 string ss = s.substr(prefix.size());
                 if(ss == "type:wstring" || ss == "type:string")
                 {
@@ -5078,16 +5100,16 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
                 {
                     continue;
                 }
-                if(StructPtr::dynamicCast(cont) && (ss == "class" || ss == "comparable"))
+                if(!cpp11 && StructPtr::dynamicCast(cont) && (ss == "class" || ss == "comparable"))
                 {
                     continue;
                 }
 
                 {
                     ClassDefPtr cl = ClassDefPtr::dynamicCast(cont);
-                    if(cl && ((cpp && ss == "virtual") ||
-                              (cpp11 && cl->isLocal() && ss.find("type:") == 0) ||
-                              (cl->isLocal() && ss == "comparable")))
+                    if(cl && ((!cpp11 && ss == "virtual") ||
+                              (cl->isLocal() && ss.find("type:") == 0) ||
+                              (!cpp11 && cl->isLocal() && ss == "comparable")))
                     {
                         continue;
                     }
@@ -5096,20 +5118,21 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
                 {
                     continue;
                 }
-                if(EnumPtr::dynamicCast(cont) && ss == "unscoped")
+                if(!cpp98 && EnumPtr::dynamicCast(cont) && ss == "unscoped")
                 {
                     continue;
                 }
 
                 {
                     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(cont);
-                    if(cl && cpp11 && cl->isLocal() && ss.find("type:") == 0)
+                    if(cl && cl->isLocal() && ss.find("type:") == 0)
                     {
                         continue;
                     }
                 }
                 emitWarning(file, line, "ignoring invalid metadata `" + s + "'");
             }
+
             if(s.find("delegate") == 0)
             {
                 ClassDefPtr cl = ClassDefPtr::dynamicCast(cont);
@@ -5122,6 +5145,249 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
             _history.insert(s);
         }
     }
+}
+
+
+void
+Slice::Gen::normalizeMetaData(const UnitPtr& u, bool cpp11)
+{
+    NormalizeMetaDataVisitor visitor(cpp11);
+    u->visit(&visitor, false);
+}
+
+Slice::Gen::NormalizeMetaDataVisitor::NormalizeMetaDataVisitor(bool cpp11) :
+    _cpp11(cpp11)
+{
+}
+
+bool
+Slice::Gen::NormalizeMetaDataVisitor::visitUnitStart(const UnitPtr& p)
+{
+    return true;
+}
+
+bool
+Slice::Gen::NormalizeMetaDataVisitor::visitModuleStart(const ModulePtr& p)
+{
+    p->setMetaData(normalize(p->getMetaData()));
+    return true;
+}
+
+void
+Slice::Gen::NormalizeMetaDataVisitor::visitModuleEnd(const ModulePtr&)
+{
+}
+
+void
+Slice::Gen::NormalizeMetaDataVisitor::visitClassDecl(const ClassDeclPtr& p)
+{
+    p->setMetaData(normalize(p->getMetaData()));
+}
+
+bool
+Slice::Gen::NormalizeMetaDataVisitor::visitClassDefStart(const ClassDefPtr& p)
+{
+    p->setMetaData(normalize(p->getMetaData()));
+    return true;
+}
+
+void
+Slice::Gen::NormalizeMetaDataVisitor::visitClassDefEnd(const ClassDefPtr&)
+{
+}
+
+bool
+Slice::Gen::NormalizeMetaDataVisitor::visitExceptionStart(const ExceptionPtr& p)
+{
+    p->setMetaData(normalize(p->getMetaData()));
+    return true;
+}
+
+void
+Slice::Gen::NormalizeMetaDataVisitor::visitExceptionEnd(const ExceptionPtr&)
+{
+}
+
+bool
+Slice::Gen::NormalizeMetaDataVisitor::visitStructStart(const StructPtr& p)
+{
+    p->setMetaData(normalize(p->getMetaData()));
+    return true;
+}
+
+void
+Slice::Gen::NormalizeMetaDataVisitor::visitStructEnd(const StructPtr&)
+{
+}
+
+void
+Slice::Gen::NormalizeMetaDataVisitor::visitOperation(const OperationPtr& p)
+{
+    p->setMetaData(normalize(p->getMetaData()));
+
+    ParamDeclList params = p->parameters();
+    for(ParamDeclList::iterator q = params.begin(); q != params.end(); ++q)
+    {
+        (*q)->setMetaData(normalize((*q)->getMetaData()));
+    }
+}
+
+void
+Slice::Gen::NormalizeMetaDataVisitor::visitDataMember(const DataMemberPtr& p)
+{
+    p->setMetaData(normalize(p->getMetaData()));
+}
+
+void
+Slice::Gen::NormalizeMetaDataVisitor::visitSequence(const SequencePtr& p)
+{
+    p->setMetaData(normalize(p->getMetaData()));
+}
+
+void
+Slice::Gen::NormalizeMetaDataVisitor::visitDictionary(const DictionaryPtr& p)
+{
+    p->setMetaData(normalize(p->getMetaData()));
+}
+
+void
+Slice::Gen::NormalizeMetaDataVisitor::visitEnum(const EnumPtr& p)
+{
+    p->setMetaData(normalize(p->getMetaData()));
+}
+
+void
+Slice::Gen::NormalizeMetaDataVisitor::visitConst(const ConstPtr& p)
+{
+    p->setMetaData(normalize(p->getMetaData()));
+}
+
+
+StringList
+Slice::Gen::NormalizeMetaDataVisitor::normalize(const StringList& metaData)
+{
+    //
+    // if _cpp11: transform "cpp:" into "cpp-all:" and "cpp"
+    //            + transform "cpp11:" into "cpp:" in front
+    //
+    // if !_cpp11: remove "cpp:", transform "cpp-all:" into "cpp"
+    //             + transform "cpp98:" into "cpp:" in front
+
+    //
+    // Note: global metadata like header-ext exists only in cpp:
+    // form and are not processed at all
+    //
+
+    StringList result;
+
+    static const string cppPrefixTable[] =
+    {
+        "array",
+        "class",
+        "comparable",
+        "const",
+        "ice_print",
+        "range",
+        "type:",
+        "unscoped",
+        "view-type:",
+        "virtual",
+        ""
+    };
+
+    static const string cppPrefix = "cpp:";
+    static const string cppAllPrefix = "cpp-all:";
+
+    //
+    // First look for the higher priority cpp98/cpp11, that go to the
+    // front of result
+    //
+
+    static const string cpp11Prefix = "cpp11:";
+    static const string cpp98Prefix = "cpp98:";
+
+    const string altCppPrefix = _cpp11 ? cpp11Prefix : cpp98Prefix;
+
+    for(StringList::const_iterator p = metaData.begin(); p != metaData.end(); ++p)
+    {
+        string s = *p;
+
+        unsigned int i = 0;
+        bool found = false;
+        while(!found)
+        {
+            string m = cppPrefixTable[i++];
+            if(m.empty())
+            {
+                break;
+            }
+            if(s.find(altCppPrefix + m) == 0)
+            {
+                found = true;
+            }
+        }
+
+        if(found)
+        {
+            s.replace(0, altCppPrefix.length(), cppPrefix);
+            result.push_back(s);
+        }
+    }
+
+    //
+    // Then look for the lower-priority "cpp:" / "cpp-all:", pushed back later
+    //
+
+    const string prefix = _cpp11 ? cppPrefix : cppAllPrefix;
+
+    for(StringList::const_iterator p = metaData.begin(); p != metaData.end(); ++p)
+    {
+        string s = *p;
+
+        unsigned int i = 0;
+        bool foundPrefix = false;
+        bool foundOld = false;
+        while(!foundPrefix && !foundOld)
+        {
+            string m = cppPrefixTable[i++];
+            if(m.empty())
+            {
+                break; // while
+            }
+            if(s.find(prefix + m) == 0)
+            {
+                foundPrefix = true;
+            }
+            else if(!_cpp11 && s.find(cppPrefix + m) == 0)
+            {
+                //
+                // We want to filter-out "cpp:" when !_cpp11
+                //
+                foundOld = true;
+            }
+        }
+
+        if(foundPrefix)
+        {
+            if(_cpp11)
+            {
+                result.push_back(s);
+                s.replace(0, prefix.length(), cppAllPrefix);
+                result.push_back(s);
+            }
+            else
+            {
+                s.replace(0, prefix.length(), cppPrefix);
+                result.push_back(s);
+            }
+        }
+        else if(_cpp11 || !foundOld)
+        {
+            result.push_back(s);
+        }
+    }
+
+    return result;
 }
 
 int
@@ -6856,6 +7122,8 @@ Slice::Gen::Cpp11InterfaceVisitor::visitClassDefStart(const ClassDefPtr& p)
         return false;
     }
 
+    _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
+
     string suffix = p->isInterface() ? "" : "Disp";
 
     string name = fixKwd(p->name() + suffix);
@@ -7020,6 +7288,8 @@ Slice::Gen::Cpp11InterfaceVisitor::visitClassDefEnd(const ClassDefPtr& p)
     }
 
     H << eb << ';';
+
+    _useWstring = resetUseWstring(_useWstringHist);
 }
 
 bool
@@ -7079,7 +7349,8 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
         else
         {
             inParams.push_back(*q);
-            typeString = typeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), _useWstring, true);
+            typeString = typeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(),
+                                      _useWstring | TypeContextInParam, true);
         }
 
         if(q != paramList.begin())
@@ -7114,7 +7385,8 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
             paramsAMD += ", ";
             argsAMD += ", ";
         }
-        paramsAMD += typeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), _useWstring, true);
+        paramsAMD += typeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(),
+                                  _useWstring | TypeContextInParam, true);
         if(isMovable((*q)->type()))
         {
             argsAMD += "::std::move(" + fixKwd(string(paramPrefix) + (*q)->name()) + ")";
@@ -8016,7 +8288,8 @@ Slice::Gen::Cpp11ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
             H.useCurrentPosAsIndent();
             for(ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
             {
-                H << typeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), _useWstring, true) << "," << nl;
+                H << typeToString((*q)->type(), (*q)->optional(),
+                                  (*q)->getMetaData(), _useWstring | TypeContextInParam, true) << "," << nl;
             }
 
             if(ret)
@@ -8054,7 +8327,7 @@ Slice::Gen::Cpp11ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
             C.useCurrentPosAsIndent();
             for(ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
             {
-                C << typeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), _useWstring, true);
+                C << typeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), _useWstring | TypeContextInParam, true);
                 C << ' ' << fixKwd((*q)->name()) << "," << nl;
             }
 
@@ -8110,7 +8383,7 @@ Slice::Gen::Cpp11ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
                 }
                 else
                 {
-                    typeString = typeToString((*q)->type(), (*q)->optional(), metaData, _useWstring, true);
+                    typeString = typeToString((*q)->type(), (*q)->optional(), metaData, _useWstring | TypeContextInParam, true);
                 }
                 H << typeString;
             }
@@ -8146,7 +8419,7 @@ Slice::Gen::Cpp11ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
                 }
                 else
                 {
-                    C << typeToString((*q)->type(), (*q)->optional(), metaData, _useWstring, true)<< " /*"
+                    C << typeToString((*q)->type(), (*q)->optional(), metaData, _useWstring | TypeContextInParam, true) << " /*"
                       << fixKwd((*q)->name()) << "*/";
                 }
             }

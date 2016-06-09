@@ -318,7 +318,7 @@ typedef long long Int64;
 #   define ICE_VALUE_FACTORY ::std::function<::std::shared_ptr<::Ice::Value> (const std::string&)>
 #   define ICE_CLOSE_CALLBACK ::std::function<void (const ::std::shared_ptr<::Ice::Connection>&)>
 #   define ICE_HEARTBEAT_CALLBACK ::std::function<void (const ::std::shared_ptr<::Ice::Connection>&)>
-#   define ICE_IN(T) T
+#   define ICE_IN(...) __VA_ARGS__
 #   define ICE_EXCEPTION_ISSET(T) T
 #   define ICE_RETHROW_EXCEPTION(T) ::std::rethrow_exception(T)
 #   define ICE_RESET_EXCEPTION(T, V)  T = V
@@ -337,7 +337,7 @@ typedef long long Int64;
 #   define ICE_VALUE_FACTORY ::Ice::ValueFactoryPtr
 #   define ICE_CLOSE_CALLBACK ::Ice::CloseCallbackPtr
 #   define ICE_HEARTBEAT_CALLBACK ::Ice::HeartbeatCallbackPtr
-#   define ICE_IN(T) const T&
+#   define ICE_IN(...) const __VA_ARGS__&
 #   define ICE_EXCEPTION_ISSET(T) (T.get() != 0)
 #   define ICE_RETHROW_EXCEPTION(T) T->ice_throw()
 #   define ICE_RESET_EXCEPTION(T,V) T.reset(V)

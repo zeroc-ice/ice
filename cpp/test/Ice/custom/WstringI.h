@@ -15,19 +15,23 @@
 namespace Test1
 {
 
+#ifdef ICE_CPP11_MAPPING
+class WstringClassI : public virtual WstringClassDisp
+#else
 class WstringClassI : public virtual WstringClass
+#endif
 {
 public:
 
-    virtual ::std::wstring opString(const ::std::wstring&,
+    virtual ::std::wstring opString(ICE_IN(::std::wstring),
                                     ::std::wstring&,
                                     const Ice::Current&);
 
-    virtual ::Test1::WstringStruct opStruct(const ::Test1::WstringStruct&,
+    virtual ::Test1::WstringStruct opStruct(ICE_IN(::Test1::WstringStruct),
                                             ::Test1::WstringStruct&,
                                             const Ice::Current&);
 
-    virtual void throwExcept(const ::std::wstring&,
+    virtual void throwExcept(ICE_IN(::std::wstring),
                              const Ice::Current&);
 };
 
@@ -36,19 +40,23 @@ public:
 namespace Test2
 {
 
+#ifdef ICE_CPP11_MAPPING
+class WstringClassI : public virtual WstringClassDisp
+#else
 class WstringClassI : public virtual WstringClass
+#endif
 {
 public:
 
-    virtual ::std::wstring opString(const ::std::wstring&,
+    virtual ::std::wstring opString(ICE_IN(::std::wstring),
                                     ::std::wstring&,
                                     const Ice::Current&);
 
-    virtual ::Test2::WstringStruct opStruct(const ::Test2::WstringStruct&,
+    virtual ::Test2::WstringStruct opStruct(ICE_IN(::Test2::WstringStruct),
                                             ::Test2::WstringStruct&,
                                             const Ice::Current&);
 
-    virtual void throwExcept(const ::std::wstring&,
+    virtual void throwExcept(ICE_IN(::std::wstring),
                              const Ice::Current&);
 };
 

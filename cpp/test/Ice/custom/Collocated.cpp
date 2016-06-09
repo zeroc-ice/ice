@@ -22,11 +22,11 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(communicator, 0));
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    adapter->add(new TestIntfI(communicator), communicator->stringToIdentity("test"));
-    adapter->add(new Test1::WstringClassI, communicator->stringToIdentity("wstring1"));
-    adapter->add(new Test2::WstringClassI, communicator->stringToIdentity("wstring2"));
+    adapter->add(ICE_MAKE_SHARED(TestIntfI, communicator), communicator->stringToIdentity("test"));
+    adapter->add(ICE_MAKE_SHARED(Test1::WstringClassI), communicator->stringToIdentity("wstring1"));
+    adapter->add(ICE_MAKE_SHARED(Test2::WstringClassI), communicator->stringToIdentity("wstring2"));
 
-    Test::TestIntfPrx allTests(const Ice::CommunicatorPtr&);
+    Test::TestIntfPrxPtr allTests(const Ice::CommunicatorPtr&);
     allTests(communicator);
 
     return EXIT_SUCCESS;
@@ -43,8 +43,8 @@ main(int argc, char** argv)
 
     try
     {
-        IceUtil::setProcessStringConverter(new Test::StringConverterI());
-        IceUtil::setProcessWstringConverter(new Test::WstringConverterI());
+        IceUtil::setProcessStringConverter(ICE_MAKE_SHARED(Test::StringConverterI));
+        IceUtil::setProcessWstringConverter(ICE_MAKE_SHARED(Test::WstringConverterI));
 
         communicator = Ice::initialize(argc, argv);
         status = run(argc, argv, communicator);

@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:include:deque", "cpp:include:list", "cpp:include:MyByteSeq.h", "cpp:include:CustomMap.h", 
+[["cpp:include:deque", "cpp:include:list", "cpp:include:MyByteSeq.h", "cpp:include:CustomMap.h",
   "cpp:include:CustomBuffer.h", "cpp:include:StringView.h"]]
 
 module Test
@@ -82,14 +82,14 @@ sequence<EList> EListSeq;
 
 class C {};
 sequence<C> CSeq;
-["cpp:type:std::list< ::Test::CPtr>"] sequence<C> CList;
+["cpp:type:std::list< ::Test::CPtr>", "cpp11:type:std::list<std::shared_ptr<::Test::C>>"] sequence<C> CList;
 
 ["cpp:type:std::list< ::Test::CList>"] sequence<CList> CListList;
 sequence<CList> CListSeq;
 ["cpp:type:std::list< ::Test::CSeq>"] sequence<CSeq> CSeqList;
 
 sequence<C*> CPrxSeq;
-["cpp:type:std::list< ::Test::CPrx>"] sequence<C*> CPrxList;
+["cpp:type:std::list< ::Test::CPrx>", "cpp11:type:std::list<std::shared_ptr<Ice::ObjectPrx>>"] sequence<C*> CPrxList;
 
 ["cpp:type:std::list< ::Test::CPrxList>"] sequence<CPrxList> CPrxListList;
 sequence<CPrxList> CPrxListSeq;
@@ -138,7 +138,7 @@ class DictClass
     DoubleBuffer doubleBuf;
 };
 
-class TestIntf
+interface TestIntf
 {
     ["cpp:array"] DoubleSeq opDoubleArray(["cpp:array"] DoubleSeq inSeq, out ["cpp:array"] DoubleSeq outSeq);
 
@@ -153,17 +153,17 @@ class TestIntf
     ["cpp:range"] ByteList opByteRange(["cpp:range"] ByteList inSeq, out ["cpp:range"] ByteList outSeq);
 
     ["cpp:range"] VariableList opVariableRange(["cpp:range"] VariableList inSeq, out ["cpp:range"] VariableList outSeq);
-    
-    ["cpp:range:::Test::ByteList"] ByteList opByteRangeType(["cpp:range:::Test::ByteList"] ByteList inSeq, 
+
+    ["cpp:range:::Test::ByteList"] ByteList opByteRangeType(["cpp:range:::Test::ByteList"] ByteList inSeq,
                                                             out ["cpp:range:::Test::ByteList"] ByteList outSeq);
 
     ["cpp:range:std::deque< ::Test::Variable>"] VariableList
-    opVariableRangeType(["cpp:range:std::deque< ::Test::Variable>"] VariableList inSeq, 
+    opVariableRangeType(["cpp:range:std::deque< ::Test::Variable>"] VariableList inSeq,
                         out ["cpp:range:std::deque< ::Test::Variable>"] VariableList outSeq);
 
 
-   
-    ["cpp:type:std::deque<bool>"] BoolSeq 
+
+    ["cpp:type:std::deque<bool>"] BoolSeq
     opBoolSeq(["cpp:type:std::deque<bool>"] BoolSeq inSeq, out ["cpp:type:std::deque<bool>"]BoolSeq outSeq);
 
     BoolList opBoolList(BoolList inSeq, out BoolList outSeq);
@@ -174,79 +174,80 @@ class TestIntf
     ["cpp:range"] BoolDequeList opBoolDequeListRange(["cpp:range"] BoolDequeList inSeq,
                                                 out ["cpp:range"] BoolDequeList outSeq);
 
-    ["cpp:type:std::deque< ::Ice::Byte>"] ByteSeq 
-    opByteSeq(["cpp:type:std::deque< ::Ice::Byte>"] ByteSeq inSeq, 
+    ["cpp:type:std::deque< ::Ice::Byte>"] ByteSeq
+    opByteSeq(["cpp:type:std::deque< ::Ice::Byte>"] ByteSeq inSeq,
               out ["cpp:type:std::deque< ::Ice::Byte>"] ByteSeq outSeq);
 
     ByteList opByteList(ByteList inSeq, out ByteList outSeq);
 
-    ["cpp:type:MyByteSeq"] ByteSeq 
+    ["cpp:type:MyByteSeq"] ByteSeq
     opMyByteSeq(["cpp:type:MyByteSeq"] ByteSeq inSeq, out ["cpp:type:MyByteSeq"] ByteSeq outSeq);
 
 
-    ["cpp:view-type:Util::string_view"] string 
+    ["cpp:view-type:Util::string_view"] string
     opString(["cpp:view-type:Util::string_view"] string inString,
              out ["cpp:view-type:Util::string_view"] string outString);
 
 
-    ["cpp:type:std::deque<std::string>"] StringSeq 
-    opStringSeq(["cpp:type:std::deque<std::string>"] StringSeq inSeq, 
+    ["cpp:type:std::deque<std::string>"] StringSeq
+    opStringSeq(["cpp:type:std::deque<std::string>"] StringSeq inSeq,
                 out ["cpp:type:std::deque<std::string>"] StringSeq outSeq);
 
     StringList opStringList(StringList inSeq, out StringList outSeq);
 
-    ["cpp:type:std::deque< ::Test::Fixed>"] FixedSeq 
+    ["cpp:type:std::deque< ::Test::Fixed>"] FixedSeq
     opFixedSeq(["cpp:type:std::deque< ::Test::Fixed>"] FixedSeq inSeq,
                out ["cpp:type:std::deque< ::Test::Fixed>"] FixedSeq outSeq);
 
     FixedList opFixedList(FixedList inSeq, out FixedList outSeq);
 
-    ["cpp:type:std::deque< ::Test::Variable>"] VariableSeq 
-    opVariableSeq(["cpp:type:std::deque< ::Test::Variable>"] VariableSeq inSeq, 
+    ["cpp:type:std::deque< ::Test::Variable>"] VariableSeq
+    opVariableSeq(["cpp:type:std::deque< ::Test::Variable>"] VariableSeq inSeq,
                   out ["cpp:type:std::deque< ::Test::Variable>"] VariableSeq outSeq);
 
     VariableList opVariableList(VariableList inSeq, out VariableList outSeq);
 
-    ["cpp:type:std::deque< ::Test::StringStringDict>"] StringStringDictSeq 
+    ["cpp:type:std::deque< ::Test::StringStringDict>"] StringStringDictSeq
     opStringStringDictSeq(["cpp:type:std::deque< ::Test::StringStringDict>"] StringStringDictSeq inSeq,
                           out ["cpp:type:std::deque< ::Test::StringStringDict>"] StringStringDictSeq outSeq);
 
     StringStringDictList opStringStringDictList(StringStringDictList inSeq, out StringStringDictList outSeq);
 
-    ["cpp:type:std::deque< ::Test::E>"] ESeq 
+    ["cpp:type:std::deque< ::Test::E>"] ESeq
     opESeq(["cpp:type:std::deque< ::Test::E>"] ESeq inSeq, out ["cpp:type:std::deque< ::Test::E>"] ESeq outSeq);
 
     EList opEList(EList inSeq, out EList outSeq);
 
-    ["cpp:type:std::deque< ::Test::CPrx>"] CPrxSeq 
-    opCPrxSeq(["cpp:type:std::deque< ::Test::CPrx>"] CPrxSeq inSeq, 
-              out ["cpp:type:std::deque< ::Test::CPrx>"] CPrxSeq outSeq);
+    ["cpp:type:std::deque< ::Test::CPrx>", "cpp11:type:std::deque<std::shared_ptr<Ice::ObjectPrx>>"] CPrxSeq
+    opCPrxSeq(["cpp:type:std::deque< ::Test::CPrx>", "cpp11:type:std::deque<std::shared_ptr<Ice::ObjectPrx>>"] CPrxSeq inSeq,
+              out ["cpp:type:std::deque< ::Test::CPrx>", "cpp11:type:std::deque<std::shared_ptr<Ice::ObjectPrx>>"] CPrxSeq outSeq);
 
     CPrxList opCPrxList(CPrxList inSeq, out CPrxList outSeq);
 
-    ["cpp:type:std::deque< ::Test::CPtr>"] CSeq
-    opCSeq(["cpp:type:std::deque< ::Test::CPtr>"] CSeq inSeq, out ["cpp:type:std::deque< ::Test::CPtr>"] CSeq outSeq);
+    ["cpp:type:std::deque< ::Test::CPtr>", "cpp11:type:std::deque<std::shared_ptr<Test::C>>"] CSeq
+    opCSeq(["cpp:type:std::deque< ::Test::CPtr>", "cpp11:type:std::deque<std::shared_ptr<Test::C>>"] CSeq inSeq,
+           out ["cpp:type:std::deque< ::Test::CPtr>", "cpp11:type:std::deque<std::shared_ptr<Test::C>>"] CSeq outSeq);
 
     CList opCList(CList inSeq, out CList outSeq);
 
     ClassStruct opClassStruct(ClassStruct inS, ClassStructSeq inSeq, out ClassStruct outS, out ClassStructSeq outSeq);
-    
+
     void opOutArrayByteSeq(ByteSeq org, out ["cpp:array"] ByteSeq copy);
-    
+
     void opOutRangeByteSeq(ByteSeq org, out ["cpp:range"] ByteSeq copy);
 
     IntStringDict opIntStringDict(IntStringDict idict, out IntStringDict odict);
 
-    ["cpp:type:::Test::CustomMap< ::Ice::Long, ::Ice::Long>"] LongLongDict 
+    ["cpp:type:::Test::CustomMap< ::Ice::Long, ::Ice::Long>"] LongLongDict
     opVarDict(["cpp:type:::Test::CustomMap<std::string, ::Ice::Int>"] StringIntDict idict,
               out ["cpp:type:::Test::CustomMap<std::string, ::Ice::Int>"] StringIntDict odict);
-    
-    
+
+
     ["cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>", "cpp:type:::Test::CustomMap< ::Ice::Int, std::string>"] IntStringDict
     opCustomIntStringDict(
         ["cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>", "cpp:type:::Test::CustomMap< ::Ice::Int, std::string>"] IntStringDict idict,
         out ["cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>", "cpp:type:::Test::CustomMap< ::Ice::Int, std::string>"] IntStringDict odict);
-        
+
 
     ShortBuffer opShortBuffer(ShortBuffer inS, out ShortBuffer outS);
 
@@ -260,4 +261,3 @@ class TestIntf
 };
 
 };
-

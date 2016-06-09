@@ -19,6 +19,39 @@
 
 using namespace std;
 
+#ifdef ICE_CPP11_MAPPING
+//
+// Slice class C is mapped to ObjectPrx
+//
+namespace Test
+{
+typedef shared_ptr<Ice::ObjectPrx> CPrxPtr;
+typedef Ice::ObjectPrx CPrx;
+
+bool operator==(const Variable& lhs, const Variable& rhs)
+{
+    return std::tie(lhs.s, lhs.bl, lhs.ss) == std::tie(rhs.s, rhs.bl, rhs.ss);
+}
+
+bool operator!=(const Variable& lhs, const Variable& rhs)
+{
+    return !(lhs == rhs);
+}
+
+bool operator==(const BufferStruct& lhs, const BufferStruct& rhs)
+{
+    return std::tie(lhs.byteBuf, lhs.boolBuf, lhs.shortBuf, lhs.intBuf, lhs.longBuf, lhs.floatBuf, lhs.doubleBuf)
+        == std::tie(rhs.byteBuf, lhs.boolBuf, rhs.shortBuf, rhs.intBuf, rhs.longBuf, rhs.floatBuf, rhs.doubleBuf);
+}
+
+bool operator!=(const BufferStruct& lhs, const BufferStruct& rhs)
+{
+    return !(lhs == rhs);
+}
+}
+#endif
+
+
 namespace
 {
 
@@ -103,12 +136,12 @@ public:
 template<typename T> InParamPtr newInParam(const T& v)
 {
     return new InParamT<T>(v);
-} 
+}
 
 template<typename T> const T& getIn(const InParamPtr& cookie)
 {
     return dynamic_cast<InParamT<T>* >(cookie.get())->in;
-} 
+}
 
 class Callback : public CallbackBase, public IceUtil::Shared
 {
@@ -153,23 +186,23 @@ public:
         test(arrayRangeEquals<Ice::Byte>(ret, in));
         called();
     }
-    
+
     void opVariableArray(const pair<const Test::Variable*, const Test::Variable*>& ret,
                          const pair<const Test::Variable*, const Test::Variable*>& out,
                          const InParamPtr& cookie)
     {
-        const pair<const Test::Variable*, const Test::Variable*>& in = 
+        const pair<const Test::Variable*, const Test::Variable*>& in =
             getIn<pair<const Test::Variable*, const Test::Variable*> >(cookie);
         test(arrayRangeEquals<Test::Variable>(out, in));
         test(arrayRangeEquals<Test::Variable>(ret, in));
         called();
     }
-    
+
     void opBoolRange(const pair<Test::BoolSeq::const_iterator, Test::BoolSeq::const_iterator>& ret,
                      const pair<Test::BoolSeq::const_iterator, Test::BoolSeq::const_iterator>& out,
                      const InParamPtr& cookie)
     {
-        const pair<Test::BoolSeq::const_iterator, Test::BoolSeq::const_iterator>& in 
+        const pair<Test::BoolSeq::const_iterator, Test::BoolSeq::const_iterator>& in
             = getIn<pair<Test::BoolSeq::const_iterator, Test::BoolSeq::const_iterator> >(cookie);
         test(equal(out.first, out.second, in.first));
         test(equal(ret.first, ret.second, in.first));
@@ -180,7 +213,7 @@ public:
                      const pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator>& out,
                      const InParamPtr& cookie)
     {
-        const pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator>& in = 
+        const pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator>& in =
             getIn<pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator> >(cookie);
         test(equal(out.first, out.second, in.first));
         test(equal(ret.first, ret.second, in.first));
@@ -191,7 +224,7 @@ public:
                          const pair<Test::VariableList::const_iterator, Test::VariableList::const_iterator>& out,
                          const InParamPtr& cookie)
     {
-        const pair<Test::VariableList::const_iterator, Test::VariableList::const_iterator>& in = 
+        const pair<Test::VariableList::const_iterator, Test::VariableList::const_iterator>& in =
             getIn<pair<Test::VariableList::const_iterator, Test::VariableList::const_iterator> >(cookie);
         test(equal(out.first, out.second, in.first));
         test(equal(ret.first, ret.second, in.first));
@@ -202,20 +235,20 @@ public:
                          const pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator>& out,
                          const InParamPtr& cookie)
     {
-        const pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator>& in = 
+        const pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator>& in =
             getIn<pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator> >(cookie);
         test(equal(out.first, out.second, in.first));
         test(equal(ret.first, ret.second, in.first));
         called();
     }
 
-    void opVariableRangeType(const pair<deque<Test::Variable>::const_iterator, 
-                             deque<Test::Variable>::const_iterator>& ret, 
-                             const pair<deque<Test::Variable>::const_iterator, 
+    void opVariableRangeType(const pair<deque<Test::Variable>::const_iterator,
+                             deque<Test::Variable>::const_iterator>& ret,
+                             const pair<deque<Test::Variable>::const_iterator,
                              deque<Test::Variable>::const_iterator>& out,
                              const InParamPtr& cookie)
     {
-        const pair<deque<Test::Variable>::const_iterator, deque<Test::Variable>::const_iterator>& in = 
+        const pair<deque<Test::Variable>::const_iterator, deque<Test::Variable>::const_iterator>& in =
             getIn<pair<deque<Test::Variable>::const_iterator, deque<Test::Variable>::const_iterator> >(cookie);
 
         test(equal(out.first, out.second, in.first));
@@ -238,7 +271,7 @@ public:
         test(ret == in);
         called();
     }
-    
+
     void opByteSeq(const deque<Ice::Byte>& ret, const deque<Ice::Byte>& out, const InParamPtr& cookie)
     {
         const deque<Ice::Byte>& in = getIn< deque<Ice::Byte> >(cookie);
@@ -270,7 +303,7 @@ public:
         test(ret == in);
         called();
     }
-    
+
     void opStringList(const list<string>& ret, const list<string>& out, const InParamPtr& cookie)
     {
         const list<string>& in = getIn<list<string> >(cookie);
@@ -346,17 +379,17 @@ public:
         called();
     }
 
-    void opCPrxSeq(const deque<Test::CPrx>& ret, const deque<Test::CPrx>& out, const InParamPtr& cookie)
+    void opCPrxSeq(const deque<Test::CPrxPtr>& ret, const deque<Test::CPrxPtr>& out, const InParamPtr& cookie)
     {
-        const deque<Test::CPrx>& in = getIn<deque<Test::CPrx> >(cookie);
+        const deque<Test::CPrxPtr>& in = getIn<deque<Test::CPrxPtr> >(cookie);
         test(out == in);
         test(ret == in);
         called();
     }
 
-    void opCPrxList(const list<Test::CPrx>& ret, const list<Test::CPrx>& out, const InParamPtr& cookie)
+    void opCPrxList(const list<Test::CPrxPtr>& ret, const list<Test::CPrxPtr>& out, const InParamPtr& cookie)
     {
-        const list<Test::CPrx>& in = getIn<list<Test::CPrx> >(cookie);
+        const list<Test::CPrxPtr>& in = getIn<list<Test::CPrxPtr> >(cookie);
         test(out == in);
         test(ret == in);
         called();
@@ -389,19 +422,22 @@ public:
         called();
     }
 
+#ifndef ICE_CPP11_MAPPING
+
     void opClassStruct(const ::Test::ClassStructPtr& ret,
                        const ::Test::ClassStructPtr& cs1,
                        const ::Test::ClassStructSeq& seq,
                        const InParamPtr& cookie)
     {
-        pair< ::Test::ClassStructPtr, ::Test::ClassStructSeq> in = 
+        pair< ::Test::ClassStructPtr, ::Test::ClassStructSeq> in =
             getIn<pair< ::Test::ClassStructPtr, ::Test::ClassStructSeq> >(cookie);
         test(ret == in.first);
         test(cs1 == in.first);
         test(seq == in.second);
         called();
     }
-    
+#endif
+
     void opString(const wstring& ret, const wstring& out, const InParamPtr& cookie)
     {
         const wstring& in = getIn<wstring>(cookie);
@@ -409,29 +445,29 @@ public:
         test(ret == in);
         called();
     }
-    
+
     void opOutArrayByteSeq(const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>& data, const InParamPtr& cookie)
     {
         const Test::ByteSeq& in = getIn<Test::ByteSeq>(cookie);
         Test::ByteSeq out(data.first, data.second);
         Test::ByteSeq::const_iterator p1;
         Test::ByteSeq::const_iterator p2;
-                
+
         for(p1 = out.begin(), p2 = in.begin(); p1 != out.end(); ++p1, ++p2)
         {
             test(*p1 == *p2);
         }
         called();
     }
-    
-    void opOutRangeByteSeq(const ::std::pair< ::Test::ByteSeq::const_iterator, ::Test::ByteSeq::const_iterator>& data, 
+
+    void opOutRangeByteSeq(const ::std::pair< ::Test::ByteSeq::const_iterator, ::Test::ByteSeq::const_iterator>& data,
                            const InParamPtr& cookie)
     {
         const Test::ByteSeq& in = getIn<Test::ByteSeq>(cookie);
         Test::ByteSeq out(data.first, data.second);
         Test::ByteSeq::const_iterator p1;
         Test::ByteSeq::const_iterator p2;
-                
+
         for(p1 = out.begin(), p2 = in.begin(); p1 != out.end(); ++p1, ++p2)
         {
             test(*p1 == *p2);
@@ -442,13 +478,13 @@ public:
     void opIntStringDict(const Test::IntStringDict& ret, const Test::IntStringDict& out, const InParamPtr& cookie)
     {
         const Test::IntStringDict& in = getIn<Test::IntStringDict>(cookie);
-        
+
         test(ret == in);
         test(out == in);
         called();
     }
 
-    void opVarDict(const Test::CustomMap<Ice::Long, Ice::Long>& ret, 
+    void opVarDict(const Test::CustomMap<Ice::Long, Ice::Long>& ret,
                    const Test::CustomMap<std::string, Ice::Int>& out, const InParamPtr& cookie)
     {
         const Test::CustomMap<std::string, Ice::Int>& in = getIn<Test::CustomMap<std::string, Ice::Int> >(cookie);
@@ -458,13 +494,13 @@ public:
         // operator== for std::unordered_map does not work with Visual Studio 2010
         //
         test(out.size() == in.size());
-        
+
         for(Test::CustomMap<std::string, Ice::Int>::const_iterator p = in.begin(); p != in.end(); ++p)
         {
             Test::CustomMap<std::string, Ice::Int>::const_iterator q = out.find(p->first);
             test(q != out.end() && q->second == p->second);
-        } 
-#else   
+        }
+#else
         test(out == in);
 #endif
         test(ret.size() == 1000);
@@ -479,20 +515,21 @@ public:
     void opCustomIntStringDict(const map<int, Util::string_view>& ret, const map<int, Util::string_view>& out, const InParamPtr& cookie)
     {
         const map<int, Util::string_view>& in = getIn<map<int, Util::string_view> >(cookie);
-        
+
         test(out.size() == in.size());
         test(ret == out);
-        
+
         for(map<int, Util::string_view>::const_iterator p = in.begin(); p != in.end(); ++p)
         {
             map<int, Util::string_view>::const_iterator q = out.find(p->first);
             test(q != out.end());
             test(q->second.size() == p->second.size());
-        } 
+        }
 
         called();
     }
 
+#ifndef ICE_CPP11_MAPPING
     void throwExcept1(const Ice::AsyncResultPtr& result)
     {
         const wstring& in = getIn<wstring>(InParamPtr::dynamicCast(result->getCookie()));
@@ -511,7 +548,8 @@ public:
             test(false);
         }
     }
-    
+#endif
+
     void throwExcept1(const Ice::Exception& ex, const wstring& in)
     {
         try
@@ -529,6 +567,7 @@ public:
         }
     }
 
+#ifndef ICE_CPP11_MAPPING
     void throwExcept2(const Ice::AsyncResultPtr& result)
     {
         const wstring& in = getIn<wstring>(InParamPtr::dynamicCast(result->getCookie()));
@@ -547,7 +586,8 @@ public:
             test(false);
         }
     }
-    
+#endif
+
     void throwExcept2(const Ice::Exception& ex, const wstring& in)
     {
         try
@@ -565,7 +605,7 @@ public:
         }
     }
 
-    void 
+    void
     noEx(const Ice::Exception& ex, const InParamPtr&)
     {
         cerr << ex << endl;
@@ -574,20 +614,25 @@ public:
 };
 typedef IceUtil::Handle<Callback> CallbackPtr;
 
-Test::TestIntfPrx
+Test::TestIntfPrxPtr
 allTests(const Ice::CommunicatorPtr& communicator)
 {
     const string endp = getTestEndpoint(communicator, 0);
     cout << "testing stringToProxy... " << flush;
     string ref = communicator->getProperties()->getPropertyWithDefault("Custom.Proxy", "test:" + endp);
-    Ice::ObjectPrx base = communicator->stringToProxy(ref);
+    Ice::ObjectPrxPtr base = communicator->stringToProxy(ref);
     test(base);
     cout << "ok" << endl;
 
     cout << "testing checked cast... " << flush;
-    Test::TestIntfPrx t = Test::TestIntfPrx::checkedCast(base);
+
+    Test::TestIntfPrxPtr t = ICE_CHECKED_CAST(Test::TestIntfPrx, base);
     test(t);
+#ifdef ICE_CPP11_MAPPING
+    test(Ice::targetEquals(t, base));
+#else
     test(t == base);
+#endif
     cout << "ok" << endl;
 
     cout << "testing alternate strings... " << flush;
@@ -984,11 +1029,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
         deque<Test::E> in(5);
-        in[0] = Test::E1;
-        in[1] = Test::E2;
-        in[2] = Test::E3;
-        in[3] = Test::E1;
-        in[4] = Test::E3;
+        in[0] = Test:: ICE_ENUM(E, E1);
+        in[1] = Test:: ICE_ENUM(E, E2);
+        in[2] = Test:: ICE_ENUM(E, E3);
+        in[3] = Test:: ICE_ENUM(E, E1);
+        in[4] = Test:: ICE_ENUM(E, E3);
 
         deque<Test::E> out;
         deque<Test::E> ret = t->opESeq(in, out);
@@ -998,11 +1043,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
         list<Test::E> in;
-        in.push_back(Test::E1);
-        in.push_back(Test::E2);
-        in.push_back(Test::E3);
-        in.push_back(Test::E1);
-        in.push_back(Test::E3);
+        in.push_back(Test:: ICE_ENUM(E, E1));
+        in.push_back(Test:: ICE_ENUM(E, E2));
+        in.push_back(Test:: ICE_ENUM(E, E3));
+        in.push_back(Test:: ICE_ENUM(E, E1));
+        in.push_back(Test:: ICE_ENUM(E, E3));
 
         list<Test::E> out;
         list<Test::E> ret = t->opEList(in, out);
@@ -1011,36 +1056,59 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
 
     {
-        deque<Test::CPrx> in(5);
-        in[0] = Test::CPrx::uncheckedCast(communicator->stringToProxy("C1:" + endp + " -t 10000"));
-        in[1] = Test::CPrx::uncheckedCast(communicator->stringToProxy("C2:" + endp + " -t 10001"));
-        in[2] = Test::CPrx::uncheckedCast(communicator->stringToProxy("C3:" + endp + " -t 10002"));
-        in[3] = Test::CPrx::uncheckedCast(communicator->stringToProxy("C4:" + endp + " -t 10003"));
-        in[4] = Test::CPrx::uncheckedCast(communicator->stringToProxy("C5:" + endp + " -t 10004"));
+        deque<Test::CPrxPtr> in(5);
+        in[0] = ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C1:" + endp + " -t 10000"));
+        in[1] = ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C2:" + endp + " -t 10001"));
+        in[2] = ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C3:" + endp + " -t 10002"));
+        in[3] = ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C4:" + endp + " -t 10003"));
+        in[4] = ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C5:" + endp + " -t 10004"));
 
-        deque<Test::CPrx> out;
-        deque<Test::CPrx> ret = t->opCPrxSeq(in, out);
+        deque<Test::CPrxPtr> out;
+        deque<Test::CPrxPtr> ret = t->opCPrxSeq(in, out);
+
+#ifdef ICE_CPP11_MAPPING
+        auto op = out.begin();
+        auto rp = ret.begin();
+
+        for(auto i: in)
+        {
+            test(Ice::targetEquals(*op++, i));
+            test(Ice::targetEquals(*rp++, i));
+        }
+#else
         test(out == in);
         test(ret == in);
+#endif
     }
 
     {
-        list<Test::CPrx> in;
-        in.push_back(Test::CPrx::uncheckedCast(communicator->stringToProxy("C1:" + endp + " -t 10000")));
-        in.push_back(Test::CPrx::uncheckedCast(communicator->stringToProxy("C2:" + endp + " -t 10001")));
-        in.push_back(Test::CPrx::uncheckedCast(communicator->stringToProxy("C3:" + endp + " -t 10002")));
-        in.push_back(Test::CPrx::uncheckedCast(communicator->stringToProxy("C4:" + endp + " -t 10003")));
-        in.push_back(Test::CPrx::uncheckedCast(communicator->stringToProxy("C5:" + endp + " -t 10004")));
+        list<Test::CPrxPtr> in;
+        in.push_back(ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C1:" + endp + " -t 10000")));
+        in.push_back(ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C2:" + endp + " -t 10001")));
+        in.push_back(ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C3:" + endp + " -t 10002")));
+        in.push_back(ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C4:" + endp + " -t 10003")));
+        in.push_back(ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C5:" + endp + " -t 10004")));
 
-        list<Test::CPrx> out;
-        list<Test::CPrx> ret = t->opCPrxList(in, out);
+        list<Test::CPrxPtr> out;
+        list<Test::CPrxPtr> ret = t->opCPrxList(in, out);
+#ifdef ICE_CPP11_MAPPING
+        auto op = out.begin();
+        auto rp = ret.begin();
+
+        for(auto i: in)
+        {
+            test(Ice::targetEquals(*op++, i));
+            test(Ice::targetEquals(*rp++, i));
+        }
+#else
         test(out == in);
         test(ret == in);
+#endif
     }
 
     {
         deque<Test::CPtr> in(5);
-        in[0] = new Test::C();
+        in[0] = ICE_MAKE_SHARED(Test::C);
         in[1] = in[0];
         in[2] = in[0];
         in[3] = in[0];
@@ -1059,11 +1127,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
         list<Test::CPtr> in;
-        in.push_back(new Test::C());
-        in.push_back(new Test::C());
-        in.push_back(new Test::C());
-        in.push_back(new Test::C());
-        in.push_back(new Test::C());
+        in.push_back(ICE_MAKE_SHARED(Test::C));
+        in.push_back(ICE_MAKE_SHARED(Test::C));
+        in.push_back(ICE_MAKE_SHARED(Test::C));
+        in.push_back(ICE_MAKE_SHARED(Test::C));
+        in.push_back(ICE_MAKE_SHARED(Test::C));
 
         list<Test::CPtr> out;
         list<Test::CPtr> ret = t->opCList(in, out);
@@ -1080,7 +1148,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "ok" << endl;
 
     cout << "testing alternate dictionaries... " << flush;
-    
+
     {
         Test::IntStringDict idict;
 
@@ -1088,10 +1156,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
         idict[2] = "two";
         idict[3] = "three";
         idict[-1] = "minus one";
-        
+
         Test::IntStringDict out;
         out[5] = "five";
-        
+
         Test::IntStringDict ret = t->opIntStringDict(idict, out);
         test(out == idict);
         test(ret == idict);
@@ -1104,25 +1172,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
         idict["two"] = 2;
         idict["three"] = 3;
         idict["minus one"] = -1;
-        
+
         Test::CustomMap<std::string, Ice::Int> out;
         out["five"] = 5;
-        
+
         Test::CustomMap<Ice::Long, Ice::Long> ret = t->opVarDict(idict, out);
-        
-#if defined(_MSC_VER) && (_MSC_VER == 1600)
-        //
-        // operator== for std::unordered_map does not work with Visual Studio 2010
-        //
-        test(out.size() == idict.size());
-        
-        for(Test::CustomMap<std::string, Ice::Int>::iterator p = idict.begin(); p != idict.end(); ++p)
-        {
-            test(out[p->first] == p->second);
-        } 
-#else
+
         test(out == idict);
-#endif
 
         test(ret.size() == 1000);
         for(Test::CustomMap<Ice::Long, Ice::Long>::const_iterator i = ret.begin(); i != ret.end(); ++i)
@@ -1138,10 +1194,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
         idict[2] = "two";
         idict[3] = "three";
         idict[-1] = "minus one";
-        
+
         Test::IntStringDict out;
         out[5] = "five";
-        
+
         Test::IntStringDict ret = t->opCustomIntStringDict(idict, out);
         test(out.size() == idict.size());
         test(out == ret);
@@ -1167,7 +1223,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         Test::CustomBuffer<bool> inBS;
         inBS.setAndInit(new bool[2], 2);
-        
+
         Test::CustomBuffer<bool> outBS;
         Test::CustomBuffer<bool> retBS = t->opBoolBuffer(inBS, outBS);
 
@@ -1198,14 +1254,16 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
+#ifndef ICE_CPP11_MAPPING
+
     cout << "testing alternate strings with AMI... " << flush;
     {
         Util::string_view in = "Hello World!";
-            
+
         Ice::AsyncResultPtr r = t->begin_opString(in);
         string out;
         string ret = t->end_opString(out, r);
-            
+
         test(ret == out);
         test(ret.size() == in.size());
     }
@@ -1607,11 +1665,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         {
             deque<Test::E> in(5);
-            in[0] = Test::E1;
-            in[1] = Test::E2;
-            in[2] = Test::E3;
-            in[3] = Test::E1;
-            in[4] = Test::E3;
+            in[0] = Test:: ICE_ENUM(E, E1);
+            in[1] = Test:: ICE_ENUM(E, E2);
+            in[2] = Test:: ICE_ENUM(E, E3);
+            in[3] = Test:: ICE_ENUM(E, E1);
+            in[4] = Test:: ICE_ENUM(E, E3);
 
             deque<Test::E> out;
             Ice::AsyncResultPtr r = t->begin_opESeq(in);
@@ -1622,11 +1680,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         {
             list<Test::E> in;
-            in.push_back(Test::E1);
-            in.push_back(Test::E2);
-            in.push_back(Test::E3);
-            in.push_back(Test::E1);
-            in.push_back(Test::E3);
+            in.push_back(Test:: ICE_ENUM(E, E1));
+            in.push_back(Test:: ICE_ENUM(E, E2));
+            in.push_back(Test:: ICE_ENUM(E, E3));
+            in.push_back(Test:: ICE_ENUM(E, E1));
+            in.push_back(Test:: ICE_ENUM(E, E3));
 
             list<Test::E> out;
             Ice::AsyncResultPtr r = t->begin_opEList(in);
@@ -1637,11 +1695,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         {
             deque<Test::CPrx> in(5);
-            in[0] = Test::CPrx::uncheckedCast(communicator->stringToProxy("C1:" + endp + " -t 10000"));
-            in[1] = Test::CPrx::uncheckedCast(communicator->stringToProxy("C2:" + endp + " -t 10001"));
-            in[2] = Test::CPrx::uncheckedCast(communicator->stringToProxy("C3:" + endp + " -t 10002"));
-            in[3] = Test::CPrx::uncheckedCast(communicator->stringToProxy("C4:" + endp + " -t 10003"));
-            in[4] = Test::CPrx::uncheckedCast(communicator->stringToProxy("C5:" + endp + " -t 10004"));
+            in[0] = ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C1:" + endp + " -t 10000"));
+            in[1] = ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C2:" + endp + " -t 10001"));
+            in[2] = ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C3:" + endp + " -t 10002"));
+            in[3] = ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C4:" + endp + " -t 10003"));
+            in[4] = ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C5:" + endp + " -t 10004"));
 
             deque<Test::CPrx> out;
             Ice::AsyncResultPtr r = t->begin_opCPrxSeq(in);
@@ -1652,11 +1710,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         {
             list<Test::CPrx> in;
-            in.push_back(Test::CPrx::uncheckedCast(communicator->stringToProxy("C1:" + endp + " -t 10000")));
-            in.push_back(Test::CPrx::uncheckedCast(communicator->stringToProxy("C2:" + endp + " -t 10001")));
-            in.push_back(Test::CPrx::uncheckedCast(communicator->stringToProxy("C3:" + endp + " -t 10002")));
-            in.push_back(Test::CPrx::uncheckedCast(communicator->stringToProxy("C4:" + endp + " -t 10003")));
-            in.push_back(Test::CPrx::uncheckedCast(communicator->stringToProxy("C5:" + endp + " -t 10004")));
+            in.push_back(ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C1:" + endp + " -t 10000")));
+            in.push_back(ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C2:" + endp + " -t 10001")));
+            in.push_back(ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C3:" + endp + " -t 10002")));
+            in.push_back(ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C4:" + endp + " -t 10003")));
+            in.push_back(ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C5:" + endp + " -t 10004")));
 
             list<Test::CPrx> out;
             Ice::AsyncResultPtr r = t->begin_opCPrxList(in);
@@ -1667,7 +1725,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         {
             deque<Test::CPtr> in(5);
-            in[0] = new Test::C();
+            in[0] = ICE_MAKE_SHARED(Test::C);
             in[1] = in[0];
             in[2] = in[0];
             in[3] = in[0];
@@ -1687,11 +1745,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         {
             list<Test::CPtr> in;
-            in.push_back(new Test::C());
-            in.push_back(new Test::C());
-            in.push_back(new Test::C());
-            in.push_back(new Test::C());
-            in.push_back(new Test::C());
+            in.push_back(ICE_MAKE_SHARED(Test::C));
+            in.push_back(ICE_MAKE_SHARED(Test::C));
+            in.push_back(ICE_MAKE_SHARED(Test::C));
+            in.push_back(ICE_MAKE_SHARED(Test::C));
+            in.push_back(ICE_MAKE_SHARED(Test::C));
 
             list<Test::CPtr> out;
             Ice::AsyncResultPtr r = t->begin_opCList(in);
@@ -1705,46 +1763,46 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 test(*p1 == *p2);
             }
         }
-            
-            
+
+
         {
             Test::ByteSeq in;
             in.push_back('1');
             in.push_back('2');
             in.push_back('3');
             in.push_back('4');
-                
+
             Ice::AsyncResultPtr r = t->begin_opOutArrayByteSeq(in);
-                
+
             Test::ByteSeq out;
             t->end_opOutArrayByteSeq(out, r);
-                
+
             test(out.size() == in.size());
             Test::ByteSeq::const_iterator p1;
             Test::ByteSeq::const_iterator p2;
-                
+
             for(p1 = out.begin(), p2 = in.begin(); p1 != out.end(); ++p1, ++p2)
             {
                 test(*p1 == *p2);
             }
         }
-            
+
         {
             Test::ByteSeq in;
             in.push_back('1');
             in.push_back('2');
             in.push_back('3');
             in.push_back('4');
-                
+
             Ice::AsyncResultPtr r = t->begin_opOutRangeByteSeq(in);
-                
+
             Test::ByteSeq out;
             t->end_opOutRangeByteSeq(out, r);
-                
+
             test(out.size() == in.size());
             Test::ByteSeq::const_iterator p1;
             Test::ByteSeq::const_iterator p2;
-                
+
             for(p1 = out.begin(), p2 = in.begin(); p1 != out.end(); ++p1, ++p2)
             {
                 test(*p1 == *p2);
@@ -1756,9 +1814,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "testing alternate strings with new AMI callbacks... " << flush;
     {
         Util::string_view in = "Hello World!";
-            
+
         CallbackPtr cb = new Callback();
-        Test::Callback_TestIntf_opStringPtr callback = 
+        Test::Callback_TestIntf_opStringPtr callback =
             Test::newCallback_TestIntf_opString(cb, &Callback::opString, &Callback::noEx);
         t->begin_opString(in, callback, newInParam(in));
         cb->check();
@@ -1782,7 +1840,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         pair<const Ice::Double*, const Ice::Double*> inPair(inArray, inArray + 5);
 
         CallbackPtr cb = new Callback();
-        Test::Callback_TestIntf_opDoubleArrayPtr callback = 
+        Test::Callback_TestIntf_opDoubleArrayPtr callback =
             Test::newCallback_TestIntf_opDoubleArray(cb, &Callback::opDoubleArray, &Callback::noEx);
         t->begin_opDoubleArray(inPair, callback, newInParam(inPair));
         cb->check();
@@ -1803,7 +1861,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         pair<const bool*, const bool*> inPair(inArray, inArray + 5);
 
         CallbackPtr cb = new Callback();
-        Test::Callback_TestIntf_opBoolArrayPtr callback = 
+        Test::Callback_TestIntf_opBoolArrayPtr callback =
             Test::newCallback_TestIntf_opBoolArray(cb, &Callback::opBoolArray, &Callback::noEx);
         t->begin_opBoolArray(inPair, callback, newInParam(inPair));
         cb->check();
@@ -1819,7 +1877,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         pair<const Ice::Byte*, const Ice::Byte*> inPair(in, in + 5);
 
         CallbackPtr cb = new Callback();
-        Test::Callback_TestIntf_opByteArrayPtr callback = 
+        Test::Callback_TestIntf_opByteArrayPtr callback =
             Test::newCallback_TestIntf_opByteArray(cb, &Callback::opByteArray, &Callback::noEx);
         t->begin_opByteArray(inPair, callback, newInParam(inPair));
         cb->check();
@@ -1857,7 +1915,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         pair<Test::BoolSeq::const_iterator, Test::BoolSeq::const_iterator> inPair(in.begin(), in.end());
 
         CallbackPtr cb = new Callback();
-        Test::Callback_TestIntf_opBoolRangePtr callback = 
+        Test::Callback_TestIntf_opBoolRangePtr callback =
             Test::newCallback_TestIntf_opBoolRange(cb, &Callback::opBoolRange, &Callback::noEx);
         t->begin_opBoolRange(inPair, callback, newInParam(inPair));
         cb->check();
@@ -1873,7 +1931,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator> inPair(in.begin(), in.end());
 
         CallbackPtr cb = new Callback();
-        Test::Callback_TestIntf_opByteRangePtr callback = 
+        Test::Callback_TestIntf_opByteRangePtr callback =
             Test::newCallback_TestIntf_opByteRange(cb, &Callback::opByteRange, &Callback::noEx);
         t->begin_opByteRange(inPair, callback, newInParam(inPair));
         cb->check();
@@ -1936,11 +1994,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         v.s = "strings.";
         in.push_back(v);
         inSeq.push_back(v);
-        pair<deque<Test::Variable>::const_iterator, deque<Test::Variable>::const_iterator> inPair(inSeq.begin(), 
+        pair<deque<Test::Variable>::const_iterator, deque<Test::Variable>::const_iterator> inPair(inSeq.begin(),
                                                                                                   inSeq.end());
 
         CallbackPtr cb = new Callback();
-        Test::Callback_TestIntf_opVariableRangeTypePtr callback = 
+        Test::Callback_TestIntf_opVariableRangeTypePtr callback =
             Test::newCallback_TestIntf_opVariableRangeType(cb, &Callback::opVariableRangeType, &Callback::noEx);
         t->begin_opVariableRangeType(inPair, callback, newInParam(inPair));
         cb->check();
@@ -1955,7 +2013,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         in[4] = true;
 
         CallbackPtr cb = new Callback();
-        Test::Callback_TestIntf_opBoolSeqPtr callback = 
+        Test::Callback_TestIntf_opBoolSeqPtr callback =
             Test::newCallback_TestIntf_opBoolSeq(cb, &Callback::opBoolSeq, &Callback::noEx);
         t->begin_opBoolSeq(in, callback, newInParam(in));
         cb->check();
@@ -1970,7 +2028,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         in.push_back(true);
 
         CallbackPtr cb = new Callback();
-        Test::Callback_TestIntf_opBoolListPtr callback = 
+        Test::Callback_TestIntf_opBoolListPtr callback =
             Test::newCallback_TestIntf_opBoolList(cb, &Callback::opBoolList, &Callback::noEx);
         t->begin_opBoolList(in, callback, newInParam(in));
         cb->check();
@@ -1985,7 +2043,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         in[4] = '5';
 
         CallbackPtr cb = new Callback();
-        Test::Callback_TestIntf_opByteSeqPtr callback = 
+        Test::Callback_TestIntf_opByteSeqPtr callback =
             Test::newCallback_TestIntf_opByteSeq(cb, &Callback::opByteSeq, &Callback::noEx);
         t->begin_opByteSeq(in, callback, newInParam(in));
         cb->check();
@@ -2000,7 +2058,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         in.push_back('5');
 
         CallbackPtr cb = new Callback();
-        Test::Callback_TestIntf_opByteListPtr callback = 
+        Test::Callback_TestIntf_opByteListPtr callback =
             Test::newCallback_TestIntf_opByteList(cb, &Callback::opByteList, &Callback::noEx);
         t->begin_opByteList(in, callback, newInParam(in));
         cb->check();
@@ -2015,7 +2073,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
 
         CallbackPtr cb = new Callback();
-        Test::Callback_TestIntf_opMyByteSeqPtr callback = 
+        Test::Callback_TestIntf_opMyByteSeqPtr callback =
             Test::newCallback_TestIntf_opMyByteSeq(cb, &Callback::opMyByteSeq, &Callback::noEx);
         t->begin_opMyByteSeq(in, callback, newInParam(in));
         cb->check();
@@ -2030,7 +2088,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         in[4] = "strings.";
 
         CallbackPtr cb = new Callback();
-        Test::Callback_TestIntf_opStringSeqPtr callback = 
+        Test::Callback_TestIntf_opStringSeqPtr callback =
             Test::newCallback_TestIntf_opStringSeq(cb, &Callback::opStringSeq, &Callback::noEx);
         t->begin_opStringSeq(in, callback, newInParam(in));
         cb->check();
@@ -2045,7 +2103,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         in.push_back("strings.");
 
         CallbackPtr cb = new Callback();
-        Test::Callback_TestIntf_opStringListPtr callback = 
+        Test::Callback_TestIntf_opStringListPtr callback =
             Test::newCallback_TestIntf_opStringList(cb, &Callback::opStringList, &Callback::noEx);
         t->begin_opStringList(in, callback, newInParam(in));
         cb->check();
@@ -2060,7 +2118,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         in[4].s = 5;
 
         CallbackPtr cb = new Callback();
-        Test::Callback_TestIntf_opFixedSeqPtr callback = 
+        Test::Callback_TestIntf_opFixedSeqPtr callback =
             Test::newCallback_TestIntf_opFixedSeq(cb, &Callback::opFixedSeq, &Callback::noEx);
         t->begin_opFixedSeq(in, callback, newInParam(in));
         cb->check();
@@ -2075,7 +2133,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
 
         CallbackPtr cb = new Callback();
-        Test::Callback_TestIntf_opFixedListPtr callback = 
+        Test::Callback_TestIntf_opFixedListPtr callback =
             Test::newCallback_TestIntf_opFixedList(cb, &Callback::opFixedList, &Callback::noEx);
         t->begin_opFixedList(in, callback, newInParam(in));
         cb->check();
@@ -2090,7 +2148,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         in[4].s = "strings.";
 
         CallbackPtr cb = new Callback();
-        Test::Callback_TestIntf_opVariableSeqPtr callback = 
+        Test::Callback_TestIntf_opVariableSeqPtr callback =
             Test::newCallback_TestIntf_opVariableSeq(cb, &Callback::opVariableSeq, &Callback::noEx);
         t->begin_opVariableSeq(in, callback, newInParam(in));
         cb->check();
@@ -2111,7 +2169,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         in.push_back(v);
 
         CallbackPtr cb = new Callback();
-        Test::Callback_TestIntf_opVariableListPtr callback = 
+        Test::Callback_TestIntf_opVariableListPtr callback =
             Test::newCallback_TestIntf_opVariableList(cb, &Callback::opVariableList, &Callback::noEx);
         t->begin_opVariableList(in, callback, newInParam(in));
         cb->check();
@@ -2126,7 +2184,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         in[4]["E"] = "e";
 
         CallbackPtr cb = new Callback();
-        Test::Callback_TestIntf_opStringStringDictSeqPtr callback = 
+        Test::Callback_TestIntf_opStringStringDictSeqPtr callback =
             Test::newCallback_TestIntf_opStringStringDictSeq(cb, &Callback::opStringStringDictSeq, &Callback::noEx);
         t->begin_opStringStringDictSeq(in, callback, newInParam(in));
         cb->check();
@@ -2147,7 +2205,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         in.push_back(ssd);
 
         CallbackPtr cb = new Callback();
-        Test::Callback_TestIntf_opStringStringDictListPtr callback = 
+        Test::Callback_TestIntf_opStringStringDictListPtr callback =
             Test::newCallback_TestIntf_opStringStringDictList(cb, &Callback::opStringStringDictList, &Callback::noEx);
         t->begin_opStringStringDictList(in, callback, newInParam(in));
         cb->check();
@@ -2155,14 +2213,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
         deque<Test::E> in(5);
-        in[0] = Test::E1;
-        in[1] = Test::E2;
-        in[2] = Test::E3;
-        in[3] = Test::E1;
-        in[4] = Test::E3;
+        in[0] = Test:: ICE_ENUM(E, E1);
+        in[1] = Test:: ICE_ENUM(E, E2);
+        in[2] = Test:: ICE_ENUM(E, E3);
+        in[3] = Test:: ICE_ENUM(E, E1);
+        in[4] = Test:: ICE_ENUM(E, E3);
 
         CallbackPtr cb = new Callback();
-        Test::Callback_TestIntf_opESeqPtr callback = 
+        Test::Callback_TestIntf_opESeqPtr callback =
             Test::newCallback_TestIntf_opESeq(cb, &Callback::opESeq, &Callback::noEx);
         t->begin_opESeq(in, callback, newInParam(in));
         cb->check();
@@ -2170,14 +2228,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
         list<Test::E> in;
-        in.push_back(Test::E1);
-        in.push_back(Test::E2);
-        in.push_back(Test::E3);
-        in.push_back(Test::E1);
-        in.push_back(Test::E3);
+        in.push_back(Test:: ICE_ENUM(E, E1));
+        in.push_back(Test:: ICE_ENUM(E, E2));
+        in.push_back(Test:: ICE_ENUM(E, E3));
+        in.push_back(Test:: ICE_ENUM(E, E1));
+        in.push_back(Test:: ICE_ENUM(E, E3));
 
         CallbackPtr cb = new Callback();
-        Test::Callback_TestIntf_opEListPtr callback = 
+        Test::Callback_TestIntf_opEListPtr callback =
             Test::newCallback_TestIntf_opEList(cb, &Callback::opEList, &Callback::noEx);
         t->begin_opEList(in, callback, newInParam(in));
         cb->check();
@@ -2185,14 +2243,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
         deque<Test::CPrx> in(5);
-        in[0] = Test::CPrx::uncheckedCast(communicator->stringToProxy("C1:" + endp + " -t 10000"));
-        in[1] = Test::CPrx::uncheckedCast(communicator->stringToProxy("C2:" + endp + " -t 10001"));
-        in[2] = Test::CPrx::uncheckedCast(communicator->stringToProxy("C3:" + endp + " -t 10002"));
-        in[3] = Test::CPrx::uncheckedCast(communicator->stringToProxy("C4:" + endp + " -t 10003"));
-        in[4] = Test::CPrx::uncheckedCast(communicator->stringToProxy("C5:" + endp + " -t 10004"));
+        in[0] = ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C1:" + endp + " -t 10000"));
+        in[1] = ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C2:" + endp + " -t 10001"));
+        in[2] = ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C3:" + endp + " -t 10002"));
+        in[3] = ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C4:" + endp + " -t 10003"));
+        in[4] = ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C5:" + endp + " -t 10004"));
 
         CallbackPtr cb = new Callback();
-        Test::Callback_TestIntf_opCPrxSeqPtr callback = 
+        Test::Callback_TestIntf_opCPrxSeqPtr callback =
             Test::newCallback_TestIntf_opCPrxSeq(cb, &Callback::opCPrxSeq, &Callback::noEx);
         t->begin_opCPrxSeq(in, callback, newInParam(in));
         cb->check();
@@ -2200,14 +2258,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
         list<Test::CPrx> in;
-        in.push_back(Test::CPrx::uncheckedCast(communicator->stringToProxy("C1:" + endp + " -t 10000")));
-        in.push_back(Test::CPrx::uncheckedCast(communicator->stringToProxy("C2:" + endp + " -t 10001")));
-        in.push_back(Test::CPrx::uncheckedCast(communicator->stringToProxy("C3:" + endp + " -t 10002")));
-        in.push_back(Test::CPrx::uncheckedCast(communicator->stringToProxy("C4:" + endp + " -t 10003")));
-        in.push_back(Test::CPrx::uncheckedCast(communicator->stringToProxy("C5:" + endp + " -t 10004")));
+        in.push_back(ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C1:" + endp + " -t 10000")));
+        in.push_back(ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C2:" + endp + " -t 10001")));
+        in.push_back(ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C3:" + endp + " -t 10002")));
+        in.push_back(ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C4:" + endp + " -t 10003")));
+        in.push_back(ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C5:" + endp + " -t 10004")));
 
         CallbackPtr cb = new Callback();
-        Test::Callback_TestIntf_opCPrxListPtr callback = 
+        Test::Callback_TestIntf_opCPrxListPtr callback =
             Test::newCallback_TestIntf_opCPrxList(cb, &Callback::opCPrxList, &Callback::noEx);
         t->begin_opCPrxList(in, callback, newInParam(in));
         cb->check();
@@ -2215,7 +2273,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
         deque<Test::CPtr> in(5);
-        in[0] = new Test::C();
+        in[0] = ICE_MAKE_SHARED(Test::C);
         in[1] = in[0];
         in[2] = in[0];
         in[3] = in[0];
@@ -2226,49 +2284,49 @@ allTests(const Ice::CommunicatorPtr& communicator)
         t->begin_opCSeq(in, callback, newInParam(in));
         cb->check();
     }
-    
+
     {
         list<Test::CPtr> in;
-        in.push_back(new Test::C());
-        in.push_back(new Test::C());
-        in.push_back(new Test::C());
-        in.push_back(new Test::C());
-        in.push_back(new Test::C());
+        in.push_back(ICE_MAKE_SHARED(Test::C));
+        in.push_back(ICE_MAKE_SHARED(Test::C));
+        in.push_back(ICE_MAKE_SHARED(Test::C));
+        in.push_back(ICE_MAKE_SHARED(Test::C));
+        in.push_back(ICE_MAKE_SHARED(Test::C));
 
         CallbackPtr cb = new Callback();
-        Test::Callback_TestIntf_opCListPtr callback = 
+        Test::Callback_TestIntf_opCListPtr callback =
             Test::newCallback_TestIntf_opCList(cb, &Callback::opCList, &Callback::noEx);
         t->begin_opCList(in, callback, newInParam(in));
         cb->check();
     }
-        
-        
+
+
     {
         Test::ByteSeq in;
         in.push_back('1');
         in.push_back('2');
         in.push_back('3');
         in.push_back('4');
-            
+
         CallbackPtr cb = new Callback();
-        Test::Callback_TestIntf_opOutArrayByteSeqPtr callback = Test::newCallback_TestIntf_opOutArrayByteSeq(cb, 
+        Test::Callback_TestIntf_opOutArrayByteSeqPtr callback = Test::newCallback_TestIntf_opOutArrayByteSeq(cb,
                                                                                                              &Callback::opOutArrayByteSeq, &Callback::noEx);
-            
+
         t->begin_opOutArrayByteSeq(in, callback, newInParam(in));
         cb->check();
     }
-        
+
     {
         Test::ByteSeq in;
         in.push_back('1');
         in.push_back('2');
         in.push_back('3');
         in.push_back('4');
-            
+
         CallbackPtr cb = new Callback();
-        Test::Callback_TestIntf_opOutRangeByteSeqPtr callback = Test::newCallback_TestIntf_opOutRangeByteSeq(cb, 
+        Test::Callback_TestIntf_opOutRangeByteSeqPtr callback = Test::newCallback_TestIntf_opOutRangeByteSeq(cb,
                                                                                                              &Callback::opOutRangeByteSeq, &Callback::noEx);
-            
+
         t->begin_opOutRangeByteSeq(in, callback, newInParam(in));
         cb->check();
     }
@@ -2279,15 +2337,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         {
             Test::IntStringDict idict;
-                
+
             idict[1] = "one";
             idict[2] = "two";
             idict[3] = "three";
             idict[-1] = "minus one";
-                
+
             Test::IntStringDict out;
             out[5] = "five";
-                
+
             Ice::AsyncResultPtr r = t->begin_opIntStringDict(idict);
             Test::IntStringDict ret = t->end_opIntStringDict(out, r);
             test(out == idict);
@@ -2296,30 +2354,19 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         {
             Test::CustomMap<std::string, Ice::Int> idict;
-                
+
             idict["one"] = 1;
             idict["two"] = 2;
             idict["three"] = 3;
             idict["minus one"] = -1;
-                
+
             Test::CustomMap<std::string, Ice::Int> out;
             out["five"] = 5;
-                
+
             Ice::AsyncResultPtr r = t->begin_opVarDict(idict);
             Test::CustomMap<Ice::Long, Ice::Long> ret = t->end_opVarDict(out, r);
-#if defined(_MSC_VER) && (_MSC_VER == 1600)
-            //
-            // operator== for std::unordered_map does not work with Visual Studio 2010
-            //
-            test(out.size() == idict.size());
-        
-            for(Test::CustomMap<std::string, Ice::Int>::iterator p = idict.begin(); p != idict.end(); ++p)
-            {
-                test(out[p->first] == p->second);
-            } 
-#else
+
             test(out == idict);
-#endif
             test(ret.size() == 1000);
             for(Test::CustomMap<Ice::Long, Ice::Long>::const_iterator i = ret.begin(); i != ret.end(); ++i)
             {
@@ -2334,13 +2381,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
             idict[2] = "two";
             idict[3] = "three";
             idict[-1] = "minus one";
-                
+
             Test::IntStringDict out;
             out[5] = "five";
-        
+
             Ice::AsyncResultPtr r = t->begin_opCustomIntStringDict(idict);
             Test::IntStringDict ret = t->end_opCustomIntStringDict(out, r);
-               
+
             test(out.size() == idict.size());
             test(out == ret);
             for(std::map<int, Util::string_view>::const_iterator p = idict.begin();
@@ -2352,19 +2399,19 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
     }
     cout << "ok" << endl;
-        
+
     cout << "testing alternate dictionaries with new AMI callbacks... " << flush;
     {
         {
             Test::IntStringDict idict;
-                
+
             idict[1] = "one";
             idict[2] = "two";
             idict[3] = "three";
             idict[-1] = "minus one";
-                   
+
             CallbackPtr cb = new Callback();
-            Test::Callback_TestIntf_opIntStringDictPtr callback = 
+            Test::Callback_TestIntf_opIntStringDictPtr callback =
                 Test::newCallback_TestIntf_opIntStringDict(cb, &Callback::opIntStringDict, &Callback::noEx);
             t->begin_opIntStringDict(idict, callback, newInParam(idict));
             cb->check();
@@ -2372,14 +2419,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         {
             Test::CustomMap<std::string, Ice::Int> idict;
-                
+
             idict["one"] = 1;
             idict["two"] = 2;
             idict["three"] = 3;
             idict["minus one"] = -1;
-                
+
             CallbackPtr cb = new Callback();
-            Test::Callback_TestIntf_opVarDictPtr callback = 
+            Test::Callback_TestIntf_opVarDictPtr callback =
                 Test::newCallback_TestIntf_opVarDict(cb, &Callback::opVarDict, &Callback::noEx);
             t->begin_opVarDict(idict, callback, newInParam(idict));
             cb->check();
@@ -2392,9 +2439,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
             idict[2] = "two";
             idict[3] = "three";
             idict[-1] = "minus one";
-                
+
             CallbackPtr cb = new Callback();
-            Test::Callback_TestIntf_opCustomIntStringDictPtr callback = 
+            Test::Callback_TestIntf_opCustomIntStringDictPtr callback =
                 Test::newCallback_TestIntf_opCustomIntStringDict(cb, &Callback::opCustomIntStringDict, &Callback::noEx);
             t->begin_opCustomIntStringDict(idict, callback, newInParam(idict));
             cb->check();
@@ -2434,7 +2481,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     {
         CallbackPtr cb = new Callback();
-        Test::Callback_TestIntf_opClassStructPtr callback = 
+        Test::Callback_TestIntf_opClassStructPtr callback =
             Test::newCallback_TestIntf_opClassStruct(cb, &Callback::opClassStruct, &Callback::noEx);
         t->begin_opClassStruct(cs, csseq1, callback, newInParam(make_pair(cs, csseq1)));
         cb->check();
@@ -2458,13 +2505,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
     ref = communicator->getProperties()->getPropertyWithDefault("Custom.WstringProxy1", "wstring1:" + endp);
     base = communicator->stringToProxy(ref);
     test(base);
-    Test1::WstringClassPrx wsc1 = Test1::WstringClassPrx::checkedCast(base);
+    Test1::WstringClassPrxPtr wsc1 = ICE_CHECKED_CAST(Test1::WstringClassPrx, base);
     test(t);
 
     ref = communicator->getProperties()->getPropertyWithDefault("Custom.WstringProxy2", "wstring2:" + endp);
     base = communicator->stringToProxy(ref);
     test(base);
-    Test2::WstringClassPrx wsc2 = Test2::WstringClassPrx::checkedCast(base);
+    Test2::WstringClassPrxPtr wsc2 = ICE_CHECKED_CAST(Test2::WstringClassPrx, base);
     test(t);
 
     wstring wstr = L"A Wide String";
@@ -2500,13 +2547,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     {
         CallbackPtr cb = new Callback();
-        wsc2->begin_opString(wstr, Test2::newCallback_WstringClass_opString(cb, &Callback::opString, 
+        wsc2->begin_opString(wstr, Test2::newCallback_WstringClass_opString(cb, &Callback::opString,
                                                                             &Callback::noEx), newInParam(wstr));
         cb->check();
     }
     {
         CallbackPtr cb = new Callback();
-        wsc2->begin_opString(wstr, Test2::newCallback_WstringClass_opString(cb, &Callback::opString, 
+        wsc2->begin_opString(wstr, Test2::newCallback_WstringClass_opString(cb, &Callback::opString,
                                                                             &Callback::noEx), newInParam(wstr));
         cb->check();
     }
@@ -2578,6 +2625,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         wsc2->begin_throwExcept(wstr, Ice::newCallback(cb, &Callback::throwExcept2), newInParam(wstr));
         cb->check();
     }
+#endif
 
     cout << "ok" << endl;
 

@@ -78,7 +78,7 @@ Ice::ObjectPrx::__ice_isA(const shared_ptr<IceInternal::OutgoingAsyncT<bool>>& o
     outAsync->invoke(ice_isA_name, OperationMode::Nonmutating, DefaultFormat, ctx,
                      [&](Ice::OutputStream* os)
                      {
-                         os->write(typeId);
+                         os->write(typeId, false);
                      },
                      nullptr);
 }

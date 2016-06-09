@@ -69,7 +69,6 @@ cpp11_projects		= test/Common \
 cpp11_excludes  	= IcePatch2 \
 			  test/Ice/optional \
 			  test/Ice/gc \
-			  test/Ice/custom \
 			  test/Ice/echo
 
 #
