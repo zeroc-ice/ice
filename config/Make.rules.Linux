@@ -69,10 +69,10 @@ else
 #
 supported-platforms     = $(if $(filter x86_64,$(shell uname -m)),x64,x86)
 
-x64_targetdir  		= $(if $(filter %/build,$($1_targetdir)),/x64,$(if $(filter-out $($1_target),program),64))
+x64_targetdir  		= $(if $(filter %/build,$5),/x64,$(if $(filter-out $($1_target),program),64))
 x64_installdir 		= $(if $(and $(filter-out $($1_target),program),$(filter-out %64,$($1_installdir))),64)
 
-x86_targetdir  		= $(if $(filter %/build,$($1_targetdir)),/x86)
+x86_targetdir  		= $(if $(filter %/build,$5),/x86)
 
 endif
 
