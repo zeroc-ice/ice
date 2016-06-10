@@ -186,7 +186,11 @@ endif
 #
 # Platform specific definitions
 #
+ifeq ($(UNAME),GNU/kFreeBSD)
+include	 $(top_srcdir)/config/Make.rules.Linux
+else
 include	 $(top_srcdir)/config/Make.rules.$(UNAME)
+endif
 
 install_includedir	:= $(prefix)/include
 install_bindir	  	:= $(prefix)/$(binsubdir)$(cpp11suffix)

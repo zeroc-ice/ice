@@ -84,7 +84,7 @@ ifeq ($(UNAME),HP-UX)
     lp64binsuffix	= /pa20_64
 endif
 
-ifeq ($(UNAME),Linux)
+ifeq ($(filter Linux GNU/kFreeBSD,$(UNAME)),$(UNAME))
    ifeq ($(MACHINE_TYPE),x86_64)
       #
       # Rhel/SLES
@@ -139,12 +139,24 @@ endif
 # Debian
 #
 ifneq ($(wildcard /etc/debian_version),)
-    ifeq ($(DEB_HOST_MULTIARCH),)
-        lp64suffix	:= /x86_64-linux-gnu
-        lp32suffix	:= /i386-linux-gnu
-    else
-        lp64suffix      := /$(DEB_HOST_MULTIARCH)
-        lp32suffix      := /$(DEB_HOST_MULTIARCH)
+    ifeq ($(filter x86_64 i386,$(MACHINE_TYPE)),$(MACHINE_TYPE))
+        ifeq ($(UNAME),GNU/kFreeBSD)
+            lp64suffix	:= /x86_64-kfreebsd-gnu
+            lp32suffix	:= /i386-kfreebsd-gnu
+        else
+            lp64suffix	:= /x86_64-linux-gnu
+            lp32suffix	:= /i386-linux-gnu
+        endif
+    endif
+    
+    ifeq ($(filter armel armhf,$(MACHINE_TYPE)),$(MACHINE_TYPE))
+        lp64suffix	:= /arm-linux-gnueabi
+        lp32suffix	:= /arm-linux-gnueabi
+    endif
+    
+    ifeq ($(filter armel armhf x86_64 i386,$(MACHINE_TYPE)),)
+        lp64suffix	:= /$(MACHINE_TYPE)-linux-gnu
+        lp32suffix	:= /$(MACHINE_TYPE)-linux-gnu
     endif
 endif
 
@@ -257,9 +269,9 @@ ifndef ice_src_dist
     ifndef slice_translator
         slice_translator = slice2cpp
     endif
-
     ifneq ($(ICE_HOME),)
         ifneq ("$(ice_language)", "python")
+
             ifneq ($(shell test -f $(ICE_HOME)/$(binsubdir)/$(slice_translator) && echo 0), 0)
 $(error Unable to find $(slice_translator) in $(ICE_HOME)/$(binsubdir), please verify ICE_HOME is properly configured and Ice is correctly installed.)
             endif

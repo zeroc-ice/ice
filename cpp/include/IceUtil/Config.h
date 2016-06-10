@@ -15,7 +15,9 @@
 // and fallback to architecture based checks.
 //
 //
-#if defined(__linux)
+#include <stdlib.h>
+
+#if defined(__GLIBC__)
 #   include <endian.h>
 #elif defined(__APPLE__)
 #   include <machine/endian.h>
