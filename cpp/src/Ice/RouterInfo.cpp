@@ -201,7 +201,7 @@ IceInternal::RouterInfo::getClientEndpoints(const GetClientEndpointsCallbackPtr&
 
 #ifdef ICE_CPP11_MAPPING
     RouterInfoPtr self = this;
-    _router->getClientProxy_async(
+    _router->getClientProxyAsync(
         [self, callback](const Ice::ObjectPrxPtr& proxy)
         {
             self->getClientProxyResponse(proxy, callback);
@@ -295,7 +295,7 @@ IceInternal::RouterInfo::addProxy(const Ice::ObjectPrxPtr& proxy, const AddProxy
 
 #ifdef ICE_CPP11_MAPPING
     RouterInfoPtr self = this;
-    _router->addProxies_async(proxies,
+    _router->addProxiesAsync(proxies,
         [self, cookie](const Ice::ObjectProxySeq& proxies)
         {
             self->addProxyResponse(proxies, cookie);

@@ -331,7 +331,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     for(i = 0; i < 1000; i++)
     {
         auto result = make_shared<promise<void>>();
-        hello->sayHello_async(
+        hello->sayHelloAsync(
             [result]()
             {
                 result->set_value();
@@ -357,7 +357,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     for(i = 0; i < 1000; i++)
     {
         auto result = make_shared<promise<void>>();
-        hello->sayHello_async(
+        hello->sayHelloAsync(
             [result]()
             {
                 test(false);

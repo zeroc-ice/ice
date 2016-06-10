@@ -138,7 +138,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             completed = make_shared<promise<void>>();
             auto sent = make_shared<promise<bool>>();
             auto expected = value;
-            hold->set_async(value + 1, IceUtilInternal::random(5),
+            hold->setAsync(value + 1, IceUtilInternal::random(5),
                 [cond, expected, completed](int value)
                 {
                     if(value != expected)
@@ -211,7 +211,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             completed = make_shared<promise<void>>();
 			auto sent = make_shared<promise<bool>>();
             auto expected = value;
-            holdSerialized->set_async(
+            holdSerialized->setAsync(
                 value + 1,
                 IceUtilInternal::random(1),
                 [cond, expected, completed](int value)
@@ -276,7 +276,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             completed = make_shared<promise<void>>();
             // Create a new proxy for each request
-            holdSerialized->ice_oneway()->setOneway_async(value + 1, value,
+            holdSerialized->ice_oneway()->setOnewayAsync(value + 1, value,
                 nullptr,
                 [](exception_ptr)
                 {

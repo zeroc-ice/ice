@@ -117,7 +117,7 @@ BatchRequestQueue::finishBatchRequest(OutputStream* os, const Ice::ObjectPrxPtr&
         if(_maxSize > 0 && _batchStream.b.size() >= _maxSize)
         {
 #ifdef ICE_CPP11_MAPPING
-            proxy->ice_flushBatchRequests_async();
+            proxy->ice_flushBatchRequestsAsync();
 #else
             proxy->begin_ice_flushBatchRequests();
 #endif

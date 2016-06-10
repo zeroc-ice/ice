@@ -15,6 +15,7 @@
 #include <IceUtil/Iterator.h>
 #include <IceUtil/InputUtil.h>
 #include <IceUtil/StringConverter.h>
+#include <IceUtil/StringUtil.h>
 #include <Slice/Checksum.h>
 #include <Slice/FileTracker.h>
 
@@ -452,6 +453,17 @@ writeDataMemberInitializers(IceUtilInternal::Output& C, const DataMemberList& me
     }
 }
 
+string
+resultStructName(const string& name, const string& scope = "")
+{
+    string stName = IceUtilInternal::toUpper(name.substr(0, 1)) + name.substr(1) + "Result";
+    if(!scope.empty())
+    {
+        stName = scope + "::" + stName;
+    }
+    return stName;
+}
+
 }
 
 Slice::Gen::Gen(const string& base, const string& headerExtension, const string& sourceExtension,
@@ -788,9 +800,6 @@ Slice::Gen::generate(const UnitPtr& p)
         Cpp11TypesVisitor typesVisitor(H, C, _dllExport);
         p->visit(&typesVisitor, false);
 
-        Cpp11ProxyVisitor proxyVisitor(H, C, _dllExport);
-        p->visit(&proxyVisitor, false);
-
         Cpp11LocalObjectVisitor localObjectVisitor(H, C, _dllExport);
         p->visit(&localObjectVisitor, false);
 
@@ -799,6 +808,9 @@ Slice::Gen::generate(const UnitPtr& p)
 
         Cpp11ValueVisitor valueVisitor(H, C, _dllExport);
         p->visit(&valueVisitor, false);
+
+        Cpp11ProxyVisitor proxyVisitor(H, C, _dllExport);
+        p->visit(&proxyVisitor, false);
 
         Cpp11StreamVisitor streamVisitor(H, C, _dllExport);
         p->visit(&streamVisitor, false);
@@ -5586,8 +5598,8 @@ Slice::Gen::Cpp11DeclVisitor::visitOperation(const OperationPtr& p)
     }
 }
 
-Slice::Gen::Cpp11TypesVisitor::Cpp11TypesVisitor(Output& h, Output& c, const string& dllExport) :
-    H(h), C(c), _dllExport(dllExport), _doneStaticSymbol(false), _useWstring(false)
+Slice::Gen::Cpp11TypesVisitor::Cpp11TypesVisitor(Output& h, Output& c, const string& dllExport, int useWstring) :
+    H(h), C(c), _dllExport(dllExport), _doneStaticSymbol(false), _useWstring(useWstring)
 {
 }
 
@@ -6264,25 +6276,12 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
     }
     else
     {
-        futureT = "Result_" + name;
-    }
-
-    if(lambdaOutParams.size() > 1)
-    {
-        // We need to generate a Result_ struct.
-        H << sp;
-        H << nl << "struct Result_" << name;
-        H << sb;
-        for(ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
+        string resultScope = cl->scope() + cl->name();
+        if(!cl->isInterface())
         {
-            string typeString = typeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), _useWstring, true);
-            H << nl << typeString << " " << fixKwd((*q)->name()) << ";";
+            resultScope += "Disp";
         }
-        if(ret)
-        {
-            H << nl << retS << " " << returnValueS << ";";
-        }
-        H << eb << ";";
+        futureT = resultStructName(name, resultScope);
     }
 
     string deprecateSymbol = getDeprecateSymbol(p, cl);
@@ -6311,11 +6310,11 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
     }
     if(futureT == "void")
     {
-        H << nl << "makePromiseOutgoing";
+        H << "makePromiseOutgoing";
     }
     else
     {
-        H << nl << "makePromiseOutgoing<" << futureT << ">";
+        H << "makePromiseOutgoing<" << futureT << ">";
     }
     H << spar << "true, this" << string("&" + scoped + "__" + name);
     for(ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
@@ -6356,7 +6355,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
     //
     H << sp;
     H << nl << "::std::function<void ()>";
-    H << nl << name << "_async(";
+    H << nl << name << "Async(";
     H.useCurrentPosAsIndent();
     if(!lambdaParamsDecl.empty())
     {
@@ -6423,7 +6422,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
     //
     H << sp;
     H << nl << "template<template<typename> class P = ::std::promise>";
-    H << nl << deprecateSymbol << "auto " << name << "_async" << spar << futureParamsDecl;
+    H << nl << deprecateSymbol << "auto " << name << "Async" << spar << futureParamsDecl;
     H << "const ::Ice::Context& __ctx = Ice::noExplicitContext" << epar;
     H.inc();
     H << nl << "-> decltype(::std::declval<P<" << futureT << ">>().get_future())";
@@ -7035,7 +7034,7 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitOperation(const OperationPtr& p)
 
         H << sp;
         H << nl << "virtual ::std::function<void ()>";
-        H << nl << name << "_async(";
+        H << nl << name << "Async(";
         H.useCurrentPosAsIndent();
         for(vector<string>::const_iterator i = paramsDeclAMI.begin(); i != paramsDeclAMI.end(); ++i)
         {
@@ -7051,7 +7050,7 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitOperation(const OperationPtr& p)
 
         H << sp;
         H << nl << "template<template<typename> class P = ::std::promise>";
-        H << nl << deprecateSymbol << "auto " << name << "_async" << spar << paramsDeclAMI << epar;
+        H << nl << deprecateSymbol << "auto " << name << "Async" << spar << paramsDeclAMI << epar;
         H.inc();
         H << nl << "-> decltype(::std::declval<P<bool>>().get_future())";
         H.dec();
@@ -7059,7 +7058,7 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitOperation(const OperationPtr& p)
         H << nl << "using Promise = P<bool>;";
         H << nl << "auto __promise = ::std::make_shared<Promise>();";
 
-        H << nl << name << "_async(";
+        H << nl << name << "Async(";
         H.useCurrentPosAsIndent();
         for(vector<string>::const_iterator i = paramsDeclAMI.begin(); i != paramsDeclAMI.end(); ++i)
         {
@@ -7333,7 +7332,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
     ParamDeclList inParams;
     ParamDeclList outParams;
     ParamDeclList paramList = p->parameters();
-    vector< string> outDecls;
+    vector<string> outDecls;
     for(ParamDeclList::iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
         string paramName = fixKwd(string(paramPrefix) + (*q)->name());
@@ -7366,6 +7365,45 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
         paramsDecl += paramName;
         args += (isMovable(type) && !isOutParam) ? ("::std::move(" + paramName + ")") : paramName;
     }
+
+    if((outParams.size() > 1) || (ret && outParams.size() > 0))
+    {
+        //
+        // Generate  OpNameResult struct
+        //
+        StructPtr st = cl->createStruct(resultStructName(name), false, Slice::Dummy);
+        st->setMetaData(cl->getMetaData());
+
+        if(ret)
+        {
+            string returnValue = "returnValue";
+            for(ParamDeclList::iterator q = outParams.begin(); q != outParams.end(); ++q)
+            {
+                if((*q)->name() == returnValue)
+                {
+                    returnValue = string("_") + returnValue;
+                    break;
+                }
+            }
+            DataMemberPtr dm =
+                st->createDataMember(returnValue, ret, p->returnIsOptional(), p->returnTag(), 0, "", "", false);
+            dm->setMetaData(p->getMetaData());
+        }
+
+        for(ParamDeclList::iterator q = outParams.begin(); q != outParams.end(); ++q)
+        {
+            DataMemberPtr dm =
+                st->createDataMember((*q)->name(), (*q)->type(), (*q)->optional(), (*q)->tag(), 0, "", "");
+            dm->setMetaData((*q)->getMetaData());
+        }
+
+        //
+        // Generate C++ struct
+        //
+        Cpp11TypesVisitor typesVisitor(H, C, _dllExport, _useWstring);
+        st->visit(&typesVisitor, false);
+    }
+
 
     if(!paramList.empty())
     {
@@ -7448,7 +7486,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
     }
     else
     {
-        H << nl << deprecateSymbol << "virtual void " << name << "_async(";
+        H << nl << deprecateSymbol << "virtual void " << name << "Async(";
         H.useCurrentPosAsIndent();
         H << paramsAMD;
         if(!paramsAMD.empty())
@@ -7563,7 +7601,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
         C << nl << "try";
         C << sb;
 
-        C << nl << name << "_async(";
+        C << nl << name << "Async(";
         C.useCurrentPosAsIndent();
         if(!argsAMD.empty())
         {
@@ -8284,7 +8322,7 @@ Slice::Gen::Cpp11ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
             string responseParams;
             string responseParamsDecl;
 
-            H << sp << nl << "virtual void " << opName << "_async(";
+            H << sp << nl << "virtual void " << opName << "Async(";
             H.useCurrentPosAsIndent();
             for(ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
             {
@@ -8323,7 +8361,7 @@ Slice::Gen::Cpp11ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
             H << nl << "const Ice::Current&)" << isConst << ';';
             H.restoreIndent();
 
-            C << sp << nl << "void" << nl << scope << name << "I::" << opName << "_async(";
+            C << sp << nl << "void" << nl << scope << name << "I::" << opName << "Async(";
             C.useCurrentPosAsIndent();
             for(ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
             {

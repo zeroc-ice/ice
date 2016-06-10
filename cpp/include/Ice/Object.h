@@ -183,10 +183,10 @@ class ICE_API BlobjectAsync : public virtual Object
 public:
 
 #ifdef ICE_CPP11_MAPPING
-    virtual void ice_invoke_async(std::vector<Byte>,
-                                  std::function<void (bool, std::vector<Byte>)>,
-                                  std::function<void (std::exception_ptr)>,
-                                  const Current&) = 0;
+    virtual void ice_invokeAsync(std::vector<Byte>,
+                                 std::function<void (bool, std::vector<Byte>)>,
+                                 std::function<void (std::exception_ptr)>,
+                                 const Current&) = 0;
 #else
     virtual void ice_invoke_async(const AMD_Object_ice_invokePtr&, const std::vector<Byte>&, const Current&) = 0;
 #endif
@@ -198,10 +198,10 @@ class ICE_API BlobjectArrayAsync : public virtual Object
 public:
 
 #ifdef ICE_CPP11_MAPPING
-    virtual void ice_invoke_async(std::pair<const Byte*, const Byte*>,
-                                  std::function<void (bool, std::pair<const Byte*, const Byte*>)>,
-                                  std::function<void (std::exception_ptr)>,
-                                  const Current&) = 0;
+    virtual void ice_invokeAsync(std::pair<const Byte*, const Byte*>,
+                                 std::function<void (bool, std::pair<const Byte*, const Byte*>)>,
+                                 std::function<void (std::exception_ptr)>,
+                                 const Current&) = 0;
 #else
     virtual void ice_invoke_async(const AMD_Object_ice_invokePtr&, const std::pair<const Byte*, const Byte*>&,
                                   const Current&) = 0;

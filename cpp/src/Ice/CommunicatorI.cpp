@@ -212,11 +212,11 @@ const ::std::string __flushBatchRequests_name = "flushBatchRequests";
 void
 Ice::CommunicatorI::flushBatchRequests()
 {
-    Communicator::flushBatchRequests_async().get();
+    Communicator::flushBatchRequestsAsync().get();
 }
 
 ::std::function<void ()>
-Ice::CommunicatorI::flushBatchRequests_async(function<void (exception_ptr)> ex, function<void (bool)> sent)
+Ice::CommunicatorI::flushBatchRequestsAsync(function<void (exception_ptr)> ex, function<void (bool)> sent)
 {
     class CommunicatorFlushBatchLambda : public CommunicatorFlushBatchAsync, public LambdaInvoke
     {

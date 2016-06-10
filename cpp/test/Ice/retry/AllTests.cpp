@@ -151,7 +151,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const Ice::CommunicatorPtr& c
 
     cout << "calling regular AMI operation with first proxy... " << flush;
 #ifdef ICE_CPP11_MAPPING
-    retry1->op_async(false, 
+    retry1->opAsync(false,
         [cb1]()
         {
             cb1->response();
@@ -178,7 +178,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const Ice::CommunicatorPtr& c
 
     cout << "calling AMI operation to kill connection with second proxy... " << flush;
 #ifdef ICE_CPP11_MAPPING
-    retry2->op_async(true, 
+    retry2->opAsync(true,
         [cb2]()
         {
             cb2->response();
@@ -205,7 +205,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const Ice::CommunicatorPtr& c
 
     cout << "calling regular AMI operation with first proxy again... " << flush;
 #ifdef ICE_CPP11_MAPPING
-    retry1->op_async(false, 
+    retry1->opAsync(false,
         [cb1]()
         {
             cb1->response();
@@ -229,14 +229,14 @@ allTests(const Ice::CommunicatorPtr& communicator, const Ice::CommunicatorPtr& c
     testFailureCount(0);
     testRetryCount(0);
     cout << "ok" << endl;
-    
+
     cout << "testing idempotent operation... " << flush;
     test(retry1->opIdempotent(4) == 4);
     testInvocationCount(1);
     testFailureCount(0);
     testRetryCount(4);
 #ifdef ICE_CPP11_MAPPING
-    test(retry1->opIdempotent_async(4).get() == 4);
+    test(retry1->opIdempotentAsync(4).get() == 4);
 #else
     test(retry1->end_opIdempotent(retry1->begin_opIdempotent(4)) == 4);
 #endif
@@ -260,7 +260,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const Ice::CommunicatorPtr& c
     try
     {
 #ifdef ICE_CPP11_MAPPING
-        retry1->opNotIdempotent_async().get();
+        retry1->opNotIdempotentAsync().get();
 #else
         retry1->end_opNotIdempotent(retry1->begin_opNotIdempotent());
 #endif
@@ -292,7 +292,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const Ice::CommunicatorPtr& c
         try
         {
 #ifdef ICE_CPP11_MAPPING
-            retry1->opSystemException_async().get();
+            retry1->opSystemExceptionAsync().get();
 #else
             retry1->end_opSystemException(retry1->begin_opSystemException());
 #endif
@@ -325,7 +325,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const Ice::CommunicatorPtr& c
         // No more than 2 retries before timeout kicks-in
         RetryPrxPtr prx = retry2->ice_invocationTimeout(500);
 #ifdef ICE_CPP11_MAPPING
-        prx->opIdempotent_async(4).get();
+        prx->opIdempotentAsync(4).get();
 #else
         prx->end_opIdempotent(prx->begin_opIdempotent(4));
 #endif

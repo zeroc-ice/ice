@@ -392,7 +392,7 @@ Ice::BlobjectAsync::__dispatch(Incoming& in, const Current& current)
     auto async = IncomingAsync::create(in);
     try
     {
-        ice_invoke_async(vector<Byte>(inEncaps, inEncaps + sz),
+        ice_invokeAsync(vector<Byte>(inEncaps, inEncaps + sz),
             [async](bool ok, const vector<Byte>& outEncaps)
             {
                 if(async->__validateResponse(ok))
@@ -474,7 +474,7 @@ Ice::BlobjectArrayAsync::__dispatch(Incoming& in, const Current& current)
     auto async = IncomingAsync::create(in);
     try
     {
-        ice_invoke_async(inEncaps,
+        ice_invokeAsync(inEncaps,
             [async](bool ok, const pair<const Byte*, const Byte*>& outEncaps)
             {
                 if(async->__validateResponse(ok))

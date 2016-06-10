@@ -416,7 +416,7 @@ LoggerAdminI::attachRemoteLogger(const RemoteLoggerPrx& prx,
     try
     {
         auto self = shared_from_this();
-        remoteLogger->init_async(logger->getPrefix(), initLogMessages,
+        remoteLogger->initAsync(logger->getPrefix(), initLogMessages,
             [self, logger, remoteLogger]()
             {
                 if(self->_traceLevel > 1)
@@ -855,7 +855,7 @@ LoggerAdminLoggerI::run()
 #ifdef ICE_CPP11_MAPPING
                 RemoteLoggerPrxPtr remoteLogger = *p;
                 auto self = shared_from_this();
-                remoteLogger->log_async(job->logMessage,
+                remoteLogger->logAsync(job->logMessage,
                     [self, remoteLogger]()
                     {
                         if(self->_loggerAdmin->getTraceLevel() > 1)

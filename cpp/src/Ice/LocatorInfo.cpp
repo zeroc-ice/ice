@@ -47,7 +47,7 @@ public:
         {
 #ifdef ICE_CPP11_MAPPING
             LocatorInfo::RequestPtr request = this;
-            _locatorInfo->getLocator()->findObjectById_async(
+            _locatorInfo->getLocator()->findObjectByIdAsync(
                 _ref->getIdentity(),
                 [request](const ObjectPrxPtr& object)
                 {
@@ -94,7 +94,7 @@ public:
         {
 #ifdef ICE_CPP11_MAPPING
             LocatorInfo::RequestPtr request = this;
-            _locatorInfo->getLocator()->findAdapterById_async(_ref->getAdapterId(),
+            _locatorInfo->getLocator()->findAdapterByIdAsync(_ref->getAdapterId(),
                 [request](const shared_ptr<Ice::ObjectPrx>& object)
                 {
                     request->response(object);

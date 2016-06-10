@@ -18,121 +18,121 @@ public:
 
     TestI();
 #ifdef ICE_CPP11_MAPPING
-    virtual void baseAsBase_async(
+    virtual void baseAsBaseAsync(
         std::function<void ()>,
         std::function<void (std::exception_ptr)>,
         const ::Ice::Current&);
 
-    virtual void unknownDerivedAsBase_async(
+    virtual void unknownDerivedAsBaseAsync(
         std::function<void ()>,
         std::function<void (std::exception_ptr)>,
         const ::Ice::Current&);
 
-    virtual void knownDerivedAsBase_async(
+    virtual void knownDerivedAsBaseAsync(
         std::function<void ()>,
         std::function<void (std::exception_ptr)>,
         const ::Ice::Current&);
 
-    virtual void knownDerivedAsKnownDerived_async(
+    virtual void knownDerivedAsKnownDerivedAsync(
         std::function<void ()>,
         std::function<void (std::exception_ptr)>,
         const ::Ice::Current&);
 
-    virtual void unknownIntermediateAsBase_async(
+    virtual void unknownIntermediateAsBaseAsync(
         std::function<void ()>,
         std::function<void (std::exception_ptr)>,
         const ::Ice::Current&);
 
-    virtual void knownIntermediateAsBase_async(
+    virtual void knownIntermediateAsBaseAsync(
         std::function<void ()>,
         std::function<void (std::exception_ptr)>,
         const ::Ice::Current&);
 
-    virtual void knownMostDerivedAsBase_async(
+    virtual void knownMostDerivedAsBaseAsync(
         std::function<void ()>,
         std::function<void (std::exception_ptr)>,
         const ::Ice::Current&);
 
-    virtual void knownIntermediateAsKnownIntermediate_async(
+    virtual void knownIntermediateAsKnownIntermediateAsync(
         std::function<void ()>,
         std::function<void (std::exception_ptr)>,
         const ::Ice::Current&);
 
-    virtual void knownMostDerivedAsKnownIntermediate_async(
+    virtual void knownMostDerivedAsKnownIntermediateAsync(
         std::function<void ()>,
         std::function<void (std::exception_ptr)>,
         const ::Ice::Current&);
 
-    virtual void knownMostDerivedAsKnownMostDerived_async(
+    virtual void knownMostDerivedAsKnownMostDerivedAsync(
         std::function<void ()>,
         std::function<void (std::exception_ptr)>,
         const ::Ice::Current&);
 
-    virtual void unknownMostDerived1AsBase_async(
+    virtual void unknownMostDerived1AsBaseAsync(
         std::function<void ()>,
         std::function<void (std::exception_ptr)>,
         const ::Ice::Current&);
 
-    virtual void unknownMostDerived1AsKnownIntermediate_async(
+    virtual void unknownMostDerived1AsKnownIntermediateAsync(
         std::function<void ()>,
         std::function<void (std::exception_ptr)>,
         const ::Ice::Current&);
 
-    virtual void unknownMostDerived2AsBase_async(
+    virtual void unknownMostDerived2AsBaseAsync(
         std::function<void ()>,
         std::function<void (std::exception_ptr)>,
         const ::Ice::Current&);
 
-    virtual void unknownMostDerived2AsBaseCompact_async(
+    virtual void unknownMostDerived2AsBaseCompactAsync(
         std::function<void ()>,
         std::function<void (std::exception_ptr)>,
         const ::Ice::Current&);
 
-    virtual void knownPreservedAsBase_async(
+    virtual void knownPreservedAsBaseAsync(
         std::function<void ()>,
         std::function<void (std::exception_ptr)>,
         const ::Ice::Current&);
 
-    virtual void knownPreservedAsKnownPreserved_async(
+    virtual void knownPreservedAsKnownPreservedAsync(
         std::function<void ()>,
         std::function<void (std::exception_ptr)>,
         const ::Ice::Current&);
 
-    virtual void relayKnownPreservedAsBase_async(
+    virtual void relayKnownPreservedAsBaseAsync(
         std::shared_ptr<::Test::RelayPrx>,
         std::function<void ()>,
         std::function<void (std::exception_ptr)>,
         const ::Ice::Current&);
 
-    virtual void relayKnownPreservedAsKnownPreserved_async(
+    virtual void relayKnownPreservedAsKnownPreservedAsync(
         std::shared_ptr<::Test::RelayPrx>,
         std::function<void ()>,
         std::function<void (std::exception_ptr)>,
         const ::Ice::Current&);
 
-    virtual void unknownPreservedAsBase_async(
+    virtual void unknownPreservedAsBaseAsync(
         std::function<void ()>,
         std::function<void (std::exception_ptr)>,
         const ::Ice::Current&);
 
-    virtual void unknownPreservedAsKnownPreserved_async(
+    virtual void unknownPreservedAsKnownPreservedAsync(
         std::function<void ()>,
         std::function<void (std::exception_ptr)>,
         const ::Ice::Current&);
 
-    virtual void relayUnknownPreservedAsBase_async(
+    virtual void relayUnknownPreservedAsBaseAsync(
         std::shared_ptr<::Test::RelayPrx>,
         std::function<void ()>,
         std::function<void (std::exception_ptr)>,
         const ::Ice::Current&);
 
-    virtual void relayUnknownPreservedAsKnownPreserved_async(
+    virtual void relayUnknownPreservedAsKnownPreservedAsync(
         std::shared_ptr<::Test::RelayPrx>,
         std::function<void ()>,
         std::function<void (std::exception_ptr)>,
         const ::Ice::Current&);
 
-    virtual void shutdown_async(
+    virtual void shutdownAsync(
         std::function<void ()>,
         std::function<void (std::exception_ptr)>,
         const ::Ice::Current&);

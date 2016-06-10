@@ -192,7 +192,7 @@ public:
 
 #ifdef ICE_CPP11_MAPPING
     virtual std::function<void ()>
-    flushBatchRequests_async(::std::function<void (::std::exception_ptr)>,
+    flushBatchRequestsAsync(::std::function<void (::std::exception_ptr)>,
                              ::std::function<void (bool)> = nullptr);
 #else
     virtual AsyncResultPtr begin_flushBatchRequests();

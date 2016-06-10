@@ -1061,7 +1061,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
     {
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->ice_ping_async(
+        p->ice_pingAsync(
             [&]()
             {
                 cb->ping();
@@ -1079,7 +1079,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
     {
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->ice_isA_async(
+        p->ice_isAAsync(
             Test::MyClass::ice_staticId(),
             [&](bool v)
             {
@@ -1098,7 +1098,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
     {
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->ice_id_async(
+        p->ice_idAsync(
             [&](string id)
             {
                 cb->id(move(id));
@@ -1116,7 +1116,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
     {
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->ice_ids_async(
+        p->ice_idsAsync(
             [&](vector<string> ids)
             {
                 cb->ids(move(ids));
@@ -1135,7 +1135,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
     {
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->opVoid_async(
+        p->opVoidAsync(
             [&]()
             {
                 cb->opVoid();
@@ -1154,7 +1154,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
     {
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->opByte_async(Ice::Byte(0xff), Ice::Byte(0x0f),
+        p->opByteAsync(Ice::Byte(0xff), Ice::Byte(0x0f),
             [&](Ice::Byte b1, Ice::Byte b2)
             {
                 cb->opByte(b1, b2);
@@ -1172,7 +1172,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
     {
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->opBool_async(true, false,
+        p->opBoolAsync(true, false,
             [&](bool b1, bool b2)
             {
                 cb->opBool(b1, b2);
@@ -1190,7 +1190,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
     {
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->opShortIntLong_async(10, 11, 12,
+        p->opShortIntLongAsync(10, 11, 12,
             [&](long long int l1, short s1, int i1, long long int l2)
             {
                 cb->opShortIntLong(l1, s1, i1, l2);
@@ -1207,7 +1207,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
     {
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->opFloatDouble_async(3.14f, 1.1E10,
+        p->opFloatDoubleAsync(3.14f, 1.1E10,
             [&](double d1, float f1, double d2)
             {
                 cb->opFloatDouble(d1, f1, d2);
@@ -1224,7 +1224,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
     {
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->opString_async("hello", "world",
+        p->opStringAsync("hello", "world",
             [&](string s1, string s2)
             {
                 cb->opString(move(s1), move(s2));
@@ -1242,7 +1242,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
     {
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->opMyEnum_async(MyEnum::enum2,
+        p->opMyEnumAsync(MyEnum::enum2,
             [&](MyEnum e1, MyEnum e2)
             {
                 cb->opMyEnum(e1, e2);
@@ -1260,7 +1260,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
     {
         CallbackPtr cb = new Callback(communicator);
 #ifdef ICE_CPP11_MAPPING
-        p->opMyClass_async(p,
+        p->opMyClassAsync(p,
             [&](shared_ptr<MyClassPrx> c1, shared_ptr<MyClassPrx> c2, shared_ptr<MyClassPrx> c3)
             {
                 cb->opMyClass(move(c1), move(c2), move(c3));
@@ -1287,7 +1287,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
         CallbackPtr cb = new Callback(communicator);
 #ifdef ICE_CPP11_MAPPING
-        p->opStruct_async(si1, si2,
+        p->opStructAsync(si1, si2,
             [&](Test::Structure si3, Test::Structure si4)
             {
                 cb->opStruct(move(si3), move(si4));
@@ -1318,7 +1318,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->opByteS_async(bsi1, bsi2,
+        p->opByteSAsync(bsi1, bsi2,
             [&](Test::ByteS bsi3, Test::ByteS bsi4)
             {
                 cb->opByteS(move(bsi3), move(bsi4));
@@ -1345,7 +1345,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->opBoolS_async(bsi1, bsi2,
+        p->opBoolSAsync(bsi1, bsi2,
             [&](Test::BoolS bsi3, Test::BoolS bsi4)
             {
                 cb->opBoolS(move(bsi3), move(bsi4));
@@ -1380,7 +1380,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->opShortIntLongS_async(ssi, isi, lsi,
+        p->opShortIntLongSAsync(ssi, isi, lsi,
             [&](Test::LongS lsi1, Test::ShortS ssi1, Test::IntS isi1, Test::LongS lsi2)
             {
                 cb->opShortIntLongS(move(lsi1), move(ssi1), move(isi1), move(lsi2));
@@ -1407,7 +1407,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->opFloatDoubleS_async(fsi, dsi,
+        p->opFloatDoubleSAsync(fsi, dsi,
             [&](Test::DoubleS dsi1, Test::FloatS fsi1, Test::DoubleS dsi2)
             {
                 cb->opFloatDoubleS(move(dsi1), move(fsi1), move(dsi2));
@@ -1433,7 +1433,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->opStringS_async(ssi1, ssi2,
+        p->opStringSAsync(ssi1, ssi2,
             [&](Test::StringS ssi3, Test::StringS ssi4)
             {
                 cb->opStringS(move(ssi3), move(ssi4));
@@ -1465,7 +1465,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->opByteSS_async(bsi1, bsi2,
+        p->opByteSSAsync(bsi1, bsi2,
             [&](Test::ByteSS bsi3, Test::ByteSS bsi4)
             {
                 cb->opByteSS(move(bsi3), move(bsi4));
@@ -1497,7 +1497,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->opBoolSS_async(bsi1, bsi2,
+        p->opBoolSSAsync(bsi1, bsi2,
             [&](Test::BoolSS bsi3, Test::BoolSS bsi4)
             {
                 cb->opBoolSS(move(bsi3), move(bsi4));
@@ -1531,7 +1531,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->opShortIntLongSS_async(ssi, isi, lsi,
+        p->opShortIntLongSSAsync(ssi, isi, lsi,
             [&](Test::LongSS lsi1, Test::ShortSS ssi1, Test::IntSS isi1, Test::LongSS lsi2)
             {
                 cb->opShortIntLongSS(move(lsi1), move(ssi1), move(isi1), move(lsi2));
@@ -1561,7 +1561,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->opFloatDoubleSS_async(fsi, dsi,
+        p->opFloatDoubleSSAsync(fsi, dsi,
             [&](Test::DoubleSS dsi1, Test::FloatSS fsi1, Test::DoubleSS dsi2)
             {
                 cb->opFloatDoubleSS(move(dsi1), move(fsi1), move(dsi2));
@@ -1589,7 +1589,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->opStringSS_async(ssi1, ssi2,
+        p->opStringSSAsync(ssi1, ssi2,
             [&](Test::StringSS ssi3, Test::StringSS ssi4)
             {
                 cb->opStringSS(move(ssi3), move(ssi4));
@@ -1614,7 +1614,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->opByteBoolD_async(di1, di2,
+        p->opByteBoolDAsync(di1, di2,
             [&](Test::ByteBoolD di3, Test::ByteBoolD di4)
             {
                 cb->opByteBoolD(move(di3), move(di4));
@@ -1639,7 +1639,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->opShortIntD_async(di1, di2,
+        p->opShortIntDAsync(di1, di2,
             [&](Test::ShortIntD di3, Test::ShortIntD di4)
             {
                 cb->opShortIntD(move(di3), move(di4));
@@ -1664,7 +1664,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->opLongFloatD_async(di1, di2,
+        p->opLongFloatDAsync(di1, di2,
             [&](Test::LongFloatD di3, Test::LongFloatD di4)
             {
                 cb->opLongFloatD(move(di3), move(di4));
@@ -1689,7 +1689,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->opStringStringD_async(di1, di2,
+        p->opStringStringDAsync(di1, di2,
             [&](Test::StringStringD di3, Test::StringStringD di4)
             {
                 cb->opStringStringD(move(di3), move(di4));
@@ -1714,7 +1714,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->opStringMyEnumD_async(di1, di2,
+        p->opStringMyEnumDAsync(di1, di2,
             [&](Test::StringMyEnumD di3, Test::StringMyEnumD di4)
             {
                 cb->opStringMyEnumD(move(di3), move(di4));
@@ -1744,7 +1744,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->opMyStructMyEnumD_async(di1, di2,
+        p->opMyStructMyEnumDAsync(di1, di2,
             [&](Test::MyStructMyEnumD di3, Test::MyStructMyEnumD di4)
             {
                 cb->opMyStructMyEnumD(move(di3), move(di4));
@@ -1781,7 +1781,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->opByteBoolDS_async(dsi1, dsi2,
+        p->opByteBoolDSAsync(dsi1, dsi2,
             [&](Test::ByteBoolDS dsi3, Test::ByteBoolDS dsi4)
             {
                 cb->opByteBoolDS(move(dsi3), move(dsi4));
@@ -1817,7 +1817,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->opShortIntDS_async(dsi1, dsi2,
+        p->opShortIntDSAsync(dsi1, dsi2,
             [&](Test::ShortIntDS dsi3, Test::ShortIntDS dsi4)
             {
                 cb->opShortIntDS(move(dsi3), move(dsi4));
@@ -1853,7 +1853,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->opLongFloatDS_async(dsi1, dsi2,
+        p->opLongFloatDSAsync(dsi1, dsi2,
             [&](Test::LongFloatDS dsi3, Test::LongFloatDS dsi4)
             {
                 cb->opLongFloatDS(move(dsi3), move(dsi4));
@@ -1889,7 +1889,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->opStringStringDS_async(dsi1, dsi2,
+        p->opStringStringDSAsync(dsi1, dsi2,
             [&](Test::StringStringDS dsi3, Test::StringStringDS dsi4)
             {
                 cb->opStringStringDS(move(dsi3), move(dsi4));
@@ -1926,7 +1926,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->opStringMyEnumDS_async(dsi1, dsi2,
+        p->opStringMyEnumDSAsync(dsi1, dsi2,
             [&](Test::StringMyEnumDS dsi3, Test::StringMyEnumDS dsi4)
             {
                 cb->opStringMyEnumDS(move(dsi3), move(dsi4));
@@ -1960,7 +1960,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->opMyEnumStringDS_async(dsi1, dsi2,
+        p->opMyEnumStringDSAsync(dsi1, dsi2,
             [&](Test::MyEnumStringDS dsi3, Test::MyEnumStringDS dsi4)
             {
                 cb->opMyEnumStringDS(move(dsi3), move(dsi4));
@@ -2002,7 +2002,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->opMyStructMyEnumDS_async(dsi1, dsi2,
+        p->opMyStructMyEnumDSAsync(dsi1, dsi2,
             [&](Test::MyStructMyEnumDS dsi3, MyStructMyEnumDS dsi4)
             {
                 cb->opMyStructMyEnumDS(move(dsi3), move(dsi4));
@@ -2036,7 +2036,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->opByteByteSD_async(sdi1, sdi2,
+        p->opByteByteSDAsync(sdi1, sdi2,
             [&](Test::ByteByteSD sdi3, Test::ByteByteSD sdi4)
             {
                 cb->opByteByteSD(move(sdi3), move(sdi4));
@@ -2069,7 +2069,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->opBoolBoolSD_async(sdi1, sdi2,
+        p->opBoolBoolSDAsync(sdi1, sdi2,
             [&](Test::BoolBoolSD sdi3, Test::BoolBoolSD sdi4)
             {
                 cb->opBoolBoolSD(move(sdi3), move(sdi4));
@@ -2105,7 +2105,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->opShortShortSD_async(sdi1, sdi2,
+        p->opShortShortSDAsync(sdi1, sdi2,
             [&](Test::ShortShortSD sdi3, Test::ShortShortSD sdi4)
             {
                 cb->opShortShortSD(move(sdi3), move(sdi4));
@@ -2141,7 +2141,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->opIntIntSD_async(sdi1, sdi2,
+        p->opIntIntSDAsync(sdi1, sdi2,
             [&](Test::IntIntSD sdi3, Test::IntIntSD sdi4)
             {
                 cb->opIntIntSD(move(sdi3), move(sdi4));
@@ -2177,7 +2177,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->opLongLongSD_async(sdi1, sdi2,
+        p->opLongLongSDAsync(sdi1, sdi2,
             [&](Test::LongLongSD sdi3, Test::LongLongSD sdi4)
             {
                 cb->opLongLongSD(move(sdi3), move(sdi4));
@@ -2213,7 +2213,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->opStringFloatSD_async(sdi1, sdi2,
+        p->opStringFloatSDAsync(sdi1, sdi2,
             [&](Test::StringFloatSD sdi3, Test::StringFloatSD sdi4)
             {
                 cb->opStringFloatSD(move(sdi3), move(sdi4));
@@ -2249,7 +2249,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->opStringDoubleSD_async(sdi1, sdi2,
+        p->opStringDoubleSDAsync(sdi1, sdi2,
             [&](Test::StringDoubleSD sdi3, Test::StringDoubleSD sdi4)
             {
                 cb->opStringDoubleSD(move(sdi3), move(sdi4));
@@ -2287,7 +2287,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->opStringStringSD_async(sdi1, sdi2,
+        p->opStringStringSDAsync(sdi1, sdi2,
             [&](Test::StringStringSD sdi3, Test::StringStringSD sdi4)
             {
                 cb->opStringStringSD(move(sdi3), move(sdi4));
@@ -2323,7 +2323,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->opMyEnumMyEnumSD_async(sdi1, sdi2,
+        p->opMyEnumMyEnumSDAsync(sdi1, sdi2,
             [&](Test::MyEnumMyEnumSD sdi3, Test::MyEnumMyEnumSD sdi4)
             {
                 cb->opMyEnumMyEnumSD(move(sdi3), move(sdi4));
@@ -2349,7 +2349,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
             }
             CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-            p->opIntS_async(s,
+            p->opIntSAsync(s,
                 [&](Test::IntS s1)
                 {
                     cb->opIntS(s1);
@@ -2373,7 +2373,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
             test(p->ice_getContext().empty());
 #ifdef ICE_CPP11_MAPPING
             promise<void> prom;
-            p->opContext_async(
+            p->opContextAsync(
                 [&](Ice::Context c)
                 {
                     test(c != ctx);
@@ -2394,7 +2394,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
             test(p->ice_getContext().empty());
 #ifdef ICE_CPP11_MAPPING
             promise<void> prom;
-            p->opContext_async(
+            p->opContextAsync(
                 [&](Ice::Context c)
                 {
                     test(c == ctx);
@@ -2416,7 +2416,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         {
 #ifdef ICE_CPP11_MAPPING
             promise<void> prom;
-            p2->opContext_async(
+            p2->opContextAsync(
                 [&](Ice::Context c)
                 {
                     test(c == ctx);
@@ -2437,7 +2437,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
             Test::MyClassPrxPtr p2 = ICE_CHECKED_CAST(Test::MyClassPrx, p->ice_context(ctx));
 #ifdef ICE_CPP11_MAPPING
             promise<void> prom;
-            p2->opContext_async(
+            p2->opContextAsync(
                 [&](Ice::Context c)
                 {
                     test(c == ctx);
@@ -2483,7 +2483,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
                 {
 #ifdef ICE_CPP11_MAPPING
                     promise<void> prom;
-                    p->opContext_async(
+                    p->opContextAsync(
                         [&](Ice::Context c)
                         {
                             test(c == ctx);
@@ -2507,7 +2507,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
                 {
 #ifdef ICE_CPP11_MAPPING
                     promise<void> prom;
-                    p->opContext_async(
+                    p->opContextAsync(
                         [&](Ice::Context c)
                         {
                             test(c == ctx);
@@ -2547,7 +2547,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
                 {
 #ifdef ICE_CPP11_MAPPING
                     promise<void> prom;
-                    p->opContext_async(
+                    p->opContextAsync(
                         [&](Ice::Context c)
                         {
                             test(c == prxContext);
@@ -2569,7 +2569,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
                 {
 #ifdef ICE_CPP11_MAPPING
                     promise<void> prom;
-                    p->opContext_async(
+                    p->opContextAsync(
                         [&](Ice::Context c)
                         {
                             test(c == combined);
@@ -2599,7 +2599,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         Test::DoubleS ds(5, d);
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->opDoubleMarshaling_async(d, ds,
+        p->opDoubleMarshalingAsync(d, ds,
             [&]()
             {
                 cb->opDoubleMarshaling();
@@ -2616,7 +2616,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
     {
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->opIdempotent_async(
+        p->opIdempotentAsync(
             [&]()
             {
                 cb->opIdempotent();
@@ -2633,7 +2633,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
     {
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->opNonmutating_async(
+        p->opNonmutatingAsync(
             [&]()
             {
                 cb->opNonmutating();
@@ -2652,7 +2652,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         test(derived);
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        derived->opDerived_async(
+        derived->opDerivedAsync(
             [&]()
             {
                 cb->opDerived();
@@ -2670,7 +2670,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
     {
         CallbackPtr cb = new Callback;
-        auto f = p->ice_ping_async();
+        auto f = p->ice_pingAsync();
         try
         {
             f.get();
@@ -2690,7 +2690,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
     {
         CallbackPtr cb = new Callback;
-        auto f = p->ice_isA_async(Test::MyClass::ice_staticId());
+        auto f = p->ice_isAAsync(Test::MyClass::ice_staticId());
         try
         {
             cb->isA(f.get());
@@ -2708,7 +2708,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
     {
         CallbackPtr cb = new Callback;
-        auto f = p->ice_id_async();
+        auto f = p->ice_idAsync();
         try
         {
             cb->id(f.get());
@@ -2726,7 +2726,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
     {
         CallbackPtr cb = new Callback;
-        auto f = p->ice_ids_async();
+        auto f = p->ice_idsAsync();
         try
         {
             cb->ids(f.get());
@@ -2744,7 +2744,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
     {
         CallbackPtr cb = new Callback;
-        auto f = p->opVoid_async();
+        auto f = p->opVoidAsync();
         try
         {
             f.get();
@@ -2763,7 +2763,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
     {
         CallbackPtr cb = new Callback;
-        auto f = p->opByte_async(Ice::Byte(0xff), Ice::Byte(0x0f));
+        auto f = p->opByteAsync(Ice::Byte(0xff), Ice::Byte(0x0f));
         try
         {
             auto r = f.get();
@@ -2782,7 +2782,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
     {
         CallbackPtr cb = new Callback;
-        auto f = p->opBool_async(true, false);
+        auto f = p->opBoolAsync(true, false);
         try
         {
             auto r = f.get();
@@ -2801,7 +2801,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
     {
         CallbackPtr cb = new Callback;
-        auto f = p->opShortIntLong_async(10, 11, 12);
+        auto f = p->opShortIntLongAsync(10, 11, 12);
         try
         {
             auto r = f.get();
@@ -2820,7 +2820,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
     {
         CallbackPtr cb = new Callback;
-        auto f = p->opFloatDouble_async(3.14f, 1.1E10);
+        auto f = p->opFloatDoubleAsync(3.14f, 1.1E10);
         try
         {
             auto r = f.get();
@@ -2839,7 +2839,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
     {
         CallbackPtr cb = new Callback;
-        auto f = p->opString_async("hello", "world");
+        auto f = p->opStringAsync("hello", "world");
         try
         {
             auto r = f.get();
@@ -2858,7 +2858,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
     {
         CallbackPtr cb = new Callback;
-        auto f = p->opMyEnum_async(Test::MyEnum::enum2);
+        auto f = p->opMyEnumAsync(Test::MyEnum::enum2);
         try
         {
             auto r = f.get();
@@ -2877,7 +2877,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
     {
         CallbackPtr cb = new Callback(communicator);
-        auto f = p->opMyClass_async(p);
+        auto f = p->opMyClassAsync(p);
         try
         {
             auto r = f.get();
@@ -2905,7 +2905,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         si2.s.s = "def";
 
         CallbackPtr cb = new Callback(communicator);
-        auto f = p->opStruct_async(si1, si2);
+        auto f = p->opStructAsync(si1, si2);
         try
         {
             auto r = f.get();
@@ -2937,7 +2937,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         bsi2.push_back(Ice::Byte(0xf4));
 
         CallbackPtr cb = new Callback;
-        auto f = p->opByteS_async(bsi1, bsi2);
+        auto f = p->opByteSAsync(bsi1, bsi2);
         try
         {
             auto r = f.get();
@@ -2965,7 +2965,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         bsi2.push_back(false);
 
         CallbackPtr cb = new Callback;
-        auto f = p->opBoolS_async(bsi1, bsi2);
+        auto f = p->opBoolSAsync(bsi1, bsi2);
         try
         {
             auto r = f.get();
@@ -3001,7 +3001,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         lsi.push_back(20);
 
         CallbackPtr cb = new Callback;
-        auto f = p->opShortIntLongS_async(ssi, isi, lsi);
+        auto f = p->opShortIntLongSAsync(ssi, isi, lsi);
         try
         {
             auto r = f.get();
@@ -3030,7 +3030,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         dsi.push_back(Ice::Double(1.3E10));
 
         CallbackPtr cb = new Callback;
-        auto f = p->opFloatDoubleS_async(fsi, dsi);
+        auto f = p->opFloatDoubleSAsync(fsi, dsi);
         try
         {
             auto r = f.get();
@@ -3058,7 +3058,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         ssi2.push_back("xyz");
 
         CallbackPtr cb = new Callback;
-        auto f = p->opStringS_async(ssi1, ssi2);
+        auto f = p->opStringSAsync(ssi1, ssi2);
         try
         {
             auto r = f.get();
@@ -3091,7 +3091,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         bsi2[1].push_back(Ice::Byte(0xf1));
 
         CallbackPtr cb = new Callback;
-        auto f = p->opByteSS_async(bsi1, bsi2);
+        auto f = p->opByteSSAsync(bsi1, bsi2);
         try
         {
             auto r = f.get();
@@ -3122,7 +3122,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         dsi[0].push_back(Ice::Double(1.3E10));
 
         CallbackPtr cb = new Callback;
-        auto f = p->opFloatDoubleSS_async(fsi, dsi);
+        auto f = p->opFloatDoubleSSAsync(fsi, dsi);
         try
         {
             auto r = f.get();
@@ -3152,7 +3152,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         ssi2[2].push_back("xyz");
 
         CallbackPtr cb = new Callback;
-        auto f = p->opStringSS_async(ssi1, ssi2);
+        auto f = p->opStringSSAsync(ssi1, ssi2);
         try
         {
             auto r = f.get();
@@ -3179,7 +3179,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         di2[101] = true;
 
         CallbackPtr cb = new Callback;
-        auto f = p->opByteBoolD_async(di1, di2);
+        auto f = p->opByteBoolDAsync(di1, di2);
         try
         {
             auto r = f.get();
@@ -3206,7 +3206,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         di2[1101] = 0;
 
         CallbackPtr cb = new Callback;
-        auto f = p->opShortIntD_async(di1, di2);
+        auto f = p->opShortIntDAsync(di1, di2);
         try
         {
             auto r = f.get();
@@ -3233,7 +3233,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         di2[999999130] = Ice::Float(0.5);
 
         CallbackPtr cb = new Callback;
-        auto f = p->opLongFloatD_async(di1, di2);
+        auto f = p->opLongFloatDAsync(di1, di2);
         try
         {
             auto r = f.get();
@@ -3260,7 +3260,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         di2["BAR"] = "abc 0.5";
 
         CallbackPtr cb = new Callback;
-        auto f = p->opStringStringD_async(di1, di2);
+        auto f = p->opStringStringDAsync(di1, di2);
         try
         {
             auto r = f.get();
@@ -3287,7 +3287,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         di2["Hello!!"] = ICE_ENUM(Test::MyEnum, enum2);
 
         CallbackPtr cb = new Callback;
-        auto f = p->opStringMyEnumD_async(di1, di2);
+        auto f = p->opStringMyEnumDAsync(di1, di2);
         try
         {
             auto r = f.get();
@@ -3319,7 +3319,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         di2[s23] = ICE_ENUM(Test::MyEnum, enum2);
 
         CallbackPtr cb = new Callback;
-        auto f = p->opMyStructMyEnumD_async(di1, di2);
+        auto f = p->opMyStructMyEnumDAsync(di1, di2);
         try
         {
             auto r = f.get();
@@ -3358,7 +3358,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         dsi2[0] = di3;
 
         CallbackPtr cb = new Callback;
-        auto f = p->opByteBoolDS_async(dsi1, dsi2);
+        auto f = p->opByteBoolDSAsync(dsi1, dsi2);
         try
         {
             auto r = f.get();
@@ -3396,7 +3396,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         dsi2[0] = di3;
 
         CallbackPtr cb = new Callback;
-        auto f = p->opShortIntDS_async(dsi1, dsi2);
+        auto f = p->opShortIntDSAsync(dsi1, dsi2);
         try
         {
             auto r = f.get();
@@ -3434,7 +3434,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         dsi2[0] = di3;
 
         CallbackPtr cb = new Callback;
-        auto f = p->opLongFloatDS_async(dsi1, dsi2);
+        auto f = p->opLongFloatDSAsync(dsi1, dsi2);
         try
         {
             auto r = f.get();
@@ -3472,7 +3472,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         dsi2[0] = di3;
 
         CallbackPtr cb = new Callback;
-        auto f = p->opStringStringDS_async(dsi1, dsi2);
+        auto f = p->opStringStringDSAsync(dsi1, dsi2);
         try
         {
             auto r = f.get();
@@ -3510,7 +3510,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         dsi2[0] = di3;
 
         CallbackPtr cb = new Callback;
-        auto f = p->opStringMyEnumDS_async(dsi1, dsi2);
+        auto f = p->opStringMyEnumDSAsync(dsi1, dsi2);
         try
         {
             auto r = f.get();
@@ -3546,7 +3546,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         dsi2[0] = di3;
 
         CallbackPtr cb = new Callback;
-        auto f = p->opMyEnumStringDS_async(dsi1, dsi2);
+        auto f = p->opMyEnumStringDSAsync(dsi1, dsi2);
         try
         {
             auto r = f.get();
@@ -3590,7 +3590,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         dsi2[0] = di3;
 
         CallbackPtr cb = new Callback;
-        auto f = p->opMyStructMyEnumDS_async(dsi1, dsi2);
+        auto f = p->opMyStructMyEnumDSAsync(dsi1, dsi2);
         try
         {
             auto r = f.get();
@@ -3626,7 +3626,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         sdi2[Ice::Byte(0xf1)] = si3;
 
         CallbackPtr cb = new Callback;
-        auto f = p->opByteByteSD_async(sdi1, sdi2);
+        auto f = p->opByteByteSDAsync(sdi1, sdi2);
         try
         {
             auto r = f.get();
@@ -3661,7 +3661,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         sdi2[false] = si1;
 
         CallbackPtr cb = new Callback;
-        auto f = p->opBoolBoolSD_async(sdi1, sdi2);
+        auto f = p->opBoolBoolSDAsync(sdi1, sdi2);
         try
         {
             auto r = f.get();
@@ -3699,7 +3699,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         sdi2[4] = si3;
 
         CallbackPtr cb = new Callback;
-        auto f = p->opShortShortSD_async(sdi1, sdi2);
+        auto f = p->opShortShortSDAsync(sdi1, sdi2);
         try
         {
             auto r = f.get();
@@ -3737,7 +3737,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         sdi2[400] = si3;
 
         CallbackPtr cb = new Callback;
-        auto f = p->opIntIntSD_async(sdi1, sdi2);
+        auto f = p->opIntIntSDAsync(sdi1, sdi2);
         try
         {
             auto r = f.get();
@@ -3775,7 +3775,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         sdi2[999999992] = si3;
 
         CallbackPtr cb = new Callback;
-        auto f = p->opLongLongSD_async(sdi1, sdi2);
+        auto f = p->opLongLongSDAsync(sdi1, sdi2);
         try
         {
             auto r = f.get();
@@ -3813,7 +3813,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         sdi2["aBc"] = si3;
 
         CallbackPtr cb = new Callback;
-        auto f = p->opStringFloatSD_async(sdi1, sdi2);
+        auto f = p->opStringFloatSDAsync(sdi1, sdi2);
         try
         {
             auto r = f.get();
@@ -3851,7 +3851,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         sdi2[""] = si3;
 
         CallbackPtr cb = new Callback;
-        auto f = p->opStringDoubleSD_async(sdi1, sdi2);
+        auto f = p->opStringDoubleSDAsync(sdi1, sdi2);
         try
         {
             auto r = f.get();
@@ -3891,7 +3891,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         sdi2["ghi"] = si3;
 
         CallbackPtr cb = new Callback;
-        auto f = p->opStringStringSD_async(sdi1, sdi2);
+        auto f = p->opStringStringSDAsync(sdi1, sdi2);
         try
         {
             auto r = f.get();
@@ -3930,7 +3930,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         sdi2[ICE_ENUM(Test::MyEnum, enum1)] = si3;
 
         CallbackPtr cb = new Callback;
-        auto f = p->opMyEnumMyEnumSD_async(sdi1, sdi2);
+        auto f = p->opMyEnumMyEnumSDAsync(sdi1, sdi2);
         try
         {
             auto r = f.get();
@@ -3958,7 +3958,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
                 s.push_back(i);
             }
             CallbackPtr cb = new Callback;
-            auto f = p->opIntS_async(s);
+            auto f = p->opIntSAsync(s);
             try
             {
                 cb->opIntS(f.get());
@@ -3979,7 +3979,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         Ice::Double d = 1278312346.0 / 13.0;
         Test::DoubleS ds(5, d);
         CallbackPtr cb = new Callback;
-        auto f = p->opDoubleMarshaling_async(d, ds);
+        auto f = p->opDoubleMarshalingAsync(d, ds);
         try
         {
             f.get();
@@ -3998,7 +3998,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
     {
         CallbackPtr cb = new Callback;
-        auto f = p->opIdempotent_async();
+        auto f = p->opIdempotentAsync();
         try
         {
             f.get();
@@ -4017,7 +4017,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
     {
         CallbackPtr cb = new Callback;
-        auto f = p->opNonmutating_async();
+        auto f = p->opNonmutatingAsync();
         try
         {
             f.get();
@@ -4038,7 +4038,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         Test::MyDerivedClassPrxPtr derived = ICE_CHECKED_CAST(Test::MyDerivedClassPrx, p);
         test(derived);
         CallbackPtr cb = new Callback;
-        auto f = derived->opDerived_async();
+        auto f = derived->opDerivedAsync();
         try
         {
             f.get();

@@ -88,7 +88,7 @@ BlobjectI::ice_invoke(const vector<Ice::Byte>& inEncaps, vector<Ice::Byte>& outE
 
 bool
 BlobjectArrayI::ice_invoke(const pair<const Ice::Byte*, const Ice::Byte*>& inEncaps, vector<Ice::Byte>& outEncaps,
-                          const Ice::Current& current)
+                           const Ice::Current& current)
 {
     Ice::InputStream in(current.adapter->getCommunicator(), current.encoding, inEncaps);
     return invokeInternal(in, outEncaps, current);
@@ -96,10 +96,10 @@ BlobjectArrayI::ice_invoke(const pair<const Ice::Byte*, const Ice::Byte*>& inEnc
 
 #ifdef ICE_CPP11_MAPPING
 void
-BlobjectAsyncI::ice_invoke_async(vector<Ice::Byte> inEncaps,
-                                 function<void (bool, vector<Ice::Byte>)> response,
-                                 function<void (exception_ptr)>,
-                                 const Ice::Current& current)
+BlobjectAsyncI::ice_invokeAsync(vector<Ice::Byte> inEncaps,
+                                function<void (bool, vector<Ice::Byte>)> response,
+                                function<void (exception_ptr)>,
+                                const Ice::Current& current)
 {
     Ice::InputStream in(current.adapter->getCommunicator(), inEncaps);
     vector<Ice::Byte> outEncaps;
@@ -108,10 +108,10 @@ BlobjectAsyncI::ice_invoke_async(vector<Ice::Byte> inEncaps,
 }
 
 void
-BlobjectArrayAsyncI::ice_invoke_async(pair<const Ice::Byte*, const Ice::Byte*> inEncaps,
-                                      function<void (bool, pair<const Ice::Byte*, const Ice::Byte*>)> response,
-                                      function<void (exception_ptr)>,
-                                      const Ice::Current& current)
+BlobjectArrayAsyncI::ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byte*> inEncaps,
+                                     function<void (bool, pair<const Ice::Byte*, const Ice::Byte*>)> response,
+                                     function<void (exception_ptr)>,
+                                     const Ice::Current& current)
 {
     Ice::InputStream in(current.adapter->getCommunicator(), inEncaps);
     vector<Ice::Byte> outEncaps;

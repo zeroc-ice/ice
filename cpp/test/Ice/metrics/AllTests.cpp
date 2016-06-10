@@ -908,13 +908,13 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
 #ifdef ICE_CPP11_MAPPING
     try
     {
-        metrics->op_async().get();
+        metrics->opAsync().get();
     }
     catch(const Ice::Exception&)
     {
     }
 
-    metrics->op_async(
+    metrics->opAsync(
         [cb]()
         {
             cb->response();
@@ -953,7 +953,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
 #ifdef ICE_CPP11_MAPPING
     try
     {
-        metrics->opWithUserException_async().get();
+        metrics->opWithUserExceptionAsync().get();
         test(false);
     }
     catch(const Test::UserEx&)
@@ -963,7 +963,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
     {
         test(false);
     }
-    metrics->opWithUserException_async(
+    metrics->opWithUserExceptionAsync(
         [cb]()
         {
             cb->response();
@@ -1010,13 +1010,13 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
 #ifdef ICE_CPP11_MAPPING
     try
     {
-        metrics->opWithRequestFailedException_async().get();
+        metrics->opWithRequestFailedExceptionAsync().get();
         test(false);
     }
     catch(const Ice::RequestFailedException&)
     {
     }
-    metrics->opWithRequestFailedException_async(
+    metrics->opWithRequestFailedExceptionAsync(
         [cb]()
         {
             cb->response();
@@ -1063,13 +1063,13 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
 #ifdef ICE_CPP11_MAPPING
     try
     {
-        metrics->opWithLocalException_async().get();
+        metrics->opWithLocalExceptionAsync().get();
         test(false);
     }
     catch(const Ice::LocalException&)
     {
     }
-    metrics->opWithLocalException_async(
+    metrics->opWithLocalExceptionAsync(
         [cb]()
         {
             cb->response();
@@ -1116,13 +1116,13 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
 #ifdef ICE_CPP11_MAPPING
     try
     {
-        metrics->opWithUnknownException_async().get();
+        metrics->opWithUnknownExceptionAsync().get();
         test(false);
     }
     catch(const Ice::UnknownException&)
     {
     }
-    metrics->opWithUnknownException_async(
+    metrics->opWithUnknownExceptionAsync(
         [cb]()
         {
             cb->response();
@@ -1170,13 +1170,13 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
 #ifdef ICE_CPP11_MAPPING
         try
         {
-            metrics->fail_async().get();
+            metrics->failAsync().get();
             test(false);
         }
         catch(const Ice::ConnectionLostException&)
         {
         }
-        metrics->fail_async(
+        metrics->failAsync(
             [cb]()
             {
                 cb->response();
@@ -1291,8 +1291,8 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
     MetricsPrxPtr metricsOneway = metrics->ice_oneway();
     metricsOneway->op();
 #ifdef ICE_CPP11_MAPPING
-    metricsOneway->op_async().get();
-    metricsOneway->op_async(
+    metricsOneway->opAsync().get();
+    metricsOneway->opAsync(
         [cb]()
         {
             cb->response();

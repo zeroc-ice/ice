@@ -396,7 +396,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "base (AMI)... " << flush;
     {
 #ifdef ICE_CPP11_MAPPING
-        auto result = test->baseAsBase_async();
+        auto result = test->baseAsBaseAsync();
         try
         {
             result.get();
@@ -443,7 +443,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "slicing of unknown derived (AMI)... " << flush;
     {
 #ifdef ICE_CPP11_MAPPING
-        auto result = test->unknownDerivedAsBase_async();
+        auto result = test->unknownDerivedAsBaseAsync();
         try
         {
             result.get();
@@ -491,7 +491,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "non-slicing of known derived as base (AMI)... " << flush;
     {
 #ifdef ICE_CPP11_MAPPING
-        auto result = test->knownDerivedAsBase_async();
+        auto result = test->knownDerivedAsBaseAsync();
         try
         {
             result.get();
@@ -539,7 +539,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "non-slicing of known derived as derived (AMI)... " << flush;
     {
 #ifdef ICE_CPP11_MAPPING
-        auto result = test->knownDerivedAsKnownDerived_async();
+        auto result = test->knownDerivedAsKnownDerivedAsync();
         try
         {
             result.get();
@@ -586,7 +586,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "slicing of unknown intermediate as base (AMI)... " << flush;
     {
 #ifdef ICE_CPP11_MAPPING
-        auto result = test->unknownIntermediateAsBase_async();
+        auto result = test->unknownIntermediateAsBaseAsync();
         try
         {
             result.get();
@@ -634,7 +634,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "slicing of known intermediate as base (AMI)... " << flush;
     {
 #ifdef ICE_CPP11_MAPPING
-        auto result = test->knownIntermediateAsBase_async();
+        auto result = test->knownIntermediateAsBaseAsync();
         try
         {
             result.get();
@@ -684,7 +684,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "slicing of known most derived as base (AMI)... " << flush;
     {
 #ifdef ICE_CPP11_MAPPING
-        auto result = test->knownMostDerivedAsBase_async();
+        auto result = test->knownMostDerivedAsBaseAsync();
         try
         {
             result.get();
@@ -734,7 +734,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "non-slicing of known intermediate as intermediate (AMI)... " << flush;
     {
 #ifdef ICE_CPP11_MAPPING
-        auto result = test->knownIntermediateAsKnownIntermediate_async();
+        auto result = test->knownIntermediateAsKnownIntermediateAsync();
         try
         {
             result.get();
@@ -784,7 +784,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "non-slicing of known most derived as intermediate (AMI)... " << flush;
     {
 #ifdef ICE_CPP11_MAPPING
-        auto result = test->knownMostDerivedAsKnownIntermediate_async();
+        auto result = test->knownMostDerivedAsKnownIntermediateAsync();
         try
         {
             result.get();
@@ -835,7 +835,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "non-slicing of known most derived as most derived (AMI)... " << flush;
     {
 #ifdef ICE_CPP11_MAPPING
-        auto result = test->knownMostDerivedAsKnownMostDerived_async();
+        auto result = test->knownMostDerivedAsKnownMostDerivedAsync();
         try
         {
             result.get();
@@ -885,7 +885,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "slicing of unknown most derived, known intermediate as base (AMI)... " << flush;
     {
 #ifdef ICE_CPP11_MAPPING
-        auto result = test->unknownMostDerived1AsBase_async();
+        auto result = test->unknownMostDerived1AsBaseAsync();
         try
         {
             result.get();
@@ -934,7 +934,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "slicing of unknown most derived, known intermediate as intermediate (AMI)... " << flush;
     {
 #ifdef ICE_CPP11_MAPPING
-        auto result = test->unknownMostDerived1AsKnownIntermediate_async();
+        auto result = test->unknownMostDerived1AsKnownIntermediateAsync();
         try
         {
             result.get();
@@ -982,7 +982,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "slicing of unknown most derived, unknown intermediate as base (AMI)... " << flush;
     {
 #ifdef ICE_CPP11_MAPPING
-        auto result = test->unknownMostDerived2AsBase_async();
+        auto result = test->unknownMostDerived2AsBaseAsync();
         try
         {
             result.get();

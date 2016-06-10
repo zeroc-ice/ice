@@ -82,11 +82,11 @@ MyObjectI::badSystemAdd(int, int, const Ice::Current&)
 
 #ifdef ICE_CPP11_MAPPING
 void
-MyObjectI::amdAdd_async(int x,
-                        int y,
-                        function<void (int)> response,
-                        function<void (exception_ptr)>,
-                        const Ice::Current&)
+MyObjectI::amdAddAsync(int x,
+                       int y,
+                       function<void (int)> response,
+                       function<void (exception_ptr)>,
+                       const Ice::Current&)
 {
     thread t(
         [x, y, response]()
@@ -98,11 +98,11 @@ MyObjectI::amdAdd_async(int x,
 }
 
 void 
-MyObjectI::amdAddWithRetry_async(int x,
-                                 int y,
-                                 function<void (int)> response,
-                                 function<void (exception_ptr)>,
-                                 const Ice::Current& current)
+MyObjectI::amdAddWithRetryAsync(int x,
+                                int y,
+                                function<void (int)> response,
+                                function<void (exception_ptr)>,
+                                const Ice::Current& current)
 {
     thread t(
         [x, y, response]()
@@ -121,11 +121,11 @@ MyObjectI::amdAddWithRetry_async(int x,
 }
 
 void 
-MyObjectI::amdBadAdd_async(int x,
-                           int y,
-                           function<void (int)>,
-                           function<void (exception_ptr)> error,
-                           const Ice::Current&)
+MyObjectI::amdBadAddAsync(int x,
+                          int y,
+                          function<void (int)>,
+                          function<void (exception_ptr)> error,
+                          const Ice::Current&)
 {
     thread t(
         [x, y, error]()
@@ -144,11 +144,11 @@ MyObjectI::amdBadAdd_async(int x,
 }
 
 void 
-MyObjectI::amdNotExistAdd_async(int x,
-                                int y,
-                                function<void (int)>,
-                                function<void (exception_ptr)> error,
-                                const Ice::Current&)
+MyObjectI::amdNotExistAddAsync(int x,
+                               int y,
+                               function<void (int)>,
+                               function<void (exception_ptr)> error,
+                               const Ice::Current&)
 {    
     thread t(
         [x, y, error]()
@@ -167,11 +167,11 @@ MyObjectI::amdNotExistAdd_async(int x,
 }
 
 void 
-MyObjectI::amdBadSystemAdd_async(int x,
-                                 int y,
-                                 function<void (int)>,
-                                 function<void (exception_ptr)> error,
-                                 const Ice::Current&)
+MyObjectI::amdBadSystemAddAsync(int x,
+                                int y,
+                                function<void (int)>,
+                                function<void (exception_ptr)> error,
+                                const Ice::Current&)
 {    
     thread t(
         [x, y, error]()

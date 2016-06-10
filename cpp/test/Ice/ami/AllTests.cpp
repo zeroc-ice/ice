@@ -903,11 +903,11 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     cout << "testing lambda API... " << flush;
     {
         {
-            p->ice_isA_async(Test::TestIntf::ice_staticId(), nullptr);
+            p->ice_isAAsync(Test::TestIntf::ice_staticId(), nullptr);
         }
         {
             promise<bool> promise;
-            p->ice_isA_async(Test::TestIntf::ice_staticId(),
+            p->ice_isAAsync(Test::TestIntf::ice_staticId(),
                 [&](bool value)
                 {
                     promise.set_value(value);
@@ -916,7 +916,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         }
         {
             promise<bool> promise;
-            p->ice_isA_async(Test::TestIntf::ice_staticId(),
+            p->ice_isAAsync(Test::TestIntf::ice_staticId(),
                 [&](bool value)
                 {
                     promise.set_value(value);
@@ -930,7 +930,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
         {
             promise<bool> promise;
-            p->ice_isA_async(Test::TestIntf::ice_staticId(),
+            p->ice_isAAsync(Test::TestIntf::ice_staticId(),
                 [&](bool value)
                 {
                     promise.set_value(value);
@@ -941,11 +941,11 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
 
         {
-            p->ice_ping_async(nullptr);
+            p->ice_pingAsync(nullptr);
         }
         {
             promise<void> promise;
-            p->ice_ping_async(
+            p->ice_pingAsync(
                 [&]()
                 {
                     promise.set_value();
@@ -954,7 +954,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         }
         {
             promise<void> promise;
-            p->ice_ping_async(
+            p->ice_pingAsync(
                 [&]()
                 {
                     promise.set_value();
@@ -967,7 +967,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         }
         {
             promise<void> promise;
-            p->ice_ping_async(
+            p->ice_pingAsync(
                 [&]()
                 {
                     promise.set_value();
@@ -977,11 +977,11 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         }
 
         {
-            p->ice_id_async(nullptr);
+            p->ice_idAsync(nullptr);
         }
         {
             promise<string> promise;
-            p->ice_id_async(
+            p->ice_idAsync(
                 [&](const string& id)
                 {
                     promise.set_value(id);
@@ -990,7 +990,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         }
         {
             promise<string> promise;
-            p->ice_id_async(
+            p->ice_idAsync(
                 [&](const string& id)
                 {
                     promise.set_value(id);
@@ -1003,7 +1003,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         }
         {
             promise<string> promise;
-            p->ice_id_async(
+            p->ice_idAsync(
                 [&](const string& id)
                 {
                     promise.set_value(id);
@@ -1013,11 +1013,11 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         }
 
         {
-            p->ice_ids_async(nullptr);
+            p->ice_idsAsync(nullptr);
         }
         {
             promise<vector<string>> promise;
-            p->ice_ids_async(
+            p->ice_idsAsync(
                 [&](const vector<string>& ids)
                 {
                     promise.set_value(ids);
@@ -1026,7 +1026,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         }
         {
             promise<vector<string>> promise;
-            p->ice_ids_async(
+            p->ice_idsAsync(
                 [&](const vector<string>& ids)
                 {
                     promise.set_value(ids);
@@ -1039,7 +1039,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         }
         {
             promise<vector<string>> promise;
-            p->ice_ids_async(
+            p->ice_idsAsync(
                 [&](const vector<string>& ids)
                 {
                     promise.set_value(ids);
@@ -1051,11 +1051,11 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         if(!collocated)
         {
             {
-                p->ice_getConnection_async(nullptr);
+                p->ice_getConnectionAsync(nullptr);
             }
             {
                 promise<Ice::ConnectionPtr> promise;
-                p->ice_getConnection_async(
+                p->ice_getConnectionAsync(
                     [&](const Ice::ConnectionPtr& connection)
                     {
                         promise.set_value(connection);
@@ -1064,7 +1064,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
             }
             {
                 promise<Ice::ConnectionPtr> promise;
-                p->ice_getConnection_async(
+                p->ice_getConnectionAsync(
                     [&](const Ice::ConnectionPtr& connection)
                     {
                         promise.set_value(connection);
@@ -1078,11 +1078,11 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         }
 
         {
-            p->op_async(nullptr);
+            p->opAsync(nullptr);
         }
         {
             promise<void> promise;
-            p->op_async(
+            p->opAsync(
                 [&]()
                 {
                     promise.set_value();
@@ -1091,7 +1091,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         }
         {
             promise<void> promise;
-            p->op_async(
+            p->opAsync(
                 [&]()
                 {
                     promise.set_value();
@@ -1104,7 +1104,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         }
         {
             promise<void> promise;
-            p->op_async(
+            p->opAsync(
                 [&]()
                 {
                     promise.set_value();
@@ -1114,11 +1114,11 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         }
 
         {
-            p->opWithResult_async(nullptr);
+            p->opWithResultAsync(nullptr);
         }
         {
             promise<int> promise;
-            p->opWithResult_async(
+            p->opWithResultAsync(
                 [&](int result)
                 {
                     promise.set_value(result);
@@ -1127,7 +1127,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         }
         {
             promise<int> promise;
-            p->opWithResult_async(
+            p->opWithResultAsync(
                 [&](int result)
                 {
                     promise.set_value(result);
@@ -1140,7 +1140,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         }
         {
             promise<int> promise;
-            p->opWithResult_async(
+            p->opWithResultAsync(
                 [&](int result)
                 {
                     promise.set_value(result);
@@ -1150,11 +1150,11 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         }
 
         {
-            p->opWithUE_async(nullptr);
+            p->opWithUEAsync(nullptr);
         }
         {
             promise<void> promise;
-            p->opWithUE_async(
+            p->opWithUEAsync(
                 nullptr,
                 [&](const exception_ptr& ex)
                 {
@@ -1172,7 +1172,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         }
         {
             promise<void> promise;
-            p->opWithUE_async(
+            p->opWithUEAsync(
                 [&]()
                 {
                     promise.set_value();
@@ -1193,7 +1193,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         }
         {
             promise<void> promise;
-            p->opWithUE_async(
+            p->opWithUEAsync(
                 nullptr,
                 [&](const exception_ptr& ex)
                 {
@@ -1212,11 +1212,11 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         }
 
         {
-            p->opWithResultAndUE_async(nullptr);
+            p->opWithResultAndUEAsync(nullptr);
         }
         {
             promise<void> promise;
-            p->opWithResultAndUE_async(
+            p->opWithResultAndUEAsync(
                 nullptr,
                 [&](const exception_ptr& ex)
                 {
@@ -1237,7 +1237,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         }
         {
             promise<void> promise;
-            p->opWithResultAndUE_async(
+            p->opWithResultAndUEAsync(
                 [&](int)
                 {
                     promise.set_value();
@@ -1261,7 +1261,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         }
         {
             promise<void> promise;
-            p->opWithResultAndUE_async(
+            p->opWithResultAndUEAsync(
                 nullptr,
                 [&](const exception_ptr& ex)
                 {
@@ -1288,29 +1288,29 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     cout << "testing future API... " << flush;
     {
 
-        test(p->ice_isA_async(Test::TestIntf::ice_staticId()).get());
-        test(p->ice_isA_async(Test::TestIntf::ice_staticId(), ctx).get());
+        test(p->ice_isAAsync(Test::TestIntf::ice_staticId()).get());
+        test(p->ice_isAAsync(Test::TestIntf::ice_staticId(), ctx).get());
 
-        p->ice_ping_async().get();
-        p->ice_ping_async(ctx).get();
+        p->ice_pingAsync().get();
+        p->ice_pingAsync(ctx).get();
 
-        test(p->ice_ids_async().get().size() == 2);
-        test(p->ice_ids_async(ctx).get().size() == 2);
+        test(p->ice_idsAsync().get().size() == 2);
+        test(p->ice_idsAsync(ctx).get().size() == 2);
 
         if(!collocated)
         {
-            test(p->ice_getConnection_async().get());
+            test(p->ice_getConnectionAsync().get());
         }
 
-        p->op_async().get();
-        p->op_async(ctx).get();
+        p->opAsync().get();
+        p->opAsync(ctx).get();
 
-        test(p->opWithResult_async().get() == 15);
-        test(p->opWithResult_async(ctx).get() == 15);
+        test(p->opWithResultAsync().get() == 15);
+        test(p->opWithResultAsync(ctx).get() == 15);
 
         try
         {
-            p->opWithUE_async().get();
+            p->opWithUEAsync().get();
             test(false);
         }
         catch(const Test::TestIntfException&)
@@ -1319,7 +1319,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
         try
         {
-            p->opWithUE_async(ctx).get();
+            p->opWithUEAsync(ctx).get();
             test(false);
         }
         catch(const Test::TestIntfException&)
@@ -1328,7 +1328,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
         try
         {
-            p->opWithResultAndUE_async().get();
+            p->opWithResultAndUEAsync().get();
             test(false);
         }
         catch(const Test::TestIntfException&)
@@ -1340,7 +1340,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
         try
         {
-            p->opWithResultAndUE_async(ctx).get();
+            p->opWithResultAndUEAsync(ctx).get();
             test(false);
         }
         catch(const Test::TestIntfException&)
@@ -1358,7 +1358,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
         {
             promise<void> promise;
-            indirect->op_async(
+            indirect->opAsync(
                 [&]()
                 {
                     promise.set_value();
@@ -1381,7 +1381,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
             try
             {
                 promise<int> promise;
-                p->ice_oneway()->opWithResult_async(
+                p->ice_oneway()->opWithResultAsync(
                     [&](int value)
                     {
                         promise.set_value(value);
@@ -1412,7 +1412,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
             try
             {
                 promise<void> promise;
-                p2->op_async(
+                p2->opAsync(
                     [&]()
                     {
                         promise.set_value();
@@ -1434,7 +1434,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     cout << "testing local exceptions with future API... " << flush;
     {
         auto indirect = Ice::uncheckedCast<Test::TestIntfPrx>(p->ice_adapterId("dummy"));
-        auto r = indirect->op_async();
+        auto r = indirect->opAsync();
         try
         {
             r.get();
@@ -1447,7 +1447,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
         try
         {
-            p->ice_oneway()->opWithResult_async().get();
+            p->ice_oneway()->opWithResultAsync().get();
             test(false);
         }
         catch(const IceUtil::IllegalArgumentException&)
@@ -1468,7 +1468,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             try
             {
-                p2->op_async();
+                p2->opAsync();
                 test(false);
             }
             catch(const Ice::CommunicatorDestroyedException&)
@@ -1485,7 +1485,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
         {
             promise<bool> promise;
-            i->ice_isA_async(Test::TestIntf::ice_staticId(),
+            i->ice_isAAsync(Test::TestIntf::ice_staticId(),
                 [&](bool value)
                 {
                     promise.set_value(value);
@@ -1506,7 +1506,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
         {
             promise<void> promise;
-            i->op_async(
+            i->opAsync(
                 [&]()
                 {
                     promise.set_value();
@@ -1528,7 +1528,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
         {
             promise<void> promise;
-            i->opWithUE_async(
+            i->opWithUEAsync(
                 [&]()
                 {
                     promise.set_value();
@@ -1551,7 +1551,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         // Ensures no exception is called when response is received
         {
             promise<bool> promise;
-            p->ice_isA_async(
+            p->ice_isAAsync(
                 Test::TestIntf::ice_staticId(),
                 [&](bool value)
                 {
@@ -1573,7 +1573,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
         {
             promise<void> promise;
-            p->op_async(
+            p->opAsync(
                 [&]()
                 {
                     promise.set_value();
@@ -1595,7 +1595,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         // If response is a user exception, it should be received.
         {
             promise<void> promise;
-            p->opWithUE_async(
+            p->opWithUEAsync(
                 [&]()
                 {
                     promise.set_value();
@@ -1623,7 +1623,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
             promise<bool> response;
             promise<bool> sent;
 
-            p->ice_isA_async("",
+            p->ice_isAAsync("",
                 [&](bool value)
                 {
                     response.set_value(value);
@@ -1645,7 +1645,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
             promise<void> response;
             promise<bool> sent;
 
-            p->ice_ping_async(
+            p->ice_pingAsync(
                 [&]()
                 {
                     response.set_value();
@@ -1667,7 +1667,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
             promise<string> response;
             promise<bool> sent;
 
-            p->ice_id_async(
+            p->ice_idAsync(
                 [&](string value)
                 {
                     response.set_value(value);
@@ -1689,7 +1689,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
             promise<vector<string>> response;
             promise<bool> sent;
 
-            p->ice_ids_async(
+            p->ice_idsAsync(
                 [&](vector<string> value)
                 {
                     response.set_value(value);
@@ -1711,7 +1711,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
             promise<void> response;
             promise<bool> sent;
 
-            p->op_async(
+            p->opAsync(
                 [&]()
                 {
                     response.set_value();
@@ -1739,7 +1739,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
             {
                 auto s = make_shared<promise<bool>>();
                 auto f = s->get_future();
-                p->opWithPayload_async(
+                p->opWithPayloadAsync(
                     seq,
                     [](){},
                     [s](const exception_ptr& ex)
@@ -1775,7 +1775,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         {
             {
                 promise<void> promise;
-                p->op_async(
+                p->opAsync(
                     [&, i]()
                     {
                         promise.set_value();
@@ -1799,7 +1799,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             {
                 promise<void> promise;
-                p->op_async(nullptr, nullptr,
+                p->opAsync(nullptr, nullptr,
                     [&, i](bool)
                     {
                         promise.set_value();
@@ -1828,7 +1828,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
             b1->opBatch();
             auto id = this_thread::get_id();
             promise<void> promise;
-            b1->ice_flushBatchRequests_async(
+            b1->ice_flushBatchRequestsAsync(
                 [&](const exception_ptr& ex)
                 {
                     promise.set_exception(ex);
@@ -1852,7 +1852,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             auto id = this_thread::get_id();
             promise<void> promise;
-            b1->ice_flushBatchRequests_async(
+            b1->ice_flushBatchRequestsAsync(
                 [&](const exception_ptr& ex)
                 {
                     promise.set_exception(ex);
@@ -1883,7 +1883,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
                 auto id = this_thread::get_id();
                 promise<void> promise;
 
-                b1->ice_getConnection()->flushBatchRequests_async(
+                b1->ice_getConnection()->flushBatchRequestsAsync(
                     [&](const exception_ptr& ex)
                     {
                         promise.set_exception(ex);
@@ -1902,7 +1902,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
                 // Ensure it also works with a twoway proxy
                 auto id = this_thread::get_id();
                 promise<void> promise;
-                p->ice_getConnection()->flushBatchRequests_async(
+                p->ice_getConnection()->flushBatchRequestsAsync(
                     [&](const exception_ptr& ex)
                     {
                         promise.set_exception(ex);
@@ -1925,7 +1925,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
                 b1->ice_getConnection()->close(false);
 
                 promise<void> promise;
-                b1->ice_getConnection()->flushBatchRequests_async(
+                b1->ice_getConnection()->flushBatchRequestsAsync(
                     [&](exception_ptr ex)
                     {
                         promise.set_exception(move(ex));
@@ -1960,7 +1960,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
                 b1->opBatch();
                 b1->opBatch();
 
-                communicator->flushBatchRequests_async().get();
+                communicator->flushBatchRequestsAsync().get();
                 test(p->waitForBatch(2));
             }
 
@@ -1976,7 +1976,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
                 promise<void> promise;
                 auto id = this_thread::get_id();
-                communicator->flushBatchRequests_async(
+                communicator->flushBatchRequestsAsync(
                     [&](exception_ptr ex)
                     {
                         promise.set_exception(move(ex));
@@ -2004,7 +2004,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
                 promise<void> promise;
                 auto id = this_thread::get_id();
-                communicator->flushBatchRequests_async(
+                communicator->flushBatchRequestsAsync(
                     [&](exception_ptr ex)
                     {
                         promise.set_exception(move(ex));
@@ -2038,7 +2038,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
                 promise<void> promise;
                 auto id = this_thread::get_id();
-                communicator->flushBatchRequests_async(
+                communicator->flushBatchRequestsAsync(
                     [&](exception_ptr ex)
                     {
                         promise.set_exception(move(ex));
@@ -2075,7 +2075,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
                 promise<void> promise;
                 auto id = this_thread::get_id();
-                communicator->flushBatchRequests_async(
+                communicator->flushBatchRequestsAsync(
                     [&](exception_ptr ex)
                     {
                         promise.set_exception(move(ex));
@@ -2099,7 +2099,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
                 testController->holdAdapter();
                 {
                     promise<void> promise;
-                    auto cancel = p->ice_ping_async(
+                    auto cancel = p->ice_pingAsync(
                         [&]()
                         {
                             promise.set_value();
@@ -2127,7 +2127,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
                 {
                     promise<void> promise;
-                    auto cancel = p->ice_id_async(
+                    auto cancel = p->ice_idAsync(
                         [&](string)
                         {
                             promise.set_value();

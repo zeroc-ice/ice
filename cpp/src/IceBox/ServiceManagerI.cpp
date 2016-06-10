@@ -300,7 +300,7 @@ IceBox::ServiceManagerI::addObserver(ICE_IN(ServiceObserverPrxPtr) observer, con
         if(activeServices.size() > 0)
         {
 #ifdef ICE_CPP11_MAPPING
-            observer->servicesStarted_async(activeServices, nullptr, makeObserverCompletedCallback(observer));
+            observer->servicesStartedAsync(activeServices, nullptr, makeObserverCompletedCallback(observer));
 #else
             observer->begin_servicesStarted(activeServices, _observerCompletedCB);
 #endif
@@ -935,7 +935,7 @@ IceBox::ServiceManagerI::servicesStarted(const vector<string>& services, const s
     {
         for(auto p : observers)
         {
-            p->servicesStarted_async(services, nullptr, makeObserverCompletedCallback(p));
+            p->servicesStartedAsync(services, nullptr, makeObserverCompletedCallback(p));
         }
     }
 }
@@ -947,7 +947,7 @@ IceBox::ServiceManagerI::servicesStopped(const vector<string>& services, const s
     {
         for(auto p : observers)
         {
-            p->servicesStopped_async(services, nullptr, makeObserverCompletedCallback(p));
+            p->servicesStoppedAsync(services, nullptr, makeObserverCompletedCallback(p));
         }
     }
 }

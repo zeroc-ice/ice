@@ -197,7 +197,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, obj->ice_invocationTimeout(100));
 
 #ifdef ICE_CPP11_MAPPING
-        auto f = to->sleep_async(750);
+        auto f = to->sleepAsync(750);
         try
         {
             f.get();
@@ -223,7 +223,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         //
         TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, obj->ice_invocationTimeout(500));
 #ifdef ICE_CPP11_MAPPING
-        auto f = to->sleep_async(250);
+        auto f = to->sleepAsync(250);
         try
         {
             f.get();
@@ -267,7 +267,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             con = to->ice_getConnection();
 #ifdef ICE_CPP11_MAPPING
-            to->sleep_async(750).get();
+            to->sleepAsync(750).get();
 #else
             to->end_sleep(to->begin_sleep(750));
 #endif
@@ -445,7 +445,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         try
         {
 #ifdef ICE_CPP11_MAPPING
-            timeout->sleep_async(300).get();
+            timeout->sleepAsync(300).get();
 #else
             timeout->end_sleep(timeout->begin_sleep(300));
 #endif
@@ -462,7 +462,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         // Keep the server thread pool busy.
 #ifdef ICE_CPP11_MAPPING
-        timeout->ice_invocationTimeout(-1)->sleep_async(300);
+        timeout->ice_invocationTimeout(-1)->sleepAsync(300);
 #else
         timeout->ice_invocationTimeout(-1)->begin_sleep(300);
 #endif
@@ -481,14 +481,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         // Keep the server thread pool busy.
 #ifdef ICE_CPP11_MAPPING
-        timeout->ice_invocationTimeout(-1)->sleep_async(300);
+        timeout->ice_invocationTimeout(-1)->sleepAsync(300);
 #else
         timeout->ice_invocationTimeout(-1)->begin_sleep(300);
 #endif
         try
         {
 #ifdef ICE_CPP11_MAPPING
-            batchTimeout->ice_flushBatchRequests_async().get();
+            batchTimeout->ice_flushBatchRequestsAsync().get();
 #else
             batchTimeout->end_ice_flushBatchRequests(batchTimeout->begin_ice_flushBatchRequests());
 #endif

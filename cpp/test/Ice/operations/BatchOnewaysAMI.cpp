@@ -98,7 +98,7 @@ batchOnewaysAMI(const Test::MyClassPrxPtr& p)
 #ifdef ICE_CPP11_MAPPING
 
     promise<void> prom;
-    batch->ice_flushBatchRequests_async(nullptr,
+    batch->ice_flushBatchRequestsAsync(nullptr,
         [&](bool sentSynchronously)
         {
             test(sentSynchronously);
@@ -108,7 +108,7 @@ batchOnewaysAMI(const Test::MyClassPrxPtr& p)
 
     for(int i = 0; i < 30; ++i)
     {
-        batch->opByteSOneway_async(bs1, nullptr, [](exception_ptr){ test(false); });
+        batch->opByteSOnewayAsync(bs1, nullptr, [](exception_ptr){ test(false); });
     }
 
     int count = 0;
@@ -124,34 +124,34 @@ batchOnewaysAMI(const Test::MyClassPrxPtr& p)
         shared_ptr<Test::MyClassPrx> batch1 = Ice::uncheckedCast<Test::MyClassPrx>(p->ice_batchOneway());
         shared_ptr<Test::MyClassPrx> batch2 = Ice::uncheckedCast<Test::MyClassPrx>(p->ice_batchOneway());
 
-        batch1->ice_ping_async().get();
-        batch2->ice_ping_async().get();
-        batch1->ice_flushBatchRequests_async().get();
+        batch1->ice_pingAsync().get();
+        batch2->ice_pingAsync().get();
+        batch1->ice_flushBatchRequestsAsync().get();
         batch1->ice_getConnection()->close(false);
-        batch1->ice_ping_async().get();
-        batch2->ice_ping_async().get();
+        batch1->ice_pingAsync().get();
+        batch2->ice_pingAsync().get();
 
         batch1->ice_getConnection();
         batch2->ice_getConnection();
 
-        batch1->ice_ping_async().get();
+        batch1->ice_pingAsync().get();
         batch1->ice_getConnection()->close(false);
 
-        batch1->ice_ping_async().get();
-        batch2->ice_ping_async().get();
+        batch1->ice_pingAsync().get();
+        batch2->ice_pingAsync().get();
     }
 
     Ice::Identity identity;
     identity.name = "invalid";
     auto batch3 = batch->ice_identity(identity);
-    batch3->ice_ping_async();
-    batch3->ice_flushBatchRequests_async().get();
+    batch3->ice_pingAsync();
+    batch3->ice_flushBatchRequestsAsync().get();
 
     // Make sure that a bogus batch request doesn't cause troubles to other ones.
-    batch3->ice_ping_async();
-    batch->ice_ping_async();
-    batch->ice_flushBatchRequests_async().get();
-    batch->ice_ping_async();
+    batch3->ice_pingAsync();
+    batch->ice_pingAsync();
+    batch->ice_flushBatchRequestsAsync().get();
+    batch->ice_pingAsync();
 #else
     batch->end_ice_flushBatchRequests(batch->begin_ice_flushBatchRequests()); // Empty flush
 

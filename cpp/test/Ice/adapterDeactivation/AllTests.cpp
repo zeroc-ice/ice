@@ -60,7 +60,7 @@ allTests(const CommunicatorPtr& communicator)
     cout << "creating/activating/deactivating object adapter in one operation... " << flush;
     obj->transient();
 #ifdef ICE_CPP11_MAPPING
-    obj->transient_async().get();
+    obj->transientAsync().get();
 #else
     obj->end_transient(obj->begin_transient());
 #endif
@@ -74,7 +74,7 @@ allTests(const CommunicatorPtr& communicator)
             initData.properties = communicator->getProperties()->clone();
             Ice::CommunicatorHolder comm = Ice::initialize(initData);
 #ifdef ICE_CPP11_MAPPING
-            comm->stringToProxy("test:" + getTestEndpoint(communicator, 0))->ice_ping_async();
+            comm->stringToProxy("test:" + getTestEndpoint(communicator, 0))->ice_pingAsync();
 #else
             comm->stringToProxy("test:" + getTestEndpoint(communicator, 0))->begin_ice_ping();
 #endif

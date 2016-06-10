@@ -369,7 +369,7 @@ private:
     {
     public:
 
-        Cpp11TypesVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
+        Cpp11TypesVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&, int = 0);
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);

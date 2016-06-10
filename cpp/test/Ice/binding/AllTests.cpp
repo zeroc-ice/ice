@@ -68,7 +68,7 @@ string
 getAdapterNameWithAMI(const TestIntfPrxPtr& test)
 {
 #ifdef ICE_CPP11_MAPPING
-    return test->getAdapterName_async().get();
+    return test->getAdapterNameAsync().get();
 #else
     GetAdapterNameCBPtr cb = new GetAdapterNameCB();
     test->begin_getAdapterName(
@@ -280,7 +280,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             for(i = 0; i < proxies.size(); i++)
             {
 #ifdef ICE_CPP11_MAPPING
-                proxies[i]->getAdapterName_async();
+                proxies[i]->getAdapterNameAsync();
 #else
                 proxies[i]->begin_getAdapterName();
 #endif

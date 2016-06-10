@@ -57,7 +57,7 @@ public:
     virtual void checkPBSUnknown(ICE_IN(::Test::PreservedPtr), const ::Ice::Current&);
 
 #ifdef ICE_CPP11_MAPPING
-    virtual void PBSUnknownAsPreservedWithGraph_async(std::function<void (const std::shared_ptr<Test::Preserved>&)>,
+    virtual void PBSUnknownAsPreservedWithGraphAsync(std::function<void (const std::shared_ptr<Test::Preserved>&)>,
                                                       std::function<void (std::exception_ptr)>,
                                                       const ::Ice::Current&);
 #else
@@ -67,7 +67,7 @@ public:
     virtual void checkPBSUnknownWithGraph(ICE_IN(::Test::PreservedPtr), const ::Ice::Current&);
 
 #ifdef ICE_CPP11_MAPPING
-    virtual void PBSUnknown2AsPreservedWithGraph_async(std::function<void (const std::shared_ptr<Test::Preserved>&)>,
+    virtual void PBSUnknown2AsPreservedWithGraphAsync(std::function<void (const std::shared_ptr<Test::Preserved>&)>,
                                                        std::function<void (std::exception_ptr)>,
                                                        const ::Ice::Current&);
 #else
@@ -83,7 +83,7 @@ public:
     virtual void throwDerivedAsDerived(const ::Ice::Current&);
     virtual void throwUnknownDerivedAsBase(const ::Ice::Current&);
 #ifdef ICE_CPP11_MAPPING
-    virtual void throwPreservedException_async(std::function<void ()>,
+    virtual void throwPreservedExceptionAsync(std::function<void ()>,
                                                std::function<void (std::exception_ptr)>,
                                                const ::Ice::Current&);
 #else

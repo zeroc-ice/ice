@@ -805,11 +805,11 @@ Ice::ConnectionI::getBatchRequestQueue() const
 void
 Ice::ConnectionI::flushBatchRequests()
 {
-    Connection::flushBatchRequests_async().get();
+    Connection::flushBatchRequestsAsync().get();
 }
 
 std::function<void ()>
-Ice::ConnectionI::flushBatchRequests_async(::std::function<void (::std::exception_ptr)> ex,
+Ice::ConnectionI::flushBatchRequestsAsync(::std::function<void (::std::exception_ptr)> ex,
                                            ::std::function<void (bool)> sent)
 {
     class ConnectionFlushBatchLambda : public ConnectionFlushBatchAsync, public LambdaInvoke

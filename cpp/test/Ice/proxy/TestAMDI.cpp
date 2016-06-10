@@ -19,7 +19,7 @@ MyDerivedClassI::MyDerivedClassI()
 
 #ifdef ICE_CPP11_MAPPING
 void
-MyDerivedClassI::echo_async(
+MyDerivedClassI::echoAsync(
     shared_ptr<Ice::ObjectPrx> obj,
     function<void (const shared_ptr<Ice::ObjectPrx>&)> response,
     function<void (exception_ptr)>,
@@ -29,7 +29,7 @@ MyDerivedClassI::echo_async(
 }
 
 void
-MyDerivedClassI::shutdown_async(
+MyDerivedClassI::shutdownAsync(
     function<void ()> response,
     function<void (exception_ptr)>,
     const Ice::Current& current)
@@ -39,7 +39,7 @@ MyDerivedClassI::shutdown_async(
 }
 
 void
-MyDerivedClassI::getContext_async(
+MyDerivedClassI::getContextAsync(
     function<void (const Ice::Context&)> response,
     function<void (exception_ptr)>,
     const Ice::Current&)

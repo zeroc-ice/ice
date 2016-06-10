@@ -966,7 +966,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     Test::MyClassPrxPtr cl13 = ICE_UNCHECKED_CAST(Test::MyClassPrx, communicator->stringToProxy(ref13));
     cl13->ice_ping();
 #ifdef ICE_CPP11_MAPPING
-    cl13->ice_ping_async().get();
+    cl13->ice_pingAsync().get();
 #else
     cl13->end_ice_ping(cl13->begin_ice_ping());
 #endif
@@ -1044,7 +1044,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cl13 = ICE_UNCHECKED_CAST(Test::MyClassPrx, communicator->stringToProxy(ref13));
     cl13->ice_ping();
 #ifdef ICE_CPP11_MAPPING
-    cl13->ice_ping_async().get();
+    cl13->ice_pingAsync().get();
 #else
     cl13->end_ice_ping(cl13->begin_ice_ping());
 #endif

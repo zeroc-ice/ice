@@ -14,20 +14,20 @@ using namespace std;
 
 #ifdef ICE_CPP11_MAPPING
 void
-MetricsI::op_async(function<void ()> response, function<void (exception_ptr)>, const Ice::Current&)
+MetricsI::opAsync(function<void ()> response, function<void (exception_ptr)>, const Ice::Current&)
 {
     response();
 }
 
 void
-MetricsI::fail_async(function<void ()> response, function<void (exception_ptr)>, const Ice::Current& current)
+MetricsI::failAsync(function<void ()> response, function<void (exception_ptr)>, const Ice::Current& current)
 {
     current.con->close(true);
     response();
 }
 
 void
-MetricsI::opWithUserException_async(function<void ()>, function<void (exception_ptr)> error, const Ice::Current&)
+MetricsI::opWithUserExceptionAsync(function<void ()>, function<void (exception_ptr)> error, const Ice::Current&)
 {
     try
     {
@@ -40,7 +40,7 @@ MetricsI::opWithUserException_async(function<void ()>, function<void (exception_
 }
 
 void
-MetricsI::opWithRequestFailedException_async(function<void ()>, function<void (exception_ptr)> error,
+MetricsI::opWithRequestFailedExceptionAsync(function<void ()>, function<void (exception_ptr)> error,
                                              const Ice::Current&)
 {
     try
@@ -54,7 +54,7 @@ MetricsI::opWithRequestFailedException_async(function<void ()>, function<void (e
 }
 
 void
-MetricsI::opWithLocalException_async(function<void ()>, function<void (exception_ptr)> error, const Ice::Current&)
+MetricsI::opWithLocalExceptionAsync(function<void ()>, function<void (exception_ptr)> error, const Ice::Current&)
 {
     try
     {
@@ -67,13 +67,13 @@ MetricsI::opWithLocalException_async(function<void ()>, function<void (exception
 }
 
 void
-MetricsI::opWithUnknownException_async(function<void ()>, function<void (exception_ptr)>, const Ice::Current&)
+MetricsI::opWithUnknownExceptionAsync(function<void ()>, function<void (exception_ptr)>, const Ice::Current&)
 {
     throw "Test";
 }
 
 void
-MetricsI::opByteS_async(Test::ByteSeq, function<void ()> response, function<void (exception_ptr)>, const Ice::Current&)
+MetricsI::opByteSAsync(Test::ByteSeq, function<void ()> response, function<void (exception_ptr)>, const Ice::Current&)
 {
     response();
 }

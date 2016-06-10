@@ -40,7 +40,7 @@ public:
         if(_size + request.getSize() > 25000)
         {
 #ifdef ICE_CPP11_MAPPING
-            request.getProxy()->ice_flushBatchRequests_async();
+            request.getProxy()->ice_flushBatchRequestsAsync();
 #else
             request.getProxy()->begin_ice_flushBatchRequests();
 #endif

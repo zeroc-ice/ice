@@ -87,7 +87,7 @@ onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrxPtr& proxy)
     {
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->ice_ping_async(
+        p->ice_pingAsync(
             nullptr,
             [](exception_ptr)
             {
@@ -109,7 +109,7 @@ onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrxPtr& proxy)
         try
         {
 #ifdef ICE_CPP11_MAPPING
-            p->ice_isA_async(Test::MyClass::ice_staticId(), 
+            p->ice_isAAsync(Test::MyClass::ice_staticId(),
                 [&](bool)
                 {
                     test(false);
@@ -123,12 +123,12 @@ onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrxPtr& proxy)
         {
         }
     }
-    
+
     {
         try
         {
 #ifdef ICE_CPP11_MAPPING
-            p->ice_id_async( 
+            p->ice_idAsync(
                 [&](string)
                 {
                     test(false);
@@ -142,12 +142,12 @@ onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrxPtr& proxy)
         {
         }
     }
-    
+
     {
         try
         {
 #ifdef ICE_CPP11_MAPPING
-            p->ice_ids_async( 
+            p->ice_idsAsync(
                 [&](vector<string>)
                 {
                 });
@@ -164,7 +164,7 @@ onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrxPtr& proxy)
     {
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->opVoid_async(
+        p->opVoidAsync(
             nullptr,
             [](exception_ptr)
             {
@@ -185,7 +185,7 @@ onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrxPtr& proxy)
     {
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->opIdempotent_async(
+        p->opIdempotentAsync(
             nullptr,
             [](exception_ptr)
             {
@@ -206,7 +206,7 @@ onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrxPtr& proxy)
     {
         CallbackPtr cb = new Callback;
 #ifdef ICE_CPP11_MAPPING
-        p->opNonmutating_async(
+        p->opNonmutatingAsync(
             nullptr,
             [](exception_ptr)
             {
@@ -228,7 +228,7 @@ onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrxPtr& proxy)
         try
         {
 #ifdef ICE_CPP11_MAPPING
-            p->opByte_async(Ice::Byte(0xff), Ice::Byte(0x0f),
+            p->opByteAsync(Ice::Byte(0xff), Ice::Byte(0x0f),
                 [](Ice::Byte, Ice::Byte)
                 {
                     test(false);
@@ -245,7 +245,7 @@ onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrxPtr& proxy)
 #ifdef ICE_CPP11_MAPPING
     {
         CallbackPtr cb = new Callback;
-        p->ice_ping_async(nullptr, 
+        p->ice_pingAsync(nullptr,
                         [=](exception_ptr e)
                         {
                             try
@@ -259,7 +259,7 @@ onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrxPtr& proxy)
                         },
                         [=](bool sent)
                         {
-                            cb->sent(sent); 
+                            cb->sent(sent);
                         });
         cb->check();
 
@@ -267,29 +267,29 @@ onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrxPtr& proxy)
     {
         try
         {
-            p->ice_isA_async(Test::MyClass::ice_staticId());
+            p->ice_isAAsync(Test::MyClass::ice_staticId());
             test(false);
         }
         catch(const IceUtil::IllegalArgumentException&)
         {
         }
     }
-    
+
     {
         try
         {
-            p->ice_id_async();
+            p->ice_idAsync();
             test(false);
         }
         catch(const IceUtil::IllegalArgumentException&)
         {
         }
     }
-    
+
     {
         try
         {
-            p->ice_ids_async();
+            p->ice_idsAsync();
             test(false);
         }
         catch(const IceUtil::IllegalArgumentException&)

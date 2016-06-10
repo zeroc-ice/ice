@@ -20,211 +20,211 @@ public:
 
 #ifdef ICE_CPP11_MAPPING
 
-    void opDoubleArray_async(std::pair<const ::Ice::Double*, const ::Ice::Double*>,
-                             std::function<void (const ::Test::DoubleSeq&, const ::Test::DoubleSeq&)>,
-                             std::function<void (std::exception_ptr)>, const Ice::Current&) override;
-
-
-    void opBoolArray_async(std::pair<const bool*, const bool*>,
-                           std::function<void (const ::Test::BoolSeq&, const ::Test::BoolSeq&)>,
-                           std::function<void (std::exception_ptr)>, const Ice::Current&) override;
-
-
-    void opByteArray_async(std::pair<const ::Ice::Byte*, const ::Ice::Byte*>,
-                           std::function<void (const std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&,
-                                               const std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&)>,
-                           std::function<void (std::exception_ptr)>, const Ice::Current&) override;
-
-    void opVariableArray_async(std::pair<const ::Test::Variable*, const ::Test::Variable*>,
-                               std::function<void (const ::Test::VariableList&, const ::Test::VariableList&)>,
-                               std::function<void (std::exception_ptr)>, const Ice::Current&) override;
-
-    void opBoolRange_async(std::pair< ::Test::BoolSeq::const_iterator,	::Test::BoolSeq::const_iterator>,
-                           std::function<void (const ::Test::BoolSeq&, const ::Test::BoolSeq&)>,
-                           std::function<void (std::exception_ptr)>, const Ice::Current&) override;
-
-
-    void opByteRange_async(std::pair< ::Test::ByteList::const_iterator,  ::Test::ByteList::const_iterator>,
-                           std::function<void (const std::pair< ::Test::ByteList::const_iterator,
-                                               ::Test::ByteList::const_iterator>&,
-                                               const std::pair< ::Test::ByteList::const_iterator,
-                                               ::Test::ByteList::const_iterator>&)>,
-                           std::function<void (std::exception_ptr)>, const Ice::Current&) override;
-
-    void opVariableRange_async(std::pair< ::Test::VariableList::const_iterator,
-                               ::Test::VariableList::const_iterator>,
-                               std::function<void (const ::Test::VariableList&, const ::Test::VariableList&)>,
-                               std::function<void (std::exception_ptr)>, const Ice::Current&) override;
-
-
-    void opByteRangeType_async(std::pair< ::Test::ByteList::const_iterator,  ::Test::ByteList::const_iterator>,
-                               std::function<void (const ::Test::ByteList&, const ::Test::ByteList&)>,
-                               std::function<void (std::exception_ptr)>, const Ice::Current&) override;
-
-
-    void opVariableRangeType_async(std::pair<std::deque< ::Test::Variable>::const_iterator,
-                                   std::deque< ::Test::Variable>::const_iterator>,
-                                   std::function<void (const ::Test::VariableList&,
-                                                       const ::Test::VariableList&)>,
-                                   std::function<void (std::exception_ptr)>, const Ice::Current&) override;
-
-
-    void opBoolSeq_async(std::deque<bool>,
-                         std::function<void (const std::deque<bool>&, const std::deque<bool>&)>,
-                         std::function<void (std::exception_ptr)>, const Ice::Current&) override;
-
-
-    void opBoolList_async(::Test::BoolList,
-                          std::function<void (const ::Test::BoolList&, const ::Test::BoolList&)>,
-                          std::function<void (std::exception_ptr)>, const Ice::Current&) override;
-
-
-    void opByteSeq_async(std::deque< ::Ice::Byte>,
-                         std::function<void (const std::deque< ::Ice::Byte>&, const std::deque< ::Ice::Byte>&)>,
-                         std::function<void (std::exception_ptr)>, const Ice::Current&) override;
-
-
-    void opByteList_async(::Test::ByteList,
-                          std::function<void (const ::Test::ByteList&, const ::Test::ByteList&)>,
-                          std::function<void (std::exception_ptr)>, const Ice::Current&) override;
-
-
-    void opMyByteSeq_async(MyByteSeq,
-                           std::function<void (const MyByteSeq&, const MyByteSeq&)>,
-                           std::function<void (std::exception_ptr)>, const Ice::Current&) override;
-
-
-    void opString_async(Util::string_view,
-                        std::function<void (const Util::string_view&, const Util::string_view&)>,
-                        std::function<void (std::exception_ptr)>, const Ice::Current&) override;
-
-
-    void opStringSeq_async(std::deque<std::string>,
-                           std::function<void (const std::deque<std::string>&, const std::deque<std::string>&)>,
-                           std::function<void (std::exception_ptr)>, const Ice::Current&) override;
-
-    void opStringList_async(::Test::StringList,
-                            std::function<void (const ::Test::StringList&, const ::Test::StringList&)>,
+    void opDoubleArrayAsync(std::pair<const ::Ice::Double*, const ::Ice::Double*>,
+                            std::function<void (const ::Test::DoubleSeq&, const ::Test::DoubleSeq&)>,
                             std::function<void (std::exception_ptr)>, const Ice::Current&) override;
 
 
-    void opFixedSeq_async(std::deque< ::Test::Fixed>,
-                          std::function<void (const std::deque< ::Test::Fixed>&,
-                                              const std::deque< ::Test::Fixed>&)>,
+    void opBoolArrayAsync(std::pair<const bool*, const bool*>,
+                          std::function<void (const ::Test::BoolSeq&, const ::Test::BoolSeq&)>,
                           std::function<void (std::exception_ptr)>, const Ice::Current&) override;
 
 
-    void opFixedList_async(::Test::FixedList,
-                           std::function<void (const ::Test::FixedList&, const ::Test::FixedList&)>,
-                           std::function<void (std::exception_ptr)>, const Ice::Current&) override;
+    void opByteArrayAsync(std::pair<const ::Ice::Byte*, const ::Ice::Byte*>,
+                          std::function<void (const std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&,
+                                              const std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&)>,
+                          std::function<void (std::exception_ptr)>, const Ice::Current&) override;
+
+    void opVariableArrayAsync(std::pair<const ::Test::Variable*, const ::Test::Variable*>,
+                              std::function<void (const ::Test::VariableList&, const ::Test::VariableList&)>,
+                              std::function<void (std::exception_ptr)>, const Ice::Current&) override;
+
+    void opBoolRangeAsync(std::pair< ::Test::BoolSeq::const_iterator,	::Test::BoolSeq::const_iterator>,
+                          std::function<void (const ::Test::BoolSeq&, const ::Test::BoolSeq&)>,
+                          std::function<void (std::exception_ptr)>, const Ice::Current&) override;
 
 
-    void opVariableSeq_async(std::deque< ::Test::Variable>,
-                             std::function<void (const std::deque< ::Test::Variable>&,
-                                                 const std::deque< ::Test::Variable>&)>,
-                             std::function<void (std::exception_ptr)>, const Ice::Current&) override;
+    void opByteRangeAsync(std::pair< ::Test::ByteList::const_iterator,	::Test::ByteList::const_iterator>,
+                          std::function<void (const std::pair< ::Test::ByteList::const_iterator,
+                                              ::Test::ByteList::const_iterator>&,
+                                              const std::pair< ::Test::ByteList::const_iterator,
+                                              ::Test::ByteList::const_iterator>&)>,
+                          std::function<void (std::exception_ptr)>, const Ice::Current&) override;
 
-    void opVariableList_async(::Test::VariableList,
+    void opVariableRangeAsync(std::pair< ::Test::VariableList::const_iterator,
+                              ::Test::VariableList::const_iterator>,
                               std::function<void (const ::Test::VariableList&, const ::Test::VariableList&)>,
                               std::function<void (std::exception_ptr)>, const Ice::Current&) override;
 
 
-    void opStringStringDictSeq_async(std::deque< ::Test::StringStringDict>,
-                                     std::function<void (const std::deque< ::Test::StringStringDict>&,
-                                                         const std::deque< ::Test::StringStringDict>&)>,
-                                     std::function<void (std::exception_ptr)>, const Ice::Current&) override;
+    void opByteRangeTypeAsync(std::pair< ::Test::ByteList::const_iterator,  ::Test::ByteList::const_iterator>,
+                              std::function<void (const ::Test::ByteList&, const ::Test::ByteList&)>,
+                              std::function<void (std::exception_ptr)>, const Ice::Current&) override;
 
 
-    void opStringStringDictList_async(::Test::StringStringDictList,
-                                      std::function<void (const ::Test::StringStringDictList&,
-                                                          const ::Test::StringStringDictList&)>,
-                                      std::function<void (std::exception_ptr)>, const Ice::Current&) override;
+    void opVariableRangeTypeAsync(std::pair<std::deque< ::Test::Variable>::const_iterator,
+                                  std::deque< ::Test::Variable>::const_iterator>,
+                                  std::function<void (const ::Test::VariableList&,
+                                                      const ::Test::VariableList&)>,
+                                  std::function<void (std::exception_ptr)>, const Ice::Current&) override;
 
 
-    void opESeq_async(std::deque< ::Test::E>,
-                      std::function<void (const std::deque< ::Test::E>&, const std::deque< ::Test::E>&)>,
-                      std::function<void (std::exception_ptr)>, const Ice::Current&) override;
+    void opBoolSeqAsync(std::deque<bool>,
+                        std::function<void (const std::deque<bool>&, const std::deque<bool>&)>,
+                        std::function<void (std::exception_ptr)>, const Ice::Current&) override;
 
 
-    void opEList_async(::Test::EList,
-                       std::function<void (const ::Test::EList&, const ::Test::EList&)>,
-                       std::function<void (std::exception_ptr)>, const Ice::Current&) override;
-
-
-    void opCPrxSeq_async(std::deque<std::shared_ptr<Ice::ObjectPrx>>,
-                         std::function<void (const std::deque<std::shared_ptr<Ice::ObjectPrx>>&,
-                                             const std::deque<std::shared_ptr<Ice::ObjectPrx>>&)>,
+    void opBoolListAsync(::Test::BoolList,
+                         std::function<void (const ::Test::BoolList&, const ::Test::BoolList&)>,
                          std::function<void (std::exception_ptr)>, const Ice::Current&) override;
 
 
-    void opCPrxList_async(::Test::CPrxList,
-                          std::function<void (const ::Test::CPrxList&, const ::Test::CPrxList&)>,
+    void opByteSeqAsync(std::deque< ::Ice::Byte>,
+                        std::function<void (const std::deque< ::Ice::Byte>&, const std::deque< ::Ice::Byte>&)>,
+                        std::function<void (std::exception_ptr)>, const Ice::Current&) override;
+
+
+    void opByteListAsync(::Test::ByteList,
+                         std::function<void (const ::Test::ByteList&, const ::Test::ByteList&)>,
+                         std::function<void (std::exception_ptr)>, const Ice::Current&) override;
+
+
+    void opMyByteSeqAsync(MyByteSeq,
+                          std::function<void (const MyByteSeq&, const MyByteSeq&)>,
                           std::function<void (std::exception_ptr)>, const Ice::Current&) override;
 
 
-    void opCSeq_async(std::deque<std::shared_ptr<Test::C>>,
-                      std::function<void (const std::deque<std::shared_ptr<Test::C>>&,
-                                          const std::deque<std::shared_ptr<Test::C>>&)>,
-                      std::function<void (std::exception_ptr)>, const Ice::Current&) override;
-
-
-    void opCList_async(::Test::CList,
-                       std::function<void (const ::Test::CList&, const ::Test::CList&)>,
+    void opStringAsync(Util::string_view,
+                       std::function<void (const Util::string_view&, const Util::string_view&)>,
                        std::function<void (std::exception_ptr)>, const Ice::Current&) override;
 
 
-    void opClassStruct_async(::Test::ClassStruct, ::Test::ClassStructSeq,
-                             std::function<void (const ::Test::ClassStruct&,
-                                                 const ::Test::ClassStruct&, const ::Test::ClassStructSeq&)>,
+    void opStringSeqAsync(std::deque<std::string>,
+                          std::function<void (const std::deque<std::string>&, const std::deque<std::string>&)>,
+                          std::function<void (std::exception_ptr)>, const Ice::Current&) override;
+
+    void opStringListAsync(::Test::StringList,
+                           std::function<void (const ::Test::StringList&, const ::Test::StringList&)>,
+                           std::function<void (std::exception_ptr)>, const Ice::Current&) override;
+
+
+    void opFixedSeqAsync(std::deque< ::Test::Fixed>,
+                         std::function<void (const std::deque< ::Test::Fixed>&,
+                                             const std::deque< ::Test::Fixed>&)>,
+                         std::function<void (std::exception_ptr)>, const Ice::Current&) override;
+
+
+    void opFixedListAsync(::Test::FixedList,
+                          std::function<void (const ::Test::FixedList&, const ::Test::FixedList&)>,
+                          std::function<void (std::exception_ptr)>, const Ice::Current&) override;
+
+
+    void opVariableSeqAsync(std::deque< ::Test::Variable>,
+                            std::function<void (const std::deque< ::Test::Variable>&,
+                                                const std::deque< ::Test::Variable>&)>,
+                            std::function<void (std::exception_ptr)>, const Ice::Current&) override;
+
+    void opVariableListAsync(::Test::VariableList,
+                             std::function<void (const ::Test::VariableList&, const ::Test::VariableList&)>,
                              std::function<void (std::exception_ptr)>, const Ice::Current&) override;
 
 
-    void opOutArrayByteSeq_async(::Test::ByteSeq,
-                                 std::function<void (const std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&)>,
-                                 std::function<void (std::exception_ptr)>, const Ice::Current&) override;
-
-
-    void opOutRangeByteSeq_async(::Test::ByteSeq,
-                                 std::function<void (const std::pair< ::Test::ByteSeq::const_iterator,
-                                                     ::Test::ByteSeq::const_iterator>&)>,
-                                 std::function<void (std::exception_ptr)>, const Ice::Current&) override;
-
-
-    void opIntStringDict_async(::Test::IntStringDict,
-                                       std::function<void (const ::Test::IntStringDict&, const ::Test::IntStringDict&)>,
-                               std::function<void (std::exception_ptr)>, const Ice::Current&) override;
-
-
-    void opVarDict_async(::Test::CustomMap<std::string, ::Ice::Int>,
-                                 std::function<void (const ::Test::CustomMap< ::Ice::Long, ::Ice::Long>&,
-                                                     const ::Test::CustomMap<std::string, ::Ice::Int>&)>,
-                                 std::function<void (std::exception_ptr)>, const Ice::Current&) override;
-
-
-    void opCustomIntStringDict_async(std::map< ::Ice::Int, ::Util::string_view>,
-                                             std::function<void (const std::map< ::Ice::Int, ::Util::string_view>&,
-                                                                 const std::map< ::Ice::Int, ::Util::string_view>&)>,
-                                             std::function<void (std::exception_ptr)>, const Ice::Current&) override;
-
-
-    void opShortBuffer_async(::Test::ShortBuffer,
-                                     std::function<void (const ::Test::ShortBuffer&, const ::Test::ShortBuffer&)>,
-                                     std::function<void (std::exception_ptr)>, const Ice::Current&) override;
-
-
-    void opBoolBuffer_async(::Test::CustomBuffer<bool>,
-                                    std::function<void (const ::Test::CustomBuffer<bool>&,
-                                                        const ::Test::CustomBuffer<bool>&)>,
+    void opStringStringDictSeqAsync(std::deque< ::Test::StringStringDict>,
+                                    std::function<void (const std::deque< ::Test::StringStringDict>&,
+                                                        const std::deque< ::Test::StringStringDict>&)>,
                                     std::function<void (std::exception_ptr)>, const Ice::Current&) override;
 
 
-    void opBufferStruct_async(::Test::BufferStruct,
-                                      std::function<void (const ::Test::BufferStruct&)>,
-                                      std::function<void (std::exception_ptr)>, const Ice::Current&) override;
+    void opStringStringDictListAsync(::Test::StringStringDictList,
+                                     std::function<void (const ::Test::StringStringDictList&,
+                                                         const ::Test::StringStringDictList&)>,
+                                     std::function<void (std::exception_ptr)>, const Ice::Current&) override;
 
 
-    void shutdown_async(std::function<void ()>,
+    void opESeqAsync(std::deque< ::Test::E>,
+                     std::function<void (const std::deque< ::Test::E>&, const std::deque< ::Test::E>&)>,
+                     std::function<void (std::exception_ptr)>, const Ice::Current&) override;
+
+
+    void opEListAsync(::Test::EList,
+                      std::function<void (const ::Test::EList&, const ::Test::EList&)>,
+                      std::function<void (std::exception_ptr)>, const Ice::Current&) override;
+
+
+    void opCPrxSeqAsync(std::deque<std::shared_ptr<Ice::ObjectPrx>>,
+                        std::function<void (const std::deque<std::shared_ptr<Ice::ObjectPrx>>&,
+                                            const std::deque<std::shared_ptr<Ice::ObjectPrx>>&)>,
+                        std::function<void (std::exception_ptr)>, const Ice::Current&) override;
+
+
+    void opCPrxListAsync(::Test::CPrxList,
+                         std::function<void (const ::Test::CPrxList&, const ::Test::CPrxList&)>,
+                         std::function<void (std::exception_ptr)>, const Ice::Current&) override;
+
+
+    void opCSeqAsync(std::deque<std::shared_ptr<Test::C>>,
+                     std::function<void (const std::deque<std::shared_ptr<Test::C>>&,
+                                         const std::deque<std::shared_ptr<Test::C>>&)>,
+                     std::function<void (std::exception_ptr)>, const Ice::Current&) override;
+
+
+    void opCListAsync(::Test::CList,
+                      std::function<void (const ::Test::CList&, const ::Test::CList&)>,
+                      std::function<void (std::exception_ptr)>, const Ice::Current&) override;
+
+
+    void opClassStructAsync(::Test::ClassStruct, ::Test::ClassStructSeq,
+                            std::function<void (const ::Test::ClassStruct&,
+                                                const ::Test::ClassStruct&, const ::Test::ClassStructSeq&)>,
+                            std::function<void (std::exception_ptr)>, const Ice::Current&) override;
+
+
+    void opOutArrayByteSeqAsync(::Test::ByteSeq,
+                                std::function<void (const std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&)>,
                                 std::function<void (std::exception_ptr)>, const Ice::Current&) override;
+
+
+    void opOutRangeByteSeqAsync(::Test::ByteSeq,
+                                std::function<void (const std::pair< ::Test::ByteSeq::const_iterator,
+                                                    ::Test::ByteSeq::const_iterator>&)>,
+                                std::function<void (std::exception_ptr)>, const Ice::Current&) override;
+
+
+    void opIntStringDictAsync(::Test::IntStringDict,
+                              std::function<void (const ::Test::IntStringDict&, const ::Test::IntStringDict&)>,
+                              std::function<void (std::exception_ptr)>, const Ice::Current&) override;
+
+
+    void opVarDictAsync(::Test::CustomMap<std::string, ::Ice::Int>,
+                        std::function<void (const ::Test::CustomMap< ::Ice::Long, ::Ice::Long>&,
+                                            const ::Test::CustomMap<std::string, ::Ice::Int>&)>,
+                        std::function<void (std::exception_ptr)>, const Ice::Current&) override;
+
+
+    void opCustomIntStringDictAsync(std::map< ::Ice::Int, ::Util::string_view>,
+                                    std::function<void (const std::map< ::Ice::Int, ::Util::string_view>&,
+                                                        const std::map< ::Ice::Int, ::Util::string_view>&)>,
+                                    std::function<void (std::exception_ptr)>, const Ice::Current&) override;
+
+
+    void opShortBufferAsync(::Test::ShortBuffer,
+                            std::function<void (const ::Test::ShortBuffer&, const ::Test::ShortBuffer&)>,
+                            std::function<void (std::exception_ptr)>, const Ice::Current&) override;
+
+
+    void opBoolBufferAsync(::Test::CustomBuffer<bool>,
+                           std::function<void (const ::Test::CustomBuffer<bool>&,
+                                               const ::Test::CustomBuffer<bool>&)>,
+                           std::function<void (std::exception_ptr)>, const Ice::Current&) override;
+
+
+    void opBufferStructAsync(::Test::BufferStruct,
+                             std::function<void (const ::Test::BufferStruct&)>,
+                             std::function<void (std::exception_ptr)>, const Ice::Current&) override;
+
+
+    void shutdownAsync(std::function<void ()>,
+                       std::function<void (std::exception_ptr)>, const Ice::Current&) override;
 
 
 #else
@@ -254,7 +254,7 @@ public:
 
     virtual void opVariableRange_async(const Test::AMD_TestIntf_opVariableRangePtr&,
                                        const std::pair<Test::VariableList::const_iterator,
-                                                       Test::VariableList::const_iterator>&,
+                                       Test::VariableList::const_iterator>&,
                                        const Ice::Current&);
 
     virtual void opByteRangeType_async(const Test::AMD_TestIntf_opByteRangeTypePtr&,
@@ -263,7 +263,7 @@ public:
 
     virtual void opVariableRangeType_async(const Test::AMD_TestIntf_opVariableRangeTypePtr&,
                                            const std::pair<std::deque<Test::Variable>::const_iterator,
-                                                           std::deque<Test::Variable>::const_iterator>&,
+                                           std::deque<Test::Variable>::const_iterator>&,
                                            const Ice::Current&);
 
     virtual void opBoolSeq_async(const Test::AMD_TestIntf_opBoolSeqPtr&,

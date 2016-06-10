@@ -156,7 +156,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
 #ifdef ICE_CPP11_MAPPING
             try
             {
-                int pid = obj->pid_async().get();
+                int pid = obj->pidAsync().get();
                 test(pid != oldPid);
                 cout << "ok" << endl;
                 oldPid = pid;
@@ -190,7 +190,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
                 cout << "shutting down server #" << i << " with AMI... " << flush;
                 try
                 {
-                    obj->shutdown_async().get();
+                    obj->shutdownAsync().get();
                 }
                 catch(const exception&)
                 {
@@ -231,7 +231,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
                 cout << "aborting server #" << i << " with AMI... " << flush;
                 try
                 {
-                    obj->abort_async().get();
+                    obj->abortAsync().get();
                     test(false);
                 }
                 catch(const exception&)
@@ -272,7 +272,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
                 cout << "aborting server #" << i << " and #" << i + 1 << " with idempotent AMI call... " << flush;
                 try
                 {
-                    obj->idempotentAbort_async().get();
+                    obj->idempotentAbortAsync().get();
                     test(false);
                 }
                 catch(const exception&)

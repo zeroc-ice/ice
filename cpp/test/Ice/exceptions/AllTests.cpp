@@ -1151,7 +1151,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "catching exact types with new AMI mapping... " << flush;
 #ifdef ICE_CPP11_MAPPING
     {
-        auto f = thrower->throwAasA_async(1);
+        auto f = thrower->throwAasAAsync(1);
         try
         {
             f.get();
@@ -1172,7 +1172,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     
     {
-        auto f = thrower->throwAorDasAorD_async(1);
+        auto f = thrower->throwAorDasAorDAsync(1);
         try
         {
             f.get();
@@ -1189,7 +1189,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     
     {
-        auto f = thrower->throwAorDasAorD_async(-1);
+        auto f = thrower->throwAorDasAorDAsync(-1);
         try
         {
             f.get();
@@ -1205,7 +1205,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
     }
     {
-        auto f = thrower->throwBasB_async(1, 2);
+        auto f = thrower->throwBasBAsync(1, 2);
         try
         {
             f.get();
@@ -1222,7 +1222,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
     }
     {
-        auto f = thrower->throwCasC_async(1, 2, 3);
+        auto f = thrower->throwCasCAsync(1, 2, 3);
         try
         {
             f.get();
@@ -1240,7 +1240,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
     }
     {
-        auto f = thrower->throwModA_async(1, 2);
+        auto f = thrower->throwModAAsync(1, 2);
         try
         {
             f.get();
@@ -1266,7 +1266,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     //
     {
         promise<bool> sent;
-        thrower->throwAasA_async(1,
+        thrower->throwAasAAsync(1,
             []()
             {
                 test(false);
@@ -1281,7 +1281,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     
     {
         promise<bool> sent;
-        thrower->throwAorDasAorD_async(1,
+        thrower->throwAorDasAorDAsync(1,
             []()
             {
                 test(false);
@@ -1296,7 +1296,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     
     {
         promise<bool> sent;
-        thrower->throwAorDasAorD_async(-1,
+        thrower->throwAorDasAorDAsync(-1,
             []()
             {
                 test(false);
@@ -1311,7 +1311,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
         promise<bool> sent;
-        thrower->throwBasB_async(1, 2,
+        thrower->throwBasBAsync(1, 2,
             []()
             {
                 test(false);
@@ -1326,7 +1326,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
         promise<bool> sent;
-        thrower->throwCasC_async(1, 2, 3,
+        thrower->throwCasCAsync(1, 2, 3,
             []()
             {
                 test(false);
@@ -1341,7 +1341,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
         promise<bool> sent;
-        thrower->throwModA_async(1, 2,
+        thrower->throwModAAsync(1, 2,
             []()
             {
                 test(false);
@@ -1402,7 +1402,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "catching derived types with new AMI mapping... " << flush;
 #ifdef ICE_CPP11_MAPPING
     {
-        auto f = thrower->throwBasA_async(1, 2);
+        auto f = thrower->throwBasAAsync(1, 2);
         try
         {
             f.get();
@@ -1419,7 +1419,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
 
     {
-        auto f = thrower->throwCasA_async(1, 2, 3);
+        auto f = thrower->throwCasAAsync(1, 2, 3);
         try
         {
             f.get();
@@ -1437,7 +1437,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
 
     {
-        auto f = thrower->throwCasB_async(1, 2, 3);
+        auto f = thrower->throwCasBAsync(1, 2, 3);
         try
         {
             f.get();
@@ -1485,7 +1485,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         cout << "catching unknown user exception with new AMI mapping... " << flush;
 #ifdef ICE_CPP11_MAPPING
         {
-            auto f = thrower->throwUndeclaredA_async(1);
+            auto f = thrower->throwUndeclaredAAsync(1);
             try
             {
                 f.get();
@@ -1507,7 +1507,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
 
         {
-            auto f = thrower->throwUndeclaredB_async(1, 2);
+            auto f = thrower->throwUndeclaredBAsync(1, 2);
             try
             {
                 f.get();
@@ -1523,7 +1523,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
 
         {
-            auto f = thrower->throwUndeclaredC_async(1, 2, 3);
+            auto f = thrower->throwUndeclaredCAsync(1, 2, 3);
             try
             {
                 f.get();
@@ -1570,7 +1570,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 #ifdef ICE_CPP11_MAPPING
         id = communicator->stringToIdentity("does not exist");
         shared_ptr<ThrowerPrx> thrower2 = Ice::uncheckedCast<ThrowerPrx>(thrower->ice_identity(id));
-        auto f = thrower2->throwAasA_async(1);
+        auto f = thrower2->throwAasAAsync(1);
         try
         {
             f.get();
@@ -1601,7 +1601,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
 #ifdef ICE_CPP11_MAPPING
         shared_ptr<ThrowerPrx> thrower2 = Ice::uncheckedCast<ThrowerPrx>(thrower, "no such facet");
-        auto f = thrower2->throwAasA_async(1);
+        auto f = thrower2->throwAasAAsync(1);
         try
         {
             f.get();
@@ -1627,7 +1627,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
 #ifdef ICE_CPP11_MAPPING
         shared_ptr<WrongOperationPrx> thrower4 = Ice::uncheckedCast<WrongOperationPrx>(thrower);
-        auto f = thrower4->noSuchOperation_async();
+        auto f = thrower4->noSuchOperationAsync();
         try
         {
             f.get();
@@ -1656,7 +1656,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "catching unknown local exception with new AMI mapping... " << flush;
 #ifdef ICE_CPP11_MAPPING
     {
-        auto f = thrower->throwLocalException_async();
+        auto f = thrower->throwLocalExceptionAsync();
         try
         {
             f.get();
@@ -1672,7 +1672,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
 
     {
-        auto f = thrower->throwLocalExceptionIdempotent_async();
+        auto f = thrower->throwLocalExceptionIdempotentAsync();
         try
         {
             f.get();
@@ -1713,7 +1713,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
 #ifdef ICE_CPP11_MAPPING
-        auto f = thrower->throwNonIceException_async();
+        auto f = thrower->throwNonIceExceptionAsync();
         try
         {
             f.get();

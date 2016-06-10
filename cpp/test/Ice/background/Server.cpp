@@ -24,10 +24,10 @@ public:
 
 #ifdef ICE_CPP11_MAPPING
     virtual void
-    findAdapterById_async(string,
-                          function<void (const shared_ptr<Ice::ObjectPrx>&)> response,
-                          function<void (exception_ptr)>,
-                          const Ice::Current& current) const
+    findAdapterByIdAsync(string,
+                         function<void (const shared_ptr<Ice::ObjectPrx>&)> response,
+                         function<void (exception_ptr)>,
+                         const Ice::Current& current) const
     {
         _controller->checkCallPause(current);
         Ice::CommunicatorPtr communicator = current.adapter->getCommunicator();
@@ -35,10 +35,10 @@ public:
     }
 
     virtual void
-    findObjectById_async(Ice::Identity id,
-                         function<void (const shared_ptr<Ice::ObjectPrx>&)> response,
-                         function<void (exception_ptr)>,
-                         const Ice::Current& current) const
+    findObjectByIdAsync(Ice::Identity id,
+                        function<void (const shared_ptr<Ice::ObjectPrx>&)> response,
+                        function<void (exception_ptr)>,
+                        const Ice::Current& current) const
     {
         _controller->checkCallPause(current);
         Ice::CommunicatorPtr communicator = current.adapter->getCommunicator();

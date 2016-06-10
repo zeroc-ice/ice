@@ -172,7 +172,7 @@ public:
                     _background->ice_twoway()->ice_ping();
                 }
 #ifdef ICE_CPP11_MAPPING
-                _background->op_async();
+                _background->opAsync();
 #else
                 _background->begin_op();
 #endif
@@ -282,8 +282,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
         promise<void> p1;
         promise<void> p2;
 
-        bg->op_async([&p1](){ p1.set_value(); }, [&p1](exception_ptr e){ p1.set_exception(e); });
-        bg->op_async([&p2](){ p2.set_value(); }, [&p2](exception_ptr e){ p2.set_exception(e); });
+        bg->opAsync([&p1](){ p1.set_value(); }, [&p1](exception_ptr e){ p1.set_exception(e); });
+        bg->opAsync([&p2](){ p2.set_value(); }, [&p2](exception_ptr e){ p2.set_exception(e); });
 
         auto f1 = p1.get_future();
         auto f2 = p2.get_future();
@@ -340,8 +340,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
         promise<void> p1;
         promise<void> p2;
 
-        bg->op_async([&p1](){ p1.set_value(); }, [&p1](exception_ptr e){ p1.set_exception(e); });
-        bg->op_async([&p2](){ p2.set_value(); }, [&p2](exception_ptr e){ p2.set_exception(e); });
+        bg->opAsync([&p1](){ p1.set_value(); }, [&p1](exception_ptr e){ p1.set_exception(e); });
+        bg->opAsync([&p2](){ p2.set_value(); }, [&p2](exception_ptr e){ p2.set_exception(e); });
 
         auto f1 = p1.get_future();
         auto f2 = p2.get_future();
@@ -378,14 +378,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
         backgroundController->buffered(true);
 
 #ifdef ICE_CPP11_MAPPING
-        background->op_async();
+        background->opAsync();
         background->ice_getCachedConnection()->close(true);
-        background->op_async();
+        background->opAsync();
 
         vector<future<void>> results;
         for(int i = 0; i < 10000; ++i)
         {
-            auto f = background->op_async();
+            auto f = background->opAsync();
             if(i % 50 == 0)
             {
                 backgroundController->holdAdapter();
@@ -479,7 +479,7 @@ connectTests(const ConfigurationPtr& configuration, const Test::BackgroundPrxPtr
         {
             promise<void> completed;
             promise<bool> sent;
-            prx->op_async(
+            prx->opAsync(
                 [&completed]()
                 {
                     test(false);
@@ -500,7 +500,7 @@ connectTests(const ConfigurationPtr& configuration, const Test::BackgroundPrxPtr
             promise<void> completed;
             promise<bool> sent;
 
-            prx->op_async(
+            prx->opAsync(
                 [&completed]()
                 {
                     test(false);
@@ -625,7 +625,7 @@ initializeTests(const ConfigurationPtr& configuration,
         promise<bool> sent;
         promise<void> completed;
 
-        prx->op_async(
+        prx->opAsync(
             []()
             {
                 test(false);
@@ -875,7 +875,7 @@ validationTests(const ConfigurationPtr& configuration,
         promise<bool> sent;
         promise<void> completed;
 
-        prx->op_async(
+        prx->opAsync(
             []()
             {
                 test(false);
@@ -948,7 +948,7 @@ validationTests(const ConfigurationPtr& configuration,
             configuration->readException(new Ice::SocketException(__FILE__, __LINE__));
 #ifdef ICE_CPP11_MAPPING
             promise<void> completed;
-            background->op_async(
+            background->opAsync(
                 []()
                 {
                     test(false);
@@ -995,7 +995,7 @@ validationTests(const ConfigurationPtr& configuration,
     promise<bool> s1;
     promise<bool> s2;
 
-    background->op_async(
+    background->opAsync(
         [&p1]()
         {
             p1.set_value();
@@ -1009,7 +1009,7 @@ validationTests(const ConfigurationPtr& configuration,
             s1.set_value(value);
         });
 
-    background->op_async(
+    background->opAsync(
         [&p2]()
         {
             p2.set_value();
@@ -1159,7 +1159,7 @@ validationTests(const ConfigurationPtr& configuration,
     backgroundBatchOneway->op();
     ctl->resumeAdapter();
 #ifdef ICE_CPP11_MAPPING
-    backgroundBatchOneway->ice_flushBatchRequests_async();
+    backgroundBatchOneway->ice_flushBatchRequestsAsync();
 #else
     backgroundBatchOneway->begin_ice_flushBatchRequests();
 #endif
@@ -1172,7 +1172,7 @@ validationTests(const ConfigurationPtr& configuration,
     backgroundBatchOneway->opWithPayload(seq);
     ctl->resumeAdapter();
 #ifdef ICE_CPP11_MAPPING
-    backgroundBatchOneway->ice_flushBatchRequests_async().get();
+    backgroundBatchOneway->ice_flushBatchRequestsAsync().get();
 #else
     r = backgroundBatchOneway->begin_ice_flushBatchRequests();
     //
@@ -1226,7 +1226,7 @@ readWriteTests(const ConfigurationPtr& configuration,
 #ifdef ICE_CPP11_MAPPING
         promise<bool> sent;
         promise<void> completed;
-        prx->op_async(
+        prx->opAsync(
             []()
             {
                 test(false);
@@ -1285,7 +1285,7 @@ readWriteTests(const ConfigurationPtr& configuration,
     configuration->readException(new Ice::SocketException(__FILE__, __LINE__));
 #ifdef ICE_CPP11_MAPPING
     promise<void> completed;
-    background->op_async(
+    background->opAsync(
         []()
         {
             test(false);
@@ -1375,7 +1375,7 @@ readWriteTests(const ConfigurationPtr& configuration,
 #ifdef ICE_CPP11_MAPPING
             promise<void> completed;
             promise<bool> sent;
-            prx->op_async(
+            prx->opAsync(
                 []()
                 {
                     test(false);
@@ -1438,7 +1438,7 @@ readWriteTests(const ConfigurationPtr& configuration,
             configuration->readException(new Ice::SocketException(__FILE__, __LINE__));
 #ifdef ICE_CPP11_MAPPING
             promise<void> completed;
-            background->op_async(
+            background->opAsync(
                 []()
                 {
                     test(false);
@@ -1483,7 +1483,7 @@ readWriteTests(const ConfigurationPtr& configuration,
             configuration->readException(new Ice::SocketException(__FILE__, __LINE__));
 #ifdef ICE_CPP11_MAPPING
             promise<void> completed;
-            background->op_async(
+            background->opAsync(
                 []()
                 {
                     test(false);
@@ -1547,7 +1547,7 @@ readWriteTests(const ConfigurationPtr& configuration,
     // Fill up the receive and send buffers
     for(int i = 0; i < 200; ++i) // 2MB
     {
-        backgroundOneway->opWithPayload_async(
+        backgroundOneway->opWithPayloadAsync(
             seq,
             []()
             {
@@ -1561,7 +1561,7 @@ readWriteTests(const ConfigurationPtr& configuration,
     promise<void> c1;
     promise<bool> s1;
 
-    background->op_async(
+    background->opAsync(
         [&c1]()
         {
             c1.set_value();
@@ -1579,7 +1579,7 @@ readWriteTests(const ConfigurationPtr& configuration,
 
     promise<void> c2;
     promise<bool> s2;
-    background->op_async(
+    background->opAsync(
         [&c2]()
         {
             c2.set_value();
@@ -1597,7 +1597,7 @@ readWriteTests(const ConfigurationPtr& configuration,
     test(fs2.wait_for(chrono::milliseconds(0)) != future_status::ready);
 
     promise<bool> s3;
-    backgroundOneway->opWithPayload_async(seq,
+    backgroundOneway->opWithPayloadAsync(seq,
                                           [](){ test(false); },
                                           [](exception_ptr){ test(false); },
                                           [&s3](bool value){ s3.set_value(value); });
@@ -1605,7 +1605,7 @@ readWriteTests(const ConfigurationPtr& configuration,
     test(fs3.wait_for(chrono::milliseconds(0)) != future_status::ready);
 
     promise<bool> s4;
-    backgroundOneway->opWithPayload_async(seq,
+    backgroundOneway->opWithPayloadAsync(seq,
                                           [](){ test(false); },
                                           [](exception_ptr){ test(false); },
                                           [&s4](bool value){ s4.set_value(value); });

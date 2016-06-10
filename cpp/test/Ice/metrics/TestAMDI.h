@@ -17,23 +17,23 @@ class MetricsI : public Test::Metrics
 public:
 
 #ifdef ICE_CPP11_MAPPING
-    virtual void op_async(std::function<void ()>, std::function<void (std::exception_ptr)>, const Ice::Current&);
+    virtual void opAsync(std::function<void ()>, std::function<void (std::exception_ptr)>, const Ice::Current&);
 
-    virtual void fail_async(std::function<void ()>, std::function<void (std::exception_ptr)>, const Ice::Current&);
+    virtual void failAsync(std::function<void ()>, std::function<void (std::exception_ptr)>, const Ice::Current&);
 
-    virtual void opWithUserException_async(std::function<void ()>, std::function<void (std::exception_ptr)>,
+    virtual void opWithUserExceptionAsync(std::function<void ()>, std::function<void (std::exception_ptr)>,
                                            const Ice::Current&);
 
-    virtual void opWithRequestFailedException_async(std::function<void ()>, std::function<void (std::exception_ptr)>,
+    virtual void opWithRequestFailedExceptionAsync(std::function<void ()>, std::function<void (std::exception_ptr)>,
                                                     const Ice::Current&);
 
-    virtual void opWithLocalException_async(std::function<void ()>, std::function<void (std::exception_ptr)>,
+    virtual void opWithLocalExceptionAsync(std::function<void ()>, std::function<void (std::exception_ptr)>,
                                             const Ice::Current&);
 
-    virtual void opWithUnknownException_async(std::function<void ()>, std::function<void (std::exception_ptr)>,
+    virtual void opWithUnknownExceptionAsync(std::function<void ()>, std::function<void (std::exception_ptr)>,
                                               const Ice::Current&);
 
-    virtual void opByteS_async(Test::ByteSeq, std::function<void ()>, std::function<void (std::exception_ptr)>,
+    virtual void opByteSAsync(Test::ByteSeq, std::function<void ()>, std::function<void (std::exception_ptr)>,
                                const Ice::Current&);
 #else
     virtual void op_async(const Test::AMD_Metrics_opPtr&, const Ice::Current&);

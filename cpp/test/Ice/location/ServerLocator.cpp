@@ -20,14 +20,14 @@ ServerLocatorRegistry::ServerLocatorRegistry()
 
 #ifdef ICE_CPP11_MAPPING
 void
-ServerLocatorRegistry::setAdapterDirectProxy_async(string adapter, ::shared_ptr<::Ice::ObjectPrx> object, 
-                                         function<void ()> response,
-                                         function<void (exception_ptr)>,
-                                         const ::Ice::Current&)
+ServerLocatorRegistry::setAdapterDirectProxyAsync(string adapter, ::shared_ptr<::Ice::ObjectPrx> object,
+                                                  function<void ()> response,
+                                                  function<void (exception_ptr)>,
+                                                  const ::Ice::Current&)
 #else
-void 
+void
 ServerLocatorRegistry::setAdapterDirectProxy_async(const Ice::AMD_LocatorRegistry_setAdapterDirectProxyPtr& cb,
-                                                   const std::string& adapter, const ::Ice::ObjectPrx& object, 
+                                                   const std::string& adapter, const ::Ice::ObjectPrx& object,
                                                    const ::Ice::Current&)
 #endif
 {
@@ -42,21 +42,21 @@ ServerLocatorRegistry::setAdapterDirectProxy_async(const Ice::AMD_LocatorRegistr
 #ifdef ICE_CPP11_MAPPING
     response();
 #else
-    cb->ice_response();    
+    cb->ice_response();
 #endif
 }
 
 #ifdef ICE_CPP11_MAPPING
 void
-ServerLocatorRegistry::setReplicatedAdapterDirectProxy_async(string adapter, string replicaGroup, shared_ptr<Ice::ObjectPrx> object,
-                                                       function<void ()> response,
-                                                       function<void (exception_ptr)>,
-                                                       const ::Ice::Current&)
+ServerLocatorRegistry::setReplicatedAdapterDirectProxyAsync(string adapter, string replicaGroup, shared_ptr<Ice::ObjectPrx> object,
+                                                            function<void ()> response,
+                                                            function<void (exception_ptr)>,
+                                                            const ::Ice::Current&)
 #else
 void
 ServerLocatorRegistry::setReplicatedAdapterDirectProxy_async(
     const Ice::AMD_LocatorRegistry_setReplicatedAdapterDirectProxyPtr& cb,
-    const string& adapter, const string& replicaGroup, const ::Ice::ObjectPrx& object, 
+    const string& adapter, const string& replicaGroup, const ::Ice::ObjectPrx& object,
     const ::Ice::Current&)
 #endif
 {
@@ -79,11 +79,11 @@ ServerLocatorRegistry::setReplicatedAdapterDirectProxy_async(
 
 #ifdef ICE_CPP11_MAPPING
 void
-ServerLocatorRegistry::setServerProcessProxy_async(string,
-                                                   shared_ptr<Ice::ProcessPrx>,
-                                                   function<void ()> response,
-                                                   function<void (exception_ptr)>,
-                                                   const ::Ice::Current&)
+ServerLocatorRegistry::setServerProcessProxyAsync(string,
+                                                  shared_ptr<Ice::ProcessPrx>,
+                                                  function<void ()> response,
+                                                  function<void (exception_ptr)>,
+                                                  const ::Ice::Current&)
 {
     response();
 }
@@ -94,7 +94,7 @@ ServerLocatorRegistry::addObject(shared_ptr<Ice::ObjectPrx> object, const ::Ice:
     addObject(object);
 }
 #else
-void 
+void
 ServerLocatorRegistry::setServerProcessProxy_async(const Ice::AMD_LocatorRegistry_setServerProcessProxyPtr& cb,
                                                    const string&, const Ice::ProcessPrx&, const ::Ice::Current&)
 {
@@ -146,13 +146,13 @@ ServerLocator::ServerLocator(const ServerLocatorRegistryPtr& registry, const ::I
 
 #ifdef ICE_CPP11_MAPPING
 void
-ServerLocator::findObjectById_async(::Ice::Identity id,
-                                    function<void (const shared_ptr<Ice::ObjectPrx>&)> response,
-                                    function<void (exception_ptr)>,
-                                    const ::Ice::Current&) const
+ServerLocator::findObjectByIdAsync(::Ice::Identity id,
+                                   function<void (const shared_ptr<Ice::ObjectPrx>&)> response,
+                                   function<void (exception_ptr)>,
+                                   const ::Ice::Current&) const
 #else
 void
-ServerLocator::findObjectById_async(const Ice::AMD_Locator_findObjectByIdPtr& response, const Ice::Identity& id, 
+ServerLocator::findObjectById_async(const Ice::AMD_Locator_findObjectByIdPtr& response, const Ice::Identity& id,
                                     const Ice::Current&) const
 #endif
 {
@@ -169,10 +169,10 @@ ServerLocator::findObjectById_async(const Ice::AMD_Locator_findObjectByIdPtr& re
 
 #ifdef ICE_CPP11_MAPPING
 void
-ServerLocator::findAdapterById_async(string id,
-                                     function<void (const shared_ptr<Ice::ObjectPrx>&)> response,
-                                     function<void (exception_ptr)>,
-                                     const ::Ice::Current& current) const
+ServerLocator::findAdapterByIdAsync(string id,
+                                    function<void (const shared_ptr<Ice::ObjectPrx>&)> response,
+                                    function<void (exception_ptr)>,
+                                    const ::Ice::Current& current) const
 {
     ++const_cast<int&>(_requestCount);
     if(id == "TestAdapter10" || id == "TestAdapter10-2")
@@ -189,7 +189,7 @@ ServerLocator::findAdapterById_async(string id,
 }
 #else
 void
-ServerLocator::findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr& response, const string& id, 
+ServerLocator::findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr& response, const string& id,
                                      const Ice::Current& current) const
 {
     ++const_cast<int&>(_requestCount);

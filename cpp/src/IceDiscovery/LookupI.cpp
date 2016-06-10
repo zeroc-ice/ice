@@ -193,7 +193,7 @@ LookupI::findObjectById(const string& domainId, const Ice::Identity& id, const I
         try
         {
 #ifdef ICE_CPP11_MAPPING
-            reply->foundObjectById_async(id, proxy);
+            reply->foundObjectByIdAsync(id, proxy);
 #else
             reply->begin_foundObjectById(id, proxy);
 #endif
@@ -229,7 +229,7 @@ LookupI::findAdapterById(const string& domainId, const string& adapterId, const 
         try
         {
 #ifdef ICE_CPP11_MAPPING
-            reply->foundAdapterById_async(adapterId, proxy, isReplicaGroup);
+            reply->foundAdapterByIdAsync(adapterId, proxy, isReplicaGroup);
 #else
             reply->begin_foundAdapterById(adapterId, proxy, isReplicaGroup);
 #endif
@@ -256,7 +256,7 @@ LookupI::findObject(function<void (const shared_ptr<Ice::ObjectPrx>&)> response,
     {
         try
         {
-            _lookup->findObjectById_async(_domainId, id, _lookupReply);
+            _lookup->findObjectByIdAsync(_domainId, id, _lookupReply);
             _timer->schedule(p->second, _timeout);
         }
         catch(const Ice::LocalException&)
@@ -281,7 +281,7 @@ LookupI::findAdapter(function<void (const shared_ptr<Ice::ObjectPrx>&)> response
     {
         try
         {
-            _lookup->findAdapterById_async(_domainId, adapterId, _lookupReply);
+            _lookup->findAdapterByIdAsync(_domainId, adapterId, _lookupReply);
             _timer->schedule(p->second, _timeout);
         }
         catch(const Ice::LocalException&)
@@ -390,7 +390,7 @@ LookupI::objectRequestTimedOut(const ObjectRequestPtr& request)
         try
         {
 #ifdef ICE_CPP11_MAPPING
-            _lookup->findObjectById_async(_domainId, request->getId(), _lookupReply);
+            _lookup->findObjectByIdAsync(_domainId, request->getId(), _lookupReply);
 #else
             _lookup->begin_findObjectById(_domainId, request->getId(), _lookupReply);
 #endif
@@ -422,7 +422,7 @@ LookupI::adapterRequestTimedOut(const AdapterRequestPtr& request)
         try
         {
 #ifdef ICE_CPP11_MAPPING
-            _lookup->findAdapterById_async(_domainId, request->getId(), _lookupReply);            
+            _lookup->findAdapterByIdAsync(_domainId, request->getId(), _lookupReply);
 #else
             _lookup->begin_findAdapterById(_domainId, request->getId(), _lookupReply);
 #endif

@@ -24,18 +24,18 @@ public:
     MyDerivedClassI();
     
 #ifdef ICE_CPP11_MAPPING
-    virtual void echo_async(
+    virtual void echoAsync(
         std::shared_ptr<Ice::ObjectPrx>,
         ::std::function<void (const ::std::shared_ptr<Ice::ObjectPrx>&)>,
         ::std::function<void (::std::exception_ptr)>,
         const Ice::Current&);
     
-    virtual void shutdown_async(
+    virtual void shutdownAsync(
         ::std::function<void ()>,
         ::std::function<void (::std::exception_ptr)>,
         const Ice::Current&);
 
-    virtual void getContext_async(
+    virtual void getContextAsync(
         ::std::function<void (const Ice::Context&)>,
         ::std::function<void (::std::exception_ptr)>,
         const Ice::Current&);
