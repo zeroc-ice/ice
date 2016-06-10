@@ -1239,7 +1239,7 @@ IceInternal::closeSocket(SOCKET fd)
 #else
     int error = errno;
     
-#  if defined(__FreeBSD__)
+#  if defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
     //
     // FreeBSD returns ECONNRESET if the underlying object was 
     // a stream socket that was shut down by the peer before all

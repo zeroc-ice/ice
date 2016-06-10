@@ -11,7 +11,7 @@
 import sys, getopt, passlib.hash, getpass
 
 usePBKDF2 = any(sys.platform == p for p in ["win32", "darwin"])
-useCryptExt = any(sys.platform.startswith(p) for p in ["linux", "freebsd"])
+useCryptExt = any(sys.platform.startswith(p) for p in ["linux", "freebsd", "gnukfreebsd"])
 
 
 if not usePBKDF2 and not useCryptExt:
