@@ -24,9 +24,9 @@ Ice supports the following programming languages:
 Ice runs on a wide range of platforms:
 
 - Android
-- iOS with [Ice Touch](https://github.com/zeroc-ice/icetouch)
+- iOS
 - Linux
-- Linux on embedded devices with [Ice-E](https://github.com/zeroc-ice/icee)
+- Linux on embedded devices
 - Node.js
 - OS X
 - Web Browser

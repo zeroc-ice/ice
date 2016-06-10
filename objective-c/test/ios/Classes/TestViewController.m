@@ -2,7 +2,7 @@
 //
 // Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
 //
-// This copy of Ice Touch is licensed to you under the terms described in the
+// This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
@@ -44,10 +44,10 @@
         body.textColor = [UIColor blackColor];
         body.font = [UIFont boldSystemFontOfSize:14];
         body.numberOfLines = 0;
-        
+
         [self.contentView addSubview:self.body];
     }
-    
+
     return self;
 }
 
@@ -63,11 +63,11 @@
 - (void)layoutSubviews
 {
     [super layoutSubviews];
-    
+
     CGRect contentRect = self.contentView.bounds;
-    
+
     CGRect bodyFrame = CGRectMake(10.f, 0.f, CGRectGetWidth(contentRect)-20.f, CGRectGetHeight(contentRect));
-    
+
     self.body.frame = bodyFrame;
 }
 
@@ -169,7 +169,7 @@
     [output release];
     [activity release];
     [nextButton release];
-    
+
     [currentMessage release];
     [messages release];
     [queue release];
@@ -236,7 +236,7 @@
         [self testComplete:NO];
         return;
     }
-    
+
     id testRun = [testRunEnumerator nextObject];
     if(testRun == nil)
     {
@@ -260,7 +260,7 @@
     nextButton.enabled = YES;
     [nextButton setAlpha:1.0];
     [self.navigationItem setHidesBackButton:NO animated:YES];
-    
+
     self.test = nil;
 #if defined(__clang__) && !__has_feature(objc_arc)
     [testRunEnumerator release];
@@ -423,12 +423,12 @@
         fflush(stdout);
     }
 
-    TestCommonTestInit(self, 
+    TestCommonTestInit(self,
                        @selector(serverReady),
                        appDelegate.protocol,
                        option == TestConfigOptionSliced,
                        option == TestConfigOptionEncoding10);
-    
+
     if(option == TestConfigOptionSliced)
     {
         tprintf("Running test with %s and sliced format.\n", [appDelegate.protocol UTF8String]);
@@ -463,7 +463,7 @@
         }
         ++error;
     }
-    
+
     if(![test hasServer] || ++completed == 2)
     {
         [viewController testRunComplete:error == 0];
@@ -484,7 +484,7 @@
         [viewController add:[NSString stringWithFormat:@"server error: %@!\n", rc]];
         ++error;
     }
-    
+
     if(++completed == 2)
     {
         [viewController testRunComplete:error == 0];

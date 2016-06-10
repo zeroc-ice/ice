@@ -2,7 +2,7 @@
 //
 // Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
 //
-// This copy of Ice Touch is licensed to you under the terms described in the
+// This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
@@ -48,7 +48,7 @@
             break;
         }
     }
-    
+
     if(appDelegate.runAll)
     {
         [self.navigationController pushViewController:self.testViewController animated:YES];
@@ -75,7 +75,7 @@
     [protocol release];
     [loopSwitch release];
     [testViewController release];
-    
+
     [super dealloc];
 }
 #endif
@@ -108,7 +108,7 @@
     appDelegate.currentTest = row;
     appDelegate.protocol = [[protocol titleForSegmentAtIndex:[protocol selectedSegmentIndex]] lowercaseString];
     appDelegate.loop = loopSwitch.isOn;
-    
+
     TestViewController* controller = self.testViewController;
     [self.navigationController pushViewController:controller animated:YES];
 }

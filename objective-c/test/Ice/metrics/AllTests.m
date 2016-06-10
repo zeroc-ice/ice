@@ -2,8 +2,8 @@
 //
 // Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
 //
-// This copy of Ice Touch is licensed to you under the terms described in the
-// ICE_TOUCH_LICENSE file included in this distribution.
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
@@ -44,7 +44,7 @@ NSCondition* cond;
     {
         [cond wait];
     }
-    // Ensure that the previous updates were committed, the setProperties call returns before 
+    // Ensure that the previous updates were committed, the setProperties call returns before
     // notifying the callbacks so to ensure all the update callbacks have be notified we call
     // a second time, this will block until all the notifications from the first update have
     // completed.
@@ -309,13 +309,13 @@ getServerProps(id<ICEPropertiesAdminPrx> p, ICEMutablePropertyDict* orig, NSStri
     {
         map = [map stringByAppendingFormat:@"Map.%@.", m];
     }
-    [props setObject:@"Ice\\.Admin|Controller" 
+    [props setObject:@"Ice\\.Admin|Controller"
               forKey:[NSString stringWithFormat:@"IceMX.Metrics.View.%@Reject.parent", map]];
 
-    [props setObject:@"12010" 
+    [props setObject:@"12010"
               forKey:[NSString stringWithFormat:@"IceMX.Metrics.View.%@Accept.endpointPort", map]];
 
-    [props setObject:@".*/admin|controller" 
+    [props setObject:@".*/admin|controller"
               forKey:[NSString stringWithFormat:@"IceMX.Metrics.View.%@Reject.identity", map]];
     return props;
 }
@@ -342,9 +342,9 @@ getServerConnectionMetrics(ICEMXMetricsAdminPrx* metrics, ICELong expected)
 }
 
 void
-updateProps(id<ICEPropertiesAdminPrx> cprops, 
-            id<ICEPropertiesAdminPrx> sprops, 
-            UpdateCallbackI* callback, 
+updateProps(id<ICEPropertiesAdminPrx> cprops,
+            id<ICEPropertiesAdminPrx> sprops,
+            UpdateCallbackI* callback,
             ICEMutablePropertyDict* props,
             NSString* map)
 {
@@ -354,10 +354,10 @@ updateProps(id<ICEPropertiesAdminPrx> cprops,
 }
 
 void
-testAttribute(ICEMXMetricsAdminPrx* metrics, 
-              ICEPropertiesAdminPrx* props, 
+testAttribute(ICEMXMetricsAdminPrx* metrics,
+              ICEPropertiesAdminPrx* props,
               UpdateCallbackI* update,
-              NSString* map, 
+              NSString* map,
               NSString* attr,
               NSString* value,
               id func)
@@ -474,7 +474,7 @@ metricsAllTests(id<ICECommunicator> communicator)
     test(serverProps && serverMetrics);
 
     UpdateCallbackI* update = ICE_AUTORELEASE([[UpdateCallbackI alloc] initWithServerProps:serverProps]);
-    id<ICENativePropertiesAdmin> nativePropertiesAdmin = 
+    id<ICENativePropertiesAdmin> nativePropertiesAdmin =
                                             (id<ICENativePropertiesAdmin>)[communicator findAdminFacet:@"Properties"];
     [nativePropertiesAdmin addUpdateCallback:update];
     tprintf("ok\n");
@@ -551,7 +551,7 @@ metricsAllTests(id<ICECommunicator> communicator)
 
     [bs setLength:456];
     [metrics opByteS:bs];
-    
+
     cm2 = (ICEMXConnectionMetrics*)
         [[[clientMetrics getMetricsView:@"View" timestamp:&timestamp] objectForKey:@"Connection"] objectAtIndex:0];
     sm2 = getServerConnectionMetrics(serverMetrics, sm1.sentBytes + replySz);
@@ -581,14 +581,14 @@ metricsAllTests(id<ICECommunicator> communicator)
     [props setObject:@"state" forKey:@"IceMX.Metrics.View.Map.Connection.GroupBy"];
     updateProps(clientProps, serverProps, update, props, @"Connection");
 
-    NSMutableDictionary* map = 
+    NSMutableDictionary* map =
         toMap([[serverMetrics getMetricsView:@"View" timestamp:&timestamp] objectForKey:@"Connection"]);
 
     test([[map objectForKey:@"active"] current] == 1);
 
-    TestMetricsControllerPrx* controller = 
+    TestMetricsControllerPrx* controller =
         [TestMetricsControllerPrx checkedCast:[communicator stringToProxy:@"controller:default -p 12011"]];
-    
+
     [controller hold];
 
     map = toMap([[clientMetrics getMetricsView:@"View" timestamp:&timestamp] objectForKey:@"Connection"]);
@@ -649,7 +649,7 @@ metricsAllTests(id<ICECommunicator> communicator)
 
     testAttribute(clientMetrics, clientProps, update, @"Connection", @"parent", @"Communicator", nil);
     //testAttribute(clientMetrics, clientProps, update, "Connection", "id", "");
-    testAttribute(clientMetrics, clientProps, update, @"Connection", @"endpoint", @"tcp -h 127.0.0.1 -p 12010 -t 500", 
+    testAttribute(clientMetrics, clientProps, update, @"Connection", @"endpoint", @"tcp -h 127.0.0.1 -p 12010 -t 500",
                   nil);
 
     testAttribute(clientMetrics, clientProps, update, @"Connection", @"endpointType", @"1", nil);
@@ -669,7 +669,7 @@ metricsAllTests(id<ICECommunicator> communicator)
     testAttribute(clientMetrics, clientProps, update, @"Connection", @"remotePort", @"12010", nil);
     testAttribute(clientMetrics, clientProps, update, @"Connection", @"mcastHost", @"", nil);
     testAttribute(clientMetrics, clientProps, update, @"Connection", @"mcastPort", @"", nil);
-    
+
     [[m ice_getConnection] close:false];
 
     waitForCurrent(clientMetrics, @"View", @"Connection", 0);
@@ -681,14 +681,14 @@ metricsAllTests(id<ICECommunicator> communicator)
 
     [props setObject:@"id" forKey:@"IceMX.Metrics.View.Map.ConnectionEstablishment.GroupBy"];
     updateProps(clientProps, serverProps, update, props, @"ConnectionEstablishment");
-    test([[[clientMetrics getMetricsView:@"View" timestamp:&timestamp] 
+    test([[[clientMetrics getMetricsView:@"View" timestamp:&timestamp]
               objectForKey:@"ConnectionEstablishment"] count] == 0);
 
     [metrics ice_ping];
-    
+
     test([[[clientMetrics getMetricsView:@"View" timestamp:&timestamp]
               objectForKey:@"ConnectionEstablishment"] count] == 1);
-    ICEMXMetrics* m1 = [[[clientMetrics getMetricsView:@"View" timestamp:&timestamp] 
+    ICEMXMetrics* m1 = [[[clientMetrics getMetricsView:@"View" timestamp:&timestamp]
                                                             objectForKey:@"ConnectionEstablishment"] objectAtIndex:0];
 
     test(m1.current == 0 && m1.total == 1 && [m1.id_ isEqualToString:@"127.0.0.1:12010"]);
@@ -710,7 +710,7 @@ metricsAllTests(id<ICECommunicator> communicator)
     [controller resume];
     test([[[clientMetrics getMetricsView:@"View" timestamp:&timestamp]
               objectForKey:@"ConnectionEstablishment"] count] == 1);
-    m1 = [[[clientMetrics getMetricsView:@"View" timestamp:&timestamp] 
+    m1 = [[[clientMetrics getMetricsView:@"View" timestamp:&timestamp]
               objectForKey:@"ConnectionEstablishment"] objectAtIndex:0];
     test([m1.id_ isEqualToString:@"127.0.0.1:12010"] && m1.total == 3 && m1.failures == 2);
 
@@ -720,7 +720,7 @@ metricsAllTests(id<ICECommunicator> communicator)
 
     testAttribute(clientMetrics, clientProps, update, @"ConnectionEstablishment", @"parent", @"Communicator", c);
     testAttribute(clientMetrics, clientProps, update, @"ConnectionEstablishment", @"id", @"127.0.0.1:12010", c);
-    testAttribute(clientMetrics, clientProps, update, @"ConnectionEstablishment", @"endpoint",  
+    testAttribute(clientMetrics, clientProps, update, @"ConnectionEstablishment", @"endpoint",
                   @"tcp -h 127.0.0.1 -p 12010 -t 60000", c);
 
     testAttribute(clientMetrics, clientProps, update, @"ConnectionEstablishment", @"endpointType", @"1", c);
@@ -732,7 +732,7 @@ metricsAllTests(id<ICECommunicator> communicator)
     testAttribute(clientMetrics, clientProps, update, @"ConnectionEstablishment", @"endpointPort", @"12010", c);
 
     tprintf("ok\n");
-    
+
     //
     // Ice doesn't do any endpoint lookup with WinRT, the WinRT
     // runtime takes care of if.
@@ -772,7 +772,7 @@ metricsAllTests(id<ICECommunicator> communicator)
     }
     test([[[clientMetrics getMetricsView:@"View" timestamp:&timestamp] objectForKey:@"EndpointLookup"] count] == 2);
     m1 = [[[clientMetrics getMetricsView:@"View" timestamp:&timestamp] objectForKey:@"EndpointLookup"] objectAtIndex:1];
-    test([m1.id_ isEqualToString:@"tcp -h unknownfoo.zeroc.com -p 12010 -t 500"] && m1.total == 2 && 
+    test([m1.id_ isEqualToString:@"tcp -h unknownfoo.zeroc.com -p 12010 -t 500"] && m1.total == 2 &&
          (!dnsException || m1.failures == 2));
     if(dnsException)
     {
@@ -781,9 +781,9 @@ metricsAllTests(id<ICECommunicator> communicator)
 
     c = [Connect connect:prx];
     testAttribute(clientMetrics, clientProps, update, @"EndpointLookup", @"parent", @"Communicator", c);
-    testAttribute(clientMetrics, clientProps, update, @"EndpointLookup", @"id", 
+    testAttribute(clientMetrics, clientProps, update, @"EndpointLookup", @"id",
                   @"tcp -h localhost -p 12010 -t infinite", c);
-    testAttribute(clientMetrics, clientProps, update, @"EndpointLookup", @"endpoint", 
+    testAttribute(clientMetrics, clientProps, update, @"EndpointLookup", @"endpoint",
                   @"tcp -h localhost -p 12010 -t infinite", c);
 
     testAttribute(clientMetrics, clientProps, update, @"EndpointLookup", @"endpointType", @"1", c);
@@ -1041,7 +1041,7 @@ metricsAllTests(id<ICECommunicator> communicator)
     rim1 = (ICEMXRemoteMetrics*)[im1.remotes objectAtIndex:0];
     test(rim1.current == 0 && rim1.total == 3 && rim1.failures == 0);
     test(rim1.size == 63 && rim1.replySize == 21);
-    
+
     im1 = (ICEMXInvocationMetrics*)[map objectForKey:@"opWithUserException"];
     test(im1.current <= 1 && im1.total == 3 && im1.failures == 0 && im1.retry == 0 && [im1.remotes count] == 1);
     rim1 = (ICEMXRemoteMetrics*)[im1.remotes objectAtIndex:0];
@@ -1072,27 +1072,27 @@ metricsAllTests(id<ICECommunicator> communicator)
     im1 = (ICEMXInvocationMetrics*)[map objectForKey:@"fail"];
     test(im1.current <= 1 && im1.total == 3 && im1.failures == 3 && im1.retry == 3 && [im1.remotes count] == 6);
 
-    test(((ICEMXMetrics*)[im1.remotes objectAtIndex:0]).current == 0 && 
-         ((ICEMXMetrics*)[im1.remotes objectAtIndex:0]).total == 1 && 
+    test(((ICEMXMetrics*)[im1.remotes objectAtIndex:0]).current == 0 &&
+         ((ICEMXMetrics*)[im1.remotes objectAtIndex:0]).total == 1 &&
          ((ICEMXMetrics*)[im1.remotes objectAtIndex:0]).failures == 1);
 
     test(((ICEMXMetrics*)[im1.remotes objectAtIndex:1]).current == 0 &&
-         ((ICEMXMetrics*)[im1.remotes objectAtIndex:1]).total == 1 && 
+         ((ICEMXMetrics*)[im1.remotes objectAtIndex:1]).total == 1 &&
          ((ICEMXMetrics*)[im1.remotes objectAtIndex:1]).failures == 1);
 
-    test(((ICEMXMetrics*)[im1.remotes objectAtIndex:2]).current == 0 && 
-         ((ICEMXMetrics*)[im1.remotes objectAtIndex:2]).total == 1 && 
+    test(((ICEMXMetrics*)[im1.remotes objectAtIndex:2]).current == 0 &&
+         ((ICEMXMetrics*)[im1.remotes objectAtIndex:2]).total == 1 &&
          ((ICEMXMetrics*)[im1.remotes objectAtIndex:2]).failures == 1);
 
     test(((ICEMXMetrics*)[im1.remotes objectAtIndex:3]).current == 0 &&
-         ((ICEMXMetrics*)[im1.remotes objectAtIndex:3]).total == 1 && 
+         ((ICEMXMetrics*)[im1.remotes objectAtIndex:3]).total == 1 &&
          ((ICEMXMetrics*)[im1.remotes objectAtIndex:3]).failures == 1);
 
-    test(((ICEMXMetrics*)[im1.remotes objectAtIndex:4]).current == 0 && 
+    test(((ICEMXMetrics*)[im1.remotes objectAtIndex:4]).current == 0 &&
          ((ICEMXMetrics*)[im1.remotes objectAtIndex:4]).total == 1 &&
          ((ICEMXMetrics*)[im1.remotes objectAtIndex:4]).failures == 1);
 
-    test(((ICEMXMetrics*)[im1.remotes objectAtIndex:5]).current == 0 && 
+    test(((ICEMXMetrics*)[im1.remotes objectAtIndex:5]).current == 0 &&
          ((ICEMXMetrics*)[im1.remotes objectAtIndex:5]).total == 1 &&
          ((ICEMXMetrics*)[im1.remotes objectAtIndex:5]).failures == 1);
 
@@ -1106,7 +1106,7 @@ metricsAllTests(id<ICECommunicator> communicator)
     testAttribute(clientMetrics, clientProps, update, @"Invocation", @"facet", @"", op);
     testAttribute(clientMetrics, clientProps, update, @"Invocation", @"encoding", @"1.1", op);
     testAttribute(clientMetrics, clientProps, update, @"Invocation", @"mode", @"twoway", op);
-    testAttribute(clientMetrics, clientProps, update, @"Invocation", @"proxy", 
+    testAttribute(clientMetrics, clientProps, update, @"Invocation", @"proxy",
                   @"metrics -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 60000", op);
 
     testAttribute(clientMetrics, clientProps, update, @"Invocation", @"context.entry1", @"test", op);

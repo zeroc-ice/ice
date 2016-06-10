@@ -2,7 +2,7 @@
 //
 // Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
 //
-// This copy of Ice Touch is licensed to you under the terms described in the
+// This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
@@ -41,10 +41,10 @@
         body.textColor = [UIColor blackColor];
         body.font = [UIFont boldSystemFontOfSize:14];
         body.numberOfLines = 0;
-        
+
         [self.contentView addSubview:self.body];
     }
-    
+
     return self;
 }
 
@@ -60,11 +60,11 @@
 - (void)layoutSubviews
 {
     [super layoutSubviews];
-    
+
     CGRect contentRect = self.contentView.bounds;
-    
+
     CGRect bodyFrame = CGRectMake(10.f, 0.f, CGRectGetWidth(contentRect)-20.f, CGRectGetHeight(contentRect));
-    
+
     self.body.frame = bodyFrame;
 }
 
@@ -103,7 +103,7 @@
     NSString* server;
     NSString* client;
     BOOL collocated;
-    
+
     int completed;
     int running;
     int error;
@@ -138,7 +138,7 @@
     self.messages = [NSMutableArray array];
     queue = [[NSOperationQueue alloc] init];
     self.queue.maxConcurrentOperationCount = 2; // We need at least 2 concurrent operations.
-    
+
     [super viewDidLoad];
 }
 
@@ -174,7 +174,7 @@
     [output release];
     [activity release];
     [nextButton release];
-    
+
     [currentMessage release];
     [messages release];
     [queue release];
@@ -201,11 +201,11 @@
         [nextButton setAlpha:0.5];
         [nextButton setTitle:@"Test is running" forState:UIControlStateDisabled];
     }
-    
+
     [currentMessage deleteCharactersInRange:NSMakeRange(0, currentMessage.length)];
     [messages removeAllObjects];
     [output reloadData];
-    
+
     [activity startAnimating];
     if(![test isProtocolSupported:appDelegate.protocol])
     {
@@ -220,7 +220,7 @@
         return;
     }
 #endif
-    
+
     NSMutableArray* testRuns = [NSMutableArray array];
     if([test hasServer])
     {
@@ -254,7 +254,7 @@
     {
         [testRuns addObject:[TestRun testRunCollocated:test]];
     }
-    
+
     testRunEnumator = [[testRuns objectEnumerator] retain];
     id testRun = [testRunEnumator nextObject];
     [queue addOperation:[testRun runInvocation:self]];
@@ -266,7 +266,7 @@
         [self testComplete:NO];
         return;
     }
-    
+
     id testRun = [testRunEnumator nextObject];
     if(testRun == nil)
     {
@@ -293,7 +293,7 @@
     self.test = nil;
     [testRunEnumator release];
     testRunEnumator = nil;
-    
+
     if([appDelegate testCompleted:success])
     {
         NSAssert(test == nil, @"test == nil");
@@ -487,7 +487,7 @@
         delete clientHelper;
         clientHelper = 0;
     }
-    
+
     if([rc intValue] != 0)
     {
         [viewController add:[NSString stringWithFormat:@"client error: %@!\n", rc]];
@@ -497,7 +497,7 @@
         }
         ++error;
     }
-    
+
     completed++;
     if(!server || completed == 2)
     {
@@ -510,17 +510,17 @@
 {
     AppDelegate* appDelegate = (AppDelegate*)[[UIApplication sharedApplication] delegate];
     running++;
-    
+
     std::string name = [[test name] UTF8String];
     std::string prefix = std::string("test_") + [[test prefix] UTF8String];
     std::string clt = [client UTF8String];
-    
+
     TestConfig config;
     config.protocol = [[appDelegate protocol] UTF8String];
     config.type = collocated ?  TestConfigTypeColloc : TestConfigTypeClient;
     config.option = option;
     config.hasServer = [test hasServer];
-    
+
     clientHelper = new MainHelperI(name, prefix + "/" + clt, config, self, @selector(add:), @selector(serverReady));
     clientHelper->run();
     int rc = clientHelper->status();
@@ -534,7 +534,7 @@
         delete serverHelper;
         serverHelper = 0;
     }
-    
+
     if([rc intValue] != 0)
     {
         [viewController add:[NSString stringWithFormat:@"server error: %@!\n", rc]];
@@ -555,13 +555,13 @@
     std::string name = [[test name] UTF8String];
     std::string prefix = std::string("test_") + [[test prefix] UTF8String];
     std::string srv = [server UTF8String];
-    
+
     TestConfig config;
     config.protocol = [[appDelegate protocol] UTF8String];
     config.type = TestConfigTypeServer;
     config.option = option;
     config.hasServer = true;
-    
+
     serverHelper = new MainHelperI(name, prefix + "/" + srv, config, self, @selector(add:), @selector(serverReady));
     serverHelper->run();
     int rc = serverHelper->status();

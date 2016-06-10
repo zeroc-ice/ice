@@ -2,7 +2,7 @@
 //
 // Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
 //
-// This copy of Ice Touch is licensed to you under the terms described in the
+// This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
@@ -93,7 +93,7 @@ static NSString* protocolKey = @"protocolKey";
     if(self = [super init])
     {
         self->runAll = getenv("RUNALL") != NULL;
-        
+
         NSMutableArray* theTests = [NSMutableArray array];
         for(int i = 0; i < sizeof(alltests)/sizeof(alltests[0]); ++i)
         {
@@ -111,7 +111,7 @@ static NSString* protocolKey = @"protocolKey";
             [theTests addObject:test];
         }
         tests = [[theTests copy] retain];
-        
+
         // Initialize the application defaults.
         currentTest = [[NSUserDefaults standardUserDefaults] integerForKey:currentTestKey];
         if(runAll || currentTest < 0 || currentTest > tests.count)
@@ -140,8 +140,8 @@ static NSString* protocolKey = @"protocolKey";
 
 - (void)applicationDidFinishLaunching:(UIApplication *)application
 {
-    
-    // Override point for customization after app launch    
+
+    // Override point for customization after app launch
     [window setRootViewController:navigationController];
     [window makeKeyAndVisible];
 }
@@ -195,7 +195,7 @@ static NSString* protocolKey = @"protocolKey";
                         break;
                     }
                 }
-                
+
                 if(++i == nProtocols && !loop)
                 {
                     std::cout << "\n*** Finished running all tests" << std::endl;

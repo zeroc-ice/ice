@@ -2,7 +2,7 @@
 //
 // Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
 //
-// This copy of Ice Touch is licensed to you under the terms described in the
+// This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
@@ -92,7 +92,7 @@ public:
         _ready(ready)
     {
     }
-    
+
     virtual ~MainHelperI();
 
     virtual void run();
@@ -106,16 +106,16 @@ public:
     virtual bool redirect();
 
     virtual void print(const std::string&);
-    
+
     int
     status()
     {
         return _status;
     }
-    
+
 private:
 
-    void 
+    void
     completed(int status)
     {
         _completed = true;
@@ -129,7 +129,7 @@ private:
     SHUTDOWN_ENTRY_POINT _dllTestShutdown;
     bool _completed;
     int _status;
-    
+
     id _target;
     SEL _ready;
     SEL _output;

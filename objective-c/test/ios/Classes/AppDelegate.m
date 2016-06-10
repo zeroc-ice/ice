@@ -2,7 +2,7 @@
 //
 // Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
 //
-// This copy of Ice Touch is licensed to you under the terms described in the
+// This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
@@ -187,8 +187,8 @@ static NSString* protocolKey = @"protocolKey";
 
 - (void)applicationDidFinishLaunching:(UIApplication *)application
 {
-    
-    // Override point for customization after app launch    
+
+    // Override point for customization after app launch
     [window setRootViewController:navigationController];
     [window makeKeyAndVisible];
 }
@@ -244,7 +244,7 @@ static NSString* protocolKey = @"protocolKey";
                         break;
                     }
                 }
-                
+
                 if(++i == nProtocols && !loop)
                 {
                     return NO;

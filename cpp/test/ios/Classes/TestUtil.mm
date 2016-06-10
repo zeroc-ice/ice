@@ -2,7 +2,7 @@
 //
 // Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
 //
-// This copy of Ice Touch is licensed to you under the terms described in the
+// This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
@@ -119,9 +119,9 @@ MainHelperI::run()
     // Compose the path of the Test.bundle resources folder
     //
     NSString* bundlePath = [[NSBundle mainBundle] privateFrameworksPath];
-    
+
     bundlePath = [bundlePath stringByAppendingPathComponent:[NSString stringWithUTF8String:_libName.c_str()]];
-    
+
     NSURL* bundleURL = [NSURL fileURLWithPath:bundlePath];
     _handle = CFBundleCreate(NULL, (CFURLRef)bundleURL);
 
@@ -134,12 +134,12 @@ MainHelperI::run()
         completed(status);
         return;
     }
-    
+
     void* sym = dlsym(_handle, "dllTestShutdown");
     sym = CFBundleGetFunctionPointerForName(_handle, CFSTR("dllTestShutdown"));
     if(sym == 0)
     {
-        NSString* err = [NSString stringWithFormat:@"Could not get function pointer dllTestShutdown from bundle %@", 
+        NSString* err = [NSString stringWithFormat:@"Could not get function pointer dllTestShutdown from bundle %@",
                                   bundlePath];
         print([err UTF8String]);
         completed(status);
@@ -150,7 +150,7 @@ MainHelperI::run()
     sym = CFBundleGetFunctionPointerForName(_handle, CFSTR("dllMain"));
     if(sym == 0)
     {
-        NSString* err = [NSString stringWithFormat:@"Could not get function pointer dllMain from bundle %@", 
+        NSString* err = [NSString stringWithFormat:@"Could not get function pointer dllMain from bundle %@",
                                   bundlePath];
         print([err UTF8String]);
         completed(status);
@@ -158,7 +158,7 @@ MainHelperI::run()
     }
 
     MAIN_ENTRY_POINT dllMain = (MAIN_ENTRY_POINT)sym;
-    
+
     std::vector<std::string> args;
     if(_config.type == TestConfigTypeServer)
     {
@@ -173,7 +173,7 @@ MainHelperI::run()
     args.push_back("--Ice.Default.Host=127.0.0.1");
     args.push_back("--Ice.Trace.Network=0");
     args.push_back("--Ice.Trace.Protocol=0");
-    
+
     if(_config.type == TestConfigTypeServer)
     {
         args.push_back("--Ice.ThreadPool.Server.Size=1");
@@ -199,7 +199,7 @@ MainHelperI::run()
         args.push_back("--IceSSL.Password=password");
         args.push_back("--Ice.Override.ConnectTimeout=10000"); // COMPILERFIX: Workaround for SSL hang on iOS devices
     }
-    
+
     if(_config.option == TestConfigOptionSliced)
     {
         args.push_back("--Ice.Default.SlicedFormat");
@@ -208,7 +208,7 @@ MainHelperI::run()
     {
         args.push_back("--Ice.Default.EncodingVersion=1.0");
     }
-    
+
     if(_config.type == TestConfigTypeServer)
     {
         if(_libName.find("serveramd") != std::string::npos)
@@ -244,7 +244,7 @@ MainHelperI::run()
             print("1.0 encoding.\n");
         }
     }
-    
+
     char** argv = new char*[args.size() + 1];
     for(unsigned int i = 0; i < args.size(); ++i)
     {
