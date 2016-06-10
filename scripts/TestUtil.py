@@ -127,10 +127,16 @@ def isYocto():
     return isLinux() and linuxDistribution and linuxDistribution == "Yocto"
 
 def isDebian():
-    return isLinux() and linuxDistribution and linuxDistribution == "Debian"
+    return (isLinux() and linuxDistribution and linuxDistribution == "Debian") or isDebianFreeBSD()
 
 def isSles():
     return isLinux() and linuxDistribution and linuxDistribution == "SUSE LINUX"
+
+def iceUseOpenSSL():
+    return any(sys.platform.startswith(p) for p in ["linux", "freebsd", "gnukfreebsd"])
+
+def isDebianFreeBSD():
+    return sys.platform.startswith("gnukfreebsd")
 
 def getCppCompiler():
     compiler = ""
