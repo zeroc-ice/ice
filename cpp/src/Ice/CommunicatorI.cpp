@@ -215,16 +215,16 @@ Ice::CommunicatorI::flushBatchRequests()
     Communicator::flushBatchRequestsAsync().get();
 }
 
-::std::function<void ()>
-Ice::CommunicatorI::flushBatchRequestsAsync(function<void (exception_ptr)> ex, function<void (bool)> sent)
+::std::function<void()>
+Ice::CommunicatorI::flushBatchRequestsAsync(function<void(exception_ptr)> ex, function<void(bool)> sent)
 {
     class CommunicatorFlushBatchLambda : public CommunicatorFlushBatchAsync, public LambdaInvoke
     {
     public:
 
         CommunicatorFlushBatchLambda(const InstancePtr& instance,
-                                     std::function<void (std::exception_ptr)> ex,
-                                     std::function<void (bool)> sent) :
+                                     std::function<void(std::exception_ptr)> ex,
+                                     std::function<void(bool)> sent) :
             CommunicatorFlushBatchAsync(instance), LambdaInvoke(std::move(ex), std::move(sent))
         {
         }

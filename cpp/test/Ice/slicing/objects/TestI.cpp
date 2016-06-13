@@ -364,8 +364,8 @@ TestI::checkPBSUnknown(ICE_IN(Test::PreservedPtr) p, const Ice::Current& current
 
 #ifdef ICE_CPP11_MAPPING
 void
-TestI::PBSUnknownAsPreservedWithGraphAsync(function<void (const shared_ptr<Test::Preserved>&)> response,
-                                            function<void (exception_ptr)>,
+TestI::PBSUnknownAsPreservedWithGraphAsync(function<void(const shared_ptr<Test::Preserved>&)> response,
+                                            function<void(exception_ptr)>,
                                             const Ice::Current&)
 #else
 void
@@ -414,8 +414,8 @@ TestI::checkPBSUnknownWithGraph(ICE_IN(Test::PreservedPtr) p, const Ice::Current
 
 #ifdef ICE_CPP11_MAPPING
 void
-TestI::PBSUnknown2AsPreservedWithGraphAsync(function<void (const shared_ptr<Test::Preserved>&)> response,
-                                             function<void (exception_ptr)>,
+TestI::PBSUnknown2AsPreservedWithGraphAsync(function<void(const shared_ptr<Test::Preserved>&)> response,
+                                             function<void(exception_ptr)>,
                                              const Ice::Current&)
 #else
 void
@@ -538,8 +538,8 @@ TestI::throwUnknownDerivedAsBase(const ::Ice::Current&)
 
 #ifdef ICE_CPP11_MAPPING
 void
-TestI::throwPreservedExceptionAsync(function<void ()>,
-                                     function<void (exception_ptr)> exception,
+TestI::throwPreservedExceptionAsync(function<void()>,
+                                     function<void(exception_ptr)> exception,
                                      const ::Ice::Current&)
 #else
 void

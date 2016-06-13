@@ -86,8 +86,8 @@ MyObjectI::badSystemAdd(int, int, const Ice::Current&)
 void
 MyObjectI::amdAddAsync(int x,
                        int y,
-                       function<void (int)> response,
-                       function<void (exception_ptr)>,
+                       function<void(int)> response,
+                       function<void(exception_ptr)>,
                        const Ice::Current&)
 {
     thread t(
@@ -102,8 +102,8 @@ MyObjectI::amdAddAsync(int x,
 void
 MyObjectI::amdAddWithRetryAsync(int x,
                                 int y,
-                                function<void (int)> response,
-                                function<void (exception_ptr)>,
+                                function<void(int)> response,
+                                function<void(exception_ptr)>,
                                 const Ice::Current& current)
 {
     thread t(
@@ -125,8 +125,8 @@ MyObjectI::amdAddWithRetryAsync(int x,
 void
 MyObjectI::amdBadAddAsync(int x,
                           int y,
-                          function<void (int)>,
-                          function<void (exception_ptr)> error,
+                          function<void(int)>,
+                          function<void(exception_ptr)> error,
                           const Ice::Current&)
 {
     thread t(
@@ -148,8 +148,8 @@ MyObjectI::amdBadAddAsync(int x,
 void
 MyObjectI::amdNotExistAddAsync(int x,
                                int y,
-                               function<void (int)>,
-                               function<void (exception_ptr)> error,
+                               function<void(int)>,
+                               function<void(exception_ptr)> error,
                                const Ice::Current&)
 {
     thread t(
@@ -171,8 +171,8 @@ MyObjectI::amdNotExistAddAsync(int x,
 void
 MyObjectI::amdBadSystemAddAsync(int x,
                                 int y,
-                                function<void (int)>,
-                                function<void (exception_ptr)> error,
+                                function<void(int)>,
+                                function<void(exception_ptr)> error,
                                 const Ice::Current&)
 {
     thread t(

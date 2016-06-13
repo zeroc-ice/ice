@@ -33,7 +33,7 @@ public:
     // From IceBT::Plugin.
     //
 #ifdef ICE_CPP11_MAPPING
-    virtual void startDiscovery(const std::string&, std::function<void (const std::string&, const PropertyMap&)>);
+    virtual void startDiscovery(const std::string&, std::function<void(const std::string&, const PropertyMap&)>);
 #else
     virtual void startDiscovery(const std::string&, const DiscoveryCallbackPtr&);
 #endif

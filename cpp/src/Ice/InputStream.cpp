@@ -216,7 +216,7 @@ Ice::InputStream::setLogger(const LoggerPtr& logger)
 
 void
 #ifdef ICE_CPP11_MAPPING
-Ice::InputStream::setCompactIdResolver(std::function<std::string (int)> r)
+Ice::InputStream::setCompactIdResolver(std::function<std::string(int)> r)
 #else
 Ice::InputStream::setCompactIdResolver(const CompactIdResolverPtr& r)
 #endif
@@ -1329,7 +1329,7 @@ Ice::InputStream::resolveCompactId(int id) const
     string type;
 
 #ifdef ICE_CPP11_MAPPING
-    function<string (int)> resolver = compactIdResolver();
+    function<string(int)> resolver = compactIdResolver();
 #else
     CompactIdResolverPtr resolver = compactIdResolver();
 #endif
@@ -1442,7 +1442,7 @@ Ice::InputStream::logger() const
 }
 
 #ifdef ICE_CPP11_MAPPING
-function<string (int)>
+function<string(int)>
 Ice::InputStream::compactIdResolver() const
 {
     if(_compactIdResolver)
@@ -1528,7 +1528,7 @@ Ice::InputStream::EncapsDecoder::newInstance(const string& typeId)
     // Try to find a factory registered for the specific type.
     //
 #ifdef ICE_CPP11_MAPPING
-    function<ValuePtr (const string&)> userFactory;
+    function<ValuePtr(const string&)> userFactory;
     if(_valueFactoryManager)
     {
         userFactory = _valueFactoryManager->find(typeId);
@@ -1571,7 +1571,7 @@ Ice::InputStream::EncapsDecoder::newInstance(const string& typeId)
     if(!v)
     {
 #ifdef ICE_CPP11_MAPPING
-        function<ValuePtr (const string&)> of = IceInternal::factoryTable->getValueFactory(typeId);
+        function<ValuePtr(const string&)> of = IceInternal::factoryTable->getValueFactory(typeId);
         if(of)
         {
             v = of(typeId);

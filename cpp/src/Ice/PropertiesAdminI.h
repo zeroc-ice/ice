@@ -29,8 +29,8 @@ public:
     virtual std::string getProperty(std::string, const Ice::Current&);
     virtual Ice::PropertyDict getPropertiesForPrefix(std::string, const Ice::Current&);
     virtual void setPropertiesAsync(::Ice::PropertyDict,
-                                    ::std::function<void ()>,
-                                    ::std::function<void (::std::exception_ptr)>,
+                                    ::std::function<void()>,
+                                    ::std::function<void(::std::exception_ptr)>,
                                     const Ice::Current&);
 #else
     virtual std::string getProperty(const std::string&, const Ice::Current&);

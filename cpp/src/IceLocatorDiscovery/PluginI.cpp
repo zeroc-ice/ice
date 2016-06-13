@@ -64,8 +64,8 @@ public:
             Ice::OperationMode mode,
             const pair<const Ice::Byte*, const Ice::Byte*>& inParams,
             const Ice::Context& ctx,
-            function<void (bool, const pair<const Ice::Byte*, const Ice::Byte*>&)> responseCB,
-            function<void (exception_ptr)> exceptionCB) :
+            function<void(bool, const pair<const Ice::Byte*, const Ice::Byte*>&)> responseCB,
+            function<void(exception_ptr)> exceptionCB) :
         _locator(locator),
         _operation(operation),
         _mode(mode),
@@ -106,8 +106,8 @@ protected:
     const Ice::Context _context;
     const Ice::ByteSeq _inParams;
 #ifdef ICE_CPP11_MAPPING
-    function<void (bool, const pair<const Ice::Byte*, const Ice::Byte*>&)> _responseCB;
-    function<void (exception_ptr)> _exceptionCB;
+    function<void(bool, const pair<const Ice::Byte*, const Ice::Byte*>&)> _responseCB;
+    function<void(exception_ptr)> _exceptionCB;
     exception_ptr _exception;
 #else
     const Ice::AMD_Object_ice_invokePtr _amdCB;
@@ -130,8 +130,8 @@ public:
 
 #ifdef ICE_CPP11_MAPPING
     virtual void ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byte*>,
-                                 function<void (bool, pair<const Ice::Byte*, const Ice::Byte*>)>,
-                                 function<void (exception_ptr)>,
+                                 function<void(bool, pair<const Ice::Byte*, const Ice::Byte*>)>,
+                                 function<void(exception_ptr)>,
                                  const Ice::Current&);
 #else
     virtual void ice_invoke_async(const Ice::AMD_Object_ice_invokePtr&, const pair<const Ice::Byte*, const Ice::Byte*>&,
@@ -195,8 +195,8 @@ public:
 #ifdef ICE_CPP11_MAPPING
     virtual void
     findObjectByIdAsync(::Ice::Identity,
-                        function<void (const shared_ptr<::Ice::ObjectPrx>&)> response,
-                        function<void (exception_ptr)>,
+                        function<void(const shared_ptr<::Ice::ObjectPrx>&)> response,
+                        function<void(exception_ptr)>,
                         const Ice::Current&) const
     {
         response(nullptr);
@@ -204,8 +204,8 @@ public:
 
     virtual void
     findAdapterByIdAsync(string,
-                         function<void (const shared_ptr<::Ice::ObjectPrx>&)> response,
-                         function<void (exception_ptr)>,
+                         function<void(const shared_ptr<::Ice::ObjectPrx>&)> response,
+                         function<void(exception_ptr)>,
                          const Ice::Current&) const
     {
         response(nullptr);
@@ -560,8 +560,8 @@ LocatorI::setLookupReply(const LookupReplyPrxPtr& lookupReply)
 #ifdef ICE_CPP11_MAPPING
 void
 LocatorI::ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byte*> inParams,
-                          function<void (bool, pair<const Ice::Byte*, const Ice::Byte*>)> responseCB,
-                          function<void (exception_ptr)> exceptionCB,
+                          function<void(bool, pair<const Ice::Byte*, const Ice::Byte*>)> responseCB,
+                          function<void(exception_ptr)> exceptionCB,
                           const Ice::Current& current)
 {
     invoke(nullptr, make_shared<Request>(this, current.operation, current.mode, inParams, current.ctx,

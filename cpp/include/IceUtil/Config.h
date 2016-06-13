@@ -315,9 +315,9 @@ typedef long long Int64;
 #   define ICE_SHARED_FROM_THIS shared_from_this()
 #   define ICE_CHECKED_CAST(T, ...) Ice::checkedCast<T>(__VA_ARGS__)
 #   define ICE_UNCHECKED_CAST(T, ...) Ice::uncheckedCast<T>(__VA_ARGS__)
-#   define ICE_VALUE_FACTORY ::std::function<::std::shared_ptr<::Ice::Value> (const std::string&)>
-#   define ICE_CLOSE_CALLBACK ::std::function<void (const ::std::shared_ptr<::Ice::Connection>&)>
-#   define ICE_HEARTBEAT_CALLBACK ::std::function<void (const ::std::shared_ptr<::Ice::Connection>&)>
+#   define ICE_VALUE_FACTORY ::std::function<::std::shared_ptr<::Ice::Value>(const std::string&)>
+#   define ICE_CLOSE_CALLBACK ::std::function<void(const ::std::shared_ptr<::Ice::Connection>&)>
+#   define ICE_HEARTBEAT_CALLBACK ::std::function<void(const ::std::shared_ptr<::Ice::Connection>&)>
 #   define ICE_IN(...) __VA_ARGS__
 #   define ICE_EXCEPTION_ISSET(T) T
 #   define ICE_RETHROW_EXCEPTION(T) ::std::rethrow_exception(T)

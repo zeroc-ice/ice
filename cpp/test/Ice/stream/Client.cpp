@@ -161,7 +161,7 @@ public:
         return _factory(type);
     }
 
-    void setFactory(function<Ice::ValuePtr (const string&)> f)
+    void setFactory(function<Ice::ValuePtr(const string&)> f)
     {
         _factory = f;
     }
@@ -171,7 +171,7 @@ public:
         _factory = [](const string&) { return ICE_MAKE_SHARED(MyClass); };
     }
 
-    function<Ice::ValuePtr (const string&)> _factory;
+    function<Ice::ValuePtr(const string&)> _factory;
 };
 #else
 class MyClassFactoryWrapper : public Ice::ValueFactory
@@ -232,7 +232,7 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
 #ifdef ICE_CPP11_MAPPING
     MyClassFactoryWrapper factoryWrapper;
-    function<Ice::ValuePtr (const string&)> f =
+    function<Ice::ValuePtr(const string&)> f =
         std::bind(&MyClassFactoryWrapper::create, &factoryWrapper, std::placeholders::_1);
     communicator->getValueFactoryManager()->add(f, MyClass::ice_staticId());
 #else

@@ -258,7 +258,7 @@ public:
     void invoke(const std::string&);
 #ifdef ICE_CPP11_MAPPING
     void invoke(const std::string&, Ice::OperationMode, Ice::FormatType, const Ice::Context&,
-                const std::function<void (Ice::OutputStream*)>&);
+                const std::function<void(Ice::OutputStream*)>&);
     void throwUserException();
 #endif
 
@@ -292,7 +292,7 @@ protected:
     const Ice::EncodingVersion _encoding;
 
 #ifdef ICE_CPP11_MAPPING
-    std::function<void (const ::Ice::UserException&)> _userException;
+    std::function<void(const ::Ice::UserException&)> _userException;
 #endif
 
     bool _synchronous;
@@ -387,7 +387,7 @@ class ICE_API LambdaInvoke : virtual public OutgoingAsyncCompletionCallback
 {
 public:
 
-    LambdaInvoke(std::function<void (::std::exception_ptr)>&& exception, std::function<void (bool)>&& sent) :
+    LambdaInvoke(std::function<void(::std::exception_ptr)>&& exception, std::function<void(bool)>&& sent) :
         _exception(std::move(exception)), _sent(std::move(sent))
     {
     }
@@ -402,9 +402,9 @@ protected:
     virtual void handleInvokeException(const Ice::Exception&, OutgoingAsyncBase*) const override;
     virtual void handleInvokeResponse(bool, OutgoingAsyncBase*) const override;
 
-    std::function<void (::std::exception_ptr)> _exception;
-    std::function<void (bool)> _sent;
-    std::function<void (bool)> _response;
+    std::function<void(::std::exception_ptr)> _exception;
+    std::function<void(bool)> _sent;
+    std::function<void(bool)> _response;
 };
 
 template<typename Promise>
@@ -421,7 +421,7 @@ public:
 protected:
 
     Promise _promise;
-    std::function<void (bool)> _response;
+    std::function<void(bool)> _response;
 
 private:
 
@@ -477,8 +477,8 @@ public:
            Ice::OperationMode mode,
            Ice::FormatType format,
            const Ice::Context& ctx,
-           std::function<void (Ice::OutputStream*)>&& write,
-           std::function<void (const Ice::UserException&)>&& userException)
+           std::function<void(Ice::OutputStream*)>&& write,
+           std::function<void(const Ice::UserException&)>&& userException)
     {
         _read = [](Ice::InputStream* stream)
         {
@@ -495,9 +495,9 @@ public:
            Ice::OperationMode mode,
            Ice::FormatType format,
            const Ice::Context& ctx,
-           std::function<void (Ice::OutputStream*)>&& write,
-           std::function<void (const Ice::UserException&)>&& userException,
-           std::function<T (Ice::InputStream*)>&& read)
+           std::function<void(Ice::OutputStream*)>&& write,
+           std::function<void(const Ice::UserException&)>&& userException,
+           std::function<T(Ice::InputStream*)>&& read)
     {
         _read = std::move(read);
         _userException = std::move(userException);
@@ -506,7 +506,7 @@ public:
 
 protected:
 
-    std::function<T (Ice::InputStream*)> _read;
+    std::function<T(Ice::InputStream*)> _read;
 };
 
 template<>
@@ -521,8 +521,8 @@ public:
            Ice::OperationMode mode,
            Ice::FormatType format,
            const Ice::Context& ctx,
-           std::function<void (Ice::OutputStream*)>&& write,
-           std::function<void (const Ice::UserException&)>&& userException)
+           std::function<void(Ice::OutputStream*)>&& write,
+           std::function<void(const Ice::UserException&)>&& userException)
     {
         _userException = std::move(userException);
         OutgoingAsync::invoke(operation, mode, format, ctx, write);
@@ -535,9 +535,9 @@ class LambdaOutgoing : public OutgoingAsyncT<R>, public LambdaInvoke
 public:
 
     LambdaOutgoing(const std::shared_ptr<Ice::ObjectPrx>& proxy,
-                   std::function<void (R)> response,
-                   std::function<void (::std::exception_ptr)>& ex,
-                   std::function<void (bool)>& sent) :
+                   std::function<void(R)> response,
+                   std::function<void(::std::exception_ptr)>& ex,
+                   std::function<void(bool)>& sent) :
         OutgoingAsyncT<R>(proxy), LambdaInvoke(std::move(ex), std::move(sent))
     {
         _response = [this, response](bool ok)
@@ -575,8 +575,8 @@ public:
 
     LambdaOutgoing(const std::shared_ptr<Ice::ObjectPrx>& proxy,
                    std::function<void()> response,
-                   std::function<void (::std::exception_ptr)>& ex,
-                   std::function<void (bool)>& sent) :
+                   std::function<void(::std::exception_ptr)>& ex,
+                   std::function<void(bool)>& sent) :
         OutgoingAsyncT<void>(proxy), LambdaInvoke(std::move(ex), std::move(sent))
     {
         _response = [this, response](bool ok)

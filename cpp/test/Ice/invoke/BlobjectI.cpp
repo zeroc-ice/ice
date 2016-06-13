@@ -97,8 +97,8 @@ BlobjectArrayI::ice_invoke(const pair<const Ice::Byte*, const Ice::Byte*>& inEnc
 #ifdef ICE_CPP11_MAPPING
 void
 BlobjectAsyncI::ice_invokeAsync(vector<Ice::Byte> inEncaps,
-                                function<void (bool, vector<Ice::Byte>)> response,
-                                function<void (exception_ptr)>,
+                                function<void(bool, vector<Ice::Byte>)> response,
+                                function<void(exception_ptr)>,
                                 const Ice::Current& current)
 {
     Ice::InputStream in(current.adapter->getCommunicator(), inEncaps);
@@ -109,8 +109,8 @@ BlobjectAsyncI::ice_invokeAsync(vector<Ice::Byte> inEncaps,
 
 void
 BlobjectArrayAsyncI::ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byte*> inEncaps,
-                                     function<void (bool, pair<const Ice::Byte*, const Ice::Byte*>)> response,
-                                     function<void (exception_ptr)>,
+                                     function<void(bool, pair<const Ice::Byte*, const Ice::Byte*>)> response,
+                                     function<void(exception_ptr)>,
                                      const Ice::Current& current)
 {
     Ice::InputStream in(current.adapter->getCommunicator(), inEncaps);

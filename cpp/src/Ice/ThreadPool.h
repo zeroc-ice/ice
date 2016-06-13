@@ -133,7 +133,7 @@ private:
 
     const InstancePtr _instance;
 #ifdef ICE_CPP11_MAPPING
-    std::function<void (std::function<void ()>, const std::shared_ptr<Ice::Connection>&)> _dispatcher;
+    std::function<void(std::function<void()>, const std::shared_ptr<Ice::Connection>&)> _dispatcher;
 #else
     const Ice::DispatcherPtr _dispatcher;
 #endif

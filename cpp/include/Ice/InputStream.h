@@ -120,7 +120,7 @@ public:
     void setLogger(const LoggerPtr&);
 
 #ifdef ICE_CPP11_MAPPING
-    void setCompactIdResolver(std::function<std::string (int)>);
+    void setCompactIdResolver(std::function<std::string(int)>);
 #else
     void setCompactIdResolver(const CompactIdResolverPtr&);
 #endif
@@ -687,7 +687,7 @@ private:
     LoggerPtr logger() const;
 
 #ifdef ICE_CPP11_MAPPING
-    std::function<std::string (int)> compactIdResolver() const;
+    std::function<std::string(int)> compactIdResolver() const;
 #else
     CompactIdResolverPtr compactIdResolver() const;
 #endif
@@ -949,7 +949,7 @@ private:
     ValueFactoryManagerPtr _valueFactoryManager;
     LoggerPtr _logger;
 #ifdef ICE_CPP11_MAPPING
-    std::function<std::string (int)> _compactIdResolver;
+    std::function<std::string(int)> _compactIdResolver;
 #else
     CompactIdResolverPtr _compactIdResolver;
 #endif

@@ -109,7 +109,7 @@ public:
 
 protected:
 
-    std::function<R (bool, Ice::InputStream*)> _read;
+    std::function<R(bool, Ice::InputStream*)> _read;
 };
 
 template<typename R>
@@ -118,9 +118,9 @@ class InvokeLambdaOutgoing : public InvokeOutgoingAsyncT<R>, public LambdaInvoke
 public:
 
     InvokeLambdaOutgoing(const ::std::shared_ptr<::Ice::ObjectPrx>& proxy,
-                         ::std::function<void (R)> response,
-                         ::std::function<void (::std::exception_ptr)>& ex,
-                         ::std::function<void (bool)>& sent) :
+                         ::std::function<void(R)> response,
+                         ::std::function<void(::std::exception_ptr)>& ex,
+                         ::std::function<void(bool)>& sent) :
         InvokeOutgoingAsyncT<R>(proxy), LambdaInvoke(::std::move(ex), ::std::move(sent))
     {
         if(response)
@@ -178,9 +178,9 @@ public:
 
     ProxyGetConnectionLambda(const ::std::shared_ptr<::Ice::ObjectPrx>& proxy,
                              ::std::function<::std::shared_ptr<Ice::Connection>()> getConnection,
-                             ::std::function<void (::std::shared_ptr<Ice::Connection>)> response,
-                             ::std::function<void (::std::exception_ptr)>& ex,
-                             ::std::function<void (bool)>& sent) :
+                             ::std::function<void(::std::shared_ptr<Ice::Connection>)> response,
+                             ::std::function<void(::std::exception_ptr)>& ex,
+                             ::std::function<void(bool)>& sent) :
         ProxyGetConnection(proxy), LambdaInvoke(::std::move(ex), ::std::move(sent))
     {
         _response = [response, getConnection](bool)
@@ -211,8 +211,8 @@ class ProxyFlushBatchLambda : public ProxyFlushBatchAsync, public LambdaInvoke
 public:
 
     ProxyFlushBatchLambda(const ::std::shared_ptr<::Ice::ObjectPrx>& proxy,
-                          ::std::function<void (::std::exception_ptr)>& ex,
-                          ::std::function<void (bool)>& sent) :
+                          ::std::function<void(::std::exception_ptr)>& ex,
+                          ::std::function<void(bool)>& sent) :
         ProxyFlushBatchAsync(proxy), LambdaInvoke(::std::move(ex), ::std::move(sent))
     {
     }
@@ -268,9 +268,9 @@ public:
 
     ::std::function<void()>
     ice_isAAsync(const ::std::string& typeId,
-                 ::std::function<void (bool)> response,
-                 ::std::function<void (::std::exception_ptr)> ex = nullptr,
-                 ::std::function<void (bool)> sent = nullptr,
+                 ::std::function<void(bool)> response,
+                 ::std::function<void(::std::exception_ptr)> ex = nullptr,
+                 ::std::function<void(bool)> sent = nullptr,
                  const ::Ice::Context& ctx = ::Ice::noExplicitContext)
     {
         return makeLambdaOutgoing<bool>(response, ex, sent, this, &ObjectPrx::__ice_isA, typeId, ctx);
@@ -293,9 +293,9 @@ public:
     }
 
     ::std::function<void()>
-    ice_pingAsync(::std::function<void ()> response,
-                  ::std::function<void (::std::exception_ptr)> ex = nullptr,
-                  ::std::function<void (bool)> sent = nullptr,
+    ice_pingAsync(::std::function<void()> response,
+                  ::std::function<void(::std::exception_ptr)> ex = nullptr,
+                  ::std::function<void(bool)> sent = nullptr,
                   const ::Ice::Context& ctx = ::Ice::noExplicitContext)
     {
         return makeLambdaOutgoing(response, ex, sent, this, &ObjectPrx::__ice_ping, ctx);
@@ -318,9 +318,9 @@ public:
     }
 
     ::std::function<void()>
-    ice_idsAsync(::std::function<void (::std::vector<::std::string>)> response,
-                 ::std::function<void (::std::exception_ptr)> ex = nullptr,
-                 ::std::function<void (bool)> sent = nullptr,
+    ice_idsAsync(::std::function<void(::std::vector<::std::string>)> response,
+                 ::std::function<void(::std::exception_ptr)> ex = nullptr,
+                 ::std::function<void(bool)> sent = nullptr,
                  const ::Ice::Context& ctx = ::Ice::noExplicitContext)
     {
         return makeLambdaOutgoing<::std::vector<::std::string>>(response, ex, sent, this, &ObjectPrx::__ice_ids, ctx);
@@ -342,10 +342,10 @@ public:
         return makePromiseOutgoing<::std::string>(true, this, &ObjectPrx::__ice_id, ctx).get();
     }
 
-    ::std::function<void ()>
-    ice_idAsync(::std::function<void (::std::string)> response,
-                ::std::function<void (::std::exception_ptr)> ex = nullptr,
-                ::std::function<void (bool)> sent = nullptr,
+    ::std::function<void()>
+    ice_idAsync(::std::function<void(::std::string)> response,
+                ::std::function<void(::std::exception_ptr)> ex = nullptr,
+                ::std::function<void(bool)> sent = nullptr,
                 const ::Ice::Context& ctx = ::Ice::noExplicitContext)
     {
         return makeLambdaOutgoing<::std::string>(response, ex, sent, this, &ObjectPrx::__ice_id, ctx);
@@ -398,13 +398,13 @@ public:
         return result.ok;
     }
 
-    ::std::function<void ()>
+    ::std::function<void()>
     ice_invokeAsync(const ::std::string& operation,
                     ::Ice::OperationMode mode,
                     const ::std::vector<::Ice::Byte>& inP,
-                    ::std::function<void (bool, ::std::vector<::Ice::Byte>)> response,
-                    ::std::function<void (::std::exception_ptr)> ex = nullptr,
-                    ::std::function<void (bool)> sent = nullptr,
+                    ::std::function<void(bool, ::std::vector<::Ice::Byte>)> response,
+                    ::std::function<void(::std::exception_ptr)> ex = nullptr,
+                    ::std::function<void(bool)> sent = nullptr,
                     const ::Ice::Context& ctx = ::Ice::noExplicitContext)
     {
         using Outgoing = ::IceInternal::InvokeLambdaOutgoing<Result_ice_invoke>;
@@ -450,13 +450,13 @@ public:
         std::pair<const ::Ice::Byte*, const ::Ice::Byte*> outParams;
     };
 
-    ::std::function<void ()>
+    ::std::function<void()>
     ice_invokeAsync(const ::std::string& operation,
                     ::Ice::OperationMode mode,
                     const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>& inP,
-                    ::std::function<void (bool, ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>)> response,
-                    ::std::function<void (::std::exception_ptr)> ex = nullptr,
-                    ::std::function<void (bool)> sent = nullptr,
+                    ::std::function<void(bool, ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>)> response,
+                    ::std::function<void(::std::exception_ptr)> ex = nullptr,
+                    ::std::function<void(bool)> sent = nullptr,
                     const ::Ice::Context& ctx = ::Ice::noExplicitContext)
     {
         using Outgoing = ::IceInternal::InvokeLambdaOutgoing<Result_ice_invoke_zerocopy>;
@@ -541,10 +541,10 @@ public:
         return ice_getConnectionAsync().get();
     }
 
-    ::std::function<void ()>
-    ice_getConnectionAsync(::std::function<void (::std::shared_ptr<::Ice::Connection>)> response,
-                           ::std::function<void (::std::exception_ptr)> ex = nullptr,
-                           ::std::function<void (bool)> sent = nullptr)
+    ::std::function<void()>
+    ice_getConnectionAsync(::std::function<void(::std::shared_ptr<::Ice::Connection>)> response,
+                           ::std::function<void(::std::exception_ptr)> ex = nullptr,
+                           ::std::function<void(bool)> sent = nullptr)
     {
         using LambdaOutgoing = ::IceInternal::ProxyGetConnectionLambda;
         auto outAsync = ::std::make_shared<LambdaOutgoing>(shared_from_this(),
@@ -579,9 +579,9 @@ public:
         return ice_flushBatchRequestsAsync().get();
     }
 
-    std::function<void ()>
-    ice_flushBatchRequestsAsync(::std::function<void (::std::exception_ptr)> ex,
-                                ::std::function<void (bool)> sent = nullptr)
+    std::function<void()>
+    ice_flushBatchRequestsAsync(::std::function<void(::std::exception_ptr)> ex,
+                                ::std::function<void(bool)> sent = nullptr)
     {
         using LambdaOutgoing = ::IceInternal::ProxyFlushBatchLambda;
         auto outAsync = ::std::make_shared<LambdaOutgoing>(shared_from_this(), ex, sent);

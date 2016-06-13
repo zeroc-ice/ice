@@ -21,16 +21,16 @@ class WstringClassI : public virtual WstringClassDisp
 public:
 
     void opStringAsync(std::wstring,
-                       std::function<void (const std::wstring&, const std::wstring&)>,
-                       std::function<void (std::exception_ptr)>, const Ice::Current&) override;
+                       std::function<void(const std::wstring&, const std::wstring&)>,
+                       std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
     void opStructAsync(::Test1::WstringStruct,
-                       std::function<void (const ::Test1::WstringStruct&, const ::Test1::WstringStruct&)>,
-                       std::function<void (std::exception_ptr)>, const Ice::Current&) override;
+                       std::function<void(const ::Test1::WstringStruct&, const ::Test1::WstringStruct&)>,
+                       std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
     void throwExceptAsync(std::wstring,
-                          std::function<void ()>,
-                          std::function<void (std::exception_ptr)>, const Ice::Current&) override;
+                          std::function<void()>,
+                          std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 };
 #else
 class WstringClassI : public virtual WstringClass
@@ -60,16 +60,16 @@ class WstringClassI : public virtual WstringClassDisp
 public:
 
     void opStringAsync(std::wstring,
-                       std::function<void (const std::wstring&, const std::wstring&)>,
-                       std::function<void (std::exception_ptr)>, const Ice::Current&) override;
+                       std::function<void(const std::wstring&, const std::wstring&)>,
+                       std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
     void opStructAsync(::Test2::WstringStruct,
-                       std::function<void (const ::Test2::WstringStruct&, const ::Test2::WstringStruct&)>,
-                       std::function<void (std::exception_ptr)>, const Ice::Current&) override;
+                       std::function<void(const ::Test2::WstringStruct&, const ::Test2::WstringStruct&)>,
+                       std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
     void throwExceptAsync(std::wstring,
-                          std::function<void ()>,
-                          std::function<void (std::exception_ptr)>, const Ice::Current&) override;
+                          std::function<void()>,
+                          std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 };
 
 #else

@@ -76,7 +76,7 @@ private:
     void servicesStopped(const std::vector<std::string>&, const std::set<ServiceObserverPrxPtr>&);
 
 #ifdef ICE_CPP11_MAPPING
-    std::function<void (std::exception_ptr)> makeObserverCompletedCallback(const std::shared_ptr<ServiceObserverPrx>&);
+    std::function<void(std::exception_ptr)> makeObserverCompletedCallback(const std::shared_ptr<ServiceObserverPrx>&);
     void observerRemoved(const std::shared_ptr<ServiceObserverPrx>&, std::exception_ptr);
 #else
     void observerRemoved(const ServiceObserverPrx&, const std::exception&);

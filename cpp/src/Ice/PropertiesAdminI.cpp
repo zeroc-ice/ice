@@ -54,8 +54,8 @@ PropertiesAdminI::getPropertiesForPrefix(const string& prefix, const Current&)
 void
 #ifdef ICE_CPP11_MAPPING
 PropertiesAdminI::setPropertiesAsync(PropertyDict props,
-                                     function<void ()> response,
-                                     function<void (exception_ptr)>,
+                                     function<void()> response,
+                                     function<void(exception_ptr)>,
                                      const Current&)
 #else
 PropertiesAdminI::setProperties_async(const AMD_PropertiesAdmin_setPropertiesPtr& cb, const PropertyDict& props,

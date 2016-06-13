@@ -89,8 +89,8 @@ struct InitializationData
 #ifdef ICE_CPP11_MAPPING
     std::function<void()> threadStart;
     std::function<void()> threadStop;
-    std::function<void (std::function<void ()>, const std::shared_ptr<Ice::Connection>&)> dispatcher;
-    std::function<std::string (int)> compactIdResolver;
+    std::function<void(std::function<void()>, const std::shared_ptr<Ice::Connection>&)> dispatcher;
+    std::function<std::string(int)> compactIdResolver;
     std::function<void(const Ice::BatchRequest&, int, int)> batchRequestInterceptor;
 #else
     ThreadNotificationPtr threadHook;

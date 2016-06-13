@@ -19,8 +19,8 @@ public:
 
 #ifdef ICE_CPP11_MAPPING
     virtual void caseAsync(::Ice::Int,
-                           function<void (int)> response,
-                           function<void (exception_ptr)>,
+                           function<void(int)> response,
+                           function<void(exception_ptr)>,
                            const ::Ice::Current&)
     {
         response(0);
@@ -64,8 +64,8 @@ class doI : public _cpp_and::_cpp_do
 public:
 #ifdef ICE_CPP11_MAPPING
     virtual void caseAsync(::Ice::Int,
-                           function<void (int)>,
-                           function<void (const exception_ptr&)>,
+                           function<void(int)>,
+                           function<void(const exception_ptr&)>,
                            const ::Ice::Current&)
     {
     }

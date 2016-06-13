@@ -1038,7 +1038,7 @@ typedef IceUtil::Handle<Callback> CallbackPtr;
 }
 
 #ifdef ICE_CPP11_MAPPING
-function<void (exception_ptr)>
+function<void(exception_ptr)>
 makeExceptionClosure(CallbackPtr& cb)
 {
     return [&](exception_ptr e)

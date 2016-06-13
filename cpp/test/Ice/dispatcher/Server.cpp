@@ -45,7 +45,7 @@ class DispatcherCall : public Ice::DispatcherCall
 {
 public:
 
-    DispatcherCall(function<void ()> call) :
+    DispatcherCall(function<void()> call) :
         _call(move(call))
     {
     }
@@ -57,7 +57,7 @@ public:
 
 private:
 
-    function<void ()> _call;
+    function<void()> _call;
 };
 #endif
 
@@ -81,7 +81,7 @@ main(int argc, char* argv[])
 
 #ifdef ICE_CPP11_MAPPING
         Ice::DispatcherPtr dispatcher = new Dispatcher();
-        initData.dispatcher = [=](function<void ()> call, const shared_ptr<Ice::Connection>& conn)
+        initData.dispatcher = [=](function<void()> call, const shared_ptr<Ice::Connection>& conn)
             {
                 dispatcher->dispatch(new DispatcherCall(call), conn);
             };

@@ -243,7 +243,7 @@ LookupI::findAdapterById(const string& domainId, const string& adapterId, const 
 
 #ifdef ICE_CPP11_MAPPING
 void
-LookupI::findObject(function<void (const shared_ptr<Ice::ObjectPrx>&)> response, const Ice::Identity& id)
+LookupI::findObject(function<void(const shared_ptr<Ice::ObjectPrx>&)> response, const Ice::Identity& id)
 {
     Lock sync(*this);
     map<Ice::Identity, ObjectRequestPtr>::iterator p = _objectRequests.find(id);
@@ -268,7 +268,7 @@ LookupI::findObject(function<void (const shared_ptr<Ice::ObjectPrx>&)> response,
 }
 
 void
-LookupI::findAdapter(function<void (const shared_ptr<Ice::ObjectPrx>&)> response, const std::string& adapterId)
+LookupI::findAdapter(function<void(const shared_ptr<Ice::ObjectPrx>&)> response, const std::string& adapterId)
 {
     Lock sync(*this);
     map<string, AdapterRequestPtr>::iterator p = _adapterRequests.find(adapterId);

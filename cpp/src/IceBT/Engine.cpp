@@ -135,7 +135,7 @@ public:
             extractProperties(values[1], props);
 
 #ifdef ICE_CPP11_MAPPING
-            vector<function<void (const string&, const PropertyMap&)>> callbacks;
+            vector<function<void(const string&, const PropertyMap&)>> callbacks;
 #else
             vector<DiscoveryCallbackPtr> callbacks;
 #endif
@@ -344,7 +344,7 @@ public:
     }
 
 #ifdef ICE_CPP11_MAPPING
-    void startDiscovery(const string& addr, function<void (const string&, const PropertyMap&)> cb)
+    void startDiscovery(const string& addr, function<void(const string&, const PropertyMap&)> cb)
 #else
     void startDiscovery(const string& addr, const DiscoveryCallbackPtr& cb)
 #endif
@@ -371,7 +371,7 @@ public:
             auto p = _discoveryCallbacks.find(path);
             if(p == _discoveryCallbacks.end())
             {
-                _discoveryCallbacks[path] = vector<function<void (const string&, const PropertyMap&)>>();
+                _discoveryCallbacks[path] = vector<function<void(const string&, const PropertyMap&)>>();
             }
             _discoveryCallbacks[path].push_back(move(cb));
 #else
@@ -929,7 +929,7 @@ public:
     DBus::ConnectionPtr _dbusConnection;
     vector<IceUtil::ThreadPtr> _threads;
 #ifdef ICE_CPP11_MAPPING
-    map<string, vector<function<void (const string&, const PropertyMap&)>>> _discoveryCallbacks;
+    map<string, vector<function<void(const string&, const PropertyMap&)>>> _discoveryCallbacks;
 #else
     map<string, vector<DiscoveryCallbackPtr> > _discoveryCallbacks;
 #endif
@@ -996,7 +996,7 @@ IceBT::Engine::removeService(const string& address, unsigned int handle)
 
 void
 #ifdef ICE_CPP11_MAPPING
-IceBT::Engine::startDiscovery(const string& address, function<void (const string&, const PropertyMap&)> cb)
+IceBT::Engine::startDiscovery(const string& address, function<void(const string&, const PropertyMap&)> cb)
 #else
 IceBT::Engine::startDiscovery(const string& address, const DiscoveryCallbackPtr& cb)
 #endif

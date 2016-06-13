@@ -1485,7 +1485,7 @@ Slice::classDefToDelegateString(const ClassDefPtr& cl, int typeCtx, bool cpp11)
     TypePtr ret = op->returnType();
     string retS = returnTypeToString(ret, op->returnIsOptional(), op->getMetaData(), typeCtx, cpp11);
 
-    string t = "::std::function<" + retS + " (";
+    string t = "::std::function<" + retS + "(";
 
     ParamDeclList paramList = cl->allOperations().front()->parameters();
     for(ParamDeclList::iterator q = paramList.begin(); q != paramList.end(); ++q)

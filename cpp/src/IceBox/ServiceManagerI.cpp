@@ -915,7 +915,7 @@ IceBox::ServiceManagerI::stopAll()
 
 #ifdef ICE_CPP11_MAPPING
 
-function<void (exception_ptr)>
+function<void(exception_ptr)>
 IceBox::ServiceManagerI::makeObserverCompletedCallback(const shared_ptr<ServiceObserverPrx>& observer)
 {
     auto self = weak_from_this();

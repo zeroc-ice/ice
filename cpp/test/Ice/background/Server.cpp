@@ -25,8 +25,8 @@ public:
 #ifdef ICE_CPP11_MAPPING
     virtual void
     findAdapterByIdAsync(string,
-                         function<void (const shared_ptr<Ice::ObjectPrx>&)> response,
-                         function<void (exception_ptr)>,
+                         function<void(const shared_ptr<Ice::ObjectPrx>&)> response,
+                         function<void(exception_ptr)>,
                          const Ice::Current& current) const
     {
         _controller->checkCallPause(current);
@@ -36,8 +36,8 @@ public:
 
     virtual void
     findObjectByIdAsync(Ice::Identity id,
-                        function<void (const shared_ptr<Ice::ObjectPrx>&)> response,
-                        function<void (exception_ptr)>,
+                        function<void(const shared_ptr<Ice::ObjectPrx>&)> response,
+                        function<void(exception_ptr)>,
                         const Ice::Current& current) const
     {
         _controller->checkCallPause(current);

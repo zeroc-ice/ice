@@ -16,56 +16,56 @@ using namespace Ice;
 
 #ifdef ICE_CPP11_MAPPING
 void
-TestAMDI::requestFailedExceptionAsync(function<void ()> response, function<void (exception_ptr)>, const Current&)
+TestAMDI::requestFailedExceptionAsync(function<void()> response, function<void(exception_ptr)>, const Current&)
 {
     response();
 }
 
 void
-TestAMDI::unknownUserExceptionAsync(function<void ()> response, function<void (exception_ptr)>, const Current&)
+TestAMDI::unknownUserExceptionAsync(function<void()> response, function<void(exception_ptr)>, const Current&)
 {
     response();
 }
 
 void
-TestAMDI::unknownLocalExceptionAsync(function<void ()> response, function<void (exception_ptr)>, const Current&)
+TestAMDI::unknownLocalExceptionAsync(function<void()> response, function<void(exception_ptr)>, const Current&)
 {
     response();
 }
 
 void
-TestAMDI::unknownExceptionAsync(function<void ()> response, function<void (exception_ptr)>, const Current&)
+TestAMDI::unknownExceptionAsync(function<void()> response, function<void(exception_ptr)>, const Current&)
 {
     response();
 }
 
 void
-TestAMDI::userExceptionAsync(function<void ()> response, function<void (exception_ptr)>, const Current&)
+TestAMDI::userExceptionAsync(function<void()> response, function<void(exception_ptr)>, const Current&)
 {
     response();
 }
 
 void
-TestAMDI::localExceptionAsync(function<void ()> response, function<void (exception_ptr)>, const Current&)
+TestAMDI::localExceptionAsync(function<void()> response, function<void(exception_ptr)>, const Current&)
 {
     response();
 }
 
 void
-TestAMDI::stdExceptionAsync(function<void ()> response, function<void (exception_ptr)>, const Current&)
+TestAMDI::stdExceptionAsync(function<void()> response, function<void(exception_ptr)>, const Current&)
 {
     response();
 }
 
 void
-TestAMDI::cppExceptionAsync(function<void ()> response, function<void (exception_ptr)>, const Current&)
+TestAMDI::cppExceptionAsync(function<void()> response, function<void(exception_ptr)>, const Current&)
 {
     response();
 }
 
 void
-TestAMDI::unknownExceptionWithServantExceptionAsync(function<void ()>,
-                                                    function<void (exception_ptr)> error,
+TestAMDI::unknownExceptionWithServantExceptionAsync(function<void()>,
+                                                    function<void(exception_ptr)> error,
                                                     const Current&)
 {
     try
@@ -80,8 +80,8 @@ TestAMDI::unknownExceptionWithServantExceptionAsync(function<void ()>,
 
 void
 TestAMDI::impossibleExceptionAsync(bool _cpp_throw,
-                                   function<void (const string&)> response,
-                                   function<void (exception_ptr)> error,
+                                   function<void(const string&)> response,
+                                   function<void(exception_ptr)> error,
                                    const Current&)
 {
     if(_cpp_throw)
@@ -107,8 +107,8 @@ TestAMDI::impossibleExceptionAsync(bool _cpp_throw,
 
 void
 TestAMDI::intfUserExceptionAsync(bool _cpp_throw,
-                                 function<void (const string&)> response,
-                                 function<void (exception_ptr)> error,
+                                 function<void(const string&)> response,
+                                 function<void(exception_ptr)> error,
                                  const Current&)
 {
     if(_cpp_throw)
@@ -133,8 +133,8 @@ TestAMDI::intfUserExceptionAsync(bool _cpp_throw,
 }
 
 void
-TestAMDI::asyncResponseAsync(function<void ()> response,
-                             function<void (exception_ptr)>,
+TestAMDI::asyncResponseAsync(function<void()> response,
+                             function<void(exception_ptr)>,
                              const Current&)
 {
     response();
@@ -142,8 +142,8 @@ TestAMDI::asyncResponseAsync(function<void ()> response,
 }
 
 void
-TestAMDI::asyncExceptionAsync(function<void ()> response,
-                              function<void (exception_ptr)> error,
+TestAMDI::asyncExceptionAsync(function<void()> response,
+                              function<void(exception_ptr)> error,
                               const Current&)
 {
     try
@@ -158,8 +158,8 @@ TestAMDI::asyncExceptionAsync(function<void ()> response,
 }
 
 void
-TestAMDI::shutdownAsync(function<void ()> response,
-                        function<void (exception_ptr)> error,
+TestAMDI::shutdownAsync(function<void()> response,
+                        function<void(exception_ptr)> error,
                         const Current& current)
 {
     current.adapter->deactivate();

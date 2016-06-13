@@ -45,7 +45,7 @@ public:
         return --_nRetry >= 0;
     }
 
-    bool addCallback(std::function<void (const std::shared_ptr<::Ice::ObjectPrx>&)> cb)
+    bool addCallback(std::function<void(const std::shared_ptr<::Ice::ObjectPrx>&)> cb)
     {
         _callbacks.push_back(cb);
         return _callbacks.size() == 1;
@@ -65,7 +65,7 @@ protected:
     LookupIPtr _lookup;
     const T _id;
     int _nRetry;
-    std::vector<std::function<void (const std::shared_ptr<::Ice::ObjectPrx>&)>> _callbacks;
+    std::vector<std::function<void(const std::shared_ptr<::Ice::ObjectPrx>&)>> _callbacks;
 };
 
 class ObjectRequest : public Request<Ice::Identity>, public Ice::EnableSharedFromThis<ObjectRequest>
@@ -223,8 +223,8 @@ public:
                                 const Ice::Current&);
     virtual void findAdapterById(std::string, std::string, ::std::shared_ptr<IceDiscovery::LookupReplyPrx>,
                                  const Ice::Current&);
-    void findObject(std::function<void (const std::shared_ptr<Ice::ObjectPrx>&)>, const Ice::Identity&);
-    void findAdapter(std::function<void (const std::shared_ptr<Ice::ObjectPrx>&)>, const std::string&);
+    void findObject(std::function<void(const std::shared_ptr<Ice::ObjectPrx>&)>, const Ice::Identity&);
+    void findAdapter(std::function<void(const std::shared_ptr<Ice::ObjectPrx>&)>, const std::string&);
 #else
     virtual void findObjectById(const std::string&, const Ice::Identity&, const IceDiscovery::LookupReplyPrx&,
                                 const Ice::Current&);

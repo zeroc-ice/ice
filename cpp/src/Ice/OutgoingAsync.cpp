@@ -1110,7 +1110,7 @@ OutgoingAsync::invoke(const string& operation,
                       Ice::OperationMode mode,
                       Ice::FormatType format,
                       const Ice::Context& context,
-                      const function<void (Ice::OutputStream*)>& write)
+                      const function<void(Ice::OutputStream*)>& write)
 {
     try
     {

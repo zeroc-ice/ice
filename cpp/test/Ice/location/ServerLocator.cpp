@@ -21,8 +21,8 @@ ServerLocatorRegistry::ServerLocatorRegistry()
 #ifdef ICE_CPP11_MAPPING
 void
 ServerLocatorRegistry::setAdapterDirectProxyAsync(string adapter, ::shared_ptr<::Ice::ObjectPrx> object,
-                                                  function<void ()> response,
-                                                  function<void (exception_ptr)>,
+                                                  function<void()> response,
+                                                  function<void(exception_ptr)>,
                                                   const ::Ice::Current&)
 #else
 void
@@ -49,8 +49,8 @@ ServerLocatorRegistry::setAdapterDirectProxy_async(const Ice::AMD_LocatorRegistr
 #ifdef ICE_CPP11_MAPPING
 void
 ServerLocatorRegistry::setReplicatedAdapterDirectProxyAsync(string adapter, string replicaGroup, shared_ptr<Ice::ObjectPrx> object,
-                                                            function<void ()> response,
-                                                            function<void (exception_ptr)>,
+                                                            function<void()> response,
+                                                            function<void(exception_ptr)>,
                                                             const ::Ice::Current&)
 #else
 void
@@ -81,8 +81,8 @@ ServerLocatorRegistry::setReplicatedAdapterDirectProxy_async(
 void
 ServerLocatorRegistry::setServerProcessProxyAsync(string,
                                                   shared_ptr<Ice::ProcessPrx>,
-                                                  function<void ()> response,
-                                                  function<void (exception_ptr)>,
+                                                  function<void()> response,
+                                                  function<void(exception_ptr)>,
                                                   const ::Ice::Current&)
 {
     response();
@@ -147,8 +147,8 @@ ServerLocator::ServerLocator(const ServerLocatorRegistryPtr& registry, const ::I
 #ifdef ICE_CPP11_MAPPING
 void
 ServerLocator::findObjectByIdAsync(::Ice::Identity id,
-                                   function<void (const shared_ptr<Ice::ObjectPrx>&)> response,
-                                   function<void (exception_ptr)>,
+                                   function<void(const shared_ptr<Ice::ObjectPrx>&)> response,
+                                   function<void(exception_ptr)>,
                                    const ::Ice::Current&) const
 #else
 void
@@ -170,8 +170,8 @@ ServerLocator::findObjectById_async(const Ice::AMD_Locator_findObjectByIdPtr& re
 #ifdef ICE_CPP11_MAPPING
 void
 ServerLocator::findAdapterByIdAsync(string id,
-                                    function<void (const shared_ptr<Ice::ObjectPrx>&)> response,
-                                    function<void (exception_ptr)>,
+                                    function<void(const shared_ptr<Ice::ObjectPrx>&)> response,
+                                    function<void(exception_ptr)>,
                                     const ::Ice::Current& current) const
 {
     ++const_cast<int&>(_requestCount);

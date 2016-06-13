@@ -6354,7 +6354,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
     // Lambda based asynchronous operation
     //
     H << sp;
-    H << nl << "::std::function<void ()>";
+    H << nl << "::std::function<void()>";
     H << nl << name << "Async(";
     H.useCurrentPosAsIndent();
     if(!lambdaParamsDecl.empty())
@@ -6365,9 +6365,9 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
         }
         H << nl;
     }
-    H << "::std::function<void " << spar << lambdaOutParams << epar << "> __response,";
-    H << nl << "::std::function<void (::std::exception_ptr)> __ex = nullptr,";
-    H << nl << "::std::function<void (bool)> __sent = nullptr,";
+    H << "::std::function<void" << spar << lambdaOutParams << epar << "> __response,";
+    H << nl << "::std::function<void(::std::exception_ptr)> __ex = nullptr,";
+    H << nl << "::std::function<void(bool)> __sent = nullptr,";
     H << nl << "const ::Ice::Context& __ctx = Ice::noExplicitContext)";
     H.restoreIndent();
     H << sb;
@@ -7033,7 +7033,7 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitOperation(const OperationPtr& p)
         }
 
         H << sp;
-        H << nl << "virtual ::std::function<void ()>";
+        H << nl << "virtual ::std::function<void()>";
         H << nl << name << "Async(";
         H.useCurrentPosAsIndent();
         for(vector<string>::const_iterator i = paramsDeclAMI.begin(); i != paramsDeclAMI.end(); ++i)
@@ -7044,8 +7044,8 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitOperation(const OperationPtr& p)
         {
             H << nl;
         }
-        H << "::std::function<void (::std::exception_ptr)> exception,";
-        H << nl << "::std::function<void (bool)> sent = nullptr) = 0;";
+        H << "::std::function<void(::std::exception_ptr)> exception,";
+        H << nl << "::std::function<void(bool)> sent = nullptr) = 0;";
         H.restoreIndent();
 
         H << sp;
@@ -7493,8 +7493,8 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
         {
             H << "," << nl;
         }
-        H << "::std::function<void (" << responseParams << ")>," << nl
-          << "::std::function<void (::std::exception_ptr)>, const Ice::Current&)" << isConst << " = 0;";
+        H << "::std::function<void(" << responseParams << ")>," << nl
+          << "::std::function<void(::std::exception_ptr)>, const Ice::Current&)" << isConst << " = 0;";
         H.restoreIndent();
     }
 
@@ -8356,8 +8356,8 @@ Slice::Gen::Cpp11ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
 
             string isConst = ((op->mode() == Operation::Nonmutating) || op->hasMetaData("cpp:const")) ? " const" : "";
 
-            H << "std::function<void (" << responseParams << ")>,";
-            H << nl << "std::function<void (std::exception_ptr)>,";
+            H << "std::function<void(" << responseParams << ")>,";
+            H << nl << "std::function<void(std::exception_ptr)>,";
             H << nl << "const Ice::Current&)" << isConst << ';';
             H.restoreIndent();
 
@@ -8369,8 +8369,8 @@ Slice::Gen::Cpp11ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
                 C << ' ' << fixKwd((*q)->name()) << "," << nl;
             }
 
-            C << "std::function<void (" << responseParams << ")> " << opName << "_response,";
-            C << nl << "std::function<void (std::exception_ptr)>,";
+            C << "std::function<void(" << responseParams << ")> " << opName << "_response,";
+            C << nl << "std::function<void(std::exception_ptr)>,";
             C << nl << "const Ice::Current& current)" << isConst;
             C.restoreIndent();
             C << sb;

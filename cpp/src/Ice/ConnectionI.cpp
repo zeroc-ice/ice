@@ -808,9 +808,9 @@ Ice::ConnectionI::flushBatchRequests()
     Connection::flushBatchRequestsAsync().get();
 }
 
-std::function<void ()>
-Ice::ConnectionI::flushBatchRequestsAsync(::std::function<void (::std::exception_ptr)> ex,
-                                           ::std::function<void (bool)> sent)
+std::function<void()>
+Ice::ConnectionI::flushBatchRequestsAsync(::std::function<void(::std::exception_ptr)> ex,
+                                           ::std::function<void(bool)> sent)
 {
     class ConnectionFlushBatchLambda : public ConnectionFlushBatchAsync, public LambdaInvoke
     {
@@ -818,8 +818,8 @@ Ice::ConnectionI::flushBatchRequestsAsync(::std::function<void (::std::exception
 
         ConnectionFlushBatchLambda(std::shared_ptr<Ice::ConnectionI>&& connection,
                                    const InstancePtr& instance,
-                                   std::function<void (std::exception_ptr)> ex,
-                                   std::function<void (bool)> sent) :
+                                   std::function<void(std::exception_ptr)> ex,
+                                   std::function<void(bool)> sent) :
             ConnectionFlushBatchAsync(connection, instance), LambdaInvoke(std::move(ex), std::move(sent))
         {
         }
