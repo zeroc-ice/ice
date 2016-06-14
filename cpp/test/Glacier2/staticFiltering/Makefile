@@ -41,3 +41,6 @@ $(SERVER): $(SOBJS)
 
 clean::
 	-rm -f attack.cfg router.cfg server.cfg
+
+clean::
+	rm -rf passwords

@@ -14,7 +14,7 @@ SERVER		= $(call mktestname,server)
 COLLOCATED	= $(call mktestname,collocated)
 TESTLIBNAME	= libTestDerived.a
 
-TARGETS		= $(CLIENT) $(SERVER) $(COLLOCATED)
+TARGETS		= $(CLIENT) $(SERVER) $(COLLOCATED) $(TESTLIBNAME)
 
 SLICE_OBJS	= Test.o \
 		  Derived.o \
