@@ -108,6 +108,16 @@ def isSparc():
     else:
         return False
 
+def dpkgHostMultiArch():
+    p = subprocess.Popen("dpkg-architecture -qDEB_HOST_MULTIARCH", stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+    if not p or not p.stdout:
+        print("unable to get system information!")
+        sys.exit(1)
+    return p.stdout.readline().decode("utf-8").strip()
+
+def isI686():
+    return x86 or any(platform.machine() == p for p in ["i386", "i686"])
+
 def isAIX():
     return sys.platform in ['aix4', 'aix5']
 
@@ -115,7 +125,7 @@ def isDarwin():
     return sys.platform == "darwin"
 
 def isLinux():
-    return sys.platform.startswith("linux")
+    return sys.platform.startswith("linux") or sys.platform.startswith("gnukfreebsd")
 
 def isUbuntu():
     return isLinux() and linuxDistribution and linuxDistribution == "Ubuntu"
@@ -127,16 +137,13 @@ def isYocto():
     return isLinux() and linuxDistribution and linuxDistribution == "Yocto"
 
 def isDebian():
-    return (isLinux() and linuxDistribution and linuxDistribution == "Debian") or isDebianFreeBSD()
+    return (isLinux() and linuxDistribution and linuxDistribution == "Debian")
 
 def isSles():
     return isLinux() and linuxDistribution and linuxDistribution == "SUSE LINUX"
 
 def iceUseOpenSSL():
-    return any(sys.platform.startswith(p) for p in ["linux", "freebsd", "gnukfreebsd"])
-
-def isDebianFreeBSD():
-    return sys.platform.startswith("gnukfreebsd")
+    return any(sys.platform.startswith(p) for p in ["linux", "freebsd"])
 
 def getCppCompiler():
     compiler = ""
@@ -796,7 +803,7 @@ def getIceBox():
                 iceBox += "d"
             iceBox += ".exe"
         elif isLinux():
-            if not x64 and not armv7l:
+            if isI686():
                 iceBox += "32"
             if cpp11:
                 iceBox += "++11"
@@ -1779,12 +1786,7 @@ def getCppLibDir(lang = None):
     else:
         libDir = os.path.join(getIceDir("cpp"), "lib")
         if isUbuntu() or isDebian():
-            if armv7l:
-                libDir = os.path.join(libDir, "arm-linux-gnueabihf")
-            elif x64:
-                libDir = os.path.join(libDir, "x86_64-linux-gnu")
-            else:
-                libDir = os.path.join(libDir, "i386-linux-gnu")
+            libDir = os.path.join(libDir, dpkgHostMultiArch())
         elif x64:
             if isSolaris():
                 if isSparc():
@@ -1814,7 +1816,7 @@ def getJavaLibraryPath():
             libpath = os.environ["LD_LIBRARY_PATH"] + ":" + libpath
         return "-Djava.library.path=%s " % libpath
     elif isUbuntu() or isDebian():
-        libpath = ("/usr/lib/x86_64-linux-gnu" if x64 else "/usr/lib/i386-linux-gnu")
+        libpath = "/usr/lib/" + dpkgHostMultiArch()
         if "LD_LIBRARY_PATH" in os.environ:
             libpath = os.environ["LD_LIBRARY_PATH"] + ":" + libpath
         return "-Djava.library.path=%s " % libpath
