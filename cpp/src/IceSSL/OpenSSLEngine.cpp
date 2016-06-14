@@ -55,6 +55,9 @@ public:
 
     ~Init()
     {
+        CRYPTO_set_locking_callback(0);
+        CRYPTO_set_id_callback(0);
+
         delete staticMutex;
         staticMutex = 0;
 
