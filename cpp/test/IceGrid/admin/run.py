@@ -200,7 +200,7 @@ try:
 except Exception as e:
   admin.terminate()
   print("error: " + str(e))
-  print "failed!"
+  print("failed!")
 
 # sys.stdout.write("testing icegridadmin... ")
 # sys.stdout.flush()
