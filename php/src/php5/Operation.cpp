@@ -460,7 +460,7 @@ IcePHP::TypedInvocation::TypedInvocation(const Ice::ObjectPrx& prx, const Commun
 }
 
 bool
-IcePHP::TypedInvocation::prepareRequest(int argc, zval** args, Ice::OutputStreamPtr& os, 
+IcePHP::TypedInvocation::prepareRequest(int argc, zval** args, Ice::OutputStreamPtr& os,
                                         pair<const Ice::Byte*, const Ice::Byte*>& params TSRMLS_DC)
 {
     //
@@ -501,7 +501,7 @@ IcePHP::TypedInvocation::prepareRequest(int argc, zval** args, Ice::OutputStream
             {
                 ParamInfoPtr info = *p;
                 zval* arg = args[info->pos];
-                if((!info->optional || !isUnset(arg TSRMLS_CC)) && !info->type->validate(arg TSRMLS_CC))
+                if((!info->optional || !isUnset(arg TSRMLS_CC)) && !info->type->validate(arg, false TSRMLS_CC))
                 {
                     invalidArgument("invalid value for argument %d in operation `%s'" TSRMLS_CC, info->pos + 1,
                                     _op->name.c_str());
@@ -770,7 +770,7 @@ IcePHP::SyncTypedInvocation::invoke(INTERNAL_FUNCTION_PARAMETERS)
         runtimeError("unable to get arguments" TSRMLS_CC);
         return;
     }
-    
+
     Ice::OutputStreamPtr os;
     pair<const Ice::Byte*, const Ice::Byte*> params;
     if(!prepareRequest(ZEND_NUM_ARGS(), *args, os, params TSRMLS_CC))

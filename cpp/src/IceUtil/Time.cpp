@@ -63,7 +63,7 @@ InitializeFrequency frequencyInitializer;
 }
 #endif
 
-#ifdef __APPLE__
+#if defined(__APPLE__)
 namespace
 {
 
@@ -137,7 +137,7 @@ IceUtil::Time::now(Clock clock)
 #  endif
             return Time(static_cast<Int64>(tb.time) * ICE_INT64(1000000) + tb.millitm * 1000);
         }
-#elif defined(__hpux)
+#elif defined(__hppa)
         //
         // HP does not support CLOCK_MONOTONIC
         //

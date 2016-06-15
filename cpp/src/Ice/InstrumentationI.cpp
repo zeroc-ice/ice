@@ -25,8 +25,6 @@ using namespace IceMX;
 namespace 
 {
 
-Context emptyCtx;
-
 int ThreadMetrics::*
 getThreadStateMetric(ThreadState s)
 {
@@ -354,7 +352,7 @@ public:
     };
     static Attributes attributes;
     
-    InvocationHelper(const ObjectPrx& proxy, const string& op, const Context& ctx = emptyCtx) :
+    InvocationHelper(const ObjectPrx& proxy, const string& op, const Context& ctx) :
         _proxy(proxy), _operation(op), _context(ctx)
     {
     }

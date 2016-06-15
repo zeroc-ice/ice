@@ -27,7 +27,7 @@ OBJS		= Communicator.o \
 
 include $(top_srcdir)/config/Make.rules.php
 
-CPPFLAGS	:= -I. $(CPPFLAGS) $(ICE_FLAGS) $(shell php-config --includes)
+CPPFLAGS	:= -I. $(CPPFLAGS) $(ICE_FLAGS) $(shell $(PHP_CONFIG) --includes)
 
 LINKWITH        := $(ICE_LIBS) $(CXXLIBS)
 

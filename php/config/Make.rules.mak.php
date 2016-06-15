@@ -26,10 +26,10 @@ prefix			= $(PREFIX)
 OPTIMIZE		= yes
 
 #
-# Specify your C++ compiler. The only value currently supported to
-# build IcePHP is VC110. Leave unset for auto-detection.
+# Specify your C++ compiler. The only values currently supported to
+# build IcePHP are VC110 (PHP 5) and VC140 (PHP 7).
 #
-#CPP_COMPILER		= VCxxx
+CPP_COMPILER		= auto
 
 #
 # Determines whether the extension uses PHP namespaces (requires
@@ -105,6 +105,14 @@ install_libdir	= $(prefix)\php
 !include $(top_srcdir)\config\Make.rules.msvc
 !endif
 
+!if "$(CPP_COMPILER)" == "VC110"
+php_version		= php5
+!else if "$(CPP_COMPILER)" == "VC140"
+php_version		= php7
+!else
+!error Invalid CPP_COMPILER setting: $(CPP_COMPILER). Must be set to VC110 or VC140.
+!endif
+
 libsuff         = $(x64suffix)
 
 !if "$(OPTIMIZE)" != "yes"
@@ -132,9 +140,9 @@ ICE_LDFLAGS     = /LIBPATH:"$(ice_dir)\lib$(libsuff)"
 slicedir        = $(ice_dir)\slice
 
 !if "$(PHP_ZTS)" == "yes"
-PHP_LIB_PREFIX	= php5ts
+PHP_LIB_PREFIX	= $(php_version)ts
 !else
-PHP_LIB_PREFIX	= php5
+PHP_LIB_PREFIX	= $(php_version)
 !endif
 
 !if "$(OPTIMIZE)" != "yes"

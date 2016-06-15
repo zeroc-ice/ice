@@ -55,6 +55,9 @@ public:
 
     ~Init()
     {
+        CRYPTO_set_locking_callback(0);
+        CRYPTO_set_id_callback(0);
+
         delete staticMutex;
         staticMutex = 0;
 
@@ -102,7 +105,7 @@ IceSSL_opensslThreadIdCallback()
     // On some platforms, pthread_t is a pointer to a per-thread structure.
     //
     return reinterpret_cast<unsigned long>(pthread_self());
-#  elif (defined(__linux) || defined(__sun) || defined(__hpux)) || defined(_AIX)
+#  elif defined(__linux) || defined(__sun) || defined(__hpux) || defined(_AIX) || defined(__GLIBC__)
     //
     // On Linux, Solaris, HP-UX and AIX, pthread_t is an integer.
     //

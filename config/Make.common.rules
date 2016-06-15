@@ -27,6 +27,10 @@ INSTALL_DATA	= ${INSTALL}
 OBJEXT		= .o
 
 UNAME		:= $(shell uname)
+ifeq ($(UNAME),GNU/kFreeBSD)
+UNAME       := Linux
+endif
+
 MACHINE_TYPE	:= $(shell uname -m)
 
 #
@@ -87,13 +91,6 @@ endif
 ifeq ($(UNAME),Linux)
    ifeq ($(MACHINE_TYPE),x86_64)
       #
-      # Ubuntu.
-      #
-      ifeq ($(shell test -d $(usr_dir)/lib/x86_64-linux-gnu && echo 0),0)
-         lp64suffix	= /x86_64-linux-gnu
-      endif
-
-      #
       # Rhel/SLES
       #
       ifeq ($(shell test -d $(usr_dir)/lib64 && echo 0),0)
@@ -103,16 +100,25 @@ ifeq ($(UNAME),Linux)
       ifeq ($(LP64),)
           LP64      	= yes
       endif
+
+      #
+      # x86 binaries build on x86_64 machine use 32 binsuffix
+      #
+      ifneq ($(STATICLIBS),yes)
+          ifneq ($(LP64),yes)
+              binsuffix	= 32
+          endif
+      endif
    endif
+
+   #
+   # x86 builds uses 32 binsuffix
+   #
    ifneq ($(STATICLIBS),yes)
-	ifneq ($(LP64),yes)
+	ifeq ($(findstring $(MACHINE_TYPE),i386 i486 i586 i686),$(MACHINE_TYPE))
 	    binsuffix     = 32
 	endif
     endif
-endif
-
-ifeq ($(shell test -d $(usr_dir)/lib/i386-linux-gnu && echo 0),0)
-    lp32suffix     = /i386-linux-gnu
 endif
 
 ifeq ($(CPP11),yes)
@@ -132,6 +138,17 @@ ifneq ($(findstring MINGW,$(UNAME)),)
         LP64                    := yes
     endif
 endif
+
+#
+# Debian
+#
+ifneq ($(wildcard /etc/debian_version),)
+    DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
+    lp64suffix		?= /$(DEB_HOST_MULTIARCH)
+    lp32suffix		?= /$(DEB_HOST_MULTIARCH)
+endif
+
+
 
 ifeq ($(LP64),yes)
     libsubdir		:= lib$(lp64suffix)
@@ -240,9 +257,9 @@ ifndef ice_src_dist
     ifndef slice_translator
         slice_translator = slice2cpp
     endif
-
     ifneq ($(ICE_HOME),)
         ifneq ("$(ice_language)", "python")
+
             ifneq ($(shell test -f $(ICE_HOME)/$(binsubdir)/$(slice_translator) && echo 0), 0)
 $(error Unable to find $(slice_translator) in $(ICE_HOME)/$(binsubdir), please verify ICE_HOME is properly configured and Ice is correctly installed.)
             endif
@@ -463,10 +480,6 @@ install-common::
 	then \
 	    echo "Creating $(DESTDIR)$(install_slicedir)..." ; \
 	    $(call mkdir, $(DESTDIR)$(install_slicedir), -p) ; \
-	    if test ! -z "$(usr_dir_install)" ; \
-	    then \
-		    ln -s Ice-$(VERSION)/slice $(DESTDIR)/$(prefix)/share/slice ; \
-	    fi ; \
 	    cd $(top_srcdir)/../slice ; \
 	    for subdir in * ; \
 	    do \

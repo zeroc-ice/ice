@@ -37,7 +37,7 @@
 #endif
 #endif
 
-#if defined(__linux) || defined(__sun) || defined(_AIX)
+#if defined(__linux) || defined(__sun) || defined(_AIX) || defined(__GLIBC__)
 #   include <grp.h> // for initgroups
 #endif
 

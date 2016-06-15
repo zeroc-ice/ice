@@ -17,6 +17,10 @@ ifneq ($(MAKECMDGOALS),install)
 SUBDIRS		:= $(SUBDIRS) test
 endif
 
+ifeq ($(NOTEST),yes)
+    SUBDIRS		:= $(filter-out test, $(SUBDIRS))
+endif
+
 INSTALL_SUBDIRS = $(install_phpdir) $(install_libdir)
 
 install:: install-common
