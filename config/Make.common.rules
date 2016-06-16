@@ -90,6 +90,7 @@ endif
 
 ifeq ($(UNAME),Linux)
    ifeq ($(MACHINE_TYPE),x86_64)
+      HOST_ARCH		= amd64
       #
       # Rhel/SLES
       #
@@ -143,7 +144,8 @@ endif
 # Debian
 #
 ifneq ($(wildcard /etc/debian_version),)
-    DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
+    HOST_ARCH          	= $(shell dpkg-architecture -qDEB_HOST_ARCH)
+    DEB_HOST_MULTIARCH 	?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
     lp64suffix		?= /$(DEB_HOST_MULTIARCH)
     lp32suffix		?= /$(DEB_HOST_MULTIARCH)
 endif

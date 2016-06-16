@@ -79,7 +79,12 @@ ifeq ($(GCC_COMPILER),yes)
         CXXARCHFLAGS	+= -mtune=v8 -pipe -Wno-deprecated -DICE_USE_MUTEX_SHARED
     endif
 
-    ifeq ($(MACHINE),x86_64)
+    #
+    # Only use multilib -m32/-m64 options for amd64 arch, x32 arch can also run
+    # in amd64 macines but doesn't use multilib, in this case MACHINE_TYPE will
+    # be x86_64 and HOST_ARCH x32.
+    #
+    ifeq ($(HOST_ARCH),amd64)
         ifeq ($(LP64),yes)
             CXXARCHFLAGS	+= -m64
         else
