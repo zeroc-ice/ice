@@ -48,12 +48,14 @@ std::string opFormatTypeToString(const OperationPtr&);
 std::string fixKwd(const std::string&);
 
 void writeMarshalUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, bool, int, const std::string&,
-                                         bool, const StringList& = StringList(), int = 0, const std::string& = "",
-                                         bool = true);
+                               bool, const StringList& = StringList(), int = 0, const std::string& = "",
+                               bool = true, const std::string& = "");
 
 void writeMarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool, int = 0);
-void writeUnmarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool, int = 0);
-void writeAllocateCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool, int = 0, bool = false);
+void writeUnmarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool, int = 0,
+                        const std::string& = "", const std::string& = "");
+void writeAllocateCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool, int = 0,
+                       bool = false);
 
 std::string getEndArg(const TypePtr&, const StringList&, const std::string&);
 void writeEndCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool = false);

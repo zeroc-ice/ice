@@ -23,6 +23,8 @@ StartBlock sb;
 EndBlock eb;
 StartPar spar;
 EndPar epar;
+StartAbrk sabrk;
+EndAbrk eabrk;
 Separator sp;
 EndElement ee;
 StartEscapes startEscapes;
@@ -302,17 +304,17 @@ IceUtilInternal::Output::eb()
 }
 
 void
-IceUtilInternal::Output::spar()
+IceUtilInternal::Output::spar(char c)
 {
-    _out << '(';
+    _out << c;
     _par = 0;
 }
 
 void
-IceUtilInternal::Output::epar()
+IceUtilInternal::Output::epar(char c)
 {
     _par = -1;
-    _out << ')';
+    _out << c;
 }
 
 Output&

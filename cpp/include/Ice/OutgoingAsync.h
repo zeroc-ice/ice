@@ -542,27 +542,24 @@ public:
     {
         _response = [this, response](bool ok)
         {
-            if(ok)
+            if(!ok)
+            {
+                this->throwUserException();
+            }
+            else if(response)
             {
                 assert(this->_read);
                 this->_is.startEncapsulation();
                 R v = this->_read(&this->_is);
                 this->_is.endEncapsulation();
-                if(response)
+                try
                 {
-                    try
-                    {
-                        response(std::move(v));
-                    }
-                    catch(...)
-                    {
-                        throw std::current_exception();
-                    }
+                    response(std::move(v));
                 }
-            }
-            else
-            {
-                this->throwUserException();
+                catch(...)
+                {
+                    throw std::current_exception();
+                }
             }
         };
     }
@@ -581,45 +578,66 @@ public:
     {
         _response = [this, response](bool ok)
         {
-            if(this->_is.b.empty())
-            {
-                //
-                // If there's no response (oneway, batch-oneway proxies), we just set the promise
-                // on completion without reading anything from the input stream. This is required for
-                // batch invocations.
-                //
-                if(response)
-                {
-                    try
-                    {
-                        response();
-                    }
-                    catch(...)
-                    {
-                        throw std::current_exception();
-                    }
-                }
-            }
-            else if(ok)
-            {
-                this->_is.skipEmptyEncapsulation();
-                if(response)
-                {
-                    try
-                    {
-                        response();
-                    }
-                    catch(...)
-                    {
-                        throw std::current_exception();
-                    }
-                }
-            }
-            else
+            if(!ok)
             {
                 this->throwUserException();
             }
+            else if(response)
+            {
+                if(!this->_is.b.empty())
+                {
+                    this->_is.skipEmptyEncapsulation();
+                }
+
+                try
+                {
+                    response();
+                }
+                catch(...)
+                {
+                    throw std::current_exception();
+                }
+            }
         };
+    }
+};
+
+class ICE_API CustomLambdaOutgoing : public OutgoingAsync, public LambdaInvoke
+{
+public:
+
+    CustomLambdaOutgoing(const std::shared_ptr<Ice::ObjectPrx>& proxy,
+                         std::function<void(Ice::InputStream*)> read,
+                         std::function<void(::std::exception_ptr)>& ex,
+                         std::function<void(bool)>& sent) :
+        OutgoingAsync(proxy), LambdaInvoke(std::move(ex), std::move(sent))
+    {
+        _response = [this, read](bool ok)
+        {
+            if(!ok)
+            {
+                this->throwUserException();
+            }
+            else if(read)
+            {
+                //
+                // Read and respond
+                //
+                read(&this->_is);
+            }
+        };
+    }
+
+    void
+    invoke(const std::string& operation,
+           Ice::OperationMode mode,
+           Ice::FormatType format,
+           const Ice::Context& ctx,
+           std::function<void(Ice::OutputStream*)>&& write,
+           std::function<void(const Ice::UserException&)>&& userException)
+    {
+        _userException = std::move(userException);
+        OutgoingAsync::invoke(operation, mode, format, ctx, write);
     }
 };
 

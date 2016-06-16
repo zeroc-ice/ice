@@ -11,12 +11,7 @@
 #define CUSTOM_MAP_H
 
 #include <IceUtil/Config.h>
-
-#ifdef ICE_CPP11_COMPILER
-#   include <unordered_map>
-#else
-#   include <map>
-#endif
+#include <map>
 
 namespace Test
 {

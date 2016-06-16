@@ -74,7 +74,7 @@ Ice::ObjectPrx::__ice_isA(const shared_ptr<IceInternal::OutgoingAsyncT<bool>>& o
                           const string& typeId,
                           const Context& ctx)
 {
-    __checkAsyncTwowayOnly("__ice_isA");
+    __checkAsyncTwowayOnly(ice_isA_name);
     outAsync->invoke(ice_isA_name, OperationMode::Nonmutating, DefaultFormat, ctx,
                      [&](Ice::OutputStream* os)
                      {
@@ -92,14 +92,14 @@ Ice::ObjectPrx::__ice_ping(const shared_ptr<IceInternal::OutgoingAsyncT<void>>& 
 void
 Ice::ObjectPrx::__ice_ids(const shared_ptr<IceInternal::OutgoingAsyncT<vector<string>>>& outAsync, const Context& ctx)
 {
-    __checkAsyncTwowayOnly("__ice_ids");
+    __checkAsyncTwowayOnly(ice_ids_name);
     outAsync->invoke(ice_ids_name, OperationMode::Nonmutating, DefaultFormat, ctx, nullptr, nullptr);
 }
 
 void
 Ice::ObjectPrx::__ice_id(const shared_ptr<IceInternal::OutgoingAsyncT<string>>& outAsync, const Context& ctx)
 {
-    __checkAsyncTwowayOnly("__ice_id");
+    __checkAsyncTwowayOnly(ice_id_name);
     outAsync->invoke(ice_id_name, OperationMode::Nonmutating, DefaultFormat, ctx, nullptr, nullptr);
 }
 
@@ -669,7 +669,7 @@ IceProxy::Ice::Object::__newInstance() const
 ConnectionPtr
 IceProxy::Ice::Object::ice_getConnection()
 {
-    InvocationObserver observer(this, "ice_getConnection", ::Ice::noExplicitContext);
+    InvocationObserver observer(this, ice_getConnection_name, ::Ice::noExplicitContext);
     int cnt = 0;
     while(true)
     {

@@ -141,7 +141,6 @@ dictionaryTypeToString(const DictionaryPtr& dict, const StringList& metaData, in
     }
 }
 
-
 void
 writeParamAllocateCode(Output& out, const TypePtr& type, bool optional, const string& fixedName,
                        const StringList& metaData, int typeCtx, bool cpp11, bool endArg)
@@ -198,8 +197,13 @@ writeParamAllocateCode(Output& out, const TypePtr& type, bool optional, const st
 }
 
 void
-writeParamEndCode(Output& out, const TypePtr& type, bool optional, const string& fixedName, const StringList& metaData)
+writeParamEndCode(Output& out, const TypePtr& type, bool optional, const string& fixedName, const StringList& metaData,
+                  const string& obj = "")
 {
+    string objPrefix = obj.empty() ? obj : obj + ".";
+    string paramName = objPrefix + fixedName;
+    string escapedParamName = objPrefix + "___" + fixedName;
+
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if(seq)
     {
@@ -220,14 +224,14 @@ writeParamEndCode(Output& out, const TypePtr& type, bool optional, const string&
             {
                 if(optional)
                 {
-                    out << nl << "if(___" << fixedName << ")";
+                    out << nl << "if(" << escapedParamName << ")";
                     out << sb;
-                    out << nl << fixedName << " = ___" << fixedName << "->second;";
-                        out << eb;
+                    out << nl << paramName << " = " << escapedParamName << "->second;";
+                    out << eb;
                 }
                 else
                 {
-                    out << nl << fixedName << " = ___" << fixedName << ".second;";
+                    out << nl << paramName << " = " << escapedParamName << ".second;";
                 }
             }
             else if(!builtin ||
@@ -237,32 +241,30 @@ writeParamEndCode(Output& out, const TypePtr& type, bool optional, const string&
             {
                 if(optional)
                 {
-                    out << nl << "if(___" << fixedName << ")";
+                    out << nl << "if(" << escapedParamName << ")";
                     out << sb;
-                    out << nl << fixedName << ".__setIsSet();";
-                    out << nl << "if(!___" << fixedName << "->empty())";
+                    out << nl << paramName << ".__setIsSet();";
+                    out << nl << "if(!" << escapedParamName << "->empty())";
                     out << sb;
-                    out << nl << fixedName << "->first" << " = &(*___" << fixedName << ")[0];";
-                    out << nl << fixedName << "->second" << " = " << fixedName << "->first + " << "___"
-                        << fixedName << "->size();";
+                    out << nl << paramName << "->first" << " = &(*" << escapedParamName << ")[0];";
+                    out << nl << paramName << "->second" << " = " << paramName << "->first + " << escapedParamName << "->size();";
                     out << eb;
                     out << nl << "else";
                     out << sb;
-                    out << nl << fixedName << "->first" << " = " << fixedName << "->second" << " = 0;";
+                    out << nl << paramName << "->first" << " = " << paramName << "->second" << " = 0;";
                     out << eb;
                     out << eb;
                 }
                 else
                 {
-                    out << nl << "if(!___" << fixedName << ".empty())";
+                    out << nl << "if(!" << escapedParamName << ".empty())";
                     out << sb;
-                    out << nl << fixedName << ".first" << " = &___" << fixedName << "[0];";
-                    out << nl << fixedName << ".second" << " = " << fixedName << ".first + " << "___"
-                        << fixedName << ".size();";
+                    out << nl << paramName << ".first" << " = &" << escapedParamName << "[0];";
+                    out << nl << paramName << ".second" << " = " << paramName << ".first + " << escapedParamName << ".size();";
                     out << eb;
                     out << nl << "else";
                     out << sb;
-                    out << nl << fixedName << ".first" << " = " << fixedName << ".second" << " = 0;";
+                    out << nl << paramName << ".first" << " = " << paramName << ".second" << " = 0;";
                     out << eb;
                 }
             }
@@ -271,17 +273,17 @@ writeParamEndCode(Output& out, const TypePtr& type, bool optional, const string&
         {
             if(optional)
             {
-                out << nl << "if(___" << fixedName << ")";
+                out << nl << "if(" << escapedParamName << ")";
                 out << sb;
-                out << nl << fixedName << ".__setIsSet();";
-                out << nl << fixedName << "->first = (*___" << fixedName << ").begin();";
-                out << nl << fixedName << "->second = (*___" << fixedName << ").end();";
+                out << nl << paramName << ".__setIsSet();";
+                out << nl << paramName << "->first = (*" << escapedParamName << ").begin();";
+                out << nl << paramName << "->second = (*" << escapedParamName << ").end();";
                 out << eb;
             }
             else
             {
-                out << nl << fixedName << ".first = ___" << fixedName << ".begin();";
-                out << nl << fixedName << ".second = ___" << fixedName << ".end();";
+                out << nl << paramName << ".first = " << escapedParamName << ".begin();";
+                out << nl << paramName << ".second = " << escapedParamName << ".end();";
             }
         }
     }
@@ -289,9 +291,10 @@ writeParamEndCode(Output& out, const TypePtr& type, bool optional, const string&
 
 void
 writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const OperationPtr& op, bool marshal,
-                            bool prepend, int typeCtx)
+                            bool prepend, int typeCtx, const string& retP = "", const string& obj = "")
 {
     string prefix = prepend ? paramPrefix : "";
+    string returnValueS = retP.empty() ? string("__ret") : retP;
 
     //
     // Marshal non optional parameters.
@@ -306,14 +309,15 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
         else
         {
             writeMarshalUnmarshalCode(out, (*p)->type(), false, 0, fixKwd(prefix + (*p)->name()), marshal, (*p)->getMetaData(),
-                                      typeCtx);
+                                      typeCtx, "", true, obj);
         }
     }
     if(op && op->returnType())
     {
         if(!op->returnIsOptional())
         {
-            writeMarshalUnmarshalCode(out, op->returnType(), false, 0, "__ret", marshal, op->getMetaData(), typeCtx);
+            writeMarshalUnmarshalCode(out, op->returnType(), false, 0, returnValueS, marshal, op->getMetaData(), typeCtx,
+                                      "", true, obj);
         }
     }
 
@@ -338,17 +342,17 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
     {
         if(checkReturnType && op->returnTag() < (*p)->tag())
         {
-            writeMarshalUnmarshalCode(out, op->returnType(), true, op->returnTag(), "__ret", marshal,
-                                      op->getMetaData(), typeCtx);
+            writeMarshalUnmarshalCode(out, op->returnType(), true, op->returnTag(), returnValueS, marshal,
+                                      op->getMetaData(), typeCtx, "", true, obj);
             checkReturnType = false;
         }
         writeMarshalUnmarshalCode(out, (*p)->type(), true, (*p)->tag(), fixKwd(prefix + (*p)->name()), marshal,
-                                  (*p)->getMetaData(), typeCtx);
+                                  (*p)->getMetaData(), typeCtx, "", true, obj);
     }
     if(checkReturnType)
     {
-        writeMarshalUnmarshalCode(out, op->returnType(), true, op->returnTag(), "__ret", marshal, op->getMetaData(),
-                                  typeCtx);
+        writeMarshalUnmarshalCode(out, op->returnType(), true, op->returnTag(), returnValueS, marshal, op->getMetaData(),
+                                  typeCtx, "", true, obj);
     }
 }
 
@@ -1102,8 +1106,11 @@ Slice::fixKwd(const string& name)
 
 void
 Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, bool optional, int tag, const string& param,
-                                 bool marshal, const StringList& metaData, int typeCtx, const string& str, bool pointer)
+                                 bool marshal, const StringList& metaData, int typeCtx, const string& str, bool pointer,
+                                 const string& obj)
 {
+    string objPrefix = obj.empty() ? obj : obj + ".";
+
     ostringstream os;
     if(str.empty())
     {
@@ -1150,24 +1157,24 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, bool optional
                 BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
                 if(builtin && builtin->kind() == Builtin::KindByte)
                 {
-                    out << nl << func << param << ");";
+                    out << nl << func << objPrefix << param << ");";
                     return;
                 }
 
-                out << nl << func << "___" << param << ");";
-                writeParamEndCode(out, seq, optional, param, metaData);
+                out << nl << func << objPrefix << "___" << param << ");";
+                writeParamEndCode(out, seq, optional, param, metaData, obj);
                 return;
             }
             else if(seqType.find("%range") == 0)
             {
-                out << nl << func << "___" << param << ");";
-                writeParamEndCode(out, seq, optional, param, metaData);
+                out << nl << func << objPrefix << "___" << param << ");";
+                writeParamEndCode(out, seq, optional, param, metaData, obj);
                 return;
             }
         }
     }
 
-    out << nl << func << param << ");";
+    out << nl << func << objPrefix << param << ");";
 }
 
 void
@@ -1177,25 +1184,31 @@ Slice::writeMarshalCode(Output& out, const ParamDeclList& params, const Operatio
 }
 
 void
-Slice::writeUnmarshalCode(Output& out, const ParamDeclList& params, const OperationPtr& op, bool prepend, int typeCtx)
+Slice::writeUnmarshalCode(Output& out, const ParamDeclList& params, const OperationPtr& op, bool prepend, int typeCtx,
+                          const string& retP, const string& obj)
 {
-    writeMarshalUnmarshalParams(out, params, op, false, prepend, typeCtx);
+    writeMarshalUnmarshalParams(out, params, op, false, prepend, typeCtx, retP, obj);
 }
 
 void
-Slice::writeAllocateCode(Output& out, const ParamDeclList& params, const OperationPtr& op, bool prepend, int typeCtx, bool cpp11)
+Slice::writeAllocateCode(Output& out, const ParamDeclList& params, const OperationPtr& op, bool prepend, int typeCtx,
+                         bool cpp11)
 {
     string prefix = prepend ? paramPrefix : "";
+    string returnValueS = "__ret";
+
     for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
     {
         writeParamAllocateCode(out, (*p)->type(), (*p)->optional(), fixKwd(prefix + (*p)->name()), (*p)->getMetaData(),
                                typeCtx, cpp11, getEndArg((*p)->type(),(*p)->getMetaData(), (*p)->name()) != (*p)->name());
     }
+
     if(op && op->returnType())
     {
-        writeParamAllocateCode(out, op->returnType(), op->returnIsOptional(), "__ret", op->getMetaData(), typeCtx, cpp11,
-                               getEndArg(op->returnType(), op->getMetaData(), "__ret") != "__ret");
+        writeParamAllocateCode(out, op->returnType(), op->returnIsOptional(), returnValueS, op->getMetaData(), typeCtx, cpp11,
+                               getEndArg(op->returnType(), op->getMetaData(), returnValueS) != returnValueS);
     }
+
 }
 
 string

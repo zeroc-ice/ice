@@ -96,6 +96,12 @@ public:
     virtual DispatchStatus ice_dispatch(Ice::Request&, const DispatchInterceptorAsyncCallbackPtr& = 0);
     virtual DispatchStatus __dispatch(IceInternal::Incoming&, const Current&);
 
+    struct Ice_invokeResult
+    {
+        bool returnValue;
+        std::vector<::Ice::Byte> outParams;
+    };
+
 protected:
 
     static void __checkMode(OperationMode, OperationMode);

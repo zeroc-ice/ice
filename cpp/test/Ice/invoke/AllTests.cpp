@@ -406,10 +406,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
     //
     {
         Ice::ByteSeq inEncaps;
-        test(batchOneway->ice_invokeAsync("opOneway", ICE_ENUM(OperationMode, Normal), inEncaps).get().ok);
-        test(batchOneway->ice_invokeAsync("opOneway", ICE_ENUM(OperationMode, Normal), inEncaps).get().ok);
-        test(batchOneway->ice_invokeAsync("opOneway", ICE_ENUM(OperationMode, Normal), inEncaps).get().ok);
-        test(batchOneway->ice_invokeAsync("opOneway", ICE_ENUM(OperationMode, Normal), inEncaps).get().ok);
+        test(batchOneway->ice_invokeAsync("opOneway", ICE_ENUM(OperationMode, Normal), inEncaps).get().returnValue);
+        test(batchOneway->ice_invokeAsync("opOneway", ICE_ENUM(OperationMode, Normal), inEncaps).get().returnValue);
+        test(batchOneway->ice_invokeAsync("opOneway", ICE_ENUM(OperationMode, Normal), inEncaps).get().returnValue);
+        test(batchOneway->ice_invokeAsync("opOneway", ICE_ENUM(OperationMode, Normal), inEncaps).get().returnValue);
         batchOneway->ice_flushBatchRequests();
     }
 
@@ -440,7 +440,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         Ice::ByteSeq inEncaps, outEncaps;
         auto completed = oneway->ice_invokeAsync("opOneway", OperationMode::Normal, inEncaps);
-        test(completed.get().ok);
+        test(completed.get().returnValue);
     }
 
     {
@@ -485,7 +485,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         out.finished(inEncaps);
 
         auto result = cl->ice_invokeAsync("opString", OperationMode::Normal, inEncaps).get();
-        test(result.ok);
+        test(result.returnValue);
 
         Ice::InputStream in(communicator, result.outParams);
         in.startEncapsulation();
@@ -508,7 +508,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         out.endEncapsulation();
         out.finished(inEncaps);
 
-        pair<const ::Ice::Byte*, const ::Ice::Byte*> inPair(&inEncaps[0], &inEncaps[0] + inEncaps.size());
+        auto inPair = make_pair(inEncaps.data(), inEncaps.data() + inEncaps.size());
 
         cl->ice_invokeAsync("opString", OperationMode::Normal, inPair,
             [&](bool ok, pair<const Ice::Byte*, const Ice::Byte*> outParams)
@@ -539,29 +539,29 @@ allTests(const Ice::CommunicatorPtr& communicator)
     //
     // repeat with the future API.
     //
-    // TODO: we don't currently support zero-copy with promised based ice_invokeAsync
-    // {
-    //     Ice::ByteSeq inEncaps, outEncaps;
-    //     Ice::OutputStream out(communicator);
-    //     out.startEncapsulation();
-    //     out.write(testString);
-    //     out.endEncapsulation();
-    //     out.finished(inEncaps);
 
-    //     pair<const ::Ice::Byte*, const ::Ice::Byte*> inPair(&inEncaps[0], &inEncaps[0] + inEncaps.size());
+    {
+        Ice::ByteSeq inEncaps, outEncaps;
+        Ice::OutputStream out(communicator);
+        out.startEncapsulation();
+        out.write(testString);
+        out.endEncapsulation();
+        out.finished(inEncaps);
 
-    //     auto result = cl->ice_invokeAsync("opString", OperationMode::Normal, inPair).get();
-    //     test(result.ok);
-    //     vector<Ice::Byte>(result.outParams.first, result.outParams.second).swap(outEncaps);
-    //     Ice::InputStream in(communicator, outEncaps);
-    //     in.startEncapsulation();
-    //     string s;
-    //     in.read(s);
-    //     test(s == testString);
-    //     in.read(s);
-    //     test(s == testString);
-    //     in.endEncapsulation();
-    // }
+        auto inPair = make_pair(inEncaps.data(), inEncaps.data() + inEncaps.size());
+
+        auto result = cl->ice_invokeAsync("opString", OperationMode::Normal, inPair).get();
+        test(result.returnValue);
+
+        Ice::InputStream in(communicator, result.outParams);
+        in.startEncapsulation();
+        string s;
+        in.read(s);
+        test(s == testString);
+        in.read(s);
+        test(s == testString);
+        in.endEncapsulation();
+    }
 
     {
         promise<bool> completed;
@@ -606,7 +606,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         Ice::ByteSeq inEncaps;
         auto result = cl->ice_invokeAsync("opException", OperationMode::Normal, inEncaps).get();
-        test(!result.ok);
+        test(!result.returnValue);
 
         Ice::InputStream in(communicator, result.outParams);
         in.startEncapsulation();

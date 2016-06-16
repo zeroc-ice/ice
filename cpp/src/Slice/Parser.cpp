@@ -4108,13 +4108,8 @@ Slice::Exception::Exception(const ContainerPtr& container, const string& name, c
 DataMemberPtr
 Slice::Struct::createDataMember(const string& name, const TypePtr& type, bool optional, int tag,
                                 const SyntaxTreeBasePtr& defaultValueType, const string& defaultValue,
-                                const string& defaultLiteral, bool checkName)
+                                const string& defaultLiteral)
 {
-    if(checkName)
-    {
-        checkIdentifier(name);
-    }
-
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {

@@ -750,7 +750,7 @@ class Struct : public virtual Container, public virtual Constructed
 public:
 
     DataMemberPtr createDataMember(const std::string&, const TypePtr&, bool, int, const SyntaxTreeBasePtr&,
-                                   const std::string&, const std::string&, bool = true);
+                                   const std::string&, const std::string&);
     DataMemberList dataMembers() const;
     DataMemberList classDataMembers() const;
     virtual ContainedType containedType() const;
