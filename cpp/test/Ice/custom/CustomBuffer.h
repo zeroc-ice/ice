@@ -10,7 +10,7 @@
 #ifndef CUSTOM_BUFFER_H
 #define CUSTOM_BUFFER_H
 
-#include <IceUtil/Config.h>
+#include <Ice/Ice.h>
 
 #if defined(_MSC_VER)
 #  pragma warning( disable : 4800 )
@@ -166,12 +166,30 @@ struct StreamHelper< ::Test::CustomBuffer<T>, StreamHelperCategorySequence>
     template<class S> static inline void 
     read(S* stream, ::Test::CustomBuffer<T>& v)
     {
+#ifdef ICE_CPP11_MAPPING
+        std::pair<const T*, const T*> a;
+        stream->read(a);
+        size_t count = a.second - a.first;
+        if(count > 0)
+        {
+            auto b = new T[count];
+            for(size_t i = 0; i < count; ++i)
+            {
+                b[i] = a.first[i];
+            }
+            v.set(b, count);
+        }
+        else
+        {
+            v.set(0, 0);
+        }
+#else
         IceUtil::ScopedArray<T> p;
         std::pair<const T*, const T*> a;
         stream->read(a, p);
         T* b = p.release();
         size_t count = a.second - a.first;
-        if(b == 0)
+        if(b == 0 && count > 0)
         {
             b = new T[count];
             for(size_t i = 0; i < count; ++i)
@@ -180,6 +198,7 @@ struct StreamHelper< ::Test::CustomBuffer<T>, StreamHelperCategorySequence>
             }
         }
         v.set(b, count);
+#endif
     }
 };
 

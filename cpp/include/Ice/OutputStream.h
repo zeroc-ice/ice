@@ -289,6 +289,7 @@ public:
             write(&v[0], &v[0] + v.size());
         }
     }
+
     template<typename T> void write(const T* begin, const T* end)
     {
         writeSize(static_cast<Int>(end - begin));
@@ -297,6 +298,35 @@ public:
             write(*p);
         }
     }
+
+#ifdef ICE_CPP11_MAPPING
+
+    template<typename T> void writeAll(const T& v)
+    {
+        write(v);
+    }
+
+    template<typename T, typename... Te> void writeAll(const T& v, const Te&... ve)
+    {
+        write(v);
+        writeAll(ve...);
+    }
+
+    template<typename T>
+    void writeAll(std::initializer_list<int> tags, const IceUtil::Optional<T>& v)
+    {
+        write(*(tags.begin() + tags.size() - 1), v);
+    }
+
+    template<typename T, typename... Te>
+    void writeAll(std::initializer_list<int> tags, const IceUtil::Optional<T>& v, const IceUtil::Optional<Te>&... ve)
+    {
+        size_t index = tags.size() - sizeof...(ve) - 1;
+        write(*(tags.begin() + index), v);
+        writeAll(tags, ve...);
+    }
+
+#endif
 
     // Write type and tag for optionals
     bool writeOptional(Int tag, OptionalFormat format)
@@ -358,13 +388,7 @@ public:
     void write(const Int*, const Int*);
 
     // Long
-
-#ifdef ICE_CPP11_MAPPING
-    void write(long long int);
-#else
     void write(Long);
-#endif
-
     void write(const Long*, const Long*);
 
     // Float
@@ -428,7 +452,7 @@ public:
 
     // Proxy
 #ifdef ICE_CPP11_MAPPING
-    void writeProxy(const ObjectPrxPtr&);
+    void writeProxy(const ::std::shared_ptr<ObjectPrx>&);
 
     template<typename T, typename ::std::enable_if<::std::is_base_of<ObjectPrx, T>::value>::type* = nullptr>
     void write(const ::std::shared_ptr<T>& v)

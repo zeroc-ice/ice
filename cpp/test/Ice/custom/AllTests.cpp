@@ -424,8 +424,6 @@ public:
         called();
     }
 
-#ifndef ICE_CPP11_MAPPING
-
     void opClassStruct(const ::Test::ClassStructPtr& ret,
                        const ::Test::ClassStructPtr& cs1,
                        const ::Test::ClassStructSeq& seq,
@@ -438,7 +436,6 @@ public:
         test(seq == in.second);
         called();
     }
-#endif
 
     void opString(const wstring& ret, const wstring& out, const InParamPtr& cookie)
     {
@@ -642,8 +639,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         string out;
         string ret = t->opString(in, out);
 
+        test(ret == out);
+#ifdef ICE_CPP11_MAPPING
+        test(ret == in);
+#else
         //
-        // TODO: improve test
         // When a parameter is mapped as a string_view on both sides,
         // no conversion occurs, and all is good
         // However, when a parameter is mapped as a string on one side and
@@ -651,8 +651,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
         // the string converter converts the string but not the string_view,
         // and we have a mismatch
         //
-        test(ret == out);
         test(ret.size() == in.size());
+#endif
     }
     cout << "ok" << endl;
 
@@ -747,10 +747,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
         in[2] = true;
         in[3] = false;
         in[4] = true;
-        pair<Test::BoolSeq::const_iterator, Test::BoolSeq::const_iterator> inPair(in.begin(), in.end());
-
         Test::BoolSeq out;
+#ifdef ICE_CPP11_MAPPING
+        Test::BoolSeq ret = t->opBoolRange(in, out);
+#else
+        pair<Test::BoolSeq::const_iterator, Test::BoolSeq::const_iterator> inPair(in.begin(), in.end());
         Test::BoolSeq ret = t->opBoolRange(inPair, out);
+#endif
         test(out == in);
         test(ret == in);
     }
@@ -762,10 +765,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
         in.push_back('3');
         in.push_back('4');
         in.push_back('5');
-        pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator> inPair(in.begin(), in.end());
-
         Test::ByteList out;
+#ifdef ICE_CPP11_MAPPING
+        Test::ByteList ret = t->opByteRange(in, out);
+#else
+        pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator> inPair(in.begin(), in.end());
         Test::ByteList ret = t->opByteRange(inPair, out);
+#endif
         test(out == in);
         test(ret == in);
     }
@@ -783,10 +789,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
         in.push_back(v);
         v.s = "strings.";
         in.push_back(v);
-        pair<Test::VariableList::const_iterator, Test::VariableList::const_iterator> inPair(in.begin(), in.end());
-
         Test::VariableList out;
+#ifdef ICE_CPP11_MAPPING
+        Test::VariableList ret = t->opVariableRange(in, out);
+#else
+        pair<Test::VariableList::const_iterator, Test::VariableList::const_iterator> inPair(in.begin(), in.end());
         Test::VariableList ret = t->opVariableRange(inPair, out);
+#endif
         test(out == in);
         test(ret == in);
     }
@@ -798,10 +807,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
         in.push_back('3');
         in.push_back('4');
         in.push_back('5');
-        pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator> inPair(in.begin(), in.end());
-
         Test::ByteList out;
+#ifdef ICE_CPP11_MAPPING
+        Test::ByteList ret = t->opByteRangeType(in, out);
+#else
+        pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator> inPair(in.begin(), in.end());
         Test::ByteList ret = t->opByteRangeType(inPair, out);
+#endif
         test(out == in);
         test(ret == in);
     }
@@ -825,11 +837,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
         v.s = "strings.";
         in.push_back(v);
         inSeq.push_back(v);
+        Test::VariableList out;
+#ifdef ICE_CPP11_MAPPING
+        Test::VariableList ret = t->opVariableRangeType(in, out);
+#else
         pair<deque<Test::Variable>::const_iterator, deque<Test::Variable>::const_iterator>
             inPair(inSeq.begin(), inSeq.end());
-
-        Test::VariableList out;
         Test::VariableList ret = t->opVariableRangeType(inPair, out);
+#endif
         test(out == in);
         test(ret == in);
     }
@@ -1205,8 +1220,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         for(std::map<int, Util::string_view>::const_iterator p = idict.begin();
             p != idict.end(); ++p)
         {
+#ifdef ICE_CPP11_MAPPING
+            test(out[p->first] == p->second.to_string());
+#else
             test(out[p->first].size() == p->second.size());
-            //  test(out[p->first] == p->second.to_string()); does not always work due to string converter
+#endif
         }
     }
 
@@ -1264,7 +1282,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         auto r = t->opStringAsync(in).get();
         test(r.returnValue == r.outString);
-        test(r.returnValue.size() == in.size());
+        test(r.returnValue == in);
 
 #else
         Ice::AsyncResultPtr r = t->begin_opString(in);
@@ -1397,13 +1415,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
             in[2] = true;
             in[3] = false;
             in[4] = true;
-            pair<Test::BoolSeq::const_iterator, Test::BoolSeq::const_iterator> inPair(in.begin(), in.end());
-
 #ifdef ICE_CPP11_MAPPING
-            auto r = t->opBoolRangeAsync(inPair).get();
+            auto r = t->opBoolRangeAsync(in).get();
             test(r.outSeq == in);
             test(r.returnValue == in);
 #else
+            pair<Test::BoolSeq::const_iterator, Test::BoolSeq::const_iterator> inPair(in.begin(), in.end());
             Test::BoolSeq out;
             Ice::AsyncResultPtr r = t->begin_opBoolRange(inPair);
             Test::BoolSeq ret = t->end_opBoolRange(out, r);
@@ -1419,13 +1436,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
             in.push_back('3');
             in.push_back('4');
             in.push_back('5');
-            pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator> inPair(in.begin(), in.end());
 
 #ifdef ICE_CPP11_MAPPING
-            auto r = t->opByteRangeAsync(inPair).get();
+            auto r = t->opByteRangeAsync(in).get();
             test(r.outSeq == in);
             test(r.returnValue == in);
 #else
+            pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator> inPair(in.begin(), in.end());
             Test::ByteList out;
             Ice::AsyncResultPtr r = t->begin_opByteRange(inPair);
             Test::ByteList ret = t->end_opByteRange(out, r);
@@ -1447,13 +1464,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
             in.push_back(v);
             v.s = "strings.";
             in.push_back(v);
-            pair<Test::VariableList::const_iterator, Test::VariableList::const_iterator> inPair(in.begin(), in.end());
 
 #ifdef ICE_CPP11_MAPPING
-            auto r = t->opVariableRangeAsync(inPair).get();
+            auto r = t->opVariableRangeAsync(in).get();
             test(r.outSeq == in);
             test(r.returnValue == in);
 #else
+            pair<Test::VariableList::const_iterator, Test::VariableList::const_iterator> inPair(in.begin(), in.end());
             Test::VariableList out;
             Ice::AsyncResultPtr r = t->begin_opVariableRange(inPair);
             Test::VariableList ret = t->end_opVariableRange(out, r);
@@ -1469,13 +1486,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
             in.push_back('3');
             in.push_back('4');
             in.push_back('5');
-            pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator> inPair(in.begin(), in.end());
-
 #ifdef ICE_CPP11_MAPPING
-            auto r = t->opByteRangeTypeAsync(inPair).get();
+            auto r = t->opByteRangeTypeAsync(in).get();
             test(r.outSeq == in);
             test(r.returnValue == in);
 #else
+            pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator> inPair(in.begin(), in.end());
             Test::ByteList out;
             Ice::AsyncResultPtr r = t->begin_opByteRangeType(inPair);
             Test::ByteList ret = t->end_opByteRangeType(out, r);
@@ -1503,14 +1519,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
             v.s = "strings.";
             in.push_back(v);
             inSeq.push_back(v);
-            pair<deque<Test::Variable>::const_iterator, deque<Test::Variable>::const_iterator>
-                inPair(inSeq.begin(), inSeq.end());
 
 #ifdef ICE_CPP11_MAPPING
-            auto r = t->opVariableRangeTypeAsync(inPair).get();
+            auto r = t->opVariableRangeTypeAsync(in).get();
             test(r.outSeq == in);
             test(r.returnValue == in);
 #else
+            pair<deque<Test::Variable>::const_iterator, deque<Test::Variable>::const_iterator>
+                inPair(inSeq.begin(), inSeq.end());
             Test::VariableList out;
             Ice::AsyncResultPtr r = t->begin_opVariableRangeType(inPair);
             Test::VariableList ret = t->end_opVariableRangeType(out, r);
@@ -2040,7 +2056,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             [&](Util::string_view ret, Util::string_view out)
             {
                 test(out == ret);
-                test(in.size() == out.size());
+                test(in == out);
                 done.set_value(true);
             },
             [&](std::exception_ptr)
@@ -2231,18 +2247,16 @@ allTests(const Ice::CommunicatorPtr& communicator)
         in[2] = true;
         in[3] = false;
         in[4] = true;
-        pair<Test::BoolSeq::const_iterator, Test::BoolSeq::const_iterator> inPair(in.begin(), in.end());
 
 #ifdef ICE_CPP11_MAPPING
 
         promise<bool> done;
 
-        t->opBoolRangeAsync(inPair,
-                            [&](pair<Test::BoolSeq::const_iterator, Test::BoolSeq::const_iterator> ret,
-                                pair<Test::BoolSeq::const_iterator, Test::BoolSeq::const_iterator> out)
+        t->opBoolRangeAsync(in,
+                            [&](Test::BoolSeq ret, Test::BoolSeq out)
                             {
-                                   test(equal(out.first, out.second, inPair.first));
-                                   test(equal(ret.first, ret.second, inPair.first));
+                                   test(ret == in);
+                                   test(out == in);
                                    done.set_value(true);
                             },
                             [&](std::exception_ptr)
@@ -2252,6 +2266,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         test(done.get_future().get());
 #else
+        pair<Test::BoolSeq::const_iterator, Test::BoolSeq::const_iterator> inPair(in.begin(), in.end());
 
         CallbackPtr cb = new Callback();
         Test::Callback_TestIntf_opBoolRangePtr callback =
@@ -2269,18 +2284,16 @@ allTests(const Ice::CommunicatorPtr& communicator)
         in.push_back('3');
         in.push_back('4');
         in.push_back('5');
-        pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator> inPair(in.begin(), in.end());
 
 #ifdef ICE_CPP11_MAPPING
 
         promise<bool> done;
 
-        t->opByteRangeAsync(inPair,
-                            [&](pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator> ret,
-                                pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator> out)
+        t->opByteRangeAsync(in,
+                            [&](Test::ByteList ret, Test::ByteList out)
                             {
-                                test(equal(out.first, out.second, inPair.first));
-                                test(equal(ret.first, ret.second, inPair.first));
+                                test(ret == in);
+                                test(out == in);
                                 done.set_value(true);
                             },
                             [&](std::exception_ptr)
@@ -2290,7 +2303,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         test(done.get_future().get());
 #else
-
+        pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator> inPair(in.begin(), in.end());
         CallbackPtr cb = new Callback();
         Test::Callback_TestIntf_opByteRangePtr callback =
             Test::newCallback_TestIntf_opByteRange(cb, &Callback::opByteRange, &Callback::noEx);
@@ -2312,18 +2325,16 @@ allTests(const Ice::CommunicatorPtr& communicator)
         in.push_back(v);
         v.s = "strings.";
         in.push_back(v);
-        pair<Test::VariableList::const_iterator, Test::VariableList::const_iterator> inPair(in.begin(), in.end());
 
 #ifdef ICE_CPP11_MAPPING
 
         promise<bool> done;
 
-        t->opVariableRangeAsync(inPair,
-                                [&](pair<Test::VariableList::const_iterator, Test::VariableList::const_iterator> ret,
-                                    pair<Test::VariableList::const_iterator, Test::VariableList::const_iterator> out)
+        t->opVariableRangeAsync(in,
+                                [&](Test::VariableList ret, Test::VariableList out)
                                 {
-                                    test(equal(out.first, out.second, inPair.first));
-                                    test(equal(ret.first, ret.second, inPair.first));
+                                    test(ret == in);
+                                    test(out == in);
                                     done.set_value(true);
                                 },
                                 [&](std::exception_ptr)
@@ -2333,7 +2344,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         test(done.get_future().get());
 #else
-
+        pair<Test::VariableList::const_iterator, Test::VariableList::const_iterator> inPair(in.begin(), in.end());
         CallbackPtr cb = new Callback();
         Test::Callback_TestIntf_opVariableRangePtr callback =
             Test::newCallback_TestIntf_opVariableRange(cb, &Callback::opVariableRange, &Callback::noEx);
@@ -2349,18 +2360,16 @@ allTests(const Ice::CommunicatorPtr& communicator)
         in.push_back('3');
         in.push_back('4');
         in.push_back('5');
-        pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator> inPair(in.begin(), in.end());
 
 #ifdef ICE_CPP11_MAPPING
 
         promise<bool> done;
 
-        t->opByteRangeTypeAsync(inPair,
-                                [&](pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator> ret,
-                                    pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator> out)
+        t->opByteRangeTypeAsync(in,
+                                [&](Test::ByteList ret, Test::ByteList out)
                                 {
-                                    test(equal(out.first, out.second, inPair.first));
-                                    test(equal(ret.first, ret.second, inPair.first));
+                                    test(ret == in);
+                                    test(out == in);
                                     done.set_value(true);
                                 },
                                 [&](std::exception_ptr)
@@ -2370,7 +2379,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         test(done.get_future().get());
 #else
-
+        pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator> inPair(in.begin(), in.end());
         CallbackPtr cb = new Callback();
         Test::Callback_TestIntf_opByteRangeTypePtr callback =
             Test::newCallback_TestIntf_opByteRangeType(cb, &Callback::opByteRangeType, &Callback::noEx);
@@ -2398,19 +2407,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
         v.s = "strings.";
         in.push_back(v);
         inSeq.push_back(v);
-        pair<deque<Test::Variable>::const_iterator, deque<Test::Variable>::const_iterator> inPair(inSeq.begin(),
-                                                                                                  inSeq.end());
-
 #ifdef ICE_CPP11_MAPPING
 
         promise<bool> done;
 
-        t->opVariableRangeTypeAsync(inPair,
-                                    [&](pair<deque<Test::Variable>::const_iterator, deque<Test::Variable>::const_iterator> ret,
-                                        pair<deque<Test::Variable>::const_iterator, deque<Test::Variable>::const_iterator> out)
+        t->opVariableRangeTypeAsync(in,
+                                    [&](Test::VariableList ret, Test::VariableList out)
                                     {
-                                        test(equal(out.first, out.second, inPair.first));
-                                        test(equal(ret.first, ret.second, inPair.first));
+                                        test(ret == in);
+                                        test(out == in);
                                         done.set_value(true);
                                     },
                                     [&](std::exception_ptr)
@@ -2420,7 +2425,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         test(done.get_future().get());
 #else
-
+        pair<deque<Test::Variable>::const_iterator, deque<Test::Variable>::const_iterator> inPair(inSeq.begin(),
+                                                                                                  inSeq.end());
         CallbackPtr cb = new Callback();
         Test::Callback_TestIntf_opVariableRangeTypePtr callback =
             Test::newCallback_TestIntf_opVariableRangeType(cb, &Callback::opVariableRangeType, &Callback::noEx);
@@ -3147,9 +3153,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
         promise<bool> done;
 
         t->opOutRangeByteSeqAsync(in,
-                                  [&](pair<vector<Ice::Byte>::const_iterator, vector<Ice::Byte>::const_iterator> out)
+                                  [&](Test::ByteSeq out)
                                   {
-                                      test(in == vector<Ice::Byte>(out.first, out.second));
+                                      test(out == in);
                                       done.set_value(true);
                                   },
                                   [&](std::exception_ptr)
@@ -3243,7 +3249,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
             for(auto i: idict)
             {
-                test(r.odict[i.first].size() == i.second.size());
+                test(r.odict[i.first] == i.second);
             }
 #else
             Test::IntStringDict out;
@@ -3358,8 +3364,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
                                               test(ret == out);
                                               for(auto i: idict)
                                               {
-                                                  // TODO: have to compare size not strings because of string converter
-                                                  test(ret[i.first].size() == i.second.size());
+                                                  test(ret[i.first] == i.second);
                                               }
 
                                               done.set_value(true);

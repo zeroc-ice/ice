@@ -24,6 +24,12 @@ using namespace IceUtilInternal;
 namespace
 {
 
+string
+condString(bool ok, const string& str)
+{
+    return ok ? str : "";
+}
+
 string toTemplateArg(const string& arg)
 {
     if(arg.empty())
@@ -143,16 +149,16 @@ dictionaryTypeToString(const DictionaryPtr& dict, const StringList& metaData, in
 
 void
 writeParamAllocateCode(Output& out, const TypePtr& type, bool optional, const string& fixedName,
-                       const StringList& metaData, int typeCtx, bool cpp11, bool endArg)
+                       const StringList& metaData, int typeCtx, bool endArg)
 {
-    string s = typeToString(type, metaData, typeCtx, cpp11);
+    string s = typeToString(type, metaData, typeCtx);
     if(optional)
     {
         s = "IceUtil::Optional<" + toTemplateArg(s) + '>';
     }
     out << nl << s << ' ' << fixedName << ';';
 
-    if(!(typeCtx & TypeContextInParam) || !endArg)
+    if((typeCtx & TypeContextCpp11) || !(typeCtx & TypeContextInParam) || !endArg)
     {
         return; // We're done.
     }
@@ -173,7 +179,7 @@ writeParamAllocateCode(Output& out, const TypePtr& type, bool optional, const st
         string s;
         if(seqType == "%array")
         {
-            s = typeToString(seq, metaData, TypeContextAMIPrivateEnd, cpp11);
+            s = typeToString(seq, metaData, TypeContextAMIPrivateEnd);
         }
         else if(seqType.find("%range") == 0)
         {
@@ -182,7 +188,7 @@ writeParamAllocateCode(Output& out, const TypePtr& type, bool optional, const st
             {
                 md.push_back("cpp:type:" + seqType.substr(strlen("%range:")));
             }
-            s = typeToString(seq, md, 0, cpp11);
+            s = typeToString(seq, md, 0);
         }
 
         if(!s.empty())
@@ -296,9 +302,14 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
     string prefix = prepend ? paramPrefix : "";
     string returnValueS = retP.empty() ? string("__ret") : retP;
 
+    string objPrefix = obj.empty() ? obj : obj + ".";
+
+    bool cpp11 = (typeCtx & TypeContextCpp11) != 0;
+
     //
     // Marshal non optional parameters.
     //
+    ParamDeclList requiredParams;
     ParamDeclList optionals;
     for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
     {
@@ -308,54 +319,158 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
         }
         else
         {
-            writeMarshalUnmarshalCode(out, (*p)->type(), false, 0, fixKwd(prefix + (*p)->name()), marshal, (*p)->getMetaData(),
-                                      typeCtx, "", true, obj);
-        }
-    }
-    if(op && op->returnType())
-    {
-        if(!op->returnIsOptional())
-        {
-            writeMarshalUnmarshalCode(out, op->returnType(), false, 0, returnValueS, marshal, op->getMetaData(), typeCtx,
-                                      "", true, obj);
+            requiredParams.push_back(*p);
         }
     }
 
-    //
-    // Sort optional parameters by tag.
-    //
-    class SortFn
-    {
-    public:
-        static bool compare(const ParamDeclPtr& lhs, const ParamDeclPtr& rhs)
-        {
-            return lhs->tag() < rhs->tag();
-        }
-    };
-    optionals.sort(SortFn::compare);
 
-    //
-    // Marshal optional parameters.
-    //
-    bool checkReturnType = op && op->returnIsOptional();
-    for(ParamDeclList::const_iterator p = optionals.begin(); p != optionals.end(); ++p)
+    if(!requiredParams.empty() || (op && op->returnType() && !op->returnIsOptional()))
     {
-        if(checkReturnType && op->returnTag() < (*p)->tag())
+        if(cpp11)
         {
-            writeMarshalUnmarshalCode(out, op->returnType(), true, op->returnTag(), returnValueS, marshal,
-                                      op->getMetaData(), typeCtx, "", true, obj);
-            checkReturnType = false;
+            out << nl;
+            if(marshal)
+            {
+                out << "__os->writeAll";
+            }
+            else
+            {
+                out << "__is->readAll";
+            }
+            out << spar;
+            for(ParamDeclList::const_iterator p = requiredParams.begin(); p != requiredParams.end(); ++p)
+            {
+                out << objPrefix + fixKwd(prefix + (*p)->name());
+            }
+            if(op && op->returnType() && !op->returnIsOptional())
+            {
+                out << objPrefix + returnValueS;
+            }
+            out << epar << ";";
         }
-        writeMarshalUnmarshalCode(out, (*p)->type(), true, (*p)->tag(), fixKwd(prefix + (*p)->name()), marshal,
-                                  (*p)->getMetaData(), typeCtx, "", true, obj);
+        else
+        {
+            for(ParamDeclList::const_iterator p = requiredParams.begin(); p != requiredParams.end(); ++p)
+            {
+                writeMarshalUnmarshalCode(out, (*p)->type(), false, 0, fixKwd(prefix + (*p)->name()), marshal, (*p)->getMetaData(),
+                                          typeCtx, "", true, obj);
+            }
+
+            if(op && op->returnType())
+            {
+                if(!op->returnIsOptional())
+                {
+                    writeMarshalUnmarshalCode(out, op->returnType(), false, 0, returnValueS, marshal, op->getMetaData(), typeCtx,
+                                              "", true, obj);
+                }
+            }
+        }
     }
-    if(checkReturnType)
+
+    if(!optionals.empty() || (op && op->returnType() && op->returnIsOptional()))
     {
-        writeMarshalUnmarshalCode(out, op->returnType(), true, op->returnTag(), returnValueS, marshal, op->getMetaData(),
-                                  typeCtx, "", true, obj);
+        //
+        // Sort optional parameters by tag.
+        //
+        class SortFn
+        {
+        public:
+            static bool compare(const ParamDeclPtr& lhs, const ParamDeclPtr& rhs)
+            {
+                return lhs->tag() < rhs->tag();
+            }
+        };
+        optionals.sort(SortFn::compare);
+
+        if(cpp11)
+        {
+            out << nl;
+            if(marshal)
+            {
+                out << "__os->writeAll";
+            }
+            else
+            {
+                out << "__is->readAll";
+            }
+            out << spar;
+
+            {
+                //
+                // Tags
+                //
+                ostringstream os;
+                os << '{';
+                bool checkReturnType = op && op->returnIsOptional();
+                bool insertComma = false;
+                for(ParamDeclList::const_iterator p = optionals.begin(); p != optionals.end(); ++p)
+                {
+                    if(checkReturnType && op->returnTag() < (*p)->tag())
+                    {
+                        os << condString(insertComma, ", ") << op->returnTag();
+                        checkReturnType = false;
+                        insertComma = true;
+                    }
+                    os << condString(insertComma, ", ") << (*p)->tag();
+                    insertComma = true;
+                }
+                if(checkReturnType)
+                {
+                    os << condString(insertComma, ", ") << op->returnTag();
+                }
+                os << '}';
+                out << os.str();
+            }
+
+            {
+                //
+                // Parameters
+                //
+                bool checkReturnType = op && op->returnIsOptional();
+                for(ParamDeclList::const_iterator p = optionals.begin(); p != optionals.end(); ++p)
+                {
+                    if(checkReturnType && op->returnTag() < (*p)->tag())
+                    {
+                        out << objPrefix + returnValueS;
+                        checkReturnType = false;
+                    }
+                    out << objPrefix + fixKwd(prefix + (*p)->name());
+                }
+                if(checkReturnType)
+                {
+                    out << objPrefix + returnValueS;
+                }
+            }
+            out << epar << ";";
+        }
+        else
+        {
+
+            //
+            // Marshal optional parameters.
+            //
+
+            bool checkReturnType = op && op->returnIsOptional();
+            for(ParamDeclList::const_iterator p = optionals.begin(); p != optionals.end(); ++p)
+            {
+                if(checkReturnType && op->returnTag() < (*p)->tag())
+                {
+                    writeMarshalUnmarshalCode(out, op->returnType(), true, op->returnTag(), returnValueS, marshal,
+                                              op->getMetaData(), typeCtx, "", true, obj);
+
+                    checkReturnType = false;
+                }
+                writeMarshalUnmarshalCode(out, (*p)->type(), true, (*p)->tag(), fixKwd(prefix + (*p)->name()), marshal,
+                                          (*p)->getMetaData(), typeCtx, "", true, obj);
+            }
+            if(checkReturnType)
+            {
+                writeMarshalUnmarshalCode(out, op->returnType(), true, op->returnTag(), returnValueS, marshal, op->getMetaData(),
+                                          typeCtx, "", true, obj);
+            }
+        }
     }
 }
-
 }
 
 Slice::FeatureProfile Slice::featureProfile = Slice::Ice;
@@ -474,8 +589,10 @@ Slice::isMovable(const TypePtr& type)
 }
 
 string
-Slice::typeToString(const TypePtr& type, const StringList& metaData, int typeCtx, bool cpp11)
+Slice::typeToString(const TypePtr& type, const StringList& metaData, int typeCtx)
 {
+    bool cpp11 = (typeCtx & TypeContextCpp11) != 0;
+
     static const char* builtinTable[] =
     {
         "::Ice::Byte",
@@ -563,7 +680,7 @@ Slice::typeToString(const TypePtr& type, const StringList& metaData, int typeCtx
     if(st)
     {
         //
-        // C++11 mapping doesn't accept cpp:class metdata
+        // C++11 mapping doesn't accept cpp:class metadata
         //
         if(!cpp11 && findMetaData(st->getMetaData()) == "%class")
         {
@@ -625,20 +742,20 @@ Slice::typeToString(const TypePtr& type, const StringList& metaData, int typeCtx
 }
 
 string
-Slice::typeToString(const TypePtr& type, bool optional, const StringList& metaData, int typeCtx, bool cpp11)
+Slice::typeToString(const TypePtr& type, bool optional, const StringList& metaData, int typeCtx)
 {
     if(optional)
     {
-        return "IceUtil::Optional<" + toTemplateArg(typeToString(type, metaData, typeCtx, cpp11)) + ">";
+        return "IceUtil::Optional<" + toTemplateArg(typeToString(type, metaData, typeCtx)) + ">";
     }
     else
     {
-        return typeToString(type, metaData, typeCtx, cpp11);
+        return typeToString(type, metaData, typeCtx);
     }
 }
 
 string
-Slice::returnTypeToString(const TypePtr& type, bool optional, const StringList& metaData, int typeCtx, bool cpp11)
+Slice::returnTypeToString(const TypePtr& type, bool optional, const StringList& metaData, int typeCtx)
 {
     if(!type)
     {
@@ -647,15 +764,17 @@ Slice::returnTypeToString(const TypePtr& type, bool optional, const StringList& 
 
     if(optional)
     {
-        return "IceUtil::Optional<" + toTemplateArg(typeToString(type, metaData, typeCtx, cpp11)) + ">";
+        return "IceUtil::Optional<" + toTemplateArg(typeToString(type, metaData, typeCtx)) + ">";
     }
 
-    return typeToString(type, metaData, typeCtx, cpp11);
+    return typeToString(type, metaData, typeCtx);
 }
 
 string
-Slice::inputTypeToString(const TypePtr& type, bool optional, const StringList& metaData, int typeCtx, bool cpp11)
+Slice::inputTypeToString(const TypePtr& type, bool optional, const StringList& metaData, int typeCtx)
 {
+    bool cpp11 = (typeCtx & TypeContextCpp11) != 0;
+
     static const char* cpp98InputBuiltinTable[] =
     {
         "::Ice::Byte",
@@ -692,7 +811,7 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const StringList& m
 
     if(optional)
     {
-        return "const IceUtil::Optional<" + toTemplateArg(typeToString(type, metaData, typeCtx, cpp11)) +">&";
+        return "const IceUtil::Optional<" + toTemplateArg(typeToString(type, metaData, typeCtx)) +">&";
     }
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
@@ -729,7 +848,7 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const StringList& m
         {
             if(cl->definition() && cl->definition()->isDelegate())
             {
-                return classDefToDelegateString(cl->definition(), typeCtx, cpp11);
+                return classDefToDelegateString(cl->definition(), typeCtx);
             }
             else if(cl->isInterface() && !cl->isLocal())
             {
@@ -815,8 +934,10 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const StringList& m
 }
 
 string
-Slice::outputTypeToString(const TypePtr& type, bool optional, const StringList& metaData, int typeCtx, bool cpp11)
+Slice::outputTypeToString(const TypePtr& type, bool optional, const StringList& metaData, int typeCtx)
 {
+    bool cpp11 = (typeCtx & TypeContextCpp11) != 0;
+
     static const char* outputBuiltinTable[] =
     {
         "::Ice::Byte&",
@@ -851,7 +972,7 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const StringList& 
 
     if(optional)
     {
-        return "IceUtil::Optional<" + toTemplateArg(typeToString(type, metaData, typeCtx, cpp11)) +">&";
+        return "IceUtil::Optional<" + toTemplateArg(typeToString(type, metaData, typeCtx)) +">&";
     }
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
@@ -888,7 +1009,7 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const StringList& 
         {
             if(cl->definition() && cl->definition()->isDelegate())
             {
-                return classDefToDelegateString(cl->definition(), typeCtx, cpp11) + "&";
+                return classDefToDelegateString(cl->definition(), typeCtx) + "&";
             }
             else if(cl->isInterface() && !cl->isLocal())
             {
@@ -1191,8 +1312,7 @@ Slice::writeUnmarshalCode(Output& out, const ParamDeclList& params, const Operat
 }
 
 void
-Slice::writeAllocateCode(Output& out, const ParamDeclList& params, const OperationPtr& op, bool prepend, int typeCtx,
-                         bool cpp11)
+Slice::writeAllocateCode(Output& out, const ParamDeclList& params, const OperationPtr& op, bool prepend, int typeCtx)
 {
     string prefix = prepend ? paramPrefix : "";
     string returnValueS = "__ret";
@@ -1200,12 +1320,12 @@ Slice::writeAllocateCode(Output& out, const ParamDeclList& params, const Operati
     for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
     {
         writeParamAllocateCode(out, (*p)->type(), (*p)->optional(), fixKwd(prefix + (*p)->name()), (*p)->getMetaData(),
-                               typeCtx, cpp11, getEndArg((*p)->type(),(*p)->getMetaData(), (*p)->name()) != (*p)->name());
+                               typeCtx, getEndArg((*p)->type(), (*p)->getMetaData(), (*p)->name()) != (*p)->name());
     }
 
     if(op && op->returnType())
     {
-        writeParamAllocateCode(out, op->returnType(), op->returnIsOptional(), returnValueS, op->getMetaData(), typeCtx, cpp11,
+        writeParamAllocateCode(out, op->returnType(), op->returnIsOptional(), returnValueS, op->getMetaData(), typeCtx,
                                getEndArg(op->returnType(), op->getMetaData(), returnValueS) != returnValueS);
     }
 
@@ -1379,28 +1499,23 @@ Slice::findMetaData(const StringList& metaData, int typeCtx)
             // the return value is % followed by the string after cpp:.
             //
             // The priority of the metadata is as follows:
-            // 1: protobuf
-            // 2: array, range, view-type for "view" parameters
-            // 3: class
+            // 1: array, range (C++98 only), view-type for "view" parameters
+            // 2: class (C++98 only), unscoped (C++11 only)
+            //
 
             if(pos != string::npos)
             {
                 string ss = str.substr(prefix.size());
 
-                if(ss.find("protobuf:") == 0)
-                {
-                    return str.substr(pos + 1);
-                }
-
                 if(typeCtx & (TypeContextInParam | TypeContextAMIPrivateEnd))
                 {
-                    if(ss.find("range:") == 0)
-                    {
-                        return string("%") + str.substr(prefix.size());
-                    }
-                    else if(ss.find("view-type:") == 0)
+                    if(ss.find("view-type:") == 0)
                     {
                         return str.substr(pos + 1);
+                    }
+                    else if(ss.find("range:") == 0 && !(typeCtx & TypeContextCpp11))
+                    {
+                        return string("%") + str.substr(prefix.size());
                     }
                 }
 
@@ -1416,7 +1531,7 @@ Slice::findMetaData(const StringList& metaData, int typeCtx)
                 {
                     return "%array";
                 }
-                else if(ss == "range")
+                else if(ss == "range" && !(typeCtx & TypeContextCpp11))
                 {
                     return "%range";
                 }
@@ -1427,11 +1542,11 @@ Slice::findMetaData(const StringList& metaData, int typeCtx)
             else
             {
                 string ss = str.substr(prefix.size());
-                if(ss == "class")
+                if(ss == "class" && !(typeCtx & TypeContextCpp11))
                 {
                     return "%class";
                 }
-                else if(ss == "unscoped")
+                else if(ss == "unscoped" && (typeCtx & TypeContextCpp11))
                 {
                     return "%unscoped";
                 }
@@ -1488,7 +1603,7 @@ Slice::getDataMemberRef(const DataMemberPtr& p)
 }
 
 string
-Slice::classDefToDelegateString(const ClassDefPtr& cl, int typeCtx, bool cpp11)
+Slice::classDefToDelegateString(const ClassDefPtr& cl, int typeCtx)
 {
     assert(cl->isDelegate());
 
@@ -1496,7 +1611,7 @@ Slice::classDefToDelegateString(const ClassDefPtr& cl, int typeCtx, bool cpp11)
     OperationPtr op = cl->allOperations().front();
 
     TypePtr ret = op->returnType();
-    string retS = returnTypeToString(ret, op->returnIsOptional(), op->getMetaData(), typeCtx, cpp11);
+    string retS = returnTypeToString(ret, op->returnIsOptional(), op->getMetaData(), typeCtx);
 
     string t = "::std::function<" + retS + "(";
 
@@ -1505,11 +1620,11 @@ Slice::classDefToDelegateString(const ClassDefPtr& cl, int typeCtx, bool cpp11)
     {
         if((*q)->isOutParam())
         {
-            t += outputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), typeCtx, cpp11);
+            t += outputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), typeCtx);
         }
         else
         {
-            t += inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), typeCtx, cpp11);
+            t += inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), typeCtx);
         }
 
         t += distance(q, paramList.end()) == 1  ? "" : ", ";

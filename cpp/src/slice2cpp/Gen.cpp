@@ -400,7 +400,7 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
             EnumPtr ep = EnumPtr::dynamicCast(type);
             if(ep)
             {
-                bool unscoped = findMetaData(ep->getMetaData()) == "%unscoped";
+                bool unscoped = findMetaData(ep->getMetaData(), cpp11 ? TypeContextCpp11 : 0) == "%unscoped";
                 if(!cpp11 || unscoped)
                 {
                     out << fixKwd(value);
@@ -4144,7 +4144,7 @@ Slice::Gen::ImplVisitor::defaultValue(const TypePtr& type, const StringList& met
         SequencePtr seq = SequencePtr::dynamicCast(type);
         if(seq)
         {
-            return typeToString(seq, metaData, _useWstring, true) + "()";
+            return typeToString(seq, metaData, _useWstring | TypeContextCpp11) + "()";
         }
 
         DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
@@ -5665,7 +5665,8 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
     {
-        string typeName = inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), _useWstring, true);
+        string typeName = inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(),
+                                            _useWstring | TypeContextCpp11);
         allTypes.push_back(typeName);
         allParamDecls.push_back(typeName + " " + fixKwd("__ice_" + (*q)->name()));
     }
@@ -6010,7 +6011,8 @@ void
 Slice::Gen::Cpp11TypesVisitor::visitDataMember(const DataMemberPtr& p)
 {
     string name = fixKwd(p->name());
-    H << nl << typeToString(p->type(), p->optional(), p->getMetaData(), _useWstring, true) << ' ' << name;
+    H << nl << typeToString(p->type(), p->optional(), p->getMetaData(), _useWstring | TypeContextCpp11)
+      << ' ' << name;
 
     string defaultValue = p->defaultValue();
     if(!defaultValue.empty())
@@ -6028,7 +6030,7 @@ Slice::Gen::Cpp11TypesVisitor::visitSequence(const SequencePtr& p)
     string name = fixKwd(p->name());
     TypePtr type = p->type();
     int typeCtx = p->isLocal() ? (_useWstring | TypeContextLocal) : _useWstring;
-    string s = typeToString(type, p->typeMetaData(), typeCtx, true);
+    string s = typeToString(type, p->typeMetaData(), typeCtx | TypeContextCpp11);
     StringList metaData = p->getMetaData();
 
     string seqType = findMetaData(metaData, _useWstring);
@@ -6058,12 +6060,12 @@ Slice::Gen::Cpp11TypesVisitor::visitDictionary(const DictionaryPtr& p)
 
         TypePtr keyType = p->keyType();
         TypePtr valueType = p->valueType();
-        string ks = typeToString(keyType, p->keyMetaData(), typeCtx, true);
+        string ks = typeToString(keyType, p->keyMetaData(), typeCtx | TypeContextCpp11);
         if(ks[0] == ':')
         {
             ks.insert(0, " ");
         }
-        string vs = typeToString(valueType, p->valueMetaData(), typeCtx, true);
+        string vs = typeToString(valueType, p->valueMetaData(), typeCtx | TypeContextCpp11);
 
         H << sp << nl << "typedef ::std::map<" << ks << ", " << vs << "> " << name << ';';
     }
@@ -6198,7 +6200,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
     TypePtr ret = p->returnType();
 
     bool retIsOpt = p->returnIsOptional();
-    string retS = returnTypeToString(ret, retIsOpt, p->getMetaData(), _useWstring, true);
+    string retS = returnTypeToString(ret, retIsOpt, p->getMetaData(), _useWstring | TypeContextCpp11);
 
     ContainerPtr container = p->container();
     ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
@@ -6221,10 +6223,10 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
 
     if(ret)
     {
-        futureOutParams.push_back(typeToString(ret, retIsOpt, p->getMetaData(), _useWstring, true));
+        futureOutParams.push_back(typeToString(ret, retIsOpt, p->getMetaData(), _useWstring | TypeContextCpp11));
 
         lambdaOutParams.push_back(
-            typeToString(ret, retIsOpt, p->getMetaData(), _useWstring | TypeContextInParam, true));
+            typeToString(ret, retIsOpt, p->getMetaData(), _useWstring | TypeContextInParam | TypeContextCpp11));
 
         outParamsHasOpt |= p->returnIsOptional();
     }
@@ -6236,11 +6238,13 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
 
         if((*q)->isOutParam())
         {
-            futureOutParams.push_back(typeToString((*q)->type(), (*q)->optional(), metaData, _useWstring, true));
-            lambdaOutParams.push_back(
-                typeToString((*q)->type(), (*q)->optional(), metaData, _useWstring | TypeContextInParam, true));
+            futureOutParams.push_back(typeToString((*q)->type(), (*q)->optional(), metaData,
+                                                   _useWstring | TypeContextCpp11));
+            lambdaOutParams.push_back(typeToString((*q)->type(), (*q)->optional(), metaData,
+                                                   _useWstring | TypeContextInParam | TypeContextCpp11));
 
-            string outputTypeString = outputTypeToString((*q)->type(), (*q)->optional(), metaData, _useWstring, true);
+            string outputTypeString = outputTypeToString((*q)->type(), (*q)->optional(), metaData,
+                                                         _useWstring | TypeContextCpp11);
 
             params.push_back(outputTypeString);
             paramsDecl.push_back(outputTypeString + ' ' + paramName);
@@ -6255,7 +6259,8 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
         }
         else
         {
-            string typeString = inputTypeToString((*q)->type(), (*q)->optional(), metaData, _useWstring, true);
+            string typeString = inputTypeToString((*q)->type(), (*q)->optional(), metaData,
+                                                  _useWstring | TypeContextCpp11);
 
             params.push_back(typeString);
             paramsDecl.push_back(typeString + ' ' + paramName);
@@ -6427,8 +6432,8 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
         C << nl << "__read = [__response](::Ice::InputStream* __is)";
         C << sb;
         C << nl << "__is->startEncapsulation();";
-        writeAllocateCode(C, outParams, p, true, _useWstring | TypeContextInParam, true);
-        writeUnmarshalCode(C, outParams, p, true, _useWstring | TypeContextInParam);
+        writeAllocateCode(C, outParams, p, true, _useWstring | TypeContextInParam | TypeContextCpp11);
+        writeUnmarshalCode(C, outParams, p, true, _useWstring | TypeContextInParam | TypeContextCpp11);
 
         if(p->returnsClasses(false))
         {
@@ -6471,7 +6476,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
         {
             C << "[&](::Ice::OutputStream* __os)";
             C << sb;
-            writeMarshalCode(C, inParams, 0, true, TypeContextInParam);
+            writeMarshalCode(C, inParams, 0, true, TypeContextInParam | TypeContextCpp11);
             if(p->sendsClasses(false))
             {
                 C << nl << "__os->writePendingValues();";
@@ -6595,7 +6600,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
     {
         C << "[&](::Ice::OutputStream* __os)";
         C << sb;
-        writeMarshalCode(C, inParams, 0, true, TypeContextInParam);
+        writeMarshalCode(C, inParams, 0, true, TypeContextInParam | TypeContextCpp11);
         if(p->sendsClasses(false))
         {
             C << nl << "__os->writePendingValues();";
@@ -6655,7 +6660,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
         C << "," << nl << "[](::Ice::InputStream* __is)";
         C << sb;
         C << nl << futureT << " v;";
-        writeUnmarshalCode(C, outParams, p, false, _useWstring, returnValueS, "v");
+        writeUnmarshalCode(C, outParams, p, false, _useWstring | TypeContextCpp11, returnValueS, "v");
 
         if(p->returnsClasses(false))
         {
@@ -6674,8 +6679,8 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
         C << "," << nl << "[](::Ice::InputStream* __is)";
         C << sb;
 
-        writeAllocateCode(C, outParams, p, true, _useWstring, true);
-        writeUnmarshalCode(C, outParams, p, true, _useWstring);
+        writeAllocateCode(C, outParams, p, true, _useWstring | TypeContextCpp11);
+        writeUnmarshalCode(C, outParams, p, true, _useWstring | TypeContextCpp11);
 
         if(p->returnsClasses(false))
         {
@@ -6700,7 +6705,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
 void
 Slice::Gen::Cpp11TypesVisitor::visitEnum(const EnumPtr& p)
 {
-    bool unscoped = findMetaData(p->getMetaData()) == "%unscoped";
+    bool unscoped = findMetaData(p->getMetaData(), TypeContextCpp11) == "%unscoped";
     H << sp << nl << "enum ";
     if(!unscoped)
     {
@@ -6741,7 +6746,8 @@ void
 Slice::Gen::Cpp11TypesVisitor::visitConst(const ConstPtr& p)
 {
     H << sp;
-    H << nl << (isConstexprType(p->type()) ? "constexpr " : "const ") << typeToString(p->type(), p->typeMetaData(), _useWstring, true) << " " << fixKwd(p->name())
+    H << nl << (isConstexprType(p->type()) ? "constexpr " : "const ")
+      << typeToString(p->type(), p->typeMetaData(), _useWstring | TypeContextCpp11) << " " << fixKwd(p->name())
       << " = ";
     writeConstantValue(H, p->type(), p->valueType(), p->value(), _useWstring, p->typeMetaData(), true);
     H << ';';
@@ -6769,7 +6775,8 @@ void
 Slice::Gen::Cpp11ObjectVisitor::emitDataMember(const DataMemberPtr& p)
 {
     string name = fixKwd(p->name());
-    H << sp << nl << typeToString(p->type(), p->optional(), p->getMetaData(), _useWstring, true) << ' ' << name;
+    H << sp << nl << typeToString(p->type(), p->optional(), p->getMetaData(),
+                                  _useWstring | TypeContextCpp11) << ' ' << name;
 
     string defaultValue = p->defaultValue();
     if(!defaultValue.empty())
@@ -6903,7 +6910,7 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             H << sp << nl << name << "() :";
             H.inc();
-            writeDataMemberInitializers(H, dataMembers, _useWstring, true);
+            writeDataMemberInitializers(H, dataMembers, _useWstring | TypeContextCpp11);
             H.dec();
             H << sb;
             H << eb;
@@ -7005,9 +7012,10 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitOperation(const OperationPtr& p)
     string scoped = fixKwd(p->scoped());
     string scope = fixKwd(p->scope());
 
-    int typeCtx = _useWstring | TypeContextLocal;
+    int typeCtx = _useWstring | TypeContextLocal | TypeContextCpp11;
     TypePtr ret = p->returnType();
-    string retS = returnTypeToString(ret, p->returnIsOptional(), p->getMetaData(), typeCtx, true);
+    string retS = returnTypeToString(ret, p->returnIsOptional(), p->getMetaData(),
+                                     typeCtx | TypeContextCpp11);
 
     string params = "(";
     string paramsDecl = "(";
@@ -7030,12 +7038,12 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitOperation(const OperationPtr& p)
         if(isOutParam)
         {
             outParams.push_back(*q);
-            typeString = outputTypeToString(type, (*q)->optional(), (*q)->getMetaData(), typeCtx, true);
+            typeString = outputTypeToString(type, (*q)->optional(), (*q)->getMetaData(), typeCtx);
         }
         else
         {
             inParams.push_back(*q);
-            typeString = inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), typeCtx, true);
+            typeString = inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), typeCtx);
         }
 
         if(q != paramList.begin())
@@ -7082,7 +7090,7 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitOperation(const OperationPtr& p)
             string typeString;
             if(!(*r)->isOutParam())
             {
-                typeString = inputTypeToString((*r)->type(), (*r)->optional(), metaData, typeCtx, true);
+                typeString = inputTypeToString((*r)->type(), (*r)->optional(), metaData, typeCtx);
                 paramsDeclAMI.push_back(typeString + ' ' + paramName);
             }
         }
@@ -7364,7 +7372,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
     string name = p->name();
 
     TypePtr ret = p->returnType();
-    string retS = returnTypeToString(ret, p->returnIsOptional(), p->getMetaData(), _useWstring, true);
+    string retS = returnTypeToString(ret, p->returnIsOptional(), p->getMetaData(), _useWstring | TypeContextCpp11);
 
     string params = "(";
     string paramsDecl = "(";
@@ -7397,14 +7405,16 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
         if(isOutParam)
         {
             outParams.push_back(*q);
-            typeString = outputTypeToString(type, (*q)->optional(), (*q)->getMetaData(), _useWstring, true);
-            outDecls.push_back(inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), _useWstring, true));
+            typeString = outputTypeToString(type, (*q)->optional(), (*q)->getMetaData(),
+                                            _useWstring | TypeContextCpp11);
+            outDecls.push_back(inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(),
+                                                 _useWstring | TypeContextCpp11));
         }
         else
         {
             inParams.push_back(*q);
             typeString = typeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(),
-                                      _useWstring | TypeContextInParam, true);
+                                      _useWstring | TypeContextInParam | TypeContextCpp11);
         }
 
         if(q != paramList.begin())
@@ -7431,8 +7441,8 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
 
         for(ParamDeclList::iterator q = outParams.begin(); q != outParams.end(); ++q)
         {
-            string typeString
-                = typeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), _useWstring, true);
+            string typeString = typeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(),
+                                             _useWstring | TypeContextCpp11);
 
             dataMembers.push_back(typeString + " " + fixKwd((*q)->name()));
 
@@ -7477,7 +7487,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
             argsAMD += ", ";
         }
         paramsAMD += typeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(),
-                                  _useWstring | TypeContextInParam, true);
+                                  _useWstring | TypeContextInParam | TypeContextCpp11);
         if(isMovable((*q)->type()))
         {
             argsAMD += "::std::move(" + fixKwd(string(paramPrefix) + (*q)->name()) + ")";
@@ -7490,7 +7500,8 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
 
     if(ret)
     {
-        string typeString = inputTypeToString(ret, p->returnIsOptional(), p->getMetaData(), _useWstring, true);
+        string typeString = inputTypeToString(ret, p->returnIsOptional(), p->getMetaData(),
+                                              _useWstring | TypeContextCpp11);
         responseParams = typeString;
         responseParamsDecl = typeString + " __ret";
         if(!outParams.empty())
@@ -7507,7 +7518,8 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
             responseParams += ", ";
             responseParamsDecl += ", ";
         }
-        string typeString = inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), _useWstring, true);
+        string typeString = inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(),
+                                              _useWstring | TypeContextCpp11);
         responseParams += typeString;
         responseParamsDecl += typeString + " " + fixKwd(string(paramPrefix) + (*q)->name());
     }
@@ -7562,9 +7574,9 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
 
     if(!inParams.empty())
     {
-        C << nl << "::Ice::InputStream* __is = __inS.startReadParams();";
-        writeAllocateCode(C, inParams, 0, true, _useWstring | TypeContextInParam, true);
-        writeUnmarshalCode(C, inParams, 0, true, TypeContextInParam);
+        C << nl << "auto __is = __inS.startReadParams();";
+        writeAllocateCode(C, inParams, 0, true, _useWstring | TypeContextInParam | TypeContextCpp11);
+        writeUnmarshalCode(C, inParams, 0, true, _useWstring | TypeContextInParam | TypeContextCpp11);
         if(p->sendsClasses(false))
         {
             C << nl << "__is->readPendingValues();";
@@ -7578,7 +7590,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
 
     if(!amd)
     {
-        writeAllocateCode(C, outParams, 0, true, _useWstring, true);
+        writeAllocateCode(C, outParams, 0, true, _useWstring | TypeContextCpp11);
         if(!throws.empty())
         {
             C << nl << "try";
@@ -7593,7 +7605,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
         if(ret || !outParams.empty())
         {
             C << nl << "auto __os = __inS.__startWriteParams(" << opFormatTypeToString(p) << ");";
-            writeMarshalCode(C, outParams, p, true);
+            writeMarshalCode(C, outParams, p, true, TypeContextCpp11);
             if(p->returnsClasses(false))
             {
                 C << nl << "__os->writePendingValues();";
@@ -7668,7 +7680,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
         if(ret || !outParams.empty())
         {
             C << nl << "auto __os = inS->__startWriteParams(" << opFormatTypeToString(p) << ");";
-            writeMarshalCode(C, outParams, p, true);
+            writeMarshalCode(C, outParams, p, true, TypeContextCpp11);
             if(p->returnsClasses(false))
             {
                 C << nl << "__os->writePendingValues();";
@@ -7981,7 +7993,8 @@ Slice::Gen::Cpp11ObjectVisitor::emitOneShotConstructor(const ClassDefPtr& p)
 
         for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
         {
-            string typeName = inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), _useWstring, true);
+            string typeName = inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(),
+                                                _useWstring | TypeContextCpp11);
             allParamDecls.push_back(typeName + " __ice_" + (*q)->name());
         }
 
@@ -8264,7 +8277,7 @@ Slice::Gen::Cpp11ImplVisitor::defaultValue(const TypePtr& type, const StringList
         SequencePtr seq = SequencePtr::dynamicCast(type);
         if(seq)
         {
-            return typeToString(seq, metaData, _useWstring, true) + "()";
+            return typeToString(seq, metaData, _useWstring | TypeContextCpp11) + "()";
         }
 
         DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
@@ -8353,7 +8366,8 @@ Slice::Gen::Cpp11ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
         string opName = op->name();
 
         TypePtr ret = op->returnType();
-        string retS = returnTypeToString(ret, op->returnIsOptional(), op->getMetaData(), _useWstring, true);
+        string retS = returnTypeToString(ret, op->returnIsOptional(), op->getMetaData(),
+                                         _useWstring | TypeContextCpp11);
 
         ParamDeclList params = op->parameters();
         ParamDeclList outParams;
@@ -8380,12 +8394,14 @@ Slice::Gen::Cpp11ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
             for(ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
             {
                 H << typeToString((*q)->type(), (*q)->optional(),
-                                  (*q)->getMetaData(), _useWstring | TypeContextInParam, true) << "," << nl;
+                                  (*q)->getMetaData(), _useWstring | TypeContextInParam | TypeContextCpp11)
+                  << "," << nl;
             }
 
             if(ret)
             {
-                string typeS = inputTypeToString(ret, op->returnIsOptional(), op->getMetaData(), _useWstring, true);
+                string typeS = inputTypeToString(ret, op->returnIsOptional(), op->getMetaData(),
+                                                 _useWstring | TypeContextCpp11);
                 responseParams = typeS;
                 responseParamsDecl = typeS + " __ret";
                 if(!outParams.empty())
@@ -8402,7 +8418,8 @@ Slice::Gen::Cpp11ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
                     responseParams += ", ";
                     responseParamsDecl += ", ";
                 }
-                string typeS = inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), _useWstring, true);
+                string typeS = inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(),
+                                                 _useWstring | TypeContextCpp11);
                 responseParams += typeS;
                 responseParamsDecl += typeS + " " + fixKwd(string(paramPrefix) + (*q)->name());
             }
@@ -8418,7 +8435,8 @@ Slice::Gen::Cpp11ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
             C.useCurrentPosAsIndent();
             for(ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
             {
-                C << typeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), _useWstring | TypeContextInParam, true);
+                C << typeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(),
+                                  _useWstring | TypeContextInParam | TypeContextCpp11);
                 C << ' ' << fixKwd((*q)->name()) << "," << nl;
             }
 
@@ -8470,11 +8488,13 @@ Slice::Gen::Cpp11ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
                 string typeString;
                 if((*q)->isOutParam())
                 {
-                    typeString = outputTypeToString((*q)->type(), (*q)->optional(), metaData, _useWstring, true);
+                    typeString = outputTypeToString((*q)->type(), (*q)->optional(), metaData,
+                                                    _useWstring | TypeContextCpp11);
                 }
                 else
                 {
-                    typeString = typeToString((*q)->type(), (*q)->optional(), metaData, _useWstring | TypeContextInParam, true);
+                    typeString = typeToString((*q)->type(), (*q)->optional(), metaData,
+                                              _useWstring | TypeContextInParam | TypeContextCpp11);
                 }
                 H << typeString;
             }
@@ -8505,13 +8525,15 @@ Slice::Gen::Cpp11ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
                 string typeString;
                 if((*q)->isOutParam())
                 {
-                    C << outputTypeToString((*q)->type(), (*q)->optional(), metaData, _useWstring, true) << " "
+                    C << outputTypeToString((*q)->type(), (*q)->optional(), metaData, _useWstring | TypeContextCpp11)
+                      << " "
                       << fixKwd((*q)->name());
                 }
                 else
                 {
-                    C << typeToString((*q)->type(), (*q)->optional(), metaData, _useWstring | TypeContextInParam, true) << " /*"
-                      << fixKwd((*q)->name()) << "*/";
+                    C << typeToString((*q)->type(), (*q)->optional(), metaData,
+                                      _useWstring | TypeContextInParam | TypeContextCpp11)
+                      << " /*" << fixKwd((*q)->name()) << "*/";
                 }
             }
             if(!p->isLocal())

@@ -34,15 +34,16 @@ const int TypeContextAMIPrivateEnd = 4;
 const int TypeContextAMICallPrivateEnd = 8;
 const int TypeContextUseWstring = 16;
 const int TypeContextLocal = 32;
+const int TypeContextCpp11 = 64;
 
 bool isMovable(const TypePtr&);
 
-std::string typeToString(const TypePtr&, const StringList& = StringList(), int = 0, bool = false);
-std::string typeToString(const TypePtr&, bool, const StringList& = StringList(), int = 0, bool = false);
-std::string returnTypeToString(const TypePtr&, bool, const StringList& = StringList(), int = 0, bool = false);
-std::string inputTypeToString(const TypePtr&, bool, const StringList& = StringList(), int = 0, bool = false);
-std::string outputTypeToString(const TypePtr&, bool, const StringList& = StringList(), int = 0, bool = false);
-std::string operationModeToString(Operation::Mode, bool cpp11 = false);
+std::string typeToString(const TypePtr&, const StringList& = StringList(), int = 0);
+std::string typeToString(const TypePtr&, bool, const StringList& = StringList(), int = 0);
+std::string returnTypeToString(const TypePtr&, bool, const StringList& = StringList(), int = 0);
+std::string inputTypeToString(const TypePtr&, bool, const StringList& = StringList(), int = 0);
+std::string outputTypeToString(const TypePtr&, bool, const StringList& = StringList(), int = 0);
+std::string operationModeToString(Operation::Mode, bool = false);
 std::string opFormatTypeToString(const OperationPtr&);
 
 std::string fixKwd(const std::string&);
@@ -54,8 +55,7 @@ void writeMarshalUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, bool,
 void writeMarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool, int = 0);
 void writeUnmarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool, int = 0,
                         const std::string& = "", const std::string& = "");
-void writeAllocateCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool, int = 0,
-                       bool = false);
+void writeAllocateCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool, int = 0);
 
 std::string getEndArg(const TypePtr&, const StringList&, const std::string&);
 void writeEndCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool = false);
@@ -69,7 +69,7 @@ bool inWstringModule(const SequencePtr&);
 
 std::string getDataMemberRef(const DataMemberPtr&);
 
-std::string classDefToDelegateString(const ClassDefPtr&, int = 0, bool = false);
+std::string classDefToDelegateString(const ClassDefPtr&, int = 0);
 }
 
 #endif

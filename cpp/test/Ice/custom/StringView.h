@@ -153,11 +153,13 @@ struct StreamHelper<Util::string_view, StreamHelperCategoryBuiltin>
     template<class S> static inline void
     write(S* stream, const Util::string_view& v)
     {
-
-#ifdef STRING_VIEW_IGNORE_STRING_CONVERTER
-        stream->write(v.data(), v.size(), false);
+#ifdef ICE_CPP11_MAPPING
+        stream->write(v.data(), v.size());
 #else
-        stream->write(v.data(), v.size(), true);
+        //
+        // In C++98, for consistency with the read, we don't string-convert
+        //
+        stream->write(v.data(), v.size(), false);
 #endif
     }
 
@@ -167,19 +169,10 @@ struct StreamHelper<Util::string_view, StreamHelperCategoryBuiltin>
         const char* vdata = 0;
         size_t vsize = 0;
 
-#ifdef STRING_VIEW_IGNORE_STRING_CONVERTER
+        //
+        // In C++98, we ignore the string converter
+        //
         stream->read(vdata, vsize);
-#else
-        std::string holder;
-        stream->read(vdata, vsize, holder);
-        
-        // If holder is not empty, a string conversion occured, and we can't return a 
-        // string_view since it does not hold the memory
-        if(!holder.empty())
-        {
-            throw Ice::MarshalException(__FILE__, __LINE__, "string conversion not supported");
-        }
-#endif
 
         if(vsize > 0)
         {

@@ -39,31 +39,26 @@ public:
                               std::function<void(const ::Test::VariableList&, const ::Test::VariableList&)>,
                               std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    void opBoolRangeAsync(std::pair< ::Test::BoolSeq::const_iterator,	::Test::BoolSeq::const_iterator>,
+    void opBoolRangeAsync(Test::BoolSeq,
                           std::function<void(const ::Test::BoolSeq&, const ::Test::BoolSeq&)>,
                           std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
 
-    void opByteRangeAsync(std::pair< ::Test::ByteList::const_iterator,	::Test::ByteList::const_iterator>,
-                          std::function<void(const std::pair< ::Test::ByteList::const_iterator,
-                                              ::Test::ByteList::const_iterator>&,
-                                              const std::pair< ::Test::ByteList::const_iterator,
-                                              ::Test::ByteList::const_iterator>&)>,
+    void opByteRangeAsync(Test::ByteList,
+                          std::function<void(const Test::ByteList&, const Test::ByteList&)>,
                           std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    void opVariableRangeAsync(std::pair< ::Test::VariableList::const_iterator,
-                              ::Test::VariableList::const_iterator>,
+    void opVariableRangeAsync(Test::VariableList,
                               std::function<void(const ::Test::VariableList&, const ::Test::VariableList&)>,
                               std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
 
-    void opByteRangeTypeAsync(std::pair< ::Test::ByteList::const_iterator,  ::Test::ByteList::const_iterator>,
+    void opByteRangeTypeAsync(Test::ByteList,
                               std::function<void(const ::Test::ByteList&, const ::Test::ByteList&)>,
                               std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
 
-    void opVariableRangeTypeAsync(std::pair<std::deque< ::Test::Variable>::const_iterator,
-                                  std::deque< ::Test::Variable>::const_iterator>,
+    void opVariableRangeTypeAsync(Test::VariableList,
                                   std::function<void(const ::Test::VariableList&,
                                                       const ::Test::VariableList&)>,
                                   std::function<void(std::exception_ptr)>, const Ice::Current&) override;
@@ -185,8 +180,7 @@ public:
 
 
     void opOutRangeByteSeqAsync(::Test::ByteSeq,
-                                std::function<void(const std::pair< ::Test::ByteSeq::const_iterator,
-                                                    ::Test::ByteSeq::const_iterator>&)>,
+                                std::function<void(const Test::ByteSeq&)>,
                                 std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
 

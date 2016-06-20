@@ -26,6 +26,12 @@
 #include <IceUtil/StringConverter.h>
 #include <iterator>
 
+#ifndef ICE_UNALIGNED
+#   if defined(__i386) || defined(_M_IX86) || defined(__x86_64) || defined(_M_X64)
+#       define ICE_UNALIGNED
+#   endif
+#endif
+
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
@@ -500,6 +506,27 @@ struct ReadBoolHelper<1>
 
 }
 
+#ifdef ICE_CPP11_MAPPING
+void
+Ice::InputStream::read(pair<const bool*, const bool*>& v)
+{
+    Int sz = readAndCheckSeqSize(1);
+    if(sz > 0)
+    {
+        auto boolArray = ReadBoolHelper<sizeof(bool)>::read(v, sz, i);
+        if(boolArray)
+        {
+            _deleters.push_back([boolArray] { delete[] boolArray; });
+        }
+        i += sz;
+    }
+    else
+    {
+        v.first = v.second = reinterpret_cast<bool*>(i);
+    }
+}
+
+#else
 void
 Ice::InputStream::read(pair<const bool*, const bool*>& v, IceUtil::ScopedArray<bool>& result)
 {
@@ -515,6 +542,7 @@ Ice::InputStream::read(pair<const bool*, const bool*>& v, IceUtil::ScopedArray<b
         v.first = v.second = reinterpret_cast<bool*>(i);
     }
 }
+#endif
 
 void
 Ice::InputStream::read(Short& v)
@@ -564,20 +592,32 @@ Ice::InputStream::read(vector<Short>& v)
     }
 }
 
+#ifdef ICE_CPP11_MAPPING
+void
+Ice::InputStream::read(pair<const short*, const short*>& v)
+#else
 void
 Ice::InputStream::read(pair<const Short*, const Short*>& v, IceUtil::ScopedArray<Short>& result)
+#endif
 {
     Int sz = readAndCheckSeqSize(static_cast<int>(sizeof(Short)));
     if(sz > 0)
     {
-#if defined(__i386) || defined(_M_IX86) || defined(__x86_64) || defined(_M_X64)
+#ifdef ICE_UNALIGNED
         v.first = reinterpret_cast<Short*>(i);
         i += sz * static_cast<int>(sizeof(Short));
         v.second = reinterpret_cast<Short*>(i);
 #else
+#  ifdef ICE_CPP11_MAPPING
+        auto result = new short[sz];
+        _deleters.push_back([result] { delete[] result; });
+        v.first = result;
+        v.second = result + sz;
+#  else
         result.reset(new Short[sz]);
         v.first = result.get();
         v.second = result.get() + sz;
+#   endif
 
         Container::iterator begin = i;
         i += sz * static_cast<int>(sizeof(Short));
@@ -597,7 +637,9 @@ Ice::InputStream::read(pair<const Short*, const Short*>& v, IceUtil::ScopedArray
     }
     else
     {
+#ifndef ICE_CPP11_MAPPING
         result.reset();
+#endif
         v.first = v.second = 0;
     }
 }
@@ -632,20 +674,33 @@ Ice::InputStream::read(vector<Int>& v)
     }
 }
 
+#ifdef ICE_CPP11_MAPPING
+void
+Ice::InputStream::read(pair<const Int*, const Int*>& v)
+#else
 void
 Ice::InputStream::read(pair<const Int*, const Int*>& v, ::IceUtil::ScopedArray<Int>& result)
+#endif
 {
     Int sz = readAndCheckSeqSize(static_cast<int>(sizeof(Int)));
     if(sz > 0)
     {
-#if defined(__i386) || defined(_M_IX86) || defined(__x86_64) || defined(_M_X64)
+#ifdef ICE_UNALIGNED
         v.first = reinterpret_cast<Int*>(i);
         i += sz * static_cast<int>(sizeof(Int));
         v.second = reinterpret_cast<Int*>(i);
 #else
+
+#  ifdef ICE_CPP11_MAPPING
+        auto result = new int[sz];
+        _deleters.push_back([result] { delete[] result; });
+        v.first = result;
+        v.second = result + sz;
+#  else
         result.reset(new Int[sz]);
         v.first = result.get();
         v.second = result.get() + sz;
+#  endif
 
         Container::iterator begin = i;
         i += sz * static_cast<int>(sizeof(Int));
@@ -667,7 +722,9 @@ Ice::InputStream::read(pair<const Int*, const Int*>& v, ::IceUtil::ScopedArray<I
     }
     else
     {
+#ifndef ICE_CPP11_MAPPING
         result.reset();
+#endif
         v.first = v.second = 0;
     }
 }
@@ -738,20 +795,33 @@ Ice::InputStream::read(vector<Long>& v)
     }
 }
 
+#ifdef ICE_CPP11_MAPPING
+void
+Ice::InputStream::read(pair<const Long*, const Long*>& v)
+#else
 void
 Ice::InputStream::read(pair<const Long*, const Long*>& v, IceUtil::ScopedArray<Long>& result)
+#endif
 {
     Int sz = readAndCheckSeqSize(static_cast<int>(sizeof(Long)));
     if(sz > 0)
     {
-#if defined(__i386) || defined(_M_IX86) || defined(__x86_64) || defined(_M_X64)
+#ifdef ICE_UNALIGNED
         v.first = reinterpret_cast<Long*>(i);
         i += sz * static_cast<int>(sizeof(Long));
         v.second = reinterpret_cast<Long*>(i);
 #else
+
+#  ifdef ICE_CPP11_MAPPING
+        auto result = new long long[sz];
+        _deleters.push_back([result] { delete[] result; });
+        v.first = result;
+        v.second = result + sz;
+#  else
         result.reset(new Long[sz]);
         v.first = result.get();
         v.second = result.get() + sz;
+#  endif
 
         Container::iterator begin = i;
         i += sz * static_cast<int>(sizeof(Long));
@@ -777,7 +847,9 @@ Ice::InputStream::read(pair<const Long*, const Long*>& v, IceUtil::ScopedArray<L
     }
     else
     {
+#ifndef ICE_CPP11_MAPPING
         result.reset();
+#endif
         v.first = v.second = 0;
     }
 }
@@ -836,20 +908,33 @@ Ice::InputStream::read(vector<Float>& v)
     }
 }
 
+#ifdef ICE_CPP11_MAPPING
+void
+Ice::InputStream::read(pair<const Float*, const Float*>& v)
+#else
 void
 Ice::InputStream::read(pair<const Float*, const Float*>& v, IceUtil::ScopedArray<Float>& result)
+#endif
 {
     Int sz = readAndCheckSeqSize(static_cast<int>(sizeof(Float)));
     if(sz > 0)
     {
-#if defined(__i386) || defined(_M_IX86) || defined(__x86_64) || defined(_M_X64)
+#ifdef ICE_UNALIGNED
         v.first = reinterpret_cast<Float*>(i);
         i += sz * static_cast<int>(sizeof(Float));
         v.second = reinterpret_cast<Float*>(i);
 #else
+
+#  ifdef ICE_CPP11_MAPPING
+        auto result = new float[sz];
+        _deleters.push_back([result] { delete[] result; });
+        v.first = result;
+        v.second = result + sz;
+#  else
         result.reset(new Float[sz]);
         v.first = result.get();
         v.second = result.get() + sz;
+#  endif
 
         Container::iterator begin = i;
         i += sz * static_cast<int>(sizeof(Float));
@@ -871,7 +956,9 @@ Ice::InputStream::read(pair<const Float*, const Float*>& v, IceUtil::ScopedArray
     }
     else
     {
+#ifndef ICE_CPP11_MAPPING
         result.reset();
+#endif
         v.first = v.second = 0;
     }
 }
@@ -968,20 +1055,34 @@ Ice::InputStream::read(vector<Double>& v)
     }
 }
 
+
+#ifdef ICE_CPP11_MAPPING
+void
+Ice::InputStream::read(pair<const Double*, const Double*>& v)
+#else
 void
 Ice::InputStream::read(pair<const Double*, const Double*>& v, IceUtil::ScopedArray<Double>& result)
+#endif
 {
     Int sz = readAndCheckSeqSize(static_cast<int>(sizeof(Double)));
     if(sz > 0)
     {
-#if defined(__i386) || defined(_M_IX86) || defined(__x86_64) || defined(_M_X64)
+#ifdef ICE_UNALIGNED
         v.first = reinterpret_cast<Double*>(i);
         i += sz * static_cast<int>(sizeof(Double));
         v.second = reinterpret_cast<Double*>(i);
 #else
+
+#  ifdef ICE_CPP11_MAPPING
+        auto result = new double[sz];
+        _deleters.push_back([result] { delete[] result; });
+        v.first = result;
+        v.second = result + sz;
+#  else
         result.reset(new Double[sz]);
         v.first = result.get();
         v.second = result.get() + sz;
+#  endif
 
         Container::iterator begin = i;
         i += sz * static_cast<int>(sizeof(Double));
@@ -1023,10 +1124,143 @@ Ice::InputStream::read(pair<const Double*, const Double*>& v, IceUtil::ScopedArr
     }
     else
     {
+#ifndef ICE_CPP11_MAPPING
         result.reset();
+#endif
         v.first = v.second = 0;
     }
 }
+
+void
+Ice::InputStream::read(std::string& v, bool convert)
+{
+    Int sz = readSize();
+    if(sz > 0)
+    {
+        if(b.end() - i < sz)
+        {
+            throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
+        }
+        if(convert && _stringConverter)
+        {
+            readConverted(v, sz);
+        }
+        else
+        {
+            string(reinterpret_cast<const char*>(&*i), reinterpret_cast<const char*>(&*i) + sz).swap(v);
+        }
+        i += sz;
+    }
+    else
+    {
+        v.clear();
+    }
+}
+
+#ifdef ICE_CPP11_MAPPING
+void
+Ice::InputStream::read(const char*& vdata, size_t& vsize, bool convert)
+{
+    int sz = readSize();
+    if(sz > 0)
+    {
+        if(b.end() - i < sz)
+        {
+            throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
+        }
+
+        if(convert == false || !_stringConverter)
+        {
+            vdata = reinterpret_cast<const char*>(&*i);
+            vsize = static_cast<size_t>(sz);
+            i += sz;
+        }
+        else
+        {
+            string converted;
+            readConverted(converted, sz);
+            if(converted.size() <= static_cast<size_t>(sz))
+            {
+                //
+                // Write converted string directly into buffer
+                //
+                std::memcpy(i, converted.data(), converted.size());
+                vdata = reinterpret_cast<const char*>(&*i);
+                vsize = converted.size();
+            }
+            else
+            {
+                auto holder = new string(std::move(converted));
+                _deleters.push_back([holder] { delete holder; });
+                vdata = holder->data();
+                vsize = holder->size();
+            }
+            i += sz;
+        }
+    }
+    else
+    {
+        vdata = 0;
+        vsize = 0;
+    }
+}
+
+#else
+
+void
+Ice::InputStream::read(const char*& vdata, size_t& vsize)
+{
+    Int sz = readSize();
+    if(sz > 0)
+    {
+        if(b.end() - i < sz)
+        {
+            throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
+        }
+
+        vdata = reinterpret_cast<const char*>(&*i);
+        vsize = static_cast<size_t>(sz);
+        i += sz;
+    }
+    else
+    {
+        vdata = 0;
+        vsize = 0;
+    }
+}
+
+void
+Ice::InputStream::read(const char*& vdata, size_t& vsize, string& holder)
+{
+    if(!_stringConverter)
+    {
+        holder.clear();
+        read(vdata, vsize);
+    }
+    else
+    {
+        Int sz = readSize();
+        if(sz > 0)
+        {
+            if(b.end() - i < sz)
+            {
+                throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
+            }
+
+            readConverted(holder, sz);
+            i += sz;
+            vdata = holder.data();
+            vsize = holder.size();
+        }
+        else
+        {
+            holder.clear();
+            vdata = 0;
+            vsize = 0;
+        }
+    }
+}
+#endif
 
 void
 Ice::InputStream::readConverted(string& v, int sz)

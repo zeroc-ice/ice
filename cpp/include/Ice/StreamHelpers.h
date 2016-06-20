@@ -136,6 +136,17 @@ struct StreamableTraits<T, typename ::std::enable_if<::std::is_base_of<::Ice::Us
     //
 };
 
+//
+// StreamableTraits specialization for arrays (std::pair<const T*, const T*>).
+//
+template<typename T>
+struct StreamableTraits<std::pair<T*, T*>>
+{
+    static const StreamHelperCategory helper = StreamHelperCategorySequence;
+    static const int minWireSize = 1;
+    static const bool fixedLength = false;
+};
+
 #else
 
 //
@@ -175,7 +186,6 @@ struct StreamableTraits<UserException>
     // and no optional UserException (so no need for fixedLength)
     //
 };
-#endif
 
 //
 // StreamableTraits specialization for array / range mapped sequences
@@ -189,6 +199,7 @@ struct StreamableTraits< ::std::pair<T, U> >
     static const int minWireSize = 1;
     static const bool fixedLength = false;
 };
+#endif
 
 //
 // StreamableTraits specialization for builtins (these are needed for sequence
@@ -438,7 +449,7 @@ struct StreamHelper<T, StreamHelperCategorySequence>
     }
 };
 
-// Helper for array and range:array custom sequence parameters
+// Helper for array custom sequence parameters
 template<typename T>
 struct StreamHelper<std::pair<const T*, const T*>, StreamHelperCategorySequence>
 {
@@ -454,6 +465,8 @@ struct StreamHelper<std::pair<const T*, const T*>, StreamHelperCategorySequence>
         stream->read(v);
     }
 };
+
+#ifndef ICE_CPP11_MAPPING
 
 // Helper for range custom sequence parameters
 template<typename T>
@@ -490,8 +503,6 @@ struct StreamHelper<std::pair< ::std::vector<bool>::const_iterator,
             stream->write(static_cast<bool>(*p));
         }
     }
-
-    // no read: only used for marshaling
 };
 
 // Helper for zero-copy array sequence parameters
@@ -506,6 +517,8 @@ struct StreamHelper<std::pair<IceUtil::ScopedArray<T>, std::pair<const T*, const
 
     // no write: only used for unmarshaling
 };
+#endif
+
 
 // Helper for dictionaries
 template<typename T>
@@ -861,6 +874,8 @@ struct StreamOptionalHelper<std::pair<const T*, const T*>, StreamHelperCategoryS
     }
 };
 
+#ifndef ICE_CPP11_MAPPING
+
 template<typename T>
 struct StreamOptionalHelper<std::pair<T, T>, StreamHelperCategorySequence, false>
 {
@@ -906,6 +921,7 @@ struct StreamOptionalHelper<std::pair<IceUtil::ScopedArray<T>, std::pair<const T
 
     // no write: only used for unmarshaling
 };
+#endif
 
 //
 // Helper to write dictionaries, delegates to the optional container

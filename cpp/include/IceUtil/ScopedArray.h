@@ -12,15 +12,14 @@
 
 #include <IceUtil/Config.h>
 
+#ifndef ICE_CPP11_MAPPING
+
+//
+// Only for the C++98 mapping
+//
+
 namespace IceUtil
 {
-
-#ifdef ICE_CPP11_MAPPING
-
-template<typename T>
-using ScopedArray = std::unique_ptr<T[]>;
-
-#else // C++98 mapping
 
 template<typename T>
 class ScopedArray
@@ -99,8 +98,7 @@ private:
     T* _ptr;
 };
 
-#endif
-
 } // End of namespace IceUtil
 
+#endif
 #endif

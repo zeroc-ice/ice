@@ -7,8 +7,6 @@
 #
 # **********************************************************************
 
-$(test)_cppflags		= -DSTRING_VIEW_IGNORE_STRING_CONVERTER
-
 $(test)_client_sources 		= Client.cpp \
 				  AllTests.cpp \
 				  Test.ice \
