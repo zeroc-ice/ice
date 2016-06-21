@@ -44,7 +44,7 @@ namespace IceGrid
 void
 chownRecursive(const string& path, uid_t uid, gid_t gid)
 {
-    struct dirent **namelist = 0;
+    vector<vector<Ice::Byte> > namelist;
     DIR* d;
     if((d = opendir(path.c_str())) == 0)
     {
@@ -52,26 +52,15 @@ chownRecursive(const string& path, uid_t uid, gid_t gid)
     }
 
     struct dirent* entry;
-    int n = 0;
     while((entry = readdir(d)) != 0)
     {
-        namelist = static_cast<struct dirent**>(
-                                            realloc(namelist, static_cast<size_t>((n + 1) * sizeof(struct dirent*))));
-        if(namelist == 0)
-        {
-            closedir(d);
-            throw "cannot read directory `" + path + "':\n" + IceUtilInternal::lastErrorToString();
-        }
+        size_t index = namelist.size();
+        namelist.resize(index + 1);
 
         size_t entrysize = sizeof(struct dirent) - sizeof(entry->d_name) + strlen(entry->d_name) + 1;
-        namelist[n] = static_cast<struct dirent*>(malloc(entrysize));
-        if(namelist[n] == 0)
-        {
-            closedir(d);
-            throw "cannot read directory `" + path + "':\n" + IceUtilInternal::lastErrorToString();
-        }
-        memcpy(namelist[n], entry, entrysize);
-        ++n;
+        namelist[index].resize(entrysize);
+
+        memcpy(&namelist[index][0], entry, entrysize);
     }
 
     if(closedir(d))
@@ -79,11 +68,10 @@ chownRecursive(const string& path, uid_t uid, gid_t gid)
         throw "cannot read directory `" + path + "':\n" + IceUtilInternal::lastErrorToString();
     }
 
-    for(int i = 0; i < n; ++i)
+    for(size_t i = 0; i < namelist.size(); ++i)
     {
-        string name = namelist[i]->d_name;
+        string name = reinterpret_cast<struct dirent*>(&namelist[i][0])->d_name;
         assert(!name.empty());
-        free(namelist[i]);
 
         if(name == ".")
         {
@@ -115,8 +103,6 @@ chownRecursive(const string& path, uid_t uid, gid_t gid)
             }
         }
     }
-
-    free(namelist);
 }
 #endif
 
