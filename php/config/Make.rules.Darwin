@@ -10,8 +10,13 @@
 #
 # This file is included by Make.rules when uname is Darwin.
 #
-
 include $(top_srcdir)/../cpp/config/Make.rules.$(UNAME)
+
+#
+# Override CPPFLAGS set in cpp/config/Make.rules.Darwin, PHP5 extension build
+# doesn't work well with --std=c++11 or -fvisibility=hidden
+#
+CPPFLAGS		= -pthread
 
 LDPLATFORMFLAGS += ${wl}-flat_namespace ${wl}-undefined ${wl}suppress $(LDEXEFLAGS)
 
