@@ -453,6 +453,70 @@ writeDataMemberInitializers(IceUtilInternal::Output& C, const DataMemberList& me
     }
 }
 
+void
+writeInParamsLambda(IceUtilInternal::Output& C, const OperationPtr& p, const ParamDeclList& inParams)
+{
+    if(inParams.empty())
+    {
+        C << "nullptr";
+    }
+    else
+    {
+        C << "[&](::Ice::OutputStream* __os)";
+        C << sb;
+        writeMarshalCode(C, inParams, 0, true, TypeContextInParam | TypeContextCpp11);
+        if(p->sendsClasses(false))
+        {
+            C << nl << "__os->writePendingValues();";
+        }
+        C << eb;
+    }
+}
+
+void
+throwUserExceptionLambda(IceUtilInternal::Output& C, ExceptionList throws)
+{
+    if(throws.empty())
+    {
+        C << "nullptr";
+    }
+    else
+    {
+        throws.sort();
+        throws.unique();
+
+        //
+        // Arrange exceptions into most-derived to least-derived order. If we don't
+        // do this, a base exception handler can appear before a derived exception
+        // handler, causing compiler warnings and resulting in the base exception
+        // being marshaled instead of the derived exception.
+        //
+        throws.sort(Slice::DerivedToBaseCompare());
+
+        C << "[](const ::Ice::UserException& __ex)";
+        C << sb;
+        C << nl << "try";
+        C << sb;
+        C << nl << "__ex.ice_throw();";
+        C << eb;
+        //
+        // Generate a catch block for each legal user exception.
+        //
+        for(ExceptionList::const_iterator i = throws.begin(); i != throws.end(); ++i)
+        {
+            string scoped = (*i)->scoped();
+            C << nl << "catch(const " << fixKwd((*i)->scoped()) << "&)";
+            C << sb;
+            C << nl << "throw;";
+            C << eb;
+        }
+        C << nl << "catch(const ::Ice::UserException&)";
+        C << sb;
+        C << eb;
+        C << eb;
+    }
+}
+
 string
 resultStructName(const string& name, const string& scope = "")
 {
@@ -6177,11 +6241,19 @@ Slice::Gen::Cpp11ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     H.inc();
     H << sp << nl << prx << "() = default;";
     H << nl << "friend ::std::shared_ptr<" << prx << "> IceInternal::createProxy<" << prx << ">();";
+    H << sp;
+    H << nl << "virtual ::std::shared_ptr<::Ice::ObjectPrx> __newInstance() const override;";
     H << eb << ';';
 
     string suffix = p->isInterface() ? "" : "Disp";
     string scoped = fixKwd(p->scoped() + "Prx");
 
+    C << sp;
+    C << nl << "::std::shared_ptr<::Ice::ObjectPrx>";
+    C << nl << scoped.substr(2) << "::__newInstance() const";
+    C << sb;
+    C << nl << "return ::IceInternal::createProxy<" << prx << ">();";
+    C << eb;
     C << sp;
     C << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_staticId()";
     C << sb;
@@ -6462,69 +6534,14 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
         C << "shared_from_this(), __read, __ex, __sent);";
         C << sp;
 
-        // TODO: fix duplication with "private implementation" code below
-
         C << nl << "__outAsync->invoke(" << flatName << ", ";
         C << operationModeToString(p->sendMode(), true) << ", " << opFormatTypeToString(p) << ", __ctx, ";
         C.inc();
         C << nl;
-        if(inParams.empty())
-        {
-            C << "nullptr";
-        }
-        else
-        {
-            C << "[&](::Ice::OutputStream* __os)";
-            C << sb;
-            writeMarshalCode(C, inParams, 0, true, TypeContextInParam | TypeContextCpp11);
-            if(p->sendsClasses(false))
-            {
-                C << nl << "__os->writePendingValues();";
-            }
-            C << eb;
-        }
+
+        writeInParamsLambda(C, p, inParams);
         C << "," << nl;
-
-        ExceptionList throws = p->throws();
-        if(throws.empty())
-        {
-            C << "nullptr";
-        }
-        else
-        {
-            throws.sort();
-            throws.unique();
-
-            //
-            // Arrange exceptions into most-derived to least-derived order. If we don't
-            // do this, a base exception handler can appear before a derived exception
-            // handler, causing compiler warnings and resulting in the base exception
-            // being marshaled instead of the derived exception.
-            //
-            throws.sort(Slice::DerivedToBaseCompare());
-
-            C << "[](const ::Ice::UserException& __ex)";
-            C << sb;
-            C << nl << "try";
-            C << sb;
-            C << nl << "__ex.ice_throw();";
-            C << eb;
-            //
-            // Generate a catch block for each legal user exception.
-            //
-            for(ExceptionList::const_iterator i = throws.begin(); i != throws.end(); ++i)
-            {
-                string scoped = (*i)->scoped();
-                C << nl << "catch(const " << fixKwd((*i)->scoped()) << "&)";
-                C << sb;
-                C << nl << "throw;";
-                C << eb;
-            }
-            C << nl << "catch(const ::Ice::UserException&)";
-            C << sb;
-            C << eb;
-            C << eb;
-        }
+        throwUserExceptionLambda(C, p->throws());
 
         C.dec();
         C << ");";
@@ -6592,63 +6609,10 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
     C << operationModeToString(p->sendMode(), true) << ", " << opFormatTypeToString(p) << ", __ctx, ";
     C.inc();
     C << nl;
-    if(inParams.empty())
-    {
-        C << "nullptr";
-    }
-    else
-    {
-        C << "[&](::Ice::OutputStream* __os)";
-        C << sb;
-        writeMarshalCode(C, inParams, 0, true, TypeContextInParam | TypeContextCpp11);
-        if(p->sendsClasses(false))
-        {
-            C << nl << "__os->writePendingValues();";
-        }
-        C << eb;
-    }
+
+    writeInParamsLambda(C, p, inParams);
     C << "," << nl;
-
-    ExceptionList throws = p->throws();
-    if(throws.empty())
-    {
-        C << "nullptr";
-    }
-    else
-    {
-        throws.sort();
-        throws.unique();
-
-        //
-        // Arrange exceptions into most-derived to least-derived order. If we don't
-        // do this, a base exception handler can appear before a derived exception
-        // handler, causing compiler warnings and resulting in the base exception
-        // being marshaled instead of the derived exception.
-        //
-        throws.sort(Slice::DerivedToBaseCompare());
-
-        C << "[](const ::Ice::UserException& __ex)";
-        C << sb;
-        C << nl << "try";
-        C << sb;
-        C << nl << "__ex.ice_throw();";
-        C << eb;
-        //
-        // Generate a catch block for each legal user exception.
-        //
-        for(ExceptionList::const_iterator i = throws.begin(); i != throws.end(); ++i)
-        {
-            string scoped = (*i)->scoped();
-            C << nl << "catch(const " << fixKwd((*i)->scoped()) << "&)";
-            C << sb;
-            C << nl << "throw;";
-            C << eb;
-        }
-        C << nl << "catch(const ::Ice::UserException&)";
-        C << sb;
-        C << eb;
-        C << eb;
-    }
+    throwUserExceptionLambda(C, p->throws());
 
     if(futureOutParams.size() > 1)
     {
