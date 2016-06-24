@@ -1,4 +1,7 @@
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <Import Project="$(MSBuildThisFileDirectory)\..\..\config\Ice.common.targets" />
+
     <PropertyGroup Condition="'$(Configuration)' == ''">
         <Configuration>Release</Configuration>
     </PropertyGroup>
@@ -6,6 +9,12 @@
     <PropertyGroup Condition="'$(Platform)' == ''">
       <Platform>Win32</Platform>
     </PropertyGroup>
+
+    <!-- Restore Nuget packages -->
+    <Target Name="NugetRestore" DependsOnTargets="GetNuget">
+        <Exec Command="$(NugetExe) restore $(MSBuildThisFileDirectory)ice.sln"/>
+    </Target>
+
     <Choose>
         <!--
             If BuildAllConfigurations is set to yes we build all configurations that are
@@ -38,7 +47,7 @@
         </Otherwise>
     </Choose>
 
-    <Target Name="Build">
+    <Target Name="Build" DependsOnTargets="NugetRestore">
         <MSBuild Projects="@(DistProjects)"
                  BuildInParallel="false"
                  Properties="%(Properties)" />
