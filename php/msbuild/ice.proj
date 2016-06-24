@@ -1,5 +1,7 @@
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
+    <Import Project="$(MSBuildThisFileDirectory)\..\..\config\Ice.common.targets" />
+
     <PropertyGroup Condition="'$(Configuration)' == ''">
       <Configuration>Release</Configuration>
     </PropertyGroup>
@@ -19,6 +21,12 @@
             ..\lib\IceStorm\msbuild\icestorm.proj
         </ProjectFiles>
     </PropertyGroup>
+
+    <!-- Restore Nuget packages -->
+    <Target Name="NugetRestore" DependsOnTargets="GetNuget">
+        <Exec Command="$(NugetExe) restore $(MSBuildThisFileDirectory)ice.sln"/>
+    </Target>
+
     <Choose>
         <!--
             If BuildAllConfigurations is set to yes we build all configurations that are
@@ -59,7 +67,7 @@
         </Otherwise>
     </Choose>
 
-    <Target Name="BuildDist">
+    <Target Name="BuildDist" DependsOnTargets="NugetRestore">
         <MSBuild Projects="@(DistProjects)"
                  BuildInParallel="true"
                  Properties="%(Properties)" />
