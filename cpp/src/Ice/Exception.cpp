@@ -145,11 +145,13 @@ Ice::LocalException::LocalException(const char* file, int line) :
 {
 }
 
+Ice::LocalException::~LocalException()
 #ifndef ICE_CPP11_COMPILER
-Ice::LocalException::~LocalException() throw()
-{
-}
+    throw()
 #endif
+{
+   // Out of line to avoid weak vtable
+}
 
 namespace
 {
@@ -172,11 +174,12 @@ Ice::SystemException::SystemException(const char* file, int line) :
 {
 }
 
+Ice::SystemException::~SystemException()
 #ifndef ICE_CPP11_COMPILER
-Ice::SystemException::~SystemException() throw()
+    throw()
+#endif
 {
 }
-#endif
 
 namespace
 {

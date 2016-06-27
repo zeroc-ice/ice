@@ -22,6 +22,11 @@ using namespace Ice;
 using namespace Ice::Instrumentation;
 using namespace IceInternal;
 
+OutgoingBase::~OutgoingBase()
+{
+    // Out of line to avoid weak vtable
+}
+
 OutgoingBase::OutgoingBase(Instance* instance) : _os(instance, Ice::currentProtocolEncoding), _sent(false)
 {
 }

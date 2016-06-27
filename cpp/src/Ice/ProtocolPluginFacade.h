@@ -36,6 +36,8 @@ class ICE_API ProtocolPluginFacade : public ::IceUtil::Shared
 {
 public:
 
+    virtual ~ProtocolPluginFacade();
+
     //
     // Get the Communicator instance with which this facade is
     // associated.

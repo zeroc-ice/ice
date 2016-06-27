@@ -461,6 +461,8 @@ class ICE_SSL_API NativeConnectionInfo : public ConnectionInfo
 {
 public:
 
+    virtual ~NativeConnectionInfo();
+
     //
     // The certificate chain. This may be empty if the peer did not
     // supply a certificate. The peer's certificate (if any) is the
@@ -477,6 +479,8 @@ ICE_DEFINE_PTR(NativeConnectionInfoPtr, NativeConnectionInfo);
 class ICE_SSL_API CertificateVerifier : public Ice::EnableSharedFromThis<CertificateVerifier>
 {
 public:
+
+    virtual ~CertificateVerifier();
 
     //
     // Return false if the connection should be rejected, or true to
@@ -505,6 +509,8 @@ class ICE_SSL_API PasswordPrompt : public Ice::EnableSharedFromThis<PasswordProm
 {
 public:
 
+    virtual ~PasswordPrompt();
+
     //
     // The getPassword method may be invoked repeatedly, such as when
     // several encrypted files are opened, or when multiple password
@@ -517,6 +523,8 @@ ICE_DEFINE_PTR(PasswordPromptPtr, PasswordPrompt);
 class ICE_SSL_API Plugin : public Ice::Plugin
 {
 public:
+
+    virtual ~Plugin();
 
     //
     // Establish the certificate verifier object. This should be done

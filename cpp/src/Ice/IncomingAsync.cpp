@@ -26,6 +26,16 @@ using namespace IceInternal;
 #ifndef ICE_CPP11_MAPPING
 IceUtil::Shared* IceInternal::upCast(IncomingAsync* p) { return p; }
 IceUtil::Shared* Ice::upCast(AMD_Object_ice_invoke* p) { return p; }
+
+Ice::AMDCallback::~AMDCallback()
+{
+    // Out of line to avoid weak vtable
+}
+
+Ice::AMD_Object_ice_invoke::~AMD_Object_ice_invoke()
+{
+    // Out of line to avoid weak vtable
+}
 #endif
 
 namespace

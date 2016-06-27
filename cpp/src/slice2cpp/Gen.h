@@ -290,6 +290,7 @@ private:
     private:
 
         ::IceUtilInternal::Output& H;
+        ::IceUtilInternal::Output& C;
 
         std::string _dllExport;
         int _useWstring;

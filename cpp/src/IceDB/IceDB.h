@@ -196,6 +196,8 @@ class ICE_DB_API ReadOnlyTxn : public Txn
 {
 public:
 
+    virtual ~ReadOnlyTxn();
+
     explicit ReadOnlyTxn(const Env&);
 
     void reset();
@@ -205,6 +207,8 @@ public:
 class ICE_DB_API ReadWriteTxn : public Txn
 {
 public:
+
+    virtual ~ReadWriteTxn();
 
     explicit ReadWriteTxn(const Env&);
 };

@@ -66,6 +66,10 @@ class ICE_API SlicedData
 {
 public:
 
+#ifndef ICE_CPP11_MAPPING
+    virtual ~SlicedData();
+#endif
+
     SlicedData(const SliceInfoSeq&);
 
     const SliceInfoSeq slices;

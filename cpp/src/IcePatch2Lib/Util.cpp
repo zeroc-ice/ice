@@ -1016,6 +1016,11 @@ getFileInfoSeqInternal(const string& basePath, const string& relPath, int compre
 
 }
 
+IcePatch2Internal::GetFileInfoSeqCB::~GetFileInfoSeqCB()
+{
+    // Out of line to avoid weak vtable
+}
+
 bool
 IcePatch2Internal::getFileInfoSeq(const string& basePath, int compress, GetFileInfoSeqCB* cb,
                                   LargeFileInfoSeq& infoSeq)

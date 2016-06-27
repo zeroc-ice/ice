@@ -191,6 +191,9 @@ class ICE_API ReadyCallback : public virtual ::IceUtil::Shared
 {
 public:
 
+    virtual ~ReadyCallback();
+
+
     virtual void ready(SocketOperation, bool) = 0;
 };
 typedef IceUtil::Handle<ReadyCallback> ReadyCallbackPtr;
@@ -198,6 +201,8 @@ typedef IceUtil::Handle<ReadyCallback> ReadyCallbackPtr;
 class ICE_API NativeInfo : public virtual IceUtil::Shared
 {
 public:
+
+    virtual ~NativeInfo();
 
     NativeInfo(SOCKET socketFd = INVALID_SOCKET) : _fd(socketFd)
     {

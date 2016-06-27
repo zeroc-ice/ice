@@ -44,7 +44,10 @@ class ICE_API LocalException : public IceUtil::Exception
 public:
 
     LocalException(const char*, int);
-#ifndef ICE_CPP11_COMPILER
+
+#ifdef ICE_CPP11_COMPILER
+    virtual ~LocalException();
+#else
     virtual ~LocalException() throw();
 #endif
 
@@ -81,7 +84,9 @@ class ICE_API SystemException : public IceUtil::Exception
 public:
 
     SystemException(const char*, int);
-#ifndef ICE_CPP11_COMPILER
+#ifdef ICE_CPP11_COMPILER
+    virtual ~SystemException();
+#else
     virtual ~SystemException() throw();
 #endif
 

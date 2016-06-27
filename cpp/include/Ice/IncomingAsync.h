@@ -21,6 +21,9 @@ class ICE_API AMDCallback : public virtual Ice::LocalObject
 {
 public:
 
+    virtual ~AMDCallback();
+
+
     virtual void ice_exception(const ::std::exception&) = 0;
     virtual void ice_exception() = 0;
 };
@@ -99,6 +102,8 @@ namespace Ice
 class ICE_API AMD_Object_ice_invoke : public virtual Ice::AMDCallback
 {
 public:
+
+    virtual ~AMD_Object_ice_invoke();
 
     virtual void ice_response(bool, const std::vector<Ice::Byte>&) = 0;
     virtual void ice_response(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&) = 0;

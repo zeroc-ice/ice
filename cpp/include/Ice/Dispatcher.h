@@ -22,7 +22,7 @@ class ICE_API DispatcherCall : public virtual IceUtil::Shared
 {
 public:
 
-    virtual ~DispatcherCall() { }
+    virtual ~DispatcherCall();
 
     virtual void run() = 0;
 };
@@ -32,6 +32,8 @@ typedef IceUtil::Handle<DispatcherCall> DispatcherCallPtr;
 class ICE_API Dispatcher : public virtual IceUtil::Shared
 {
 public:
+
+    virtual ~Dispatcher();
 
     virtual void dispatch(const DispatcherCallPtr&, const ConnectionPtr&) = 0;
 };

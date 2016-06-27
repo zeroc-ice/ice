@@ -713,7 +713,7 @@ private:
     {
     public:
 
-        virtual ~EncapsDecoder() { }
+        virtual ~EncapsDecoder();
 
         virtual void read(PatchFunc, void*) = 0;
         virtual void throwException(const Ice::UserExceptionFactoryPtr&) = 0;

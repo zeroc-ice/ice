@@ -897,6 +897,11 @@ Ice::OutputStream::initEncaps()
     }
 }
 
+Ice::OutputStream::EncapsEncoder::~EncapsEncoder()
+{
+    // Out of line to avoid weak vtable
+}
+
 Int
 Ice::OutputStream::EncapsEncoder::registerTypeId(const string& typeId)
 {

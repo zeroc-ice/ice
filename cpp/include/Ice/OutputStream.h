@@ -508,7 +508,7 @@ public:
     void initialize(IceInternal::Instance*, const EncodingVersion&);
 
     void finished(std::vector<Byte>&);
-    virtual std::pair<const Byte*, const Byte*> finished();
+    std::pair<const Byte*, const Byte*> finished();
 
     // Optionals
     bool writeOptImpl(Int, OptionalFormat);
@@ -548,7 +548,7 @@ private:
     {
     public:
 
-        virtual ~EncapsEncoder() { }
+        virtual ~EncapsEncoder();
 
         virtual void write(const ValuePtr&) = 0;
         virtual void write(const UserException&) = 0;

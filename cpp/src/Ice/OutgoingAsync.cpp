@@ -39,6 +39,11 @@ const unsigned char OutgoingAsyncBase::Done = 0x4;
 const unsigned char OutgoingAsyncBase::EndCalled = 0x8;
 #endif
 
+OutgoingAsyncCompletionCallback::~OutgoingAsyncCompletionCallback()
+{
+    // Out of line to avoid weak vtable
+}
+
 bool
 OutgoingAsyncBase::sent()
 {
@@ -1305,6 +1310,11 @@ ConnectionFlushBatchAsync::invoke(const string& operation)
     }
 }
 
+CommunicatorFlushBatchAsync::~CommunicatorFlushBatchAsync()
+{
+    // Out of line to avoid weak vtable
+}
+
 CommunicatorFlushBatchAsync::CommunicatorFlushBatchAsync(const InstancePtr& instance) :
     OutgoingAsyncBase(instance)
 {
@@ -1557,6 +1567,11 @@ public:
 //
 CallbackBasePtr IceInternal::__dummyCallback = new DummyCallback;
 
+CallbackBase::~CallbackBase()
+{
+    // Out of line to avoid weak vtable
+}
+
 void
 CallbackBase::checkCallback(bool obj, bool cb)
 {
@@ -1569,5 +1584,11 @@ CallbackBase::checkCallback(bool obj, bool cb)
         throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, "callback cannot be null");
     }
 }
+
+GenericCallbackBase::~GenericCallbackBase()
+{
+    // Out of line to avoid weak vtable
+}
+
 
 #endif

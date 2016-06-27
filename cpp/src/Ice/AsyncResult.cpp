@@ -18,6 +18,11 @@ using namespace Ice;
 
 IceUtil::Shared* Ice::upCast(AsyncResult* p) { return p; }
 
+AsyncResult::~AsyncResult()
+{
+    // Out of line to avoid weak vtable
+}
+
 void
 AsyncResult::__check(const AsyncResultPtr& r, const IceProxy::Ice::Object* prx, const string& operation)
 {
@@ -69,4 +74,3 @@ AsyncResult::__check(const AsyncResultPtr& r, const string& operation)
 }
 
 #endif
-

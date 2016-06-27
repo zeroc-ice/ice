@@ -12,6 +12,12 @@
 
 using namespace std;
 
+
+Ice::UserExceptionFactory::~UserExceptionFactory()
+{
+    // Out of line to avoid weak vtable
+}
+
 //
 // Add a factory to the exception factory table.
 // If the factory is present already, increment its reference count.

@@ -299,6 +299,12 @@ SessionHelperI::objectAdapter()
     return internalObjectAdapter();
 }
 
+
+Glacier2::SessionHelper::~SessionHelper()
+{
+    // Out of line to avoid weak vtable
+}
+
 bool
 Glacier2::SessionHelper::operator==(const Glacier2::SessionHelper& other) const
 {
@@ -325,6 +331,12 @@ SessionHelperI::internalObjectAdapter()
     }
     return _adapter;
 }
+
+Glacier2::SessionCallback::~SessionCallback()
+{
+    // Out of line to avoid weak vtable
+}
+
 
 namespace
 {

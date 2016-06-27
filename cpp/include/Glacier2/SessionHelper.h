@@ -35,8 +35,8 @@ const int GLACIER2_TCP_PORT = 4063;
 
 class GLACIER2_API SessionHelper : public virtual ICE_SHARED
 {
-
 public:
+    virtual ~SessionHelper();
 
     virtual void destroy() = 0;
     virtual Ice::CommunicatorPtr communicator() const = 0;
@@ -53,8 +53,8 @@ ICE_DEFINE_PTR(SessionHelperPtr, SessionHelper);
 
 class GLACIER2_API SessionCallback : public virtual ICE_SHARED
 {
-
 public:
+    virtual ~SessionCallback();
 
     virtual void createdCommunicator(const SessionHelperPtr& session) = 0;
     virtual void connected(const SessionHelperPtr&) = 0;

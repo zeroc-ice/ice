@@ -428,6 +428,10 @@ WindowsStringConverter::fromUTF8(const Byte* sourceStart, const Byte* sourceEnd,
 
 }
 
+IceUtil::UTF8Buffer::~UTF8Buffer()
+{
+    // Out of line to avoid weak vtable
+}
 
 WstringConverterPtr
 IceUtil::createUnicodeWstringConverter()

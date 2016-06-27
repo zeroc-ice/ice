@@ -38,9 +38,7 @@ public:
     SimpleShared();
     SimpleShared(const SimpleShared&);
 
-    virtual ~SimpleShared()
-    {
-    }
+    virtual ~SimpleShared();
 
     SimpleShared& operator=(const SimpleShared&)
     {

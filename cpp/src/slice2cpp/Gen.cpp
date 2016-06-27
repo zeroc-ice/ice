@@ -1819,7 +1819,10 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
         // Generated helper class to deal with multiple inheritance
         // when using Proxy template.
         //
-        H << sp << nl << "class _" << _dllExport << fixKwd(p->name() + "PrxBase") << " : ";
+
+        string baseName = fixKwd("_" + p->name() + "Base");
+
+        H << sp << nl << "class " << _dllExport << baseName << " : ";
         H.useCurrentPosAsIndent();
         for(ClassList::const_iterator q = bases.begin(); q != bases.end();)
         {
@@ -1836,12 +1839,23 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
         H << nl << "public:";
         H.inc();
 
+        // Out of line dtor to avoid weak vtable
+        H << sp << nl << "virtual ~" << baseName << "();";
+        C << sp;
+        C << nl << "::IceProxy" << scope << baseName << "::~" << baseName << "()";
+        C << sb;
+        C << eb;
+
+        H.dec();
+        H << sp << nl << "protected:";
+        H.inc();
+
         H << sp << nl << "virtual Object* __newInstance() const = 0;";
         H << eb << ';';
     }
 
     H << sp << nl << "class " << _dllExport << name << " : ";
-    H << "public virtual ::IceProxy::Ice::Proxy< ::IceProxy" << scoped << ", ";
+    H << "public virtual ::Ice::Proxy<" << name << ", ";
     if(bases.empty())
     {
         H << "::IceProxy::Ice::Object";
@@ -1852,7 +1866,7 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     else
     {
-        H << "_" << fixKwd(p->name() + "PrxBase");
+        H << fixKwd("_" + p->name() + "Base");
     }
     H << ">";
 
@@ -1860,17 +1874,6 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     H.dec();
     H << nl << "public:";
     H.inc();
-
-    if(_dllExport != "")
-    {
-        //
-        // To export the virtual table
-        //
-        C << nl << "#ifdef __SUNPRO_CC";
-        C << nl << "class " << _dllExport
-          << "IceProxy" << scoped << ";";
-        C << nl << "#endif";
-    }
 
     C << nl
       << _dllExport
@@ -1904,7 +1907,19 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     string scope = fixKwd(p->scope());
 
     H << nl << nl << "static const ::std::string& ice_staticId();";
+
+    H.dec();
+    H << sp << nl << "protected: ";
+    H.inc();
+    H << nl << "virtual ::IceProxy::Ice::Object* __newInstance() const;";
     H << eb << ';';
+
+    C << sp;
+    C << nl << "::IceProxy::Ice::Object*";
+    C << nl << "IceProxy" << scoped << "::__newInstance() const";
+    C << sb;
+    C << nl << "return new " << name << ";";
+    C << eb;
 
     C << sp;
     C << nl << "const ::std::string&" << nl << "IceProxy" << scoped << "::ice_staticId()";
@@ -2553,6 +2568,12 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
         H << nl << "typedef " << p->name() << "Ptr PointerType;";
     }
 
+    H << sp << nl << "virtual ~" << name << "();";
+    C << sp;
+    C << nl << scoped.substr(2) << "::~" << name << "()";
+    C << sb;
+    C << eb;
+
     vector<string> params;
     vector<string> allTypes;
     vector<string> allParamDecls;
@@ -2586,124 +2607,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
             H << sb << eb;
         }
 
-        /*
-         * Strong guarantee: commented-out code marked "Strong guarantee" generates
-         * a copy-assignment operator that provides the strong exception guarantee.
-         * For now, this is commented out, and we use the compiler-generated
-         * copy-assignment operator. However, that one does not provide the strong
-         * guarantee.
-
-        H << ';';
-        if(!p->isAbstract())
-        {
-            H << nl << name << "& operator=(const " << name << "&)";
-            if(allDataMembers.empty())
-            {
-                H << " { return *this; }";
-            }
-            H << ';';
-        }
-
-        //
-        // __swap() is static because classes may be abstract, so we
-        // can't use a non-static member function when we do an upcall
-        // from a non-abstract derived __swap to the __swap in an abstract base.
-        //
-        H << sp << nl << "static void __swap(" << name << "&, " << name << "&) throw()";
-        if(allDataMembers.empty())
-        {
-            H << " {}";
-        }
-        H << ';';
-        H << nl << "void swap(" << name << "& rhs) throw()";
-        H << sb;
-        if(!allDataMembers.empty())
-        {
-            H << nl << "__swap(*this, rhs);";
-        }
-        H << eb;
-
-         * Strong guarantee
-         */
-
         emitOneShotConstructor(p);
-        H << sp;
-
-        /*
-         * Strong guarantee
-
-        if(!allDataMembers.empty())
-        {
-            C << sp << nl << "void";
-            C << nl << scoped.substr(2) << "::__swap(" << name << "& __lhs, " << name << "& __rhs) throw()";
-            C << sb;
-
-            if(base)
-            {
-                emitUpcall(base, "::__swap(__lhs, __rhs);");
-            }
-
-            //
-            // We use a map to remember for which types we have already declared
-            // a temporary variable and reuse that variable if a class has
-            // more than one member of the same type. That way, we don't use more
-            // temporaries than necessary. (::std::swap() instantiates a new temporary
-            // each time it is used.)
-            //
-            map<string, int> tmpMap;
-            map<string, int>::iterator pos;
-            int tmpCount = 0;
-
-            for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
-            {
-                string memberName = fixKwd((*q)->name());
-                TypePtr type = (*q)->type();
-                BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-                if(builtin && builtin->kind() != Builtin::KindString
-                   || EnumPtr::dynamicCast(type) || ProxyPtr::dynamicCast(type)
-                   || ClassDeclPtr::dynamicCast(type) || StructPtr::dynamicCast(type))
-                {
-                    //
-                    // For built-in types (except string), enums, proxies, structs, and classes,
-                    // do the swap via a temporary variable.
-                    //
-                    string typeName = typeToString(type);
-                    pos = tmpMap.find(typeName);
-                    if(pos == tmpMap.end())
-                    {
-                        pos = tmpMap.insert(pos, make_pair(typeName, tmpCount));
-                        C << nl << typeName << " __tmp" << tmpCount << ';';
-                        tmpCount++;
-                    }
-                    C << nl << "__tmp" << pos->second << " = __rhs." << memberName << ';';
-                    C << nl << "__rhs." << memberName << " = __lhs." << memberName << ';';
-                    C << nl << "__lhs." << memberName << " = __tmp" << pos->second << ';';
-                }
-                else
-                {
-                    //
-                    // For dictionaries, vectors, and maps, use the standard container's
-                    // swap() (which is usually optimized).
-                    //
-                    C << nl << "__lhs." << memberName << ".swap(__rhs." << memberName << ");";
-                }
-            }
-            C << eb;
-
-            if(!p->isAbstract())
-            {
-                C << sp << nl << scoped << "&";
-                C << nl << scoped.substr(2) << "::operator=(const " << name << "& __rhs)";
-                C << sb;
-                C << nl << name << " __tmp(__rhs);";
-                C << nl << "__swap(*this, __tmp);";
-                C << nl << "return *this;";
-                C << eb;
-            }
-        }
-
-         * Strong guarantee
-         */
     }
 
     if(!p->isLocal())
@@ -2867,6 +2771,8 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
     bool basePreserved = p->inheritsMetaData("preserve-slice");
     bool preserved = p->hasMetaData("preserve-slice");
 
+    bool inProtected = false;
+
     if(!p->isLocal())
     {
         OperationList allOps = p->allOperations();
@@ -3018,6 +2924,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
         H.dec();
         H << sp << nl << "protected:";
+        inProtected = true;
         H.inc();
 
         H << nl << "virtual void __writeImpl(::Ice::OutputStream*) const;";
@@ -3107,7 +3014,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
     //
     // Emit data members. Access visibility may be specified by metadata.
     //
-    bool inProtected = true;
+
     DataMemberList dataMembers = p->dataMembers();
     bool prot = p->hasMetaData("protected");
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
@@ -3134,21 +3041,6 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
         }
 
         emitDataMember(*q);
-    }
-
-    if(!p->isAbstract())
-    {
-        //
-        // We add a protected destructor to force heap instantiation of the class.
-        //
-        if(!inProtected)
-        {
-            H.dec();
-            H << nl << "protected:";
-            H.inc();
-            inProtected = true;
-        }
-        H << sp << nl << "virtual ~" << fixKwd(p->name()) << "() {}";
     }
 
     if(!p->isLocal() && preserved && !basePreserved)
@@ -4433,8 +4325,8 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
     return true;
 }
 
-Slice::Gen::AsyncVisitor::AsyncVisitor(Output& h, Output&, const string& dllExport) :
-    H(h), _dllExport(dllExport), _useWstring(false)
+Slice::Gen::AsyncVisitor::AsyncVisitor(Output& h, Output& c, const string& dllExport) :
+    H(h), C(c), _dllExport(dllExport), _useWstring(false)
 {
 }
 
@@ -4549,12 +4441,22 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 
     if(cl->hasMetaData("amd") || p->hasMetaData("amd"))
     {
-        H << sp << nl << "class " << _dllExport << classNameAMD << '_' << name
+        string cbName = classNameAMD + '_' + name;
+
+        H << sp << nl << "class " << _dllExport << cbName
           << " : public virtual ::Ice::AMDCallback";
         H << sb;
         H.dec();
         H << nl << "public:";
         H.inc();
+
+        // Out of line dtor to avoid weak vtable
+        H << sp << nl << "virtual ~" << cbName << "();";
+        C << sp;
+        C << nl << classScope.substr(2) << cbName << "::~" << cbName << "()";
+        C << sb;
+        C << eb;
+
         H << sp;
         H << nl << "virtual void ice_response" << spar << paramsAMD << epar << " = 0;";
         H << eb << ';';
@@ -5756,6 +5658,13 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     H << nl << "public:";
     H.inc();
 
+    // Out of line dtor to avoid weak vtable
+    H << nl << "virtual ~" << name << "();";
+    C << sp;
+    C << nl << scoped.substr(2) << "::~" << name << "()";
+    C << sb;
+    C << eb;
+
     if(p->isLocal())
     {
         H << sp << nl << name << "(const char* __ice_file, int __ice_line) : ";
@@ -5767,18 +5676,17 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     else
     {
         H.zeroIndent();
-        H << nl << "//";
+        H << sp << nl << "//";
         H << nl << "// COMPILERFIX: Apple LLVM version 7.3.0 crash when using";
-        H << nl << "// default generated constructor in classes derived from";
-        H << nl << "// std::exception";
+        H << " a '= default' constructor in classes derived from std::exception";
         H << nl << "//";
-        H << nl << "#ifdef __APPLE__";
+        H << nl << "#if defined(__APPLE___) && defined(__clang__)";
         H.restoreIndent();
-        H << sp << nl << name << "() {}";
+        H << nl << name << "() {}";
         H.zeroIndent();
         H << nl << "#else";
         H.restoreIndent();
-        H << sp << nl << name << "() = default;";
+        H << nl << name << "() = default;";
         H.zeroIndent();
         H << nl << "#endif";
         H.restoreIndent();
@@ -5940,10 +5848,7 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         {
             H << sp << nl << "virtual void __write(::Ice::OutputStream*) const;";
             H << nl << "virtual void __read(::Ice::InputStream*);";
-        }
 
-        if(preserved && !basePreserved)
-        {
             H << sp << nl << "::std::shared_ptr<::Ice::SlicedData> __slicedData;";
 
             C << sp << nl << "void" << nl << scoped.substr(2) << "::__write(::Ice::OutputStream* __os) const";
@@ -6852,6 +6757,14 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
         H << nl << "typedef ::std::shared_ptr<" << name << "> PointerType;";
     }
 
+    //
+    // Out of line virtual dtor to avoid weak vtable
+    //
+    H << sp << nl << "virtual ~" << name  << "();";
+    C << sp << nl << scoped.substr(2) << "::~" << name << "()";
+    C << sb;
+    C << eb;
+
     vector<string> params;
     vector<string> allTypes;
     vector<string> allParamDecls;
@@ -6881,12 +6794,10 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
         else
         {
-            H << sp << nl << name << "()";
-            H << sb << eb;
+            H << sp << nl << name << "() = default;";
         }
 
         emitOneShotConstructor(p);
-        H << sp;
     }
 
     if(p->hasMetaData("cpp:comparable"))
@@ -6913,7 +6824,7 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
     //
     // Emit data members. Access visibility may be specified by metadata.
     //
-    bool inProtected = true;
+    bool inProtected = false;
     DataMemberList dataMembers = p->dataMembers();
     bool prot = p->hasMetaData("protected");
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
@@ -6940,18 +6851,6 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
         }
 
         emitDataMember(*q);
-    }
-
-    if(!p->isAbstract())
-    {
-        if(inProtected)
-        {
-            H.dec();
-            H << sp << nl << "public:";
-            H.inc();
-            inProtected = false;
-        }
-        H << sp << nl << "virtual ~" << fixKwd(p->name()) << "() = default;";
     }
 
     H << eb << ';';
@@ -7745,6 +7644,14 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         H << nl << "typedef ::std::shared_ptr<" << name << "> PointerType;";
     }
+
+    // Out of line dtor to avoid weak vtable
+    H << sp;
+    H << nl << "virtual ~" << name << "();";
+    C << sp;
+    C << nl << scoped.substr(2) << "::~" << name << "()";
+    C << sb;
+    C << eb;
 
     vector<string> params;
     vector<string> allTypes;

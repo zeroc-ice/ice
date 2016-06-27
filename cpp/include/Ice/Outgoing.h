@@ -40,7 +40,7 @@ class ICE_API OutgoingBase : private IceUtil::noncopyable
 {
 public:
 
-    virtual ~OutgoingBase() { }
+    virtual ~OutgoingBase();
 
     virtual void sent() = 0;
     virtual void completed(const Ice::Exception&) = 0;

@@ -18,6 +18,11 @@ using namespace Ice;
 IceUtil::Shared* Ice::upCast(SliceInfo* p) { return p; }
 IceUtil::Shared* Ice::upCast(SlicedData* p) { return p; }
 IceUtil::Shared* Ice::upCast(UnknownSlicedValue* p) { return p; }
+
+Ice::SlicedData::~SlicedData()
+{
+    // Out of line to avoid weak vtable
+}
 #endif
 
 Ice::SlicedData::SlicedData(const SliceInfoSeq& seq) :

@@ -21,6 +21,16 @@ const char* traceCategory = "Admin.Properties";
 
 }
 
+PropertiesAdminUpdateCallback::~PropertiesAdminUpdateCallback()
+{
+    // Out of line to avoid weak vtable
+}
+
+NativePropertiesAdmin::~NativePropertiesAdmin()
+{
+    // Out of line to avoid weak vtable
+}
+
 namespace IceInternal
 {
 

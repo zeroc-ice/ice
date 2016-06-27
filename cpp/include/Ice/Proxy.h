@@ -766,10 +766,7 @@ public:
 
 protected:
 
-    virtual ::std::shared_ptr<ObjectPrx> __newInstance() const
-    {
-        return IceInternal::createProxy<Prx>();
-    }
+    virtual ::std::shared_ptr<ObjectPrx> __newInstance() const = 0;
 };
 
 ICE_API ::std::ostream& operator<<(::std::ostream&, const ::Ice::ObjectPrx&);
@@ -1414,6 +1411,13 @@ private:
     IceUtil::Mutex _mutex;
 };
 
+} }
+
+ICE_API ::std::ostream& operator<<(::std::ostream&, const ::IceProxy::Ice::Object&);
+
+namespace Ice
+{
+
 template<typename Prx, typename Base>
 class Proxy : public virtual Base
 {
@@ -1526,18 +1530,8 @@ public:
 
 protected:
 
-    virtual Object* __newInstance() const
-    {
-        return new Prx();
-    }
+    virtual ::IceProxy::Ice::Object* __newInstance() const = 0;
 };
-
-} }
-
-ICE_API ::std::ostream& operator<<(::std::ostream&, const ::IceProxy::Ice::Object&);
-
-namespace Ice
-{
 
 ICE_API bool proxyIdentityLess(const ObjectPrx&, const ObjectPrx&);
 ICE_API bool proxyIdentityEqual(const ObjectPrx&, const ObjectPrx&);

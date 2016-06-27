@@ -21,6 +21,8 @@ class ICE_API Connector : public ::IceUtil::Shared
 {
 public:
 
+    virtual ~Connector();
+
     virtual TransceiverPtr connect() = 0;
 
     virtual Ice::Short type() const = 0;

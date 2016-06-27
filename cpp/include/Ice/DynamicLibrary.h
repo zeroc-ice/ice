@@ -21,7 +21,7 @@ class ICE_API DynamicLibrary : public ::IceUtil::Shared
 public:
 
     DynamicLibrary();
-    ~DynamicLibrary();
+    virtual ~DynamicLibrary();
 
 #ifdef _WIN32
     typedef FARPROC symbol_type;
@@ -40,12 +40,12 @@ public:
     //
     // The name of the library is constructed from the given
     // information. If no version is supplied and the boolean
-    // argument is true, the Ice version (10 * major + minor) is 
+    // argument is true, the Ice version (10 * major + minor) is
     // used instead.
     //
     // For example, consider the following entry point:
-    //  
-    // foo:create 
+    //
+    // foo:create
     //
     // This would result in libfoo.so.11 (Unix) and foo11.dll
     // (Windows), where the Ice version is 1.1.x.
@@ -92,6 +92,8 @@ private:
 class ICE_API DynamicLibraryList : public ::IceUtil::Shared
 {
 public:
+
+    virtual ~DynamicLibraryList();
 
     void add(const DynamicLibraryPtr&);
 

@@ -22,6 +22,7 @@ namespace IceInternal
 class ICE_API Acceptor : public virtual ::IceUtil::Shared
 {
 public:
+    virtual ~Acceptor();
 
     virtual NativeInfoPtr getNativeInfo() = 0;
     virtual void close() = 0;

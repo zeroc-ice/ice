@@ -28,6 +28,8 @@ class ICE_PATCH2_API PatcherFeedback : public IceUtil::Shared
 {
 public:
 
+    virtual ~PatcherFeedback();
+
     //
     // The summary file can't be loaded for the given reason. This
     // should return true to accept doing a thorough patch, false
@@ -77,6 +79,9 @@ typedef IceUtil::Handle<PatcherFeedback> PatcherFeedbackPtr;
 class ICE_PATCH2_API Patcher : public IceUtil::Shared
 {
 public:
+
+    virtual ~Patcher();
+
     //
     // Prepare the patching. This involves creating the local checksum
     // files if no summary file exists or if a thorough patch was

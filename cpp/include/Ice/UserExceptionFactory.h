@@ -22,7 +22,7 @@ class ICE_API UserExceptionFactory : public IceUtil::Shared
 public:
 
     virtual void createAndThrow(const ::std::string&) = 0;
-    virtual ~UserExceptionFactory() {}
+    virtual ~UserExceptionFactory();
 };
 typedef ::IceUtil::Handle<UserExceptionFactory> UserExceptionFactoryPtr;
 

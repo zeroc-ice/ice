@@ -27,6 +27,8 @@ class ICE_API AsyncResult : private IceUtil::noncopyable, public Ice::LocalObjec
 {
 public:
 
+    virtual ~AsyncResult();
+
     virtual void cancel() = 0;
 
     virtual Int getHash() const = 0;

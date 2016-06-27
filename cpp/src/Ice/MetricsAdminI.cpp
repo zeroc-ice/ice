@@ -145,6 +145,11 @@ MetricsMapI::RegExp::match(const string& value)
 #endif
 }
 
+MetricsMapI::~MetricsMapI()
+{
+    // Out of line to avoid weak vtable
+}
+
 MetricsMapI::MetricsMapI(const std::string& mapPrefix, const PropertiesPtr& properties) :
     _properties(properties->getPropertiesForPrefix(mapPrefix)),
     _retain(properties->getPropertyAsIntWithDefault(mapPrefix + "RetainDetached", 10)),
@@ -211,6 +216,11 @@ const ::Ice::PropertyDict&
 MetricsMapI::getProperties() const
 {
     return _properties;
+}
+
+MetricsMapFactory::~MetricsMapFactory()
+{
+    // Out of line to avoid weak vtable
 }
 
 MetricsMapFactory::MetricsMapFactory(Updater* updater) : _updater(updater)

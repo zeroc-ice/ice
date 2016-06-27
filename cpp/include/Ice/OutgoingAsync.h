@@ -39,6 +39,9 @@ class CollocatedRequestHandler;
 
 class ICE_API OutgoingAsyncCompletionCallback
 {
+public:
+    virtual ~OutgoingAsyncCompletionCallback();
+
 protected:
 
     virtual bool handleSent(bool, bool) = 0;
@@ -361,6 +364,8 @@ class ICE_API CommunicatorFlushBatchAsync : public OutgoingAsyncBase,
 {
 public:
 
+    virtual ~CommunicatorFlushBatchAsync();
+
     CommunicatorFlushBatchAsync(const InstancePtr&);
 
     void flushConnection(const Ice::ConnectionIPtr&);
@@ -510,7 +515,7 @@ protected:
 };
 
 template<>
-class ICE_API OutgoingAsyncT<void> : public OutgoingAsync
+class OutgoingAsyncT<void> : public OutgoingAsync
 {
 public:
 
@@ -566,7 +571,7 @@ public:
 };
 
 template<>
-class ICE_API LambdaOutgoing<void> : public OutgoingAsyncT<void>, public LambdaInvoke
+class LambdaOutgoing<void> : public OutgoingAsyncT<void>, public LambdaInvoke
 {
 public:
 
@@ -602,7 +607,7 @@ public:
     }
 };
 
-class ICE_API CustomLambdaOutgoing : public OutgoingAsync, public LambdaInvoke
+class CustomLambdaOutgoing : public OutgoingAsync, public LambdaInvoke
 {
 public:
 
@@ -719,6 +724,8 @@ class ICE_API CallbackBase : public IceUtil::Shared
 {
 public:
 
+    virtual ~CallbackBase();
+
     void checkCallback(bool, bool);
 
     virtual void completed(const ::Ice::AsyncResultPtr&) const = 0;
@@ -733,6 +740,9 @@ typedef IceUtil::Handle<CallbackBase> CallbackBasePtr;
 //
 class ICE_API GenericCallbackBase : public virtual CallbackBase
 {
+public:
+
+    virtual ~GenericCallbackBase();
 };
 
 //
@@ -838,7 +848,7 @@ private:
     const CallbackBasePtr _callback;
 };
 
-class ICE_API CallbackOutgoing : public OutgoingAsync, public CallbackCompletion
+class CallbackOutgoing : public OutgoingAsync, public CallbackCompletion
 {
 public:
 

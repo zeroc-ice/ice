@@ -56,6 +56,16 @@ const string __Ice__Object_ids[] =
 
 }
 
+Ice::DispatchInterceptorAsyncCallback::~DispatchInterceptorAsyncCallback()
+{
+    // Out of line to avoid weak vtable
+}
+
+Ice::Request::~Request()
+{
+    // Out of line to avoid weak vtable
+}
+
 bool
 #ifdef ICE_CPP11_MAPPING
 Ice::Object::ice_isA(string s, const Current&) const

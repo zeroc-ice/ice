@@ -20,6 +20,8 @@ class ICE_API NetworkProxy : public virtual IceUtil::Shared
 {
 public:
 
+    virtual ~NetworkProxy();
+
     //
     // Write the connection request on the connection established
     // with the network proxy server. This is called right after

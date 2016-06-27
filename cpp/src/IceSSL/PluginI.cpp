@@ -41,6 +41,26 @@ registerIceSSL(bool loadOnInitialize)
 
 }
 
+IceSSL::CertificateVerifier::~CertificateVerifier()
+{
+    // Out of line to avoid weak vtable
+}
+
+IceSSL::NativeConnectionInfo::~NativeConnectionInfo()
+{
+    // Out of line to avoid weak vtable
+}
+
+IceSSL::PasswordPrompt::~PasswordPrompt()
+{
+    // Out of line to avoid weak vtable
+}
+
+IceSSL::Plugin::~Plugin()
+{
+    // Out of line to avoid weak vtable
+}
+
 //
 // Objective-C function to allow Objective-C programs to register plugin.
 //

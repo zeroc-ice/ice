@@ -40,6 +40,8 @@ class ICE_API PropertiesAdminUpdateCallback
 {
 public:
 
+    virtual ~PropertiesAdminUpdateCallback();
+
     virtual void updated(const PropertyDict&) = 0;
 };
 ICE_DEFINE_PTR(PropertiesAdminUpdateCallbackPtr, PropertiesAdminUpdateCallback);
@@ -50,6 +52,8 @@ class ICE_API NativePropertiesAdmin
 #endif
 {
 public:
+
+    virtual ~NativePropertiesAdmin();
 
     virtual void addUpdateCallback(const PropertiesAdminUpdateCallbackPtr&) = 0;
     virtual void removeUpdateCallback(const PropertiesAdminUpdateCallbackPtr&) = 0;

@@ -156,7 +156,7 @@ class ICE_PATCH2_API GetFileInfoSeqCB
 {
 public:
 
-    virtual ~GetFileInfoSeqCB() { }
+    virtual ~GetFileInfoSeqCB();
 
     virtual bool remove(const std::string&) = 0;
     virtual bool checksum(const std::string&) = 0;

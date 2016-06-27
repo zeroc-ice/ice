@@ -27,6 +27,8 @@ class ICE_API ProtocolInstance : public IceUtil::Shared
 {
 public:
 
+    virtual ~ProtocolInstance();
+
     ProtocolInstance(const Ice::CommunicatorPtr&, Ice::Short, const std::string&, bool);
 
     int traceLevel() const

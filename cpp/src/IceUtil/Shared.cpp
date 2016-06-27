@@ -29,6 +29,11 @@ IceUtil::SimpleShared::SimpleShared(const SimpleShared&) :
 {
 }
 
+IceUtil::SimpleShared::~SimpleShared()
+{
+    // Out of line to avoid weak vtable
+}
+
 IceUtil::Shared::Shared() :
     _ref(0),
     _flags(0)
@@ -41,14 +46,14 @@ IceUtil::Shared::Shared(const Shared&) :
 {
 }
 
-void 
+void
 IceUtil::Shared::__incRef()
 {
     assert(_ref >= 0);
     ++_ref;
 }
 
-void 
+void
 IceUtil::Shared::__decRef()
 {
     assert(_ref > 0);

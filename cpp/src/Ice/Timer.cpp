@@ -13,6 +13,11 @@
 using namespace std;
 using namespace IceUtil;
 
+TimerTask::~TimerTask()
+{
+    // Out of line to avoid weak vtable
+}
+
 Timer::Timer() :
     Thread("IceUtil timer thread"),
     _destroyed(false)

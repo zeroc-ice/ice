@@ -35,7 +35,7 @@ class ICE_API TimerTask
 {
 public:
 
-    virtual ~TimerTask() { }
+    virtual ~TimerTask();
 
     virtual void runTimerTask() = 0;
 };

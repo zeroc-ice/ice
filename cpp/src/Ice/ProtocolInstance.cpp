@@ -20,6 +20,11 @@ using namespace IceInternal;
 
 IceUtil::Shared* IceInternal::upCast(ProtocolInstance* p) { return p; }
 
+IceInternal::ProtocolInstance::~ProtocolInstance()
+{
+    // Out of line to avoid weak vtable
+}
+
 IceInternal::ProtocolInstance::ProtocolInstance(const CommunicatorPtr& com, Short type, const string& protocol,
                                                  bool secure) :
     _instance(getInstance(com)),

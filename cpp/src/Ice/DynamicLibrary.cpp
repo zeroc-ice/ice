@@ -279,6 +279,11 @@ IceInternal::DynamicLibrary::getErrorMessage() const
     return _err;
 }
 
+IceInternal::DynamicLibraryList::~DynamicLibraryList()
+{
+    // Out of line to avoid weak vtable
+}
+
 void
 IceInternal::DynamicLibraryList::add(const DynamicLibraryPtr& library)
 {

@@ -17,6 +17,11 @@ using namespace IceInternal;
 
 IceUtil::Shared* IceInternal::upCast(NetworkProxy* p) { return p; }
 
+NetworkProxy::~NetworkProxy()
+{
+    // Out of line to avoid weak vtable
+}
+
 #ifndef ICE_OS_WINRT
 
 namespace

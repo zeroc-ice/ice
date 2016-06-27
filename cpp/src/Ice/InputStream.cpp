@@ -1731,6 +1731,11 @@ Ice::InputStream::initEncaps()
     }
 }
 
+Ice::InputStream::EncapsDecoder::~EncapsDecoder()
+{
+    // Out of line to avoid weak vtable
+}
+
 string
 Ice::InputStream::EncapsDecoder::readTypeId(bool isIndex)
 {

@@ -52,6 +52,8 @@ class ICE_API DispatchInterceptorAsyncCallback : public virtual IceUtil::Shared
 {
 public:
 
+    virtual ~DispatchInterceptorAsyncCallback();
+
     virtual bool response(bool) = 0;
     virtual bool exception(const std::exception&) = 0;
     virtual bool exception() = 0;
@@ -62,7 +64,7 @@ class ICE_API Request
 {
 public:
 
-    virtual ~Request() {}
+    virtual ~Request();
     virtual const Current& getCurrent() = 0;
 };
 

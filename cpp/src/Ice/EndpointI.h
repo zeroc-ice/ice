@@ -33,7 +33,7 @@ class ICE_API EndpointI_connectors : public virtual ICE_SHARED
 {
 public:
 
-    virtual ~EndpointI_connectors() { }
+    virtual ~EndpointI_connectors();
 
     virtual void connectors(const std::vector<ConnectorPtr>&) = 0;
     virtual void exception(const Ice::LocalException&) = 0;

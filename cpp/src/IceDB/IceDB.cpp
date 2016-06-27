@@ -269,6 +269,11 @@ Txn::mtxn() const
     return _mtxn;
 }
 
+ReadOnlyTxn::~ReadOnlyTxn()
+{
+    // Out of line to avoid weak vtable
+}
+
 ReadOnlyTxn::ReadOnlyTxn(const Env& env) :
     Txn(env, MDB_RDONLY)
 {
@@ -288,6 +293,11 @@ ReadOnlyTxn::renew()
     {
         throw LMDBException(__FILE__, __LINE__, rc);
     }
+}
+
+ReadWriteTxn::~ReadWriteTxn()
+{
+    // Out of line to avoid weak vtable
 }
 
 ReadWriteTxn::ReadWriteTxn(const Env& env) :
@@ -496,4 +506,3 @@ IceDB::getMapSize(int configValue)
 
    return ((configValue <= 0) ? defaultMapSize : configValue) * 1024 * 1024;
 }
-
