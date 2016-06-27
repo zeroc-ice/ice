@@ -179,7 +179,7 @@ class Exception(Exception):     # Derives from built-in base 'Exception' class.
     def ice_name(self):
         '''Returns the type name of this exception.'''
         return self.ice_id()[2:]
-    
+
     def ice_id(self):
         '''Returns the type id of this exception.'''
         return self._ice_id
@@ -478,7 +478,6 @@ del OpaqueEndpointInfo
 OpaqueEndpointInfo =  IcePy.OpaqueEndpointInfo
 
 SSLEndpointInfo = IcePy.SSLEndpointInfo
-WSSEndpointInfo = IcePy.WSSEndpointInfo
 
 #
 # Replace ConnectionInfo with our implementation.
@@ -495,7 +494,6 @@ del WSConnectionInfo
 WSConnectionInfo =  IcePy.WSConnectionInfo
 
 SSLConnectionInfo =  IcePy.SSLConnectionInfo
-WSSConnectionInfo =  IcePy.WSSConnectionInfo
 
 class ThreadNotification(object):
     '''Base class for thread notification callbacks. A subclass must

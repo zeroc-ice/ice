@@ -14,7 +14,6 @@
 #include <Ice/Transceiver.h>
 #include <Ice/Network.h>
 #include <Ice/StreamSocket.h>
-#include <Ice/WSTransceiver.h>
 
 namespace IceInternal
 {
@@ -22,7 +21,7 @@ namespace IceInternal
 class TcpConnector;
 class TcpAcceptor;
 
-class TcpTransceiver : public Transceiver, public WSTransceiverDelegate
+class TcpTransceiver : public Transceiver
 {
 public:
 
@@ -37,7 +36,7 @@ public:
     virtual void close();
     virtual SocketOperation write(Buffer&);
     virtual SocketOperation read(Buffer&);
-#ifdef ICE_USE_IOCP
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
     virtual bool startWrite(Buffer&);
     virtual void finishWrite(Buffer&);
     virtual void startRead(Buffer&);
@@ -47,7 +46,6 @@ public:
     virtual std::string toString() const;
     virtual std::string toDetailedString() const;
     virtual Ice::ConnectionInfoPtr getInfo() const;
-    virtual Ice::ConnectionInfoPtr getWSInfo(const Ice::HeaderDict&) const;
     virtual void checkSendSize(const Buffer&);
     virtual void setBufferSize(int rcvSize, int sndSize);
 
@@ -55,8 +53,6 @@ private:
 
     TcpTransceiver(const ProtocolInstancePtr&, const StreamSocketPtr&);
     virtual ~TcpTransceiver();
-
-    void fillConnectionInfo(const Ice::TCPConnectionInfoPtr&) const;
 
     friend class TcpConnector;
     friend class TcpAcceptor;

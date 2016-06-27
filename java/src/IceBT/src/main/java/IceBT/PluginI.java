@@ -20,7 +20,7 @@ class PluginI implements Ice.Plugin
         // in initialize, because the communicator may need to interpret
         // proxies before the plug-in is fully initialized.
         //
-        EndpointFactoryI factory = new EndpointFactoryI(new Instance(communicator, EndpointType.value, "bt"));
+        EndpointFactoryI factory = new EndpointFactoryI(new Instance(communicator, Ice.BTEndpointType.value, "bt"));
         facade.addEndpointFactory(factory);
     }
 

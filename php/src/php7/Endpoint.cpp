@@ -28,7 +28,6 @@ static zend_class_entry* udpEndpointInfoClassEntry = 0;
 static zend_class_entry* wsEndpointInfoClassEntry = 0;
 static zend_class_entry* opaqueEndpointInfoClassEntry = 0;
 static zend_class_entry* sslEndpointInfoClassEntry = 0;
-static zend_class_entry* wssEndpointInfoClassEntry = 0;
 
 //
 // Ice::Endpoint support.
@@ -358,7 +357,7 @@ IcePHP::endpointInit(void)
     INIT_CLASS_ENTRY(ce, "Ice_WSEndpointInfo", NULL);
 #endif
     ce.create_object = handleEndpointInfoAlloc;
-    wsEndpointInfoClassEntry = zend_register_internal_class_ex(&ce, ipEndpointInfoClassEntry);
+    wsEndpointInfoClassEntry = zend_register_internal_class_ex(&ce, endpointInfoClassEntry);
     zend_declare_property_string(wsEndpointInfoClassEntry, STRCAST("resource"), sizeof("resource") - 1,
                                  STRCAST(""), ZEND_ACC_PUBLIC);
 
@@ -386,20 +385,7 @@ IcePHP::endpointInit(void)
     INIT_CLASS_ENTRY(ce, "Ice_SSLEndpointInfo", NULL);
 #endif
     ce.create_object = handleEndpointInfoAlloc;
-    sslEndpointInfoClassEntry = zend_register_internal_class_ex(&ce, ipEndpointInfoClassEntry);
-
-    //
-    // Define the WSSEndpointInfo class.
-    //
-#ifdef ICEPHP_USE_NAMESPACES
-    INIT_NS_CLASS_ENTRY(ce, "Ice", "WSSEndpointInfo", NULL);
-#else
-    INIT_CLASS_ENTRY(ce, "Ice_WSSEndpointInfo", NULL);
-#endif
-    ce.create_object = handleEndpointInfoAlloc;
-    wssEndpointInfoClassEntry = zend_register_internal_class_ex(&ce, sslEndpointInfoClassEntry);
-    zend_declare_property_string(wssEndpointInfoClassEntry, STRCAST("resource"), sizeof("resource") - 1,
-                                 STRCAST(""), ZEND_ACC_PUBLIC);
+    sslEndpointInfoClassEntry = zend_register_internal_class_ex(&ce, endpointInfoClassEntry);
 
     return true;
 }
@@ -448,6 +434,12 @@ IcePHP::fetchEndpoint(zval* zv, Ice::EndpointPtr& endpoint)
 bool
 IcePHP::createEndpointInfo(zval* zv, const Ice::EndpointInfoPtr& p)
 {
+    if(!p)
+    {
+        ZVAL_NULL(zv);
+        return true;
+    }
+
     int status;
     if(Ice::WSEndpointInfoPtr::dynamicCast(p))
     {
@@ -490,14 +482,6 @@ IcePHP::createEndpointInfo(zval* zv, const Ice::EndpointInfoPtr& p)
             zval_ptr_dtor(&rawBytes); // add_property_zval increased the refcount of rawBytes
         }
     }
-    else if(IceSSL::WSSEndpointInfoPtr::dynamicCast(p))
-    {
-        IceSSL::WSSEndpointInfoPtr info = IceSSL::WSSEndpointInfoPtr::dynamicCast(p);
-        if((status = object_init_ex(zv, wssEndpointInfoClassEntry)) == SUCCESS)
-        {
-            add_property_string(zv, STRCAST("resource"), const_cast<char*>(info->resource.c_str()));
-        }
-    }
     else if(IceSSL::EndpointInfoPtr::dynamicCast(p))
     {
         status = object_init_ex(zv, sslEndpointInfoClassEntry);
@@ -525,6 +509,14 @@ IcePHP::createEndpointInfo(zval* zv, const Ice::EndpointInfoPtr& p)
         add_property_string(zv, STRCAST("sourceAddress"), const_cast<char*>(info->sourceAddress.c_str()));
     }
 
+    zval underlying;
+    if(!createEndpointInfo(&underlying, p->underlying TSRMLS_CC))
+    {
+        runtimeError("unable to initialize endpoint info" TSRMLS_CC);
+        return false;
+    }
+    add_property_zval(zv, STRCAST("underlying"), &underlying);
+    zval_ptr_dtor(&underlying); // add_property_zval increased the refcount of underlying
     add_property_long(zv, STRCAST("timeout"), static_cast<long>(p->timeout));
     add_property_bool(zv, STRCAST("compress"), static_cast<long>(p->compress));
 

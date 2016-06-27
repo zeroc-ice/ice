@@ -49,7 +49,7 @@ final class TcpEndpointFactory implements EndpointFactory
     }
 
     @Override
-    public EndpointFactory clone(ProtocolInstance instance)
+    public EndpointFactory clone(ProtocolInstance instance, EndpointFactory delegate)
     {
         return new TcpEndpointFactory(instance);
     }

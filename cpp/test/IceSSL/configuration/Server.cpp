@@ -9,18 +9,21 @@
 
 #include <Ice/Ice.h>
 #include <TestI.h>
+#include <TestCommon.h>
+
+DEFINE_TEST("server")
 
 using namespace std;
 
 int
 run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
-    communicator->getProperties()->setProperty("TestAdapter.Endpoints", "tcp -p 12010");
+    communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(communicator, 0));
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     Ice::Identity id = communicator->stringToIdentity("factory");
     adapter->add(ICE_MAKE_SHARED(ServerFactoryI), id);
     adapter->activate();
-
+    TEST_READY
     communicator->waitForShutdown();
     return EXIT_SUCCESS;
 }

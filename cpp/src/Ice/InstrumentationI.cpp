@@ -74,6 +74,20 @@ struct ThreadStateChanged
     ThreadState newState;
 };
 
+IPConnectionInfo*
+getIPConnectionInfo(const ConnectionInfoPtr& info)
+{
+    for(ConnectionInfoPtr p = info; p; p = p->underlying)
+    {
+        IPConnectionInfo* ipInfo = dynamic_cast<IPConnectionInfo*>(p.get());
+        if(ipInfo)
+        {
+            return ipInfo;
+        }
+    }
+    return ICE_NULLPTR;
+}
+
 class ConnectionHelper : public MetricsHelperT<ConnectionMetrics>
 {
 public:
@@ -108,7 +122,7 @@ public:
         if(_id.empty())
         {
             ostringstream os;
-            IPConnectionInfoPtr info = ICE_DYNAMIC_CAST(IPConnectionInfo, _connectionInfo);
+            IPConnectionInfo* info = getIPConnectionInfo(_connectionInfo);
             if(info)
             {
                 os << info->localAddress << ':' << info->localPort;

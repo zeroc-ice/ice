@@ -46,7 +46,8 @@ public:
     //
     // Marshal the endpoint.
     //
-    virtual void streamWrite(Ice::OutputStream*) const = 0;
+    virtual void streamWrite(Ice::OutputStream*) const;
+    virtual void streamWriteImpl(Ice::OutputStream*) const = 0;
 
     //
     // Return the endpoint type.
@@ -177,6 +178,8 @@ public:
 
     InfoI(const EndpointIPtr& endpoint) : _endpoint(endpoint)
     {
+        T::compress = _endpoint->compress();
+        T::timeout = _endpoint->timeout();
     }
 
     virtual Ice::Short

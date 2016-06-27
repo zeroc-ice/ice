@@ -54,6 +54,15 @@ connectionInfoDealloc(ConnectionInfoObject* self)
 extern "C"
 #endif
 static PyObject*
+connectionInfoGetUnderlying(ConnectionInfoObject* self)
+{
+    return createConnectionInfo((*self->connectionInfo)->underlying);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
 connectionInfoGetIncoming(ConnectionInfoObject* self)
 {
     return (*self->connectionInfo)->incoming ? incTrue() : incFalse();
@@ -66,24 +75,6 @@ static PyObject*
 connectionInfoGetAdapterName(ConnectionInfoObject* self)
 {
     return createString((*self->connectionInfo)->adapterName);
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-static PyObject*
-connectionInfoGetRcvSize(ConnectionInfoObject* self)
-{
-    return PyLong_FromLong((*self->connectionInfo)->rcvSize);
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-static PyObject*
-connectionInfoGetSndSize(ConnectionInfoObject* self)
-{
-    return PyLong_FromLong((*self->connectionInfo)->sndSize);
 }
 
 #ifdef WIN32
@@ -134,6 +125,28 @@ ipConnectionInfoGetRemotePort(ConnectionInfoObject* self)
 extern "C"
 #endif
 static PyObject*
+tcpConnectionInfoGetRcvSize(ConnectionInfoObject* self)
+{
+    Ice::TCPConnectionInfoPtr info = Ice::TCPConnectionInfoPtr::dynamicCast(*self->connectionInfo);
+    assert(info);
+    return PyLong_FromLong(info->rcvSize);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+tcpConnectionInfoGetSndSize(ConnectionInfoObject* self)
+{
+    Ice::TCPConnectionInfoPtr info = Ice::TCPConnectionInfoPtr::dynamicCast(*self->connectionInfo);
+    assert(info);
+    return PyLong_FromLong(info->sndSize);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
 udpConnectionInfoGetMcastAddress(ConnectionInfoObject* self)
 {
     Ice::UDPConnectionInfoPtr info = Ice::UDPConnectionInfoPtr::dynamicCast(*self->connectionInfo);
@@ -150,6 +163,28 @@ udpConnectionInfoGetMcastPort(ConnectionInfoObject* self, void* member)
     Ice::UDPConnectionInfoPtr info = Ice::UDPConnectionInfoPtr::dynamicCast(*self->connectionInfo);
     assert(info);
     return PyLong_FromLong(info->mcastPort);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+udpConnectionInfoGetRcvSize(ConnectionInfoObject* self)
+{
+    Ice::UDPConnectionInfoPtr info = Ice::UDPConnectionInfoPtr::dynamicCast(*self->connectionInfo);
+    assert(info);
+    return PyLong_FromLong(info->rcvSize);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+udpConnectionInfoGetSndSize(ConnectionInfoObject* self)
+{
+    Ice::UDPConnectionInfoPtr info = Ice::UDPConnectionInfoPtr::dynamicCast(*self->connectionInfo);
+    assert(info);
+    return PyLong_FromLong(info->sndSize);
 }
 
 #ifdef WIN32
@@ -213,42 +248,14 @@ sslConnectionInfoGetVerified(ConnectionInfoObject* self)
     return info->incoming ? incTrue() : incFalse();
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-static PyObject*
-wssConnectionInfoGetHeaders(ConnectionInfoObject* self)
-{
-    IceSSL::WSSConnectionInfoPtr info = IceSSL::WSSConnectionInfoPtr::dynamicCast(*self->connectionInfo);
-    assert(info);
-
-    PyObjectHandle result = PyDict_New();
-    if(result.get())
-    {
-        for(Ice::HeaderDict::iterator p = info->headers.begin(); p != info->headers.end(); ++p)
-        {
-            PyObjectHandle key = createString(p->first);
-            PyObjectHandle val = createString(p->second);
-            if(!val.get() || PyDict_SetItem(result.get(), key.get(), val.get()) < 0)
-            {
-                return 0;
-            }
-        }
-    }
-
-    return result.release();
-}
-
 static PyGetSetDef ConnectionInfoGetters[] =
 {
+    { STRCAST("underlying"), reinterpret_cast<getter>(connectionInfoGetUnderlying), 0,
+        PyDoc_STR(STRCAST("get underlying connection information")), 0 },
     { STRCAST("incoming"), reinterpret_cast<getter>(connectionInfoGetIncoming), 0,
         PyDoc_STR(STRCAST("whether connection is incoming")), 0 },
     { STRCAST("adapterName"), reinterpret_cast<getter>(connectionInfoGetAdapterName), 0,
         PyDoc_STR(STRCAST("adapter associated the connection")), 0 },
-    { STRCAST("rcvSize"), reinterpret_cast<getter>(connectionInfoGetRcvSize), 0,
-        PyDoc_STR(STRCAST("receive buffer size")), 0 },
-    { STRCAST("sndSize"), reinterpret_cast<getter>(connectionInfoGetSndSize), 0,
-        PyDoc_STR(STRCAST("send buffer size")), 0 },
     { 0, 0 } /* sentinel */
 };
 
@@ -265,12 +272,25 @@ static PyGetSetDef IPConnectionInfoGetters[] =
     { 0, 0 } /* sentinel */
 };
 
+static PyGetSetDef TCPConnectionInfoGetters[] =
+{
+    { STRCAST("rcvSize"), reinterpret_cast<getter>(tcpConnectionInfoGetRcvSize), 0,
+        PyDoc_STR(STRCAST("receive buffer size")), 0 },
+    { STRCAST("sndSize"), reinterpret_cast<getter>(tcpConnectionInfoGetSndSize), 0,
+        PyDoc_STR(STRCAST("send buffer size")), 0 },
+    { 0, 0 } /* sentinel */
+};
+
 static PyGetSetDef UDPConnectionInfoGetters[] =
 {
     { STRCAST("mcastAddress"), reinterpret_cast<getter>(udpConnectionInfoGetMcastAddress), 0,
         PyDoc_STR(STRCAST("multicast address")), 0 },
     { STRCAST("mcastPort"), reinterpret_cast<getter>(udpConnectionInfoGetMcastPort), 0,
         PyDoc_STR(STRCAST("multicast port")), 0 },
+    { STRCAST("rcvSize"), reinterpret_cast<getter>(udpConnectionInfoGetRcvSize), 0,
+        PyDoc_STR(STRCAST("receive buffer size")), 0 },
+    { STRCAST("sndSize"), reinterpret_cast<getter>(udpConnectionInfoGetSndSize), 0,
+        PyDoc_STR(STRCAST("send buffer size")), 0 },
     { 0, 0 } /* sentinel */
 };
 
@@ -289,13 +309,6 @@ static PyGetSetDef SSLConnectionInfoGetters[] =
         PyDoc_STR(STRCAST("certificate chain")), 0 },
     { STRCAST("verified"), reinterpret_cast<getter>(sslConnectionInfoGetVerified), 0,
         PyDoc_STR(STRCAST("certificate chain verification status")), 0 },
-    { 0, 0 } /* sentinel */
-};
-
-static PyGetSetDef WSSConnectionInfoGetters[] =
-{
-    { STRCAST("headers"), reinterpret_cast<getter>(wssConnectionInfoGetHeaders), 0,
-        PyDoc_STR(STRCAST("request headers")), 0 },
     { 0, 0 } /* sentinel */
 };
 
@@ -430,7 +443,7 @@ PyTypeObject TCPConnectionInfoType =
     0,                               /* tp_iternext */
     0,                               /* tp_methods */
     0,                               /* tp_members */
-    0,                               /* tp_getset */
+    TCPConnectionInfoGetters,        /* tp_getset */
     0,                               /* tp_base */
     0,                               /* tp_dict */
     0,                               /* tp_descr_get */
@@ -584,53 +597,6 @@ PyTypeObject SSLConnectionInfoType =
     0,                               /* tp_is_gc */
 };
 
-PyTypeObject WSSConnectionInfoType =
-{
-    /* The ob_type field must be initialized in the module init function
-     * to be portable to Windows without using C++. */
-    PyVarObject_HEAD_INIT(0, 0)
-    STRCAST("IcePy.WSSConnectionInfo"),/* tp_name */
-    sizeof(ConnectionInfoObject),    /* tp_basicsize */
-    0,                               /* tp_itemsize */
-    /* methods */
-    (destructor)connectionInfoDealloc, /* tp_dealloc */
-    0,                               /* tp_print */
-    0,                               /* tp_getattr */
-    0,                               /* tp_setattr */
-    0,                               /* tp_reserved */
-    0,                               /* tp_repr */
-    0,                               /* tp_as_number */
-    0,                               /* tp_as_sequence */
-    0,                               /* tp_as_mapping */
-    0,                               /* tp_hash */
-    0,                               /* tp_call */
-    0,                               /* tp_str */
-    0,                               /* tp_getattro */
-    0,                               /* tp_setattro */
-    0,                               /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
-    0,                               /* tp_doc */
-    0,                               /* tp_traverse */
-    0,                               /* tp_clear */
-    0,                               /* tp_richcompare */
-    0,                               /* tp_weaklistoffset */
-    0,                               /* tp_iter */
-    0,                               /* tp_iternext */
-    0,                               /* tp_methods */
-    0,                               /* tp_members */
-    WSSConnectionInfoGetters,        /* tp_getset */
-    0,                               /* tp_base */
-    0,                               /* tp_dict */
-    0,                               /* tp_descr_get */
-    0,                               /* tp_descr_set */
-    0,                               /* tp_dictoffset */
-    0,                               /* tp_init */
-    0,                               /* tp_alloc */
-    (newfunc)connectionInfoNew,      /* tp_new */
-    0,                               /* tp_free */
-    0,                               /* tp_is_gc */
-};
-
 }
 
 bool
@@ -679,7 +645,7 @@ IcePy::initConnectionInfo(PyObject* module)
         return false;
     }
 
-    WSConnectionInfoType.tp_base = &IPConnectionInfoType; // Force inheritance from IPConnectionType.
+    WSConnectionInfoType.tp_base = &ConnectionInfoType; // Force inheritance from IPConnectionType.
     if(PyType_Ready(&WSConnectionInfoType) < 0)
     {
         return false;
@@ -690,24 +656,13 @@ IcePy::initConnectionInfo(PyObject* module)
         return false;
     }
 
-    SSLConnectionInfoType.tp_base = &IPConnectionInfoType; // Force inheritance from IPConnectionInfoType.
+    SSLConnectionInfoType.tp_base = &ConnectionInfoType; // Force inheritance from IPConnectionInfoType.
     if(PyType_Ready(&SSLConnectionInfoType) < 0)
     {
         return false;
     }
     type = &SSLConnectionInfoType; // Necessary to prevent GCC's strict-alias warnings.
     if(PyModule_AddObject(module, STRCAST("SSLConnectionInfo"), reinterpret_cast<PyObject*>(type)) < 0)
-    {
-        return false;
-    }
-
-    WSSConnectionInfoType.tp_base = &SSLConnectionInfoType; // Force inheritance from IPConnectionType.
-    if(PyType_Ready(&WSSConnectionInfoType) < 0)
-    {
-        return false;
-    }
-    type = &WSSConnectionInfoType; // Necessary to prevent GCC's strict-alias warnings.
-    if(PyModule_AddObject(module, STRCAST("WSSConnectionInfo"), reinterpret_cast<PyObject*>(type)) < 0)
     {
         return false;
     }
@@ -726,6 +681,12 @@ IcePy::getConnectionInfo(PyObject* obj)
 PyObject*
 IcePy::createConnectionInfo(const Ice::ConnectionInfoPtr& connectionInfo)
 {
+    if(!connectionInfo)
+    {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+
     PyTypeObject* type;
     if(Ice::WSConnectionInfoPtr::dynamicCast(connectionInfo))
     {
@@ -738,10 +699,6 @@ IcePy::createConnectionInfo(const Ice::ConnectionInfoPtr& connectionInfo)
     else if(Ice::UDPConnectionInfoPtr::dynamicCast(connectionInfo))
     {
         type = &UDPConnectionInfoType;
-    }
-    else if(IceSSL::WSSConnectionInfoPtr::dynamicCast(connectionInfo))
-    {
-        type = &WSSConnectionInfoType;
     }
     else if(IceSSL::ConnectionInfoPtr::dynamicCast(connectionInfo))
     {

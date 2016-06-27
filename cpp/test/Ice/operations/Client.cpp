@@ -17,7 +17,7 @@ using namespace std;
 
 int
 run(int, char**, const Ice::CommunicatorPtr& communicator, bool remote)
-{
+{	 
     Test::MyClassPrxPtr allTests(const Ice::CommunicatorPtr&);
     Test::MyClassPrxPtr myClass = allTests(communicator);
 
@@ -67,8 +67,7 @@ main(int argc, char* argv[])
         initData.properties = Ice::createProperties(argc, argv);
         initData.properties->setProperty("Ice.ThreadPool.Client.Size", "2");
         initData.properties->setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
-
-        initData.properties->setProperty("Ice.BatchAutoFlushSize", "100");
+		initData.properties->setProperty("Ice.BatchAutoFlushSize", "100");
 
         Ice::CommunicatorHolder ich = Ice::initialize(argc, argv, initData);
         RemoteConfig rc("Ice/operations", argc, argv, ich.communicator());

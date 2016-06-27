@@ -12,6 +12,30 @@ using System.Collections.Generic;
 
 public class TestI : TestIntfDisp_
 {
+    private static Ice.IPEndpointInfo getIPEndpointInfo(Ice.EndpointInfo info)
+    {
+        for(; info != null; info = info.underlying)
+        {
+            if(info is Ice.IPEndpointInfo)
+            {
+                return info as Ice.IPEndpointInfo;
+            }
+        }
+        return null;
+    }
+
+    private static Ice.IPConnectionInfo getIPConnectionInfo(Ice.ConnectionInfo info)
+    {
+        for(; info != null; info = info.underlying)
+        {
+            if(info is Ice.IPConnectionInfo)
+            {
+                return info as Ice.IPConnectionInfo;
+            }
+        }
+        return null;
+    }
+
     override public void shutdown(Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
@@ -27,7 +51,7 @@ public class TestI : TestIntfDisp_
         ctx["secure"] = info.datagram() ? "true" : "false";
         ctx["type"] = info.type().ToString();
 
-        Ice.IPEndpointInfo ipinfo = (Ice.IPEndpointInfo)info;
+        Ice.IPEndpointInfo ipinfo = getIPEndpointInfo(info);
         ctx["host"] = ipinfo.host;
         ctx["port"] = ipinfo.port.ToString();
 
@@ -48,7 +72,7 @@ public class TestI : TestIntfDisp_
         ctx["adapterName"] = info.adapterName;
         ctx["incoming"] = info.incoming ? "true" : "false";
 
-        Ice.IPConnectionInfo ipinfo = (Ice.IPConnectionInfo)info;
+        Ice.IPConnectionInfo ipinfo = getIPConnectionInfo(info);
         ctx["localAddress"] = ipinfo.localAddress;
         ctx["localPort"] = ipinfo.localPort.ToString();
         ctx["remoteAddress"] = ipinfo.remoteAddress;
@@ -58,15 +82,6 @@ public class TestI : TestIntfDisp_
         {
             Ice.WSConnectionInfo wsinfo = (Ice.WSConnectionInfo)info;
             foreach(KeyValuePair<string, string> e in wsinfo.headers)
-            {
-                ctx["ws." + e.Key] = e.Value;
-            }
-        }
-
-        if(info is IceSSL.WSSConnectionInfo)
-        {
-            IceSSL.WSSConnectionInfo wssinfo = (IceSSL.WSSConnectionInfo)info;
-            foreach(KeyValuePair<string, string> e in wssinfo.headers)
             {
                 ctx["ws." + e.Key] = e.Value;
             }

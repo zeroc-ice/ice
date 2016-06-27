@@ -23,10 +23,7 @@
 #include <Ice/HashUtil.h>
 #include <Ice/NetworkProxy.h>
 
-#include <IceSSL/EndpointInfo.h>
-
 #include <CoreFoundation/CoreFoundation.h>
-#include <Security/Security.h>
 
 #include <fstream>
 
@@ -44,146 +41,15 @@ createIceTCP(const CommunicatorPtr& com, const string&, const StringSeq&)
     return new EndpointFactoryPlugin(com, new IceObjC::StreamEndpointFactory(tcpInstance));
 }
 
-Plugin*
-createIceSSL(const CommunicatorPtr& com, const string&, const StringSeq&)
-{
-    IceObjC::InstancePtr sslInstance = new IceObjC::Instance(com, SSLEndpointType, "ssl", true);
-    return new EndpointFactoryPlugin(com, new IceObjC::StreamEndpointFactory(sslInstance));
-}
-
-}
-
-namespace Ice
-{
-
-void
-registerIceSSL(bool)
-{
-    // Nothing to do, we always register IceSSL
-}
-
-}
-
-inline CFStringRef
-toCFString(const string& s)
-{
-    return CFStringCreateWithCString(NULL, s.c_str(), kCFStringEncodingUTF8);
-}
-
-inline int
-hexValue(char c)
-{
-    if(c >= '0' && c <= '9')
-    {
-        return c - '0';
-    }
-    else if(c >= 'A' && c <= 'F')
-    {
-        return (c - 'A') + 10;
-    }
-    else if(c >= 'a' && c <= 'f')
-    {
-        return (c - 'a') + 10;
-    }
-    return -1;
-}
-
-inline CFDataRef
-parseKey(const string& keyStr)
-{
-    int i = 0, j = 0;
-    const char* m = keyStr.c_str();
-    CFMutableDataRef data = CFDataCreateMutable(0, 160);
-    unsigned char buf[160];
-    while(i < (int)keyStr.size())
-    {
-        if(isspace(m[i]) || m[i] == ':')
-        {
-            ++i;
-            continue;
-        }
-        else if(i == (int)keyStr.size() - 1)
-        {
-            CFRelease(data);
-            return 0; // Not enough bytes.
-        }
-
-        int vh = hexValue(m[i++]);
-        int vl = hexValue(m[i++]);
-        if(vh < 0 || vl < 0)
-        {
-            CFRelease(data);
-            return 0;
-        }
-        buf[j] = vh << 4;
-        buf[j++] += vl;
-
-        if(j == sizeof(buf))
-        {
-            CFDataAppendBytes(data, (UInt8*)buf, j);
-            j = 0;
-        }
-    }
-
-    if(j > 0)
-    {
-        CFDataAppendBytes(data, buf, j);
-    }
-
-    return data;
 }
 
 namespace
 {
 
-CFDataRef
-readCert(const string& defaultDir, const string& certFile)
+inline CFStringRef
+toCFString(const string& s)
 {
-    string path;
-    CFURLRef url = 0;
-    CFBundleRef bundle = CFBundleGetMainBundle();
-    if(bundle)
-    {
-        CFStringRef resourceName = toCFString(certFile);
-        CFStringRef subDirName = toCFString(defaultDir);
-        url = CFBundleCopyResourceURL(bundle, resourceName, 0, subDirName);
-        CFRelease(resourceName);
-        CFRelease(subDirName);
-
-        UInt8 filePath[PATH_MAX];
-        if(CFURLGetFileSystemRepresentation(url, true, filePath, sizeof(filePath)))
-        {
-            path = string(reinterpret_cast<char*>(filePath));
-        }
-    }
-
-    if(!url || path.empty())
-    {
-        path = defaultDir.empty() ? certFile : defaultDir + "/" + certFile;
-    }
-
-    FILE *file = fopen(path.c_str(), "rb");
-    if(!file)
-    {
-        ostringstream os;
-        os << "IceSSL: unable to open file " << certFile << " (error = " << IceUtilInternal::lastErrorToString() << ")";
-        throw InitializationException(__FILE__, __LINE__, os.str());
-    }
-
-    fseek(file, 0, SEEK_END);
-    unsigned long size = ftell(file);
-    fseek(file, 0, SEEK_SET);
-    CFMutableDataRef data = CFDataCreateMutable(kCFAllocatorDefault, size);
-    CFDataSetLength(data, size);
-    if(fread(CFDataGetMutableBytePtr(data), 1, size, file) != size)
-    {
-        CFRelease(data);
-        ostringstream os;
-        os << "IceSSL: error while reading file " << certFile;
-        throw InitializationException(__FILE__, __LINE__, os.str());
-    }
-    fclose(file);
-    return data;
+    return CFStringCreateWithCString(NULL, s.c_str(), kCFStringEncodingUTF8);
 }
 
 }
@@ -192,125 +58,9 @@ IceObjC::Instance::Instance(const Ice::CommunicatorPtr& com, Short type, const s
     ProtocolInstance(com, type, protocol, secure),
     _voip(com->getProperties()->getPropertyAsIntWithDefault("Ice.Voip", 0) > 0),
     _communicator(com),
-    _serverSettings(0),
-    _clientSettings(0),
-    _proxySettings(0),
-    _certificateAuthorities(0),
-    _trustOnlyKeyID(0)
+    _proxySettings(0)
 {
     const Ice::PropertiesPtr properties = com->getProperties();
-    if(secure)
-    {
-        _clientSettings = CFDictionaryCreateMutable(0, 1, &kCFTypeDictionaryKeyCallBacks,
-                                                    &kCFTypeDictionaryValueCallBacks);
-
-        string defaultDir = properties->getProperty("IceSSL.DefaultDir");
-        string certAuthFile = properties->getProperty("IceSSL.CAs");
-        if(certAuthFile.empty())
-        {
-            certAuthFile = properties->getProperty("IceSSL.CertAuthFile");
-        }
-        string certFile = properties->getProperty("IceSSL.CertFile");
-
-        OSStatus err;
-        if(!certAuthFile.empty())
-        {
-            CFDataRef cert = readCert(defaultDir, certAuthFile);
-            if(!cert)
-            {
-                InitializationException ex(__FILE__, __LINE__);
-                ex.reason = "IceSSL: unable to open file " + certAuthFile;
-                throw ex;
-            }
-
-            SecCertificateRef result = SecCertificateCreateWithData(0, cert);
-            CFRelease(cert);
-            if(!result)
-            {
-                InitializationException ex(__FILE__, __LINE__);
-                ex.reason = "IceSSL: certificate " + certAuthFile + " is not a valid DER-encoded certificate";
-                throw ex;
-            }
-
-            SecCertificateRef certs[] = { result };
-            _certificateAuthorities = CFArrayCreate(0, (const void**)certs, 1, &kCFTypeArrayCallBacks);
-            CFRelease(result);
-
-            // The root CA will be validated by the transceiver.
-            // NOTE: on the iPhone, setting kCFStreamSSLAllowsAnyRoot = true isn't enough.
-            //CFDictionarySetValue(_clientSettings, kCFStreamSSLAllowsAnyRoot, kCFBooleanTrue);
-            CFDictionarySetValue(_clientSettings, kCFStreamSSLValidatesCertificateChain, kCFBooleanFalse);
-        }
-        else if(properties->getPropertyAsInt("IceSSL.UsePlatformCAs") <= 0)
-        {
-            // Setup an empty list of Root CAs to not use the system root CAs.
-            _certificateAuthorities = CFArrayCreate(0, 0, 0, 0);
-        }
-
-        if(!certFile.empty())
-        {
-            CFDataRef cert = readCert(defaultDir, certFile);
-            if(!cert)
-            {
-                InitializationException ex(__FILE__, __LINE__);
-                ex.reason = "IceSSL: unable to open file " + certFile;
-                throw ex;
-            }
-
-            CFMutableDictionaryRef settings = CFDictionaryCreateMutable(0, 1, &kCFTypeDictionaryKeyCallBacks,
-                                                                        &kCFTypeDictionaryValueCallBacks);
-            CFStringRef password = toCFString(properties->getProperty("IceSSL.Password"));
-            CFDictionarySetValue(settings, kSecImportExportPassphrase, password);
-            CFRelease(password);
-
-            CFArrayRef items = 0;
-            err = SecPKCS12Import(cert, settings, &items);
-            CFRelease(cert);
-            CFRelease(settings);
-            if(err != noErr)
-            {
-                ostringstream os;
-                os << "IceSSL: unable to import certificate from file " << certFile << " (error = " << err << ")";
-                throw InitializationException(__FILE__, __LINE__, os.str());
-            }
-
-            SecIdentityRef identity = 0;
-            if(CFArrayGetCount(items) > 0)
-            {
-                identity = (SecIdentityRef)CFDictionaryGetValue((CFDictionaryRef)CFArrayGetValueAtIndex(items, 0),
-                                                                kSecImportItemIdentity);
-            }
-            if(identity == 0)
-            {
-                ostringstream os;
-                os << "IceSSL: couldn't find identity in file " << certFile << " (error = " << err << ")";
-                throw InitializationException(__FILE__, __LINE__, os.str());
-            }
-            CFRetain(identity);
-            CFRelease(items);
-
-            SecIdentityRef identities[] = { identity };
-            items = CFArrayCreate(0, (const void**)identities, 1, &kCFTypeArrayCallBacks);
-            CFDictionarySetValue(_clientSettings, kCFStreamSSLCertificates, items);
-            CFRelease(identity);
-            CFRelease(items);
-        }
-
-        string trustOnly = properties->getProperty("IceSSL.TrustOnly.Client");
-        if(!trustOnly.empty())
-        {
-            _trustOnlyKeyID = parseKey(trustOnly);
-            if(!_trustOnlyKeyID)
-            {
-                ostringstream os;
-                os << "IceSSL: invalid `IceSSL.TrustOnly.Client' property value";
-                throw InitializationException(__FILE__, __LINE__, os.str());
-            }
-        }
-
-        _serverSettings = CFDictionaryCreateMutableCopy(0, 0, _clientSettings);
-        CFDictionarySetValue(_serverSettings, kCFStreamSSLIsServer, kCFBooleanTrue);
-    }
 
     //
     // Proxy settings
@@ -340,22 +90,6 @@ IceObjC::Instance::Instance(const Ice::CommunicatorPtr& com, Short type, const s
 
 IceObjC::Instance::~Instance()
 {
-    if(_trustOnlyKeyID)
-    {
-        CFRelease(_trustOnlyKeyID);
-    }
-    if(_serverSettings)
-    {
-        CFRelease(_serverSettings);
-    }
-    if(_clientSettings)
-    {
-        CFRelease(_clientSettings);
-    }
-    if(_certificateAuthorities)
-    {
-        CFRelease(_certificateAuthorities);
-    }
     if(_proxySettings)
     {
         CFRelease(_proxySettings);
@@ -386,40 +120,6 @@ IceObjC::Instance::setupStreams(CFReadStreamRef readStream,
         {
             throw Ice::SyscallException(__FILE__, __LINE__);
         }
-    }
-
-    if(secure())
-    {
-        CFDictionaryRef settings = server ? _serverSettings : _clientSettings;
-
-        if(!CFReadStreamSetProperty(readStream, kCFStreamPropertySocketSecurityLevel,
-                                    kCFStreamSocketSecurityLevelNegotiatedSSL) ||
-           !CFWriteStreamSetProperty(writeStream, kCFStreamPropertySocketSecurityLevel,
-                                     kCFStreamSocketSecurityLevelNegotiatedSSL))
-        {
-            throw Ice::SecurityException(__FILE__, __LINE__, "couldn't set security level");
-        }
-
-        if(!server && properties()->getPropertyAsIntWithDefault("IceSSL.CheckCertName", 1))
-        {
-            settings = CFDictionaryCreateMutableCopy(0, 0, settings);
-
-            CFStringRef h = toCFString(host);
-            CFDictionarySetValue((CFMutableDictionaryRef)settings, kCFStreamSSLPeerName, h);
-            CFRelease(h);
-        }
-        else
-        {
-            CFRetain(settings);
-        }
-
-        if(!CFReadStreamSetProperty(readStream, kCFStreamPropertySSLSettings, settings) ||
-           !CFWriteStreamSetProperty(writeStream, kCFStreamPropertySSLSettings, settings))
-        {
-            CFRelease(settings);
-            throw Ice::SecurityException(__FILE__, __LINE__, "couldn't set security options");
-        }
-        CFRelease(settings);
     }
 }
 
@@ -459,38 +159,10 @@ IceObjC::StreamEndpointI::StreamEndpointI(const InstancePtr& instance, Ice::Inpu
 EndpointInfoPtr
 IceObjC::StreamEndpointI::getInfo() const
 {
-    IPEndpointInfoPtr info;
-    if(_instance->secure())
-    {
-        info = ICE_MAKE_SHARED(InfoI<IceSSL::EndpointInfo>, ICE_DYNAMIC_CAST(StreamEndpointI, shared_from_this()));
-    }
-    else
-    {
-        info = ICE_MAKE_SHARED(InfoI<Ice::TCPEndpointInfo>, ICE_DYNAMIC_CAST(StreamEndpointI, shared_from_this()));
-    }
-    fillEndpointInfo(info.get());
-    return info;
-}
-
-EndpointInfoPtr
-IceObjC::StreamEndpointI::getWSInfo(const string& resource) const
-{
-    IPEndpointInfoPtr info;
-    if(_instance->secure())
-    {
-        IceSSL::WSSEndpointInfoPtr i;
-        i = ICE_MAKE_SHARED(InfoI<IceSSL::WSSEndpointInfo>, ICE_DYNAMIC_CAST(StreamEndpointI, shared_from_this()));
-        i->resource = resource;
-        info = i;
-    }
-    else
-    {
-        Ice::WSEndpointInfoPtr i;
-        i = ICE_MAKE_SHARED(InfoI<Ice::WSEndpointInfo>, ICE_DYNAMIC_CAST(StreamEndpointI, shared_from_this()));
-        i->resource = resource;
-        info = i;
-    }
-    fillEndpointInfo(info.get());
+    TCPEndpointInfoPtr info = ICE_MAKE_SHARED(InfoI<Ice::TCPEndpointInfo>, shared_from_this());
+    IPEndpointI::fillEndpointInfo(info.get());
+    info->timeout = _timeout;
+    info->compress = _compress;
     return info;
 }
 
@@ -561,7 +233,7 @@ IceObjC::StreamEndpointI::transceiver() const
 AcceptorPtr
 IceObjC::StreamEndpointI::acceptor(const string&) const
 {
-    return new StreamAcceptor(ICE_DYNAMIC_CAST(StreamEndpointI, shared_from_this()), _instance, _host, _port);
+    return new StreamAcceptor(shared_from_this(), _instance, _host, _port);
 }
 
 IceObjC::StreamEndpointIPtr
@@ -698,14 +370,6 @@ IceObjC::StreamEndpointI::hashInit(Ice::Int& h) const
     hashAdd(h, _compress);
 }
 
-void
-IceObjC::StreamEndpointI::fillEndpointInfo(IPEndpointInfo* info) const
-{
-    IPEndpointI::fillEndpointInfo(info);
-    info->timeout = _timeout;
-    info->compress = _compress;
-}
-
 bool
 IceObjC::StreamEndpointI::checkOption(const string& option, const string& argument, const string& endpoint)
 {
@@ -815,7 +479,7 @@ IceObjC::StreamEndpointFactory::destroy()
 }
 
 EndpointFactoryPtr
-IceObjC::StreamEndpointFactory::clone(const ProtocolInstancePtr& instance) const
+IceObjC::StreamEndpointFactory::clone(const ProtocolInstancePtr& instance, const EndpointFactoryPtr&) const
 {
     return new StreamEndpointFactory(_instance->clone(instance));
 }

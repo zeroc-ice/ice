@@ -24,8 +24,6 @@
 		140A392F122CF11300E1931D /* Server.m in Sources */ = {isa = PBXBuildFile; fileRef = 140A392A122CF11300E1931D /* Server.m */; };
 		140A3930122CF11300E1931D /* AllTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 140A392B122CF11300E1931D /* AllTests.m */; };
 		140A3931122CF11300E1931D /* AMITest.ice in Sources */ = {isa = PBXBuildFile; fileRef = 140A392C122CF11300E1931D /* AMITest.ice */; };
-		14103B0C1CF892720097DE5A /* ExternalAccessory.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 14103B0B1CF892720097DE5A /* ExternalAccessory.framework */; };
-		14103B0D1CF8927D0097DE5A /* ExternalAccessory.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 14103B0B1CF892720097DE5A /* ExternalAccessory.framework */; };
 		1450A1091ABC09B400A71895 /* BatchOnewaysAMI.m in Sources */ = {isa = PBXBuildFile; fileRef = 1450A1081ABC09B400A71895 /* BatchOnewaysAMI.m */; };
 		1450A10A1ABC09B400A71895 /* BatchOnewaysAMI.m in Sources */ = {isa = PBXBuildFile; fileRef = 1450A1081ABC09B400A71895 /* BatchOnewaysAMI.m */; };
 		14532D321761D39700176FE1 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 28AD733E0D9D9553002E5188 /* MainWindow.xib */; };
@@ -510,7 +508,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				14103B0D1CF8927D0097DE5A /* ExternalAccessory.framework in Frameworks */,
 				14532DC31761D39700176FE1 /* UIKit.framework in Frameworks */,
 				14532DC41761D39700176FE1 /* Security.framework in Frameworks */,
 				14532DC51761D39700176FE1 /* CFNetwork.framework in Frameworks */,
@@ -522,7 +519,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				14103B0C1CF892720097DE5A /* ExternalAccessory.framework in Frameworks */,
 				1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */,
 				344126380FD8E8EA00C8D69C /* Security.framework in Frameworks */,
 				344126390FD8E8EA00C8D69C /* CFNetwork.framework in Frameworks */,

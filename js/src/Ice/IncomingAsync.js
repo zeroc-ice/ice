@@ -141,11 +141,12 @@ var IncomingAsync = Ice.Class({
         s.push("\noperation: " + this._current.operation);
         if(this._connection !== null)
         {
-            var connInfo = this._connection.getInfo();
-            if(connInfo instanceof Ice.IPConnectionInfo)
+            for(var p = this._connection.getInfo(); p; p = p.underlying)
             {
-                var ipConnInfo = connInfo;
-                s.push("\nremote host: " + ipConnInfo.remoteAddress + " remote port: " + ipConnInfo.remotePort);
+                if(p instanceof Ice.IPConnectionInfo)
+                {
+                    s.push("\nremote host: " + p.remoteAddress + " remote port: " + p.remotePort);
+                }
             }
         }
         if(ex.stack)

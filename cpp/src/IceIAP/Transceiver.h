@@ -66,6 +66,7 @@ private:
     void checkError(NSError*, const char*, int);
 
     IceInternal::ProtocolInstancePtr _instance;
+    EASession* _session;
     NSInputStream* _readStream;
     NSOutputStream* _writeStream;
     iAPTransceiverCallback* _callback;

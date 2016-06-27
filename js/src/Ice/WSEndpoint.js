@@ -35,9 +35,11 @@ var WSEndpoint = Class(EndpointI, {
     },
     getInfo: function()
     {
-        var info = this._delegate.secure() ? new IceSSL.WSSEndpointInfo() : new Ice.WSEndpointInfo();
+        var info = new Ice.WSEndpointInfo();
         info.resource = this._resource;
-        this._delegate.fillEndpointInfo(info);
+        info.underlying = this._delegate.getInfo();
+        info.timeout = info.underlying.timeout;
+        info.compress = info.underlying.compress;
         return info;
     },
     type: function()

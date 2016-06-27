@@ -28,6 +28,13 @@ run(id<ICECommunicator> communicator)
 int
 main(int argc, char* argv[])
 {
+#ifdef ICE_STATIC_LIBS
+    ICEregisterIceSSL(YES);
+#if TARGET_OS_IPHONE
+    ICEregisterIceIAP(YES);
+#endif
+#endif
+
     int status;
     @autoreleasepool
     {
@@ -43,7 +50,7 @@ main(int argc, char* argv[])
             };
 #if TARGET_OS_IPHONE
             initData.prefixTable__ = [NSDictionary dictionaryWithObjectsAndKeys:
-                                      @"TestDispatcher", @"::Test", 
+                                      @"TestDispatcher", @"::Test",
                                       nil];
 #endif
             communicator = [ICEUtil createCommunicator:&argc argv:argv initData:initData];

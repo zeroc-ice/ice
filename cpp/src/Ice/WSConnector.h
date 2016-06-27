@@ -34,15 +34,14 @@ public:
     virtual bool operator<(const Connector&) const;
 
 
-    WSConnector(const ProtocolInstancePtr&, const ConnectorPtr&, const std::string&, int, const std::string&);
+    WSConnector(const ProtocolInstancePtr&, const ConnectorPtr&, const std::string&, const std::string&);
     virtual ~WSConnector();
 
 private:
-    
+
     const ProtocolInstancePtr _instance;
     const ConnectorPtr _delegate;
     const std::string _host;
-    const int _port;
     const std::string _resource;
 };
 

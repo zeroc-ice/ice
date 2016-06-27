@@ -98,7 +98,6 @@ internal sealed class ServerFactoryI : ServerFactoryDisp_
         {
             initData.properties.setProperty(key, props[key]);
         }
-
         string[] args = new string[0];
         Ice.Communicator communicator = Ice.Util.initialize(ref args, initData);
         Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("ServerAdapter", "ssl");
@@ -106,7 +105,6 @@ internal sealed class ServerFactoryI : ServerFactoryDisp_
         Ice.ObjectPrx obj = adapter.addWithUUID(server);
         servers_[obj.ice_getIdentity()] = server;
         adapter.activate();
-
         return ServerPrxHelper.uncheckedCast(obj);
     }
 

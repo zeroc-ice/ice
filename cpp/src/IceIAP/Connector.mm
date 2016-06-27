@@ -7,9 +7,9 @@
 //
 // **********************************************************************
 
-#include "iAPTransceiver.h"
-#include "iAPEndpointI.h"
-#include "iAPConnector.h"
+#include "Transceiver.h"
+#include "EndpointI.h"
+#include "Connector.h"
 
 #include <Ice/ProtocolInstance.h>
 #include <Ice/Exception.h>

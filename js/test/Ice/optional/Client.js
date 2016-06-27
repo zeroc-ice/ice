@@ -940,6 +940,7 @@
             failCB,
             function(ex)
             {
+                console.log(ex);
                 test(ex instanceof Test.OptionalException);
                 test(ex.a === undefined);
                 test(ex.b === undefined);

@@ -183,7 +183,7 @@ protected:
             virtual std::string operator()(const Helper* r) const
             {
                 O o = (r->*_getFn)();
-                I* v = dynamic_cast<I*>(IceInternal::ReferenceWrapper<O>::get(o));
+                I* v = dynamicCast<I>(IceInternal::ReferenceWrapper<O>::get(o));
                 if(v)
                 {
                     return toString(v->*_member);
@@ -212,7 +212,7 @@ protected:
             virtual std::string operator()(const Helper* r) const
             {
                 O o = (r->*_getFn)();
-                I* v = dynamic_cast<I*>(IceInternal::ReferenceWrapper<O>::get(o));
+                I* v = dynamicCast<I>(IceInternal::ReferenceWrapper<O>::get(o));
                 if(v)
                 {
                     return toString((v->*_memberFn)());
@@ -229,6 +229,40 @@ protected:
             Y (I::*_memberFn)() const;
         };
 
+        template<typename I, typename V> static I*
+        dynamicCast(V* v)
+        {
+            return dynamic_cast<I*>(v);
+        }
+
+        template<typename I> static I*
+        dynamicCast(Ice::EndpointInfo* v)
+        {
+            for(Ice::EndpointInfo* info = v; info; info = info->underlying.get())
+            {
+                I* i = dynamic_cast<I*>(info);
+                if(i)
+                {
+                    return i;
+                }
+            }
+            return 0;
+        }
+
+        template<typename I> static I*
+        dynamicCast(Ice::ConnectionInfo* v)
+        {
+            for(Ice::ConnectionInfo* info = v; info; info = info->underlying.get())
+            {
+                I* i = dynamic_cast<I*>(info);
+                if(i)
+                {
+                    return i;
+                }
+            }
+            return 0;
+        }
+
         template<typename I> static std::string
         toString(const I& v)
         {
@@ -242,7 +276,7 @@ protected:
         {
             return p->ice_toString();
         }
-        
+
         static const std::string&
         toString(const std::string& s)
         {

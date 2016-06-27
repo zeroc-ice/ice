@@ -24,7 +24,6 @@ static VALUE _udpEndpointInfoClass;
 static VALUE _wsEndpointInfoClass;
 static VALUE _opaqueEndpointInfoClass;
 static VALUE _sslEndpointInfoClass;
-static VALUE _wssEndpointInfoClass;
 
 // **********************************************************************
 // Endpoint
@@ -132,34 +131,28 @@ IceRuby_EndpointInfo_free(Ice::EndpointPtr* p)
 VALUE
 IceRuby::createEndpointInfo(const Ice::EndpointInfoPtr& p)
 {
+    if(!p)
+    {
+        return Qnil;
+    }
+
     VALUE info;
     if(Ice::WSEndpointInfoPtr::dynamicCast(p))
     {
         info = Data_Wrap_Struct(_wsEndpointInfoClass, 0, IceRuby_EndpointInfo_free, new Ice::EndpointInfoPtr(p));
 
         Ice::WSEndpointInfoPtr ws = Ice::WSEndpointInfoPtr::dynamicCast(p);
-        rb_ivar_set(info, rb_intern("@host"), createString(ws->host));
-        rb_ivar_set(info, rb_intern("@port"), INT2FIX(ws->port));
-        rb_ivar_set(info, rb_intern("@sourceAddress"), createString(ws->sourceAddress));
         rb_ivar_set(info, rb_intern("@resource"), createString(ws->resource));
     }
     else if(Ice::TCPEndpointInfoPtr::dynamicCast(p))
     {
         info = Data_Wrap_Struct(_tcpEndpointInfoClass, 0, IceRuby_EndpointInfo_free, new Ice::EndpointInfoPtr(p));
-
-        Ice::TCPEndpointInfoPtr tcp = Ice::TCPEndpointInfoPtr::dynamicCast(p);
-        rb_ivar_set(info, rb_intern("@host"), createString(tcp->host));
-        rb_ivar_set(info, rb_intern("@port"), INT2FIX(tcp->port));
-        rb_ivar_set(info, rb_intern("@sourceAddress"), createString(tcp->sourceAddress));
     }
     else if(Ice::UDPEndpointInfoPtr::dynamicCast(p))
     {
         info = Data_Wrap_Struct(_udpEndpointInfoClass, 0, IceRuby_EndpointInfo_free, new Ice::EndpointInfoPtr(p));
 
         Ice::UDPEndpointInfoPtr udp = Ice::UDPEndpointInfoPtr::dynamicCast(p);
-        rb_ivar_set(info, rb_intern("@host"), createString(udp->host));
-        rb_ivar_set(info, rb_intern("@port"), INT2FIX(udp->port));
-        rb_ivar_set(info, rb_intern("@sourceAddress"), createString(udp->sourceAddress));
         rb_ivar_set(info, rb_intern("@mcastInterface"), createString(udp->mcastInterface));
         rb_ivar_set(info, rb_intern("@mcastTtl"), INT2FIX(udp->mcastTtl));
     }
@@ -173,39 +166,28 @@ IceRuby::createEndpointInfo(const Ice::EndpointInfoPtr& p)
         rb_ivar_set(info, rb_intern("@rawBytes"), v);
         rb_ivar_set(info, rb_intern("@rawEncoding"), createEncodingVersion(opaque->rawEncoding));
     }
-    else if(IceSSL::WSSEndpointInfoPtr::dynamicCast(p))
-    {
-        info = Data_Wrap_Struct(_wssEndpointInfoClass, 0, IceRuby_EndpointInfo_free, new Ice::EndpointInfoPtr(p));
-
-        IceSSL::WSSEndpointInfoPtr wss = IceSSL::WSSEndpointInfoPtr::dynamicCast(p);
-        rb_ivar_set(info, rb_intern("@host"), createString(wss->host));
-        rb_ivar_set(info, rb_intern("@port"), INT2FIX(wss->port));
-        rb_ivar_set(info, rb_intern("@sourceAddress"), createString(wss->sourceAddress));
-        rb_ivar_set(info, rb_intern("@resource"), createString(wss->resource));
-    }
     else if(IceSSL::EndpointInfoPtr::dynamicCast(p))
     {
         info = Data_Wrap_Struct(_sslEndpointInfoClass, 0, IceRuby_EndpointInfo_free, new Ice::EndpointInfoPtr(p));
-
-        IceSSL::EndpointInfoPtr ssl = IceSSL::EndpointInfoPtr::dynamicCast(p);
-        rb_ivar_set(info, rb_intern("@host"), createString(ssl->host));
-        rb_ivar_set(info, rb_intern("@port"), INT2FIX(ssl->port));
-        rb_ivar_set(info, rb_intern("@sourceAddress"), createString(ssl->sourceAddress));
     }
     else if(Ice::IPEndpointInfoPtr::dynamicCast(p))
     {
         info = Data_Wrap_Struct(_ipEndpointInfoClass, 0, IceRuby_EndpointInfo_free, new Ice::EndpointInfoPtr(p));
-
-        Ice::IPEndpointInfoPtr ip = Ice::IPEndpointInfoPtr::dynamicCast(p);
-        rb_ivar_set(info, rb_intern("@host"), createString(ip->host));
-        rb_ivar_set(info, rb_intern("@port"), INT2FIX(ip->port));
-        rb_ivar_set(info, rb_intern("@sourceAddress"), createString(ip->sourceAddress));
     }
     else
     {
         info = Data_Wrap_Struct(_endpointInfoClass, 0, IceRuby_EndpointInfo_free, new Ice::EndpointInfoPtr(p));
     }
 
+    if(Ice::IPEndpointInfoPtr::dynamicCast(p))
+    {
+        Ice::IPEndpointInfoPtr ip = Ice::IPEndpointInfoPtr::dynamicCast(p);
+        rb_ivar_set(info, rb_intern("@host"), createString(ip->host));
+        rb_ivar_set(info, rb_intern("@port"), INT2FIX(ip->port));
+        rb_ivar_set(info, rb_intern("@sourceAddress"), createString(ip->sourceAddress));
+    }
+
+    rb_ivar_set(info, rb_intern("@underlying"), createEndpointInfo(p->underlying));
     rb_ivar_set(info, rb_intern("@timeout"), INT2FIX(p->timeout));
     rb_ivar_set(info, rb_intern("@compress"), p->compress ? Qtrue : Qfalse);
     return info;
@@ -329,7 +311,7 @@ IceRuby::initEndpoint(VALUE iceModule)
     //
     // WSEndpointInfo
     //
-    _wsEndpointInfoClass = rb_define_class_under(iceModule, "WSEndpointInfo", _tcpEndpointInfoClass);
+    _wsEndpointInfoClass = rb_define_class_under(iceModule, "WSEndpointInfo", _endpointInfoClass);
 
     //
     // Instance members.
@@ -350,17 +332,7 @@ IceRuby::initEndpoint(VALUE iceModule)
     //
     // SSLEndpointInfo
     //
-    _sslEndpointInfoClass = rb_define_class_under(iceModule, "SSLEndpointInfo", _ipEndpointInfoClass);
-
-    //
-    // WSSEndpointInfo
-    //
-    _wssEndpointInfoClass = rb_define_class_under(iceModule, "WSSEndpointInfo", _sslEndpointInfoClass);
-
-    //
-    // Instance members.
-    //
-    rb_define_attr(_wssEndpointInfoClass, "resource", 1, 0);
+    _sslEndpointInfoClass = rb_define_class_under(iceModule, "SSLEndpointInfo", _endpointInfoClass);
 }
 
 bool

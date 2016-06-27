@@ -14,14 +14,14 @@ final class WSEndpoint extends IceInternal.EndpointI
     public WSEndpoint(ProtocolInstance instance, EndpointI del, String res)
     {
         _instance = instance;
-        _delegate = (IPEndpointI)del;
+        _delegate = del;
         _resource = res;
     }
 
     public WSEndpoint(ProtocolInstance instance, EndpointI del, java.util.ArrayList<String> args)
     {
         _instance = instance;
-        _delegate = (IPEndpointI)del;
+        _delegate = del;
 
         initWithOptions(args);
 
@@ -34,15 +34,36 @@ final class WSEndpoint extends IceInternal.EndpointI
     public WSEndpoint(ProtocolInstance instance, EndpointI del, Ice.InputStream s)
     {
         _instance = instance;
-        _delegate = (IPEndpointI)del;
+        _delegate = del;
         _resource = s.readString();
     }
 
     @Override
     public Ice.EndpointInfo getInfo()
     {
-        assert(_delegate instanceof WSEndpointDelegate);
-        return ((WSEndpointDelegate)_delegate).getWSInfo(_resource);
+        Ice.WSEndpointInfo info = new Ice.WSEndpointInfo(_delegate.getInfo(), timeout(), compress(), _resource)
+        {
+            @Override
+            public short type()
+            {
+                return WSEndpoint.this.type();
+            }
+
+            @Override
+            public boolean datagram()
+            {
+                return WSEndpoint.this.datagram();
+            }
+
+            @Override
+            public boolean secure()
+            {
+                return WSEndpoint.this.secure();
+            }
+        };
+        info.compress = info.underlying.compress;
+        info.timeout = info.underlying.timeout;
+        return info;
     }
 
     @Override
@@ -58,12 +79,10 @@ final class WSEndpoint extends IceInternal.EndpointI
     }
 
     @Override
-    public void streamWrite(Ice.OutputStream s)
+    public void streamWriteImpl(Ice.OutputStream s)
     {
-        s.startEncapsulation();
         _delegate.streamWriteImpl(s);
         s.writeString(_resource);
-        s.endEncapsulation();
     }
 
     @Override
@@ -144,6 +163,15 @@ final class WSEndpoint extends IceInternal.EndpointI
     @Override
     public void connectors_async(Ice.EndpointSelectionType selType, final EndpointI_connectors callback)
     {
+        Ice.IPEndpointInfo ipInfo = null;
+        for(Ice.EndpointInfo p = _delegate.getInfo(); p != null; p = p.underlying)
+        {
+            if(p instanceof Ice.IPEndpointInfo)
+            {
+                ipInfo = (Ice.IPEndpointInfo)p;
+            }
+        }
+        final String host = ipInfo != null ? (ipInfo.host + ":" + ipInfo.port) : "";
         EndpointI_connectors cb = new EndpointI_connectors()
         {
             @Override
@@ -152,7 +180,7 @@ final class WSEndpoint extends IceInternal.EndpointI
                 java.util.List<Connector> l = new java.util.ArrayList<Connector>();
                 for(Connector c : connectors)
                 {
-                    l.add(new WSConnector(_instance, c, _delegate.host(), _delegate.port(), _resource));
+                    l.add(new WSConnector(_instance, c, host, _resource));
                 }
                 callback.connectors(l);
             }
@@ -291,6 +319,6 @@ final class WSEndpoint extends IceInternal.EndpointI
     }
 
     private ProtocolInstance _instance;
-    private IPEndpointI _delegate;
+    private EndpointI _delegate;
     private String _resource;
 }

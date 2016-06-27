@@ -24,15 +24,6 @@ module IceBT
 
 /**
  *
- * Uniquely identifies Bluetooth endpoints.
- *
- **/
-#ifndef __SLICE2OBJC__
-const short EndpointType = 6;
-#endif
-
-/**
- *
  * Provides access to Bluetooth endpoint information.
  *
  **/

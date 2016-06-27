@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|ARM">
@@ -147,6 +147,7 @@
     <ClCompile Include="..\..\..\IceUtil\Shared.cpp" />
     <ClCompile Include="..\..\..\IceUtil\StringConverter.cpp" />
     <ClCompile Include="..\..\..\IceUtil\StringUtil.cpp" />
+    <ClCompile Include="..\..\StreamSocket.cpp" />
     <ClCompile Include="..\..\Thread.cpp" />
     <ClCompile Include="..\..\..\IceUtil\ThreadException.cpp" />
     <ClCompile Include="..\..\..\IceUtil\Time.cpp" />
@@ -232,10 +233,10 @@
     <ClCompile Include="..\..\UdpConnector.cpp" />
     <ClCompile Include="..\..\UdpEndpointI.cpp" />
     <ClCompile Include="..\..\UdpTransceiver.cpp" />
-    <ClCompile Include="..\..\uwp\TcpAcceptor.cpp" />
-    <ClCompile Include="..\..\uwp\TcpConnector.cpp" />
-    <ClCompile Include="..\..\uwp\TcpEndpointI.cpp" />
-    <ClCompile Include="..\..\uwp\TcpTransceiver.cpp" />
+    <ClCompile Include="..\..\TcpAcceptor.cpp" />
+    <ClCompile Include="..\..\TcpConnector.cpp" />
+    <ClCompile Include="..\..\TcpEndpointI.cpp" />
+    <ClCompile Include="..\..\TcpTransceiver.cpp" />
     <ClCompile Include="..\..\Value.cpp" />
     <ClCompile Include="..\..\ValueFactoryManagerI.cpp" />
     <ClCompile Include="..\..\WSAcceptor.cpp" />

@@ -12,6 +12,32 @@ import test.Ice.info.Test._TestIntfDisp;
 
 public class TestI extends _TestIntfDisp
 {
+    private static Ice.IPEndpointInfo
+    getIPEndpointInfo(Ice.EndpointInfo info)
+    {
+        for(Ice.EndpointInfo p = info; p != null; p = p.underlying)
+        {
+            if(p instanceof Ice.IPEndpointInfo)
+            {
+                return (Ice.IPEndpointInfo)p;
+            }
+        }
+        return null;
+    }
+
+    private static Ice.IPConnectionInfo
+    getIPConnectionInfo(Ice.ConnectionInfo info)
+    {
+        for(Ice.ConnectionInfo p = info; p != null; p = p.underlying)
+        {
+            if(p instanceof Ice.IPConnectionInfo)
+            {
+                return (Ice.IPConnectionInfo)p;
+            }
+        }
+        return null;
+    }
+
     TestI()
     {
     }
@@ -33,7 +59,7 @@ public class TestI extends _TestIntfDisp
         ctx.put("secure", info.datagram() ? "true" : "false");
         ctx.put("type", Integer.toString(info.type()));
 
-        Ice.IPEndpointInfo ipinfo = (Ice.IPEndpointInfo)info;
+        Ice.IPEndpointInfo ipinfo = getIPEndpointInfo(info);
         ctx.put("host", ipinfo.host);
         ctx.put("port", Integer.toString(ipinfo.port));
 
@@ -55,7 +81,7 @@ public class TestI extends _TestIntfDisp
         ctx.put("adapterName", info.adapterName);
         ctx.put("incoming", info.incoming ? "true" : "false");
 
-        Ice.IPConnectionInfo ipinfo = (Ice.IPConnectionInfo)info;
+        Ice.IPConnectionInfo ipinfo = getIPConnectionInfo(info);
         ctx.put("localAddress", ipinfo.localAddress);
         ctx.put("localPort", Integer.toString(ipinfo.localPort));
         ctx.put("remoteAddress", ipinfo.remoteAddress);
@@ -65,15 +91,6 @@ public class TestI extends _TestIntfDisp
         {
             Ice.WSConnectionInfo wsinfo = (Ice.WSConnectionInfo)info;
             for(java.util.Map.Entry<String, String> e : wsinfo.headers.entrySet())
-            {
-                ctx.put("ws." + e.getKey(), e.getValue());
-            }
-        }
-
-        if(info instanceof IceSSL.WSSConnectionInfo)
-        {
-            IceSSL.WSSConnectionInfo wssinfo = (IceSSL.WSSConnectionInfo)info;
-            for(java.util.Map.Entry<String, String> e : wssinfo.headers.entrySet())
             {
                 ctx.put("ws." + e.getKey(), e.getValue());
             }

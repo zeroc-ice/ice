@@ -14,6 +14,25 @@
 using namespace std;
 using namespace Test;
 
+namespace
+{
+
+Ice::IPConnectionInfoPtr
+getIPConnectionInfo(const Ice::ConnectionInfoPtr& info)
+{
+    for(Ice::ConnectionInfoPtr p = info; p; p = p->underlying)
+    {
+        Ice::IPConnectionInfoPtr ipInfo = ICE_DYNAMIC_CAST(Ice::IPConnectionInfo, p);
+        if(ipInfo)
+        {
+            return ipInfo;
+        }
+    }
+    return ICE_NULLPTR;
+}
+
+}
+
 void
 allTests(const Ice::CommunicatorPtr& communicator)
 {
@@ -32,7 +51,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "testing connection information... " << flush;
     {
-        Ice::IPConnectionInfoPtr info = ICE_DYNAMIC_CAST(Ice::IPConnectionInfo, test->ice_getConnection()->getInfo());
+        Ice::IPConnectionInfoPtr info = getIPConnectionInfo(test->ice_getConnection()->getInfo());
         test(info->remotePort == 12030 || info->remotePort == 12031); // make sure we are connected to the proxy port.
     }
     cout << "ok" << endl;

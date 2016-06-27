@@ -68,9 +68,9 @@ namespace IceSSL
             _engine.traceStream(stream, connInfo);
         }
 
-        internal void verifyPeer(NativeConnectionInfo info, System.Net.Sockets.Socket fd, string address)
+        internal void verifyPeer(string address, NativeConnectionInfo info, string desc)
         {
-            _engine.verifyPeer(info, fd, address);
+            _engine.verifyPeer(address, info, desc);
         }
 
         private SSLEngine _engine;

@@ -13,30 +13,51 @@ import java.nio.*;
 import javax.net.ssl.*;
 import javax.net.ssl.SSLEngineResult.*;
 
-final class TransceiverI implements IceInternal.Transceiver, IceInternal.WSTransceiverDelegate
+final class TransceiverI implements IceInternal.Transceiver
 {
     @Override
     public java.nio.channels.SelectableChannel fd()
     {
-        return _stream.fd();
+        return _delegate.fd();
     }
 
     @Override
     public void setReadyCallback(IceInternal.ReadyCallback callback)
     {
         _readyCallback = callback;
+        _delegate.setReadyCallback(callback);
     }
 
     @Override
     public int initialize(IceInternal.Buffer readBuffer, IceInternal.Buffer writeBuffer)
     {
-        int status = _stream.connect(readBuffer, writeBuffer);
-        if(status != IceInternal.SocketOperation.None)
+        if(!_isConnected)
         {
-            return status;
+            int status = _delegate.initialize(readBuffer, writeBuffer);
+            if(status != IceInternal.SocketOperation.None)
+            {
+                return status;
+            }
+            _isConnected = true;
+
+            Ice.IPConnectionInfo ipInfo = null;
+            for(Ice.ConnectionInfo p = _delegate.getInfo(); p != null; p = p.underlying)
+            {
+                if(p instanceof Ice.IPConnectionInfo)
+                {
+                    ipInfo = (Ice.IPConnectionInfo)p;
+                }
+            }
+            final String host = _incoming ? (ipInfo != null ? ipInfo.remoteAddress : "") : _host;
+            final int port = ipInfo != null ? ipInfo.remotePort : -1;
+            _engine = _instance.createSSLEngine(_incoming, host, port);
+            _appInput = ByteBuffer.allocateDirect(_engine.getSession().getApplicationBufferSize() * 2);
+            int bufSize = _engine.getSession().getPacketBufferSize() * 2;
+            _netInput = new IceInternal.Buffer(ByteBuffer.allocateDirect(bufSize * 2));
+            _netOutput = new IceInternal.Buffer(ByteBuffer.allocateDirect(bufSize * 2));
         }
 
-        status = handshakeNonBlocking();
+        int status = handshakeNonBlocking();
         if(status != IceInternal.SocketOperation.None)
         {
             return status;
@@ -45,11 +66,11 @@ final class TransceiverI implements IceInternal.Transceiver, IceInternal.WSTrans
         //
         // Additional verification.
         //
-        _instance.verifyPeer((NativeConnectionInfo)getInfo(), _stream.fd(), _host);
+        _instance.verifyPeer(_host, (NativeConnectionInfo)getInfo(), _delegate.toString());
 
         if(_instance.securityTraceLevel() >= 1)
         {
-            _instance.traceConnection(_stream.fd(), _engine, _incoming);
+            _instance.traceConnection(_delegate.toString(), _engine, _incoming);
         }
         return IceInternal.SocketOperation.None;
     }
@@ -65,7 +86,7 @@ final class TransceiverI implements IceInternal.Transceiver, IceInternal.WSTrans
     @Override
     public void close()
     {
-        if(_stream.isConnected())
+        if(_isConnected)
         {
             try
             {
@@ -73,10 +94,10 @@ final class TransceiverI implements IceInternal.Transceiver, IceInternal.WSTrans
                 // Send the close_notify message.
                 //
                 _engine.closeOutbound();
-                _netOutput.clear();
+                _netOutput.b.clear();
                 while(!_engine.isOutboundDone())
                 {
-                    _engine.wrap(_emptyBuffer, _netOutput);
+                    _engine.wrap(_emptyBuffer, _netOutput.b);
                     try
                     {
                         //
@@ -120,7 +141,7 @@ final class TransceiverI implements IceInternal.Transceiver, IceInternal.WSTrans
             }
         }
 
-        _stream.close();
+        _delegate.close();
     }
 
     @Override
@@ -133,9 +154,9 @@ final class TransceiverI implements IceInternal.Transceiver, IceInternal.WSTrans
     @Override
     public int write(IceInternal.Buffer buf)
     {
-        if(!_stream.isConnected())
+        if(!_isConnected)
         {
-            return _stream.write(buf);
+            return _delegate.write(buf);
         }
 
         int status = writeNonBlocking(buf.b);
@@ -146,12 +167,12 @@ final class TransceiverI implements IceInternal.Transceiver, IceInternal.WSTrans
     @Override
     public int read(IceInternal.Buffer buf)
     {
-        _readyCallback.ready(IceInternal.SocketOperation.Read, false);
-
-        if(!_stream.isConnected())
+        if(!_isConnected)
         {
-            return _stream.read(buf);
+            return _delegate.read(buf);
         }
+
+        _readyCallback.ready(IceInternal.SocketOperation.Read, false);
 
         //
         // Try to satisfy the request from data we've already decrypted.
@@ -167,9 +188,9 @@ final class TransceiverI implements IceInternal.Transceiver, IceInternal.WSTrans
         {
             while(buf.b.hasRemaining())
             {
-                _netInput.flip();
-                SSLEngineResult result = _engine.unwrap(_netInput, _appInput);
-                _netInput.compact();
+                _netInput.b.flip();
+                SSLEngineResult result = _engine.unwrap(_netInput.b, _appInput);
+                _netInput.b.compact();
 
                 Status status = result.getStatus();
                 assert status != Status.BUFFER_OVERFLOW;
@@ -180,11 +201,12 @@ final class TransceiverI implements IceInternal.Transceiver, IceInternal.WSTrans
                 }
                 // Android API 21 SSLEngine doesn't report underflow, so look at the absence of
                 // network data and application data to signal a network read.
-                else if(status == Status.BUFFER_UNDERFLOW || (_appInput.position() == 0 && _netInput.position() == 0))
+                else if(status == Status.BUFFER_UNDERFLOW || (_appInput.position() == 0 && _netInput.b.position() == 0))
                 {
-                    if(_stream.read(_netInput) == 0)
+                    int s = _delegate.read(_netInput);
+                    if(s != IceInternal.SocketOperation.None && _netInput.b.position() == 0)
                     {
-                        return IceInternal.SocketOperation.Read;
+                        return s;
                     }
                     continue;
                 }
@@ -196,9 +218,9 @@ final class TransceiverI implements IceInternal.Transceiver, IceInternal.WSTrans
             // that the SSLEngine has no buffered data (Android R21 and greater only).
             if(_appInput.position() == 0)
             {
-                _netInput.flip();
-                _engine.unwrap(_netInput, _appInput);
-                _netInput.compact();
+                _netInput.b.flip();
+                _engine.unwrap(_netInput.b, _appInput);
+                _netInput.b.compact();
 
                 // Don't check the status here since we may have already filled
                 // the buffer with a complete request which must be processed.
@@ -212,7 +234,7 @@ final class TransceiverI implements IceInternal.Transceiver, IceInternal.WSTrans
         //
         // Indicate whether more data is available.
         //
-        if(_netInput.position() > 0 || _appInput.position() > 0)
+        if(_netInput.b.position() > 0 || _appInput.position() > 0)
         {
             _readyCallback.ready(IceInternal.SocketOperation.Read, true);
         }
@@ -223,13 +245,13 @@ final class TransceiverI implements IceInternal.Transceiver, IceInternal.WSTrans
     @Override
     public String protocol()
     {
-        return _instance.protocol();
+        return _delegate.protocol();
     }
 
     @Override
     public String toString()
     {
-        return _stream.toString();
+        return _delegate.toString();
     }
 
     @Override
@@ -242,81 +264,11 @@ final class TransceiverI implements IceInternal.Transceiver, IceInternal.WSTrans
     public Ice.ConnectionInfo getInfo()
     {
         NativeConnectionInfo info = new NativeConnectionInfo();
-        info.nativeCerts = fillConnectionInfo(info);
-        return info;
-    }
-
-    @Override
-    public Ice.ConnectionInfo getWSInfo(java.util.Map<String, String> headers)
-    {
-        WSSNativeConnectionInfo info = new WSSNativeConnectionInfo();
-        info.nativeCerts = fillConnectionInfo(info);
-        info.headers = headers; // Provided header is a copy so no need to clone here.
-        return info;
-    }
-
-    @Override
-    public void setBufferSize(int rcvSize, int sndSize)
-    {
-        _stream.setBufferSize(rcvSize, sndSize);
-    }
-
-    @Override
-    public void checkSendSize(IceInternal.Buffer buf)
-    {
-    }
-
-    TransceiverI(Instance instance, javax.net.ssl.SSLEngine engine, IceInternal.StreamSocket stream, String hostOrAdapterName,
-                 boolean incoming)
-    {
-        _instance = instance;
-        _engine = engine;
-        _appInput = ByteBuffer.allocateDirect(engine.getSession().getApplicationBufferSize() * 2);
-        _netInput = ByteBuffer.allocateDirect(engine.getSession().getPacketBufferSize() * 2);
-        _netOutput = ByteBuffer.allocateDirect(engine.getSession().getPacketBufferSize() * 2);
-        _stream = stream;
-        _incoming = incoming;
-        if(_incoming)
+        info.underlying = _delegate.getInfo();
+        info.incoming = _incoming;
+        info.adapterName = _adapterName;
+        if(_engine != null)
         {
-            _adapterName = hostOrAdapterName;
-        }
-        else
-        {
-            _host = hostOrAdapterName;
-        }
-    }
-
-    private java.security.cert.Certificate[] fillConnectionInfo(ConnectionInfo info)
-    {
-        //
-        // This can only be called on an open transceiver.
-        //
-        java.security.cert.Certificate[] nativeCerts = null;
-        if(_stream.fd() != null)
-        {
-            java.net.Socket socket = _stream.fd().socket();
-            //
-            // On some platforms (e.g., early Android releases), sockets don't
-            // correctly return address information.
-            //
-            if(socket.getLocalAddress() != null)
-            {
-                info.localAddress = socket.getLocalAddress().getHostAddress();
-                info.localPort = socket.getLocalPort();
-            }
-
-            if(socket.getInetAddress() != null)
-            {
-                info.remoteAddress = socket.getInetAddress().getHostAddress();
-                info.remotePort = socket.getPort();
-            }
-
-            if(!socket.isClosed())
-            {
-                info.rcvSize = IceInternal.Network.getRecvBufferSize(_stream.fd());
-                info.sndSize = IceInternal.Network.getSendBufferSize(_stream.fd());
-            }
-
             SSLSession session = _engine.getSession();
             info.cipher = session.getCipherSuite();
             try
@@ -324,9 +276,9 @@ final class TransceiverI implements IceInternal.Transceiver, IceInternal.WSTrans
                 java.security.cert.Certificate[] pcerts = session.getPeerCertificates();
                 java.security.cert.Certificate[] vcerts = _instance.engine().getVerifiedCertificateChain(pcerts);
                 info.verified = vcerts != null;
-                nativeCerts = vcerts != null ? vcerts : pcerts;
+                info.nativeCerts = vcerts != null ? vcerts : pcerts;
                 java.util.ArrayList<String> certs = new java.util.ArrayList<String>();
-                for(java.security.cert.Certificate c : nativeCerts)
+                for(java.security.cert.Certificate c : info.nativeCerts)
                 {
                     StringBuilder s = new StringBuilder("-----BEGIN CERTIFICATE-----\n");
                     s.append(IceUtilInternal.Base64.encode(c.getEncoded()));
@@ -343,9 +295,34 @@ final class TransceiverI implements IceInternal.Transceiver, IceInternal.WSTrans
             {
             }
         }
-        info.adapterName = _adapterName;
-        info.incoming = _incoming;
-        return nativeCerts;
+        return info;
+    }
+
+    @Override
+    public void setBufferSize(int rcvSize, int sndSize)
+    {
+        _delegate.setBufferSize(rcvSize, sndSize);
+    }
+
+    @Override
+    public void checkSendSize(IceInternal.Buffer buf)
+    {
+        _delegate.checkSendSize(buf);
+    }
+
+    TransceiverI(Instance instance, IceInternal.Transceiver delegate, String hostOrAdapterName, boolean incoming)
+    {
+        _instance = instance;
+        _delegate = delegate;
+        _incoming = incoming;
+        if(_incoming)
+        {
+            _adapterName = hostOrAdapterName;
+        }
+        else
+        {
+            _host = hostOrAdapterName;
+        }
     }
 
     private int handshakeNonBlocking()
@@ -375,9 +352,13 @@ final class TransceiverI implements IceInternal.Transceiver, IceInternal.WSTrans
                 }
                 case NEED_UNWRAP:
                 {
-                    if(_netInput.position() == 0 && _stream.read(_netInput) == 0)
+                    if(_netInput.b.position() == 0)
                     {
-                        return IceInternal.SocketOperation.Read;
+                        int s = _delegate.read(_netInput);
+                        if(s != IceInternal.SocketOperation.None && _netInput.b.position() == 0)
+                        {
+                            return s;
+                        }
                     }
 
                     //
@@ -385,9 +366,9 @@ final class TransceiverI implements IceInternal.Transceiver, IceInternal.WSTrans
                     // the _netInput buffer to satisfy the engine. If not, the engine
                     // responds with BUFFER_UNDERFLOW and we'll read from the socket.
                     //
-                    _netInput.flip();
-                    result = _engine.unwrap(_netInput, _appInput);
-                    _netInput.compact();
+                    _netInput.b.flip();
+                    result = _engine.unwrap(_netInput.b, _appInput);
+                    _netInput.b.compact();
                     //
                     // FINISHED is only returned from wrap or unwrap, not from engine.getHandshakeResult().
                     //
@@ -402,9 +383,11 @@ final class TransceiverI implements IceInternal.Transceiver, IceInternal.WSTrans
                     case BUFFER_UNDERFLOW:
                     {
                         assert(status == javax.net.ssl.SSLEngineResult.HandshakeStatus.NEED_UNWRAP);
-                        if(_stream.read(_netInput) == 0)
+                        int position = _netInput.b.position();
+                        int s = _delegate.read(_netInput);
+                        if(s != IceInternal.SocketOperation.None && _netInput.b.position() == position)
                         {
-                            return IceInternal.SocketOperation.Read;
+                            return s;
                         }
                         break;
                     }
@@ -424,10 +407,14 @@ final class TransceiverI implements IceInternal.Transceiver, IceInternal.WSTrans
                     //
                     // The engine needs to send a message.
                     //
-                    result = _engine.wrap(_emptyBuffer, _netOutput);
-                    if(result.bytesProduced() > 0 && !flushNonBlocking())
+                    result = _engine.wrap(_emptyBuffer, _netOutput.b);
+                    if(result.bytesProduced() > 0)
                     {
-                        return IceInternal.SocketOperation.Write;
+                        int s = flushNonBlocking();
+                        if(s != IceInternal.SocketOperation.None)
+                        {
+                            return s;
+                        }
                     }
 
                     //
@@ -473,19 +460,19 @@ final class TransceiverI implements IceInternal.Transceiver, IceInternal.WSTrans
         //
         try
         {
-            while(buf.hasRemaining() || _netOutput.position() > 0)
+            while(buf.hasRemaining() || _netOutput.b.position() > 0)
             {
                 if(buf.hasRemaining())
                 {
                     //
                     // Encrypt the buffer.
                     //
-                    SSLEngineResult result = _engine.wrap(buf, _netOutput);
+                    SSLEngineResult result = _engine.wrap(buf, _netOutput.b);
                     switch(result.getStatus())
                     {
                     case BUFFER_OVERFLOW:
                         //
-                        // Need to make room in _netOutput.
+                        // Need to make room in _netOutput.b.
                         //
                         break;
                     case BUFFER_UNDERFLOW:
@@ -503,9 +490,13 @@ final class TransceiverI implements IceInternal.Transceiver, IceInternal.WSTrans
                 // all of _netOutput, or until flushNonBlocking indicates that it cannot write
                 // (i.e., by returning SocketOperation.Write).
                 //
-                if(_netOutput.position() > 0 && !flushNonBlocking())
+                if(_netOutput.b.position() > 0)
                 {
-                    return IceInternal.SocketOperation.Write;
+                    int s = flushNonBlocking();
+                    if(s != IceInternal.SocketOperation.None)
+                    {
+                        return s;
+                    }
                 }
             }
         }
@@ -514,33 +505,29 @@ final class TransceiverI implements IceInternal.Transceiver, IceInternal.WSTrans
             throw new Ice.SecurityException("IceSSL: error while encoding message", ex);
         }
 
-        assert(_netOutput.position() == 0);
+        assert(_netOutput.b.position() == 0);
         return IceInternal.SocketOperation.None;
     }
 
-    private boolean flushNonBlocking()
+    private int flushNonBlocking()
     {
-        _netOutput.flip();
+        _netOutput.b.flip();
 
         try
         {
-            _stream.write(_netOutput);
+            int s = _delegate.write(_netOutput);
+            if(s != IceInternal.SocketOperation.None)
+            {
+                _netOutput.b.compact();
+                return s;
+            }
         }
         catch(Ice.SocketException ex)
         {
             throw new Ice.ConnectionLostException(ex);
         }
-
-        if(_netOutput.hasRemaining())
-        {
-            _netOutput.compact();
-            return false;
-        }
-        else
-        {
-            _netOutput.clear();
-            return true;
-        }
+        _netOutput.b.clear();
+        return IceInternal.SocketOperation.None;
     }
 
     private void fill(ByteBuffer buf)
@@ -586,15 +573,16 @@ final class TransceiverI implements IceInternal.Transceiver, IceInternal.WSTrans
     }
 
     private Instance _instance;
-    private IceInternal.StreamSocket _stream;
+    private IceInternal.Transceiver _delegate;
     private javax.net.ssl.SSLEngine _engine;
     private String _host = "";
     private String _adapterName = "";
     private boolean _incoming;
     private IceInternal.ReadyCallback _readyCallback;
+    private boolean _isConnected = false;
 
     private ByteBuffer _appInput; // Holds clear-text data to be read by the application.
-    private ByteBuffer _netInput; // Holds encrypted data read from the socket.
-    private ByteBuffer _netOutput; // Holds encrypted data to be written to the socket.
+    private IceInternal.Buffer _netInput; // Holds encrypted data read from the socket.
+    private IceInternal.Buffer _netOutput; // Holds encrypted data to be written to the socket.
     private static ByteBuffer _emptyBuffer = ByteBuffer.allocate(0); // Used during handshaking.
 }

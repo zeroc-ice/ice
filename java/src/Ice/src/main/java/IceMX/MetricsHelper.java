@@ -67,7 +67,7 @@ public class MetricsHelper<T>
         }
 
         public void
-        add(String name, final java.lang.reflect.Method method)
+        add(final String name, final java.lang.reflect.Method method)
         {
             _attributes.put(name, new Resolver()
                 {
@@ -81,7 +81,7 @@ public class MetricsHelper<T>
         }
 
         public void
-        add(String name, final java.lang.reflect.Field field)
+        add(final String name, final java.lang.reflect.Field field)
         {
             _attributes.put(name, new Resolver()
                 {
@@ -89,7 +89,7 @@ public class MetricsHelper<T>
                     public Object
                     resolve(Object obj) throws Exception
                     {
-                        return field.get(obj);
+                        return getField(name, field, obj);
                     }
                 });
         }
@@ -103,12 +103,7 @@ public class MetricsHelper<T>
                     public Object
                     resolve(Object obj) throws Exception
                     {
-                        Object o = method.invoke(obj);
-                        if(o != null)
-                        {
-                            return field.get(o);
-                        }
-                        throw new IllegalArgumentException(name);
+                        return getField(name, field, method.invoke(obj));
                     }
                 });
         }
@@ -130,6 +125,36 @@ public class MetricsHelper<T>
                         throw new IllegalArgumentException(name);
                     }
                 });
+        }
+
+        private Object getField(String name, java.lang.reflect.Field field, Object o)
+            throws IllegalArgumentException, IllegalAccessException
+        {
+            while(o != null)
+            {
+                try
+                {
+                    return field.get(o);
+                }
+                catch(IllegalArgumentException ex)
+                {
+                    // If we're dealing with an endpoint/connection information class,
+                    // check if the field is from the underlying info objects.
+                    if(o instanceof Ice.EndpointInfo)
+                    {
+                        o = ((Ice.EndpointInfo)o).underlying;
+                    }
+                    else if(o instanceof Ice.ConnectionInfo)
+                    {
+                        o = ((Ice.ConnectionInfo)o).underlying;
+                    }
+                    else
+                    {
+                        throw ex;
+                    }
+                }
+            }
+            throw new IllegalArgumentException(name);
         }
 
         private java.util.Map<String, Resolver> _attributes = new java.util.HashMap<String, Resolver>();

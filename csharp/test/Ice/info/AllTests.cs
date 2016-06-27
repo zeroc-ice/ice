@@ -13,6 +13,30 @@ using Test;
 
 public class AllTests : TestCommon.TestApp
 {
+    private static Ice.TCPEndpointInfo getTCPEndpointInfo(Ice.EndpointInfo info)
+    {
+        for(; info != null; info = info.underlying)
+        {
+            if(info is Ice.TCPEndpointInfo)
+            {
+                return info as Ice.TCPEndpointInfo;
+            }
+        }
+        return null;
+    }
+
+    private static Ice.TCPConnectionInfo getTCPConnectionInfo(Ice.ConnectionInfo info)
+    {
+        for(; info != null; info = info.underlying)
+        {
+            if(info is Ice.TCPConnectionInfo)
+            {
+                return info as Ice.TCPConnectionInfo;
+            }
+        }
+        return null;
+    }
+
     public static void allTests(Ice.Communicator communicator)
     {
         Write("testing proxy endpoint information... ");
@@ -25,24 +49,23 @@ public class AllTests : TestCommon.TestApp
 
             Ice.Endpoint[] endps = p1.ice_getEndpoints();
 
+            Ice.EndpointInfo info = endps[0].getInfo();
+            Ice.TCPEndpointInfo tcpEndpoint = getTCPEndpointInfo(info);
+            test(tcpEndpoint.host.Equals("tcphost"));
+            test(tcpEndpoint.port == 10000);
+            test(tcpEndpoint.sourceAddress.Equals("10.10.10.10"));
+            test(tcpEndpoint.timeout == 1200);
+            test(tcpEndpoint.compress);
+            test(!tcpEndpoint.datagram());
 
-            Ice.IPEndpointInfo ipEndpoint = (Ice.IPEndpointInfo)endps[0].getInfo();
-            test(ipEndpoint.host.Equals("tcphost"));
-            test(ipEndpoint.port == 10000);
-            test(ipEndpoint.sourceAddress.Equals("10.10.10.10"));
-            test(ipEndpoint.timeout == 1200);
-            test(ipEndpoint.compress);
-            test(!ipEndpoint.datagram());
-
-
-            test(ipEndpoint.type() == Ice.TCPEndpointType.value && !ipEndpoint.secure() ||
-                 ipEndpoint.type() == IceSSL.EndpointType.value && ipEndpoint.secure() ||
-                 ipEndpoint.type() == Ice.WSEndpointType.value && !ipEndpoint.secure() ||
-                 ipEndpoint.type() == Ice.WSSEndpointType.value && ipEndpoint.secure());
-            test(ipEndpoint.type() == Ice.TCPEndpointType.value && ipEndpoint is Ice.TCPEndpointInfo ||
-                 ipEndpoint.type() == IceSSL.EndpointType.value && ipEndpoint is IceSSL.EndpointInfo ||
-                 ipEndpoint.type() == Ice.WSEndpointType.value && ipEndpoint is Ice.WSEndpointInfo ||
-                 ipEndpoint.type() == Ice.WSSEndpointType.value && ipEndpoint is IceSSL.WSSEndpointInfo);
+            test(tcpEndpoint.type() == Ice.TCPEndpointType.value && !tcpEndpoint.secure() ||
+                 tcpEndpoint.type() == Ice.SSLEndpointType.value && tcpEndpoint.secure() ||
+                 tcpEndpoint.type() == Ice.WSEndpointType.value && !tcpEndpoint.secure() ||
+                 tcpEndpoint.type() == Ice.WSSEndpointType.value && tcpEndpoint.secure());
+            test(tcpEndpoint.type() == Ice.TCPEndpointType.value && info is Ice.TCPEndpointInfo ||
+                 tcpEndpoint.type() == Ice.SSLEndpointType.value && info is IceSSL.EndpointInfo ||
+                 tcpEndpoint.type() == Ice.WSEndpointType.value && info is Ice.WSEndpointInfo ||
+                 tcpEndpoint.type() == Ice.WSSEndpointType.value && info is Ice.WSEndpointInfo);
 
             Ice.UDPEndpointInfo udpEndpoint = (Ice.UDPEndpointInfo)endps[1].getInfo();
             test(udpEndpoint.host.Equals("udphost"));
@@ -75,13 +98,13 @@ public class AllTests : TestCommon.TestApp
             Ice.Endpoint[] publishedEndpoints = adapter.getPublishedEndpoints();
             test(IceUtilInternal.Arrays.Equals(endpoints, publishedEndpoints));
 
-            Ice.IPEndpointInfo ipEndpoint = (Ice.IPEndpointInfo)endpoints[0].getInfo();
-            test(ipEndpoint.type() == Ice.TCPEndpointType.value || ipEndpoint.type() == IceSSL.EndpointType.value ||
-                 ipEndpoint.type() == Ice.WSEndpointType.value || ipEndpoint.type() == Ice.WSSEndpointType.value);
+            Ice.TCPEndpointInfo tcpEndpoint = getTCPEndpointInfo(endpoints[0].getInfo());
+            test(tcpEndpoint.type() == Ice.TCPEndpointType.value || tcpEndpoint.type() == Ice.SSLEndpointType.value ||
+                 tcpEndpoint.type() == Ice.WSEndpointType.value || tcpEndpoint.type() == Ice.WSSEndpointType.value);
 
-            test(ipEndpoint.host.Equals(defaultHost));
-            test(ipEndpoint.port > 0);
-            test(ipEndpoint.timeout == 15000);
+            test(tcpEndpoint.host.Equals(defaultHost));
+            test(tcpEndpoint.port > 0);
+            test(tcpEndpoint.timeout == 15000);
 
             Ice.UDPEndpointInfo udpEndpoint = (Ice.UDPEndpointInfo)endpoints[1].getInfo();
             test(udpEndpoint.host.Equals(defaultHost));
@@ -101,13 +124,13 @@ public class AllTests : TestCommon.TestApp
 
             foreach(Ice.Endpoint endpoint in endpoints)
             {
-                ipEndpoint = (Ice.IPEndpointInfo)endpoint.getInfo();
-                test(ipEndpoint.port == 12020);
+                tcpEndpoint = getTCPEndpointInfo(endpoint.getInfo());
+                test(tcpEndpoint.port == 12020);
             }
 
-            ipEndpoint = (Ice.IPEndpointInfo)publishedEndpoints[0].getInfo();
-            test(ipEndpoint.host.Equals("127.0.0.1"));
-            test(ipEndpoint.port == 12020);
+            tcpEndpoint = getTCPEndpointInfo(publishedEndpoints[0].getInfo());
+            test(tcpEndpoint.host.Equals("127.0.0.1"));
+            test(tcpEndpoint.port == 12020);
 
             adapter.destroy();
         }
@@ -120,13 +143,13 @@ public class AllTests : TestCommon.TestApp
         Flush();
         {
             Ice.EndpointInfo info = @base.ice_getConnection().getEndpoint().getInfo();
-            Ice.IPEndpointInfo ipinfo = (Ice.IPEndpointInfo)info;
-            test(ipinfo.port == 12010);
-            test(!ipinfo.compress);
-            test(ipinfo.host.Equals(defaultHost));
+            Ice.TCPEndpointInfo tcpinfo = getTCPEndpointInfo(info);
+            test(tcpinfo.port == 12010);
+            test(!tcpinfo.compress);
+            test(tcpinfo.host.Equals(defaultHost));
 
             Dictionary<string, string> ctx = testIntf.getEndpointInfoAsContext();
-            test(ctx["host"].Equals(ipinfo.host));
+            test(ctx["host"].Equals(tcpinfo.host));
             test(ctx["compress"].Equals("false"));
             int port = System.Int32.Parse(ctx["port"]);
             test(port > 0);
@@ -144,38 +167,31 @@ public class AllTests : TestCommon.TestApp
             Ice.Connection connection = @base.ice_getConnection();
             connection.setBufferSize(1024, 2048);
 
-            Ice.IPConnectionInfo info = (Ice.IPConnectionInfo)connection.getInfo();
+            Ice.ConnectionInfo info = connection.getInfo();
+            Ice.TCPConnectionInfo ipInfo = getTCPConnectionInfo(info);
             test(!info.incoming);
             test(info.adapterName.Length == 0);
-            test(info.remotePort == 12010);
-            test(info.localPort > 0);
+            test(ipInfo.remotePort == 12010);
+            test(ipInfo.localPort > 0);
             if(defaultHost.Equals("127.0.0.1"))
             {
-                test(info.localAddress.Equals(defaultHost));
-                test(info.remoteAddress.Equals(defaultHost));
+                test(ipInfo.localAddress.Equals(defaultHost));
+                test(ipInfo.remoteAddress.Equals(defaultHost));
             }
-            test(info.rcvSize >= 1024);
-            test(info.sndSize >= 2048);
+            test(ipInfo.rcvSize >= 1024);
+            test(ipInfo.sndSize >= 2048);
 
             Dictionary<string, string> ctx = testIntf.getConnectionInfoAsContext();
             test(ctx["incoming"].Equals("true"));
             test(ctx["adapterName"].Equals("TestAdapter"));
-            test(ctx["remoteAddress"].Equals(info.localAddress));
-            test(ctx["localAddress"].Equals(info.remoteAddress));
-            test(ctx["remotePort"].Equals(info.localPort.ToString()));
-            test(ctx["localPort"].Equals(info.remotePort.ToString()));
+            test(ctx["remoteAddress"].Equals(ipInfo.localAddress));
+            test(ctx["localAddress"].Equals(ipInfo.remoteAddress));
+            test(ctx["remotePort"].Equals(ipInfo.localPort.ToString()));
+            test(ctx["localPort"].Equals(ipInfo.remotePort.ToString()));
 
             if(@base.ice_getConnection().type().Equals("ws") || @base.ice_getConnection().type().Equals("wss"))
             {
-                Dictionary<string, string> headers;
-                if(info is Ice.WSConnectionInfo)
-                {
-                    headers = ((Ice.WSConnectionInfo)info).headers;
-                }
-                else
-                {
-                    headers = ((IceSSL.WSSConnectionInfo)info).headers;
-                }
+                Dictionary<string, string> headers = ((Ice.WSConnectionInfo)info).headers;
                 test(headers["Upgrade"].Equals("websocket"));
                 test(headers["Connection"].Equals("Upgrade"));
                 test(headers["Sec-WebSocket-Protocol"].Equals("ice.zeroc.com"));
@@ -191,19 +207,19 @@ public class AllTests : TestCommon.TestApp
             connection = @base.ice_datagram().ice_getConnection();
             connection.setBufferSize(2048, 1024);
 
-            info = (Ice.IPConnectionInfo)connection.getInfo();
-            test(!info.incoming);
-            test(info.adapterName.Length == 0);
-            test(info.localPort > 0);
-            test(info.remotePort == 12010);
+            Ice.UDPConnectionInfo udpInfo = (Ice.UDPConnectionInfo)connection.getInfo();
+            test(!udpInfo.incoming);
+            test(udpInfo.adapterName.Length == 0);
+            test(udpInfo.localPort > 0);
+            test(udpInfo.remotePort == 12010);
 
             if(defaultHost.Equals("127.0.0.1"))
             {
-                test(info.remoteAddress.Equals(defaultHost));
-                test(info.localAddress.Equals(defaultHost));
+                test(udpInfo.remoteAddress.Equals(defaultHost));
+                test(udpInfo.localAddress.Equals(defaultHost));
             }
-            test(info.rcvSize >= 2048);
-            test(info.sndSize >= 1024);
+            test(udpInfo.rcvSize >= 2048);
+            test(udpInfo.sndSize >= 1024);
         }
         WriteLine("ok");
 

@@ -74,7 +74,7 @@ tests = [
     ("Ice/plugin", ["core", "nomingw"]),
     ("Ice/hash", ["once"]),
     ("Ice/admin", ["core", "noipv6"]),
-    ("Ice/metrics", ["core", "nossl", "nows", "noipv6", "nocompress", "nomingw", "nosocks"]),
+    ("Ice/metrics", ["core", "nows", "noipv6", "nocompress", "nomingw", "nosocks"]),
     ("Ice/enums", ["once", "bt"]),
     ("Ice/logger", ["once"]),
     ("Ice/networkProxy", ["core", "noipv6", "nosocks"]),

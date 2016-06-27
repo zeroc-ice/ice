@@ -208,7 +208,7 @@ getSecBufferWithType(const SecBufferDesc& desc, ULONG bufferType)
 IceInternal::NativeInfoPtr
 IceSSL::TransceiverI::getNativeInfo()
 {
-    return _stream;
+    return _delegate->getNativeInfo();
 }
 
 IceInternal::SocketOperation
@@ -624,13 +624,17 @@ IceSSL::TransceiverI::encryptMessage(IceInternal::Buffer& buffer)
 IceInternal::SocketOperation
 IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::Buffer& writeBuffer)
 {
-    IceInternal::SocketOperation op = _stream->connect(readBuffer, writeBuffer);
-    if(op != IceInternal::SocketOperationNone)
+    if(_state == StateNotInitialized)
     {
-        return op;
+        IceInternal::SocketOperation op = _delegate->initialize(readBuffer, writeBuffer);
+        if(op != IceInternal::SocketOperationNone)
+        {
+            return op;
+        }
+        _state = StateHandshakeNotStarted;
     }
 
-    op = sslHandshake();
+    IceInternal::SocketOperation op = sslHandshake();
     if(op != IceInternal::SocketOperationNone)
     {
         return op;
@@ -715,7 +719,7 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
         }
     }
 
-    _engine->verifyPeer(_stream->fd(), _host, ICE_DYNAMIC_CAST(NativeConnectionInfo, getInfo()));
+    _engine->verifyPeer(_host, ICE_DYNAMIC_CAST(NativeConnectionInfo, getInfo()), toString());
     _state = StateHandshakeComplete;
 
     if(_instance->engine()->securityTraceLevel() >= 1)
@@ -746,8 +750,8 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
         }
         out << toString();
     }
-    _stream->ready(IceInternal::SocketOperationRead,
-                   !_readUnprocessed.b.empty() || _readBuffer.i != _readBuffer.b.begin());
+    _delegate->getNativeInfo()->ready(IceInternal::SocketOperationRead,
+                                      !_readUnprocessed.b.empty() || _readBuffer.i != _readBuffer.b.begin());
     return IceInternal::SocketOperationNone;
 }
 
@@ -778,7 +782,7 @@ IceSSL::TransceiverI::close()
         _credentialsInitialized = false;
     }
 
-    _stream->close();
+    _delegate->close();
 
     //
     // Clear the buffers now instead of waiting for destruction.
@@ -791,9 +795,9 @@ IceSSL::TransceiverI::close()
 IceInternal::SocketOperation
 IceSSL::TransceiverI::write(IceInternal::Buffer& buf)
 {
-    if(!_stream->isConnected())
+    if(_state == StateNotInitialized)
     {
-        return _stream->write(buf);
+        return _delegate->write(buf);
     }
 
     if(buf.i == buf.b.end())
@@ -826,9 +830,9 @@ IceSSL::TransceiverI::write(IceInternal::Buffer& buf)
 IceInternal::SocketOperation
 IceSSL::TransceiverI::read(IceInternal::Buffer& buf)
 {
-    if(!_stream->isConnected())
+    if(_state == StateNotInitialized)
     {
-        return _stream->read(buf);
+        return _delegate->read(buf);
     }
 
     if(buf.i == buf.b.end())
@@ -837,7 +841,7 @@ IceSSL::TransceiverI::read(IceInternal::Buffer& buf)
     }
     assert(_state == StateHandshakeComplete);
 
-    _stream->ready(IceInternal::SocketOperationRead, false);
+    _delegate->getNativeInfo()->ready(IceInternal::SocketOperationRead, false);
     while(buf.i != buf.b.end())
     {
         if(_readUnprocessed.b.empty() && _readBuffer.i == _readBuffer.b.begin() && !readRaw(_readBuffer))
@@ -857,8 +861,8 @@ IceSSL::TransceiverI::read(IceInternal::Buffer& buf)
 
         buf.i += decrypted;
     }
-    _stream->ready(IceInternal::SocketOperationRead,
-                   !_readUnprocessed.b.empty() || _readBuffer.i != _readBuffer.b.begin());
+    _delegate->getNativeInfo()->ready(IceInternal::SocketOperationRead,
+                                      !_readUnprocessed.b.empty() || _readBuffer.i != _readBuffer.b.begin());
     return IceInternal::SocketOperationNone;
 }
 
@@ -867,9 +871,9 @@ IceSSL::TransceiverI::read(IceInternal::Buffer& buf)
 bool
 IceSSL::TransceiverI::startWrite(IceInternal::Buffer& buffer)
 {
-    if(!_stream->isConnected())
+    if(_state == StateNotInitialized)
     {
-        return _stream->startWrite(buffer);
+        return _delegate->startWrite(buffer);
     }
 
     if(_state == StateHandshakeComplete && _bufferedW == 0)
@@ -878,19 +882,19 @@ IceSSL::TransceiverI::startWrite(IceInternal::Buffer& buffer)
         _bufferedW = encryptMessage(buffer);
     }
 
-    return _stream->startWrite(_writeBuffer);
+    return _delegate->startWrite(_writeBuffer) && _bufferedW == (buffer.b.end() - buffer.i);
 }
 
 void
 IceSSL::TransceiverI::finishWrite(IceInternal::Buffer& buf)
 {
-    if(!_stream->isConnected())
+    if(_state == StateNotInitialized)
     {
-        _stream->finishWrite(buf);
+        _delegate->finishWrite(buf);
         return;
     }
 
-    _stream->finishWrite(_writeBuffer);
+    _delegate->finishWrite(_writeBuffer);
     if(_writeBuffer.i != _writeBuffer.b.end())
     {
         return; // We're not finished yet with writing the write buffer.
@@ -906,36 +910,36 @@ IceSSL::TransceiverI::finishWrite(IceInternal::Buffer& buf)
 void
 IceSSL::TransceiverI::startRead(IceInternal::Buffer& buffer)
 {
-    if(!_stream->isConnected())
+    if(_state == StateNotInitialized)
     {
-        _stream->startRead(buffer);
+        _delegate->startRead(buffer);
         return;
     }
-    _stream->startRead(_readBuffer);
+    _delegate->startRead(_readBuffer);
 }
 
 void
 IceSSL::TransceiverI::finishRead(IceInternal::Buffer& buf)
 {
-    if(!_stream->isConnected())
+    if(_state == StateNotInitialized)
     {
-        _stream->finishRead(buf);
+        _delegate->finishRead(buf);
         return;
     }
 
-    _stream->finishRead(_readBuffer);
+    _delegate->finishRead(_readBuffer);
     if(_state == StateHandshakeComplete)
     {
         size_t decrypted = decryptMessage(buf);
         if(decrypted > 0)
         {
             buf.i += decrypted;
-            _stream->ready(IceInternal::SocketOperationRead,
-                           !_readUnprocessed.b.empty() || _readBuffer.i != _readBuffer.b.begin());
+            _delegate->getNativeInfo()->ready(IceInternal::SocketOperationRead,
+                                              !_readUnprocessed.b.empty() || _readBuffer.i != _readBuffer.b.begin());
         }
         else
         {
-            _stream->ready(IceInternal::SocketOperationRead, false);
+            _delegate->getNativeInfo()->ready(IceInternal::SocketOperationRead, false);
         }
     }
 }
@@ -950,7 +954,7 @@ IceSSL::TransceiverI::protocol() const
 string
 IceSSL::TransceiverI::toString() const
 {
-    return _stream->toString();
+    return _delegate->toString();
 }
 
 string
@@ -963,65 +967,10 @@ Ice::ConnectionInfoPtr
 IceSSL::TransceiverI::getInfo() const
 {
     NativeConnectionInfoPtr info = ICE_MAKE_SHARED(NativeConnectionInfo);
-    fillConnectionInfo(info, info->nativeCerts);
-    return info;
-}
-
-Ice::ConnectionInfoPtr
-IceSSL::TransceiverI::getWSInfo(const Ice::HeaderDict& headers) const
-{
-    WSSNativeConnectionInfoPtr info = ICE_MAKE_SHARED(WSSNativeConnectionInfo);
-    fillConnectionInfo(info, info->nativeCerts);
-    info->headers = headers;
-    return info;
-}
-
-void
-IceSSL::TransceiverI::checkSendSize(const IceInternal::Buffer&)
-{
-}
-
-void
-IceSSL::TransceiverI::setBufferSize(int rcvSize, int sndSize)
-{
-    _stream->setBufferSize(rcvSize, sndSize);
-}
-
-IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance,
-                                   const IceInternal::StreamSocketPtr& stream,
-                                   const string& hostOrAdapterName,
-                                   bool incoming) :
-    _instance(instance),
-    _engine(SChannelEnginePtr::dynamicCast(instance->engine())),
-    _host(incoming ? "" : hostOrAdapterName),
-    _adapterName(incoming ? hostOrAdapterName : ""),
-    _incoming(incoming),
-    _stream(stream),
-    _state(StateHandshakeNotStarted),
-    _bufferedW(0),
-    _sslInitialized(false),
-    _credentialsInitialized(false),
-    _verified(false)
-{
-}
-
-IceSSL::TransceiverI::~TransceiverI()
-{
-}
-
-void
-IceSSL::TransceiverI::fillConnectionInfo(const ConnectionInfoPtr& info, vector<CertificatePtr>& nativeCerts) const
-{
-    IceInternal::fdToAddressAndPort(_stream->fd(), info->localAddress, info->localPort, info->remoteAddress,
-                                    info->remotePort);
-    if(_stream->fd() != INVALID_SOCKET)
-    {
-        info->rcvSize = IceInternal::getRecvBufferSize(_stream->fd());
-        info->sndSize = IceInternal::getSendBufferSize(_stream->fd());
-    }
-
+    info->underlying = _delegate->getInfo();
+    info->incoming = _incoming;
+    info->adapterName = _adapterName;
     info->verified = _verified;
-
     if(_sslInitialized)
     {
         CtxtHandle* ssl = const_cast<CtxtHandle*>(&_ssl);
@@ -1056,7 +1005,7 @@ IceSSL::TransceiverI::fillConnectionInfo(const ConnectionInfoPtr& info, vector<C
                     }
 
                     CertificatePtr certificate = ICE_MAKE_SHARED(Certificate, cc);
-                    nativeCerts.push_back(certificate);
+                    info->nativeCerts.push_back(certificate);
                     info->certs.push_back(certificate->encode());
                 }
                 CertFreeCertificateChain(certChain);
@@ -1080,24 +1029,53 @@ IceSSL::TransceiverI::fillConnectionInfo(const ConnectionInfoPtr& info, vector<C
                                     IceUtilInternal::lastErrorToString());
         }
     }
+    return info;
+}
 
-    info->adapterName = _adapterName;
-    info->incoming = _incoming;
+void
+IceSSL::TransceiverI::checkSendSize(const IceInternal::Buffer&)
+{
+}
+
+void
+IceSSL::TransceiverI::setBufferSize(int rcvSize, int sndSize)
+{
+    _delegate->setBufferSize(rcvSize, sndSize);
+}
+
+IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance,
+                                   const IceInternal::TransceiverPtr& delegate,
+                                   const string& hostOrAdapterName,
+                                   bool incoming) :
+    _instance(instance),
+    _engine(SChannelEnginePtr::dynamicCast(instance->engine())),
+    _host(incoming ? "" : hostOrAdapterName),
+    _adapterName(incoming ? hostOrAdapterName : ""),
+    _incoming(incoming),
+    _delegate(delegate),
+    _state(StateNotInitialized),
+    _bufferedW(0),
+    _sslInitialized(false),
+    _credentialsInitialized(false),
+    _verified(false)
+{
+}
+IceSSL::TransceiverI::~TransceiverI()
+{
 }
 
 bool
 IceSSL::TransceiverI::writeRaw(IceInternal::Buffer& buf)
 {
-    ssize_t ret = _stream->write(reinterpret_cast<const char*>(&*buf.i), buf.b.end() - buf.i);
-    buf.i += ret;
+    _delegate->write(buf);
     return buf.i == buf.b.end();
 }
 
 bool
 IceSSL::TransceiverI::readRaw(IceInternal::Buffer& buf)
 {
-    ssize_t ret = _stream->read(reinterpret_cast<char*>(&*buf.i), buf.b.end() - buf.i);
-    buf.i += ret;
-    return ret > 0;
+    IceInternal::Buffer::Container::iterator p = buf.i;
+    _delegate->read(buf);
+    return buf.i != p;
 }
 #endif

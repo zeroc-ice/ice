@@ -21,8 +21,22 @@ class PluginI implements Plugin
         // in initialize, because the communicator may need to interpret
         // proxies before the plug-in is fully initialized.
         //
-        EndpointFactoryI factory = new EndpointFactoryI(new Instance(_engine, IceSSL.EndpointType.value, "ssl"));
-        facade.addEndpointFactory(factory);
+
+        // SSL based on TCP
+        IceInternal.EndpointFactory tcp = facade.getEndpointFactory(Ice.TCPEndpointType.value);
+        if(tcp != null)
+        {
+            Instance instance = new Instance(_engine, Ice.SSLEndpointType.value, "ssl");
+            facade.addEndpointFactory(new EndpointFactoryI(instance, tcp.clone(instance, null)));
+        }
+
+        // SSL based on Bluetooth
+        IceInternal.EndpointFactory bluetooth = facade.getEndpointFactory(Ice.BTEndpointType.value);
+        if(bluetooth != null)
+        {
+            Instance instance = new Instance(_engine, Ice.BTSEndpointType.value, "bts");
+            facade.addEndpointFactory(new EndpointFactoryI(instance, bluetooth.clone(instance, null)));
+        }
     }
 
     @Override

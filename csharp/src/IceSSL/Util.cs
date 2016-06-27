@@ -28,20 +28,6 @@ namespace IceSSL
         public System.Security.Cryptography.X509Certificates.X509Certificate2[] nativeCerts;
     }
 
-    /// <summary>
-    /// This class provides information about a connection to applications
-    /// that require information about a peer.
-    /// </summary>
-    public sealed class WSSNativeConnectionInfo : WSSConnectionInfo
-    {
-        /// <summary>
-        /// The certificate chain. This may be null if the peer did not
-        /// supply a certificate. The peer's certificate (if any) is the
-        /// first one in the chain.
-        /// </summary>
-        public System.Security.Cryptography.X509Certificates.X509Certificate2[] nativeCerts;
-    }
-
     public sealed class Util
     {
         public static X509Certificate2 createCertificate(string certPEM)

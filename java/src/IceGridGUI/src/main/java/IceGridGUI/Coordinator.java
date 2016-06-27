@@ -1498,32 +1498,45 @@ public class Coordinator
                     validDate = false;
                 }
 
+                String remoteAddress = null;
+                for(Ice.ConnectionInfo p = info.underlying; p != null; p = p.underlying)
+                {
+                    if(p instanceof Ice.IPConnectionInfo)
+                    {
+                        remoteAddress = ((Ice.IPConnectionInfo)p).remoteAddress;
+                        break;
+                    }
+                }
+
                 //
                 // Check server alternate names match the connection remote address
                 //
-                try
+                if(remoteAddress != null)
                 {
-                    Collection<java.util.List<?>> altNames = cert.getSubjectAlternativeNames();
-                    if(altNames != null)
+                    try
                     {
-                        for(java.util.List<?> l : altNames)
+                        Collection<java.util.List<?>> altNames = cert.getSubjectAlternativeNames();
+                        if(altNames != null)
                         {
-                            Integer kind = (Integer)l.get(0);
-                            if(kind != 2 && kind != 7)
+                            for(java.util.List<?> l : altNames)
                             {
-                                continue;
-                            }
-                            if(info.remoteAddress.equalsIgnoreCase(l.get(1).toString()))
-                            {
-                                validAlternateName = true;
-                                break;
+                                Integer kind = (Integer)l.get(0);
+                                if(kind != 2 && kind != 7)
+                                {
+                                    continue;
+                                }
+                                if(remoteAddress.equalsIgnoreCase(l.get(1).toString()))
+                                {
+                                    validAlternateName = true;
+                                    break;
+                                }
                             }
                         }
                     }
-                }
-                catch(java.security.cert.CertificateParsingException ex)
-                {
-                    validAlternateName = false;
+                    catch(java.security.cert.CertificateParsingException ex)
+                    {
+                        validAlternateName = false;
+                    }
                 }
 
                 //

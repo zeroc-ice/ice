@@ -70,7 +70,7 @@ tests = [
     ("Ice/hash", ["once"]),
     ("Ice/optional", ["once"]),
     ("Ice/admin", ["core"]),
-    ("Ice/metrics", ["core", "nossl", "nows", "noipv6", "nocompress", "nosocks"]),
+    ("Ice/metrics", ["core", "nows", "noipv6", "nocompress", "nosocks"]),
     ("Ice/enums", ["once"]),
     ("Ice/networkProxy", ["core", "noipv6", "nosocks"]),
     ("IceBox/admin", ["core", "noipv6", "nomx"]),

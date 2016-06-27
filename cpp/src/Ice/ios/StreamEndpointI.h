@@ -37,16 +37,6 @@ public:
     Instance(const Ice::CommunicatorPtr&, Ice::Short, const std::string&, bool);
     virtual ~Instance();
 
-    CFArrayRef certificateAuthorities() const
-    {
-        return _certificateAuthorities;
-    }
-
-    CFDataRef trustOnlyKeyID() const
-    {
-        return _trustOnlyKeyID;
-    }
-
     const std::string& proxyHost() const
     {
         return _proxyHost;
@@ -65,12 +55,7 @@ private:
 
     const bool _voip;
     const Ice::CommunicatorPtr _communicator;
-    CFMutableDictionaryRef _serverSettings;
-    CFMutableDictionaryRef _clientSettings;
     CFMutableDictionaryRef _proxySettings;
-    CFArrayRef _certificateAuthorities;
-    CFDataRef _trustOnlyKeyID;
-
     std::string _proxyHost;
     int _proxyPort;
 };
@@ -86,7 +71,7 @@ typedef ::std::shared_ptr<StreamEndpointI> StreamEndpointIPtr;
 typedef IceUtil::Handle<StreamEndpointI> StreamEndpointIPtr;
 #endif
 
-class StreamEndpointI : public IceInternal::IPEndpointI, public IceInternal::WSEndpointDelegate
+class StreamEndpointI : public IceInternal::IPEndpointI, public Ice::EnableSharedFromThis<StreamEndpointI>
 {
 public:
 
@@ -96,7 +81,6 @@ public:
     StreamEndpointI(const InstancePtr&, Ice::InputStream*);
 
     virtual Ice::EndpointInfoPtr getInfo() const;
-    virtual Ice::EndpointInfoPtr getWSInfo(const std::string&) const;
 
     virtual Ice::Int timeout() const;
     virtual IceInternal::EndpointIPtr timeout(Ice::Int) const;
@@ -121,12 +105,12 @@ public:
     StreamEndpointIPtr endpoint(const StreamAcceptorPtr&) const;
 
     using IPEndpointI::connectionId;
+    using Ice::EnableSharedFromThis<StreamEndpointI>::shared_from_this;
 
 protected:
 
     virtual void streamWriteImpl(Ice::OutputStream*) const;
     virtual void hashInit(Ice::Int&) const;
-    virtual void fillEndpointInfo(Ice::IPEndpointInfo*) const;
     virtual bool checkOption(const std::string&, const std::string&, const std::string&);
 
     virtual IceInternal::ConnectorPtr createConnector(const IceInternal::Address&,
@@ -158,7 +142,8 @@ public:
     virtual IceInternal::EndpointIPtr read(Ice::InputStream*) const;
     virtual void destroy();
 
-    virtual IceInternal::EndpointFactoryPtr clone(const IceInternal::ProtocolInstancePtr&) const;
+    virtual IceInternal::EndpointFactoryPtr clone(const IceInternal::ProtocolInstancePtr&,
+                                                  const IceInternal::EndpointFactoryPtr&) const;
 
 private:
 

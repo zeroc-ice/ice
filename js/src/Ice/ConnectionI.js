@@ -1128,8 +1128,11 @@ var ConnectionI = Class({
             throw this._exception;
         }
         var info = this._transceiver.getInfo();
-        info.adapterName = this._adapter !== null ? this._adapter.getName() : "";
-        info.incoming = this._incoming;
+        for(var p = info; p; p = p.underlying)
+        {
+            p.adapterName = this._adapter !== null ? this._adapter.getName() : "";
+            p.incoming = this._incoming;
+        }
         return info;
     },
     setBufferSize: function(rcvSize, sndSize)

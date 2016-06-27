@@ -438,7 +438,7 @@ namespace IceInternal
             _instance = null;
         }
 
-        public EndpointFactory clone(ProtocolInstance instance)
+        public EndpointFactory clone(ProtocolInstance instance, EndpointFactory del)
         {
             return new UdpEndpointFactory(instance);
         }

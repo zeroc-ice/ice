@@ -21,6 +21,7 @@
 #import <objc/Ice/LocalException.h>
 
 #include <Ice/Initialize.h>
+#include <Ice/RegisterPlugins.h>
 #include <IceUtil/UUID.h>
 #include <IceUtil/MutexPtrLock.h>
 
@@ -32,6 +33,21 @@
 #ifdef ICE_NO_KQUEUE
 #  define ICE_USE_CFSTREAM 1
 #endif
+
+extern "C"
+{
+
+Ice::Plugin*
+createIceSSL(const Ice::CommunicatorPtr&, const std::string&, const Ice::StringSeq&);
+Ice::Plugin*
+createIceDiscovery(const Ice::CommunicatorPtr&, const std::string&, const Ice::StringSeq&);
+Ice::Plugin*
+createIceLocatorDiscovery(const Ice::CommunicatorPtr&, const std::string&, const Ice::StringSeq&);
+#if defined(__APPLE__) && TARGET_OS_IPHONE > 0
+Ice::Plugin*
+createIceIAP(const Ice::CommunicatorPtr&, const std::string&, const Ice::StringSeq&);
+#endif
+}
 
 namespace
 {

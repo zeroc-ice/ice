@@ -15,6 +15,10 @@
 #include <Ice/Acceptor.h>
 #include <Ice/Network.h>
 
+#if defined(ICE_OS_WINRT)
+#include <deque>
+#endif
+
 namespace IceInternal
 {
 
@@ -25,13 +29,13 @@ class TcpAcceptor : public Acceptor, public NativeInfo
 public:
 
     virtual NativeInfoPtr getNativeInfo();
-#ifdef ICE_USE_IOCP
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
     virtual AsyncInfo* getAsyncInfo(SocketOperation);
 #endif
 
     virtual void close();
     virtual EndpointIPtr listen();
-#ifdef ICE_USE_IOCP
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
     virtual void startAccept();
     virtual void finishAccept();
 #endif
@@ -54,11 +58,15 @@ private:
     const Address _addr;
 
     int _backlog;
-#ifdef ICE_USE_IOCP
+#if defined(ICE_USE_IOCP)
     SOCKET _acceptFd;
     int _acceptError;
     std::vector<char> _acceptBuf;
     AsyncInfo _info;
+#elif defined(ICE_OS_WINRT)
+    IceUtil::Mutex _mutex;
+    bool _acceptPending;
+    std::deque<Windows::Networking::Sockets::StreamSocket^> _accepted;
 #endif
 };
 

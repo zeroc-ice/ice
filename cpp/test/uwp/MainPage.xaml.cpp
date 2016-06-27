@@ -796,6 +796,7 @@ MainPage::MainPage() :
     _messages(ref new Vector<String^>())
 {
     InitializeComponent();
+	Ice::registerIceSSL();
 }
 
 void

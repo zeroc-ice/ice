@@ -7,8 +7,10 @@
 //
 // **********************************************************************
 
-#include "iAPTransceiver.h"
-#include "iAPEndpointI.h"
+#include "Transceiver.h"
+#include "EndpointI.h"
+
+#include <IceIAP/ConnectionInfo.h>
 
 #include <Ice/LocalException.h>
 #include <Ice/ProtocolInstance.h>
@@ -62,8 +64,7 @@ using namespace IceInternal;
             callback->readyCallback(static_cast<SocketOperation>(SocketOperationConnect | SocketOperationWrite));
         }
         break;
-    case NSStreamEventEndEncountered:
-    case NSStreamEventErrorOccurred:
+    default:
         if([[stream class] isSubclassOfClass:[NSInputStream class]])
         {
             callback->readyCallback(SocketOperationRead, -1); // Error
@@ -88,7 +89,6 @@ SocketOperation
 IceObjC::iAPTransceiver::registerWithRunLoop(SocketOperation op)
 {
     IceUtil::Mutex::Lock sync(_mutex);
-
     SocketOperation readyOp = SocketOperationNone;
     if(op & SocketOperationConnect)
     {
@@ -236,39 +236,16 @@ IceObjC::iAPTransceiver::initialize(Buffer& readBuffer, Buffer& writeBuffer)
     {
         if(_error)
         {
-            assert([_writeStream streamStatus] == NSStreamStatusError);
-            NSError* err = [_writeStream streamError];
-            NSString* domain = [err domain];
-            if([domain compare:NSPOSIXErrorDomain] == NSOrderedSame)
+            NSError* err = nil;
+            if([_writeStream streamStatus] == NSStreamStatusError)
             {
-                errno = [err code];
-                [err release];
-                if(connectionRefused())
-                {
-                    ConnectionRefusedException ex(__FILE__, __LINE__);
-                    ex.error = getSocketErrno();
-                    throw ex;
-                }
-                else if(connectFailed())
-                {
-                    ConnectFailedException ex(__FILE__, __LINE__);
-                    ex.error = getSocketErrno();
-                    throw ex;
-                }
-                else
-                {
-                    SocketException ex(__FILE__, __LINE__);
-                    ex.error = getSocketErrno();
-                    throw ex;
-                }
+                err = [_writeStream streamError];
             }
-
-            // Otherwise throw a generic exception.
-            CFNetworkException ex(__FILE__, __LINE__);
-            ex.domain = [domain UTF8String];
-            ex.error = [err code];
-            [err release];
-            throw ex;
+            if([_readStream streamStatus] == NSStreamStatusError)
+            {
+                err = [_readStream streamError];
+            }
+            checkError(err, __FILE__, __LINE__);
         }
         _state = StateConnected;
     }
@@ -296,7 +273,7 @@ IceObjC::iAPTransceiver::close()
 SocketOperation
 IceObjC::iAPTransceiver::write(Buffer& buf)
 {
-   IceUtil::Mutex::Lock sync(_mutex);
+    IceUtil::Mutex::Lock sync(_mutex);
     if(_error)
     {
         assert([_writeStream streamStatus] == NSStreamStatusError);
@@ -421,7 +398,14 @@ IceObjC::iAPTransceiver::toDetailedString() const
 Ice::ConnectionInfoPtr
 IceObjC::iAPTransceiver::getInfo() const
 {
-    return 0;
+    IceIAP::ConnectionInfoPtr info = new IceIAP::ConnectionInfo();
+    info->manufacturer = [_session.accessory.manufacturer UTF8String];
+    info->name = [_session.accessory.name UTF8String];
+    info->modelNumber = [_session.accessory.modelNumber UTF8String];
+    info->firmwareRevision = [_session.accessory.firmwareRevision UTF8String];
+    info->hardwareRevision = [_session.accessory.hardwareRevision UTF8String];
+    info->protocol = [_session.protocolString UTF8String];
+    return info;
 }
 
 void
@@ -437,20 +421,23 @@ IceObjC::iAPTransceiver::setBufferSize(int, int)
 IceObjC::iAPTransceiver::iAPTransceiver(const ProtocolInstancePtr& instance, EASession* session) :
     StreamNativeInfo(INVALID_SOCKET),
     _instance(instance),
-    _readStream([[session inputStream] retain]),
-    _writeStream([[session outputStream] retain]),
+    _session([session retain]),
+    _readStream([session inputStream]),
+    _writeStream([session outputStream]),
     _readStreamRegistered(false),
     _writeStreamRegistered(false),
     _error(false),
     _state(StateNeedConnect)
 {
-    _desc = string("name = ") + [session.accessory.name UTF8String];
+    ostringstream os;
+    os << "name = " << [session.accessory.name UTF8String] << "\n";
+    os << "protocol = " << [session.protocolString UTF8String];
+    _desc = os.str();
 }
 
 IceObjC::iAPTransceiver::~iAPTransceiver()
 {
-    [_readStream release];
-    [_writeStream release];
+    [_session release];
 }
 
 void

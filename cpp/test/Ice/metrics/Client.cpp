@@ -36,7 +36,7 @@ main(int argc, char* argv[])
     {
         Ice::InitializationData initData;
         initData.properties = Ice::createProperties(argc, argv);
-        initData.properties->setProperty("Ice.Admin.Endpoints", "tcp");
+        initData.properties->setProperty("Ice.Admin.Endpoints", "default");
         initData.properties->setProperty("Ice.Admin.InstanceName", "client");
         initData.properties->setProperty("Ice.Admin.DelayCreation", "1");
         initData.properties->setProperty("Ice.Warn.Connections", "0");

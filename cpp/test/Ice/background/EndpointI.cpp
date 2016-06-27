@@ -32,12 +32,10 @@ EndpointI::EndpointI(const IceInternal::EndpointIPtr& endpoint) :
 }
 
 void
-EndpointI::streamWrite(Ice::OutputStream* s) const
+EndpointI::streamWriteImpl(Ice::OutputStream* s) const
 {
-    s->startEncapsulation();
     s->write(_endpoint->type());
     _endpoint->streamWrite(s);
-    s->endEncapsulation();
 }
 
 Ice::Short

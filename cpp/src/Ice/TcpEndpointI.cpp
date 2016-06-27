@@ -62,21 +62,19 @@ IceInternal::TcpEndpointI::TcpEndpointI(const ProtocolInstancePtr& instance, Inp
     s->read(const_cast<bool&>(_compress));
 }
 
-EndpointInfoPtr
-IceInternal::TcpEndpointI::getInfo() const
+void
+IceInternal::TcpEndpointI::streamWriteImpl(OutputStream* s) const
 {
-    TCPEndpointInfoPtr info = ICE_MAKE_SHARED(InfoI<Ice::TCPEndpointInfo>,
-                                              ICE_DYNAMIC_CAST(TcpEndpointI, shared_from_this()));
-    fillEndpointInfo(info.get());
-    return info;
+    IPEndpointI::streamWriteImpl(s);
+    s->write(_timeout);
+    s->write(_compress);
 }
 
 EndpointInfoPtr
-IceInternal::TcpEndpointI::getWSInfo(const string& resource) const
+IceInternal::TcpEndpointI::getInfo() const
 {
-    WSEndpointInfoPtr info = ICE_MAKE_SHARED(InfoI<Ice::WSEndpointInfo>, shared_from_this());
+    TCPEndpointInfoPtr info = ICE_MAKE_SHARED(InfoI<Ice::TCPEndpointInfo>, shared_from_this());
     fillEndpointInfo(info.get());
-    info->resource = resource;
     return info;
 }
 
@@ -254,14 +252,6 @@ IceInternal::TcpEndpointI::operator<(const LocalObject& r) const
 }
 
 void
-IceInternal::TcpEndpointI::streamWriteImpl(OutputStream* s) const
-{
-    IPEndpointI::streamWriteImpl(s);
-    s->write(_timeout);
-    s->write(_compress);
-}
-
-void
 IceInternal::TcpEndpointI::hashInit(Ice::Int& h) const
 {
     IPEndpointI::hashInit(h);
@@ -385,7 +375,7 @@ IceInternal::TcpEndpointFactory::destroy()
 }
 
 EndpointFactoryPtr
-IceInternal::TcpEndpointFactory::clone(const ProtocolInstancePtr& instance) const
+IceInternal::TcpEndpointFactory::clone(const ProtocolInstancePtr& instance, const EndpointFactoryPtr&) const
 {
     return new TcpEndpointFactory(instance);
 }

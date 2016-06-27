@@ -38,10 +38,8 @@ class UdpTransceiver : public Transceiver, public NativeInfo
 public:
 
     virtual NativeInfoPtr getNativeInfo();
-#if defined(ICE_USE_IOCP)
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
     virtual AsyncInfo* getAsyncInfo(SocketOperation);
-#elif defined(ICE_OS_WINRT)
-    virtual void setCompletedHandler(SocketOperationCompletedHandler^);
 #endif
 
     virtual SocketOperation initialize(Buffer&, Buffer&);
@@ -80,7 +78,6 @@ private:
     void setBufSize(int, int);
 
 #ifdef ICE_OS_WINRT
-    bool checkIfErrorOrCompleted(SocketOperation, Windows::Foundation::IAsyncInfo^);
     void appendMessage(Windows::Networking::Sockets::DatagramSocketMessageReceivedEventArgs^);
     Windows::Networking::Sockets::DatagramSocketMessageReceivedEventArgs^ readMessage();
 #endif
@@ -112,12 +109,7 @@ private:
     socklen_t _readAddrLen;
 #elif defined(ICE_OS_WINRT)
     AsyncInfo _write;
-
     Windows::Storage::Streams::DataWriter^ _writer;
-
-    SocketOperationCompletedHandler^ _completedHandler;
-    Windows::Foundation::AsyncOperationCompletedHandler<unsigned int>^ _writeOperationCompletedHandler;
-
     IceUtil::Mutex _mutex;
     bool _readPending;
     std::deque<Windows::Networking::Sockets::DatagramSocketMessageReceivedEventArgs^> _received;

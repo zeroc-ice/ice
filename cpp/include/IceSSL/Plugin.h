@@ -21,13 +21,16 @@
 
 // For struct sockaddr_storage
 #ifdef _WIN32
+#ifndef ICE_OS_WINRT
 #   include <winsock2.h>
+#endif
 #else
 #   include <sys/socket.h>
 #endif
 
 #if defined(ICE_USE_SECURE_TRANSPORT)
 #   include <CoreFoundation/CFError.h>
+#   include <Security/Security.h>
 #elif defined(ICE_USE_SCHANNEL)
 #   include <wincrypt.h>
 #endif
@@ -50,48 +53,25 @@
 // connections.
 //
 typedef struct ssl_ctx_st SSL_CTX;
-
-//
-// Pointer to an opaque certificate object. X509_st is the OpenSSL
-// type that represents a certificate.
-//
-typedef struct x509_st* X509CertificateRef;
-
-//
-// EVP_PKEY is the OpenSSL type that represents a public key.
-//
-typedef struct evp_pkey_st* KeyRef;
-
-//
-// Type that represents an X509 distinguished name
-//
 typedef struct X509_name_st X509NAME;
+
+typedef struct x509_st* X509CertificateRef;
+typedef struct evp_pkey_st* KeyRef;
 
 #elif defined(ICE_USE_SECURE_TRANSPORT)
 
-//
-// Pointer to an opaque certificate object.
-//
-struct OpaqueSecCertificateRef;
-typedef struct OpaqueSecCertificateRef* X509CertificateRef;
-
-//
-// Pointer to an opaque key object.
-//
-struct OpaqueSecKeyRef;
-typedef struct OpaqueSecKeyRef* KeyRef;
+typedef SecCertificateRef X509CertificateRef;
+typedef SecKeyRef KeyRef;
 
 #elif defined(ICE_USE_SCHANNEL)
 
-//
-// Pointer to an opaque certificate object.
-//
 typedef CERT_SIGNED_CONTENT_INFO* X509CertificateRef;
-
-//
-// Pointer to an opaque key object.
-//
 typedef CERT_PUBLIC_KEY_INFO* KeyRef;
+
+#elif defined(ICE_OS_WINRT)
+
+typedef Windows::Security::Cryptography::Certificates::Certificate^ X509CertificateRef;
+typedef Windows::Security::Cryptography::Core::CryptographicKey^ KeyRef;
 
 #endif
 
@@ -232,6 +212,10 @@ public:
     DistinguishedName(X509NAME*);
 #endif
 
+#if defined(__APPLE__) && TARGET_OS_IPHONE != 0
+    DistinguishedName(CFDataRef);
+#endif
+
     //
     // Create a DistinguishedName from a string encoded using
     // the rules in RFC2253.
@@ -288,8 +272,8 @@ public:
     // Construct a certificate using a native certificate.
     //
     // The Certificate class assumes ownership of the given native
-    // certificate.
     //
+    // certificate.
     Certificate(X509CertificateRef);
     ~Certificate();
 
@@ -344,6 +328,8 @@ public:
     //
     std::string encode() const;
 
+#if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
+
     //
     // Checks that the certificate is currently valid, that is, the current
     // date falls between the validity period given in the certificate.
@@ -364,6 +350,7 @@ public:
     // Get the not-before validity time.
     //
     IceUtil::Time getNotBefore() const;
+#endif
 
     //
     // Get the serial number. This is an arbitrarily large number.
@@ -385,6 +372,7 @@ public:
     //
     DistinguishedName getIssuerDN() const;
 
+#if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
     //
     // Get the values in the issuer's alternative names extension.
     //
@@ -412,16 +400,19 @@ public:
     // X509* certificate to obtain these values.
     //
     std::vector<std::pair<int, std::string> > getIssuerAlternativeNames();
+#endif
 
     //
     // Get the subject's distinguished name (DN).
     //
     DistinguishedName getSubjectDN() const;
 
+#if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
     //
     // See the comment for getIssuerAlternativeNames.
     //
     std::vector<std::pair<int, std::string> > getSubjectAlternativeNames();
+#endif
 
     //
     // Retrieve the certificate version number.
@@ -453,6 +444,13 @@ private:
 #ifdef ICE_USE_SCHANNEL
     CERT_INFO* _certInfo;
 #endif
+#if defined(__APPLE__) && TARGET_OS_IPHONE != 0
+    void initializeAttributes() const;
+    mutable CFDataRef _subject;
+    mutable CFDataRef _issuer;
+    mutable std::string _serial;
+    mutable int _version;
+#endif
 };
 
 //
@@ -471,23 +469,6 @@ public:
     std::vector<CertificatePtr> nativeCerts;
 };
 ICE_DEFINE_PTR(NativeConnectionInfoPtr, NativeConnectionInfo);
-
-//
-// WSSNativeConnectionInfo is an extension of IceSSL::WSSConnectionInfo
-// that provides access to native certificates.
-//
-class ICE_SSL_API WSSNativeConnectionInfo : public WSSConnectionInfo
-{
-public:
-
-    //
-    // The certificate chain. This may be empty if the peer did not
-    // supply a certificate. The peer's certificate (if any) is the
-    // first one in the chain.
-    //
-    std::vector<CertificatePtr> nativeCerts;
-};
-ICE_DEFINE_PTR(WSSNativeConnectionInfoPtr, WSSNativeConnectionInfo);
 
 //
 // An application can customize the certificate verification process

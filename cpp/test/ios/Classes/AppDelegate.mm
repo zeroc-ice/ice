@@ -65,6 +65,7 @@ static const struct TestData alltests[] =
 { @"metrics", @"Ice_metrics", @"client.bundle", @"server.bundle", 0, 0, false, false, false, false, true },
 { @"enums", @"Ice_enums", @"client.bundle", @"server.bundle", 0, 0, true, true, false, true, true },
 { @"services", @"Ice_services", @"client.bundle", 0, 0, 0, true, true, false, false, true },
+{ @"configuration", @"IceSSL_configuration", @"client.bundle", @"server.bundle", 0, 0, false, false, false, false, true },
 };
 
 @implementation AppDelegate

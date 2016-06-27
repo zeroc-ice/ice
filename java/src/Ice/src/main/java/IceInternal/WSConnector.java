@@ -14,7 +14,7 @@ final class WSConnector implements Connector
     @Override
     public Transceiver connect()
     {
-        return new WSTransceiver(_instance, _delegate.connect(), _host, _port, _resource);
+        return new WSTransceiver(_instance, _delegate.connect(), _host, _resource);
     }
 
     @Override
@@ -35,12 +35,11 @@ final class WSConnector implements Connector
         return _delegate.hashCode();
     }
 
-    WSConnector(ProtocolInstance instance, Connector del, String host, int port, String resource)
+    WSConnector(ProtocolInstance instance, Connector del, String host, String resource)
     {
         _instance = instance;
         _delegate = del;
         _host = host;
-        _port = port;
         _resource = resource;
     }
 
@@ -74,6 +73,5 @@ final class WSConnector implements Connector
     private ProtocolInstance _instance;
     private Connector _delegate;
     private String _host;
-    private int _port;
     private String _resource;
 }

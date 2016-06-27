@@ -21,90 +21,93 @@
 #define ENDPOINT dynamic_cast<Ice::Endpoint*>(static_cast<IceUtil::Shared*>(cxxObject_))
 #define ENDPOINTINFO dynamic_cast<Ice::EndpointInfo*>(static_cast<IceUtil::Shared*>(cxxObject_))
 
-@implementation ICEEndpoint
-
--(Ice::Endpoint*) endpoint
+namespace
 {
-    return ENDPOINT;
+
+std::vector<Class>* endpointInfoClasses = 0;
+
 }
 
--(ICEEndpointInfo*) getInfo
+namespace IceObjC
 {
-    NSException* nsex = nil;
-    try
+
+void
+registerEndpointInfoClass(Class cl)
+{
+    if(!endpointInfoClasses)
     {
-        Ice::EndpointInfoPtr info = ENDPOINT->getInfo();
-        if(!info)
-        {
-            return nil;
-        }
-        
-        Ice::UDPEndpointInfoPtr udpInfo = Ice::UDPEndpointInfoPtr::dynamicCast(info);
-        if(udpInfo)
-        {
-            return [[[ICEUDPEndpointInfo alloc] initWithUDPEndpointInfo:udpInfo.get()] autorelease];
-        }
-
-        Ice::WSEndpointInfoPtr wsInfo = Ice::WSEndpointInfoPtr::dynamicCast(info);
-        if(wsInfo)
-        {
-            return [[[ICEWSEndpointInfo alloc] initWithWSEndpointInfo:wsInfo.get()] autorelease];
-        }
-
-        Ice::TCPEndpointInfoPtr tcpInfo = Ice::TCPEndpointInfoPtr::dynamicCast(info);
-        if(tcpInfo)
-        {
-            return [[[ICETCPEndpointInfo alloc] initWithTCPEndpointInfo:tcpInfo.get()] autorelease];
-        }
-
-        Ice::OpaqueEndpointInfoPtr opaqueInfo = Ice::OpaqueEndpointInfoPtr::dynamicCast(info);
-        if(opaqueInfo)
-        {
-            return [[[ICEOpaqueEndpointInfo alloc] initWithOpaqueEndpointInfo:opaqueInfo.get()] autorelease];
-        }
-        
-        std::ostringstream os;
-        os << "endpointInfoWithType_" << info->type() << ":";
-        SEL selector = sel_registerName(os.str().c_str());
-        if([ICEEndpointInfo respondsToSelector:selector])
-        {
-            IceUtil::Shared* shared = info.get();
-            return [ICEEndpointInfo performSelector:selector withObject:[NSValue valueWithPointer:shared]];
-        }
-
-        Ice::IPEndpointInfoPtr ipInfo = Ice::IPEndpointInfoPtr::dynamicCast(info);
-        if(ipInfo)
-        {
-            return [[[ICEIPEndpointInfo alloc] initWithIPEndpointInfo:ipInfo.get()] autorelease];
-        }
-
-        return [[[ICEEndpointInfo alloc] initWithEndpointInfo:info.get()] autorelease];
+        endpointInfoClasses = new std::vector<Class>();
     }
-    catch(const std::exception& ex)
-    {
-        nsex = toObjCException(ex);
-    }
-    if(nsex != nil)
-    {
-        @throw nsex;
-    }
+    endpointInfoClasses->push_back(cl);
+}
+
+}
+
+@implementation ICEEndpointInfo(ICEInternal)
+
++(id) checkedEndpointInfoWithEndpointInfo:(Ice::EndpointInfo*)endpointInfo
+{
+    assert(false);
     return nil;
 }
 
--(NSMutableString*) toString
++(id) endpointInfoWithEndpointInfo:(NSValue*)v
 {
-    return [toNSMutableString(ENDPOINT->toString()) autorelease];
+    Ice::EndpointInfo* info = dynamic_cast<Ice::EndpointInfo*>(reinterpret_cast<IceUtil::Shared*>([v pointerValue]));
+    if(!info)
+    {
+        return nil;
+    }
+
+    Ice::UDPEndpointInfoPtr udpInfo = Ice::UDPEndpointInfoPtr::dynamicCast(info);
+    if(udpInfo)
+    {
+        return [[ICEUDPEndpointInfo alloc] initWithUDPEndpointInfo:udpInfo.get()];
+    }
+
+    Ice::WSEndpointInfoPtr wsInfo = Ice::WSEndpointInfoPtr::dynamicCast(info);
+    if(wsInfo)
+    {
+        return [[ICEWSEndpointInfo alloc] initWithWSEndpointInfo:wsInfo.get()];
+    }
+
+    Ice::TCPEndpointInfoPtr tcpInfo = Ice::TCPEndpointInfoPtr::dynamicCast(info);
+    if(tcpInfo)
+    {
+        return [[ICETCPEndpointInfo alloc] initWithTCPEndpointInfo:tcpInfo.get()];
+    }
+
+    Ice::OpaqueEndpointInfoPtr opaqueInfo = Ice::OpaqueEndpointInfoPtr::dynamicCast(info);
+    if(opaqueInfo)
+    {
+        return [[ICEOpaqueEndpointInfo alloc] initWithOpaqueEndpointInfo:opaqueInfo.get()];
+    }
+
+    for(std::vector<Class>::const_iterator p = endpointInfoClasses->begin(); p != endpointInfoClasses->end(); ++p)
+    {
+        ICEEndpointInfo* r = [*p checkedEndpointInfoWithEndpointInfo:info];
+        if(r)
+        {
+            return r;
+        }
+    }
+
+    Ice::IPEndpointInfoPtr ipInfo = Ice::IPEndpointInfoPtr::dynamicCast(info);
+    if(ipInfo)
+    {
+        return [[ICEIPEndpointInfo alloc] initWithIPEndpointInfo:ipInfo.get()];
+    }
+
+    return [[ICEEndpointInfo alloc] initWithEndpointInfo:info];
 }
-
-@end
-
-@implementation ICEEndpointInfo(ICEInternal)
 
 -(id) initWithEndpointInfo:(Ice::EndpointInfo*)endpointInfo;
 {
     self = [super initWithCxxObject:endpointInfo];
     if(self)
     {
+        self->underlying = [ICEEndpointInfo localObjectWithCxxObjectNoAutoRelease:endpointInfo->underlying.get()
+                                            allocator:@selector(endpointInfoWithEndpointInfo:)];
         self->timeout = endpointInfo->timeout;
         self->compress = endpointInfo->compress;
     }
@@ -170,7 +173,7 @@
 
 -(id) initWithWSEndpointInfo:(Ice::WSEndpointInfo*)wsEndpointInfo
 {
-    self = [super initWithIPEndpointInfo:wsEndpointInfo];
+    self = [super initWithEndpointInfo:wsEndpointInfo];
     if(self)
     {
         self->resource = [[NSString alloc] initWithUTF8String:wsEndpointInfo->resource.c_str()];
@@ -194,3 +197,37 @@
 }
 
 @end
+
+@implementation ICEEndpoint
+
+-(Ice::Endpoint*) endpoint
+{
+    return ENDPOINT;
+}
+
+-(ICEEndpointInfo*) getInfo
+{
+    NSException* nsex = nil;
+    try
+    {
+        return [ICEEndpointInfo localObjectWithCxxObject:ENDPOINT->getInfo().get()
+                                               allocator:@selector(endpointInfoWithEndpointInfo:)];
+    }
+    catch(const std::exception& ex)
+    {
+        nsex = toObjCException(ex);
+    }
+    if(nsex != nil)
+    {
+        @throw nsex;
+    }
+    return nil;
+}
+
+-(NSMutableString*) toString
+{
+    return [toNSMutableString(ENDPOINT->toString()) autorelease];
+}
+
+@end
+

@@ -26,8 +26,6 @@ Ice_excludes            += src/IceUtil/ConvertUTF.cpp src/IceUtil/Unicode.cpp
 endif
 
 Ice[iphoneos]_extra_sources 		:= $(wildcard $(addprefix $(currentdir)/ios/,*.cpp *.mm))
-Ice[iphoneos]_excludes	 		:= $(currentdir)/RegisterPluginsInit.cpp
 Ice[iphonesimulator]_extra_sources	= $(Ice[iphoneos]_extra_sources)
-Ice[iphonesimulator]_excludes	 	= $(Ice[iphoneos]_excludes)
 
 projects += $(project)

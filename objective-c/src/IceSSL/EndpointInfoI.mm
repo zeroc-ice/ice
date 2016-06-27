@@ -8,73 +8,25 @@
 // **********************************************************************
 
 #import <objc/IceSSL/EndpointInfo.h>
-#import <ConnectionI.h>
+#import <EndpointI.h>
 #import <LocalObjectI.h>
 #import <Util.h>
 
 #include <IceSSL/EndpointInfo.h>
 
 @implementation ICESSLEndpointInfo (IceSSL)
-
--(id) initWithSSLEndpointInfo:(IceSSL::EndpointInfo*)sslEndpointInfo
++(void) load
 {
-    self = [super initWithIPEndpointInfo:sslEndpointInfo];
-    return self;
+    IceObjC::registerEndpointInfoClass([ICESSLEndpointInfo class]);
 }
 
-@end
-
-@implementation ICEEndpointInfo (IceSSL)
-
-+(id) endpointInfoWithType_2:(NSValue*)endpointInfo
++(id) checkedEndpointInfoWithEndpointInfo:(Ice::EndpointInfo*)endpointInfo
 {
-    if(!endpointInfo)
+    IceSSL::EndpointInfo* sslEndpointInfo = dynamic_cast<IceSSL::EndpointInfo*>(endpointInfo);
+    if(sslEndpointInfo)
     {
-        return nil;
-    }
-
-    IceUtil::Shared* shared = reinterpret_cast<IceUtil::Shared*>([endpointInfo pointerValue]);
-    IceSSL::EndpointInfo* obj = dynamic_cast<IceSSL::EndpointInfo*>(shared);
-    if(obj)
-    {
-        return [[[ICESSLEndpointInfo alloc] initWithSSLEndpointInfo:obj] autorelease];
+        return [[ICESSLEndpointInfo alloc] initWithEndpointInfo:sslEndpointInfo];
     }
     return nil;
 }
-
 @end
-
-@implementation ICESSLWSSEndpointInfo (IceSSL)
-
--(id) initWithWSSEndpointInfo:(IceSSL::WSSEndpointInfo*)wssEndpointInfo
-{
-    self = [super initWithSSLEndpointInfo:wssEndpointInfo];
-    if(self)
-    {
-        self->resource = [[NSString alloc] initWithUTF8String:wssEndpointInfo->resource.c_str()];
-    }
-    return self;
-}
-
-@end
-
-@implementation ICEEndpointInfo (IceSSLWSS)
-
-+(id) endpointInfoWithType_5:(NSValue*)endpointInfo
-{
-    if(!endpointInfo)
-    {
-        return nil;
-    }
-
-    IceUtil::Shared* shared = reinterpret_cast<IceUtil::Shared*>([endpointInfo pointerValue]);
-    IceSSL::WSSEndpointInfo* obj = dynamic_cast<IceSSL::WSSEndpointInfo*>(shared);
-    if(obj)
-    {
-        return [[[ICESSLWSSEndpointInfo alloc] initWithWSSEndpointInfo:obj] autorelease];
-    }
-    return nil;
-}
-
-@end
-

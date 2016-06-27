@@ -115,23 +115,24 @@ IceSSL::SSLEngine::initialize()
     // VerifyPeer determines whether certificate validation failures abort a connection.
     //
     _verifyPeer = properties->getPropertyAsIntWithDefault(propPrefix + "VerifyPeer", 2);
-    
+
     if(_verifyPeer < 0 || _verifyPeer > 2)
     {
         PluginInitializationException ex(__FILE__, __LINE__);
         ex.reason = "IceSSL: invalid value for " + propPrefix + "VerifyPeer";
         throw ex;
     }
-    
+
     _securityTraceLevel = properties->getPropertyAsInt("IceSSL.Trace.Security");
     _securityTraceCategory = "Security";
 }
 
 void
-IceSSL::SSLEngine::verifyPeer(SOCKET fd, const string& address, const NativeConnectionInfoPtr& info)
+IceSSL::SSLEngine::verifyPeer(const string& address, const NativeConnectionInfoPtr& info, const string& desc)
 {
     const CertificateVerifierPtr verifier = getCertificateVerifier();
-    
+
+#if !defined(ICE_USE_SECURE_TRANSPORT_IOS)
     //
     // For an outgoing connection, we compare the proxy address (if any) against
     // fields in the server's certificate (if any).
@@ -248,6 +249,7 @@ IceSSL::SSLEngine::verifyPeer(SOCKET fd, const string& address, const NativeConn
             }
         }
     }
+#endif
 
     if(_verifyDepthMax > 0 && static_cast<int>(info->certs.size()) > _verifyDepthMax)
     {
@@ -258,19 +260,19 @@ IceSSL::SSLEngine::verifyPeer(SOCKET fd, const string& address, const NativeConn
         string msg = ostr.str();
         if(_securityTraceLevel >= 1)
         {
-            _logger->trace(_securityTraceCategory, msg + "\n" + IceInternal::fdToString(fd));
+            _logger->trace(_securityTraceCategory, msg + "\n" + desc);
         }
         SecurityException ex(__FILE__, __LINE__);
         ex.reason = msg;
         throw ex;
     }
 
-    if(!_trustManager->verify(info))
+    if(!_trustManager->verify(info, desc))
     {
         string msg = string(info->incoming ? "incoming" : "outgoing") + " connection rejected by trust manager";
         if(_securityTraceLevel >= 1)
         {
-            _logger->trace(_securityTraceCategory, msg + "\n" + IceInternal::fdToString(fd));
+            _logger->trace(_securityTraceCategory, msg + "\n" + desc);
         }
         SecurityException ex(__FILE__, __LINE__);
         ex.reason = msg;
@@ -282,7 +284,7 @@ IceSSL::SSLEngine::verifyPeer(SOCKET fd, const string& address, const NativeConn
         string msg = string(info->incoming ? "incoming" : "outgoing") + " connection rejected by certificate verifier";
         if(_securityTraceLevel >= 1)
         {
-            _logger->trace(_securityTraceCategory, msg + "\n" + IceInternal::fdToString(fd));
+            _logger->trace(_securityTraceCategory, msg + "\n" + desc);
         }
         SecurityException ex(__FILE__, __LINE__);
         ex.reason = msg;

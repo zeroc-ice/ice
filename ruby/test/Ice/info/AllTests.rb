@@ -7,6 +7,24 @@
 #
 # **********************************************************************
 
+def getTCPEndpointInfo(info)
+    while info
+        if info.is_a?(Ice::TCPEndpointInfo)
+            return info
+        end
+        info = info.underlying
+    end
+end
+
+def getTCPConnectionInfo(info)
+    while info
+        if info.is_a?(Ice::TCPConnectionInfo)
+            return info
+        end
+        info = info.underlying
+    end
+end
+
 def allTests(communicator)
     print "testing proxy endpoint information..."
     STDOUT.flush
@@ -16,23 +34,23 @@ def allTests(communicator)
                                     "opaque -e 1.8 -t 100 -v ABCD")
 
     endps = p1.ice_getEndpoints()
-
-    ipEndpoint = endps[0].getInfo()
-    test(ipEndpoint.is_a?(Ice::IPEndpointInfo));
-    test(ipEndpoint.host == "tcphost")
-    test(ipEndpoint.port == 10000)
-    test(ipEndpoint.sourceAddress == "10.10.10.10")
-    test(ipEndpoint.timeout == 1200)
-    test(ipEndpoint.compress)
-    test(!ipEndpoint.datagram())
-    test((ipEndpoint.type() == Ice::TCPEndpointType && !ipEndpoint.secure()) ||
-         (ipEndpoint.type() == Ice::SSLEndpointType && ipEndpoint.secure()) ||
-         (ipEndpoint.type() == Ice::WSEndpointType && !ipEndpoint.secure()) ||
-         (ipEndpoint.type() == Ice::WSSEndpointType && ipEndpoint.secure()))
-    test((ipEndpoint.type() == Ice::TCPEndpointType && ipEndpoint.is_a?(Ice::TCPEndpointInfo)) ||
-         (ipEndpoint.type() == Ice::SSLEndpointType && ipEndpoint.is_a?(Ice::SSLEndpointInfo)) ||
-         (ipEndpoint.type() == Ice::WSEndpointType && ipEndpoint.is_a?(Ice::WSEndpointInfo)) ||
-         (ipEndpoint.type() == Ice::WSSEndpointType && ipEndpoint.is_a?(Ice::WSSEndpointInfo)))
+    endpoint = endps[0].getInfo()
+    tcpEndpoint = getTCPEndpointInfo(endpoint)
+    test(tcpEndpoint.is_a?(Ice::TCPEndpointInfo));
+    test(tcpEndpoint.host == "tcphost")
+    test(tcpEndpoint.port == 10000)
+    test(tcpEndpoint.sourceAddress == "10.10.10.10")
+    test(tcpEndpoint.timeout == 1200)
+    test(tcpEndpoint.compress)
+    test(!tcpEndpoint.datagram())
+    test((tcpEndpoint.type() == Ice::TCPEndpointType && !tcpEndpoint.secure()) ||
+         (tcpEndpoint.type() == Ice::SSLEndpointType && tcpEndpoint.secure()) ||
+         (tcpEndpoint.type() == Ice::WSEndpointType && !tcpEndpoint.secure()) ||
+         (tcpEndpoint.type() == Ice::WSSEndpointType && tcpEndpoint.secure()))
+    test((tcpEndpoint.type() == Ice::TCPEndpointType && endpoint.is_a?(Ice::TCPEndpointInfo)) ||
+         (tcpEndpoint.type() == Ice::SSLEndpointType && endpoint.is_a?(Ice::SSLEndpointInfo)) ||
+         (tcpEndpoint.type() == Ice::WSEndpointType && endpoint.is_a?(Ice::WSEndpointInfo)) ||
+         (tcpEndpoint.type() == Ice::WSSEndpointType && endpoint.is_a?(Ice::WSEndpointInfo)))
 
     udpEndpoint = endps[1].getInfo()
     test(udpEndpoint.is_a?(Ice::UDPEndpointInfo));
@@ -60,13 +78,13 @@ def allTests(communicator)
     print "test connection endpoint information..."
     STDOUT.flush
 
-    ipinfo = base.ice_getConnection().getEndpoint().getInfo()
-    test(ipinfo.port == 12010)
-    test(!ipinfo.compress)
-    test(ipinfo.host == defaultHost)
+    tcpinfo = getTCPEndpointInfo(base.ice_getConnection().getEndpoint().getInfo())
+    test(tcpinfo.port == 12010)
+    test(!tcpinfo.compress)
+    test(tcpinfo.host == defaultHost)
 
     ctx = testIntf.getEndpointInfoAsContext()
-    test(ctx["host"] == ipinfo.host)
+    test(ctx["host"] == tcpinfo.host)
     test(ctx["compress"] == "false")
     port = Integer(ctx["port"])
     test(port > 0)
@@ -84,27 +102,28 @@ def allTests(communicator)
     connection.setBufferSize(1024, 2048)
 
     info = connection.getInfo()
+    tcpinfo = getTCPConnectionInfo(info)
+
     test(!info.incoming)
     test(info.adapterName.length == 0)
-    test(info.remotePort == 12010)
+    test(tcpinfo.remotePort == 12010)
     if defaultHost == "127.0.0.1"
-        test(info.remoteAddress == defaultHost)
-        test(info.localAddress == defaultHost)
+        test(tcpinfo.remoteAddress == defaultHost)
+        test(tcpinfo.localAddress == defaultHost)
     end
-    test(info.rcvSize >= 1024)
-    test(info.sndSize >= 2048)
+    test(tcpinfo.rcvSize >= 1024)
+    test(tcpinfo.sndSize >= 2048)
 
     ctx = testIntf.getConnectionInfoAsContext()
     test(ctx["incoming"] == "true")
     test(ctx["adapterName"] == "TestAdapter")
-    test(ctx["remoteAddress"] == info.localAddress)
-    test(ctx["localAddress"] == info.remoteAddress)
-    test(ctx["remotePort"] == info.localPort.to_s())
-    test(ctx["localPort"] == info.remotePort.to_s())
+    test(ctx["remoteAddress"] == tcpinfo.localAddress)
+    test(ctx["localAddress"] == tcpinfo.remoteAddress)
+    test(ctx["remotePort"] == tcpinfo.localPort.to_s())
+    test(ctx["localPort"] == tcpinfo.remotePort.to_s())
 
     if base.ice_getConnection().type() == "ws" || base.ice_getConnection().type() == "wss"
-        test((base.ice_getConnection().type() == "ws" && info.is_a?(Ice::WSConnectionInfo)) ||
-             (base.ice_getConnection().type() == "wss" && info.is_a?(Ice::WSSConnectionInfo)))
+        test(info.is_a?(Ice::WSConnectionInfo))
 
         test(info.headers["Upgrade"] == "websocket")
         test(info.headers["Connection"] == "Upgrade")

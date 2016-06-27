@@ -1162,13 +1162,13 @@ public final class Instance implements Ice.ClassResolver
         if(tcpFactory != null)
         {
             final ProtocolInstance instance = new ProtocolInstance(this, Ice.WSEndpointType.value, "ws", false);
-            _endpointFactoryManager.add(new WSEndpointFactory(instance, tcpFactory.clone(instance)));
+            _endpointFactoryManager.add(new WSEndpointFactory(instance, tcpFactory.clone(instance, null)));
         }
         final EndpointFactory sslFactory = _endpointFactoryManager.get(Ice.SSLEndpointType.value);
         if(sslFactory != null)
         {
             final ProtocolInstance instance = new ProtocolInstance(this, Ice.WSSEndpointType.value, "wss", true);
-            _endpointFactoryManager.add(new WSEndpointFactory(instance, sslFactory.clone(instance)));
+            _endpointFactoryManager.add(new WSEndpointFactory(instance, sslFactory.clone(instance, null)));
         }
 
         //

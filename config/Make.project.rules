@@ -166,7 +166,7 @@ endif
 $3/%.h $2/%.$($6_targetext): $1/%.ice $($6_path) | $3
 	$(E) "Compiling $$<"
 	$(Q)$(RM) $3/$$*.h $2/$$*.$($6_targetext)
-	$(Q)$($6_path) $(strip $5) --depend $$< > $2/$$*.ice.d
+	$(Q)$($6_path) $(strip $5) --depend $$< | sed 's|\(.*:\)|$3/$$*.h $2/$$*.$($6_targetext):|' > $2/$$*.ice.d
 	$(Q)$($6_path) $(strip $5) --output-dir $2 $$<
 	$(if $(filter-out $2,$3),$(Q)$(MV) $2/$$*.h $3/)
 
@@ -375,8 +375,8 @@ $2_project	:= $1
 $2_target 	:= $$(call var-with-default,$2_target,$3)
 $2_targetname	:= $$(call var-with-default,$2_targetname,$(patsubst $1_%,%,$2))
 
-$2_platforms	:= $$(call unique,$$(or $$($2_platforms),$$($1_platforms),$(call component-platforms,$1,$2)))
-$2_configs	:= $$(call unique,$$(or $$($2_configs),$$($1_configs),$(call component-configs,$1,$2)))
+$2_platforms	:= $$(filter $(platforms),$$(call unique,$$(or $$($2_platforms),$$($1_platforms),$(call component-platforms,$1,$2))))
+$2_configs	:= $$(filter $(configs),$$(call unique,$$(or $$($2_configs),$$($1_configs),$(call component-configs,$1,$2))))
 
 #
 # The installation directory (install_bindir if program, install_libdir otherwise)
@@ -801,6 +801,7 @@ $1_targetdir	:= $(call bindir,$1)
 #
 $1_configs	:= static
 $1_platforms	:= $(build-platform)
+$(notdir $1)_always_enable_configs := static
 
 #
 # Defines the target extension and path of the slice translator

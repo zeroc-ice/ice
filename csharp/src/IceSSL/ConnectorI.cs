@@ -29,37 +29,22 @@ namespace IceSSL
                 throw ex;
             }
 
-            return new TransceiverI(_instance, new IceInternal.StreamSocket(_instance, _proxy, _addr, _sourceAddr),
-                                    _host, false);
+            return new TransceiverI(_instance, _delegate.connect(), _host, false);
         }
 
         public short type()
         {
-            return _instance.type();
+            return _delegate.type();
         }
 
         //
         // Only for use by EndpointI.
         //
-        internal ConnectorI(Instance instance, string host, EndPoint addr, IceInternal.NetworkProxy proxy,
-                            EndPoint sourceAddr, int timeout, string conId)
+        internal ConnectorI(Instance instance, IceInternal.Connector del, string host)
         {
             _instance = instance;
+            _delegate = del;
             _host = host;
-            _addr = (IPEndPoint)addr;
-            _proxy = proxy;
-            _sourceAddr = sourceAddr;
-            _timeout = timeout;
-            _connectionId = conId;
-
-            _hashCode = 5381;
-            IceInternal.HashUtil.hashAdd(ref _hashCode, _addr);
-            if(_sourceAddr != null)
-            {
-                IceInternal.HashUtil.hashAdd(ref _hashCode, _sourceAddr);
-            }
-            IceInternal.HashUtil.hashAdd(ref _hashCode, _timeout);
-            IceInternal.HashUtil.hashAdd(ref _hashCode, _connectionId);
         }
 
         public override bool Equals(object obj)
@@ -75,41 +60,21 @@ namespace IceSSL
             }
 
             ConnectorI p = (ConnectorI)obj;
-            if(_timeout != p._timeout)
-            {
-                return false;
-            }
-
-            if(!_connectionId.Equals(p._connectionId))
-            {
-                return false;
-            }
-
-            if(!IceInternal.Network.addressEquals(_sourceAddr, p._sourceAddr))
-            {
-                return false;
-            }
-
-            return _addr.Equals(p._addr);
+            return _delegate.Equals(p._delegate);
         }
 
         public override string ToString()
         {
-            return IceInternal.Network.addrToString(_proxy == null ? _addr : _proxy.getAddress());
+            return _delegate.ToString();
         }
 
         public override int GetHashCode()
         {
-            return _hashCode;
+            return _delegate.GetHashCode();
         }
 
         private Instance _instance;
+        private IceInternal.Connector _delegate;
         private string _host;
-        private IPEndPoint _addr;
-        private IceInternal.NetworkProxy _proxy;
-        private EndPoint _sourceAddr;
-        private int _timeout;
-        private string _connectionId;
-        private int _hashCode;
     }
 }

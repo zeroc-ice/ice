@@ -59,13 +59,21 @@ registerIceBT(bool loadOnInitialize)
 IceBT::PluginI::PluginI(const Ice::CommunicatorPtr& com) :
     _engine(new Engine(com))
 {
+    IceInternal::ProtocolPluginFacadePtr pluginFacade = IceInternal::getProtocolPluginFacade(com);
+
     //
     // Register the endpoint factory. We have to do this now, rather
     // than in initialize, because the communicator may need to
     // interpret proxies before the plug-in is fully initialized.
     //
-    IceInternal::EndpointFactoryPtr btFactory = new EndpointFactoryI(new Instance(_engine, EndpointType, "bt"));
-    IceInternal::getProtocolPluginFacade(com)->addEndpointFactory(btFactory);
+    pluginFacade->addEndpointFactory(new EndpointFactoryI(new Instance(_engine, BTEndpointType, "bt")));
+
+    IceInternal::EndpointFactoryPtr sslFactory = pluginFacade->getEndpointFactory(SSLEndpointType);
+    if(sslFactory)
+    {
+        InstancePtr instance = new Instance(_engine, BTSEndpointType, "bts");
+        pluginFacade->addEndpointFactory(sslFactory->clone(instance, new EndpointFactoryI(instance)));
+    }
 }
 
 void

@@ -24,35 +24,11 @@ module IceSSL
 
 /**
  *
- * Uniquely identifies SSL endpoints.
- *
- **/
-#ifndef __SLICE2OBJC__ // In Objective-C, Ice::SSLEndpointType is already mapped to ICESSLEndpointType
-const short EndpointType = Ice::SSLEndpointType;
-#endif
-
-/**
- *
  * Provides access to an SSL endpoint information.
  *
  **/
-local class EndpointInfo extends Ice::IPEndpointInfo
+local class EndpointInfo extends Ice::EndpointInfo
 {
-};
-
-/**
- *
- * Provides access to a secure WebSocket endpoint information.
- *
- **/
-local class WSSEndpointInfo extends EndpointInfo
-{
-    /**
-     *
-     * The URI configured with the endpoint.
-     *
-     **/
-    string resource;
 };
 
 };

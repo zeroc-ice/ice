@@ -22,7 +22,7 @@ module IceSSL
  * Provides access to the connection details of an SSL connection
  *
  **/
-local class ConnectionInfo extends Ice::IPConnectionInfo
+local class ConnectionInfo extends Ice::ConnectionInfo
 {
     /** The negotiated cipher suite. */
     string cipher;
@@ -32,17 +32,6 @@ local class ConnectionInfo extends Ice::IPConnectionInfo
 
     /** The certificate chain verification status. */
     bool verified;
-};
-
-/**
- *
- * Provides access to the connection details of a secure WebSocket connection
- *
- **/
-local class WSSConnectionInfo extends ConnectionInfo
-{
-    /** The headers from the HTTP upgrade request. */
-    Ice::HeaderDict headers;
 };
 
 };

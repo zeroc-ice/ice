@@ -7,13 +7,12 @@
 //
 // **********************************************************************
 
-package IceInternal;
+#ifndef ICE_IAP_ICE_IAP_H
+#define ICE_IAP_ICE_IAP_H
 
-//
-// Delegate interface implemented by TcpEndpoint or IceSSL.EndpointI or any endpoint that WS can
-// delegate to.
-//
-public interface WSEndpointDelegate
-{
-    Ice.EndpointInfo getWSInfo(String resource);
-};
+#include <IceUtil/PushDisableWarnings.h>
+#include <IceIAP/EndpointInfo.h>
+#include <IceIAP/ConnectionInfo.h>
+#include <IceUtil/PopDisableWarnings.h>
+
+#endif

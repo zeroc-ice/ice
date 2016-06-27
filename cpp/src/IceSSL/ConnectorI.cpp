@@ -13,6 +13,7 @@
 #include <IceSSL/OpenSSLTransceiverI.h>
 #include <IceSSL/SecureTransportTransceiverI.h>
 #include <IceSSL/SChannelTransceiverI.h>
+#include <IceSSL/WinRTTransceiverI.h>
 
 #include <IceSSL/EndpointI.h>
 #include <IceSSL/Util.h>
@@ -39,20 +40,19 @@ IceSSL::ConnectorI::connect()
         throw ex;
     }
 
-    IceInternal::StreamSocketPtr stream = new IceInternal::StreamSocket(_instance, _proxy, _addr, _sourceAddr);
-    return new TransceiverI(_instance, stream, _host, false);
+    return new TransceiverI(_instance, _delegate->connect(), _host, false);
 }
 
 Short
 IceSSL::ConnectorI::type() const
 {
-    return _instance->type();
+    return _delegate->type();
 }
 
 string
 IceSSL::ConnectorI::toString() const
 {
-    return IceInternal::addrToString(!_proxy ? _addr : _proxy->getAddress());
+    return _delegate->toString();
 }
 
 bool
@@ -64,22 +64,12 @@ IceSSL::ConnectorI::operator==(const IceInternal::Connector& r) const
         return false;
     }
 
-    if(IceInternal::compareAddress(_addr, p->_addr) != 0)
+    if(this == p)
     {
-        return false;
+        return true;
     }
 
-    if(_timeout != p->_timeout)
-    {
-        return false;
-    }
-
-    if(IceInternal::compareAddress(_sourceAddr, p->_sourceAddr) != 0)
-    {
-        return false;
-    }
-
-    if(_connectionId != p->_connectionId)
+    if(_delegate != p->_delegate)
     {
         return false;
     }
@@ -102,47 +92,25 @@ IceSSL::ConnectorI::operator<(const IceInternal::Connector& r) const
         return type() < r.type();
     }
 
-    if(_timeout < p->_timeout)
-    {
-        return true;
-    }
-    else if(p->_timeout < _timeout)
+    if(this == p)
     {
         return false;
     }
 
-    int rc = compareAddress(_sourceAddr, p->_sourceAddr);
-    if(rc < 0)
+    if(_delegate < p->_delegate)
     {
         return true;
     }
-    else if(rc > 0)
+    else if(p->_delegate < _delegate)
     {
         return false;
     }
 
-    if(_connectionId < p->_connectionId)
-    {
-        return true;
-    }
-    else if(p->_connectionId < _connectionId)
-    {
-        return false;
-    }
-
-    return IceInternal::compareAddress(_addr, p->_addr) == -1;
+    return false;
 }
 
-IceSSL::ConnectorI::ConnectorI(const InstancePtr& instance, const string& host, const IceInternal::Address& addr,
-                               const IceInternal::NetworkProxyPtr& proxy, const IceInternal::Address& sourceAddr,
-                               Ice::Int timeout, const string& connectionId) :
-    _instance(instance),
-    _host(host),
-    _addr(addr),
-    _proxy(proxy),
-    _sourceAddr(sourceAddr),
-    _timeout(timeout),
-    _connectionId(connectionId)
+IceSSL::ConnectorI::ConnectorI(const InstancePtr& instance, const IceInternal::ConnectorPtr& del, const string& h) :
+    _instance(instance), _delegate(del), _host(h)
 {
 }
 

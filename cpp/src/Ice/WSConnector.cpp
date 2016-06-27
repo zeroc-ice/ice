@@ -19,7 +19,7 @@ using namespace IceInternal;
 TransceiverPtr
 IceInternal::WSConnector::connect()
 {
-    return new WSTransceiver(_instance, _delegate->connect(), _host, _port, _resource);
+    return new WSTransceiver(_instance, _delegate->connect(), _host, _resource);
 }
 
 Short
@@ -102,9 +102,9 @@ IceInternal::WSConnector::operator<(const Connector& r) const
     return false;
 }
 
-IceInternal::WSConnector::WSConnector(const ProtocolInstancePtr& instance, const ConnectorPtr& del, const string& host, 
-                                        int port, const string& resource) :
-    _instance(instance), _delegate(del), _host(host), _port(port), _resource(resource)
+IceInternal::WSConnector::WSConnector(const ProtocolInstancePtr& instance, const ConnectorPtr& del, const string& host,
+                                      const string& resource) :
+    _instance(instance), _delegate(del), _host(host), _resource(resource)
 {
 }
 

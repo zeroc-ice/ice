@@ -58,7 +58,7 @@ namespace IceSSL
             }
         }
 
-        internal bool verify(NativeConnectionInfo info)
+        internal bool verify(NativeConnectionInfo info, string desc)
         {
             List<List<List<RFC2253.RDNPair>>> reject = new List<List<List<RFC2253.RDNPair>>>(),
                 accept = new List<List<List<RFC2253.RDNPair>>>();
@@ -143,17 +143,12 @@ namespace IceSSL
                         if(info.incoming)
                         {
                             communicator_.getLogger().trace("Security", "trust manager evaluating client:\n" +
-                                "subject = " + subjectName + "\n" +
-                                "adapter = " + info.adapterName + "\n" +
-                                "local addr = " + info.localAddress + ":" + info.localPort + "\n" +
-                                "remote addr = " +  info.remoteAddress + ":" + info.remotePort);
+                                "subject = " + subjectName + "\n" + "adapter = " + info.adapterName + "\n" + desc);
                         }
                         else
                         {
                             communicator_.getLogger().trace("Security", "trust manager evaluating server:\n" +
-                                "subject = " + subjectName + "\n" +
-                                "local addr = " + info.localAddress + ":" + info.localPort + "\n" +
-                                "remote addr = " +  info.remoteAddress + ":" + info.remotePort);
+                                "subject = " + subjectName + "\n" + desc);
                         }
                     }
 

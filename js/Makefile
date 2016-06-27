@@ -17,7 +17,10 @@ all: npminstall
 dist: npminstall
 	$(NPM) run gulp:dist
 
-clean: npminstall
+install:
+
+
+distclean clean: npminstall
 	$(NPM) run gulp:clean
 
 lint: npminstall

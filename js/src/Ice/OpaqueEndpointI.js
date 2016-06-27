@@ -51,7 +51,7 @@ var OpaqueEndpointI = Class(Ice.EndpointI, {
     //
     getInfo: function()
     {
-        return new OpaqueEndpointInfoI(-1, false, this._rawEncoding, this._rawBytes, this._type);
+        return new OpaqueEndpointInfoI(null, -1, false, this._rawEncoding, this._rawBytes, this._type);
     },
     //
     // Return the endpoint type

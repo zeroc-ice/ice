@@ -125,7 +125,7 @@
               </DistSolution>
             </ItemGroup>
 
-            <!-- ARM Buidls require Win32 for the Slice translators -->
+            <!-- ARM Builds require Win32 for the Slice translators -->
             <ItemGroup Condition="'$(Platform)' == 'ARM'">
               <DistSolution Include="ice.$(DefaultPlatformToolset).sln">
                 <Properties>Configuration=$(Configuration);Platform=Win32</Properties>

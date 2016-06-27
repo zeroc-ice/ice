@@ -12,6 +12,10 @@
 	<dict>
 		<key>PLATFORM_NAME</key>
 		<string>iPhoneSimulator</string>
+		<key>GCC_PREPROCESSOR_DEFINITIONS</key>
+		<array>
+			<string>ICE_STATIC_LIBS</string>
+		</array>
 	</dict>
 	<key>DisplayName</key>
 	<string>Ice SDK 3.7.0</string>

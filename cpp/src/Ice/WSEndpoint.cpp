@@ -22,20 +22,36 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
+namespace
+{
+
+Ice::IPEndpointInfoPtr
+getIPEndpointInfo(const Ice::EndpointInfoPtr& info)
+{
+    for(Ice::EndpointInfoPtr p = info; p; p = p->underlying)
+    {
+        Ice::IPEndpointInfoPtr ipInfo = ICE_DYNAMIC_CAST(Ice::IPEndpointInfo, p);
+        if(ipInfo)
+        {
+            return ipInfo;
+        }
+    }
+    return ICE_NULLPTR;
+}
+
+}
+
 #ifndef ICE_CPP11_MAPPING
 IceUtil::Shared* IceInternal::upCast(WSEndpoint* p) { return p; }
 #endif
 
 IceInternal::WSEndpoint::WSEndpoint(const ProtocolInstancePtr& instance, const EndpointIPtr& del, const string& res) :
-    _instance(instance),
-    _delegate(ICE_DYNAMIC_CAST(IPEndpointI, del)),
-    _resource(res)
+    _instance(instance), _delegate(del), _resource(res)
 {
 }
 
 IceInternal::WSEndpoint::WSEndpoint(const ProtocolInstancePtr& inst, const EndpointIPtr& del, vector<string>& args) :
-    _instance(inst), 
-    _delegate(ICE_DYNAMIC_CAST(IPEndpointI, del))
+    _instance(inst), _delegate(del)
 {
     initWithOptions(args);
 
@@ -46,8 +62,7 @@ IceInternal::WSEndpoint::WSEndpoint(const ProtocolInstancePtr& inst, const Endpo
 }
 
 IceInternal::WSEndpoint::WSEndpoint(const ProtocolInstancePtr& instance, const EndpointIPtr& del, InputStream* s) :
-    _instance(instance),
-    _delegate(ICE_DYNAMIC_CAST(IPEndpointI, del))
+    _instance(instance), _delegate(del)
 {
     s->read(const_cast<string&>(_resource), false);
 }
@@ -55,13 +70,12 @@ IceInternal::WSEndpoint::WSEndpoint(const ProtocolInstancePtr& instance, const E
 Ice::EndpointInfoPtr
 IceInternal::WSEndpoint::getInfo() const
 {
-#ifdef ICE_CPP11_MAPPING
-    assert(dynamic_pointer_cast<WSEndpointDelegate>(_delegate));
-    return dynamic_pointer_cast<WSEndpointDelegate>(_delegate)->getWSInfo(_resource);
-#else
-    assert(dynamic_cast<WSEndpointDelegate*>(_delegate.get()));
-    return dynamic_cast<WSEndpointDelegate*>(_delegate.get())->getWSInfo(_resource);
-#endif
+    WSEndpointInfoPtr info = ICE_MAKE_SHARED(InfoI<Ice::WSEndpointInfo>, shared_from_this());
+    info->underlying = _delegate->getInfo();
+    info->compress = info->underlying->compress;
+    info->timeout = info->underlying->timeout;
+    info->resource = _resource;
+    return info;
 }
 
 Ice::Short
@@ -77,12 +91,10 @@ IceInternal::WSEndpoint::protocol() const
 }
 
 void
-IceInternal::WSEndpoint::streamWrite(OutputStream* s) const
+IceInternal::WSEndpoint::streamWriteImpl(OutputStream* s) const
 {
-    s->startEncapsulation();
     _delegate->streamWriteImpl(s);
     s->write(_resource, false);
-    s->endEncapsulation();
 }
 
 Int
@@ -169,8 +181,8 @@ IceInternal::WSEndpoint::connectors_async(Ice::EndpointSelectionType selType,
     public:
 
         CallbackI(const EndpointI_connectorsPtr& callback, const ProtocolInstancePtr& instance,
-                  const string& host, int port, const string& resource) :
-            _callback(callback), _instance(instance), _host(host), _port(port), _resource(resource)
+                  const string& host, const string& resource) :
+            _callback(callback), _instance(instance), _host(host), _resource(resource)
         {
         }
 
@@ -179,7 +191,7 @@ IceInternal::WSEndpoint::connectors_async(Ice::EndpointSelectionType selType,
             vector<ConnectorPtr> connectors = c;
             for(vector<ConnectorPtr>::iterator p = connectors.begin(); p != connectors.end(); ++p)
             {
-                *p = new WSConnector(_instance, *p, _host, _port, _resource);
+                *p = new WSConnector(_instance, *p, _host, _resource);
             }
             _callback->connectors(connectors);
         }
@@ -194,11 +206,16 @@ IceInternal::WSEndpoint::connectors_async(Ice::EndpointSelectionType selType,
         const EndpointI_connectorsPtr _callback;
         const ProtocolInstancePtr _instance;
         const string _host;
-        const int _port;
         const string _resource;
     };
-    _delegate->connectors_async(selType, ICE_MAKE_SHARED(CallbackI, callback, _instance, _delegate->host(),
-                                                         _delegate->port(), _resource));
+
+    ostringstream host;
+    IPEndpointInfoPtr info = getIPEndpointInfo(_delegate->getInfo());
+    if(info)
+    {
+        host << info->host << ":" << info->port;
+    }
+    _delegate->connectors_async(selType, ICE_MAKE_SHARED(CallbackI, callback, _instance, host.str(), _resource));
 }
 
 AcceptorPtr
@@ -275,12 +292,6 @@ IceInternal::WSEndpoint::options() const
     return s.str();
 }
 
-EndpointIPtr
-IceInternal::WSEndpoint::delegate() const
-{
-    return ICE_DYNAMIC_CAST(EndpointI, _delegate);
-}
-
 bool
 #ifdef ICE_CPP11_MAPPING
 IceInternal::WSEndpoint::operator==(const Endpoint& r) const
@@ -322,7 +333,7 @@ IceInternal::WSEndpoint::operator<(const Ice::LocalObject& r) const
     const WSEndpoint* p = dynamic_cast<const WSEndpoint*>(&r);
     if(!p)
     {
-        const EndpointI* e = dynamic_cast<const WSEndpoint*>(&r);
+        const EndpointI* e = dynamic_cast<const EndpointI*>(&r);
         if(!e)
         {
             return false;
@@ -354,7 +365,6 @@ IceInternal::WSEndpoint::operator<(const Ice::LocalObject& r) const
     }
 
     return false;
-
 }
 
 bool
@@ -382,8 +392,7 @@ IceInternal::WSEndpoint::checkOption(const string& option, const string& argumen
 }
 
 IceInternal::WSEndpointFactory::WSEndpointFactory(const ProtocolInstancePtr& instance, const EndpointFactoryPtr& del) :
-    _instance(instance),
-    _delegate(del)
+    _instance(instance), _delegate(del)
 {
 }
 
@@ -423,8 +432,7 @@ IceInternal::WSEndpointFactory::destroy()
 }
 
 EndpointFactoryPtr
-IceInternal::WSEndpointFactory::clone(const ProtocolInstancePtr&) const
+IceInternal::WSEndpointFactory::clone(const ProtocolInstancePtr& instance, const EndpointFactoryPtr& delegate) const
 {
-    assert(false); // We don't support cloning this transport.
-    return 0;
+    return new WSEndpointFactory(instance, delegate);
 }

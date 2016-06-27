@@ -13,7 +13,7 @@ namespace IceInternal
     {
         public IceInternal.Transceiver connect()
         {
-            return new WSTransceiver(_instance, _delegate.connect(), _host, _port, _resource);
+            return new WSTransceiver(_instance, _delegate.connect(), _host, _resource);
         }
 
         public short type()
@@ -21,12 +21,11 @@ namespace IceInternal
             return _delegate.type();
         }
 
-        internal WSConnector(ProtocolInstance instance, IceInternal.Connector del, string host, int port, string resource)
+        internal WSConnector(ProtocolInstance instance, IceInternal.Connector del, string host, string resource)
         {
             _instance = instance;
             _delegate = del;
             _host = host;
-            _port = port;
             _resource = resource;
         }
 
@@ -69,7 +68,6 @@ namespace IceInternal
         private ProtocolInstance _instance;
         private IceInternal.Connector _delegate;
         private string _host;
-        private int _port;
         private string _resource;
     }
 }

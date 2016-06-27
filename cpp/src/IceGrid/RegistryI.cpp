@@ -118,6 +118,19 @@ private:
     ProcessPtr _origProcess;
 };
 
+Ice::IPConnectionInfoPtr
+getIPConnectionInfo(const Ice::ConnectionInfoPtr& info)
+{
+    for(Ice::ConnectionInfoPtr p = info; p; p = p->underlying)
+    {
+        Ice::IPConnectionInfoPtr ipInfo = Ice::IPConnectionInfoPtr::dynamicCast(p);
+        if(ipInfo)
+        {
+            return ipInfo;
+        }
+    }
+    return ICE_NULLPTR;
+}
 
 ProcessI::ProcessI(const RegistryIPtr& registry, const ProcessPtr& origProcess) :
     _registry(registry),
@@ -1338,10 +1351,11 @@ RegistryI::getSSLInfo(const ConnectionPtr& connection, string& userDN)
             throw exc;
         }
 
-        sslinfo.remotePort = info->remotePort;
-        sslinfo.remoteHost = info->remoteAddress;
-        sslinfo.localPort = info->localPort;
-        sslinfo.localHost = info->localAddress;
+        Ice::IPConnectionInfoPtr ipInfo = getIPConnectionInfo(info);
+        sslinfo.remotePort = ipInfo->remotePort;
+        sslinfo.remoteHost = ipInfo->remoteAddress;
+        sslinfo.localPort = ipInfo->localPort;
+        sslinfo.localHost = ipInfo->localAddress;
         sslinfo.cipher = info->cipher;
         sslinfo.certs = info->certs;
         if(info->certs.size() > 0)

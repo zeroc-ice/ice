@@ -48,7 +48,14 @@ public class AllTests
         out.print("testing connection information... ");
         out.flush();
         {
-            Ice.IPConnectionInfo info = (Ice.IPConnectionInfo)test.ice_getConnection().getInfo();
+            Ice.IPConnectionInfo info = null;
+            for(Ice.ConnectionInfo p = test.ice_getConnection().getInfo(); p != null; p = p.underlying)
+            {
+                if(p instanceof Ice.IPConnectionInfo)
+                {
+                    info = (Ice.IPConnectionInfo)p;
+                }
+            }
             test(info.remotePort == 12030 || info.remotePort == 12031); // make sure we are connected to the proxy port.
         }
         out.println("ok");

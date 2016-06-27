@@ -25,8 +25,15 @@
 
 #if defined(__APPLE__)
 #  define ICE_USE_SECURE_TRANSPORT 1
+#if defined(__APPLE__) && TARGET_OS_IPHONE != 0
+#  define ICE_USE_SECURE_TRANSPORT_IOS 1
+#else
+#  define ICE_USE_SECURE_TRANSPORT_MACOS 1
+#endif
 #elif defined(_WIN32)
-#  define ICE_USE_SCHANNEL 1
+#  if !defined(ICE_OS_WINRT)
+#    define ICE_USE_SCHANNEL 1
+#  endif
 #else
 #  define ICE_USE_OPENSSL 1
 #endif

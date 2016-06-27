@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Ice/EndpointI.h>
+#include <Ice/OutputStream.h>
 
 using namespace std;
 
@@ -15,6 +16,14 @@ using namespace std;
 IceUtil::Shared* IceInternal::upCast(EndpointI* p) { return p; }
 IceUtil::Shared* IceInternal::upCast(EndpointI_connectors* p) { return p; }
 #endif
+
+void
+IceInternal::EndpointI::streamWrite(Ice::OutputStream* s) const
+{
+    s->startEncapsulation();
+    streamWriteImpl(s);
+    s->endEncapsulation();
+}
 
 string
 IceInternal::EndpointI::toString() const

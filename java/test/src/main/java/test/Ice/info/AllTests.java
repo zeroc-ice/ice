@@ -25,6 +25,32 @@ public class AllTests
         }
     }
 
+    private static Ice.TCPEndpointInfo
+    getTCPEndpointInfo(Ice.EndpointInfo info)
+    {
+        for(Ice.EndpointInfo p = info; p != null; p = p.underlying)
+        {
+            if(p instanceof Ice.TCPEndpointInfo)
+            {
+                return (Ice.TCPEndpointInfo)p;
+            }
+        }
+        return null;
+    }
+
+    private static Ice.TCPConnectionInfo
+    getTCPConnectionInfo(Ice.ConnectionInfo info)
+    {
+        for(Ice.ConnectionInfo p = info; p != null; p = p.underlying)
+        {
+            if(p instanceof Ice.TCPConnectionInfo)
+            {
+                return (Ice.TCPConnectionInfo)p;
+            }
+        }
+        return null;
+    }
+
     public static void
     allTests(Ice.Communicator communicator, PrintWriter out)
     {
@@ -37,23 +63,23 @@ public class AllTests
                                 "opaque -e 1.8 -t 100 -v ABCD");
 
             Ice.Endpoint[] endps = p1.ice_getEndpoints();
+            Ice.EndpointInfo info = endps[0].getInfo();
+            Ice.TCPEndpointInfo tcpEndpoint = (Ice.TCPEndpointInfo)getTCPEndpointInfo(info);
+            test(tcpEndpoint.host.equals("tcphost"));
+            test(tcpEndpoint.port == 10000);
+            test(tcpEndpoint.timeout == 1200);
+            test(tcpEndpoint.sourceAddress.equals("10.10.10.10"));
+            test(tcpEndpoint.compress);
+            test(!tcpEndpoint.datagram());
+            test(tcpEndpoint.type() == Ice.TCPEndpointType.value && !tcpEndpoint.secure() ||
+                 tcpEndpoint.type() == Ice.SSLEndpointType.value && tcpEndpoint.secure() ||
+                 tcpEndpoint.type() == Ice.WSEndpointType.value && !tcpEndpoint.secure() ||
+                 tcpEndpoint.type() == Ice.WSSEndpointType.value && tcpEndpoint.secure());
 
-
-            Ice.IPEndpointInfo ipEndpoint = (Ice.IPEndpointInfo)endps[0].getInfo();
-            test(ipEndpoint.host.equals("tcphost"));
-            test(ipEndpoint.port == 10000);
-            test(ipEndpoint.timeout == 1200);
-            test(ipEndpoint.sourceAddress.equals("10.10.10.10"));
-            test(ipEndpoint.compress);
-            test(!ipEndpoint.datagram());
-            test(ipEndpoint.type() == Ice.TCPEndpointType.value && !ipEndpoint.secure() ||
-                 ipEndpoint.type() == IceSSL.EndpointType.value && ipEndpoint.secure() ||
-                 ipEndpoint.type() == Ice.WSEndpointType.value && !ipEndpoint.secure() ||
-                 ipEndpoint.type() == Ice.WSSEndpointType.value && ipEndpoint.secure());
-            test(ipEndpoint.type() == Ice.TCPEndpointType.value && ipEndpoint instanceof Ice.TCPEndpointInfo ||
-                 ipEndpoint.type() == IceSSL.EndpointType.value && ipEndpoint instanceof IceSSL.EndpointInfo ||
-                 ipEndpoint.type() == Ice.WSEndpointType.value && ipEndpoint instanceof Ice.WSEndpointInfo ||
-                 ipEndpoint.type() == Ice.WSSEndpointType.value && ipEndpoint instanceof IceSSL.WSSEndpointInfo);
+            test(tcpEndpoint.type() == Ice.TCPEndpointType.value && info instanceof Ice.TCPEndpointInfo ||
+                 tcpEndpoint.type() == Ice.SSLEndpointType.value && info instanceof IceSSL.EndpointInfo ||
+                 tcpEndpoint.type() == Ice.WSEndpointType.value && info instanceof Ice.WSEndpointInfo ||
+                 tcpEndpoint.type() == Ice.WSSEndpointType.value && info instanceof Ice.WSEndpointInfo);
 
             Ice.UDPEndpointInfo udpEndpoint = (Ice.UDPEndpointInfo)endps[1].getInfo();
             test(udpEndpoint.host.equals("udphost"));
@@ -84,12 +110,12 @@ public class AllTests
             Ice.Endpoint[] publishedEndpoints = adapter.getPublishedEndpoints();
             test(java.util.Arrays.equals(endpoints, publishedEndpoints));
 
-            Ice.IPEndpointInfo ipEndpoint = (Ice.IPEndpointInfo)endpoints[0].getInfo();
-            test(ipEndpoint.type() == Ice.TCPEndpointType.value || ipEndpoint.type() == IceSSL.EndpointType.value ||
-                 ipEndpoint.type() == Ice.WSEndpointType.value || ipEndpoint.type() == Ice.WSSEndpointType.value);
-            test(ipEndpoint.host.equals(defaultHost));
-            test(ipEndpoint.port > 0);
-            test(ipEndpoint.timeout == 15000);
+            Ice.TCPEndpointInfo tcpEndpoint = getTCPEndpointInfo(endpoints[0].getInfo());
+            test(tcpEndpoint.type() == Ice.TCPEndpointType.value || tcpEndpoint.type() == Ice.SSLEndpointType.value ||
+                 tcpEndpoint.type() == Ice.WSEndpointType.value || tcpEndpoint.type() == Ice.WSSEndpointType.value);
+            test(tcpEndpoint.host.equals(defaultHost));
+            test(tcpEndpoint.port > 0);
+            test(tcpEndpoint.timeout == 15000);
 
             Ice.UDPEndpointInfo udpEndpoint = (Ice.UDPEndpointInfo)endpoints[1].getInfo();
             test(udpEndpoint.host.equals(defaultHost));
@@ -109,13 +135,13 @@ public class AllTests
 
             for(Ice.Endpoint endpoint : endpoints)
             {
-                ipEndpoint = (Ice.IPEndpointInfo)endpoint.getInfo();
-                test(ipEndpoint.port == 12020);
+                tcpEndpoint = getTCPEndpointInfo(endpoint.getInfo());
+                test(tcpEndpoint.port == 12020);
             }
 
-            ipEndpoint = (Ice.IPEndpointInfo)publishedEndpoints[0].getInfo();
-            test(ipEndpoint.host.equals("127.0.0.1"));
-            test(ipEndpoint.port == 12020);
+            tcpEndpoint = getTCPEndpointInfo(publishedEndpoints[0].getInfo());
+            test(tcpEndpoint.host.equals("127.0.0.1"));
+            test(tcpEndpoint.port == 12020);
 
             adapter.destroy();
         }
@@ -128,13 +154,13 @@ public class AllTests
         out.flush();
         {
             Ice.EndpointInfo info = base.ice_getConnection().getEndpoint().getInfo();
-            Ice.IPEndpointInfo ipinfo = (Ice.IPEndpointInfo)info;
-            test(ipinfo.port == 12010);
-            test(!ipinfo.compress);
-            test(ipinfo.host.equals(defaultHost));
+            Ice.TCPEndpointInfo tcpinfo = getTCPEndpointInfo(info);
+            test(tcpinfo.port == 12010);
+            test(!tcpinfo.compress);
+            test(tcpinfo.host.equals(defaultHost));
 
             java.util.Map<String, String> ctx = testIntf.getEndpointInfoAsContext();
-            test(ctx.get("host").equals(ipinfo.host));
+            test(ctx.get("host").equals(tcpinfo.host));
             test(ctx.get("compress").equals("false"));
             int port = Integer.parseInt(ctx.get("port"));
             test(port > 0);
@@ -152,7 +178,7 @@ public class AllTests
             Ice.Connection connection = base.ice_getConnection();
             connection.setBufferSize(1024, 2048);
 
-            Ice.IPConnectionInfo info = (Ice.IPConnectionInfo)connection.getInfo();
+            Ice.TCPConnectionInfo info = getTCPConnectionInfo(connection.getInfo());
             test(!info.incoming);
             test(info.adapterName.length() == 0);
             test(info.localPort > 0);
@@ -175,15 +201,7 @@ public class AllTests
 
             if(base.ice_getConnection().type().equals("ws") || base.ice_getConnection().type().equals("wss"))
             {
-                java.util.Map<String, String> headers;
-                if(info instanceof Ice.WSConnectionInfo)
-                {
-                    headers = ((Ice.WSConnectionInfo)info).headers;
-                }
-                else
-                {
-                    headers = ((IceSSL.WSSConnectionInfo)info).headers;
-                }
+                java.util.Map<String, String> headers = ((Ice.WSConnectionInfo)connection.getInfo()).headers;
                 test(headers.get("Upgrade").equals("websocket"));
                 test(headers.get("Connection").equals("Upgrade"));
                 test(headers.get("Sec-WebSocket-Protocol").equals("ice.zeroc.com"));
@@ -199,18 +217,18 @@ public class AllTests
             connection = base.ice_datagram().ice_getConnection();
             connection.setBufferSize(2048, 1024);
 
-            info = (Ice.IPConnectionInfo)connection.getInfo();
-            test(!info.incoming);
-            test(info.adapterName.length() == 0);
-            test(info.localPort > 0);
-            test(info.remotePort == 12010);
+            Ice.UDPConnectionInfo udpinfo = (Ice.UDPConnectionInfo)connection.getInfo();
+            test(!udpinfo.incoming);
+            test(udpinfo.adapterName.length() == 0);
+            test(udpinfo.localPort > 0);
+            test(udpinfo.remotePort == 12010);
             if(defaultHost.equals("127.0.0.1"))
             {
-                test(info.remoteAddress.equals(defaultHost));
-                test(info.localAddress.equals(defaultHost));
+                test(udpinfo.remoteAddress.equals(defaultHost));
+                test(udpinfo.localAddress.equals(defaultHost));
             }
-            test(info.rcvSize >= 2048);
-            test(info.sndSize >= 1024);
+            test(udpinfo.rcvSize >= 2048);
+            test(udpinfo.sndSize >= 1024);
         }
         out.println("ok");
 

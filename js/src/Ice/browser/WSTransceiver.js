@@ -272,15 +272,13 @@ var WSTransceiver = Ice.Class({
     getInfo: function()
     {
         Debug.assert(this._fd !== null);
-        var info = this._secure ? new IceSSL.WSSConnectionInfo() : new Ice.WSConnectionInfo();
-
-        //
-        // The WebSocket API doens't provide this info
-        //
-        info.localAddress = "";
-        info.localPort = -1;
-        info.remoteAddress = this._addr.host;
-        info.remotePort = this._addr.port;
+        var info = new Ice.WSConnectionInfo();
+        var tcpinfo = new Ice.TCPConnectionInfo();
+        tcpinfo.localAddress = "";
+        tcpinfo.localPort = -1;
+        tcpinfo.remoteAddress = this._addr.host;
+        tcpinfo.remotePort = this._addr.port;
+        info.underlying = this._secure ? new IceSSL.ConnectionInfo(tcpinfo, tcpinfo.timeout, tcpinfo.compress) : tcpinfo;
         info.rcvSize = -1;
         info.sndSize = this._maxSendPacketSize;
         info.headers = {};

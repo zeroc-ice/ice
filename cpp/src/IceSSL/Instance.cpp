@@ -7,13 +7,8 @@
 //
 // **********************************************************************
 
-#include <IceUtil/Config.h>
-#ifdef _WIN32
-#   include <winsock2.h>
-#endif
 #include <IceSSL/Instance.h>
 #include <IceSSL/SSLEngine.h>
-#include <Ice/Properties.h>
 
 using namespace std;
 using namespace Ice;

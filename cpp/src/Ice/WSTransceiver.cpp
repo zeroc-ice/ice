@@ -184,17 +184,11 @@ IceInternal::WSTransceiver::getNativeInfo()
     return _delegate->getNativeInfo();
 }
 
-#if defined(ICE_USE_IOCP)
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
 AsyncInfo*
 IceInternal::WSTransceiver::getAsyncInfo(SocketOperation status)
 {
     return _delegate->getNativeInfo()->getAsyncInfo(status);
-}
-#elif defined(ICE_OS_WINRT)
-void
-IceInternal::WSTransceiver::setCompletedHandler(IceInternal::SocketOperationCompletedHandler^ handler)
-{
-    _delegate->getNativeInfo()->setCompletedHandler(handler);
 }
 #endif
 
@@ -236,7 +230,7 @@ IceInternal::WSTransceiver::initialize(Buffer& readBuffer, Buffer& writeBuffer)
                 //
                 ostringstream out;
                 out << "GET " << _resource << " HTTP/1.1\r\n"
-                    << "Host: " << _host << ":" << _port << "\r\n"
+                    << "Host: " << _host << "\r\n"
                     << "Upgrade: websocket\r\n"
                     << "Connection: Upgrade\r\n"
                     << "Sec-WebSocket-Protocol: " << _iceProtocol << "\r\n"
@@ -873,8 +867,10 @@ IceInternal::WSTransceiver::toDetailedString() const
 Ice::ConnectionInfoPtr
 IceInternal::WSTransceiver::getInfo() const
 {
-    assert(dynamic_cast<WSTransceiverDelegate*>(_delegate.get()));
-    return dynamic_cast<WSTransceiverDelegate*>(_delegate.get())->getWSInfo(_parser->getHeaders());
+    WSConnectionInfoPtr info = ICE_MAKE_SHARED(WSConnectionInfo);
+    info->underlying = _delegate->getInfo();
+    info->headers = _parser->getHeaders();
+    return info;
 }
 
 void
@@ -890,11 +886,10 @@ IceInternal::WSTransceiver::setBufferSize(int rcvSize, int sndSize)
 }
 
 IceInternal::WSTransceiver::WSTransceiver(const ProtocolInstancePtr& instance, const TransceiverPtr& del,
-                                          const string& host, int port, const string& resource) :
+                                          const string& host, const string& resource) :
     _instance(instance),
     _delegate(del),
     _host(host),
-    _port(port),
     _resource(resource),
     _incoming(false),
     _state(StateInitializeDelegate),
@@ -924,7 +919,6 @@ IceInternal::WSTransceiver::WSTransceiver(const ProtocolInstancePtr& instance, c
 IceInternal::WSTransceiver::WSTransceiver(const ProtocolInstancePtr& instance, const TransceiverPtr& del) :
     _instance(instance),
     _delegate(del),
-    _port(-1),
     _incoming(true),
     _state(StateInitializeDelegate),
     _parser(new HttpParser),

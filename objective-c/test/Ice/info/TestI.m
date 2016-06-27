@@ -12,8 +12,33 @@
 #import <info/TestI.h>
 #import <TestCommon.h>
 
-@implementation TestInfoTestIntfI
+static ICEIPEndpointInfo<ICEEndpointInfo>*
+getIPEndpointInfo(ICEEndpointInfo<ICEEndpointInfo>* info)
+{
+    for(; info; info = info.underlying)
+    {
+        if([info isKindOfClass:[ICEIPEndpointInfo class]])
+        {
+            return (ICEIPEndpointInfo<ICEEndpointInfo>*)info;
+        }
+    }
+    return nil;
+}
 
+static ICEIPConnectionInfo*
+getIPConnectionInfo(ICEConnectionInfo* info)
+{
+    for(; info; info = info.underlying)
+    {
+        if([info isKindOfClass:[ICEIPConnectionInfo class]])
+        {
+            return (ICEIPConnectionInfo*)info;
+        }
+    }
+    return nil;
+}
+
+@implementation TestInfoTestIntfI
 
 -(void) shutdown:(ICECurrent*)c
 {
@@ -33,7 +58,7 @@
     [ctx setObject:[info secure] ? @"true" : @"false" forKey:@"secure"];
     [ctx setObject:[NSString stringWithFormat:@"%d", [info type]] forKey:@"type"];
 
-    ICEIPEndpointInfo* ipinfo = (ICEIPEndpointInfo*)info;
+    ICEIPEndpointInfo* ipinfo = getIPEndpointInfo(info);
     [ctx setObject:ipinfo.host forKey:@"host"];
     [ctx setObject:[NSString stringWithFormat:@"%d", ipinfo.port] forKey:@"port"];
 
@@ -52,7 +77,7 @@
     ICEMutableContext* ctx = [ICEMutableContext dictionaryWithObject:[info adapterName] forKey:@"adapterName"];
     [ctx setObject:info.incoming ? @"true" : @"false" forKey:@"incoming"];
 
-    ICEIPConnectionInfo* ipinfo = (ICEIPConnectionInfo*)info;
+    ICEIPConnectionInfo* ipinfo = getIPConnectionInfo(info);
     [ctx setObject:ipinfo.localAddress forKey:@"localAddress"];
     [ctx setObject:[NSString stringWithFormat:@"%d", ipinfo.localPort] forKey:@"localPort"];
     [ctx setObject:ipinfo.remoteAddress forKey:@"remoteAddress"];
@@ -67,14 +92,6 @@
         }
     }
 
-    if([info isKindOfClass:[ICESSLWSSConnectionInfo class]])
-    {
-        ICESSLWSSConnectionInfo* wssinfo = (ICESSLWSSConnectionInfo*)info;
-        for(NSString* key in wssinfo.headers)
-        {
-            [ctx setObject:[wssinfo.headers objectForKey:key] forKey:[NSString stringWithFormat:@"ws.%@", key]];
-        }
-    }
     return ctx;
 }
 @end

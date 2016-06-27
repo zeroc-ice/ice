@@ -39,7 +39,7 @@ public:
     virtual EndpointIPtr read(Ice::InputStream*) const = 0;
     virtual void destroy() = 0;
 
-    virtual EndpointFactoryPtr clone(const ProtocolInstancePtr&) const = 0;
+    virtual EndpointFactoryPtr clone(const ProtocolInstancePtr&, const EndpointFactoryPtr&) const = 0;
 
 protected:
 

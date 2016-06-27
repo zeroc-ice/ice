@@ -40,9 +40,9 @@ var TcpEndpointI = Class(Ice.IPEndpointI, {
     //
     getInfo: function()
     {
-        var info = this.secure() ? new IceSSL.EndpointInfo() : new Ice.TCPEndpointInfo();
+        var info = new Ice.TCPEndpointInfo();
         this.fillEndpointInfo(info);
-        return info;
+        return this.secure() ? new IceSSL.EndpointInfo(info, info.timeout, info.compress) : info;
     },
     //
     // Return the timeout for the endpoint in milliseconds. 0 means

@@ -32,7 +32,7 @@ namespace IceSSL
 class ConnectorI;
 class AcceptorI;
 
-class TransceiverI : public IceInternal::Transceiver, public IceInternal::WSTransceiverDelegate
+class TransceiverI : public IceInternal::Transceiver
 {
 public:
 
@@ -51,7 +51,6 @@ public:
     virtual std::string toString() const;
     virtual std::string toDetailedString() const;
     virtual Ice::ConnectionInfoPtr getInfo() const;
-    virtual Ice::ConnectionInfoPtr getWSInfo(const Ice::HeaderDict&) const;
     virtual void checkSendSize(const IceInternal::Buffer&);
     virtual void setBufferSize(int rcvSize, int sndSize);
 
@@ -59,10 +58,8 @@ public:
 
 private:
 
-    TransceiverI(const InstancePtr&, const IceInternal::StreamSocketPtr&, const std::string&, bool);
+    TransceiverI(const InstancePtr&, const IceInternal::TransceiverPtr&, const std::string&, bool);
     virtual ~TransceiverI();
-
-    void fillConnectionInfo(const ConnectionInfoPtr&, std::vector<CertificatePtr>&) const;
 
     friend class ConnectorI;
     friend class AcceptorI;
@@ -72,7 +69,8 @@ private:
     const std::string _host;
     const std::string _adapterName;
     const bool _incoming;
-    const IceInternal::StreamSocketPtr _stream;
+    const IceInternal::TransceiverPtr _delegate;
+    bool _connected;
     bool _verified;
     std::vector<CertificatePtr> _nativeCerts;
 

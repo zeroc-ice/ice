@@ -12,7 +12,7 @@
 
 #include <IceUtil/PushDisableWarnings.h>
 #include <IceUtil/Config.h>
-#if !defined(ICE_OS_WINRT) && (!defined(__APPLE__) || TARGET_OS_IPHONE == 0)
+#if !defined(ICE_OS_WINRT)
 #   include <IceSSL/Plugin.h>
 #endif
 #include <IceSSL/EndpointInfo.h>

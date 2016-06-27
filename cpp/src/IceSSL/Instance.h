@@ -10,8 +10,8 @@
 #ifndef ICE_SSL_INSTANCE_H
 #define ICE_SSL_INSTANCE_H
 
-#include <IceSSL/InstanceF.h>
 #include <Ice/ProtocolInstance.h>
+#include <IceSSL/InstanceF.h>
 #include <IceSSL/SSLEngineF.h>
 
 namespace IceSSL
@@ -24,12 +24,12 @@ public:
     Instance(const SSLEnginePtr&, Ice::Short, const std::string&);
     virtual ~Instance();
 
-    SSLEnginePtr 
+    SSLEnginePtr
     engine() const
     {
         return _engine;
     }
-    
+
     bool initialized() const;
 
 private:

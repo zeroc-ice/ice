@@ -56,17 +56,31 @@ const short WSSEndpointType = 5;
 
 /**
  *
+ * Uniquely identifies Bluetooth endpoints.
+ *
+ **/
+const short BTEndpointType = 6;
+
+/**
+ *
+ * Uniquely identifies SSL Bluetooth endpoints.
+ *
+ **/
+const short BTSEndpointType = 7;
+
+/**
+ *
  * Uniquely identifies iAP-based endpoints.
  *
  **/
-const short iAPEndpointType = 6;
+const short iAPEndpointType = 8;
 
 /**
  *
  * Uniquely identifies SSL iAP-based endpoints.
  *
  **/
-const short iAPSEndpointType = 7;
+const short iAPSEndpointType = 9;
 
 /**
  *
@@ -75,6 +89,14 @@ const short iAPSEndpointType = 7;
  **/
 local class EndpointInfo
 {
+    /**
+     *
+     * The information of the underyling endpoint of null if there's
+     * no underlying endpoint.
+     *
+     **/
+    EndpointInfo underlying;
+
     /**
      *
      * The timeout for the endpoint in milliseconds. 0 means
@@ -211,7 +233,7 @@ local class UDPEndpointInfo extends IPEndpointInfo
  * Provides access to a WebSocket endpoint information.
  *
  **/
-local class WSEndpointInfo extends TCPEndpointInfo
+local class WSEndpointInfo extends EndpointInfo
 {
     /**
      *

@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-final class TcpEndpointI extends IPEndpointI implements WSEndpointDelegate
+final class TcpEndpointI extends IPEndpointI
 {
     public TcpEndpointI(ProtocolInstance instance, String ho, int po, java.net.InetSocketAddress sourceAddr, int ti,
                         String conId, boolean co)
@@ -60,37 +60,6 @@ final class TcpEndpointI extends IPEndpointI implements WSEndpointDelegate
             }
         };
         fillEndpointInfo(info);
-        return info;
-    }
-
-    //
-    // Return the WebSocket endpoint information.
-    //
-    @Override
-    public Ice.EndpointInfo getWSInfo(String resource)
-    {
-        Ice.WSEndpointInfo info = new Ice.WSEndpointInfo()
-        {
-            @Override
-            public short type()
-            {
-                return TcpEndpointI.this.type();
-            }
-
-            @Override
-            public boolean datagram()
-            {
-                return TcpEndpointI.this.datagram();
-            }
-
-            @Override
-            public boolean secure()
-            {
-                return TcpEndpointI.this.secure();
-            }
-        };
-        fillEndpointInfo(info);
-        info.resource = resource;
         return info;
     }
 
@@ -267,14 +236,6 @@ final class TcpEndpointI extends IPEndpointI implements WSEndpointDelegate
         h = IceInternal.HashUtil.hashAdd(h, _timeout);
         h = IceInternal.HashUtil.hashAdd(h, _compress);
         return h;
-    }
-
-    @Override
-    public void fillEndpointInfo(Ice.IPEndpointInfo info)
-    {
-        super.fillEndpointInfo(info);
-        info.timeout = _timeout;
-        info.compress = _compress;
     }
 
     @Override

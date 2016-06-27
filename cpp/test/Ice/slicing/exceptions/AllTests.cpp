@@ -411,7 +411,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             test(false);
         }
-            
+
 #else
         CallbackPtr cb = new Callback;
         test->begin_baseAsBase(
@@ -557,7 +557,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 #else
         CallbackPtr cb = new Callback;
         test->begin_knownDerivedAsKnownDerived(
-            newCallback_TestIntf_knownDerivedAsKnownDerived(cb, &Callback::response, 
+            newCallback_TestIntf_knownDerivedAsKnownDerived(cb, &Callback::response,
                                                             &Callback::exception_knownDerivedAsKnownDerived));
         cb->check();
 #endif
@@ -604,7 +604,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 #else
         CallbackPtr cb = new Callback;
         test->begin_unknownIntermediateAsBase(
-            newCallback_TestIntf_unknownIntermediateAsBase(cb, &Callback::response, 
+            newCallback_TestIntf_unknownIntermediateAsBase(cb, &Callback::response,
                                                            &Callback::exception_unknownIntermediateAsBase));
         cb->check();
 #endif
@@ -653,7 +653,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 #else
         CallbackPtr cb = new Callback;
         test->begin_knownIntermediateAsBase(
-            newCallback_TestIntf_knownIntermediateAsBase(cb, &Callback::response, 
+            newCallback_TestIntf_knownIntermediateAsBase(cb, &Callback::response,
                                                          &Callback::exception_knownIntermediateAsBase));
         cb->check();
 #endif
@@ -704,7 +704,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 #else
         CallbackPtr cb = new Callback;
         test->begin_knownMostDerivedAsBase(
-            newCallback_TestIntf_knownMostDerivedAsBase(cb, &Callback::response, 
+            newCallback_TestIntf_knownMostDerivedAsBase(cb, &Callback::response,
                                                         &Callback::exception_knownMostDerivedAsBase));
         cb->check();
 #endif
@@ -753,7 +753,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 #else
         CallbackPtr cb = new Callback;
         test->begin_knownIntermediateAsKnownIntermediate(
-            newCallback_TestIntf_knownIntermediateAsKnownIntermediate(cb, &Callback::response, 
+            newCallback_TestIntf_knownIntermediateAsKnownIntermediate(cb, &Callback::response,
                                                         &Callback::exception_knownIntermediateAsKnownIntermediate));
         cb->check();
 #endif
@@ -804,7 +804,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 #else
         CallbackPtr cb = new Callback;
         test->begin_knownMostDerivedAsKnownIntermediate(
-            newCallback_TestIntf_knownMostDerivedAsKnownIntermediate(cb, &Callback::response, 
+            newCallback_TestIntf_knownMostDerivedAsKnownIntermediate(cb, &Callback::response,
                                                         &Callback::exception_knownMostDerivedAsKnownIntermediate));
         cb->check();
 #endif
@@ -855,7 +855,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 #else
         CallbackPtr cb = new Callback;
         test->begin_knownMostDerivedAsKnownMostDerived(
-            newCallback_TestIntf_knownMostDerivedAsKnownMostDerived(cb, &Callback::response, 
+            newCallback_TestIntf_knownMostDerivedAsKnownMostDerived(cb, &Callback::response,
                                                         &Callback::exception_knownMostDerivedAsKnownMostDerived));
         cb->check();
 #endif
@@ -904,7 +904,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 #else
         CallbackPtr cb = new Callback;
         test->begin_unknownMostDerived1AsBase(
-            newCallback_TestIntf_unknownMostDerived1AsBase(cb, &Callback::response, 
+            newCallback_TestIntf_unknownMostDerived1AsBase(cb, &Callback::response,
                                                            &Callback::exception_unknownMostDerived1AsBase));
         cb->check();
 #endif
@@ -953,7 +953,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 #else
         CallbackPtr cb = new Callback;
         test->begin_unknownMostDerived1AsKnownIntermediate(
-            newCallback_TestIntf_unknownMostDerived1AsKnownIntermediate(cb, &Callback::response, 
+            newCallback_TestIntf_unknownMostDerived1AsKnownIntermediate(cb, &Callback::response,
                                                          &Callback::exception_unknownMostDerived1AsKnownIntermediate));
         cb->check();
 #endif
@@ -1000,7 +1000,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 #else
         CallbackPtr cb = new Callback;
         test->begin_unknownMostDerived2AsBase(
-            newCallback_TestIntf_unknownMostDerived2AsBase(cb, &Callback::response, 
+            newCallback_TestIntf_unknownMostDerived2AsBase(cb, &Callback::response,
                                                          &Callback::exception_unknownMostDerived2AsBase));
         cb->check();
 #endif
@@ -1072,11 +1072,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         catch(const Ice::OperationNotExistException&)
         {
         }
-    catch(const Ice::LocalException& ex)
-    {
-        cout << endl << "** OOPS" << endl << ex << endl;
-        test(false);
-    }
         catch(...)
         {
             test(false);

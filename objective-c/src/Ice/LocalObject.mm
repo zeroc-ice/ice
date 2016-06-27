@@ -16,7 +16,7 @@
 
 #define CXXOBJECT ((IceUtil::Shared*)cxxObject_)
 
-namespace 
+namespace
 {
 
 std::map<IceUtil::Shared*, ICELocalObject*> cachedObjects;
@@ -59,7 +59,7 @@ std::map<IceUtil::Shared*, ICELocalObject*> cachedObjects;
 }
 
 -(void) dealloc
-{  
+{
     if(cxxObject_)
     {
         //
@@ -84,7 +84,7 @@ std::map<IceUtil::Shared*, ICELocalObject*> cachedObjects;
     {
         return nil;
     }
-    
+
     @synchronized([ICELocalObject class])
     {
         std::map<IceUtil::Shared*, ICELocalObject*>::const_iterator p = cachedObjects.find(arg);
@@ -102,7 +102,7 @@ std::map<IceUtil::Shared*, ICELocalObject*> cachedObjects;
     {
         return nil;
     }
-    
+
     @synchronized([ICELocalObject class])
     {
         std::map<IceUtil::Shared*, ICELocalObject*>::const_iterator p = cachedObjects.find(arg);
@@ -118,11 +118,37 @@ std::map<IceUtil::Shared*, ICELocalObject*> cachedObjects;
     return nil; // Keep the compiler happy.
 }
 
++(id) localObjectWithCxxObjectNoAutoRelease:(IceUtil::Shared*)arg allocator:(SEL)alloc
+{
+    if(arg == 0)
+    {
+        return nil;
+    }
+
+    @synchronized([ICELocalObject class])
+    {
+        std::map<IceUtil::Shared*, ICELocalObject*>::const_iterator p = cachedObjects.find(arg);
+        if(p != cachedObjects.end())
+        {
+            return [p->second retain];
+        }
+        else
+        {
+            return [self performSelector:alloc withObject:[NSValue valueWithPointer:arg]];
+        }
+    }
+    return nil; // Keep the compiler happy.
+}
+
 +(id) localObjectWithCxxObject:(IceUtil::Shared*)arg
 {
     return [[self localObjectWithCxxObjectNoAutoRelease:arg] autorelease];
 }
 
++(id) localObjectWithCxxObject:(IceUtil::Shared*)arg allocator:(SEL)alloc
+{
+    return [[self localObjectWithCxxObjectNoAutoRelease:arg allocator:alloc] autorelease];
+}
 
 -(id) retain
 {
@@ -132,7 +158,7 @@ std::map<IceUtil::Shared*, ICELocalObject*> cachedObjects;
 
 -(oneway void) release
 {
-    @synchronized([ICELocalObject class])  
+    @synchronized([ICELocalObject class])
     {
         if(NSDecrementExtraRefCountWasZero(self))
         {

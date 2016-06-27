@@ -17,101 +17,135 @@
 #include <Ice/DefaultsAndOverrides.h>
 #include <Ice/Object.h>
 #include <Ice/HashUtil.h>
+#include <Ice/Comparable.h>
 
 using namespace std;
 using namespace Ice;
 using namespace IceSSL;
 
+namespace
+{
+
+Ice::IPEndpointInfoPtr
+getIPEndpointInfo(const Ice::EndpointInfoPtr& info)
+{
+    for(Ice::EndpointInfoPtr p = info; p; p = p->underlying)
+    {
+        Ice::IPEndpointInfoPtr ipInfo = ICE_DYNAMIC_CAST(Ice::IPEndpointInfo, p);
+        if(ipInfo)
+        {
+            return ipInfo;
+        }
+    }
+    return ICE_NULLPTR;
+}
+
+}
+
 #ifndef ICE_CPP11_MAPPING
 IceUtil::Shared* IceSSL::upCast(EndpointI* p) { return p; }
 #endif
 
-IceSSL::EndpointI::EndpointI(const InstancePtr& instance, const string& ho, Int po,
-                             const IceInternal::Address& sourceAddr, Int ti, const string& conId, bool co) :
-    IceInternal::IPEndpointI(instance, ho, po, sourceAddr, conId),
-    _instance(instance),
-    _timeout(ti),
-    _compress(co)
+IceSSL::EndpointI::EndpointI(const InstancePtr& instance, const IceInternal::EndpointIPtr& del) :
+    _instance(instance), _delegate(del)
 {
 }
 
-IceSSL::EndpointI::EndpointI(const InstancePtr& instance) :
-    IceInternal::IPEndpointI(instance),
-    _instance(instance),
-    _timeout(instance->defaultTimeout()),
-    _compress(false)
+void
+IceSSL::EndpointI::streamWriteImpl(Ice::OutputStream* stream) const
 {
-}
-
-IceSSL::EndpointI::EndpointI(const InstancePtr& instance, Ice::InputStream* s) :
-    IPEndpointI(instance, s),
-    _instance(instance),
-    _timeout(-1),
-    _compress(false)
-{
-    s->read(const_cast<Int&>(_timeout));
-    s->read(const_cast<bool&>(_compress));
+    _delegate->streamWriteImpl(stream);
 }
 
 Ice::EndpointInfoPtr
 IceSSL::EndpointI::getInfo() const
 {
     EndpointInfoPtr info = ICE_MAKE_SHARED(IceInternal::InfoI<EndpointInfo>, shared_from_this());
-    fillEndpointInfo(info.get());
+    info->underlying = _delegate->getInfo();
+    info->compress = info->underlying->compress;
+    info->timeout = info->underlying->timeout;
     return info;
 }
 
-Ice::EndpointInfoPtr
-IceSSL::EndpointI::getWSInfo(const string& resource) const
+Ice::Short
+IceSSL::EndpointI::type() const
 {
-    WSSEndpointInfoPtr info = ICE_MAKE_SHARED(IceInternal::InfoI<WSSEndpointInfo>, shared_from_this());
-    fillEndpointInfo(info.get());
-    info->resource = resource;
-    return info;
+    return _delegate->type();
+}
+
+const std::string&
+IceSSL::EndpointI::protocol() const
+{
+    return _delegate->protocol();
 }
 
 Int
 IceSSL::EndpointI::timeout() const
 {
-    return _timeout;
+    return _delegate->timeout();
 }
 
 IceInternal::EndpointIPtr
 IceSSL::EndpointI::timeout(Int timeout) const
 {
-    if(timeout == _timeout)
+    if(timeout == _delegate->timeout())
     {
         return shared_from_this();
     }
     else
     {
-        return ICE_MAKE_SHARED(EndpointI, _instance, _host, _port, _sourceAddr, timeout, _connectionId, _compress);
+        return ICE_MAKE_SHARED(EndpointI, _instance, _delegate->timeout(timeout));
+    }
+}
+
+const string&
+IceSSL::EndpointI::connectionId() const
+{
+    return _delegate->connectionId();
+}
+
+IceInternal::EndpointIPtr
+IceSSL::EndpointI::connectionId(const string& connectionId) const
+{
+    if(connectionId == _delegate->connectionId())
+    {
+        return shared_from_this();
+    }
+    else
+    {
+        return ICE_MAKE_SHARED(EndpointI, _instance, _delegate->connectionId(connectionId));
     }
 }
 
 bool
 IceSSL::EndpointI::compress() const
 {
-    return _compress;
+    return _delegate->compress();
 }
 
 IceInternal::EndpointIPtr
 IceSSL::EndpointI::compress(bool compress) const
 {
-    if(compress == _compress)
+    if(compress == _delegate->compress())
     {
         return shared_from_this();
     }
     else
     {
-        return ICE_MAKE_SHARED(EndpointI, _instance, _host, _port, _sourceAddr, _timeout, _connectionId, compress);
+        return ICE_MAKE_SHARED(EndpointI, _instance, _delegate->compress(compress));
     }
 }
 
 bool
 IceSSL::EndpointI::datagram() const
 {
-    return false;
+    return _delegate->datagram();
+}
+
+bool
+IceSSL::EndpointI::secure() const
+{
+    return _delegate->secure();
 }
 
 IceInternal::TransceiverPtr
@@ -120,46 +154,90 @@ IceSSL::EndpointI::transceiver() const
     return 0;
 }
 
+void
+IceSSL::EndpointI::connectors_async(Ice::EndpointSelectionType selType,
+                                    const IceInternal::EndpointI_connectorsPtr& callback) const
+{
+    class CallbackI : public IceInternal::EndpointI_connectors
+    {
+    public:
+
+        CallbackI(const IceInternal::EndpointI_connectorsPtr& callback, const InstancePtr& instance,
+                  const string& host) :
+            _callback(callback), _instance(instance), _host(host)
+        {
+        }
+
+        virtual void connectors(const vector<IceInternal::ConnectorPtr>& c)
+        {
+            vector<IceInternal::ConnectorPtr> connectors = c;
+            for(vector<IceInternal::ConnectorPtr>::iterator p = connectors.begin(); p != connectors.end(); ++p)
+            {
+                *p = new ConnectorI(_instance, *p, _host);
+            }
+            _callback->connectors(connectors);
+        }
+
+        virtual void exception(const Ice::LocalException& ex)
+        {
+            _callback->exception(ex);
+        }
+
+    private:
+
+        const IceInternal::EndpointI_connectorsPtr _callback;
+        const InstancePtr _instance;
+        const string _host;
+    };
+
+    IPEndpointInfoPtr info = getIPEndpointInfo(_delegate->getInfo());
+    _delegate->connectors_async(selType, ICE_MAKE_SHARED(CallbackI, callback, _instance, info ? info->host : string()));
+}
+
 IceInternal::AcceptorPtr
 IceSSL::EndpointI::acceptor(const string& adapterName) const
 {
-    return new AcceptorI(ICE_DYNAMIC_CAST(IceSSL::EndpointI, shared_from_this()), _instance, adapterName, _host, _port);
+    return new AcceptorI(shared_from_this(), _instance, _delegate->acceptor(adapterName), adapterName);
 }
 
 EndpointIPtr
-IceSSL::EndpointI::endpoint(const AcceptorIPtr& acceptor) const
+IceSSL::EndpointI::endpoint(const IceInternal::EndpointIPtr& delEndp) const
 {
-    return ICE_MAKE_SHARED(EndpointI, _instance, _host, acceptor->effectivePort(), _sourceAddr, _timeout, _connectionId, _compress);
+    return ICE_MAKE_SHARED(EndpointI, _instance, delEndp);
+}
+
+vector<IceInternal::EndpointIPtr>
+IceSSL::EndpointI::expand() const
+{
+    vector<IceInternal::EndpointIPtr> endps = _delegate->expand();
+    for(vector<IceInternal::EndpointIPtr>::iterator p = endps.begin(); p != endps.end(); ++p)
+    {
+        *p = p->get() == _delegate.get() ? shared_from_this() : ICE_MAKE_SHARED(EndpointI, _instance, *p);
+    }
+    return endps;
+}
+
+bool
+IceSSL::EndpointI::equivalent(const IceInternal::EndpointIPtr& endpoint) const
+{
+    const EndpointI* endpointI = dynamic_cast<const EndpointI*>(endpoint.get());
+    if(!endpointI)
+    {
+        return false;
+    }
+    return _delegate->equivalent(endpointI->_delegate);
+}
+
+Ice::Int
+IceSSL::EndpointI::hash() const
+{
+    return _delegate->hash();
 }
 
 string
 IceSSL::EndpointI::options() const
 {
-    //
-    // WARNING: Certain features, such as proxy validation in Glacier2,
-    // depend on the format of proxy strings. Changes to toString() and
-    // methods called to generate parts of the reference string could break
-    // these features. Please review for all features that depend on the
-    // format of proxyToString() before changing this and related code.
-    //
-    ostringstream s;
-    s << IPEndpointI::options();
-
-    if(_timeout == -1)
-    {
-        s << " -t infinite";
-    }
-    else
-    {
-        s << " -t " << _timeout;
-    }
-
-    if(_compress)
-    {
-        s << " -z";
-    }
-
-    return s.str();
+    return _delegate->options();
 }
 
 bool
@@ -169,11 +247,6 @@ IceSSL::EndpointI::operator==(const Ice::Endpoint& r) const
 IceSSL::EndpointI::operator==(const Ice::LocalObject& r) const
 #endif
 {
-    if(!IPEndpointI::operator==(r))
-    {
-        return false;
-    }
-
     const EndpointI* p = dynamic_cast<const EndpointI*>(&r);
     if(!p)
     {
@@ -185,12 +258,7 @@ IceSSL::EndpointI::operator==(const Ice::LocalObject& r) const
         return true;
     }
 
-    if(_timeout != p->_timeout)
-    {
-        return false;
-    }
-
-    if(_compress != p->_compress)
+    if(!Ice::targetEquals(_delegate, p->_delegate))
     {
         return false;
     }
@@ -221,119 +289,27 @@ IceSSL::EndpointI::operator<(const Ice::LocalObject& r) const
         return false;
     }
 
-    if(_timeout < p->_timeout)
+    if(Ice::targetLess(_delegate, p->_delegate))
     {
         return true;
     }
-    else if(p->_timeout < _timeout)
+    else if (Ice::targetLess(p->_delegate, _delegate))
     {
         return false;
     }
 
-    if(!_compress && p->_compress)
-    {
-        return true;
-    }
-    else if(p->_compress < _compress)
-    {
-        return false;
-    }
-
-    return IPEndpointI::operator<(r);
-}
-
-void
-IceSSL::EndpointI::streamWriteImpl(Ice::OutputStream* s) const
-{
-    IPEndpointI::streamWriteImpl(s);
-    s->write(_timeout);
-    s->write(_compress);
-}
-
-void
-IceSSL::EndpointI::hashInit(Ice::Int& h) const
-{
-    IPEndpointI::hashInit(h);
-    IceInternal::hashAdd(h, _timeout);
-    IceInternal::hashAdd(h, _compress);
-}
-
-void
-IceSSL::EndpointI::fillEndpointInfo(IPEndpointInfo* info) const
-{
-    IPEndpointI::fillEndpointInfo(info);
-    info->timeout = _timeout;
-    info->compress = _compress;
+    return false;
 }
 
 bool
 IceSSL::EndpointI::checkOption(const string& option, const string& argument, const string& endpoint)
 {
-    if(IPEndpointI::checkOption(option, argument, endpoint))
-    {
-        return true;
-    }
-
-    switch(option[1])
-    {
-    case 't':
-    {
-        if(argument.empty())
-        {
-            EndpointParseException ex(__FILE__, __LINE__);
-            ex.str = "no argument provided for -t option in endpoint " + endpoint;
-            throw ex;
-        }
-
-        if(argument == "infinite")
-        {
-            const_cast<Int&>(_timeout) = -1;
-        }
-        else
-        {
-            istringstream t(argument);
-            if(!(t >> const_cast<Int&>(_timeout)) || !t.eof() || _timeout < 1)
-            {
-                EndpointParseException ex(__FILE__, __LINE__);
-                ex.str = "invalid timeout value `" + argument + "' in endpoint " + endpoint;
-                throw ex;
-            }
-        }
-        return true;
-    }
-
-    case 'z':
-    {
-        if(!argument.empty())
-        {
-            EndpointParseException ex(__FILE__, __LINE__);
-            ex.str = "unexpected argument `" + argument + "' provided for -z option in " + endpoint;
-            throw ex;
-        }
-        const_cast<bool&>(_compress) = true;
-        return true;
-    }
-
-    default:
-    {
-        return false;
-    }
-    }
+    return false;
 }
 
-IceInternal::ConnectorPtr
-IceSSL::EndpointI::createConnector(const IceInternal::Address& address, const IceInternal::NetworkProxyPtr& proxy) const
-{
-    return new ConnectorI(_instance, _host, address, proxy, _sourceAddr, _timeout, _connectionId);
-}
-
-IceInternal::IPEndpointIPtr
-IceSSL::EndpointI::createEndpoint(const string& host, int port, const string& connectionId) const
-{
-    return ICE_MAKE_SHARED(EndpointI, _instance, host, port, _sourceAddr, _timeout, connectionId, _compress);
-}
-
-IceSSL::EndpointFactoryI::EndpointFactoryI(const InstancePtr& instance) : _instance(instance)
+IceSSL::EndpointFactoryI::EndpointFactoryI(const InstancePtr& instance,
+                                           const IceInternal::EndpointFactoryPtr& delegate) :
+    _instance(instance), _delegate(delegate)
 {
 }
 
@@ -356,25 +332,26 @@ IceSSL::EndpointFactoryI::protocol() const
 IceInternal::EndpointIPtr
 IceSSL::EndpointFactoryI::create(vector<string>& args, bool oaEndpoint) const
 {
-    IceInternal::IPEndpointIPtr endpt = ICE_MAKE_SHARED(EndpointI, _instance);
-    endpt->initWithOptions(args, oaEndpoint);
-    return endpt;
+    return ICE_MAKE_SHARED(EndpointI, _instance, _delegate->create(args, oaEndpoint));
 }
 
 IceInternal::EndpointIPtr
 IceSSL::EndpointFactoryI::read(Ice::InputStream* s) const
 {
-    return ICE_MAKE_SHARED(EndpointI, _instance, s);
+    return ICE_MAKE_SHARED(EndpointI, _instance, _delegate->read(s));
 }
 
 void
 IceSSL::EndpointFactoryI::destroy()
 {
+    _delegate->destroy();
     _instance = 0;
 }
 
 IceInternal::EndpointFactoryPtr
-IceSSL::EndpointFactoryI::clone(const IceInternal::ProtocolInstancePtr& instance) const
+IceSSL::EndpointFactoryI::clone(const IceInternal::ProtocolInstancePtr& inst,
+                                const IceInternal::EndpointFactoryPtr& delegate) const
 {
-    return new EndpointFactoryI(new Instance(_instance->engine(), instance->type(), instance->protocol()));
+    InstancePtr instance = new Instance(_instance->engine(), inst->type(), inst->protocol());
+    return new EndpointFactoryI(instance, delegate ? delegate : _delegate->clone(instance, 0));
 }

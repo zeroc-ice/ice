@@ -25,13 +25,13 @@ class AcceptorI : public IceInternal::Acceptor, public IceInternal::NativeInfo
 public:
 
     virtual IceInternal::NativeInfoPtr getNativeInfo();
-#ifdef ICE_USE_IOCP
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
     virtual IceInternal::AsyncInfo* getAsyncInfo(IceInternal::SocketOperation);
 #endif
 
     virtual void close();
     virtual IceInternal::EndpointIPtr listen();
-#ifdef ICE_USE_IOCP
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
     virtual void startAccept();
     virtual void finishAccept();
 #endif
@@ -40,25 +40,16 @@ public:
     virtual std::string toString() const;
     virtual std::string toDetailedString() const;
 
-    int effectivePort() const;
-
 private:
 
-    AcceptorI(const EndpointIPtr&, const InstancePtr&, const std::string&, const std::string&, int);
+    AcceptorI(const EndpointIPtr&, const InstancePtr&, const IceInternal::AcceptorPtr&, const std::string&);
     virtual ~AcceptorI();
     friend class EndpointI;
 
     EndpointIPtr _endpoint;
     const InstancePtr _instance;
+    const IceInternal::AcceptorPtr _delegate;
     const std::string _adapterName;
-    const IceInternal::Address _addr;
-    int _backlog;
-#ifdef ICE_USE_IOCP
-    SOCKET _acceptFd;
-    int _acceptError;
-    std::vector<char> _acceptBuf;
-    IceInternal::AsyncInfo _info;
-#endif
 };
 
 }

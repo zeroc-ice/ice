@@ -56,22 +56,22 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
     static public class ConnectionHelper extends MetricsHelper<ConnectionMetrics>
     {
         static private AttributeResolver _attributes = new AttributeResolver()
+        {
             {
+                try
                 {
-                    try
-                    {
-                        add("parent", ConnectionHelper.class.getDeclaredMethod("getParent"));
-                        add("id", ConnectionHelper.class.getDeclaredMethod("getId"));
-                        add("state", ConnectionHelper.class.getDeclaredMethod("getState"));
-                        addConnectionAttributes(this, ConnectionHelper.class);
-                    }
-                    catch(Exception ex)
-                    {
-                        ex.printStackTrace();
-                        assert(false);
-                    }
+                    add("parent", ConnectionHelper.class.getDeclaredMethod("getParent"));
+                    add("id", ConnectionHelper.class.getDeclaredMethod("getId"));
+                    add("state", ConnectionHelper.class.getDeclaredMethod("getState"));
+                    addConnectionAttributes(this, ConnectionHelper.class);
                 }
-            };
+                catch(Exception ex)
+                {
+                    ex.printStackTrace();
+                    assert(false);
+                }
+            }
+        };
 
         ConnectionHelper(Ice.ConnectionInfo con, Ice.Endpoint endpt, Ice.Instrumentation.ConnectionState state)
         {
@@ -87,9 +87,9 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
             if(_id == null)
             {
                 StringBuilder os = new StringBuilder();
-                if(_connectionInfo instanceof Ice.IPConnectionInfo)
+                Ice.IPConnectionInfo info = getIPConnectionInfo();
+                if(info != null)
                 {
-                    Ice.IPConnectionInfo info = (Ice.IPConnectionInfo)_connectionInfo;
                     os.append(info.localAddress).append(':').append(info.localPort);
                     os.append(" -> ");
                     os.append(info.remoteAddress).append(':').append(info.remotePort);
@@ -163,6 +163,19 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
             return _endpointInfo;
         }
 
+        private Ice.IPConnectionInfo
+        getIPConnectionInfo()
+        {
+            for(Ice.ConnectionInfo p = _connectionInfo; p != null; p = p.underlying)
+            {
+                if(p instanceof Ice.IPConnectionInfo)
+                {
+                    return (Ice.IPConnectionInfo)p;
+                }
+            }
+            return null;
+        }
+
         private final Ice.ConnectionInfo _connectionInfo;
         private final Ice.Endpoint _endpoint;
         private final Ice.Instrumentation.ConnectionState _state;
@@ -173,30 +186,30 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
     static public final class DispatchHelper extends MetricsHelper<DispatchMetrics>
     {
         static private final AttributeResolver _attributes = new AttributeResolver()
+        {
             {
+                try
                 {
-                    try
-                    {
-                        Class<?> cl = DispatchHelper.class;
-                        add("parent", cl.getDeclaredMethod("getParent"));
-                        add("id", cl.getDeclaredMethod("getId"));
+                    Class<?> cl = DispatchHelper.class;
+                    add("parent", cl.getDeclaredMethod("getParent"));
+                    add("id", cl.getDeclaredMethod("getId"));
 
-                        addConnectionAttributes(this, cl);
+                    addConnectionAttributes(this, cl);
 
-                        Class<?> clc = Ice.Current.class;
-                        add("operation", cl.getDeclaredMethod("getCurrent"), clc.getDeclaredField("operation"));
-                        add("identity", cl.getDeclaredMethod("getIdentity"));
-                        add("facet", cl.getDeclaredMethod("getCurrent"), clc.getDeclaredField("facet"));
-                        add("requestId", cl.getDeclaredMethod("getCurrent"), clc.getDeclaredField("requestId"));
-                        add("mode", cl.getDeclaredMethod("getMode"));
-                    }
-                    catch(Exception ex)
-                    {
-                        ex.printStackTrace();
-                        assert(false);
-                    }
+                    Class<?> clc = Ice.Current.class;
+                    add("operation", cl.getDeclaredMethod("getCurrent"), clc.getDeclaredField("operation"));
+                    add("identity", cl.getDeclaredMethod("getIdentity"));
+                    add("facet", cl.getDeclaredMethod("getCurrent"), clc.getDeclaredField("facet"));
+                    add("requestId", cl.getDeclaredMethod("getCurrent"), clc.getDeclaredField("requestId"));
+                    add("mode", cl.getDeclaredMethod("getMode"));
                 }
-            };
+                catch(Exception ex)
+                {
+                    ex.printStackTrace();
+                    assert(false);
+                }
+            }
+        };
 
         DispatchHelper(Ice.Current current, int size)
         {
@@ -318,30 +331,30 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
     static public final class InvocationHelper extends MetricsHelper<InvocationMetrics>
     {
         static private final AttributeResolver _attributes = new AttributeResolver()
+        {
             {
+                try
                 {
-                    try
-                    {
-                        Class<?> cl = InvocationHelper.class;
-                        add("parent", cl.getDeclaredMethod("getParent"));
-                        add("id", cl.getDeclaredMethod("getId"));
+                    Class<?> cl = InvocationHelper.class;
+                    add("parent", cl.getDeclaredMethod("getParent"));
+                    add("id", cl.getDeclaredMethod("getId"));
 
-                        add("operation", cl.getDeclaredMethod("getOperation"));
-                        add("identity", cl.getDeclaredMethod("getIdentity"));
+                    add("operation", cl.getDeclaredMethod("getOperation"));
+                    add("identity", cl.getDeclaredMethod("getIdentity"));
 
-                        Class<?> cli = Ice.ObjectPrx.class;
-                        add("facet", cl.getDeclaredMethod("getProxy"), cli.getDeclaredMethod("ice_getFacet"));
-                        add("encoding", cl.getDeclaredMethod("getEncodingVersion"));
-                        add("mode", cl.getDeclaredMethod("getMode"));
-                        add("proxy", cl.getDeclaredMethod("getProxy"));
-                    }
-                    catch(Exception ex)
-                    {
-                        ex.printStackTrace();
-                        assert(false);
-                    }
+                    Class<?> cli = Ice.ObjectPrx.class;
+                    add("facet", cl.getDeclaredMethod("getProxy"), cli.getDeclaredMethod("ice_getFacet"));
+                    add("encoding", cl.getDeclaredMethod("getEncodingVersion"));
+                    add("mode", cl.getDeclaredMethod("getMode"));
+                    add("proxy", cl.getDeclaredMethod("getProxy"));
                 }
-            };
+                catch(Exception ex)
+                {
+                    ex.printStackTrace();
+                    assert(false);
+                }
+            }
+        };
 
         InvocationHelper(Ice.ObjectPrx proxy, String op, java.util.Map<String, String> ctx)
         {
@@ -476,19 +489,19 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
     static public final class ThreadHelper extends MetricsHelper<ThreadMetrics>
     {
         static private final AttributeResolver _attributes = new AttributeResolver()
+        {
             {
+                try
                 {
-                    try
-                    {
-                        add("parent", ThreadHelper.class.getDeclaredField("_parent"));
-                        add("id", ThreadHelper.class.getDeclaredField("_id"));
-                    }
-                    catch(Exception ex)
-                    {
-                        assert(false);
-                    }
+                    add("parent", ThreadHelper.class.getDeclaredField("_parent"));
+                    add("id", ThreadHelper.class.getDeclaredField("_id"));
                 }
-            };
+                catch(Exception ex)
+                {
+                    assert(false);
+                }
+            }
+        };
 
         ThreadHelper(String parent, String id, Ice.Instrumentation.ThreadState state)
         {
@@ -526,21 +539,21 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
     static public final class EndpointHelper extends MetricsHelper<Metrics>
     {
         static private final AttributeResolver _attributes = new AttributeResolver()
+        {
             {
+                try
                 {
-                    try
-                    {
-                        add("parent", EndpointHelper.class.getDeclaredMethod("getParent"));
-                        add("id", EndpointHelper.class.getDeclaredMethod("getId"));
-                        addEndpointAttributes(this, EndpointHelper.class);
-                    }
-                    catch(Exception ex)
-                    {
-                        ex.printStackTrace();
-                        assert(false);
-                    }
+                    add("parent", EndpointHelper.class.getDeclaredMethod("getParent"));
+                    add("id", EndpointHelper.class.getDeclaredMethod("getId"));
+                    addEndpointAttributes(this, EndpointHelper.class);
                 }
-            };
+                catch(Exception ex)
+                {
+                    ex.printStackTrace();
+                    assert(false);
+                }
+            }
+        };
 
         EndpointHelper(Ice.Endpoint endpt, String id)
         {

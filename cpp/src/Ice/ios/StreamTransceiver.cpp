@@ -19,7 +19,6 @@
 #include <IceSSL/ConnectionInfo.h>
 
 #include <CoreFoundation/CoreFoundation.h>
-#include <Security/Security.h>
 
 using namespace std;
 using namespace Ice;
@@ -292,13 +291,6 @@ IceObjC::StreamTransceiver::initialize(Buffer& readBuffer, Buffer& writeBuffer)
 
         setBlock(_fd, false);
         setTcpBufSize(_fd, _instance);
-
-        //
-        // Limit the size of packets passed to SSLWrite/SSLRead to avoid
-        // blocking and holding too much memory.
-        //
-        _maxSendPacketSize = std::max(512, getSendBufferSize(_fd));
-        _maxRecvPacketSize = std::max(512, getRecvBufferSize(_fd));
     }
     assert(_state == StateConnected);
     return SocketOperationNone;
@@ -345,18 +337,12 @@ IceObjC::StreamTransceiver::write(Buffer& buf)
     }
 
     // Its impossible for the packetSize to be more than an Int.
-    size_t packetSize = std::min(static_cast<size_t>(buf.b.end() - buf.i), _maxSendPacketSize);
+    size_t packetSize = static_cast<size_t>(buf.b.end() - buf.i);
     while(buf.i != buf.b.end())
     {
         if(!CFWriteStreamCanAcceptBytes(_writeStream))
         {
             return SocketOperationWrite;
-        }
-
-        if(_checkCertificates)
-        {
-            _checkCertificates = false;
-            checkCertificates();
         }
 
         assert(_fd != INVALID_SOCKET);
@@ -401,18 +387,12 @@ IceObjC::StreamTransceiver::read(Buffer& buf)
     }
 
     // Its impossible for the packetSize to be more than an Int.
-    size_t packetSize = std::min(static_cast<size_t>(buf.b.end() - buf.i), _maxRecvPacketSize);
+    size_t packetSize = static_cast<size_t>(buf.b.end() - buf.i);
     while(buf.i != buf.b.end())
     {
         if(!CFReadStreamHasBytesAvailable(_readStream))
         {
             return SocketOperationRead;
-        }
-
-        if(_checkCertificates)
-        {
-            _checkCertificates = false;
-            checkCertificates();
         }
 
         assert(_fd != INVALID_SOCKET);
@@ -475,39 +455,11 @@ IceObjC::StreamTransceiver::toDetailedString() const
 Ice::ConnectionInfoPtr
 IceObjC::StreamTransceiver::getInfo() const
 {
-    if(_instance->secure())
-    {
-        IceSSL::ConnectionInfoPtr info = ICE_MAKE_SHARED(IceSSL::ConnectionInfo);
-        fillConnectionInfo(info);
-        info->verified = _state == StateConnected;
-        return info;
-    }
-    else
-    {
-        Ice::TCPConnectionInfoPtr info = ICE_MAKE_SHARED(Ice::TCPConnectionInfo);
-        fillConnectionInfo(info);
-        return info;
-    }
-}
-
-Ice::ConnectionInfoPtr
-IceObjC::StreamTransceiver::getWSInfo(const Ice::HeaderDict& headers) const
-{
-    if(_instance->secure())
-    {
-        IceSSL::WSSConnectionInfoPtr info = ICE_MAKE_SHARED(IceSSL::WSSConnectionInfo);
-        fillConnectionInfo(info);
-        info->verified = _state == StateConnected;
-        info->headers = headers;
-        return info;
-    }
-    else
-    {
-        Ice::WSConnectionInfoPtr info = ICE_MAKE_SHARED(Ice::WSConnectionInfo);
-        fillConnectionInfo(info);
-        info->headers = headers;
-        return info;
-    }
+    Ice::TCPConnectionInfoPtr info = ICE_MAKE_SHARED(Ice::TCPConnectionInfo);
+    fdToAddressAndPort(_fd, info->localAddress, info->localPort, info->remoteAddress, info->remotePort);
+    info->rcvSize = getRecvBufferSize(_fd);
+    info->sndSize = getSendBufferSize(_fd);
+    return info;
 }
 
 void
@@ -535,7 +487,6 @@ IceObjC::StreamTransceiver::StreamTransceiver(const InstancePtr& instance,
     _readStreamRegistered(false),
     _writeStreamRegistered(false),
     _opening(false),
-    _checkCertificates(instance->secure()),
     _error(false),
     _state(StateNeedConnect)
 {
@@ -562,7 +513,6 @@ IceObjC::StreamTransceiver::StreamTransceiver(const InstancePtr& instance,
     _readStreamRegistered(false),
     _writeStreamRegistered(false),
     _opening(false),
-    _checkCertificates(false),
     _error(false),
     _state(StateNeedConnect),
     _desc(fdToString(fd))
@@ -574,144 +524,6 @@ IceObjC::StreamTransceiver::~StreamTransceiver()
     assert(_fd == INVALID_SOCKET);
     CFRelease(_readStream);
     CFRelease(_writeStream);
-}
-
-void
-IceObjC::StreamTransceiver::checkCertificates()
-{
-    SecTrustRef trust = (SecTrustRef)CFWriteStreamCopyProperty(_writeStream, kCFStreamPropertySSLPeerTrust);
-    if(!trust)
-    {
-        throw Ice::SecurityException(__FILE__, __LINE__, "unable to obtain trust object");
-    }
-
-    try
-    {
-        SecPolicyRef policy = 0;
-        if(_host.empty() || _instance->properties()->getPropertyAsIntWithDefault("IceSSL.CheckCertName", 1) == 0)
-        {
-            policy = SecPolicyCreateBasicX509();
-        }
-        else
-        {
-            CFStringRef h = CFStringCreateWithCString(NULL, _host.c_str(), kCFStringEncodingUTF8);
-            policy = SecPolicyCreateSSL(false, h);
-            CFRelease(h);
-        }
-
-        OSStatus err = SecTrustSetPolicies(trust, policy);
-        CFRelease(policy);
-        if(err != noErr)
-        {
-            ostringstream os;
-            os << "unable to set trust object policy (error = " << err << ")";
-            throw Ice::SecurityException(__FILE__, __LINE__, os.str());
-        }
-
-        //
-        // If IceSSL.CertAuthFile is set, we use the certificate authorities from this file
-        // instead of the ones from the keychain.
-        //
-        if((err = SecTrustSetAnchorCertificates(trust, _instance->certificateAuthorities())) != noErr)
-        {
-            ostringstream os;
-            os << "couldn't set root CA certificates with trust object (error = " << err << ")";
-            throw Ice::SecurityException(__FILE__, __LINE__, os.str());
-        }
-
-        SecTrustResultType result = kSecTrustResultInvalid;
-        if((err = SecTrustEvaluate(trust, &result)) != noErr)
-        {
-            ostringstream os;
-            os << "unable to evaluate the peer certificate trust (error = " << err << ")";
-            throw Ice::SecurityException(__FILE__, __LINE__, os.str());
-        }
-
-        //
-        // The kSecTrustResultUnspecified result indicates that the user didn't set any trust
-        // settings for the root CA. This is expected if the root CA is provided by the user
-        // with IceSSL.CertAuthFile or if the user didn't explicitly set any trust settings
-        // for the certificate.
-        //
-        if(result != kSecTrustResultProceed && result != kSecTrustResultUnspecified)
-        {
-            ostringstream os;
-            os << "certificate validation failed (result = " << result << ")";
-            throw Ice::SecurityException(__FILE__, __LINE__, os.str());
-        }
-
-        if(_instance->trustOnlyKeyID())
-        {
-            if(SecTrustGetCertificateCount(trust) < 0)
-            {
-                throw Ice::SecurityException(__FILE__, __LINE__, "unable to obtain peer certificate");
-            }
-
-            SecCertificateRef cert = SecTrustGetCertificateAtIndex(trust, 0);
-
-            //
-            // To check the subject key ID, we add the peer certificate to the keychain with SetItemAdd,
-            // then we lookup for the cert using the kSecAttrSubjectKeyID. Then we remove the cert from
-            // the keychain. NOTE: according to the Apple documentation, it should in theory be possible
-            // to not add/remove the item to the keychain by specifying the kSecMatchItemList key (or
-            // kSecUseItemList?) when calling SecItemCopyMatching. Unfortunately this doesn't appear to
-            // work. Similarly, it should be possible to get back the attributes of the certificate
-            // once it added by setting kSecReturnAttributes in the add query, again this doesn't seem
-            // to work.
-            //
-            CFMutableDictionaryRef query;
-            query = CFDictionaryCreateMutable(0, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-            CFDictionarySetValue(query, kSecClass, kSecClassCertificate);
-            CFDictionarySetValue(query, kSecValueRef, cert);
-            err = SecItemAdd(query, 0);
-            if(err != noErr && err != errSecDuplicateItem)
-            {
-                CFRelease(query);
-                ostringstream os;
-                os << "unable to add peer certificate to keychain (error = " << err << ")";
-                throw Ice::SecurityException(__FILE__, __LINE__, os.str());
-            }
-            CFRelease(query);
-
-            query = CFDictionaryCreateMutable(0, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-            CFDictionarySetValue(query, kSecClass, kSecClassCertificate);
-            CFDictionarySetValue(query, kSecValueRef, cert);
-            CFDictionarySetValue(query, kSecAttrSubjectKeyID, _instance->trustOnlyKeyID());
-            err = SecItemCopyMatching(query, 0);
-            OSStatus foundErr = err;
-            CFRelease(query);
-
-            query = CFDictionaryCreateMutable(0, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-            CFDictionarySetValue(query, kSecClass, kSecClassCertificate);
-            CFDictionarySetValue(query, kSecValueRef, cert);
-            err = SecItemDelete(query);
-            if(err != noErr)
-            {
-                CFRelease(query);
-                ostringstream os;
-                os << "unable to remove peer certificate from keychain (error = " << err << ")";
-                throw Ice::SecurityException(__FILE__, __LINE__, os.str());
-            }
-            CFRelease(query);
-
-            if(foundErr != noErr)
-            {
-                ostringstream os;
-                os << "the certificate subject key ID doesn't match the `IceSSL.TrustOnly.Client' property ";
-                os << "(error = " << foundErr << ")";
-                throw Ice::SecurityException(__FILE__, __LINE__, os.str());
-            }
-        }
-        CFRelease(trust);
-    }
-    catch(...)
-    {
-        if(trust)
-        {
-            CFRelease(trust);
-        }
-        throw;
-    }
 }
 
 void
@@ -782,12 +594,4 @@ IceObjC::StreamTransceiver::checkError(CFErrorRef err, const char* file, int lin
     ex.error = CFErrorGetCode(err);
     CFRelease(err);
     throw ex;
-}
-
-void
-IceObjC::StreamTransceiver::fillConnectionInfo(const Ice::IPConnectionInfoPtr& info) const
-{
-    fdToAddressAndPort(_fd, info->localAddress, info->localPort, info->remoteAddress, info->remotePort);
-    info->rcvSize = getRecvBufferSize(_fd);
-    info->sndSize = getSendBufferSize(_fd);
 }

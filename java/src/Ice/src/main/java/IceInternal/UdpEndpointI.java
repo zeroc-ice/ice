@@ -51,26 +51,25 @@ final class UdpEndpointI extends IPEndpointI
     public Ice.EndpointInfo getInfo()
     {
         Ice.UDPEndpointInfo info = new Ice.UDPEndpointInfo()
+        {
+            @Override
+            public short type()
             {
-                @Override
-                public short type()
-                {
-                    return UdpEndpointI.this.type();
-                }
+                return UdpEndpointI.this.type();
+            }
 
-                @Override
-                public boolean datagram()
-                {
-                    return UdpEndpointI.this.datagram();
-                }
+            @Override
+            public boolean datagram()
+            {
+                return UdpEndpointI.this.datagram();
+            }
 
-                @Override
-                public boolean secure()
-                {
-                    return UdpEndpointI.this.secure();
-                }
+            @Override
+            public boolean secure()
+            {
+                return UdpEndpointI.this.secure();
+            }
         };
-
         fillEndpointInfo(info);
         return info;
     }
@@ -283,8 +282,6 @@ final class UdpEndpointI extends IPEndpointI
         if(info instanceof Ice.UDPEndpointInfo)
         {
             Ice.UDPEndpointInfo udpInfo = (Ice.UDPEndpointInfo)info;
-            udpInfo.timeout = -1;
-            udpInfo.compress = _compress;
             udpInfo.mcastInterface = _mcastInterface;
             udpInfo.mcastTtl = _mcastTtl;
         }

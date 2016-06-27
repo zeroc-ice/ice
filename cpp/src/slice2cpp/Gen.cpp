@@ -2527,7 +2527,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     bool hasBaseClass = !bases.empty() && !bases.front()->isInterface();
-    bool override = p->canBeCyclic() && (!hasBaseClass || !bases.front()->canBeCyclic());
+    bool override = !p->isLocal() && p->canBeCyclic() && (!hasBaseClass || !bases.front()->canBeCyclic());
     bool hasGCObjectBaseClass = basePreserved || override || preserved;
     if(!basePreserved && (override || preserved))
     {

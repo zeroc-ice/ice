@@ -17,6 +17,25 @@ These are the changes since Ice 3.6.2.
 
 ## General Changes
 
+- The iOS SSL transport is now based on the same implementation as macOS. Most
+  of the functionality supported on macOS is now also supported on iOS. There 
+  are still few limitations however:
+
+  - the `checkValidity`, `getNotBefore`, `getNotAfter` methods are not supported
+    on the `IceSSL::Certificate` class.
+    
+  - only PKCS12 certificates are supported (no support for PEM).
+
+- Added support for iAP transport to allow iOS clients to communicate with 
+  connected accessories.
+
+- The `Ice::ConnectionInfo` `sndSize` and `rcvSize` data members have been moved 
+  to the TCP and UDP connection info classes. The `Ice::WSEndpointInfo` and 
+  `IceSSL::EndpointInfo` classes no longer inherit `Ice::IPConnectionInfo` and 
+  instead directly extend `Ice::ConnectionInfo`. IP connection information can 
+  still be retrieved by accessing the connection information object stored with
+  the new `underlying` data member.
+
 - IceGrid and IceStorm now use LMDB for their persistent storage instead of
   Freeze/BerkeleyDB.
 

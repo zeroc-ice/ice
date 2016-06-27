@@ -271,7 +271,7 @@ parseAttributeType(const string& data, size_t& pos)
     //
     // Here we must also check for "oid." and "OID." before parsing
     // according to the ALPHA KEYCHAR* rule.
-    // 
+    //
     // First the OID case.
     //
     if(IceUtilInternal::isDigit(data[pos]) ||
@@ -318,7 +318,7 @@ parseAttributeType(const string& data, size_t& pos)
         result += data[pos];
         ++pos;
         // 1* KEYCHAR
-        while(pos < data.size() && 
+        while(pos < data.size() &&
               (IceUtilInternal::isAlpha(data[pos]) || IceUtilInternal::isDigit(data[pos]) || data[pos] == '-'))
         {
             result += data[pos];
@@ -448,7 +448,7 @@ parsePair(const string& data, size_t& pos)
     }
     return parseHexPair(data, pos, false);
 }
-    
+
 //
 // RFC 2253
 // hexpair    = hexchar hexchar

@@ -30,11 +30,38 @@ function test($b)
     }
 }
 
+function getTCPEndpointInfo($i)
+{
+    global $NS;
+    $tcpEndpointInfoClass = $NS ? "Ice\\TCPEndpointInfo" : "Ice_TCPEndpointInfo";
+    while($i)
+    {
+        if($i instanceof $tcpEndpointInfoClass)
+        {
+            return $i;
+        }
+        $i = $i->underlying;
+    }
+}
+
+function getTCPConnectionInfo($i)
+{
+    global $NS;
+    $ipConnectionInfoClass = $NS ? "Ice\\TCPConnectionInfo" : "Ice_TCPConnectionInfo";
+    while($i)
+    {
+        if($i instanceof $ipConnectionInfoClass)
+        {
+            return $i;
+        }
+        $i = $i->underlying;
+    }
+}
+
 function allTests($communicator)
 {
     global $NS;
 
-    $ipEndpointInfoClass = $NS ? "Ice\\IPEndpointInfo" : "Ice_IPEndpointInfo";
     $tcpEndpointType = $NS ? constant("Ice\\TCPEndpointType") : constant("Ice_TCPEndpointType");
     $tcpEndpointInfoClass = $NS ? "Ice\\TCPEndpointInfo" : "Ice_TCPEndpointInfo";
     $udpEndpointType = $NS ? constant("Ice\\UDPEndpointType") : constant("Ice_UDPEndpointType");
@@ -58,22 +85,23 @@ function allTests($communicator)
 
         $endps = $p1->ice_getEndpoints();
 
-        $ipEndpoint = $endps[0]->getInfo();
-        test($ipEndpoint instanceof $ipEndpointInfoClass);
-        test($ipEndpoint->host == "tcphost");
-        test($ipEndpoint->port == 10000);
-        test($ipEndpoint->timeout == 1200);
-        test($ipEndpoint->sourceAddress == "10.10.10.10");
-        test($ipEndpoint->compress);
-        test(!$ipEndpoint->datagram());
-        test(($ipEndpoint->type() == $tcpEndpointType && !$ipEndpoint->secure()) ||
-             ($ipEndpoint->type() == $sslEndpointType && $ipEndpoint->secure()) ||
-             ($ipEndpoint->type() == $wsEndpointType && !$ipEndpoint->secure()) ||
-             ($ipEndpoint->type() == $wssEndpointType && $ipEndpoint->secure()));
-        test(($ipEndpoint->type() == $tcpEndpointType && ($ipEndpoint instanceof $tcpEndpointInfoClass)) ||
-             ($ipEndpoint->type() == $sslEndpointType && ($ipEndpoint instanceof $sslEndpointInfoClass)) ||
-             ($ipEndpoint->type() == $wsEndpointType && ($ipEndpoint instanceof $wsEndpointInfoClass)) ||
-             ($ipEndpoint->type() == $wssEndpointType && ($ipEndpoint instanceof $wssEndpointInfoClass)));
+        $endpoint = $endps[0]->getInfo();
+        $tcpEndpoint = getTCPEndpointInfo($endpoint);
+        test($tcpEndpoint instanceof $tcpEndpointInfoClass);
+        test($tcpEndpoint->host == "tcphost");
+        test($tcpEndpoint->port == 10000);
+        test($tcpEndpoint->timeout == 1200);
+        test($tcpEndpoint->sourceAddress == "10.10.10.10");
+        test($tcpEndpoint->compress);
+        test(!$tcpEndpoint->datagram());
+        test(($tcpEndpoint->type() == $tcpEndpointType && !$tcpEndpoint->secure()) ||
+             ($tcpEndpoint->type() == $sslEndpointType && $tcpEndpoint->secure()) ||
+             ($tcpEndpoint->type() == $wsEndpointType && !$tcpEndpoint->secure()) ||
+             ($tcpEndpoint->type() == $wssEndpointType && $tcpEndpoint->secure()));
+        test(($tcpEndpoint->type() == $tcpEndpointType && ($endpoint instanceof $tcpEndpointInfoClass)) ||
+             ($tcpEndpoint->type() == $sslEndpointType && ($endpoint instanceof $sslEndpointInfoClass)) ||
+             ($tcpEndpoint->type() == $wsEndpointType && ($endpoint instanceof $wsEndpointInfoClass)) ||
+             ($tcpEndpoint->type() == $wssEndpointType && ($endpoint instanceof $wsEndpointInfoClass)));
 
         $udpEndpoint = $endps[1]->getInfo();
         test($udpEndpoint instanceof $udpEndpointInfoClass);
@@ -100,14 +128,14 @@ function allTests($communicator)
     echo "test connection endpoint information... ";
     flush();
     {
-        $ipinfo = $base->ice_getConnection()->getEndpoint()->getInfo();
-        test($ipinfo instanceof $ipEndpointInfoClass);
-        test($ipinfo->port == 12010);
-        test(!$ipinfo->compress);
-        test($ipinfo->host == $defaultHost);
+        $tcpinfo = getTCPEndpointInfo($base->ice_getConnection()->getEndpoint()->getInfo());
+        test($tcpinfo instanceof $tcpEndpointInfoClass);
+        test($tcpinfo->port == 12010);
+        test(!$tcpinfo->compress);
+        test($tcpinfo->host == $defaultHost);
 
         $ctx = $testIntf->getEndpointInfoAsContext();
-        test($ctx["host"] == $ipinfo->host);
+        test($ctx["host"] == $tcpinfo->host);
         test($ctx["compress"] == "false");
         test($ctx["port"] > 0);
 
@@ -121,38 +149,37 @@ function allTests($communicator)
     echo "testing connection information... ";
     flush();
     {
-        $ipConnectionInfoClass = $NS ? "Ice\\IPConnectionInfo" : "Ice_IPConnectionInfo";
+        $ipConnectionInfoClass = $NS ? "Ice\\TCPConnectionInfo" : "Ice_TCPConnectionInfo";
         $wsConnectionInfoClass = $NS ? "Ice\\WSConnectionInfo" : "Ice_WSConnectionInfo";
-        $wssConnectionInfoClass = $NS ? "Ice\\WSSConnectionInfo" : "Ice_WSSConnectionInfo";
 
         $connection = $base->ice_getConnection();
         $connection->setBufferSize(1024, 2048);
 
         $info = $connection->getInfo();
-        test($info instanceof $ipConnectionInfoClass);
+        $tcpinfo = getTCPConnectionInfo($info);
+        test($tcpinfo instanceof $ipConnectionInfoClass);
         test(!$info->incoming);
         test(strlen($info->adapterName) == 0);
-        test($info->remotePort == 12010);
+        test($tcpinfo->remotePort == 12010);
         if($defaultHost == "127.0.0.1")
         {
-            test($info->remoteAddress == $defaultHost);
-            test($info->localAddress == $defaultHost);
+            test($tcpinfo->remoteAddress == $defaultHost);
+            test($tcpinfo->localAddress == $defaultHost);
         }
-        test($info->rcvSize >= 1024);
-        test($info->sndSize >= 2048);
+        test($tcpinfo->rcvSize >= 1024);
+        test($tcpinfo->sndSize >= 2048);
 
         $ctx = $testIntf->getConnectionInfoAsContext();
         test($ctx["incoming"] == "true");
         test($ctx["adapterName"] == "TestAdapter");
-        test($ctx["remoteAddress"] == $info->localAddress);
-        test($ctx["localAddress"] == $info->remoteAddress);
-        test($ctx["remotePort"] == $info->localPort);
-        test($ctx["localPort"] == $info->remotePort);
+        test($ctx["remoteAddress"] == $tcpinfo->localAddress);
+        test($ctx["localAddress"] == $tcpinfo->remoteAddress);
+        test($ctx["remotePort"] == $tcpinfo->localPort);
+        test($ctx["localPort"] == $tcpinfo->remotePort);
 
         if($base->ice_getConnection()->type() == "ws" || $base->ice_getConnection()->type() == "wss")
         {
-            test(($base->ice_getConnection()->type() == "ws" && $info instanceof $wsConnectionInfoClass) ||
-                 ($base->ice_getConnection()->type() == "wss" && $info instanceof $wssConnectionInfoClass));
+            test($info instanceof $wsConnectionInfoClass);
 
             test($info->headers["Upgrade"] == "websocket");
             test($info->headers["Connection"] == "Upgrade");

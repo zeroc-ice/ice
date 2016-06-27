@@ -28,15 +28,10 @@ using namespace IceDiscovery;
 //
 // Plugin factory function.
 //
-extern "C"
-{
-
-ICE_DISCOVERY_API Ice::Plugin*
+extern "C" ICE_DISCOVERY_API Ice::Plugin*
 createIceDiscovery(const Ice::CommunicatorPtr& communicator, const string&, const Ice::StringSeq&)
 {
     return new PluginI(communicator);
-}
-
 }
 
 namespace Ice
@@ -48,6 +43,15 @@ registerIceDiscovery(bool loadOnInitialize)
     Ice::registerPluginFactory("IceDiscovery", createIceDiscovery, loadOnInitialize);
 }
 
+}
+
+//
+// Objective-C function to allow Objective-C programs to register plugin.
+//
+extern "C" ICE_DISCOVERY_API void
+ICEregisterIceDiscovery(bool loadOnInitialize)
+{
+    Ice::registerIceDiscovery(loadOnInitialize);
 }
 
 PluginI::PluginI(const Ice::CommunicatorPtr& communicator) : _communicator(communicator)

@@ -60,7 +60,13 @@ namespace IceInternal
         //
         // Marshal the endpoint.
         //
-        public abstract void streamWrite(Ice.OutputStream s);
+        virtual public void streamWrite(Ice.OutputStream s)
+        {
+            s.startEncapsulation();
+            streamWriteImpl(s);
+            s.endEncapsulation();
+        }
+        public abstract void streamWriteImpl(Ice.OutputStream s);
 
         //
         // Return the endpoint type.

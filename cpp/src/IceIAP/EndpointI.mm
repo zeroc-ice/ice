@@ -7,8 +7,10 @@
 //
 // **********************************************************************
 
-#include "iAPEndpointI.h"
-#include "iAPConnector.h"
+#include "EndpointI.h"
+#include "Connector.h"
+
+#include <IceIAP/EndpointInfo.h>
 
 #include <Ice/Network.h>
 #include <Ice/InputStream.h>
@@ -20,6 +22,8 @@
 #include <Ice/EndpointFactoryManager.h>
 #include <Ice/Properties.h>
 #include <Ice/HashUtil.h>
+#include <Ice/ProtocolPluginFacade.h>
+#include <Ice/RegisterPlugins.h>
 
 #include <CoreFoundation/CoreFoundation.h>
 
@@ -29,16 +33,60 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-extern "C"
+namespace
 {
 
-Plugin*
-createIceIAP(const CommunicatorPtr& com, const string&, const StringSeq&)
+class iAPEndpointFactoryPlugin : public Ice::Plugin
 {
-    ProtocolInstancePtr instance = new ProtocolInstance(com, iAPEndpointType, "iap", false);
-    return new EndpointFactoryPlugin(com, new IceObjC::iAPEndpointFactory(instance));
+public:
+
+    iAPEndpointFactoryPlugin(const Ice::CommunicatorPtr& com)
+    {
+        ProtocolPluginFacadePtr pluginFacade = getProtocolPluginFacade(com);
+
+        // iAP transport
+        ProtocolInstancePtr instance = new ProtocolInstance(com, iAPEndpointType, "iap", false);
+        pluginFacade->addEndpointFactory(new IceObjC::iAPEndpointFactory(instance));
+
+        // SSL based on iAP transport
+        EndpointFactoryPtr ssl = pluginFacade->getEndpointFactory(SSLEndpointType);
+        if(ssl)
+        {
+            ProtocolInstancePtr sslinstance = new ProtocolInstance(com, iAPSEndpointType, "iaps", true);
+            pluginFacade->addEndpointFactory(ssl->clone(sslinstance, new IceObjC::iAPEndpointFactory(sslinstance)));
+        }
+    }
+
+    virtual void initialize() {}
+    virtual void destroy() {}
+};
+
 }
 
+extern "C" ICE_IAP_API Plugin*
+createIceIAP(const CommunicatorPtr& com, const string&, const StringSeq&)
+{
+    return new iAPEndpointFactoryPlugin(com);
+}
+
+namespace Ice
+{
+
+ICE_IAP_API void
+registerIceIAP(bool loadOnInitialize)
+{
+    Ice::registerPluginFactory("IceIAP", createIceIAP, loadOnInitialize);
+}
+
+}
+
+//
+// Objective-C function to allow Objective-C programs to register plugin.
+//
+extern "C" ICE_IAP_API void
+ICEregisterIceIAP(bool loadOnInitialize)
+{
+    Ice::registerIceIAP(loadOnInitialize);
 }
 
 IceObjC::iAPEndpointI::iAPEndpointI(const ProtocolInstancePtr& instance, const string& m,
@@ -70,26 +118,33 @@ IceObjC::iAPEndpointI::iAPEndpointI(const ProtocolInstancePtr& instance, InputSt
     s->read(const_cast<string&>(_manufacturer), false);
     s->read(const_cast<string&>(_modelNumber), false);
     s->read(const_cast<string&>(_name), false);
+    s->read(const_cast<string&>(_protocol), false);
     s->read(const_cast<Int&>(_timeout));
     s->read(const_cast<bool&>(_compress));
 }
 
 void
-IceObjC::iAPEndpointI::streamWrite(OutputStream* s) const
+IceObjC::iAPEndpointI::streamWriteImpl(OutputStream* s) const
 {
-    s->startEncapsulation();
     s->write(_manufacturer, false);
     s->write(_modelNumber, false);
     s->write(_name, false);
+    s->write(_protocol, false);
     s->write(_timeout);
     s->write(_compress);
-    s->endEncapsulation();
 }
 
 EndpointInfoPtr
 IceObjC::iAPEndpointI::getInfo() const
 {
-    return 0;
+    IceIAP::EndpointInfoPtr info = ICE_MAKE_SHARED(InfoI<IceIAP::EndpointInfo>, shared_from_this());
+    info->timeout = _timeout;
+    info->compress = _compress;
+    info->manufacturer = _manufacturer;
+    info->modelNumber = _modelNumber;
+    info->name = _name;
+    info->protocol = _protocol;
+    return info;
 }
 
 Short
@@ -131,7 +186,8 @@ IceObjC::iAPEndpointI::timeout(Int t) const
     }
     else
     {
-        return ICE_MAKE_SHARED(iAPEndpointI, _instance, _manufacturer, _modelNumber, _name, _protocol, t, _connectionId, _compress);
+        return ICE_MAKE_SHARED(iAPEndpointI, _instance, _manufacturer, _modelNumber, _name, _protocol, t, _connectionId,
+                               _compress);
     }
 }
 
@@ -150,7 +206,8 @@ IceObjC::iAPEndpointI::connectionId(const string& cId) const
     }
     else
     {
-        return ICE_MAKE_SHARED(iAPEndpointI, _instance, _manufacturer, _modelNumber, _name, _protocol, _timeout, cId, _compress);
+        return ICE_MAKE_SHARED(iAPEndpointI, _instance, _manufacturer, _modelNumber, _name, _protocol, _timeout, cId,
+                               _compress);
     }
 }
 
@@ -169,7 +226,8 @@ IceObjC::iAPEndpointI::compress(bool c) const
     }
     else
     {
-        return ICE_MAKE_SHARED(iAPEndpointI, _instance, _manufacturer, _modelNumber, _name, _protocol, _timeout, _connectionId, c);
+        return ICE_MAKE_SHARED(iAPEndpointI, _instance, _manufacturer, _modelNumber, _name, _protocol, _timeout,
+                               _connectionId, c);
     }
 }
 
@@ -197,37 +255,28 @@ IceObjC::iAPEndpointI::connectors_async(Ice::EndpointSelectionType selType,
         NSArray* array = [manager connectedAccessories];
         NSEnumerator* enumerator = [array objectEnumerator];
         EAAccessory* accessory = nil;
-        int lastError = 0;
         while((accessory = [enumerator nextObject]))
         {
             if(!accessory.connected)
             {
-                lastError = 1;
                 continue;
             }
-
             if(!_manufacturer.empty() && _manufacturer != [accessory.manufacturer UTF8String])
             {
-                lastError = 2;
                 continue;
             }
             if(!_modelNumber.empty() && _modelNumber != [accessory.modelNumber UTF8String])
             {
-                lastError = 3;
                 continue;
             }
             if(!_name.empty() && _name != [accessory.name UTF8String])
             {
-                lastError = 4;
                 continue;
             }
-
             if(![accessory.protocolStrings containsObject:protocol])
             {
-                lastError = 5;
                 continue;
             }
-
             c.push_back(new iAPConnector(_instance, _timeout, _connectionId, protocol, accessory));
         }
         [protocol release];
@@ -268,7 +317,8 @@ IceObjC::iAPEndpointI::equivalent(const EndpointIPtr& endpoint) const
     }
     return endpointI->_manufacturer == _manufacturer &&
            endpointI->_modelNumber == _modelNumber &&
-           endpointI->_name == _name;
+           endpointI->_name == _name &&
+           endpointI->_protocol == _protocol;
 }
 
 bool
@@ -300,6 +350,11 @@ IceObjC::iAPEndpointI::operator==(const Ice::LocalObject& r) const
     }
 
     if(_name != p->_name)
+    {
+        return false;
+    }
+
+    if(_protocol != p->_protocol)
     {
         return false;
     }
@@ -368,6 +423,15 @@ IceObjC::iAPEndpointI::operator<(const Ice::LocalObject& r) const
         return true;
     }
     else if(p->_name < _name)
+    {
+        return false;
+    }
+
+    if(_protocol < p->_protocol)
+    {
+        return true;
+    }
+    else if(p->_protocol < _protocol)
     {
         return false;
     }
@@ -477,6 +541,7 @@ IceObjC::iAPEndpointI::options() const
     {
         s << " -t " << _timeout;
     }
+
     if(_compress)
     {
         s << " -z";
@@ -491,6 +556,7 @@ IceObjC::iAPEndpointI::hash() const
     hashAdd(h, _manufacturer);
     hashAdd(h, _modelNumber);
     hashAdd(h, _name);
+    hashAdd(h, _protocol);
     hashAdd(h, _timeout);
     hashAdd(h, _connectionId);
     return h;
@@ -634,7 +700,7 @@ IceObjC::iAPEndpointFactory::destroy()
 }
 
 EndpointFactoryPtr
-IceObjC::iAPEndpointFactory::clone(const ProtocolInstancePtr& instance) const
+IceObjC::iAPEndpointFactory::clone(const ProtocolInstancePtr& instance, const IceInternal::EndpointFactoryPtr&) const
 {
     return new iAPEndpointFactory(instance);
 }

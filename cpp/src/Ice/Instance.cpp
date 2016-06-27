@@ -1115,7 +1115,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 #endif
             if(!logfile.empty())
             {
-                _initData.logger = ICE_MAKE_SHARED(LoggerI, _initData.properties->getProperty("Ice.ProgramName"), logfile, true, ICE_NULLPTR, 
+                _initData.logger = ICE_MAKE_SHARED(LoggerI, _initData.properties->getProperty("Ice.ProgramName"), logfile, true, ICE_NULLPTR,
                                                             _initData.properties->getPropertyAsIntWithDefault("Ice.LogFile.SizeMax", 0));
             }
             else
@@ -1330,13 +1330,13 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[], const Ice::Communica
     if(tcpFactory)
     {
         ProtocolInstancePtr instance = new ProtocolInstance(communicator, WSEndpointType, "ws", false);
-        _endpointFactoryManager->add(new WSEndpointFactory(instance, tcpFactory->clone(instance)));
+        _endpointFactoryManager->add(new WSEndpointFactory(instance, tcpFactory->clone(instance, 0)));
     }
     EndpointFactoryPtr sslFactory = _endpointFactoryManager->get(SSLEndpointType);
     if(sslFactory)
     {
         ProtocolInstancePtr instance = new ProtocolInstance(communicator, WSSEndpointType, "wss", true);
-        _endpointFactoryManager->add(new WSEndpointFactory(instance, sslFactory->clone(instance)));
+        _endpointFactoryManager->add(new WSEndpointFactory(instance, sslFactory->clone(instance, 0)));
     }
 
     //
@@ -1838,9 +1838,9 @@ IceInternal::Instance::addObjectFactory(const Ice::ObjectFactoryPtr& factory, co
     //
 #ifdef ICE_CPP11_MAPPING
     _initData.valueFactoryManager->add([factory](const string& id)
-                                          {
-                                              return factory->create(id);
-                                          },
+                                       {
+                                           return factory->create(id);
+                                       },
                                        id);
 #else
     class ValueFactoryWrapper: public Ice::ValueFactory

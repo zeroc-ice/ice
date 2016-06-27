@@ -35,12 +35,10 @@ final class EndpointI extends IceInternal.EndpointI
 
     @Override
     public void
-    streamWrite(Ice.OutputStream s)
+    streamWriteImpl(Ice.OutputStream s)
     {
-        s.startEncapsulation();
         s.writeShort(_endpoint.type());
         _endpoint.streamWrite(s);
-        s.endEncapsulation();
     }
 
     @Override

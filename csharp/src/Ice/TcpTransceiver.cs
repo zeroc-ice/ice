@@ -14,7 +14,7 @@ namespace IceInternal
     using System.Net;
     using System.Net.Sockets;
 
-    sealed class TcpTransceiver : Transceiver, WSTransceiverDelegate
+    sealed class TcpTransceiver : Transceiver
     {
         public Socket fd()
         {
@@ -87,15 +87,17 @@ namespace IceInternal
         public Ice.ConnectionInfo getInfo()
         {
             Ice.TCPConnectionInfo info = new Ice.TCPConnectionInfo();
-            fillConnectionInfo(info);
-            return info;
-        }
-
-        public Ice.ConnectionInfo getWSInfo(Dictionary<string, string> headers)
-        {
-            Ice.WSConnectionInfo info = new Ice.WSConnectionInfo();
-            fillConnectionInfo(info);
-            info.headers = headers;
+            if(_stream.fd() != null)
+            {
+                EndPoint localEndpoint = Network.getLocalAddress(_stream.fd());
+                info.localAddress = Network.endpointAddressToString(localEndpoint);
+                info.localPort = Network.endpointPort(localEndpoint);
+                EndPoint remoteEndpoint = Network.getRemoteAddress(_stream.fd());
+                info.remoteAddress = Network.endpointAddressToString(remoteEndpoint);
+                info.remotePort = Network.endpointPort(remoteEndpoint);
+                info.rcvSize = Network.getRecvBufferSize(_stream.fd());
+                info.sndSize = Network.getSendBufferSize(_stream.fd());
+            }
             return info;
         }
 
@@ -125,21 +127,6 @@ namespace IceInternal
         {
             _instance = instance;
             _stream = stream;
-        }
-
-        private void fillConnectionInfo(Ice.TCPConnectionInfo info)
-        {
-            if(_stream.fd() != null)
-            {
-                EndPoint localEndpoint = Network.getLocalAddress(_stream.fd());
-                info.localAddress = Network.endpointAddressToString(localEndpoint);
-                info.localPort = Network.endpointPort(localEndpoint);
-                EndPoint remoteEndpoint = Network.getRemoteAddress(_stream.fd());
-                info.remoteAddress = Network.endpointAddressToString(remoteEndpoint);
-                info.remotePort = Network.endpointPort(remoteEndpoint);
-                info.rcvSize = Network.getRecvBufferSize(_stream.fd());
-                info.sndSize = Network.getSendBufferSize(_stream.fd());
-            }
         }
 
         private readonly ProtocolInstance _instance;

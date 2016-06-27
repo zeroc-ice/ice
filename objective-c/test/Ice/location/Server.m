@@ -60,6 +60,13 @@ run(id<ICECommunicator> communicator, ICEInitializationData* initData)
 int
 main(int argc, char* argv[])
 {
+#ifdef ICE_STATIC_LIBS
+    ICEregisterIceSSL(YES);
+#if TARGET_OS_IPHONE
+    ICEregisterIceIAP(YES);
+#endif
+#endif
+
     int status;
     @autoreleasepool
     {

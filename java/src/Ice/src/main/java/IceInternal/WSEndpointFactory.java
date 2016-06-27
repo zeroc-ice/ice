@@ -9,9 +9,9 @@
 
 package IceInternal;
 
-final public class WSEndpointFactory implements IceInternal.EndpointFactory
+final public class WSEndpointFactory implements EndpointFactory
 {
-    public WSEndpointFactory(ProtocolInstance instance, IceInternal.EndpointFactory delegate)
+    public WSEndpointFactory(ProtocolInstance instance, EndpointFactory delegate)
     {
         _instance = instance;
         _delegate = delegate;
@@ -30,13 +30,13 @@ final public class WSEndpointFactory implements IceInternal.EndpointFactory
     }
 
     @Override
-    public IceInternal.EndpointI create(java.util.ArrayList<String> args, boolean oaEndpoint)
+    public EndpointI create(java.util.ArrayList<String> args, boolean oaEndpoint)
     {
         return new WSEndpoint(_instance, _delegate.create(args, oaEndpoint), args);
     }
 
     @Override
-    public IceInternal.EndpointI read(Ice.InputStream s)
+    public EndpointI read(Ice.InputStream s)
     {
         return new WSEndpoint(_instance, _delegate.read(s), s);
     }
@@ -49,12 +49,11 @@ final public class WSEndpointFactory implements IceInternal.EndpointFactory
     }
 
     @Override
-    public IceInternal.EndpointFactory clone(IceInternal.ProtocolInstance instance)
+    public EndpointFactory clone(ProtocolInstance instance, EndpointFactory delegate)
     {
-        assert(false); // We don't support cloning this transport.
-        return null;
+        return new WSEndpointFactory(instance, delegate);
     }
 
     private ProtocolInstance _instance;
-    private IceInternal.EndpointFactory _delegate;
+    private EndpointFactory _delegate;
 }

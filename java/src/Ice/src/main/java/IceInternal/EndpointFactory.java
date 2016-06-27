@@ -17,5 +17,5 @@ public interface EndpointFactory
     EndpointI read(Ice.InputStream s);
     void destroy();
 
-    EndpointFactory clone(ProtocolInstance instance);
+    EndpointFactory clone(ProtocolInstance instance, EndpointFactory delegate);
 }

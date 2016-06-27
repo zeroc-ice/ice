@@ -71,17 +71,15 @@ final class EndpointI extends IceInternal.EndpointI
     }
 
     @Override
-    public void streamWrite(Ice.OutputStream s)
+    public void streamWriteImpl(Ice.OutputStream s)
     {
         //
         // _name and _channel are not marshaled.
         //
-        s.startEncapsulation();
         s.writeString(_addr);
         s.writeString(_uuid.toString());
         s.writeInt(_timeout);
         s.writeBool(_compress);
-        s.endEncapsulation();
     }
 
     @Override

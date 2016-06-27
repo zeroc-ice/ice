@@ -32,9 +32,9 @@ iphonesimulator_configs		= %xcodesdk
 iphonesimulator_targetdir	= $(if $(filter %/build,$5),/iphonesimulator)
 
 # If building objects for a shared library, enable fPIC
-shared_cppflags	= $(if $(filter-out program,$($1_target)),-fPIC)
+shared_cppflags	= $(if $(filter-out program,$($1_target)),-fPIC) -fvisibility=hidden
 
-CXXFLAGS	+= -fvisibility=hidden -Wall -Werror -pthread
+CXXFLAGS	+= -Wall -Werror -pthread
 
 ifeq ($(MAXWARN),yes)
     CXXFLAGS	+= -Wextra -Wshadow -Wredundant-decls
@@ -79,10 +79,18 @@ mkphpmodulename = $1.so
 #
 Ice_system_libs	:= -ldl
 
+# Frameworks for macos
 IceSSL[macosx]_system_libs := -framework Security -framework CoreFoundation
-IceSSL[iphoneos]_system_libs := -framework ExternalAccessory \
-                                -framework UIKit -framework CFNetwork -framework Security -framework Foundation
+
+# Frameworks requires for iphoneos
+Ice[iphoneos]_system_libs := -framework CFNetwork -framework UIKit -framework Foundation
+IceSSL[iphoneos]_system_libs := -framework Security
+IceIAP[iphoneos]_system_libs := -framework ExternalAccessory
+
+# Same frameworks as iphoneos for iphonesimulator
+Ice[iphonesimulator]_system_libs := $(Ice[iphoneos]_system_libs)
 IceSSL[iphonesimulator]_system_libs := $(IceSSL[iphoneos]_system_libs)
+IceIAP[iphonesimulator]_system_libs := $(IceIAP[iphoneos]_system_libs)
 
 Glacier2CryptPermissionsVerifier[macosx]_system_libs := $(IceSSL[macosx]_system_libs)
 Glacier2CryptPermissionsVerifier[iphoneos]_system_libs := $(IceSSL[iphoneos]_system_libs)

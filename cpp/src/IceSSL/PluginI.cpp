@@ -15,6 +15,7 @@
 #include <Ice/ProtocolPluginFacade.h>
 #include <Ice/ProtocolInstance.h>
 #include <Ice/LocalException.h>
+#include <Ice/RegisterPlugins.h>
 
 using namespace std;
 using namespace Ice;
@@ -23,15 +24,10 @@ using namespace IceSSL;
 //
 // Plug-in factory function.
 //
-extern "C"
-{
-
-ICE_SSL_API Ice::Plugin*
+extern "C" ICE_SSL_API Ice::Plugin*
 createIceSSL(const CommunicatorPtr& communicator, const string& /*name*/, const StringSeq& /*args*/)
 {
     return new PluginI(communicator);
-}
-
 }
 
 namespace Ice
@@ -46,6 +42,15 @@ registerIceSSL(bool loadOnInitialize)
 }
 
 //
+// Objective-C function to allow Objective-C programs to register plugin.
+//
+extern "C" ICE_SSL_API void
+ICEregisterIceSSL(bool loadOnInitialize)
+{
+    Ice::registerIceSSL(loadOnInitialize);
+}
+
+//
 // Plugin implementation.
 //
 IceSSL::PluginI::PluginI(const Ice::CommunicatorPtr& com)
@@ -54,6 +59,8 @@ IceSSL::PluginI::PluginI(const Ice::CommunicatorPtr& com)
     _engine = new SecureTransportEngine(com);
 #elif defined(ICE_USE_SCHANNEL)
     _engine = new SChannelEngine(com);
+#elif defined(ICE_OS_WINRT)
+    _engine = new WinRTEngine(com);
 #else
     _engine = new OpenSSLEngine(com);
 #endif
@@ -63,8 +70,31 @@ IceSSL::PluginI::PluginI(const Ice::CommunicatorPtr& com)
     // than in initialize, because the communicator may need to
     // interpret proxies before the plug-in is fully initialized.
     //
-    IceInternal::EndpointFactoryPtr sslFactory = new EndpointFactoryI(new Instance(_engine, EndpointType, "ssl"));
-    IceInternal::getProtocolPluginFacade(com)->addEndpointFactory(sslFactory);
+    IceInternal::ProtocolPluginFacadePtr pluginFacade = IceInternal::getProtocolPluginFacade(com);
+
+	// SSL based on TCP
+    IceInternal::EndpointFactoryPtr tcp = pluginFacade->getEndpointFactory(TCPEndpointType);
+    if(tcp)
+    {
+        InstancePtr instance = new Instance(_engine, SSLEndpointType, "ssl");
+        pluginFacade->addEndpointFactory(new EndpointFactoryI(instance, tcp->clone(instance, 0)));
+    }
+
+    // SSL based on Bluetooth
+    IceInternal::EndpointFactoryPtr bluetooth = pluginFacade->getEndpointFactory(BTEndpointType);
+    if(bluetooth)
+    {
+        InstancePtr instance = new Instance(_engine, BTSEndpointType, "bts");
+        pluginFacade->addEndpointFactory(new EndpointFactoryI(instance, bluetooth->clone(instance, 0)));
+    }
+
+    // SSL based on iAP
+    IceInternal::EndpointFactoryPtr iap = pluginFacade->getEndpointFactory(iAPEndpointType);
+    if(iap)
+    {
+        InstancePtr instance = new Instance(_engine, iAPSEndpointType, "iaps");
+        pluginFacade->addEndpointFactory(new EndpointFactoryI(instance, iap->clone(instance, 0)));
+    }
 }
 
 void

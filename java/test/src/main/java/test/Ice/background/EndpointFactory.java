@@ -58,7 +58,7 @@ final class EndpointFactory implements IceInternal.EndpointFactory
 
     @Override
     public IceInternal.EndpointFactory
-    clone(IceInternal.ProtocolInstance instance)
+    clone(IceInternal.ProtocolInstance instance, IceInternal.EndpointFactory del)
     {
         return this;
     }

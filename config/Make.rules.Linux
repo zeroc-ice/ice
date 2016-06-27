@@ -77,9 +77,9 @@ x86_targetdir  		= $(if $(filter %/build,$5),/x86)
 endif
 
 # If building objects for a shared library, enable fPIC
-shared_cppflags	= $(if $(filter-out program,$($1_target)),-fPIC)
+shared_cppflags	= $(if $(filter-out program,$($1_target)),-fPIC) -fvisibility=hidden
 
-CXXFLAGS        += -fvisibility=hidden -Wall -Werror -pthread
+CXXFLAGS        += -Wall -Werror -pthread
 LDFLAGS         += -pthread
 
 ifeq ($(MAXWARN),yes)

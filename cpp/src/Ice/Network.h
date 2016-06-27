@@ -179,6 +179,7 @@ struct ICE_API AsyncInfo : WSAOVERLAPPED
 #elif defined(ICE_OS_WINRT)
 struct ICE_API AsyncInfo
 {
+    Windows::Foundation::AsyncOperationCompletedHandler<unsigned int>^ completedHandler;
     int count;
     int error;
 };
@@ -221,10 +222,13 @@ public:
 #if defined(ICE_USE_IOCP)
     virtual AsyncInfo* getAsyncInfo(SocketOperation) = 0;
     void initialize(HANDLE, ULONG_PTR);
-    void completed(SocketOperation operation);
+    void completed(SocketOperation);
 #elif defined(ICE_OS_WINRT)
-    virtual void setCompletedHandler(SocketOperationCompletedHandler^) = 0;
-    void completed(SocketOperation operation);
+    virtual AsyncInfo* getAsyncInfo(SocketOperation) = 0;
+    void queueAction(SocketOperation, Windows::Foundation::IAsyncAction^, bool = false);
+    void queueOperation(SocketOperation, Windows::Foundation::IAsyncOperation<unsigned int>^);
+    void setCompletedHandler(SocketOperationCompletedHandler^);
+    void completed(SocketOperation);
 #endif
 
 protected:
@@ -236,6 +240,7 @@ protected:
     HANDLE _handle;
     ULONG_PTR _key;
 #elif defined(ICE_OS_WINRT)
+    bool checkIfErrorOrCompleted(SocketOperation, Windows::Foundation::IAsyncInfo^, bool = false);
     SocketOperationCompletedHandler^ _completedHandler;
 #endif
 };
@@ -287,6 +292,7 @@ ICE_API void setMcastTtl(SOCKET, int, const Address&);
 ICE_API void setReuseAddress(SOCKET, bool);
 
 ICE_API Address doBind(SOCKET, const Address&);
+ICE_API void doListen(SOCKET, int);
 
 #ifndef ICE_OS_WINRT
 ICE_API bool interrupted();
@@ -301,7 +307,6 @@ ICE_API bool connectionRefused();
 ICE_API bool connectInProgress();
 ICE_API bool connectionLost();
 
-ICE_API void doListen(SOCKET, int);
 ICE_API bool doConnect(SOCKET, const Address&, const Address&);
 ICE_API void doFinishConnect(SOCKET);
 ICE_API SOCKET doAccept(SOCKET);
@@ -312,7 +317,7 @@ ICE_API int getSocketErrno();
 
 ICE_API Address getNumericAddress(const std::string&);
 #else
-ICE_API void checkConnectErrorCode(const char*, int, HRESULT, Windows::Networking::HostName^);
+ICE_API void checkConnectErrorCode(const char*, int, HRESULT);
 ICE_API void checkErrorCode(const char*, int, HRESULT);
 #endif
 

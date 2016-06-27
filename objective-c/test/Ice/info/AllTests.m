@@ -12,6 +12,31 @@
 #import <TestCommon.h>
 #import <InfoTest.h>
 
+static ICETCPEndpointInfo<ICEEndpointInfo>*
+getTCPEndpointInfo(ICEEndpointInfo<ICEEndpointInfo>* info)
+{
+    for(; info; info = info.underlying)
+    {
+        if([info isKindOfClass:[ICETCPEndpointInfo class]])
+        {
+            return (ICETCPEndpointInfo<ICEEndpointInfo>*)info;
+        }
+    }
+    return nil;
+}
+
+static ICETCPConnectionInfo*
+getTCPConnectionInfo(ICEConnectionInfo* info)
+{
+    for(; info; info = info.underlying)
+    {
+        if([info isKindOfClass:[ICETCPConnectionInfo class]])
+        {
+            return (ICETCPConnectionInfo*)info;
+        }
+    }
+    return nil;
+}
 
 TestInfoTestIntfPrx*
 infoAllTests(id<ICECommunicator> communicator)
@@ -25,8 +50,9 @@ infoAllTests(id<ICECommunicator> communicator)
 
         ICEEndpointSeq* endps = [p1 ice_getEndpoints];
         id<ICEEndpoint> endpoint = [endps objectAtIndex:0];
-        ICEIPEndpointInfo<ICEEndpointInfo>* ipEndpoint = (ICEIPEndpointInfo<ICEEndpointInfo>*)[endpoint getInfo];
-        test([ipEndpoint isKindOfClass:[ICEIPEndpointInfo class]]);
+        ICEEndpointInfo<ICEEndpointInfo>* info = [endpoint getInfo];
+        ICETCPEndpointInfo<ICEEndpointInfo>* ipEndpoint = getTCPEndpointInfo(info);
+        test([ipEndpoint isKindOfClass:[ICETCPEndpointInfo class]]);
         test([[ipEndpoint host] isEqualToString:@"tcphost"]);
         test(ipEndpoint.port == 10000);
         test(ipEndpoint.timeout == 1200);
@@ -38,11 +64,10 @@ infoAllTests(id<ICECommunicator> communicator)
              ([ipEndpoint type] == ICEWSEndpointType && ![ipEndpoint secure]) ||
              ([ipEndpoint type] == ICEWSSEndpointType && [ipEndpoint secure]));
 
-        test(([ipEndpoint type] == ICETCPEndpointType && [ipEndpoint isKindOfClass:[ICETCPEndpointInfo class]]) ||
-             ([ipEndpoint type] == ICESSLEndpointType && [ipEndpoint isKindOfClass:[ICESSLEndpointInfo class]]) ||
-             ([ipEndpoint type] == ICEWSEndpointType && [ipEndpoint isKindOfClass:[ICEWSEndpointInfo class]]) ||
-             ([ipEndpoint type] == ICEWSSEndpointType && [ipEndpoint isKindOfClass:[ICESSLWSSEndpointInfo class]]));
-
+        test(([ipEndpoint type] == ICETCPEndpointType && [info isKindOfClass:[ICETCPEndpointInfo class]]) ||
+             ([ipEndpoint type] == ICESSLEndpointType && [info isKindOfClass:[ICESSLEndpointInfo class]]) ||
+             ([ipEndpoint type] == ICEWSEndpointType && [info isKindOfClass:[ICEWSEndpointInfo class]]) ||
+             ([ipEndpoint type] == ICEWSSEndpointType && [info isKindOfClass:[ICEWSEndpointInfo class]]));
 
         endpoint = [endps objectAtIndex:1];
         ICEUDPEndpointInfo<ICEEndpointInfo>* udpEndpoint = (ICEUDPEndpointInfo<ICEEndpointInfo>*)[endpoint getInfo];
@@ -78,8 +103,8 @@ infoAllTests(id<ICECommunicator> communicator)
         test([endpoints isEqualToArray:publishedEndpoints]);
 
         id<ICEEndpoint> endpoint = [endpoints objectAtIndex:0];
-        ICEIPEndpointInfo<ICEEndpointInfo>* ipEndpoint = (ICEIPEndpointInfo<ICEEndpointInfo>*)[endpoint getInfo];
-        test([ipEndpoint isKindOfClass:[ICEIPEndpointInfo class]]);
+        ICETCPEndpointInfo<ICEEndpointInfo>* ipEndpoint = getTCPEndpointInfo([endpoint getInfo]);
+        test([ipEndpoint isKindOfClass:[ICETCPEndpointInfo class]]);
         test([ipEndpoint type] == ICETCPEndpointType || [ipEndpoint type] == ICESSLEndpointType ||
              [ipEndpoint type] == ICEWSEndpointType || [ipEndpoint type] == ICEWSSEndpointType);
         test([ipEndpoint.host isEqualToString:defaultHost]);
@@ -107,11 +132,11 @@ infoAllTests(id<ICECommunicator> communicator)
         for(id object in endpoints)
         {
             endpoint = (id<ICEEndpoint>)object;
-            ipEndpoint = (ICEIPEndpointInfo<ICEEndpointInfo>*)[endpoint getInfo];
+            ipEndpoint = getTCPEndpointInfo([endpoint getInfo]);
             test(ipEndpoint.port == 12020);
         }
 
-        ipEndpoint = (ICEIPEndpointInfo<ICEEndpointInfo>*)[[publishedEndpoints objectAtIndex:0] getInfo];
+        ipEndpoint = getTCPEndpointInfo([[publishedEndpoints objectAtIndex:0] getInfo]);
         test([ipEndpoint.host isEqualToString:@"127.0.0.1"]);
         test(ipEndpoint.port == 12020);
 
@@ -124,9 +149,9 @@ infoAllTests(id<ICECommunicator> communicator)
 
     tprintf("test connection endpoint information... ");
     {
-        ICEEndpointInfo* info = [[[base ice_getConnection] getEndpoint] getInfo];
-        ICEIPEndpointInfo* ipinfo = (ICEIPEndpointInfo*)info;
-        test([ipinfo isKindOfClass:[ICEIPEndpointInfo class]]);
+        ICEEndpointInfo<ICEEndpointInfo>* info = [[[base ice_getConnection] getEndpoint] getInfo];
+        ICETCPEndpointInfo* ipinfo = getTCPEndpointInfo(info);
+        test([ipinfo isKindOfClass:[ICETCPEndpointInfo class]]);
         test(ipinfo.port == 12010);
         test(!ipinfo.compress);
         test([ipinfo.host isEqualToString:defaultHost]);
@@ -149,42 +174,32 @@ infoAllTests(id<ICECommunicator> communicator)
         id<ICEConnection> connection = [base ice_getConnection];
         [connection setBufferSize:1024 sndSize:2048];
 
-        ICEIPConnectionInfo* info = (ICEIPConnectionInfo*)[connection getInfo];
-        test([info isKindOfClass:[ICEIPConnectionInfo class]]);
-        test(!info.incoming);
-        test([info.adapterName isEqualToString:@""]);
-        test(info.localPort > 0);
-        test(info.remotePort == 12010);
+        ICEConnectionInfo* info = [connection getInfo];
+        ICETCPConnectionInfo* ipinfo = getTCPConnectionInfo([connection getInfo]);
+        test([ipinfo isKindOfClass:[ICETCPConnectionInfo class]]);
+        test(!ipinfo.incoming);
+        test([ipinfo.adapterName isEqualToString:@""]);
+        test(ipinfo.localPort > 0);
+        test(ipinfo.remotePort == 12010);
         if([defaultHost isEqualToString:@"127.0.0.1"])
         {
-            test([info.remoteAddress isEqualToString:defaultHost]);
-            test([info.localAddress isEqualToString:defaultHost]);
+            test([ipinfo.remoteAddress isEqualToString:defaultHost]);
+            test([ipinfo.localAddress isEqualToString:defaultHost]);
         }
-        test(info.rcvSize >= 1024);
-        test(info.sndSize >= 2048);
+        test(ipinfo.rcvSize >= 1024);
+        test(ipinfo.sndSize >= 2048);
 
         ICEContext* ctx = [testIntf getConnectionInfoAsContext];
         test([[ctx objectForKey:@"incoming"] isEqualToString:@"true"]);
         test([[ctx objectForKey:@"adapterName"] isEqualToString:@"TestAdapter"]);
-        test([[ctx objectForKey:@"remoteAddress"] isEqualToString:info.remoteAddress]);
-        test([[ctx objectForKey:@"localAddress"] isEqualToString:info.localAddress]);
-        test([[ctx objectForKey:@"remotePort"] intValue] == info.localPort);
-        test([[ctx objectForKey:@"localPort"] intValue] == info.remotePort);
+        test([[ctx objectForKey:@"remoteAddress"] isEqualToString:ipinfo.remoteAddress]);
+        test([[ctx objectForKey:@"localAddress"] isEqualToString:ipinfo.localAddress]);
+        test([[ctx objectForKey:@"remotePort"] intValue] == ipinfo.localPort);
+        test([[ctx objectForKey:@"localPort"] intValue] == ipinfo.remotePort);
 
-        if([info isKindOfClass:[ICEWSConnectionInfo class]] || [info isKindOfClass:[ICESSLWSSConnectionInfo class]])
+        if([info isKindOfClass:[ICEWSConnectionInfo class]])
         {
-            ICEHeaderDict* headers;
-            if([info isKindOfClass:[ICEWSConnectionInfo class]])
-            {
-                ICEWSConnectionInfo* wsinfo = (ICEWSConnectionInfo*)info;
-                headers = wsinfo.headers;
-            }
-
-            if([info isKindOfClass:[ICESSLWSSConnectionInfo class]])
-            {
-                ICESSLWSSConnectionInfo* wssinfo = (ICESSLWSSConnectionInfo*)info;
-                headers = wssinfo.headers;
-            }
+            ICEHeaderDict* headers = ((ICEWSConnectionInfo*)info).headers;
 
             test([[headers objectForKey:@"Upgrade"] isEqualToString:@"websocket"]);
             test([[headers objectForKey:@"Connection"] isEqualToString:@"Upgrade"]);
@@ -201,19 +216,20 @@ infoAllTests(id<ICECommunicator> communicator)
         connection = [[base ice_datagram] ice_getConnection];
         [connection setBufferSize:2048 sndSize:1024];
 
-        info = (ICEIPConnectionInfo*)[connection getInfo];
-        test([info isKindOfClass:[ICEIPConnectionInfo class]]);
-        test(!info.incoming);
-        test([info.adapterName isEqualToString:@""]);
-        test(info.localPort > 0);
-        test(info.remotePort == 12010);
+        info = [connection getInfo];
+        test([info isKindOfClass:[ICEUDPConnectionInfo class]]);
+        ICEUDPConnectionInfo* udpinfo = (ICEUDPConnectionInfo*)info;
+        test(!udpinfo.incoming);
+        test([udpinfo.adapterName isEqualToString:@""]);
+        test(udpinfo.localPort > 0);
+        test(udpinfo.remotePort == 12010);
         if([defaultHost isEqualToString:@"127.0.0.1"])
         {
-            test([info.remoteAddress isEqualToString:defaultHost]);
-            test([info.localAddress isEqualToString:defaultHost]);
+            test([udpinfo.remoteAddress isEqualToString:defaultHost]);
+            test([udpinfo.localAddress isEqualToString:defaultHost]);
         }
-        test(info.rcvSize >= 2048);
-        test(info.sndSize >= 1024);
+        test(udpinfo.rcvSize >= 2048);
+        test(udpinfo.sndSize >= 1024);
     }
     tprintf("ok\n");
 

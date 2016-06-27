@@ -183,11 +183,14 @@ IceInternal::IncomingBase::__warning(const Exception& ex) const
 
     if(_current.con)
     {
-        Ice::ConnectionInfoPtr connInfo = _current.con->getInfo();
-        Ice::IPConnectionInfoPtr ipConnInfo = ICE_DYNAMIC_CAST(Ice::IPConnectionInfo, connInfo);
-        if(ipConnInfo)
+        for(Ice::ConnectionInfoPtr connInfo = _current.con->getInfo(); connInfo; connInfo = connInfo->underlying)
         {
-            out << "\nremote host: " << ipConnInfo->remoteAddress << " remote port: " << ipConnInfo->remotePort;
+            Ice::IPConnectionInfoPtr ipConnInfo = ICE_DYNAMIC_CAST(Ice::IPConnectionInfo, connInfo);
+            if(ipConnInfo)
+            {
+                out << "\nremote host: " << ipConnInfo->remoteAddress << " remote port: " << ipConnInfo->remotePort;
+                break;
+            }
         }
     }
 }
@@ -204,11 +207,14 @@ IceInternal::IncomingBase::__warning(const string& msg) const
 
     if(_current.con)
     {
-        Ice::ConnectionInfoPtr connInfo = _current.con->getInfo();
-        Ice::IPConnectionInfoPtr ipConnInfo = ICE_DYNAMIC_CAST(Ice::IPConnectionInfo, connInfo);
-        if(ipConnInfo)
+        for(Ice::ConnectionInfoPtr connInfo = _current.con->getInfo(); connInfo; connInfo = connInfo->underlying)
         {
-            out << "\nremote host: " << ipConnInfo->remoteAddress << " remote port: " << ipConnInfo->remotePort;
+            Ice::IPConnectionInfoPtr ipConnInfo = ICE_DYNAMIC_CAST(Ice::IPConnectionInfo, connInfo);
+            if(ipConnInfo)
+            {
+                out << "\nremote host: " << ipConnInfo->remoteAddress << " remote port: " << ipConnInfo->remotePort;
+                break;
+            }
         }
     }
 }

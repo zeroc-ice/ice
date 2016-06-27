@@ -106,11 +106,10 @@ IceInternal::IPEndpointI::secure() const
 }
 
 void
-IceInternal::IPEndpointI::streamWrite(OutputStream* s) const
+IceInternal::IPEndpointI::streamWriteImpl(OutputStream* s) const
 {
-    s->startEncapsulation();
-    streamWriteImpl(s);
-    s->endEncapsulation();
+    s->write(_host, false);
+    s->write(_port);
 }
 
 const string&
@@ -130,18 +129,6 @@ IceInternal::IPEndpointI::connectionId(const string& connectionId) const
     {
         return createEndpoint(_host, _port, connectionId);
     }
-}
-
-const std::string&
-IceInternal::IPEndpointI::host() const
-{
-    return _host;
-}
-
-int
-IceInternal::IPEndpointI::port() const
-{
-    return _port;
 }
 
 void
@@ -352,13 +339,6 @@ IceInternal::IPEndpointI::connectors(const vector<Address>& addresses, const Net
         connectors.push_back(createConnector(addresses[i], proxy));
     }
     return connectors;
-}
-
-void
-IceInternal::IPEndpointI::streamWriteImpl(OutputStream* s) const
-{
-    s->write(_host, false);
-    s->write(_port);
 }
 
 void

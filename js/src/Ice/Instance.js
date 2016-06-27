@@ -362,7 +362,7 @@ var Instance = Ice.Class({
             var wsEndpointFactory = new Ice.WSEndpointFactory(wsInstance, tcpEndpointFactory.clone(wsInstance));
             this._endpointFactoryManager.add(wsEndpointFactory);
 
-            var sslInstance = new Ice.ProtocolInstance(this, IceSSL.EndpointType, "ssl", true);
+            var sslInstance = new Ice.ProtocolInstance(this, Ice.SSLEndpointType, "ssl", true);
             var sslEndpointFactory = new Ice.TcpEndpointFactory(sslInstance);
             this._endpointFactoryManager.add(sslEndpointFactory);
 

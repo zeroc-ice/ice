@@ -3642,9 +3642,15 @@ Ice::ConnectionI::initConnectionInfo() const
     {
         _info = ICE_MAKE_SHARED(ConnectionInfo);
     }
-    _info->connectionId = _endpoint->connectionId();
-    _info->incoming = _connector == 0;
-    _info->adapterName = _adapter ? _adapter->getName() : string();
+
+    Ice::ConnectionInfoPtr info = _info;
+    while(info)
+    {
+        info->connectionId = _endpoint->connectionId();
+        info->incoming = _connector == 0;
+        info->adapterName = _adapter ? _adapter->getName() : string();
+        info = info->underlying;
+    }
     return _info;
 }
 

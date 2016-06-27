@@ -22,12 +22,10 @@
 using namespace std;
 using namespace IceInternal;
 
-#ifdef ICE_OS_WINRT
-//using namespace Windows::Foundation;
+#if defined(ICE_OS_WINRT)
 using namespace Windows::Storage::Streams;
 using namespace Windows::Networking;
 using namespace Windows::Networking::Sockets;
-
 #endif
 
 #if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)

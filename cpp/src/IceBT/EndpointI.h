@@ -30,7 +30,7 @@ public:
     EndpointI(const InstancePtr&);
     EndpointI(const InstancePtr&, Ice::InputStream*);
 
-    virtual void streamWrite(Ice::OutputStream*) const;
+    virtual void streamWriteImpl(Ice::OutputStream*) const;
     virtual Ice::Short type() const;
     virtual const std::string& protocol() const;
     virtual Ice::Int timeout() const;
@@ -49,7 +49,7 @@ public:
 
 #ifdef ICE_CPP11_MAPPING
     virtual bool operator==(const Ice::Endpoint&) const;
-    virtual bool operator<(const Ice::Endpoint&) const;    
+    virtual bool operator<(const Ice::Endpoint&) const;
 #else
     virtual bool operator==(const Ice::LocalObject&) const;
     virtual bool operator<(const Ice::LocalObject&) const;
@@ -140,7 +140,8 @@ public:
     virtual IceInternal::EndpointIPtr read(Ice::InputStream*) const;
     virtual void destroy();
 
-    virtual IceInternal::EndpointFactoryPtr clone(const IceInternal::ProtocolInstancePtr&) const;
+    virtual IceInternal::EndpointFactoryPtr clone(const IceInternal::ProtocolInstancePtr&,
+                                                  const IceInternal::EndpointFactoryPtr&) const;
 
 private:
 

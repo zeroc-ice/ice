@@ -60,7 +60,7 @@ IceInternal::TcpTransceiver::read(Buffer& buf)
     return _stream->read(buf);
 }
 
-#ifdef ICE_USE_IOCP
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
 bool
 IceInternal::TcpTransceiver::startWrite(Buffer& buf)
 {
@@ -108,16 +108,12 @@ Ice::ConnectionInfoPtr
 IceInternal::TcpTransceiver::getInfo() const
 {
     TCPConnectionInfoPtr info = ICE_MAKE_SHARED(TCPConnectionInfo);
-    fillConnectionInfo(info);
-    return info;
-}
-
-Ice::ConnectionInfoPtr
-IceInternal::TcpTransceiver::getWSInfo(const Ice::HeaderDict& headers) const
-{
-    WSConnectionInfoPtr info = ICE_MAKE_SHARED(WSConnectionInfo);
-    fillConnectionInfo(info);
-    info->headers = headers;
+    fdToAddressAndPort(_stream->fd(), info->localAddress, info->localPort, info->remoteAddress, info->remotePort);
+    if(_stream->fd() != INVALID_SOCKET)
+    {
+        info->rcvSize = getRecvBufferSize(_stream->fd());
+        info->sndSize = getSendBufferSize(_stream->fd());
+    }
     return info;
 }
 
@@ -140,15 +136,4 @@ IceInternal::TcpTransceiver::TcpTransceiver(const ProtocolInstancePtr& instance,
 
 IceInternal::TcpTransceiver::~TcpTransceiver()
 {
-}
-
-void
-IceInternal::TcpTransceiver::fillConnectionInfo(const TCPConnectionInfoPtr& info) const
-{
-    fdToAddressAndPort(_stream->fd(), info->localAddress, info->localPort, info->remoteAddress, info->remotePort);
-    if(_stream->fd() != INVALID_SOCKET)
-    {
-        info->rcvSize = getRecvBufferSize(_stream->fd());
-        info->sndSize = getSendBufferSize(_stream->fd());
-    }
 }

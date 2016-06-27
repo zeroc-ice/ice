@@ -76,10 +76,24 @@ IceInternal::UdpEndpointI::UdpEndpointI(const ProtocolInstancePtr& instance, Inp
     s->read(const_cast<bool&>(_compress));
 }
 
+void
+IceInternal::UdpEndpointI::streamWriteImpl(OutputStream* s) const
+{
+    IPEndpointI::streamWriteImpl(s);
+    if(s->getEncoding() == Ice::Encoding_1_0)
+    {
+        s->write(Ice::Protocol_1_0);
+        s->write(Ice::Encoding_1_0);
+    }
+    // Not transmitted.
+    //s->write(_connect);
+    s->write(_compress);
+}
+
 EndpointInfoPtr
 IceInternal::UdpEndpointI::getInfo() const
 {
-    Ice::UDPEndpointInfoPtr info = ICE_MAKE_SHARED(InfoI<Ice::UDPEndpointInfo>, 
+    Ice::UDPEndpointInfoPtr info = ICE_MAKE_SHARED(InfoI<Ice::UDPEndpointInfo>,
                                                    ICE_DYNAMIC_CAST(UdpEndpointI, shared_from_this()));
     fillEndpointInfo(info.get());
     return info;
@@ -287,20 +301,6 @@ IceInternal::UdpEndpointI::operator<(const LocalObject& r) const
 }
 
 void
-IceInternal::UdpEndpointI::streamWriteImpl(OutputStream* s) const
-{
-    IPEndpointI::streamWriteImpl(s);
-    if(s->getEncoding() == Ice::Encoding_1_0)
-    {
-        s->write(Ice::Protocol_1_0);
-        s->write(Ice::Encoding_1_0);
-    }
-    // Not transmitted.
-    //s->write(_connect);
-    s->write(_compress);
-}
-
-void
 IceInternal::UdpEndpointI::hashInit(Ice::Int& h) const
 {
     IPEndpointI::hashInit(h);
@@ -463,7 +463,7 @@ IceInternal::UdpEndpointFactory::destroy()
 }
 
 EndpointFactoryPtr
-IceInternal::UdpEndpointFactory::clone(const ProtocolInstancePtr& instance) const
+IceInternal::UdpEndpointFactory::clone(const ProtocolInstancePtr& instance, const EndpointFactoryPtr&) const
 {
     return new UdpEndpointFactory(instance);
 }

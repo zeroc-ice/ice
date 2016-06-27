@@ -24,26 +24,13 @@ namespace IceInternal
 class ConnectorI;
 class AcceptorI;
 
-//
-// Delegate interface implemented by TcpTransceiver or IceSSL::Transceiver or any transport that WS can
-// delegate to.
-//
-class ICE_API WSTransceiverDelegate : public virtual IceUtil::Shared
-{
-public:
-
-    virtual Ice::ConnectionInfoPtr getWSInfo(const Ice::HeaderDict&) const = 0;
-};
-
 class WSTransceiver : public Transceiver
 {
 public:
 
     virtual NativeInfoPtr getNativeInfo();
-#if defined(ICE_USE_IOCP)
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
     virtual AsyncInfo* getAsyncInfo(SocketOperation);
-#elif defined(ICE_OS_WINRT)
-    virtual void setCompletedHandler(SocketOperationCompletedHandler^);
 #endif
 
     virtual SocketOperation initialize(Buffer&, Buffer&);
@@ -70,7 +57,7 @@ public:
 
 private:
 
-    WSTransceiver(const ProtocolInstancePtr&, const TransceiverPtr&, const std::string&, int, const std::string&);
+    WSTransceiver(const ProtocolInstancePtr&, const TransceiverPtr&, const std::string&, const std::string&);
     WSTransceiver(const ProtocolInstancePtr&, const TransceiverPtr&);
     virtual ~WSTransceiver();
 
@@ -92,7 +79,6 @@ private:
     const ProtocolInstancePtr _instance;
     const TransceiverPtr _delegate;
     const std::string _host;
-    const int _port;
     const std::string _resource;
     const bool _incoming;
 

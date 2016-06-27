@@ -14,6 +14,30 @@
     var Test = require("Test").Test;
     var Promise = Ice.Promise;
 
+    function getTCPEndpointInfo(info)
+    {
+        for(var p = info; p; p = p.underlying)
+        {
+            if(p instanceof Ice.TCPEndpointInfo)
+            {
+                return p;
+            }
+        }
+        return null;
+    }
+
+    function getTCPConnectionInfo(info)
+    {
+        for(var p = info; p; p = p.underlying)
+        {
+            if(p instanceof Ice.TCPConnectionInfo)
+            {
+                return p;
+            }
+        }
+        return null;
+    }
+
     function allTests(communicator, out)
     {
         var p = new Ice.Promise();
@@ -46,8 +70,8 @@
                 var p1 = communicator.stringToProxy(ref);
 
                 var endps = p1.ice_getEndpoints();
-
-                var ipEndpoint = endps[0].getInfo();
+                var endpoint = endps[0].getInfo();
+                var ipEndpoint = getTCPEndpointInfo(endpoint);
                 test(ipEndpoint.host == "tcphost");
                 test(ipEndpoint.port == 10000);
                 test(ipEndpoint.timeout == 1200);
@@ -57,6 +81,10 @@
                 test(ipEndpoint.type() == Ice.TCPEndpointType && !ipEndpoint.secure() ||
                      ipEndpoint.type() == Ice.WSEndpointType && !ipEndpoint.secure() ||
                      ipEndpoint.type() == Ice.WSSEndpointType && ipEndpoint.secure());
+
+                test(ipEndpoint.type() == Ice.TCPEndpointType && endpoint instanceof Ice.TCPEndpointInfo ||
+                     ipEndpoint.type() == Ice.WSEndpointType && endpoint instanceof Ice.WSEndpointInfo ||
+                     ipEndpoint.type() == Ice.WSSEndpointType && endpoint instanceof Ice.WSEndpointInfo);
 
                 var opaqueEndpoint = endps[1].getInfo();
                 test(opaqueEndpoint.rawEncoding.equals(new Ice.EncodingVersion(1, 8)));
@@ -74,7 +102,7 @@
                 return base.ice_getConnection().then(
                     function(conn)
                     {
-                        ipinfo = conn.getEndpoint().getInfo();
+                        ipinfo = getTCPEndpointInfo(conn.getEndpoint().getInfo());
                         test(ipinfo.port == 12010);
                         test(!ipinfo.compress);
                         test(ipinfo.host == defaultHost);
@@ -106,19 +134,20 @@
                         connection.setBufferSize(1024, 2048);
 
                         info = connection.getInfo();
+                        ipinfo = getTCPConnectionInfo(info);
                         test(!info.incoming);
                         test(info.adapterName.length === 0);
                         if(connection.type() != "ws" && connection.type() != "wss")
                         {
-                            test(info.localPort > 0);
+                            test(ipinfo.localPort > 0);
                         }
-                        test(info.remotePort == 12010);
+                        test(ipinfo.remotePort == 12010);
                         if(defaultHost == "127.0.0.1")
                         {
-                            test(info.remoteAddress == defaultHost);
+                            test(ipinfo.remoteAddress == defaultHost);
                             if(connection.type() != "ws" && connection.type() != "wss")
                             {
-                                test(info.localAddress == defaultHost);
+                                test(ipinfo.localAddress == defaultHost);
                             }
                         }
                         //test(info.rcvSize >= 1024);

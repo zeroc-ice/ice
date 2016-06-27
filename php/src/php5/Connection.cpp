@@ -29,7 +29,6 @@ static zend_class_entry* tcpConnectionInfoClassEntry = 0;
 static zend_class_entry* udpConnectionInfoClassEntry = 0;
 static zend_class_entry* wsConnectionInfoClassEntry = 0;
 static zend_class_entry* sslConnectionInfoClassEntry = 0;
-static zend_class_entry* wssConnectionInfoClassEntry = 0;
 
 //
 // Ice::Connection support.
@@ -512,6 +511,8 @@ IcePHP::connectionInit(TSRMLS_D)
     ce.create_object = handleConnectionInfoAlloc;
     connectionInfoClassEntry = zend_register_internal_class(&ce TSRMLS_CC);
     memcpy(&_connectionInfoHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+    zend_declare_property_null(connectionInfoClassEntry, STRCAST("underlying"), sizeof("underlying") - 1,
+                               ZEND_ACC_PUBLIC TSRMLS_CC);
     zend_declare_property_bool(connectionInfoClassEntry, STRCAST("incoming"), sizeof("incoming") - 1, 0,
                                ZEND_ACC_PUBLIC TSRMLS_CC);
     zend_declare_property_string(connectionInfoClassEntry, STRCAST("adapterName"), sizeof("adapterName") - 1,
@@ -571,7 +572,7 @@ IcePHP::connectionInit(TSRMLS_D)
     INIT_CLASS_ENTRY(ce, "Ice_WSConnectionInfo", NULL);
 #endif
     ce.create_object = handleConnectionInfoAlloc;
-    wsConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, ipConnectionInfoClassEntry, NULL TSRMLS_CC);
+    wsConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, connectionInfoClassEntry, NULL TSRMLS_CC);
     zend_declare_property_string(wsConnectionInfoClassEntry, STRCAST("headers"), sizeof("headers") - 1,
                                  STRCAST(""), ZEND_ACC_PUBLIC TSRMLS_CC);
 
@@ -584,27 +585,13 @@ IcePHP::connectionInit(TSRMLS_D)
     INIT_CLASS_ENTRY(ce, "Ice_SSLConnectionInfo", NULL);
 #endif
     ce.create_object = handleConnectionInfoAlloc;
-    sslConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, ipConnectionInfoClassEntry, NULL TSRMLS_CC);
+    sslConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, connectionInfoClassEntry, NULL TSRMLS_CC);
     zend_declare_property_string(sslConnectionInfoClassEntry, STRCAST("cipher"), sizeof("cipher") - 1,
                                  STRCAST(""), ZEND_ACC_PUBLIC TSRMLS_CC);
     zend_declare_property_string(sslConnectionInfoClassEntry, STRCAST("certs"), sizeof("certs") - 1,
                                  STRCAST(""), ZEND_ACC_PUBLIC TSRMLS_CC);
     zend_declare_property_bool(sslConnectionInfoClassEntry, STRCAST("verified"), sizeof("verified") - 1, 0,
                                ZEND_ACC_PUBLIC TSRMLS_CC);
-
-    //
-    // Register the WSConnectionInfo class.
-    //
-#ifdef ICEPHP_USE_NAMESPACES
-    INIT_NS_CLASS_ENTRY(ce, "Ice", "WSSConnectionInfo", NULL);
-#else
-    INIT_CLASS_ENTRY(ce, "Ice_WSSConnectionInfo", NULL);
-#endif
-    ce.create_object = handleConnectionInfoAlloc;
-    wssConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, sslConnectionInfoClassEntry, NULL TSRMLS_CC);
-    zend_declare_property_string(wssConnectionInfoClassEntry, STRCAST("headers"), sizeof("headers") - 1,
-                                 STRCAST(""), ZEND_ACC_PUBLIC TSRMLS_CC);
-
 
     return true;
 }
@@ -653,6 +640,12 @@ IcePHP::fetchConnection(zval* zv, Ice::ConnectionPtr& connection TSRMLS_DC)
 bool
 IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p TSRMLS_DC)
 {
+    if(!p)
+    {
+        ZVAL_NULL(zv);
+        return true;
+    }
+
     int status;
     if(Ice::WSConnectionInfoPtr::dynamicCast(p))
     {
@@ -674,7 +667,12 @@ IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p TSRMLS_DC
     }
     else if(Ice::TCPConnectionInfoPtr::dynamicCast(p))
     {
-        status = object_init_ex(zv, tcpConnectionInfoClassEntry);
+        Ice::TCPConnectionInfoPtr info = Ice::TCPConnectionInfoPtr::dynamicCast(p);
+        if((status = object_init_ex(zv, tcpConnectionInfoClassEntry)) == SUCCESS)
+        {
+            add_property_long(zv, STRCAST("rcvSize"), static_cast<long>(info->rcvSize));
+            add_property_long(zv, STRCAST("sndSize"), static_cast<long>(info->sndSize));
+        }
     }
     else if(Ice::UDPConnectionInfoPtr::dynamicCast(p))
     {
@@ -683,24 +681,8 @@ IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p TSRMLS_DC
         {
             add_property_string(zv, STRCAST("mcastAddress"), const_cast<char*>(info->mcastAddress.c_str()), 1);
             add_property_long(zv, STRCAST("mcastPort"), static_cast<long>(info->mcastPort));
-        }
-    }
-    else if(IceSSL::WSSConnectionInfoPtr::dynamicCast(p))
-    {
-        IceSSL::WSSConnectionInfoPtr info = IceSSL::WSSConnectionInfoPtr::dynamicCast(p);
-        if((status = object_init_ex(zv, wssConnectionInfoClassEntry)) == SUCCESS)
-        {
-            zval* zmap;
-            MAKE_STD_ZVAL(zmap);
-            AutoDestroy mapDestroyer(zmap);
-            if(createStringMap(zmap, info->headers TSRMLS_CC))
-            {
-                add_property_zval(zv, STRCAST("headers"), zmap);
-            }
-            else
-            {
-                return false;
-            }
+            add_property_long(zv, STRCAST("rcvSize"), static_cast<long>(info->rcvSize));
+            add_property_long(zv, STRCAST("sndSize"), static_cast<long>(info->sndSize));
         }
     }
     else if(IceSSL::ConnectionInfoPtr::dynamicCast(p))
@@ -750,6 +732,15 @@ IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p TSRMLS_DC
         add_property_long(zv, STRCAST("remotePort"), static_cast<long>(info->remotePort));
     }
 
+    zval* underlying;
+    MAKE_STD_ZVAL(underlying);
+    AutoDestroy underlyingDestroyer(underlying);
+    if(!createConnectionInfo(underlying, p->underlying TSRMLS_CC))
+    {
+        runtimeError("unable to initialize connection info" TSRMLS_CC);
+        return false;
+    }
+    add_property_zval(zv, STRCAST("underlying"), underlying);
     add_property_bool(zv, STRCAST("incoming"), p->incoming ? 1 : 0);
     add_property_string(zv, STRCAST("adapterName"), const_cast<char*>(p->adapterName.c_str()), 1);
     add_property_long(zv, STRCAST("rcvSize"), static_cast<long>(p->rcvSize));

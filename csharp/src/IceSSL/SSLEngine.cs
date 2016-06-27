@@ -534,7 +534,7 @@ namespace IceSSL
             _logger.trace(_securityTraceCategory, s.ToString());
         }
 
-        internal void verifyPeer(NativeConnectionInfo info, System.Net.Sockets.Socket fd, string address)
+        internal void verifyPeer(string address, NativeConnectionInfo info, string desc)
         {
             //
             // For an outgoing connection, we compare the proxy address (if any) against
@@ -732,8 +732,7 @@ namespace IceSSL
             {
                 string msg = (info.incoming ? "incoming" : "outgoing") + " connection rejected:\n" +
                     "length of peer's certificate chain (" + info.nativeCerts.Length + ") exceeds maximum of " +
-                    _verifyDepthMax + "\n" +
-                    IceInternal.Network.fdToString(fd);
+                    _verifyDepthMax + "\n" + desc;
                 if(_securityTraceLevel >= 1)
                 {
                     _logger.trace(_securityTraceCategory, msg);
@@ -743,10 +742,10 @@ namespace IceSSL
                 throw ex;
             }
 
-            if(!_trustManager.verify(info))
+            if(!_trustManager.verify(info, desc))
             {
                 string msg = (info.incoming ? "incoming" : "outgoing") + " connection rejected by trust manager\n" +
-                    IceInternal.Network.fdToString(fd);
+                    desc;
                 if(_securityTraceLevel >= 1)
                 {
                     _logger.trace(_securityTraceCategory, msg);
@@ -760,7 +759,7 @@ namespace IceSSL
             if(_verifier != null && !_verifier.verify(info))
             {
                 string msg = (info.incoming ? "incoming" : "outgoing") +
-                    " connection rejected by certificate verifier\n" + IceInternal.Network.fdToString(fd);
+                    " connection rejected by certificate verifier\n" + desc;
                 if(_securityTraceLevel >= 1)
                 {
                     _logger.trace(_securityTraceCategory, msg);

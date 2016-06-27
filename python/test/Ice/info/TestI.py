@@ -10,6 +10,18 @@
 import Ice, Test
 import time
 
+def getIPEndpointInfo(info):
+    while(info):
+        if isinstance(info, Ice.IPEndpointInfo):
+            return info
+        info = info.underlying
+
+def getIPConnectionInfo(info):
+    while(info):
+        if isinstance(info, Ice.IPConnectionInfo):
+            return info
+        info = info.underlying
+
 class MyDerivedClassI(Test.TestIntf):
     def __init__(self):
         self.ctx = None
@@ -19,7 +31,7 @@ class MyDerivedClassI(Test.TestIntf):
 
     def getEndpointInfoAsContext(self, current):
         ctx = {}
-        info = current.con.getEndpoint().getInfo()
+        info = getIPEndpointInfo(current.con.getEndpoint().getInfo())
         ctx["timeout"] = str(info.timeout)
         if info.compress:
             ctx["compress"] = "true"
@@ -51,18 +63,19 @@ class MyDerivedClassI(Test.TestIntf):
     def getConnectionInfoAsContext(self, current):
         ctx = {}
         info = current.con.getInfo()
+        ipinfo = getIPConnectionInfo(info)
         ctx["adapterName"] = info.adapterName
         if info.incoming:
             ctx["incoming"] = "true"
         else:
             ctx["incoming"] ="false"
 
-        ctx["localAddress"] = info.localAddress
-        ctx["localPort"] = str(info.localPort)
-        ctx["remoteAddress"] = info.remoteAddress
-        ctx["remotePort"] = str(info.remotePort)
+        ctx["localAddress"] = ipinfo.localAddress
+        ctx["localPort"] = str(ipinfo.localPort)
+        ctx["remoteAddress"] = ipinfo.remoteAddress
+        ctx["remotePort"] = str(ipinfo.remotePort)
 
-        if isinstance(info, Ice.WSConnectionInfo) or isinstance(info, Ice.WSSConnectionInfo):
+        if isinstance(info, Ice.WSConnectionInfo):
             for key, value in info.headers.items():
                 ctx["ws." + key] = value
 

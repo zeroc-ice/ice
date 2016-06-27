@@ -20,17 +20,6 @@
 namespace IceInternal
 {
 
-//
-// Delegate interface implemented by TcpEndpoint or IceSSL::Endpoint or any endpoint that WS can
-// delegate to.
-//
-class ICE_API WSEndpointDelegate : public virtual IceUtil::Shared
-{
-public:
-
-    virtual Ice::EndpointInfoPtr getWSInfo(const std::string&) const = 0;
-};
-
 class WSEndpoint : public EndpointI, public Ice::EnableSharedFromThis<WSEndpoint>
 {
 public:
@@ -39,10 +28,11 @@ public:
     WSEndpoint(const ProtocolInstancePtr&, const EndpointIPtr&, std::vector<std::string>&);
     WSEndpoint(const ProtocolInstancePtr&, const EndpointIPtr&, Ice::InputStream*);
 
+    virtual void streamWriteImpl(Ice::OutputStream*) const;
+
     virtual Ice::EndpointInfoPtr getInfo() const;
     virtual Ice::Short type() const;
     virtual const std::string& protocol() const;
-    virtual void streamWrite(Ice::OutputStream*) const;
 
     virtual Ice::Int timeout() const;
     virtual EndpointIPtr timeout(Ice::Int) const;
@@ -62,7 +52,6 @@ public:
     virtual ::Ice::Int hash() const;
     virtual std::string options() const;
 
-    EndpointIPtr delegate() const;
     WSEndpointPtr endpoint(const EndpointIPtr&) const;
 
 #ifdef ICE_CPP11_MAPPING
@@ -83,7 +72,7 @@ private:
     // All members are const, because endpoints are immutable.
     //
     const ProtocolInstancePtr _instance;
-    const IPEndpointIPtr _delegate;
+    const EndpointIPtr _delegate;
     const std::string _resource;
 };
 
@@ -100,7 +89,7 @@ public:
     virtual EndpointIPtr read(Ice::InputStream*) const;
     virtual void destroy();
 
-    virtual EndpointFactoryPtr clone(const ProtocolInstancePtr&) const;
+    virtual EndpointFactoryPtr clone(const ProtocolInstancePtr&, const EndpointFactoryPtr&) const;
 
 private:
 

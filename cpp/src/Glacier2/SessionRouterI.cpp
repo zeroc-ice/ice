@@ -1,3 +1,4 @@
+
 // **********************************************************************
 //
 // Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
@@ -90,6 +91,21 @@ private:
     const SessionRouterIPtr _router;
     const Ice::ConnectionPtr _connection;
 };
+
+Ice::IPConnectionInfoPtr
+getIPConnectionInfo(const Ice::ConnectionInfoPtr& info)
+{
+    for(Ice::ConnectionInfoPtr p = info; p; p = p->underlying)
+    {
+        Ice::IPConnectionInfoPtr ipInfo = Ice::IPConnectionInfoPtr::dynamicCast(p);
+        if(ipInfo)
+        {
+            return ipInfo;
+        }
+    }
+    return ICE_NULLPTR;
+}
+
 }
 
 namespace Glacier2
@@ -443,7 +459,7 @@ CreateSession::CreateSession(const SessionRouterIPtr& sessionRouter, const strin
     {
         _context["_con.type"] = current.con->type();
         {
-            Ice::IPConnectionInfoPtr info = Ice::IPConnectionInfoPtr::dynamicCast(current.con->getInfo());
+            Ice::IPConnectionInfoPtr info = getIPConnectionInfo(current.con->getInfo());
             if(info)
             {
                 ostringstream os;
@@ -832,10 +848,11 @@ SessionRouterI::createSessionFromSecureConnection_async(
             amdCB->ice_exception(PermissionDeniedException("not ssl connection"));
             return;
         }
-        sslinfo.remotePort = info->remotePort;
-        sslinfo.remoteHost = info->remoteAddress;
-        sslinfo.localPort = info->localPort;
-        sslinfo.localHost = info->localAddress;
+        Ice::IPConnectionInfoPtr ipInfo = getIPConnectionInfo(info);
+        sslinfo.remotePort = ipInfo->remotePort;
+        sslinfo.remoteHost = ipInfo->remoteAddress;
+        sslinfo.localPort = ipInfo->localPort;
+        sslinfo.localHost = ipInfo->localAddress;
         sslinfo.cipher = info->cipher;
         sslinfo.certs = info->certs;
         if(info->certs.size() > 0)

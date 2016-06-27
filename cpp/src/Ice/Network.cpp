@@ -812,10 +812,110 @@ IceInternal::NativeInfo::completed(SocketOperation operation)
 #elif defined(ICE_OS_WINRT)
 
 void
+IceInternal::NativeInfo::queueAction(SocketOperation op, IAsyncAction^ action, bool connect)
+{
+	AsyncInfo* asyncInfo = getAsyncInfo(op);
+	if(checkIfErrorOrCompleted(op, action, connect))
+    {
+        asyncInfo->count = 0;
+    }
+    else
+    {
+        action->Completed = ref new AsyncActionCompletedHandler(
+            [=] (IAsyncAction^ info, Windows::Foundation::AsyncStatus status)
+            {
+                if(status != Windows::Foundation::AsyncStatus::Completed)
+                {
+					asyncInfo->count = SOCKET_ERROR;
+					asyncInfo->error = info->ErrorCode.Value;
+                }
+                else
+                {
+					asyncInfo->count = 0;
+                }
+                completed(op);
+            });
+    }
+}
+
+void
+IceInternal::NativeInfo::queueOperation(SocketOperation op, IAsyncOperation<unsigned int>^ operation)
+{
+    AsyncInfo* info = getAsyncInfo(op);
+    if(checkIfErrorOrCompleted(op, operation))
+    {
+        info->count = static_cast<int>(operation->GetResults());
+    }
+    else
+    {
+        if(!info->completedHandler)
+        {
+            info->completedHandler = ref new AsyncOperationCompletedHandler<unsigned int>(
+                [=] (IAsyncOperation<unsigned int>^ operation, Windows::Foundation::AsyncStatus status)
+                {
+                    if(status != Windows::Foundation::AsyncStatus::Completed)
+                    {
+                        info->count = SOCKET_ERROR;
+                        info->error = operation->ErrorCode.Value;
+                    }
+                    else
+                    {
+                        info->count = static_cast<int>(operation->GetResults());
+                    }
+                    completed(op);
+                });
+        }
+        operation->Completed = info->completedHandler;
+    }
+}
+
+void
+IceInternal::NativeInfo::setCompletedHandler(SocketOperationCompletedHandler^ handler)
+{
+    _completedHandler = handler;
+}
+
+void
 IceInternal::NativeInfo::completed(SocketOperation operation)
 {
     assert(_completedHandler);
     _completedHandler(operation);
+}
+
+bool
+IceInternal::NativeInfo::checkIfErrorOrCompleted(SocketOperation op, IAsyncInfo^ info, bool connect)
+{
+    //
+    // NOTE: It's important to only check for info->Status once as it
+    // might change during the checks below (the Status can be changed
+    // by the Windows thread pool concurrently).
+    //
+    // We consider that a canceled async status is the same as an
+    // error. A canceled async status can occur if there's a timeout
+    // and the socket is closed.
+    //
+	Windows::Foundation::AsyncStatus status = info->Status;
+    if(status == Windows::Foundation::AsyncStatus::Completed)
+    {
+        _completedHandler(op);
+        return true;
+    }
+    else if (status == Windows::Foundation::AsyncStatus::Started)
+    {
+        return false;
+    }
+    else
+    {
+        if(connect) // Connect
+        {
+            checkConnectErrorCode(__FILE__, __LINE__, info->ErrorCode.Value);
+        }
+        else
+        {
+            checkErrorCode(__FILE__, __LINE__, info->ErrorCode.Value);
+        }
+        return true; // Prevent compiler warning.
+    }
 }
 
 #endif
@@ -1996,6 +2096,9 @@ IceInternal::setReuseAddress(SOCKET fd, bool reuse)
 
 
 #ifdef ICE_OS_WINRT
+namespace
+{
+
 void
 checkResultAndWait(IAsyncAction^ action)
 {
@@ -2022,6 +2125,8 @@ checkResultAndWait(IAsyncAction^ action)
     {
         checkErrorCode(__FILE__, __LINE__, action->ErrorCode.Value);
     }
+}
+
 }
 #endif
 
@@ -2561,7 +2666,7 @@ IceInternal::createPipe(SOCKET fds[2])
 #else // ICE_OS_WINRT
 
 void
-IceInternal::checkConnectErrorCode(const char* file, int line, HRESULT herr, HostName^ host)
+IceInternal::checkConnectErrorCode(const char* file, int line, HRESULT herr)
 {
     if(herr == E_ACCESSDENIED)
     {
@@ -2591,11 +2696,6 @@ IceInternal::checkConnectErrorCode(const char* file, int line, HRESULT herr, Hos
     {
         DNSException ex(file, line);
         ex.error = static_cast<int>(error);
-        //
-        // Don't need to pass a wide string converter as the wide string come from
-        // Windows API.
-        //
-        ex.host = IceUtil::wstringToString(host->RawName->Data(), IceUtil::getProcessStringConverter());
         throw ex;
     }
     else

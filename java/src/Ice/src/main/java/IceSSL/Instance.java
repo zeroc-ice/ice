@@ -37,19 +37,19 @@ class Instance extends IceInternal.ProtocolInstance
         return _engine.initialized();
     }
 
-    javax.net.ssl.SSLEngine createSSLEngine(boolean incoming, java.net.InetSocketAddress peerAddr)
+    javax.net.ssl.SSLEngine createSSLEngine(boolean incoming, String host, int port)
     {
-        return _engine.createSSLEngine(incoming, peerAddr);
+        return _engine.createSSLEngine(incoming, host, port);
     }
 
-    void traceConnection(java.nio.channels.SocketChannel fd, javax.net.ssl.SSLEngine engine, boolean incoming)
+    void traceConnection(String desc, javax.net.ssl.SSLEngine engine, boolean incoming)
     {
-        _engine.traceConnection(fd, engine, incoming);
+        _engine.traceConnection(desc, engine, incoming);
     }
 
-    void verifyPeer(NativeConnectionInfo info, java.nio.channels.SelectableChannel fd, String address)
+    void verifyPeer(String address, NativeConnectionInfo info, String desc)
     {
-        _engine.verifyPeer(info, fd, address);
+        _engine.verifyPeer(address, info, desc);
     }
 
     void trustManagerFailure(boolean incoming, java.security.cert.CertificateException ex)

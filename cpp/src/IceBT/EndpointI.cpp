@@ -92,17 +92,15 @@ IceBT::EndpointI::EndpointI(const InstancePtr& instance, InputStream* s) :
 }
 
 void
-IceBT::EndpointI::streamWrite(OutputStream* s) const
+IceBT::EndpointI::streamWriteImpl(OutputStream* s) const
 {
     //
     // _name and _channel are not marshaled.
     //
-    s->startEncapsulation();
     s->write(_addr, false);
     s->write(_uuid, false);
     s->write(_timeout);
     s->write(_compress);
-    s->endEncapsulation();
 }
 
 Ice::Short
@@ -758,7 +756,8 @@ IceBT::EndpointFactoryI::destroy()
 }
 
 IceInternal::EndpointFactoryPtr
-IceBT::EndpointFactoryI::clone(const IceInternal::ProtocolInstancePtr& instance) const
+IceBT::EndpointFactoryI::clone(const IceInternal::ProtocolInstancePtr& instance,
+                               const IceInternal::EndpointFactoryPtr&) const
 {
     return new EndpointFactoryI(new Instance(_instance->engine(), instance->type(), instance->protocol()));
 }

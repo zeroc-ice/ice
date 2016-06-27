@@ -952,13 +952,13 @@ namespace IceInternal
             if(tcpFactory != null)
             {
                 ProtocolInstance instance = new ProtocolInstance(this, Ice.WSEndpointType.value, "ws", false);
-                _endpointFactoryManager.add(new WSEndpointFactory(instance, tcpFactory.clone(instance)));
+                _endpointFactoryManager.add(new WSEndpointFactory(instance, tcpFactory.clone(instance, null)));
             }
             EndpointFactory sslFactory = _endpointFactoryManager.get(Ice.SSLEndpointType.value);
             if(sslFactory != null)
             {
                 ProtocolInstance instance = new ProtocolInstance(this, Ice.WSSEndpointType.value, "wss", true);
-                _endpointFactoryManager.add(new WSEndpointFactory(instance, sslFactory.clone(instance)));
+                _endpointFactoryManager.add(new WSEndpointFactory(instance, sslFactory.clone(instance, null)));
             }
 
             //

@@ -14,12 +14,11 @@
 #include <Ice/IPEndpointI.h>
 #include <Ice/EndpointFactory.h>
 #include <Ice/Network.h> // for IceIternal::Address
-#include <Ice/WSEndpoint.h>
 
 namespace IceInternal
 {
 
-class TcpEndpointI : public IPEndpointI, public WSEndpointDelegate
+class TcpEndpointI : public IPEndpointI, public Ice::EnableSharedFromThis<TcpEndpointI>
 {
 public:
 
@@ -28,8 +27,9 @@ public:
     TcpEndpointI(const ProtocolInstancePtr&);
     TcpEndpointI(const ProtocolInstancePtr&, Ice::InputStream*);
 
+    virtual void streamWriteImpl(Ice::OutputStream*) const;
+
     virtual Ice::EndpointInfoPtr getInfo() const;
-    virtual Ice::EndpointInfoPtr getWSInfo(const std::string&) const;
 
     virtual Ice::Int timeout() const;
     virtual EndpointIPtr timeout(Ice::Int) const;
@@ -51,10 +51,10 @@ public:
     TcpEndpointIPtr endpoint(const TcpAcceptorPtr&) const;
 
     using IPEndpointI::connectionId;
+    using Ice::EnableSharedFromThis<TcpEndpointI>::shared_from_this;
 
 protected:
 
-    virtual void streamWriteImpl(Ice::OutputStream*) const;
     virtual void hashInit(Ice::Int&) const;
     virtual void fillEndpointInfo(Ice::IPEndpointInfo*) const;
     virtual bool checkOption(const std::string&, const std::string&, const std::string&);
@@ -84,7 +84,7 @@ public:
     virtual EndpointIPtr read(Ice::InputStream*) const;
     virtual void destroy();
 
-    virtual EndpointFactoryPtr clone(const ProtocolInstancePtr&) const;
+    virtual EndpointFactoryPtr clone(const ProtocolInstancePtr&, const EndpointFactoryPtr&) const;
 
 private:
 

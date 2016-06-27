@@ -2709,9 +2709,12 @@ public final class ConnectionI extends IceInternal.EventHandler
         {
             _info = new ConnectionInfo();
         }
-        _info.connectionId = _endpoint.connectionId();
-        _info.adapterName = _adapter != null ? _adapter.getName() : "";
-        _info.incoming = _connector == null;
+        for(ConnectionInfo info = _info; info != null; info = info.underlying)
+        {
+            info.connectionId = _endpoint.connectionId();
+            info.adapterName = _adapter != null ? _adapter.getName() : "";
+            info.incoming = _connector == null;
+        }
         return _info;
     }
 

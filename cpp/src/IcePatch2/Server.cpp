@@ -53,7 +53,7 @@ IcePatch2::PatcherService::start(int argc, char* argv[], int& status)
     IceUtilInternal::Options opts;
     opts.addOpt("h", "help");
     opts.addOpt("v", "version");
-    
+
     vector<string> args;
     try
     {
@@ -109,7 +109,7 @@ IcePatch2::PatcherService::start(int argc, char* argv[], int& status)
             {
                 throw "cannot get the current directory:\n" + IceUtilInternal::lastErrorToString();
             }
-            
+
             dataDir = cwd + '/' + dataDir;
         }
 
@@ -125,7 +125,7 @@ IcePatch2::PatcherService::start(int argc, char* argv[], int& status)
         error(ex);
         return false;
     }
-    
+
     const string endpointsProperty = "IcePatch2.Endpoints";
     string endpoints = properties->getProperty(endpointsProperty);
     if(endpoints.empty())

@@ -13,28 +13,19 @@ namespace IceInternal
     using System.Diagnostics;
     using System.Collections.Generic;
 
-    //
-    // Delegate interface implemented by TcpEndpoint or IceSSL.EndpointI or any endpoint that WS can
-    // delegate to.
-    //
-    public interface WSEndpointDelegate
-    {
-        Ice.EndpointInfo getWSInfo(string resource);
-    }
-
     sealed class WSEndpoint : EndpointI
     {
         internal WSEndpoint(ProtocolInstance instance, EndpointI del, string res)
         {
             _instance = instance;
-            _delegate = (IPEndpointI)del;
+            _delegate = del;
             _resource = res;
         }
 
         internal WSEndpoint(ProtocolInstance instance, EndpointI del, List<string> args)
         {
             _instance = instance;
-            _delegate = (IPEndpointI)del;
+            _delegate = del;
 
             initWithOptions(args);
 
@@ -47,7 +38,7 @@ namespace IceInternal
         internal WSEndpoint(ProtocolInstance instance, EndpointI del, Ice.InputStream s)
         {
             _instance = instance;
-            _delegate = (IPEndpointI)del;
+            _delegate = del;
 
             _resource = s.readString();
         }
@@ -79,8 +70,12 @@ namespace IceInternal
 
         public override Ice.EndpointInfo getInfo()
         {
-            Debug.Assert(_delegate is WSEndpointDelegate);
-            return ((WSEndpointDelegate)_delegate).getWSInfo(_resource);
+            Ice.WSEndpointInfo info = new InfoI(this);
+            info.underlying = _delegate.getInfo();
+            info.resource = _resource;
+            info.compress = info.underlying.compress;
+            info.timeout = info.underlying.timeout;
+            return info;
         }
 
         public override short type()
@@ -93,12 +88,10 @@ namespace IceInternal
             return _delegate.protocol();
         }
 
-        public override void streamWrite(Ice.OutputStream s)
+        public override void streamWriteImpl(Ice.OutputStream s)
         {
-            s.startEncapsulation();
             _delegate.streamWriteImpl(s);
             s.writeString(_resource);
-            s.endEncapsulation();
         }
 
         public override int timeout()
@@ -169,13 +162,11 @@ namespace IceInternal
 
         private sealed class EndpointI_connectorsI : EndpointI_connectors
         {
-            public EndpointI_connectorsI(ProtocolInstance instance, string host, int port, string resource,
-                                         EndpointI_connectors cb)
+            public EndpointI_connectorsI(ProtocolInstance instance, string host, string res, EndpointI_connectors cb)
             {
                 _instance = instance;
                 _host = host;
-                _port = port;
-                _resource = resource;
+                _resource = res;
                 _callback = cb;
             }
 
@@ -184,7 +175,7 @@ namespace IceInternal
                 List<Connector> l = new List<Connector>();
                 foreach(Connector c in connectors)
                 {
-                    l.Add(new WSConnector(_instance, c, _host, _port, _resource));
+                    l.Add(new WSConnector(_instance, c, _host, _resource));
                 }
                 _callback.connectors(l);
             }
@@ -196,23 +187,27 @@ namespace IceInternal
 
             private ProtocolInstance _instance;
             private string _host;
-            private int _port;
             private string _resource;
             private EndpointI_connectors _callback;
         }
 
-        public override void connectors_async(Ice.EndpointSelectionType selType,
-                                              EndpointI_connectors callback)
+        public override void connectors_async(Ice.EndpointSelectionType selType, EndpointI_connectors callback)
         {
-            EndpointI_connectorsI cb =
-                new EndpointI_connectorsI(_instance, _delegate.host(), _delegate.port(), _resource, callback);
-            _delegate.connectors_async(selType, cb);
+            string host = "";
+            for(Ice.EndpointInfo p = _delegate.getInfo(); p != null; p = p.underlying)
+            {
+                if(p is Ice.IPEndpointInfo)
+                {
+                    Ice.IPEndpointInfo ipInfo = (Ice.IPEndpointInfo)p;
+                    host = ipInfo.host + ":" + ipInfo.port;
+                }
+            }
+            _delegate.connectors_async(selType, new EndpointI_connectorsI(_instance, host, _resource, callback));
         }
 
         public override Acceptor acceptor(string adapterName)
         {
-            Acceptor delAcc = _delegate.acceptor(adapterName);
-            return new WSAcceptor(this, _instance, delAcc);
+            return new WSAcceptor(this, _instance, _delegate.acceptor(adapterName));
         }
 
         public WSEndpoint endpoint(EndpointI delEndp)
@@ -299,11 +294,6 @@ namespace IceInternal
             return _delegate.CompareTo(p._delegate);
         }
 
-        public EndpointI getDelegate()
-        {
-            return _delegate;
-        }
-
         protected override bool checkOption(string option, string argument, string endpoint)
         {
             switch(option[1])
@@ -328,7 +318,7 @@ namespace IceInternal
         }
 
         private ProtocolInstance _instance;
-        private IPEndpointI _delegate;
+        private EndpointI _delegate;
         private string _resource;
     }
 
@@ -366,10 +356,9 @@ namespace IceInternal
             _instance = null;
         }
 
-        public EndpointFactory clone(ProtocolInstance instance)
+        public EndpointFactory clone(ProtocolInstance instance, EndpointFactory del)
         {
-            Debug.Assert(false); // We don't support cloning this transport.
-            return null;
+            return new WSEndpointFactory(instance, del);
         }
 
         private ProtocolInstance _instance;

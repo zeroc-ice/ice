@@ -52,31 +52,37 @@ final class OpaqueEndpointI extends EndpointI
         s.endEncapsulation();
     }
 
+    @Override
+    public void streamWriteImpl(Ice.OutputStream s)
+    {
+        assert(false);
+    }
+
     //
     // Return the endpoint information.
     //
     @Override
     public Ice.EndpointInfo getInfo()
     {
-        return new Ice.OpaqueEndpointInfo(-1, false, _rawEncoding, _rawBytes)
+        return new Ice.OpaqueEndpointInfo(null, -1, false, _rawEncoding, _rawBytes)
+        {
+            @Override
+            public short type()
             {
-                @Override
-                public short type()
-                {
-                    return _type;
-                }
+                return _type;
+            }
 
-                @Override
-                public boolean datagram()
-                {
-                    return false;
-                }
+            @Override
+            public boolean datagram()
+            {
+                return false;
+            }
 
-                @Override
-                public boolean secure()
-                {
-                    return false;
-                }
+            @Override
+            public boolean secure()
+            {
+                return false;
+            }
         };
     }
 

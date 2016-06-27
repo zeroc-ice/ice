@@ -57,6 +57,7 @@ public:
 
 protected:
 
+    virtual void streamWriteImpl(Ice::OutputStream*) const;
     virtual bool checkOption(const std::string&, const std::string&, const std::string&);
 
 private:

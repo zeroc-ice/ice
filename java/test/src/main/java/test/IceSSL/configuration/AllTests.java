@@ -2253,11 +2253,11 @@ public class AllTests
             initData.properties.setProperty("IceSSL.UsePlatformCAs", "1");
             comm = Ice.Util.initialize(initData);
             p = comm.stringToProxy("dummy:wss -h demo.zeroc.com -p 5064");
-            IceSSL.WSSConnectionInfo info;
             try
             {
-                info = (IceSSL.WSSConnectionInfo)p.ice_getConnection().getInfo();
-                test(info.verified);
+                Ice.WSConnectionInfo info  = (Ice.WSConnectionInfo)p.ice_getConnection().getInfo();
+                IceSSL.ConnectionInfo sslinfo = (IceSSL.ConnectionInfo)info.underlying;
+                test(sslinfo.verified);
             }
             catch(Ice.LocalException ex)
             {

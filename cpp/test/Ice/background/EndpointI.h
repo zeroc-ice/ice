@@ -23,11 +23,11 @@ class EndpointI : public IceInternal::EndpointI, public Ice::EnableSharedFromThi
 public:
 
     static Ice::Short TYPE_BASE;
-    
+
     EndpointI(const IceInternal::EndpointIPtr&);
 
     // From EndpointI
-    virtual void streamWrite(Ice::OutputStream*) const;
+    virtual void streamWriteImpl(Ice::OutputStream*) const;
     virtual Ice::Short type() const;
     virtual const std::string& protocol() const;
     virtual IceInternal::EndpointIPtr timeout(Ice::Int) const;

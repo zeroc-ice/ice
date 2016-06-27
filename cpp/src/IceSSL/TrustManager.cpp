@@ -62,7 +62,7 @@ TrustManager::TrustManager(const Ice::CommunicatorPtr& communicator) :
 }
 
 bool
-TrustManager::verify(const NativeConnectionInfoPtr& info)
+TrustManager::verify(const NativeConnectionInfoPtr& info, const std::string& desc)
 {
     list<list<DistinguishedName> > reject, accept;
 
@@ -139,19 +139,14 @@ TrustManager::verify(const NativeConnectionInfoPtr& info)
             Ice::Trace trace(_communicator->getLogger(), "Security");
             if(info->incoming)
             {
-                trace << "trust manager evaluating client:\n"
-                      << "subject = " << string(subject) << '\n'
-                      << "adapter = " << info->adapterName << '\n'
-                      << "local addr = " << info->localAddress << ":" << info->localPort << '\n'
-                      << "remote addr = " << info->remoteAddress << ":" << info->remotePort;
+                trace << "trust manager evaluating client:\n" << "subject = " << string(subject) << '\n'
+                      << "adapter = " << info->adapterName << '\n';
             }
             else
             {
-                trace << "trust manager evaluating server:\n"
-                      << "subject = " << string(subject) << '\n'
-                      << "local addr = " << info->localAddress << ":" << info->localPort << '\n'
-                      << "remote addr = " << info->remoteAddress << ":" << info->remotePort;
+                trace << "trust manager evaluating server:\n" << "subject = " << string(subject) << '\n';
             }
+            trace << desc;
         }
 
         //

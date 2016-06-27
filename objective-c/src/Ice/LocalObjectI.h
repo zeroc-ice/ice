@@ -24,7 +24,9 @@ class Shared;
 +(id) getLocalObjectWithCxxObjectNoAutoRelease:(IceUtil::Shared*)arg;
 
 +(id) localObjectWithCxxObjectNoAutoRelease:(IceUtil::Shared*)arg;
++(id) localObjectWithCxxObjectNoAutoRelease:(IceUtil::Shared*)arg allocator:(SEL)alloc;
 +(id) localObjectWithCxxObject:(IceUtil::Shared*)arg;
++(id) localObjectWithCxxObject:(IceUtil::Shared*)arg allocator:(SEL)alloc;
 
 -(IceUtil::Shared*) cxxObject;
 @end

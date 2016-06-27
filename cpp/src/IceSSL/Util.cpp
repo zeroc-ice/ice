@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <IceUtil/Config.h>
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(ICE_OS_WINRT)
 #   include <winsock2.h>
 #endif
 
@@ -16,6 +16,7 @@
 #include <IceUtil/FileUtil.h>
 #include <IceUtil/StringUtil.h>
 
+#include <Ice/Base64.h>
 #include <Ice/LocalException.h>
 #include <Ice/Network.h>
 #include <Ice/Object.h>
@@ -33,30 +34,7 @@ using namespace Ice;
 using namespace IceUtil;
 using namespace IceSSL;
 
-void
-IceSSL::readFile(const string& file, vector<char>& buffer)
-{
-    IceUtilInternal::ifstream is(file, ios::in | ios::binary);
-    if(!is.good())
-    {
-        throw CertificateReadException(__FILE__, __LINE__, "error opening file " + file);
-    }
-
-    is.seekg(0, is.end);
-    buffer.resize(static_cast<int>(is.tellg()));
-    is.seekg(0, is.beg);
-
-    if(!buffer.empty())
-    {
-        is.read(&buffer[0], buffer.size());
-        if(!is.good())
-        {
-            throw CertificateReadException(__FILE__, __LINE__, "error reading file " + file);
-        }
-    }
-}
-
-#ifndef ICE_USE_OPENSSL
+#if !defined(ICE_USE_OPENSSL)
 
 namespace
 {
@@ -423,12 +401,14 @@ IceSSL::errorToString(OSStatus status)
 {
     ostringstream os;
     os << "(error: " << status;
+#if defined(ICE_USE_SECURE_TRANSPORT_MACOS)
     CFStringRef s = SecCopyErrorMessageString(status, 0);
     if(s)
     {
         os << " description: " << fromCFString(s);
         CFRelease(s);
     }
+#endif
     os << ")";
     return os.str();
 }
@@ -448,6 +428,7 @@ IceSSL::fromCFString(CFStringRef v)
     return s;
 }
 
+#if defined(ICE_USE_SECURE_TRANSPORT_MACOS)
 CFDictionaryRef
 IceSSL::getCertificateProperty(SecCertificateRef cert, CFTypeRef key)
 {
@@ -471,10 +452,36 @@ IceSSL::getCertificateProperty(SecCertificateRef cert, CFTypeRef key)
     CFRelease(values);
     return property;
 }
+#endif
 
 namespace
 {
 
+CFDataRef
+readCertFile(const string& file)
+{
+    IceUtilInternal::ifstream is(file, ios::in | ios::binary);
+    if(!is.good())
+    {
+        throw CertificateReadException(__FILE__, __LINE__, "error opening file " + file);
+    }
+
+    is.seekg(0, is.end);
+    size_t size = is.tellg();
+    is.seekg(0, is.beg);
+
+    CFMutableDataRef data = CFDataCreateMutable(kCFAllocatorDefault, size);
+    CFDataSetLength(data, size);
+    is.read(reinterpret_cast<char*>(CFDataGetMutableBytePtr(data)), size);
+    if(!is.good())
+    {
+        CFRelease(data);
+        throw CertificateReadException(__FILE__, __LINE__, "error reading file " + file);
+    }
+    return data;
+}
+
+#if defined(ICE_USE_SECURE_TRANSPORT_MACOS)
 //
 // Check the certificate basic constraints to check if the certificate is marked as a CA.
 //
@@ -506,12 +513,7 @@ CFArrayRef
 loadKeychainItems(const string& file, SecExternalItemType type, SecKeychainRef keychain, const string& passphrase,
                   const PasswordPromptPtr& prompt, int retryMax)
 {
-    vector<char> buffer;
-    readFile(file, buffer);
-    UniqueRef<CFDataRef> data(CFDataCreateWithBytesNoCopy(kCFAllocatorDefault,
-                                                          reinterpret_cast<const UInt8*>(&buffer[0]),
-                                                          buffer.size(),
-                                                          kCFAllocatorNull));
+    UniqueRef<CFDataRef> data(readCertFile(file));
 
     SecItemImportExportKeyParameters params;
     memset(&params, 0, sizeof(params));
@@ -591,14 +593,93 @@ loadKeychainItems(const string& file, SecExternalItemType type, SecKeychainRef k
     return items;
 }
 
+SecKeychainRef
+openKeychain(const std::string& path, const std::string& keychainPassword)
+{
+    string keychainPath = path;
+    SecKeychainRef keychain = 0;
+    OSStatus err = 0;
+    if(keychainPath.empty())
+    {
+        if((err = SecKeychainCopyDefault(&keychain)))
+        {
+            throw PluginInitializationException(__FILE__, __LINE__,
+                                                "IceSSL: unable to retrieve default keychain:\n" + errorToString(err));
+        }
+    }
+    else
+    {
+        //
+        // KeyChain path is relative to the current working directory.
+        //
+        if(!IceUtilInternal::isAbsolutePath(keychainPath))
+        {
+            string cwd;
+            if(IceUtilInternal::getcwd(cwd) == 0)
+            {
+                keychainPath = string(cwd) + '/' + keychainPath;
+            }
+        }
+
+        if((err = SecKeychainOpen(keychainPath.c_str(), &keychain)))
+        {
+            throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: unable to open keychain: `" +
+                                                keychainPath + "'\n" + errorToString(err));
+        }
+    }
+
+    UniqueRef<SecKeychainRef> k(keychain);
+
+    SecKeychainStatus status;
+    err = SecKeychainGetStatus(keychain, &status);
+    if(err == noErr)
+    {
+        const char* pass = keychainPassword.empty() ? 0 : keychainPassword.c_str();
+        if((err = SecKeychainUnlock(keychain, keychainPassword.size(), pass, pass != 0)))
+        {
+            throw PluginInitializationException(__FILE__, __LINE__,
+                                                "IceSSL: unable to unlock keychain:\n" + errorToString(err));
+        }
+    }
+    else if(err == errSecNoSuchKeychain)
+    {
+        const char* pass = keychainPassword.empty() ? 0 : keychainPassword.c_str();
+        if((err = SecKeychainCreate(keychainPath.c_str(), keychainPassword.size(), pass, pass == 0, 0, &keychain)))
+        {
+            throw PluginInitializationException(__FILE__, __LINE__,
+                                                "IceSSL: unable to create keychain:\n" + errorToString(err));
+        }
+        k.reset(keychain);
+    }
+    else
+    {
+        throw PluginInitializationException(__FILE__, __LINE__,
+                                            "IceSSL: unable to open keychain:\n" + errorToString(err));
+    }
+
+    //
+    // Set keychain settings to avoid keychain lock.
+    //
+    SecKeychainSettings settings;
+    settings.version = SEC_KEYCHAIN_SETTINGS_VERS1;
+    settings.lockOnSleep = FALSE;
+    settings.useLockInterval = FALSE;
+    settings.lockInterval = INT_MAX;
+    if((err = SecKeychainSetSettings(keychain, &settings)))
+    {
+        throw PluginInitializationException(__FILE__, __LINE__,
+                                            "IceSSL: error setting keychain settings:\n" + errorToString(err));
+    }
+
+    return k.release();
 }
 
 //
 // Imports a certificate private key and optionally add it to a keychain.
 //
 SecIdentityRef
-IceSSL::loadPrivateKey(const string& file, SecCertificateRef cert, SecKeychainRef keychain, const string& password,
-                       const PasswordPromptPtr& prompt, int retryMax)
+loadPrivateKey(const string& file, SecCertificateRef cert, SecKeychainRef keychain, const string& password,
+               const PasswordPromptPtr& prompt, int retryMax)
 {
     //
     // Check if we already imported the certificate
@@ -751,17 +832,139 @@ IceSSL::loadPrivateKey(const string& file, SecCertificateRef cert, SecKeychainRe
     }
     return identity;
 }
+#else
+
+CFArrayRef
+loadCerts(const string& file)
+{
+    UniqueRef<CFMutableArrayRef> certs(CFArrayCreateMutable(kCFAllocatorDefault, 0, &kCFTypeArrayCallBacks));
+    if(file.find(".pem") != string::npos)
+    {
+        vector<char> buffer;
+        readFile(file, buffer);
+        string strbuf(buffer.begin(), buffer.end());
+        string::size_type size, startpos, endpos = 0;
+        bool first = true;
+        while(true)
+        {
+            startpos = strbuf.find("-----BEGIN CERTIFICATE-----", endpos);
+            if(startpos != string::npos)
+            {
+                startpos += sizeof("-----BEGIN CERTIFICATE-----");
+                endpos = strbuf.find("-----END CERTIFICATE-----", startpos);
+                if(endpos == string::npos)
+                {
+                    InitializationException ex(__FILE__, __LINE__);
+                    ex.reason = "IceSSL: certificate " + file + " is not a valid PEM-encoded certificate";
+                    throw ex;
+                }
+                size = endpos - startpos;
+            }
+            else if(first)
+            {
+                startpos = 0;
+                endpos = string::npos;
+                size = strbuf.size();
+            }
+            else
+            {
+                break;
+            }
+
+            vector<unsigned char> data(IceInternal::Base64::decode(string(&buffer[startpos], size)));
+            UniqueRef<CFDataRef> certdata(CFDataCreate(kCFAllocatorDefault, &data[0], data.size()));
+            SecCertificateRef cert = SecCertificateCreateWithData(0, certdata.get());
+            if(!cert)
+            {
+                InitializationException ex(__FILE__, __LINE__);
+                ex.reason = "IceSSL: certificate " + file + " is not a valid PEM-encoded certificate";
+                throw ex;
+            }
+            CFArrayAppendValue(certs.get(), cert);
+            CFRelease(cert);
+            first = false;
+        }
+    }
+    else
+    {
+        UniqueRef<CFDataRef> data(readCertFile(file));
+        SecCertificateRef cert = SecCertificateCreateWithData(0, data.get());
+        if(!cert)
+        {
+            InitializationException ex(__FILE__, __LINE__);
+            ex.reason = "IceSSL: certificate " + file + " is not a valid DER-encoded certificate";
+            throw ex;
+        }
+        CFArrayAppendValue(certs.get(), cert);
+        CFRelease(cert);
+    }
+    return certs.release();
+}
+#endif
+
+}
 
 //
 // Imports a certificate (it might contain an identity or certificate depending on the format).
 //
 CFArrayRef
-IceSSL::loadCertificateChain(const string& file, const string& keyFile, SecKeychainRef keychain,
-                             const string& password, const PasswordPromptPtr& prompt, int retryMax)
+IceSSL::loadCertificateChain(const string& file, const string& keyFile, const std::string& keychainPath,
+                             const string& keychainPassword, const string& password, const PasswordPromptPtr& prompt,
+                             int retryMax)
 {
+#if defined(ICE_USE_SECURE_TRANSPORT_IOS)
+    UniqueRef<CFDataRef> cert(readCertFile(file));
+
+    UniqueRef<CFMutableDictionaryRef> settings(CFDictionaryCreateMutable(0, 1, &kCFTypeDictionaryKeyCallBacks,
+                                                                               &kCFTypeDictionaryValueCallBacks));
+    CFArrayRef items = 0;
+    OSStatus err;
+    if(password.empty() && prompt)
+    {
+        int count = 0;
+        do
+        {
+            UniqueRef<CFStringRef> pass(toCFString(prompt->getPassword()));
+            CFDictionarySetValue(settings.get(), kSecImportExportPassphrase, pass.get());
+            err = SecPKCS12Import(cert.get(), settings.get(), &items);
+            ++count;
+        }
+        while(err == errSecAuthFailed && count < retryMax);
+    }
+    else
+    {
+        UniqueRef<CFStringRef> pass(toCFString(password));
+        CFDictionarySetValue(settings.get(), kSecImportExportPassphrase, pass.get());
+        err = SecPKCS12Import(cert.get(), settings.get(), &items);
+    }
+    if(err != noErr)
+    {
+        ostringstream os;
+        os << "IceSSL: unable to import certificate from file " << file << " (error = " << err << ")";
+        throw InitializationException(__FILE__, __LINE__, os.str());
+    }
+
+    UniqueRef<CFArrayRef> itemsHolder(items);;
+    for(int i = 0; i < CFArrayGetCount(items); ++i)
+    {
+        CFDictionaryRef dict = (CFDictionaryRef)CFArrayGetValueAtIndex(items, i);
+        SecIdentityRef identity = (SecIdentityRef)CFDictionaryGetValue(dict, kSecImportItemIdentity);
+        if(identity)
+        {
+            CFArrayRef certs = (CFArrayRef)CFDictionaryGetValue(dict, kSecImportItemCertChain);
+            CFMutableArrayRef a = CFArrayCreateMutableCopy(kCFAllocatorDefault, 0, certs);
+            CFArraySetValueAtIndex(a, 0, identity);
+            return a;
+        }
+    }
+    ostringstream os;
+    os << "IceSSL: couldn't find identity in file " << file;
+    throw InitializationException(__FILE__, __LINE__, os.str());
+#else
+    UniqueRef<SecKeychainRef> keychain(openKeychain(keychainPath, keychainPassword));
     if(keyFile.empty())
     {
-        return loadKeychainItems(file, kSecItemTypeUnknown, keychain, password, prompt, retryMax);
+        return loadKeychainItems(file, kSecItemTypeUnknown, keychain.get(), password, prompt, retryMax);
     }
     else
     {
@@ -783,26 +986,37 @@ IceSSL::loadCertificateChain(const string& file, const string& keyFile, SecKeych
         // add the certificate/key to the keychain if they aren't
         // already present in the keychain.
         //
-        UniqueRef<SecIdentityRef> identity(loadPrivateKey(keyFile, cert, keychain, password, prompt, retryMax));
+        UniqueRef<SecIdentityRef> identity(loadPrivateKey(keyFile, cert, keychain.get(), password, prompt, retryMax));
         CFMutableArrayRef a = CFArrayCreateMutableCopy(kCFAllocatorDefault, 0, items.get());
         CFArraySetValueAtIndex(a, 0, identity.get());
         return a;
     }
+#endif
 }
 
 SecCertificateRef
 IceSSL::loadCertificate(const string& file)
 {
-    CFArrayRef items = loadKeychainItems(file, kSecItemTypeCertificate, 0, "", 0, 0);
-    SecCertificateRef cert = (SecCertificateRef)CFArrayGetValueAtIndex(items, 0);
+#if defined(ICE_USE_SECURE_TRANSPORT_IOS)
+    UniqueRef<CFArrayRef> certs(loadCerts(file));
+    assert(CFArrayGetCount(certs.get()) > 0);
+    SecCertificateRef cert = (SecCertificateRef)CFArrayGetValueAtIndex(certs.get(), 0);
     CFRetain(cert);
-    CFRelease(items);
     return cert;
+#else
+    UniqueRef<CFArrayRef> items(loadKeychainItems(file, kSecItemTypeCertificate, 0, "", 0, 0));
+    SecCertificateRef cert = (SecCertificateRef)CFArrayGetValueAtIndex(items.get(), 0);
+    CFRetain(cert);
+    return cert;
+#endif
 }
 
 CFArrayRef
 IceSSL::loadCACertificates(const string& file)
 {
+#if defined(ICE_USE_SECURE_TRANSPORT_IOS)
+    return loadCerts(file);
+#else
     UniqueRef<CFArrayRef> items(loadKeychainItems(file, kSecItemTypeCertificate, 0, "", 0, 0));
     CFMutableArrayRef certificateAuthorities = CFArrayCreateMutable(kCFAllocatorDefault, 0, &kCFTypeArrayCallBacks);
     int count = CFArrayGetCount(items.get());
@@ -816,10 +1030,11 @@ IceSSL::loadCACertificates(const string& file)
         }
     }
     return certificateAuthorities;
+#endif
 }
 
-SecCertificateRef
-IceSSL::findCertificate(SecKeychainRef keychain, const string& value)
+CFArrayRef
+IceSSL::findCertificateChain(const std::string& keychainPath, const std::string& keychainPassword, const string& value)
 {
     //
     //  Search the keychain using key:value pairs. The following keys are supported:
@@ -836,17 +1051,20 @@ IceSSL::findCertificate(SecKeychainRef keychain, const string& value)
                                                                       &kCFTypeDictionaryKeyCallBacks,
                                                                       &kCFTypeDictionaryValueCallBacks));
 
-    const void* values[] = { keychain };
+#if defined(ICE_USE_SECURE_TRANSPORT_MACOS)
+    UniqueRef<SecKeychainRef> keychain(openKeychain(keychainPath, keychainPassword));
+    const void* values[] = { keychain.get() };
     UniqueRef<CFArrayRef> searchList(CFArrayCreate(kCFAllocatorDefault, values, 1, &kCFTypeArrayCallBacks));
-
-    CFDictionarySetValue(query.get(), kSecMatchLimit, kSecMatchLimitOne);
     CFDictionarySetValue(query.get(), kSecMatchSearchList, searchList.get());
+#endif
+    CFDictionarySetValue(query.get(), kSecMatchLimit, kSecMatchLimitOne);
     CFDictionarySetValue(query.get(), kSecClass, kSecClassCertificate);
     CFDictionarySetValue(query.get(), kSecReturnRef, kCFBooleanTrue);
     CFDictionarySetValue(query.get(), kSecMatchCaseInsensitive, kCFBooleanTrue);
 
     size_t start = 0;
     size_t pos;
+    bool valid = false;
     while((pos = value.find(':', start)) != string::npos)
     {
         string field = IceUtilInternal::toUpper(IceUtilInternal::trim(value.substr(start, pos - start)));
@@ -906,6 +1124,7 @@ IceSSL::findCertificate(SecKeychainRef keychain, const string& value)
         {
             UniqueRef<CFStringRef> v(toCFString(arg));
             CFDictionarySetValue(query.get(), field == "LABEL" ? kSecAttrLabel : kSecMatchSubjectContains, v.get());
+            valid = true;
         }
         else if(field == "SUBJECTKEYID" || field == "SERIAL")
         {
@@ -917,10 +1136,11 @@ IceSSL::findCertificate(SecKeychainRef keychain, const string& value)
             UniqueRef<CFDataRef> v(CFDataCreate(kCFAllocatorDefault, &buffer[0], buffer.size()));
             CFDictionarySetValue(query.get(), field == "SUBJECTKEYID" ? kSecAttrSubjectKeyID : kSecAttrSerialNumber,
                                  v.get());
+            valid = true;
         }
     }
 
-    if(CFDictionaryGetCount(query.get()) == 5)
+    if(!valid)
     {
         throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: invalid value `" + value + "'");
     }
@@ -932,7 +1152,92 @@ IceSSL::findCertificate(SecKeychainRef keychain, const string& value)
         throw PluginInitializationException(__FILE__, __LINE__,
                                             "IceSSL: find certificate `" + value + "' failed:\n" + errorToString(err));
     }
-    return cert;
+
+    UniqueRef<SecCertificateRef> certHolder(cert);
+
+    //
+    // Retrieve the certificate chain
+    //
+    UniqueRef<SecPolicyRef> policy(SecPolicyCreateSSL(true, 0));
+    SecTrustRef trust = 0;
+    err = SecTrustCreateWithCertificates((CFArrayRef)cert, policy.get(), &trust);
+    if(err || !trust)
+    {
+        throw PluginInitializationException(__FILE__, __LINE__,
+                                            "IceSSL: error creating trust object" +
+                                            (err ? ":\n" + errorToString(err) : ""));
+    }
+    UniqueRef<SecTrustRef> v(trust);
+
+    SecTrustResultType trustResult;
+    if((err = SecTrustEvaluate(trust, &trustResult)))
+    {
+        throw PluginInitializationException(__FILE__, __LINE__,
+                                            "IceSSL: error evaluating trust:\n" + errorToString(err));
+    }
+
+    int chainLength = SecTrustGetCertificateCount(trust);
+    CFMutableArrayRef items = CFArrayCreateMutable(kCFAllocatorDefault, chainLength, &kCFTypeArrayCallBacks);
+    UniqueRef<CFMutableArrayRef> itemsHolder(items);
+    for(int i = 0; i < chainLength; ++i)
+    {
+        CFArrayAppendValue(items, SecTrustGetCertificateAtIndex(trust, i));
+    }
+
+    //
+    // Replace the first certificate in the chain with the
+    // identity.
+    //
+    SecIdentityRef identity;
+#if defined(ICE_USE_SECURE_TRANSPORT_IOS)
+
+    //
+    // SecIdentityCreateWithCertificate isn't supported on iOS so we lookup the identity
+    // using the certicate label. If the user added the identity with SecItemAdd the
+    // identity has the same label as the certificate.
+    //
+    query.reset(CFDictionaryCreateMutable(0, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks));
+    CFDictionarySetValue(query.get(), kSecClass, kSecClassCertificate);
+    CFDictionarySetValue(query.get(), kSecValueRef, cert);
+    CFDictionarySetValue(query.get(), kSecReturnAttributes, kCFBooleanTrue);
+    CFDictionaryRef attributes;
+    err = SecItemCopyMatching(query.get(), (CFTypeRef*)&attributes);
+    if(err != noErr)
+    {
+        ostringstream os;
+        os << "IceSSL: couldn't create identity for certificate found in the keychain:\n" << errorToString(err);
+        throw PluginInitializationException(__FILE__, __LINE__, os.str());
+    }
+    UniqueRef<CFDictionaryRef> attributesHolder(attributes);
+
+    // Now lookup the identity with the label
+    query.reset(CFDictionaryCreateMutable(0, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks));
+    CFDictionarySetValue(query.get(), kSecMatchLimit, kSecMatchLimitOne);
+    CFDictionarySetValue(query.get(), kSecClass, kSecClassIdentity);
+    CFDictionarySetValue(query.get(), kSecAttrLabel, (CFDataRef)CFDictionaryGetValue(attributes, kSecAttrLabel));
+    CFDictionarySetValue(query.get(), kSecReturnRef, kCFBooleanTrue);
+    err = SecItemCopyMatching(query.get(), (CFTypeRef*)&identity);
+    if(err == noErr)
+    {
+        SecCertificateRef cert2 = NULL;
+        if((err = SecIdentityCopyCertificate(identity, &cert2)) == noErr)
+        {
+            err = CFEqual(cert2, cert) ? noErr : errSecItemNotFound;
+            CFRelease(cert2);
+        }
+    }
+#else
+    err = SecIdentityCreateWithCertificate(keychain.get(), cert, &identity);
+#endif
+    if(err != noErr)
+    {
+        ostringstream os;
+        os << "IceSSL: couldn't create identity for certificate found in the keychain:\n" << errorToString(err);
+        throw PluginInitializationException(__FILE__, __LINE__, os.str());
+    }
+    CFArraySetValueAtIndex(items, 0, identity);
+    CFRelease(identity);
+    return itemsHolder.release();
 }
 
 #elif defined(ICE_USE_SCHANNEL)
@@ -1195,9 +1500,55 @@ IceSSL::findCertificates(const string& location, const string& name, const strin
 }
 #endif
 
+void
+IceSSL::readFile(const string& file, vector<char>& buffer)
+{
+    IceUtilInternal::ifstream is(file, ios::in | ios::binary);
+    if(!is.good())
+    {
+        throw CertificateReadException(__FILE__, __LINE__, "error opening file " + file);
+    }
+
+    is.seekg(0, is.end);
+    buffer.resize(static_cast<int>(is.tellg()));
+    is.seekg(0, is.beg);
+
+    if(!buffer.empty())
+    {
+        is.read(&buffer[0], buffer.size());
+        if(!is.good())
+        {
+            throw CertificateReadException(__FILE__, __LINE__, "error reading file " + file);
+        }
+    }
+}
+
 bool
 IceSSL::checkPath(const string& path, const string& defaultDir, bool dir, string& resolved)
 {
+#if defined(ICE_USE_SECURE_TRANSPORT_IOS)
+    CFURLRef url = 0;
+    CFBundleRef bundle = CFBundleGetMainBundle();
+    if(bundle)
+    {
+        CFStringRef resourceName = toCFString(path);
+        CFStringRef subDirName = toCFString(defaultDir);
+        url = CFBundleCopyResourceURL(bundle, resourceName, 0, subDirName);
+        CFRelease(resourceName);
+        CFRelease(subDirName);
+
+        UInt8 filePath[PATH_MAX];
+        if(CFURLGetFileSystemRepresentation(url, true, filePath, sizeof(filePath)))
+        {
+            string tmp = string(reinterpret_cast<char*>(filePath));
+            if((dir && IceUtilInternal::directoryExists(tmp)) || (!dir && IceUtilInternal::fileExists(tmp)))
+            {
+                resolved = tmp;
+                return true;
+            }
+        }
+    }
+#endif
     if(IceUtilInternal::isAbsolutePath(path))
     {
         if((dir && IceUtilInternal::directoryExists(path)) || (!dir && IceUtilInternal::fileExists(path)))

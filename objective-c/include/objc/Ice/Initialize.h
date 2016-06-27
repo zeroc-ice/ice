@@ -85,3 +85,10 @@ ICE_API @interface ICEUtil : NSObject
 @interface ICEProtocolVersion(StringConv)
 +(ICEProtocolVersion*) protocolVersionWithString:(NSString*)str;
 @end
+
+extern void ICEregisterIceSSL(BOOL);
+extern void ICEregisterIceDiscovery(BOOL);
+extern void ICEregisterIceLocatorDiscovery(BOOL);
+#if defined(__APPLE__) && TARGET_OS_IPHONE > 0
+extern void ICEregisterIceIAP(BOOL);
+#endif

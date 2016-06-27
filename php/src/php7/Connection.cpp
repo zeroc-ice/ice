@@ -29,7 +29,6 @@ static zend_class_entry* tcpConnectionInfoClassEntry = 0;
 static zend_class_entry* udpConnectionInfoClassEntry = 0;
 static zend_class_entry* wsConnectionInfoClassEntry = 0;
 static zend_class_entry* sslConnectionInfoClassEntry = 0;
-static zend_class_entry* wssConnectionInfoClassEntry = 0;
 
 //
 // Ice::Connection support.
@@ -565,7 +564,7 @@ IcePHP::connectionInit(void)
     INIT_CLASS_ENTRY(ce, "Ice_WSConnectionInfo", NULL);
 #endif
     ce.create_object = handleConnectionInfoAlloc;
-    wsConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, ipConnectionInfoClassEntry);
+    wsConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, connectionInfoClassEntry);
     zend_declare_property_string(wsConnectionInfoClassEntry, STRCAST("headers"), sizeof("headers") - 1,
                                  STRCAST(""), ZEND_ACC_PUBLIC);
 
@@ -578,26 +577,13 @@ IcePHP::connectionInit(void)
     INIT_CLASS_ENTRY(ce, "Ice_SSLConnectionInfo", NULL);
 #endif
     ce.create_object = handleConnectionInfoAlloc;
-    sslConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, ipConnectionInfoClassEntry);
+    sslConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, connectionInfoClassEntry);
     zend_declare_property_string(sslConnectionInfoClassEntry, STRCAST("cipher"), sizeof("cipher") - 1,
                                  STRCAST(""), ZEND_ACC_PUBLIC);
     zend_declare_property_string(sslConnectionInfoClassEntry, STRCAST("certs"), sizeof("certs") - 1,
                                  STRCAST(""), ZEND_ACC_PUBLIC);
     zend_declare_property_bool(sslConnectionInfoClassEntry, STRCAST("verified"), sizeof("verified") - 1, 0,
                                ZEND_ACC_PUBLIC);
-
-    //
-    // Register the WSConnectionInfo class.
-    //
-#ifdef ICEPHP_USE_NAMESPACES
-    INIT_NS_CLASS_ENTRY(ce, "Ice", "WSSConnectionInfo", NULL);
-#else
-    INIT_CLASS_ENTRY(ce, "Ice_WSSConnectionInfo", NULL);
-#endif
-    ce.create_object = handleConnectionInfoAlloc;
-    wssConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, sslConnectionInfoClassEntry);
-    zend_declare_property_string(wssConnectionInfoClassEntry, STRCAST("headers"), sizeof("headers") - 1,
-                                 STRCAST(""), ZEND_ACC_PUBLIC);
 
 
     return true;
@@ -647,6 +633,12 @@ IcePHP::fetchConnection(zval* zv, Ice::ConnectionPtr& connection)
 bool
 IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p)
 {
+    if(!p)
+    {
+        ZVAL_NULL(zv);
+        return true;
+    }
+
     int status;
     if(Ice::WSConnectionInfoPtr::dynamicCast(p))
     {
@@ -667,7 +659,12 @@ IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p)
     }
     else if(Ice::TCPConnectionInfoPtr::dynamicCast(p))
     {
-        status = object_init_ex(zv, tcpConnectionInfoClassEntry);
+        Ice::TCPConnectionInfoPtr info = Ice::TCPConnectionInfoPtr::dynamicCast(p);
+        if((status = object_init_ex(zv, tcpConnectionInfoClassEntry)) == SUCCESS)
+        {
+            add_property_long(zv, STRCAST("rcvSize"), static_cast<long>(info->rcvSize));
+            add_property_long(zv, STRCAST("sndSize"), static_cast<long>(info->sndSize));
+        }
     }
     else if(Ice::UDPConnectionInfoPtr::dynamicCast(p))
     {
@@ -676,23 +673,8 @@ IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p)
         {
             add_property_string(zv, STRCAST("mcastAddress"), const_cast<char*>(info->mcastAddress.c_str()));
             add_property_long(zv, STRCAST("mcastPort"), static_cast<long>(info->mcastPort));
-        }
-    }
-    else if(IceSSL::WSSConnectionInfoPtr::dynamicCast(p))
-    {
-        IceSSL::WSSConnectionInfoPtr info = IceSSL::WSSConnectionInfoPtr::dynamicCast(p);
-        if((status = object_init_ex(zv, wssConnectionInfoClassEntry)) == SUCCESS)
-        {
-            zval zmap;
-            AutoDestroy mapDestroyer(&zmap);
-            if(createStringMap(&zmap, info->headers))
-            {
-                add_property_zval(zv, STRCAST("headers"), &zmap);
-            }
-            else
-            {
-                return false;
-            }
+            add_property_long(zv, STRCAST("rcvSize"), static_cast<long>(info->rcvSize));
+            add_property_long(zv, STRCAST("sndSize"), static_cast<long>(info->sndSize));
         }
     }
     else if(IceSSL::ConnectionInfoPtr::dynamicCast(p))
@@ -741,10 +723,16 @@ IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p)
         add_property_long(zv, STRCAST("remotePort"), static_cast<long>(info->remotePort));
     }
 
+    zval underlying;
+    if(!createConnectionInfo(&underlying, p->underlying TSRMLS_CC))
+    {
+        runtimeError("unable to initialize connection info" TSRMLS_CC);
+        return false;
+    }
+    add_property_zval(zv, STRCAST("underlying"), &underlying);
+    zval_ptr_dtor(&underlying); // add_property_zval increased the refcount of underlying
     add_property_bool(zv, STRCAST("incoming"), p->incoming ? 1 : 0);
     add_property_string(zv, STRCAST("adapterName"), const_cast<char*>(p->adapterName.c_str()));
-    add_property_long(zv, STRCAST("rcvSize"), static_cast<long>(p->rcvSize));
-    add_property_long(zv, STRCAST("sndSize"), static_cast<long>(p->sndSize));
 
     Wrapper<Ice::ConnectionInfoPtr>* obj = Wrapper<Ice::ConnectionInfoPtr>::extract(zv);
     assert(obj);

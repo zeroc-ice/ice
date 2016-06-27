@@ -2,7 +2,7 @@
 //
 // Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
 //
-// This copy of Ice is licensed to you under the terms described in the
+// This copy of Ice is licensed to you under the terms dribed in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
@@ -15,6 +15,9 @@
 
 #ifdef __APPLE__
 #  include <sys/sysctl.h>
+#if TARGET_OS_IPHONE != 0
+#include <IceSSL/Util.h> // For loadCertificateChain
+#endif
 #endif
 
 #ifdef ICE_CPP11_MAPPING
@@ -141,6 +144,83 @@ private:
     vector<PCCERT_CONTEXT> _certs;
 };
 
+#elif defined(__APPLE__) && TARGET_OS_IPHONE != 0
+class ImportCerts
+{
+public:
+
+    ImportCerts(const string& defaultDir, const char* certificates[])
+    {
+        for(int i = 0; certificates[i] != 0; ++i)
+        {
+            string resolved;
+            if(IceSSL::checkPath(certificates[i], defaultDir, false, resolved))
+            {
+                CFArrayRef certs = IceSSL::loadCertificateChain(resolved, "", "", "", "password", 0, 0);
+                SecIdentityRef identity = (SecIdentityRef)CFArrayGetValueAtIndex(certs, 0);
+                CFRetain(identity);
+                _identities.push_back(identity);
+                OSStatus err;
+                CFMutableDictionaryRef query;
+
+                query = CFDictionaryCreateMutable(0, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+                CFDictionarySetValue(query, kSecValueRef, identity);
+                if((err = SecItemAdd(query, 0)))
+                {
+                    cerr << "failed to add identity " << certificates[i] << ": " << err << endl;
+                }
+                CFRelease(query);
+
+                // query = CFDictionaryCreateMutable(0, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+                // CFDictionarySetValue(query, kSecClass, kSecClassCertificate);
+                // CFDictionarySetValue(query, kSecReturnRef, kCFBooleanTrue);
+                // CFDictionarySetValue(query, kSecMatchLimit, kSecMatchLimitAll);
+                // CFArrayRef array = 0;
+                // err = SecItemCopyMatching(query, (CFTypeRef*)&array);
+                // printf("Certificates\n");
+                // for(int i = 0; i < CFArrayGetCount(array); ++i)
+                // {
+                //     printf("Cert %d: %s\n", i, (new IceSSL::Certificate((SecCertificateRef)CFArrayGetValueAtIndex(array, i)))->toString().c_str());
+                // }
+                // CFRelease(certs);
+            }
+        }
+        // Nothing to do.
+    }
+
+    ~ImportCerts()
+    {
+        cleanup();
+    }
+
+    void cleanup()
+    {
+        CFMutableDictionaryRef query;
+        for(vector<SecIdentityRef>::const_iterator p = _identities.begin(); p != _identities.end(); ++p)
+        {
+            query = CFDictionaryCreateMutable(0, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+            CFDictionarySetValue(query, kSecClass, kSecClassIdentity);
+            CFDictionarySetValue(query, kSecValueRef, *p);
+            SecItemDelete(query);
+            CFRelease(query);
+
+            SecCertificateRef cert;
+            SecIdentityCopyCertificate(*p, &cert);
+            query = CFDictionaryCreateMutable(0, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+            CFDictionarySetValue(query, kSecClass, kSecClassCertificate);
+            CFDictionarySetValue(query, kSecValueRef, cert);
+            SecItemDelete(query);
+            CFRelease(query);
+
+            CFRelease(*p);
+        }
+        _identities.clear();
+    }
+
+private:
+
+    vector<SecIdentityRef> _identities;
+};
 #else
 class ImportCerts
 {
@@ -197,6 +277,7 @@ public:
     {
         if(info->nativeCerts.size() > 0)
         {
+#if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
             //
             // Subject alternative name
             //
@@ -243,6 +324,7 @@ public:
                 test(find(ipAddresses.begin(), ipAddresses.end(), "127.0.0.1") != ipAddresses.end());
                 test(find(emailAddresses.begin(), emailAddresses.end(), "issuer@zeroc.com") != emailAddresses.end());
             }
+#endif
         }
 
         _hadCert = info->nativeCerts.size() != 0;
@@ -306,7 +388,8 @@ createClientProps(const Ice::PropertiesPtr& defaultProps, const string& defaultD
     {
         result->setProperty("IceSSL.Password", "password");
     }
-    //result->setProperty("IceSSL.Trace.Security", "1");
+//    result->setProperty("IceSSL.Trace.Security", "1");
+//    result->setProperty("Ice.Trace.Network", "1");
 #ifdef ICE_USE_SECURE_TRANSPORT
     ostringstream keychainName;
     keychainName << "../certs/keychain/client" << keychainN++ << ".keychain";
@@ -338,7 +421,8 @@ createServerProps(const Ice::PropertiesPtr& defaultProps, const string& defaultD
     {
         result["IceSSL.Password"] = "password";
     }
-    //result["IceSSL.Trace.Security"] = "1";
+//    result["Ice.Trace.Network"] = "1";
+//    result["IceSSL.Trace.Security"] = "1";
 #ifdef ICE_USE_SECURE_TRANSPORT
     ostringstream keychainName;
     keychainName << "../certs/keychain/server" << keychainN << ".keychain";
@@ -420,8 +504,8 @@ void verify(const IceSSL::CertificatePtr& cert, const IceSSL::CertificatePtr& ca
     cerr << endl;
 }
 
-void
-allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, bool shutdown)
+Test::ServerFactoryPrxPtr
+allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
 {
     bool elCapitanUpdate2OrLower = false;
 #ifdef __APPLE__
@@ -441,14 +525,19 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         }
     }
 #endif
-
-    string factoryRef = "factory:tcp -p 12010";
+    string endpt = getTestEndpoint(communicator, 0);
+    string factoryRef = "factory:" + endpt;
     ObjectPrxPtr base = communicator->stringToProxy(factoryRef);
     test(base);
     Test::ServerFactoryPrxPtr factory = ICE_CHECKED_CAST(Test::ServerFactoryPrx, base);
 
     string defaultHost = communicator->getProperties()->getProperty("Ice.Default.Host");
+#if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
     string defaultDir = testDir + "/../certs";
+#else
+    string defaultDir = "certs";
+#endif
+
     Ice::PropertiesPtr defaultProps = communicator->getProperties();
 #ifdef _WIN32
     string sep = ";";
@@ -484,7 +573,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
 //
 // Anonymous cipher are not supported with SChannel
 //
-#ifndef ICE_USE_SCHANNEL
+#if !defined(ICE_USE_SCHANNEL)
     {
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12);
@@ -647,16 +736,22 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             IceSSL::CertificatePtr serverCert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_pub.pem");
             test(ICE_TARGET_EQUALS(IceSSL::Certificate::decode(serverCert->encode()), serverCert));
             test(ICE_TARGET_EQUALS(serverCert, serverCert));
+#if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
             test(serverCert->checkValidity());
             test(!serverCert->checkValidity(IceUtil::Time::seconds(0)));
+#endif
 
             IceSSL::CertificatePtr caCert = IceSSL::Certificate::load(defaultDir + "/cacert1.pem");
+            IceSSL::CertificatePtr caCert2 = IceSSL::Certificate::load(defaultDir + "/cacert2.pem");
             test(ICE_TARGET_EQUALS(caCert, caCert));
+#if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
             test(caCert->checkValidity());
             test(!caCert->checkValidity(IceUtil::Time::seconds(0)));
+#endif
 
             test(!serverCert->verify(serverCert));
             test(serverCert->verify(caCert));
+            test(!serverCert->verify(caCert2));
             test(caCert->verify(caCert));
 
             info = ICE_DYNAMIC_CAST(IceSSL::NativeConnectionInfo, server->ice_getConnection()->getInfo());
@@ -669,9 +764,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             test(!(ICE_TARGET_EQUALS(serverCert, info->nativeCerts[1])));
             test(!(ICE_TARGET_EQUALS(caCert, info->nativeCerts[0])));
 
+#if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
             test(info->nativeCerts[0]->checkValidity() && info->nativeCerts[1]->checkValidity());
             test(!info->nativeCerts[0]->checkValidity(IceUtil::Time::seconds(0)) &&
                  !info->nativeCerts[1]->checkValidity(IceUtil::Time::seconds(0)));
+#endif
             test(info->nativeCerts[0]->verify(info->nativeCerts[1]));
             test(info->nativeCerts.size() == 2 &&
                  info->nativeCerts[0]->getSubjectDN() == serverCert->getSubjectDN() &&
@@ -874,8 +971,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             {
                 server->ice_ping();
             }
-            catch(const LocalException&)
+            catch(const LocalException& ex)
             {
+                cerr << ex << endl;
                 test(false);
             }
             fact->destroyServer(server);
@@ -1589,10 +1687,12 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         //
         // This should fail because the server's certificate is expired.
         //
+#if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
         {
             IceSSL::CertificatePtr cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_exp_pub.pem");
             test(!cert->checkValidity());
         }
+#endif
 
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_ca1", "cacert1");
@@ -1621,10 +1721,12 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         //
         // This should fail because the client's certificate is expired.
         //
+#if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
         {
             IceSSL::CertificatePtr cert = IceSSL::Certificate::load(defaultDir + "/c_rsa_ca1_exp_pub.pem");
             test(!cert->checkValidity());
         }
+#endif
 
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_ca1_exp", "cacert1");
         comm = initialize(initData);
@@ -2193,9 +2295,14 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
     cout << "ok" << endl;
 
     cout << "testing IceSSL.TrustOnly... " << flush;
+    //
+    // iOS support only provides access to the CN of the certificate so we
+    // can't check for other attributes
+    //
     {
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_ca1", "cacert1");
+        initData.properties->setProperty("IceSSL.TrustOnly", "CN=Server");
         initData.properties->setProperty("IceSSL.TrustOnly", "C=US, ST=Florida, O=ZeroC\\, Inc.,"
                                          "OU=Ice, emailAddress=info@zeroc.com, CN=Server");
         CommunicatorPtr comm = initialize(initData);
@@ -2568,7 +2675,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
         d["IceSSL.VerifyPeer"] = "0";
-        d["IceSSL.TrustOnly"] = "C=US, ST=Florida, O=ZeroC\\, Inc.,OU=Ice, emailAddress=info@zeroc.com, CN=Client";
+        d["IceSSL.TrustOnly"] = "CN=Client";
         Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
@@ -2593,7 +2700,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
-        d["IceSSL.TrustOnly"] = "!C=US, ST=Florida, O=ZeroC\\, Inc.,OU=Ice, emailAddress=info@zeroc.com, CN=Client";
+        d["IceSSL.TrustOnly"] = "!CN=Client";
         d["IceSSL.VerifyPeer"] = "0";
         Test::ServerPrxPtr server = fact->createServer(d);
         try
@@ -3116,7 +3223,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         cout << "testing IceSSL.FindCert... " << flush;
         const char* clientFindCertProperties[] =
         {
-            "SUBJECT:Client",
+//            "SUBJECT:Client",
             "LABEL:'Client'",
             "SUBJECTKEYID:'FC 5D 4F AB F0 6C 03 11 B8 F3 68 CF 89 54 92 3F F9 79 2A 06'",
             "SERIAL:02",
@@ -3126,7 +3233,10 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
 
         const char* serverFindCertProperties[] =
         {
+#if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
+            // iOS match on Subject DN isn't supported by SecItemCopyMatch
             "SUBJECT:Server",
+#endif
             "LABEL:'Server'",
             "SUBJECTKEYID:'47 84 AE F9 F2 85 3D 99 30 6A 03 38 41 1A B9 EB C3 9C B5 4D'",
             "SERIAL:01",
@@ -3139,13 +3249,19 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             "nolabel",
             "unknownlabel:foo",
             "LABEL:",
+#if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
+            // iOS match on Subject DN isn't supported by SecItemCopyMatch
             "SUBJECT:ServerX",
+#endif
             "LABEL:'ServerX'",
             "SUBJECTKEYID:'a6 42 aa 17 04 41 86 56 67 e4 04 64 59 34 30 c7 4c 6b ef ff'",
             "SERIAL:04",
             "SERIAL:04 LABEL:Client",
             0
         };
+
+        const char* certificates[] = {"/s_rsa_ca1.p12", "/c_rsa_ca1.p12", 0};
+        ImportCerts import(defaultDir, certificates);
 
         for(int i = 0; clientFindCertProperties[i] != 0; i++)
         {
@@ -3169,6 +3285,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             d["IceSSL.Keychain"] = "../certs/Find.keychain";
             d["IceSSL.KeychainPassword"] = "password";
             d["IceSSL.FindCert"] = serverFindCertProperties[i];
+
             //
             // Use TrustOnly to ensure the peer has pick the expected certificate.
             //
@@ -3198,6 +3315,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             try
             {
                 CommunicatorPtr comm = initialize(initData);
+                printf("failed %s", failFindCertProperties[i]);
                 test(false);
             }
             catch(const PluginInitializationException&)
@@ -3247,11 +3365,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         comm = initialize(initData);
         p = comm->stringToProxy("dummy:wss -h demo.zeroc.com -p 5064");
 
-        IceSSL::WSSConnectionInfoPtr info;
         try
         {
-            info = ICE_DYNAMIC_CAST(IceSSL::WSSConnectionInfo, p->ice_getConnection()->getInfo());
-            test(info->verified);
+            Ice::WSConnectionInfoPtr info = ICE_DYNAMIC_CAST(Ice::WSConnectionInfo, p->ice_getConnection()->getInfo());
+            IceSSL::ConnectionInfoPtr sslInfo = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, info->underlying);
+            test(sslInfo->verified);
         }
         catch(const Ice::LocalException& ex)
         {
@@ -3261,9 +3379,5 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
     }
     cout << "ok" << endl;
 #endif
-
-    if(shutdown)
-    {
-        factory->shutdown();
-    }
+    return factory;
 }

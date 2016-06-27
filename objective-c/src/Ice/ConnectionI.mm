@@ -2,7 +2,7 @@
 //
 // Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
 //
-// This copy of Ice is licensed to you under the terms described in the
+// This copy of Ice is licensed to you  the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
@@ -19,18 +19,92 @@
 
 #import <objc/runtime.h>
 
+#define CONNECTION dynamic_cast<Ice::Connection*>(static_cast<IceUtil::Shared*>(cxxObject_))
+
+namespace
+{
+
+std::vector<Class>* connectionInfoClasses = 0;
+
+}
+
+namespace IceObjC
+{
+
+void
+registerConnectionInfoClass(Class cl)
+{
+    if(!connectionInfoClasses)
+    {
+        connectionInfoClasses = new std::vector<Class>();
+    }
+    connectionInfoClasses->push_back(cl);
+}
+
+}
+
 @implementation ICEConnectionInfo (ICEInternal)
+
++(id) checkedConnectionInfoWithConnectionInfo:(Ice::ConnectionInfo*)connectionInfo
+{
+    assert(false);
+    return nil;
+}
+
++(id) connectionInfoWithConnectionInfo:(NSValue*)v
+{
+    Ice::ConnectionInfo* info = dynamic_cast<Ice::ConnectionInfo*>(reinterpret_cast<IceUtil::Shared*>(v.pointerValue));
+    if(!info)
+    {
+        return nil;
+    }
+
+    Ice::UDPConnectionInfoPtr udpInfo = Ice::UDPConnectionInfoPtr::dynamicCast(info);
+    if(udpInfo)
+    {
+        return [[ICEUDPConnectionInfo alloc] initWithUDPConnectionInfo:udpInfo.get()];
+    }
+
+    Ice::WSConnectionInfoPtr wsInfo = Ice::WSConnectionInfoPtr::dynamicCast(info);
+    if(wsInfo)
+    {
+        return [[ICEWSConnectionInfo alloc] initWithWSConnectionInfo:wsInfo.get()];
+    }
+
+    Ice::TCPConnectionInfoPtr tcpInfo = Ice::TCPConnectionInfoPtr::dynamicCast(info);
+    if(tcpInfo)
+    {
+        return [[ICETCPConnectionInfo alloc] initWithTCPConnectionInfo:tcpInfo.get()];
+    }
+
+    for(std::vector<Class>::const_iterator p = connectionInfoClasses->begin(); p != connectionInfoClasses->end(); ++p)
+    {
+        ICEConnectionInfo* r = [*p checkedConnectionInfoWithConnectionInfo:info];
+        if(r)
+        {
+            return r;
+        }
+    }
+
+    Ice::IPConnectionInfoPtr ipInfo = Ice::IPConnectionInfoPtr::dynamicCast(info);
+    if(ipInfo)
+    {
+        return [[ICEIPConnectionInfo alloc] initWithIPConnectionInfo:ipInfo.get()];
+    }
+
+    return [[ICEConnectionInfo alloc] initWithConnectionInfo:info];
+}
 
 -(id) initWithConnectionInfo:(Ice::ConnectionInfo*)connectionInfo;
 {
     self = [super initWithCxxObject:connectionInfo];
     if(self != nil)
     {
+        self->underlying = [ICEConnectionInfo localObjectWithCxxObjectNoAutoRelease:connectionInfo->underlying.get()
+                                                            allocator:@selector(connectionInfoWithConnectionInfo:)];
         self->incoming = connectionInfo->incoming;
         self->adapterName = [[NSString alloc] initWithUTF8String:connectionInfo->adapterName.c_str()];
         self->connectionId = [[NSString alloc] initWithUTF8String:connectionInfo->connectionId.c_str()];
-        self->rcvSize = connectionInfo->rcvSize;
-        self->sndSize = connectionInfo->sndSize;
     }
     return self;
 }
@@ -58,6 +132,11 @@
 -(id) initWithTCPConnectionInfo:(Ice::TCPConnectionInfo*)tcpConnectionInfo
 {
     self = [super initWithIPConnectionInfo:tcpConnectionInfo];
+    if(self)
+    {
+        self->rcvSize = tcpConnectionInfo->rcvSize;
+        self->sndSize = tcpConnectionInfo->sndSize;
+    }
     return self;
 }
 @end
@@ -71,6 +150,8 @@
     {
         self->mcastAddress = [[NSString alloc] initWithUTF8String:udpConnectionInfo->mcastAddress.c_str()];
         self->mcastPort = udpConnectionInfo->mcastPort;
+        self->rcvSize = udpConnectionInfo->rcvSize;
+        self->sndSize = udpConnectionInfo->sndSize;
     }
     return self;
 }
@@ -80,7 +161,7 @@
 @implementation ICEWSConnectionInfo (ICEInternal)
 -(id) initWithWSConnectionInfo:(Ice::WSConnectionInfo*)wsConnectionInfo
 {
-    self = [super initWithIPConnectionInfo:wsConnectionInfo];
+    self = [super initWithConnectionInfo:wsConnectionInfo];
     if(self)
     {
         self->headers = toNSDictionary(wsConnectionInfo->headers);
@@ -179,8 +260,6 @@ private:
 };
 
 }
-
-#define CONNECTION dynamic_cast<Ice::Connection*>(static_cast<IceUtil::Shared*>(cxxObject_))
 
 @implementation ICEConnection
 -(void) close:(BOOL)force
@@ -344,46 +423,8 @@ private:
     NSException* nsex = nil;
     try
     {
-        Ice::ConnectionInfoPtr info = CONNECTION->getInfo();
-        if(!info)
-        {
-            return nil;
-        }
-
-        Ice::UDPConnectionInfoPtr udpInfo = Ice::UDPConnectionInfoPtr::dynamicCast(info);
-        if(udpInfo)
-        {
-            return [[[ICEUDPConnectionInfo alloc] initWithUDPConnectionInfo:udpInfo.get()] autorelease];
-        }
-
-        Ice::WSConnectionInfoPtr wsInfo = Ice::WSConnectionInfoPtr::dynamicCast(info);
-        if(wsInfo)
-        {
-            return [[[ICEWSConnectionInfo alloc] initWithWSConnectionInfo:wsInfo.get()] autorelease];
-        }
-
-        Ice::TCPConnectionInfoPtr tcpInfo = Ice::TCPConnectionInfoPtr::dynamicCast(info);
-        if(tcpInfo)
-        {
-            return [[[ICETCPConnectionInfo alloc] initWithTCPConnectionInfo:tcpInfo.get()] autorelease];
-        }
-
-        std::ostringstream os;
-        os << "connectionInfoWithType_" << CONNECTION->type() << ":";
-        SEL selector = sel_registerName(os.str().c_str());
-        if([ICEConnectionInfo respondsToSelector:selector])
-        {
-            IceUtil::Shared* shared = info.get();
-            return [ICEConnectionInfo performSelector:selector withObject:[NSValue valueWithPointer:shared]];
-        }
-
-        Ice::IPConnectionInfoPtr ipInfo = Ice::IPConnectionInfoPtr::dynamicCast(info);
-        if(ipInfo)
-        {
-            return [[[ICEIPConnectionInfo alloc] initWithIPConnectionInfo:ipInfo.get()] autorelease];
-        }
-
-        return [[[ICEConnectionInfo alloc] initWithConnectionInfo:info.get()] autorelease];
+        return [ICEConnectionInfo localObjectWithCxxObject:CONNECTION->getInfo().get()
+                                                 allocator:@selector(connectionInfoWithConnectionInfo:)];
     }
     catch(const std::exception& ex)
     {

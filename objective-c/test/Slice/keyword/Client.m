@@ -176,6 +176,10 @@ run(id<ICECommunicator> communicator)
 int
 main(int argc, char* argv[])
 {
+#ifdef ICE_STATIC_LIBS
+    ICEregisterIceSSL(YES);
+#endif
+
     int status;
     @autoreleasepool
     {
@@ -213,4 +217,3 @@ main(int argc, char* argv[])
     }
     return status;
 }
-

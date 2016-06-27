@@ -494,6 +494,24 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
 
     map<string, IceMX::MetricsPtr> map;
 
+    string endpoint;
+    {
+        ostringstream os;
+        os << communicator->getProperties()->getPropertyWithDefault("Ice.Default.Protocol", "tcp") << " -h 127.0.0.1 -p 12010";
+        endpoint = os.str();
+    }
+    string type;
+    string isSecure;
+    if(!collocated)
+    {
+        Ice::EndpointInfoPtr endpointInfo = metrics->ice_getConnection()->getEndpoint()->getInfo();
+        {
+            ostringstream os;
+            os << endpointInfo->type();
+            type = os.str();
+        }
+        isSecure = endpointInfo->secure() ? "true": "false";
+    }
     if(!collocated)
     {
         cout << "testing connection metrics... " << flush;
@@ -567,7 +585,8 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
         updateProps(clientProps, serverProps, update.get(), props, "Connection");
 
         map = toMap(serverMetrics->getMetricsView("View", timestamp)["Connection"]);
-
+        test(map["active"]->current == 1);
+        map = toMap(clientMetrics->getMetricsView("View", timestamp)["Connection"]);
         test(map["active"]->current == 1);
 
         ControllerPrxPtr controller = ICE_CHECKED_CAST(ControllerPrx, communicator->stringToProxy("controller:default -p 12011"));
@@ -631,11 +650,10 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
 
         testAttribute(clientMetrics, clientProps, update.get(), "Connection", "parent", "Communicator");
         //testAttribute(clientMetrics, clientProps, update.get(), "Connection", "id", "");
-        testAttribute(clientMetrics, clientProps, update.get(), "Connection", "endpoint", "tcp -h 127.0.0.1 -p 12010 -t 500");
-
-        testAttribute(clientMetrics, clientProps, update.get(), "Connection", "endpointType", "1");
+        testAttribute(clientMetrics, clientProps, update.get(), "Connection", "endpoint", endpoint + " -t 500");
+        testAttribute(clientMetrics, clientProps, update.get(), "Connection", "endpointType", type);
         testAttribute(clientMetrics, clientProps, update.get(), "Connection", "endpointIsDatagram", "false");
-        testAttribute(clientMetrics, clientProps, update.get(), "Connection", "endpointIsSecure", "false");
+        testAttribute(clientMetrics, clientProps, update.get(), "Connection", "endpointIsSecure", isSecure);
         testAttribute(clientMetrics, clientProps, update.get(), "Connection", "endpointTimeout", "500");
         testAttribute(clientMetrics, clientProps, update.get(), "Connection", "endpointCompress", "false");
         testAttribute(clientMetrics, clientProps, update.get(), "Connection", "endpointHost", "127.0.0.1");
@@ -695,11 +713,11 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
         testAttribute(clientMetrics, clientProps, update.get(), "ConnectionEstablishment", "parent", "Communicator", c);
         testAttribute(clientMetrics, clientProps, update.get(), "ConnectionEstablishment", "id", "127.0.0.1:12010", c);
         testAttribute(clientMetrics, clientProps, update.get(), "ConnectionEstablishment", "endpoint",
-                      "tcp -h 127.0.0.1 -p 12010 -t 60000", c);
+                      endpoint + " -t 60000", c);
 
-        testAttribute(clientMetrics, clientProps, update.get(), "ConnectionEstablishment", "endpointType", "1", c);
+        testAttribute(clientMetrics, clientProps, update.get(), "ConnectionEstablishment", "endpointType", type, c);
         testAttribute(clientMetrics, clientProps, update.get(), "ConnectionEstablishment", "endpointIsDatagram", "false", c);
-        testAttribute(clientMetrics, clientProps, update.get(), "ConnectionEstablishment", "endpointIsSecure", "false", c);
+        testAttribute(clientMetrics, clientProps, update.get(), "ConnectionEstablishment", "endpointIsSecure", isSecure, c);
         testAttribute(clientMetrics, clientProps, update.get(), "ConnectionEstablishment", "endpointTimeout", "60000", c);
         testAttribute(clientMetrics, clientProps, update.get(), "ConnectionEstablishment", "endpointCompress", "false", c);
         testAttribute(clientMetrics, clientProps, update.get(), "ConnectionEstablishment", "endpointHost", "127.0.0.1", c);
@@ -724,7 +742,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
         test(clientMetrics->getMetricsView("View", timestamp)["EndpointLookup"].size() == 1);
         m1 = clientMetrics->getMetricsView("View", timestamp)["EndpointLookup"][0];
 
-        test(m1->current <= 1 && m1->total == 1 && m1->id == "tcp -h localhost -p 12010 -t infinite");
+        test(m1->current <= 1 && m1->total == 1 && m1->id == prx->ice_getConnection()->getEndpoint()->toString());
 
         prx->ice_getConnection()->close(false);
 
@@ -755,13 +773,13 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
 
         testAttribute(clientMetrics, clientProps, update.get(), "EndpointLookup", "parent", "Communicator", c);
         testAttribute(clientMetrics, clientProps, update.get(), "EndpointLookup", "id",
-                      "tcp -h localhost -p 12010 -t infinite", c);
+                      prx->ice_getConnection()->getEndpoint()->toString(), c);
         testAttribute(clientMetrics, clientProps, update.get(), "EndpointLookup", "endpoint",
-                      "tcp -h localhost -p 12010 -t infinite", c);
+                      prx->ice_getConnection()->getEndpoint()->toString(), c);
 
-        testAttribute(clientMetrics, clientProps, update.get(), "EndpointLookup", "endpointType", "1", c);
+        testAttribute(clientMetrics, clientProps, update.get(), "EndpointLookup", "endpointType", type, c);
         testAttribute(clientMetrics, clientProps, update.get(), "EndpointLookup", "endpointIsDatagram", "false", c);
-        testAttribute(clientMetrics, clientProps, update.get(), "EndpointLookup", "endpointIsSecure", "false", c);
+        testAttribute(clientMetrics, clientProps, update.get(), "EndpointLookup", "endpointIsSecure", isSecure, c);
         testAttribute(clientMetrics, clientProps, update.get(), "EndpointLookup", "endpointTimeout", "-1", c);
         testAttribute(clientMetrics, clientProps, update.get(), "EndpointLookup", "endpointCompress", "false", c);
         testAttribute(clientMetrics, clientProps, update.get(), "EndpointLookup", "endpointHost", "localhost", c);
@@ -861,13 +879,12 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
     testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "id", "metrics [op]", op);
     if(!collocated)
     {
-        testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "endpoint", "tcp -h 127.0.0.1 -p 12010 -t 60000",
-                      op);
+        testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "endpoint", endpoint + " -t 60000", op);
         //testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "connection", "", op);
 
-        testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "endpointType", "1", op);
+        testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "endpointType", type, op);
         testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "endpointIsDatagram", "false", op);
-        testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "endpointIsSecure", "false", op);
+        testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "endpointIsSecure", isSecure, op);
         testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "endpointTimeout", "60000", op);
         testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "endpointCompress", "false", op);
         testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "endpointHost", "127.0.0.1", op);
@@ -1275,8 +1292,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
     testAttribute(clientMetrics, clientProps, update.get(), "Invocation", "encoding", "1.1", op);
     testAttribute(clientMetrics, clientProps, update.get(), "Invocation", "mode", "twoway", op);
     testAttribute(clientMetrics, clientProps, update.get(), "Invocation", "proxy",
-                  "metrics -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 60000", op);
-
+                  "metrics -t -e 1.1:" + endpoint + " -t 60000", op);
     testAttribute(clientMetrics, clientProps, update.get(), "Invocation", "context.entry1", "test", op);
     testAttribute(clientMetrics, clientProps, update.get(), "Invocation", "context.entry2", "", op);
     testAttribute(clientMetrics, clientProps, update.get(), "Invocation", "context.entry3", "", op);

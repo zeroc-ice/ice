@@ -240,12 +240,13 @@ class IncomingBase
         out.print("\noperation: " + _current.operation);
         if(_current.con != null)
         {
-            Ice.ConnectionInfo connInfo = _current.con.getInfo();
-            if(connInfo instanceof Ice.IPConnectionInfo)
+            for(Ice.ConnectionInfo connInfo = _current.con.getInfo(); connInfo != null; connInfo = connInfo.underlying)
             {
-                Ice.IPConnectionInfo ipConnInfo = (Ice.IPConnectionInfo)connInfo;
-                out.print("\nremote host: " + ipConnInfo.remoteAddress + " remote port: " +
-                          Integer.toString(ipConnInfo.remotePort));
+                if(connInfo instanceof Ice.IPConnectionInfo)
+                {
+                    Ice.IPConnectionInfo ipConnInfo = (Ice.IPConnectionInfo)connInfo;
+                    out.print("\nremote host: " + ipConnInfo.remoteAddress + " remote port: " + ipConnInfo.remotePort);
+                }
             }
         }
         out.print("\n");

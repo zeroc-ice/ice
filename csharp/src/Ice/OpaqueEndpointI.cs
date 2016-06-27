@@ -13,6 +13,7 @@ namespace IceInternal
     using System.Collections;
     using System.Collections.Generic;
     using System.Globalization;
+    using System.Diagnostics;
 
     sealed class OpaqueEndpointI : EndpointI
     {
@@ -57,6 +58,11 @@ namespace IceInternal
             s.endEncapsulation();
         }
 
+        public override void streamWriteImpl(Ice.OutputStream s)
+        {
+            Debug.Assert(false);
+        }
+
         //
         // Convert the endpoint to its string form
         //
@@ -69,7 +75,7 @@ namespace IceInternal
         private sealed class InfoI : Ice.OpaqueEndpointInfo
         {
             public InfoI(short type, Ice.EncodingVersion rawEncoding, byte[] rawBytes) :
-                base(-1, false, rawEncoding, rawBytes)
+                base(null, -1, false, rawEncoding, rawBytes)
             {
                 _type = type;
             }

@@ -33,7 +33,7 @@ public:
     iAPEndpointI(const IceInternal::ProtocolInstancePtr&);
     iAPEndpointI(const IceInternal::ProtocolInstancePtr&, Ice::InputStream*);
 
-    virtual void streamWrite(Ice::OutputStream*) const;
+    virtual void streamWriteImpl(Ice::OutputStream*) const;
 
     virtual Ice::EndpointInfoPtr getInfo() const;
     virtual Ice::Short type() const;
@@ -97,7 +97,8 @@ public:
     virtual IceInternal::EndpointIPtr read(Ice::InputStream*) const;
     virtual void destroy();
 
-    virtual IceInternal::EndpointFactoryPtr clone(const IceInternal::ProtocolInstancePtr&) const;
+    virtual IceInternal::EndpointFactoryPtr clone(const IceInternal::ProtocolInstancePtr&,
+                                                  const IceInternal::EndpointFactoryPtr&) const;
 
 private:
 

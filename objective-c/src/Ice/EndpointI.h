@@ -8,10 +8,16 @@
 // **********************************************************************
 
 #import <objc/Ice/Endpoint.h>
-
 #import <objc/Ice/LocalObject.h>
 
 #include <Ice/Endpoint.h>
+
+namespace IceObjC
+{
+
+ICE_API void registerEndpointInfoClass(Class cl);
+
+}
 
 @interface ICEEndpoint : ICELocalObject<ICEEndpoint>
 -(Ice::Endpoint*) endpoint;

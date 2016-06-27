@@ -65,7 +65,7 @@ tests = [
     ("Ice/plugin", ["core"]),
     ("Ice/optional", ["core"]),
     ("Ice/admin", ["core"]),
-    ("Ice/metrics", ["core", "nossl", "nows", "noipv6", "nocompress", "nosocks"]),
+    ("Ice/metrics", ["core", "nows", "noipv6", "nocompress", "nosocks"]),
     ("Ice/enums", ["core"]),
     ("Ice/serialize", ["core"]),
     ("Ice/networkProxy", ["core", "noipv6", "nosocks"]),

@@ -10,7 +10,7 @@
 #import <objc/Ice.h>
 #import <ami/TestI.h>
 #import <TestCommon.h>
- 
+
 static int
 run(id<ICECommunicator> communicator)
 {
@@ -21,7 +21,7 @@ run(id<ICECommunicator> communicator)
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAMIAdapter"];
     id<ICEObjectAdapter> adapter2 = [communicator createObjectAdapter:@"ControllerAdapter"];
 
-    TestAMITestIntfControllerI* testController 
+    TestAMITestIntfControllerI* testController
         = ICE_AUTORELEASE([[TestAMITestIntfControllerI alloc] initWithAdapter:adapter]);
 
     [adapter add:[TestAMITestIntfI testIntf] identity:[communicator stringToIdentity:@"test"]];
@@ -43,6 +43,13 @@ run(id<ICECommunicator> communicator)
 int
 main(int argc, char* argv[])
 {
+#ifdef ICE_STATIC_LIBS
+    ICEregisterIceSSL(YES);
+#if TARGET_OS_IPHONE
+    ICEregisterIceIAP(YES);
+#endif
+#endif
+
     int status;
     @autoreleasepool
     {
@@ -61,7 +68,7 @@ main(int argc, char* argv[])
             [initData.properties setProperty:@"Ice.Warn.Dispatch" value:@"0"];
 #if TARGET_OS_IPHONE
         initData.prefixTable__ = [NSDictionary dictionaryWithObjectsAndKeys:
-                                  @"TestAMI", @"::Test", 
+                                  @"TestAMI", @"::Test",
                                   nil];
 #endif
             communicator = [ICEUtil createCommunicator:&argc argv:argv initData:initData];

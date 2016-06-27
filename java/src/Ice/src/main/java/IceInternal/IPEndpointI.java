@@ -43,14 +43,6 @@ public abstract class IPEndpointI extends EndpointI
     }
 
     @Override
-    public void streamWrite(Ice.OutputStream s)
-    {
-        s.startEncapsulation();
-        streamWriteImpl(s);
-        s.endEncapsulation();
-    }
-
-    @Override
     public Ice.EndpointInfo getInfo()
     {
         Ice.IPEndpointInfo info = new Ice.IPEndpointInfo()
@@ -250,16 +242,7 @@ public abstract class IPEndpointI extends EndpointI
         return _connectionId.compareTo(p._connectionId);
     }
 
-    public String host()
-    {
-        return _host;
-    }
-
-    public int port()
-    {
-        return _port;
-    }
-
+    @Override
     public void streamWriteImpl(Ice.OutputStream s)
     {
         s.writeString(_host);
@@ -280,6 +263,8 @@ public abstract class IPEndpointI extends EndpointI
 
     public void fillEndpointInfo(Ice.IPEndpointInfo info)
     {
+        info.timeout = timeout();
+        info.compress = compress();
         info.host = _host;
         info.port = _port;
         info.sourceAddress = _sourceAddr == null ? "" : _sourceAddr.getAddress().getHostAddress();

@@ -11,9 +11,10 @@ package IceSSL;
 
 final class EndpointFactoryI implements IceInternal.EndpointFactory
 {
-    EndpointFactoryI(Instance instance)
+    EndpointFactoryI(Instance instance, IceInternal.EndpointFactory delegate)
     {
         _instance = instance;
+        _delegate = delegate;
     }
 
     @Override
@@ -31,28 +32,29 @@ final class EndpointFactoryI implements IceInternal.EndpointFactory
     @Override
     public IceInternal.EndpointI create(java.util.ArrayList<String> args, boolean oaEndpoint)
     {
-        IceInternal.IPEndpointI endpt = new EndpointI(_instance);
-        endpt.initWithOptions(args, oaEndpoint);
-        return endpt;
+        return new EndpointI(_instance, _delegate.create(args, oaEndpoint));
     }
 
     @Override
     public IceInternal.EndpointI read(Ice.InputStream s)
     {
-        return new EndpointI(_instance, s);
+        return new EndpointI(_instance, _delegate.read(s));
     }
 
     @Override
     public void destroy()
     {
+        _delegate.destroy();
         _instance = null;
     }
 
     @Override
-    public IceInternal.EndpointFactory clone(IceInternal.ProtocolInstance instance)
+    public IceInternal.EndpointFactory clone(IceInternal.ProtocolInstance inst, IceInternal.EndpointFactory delegate)
     {
-        return new EndpointFactoryI(new Instance(_instance.engine(), instance.type(), instance.protocol()));
+        Instance instance = new Instance(_instance.engine(), inst.type(), inst.protocol());
+        return new EndpointFactoryI(instance, delegate != null ? delegate : _delegate.clone(instance, null));
     }
 
     private Instance _instance;
+    private IceInternal.EndpointFactory _delegate;
 }

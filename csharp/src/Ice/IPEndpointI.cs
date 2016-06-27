@@ -80,13 +80,6 @@ namespace IceInternal
             return info;
         }
 
-        public override void streamWrite(Ice.OutputStream s)
-        {
-            s.startEncapsulation();
-            streamWriteImpl(s);
-            s.endEncapsulation();
-        }
-
         public override short type()
         {
             return instance_.type();
@@ -249,17 +242,7 @@ namespace IceInternal
             return string.Compare(connectionId_, p.connectionId_, StringComparison.Ordinal);
         }
 
-        public string host()
-        {
-            return host_;
-        }
-
-        public int port()
-        {
-            return port_;
-        }
-
-        public virtual void streamWriteImpl(Ice.OutputStream s)
+        public override void streamWriteImpl(Ice.OutputStream s)
         {
             s.writeString(host_);
             s.writeInt(port_);

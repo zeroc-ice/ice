@@ -92,7 +92,7 @@ private:
 //
 OpaqueEndpointInfoI::OpaqueEndpointInfoI(Ice::Short type, const Ice::EncodingVersion& rawEncoding,
                                          const Ice::ByteSeq& rawBytes) :
-    Ice::OpaqueEndpointInfo(-1, false, rawEncoding, rawBytes),
+    Ice::OpaqueEndpointInfo(ICE_NULLPTR, -1, false, rawEncoding, rawBytes),
     _type(type)
 {
 }
@@ -318,6 +318,12 @@ IceInternal::OpaqueEndpointI::operator<(const LocalObject& r) const
     }
 
     return false;
+}
+
+void
+IceInternal::OpaqueEndpointI::streamWriteImpl(Ice::OutputStream*) const
+{
+    assert(false);
 }
 
 bool

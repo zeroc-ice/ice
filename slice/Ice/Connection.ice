@@ -27,6 +27,14 @@ local class ConnectionInfo
 {
     /**
      *
+     * The information of the underyling transport or null if there's
+     * no underlying transport.
+     *
+     **/
+    ConnectionInfo underlying;
+
+    /**
+     *
      * Whether or not the connection is an incoming or outgoing
      * connection.
      *
@@ -46,20 +54,6 @@ local class ConnectionInfo
      *
      **/
     string connectionId;
-
-    /**
-     *
-     * The connection buffer receive size.
-     *
-     **/
-    int rcvSize;
-
-    /**
-     *
-     * The connection buffer send size.
-     *
-     **/
-    int sndSize;
 };
 
 local interface Connection;
@@ -344,6 +338,19 @@ local class IPConnectionInfo extends ConnectionInfo
  **/
 local class TCPConnectionInfo extends IPConnectionInfo
 {
+    /**
+     *
+     * The connection buffer receive size.
+     *
+     **/
+    int rcvSize = 0;
+
+    /**
+     *
+     * The connection buffer send size.
+     *
+     **/
+    int sndSize = 0;
 };
 
 /**
@@ -353,11 +360,33 @@ local class TCPConnectionInfo extends IPConnectionInfo
  **/
 local class UDPConnectionInfo extends IPConnectionInfo
 {
-    /** The multicast address. */
+    /**
+     *
+     * The multicast address.
+     *
+     **/
     string mcastAddress;
 
-    /** The multicast port. */
+    /**
+     *
+     * The multicast port.
+     *
+     **/
     int mcastPort = -1;
+
+    /**
+     *
+     * The connection buffer receive size.
+     *
+     **/
+    int rcvSize = 0;
+
+    /**
+     *
+     * The connection buffer send size.
+     *
+     **/
+    int sndSize = 0;
 };
 
 dictionary<string, string> HeaderDict;
@@ -367,7 +396,7 @@ dictionary<string, string> HeaderDict;
  * Provides access to the connection details of a WebSocket connection
  *
  **/
-local class WSConnectionInfo extends TCPConnectionInfo
+local class WSConnectionInfo extends ConnectionInfo
 {
     /** The headers from the HTTP upgrade request. */
     HeaderDict headers;

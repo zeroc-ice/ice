@@ -29,8 +29,7 @@ namespace IceObjC
 class Instance;
 typedef IceUtil::Handle<Instance> InstancePtr;
 
-class StreamTransceiver : public IceInternal::Transceiver, public IceInternal::StreamNativeInfo,
-                          public IceInternal::WSTransceiverDelegate
+class StreamTransceiver : public IceInternal::Transceiver, public IceInternal::StreamNativeInfo
 {
     enum State
     {
@@ -67,15 +66,12 @@ public:
     virtual std::string toString() const;
     virtual std::string toDetailedString() const;
     virtual Ice::ConnectionInfoPtr getInfo() const;
-    virtual Ice::ConnectionInfoPtr getWSInfo(const Ice::HeaderDict&) const;
     virtual void checkSendSize(const IceInternal::Buffer&);
     virtual void setBufferSize(int, int);
 
 private:
 
-    void checkCertificates();
     void checkError(CFErrorRef, const char*, int);
-    void fillConnectionInfo(const Ice::IPConnectionInfoPtr&) const;
 
     const InstancePtr _instance;
     const std::string _host;
@@ -85,16 +81,12 @@ private:
     bool _readStreamRegistered;
     bool _writeStreamRegistered;
     bool _opening;
-    bool _checkCertificates;
 
     IceUtil::Mutex _mutex;
     bool _error;
 
     State _state;
     std::string _desc;
-
-    size_t _maxSendPacketSize;
-    size_t _maxRecvPacketSize;
 };
 
 }

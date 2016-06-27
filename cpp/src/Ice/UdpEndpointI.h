@@ -27,6 +27,8 @@ public:
     UdpEndpointI(const ProtocolInstancePtr&);
     UdpEndpointI(const ProtocolInstancePtr&, Ice::InputStream*);
 
+    virtual void streamWriteImpl(Ice::OutputStream*) const;
+
     virtual Ice::EndpointInfoPtr getInfo() const;
 
     virtual Ice::Int timeout() const;
@@ -46,14 +48,13 @@ public:
     virtual bool operator==(const Ice::LocalObject&) const;
     virtual bool operator<(const Ice::LocalObject&) const;
 #endif
-    
+
     UdpEndpointIPtr endpoint(const UdpTransceiverPtr&) const;
 
     using IPEndpointI::connectionId;
 
 protected:
 
-    virtual void streamWriteImpl(Ice::OutputStream*) const;
     virtual void hashInit(Ice::Int&) const;
     virtual void fillEndpointInfo(Ice::IPEndpointInfo*) const;
     virtual bool checkOption(const std::string&, const std::string&, const std::string&);
@@ -85,7 +86,7 @@ public:
     virtual EndpointIPtr read(Ice::InputStream*) const;
     virtual void destroy();
 
-    virtual EndpointFactoryPtr clone(const ProtocolInstancePtr&) const;
+    virtual EndpointFactoryPtr clone(const ProtocolInstancePtr&, const EndpointFactoryPtr&) const;
 
 private:
 

@@ -22,6 +22,7 @@
 
 #if defined(ICE_USE_SECURE_TRANSPORT)
 #   include <Security/Security.h>
+#   include <Security/SecureTransport.h>
 #elif defined(ICE_USE_SCHANNEL)
 
 //
@@ -72,7 +73,7 @@ public:
     //
     // Verify peer certificate
     //
-    void verifyPeer(SOCKET, const std::string&, const NativeConnectionInfoPtr&);
+    void verifyPeer(const std::string&, const NativeConnectionInfoPtr&, const std::string&);
 
     CertificateVerifierPtr getCertificateVerifier() const;
     PasswordPromptPtr getPasswordPrompt() const;
@@ -80,6 +81,7 @@ public:
     std::string getPassword() const;
     void setPassword(const std::string& password);
 
+    bool getCheckCertName() const { return _checkCertName; }
     int getVerifyPeer() const { return _verifyPeer; }
     int securityTraceLevel() const { return _securityTraceLevel; }
     std::string securityTraceCategory() const { return _securityTraceCategory; }
@@ -120,7 +122,6 @@ public:
 private:
 
     void parseCiphers(const std::string&);
-    SecKeychainRef openKeychain();
 
     bool _initialized;
     UniqueRef<CFArrayRef> _certificateAuthorities;
@@ -131,8 +132,9 @@ private:
 
     std::string _defaultDir;
 
+#if TARGET_OS_IPHONE==0
     std::vector<char> _dhParams;
-
+#endif
     std::vector<SSLCipherSuite> _ciphers;
     IceUtil::Mutex _mutex;
 };
@@ -179,6 +181,7 @@ private:
 #   endif
 
 #endif
+
 class SChannelEngine : public SSLEngine
 {
 public:
@@ -219,7 +222,22 @@ private:
     HCERTCHAINENGINE _chainEngine;
     std::vector<ALG_ID> _ciphers;
 };
+
+#elif defined(ICE_OS_WINRT)
+
+class WinRTEngine : public SSLEngine
+{
+public:
+
+    WinRTEngine(const Ice::CommunicatorPtr&);
+
+    virtual void initialize();
+    virtual bool initialized() const;
+    virtual void destroy();
+};
+
 #else // OpenSSL
+
 class OpenSSLEngine : public SSLEngine
 {
 public:

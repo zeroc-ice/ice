@@ -47,11 +47,12 @@ class ICE_API IPEndpointI : public EndpointI, public Ice::EnableSharedFromThis<I
 {
 public:
 
+    virtual void streamWriteImpl(Ice::OutputStream*) const;
+
     virtual Ice::EndpointInfoPtr getInfo() const;
     virtual Ice::Short type() const;
     virtual const std::string& protocol() const;
     virtual bool secure() const;
-    virtual void streamWrite(Ice::OutputStream*) const;
 
     virtual const std::string& connectionId() const;
     virtual EndpointIPtr connectionId(const ::std::string&) const;
@@ -71,10 +72,7 @@ public:
 #endif
 
     virtual std::vector<ConnectorPtr> connectors(const std::vector<Address>&, const NetworkProxyPtr&) const;
-    const std::string& host() const;
-    int port() const;
 
-    virtual void streamWriteImpl(Ice::OutputStream*) const;
     virtual void hashInit(Ice::Int&) const;
     virtual void fillEndpointInfo(Ice::IPEndpointInfo*) const;
 

@@ -9,31 +9,18 @@
 
 package IceSSL;
 
-final class EndpointI extends IceInternal.IPEndpointI implements IceInternal.WSEndpointDelegate
+final class EndpointI extends IceInternal.EndpointI
 {
-    public EndpointI(Instance instance, String ho, int po, java.net.InetSocketAddress sourceAddr, int ti, String conId,
-                     boolean co)
+    public EndpointI(Instance instance, IceInternal.EndpointI delegate)
     {
-        super(instance, ho, po, sourceAddr, conId);
         _instance = instance;
-        _timeout = ti;
-        _compress = co;
+        _delegate = delegate;
     }
 
-    public EndpointI(Instance instance)
+    @Override
+    public void streamWriteImpl(Ice.OutputStream s)
     {
-        super(instance);
-        _instance = instance;
-        _timeout = instance.defaultTimeout();
-        _compress = false;
-    }
-
-    public EndpointI(Instance instance, Ice.InputStream s)
-    {
-        super(instance, s);
-        _instance = instance;
-        _timeout = s.readInt();
-        _compress = s.readBool();
+        _delegate.streamWriteImpl(s);
     }
 
     //
@@ -42,7 +29,7 @@ final class EndpointI extends IceInternal.IPEndpointI implements IceInternal.WSE
     @Override
     public Ice.EndpointInfo getInfo()
     {
-        Ice.IPEndpointInfo info = new IceSSL.EndpointInfo()
+        IceSSL.EndpointInfo info = new IceSSL.EndpointInfo(_delegate.getInfo(), timeout(), compress())
         {
             @Override
             public short type()
@@ -62,104 +49,90 @@ final class EndpointI extends IceInternal.IPEndpointI implements IceInternal.WSE
                 return EndpointI.this.secure();
             }
         };
-        fillEndpointInfo(info);
+        info.compress = info.underlying.compress;
+        info.timeout = info.underlying.timeout;
         return info;
     }
 
-    //
-    // Return the secure WebSocket endpoint information.
-    //
     @Override
-    public Ice.EndpointInfo getWSInfo(String resource)
+    public short type()
     {
-        IceSSL.WSSEndpointInfo info = new IceSSL.WSSEndpointInfo()
-        {
-            @Override
-            public short type()
-            {
-                return EndpointI.this.type();
-            }
-
-            @Override
-            public boolean datagram()
-            {
-                return EndpointI.this.datagram();
-            }
-
-            @Override
-            public boolean secure()
-            {
-                return EndpointI.this.secure();
-            }
-        };
-        fillEndpointInfo(info);
-        info.resource = resource;
-        return info;
+        return _delegate.type();
     }
 
-    //
-    // Return the timeout for the endpoint in milliseconds. 0 means
-    // non-blocking, -1 means no timeout.
-    //
+    @Override
+    public String protocol()
+    {
+        return _delegate.protocol();
+    }
+
     @Override
     public int timeout()
     {
-        return _timeout;
+        return _delegate.timeout();
     }
 
-    //
-    // Return a new endpoint with a different timeout value, provided
-    // that timeouts are supported by the endpoint. Otherwise the same
-    // endpoint is returned.
-    //
     @Override
     public IceInternal.EndpointI timeout(int timeout)
     {
-        if(timeout == _timeout)
+        if(timeout == _delegate.timeout())
         {
             return this;
         }
         else
         {
-            return new EndpointI(_instance, _host, _port, _sourceAddr, timeout, _connectionId, _compress);
+            return new EndpointI(_instance, _delegate.timeout(timeout));
         }
     }
 
-    //
-    // Return true if the endpoints support bzip2 compress, or false
-    // otherwise.
-    //
+    @Override
+    public String connectionId()
+    {
+        return _delegate.connectionId();
+    }
+
+    @Override
+    public IceInternal.EndpointI connectionId(String connectionId)
+    {
+        if(connectionId == _delegate.connectionId())
+        {
+            return this;
+        }
+        else
+        {
+            return new EndpointI(_instance, _delegate.connectionId(connectionId));
+        }
+    }
+
     @Override
     public boolean compress()
     {
-        return _compress;
+        return _delegate.compress();
     }
 
-    //
-    // Return a new endpoint with a different compression value,
-    // provided that compression is supported by the
-    // endpoint. Otherwise the same endpoint is returned.
-    //
     @Override
     public IceInternal.EndpointI compress(boolean compress)
     {
-        if(compress == _compress)
+        if(compress == _delegate.compress())
         {
             return this;
         }
         else
         {
-            return new EndpointI(_instance, _host, _port, _sourceAddr, _timeout, _connectionId, compress);
+            return new EndpointI(_instance, _delegate.compress(compress));
         }
     }
 
-    //
-    // Return true if the endpoint is datagram-based.
-    //
     @Override
     public boolean datagram()
     {
-        return false;
+        return _delegate.datagram();
+    }
+
+    @Override
+    public boolean secure()
+    {
+        return _delegate.secure();
     }
 
     //
@@ -172,6 +145,40 @@ final class EndpointI extends IceInternal.IPEndpointI implements IceInternal.WSE
         return null;
     }
 
+    @Override
+    public void connectors_async(Ice.EndpointSelectionType selType, final IceInternal.EndpointI_connectors callback)
+    {
+        Ice.IPEndpointInfo ipInfo = null;
+        for(Ice.EndpointInfo p = _delegate.getInfo(); p != null; p = p.underlying)
+        {
+            if(p instanceof Ice.IPEndpointInfo)
+            {
+                ipInfo = (Ice.IPEndpointInfo)p;
+            }
+        }
+        final String host = ipInfo != null ? ipInfo.host : "";
+        IceInternal.EndpointI_connectors cb = new IceInternal.EndpointI_connectors()
+        {
+            @Override
+            public void connectors(java.util.List<IceInternal.Connector> connectors)
+            {
+                java.util.List<IceInternal.Connector> l = new java.util.ArrayList<IceInternal.Connector>();
+                for(IceInternal.Connector c : connectors)
+                {
+                    l.add(new ConnectorI(_instance, c, host));
+                }
+                callback.connectors(l);
+            }
+
+            @Override
+            public void exception(Ice.LocalException ex)
+            {
+                callback.exception(ex);
+            }
+        };
+        _delegate.connectors_async(selType, cb);
+    }
+
     //
     // Return an acceptor for this endpoint, or null if no acceptors
     // is available.
@@ -179,43 +186,47 @@ final class EndpointI extends IceInternal.IPEndpointI implements IceInternal.WSE
     @Override
     public IceInternal.Acceptor acceptor(String adapterName)
     {
-        return new AcceptorI(this, _instance, adapterName, _host, _port);
+        return new AcceptorI(this, _instance, _delegate.acceptor(adapterName), adapterName);
     }
 
-    public EndpointI endpoint(AcceptorI acceptor)
+    public EndpointI endpoint(IceInternal.EndpointI delEndpt)
     {
-        return new EndpointI(_instance, _host, acceptor.effectivePort(), _sourceAddr, _timeout, _connectionId,
-                             _compress);
+        return new EndpointI(_instance, delEndpt);
     }
 
+    @Override
+    public java.util.List<IceInternal.EndpointI> expand()
+    {
+        java.util.List<IceInternal.EndpointI> endps = _delegate.expand();
+        java.util.List<IceInternal.EndpointI> l = new java.util.ArrayList<IceInternal.EndpointI>();
+        for(IceInternal.EndpointI e : endps)
+        {
+            l.add(e == _delegate ? this : new EndpointI(_instance, e));
+        }
+        return l;
+    }
+
+    @Override
+    public boolean equivalent(IceInternal.EndpointI endpoint)
+    {
+        if(!(endpoint instanceof EndpointI))
+        {
+            return false;
+        }
+        EndpointI endpointI = (EndpointI)endpoint;
+        return _delegate.equivalent(endpointI._delegate);
+    }
+
+    @Override
+    synchronized public int hashCode()
+    {
+        return _delegate.hashCode();
+    }
 
     @Override
     public String options()
     {
-        //
-        // WARNING: Certain features, such as proxy validation in Glacier2,
-        // depend on the format of proxy strings. Changes to toString() and
-        // methods called to generate parts of the reference string could break
-        // these features. Please review for all features that depend on the
-        // format of proxyToString() before changing this and related code.
-        //
-        String s = super.options();
-
-        if(_timeout == -1)
-        {
-            s += " -t infinite";
-        }
-        else
-        {
-            s += " -t " + _timeout;
-        }
-
-        if(_compress)
-        {
-            s += " -z";
-        }
-
-        return s;
+        return _delegate.options();
     }
 
     //
@@ -235,126 +246,15 @@ final class EndpointI extends IceInternal.IPEndpointI implements IceInternal.WSE
             return 0;
         }
 
-        if(_timeout < p._timeout)
-        {
-            return -1;
-        }
-        else if(p._timeout < _timeout)
-        {
-            return 1;
-        }
-
-        if(!_compress && p._compress)
-        {
-            return -1;
-        }
-        else if(!p._compress && _compress)
-        {
-            return 1;
-        }
-
-        return super.compareTo(obj);
-    }
-
-    @Override
-    public void streamWriteImpl(Ice.OutputStream s)
-    {
-        super.streamWriteImpl(s);
-        s.writeInt(_timeout);
-        s.writeBool(_compress);
-    }
-
-    @Override
-    public int hashInit(int h)
-    {
-        h = super.hashInit(h);
-        h = IceInternal.HashUtil.hashAdd(h, _timeout);
-        h = IceInternal.HashUtil.hashAdd(h, _compress);
-        return h;
-    }
-
-    @Override
-    public void fillEndpointInfo(Ice.IPEndpointInfo info)
-    {
-        super.fillEndpointInfo(info);
-        info.timeout = _timeout;
-        info.compress = _compress;
+        return _delegate.compareTo(p._delegate);
     }
 
     @Override
     protected boolean checkOption(String option, String argument, String endpoint)
     {
-        if(super.checkOption(option, argument, endpoint))
-        {
-            return true;
-        }
-
-        switch(option.charAt(1))
-        {
-        case 't':
-        {
-            if(argument == null)
-            {
-                throw new Ice.EndpointParseException("no argument provided for -t option in endpoint " + endpoint);
-            }
-
-            if(argument.equals("infinite"))
-            {
-                _timeout = -1;
-            }
-            else
-            {
-                try
-                {
-                    _timeout = Integer.parseInt(argument);
-                    if(_timeout < 1)
-                    {
-                        throw new Ice.EndpointParseException("invalid timeout value `" + argument +
-                                                         "' in endpoint " + endpoint);
-                    }
-                }
-                catch(NumberFormatException ex)
-                {
-                    throw new Ice.EndpointParseException("invalid timeout value `" + argument +
-                                                         "' in endpoint " + endpoint);
-                }
-            }
-
-            return true;
-        }
-
-        case 'z':
-        {
-            if(argument != null)
-            {
-                throw new Ice.EndpointParseException("unexpected argument `" + argument +
-                                                     "' provided for -z option in " + endpoint);
-            }
-
-            _compress = true;
-            return true;
-        }
-
-        default:
-        {
-            return false;
-        }
-        }
-    }
-
-    @Override
-    protected IceInternal.Connector createConnector(java.net.InetSocketAddress addr, IceInternal.NetworkProxy proxy)
-    {
-        return new ConnectorI(_instance, _host, addr, proxy, _sourceAddr, _timeout, _connectionId);
-    }
-
-    @Override
-    protected IceInternal.IPEndpointI createEndpoint(String host, int port, String connectionId)
-    {
-        return new EndpointI(_instance, host, port, _sourceAddr, _timeout, connectionId, _compress);
+        return false;
     }
 
     private Instance _instance;
-    private int _timeout;
-    private boolean _compress;
+    private IceInternal.EndpointI _delegate;
 }

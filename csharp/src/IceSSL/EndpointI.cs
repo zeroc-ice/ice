@@ -15,30 +15,17 @@ namespace IceSSL
     using System.Net;
     using System.Globalization;
 
-    sealed class EndpointI : IceInternal.IPEndpointI, IceInternal.WSEndpointDelegate
+    sealed class EndpointI : IceInternal.EndpointI
     {
-        internal EndpointI(Instance instance, string ho, int po, EndPoint sourceAddr, int ti, string conId, bool co) :
-            base(instance, ho, po, sourceAddr, conId)
+        internal EndpointI(Instance instance, IceInternal.EndpointI del)
         {
             _instance = instance;
-            _timeout = ti;
-            _compress = co;
+            _delegate = del;
         }
 
-        internal EndpointI(Instance instance) :
-            base(instance)
+        public override void streamWriteImpl(Ice.OutputStream os)
         {
-            _instance = instance;
-            _timeout = instance.defaultTimeout();
-            _compress = false;
-        }
-
-        internal EndpointI(Instance instance, Ice.InputStream s) :
-            base(instance, s)
-        {
-            _instance = instance;
-            _timeout = s.readInt();
-            _compress = s.readBool();
+            _delegate.streamWriteImpl(os);
         }
 
         private sealed class InfoI : IceSSL.EndpointInfo
@@ -66,162 +53,168 @@ namespace IceSSL
             private EndpointI _endpoint;
         }
 
-        //
-        // Return the endpoint information.
-        //
         public override Ice.EndpointInfo getInfo()
         {
             InfoI info = new InfoI(this);
-            fillEndpointInfo(info);
+            info.underlying = _delegate.getInfo();
+            info.compress = info.underlying.compress;
+            info.timeout = info.underlying.timeout;
             return info;
         }
 
-        private sealed class WSSInfoI : IceSSL.WSSEndpointInfo
+        public override short type()
         {
-            public WSSInfoI(EndpointI e)
-            {
-                _endpoint = e;
-            }
-
-            override public short type()
-            {
-                return _endpoint.type();
-            }
-
-            override public bool datagram()
-            {
-                return _endpoint.datagram();
-            }
-
-            override public bool secure()
-            {
-                return _endpoint.secure();
-            }
-
-            private EndpointI _endpoint;
+            return _delegate.type();
         }
 
-        //
-        // Return the endpoint information.
-        //
-        public Ice.EndpointInfo getWSInfo(string resource)
+        public override string protocol()
         {
-            WSSInfoI info = new WSSInfoI(this);
-            fillEndpointInfo(info);
-            info.resource = resource;
-            return info;
+            return _delegate.protocol();
         }
 
-        //
-        // Return the timeout for the endpoint in milliseconds. 0 means
-        // non-blocking, -1 means no timeout.
-        //
         public override int timeout()
         {
-            return _timeout;
+            return _delegate.timeout();
         }
 
-        //
-        // Return a new endpoint with a different timeout value, provided
-        // that timeouts are supported by the endpoint. Otherwise the same
-        // endpoint is returned.
-        //
         public override IceInternal.EndpointI timeout(int timeout)
         {
-            if(timeout == _timeout)
+            if(timeout == _delegate.timeout())
             {
                 return this;
             }
             else
             {
-                return new EndpointI(_instance, host_, port_, sourceAddr_, timeout, connectionId_, _compress);
+                return new EndpointI(_instance, _delegate.timeout(timeout));
             }
         }
 
-        //
-        // Return true if the endpoints support bzip2 compress, or false
-        // otherwise.
-        //
+        public override string connectionId()
+        {
+            return _delegate.connectionId();
+        }
+
+        public override IceInternal.EndpointI connectionId(string connectionId)
+        {
+            if(connectionId.Equals(_delegate.connectionId()))
+            {
+                return this;
+            }
+            else
+            {
+                return new EndpointI(_instance, _delegate.connectionId(connectionId));
+            }
+        }
+
         public override bool compress()
         {
-            return _compress;
+            return _delegate.compress();
         }
 
-        //
-        // Return a new endpoint with a different compression value,
-        // provided that compression is supported by the
-        // endpoint. Otherwise the same endpoint is returned.
-        //
         public override IceInternal.EndpointI compress(bool compress)
         {
-            if(compress == _compress)
+            if(compress == _delegate.compress())
             {
                 return this;
             }
             else
             {
-                return new EndpointI(_instance, host_, port_, sourceAddr_, _timeout, connectionId_, compress);
+                return new EndpointI(_instance, _delegate.compress(compress));
             }
         }
 
-        //
-        // Return true if the endpoint is datagram-based.
-        //
         public override bool datagram()
         {
-            return false;
+            return _delegate.datagram();
         }
 
-        //
-        // Return a server side transceiver for this endpoint, or null if a
-        // transceiver can only be created by an acceptor.
-        //
+        public override bool secure()
+        {
+            return _delegate.secure();
+        }
+
         public override IceInternal.Transceiver transceiver()
         {
             return null;
         }
 
-        //
-        // Return an acceptor for this endpoint, or null if no acceptor
-        // is available.
-        //
-        public override IceInternal.Acceptor acceptor(string adapterName)
+        private sealed class EndpointI_connectorsI : IceInternal.EndpointI_connectors
         {
-            return new AcceptorI(this, _instance, adapterName, host_, port_);
+            public EndpointI_connectorsI(Instance instance, string host, IceInternal.EndpointI_connectors cb)
+            {
+                _instance = instance;
+                _host = host;
+                _callback = cb;
+            }
+
+            public void connectors(List<IceInternal.Connector> connectors)
+            {
+                List<IceInternal.Connector> l = new List<IceInternal.Connector>();
+                foreach(IceInternal.Connector c in connectors)
+                {
+                    l.Add(new ConnectorI(_instance, c, _host));
+                }
+                _callback.connectors(l);
+            }
+
+            public void exception(Ice.LocalException ex)
+            {
+                _callback.exception(ex);
+            }
+
+            private Instance _instance;
+            private string _host;
+            private IceInternal.EndpointI_connectors _callback;
         }
 
-        public EndpointI endpoint(AcceptorI acceptor)
+        public override void connectors_async(Ice.EndpointSelectionType selType,
+                                              IceInternal.EndpointI_connectors callback)
         {
-            return new EndpointI(_instance, host_, acceptor.effectivePort(), sourceAddr_, _timeout, connectionId_,
-                                 _compress);
+            string host = "";
+            for(Ice.EndpointInfo p = _delegate.getInfo(); p != null; p = p.underlying)
+            {
+                if(p is Ice.IPEndpointInfo)
+                {
+                    host = ((Ice.IPEndpointInfo)p).host;
+                    break;
+                }
+            }
+            _delegate.connectors_async(selType, new EndpointI_connectorsI(_instance, host, callback));
+        }
+
+        public override IceInternal.Acceptor acceptor(string adapterName)
+        {
+            return new AcceptorI(this, _instance, _delegate.acceptor(adapterName), adapterName);
+        }
+
+        public EndpointI endpoint(IceInternal.EndpointI del)
+        {
+            return new EndpointI(_instance, del);
+        }
+
+        public override List<IceInternal.EndpointI> expand()
+        {
+            List<IceInternal.EndpointI> l = new List<IceInternal.EndpointI>();
+            foreach(IceInternal.EndpointI e in _delegate.expand())
+            {
+                l.Add(e == _delegate ? this : new EndpointI(_instance, e));
+            }
+            return l;
+        }
+
+        public override bool equivalent(IceInternal.EndpointI endpoint)
+        {
+            if(!(endpoint is EndpointI))
+            {
+                return false;
+            }
+            EndpointI endpointI = (EndpointI)endpoint;
+            return _delegate.equivalent(endpointI._delegate);
         }
 
         public override string options()
         {
-            //
-            // WARNING: Certain features, such as proxy validation in Glacier2,
-            // depend on the format of proxy strings. Changes to toString() and
-            // methods called to generate parts of the reference string could break
-            // these features. Please review for all features that depend on the
-            // format of proxyToString() before changing this and related code.
-            //
-            string s = base.options();
-
-            if(_timeout == -1)
-            {
-                s += " -t infinite";
-            }
-            else
-            {
-                s += " -t " + _timeout;
-            }
-
-            if(_compress)
-            {
-                s += " -z";
-            }
-
-            return s;
+            return _delegate.options();
         }
 
         //
@@ -240,167 +233,65 @@ namespace IceSSL
                 return 0;
             }
 
-            if(_timeout < p._timeout)
-            {
-                return -1;
-            }
-            else if(p._timeout < _timeout)
-            {
-                return 1;
-            }
-
-            if(!_compress && p._compress)
-            {
-                return -1;
-            }
-            else if(!p._compress && _compress)
-            {
-                return 1;
-            }
-
-            return base.CompareTo(p);
+            return _delegate.CompareTo(p._delegate);
         }
 
-        public override void streamWriteImpl(Ice.OutputStream s)
+        public override int GetHashCode()
         {
-            base.streamWriteImpl(s);
-            s.writeInt(_timeout);
-            s.writeBool(_compress);
-        }
-
-        public override void hashInit(ref int h)
-        {
-            base.hashInit(ref h);
-            IceInternal.HashUtil.hashAdd(ref h, _timeout);
-            IceInternal.HashUtil.hashAdd(ref h, _compress);
-        }
-
-        public override void fillEndpointInfo(Ice.IPEndpointInfo info)
-        {
-            base.fillEndpointInfo(info);
-            info.timeout = _timeout;
-            info.compress = _compress;
+            return _delegate.GetHashCode();
         }
 
         protected override bool checkOption(string option, string argument, string endpoint)
         {
-            if(base.checkOption(option, argument, endpoint))
-            {
-                return true;
-            }
-
-            switch(option[1])
-            {
-            case 't':
-            {
-                if(argument == null)
-                {
-                    Ice.EndpointParseException e = new Ice.EndpointParseException();
-                    e.str = "no argument provided for -t option in endpoint " + endpoint;
-                    throw e;
-                }
-
-                if(argument.Equals("infinite"))
-                {
-                    _timeout = -1;
-                }
-                else
-                {
-                    try
-                    {
-                        _timeout = System.Int32.Parse(argument, CultureInfo.InvariantCulture);
-                        if(_timeout < 1)
-                        {
-                            Ice.EndpointParseException e = new Ice.EndpointParseException();
-                            e.str = "invalid timeout value `" + argument + "' in endpoint " + endpoint;
-                            throw e;
-                        }
-                    }
-                    catch(System.FormatException ex)
-                    {
-                        Ice.EndpointParseException e = new Ice.EndpointParseException(ex);
-                        e.str = "invalid timeout value `" + argument + "' in endpoint " + endpoint;
-                        throw e;
-                    }
-                }
-
-                return true;
-            }
-
-            case 'z':
-            {
-                if(argument != null)
-                {
-                    Ice.EndpointParseException e = new Ice.EndpointParseException();
-                    e.str = "unexpected argument `" + argument + "' provided for -z option in " + endpoint;
-                    throw e;
-                }
-
-                _compress = true;
-                return true;
-            }
-
-            default:
-            {
-                return false;
-            }
-            }
-        }
-
-        protected override IceInternal.Connector createConnector(EndPoint addr, IceInternal.NetworkProxy proxy)
-        {
-            return new ConnectorI(_instance, host_, addr, proxy, sourceAddr_, _timeout, connectionId_);
-        }
-
-        protected override IceInternal.IPEndpointI createEndpoint(string host, int port, string connectionId)
-        {
-            return new EndpointI(_instance, host, port, sourceAddr_, _timeout, connectionId, _compress);
+            return false;
         }
 
         private Instance _instance;
-        private int _timeout;
-        private bool _compress;
+        private IceInternal.EndpointI _delegate;
     }
 
     internal sealed class EndpointFactoryI : IceInternal.EndpointFactory
     {
-        internal EndpointFactoryI(Instance instance)
+        internal EndpointFactoryI(Instance instance, IceInternal.EndpointFactory del)
         {
             _instance = instance;
+            _delegate = del;
         }
 
         public short type()
         {
-            return _instance.type();
+            return _delegate.type();
         }
 
         public string protocol()
         {
-            return _instance.protocol();
+            return _delegate.protocol();
         }
 
         public IceInternal.EndpointI create(List<string> args, bool oaEndpoint)
         {
-            IceInternal.IPEndpointI endpt = new EndpointI(_instance);
-            endpt.initWithOptions(args, oaEndpoint);
-            return endpt;
+            return new EndpointI(_instance, _delegate.create(args, oaEndpoint));
         }
 
         public IceInternal.EndpointI read(Ice.InputStream s)
         {
-            return new EndpointI(_instance, s);
+            return new EndpointI(_instance, _delegate.read(s));
         }
 
         public void destroy()
         {
+            _delegate.destroy();
             _instance = null;
         }
 
-        public IceInternal.EndpointFactory clone(IceInternal.ProtocolInstance instance)
+        public IceInternal.EndpointFactory clone(IceInternal.ProtocolInstance inst,
+                                                 IceInternal.EndpointFactory del)
         {
-            return new EndpointFactoryI(new Instance(_instance.engine(), instance.type(), instance.protocol()));
+            Instance instance = new Instance(_instance.engine(), inst.type(), inst.protocol());
+            return new EndpointFactoryI(instance, del != null ? del : _delegate.clone(instance, null));
         }
 
         private Instance _instance;
+        private IceInternal.EndpointFactory _delegate;
     }
 }

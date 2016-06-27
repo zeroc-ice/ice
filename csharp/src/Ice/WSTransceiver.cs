@@ -16,15 +16,6 @@ namespace IceInternal
     using System.Security.Cryptography;
     using System.Text;
 
-    //
-    // Delegate interface implemented by TcpTransceiver or IceSSL.TransceiverI or any endpoint that WS can
-    // delegate to.
-    //
-    public interface WSTransceiverDelegate
-    {
-        Ice.ConnectionInfo getWSInfo(Dictionary<string, string> headers);
-    }
-
     sealed class WSTransceiver : Transceiver
     {
         public Socket fd()
@@ -70,9 +61,7 @@ namespace IceInternal
                         //
                         StringBuilder @out = new StringBuilder();
                         @out.Append("GET " + _resource + " HTTP/1.1\r\n");
-                        @out.Append("Host: " + _host + ":");
-                        @out.Append(_port);
-                        @out.Append("\r\n");
+                        @out.Append("Host: " + _host + "\r\n");
                         @out.Append("Upgrade: websocket\r\n");
                         @out.Append("Connection: Upgrade\r\n");
                         @out.Append("Sec-WebSocket-Protocol: " + _iceProtocol + "\r\n");
@@ -665,8 +654,10 @@ namespace IceInternal
 
         public Ice.ConnectionInfo getInfo()
         {
-            Debug.Assert(_delegate is WSTransceiverDelegate);
-            return ((WSTransceiverDelegate)_delegate).getWSInfo(_parser.getHeaders());
+            Ice.WSConnectionInfo info = new Ice.WSConnectionInfo();
+            info.headers = _parser.getHeaders();
+            info.underlying = _delegate.getInfo();
+            return info;
         }
 
         public void checkSendSize(Buffer buf)
@@ -690,11 +681,10 @@ namespace IceInternal
         }
 
         internal
-        WSTransceiver(ProtocolInstance instance, Transceiver del, string host, int port, string resource)
+        WSTransceiver(ProtocolInstance instance, Transceiver del, string host, string resource)
         {
             init(instance, del);
             _host = host;
-            _port = port;
             _resource = resource;
             _incoming = false;
 
@@ -718,7 +708,6 @@ namespace IceInternal
         {
             init(instance, del);
             _host = "";
-            _port = -1;
             _resource = "";
             _incoming = true;
 
@@ -1619,7 +1608,6 @@ namespace IceInternal
         private ProtocolInstance _instance;
         private Transceiver _delegate;
         private string _host;
-        private int _port;
         private string _resource;
         private bool _incoming;
 

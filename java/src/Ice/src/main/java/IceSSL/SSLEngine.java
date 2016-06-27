@@ -777,12 +777,12 @@ class SSLEngine
         return _initialized;
     }
 
-    javax.net.ssl.SSLEngine createSSLEngine(boolean incoming, java.net.InetSocketAddress peerAddr)
+    javax.net.ssl.SSLEngine createSSLEngine(boolean incoming, String host, int port)
     {
         javax.net.ssl.SSLEngine engine;
-        if(peerAddr != null)
+        if(host != null)
         {
-            engine = _context.createSSLEngine(peerAddr.getAddress().getHostAddress(), peerAddr.getPort());
+            engine = _context.createSSLEngine(host, port);
         }
         else
         {
@@ -941,13 +941,12 @@ class SSLEngine
         return _protocols;
     }
 
-    void traceConnection(java.nio.channels.SocketChannel fd, javax.net.ssl.SSLEngine engine, boolean incoming)
+    void traceConnection(String desc, javax.net.ssl.SSLEngine engine, boolean incoming)
     {
         javax.net.ssl.SSLSession session = engine.getSession();
         String msg = "SSL summary for " + (incoming ? "incoming" : "outgoing") + " connection\n" +
             "cipher = " + session.getCipherSuite() + "\n" +
-            "protocol = " + session.getProtocol() + "\n" +
-            IceInternal.Network.fdToString(fd);
+            "protocol = " + session.getProtocol() + "\n" + desc;
         _logger.trace(_securityTraceCategory, msg);
     }
 
@@ -956,7 +955,7 @@ class SSLEngine
         return _communicator;
     }
 
-    void verifyPeer(NativeConnectionInfo info, java.nio.channels.SelectableChannel fd, String address)
+    void verifyPeer(String address, NativeConnectionInfo info, String desc)
     {
         //
         // IceSSL.VerifyPeer is translated into the proper SSLEngine configuration
@@ -1108,8 +1107,7 @@ class SSLEngine
         {
             String msg = (info.incoming ? "incoming" : "outgoing") + " connection rejected:\n" +
                 "length of peer's certificate chain (" + info.nativeCerts.length + ") exceeds maximum of " +
-                _verifyDepthMax + "\n" +
-                IceInternal.Network.fdToString(fd);
+                _verifyDepthMax + "\n" + desc;
             if(_securityTraceLevel >= 1)
             {
                 _logger.trace(_securityTraceCategory, msg);
@@ -1119,10 +1117,9 @@ class SSLEngine
             throw ex;
         }
 
-        if(!_trustManager.verify(info))
+        if(!_trustManager.verify(info, desc))
         {
-            String msg = (info.incoming ? "incoming" : "outgoing") + " connection rejected by trust manager\n" +
-                IceInternal.Network.fdToString(fd);
+            String msg = (info.incoming ? "incoming" : "outgoing") + " connection rejected by trust manager\n" + desc;
             if(_securityTraceLevel >= 1)
             {
                 _logger.trace(_securityTraceCategory, msg);
@@ -1135,7 +1132,7 @@ class SSLEngine
         if(_verifier != null && !_verifier.verify(info))
         {
             String msg = (info.incoming ? "incoming" : "outgoing") + " connection rejected by certificate verifier\n" +
-                IceInternal.Network.fdToString(fd);
+                desc;
             if(_securityTraceLevel >= 1)
             {
                 _logger.trace(_securityTraceCategory, msg);

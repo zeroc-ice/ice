@@ -136,10 +136,18 @@
     <IceBuilder Include="..\..\..\..\..\slice\IceSSL\EndpointInfo.ice" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\uwp\AcceptorI.cpp" />
-    <ClCompile Include="..\..\uwp\ConnectorI.cpp" />
-    <ClCompile Include="..\..\uwp\EndpointI.cpp" />
-    <ClCompile Include="..\..\uwp\TransceiverI.cpp" />
+    <ClCompile Include="..\..\AcceptorI.cpp" />
+    <ClCompile Include="..\..\Certificate.cpp" />
+    <ClCompile Include="..\..\ConnectorI.cpp" />
+    <ClCompile Include="..\..\EndpointI.cpp" />
+    <ClCompile Include="..\..\Instance.cpp" />
+    <ClCompile Include="..\..\PluginI.cpp" />
+    <ClCompile Include="..\..\RFC2253.cpp" />
+    <ClCompile Include="..\..\SSLEngine.cpp" />
+    <ClCompile Include="..\..\TrustManager.cpp" />
+    <ClCompile Include="..\..\Util.cpp" />
+    <ClCompile Include="..\..\WinRTEngine.cpp" />
+    <ClCompile Include="..\..\WinRTTransceiverI.cpp" />
     <ClCompile Include="ARM\Debug\ConnectionInfo.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>

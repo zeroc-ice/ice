@@ -9,6 +9,18 @@
 
 public class AllTests : TestCommon.TestApp
 {
+    private static Ice.IPConnectionInfo getIPConnectionInfo(Ice.ConnectionInfo info)
+    {
+        for(; info != null; info = info.underlying)
+        {
+            if(info is Ice.IPConnectionInfo)
+            {
+                return info as Ice.IPConnectionInfo;
+            }
+        }
+        return null;
+    }
+
     public static void allTests(Ice.Communicator communicator)
     {
         string sref = "test:default -p 12010";
@@ -28,7 +40,7 @@ public class AllTests : TestCommon.TestApp
         Write("testing connection information... ");
         Flush();
         {
-            Ice.IPConnectionInfo info = (Ice.IPConnectionInfo)testPrx.ice_getConnection().getInfo();
+            Ice.IPConnectionInfo info = getIPConnectionInfo(testPrx.ice_getConnection().getInfo());
             test(info.remotePort == 12030 || info.remotePort == 12031); // make sure we are connected to the proxy port.
         }
         WriteLine("ok");

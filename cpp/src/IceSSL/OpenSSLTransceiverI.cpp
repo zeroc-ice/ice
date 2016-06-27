@@ -79,16 +79,20 @@ IceSSL_opensslVerifyCallback(int ok, X509_STORE_CTX* ctx)
 IceInternal::NativeInfoPtr
 IceSSL::TransceiverI::getNativeInfo()
 {
-    return _stream;
+    return _delegate->getNativeInfo();
 }
 
 IceInternal::SocketOperation
 IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::Buffer& writeBuffer)
 {
-    IceInternal::SocketOperation status = _stream->connect(readBuffer, writeBuffer);
-    if(status != IceInternal::SocketOperationNone)
+    if(!_connected)
     {
-        return status;
+        IceInternal::SocketOperation status = _delegate->initialize(readBuffer, writeBuffer);
+        if(status != IceInternal::SocketOperationNone)
+        {
+            return status;
+        }
+        _connected = true;
     }
 
     if(!_ssl)
@@ -96,7 +100,9 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
         //
         // This static_cast is necessary due to 64bit windows. There SOCKET is a non-int type.
         //
-        BIO* bio = BIO_new_socket(static_cast<int>(_stream->fd()), 0);
+        SOCKET fd = _delegate->getNativeInfo()->fd();
+        assert(fd != INVALID_SOCKET); // Underlying transport must be SOCKET based.
+        BIO* bio = BIO_new_socket(static_cast<int>(fd), 0);
         if(!bio)
         {
             SecurityException ex(__FILE__, __LINE__);
@@ -231,15 +237,9 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
             }
             case SSL_ERROR_SSL:
             {
-                IceInternal::Address remoteAddr;
-                string desc = "<not available>";
-                if(IceInternal::fdToRemoteAddress(_stream->fd(), remoteAddr))
-                {
-                    desc = IceInternal::addrToString(remoteAddr);
-                }
                 ostringstream ostr;
                 ostr << "SSL error occurred for new " << (_incoming ? "incoming" : "outgoing")
-                     << " connection:\nremote address = " << desc << "\n" << _engine->sslErrors();
+                     << " connection:\nremote address = " << _delegate->toString() << "\n" << _engine->sslErrors();
                 ProtocolException ex(__FILE__, __LINE__);
                 ex.reason = ostr.str();
                 throw ex;
@@ -278,12 +278,7 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
     {
         _verified = true;
     }
-
-#ifdef ICE_CPP11_MAPPING
-    _engine->verifyPeer(_stream->fd(), _host, dynamic_pointer_cast<NativeConnectionInfo>(getInfo()));
-#else
-    _engine->verifyPeer(_stream->fd(), _host, NativeConnectionInfoPtr::dynamicCast(getInfo()));
-#endif
+    _engine->verifyPeer(_host, ICE_DYNAMIC_CAST(NativeConnectionInfo, getInfo()), toString());
 
     if(_engine->securityTraceLevel() >= 1)
     {
@@ -342,15 +337,15 @@ IceSSL::TransceiverI::close()
         _ssl = 0;
     }
 
-    _stream->close();
+    _delegate->close();
 }
 
 IceInternal::SocketOperation
 IceSSL::TransceiverI::write(IceInternal::Buffer& buf)
 {
-    if(!_stream->isConnected())
+    if(!_connected)
     {
-        return _stream->write(buf);
+        return _delegate->write(buf);
     }
 
     if(buf.i == buf.b.end())
@@ -450,9 +445,9 @@ IceSSL::TransceiverI::write(IceInternal::Buffer& buf)
 IceInternal::SocketOperation
 IceSSL::TransceiverI::read(IceInternal::Buffer& buf)
 {
-    if(!_stream->isConnected())
+    if(!_connected)
     {
-        return _stream->read(buf);
+        return _delegate->read(buf);
     }
 
     //
@@ -466,7 +461,7 @@ IceSSL::TransceiverI::read(IceInternal::Buffer& buf)
         return IceInternal::SocketOperationNone;
     }
 
-    _stream->ready(IceInternal::SocketOperationRead, false);
+    _delegate->getNativeInfo()->ready(IceInternal::SocketOperationRead, false);
 
     //
     // It's impossible for packetSize to be more than an Int.
@@ -560,7 +555,7 @@ IceSSL::TransceiverI::read(IceInternal::Buffer& buf)
     //
     // Check if there's still buffered data to read, set the read ready status.
     //
-    _stream->ready(IceInternal::SocketOperationRead, SSL_pending(_ssl) > 0);
+    _delegate->getNativeInfo()->ready(IceInternal::SocketOperationRead, SSL_pending(_ssl) > 0);
 
     return IceInternal::SocketOperationNone;
 }
@@ -574,7 +569,7 @@ IceSSL::TransceiverI::protocol() const
 string
 IceSSL::TransceiverI::toString() const
 {
-    return _stream->toString();
+    return _delegate->toString();
 }
 
 string
@@ -587,16 +582,19 @@ Ice::ConnectionInfoPtr
 IceSSL::TransceiverI::getInfo() const
 {
     NativeConnectionInfoPtr info = ICE_MAKE_SHARED(NativeConnectionInfo);
-    fillConnectionInfo(info, info->nativeCerts);
-    return info;
-}
-
-Ice::ConnectionInfoPtr
-IceSSL::TransceiverI::getWSInfo(const Ice::HeaderDict& headers) const
-{
-    WSSNativeConnectionInfoPtr info = ICE_MAKE_SHARED(WSSNativeConnectionInfo);
-    fillConnectionInfo(info, info->nativeCerts);
-    info->headers = headers;
+    info->underlying = _delegate->getInfo();
+    info->incoming = _incoming;
+    info->adapterName = _adapterName;
+    info->verified = _verified;
+    info->nativeCerts = _nativeCerts;
+    for(vector<CertificatePtr>::const_iterator p = _nativeCerts.begin(); p != _nativeCerts.end(); ++p)
+    {
+        info->certs.push_back((*p)->encode());
+    }
+    if(_ssl != 0)
+    {
+        info->cipher = SSL_get_cipher_name(_ssl); // Nothing needs to be free'd.
+    }
     return info;
 }
 
@@ -608,7 +606,7 @@ IceSSL::TransceiverI::checkSendSize(const IceInternal::Buffer&)
 void
 IceSSL::TransceiverI::setBufferSize(int rcvSize, int sndSize)
 {
-    _stream->setBufferSize(rcvSize, sndSize);
+    _delegate->setBufferSize(rcvSize, sndSize);
 }
 
 int
@@ -656,14 +654,15 @@ IceSSL::TransceiverI::verifyCallback(int ok, X509_STORE_CTX* c)
     return 1;
 }
 
-IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, const IceInternal::StreamSocketPtr& stream,
+IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, const IceInternal::TransceiverPtr& delegate,
                                    const string& hostOrAdapterName, bool incoming) :
     _instance(instance),
     _engine(OpenSSLEnginePtr::dynamicCast(instance->engine())),
     _host(incoming ? "" : hostOrAdapterName),
     _adapterName(incoming ? hostOrAdapterName : ""),
     _incoming(incoming),
-    _stream(stream),
+    _delegate(delegate),
+    _connected(false),
     _verified(false),
     _ssl(0)
 {
@@ -671,32 +670,6 @@ IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, const IceInterna
 
 IceSSL::TransceiverI::~TransceiverI()
 {
-}
-
-void
-IceSSL::TransceiverI::fillConnectionInfo(const ConnectionInfoPtr& info, std::vector<CertificatePtr>& nativeCerts) const
-{
-    IceInternal::fdToAddressAndPort(_stream->fd(), info->localAddress, info->localPort, info->remoteAddress,
-                                    info->remotePort);
-    if(_stream->fd() != INVALID_SOCKET)
-    {
-        info->rcvSize = IceInternal::getRecvBufferSize(_stream->fd());
-        info->sndSize = IceInternal::getSendBufferSize(_stream->fd());
-    }
-    info->adapterName = _adapterName;
-    info->incoming = _incoming;
-    info->verified = _verified;
-    nativeCerts = _nativeCerts;
-    for(vector<CertificatePtr>::const_iterator p = _nativeCerts.begin(); p != _nativeCerts.end(); ++p)
-    {
-        info->certs.push_back((*p)->encode());
-    }
-    if(_ssl != 0)
-    {
-        info->cipher = SSL_get_cipher_name(_ssl); // Nothing needs to be free'd.
-    }
-    info->adapterName = _adapterName;
-    info->incoming = _incoming;
 }
 
 #endif

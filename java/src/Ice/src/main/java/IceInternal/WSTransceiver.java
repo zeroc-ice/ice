@@ -65,8 +65,7 @@ final class WSTransceiver implements Transceiver
                     //
                     StringBuffer out = new StringBuffer();
                     out.append("GET " + _resource + " HTTP/1.1\r\n");
-                    out.append("Host: " + _host + ":");
-                    out.append(_port);
+                    out.append("Host: " + _host);
                     out.append("\r\n");
                     out.append("Upgrade: websocket\r\n");
                     out.append("Connection: Upgrade\r\n");
@@ -498,8 +497,10 @@ final class WSTransceiver implements Transceiver
     @Override
     public Ice.ConnectionInfo getInfo()
     {
-        assert(_delegate instanceof WSTransceiverDelegate);
-        return ((WSTransceiverDelegate)_delegate).getWSInfo(_parser.getHeaders());
+        Ice.WSConnectionInfo info = new Ice.WSConnectionInfo();
+        info.underlying = _delegate.getInfo();
+        info.headers = _parser.getHeaders();
+        return info;
     }
 
     @Override
@@ -514,11 +515,10 @@ final class WSTransceiver implements Transceiver
         _delegate.setBufferSize(rcvSize, sndSize);
     }
 
-    WSTransceiver(ProtocolInstance instance, Transceiver del, String host, int port, String resource)
+    WSTransceiver(ProtocolInstance instance, Transceiver del, String host, String resource)
     {
         init(instance, del);
         _host = host;
-        _port = port;
         _resource = resource;
         _incoming = false;
 
@@ -542,7 +542,6 @@ final class WSTransceiver implements Transceiver
     {
         init(instance, del);
         _host = "";
-        _port = -1;
         _resource = "";
         _incoming = true;
 
@@ -1516,7 +1515,6 @@ final class WSTransceiver implements Transceiver
     private ProtocolInstance _instance;
     private Transceiver _delegate;
     private String _host;
-    private int _port;
     private String _resource;
     private boolean _incoming;
     private ReadyCallback _readyCallback;

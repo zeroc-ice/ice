@@ -90,6 +90,11 @@ IceBT::TransceiverI::getInfo() const
     IceBT::ConnectionInfoPtr info = ICE_MAKE_SHARED(IceBT::ConnectionInfo);
     fdToAddressAndChannel(_stream->fd(), info->localAddress, info->localChannel, info->remoteAddress,
                           info->remoteChannel);
+    if(_stream->fd() != INVALID_SOCKET)
+    {
+        info->rcvSize = IceInternal::getRecvBufferSize(_stream->fd());
+        info->sndSize = IceInternal::getSendBufferSize(_stream->fd());
+    }
     info->uuid = _uuid;
     return info;
 }

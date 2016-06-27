@@ -45,7 +45,8 @@ ServerI::checkCert(ICE_IN(string) subjectDN, ICE_IN(string) issuerDN, const Ice:
         test(info->verified);
         test(info->nativeCerts.size() == 2 &&
              info->nativeCerts[0]->getSubjectDN() == IceSSL::DistinguishedName(subjectDN) &&
-             info->nativeCerts[0]->getIssuerDN() == IceSSL::DistinguishedName(issuerDN));
+             info->nativeCerts[0]->getIssuerDN() == IceSSL::DistinguishedName(issuerDN)
+        );
     }
     catch(const Ice::LocalException&)
     {
