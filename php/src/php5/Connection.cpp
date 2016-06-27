@@ -743,8 +743,6 @@ IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p TSRMLS_DC
     add_property_zval(zv, STRCAST("underlying"), underlying);
     add_property_bool(zv, STRCAST("incoming"), p->incoming ? 1 : 0);
     add_property_string(zv, STRCAST("adapterName"), const_cast<char*>(p->adapterName.c_str()), 1);
-    add_property_long(zv, STRCAST("rcvSize"), static_cast<long>(p->rcvSize));
-    add_property_long(zv, STRCAST("sndSize"), static_cast<long>(p->sndSize));
 
     Wrapper<Ice::ConnectionInfoPtr>* obj = Wrapper<Ice::ConnectionInfoPtr>::extract(zv TSRMLS_CC);
     assert(obj);
