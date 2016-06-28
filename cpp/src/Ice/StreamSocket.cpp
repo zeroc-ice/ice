@@ -562,13 +562,8 @@ StreamSocket::startWrite(Buffer& buf)
     assert(!buf.b.empty());
     assert(buf.i != buf.b.end());
 
-    size_t packetSize = static_cast<size_t>(buf.b.end() - buf.i);
-    if(_maxSendPacketSize > 0 && packetSize > _maxSendPacketSize)
-    {
-        packetSize = _maxSendPacketSize;
-    }
-    assert(packetSize > 0);
-    _writer->WriteBytes(ref new Array<unsigned char>(&*buf.i, packetSize));
+    size_t packetSize = getSendPacketSize(buf.b.end() - buf.i);
+    _writer->WriteBytes(ref new Array<unsigned char>(&*buf.i, static_cast<unsigned int>(packetSize)));
     try
     {
         queueOperation(SocketOperationWrite, _writer->StoreAsync());
@@ -599,16 +594,11 @@ StreamSocket::finishWrite(Buffer& buf)
 void
 StreamSocket::startRead(Buffer& buf)
 {
-    size_t packetSize = static_cast<size_t>(buf.b.end() - buf.i);
-    if(_maxRecvPacketSize > 0 && packetSize > _maxRecvPacketSize)
-    {
-        packetSize = _maxRecvPacketSize;
-    }
     assert(!buf.b.empty() && buf.i != buf.b.end());
-
+    size_t packetSize = getRecvPacketSize(buf.b.end() - buf.i);
     try
     {
-        queueOperation(SocketOperationRead, _reader->LoadAsync(packetSize));
+        queueOperation(SocketOperationRead, _reader->LoadAsync(static_cast<unsigned int>(packetSize)));
     }
     catch(Platform::Exception^ ex)
     {

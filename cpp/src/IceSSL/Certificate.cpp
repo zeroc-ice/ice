@@ -1440,7 +1440,7 @@ Certificate::encode() const
 	std::vector<unsigned char> data(reader->UnconsumedBufferLength);
 	if (!data.empty())
 	{
-		reader->ReadBytes(Platform::ArrayReference<unsigned char>(&data[0], data.size()));
+		reader->ReadBytes(Platform::ArrayReference<unsigned char>(&data[0], static_cast<unsigned int>(data.size())));
 	}
     ostringstream os;
     os << "-----BEGIN CERTIFICATE-----\n";
