@@ -183,7 +183,7 @@ try:
   admin.expect('registry `Master\'\n{.*}')
   admin.expect('>>> ')
   admin.sendline('node list')
-  admin.expect('localnode11')
+  admin.expect('localnode')
   admin.expect('>>> ')
   admin.sendline('node describe localnode')
   admin.expect('node `localnode\'\n{.*}')
