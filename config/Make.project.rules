@@ -531,7 +531,7 @@ $2_sliceflags :=
 endif
 
 $2_install_platforms	:= $$(or $$($2_install_platforms),$$($1_install_platforms),$$($2_platforms))
-$2_install_configs	:= $$(or $$($2_install_configs),$$($1_install_configs),$$($2_configs))
+$2_install_configs	:= $$(or $$($2_install_configs),$$($1_install_configs),$$($2_configs) $$($2_always_enable_configs))
 
 #
 # The source directory can be set at the component or project level.
