@@ -1981,7 +1981,15 @@ Ice::ConnectionI::finish(bool close)
 
     if(close)
     {
-        _transceiver->close();
+        try
+        {
+            _transceiver->close();
+        }
+        catch(const Ice::LocalException& ex)
+        {
+            Error out(_logger);
+            out << "unexpected connection exception:\n" << ex << '\n' << _desc;
+        }
     }
 
     if(_startCallback)

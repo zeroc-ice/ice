@@ -86,7 +86,7 @@ final class TransceiverI implements IceInternal.Transceiver
     @Override
     public void close()
     {
-        if(_isConnected)
+        if(_engine != null)
         {
             try
             {

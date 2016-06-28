@@ -1315,7 +1315,19 @@ public final class ConnectionI extends IceInternal.EventHandler
 
         if(close)
         {
-            _transceiver.close();
+            try
+            {
+                _transceiver.close();
+            }
+            catch(Ice.LocalException ex)
+            {
+                java.io.StringWriter sw = new java.io.StringWriter();
+                java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+                ex.printStackTrace(pw);
+                pw.flush();
+                String s = "unexpected connection exception:\n " + _desc + "\n" + sw.toString();
+                _instance.initializationData().logger.error(s);
+            }
         }
 
         if(_startCallback != null)
