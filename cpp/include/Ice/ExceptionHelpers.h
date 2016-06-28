@@ -20,11 +20,11 @@ namespace Ice
 
 class LocalException;
 
-template<typename T, typename Base> class LocalExceptionHelper : public Base
+template<typename T, typename B> class LocalExceptionHelper : public B
 {
 public:
 
-    using Base::Base;
+    using B::B;
 
     LocalExceptionHelper() = default;
 
