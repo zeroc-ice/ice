@@ -2916,10 +2916,6 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             H << sp;
             H << nl << "virtual void __write(::Ice::OutputStream*) const;";
             H << nl << "virtual void __read(::Ice::InputStream*);";
-
-            string baseName = base ? fixKwd(base->scoped()) : string("::Ice::Object");
-            H << nl << "using " << baseName << "::__write;";
-            H << nl << "using " << baseName << "::__read;";
         }
 
         H.dec();
@@ -2929,15 +2925,6 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
         H << nl << "virtual void __writeImpl(::Ice::OutputStream*) const;";
         H << nl << "virtual void __readImpl(::Ice::InputStream*);";
-
-        string baseName = base ? fixKwd(base->scoped()) : string("::Ice::Object");
-        H << nl << "using " << baseName << "::__writeImpl;";
-        H << nl << "using " << baseName << "::__readImpl;";
-        H << sp;
-        H << nl << "template<typename T, typename S>";
-        H << nl << "friend struct Ice::StreamWriter;";
-        H << nl << "template<typename T, typename S>";
-        H << nl << "friend struct Ice::StreamReader;";
 
         if(preserved && !basePreserved)
         {
@@ -3014,7 +3001,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
     //
     // Emit data members. Access visibility may be specified by metadata.
     //
-
+    bool generateFriend = false;
     DataMemberList dataMembers = p->dataMembers();
     bool prot = p->hasMetaData("protected");
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
@@ -3028,6 +3015,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
                 H.inc();
                 inProtected = true;
             }
+            generateFriend = true;
         }
         else
         {
@@ -3053,6 +3041,23 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             inProtected = true;
         }
         H << sp << nl << "::Ice::SlicedDataPtr __slicedData;";
+    }
+
+    if(generateFriend)
+    {
+        if(!inProtected)
+        {
+            H.dec();
+            H << sp << nl << "protected:";
+            H.inc();
+            inProtected = true;
+        }
+
+        H << sp;
+        H << nl << "template<typename T, typename S>";
+        H << nl << "friend struct Ice::StreamWriter;";
+        H << nl << "template<typename T, typename S>";
+        H << nl << "friend struct Ice::StreamReader;";
     }
 
     H << eb << ';';
@@ -7698,20 +7703,7 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
         H << sp;
         H << nl << "virtual void __write(::Ice::OutputStream*) const;";
         H << nl << "virtual void __read(::Ice::InputStream*);";
-    }
 
-    H.dec();
-    H << sp << nl << "protected:";
-    H.inc();
-
-    H << sp;
-    H << nl << "template<typename T, typename S>";
-    H << nl << "friend struct Ice::StreamWriter;";
-    H << nl << "template<typename T, typename S>";
-    H << nl << "friend struct Ice::StreamReader;";
-
-    if(preserved && !basePreserved)
-    {
         C << sp;
         C << nl << "void" << nl << scoped.substr(2) << "::__write(::Ice::OutputStream* __os) const";
         C << sb;
@@ -7738,7 +7730,8 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
     //
     // Emit data members. Access visibility may be specified by metadata.
     //
-    bool inProtected = true;
+    bool inProtected = false;
+    bool generateFriend = false;
     DataMemberList dataMembers = p->dataMembers();
     bool prot = p->hasMetaData("protected");
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
@@ -7752,6 +7745,7 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
                 H.inc();
                 inProtected = true;
             }
+            generateFriend = true;
         }
         else
         {
@@ -7777,6 +7771,23 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
             inProtected = true;
         }
         H << sp << nl << "::std::shared_ptr<::Ice::SlicedData> __slicedData;";
+    }
+
+    if(generateFriend)
+    {
+        if(!inProtected)
+        {
+            H.dec();
+            H << sp << nl << "protected:";
+            H.inc();
+            inProtected = true;
+        }
+
+        H << sp;
+        H << nl << "template<typename T, typename S>";
+        H << nl << "friend struct Ice::StreamWriter;";
+        H << nl << "template<typename T, typename S>";
+        H << nl << "friend struct Ice::StreamReader;";
     }
 
     H << eb << ';';
