@@ -455,7 +455,9 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
     test(view["Invocation"].size() == 1);
 
     IceMX::InvocationMetricsPtr invoke = ICE_DYNAMIC_CAST(IceMX::InvocationMetrics, view["Invocation"][0]);
-    test(invoke->id.find("[ice_ping]") > 0 && invoke->current == 0 && invoke->total == 5);
+    test(invoke->id.find("[ice_ping]") > 0);
+    test(invoke->current == 0);
+    test(invoke->total == 5);
 
     if(!collocated)
     {
