@@ -2,7 +2,7 @@
 //
 // Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
 //
-// This copy of Ice is licensed to you under the terms dribed in the
+// This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
@@ -525,8 +525,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         }
     }
 #endif
-    string endpt = getTestEndpoint(communicator, 0);
-    string factoryRef = "factory:" + endpt;
+    string factoryRef = "factory:tcp -p 12010";
     ObjectPrxPtr base = communicator->stringToProxy(factoryRef);
     test(base);
     Test::ServerFactoryPrxPtr factory = ICE_CHECKED_CAST(Test::ServerFactoryPrx, base);
