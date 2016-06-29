@@ -87,7 +87,7 @@ IceSSL::EndpointI::getInfo() const
     }
     else
     {
-		info = ICE_MAKE_SHARED(IceInternal::InfoI<Ice::TCPEndpointInfo>, shared_from_this());
+        info = ICE_MAKE_SHARED(IceInternal::InfoI<Ice::TCPEndpointInfo>, shared_from_this());
     }
     fillEndpointInfo(info.get());
     return info;
@@ -308,8 +308,8 @@ void
 IceSSL::EndpointI::hashInit(Ice::Int& h) const
 {
     IPEndpointI::hashInit(h);
-	IceInternal::hashAdd(h, _timeout);
-	IceInternal::hashAdd(h, _compress);
+    IceInternal::hashAdd(h, _timeout);
+    IceInternal::hashAdd(h, _compress);
 }
 
 void
@@ -418,7 +418,7 @@ IceSSL::EndpointFactoryI::protocol() const
 IceInternal::EndpointIPtr
 IceSSL::EndpointFactoryI::create(vector<string>& args, bool oaEndpoint) const
 {
-	IceInternal::IPEndpointIPtr endpt = ICE_MAKE_SHARED(EndpointI, _instance);
+    IceInternal::IPEndpointIPtr endpt = ICE_MAKE_SHARED(EndpointI, _instance);
     endpt->initWithOptions(args, oaEndpoint);
     return endpt;
 }

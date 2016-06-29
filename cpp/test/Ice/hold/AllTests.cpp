@@ -209,7 +209,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         while(value < 3000 && cond->value())
         {
             completed = make_shared<promise<void>>();
-			auto sent = make_shared<promise<bool>>();
+            auto sent = make_shared<promise<bool>>();
             auto expected = value;
             holdSerialized->setAsync(
                 value + 1,

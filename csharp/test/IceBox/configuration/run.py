@@ -23,6 +23,6 @@ import TestUtil
 icebox = TestUtil.getIceBox()
 
 TestUtil.clientServerTest(additionalServerOptions='--Ice.Config="%s"' % os.path.join(os.getcwd(), "config.icebox"),
-	server=icebox)
+    server=icebox)
 TestUtil.clientServerTest(additionalServerOptions='--Ice.Config="%s"' % os.path.join(os.getcwd(), "config.icebox2"),
-	server=icebox)
+    server=icebox)

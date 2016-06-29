@@ -119,7 +119,7 @@ toNSData(const std::vector<T>& seq)
     T* target = (T*)[array bytes];
     for(typename std::vector<T>::const_iterator p = seq.begin(); p != seq.end(); ++p)
     {
-	*target++ = *p;
+        *target++ = *p;
     }
     return array;
 }
@@ -135,7 +135,7 @@ fromNSArray(NSArray* array, std::vector<T>& seq)
         while((obj = [enumerator nextObject]))
         {
             T v;
-	    fromObjC(obj, v);
+            fromObjC(obj, v);
             seq.push_back(v);
         }
     }
@@ -147,13 +147,13 @@ fromNSData(NSData* array, std::vector<T>& seq)
 {
     if(array != nil)
     {
-	int len = [array length] / sizeof(T);
+        int len = [array length] / sizeof(T);
         seq.reserve(len);
-	T* src = (T*)[array bytes];
-	while(len-- > 0)
-	{
+        T* src = (T*)[array bytes];
+        while(len-- > 0)
+        {
             seq.push_back(*src++);
-	}
+        }
     }
     return seq;
 }

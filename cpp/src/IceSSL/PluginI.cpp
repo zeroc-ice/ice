@@ -92,7 +92,7 @@ IceSSL::PluginI::PluginI(const Ice::CommunicatorPtr& com)
     //
     IceInternal::ProtocolPluginFacadePtr pluginFacade = IceInternal::getProtocolPluginFacade(com);
 
-	// SSL based on TCP
+    // SSL based on TCP
     IceInternal::EndpointFactoryPtr tcp = pluginFacade->getEndpointFactory(TCPEndpointType);
     if(tcp)
     {

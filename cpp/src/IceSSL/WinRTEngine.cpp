@@ -31,7 +31,7 @@ WinRTEngine::initialize()
 bool
 WinRTEngine::initialized() const
 {
-	return true;
+    return true;
 }
 
 void

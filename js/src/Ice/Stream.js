@@ -237,7 +237,7 @@ var EncapsDecoder = Class({
             catch(ex)
             {
                 this._stream.instance.initializationData().logger.warning("exception raised by ice_postUnmarshal:\n" +
-									  ex.toString());
+                    ex.toString());
             }
         }
         else

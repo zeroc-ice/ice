@@ -39,7 +39,7 @@ extern "C"
 #ifdef _WIN32
 #   pragma warning( disable : 4018) // suppress signed/unsigned mismatch in zend_execute.h (PHP 5.3.x)
 #elif defined(__GNUC__)
-#	pragma GCC diagnostic warning "-Wsign-compare"
+#   pragma GCC diagnostic warning "-Wsign-compare"
 #endif
 
 #ifdef _WIN64

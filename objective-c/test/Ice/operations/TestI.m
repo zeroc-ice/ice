@@ -54,8 +54,8 @@
 }
 
 -(ICELong) opShortIntLong:(ICEShort)p1 p2:(ICEInt)p2 p3:(ICELong)p3
-                          p4:(ICEShort *)p4 p5:(ICEInt *)p5 p6:(ICELong *)p6
-		          current:(ICECurrent *)current
+                       p4:(ICEShort *)p4 p5:(ICEInt *)p5 p6:(ICELong *)p6
+                  current:(ICECurrent *)current
 {
     *p4 = p1;
     *p5 = p2;
@@ -64,7 +64,7 @@
 }
 
 -(ICEDouble) opFloatDouble:(ICEFloat)p1 p2:(ICEDouble)p2 p3:(ICEFloat *)p3 p4:(ICEDouble *)p4
-                           current:(ICECurrent *)current
+                   current:(ICECurrent *)current
 {
     *p3 = p1;
     *p4 = p2;
@@ -145,7 +145,7 @@
 
 -(TestOperationsLongS *) opShortIntLongS:(TestOperationsMutableShortS *)p1 p2:(TestOperationsMutableIntS *)p2 p3:(TestOperationsMutableLongS *)p3
                                p4:(TestOperationsShortS **)p4 p5:(TestOperationsIntS **)p5 p6:(TestOperationsLongS **)p6
-			       current:(ICECurrent *)current
+                               current:(ICECurrent *)current
 {
     *p4 = [TestOperationsMutableShortS dataWithData:p1];
     *p5 = [TestOperationsMutableIntS dataWithLength:[p2 length]];
@@ -265,7 +265,7 @@
 
 -(TestOperationsLongSS *) opShortIntLongSS:(TestOperationsMutableShortSS *)p1 p2:(TestOperationsMutableIntSS *)p2 p3:(TestOperationsMutableLongSS *)p3
                                  p4:(TestOperationsShortSS **)p4 p5:(TestOperationsIntSS **)p5 p6:(TestOperationsLongSS **)p6
-			         current:(ICECurrent *)current
+                                 current:(ICECurrent *)current
 {
     *p4 = [TestOperationsShortSS arrayWithArray:p1];
     *p5 = [TestOperationsMutableIntSS array];
@@ -609,7 +609,7 @@
     int *target = (int *)[r bytes];
     while(count-- > 0)
     {
-	*target++ = -*src++;
+        *target++ = -*src++;
     }
     return r;
 }
@@ -649,7 +649,7 @@
     int i;
     for(i = 0; i < [p2 length] / sizeof(ICEDouble); ++i)
     {
-	test(p[i] == d);
+        test(p[i] == d);
     }
 }
 

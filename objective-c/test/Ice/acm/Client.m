@@ -41,7 +41,7 @@ main(int argc, char* argv[])
         {
             ICEInitializationData* initData = [ICEInitializationData initializationData];
             initData.properties = defaultClientProperties(&argc, argv);
-	    [initData.properties setProperty:@"Ice.Warn.Connections" value:@"0"];
+            [initData.properties setProperty:@"Ice.Warn.Connections" value:@"0"];
 
 #if TARGET_OS_IPHONE
             initData.prefixTable__ = [NSDictionary dictionaryWithObjectsAndKeys:

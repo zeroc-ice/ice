@@ -914,9 +914,9 @@ private:
     NSException* nsex = nil;
     try
     {
-    	Ice::ObjectPrx p;
+        Ice::ObjectPrx p;
         is_->read(p);
-	    return p ? [[type alloc] initWithObjectPrx__:p] : nil;
+        return p ? [[type alloc] initWithObjectPrx__:p] : nil;
     }
     catch(const std::exception& ex)
     {
@@ -1052,9 +1052,9 @@ private:
     id obj = nil;
     @try
     {
-	while(sz-- > 0)
-	{
-	    obj = [helper readRetained:self];
+        while(sz-- > 0)
+        {
+            obj = [helper readRetained:self];
             if(obj == nil)
             {
                 [arr addObject:[NSNull null]];
@@ -1064,12 +1064,12 @@ private:
                 [arr addObject:obj];
                 [obj release];
             }
-	}
+        }
     }
     @catch(id ex)
     {
         [arr release];
-	[obj release];
+        [obj release];
         @throw ex;
     }
     return arr;
@@ -1088,10 +1088,10 @@ private:
     id value = nil;
     @try
     {
-	while(sz-- > 0)
-	{
-	    key = [helper.key readRetained:self];
-	    value = [helper.value readRetained:self];
+        while(sz-- > 0)
+        {
+            key = [helper.key readRetained:self];
+            value = [helper.value readRetained:self];
             if(value == nil)
             {
                 [dictionary setObject:[NSNull null] forKey:key];
@@ -1101,14 +1101,14 @@ private:
                 [dictionary setObject:value forKey:key];
                 [value release];
             }
-	    [key release];
-	}
+            [key release];
+        }
     }
     @catch(id ex)
     {
-	[dictionary release];
-	[key release];
-	[value release];
+        [dictionary release];
+        [key release];
+        [value release];
         @throw ex;
     }
     return dictionary;
@@ -1703,7 +1703,7 @@ private:
     {
         v == nil ? os_->writeSize(0)
                  : os_->write((ICEDouble*)[v bytes],
-		                      (ICEDouble*)[v bytes] + [v length] / sizeof(ICEDouble));
+                                      (ICEDouble*)[v bytes] + [v length] / sizeof(ICEDouble));
     }
     catch(const std::exception& ex)
     {
@@ -1720,7 +1720,7 @@ private:
     NSException* nsex = nil;
     try
     {
-	os_->write(fromNSString(v));
+        os_->write(fromNSString(v));
     }
     catch(const std::exception& ex)
     {
@@ -1737,8 +1737,8 @@ private:
     NSException* nsex = nil;
     try
     {
-	std::vector<std::string> s;
-	os_->write(fromNSArray(v, s));
+        std::vector<std::string> s;
+        os_->write(fromNSArray(v, s));
     }
     catch(const std::exception& ex)
     {
@@ -1761,7 +1761,7 @@ private:
     [self writeSize:[arr count]];
     for(id i in arr)
     {
-	[helper write:(i == [NSNull null] ? nil : i) stream:self];
+        [helper write:(i == [NSNull null] ? nil : i) stream:self];
     }
 }
 
@@ -1770,7 +1770,7 @@ private:
     if(dictionary == nil)
     {
         [self writeSize:0];
-	return;
+        return;
     }
 
     [self writeSize:[dictionary count]];
@@ -1778,13 +1778,13 @@ private:
     id key;
     while((key = [e nextObject]))
     {
-	if(key == [NSNull null])
-	{
-	    @throw [ICEMarshalException marshalException:__FILE__ line:__LINE__ reason:@"illegal NSNull value"];
-	}
-	[helper.key write:key stream:self];
-	NSObject *obj = [dictionary objectForKey:key];
-	[helper.value write:(obj == [NSNull null] ? nil : obj) stream:self];
+        if(key == [NSNull null])
+        {
+            @throw [ICEMarshalException marshalException:__FILE__ line:__LINE__ reason:@"illegal NSNull value"];
+        }
+        [helper.key write:key stream:self];
+        NSObject *obj = [dictionary objectForKey:key];
+        [helper.value write:(obj == [NSNull null] ? nil : obj) stream:self];
     }
 }
 
@@ -1959,7 +1959,7 @@ private:
     if(dictionary == nil)
     {
         [self writeSize:0];
-	return;
+        return;
     }
 
     [self writeSize:[dictionary count]];
@@ -1967,12 +1967,12 @@ private:
     id key;
     while((key = [e nextObject]))
     {
-	if(key == [NSNull null])
-	{
-	    @throw [ICEMarshalException marshalException:__FILE__ line:__LINE__ reason:@"illegal NSNull value"];
-	}
-	[helper write:key stream:self];
-	id obj = [dictionary objectForKey:key];
+        if(key == [NSNull null])
+        {
+            @throw [ICEMarshalException marshalException:__FILE__ line:__LINE__ reason:@"illegal NSNull value"];
+        }
+        [helper write:key stream:self];
+        id obj = [dictionary objectForKey:key];
         [self writeValue:(obj == [NSNull null] ? nil : obj)];
     }
 }
@@ -2325,7 +2325,7 @@ private:
 {
     if(obj == nil)
     {
-	@throw [ICEMarshalException marshalException:__FILE__ line:__LINE__ reason:@"illegal NSNull value"];
+        @throw [ICEMarshalException marshalException:__FILE__ line:__LINE__ reason:@"illegal NSNull value"];
     }
     [stream writeBool:[obj boolValue]];
 }
@@ -2360,7 +2360,7 @@ private:
 {
     if(obj == nil)
     {
-	@throw [ICEMarshalException marshalException:__FILE__ line:__LINE__ reason:@"illegal NSNull value"];
+        @throw [ICEMarshalException marshalException:__FILE__ line:__LINE__ reason:@"illegal NSNull value"];
     }
     [stream writeByte:[obj unsignedCharValue]];
 }
@@ -2395,7 +2395,7 @@ private:
 {
     if(obj == nil)
     {
-	@throw [ICEMarshalException marshalException:__FILE__ line:__LINE__ reason:@"illegal NSNull value"];
+        @throw [ICEMarshalException marshalException:__FILE__ line:__LINE__ reason:@"illegal NSNull value"];
     }
     [stream writeShort:[obj shortValue]];
 }
@@ -2430,7 +2430,7 @@ private:
 {
     if(obj == nil)
     {
-	@throw [ICEMarshalException marshalException:__FILE__ line:__LINE__ reason:@"illegal NSNull value"];
+        @throw [ICEMarshalException marshalException:__FILE__ line:__LINE__ reason:@"illegal NSNull value"];
     }
     [stream writeInt:[obj intValue]];
 }
@@ -2465,7 +2465,7 @@ private:
 {
     if(obj == nil)
     {
-	@throw [ICEMarshalException marshalException:__FILE__ line:__LINE__ reason:@"illegal NSNull value"];
+        @throw [ICEMarshalException marshalException:__FILE__ line:__LINE__ reason:@"illegal NSNull value"];
     }
     [stream writeLong:[obj longValue]];
 }
@@ -2500,7 +2500,7 @@ private:
 {
     if(obj == nil)
     {
-	@throw [ICEMarshalException marshalException:__FILE__ line:__LINE__ reason:@"illegal NSNull value"];
+        @throw [ICEMarshalException marshalException:__FILE__ line:__LINE__ reason:@"illegal NSNull value"];
     }
     [stream writeFloat:[obj floatValue]];
 }
@@ -2535,7 +2535,7 @@ private:
 {
     if(obj == nil)
     {
-	@throw [ICEMarshalException marshalException:__FILE__ line:__LINE__ reason:@"illegal NSNull value"];
+        @throw [ICEMarshalException marshalException:__FILE__ line:__LINE__ reason:@"illegal NSNull value"];
     }
     [stream writeDouble:[obj doubleValue]];
 }

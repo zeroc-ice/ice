@@ -461,18 +461,18 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
                         DataWriter^ writer = ref new DataWriter(task.get());
                         writer->WriteBytes(ref new Array<unsigned char>(&*buf.i, static_cast<int>(buf.b.size())));
                         DataWriterStoreOperation^ operation = writer->StoreAsync();
-						if(operation->Status == Windows::Foundation::AsyncStatus::Completed)
-						{
-							//
-							// NOTE: unlike other methods, it's important to modify _write.count
-							// _before_ calling checkIfErrorOrCompleted since this isn't called
-							// with the connection mutex but from a Windows thread pool thread.
-							// So we can't modify the _write structure after calling the
-							// completed callback.
-							//
-							_write.count = operation->GetResults();
-						}
-						queueOperation(SocketOperationWrite, operation);
+                        if(operation->Status == Windows::Foundation::AsyncStatus::Completed)
+                        {
+                            //
+                            // NOTE: unlike other methods, it's important to modify _write.count
+                            // _before_ calling checkIfErrorOrCompleted since this isn't called
+                            // with the connection mutex but from a Windows thread pool thread.
+                            // So we can't modify the _write structure after calling the
+                            // completed callback.
+                            //
+                            _write.count = operation->GetResults();
+                        }
+                        queueOperation(SocketOperationWrite, operation);
                     }
                     catch(Platform::Exception^ pex)
                     {

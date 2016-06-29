@@ -56,14 +56,14 @@ IceSSL::AcceptorI::close()
     {
         for(deque<StreamSocket^>::const_iterator p = _accepted.begin(); p != _accepted.end(); ++p)
         {
-			IceInternal::closeSocket(*p);
+            IceInternal::closeSocket(*p);
         }
         _accepted.clear();
     }
 
     if(_fd != INVALID_SOCKET)
     {
-		IceInternal::closeSocketNoThrow(_fd);
+        IceInternal::closeSocketNoThrow(_fd);
         _fd = INVALID_SOCKET;
     }
 }
@@ -201,7 +201,7 @@ IceSSL::AcceptorI::queueAcceptedSocket(StreamSocket^ socket)
     IceUtil::Mutex::Lock lock(_mutex);
     if(_fd == INVALID_SOCKET) // Acceptor was closed.
     {
-		IceInternal::closeSocket(socket);
+        IceInternal::closeSocket(socket);
         return;
     }
     _accepted.push_back(socket);

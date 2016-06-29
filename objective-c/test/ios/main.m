@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
     int retVal = EXIT_FAILURE;
     @autoreleasepool
     {
-    	retVal = UIApplicationMain(argc, argv, nil, nil);
+        retVal = UIApplicationMain(argc, argv, nil, nil);
     }
     return retVal;
 }

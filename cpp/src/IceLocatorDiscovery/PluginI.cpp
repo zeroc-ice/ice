@@ -18,9 +18,9 @@ using namespace IceLocatorDiscovery;
 
 #ifndef ICE_LOCATOR_DISCOVERY_API
 #   ifdef ICE_LOCATOR_DISCOVERY_API_EXPORTS
-#	define ICE_LOCATOR_DISCOVERY_API ICE_DECLSPEC_EXPORT
+#   define ICE_LOCATOR_DISCOVERY_API ICE_DECLSPEC_EXPORT
 #   else
-#	define ICE_LOCATOR_DISCOVERY_API /**/
+#   define ICE_LOCATOR_DISCOVERY_API /**/
 #   endif
 #endif
 

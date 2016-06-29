@@ -551,7 +551,7 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out.dec();
         _out << nl << "end";
 
-	_out << nl << "def " << name << "Prx.ice_staticId()";
+        _out << nl << "def " << name << "Prx.ice_staticId()";
         _out.inc();
         _out << nl << "'" << scoped << "'";
         _out.dec();

@@ -56,9 +56,9 @@ StreamSocket::StreamSocket(const ProtocolInstancePtr& instance,
 StreamSocket::StreamSocket(const ProtocolInstancePtr& instance, SOCKET fd) :
     NativeInfo(fd),
     _instance(instance),
-	_addr(),
-	_sourceAddr(),
-	_state(StateConnected)
+    _addr(),
+    _sourceAddr(),
+    _state(StateConnected)
 #if defined(ICE_USE_IOCP)
     , _read(SocketOperationRead), _write(SocketOperationWrite)
 #endif
@@ -539,7 +539,7 @@ StreamSocket::startWrite(Buffer& buf)
             try
             {
                 queueAction(SocketOperationConnect,
-    				safe_cast<Windows::Networking::Sockets::StreamSocket^>(_fd)->ConnectAsync(addr.host, addr.port,
+                    safe_cast<Windows::Networking::Sockets::StreamSocket^>(_fd)->ConnectAsync(addr.host, addr.port,
                                       Windows::Networking::Sockets::SocketProtectionLevel::PlainSocket), true);
             }
             catch(Platform::Exception^ ex)

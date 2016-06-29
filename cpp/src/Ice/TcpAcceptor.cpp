@@ -232,7 +232,7 @@ IceInternal::TcpAcceptor::accept()
         _accepted.pop_front();
     }
 
-	return new TcpTransceiver(_instance, new StreamSocket(_instance, fd));
+    return new TcpTransceiver(_instance, new StreamSocket(_instance, fd));
 }
 
 #else

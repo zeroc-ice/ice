@@ -51,7 +51,7 @@ public:
     virtual bool operator<(const Ice::LocalObject&) const;
 #endif
 
-	EndpointIPtr endpoint(const AcceptorIPtr&) const;
+    EndpointIPtr endpoint(const AcceptorIPtr&) const;
 
     using IceInternal::IPEndpointI::connectionId;
 
@@ -79,7 +79,7 @@ class EndpointFactoryI : public IceInternal::EndpointFactory
 {
 public:
 
-	EndpointFactoryI(const IceInternal::ProtocolInstancePtr&);
+    EndpointFactoryI(const IceInternal::ProtocolInstancePtr&);
 
     virtual Ice::Short type() const;
     virtual std::string protocol() const;
@@ -91,7 +91,7 @@ public:
 
 private:
 
-	IceInternal::ProtocolInstancePtr _instance;
+    IceInternal::ProtocolInstancePtr _instance;
 };
 
 }

@@ -24,7 +24,7 @@ namespace IceSSL
 {
 
 class AcceptorI : public IceInternal::Acceptor,
-	              public IceInternal::NativeInfo
+                  public IceInternal::NativeInfo
 {
 public:
 
@@ -58,7 +58,7 @@ private:
 
     IceUtil::Mutex _mutex;
     bool _acceptPending;
-	IceInternal::SocketOperationCompletedHandler^ _completedHandler;
+    IceInternal::SocketOperationCompletedHandler^ _completedHandler;
     std::deque<Windows::Networking::Sockets::StreamSocket^> _accepted;
 };
 

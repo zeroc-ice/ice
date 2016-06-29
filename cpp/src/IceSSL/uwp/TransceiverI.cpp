@@ -78,7 +78,7 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer&, IceInternal::Buffer&)
     {
          if(_write.count == SOCKET_ERROR)
         {
-			IceInternal::checkConnectErrorCode(__FILE__, __LINE__, _write.error, _connectAddr.host);
+            IceInternal::checkConnectErrorCode(__FILE__, __LINE__, _write.error, _connectAddr.host);
         }
         _state = StateConnected;
         _desc = IceInternal::fdToString(_fd);
@@ -110,7 +110,7 @@ IceSSL::TransceiverI::close()
 
     try
     {
-		IceInternal::closeSocket(_fd);
+        IceInternal::closeSocket(_fd);
         _fd = INVALID_SOCKET;
     }
     catch(const SocketException&)
@@ -145,7 +145,7 @@ IceSSL::TransceiverI::startWrite(IceInternal::Buffer& buf)
 
             if(!checkIfErrorOrCompleted(IceInternal::SocketOperationConnect, action))
             {
-				IceInternal::SocketOperationCompletedHandler^ completed = _completedHandler;
+                IceInternal::SocketOperationCompletedHandler^ completed = _completedHandler;
                 action->Completed = ref new AsyncActionCompletedHandler(
                     [=] (IAsyncAction^ info, Windows::Foundation::AsyncStatus status)
                     {
@@ -164,7 +164,7 @@ IceSSL::TransceiverI::startWrite(IceInternal::Buffer& buf)
         }
         catch(Platform::Exception^ ex)
         {
-			IceInternal::checkConnectErrorCode(__FILE__, __LINE__, ex->HResult, _connectAddr.host);
+            IceInternal::checkConnectErrorCode(__FILE__, __LINE__, ex->HResult, _connectAddr.host);
         }
         return false;
     }
@@ -193,7 +193,7 @@ IceSSL::TransceiverI::startWrite(IceInternal::Buffer& buf)
     }
     catch(Platform::Exception^ ex)
     {
-		IceInternal::checkErrorCode(__FILE__, __LINE__, ex->HResult);
+        IceInternal::checkErrorCode(__FILE__, __LINE__, ex->HResult);
     }
     return packetSize == static_cast<int>(buf.b.end() - buf.i);
 }
@@ -205,7 +205,7 @@ IceSSL::TransceiverI::finishWrite(IceInternal::Buffer& buf)
     {
         if(_write.count == SOCKET_ERROR)
         {
-			IceInternal::checkConnectErrorCode(__FILE__, __LINE__, _write.error, _connectAddr.host);
+            IceInternal::checkConnectErrorCode(__FILE__, __LINE__, _write.error, _connectAddr.host);
         }
         _verified = true;
         return;
@@ -213,7 +213,7 @@ IceSSL::TransceiverI::finishWrite(IceInternal::Buffer& buf)
 
     if(_write.count == SOCKET_ERROR)
     {
-		IceInternal::checkErrorCode(__FILE__, __LINE__, _write.error);
+        IceInternal::checkErrorCode(__FILE__, __LINE__, _write.error);
     }
 
     buf.i += _write.count;
@@ -243,7 +243,7 @@ IceSSL::TransceiverI::startRead(IceInternal::Buffer& buf)
     }
     catch(Platform::Exception^ ex)
     {
-		IceInternal::checkErrorCode(__FILE__, __LINE__, ex->HResult);
+        IceInternal::checkErrorCode(__FILE__, __LINE__, ex->HResult);
     }
 }
 
@@ -252,7 +252,7 @@ IceSSL::TransceiverI::finishRead(IceInternal::Buffer& buf)
 {
     if(_read.count == SOCKET_ERROR)
     {
-		IceInternal::checkErrorCode(__FILE__, __LINE__, _read.error);
+        IceInternal::checkErrorCode(__FILE__, __LINE__, _read.error);
     }
     else if(_read.count == 0)
     {
@@ -269,7 +269,7 @@ IceSSL::TransceiverI::finishRead(IceInternal::Buffer& buf)
     }
     catch(Platform::Exception^ ex)
     {
-		IceInternal::checkErrorCode(__FILE__, __LINE__, ex->HResult);
+        IceInternal::checkErrorCode(__FILE__, __LINE__, ex->HResult);
     }
 
     buf.i += _read.count;
@@ -402,11 +402,11 @@ IceSSL::TransceiverI::checkIfErrorOrCompleted(IceInternal::SocketOperation op, I
     {
         if(_state < StateConnected)
         {
-			IceInternal::checkConnectErrorCode(__FILE__, __LINE__, info->ErrorCode.Value, _connectAddr.host);
+            IceInternal::checkConnectErrorCode(__FILE__, __LINE__, info->ErrorCode.Value, _connectAddr.host);
         }
         else
         {
-			IceInternal::checkErrorCode(__FILE__, __LINE__, info->ErrorCode.Value);
+            IceInternal::checkErrorCode(__FILE__, __LINE__, info->ErrorCode.Value);
         }
         return true; // Prevent compiler warning.
     }
@@ -415,7 +415,7 @@ IceSSL::TransceiverI::checkIfErrorOrCompleted(IceInternal::SocketOperation op, I
 void
 IceSSL::TransceiverI::fillConnectionInfo(const Ice::IPConnectionInfoPtr& info) const
 {
-	IceInternal::fdToAddressAndPort(_fd, info->localAddress, info->localPort, info->remoteAddress, info->remotePort);
+    IceInternal::fdToAddressAndPort(_fd, info->localAddress, info->localPort, info->remoteAddress, info->remotePort);
     info->rcvSize = IceInternal::getRecvBufferSize(_fd);
     info->sndSize = IceInternal::getSendBufferSize(_fd);
 }

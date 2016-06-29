@@ -71,7 +71,7 @@ main(int argc, char* argv[])
             }
             @catch(ICEException* ex)
             {
-    	    tprintf("%@\n", ex);
+                tprintf("%@\n", ex);
                 status = EXIT_FAILURE;
             }
         }

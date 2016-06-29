@@ -648,7 +648,7 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
         {
             test(0);
         }
-	test([sb isKindOfClass:[TestSlicingObjectsClientSBSKnownDerived class]]);
+        test([sb isKindOfClass:[TestSlicingObjectsClientSBSKnownDerived class]]);
         test([((TestSlicingObjectsClientSBSKnownDerived*)sb).sbskd isEqualToString:@"SBSKnownDerived.sbskd"]);
     }
     tprintf("ok\n");

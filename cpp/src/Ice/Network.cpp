@@ -824,8 +824,8 @@ IceInternal::NativeInfo::completed(SocketOperation operation)
 void
 IceInternal::NativeInfo::queueAction(SocketOperation op, IAsyncAction^ action, bool connect)
 {
-	AsyncInfo* asyncInfo = getAsyncInfo(op);
-	if(checkIfErrorOrCompleted(op, action, connect))
+    AsyncInfo* asyncInfo = getAsyncInfo(op);
+    if(checkIfErrorOrCompleted(op, action, connect))
     {
         asyncInfo->count = 0;
     }
@@ -836,12 +836,12 @@ IceInternal::NativeInfo::queueAction(SocketOperation op, IAsyncAction^ action, b
             {
                 if(status != Windows::Foundation::AsyncStatus::Completed)
                 {
-					asyncInfo->count = SOCKET_ERROR;
-					asyncInfo->error = info->ErrorCode.Value;
+                    asyncInfo->count = SOCKET_ERROR;
+                    asyncInfo->error = info->ErrorCode.Value;
                 }
                 else
                 {
-					asyncInfo->count = 0;
+                    asyncInfo->count = 0;
                 }
                 completed(op);
             });
@@ -904,7 +904,7 @@ IceInternal::NativeInfo::checkIfErrorOrCompleted(SocketOperation op, IAsyncInfo^
     // error. A canceled async status can occur if there's a timeout
     // and the socket is closed.
     //
-	Windows::Foundation::AsyncStatus status = info->Status;
+    Windows::Foundation::AsyncStatus status = info->Status;
     if(status == Windows::Foundation::AsyncStatus::Completed)
     {
         _completedHandler(op);

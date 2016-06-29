@@ -85,15 +85,15 @@
     // Instantiate the test view controller if necessary.
     if (testViewController == nil)
     {
-		NSString* nib;
-		if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
-		{
-			nib = @"TestView-iPad";
-		}
-		else
-		{
-			nib = @"TestView";
-		}
+        NSString* nib;
+        if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+        {
+            nib = @"TestView-iPad";
+        }
+        else
+        {
+            nib = @"TestView";
+        }
         testViewController = [[TestViewController alloc] initWithNibName:nib bundle:nil];
     }
     return testViewController;

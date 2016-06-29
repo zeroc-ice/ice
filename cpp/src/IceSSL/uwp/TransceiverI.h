@@ -39,7 +39,7 @@ public:
 
     virtual IceInternal::SocketOperation initialize(IceInternal::Buffer&, IceInternal::Buffer&);
 #ifdef ICE_CPP11_MAPPING
-	virtual IceInternal::SocketOperation closing(bool, std::exception_ptr);
+    virtual IceInternal::SocketOperation closing(bool, std::exception_ptr);
 #else
     virtual IceInternal::SocketOperation closing(bool, const Ice::LocalException&);
 #endif
@@ -77,10 +77,10 @@ private:
     State _state;
     std::string _desc;
     bool _verified;
-	IceInternal::Address _connectAddr;
+    IceInternal::Address _connectAddr;
 
-	IceInternal::AsyncInfo _read;
-	IceInternal::AsyncInfo _write;
+    IceInternal::AsyncInfo _read;
+    IceInternal::AsyncInfo _write;
     int _maxSendPacketSize;
     int _maxReceivePacketSize;
 

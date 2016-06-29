@@ -112,14 +112,14 @@ vector<TestCasePtr> allTest(bool remoteserver)
     TestCasePtr test;
     TestConfigurationPtr configuration;
 
-	test.reset(new TestCase("Ice", "acm", "client.dll", "server.dll"));
-	all.push_back(test);
+    test.reset(new TestCase("Ice", "acm", "client.dll", "server.dll"));
+    all.push_back(test);
 
     test.reset(new TestCase("Ice", "adapterDeactivation", "client.dll", "server.dll", "", "collocated.dll"));
     all.push_back(test);
 
-	test.reset(new  TestCase("Ice", "admin", "client.dll", "server.dll"));
-	all.push_back(test);
+    test.reset(new  TestCase("Ice", "admin", "client.dll", "server.dll"));
+    all.push_back(test);
 
     test.reset(new TestCase("Ice", "ami", "client.dll", "server.dll", "", "collocated.dll"));
     all.push_back(test);
@@ -130,10 +130,10 @@ vector<TestCasePtr> allTest(bool remoteserver)
     test.reset(new TestCase("Ice", "dispatcher", "client.dll", "server.dll", "", "collocated.dll"));
     all.push_back(test);
 
-	test.reset(new TestCase("Ice", "enums", "client.dll", "server.dll"));
-	addConfiguration(test, "1.0 encoding", "1.0", false, { "--Ice.Default.EncodingVersion=1.0" });
-	addConfiguration(test, "1.1 encoding", "1.1", false);
-	all.push_back(test);
+    test.reset(new TestCase("Ice", "enums", "client.dll", "server.dll"));
+    addConfiguration(test, "1.0 encoding", "1.0", false, { "--Ice.Default.EncodingVersion=1.0" });
+    addConfiguration(test, "1.1 encoding", "1.1", false);
+    all.push_back(test);
 
     test.reset(new TestCase("Ice", "exceptions", "client.dll", "server.dll", "serveramd.dll", "collocated.dll"));
     addConfiguration(test, "compact (default) format", "compact", false);
@@ -147,8 +147,8 @@ vector<TestCasePtr> allTest(bool remoteserver)
     test.reset(new TestCase("Ice", "facets", "client.dll", "server.dll", "", "collocated.dll"));
     all.push_back(test);
 
-	test.reset(new TestCase("Ice", "hash", "client.dll"));
-	all.push_back(test);
+    test.reset(new TestCase("Ice", "hash", "client.dll"));
+    all.push_back(test);
 
     test.reset(new TestCase("Ice", "hold", "client.dll", "server.dll"));
     all.push_back(test);
@@ -169,11 +169,11 @@ vector<TestCasePtr> allTest(bool remoteserver)
     test.reset(new TestCase("Ice", "location", "client.dll", "server.dll"));
     all.push_back(test);
 
-	if (!remoteserver)
-	{
-		test.reset(new TestCase("Ice", "metrics", "client.dll", "server.dll", "serveramd.dll"));
-		all.push_back(test);
-	}
+    if (!remoteserver)
+    {
+        test.reset(new TestCase("Ice", "metrics", "client.dll", "server.dll", "serveramd.dll"));
+        all.push_back(test);
+    }
 
     test.reset(new TestCase("Ice", "objects", "client.dll", "server.dll", "", "collocated.dll"));
     addConfiguration(test, "compact (default) format", "compact", false);
@@ -188,11 +188,11 @@ vector<TestCasePtr> allTest(bool remoteserver)
     addConfiguration(test, "AMD TIE server", "", true, {}, { "java", "csharp" });
     all.push_back(test);
 
-	test.reset(new TestCase("Ice", "optional", "client.dll", "server.dll"));
-	addConfiguration(test, "compact (default) format", "compact", false);
-	addConfiguration(test, "sliced format", "sliced", false, { "--Ice.Default.SlicedFormat" });
-	addConfiguration(test, "AMD server", "", true);
-	all.push_back(test);
+    test.reset(new TestCase("Ice", "optional", "client.dll", "server.dll"));
+    addConfiguration(test, "compact (default) format", "compact", false);
+    addConfiguration(test, "sliced format", "sliced", false, { "--Ice.Default.SlicedFormat" });
+    addConfiguration(test, "AMD server", "", true);
+    all.push_back(test);
 
     test.reset(new TestCase("Ice", "proxy", "client.dll", "server.dll", "serveramd.dll", "collocated.dll"));
     addConfiguration(test, "regular server", "", false);
@@ -644,7 +644,7 @@ createProxy(const string id, TestConfig config)
 void
 TestRunner::runClientServerTestWithRemoteServer(const string& client)
 {
-    ControllerPrxPtr controller = ICE_UNCHECKED_CAST(ControllerPrx, 
+    ControllerPrxPtr controller = ICE_UNCHECKED_CAST(ControllerPrx,
         _communicator->stringToProxy(createProxy("controller", _config)));
     StringSeq options;
     if(_config.serialize)
@@ -778,7 +778,7 @@ DllCache::loadDll(const std::string& name)
     }
     HINSTANCE hnd = LoadPackagedLibrary(IceUtil::stringToWstring(name).c_str(), 0);
     _dlls.insert(make_pair(name, hnd));
-	
+
     return hnd;
 }
 
@@ -796,7 +796,7 @@ MainPage::MainPage() :
     _messages(ref new Vector<String^>())
 {
     InitializeComponent();
-	Ice::registerIceSSL();
+    Ice::registerIceSSL();
 }
 
 void

@@ -1168,7 +1168,7 @@ Activator::terminationListener()
             ex.error = getSystemErrno();
             throw ex;
         }
-		clearInterrupt();
+        clearInterrupt();
 
         //
         // Collect terminated processes

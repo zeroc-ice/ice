@@ -21,4 +21,4 @@ sys.path.append(os.path.join(path[0], "scripts"))
 import TestUtil
 
 TestUtil.clientServerTest(additionalServerOptions='--Ice.Config="%s"' % os.path.join(os.getcwd(), "config.icebox"),
-	server=TestUtil.getIceBox())
+    server=TestUtil.getIceBox())

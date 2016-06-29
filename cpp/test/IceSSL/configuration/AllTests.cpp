@@ -1533,7 +1533,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         //     }
         //     catch(const LocalException& ex)
         //     {
-	//         test(false);
+        //         test(false);
         //     }
         //     fact->destroyServer(server);
         //     comm->destroy();

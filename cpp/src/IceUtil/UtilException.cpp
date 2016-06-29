@@ -43,7 +43,7 @@
 #           include <algorithm>
 #           include <cxxabi.h>
 #       else
-	    // It's available but we cant' use it - shouldn't happen
+            // It's available but we cant' use it - shouldn't happen
 #           undef ICE_LIBBACKTRACE
 #       endif
 #   endif
@@ -127,24 +127,24 @@ public:
 
     Init()
     {
-	globalMutex = new IceUtil::Mutex;
+        globalMutex = new IceUtil::Mutex;
 #ifdef ICE_LIBBACKTRACE
-	// Leaked, as libbacktrace does not provide an API to free
-	// this state
-	bstate = backtrace_create_state(0, 1, ignoreErrorCallback, 0);
+        // Leaked, as libbacktrace does not provide an API to free
+        // this state
+        bstate = backtrace_create_state(0, 1, ignoreErrorCallback, 0);
 #endif
     }
 
     ~Init()
     {
-	delete globalMutex;
-	globalMutex = 0;
+        delete globalMutex;
+        globalMutex = 0;
 #ifdef ICE_DBGHELP
-	if(process != 0)
-	{
-	    SymCleanup(process);
-	    process = 0;
-	}
+        if(process != 0)
+        {
+            SymCleanup(process);
+            process = 0;
+        }
 #endif
     }
 };
@@ -156,10 +156,10 @@ Init init;
 struct FrameInfo
 {
     FrameInfo(int i, uintptr_t p) :
-	index(i),
-	pc(p),
-	fallback(0),
-	setByErrorCb(false)
+        index(i),
+        pc(p),
+        fallback(0),
+        setByErrorCb(false)
     {
     }
 
@@ -176,47 +176,47 @@ decode(const string& line, string& function, string& filename)
     string::size_type openParen = line.find_first_of('(');
     if(openParen != string::npos)
     {
-	//
-	// Format: "/opt/Ice/lib/libIceUtil.so.33(_ZN7IceUtil9ExceptionC2EPKci+0x51) [0x73b267]"
-	//
-	string::size_type closeParen = line.find_first_of(')', openParen);
-	if(closeParen != string::npos)
-	{
-	    string tmp = line.substr(openParen + 1, closeParen - openParen - 1);
-	    string::size_type plus = tmp.find_last_of('+');
-	    if(plus != string::npos)
-	    {
-		function = tmp.substr(0 , plus);
-		filename = line.substr(0, openParen);
-	    }
-	}
+        //
+        // Format: "/opt/Ice/lib/libIceUtil.so.33(_ZN7IceUtil9ExceptionC2EPKci+0x51) [0x73b267]"
+        //
+        string::size_type closeParen = line.find_first_of(')', openParen);
+        if(closeParen != string::npos)
+        {
+            string tmp = line.substr(openParen + 1, closeParen - openParen - 1);
+            string::size_type plus = tmp.find_last_of('+');
+            if(plus != string::npos)
+            {
+                function = tmp.substr(0 , plus);
+                filename = line.substr(0, openParen);
+            }
+        }
     }
     else
     {
-	//
-	// Format: "1    libIce.3.3.1.dylib   0x000933a1 _ZN7IceUtil9ExceptionC2EPKci + 71"
-	//
-	string::size_type plus = line.find_last_of('+');
-	if(plus != string::npos)
-	{
-	    string tmp = line.substr(0, plus - 1);
-	    string::size_type space = tmp.find_last_of(" \t");
-	    if(space != string::npos)
-	    {
-		tmp = tmp.substr(space + 1, tmp.size() - space);
+        //
+        // Format: "1    libIce.3.3.1.dylib   0x000933a1 _ZN7IceUtil9ExceptionC2EPKci + 71"
+        //
+        string::size_type plus = line.find_last_of('+');
+        if(plus != string::npos)
+        {
+            string tmp = line.substr(0, plus - 1);
+            string::size_type space = tmp.find_last_of(" \t");
+            if(space != string::npos)
+            {
+                tmp = tmp.substr(space + 1, tmp.size() - space);
 
-		string::size_type start = line.find_first_not_of(" \t", 3);
-		if(start != string::npos)
-		{
-		    string::size_type finish = line.find_first_of(" \t", start);
-		    if(finish != string::npos)
-		    {
-			function = tmp;
-			filename = line.substr(start, finish - start);
-		    }
-		}
-	    }
-	}
+                string::size_type start = line.find_first_not_of(" \t", 3);
+                if(start != string::npos)
+                {
+                    string::size_type finish = line.find_first_of(" \t", start);
+                    if(finish != string::npos)
+                    {
+                        function = tmp;
+                        filename = line.substr(start, finish - start);
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -232,52 +232,52 @@ printFrame(void* data, uintptr_t pc, const char* filename, int lineno, const cha
 
     if(!function && frameInfo.fallback)
     {
-	// Extract function and filename from fallback
-	decode(frameInfo.fallback, functionHolder, filenameHolder);
-	if(!functionHolder.empty())
-	{
-	    function = functionHolder.c_str();
-	}
-	if(!filename && !filenameHolder.empty())
-	{
-	    filename = filenameHolder.c_str();
-	}
+        // Extract function and filename from fallback
+        decode(frameInfo.fallback, functionHolder, filenameHolder);
+        if(!functionHolder.empty())
+        {
+            function = functionHolder.c_str();
+        }
+        if(!filename && !filenameHolder.empty())
+        {
+            filename = filenameHolder.c_str();
+        }
     }
 
     int ret = 0;
 
     if(function)
     {
-	char* demangledFunction = abi::__cxa_demangle(function, 0, 0, 0);
-	if(demangledFunction)
-	{
-	    os << demangledFunction;
-	    free(demangledFunction);
-	}
-	else
-	{
-	    os << function;
-	}
+        char* demangledFunction = abi::__cxa_demangle(function, 0, 0, 0);
+        if(demangledFunction)
+        {
+            os << demangledFunction;
+            free(demangledFunction);
+        }
+        else
+        {
+            os << function;
+        }
 
-	if(filename && lineno > 0)
-	{
-	    os << " at " << filename << ":" << lineno;
-	}
-	else if(filename)
-	{
-	    os << " in " << filename;
-	}
+        if(filename && lineno > 0)
+        {
+            os << " at " << filename << ":" << lineno;
+        }
+        else if(filename)
+        {
+            os << " in " << filename;
+        }
     }
     else if(frameInfo.fallback)
     {
-	// decode was not able to parse this string
-	os << frameInfo.fallback;
-	ret = 1;
+        // decode was not able to parse this string
+        os << frameInfo.fallback;
+        ret = 1;
     }
     else
     {
-	os << hex << setw(sizeof(uintptr_t) * 2) << setfill('0') << pc;
-	ret = 2;
+        os << hex << setw(sizeof(uintptr_t) * 2) << setfill('0') << pc;
+        ret = 2;
     }
     os << "\n";
     frameInfo.output = os.str();
@@ -303,13 +303,13 @@ addFrame(void* sf, uintptr_t pc)
 {
     if(pc != UINTPTR_MAX)
     {
-	vector<void*>* stackFrames = reinterpret_cast<vector<void*>*>(sf);
-	stackFrames->push_back(reinterpret_cast<void*>(pc));
-	return 0;
+        vector<void*>* stackFrames = reinterpret_cast<vector<void*>*>(sf);
+        stackFrames->push_back(reinterpret_cast<void*>(pc));
+        return 0;
     }
     else
     {
-	return 1;
+        return 1;
     }
 }
 #endif
@@ -321,7 +321,7 @@ getStackFrames()
 
     if(!IceUtilInternal::printStackTraces)
     {
-	return stackFrames;
+        return stackFrames;
     }
 
 #if defined(ICE_DBGHELP)
@@ -346,7 +346,7 @@ getStackFrames()
     stackFrames.resize(stackDepth);
     if(!stackFrames.empty())
     {
-	stackFrames.erase(stackFrames.begin()); // drop the first frame
+        stackFrames.erase(stackFrames.begin()); // drop the first frame
     }
 #endif
 
@@ -359,7 +359,7 @@ getStackTrace(const vector<void*>& stackFrames)
 {
     if(stackFrames.empty())
     {
-	return "";
+        return "";
     }
 
     string stackTrace;
@@ -372,68 +372,68 @@ getStackTrace(const vector<void*>& stackFrames)
     IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
     if(process == 0)
     {
-	//
-	// Compute Search path (best effort)
-	// consists of the current working directory, this DLL (or exe) directory and %_NT_SYMBOL_PATH%
-	//
-	basic_string<TCHAR> searchPath;
-	const TCHAR pathSeparator = _T('\\');
-	const TCHAR searchPathSeparator = _T(';');
+        //
+        // Compute Search path (best effort)
+        // consists of the current working directory, this DLL (or exe) directory and %_NT_SYMBOL_PATH%
+        //
+        basic_string<TCHAR> searchPath;
+        const TCHAR pathSeparator = _T('\\');
+        const TCHAR searchPathSeparator = _T(';');
 
-	TCHAR cwd[MAX_PATH];
-	if(GetCurrentDirectory(MAX_PATH, cwd) != 0)
-	{
-	    searchPath = cwd;
-	}
+        TCHAR cwd[MAX_PATH];
+        if(GetCurrentDirectory(MAX_PATH, cwd) != 0)
+        {
+            searchPath = cwd;
+        }
 
-	HMODULE myModule = 0;
-	GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
-			   "startHook",
-			   &myModule);
-	//
-	// If GetModuleHandleEx fails, myModule is NULL, i.e. we'll locate the current exe's directory.
-	//
+        HMODULE myModule = 0;
+        GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                           "startHook",
+                           &myModule);
+        //
+        // If GetModuleHandleEx fails, myModule is NULL, i.e. we'll locate the current exe's directory.
+        //
 
-	TCHAR myFilename[MAX_PATH];
-	DWORD len = GetModuleFileName(myModule, myFilename, MAX_PATH);
-	if(len != 0 && len < MAX_PATH)
-	{
-	    assert(myFilename[len] == 0);
+        TCHAR myFilename[MAX_PATH];
+        DWORD len = GetModuleFileName(myModule, myFilename, MAX_PATH);
+        if(len != 0 && len < MAX_PATH)
+        {
+            assert(myFilename[len] == 0);
 
-	    basic_string<TCHAR> myPath = myFilename;
-	    size_t pos = myPath.find_last_of(pathSeparator);
-	    if(pos != basic_string<TCHAR>::npos)
-	    {
-		myPath = myPath.substr(0, pos);
+            basic_string<TCHAR> myPath = myFilename;
+            size_t pos = myPath.find_last_of(pathSeparator);
+            if(pos != basic_string<TCHAR>::npos)
+            {
+                myPath = myPath.substr(0, pos);
 
-		if(!searchPath.empty())
-		{
-		    searchPath += searchPathSeparator;
-		}
-		searchPath += myPath;
-	    }
-	}
+                if(!searchPath.empty())
+                {
+                    searchPath += searchPathSeparator;
+                }
+                searchPath += myPath;
+            }
+        }
 
-	const DWORD size = 1024;
-	TCHAR symbolPath[size];
-	len = GetEnvironmentVariable(_T("_NT_SYMBOL_PATH"), symbolPath, size);
-	if(len > 0 && len < size)
-	{
-	    if(!searchPath.empty())
-	    {
-		searchPath += searchPathSeparator;
-	    }
-	    searchPath += symbolPath;
-	}
+        const DWORD size = 1024;
+        TCHAR symbolPath[size];
+        len = GetEnvironmentVariable(_T("_NT_SYMBOL_PATH"), symbolPath, size);
+        if(len > 0 && len < size)
+        {
+            if(!searchPath.empty())
+            {
+                searchPath += searchPathSeparator;
+            }
+            searchPath += symbolPath;
+        }
 
-	process = GetCurrentProcess();
+        process = GetCurrentProcess();
 
-	SymSetOptions(SYMOPT_LOAD_LINES | SYMOPT_DEFERRED_LOADS | SYMOPT_EXACT_SYMBOLS | SYMOPT_UNDNAME);
-	if(SymInitialize(process, searchPath.c_str(), TRUE) == 0)
-	{
-	    process = 0;
-	    return "No stack trace: SymInitialize failed with " + IceUtilInternal::errorToString(GetLastError());
-	}
+        SymSetOptions(SYMOPT_LOAD_LINES | SYMOPT_DEFERRED_LOADS | SYMOPT_EXACT_SYMBOLS | SYMOPT_UNDNAME);
+        if(SymInitialize(process, searchPath.c_str(), TRUE) == 0)
+        {
+            process = 0;
+            return "No stack trace: SymInitialize failed with " + IceUtilInternal::errorToString(GetLastError());
+        }
     }
     lock.release();
 
@@ -464,37 +464,37 @@ getStackTrace(const vector<void*>& stackFrames)
 #endif
     for(size_t i = 0; i < stackFrames.size(); i++)
     {
-	ostringstream s;
-	s << setw(3) << i << " ";
+        ostringstream s;
+        s << setw(3) << i << " ";
 
-	DWORD64 address = reinterpret_cast<DWORD64>(stackFrames[i]);
+        DWORD64 address = reinterpret_cast<DWORD64>(stackFrames[i]);
 
-	BOOL ok = SymFromAddr(process, address, 0, symbol);
-	if(ok)
-	{
+        BOOL ok = SymFromAddr(process, address, 0, symbol);
+        if(ok)
+        {
 #ifdef DBGHELP_TRANSLATE_TCHAR
-	    s << IceUtil::wstringToString(symbol->Name, converter);
+            s << IceUtil::wstringToString(symbol->Name, converter);
 #else
-	    s << symbol->Name;
+            s << symbol->Name;
 #endif
-	    ok = SymGetLineFromAddr64(process, address, &displacement, &line);
-	    if(ok)
-	    {
-		s << " at "
+            ok = SymGetLineFromAddr64(process, address, &displacement, &line);
+            if(ok)
+            {
+                s << " at "
 #ifdef DBGHELP_TRANSLATE_TCHAR
                   << IceUtil::wstringToString(line.FileName, converter)
 #else
-		  << line.FileName
+                  << line.FileName
 #endif
-		  << ":" << line.LineNumber;
-	    }
-	}
-	else
-	{
-	    s << hex << setw(sizeof(DWORD64) * 2) << setfill('0') << address;
-	}
-	s << "\n";
-	stackTrace += s.str();
+                  << ":" << line.LineNumber;
+            }
+        }
+        else
+        {
+            s << hex << setw(sizeof(DWORD64) * 2) << setfill('0') << address;
+        }
+        s << "\n";
+        stackTrace += s.str();
     }
     lock.release();
 
@@ -512,51 +512,51 @@ getStackTrace(const vector<void*>& stackFrames)
     // Initialize backtraceStrings immediately
     if(p != stackFrames.end())
     {
-	backtraceStrings = backtrace_symbols(&*p, stackFrames.size());
+        backtraceStrings = backtrace_symbols(&*p, stackFrames.size());
     }
 #   endif
 
     do
     {
-	FrameInfo frameInfo(frameIndex, reinterpret_cast<uintptr_t>(*p));
-	bool retry = false;
+        FrameInfo frameInfo(frameIndex, reinterpret_cast<uintptr_t>(*p));
+        bool retry = false;
 
-	if(backtraceStrings)
-	{
-	    frameInfo.fallback = backtraceStrings[frameIndex - offset];
-	}
+        if(backtraceStrings)
+        {
+            frameInfo.fallback = backtraceStrings[frameIndex - offset];
+        }
 
 #   if defined(ICE_LIBBACKTRACE)
-	bool ok = backtrace_pcinfo(bstate, frameInfo.pc, printFrame, handlePcInfoError, &frameInfo) == 0;
+        bool ok = backtrace_pcinfo(bstate, frameInfo.pc, printFrame, handlePcInfoError, &frameInfo) == 0;
 
-	// When error callback is called, pcinfo returns 0
-	if(!ok || frameInfo.setByErrorCb)
-	{
+        // When error callback is called, pcinfo returns 0
+        if(!ok || frameInfo.setByErrorCb)
+        {
 #       if defined(ICE_BACKTRACE)
-	    if(!backtraceStringsInitialized)
-	    {
-		offset = frameIndex;
-		// Initialize backtraceStrings as fallback
-		backtraceStrings = backtrace_symbols(&*p, stackFrames.size() - offset);
-		backtraceStringsInitialized = true;
-		retry = true;
-	    }
+            if(!backtraceStringsInitialized)
+            {
+                offset = frameIndex;
+                // Initialize backtraceStrings as fallback
+                backtraceStrings = backtrace_symbols(&*p, stackFrames.size() - offset);
+                backtraceStringsInitialized = true;
+                retry = true;
+            }
 #       endif
-	}
+        }
 #   else // not using libbacktrace:
-	printFrame(&frameInfo, frameInfo.pc, 0, 0, 0);
+        printFrame(&frameInfo, frameInfo.pc, 0, 0, 0);
 #   endif
-	if(!retry)
-	{
-	    stackTrace += frameInfo.output;
-	    ++p;
-	    ++frameIndex;
-	}
+        if(!retry)
+        {
+            stackTrace += frameInfo.output;
+            ++p;
+            ++frameIndex;
+        }
     } while(p != stackFrames.end());
 
     if(backtraceStrings)
     {
-	free(backtraceStrings);
+        free(backtraceStrings);
     }
 
 #endif
@@ -589,7 +589,7 @@ IceUtil::Exception::ice_print(ostream& out) const
 {
     if(_file && _line > 0)
     {
-	out << _file << ':' << _line << ": ";
+        out << _file << ':' << _line << ": ";
     }
     out << ice_id();
 }
@@ -599,16 +599,16 @@ IceUtil::Exception::what() const ICE_NOEXCEPT
 {
     try
     {
-	IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
-	{
-	    if(_str.empty())
-	    {
-		stringstream s;
-		ice_print(s);
-		_str = s.str(); // Lazy initialization.
-	    }
-	}
-	return _str.c_str();
+        IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
+        {
+            if(_str.empty())
+            {
+                stringstream s;
+                ice_print(s);
+                _str = s.str(); // Lazy initialization.
+            }
+        }
+        return _str.c_str();
     }
     catch(...)
     {
@@ -622,11 +622,11 @@ IceUtil::Exception::ice_clone() const
 {
     try
     {
-	ice_throw();
+        ice_throw();
     }
     catch(...)
     {
-	return current_exception();
+        return current_exception();
     }
     assert(false);
     return nullptr; // Make compilers happy
@@ -670,7 +670,7 @@ IceUtil::NullHandleException::NullHandleException(const char* file, int line) :
 {
     if(IceUtilInternal::nullHandleAbort)
     {
-	abort();
+        abort();
     }
 }
 
@@ -758,7 +758,7 @@ IceUtil::IllegalConversionException::IllegalConversionException(const char* file
 {}
 
 IceUtil::IllegalConversionException::IllegalConversionException(const char* file, int line,
-								const string& reason):
+                                                                const string& reason):
     Exception(file, line),
     _reason(reason)
 {}
@@ -817,7 +817,7 @@ IceUtil::SyscallException::ice_print(ostream& os) const
     Exception::ice_print(os);
     if(_error != 0)
     {
-	os << ":\nsyscall exception: " << IceUtilInternal::errorToString(_error);
+        os << ":\nsyscall exception: " << IceUtilInternal::errorToString(_error);
     }
 }
 
@@ -868,7 +868,7 @@ IceUtil::FileLockException::ice_print(ostream& os) const
     os << ":\ncould not lock file: `" << _path << "'";
     if(_error != 0)
     {
-	os << "\nsyscall exception: " << IceUtilInternal::errorToString(_error);
+        os << "\nsyscall exception: " << IceUtilInternal::errorToString(_error);
     }
 }
 
@@ -903,7 +903,7 @@ IceUtil::OptionalNotSetException::OptionalNotSetException(const char* file, int 
 {
     if(IceUtilInternal::nullHandleAbort)
     {
-	abort();
+        abort();
     }
 }
 

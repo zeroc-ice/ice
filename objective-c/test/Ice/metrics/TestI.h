@@ -25,7 +25,7 @@
 @interface ControllerI : TestMetricsController<TestMetricsController>
 {
 @private
-	id<ICEObjectAdapter> adapter;
+    id<ICEObjectAdapter> adapter;
 }
 -(id) init:(id<ICEObjectAdapter>)adapter_p;
 -(void) hold:(ICECurrent*)current;

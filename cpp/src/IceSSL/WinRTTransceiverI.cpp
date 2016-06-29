@@ -61,7 +61,7 @@ IceSSL::TransceiverI::closing(bool initiator, exception_ptr ex)
 IceSSL::TransceiverI::closing(bool initiator, const Ice::LocalException& ex)
 #endif
 {
-	return _delegate->closing(initiator, ex);
+    return _delegate->closing(initiator, ex);
 }
 
 void

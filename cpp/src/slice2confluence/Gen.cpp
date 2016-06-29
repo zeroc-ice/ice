@@ -1392,14 +1392,14 @@ Slice::GeneratorBase::getLinkPath(const SyntaxTreeBasePtr& p, const ContainerPtr
     {
         // Intra-package links need package name, unlike with html dir structure
         EnumeratorPtr enumerator = EnumeratorPtr::dynamicCast(p);
-	if(enumerator)
-	{
-	    target = toStringList(enumerator->type());
-	}
-	else
-	{
-	    target = getContainer(p);
-	}
+    if(enumerator)
+    {
+        target = toStringList(enumerator->type());
+    }
+    else
+    {
+        target = getContainer(p);
+    }
         path = "";
         while (!target.empty()) {
             if (!path.empty()) {

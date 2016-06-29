@@ -118,16 +118,16 @@
 {
     @try
     {
-	@throw exc;
+        @throw exc;
     }
     @catch(TestSlicingExceptionsClientBase* b)
     {
-	test([b.b isEqualToString:@"Base.b"]);
-	test([[b ice_id] isEqualToString:@"::Test::Base"]);
+        test([b.b isEqualToString:@"Base.b"]);
+        test([[b ice_id] isEqualToString:@"::Test::Base"]);
     }
     @catch(...)
     {
-	test(NO);
+        test(NO);
     }
     [self called];
 }
@@ -136,16 +136,16 @@
 {
     @try
     {
-	@throw exc;
+        @throw exc;
     }
     @catch(TestSlicingExceptionsClientBase* b)
     {
-	test([b.b isEqualToString:@"UnknownDerived.b"]);
-	test([[b ice_id] isEqualToString:@"::Test::Base"]);
+        test([b.b isEqualToString:@"UnknownDerived.b"]);
+        test([[b ice_id] isEqualToString:@"::Test::Base"]);
     }
     @catch(...)
     {
-	test(NO);
+        test(NO);
     }
     [self called];
 }
@@ -154,17 +154,17 @@
 {
     @try
     {
-	@throw exc;
+        @throw exc;
     }
     @catch(TestSlicingExceptionsClientKnownDerived* k)
     {
-	test([k.b isEqualToString:@"KnownDerived.b"]);
-	test([k.kd isEqualToString:@"KnownDerived.kd"]);
-	test([[k ice_id] isEqualToString:@"::Test::KnownDerived"]);
+        test([k.b isEqualToString:@"KnownDerived.b"]);
+        test([k.kd isEqualToString:@"KnownDerived.kd"]);
+        test([[k ice_id] isEqualToString:@"::Test::KnownDerived"]);
     }
     @catch(...)
     {
-	test(NO);
+        test(NO);
     }
     [self called];
 }
@@ -173,16 +173,16 @@
 {
     @try
     {
-	@throw exc;
+        @throw exc;
     }
     @catch(TestSlicingExceptionsClientBase* b)
     {
-	test([b.b isEqualToString:@"UnknownIntermediate.b"]);
-	test([[b ice_id] isEqualToString:@"::Test::Base"]);
+        test([b.b isEqualToString:@"UnknownIntermediate.b"]);
+        test([[b ice_id] isEqualToString:@"::Test::Base"]);
     }
     @catch(...)
     {
-	test(NO);
+        test(NO);
     }
     [self called];
 }
@@ -191,17 +191,17 @@
 {
     @try
     {
-	@throw exc;
+        @throw exc;
     }
     @catch(TestSlicingExceptionsClientKnownIntermediate* ki)
     {
-	test([ki.b isEqualToString:@"KnownIntermediate.b"]);
-	test([ki.ki isEqualToString:@"KnownIntermediate.ki"]);
-	test([[ki ice_id] isEqualToString:@"::Test::KnownIntermediate"]);
+        test([ki.b isEqualToString:@"KnownIntermediate.b"]);
+        test([ki.ki isEqualToString:@"KnownIntermediate.ki"]);
+        test([[ki ice_id] isEqualToString:@"::Test::KnownIntermediate"]);
     }
     @catch(...)
     {
-	test(NO);
+        test(NO);
     }
     [self called];
 }
@@ -210,18 +210,18 @@
 {
     @try
     {
-	@throw exc;
+        @throw exc;
     }
     @catch(TestSlicingExceptionsClientKnownMostDerived* kmd)
     {
-	test([kmd.b isEqualToString:@"KnownMostDerived.b"]);
-	test([kmd.ki isEqualToString:@"KnownMostDerived.ki"]);
-	test([kmd.kmd isEqualToString:@"KnownMostDerived.kmd"]);
-	test([[kmd ice_id] isEqualToString:@"::Test::KnownMostDerived"]);
+        test([kmd.b isEqualToString:@"KnownMostDerived.b"]);
+        test([kmd.ki isEqualToString:@"KnownMostDerived.ki"]);
+        test([kmd.kmd isEqualToString:@"KnownMostDerived.kmd"]);
+        test([[kmd ice_id] isEqualToString:@"::Test::KnownMostDerived"]);
     }
     @catch(...)
     {
-	test(NO);
+        test(NO);
     }
     [self called];
 }
@@ -230,17 +230,17 @@
 {
     @try
     {
-	@throw exc;
+        @throw exc;
     }
     @catch(TestSlicingExceptionsClientKnownIntermediate* ki)
     {
-	test([ki.b isEqualToString:@"KnownIntermediate.b"]);
-	test([ki.ki isEqualToString:@"KnownIntermediate.ki"]);
-	test([[ki ice_id] isEqualToString:@"::Test::KnownIntermediate"]);
+        test([ki.b isEqualToString:@"KnownIntermediate.b"]);
+        test([ki.ki isEqualToString:@"KnownIntermediate.ki"]);
+        test([[ki ice_id] isEqualToString:@"::Test::KnownIntermediate"]);
     }
     @catch(...)
     {
-	test(NO);
+        test(NO);
     }
     [self called];
 }
@@ -249,17 +249,17 @@
 {
     @try
     {
-	@throw exc;
+        @throw exc;
     }
     @catch(TestSlicingExceptionsClientKnownIntermediate* ki)
     {
-	test([ki.b isEqualToString:@"UnknownMostDerived1.b"]);
-	test([ki.ki isEqualToString:@"UnknownMostDerived1.ki"]);
-	test([[ki ice_id] isEqualToString:@"::Test::KnownIntermediate"]);
+        test([ki.b isEqualToString:@"UnknownMostDerived1.b"]);
+        test([ki.ki isEqualToString:@"UnknownMostDerived1.ki"]);
+        test([[ki ice_id] isEqualToString:@"::Test::KnownIntermediate"]);
     }
     @catch(...)
     {
-	test(NO);
+        test(NO);
     }
     [self called];
 }
@@ -268,16 +268,16 @@
 {
     @try
     {
-	@throw exc;
+        @throw exc;
     }
     @catch(TestSlicingExceptionsClientBase* b)
     {
-	test([b.b isEqualToString:@"UnknownMostDerived2.b"]);
-	test([[b ice_id] isEqualToString:@"::Test::Base"]);
+        test([b.b isEqualToString:@"UnknownMostDerived2.b"]);
+        test([[b ice_id] isEqualToString:@"::Test::Base"]);
     }
     @catch(...)
     {
-	test(NO);
+        test(NO);
     }
     [self called];
 }

@@ -301,7 +301,7 @@ public:
         // to Windows API.
         //
         LONG err = RegDeleteKeyW(HKEY_LOCAL_MACHINE,
-			IceUtil::stringToWstring(createKey(source), stringConverter).c_str());
+            IceUtil::stringToWstring(createKey(source), stringConverter).c_str());
         if(err != ERROR_SUCCESS)
         {
             SyscallException ex(__FILE__, __LINE__);
@@ -1106,7 +1106,7 @@ Ice::Service::runService(int argc, char* argv[], const InitializationData& initD
     SERVICE_TABLE_ENTRYW ste[] =
     {
         { const_cast<wchar_t*>(
-		    IceUtil::stringToWstring(_name, IceUtil::getProcessStringConverter()).c_str()),
+            IceUtil::stringToWstring(_name, IceUtil::getProcessStringConverter()).c_str()),
             Ice_Service_ServiceMain },
         { 0, 0 },
     };
@@ -1294,7 +1294,7 @@ Ice::Service::serviceMain(int argc, wchar_t* argv[])
     // as argv come from Windows API.
     //
     char** args = new char*[_serviceArgs.size() + argc];
-	args[0] = const_cast<char*>(IceUtil::wstringToString(argv[0], converter).c_str());
+    args[0] = const_cast<char*>(IceUtil::wstringToString(argv[0], converter).c_str());
     int i = 1;
     for(vector<string>::iterator p = _serviceArgs.begin(); p != _serviceArgs.end(); ++p)
     {
@@ -1302,7 +1302,7 @@ Ice::Service::serviceMain(int argc, wchar_t* argv[])
     }
     for(int j = 1; j < argc; ++j)
     {
-		args[i++] = const_cast<char*>(IceUtil::wstringToString(argv[j], converter).c_str());
+        args[i++] = const_cast<char*>(IceUtil::wstringToString(argv[j], converter).c_str());
     }
     argc += static_cast<int>(_serviceArgs.size());
 

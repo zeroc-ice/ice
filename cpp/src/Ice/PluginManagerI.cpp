@@ -481,7 +481,7 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, St
         }
 
 #ifdef __IBMCPP__
-	// xlC warns when casting a void* to function pointer
+    // xlC warns when casting a void* to function pointer
 #   pragma report(disable, "1540-0216")
 #endif
 

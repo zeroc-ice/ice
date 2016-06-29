@@ -40,7 +40,7 @@ void
 writeU8Buffer(const vector<unsigned char>& u8buffer, ::IceUtilInternal::Output& out)
 {
     vector<unsigned short> u16buffer = toUTF16(u8buffer);
-    
+
     for(vector<unsigned short>::const_iterator c = u16buffer.begin(); c != u16buffer.end(); ++c)
     {
         out << u16CodePoint(*c);
@@ -2979,7 +2979,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << "class " << fixKwd(name);
         out.useCurrentPosAsIndent();
 
-	StringList implements;
+        StringList implements;
         bool implementsOnNewLine = true;
 
         if(bases.empty() || bases.front()->isInterface())
@@ -2987,7 +2987,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             if(p->isLocal())
             {
                 implementsOnNewLine = false;
-		implements.push_back("java.lang.Cloneable");
+        implements.push_back("java.lang.Cloneable");
             }
             else
             {
@@ -3343,28 +3343,28 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     if(!p->isInterface())
     {
-	out << sp << nl << "public " << name << nl << "clone()";
-	out << sb;
+        out << sp << nl << "public " << name << nl << "clone()";
+        out << sb;
 
-	if(p->isLocal() && !baseClass)
-	{
-	    out << nl << name << " c = null;";
-	    out << nl << "try";
-	    out << sb;
-	    out << nl << "c = (" << name << ")super.clone();";
-	    out << eb;
-	    out << nl << "catch(CloneNotSupportedException ex)";
-	    out << sb;
-	    out << nl << "assert false; // impossible";
-	    out << eb;
-	    out << nl << "return c;";
+        if(p->isLocal() && !baseClass)
+        {
+            out << nl << name << " c = null;";
+            out << nl << "try";
+            out << sb;
+            out << nl << "c = (" << name << ")super.clone();";
+            out << eb;
+            out << nl << "catch(CloneNotSupportedException ex)";
+            out << sb;
+            out << nl << "assert false; // impossible";
+            out << eb;
+            out << nl << "return c;";
 
-	}
-	else
-	{
-	    out << nl << "return (" << name << ")super.clone();";
-	}
-	out << eb;
+        }
+        else
+        {
+            out << nl << "return (" << name << ")super.clone();";
+        }
+        out << eb;
     }
 
     if(p->isInterface() && !p->isLocal())
@@ -3775,7 +3775,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
         if(p->usesClasses(false))
         {
-	    if(!base || (base && !base->usesClasses(false)))
+            if(!base || (base && !base->usesClasses(false)))
             {
                 out << sp << nl << "public boolean" << nl << "__usesClasses()";
                 out << sb;

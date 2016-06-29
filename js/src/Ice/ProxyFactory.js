@@ -260,7 +260,7 @@ var ProxyFactory = Ice.Class({
             if(traceLevels.retry >= 1)
             {
                 logger.trace(traceLevels.retryCat,
-			     "cannot retry operation call because retry limit has been exceeded\n" + ex.toString());
+                             "cannot retry operation call because retry limit has been exceeded\n" + ex.toString());
             }
             throw ex;
         }

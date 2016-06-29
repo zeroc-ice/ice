@@ -85,7 +85,7 @@ public:
 
     ~DllCache();
 
-	HINSTANCE loadDll(const std::string&);
+    HINSTANCE loadDll(const std::string&);
 
 private:
 
@@ -101,7 +101,7 @@ public:
 
     void completed();
     void failed(Platform::String^ reason);
-	void printToConsoleOutput(Platform::String^ message, bool newline);
+    void printToConsoleOutput(Platform::String^ message, bool newline);
 
 protected:
 

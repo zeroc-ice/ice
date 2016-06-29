@@ -230,7 +230,7 @@ run(id<ICECommunicator> communicator)
     }
 
     {
-    	BOOL buf[] = { YES, YES, NO, YES };
+        BOOL buf[] = { YES, YES, NO, YES };
         ICEBoolSeq* arr = [ICEBoolSeq dataWithBytes:buf length:sizeof(buf)];
 
         out = [ICEUtil createOutputStream:communicator];

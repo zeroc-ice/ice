@@ -359,7 +359,7 @@ IceSSL::TransceiverI::sslHandshake()
                 break; // We're done.
             }
 
-	    // Otherwise continue either reading credentials
+            // Otherwise continue either reading credentials
         }
 
         if(_state == StateHandshakeWriteContinue)

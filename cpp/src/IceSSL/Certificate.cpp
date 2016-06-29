@@ -573,24 +573,24 @@ certificateAltNames(CERT_INFO* certInfo, LPCSTR altNameOID)
 vector<pair<int, string> >
 certificateAltNames(Windows::Security::Cryptography::Certificates::SubjectAlternativeNameInfo^ subAltNames)
 {
-	vector<pair<int, string> > altNames;
-	for (auto iter = subAltNames->EmailName->First(); iter->HasCurrent; iter->MoveNext())
-	{
-		altNames.push_back(make_pair(AltNameEmail, IceUtil::wstringToString(iter->Current->Data())));
-	}
-	for (auto iter = subAltNames->DnsName->First(); iter->HasCurrent; iter->MoveNext())
-	{
-		altNames.push_back(make_pair(AltNameDNS, IceUtil::wstringToString(iter->Current->Data())));
-	}
-	for (auto iter = subAltNames->Url->First(); iter->HasCurrent; iter->MoveNext())
-	{
-		altNames.push_back(make_pair(AltNameURL, IceUtil::wstringToString(iter->Current->Data())));
-	}
-	for (auto iter = subAltNames->IPAddress->First(); iter->HasCurrent; iter->MoveNext())
-	{
-		altNames.push_back(make_pair(AltNAmeIP, IceUtil::wstringToString(iter->Current->Data())));
-	}
-	return altNames;
+    vector<pair<int, string> > altNames;
+    for (auto iter = subAltNames->EmailName->First(); iter->HasCurrent; iter->MoveNext())
+    {
+        altNames.push_back(make_pair(AltNameEmail, IceUtil::wstringToString(iter->Current->Data())));
+    }
+    for (auto iter = subAltNames->DnsName->First(); iter->HasCurrent; iter->MoveNext())
+    {
+        altNames.push_back(make_pair(AltNameDNS, IceUtil::wstringToString(iter->Current->Data())));
+    }
+    for (auto iter = subAltNames->Url->First(); iter->HasCurrent; iter->MoveNext())
+    {
+        altNames.push_back(make_pair(AltNameURL, IceUtil::wstringToString(iter->Current->Data())));
+    }
+    for (auto iter = subAltNames->IPAddress->First(); iter->HasCurrent; iter->MoveNext())
+    {
+        altNames.push_back(make_pair(AltNAmeIP, IceUtil::wstringToString(iter->Current->Data())));
+    }
+    return altNames;
 }
 #endif
 
@@ -1436,12 +1436,12 @@ Certificate::encode() const
     BIO_free(out);
     return result;
 #elif defined(ICE_OS_WINRT)
-	auto reader = Windows::Storage::Streams::DataReader::FromBuffer(_cert->GetCertificateBlob());
-	std::vector<unsigned char> data(reader->UnconsumedBufferLength);
-	if (!data.empty())
-	{
-		reader->ReadBytes(Platform::ArrayReference<unsigned char>(&data[0], static_cast<unsigned int>(data.size())));
-	}
+    auto reader = Windows::Storage::Streams::DataReader::FromBuffer(_cert->GetCertificateBlob());
+    std::vector<unsigned char> data(reader->UnconsumedBufferLength);
+    if (!data.empty())
+    {
+        reader->ReadBytes(Platform::ArrayReference<unsigned char>(&data[0], static_cast<unsigned int>(data.size())));
+    }
     ostringstream os;
     os << "-----BEGIN CERTIFICATE-----\n";
     os << IceInternal::Base64::encode(data);
@@ -1535,12 +1535,12 @@ Certificate::getSerialNumber() const
     return result;
 #elif defined(ICE_OS_WINRT)
     ostringstream os;
-	os.fill(0);
-	os.width(2);
-	for (unsigned int i = 0; i < _cert->SerialNumber->Length; i++)
-	{
-		os << hex << static_cast<int>(_cert->SerialNumber[i]);
-	}
+    os.fill(0);
+    os.width(2);
+    for (unsigned int i = 0; i < _cert->SerialNumber->Length; i++)
+    {
+        os << hex << static_cast<int>(_cert->SerialNumber[i]);
+    }
     return IceUtilInternal::toUpper(os.str());
 #else
 #   error "Unknown platform"

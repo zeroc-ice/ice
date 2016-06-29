@@ -734,7 +734,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << nl << "uncheckedCast = staticmethod(uncheckedCast)";
 
 
-	//
+        //
         // ice_staticId
         //
         _out << sp << nl << "def ice_staticId():";
@@ -743,7 +743,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out.dec();
         _out << nl << "ice_staticId = staticmethod(ice_staticId)";
 
-	_out.dec();
+        _out.dec();
 
         _out << sp << nl << "_M_" << prxType << " = IcePy.defineProxy('" << scoped << "', " << prxName << ")";
     }
@@ -1062,7 +1062,7 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out << nl << "return IcePy.stringifyException(self)";
     _out.dec();
     _out << sp << nl << "__repr__ = __str__";
-    
+
     //
     // _ice_id
     //
