@@ -115,10 +115,13 @@
 // Compiler extensions to export and import symbols: see the documentation
 // for Visual Studio, Solaris Studio and GCC.
 //
-#if defined(_WIN32)
+#if defined(_MSC_VER)
 #   define ICE_DECLSPEC_EXPORT __declspec(dllexport)
 #   define ICE_DECLSPEC_IMPORT __declspec(dllimport)
-#elif defined(__GNUC__)
+//  With Visual Studio, we can import/export member functions without importing/
+//  exporting the whole class
+#   define ICE_MEMBER_IMPORT_EXPORT
+#elif defined(__GNUC__) || defined(__clang__)
 #   define ICE_DECLSPEC_EXPORT __attribute__((visibility ("default")))
 #   define ICE_DECLSPEC_IMPORT __attribute__((visibility ("default")))
 #elif defined(__SUNPRO_CC)
@@ -127,6 +130,15 @@
 #else
 #   define ICE_DECLSPEC_EXPORT /**/
 #   define ICE_DECLSPEC_IMPORT /**/
+#endif
+
+
+#ifdef ICE_MEMBER_IMPORT_EXPORT
+#   define ICE_CLASS(API) /**/
+#   define ICE_MEMBER(API) API
+#else
+#   define ICE_CLASS(API) API
+#   define ICE_MEMBER(API) /**/
 #endif
 
 //

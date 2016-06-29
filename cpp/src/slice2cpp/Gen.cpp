@@ -427,6 +427,32 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
     }
 }
 
+string
+toDllClassExport(const string& dllExport)
+{
+    if(!dllExport.empty())
+    {
+        return "ICE_CLASS(" + dllExport.substr(0, dllExport.size() - 1) + ") ";
+    }
+    else
+    {
+        return "";
+    }
+}
+
+string
+toDllMemberExport(const string& dllExport)
+{
+    if(!dllExport.empty())
+    {
+        return "ICE_MEMBER(" + dllExport.substr(0, dllExport.size() - 1) + ") ";
+    }
+    else
+    {
+        return "";
+    }
+}
+
 void
 writeDataMemberInitializers(IceUtilInternal::Output& C, const DataMemberList& members, int useWstring, bool cpp11 = false)
 {
@@ -1410,7 +1436,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     bool classMetaData = findMetaData(p->getMetaData()) == "%class";
     if(classMetaData)
     {
-        H << sp << nl << "class " << _dllExport << name << " : public IceUtil::Shared";
+        H << sp << nl << "class " << name << " : public IceUtil::Shared";
         H << sb;
         H.dec();
         H << nl << "public:";
@@ -1462,10 +1488,6 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         }
 
         H << nl;
-        if(!classMetaData)
-        {
-            H << _dllExport;
-        }
         if(paramDecls.size() == 1)
         {
             H << "explicit ";
@@ -1750,7 +1772,8 @@ Slice::Gen::ProxyDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
 }
 
 Slice::Gen::ProxyVisitor::ProxyVisitor(Output& h, Output& c, const string& dllExport) :
-    H(h), C(c), _dllExport(dllExport), _useWstring(false)
+    H(h), C(c), _dllExport(dllExport), _dllClassExport(toDllClassExport(dllExport)),
+    _dllMemberExport(toDllMemberExport(dllExport)), _useWstring(false)
 {
 }
 
@@ -1822,7 +1845,7 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
 
         string baseName = fixKwd("_" + p->name() + "Base");
 
-        H << sp << nl << "class " << _dllExport << baseName << " : ";
+        H << sp << nl << "class " << _dllClassExport << baseName << " : ";
         H.useCurrentPosAsIndent();
         for(ClassList::const_iterator q = bases.begin(); q != bases.end();)
         {
@@ -1840,7 +1863,7 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
         H.inc();
 
         // Out of line dtor to avoid weak vtable
-        H << sp << nl << "virtual ~" << baseName << "();";
+        H << sp << nl << _dllMemberExport << "virtual ~" << baseName << "();";
         C << sp;
         C << nl << "::IceProxy" << scope << baseName << "::~" << baseName << "()";
         C << sb;
@@ -1854,7 +1877,7 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
         H << eb << ';';
     }
 
-    H << sp << nl << "class " << _dllExport << name << " : ";
+    H << sp << nl << "class " << _dllClassExport << name << " : ";
     H << "public virtual ::Ice::Proxy<" << name << ", ";
     if(bases.empty())
     {
@@ -1906,12 +1929,12 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     string scoped = fixKwd(p->scoped());
     string scope = fixKwd(p->scope());
 
-    H << nl << nl << "static const ::std::string& ice_staticId();";
+    H << nl << nl << _dllMemberExport << "static const ::std::string& ice_staticId();";
 
     H.dec();
     H << sp << nl << "protected: ";
     H.inc();
-    H << nl << "virtual ::IceProxy::Ice::Object* __newInstance() const;";
+    H << nl << _dllMemberExport << "virtual ::IceProxy::Ice::Object* __newInstance() const;";
     H << eb << ';';
 
     C << sp;
@@ -2066,7 +2089,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     string thisPointer = fixKwd(scope.substr(0, scope.size() - 2)) + "*";
 
     string deprecateSymbol = getDeprecateSymbol(p, cl);
-    H << nl << deprecateSymbol << retS << ' ' << fixKwd(name) << spar << paramsDecl
+    H << nl << deprecateSymbol << _dllMemberExport << retS << ' ' << fixKwd(name) << spar << paramsDecl
       << "const ::Ice::Context& __ctx = ::Ice::noExplicitContext" << epar << ";";
 
     H << sp << nl << "::Ice::AsyncResultPtr begin_" << name << spar << paramsDeclAMI
@@ -2106,11 +2129,11 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     H << nl << "return __begin_" << name << spar << argsAMI << "__ctx" << "__del" << "__cookie" << epar << ';';
     H << eb;
 
-    H << sp << nl << retS << " end_" << name << spar << outParamsDeclAMI
+    H << sp << nl << _dllMemberExport << retS << " end_" << name << spar << outParamsDeclAMI
       << "const ::Ice::AsyncResultPtr&" << epar << ';';
     if(generatePrivateEnd)
     {
-        H << sp << nl << " void ___end_" << name << spar << outParamsDeclEndAMI;
+        H << sp << nl << _dllMemberExport << "void ___end_" << name << spar << outParamsDeclEndAMI;
         H << "const ::Ice::AsyncResultPtr&" << epar << ';';
     }
 
@@ -2118,7 +2141,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     H.dec();
     H << nl << "private:";
     H.inc();
-    H << nl <<  "::Ice::AsyncResultPtr __begin_" << name << spar << paramsAMI << "const ::Ice::Context&"
+    H << nl << _dllMemberExport << "::Ice::AsyncResultPtr __begin_" << name << spar
+      << paramsAMI << "const ::Ice::Context&"
       << "const ::IceInternal::CallbackBasePtr&"
       << "const ::Ice::LocalObjectPtr& __cookie = 0" << epar << ';';
     H << nl;
@@ -3958,7 +3982,9 @@ Slice::Gen::AsyncCallbackTemplateVisitor::generateOperation(const OperationPtr& 
         H << epar << ';';
         H << eb;
         H << eb;
+        H.dec();
         H << sp << nl << "private:";
+        H.inc();
         H << sp << nl << "Response _response;";
     }
     H << eb << ';';
@@ -5582,7 +5608,8 @@ Slice::Gen::Cpp11DeclVisitor::visitOperation(const OperationPtr& p)
 }
 
 Slice::Gen::Cpp11TypesVisitor::Cpp11TypesVisitor(Output& h, Output& c, const string& dllExport) :
-    H(h), C(c), _dllExport(dllExport), _doneStaticSymbol(false), _useWstring(false)
+    H(h), C(c), _dllExport(dllExport), _dllClassExport(toDllClassExport(dllExport)),
+    _dllMemberExport(toDllMemberExport(dllExport)), _doneStaticSymbol(false), _useWstring(false)
 {
 }
 
@@ -5656,7 +5683,7 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     string templateParameters = name + ", " + baseClass;
 
     H << sp << nl;
-    H << "class " << _dllExport << name << " : public ::" << helperClass << "<" << templateParameters << ">";
+    H << "class " << _dllClassExport << name << " : public ::" << helperClass << "<" << templateParameters << ">";
     H << sb;
 
     H.dec();
@@ -5664,7 +5691,7 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     H.inc();
 
     // Out of line dtor to avoid weak vtable
-    H << nl << "virtual ~" << name << "();";
+    H << nl << _dllMemberExport << "virtual ~" << name << "();";
     C << sp;
     C << nl << scoped.substr(2) << "::~" << name << "()";
     C << sb;
@@ -5785,7 +5812,7 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
     H << sp;
 
-    H << nl << "static const ::std::string& ice_staticId();";
+    H << nl << _dllMemberExport << "static const ::std::string& ice_staticId();";
 
     if(p->isLocal())
     {
@@ -5811,14 +5838,14 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     StringList metaData = p->getMetaData();
     if(find(metaData.begin(), metaData.end(), "cpp:ice_print") != metaData.end())
     {
-        H << nl << "virtual void ice_print(::std::ostream&) const;";
+        H << nl << _dllMemberExport << "virtual void ice_print(::std::ostream&) const;";
     }
 
     if(!p->isLocal() && p->usesClasses(false))
     {
         if(!base || (base && !base->usesClasses(false)))
         {
-            H << sp << nl << "virtual bool __usesClasses() const;";
+            H << sp << nl << _dllMemberExport << "virtual bool __usesClasses() const;";
 
             C << sp << nl << "bool";
             C << nl << scoped.substr(2) << "::__usesClasses() const";
@@ -5851,8 +5878,8 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
         if(preserved && !basePreserved)
         {
-            H << sp << nl << "virtual void __write(::Ice::OutputStream*) const;";
-            H << nl << "virtual void __read(::Ice::InputStream*);";
+            H << sp << nl << _dllMemberExport << "virtual void __write(::Ice::OutputStream*) const;";
+            H << nl << _dllMemberExport << "virtual void __read(::Ice::InputStream*);";
 
             H << sp << nl << "::std::shared_ptr<::Ice::SlicedData> __slicedData;";
 
@@ -6053,7 +6080,8 @@ Slice::Gen::Cpp11TypesVisitor::visitDictionary(const DictionaryPtr& p)
 }
 
 Slice::Gen::Cpp11ProxyVisitor::Cpp11ProxyVisitor(Output& h, Output& c, const string& dllExport) :
-    H(h), C(c), _dllExport(dllExport), _useWstring(false)
+    H(h), C(c), _dllClassExport(toDllClassExport(dllExport)), _dllMemberExport(toDllMemberExport(dllExport)),
+    _useWstring(false)
 {
 }
 
@@ -6111,7 +6139,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
         base = bases.front();
     }
 
-    H << sp << nl << "class " << _dllExport << p->name() << "Prx : public virtual ::Ice::Proxy<"
+    H << sp << nl << "class " << _dllClassExport << p->name() << "Prx : public virtual ::Ice::Proxy<"
       << fixKwd(p->name() + "Prx") << ", ";
     if(bases.empty() || (base && base->allOperations().empty()))
     {
@@ -6144,7 +6172,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     string prx = fixKwd(p->name() + "Prx");
 
     H << sp;
-    H << nl << "static const ::std::string& ice_staticId();";
+    H << nl << _dllMemberExport << "static const ::std::string& ice_staticId();";
 
     H.dec();
     H << sp << nl << "protected: ";
@@ -6152,7 +6180,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     H << sp << nl << prx << "() = default;";
     H << nl << "friend ::std::shared_ptr<" << prx << "> IceInternal::createProxy<" << prx << ">();";
     H << sp;
-    H << nl << "virtual ::std::shared_ptr<::Ice::ObjectPrx> __newInstance() const override;";
+    H << nl << _dllMemberExport << "virtual ::std::shared_ptr<::Ice::ObjectPrx> __newInstance() const override;";
     H << eb << ';';
 
     string suffix = p->isInterface() ? "" : "Disp";
@@ -6347,7 +6375,12 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
     bool lambdaCustomOut = (lambdaOutParams != futureOutParams);
 
     H << sp;
-    H << nl << "::std::function<void()>";
+    H << nl;
+    if(lambdaCustomOut)
+    {
+        H << _dllMemberExport;
+    }
+    H << "::std::function<void()>";
     H << nl << name << "Async(";
     H.useCurrentPosAsIndent();
     if(!inParamsDecl.empty())
@@ -6499,7 +6532,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
     //
 
     H << sp;
-    H << nl << "void __" << name << spar;
+    H << nl << _dllMemberExport << "void __" << name << spar;
     H << "const ::std::shared_ptr<::IceInternal::OutgoingAsyncT<" + futureT + ">>&";
     H << inParamsS;
     H << "const ::Ice::Context&";
@@ -6640,6 +6673,7 @@ Slice::Gen::Cpp11ObjectVisitor::Cpp11ObjectVisitor(::IceUtilInternal::Output& h,
     H(h),
     C(c),
     _dllExport(dllExport),
+    _dllClassExport(toDllClassExport(dllExport)), _dllMemberExport(toDllMemberExport(dllExport)),
     _doneStaticSymbol(false),
     _useWstring(false)
 {
@@ -6726,7 +6760,7 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     DataMemberList dataMembers = p->dataMembers();
     DataMemberList allDataMembers = p->allDataMembers();
 
-    H << sp << nl << "class " << _dllExport << name;
+    H << sp << nl << "class " << _dllClassExport << name;
     H.useCurrentPosAsIndent();
     if(!bases.empty())
     {
@@ -6765,7 +6799,7 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // Out of line virtual dtor to avoid weak vtable
     //
-    H << sp << nl << "virtual ~" << name  << "();";
+    H << sp << nl << _dllMemberExport << "virtual ~" << name  << "();";
     C << sp << nl << scoped.substr(2) << "::~" << name << "()";
     C << sb;
     C << eb;
@@ -7625,7 +7659,7 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     DataMemberList dataMembers = p->dataMembers();
     DataMemberList allDataMembers = p->allDataMembers();
 
-    H << sp << nl << "class " << _dllExport << name << " : public ::Ice::ValueHelper<" << name << ", ";
+    H << sp << nl << "class " << _dllClassExport << name << " : public ::Ice::ValueHelper<" << name << ", ";
 
     if(!base || (base && base->isInterface()))
     {
@@ -7652,7 +7686,7 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     // Out of line dtor to avoid weak vtable
     H << sp;
-    H << nl << "virtual ~" << name << "();";
+    H << nl << _dllMemberExport << "virtual ~" << name << "();";
     C << sp;
     C << nl << scoped.substr(2) << "::~" << name << "()";
     C << sb;
@@ -7678,7 +7712,7 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     emitOneShotConstructor(p);
     H << sp;
-    H << nl << "static const ::std::string& ice_staticId();";
+    H << nl << _dllMemberExport << "static const ::std::string& ice_staticId();";
     return true;
 }
 

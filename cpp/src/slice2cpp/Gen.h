@@ -143,6 +143,8 @@ private:
         ::IceUtilInternal::Output& C;
 
         std::string _dllExport;
+        std::string _dllClassExport;
+        std::string _dllMemberExport;
         int _useWstring;
         std::list<int> _useWstringHist;
     };
@@ -393,6 +395,8 @@ private:
         ::IceUtilInternal::Output& C;
 
         std::string _dllExport;
+        std::string _dllClassExport;
+        std::string _dllMemberExport;
         bool _doneStaticSymbol;
         int _useWstring;
         std::list<int> _useWstringHist;
@@ -417,29 +421,12 @@ private:
         ::IceUtilInternal::Output& H;
         ::IceUtilInternal::Output& C;
 
-        std::string _dllExport;
+        std::string _dllClassExport;
+        std::string _dllMemberExport;
         int _useWstring;
         std::list<int> _useWstringHist;
     };
 
-    class Cpp11ProxyDeclVisitor : private ::IceUtil::noncopyable, public ParserVisitor
-    {
-    public:
-
-        Cpp11ProxyDeclVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
-
-        virtual bool visitUnitStart(const UnitPtr&);
-        virtual void visitUnitEnd(const UnitPtr&);
-        virtual bool visitModuleStart(const ModulePtr&);
-        virtual void visitModuleEnd(const ModulePtr&);
-        virtual void visitClassDecl(const ClassDeclPtr&);
-
-    private:
-
-        ::IceUtilInternal::Output& H;
-
-        std::string _dllExport;
-    };
 
     class Cpp11ObjectVisitor : public ParserVisitor
     {
@@ -457,6 +444,8 @@ private:
         ::IceUtilInternal::Output& C;
 
         std::string _dllExport;
+        std::string _dllClassExport;
+        std::string _dllMemberExport;
         bool _doneStaticSymbol;
         int _useWstring;
         std::list<int> _useWstringHist;
