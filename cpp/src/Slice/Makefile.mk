@@ -12,7 +12,9 @@ $(project)_libraries	:= Slice
 Slice_targetdir		:= $(libdir)
 Slice_libs		:= mcpp
 
-# Always enable the static configuration for the Slice library
-Slice_always_enable_configs := static
+# Always enable the static configuration for the Slice library and never
+# install it
+Slice_always_enable_configs 	:= static
+Slice_install_configs	    	:= none
 
 projects += $(project)

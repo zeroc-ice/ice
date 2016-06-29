@@ -16,7 +16,9 @@ ifeq ($(os),Darwin)
 IceUtil_excludes        = src/IceUtil/ConvertUTF.cpp src/IceUtil/Unicode.cpp
 endif
 
-# Always enable the static configuration for the IceUtil library
-IceUtil_always_enable_configs := static
+# Always enable the static configuration for the IceUtil library and never
+# install it.
+IceUtil_always_enable_configs 	:= static
+IceUtil_install_configs		:= none
 
 projects += $(project)

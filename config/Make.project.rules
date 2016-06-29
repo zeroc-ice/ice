@@ -324,6 +324,7 @@ define create-component-with-config-targets
 
 $5_platform 	:= $3
 $5_config 	:= $4
+$2_components	:= $5
 
 #
 # Compute the target and installation directories.
@@ -592,7 +593,7 @@ $1_slices       += $$(filter-out $$($2_slicedir)/%,$$($2_slices))
 # Define slice rules for the component Slice files from $(slicedir)/<component>
 # if it exists. Rules for other slice files are specified at the project level.
 #
-ifneq ($$($2_slicedir),)
+ifneq ($$(and $$($2_components),$$($2_slicedir)),)
 
 # Add an order-only prerequisities on the directory to trigger its creation if it doesn't exist.
 $$($1_generated_srcdir)/$$(call source-to-dependency,$$($2_slices)): | $$($1_generated_srcdir)
@@ -640,7 +641,7 @@ $2_distclean::
 #
 # Install public header files if building a library
 #
-ifneq ($(and $(filter library,$3),$$(filter $(includedir)/%,$$($2_includedir))),)
+ifneq ($$(and $$($2_components),$(filter library,$3),$$(filter $(includedir)/%,$$($2_includedir))),)
 $$(eval $$(call install-data-files,$$(wildcard $$($2_includedir)/*.h),$(includedir),$(install_includedir),$2_install))
 ifneq ($$($2_generated_headers),)
 $$(eval $$(call install-data-files,$$($2_generated_headers),$(includedir)/generated,$(install_includedir),$2_install))
