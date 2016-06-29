@@ -477,6 +477,8 @@ public class AllTests
         metrics.ice_connectionId("Con1").ice_ping();
         metrics.ice_connectionId("Con1").ice_ping();
 
+        waitForCurrent(clientMetrics, "View", "Invocation", 0);
+
         view = clientMetrics.getMetricsView("View", timestamp);
         test(view.get("Thread").length == threadCount);
         if(!collocated)

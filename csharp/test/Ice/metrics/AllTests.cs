@@ -418,6 +418,8 @@ public class AllTests : TestCommon.TestApp
         metrics.ice_connectionId("Con1").ice_ping();
         metrics.ice_connectionId("Con1").ice_ping();
 
+        waitForCurrent(clientMetrics, "View", "Invocation", 0);
+
         view = clientMetrics.getMetricsView("View", out timestamp);
         test(view["Thread"].Length == 5);
         if(!collocated)

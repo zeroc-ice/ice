@@ -445,6 +445,8 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
     metrics->ice_connectionId("Con1")->ice_ping();
     metrics->ice_connectionId("Con1")->ice_ping();
 
+    waitForCurrent(clientMetrics, "View", "Invocation", 0);
+
     view = clientMetrics->getMetricsView("View", timestamp);
     if(!collocated)
     {
@@ -455,9 +457,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
     test(view["Invocation"].size() == 1);
 
     IceMX::InvocationMetricsPtr invoke = ICE_DYNAMIC_CAST(IceMX::InvocationMetrics, view["Invocation"][0]);
-    test(invoke->id.find("[ice_ping]") > 0);
-    test(invoke->current == 0);
-    test(invoke->total == 5);
+    test(invoke->id.find("[ice_ping]") > 0 && invoke->current == 0 && invoke->total == 5);
 
     if(!collocated)
     {
