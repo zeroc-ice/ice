@@ -345,6 +345,9 @@ def allTests(communicator):
     test(len(mc.fss) == 300)
     test(len(mc.ifsd) == 300)
 
+    initial2 = Test.Initial2Prx.uncheckedCast(base)
+    initial2.opVoid(15, "test")
+
     print("ok")
 
     sys.stdout.write("testing tag marshaling... ")

@@ -425,6 +425,18 @@ public class AllTests : TestCommon.TestApp
         initial2.returnOptionalClass(true, out oo);
         test(!oo.HasValue);
 
+        initial.opVoid();
+
+        os = Ice.Util.createOutputStream(communicator);
+        os.startEncapsulation();
+        os.writeOptional(1, Ice.OptionalFormat.F4);
+        os.writeInt(15);
+        os.writeOptional(1, Ice.OptionalFormat.VSize);
+        os.writeString("test");
+        os.endEncapsulation();
+        inEncaps = os.finished();
+        test(initial.ice_invoke("opVoid", Ice.OperationMode.Normal, inEncaps, out outEncaps));
+
         WriteLine("ok");
 
         Write("testing marshaling of large containers with fixed size elements... ");
@@ -511,7 +523,7 @@ public class AllTests : TestCommon.TestApp
 
             f.af = new Test.A();
             f.ae = (Test.A)f.af;
-            
+
             Test.F rf = (Test.F)initial.pingPong(f);
             test(rf.ae == rf.af.Value);
 

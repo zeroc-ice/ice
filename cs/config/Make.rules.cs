@@ -150,7 +150,7 @@ ifneq ($(generate_policies),yes)
     installpolicy = /bin/true
 endif
 
-MCS			= gmcs
+MCS			= mcs
 
 MCSFLAGS = -warnaserror
 

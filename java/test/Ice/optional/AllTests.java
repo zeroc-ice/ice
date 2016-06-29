@@ -396,6 +396,18 @@ public class AllTests
         initial2.returnOptionalClass(true, oo);
         test(!oo.isSet());
 
+        initial.opVoid();
+
+        os = Ice.Util.createOutputStream(communicator);
+        os.startEncapsulation();
+        os.writeOptional(1, Ice.OptionalFormat.F4);
+        os.writeInt(15);
+        os.writeOptional(1, Ice.OptionalFormat.VSize);
+        os.writeString("test");
+        os.endEncapsulation();
+        inEncaps = os.finished();
+        test(initial.ice_invoke("opVoid", Ice.OperationMode.Normal, inEncaps, outEncaps));
+
         out.println("ok");
 
         out.print("testing marshaling of large containers with fixed size elements... ");
@@ -2108,7 +2120,7 @@ public class AllTests
                     }
                 });
             in.endEncapsulation();
-            test(a.value != null && a.value.requiredA == 56);        
+            test(a.value != null && a.value.requiredA == 56);
         }
         out.println("ok");
 

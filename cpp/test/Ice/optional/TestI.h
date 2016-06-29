@@ -176,6 +176,8 @@ public:
 
     virtual void returnOptionalClass(bool, IceUtil::Optional<Test::OneOptionalPtr>&, const Ice::Current&);
 
+    virtual void opVoid(const Ice::Current&);
+
     virtual bool supportsRequiredParams(const Ice::Current&);
 
     virtual bool supportsJavaSerializable(const Ice::Current&);

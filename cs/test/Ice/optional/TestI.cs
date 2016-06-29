@@ -292,6 +292,10 @@ public class InitialI : Test.Initial
         o = new Test.OneOptional(53);
     }
 
+    public override void opVoid(Ice.Current current)
+    {
+    }
+
     public override bool supportsRequiredParams(Ice.Current current)
     {
         return false;

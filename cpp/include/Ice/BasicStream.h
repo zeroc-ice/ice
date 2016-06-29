@@ -285,18 +285,29 @@ public:
     {
         Ice::Int sz;
         read(sz);
-        if(sz != static_cast<Ice::Int>(sizeof(Ice::Int)) + 2)
+        if(sz < 6)
         {
             throwEncapsulationException(__FILE__, __LINE__);
         }
-
-        if(i + 2 > b.end())
+        if(i - sizeof(Ice::Int) + sz > b.end())
         {
             throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
         }
-
         Ice::EncodingVersion encoding;
         read(encoding);
+        if(encoding == Ice::Encoding_1_0)
+        {
+            if(sz != static_cast<Ice::Int>(sizeof(Ice::Int)) + 2)
+            {
+                throwEncapsulationException(__FILE__, __LINE__);
+            }
+        }
+        else
+        {
+            // Skip the optional content of the encapsulation if we are expecting an
+            // empty encapsulation.
+            i += sz - sizeof(Ice::Int) - 2;
+        }
         return encoding;
     }
     void endReadEncapsChecked(); // Used by public stream API.

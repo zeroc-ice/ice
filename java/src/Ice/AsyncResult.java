@@ -182,16 +182,16 @@ public class AsyncResult
         return _is;
     }
 
-    public void 
+    public void
     __endReadParams()
     {
         _is.endReadEncaps();
     }
 
-    public void 
+    public void
     __readEmptyParams()
     {
-        _is.skipEmptyEncaps(null);
+        _is.skipEmptyEncaps();
     }
 
     public byte[]
@@ -365,7 +365,7 @@ public class AsyncResult
         }
     }
 
-    public void 
+    public void
     __attachRemoteObserver(Ice.ConnectionInfo info, Ice.Endpoint endpt, int requestId, int size)
     {
         if(_observer != null)
@@ -382,7 +382,7 @@ public class AsyncResult
     {
         return _observer;
     }
-    
+
     public final void __sentAsync()
     {
         //
@@ -532,6 +532,6 @@ public class AsyncResult
 
     protected Ice.Instrumentation.InvocationObserver _observer;
     protected Ice.Instrumentation.RemoteObserver _remoteObserver;
-    
+
     private IceInternal.CallbackBase _callback;
 }

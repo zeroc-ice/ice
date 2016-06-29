@@ -545,6 +545,11 @@ public final class InitialI extends Initial
         o.set(new OneOptional(53));
     }
 
+    public void
+    opVoid(Ice.Current current)
+    {
+    }
+
     public boolean
     supportsRequiredParams(Ice.Current current)
     {

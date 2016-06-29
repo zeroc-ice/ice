@@ -258,6 +258,8 @@ class Initial
 
     void returnOptionalClass(bool req, out optional(1) OneOptional o);
 
+    void opVoid();
+
     bool supportsRequiredParams();
 
     bool supportsJavaSerializable();

@@ -29,7 +29,7 @@ public final class OutgoingConnectionFactory
         }
 
         public void
-        remove(K key, V value)
+        removeElementWithValue(K key, V value)
         {
             java.util.List<V> list = this.get(key);
             assert(list != null);
@@ -622,7 +622,7 @@ public final class OutgoingConnectionFactory
             {
                 for(Ice.ConnectionI c : cons)
                 {
-                    _connections.remove(c.connector(), c);
+                    _connections.removeElementWithValue(c.connector(), c);
                     _connectionsByEndpoint.remove(c.endpoint(), c);
                     _connectionsByEndpoint.remove(c.endpoint().compress(true), c);
                 }
@@ -1211,18 +1211,18 @@ public final class OutgoingConnectionFactory
             {
                 assert(_iter.hasNext());
                 _current = _iter.next();
-                
+
                 Ice.Instrumentation.CommunicatorObserver obsv = _factory._instance.getObserver();
                 if(obsv != null)
                 {
-                    _observer = obsv.getConnectionEstablishmentObserver(_current.endpoint, 
+                    _observer = obsv.getConnectionEstablishmentObserver(_current.endpoint,
                                                                         _current.connector.toString());
                     if(_observer != null)
                     {
                         _observer.attach();
                     }
                 }
-                
+
                 connection = _factory.createConnection(_current.connector.connect(), _current);
                 connection.start(this);
             }

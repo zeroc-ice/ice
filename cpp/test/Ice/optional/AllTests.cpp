@@ -654,6 +654,16 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
     test(obj && dynamic_cast<TestObjectReader*>(obj.get()));
     factory->setEnabled(false);
 
+    initial->opVoid();
+
+    out = Ice::createOutputStream(communicator);
+    out->startEncapsulation();
+    out->write(1, IceUtil::Optional<int>(15));
+    out->write(2, IceUtil::Optional<string>("test"));
+    out->endEncapsulation();
+    out->finished(inEncaps);
+    test(initial->ice_invoke("opVoid", Ice::Normal, inEncaps, outEncaps));
+
     cout << "ok" << endl;
 
     cout << "testing tag marshalling... " << flush;

@@ -355,6 +355,11 @@ InitialI::returnOptionalClass(bool, Optional<OneOptionalPtr>& o, const Ice::Curr
     o = new OneOptional(53);
 }
 
+void
+InitialI::opVoid(const Ice::Current&)
+{
+}
+
 bool
 InitialI::supportsRequiredParams(const Ice::Current&)
 {
