@@ -18,7 +18,7 @@ xcodesdk_targetdir	= $(if $(filter %/build,$5),xcodesdk,IceSDK/$2.sdk/usr/lib)
 xcodesdk_installdir	= $(if $(filter %/build,$5),xcodesdk,IceSDK/$2.sdk/usr/lib)
 xcodesdk_targetrule	= $(if $(filter-out program,$($1_target)),static)
 
-xcodesdk_components	= Ice IceObjC IceSSLObjC Glacier2ObjC IceStormObjC IceGridObjC TestCommonObjC
+xcodesdk_components	= Ice IceSSL IceObjC IceSSLObjC Glacier2ObjC IceStormObjC IceGridObjC TestCommonObjC
 xcodesdk_projects	= test/Ice/%
 
 iphoneos_excludes	 = test/%

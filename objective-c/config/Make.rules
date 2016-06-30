@@ -104,5 +104,8 @@ $1_cppflags		+= -Itest/Ice
 # Also link with IceSSL when compiling the project with the static configuration
 $1[static]_dependencies	:= IceSSL
 
+# Dependencies for Xcode SDK configuration
+$1[xcodesdk]_dependencies := IceSSL
+
 $(create-test-project)
 endef
