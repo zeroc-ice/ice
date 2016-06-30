@@ -22,6 +22,13 @@ class PluginI implements Ice.Plugin
         //
         EndpointFactoryI factory = new EndpointFactoryI(new Instance(communicator, Ice.BTEndpointType.value, "bt"));
         facade.addEndpointFactory(factory);
+
+        IceInternal.EndpointFactory sslFactory = facade.getEndpointFactory(Ice.SSLEndpointType.value);
+        if(sslFactory != null)
+        {
+            Instance instance = new Instance(communicator, Ice.BTSEndpointType.value, "bts");
+            facade.addEndpointFactory(sslFactory.clone(instance, new EndpointFactoryI(instance)));
+        }
     }
 
     @Override
