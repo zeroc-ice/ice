@@ -476,6 +476,10 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12);
         initData.properties->setProperty("Ice.InitPlugins", "0");
 #  ifdef ICE_USE_OPENSSL
+        //
+        // With OpenSSL 1.1.0 we need to set SECLEVEL=0 to allow ADH ciphers
+        //
+        initData.properties->setProperty("IceSSL.SecurityLevel", "0");
         initData.properties->setProperty("IceSSL.Ciphers", "ADH");
 #  else
         initData.properties->setProperty("IceSSL.Ciphers", "DH_anon_WITH_AES_256_CBC_SHA");
@@ -489,6 +493,10 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(obj);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12);
 #  ifdef ICE_USE_OPENSSL
+        //
+        // With OpenSSL 1.1.0 we need to set SECLEVEL=0 to allow ADH ciphers
+        //
+        d["IceSSL.SecurityLevel"] = "0";
         d["IceSSL.Ciphers"] = "ADH";
 #  else
         d["IceSSL.Ciphers"] = "DH_anon_WITH_AES_256_CBC_SHA";
@@ -1197,6 +1205,10 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12);
 #  ifdef ICE_USE_OPENSSL
+        //
+        // With OpenSSL 1.1.0 we need to set SECLEVEL=0 to allow ADH ciphers
+        //
+        initData.properties->setProperty("IceSSL.SecurityLevel", "0");
         initData.properties->setProperty("IceSSL.Ciphers", "ADH");
 #  else
         initData.properties->setProperty("IceSSL.Ciphers", "(DH_anon*)");
@@ -1212,7 +1224,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12);
 #  ifdef ICE_USE_OPENSSL
+        //
+        // With OpenSSL 1.1.0 we need to set SECLEVEL=0 to allow ADH ciphers
+        //
         string cipherSub = "ADH-";
+        d["IceSSL.SecurityLevel"] = "0";
         d["IceSSL.Ciphers"] = "ADH";
 #  else
         string cipherSub = "DH_anon";
@@ -1800,6 +1816,10 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12);
 #  ifdef ICE_USE_OPENSSL
+        //
+        // With OpenSSL 1.1.0 we need to set SECLEVEL=0 to allow ADH ciphers
+        //
+        initData.properties->setProperty("IceSSL.SecurityLevel", "0");
         initData.properties->setProperty("IceSSL.Ciphers", "ADH");
 #  else
         initData.properties->setProperty("IceSSL.Ciphers", "(DH_anon*)");
@@ -1809,6 +1829,10 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
 #  ifdef ICE_USE_OPENSSL
+        //
+        // With OpenSSL 1.1.0 we need to set SECLEVEL=0 to allow ADH ciphers
+        //
+        d["IceSSL.SecurityLevel"] = "0";
         string cipherSub = "ADH-";
         d["IceSSL.Ciphers"] = "RSA:ADH";
 #  else
@@ -2043,13 +2067,14 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         //
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_dsa_ca1", "cacert1");
-        initData.properties->setProperty("IceSSL.Ciphers", "DEFAULT:DSS");
+        initData.properties->setProperty("IceSSL.Ciphers", "DHE:DSS");
         CommunicatorPtr comm = initialize(initData);
         Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_dsa_ca1", "cacert1");
-        d["IceSSL.Ciphers"] = "DEFAULT:DSS";
+        d["IceSSL.Ciphers"] = "DHE:DSS";
         d["IceSSL.VerifyPeer"] = "1";
+        
         Test::ServerPrx server = fact->createServer(d);
         try
         {
@@ -2061,7 +2086,6 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         }
         fact->destroyServer(server);
         comm->destroy();
-
         //
         // Next try a client with an RSA certificate.
         //
