@@ -10,8 +10,9 @@
 
 import sys, getopt, passlib.hash, passlib.hosts, getpass
 
-usePBKDF2 = sys.platform == "win32" or sys.platform == "darwin"
-useCryptExt = sys.platform.startswith("linux")
+usePBKDF2 = any(sys.platform == p for p in ["win32", "darwin"])
+useCryptExt = any(sys.platform.startswith(p) for p in ["linux", "freebsd", "gnukfreebsd"])
+
 
 def usage():
     print("Usage: icehashpassword [options]")

@@ -22,6 +22,15 @@ subprojects {
                 dirs slice.jarDir
             }
         }
+
+        if(new File("/usr/share/maven-repo").exists()) {
+            maven {
+                url "/usr/share/maven-repo"
+            }
+        }
+
+        mavenCentral()
+
         maven {
             url 'https://repo.zeroc.com/nexus/content/repositories/thirdparty'
         }
@@ -42,6 +51,16 @@ subprojects {
         buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }
     }
 }
+
+task dist()
+dist.dependsOn(project(":ice").assemble)
+dist.dependsOn(project(":glacier2").assemble)
+dist.dependsOn(project(":icegrid").assemble)
+dist.dependsOn(project(":icebox").assemble)
+dist.dependsOn(project(":icediscovery").assemble)
+dist.dependsOn(project(":icepatch2").assemble)
+dist.dependsOn(project(":icestorm").assemble)
+dist.dependsOn(project(":IceGridGUI").assemble)
 
 //
 // Used to build the gradle wrapper to automatically download and install

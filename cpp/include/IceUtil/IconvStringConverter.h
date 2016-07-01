@@ -18,7 +18,7 @@
 #include <langinfo.h>
 #include <string.h> // For strerror
 
-#if (defined(__APPLE__) && _LIBICONV_VERSION < 0x010B) || defined(__FreeBSD__)
+#if (defined(__APPLE__) && _LIBICONV_VERSION < 0x010B)
     //
     // See http://sourceware.org/bugzilla/show_bug.cgi?id=2962
     //

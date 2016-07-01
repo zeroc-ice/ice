@@ -43,7 +43,7 @@ if TestUtil.isDarwin():
     os.system("security create-keychain -p password %s" % keychainPath)
     for cert in ["s_rsa_ca1.p12", "c_rsa_ca1.p12"]:
         os.system("security import %s -f pkcs12 -A -P password -k %s" % (os.path.join(certsPath, cert), keychainPath))
-elif TestUtil.isLinux() or TestUtil.isAIX():
+elif TestUtil.iceUseOpenSSL():
     #
     # Create copies of the CA certificates named after the subject
     # hash. This is used by the tests to find the CA certificates in

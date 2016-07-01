@@ -236,10 +236,10 @@ Slice::Preprocessor::preprocess(bool keepComments, const string& extraArgs)
         // process call _tempnam before any of them call fopen and
         // they will end up using the same tmp file.
         //
-        char* name = _tempnam(0, ("slice-" + IceUtil::generateUUID()).c_str());
+        wchar_t* name = _wtempnam(0, IceUtil::stringToWstring("slice-" + IceUtil::generateUUID()).c_str());
         if(name)
         {
-            _cppFile = name;
+            _cppFile = IceUtil::wstringToString(name);
             free(name);
             _cppHandle = IceUtilInternal::fopen(_cppFile, "w+");
         }

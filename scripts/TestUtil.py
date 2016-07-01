@@ -128,6 +128,16 @@ def isSparc():
     else:
         return False
 
+def dpkgHostMultiArch():
+    p = subprocess.Popen("dpkg-architecture -qDEB_HOST_MULTIARCH", stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+    if not p or not p.stdout:
+        print("unable to get system information!")
+        sys.exit(1)
+    return p.stdout.readline().decode("utf-8").strip()
+
+def isI686():
+    return x86 or any(platform.machine() == p for p in ["i386", "i686"])
+
 def isAIX():
     return sys.platform.startswith("aix")
 
@@ -135,7 +145,7 @@ def isDarwin():
     return sys.platform == "darwin"
 
 def isLinux():
-    return sys.platform.startswith("linux")
+    return sys.platform.startswith("linux") or sys.platform.startswith("gnukfreebsd")
 
 def isUbuntu():
     return isLinux() and linuxDistribution and linuxDistribution == "Ubuntu"
@@ -151,6 +161,9 @@ def isDebian():
 
 def isSles():
     return isLinux() and linuxDistribution and linuxDistribution == "SUSE LINUX"
+
+def iceUseOpenSSL():
+    return any(sys.platform.startswith(p) for p in ["linux", "freebsd"])
 
 def getCppCompiler():
     compiler = ""
@@ -829,7 +842,7 @@ def getIceBox():
                 iceBox += "++11"
             iceBox += ".exe"
         elif isLinux():
-            if not x64 and not armv7l:
+            if isI686():
                 iceBox += "32"
             if cpp11:
                 iceBox += "++11"
@@ -1838,12 +1851,7 @@ def getCppLibDir(lang = None):
     else:
         libDir = os.path.join(getIceDir("cpp"), "lib")
         if isUbuntu() or isDebian():
-            if armv7l:
-                libDir = os.path.join(libDir, "arm-linux-gnueabihf")
-            elif x64:
-                libDir = os.path.join(libDir, "x86_64-linux-gnu")
-            else:
-                libDir = os.path.join(libDir, "i386-linux-gnu")
+            libDir = os.path.join(libDir, dpkgHostMultiArch())
         elif x64:
             if isSolaris():
                 if isSparc():

@@ -11,41 +11,84 @@
 #define ICE_UTIL_CONFIG_H
 
 //
-// Endianness
+// Use the system headers as preferred way to detect endianness
+// and fallback to architecture based checks.
 //
-// Most CPUs support only one endianness, with the notable exceptions
-// of Itanium (IA64) and MIPS.
 //
-#ifdef __GLIBC__
-# include <endian.h>
+#include <stdlib.h>
+
+#if defined(__GLIBC__)
+#   include <endian.h>
+#elif defined(__APPLE__)
+#   include <machine/endian.h>
+#elif defined(__FreeBSD__)
+#   include <sys/endian.h>
 #endif
 
-#if defined(__i386)     || defined(_M_IX86) || defined(__x86_64)  || \
-    defined(_M_X64)     || defined(_M_IA64) || defined(__alpha__) || \
-    defined(__ARMEL__) || defined(_M_ARM_FP) || defined(__arm64) || \
-    defined(__MIPSEL__) || (defined(__BYTE_ORDER) && (__BYTE_ORDER == __LITTLE_ENDIAN))
+#if (defined(__BYTE_ORDER) && defined(__LITTLE_ENDIAN) && (__BYTE_ORDER == __LITTLE_ENDIAN)) || \
+    (defined(_BYTE_ORDER) && defined(_LITTLE_ENDIAN) && (_BYTE_ORDER == _LITTLE_ENDIAN))
+
 #   define ICE_LITTLE_ENDIAN
-#elif defined(__sparc) || defined(__sparc__) || defined(__hppa)      || \
-      defined(__ppc__) || defined(__powerpc) || defined(_ARCH_COM) || \
-      defined(__MIPSEB__) || (defined(__BYTE_ORDER) && (__BYTE_ORDER == __BIG_ENDIAN))
+
+#elif (defined(__BYTE_ORDER) && defined(__BIG_ENDIAN) && (__BYTE_ORDER == __BIG_ENDIAN)) || \
+      (defined(_BYTE_ORDER) && defined(_BIG_ENDIAN) && (_BYTE_ORDER == _BIG_ENDIAN))
+
 #   define ICE_BIG_ENDIAN
+
+#elif defined(__i386)      || \
+      defined(_M_IX86)     || \
+      defined(__x86_64)    || \
+      defined(_M_X64)      || \
+      defined(_M_IA64)     || \
+      defined(__alpha__)   || \
+      defined(__ARMEL__)   || \
+      defined(_M_ARM_FP)   || \
+      defined(__arm64)     || \
+      defined(__MIPSEL__)
+
+#   define ICE_LITTLE_ENDIAN
+
+#elif defined(__sparc)   || \
+      defined(__sparc__) || \
+      defined(__hppa)    || \
+      defined(__ppc__)   || \
+      defined(__powerpc) || \
+      defined(_ARCH_COM) || \
+      defined(__MIPSEB__)
+
+#   define ICE_BIG_ENDIAN
+
 #else
+
 #   error "Unknown architecture"
+
 #endif
 
+         
 //
-// 32 or 64 bit mode?
+// Use system headers as preferred way to detect 32 or 64 bit mode and
+// fallback to architecture based checks
 //
-#if defined(__sun) && (defined(__sparcv9) || defined(__x86_64))    || \
+#include <stdint.h>         
+         
+#if defined(__WORDSIZE) && (__WORDSIZE == 64)
+#   define ICE_64
+#elif defined(__WORDSIZE) && (__WORDSIZE == 32)
+#   define ICE_32
+#elif defined(__sun) && (defined(__sparcv9) || defined(__x86_64))  || \
       defined(__linux) && defined(__x86_64)                        || \
       defined(__APPLE__) && defined(__x86_64)                      || \
       defined(__hppa) && defined(__LP64__)                         || \
       defined(_ARCH_COM) && defined(__64BIT__)                     || \
       defined(__alpha__)                                           || \
       defined(_WIN64)
+
 #   define ICE_64
+
 #else
+
 #   define ICE_32
+
 #endif
 
 //

@@ -8,7 +8,7 @@
 # **********************************************************************
 
 ifneq ($(prefix),)
-INSTALL_FLAGS += -Dorg.gradle.project.prefix=$(prefix)
+INSTALL_FLAGS += -Pprefix=$(prefix)
 endif
 
 ifneq ($(install_javadir),)
@@ -20,7 +20,7 @@ INSTALL_FLAGS += -Dorg.gradle.project.binDir=$(install_bindir)
 endif
 
 ifneq ($(DESTDIR),)
-INSTALL_FLAGS += -Dorg.gradle.project.DESTDIR=$(DESTDIR)
+INSTALL_FLAGS += -PDESTDIR=$(DESTDIR)
 endif
 
 ifeq ($(GRADLE),)
@@ -30,13 +30,11 @@ endif
 all:
 	$(GRADLE) $(BUILD_FLAGS) build
 
-srcs:
-	$(GRADLE) $(BUILD_FLAGS) :Ice:assemble :Glacier2:assemble :IceGrid:assemble \
-		:IceBox:assemble :IceBT:assemble :IceDiscovery:assemble :IcePatch2:assemble :IceStorm:assemble \
-		:IceGridGUI:assemble
-
 tests:
 	$(GRADLE) $(BUILD_FLAGS) :test:assemble
+
+dist:
+	$(GRADLE) $(BUILD_FLAGS) dist
 
 distclean clean:
 	$(GRADLE) clean
