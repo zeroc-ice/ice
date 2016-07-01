@@ -40,7 +40,7 @@ OBJS		= ArgVector.o \
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS        := $(CPPFLAGS) $(ICEUTIL_FLAGS) -DICE_UTIL_API_EXPORTS -I..
+CPPFLAGS        := $(CPPFLAGS) $(ICEUTIL_FLAGS) $(OPENSSL_FLAGS) -DICE_UTIL_API_EXPORTS -I..
 LINKWITH        := $(ICEUTIL_OS_LIBS)
 
 ifeq ($(STATICLIBS),yes)
