@@ -33,7 +33,7 @@ all:
 tests:
 	$(GRADLE) $(BUILD_FLAGS) :test:assemble
 
-dist:
+srcs:
 	$(GRADLE) $(BUILD_FLAGS) dist
 
 distclean clean:
