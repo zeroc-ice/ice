@@ -1912,17 +1912,14 @@ def getTestEnv(lang, testdir):
         if os.environ.get("USE_BIN_DIST", "no") != "yes":
             addPathToEnv("NODE_PATH", os.path.join(getIceDir("js", testdir), "src"), env)
 
-    if isWin32() and lang in ["cpp", "java", "csharp", "python", "ruby", "php"]:
-        if not iceHome:
-            configuration = "Debug" if buildMode == "debug" else "Release"
-            platform = "x64" if x64 else "Win32"
-            pkgdir = os.path.join(getIceDir("cpp"), "third-party-packages")
-            pkgsubdir = os.path.join("build", "native", "bin", platform)
+    if isWin32():
+        if lang == "java" and javaLibraryPath:
+            addPathToEnv("PATH", javaLibraryPath, env)
 
-            if isMINGW():
-                addPathToEnv("PATH", os.path.join(pkgdir, "bzip2.mingw4.7.2", pkgsubdir), env)
-            if lang == "java" and javaLibraryPath:
-                addPathToEnv("PATH", javaLibraryPath, env)
+        if lang == "csharp" and not iceHome:
+            pkgdir = os.path.join(getIceDir("cpp"), "msbuild", "packages")
+            pkgsubdir = os.path.join("build", "native", "bin", "x64", "Release")
+            addPathToEnv("PATH", os.path.join(pkgdir, "bzip2.v140.1.0.6.4", pkgsubdir), env)
 
     #
     # If Ice is installed on the system, set the CLASSPATH for Java and
