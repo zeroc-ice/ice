@@ -399,18 +399,6 @@ OpenSSLEngine::initialize()
                                                     "IceSSL: unable to create SSL context:\n" + sslErrors());
             }
 
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
-            int securityLevel = properties->getPropertyAsIntWithDefault(propPrefix + "SecurityLevel", -1);
-            if(securityLevel != -1)
-            {
-                SSL_CTX_set_security_level(_ctx, securityLevel);
-                if(SSL_CTX_get_security_level(_ctx) != securityLevel)
-                {
-                    throw PluginInitializationException(__FILE__, __LINE__,
-                                                        "IceSSL: unable to set SSL security level:\n" + sslErrors());
-                }
-            }
-#endif
             //
             // Check for a default directory. We look in this directory for
             // files mentioned in the configuration.
