@@ -410,7 +410,7 @@ else:
 iceVersion = None
 try:
     if isWin32():
-        config = open(os.path.join(toplevel, "config", "Ice.props"), "r")
+        config = open(os.path.join(toplevel, "config", "icebuilder.props"), "r")
         iceVersion = re.search("<IceVersion>[\t\s]*([0-9]+\.[0-9]+(\.[0-9]+|[ab][0-9]*))</IceVersion>", config.read()).group(1)
     else:
         config = open(os.path.join(toplevel, "config", "Make.rules"), "r")
