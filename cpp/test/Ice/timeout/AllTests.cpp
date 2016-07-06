@@ -414,7 +414,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         //
         Ice::InitializationData initData;
         initData.properties = communicator->getProperties()->clone();
-        initData.properties->setProperty("Ice.Override.CloseTimeout", "250");
+        initData.properties->setProperty("Ice.Override.CloseTimeout", "100");
         Ice::CommunicatorPtr comm = Ice::initialize(initData);
         Ice::ConnectionPtr connection = comm->stringToProxy(sref)->ice_getConnection();
         timeout->holdAdapter(500);
