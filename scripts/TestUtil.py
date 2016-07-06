@@ -10,7 +10,7 @@
 import sys, os, re, getopt, time, string, threading, atexit, platform, traceback, subprocess
 
 # Global flags and their default values.
-protocol = ""                   # If unset, default to TCP. Valid values are "tcp", "ssl", "ws", "wss" or "bt".
+protocol = ""                   # If unset, default to TCP. Valid values are "tcp", "ssl", "ws", "wss", "bt" or "bts".
 compress = False                # Set to True to enable bzip2 compression.
 serialize = False               # Set to True to have tests use connection serialization
 host = None                     # Will default to loopback.
@@ -565,7 +565,7 @@ def run(tests, root = False):
             arg += a
             arg += '"'
         elif o == "--protocol":
-            if a not in ("bt", "ws", "wss", "ssl", "tcp"):
+            if a not in ("bt", "bts", "ws", "wss", "ssl", "tcp"):
                 usage()
             if not root and getDefaultMapping() == "csharp" and (a == "ssl" or a == "wss"):
                 if mono:
@@ -574,7 +574,7 @@ def run(tests, root = False):
                 if compact:
                     print("SSL is not supported with the Compact Framework")
                     sys.exit(1)
-            if a == "bt" and not isLinux():
+            if a in ["bt", "bts"] and not isLinux():
                 print("Bluetooth is only supported on Linux")
                 sys.exit(1)
         elif o == "--c++11":
@@ -1083,7 +1083,7 @@ def getCommandLineProperties(exe, config, cfgName):
     #
     # Now we add additional components depending on the desired configuration.
     #
-    if config.protocol == "ssl" or config.protocol == "wss":
+    if config.protocol in ["ssl", "wss", "bts"]:
         sslenv = {}
         sslenv["icesslcs"] = quoteArgument("\\\"" + os.path.join(getIceDir("csharp"), "Assemblies", "IceSSL.dll") + "\\\"")
         sslenv["certsdir"] = quoteArgument(os.path.abspath(os.path.join(toplevel, "certs")))
@@ -1094,7 +1094,7 @@ def getCommandLineProperties(exe, config, cfgName):
         components.append(sslConfigTree[config.lang]["plugin"] % sslenv)
         components.append(sslConfigTree[config.lang][config.type] % sslenv)
 
-    if config.protocol == "bt":
+    if config.protocol in ["bt", "bts"]:
         components.append("--Ice.Plugin.IceBT=IceBT:createIceBT")
 
     components.append("--Ice.Default.Protocol=" + config.protocol)
@@ -1147,9 +1147,9 @@ def getCommandLineProperties(exe, config, cfgName):
         if config.host == None:
             components.append("--Ice.Default.Host=0:0:0:0:0:0:0:1")
     else:
-        if config.protocol != "bt":
+        if not config.protocol in ["bt", "bts"]:
             components.append("--Ice.IPv4=1 --Ice.IPv6=0")
-        if config.host == None and config.protocol != "bt":
+        if config.host == None and not config.protocol in ["bt", "bts"]:
             components.append("--Ice.Default.Host=127.0.0.1")
 
     if config.host != None and len(config.host) != 0:
@@ -2172,13 +2172,13 @@ def processCmdLine():
             global printenv
             printenv = True
         elif o == "--protocol":
-            if a not in ("bt", "ws", "wss", "ssl", "tcp"):
+            if a not in ("bt", "bts", "ws", "wss", "ssl", "tcp"):
                 usage()
             # ssl protocol isn't directly supported with mono.
             if mono and getDefaultMapping() == "csharp" and (a == "ssl" or a == "wss"):
                 print("SSL is not supported with mono")
                 sys.exit(1)
-            if a == "bt" and not isLinux():
+            if a in ["bt", "bts"] and not isLinux():
                 print("Bluetooth is only supported on Linux")
                 sys.exit(1)
             global protocol
@@ -2371,7 +2371,7 @@ def runTests(start, expanded, num = 0, script = False):
                 print("%s*** test not supported with IceSSL%s" % (prefix, suffix))
                 continue
 
-            if (args.find("bt") != -1) and ("bt" not in config):
+            if (args.find("bt") != -1 or args.find("bts") != -1) and ("bt" not in config):
                 print("%s*** test not supported with Bluetooth%s" % (prefix, suffix))
                 continue
 
