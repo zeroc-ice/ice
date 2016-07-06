@@ -9,6 +9,9 @@
 
 #include <Ice/Ice.h>
 #include <IceSSL/Plugin.h>
+#if ICE_USE_OPENSSL
+#  include <openssl/ssl.h> // Required for OPENSSL_VERSION_NUMBER
+#endif
 #include <TestCommon.h>
 #include <Test.h>
 #include <fstream>
@@ -28,6 +31,17 @@
 
 using namespace std;
 using namespace Ice;
+
+#ifdef ICE_USE_OPENSSL
+//
+// With OpenSSL 1.1.0 we need to set SECLEVEL=0 to allow ADH ciphers
+//
+#  if OPENSSL_VERSION_NUMBER >= 0x10100000L
+const string anonCiphers = "ADH:@SECLEVEL=0";
+#  else
+const string anonCiphers = "ADH";
+#  endif
+#endif
 
 void
 readFile(const string& file, vector<char>& buffer)
@@ -578,11 +592,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12);
         initData.properties->setProperty("Ice.InitPlugins", "0");
 #  ifdef ICE_USE_OPENSSL
-        //
-        // With OpenSSL 1.1.0 we need to set SECLEVEL=0 to allow ADH ciphers
-        //
-        initData.properties->setProperty("IceSSL.SecurityLevel", "0");
-        initData.properties->setProperty("IceSSL.Ciphers", "ADH");
+        initData.properties->setProperty("IceSSL.Ciphers", anonCiphers);
 #  else
         initData.properties->setProperty("IceSSL.Ciphers", "DH_anon_WITH_AES_256_CBC_SHA");
 #  endif
@@ -595,11 +605,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, obj);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12);
 #  ifdef ICE_USE_OPENSSL
-        //
-        // With OpenSSL 1.1.0 we need to set SECLEVEL=0 to allow ADH ciphers
-        //
-        d["IceSSL.SecurityLevel"] = "0";
-        d["IceSSL.Ciphers"] = "ADH";
+        d["IceSSL.Ciphers"] = anonCiphers;
 #  else
         d["IceSSL.Ciphers"] = "DH_anon_WITH_AES_256_CBC_SHA";
 #  endif
@@ -1316,11 +1322,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12);
 #  ifdef ICE_USE_OPENSSL
-        //
-        // With OpenSSL 1.1.0 we need to set SECLEVEL=0 to allow ADH ciphers
-        //
-        initData.properties->setProperty("IceSSL.SecurityLevel", "0");
-        initData.properties->setProperty("IceSSL.Ciphers", "ADH");
+        initData.properties->setProperty("IceSSL.Ciphers", anonCiphers);
 #  else
         initData.properties->setProperty("IceSSL.Ciphers", "(DH_anon*)");
 #  endif
@@ -1339,8 +1341,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         // With OpenSSL 1.1.0 we need to set SECLEVEL=0 to allow ADH ciphers
         //
         string cipherSub = "ADH-";
-        d["IceSSL.SecurityLevel"] = "0";
-        d["IceSSL.Ciphers"] = "ADH";
+        d["IceSSL.Ciphers"] = anonCiphers;
 #  else
         string cipherSub = "DH_anon";
         d["IceSSL.Ciphers"] = "(DH_anon*)";
@@ -1934,11 +1935,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12);
 #  ifdef ICE_USE_OPENSSL
-        //
-        // With OpenSSL 1.1.0 we need to set SECLEVEL=0 to allow ADH ciphers
-        //
-        initData.properties->setProperty("IceSSL.SecurityLevel", "0");
-        initData.properties->setProperty("IceSSL.Ciphers", "ADH");
+        initData.properties->setProperty("IceSSL.Ciphers", anonCiphers);
 #  else
         initData.properties->setProperty("IceSSL.Ciphers", "(DH_anon*)");
 #  endif
@@ -1952,7 +1949,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         //
         d["IceSSL.SecurityLevel"] = "0";
         string cipherSub = "ADH-";
-        d["IceSSL.Ciphers"] = "RSA:ADH";
+        d["IceSSL.Ciphers"] = "RSA:" + anonCiphers;
 #  else
         string cipherSub = "DH_";
         d["IceSSL.Ciphers"] = "(RSA_*) (DH_anon*)";

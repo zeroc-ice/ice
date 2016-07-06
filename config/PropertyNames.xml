@@ -588,7 +588,6 @@ generated from the section label.
         <property name="ProtocolVersionMax" />
         <property name="ProtocolVersionMin" />
         <property name="Random" />
-        <property name="SecurityLevel" />
         <property name="Trace.Security" />
         <property name="TrustOnly" />
         <property name="TrustOnly.Client" />
