@@ -35,6 +35,8 @@ CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
 ifeq ($(UNAME),Darwin)
 LINK_WITH = -framework Security -framework CoreFoundation
+else
+CPPFLAGS	+= $(OPENSSL_FLAGS)
 endif
 
 ifeq ($(UNAME),MINGW)
