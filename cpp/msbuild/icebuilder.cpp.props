@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--
+      This property file is included by Ice Builder when building
+      C++ projects
+  -->
+
+  <!--
+      Guess the Configuration for C++ builds
+  -->
+  <PropertyGroup Condition="'$(UseDebugLibraries)' == 'true'">
+    <Ice_Configuration>Debug</Ice_Configuration>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(UseDebugLibraries)' != 'true'">
+    <Ice_Configuration>Release</Ice_Configuration>
+  </PropertyGroup>
+
+  <!--
+      Guess the Platform for C++ builds
+  -->
+  <PropertyGroup Condition="'$(Platform)'=='Win32'">
+    <Ice_Platform>Win32</Ice_Platform>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Platform)'=='x64'">
+    <Ice_Platform>x64</Ice_Platform>
+  </PropertyGroup>
+
+  <!--
+      When building UWP ARM we use the Win32 Slice compilers
+  -->
+  <PropertyGroup Condition="'$(Platform)'=='ARM'">
+    <Ice_Platform>Win32</Ice_Platform>
+  </PropertyGroup>
+
+  <!--
+      C++98 is the default mapping
+  -->
+  <PropertyGroup Condition="'$(Ice_CppMapping)' == ''">
+    <Ice_CppMapping>cpp98</Ice_CppMapping>
+  </PropertyGroup>
+
+  <!--
+      IceBinPath:
+
+        This variable points to the Ice binary directory used by the current
+        build, it depends on the Platform and Configuration of the project.
+
+      IceLibraryPath:
+
+        This variable points to the Ice library directory used by the current
+        build, it depends on the Platform and Configuration of the project.
+
+      IceIncludePath:
+
+        This variable contains the Ice header search path for the current build,
+        for source builds that depends on the Platform, Configuration and Cpp
+        mapping being used.
+
+      IceToolsPath:
+
+        This variable points to the directory containing the Slice compilers used
+        by the current build.
+  -->
+  <PropertyGroup>
+    <IceBinPath>$(IceHome)\cpp\bin\$(Platform)\$(Ice_Configuration)</IceBinPath>
+    <IceLibraryPath>$(IceHome)\cpp\lib\$(Platform)\$(Ice_Configuration)</IceLibraryPath>
+    <IceIncludePath>$(IceHome)\cpp\include;$(IceHome)\cpp\include\generated\$(Ice_CppMapping)\$(Platform)\$(Ice_Configuration)</IceIncludePath>
+    <IceToolsPath>$(IceHome)\cpp\bin\$(Ice_Platform)\$(Ice_Configuration)</IceToolsPath>
+    <Path>$(IceBinPath);$(Path)</Path>
+  </PropertyGroup>
+
+  <!--
+      Configure C++ include and library search paths using the variables defined above.
+  -->
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(IceIncludePath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(IceLibraryPath);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+</Project>
