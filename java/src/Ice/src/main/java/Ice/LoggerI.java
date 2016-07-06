@@ -56,8 +56,9 @@ public class LoggerI implements Logger
         s.append("-- ");
         synchronized(this)
         {
-            s.append(_date.format(new java.util.Date()));
-            s.append(_time.format(new java.util.Date()));
+            java.util.Date date = new java.util.Date();
+            s.append(_date.format(date));
+            s.append(_time.format(date));
         }
         s.append(' ');
         s.append(_formattedPrefix);
@@ -107,7 +108,7 @@ public class LoggerI implements Logger
         write(s, true);
     }
 
-    
+
     @Override
     public String
     getPrefix()

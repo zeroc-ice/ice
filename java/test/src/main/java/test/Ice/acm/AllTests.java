@@ -218,19 +218,25 @@ public class AllTests
                 proxy.ice_getConnection().setCloseCallback(new Ice.CloseCallback()
                 {
                     @Override
-                    synchronized  public void closed(Ice.Connection con)
+                    public void closed(Ice.Connection con)
                     {
-                        _closed = true;
-                        notify();
+                        synchronized(TestCase.this)
+                        {
+                            _closed = true;
+                            TestCase.this.notify();
+                        }
                     }
                 });
 
                 proxy.ice_getConnection().setHeartbeatCallback(new Ice.HeartbeatCallback()
                 {
                     @Override
-                    synchronized public void heartbeat(Ice.Connection con)
+                    public void heartbeat(Ice.Connection con)
                     {
-                        ++_heartbeat;
+                        synchronized(TestCase.this)
+                        {
+                            ++_heartbeat;
+                        }
                     }
                 });
 
