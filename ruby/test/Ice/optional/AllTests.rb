@@ -659,6 +659,12 @@ def allTests(communicator)
     p2, p3 = initial.opStringIntDict(p1)
     test(p2 == p1 && p3 == p1)
 
+    p2, p3 = initial.opIntOneOptionalDict(Ice::Unset)
+    test(p2 == Ice::Unset && p3 == Ice::Unset)
+    p1 = {1=> Test::OneOptional.new(58), 2=>Test::OneOptional.new(59)}
+    p2, p3 = initial.opIntOneOptionalDict(p1)
+    test(p2[1].a == 58 && p3[1].a == 58)
+
     puts "ok"
 
     print "testing exception optionals... "

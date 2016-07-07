@@ -718,6 +718,15 @@ def allTests(communicator):
     (p2, p3) = initial.end_opStringIntDict(r)
     test(p2 == p1 and p3 == p1)
 
+    (p2, p3) = initial.opIntOneOptionalDict(Ice.Unset)
+    test(p2 is Ice.Unset and p3 is Ice.Unset)
+    p1 = {1:Test.OneOptional(58), 2:Test.OneOptional(59)}
+    (p2, p3) = initial.opIntOneOptionalDict(p1)
+    test(p2[1].a == 58 and p3[1].a == 58);
+    r = initial.begin_opIntOneOptionalDict(p1)
+    (p2, p3) = initial.end_opIntOneOptionalDict(r)
+    test(p2[1].a == 58 and p3[1].a == 58);
+
     print("ok")
 
     sys.stdout.write("testing exception optionals... ")

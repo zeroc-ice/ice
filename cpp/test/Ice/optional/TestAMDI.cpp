@@ -343,6 +343,14 @@ InitialI::opStringIntDict_async(const ::Test::AMD_Initial_opStringIntDictPtr& cb
 }
 
 void
+InitialI::opIntOneOptionalDict_async(const ::Test::AMD_Initial_opIntOneOptionalDictPtr& cb,
+                                     const IceUtil::Optional< ::Test::IntOneOptionalDict>& p1,
+                                     const ::Ice::Current&)
+{
+    cb->ice_response(p1, p1);
+}
+
+void
 InitialI::opCustomIntStringDict_async(const ::Test::AMD_Initial_opCustomIntStringDictPtr& cb,
                                       const IceUtil::Optional<std::map<int, Util::string_view> >& p1,
                                       const ::Ice::Current&)

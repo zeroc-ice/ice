@@ -298,6 +298,8 @@ class Initial
         ["cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>", "cpp:type:::Test::CustomMap< ::Ice::Int, std::string>"] optional(2) IntStringDict p1,
         out ["cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>", "cpp:type:::Test::CustomMap< ::Ice::Int, std::string>"] optional(3) IntStringDict p3);
 
+    optional(1) IntOneOptionalDict opIntOneOptionalDict(optional(2) IntOneOptionalDict p1, out optional(3) IntOneOptionalDict p3);
+
     void opClassAndUnknownOptional(A p);
 
     void sendOptionalClass(bool req, optional(1) OneOptional o);

@@ -270,6 +270,15 @@ public class InitialI : Test.Initial
         return p1;
     }
 
+    public override Ice.Optional<Dictionary<int, Test.OneOptional>> opIntOneOptionalDict(
+        Ice.Optional<Dictionary<int, Test.OneOptional>> p1,
+        out Ice.Optional<Dictionary<int, Test.OneOptional>> p3,
+        Ice.Current current)
+    {
+        p3 = p1;
+        return p1;
+    }
+
     public override void opClassAndUnknownOptional(Test.A p, Ice.Current current)
     {
     }

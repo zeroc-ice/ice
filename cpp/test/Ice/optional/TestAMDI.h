@@ -174,6 +174,10 @@ public:
                                        const IceUtil::Optional< ::Test::StringIntDict>&,
                                        const ::Ice::Current&);
 
+    virtual void opIntOneOptionalDict_async(const ::Test::AMD_Initial_opIntOneOptionalDictPtr&,
+                                            const IceUtil::Optional< ::Test::IntOneOptionalDict>&,
+                                            const ::Ice::Current&);
+
     virtual void opCustomIntStringDict_async(const ::Test::AMD_Initial_opCustomIntStringDictPtr&,
                                              const IceUtil::Optional<std::map<int, Util::string_view> >&,
                                              const ::Ice::Current&);

@@ -687,6 +687,12 @@ function allTests($communicator)
     $p3 = $initial->opStringIntDict($p1, $p2);
     test($p2 == $p1 && $p3 == $p1);
 
+    $p3 = $initial->opIntOneOptionalDict(Ice_Unset, $p2);
+    test($p2 == Ice_Unset && $p3 == Ice_Unset);
+    $p1 = array(1=>new $oocls(58), 2=>new $oocls(59));
+    $p3 = $initial->opIntOneOptionalDict($p1, $p2);
+    test($p2[1]->a == 58 && $p3[1]->a == 58);
+
     echo "ok\n";
 
     echo "testing exception optionals... ";

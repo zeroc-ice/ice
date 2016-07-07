@@ -595,6 +595,24 @@ public final class InitialI extends Initial
     }
 
     @Override
+    public Ice.Optional<java.util.Map<Integer, OneOptional>>
+    opIntOneOptionalDict(Ice.Optional<java.util.Map<Integer, OneOptional>> p1,
+                         Ice.Optional<java.util.Map<Integer, OneOptional>> p3, Ice.Current current)
+    {
+        p3.set(p1);
+        return p1;
+    }
+
+    @Override
+    public java.util.Map<Integer, OneOptional>
+    opIntOneOptionalDictReq(Ice.Optional<java.util.Map<Integer, OneOptional>> p1, IntOneOptionalDictHolder p3,
+                            Ice.Current current)
+    {
+        p3.value = p1.get();
+        return p1.get();
+    }
+
+    @Override
     public void
     opClassAndUnknownOptional(A p, Ice.Current current)
     {

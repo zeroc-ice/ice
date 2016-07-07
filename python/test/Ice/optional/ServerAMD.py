@@ -130,6 +130,9 @@ class InitialI(Test.Initial):
     def opStringIntDict_async(self, cb, p1, current=None):
         cb.ice_response(p1, p1)
 
+    def opIntOneOptionalDict_async(self, cb, p1, current=None):
+        cb.ice_response(p1, p1)
+
     def opClassAndUnknownOptional_async(self, cb, p, current=None):
         cb.ice_response()
 

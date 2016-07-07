@@ -228,6 +228,13 @@ public class InitialI : Test.Initial
         cb.ice_response(p1, p1);
     }
 
+    public override void opIntOneOptionalDict_async(Test.AMD_Initial_opIntOneOptionalDict cb,
+                                                    Ice.Optional<Dictionary<int, Test.OneOptional>> p1,
+                                                    Ice.Current current)
+    {
+        cb.ice_response(p1, p1);
+    }
+
     public override void opClassAndUnknownOptional_async(Test.AMD_Initial_opClassAndUnknownOptional cb, Test.A p,
                                                          Ice.Current current)
     {

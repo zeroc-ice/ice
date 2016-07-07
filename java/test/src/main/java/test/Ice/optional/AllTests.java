@@ -1267,7 +1267,10 @@ public class AllTests
                 in.endEncapsulation();
             }
         }
+        out.println("ok");
 
+        out.print("testing optional parameters and sequences... ");
+        out.flush();
         {
             Ice.Optional<byte[]> p1 = new Ice.Optional<byte[]>();
             Ice.Optional<byte[]> p3 = new Ice.Optional<byte[]>();
@@ -2012,7 +2015,10 @@ public class AllTests
                 in.endEncapsulation();
             }
         }
+        out.println("ok");
 
+        out.print("testing optional parameters and dictionaries... ");
+        out.flush();
         {
             Ice.Optional<java.util.Map<Integer, Integer>> p1 = new Ice.Optional<java.util.Map<Integer, Integer>>();
             Ice.Optional<java.util.Map<Integer, Integer>> p3 = new Ice.Optional<java.util.Map<Integer, Integer>>();
@@ -2108,6 +2114,62 @@ public class AllTests
                 in.skip(4);
                 m = StringIntDictHelper.read(in);
                 test(m.equals(p1.get()));
+                in.endEncapsulation();
+
+                in = new Ice.InputStream(communicator, outEncaps.value);
+                in.startEncapsulation();
+                in.endEncapsulation();
+            }
+        }
+
+        {
+            Ice.Optional<java.util.Map<Integer, OneOptional>> p1 = new Ice.Optional<java.util.Map<Integer, OneOptional>>();
+            Ice.Optional<java.util.Map<Integer, OneOptional>> p3 = new Ice.Optional<java.util.Map<Integer, OneOptional>>();
+            Ice.Optional<java.util.Map<Integer, OneOptional>> p2 = initial.opIntOneOptionalDict(p1, p3);
+            test(!p2.isSet() && !p3.isSet());
+
+            p1.set(new java.util.HashMap<Integer, OneOptional>());
+            p1.get().put(1, new OneOptional(15));
+            p1.get().put(2, new OneOptional(12));
+            p2 = initial.opIntOneOptionalDict(p1, p3);
+            test(p2.get().get(1).getA() == 15 && p3.get().get(1).getA() == 15);
+            test(p2.get().get(2).getA() == 12 && p3.get().get(2).getA() == 12);
+            Ice.AsyncResult r = initial.begin_opIntOneOptionalDict(p1);
+            p2 = initial.end_opIntOneOptionalDict(p3, r);
+            test(p2.get().get(1).getA() == 15 && p3.get().get(1).getA() == 15);
+            test(p2.get().get(2).getA() == 12 && p3.get().get(2).getA() == 12);
+            p2 = initial.opIntOneOptionalDict(new Ice.Optional<java.util.Map<Integer, OneOptional>>(), p3);
+            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+
+            if(reqParams)
+            {
+                p2 = initial.opIntOneOptionalDictReq(p1.get(), p3);
+                test(p2.get().get(1).getA() == 15 && p3.get().get(1).getA() == 15);
+                test(p2.get().get(2).getA() == 12 && p3.get().get(2).getA() == 12);
+                r = initial.begin_opIntOneOptionalDictReq(p1.get());
+                p2 = initial.end_opIntOneOptionalDictReq(p3, r);
+                test(p2.get().get(1).getA() == 15 && p3.get().get(1).getA() == 15);
+                test(p2.get().get(2).getA() == 12 && p3.get().get(2).getA() == 12);
+
+                os = new Ice.OutputStream(communicator);
+                os.startEncapsulation();
+                os.writeOptional(2, Ice.OptionalFormat.FSize);
+                int pos = os.startSize();
+                IntOneOptionalDictHelper.write(os, p1.get());
+                os.endSize(pos);
+                os.endEncapsulation();
+                inEncaps = os.finished();
+                initial.ice_invoke("opIntOneOptionalDictReq", Ice.OperationMode.Normal, inEncaps, outEncaps);
+                in = new Ice.InputStream(communicator, outEncaps.value);
+                in.startEncapsulation();
+                test(in.readOptional(1, Ice.OptionalFormat.FSize));
+                in.skip(4);
+                java.util.Map<Integer, OneOptional> m = IntOneOptionalDictHelper.read(in);
+                test(m.get(1).getA() == 15 && m.get(2).getA() == 12);
+                test(in.readOptional(3, Ice.OptionalFormat.FSize));
+                in.skip(4);
+                m = IntOneOptionalDictHelper.read(in);
+                test(m.get(1).getA() == 15 && m.get(2).getA() == 12);
                 in.endEncapsulation();
 
                 in = new Ice.InputStream(communicator, outEncaps.value);

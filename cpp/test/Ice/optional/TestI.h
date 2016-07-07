@@ -174,6 +174,11 @@ public:
         IceUtil::Optional< ::Test::StringIntDict>&,
         const ::Ice::Current& = ::Ice::noExplicitCurrent);
 
+    virtual IceUtil::Optional< ::Test::IntOneOptionalDict> opIntOneOptionalDict(
+        const IceUtil::Optional< ::Test::IntOneOptionalDict>&,
+        IceUtil::Optional< ::Test::IntOneOptionalDict>&,
+        const ::Ice::Current& = ::Ice::noExplicitCurrent);
+
     virtual IceUtil::Optional< ::Test::IntStringDict> opCustomIntStringDict(
         const IceUtil::Optional<std::map<int, Util::string_view> >&,
         IceUtil::Optional< ::Test::IntStringDict>&,

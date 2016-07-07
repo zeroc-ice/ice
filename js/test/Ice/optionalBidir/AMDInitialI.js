@@ -107,15 +107,7 @@
         {
             cb.ice_response(p1, p1);
         },
-        opByteReq_async: function(cb, p1, current)
-        {
-            cb.ice_response(p1, p1);
-        },
         opBool_async: function(cb, p1, current)
-        {
-            cb.ice_response(p1, p1);
-        },
-        opBoolReq_async: function(cb, p1, current)
         {
             cb.ice_response(p1, p1);
         },
@@ -123,15 +115,7 @@
         {
             cb.ice_response(p1, p1);
         },
-        opShortReq_async: function(cb, p1, current)
-        {
-            cb.ice_response(p1, p1);
-        },
         opInt_async: function(cb, p1, current)
-        {
-            cb.ice_response(p1, p1);
-        },
-        opIntReq_async: function(cb, p1, current)
         {
             cb.ice_response(p1, p1);
         },
@@ -139,15 +123,7 @@
         {
             cb.ice_response(p1, p1);
         },
-        opLongReq_async: function(cb, p1, current)
-        {
-            cb.ice_response(p1, p1);
-        },
         opFloat_async: function(cb, p1, current)
-        {
-            cb.ice_response(p1, p1);
-        },
-        opFloatReq_async: function(cb, p1, current)
         {
             cb.ice_response(p1, p1);
         },
@@ -155,15 +131,7 @@
         {
             cb.ice_response(p1, p1);
         },
-        opDoubleReq_async: function(cb, p1, current)
-        {
-            cb.ice_response(p1, p1);
-        },
         opString_async: function(cb, p1, current)
-        {
-            cb.ice_response(p1, p1);
-        },
-        opStringReq_async: function(cb, p1, current)
         {
             cb.ice_response(p1, p1);
         },
@@ -171,15 +139,7 @@
         {
             cb.ice_response(p1, p1);
         },
-        opMyEnumReq_async: function(cb, p1, current)
-        {
-            cb.ice_response(p1, p1);
-        },
         opSmallStruct_async: function(cb, p1, current)
-        {
-            cb.ice_response(p1, p1);
-        },
-        opSmallStructReq_async: function(cb, p1, current)
         {
             cb.ice_response(p1, p1);
         },
@@ -187,15 +147,7 @@
         {
             cb.ice_response(p1, p1);
         },
-        opFixedStructReq_async: function(cb, p1, current)
-        {
-            cb.ice_response(p1, p1);
-        },
         opVarStruct_async: function(cb, p1, current)
-        {
-            cb.ice_response(p1, p1);
-        },
-        opVarStructReq_async: function(cb, p1, current)
         {
             cb.ice_response(p1, p1);
         },
@@ -203,15 +155,7 @@
         {
             cb.ice_response(p1, p1);
         },
-        opOneOptionalReq_async: function(cb, p1, current)
-        {
-            cb.ice_response(p1, p1);
-        },
         opOneOptionalProxy_async: function(cb, p1, current)
-        {
-            cb.ice_response(p1, p1);
-        },
-        opOneOptionalProxyReq_async: function(cb, p1, current)
         {
             cb.ice_response(p1, p1);
         },
@@ -219,15 +163,7 @@
         {
             cb.ice_response(p1, p1);
         },
-        opByteSeqReq_async: function(cb, p1, current)
-        {
-            cb.ice_response(p1, p1);
-        },
         opBoolSeq_async: function(cb, p1, current)
-        {
-            cb.ice_response(p1, p1);
-        },
-        opBoolSeqReq_async: function(cb, p1, current)
         {
             cb.ice_response(p1, p1);
         },
@@ -235,15 +171,7 @@
         {
             cb.ice_response(p1, p1);
         },
-        opShortSeqReq_async: function(cb, p1, current)
-        {
-            cb.ice_response(p1, p1);
-        },
         opIntSeq_async: function(cb, p1, current)
-        {
-            cb.ice_response(p1, p1);
-        },
-        opIntSeqReq_async: function(cb, p1, current)
         {
             cb.ice_response(p1, p1);
         },
@@ -251,15 +179,7 @@
         {
             cb.ice_response(p1, p1);
         },
-        opLongSeqReq_async: function(cb, p1, current)
-        {
-            cb.ice_response(p1, p1);
-        },
         opFloatSeq_async: function(cb, p1, current)
-        {
-            cb.ice_response(p1, p1);
-        },
-        opFloatSeqReq_async: function(cb, p1, current)
         {
             cb.ice_response(p1, p1);
         },
@@ -267,15 +187,7 @@
         {
             cb.ice_response(p1, p1);
         },
-        opDoubleSeqReq_async: function(cb, p1, current)
-        {
-            cb.ice_response(p1, p1);
-        },
         opStringSeq_async: function(cb, p1, current)
-        {
-            cb.ice_response(p1, p1);
-        },
-        opStringSeqReq_async: function(cb, p1, current)
         {
             cb.ice_response(p1, p1);
         },
@@ -283,15 +195,7 @@
         {
             cb.ice_response(p1, p1);
         },
-        opSmallStructSeqReq_async: function(cb, p1, current)
-        {
-            cb.ice_response(p1, p1);
-        },
         opSmallStructList_async: function(cb, p1, current)
-        {
-            cb.ice_response(p1, p1);
-        },
-        opSmallStructListReq_async: function(cb, p1, current)
         {
             cb.ice_response(p1, p1);
         },
@@ -299,15 +203,7 @@
         {
             cb.ice_response(p1, p1);
         },
-        opFixedStructSeqReq_async: function(cb, p1, current)
-        {
-            cb.ice_response(p1, p1);
-        },
         opFixedStructList_async: function(cb, p1, current)
-        {
-            cb.ice_response(p1, p1);
-        },
-        opFixedStructListReq_async: function(cb, p1, current)
         {
             cb.ice_response(p1, p1);
         },
@@ -315,15 +211,7 @@
         {
             cb.ice_response(p1, p1);
         },
-        opVarStructSeqReq_async: function(cb, p1, current)
-        {
-            cb.ice_response(p1, p1);
-        },
         opSerializable_async: function(cb, p1, current)
-        {
-            cb.ice_response(p1, p1);
-        },
-        opSerializableReq_async: function(cb, p1, current)
         {
             cb.ice_response(p1, p1);
         },
@@ -331,15 +219,11 @@
         {
             cb.ice_response(p1, p1);
         },
-        opIntIntDictReq_async: function(cb, p1, current)
-        {
-            cb.ice_response(p1, p1);
-        },
         opStringIntDict_async: function(cb, p1, current)
         {
             cb.ice_response(p1, p1);
         },
-        opStringIntDictReq_async: function(cb, p1, current)
+        opIntOneOptionalDict_async: function(cb, p1, current)
         {
             cb.ice_response(p1, p1);
         },

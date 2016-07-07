@@ -930,6 +930,28 @@
                 var data = new Ice.HashMap();
                 data.set("1", 1);
                 data.set("2", 2);
+                return initial.opStringIntDict(data);
+            }
+        ).then(
+            function(p1, p2)
+            {
+                test(p1.equals(p2));
+                return initial.opIntOneOptionalDict();
+            }
+        ).then(
+            function(p1, p2)
+            {
+                test(p1 === undefined);
+                test(p2 === undefined);
+                var data = new Ice.HashMap();
+                data.set(1, new Test.OneOptional(58));
+                data.set(2, new Test.OneOptional(59));
+                return initial.opIntOneOptionalDict(data);
+            }
+        ).then(
+            function(p1, p2)
+            {
+                test(p1.get(1).a === 58 && p2.get(2).a === 59);
 
                 out.writeLine("ok");
                 out.write("testing exception optionals... ");
@@ -940,7 +962,6 @@
             failCB,
             function(ex)
             {
-                console.log(ex);
                 test(ex instanceof Test.OptionalException);
                 test(ex.a === undefined);
                 test(ex.b === undefined);

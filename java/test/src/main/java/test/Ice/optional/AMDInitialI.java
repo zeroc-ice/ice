@@ -545,6 +545,22 @@ public final class AMDInitialI extends Initial
 
     @Override
     public void
+    opIntOneOptionalDict_async(AMD_Initial_opIntOneOptionalDict cb,
+        Ice.Optional<java.util.Map<Integer, OneOptional>> p1, Ice.Current current)
+    {
+        cb.ice_response(p1, p1);
+    }
+
+    @Override
+    public void
+    opIntOneOptionalDictReq_async(AMD_Initial_opIntOneOptionalDictReq cb,
+        Ice.Optional<java.util.Map<Integer, OneOptional>> p1, Ice.Current current)
+    {
+        cb.ice_response(p1.get(), p1.get());
+    }
+
+    @Override
+    public void
     opClassAndUnknownOptional_async(AMD_Initial_opClassAndUnknownOptional cb, A p, Ice.Current current)
     {
         cb.ice_response();

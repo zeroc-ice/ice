@@ -213,6 +213,11 @@
     *p3 = p1;
     return p1;
 }
+-(id) opIntOneOptionalDict:(id)p1 p3:(id *)p3 current:(ICECurrent *)current
+{
+    *p3 = p1;
+    return p1;
+}
 -(void) opClassAndUnknownOptional:(TestOptionalA *)p current:(ICECurrent *)current
 {
 }

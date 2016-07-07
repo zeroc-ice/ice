@@ -2086,6 +2086,59 @@ public class AllTests : TestCommon.TestApp
             Test.A a = (Test.A)rocb.obj;
             test(a != null && a.requiredA == 56);
         }
+
+        {
+            Ice.Optional<Dictionary<int, Test.OneOptional>> p1 = new Ice.Optional<Dictionary<int, Test.OneOptional>>();
+            Ice.Optional<Dictionary<int, Test.OneOptional>> p3;
+            Ice.Optional<Dictionary<int, Test.OneOptional>> p2 = initial.opIntOneOptionalDict(p1, out p3);
+            test(!p2.HasValue && !p3.HasValue);
+            p2 = initial.opIntOneOptionalDict(Ice.Util.None, out p3);
+            test(!p2.HasValue && !p3.HasValue);
+            p2 = initial.opIntOneOptionalDict(null, out p3);
+            test(p2.HasValue && p2.Value.Count == 0 && p3.HasValue && p3.Value.Count == 0);
+
+            p1 = new Dictionary<int, Test.OneOptional>();
+            p1.Value.Add(1, new Test.OneOptional(58));
+            p1.Value.Add(2, new Test.OneOptional(59));
+            p2 = initial.opIntOneOptionalDict(p1, out p3);
+            test(p2.Value[1].a.Value == 58 && p3.Value[1].a.Value == 58);
+            Ice.AsyncResult r = initial.begin_opIntOneOptionalDict(p1);
+            p2 = initial.end_opIntOneOptionalDict(out p3, r);
+            test(p2.Value[1].a.Value == 58 && p3.Value[1].a.Value == 58);
+            p2 = initial.opIntOneOptionalDict(p1.Value, out p3);
+            test(p2.Value[1].a.Value == 58 && p3.Value[1].a.Value == 58);
+            r = initial.begin_opIntOneOptionalDict(p1.Value);
+            p2 = initial.end_opIntOneOptionalDict(out p3, r);
+            test(p2.Value[1].a.Value == 58 && p3.Value[1].a.Value == 58);
+
+            p2 = initial.opIntOneOptionalDict(new Ice.Optional<Dictionary<int, Test.OneOptional>>(), out p3);
+            test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+
+            os = new Ice.OutputStream(communicator);
+            os.startEncapsulation();
+            os.writeOptional(2, Ice.OptionalFormat.FSize);
+            int pos = os.startSize();
+            Test.IntOneOptionalDictHelper.write(os, p1.Value);
+            os.endSize(pos);
+            os.endEncapsulation();
+            inEncaps = os.finished();
+            initial.ice_invoke("opIntOneOptionalDict", Ice.OperationMode.Normal, inEncaps, out outEncaps);
+            @in = new Ice.InputStream(communicator, outEncaps);
+            @in.startEncapsulation();
+            test(@in.readOptional(1, Ice.OptionalFormat.FSize));
+            @in.skip(4);
+            Dictionary<int, Test.OneOptional> m = Test.IntOneOptionalDictHelper.read(@in);
+            test(m[1].a.Value == 58);
+            test(@in.readOptional(3, Ice.OptionalFormat.FSize));
+            @in.skip(4);
+            m = Test.IntOneOptionalDictHelper.read(@in);
+            test(m[1].a.Value == 58);
+            @in.endEncapsulation();
+
+            @in = new Ice.InputStream(communicator, outEncaps);
+            @in.startEncapsulation();
+            @in.endEncapsulation();
+        }
         WriteLine("ok");
 
         Write("testing exception optionals... ");

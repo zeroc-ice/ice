@@ -1693,7 +1693,9 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         in2.startEncapsulation();
         in2.endEncapsulation();
     }
+    cout << "ok" << endl;
 
+    cout << "testing optional parameters and dictionaries... " << flush;
     {
         IceUtil::Optional<IntIntDict> p1;
         IceUtil::Optional<IntIntDict> p3;
@@ -1750,6 +1752,37 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         in.read(3, p3);
         in.endEncapsulation();
         test(p2 == ss && p3 == ss);
+
+        Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
+        in2.startEncapsulation();
+        in2.endEncapsulation();
+    }
+
+    {
+        IceUtil::Optional<IntOneOptionalDict> p1;
+        IceUtil::Optional<IntOneOptionalDict> p3;
+        IceUtil::Optional<IntOneOptionalDict> p2 = initial->opIntOneOptionalDict(p1, p3);
+        test(!p2 && !p3);
+
+        IntOneOptionalDict ss;
+        ss.insert(make_pair<int, OneOptionalPtr>(1, new OneOptional(58)));
+        p1 = ss;
+        p2 = initial->opIntOneOptionalDict(p1, p3);
+        test(p2 && p3);
+        test((*p2)[1]->a == 58 && (*p3)[1]->a == 58);
+
+        Ice::OutputStream out(communicator);
+        out.startEncapsulation();
+        out.write(2, p1);
+        out.endEncapsulation();
+        out.finished(inEncaps);
+        initial->ice_invoke("opIntOneOptionalDict", Ice::Normal, inEncaps, outEncaps);
+        Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
+        in.startEncapsulation();
+        in.read(1, p2);
+        in.read(3, p3);
+        in.endEncapsulation();
+        test((*p2)[1]->a == 58 && (*p3)[1]->a == 58);
 
         Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
         in2.startEncapsulation();

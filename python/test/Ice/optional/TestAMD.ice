@@ -272,6 +272,9 @@ class Initial
 
     optional(1) StringIntDict opStringIntDict(optional(2) StringIntDict p1, out optional(3) StringIntDict p3);
 
+    optional(1) IntOneOptionalDict opIntOneOptionalDict(optional(2) IntOneOptionalDict p1,
+                                                        out optional(3) IntOneOptionalDict p3);
+
     void opClassAndUnknownOptional(A p);
 
     void sendOptionalClass(bool req, optional(1) OneOptional o);

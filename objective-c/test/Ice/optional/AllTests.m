@@ -1564,7 +1564,57 @@ optionalAllTests(id<ICECommunicator> communicator)
         [is startEncapsulation];
         [is endEncapsulation];
     }
+    tprintf("ok\n");
 
+    tprintf("testing optional parameters and dictionaries... ");
+    {
+        id p1 = ICENone;
+        id p3 = ICENone;
+        id p2 = [initial opIntIntDict:p1 p3:&p3];
+        test(p2 == ICENone && p3 == ICENone);
+
+        p2 = [initial opIntIntDict:[TestOptionalIntIntDict dictionary] p3:&p3];
+        test(p2 != nil && p3 != nil && [p2 count] == 0 && [p3 count] == 0);
+
+        TestOptionalMutableIntIntDict* iid = [TestOptionalMutableIntIntDict dictionary];
+        [iid setObject:@45 forKey:@1];
+        p1 = iid;
+        p2 = [initial opIntIntDict:p1 p3:&p3];
+        test(p2 != nil && p3 != nil);
+        test([p2 isEqual:iid] && [p3 isEqual:iid]);
+
+        p1 = ICENone;
+        p3 = ICENone;
+        p2 = [initial opStringIntDict:p1 p3:&p3];
+        test(p2 == ICENone && p3 == ICENone);
+
+        p2 = [initial opIntIntDict:[TestOptionalStringIntDict dictionary] p3:&p3];
+        test(p2 != nil && p3 != nil && [p2 count] == 0 && [p3 count] == 0);
+
+        TestOptionalMutableStringIntDict* sid = [TestOptionalMutableStringIntDict dictionary];
+        [sid setObject:@45 forKey:@"1"];
+        p1 = sid;
+        p2 = [initial opStringIntDict:p1 p3:&p3];
+        test(p2 != nil && p3 != nil);
+        test([p2 isEqual:sid] && [p3 isEqual:sid]);
+
+        p1 = ICENone;
+        p3 = ICENone;
+        p2 = [initial opIntOneOptionalDict:p1 p3:&p3];
+        test(p2 == ICENone && p3 == ICENone);
+
+        p2 = [initial opIntOneOptionalDict:[TestOptionalStringIntDict dictionary] p3:&p3];
+        test(p2 != nil && p3 != nil && [p2 count] == 0 && [p3 count] == 0);
+
+        TestOptionalMutableIntOneOptionalDict* iod = [TestOptionalMutableIntOneOptionalDict dictionary];
+        TestOptionalOneOptional* oneOpt = [TestOptionalOneOptional oneOptional:@58];
+        [iod setObject:oneOpt forKey:@1];
+        p1 = iod;
+        p2 = [initial opIntOneOptionalDict:p1 p3:&p3];
+        test(p2 != nil && p3 != nil);
+        test(((TestOptionalOneOptional*)[p2 objectForKey:@1]).a == 58 &&
+             ((TestOptionalOneOptional*)[p3 objectForKey:@1]).a == 58);
+    }
     tprintf("ok\n");
 
     tprintf("testing exception optionals... ");
