@@ -72,7 +72,7 @@ only when building Ice from sources, and does not need to be installed.
 
 TBD
 
-## Building Ice for C++
+## Building Ice
 
 ### Clone zeroc-ice/ice
 
@@ -100,15 +100,35 @@ gmake -j8
 
 This builds the Ice core libraries, services, and tests.
 
+### Build configurations and platforms
+
+The C++ source tree supports multiple build configurations and platforms. To
+see the supported configurations and platforms:
+
+    gmake print V=supported-configs
+    gmake print V=supported-platforms
+
+To build all the supported configurations and platforms:
+
+    gmake CONFIGS=all PLATFORMS=all
+
+### C++11 mapping
+
+The C++ source tree supports two different language mappings (C++98 and C++11),
+the default build uses the C++98 mapping. The C++11 mapping is a new mapping
+that uses the new language features.
+
+To build the new C++11 mapping, use build configurations which are prefixed with
+`cpp11`, for example:
+
+    gmake CONFIGS=cpp11-shared
+
 ### Install
 
-```
-gmake install
-```
+Simply run `gmake install`. This will install Ice in the directory specified by
+the `<prefix>` variable in `config/Make.rules`.
 
-This installs Ice for C++ in the directory specified by `prefix` in
-`config/Make.rules`. By default, all Ice binaries embed the library path
-`prefix/lib:/usr/lib`.
+By default, all Ice binaries embed the library path `prefix/lib:/usr/lib`.
 
 After installation, make sure that the `prefix/bin` directory is in your `PATH`.
 

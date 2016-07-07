@@ -18,24 +18,17 @@ Ice for Python supports Python versions 2.6, 2.7, and 3.5. Note however that
 your Python installation must have been built with a C++ compiler that is
 compatible with the one used to build Ice for C++.
 
-### Ice Development Kit
-
-You will need the Ice development kit for C++, which you can install as a binary
-distribution or compile from source yourself.
-
 ## Building the Python Extension
+
+The build of Ice for Python requires to first build Ice for C++ in the `cpp`
+subdirectory.
+
+Edit `config/Make.rules` to establish your build configuration. The comments in
+the file provide more information.
 
 Change to the Ice for Python source subdirectory:
 
     $ cd python
-
-If you have not built Ice for C++ in the `cpp` subdirectory, set `ICE_HOME` to
-the directory of your Ice for C++ installation. For example:
-
-    $ export ICE_HOME=/opt/Ice
-
-Edit `config/Make.rules`, modify the installation prefix (if necessary), and
-review the comments describing the `PYTHON_VERSION` variable.
 
 Execute `python -V` to verify that the correct Python interpreter is in your
 executable search path.

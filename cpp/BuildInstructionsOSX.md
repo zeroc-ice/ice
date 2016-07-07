@@ -43,16 +43,39 @@ Now you're ready to build Ice:
 
 This will build the Ice core libraries, services, and tests.
 
+### Build configurations and platforms
+
+The C++ source tree supports multiple build configurations and platforms. To
+see the supported configurations and platforms:
+
+    make print V=supported-configs
+    make print V=supported-platforms
+
+To build all the supported configurations and platforms:
+
+    make CONFIGS=all PLATFORMS=all
+
 ### C++11 mapping
 
-The C++ source tree supports two different language mappings (C++98 and C++11), 
-the default build uses the C++98 map. The C++11 mapping is a new mapping that
-uses the new language features.
+The C++ source tree supports two different language mappings (C++98 and C++11),
+the default build uses the C++98 mapping. The C++11 mapping is a new mapping
+that uses the new language features.
 
-To build the new C++11 mapping, set the environment variable `CPP11_MAPPING` to
-yes, as shown below:
+To build the new C++11 mapping, use build configurations which are prefixed with
+`cpp11`, for example:
 
-    export CPP11_MAPPING=yes
+    make CONFIGS=cpp11-shared
+
+### Ice Xcode SDK
+
+The build system supports building Xcode SDKs for Ice. These SDKs allow to
+easily develop Ice applications with Xcode. To build Xcode SDKs, use the
+`xcodesdk` configurations:
+
+    make CONFIGS=xcodesdk          # Build the C++98 mapping Xcode SDK
+    make CONFIGS=cpp11-xcodesdk    # Build the C++11 mapping Xcode SDK
+
+The Xcode SDKs are built into `ice/IceSDK`.
 
 ## Installing a C++ Source Build
 
@@ -71,9 +94,12 @@ When compiling Ice programs, you must pass the location of the
 `<prefix>/include` directory to the compiler with the `-I` option, and the
 location of the library directory with the `-L` option.
 
-If building a C++11 program, you must define `ICE_CPP11_MAPPING` macro during
-compilation with the `-D` option as `g++ -DICE_CPP11_MAPING ` and add the `/c++11`
-suffix to the library directory when linking (such as `-L<prefix>/lib/c++11`).
+If building a C++11 program, you must define the `ICE_CPP11_MAPPING` macro
+during compilation with the `-D` option (for example `clang++
+-DICE_CPP11_MAPING`) and add the `++11` suffix to the library name when linking
+(such as `-lIce++11`).
+
+The Ice Xcode SDKs are installed in `<prefix>/lib/IceSDK`.
 
 ## Running the Test Suite
 

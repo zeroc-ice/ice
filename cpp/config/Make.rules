@@ -14,7 +14,7 @@
 #
 # Supported configurations
 #
-supported-configs	= shared static cpp11-shared cpp11-static
+supported-configs = shared static cpp11-shared cpp11-static
 
 -include	$(lang_srcdir)/config/Make.rules.$(os)
 ifeq ($(os),Darwin)
@@ -59,12 +59,12 @@ static_projects		= test/%
 cpp11_components	= $(coreandstub_components) icebox
 
 cpp11_projects		= test/Common \
-                	  test/IceUtil/% \
-                	  test/Slice/% \
-                	  test/Ice/% \
-                	  test/IceSSL/% \
-                	  test/IceDiscovery/% \
-                	  test/IceBox/%
+			  test/IceUtil/% \
+			  test/Slice/% \
+			  test/Ice/% \
+			  test/IceSSL/% \
+			  test/IceDiscovery/% \
+			  test/IceBox/%
 
 cpp11_excludes  	= IcePatch2 \
 			  test/Ice/optional \

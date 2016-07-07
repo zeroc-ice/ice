@@ -23,11 +23,6 @@ If you use an RPM installation, the following packages are required:
     ruby-devel
     ruby-libs (RHEL)
 
-### Ice Development Kit
-
-You will need the Ice development kit for C++, which you can install as a binary
-distribution or compile from source yourself.
-
 ## Building the Ruby Extension
 
 The instructions for compiling the Ice extension assume that you have already
@@ -38,17 +33,15 @@ environment variable to the installation directory. For example:
 
     $ export RUBY_HOME=/opt/ruby
 
-If you have not built Ice for C++ in the `cpp` subdirectory, set `ICE_HOME`
-to the directory of your Ice for C++ installation. For example:
+The build of Ice for Python requires to first build Ice for C++ in the `cpp`
+subdirectory.
 
-    $ export ICE_HOME=/opt/Ice
+Edit `config/Make.rules` to establish your build configuration. The comments in
+the file provide more information.
 
 Change to the Ice for Ruby source subdirectory:
 
     $ cd ruby
-
-Edit `config/Make.rules`and adjust as necessary. For example, you may wish to
-enable `OPTIMIZE`.
 
 Run `make` to build the extension.
 

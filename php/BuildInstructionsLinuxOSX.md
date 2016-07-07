@@ -11,12 +11,13 @@ for the supported platforms.
 Ice for PHP was extensively tested using the operating systems and compiler
 versions listed for our [supported platforms][2].
 
-### Ice Development Kit
-
-You will need the Ice development kit for C++, which you can install as a binary
-distribution or compile from source yourself.
-
 ## Building the PHP Extension
+
+The build of Ice for Python requires to first build Ice for C++ in the `cpp`
+subdirectory.
+
+Edit `config/Make.rules` to establish your build configuration. The comments in
+the file provide more information.
 
 Our source code only supports building Ice for PHP as a dynamic PHP extension;
 the product of the build is a shared library that you must configure PHP to
@@ -26,23 +27,8 @@ First, change to the `php` source subdirectory:
 
     $ cd php
 
-Edit `config/Make.rules` and review the build settings. For example, you may
-want to enable `OPTIMIZE`. If you are using PHP 5.3 or later and wish to use PHP
-namespaces, set `USE_NAMESPACES=yes`.
-
 Ensure that `php` and `php-config` for the version of PHP you wish to
 build against are first in your path.
-
-If you have not built Ice for C++ from the `cpp` subdirectory, then set the
-`ICE_HOME` environment variable to the directory containing your Ice
-installation. For example, if Ice is installed in `/opt/Ice`, set `ICE_HOME` as
-follows:
-
-    $ export ICE_HOME=/opt/Ice
-
-If you installed Ice using RPM or DEB packages, set `ICE_HOME` as shown below:
-
-    $ export ICE_HOME=/usr
 
 Run `make` to build the extension.
 

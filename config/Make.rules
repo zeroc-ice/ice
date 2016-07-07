@@ -58,9 +58,9 @@ PLATFORMS              	?= $(firstword $(supported-platforms))
 CONFIGS			?= $(firstword $(supported-configs))
 
 #
-# Third-party libraries
+# Third-party libraries (Ice for C++)
 #
-# If a third-party library is not inlled in a standard location
+# If a third-party library is not installed in a standard location
 # where the compiler can find it, set the corresponding variable
 # below to the installation directory of the library.
 #
