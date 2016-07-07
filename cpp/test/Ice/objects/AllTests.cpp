@@ -92,9 +92,21 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(ba2->theS.str == "hello");
     test(ba2->str == "hi");
 
+#ifdef ICE_CPP11_MAPPING
+    test(*ba1 < *ba2);
+    test(*ba2 > *ba1);
+    test(*ba1 != *ba2);
+#endif
+
     *ba1 = *ba2;
     test(ba1->theS.str == "hello");
     test(ba1->str == "hi");
+
+#ifdef ICE_CPP11_MAPPING
+    test(*ba1 == *ba2);
+    test(*ba1 >= *ba2);
+    test(*ba1 <= *ba2);
+#endif
 
     BasePtr bp1 = ICE_MAKE_SHARED(Base);
     *bp1 = *ba2;

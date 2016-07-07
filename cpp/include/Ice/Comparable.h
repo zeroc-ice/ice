@@ -58,6 +58,46 @@ struct TargetLess
     }
 };
 
+#if ICE_CPP11_MAPPING
+
+template<class C, typename = std::enable_if<std::is_member_function_pointer<decltype(&C::ice_tuple)>::value>>
+bool operator<(const C& lhs, const C& rhs)
+{
+   return lhs.ice_tuple() < rhs.ice_tuple();
+}
+
+template<class C, typename = std::enable_if<std::is_member_function_pointer<decltype(&C::ice_tuple)>::value>>
+bool operator<=(const C& lhs, const C& rhs)
+{
+   return lhs.ice_tuple() <= rhs.ice_tuple();
+}
+
+template<class C, typename = std::enable_if<std::is_member_function_pointer<decltype(&C::ice_tuple)>::value>>
+bool operator>(const C& lhs, const C& rhs)
+{
+   return lhs.ice_tuple() > rhs.ice_tuple();
+}
+
+template<class C, typename = std::enable_if<std::is_member_function_pointer<decltype(&C::ice_tuple)>::value>>
+bool operator>=(const C& lhs, const C& rhs)
+{
+   return lhs.ice_tuple() >= rhs.ice_tuple();
+}
+
+template<class C, typename = std::enable_if<std::is_member_function_pointer<decltype(&C::ice_tuple)>::value>>
+bool operator==(const C& lhs, const C& rhs)
+{
+   return lhs.ice_tuple() == rhs.ice_tuple();
+}
+
+template<class C, typename = std::enable_if<std::is_member_function_pointer<decltype(&C::ice_tuple)>::value>>
+bool operator!=(const C& lhs, const C& rhs)
+{
+   return lhs.ice_tuple() != rhs.ice_tuple();
+}
+
+#endif
+
 }
 
 #endif

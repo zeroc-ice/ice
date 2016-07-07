@@ -1453,6 +1453,32 @@ Slice::writeStreamHelpers(Output& out, bool checkClassMetaData, const ContainedP
         out << eb << ";" << nl;
     }
 }
+void
+Slice::writeIceTuple(::IceUtilInternal::Output& out, DataMemberList dataMembers, int useWstring)
+{
+    out << sp << nl << "std::tuple<";
+    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    {
+        if(q != dataMembers.begin())
+        {
+            out << ", ";
+        }
+        out << "const ";
+        out << typeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), useWstring | TypeContextCpp11) << "&";
+    }
+    out << "> ice_tuple() const";
+    out << sb;
+    out << nl << "return std::tie(";
+    for(DataMemberList::const_iterator pi = dataMembers.begin(); pi != dataMembers.end(); ++pi)
+    {
+        if(pi != dataMembers.begin())
+        {
+            out << ", ";
+        }
+        out << fixKwd((*pi)->name());
+    }
+    out << ");" << eb;
+}
 
 bool
 Slice::findMetaData(const string& prefix, const ClassDeclPtr& cl, string& value)

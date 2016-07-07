@@ -778,6 +778,7 @@ Slice::Gen::generate(const UnitPtr& p)
     H << "\n#include <Ice/Exception.h>";
     H << "\n#include <Ice/LocalObject.h>";
     H << "\n#include <Ice/StreamHelpers.h>";
+    H << "\n#include <Ice/Comparable.h>";
 
     if(p->hasNonLocalClassDefs())
     {
@@ -5631,8 +5632,17 @@ Slice::Gen::Cpp11TypesVisitor::visitModuleStart(const ModulePtr& p)
 }
 
 void
-Slice::Gen::Cpp11TypesVisitor::visitModuleEnd(const ModulePtr&)
+Slice::Gen::Cpp11TypesVisitor::visitModuleEnd(const ModulePtr& p)
 {
+    if(p->hasStructs())
+    {
+        H << sp << nl << "using Ice::operator<;";
+        H << nl << "using Ice::operator<=;";
+        H << nl << "using Ice::operator>;";
+        H << nl << "using Ice::operator>=;";
+        H << nl << "using Ice::operator==;";
+        H << nl << "using Ice::operator!=;";
+    }
     H << sp << nl << '}';
     _useWstring = resetUseWstring(_useWstringHist);
 }
@@ -5913,13 +5923,9 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 bool
 Slice::Gen::Cpp11TypesVisitor::visitStructStart(const StructPtr& p)
 {
-    DataMemberList dataMembers = p->dataMembers();
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
 
-    string name = fixKwd(p->name());
-
-
-    H << sp << nl << "struct " << name;
+    H << sp << nl << "struct " << fixKwd(p->name());
     H << sb;
 
     return true;
@@ -5928,75 +5934,7 @@ Slice::Gen::Cpp11TypesVisitor::visitStructStart(const StructPtr& p)
 void
 Slice::Gen::Cpp11TypesVisitor::visitStructEnd(const StructPtr& p)
 {
-    string name = fixKwd(p->name());
-    string scoped = fixKwd(p->scoped());
-    string scope = fixKwd(p->scope());
-
-    DataMemberList dataMembers = p->dataMembers();
-
-    vector<string> params;
-    vector<string>::const_iterator pi;
-
-    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-    {
-        params.push_back(fixKwd((*q)->name()));
-    }
-
-    bool containsSequence = false;
-    if((Dictionary::legalKeyType(p, containsSequence) && !containsSequence))
-    {
-        H << sp << nl << "bool operator==(const " << name << "& __rhs) const";
-        H << sb;
-        H << nl << "if(this == &__rhs)";
-        H << sb;
-        H << nl << "return true;";
-        H << eb;
-        for(vector<string>::const_iterator pi = params.begin(); pi != params.end(); ++pi)
-        {
-            H << nl << "if(" << *pi << " != __rhs." << *pi << ')';
-            H << sb;
-            H << nl << "return false;";
-            H << eb;
-        }
-        H << nl << "return true;";
-        H << eb;
-        H << sp << nl << "bool operator<(const " << name << "& __rhs) const";
-        H << sb;
-        H << nl << "if(this == &__rhs)";
-        H << sb;
-        H << nl << "return false;";
-        H << eb;
-        for(vector<string>::const_iterator pi = params.begin(); pi != params.end(); ++pi)
-        {
-            H << nl << "if(" << *pi << " < __rhs." << *pi << ')';
-            H << sb;
-            H << nl << "return true;";
-            H << eb;
-            H << nl << "else if(__rhs." << *pi << " < " << *pi << ')';
-            H << sb;
-            H << nl << "return false;";
-            H << eb;
-        }
-        H << nl << "return false;";
-        H << eb;
-
-        H << sp << nl << "bool operator!=(const " << name << "& __rhs) const";
-        H << sb;
-        H << nl << "return !operator==(__rhs);";
-        H << eb;
-        H << nl << "bool operator<=(const " << name << "& __rhs) const";
-        H << sb;
-        H << nl << "return operator<(__rhs) || operator==(__rhs);";
-        H << eb;
-        H << nl << "bool operator>(const " << name << "& __rhs) const";
-        H << sb;
-        H << nl << "return !operator<(__rhs) && !operator==(__rhs);";
-        H << eb;
-        H << nl << "bool operator>=(const " << name << "& __rhs) const";
-        H << sb;
-        H << nl << "return !operator<(__rhs);";
-        H << eb;
-    }
+    writeIceTuple(H, p->dataMembers(), _useWstring);
     H << eb << ';';
     _useWstring = resetUseWstring(_useWstringHist);
 }
@@ -7692,26 +7630,19 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     C << eb;
 
     vector<string> params;
-    vector<string> allTypes;
-    vector<string> allParamDecls;
 
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
         params.push_back(fixKwd((*q)->name()));
     }
 
-    for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
-    {
-        string typeName = inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), _useWstring);
-        allTypes.push_back(typeName);
-        allParamDecls.push_back(typeName + " __ice_" + (*q)->name());
-    }
-
     H << sp << nl << name << "() = default;";
 
     emitOneShotConstructor(p);
-    H << sp;
-    H << nl << _dllMemberExport << "static const ::std::string& ice_staticId();";
+
+    writeIceTuple(H, p->dataMembers(), _useWstring);
+
+    H << sp << nl << _dllMemberExport << "static const ::std::string& ice_staticId();";
     return true;
 }
 

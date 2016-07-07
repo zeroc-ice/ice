@@ -27,27 +27,6 @@ namespace Test
 {
 typedef shared_ptr<Ice::ObjectPrx> CPrxPtr;
 typedef Ice::ObjectPrx CPrx;
-
-bool operator==(const Variable& lhs, const Variable& rhs)
-{
-    return std::tie(lhs.s, lhs.bl, lhs.ss) == std::tie(rhs.s, rhs.bl, rhs.ss);
-}
-
-bool operator!=(const Variable& lhs, const Variable& rhs)
-{
-    return !(lhs == rhs);
-}
-
-bool operator==(const BufferStruct& lhs, const BufferStruct& rhs)
-{
-    return std::tie(lhs.byteBuf, lhs.boolBuf, lhs.shortBuf, lhs.intBuf, lhs.longBuf, lhs.floatBuf, lhs.doubleBuf)
-        == std::tie(rhs.byteBuf, lhs.boolBuf, rhs.shortBuf, rhs.intBuf, rhs.longBuf, rhs.floatBuf, rhs.doubleBuf);
-}
-
-bool operator!=(const BufferStruct& lhs, const BufferStruct& rhs)
-{
-    return !(lhs == rhs);
-}
 }
 #endif
 
@@ -74,7 +53,6 @@ arrayRangeEquals(pair<const T*, const T*> lhs, pair<const T*, const T*> rhs)
     }
     return true;
 }
-
 
 }
 
@@ -488,21 +466,9 @@ public:
     {
         const Test::CustomMap<std::string, Ice::Int>& in = getIn<Test::CustomMap<std::string, Ice::Int> >(cookie);
 
-#if defined(_MSC_VER) && (_MSC_VER == 1600)
-        //
-        // operator== for std::unordered_map does not work with Visual Studio 2010
-        //
-        test(out.size() == in.size());
-
-        for(Test::CustomMap<std::string, Ice::Int>::const_iterator p = in.begin(); p != in.end(); ++p)
-        {
-            Test::CustomMap<std::string, Ice::Int>::const_iterator q = out.find(p->first);
-            test(q != out.end() && q->second == p->second);
-        }
-#else
         test(out == in);
-#endif
         test(ret.size() == 1000);
+
         for(Test::CustomMap<Ice::Long, Ice::Long>::const_iterator i = ret.begin(); i != ret.end(); ++i)
         {
             test(i->second == i->first * i->first);
