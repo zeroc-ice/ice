@@ -64,13 +64,13 @@
 
 #endif
 
-         
+
 //
 // Use system headers as preferred way to detect 32 or 64 bit mode and
 // fallback to architecture based checks
 //
-#include <stdint.h>         
-         
+#include <stdint.h>
+
 #if defined(__WORDSIZE) && (__WORDSIZE == 64)
 #   define ICE_64
 #elif defined(__WORDSIZE) && (__WORDSIZE == 32)
@@ -150,7 +150,7 @@
 // Support for thread-safe function local static initialization
 // (a.k.a. "magic statics")
 //
-#if defined(__GNUC__) || defined(__clang__) || (defined(_MSC_VER) && (_MSC_VER >= 1900))
+#if defined(ICE_CPP11_MAPPING) || defined(__GNUC__) || defined(__clang__) || (defined(_MSC_VER) && (_MSC_VER >= 1900))
 #   define ICE_HAS_THREAD_SAFE_LOCAL_STATIC
 #endif
 
@@ -174,7 +174,6 @@
 #   define ICE_DECLSPEC_EXPORT /**/
 #   define ICE_DECLSPEC_IMPORT /**/
 #endif
-
 
 #ifdef ICE_MEMBER_IMPORT_EXPORT
 #   define ICE_CLASS(API) /**/

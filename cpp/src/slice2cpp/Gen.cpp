@@ -1359,7 +1359,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         H << sp << nl << "protected:";
         H.inc();
 
-        H << nl << "virtual void __writeImpl(::Ice::OutputStream*) const;";
+        H << sp << nl << "virtual void __writeImpl(::Ice::OutputStream*) const;";
         H << nl << "virtual void __readImpl(::Ice::InputStream*);";
 
         string baseName = base ? fixKwd(base->scoped()) : string("::Ice::UserException");
@@ -1934,7 +1934,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     H.dec();
     H << sp << nl << "protected: ";
     H.inc();
-    H << nl << _dllMemberExport << "virtual ::IceProxy::Ice::Object* __newInstance() const;";
+    H << sp << nl << _dllMemberExport << "virtual ::IceProxy::Ice::Object* __newInstance() const;";
     H << eb << ';';
 
     C << sp;
@@ -1947,7 +1947,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     C << sp;
     C << nl << "const ::std::string&" << nl << "IceProxy" << scoped << "::ice_staticId()";
     C << sb;
-    C << nl << "return "<< scoped << "::ice_staticId();";
+    C << nl << "return " << scoped << "::ice_staticId();";
     C << eb;
 
     _useWstring = resetUseWstring(_useWstringHist);
@@ -2089,7 +2089,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     string thisPointer = fixKwd(scope.substr(0, scope.size() - 2)) + "*";
 
     string deprecateSymbol = getDeprecateSymbol(p, cl);
-    H << nl << deprecateSymbol << _dllMemberExport << retS << ' ' << fixKwd(name) << spar << paramsDecl
+    H << sp << nl << deprecateSymbol << _dllMemberExport << retS << ' ' << fixKwd(name) << spar << paramsDecl
       << "const ::Ice::Context& __ctx = ::Ice::noExplicitContext" << epar << ";";
 
     H << sp << nl << "::Ice::AsyncResultPtr begin_" << name << spar << paramsDeclAMI
@@ -2141,7 +2141,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     H.dec();
     H << nl << "private:";
     H.inc();
-    H << nl << _dllMemberExport << "::Ice::AsyncResultPtr __begin_" << name << spar
+    H << sp << nl << _dllMemberExport << "::Ice::AsyncResultPtr __begin_" << name << spar
       << paramsAMI << "const ::Ice::Context&"
       << "const ::IceInternal::CallbackBasePtr&"
       << "const ::Ice::LocalObjectPtr& __cookie = 0" << epar << ';';
@@ -2647,7 +2647,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 
         if(!p->isInterface())
         {
-            H << nl << "virtual ::Ice::ObjectPtr ice_clone() const;";
+            H << sp << nl << "virtual ::Ice::ObjectPtr ice_clone() const;";
 
              if(hasGCObjectBaseClass)
             {
@@ -2705,12 +2705,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
         H << nl << "virtual ::std::vector< ::std::string> ice_ids"
           << "(const ::Ice::Current& = ::Ice::noExplicitCurrent) const;";
         H << nl << "virtual const ::std::string& ice_id(const ::Ice::Current& = ::Ice::noExplicitCurrent) const;";
-        H << nl << "static const ::std::string& ice_staticId();";
-
-        if(!dataMembers.empty())
-        {
-            H << sp;
-        }
+        H << sp << nl << "static const ::std::string& ice_staticId();";
 
         string flatName = p->flattenedScope() + p->name() + "_ids";
 
@@ -2749,7 +2744,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
         C << nl << "const ::std::string&" << nl << scoped.substr(2)
           << "::ice_id(const ::Ice::Current&) const";
         C << sb;
-        C << nl << "return " << flatName << '[' << scopedPos << "];";
+        C << nl << "return ice_staticId();";
         C << eb;
 
         C << sp;
@@ -2947,7 +2942,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
         inProtected = true;
         H.inc();
 
-        H << nl << "virtual void __writeImpl(::Ice::OutputStream*) const;";
+        H << sp << nl << "virtual void __writeImpl(::Ice::OutputStream*) const;";
         H << nl << "virtual void __readImpl(::Ice::InputStream*);";
 
         if(preserved && !basePreserved)
@@ -3028,6 +3023,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
     bool generateFriend = false;
     DataMemberList dataMembers = p->dataMembers();
     bool prot = p->hasMetaData("protected");
+    bool needSp = true;
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
         if(prot || (*q)->hasMetaData("protected"))
@@ -3035,9 +3031,10 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             if(!inProtected)
             {
                 H.dec();
-                H << sp << nl << "protected:";
+                H << sp << nl << "protected:" << sp;
                 H.inc();
                 inProtected = true;
+                needSp = false;
             }
             generateFriend = true;
         }
@@ -3046,10 +3043,17 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             if(inProtected)
             {
                 H.dec();
-                H << sp << nl << "public:";
+                H << sp << nl << "public:" << sp;
                 H.inc();
                 inProtected = false;
+                needSp = false;
             }
+        }
+
+        if(needSp)
+        {
+            H << sp;
+            needSp = false;
         }
 
         emitDataMember(*q);
@@ -3444,7 +3448,7 @@ void
 Slice::Gen::ObjectVisitor::emitDataMember(const DataMemberPtr& p)
 {
     string name = fixKwd(p->name());
-    H << sp << nl << typeToString(p->type(), p->optional(), p->getMetaData(), _useWstring) << ' ' << name << ';';
+    H << nl << typeToString(p->type(), p->optional(), p->getMetaData(), _useWstring) << ' ' << name << ';';
 }
 
 void
@@ -4648,7 +4652,7 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
     H << nl << "virtual void ice_response(" << params << ");";
     if(!throws.empty())
     {
-        H << nl << "// COMPILERFIX: The using directive avoid compiler warnings with -Woverloaded-virtual";
+        // COMPILERFIX: The using directive avoid compiler warnings with -Woverloaded-virtual
         H << nl << "using ::IceInternal::IncomingAsync::ice_exception;";
         H << nl << "virtual void ice_exception(const ::std::exception&);";
     }
@@ -4747,7 +4751,7 @@ Slice::Gen::StreamVisitor::visitModuleStart(const ModulePtr& m)
         // Only emit this for the top-level module.
         //
         H << sp;
-        H << nl << "namespace Ice" << nl << '{';
+        H << nl << "namespace Ice" << nl << '{' << sp;
 
         C << sp;
         C << nl << "namespace Ice" << nl << '{';
@@ -5691,7 +5695,7 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     H.inc();
 
     // Out of line dtor to avoid weak vtable
-    H << nl << _dllMemberExport << "virtual ~" << name << "();";
+    H << sp << nl << _dllMemberExport << "virtual ~" << name << "();";
     C << sp;
     C << nl << scoped.substr(2) << "::~" << name << "()";
     C << sb;
@@ -5708,11 +5712,11 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     else
     {
         H.zeroIndent();
-        H << sp << nl << "//";
-        H << nl << "// COMPILERFIX: Apple LLVM version 7.3.0 crash when using";
-        H << " a '= default' constructor in classes derived from std::exception";
-        H << nl << "//";
-        H << nl << "#if defined(__APPLE___) && defined(__clang__)";
+        //
+        // COMPILERFIX: Apple LLVM version 7.3.0 crash when using"
+        // a '= default' constructor in classes derived from std::exception
+        //
+        H << sp << nl << "#if defined(__APPLE___) && defined(__clang__)";
         H.restoreIndent();
         H << nl << name << "() {}";
         H.zeroIndent();
@@ -5814,38 +5818,27 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     H << nl << _dllMemberExport << "static const ::std::string& ice_staticId();";
 
-    if(p->isLocal())
-    {
-        C << sp << nl << "namespace" << sb;
-        C.dec();
-        C << nl << "const std::string " << p->flattenedScope() << p->name() << "_id = \"" << p->scoped() << "\";";
-        C.inc();
-        C << eb;
-    }
 
     C << sp << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_staticId()";
     C << sb;
-    if(p->isLocal())
-    {
-        C << nl << "return " << p->flattenedScope() << p->name() << "_id;";
-    }
-    else
-    {
-        C << nl << "return " << p->flattenedScope() << p->name() << "_init.typeId" << ";";
-    }
+    //
+    // Use local static so that ice_staticId() is usable during static construction.
+    //
+    C << nl << "static const ::std::string typeId = \"" << p->scoped() << "\";";
+    C << nl << "return typeId;";
     C << eb;
 
     StringList metaData = p->getMetaData();
     if(find(metaData.begin(), metaData.end(), "cpp:ice_print") != metaData.end())
     {
-        H << nl << _dllMemberExport << "virtual void ice_print(::std::ostream&) const;";
+        H << nl << _dllMemberExport << "virtual void ice_print(::std::ostream&) const override;";
     }
 
     if(!p->isLocal() && p->usesClasses(false))
     {
         if(!base || (base && !base->usesClasses(false)))
         {
-            H << sp << nl << _dllMemberExport << "virtual bool __usesClasses() const;";
+            H << sp << nl << _dllMemberExport << "virtual bool __usesClasses() const override;";
 
             C << sp << nl << "bool";
             C << nl << scoped.substr(2) << "::__usesClasses() const";
@@ -5878,8 +5871,8 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
         if(preserved && !basePreserved)
         {
-            H << sp << nl << _dllMemberExport << "virtual void __write(::Ice::OutputStream*) const;";
-            H << nl << _dllMemberExport << "virtual void __read(::Ice::InputStream*);";
+            H << sp << nl << _dllMemberExport << "virtual void __write(::Ice::OutputStream*) const override;";
+            H << nl << _dllMemberExport << "virtual void __read(::Ice::InputStream*) override;";
 
             H << sp << nl << "::std::shared_ptr<::Ice::SlicedData> __slicedData;";
 
@@ -6039,11 +6032,11 @@ Slice::Gen::Cpp11TypesVisitor::visitSequence(const SequencePtr& p)
 
     if(!seqType.empty())
     {
-        H << nl << "typedef " << seqType << ' ' << name << ';';
+        H << nl << "using " << name << " = " << seqType << ';';
     }
     else
     {
-        H << nl << "typedef ::std::vector<" << (s[0] == ':' ? " " : "") << s << "> " << name << ';';
+        H << nl << "using " << name << " = ::std::vector<" << s << ">;";
     }
 }
 
@@ -6058,24 +6051,19 @@ Slice::Gen::Cpp11TypesVisitor::visitDictionary(const DictionaryPtr& p)
         //
         // A default std::map dictionary
         //
-
         TypePtr keyType = p->keyType();
         TypePtr valueType = p->valueType();
         string ks = typeToString(keyType, p->keyMetaData(), typeCtx | TypeContextCpp11);
-        if(ks[0] == ':')
-        {
-            ks.insert(0, " ");
-        }
         string vs = typeToString(valueType, p->valueMetaData(), typeCtx | TypeContextCpp11);
 
-        H << sp << nl << "typedef ::std::map<" << ks << ", " << vs << "> " << name << ';';
+        H << sp << nl << "using " << name << " = ::std::map<" << ks << ", " << vs << ">;";
     }
     else
     {
         //
         // A custom dictionary
         //
-        H << sp << nl << "typedef " << dictType << ' ' << name << ';';
+        H << sp << nl << "using " << name << " = " << dictType << ';';
     }
 }
 
@@ -6683,8 +6671,8 @@ void
 Slice::Gen::Cpp11ObjectVisitor::emitDataMember(const DataMemberPtr& p)
 {
     string name = fixKwd(p->name());
-    H << sp << nl << typeToString(p->type(), p->optional(), p->getMetaData(),
-                                  _useWstring | TypeContextCpp11) << ' ' << name;
+    H << nl << typeToString(p->type(), p->optional(), p->getMetaData(),
+                            _useWstring | TypeContextCpp11) << ' ' << name;
 
     string defaultValue = p->defaultValue();
     if(!defaultValue.empty())
@@ -6793,7 +6781,7 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     if(p->name() != "PointerType")
     {
-        H << nl << "typedef ::std::shared_ptr<" << name << "> PointerType;";
+        H << nl << "using PointerType = ::std::shared_ptr<" << name << ">;";
     }
 
     //
@@ -6866,6 +6854,7 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
     bool inProtected = false;
     DataMemberList dataMembers = p->dataMembers();
     bool prot = p->hasMetaData("protected");
+    bool needSp = true;
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
         if(prot || (*q)->hasMetaData("protected"))
@@ -6873,9 +6862,10 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             if(!inProtected)
             {
                 H.dec();
-                H << sp << nl << "protected:";
+                H << sp << nl << "protected:" << sp;
                 H.inc();
                 inProtected = true;
+                needSp = false;
             }
         }
         else
@@ -6883,10 +6873,17 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             if(inProtected)
             {
                 H.dec();
-                H << sp << nl << "public:";
+                H << sp << nl << "public:" << sp;
                 H.inc();
                 inProtected = false;
+                needSp = false;
             }
+        }
+
+        if(needSp)
+        {
+            H << sp;
+            needSp = false;
         }
 
         emitDataMember(*q);
@@ -7135,7 +7132,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     if(name != "ProxyType")
     {
-        H << nl << "typedef " << p->name() << "Prx ProxyType;";
+        H << nl << "using ProxyType = " << p->name() << "Prx;";
     }
 
     vector<string> params;
@@ -7151,16 +7148,15 @@ Slice::Gen::Cpp11InterfaceVisitor::visitClassDefStart(const ClassDefPtr& p)
     other.sort();
     ids.merge(other);
     ids.unique();
-    StringList::const_iterator firstIter = ids.begin();
     StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), p->scoped());
     assert(scopedIter != ids.end());
-    StringList::difference_type scopedPos = IceUtilInternal::distance(firstIter, scopedIter);
 
     H << sp;
-    H << nl << "virtual bool ice_isA(::std::string, const ::Ice::Current& = ::Ice::noExplicitCurrent) const;";
-    H << nl << "virtual ::std::vector< ::std::string> ice_ids(const ::Ice::Current& = ::Ice::noExplicitCurrent) const;";
-    H << nl << "virtual ::std::string ice_id(const ::Ice::Current& = ::Ice::noExplicitCurrent) const;";
-    H << nl << "static const ::std::string& ice_staticId();";
+    H << nl << "virtual bool ice_isA(::std::string, const ::Ice::Current& = ::Ice::noExplicitCurrent) const override;";
+    H << nl
+      << "virtual ::std::vector<::std::string> ice_ids(const ::Ice::Current& = ::Ice::noExplicitCurrent) const override;";
+    H << nl << "virtual ::std::string ice_id(const ::Ice::Current& = ::Ice::noExplicitCurrent) const override;";
+    H << sp << nl << "static const ::std::string& ice_staticId();";
 
     string flatName = p->flattenedScope() + p->name() + "_ids";
 
@@ -7171,21 +7167,25 @@ Slice::Gen::Cpp11InterfaceVisitor::visitClassDefStart(const ClassDefPtr& p)
     C << eb;
 
     C << sp;
-    C << nl << "::std::vector< ::std::string>" << nl << scoped.substr(2) << "::ice_ids(const ::Ice::Current&) const";
+    C << nl << "::std::vector<::std::string>" << nl << scoped.substr(2) << "::ice_ids(const ::Ice::Current&) const";
     C << sb;
-    C << nl << "return ::std::vector< ::std::string>(&" << flatName << "[0], &" << flatName << '[' << ids.size() << "]);";
+    C << nl << "return ::std::vector<::std::string>(&" << flatName << "[0], &" << flatName << '[' << ids.size() << "]);";
     C << eb;
 
     C << sp;
     C << nl << "::std::string" << nl << scoped.substr(2) << "::ice_id(const ::Ice::Current&) const";
     C << sb;
-    C << nl << "return " << flatName << '[' << scopedPos << "];";
+    C << nl << "return ice_staticId();";
     C << eb;
 
     C << sp;
     C << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_staticId()";
     C << sb;
-    C << nl << "return " << flatName << '[' << scopedPos << "];";
+    //
+    // Use local static so that ice_staticId() is usable during static construction.
+    //
+    C << nl << "static const ::std::string typeId = \"" << *scopedIter << "\";";
+    C << nl << "return typeId;";
     C << eb;
     return true;
 }
@@ -7220,7 +7220,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitClassDefEnd(const ClassDefPtr& p)
         string flatName = p->flattenedScope() + p->name() + "_ops";
 
         H << sp;
-        H << nl << "virtual ::Ice::DispatchStatus __dispatch(::IceInternal::Incoming&, const ::Ice::Current&);";
+        H << nl << "virtual ::Ice::DispatchStatus __dispatch(::IceInternal::Incoming&, const ::Ice::Current&) override;";
 
         C << sp;
         C << nl << "::Ice::DispatchStatus" << nl << scoped.substr(2)
@@ -7465,7 +7465,6 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
         H.restoreIndent();
     }
 
-    H << sp;
     H << nl << "::Ice::DispatchStatus ___" << name << "(::IceInternal::Incoming&, const ::Ice::Current&)" << isConst << ';';
 
     C << sp;
@@ -7681,7 +7680,7 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     if(p->name() != "PointerType")
     {
-        H << nl << "typedef ::std::shared_ptr<" << name << "> PointerType;";
+        H << nl << "using PointerType = ::std::shared_ptr<" << name << ">;";
     }
 
     // Out of line dtor to avoid weak vtable
@@ -7722,7 +7721,6 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
     string scoped = fixKwd(p->scoped());
     string scope = fixKwd(p->scope());
     string name = fixKwd(p->name());
-    string typeId = p->flattenedScope() + p->name() + "_init.typeId";
     ClassList bases = p->bases();
     ClassDefPtr base;
     if(!bases.empty() && !bases.front()->isInterface())
@@ -7735,8 +7733,8 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
     if(preserved && !basePreserved)
     {
         H << sp;
-        H << nl << "virtual void __write(::Ice::OutputStream*) const;";
-        H << nl << "virtual void __read(::Ice::InputStream*);";
+        H << nl << "virtual void __write(::Ice::OutputStream*) const override;";
+        H << nl << "virtual void __read(::Ice::InputStream*) override;";
 
         C << sp;
         C << nl << "void" << nl << scoped.substr(2) << "::__write(::Ice::OutputStream* __os) const";
@@ -7758,7 +7756,11 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
     C << sp;
     C << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_staticId()";
     C << sb;
-    C << nl << "return " << typeId << ";";
+    //
+    // Use local static so that ice_staticId() is usable during static construction.
+    //
+    C << nl << "static const ::std::string typeId = \"" << p->scoped() << "\";";
+    C << nl << "return typeId;";
     C << eb;
 
     //
@@ -7768,6 +7770,8 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
     bool generateFriend = false;
     DataMemberList dataMembers = p->dataMembers();
     bool prot = p->hasMetaData("protected");
+    bool needSp = true;
+
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
         if(prot || (*q)->hasMetaData("protected"))
@@ -7775,9 +7779,10 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
             if(!inProtected)
             {
                 H.dec();
-                H << sp << nl << "protected:";
+                H << sp << nl << "protected:" << sp;
                 H.inc();
                 inProtected = true;
+                needSp = false;
             }
             generateFriend = true;
         }
@@ -7786,10 +7791,17 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
             if(inProtected)
             {
                 H.dec();
-                H << sp << nl << "public:";
+                H << sp << nl << "public:" << sp;
                 H.inc();
                 inProtected = false;
+                needSp = false;
             }
+        }
+
+        if(needSp)
+        {
+            H << sp;
+            needSp = false;
         }
 
         emitDataMember(*q);
@@ -7987,7 +7999,7 @@ Slice::Gen::Cpp11StreamVisitor::visitModuleStart(const ModulePtr& m)
         // Only emit this for the top-level module.
         //
         H << sp;
-        H << nl << "namespace Ice" << nl << '{';
+        H << nl << "namespace Ice" << nl << '{' << sp;
 
         if(m->hasNonLocalContained(Contained::ContainedTypeStruct))
         {
@@ -8113,15 +8125,14 @@ Slice::Gen::Cpp11CompatibilityVisitor::visitClassDecl(const ClassDeclPtr& p)
     string name = fixKwd(p->name());
     string scoped = fixKwd(p->scoped());
 
-    H << sp << nl << "typedef ::std::shared_ptr<" << name << "> " << p->name() << "Ptr;";
+    H << sp << nl << "using " << p->name() << "Ptr = ::std::shared_ptr<" << name << ">;";
 
     if(!p->isLocal())
     {
         ClassDefPtr def = p->definition();
         if(p->isInterface() || (def && !def->allOperations().empty()))
         {
-            H << nl << "class " << p->name() << "Prx;";
-            H << nl << "typedef ::std::shared_ptr<" << p->name() << "Prx> " << p->name() << "PrxPtr;";
+            H << nl << "using " << p->name() << "PrxPtr = ::std::shared_ptr<" << p->name() << "Prx>;";
         }
     }
 }
@@ -8344,7 +8355,7 @@ Slice::Gen::Cpp11ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
 
             H << "std::function<void(" << responseParams << ")>,";
             H << nl << "std::function<void(std::exception_ptr)>,";
-            H << nl << "const Ice::Current&)" << isConst << ';';
+            H << nl << "const Ice::Current&)" << isConst << " override;";
             H.restoreIndent();
 
             C << sp << nl << "void" << nl << scope << name << "I::" << opName << "Async(";
@@ -8426,7 +8437,7 @@ Slice::Gen::Cpp11ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
 
             string isConst = ((op->mode() == Operation::Nonmutating) || op->hasMetaData("cpp:const")) ? " const" : "";
 
-            H << ")" << isConst << ';';
+            H << ")" << isConst << " override;";
 
             C << sp << nl << retS << nl;
             C << scope.substr(2) << name << "I::" << fixKwd(opName) << '(';

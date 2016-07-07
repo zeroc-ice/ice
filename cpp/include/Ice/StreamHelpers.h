@@ -352,15 +352,28 @@ struct StreamHelper<T, StreamHelperCategoryBuiltin>
     }
 };
 
+//
 // "helpers" for the StreamHelper<T, StreamHelperCategoryStruct[Class]> below
-// We generate specializations, which can be instantiated explicitly and exported from DLLs
+// slice2cpp generates specializations as needed
 //
 
 template<typename T, typename S>
-struct StreamWriter;
+struct StreamWriter
+{
+    static inline void write(S*, const T&)
+    {
+        // Default is to do write nothing
+    }
+};
 
 template<typename T, typename S>
-struct StreamReader;
+struct StreamReader
+{
+    static inline void read(S*, T&)
+    {
+        // Default is to read nothing
+    }
+};
 
 // Helper for structs
 template<typename T>
