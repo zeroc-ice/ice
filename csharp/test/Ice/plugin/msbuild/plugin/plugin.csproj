@@ -105,6 +105,7 @@
   <Import Project="$(IceBuilderCsharpProps)" Condition="Exists('$(IceBuilderCsharpProps)')" />
   <PropertyGroup Label="IceBuilder">
     <IceBuilderIncludeDirectories>$(IceHome)\slice</IceBuilderIncludeDirectories>
+    <IceBuilderAdditionalOptions>--compat</IceBuilderAdditionalOptions>
   </PropertyGroup>
   <Import Project="$(IceBuilderCsharpTargets)" Condition="Exists('$(IceBuilderCsharpTargets)')" />
 </Project>

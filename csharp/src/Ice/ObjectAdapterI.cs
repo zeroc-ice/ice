@@ -689,7 +689,7 @@ namespace Ice
             }
         }
 
-        public void flushAsyncBatchRequests(CommunicatorFlushBatch outAsync)
+        public void flushAsyncBatchRequests(CommunicatorFlushBatchAsync outAsync)
         {
             List<IncomingConnectionFactory> f;
             lock(this)

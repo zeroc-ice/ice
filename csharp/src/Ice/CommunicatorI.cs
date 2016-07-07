@@ -9,10 +9,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Threading;
+
+using IceInternal;
 
 namespace Ice
 {
-
     sealed class CommunicatorI : Communicator
     {
         public void destroy()
@@ -162,8 +165,16 @@ namespace Ice
 
         public void flushBatchRequests()
         {
-            AsyncResult r = begin_flushBatchRequests();
-            end_flushBatchRequests(r);
+            flushBatchRequestsAsync().Wait();
+        }
+
+        public Task flushBatchRequestsAsync(IProgress<bool> progress = null,
+                                            CancellationToken cancel = new CancellationToken())
+        {
+            var completed = new FlushBatchTaskCompletionCallback(progress, cancel);
+            var outgoing = new CommunicatorFlushBatchAsync(instance_, completed);
+            outgoing.invoke(__flushBatchRequests_name);
+            return completed.Task;
         }
 
         public AsyncResult begin_flushBatchRequests()
@@ -173,49 +184,59 @@ namespace Ice
 
         private const string __flushBatchRequests_name = "flushBatchRequests";
 
-        public AsyncResult begin_flushBatchRequests(AsyncCallback cb, object cookie)
+        private class CommunicatorFlushBatchCompletionCallback : AsyncResultCompletionCallback
         {
-            IceInternal.OutgoingConnectionFactory connectionFactory = instance_.outgoingConnectionFactory();
-            IceInternal.ObjectAdapterFactory adapterFactory = instance_.objectAdapterFactory();
-
-            //
-            // This callback object receives the results of all invocations
-            // of Connection.begin_flushBatchRequests.
-            //
-            IceInternal.CommunicatorFlushBatch result =
-                new IceInternal.CommunicatorFlushBatch(this, instance_, __flushBatchRequests_name, cookie);
-
-            if(cb != null)
+            public CommunicatorFlushBatchCompletionCallback(Ice.Communicator communicator,
+                                                            Instance instance,
+                                                            string op,
+                                                            object cookie,
+                                                            Ice.AsyncCallback callback)
+                : base(communicator, instance, op, cookie, callback)
             {
-                result.whenCompletedWithAsyncCallback(cb);
             }
 
-            connectionFactory.flushAsyncBatchRequests(result);
-            adapterFactory.flushAsyncBatchRequests(result);
+            protected override Ice.AsyncCallback getCompletedCallback()
+            {
+                return (Ice.AsyncResult result) =>
+                {
+                    try
+                    {
+                        result.throwLocalException();
+                    }
+                    catch(Ice.Exception ex)
+                    {
+                        exceptionCallback_?.Invoke(ex);
+                    }
+                };
+            }
+        };
 
-            //
-            // Inform the callback that we have finished initiating all of the
-            // flush requests. If all of the requests have already completed,
-            // the callback is invoked now.
-            //
-            result.ready();
-
+        public AsyncResult begin_flushBatchRequests(AsyncCallback cb, object cookie)
+        {
+            var result = new CommunicatorFlushBatchCompletionCallback(this, instance_, __flushBatchRequests_name, cookie, cb);
+            var outgoing = new CommunicatorFlushBatchAsync(instance_, result);
+            outgoing.invoke(__flushBatchRequests_name);
             return result;
         }
 
         public void end_flushBatchRequests(AsyncResult result)
         {
-            IceInternal.CommunicatorFlushBatch outAsync =
-                IceInternal.CommunicatorFlushBatch.check(result, this, __flushBatchRequests_name);
-            outAsync.wait();
+            if(result != null && result.getCommunicator() != this)
+            {
+                const string msg = "Communicator for call to end_" + __flushBatchRequests_name +
+                                   " does not match communicator that was used to call corresponding begin_" +
+                                   __flushBatchRequests_name + " method";
+                throw new ArgumentException(msg);
+            }
+            AsyncResultI.check(result, __flushBatchRequests_name).wait();
         }
 
-        public Ice.ObjectPrx createAdmin(ObjectAdapter adminAdapter, Identity adminIdentity)
+        public ObjectPrx createAdmin(ObjectAdapter adminAdapter, Identity adminIdentity)
         {
             return instance_.createAdmin(adminAdapter, adminIdentity);
         }
 
-        public Ice.ObjectPrx getAdmin()
+        public ObjectPrx getAdmin()
         {
             return instance_.getAdmin();
         }
@@ -295,5 +316,4 @@ namespace Ice
 
         private IceInternal.Instance instance_;
     }
-
 }

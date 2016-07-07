@@ -41,13 +41,12 @@ namespace IceInternal
             {
                 if(_instance.traceLevels().retry >= 1)
                 {
-                    string s = "operation retry canceled\n" + ex;
-                    _instance.initializationData().logger.trace(_instance.traceLevels().retryCat, s);
+                    _instance.initializationData().logger.trace(_instance.traceLevels().retryCat,
+                                                                string.Format("operation retry canceled\n{0}", ex));
                 }
-                Ice.AsyncCallback cb = _outAsync.completed(ex);
-                if(cb != null)
+                if(_outAsync.exception(ex))
                 {
-                    _outAsync.invokeCompletedAsync(cb);
+                    _outAsync.invokeExceptionAsync();
                 }
             }
         }

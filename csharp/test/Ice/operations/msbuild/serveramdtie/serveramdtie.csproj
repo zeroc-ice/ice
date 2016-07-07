@@ -82,6 +82,7 @@
     <IceBuilderIncludeDirectories>$(IceHome)\slice</IceBuilderIncludeDirectories>
     <IceBuilderAllowIcePrefix>yes</IceBuilderAllowIcePrefix>
     <IceBuilderTie>yes</IceBuilderTie>
+    <IceBuilderAdditionalOptions>--compat</IceBuilderAdditionalOptions>
   </PropertyGroup>
   <Import Project="$(IceBuilderCsharpTargets)" Condition="Exists('$(IceBuilderCsharpTargets)')" />
 </Project>

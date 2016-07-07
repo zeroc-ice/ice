@@ -42,9 +42,9 @@ namespace IceInternal
             return previousHandler == this ? newHandler : this;
         }
 
-        public bool sendAsyncRequest(ProxyOutgoingAsyncBase outAsync, out Ice.AsyncCallback sentCallback)
+        public int sendAsyncRequest(ProxyOutgoingAsyncBase outAsync)
         {
-            return outAsync.invokeCollocated(this, out sentCallback);
+            return outAsync.invokeCollocated(this);
         }
 
         public void asyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex)
@@ -59,10 +59,9 @@ namespace IceInternal
                         _asyncRequests.Remove(requestId);
                     }
                     _sendAsyncRequests.Remove(outAsync);
-                    Ice.AsyncCallback cb = outAsync.completed(ex);
-                    if(cb != null)
+                    if(outAsync.exception(ex))
                     {
-                        outAsync.invokeCompletedAsync(cb);
+                        outAsync.invokeExceptionAsync();
                     }
                     _adapter.decDirectCount(); // invokeAll won't be called, decrease the direct count.
                     return;
@@ -76,10 +75,9 @@ namespace IceInternal
                         if(e.Value == o)
                         {
                             _asyncRequests.Remove(e.Key);
-                            Ice.AsyncCallback cb = outAsync.completed(ex);
-                            if(cb != null)
+                            if(outAsync.exception(ex))
                             {
-                                outAsync.invokeCompletedAsync(cb);
+                                outAsync.invokeExceptionAsync();
                             }
                             return;
                         }
@@ -90,7 +88,6 @@ namespace IceInternal
 
         public void sendResponse(int requestId, Ice.OutputStream os, byte status, bool amd)
         {
-            Ice.AsyncCallback cb = null;
             OutgoingAsyncBase outAsync;
             lock(this)
             {
@@ -113,21 +110,24 @@ namespace IceInternal
 
                 if(_asyncRequests.TryGetValue(requestId, out outAsync))
                 {
-                    _asyncRequests.Remove(requestId);
                     outAsync.getIs().swap(iss);
-                    cb = outAsync.completed();
+                    if(!outAsync.response())
+                    {
+                        outAsync = null;
+                    }
+                    _asyncRequests.Remove(requestId);
                 }
             }
 
-            if(cb != null)
+            if(outAsync != null)
             {
                 if(amd)
                 {
-                    outAsync.invokeCompletedAsync(cb);
+                    outAsync.invokeResponseAsync();
                 }
                 else
                 {
-                    outAsync.invokeCompleted(cb);
+                    outAsync.invokeResponse();
                 }
             }
             _adapter.decDirectCount();
@@ -166,8 +166,7 @@ namespace IceInternal
             return null;
         }
 
-        public bool invokeAsyncRequest(OutgoingAsyncBase outAsync, int batchRequestNum, bool synchronous,
-                                       out Ice.AsyncCallback sentCallback)
+        public int invokeAsyncRequest(OutgoingAsyncBase outAsync, int batchRequestNum, bool synchronous)
         {
             //
             // Increase the direct count to prevent the thread pool from being destroyed before
@@ -198,54 +197,37 @@ namespace IceInternal
             }
 
             outAsync.attachCollocatedObserver(_adapter, requestId);
-
-            if(synchronous)
+            if(!synchronous || !_response || _reference.getInvocationTimeout() > 0)
             {
-                //
-                // Treat this collocated call as if it is a synchronous invocation.
-                //
-                if(_reference.getInvocationTimeout() > 0 || !_response)
-                {
-                    // Don't invoke from the user thread, invocation timeouts wouldn't work otherwise.
-                    _adapter.getThreadPool().dispatch(() =>
+                // Don't invoke from the user thread if async or invocation timeout is set
+                _adapter.getThreadPool().dispatch(
+                    () =>
                     {
-                        if(sentAsync(outAsync))
+                        if (sentAsync(outAsync))
                         {
                             invokeAll(outAsync.getOs(), requestId, batchRequestNum);
                         }
                     }, null);
-                }
-                else if(_dispatcher)
-                {
-                    _adapter.getThreadPool().dispatchFromThisThread(() =>
+            }
+            else if(_dispatcher)
+            {
+                _adapter.getThreadPool().dispatchFromThisThread(
+                    () =>
                     {
-                        if(sentAsync(outAsync))
+                        if (sentAsync(outAsync))
                         {
                             invokeAll(outAsync.getOs(), requestId, batchRequestNum);
                         }
                     }, null);
-                }
-                else // Optimization: directly call invokeAll if there's no dispatcher.
-                {
-                    if(sentAsync(outAsync))
-                    {
-                        invokeAll(outAsync.getOs(), requestId, batchRequestNum);
-                    }
-                }
-                sentCallback = null;
             }
-            else
+            else // Optimization: directly call invokeAll if there's no dispatcher.
             {
-                _adapter.getThreadPool().dispatch(() =>
+                if (sentAsync(outAsync))
                 {
-                    if(sentAsync(outAsync))
-                    {
-                        invokeAll(outAsync.getOs(), requestId, batchRequestNum);
-                    }
-                }, null);
-                sentCallback = null;
+                    invokeAll(outAsync.getOs(), requestId, batchRequestNum);
+                }
             }
-            return false;
+            return OutgoingAsyncBase.AsyncStatusQueued;
         }
 
         private bool sentAsync(OutgoingAsyncBase outAsync)
@@ -256,13 +238,13 @@ namespace IceInternal
                 {
                     return false; // The request timed-out.
                 }
-            }
 
-            Ice.AsyncCallback cb = outAsync.sent();
-            if(cb != null)
-            {
-                outAsync.invokeSent(cb);
+                if(!outAsync.sent())
+                {
+                    return true;
+                }
             }
+            outAsync.invokeSent();
             return true;
         }
 
@@ -338,25 +320,32 @@ namespace IceInternal
             }
 
             OutgoingAsyncBase outAsync;
-            Ice.AsyncCallback cb = null;
             lock(this)
             {
                 if(_asyncRequests.TryGetValue(requestId, out outAsync))
                 {
+                    if(!outAsync.exception(ex))
+                    {
+                        outAsync = null;
+                    }
                     _asyncRequests.Remove(requestId);
-                    cb = outAsync.completed(ex);
                 }
             }
 
-            if(cb != null)
+            if(outAsync != null)
             {
+                //
+                // If called from an AMD dispatch, invoke asynchronously
+                // the completion callback since this might be called from
+                // the user code.
+                //
                 if(amd)
                 {
-                    outAsync.invokeCompletedAsync(cb);
+                    outAsync.invokeExceptionAsync();
                 }
                 else
                 {
-                    outAsync.invokeCompleted(cb);
+                    outAsync.invokeException();
                 }
             }
         }

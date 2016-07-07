@@ -4,6 +4,10 @@
     <IceBuilderCsharpProps Condition="!Exists('$(IceBuilderCsharpProps)')">$([System.IO.Directory]::GetFiles('$(LocalAppData)\Microsoft\VisualStudio\$(VisualStudioVersion)\Extensions', 'IceBuilder.Csharp.props', SearchOption.AllDirectories))</IceBuilderCsharpProps>
     <IceBuilderCsharpTargets Condition="!Exists('$(IceBuilderCsharpTargets)')">$([System.IO.Directory]::GetFiles('$(LocalAppData)\Microsoft\VisualStudio\$(VisualStudioVersion)\Extensions', 'IceBuilder.Csharp.targets', SearchOption.AllDirectories))</IceBuilderCsharpTargets>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <DocumentationFile>..\..\..\Assemblies\IceDiscovery.XML</DocumentationFile>
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <ProjectGuid>{CFFB222B-19D5-499E-B833-B0F7E523B16F}</ProjectGuid>
@@ -52,6 +56,7 @@
   <PropertyGroup Label="IceBuilder">
     <IceBuilderIncludeDirectories>$(IceHome)\slice</IceBuilderIncludeDirectories>
     <IceBuilderAllowIcePrefix>yes</IceBuilderAllowIcePrefix>
+    <IceBuilderAdditionalOptions>--compat</IceBuilderAdditionalOptions>
   </PropertyGroup>
   <Import Project="$(IceBuilderCsharpTargets)" Condition="Exists('$(IceBuilderCsharpTargets)')" />
 </Project>

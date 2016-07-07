@@ -41,9 +41,9 @@ namespace IceInternal
             return this;
         }
 
-        public bool sendAsyncRequest(ProxyOutgoingAsyncBase outAsync, out Ice.AsyncCallback sentCallback)
+        public int sendAsyncRequest(ProxyOutgoingAsyncBase outAsync)
         {
-            return outAsync.invokeRemote(_connection, _compress, _response, out sentCallback);
+            return outAsync.invokeRemote(_connection, _compress, _response);
         }
 
         public void asyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex)

@@ -253,7 +253,72 @@ public class AllTests : TestCommon.TestApp
 
         WriteLine("ok");
 
-        Write("testing asynchronous ice_invoke... ");
+        Write("testing asynchronous ice_invoke with Async Task API... ");
+        Flush();
+
+        {
+            try
+            {
+                oneway.ice_invokeAsync("opOneway", Ice.OperationMode.Normal, null).Wait();
+            }
+            catch(Exception)
+            {
+                test(false);
+            }
+            
+
+            Ice.OutputStream outS = new Ice.OutputStream(communicator);
+            outS.startEncapsulation();
+            outS.writeString(testString);
+            outS.endEncapsulation();
+            byte[] inEncaps = outS.finished();
+
+            // begin_ice_invoke with no callback
+            var result = cl.ice_invokeAsync("opString", Ice.OperationMode.Normal, inEncaps).Result;
+            if(result.returnValue)
+            {
+                Ice.InputStream inS = new Ice.InputStream(communicator, result.outEncaps);
+                inS.startEncapsulation();
+                string s = inS.readString();
+                test(s.Equals(testString));
+                s = inS.readString();
+                inS.endEncapsulation();
+                test(s.Equals(testString));
+            }
+            else
+            {
+                test(false);
+            }
+        }
+
+        {
+            var result = cl.ice_invokeAsync("opException", Ice.OperationMode.Normal, null).Result;
+            if(result.returnValue)
+            {
+                test(false);
+            }
+            else
+            {
+                Ice.InputStream inS = new Ice.InputStream(communicator, result.outEncaps);
+                inS.startEncapsulation();
+                try
+                {
+                    inS.throwException();
+                }
+                catch(Test.MyException)
+                {
+                    inS.endEncapsulation();
+                }
+                catch(Exception)
+                {
+                    test(false);
+                }
+            }
+        }
+
+        WriteLine("ok");
+
+        Write("testing asynchronous ice_invoke with AsyncResult API... ");
         Flush();
 
         {

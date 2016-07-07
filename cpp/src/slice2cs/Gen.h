@@ -20,7 +20,7 @@ class CsVisitor : public CsGenerator, public ParserVisitor
 {
 public:
 
-    CsVisitor(::IceUtilInternal::Output&);
+    CsVisitor(::IceUtilInternal::Output&, bool);
     virtual ~CsVisitor();
 
 protected:
@@ -66,10 +66,13 @@ protected:
     enum ParamDir { InParam, OutParam };
     void writeDocCommentAMI(const OperationPtr&, ParamDir, const std::string&, const std::string& = "",
                             const std::string& = "", const std::string& = "");
+    void writeDocCommentTaskAsyncAMI(const OperationPtr&, const std::string&, const std::string& = "",
+                                     const std::string& = "", const std::string& = "");
     void writeDocCommentAMD(const OperationPtr&, ParamDir, const std::string&);
     void writeDocCommentParam(const OperationPtr&, ParamDir, bool);
 
     ::IceUtilInternal::Output& _out;
+    bool _compat;
 };
 
 class Gen : private ::IceUtil::noncopyable
@@ -79,6 +82,7 @@ public:
     Gen(const std::string&,
         const std::vector<std::string>&,
         const std::string&,
+        bool,
         bool,
         bool);
     ~Gen();
@@ -96,6 +100,7 @@ private:
     IceUtilInternal::Output _impl;
 
     std::vector<std::string> _includePaths;
+    bool _compat;
 
     void printHeader();
 
@@ -103,7 +108,7 @@ private:
     {
     public:
 
-        UnitVisitor(::IceUtilInternal::Output&);
+        UnitVisitor(::IceUtilInternal::Output&, bool);
 
         virtual bool visitUnitStart(const UnitPtr&);
     };
@@ -112,7 +117,7 @@ private:
     {
     public:
 
-        CompactIdVisitor(IceUtilInternal::Output&);
+        CompactIdVisitor(IceUtilInternal::Output&, bool);
 
         virtual bool visitUnitStart(const UnitPtr&);
         virtual void visitUnitEnd(const UnitPtr&);
@@ -123,7 +128,7 @@ private:
     {
     public:
 
-        TypesVisitor(::IceUtilInternal::Output&);
+        TypesVisitor(::IceUtilInternal::Output&, bool);
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
@@ -150,7 +155,20 @@ private:
     {
     public:
 
-        AsyncDelegateVisitor(::IceUtilInternal::Output&);
+        AsyncDelegateVisitor(::IceUtilInternal::Output&, bool);
+
+        virtual bool visitModuleStart(const ModulePtr&);
+        virtual void visitModuleEnd(const ModulePtr&);
+        virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual void visitClassDefEnd(const ClassDefPtr&);
+        virtual void visitOperation(const OperationPtr&);
+    };
+
+    class ResultVisitor : public CsVisitor
+    {
+    public:
+
+        ResultVisitor(::IceUtilInternal::Output&, bool);
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
@@ -163,7 +181,7 @@ private:
     {
     public:
 
-        ProxyVisitor(::IceUtilInternal::Output&);
+        ProxyVisitor(::IceUtilInternal::Output&, bool);
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
@@ -176,7 +194,7 @@ private:
     {
     public:
 
-        OpsVisitor(::IceUtilInternal::Output&);
+        OpsVisitor(::IceUtilInternal::Output&, bool);
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
@@ -190,7 +208,7 @@ private:
     {
     public:
 
-        HelperVisitor(::IceUtilInternal::Output&);
+        HelperVisitor(::IceUtilInternal::Output&, bool);
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
@@ -204,7 +222,7 @@ private:
     {
     public:
 
-        DispatcherVisitor(::IceUtilInternal::Output&);
+        DispatcherVisitor(::IceUtilInternal::Output&, bool);
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
@@ -215,7 +233,7 @@ private:
     {
     public:
 
-        AsyncVisitor(::IceUtilInternal::Output&);
+        AsyncVisitor(::IceUtilInternal::Output&, bool);
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
@@ -228,7 +246,7 @@ private:
     {
     public:
 
-        TieVisitor(::IceUtilInternal::Output&);
+        TieVisitor(::IceUtilInternal::Output&, bool);
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
@@ -245,7 +263,7 @@ private:
     {
     public:
 
-        BaseImplVisitor(::IceUtilInternal::Output&);
+        BaseImplVisitor(::IceUtilInternal::Output&, bool);
 
     protected:
 
@@ -256,7 +274,7 @@ private:
     {
     public:
 
-        ImplVisitor(::IceUtilInternal::Output&);
+        ImplVisitor(::IceUtilInternal::Output&, bool);
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
@@ -268,7 +286,7 @@ private:
     {
     public:
 
-        ImplTieVisitor(::IceUtilInternal::Output&);
+        ImplTieVisitor(::IceUtilInternal::Output&, bool);
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);

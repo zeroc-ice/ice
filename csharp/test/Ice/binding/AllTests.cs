@@ -746,7 +746,7 @@ public class AllTests : TestCommon.TestApp
             {
                 testUDP.getAdapterName();
             }
-            catch(Ice.TwowayOnlyException)
+            catch(System.ArgumentException)
             {
             }
         }
@@ -865,7 +865,7 @@ public class AllTests : TestCommon.TestApp
             serverProps.Add(anyboth);
             serverProps.Add(localipv4);
             serverProps.Add(localipv6);
-        
+
             bool ipv6NotSupported = false;
             foreach(Ice.Properties p in serverProps)
             {
@@ -935,14 +935,14 @@ public class AllTests : TestCommon.TestApp
                              (p == bothPreferIPv6 && q == ipv6 && ipv6NotSupported) ||
                              (p == anyipv4 && q == ipv6) || (p == anyipv6 && q == ipv4) ||
                              (p == localipv4 && q == ipv6) || (p == localipv6 && q == ipv4) ||
-                             (p == ipv6 && q == bothPreferIPv4) || (p == ipv6 && q == bothPreferIPv6) || 
+                             (p == ipv6 && q == bothPreferIPv4) || (p == ipv6 && q == bothPreferIPv6) ||
                              (p == bothPreferIPv6 && q == ipv6));
                     }
                     clientCommunicator.destroy();
                 }
                 serverCommunicator.destroy();
             }
-            
+
             WriteLine("ok");
         }
         com.shutdown();

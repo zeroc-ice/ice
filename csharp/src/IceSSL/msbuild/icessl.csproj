@@ -4,6 +4,10 @@
     <IceBuilderCsharpProps Condition="!Exists('$(IceBuilderCsharpProps)')">$([System.IO.Directory]::GetFiles('$(LocalAppData)\Microsoft\VisualStudio\$(VisualStudioVersion)\Extensions', 'IceBuilder.Csharp.props', SearchOption.AllDirectories))</IceBuilderCsharpProps>
     <IceBuilderCsharpTargets Condition="!Exists('$(IceBuilderCsharpTargets)')">$([System.IO.Directory]::GetFiles('$(LocalAppData)\Microsoft\VisualStudio\$(VisualStudioVersion)\Extensions', 'IceBuilder.Csharp.targets', SearchOption.AllDirectories))</IceBuilderCsharpTargets>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <DocumentationFile>..\..\..\Assemblies\IceSSL.XML</DocumentationFile>
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <ProjectGuid>{B763DADE-440B-46BC-9CC0-BF0CF9D43182}</ProjectGuid>
@@ -80,6 +84,7 @@
   <PropertyGroup Label="IceBuilder">
     <IceBuilderIncludeDirectories>$(IceHome)\slice</IceBuilderIncludeDirectories>
     <IceBuilderAllowIcePrefix>yes</IceBuilderAllowIcePrefix>
+    <IceBuilderAdditionalOptions>--compat</IceBuilderAdditionalOptions>
   </PropertyGroup>
   <Import Project="$(IceBuilderCsharpTargets)" Condition="Exists('$(IceBuilderCsharpTargets)')" />
 </Project>

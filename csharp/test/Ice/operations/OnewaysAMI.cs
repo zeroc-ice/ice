@@ -77,6 +77,16 @@ public class OnewaysAMI
 
         {
             Callback cb = new Callback();
+            p.ice_pingAsync(progress:new Progress<bool>(
+                sentSynchronously =>
+                {
+                    cb.sent(sentSynchronously);
+                }));
+            cb.check();
+        }
+
+        {
+            Callback cb = new Callback();
             p.begin_ice_ping().whenCompleted(cb.noException).whenSent(cb.sent);
             cb.check();
         }
@@ -99,7 +109,29 @@ public class OnewaysAMI
         {
             try
             {
+                p.ice_isAAsync("::Test::MyClass");
+                test(false);
+            }
+            catch(ArgumentException)
+            {
+            }
+        }
+
+        {
+            try
+            {
                 p.begin_ice_isA("::Test::MyClass");
+                test(false);
+            }
+            catch(ArgumentException)
+            {
+            }
+        }
+
+        {
+            try
+            {
+                p.ice_idAsync();
                 test(false);
             }
             catch(ArgumentException)
@@ -131,6 +163,16 @@ public class OnewaysAMI
 
         {
             Callback cb = new Callback();
+            p.opVoidAsync(progress:new Progress<bool>(
+                sentSynchronously =>
+                {
+                    cb.sent(sentSynchronously);
+                }));
+            cb.check();
+        }
+
+        {
+            Callback cb = new Callback();
             p.begin_opVoid().whenCompleted(cb.noException).whenSent(cb.sent);
             cb.check();
         }
@@ -152,6 +194,16 @@ public class OnewaysAMI
 
         {
             Callback cb = new Callback();
+            p.opIdempotentAsync(progress:new Progress<bool>(
+                sentSynchronously =>
+                {
+                    cb.sent(sentSynchronously);
+                }));
+            cb.check();
+        }
+
+        {
+            Callback cb = new Callback();
             p.begin_opIdempotent().whenCompleted(cb.noException).whenSent(cb.sent);
             cb.check();
         }
@@ -168,6 +220,16 @@ public class OnewaysAMI
                 {
                     cb.sent(sentSynchronously);
                 });
+            cb.check();
+        }
+
+        {
+            Callback cb = new Callback();
+            p.opNonmutatingAsync(progress:new Progress<bool>(
+                sentSynchronously =>
+                {
+                    cb.sent(sentSynchronously);
+                }));
             cb.check();
         }
 
@@ -195,7 +257,18 @@ public class OnewaysAMI
         {
             try
             {
-                p.begin_opByte((byte)0xff, (byte)0x0f);
+                p.opByteAsync(0xff, 0x0f);
+                test(false);
+            }
+            catch(ArgumentException)
+            {
+            }
+        }
+
+        {
+            try
+            {
+                p.begin_opByte(0xff, 0x0f);
                 test(false);
             }
             catch(ArgumentException)

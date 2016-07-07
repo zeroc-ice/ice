@@ -18,7 +18,7 @@ namespace IceInternal
     {
         RequestHandler update(RequestHandler previousHandler, RequestHandler newHandler);
 
-        bool sendAsyncRequest(ProxyOutgoingAsyncBase @out, out Ice.AsyncCallback cb);
+        int sendAsyncRequest(ProxyOutgoingAsyncBase @out);
 
         Reference getReference();
 

@@ -999,6 +999,10 @@ public class TwowaysAMI
     internal static void twowaysAMI(Ice.Communicator communicator, Test.MyClassPrx p)
     {
         {
+            p.ice_pingAsync().Wait();
+        }
+
+        {
             Ice.AsyncResult r = p.begin_ice_ping();
             p.end_ice_ping(r);
         }
@@ -1021,6 +1025,10 @@ public class TwowaysAMI
                      cb.exCB(ex);
                 });
             cb.check();
+        }
+
+        {
+            test(p.ice_isAAsync(Test.MyClass.ice_staticId()).Result);
         }
 
         {
@@ -1049,6 +1057,10 @@ public class TwowaysAMI
         }
 
         {
+            test(p.ice_idsAsync().Result.Length == 3);
+        }
+
+        {
             Ice.AsyncResult r = p.begin_ice_ids();
             test(p.end_ice_ids(r).Length == 3);
         }
@@ -1071,6 +1083,10 @@ public class TwowaysAMI
                      cb.exCB(ex);
                 });
             cb.check();
+        }
+
+        {
+            test(p.ice_idAsync().Result.Equals(Test.MyDerivedClass.ice_staticId()));
         }
 
         {
@@ -1099,6 +1115,10 @@ public class TwowaysAMI
         }
 
         {
+            p.opVoidAsync().Wait();
+        }
+
+        {
             Ice.AsyncResult r = p.begin_opVoid();
             p.end_opVoid(r);
         }
@@ -1121,6 +1141,12 @@ public class TwowaysAMI
                      cb.exCB(ex);
                 });
             cb.check();
+        }
+
+        {
+            var ret = p.opByteAsync(0xff, 0x0f).Result;
+            test(ret.p3 == 0xf0);
+            test(ret.returnValue == 0xff);
         }
 
         {
@@ -1152,6 +1178,12 @@ public class TwowaysAMI
         }
 
         {
+            var cb = new Callback();
+            var ret = p.opBoolAsync(true, false).Result;
+            cb.opBool(ret.returnValue, ret.p3);
+        }
+
+        {
             Callback cb = new Callback();
             p.begin_opBool(true, false).whenCompleted(cb.opBool, cb.exCB);
             cb.check();
@@ -1169,6 +1201,12 @@ public class TwowaysAMI
                      cb.exCB(ex);
                 });
             cb.check();
+        }
+
+        {
+            var cb = new Callback();
+            var ret = p.opShortIntLongAsync(10, 11, 12).Result;
+            cb.opShortIntLong(ret.returnValue, ret.p4, ret.p5, ret.p6);
         }
 
         {
@@ -1192,6 +1230,12 @@ public class TwowaysAMI
         }
 
         {
+            var cb = new Callback();
+            var ret = p.opFloatDoubleAsync(3.14f, 1.1E10).Result;
+            cb.opFloatDouble(ret.returnValue, ret.p3, ret.p4);
+        }
+
+        {
             Callback cb = new Callback();
             p.begin_opFloatDouble(3.14f, 1.1E10).whenCompleted(cb.opFloatDouble, cb.exCB);
             cb.check();
@@ -1209,6 +1253,12 @@ public class TwowaysAMI
                      cb.exCB(ex);
                 });
             cb.check();
+        }
+
+        {
+            var cb = new Callback();
+            var ret = p.opStringAsync("hello", "world").Result;
+            cb.opString(ret.returnValue, ret.p3);
         }
 
         {
@@ -1232,6 +1282,12 @@ public class TwowaysAMI
         }
 
         {
+            var cb = new Callback();
+            var ret = p.opMyEnumAsync(Test.MyEnum.enum2).Result;
+            cb.opMyEnum(ret.returnValue, ret.p2);
+        }
+
+        {
             Callback cb = new Callback();
             p.begin_opMyEnum(Test.MyEnum.enum2).whenCompleted(cb.opMyEnum, cb.exCB);
             cb.check();
@@ -1252,6 +1308,12 @@ public class TwowaysAMI
         }
 
         {
+            var cb = new Callback(communicator);
+            var ret = p.opMyClassAsync(p).Result;
+            cb.opMyClass(ret.returnValue, ret.p2, ret.p3);
+        }
+
+        {
             Callback cb = new Callback(communicator);
             p.begin_opMyClass(p).whenCompleted(cb.opMyClass, cb.exCB);
             cb.check();
@@ -1269,6 +1331,23 @@ public class TwowaysAMI
                      cb.exCB(ex);
                 });
             cb.check();
+        }
+
+        {
+            Test.Structure si1 = new Test.Structure();
+            si1.p = p;
+            si1.e = Test.MyEnum.enum3;
+            si1.s = new Test.AnotherStruct();
+            si1.s.s = "abc";
+            Test.Structure si2 = new Test.Structure();
+            si2.p = null;
+            si2.e = Test.MyEnum.enum2;
+            si2.s = new Test.AnotherStruct();
+            si2.s.s = "def";
+
+            var cb = new Callback(communicator);
+            var ret = p.opStructAsync(si1, si2).Result;
+            cb.opStruct(ret.returnValue, ret.p3);
         }
 
         {
@@ -1317,6 +1396,15 @@ public class TwowaysAMI
             byte[] bsi1 = new byte[] { 0x01, 0x11, 0x12, 0x22 };
             byte[] bsi2 = new byte[] { 0xf1, 0xf2, 0xf3, 0xf4 };
 
+            var cb = new Callback();
+            var ret = p.opByteSAsync(bsi1, bsi2).Result;
+            cb.opByteS(ret.returnValue, ret.p3);
+        }
+
+        {
+            byte[] bsi1 = new byte[] { 0x01, 0x11, 0x12, 0x22 };
+            byte[] bsi2 = new byte[] { 0xf1, 0xf2, 0xf3, 0xf4 };
+
             Callback cb = new Callback();
             p.begin_opByteS(bsi1, bsi2).whenCompleted(cb.opByteS, cb.exCB);
             cb.check();
@@ -1343,6 +1431,15 @@ public class TwowaysAMI
             bool[] bsi1 = new bool[] { true, true, false };
             bool[] bsi2 = new bool[] { false };
 
+            var cb = new Callback();
+            var ret = p.opBoolSAsync(bsi1, bsi2).Result;
+            cb.opBoolS(ret.returnValue, ret.p3);
+        }
+
+        {
+            bool[] bsi1 = new bool[] { true, true, false };
+            bool[] bsi2 = new bool[] { false };
+
             Callback cb = new Callback();
             p.begin_opBoolS(bsi1, bsi2).whenCompleted(cb.opBoolS, cb.exCB);
             cb.check();
@@ -1363,6 +1460,16 @@ public class TwowaysAMI
                      cb.exCB(ex);
                 });
             cb.check();
+        }
+
+        {
+            short[] ssi = new short[] { 1, 2, 3 };
+            int[] isi = new int[] { 5, 6, 7, 8 };
+            long[] lsi = new long[] { 10, 30, 20 };
+
+            var cb = new Callback();
+            var ret = p.opShortIntLongSAsync(ssi, isi, lsi).Result;
+            cb.opShortIntLongS(ret.returnValue, ret.p4, ret.p5, ret.p6);
         }
 
         {
@@ -1397,6 +1504,15 @@ public class TwowaysAMI
             float[] fsi = new float[] { 3.14f, 1.11f };
             double[] dsi = new double[] { 1.1e10, 1.2e10, 1.3e10 };
 
+            var cb = new Callback();
+            var ret = p.opFloatDoubleSAsync(fsi, dsi).Result;
+            cb.opFloatDoubleS(ret.returnValue, ret.p3, ret.p4);
+        }
+
+        {
+            float[] fsi = new float[] { 3.14f, 1.11f };
+            double[] dsi = new double[] { 1.1e10, 1.2e10, 1.3e10 };
+
             Callback cb = new Callback();
             p.begin_opFloatDoubleS(fsi, dsi).whenCompleted(cb.opFloatDoubleS, cb.exCB);
             cb.check();
@@ -1423,6 +1539,15 @@ public class TwowaysAMI
             string[] ssi1 = new string[] { "abc", "de", "fghi" };
             string[] ssi2 = new string[] { "xyz" };
 
+            var cb = new Callback();
+            var ret = p.opStringSAsync(ssi1, ssi2).Result;
+            cb.opStringS(ret.returnValue, ret.p3);
+        }
+
+        {
+            string[] ssi1 = new string[] { "abc", "de", "fghi" };
+            string[] ssi2 = new string[] { "xyz" };
+
             Callback cb = new Callback();
             p.begin_opStringS(ssi1, ssi2).whenCompleted(cb.opStringS, cb.exCB);
             cb.check();
@@ -1443,6 +1568,20 @@ public class TwowaysAMI
                      cb.exCB(ex);
                 });
             cb.check();
+        }
+
+        {
+            byte[] s11 = new byte[] { 0x01, 0x11, 0x12 };
+            byte[] s12 = new byte[] { 0xff };
+            byte[][] bsi1 = new byte[][] { s11, s12 };
+
+            byte[] s21 = new byte[] { 0x0e };
+            byte[] s22 = new byte[] { 0xf2, 0xf1 };
+            byte[][] bsi2 = new byte[][] { s21, s22 };
+
+            var cb = new Callback();
+            var ret = p.opByteSSAsync(bsi1, bsi2).Result;
+            cb.opByteSS(ret.returnValue, ret.p3);
         }
 
         {
@@ -1482,6 +1621,20 @@ public class TwowaysAMI
         }
 
         {
+            bool[] s11 = new bool[] { true };
+            bool[] s12 = new bool[] { false };
+            bool[] s13 = new bool[] { true, true };
+            bool[][] bsi1 = new bool[][] { s11, s12, s13 };
+
+            bool[] s21 = new bool[] { false, false, true };
+            bool[][] bsi2 = new bool[][] { s21 };
+
+            var cb = new Callback();
+            var ret = p.opBoolSSAsync(bsi1, bsi2).Result;
+            cb.opBoolSS(ret.returnValue, ret.p3);
+        }
+
+        {
             bool[] s11 = new bool[] {true};
             bool[] s12 = new bool[] {false};
             bool[] s13 = new bool[] {true, true};
@@ -1515,6 +1668,24 @@ public class TwowaysAMI
                      cb.exCB(ex);
                 });
             cb.check();
+        }
+
+        {
+            short[] s11 = new short[] { 1, 2, 5 };
+            short[] s12 = new short[] { 13 };
+            short[] s13 = new short[] { };
+            short[][] ssi = new short[][] { s11, s12, s13 };
+
+            int[] i11 = new int[] { 24, 98 };
+            int[] i12 = new int[] { 42 };
+            int[][] isi = new int[][] { i11, i12 };
+
+            long[] l11 = new long[] { 496, 1729 };
+            long[][] lsi = new long[][] { l11 };
+
+            var cb = new Callback();
+            var ret = p.opShortIntLongSSAsync(ssi, isi, lsi).Result;
+            cb.opShortIntLongSS(ret.returnValue, ret.p4, ret.p5, ret.p6);
         }
 
         {
@@ -1570,6 +1741,20 @@ public class TwowaysAMI
             double[] d11 = new double[] { 1.1e10, 1.2e10, 1.3e10 };
             double[][] dsi = new double[][] { d11 };
 
+            var cb = new Callback();
+            var ret = p.opFloatDoubleSSAsync(fsi, dsi).Result;
+            cb.opFloatDoubleSS(ret.returnValue, ret.p3, ret.p4);
+        }
+
+        {
+            float[] f11 = new float[] { 3.14f };
+            float[] f12 = new float[] { 1.11f };
+            float[] f13 = new float[] { };
+            float[][] fsi = new float[][] { f11, f12, f13 };
+
+            double[] d11 = new double[] { 1.1e10, 1.2e10, 1.3e10 };
+            double[][] dsi = new double[][] { d11 };
+
             Callback cb = new Callback();
             p.begin_opFloatDoubleSS(fsi, dsi).whenCompleted(cb.opFloatDoubleSS, cb.exCB);
             cb.check();
@@ -1595,6 +1780,21 @@ public class TwowaysAMI
                      cb.exCB(ex);
                 });
             cb.check();
+        }
+
+        {
+            string[] s11 = new string[] { "abc" };
+            string[] s12 = new string[] { "de", "fghi" };
+            string[][] ssi1 = new string[][] { s11, s12 };
+
+            string[] s21 = new string[] { };
+            string[] s22 = new string[] { };
+            string[] s23 = new string[] { "xyz" };
+            string[][] ssi2 = new string[][] { s21, s22, s23 };
+
+            var cb = new Callback();
+            var ret = p.opStringSSAsync(ssi1, ssi2).Result;
+            cb.opStringSS(ret.returnValue, ret.p3);
         }
 
         {
@@ -1633,6 +1833,27 @@ public class TwowaysAMI
                      cb.exCB(ex);
                 });
             cb.check();
+        }
+
+        {
+            string[] s111 = new string[] { "abc", "de" };
+            string[] s112 = new string[] { "xyz" };
+            string[][] ss11 = new string[][] { s111, s112 };
+            string[] s121 = new string[] { "hello" };
+            string[][] ss12 = new string[][] { s121 };
+            string[][][] sssi1 = new string[][][] { ss11, ss12 };
+
+            string[] s211 = new string[] { "", "" };
+            string[] s212 = new string[] { "abcd" };
+            string[][] ss21 = new string[][] { s211, s212 };
+            string[] s221 = new string[] { "" };
+            string[][] ss22 = new string[][] { s221 };
+            string[][] ss23 = new string[][] { };
+            string[][][] sssi2 = new string[][][] { ss21, ss22, ss23 };
+
+            var cb = new Callback();
+            var ret = p.opStringSSSAsync(sssi1, sssi2).Result;
+            cb.opStringSSS(ret.returnValue, ret.p3);
         }
 
         {
@@ -1694,6 +1915,20 @@ public class TwowaysAMI
             di2[11] = false;
             di2[101] = true;
 
+            var cb = new Callback();
+            var ret = p.opByteBoolDAsync(di1, di2).Result;
+            cb.opByteBoolD(ret.returnValue, ret.p3);
+        }
+
+        {
+            Dictionary<byte, bool> di1 = new Dictionary<byte, bool>();
+            di1[10] = true;
+            di1[100] = false;
+            Dictionary<byte, bool> di2 = new Dictionary<byte, bool>();
+            di2[10] = true;
+            di2[11] = false;
+            di2[101] = true;
+
             Callback cb = new Callback();
             p.begin_opByteBoolD(di1, di2).whenCompleted(cb.opByteBoolD, cb.exCB);
             cb.check();
@@ -1719,6 +1954,20 @@ public class TwowaysAMI
                      cb.exCB(ex);
                 });
             cb.check();
+        }
+
+        {
+            Dictionary<short, int> di1 = new Dictionary<short, int>();
+            di1[110] = -1;
+            di1[1100] = 123123;
+            Dictionary<short, int> di2 = new Dictionary<short, int>();
+            di2[110] = -1;
+            di2[111] = -100;
+            di2[1101] = 0;
+
+            var cb = new Callback();
+            var ret = p.opShortIntDAsync(di1, di2).Result;
+            cb.opShortIntD(ret.returnValue, ret.p3);
         }
 
         {
@@ -1766,6 +2015,20 @@ public class TwowaysAMI
             di2[999999120L] = -100.4f;
             di2[999999130L] = 0.5f;
 
+            var cb = new Callback();
+            var ret = p.opLongFloatDAsync(di1, di2).Result;
+            cb.opLongFloatD(ret.returnValue, ret.p3);
+        }
+
+        {
+            Dictionary<long, float> di1 = new Dictionary<long, float>();
+            di1[999999110L] = -1.1f;
+            di1[999999111L] = 123123.2f;
+            Dictionary<long, float> di2 = new Dictionary<long, float>();
+            di2[999999110L] = -1.1f;
+            di2[999999120L] = -100.4f;
+            di2[999999130L] = 0.5f;
+
             Callback cb = new Callback();
             p.begin_opLongFloatD(di1, di2).whenCompleted(cb.opLongFloatD, cb.exCB);
             cb.check();
@@ -1791,6 +2054,20 @@ public class TwowaysAMI
                      cb.exCB(ex);
                 });
             cb.check();
+        }
+
+        {
+            Dictionary<string, string> di1 = new Dictionary<string, string>();
+            di1["foo"] = "abc -1.1";
+            di1["bar"] = "abc 123123.2";
+            Dictionary<string, string> di2 = new Dictionary<string, string>();
+            di2["foo"] = "abc -1.1";
+            di2["FOO"] = "abc -100.4";
+            di2["BAR"] = "abc 0.5";
+
+            var cb = new Callback();
+            var ret = p.opStringStringDAsync(di1, di2).Result;
+            cb.opStringStringD(ret.returnValue, ret.p3);
         }
 
         {
@@ -1838,6 +2115,20 @@ public class TwowaysAMI
             di2["qwerty"] = Test.MyEnum.enum3;
             di2["Hello!!"] = Test.MyEnum.enum2;
 
+            var cb = new Callback();
+            var ret = p.opStringMyEnumDAsync(di1, di2).Result;
+            cb.opStringMyEnumD(ret.returnValue, ret.p3);
+        }
+
+        {
+            Dictionary<string, Test.MyEnum> di1 = new Dictionary<string, Test.MyEnum>();
+            di1["abc"] = Test.MyEnum.enum1;
+            di1[""] = Test.MyEnum.enum2;
+            Dictionary<string, Test.MyEnum> di2 = new Dictionary<string, Test.MyEnum>();
+            di2["abc"] = Test.MyEnum.enum1;
+            di2["qwerty"] = Test.MyEnum.enum3;
+            di2["Hello!!"] = Test.MyEnum.enum2;
+
             Callback cb = new Callback();
             p.begin_opStringMyEnumD(di1, di2).whenCompleted(cb.opStringMyEnumD, cb.exCB);
             cb.check();
@@ -1872,6 +2163,18 @@ public class TwowaysAMI
             di2[Test.MyEnum.enum2] = "Hello!!";
             di2[Test.MyEnum.enum3] = "qwerty";
 
+            var cb = new Callback();
+            var ret = p.opMyEnumStringDAsync(di1, di2).Result;
+            cb.opMyEnumStringD(ret.returnValue, ret.p3);
+        }
+
+        {
+            Dictionary<Test.MyEnum, string> di1 = new Dictionary<Test.MyEnum, string>();
+            di1[Test.MyEnum.enum1] = "abc";
+            Dictionary<Test.MyEnum, string> di2 = new Dictionary<Test.MyEnum, string>();
+            di2[Test.MyEnum.enum2] = "Hello!!";
+            di2[Test.MyEnum.enum3] = "qwerty";
+
             Callback cb = new Callback();
             p.begin_opMyEnumStringD(di1, di2).whenCompleted(cb.opMyEnumStringD, cb.exCB);
             cb.check();
@@ -1895,6 +2198,25 @@ public class TwowaysAMI
                      cb.exCB(ex);
                 });
             cb.check();
+        }
+
+        {
+            Test.MyStruct s11 = new Test.MyStruct(1, 1);
+            Test.MyStruct s12 = new Test.MyStruct(1, 2);
+            Dictionary<Test.MyStruct, Test.MyEnum> di1 = new Dictionary<Test.MyStruct, Test.MyEnum>();
+            di1[s11] = Test.MyEnum.enum1;
+            di1[s12] = Test.MyEnum.enum2;
+
+            Test.MyStruct s22 = new Test.MyStruct(2, 2);
+            Test.MyStruct s23 = new Test.MyStruct(2, 3);
+            Dictionary<Test.MyStruct, Test.MyEnum> di2 = new Dictionary<Test.MyStruct, Test.MyEnum>();
+            di2[s11] = Test.MyEnum.enum1;
+            di2[s22] = Test.MyEnum.enum3;
+            di2[s23] = Test.MyEnum.enum2;
+
+            var cb = new Callback();
+            var ret = p.opMyStructMyEnumDAsync(di1, di2).Result;
+            cb.opMyStructMyEnumD(ret.returnValue, ret.p3);
         }
 
         {
@@ -1963,6 +2285,30 @@ public class TwowaysAMI
             dsi1[1] = di2;
             dsi2[0] = di3;
 
+            var cb = new Callback();
+            var ret = p.opByteBoolDSAsync(dsi1, dsi2).Result;
+            cb.opByteBoolDS(ret.returnValue, ret.p3);
+        }
+
+        {
+            Dictionary<byte, bool>[] dsi1 = new Dictionary<byte, bool>[2];
+            Dictionary<byte, bool>[] dsi2 = new Dictionary<byte, bool>[1];
+
+            Dictionary<byte, bool> di1 = new Dictionary<byte, bool>();
+            di1[10] = true;
+            di1[100] = false;
+            Dictionary<byte, bool> di2 = new Dictionary<byte, bool>();
+            di2[10] = true;
+            di2[11] = false;
+            di2[101] = true;
+            Dictionary<byte, bool> di3 = new Dictionary<byte, bool>();
+            di3[100] = false;
+            di3[101] = false;
+
+            dsi1[0] = di1;
+            dsi1[1] = di2;
+            dsi2[0] = di3;
+
             Callback cb = new Callback();
             p.begin_opByteBoolDS(dsi1, dsi2).whenCompleted(
                 (Dictionary<byte, bool>[] ro,
@@ -1975,6 +2321,29 @@ public class TwowaysAMI
                      cb.exCB(ex);
                 });
             cb.check();
+        }
+
+        {
+            Dictionary<short, int>[] dsi1 = new Dictionary<short, int>[2];
+            Dictionary<short, int>[] dsi2 = new Dictionary<short, int>[1];
+
+            Dictionary<short, int> di1 = new Dictionary<short, int>();
+            di1[110] = -1;
+            di1[1100] = 123123;
+            Dictionary<short, int> di2 = new Dictionary<short, int>();
+            di2[110] = -1;
+            di2[111] = -100;
+            di2[1101] = 0;
+            Dictionary<short, int> di3 = new Dictionary<short, int>();
+            di3[100] = -1001;
+
+            dsi1[0] = di1;
+            dsi1[1] = di2;
+            dsi2[0] = di3;
+
+            var cb = new Callback();
+            var ret = p.opShortIntDSAsync(dsi1, dsi2).Result;
+            cb.opShortIntDS(ret.returnValue, ret.p3);
         }
 
         {
@@ -2027,6 +2396,29 @@ public class TwowaysAMI
             dsi1[1] = di2;
             dsi2[0] = di3;
 
+            var cb = new Callback();
+            var ret = p.opLongFloatDSAsync(dsi1, dsi2).Result;
+            cb.opLongFloatDS(ret.returnValue, ret.p3);
+        }
+
+        {
+            Dictionary<long, float>[] dsi1 = new Dictionary<long, float>[2];
+            Dictionary<long, float>[] dsi2 = new Dictionary<long, float>[1];
+
+            Dictionary<long, float> di1 = new Dictionary<long, float>();
+            di1[999999110L] = -1.1f;
+            di1[999999111L] = 123123.2f;
+            Dictionary<long, float> di2 = new Dictionary<long, float>();
+            di2[999999110L] = -1.1f;
+            di2[999999120L] = -100.4f;
+            di2[999999130L] = 0.5f;
+            Dictionary<long, float> di3 = new Dictionary<long, float>();
+            di3[999999140L] = 3.14f;
+
+            dsi1[0] = di1;
+            dsi1[1] = di2;
+            dsi2[0] = di3;
+
             Callback cb = new Callback();
             p.begin_opLongFloatDS(dsi1, dsi2).whenCompleted(
                 (Dictionary<long, float>[] ro,
@@ -2039,6 +2431,29 @@ public class TwowaysAMI
                      cb.exCB(ex);
                 });
             cb.check();
+        }
+
+        {
+            Dictionary<string, string>[] dsi1 = new Dictionary<string, string>[2];
+            Dictionary<string, string>[] dsi2 = new Dictionary<string, string>[1];
+
+            Dictionary<string, string> di1 = new Dictionary<string, string>();
+            di1["foo"] = "abc -1.1";
+            di1["bar"] = "abc 123123.2";
+            Dictionary<string, string> di2 = new Dictionary<string, string>();
+            di2["foo"] = "abc -1.1";
+            di2["FOO"] = "abc -100.4";
+            di2["BAR"] = "abc 0.5";
+            Dictionary<string, string> di3 = new Dictionary<string, string>();
+            di3["f00"] = "ABC -3.14";
+
+            dsi1[0] = di1;
+            dsi1[1] = di2;
+            dsi2[0] = di3;
+
+            var cb = new Callback();
+            var ret = p.opStringStringDSAsync(dsi1, dsi2).Result;
+            cb.opStringStringDS(ret.returnValue, ret.p3);
         }
 
         {
@@ -2091,6 +2506,29 @@ public class TwowaysAMI
             dsi1[1] = di2;
             dsi2[0] = di3;
 
+            var cb = new Callback();
+            var ret = p.opStringMyEnumDSAsync(dsi1, dsi2).Result;
+            cb.opStringMyEnumDS(ret.returnValue, ret.p3);
+        }
+
+        {
+            Dictionary<string, Test.MyEnum>[] dsi1 = new Dictionary<string, Test.MyEnum>[2];
+            Dictionary<string, Test.MyEnum>[] dsi2 = new Dictionary<string, Test.MyEnum>[1];
+
+            Dictionary<string, Test.MyEnum> di1 = new Dictionary<string, Test.MyEnum>();
+            di1["abc"] = Test.MyEnum.enum1;
+            di1[""] = Test.MyEnum.enum2;
+            Dictionary<string, Test.MyEnum> di2 = new Dictionary<string, Test.MyEnum>();
+            di2["abc"] = Test.MyEnum.enum1;
+            di2["qwerty"] = Test.MyEnum.enum3;
+            di2["Hello!!"] = Test.MyEnum.enum2;
+            Dictionary<string, Test.MyEnum> di3 = new Dictionary<string, Test.MyEnum>();
+            di3["Goodbye"] = Test.MyEnum.enum1;
+
+            dsi1[0] = di1;
+            dsi1[1] = di2;
+            dsi2[0] = di3;
+
             Callback cb = new Callback();
             p.begin_opStringMyEnumDS(dsi1, dsi2).whenCompleted(
                 (Dictionary<string, Test.MyEnum>[] ro,
@@ -2103,6 +2541,27 @@ public class TwowaysAMI
                      cb.exCB(ex);
                 });
             cb.check();
+        }
+
+        {
+            Dictionary<Test.MyEnum, string>[] dsi1 = new Dictionary<Test.MyEnum, string>[2];
+            Dictionary<Test.MyEnum, string>[] dsi2 = new Dictionary<Test.MyEnum, string>[1];
+
+            Dictionary<Test.MyEnum, string> di1 = new Dictionary<Test.MyEnum, string>();
+            di1[Test.MyEnum.enum1] = "abc";
+            Dictionary<Test.MyEnum, string> di2 = new Dictionary<Test.MyEnum, string>();
+            di2[Test.MyEnum.enum2] = "Hello!!";
+            di2[Test.MyEnum.enum3] = "qwerty";
+            Dictionary<Test.MyEnum, string> di3 = new Dictionary<Test.MyEnum, string>();
+            di3[Test.MyEnum.enum1] = "Goodbye";
+
+            dsi1[0] = di1;
+            dsi1[1] = di2;
+            dsi2[0] = di3;
+
+            var cb = new Callback();
+            var ret = p.opMyEnumStringDSAsync(dsi1, dsi2).Result;
+            cb.opMyEnumStringDS(ret.returnValue, ret.p3);
         }
 
         {
@@ -2159,6 +2618,35 @@ public class TwowaysAMI
             dsi1[1] = di2;
             dsi2[0] = di3;
 
+            var cb = new Callback();
+            var ret = p.opMyStructMyEnumDSAsync(dsi1, dsi2).Result;
+            cb.opMyStructMyEnumDS(ret.returnValue, ret.p3);
+        }
+
+        {
+            Dictionary<Test.MyStruct, Test.MyEnum>[] dsi1 = new Dictionary<Test.MyStruct, Test.MyEnum>[2];
+            Dictionary<Test.MyStruct, Test.MyEnum>[] dsi2 = new Dictionary<Test.MyStruct, Test.MyEnum>[1];
+
+            Test.MyStruct s11 = new Test.MyStruct(1, 1);
+            Test.MyStruct s12 = new Test.MyStruct(1, 2);
+            Dictionary<Test.MyStruct, Test.MyEnum> di1 = new Dictionary<Test.MyStruct, Test.MyEnum>();
+            di1[s11] = Test.MyEnum.enum1;
+            di1[s12] = Test.MyEnum.enum2;
+
+            Test.MyStruct s22 = new Test.MyStruct(2, 2);
+            Test.MyStruct s23 = new Test.MyStruct(2, 3);
+            Dictionary<Test.MyStruct, Test.MyEnum> di2 = new Dictionary<Test.MyStruct, Test.MyEnum>();
+            di2[s11] = Test.MyEnum.enum1;
+            di2[s22] = Test.MyEnum.enum3;
+            di2[s23] = Test.MyEnum.enum2;
+
+            Dictionary<Test.MyStruct, Test.MyEnum> di3 = new Dictionary<Test.MyStruct, Test.MyEnum>();
+            di3[s23] = Test.MyEnum.enum3;
+
+            dsi1[0] = di1;
+            dsi1[1] = di2;
+            dsi2[0] = di3;
+
             Callback cb = new Callback();
             p.begin_opMyStructMyEnumDS(dsi1, dsi2).whenCompleted(
                 (Dictionary<Test.MyStruct, Test.MyEnum>[] ro,
@@ -2168,9 +2656,26 @@ public class TwowaysAMI
                 },
                 (Ice.Exception ex) =>
                 {
-                     cb.exCB(ex);
+                    cb.exCB(ex);
                 });
             cb.check();
+        }
+
+        {
+            Dictionary<byte, byte[]> sdi1 = new Dictionary<byte, byte[]>();
+            Dictionary<byte, byte[]> sdi2 = new Dictionary<byte, byte[]>();
+
+            byte[] si1 = new byte[] { 0x01, 0x11 };
+            byte[] si2 = new byte[] { 0x12 };
+            byte[] si3 = new byte[] { 0xf2, 0xf3 };
+
+            sdi1[0x01] = si1;
+            sdi1[0x22] = si2;
+            sdi2[0xf1] = si3;
+
+            var cb = new Callback();
+            var ret = p.opByteByteSDAsync(sdi1, sdi2).Result;
+            cb.opByteByteSD(ret.returnValue, ret.p3);
         }
 
         {
@@ -2210,6 +2715,22 @@ public class TwowaysAMI
             sdi1[true] = si2;
             sdi2[false] = si1;
 
+            var cb = new Callback();
+            var ret = p.opBoolBoolSDAsync(sdi1, sdi2).Result;
+            cb.opBoolBoolSD(ret.returnValue, ret.p3);
+        }
+
+        {
+            Dictionary<bool, bool[]> sdi1 = new Dictionary<bool, bool[]>();
+            Dictionary<bool, bool[]> sdi2 = new Dictionary<bool, bool[]>();
+
+            bool[] si1 = new bool[] { true, false };
+            bool[] si2 = new bool[] { false, true, true };
+
+            sdi1[false] = si1;
+            sdi1[true] = si2;
+            sdi2[false] = si1;
+
             Callback cb = new Callback();
             p.begin_opBoolBoolSD(sdi1, sdi2).whenCompleted(
                 (Dictionary<bool, bool[]> ro,
@@ -2222,6 +2743,23 @@ public class TwowaysAMI
                      cb.exCB(ex);
                 });
             cb.check();
+        }
+
+        {
+            Dictionary<short, short[]> sdi1 = new Dictionary<short, short[]>();
+            Dictionary<short, short[]> sdi2 = new Dictionary<short, short[]>();
+
+            short[] si1 = new short[] { 1, 2, 3 };
+            short[] si2 = new short[] { 4, 5 };
+            short[] si3 = new short[] { 6, 7 };
+
+            sdi1[1] = si1;
+            sdi1[2] = si2;
+            sdi2[4] = si3;
+
+            var cb = new Callback();
+            var ret = p.opShortShortSDAsync(sdi1, sdi2).Result;
+            cb.opShortShortSD(ret.returnValue, ret.p3);
         }
 
         {
@@ -2262,6 +2800,23 @@ public class TwowaysAMI
             sdi1[200] = si2;
             sdi2[400] = si3;
 
+            var cb = new Callback();
+            var ret = p.opIntIntSDAsync(sdi1, sdi2).Result;
+            cb.opIntIntSD(ret.returnValue, ret.p3);
+        }
+
+        {
+            Dictionary<int, int[]> sdi1 = new Dictionary<int, int[]>();
+            Dictionary<int, int[]> sdi2 = new Dictionary<int, int[]>();
+
+            int[] si1 = new int[] { 100, 200, 300 };
+            int[] si2 = new int[] { 400, 500 };
+            int[] si3 = new int[] { 600, 700 };
+
+            sdi1[100] = si1;
+            sdi1[200] = si2;
+            sdi2[400] = si3;
+
             Callback cb = new Callback();
             p.begin_opIntIntSD(sdi1, sdi2).whenCompleted(
                 (Dictionary<int, int[]> ro,
@@ -2274,6 +2829,23 @@ public class TwowaysAMI
                      cb.exCB(ex);
                 });
             cb.check();
+        }
+
+        {
+            Dictionary<long, long[]> sdi1 = new Dictionary<long, long[]>();
+            Dictionary<long, long[]> sdi2 = new Dictionary<long, long[]>();
+
+            long[] si1 = new long[] { 999999110L, 999999111L, 999999110L };
+            long[] si2 = new long[] { 999999120L, 999999130L };
+            long[] si3 = new long[] { 999999110L, 999999120L };
+
+            sdi1[999999990L] = si1;
+            sdi1[999999991L] = si2;
+            sdi2[999999992L] = si3;
+
+            var cb = new Callback();
+            var ret = p.opLongLongSDAsync(sdi1, sdi2).Result;
+            cb.opLongLongSD(ret.returnValue, ret.p3);
         }
 
         {
@@ -2314,6 +2886,23 @@ public class TwowaysAMI
             sdi1["ABC"] = si2;
             sdi2["aBc"] = si3;
 
+            var cb = new Callback();
+            var ret = p.opStringFloatSDAsync(sdi1, sdi2).Result;
+            cb.opStringFloatSD(ret.returnValue, ret.p3);
+        }
+
+        {
+            Dictionary<string, float[]> sdi1 = new Dictionary<string, float[]>();
+            Dictionary<string, float[]> sdi2 = new Dictionary<string, float[]>();
+
+            float[] si1 = new float[] { -1.1f, 123123.2f, 100.0f };
+            float[] si2 = new float[] { 42.24f, -1.61f };
+            float[] si3 = new float[] { -3.14f, 3.14f };
+
+            sdi1["abc"] = si1;
+            sdi1["ABC"] = si2;
+            sdi2["aBc"] = si3;
+
             Callback cb = new Callback();
             p.begin_opStringFloatSD(sdi1, sdi2).whenCompleted(
                 (Dictionary<string, float[]> ro,
@@ -2326,6 +2915,23 @@ public class TwowaysAMI
                      cb.exCB(ex);
                 });
             cb.check();
+        }
+
+        {
+            Dictionary<string, double[]> sdi1 = new Dictionary<string, double[]>();
+            Dictionary<string, double[]> sdi2 = new Dictionary<string, double[]>();
+
+            double[] si1 = new double[] { 1.1E10, 1.2E10, 1.3E10 };
+            double[] si2 = new double[] { 1.4E10, 1.5E10 };
+            double[] si3 = new double[] { 1.6E10, 1.7E10 };
+
+            sdi1["Hello!!"] = si1;
+            sdi1["Goodbye"] = si2;
+            sdi2[""] = si3;
+
+            var cb = new Callback();
+            var ret = p.opStringDoubleSDAsync(sdi1, sdi2).Result;
+            cb.opStringDoubleSD(ret.returnValue, ret.p3);
         }
 
         {
@@ -2366,6 +2972,23 @@ public class TwowaysAMI
             sdi1["def"] = si2;
             sdi2["ghi"] = si3;
 
+            var cb = new Callback();
+            var ret = p.opStringStringSDAsync(sdi1, sdi2).Result;
+            cb.opStringStringSD(ret.returnValue, ret.p3);
+        }
+
+        {
+            Dictionary<string, string[]> sdi1 = new Dictionary<string, string[]>();
+            Dictionary<string, string[]> sdi2 = new Dictionary<string, string[]>();
+
+            string[] si1 = new string[] { "abc", "de", "fghi" };
+            string[] si2 = new string[] { "xyz", "or" };
+            string[] si3 = new string[] { "and", "xor" };
+
+            sdi1["abc"] = si1;
+            sdi1["def"] = si2;
+            sdi2["ghi"] = si3;
+
             Callback cb = new Callback();
             p.begin_opStringStringSD(sdi1, sdi2).whenCompleted(
                 (Dictionary<string, string[]> ro,
@@ -2392,6 +3015,23 @@ public class TwowaysAMI
             sdi1[Test.MyEnum.enum2] = si2;
             sdi2[Test.MyEnum.enum1] = si3;
 
+            var cb = new Callback();
+            var ret = p.opMyEnumMyEnumSDAsync(sdi1, sdi2).Result;
+            cb.opMyEnumMyEnumSD(ret.returnValue, ret.p3);
+        }
+
+        {
+            Dictionary<Test.MyEnum, Test.MyEnum[]> sdi1 = new Dictionary<Test.MyEnum, Test.MyEnum[]>();
+            Dictionary<Test.MyEnum, Test.MyEnum[]> sdi2 = new Dictionary<Test.MyEnum, Test.MyEnum[]>();
+
+            Test.MyEnum[] si1 = new Test.MyEnum[] { Test.MyEnum.enum1, Test.MyEnum.enum1, Test.MyEnum.enum2 };
+            Test.MyEnum[] si2 = new Test.MyEnum[] { Test.MyEnum.enum1, Test.MyEnum.enum2 };
+            Test.MyEnum[] si3 = new Test.MyEnum[] { Test.MyEnum.enum3, Test.MyEnum.enum3 };
+
+            sdi1[Test.MyEnum.enum3] = si1;
+            sdi1[Test.MyEnum.enum2] = si2;
+            sdi2[Test.MyEnum.enum1] = si3;
+
             Callback cb = new Callback();
             p.begin_opMyEnumMyEnumSD(sdi1, sdi2).whenCompleted(
                 (Dictionary<Test.MyEnum, Test.MyEnum[]> ro,
@@ -2404,6 +3044,22 @@ public class TwowaysAMI
                      cb.exCB(ex);
                 });
             cb.check();
+        }
+
+        {
+            int[] lengths = new int[] { 0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000 };
+
+            for(int l = 0; l < lengths.Length; ++l)
+            {
+                int[] s = new int[lengths[l]];
+                for(int i = 0; i < lengths[l]; ++i)
+                {
+                    s[i] = i;
+                }
+
+                var cb = new Callback(lengths[l]);
+                cb.opIntS(p.opIntSAsync(s).Result);
+            }
         }
 
         {
@@ -2445,6 +3101,34 @@ public class TwowaysAMI
                          cb.exCB(ex);
                     });
                 cb.check();
+            }
+        }
+
+        {
+            Dictionary<string, string> ctx = new Dictionary<string, string>();
+            ctx["one"] = "ONE";
+            ctx["two"] = "TWO";
+            ctx["three"] = "THREE";
+            {
+                test(p.ice_getContext().Count == 0);
+                var cb = new Callback(ctx);
+                cb.opContextNotEqual(p.opContextAsync().Result);
+            }
+            {
+                test(p.ice_getContext().Count == 0);
+                var cb = new Callback(ctx);
+                cb.opContextEqual(p.opContextAsync(ctx).Result);
+            }
+            {
+                var p2 = Test.MyClassPrxHelper.checkedCast(p.ice_context(ctx));
+                test(Ice.CollectionComparer.Equals(p2.ice_getContext(), ctx));
+                var cb = new Callback(ctx);
+                cb.opContextEqual(p2.opContextAsync().Result);
+            }
+            {
+                var p2 = Test.MyClassPrxHelper.checkedCast(p.ice_context(ctx));
+                Callback cb = new Callback(ctx);
+                cb.opContextEqual(p2.opContextAsync(ctx).Result);
             }
         }
 
@@ -2544,12 +3228,81 @@ public class TwowaysAMI
             }
         }
 
+        //
+        // Test implicit context propagation with async task
+        //
         if(p.ice_getConnection() != null)
         {
-            //
-            // Test implicit context propagation
-            //
+            string[] impls = { "Shared", "PerThread" };
+            for(int i = 0; i < 2; i++)
+            {
+                Ice.InitializationData initData = new Ice.InitializationData();
+                initData.properties = communicator.getProperties().ice_clone_();
+                initData.properties.setProperty("Ice.ImplicitContext", impls[i]);
 
+                Ice.Communicator ic = Ice.Util.initialize(initData);
+
+                Dictionary<string, string> ctx = new Dictionary<string, string>();
+                ctx["one"] = "ONE";
+                ctx["two"] = "TWO";
+                ctx["three"] = "THREE";
+
+                Test.MyClassPrx p3 = Test.MyClassPrxHelper.uncheckedCast(
+                                        ic.stringToProxy("test:default -p 12010"));
+
+                ic.getImplicitContext().setContext(ctx);
+                test(Ice.CollectionComparer.Equals(ic.getImplicitContext().getContext(), ctx));
+                {
+                    test(Ice.CollectionComparer.Equals(p3.opContextAsync().Result, ctx));
+                }
+
+                ic.getImplicitContext().put("zero", "ZERO");
+
+                ctx = ic.getImplicitContext().getContext();
+                {
+                    test(Ice.CollectionComparer.Equals(p3.opContextAsync().Result, ctx));
+                }
+
+                Dictionary<string, string> prxContext = new Dictionary<string, string>();
+                prxContext["one"] = "UN";
+                prxContext["four"] = "QUATRE";
+
+                Dictionary<string, string> combined = prxContext;
+                foreach(KeyValuePair<string, string> e in ctx)
+                {
+                    try
+                    {
+                        combined.Add(e.Key, e.Value);
+                    }
+                    catch(System.ArgumentException)
+                    {
+                        // Ignore.
+                    }
+                }
+                test(combined["one"].Equals("UN"));
+
+                p3 = Test.MyClassPrxHelper.uncheckedCast(p.ice_context(prxContext));
+
+                ic.getImplicitContext().setContext(null);
+                {
+                    test(Ice.CollectionComparer.Equals(p3.opContextAsync().Result, prxContext));
+                }
+
+                ic.getImplicitContext().setContext(ctx);
+                {
+                    test(Ice.CollectionComparer.Equals(p3.opContextAsync().Result, combined));
+                }
+
+                //ic.getImplicitContext().setContext(null);
+                ic.destroy();
+            }
+        }
+
+        //
+        // Test implicit context propagation with async result
+        //
+        if(p.ice_getConnection() != null)
+        {
             string[] impls = {"Shared", "PerThread"};
             for(int i = 0; i < 2; i++)
             {
@@ -2624,6 +3377,10 @@ public class TwowaysAMI
         }
 
         {
+            p.opIdempotentAsync().Wait();
+        }
+
+        {
             Ice.AsyncResult r = p.begin_opIdempotent();
             p.end_opIdempotent(r);
         }
@@ -2646,6 +3403,10 @@ public class TwowaysAMI
                      cb.exCB(ex);
                 });
             cb.check();
+        }
+
+        {
+            p.opNonmutatingAsync().Wait();
         }
 
         {
@@ -2674,6 +3435,13 @@ public class TwowaysAMI
         }
 
         {
+            var derived = Test.MyDerivedClassPrxHelper.checkedCast(p);
+            test(derived != null);
+            var cb = new Callback();
+            derived.opDerivedAsync().Wait();
+        }
+
+        {
             Test.MyDerivedClassPrx derived = Test.MyDerivedClassPrxHelper.checkedCast(p);
             test(derived != null);
             Callback cb = new Callback();
@@ -2698,6 +3466,10 @@ public class TwowaysAMI
         }
 
         {
+            test(p.opByte1Async(0xFF).Result == 0xFF);
+        }
+
+        {
             GenericCallback<byte> cb = new GenericCallback<byte>(0);
             p.begin_opByte1(0xFF).whenCompleted(
                 (byte value) =>
@@ -2709,6 +3481,10 @@ public class TwowaysAMI
                     cb.exception(ex);
                 });
             test(cb.succeeded() && cb.value() == 0xFF);
+        }
+
+        {
+            test(p.opShort1Async(0x7FFF).Result == 0x7FFF);
         }
 
         {
@@ -2726,6 +3502,10 @@ public class TwowaysAMI
         }
 
         {
+            test(p.opInt1Async(0x7FFFFFFF).Result == 0x7FFFFFFF);
+        }
+
+        {
             GenericCallback<int> cb = new GenericCallback<int>(0);
             p.begin_opInt1(0x7FFFFFFF).whenCompleted(
                 (int value) =>
@@ -2737,6 +3517,10 @@ public class TwowaysAMI
                     cb.exception(ex);
                 });
             test(cb.succeeded() && cb.value() == 0x7FFFFFFF);
+        }
+
+        {
+            test(p.opLong1Async(0x7FFFFFFFFFFFFFFF).Result == 0x7FFFFFFFFFFFFFFF);
         }
 
         {
@@ -2754,6 +3538,10 @@ public class TwowaysAMI
         }
 
         {
+            test(p.opFloat1Async(1.0f).Result == 1.0f);
+        }
+
+        {
             GenericCallback<float> cb = new GenericCallback<float>(0);
             p.begin_opFloat1(1.0f).whenCompleted(
                 (float value) =>
@@ -2765,6 +3553,10 @@ public class TwowaysAMI
                     cb.exception(ex);
                 });
             test(cb.succeeded() && cb.value() == 1.0f);
+        }
+
+        {
+            test(p.opDouble1Async(1.0d).Result == 1.0d);
         }
 
         {
@@ -2782,6 +3574,10 @@ public class TwowaysAMI
         }
 
         {
+            test(p.opString1Async("opString1").Result.Equals("opString1"));
+        }
+
+        {
             GenericCallback<string> cb = new GenericCallback<string>("");
             p.begin_opString1("opString1").whenCompleted(
                 (string value) =>
@@ -2793,6 +3589,10 @@ public class TwowaysAMI
                     cb.exception(ex);
                 });
             test(cb.succeeded() && cb.value().Equals("opString1"));
+        }
+
+        {
+            test(p.opStringS1Async(null).Result.Length == 0);
         }
 
         {
@@ -2810,6 +3610,10 @@ public class TwowaysAMI
         }
 
         {
+            test(p.opByteBoolD1Async(null).Result.Count == 0);
+        }
+
+        {
             GenericCallback<Dictionary<byte, bool>> cb = new GenericCallback<Dictionary<byte, bool>>(null);
             p.begin_opByteBoolD1(null).whenCompleted(
                 (Dictionary<byte, bool> value) =>
@@ -2822,7 +3626,11 @@ public class TwowaysAMI
                 });
             test(cb.succeeded() && cb.value().Count == 0);
         }
-        
+
+        {
+            test(p.opStringS2Async(null).Result.Length == 0);
+        }
+
         {
             GenericCallback<string[]> cb = new GenericCallback<string[]>(null);
             p.begin_opStringS2(null).whenCompleted(
@@ -2835,6 +3643,10 @@ public class TwowaysAMI
                     cb.exception(ex);
                 });
            test(cb.succeeded() && cb.value().Length == 0);
+        }
+
+        {
+            test(p.opByteBoolD2Async(null).Result.Count == 0);
         }
 
         {

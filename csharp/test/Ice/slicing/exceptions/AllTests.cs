@@ -153,6 +153,28 @@ public class AllTests : TestCommon.TestApp
                     cb.called();
                 });
             cb.check();
+
+            try
+            {
+                testPrx.baseAsBaseAsync().Wait();
+                test(false);
+            }
+            catch(AggregateException ae)
+            {
+                try
+                {
+                    throw ae.InnerException;
+                }
+                catch(Base b)
+                {
+                    test(b.b.Equals("Base.b"));
+                    test(b.GetType().Name.Equals("Base"));
+                }
+                catch(Exception)
+                {
+                    test(false);
+                }
+            }
         }
         WriteLine("ok");
 
@@ -203,6 +225,28 @@ public class AllTests : TestCommon.TestApp
                     cb.called();
                 });
             cb.check();
+
+            try
+            {
+                testPrx.unknownDerivedAsBaseAsync().Wait();
+                test(false);
+            }
+            catch(AggregateException ae)
+            {
+                try
+                {
+                    throw ae.InnerException;
+                }
+                catch(Base b)
+                {
+                    test(b.b.Equals("UnknownDerived.b"));
+                    test(b.GetType().Name.Equals("Base"));
+                }
+                catch(Exception)
+                {
+                    test(false);
+                }
+            }
         }
         WriteLine("ok");
 
@@ -255,6 +299,29 @@ public class AllTests : TestCommon.TestApp
                     cb.called();
                 });
             cb.check();
+
+            try
+            {
+                testPrx.knownDerivedAsBaseAsync().Wait();
+                test(false);
+            }
+            catch(AggregateException ae)
+            {
+                try
+                {
+                    throw ae.InnerException;
+                }
+                catch(KnownDerived k)
+                {
+                    test(k.b.Equals("KnownDerived.b"));
+                    test(k.kd.Equals("KnownDerived.kd"));
+                    test(k.GetType().Name.Equals("KnownDerived"));
+                }
+                catch(Exception)
+                {
+                    test(false);
+                }
+            }
         }
         WriteLine("ok");
 
@@ -307,6 +374,29 @@ public class AllTests : TestCommon.TestApp
                     cb.called();
                 });
             cb.check();
+
+            try
+            {
+                testPrx.knownDerivedAsKnownDerivedAsync().Wait();
+                test(false);
+            }
+            catch(AggregateException ae)
+            {
+                try
+                {
+                    throw ae.InnerException;
+                }
+                catch(KnownDerived k)
+                {
+                    test(k.b.Equals("KnownDerived.b"));
+                    test(k.kd.Equals("KnownDerived.kd"));
+                    test(k.GetType().Name.Equals("KnownDerived"));
+                }
+                catch(Exception)
+                {
+                    test(false);
+                }
+            }
         }
         WriteLine("ok");
 
@@ -357,6 +447,28 @@ public class AllTests : TestCommon.TestApp
                     cb.called();
                 });
             cb.check();
+
+            try
+            {
+                testPrx.unknownIntermediateAsBaseAsync().Wait();
+                test(false);
+            }
+            catch(AggregateException ae)
+            {
+                try
+                {
+                    throw ae.InnerException;
+                }
+                catch(Base b)
+                {
+                    test(b.b.Equals("UnknownIntermediate.b"));
+                    test(b.GetType().Name.Equals("Base"));
+                }
+                catch(Exception)
+                {
+                    test(false);
+                }
+            }
         }
         WriteLine("ok");
 
@@ -409,6 +521,29 @@ public class AllTests : TestCommon.TestApp
                     cb.called();
                 });
             cb.check();
+
+            try
+            {
+                testPrx.knownIntermediateAsBaseAsync().Wait();
+                test(false);
+            }
+            catch(AggregateException ae)
+            {
+                try
+                {
+                    throw ae.InnerException;
+                }
+                catch(KnownIntermediate ki)
+                {
+                    test(ki.b.Equals("KnownIntermediate.b"));
+                    test(ki.ki.Equals("KnownIntermediate.ki"));
+                    test(ki.GetType().Name.Equals("KnownIntermediate"));
+                }
+                catch(Exception)
+                {
+                    test(false);
+                }
+            }
         }
         WriteLine("ok");
 
@@ -463,6 +598,30 @@ public class AllTests : TestCommon.TestApp
                     cb.called();
                 });
             cb.check();
+
+            try
+            {
+                testPrx.knownMostDerivedAsBaseAsync().Wait();
+                test(false);
+            }
+            catch(AggregateException ae)
+            {
+                try
+                {
+                    throw ae.InnerException;
+                }
+                catch(KnownMostDerived kmd)
+                {
+                    test(kmd.b.Equals("KnownMostDerived.b"));
+                    test(kmd.ki.Equals("KnownMostDerived.ki"));
+                    test(kmd.kmd.Equals("KnownMostDerived.kmd"));
+                    test(kmd.GetType().Name.Equals("KnownMostDerived"));
+                }
+                catch(Exception)
+                {
+                    test(false);
+                }
+            }
         }
         WriteLine("ok");
 
@@ -515,6 +674,29 @@ public class AllTests : TestCommon.TestApp
                     cb.called();
                 });
             cb.check();
+
+            try
+            {
+                testPrx.knownIntermediateAsKnownIntermediateAsync().Wait();
+                test(false);
+            }
+            catch(AggregateException ae)
+            {
+                try
+                {
+                    throw ae.InnerException;
+                }
+                catch(KnownIntermediate ki)
+                {
+                    test(ki.b.Equals("KnownIntermediate.b"));
+                    test(ki.ki.Equals("KnownIntermediate.ki"));
+                    test(ki.GetType().Name.Equals("KnownIntermediate"));
+                }
+                catch(Exception)
+                {
+                    test(false);
+                }
+            }
         }
         WriteLine("ok");
 
@@ -551,24 +733,48 @@ public class AllTests : TestCommon.TestApp
                 },
                 (Ice.Exception ex) =>
                 {
- try
-            {
-                throw ex;
-            }
-            catch(KnownMostDerived kmd)
-            {
-                test(kmd.b.Equals("KnownMostDerived.b"));
-                test(kmd.ki.Equals("KnownMostDerived.ki"));
-                test(kmd.kmd.Equals("KnownMostDerived.kmd"));
-                test(kmd.GetType().Name.Equals("KnownMostDerived"));
-            }
-            catch(Exception)
-            {
-                test(false);
-            }
-            cb.called();
+                    try
+                    {
+                        throw ex;
+                    }
+                    catch(KnownMostDerived kmd)
+                    {
+                        test(kmd.b.Equals("KnownMostDerived.b"));
+                        test(kmd.ki.Equals("KnownMostDerived.ki"));
+                        test(kmd.kmd.Equals("KnownMostDerived.kmd"));
+                        test(kmd.GetType().Name.Equals("KnownMostDerived"));
+                    }
+                    catch(Exception)
+                    {
+                        test(false);
+                    }
+                    cb.called();
                 });
             cb.check();
+
+            try
+            {
+                testPrx.knownMostDerivedAsKnownIntermediateAsync().Wait();
+                test(false);
+            }
+            catch(AggregateException ae)
+            {
+                try
+                {
+                    throw ae.InnerException;
+                }
+                catch(KnownMostDerived kmd)
+                {
+                    test(kmd.b.Equals("KnownMostDerived.b"));
+                    test(kmd.ki.Equals("KnownMostDerived.ki"));
+                    test(kmd.kmd.Equals("KnownMostDerived.kmd"));
+                    test(kmd.GetType().Name.Equals("KnownMostDerived"));
+                }
+                catch(Exception)
+                {
+                    test(false);
+                }
+            }
         }
         WriteLine("ok");
 
@@ -623,6 +829,30 @@ public class AllTests : TestCommon.TestApp
                     cb.called();
                 });
             cb.check();
+
+            try
+            {
+                testPrx.knownMostDerivedAsKnownMostDerivedAsync().Wait();
+                test(false);
+            }
+            catch(AggregateException ae)
+            {
+                try
+                {
+                    throw ae.InnerException;
+                }
+                catch(KnownMostDerived kmd)
+                {
+                    test(kmd.b.Equals("KnownMostDerived.b"));
+                    test(kmd.ki.Equals("KnownMostDerived.ki"));
+                    test(kmd.kmd.Equals("KnownMostDerived.kmd"));
+                    test(kmd.GetType().Name.Equals("KnownMostDerived"));
+                }
+                catch(Exception)
+                {
+                    test(false);
+                }
+            }
         }
         WriteLine("ok");
 
@@ -675,6 +905,29 @@ public class AllTests : TestCommon.TestApp
                     cb.called();
                 });
             cb.check();
+
+            try
+            {
+                testPrx.unknownMostDerived1AsBaseAsync().Wait();
+                test(false);
+            }
+            catch(AggregateException ae)
+            {
+                try
+                {
+                    throw ae.InnerException;
+                }
+                catch(KnownIntermediate ki)
+                {
+                    test(ki.b.Equals("UnknownMostDerived1.b"));
+                    test(ki.ki.Equals("UnknownMostDerived1.ki"));
+                    test(ki.GetType().Name.Equals("KnownIntermediate"));
+                }
+                catch(Exception)
+                {
+                    test(false);
+                }
+            }
         }
         WriteLine("ok");
 
@@ -727,6 +980,29 @@ public class AllTests : TestCommon.TestApp
                     cb.called();
                 });
             cb.check();
+
+            try
+            {
+                testPrx.unknownMostDerived1AsKnownIntermediateAsync().Wait();
+                test(false);
+            }
+            catch(AggregateException ae)
+            {
+                try
+                {
+                    throw ae.InnerException;
+                }
+                catch(KnownIntermediate ki)
+                {
+                    test(ki.b.Equals("UnknownMostDerived1.b"));
+                    test(ki.ki.Equals("UnknownMostDerived1.ki"));
+                    test(ki.GetType().Name.Equals("KnownIntermediate"));
+                }
+                catch(Exception)
+                {
+                    test(false);
+                }
+            }
         }
         WriteLine("ok");
 
@@ -777,6 +1053,28 @@ public class AllTests : TestCommon.TestApp
                     cb.called();
                 });
             cb.check();
+
+            try
+            {
+                testPrx.unknownMostDerived2AsBaseAsync().Wait();
+                test(false);
+            }
+            catch(AggregateException ae)
+            {
+                try
+                {
+                    throw ae.InnerException;
+                }
+                catch(Base b)
+                {
+                    test(b.b.Equals("UnknownMostDerived2.b"));
+                    test(b.GetType().Name.Equals("Base"));
+                }
+                catch(Exception)
+                {
+                    test(false);
+                }
+            }
         }
         WriteLine("ok");
 
@@ -850,12 +1148,6 @@ public class AllTests : TestCommon.TestApp
                 test(ex.kp.Equals("preserved"));
                 test(ex.kpd.Equals("derived"));
             }
-            /*
-            catch(Exception)
-            {
-                test(false);
-            }
-            */
             catch(Ice.OperationNotExistException)
             {
             }
