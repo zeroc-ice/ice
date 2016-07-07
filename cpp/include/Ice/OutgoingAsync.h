@@ -261,7 +261,7 @@ public:
     void invoke(const std::string&);
 #ifdef ICE_CPP11_MAPPING
     void invoke(const std::string&, Ice::OperationMode, Ice::FormatType, const Ice::Context&,
-                const std::function<void(Ice::OutputStream*)>&);
+                std::function<void(Ice::OutputStream*)>);
     void throwUserException();
 #endif
 
@@ -392,7 +392,7 @@ class ICE_API LambdaInvoke : virtual public OutgoingAsyncCompletionCallback
 {
 public:
 
-    LambdaInvoke(std::function<void(::std::exception_ptr)>&& exception, std::function<void(bool)>&& sent) :
+    LambdaInvoke(std::function<void(::std::exception_ptr)> exception, std::function<void(bool)> sent) :
         _exception(std::move(exception)), _sent(std::move(sent))
     {
     }
@@ -482,8 +482,8 @@ public:
            Ice::OperationMode mode,
            Ice::FormatType format,
            const Ice::Context& ctx,
-           std::function<void(Ice::OutputStream*)>&& write,
-           std::function<void(const Ice::UserException&)>&& userException)
+           std::function<void(Ice::OutputStream*)> write,
+           std::function<void(const Ice::UserException&)> userException)
     {
         _read = [](Ice::InputStream* stream)
         {
@@ -492,7 +492,7 @@ public:
             return v;
         };
         _userException = std::move(userException);
-        OutgoingAsync::invoke(operation, mode, format, ctx, write);
+        OutgoingAsync::invoke(operation, mode, format, ctx, std::move(write));
     }
 
     void
@@ -500,13 +500,13 @@ public:
            Ice::OperationMode mode,
            Ice::FormatType format,
            const Ice::Context& ctx,
-           std::function<void(Ice::OutputStream*)>&& write,
-           std::function<void(const Ice::UserException&)>&& userException,
-           std::function<T(Ice::InputStream*)>&& read)
+           std::function<void(Ice::OutputStream*)> write,
+           std::function<void(const Ice::UserException&)> userException,
+           std::function<T(Ice::InputStream*)> read)
     {
         _read = std::move(read);
         _userException = std::move(userException);
-        OutgoingAsync::invoke(operation, mode, format, ctx, write);
+        OutgoingAsync::invoke(operation, mode, format, ctx, std::move(write));
     }
 
 protected:
@@ -526,11 +526,11 @@ public:
            Ice::OperationMode mode,
            Ice::FormatType format,
            const Ice::Context& ctx,
-           std::function<void(Ice::OutputStream*)>&& write,
-           std::function<void(const Ice::UserException&)>&& userException)
+           std::function<void(Ice::OutputStream*)> write,
+           std::function<void(const Ice::UserException&)> userException)
     {
         _userException = std::move(userException);
-        OutgoingAsync::invoke(operation, mode, format, ctx, write);
+        OutgoingAsync::invoke(operation, mode, format, ctx, std::move(write));
     }
 };
 
@@ -541,8 +541,8 @@ public:
 
     LambdaOutgoing(const std::shared_ptr<Ice::ObjectPrx>& proxy,
                    std::function<void(R)> response,
-                   std::function<void(::std::exception_ptr)>& ex,
-                   std::function<void(bool)>& sent) :
+                   std::function<void(::std::exception_ptr)> ex,
+                   std::function<void(bool)> sent) :
         OutgoingAsyncT<R>(proxy), LambdaInvoke(std::move(ex), std::move(sent))
     {
         _response = [this, response](bool ok)
@@ -577,8 +577,8 @@ public:
 
     LambdaOutgoing(const std::shared_ptr<Ice::ObjectPrx>& proxy,
                    std::function<void()> response,
-                   std::function<void(::std::exception_ptr)>& ex,
-                   std::function<void(bool)>& sent) :
+                   std::function<void(::std::exception_ptr)> ex,
+                   std::function<void(bool)> sent) :
         OutgoingAsyncT<void>(proxy), LambdaInvoke(std::move(ex), std::move(sent))
     {
         _response = [this, response](bool ok)
@@ -613,8 +613,8 @@ public:
 
     CustomLambdaOutgoing(const std::shared_ptr<Ice::ObjectPrx>& proxy,
                          std::function<void(Ice::InputStream*)> read,
-                         std::function<void(::std::exception_ptr)>& ex,
-                         std::function<void(bool)>& sent) :
+                         std::function<void(::std::exception_ptr)> ex,
+                         std::function<void(bool)> sent) :
         OutgoingAsync(proxy), LambdaInvoke(std::move(ex), std::move(sent))
     {
         _response = [this, read](bool ok)
@@ -638,11 +638,11 @@ public:
            Ice::OperationMode mode,
            Ice::FormatType format,
            const Ice::Context& ctx,
-           std::function<void(Ice::OutputStream*)>&& write,
-           std::function<void(const Ice::UserException&)>&& userException)
+           std::function<void(Ice::OutputStream*)> write,
+           std::function<void(const Ice::UserException&)> userException)
     {
         _userException = std::move(userException);
-        OutgoingAsync::invoke(operation, mode, format, ctx, write);
+        OutgoingAsync::invoke(operation, mode, format, ctx, std::move(write));
     }
 };
 

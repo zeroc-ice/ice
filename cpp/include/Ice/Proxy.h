@@ -119,8 +119,8 @@ public:
 
     InvokeLambdaOutgoing(const ::std::shared_ptr<::Ice::ObjectPrx>& proxy,
                          ::std::function<void(R)> response,
-                         ::std::function<void(::std::exception_ptr)>& ex,
-                         ::std::function<void(bool)>& sent) :
+                         ::std::function<void(::std::exception_ptr)> ex,
+                         ::std::function<void(bool)> sent) :
         InvokeOutgoingAsyncT<R>(proxy), LambdaInvoke(::std::move(ex), ::std::move(sent))
     {
         if(response)
@@ -179,8 +179,8 @@ public:
     ProxyGetConnectionLambda(const ::std::shared_ptr<::Ice::ObjectPrx>& proxy,
                              ::std::function<::std::shared_ptr<Ice::Connection>()> getConnection,
                              ::std::function<void(::std::shared_ptr<Ice::Connection>)> response,
-                             ::std::function<void(::std::exception_ptr)>& ex,
-                             ::std::function<void(bool)>& sent) :
+                             ::std::function<void(::std::exception_ptr)> ex,
+                             ::std::function<void(bool)> sent) :
         ProxyGetConnection(proxy), LambdaInvoke(::std::move(ex), ::std::move(sent))
     {
         _response = [response, getConnection](bool)
@@ -211,8 +211,8 @@ class ProxyFlushBatchLambda : public ProxyFlushBatchAsync, public LambdaInvoke
 public:
 
     ProxyFlushBatchLambda(const ::std::shared_ptr<::Ice::ObjectPrx>& proxy,
-                          ::std::function<void(::std::exception_ptr)>& ex,
-                          ::std::function<void(bool)>& sent) :
+                          ::std::function<void(::std::exception_ptr)> ex,
+                          ::std::function<void(bool)> sent) :
         ProxyFlushBatchAsync(proxy), LambdaInvoke(::std::move(ex), ::std::move(sent))
     {
     }
