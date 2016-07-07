@@ -3174,6 +3174,11 @@ private:
 {
     NSAssert(NO, @"ICEObjectDictionaryHelper write requires override");
 }
+
++(Class) getOptionalHelper
+{
+    return [ICEVarLengthOptionalHelper class];
+}
 @end
 
 @implementation ICEVarLengthOptionalHelper
