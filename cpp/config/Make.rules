@@ -213,7 +213,7 @@ endif
 
 ifneq ($(UNAME),MINGW)
 ifneq ($(BZIP2_HOME),)
-    BZIP2_FLAGS         = -I$(BZIP2_HOME)/include)
+    BZIP2_FLAGS         = -I$(BZIP2_HOME)/include
 endif
 ifeq ($(BZIP2_LIBS),)
     BZIP2_LIBS          = $(if $(BZIP2_HOME),-L$(BZIP2_HOME)/$(libsubdir)) -lbz2
