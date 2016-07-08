@@ -188,6 +188,22 @@ waitForCurrent(const IceMX::MetricsAdminPrxPtr& metrics, const string& viewName,
     }
 }
 
+void
+waitForCurrent(const ObserverIPtr& observer, int value)
+{
+    for(int i = 0; i < 10; ++i)
+    {
+        if(observer->getCurrent() != value)
+        {
+            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(50));
+        }
+        else
+        {
+            break;
+        }
+    }
+};
+
 template<typename T> void
 testAttribute(const IceMX::MetricsAdminPrxPtr& metrics,
               const Ice::PropertiesAdminPrxPtr& props,
@@ -1429,35 +1445,19 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
 #if !defined(ICE_OS_WINRT) && TARGET_OS_IPHONE==0
         test(obsv->endpointLookupObserver->getCurrent() == 0);
 #endif
+        waitForCurrent(obsv->invocationObserver->remoteObserver, 0);
         test(obsv->invocationObserver->remoteObserver->getCurrent() == 0);
     }
     else
     {
-        for(int i = 0; i < 10; ++i)
-        {
-            if(obsv->invocationObserver->collocatedObserver->getCurrent() > 0)
-            {
-                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(50));
-            }
-            else
-            {
-                break;
-            }
-        }
+        waitForCurrent(obsv->invocationObserver->collocatedObserver, 0);
         test(obsv->invocationObserver->collocatedObserver->getCurrent() == 0);
     }
+
+    waitForCurrent(obsv->dispatchObserver, 0);
     test(obsv->dispatchObserver->getCurrent() == 0);
-    for(int i = 0; i < 10; ++i)
-    {
-        if(obsv->invocationObserver->getCurrent() > 0)
-        {
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(50));
-        }
-        else
-        {
-            break;
-        }
-    }
+
+    waitForCurrent(obsv->invocationObserver, 0);
     test(obsv->invocationObserver->getCurrent() == 0);
 
     test(obsv->threadObserver->getFailedCount() == 0);

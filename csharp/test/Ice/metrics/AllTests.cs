@@ -194,6 +194,22 @@ public class AllTests : TestCommon.TestApp
     }
 
     static void
+    waitForObserverCurrent(ObserverI observer, int value)
+    {
+        for(int i = 0; i < 10; ++i)
+        {
+            if(observer.getCurrent() > 0)
+            {
+                Thread.Sleep(10);
+            }
+            else
+            {
+                break;
+            }
+        }
+    }
+
+    static void
     testAttribute(IceMX.MetricsAdminPrx metrics,
                   Ice.PropertiesAdminPrx props,
                   UpdateCallbackI update,
@@ -1172,24 +1188,17 @@ public class AllTests : TestCommon.TestApp
             test(obsv.connectionObserver.getCurrent() > 0);
             test(obsv.connectionEstablishmentObserver.getCurrent() == 0);
             test(obsv.endpointLookupObserver.getCurrent() == 0);
+            waitForObserverCurrent(obsv.invocationObserver.remoteObserver, 0);
             test(obsv.invocationObserver.remoteObserver.getCurrent() == 0);
         }
         else
         {
-            for(int i = 0; i < 10; ++i)
-            {
-                if(obsv.invocationObserver.collocatedObserver.getCurrent() > 0)
-                {
-                    Thread.Sleep(10);
-                }
-                else
-                {
-                    break;
-                }
-            }
+            waitForObserverCurrent(obsv.invocationObserver.collocatedObserver, 0);
             test(obsv.invocationObserver.collocatedObserver.getCurrent() == 0);
         }
+        waitForObserverCurrent(obsv.dispatchObserver, 0);
         test(obsv.dispatchObserver.getCurrent() == 0);
+        waitForObserverCurrent(obsv.invocationObserver, 0);
         test(obsv.invocationObserver.getCurrent() == 0);
 
         test(obsv.threadObserver.getFailedCount() == 0);
