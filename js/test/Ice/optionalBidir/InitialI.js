@@ -106,15 +106,7 @@
         {
             return [p1, p1];
         },
-        opByteReq: function(p1, current)
-        {
-            return [p1, p1];
-        },
         opBool: function(p1, current)
-        {
-            return [p1, p1];
-        },
-        opBoolReq: function(p1, current)
         {
             return [p1, p1];
         },
@@ -122,15 +114,7 @@
         {
             return [p1, p1];
         },
-        opShortReq: function(p1, current)
-        {
-            return [p1, p1];
-        },
         opInt: function(p1, current)
-        {
-            return [p1, p1];
-        },
-        opIntReq: function(p1, current)
         {
             return [p1, p1];
         },
@@ -138,15 +122,7 @@
         {
             return [p1, p1];
         },
-        opLongReq: function(p1, current)
-        {
-            return [p1, p1];
-        },
         opFloat: function(p1, current)
-        {
-            return [p1, p1];
-        },
-        opFloatReq: function(p1, current)
         {
             return [p1, p1];
         },
@@ -154,15 +130,7 @@
         {
             return [p1, p1];
         },
-        opDoubleReq: function(p1, current)
-        {
-            return [p1, p1];
-        },
         opString: function(p1, current)
-        {
-            return [p1, p1];
-        },
-        opStringReq: function(p1, current)
         {
             return [p1, p1];
         },
@@ -170,15 +138,7 @@
         {
             return [p1, p1];
         },
-        opMyEnumReq: function(p1, current)
-        {
-            return [p1, p1];
-        },
         opSmallStruct: function(p1, current)
-        {
-            return [p1, p1];
-        },
-        opSmallStructReq: function(p1, current)
         {
             return [p1, p1];
         },
@@ -186,15 +146,7 @@
         {
             return [p1, p1];
         },
-        opFixedStructReq: function(p1, current)
-        {
-            return [p1, p1];
-        },
         opVarStruct: function(p1, current)
-        {
-            return [p1, p1];
-        },
-        opVarStructReq: function(p1, current)
         {
             return [p1, p1];
         },
@@ -202,15 +154,7 @@
         {
             return [p1, p1];
         },
-        opOneOptionalReq: function(p1, current)
-        {
-            return [p1, p1];
-        },
         opOneOptionalProxy: function(p1, current)
-        {
-            return [p1, p1];
-        },
-        opOneOptionalProxyReq: function(p1, current)
         {
             return [p1, p1];
         },
@@ -218,15 +162,7 @@
         {
             return [p1, p1];
         },
-        opByteSeqReq: function(p1, current)
-        {
-            return [p1, p1];
-        },
         opBoolSeq: function(p1, current)
-        {
-            return [p1, p1];
-        },
-        opBoolSeqReq: function(p1, current)
         {
             return [p1, p1];
         },
@@ -234,15 +170,7 @@
         {
             return [p1, p1];
         },
-        opShortSeqReq: function(p1, current)
-        {
-            return [p1, p1];
-        },
         opIntSeq: function(p1, current)
-        {
-            return [p1, p1];
-        },
-        opIntSeqReq: function(p1, current)
         {
             return [p1, p1];
         },
@@ -250,15 +178,7 @@
         {
             return [p1, p1];
         },
-        opLongSeqReq: function(p1, current)
-        {
-            return [p1, p1];
-        },
         opFloatSeq: function(p1, current)
-        {
-            return [p1, p1];
-        },
-        opFloatSeqReq: function(p1, current)
         {
             return [p1, p1];
         },
@@ -266,15 +186,7 @@
         {
             return [p1, p1];
         },
-        opDoubleSeqReq: function(p1, current)
-        {
-            return [p1, p1];
-        },
         opStringSeq: function(p1, current)
-        {
-            return [p1, p1];
-        },
-        opStringSeqReq: function(p1, current)
         {
             return [p1, p1];
         },
@@ -282,15 +194,7 @@
         {
             return [p1, p1];
         },
-        opSmallStructSeqReq: function(p1, current)
-        {
-            return [p1, p1];
-        },
         opSmallStructList: function(p1, current)
-        {
-            return [p1, p1];
-        },
-        opSmallStructListReq: function(p1, current)
         {
             return [p1, p1];
         },
@@ -298,15 +202,7 @@
         {
             return [p1, p1];
         },
-        opFixedStructSeqReq: function(p1, current)
-        {
-            return [p1, p1];
-        },
         opFixedStructList: function(p1, current)
-        {
-            return [p1, p1];
-        },
-        opFixedStructListReq: function(p1, current)
         {
             return [p1, p1];
         },
@@ -314,15 +210,7 @@
         {
             return [p1, p1];
         },
-        opVarStructSeqReq: function(p1, current)
-        {
-            return [p1, p1];
-        },
         opSerializable: function(p1, current)
-        {
-            return [p1, p1];
-        },
-        opSerializableReq: function(p1, current)
         {
             return [p1, p1];
         },
@@ -330,15 +218,11 @@
         {
             return [p1, p1];
         },
-        opIntIntDictReq: function(p1, current)
-        {
-            return [p1, p1];
-        },
         opStringIntDict: function(p1, current)
         {
             return [p1, p1];
         },
-        opStringIntDictReq: function(p1, current)
+        opIntOneOptionalDict: function(p1, current)
         {
             return [p1, p1];
         },
