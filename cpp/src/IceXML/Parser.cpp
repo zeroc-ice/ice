@@ -11,6 +11,7 @@
 #include <IceUtil/FileUtil.h>
 #include <expat.h>
 #include <list>
+#include <fstream>
 
 using namespace std;
 using namespace IceXML;
@@ -401,7 +402,7 @@ IceXML::Parser::parse(istream& in)
 void
 IceXML::Parser::parse(const string& file, Handler& handler) // The given filename must be UTF-8 encoded
 {
-    IceUtilInternal::ifstream in(file);
+    ifstream in(IceUtilInternal::streamFilename(file));
     if(!in.good())
     {
         ostringstream out;

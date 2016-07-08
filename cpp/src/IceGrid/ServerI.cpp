@@ -22,6 +22,7 @@
 #include <IceUtil/FileUtil.h>
 
 #include <sys/types.h>
+#include <fstream>
 
 #ifdef _WIN32
 #  include <direct.h>
@@ -2311,7 +2312,7 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
             knownFiles.push_back(p->first);
 
             const string configFilePath = _serverDir + "/config/" + p->first;
-            IceUtilInternal::ofstream configfile(configFilePath); // configFilePath is a UTF-8 string
+            ofstream configfile(IceUtilInternal::streamFilename(configFilePath)); // configFilePath is a UTF-8 string
             if(!configfile.good())
             {
                 throw "couldn't create configuration file: " + configFilePath;
@@ -2413,7 +2414,7 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
             {
                 string file = dbEnvHome + "/DB_CONFIG";
 
-                IceUtilInternal::ofstream configfile(file); // file is a UTF-8 string
+                ofstream configfile(IceUtilInternal::streamFilename(file)); // file is a UTF-8 string
                 if(!configfile.good())
                 {
                     throw "couldn't create configuration file `" + file + "'";
@@ -2485,7 +2486,7 @@ ServerI::checkRevision(const string& replicaName, const string& uuid, int revisi
     else
     {
         string idFilePath = _serverDir + "/revision";
-        IceUtilInternal::ifstream is(idFilePath); // idFilePath is a UTF-8 string
+        ifstream is(IceUtilInternal::streamFilename(idFilePath)); // idFilePath is a UTF-8 string
         if(!is.good())
         {
             return;
@@ -2674,7 +2675,7 @@ ServerI::updateRevision(const string& uuid, int revision)
     }
 
     string idFilePath = _serverDir + "/revision";
-    IceUtilInternal::ofstream os(idFilePath); // idFilePath is a UTF-8 string
+    ofstream os(IceUtilInternal::streamFilename(idFilePath)); // idFilePath is a UTF-8 string
     if(os.good())
     {
         os << "#" << endl;

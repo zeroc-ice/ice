@@ -14,6 +14,7 @@
 #include <IceUtil/MutexPtrLock.h>
 
 #include <Ice/LocalException.h>
+#include <IceUtil/FileUtil.h>
 
 using namespace std;
 using namespace Ice;
@@ -69,7 +70,7 @@ Ice::LoggerI::LoggerI(const string& prefix, const string& file,
     if(!file.empty())
     {
         _file = file;
-        _out.open(file, fstream::out | fstream::app);
+        _out.open(IceUtilInternal::streamFilename(file), fstream::out | fstream::app);
         if(!_out.is_open())
         {
             throw InitializationException(__FILE__, __LINE__, "FileLogger: cannot open " + _file);
@@ -198,7 +199,7 @@ Ice::LoggerI::write(const string& message, bool indent)
 
                 int err = IceUtilInternal::rename(_file, archive);
 
-                _out.open(_file, fstream::out | fstream::app);
+                _out.open(IceUtilInternal::streamFilename(_file), fstream::out | fstream::app);
 
                 if(err)
                 {

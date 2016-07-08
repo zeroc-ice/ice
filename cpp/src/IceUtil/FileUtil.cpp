@@ -344,68 +344,13 @@ IceUtilInternal::FileLock::~FileLock()
     unlink(_path);
 }
 
-IceUtilInternal::ifstream::ifstream()
+#ifndef __MINGW32__
+const wchar_t*
+IceUtilInternal::streamFilename(const string& filename)
 {
+    return IceUtil::stringToWstring(filename, IceUtil::getProcessStringConverter()).c_str();
 }
-
-IceUtilInternal::ifstream::ifstream(const string& path, ios_base::openmode mode) :
-#ifdef  __MINGW32__
-    std::ifstream(path.c_str(), mode)
-#else
-    //
-    // Don't need to use a wide string converter, the wide string is directly passed
-    // to Windows API.
-    //
-    std::ifstream(IceUtil::stringToWstring(path, IceUtil::getProcessStringConverter()).c_str(), mode)
 #endif
-{
-}
-
-void
-IceUtilInternal::ifstream::open(const string& path, ios_base::openmode mode)
-{
-#ifdef  __MINGW32__
-    std::ifstream::open(path.c_str(), mode);
-#else
-    //
-    // Don't need to use a wide string converter, the wide string is directly passed
-    // to Windows API.
-    //
-    std::ifstream::open(IceUtil::stringToWstring(path, IceUtil::getProcessStringConverter()).c_str(), mode);
-#endif
-}
-
-IceUtilInternal::ofstream::ofstream()
-{
-}
-
-IceUtilInternal::ofstream::ofstream(const string& path, ios_base::openmode mode) :
-#ifdef __MINGW32__
-    std::ofstream(path.c_str(), mode)
-#else
-    //
-    // Don't need to use a wide string converter, the wide string is directly passed
-    // to Windows API.
-    //
-    std::ofstream(IceUtil::stringToWstring(path, IceUtil::getProcessStringConverter()).c_str(), mode)
-#endif
-{
-}
-
-void
-IceUtilInternal::ofstream::open(const string& path, ios_base::openmode mode)
-{
-#ifdef __MINGW32__
-    std::ofstream::open(path.c_str(), mode);
-#else
-    //
-    // Don't need to use a wide string converter, the wide string is directly passed
-    // to Windows API.
-    //
-    std::ofstream::open(IceUtil::stringToWstring(path, IceUtil::getProcessStringConverter()).c_str(), mode);
-#endif
-}
-
 
 #else
 
@@ -539,34 +484,6 @@ IceUtilInternal::FileLock::~FileLock()
     assert(_fd > -1);
     ::close(_fd);
     unlink(_path);
-}
-
-IceUtilInternal::ifstream::ifstream()
-{
-}
-
-IceUtilInternal::ifstream::ifstream(const string& path, ios_base::openmode mode) : std::ifstream(path.c_str(), mode)
-{
-}
-
-void
-IceUtilInternal::ifstream::open(const string& path, ios_base::openmode mode)
-{
-    std::ifstream::open(path.c_str(), mode);
-}
-
-IceUtilInternal::ofstream::ofstream()
-{
-}
-
-IceUtilInternal::ofstream::ofstream(const string& path, ios_base::openmode mode) : std::ofstream(path.c_str(), mode)
-{
-}
-
-void
-IceUtilInternal::ofstream::open(const string& path, ios_base::openmode mode)
-{
-    std::ofstream::open(path.c_str(), mode);
 }
 
 #endif

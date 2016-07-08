@@ -1776,7 +1776,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
         //
         if(_pidFile.size() > 0)
         {
-            IceUtilInternal::ofstream of(_pidFile);
+            ofstream of(_pidFile.c_str());
             of << getpid() << endl;
 
             if(!of)

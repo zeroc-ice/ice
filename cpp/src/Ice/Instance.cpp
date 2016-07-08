@@ -45,6 +45,7 @@
 #include <Ice/Functional.h>
 
 #include <IceUtil/DisableWarnings.h>
+#include <IceUtil/FileUtil.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/UUID.h>
 #include <IceUtil/Mutex.h>

@@ -8,10 +8,12 @@
 // **********************************************************************
 
 #include <IceUtil/Options.h>
-#include <Ice/Application.h>
+#include <IceUtil/FileUtil.h>
+#include <Ice/Ice.h>
 #include <IceDB/IceDB.h>
 #include <IceStorm/DBTypes.h>
 #include <IceUtil/DisableWarnings.h>
+#include <fstream>
 
 using namespace std;
 using namespace Ice;
@@ -157,7 +159,7 @@ Client::run(int argc, char* argv[])
                 return EXIT_FAILURE;
             }
 
-            ifstream fs(dbFile.c_str(), ios::binary);
+            ifstream fs(IceUtilInternal::streamFilename(dbFile), ios::binary);
             if(fs.fail())
             {
                 cerr << argv[0] << ": could not open input file: " << strerror(errno) << endl;
@@ -300,7 +302,7 @@ Client::run(int argc, char* argv[])
             stream.write(ICE_INT_VERSION);
             stream.write(data);
 
-            ofstream fs(dbFile.c_str(), ios::binary);
+            ofstream fs(IceUtilInternal::streamFilename(dbFile), ios::binary);
             if(fs.fail())
             {
                 cerr << argv[0] << ": could not open output file: " << strerror(errno) << endl;

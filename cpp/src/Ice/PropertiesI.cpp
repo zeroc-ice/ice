@@ -16,6 +16,7 @@
 #include <Ice/Logger.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/Communicator.h>
+#include <fstream>
 
 using namespace std;
 using namespace Ice;
@@ -398,7 +399,7 @@ Ice::PropertiesI::load(const std::string& file)
     else
 #endif
     {
-        IceUtilInternal::ifstream in(file);
+        ifstream in(IceUtilInternal::streamFilename(file));
         if(!in)
         {
             FileException ex(__FILE__, __LINE__);

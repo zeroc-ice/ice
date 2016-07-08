@@ -19,6 +19,7 @@
 
 #include <set>
 #include <climits>
+#include <fstream>
 
 #if defined(_WIN32)
 #   include <pdhmsg.h> // For PDH_MORE_DATA
@@ -300,7 +301,7 @@ PlatformInfo::PlatformInfo(const string& prefix,
 #if defined(_WIN32)
         _nProcessorSockets = getSocketCount(_traceLevels->logger);
 #elif defined(__linux)
-        IceUtilInternal::ifstream is(string("/proc/cpuinfo"));
+        ifstream is("/proc/cpuinfo");
         set<string> ids;
         
         int nprocessor = 0;

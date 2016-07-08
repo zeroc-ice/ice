@@ -20,6 +20,7 @@
 #include <Ice/LocalException.h>
 #include <Ice/Network.h>
 #include <Ice/Object.h>
+#include <fstream>
 
 #ifdef ICE_USE_OPENSSL
 #   include <openssl/err.h>
@@ -206,7 +207,7 @@ unsigned char dh4096_g[] = { 0x02 };
 //
 // With OpenSSL 1.1.0 is no longer possible to acess the DH p and g
 // data members to set the DH params. We still use the same default
-// parameters but they were converted to DER format using 
+// parameters but they were converted to DER format using
 // i2d_DHparams and can be restored using d2i_DHparams
 
 unsigned char dh512[] =
@@ -611,7 +612,7 @@ namespace
 CFDataRef
 readCertFile(const string& file)
 {
-    IceUtilInternal::ifstream is(file, ios::in | ios::binary);
+    ifstream is(IceUtilInternal::streamFilename(file), ios::in | ios::binary);
     if(!is.good())
     {
         throw CertificateReadException(__FILE__, __LINE__, "error opening file " + file);
@@ -1654,7 +1655,7 @@ IceSSL::findCertificates(const string& location, const string& name, const strin
 void
 IceSSL::readFile(const string& file, vector<char>& buffer)
 {
-    IceUtilInternal::ifstream is(file, ios::in | ios::binary);
+    ifstream is(IceUtilInternal::streamFilename(file), ios::in | ios::binary);
     if(!is.good())
     {
         throw CertificateReadException(__FILE__, __LINE__, "error opening file " + file);

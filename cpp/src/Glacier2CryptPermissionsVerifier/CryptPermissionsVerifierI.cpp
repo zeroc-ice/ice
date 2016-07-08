@@ -16,6 +16,8 @@
 #include <IceUtil/InputUtil.h>
 #include <IceUtil/Mutex.h>
 
+#include <fstream>
+
 #if defined(__GLIBC__) || defined(_AIX)
 #   include <crypt.h>
 #elif defined(__FreeBSD__)
@@ -96,7 +98,7 @@ private:
 map<string, string>
 retrievePasswordMap(const string& file)
 {
-    IceUtilInternal::ifstream passwordFile(file);
+    ifstream passwordFile(IceUtilInternal::streamFilename(file));
     if(!passwordFile)
     {
         string err = IceUtilInternal::lastErrorToString();

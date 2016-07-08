@@ -11,8 +11,8 @@
 #define ICE_LOGGER_I_H
 
 #include <Ice/Logger.h>
-#include <IceUtil/FileUtil.h>
 #include <IceUtil/StringConverter.h>
+#include <fstream>
 
 namespace Ice
 {
@@ -40,7 +40,7 @@ private:
     std::string _formattedPrefix;
     const bool _convert;
     const IceUtil::StringConverterPtr _converter;
-    IceUtilInternal::ofstream _out;
+    std::ofstream _out;
 
     std::string _file;
     std::size_t _sizeMax;

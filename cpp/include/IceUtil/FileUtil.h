@@ -17,7 +17,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <stdio.h>
-#include <fstream>
 
 namespace IceUtilInternal
 {
@@ -114,14 +113,14 @@ public:
     // file.
     //
     FileLock(const std::string&);
-    
+
     //
     // The destructor releases the lock and removes the file.
     //
     virtual ~FileLock();
-    
+
 private:
-    
+
 #ifdef _WIN32
     HANDLE _fd;
 #else
@@ -132,51 +131,18 @@ private:
 
 typedef IceUtil::Handle<FileLock> FileLockPtr;
 
-class ICE_API ifstream : public std::ifstream
+//
+// Use streamFilename to construct the filename given to std stream classes
+// like ifstream and ofstream.
+//
+#if defined(_WIN32) && !defined(__MINGW32__)
+ICE_API const wchar_t* streamFilename(const std::string&);
+#else
+inline const char* streamFilename(const std::string& filename)
 {
-public:
-
-    ifstream();
-    ifstream(const std::string&, std::ios_base::openmode mode = std::ios_base::in);
-    void open(const std::string&, std::ios_base::openmode mode = std::ios_base::in);
-
-#ifdef __SUNPRO_CC
-    using std::ifstream::open;
+    return filename.c_str();
+}
 #endif
-
-#if defined(_MSC_VER) && (_MSC_VER >= 1900)
-    ifstream(const ifstream&) = delete;
-#endif 
-
-private:
-
-    // Hide const char* definitions since they shouldn't be used.
-    ifstream(const char*);
-    void open(const char*, std::ios_base::openmode mode = std::ios_base::in);
-};
-
-class ICE_API ofstream : public std::ofstream
-{
-public:
-
-    ofstream();
-    ofstream(const std::string&, std::ios_base::openmode mode = std::ios_base::out);
-    void open(const std::string&, std::ios_base::openmode mode = std::ios_base::out);
-
-#ifdef __SUNPRO_CC
-    using std::ofstream::open;
-#endif
-
-#if defined(_MSC_VER) && (_MSC_VER >= 1900)
-    ofstream(const ofstream&) = delete;
-#endif 
-
-private:
-
-    // Hide const char* definitions since they shouldn't be used.
-    ofstream(const char*);
-    void open(const char*, std::ios_base::openmode mode = std::ios_base::out);
-};
 
 }
 #endif
