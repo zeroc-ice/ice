@@ -4779,7 +4779,7 @@ Slice::Gen::StreamVisitor::visitClassDefStart(const ClassDefPtr& c)
 {
     if(!c->isLocal())
     {
-        writeStreamHelpers(H, true, c, c->dataMembers(), c->orderedOptionalDataMembers());
+        writeStreamHelpers(H, true, false, c, c->dataMembers());
     }
     return false;
 }
@@ -4796,7 +4796,7 @@ Slice::Gen::StreamVisitor::visitExceptionStart(const ExceptionPtr& p)
         H << nl << "static const StreamHelperCategory helper = StreamHelperCategoryUserException;";
         H << eb << ";" << nl;
 
-        writeStreamHelpers(H, true, p, p->dataMembers(), p->orderedOptionalDataMembers());
+        writeStreamHelpers(H, true, false, p, p->dataMembers());
     }
     return false;
 }
@@ -4835,7 +4835,7 @@ Slice::Gen::StreamVisitor::visitStructStart(const StructPtr& p)
         }
         H << eb << ";" << nl;
 
-        writeStreamHelpers(H, true, p, p->dataMembers(), DataMemberList());
+        writeStreamHelpers(H, true, false, p, p->dataMembers());
     }
     return false;
 }
@@ -5824,8 +5824,10 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         H << sb;
         H << eb;
     }
-    H << sp;
 
+    writeIceTuple(H, p->dataMembers(), _useWstring);
+
+    H << sp;
     H << nl << _dllMemberExport << "static const ::std::string& ice_staticId();";
 
 
@@ -7975,7 +7977,7 @@ Slice::Gen::Cpp11StreamVisitor::visitStructStart(const StructPtr& p)
     H << nl << "static const bool fixedLength = " << (p->isVariableLength() ? "false" : "true") << ";";
     H << eb << ";" << nl;
 
-    writeStreamHelpers(H, false, p, p->dataMembers());
+    writeStreamHelpers(H, false, true, p, p->dataMembers());
 
     return false;
 }
@@ -7985,7 +7987,7 @@ Slice::Gen::Cpp11StreamVisitor::visitClassDefStart(const ClassDefPtr& c)
 {
     if(!c->isLocal() && !c->isInterface())
     {
-        writeStreamHelpers(H, true, c, c->dataMembers(), c->orderedOptionalDataMembers());
+        writeStreamHelpers(H, true, true, c, c->dataMembers());
     }
     return false;
 }
@@ -7995,7 +7997,7 @@ Slice::Gen::Cpp11StreamVisitor::visitExceptionEnd(const ExceptionPtr& p)
 {
     if(!p->isLocal())
     {
-        writeStreamHelpers(H, true, p, p->dataMembers(), p->orderedOptionalDataMembers());
+        writeStreamHelpers(H, true, true, p, p->dataMembers());
     }
 }
 

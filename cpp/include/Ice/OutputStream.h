@@ -312,6 +312,21 @@ public:
         writeAll(ve...);
     }
 
+    template<size_t I = 0, typename... Te>
+    typename std::enable_if<I == sizeof...(Te), void>::type
+    writeAll(std::tuple<Te...> tuple)
+    {
+        // Do nothing. Either tuple is empty or we are at the end.
+    }
+
+    template<size_t I = 0, typename... Te>
+    typename std::enable_if<I < sizeof...(Te), void>::type
+    writeAll(std::tuple<Te...> tuple)
+    {
+        write(std::get<I>(tuple));
+        writeAll<I + 1, Te...>(tuple);
+    }
+
     template<typename T>
     void writeAll(std::initializer_list<int> tags, const IceUtil::Optional<T>& v)
     {

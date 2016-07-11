@@ -1398,63 +1398,160 @@ Slice::writeMarshalUnmarshalDataMemberInHolder(IceUtilInternal::Output& C,
 }
 
 void
-Slice::writeStreamHelpers(Output& out, bool checkClassMetaData, const ContainedPtr& c, DataMemberList dataMembers,
-                          DataMemberList optionalDataMembers)
+Slice::writeMarshalUnmarshalAllInHolder(IceUtilInternal::Output& out,
+                                          const string& holder,
+                                          const DataMemberList& dataMembers,
+                                          bool optional,
+                                          bool marshal)
 {
-    if(!dataMembers.empty() || !optionalDataMembers.empty())
+    if(dataMembers.empty())
     {
-        string scoped = c->scoped();
-        bool classMetaData = false;
+        return;
+    }
 
-        if(checkClassMetaData)
-        {
-            classMetaData = findMetaData(c->getMetaData(), false) == "%class";
-        }
+    string stream = marshal ? "__os" : "__is";
+    string streamOp = marshal ? "writeAll" : "readAll";
 
-        string fullName = classMetaData ? fixKwd(scoped + "Ptr") : fixKwd(scoped);
-        string holder = classMetaData ? "v->" : "v.";
+    out << nl << stream << "->" << streamOp;
+    out << spar;
 
-        out << nl << "template<typename S>";
-        out << nl << "struct StreamWriter< " << fullName << ", S>";
-        out << sb;
-        out << nl << "static void write(S* __os, const " <<  fullName << "& v)";
-        out << sb;
+    if(optional)
+    {
+        ostringstream os;
+        os << "{";
         for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
-            if(!(*q)->optional())
+            if(q != dataMembers.begin())
+            {
+                os << ", ";
+            }
+            os << (*q)->tag();
+        }
+        os << "}";
+        out << os.str();
+    }
+
+    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    {
+        out << holder + fixKwd((*q)->name());
+    }
+
+    out << epar << ";";
+
+}
+
+void
+Slice::writeStreamHelpers(Output& out,
+                          bool checkClassMetaData,
+                          bool cpp11,
+                          const ContainedPtr& c,
+                          DataMemberList dataMembers)
+{
+    if(dataMembers.empty())
+    {
+        return;
+    }
+
+    DataMemberList requiredMembers;
+    DataMemberList optionalMembers;
+
+    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    {
+        if((*q)->optional())
+        {
+            optionalMembers.push_back(*q);
+        }
+        else
+        {
+            requiredMembers.push_back(*q);
+        }
+    }
+
+    // Sort optional data members
+    class SortFn
+    {
+    public:
+        static bool compare(const DataMemberPtr& lhs, const DataMemberPtr& rhs)
+        {
+            return lhs->tag() < rhs->tag();
+        }
+    };
+    optionalMembers.sort(SortFn::compare);
+
+    string scoped = c->scoped();
+    bool classMetaData = checkClassMetaData ? (findMetaData(c->getMetaData(), false) == "%class") : false;
+    string fullName = classMetaData ? fixKwd(scoped + "Ptr") : fixKwd(scoped);
+    string holder = classMetaData ? "v->" : "v.";
+
+    //
+    // Generate StreamWriter
+    //
+    // Only generate StreamWriter specializations if we are generating for C++98 or
+    // we are generating for C++11 with optional data members
+    //
+    if(!cpp11 || !optionalMembers.empty())
+    {
+        out << nl << "template<typename S>";
+        out << nl << "struct StreamWriter" << (cpp11 ? "<" : "< ") << fullName << ", S>";
+        out << sb;
+        out << nl << "static void write(S* __os, const " << fullName << "& v)";
+        out << sb;
+
+        if(cpp11)
+        {
+            writeMarshalUnmarshalTupleInHolder(out, holder, requiredMembers, false, true);
+            writeMarshalUnmarshalTupleInHolder(out, holder, optionalMembers, true, true);
+        }
+        else
+        {
+            for(DataMemberList::const_iterator q = requiredMembers.begin(); q != requiredMembers.end(); ++q)
+            {
+                writeMarshalUnmarshalDataMemberInHolder(out, holder, *q, true);
+            }
+
+            for(DataMemberList::const_iterator q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
             {
                 writeMarshalUnmarshalDataMemberInHolder(out, holder, *q, true);
             }
         }
-        for(DataMemberList::const_iterator q = optionalDataMembers.begin(); q != optionalDataMembers.end(); ++q)
-        {
-            writeMarshalUnmarshalDataMemberInHolder(out, holder, *q, true);
-        }
-        out << eb;
-        out << eb << ";" << nl;
 
-        out << nl << "template<typename S>";
-        out << nl << "struct StreamReader< " << fullName << ", S>";
-        out << sb;
-        out << nl << "static void read(S* __is, " << fullName << "& v)";
-        out << sb;
-        for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-        {
-            if(!(*q)->optional())
-            {
-                writeMarshalUnmarshalDataMemberInHolder(out, holder, *q, false);
-            }
-        }
-        for(DataMemberList::const_iterator q = optionalDataMembers.begin(); q != optionalDataMembers.end(); ++q)
-        {
-            writeMarshalUnmarshalDataMemberInHolder(out, holder, *q, false);
-        }
         out << eb;
         out << eb << ";" << nl;
     }
+
+    //
+    // Generate StreamWriter
+    //
+    out << nl << "template<typename S>";
+    out << nl << "struct StreamReader" << (cpp11 ? "<" : "< ") << fullName << ", S>";
+    out << sb;
+    out << nl << "static void read(S* __is, " << fullName << "& v)";
+    out << sb;
+
+    if(cpp11)
+    {
+        writeMarshalUnmarshalTupleInHolder(out, holder, requiredMembers, false, false);
+        writeMarshalUnmarshalTupleInHolder(out, holder, optionalMembers, true, false);
+    }
+    else
+    {
+        for(DataMemberList::const_iterator q = requiredMembers.begin(); q != requiredMembers.end(); ++q)
+        {
+            writeMarshalUnmarshalDataMemberInHolder(out, holder, *q, false);
+        }
+
+        for(DataMemberList::const_iterator q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
+        {
+            writeMarshalUnmarshalDataMemberInHolder(out, holder, *q, false);
+        }
+    }
+
+    out << eb;
+    out << eb << ";" << nl;
 }
+
 void
-Slice::writeIceTuple(::IceUtilInternal::Output& out, DataMemberList dataMembers, int useWstring)
+Slice::writeIceTuple(::IceUtilInternal::Output& out, DataMemberList dataMembers, int typeCtx)
 {
     out << sp << nl << "std::tuple<";
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
@@ -1464,9 +1561,10 @@ Slice::writeIceTuple(::IceUtilInternal::Output& out, DataMemberList dataMembers,
             out << ", ";
         }
         out << "const ";
-        out << typeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), useWstring | TypeContextCpp11) << "&";
+        out << typeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), typeCtx | TypeContextCpp11) << "&";
     }
     out << "> ice_tuple() const";
+
     out << sb;
     out << nl << "return std::tie(";
     for(DataMemberList::const_iterator pi = dataMembers.begin(); pi != dataMembers.end(); ++pi)

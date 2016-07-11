@@ -60,8 +60,8 @@ void writeAllocateCode(::IceUtilInternal::Output&, const ParamDeclList&, const O
 std::string getEndArg(const TypePtr&, const StringList&, const std::string&);
 void writeEndCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool = false);
 void writeMarshalUnmarshalDataMemberInHolder(IceUtilInternal::Output&, const std::string&, const DataMemberPtr&, bool);
-void writeStreamHelpers(::IceUtilInternal::Output&, bool, const ContainedPtr&, DataMemberList,
-                        DataMemberList = DataMemberList());
+void writeMarshalUnmarshalAllInHolder(IceUtilInternal::Output&, const std::string&, const DataMemberList&, bool, bool);
+void writeStreamHelpers(::IceUtilInternal::Output&, bool, bool, const ContainedPtr&, DataMemberList);
 void writeIceTuple(::IceUtilInternal::Output&, DataMemberList, int);
 
 bool findMetaData(const std::string&, const ClassDeclPtr&, std::string&);

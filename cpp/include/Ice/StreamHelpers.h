@@ -360,9 +360,12 @@ struct StreamHelper<T, StreamHelperCategoryBuiltin>
 template<typename T, typename S>
 struct StreamWriter
 {
-    static inline void write(S*, const T&)
+    static inline void write(S* stream, const T& v)
     {
-        // Default is to do write nothing
+#ifdef ICE_CPP11_MAPPING
+        stream->writeAll(v.ice_tuple());
+#endif
+        // Default is to write nothing for C++98
     }
 };
 
