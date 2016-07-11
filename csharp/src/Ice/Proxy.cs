@@ -923,7 +923,10 @@ namespace Ice
             var completed = new OperationAsyncResultCompletionCallback<Callback_Object_ice_isA, bool>(
                 (Callback_Object_ice_isA cb, bool result) =>
                 {
-                    cb?.Invoke(result);
+                    if(cb != null)
+                    {
+                        cb.Invoke(result);
+                    }
                 }, this, __ice_isA_name, cookie, callback);
             ice_isA_invoke__(id, context, completed, synchronous);
             return completed;
@@ -1037,7 +1040,10 @@ namespace Ice
             var completed = new OperationAsyncResultCompletionCallback<Callback_Object_ice_ping, object>(
                 (Callback_Object_ice_ping cb, object result) =>
                 {
-                    cb?.Invoke();
+                    if(cb != null)
+                    {
+                        cb.Invoke();
+                    }
                 }, this, __ice_ping_name, cookie, callback);
             ice_ping_invoke__(context, completed, synchronous);
             return completed;
@@ -1132,7 +1138,10 @@ namespace Ice
             var completed = new OperationAsyncResultCompletionCallback<Callback_Object_ice_ids, string[]>(
                 (Callback_Object_ice_ids cb, string[] result) =>
                 {
-                    cb?.Invoke(result);
+                    if(cb != null)
+                    {
+                        cb.Invoke(result);
+                    }
                 }, this, __ice_ids_name, cookie, callback);
             ice_ids_invoke__(context, completed, synchronous);
             return completed;
@@ -1243,7 +1252,10 @@ namespace Ice
             var completed = new OperationAsyncResultCompletionCallback<Callback_Object_ice_id, string>(
                 (Callback_Object_ice_id cb, string result) =>
                 {
-                    cb?.Invoke(result);
+                    if(cb != null)
+                    {
+                        cb.Invoke(result);
+                    }
                 }, this, __ice_id_name, cookie, callback);
             ice_id_invoke__(context, completed, synchronous);
             return completed;
@@ -2092,11 +2104,18 @@ namespace Ice
                     try
                     {
                         result.throwLocalException();
-                        responseCallback_?.Invoke(getProxy().ice_getCachedConnection());
+                        if(responseCallback_ != null)
+                        {
+                            responseCallback_.Invoke(getProxy().ice_getCachedConnection());
+                        }
+
                     }
                     catch(Exception ex)
                     {
-                        exceptionCallback_?.Invoke(ex);
+                        if(exceptionCallback_ != null)
+                        {
+                            exceptionCallback_.Invoke(ex);
+                        }
                     }
                 };
             }
@@ -2261,7 +2280,10 @@ namespace Ice
                     }
                     catch(Exception ex)
                     {
-                        exceptionCallback_?.Invoke(ex);
+                        if(exceptionCallback_ != null)
+                        {
+                            exceptionCallback_.Invoke(ex);
+                        }
                     }
                 };
             }
@@ -2590,7 +2612,10 @@ namespace Ice
                         Object_Ice_invokeResult result = ((InvokeOutgoingAsyncT)outgoing_).result__(wait());
                         try
                         {
-                            responseCallback_?.Invoke(result.returnValue, result.outEncaps);
+                            if(responseCallback_ != null)
+                            {
+                                responseCallback_.Invoke(result.returnValue, result.outEncaps);
+                            }
                         }
                         catch(Exception ex)
                         {
@@ -2599,7 +2624,10 @@ namespace Ice
                     }
                     catch(Exception ex)
                     {
-                        exceptionCallback_?.Invoke(ex);
+                        if(exceptionCallback_ != null)
+                        {
+                            exceptionCallback_.Invoke(ex);
+                        }
                     }
                 };
             }

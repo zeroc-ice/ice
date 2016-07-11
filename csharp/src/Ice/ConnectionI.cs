@@ -504,7 +504,10 @@ namespace Ice
                     }
                     catch(Ice.Exception ex)
                     {
-                        exceptionCallback_?.Invoke(ex);
+                        if(exceptionCallback_ != null)
+                        {
+                            exceptionCallback_.Invoke(ex);
+                        }
                     }
                 };
             }

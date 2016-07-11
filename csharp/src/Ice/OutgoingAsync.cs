@@ -985,7 +985,10 @@ namespace IceInternal
             catch(Ice.UserException ex)
             {
                 is_.endEncapsulation();
-                userException_?.Invoke(ex);
+                if(userException_!= null)
+                {
+                    userException_.Invoke(ex);
+                }
                 throw new Ice.UnknownUserException(ex.ice_id());
             }
         }
@@ -1629,7 +1632,10 @@ namespace IceInternal
                 }
                 catch(Ice.Exception ex)
                 {
-                    exceptionCallback_?.Invoke(ex);
+                    if(exceptionCallback_ != null)
+                    {
+                        exceptionCallback_.Invoke(ex);
+                    }
                 }
             };
         }

@@ -5429,7 +5429,9 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out.inc();
             _out << nl << "(" << delType << " cb__, " << (returnTypeS.empty() ? "object" : returnTypeS) << " ret__) =>";
             _out << sb;
-            _out << nl << "cb__?.Invoke" << spar;
+            _out << nl << "if(cb__ != null)";
+            _out << sb;
+            _out << nl << "cb__.Invoke" << spar;
             if(ret && outParams.empty())
             {
                 _out << "ret__";
@@ -5450,6 +5452,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
                 _out << "ret__";
             }
             _out << epar << ';';
+            _out << eb;
             _out << eb << ",";
             _out << nl << "this, " << flatName << ", cookie__, completedCallback__);";
 
