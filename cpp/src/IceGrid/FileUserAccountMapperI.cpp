@@ -17,7 +17,7 @@ using namespace IceGrid;
 
 FileUserAccountMapperI::FileUserAccountMapperI(const string& filename)
 {
-    ifstream file(IceUtilInternal::streamFilename(filename)); // filename is a UTF-8 string
+    ifstream file(IceUtilInternal::streamFilename(filename).c_str()); // filename is a UTF-8 string
     if(!file)
     {
         throw "cannot open `" + filename + "' for reading: " + strerror(errno);

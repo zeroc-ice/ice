@@ -345,10 +345,10 @@ IceUtilInternal::FileLock::~FileLock()
 }
 
 #ifndef __MINGW32__
-const wchar_t*
+wstring
 IceUtilInternal::streamFilename(const string& filename)
 {
-    return IceUtil::stringToWstring(filename, IceUtil::getProcessStringConverter()).c_str();
+    return IceUtil::stringToWstring(filename, IceUtil::getProcessStringConverter());
 }
 #endif
 

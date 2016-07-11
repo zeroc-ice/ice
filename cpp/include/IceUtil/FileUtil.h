@@ -136,11 +136,11 @@ typedef IceUtil::Handle<FileLock> FileLockPtr;
 // like ifstream and ofstream.
 //
 #if defined(_WIN32) && !defined(__MINGW32__)
-ICE_API const wchar_t* streamFilename(const std::string&);
+ICE_API std::wstring streamFilename(const std::string&);
 #else
-inline const char* streamFilename(const std::string& filename)
+inline std::string streamFilename(const std::string& filename)
 {
-    return filename.c_str();
+    return filename;
 }
 #endif
 

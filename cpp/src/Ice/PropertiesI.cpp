@@ -399,7 +399,7 @@ Ice::PropertiesI::load(const std::string& file)
     else
 #endif
     {
-        ifstream in(IceUtilInternal::streamFilename(file));
+        ifstream in(IceUtilInternal::streamFilename(file).c_str());
         if(!in)
         {
             FileException ex(__FILE__, __LINE__);

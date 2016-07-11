@@ -98,7 +98,7 @@ private:
 map<string, string>
 retrievePasswordMap(const string& file)
 {
-    ifstream passwordFile(IceUtilInternal::streamFilename(file));
+    ifstream passwordFile(IceUtilInternal::streamFilename(file).c_str());
     if(!passwordFile)
     {
         string err = IceUtilInternal::lastErrorToString();

@@ -1532,7 +1532,7 @@ parseProfiles(const string& file)
     // ice.config = config-file
     // ice.options = args
     //
-    ifstream in(IceUtilInternal::streamFilename(file));
+    ifstream in(IceUtilInternal::streamFilename(file).c_str());
     if(!in)
     {
         php_error_docref(0, E_WARNING, "unable to open Ice profiles in %s", file.c_str());

@@ -612,7 +612,7 @@ namespace
 CFDataRef
 readCertFile(const string& file)
 {
-    ifstream is(IceUtilInternal::streamFilename(file), ios::in | ios::binary);
+    ifstream is(IceUtilInternal::streamFilename(file).c_str(), ios::in | ios::binary);
     if(!is.good())
     {
         throw CertificateReadException(__FILE__, __LINE__, "error opening file " + file);
@@ -1655,7 +1655,7 @@ IceSSL::findCertificates(const string& location, const string& name, const strin
 void
 IceSSL::readFile(const string& file, vector<char>& buffer)
 {
-    ifstream is(IceUtilInternal::streamFilename(file), ios::in | ios::binary);
+    ifstream is(IceUtilInternal::streamFilename(file).c_str(), ios::in | ios::binary);
     if(!is.good())
     {
         throw CertificateReadException(__FILE__, __LINE__, "error opening file " + file);

@@ -267,7 +267,7 @@ Client::run(int argc, char* argv[])
                 return EXIT_FAILURE;
             }
 
-            ifstream fs(IceUtilInternal::streamFilename(dbFile), ios::binary);
+            ifstream fs(IceUtilInternal::streamFilename(dbFile).c_str(), ios::binary);
             if(fs.fail())
             {
                 cerr << argv[0] << ": could not open input file: " << strerror(errno) << endl;
@@ -539,7 +539,7 @@ Client::run(int argc, char* argv[])
             stream.write(ICE_INT_VERSION);
             stream.write(data);
 
-            ofstream fs(IceUtilInternal::streamFilename(dbFile), ios::binary);
+            ofstream fs(IceUtilInternal::streamFilename(dbFile).c_str(), ios::binary);
             if(fs.fail())
             {
                 cerr << argv[0] << ": could not open output file: " << strerror(errno) << endl;

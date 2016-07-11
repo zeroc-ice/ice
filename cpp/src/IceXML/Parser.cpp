@@ -402,7 +402,7 @@ IceXML::Parser::parse(istream& in)
 void
 IceXML::Parser::parse(const string& file, Handler& handler) // The given filename must be UTF-8 encoded
 {
-    ifstream in(IceUtilInternal::streamFilename(file));
+    ifstream in(IceUtilInternal::streamFilename(file).c_str());
     if(!in.good())
     {
         ostringstream out;
