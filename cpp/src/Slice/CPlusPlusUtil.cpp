@@ -1499,8 +1499,8 @@ Slice::writeStreamHelpers(Output& out,
 
         if(cpp11)
         {
-            writeMarshalUnmarshalTupleInHolder(out, holder, requiredMembers, false, true);
-            writeMarshalUnmarshalTupleInHolder(out, holder, optionalMembers, true, true);
+            writeMarshalUnmarshalAllInHolder(out, holder, requiredMembers, false, true);
+            writeMarshalUnmarshalAllInHolder(out, holder, optionalMembers, true, true);
         }
         else
         {
@@ -1530,8 +1530,8 @@ Slice::writeStreamHelpers(Output& out,
 
     if(cpp11)
     {
-        writeMarshalUnmarshalTupleInHolder(out, holder, requiredMembers, false, false);
-        writeMarshalUnmarshalTupleInHolder(out, holder, optionalMembers, true, false);
+        writeMarshalUnmarshalAllInHolder(out, holder, requiredMembers, false, false);
+        writeMarshalUnmarshalAllInHolder(out, holder, optionalMembers, true, false);
     }
     else
     {
