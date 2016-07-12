@@ -1,6 +1,6 @@
-  0 IceUtil::Exception::Exception(char const*, int) in libIce.3.7a2.dylib
-  1 IceUtil::NullHandleException::NullHandleException(char const*, int) in libIce.3.7a2.dylib
-  2 IceUtil::NullHandleException::NullHandleException(char const*, int) in libIce.3.7a2.dylib
+  0 IceUtil::Exception::Exception(char const*, int) in libIce.3.7a3.dylib
+  1 IceUtil::NullHandleException::NullHandleException(char const*, int) in libIce.3.7a3.dylib
+  2 IceUtil::NullHandleException::NullHandleException(char const*, int) in libIce.3.7a3.dylib
   3 (anonymous namespace)::Thrower::fifth() in client
   4 (anonymous namespace)::Thrower::forth() in client
   5 (anonymous namespace)::Thrower::third() in client

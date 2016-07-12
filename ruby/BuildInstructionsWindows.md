@@ -28,7 +28,7 @@ The instructions in this file make the following assumptions about your build
 environment:
 
 1. You have installed the Ice 3.7.0 distribution using the ZeroC installer. The
-default installation directory is `C:\Program Files (x86)\ZeroC\Ice-3.7a2`.
+default installation directory is `C:\Program Files (x86)\ZeroC\Ice-3.7a3`.
 2. You have installed Ruby 2.2.4 using the Windows installer. The default
 installation directory is `C:\Ruby224`.
 3. You have installed the Ruby Development Kit 4.7.2 in `C:\RubyDevKit-4.7.2`.
@@ -70,7 +70,7 @@ forward slashes (/) as directory separators, and cannot contain any space.
 If your Ice installation's path contains any space, use the DOS 8-character
 name as a work-around, for example:
 
-    > set ICE_HOME=C:/PROGRA~2/Ice-3.7a2
+    > set ICE_HOME=C:/PROGRA~2/Ice-3.7a3
 
 You can use `dir /x` to get this DOS name, for example:
 
@@ -105,20 +105,20 @@ The Ruby interpreter must be able to locate the Ice extension. One way to
 configure the interpreter is to define the `RUBYLIB` environment variable as
 follows:
 
-    > set RUBYLIB=C:\Ice-3.7a2\ruby
+    > set RUBYLIB=C:\Ice-3.7a3\ruby
 
-This example assumes your Ice for Ruby installation is located in the `C:\Ice-3.7a2`
+This example assumes your Ice for Ruby installation is located in the `C:\Ice-3.7a3`
 directory.
 
 In addition, you must modify your PATH environment variable to include the
 following directories:
 
-    C:\Program Files (x86)\ZeroC\Ice-3.7a2\bin
-    C:\Ice-3.7a2\bin
+    C:\Program Files (x86)\ZeroC\Ice-3.7a3\bin
+    C:\Ice-3.7a3\bin
 
 At a command prompt, you can set your PATH as shown below:
 
-    > set PATH=C:\Program Files (x86)\ZeroC\Ice-3.7a2\bin;C:\Ice-3.7a2\bin;%PATH%
+    > set PATH=C:\Program Files (x86)\ZeroC\Ice-3.7a3\bin;C:\Ice-3.7a3\bin;%PATH%
 
 ## Running the Ruby Tests
 

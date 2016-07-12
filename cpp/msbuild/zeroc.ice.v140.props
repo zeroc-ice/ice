@@ -11,11 +11,11 @@
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(PlatformToolset)' == 'v140'">
-        <IceVersion>3.7a2</IceVersion>
-        <IceIntVersion>30752</IceIntVersion>
+        <IceVersion>3.7a3</IceVersion>
+        <IceIntVersion>30753</IceIntVersion>
         <IceVersionMM>3.7</IceVersionMM>
-        <IceSoVersion>37a2</IceSoVersion>
-        <IceNugetPackageVersion>3.7.52.0</IceNugetPackageVersion>
+        <IceSoVersion>37a3</IceSoVersion>
+        <IceNugetPackageVersion>3.7.53.0</IceNugetPackageVersion>
         <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
 
         <IceToolsPath>$(IceHome)\build\native\bin\Win32\Release</IceToolsPath>

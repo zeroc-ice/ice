@@ -50,12 +50,12 @@
   </PropertyGroup>
   <PropertyGroup />
   <ItemGroup>
-    <Reference Include="Glacier2, Version=3.7.52.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Glacier2, Version=3.7.53.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <Private>False</Private>
       <HintPath>$(IceAssembliesDir)\Glacier2.dll</HintPath>
     </Reference>
-    <Reference Include="Ice, Version=3.7.52.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Ice, Version=3.7.53.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <Private>False</Private>
       <HintPath>$(IceAssembliesDir)\Ice.dll</HintPath>

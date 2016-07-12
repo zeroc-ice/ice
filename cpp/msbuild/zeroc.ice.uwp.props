@@ -12,8 +12,8 @@
 
     <PropertyGroup>
 
-        <IceVersion>3.7a2</IceVersion>
-        <IceIntVersion>30752</IceIntVersion>
+        <IceVersion>3.7a3</IceVersion>
+        <IceIntVersion>30753</IceIntVersion>
         <IceVersionMM>3.7</IceVersionMM>
 
         <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
