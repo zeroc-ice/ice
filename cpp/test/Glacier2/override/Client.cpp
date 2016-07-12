@@ -187,7 +187,14 @@ CallbackClient::run(int, char**)
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(200));
         callbackReceiverImpl->activate();
         test(callbackReceiverImpl->callbackWithPayloadOK(3) == 0);
-        test(callbackReceiverImpl->callbackOK(1, 0) == 0);
+        remainingCallbacks = callbackReceiverImpl->callbackOK(1, 0);
+        // Unlikely but sometime we get more than just one callback if the flush
+        // occurs in the middle of our 5 callbacks.
+        test(remainingCallbacks <= 3);
+        if(remainingCallbacks > 0)
+        {
+            test(callbackReceiverImpl->callbackOK(remainingCallbacks, 0) == 0);
+        }
 
         cout << "ok" << endl;
     }

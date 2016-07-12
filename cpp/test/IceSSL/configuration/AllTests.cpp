@@ -1947,7 +1947,6 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         //
         // With OpenSSL 1.1.0 we need to set SECLEVEL=0 to allow ADH ciphers
         //
-        d["IceSSL.SecurityLevel"] = "0";
         string cipherSub = "ADH-";
         d["IceSSL.Ciphers"] = "RSA:" + anonCiphers;
 #  else
