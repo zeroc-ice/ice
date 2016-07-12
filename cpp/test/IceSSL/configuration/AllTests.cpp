@@ -1829,7 +1829,6 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         //
         // With OpenSSL 1.1.0 we need to set SECLEVEL=0 to allow ADH ciphers
         //
-        d["IceSSL.SecurityLevel"] = "0";
         string cipherSub = "ADH-";
         d["IceSSL.Ciphers"] = "RSA:" + anonCiphers;
 #  else
@@ -2071,7 +2070,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_dsa_ca1", "cacert1");
         d["IceSSL.Ciphers"] = "DHE:DSS";
         d["IceSSL.VerifyPeer"] = "1";
-        
+
         Test::ServerPrx server = fact->createServer(d);
         try
         {
