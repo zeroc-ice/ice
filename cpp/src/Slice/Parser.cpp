@@ -3656,6 +3656,17 @@ Slice::ClassDef::inheritsMetaData(const string& meta) const
     return false;
 }
 
+bool
+Slice::ClassDef::hasBaseDataMembers() const
+{
+    if(!_bases.empty() && !_bases.front()->isInterface())
+    {
+        return !_bases.front()->allDataMembers().empty();
+    }
+
+    return false;
+}
+
 Contained::ContainedType
 Slice::ClassDef::containedType() const
 {
@@ -4095,6 +4106,12 @@ Slice::Exception::inheritsMetaData(const string& meta) const
     }
 
     return false;
+}
+
+bool
+Slice::Exception::hasBaseDataMembers() const
+{
+    return _base && !_base->allDataMembers().empty();
 }
 
 string

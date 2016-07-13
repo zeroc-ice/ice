@@ -81,7 +81,7 @@ protected:
     virtual void __readImpl(Ice::InputStream* is) override
     {
         is->startSlice();
-        Ice::StreamReader<T, ::Ice::InputStream>::read(is, static_cast<T&>(*this));
+        Ice::StreamReader<T, Ice::InputStream>::read(is, static_cast<T&>(*this));
         is->endSlice();
         Base::__readImpl(is);
     }

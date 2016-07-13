@@ -1442,12 +1442,17 @@ Slice::writeMarshalUnmarshalAllInHolder(IceUtilInternal::Output& out,
 
 void
 Slice::writeStreamHelpers(Output& out,
-                          bool checkClassMetaData,
-                          bool cpp11,
                           const ContainedPtr& c,
-                          DataMemberList dataMembers)
+                          DataMemberList dataMembers,
+                          bool hasBaseDataMembers,
+                          bool checkClassMetaData,
+                          bool cpp11)
 {
-    if(dataMembers.empty())
+    // If c is a C++11 class/exception whose base class contains data members (recursively), then we need to generate
+    // an StreamWriter even if its implementation is empty. This is becuase our default marsaling uses ice_tuple() which
+    // contains all of our class/exception's data members as well the base data members, which breaks marshaling. This
+    // is not an issue for structs.
+    if(dataMembers.empty() && !(cpp11 && hasBaseDataMembers))
     {
         return;
     }
@@ -1487,9 +1492,9 @@ Slice::writeStreamHelpers(Output& out,
     // Generate StreamWriter
     //
     // Only generate StreamWriter specializations if we are generating for C++98 or
-    // we are generating for C++11 with optional data members
+    // we are generating for C++11 with optional data members and no base class data members
     //
-    if(!cpp11 || !optionalMembers.empty())
+    if(!cpp11 || !optionalMembers.empty() || hasBaseDataMembers)
     {
         out << nl << "template<typename S>";
         out << nl << "struct StreamWriter" << (cpp11 ? "<" : "< ") << fullName << ", S>";

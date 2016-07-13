@@ -660,6 +660,7 @@ public:
     bool hasOperations() const;
     bool hasDefaultValues() const;
     bool inheritsMetaData(const std::string&) const;
+    bool hasBaseDataMembers() const;
     virtual ContainedType containedType() const;
     virtual bool uses(const ContainedPtr&) const;
     virtual std::string kindOf() const;
@@ -730,6 +731,7 @@ public:
     bool usesClasses(bool) const;
     bool hasDefaultValues() const;
     bool inheritsMetaData(const std::string&) const;
+    bool hasBaseDataMembers() const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*, bool);
 
