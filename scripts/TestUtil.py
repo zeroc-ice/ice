@@ -1919,7 +1919,10 @@ def getTestEnv(lang, testdir):
         if lang == "csharp" and not iceHome:
             pkgdir = os.path.join(getIceDir("cpp"), "msbuild", "packages")
             pkgsubdir = os.path.join("build", "native", "bin", "x64", "Release")
-            addPathToEnv("PATH", os.path.join(pkgdir, "bzip2.v140.1.0.6.4", pkgsubdir), env)
+            if isVC120():
+                addPathToEnv("PATH", os.path.join(pkgdir, "bzip2.v120.1.0.6.4", pkgsubdir), env)
+            else:
+                addPathToEnv("PATH", os.path.join(pkgdir, "bzip2.v140.1.0.6.4", pkgsubdir), env)
 
     #
     # If Ice is installed on the system, set the CLASSPATH for Java and
