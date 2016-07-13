@@ -58,6 +58,7 @@ Ice::UnknownSlicedValue::__gcVisitMembers(IceInternal::GCVisitor& _v)
         _slicedData->__gcVisitMembers(_v);
     }
 }
+
 #endif
 
 Ice::UnknownSlicedValue::UnknownSlicedValue(const string& unknownTypeId) : _unknownTypeId(unknownTypeId)
@@ -89,3 +90,25 @@ Ice::UnknownSlicedValue::__read(Ice::InputStream* __is)
     __is->startValue();
     _slicedData = __is->endValue(true);
 }
+
+#ifdef ICE_CPP11_MAPPING
+
+string
+Ice::UnknownSlicedValue::ice_id() const
+{
+    return _unknownTypeId;
+}
+
+shared_ptr<Ice::UnknownSlicedValue>
+Ice::UnknownSlicedValue::ice_clone() const
+{
+    return static_pointer_cast<UnknownSlicedValue>(cloneImpl());
+}
+
+shared_ptr<Ice::Value>
+Ice::UnknownSlicedValue::cloneImpl() const
+{
+    return make_shared<UnknownSlicedValue>(static_cast<const UnknownSlicedValue&>(*this));
+}
+
+#endif

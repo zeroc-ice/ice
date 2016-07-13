@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_ACM_F_H
-#define ICE_ACM_F_H
+#ifndef ICE_OBJECT_ADAPTER_FACTORY_F_H
+#define ICE_OBJECT_ADAPTER_FACTORY_F_H
 
 #include <IceUtil/Shared.h>
 
@@ -17,18 +17,12 @@
 namespace IceInternal
 {
 
-class ACMMonitor;
-class FactoryACMMonitor;
-
+class ObjectAdapterFactory;
 #ifdef ICE_CPP11_MAPPING
-typedef ::std::shared_ptr<ACMMonitor> ACMMonitorPtr;
-typedef ::std::shared_ptr<FactoryACMMonitor> FactoryACMMonitorPtr;
+using ObjectAdapterFactoryPtr = ::std::shared_ptr<ObjectAdapterFactory>;
 #else
-ICE_API IceUtil::Shared* upCast(ACMMonitor*);
-typedef IceInternal::Handle<ACMMonitor> ACMMonitorPtr;
-
-ICE_API IceUtil::Shared* upCast(FactoryACMMonitor*);
-typedef IceInternal::Handle<FactoryACMMonitor> FactoryACMMonitorPtr;
+IceUtil::Shared* upCast(ObjectAdapterFactory*);
+typedef IceInternal::Handle<ObjectAdapterFactory> ObjectAdapterFactoryPtr;
 #endif
 
 }

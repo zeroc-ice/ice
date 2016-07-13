@@ -19,7 +19,7 @@ namespace IceInternal
 class IPEndpointI;
 
 #ifdef ICE_CPP11_MAPPING
-typedef ::std::shared_ptr<IPEndpointI> IPEndpointIPtr;
+using IPEndpointIPtr = ::std::shared_ptr<IPEndpointI>;
 #else
 ICE_API IceUtil::Shared* upCast(IPEndpointI*);
 typedef Handle<IPEndpointI> IPEndpointIPtr;

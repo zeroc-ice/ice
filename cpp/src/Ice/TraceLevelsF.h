@@ -18,7 +18,7 @@ namespace IceInternal
 {
 
 class TraceLevels;
-ICE_API IceUtil::Shared* upCast(TraceLevels*);
+IceUtil::Shared* upCast(TraceLevels*);
 typedef Handle<TraceLevels> TraceLevelsPtr;
 
 }

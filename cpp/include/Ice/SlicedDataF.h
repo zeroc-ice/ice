@@ -21,9 +21,9 @@ class SlicedData;
 class UnknownSlicedValue;
 
 #ifdef ICE_CPP11_MAPPING
-typedef ::std::shared_ptr<SliceInfo> SliceInfoPtr;
-typedef ::std::shared_ptr<SlicedData> SlicedDataPtr;
-typedef ::std::shared_ptr<UnknownSlicedValue> UnknownSlicedValuePtr;
+using SliceInfoPtr = ::std::shared_ptr<SliceInfo>;
+using SlicedDataPtr = ::std::shared_ptr<SlicedData>;
+using UnknownSlicedValuePtr = ::std::shared_ptr<UnknownSlicedValue>;
 #else
 ICE_API IceUtil::Shared* upCast(SliceInfo*);
 typedef IceInternal::Handle<SliceInfo> SliceInfoPtr;

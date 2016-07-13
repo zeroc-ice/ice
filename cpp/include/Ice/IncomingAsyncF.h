@@ -19,9 +19,9 @@ namespace IceInternal
 {
 
 class IncomingAsync;
-typedef std::shared_ptr<IncomingAsync> IncomingAsyncPtr;
+using IncomingAsyncPtr = ::std::shared_ptr<IncomingAsync>;
 
-};
+}
 #else
 namespace IceInternal
 {

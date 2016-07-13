@@ -20,8 +20,8 @@ class CancellationHandler;
 class RequestHandler;
 
 #ifdef ICE_CPP11_MAPPING
-typedef ::std::shared_ptr<CancellationHandler> CancellationHandlerPtr;
-typedef ::std::shared_ptr<RequestHandler> RequestHandlerPtr;
+using CancellationHandlerPtr = ::std::shared_ptr<CancellationHandler>;
+using RequestHandlerPtr = ::std::shared_ptr<RequestHandler>;
 #else
 ICE_API IceUtil::Shared* upCast(CancellationHandler*);
 typedef IceInternal::Handle<CancellationHandler> CancellationHandlerPtr;

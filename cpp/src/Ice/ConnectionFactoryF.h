@@ -18,15 +18,15 @@ namespace IceInternal
 {
 
 class OutgoingConnectionFactory;
-ICE_API IceUtil::Shared* upCast(OutgoingConnectionFactory*);
+IceUtil::Shared* upCast(OutgoingConnectionFactory*);
 typedef IceInternal::Handle<OutgoingConnectionFactory> OutgoingConnectionFactoryPtr;
 
 class IncomingConnectionFactory;
 
 #ifdef ICE_CPP11_MAPPING
-typedef ::std::shared_ptr<IncomingConnectionFactory> IncomingConnectionFactoryPtr;
+using IncomingConnectionFactoryPtr = ::std::shared_ptr<IncomingConnectionFactory>;
 #else
-ICE_API IceUtil::Shared* upCast(IncomingConnectionFactory*);
+IceUtil::Shared* upCast(IncomingConnectionFactory*);
 typedef IceInternal::Handle<IncomingConnectionFactory> IncomingConnectionFactoryPtr;
 #endif
 

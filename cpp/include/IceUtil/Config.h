@@ -362,7 +362,7 @@ typedef long long Int64;
 #   define ICE_INTERNAL_HANDLE ::std::shared_ptr
 #   define ICE_PROXY_HANDLE ::std::shared_ptr
 #   define ICE_MAKE_SHARED(T, ...) ::std::make_shared<T>(__VA_ARGS__)
-#   define ICE_DEFINE_PTR(TPtr, T) typedef ::std::shared_ptr<T> TPtr
+#   define ICE_DEFINE_PTR(TPtr, T) using TPtr = ::std::shared_ptr<T>
 #   define ICE_ENUM(CLASS,ENUMERATOR) CLASS::ENUMERATOR
 #   define ICE_NULLPTR nullptr
 #   define ICE_DYNAMIC_CAST(T,V) ::std::dynamic_pointer_cast<T>(V)

@@ -82,13 +82,10 @@ public:
 // Unknown sliced object holds instance of unknown type.
 //
 class ICE_API UnknownSlicedValue :
-#if defined(ICE_CPP11_MAPPING)
-    public ValueHelper<UnknownSlicedValue, Value>
-#elif defined(__IBMCPP__)
-// xlC does not handle properly the public/private multiple inheritance from Object
-    public IceInternal::GCObject
+#ifdef ICE_CPP11_MAPPING
+    public Value
 #else
-    virtual public Object, private IceInternal::GCObject
+    public IceInternal::GCObject
 #endif
 {
 public:
@@ -99,31 +96,28 @@ public:
 
     SlicedDataPtr getSlicedData() const;
 
-#ifndef ICE_CPP11_MAPPING
+#ifdef ICE_CPP11_MAPPING
+    virtual void __write(::Ice::OutputStream*) const override;
+    virtual void __read(::Ice::InputStream*) override;
+
+    virtual std::string ice_id() const override;
+    std::shared_ptr<UnknownSlicedValue> ice_clone() const;
+
+protected:
+
+    virtual std::shared_ptr<Value> cloneImpl() const override;
+#else
     virtual void __gcVisitMembers(IceInternal::GCVisitor&);
-#endif
 
     virtual void __write(::Ice::OutputStream*) const;
     virtual void __read(::Ice::InputStream*);
+#endif
 
 private:
 
     const std::string _unknownTypeId;
     SlicedDataPtr _slicedData;
 };
-
-#if defined(ICE_CPP11_MAPPING)
-template<typename S>
-struct StreamWriter<UnknownSlicedValue, S>
-{
-    static void write(S* __os, const UnknownSlicedValue& v) { }
-};
-template<typename S>
-struct StreamReader<UnknownSlicedValue, S>
-{
-    static void read(S* __is, UnknownSlicedValue& v) { }
-};
-#endif
 
 }
 

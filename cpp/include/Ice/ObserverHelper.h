@@ -22,7 +22,7 @@ template<typename T = Ice::Instrumentation::Observer> class ObserverHelperT
 public:
 
 #ifdef ICE_CPP11_MAPPING
-    typedef ::std::shared_ptr<T> TPtr;
+    using TPtr = ::std::shared_ptr<T>;
 #else
     typedef IceInternal::Handle<T> TPtr;
 #endif

@@ -20,7 +20,7 @@ namespace Ice
 {
 
 template<typename T>
-class InterfaceByValue : public Ice::ValueHelper<Ice::InterfaceByValue<T>, Ice::Value>
+class InterfaceByValue : public ValueHelper<InterfaceByValue<T>, Value>
 {
 public:
     virtual std::string ice_id() const
@@ -32,18 +32,11 @@ public:
     {
         return T::ice_staticId();
     }
-};
 
-template<typename S, typename T>
-struct StreamWriter<Ice::InterfaceByValue<T>, S>
-{
-    static void write(S* __os, const Ice::InterfaceByValue<T>& v) { }
-};
-
-template<typename S, typename T>
-struct StreamReader<Ice::InterfaceByValue<T>, S>
-{
-    static void read(S* __is, Ice::InterfaceByValue<T>& v) { }
+    std::tuple<> ice_tuple() const
+    {
+        return std::tie();
+    }
 };
 
 }

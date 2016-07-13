@@ -6717,14 +6717,6 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     H.inc();
 
     //
-    // In C++, a nested type cannot have the same name as the enclosing type
-    //
-    if(p->name() != "PointerType")
-    {
-        H << nl << "using PointerType = ::std::shared_ptr<" << name << ">;";
-    }
-
-    //
     // Out of line virtual dtor to avoid weak vtable
     //
     H << sp << nl << _dllMemberExport << "virtual ~" << name  << "();";
@@ -7613,15 +7605,6 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     H.dec();
     H << nl << "public:" << sp;
     H.inc();
-
-    //
-    // In C++, a nested type cannot have the same name as the enclosing type
-    //
-
-    if(p->name() != "PointerType")
-    {
-        H << nl << "using PointerType = ::std::shared_ptr<" << name << ">;";
-    }
 
     // Out of line dtor to avoid weak vtable
     H << sp;

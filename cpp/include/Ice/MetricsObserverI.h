@@ -489,9 +489,9 @@ class ObserverFactoryT : public Updater, private IceUtil::Mutex
 public:
 
 #ifdef ICE_CPP11_MAPPING
-    typedef ::std::shared_ptr<ObserverImplType> ObserverImplPtrType;
-    typedef typename ObserverImplType::MetricsType MetricsType;
-    typedef std::vector<::std::shared_ptr<IceInternal::MetricsMapT<MetricsType> > > MetricsMapSeqType;
+    using ObserverImplPtrType = ::std::shared_ptr<ObserverImplType>;
+    using MetricsType = typename ObserverImplType::MetricsType;
+    using MetricsMapSeqType = std::vector<::std::shared_ptr<IceInternal::MetricsMapT<MetricsType>>>;
 #else
     typedef IceUtil::Handle<ObserverImplType> ObserverImplPtrType;
     typedef typename ObserverImplType::MetricsType MetricsType;

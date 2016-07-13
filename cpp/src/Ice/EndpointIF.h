@@ -24,11 +24,11 @@ class EndpointI_connectors;
 
 #ifdef ICE_CPP11_MAPPING // C++11 mapping
 
-typedef ::std::shared_ptr<EndpointI> EndpointIPtr;
-typedef ::std::shared_ptr<TcpEndpointI> TcpEndpointIPtr;
-typedef ::std::shared_ptr<UdpEndpointI> UdpEndpointIPtr;
-typedef ::std::shared_ptr<WSEndpoint> WSEndpointPtr;
-typedef ::std::shared_ptr<EndpointI_connectors> EndpointI_connectorsPtr;
+using EndpointIPtr = ::std::shared_ptr<EndpointI>;
+using TcpEndpointIPtr = ::std::shared_ptr<TcpEndpointI>;
+using UdpEndpointIPtr = ::std::shared_ptr<UdpEndpointI>;
+using WSEndpointPtr = ::std::shared_ptr<WSEndpoint>;
+using EndpointI_connectorsPtr = ::std::shared_ptr<EndpointI_connectors>;
 
 #else // C++98 mapping
 

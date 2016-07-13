@@ -13,7 +13,24 @@
 #include <Ice/Config.h>
 #include <Ice/ProxyHandle.h>
 
-#ifndef ICE_CPP11_MAPPING // C++98 mapping
+#ifdef ICE_CPP11_MAPPING
+namespace Ice
+{
+
+class ObjectPrx;
+using ObjectPrxPtr = ::std::shared_ptr<ObjectPrx>;
+
+}
+
+namespace IceInternal
+{
+
+template<typename P>
+::std::shared_ptr<P> createProxy();
+
+}
+
+#else // C++98 mapping
 namespace IceProxy
 {
 
@@ -35,24 +52,5 @@ typedef ObjectPrx ObjectPrxPtr;
 
 }
 
-#else // C++11 mapping
-
-namespace Ice
-{
-
-class ObjectPrx;
-typedef ::std::shared_ptr<ObjectPrx> ObjectPrxPtr;
-
-}
-
-namespace IceInternal
-{
-
-template<typename P>
-::std::shared_ptr<P> createProxy();
-
-}
-
 #endif
-
 #endif

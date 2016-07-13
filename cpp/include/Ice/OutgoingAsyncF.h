@@ -11,7 +11,6 @@
 #define ICE_OUTGOING_ASYNC_F_H
 
 #include <IceUtil/Shared.h>
-
 #include <Ice/Handle.h>
 
 namespace IceInternal
@@ -23,10 +22,10 @@ class ProxyOutgoingAsyncBase;
 class CommunicatorFlushBatchAsync;
 
 #ifdef ICE_CPP11_MAPPING
-typedef ::std::shared_ptr<OutgoingAsyncBase> OutgoingAsyncBasePtr;
-typedef ::std::shared_ptr<OutgoingAsync> OutgoingAsyncPtr;
-typedef ::std::shared_ptr<ProxyOutgoingAsyncBase> ProxyOutgoingAsyncBasePtr;
-typedef ::std::shared_ptr<CommunicatorFlushBatchAsync> CommunicatorFlushBatchAsyncPtr;
+using OutgoingAsyncBasePtr = ::std::shared_ptr<OutgoingAsyncBase>;
+using OutgoingAsyncPtr = ::std::shared_ptr<OutgoingAsync>;
+using ProxyOutgoingAsyncBasePtr = ::std::shared_ptr<ProxyOutgoingAsyncBase>;
+using CommunicatorFlushBatchAsyncPtr = ::std::shared_ptr<CommunicatorFlushBatchAsync>;
 #else
 ICE_API IceUtil::Shared* upCast(OutgoingAsyncBase*);
 typedef IceInternal::Handle<OutgoingAsyncBase> OutgoingAsyncBasePtr;

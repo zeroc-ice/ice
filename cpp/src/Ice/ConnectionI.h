@@ -147,7 +147,7 @@ public:
         virtual void connectionStartCompleted(const ConnectionIPtr&) = 0;
         virtual void connectionStartFailed(const ConnectionIPtr&, const Ice::LocalException&) = 0;
     };
-    typedef ::std::shared_ptr<StartCallback> StartCallbackPtr;
+    using StartCallbackPtr = ::std::shared_ptr<StartCallback>;
 #else
     class StartCallback : public virtual IceUtil::Shared
     {

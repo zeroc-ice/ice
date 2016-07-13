@@ -238,10 +238,10 @@ namespace Ice
 {
 
 class RouterPrx;
-typedef ::std::shared_ptr<::Ice::RouterPrx> RouterPrxPtr;
+using RouterPrxPtr = ::std::shared_ptr<::Ice::RouterPrx>;
 
 class LocatorPrx;
-typedef ::std::shared_ptr<::Ice::LocatorPrx> LocatorPrxPtr;
+using LocatorPrxPtr = ::std::shared_ptr<::Ice::LocatorPrx>;
 
 class LocalException;
 class OutputStream;
