@@ -2367,7 +2367,7 @@ def runTests(start, expanded, num = 0, script = False):
                                                         args.find("ws") != -1)) or
                                    args.find("compress") != -1 or
                                    args.find("mx") != -1)):
-                print("%s*** test not supported with node%s" % (prefix, suffix))
+                print("%s*** test not supported with Node.js%s" % (prefix, suffix))
                 continue
 
             if (args.find("ssl") != -1 or args.find("wss") != -1) and ("nossl" in config):
