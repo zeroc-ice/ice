@@ -5721,21 +5721,7 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
     else
     {
-        H.zeroIndent();
-        //
-        // COMPILERFIX: Apple LLVM version 7.3.0 crash when using"
-        // a '= default' constructor in classes derived from std::exception
-        //
-        H << sp << nl << "#if defined(__APPLE___) && defined(__clang__)";
-        H.restoreIndent();
-        H << nl << name << "() {}";
-        H.zeroIndent();
-        H << nl << "#else";
-        H.restoreIndent();
-        H << nl << name << "() = default;";
-        H.zeroIndent();
-        H << nl << "#endif";
-        H.restoreIndent();
+        H << sp << nl << name << "() = default;";
     }
 
     if(!allDataMembers.empty())
