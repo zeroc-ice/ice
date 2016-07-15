@@ -571,10 +571,8 @@ generated from the section label.
         <property name="EntropyDaemon" />
         <property name="FindCert" />
         <property name="FindCert.[any]" deprecatedBy="IceSSL.FindCert"/>
-        <property name="ImportCert.[any]" deprecated="true"/>
         <property name="InitOpenSSL" />
         <property name="KeyFile" deprecated="true"/>
-        <property name="KeySet" deprecatedBy="IceSSL.CertStoreLocation" />
         <property name="Keychain"/>
         <property name="KeychainPassword"/>
         <property name="Keystore" />
@@ -583,7 +581,6 @@ generated from the section label.
         <property name="Password" />
         <property name="PasswordCallback" />
         <property name="PasswordRetryMax" />
-        <property name="PersistKeySet" deprecated="true"/>
         <property name="Protocols" />
         <property name="ProtocolVersionMax" />
         <property name="ProtocolVersionMin" />
