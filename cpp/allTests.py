@@ -47,7 +47,7 @@ tests = [
     ("Ice/inheritance", ["core", "bt"]),
     ("Ice/facets", ["core", "bt"]),
     ("Ice/objects", ["core", "bt"]),
-    ("Ice/optional", ["core", "bt", "noc++11"]),
+    ("Ice/optional", ["core", "bt"]),
     ("Ice/binding", ["core", "nosocks", "bt"]),
     ("Ice/faultTolerance", ["core", "novalgrind"]), # valgrind reports leak with aborted servers
     ("Ice/location", ["core"]),

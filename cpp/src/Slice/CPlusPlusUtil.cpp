@@ -49,6 +49,26 @@ string toTemplateArg(const string& arg)
 }
 
 string
+toOptional(const string& s, int typeCtx)
+{
+    bool cpp11 = (typeCtx & TypeContextCpp11) != 0;
+    string result = cpp11 ? "Ice::optional" : "IceUtil::Optional";
+    result += '<';
+    if(cpp11)
+    {
+        result += s;
+    }
+    else
+    {
+        result += toTemplateArg(s);
+    }
+
+    result += '>';
+    return result;
+}
+
+
+string
 stringTypeToString(const TypePtr& type, const StringList& metaData, int typeCtx)
 {
     string strType = findMetaData(metaData, typeCtx);
@@ -98,7 +118,7 @@ sequenceTypeToString(const SequencePtr& seq, const StringList& metaData, int typ
                     return "::std::vector<" + s + '>';
                 }
             }
-            string s = typeToString(seq->type(), seq->typeMetaData(), inWstringModule(seq) ? TypeContextUseWstring : 0);
+            string s = typeToString(seq->type(), seq->typeMetaData(), typeCtx | (inWstringModule(seq) ? TypeContextUseWstring : 0));
             return "::std::pair<const " + s + "*, const " + s + "*>";
         }
         else if(seqType.find("%range") == 0)
@@ -154,7 +174,7 @@ writeParamAllocateCode(Output& out, const TypePtr& type, bool optional, const st
     string s = typeToString(type, metaData, typeCtx);
     if(optional)
     {
-        s = "IceUtil::Optional<" + toTemplateArg(s) + '>';
+        s = toOptional(s, typeCtx);
     }
     out << nl << s << ' ' << fixedName << ';';
 
@@ -195,7 +215,7 @@ writeParamAllocateCode(Output& out, const TypePtr& type, bool optional, const st
         {
             if(optional)
             {
-                s = "IceUtil::Optional<" + toTemplateArg(s) + '>';
+                s = toOptional(s, typeCtx);
             }
             out << nl << s << " ___" << fixedName << ";";
         }
@@ -746,7 +766,7 @@ Slice::typeToString(const TypePtr& type, bool optional, const StringList& metaDa
 {
     if(optional)
     {
-        return "IceUtil::Optional<" + toTemplateArg(typeToString(type, metaData, typeCtx)) + ">";
+        return toOptional(typeToString(type, metaData, typeCtx), typeCtx);
     }
     else
     {
@@ -764,7 +784,7 @@ Slice::returnTypeToString(const TypePtr& type, bool optional, const StringList& 
 
     if(optional)
     {
-        return "IceUtil::Optional<" + toTemplateArg(typeToString(type, metaData, typeCtx)) + ">";
+        return toOptional(typeToString(type, metaData, typeCtx), typeCtx);
     }
 
     return typeToString(type, metaData, typeCtx);
@@ -811,7 +831,7 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const StringList& m
 
     if(optional)
     {
-        return "const IceUtil::Optional<" + toTemplateArg(typeToString(type, metaData, typeCtx)) +">&";
+        return "const " + toOptional(typeToString(type, metaData, typeCtx), typeCtx) + '&';
     }
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
@@ -819,7 +839,7 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const StringList& m
     {
         if(builtin->kind() == Builtin::KindString)
         {
-            return string("const ") + stringTypeToString(type, metaData, typeCtx) + "&";
+            return string("const ") + stringTypeToString(type, metaData, typeCtx) + '&';
         }
         else
         {
@@ -972,7 +992,7 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const StringList& 
 
     if(optional)
     {
-        return "IceUtil::Optional<" + toTemplateArg(typeToString(type, metaData, typeCtx)) +">&";
+        return toOptional(typeToString(type, metaData, typeCtx), typeCtx) + '&';
     }
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);

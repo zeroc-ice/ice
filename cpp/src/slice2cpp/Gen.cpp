@@ -811,7 +811,7 @@ Slice::Gen::generate(const UnitPtr& p)
     }
 
     H << "\n#include <IceUtil/ScopedArray.h>";
-    H << "\n#include <IceUtil/Optional.h>";
+    H << "\n#include <Ice/Optional.h>";
 
     if(p->hasExceptions())
     {
@@ -5937,8 +5937,21 @@ Slice::Gen::Cpp11TypesVisitor::visitDataMember(const DataMemberPtr& p)
     string defaultValue = p->defaultValue();
     if(!defaultValue.empty())
     {
-        H << " = ";
-        writeConstantValue(H, p->type(), p->defaultValueType(), defaultValue, _useWstring, p->getMetaData(), true);
+        BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
+        if(p->optional() && builtin->kind() == Builtin::KindString)
+        {
+            //
+            // = "<string literal>" doesn't work for optional<std::string>
+            //
+            H << '{';
+            writeConstantValue(H, p->type(), p->defaultValueType(), defaultValue, _useWstring, p->getMetaData(), true);
+            H << '}';
+        }
+        else
+        {
+            H << " = ";
+            writeConstantValue(H, p->type(), p->defaultValueType(), defaultValue, _useWstring, p->getMetaData(), true);
+        }
     }
 
     H << ';';
@@ -6603,8 +6616,21 @@ Slice::Gen::Cpp11ObjectVisitor::emitDataMember(const DataMemberPtr& p)
     string defaultValue = p->defaultValue();
     if(!defaultValue.empty())
     {
-        H << " = ";
-        writeConstantValue(H, p->type(), p->defaultValueType(), defaultValue, _useWstring, p->getMetaData(), true);
+        BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
+        if(p->optional() && builtin->kind() == Builtin::KindString)
+        {
+            //
+            // = "<string literal>" doesn't work for optional<std::string>
+            //
+            H << '{';
+            writeConstantValue(H, p->type(), p->defaultValueType(), defaultValue, _useWstring, p->getMetaData(), true);
+            H << '}';
+        }
+        else
+        {
+            H << " = ";
+            writeConstantValue(H, p->type(), p->defaultValueType(), defaultValue, _useWstring, p->getMetaData(), true);
+        }
     }
     H << ";";
 }
@@ -7593,7 +7619,6 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     H.inc();
 
     // Out of line dtor to avoid weak vtable
-    H << sp;
     H << nl << _dllMemberExport << "virtual ~" << name << "();";
     C << sp;
     C << nl << scoped.substr(2) << "::~" << name << "()";

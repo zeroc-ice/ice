@@ -14,6 +14,7 @@
 #include <Ice/Config.h>
 #include <Ice/Comparable.h>
 #include <Ice/Initialize.h>
+#include <Ice/Optional.h>
 #include <Ice/LocalException.h>
 #include <Ice/PropertiesAdmin.h>
 #include <Ice/Properties.h>

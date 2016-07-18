@@ -383,7 +383,11 @@ public:
                                              StreamableTraits<T>::helper,
                                              StreamableTraits<T>::fixedLength>::optionalFormat))
         {
+#ifdef ICE_CPP11_MAPPING
+            v.emplace();
+#else
             v.__setIsSet();
+#endif
             StreamOptionalHelper<T,
                                  StreamableTraits<T>::helper,
                                  StreamableTraits<T>::fixedLength>::read(this, *v);
