@@ -129,15 +129,44 @@ exception Ex
 
 };
 
-sequence<Object> ObjectSeq;			// For Objective-C only
-sequence<Object*> ObjectPrxSeq;			// For Objective-C only
-sequence<Base> BaseSeq;				// For Objective-C only
-sequence<Base*> BasePrxSeq;			// For Objective-C only
+class A1
+{
+    string name;
+};
 
-dictionary<string, Object> ObjectDict;		// For Objective-C only
-dictionary<string, Object*> ObjectPrxDict;	// For Objective-C only
-dictionary<string, Base> BaseDict;		// For Objective-C only
-dictionary<string, Base*> BasePrxDict;		// For Objective-C only
+class B1
+{
+    A1 a1;
+    A1 a2;
+};
+
+class D1 extends B1
+{
+    A1 a3;
+    A1 a4;
+};
+
+exception EBase
+{
+    A1 a1;
+    A1 a2;
+};
+
+exception EDerived extends EBase
+{
+    A1 a3;
+    A1 a4;
+};
+
+sequence<Object> ObjectSeq;         // For Objective-C only
+sequence<Object*> ObjectPrxSeq;     // For Objective-C only
+sequence<Base> BaseSeq;             // For Objective-C only
+sequence<Base*> BasePrxSeq;         // For Objective-C only
+
+dictionary<string, Object> ObjectDict;      // For Objective-C only
+dictionary<string, Object*> ObjectPrxDict;  // For Objective-C only
+dictionary<string, Base> BaseDict;          // For Objective-C only
+dictionary<string, Base*> BasePrxDict;      // For Objective-C only
 
 class Initial
 {
@@ -154,6 +183,9 @@ class Initial
     I getI();
     I getJ();
     I getH();
+
+    D1 getD1(D1 d1);
+    void throwEDerived() throws EDerived;
 
     void setI(I theI);
 

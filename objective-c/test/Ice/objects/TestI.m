@@ -235,6 +235,19 @@
     return (TestObjectsI*)[TestObjectsH h];
 }
 
+-(TestObjectsI*) getD1:(TestObjectsI*)d1 current:(ICECurrent*)current
+{
+    return d1;
+}
+
+-(void) throwEDerived:(ICECurrent*)current
+{
+    @throw [TestObjectsEDerived eDerived:[TestObjectsA1 a1:@"a1"]
+                                      a2:[TestObjectsA1 a1:@"a2"]
+                                      a3:[TestObjectsA1 a1:@"a3"]
+                                      a4:[TestObjectsA1 a1:@"a4"]];
+}
+
 -(TestObjectsBaseSeq*) opBaseSeq:(TestObjectsMutableBaseSeq*)inSeq outSeq:(TestObjectsBaseSeq**)outSeq
                          current:(ICECurrent*)current
 {
