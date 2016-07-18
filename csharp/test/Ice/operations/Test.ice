@@ -251,7 +251,7 @@ class MyClass
     ByteBoolD opByteBoolD1(ByteBoolD opByteBoolD1);
     StringS opStringS2(StringS stringS);
     ByteBoolD opByteBoolD2(ByteBoolD byteBoolD);
-    
+
     StringS opStringLiterals();
     StringS opWStringLiterals();
 };
@@ -328,6 +328,8 @@ const string ss4 = "\\\u0041\\"; /* \A\     */
 const string ss5 = "\\u0041\\";  /* \u0041\ */
 
 //
+// Ĩ - Unicode Character 'LATIN CAPITAL LETTER I WITH TILDE' (U+0128)
+// Ÿ - Unicode Character 'LATIN CAPITAL LETTER Y WITH DIAERESIS' (U+0178)
 // ÿ - Unicode Character 'LATIN SMALL LETTER Y WITH DIAERESIS' (U+00FF)
 // Ā - Unicode Character 'LATIN CAPITAL LETTER A WITH MACRON' (U+0100)
 // ἀ - Unicode Character 'GREEK SMALL LETTER ALPHA WITH PSILI' (U+1F00)
@@ -338,8 +340,9 @@ const string ss5 = "\\u0041\\";  /* \u0041\ */
 // 🍁 - Unicode Character 'MAPLE LEAF' (U+1F341)
 // 🍂 - Unicode Character 'FALLEN LEAF' (U+1F342)
 // 🍃 - Unicode Character 'LEAF FLUTTERING IN WIND' (U+1F343)
-const string su0 = "ÿĀἀ𐆔𐅪𐆘🍀🍁🍂🍃";
-const string su1 = "\u00FF\u0100\u1F00\U00010194\U0001016A\U00010198\U0001F340\U0001F341\U0001F342\U0001F343";
-const string su2 = "\U000000FF\U00000100\U00001F00\U00010194\U0001016A\U00010198\U0001F340\U0001F341\U0001F342\U0001F343";
+//
+const string su0 = "ĨŸÿĀἀ𐆔𐅪𐆘🍀🍁🍂🍃";
+const string su1 = "\u0128\u0178\u00FF\u0100\u1F00\U00010194\U0001016A\U00010198\U0001F340\U0001F341\U0001F342\U0001F343";
+const string su2 = "\U00000128\U00000178\U000000FF\U00000100\U00001F00\U00010194\U0001016A\U00010198\U0001F340\U0001F341\U0001F342\U0001F343";
 
 };
