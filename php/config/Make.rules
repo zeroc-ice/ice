@@ -7,20 +7,23 @@
 #
 # **********************************************************************
 
+#
+# Use specific PHP version
+#
+PHP_CONFIG      ?= php-config
+
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
 
-ifeq ($(filter clean distclean tests,$(MAKECMDGOALS)),)
-    ifneq ($(shell php-config --libs > /dev/null 2>&1 && echo 0),0)
-        $(error php-config not found review your PHP installation and ensure php-config is in your PATH)
-    endif
+ifneq ($(shell $(PHP_CONFIG) --libs > /dev/null 2>&1 && echo 0),0)
+    $(error $(PHP_CONFIG) not found review your PHP installation and ensure $(PHP_CONFIG) is in your PATH)
+endif
 
-    php_cppflags     := $(shell php-config --includes)
+php_cppflags     := $(shell $(PHP_CONFIG) --includes)
 
-    ifeq ($(os),Darwin)
-        php_ldflags      := ${wl}-flat_namespace ${wl}-undefined ${wl}suppress
-    endif
+ifeq ($(os),Darwin)
+    php_ldflags      := ${wl}-flat_namespace ${wl}-undefined ${wl}suppress
 endif
 
 #
@@ -34,7 +37,7 @@ $(firstword $(supported-platforms))_installdir[IcePHP] :=
 # PHP installation directory
 #
 install_phpdir  	?= $(if $(usr_dir_install),$(prefix)/share/php,$(prefix)/php)
-install_phplibdir	?= $(if $(usr_dir_install),$(shell php -r "echo(ini_get('extension_dir'));"),$(prefix)/php)
+install_phplibdir	?= $(if $(usr_dir_install),$(shell $(PHP_CONFIG) --extension-dir),$(prefix)/php)
 
 #
 # Rules to build a php module. We just compute the name of the php module
