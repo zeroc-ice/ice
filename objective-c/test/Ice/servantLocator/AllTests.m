@@ -96,7 +96,8 @@ testExceptions(id<TestServantLocatorTestIntfPrx> obj)
     }
     @catch(ICEUnknownLocalException* ex)
     {
-        test([ex.unknown rangeOfString:@"Ice::SocketException"].location != NSNotFound);
+        test([ex.unknown rangeOfString:@"Ice::SocketException"].location != NSNotFound ||
+             [ex.unknown rangeOfString:@"Ice.SocketException"].location != NSNotFound);
     }
     @catch(id)
     {

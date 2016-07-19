@@ -106,7 +106,8 @@ public class AllTests
         }
         catch(UnknownLocalException ex)
         {
-            test(ex.unknown.indexOf("Ice::SocketException") >= 0);
+            test(ex.unknown.indexOf("Ice::SocketException") >= 0 ||
+                 ex.unknown.indexOf("Ice.SocketException") >= 0);
         }
         catch(Throwable ex)
         {
