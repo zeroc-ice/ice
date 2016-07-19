@@ -191,32 +191,26 @@ var TcpTransceiver = Ice.Class({
             var sync = true;
             /*jshint -W083 */
             sync = this._fd.write(slice, null, function() {
-                if(sync)
+                if(!sync)
                 {
-                    return;
+                    self._bytesWrittenCallback();
                 }
-
-                byteBuffer.position = byteBuffer.position + packetSize;
-                self._bytesWrittenCallback(packetSize, bytesTotal);
             });
             /*jshint +W083 */
 
-            if(sync)
+            byteBuffer.position = byteBuffer.position + packetSize;
+            if(!sync)
             {
-                byteBuffer.position = byteBuffer.position + packetSize;
+                return false; // Wait for callback to be called before sending more data.
+            }
 
-                if(this._maxSendPacketSize > 0 && byteBuffer.remaining > this._maxSendPacketSize)
-                {
-                    packetSize = this._maxSendPacketSize;
-                }
-                else
-                {
-                    packetSize = byteBuffer.remaining;
-                }
+            if(this._maxSendPacketSize > 0 && byteBuffer.remaining > this._maxSendPacketSize)
+            {
+                packetSize = this._maxSendPacketSize;
             }
             else
             {
-                return false;
+                packetSize = byteBuffer.remaining;
             }
         }
         return true;

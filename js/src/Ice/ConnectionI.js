@@ -162,26 +162,7 @@ var ConnectionI = Class({
             this._transceiver.setCallbacks(
                 function() { self.message(SocketOperation.Write); }, // connected callback
                 function() { self.message(SocketOperation.Read); },  // read callback
-                function(bytesSent, bytesTotal) {
-                    self.message(SocketOperation.Write);
-                    if(self._instance.traceLevels().network >= 3 && bytesSent > 0)
-                    {
-                        var s = [];
-                        s.push("sent ");
-                        s.push(bytesSent);
-                        if(!self._endpoint.datagram())
-                        {
-                            s.push(" of ");
-                            s.push(bytesTotal);
-                        }
-                        s.push(" bytes via ");
-                        s.push(self._endpoint.protocol());
-                        s.push("\n");
-                        s.push(this.toString());
-                        self._instance.initializationData().logger.trace(self._instance.traceLevels().networkCat,
-                                                                         s.join(""));
-                    }
-                }  // write callback
+                function() { self.message(SocketOperation.Write); }  // write callback
             );
             this.initialize();
         }

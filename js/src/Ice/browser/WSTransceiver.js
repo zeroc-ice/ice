@@ -200,7 +200,7 @@ var WSTransceiver = Ice.Class({
                     {
                         if(transceiver._fd && transceiver._fd.bufferedAmount + packetSize <= transceiver._maxSendPacketSize)
                         {
-                            transceiver._bytesWrittenCallback(0, 0);
+                            transceiver._bytesWrittenCallback();
                         }
                     },
                     this.writeReadyTimeout());
