@@ -50,9 +50,9 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(communicator, 0));
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    BlobjectIPtr blob = new BlobjectI;
+    BlobjectIPtr blob = ICE_MAKE_SHARED(BlobjectI);
     adapter->addDefaultServant(blob, "");
-    adapter->add(new EchoI(blob), communicator->stringToIdentity("__echo"));
+    adapter->add(ICE_MAKE_SHARED(EchoI, blob), communicator->stringToIdentity("__echo"));
     adapter->activate();
 
     TEST_READY

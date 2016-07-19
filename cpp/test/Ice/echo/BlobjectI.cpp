@@ -12,6 +12,7 @@
 
 using namespace std;
 
+#ifndef ICE_CPP11_MAPPING
 class Callback : public IceUtil::Shared
 {
 public:
@@ -45,6 +46,7 @@ private:
     bool _twoway;
 };
 typedef IceUtil::Handle<Callback> CallbackPtr;
+#endif
 
 BlobjectI::BlobjectI() :
     _startBatch(false)
@@ -66,6 +68,58 @@ BlobjectI::flushBatch()
     _batchProxy = 0;
 }
 
+#ifdef ICE_CPP11_MAPPING
+void
+BlobjectI::ice_invokeAsync(std::vector<Ice::Byte> inEncaps,
+                           std::function<void(bool, std::vector<Ice::Byte>)> response,
+                           std::function<void(std::exception_ptr)> ex,
+                           const Ice::Current& current)
+{
+    const bool twoway = current.requestId > 0;
+    auto obj = current.con->createProxy(current.id);
+    if(!twoway)
+    {
+        if(_startBatch)
+        {
+            _startBatch = false;
+            _batchProxy = obj->ice_batchOneway();
+        }
+        if(_batchProxy)
+        {
+            obj = _batchProxy;
+        }
+
+        if(!current.facet.empty())
+        {
+            obj = obj->ice_facet(current.facet);
+        }
+
+        if(_batchProxy)
+        {
+            vector<Ice::Byte> out;
+            obj->ice_invoke(current.operation, current.mode, inEncaps, out, current.ctx);
+            response(true, vector<Ice::Byte>());
+        }
+        else
+        {
+            obj->ice_oneway()->ice_invokeAsync(current.operation, current.mode, inEncaps,
+                                               [](bool, std::vector<Ice::Byte>) { assert(0); },
+                                               ex,
+                                               [&](bool) { response(true, vector<Ice::Byte>()); },
+                                               current.ctx);
+        }
+    }
+    else
+    {
+        if(!current.facet.empty())
+        {
+            obj = obj->ice_facet(current.facet);
+        }
+
+        obj->ice_invokeAsync(current.operation, current.mode, inEncaps, response, ex, nullptr, current.ctx);
+    }
+}
+#else
 void
 BlobjectI::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& amdCb, const vector<Ice::Byte>& inEncaps,
                             const Ice::Current& current)
@@ -116,3 +170,4 @@ BlobjectI::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& amdCb, const ve
         obj->begin_ice_invoke(current.operation, current.mode, inEncaps, current.ctx, del);
     }
 }
+#endif

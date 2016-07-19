@@ -67,8 +67,7 @@ cpp11_projects		= test/Common \
 			  test/IceBox/%
 
 cpp11_excludes  	= IcePatch2 \
-			  test/Ice/gc \
-			  test/Ice/echo
+			  test/Ice/gc
 
 #
 # If building on a Linux multilib platform, we restrict what we build for
