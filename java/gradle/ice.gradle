@@ -55,7 +55,8 @@ slice {
     cppConfiguration = this.cppConfiguration
     cppPlatform = this.cppPlatform
     if(System.env.USE_BIN_DIST != "yes") {
-        iceHome = new File([rootProject.projectDir, ".."].join(File.separator)).getCanonicalPath()
+        iceHome =  this.hasProperty('iceHome') ? this.iceHome
+            : new File([rootProject.projectDir, ".."].join(File.separator)).getCanonicalPath()
     }
 }
 
