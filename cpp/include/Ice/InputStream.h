@@ -632,7 +632,7 @@ public:
     Int readEnum(Int);
 
     // Exception
-    void throwException(const Ice::UserExceptionFactoryPtr& = 0);
+    void throwException(ICE_IN(ICE_USER_EXCEPTION_FACTORY) = ICE_NULLPTR);
 
     // Read/write/skip optionals
     void skipOptional(OptionalFormat);
@@ -720,7 +720,7 @@ private:
         virtual ~EncapsDecoder();
 
         virtual void read(PatchFunc, void*) = 0;
-        virtual void throwException(const Ice::UserExceptionFactoryPtr&) = 0;
+        virtual void throwException(ICE_IN(ICE_USER_EXCEPTION_FACTORY)) = 0;
 
         virtual void startInstance(SliceType) = 0;
         virtual SlicedDataPtr endInstance(bool) = 0;
@@ -788,7 +788,7 @@ private:
         }
 
         virtual void read(PatchFunc, void*);
-        virtual void throwException(const Ice::UserExceptionFactoryPtr&);
+        virtual void throwException(ICE_IN(ICE_USER_EXCEPTION_FACTORY));
 
         virtual void startInstance(SliceType);
         virtual SlicedDataPtr endInstance(bool);
@@ -821,7 +821,7 @@ private:
         }
 
         virtual void read(PatchFunc, void*);
-        virtual void throwException(const Ice::UserExceptionFactoryPtr&);
+        virtual void throwException(ICE_IN(ICE_USER_EXCEPTION_FACTORY));
 
         virtual void startInstance(SliceType);
         virtual SlicedDataPtr endInstance(bool);

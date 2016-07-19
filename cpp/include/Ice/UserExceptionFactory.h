@@ -14,6 +14,26 @@
 #include <IceUtil/Handle.h>
 #include <Ice/Config.h>
 
+#ifdef ICE_CPP11_MAPPING
+
+namespace IceInternal
+{
+
+template<class E>
+void
+#ifdef NDEBUG
+defaultUserExceptionFactory(const std::string&)
+#else
+defaultUserExceptionFactory(const std::string& typeId)
+#endif
+{
+    assert(typeId == E::ice_staticId());
+    throw E();
+}
+
+}
+#else
+
 namespace Ice
 {
 
@@ -35,16 +55,16 @@ template<class E>
 class DefaultUserExceptionFactory : public Ice::UserExceptionFactory
 {
 public:
-    
+
     DefaultUserExceptionFactory(const ::std::string& typeId) :
         _typeId(typeId)
     {
     }
 
-#ifndef NDEBUG
-    virtual void createAndThrow(const ::std::string& typeId)
-#else
+#ifdef NDEBUG
     virtual void createAndThrow(const ::std::string&)
+#else
+    virtual void createAndThrow(const ::std::string& typeId)
 #endif
     {
         assert(typeId == _typeId);
@@ -57,4 +77,5 @@ private:
 
 }
 
+#endif
 #endif

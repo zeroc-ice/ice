@@ -1403,7 +1403,7 @@ Ice::InputStream::readEnum(Int maxValue)
 }
 
 void
-Ice::InputStream::throwException(const UserExceptionFactoryPtr& factory)
+Ice::InputStream::throwException(ICE_IN(ICE_USER_EXCEPTION_FACTORY) factory)
 {
     initEncaps();
     _currentEncaps->decoder->throwException(factory);
@@ -1963,7 +1963,7 @@ Ice::InputStream::EncapsDecoder10::read(PatchFunc patchFunc, void* patchAddr)
 }
 
 void
-Ice::InputStream::EncapsDecoder10::throwException(const UserExceptionFactoryPtr& factory)
+Ice::InputStream::EncapsDecoder10::throwException(ICE_IN(ICE_USER_EXCEPTION_FACTORY) factory)
 {
     assert(_sliceType == NoSlice);
 
@@ -1985,7 +1985,7 @@ Ice::InputStream::EncapsDecoder10::throwException(const UserExceptionFactoryPtr&
     //
     startSlice();
     const string mostDerivedId = _typeId;
-    UserExceptionFactoryPtr exceptionFactory = factory;
+    ICE_USER_EXCEPTION_FACTORY exceptionFactory = factory;
     while(true)
     {
         //
@@ -2008,7 +2008,11 @@ Ice::InputStream::EncapsDecoder10::throwException(const UserExceptionFactoryPtr&
             //
             try
             {
+#ifdef ICE_CPP11_MAPPING
+                exceptionFactory(_typeId);
+#else
                 exceptionFactory->createAndThrow(_typeId);
+#endif
             }
             catch(UserException& ex)
             {
@@ -2265,7 +2269,7 @@ Ice::InputStream::EncapsDecoder11::read(PatchFunc patchFunc, void* patchAddr)
 }
 
 void
-Ice::InputStream::EncapsDecoder11::throwException(const UserExceptionFactoryPtr& factory)
+Ice::InputStream::EncapsDecoder11::throwException(ICE_IN(ICE_USER_EXCEPTION_FACTORY) factory)
 {
     assert(!_current);
 
@@ -2276,7 +2280,7 @@ Ice::InputStream::EncapsDecoder11::throwException(const UserExceptionFactoryPtr&
     //
     startSlice();
     const string mostDerivedId = _current->typeId;
-    UserExceptionFactoryPtr exceptionFactory = factory;
+    ICE_USER_EXCEPTION_FACTORY exceptionFactory = factory;
     while(true)
     {
         //
@@ -2299,7 +2303,11 @@ Ice::InputStream::EncapsDecoder11::throwException(const UserExceptionFactoryPtr&
             //
             try
             {
+#ifdef ICE_CPP11_MAPPING
+                exceptionFactory(_current->typeId);
+#else
                 exceptionFactory->createAndThrow(_current->typeId);
+#endif
             }
             catch(UserException& ex)
             {
