@@ -289,6 +289,8 @@ class Initial
     bool supportsJavaSerializable();
 
     bool supportsCsharpSerializable();
+
+    bool supportsCppStringView();
 };
 
 };

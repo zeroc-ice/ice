@@ -121,7 +121,7 @@ class InitialI(Test.Initial):
     def opVarStructSeq_async(self, cb, p1, current=None):
         cb.ice_response(p1, p1)
 
-    def opSerializable(self, cb, p1, current=None):
+    def opSerializable_async(self, cb, p1, current=None):
         cb.ice_response(p1, p1)
 
     def opIntIntDict_async(self, cb, p1, current=None):
@@ -140,7 +140,7 @@ class InitialI(Test.Initial):
         cb.ice_response()
 
     def returnOptionalClass_async(self, cb, req, current=None):
-        cb.ice_response(Test.OneOptional(5))
+        cb.ice_response(Test.OneOptional(53))
 
     def opG_async(self, cb, g, current=None):
         cb.ice_response(g)
@@ -151,11 +151,14 @@ class InitialI(Test.Initial):
     def supportsRequiredParams_async(self, cb, current=None):
         cb.ice_response(False)
 
-    def supportsJavaSerializable(self, cb, current=None):
+    def supportsJavaSerializable_async(self, cb, current=None):
         cb.ice_response(True)
 
-    def supportsCsharpSerializable(self, cb, current=None):
-        cb.ice_response(True)
+    def supportsCsharpSerializable_async(self, cb, current=None):
+        cb.ice_response(False)
+
+    def supportsCppStringView_async(self, cb, current=None):
+        cb.ice_response(False)
 
 def run(args, communicator):
     communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010:udp")

@@ -360,7 +360,7 @@
         ).then(
             function()
             {
-                var init2 = ClientPrivate.Initial2Prx.uncheckedCast(initial)
+                var init2 = ClientPrivate.Initial2Prx.uncheckedCast(initial);
                 return init2.opVoid(5, "test");
             }
         ).then(
