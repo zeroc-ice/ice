@@ -101,7 +101,8 @@ testExceptions(const TestIntfPrxPtr& obj)
     }
     catch(const UnknownLocalException& ex)
     {
-        test(ex.unknown.find("Ice::SocketException") != string::npos);
+        test(ex.unknown.find("Ice::SocketException") != string::npos ||
+             ex.unknown.find("Ice.SocketException") != string::npos);
     }
     catch(...)
     {

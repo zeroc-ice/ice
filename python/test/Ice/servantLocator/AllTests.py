@@ -222,5 +222,5 @@ def allTests(communicator, collocated):
     except:
         test(False)
     print("ok")
-    
+
     return obj
