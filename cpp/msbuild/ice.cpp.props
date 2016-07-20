@@ -55,7 +55,7 @@
       </PropertyGroup>
     </Otherwise>
   </Choose>
-  
+
   <!--
       Common properties set for all builds, configurations and platforms
   -->
@@ -103,6 +103,7 @@
   -->
   <ItemDefinitionGroup Condition="'$(DefaultPlatformToolset)'=='v140'">
     <Link>
+      <FullProgramDatabaseFile>true</FullProgramDatabaseFile>
       <GenerateDebugInformation>Debug</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
@@ -131,9 +132,6 @@
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
-    <Link>
-      <GenerateDebugInformation>No</GenerateDebugInformation>
-    </Link>
   </ItemDefinitionGroup>
 
   <!--
@@ -200,7 +198,7 @@
       <PropertyGroup Condition="'$(Ice_Configuration)|$(ConfigurationType)' == 'Debug|StaticLibrary'">
         <TargetName>$(ProjectName.Replace("uwp++11", "$(IceSoVersion)uwp++11d"))</TargetName>
       </PropertyGroup>
-      
+
       <PropertyGroup Condition="'$(Ice_Configuration)|$(ConfigurationType)' == 'Release|StaticLibrary'">
         <TargetName>$(ProjectName.Replace("uwp++11", "$(IceSoVersion)uwp++11"))</TargetName>
       </PropertyGroup>
