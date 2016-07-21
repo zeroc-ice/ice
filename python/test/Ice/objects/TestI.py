@@ -147,7 +147,7 @@ class InitialI(Test.Initial):
 
     def getH(self, current=None):
         return HI()
-    
+
     def getD1(self, d1, current=None):
         return d1
 
@@ -162,6 +162,18 @@ class InitialI(Test.Initial):
 
     def getCompact(self, current=None):
         return Test.CompactExt()
+
+    def getInnerA(self, current=None):
+        return Test.Inner.A(self._b1)
+
+    def getInnerSubA(self, current=None):
+        return Test.Inner.Sub.A(Test.Inner.A(self._b1))
+
+    def throwInnerEx(self, current=None):
+        raise Test.Inner.Ex("Inner::Ex")
+
+    def throwInnerSubEx(self, current=None):
+        raise Test.Inner.Sub.Ex("Inner::Sub::Ex")
 
 class UnexpectedObjectExceptionTestI(Test.UnexpectedObjectExceptionTest):
     def op(self, current=None):

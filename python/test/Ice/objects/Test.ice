@@ -57,7 +57,7 @@ class D
 {
     A theA;
     B theB;
-    C theC;    
+    C theC;
 
     bool preMarshalInvoked;
     bool postUnmarshalInvoked();
@@ -134,6 +134,36 @@ exception EDerived extends EBase
     A1 a4;
 };
 
+module Inner
+{
+
+class A
+{
+    ::Test::A theA;
+};
+
+exception Ex
+{
+    string reason;
+};
+
+module Sub
+{
+
+class A
+{
+    ::Test::Inner::A theA;
+};
+
+exception Ex
+{
+    string reason;
+};
+
+};
+
+};
+
 class Initial
 {
     void shutdown();
@@ -158,6 +188,12 @@ class Initial
     BaseSeq opBaseSeq(BaseSeq inSeq, out BaseSeq outSeq);
 
     Compact getCompact();
+
+    Inner::A getInnerA();
+    Inner::Sub::A getInnerSubA();
+
+    void throwInnerEx() throws Inner::Ex;
+    void throwInnerSubEx() throws Inner::Sub::Ex;
 };
 
 };
