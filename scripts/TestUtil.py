@@ -1277,11 +1277,11 @@ def getDefaultServerFile(baseDir = os.getcwd()):
         return pkg + "Server"
     raise RuntimeError("unknown language")
 
-def getDefaultClientFile(lang = None):
+def getDefaultClientFile(lang = None, baseDir = ""):
     if lang is None:
         lang = getDefaultMapping()
     if lang in ["cpp", "objective-c"]:
-        return getTestExecutable("client", "")
+        return getTestExecutable("client", baseDir)
     if lang == "ruby":
         return "Client.rb"
     if lang == "php":
@@ -1540,14 +1540,15 @@ def clientServerTest(cfgName = None, additionalServerOptions = "", additionalCli
                 print("** skipping cross test")
                 return
 
-            clientCfg.lang = clientLang
-            client = getDefaultClientFile(clientLang)
-            clientDesc = os.path.basename(client)
-
             if clientHome:
                 clientdir = getMirrorDir(getClientCrossTestDir(testdir), clientLang)
             else:
                 clientdir = getMirrorDir(testdir, clientLang)
+            
+            client = getDefaultClientFile(clientLang, clientdir)
+            clientDesc = os.path.basename(client)
+            clientCfg.lang = clientLang
+
             if not os.path.exists(clientdir):
                 print("** no matching test for %s" % clientLang)
                 return
