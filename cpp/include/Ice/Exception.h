@@ -51,27 +51,31 @@ public:
     virtual ~LocalException() throw();
 #endif
 
-    static const std::string& ice_staticId();
-
-#ifndef ICE_CPP11_MAPPING
+#ifdef ICE_CPP11_MAPPING
+    std::unique_ptr<LocalException> ice_clone() const;
+#else
     virtual LocalException* ice_clone() const = 0;
 #endif
+
+    static const std::string& ice_staticId();
 };
 
 class ICE_API UserException : public IceUtil::Exception
 {
 public:
 
-    static const std::string& ice_staticId();
-
     virtual void __write(::Ice::OutputStream*) const;
     virtual void __read(::Ice::InputStream*);
 
     virtual bool __usesClasses() const;
 
-#ifndef ICE_CPP11_MAPPING
+#ifdef ICE_CPP11_MAPPING
+    std::unique_ptr<UserException> ice_clone() const;
+#else
     virtual UserException* ice_clone() const = 0;
 #endif
+
+    static const std::string& ice_staticId();
 
 protected:
 
@@ -90,12 +94,13 @@ public:
     virtual ~SystemException() throw();
 #endif
 
-    static const std::string& ice_staticId();
-
-#ifndef ICE_CPP11_MAPPING
+#ifdef ICE_CPP11_MAPPING
+    std::unique_ptr<SystemException> ice_clone() const;
+#else
     virtual SystemException* ice_clone() const = 0;
 #endif
 
+    static const std::string& ice_staticId();
 };
 
 }

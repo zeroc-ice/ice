@@ -24,11 +24,7 @@ public:
     virtual void clear();
 
     Ice::DispatchStatus getActualStatus() const;
-#ifdef ICE_CPP11_MAPPING
-    std::exception_ptr getException() const;
-#else
     IceUtil::Exception* getException() const;
-#endif
 
     void setActualStatus(Ice::DispatchStatus);
     void setActualStatus(const IceUtil::Exception&);
@@ -37,11 +33,7 @@ private:
 
     Ice::DispatchInterceptorAsyncCallbackPtr _defaultCb;
     Ice::DispatchStatus _actualStatus;
-#ifdef ICE_CPP11_MAPPING
-    std::exception_ptr _exception;
-#else
     IceUtil::UniquePtr<IceUtil::Exception> _exception;
-#endif
   
     IceUtil::Mutex _mutex;
 };

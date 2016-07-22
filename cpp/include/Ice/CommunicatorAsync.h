@@ -10,9 +10,10 @@
 #ifndef ICE_COMMUNICATOR_ASYNC_H
 #define ICE_COMMUNICATOR_ASYNC_H
 
+#ifndef ICE_CPP11_MAPPING
+
 #include <Ice/Communicator.h>
 
-#ifndef ICE_CPP11_MAPPING
 namespace Ice
 {
 

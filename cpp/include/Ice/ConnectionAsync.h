@@ -10,13 +10,14 @@
 #ifndef ICE_CONNECTION_ASYNC_H
 #define ICE_CONNECTION_ASYNC_H
 
+#ifndef ICE_CPP11_MAPPING
+
 #include <Ice/Connection.h>
 #include <Ice/Proxy.h>
 
 namespace Ice
 {
 
-#ifndef ICE_CPP11_MAPPING
 template<class T>
 class CallbackNC_Connection_flushBatchRequests : public Callback_Connection_flushBatchRequests_Base,
                                                  public ::IceInternal::OnewayCallbackNC<T>
@@ -110,8 +111,8 @@ newCallback_Connection_flushBatchRequests(T* instance, void (T::*excb)(const ::I
 {
     return new Callback_Connection_flushBatchRequests<T, CT>(instance, excb, sentcb);
 }
-#endif
 
 }
 
+#endif
 #endif

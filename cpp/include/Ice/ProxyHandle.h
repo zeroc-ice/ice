@@ -10,12 +10,13 @@
 #ifndef ICE_PROXY_HANDLE_H
 #define ICE_PROXY_HANDLE_H
 
+#ifndef ICE_CPP11_MAPPING // C++98 mapping
+
 #include <IceUtil/Handle.h>
 #include <Ice/Config.h>
 
 #include <iosfwd>
 
-#ifndef ICE_CPP11_MAPPING // C++98 mapping
 namespace IceInternal
 {
 

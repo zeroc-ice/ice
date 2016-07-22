@@ -23,7 +23,7 @@ namespace Glacier2
  * This exception is raised if the session should be restarted.
  *
  **/
-class GLACIER2_API RestartSessionException : public IceUtil::Exception
+class GLACIER2_API RestartSessionException : public IceUtil::ExceptionHelper<RestartSessionException>
 {
 public:
 
@@ -31,7 +31,6 @@ public:
 #ifndef ICE_CPP11_MAPPING
     virtual RestartSessionException* ice_clone() const;
 #endif
-    virtual void ice_throw() const;
 };
 
 /**

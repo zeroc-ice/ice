@@ -18,15 +18,19 @@ public:
 
     MySystemException(const char*, int);
 
-#ifndef ICE_CPP11_COMPILER
-    virtual ~MySystemException() throw();
-#endif
-
     virtual std::string ice_id() const;
+
 #ifndef ICE_CPP11_MAPPING
     virtual MySystemException* ice_clone() const;
 #endif
     virtual void ice_throw() const;
+
+#ifdef ICE_CPP11_MAPPING
+
+protected:
+
+    virtual IceUtil::Exception* ice_cloneImpl() const;
+#endif
 };
 
 class MyObjectI : public Test::MyObject

@@ -254,11 +254,7 @@ IceObjC::iAPTransceiver::initialize(Buffer& readBuffer, Buffer& writeBuffer)
 }
 
 SocketOperation
-#ifdef ICE_CPP11_MAPPING
-IceObjC::iAPTransceiver::closing(bool initiator, exception_ptr)
-#else
 IceObjC::iAPTransceiver::closing(bool initiator, const Ice::LocalException&)
-#endif
 {
     // If we are initiating the connection closure, wait for the peer
     // to close the TCP/IP connection. Otherwise, close immediately.

@@ -15,11 +15,12 @@
 namespace IceUtil
 {
 
-//
-// This is temporary and very partial placeholder for std::unique_ptr,
-// which is not yet widely available.
-//
+#ifdef ICE_CPP11_MAPPING
 
+template<typename T>
+using UniquePtr = std::unique_ptr<T>;
+
+#else
 
 template<typename T>
 class UniquePtr
@@ -84,6 +85,11 @@ public:
         return _ptr;
     }
 
+    operator bool() const
+    {
+        return _ptr != 0;
+    }
+
     void swap(UniquePtr& a)
     {
         T* tmp = a._ptr;
@@ -95,6 +101,8 @@ private:
 
     T* _ptr;
 };
+
+#endif
 
 } // End of namespace IceUtil
 

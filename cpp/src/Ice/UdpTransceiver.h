@@ -43,11 +43,7 @@ public:
 #endif
 
     virtual SocketOperation initialize(Buffer&, Buffer&);
-#ifdef ICE_CPP11_MAPPING
-    virtual SocketOperation closing(bool, std::exception_ptr);
-#else
     virtual SocketOperation closing(bool, const Ice::LocalException&);
-#endif
     virtual void close();
     virtual EndpointIPtr bind();
     virtual SocketOperation write(Buffer&);

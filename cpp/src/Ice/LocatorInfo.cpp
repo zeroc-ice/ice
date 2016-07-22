@@ -442,18 +442,7 @@ IceInternal::LocatorInfo::Request::addCallback(const ReferencePtr& ref,
     else
     {
         assert(ICE_EXCEPTION_ISSET(_exception));
-#ifdef ICE_CPP11_MAPPING
-        try
-        {
-            rethrow_exception(_exception);
-        }
-        catch(const Ice::Exception& ex)
-        {
-            callback->exception(_locatorInfo, ex);
-        }
-#else
         callback->exception(_locatorInfo, *_exception.get());
-#endif
     }
 }
 
@@ -486,18 +475,7 @@ IceInternal::LocatorInfo::Request::getEndpoints(const ReferencePtr& ref,
 
     if(ICE_EXCEPTION_ISSET(_exception))
     {
-#ifdef ICE_CPP11_MAPPING
-        try
-        {
-            rethrow_exception(_exception);
-        }
-        catch(const Ice::Exception& ex)
-        {
-            _locatorInfo->getEndpointsException(ref, ex); // This throws.
-        }
-#else
         _locatorInfo->getEndpointsException(ref, *_exception.get()); // This throws.
-#endif
     }
 
     assert(_response);

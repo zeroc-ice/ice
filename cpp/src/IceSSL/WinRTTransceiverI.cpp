@@ -55,11 +55,7 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
 }
 
 IceInternal::SocketOperation
-#ifdef ICE_CPP11_MAPPING
-IceSSL::TransceiverI::closing(bool initiator, exception_ptr ex)
-#else
 IceSSL::TransceiverI::closing(bool initiator, const Ice::LocalException& ex)
-#endif
 {
     return _delegate->closing(initiator, ex);
 }

@@ -132,11 +132,7 @@ public:
         bool _sent;
         bool _response;
         Ice::ObjectPrxPtr _proxy;
-#ifdef ICE_CPP11_MAPPING
-        std::exception_ptr _exception;
-#else
         IceUtil::UniquePtr<Ice::Exception> _exception;
-#endif
     };
     typedef IceUtil::Handle<Request> RequestPtr;
 

@@ -58,12 +58,6 @@ Glacier2::RestartSessionException::ice_clone() const
 }
 #endif
 
-void
-Glacier2::RestartSessionException::ice_throw() const
-{
-    throw *this;
-}
-
 Ice::ObjectAdapterPtr
 Glacier2::Application::objectAdapter()
 {

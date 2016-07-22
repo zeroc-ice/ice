@@ -297,11 +297,7 @@ IceObjC::StreamTransceiver::initialize(Buffer& readBuffer, Buffer& writeBuffer)
 }
 
 SocketOperation
-#ifdef ICE_CPP11_MAPPING
-IceObjC::StreamTransceiver::closing(bool initiator, exception_ptr)
-#else
 IceObjC::StreamTransceiver::closing(bool initiator, const Ice::LocalException&)
-#endif
 {
     // If we are initiating the connection closure, wait for the peer
     // to close the TCP/IP connection. Otherwise, close immediately.

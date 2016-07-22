@@ -166,11 +166,7 @@ ConnectRequestHandler::waitForConnection()
     Lock sync(*this);
     if(ICE_EXCEPTION_ISSET(_exception))
     {
-#ifdef ICE_CPP11_MAPPING
-        throw RetryException(_exception);
-#else
         throw RetryException(*_exception.get());
-#endif
     }
     //
     // Wait for the connection establishment to complete or fail.
@@ -332,7 +328,7 @@ ConnectRequestHandler::flushRequests()
     }
 
 #ifdef ICE_CPP11_MAPPING
-    std::exception_ptr exception;
+    std::unique_ptr<Ice::LocalException> exception;
 #else
     IceUtil::UniquePtr<Ice::LocalException> exception;
 #endif
@@ -352,11 +348,8 @@ ConnectRequestHandler::flushRequests()
         }
         catch(const RetryException& ex)
         {
-#ifdef ICE_CPP11_MAPPING
-            exception = ex.get();
-#else
-            exception.reset(ex.get()->ice_clone());
-#endif
+            ICE_RESET_EXCEPTION(exception, ex.get()->ice_clone());
+
             try
             {
                 ICE_RETHROW_EXCEPTION(exception);

@@ -318,11 +318,7 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
 }
 
 IceInternal::SocketOperation
-#ifdef ICE_CPP11_MAPPING
-IceSSL::TransceiverI::closing(bool initiator, exception_ptr)
-#else
 IceSSL::TransceiverI::closing(bool initiator, const Ice::LocalException&)
-#endif
 {
     // If we are initiating the connection closure, wait for the peer
     // to close the TCP/IP connection. Otherwise, close immediately.

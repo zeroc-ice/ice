@@ -35,11 +35,7 @@ IceBT::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::Bu
 }
 
 IceInternal::SocketOperation
-#ifdef ICE_CPP11_MAPPING
-IceBT::TransceiverI::closing(bool initiator, exception_ptr)
-#else
 IceBT::TransceiverI::closing(bool initiator, const Ice::LocalException&)
-#endif
 {
     //
     // If we are initiating the connection closure, wait for the peer

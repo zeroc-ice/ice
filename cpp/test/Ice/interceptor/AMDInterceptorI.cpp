@@ -95,21 +95,12 @@ AMDInterceptorI::getActualStatus() const
     return _actualStatus;
 }
 
-#ifdef ICE_CPP11_MAPPING
-exception_ptr
-AMDInterceptorI::getException() const
-{
-    IceUtil::Mutex::Lock lock(_mutex);
-    return _exception;
-}
-#else
 IceUtil::Exception*
 AMDInterceptorI::getException() const
 {
     IceUtil::Mutex::Lock lock(_mutex);
     return _exception.get();
 }
-#endif
 
 void 
 AMDInterceptorI::clear()

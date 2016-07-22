@@ -20,19 +20,19 @@ MySystemException::MySystemException(const char* file, int line) :
 {
 }
 
-#ifndef ICE_CPP11_COMPILER
-MySystemException::~MySystemException() throw()
-{
-}
-#endif
-
 string
 MySystemException::ice_id() const
 {
     return "::MySystemException";
 }
 
-#ifndef ICE_CPP11_MAPPING
+#ifdef ICE_CPP11_MAPPING
+IceUtil::Exception*
+MySystemException::ice_cloneImpl() const
+{
+    return new MySystemException(*this);
+}
+#else
 MySystemException*
 MySystemException::ice_clone() const
 {

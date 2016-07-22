@@ -368,11 +368,7 @@ private:
     std::map<Int, IceInternal::OutgoingAsyncBasePtr> _asyncRequests;
     std::map<Int, IceInternal::OutgoingAsyncBasePtr>::iterator _asyncRequestsHint;
 
-#ifdef ICE_CPP11_MAPPING
-    std::exception_ptr _exception;
-#else
     IceUtil::UniquePtr<LocalException> _exception;
-#endif
 
     const size_t _messageSizeMax;
     IceInternal::BatchRequestQueuePtr _batchRequestQueue;

@@ -161,7 +161,12 @@ public:
         return "::TestFailedException";
     }
 
-#ifndef ICE_CPP11_MAPPING
+#ifdef ICE_CPP11_MAPPING
+    virtual IceUtil::Exception* ice_cloneImpl() const
+    {
+        return new TestFailedException(*this);
+    }
+#else
     virtual TestFailedException* ice_clone() const
     {
         return new TestFailedException(*this);

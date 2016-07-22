@@ -11,6 +11,7 @@
 
 #include <IceUtil/FileUtil.h>
 #include <IceUtil/StringUtil.h>
+#include <IceUtil/MutexPtrLock.h>
 
 #include <Ice/LocalException.h>
 #include <Ice/Properties.h>

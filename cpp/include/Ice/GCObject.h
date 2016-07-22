@@ -10,12 +10,12 @@
 #ifndef ICE_GC_OBJECT_H
 #define ICE_GC_OBJECT_H
 
+#ifndef ICE_CPP11_MAPPING
+
 #include <Ice/Object.h>
 
 #include <IceUtil/MutexPtrLock.h>
 #include <IceUtil/Mutex.h>
-
-#ifndef ICE_CPP11_MAPPING
 
 namespace IceInternal
 {

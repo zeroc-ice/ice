@@ -42,9 +42,13 @@ Dispatcher::isDispatcherThread()
     return IceUtil::ThreadControl() == _instance->getThreadControl();
 }
 
+#ifdef ICE_CPP11_MAPPING
+void
+Dispatcher::dispatch(const shared_ptr<DispatcherCall>& call, const shared_ptr<Ice::Connection>&)
+#else
 void
 Dispatcher::dispatch(const Ice::DispatcherCallPtr& call, const Ice::ConnectionPtr&)
-
+#endif
 {
     Lock sync(*this);
     _calls.push_back(call);
@@ -59,7 +63,11 @@ Dispatcher::run()
 {
     while(true)
     {
+#ifdef ICE_CPP11_MAPPING
+        shared_ptr<DispatcherCall> call;
+#else
         Ice::DispatcherCallPtr call;
+#endif
         {
             Lock sync(*this);
             
@@ -95,3 +103,4 @@ Dispatcher::run()
         }
     }
 }
+

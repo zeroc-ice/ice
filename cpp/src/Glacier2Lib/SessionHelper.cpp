@@ -525,30 +525,15 @@ public:
     virtual void
     run()
     {
-#ifdef ICE_CPP11_MAPPING
-        try
-        {
-            rethrow_exception(_ex);
-        }
-        catch(const Ice::Exception& ex)
-        {
-            _callback->connectFailed(_session, ex);
-        }
-#else
         const Ice::Exception* ex(_ex.get());
         _callback->connectFailed(_session, *ex);
-#endif
     }
 
 private:
 
     const Glacier2::SessionCallbackPtr _callback;
     const Glacier2::SessionHelperPtr _session;
-#ifdef ICE_CPP11_MAPPING
-    std::exception_ptr _ex;
-#else
     IceUtil::UniquePtr<Ice::Exception> _ex;
-#endif
 };
 
 class CreatedCommunicator : public Ice::DispatcherCall

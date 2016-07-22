@@ -597,7 +597,7 @@ certificateAltNames(Windows::Security::Cryptography::Certificates::SubjectAltern
 #endif
 
 CertificateReadException::CertificateReadException(const char* file, int line, const string& r) :
-    Exception(file, line),
+    ExceptionHelper<CertificateReadException>(file, line),
     reason(r)
 {
 }
@@ -622,15 +622,9 @@ CertificateReadException::ice_clone() const
 }
 #endif
 
-void
-CertificateReadException::ice_throw() const
-{
-    throw *this;
-}
-
 #ifdef ICE_USE_SECURE_TRANSPORT
 CertificateEncodingException::CertificateEncodingException(const char* file, int line, CFErrorRef err) :
-    Exception(file, line)
+    ExceptionHelper<CertificateEncodingException>(file, line)
 {
     assert(err);
     reason = "certificate error:\n" + errorToString(err);
@@ -639,7 +633,7 @@ CertificateEncodingException::CertificateEncodingException(const char* file, int
 #endif
 
 CertificateEncodingException::CertificateEncodingException(const char* file, int line, const string& r) :
-    Exception(file, line),
+    ExceptionHelper<CertificateEncodingException>(file, line),
     reason(r)
 {
 }
@@ -663,12 +657,6 @@ CertificateEncodingException::ice_clone() const
     return new CertificateEncodingException(*this);
 }
 #endif
-
-void
-CertificateEncodingException::ice_throw() const
-{
-    throw *this;
-}
 
 #ifdef ICE_USE_OPENSSL
 
@@ -843,7 +831,7 @@ convertGeneralNames(GENERAL_NAMES* gens)
 #endif
 
 ParseException::ParseException(const char* file, int line, const string& r) :
-    Exception(file, line),
+    ExceptionHelper<ParseException>(file, line),
     reason(r)
 {
 }
@@ -867,12 +855,6 @@ ParseException::ice_clone() const
     return new ParseException(*this);
 }
 #endif
-
-void
-ParseException::ice_throw() const
-{
-    throw *this;
-}
 
 #ifdef ICE_USE_OPENSSL
 DistinguishedName::DistinguishedName(X509NAME* name) : _rdns(RFC2253::parseStrict(convertX509NameToString(name)))

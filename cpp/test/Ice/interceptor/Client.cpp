@@ -319,22 +319,8 @@ Client::runAmd(const Test::MyObjectPrxPtr& prx, const AMDInterceptorIPtr& interc
     test(interceptor->getLastStatus() == Ice::DispatchAsync);
     test(interceptor->getActualStatus() == Ice::DispatchAsync);
     
-#ifdef ICE_CPP11_MAPPING
-    try
-    {
-        rethrow_exception(interceptor->getException());
-        test(false);
-    }
-    catch(const Ice::ObjectNotExistException&)
-    {
-    }
-    catch(...)
-    {
-        test(false);
-    }
-#else
     test(dynamic_cast<Ice::ObjectNotExistException*>(interceptor->getException()) != 0);
-#endif
+
     cout << "ok" << endl;
     cout << "testing system exception... " << flush;
     interceptor->clear();
@@ -354,22 +340,7 @@ Client::runAmd(const Test::MyObjectPrxPtr& prx, const AMDInterceptorIPtr& interc
     test(interceptor->getLastOperation() == "amdBadSystemAdd");
     test(interceptor->getLastStatus() == Ice::DispatchAsync);
     test(interceptor->getActualStatus() == Ice::DispatchAsync);
-#ifdef ICE_CPP11_MAPPING
-    try
-    {
-        rethrow_exception(interceptor->getException());
-        test(false);
-    }
-    catch(const MySystemException&)
-    {
-    }
-    catch(...)
-    {
-        test(false);
-    }
-#else
     test(dynamic_cast<MySystemException*>(interceptor->getException()) != 0);
-#endif
     cout << "ok" << endl;
     return EXIT_SUCCESS;
 }

@@ -624,11 +624,7 @@ Ice::ConnectionI::sendRequest(OutgoingBase* out, bool compress, bool response, i
     //
     if(ICE_EXCEPTION_ISSET(_exception))
     {
-#ifdef ICE_CPP11_MAPPING
-        throw RetryException(_exception);
-#else
         throw RetryException(*_exception.get());
-#endif
     }
 
     assert(_state > StateNotValidated);
@@ -716,11 +712,7 @@ Ice::ConnectionI::sendAsyncRequest(const OutgoingAsyncBasePtr& out, bool compres
     //
     if(ICE_EXCEPTION_ISSET(_exception))
     {
-#ifdef ICE_CPP11_MAPPING
-        throw RetryException(_exception);
-#else
         throw RetryException(*_exception.get());
-#endif
     }
     assert(_state > StateNotValidated);
     assert(_state < StateClosing);
@@ -2579,11 +2571,7 @@ Ice::ConnectionI::initiateShutdown()
             //
             // Notify the the transceiver of the graceful connection closure.
             //
-#ifdef ICE_CPP11_MAPPING
-            SocketOperation op = _transceiver->closing(true, _exception);
-#else
             SocketOperation op = _transceiver->closing(true, *_exception.get());
-#endif
             if(op)
             {
                 scheduleTimeout(op);
@@ -2929,11 +2917,7 @@ Ice::ConnectionI::sendNextMessage(vector<OutgoingMessage>& callbacks)
         if(_state == StateClosing && _shutdownInitiated)
         {
             setState(StateClosingPending);
-#ifdef ICE_CPP11_MAPPING
-            SocketOperation op = _transceiver->closing(true, _exception);
-#else
             SocketOperation op = _transceiver->closing(true, *_exception.get());
-#endif
             if(op)
             {
                 return op;
@@ -3314,11 +3298,7 @@ Ice::ConnectionI::parseMessage(InputStream& stream, Int& invokeNum, Int& request
                     //
                     // Notify the the transceiver of the graceful connection closure.
                     //
-#ifdef ICE_CPP11_MAPPING
-                    SocketOperation op = _transceiver->closing(false, _exception);
-#else
                     SocketOperation op = _transceiver->closing(false, *_exception.get());
-#endif
                     if(op)
                     {
                         return op;

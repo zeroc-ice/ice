@@ -16,7 +16,7 @@ using namespace std;
 using namespace IceUtil;
 
 IceUtilInternal::APIException::APIException(const char* file, int line, const string& r)
-    : IceUtil::Exception(file, line), reason(r)
+    : IceUtil::ExceptionHelper<APIException>(file, line), reason(r)
 {
 }
 
@@ -50,12 +50,6 @@ IceUtilInternal::APIException::ice_clone() const
 }
 #endif
 
-void
-IceUtilInternal::APIException::ice_throw() const
-{
-    throw *this;
-}
-
 ostream&
 IceUtilInternal::operator<<(ostream& out, const IceUtilInternal::APIException& ex)
 {
@@ -64,7 +58,7 @@ IceUtilInternal::operator<<(ostream& out, const IceUtilInternal::APIException& e
 }
 
 IceUtilInternal::BadOptException::BadOptException(const char* file, int line, const string& r)
-    : IceUtil::Exception(file, line), reason(r)
+    : IceUtil::ExceptionHelper<BadOptException>(file, line), reason(r)
 {
 }
 
@@ -97,12 +91,6 @@ IceUtilInternal::BadOptException::ice_clone() const
     return new BadOptException(*this);
 }
 #endif
-
-void
-IceUtilInternal::BadOptException::ice_throw() const
-{
-    throw *this;
-}
 
 ostream&
 IceUtilInternal::operator<<(ostream& out, const IceUtilInternal::BadOptException& ex)

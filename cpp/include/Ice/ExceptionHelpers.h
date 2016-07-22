@@ -20,41 +20,27 @@ namespace Ice
 
 class LocalException;
 
-template<typename T, typename B> class LocalExceptionHelper : public B
+template<typename T, typename B> class LocalExceptionHelper : public IceUtil::ExceptionHelper<T, B>
 {
 public:
 
-    using B::B;
-
-    LocalExceptionHelper() = default;
+    using IceUtil::ExceptionHelper<T, B>::ExceptionHelper;
 
     virtual std::string ice_id() const override
     {
         return T::ice_staticId();
-    }
-
-    virtual void ice_throw() const override
-    {
-        throw static_cast<const T&>(*this);
     }
 };
 
-template<typename T, typename B> class UserExceptionHelper : public B
+template<typename T, typename B> class UserExceptionHelper : public IceUtil::ExceptionHelper<T, B>
 {
 public:
 
-    using B::B;
-
-    UserExceptionHelper() = default;
+    using IceUtil::ExceptionHelper<T, B>::ExceptionHelper;
 
     virtual std::string ice_id() const override
     {
         return T::ice_staticId();
-    }
-
-    virtual void ice_throw() const override
-    {
-        throw static_cast<const T&>(*this);
     }
 
 protected:

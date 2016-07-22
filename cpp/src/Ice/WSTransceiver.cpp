@@ -410,11 +410,7 @@ IceInternal::WSTransceiver::initialize(Buffer& readBuffer, Buffer& writeBuffer)
 }
 
 SocketOperation
-#ifdef ICE_CPP11_MAPPING
-IceInternal::WSTransceiver::closing(bool initiator, exception_ptr reason)
-#else
 IceInternal::WSTransceiver::closing(bool initiator, const Ice::LocalException& reason)
-#endif
 {
     if(_instance->traceLevel() >= 1)
     {
@@ -444,38 +440,7 @@ IceInternal::WSTransceiver::closing(bool initiator, const Ice::LocalException& r
     }
 
     _closingInitiator = initiator;
-#ifdef ICE_CPP11_MAPPING
-    if(reason)
-    {
-        try
-        {
-            rethrow_exception(reason);
-        }
-        catch(const Ice::CloseConnectionException&)
-        {
-            _closingReason = CLOSURE_NORMAL;
-        }
-        catch(const Ice::ObjectAdapterDeactivatedException&)
-        {
-            _closingReason = CLOSURE_SHUTDOWN;
-        }
-        catch(Ice::CommunicatorDestroyedException&)
-        {
-            _closingReason = CLOSURE_SHUTDOWN;
-        }
-        catch(const Ice::MemoryLimitException&)
-        {
-            _closingReason = CLOSURE_TOO_BIG;
-        }
-        catch(const Ice::ProtocolException&)
-        {
-            _closingReason  = CLOSURE_PROTOCOL_ERROR;
-        }
-        catch(...)
-        {
-        }
-    }
-#else
+
     if(dynamic_cast<const Ice::CloseConnectionException*>(&reason))
     {
         _closingReason = CLOSURE_NORMAL;
@@ -493,7 +458,6 @@ IceInternal::WSTransceiver::closing(bool initiator, const Ice::LocalException& r
     {
         _closingReason = CLOSURE_TOO_BIG;
     }
-#endif
 
     if(_state == StateOpened)
     {

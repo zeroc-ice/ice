@@ -23,10 +23,10 @@
 #include <Ice/InputStream.h>
 #include <Ice/ObserverHelper.h>
 #include <Ice/LocalException.h>
+#include <IceUtil/UniquePtr.h>
 
 #ifndef ICE_CPP11_MAPPING
 #    include <Ice/AsyncResult.h>
-#    include <IceUtil/UniquePtr.h>
 #endif
 
 #include <exception>
@@ -163,15 +163,14 @@ protected:
 #ifdef ICE_CPP11_MAPPING
     std::mutex _m;
     using Lock = std::lock_guard<std::mutex>;
-    std::exception_ptr _ex;
-    std::exception_ptr _cancellationException;
 #else
     IceUtil::Monitor<IceUtil::Mutex> _m;
     typedef IceUtil::Monitor<IceUtil::Mutex>::Lock Lock;
-    IceUtil::UniquePtr<Ice::Exception> _ex;
-    IceUtil::UniquePtr<Ice::LocalException> _cancellationException;
     Ice::LocalObjectPtr _cookie;
 #endif
+
+    IceUtil::UniquePtr<Ice::Exception> _ex;
+    IceUtil::UniquePtr<Ice::LocalException> _cancellationException;
 
     InvocationObserver _observer;
     ObserverHelperT<Ice::Instrumentation::ChildInvocationObserver> _childObserver;

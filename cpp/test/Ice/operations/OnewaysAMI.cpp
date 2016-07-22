@@ -16,7 +16,10 @@ using namespace std;
 namespace
 {
 
-class CallbackBase : public Ice::LocalObject
+class CallbackBase 
+#ifndef ICE_CPP11_MAPPING
+: public Ice::LocalObject
+#endif
 {
 public:
 
@@ -55,8 +58,6 @@ private:
     bool _called;
 };
 
-typedef IceUtil::Handle<CallbackBase> CallbackBasePtr;
-
 class Callback : public CallbackBase
 {
 public:
@@ -75,7 +76,7 @@ public:
         test(false);
     }
 };
-typedef IceUtil::Handle<Callback> CallbackPtr;
+ICE_DEFINE_PTR(CallbackPtr, Callback);
 
 }
 
@@ -85,7 +86,7 @@ onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrxPtr& proxy)
     Test::MyClassPrxPtr p = ICE_UNCHECKED_CAST(Test::MyClassPrx, proxy->ice_oneway());
 
     {
-        CallbackPtr cb = new Callback;
+        CallbackPtr cb = ICE_MAKE_SHARED(Callback);
 #ifdef ICE_CPP11_MAPPING
         p->ice_pingAsync(
             nullptr,
@@ -162,7 +163,7 @@ onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrxPtr& proxy)
     }
 
     {
-        CallbackPtr cb = new Callback;
+        CallbackPtr cb = ICE_MAKE_SHARED(Callback);
 #ifdef ICE_CPP11_MAPPING
         p->opVoidAsync(
             nullptr,
@@ -183,7 +184,7 @@ onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrxPtr& proxy)
     }
 
     {
-        CallbackPtr cb = new Callback;
+        CallbackPtr cb = ICE_MAKE_SHARED(Callback);
 #ifdef ICE_CPP11_MAPPING
         p->opIdempotentAsync(
             nullptr,
@@ -204,7 +205,7 @@ onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrxPtr& proxy)
     }
 
     {
-        CallbackPtr cb = new Callback;
+        CallbackPtr cb = ICE_MAKE_SHARED(Callback);
 #ifdef ICE_CPP11_MAPPING
         p->opNonmutatingAsync(
             nullptr,
@@ -244,7 +245,7 @@ onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrxPtr& proxy)
     }
 #ifdef ICE_CPP11_MAPPING
     {
-        CallbackPtr cb = new Callback;
+        CallbackPtr cb = ICE_MAKE_SHARED(Callback);
         p->ice_pingAsync(nullptr,
                         [=](exception_ptr e)
                         {

@@ -36,21 +36,6 @@ class ProxyOutgoingBase;
 // An exception wrapper, which is used to notify that the request
 // handler should be cleared and the invocation retried.
 //
-#ifdef ICE_CPP11_MAPPING
-class RetryException
-{
-public:
-
-    RetryException(std::exception_ptr);
-    RetryException(const RetryException&);
-
-    std::exception_ptr get() const;
-
-private:
-
-    std::exception_ptr _ex;
-};
-#else
 class RetryException
 {
 public:
@@ -64,7 +49,6 @@ private:
 
     IceUtil::UniquePtr<Ice::LocalException> _ex;
 };
-#endif
 
 
 class CancellationHandler

@@ -81,7 +81,7 @@ namespace IceSSL
 //
 // This exception is thrown if the certificate cannot be read.
 //
-class ICE_SSL_API CertificateReadException : public IceUtil::Exception
+class ICE_SSL_API CertificateReadException : public IceUtil::ExceptionHelper<CertificateReadException>
 {
 public:
 
@@ -93,7 +93,6 @@ public:
 #ifndef ICE_CPP11_MAPPING
     virtual CertificateReadException* ice_clone() const;
 #endif
-    virtual void ice_throw() const;
 
     std::string reason;
 
@@ -105,7 +104,7 @@ private:
 //
 // This exception is thrown if the certificate cannot be encoded.
 //
-class ICE_SSL_API CertificateEncodingException : public IceUtil::Exception
+class ICE_SSL_API CertificateEncodingException : public IceUtil::ExceptionHelper<CertificateEncodingException>
 {
 public:
 
@@ -120,7 +119,6 @@ public:
 #ifndef ICE_CPP11_MAPPING
     virtual CertificateEncodingException* ice_clone() const;
 #endif
-    virtual void ice_throw() const;
 
     std::string reason;
 
@@ -132,7 +130,7 @@ private:
 //
 // This exception is thrown if a distinguished name cannot be parsed.
 //
-class ICE_SSL_API ParseException : public IceUtil::Exception
+class ICE_SSL_API ParseException : public IceUtil::ExceptionHelper<ParseException>
 {
 public:
 
@@ -144,7 +142,6 @@ public:
 #ifndef ICE_CPP11_MAPPING
     virtual ParseException* ice_clone() const;
 #endif
-    virtual void ice_throw() const;
 
     std::string reason;
 

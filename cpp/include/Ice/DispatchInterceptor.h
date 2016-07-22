@@ -26,7 +26,7 @@ public:
     __dispatch(IceInternal::Incoming&, const Current&);
 };
 
-typedef IceInternal::Handle<DispatchInterceptor> DispatchInterceptorPtr;
+ICE_DEFINE_PTR(DispatchInterceptorPtr, DispatchInterceptor);
 
 }
 

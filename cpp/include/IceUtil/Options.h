@@ -22,7 +22,7 @@
 namespace IceUtilInternal
 {
 
-class ICE_API APIException : public IceUtil::Exception
+class ICE_API APIException : public IceUtil::ExceptionHelper<APIException>
 {
 public:
 
@@ -35,14 +35,13 @@ public:
 #ifndef ICE_CPP11_MAPPING
     virtual APIException* ice_clone() const;
 #endif
-    virtual void ice_throw() const;
 
     ::std::string reason;
 };
 
 ICE_API ::std::ostream& operator<<(::std::ostream&, const APIException&);
 
-class ICE_API BadOptException : public IceUtil::Exception
+class ICE_API BadOptException : public IceUtil::ExceptionHelper<BadOptException>
 {
 public:
 
@@ -52,10 +51,10 @@ public:
 #endif
     virtual ::std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;
+
 #ifndef ICE_CPP11_MAPPING
     virtual BadOptException* ice_clone() const;
 #endif
-    virtual void ice_throw() const;
 
     ::std::string reason;
 };

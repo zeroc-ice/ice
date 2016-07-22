@@ -54,11 +54,7 @@ private:
     bool _batchStreamCanFlush;
     int _batchRequestNum;
     size_t _batchMarker;
-#ifdef ICE_CPP11_MAPPING
-    std::exception_ptr _exception;
-#else
     IceUtil::UniquePtr<Ice::LocalException> _exception;
-#endif
     size_t _maxSize;
 };
 

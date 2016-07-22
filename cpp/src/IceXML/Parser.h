@@ -42,7 +42,7 @@
 namespace IceXML
 {
 
-class ICE_XML_API ParserException : public IceUtil::Exception
+class ICE_XML_API ParserException : public IceUtil::ExceptionHelper<ParserException>
 {
 public:
 
@@ -57,7 +57,6 @@ public:
 #ifndef ICE_CPP11_MAPPING
     virtual ParserException* ice_clone() const;
 #endif
-    virtual void ice_throw() const;
 
     std::string reason() const;
 

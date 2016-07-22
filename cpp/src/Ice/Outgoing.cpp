@@ -561,18 +561,7 @@ Outgoing::completed(InputStream& is)
 
         default:
         {
-#ifdef ICE_CPP11_MAPPING
-            try
-            {
-                throw UnknownReplyStatusException(__FILE__, __LINE__);
-            }
-            catch(...)
-            {
-                _exception = current_exception();
-            }
-#else
             _exception.reset(new UnknownReplyStatusException(__FILE__, __LINE__));
-#endif
             _state = StateLocalException;
             break;
         }

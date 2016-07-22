@@ -20,12 +20,12 @@ using namespace IceXML;
 // ParserException
 //
 IceXML::ParserException::ParserException(const string& reason) :
-    IceUtil::Exception(), _reason(reason)
+    _reason(reason)
 {
 }
 
 IceXML::ParserException::ParserException(const char* file, int line, const string& reason) :
-    IceUtil::Exception(file, line), _reason(reason)
+    IceUtil::ExceptionHelper<ParserException>(file, line), _reason(reason)
 {
 }
 
@@ -62,12 +62,6 @@ IceXML::ParserException::ice_clone() const
     return new ParserException(*this);
 }
 #endif
-
-void
-IceXML::ParserException::ice_throw() const
-{
-    throw *this;
-}
 
 string
 IceXML::ParserException::reason() const

@@ -52,11 +52,7 @@ public:
     virtual void closeStreams();
 
     virtual IceInternal::SocketOperation initialize(IceInternal::Buffer&, IceInternal::Buffer&);
-#ifdef ICE_CPP11_MAPPING
-    virtual IceInternal::SocketOperation closing(bool initiator, std::exception_ptr);
-#else
     virtual IceInternal::SocketOperation closing(bool, const Ice::LocalException&);
-#endif
     virtual void close();
 
     virtual IceInternal::SocketOperation write(IceInternal::Buffer&);

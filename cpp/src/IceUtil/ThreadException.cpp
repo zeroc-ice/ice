@@ -11,8 +11,8 @@
 
 using namespace std;
 
-IceUtil::ThreadSyscallException::ThreadSyscallException(const char* file, int line, int err ): 
-    SyscallException(file, line, err)
+IceUtil::ThreadSyscallException::ThreadSyscallException(const char* file, int line, int err ):
+    SyscallExceptionHelper<ThreadSyscallException>(file, line, err)
 {
 }
 
@@ -30,14 +30,8 @@ IceUtil::ThreadSyscallException::ice_clone() const
 }
 #endif
 
-void
-IceUtil::ThreadSyscallException::ice_throw() const
-{
-    throw *this;
-}
-
 IceUtil::ThreadLockedException::ThreadLockedException(const char* file, int line) :
-    Exception(file, line)
+    ExceptionHelper<ThreadLockedException>(file, line)
 {
 }
 
@@ -55,14 +49,9 @@ IceUtil::ThreadLockedException::ice_clone() const
 }
 #endif
 
-void
-IceUtil::ThreadLockedException::ice_throw() const
-{
-    throw *this;
-}
 
 IceUtil::ThreadStartedException::ThreadStartedException(const char* file, int line) :
-    Exception(file, line)
+    ExceptionHelper<ThreadStartedException>(file, line)
 {
 }
 
@@ -80,14 +69,8 @@ IceUtil::ThreadStartedException::ice_clone() const
 }
 #endif
 
-void
-IceUtil::ThreadStartedException::ice_throw() const
-{
-    throw *this;
-}
-
 IceUtil::ThreadNotStartedException::ThreadNotStartedException(const char* file, int line) :
-    Exception(file, line)
+    ExceptionHelper<ThreadNotStartedException>(file, line)
 {
 }
 
@@ -97,6 +80,7 @@ IceUtil::ThreadNotStartedException::ice_id() const
     return "::IceUtil::ThreadNotStartedException";
 }
 
+
 #ifndef ICE_CPP11_MAPPING
 IceUtil::ThreadNotStartedException*
 IceUtil::ThreadNotStartedException::ice_clone() const
@@ -105,15 +89,9 @@ IceUtil::ThreadNotStartedException::ice_clone() const
 }
 #endif
 
-void
-IceUtil::ThreadNotStartedException::ice_throw() const
-{
-    throw *this;
-}
-
 
 IceUtil::BadThreadControlException::BadThreadControlException(const char* file, int line) :
-    Exception(file, line)
+    ExceptionHelper<BadThreadControlException>(file, line)
 {
 }
 
@@ -131,15 +109,9 @@ IceUtil::BadThreadControlException::ice_clone() const
 }
 #endif
 
-void
-IceUtil::BadThreadControlException::ice_throw() const
-{
-    throw *this;
-}
-
-IceUtil::InvalidTimeoutException::InvalidTimeoutException(const char* file, int line, 
-                                                          const IceUtil::Time& timeout) : 
-    Exception(file, line),
+IceUtil::InvalidTimeoutException::InvalidTimeoutException(const char* file, int line,
+                                                          const IceUtil::Time& timeout) :
+    ExceptionHelper<InvalidTimeoutException>(file, line),
     _timeout(timeout)
 {
 }
@@ -148,13 +120,6 @@ string
 IceUtil::InvalidTimeoutException::ice_id() const
 {
     return "::IceUtil::InvalidTimeoutException";
-}
-
-void
-IceUtil::InvalidTimeoutException::ice_print(ostream& os) const
-{
-    Exception::ice_print(os);
-    os << ":\ninvalid timeout: " << _timeout << " seconds";
 }
 
 #ifndef ICE_CPP11_MAPPING
@@ -166,7 +131,8 @@ IceUtil::InvalidTimeoutException::ice_clone() const
 #endif
 
 void
-IceUtil::InvalidTimeoutException::ice_throw() const
+IceUtil::InvalidTimeoutException::ice_print(ostream& os) const
 {
-    throw *this;
+    Exception::ice_print(os);
+    os << ":\ninvalid timeout: " << _timeout << " seconds";
 }

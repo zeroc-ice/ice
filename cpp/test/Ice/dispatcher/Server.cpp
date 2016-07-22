@@ -40,27 +40,6 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
     return EXIT_SUCCESS;
 }
 
-#ifdef ICE_CPP11_MAPPING
-class DispatcherCall : public Ice::DispatcherCall
-{
-public:
-
-    DispatcherCall(function<void()> call) :
-        _call(move(call))
-    {
-    }
-
-    virtual void run()
-    {
-        _call();
-    }
-
-private:
-
-    function<void()> _call;
-};
-#endif
-
 int
 main(int argc, char* argv[])
 {
@@ -80,10 +59,10 @@ main(int argc, char* argv[])
         initData.properties->setProperty("Ice.TCP.RcvSize", "50000");
 
 #ifdef ICE_CPP11_MAPPING
-        Ice::DispatcherPtr dispatcher = new Dispatcher();
+        IceUtil::Handle<Dispatcher> dispatcher = new Dispatcher;
         initData.dispatcher = [=](function<void()> call, const shared_ptr<Ice::Connection>& conn)
             {
-                dispatcher->dispatch(new DispatcherCall(call), conn);
+                dispatcher->dispatch(make_shared<DispatcherCall>(call), conn);
             };
 #else
         initData.dispatcher = new Dispatcher();

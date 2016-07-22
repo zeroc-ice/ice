@@ -616,23 +616,7 @@ IceUtil::Exception::what() const ICE_NOEXCEPT
     return "";
 }
 
-#ifdef ICE_CPP11_MAPPING
-exception_ptr
-IceUtil::Exception::ice_clone() const
-{
-    try
-    {
-        ice_throw();
-    }
-    catch(...)
-    {
-        return current_exception();
-    }
-    assert(false);
-    return nullptr; // Make compilers happy
-}
-#else
-
+#ifndef ICE_CPP11_MAPPING
 string
 IceUtil::Exception::ice_name() const
 {
@@ -658,6 +642,14 @@ IceUtil::Exception::ice_stackTrace() const
     return getStackTrace(_stackFrames);
 }
 
+#ifdef ICE_CPP11_MAPPING
+unique_ptr<IceUtil::Exception>
+IceUtil::Exception::ice_clone() const
+{
+    return unique_ptr<Exception>(ice_cloneImpl());
+}
+#endif
+
 ostream&
 IceUtil::operator<<(ostream& out, const IceUtil::Exception& ex)
 {
@@ -666,19 +658,13 @@ IceUtil::operator<<(ostream& out, const IceUtil::Exception& ex)
 }
 
 IceUtil::NullHandleException::NullHandleException(const char* file, int line) :
-    Exception(file, line)
+    ExceptionHelper<NullHandleException>(file, line)
 {
     if(IceUtilInternal::nullHandleAbort)
     {
         abort();
     }
 }
-
-#ifndef ICE_CPP11_COMPILER
-IceUtil::NullHandleException::~NullHandleException() throw()
-{
-}
-#endif
 
 string
 IceUtil::NullHandleException::ice_id() const
@@ -694,19 +680,14 @@ IceUtil::NullHandleException::ice_clone() const
 }
 #endif
 
-void
-IceUtil::NullHandleException::ice_throw() const
-{
-    throw *this;
-}
 
 IceUtil::IllegalArgumentException::IllegalArgumentException(const char* file, int line) :
-    Exception(file, line)
+    ExceptionHelper<IllegalArgumentException>(file, line)
 {
 }
 
 IceUtil::IllegalArgumentException::IllegalArgumentException(const char* file, int line, const string& r) :
-    Exception(file, line),
+    ExceptionHelper<IllegalArgumentException>(file, line),
     _reason(r)
 {
 }
@@ -738,12 +719,6 @@ IceUtil::IllegalArgumentException::ice_clone() const
 }
 #endif
 
-void
-IceUtil::IllegalArgumentException::ice_throw() const
-{
-    throw *this;
-}
-
 string
 IceUtil::IllegalArgumentException::reason() const
 {
@@ -754,14 +729,16 @@ IceUtil::IllegalArgumentException::reason() const
 // IllegalConversionException
 //
 IceUtil::IllegalConversionException::IllegalConversionException(const char* file, int line):
-    Exception(file, line)
-{}
+    ExceptionHelper<IllegalConversionException>(file, line)
+{
+}
 
 IceUtil::IllegalConversionException::IllegalConversionException(const char* file, int line,
                                                                 const string& reason):
-    Exception(file, line),
+    ExceptionHelper<IllegalConversionException>(file, line),
     _reason(reason)
-{}
+{
+}
 
 #ifndef ICE_CPP11_COMPILER
 IceUtil::IllegalConversionException::~IllegalConversionException() throw()
@@ -791,12 +768,6 @@ IceUtil::IllegalConversionException::ice_clone() const
 }
 #endif
 
-void
-IceUtil::IllegalConversionException::ice_throw() const
-{
-    throw *this;
-}
-
 string
 IceUtil::IllegalConversionException::reason() const
 {
@@ -806,10 +777,16 @@ IceUtil::IllegalConversionException::reason() const
 
 
 IceUtil::SyscallException::SyscallException(const char* file, int line, int err ):
-    Exception(file, line),
+    ExceptionHelper<SyscallException>(file, line),
     _error(err)
 {
 }
+
+#ifndef ICE_CPP11_COMPILER
+IceUtil::SyscallException::~SyscallException() throw()
+{
+}
+#endif
 
 void
 IceUtil::SyscallException::ice_print(ostream& os) const
@@ -835,12 +812,6 @@ IceUtil::SyscallException::ice_clone() const
 }
 #endif
 
-void
-IceUtil::SyscallException::ice_throw() const
-{
-    throw *this;
-}
-
 int
 IceUtil::SyscallException::error() const
 {
@@ -849,7 +820,7 @@ IceUtil::SyscallException::error() const
 
 
 IceUtil::FileLockException::FileLockException(const char* file, int line, int err, const string& path):
-    Exception(file, line),
+    ExceptionHelper<FileLockException>(file, line),
     _error(err),
     _path(path)
 {
@@ -886,12 +857,6 @@ IceUtil::FileLockException::ice_clone() const
 }
 #endif
 
-void
-IceUtil::FileLockException::ice_throw() const
-{
-    throw *this;
-}
-
 int
 IceUtil::FileLockException::error() const
 {
@@ -899,19 +864,13 @@ IceUtil::FileLockException::error() const
 }
 
 IceUtil::OptionalNotSetException::OptionalNotSetException(const char* file, int line) :
-    Exception(file, line)
+    ExceptionHelper<OptionalNotSetException>(file, line)
 {
     if(IceUtilInternal::nullHandleAbort)
     {
         abort();
     }
 }
-
-#ifndef ICE_CPP11_COMPILER
-IceUtil::OptionalNotSetException::~OptionalNotSetException() throw()
-{
-}
-#endif
 
 string
 IceUtil::OptionalNotSetException::ice_id() const
@@ -927,15 +886,9 @@ IceUtil::OptionalNotSetException::ice_clone() const
 }
 #endif
 
-void
-IceUtil::OptionalNotSetException::ice_throw() const
-{
-    throw *this;
-}
-
 #ifndef _WIN32
 IceUtil::IconvInitializationException::IconvInitializationException(const char* file, int line, const string& reason) :
-    Exception(file, line),
+    ExceptionHelper<IconvInitializationException>(file, line),
     _reason(reason)
 {
 }
@@ -966,12 +919,6 @@ IceUtil::IconvInitializationException::ice_clone() const
     return new IconvInitializationException(*this);
 }
 #endif
-
-void
-IceUtil::IconvInitializationException::ice_throw() const
-{
-    throw *this;
-}
 
 string
 IceUtil::IconvInitializationException::reason() const

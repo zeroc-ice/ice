@@ -1282,24 +1282,10 @@ ConnectionFlushBatchAsync::invoke(const string& operation)
     }
     catch(const RetryException& ex)
     {
-#ifdef ICE_CPP11_MAPPING
-        try
-        {
-            rethrow_exception(ex.get());
-        }
-        catch(const Ice::LocalException& ee)
-        {
-            if(exception(ee))
-            {
-                invokeExceptionAsync();
-            }
-        }
-#else
         if(exception(*ex.get()))
         {
             invokeExceptionAsync();
         }
-#endif
     }
     catch(const Exception& ex)
     {

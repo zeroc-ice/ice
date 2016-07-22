@@ -59,11 +59,7 @@ Transceiver::initialize(IceInternal::Buffer& readBuffer, IceInternal::Buffer& wr
 }
 
 IceInternal::SocketOperation
-#ifdef ICE_CPP11_MAPPING
-Transceiver::closing(bool initiator, exception_ptr ex)
-#else
 Transceiver::closing(bool initiator, const Ice::LocalException& ex)
-#endif
 {
     return _transceiver->closing(initiator, ex);
 }
