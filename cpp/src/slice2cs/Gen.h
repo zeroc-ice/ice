@@ -98,7 +98,6 @@ private:
     IceUtilInternal::Output _impl;
 
     std::vector<std::string> _includePaths;
-    bool _compat;
 
     void printHeader();
 
