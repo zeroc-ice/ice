@@ -78,7 +78,6 @@ usage(const char* n)
         "--ice                   Allow reserved Ice prefix in Slice identifiers.\n"
         "--underscore            Allow underscores in Slice identifiers.\n"
         "--checksum              Generate checksums for Slice definitions.\n"
-        "--compat                Generate compatibility code to support depreacted features.\n"
         ;
 }
 
@@ -104,7 +103,6 @@ compile(int argc, char* argv[])
     opts.addOpt("", "ice");
     opts.addOpt("", "underscore");
     opts.addOpt("", "checksum");
-    opts.addOpt("", "compat");
 
     bool validate = false;
     for(int i = 0; i < argc; ++i)
@@ -185,8 +183,6 @@ compile(int argc, char* argv[])
     bool underscore = opts.isSet("underscore");
 
     bool checksum = opts.isSet("checksum");
-
-    bool compat = opts.isSet("compat");
 
     if(args.empty())
     {
@@ -322,7 +318,7 @@ compile(int argc, char* argv[])
                 {
                     try
                     {
-                        Gen gen(icecpp->getBaseName(), includePaths, output, impl, implTie, compat);
+                        Gen gen(icecpp->getBaseName(), includePaths, output, impl, implTie);
                         gen.generate(p);
                         if(tie)
                         {

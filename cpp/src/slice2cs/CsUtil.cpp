@@ -11,6 +11,7 @@
 #include <DotNetNames.h>
 #include <Slice/Util.h>
 #include <IceUtil/Functional.h>
+#include <IceUtil/StringUtil.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -350,6 +351,73 @@ Slice::CsGenerator::typeToString(const TypePtr& type, bool optional)
     }
 
     return "???";
+}
+
+ParamDeclList
+Slice::CsGenerator::getInParams(const ParamDeclList& params)
+{
+    ParamDeclList inParams;
+    for (ParamDeclList::const_iterator i = params.begin(); i != params.end(); ++i)
+    {
+        if (!(*i)->isOutParam())
+        {
+            inParams.push_back(*i);
+        }
+    }
+    return inParams;
+}
+
+ParamDeclList
+Slice::CsGenerator::getOutParams(const ParamDeclList& params)
+{
+    ParamDeclList outParams;
+    for (ParamDeclList::const_iterator i = params.begin(); i != params.end(); ++i)
+    {
+        if ((*i)->isOutParam())
+        {
+            outParams.push_back(*i);
+        }
+    }
+    return outParams;
+}
+
+string
+Slice::CsGenerator::resultStructName(const string& className, const string& opName, const string& scope)
+{
+    ostringstream s;
+    s << scope
+      << className
+      << "_"
+      << IceUtilInternal::toUpper(opName.substr(0, 1))
+      << opName.substr(1)
+      << "Result";
+    return s.str();
+}
+
+string
+Slice::CsGenerator::asyncResultType(const OperationPtr& op, const string& type)
+{
+    string t = type;
+    ParamDeclList outParams = getOutParams(op->parameters());
+    if (op->returnType() || !outParams.empty())
+    {
+        t += "<";
+        if (outParams.empty())
+        {
+            t += typeToString(op->returnType(), op->returnIsOptional());
+        }
+        else if (op->returnType() || outParams.size() > 1)
+        {
+            ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container());
+            t += resultStructName(cl->name(), op->name(), fixId(cl->scope()));
+        }
+        else
+        {
+            t += typeToString(outParams.front()->type(), outParams.front()->optional());
+        }
+        t += ">";
+    }
+    return t;
 }
 
 bool

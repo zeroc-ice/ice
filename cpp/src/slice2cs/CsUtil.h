@@ -33,6 +33,11 @@ public:
     static void validateMetaData(const UnitPtr&);
 
 protected:
+
+    static ParamDeclList getInParams(const ParamDeclList&);
+    static ParamDeclList getOutParams(const ParamDeclList&);
+    static std::string resultStructName(const std::string& className, const std::string& opName, const std::string& scope = "");
+    static std::string asyncResultType(const OperationPtr&, const std::string& t = "_System.Threading.Tasks.Task");
     static std::string fixId(const std::string&, int = 0, bool = false);
     static std::string fixId(const ContainedPtr&, int = 0, bool = false);
     static std::string getOptionalFormat(const TypePtr&);
