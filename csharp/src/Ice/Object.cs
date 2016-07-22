@@ -9,6 +9,7 @@
 
 using System;
 using System.Collections;
+using System.Threading.Tasks;
 using System.Diagnostics;
 
 namespace Ice
@@ -62,37 +63,16 @@ namespace Ice
         /// </summary>
         ///
         /// <param name="s">The type ID of the Slice interface to test against.</param>
-        /// <returns>True if this object has the interface
-        /// specified by s or derives from the interface specified by s.</returns>
-        bool ice_isA(string s);
-
-        /// <summary>
-        /// Tests whether this object supports a specific Slice interface.
-        /// </summary>
-        ///
-        /// <param name="s">The type ID of the Slice interface to test against.</param>
         /// <param name="current">The Current object for the invocation.</param>
         /// <returns>True if this object has the interface
         /// specified by s or derives from the interface specified by s.</returns>
-        bool ice_isA(string s, Current current);
-
-        /// <summary>
-        /// Tests whether this object can be reached.
-        /// </summary>
-        void ice_ping();
+        bool ice_isA(string s, Current current = null);
 
         /// <summary>
         /// Tests whether this object can be reached.
         /// </summary>
         /// <param name="current">The Current object for the invocation.</param>
-        void ice_ping(Current current);
-
-        /// <summary>
-        /// Returns the Slice type IDs of the interfaces supported by this object.
-        /// </summary>
-        /// <returns>The Slice type IDs of the interfaces supported by this object, in base-to-derived
-        /// order. The first element of the returned array is always ::Ice::Object.</returns>
-        string[] ice_ids();
+        void ice_ping(Current current = null);
 
         /// <summary>
         /// Returns the Slice type IDs of the interfaces supported by this object.
@@ -100,20 +80,14 @@ namespace Ice
         /// <param name="current">The Current object for the invocation.</param>
         /// <returns>The Slice type IDs of the interfaces supported by this object, in base-to-derived
         /// order. The first element of the returned array is always ::Ice::Object.</returns>
-        string[] ice_ids(Current current);
-
-        /// <summary>
-        /// Returns the Slice type ID of the most-derived interface supported by this object.
-        /// </summary>
-        /// <returns>The Slice type ID of the most-derived interface.</returns>
-        string ice_id();
+        string[] ice_ids(Current current = null);
 
         /// <summary>
         /// Returns the Slice type ID of the most-derived interface supported by this object.
         /// </summary>
         /// <param name="current">The Current object for the invocation.</param>
         /// <returns>The Slice type ID of the most-derived interface.</returns>
-        string ice_id(Current current);
+        string ice_id(Current current = null);
 
         /// <summary>
         /// The Ice run time invokes this method prior to marshaling an object's data members. This allows a subclass
@@ -182,19 +156,9 @@ namespace Ice
         /// Tests whether this object supports a specific Slice interface.
         /// </summary>
         /// <param name="s">The type ID of the Slice interface to test against.</param>
-        /// <returns>The return value is true if s is ::Ice::Object.</returns>
-        public virtual bool ice_isA(string s)
-        {
-            return s.Equals(ids__[0]);
-        }
-
-        /// <summary>
-        /// Tests whether this object supports a specific Slice interface.
-        /// </summary>
-        /// <param name="s">The type ID of the Slice interface to test against.</param>
         /// <param name="current">The Current object for the invocation.</param>
         /// <returns>The return value is true if s is ::Ice::Object.</returns>
-        public virtual bool ice_isA(string s, Current current)
+        public virtual bool ice_isA(string s, Current current = null)
         {
             return s.Equals(ids__[0]);
         }
@@ -213,17 +177,9 @@ namespace Ice
 
         /// <summary>
         /// Tests whether this object can be reached.
-        /// </summary>
-        public virtual void ice_ping()
-        {
-            // Nothing to do.
-        }
-
-        /// <summary>
-        /// Tests whether this object can be reached.
         /// <param name="current">The Current object for the invocation.</param>
         /// </summary>
-        public virtual void ice_ping(Current current)
+        public virtual void ice_ping(Current current = null)
         {
             // Nothing to do.
         }
@@ -239,18 +195,9 @@ namespace Ice
         /// <summary>
         /// Returns the Slice type IDs of the interfaces supported by this object.
         /// </summary>
-        /// <returns>An array whose only element is ::Ice::Object.</returns>
-        public virtual string[] ice_ids()
-        {
-            return ids__;
-        }
-
-        /// <summary>
-        /// Returns the Slice type IDs of the interfaces supported by this object.
-        /// </summary>
         /// <param name="current">The Current object for the invocation.</param>
         /// <returns>An array whose only element is ::Ice::Object.</returns>
-        public virtual string[] ice_ids(Current current)
+        public virtual string[] ice_ids(Current current = null)
         {
             return ids__;
         }
@@ -268,18 +215,9 @@ namespace Ice
         /// <summary>
         /// Returns the Slice type ID of the most-derived interface supported by this object.
         /// </summary>
-        /// <returns>The return value is always ::Ice::Object.</returns>
-        public virtual string ice_id()
-        {
-            return ids__[0];
-        }
-
-        /// <summary>
-        /// Returns the Slice type ID of the most-derived interface supported by this object.
-        /// </summary>
         /// <param name="current">The Current object for the invocation.</param>
         /// <returns>The return value is always ::Ice::Object.</returns>
-        public virtual string ice_id(Current current)
+        public virtual string ice_id(Current current = null)
         {
             return ids__[0];
         }
@@ -457,8 +395,6 @@ namespace Ice
                 }
             }
         }
-
-        public static Ice.Current defaultCurrent = new Ice.Current();
     }
 
     /// <summary>
@@ -501,19 +437,34 @@ namespace Ice
 
     public abstract class BlobjectAsync : Ice.ObjectImpl
     {
-        public abstract void ice_invoke_async(AMD_Object_ice_invoke cb, byte[] inEncaps, Current current);
+        public abstract Task<Ice.Object_Ice_invokeResult> ice_invokeAsync(byte[] inEncaps, Current current);
 
         public override DispatchStatus dispatch__(IceInternal.Incoming inS__, Current current)
         {
             byte[] inEncaps = inS__.readParamEncaps();
-            AMD_Object_ice_invoke cb = new _AMD_Object_ice_invoke(inS__);
+            var in__ = new IceInternal.IncomingAsync(inS__);
+
             try
             {
-                ice_invoke_async(cb, inEncaps, current);
+                ice_invokeAsync(inEncaps, current).ContinueWith(
+                    (t) =>
+                    {
+                        try
+                        {
+                            var ret__ = t.Result;
+                            in__.writeParamEncaps__(ret__.outEncaps, ret__.returnValue);
+                        }
+                        catch(AggregateException ae)
+                        {
+                            in__.exception__(ae.InnerException);
+                            return;
+                        }
+                        in__.response__();
+                    });
             }
             catch(System.Exception ex)
             {
-                cb.ice_exception(ex);
+                in__.ice_exception(ex);
             }
             return DispatchStatus.DispatchAsync;
         }

@@ -13,405 +13,542 @@ using Test;
 
 public sealed class MyClassI : MyClass
 {
-    public override void shutdown_async(AMD_MyClass_shutdown cb, Ice.Current current)
+    public override void shutdownAsync(Action response, Action<Exception> exception, Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
-        cb.ice_response();
+        response();
     }
 
-    public override void opAByteS_async(AMD_MyClass_opAByteS cb, byte[] i, Ice.Current current)
+    public override void
+    opAByteSAsync(byte[] i, Action<MyClass_OpAByteSResult> response, Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpAByteSResult(i, i));
     }
 
-    public override void opLByteS_async(AMD_MyClass_opLByteS cb, List<byte> i, Ice.Current current)
+    public override void
+    opLByteSAsync(List<byte> i, Action<MyClass_OpLByteSResult> response, Action<Exception> exception,
+                  Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpLByteSResult(i, i));
     }
 
-    public override void opKByteS_async(AMD_MyClass_opKByteS cb, LinkedList<byte> i, Ice.Current current)
+    public override void
+    opKByteSAsync(LinkedList<byte> i, Action<MyClass_OpKByteSResult> response, Action<Exception> exception,
+                  Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpKByteSResult(i, i));
     }
 
-    public override void opQByteS_async(AMD_MyClass_opQByteS cb, Queue<byte> i, Ice.Current current)
+    public override void
+    opQByteSAsync(Queue<byte> i, Action<MyClass_OpQByteSResult> response, Action<Exception> exception,
+                  Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpQByteSResult(i, i));
     }
 
-    public override void opSByteS_async(AMD_MyClass_opSByteS cb, Stack<byte> i, Ice.Current current)
+    public override void
+    opSByteSAsync(Stack<byte> i, Action<MyClass_OpSByteSResult> response, Action<Exception> exception,
+                  Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpSByteSResult(i, i));
     }
 
-    public override void opABoolS_async(AMD_MyClass_opABoolS cb, bool[] i, Ice.Current current)
+    public override void
+    opABoolSAsync(bool[] i, Action<MyClass_OpABoolSResult> response, Action<Exception> exception,
+                  Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpABoolSResult(i, i));
     }
 
-    public override void opLBoolS_async(AMD_MyClass_opLBoolS cb, List<bool> i, Ice.Current current)
+    public override void 
+    opLBoolSAsync(List<bool> i, Action<MyClass_OpLBoolSResult> response, Action<Exception> exception,
+                  Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpLBoolSResult(i, i));
     }
 
-    public override void opKBoolS_async(AMD_MyClass_opKBoolS cb, LinkedList<bool> i, Ice.Current current)
+    public override void
+    opKBoolSAsync(LinkedList<bool> i, Action<MyClass_OpKBoolSResult> response, Action<Exception> exception,
+                  Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpKBoolSResult(i, i));
     }
 
-    public override void opQBoolS_async(AMD_MyClass_opQBoolS cb, Queue<bool> i, Ice.Current current)
+    public override void
+    opQBoolSAsync(Queue<bool> i, Action<MyClass_OpQBoolSResult> response, Action<Exception> exception,
+                  Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpQBoolSResult(i, i));
     }
 
-    public override void opSBoolS_async(AMD_MyClass_opSBoolS cb, Stack<bool> i, Ice.Current current)
+    public override void
+    opSBoolSAsync(Stack<bool> i, Action<MyClass_OpSBoolSResult> response, Action<Exception> exception,
+                  Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpSBoolSResult(i, i));
     }
 
-    public override void opAShortS_async(AMD_MyClass_opAShortS cb, short[] i, Ice.Current current)
+    public override void
+    opAShortSAsync(short[] i, Action<MyClass_OpAShortSResult> response, Action<Exception> exception,
+                   Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpAShortSResult(i, i));
     }
 
-    public override void opLShortS_async(AMD_MyClass_opLShortS cb, List<short> i, Ice.Current current)
+    public override void
+    opLShortSAsync(List<short> i, Action<MyClass_OpLShortSResult> response, Action<Exception> exception,
+                   Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpLShortSResult(i, i));
     }
 
-    public override void opKShortS_async(AMD_MyClass_opKShortS cb, LinkedList<short> i, Ice.Current current)
+    public override void
+    opKShortSAsync(LinkedList<short> i, Action<MyClass_OpKShortSResult> response, Action<Exception> exception,
+                   Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpKShortSResult(i, i));
     }
 
-    public override void opQShortS_async(AMD_MyClass_opQShortS cb, Queue<short> i, Ice.Current current)
+    public override void
+    opQShortSAsync(Queue<short> i, Action<MyClass_OpQShortSResult> response, Action<Exception> exception,
+                   Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpQShortSResult(i, i));
     }
 
-    public override void opSShortS_async(AMD_MyClass_opSShortS cb, Stack<short> i, Ice.Current current)
+    public override void
+    opSShortSAsync(Stack<short> i, Action<MyClass_OpSShortSResult> response, Action<Exception> exception,
+                   Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpSShortSResult(i, i));
     }
 
-    public override void opAIntS_async(AMD_MyClass_opAIntS cb, int[] i, Ice.Current current)
+    public override void
+    opAIntSAsync(int[] i, Action<MyClass_OpAIntSResult> response, Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpAIntSResult(i, i));
     }
 
-    public override void opLIntS_async(AMD_MyClass_opLIntS cb, List<int> i, Ice.Current current)
+    public override void
+    opLIntSAsync(List<int> i, Action<MyClass_OpLIntSResult> response, Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpLIntSResult(i, i));
     }
 
-    public override void opKIntS_async(AMD_MyClass_opKIntS cb, LinkedList<int> i, Ice.Current current)
+    public override void
+    opKIntSAsync(LinkedList<int> i, Action<MyClass_OpKIntSResult> response, Action<Exception> exception,
+                 Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpKIntSResult(i, i));
     }
 
-    public override void opQIntS_async(AMD_MyClass_opQIntS cb, Queue<int> i, Ice.Current current)
+    public override void
+    opQIntSAsync(Queue<int> i, Action<MyClass_OpQIntSResult> response, Action<Exception> exception,
+                 Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpQIntSResult(i, i));
     }
 
-    public override void opSIntS_async(AMD_MyClass_opSIntS cb, Stack<int> i, Ice.Current current)
+    public override void
+    opSIntSAsync(Stack<int> i, Action<MyClass_OpSIntSResult> response, Action<Exception> exception,
+                 Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpSIntSResult(i, i));
     }
 
-    public override void opALongS_async(AMD_MyClass_opALongS cb, long[] i, Ice.Current current)
+    public override void
+    opALongSAsync(long[] i, Action<MyClass_OpALongSResult> response, Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpALongSResult(i, i));
     }
 
-    public override void opLLongS_async(AMD_MyClass_opLLongS cb, List<long> i, Ice.Current current)
+    public override void
+    opLLongSAsync(List<long> i, Action<MyClass_OpLLongSResult> response, Action<Exception> exception,
+                  Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpLLongSResult(i, i));
     }
 
-    public override void opKLongS_async(AMD_MyClass_opKLongS cb, LinkedList<long> i, Ice.Current current)
+    public override void
+    opKLongSAsync(LinkedList<long> i, Action<MyClass_OpKLongSResult> response, Action<Exception> exception,
+                  Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpKLongSResult(i, i));
     }
 
-    public override void opQLongS_async(AMD_MyClass_opQLongS cb, Queue<long> i, Ice.Current current)
+    public override void
+    opQLongSAsync(Queue<long> i, Action<MyClass_OpQLongSResult> response, Action<Exception> exception,
+                  Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpQLongSResult(i, i));
     }
 
-    public override void opSLongS_async(AMD_MyClass_opSLongS cb, Stack<long> i, Ice.Current current)
+    public override void
+    opSLongSAsync(Stack<long> i, Action<MyClass_OpSLongSResult> response, Action<Exception> exception,
+                  Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpSLongSResult(i, i));
     }
 
-    public override void opAFloatS_async(AMD_MyClass_opAFloatS cb, float[] i, Ice.Current current)
+    public override void
+    opAFloatSAsync(float[] i, Action<MyClass_OpAFloatSResult> response, Action<Exception> exception,
+                   Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpAFloatSResult(i, i));
     }
 
-    public override void opLFloatS_async(AMD_MyClass_opLFloatS cb, List<float> i, Ice.Current current)
+    public override void
+    opLFloatSAsync(List<float> i, Action<MyClass_OpLFloatSResult> response, Action<Exception> exception,
+                   Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpLFloatSResult(i, i));
     }
 
-    public override void opKFloatS_async(AMD_MyClass_opKFloatS cb, LinkedList<float> i, Ice.Current current)
+    public override void
+    opKFloatSAsync(LinkedList<float> i, Action<MyClass_OpKFloatSResult> response, Action<Exception> exception,
+                   Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpKFloatSResult(i, i));
     }
 
-    public override void opQFloatS_async(AMD_MyClass_opQFloatS cb, Queue<float> i, Ice.Current current)
+    public override void
+    opQFloatSAsync(Queue<float> i, Action<MyClass_OpQFloatSResult> response, Action<Exception> exception,
+                   Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpQFloatSResult(i, i));
     }
 
-    public override void opSFloatS_async(AMD_MyClass_opSFloatS cb, Stack<float> i, Ice.Current current)
+    public override void
+    opSFloatSAsync(Stack<float> i, Action<MyClass_OpSFloatSResult> response, Action<Exception> exception,
+                   Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpSFloatSResult(i, i));
     }
 
-    public override void opADoubleS_async(AMD_MyClass_opADoubleS cb, double[] i, Ice.Current current)
+    public override void
+    opADoubleSAsync(double[] i, Action<MyClass_OpADoubleSResult> response, Action<Exception> exception,
+                    Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpADoubleSResult(i, i));
     }
 
-    public override void opLDoubleS_async(AMD_MyClass_opLDoubleS cb, List<double> i, Ice.Current current)
+    public override void
+    opLDoubleSAsync(List<double> i, Action<MyClass_OpLDoubleSResult> response, Action<Exception> exception,
+                    Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpLDoubleSResult(i, i));
     }
 
-    public override void opKDoubleS_async(AMD_MyClass_opKDoubleS cb, LinkedList<double> i, Ice.Current current)
+    public override void
+    opKDoubleSAsync(LinkedList<double> i, Action<MyClass_OpKDoubleSResult> response, Action<Exception> exception,
+                    Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpKDoubleSResult(i, i));
     }
 
-    public override void opQDoubleS_async(AMD_MyClass_opQDoubleS cb, Queue<double> i, Ice.Current current)
+    public override void
+    opQDoubleSAsync(Queue<double> i, Action<MyClass_OpQDoubleSResult> response, Action<Exception> exception,
+                    Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpQDoubleSResult(i, i));
     }
 
-    public override void opSDoubleS_async(AMD_MyClass_opSDoubleS cb, Stack<double> i, Ice.Current current)
+    public override void
+    opSDoubleSAsync(Stack<double> i, Action<MyClass_OpSDoubleSResult> response, Action<Exception> exception,
+                    Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpSDoubleSResult(i, i));
     }
 
-    public override void opAStringS_async(AMD_MyClass_opAStringS cb, string[] i, Ice.Current current)
+    public override void
+    opAStringSAsync(string[] i, Action<MyClass_OpAStringSResult> response, Action<Exception> exception,
+                    Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpAStringSResult(i, i));
     }
 
-    public override void opLStringS_async(AMD_MyClass_opLStringS cb, List<string> i, Ice.Current current)
+    public override void
+    opLStringSAsync(List<string> i, Action<MyClass_OpLStringSResult> response, Action<Exception> exception,
+                    Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpLStringSResult(i, i));
     }
 
-    public override void opKStringS_async(AMD_MyClass_opKStringS cb, LinkedList<string> i, Ice.Current current)
+    public override void
+    opKStringSAsync(LinkedList<string> i, Action<MyClass_OpKStringSResult> response, Action<Exception> exception,
+                    Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpKStringSResult(i, i));
     }
 
-    public override void opQStringS_async(AMD_MyClass_opQStringS cb, Queue<string> i, Ice.Current current)
+    public override void
+    opQStringSAsync(Queue<string> i, Action<MyClass_OpQStringSResult> response, Action<Exception> exception,
+                    Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpQStringSResult(i, i));
     }
 
-    public override void opSStringS_async(AMD_MyClass_opSStringS cb, Stack<string> i, Ice.Current current)
+    public override void
+    opSStringSAsync(Stack<string> i, Action<MyClass_OpSStringSResult> response, Action<Exception> exception,
+                    Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpSStringSResult(i, i));
     }
 
-    public override void opAObjectS_async(AMD_MyClass_opAObjectS cb, Ice.Object[] i, Ice.Current current)
+    public override void opAObjectSAsync(Ice.Object[] i, Action<MyClass_OpAObjectSResult> response, Action<Exception> exception,
+                                         Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpAObjectSResult(i, i));
     }
 
-    public override void opLObjectS_async(AMD_MyClass_opLObjectS cb, List<Ice.Object> i, Ice.Current current)
+    public override void
+    opLObjectSAsync(List<Ice.Object> i, Action<MyClass_OpLObjectSResult> response, Action<Exception> exception,
+                    Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpLObjectSResult(i, i));
     }
 
-    public override void opAObjectPrxS_async(AMD_MyClass_opAObjectPrxS cb, Ice.ObjectPrx[] i, Ice.Current current)
+    public override void
+    opAObjectPrxSAsync(Ice.ObjectPrx[] i, Action<MyClass_OpAObjectPrxSResult> response, Action<Exception> exception,
+                       Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpAObjectPrxSResult(i, i));
     }
 
-    public override void opLObjectPrxS_async(AMD_MyClass_opLObjectPrxS cb, List<Ice.ObjectPrx> i, Ice.Current current)
+    public override void
+    opLObjectPrxSAsync(List<Ice.ObjectPrx> i, Action<MyClass_OpLObjectPrxSResult> response, Action<Exception> exception,
+                       Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpLObjectPrxSResult(i, i));
     }
 
-    public override void opKObjectPrxS_async(AMD_MyClass_opKObjectPrxS cb, LinkedList<Ice.ObjectPrx> i, Ice.Current current)
+    public override void
+    opKObjectPrxSAsync(LinkedList<Ice.ObjectPrx> i, Action<MyClass_OpKObjectPrxSResult> response, Action<Exception> exception,
+                       Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpKObjectPrxSResult(i, i));
     }
 
-    public override void opQObjectPrxS_async(AMD_MyClass_opQObjectPrxS cb, Queue<Ice.ObjectPrx> i, Ice.Current current)
+    public override void
+    opQObjectPrxSAsync(Queue<Ice.ObjectPrx> i, Action<MyClass_OpQObjectPrxSResult> response, Action<Exception> exception,
+                       Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpQObjectPrxSResult(i, i));
     }
 
-    public override void opSObjectPrxS_async(AMD_MyClass_opSObjectPrxS cb, Stack<Ice.ObjectPrx> i, Ice.Current current)
+    public override void
+    opSObjectPrxSAsync(Stack<Ice.ObjectPrx> i, Action<MyClass_OpSObjectPrxSResult> response, Action<Exception> exception,
+                       Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpSObjectPrxSResult(i, i));
     }
 
-    public override void opAStructS_async(AMD_MyClass_opAStructS cb, S[] i, Ice.Current current)
+    public override void
+    opAStructSAsync(S[] i, Action<MyClass_OpAStructSResult> response, Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpAStructSResult(i, i));
     }
 
-    public override void opLStructS_async(AMD_MyClass_opLStructS cb, List<S> i, Ice.Current current)
+    public override void
+    opLStructSAsync(List<S> i, Action<MyClass_OpLStructSResult> response, Action<Exception> exception,
+                    Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpLStructSResult(i, i));
     }
 
-    public override void opKStructS_async(AMD_MyClass_opKStructS cb, LinkedList<S> i, Ice.Current current)
+    public override void
+    opKStructSAsync(LinkedList<S> i, Action<MyClass_OpKStructSResult> response, Action<Exception> exception,
+                    Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpKStructSResult(i, i));
     }
 
-    public override void opQStructS_async(AMD_MyClass_opQStructS cb, Queue<S> i, Ice.Current current)
+    public override void
+    opQStructSAsync(Queue<S> i, Action<MyClass_OpQStructSResult> response, Action<Exception> exception,
+                    Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpQStructSResult(i, i));
     }
 
-    public override void opSStructS_async(AMD_MyClass_opSStructS cb, Stack<S> i, Ice.Current current)
+    public override void
+    opSStructSAsync(Stack<S> i, Action<MyClass_OpSStructSResult> response, Action<Exception> exception,
+                    Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpSStructSResult(i, i));
     }
 
-    public override void opAStructSD_async(AMD_MyClass_opAStructSD cb, SD[] i, Ice.Current current)
+    public override void
+    opAStructSDAsync(SD[] i, Action<MyClass_OpAStructSDResult> response, Action<Exception> exception,
+                     Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpAStructSDResult(i, i));
     }
 
-    public override void opLStructSD_async(AMD_MyClass_opLStructSD cb, List<SD> i, Ice.Current current)
+    public override void
+    opLStructSDAsync(List<SD> i, Action<MyClass_OpLStructSDResult> response, Action<Exception> exception,
+                     Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpLStructSDResult(i, i));
     }
 
-    public override void opKStructSD_async(AMD_MyClass_opKStructSD cb, LinkedList<SD> i, Ice.Current current)
+    public override void
+    opKStructSDAsync(LinkedList<SD> i, Action<MyClass_OpKStructSDResult> response, Action<Exception> exception,
+                     Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpKStructSDResult(i, i));
     }
 
-    public override void opQStructSD_async(AMD_MyClass_opQStructSD cb, Queue<SD> i, Ice.Current current)
+    public override void
+    opQStructSDAsync(Queue<SD> i, Action<MyClass_OpQStructSDResult> response, Action<Exception> exception,
+                     Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpQStructSDResult(i, i));
     }
 
-    public override void opSStructSD_async(AMD_MyClass_opSStructSD cb, Stack<SD> i, Ice.Current current)
+    public override void
+    opSStructSDAsync(Stack<SD> i, Action<MyClass_OpSStructSDResult> response, Action<Exception> exception,
+                     Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpSStructSDResult(i, i));
     }
 
-    public override void opACVS_async(AMD_MyClass_opACVS cb, CV[] i, Ice.Current current)
+    public override void
+    opACVSAsync(CV[] i, Action<MyClass_OpACVSResult> response, Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpACVSResult(i, i));
     }
 
-    public override void opLCVS_async(AMD_MyClass_opLCVS cb, List<CV> i, Ice.Current current)
+    public override void
+    opLCVSAsync(List<CV> i, Action<MyClass_OpLCVSResult> response, Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpLCVSResult(i, i));
     }
 
-    public override void opACVPrxS_async(AMD_MyClass_opACVPrxS cb, CVPrx[] i, Ice.Current current)
+    public override void
+    opACVPrxSAsync(CVPrx[] i, Action<MyClass_OpACVPrxSResult> response, Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpACVPrxSResult(i, i));
     }
 
-    public override void opLCVPrxS_async(AMD_MyClass_opLCVPrxS cb, List<CVPrx> i, Ice.Current current)
+    public override void
+    opLCVPrxSAsync(List<CVPrx> i, Action<MyClass_OpLCVPrxSResult> response, Action<Exception> exception,
+                   Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpLCVPrxSResult(i, i));
     }
 
-    public override void opKCVPrxS_async(AMD_MyClass_opKCVPrxS cb, LinkedList<CVPrx> i, Ice.Current current)
+    public override void
+    opKCVPrxSAsync(LinkedList<CVPrx> i, Action<MyClass_OpKCVPrxSResult> response, Action<Exception> exception,
+                   Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpKCVPrxSResult(i, i));
     }
 
-    public override void opQCVPrxS_async(AMD_MyClass_opQCVPrxS cb, Queue<CVPrx> i, Ice.Current current)
+    public override void
+    opQCVPrxSAsync(Queue<CVPrx> i, Action<MyClass_OpQCVPrxSResult> response, Action<Exception> exception,
+                   Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpQCVPrxSResult(i, i));
     }
 
-    public override void opSCVPrxS_async(AMD_MyClass_opSCVPrxS cb, Stack<CVPrx> i, Ice.Current current)
+    public override void
+    opSCVPrxSAsync(Stack<CVPrx> i, Action<MyClass_OpSCVPrxSResult> response, Action<Exception> exception,
+                   Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpSCVPrxSResult(i, i));
     }
 
-    public override void opACRS_async(AMD_MyClass_opACRS cb, CR[] i, Ice.Current current)
+    public override void
+    opACRSAsync(CR[] i, Action<MyClass_OpACRSResult> response, Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpACRSResult(i, i));
     }
 
-    public override void opLCRS_async(AMD_MyClass_opLCRS cb, List<CR> i, Ice.Current current)
+    public override void
+    opLCRSAsync(List<CR> i, Action<MyClass_OpLCRSResult> response, Action<Exception> exception,
+                Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpLCRSResult(i, i));
     }
 
-    public override void opAEnS_async(AMD_MyClass_opAEnS cb, En[] i, Ice.Current current)
+    public override void opAEnSAsync(En[] i, Action<MyClass_OpAEnSResult> response, Action<Exception> exception,
+                                     Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpAEnSResult(i, i));
     }
 
-    public override void opLEnS_async(AMD_MyClass_opLEnS cb, List<En> i, Ice.Current current)
+    public override void
+    opLEnSAsync(List<En> i, Action<MyClass_OpLEnSResult> response, Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpLEnSResult(i, i));
     }
 
-    public override void opKEnS_async(AMD_MyClass_opKEnS cb, LinkedList<En> i, Ice.Current current)
+    public override void
+    opKEnSAsync(LinkedList<En> i, Action<MyClass_OpKEnSResult> response, Action<Exception> exception,
+                Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpKEnSResult(i, i));
     }
 
-    public override void opQEnS_async(AMD_MyClass_opQEnS cb, Queue<En> i, Ice.Current current)
+    public override void
+    opQEnSAsync(Queue<En> i, Action<MyClass_OpQEnSResult> response, Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpQEnSResult(i, i));
     }
 
-    public override void opSEnS_async(AMD_MyClass_opSEnS cb, Stack<En> i, Ice.Current current)
+    public override void
+    opSEnSAsync(Stack<En> i, Action<MyClass_OpSEnSResult> response, Action<Exception> exception,
+                Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpSEnSResult(i, i));
     }
 
-    public override void opCustomIntS_async(AMD_MyClass_opCustomIntS cb, Custom<int> i, Ice.Current current)
+    public override void
+    opCustomIntSAsync(Custom<int> i, Action<MyClass_OpCustomIntSResult> response, Action<Exception> exception,
+                      Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpCustomIntSResult(i, i));
     }
 
-    public override void opCustomCVS_async(AMD_MyClass_opCustomCVS cb, Custom<CV> i, Ice.Current current)
+    public override void
+    opCustomCVSAsync(Custom<CV> i, Action<MyClass_OpCustomCVSResult> response, Action<Exception> exception,
+                     Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpCustomCVSResult(i, i));
     }
 
-    public override void opCustomIntSS_async(AMD_MyClass_opCustomIntSS cb, Custom<Custom<int>> i, Ice.Current current)
+    public override void
+    opCustomIntSSAsync(Custom<Custom<int>> i, Action<MyClass_OpCustomIntSSResult> response, Action<Exception> exception,
+                       Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpCustomIntSSResult(i, i));
     }
 
-    public override void opCustomCVSS_async(AMD_MyClass_opCustomCVSS cb, Custom<Custom<CV>> i, Ice.Current current)
+    public override void
+    opCustomCVSSAsync(Custom<Custom<CV>> i, Action<MyClass_OpCustomCVSSResult> response, Action<Exception> exception,
+                      Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpCustomCVSSResult(i, i));
     }
 
-    public override void opSerialSmallCSharp_async(AMD_MyClass_opSerialSmallCSharp cb,
-                                                   Serialize.Small i,
-                                                   Ice.Current current)
+    public override void
+    opSerialSmallCSharpAsync(Serialize.Small i, Action<MyClass_OpSerialSmallCSharpResult> response, Action<Exception> exception,
+                             Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpSerialSmallCSharpResult(i, i));
     }
 
-    public override void opSerialLargeCSharp_async(AMD_MyClass_opSerialLargeCSharp cb,
-                                                   Serialize.Large i,
-                                                   Ice.Current current)
+    public override void
+    opSerialLargeCSharpAsync(Serialize.Large i, Action<MyClass_OpSerialLargeCSharpResult> response, Action<Exception> exception,
+                             Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpSerialLargeCSharpResult(i, i));
     }
 
-    public override void opSerialStructCSharp_async(AMD_MyClass_opSerialStructCSharp cb,
-                                                    Serialize.Struct i,
-                                                    Ice.Current current)
+    public override void
+    opSerialStructCSharpAsync(Serialize.Struct i, Action<MyClass_OpSerialStructCSharpResult> response, Action<Exception> exception,
+                              Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpSerialStructCSharpResult(i, i));
     }
 }

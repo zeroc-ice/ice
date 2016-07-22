@@ -171,7 +171,31 @@ sealed class LoggerAdminLoggerI : LoggerAdminLogger
                     //
                     // p is a proxy associated with the _sendLogCommunicator
                     //
-                    p.begin_log(job.logMessage, logCompleted, null);
+                    p.logAsync(job.logMessage).ContinueWith(
+                        (t) =>
+                        {
+                            try
+                            {
+                                t.Wait();
+                                if(_loggerAdmin.getTraceLevel() > 1)
+                                {
+                                    _localLogger.trace(_traceCategory, "log on `" + p.ToString()
+                                                       + "' completed successfully");
+                                }
+                            }
+                            catch(AggregateException ae)
+                            {
+                                if(ae.InnerException is Ice.CommunicatorDestroyedException)
+                                {
+                                    // expected if there are outstanding calls during communicator destruction
+                                }
+                                if(ae.InnerException is Ice.LocalException)
+                                {
+                                    _loggerAdmin.deadRemoteLogger(p, _localLogger,
+                                                                  (Ice.LocalException)ae.InnerException, "log");
+                                }
+                            }
+                        });
                 }
                 catch(Ice.LocalException ex)
                 {

@@ -378,7 +378,7 @@ namespace IceInternal
                     { 
                         dispatchFromThisThread(call, con); 
                     });
-                System.Threading.Monitor.Pulse(this);
+                Monitor.Pulse(this);
 
                 //
                 // If this is a dynamic thread pool which can still grow and if all threads are

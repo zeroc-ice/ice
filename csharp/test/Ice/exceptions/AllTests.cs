@@ -221,7 +221,7 @@ public class AllTests : TestCommon.TestApp
 
         try
         {
-            thrower.throwAorDasAorD(- 1);
+            thrower.throwAorDasAorD(-1);
             test(false);
         }
         catch(D ex)
@@ -1092,7 +1092,6 @@ public class AllTests : TestCommon.TestApp
 
         WriteLine("ok");
 
-        // ----------------------------------------
         if(thrower.supportsUndeclaredExceptions())
         {
             Write("catching unknown user exception with new AMI mapping... ");

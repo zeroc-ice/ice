@@ -21,19 +21,21 @@ public class Server
 {
     internal class LocatorI : Ice.LocatorDisp_
     {
-        public override void findAdapterById_async(Ice.AMD_Locator_findAdapterById response, string adapter,
-                                                   Ice.Current current)
+        public override void
+        findAdapterByIdAsync(string adapter, Action<Ice.ObjectPrx> response, Action<Exception> exception,
+                             Ice.Current current)
         {
             _controller.checkCallPause(current);
             Ice.Communicator communicator = current.adapter.getCommunicator();
-            response.ice_response(current.adapter.createDirectProxy(communicator.stringToIdentity("dummy")));
+            response(current.adapter.createDirectProxy(communicator.stringToIdentity("dummy")));
         }
 
-        public override void findObjectById_async(Ice.AMD_Locator_findObjectById response, Ice.Identity id,
-                                                  Ice.Current current)
+        public override void
+        findObjectByIdAsync(Ice.Identity id, Action<Ice.ObjectPrx> response, Action<Exception> exception,
+                            Ice.Current current)
         {
             _controller.checkCallPause(current);
-            response.ice_response(current.adapter.createDirectProxy(id));
+            response(current.adapter.createDirectProxy(id));
         }
 
         public override Ice.LocatorRegistryPrx getRegistry(Ice.Current current)

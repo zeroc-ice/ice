@@ -33,41 +33,41 @@ public sealed class ControllerI : ControllerDisp_
 
 public sealed class MetricsI : MetricsDisp_
 {
-    override public void op_async(Test.AMD_Metrics_op cb, Ice.Current current)
+    override public void opAsync(Action response, Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_response();
+        response();
     }
 
-    override public void fail_async(Test.AMD_Metrics_fail cb, Ice.Current current)
+    override public void failAsync(Action response, Action<Exception> exception, Ice.Current current)
     { 
         current.con.close(true);
-        cb.ice_response();
+        response();
     }
 
-    override public void opWithUserException_async(Test.AMD_Metrics_opWithUserException cb, Ice.Current current)
+    override public void opWithUserExceptionAsync(Action response, Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_exception(new UserEx());
+        exception(new UserEx());
     }
 
-    override public void opWithRequestFailedException_async(Test.AMD_Metrics_opWithRequestFailedException cb,
-                                                            Ice.Current current)
+    override public void
+    opWithRequestFailedExceptionAsync(Action response, Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_exception(new Ice.ObjectNotExistException());
+        exception(new Ice.ObjectNotExistException());
     }
 
-    override public void opWithLocalException_async(Test.AMD_Metrics_opWithLocalException cb, Ice.Current current)
+    override public void opWithLocalExceptionAsync(Action response, Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_exception(new Ice.SyscallException());
+        exception(new Ice.SyscallException());
     }
 
-    override public void opWithUnknownException_async(Test.AMD_Metrics_opWithUnknownException cb, Ice.Current current)
+    override public void opWithUnknownExceptionAsync(Action response, Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_exception(new ArgumentOutOfRangeException());
+        exception(new ArgumentOutOfRangeException());
     }
 
-    override public void opByteS_async(Test.AMD_Metrics_opByteS cb, byte[] bs, Ice.Current current)
+    override public void opByteSAsync(byte[] bs, Action response, Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_response();
+        response();
     }
 
     override public Ice.ObjectPrx getAdmin(Ice.Current current)

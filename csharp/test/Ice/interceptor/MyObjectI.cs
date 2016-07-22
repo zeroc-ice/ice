@@ -8,7 +8,7 @@
 // **********************************************************************
 
 using System;
-using System.Threading;
+using System.Threading.Tasks;
 
 class MySystemException : Ice.SystemException
 {
@@ -76,73 +76,45 @@ class MyObjectI : Test.MyObjectDisp_
     //
     // AMD
     //
-    public override void 
-    amdAdd_async(Test.AMD_MyObject_amdAdd cb, int x, int y, Ice.Current current)
+    public override async void 
+    amdAddAsync(int x, int y, Action<int> response, Action<Exception> exception, Ice.Current current)
     {
-        Thread thread = new Thread(delegate()
-                                   {
-                                       Thread.Sleep(10);
-                                       cb.ice_response(x + y);
-                                   });
-        thread.IsBackground = true;
-        thread.Start();
+        await Task.Delay(10);
+        response(x + y);
     }
 
-    public override void 
-    amdAddWithRetry_async(Test.AMD_MyObject_amdAddWithRetry cb, int x, int y, Ice.Current current)
+    public override async void
+    amdAddWithRetryAsync(int x, int y, Action<int> response, Action<Exception> exception, Ice.Current current)
     {
-        Thread thread = new Thread(delegate()
-                                   {
-                                       Thread.Sleep(10);
-                                       cb.ice_response(x + y);
-                                   });
-        thread.IsBackground = true;
-        thread.Start();
-
+        await Task.Delay(10);
         if(current.ctx.ContainsKey("retry") && current.ctx["retry"].Equals("no"))
         {
-            return;
+            response(x + y);
         }
         else
         {
-            throw new Test.RetryException();
+            exception(new Test.RetryException());
         }
     } 
     
-    public override void 
-    amdBadAdd_async(Test.AMD_MyObject_amdBadAdd cb, int x, int y, Ice.Current current)
+    public override async void
+    amdBadAddAsync(int x, int y, Action<int> response, Action<Exception> exception, Ice.Current current)
     {
-        Thread thread = new Thread(delegate()
-                                   {
-                                       Thread.Sleep(10);
-                                       cb.ice_exception(new Test.InvalidInputException());
-                                   });
-        thread.IsBackground = true;
-        thread.Start();
+        await Task.Delay(10);
+        exception(new Test.InvalidInputException());
     } 
 
-    public override void 
-    amdNotExistAdd_async(Test.AMD_MyObject_amdNotExistAdd cb, int x, int y, Ice.Current current)
+    public override async void
+    amdNotExistAddAsync(int x, int y, Action<int> response, Action<Exception> exception, Ice.Current current)
     {
-        Thread thread = new Thread(delegate()
-                                   {
-                                       Thread.Sleep(10);
-                                       cb.ice_exception(new Ice.ObjectNotExistException());
-                                   });
-        thread.IsBackground = true;
-        thread.Start();
+        await Task.Delay(10);
+        exception(new Ice.ObjectNotExistException());
     } 
     
-    public override void 
-    amdBadSystemAdd_async(Test.AMD_MyObject_amdBadSystemAdd cb, int x, int y, Ice.Current current)
+    public override async void
+    amdBadSystemAddAsync(int x, int y, Action<int> response, Action<Exception> exception, Ice.Current current)
     {
-        Thread thread = new Thread(delegate()
-                                   {
-                                       Thread.Sleep(10);
-                                       cb.ice_exception(new MySystemException());
-                                   });
-        
-        thread.IsBackground = true;
-        thread.Start();
+        await Task.Delay(10);
+        exception(new MySystemException());
     } 
 }

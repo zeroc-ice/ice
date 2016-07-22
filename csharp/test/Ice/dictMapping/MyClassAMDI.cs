@@ -7,57 +7,71 @@
 //
 // **********************************************************************
 
-using System;
 using System.Collections.Generic;
+using System;
 using Test;
 
 public sealed class MyClassI : MyClass
 {
-    public override void shutdown_async(AMD_MyClass_shutdown cb, Ice.Current current)
+    public override void shutdownAsync(Action response, Action<Exception> exception, Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
-        cb.ice_response();
+        response();
     }
 
-    public override void opNV_async(AMD_MyClass_opNV cb, Dictionary<int, int> i, Ice.Current current)
+    public override void
+    opNVAsync(Dictionary<int, int> i, Action<MyClass_OpNVResult> response, Action<Exception> exception,
+              Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpNVResult(i, i));
     }
 
-    public override void opNR_async(AMD_MyClass_opNR cb, Dictionary<string, string> i, Ice.Current current)
+    public override void
+    opNRAsync(Dictionary<string, string> i, Action<MyClass_OpNRResult> response, Action<Exception> exception,
+              Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpNRResult(i, i));
     }
 
-    public override void opNDV_async(AMD_MyClass_opNDV cb, Dictionary<string, Dictionary<int, int>> i,
-                                     Ice.Current current)
+    public override void
+    opNDVAsync(Dictionary<string, Dictionary<int, int>> i, Action<MyClass_OpNDVResult> response,
+               Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpNDVResult(i, i));
     }
 
-    public override void opNDR_async(AMD_MyClass_opNDR cb, Dictionary<string, Dictionary<string, string>> i,
-                                     Ice.Current current)
+    public override void
+    opNDRAsync(Dictionary<string, Dictionary<string, string>> i, Action<MyClass_OpNDRResult> response,
+               Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpNDRResult(i, i));
     }
 
-    public override void opNDAIS_async(AMD_MyClass_opNDAIS cb, Dictionary<string, int[]> i, Ice.Current current)
+    public override void
+    opNDAISAsync(Dictionary<string, int[]> i, Action<MyClass_OpNDAISResult> response,
+                 Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpNDAISResult(i, i));
     }
 
-    public override void opNDGIS_async(AMD_MyClass_opNDGIS cb, Dictionary<string, List<int>> i, Ice.Current current)
+    public override void
+    opNDGISAsync(Dictionary<string, List<int>> i, Action<MyClass_OpNDGISResult> response, Action<Exception> exception,
+                 Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpNDGISResult(i, i));
     }
 
-    public override void opNDASS_async(AMD_MyClass_opNDASS cb, Dictionary<string, string[]> i, Ice.Current current)
+    public override void
+    opNDASSAsync(Dictionary<string, string[]> i, Action<MyClass_OpNDASSResult> response, Action<Exception> exception,
+                 Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpNDASSResult(i, i));
     }
 
-    public override void opNDGSS_async(AMD_MyClass_opNDGSS cb, Dictionary<string, List<string>> i, Ice.Current current)
+    public override void
+    opNDGSSAsync(Dictionary<string, List<string>> i, Action<MyClass_OpNDGSSResult> response,
+                 Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_response(i, i);
+        response(new MyClass_OpNDGSSResult(i, i));
     }
 }

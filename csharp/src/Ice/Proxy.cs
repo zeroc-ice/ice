@@ -774,6 +774,12 @@ namespace Ice
     /// </summary>
     public struct Object_Ice_invokeResult
     {
+        public Object_Ice_invokeResult(bool returnValue, byte[] outEncaps)
+        {
+            this.returnValue = returnValue;
+            this.outEncaps = outEncaps;
+        }
+
         /// <summary>
         /// If the operation completed successfully, the return value
         /// is true. If the operation raises a user exception,

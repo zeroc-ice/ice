@@ -16,7 +16,7 @@
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3C53C28F-DC44-46B0-8B85-0C96B85B2042};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputPath>..\..\</OutputPath>
-  </PropertyGroup>  
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Ice, Version=3.7.53.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -56,7 +56,6 @@
   <PropertyGroup Label="IceBuilder">
     <IceBuilderIncludeDirectories>$(IceHome)\slice</IceBuilderIncludeDirectories>
     <IceBuilderAllowIcePrefix>yes</IceBuilderAllowIcePrefix>
-    <IceBuilderAdditionalOptions>--compat</IceBuilderAdditionalOptions>
   </PropertyGroup>
   <Import Project="$(IceBuilderCsharpTargets)" Condition="Exists('$(IceBuilderCsharpTargets)')" />
 </Project>

@@ -20,157 +20,110 @@ public sealed class TestI : TestIntfDisp_
         }
     }
 
-    public override void shutdown_async(AMD_TestIntf_shutdown cb, Ice.Current current)
+    public override void shutdownAsync(Action response, Action<Exception> exception,Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
-        cb.ice_response();
+        response();
     }
 
-    public override void baseAsBase_async(AMD_TestIntf_baseAsBase cb, Ice.Current current)
+    public override void baseAsBaseAsync(Action response, Action<Exception> exception, Ice.Current current)
     {
-        Base b = new Base();
-        b.b = "Base.b";
-        cb.ice_exception(b);
+        exception(new Base("Base.b"));
     }
 
-    public override void unknownDerivedAsBase_async(AMD_TestIntf_unknownDerivedAsBase cb, Ice.Current current)
+    public override void unknownDerivedAsBaseAsync(Action response, Action<Exception> exception, Ice.Current current)
     {
-        UnknownDerived d = new UnknownDerived();
-        d.b = "UnknownDerived.b";
-        d.ud = "UnknownDerived.ud";
-        cb.ice_exception(d);
+        exception(new UnknownDerived("UnknownDerived.b", "UnknownDerived.ud"));
     }
 
-    public override void knownDerivedAsBase_async(AMD_TestIntf_knownDerivedAsBase cb, Ice.Current current)
+    public override void knownDerivedAsBaseAsync(Action response, Action<Exception> exception, Ice.Current current)
     {
-        KnownDerived d = new KnownDerived();
-        d.b = "KnownDerived.b";
-        d.kd = "KnownDerived.kd";
-        cb.ice_exception(d);
+        exception(new KnownDerived("KnownDerived.b", "KnownDerived.kd"));
     }
 
-    public override void knownDerivedAsKnownDerived_async(AMD_TestIntf_knownDerivedAsKnownDerived cb,
-                                                          Ice.Current current)
+    public override void
+    knownDerivedAsKnownDerivedAsync(Action response, Action<Exception> exception, Ice.Current current)
     {
-        KnownDerived d = new KnownDerived();
-        d.b = "KnownDerived.b";
-        d.kd = "KnownDerived.kd";
-        cb.ice_exception(d);
+        exception(new KnownDerived("KnownDerived.b", "KnownDerived.kd"));
     }
 
-    public override void unknownIntermediateAsBase_async(AMD_TestIntf_unknownIntermediateAsBase cb, Ice.Current current)
+    public override void
+    unknownIntermediateAsBaseAsync(Action response, Action<Exception> exception, Ice.Current current)
     {
-        UnknownIntermediate ui = new UnknownIntermediate();
-        ui.b = "UnknownIntermediate.b";
-        ui.ui = "UnknownIntermediate.ui";
-        cb.ice_exception(ui);
+        exception(new UnknownIntermediate("UnknownIntermediate.b", "UnknownIntermediate.ui"));
     }
 
-    public override void knownIntermediateAsBase_async(AMD_TestIntf_knownIntermediateAsBase cb, Ice.Current current)
+    public override void
+    knownIntermediateAsBaseAsync(Action response, Action<Exception> exception, Ice.Current current)
     {
-        KnownIntermediate ki = new KnownIntermediate();
-        ki.b = "KnownIntermediate.b";
-        ki.ki = "KnownIntermediate.ki";
-        cb.ice_exception(ki);
+        exception(new KnownIntermediate("KnownIntermediate.b", "KnownIntermediate.ki"));
     }
 
-    public override void knownMostDerivedAsBase_async(AMD_TestIntf_knownMostDerivedAsBase cb, Ice.Current current)
+    public override void
+    knownMostDerivedAsBaseAsync(Action response, Action<Exception> exception, Ice.Current current)
     {
-        KnownMostDerived kmd = new KnownMostDerived();
-        kmd.b = "KnownMostDerived.b";
-        kmd.ki = "KnownMostDerived.ki";
-        kmd.kmd = "KnownMostDerived.kmd";
-        cb.ice_exception(kmd);
+        exception(new KnownMostDerived("KnownMostDerived.b", "KnownMostDerived.ki", "KnownMostDerived.kmd"));
     }
 
-    public override void knownIntermediateAsKnownIntermediate_async(
-        AMD_TestIntf_knownIntermediateAsKnownIntermediate cb, Ice.Current current)
+    public override void
+    knownIntermediateAsKnownIntermediateAsync(Action response, Action<Exception> exception, Ice.Current current)
     {
-        KnownIntermediate ki = new KnownIntermediate();
-        ki.b = "KnownIntermediate.b";
-        ki.ki = "KnownIntermediate.ki";
-        cb.ice_exception(ki);
+        exception(new KnownIntermediate("KnownIntermediate.b", "KnownIntermediate.ki"));
     }
 
-    public override void knownMostDerivedAsKnownIntermediate_async(AMD_TestIntf_knownMostDerivedAsKnownIntermediate cb,
-                                                                   Ice.Current current)
+    public override void
+    knownMostDerivedAsKnownIntermediateAsync(Action response, Action<Exception> exception, Ice.Current current)
     {
-        KnownMostDerived kmd = new KnownMostDerived();
-        kmd.b = "KnownMostDerived.b";
-        kmd.ki = "KnownMostDerived.ki";
-        kmd.kmd = "KnownMostDerived.kmd";
-        cb.ice_exception(kmd);
+        exception(new KnownMostDerived("KnownMostDerived.b", "KnownMostDerived.ki", "KnownMostDerived.kmd"));
     }
 
-    public override void knownMostDerivedAsKnownMostDerived_async(AMD_TestIntf_knownMostDerivedAsKnownMostDerived cb,
-                                                                  Ice.Current current)
+    public override void
+    knownMostDerivedAsKnownMostDerivedAsync(Action response, Action<Exception> exception, Ice.Current current)
     {
-        KnownMostDerived kmd = new KnownMostDerived();
-        kmd.b = "KnownMostDerived.b";
-        kmd.ki = "KnownMostDerived.ki";
-        kmd.kmd = "KnownMostDerived.kmd";
-        cb.ice_exception(kmd);
+        exception(new KnownMostDerived("KnownMostDerived.b", "KnownMostDerived.ki", "KnownMostDerived.kmd"));
     }
 
-    public override void unknownMostDerived1AsBase_async(AMD_TestIntf_unknownMostDerived1AsBase cb, Ice.Current current)
+    public override void
+    unknownMostDerived1AsBaseAsync(Action response, Action<Exception> exception, Ice.Current current)
     {
-        UnknownMostDerived1 umd1 = new UnknownMostDerived1();
-        umd1.b = "UnknownMostDerived1.b";
-        umd1.ki = "UnknownMostDerived1.ki";
-        umd1.umd1 = "UnknownMostDerived1.umd1";
-        cb.ice_exception(umd1);
+        exception(new UnknownMostDerived1("UnknownMostDerived1.b", "UnknownMostDerived1.ki", 
+                                          "UnknownMostDerived1.umd1"));
     }
 
-    public override void unknownMostDerived1AsKnownIntermediate_async(
-        AMD_TestIntf_unknownMostDerived1AsKnownIntermediate cb, Ice.Current current)
+    public override void
+    unknownMostDerived1AsKnownIntermediateAsync(Action response, Action<Exception> exception, Ice.Current current)
     {
-        UnknownMostDerived1 umd1 = new UnknownMostDerived1();
-        umd1.b = "UnknownMostDerived1.b";
-        umd1.ki = "UnknownMostDerived1.ki";
-        umd1.umd1 = "UnknownMostDerived1.umd1";
-        cb.ice_exception(umd1);
+        exception(new UnknownMostDerived1("UnknownMostDerived1.b", "UnknownMostDerived1.ki",
+                                          "UnknownMostDerived1.umd1"));
     }
 
-    public override void unknownMostDerived2AsBase_async(AMD_TestIntf_unknownMostDerived2AsBase cb, Ice.Current current)
+    public override void
+    unknownMostDerived2AsBaseAsync(Action response, Action<Exception> exception, Ice.Current current)
     {
-        UnknownMostDerived2 umd2 = new UnknownMostDerived2();
-        umd2.b = "UnknownMostDerived2.b";
-        umd2.ui = "UnknownMostDerived2.ui";
-        umd2.umd2 = "UnknownMostDerived2.umd2";
-        cb.ice_exception(umd2);
+        exception(new UnknownMostDerived2("UnknownMostDerived2.b", "UnknownMostDerived2.ui",
+                                          "UnknownMostDerived2.umd2"));
     }
 
-    public override void unknownMostDerived2AsBaseCompact_async(AMD_TestIntf_unknownMostDerived2AsBaseCompact cb,
-                                                                Ice.Current current)
+    public override void
+    unknownMostDerived2AsBaseCompactAsync(Action response, Action<Exception> exception, Ice.Current current)
     {
-        UnknownMostDerived2 umd2 = new UnknownMostDerived2();
-        umd2.b = "UnknownMostDerived2.b";
-        umd2.ui = "UnknownMostDerived2.ui";
-        umd2.umd2 = "UnknownMostDerived2.umd2";
-        cb.ice_exception(umd2);
+        exception(new UnknownMostDerived2("UnknownMostDerived2.b", "UnknownMostDerived2.ui",
+                                          "UnknownMostDerived2.umd2"));
     }
 
-    public override void knownPreservedAsBase_async(AMD_TestIntf_knownPreservedAsBase cb, Ice.Current current)
+    public override void knownPreservedAsBaseAsync(Action response, Action<Exception> exception, Ice.Current current)
     {
-        KnownPreservedDerived ex = new KnownPreservedDerived();
-        ex.b = "base";
-        ex.kp = "preserved";
-        ex.kpd = "derived";
-        cb.ice_exception(ex);
+        exception(new KnownPreservedDerived("base", "preserved", "derived"));
     }
 
-    public override void knownPreservedAsKnownPreserved_async(AMD_TestIntf_knownPreservedAsKnownPreserved cb,
-                                                              Ice.Current current)
+    public override void
+    knownPreservedAsKnownPreservedAsync(Action response, Action<Exception> exception, Ice.Current current)
     {
-        KnownPreservedDerived ex = new KnownPreservedDerived();
-        ex.b = "base";
-        ex.kp = "preserved";
-        ex.kpd = "derived";
-        cb.ice_exception(ex);
+        exception(new KnownPreservedDerived("base", "preserved", "derived"));
     }
 
-    public override void relayKnownPreservedAsBase_async(AMD_TestIntf_relayKnownPreservedAsBase cb,
-                                                         RelayPrx r, Ice.Current current)
+    public override void
+    relayKnownPreservedAsBaseAsync(RelayPrx r, Action response, Action<Exception> exception, Ice.Current current)
     {
         try
         {
@@ -179,16 +132,17 @@ public sealed class TestI : TestIntfDisp_
         }
         catch(Ice.UserException ex)
         {
-            cb.ice_exception(ex);
+            exception(ex);
         }
         catch(Ice.LocalException ex)
         {
-            cb.ice_exception(ex);
+            exception(ex);
         }
     }
 
-    public override void relayKnownPreservedAsKnownPreserved_async(AMD_TestIntf_relayKnownPreservedAsKnownPreserved cb,
-                                                                   RelayPrx r, Ice.Current current)
+    public override void
+    relayKnownPreservedAsKnownPreservedAsync(RelayPrx r, Action response, Action<Exception> exception,
+                                             Ice.Current current)
     {
         try
         {
@@ -197,15 +151,15 @@ public sealed class TestI : TestIntfDisp_
         }
         catch(Ice.UserException ex)
         {
-            cb.ice_exception(ex);
+            exception(ex);
         }
         catch(Ice.LocalException ex)
         {
-            cb.ice_exception(ex);
+            exception(ex);
         }
     }
 
-    public override void unknownPreservedAsBase_async(AMD_TestIntf_unknownPreservedAsBase cb, Ice.Current current)
+    public override void unknownPreservedAsBaseAsync(Action response, Action<Exception> exception, Ice.Current current)
     {
         SPreserved2 ex = new SPreserved2();
         ex.b = "base";
@@ -213,11 +167,11 @@ public sealed class TestI : TestIntfDisp_
         ex.kpd = "derived";
         ex.p1 = new SPreservedClass("bc", "spc");
         ex.p2 = ex.p1;
-        cb.ice_exception(ex);
+        exception(ex);
     }
 
-    public override void unknownPreservedAsKnownPreserved_async(AMD_TestIntf_unknownPreservedAsKnownPreserved cb,
-                                                                Ice.Current current)
+    public override void
+    unknownPreservedAsKnownPreservedAsync(Action response, Action<Exception> exception, Ice.Current current)
     {
         SPreserved2 ex = new SPreserved2();
         ex.b = "base";
@@ -225,11 +179,11 @@ public sealed class TestI : TestIntfDisp_
         ex.kpd = "derived";
         ex.p1 = new SPreservedClass("bc", "spc");
         ex.p2 = ex.p1;
-        cb.ice_exception(ex);
+        exception(ex);
     }
 
-    public override void relayUnknownPreservedAsBase_async(AMD_TestIntf_relayUnknownPreservedAsBase cb,
-                                                           RelayPrx r, Ice.Current current)
+    public override void
+    relayUnknownPreservedAsBaseAsync(RelayPrx r, Action response, Action<Exception> exception, Ice.Current current)
     {
         try
         {
@@ -238,16 +192,17 @@ public sealed class TestI : TestIntfDisp_
         }
         catch(Ice.UserException ex)
         {
-            cb.ice_exception(ex);
+            exception(ex);
         }
         catch(Ice.LocalException ex)
         {
-            cb.ice_exception(ex);
+            exception(ex);
         }
     }
 
-    public override void relayUnknownPreservedAsKnownPreserved_async(
-        AMD_TestIntf_relayUnknownPreservedAsKnownPreserved cb, RelayPrx r, Ice.Current current)
+    public override void
+    relayUnknownPreservedAsKnownPreservedAsync(RelayPrx r, Action response, Action<Exception> exception,
+                                               Ice.Current current)
     {
         try
         {
@@ -256,11 +211,12 @@ public sealed class TestI : TestIntfDisp_
         }
         catch(Ice.UserException ex)
         {
-            cb.ice_exception(ex);
+            exception(ex);
         }
         catch(Ice.LocalException ex)
         {
-            cb.ice_exception(ex);
+            exception(ex);
         }
+
     }
 }

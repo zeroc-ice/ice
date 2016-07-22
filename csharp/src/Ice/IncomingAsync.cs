@@ -7,12 +7,13 @@
 //
 // **********************************************************************
 
+using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
+
 namespace IceInternal
 {
-
-    using System.Diagnostics;
-
-    public class IncomingAsync : IncomingBase, Ice.AMDCallback
+    public class IncomingAsync : IncomingBase
     {
         public IncomingAsync(Incoming inc)
             : base(inc)
@@ -25,14 +26,13 @@ namespace IceInternal
             }
         }
 
-        virtual public void ice_exception(System.Exception ex)
+        virtual public void ice_exception(Exception ex)
         {
             //
             // Only call exception__ if this incoming is not retriable or if
             // all the interceptors return true and no response has been sent
             // yet.
             //
-            
             if(_retriable)
             {
                 try
@@ -48,7 +48,7 @@ namespace IceInternal
                         }
                     }
                 }
-                catch(System.Exception)
+                catch(Exception)
                 {
                     return;
                 }
@@ -98,7 +98,7 @@ namespace IceInternal
             inc.adopt(this);
         }
 
-        protected void response__()
+        public void response__()
         {
             try
             {
@@ -135,7 +135,7 @@ namespace IceInternal
             }
         }
         
-        protected internal void exception__(System.Exception exc)
+        public void exception__(Exception exc)
         {
             try
             {
@@ -157,7 +157,7 @@ namespace IceInternal
             return os_;
         }
 
-        protected bool validateResponse__(bool ok)
+        public bool validateResponse__(bool ok)
         {
             //
             // Only returns true if this incoming is not retriable or if all
@@ -181,7 +181,7 @@ namespace IceInternal
                         }
                     }
                 }
-                catch(System.Exception)
+                catch(Exception)
                 {
                     return false;
                 }
@@ -200,48 +200,5 @@ namespace IceInternal
 
         private readonly bool _retriable;
         private bool _active = false; // only meaningful when _retriable == true
-    }
-}
-
-namespace Ice
-{
-
-    /// <summary>
-    /// Callback interface for Blobject AMD servants.
-    /// </summary>
-    public interface AMD_Object_ice_invoke : Ice.AMDCallback
-    {
-        /// <summary>
-        /// Indicates to the Ice run time that an operation
-        /// completed.
-        /// </summary>
-        /// <param name="ok">True indicates that the operation
-        /// completed successfully; false indicates that the
-        /// operation raised a user exception.</param>
-        /// <param name="outEncaps">The encoded out-parameters for the operation or,
-        /// if ok is false, the encoded user exception.</param>
-        void ice_response(bool ok, byte[] outEncaps);
-    }
-
-    sealed class _AMD_Object_ice_invoke : IceInternal.IncomingAsync, AMD_Object_ice_invoke
-    {
-        public _AMD_Object_ice_invoke(IceInternal.Incoming inc)
-            : base(inc)
-        {
-        }
-        
-        public void ice_response(bool ok, byte[] outEncaps)
-        {
-            try
-            {
-                writeParamEncaps__(outEncaps, ok);
-            }
-            catch(Ice.LocalException ex)
-            {
-                exception__(ex);
-                return;
-            }
-            response__();
-        }
     }
 }

@@ -26,9 +26,6 @@
     <Compile Include="..\ACM.cs">
       <Link>ACM.cs</Link>
     </Compile>
-    <Compile Include="..\AMDCallback.cs">
-      <Link>AMDCallback.cs</Link>
-    </Compile>
     <Compile Include="..\Application.cs">
       <Link>Application.cs</Link>
     </Compile>
@@ -471,7 +468,6 @@
   <PropertyGroup Label="IceBuilder">
     <IceBuilderIncludeDirectories>$(IceHome)\slice</IceBuilderIncludeDirectories>
     <IceBuilderAllowIcePrefix>yes</IceBuilderAllowIcePrefix>
-    <IceBuilderAdditionalOptions>--compat</IceBuilderAdditionalOptions>
   </PropertyGroup>
   <Import Project="$(IceBuilderCsharpTargets)" Condition="Exists('$(IceBuilderCsharpTargets)')" />
 </Project>

@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+using System;
 using System.Collections;
 
 public class ServerLocatorRegistry : Test.TestLocatorRegistryDisp_
@@ -17,8 +18,9 @@ public class ServerLocatorRegistry : Test.TestLocatorRegistryDisp_
         _objects = new Hashtable();
     }
 
-    public override void setAdapterDirectProxy_async(Ice.AMD_LocatorRegistry_setAdapterDirectProxy cb, string adapter,
-                Ice.ObjectPrx obj, Ice.Current current)
+    public override void 
+    setAdapterDirectProxyAsync(string adapter, Ice.ObjectPrx obj, Action response, Action<Exception> exception,
+                               Ice.Current current)
     {
         if(obj != null)
         {
@@ -28,12 +30,12 @@ public class ServerLocatorRegistry : Test.TestLocatorRegistryDisp_
         {
             _adapters.Remove(adapter);
         }
-        cb.ice_response();
+       response();
     }
   
-    public override void setReplicatedAdapterDirectProxy_async(
-        Ice.AMD_LocatorRegistry_setReplicatedAdapterDirectProxy cb, 
-        string adapter, string replica, Ice.ObjectPrx obj, Ice.Current current)
+    public override void
+    setReplicatedAdapterDirectProxyAsync(string adapter, string replica, Ice.ObjectPrx obj, Action response,
+                                         Action<Exception> exception, Ice.Current current)
     {
         if(obj != null)
         {
@@ -45,16 +47,17 @@ public class ServerLocatorRegistry : Test.TestLocatorRegistryDisp_
             _adapters.Remove(adapter);
             _adapters.Remove(replica);
         }
-        cb.ice_response();
+        response();
     }
   
-    public override void setServerProcessProxy_async(Ice.AMD_LocatorRegistry_setServerProcessProxy cb,
-                                                     string id, Ice.ProcessPrx proxy, Ice.Current current)
+    public override void
+    setServerProcessProxyAsync(string id, Ice.ProcessPrx proxy, Action response, Action<Exception> exception,
+                               Ice.Current current)
     {
-        cb.ice_response();
+        response();
     }
 
-    public override void addObject(Ice.ObjectPrx obj, Ice.Current current)
+    public override void addObject(Ice.ObjectPrx obj, Ice.Current current = null)
     {
         _objects[obj.ice_getIdentity()] = obj;
     }

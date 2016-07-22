@@ -12,7 +12,7 @@ namespace IceDiscovery
     using System;
     using System.Collections.Generic;
 
-    class Request<T, AmdCB>
+    class Request<T>
     {
         protected Request(LookupI lookup, T id, int retryCount)
         {
@@ -26,7 +26,7 @@ namespace IceDiscovery
             return _id;
         }
 
-        public bool addCallback(AmdCB cb)
+        public bool addCallback(Action<Ice.ObjectPrx> cb)
         {
             callbacks_.Add(cb);
             return callbacks_.Count == 1;
@@ -39,16 +39,16 @@ namespace IceDiscovery
 
         protected LookupI lookup_;
         protected int nRetry_;
-        protected List<AmdCB> callbacks_ = new List<AmdCB>();
+        protected List<Action<Ice.ObjectPrx>> callbacks_ = new List<Action<Ice.ObjectPrx>>();
 
         private T _id;
     };
 
-    class AdapterRequest : Request<string, Ice.AMD_Locator_findAdapterById>, IceInternal.TimerTask
+    class AdapterRequest : Request<string>, IceInternal.TimerTask
     {
         public AdapterRequest(LookupI lookup, string id, int retryCount) : base(lookup, id, retryCount)
         {
-            _start = System.DateTime.Now.Ticks;
+            _start = DateTime.Now.Ticks;
         }
 
         public override bool retry()
@@ -63,7 +63,7 @@ namespace IceDiscovery
                 _proxies.Add(proxy);
                 if(_latency == 0)
                 {
-                    _latency = (long)((System.DateTime.Now.Ticks - _start) * lookup_.latencyMultiplier() / 10000.0);
+                    _latency = (long)((DateTime.Now.Ticks - _start) * lookup_.latencyMultiplier() / 10000.0);
                     if(_latency == 0)
                     {
                         _latency = 1; // 1ms
@@ -110,9 +110,9 @@ namespace IceDiscovery
 
         private void sendResponse(Ice.ObjectPrx proxy)
         {
-            foreach(Ice.AMD_Locator_findAdapterById cb in callbacks_)
+            foreach(var cb in callbacks_)
             {
-                cb.ice_response(proxy);
+                cb(proxy);
             }
             callbacks_.Clear();
         }
@@ -122,7 +122,7 @@ namespace IceDiscovery
         private long _latency;
     };
 
-    class ObjectRequest : Request<Ice.Identity, Ice.AMD_Locator_findObjectById>, IceInternal.TimerTask
+    class ObjectRequest : Request<Ice.Identity>, IceInternal.TimerTask
     {
         public ObjectRequest(LookupI lookup, Ice.Identity id, int retryCount) : base(lookup, id, retryCount)
         {
@@ -135,9 +135,9 @@ namespace IceDiscovery
 
         public void finished(Ice.ObjectPrx proxy)
         {
-            foreach(Ice.AMD_Locator_findObjectById cb in callbacks_)
+            foreach(var cb in callbacks_)
             {
-                cb.ice_response(proxy);
+                cb(proxy);
             }
             callbacks_.Clear();
         }
@@ -166,8 +166,8 @@ namespace IceDiscovery
             _lookupReply = lookupReply;
         }
 
-        public override void findObjectById(string domainId, Ice.Identity id, IceDiscovery.LookupReplyPrx reply,
-                                            Ice.Current c)
+        public override void findObjectById(string domainId, Ice.Identity id, LookupReplyPrx reply,
+                                            Ice.Current current)
         {
             if(!domainId.Equals(_domainId))
             {
@@ -182,7 +182,7 @@ namespace IceDiscovery
                 //
                 try
                 {
-                    reply.begin_foundObjectById(id, proxy);
+                    reply.foundObjectByIdAsync(id, proxy);
                 }
                 catch(Ice.LocalException)
                 {
@@ -191,8 +191,8 @@ namespace IceDiscovery
             }
         }
 
-        public override void findAdapterById(string domainId, string adapterId, IceDiscovery.LookupReplyPrx reply,
-                                             Ice.Current c)
+        public override void findAdapterById(string domainId, string adapterId, LookupReplyPrx reply,
+                                             Ice.Current current)
         {
             if(!domainId.Equals(_domainId))
             {
@@ -208,7 +208,7 @@ namespace IceDiscovery
                 //
                 try
                 {
-                    reply.begin_foundAdapterById(adapterId, proxy, isReplicaGroup);
+                    reply.foundAdapterByIdAsync(adapterId, proxy, isReplicaGroup);
                 }
                 catch(Ice.LocalException)
                 {
@@ -217,7 +217,7 @@ namespace IceDiscovery
             }
         }
 
-        internal void findObject(Ice.AMD_Locator_findObjectById cb, Ice.Identity id)
+        internal void findObject(Ice.Identity id, Action<Ice.ObjectPrx> response)
         {
             lock(this)
             {
@@ -227,11 +227,12 @@ namespace IceDiscovery
                     request = new ObjectRequest(this, id, _retryCount);
                     _objectRequests.Add(id, request);
                 }
-                if(request.addCallback(cb))
+
+                if(request.addCallback(response))
                 {
                     try
                     {
-                        _lookup.begin_findObjectById(_domainId, id, _lookupReply);
+                        _lookup.findObjectByIdAsync(_domainId, id, _lookupReply);
                         _timer.schedule(request, _timeout);
                     }
                     catch(Ice.LocalException)
@@ -243,7 +244,7 @@ namespace IceDiscovery
             }
         }
 
-        internal void findAdapter(Ice.AMD_Locator_findAdapterById cb, string adapterId)
+        internal void findAdapter(string adapterId, Action<Ice.ObjectPrx> response)
         {
             lock(this)
             {
@@ -253,11 +254,12 @@ namespace IceDiscovery
                     request = new AdapterRequest(this, adapterId, _retryCount);
                     _adapterRequests.Add(adapterId, request);
                 }
-                if(request.addCallback(cb))
+
+                if(request.addCallback(response))
                 {
                     try
                     {
-                        _lookup.begin_findAdapterById(_domainId, adapterId, _lookupReply);
+                        _lookup.findAdapterByIdAsync(_domainId, adapterId, _lookupReply);
                         _timer.schedule(request, _timeout);
                     }
                     catch(Ice.LocalException)
@@ -316,7 +318,7 @@ namespace IceDiscovery
                 {
                     try
                     {
-                        _lookup.begin_findObjectById(_domainId, request.getId(), _lookupReply);
+                        _lookup.findObjectByIdAsync(_domainId, request.getId(), _lookupReply);
                         _timer.schedule(request, _timeout);
                         return;
                     }
@@ -345,7 +347,7 @@ namespace IceDiscovery
                 {
                     try
                     {
-                        _lookup.begin_findAdapterById(_domainId, request.getId(), _lookupReply);
+                        _lookup.findAdapterByIdAsync(_domainId, request.getId(), _lookupReply);
                         _timer.schedule(request, _timeout);
                         return;
                     }

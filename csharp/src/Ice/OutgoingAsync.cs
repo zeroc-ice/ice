@@ -54,7 +54,7 @@ namespace IceInternal
             //
             try
             {
-                instance_.clientThreadPool().dispatch(this.invokeSent, cachedConnection_);
+                instance_.clientThreadPool().dispatch(invokeSent, cachedConnection_);
             }
             catch(Ice.CommunicatorDestroyedException)
             {
@@ -67,7 +67,7 @@ namespace IceInternal
             // CommunicatorDestroyedCompleted is the only exception that can propagate directly
             // from this method.
             //
-            instance_.clientThreadPool().dispatch(this.invokeException, cachedConnection_);
+            instance_.clientThreadPool().dispatch(invokeException, cachedConnection_);
         }
 
         public void invokeResponseAsync()
@@ -76,7 +76,7 @@ namespace IceInternal
             // CommunicatorDestroyedCompleted is the only exception that can propagate directly
             // from this method.
             //
-            instance_.clientThreadPool().dispatch(this.invokeResponse, cachedConnection_);
+            instance_.clientThreadPool().dispatch(invokeResponse, cachedConnection_);
         }
 
         public void invokeSent()
@@ -1059,7 +1059,7 @@ namespace IceInternal
                         if(is_ == null || is_.isEmpty())
                         {
                             //
-                            // If there's no response (oneway, batch-oneway proxies), we just set the promise
+                            // If there's no response (oneway, batch-oneway proxies), we just set the result
                             // on completion without reading anything from the input stream. This is required for
                             // batch invocations.
                             //

@@ -8,7 +8,6 @@
 // **********************************************************************
 
 using System;
-using System.Diagnostics;
 using System.Collections.Generic;
 
 public class Client
@@ -23,10 +22,10 @@ public class Client
 
     public sealed class caseI : @abstract.caseDisp_
     {
-        public override void catch_async(@abstract.AMD_case_catch cb__, int @checked, Ice.Current current__)
+        public override void
+        catchAsync(int @checked, Action<int> response, Action<Exception> exception, Ice.Current current__)
         {
-            int @continue = 0;
-            cb__.ice_response(@continue);
+            response(0);
         }
     }
 
@@ -47,10 +46,10 @@ public class Client
 
     public sealed class explicitI : @abstract.@explicit
     {
-        public override void catch_async(@abstract.AMD_case_catch cb__, int @checked, Ice.Current current__)
+        public override void
+        catchAsync(int @checked, Action<int> response, Action<Exception> exception, Ice.Current current__)
         {
-            int @continue = 0;
-            cb__.ice_response(@continue);
+            response(0);
         }
 
         public override void @default(Ice.Current current)

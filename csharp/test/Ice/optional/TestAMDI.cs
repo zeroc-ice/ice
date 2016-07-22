@@ -9,39 +9,38 @@
 
 using System;
 using System.Collections.Generic;
+using Test;
 
 public class InitialI : Test.Initial
 {
-    public override void shutdown_async(Test.AMD_Initial_shutdown cb, Ice.Current current)
+    public override void shutdownAsync(Action response, Action<Exception> exception, Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
-        cb.ice_response();
+        response();
     }
 
-    public override void pingPong_async(Test.AMD_Initial_pingPong cb, Ice.Object obj, Ice.Current current)
+    public override void pingPongAsync(Ice.Object obj, Action<Ice.Object> response, 
+                                       Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_response(obj);
+        response(obj);
     }
 
-    public override void opOptionalException_async(Test.AMD_Initial_opOptionalException cb, Ice.Optional<int> a,
-                                                   Ice.Optional<string> b, Ice.Optional<Test.OneOptional> o,
-                                                   Ice.Current current)
+    public override void opOptionalExceptionAsync(Ice.Optional<int> a, Ice.Optional<string> b, Ice.Optional<OneOptional> o, 
+                                                  Action action, Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_exception(new Test.OptionalException(false, a, b, o));
+        exception(new OptionalException(false, a, b, o));
     }
 
-    public override void opDerivedException_async(Test.AMD_Initial_opDerivedException cb, Ice.Optional<int> a,
-                                                  Ice.Optional<string> b, Ice.Optional<Test.OneOptional> o,
-                                                  Ice.Current current)
+    public override void opDerivedExceptionAsync(Ice.Optional<int> a, Ice.Optional<string> b, Ice.Optional<OneOptional> o,
+                                                 Action response, Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_exception(new Test.DerivedException(false, a, b, o, b, o));
+        exception(new DerivedException(false, a, b, o, b, o));
     }
 
-    public override void opRequiredException_async(Test.AMD_Initial_opRequiredException cb, Ice.Optional<int> a,
-                                                   Ice.Optional<string> b, Ice.Optional<Test.OneOptional> o,
-                                                   Ice.Current current)
+    public override void opRequiredExceptionAsync(Ice.Optional<int> a, Ice.Optional<string> b, Ice.Optional<OneOptional> o, 
+                                                  Action response, Action<Exception> exception, Ice.Current current)
     {
-        Test.RequiredException e = new Test.RequiredException();
+        var e = new RequiredException();
         e.a = a;
         e.b = b;
         e.o = o;
@@ -53,236 +52,274 @@ public class InitialI : Test.Initial
         {
             e.o2 = o.Value;
         }
-        cb.ice_exception(e);
+        exception(e);
     }
 
-    public override void opByte_async(Test.AMD_Initial_opByte cb, Ice.Optional<byte> p1, Ice.Current current)
+    public override void
+    opByteAsync(Ice.Optional<byte> p1, Action<Initial_OpByteResult> response, Action<Exception> exception,
+                Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        response(new Initial_OpByteResult(p1, p1));
     }
 
-    public override void opBool_async(Test.AMD_Initial_opBool cb, Ice.Optional<bool> p1, Ice.Current current)
+    public override void
+    opBoolAsync(Ice.Optional<bool> p1, Action<Initial_OpBoolResult> response, Action<Exception> exception,
+                Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        response(new Initial_OpBoolResult(p1, p1));
     }
 
-    public override void opShort_async(Test.AMD_Initial_opShort cb, Ice.Optional<short> p1, Ice.Current current)
+    public override void
+    opShortAsync(Ice.Optional<short> p1, Action<Initial_OpShortResult> response, Action<Exception> exception,
+                 Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        response(new Initial_OpShortResult(p1, p1));
     }
 
-    public override void opInt_async(Test.AMD_Initial_opInt cb, Ice.Optional<int> p1, Ice.Current current)
+    public override void
+    opIntAsync(Ice.Optional<int> p1, Action<Initial_OpIntResult> response, Action<Exception> exception,
+               Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        response(new Initial_OpIntResult(p1, p1));
     }
 
-    public override void opLong_async(Test.AMD_Initial_opLong cb, Ice.Optional<long> p1, Ice.Current current)
+    public override void
+    opLongAsync(Ice.Optional<long> p1, Action<Initial_OpLongResult> response, Action<Exception> exception,
+                Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        response(new Initial_OpLongResult(p1, p1));
     }
 
-    public override void opFloat_async(Test.AMD_Initial_opFloat cb, Ice.Optional<float> p1, Ice.Current current)
+    public override void
+    opFloatAsync(Ice.Optional<float> p1, Action<Initial_OpFloatResult> response, Action<Exception> exception,
+                 Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        response(new Initial_OpFloatResult(p1, p1));
     }
 
-    public override void opDouble_async(Test.AMD_Initial_opDouble cb, Ice.Optional<double> p1, Ice.Current current)
+    public override void
+    opDoubleAsync(Ice.Optional<double> p1, Action<Initial_OpDoubleResult> response, Action<Exception> exception,
+                  Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        response(new Initial_OpDoubleResult(p1, p1));
     }
 
-    public override void opString_async(Test.AMD_Initial_opString cb, Ice.Optional<string> p1, Ice.Current current)
+    public override void
+    opStringAsync(Ice.Optional<string> p1, Action<Initial_OpStringResult> response, Action<Exception> exception,
+                  Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        response(new Initial_OpStringResult(p1, p1));
     }
 
-    public override void opMyEnum_async(Test.AMD_Initial_opMyEnum cb, Ice.Optional<Test.MyEnum> p1, Ice.Current current)
+    public override void
+    opMyEnumAsync(Ice.Optional<MyEnum> p1, Action<Initial_OpMyEnumResult> response, Action<Exception> exception,
+                  Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        response(new Initial_OpMyEnumResult(p1, p1));
     }
 
-    public override void opSmallStruct_async(Test.AMD_Initial_opSmallStruct cb, Ice.Optional<Test.SmallStruct> p1,
-                                             Ice.Current current)
+    public override void
+    opSmallStructAsync(Ice.Optional<SmallStruct> p1, Action<Initial_OpSmallStructResult> response,
+                       Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        response(new Initial_OpSmallStructResult(p1, p1));
     }
 
-    public override void opFixedStruct_async(Test.AMD_Initial_opFixedStruct cb, Ice.Optional<Test.FixedStruct> p1,
-                                             Ice.Current current)
+    public override void
+    opFixedStructAsync(Ice.Optional<FixedStruct> p1, Action<Initial_OpFixedStructResult> response,
+                       Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        response(new Initial_OpFixedStructResult(p1, p1));
     }
 
-    public override void opVarStruct_async(Test.AMD_Initial_opVarStruct cb, Ice.Optional<Test.VarStruct> p1,
-                                           Ice.Current current)
+    public override void
+    opVarStructAsync(Ice.Optional<VarStruct> p1, Action<Initial_OpVarStructResult> response,
+                     Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        response(new Initial_OpVarStructResult(p1, p1));
     }
 
-    public override void opOneOptional_async(Test.AMD_Initial_opOneOptional cb, Ice.Optional<Test.OneOptional> p1,
-                                             Ice.Current current)
+    public override void
+    opOneOptionalAsync(Ice.Optional<OneOptional> p1, Action<Initial_OpOneOptionalResult> response,
+                       Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        response(new Initial_OpOneOptionalResult(p1, p1));
     }
 
-    public override void opOneOptionalProxy_async(Test.AMD_Initial_opOneOptionalProxy cb,
-                                                  Ice.Optional<Test.OneOptionalPrx> p1,
-                                                  Ice.Current current)
+    public override void
+    opOneOptionalProxyAsync(Ice.Optional<OneOptionalPrx> p1, Action<Initial_OpOneOptionalProxyResult> response, 
+                            Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        response(new Initial_OpOneOptionalProxyResult(p1, p1));
     }
 
-    public override void opByteSeq_async(Test.AMD_Initial_opByteSeq cb, Ice.Optional<byte[]> p1, Ice.Current current)
+    public override void
+    opByteSeqAsync(Ice.Optional<byte[]> p1, Action<Initial_OpByteSeqResult> response, Action<Exception> exception,
+                   Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        response(new Initial_OpByteSeqResult(p1, p1));
     }
 
-    public override void opBoolSeq_async(Test.AMD_Initial_opBoolSeq cb, Ice.Optional<bool[]> p1, Ice.Current current)
+    public override void
+    opBoolSeqAsync(Ice.Optional<bool[]> p1, Action<Initial_OpBoolSeqResult> response, Action<Exception> exception,
+                   Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        response(new Initial_OpBoolSeqResult(p1, p1));
     }
 
-    public override void opShortSeq_async(Test.AMD_Initial_opShortSeq cb, Ice.Optional<short[]> p1, Ice.Current current)
+    public override void
+    opShortSeqAsync(Ice.Optional<short[]> p1, Action<Initial_OpShortSeqResult> response, Action<Exception> exception,
+                    Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        response(new Initial_OpShortSeqResult(p1, p1));
     }
 
-    public override void opIntSeq_async(Test.AMD_Initial_opIntSeq cb, Ice.Optional<int[]> p1, Ice.Current current)
+    public override void
+    opIntSeqAsync(Ice.Optional<int[]> p1, Action<Initial_OpIntSeqResult> response, Action<Exception> exception,
+                  Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        response(new Initial_OpIntSeqResult(p1, p1));
     }
 
-    public override void opLongSeq_async(Test.AMD_Initial_opLongSeq cb, Ice.Optional<long[]> p1, Ice.Current current)
+    public override void
+    opLongSeqAsync(Ice.Optional<long[]> p1, Action<Initial_OpLongSeqResult> response, Action<Exception> exception,
+                   Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        response(new Initial_OpLongSeqResult(p1, p1));
     }
 
-    public override void opFloatSeq_async(Test.AMD_Initial_opFloatSeq cb, Ice.Optional<float[]> p1, Ice.Current current)
+    public override void
+    opFloatSeqAsync(Ice.Optional<float[]> p1, Action<Initial_OpFloatSeqResult> response, Action<Exception> exception,
+                    Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        response(new Initial_OpFloatSeqResult(p1, p1));
     }
 
-    public override void opDoubleSeq_async(Test.AMD_Initial_opDoubleSeq cb, Ice.Optional<double[]> p1,
-                                           Ice.Current current)
+    public override void
+    opDoubleSeqAsync(Ice.Optional<double[]> p1, Action<Initial_OpDoubleSeqResult> response, Action<Exception> exception,
+                     Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        response(new Initial_OpDoubleSeqResult(p1, p1));
     }
 
-    public override void opStringSeq_async(Test.AMD_Initial_opStringSeq cb, Ice.Optional<string[]> p1,
-                                           Ice.Current current)
+    public override void
+    opStringSeqAsync(Ice.Optional<string[]> p1, Action<Initial_OpStringSeqResult> response, Action<Exception> exception,
+                     Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        response(new Initial_OpStringSeqResult(p1, p1));
     }
 
-    public override void opSmallStructSeq_async(Test.AMD_Initial_opSmallStructSeq cb,
-                                                Ice.Optional<Test.SmallStruct[]> p1,
-                                                Ice.Current current)
+    public override void
+    opSmallStructSeqAsync(Ice.Optional<SmallStruct[]> p1, Action<Initial_OpSmallStructSeqResult> response,
+                          Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        response(new Initial_OpSmallStructSeqResult(p1, p1));
     }
 
-    public override void opSmallStructList_async(Test.AMD_Initial_opSmallStructList cb,
-                                                 Ice.Optional<List<Test.SmallStruct>> p1,
-                                                 Ice.Current current)
+    public override void
+    opSmallStructListAsync(Ice.Optional<List<SmallStruct>> p1, Action<Initial_OpSmallStructListResult> response,
+                           Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        response(new Initial_OpSmallStructListResult(p1, p1));
     }
 
-    public override void opFixedStructSeq_async(Test.AMD_Initial_opFixedStructSeq cb,
-                                                Ice.Optional<Test.FixedStruct[]> p1,
-                                                Ice.Current current)
+    public override void
+    opFixedStructSeqAsync(Ice.Optional<FixedStruct[]> p1, Action<Initial_OpFixedStructSeqResult> response,
+                          Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        response(new Initial_OpFixedStructSeqResult(p1, p1));
     }
 
-    public override void opFixedStructList_async(Test.AMD_Initial_opFixedStructList cb,
-                                                 Ice.Optional<LinkedList<Test.FixedStruct>> p1,
-                                                 Ice.Current current)
+    public override void
+    opFixedStructListAsync(Ice.Optional<LinkedList<FixedStruct>> p1, Action<Initial_OpFixedStructListResult> response, 
+                           Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        response(new Initial_OpFixedStructListResult(p1, p1));
     }
 
-    public override void opVarStructSeq_async(Test.AMD_Initial_opVarStructSeq cb, Ice.Optional<Test.VarStruct[]> p1,
-                                              Ice.Current current)
+    public override void
+    opVarStructSeqAsync(Ice.Optional<VarStruct[]> p1, Action<Initial_OpVarStructSeqResult> response,
+                        Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        response(new Initial_OpVarStructSeqResult(p1, p1));
     }
 
-    public override void opSerializable_async(Test.AMD_Initial_opSerializable cb,
-                                              Ice.Optional<Test.SerializableClass> p1,
-                                              Ice.Current current)
+    public override void
+    opSerializableAsync(Ice.Optional<SerializableClass> p1, Action<Initial_OpSerializableResult> response,
+                        Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        response(new Initial_OpSerializableResult(p1, p1));
     }
 
-    public override void opIntIntDict_async(Test.AMD_Initial_opIntIntDict cb, Ice.Optional<Dictionary<int, int>> p1,
-                                            Ice.Current current)
+    public override void
+    opIntIntDictAsync(Ice.Optional<Dictionary<int, int>> p1, Action<Initial_OpIntIntDictResult> response,
+                      Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        response(new Initial_OpIntIntDictResult(p1, p1));
     }
 
-    public override void opStringIntDict_async(Test.AMD_Initial_opStringIntDict cb,
-                                               Ice.Optional<Dictionary<string, int>> p1,
-                                               Ice.Current current)
+    public override void
+    opStringIntDictAsync(Ice.Optional<Dictionary<string, int>> p1, Action<Initial_OpStringIntDictResult> response,
+                         Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        response(new Initial_OpStringIntDictResult(p1, p1));
     }
 
-    public override void opIntOneOptionalDict_async(Test.AMD_Initial_opIntOneOptionalDict cb,
-                                                    Ice.Optional<Dictionary<int, Test.OneOptional>> p1,
-                                                    Ice.Current current)
+    public override void
+    opIntOneOptionalDictAsync(Ice.Optional<Dictionary<int, OneOptional>> p1, Action<Initial_OpIntOneOptionalDictResult> response, 
+                              Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        response(new Initial_OpIntOneOptionalDictResult(p1, p1));
     }
 
-    public override void opClassAndUnknownOptional_async(Test.AMD_Initial_opClassAndUnknownOptional cb, Test.A p,
-                                                         Ice.Current current)
+    public override void opClassAndUnknownOptionalAsync(A p, Action response, Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_response();
+        response();
     }
 
-    public override void sendOptionalClass_async(Test.AMD_Initial_sendOptionalClass cb, bool req,
-                                                 Ice.Optional<Test.OneOptional> o, Ice.Current current)
+    public override void sendOptionalClassAsync(bool req, Ice.Optional<OneOptional> o, Action response, 
+                                                Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_response();
+        response();
     }
 
-    public override void returnOptionalClass_async(Test.AMD_Initial_returnOptionalClass cb, bool req,
-                                                   Ice.Current current)
+    public override void
+    returnOptionalClassAsync(bool req, Action<Ice.Optional<OneOptional>> response, Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_response(new Test.OneOptional(53));
+        response(new OneOptional(53));
     }
 
-    public override void opG_async(Test.AMD_Initial_opG cb, Test.G g, Ice.Current current)
+    public override void opGAsync(G g, Action<G> response, Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_response(g);
+        response(g);
     }
 
-    public override void opVoid_async(Test.AMD_Initial_opVoid cb, Ice.Current current)
+    public override void opVoidAsync(Action response, Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_response();
+        response();
     }
 
-    public override void supportsRequiredParams_async(Test.AMD_Initial_supportsRequiredParams cb, Ice.Current current)
+    public override void
+    supportsRequiredParamsAsync(Action<bool> response, Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_response(false);
+        response(false);
     }
 
-    public override void supportsJavaSerializable_async(Test.AMD_Initial_supportsJavaSerializable cb,
-                                                        Ice.Current current)
+    public override void
+    supportsJavaSerializableAsync(Action<bool> response, Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_response(false);
+        response(false);
     }
 
-    public override void supportsCsharpSerializable_async(Test.AMD_Initial_supportsCsharpSerializable cb,
-                                                          Ice.Current current)
+    public override void
+    supportsCsharpSerializableAsync(Action<bool> response, Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_response(true);
+        response(true);
     }
 
-    public override void supportsCppStringView_async(Test.AMD_Initial_supportsCppStringView cb,
-                                                     Ice.Current current)
+    public override void
+    supportsCppStringViewAsync(Action<bool> response, Action<Exception> exception, Ice.Current current)
     {
-        cb.ice_response(false);
+        response(false);
     }
 }

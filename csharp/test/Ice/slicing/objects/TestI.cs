@@ -317,10 +317,10 @@ public sealed class TestI : TestIntfDisp_
         }
     }
 
-    public override void PBSUnknownAsPreservedWithGraph_async(AMD_TestIntf_PBSUnknownAsPreservedWithGraph cb,
-                                                              Ice.Current current)
+    public override void
+    PBSUnknownAsPreservedWithGraphAsync(Action<Preserved> response, Action<Exception> exception, Ice.Current current)
     {
-        PSUnknown r = new PSUnknown();
+        var r = new PSUnknown();
         r.pi = 5;
         r.ps = "preserved";
         r.psu = "unknown";
@@ -328,8 +328,7 @@ public sealed class TestI : TestIntfDisp_
         r.graph.next = new PNode();
         r.graph.next.next = new PNode();
         r.graph.next.next.next = r.graph;
-        cb.ice_response(r);
-        r.graph.next.next.next = null; // Break the cycle.
+        response(r);
     }
 
     public override void checkPBSUnknownWithGraph(Preserved p, Ice.Current current)
@@ -349,19 +348,17 @@ public sealed class TestI : TestIntfDisp_
             test(pu.graph != pu.graph.next);
             test(pu.graph.next != pu.graph.next.next);
             test(pu.graph.next.next.next == pu.graph);
-            pu.graph.next.next.next = null;          // Break the cycle.
         }
     }
 
-    public override void PBSUnknown2AsPreservedWithGraph_async(AMD_TestIntf_PBSUnknown2AsPreservedWithGraph cb,
-                                                               Ice.Current current)
+    public override void
+    PBSUnknown2AsPreservedWithGraphAsync(Action<Preserved> response, Action<Exception> exception, Ice.Current current)
     {
-        PSUnknown2 r = new PSUnknown2();
+        var r = new PSUnknown2();
         r.pi = 5;
         r.ps = "preserved";
         r.pb = r;
-        cb.ice_response(r);
-        r.pb = null; // Break the cycle.
+        response(r);
     }
 
     public override void checkPBSUnknown2WithGraph(Preserved p, Ice.Current current)
@@ -378,7 +375,6 @@ public sealed class TestI : TestIntfDisp_
             test(pu.pi == 5);
             test(pu.ps.Equals("preserved"));
             test(pu.pb == pu);
-            pu.pb = null;          // Break the cycle.
         }
     }
 
@@ -445,15 +441,15 @@ public sealed class TestI : TestIntfDisp_
         throw ude;
     }
 
-    public override void throwPreservedException_async(AMD_TestIntf_throwPreservedException cb, Ice.Current current)
+    public override void
+    throwPreservedExceptionAsync(Action response, Action<Exception> exception, Ice.Current current)
     {
-        PSUnknownException ue = new PSUnknownException();
+        var ue = new PSUnknownException();
         ue.p = new PSUnknown2();
         ue.p.pi = 5;
         ue.p.ps = "preserved";
         ue.p.pb = ue.p;
-        cb.ice_exception(ue);
-        ue.p.pb = null; // Break the cycle.
+        exception(ue);
     }
 
     public override void useForward(out Forward f, Ice.Current current)

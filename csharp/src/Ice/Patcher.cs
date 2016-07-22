@@ -25,7 +25,7 @@ namespace IceInternal
         {
             if(v != null && !typeof(T).IsAssignableFrom(v.GetType()))
             {
-                IceInternal.Ex.throwUOE(_type, v.ice_id());
+                Ex.throwUOE(_type, v.ice_id());
             }
             value = (T)v;
         }
@@ -50,7 +50,7 @@ namespace IceInternal
         {
             if(v != null && !typeof(T).IsAssignableFrom(v.GetType()))
             {
-                IceInternal.Ex.throwUOE(_type, v.ice_id());
+                Ex.throwUOE(_type, v.ice_id());
             }
 
             InvokeInfo info = getInvokeInfo(_seqType);
@@ -199,7 +199,7 @@ namespace IceInternal
         {
             if(v != null && !typeof(T).IsAssignableFrom(v.GetType()))
             {
-                IceInternal.Ex.throwUOE(_type, v.ice_id());
+                Ex.throwUOE(_type, v.ice_id());
             }
 
             _seq[_index] = (T)v;
@@ -223,7 +223,7 @@ namespace IceInternal
         {
             if(v != null && !typeof(T).IsAssignableFrom(v.GetType()))
             {
-                IceInternal.Ex.throwUOE(_type, v.ice_id());
+                Ex.throwUOE(_type, v.ice_id());
             }
 
             int count = _seq.Count;

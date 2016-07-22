@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+using System;
 using System.Collections.Generic;
 
 namespace Ice
@@ -47,9 +48,10 @@ namespace IceInternal
             return _properties.getPropertiesForPrefix(name);
         }
         
-        public override void setProperties_async(Ice.AMD_PropertiesAdmin_setProperties cb, 
-                                                 Dictionary<string, string> props,
-                                                 Ice.Current current)
+        public override void setPropertiesAsync(Dictionary<string, string> props,
+                                                Action response,
+                                                Action<Exception> exception,
+                                                Ice.Current current)
         {
             lock(this)
             {
@@ -180,7 +182,7 @@ namespace IceInternal
                 //
                 // Send the response now so that we do not block the client during the call to the update callback.
                 //
-                cb.ice_response();
+                response();
 
                 if(_updateCallbacks.Count > 0)
                 {
@@ -199,7 +201,7 @@ namespace IceInternal
                     {
                         changes.Add(e.Key, e.Value);
                     }
-                    
+
                     foreach(Ice.PropertiesAdminUpdateCallback callback in callbacks)
                     {
                         try

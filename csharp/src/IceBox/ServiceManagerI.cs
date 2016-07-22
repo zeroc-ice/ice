@@ -10,7 +10,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading;
+using System.Threading.Tasks;
 using System.Diagnostics;
 
 namespace IceBox
@@ -242,7 +242,7 @@ class ServiceManagerI : ServiceManagerDisp_
 
         if(activeServices.Count > 0)
         {
-            observer.begin_servicesStarted(activeServices.ToArray(), this.observerCompleted, null);
+            observer.servicesStartedAsync(activeServices.ToArray()).ContinueWith((t) => observerCompleted(observer, t));
         }
     }
 
@@ -810,7 +810,7 @@ class ServiceManagerI : ServiceManagerDisp_
 
             foreach(ServiceObserverPrx observer in observers)
             {
-                observer.begin_servicesStarted(servicesArray, this.observerCompleted, null);
+                observer.servicesStartedAsync(servicesArray).ContinueWith((t) => observerCompleted(observer, t));
             }
         }
     }
@@ -827,26 +827,25 @@ class ServiceManagerI : ServiceManagerDisp_
 
             foreach(ServiceObserverPrx observer in observers)
             {
-                observer.begin_servicesStopped(servicesArray, this.observerCompleted, null);
+                observer.servicesStoppedAsync(servicesArray).ContinueWith((t) => observerCompleted(observer, t));
             }
         }
     }
 
     private void
-    observerCompleted(Ice.AsyncResult result)
+    observerCompleted(ServiceObserverPrx observer, Task t)
     {
         try
         {
-            result.throwLocalException();
+            t.Wait();
         }
-        catch(Ice.LocalException ex)
+        catch(AggregateException ae)
         {
             lock(this)
             {
-                ServiceObserverPrx observer = ServiceObserverPrxHelper.uncheckedCast(result.getProxy());
                 if(_observers.Remove(observer))
                 {
-                    observerRemoved(observer, ex);
+                    observerRemoved(observer, ae.InnerException);
                 }
             }
         }
