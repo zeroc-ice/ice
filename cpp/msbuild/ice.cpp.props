@@ -98,6 +98,15 @@
   </ItemDefinitionGroup>
 
   <!--
+      COMPILERFIX: Disable new C++ optimizer introduced with VS 2015 update 3.
+  -->
+  <ItemDefinitionGroup Condition="'$(DefaultPlatformToolset)|$(Ice_Configuration)'=='v140|Release'">
+    <ClCompile>
+        <AdditionalOptions>-d2SSAOptimizer- %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
+  <!--
       GenerateDebugInformation supported values change from v120 to v140,
       we set it conditionally to the platform tool set.
   -->
