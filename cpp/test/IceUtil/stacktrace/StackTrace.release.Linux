@@ -1,4 +1,3 @@
   0 IceUtil::Exception::Exception(char const*, int)
-  1 IceUtil::ExceptionHelper<IceUtil::NullHandleException>::ExceptionHelper(char const*, int)
-  2 IceUtil::NullHandleException::NullHandleException(char const*, int)
+  1 IceUtil::NullHandleException::NullHandleException(char const*, int)
 client

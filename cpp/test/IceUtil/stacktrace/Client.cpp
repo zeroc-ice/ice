@@ -292,6 +292,7 @@ int main(int argc, char* argv[])
                     }
 #else
                     cerr << "could not find `" << expected[i] << "` in " << actual[i] << endl;
+                    cerr << "Full stack is:\n" << stack << endl;
                     test(false);
 #endif
                 }
