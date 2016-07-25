@@ -152,14 +152,13 @@ var OutgoingConnectionFactory = Class({
                     //
                     endpoint = endpoint.changeCompress(false);
 
-                    for(var j = 0; j < self._connectionsByEndpoint.length; ++j)
-                    {
-                        var connection = self._connectionsByEndpoint[j];
-                        if(connection.endpoint().equals(endpoint))
-                        {
-                            connection.setAdapter(adapter);
-                        }
-                    }
+                    self._connectionsByEndpoint.forEach(function(connection)
+                                                        {
+                                                            if(connection.endpoint().equals(endpoint))
+                                                            {
+                                                                connection.setAdapter(adapter);
+                                                            }
+                                                        });
                 }
             }
         );
