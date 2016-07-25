@@ -91,9 +91,9 @@ void
 BatchRequestQueue::prepareBatchRequest(OutputStream* os)
 {
     Lock sync(*this);
-    if(ICE_EXCEPTION_ISSET(_exception))
+    if(_exception)
     {
-        ICE_RETHROW_EXCEPTION(_exception);
+        _exception->ice_throw();
     }
     waitStreamInUse(false);
     _batchStreamInUse = true;

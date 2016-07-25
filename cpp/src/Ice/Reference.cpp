@@ -1777,22 +1777,15 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
             virtual void
             setException(const Ice::LocalException& ex)
             {
-                if(!ICE_EXCEPTION_ISSET(_exception))
+                if(!_exception)
                 {
-                    ICE_RESET_EXCEPTION(_exception, ex.ice_clone());
+                    ICE_SET_EXCEPTION_FROM_CLONE(_exception, ex.ice_clone());
                 }
 
                 if(++_i == _endpoints.size())
                 {
-                    try
-                    {
-                        ICE_RETHROW_EXCEPTION(_exception);
-                    }
-                    catch(const Ice::LocalException& ee)
-                    {
-                        _callback->setException(ee);
-                        return;
-                    }
+                    _callback->setException(*_exception);
+                    return;
                 }
 
                 const bool more = _i != _endpoints.size() - 1;

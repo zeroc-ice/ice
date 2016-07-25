@@ -91,7 +91,7 @@ ProxyOutgoingBase::completed(const Ice::Exception& ex)
     _childObserver.detach();
 
     _state = StateFailed;
-    ICE_RESET_EXCEPTION(_exception, ex.ice_clone());
+    ICE_SET_EXCEPTION_FROM_CLONE(_exception, ex.ice_clone());
     _monitor.notify();
 }
 
@@ -127,7 +127,7 @@ ProxyOutgoingBase::invokeImpl()
             }
 
             _state = StateInProgress;
-            ICE_RESET_EXCEPTION(_exception, ICE_NULLPTR);
+            _exception.reset();
             _sent = false;
 
             _handler = _proxy->__getRequestHandler();
@@ -211,9 +211,9 @@ ProxyOutgoingBase::invokeImpl()
                 }
             }
 
-            if(ICE_EXCEPTION_ISSET(_exception))
+            if(_exception)
             {
-                ICE_RETHROW_EXCEPTION(_exception);
+                _exception->ice_throw();
             }
             else if(_state == StateRetry)
             {
@@ -506,8 +506,7 @@ Outgoing::completed(InputStream& is)
             ex->id = ident;
             ex->facet = facet;
             ex->operation = operation;
-            ICE_RESET_EXCEPTION(_exception, ex->ice_clone());
-            delete ex;
+            _exception.reset(ex); // adopt
             _state = StateLocalException; // The state must be set last, in case there is an exception.
             break;
         }
@@ -554,7 +553,7 @@ Outgoing::completed(InputStream& is)
             }
 
             ex->unknown = unknown;
-            ICE_RESET_EXCEPTION(_exception, ex->ice_clone());
+            _exception.reset(ex); // adopt
             _state = StateLocalException; // The state must be set last, in case there is an exception.
             break;
         }
@@ -639,19 +638,19 @@ ConnectionFlushBatch::invoke()
         else if(!_connection->sendRequest(this, false, false, batchRequestNum))
         {
             Monitor<Mutex>::Lock sync(_monitor);
-            while(!ICE_EXCEPTION_ISSET(_exception) && !_sent)
+            while(!_exception && !_sent)
             {
                 _monitor.wait();
             }
-            if(ICE_EXCEPTION_ISSET(_exception))
+            if(_exception)
             {
-                ICE_RETHROW_EXCEPTION(_exception);
+                _exception->ice_throw();
             }
         }
     }
     catch(const RetryException& ex)
     {
-        ICE_RETHROW_EXCEPTION(ex.get());
+        ex.get()->ice_throw();
     }
 }
 
@@ -677,7 +676,7 @@ ConnectionFlushBatch::completed(const Ice::Exception& ex)
     Monitor<Mutex>::Lock sync(_monitor);
     _childObserver.failed(ex.ice_id());
     _childObserver.detach();
-    ICE_RESET_EXCEPTION(_exception, ex.ice_clone());
+    ICE_SET_EXCEPTION_FROM_CLONE(_exception, ex.ice_clone());
     _monitor.notify();
 }
 

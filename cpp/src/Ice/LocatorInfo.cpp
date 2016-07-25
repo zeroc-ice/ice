@@ -418,7 +418,7 @@ IceInternal::LocatorInfo::Request::addCallback(const ReferencePtr& ref,
     RequestCallbackPtr callback = new RequestCallback(ref, ttl, cb);
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
-        if(!_response && !ICE_EXCEPTION_ISSET(_exception))
+        if(!_response && !_exception)
         {
             _callbacks.push_back(callback);
             if(wellKnownRef) // This request is to resolve the endpoints of a cached well-known object reference
@@ -441,8 +441,8 @@ IceInternal::LocatorInfo::Request::addCallback(const ReferencePtr& ref,
     }
     else
     {
-        assert(ICE_EXCEPTION_ISSET(_exception));
-        callback->exception(_locatorInfo, *_exception.get());
+        assert(_exception);
+        callback->exception(_locatorInfo, *_exception);
     }
 }
 
@@ -453,7 +453,7 @@ IceInternal::LocatorInfo::Request::getEndpoints(const ReferencePtr& ref,
                                                 bool& cached)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
-    if(!_response && !ICE_EXCEPTION_ISSET(_exception))
+    if(!_response && !_exception)
     {
         if(wellKnownRef) // This request is to resolve the endpoints of a cached well-known object reference
         {
@@ -467,15 +467,15 @@ IceInternal::LocatorInfo::Request::getEndpoints(const ReferencePtr& ref,
             sync.acquire();
         }
 
-        while(!_response && !ICE_EXCEPTION_ISSET(_exception))
+        while(!_response && !_exception)
         {
             _monitor.wait();
         }
     }
 
-    if(ICE_EXCEPTION_ISSET(_exception))
+    if(_exception)
     {
-        _locatorInfo->getEndpointsException(ref, *_exception.get()); // This throws.
+        _locatorInfo->getEndpointsException(ref, *_exception); // This throws.
     }
 
     assert(_response);
@@ -534,7 +534,7 @@ IceInternal::LocatorInfo::Request::exception(const Ice::Exception& ex)
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
         _locatorInfo->finishRequest(_ref, _wellKnownRefs, 0, dynamic_cast<const Ice::UserException*>(&ex));
 
-        ICE_RESET_EXCEPTION(_exception, ex.ice_clone());
+        ICE_SET_EXCEPTION_FROM_CLONE(_exception, ex.ice_clone());
         _monitor.notifyAll();
     }
     for(vector<RequestCallbackPtr>::const_iterator p = _callbacks.begin(); p != _callbacks.end(); ++p)

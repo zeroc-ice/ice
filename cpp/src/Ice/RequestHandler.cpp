@@ -21,12 +21,12 @@ IceUtil::Shared* IceInternal::upCast(CancellationHandler* p) { return p; }
 
 RetryException::RetryException(const Ice::LocalException& ex)
 {
-    ICE_RESET_EXCEPTION(_ex, ex.ice_clone());
+    ICE_SET_EXCEPTION_FROM_CLONE(_ex, ex.ice_clone());
 }
 
 RetryException::RetryException(const RetryException& ex)
 {
-    ICE_RESET_EXCEPTION(_ex, ex.get()->ice_clone());
+    ICE_SET_EXCEPTION_FROM_CLONE(_ex, ex.get()->ice_clone());
 }
 
 const Ice::LocalException*

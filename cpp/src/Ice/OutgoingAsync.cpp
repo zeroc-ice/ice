@@ -187,14 +187,7 @@ OutgoingAsyncBase::invokeException()
 {
     try
     {
-        try
-        {
-            ICE_RETHROW_EXCEPTION(_ex);
-        }
-        catch(const Ice::Exception& ex)
-        {
-            handleInvokeException(ex, this);
-        }
+        handleInvokeException(*_ex, this);
     }
     catch(const std::exception& ex)
     {
@@ -211,7 +204,7 @@ OutgoingAsyncBase::invokeException()
 void
 OutgoingAsyncBase::invokeResponse()
 {
-    if(ICE_EXCEPTION_ISSET(_ex))
+    if(_ex)
     {
         invokeException();
         return;
@@ -255,15 +248,15 @@ void
 OutgoingAsyncBase::cancelable(const CancellationHandlerPtr& handler)
 {
     Lock sync(_m);
-    if(ICE_EXCEPTION_ISSET(_cancellationException))
+    if(_cancellationException)
     {
         try
         {
-            ICE_RETHROW_EXCEPTION(_cancellationException);
+            _cancellationException->ice_throw();
         }
         catch(const Ice::LocalException&)
         {
-            ICE_RESET_EXCEPTION(_cancellationException, ICE_NULLPTR);
+            _cancellationException.reset();
             throw;
         }
     }
@@ -319,7 +312,7 @@ bool
 OutgoingAsyncBase::exceptionImpl(const Exception& ex)
 {
     Lock sync(_m);
-    ICE_RESET_EXCEPTION(_ex, ex.ice_clone());
+    ICE_SET_EXCEPTION_FROM_CLONE(_ex, ex.ice_clone());
     if(_childObserver)
     {
         _childObserver.failed(ex.ice_id());
@@ -364,7 +357,7 @@ OutgoingAsyncBase::responseImpl(bool ok)
     }
     catch(const Ice::Exception& ex)
     {
-        ICE_RESET_EXCEPTION(_ex, ex.ice_clone());
+        ICE_SET_EXCEPTION_FROM_CLONE(_ex, ex.ice_clone());
         invoke = handleException(ex);
     }
     if(!invoke)
@@ -380,7 +373,7 @@ OutgoingAsyncBase::cancel(const Ice::LocalException& ex)
     CancellationHandlerPtr handler;
     {
         Lock sync(_m);
-        ICE_RESET_EXCEPTION(_cancellationException, ex.ice_clone());
+        ICE_SET_EXCEPTION_FROM_CLONE(_cancellationException, ex.ice_clone());
         if(!_cancellationHandler)
         {
             return;

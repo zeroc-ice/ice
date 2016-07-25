@@ -374,9 +374,7 @@ typedef long long Int64;
 #   define ICE_CLOSE_CALLBACK ::std::function<void(const ::std::shared_ptr<::Ice::Connection>&)>
 #   define ICE_HEARTBEAT_CALLBACK ::std::function<void(const ::std::shared_ptr<::Ice::Connection>&)>
 #   define ICE_IN(...) __VA_ARGS__
-#   define ICE_EXCEPTION_ISSET(T) T
-#   define ICE_RETHROW_EXCEPTION(T) T->ice_throw()
-#   define ICE_RESET_EXCEPTION(T, V)  T = V
+#   define ICE_SET_EXCEPTION_FROM_CLONE(T, V)  T = V
 #else // C++98 mapping
 #   define ICE_HANDLE ::IceUtil::Handle
 #   define ICE_INTERNAL_HANDLE ::IceInternal::Handle
@@ -394,9 +392,7 @@ typedef long long Int64;
 #   define ICE_CLOSE_CALLBACK ::Ice::CloseCallbackPtr
 #   define ICE_HEARTBEAT_CALLBACK ::Ice::HeartbeatCallbackPtr
 #   define ICE_IN(...) const __VA_ARGS__&
-#   define ICE_EXCEPTION_ISSET(T) T
-#   define ICE_RETHROW_EXCEPTION(T) T->ice_throw()
-#   define ICE_RESET_EXCEPTION(T,V) T.reset(V)
+#   define ICE_SET_EXCEPTION_FROM_CLONE(T, V) T.reset(V)
 #endif
 
 #endif

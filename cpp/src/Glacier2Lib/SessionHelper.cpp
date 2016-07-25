@@ -519,7 +519,7 @@ public:
         _callback(callback),
         _session(session)
     {
-        ICE_RESET_EXCEPTION(_ex, ex.ice_clone());
+        ICE_SET_EXCEPTION_FROM_CLONE(_ex, ex.ice_clone());
     }
 
     virtual void

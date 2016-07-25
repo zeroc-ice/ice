@@ -94,7 +94,7 @@ ConnectRequestHandler::requestCanceled(OutgoingBase* out, const Ice::LocalExcept
 {
     {
         Lock sync(*this);
-        if(ICE_EXCEPTION_ISSET(_exception))
+        if(_exception)
         {
             return; // The request has been notified of a failure already.
         }
@@ -121,7 +121,7 @@ ConnectRequestHandler::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync
 {
     {
         Lock sync(*this);
-        if(ICE_EXCEPTION_ISSET(_exception))
+        if(_exception)
         {
             return; // The request has been notified of a failure already.
         }
@@ -149,9 +149,9 @@ Ice::ConnectionIPtr
 ConnectRequestHandler::getConnection()
 {
     Lock sync(*this);
-    if(ICE_EXCEPTION_ISSET(_exception))
+    if(_exception)
     {
-        ICE_RETHROW_EXCEPTION(_exception);
+        _exception->ice_throw();
         return 0; // Keep the compiler happy.
     }
     else
@@ -164,21 +164,21 @@ Ice::ConnectionIPtr
 ConnectRequestHandler::waitForConnection()
 {
     Lock sync(*this);
-    if(ICE_EXCEPTION_ISSET(_exception))
+    if(_exception)
     {
-        throw RetryException(*_exception.get());
+        throw RetryException(*_exception);
     }
     //
     // Wait for the connection establishment to complete or fail.
     //
-    while(!_initialized && !ICE_EXCEPTION_ISSET(_exception))
+    while(!_initialized && !_exception)
     {
         wait();
     }
 
-    if(ICE_EXCEPTION_ISSET(_exception))
+    if(_exception)
     {
-        ICE_RETHROW_EXCEPTION(_exception);
+        _exception->ice_throw();
         return 0; // Keep the compiler happy.
     }
     else
@@ -192,7 +192,7 @@ ConnectRequestHandler::setConnection(const Ice::ConnectionIPtr& connection, bool
 {
     {
         Lock sync(*this);
-        assert(!ICE_EXCEPTION_ISSET(_exception) && !_connection);
+        assert(!_exception && !_connection);
         _connection = connection;
         _compress = compress;
     }
@@ -217,8 +217,8 @@ void
 ConnectRequestHandler::setException(const Ice::LocalException& ex)
 {
     Lock sync(*this);
-    assert(!_initialized && !ICE_EXCEPTION_ISSET(_exception));
-    ICE_RESET_EXCEPTION(_exception, ex.ice_clone());
+    assert(!_initialized && !_exception);
+    ICE_SET_EXCEPTION_FROM_CLONE(_exception, ex.ice_clone());
 
     _proxies.clear();
     _proxy = 0; // Break cyclic reference count.
@@ -238,27 +238,22 @@ ConnectRequestHandler::setException(const Ice::LocalException& ex)
         // Ignore
     }
 
-    try
+
+    for(deque<Request>::const_iterator p = _requests.begin(); p != _requests.end(); ++p)
     {
-        ICE_RETHROW_EXCEPTION(_exception);
-    }
-    catch(const Ice::LocalException& ex)
-    {
-        for(deque<Request>::const_iterator p = _requests.begin(); p != _requests.end(); ++p)
+        if(p->out)
         {
-            if(p->out)
+            p->out->completed(ex);
+        }
+        else
+        {
+            if(p->outAsync->exception(ex))
             {
-                p->out->completed(ex);
-            }
-            else
-            {
-                if(p->outAsync->exception(ex))
-                {
-                    p->outAsync->invokeExceptionAsync();
-                }
+                p->outAsync->invokeExceptionAsync();
             }
         }
     }
+
     _requests.clear();
     notifyAll();
 }
@@ -285,12 +280,12 @@ ConnectRequestHandler::initialized()
     }
     else
     {
-        while(_flushing && !ICE_EXCEPTION_ISSET(_exception))
+        while(_flushing && !_exception)
         {
             wait();
         }
 
-        if(ICE_EXCEPTION_ISSET(_exception))
+        if(_exception)
         {
             if(_connection)
             {
@@ -302,7 +297,7 @@ ConnectRequestHandler::initialized()
                 //
                 return true;
             }
-            ICE_RETHROW_EXCEPTION(_exception);
+            _exception->ice_throw();
             return false; // Keep the compiler happy.
         }
         else
@@ -348,30 +343,23 @@ ConnectRequestHandler::flushRequests()
         }
         catch(const RetryException& ex)
         {
-            ICE_RESET_EXCEPTION(exception, ex.get()->ice_clone());
+            ICE_SET_EXCEPTION_FROM_CLONE(exception, ex.get()->ice_clone());
 
-            try
+            // Remove the request handler before retrying.
+            _reference->getInstance()->requestHandlerFactory()->removeRequestHandler(_reference, shared_from_this());
+
+            if(req.out)
             {
-                ICE_RETHROW_EXCEPTION(exception);
+                req.out->retryException(*exception);
             }
-            catch(const Ice::LocalException& ee)
+            else
             {
-                // Remove the request handler before retrying.
-                _reference->getInstance()->requestHandlerFactory()->removeRequestHandler(_reference, shared_from_this());
-
-                if(req.out)
-                {
-                    req.out->retryException(ee);
-                }
-                else
-                {
-                    req.outAsync->retryException(ee);
-                }
+                req.outAsync->retryException(*exception);
             }
         }
         catch(const Ice::LocalException& ex)
         {
-            ICE_RESET_EXCEPTION(exception, ex.ice_clone());
+            ICE_SET_EXCEPTION_FROM_CLONE(exception, ex.ice_clone());
             if(req.out)
             {
                 req.out->completed(ex);
@@ -390,7 +378,7 @@ ConnectRequestHandler::flushRequests()
     // request handler to use the more efficient connection request
     // handler.
     //
-    if(_reference->getCacheConnection() && !ICE_EXCEPTION_ISSET(exception))
+    if(_reference->getCacheConnection() && !exception)
     {
         _requestHandler = ICE_MAKE_SHARED(ConnectionRequestHandler, _reference, _connection, _compress);
         for(set<Ice::ObjectPrxPtr>::const_iterator p = _proxies.begin(); p != _proxies.end(); ++p)
@@ -407,7 +395,7 @@ ConnectRequestHandler::flushRequests()
 #else
         _exception.swap(exception);
 #endif
-        _initialized = !ICE_EXCEPTION_ISSET(_exception);
+        _initialized = !_exception;
         _flushing = false;
 
         //
@@ -421,4 +409,3 @@ ConnectRequestHandler::flushRequests()
         notifyAll();
     }
 }
-
