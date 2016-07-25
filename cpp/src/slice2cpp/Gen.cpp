@@ -6617,7 +6617,7 @@ Slice::Gen::Cpp11ObjectVisitor::emitDataMember(const DataMemberPtr& p)
     if(!defaultValue.empty())
     {
         BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
-        if(p->optional() && builtin->kind() == Builtin::KindString)
+        if(p->optional() && builtin && builtin->kind() == Builtin::KindString)
         {
             //
             // = "<string literal>" doesn't work for optional<std::string>
