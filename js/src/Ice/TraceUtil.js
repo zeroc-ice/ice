@@ -27,7 +27,6 @@ var Protocol = Ice.Protocol;
 var StringUtil = Ice.StringUtil;
 var OperationMode = Ice.OperationMode;
 var Identity = Ice.Identity;
-var InputStream = Ice.InputStream;
 
 var TraceUtil = {};
 
@@ -36,7 +35,7 @@ TraceUtil.traceSend = function(stream, logger, traceLevels)
     if(traceLevels.protocol >= 1)
     {
         var p = stream.pos;
-        var is = new InputStream(stream.instance, stream.getEncoding(), stream.buffer);
+        var is = new Ice.InputStream(stream.instance, stream.getEncoding(), stream.buffer);
         is.pos = 0;
 
         var s = [];
@@ -69,7 +68,7 @@ TraceUtil.traceOut = function(heading, stream, logger, traceLevels)
     if(traceLevels.protocol >= 1)
     {
         var p = stream.pos;
-        var is = new InputStream(stream.instance, stream.getEncoding(), stream.buffer);
+        var is = new Ice.InputStream(stream.instance, stream.getEncoding(), stream.buffer);
         is.pos = 0;
 
         var s = [];
