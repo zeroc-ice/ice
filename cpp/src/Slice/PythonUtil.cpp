@@ -2109,7 +2109,7 @@ Slice::Python::CodeVisitor::writeConstantValue(const TypePtr& type, const Syntax
                 
 
                 _out << "\"" << sv2.str() << "\"";
-                if(sv2.str() == sv3.str())
+                if(sv2.str() != sv3.str())
                 {
                     _out << " if _version_info_[0] < 3 else \"" << sv3.str() << "\"";
                 }
