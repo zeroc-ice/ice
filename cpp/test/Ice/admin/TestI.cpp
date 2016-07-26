@@ -43,7 +43,7 @@ public:
     {
         return "NullLogger";
     }
-    
+
     virtual Ice::LoggerPtr cloneWithPrefix(const string&)
     {
         return shared_from_this();
@@ -55,7 +55,12 @@ public:
 
 
 RemoteCommunicatorI::RemoteCommunicatorI(const Ice::CommunicatorPtr& communicator) :
-    _communicator(communicator), _called(false)
+    _communicator(communicator), _called(false),
+#ifdef ICE_CPP11_MAPPING
+    _removeCallback(nullptr)
+#else
+    _hasCallback(false)
+#endif
 {
 }
 
@@ -70,21 +75,75 @@ RemoteCommunicatorI::getChanges(const Ice::Current&)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
-    //
-    // The client calls PropertiesAdmin::setProperties() and then invokes
-    // this operation. Since setProperties() is implemented using AMD, the
-    // client might receive its reply and then call getChanges() before our
-    // updated() method is called. We block here to ensure that updated()
-    // gets called before we return the most recent set of changes.
-    //
-    while(!_called)
+#ifdef ICE_CPP11_MAPPING
+    if(_removeCallback)
+#else
+    if(_hasCallback)
+#endif
     {
-        wait();
+       //
+       // The client calls PropertiesAdmin::setProperties() and then invokes
+       // this operation. Since setProperties() is implemented using AMD, the
+       // client might receive its reply and then call getChanges() before our
+       // updated() method is called. We block here to ensure that updated()
+       // gets called before we return the most recent set of changes.
+       //
+       while(!_called)
+       {
+           wait();
+       }
+
+       _called = false;
+       return _changes;
+    }
+    else
+    {
+        return Ice::PropertyDict();
+    }
+}
+
+void
+RemoteCommunicatorI::addUpdateCallback(const Ice::Current&)
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+
+    Ice::ObjectPtr propFacet = _communicator->findAdminFacet("Properties");
+    if(propFacet)
+    {
+        Ice::NativePropertiesAdminPtr admin = ICE_DYNAMIC_CAST(Ice::NativePropertiesAdmin, propFacet);
+        assert(admin);
+#ifdef ICE_CPP11_MAPPING
+        _removeCallback =
+            admin->addUpdateCallback([this](const Ice::PropertyDict& changes) { updated(changes); });
+#else
+        admin->addUpdateCallback(this);
+        _hasCallback = true;
+#endif
+    }
+}
+
+void
+RemoteCommunicatorI::removeUpdateCallback(const Ice::Current&)
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+
+    Ice::ObjectPtr propFacet = _communicator->findAdminFacet("Properties");
+    if(propFacet)
+    {
+        Ice::NativePropertiesAdminPtr admin = ICE_DYNAMIC_CAST(Ice::NativePropertiesAdmin, propFacet);
+        assert(admin);
+#ifdef ICE_CPP11_MAPPING
+        if(_removeCallback)
+        {
+            _removeCallback();
+            _removeCallback = nullptr;
+        }
+#else
+        admin->removeUpdateCallback(this);
+        _hasCallback = false;
+#endif
     }
 
-    _called = false;
-
-    return _changes;
 }
 
 void
@@ -174,13 +233,7 @@ RemoteCommunicatorFactoryI::createCommunicator(ICE_IN(Ice::PropertyDict) props, 
     // Set the callback on the admin facet.
     //
     RemoteCommunicatorIPtr servant = ICE_MAKE_SHARED(RemoteCommunicatorI, communicator);
-    Ice::ObjectPtr propFacet = communicator->findAdminFacet("Properties");
-    if(propFacet)
-    {
-        Ice::NativePropertiesAdminPtr admin = ICE_DYNAMIC_CAST(Ice::NativePropertiesAdmin, propFacet);
-        assert(admin);
-        admin->addUpdateCallback(servant);
-    }
+    servant->addUpdateCallback(Ice::noExplicitCurrent);
 
     Ice::ObjectPrxPtr proxy = current.adapter->addWithUUID(servant);
     return ICE_UNCHECKED_CAST(Test::RemoteCommunicatorPrx, proxy);

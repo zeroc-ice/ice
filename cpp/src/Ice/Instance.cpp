@@ -1425,7 +1425,13 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[], const Ice::Communica
             //
             if(propsAdmin)
             {
+#ifdef ICE_CPP11_MAPPING
+                auto metricsAdmin = observer->getFacet();
+                propsAdmin->addUpdateCallback(
+                    [metricsAdmin](const PropertyDict& changes) { metricsAdmin->updated(changes); });
+#else
                 propsAdmin->addUpdateCallback(observer->getFacet());
+#endif
             }
         }
     }

@@ -21,10 +21,12 @@ const char* traceCategory = "Admin.Properties";
 
 }
 
+#ifndef ICE_CPP11_MAPPING
 PropertiesAdminUpdateCallback::~PropertiesAdminUpdateCallback()
 {
     // Out of line to avoid weak vtable
 }
+#endif
 
 NativePropertiesAdmin::~NativePropertiesAdmin()
 {
@@ -198,12 +200,32 @@ PropertiesAdminI::setProperties_async(const AMD_PropertiesAdmin_setPropertiesPtr
     //
     // Copy the callbacks to allow callbacks to update the callbacks.
     //
+
+#ifdef ICE_CPP11_MAPPING
+    auto callbacks = _updateCallbacks;
+#else
     vector<PropertiesAdminUpdateCallbackPtr> callbacks = _updateCallbacks;
+#endif
+
     if(!callbacks.empty())
     {
         PropertyDict changes = added;
         changes.insert(changed.begin(), changed.end());
         changes.insert(removed.begin(), removed.end());
+
+#ifdef ICE_CPP11_MAPPING
+        for(const auto& cb: callbacks)
+        {
+            try
+            {
+                cb(changes);
+            }
+            catch(...)
+            {
+                // Ignore.
+            }
+        }
+#else
         for(vector<PropertiesAdminUpdateCallbackPtr>::const_iterator p = callbacks.begin(); p != callbacks.end(); ++p)
         {
             try
@@ -215,8 +237,32 @@ PropertiesAdminI::setProperties_async(const AMD_PropertiesAdmin_setPropertiesPtr
                 // Ignore.
             }
         }
+#endif
     }
 }
+
+
+#ifdef ICE_CPP11_MAPPING
+
+std::function<void()>
+PropertiesAdminI::addUpdateCallback(std::function<void(const Ice::PropertyDict&)> cb)
+{
+    Lock sync(*this);
+
+    auto p = _updateCallbacks.insert(_updateCallbacks.end(), std::move(cb));
+    auto propertiesAdmin = shared_from_this();
+
+    return [p, propertiesAdmin] { propertiesAdmin->removeUpdateCallback(p); };
+}
+
+void
+PropertiesAdminI::removeUpdateCallback(std::list<std::function<void(const Ice::PropertyDict&)>>::iterator p)
+{
+    Lock sync(*this);
+    _updateCallbacks.erase(p);
+}
+
+#else
 
 void
 PropertiesAdminI::addUpdateCallback(const PropertiesAdminUpdateCallbackPtr& cb)
@@ -231,5 +277,7 @@ PropertiesAdminI::removeUpdateCallback(const PropertiesAdminUpdateCallbackPtr& c
     Lock sync(*this);
     _updateCallbacks.erase(remove(_updateCallbacks.begin(), _updateCallbacks.end(), cb), _updateCallbacks.end());
 }
+
+#endif
 
 }

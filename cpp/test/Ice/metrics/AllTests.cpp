@@ -119,7 +119,11 @@ getServerConnectionMetrics(const IceMX::MetricsAdminPrxPtr& metrics, Ice::Long e
     return s;
 }
 
-class UpdateCallbackI : public Ice::PropertiesAdminUpdateCallback, private IceUtil::Monitor<IceUtil::Mutex>
+class UpdateCallbackI :
+#ifndef ICE_CPP11_MAPPING
+        public Ice::PropertiesAdminUpdateCallback,
+#endif
+private IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
@@ -421,7 +425,13 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
 
     UpdateCallbackIPtr update = ICE_MAKE_SHARED(UpdateCallbackI, serverProps);
 
-    ICE_DYNAMIC_CAST(Ice::NativePropertiesAdmin, communicator->findAdminFacet("Properties"))->addUpdateCallback(update);
+    ICE_DYNAMIC_CAST(Ice::NativePropertiesAdmin, communicator->findAdminFacet("Properties"))->addUpdateCallback(
+#ifdef ICE_CPP11_MAPPING
+        [update](const Ice::PropertyDict& changes) { update->updated(changes); }
+#else
+        update
+#endif
+        );
 
     cout << "ok" << endl;
 

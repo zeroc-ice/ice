@@ -58,7 +58,12 @@ ServiceI::ServiceI(const CommunicatorPtr& serviceManagerCommunicator)
     ObjectPtr propFacet = serviceManagerCommunicator->findAdminFacet("IceBox.Service.TestService.Properties");
     NativePropertiesAdminPtr admin = ICE_DYNAMIC_CAST(NativePropertiesAdmin, propFacet);
     assert(admin);
+
+#ifdef ICE_CPP11_MAPPING
+    admin->addUpdateCallback([facet](const Ice::PropertyDict& changes) { facet->updated(changes); });
+#else
     admin->addUpdateCallback(facet);
+#endif
 }
 
 ServiceI::~ServiceI()

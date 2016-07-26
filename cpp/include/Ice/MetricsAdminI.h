@@ -601,7 +601,10 @@ private:
 };
 ICE_DEFINE_PTR(MetricsViewIPtr, MetricsViewI);
 
-class ICE_API MetricsAdminI : public IceMX::MetricsAdmin, public Ice::PropertiesAdminUpdateCallback,
+class ICE_API MetricsAdminI : public IceMX::MetricsAdmin,
+#ifndef ICE_CPP11_MAPPING
+                              public Ice::PropertiesAdminUpdateCallback,
+#endif
                               private IceUtil::Mutex
 {
 public:
@@ -661,6 +664,8 @@ public:
 
     virtual Ice::StringSeq getMetricsViewNames(Ice::StringSeq&, const ::Ice::Current&);
 
+    void updated(const Ice::PropertyDict&);
+
 #ifdef ICE_CPP11_MAPPING
     virtual void enableMetricsView(std::string, const ::Ice::Current&);
     virtual void disableMetricsView(std::string, const ::Ice::Current&);
@@ -683,8 +688,6 @@ public:
 private:
 
     MetricsViewIPtr getMetricsView(const std::string&);
-
-    void updated(const Ice::PropertyDict&);
 
     bool addOrUpdateMap(const std::string&, const MetricsMapFactoryPtr&);
     bool removeMap(const std::string&);
