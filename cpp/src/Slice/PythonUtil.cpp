@@ -211,22 +211,7 @@ u32CodePoint(unsigned int value)
 void
 writeU8Buffer(const vector<unsigned char>& u8buffer, ostringstream& out)
 {
-    vector<unsigned int> u32buffer;
-    IceUtilInternal::ConversionResult result = convertUTF8ToUTF32(u8buffer, u32buffer, IceUtil::lenientConversion);
-    switch(result)
-    {
-        case conversionOK:
-            break;
-        case sourceExhausted:
-            throw IceUtil::IllegalConversionException(__FILE__, __LINE__, "string source exhausted");
-        case sourceIllegal:
-            throw IceUtil::IllegalConversionException(__FILE__, __LINE__, "string source illegal");
-        default:
-        {
-            assert(0);
-            throw IceUtil::IllegalConversionException(__FILE__, __LINE__);
-        }
-    }
+    vector<unsigned int> u32buffer = toUTF32(u8buffer);
 
     for(vector<unsigned int>::const_iterator c = u32buffer.begin(); c != u32buffer.end(); ++c)
     {
