@@ -29,6 +29,37 @@
 namespace IceSSL
 {
 
+#ifdef ICE_CPP11_MAPPING
+//
+// Adapts the C++11 functions to C++98-like callbacks
+//
+class CertificateVerifier
+{
+public:
+
+    CertificateVerifier(std::function<bool(const std::shared_ptr<NativeConnectionInfo>&)>);
+    bool verify(const NativeConnectionInfoPtr&);
+
+private:
+
+    std::function<bool(const std::shared_ptr<NativeConnectionInfo>&)> _verify;
+};
+using CertificateVerifierPtr = std::shared_ptr<CertificateVerifier>;
+
+class PasswordPrompt
+{
+public:
+
+    PasswordPrompt(std::function<std::string()>);
+    std::string getPassword();
+
+private:
+
+    std::function<std::string()> _prompt;
+};
+using PasswordPromptPtr = std::shared_ptr<PasswordPrompt>;
+#endif
+
 //
 // Constants for X509 certificate alt names (AltNameOther, AltNameORAddress, AltNameEDIPartyName and
 // AltNameObjectIdentifier) are not supported.

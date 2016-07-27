@@ -35,6 +35,32 @@ using namespace Ice;
 using namespace IceUtil;
 using namespace IceSSL;
 
+
+#ifdef ICE_CPP11_MAPPING
+IceSSL::CertificateVerifier::CertificateVerifier(std::function<bool(const std::shared_ptr<NativeConnectionInfo>&)> v) :
+    _verify(std::move(v))
+{
+}
+
+bool
+IceSSL::CertificateVerifier::verify(const NativeConnectionInfoPtr& info)
+{
+    return _verify(info);
+}
+
+IceSSL::PasswordPrompt::PasswordPrompt(std::function<std::string()> p) :
+    _prompt(std::move(p))
+{
+}
+
+std::string
+IceSSL::PasswordPrompt::getPassword()
+{
+    return _prompt();
+}
+#endif
+
+
 #if !defined(ICE_USE_OPENSSL)
 
 namespace

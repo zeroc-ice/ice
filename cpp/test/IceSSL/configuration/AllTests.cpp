@@ -251,7 +251,10 @@ public:
 };
 #endif
 
-class PasswordPromptI : public IceSSL::PasswordPrompt
+class PasswordPromptI
+#ifndef ICE_CPP11_MAPPING
+ : public IceSSL::PasswordPrompt
+#endif
 {
 public:
 
@@ -277,7 +280,10 @@ private:
 };
 ICE_DEFINE_PTR(PasswordPromptIPtr, PasswordPromptI);
 
-class CertificateVerifierI : public IceSSL::CertificateVerifier
+class CertificateVerifierI
+#ifndef ICE_CPP11_MAPPING
+: public IceSSL::CertificateVerifier
+#endif
 {
 public:
 
@@ -1331,7 +1337,13 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         IceSSL::PluginPtr plugin = ICE_DYNAMIC_CAST(IceSSL::Plugin, comm->getPluginManager()->getPlugin("IceSSL"));
         test(plugin);
         CertificateVerifierIPtr verifier = ICE_MAKE_SHARED(CertificateVerifierI);
+
+#ifdef ICE_CPP11_MAPPING
+        plugin->setCertificateVerifier([verifier](const shared_ptr<IceSSL::NativeConnectionInfo>& info)
+                                       { return verifier->verify(info); });
+#else
         plugin->setCertificateVerifier(verifier);
+#endif
 
         Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
@@ -1399,8 +1411,13 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         IceSSL::PluginPtr plugin = ICE_DYNAMIC_CAST(IceSSL::Plugin, comm->getPluginManager()->getPlugin("IceSSL"));
         test(plugin);
         CertificateVerifierIPtr verifier = ICE_MAKE_SHARED(CertificateVerifierI);
-        plugin->setCertificateVerifier(verifier);
 
+#ifdef ICE_CPP11_MAPPING
+        plugin->setCertificateVerifier([verifier](const shared_ptr<IceSSL::NativeConnectionInfo>& info)
+                                       { return verifier->verify(info); });
+#else
+        plugin->setCertificateVerifier(verifier);
+#endif
         Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
@@ -1872,7 +1889,12 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         IceSSL::PluginPtr plugin = ICE_DYNAMIC_CAST(IceSSL::Plugin, pm->getPlugin("IceSSL"));
         test(plugin);
         PasswordPromptIPtr prompt = ICE_MAKE_SHARED(PasswordPromptI, "client");
+
+#ifdef ICE_CPP11_MAPPING
+        plugin->setPasswordPrompt([prompt]{ return prompt->getPassword(); });
+#else
         plugin->setPasswordPrompt(prompt);
+#endif
         pm->initializePlugins();
         test(prompt->count() == 1);
         Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
@@ -1903,7 +1925,12 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         plugin = ICE_DYNAMIC_CAST(IceSSL::Plugin, pm->getPlugin("IceSSL"));
         test(plugin);
         prompt = ICE_MAKE_SHARED(PasswordPromptI, "invalid");
+
+#ifdef ICE_CPP11_MAPPING
+        plugin->setPasswordPrompt([prompt]{ return prompt->getPassword(); });
+#else
         plugin->setPasswordPrompt(prompt);
+#endif
         try
         {
             pm->initializePlugins();

@@ -469,11 +469,14 @@ public:
 };
 ICE_DEFINE_PTR(NativeConnectionInfoPtr, NativeConnectionInfo);
 
+
+#ifndef ICE_CPP11_MAPPING // C++98 mapping
 //
 // An application can customize the certificate verification process
 // by implementing the CertificateVerifier interface.
 //
-class ICE_SSL_API CertificateVerifier : public Ice::EnableSharedFromThis<CertificateVerifier>
+
+class ICE_SSL_API CertificateVerifier : public IceUtil::Shared
 {
 public:
 
@@ -485,7 +488,7 @@ public:
     //
     virtual bool verify(const NativeConnectionInfoPtr&) = 0;
 };
-ICE_DEFINE_PTR(CertificateVerifierPtr, CertificateVerifier);
+typedef IceUtil::Handle<CertificateVerifier> CertificateVerifierPtr;
 
 //
 // In order to read an encrypted file, such as one containing a
@@ -502,7 +505,7 @@ ICE_DEFINE_PTR(CertificateVerifierPtr, CertificateVerifier);
 // IceSSL.DelayInit=1), configure the PasswordPrompt, then manually
 // initialize the plug-in.
 //
-class ICE_SSL_API PasswordPrompt : public Ice::EnableSharedFromThis<PasswordPrompt>
+class ICE_SSL_API PasswordPrompt : public IceUtil::Shared
 {
 public:
 
@@ -515,7 +518,9 @@ public:
     //
     virtual std::string getPassword() = 0;
 };
-ICE_DEFINE_PTR(PasswordPromptPtr, PasswordPrompt);
+typedef IceUtil::Handle<PasswordPrompt> PasswordPromptPtr;
+#endif
+
 
 class ICE_SSL_API Plugin : public Ice::Plugin
 {
@@ -527,13 +532,21 @@ public:
     // Establish the certificate verifier object. This should be done
     // before any connections are established.
     //
+#ifdef ICE_CPP11_MAPPING
+    virtual void setCertificateVerifier(std::function<bool(const std::shared_ptr<NativeConnectionInfo>&)>) = 0;
+#else
     virtual void setCertificateVerifier(const CertificateVerifierPtr&) = 0;
+#endif
 
     //
     // Establish the password prompt object. This must be done before
     // the plug-in is initialized.
     //
+#ifdef ICE_CPP11_MAPPING
+    virtual void setPasswordPrompt(std::function<std::string()>) = 0;
+#else
     virtual void setPasswordPrompt(const PasswordPromptPtr&) = 0;
+#endif
 
 #ifdef ICE_USE_OPENSSL
     //

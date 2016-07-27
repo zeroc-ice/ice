@@ -41,17 +41,20 @@ registerIceSSL(bool loadOnInitialize)
 
 }
 
+#ifndef ICE_CPP11_MAPPING
 IceSSL::CertificateVerifier::~CertificateVerifier()
 {
     // Out of line to avoid weak vtable
 }
 
-IceSSL::NativeConnectionInfo::~NativeConnectionInfo()
+IceSSL::PasswordPrompt::~PasswordPrompt()
 {
     // Out of line to avoid weak vtable
 }
+#endif
 
-IceSSL::PasswordPrompt::~PasswordPrompt()
+
+IceSSL::NativeConnectionInfo::~NativeConnectionInfo()
 {
     // Out of line to avoid weak vtable
 }
@@ -130,17 +133,47 @@ IceSSL::PluginI::destroy()
     _engine = 0;
 }
 
+#ifdef ICE_CPP11_MAPPING
+void
+IceSSL::PluginI::setCertificateVerifier(std::function<bool(const std::shared_ptr<NativeConnectionInfo>&)> verifier)
+{
+    if(verifier)
+    {
+        _engine->setCertificateVerifier(make_shared<CertificateVerifier>(std::move(verifier)));
+    }
+    else
+    {
+        _engine->setCertificateVerifier(nullptr);
+    }
+}
+#else
 void
 IceSSL::PluginI::setCertificateVerifier(const CertificateVerifierPtr& verifier)
 {
     _engine->setCertificateVerifier(verifier);
 }
+#endif
 
+#ifdef ICE_CPP11_MAPPING
+void
+IceSSL::PluginI::setPasswordPrompt(std::function<std::string()> prompt)
+{
+     if(prompt)
+     {
+         _engine->setPasswordPrompt(make_shared<PasswordPrompt>(std::move(prompt)));
+     }
+     else
+     {
+         _engine->setPasswordPrompt(nullptr);
+     }
+}
+#else
 void
 IceSSL::PluginI::setPasswordPrompt(const PasswordPromptPtr& prompt)
 {
     _engine->setPasswordPrompt(prompt);
 }
+#endif
 
 #ifdef ICE_USE_OPENSSL
 void
