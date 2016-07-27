@@ -432,6 +432,11 @@ $initData = $NS ? eval("return new Ice\\InitializationData;") : eval("return new
 $initData->properties = Ice_getProperties();
 $initData->properties->setProperty("Ice.MessageSizeMax", "10");
 $communicator = Ice_initialize($argv, $initData);
+
+// This property is set by the test suite, howerver we need to override it for this test.
+// Unlike C++, we can not pass $argv into Ice::createProperties, so we just set it after.
+$communicator->getProperties()->setProperty("Ice.Warn.Connections", "0");
+
 $thrower = allTests($communicator);
 $thrower->shutdown();
 $communicator->destroy();
