@@ -19,7 +19,7 @@ public class Collocated extends test.Util.Application
     setupObjectAdapter(Ice.Communicator communicator)
     {
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("");
-        adapter.add(new RetryI(), communicator.stringToIdentity("retry"));
+        adapter.add(new RetryI(), Ice.Util.stringToIdentity("retry"));
         //adapter.activate(); // Don't activate OA to ensure collocation is used.
     }
 

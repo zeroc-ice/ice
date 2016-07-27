@@ -141,7 +141,7 @@
         {
             var p2 = p1;
             var p3 = Test.MyClassPrx.uncheckedCast(
-                current.adapter.createProxy(current.adapter.getCommunicator().stringToIdentity("noSuchIdentity")));
+                current.adapter.createProxy(Ice.stringToIdentity("noSuchIdentity")));
             var r = Test.MyClassPrx.uncheckedCast(current.adapter.createProxy(current.id));
             return [r, p2, p3];
         },

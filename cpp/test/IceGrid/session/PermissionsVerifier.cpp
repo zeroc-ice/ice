@@ -43,7 +43,7 @@ public:
     {
         Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapterWithEndpoints(
             "PermissionsVerifier", "tcp -p 12002");
-        adapter->add(new AdminPermissionsVerifierI, communicator()->stringToIdentity("AdminPermissionsVerifier"));
+        adapter->add(new AdminPermissionsVerifierI, Ice::stringToIdentity("AdminPermissionsVerifier"));
         adapter->activate();
         communicator()->waitForShutdown();
         return EXIT_SUCCESS;

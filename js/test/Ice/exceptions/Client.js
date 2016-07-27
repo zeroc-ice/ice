@@ -158,10 +158,10 @@
                     function(adapter)
                     {
                         var obj = new EmptyI();
-                        adapter.add(obj, communicator.stringToIdentity("x"));
+                        adapter.add(obj, Ice.stringToIdentity("x"));
                         try
                         {
-                            adapter.add(obj, communicator.stringToIdentity("x"));
+                            adapter.add(obj, Ice.stringToIdentity("x"));
                             test(false);
                         }
                         catch(ex)
@@ -170,7 +170,7 @@
                         }
                         try
                         {
-                            adapter.add(obj, communicator.stringToIdentity(""));
+                            adapter.add(obj, Ice.stringToIdentity(""));
                             test(false);
                         }
                         catch(ex)
@@ -180,7 +180,7 @@
                         }
                         try
                         {
-                            adapter.add(null, communicator.stringToIdentity("x"));
+                            adapter.add(null, Ice.stringToIdentity("x"));
                             test(false);
                         }
                         catch(ex)
@@ -188,10 +188,10 @@
                             test(ex instanceof Ice.IllegalServantException);
                         }
 
-                        adapter.remove(communicator.stringToIdentity("x"));
+                        adapter.remove(Ice.stringToIdentity("x"));
                         try
                         {
-                            adapter.remove(communicator.stringToIdentity("x"));
+                            adapter.remove(Ice.stringToIdentity("x"));
                             test(false);
                         }
                         catch(ex)
@@ -385,7 +385,7 @@
             function()
             {
                 out.write("catching object not exist exception... ");
-                var id = communicator.stringToIdentity("does not exist");
+                var id = Ice.stringToIdentity("does not exist");
                 var thrower2 = Test.ThrowerPrx.uncheckedCast(thrower.ice_identity(id));
                 return thrower2.ice_ping();
             }
@@ -394,7 +394,7 @@
             function(ex)
             {
                 test(ex instanceof Ice.ObjectNotExistException);
-                test(ex.id.equals(communicator.stringToIdentity("does not exist")));
+                test(ex.id.equals(Ice.stringToIdentity("does not exist")));
                 out.writeLine("ok");
                 out.write("catching facet not exist exception... ");
                 var thrower2 = Test.ThrowerPrx.uncheckedCast(thrower, "no such facet");

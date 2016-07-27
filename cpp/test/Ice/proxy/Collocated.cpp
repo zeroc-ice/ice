@@ -20,7 +20,7 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(communicator, 0));
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    adapter->add(ICE_MAKE_SHARED(MyDerivedClassI), communicator->stringToIdentity("test"));
+    adapter->add(ICE_MAKE_SHARED(MyDerivedClassI), Ice::stringToIdentity("test"));
     //adapter->activate(); // Don't activate OA to ensure collocation is used.
 
     Test::MyClassPrxPtr allTests(const Ice::CommunicatorPtr&);

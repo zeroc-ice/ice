@@ -23,8 +23,8 @@ class TestServer(Ice.Application):
         #adapter.activate() // Don't activate OA to ensure collocation is used.
         adapter.addServantLocator(TestI.ServantLocatorI("category"), "category")
         adapter.addServantLocator(TestI.ServantLocatorI(""), "")
-        adapter.add(TestI.TestI(), self.communicator().stringToIdentity("asm"))
-        adapter.add(TestActivationI.TestActivationI(), self.communicator().stringToIdentity("test/activation"))
+        adapter.add(TestI.TestI(), Ice.stringToIdentity("asm"))
+        adapter.add(TestActivationI.TestActivationI(), Ice.stringToIdentity("test/activation"))
 
         AllTests.allTests(self.communicator(), False)
 

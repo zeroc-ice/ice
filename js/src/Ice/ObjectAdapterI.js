@@ -184,7 +184,7 @@ var ObjectAdapterI = Ice.Class({
                 {
                     throw new Ice.AlreadyRegisteredException(
                         "object adapter with router",
-                        this._instance.identityToString(router.ice_getIdentity()));
+                        Ice.identityToString(router.ice_getIdentity()));
                 }
 
                 //

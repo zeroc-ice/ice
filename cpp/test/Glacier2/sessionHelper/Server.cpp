@@ -59,7 +59,7 @@ SessionHelperServer::run(int, char**)
 
     communicator()->getProperties()->setProperty("CallbackAdapter.Endpoints", "default -p 12010");
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("CallbackAdapter");
-    adapter->add(new CallbackI(), communicator()->stringToIdentity("callback"));
+    adapter->add(new CallbackI(), Ice::stringToIdentity("callback"));
     adapter->activate();
     communicator()->waitForShutdown();
 

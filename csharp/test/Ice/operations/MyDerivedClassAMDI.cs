@@ -314,7 +314,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
     {
         var p2 = p1;
         var p3 = MyClassPrxHelper.uncheckedCast(current.adapter.createProxy(
-                                                current.adapter.getCommunicator().stringToIdentity("noSuchIdentity")));
+                                                Ice.Util.stringToIdentity("noSuchIdentity")));
         response(new MyClass_OpMyClassResult(
             MyClassPrxHelper.uncheckedCast(current.adapter.createProxy(current.id)), p2, p3));
     }

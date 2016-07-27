@@ -104,7 +104,7 @@
     }
     _adapter = ICE_RETAIN(adapter);
     _testIntf = ICE_RETAIN([TestACMTestIntfPrx uncheckedCast:[_adapter add:[TestACMTestIntfI testIntf]
-                                                    identity:[[_adapter getCommunicator] stringToIdentity:@"test"]]]);
+                                                    identity:[ICEUtil stringToIdentity:@"test"]]]);
     [_adapter activate];
 
     return self;

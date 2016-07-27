@@ -17,7 +17,7 @@ public class Server extends test.Util.Application
         Ice.Communicator communicator = communicator();
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.Object test = new TestI(communicator);
-        adapter.add(test, communicator.stringToIdentity("test"));
+        adapter.add(test, Ice.Util.stringToIdentity("test"));
 
         adapter.activate();
 

@@ -420,18 +420,6 @@ public final class Instance implements Ice.ClassResolver
         return _implicitContext;
     }
 
-    public Ice.Identity
-    stringToIdentity(String s)
-    {
-        return Ice.Util.stringToIdentity(s);
-    }
-
-    public String
-    identityToString(Ice.Identity ident)
-    {
-        return Ice.Util.identityToString(ident);
-    }
-
     public synchronized Ice.ObjectPrx
     createAdmin(Ice.ObjectAdapter adminAdapter, Ice.Identity adminIdentity)
     {

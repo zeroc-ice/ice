@@ -19,9 +19,9 @@ public class Server extends test.Util.Application
         Ice.ObjectAdapter adapter2 = communicator().createObjectAdapter("ControllerAdapter");
 
         TestControllerI controller = new TestControllerI(adapter);
-        adapter.add(new TestI(controller), communicator().stringToIdentity("test"));
+        adapter.add(new TestI(controller), Ice.Util.stringToIdentity("test"));
         adapter.activate();
-        adapter2.add(controller, communicator().stringToIdentity("testController"));
+        adapter2.add(controller, Ice.Util.stringToIdentity("testController"));
         adapter2.activate();
 
         return WAIT;

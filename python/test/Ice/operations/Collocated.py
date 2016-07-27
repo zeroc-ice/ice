@@ -22,7 +22,7 @@ import Test, TestI, AllTests
 def run(args, communicator):
     communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010")
     adapter = communicator.createObjectAdapter("TestAdapter")
-    prx = adapter.add(TestI.MyDerivedClassI(), communicator.stringToIdentity("test"))
+    prx = adapter.add(TestI.MyDerivedClassI(), Ice.stringToIdentity("test"))
     #adapter.activate() // Don't activate OA to ensure collocation is used.
 
     if prx.ice_getConnection():

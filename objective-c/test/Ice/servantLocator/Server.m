@@ -66,8 +66,8 @@ run(id<ICECommunicator> communicator)
 
     [adapter addServantLocator:ICE_AUTORELEASE([[ServantLocatorI alloc] init:@""]) category:@""];
     [adapter addServantLocator:ICE_AUTORELEASE([[ServantLocatorI alloc] init:@"category"]) category:@"category"];
-    [adapter add:[TestServantLocatorTestIntfI testIntf] identity:[communicator stringToIdentity:@"asm"]];
-    [adapter add:[TestActivationI testActivation] identity:[communicator stringToIdentity:@"test/activation"]];
+    [adapter add:[TestServantLocatorTestIntfI testIntf] identity:[ICEUtil stringToIdentity:@"asm"]];
+    [adapter add:[TestActivationI testActivation] identity:[ICEUtil stringToIdentity:@"test/activation"]];
     [adapter activate];
 
     serverReady(communicator);

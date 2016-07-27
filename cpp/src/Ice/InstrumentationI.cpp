@@ -334,7 +334,7 @@ public:
     string
     getIdentity() const
     {
-        return _current.adapter->getCommunicator()->identityToString(_current.id);
+        return identityToString(_current.id);
     }
 
 private:
@@ -443,7 +443,7 @@ public:
                 catch(const Exception&)
                 {
                     // Either a fixed proxy or the communicator is destroyed.
-                    os << _proxy->ice_getCommunicator()->identityToString(_proxy->ice_getIdentity());
+                    os << identityToString(_proxy->ice_getIdentity());
                     os << " [" << _operation << ']';
                 }
             }
@@ -474,7 +474,7 @@ public:
     {
         if(_proxy)
         {
-            return _proxy->ice_getCommunicator()->identityToString(_proxy->ice_getIdentity());
+            return identityToString(_proxy->ice_getIdentity());
         }
         else
         {

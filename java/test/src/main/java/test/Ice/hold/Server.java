@@ -18,10 +18,10 @@ public class Server extends test.Util.Application
         java.util.Timer timer = new java.util.Timer();
 
         Ice.ObjectAdapter adapter1 = communicator.createObjectAdapter("TestAdapter1");
-        adapter1.add(new HoldI(timer, adapter1), communicator.stringToIdentity("hold"));
+        adapter1.add(new HoldI(timer, adapter1), Ice.Util.stringToIdentity("hold"));
 
         Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("TestAdapter2");
-        adapter2.add(new HoldI(timer, adapter2), communicator.stringToIdentity("hold"));
+        adapter2.add(new HoldI(timer, adapter2), Ice.Util.stringToIdentity("hold"));
 
         adapter1.activate();
         adapter2.activate();

@@ -270,11 +270,11 @@ public class AllTests
         // Test for bug ICE-5543: escaped escapes in stringToIdentity
         //
         Ice.Identity id = new Ice.Identity("test", ",X2QNUAzSBcJ_e$AV;E\\");
-        Ice.Identity id2 = communicator.stringToIdentity(communicator.identityToString(id));
+        Ice.Identity id2 = Ice.Util.stringToIdentity(Ice.Util.identityToString(id));
         test(id.equals(id2));
 
         id = new Ice.Identity("test", ",X2QNUAz\\SB\\/cJ_e$AV;E\\\\");
-        id2 = communicator.stringToIdentity(communicator.identityToString(id));
+        id2 = Ice.Util.stringToIdentity(Ice.Util.identityToString(id));
         test(id.equals(id2));
 
         out.println("ok");
@@ -463,6 +463,8 @@ public class AllTests
         out.flush();
         test(communicator.identityToString(
                  base.ice_identity(communicator.stringToIdentity("other")).ice_getIdentity()).equals("other"));
+        test(Ice.Util.identityToString(
+                 base.ice_identity(Ice.Util.stringToIdentity("other")).ice_getIdentity()).equals("other"));
         test(base.ice_facet("facet").ice_getFacet().equals("facet"));
         test(base.ice_adapterId("id").ice_getAdapterId().equals("id"));
         test(base.ice_twoway().ice_isTwoway());

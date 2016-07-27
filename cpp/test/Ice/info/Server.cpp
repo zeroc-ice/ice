@@ -20,7 +20,7 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010:udp -p 12010");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    adapter->add(ICE_MAKE_SHARED(TestI), communicator->stringToIdentity("test"));
+    adapter->add(ICE_MAKE_SHARED(TestI), Ice::stringToIdentity("test"));
     adapter->activate();
     TEST_READY
     communicator->waitForShutdown();

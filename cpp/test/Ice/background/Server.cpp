@@ -31,7 +31,7 @@ public:
     {
         _controller->checkCallPause(current);
         Ice::CommunicatorPtr communicator = current.adapter->getCommunicator();
-        response(current.adapter->createDirectProxy(communicator->stringToIdentity("dummy")));
+        response(current.adapter->createDirectProxy(Ice::stringToIdentity("dummy")));
     }
 
     virtual void
@@ -51,7 +51,7 @@ public:
     {
         _controller->checkCallPause(current);
         Ice::CommunicatorPtr communicator = current.adapter->getCommunicator();
-        response->ice_response(current.adapter->createDirectProxy(communicator->stringToIdentity("dummy")));
+        response->ice_response(current.adapter->createDirectProxy(Ice::stringToIdentity("dummy")));
     }
 
     virtual void
@@ -132,12 +132,12 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
     ConfigurationPtr configuration = plugin->getConfiguration();
     BackgroundControllerIPtr backgroundController = ICE_MAKE_SHARED(BackgroundControllerI, adapter, configuration);
 
-    adapter->add(ICE_MAKE_SHARED(BackgroundI, backgroundController), communicator->stringToIdentity("background"));
-    adapter->add(ICE_MAKE_SHARED(LocatorI, backgroundController), communicator->stringToIdentity("locator"));
-    adapter->add(ICE_MAKE_SHARED(RouterI, backgroundController), communicator->stringToIdentity("router"));
+    adapter->add(ICE_MAKE_SHARED(BackgroundI, backgroundController), Ice::stringToIdentity("background"));
+    adapter->add(ICE_MAKE_SHARED(LocatorI, backgroundController), Ice::stringToIdentity("locator"));
+    adapter->add(ICE_MAKE_SHARED(RouterI, backgroundController), Ice::stringToIdentity("router"));
     adapter->activate();
 
-    adapter2->add(backgroundController, communicator->stringToIdentity("backgroundController"));
+    adapter2->add(backgroundController, Ice::stringToIdentity("backgroundController"));
     adapter2->activate();
 
     communicator->waitForShutdown();

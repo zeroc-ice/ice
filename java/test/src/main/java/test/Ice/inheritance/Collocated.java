@@ -17,7 +17,7 @@ public class Collocated extends test.Util.Application
         Ice.Communicator communicator = communicator();
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.Object object = new InitialI(adapter);
-        adapter.add(object, communicator.stringToIdentity("initial"));
+        adapter.add(object, Ice.Util.stringToIdentity("initial"));
 
         AllTests.allTests(communicator, getWriter());
 

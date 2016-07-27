@@ -18,7 +18,7 @@ public class AMDTieServer extends test.Util.Application
     {
         communicator().getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-        adapter.add(new _MyDerivedClassTie(new AMDTieMyDerivedClassI()), communicator().stringToIdentity("test"));
+        adapter.add(new _MyDerivedClassTie(new AMDTieMyDerivedClassI()), Ice.Util.stringToIdentity("test"));
         adapter.activate();
         return WAIT;
     }

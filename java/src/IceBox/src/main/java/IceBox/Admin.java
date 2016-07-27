@@ -84,7 +84,7 @@ public final class Admin
                         return 1;
                     }
 
-                    managerProxy = "\"" + communicator().identityToString(managerIdentity) + "\" :" + managerEndpoints;
+                    managerProxy = "\"" + Ice.Util.identityToString(managerIdentity) + "\" :" + managerEndpoints;
                 }
                 else
                 {
@@ -95,7 +95,7 @@ public final class Admin
                         return 1;
                     }
 
-                    managerProxy = "\"" + communicator().identityToString(managerIdentity) + "\" @" + managerAdapterId;
+                    managerProxy = "\"" + Ice.Util.identityToString(managerIdentity) + "\" @" + managerAdapterId;
                 }
 
                 base = communicator().stringToProxy(managerProxy);

@@ -32,7 +32,7 @@ public final class ServantManager
             if(m.containsKey(facet))
             {
                 Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
-                ex.id = _instance.identityToString(ident);
+                ex.id = Ice.Util.identityToString(ident);
                 ex.kindOfObject = "servant";
                 if(facet.length() > 0)
                 {
@@ -77,7 +77,7 @@ public final class ServantManager
         if(m == null || (obj = m.remove(facet)) == null)
         {
             Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
-            ex.id = _instance.identityToString(ident);
+            ex.id = Ice.Util.identityToString(ident);
             ex.kindOfObject = "servant";
             if(facet.length() > 0)
             {
@@ -120,7 +120,7 @@ public final class ServantManager
         if(m == null)
         {
             Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
-            ex.id = _instance.identityToString(ident);
+            ex.id = Ice.Util.identityToString(ident);
             ex.kindOfObject = "servant";
             throw ex;
         }

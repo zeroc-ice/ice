@@ -21,7 +21,7 @@ public class Server extends test.Util.Application
         {
             _controller.checkCallPause(current);
             Ice.Communicator communicator = current.adapter.getCommunicator();
-            response.ice_response(current.adapter.createDirectProxy(communicator.stringToIdentity("dummy")));
+            response.ice_response(current.adapter.createDirectProxy(Ice.Util.stringToIdentity("dummy")));
         }
 
         @Override
@@ -95,12 +95,12 @@ public class Server extends test.Util.Application
 
         BackgroundControllerI backgroundController = new BackgroundControllerI(configuration, adapter);
 
-        adapter.add(new BackgroundI(backgroundController), communicator().stringToIdentity("background"));
-        adapter.add(new LocatorI(backgroundController), communicator().stringToIdentity("locator"));
-        adapter.add(new RouterI(backgroundController), communicator().stringToIdentity("router"));
+        adapter.add(new BackgroundI(backgroundController), Ice.Util.stringToIdentity("background"));
+        adapter.add(new LocatorI(backgroundController), Ice.Util.stringToIdentity("locator"));
+        adapter.add(new RouterI(backgroundController), Ice.Util.stringToIdentity("router"));
         adapter.activate();
 
-        adapter2.add(backgroundController, communicator().stringToIdentity("backgroundController"));
+        adapter2.add(backgroundController, Ice.Util.stringToIdentity("backgroundController"));
         adapter2.activate();
 
         return WAIT;

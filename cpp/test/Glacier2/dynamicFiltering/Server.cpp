@@ -57,7 +57,7 @@ public:
         _adapter(adapter)
     {
         _registryPrx = LocatorRegistryPrx::uncheckedCast(adapter->add(new ServerLocatorRegistry,
-                                                        _adapter->getCommunicator()->stringToIdentity("registry")));
+                                                        Ice::stringToIdentity("registry")));
     }
 
     virtual void
@@ -69,7 +69,7 @@ public:
     virtual void
     findAdapterById_async(const AMD_Locator_findAdapterByIdPtr& cb, const string&, const Current&) const
     {
-       cb->ice_response(_adapter->createDirectProxy(_adapter->getCommunicator()->stringToIdentity("dummy")));
+       cb->ice_response(_adapter->createDirectProxy(stringToIdentity("dummy")));
     }
 
     virtual LocatorRegistryPrx
@@ -146,12 +146,12 @@ SessionControlServer::run(int, char*[])
     communicator()->getProperties()->setProperty("TestControllerAdapter.Endpoints", "tcp -p 12013");
     ObjectAdapterPtr controllerAdapter = communicator()->createObjectAdapter("TestControllerAdapter");
     TestControllerIPtr controller = new TestControllerI;
-    controllerAdapter->add(controller, communicator()->stringToIdentity("testController"));
+    controllerAdapter->add(controller, Ice::stringToIdentity("testController"));
     controllerAdapter->activate();
 
     communicator()->getProperties()->setProperty("SessionControlAdapter.Endpoints", "tcp -p 12010");
     ObjectAdapterPtr adapter = communicator()->createObjectAdapter("SessionControlAdapter");
-    adapter->add(new SessionManagerI(controller), communicator()->stringToIdentity("SessionManager"));
+    adapter->add(new SessionManagerI(controller), Ice::stringToIdentity("SessionManager"));
     adapter->activate();
 
     BackendPtr backend = new BackendI;
@@ -161,7 +161,7 @@ SessionControlServer::run(int, char*[])
     backendAdapter->activate();
 
     Ice::LocatorPtr locator = new ServerLocatorI(backend, backendAdapter);
-    backendAdapter->add(locator, communicator()->stringToIdentity("locator"));
+    backendAdapter->add(locator, Ice::stringToIdentity("locator"));
 
     communicator()->waitForShutdown();
     return EXIT_SUCCESS;

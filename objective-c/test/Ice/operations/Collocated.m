@@ -17,7 +17,7 @@ run(id<ICECommunicator> communicator)
     [[communicator getProperties] setProperty:@"TestOperationsAdapter.Endpoints" value:@"default -p 12010"];
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestOperationsAdapter"];
     id<ICEObjectPrx> prx = [adapter add:[TestOperationsMyDerivedClassI myDerivedClass]
-                           identity:[communicator stringToIdentity:@"test"]];
+                           identity:[ICEUtil stringToIdentity:@"test"]];
     //[adapter activate]; // Don't activate OA to ensure collocation is used.
 
     test(![prx ice_getConnection]);

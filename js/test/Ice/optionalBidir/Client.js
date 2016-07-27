@@ -33,11 +33,11 @@
             {
                 if(amd)
                 {
-                    adapter.add(new AMDInitialI(), communicator.stringToIdentity("initial"));
+                    adapter.add(new AMDInitialI(), Ice.stringToIdentity("initial"));
                 }
                 else
                 {
-                    adapter.add(new InitialI(), communicator.stringToIdentity("initial"));
+                    adapter.add(new InitialI(), Ice.stringToIdentity("initial"));
                 }
                 return base.ice_getConnection().then(
                     function(conn)

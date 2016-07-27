@@ -35,7 +35,7 @@ class RemoteCommunicatorI(Test.RemoteCommunicator):
 class RemoteObjectAdapterI(Test.RemoteObjectAdapter):
     def __init__(self, adapter):
         self._adapter = adapter
-        self._testIntf = Test.TestIntfPrx.uncheckedCast(self._adapter.add(TestI(), adapter.getCommunicator().stringToIdentity("test")))
+        self._testIntf = Test.TestIntfPrx.uncheckedCast(self._adapter.add(TestI(), Ice.stringToIdentity("test")))
         self._adapter.activate()
 
     def getTestIntf(self, current=None):

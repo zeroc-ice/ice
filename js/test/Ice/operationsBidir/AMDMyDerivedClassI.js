@@ -143,7 +143,7 @@
         {
             var p2 = p1;
             var p3 = TestAMD.MyClassPrx.uncheckedCast(
-                current.adapter.createProxy(current.adapter.getCommunicator().stringToIdentity("noSuchIdentity")));
+                current.adapter.createProxy(Ice.stringToIdentity("noSuchIdentity")));
             var r = TestAMD.MyClassPrx.uncheckedCast(current.adapter.createProxy(current.id));
             cb.ice_response(r, p2, p3);
         },

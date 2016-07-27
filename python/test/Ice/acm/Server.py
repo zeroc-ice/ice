@@ -22,7 +22,7 @@ def run(args, communicator):
     communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010")
     communicator.getProperties().setProperty("TestAdapter.ACM.Timeout", "0")
     adapter = communicator.createObjectAdapter("TestAdapter")
-    id = communicator.stringToIdentity("communicator")
+    id = Ice.stringToIdentity("communicator")
     adapter.add(TestI.RemoteCommunicatorI(), id)
     adapter.activate()
 

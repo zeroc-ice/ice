@@ -395,7 +395,7 @@ namespace IceInternal
 
         public string getIdentity()
         {
-            return _current.adapter.getCommunicator().identityToString(_current.id);
+            return Ice.Util.identityToString(_current.id);
         }
 
         readonly private Ice.Current _current;
@@ -500,7 +500,7 @@ namespace IceInternal
                     catch(Ice.Exception)
                     {
                         // Either a fixed proxy or the communicator is destroyed.
-                        os.Append(_proxy.ice_getCommunicator().identityToString(_proxy.ice_getIdentity()));
+                        os.Append(Ice.Util.identityToString(_proxy.ice_getIdentity()));
                         os.Append(" [").Append(_operation).Append(']');
                     }
                     _id = os.ToString();
@@ -532,7 +532,7 @@ namespace IceInternal
         {
             if(_proxy != null)
             {
-                return _proxy.ice_getCommunicator().identityToString(_proxy.ice_getIdentity());
+                return Ice.Util.identityToString(_proxy.ice_getIdentity());
             }
             else
             {

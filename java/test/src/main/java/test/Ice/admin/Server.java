@@ -16,7 +16,7 @@ public class Server extends test.Util.Application
     {
         Ice.Communicator communicator = communicator();
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        adapter.add(new RemoteCommunicatorFactoryI(), communicator.stringToIdentity("factory"));
+        adapter.add(new RemoteCommunicatorFactoryI(), Ice.Util.stringToIdentity("factory"));
         adapter.activate();
         return WAIT;
     }

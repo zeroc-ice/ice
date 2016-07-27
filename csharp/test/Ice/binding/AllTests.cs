@@ -893,7 +893,7 @@ public class AllTests : TestCommon.TestApp
                     continue; // IP version not supported.
                 }
 
-                Ice.ObjectPrx prx = oa.createProxy(serverCommunicator.stringToIdentity("dummy"));
+                Ice.ObjectPrx prx = oa.createProxy(Ice.Util.stringToIdentity("dummy"));
                 try
                 {
                     prx.ice_collocationOptimized(false).ice_ping();

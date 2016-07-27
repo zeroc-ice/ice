@@ -22,7 +22,7 @@ import Test, TestI
 def run(args, communicator):
     communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
     adapter = communicator.createObjectAdapter("TestAdapter");
-    ident = communicator.stringToIdentity("factory");
+    ident = Ice.stringToIdentity("factory");
     adapter.add(TestI.RemoteCommunicatorFactoryI(), ident);
     adapter.activate();
 

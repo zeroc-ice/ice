@@ -261,7 +261,7 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amd
         }
         if(_reverseConnection)
         {
-            out << "\nidentity = " << _instance->communicator()->identityToString(proxy->ice_getIdentity());
+            out << "\nidentity = " << identityToString(proxy->ice_getIdentity());
         }
         else
         {
@@ -310,7 +310,7 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amd
             out << "routing override";
             if(_reverseConnection)
             {
-                out << "\nidentity = " << _instance->communicator()->identityToString(proxy->ice_getIdentity());
+                out << "\nidentity = " << identityToString(proxy->ice_getIdentity());
             }
             else
             {

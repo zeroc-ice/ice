@@ -26,7 +26,7 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
     communicator->getProperties()->setProperty("TestAdapter1.ThreadPool.SizeWarn", "0");
     communicator->getProperties()->setProperty("TestAdapter1.ThreadPool.Serialize", "0");
     Ice::ObjectAdapterPtr adapter1 = communicator->createObjectAdapter("TestAdapter1");
-    adapter1->add(ICE_MAKE_SHARED(HoldI, timer, adapter1), communicator->stringToIdentity("hold"));
+    adapter1->add(ICE_MAKE_SHARED(HoldI, timer, adapter1), Ice::stringToIdentity("hold"));
 
     communicator->getProperties()->setProperty("TestAdapter2.Endpoints", getTestEndpoint(communicator, 1) + ":udp");
     communicator->getProperties()->setProperty("TestAdapter2.ThreadPool.Size", "5");
@@ -34,7 +34,7 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
     communicator->getProperties()->setProperty("TestAdapter2.ThreadPool.SizeWarn", "0");
     communicator->getProperties()->setProperty("TestAdapter2.ThreadPool.Serialize", "1");
     Ice::ObjectAdapterPtr adapter2 = communicator->createObjectAdapter("TestAdapter2");
-    adapter2->add(ICE_MAKE_SHARED(HoldI, timer, adapter2), communicator->stringToIdentity("hold"));
+    adapter2->add(ICE_MAKE_SHARED(HoldI, timer, adapter2), Ice::stringToIdentity("hold"));
 
     adapter1->activate();
     adapter2->activate();

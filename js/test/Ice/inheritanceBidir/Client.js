@@ -25,7 +25,7 @@
                     function(adapter)
                     {
                         var base = communicator.stringToProxy("initial:default -p 12010");
-                        adapter.add(new InitialI(adapter, base), communicator.stringToIdentity("initial"));
+                        adapter.add(new InitialI(adapter, base), Ice.stringToIdentity("initial"));
                         return base.ice_getConnection().then(
                             function(conn)
                             {

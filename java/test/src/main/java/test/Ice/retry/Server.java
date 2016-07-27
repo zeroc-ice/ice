@@ -16,7 +16,7 @@ public class Server extends test.Util.Application
     {
         Ice.Communicator communicator = communicator();
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        adapter.add(new RetryI(), communicator.stringToIdentity("retry"));
+        adapter.add(new RetryI(), Ice.Util.stringToIdentity("retry"));
         adapter.activate();
         return WAIT;
     }

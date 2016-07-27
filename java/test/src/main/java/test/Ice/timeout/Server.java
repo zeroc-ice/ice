@@ -16,7 +16,7 @@ public class Server extends test.Util.Application
     {
         Ice.Communicator communicator = communicator();
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        adapter.add(new TimeoutI(), communicator.stringToIdentity("timeout"));
+        adapter.add(new TimeoutI(), Ice.Util.stringToIdentity("timeout"));
         adapter.activate();
         return WAIT;
     }

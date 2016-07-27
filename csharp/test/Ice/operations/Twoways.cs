@@ -248,9 +248,9 @@ class Twoways
             test(Ice.Util.proxyIdentityAndFacetCompare(c1, p) == 0);
             test(Ice.Util.proxyIdentityAndFacetCompare(c2, p) != 0);
             test(Ice.Util.proxyIdentityAndFacetCompare(r, p) == 0);
-            test(c1.ice_getIdentity().Equals(communicator.stringToIdentity("test")));
-            test(c2.ice_getIdentity().Equals(communicator.stringToIdentity("noSuchIdentity")));
-            test(r.ice_getIdentity().Equals(communicator.stringToIdentity("test")));
+            test(c1.ice_getIdentity().Equals(Ice.Util.stringToIdentity("test")));
+            test(c2.ice_getIdentity().Equals(Ice.Util.stringToIdentity("noSuchIdentity")));
+            test(r.ice_getIdentity().Equals(Ice.Util.stringToIdentity("test")));
             r.opVoid();
             c1.opVoid();
             try

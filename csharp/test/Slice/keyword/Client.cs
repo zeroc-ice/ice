@@ -145,26 +145,26 @@ public class Client
     {
         communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        adapter.add(new decimalI(), communicator.stringToIdentity("test"));
-        adapter.add(new Test1I(), communicator.stringToIdentity("test1"));
-        adapter.add(new Test2I(), communicator.stringToIdentity("test2"));
+        adapter.add(new decimalI(), Ice.Util.stringToIdentity("test"));
+        adapter.add(new Test1I(), Ice.Util.stringToIdentity("test1"));
+        adapter.add(new Test2I(), Ice.Util.stringToIdentity("test2"));
         adapter.activate();
 
         Console.Out.Write("testing operation name... ");
         Console.Out.Flush();
         @abstract.@decimalPrx p = @abstract.@decimalPrxHelper.uncheckedCast(
-            adapter.createProxy(communicator.stringToIdentity("test")));
+            adapter.createProxy(Ice.Util.stringToIdentity("test")));
         p.@default();
         Console.Out.WriteLine("ok");
 
         Console.Out.Write("testing System as module name... ");
         Console.Out.Flush();
         @abstract.System.TestPrx t1 = @abstract.System.TestPrxHelper.uncheckedCast(
-                adapter.createProxy(communicator.stringToIdentity("test1")));
+                adapter.createProxy(Ice.Util.stringToIdentity("test1")));
         t1.op();
 
         System.TestPrx t2 = System.TestPrxHelper.uncheckedCast(
-                adapter.createProxy(communicator.stringToIdentity("test2")));
+                adapter.createProxy(Ice.Util.stringToIdentity("test2")));
 
         t2.op();
         Console.Out.WriteLine("ok");

@@ -190,9 +190,9 @@ public class TwowaysAMI
 
         public void opMyClass(Test.MyClassPrx r, Test.MyClassPrx c1, Test.MyClassPrx c2)
         {
-            test(c1.ice_getIdentity().Equals(_communicator.stringToIdentity("test")));
-            test(c2.ice_getIdentity().Equals(_communicator.stringToIdentity("noSuchIdentity")));
-            test(r.ice_getIdentity().Equals(_communicator.stringToIdentity("test")));
+            test(c1.ice_getIdentity().Equals(Ice.Util.stringToIdentity("test")));
+            test(c2.ice_getIdentity().Equals(Ice.Util.stringToIdentity("noSuchIdentity")));
+            test(r.ice_getIdentity().Equals(Ice.Util.stringToIdentity("test")));
 
             //
             // We can't do the callbacks below in connection serialization mode.

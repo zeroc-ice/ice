@@ -17,7 +17,7 @@ run(id<ICECommunicator> communicator)
     [[communicator getProperties] setProperty:@"TestAdapter.Endpoints" value:@"default -p 12010:udp"];
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAdapter"];
     ICEObject* object = [TimeoutI timeout];
-    [adapter add:object identity:[communicator stringToIdentity:@"timeout"]];
+    [adapter add:object identity:[ICEUtil stringToIdentity:@"timeout"]];
     [adapter activate];
 
     serverReady(communicator);

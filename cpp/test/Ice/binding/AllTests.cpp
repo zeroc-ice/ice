@@ -987,7 +987,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             // Ensure the published endpoints are actually valid. On
             // Fedora, binding to "localhost" with IPv6 only works but
             // resolving localhost don't return the IPv6 adress.
-            Ice::ObjectPrxPtr prx = oa->createProxy(serverCommunicator->stringToIdentity("dummy"));
+            Ice::ObjectPrxPtr prx = oa->createProxy(Ice::stringToIdentity("dummy"));
             try
             {
                 prx->ice_collocationOptimized(false)->ice_ping();

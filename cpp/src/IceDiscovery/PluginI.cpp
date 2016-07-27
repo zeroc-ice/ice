@@ -154,7 +154,7 @@ PluginI::initialize()
     // Add lookup and lookup reply Ice objects
     //
     _lookup = ICE_MAKE_SHARED(LookupI, locatorRegistry, ICE_UNCHECKED_CAST(LookupPrx, lookupPrx), properties);
-    _multicastAdapter->add(_lookup, _communicator->stringToIdentity("IceDiscovery/Lookup"));
+    _multicastAdapter->add(_lookup, Ice::stringToIdentity("IceDiscovery/Lookup"));
 
     Ice::ObjectPrxPtr lookupReply = _replyAdapter->addWithUUID(ICE_MAKE_SHARED(LookupReplyI, _lookup))->ice_datagram();
     _lookup->setLookupReply(ICE_UNCHECKED_CAST(LookupReplyPrx, lookupReply));

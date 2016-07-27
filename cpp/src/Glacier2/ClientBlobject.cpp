@@ -120,7 +120,7 @@ Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& 
         {
             Trace out(_instance->logger(), "Glacier2");
             out << "rejecting request: " << rejectedFilters << "\n";
-            out << "identity: " << _instance->communicator()->identityToString(current.id);
+            out << "identity: " << identityToString(current.id);
         }
 
         ObjectNotExistException ex(__FILE__, __LINE__);

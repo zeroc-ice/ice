@@ -30,7 +30,7 @@ public class Server extends test.Util.Application
         properties.setProperty("ControlAdapter.ThreadPool.Size", "1");
 
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("ControlAdapter");
-        adapter.add(new ControllerI(), communicator().stringToIdentity("controller" + num));
+        adapter.add(new ControllerI(), Ice.Util.stringToIdentity("controller" + num));
         adapter.activate();
 
         return WAIT;

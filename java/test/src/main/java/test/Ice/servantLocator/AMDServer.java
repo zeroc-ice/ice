@@ -18,8 +18,8 @@ public class AMDServer extends test.Util.Application
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
         adapter.addServantLocator(new AMDServantLocatorI("category"), "category");
         adapter.addServantLocator(new AMDServantLocatorI(""), "");
-        adapter.add(new AMDTestI(), communicator().stringToIdentity("asm"));
-        adapter.add(new AMDTestActivationI(), communicator().stringToIdentity("test/activation"));
+        adapter.add(new AMDTestI(), Ice.Util.stringToIdentity("asm"));
+        adapter.add(new AMDTestActivationI(), Ice.Util.stringToIdentity("test/activation"));
         adapter.activate();
         return WAIT;
     }

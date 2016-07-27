@@ -274,7 +274,7 @@
                 var context = new Ice.Context();
                 context.set("_fwd", "t");
                 var otherCategoryTwoway = CallbackPrx.uncheckedCast(
-                    twoway.ice_identity(communicator.stringToIdentity("c2/callback")));
+                    twoway.ice_identity(Ice.stringToIdentity("c2/callback")));
                 return otherCategoryTwoway.initiateCallback(twowayR, context);
             }
         ).then(
@@ -290,7 +290,7 @@
                 var context = new Ice.Context();
                 context.set("_fwd", "t");
                 var otherCategoryTwoway = CallbackPrx.uncheckedCast(
-                    twoway.ice_identity(communicator.stringToIdentity("c3/callback")));
+                    twoway.ice_identity(Ice.stringToIdentity("c3/callback")));
                 return otherCategoryTwoway.initiateCallback(twowayR, context);
             }
         ).then(
@@ -303,7 +303,7 @@
                 var context = new Ice.Context();
                 context.set("_fwd", "t");
                 var otherCategoryTwoway = CallbackPrx.uncheckedCast(
-                    twoway.ice_identity(communicator.stringToIdentity("_userid/callback")));
+                    twoway.ice_identity(Ice.stringToIdentity("_userid/callback")));
                 return otherCategoryTwoway.initiateCallback(twowayR, context);
             }
         ).then(

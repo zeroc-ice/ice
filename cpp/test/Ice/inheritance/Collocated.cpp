@@ -22,7 +22,7 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(communicator, 0));
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     Ice::ObjectPtr object = ICE_MAKE_SHARED(InitialI, adapter);
-    adapter->add(object, communicator->stringToIdentity("initial"));
+    adapter->add(object, Ice::stringToIdentity("initial"));
 
     InitialPrxPtr allTests(const Ice::CommunicatorPtr&);
     allTests(communicator);

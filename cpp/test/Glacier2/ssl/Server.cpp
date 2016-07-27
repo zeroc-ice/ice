@@ -171,10 +171,10 @@ SessionServer::run(int, char**)
 {
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapterWithEndpoints(
         "SessionServer", "tcp -h 127.0.0.1 -p 12350");
-    adapter->add(new PermissionsVerifierI, communicator()->stringToIdentity("verifier"));
-    adapter->add(new SSLPermissionsVerifierI, communicator()->stringToIdentity("sslverifier"));
-    adapter->add(new SessionManagerI, communicator()->stringToIdentity("sessionmanager"));
-    adapter->add(new SSLSessionManagerI, communicator()->stringToIdentity("sslsessionmanager"));
+    adapter->add(new PermissionsVerifierI, Ice::stringToIdentity("verifier"));
+    adapter->add(new SSLPermissionsVerifierI, Ice::stringToIdentity("sslverifier"));
+    adapter->add(new SessionManagerI, Ice::stringToIdentity("sessionmanager"));
+    adapter->add(new SSLSessionManagerI, Ice::stringToIdentity("sslsessionmanager"));
     adapter->activate();
     communicator()->waitForShutdown();
     return EXIT_SUCCESS;

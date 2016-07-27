@@ -68,10 +68,10 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
 
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(communicator, 0));
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    adapter->add(ICE_MAKE_SHARED(InitialI, adapter), communicator->stringToIdentity("initial"));
-    adapter->add(ICE_MAKE_SHARED(TestIntfI), communicator->stringToIdentity("test"));
+    adapter->add(ICE_MAKE_SHARED(InitialI, adapter), Ice::stringToIdentity("initial"));
+    adapter->add(ICE_MAKE_SHARED(TestIntfI), Ice::stringToIdentity("test"));
 
-    adapter->add(ICE_MAKE_SHARED(UnexpectedObjectExceptionTestI), communicator->stringToIdentity("uoet"));
+    adapter->add(ICE_MAKE_SHARED(UnexpectedObjectExceptionTestI), Ice::stringToIdentity("uoet"));
     adapter->activate();
     TEST_READY
     communicator->waitForShutdown();

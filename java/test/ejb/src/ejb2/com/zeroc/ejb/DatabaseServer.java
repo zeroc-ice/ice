@@ -23,7 +23,7 @@ public class DatabaseServer extends Ice.Application
         }
 
         Ice.ObjectAdapter adapter = communicator().createObjectAdapterWithEndpoints("DB", "tcp -h localhost -p 10002");
-        adapter.add(new DatabaseI(), communicator().stringToIdentity("db"));
+        adapter.add(new DatabaseI(), Ice.Util.stringToIdentity("db"));
         adapter.activate();
         communicator().waitForShutdown();
         return 0;

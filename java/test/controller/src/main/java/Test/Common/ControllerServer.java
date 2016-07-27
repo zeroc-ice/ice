@@ -274,7 +274,7 @@ public class ControllerServer extends Ice.Application
     run(String[] args)
     {
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("ControllerAdapter");
-        adapter.add(new ControllerI(args), communicator().stringToIdentity("controller"));
+        adapter.add(new ControllerI(args), Ice.Util.stringToIdentity("controller"));
         adapter.activate();
         communicator().waitForShutdown();
         return 0;

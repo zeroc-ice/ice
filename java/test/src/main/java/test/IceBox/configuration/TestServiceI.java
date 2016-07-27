@@ -18,7 +18,7 @@ public class TestServiceI implements IceBox.Service
         communicator.getProperties().setProperty("Ice.Package.Test", "test.IceBox.configuration");
         
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter(name + "OA");
-        adapter.add(new TestI(args), communicator.stringToIdentity("test"));
+        adapter.add(new TestI(args), Ice.Util.stringToIdentity("test"));
         adapter.activate();
     }
 

@@ -20,7 +20,7 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(communicator, 0) + " -t 10000");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    Ice::Identity id = communicator->stringToIdentity("factory");
+    Ice::Identity id = Ice::stringToIdentity("factory");
     adapter->add(ICE_MAKE_SHARED(RemoteCommunicatorFactoryI), id);
     adapter->activate();
     TEST_READY

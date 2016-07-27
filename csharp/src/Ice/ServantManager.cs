@@ -37,7 +37,7 @@ public sealed class ServantManager
                 if(m.ContainsKey(facet))
                 {
                     Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
-                    ex.id = instance_.identityToString(ident);
+                    ex.id = Ice.Util.identityToString(ident);
                     ex.kindOfObject = "servant";
                     if(facet.Length > 0)
                     {

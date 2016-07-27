@@ -272,7 +272,7 @@ public final class AMDTieMyDerivedClassI implements _MyDerivedClassOperations
     {
         MyClassPrx p2 = p1;
         MyClassPrx p3 = MyClassPrxHelper.uncheckedCast(
-                current.adapter.createProxy(current.adapter.getCommunicator().stringToIdentity("noSuchIdentity")));
+                current.adapter.createProxy(Ice.Util.stringToIdentity("noSuchIdentity")));
         cb.ice_response(MyClassPrxHelper.uncheckedCast(current.adapter.createProxy(current.id)), p2, p3);
     }
 

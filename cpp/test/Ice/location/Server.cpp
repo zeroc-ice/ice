@@ -37,16 +37,16 @@ run(int, char**, const Ice::CommunicatorPtr& communicator,
     // 'servers' created with the server manager interface.
     //
     ServerLocatorRegistryPtr registry = ICE_MAKE_SHARED(ServerLocatorRegistry);
-    registry->addObject(adapter->createProxy(communicator->stringToIdentity("ServerManager")));
+    registry->addObject(adapter->createProxy(Ice::stringToIdentity("ServerManager")));
     Ice::ObjectPtr object = ICE_MAKE_SHARED(ServerManagerI, registry, initData);
-    adapter->add(object, communicator->stringToIdentity("ServerManager"));
+    adapter->add(object, Ice::stringToIdentity("ServerManager"));
 
     Ice::LocatorRegistryPrxPtr registryPrx =
         ICE_UNCHECKED_CAST(Ice::LocatorRegistryPrx,
-                           adapter->add(registry, communicator->stringToIdentity("registry")));
+                           adapter->add(registry, Ice::stringToIdentity("registry")));
 
     Ice::LocatorPtr locator = ICE_MAKE_SHARED(ServerLocator, registry, registryPrx);
-    adapter->add(locator, communicator->stringToIdentity("locator"));
+    adapter->add(locator, Ice::stringToIdentity("locator"));
 
     adapter->activate();
     TEST_READY

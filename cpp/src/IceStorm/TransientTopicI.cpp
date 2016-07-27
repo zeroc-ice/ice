@@ -178,7 +178,7 @@ TransientTopicImpl::subscribe(const QoS& origQoS, const Ice::ObjectPrx& obj, con
     if(traceLevels->topic > 0)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
-        out << _name << ": subscribe: " << _instance->communicator()->identityToString(id);
+        out << _name << ": subscribe: " << identityToString(id);
 
         if(traceLevels->topic > 1)
         {
@@ -280,7 +280,7 @@ TransientTopicImpl::subscribeAndGetPublisher(const QoS& qos, const Ice::ObjectPr
     if(traceLevels->topic > 0)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
-        out << _name << ": subscribeAndGetPublisher: " << _instance->communicator()->identityToString(id);
+        out << _name << ": subscribeAndGetPublisher: " << identityToString(id);
 
         if(traceLevels->topic > 1)
         {
@@ -338,7 +338,7 @@ TransientTopicImpl::unsubscribe(const Ice::ObjectPrx& subscriber, const Ice::Cur
     if(traceLevels->topic > 0)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
-        out << _name << ": unsubscribe: " << _instance->communicator()->identityToString(id);
+        out << _name << ": unsubscribe: " << identityToString(id);
         if(traceLevels->topic > 1)
         {
             out << " endpoints: " << IceStormInternal::describeEndpoints(subscriber);
@@ -374,7 +374,7 @@ TransientTopicImpl::link(const TopicPrx& topic, Ice::Int cost, const Ice::Curren
     if(traceLevels->topic > 0)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
-        out << _name << ": link " << _instance->communicator()->identityToString(topic->ice_getIdentity())
+        out << _name << ": link " << identityToString(topic->ice_getIdentity())
             << " cost " << cost;
     }
 
@@ -434,7 +434,7 @@ TransientTopicImpl::unlink(const TopicPrx& topic, const Ice::Current&)
     if(traceLevels->topic > 0)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
-        out << _name << " unlink " << _instance->communicator()->identityToString(id);
+        out << _name << " unlink " << identityToString(id);
     }
 
     // Remove the subscriber from the subscribers list. Note

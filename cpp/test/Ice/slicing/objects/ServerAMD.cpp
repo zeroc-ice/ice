@@ -23,7 +23,7 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(communicator, 0) + " -t 2000");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     Ice::ObjectPtr object = ICE_MAKE_SHARED(TestI);
-    adapter->add(object, communicator->stringToIdentity("Test"));
+    adapter->add(object, Ice::stringToIdentity("Test"));
     adapter->activate();
     TEST_READY
     communicator->waitForShutdown();

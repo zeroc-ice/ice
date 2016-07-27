@@ -134,7 +134,7 @@ AllocatableObjectCache::add(const ObjectInfo& info, const AllocatablePtr& parent
     if(getImpl(id))
     {
         Ice::Error out(_communicator->getLogger());
-        out << "can't add duplicate allocatable object `" << _communicator->identityToString(id) << "'";
+        out << "can't add duplicate allocatable object `" << identityToString(id) << "'";
         return;
     }
 
@@ -151,7 +151,7 @@ AllocatableObjectCache::add(const ObjectInfo& info, const AllocatablePtr& parent
     if(_traceLevels && _traceLevels->object > 0)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
-        out << "added allocatable object `" << _communicator->identityToString(id) << "'";
+        out << "added allocatable object `" << identityToString(id) << "'";
     }
 }
 
@@ -177,7 +177,7 @@ AllocatableObjectCache::remove(const Ice::Identity& id)
         if(!entry)
         {
             Ice::Error out(_communicator->getLogger());
-            out << "can't remove unknown object `" << _communicator->identityToString(id) << "'";
+            out << "can't remove unknown object `" << identityToString(id) << "'";
         }
         removeImpl(id);
 
@@ -191,7 +191,7 @@ AllocatableObjectCache::remove(const Ice::Identity& id)
         if(_traceLevels && _traceLevels->object > 0)
         {
             Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
-            out << "removed allocatable object `" << _communicator->identityToString(id) << "'";
+            out << "removed allocatable object `" << identityToString(id) << "'";
         }
     }
 

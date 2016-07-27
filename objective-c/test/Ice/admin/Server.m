@@ -17,7 +17,7 @@ run(id<ICECommunicator> communicator)
     [[communicator getProperties] setProperty:@"TestAdapter.Endpoints" value:@"default -p 12010 -t 10000"];
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAdapter"];
     [adapter add:[TestAdminRemoteCommunicatorFactoryI remoteCommunicatorFactory]
-        identity:[communicator stringToIdentity:@"factory"]];
+        identity:[ICEUtil stringToIdentity:@"factory"]];
     [adapter activate];
 
     // Disable ready print for further adapters.

@@ -177,7 +177,7 @@ namespace IceInternal
             {
                 Ice.Identity identity = new Ice.Identity();
                 identity.read__(str);
-                s.Write("\nidentity = " + str.instance().identityToString(identity));
+                s.Write("\nidentity = " + Ice.Util.identityToString(identity));
 
                 string[] facet = str.readStringSeq();
                 s.Write("\nfacet = ");

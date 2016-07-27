@@ -306,7 +306,7 @@ public:
         }
         catch(const Ice::ObjectNotExistException& ex)
         {
-            Ice::Identity id = _communicator->stringToIdentity("does not exist");
+            Ice::Identity id = Ice::stringToIdentity("does not exist");
             test(ex.id == id);
         }
         catch(...)
@@ -563,10 +563,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
         communicator->getProperties()->setProperty("TestAdapter1.Endpoints", localOAEndpoint);
         Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter1");
         Ice::ObjectPtr obj = ICE_MAKE_SHARED(EmptyI);
-        adapter->add(obj, communicator->stringToIdentity("x"));
+        adapter->add(obj, Ice::stringToIdentity("x"));
         try
         {
-            adapter->add(obj, communicator->stringToIdentity("x"));
+            adapter->add(obj, Ice::stringToIdentity("x"));
             test(false);
         }
         catch(const Ice::AlreadyRegisteredException& ex)
@@ -580,7 +580,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         try
         {
-            adapter->add(obj, communicator->stringToIdentity(""));
+            adapter->add(obj, Ice::stringToIdentity(""));
         }
         catch(const Ice::IllegalIdentityException& ex)
         {
@@ -594,7 +594,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         try
         {
-            adapter->add(0, communicator->stringToIdentity("x"));
+            adapter->add(0, Ice::stringToIdentity("x"));
         }
         catch(const Ice::IllegalServantException& ex)
         {
@@ -605,10 +605,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
             }
         }
 
-        adapter->remove(communicator->stringToIdentity("x"));
+        adapter->remove(Ice::stringToIdentity("x"));
         try
         {
-            adapter->remove(communicator->stringToIdentity("x"));
+            adapter->remove(Ice::stringToIdentity("x"));
             test(false);
         }
         catch(const Ice::NotRegisteredException& ex)
@@ -1010,7 +1010,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "catching object not exist exception... " << flush;
 
-    Ice::Identity id = communicator->stringToIdentity("does not exist");
+    Ice::Identity id = Ice::stringToIdentity("does not exist");
     try
     {
         ThrowerPrxPtr thrower2 = ICE_UNCHECKED_CAST(ThrowerPrx, thrower->ice_identity(id));
@@ -1568,7 +1568,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
 #ifdef ICE_CPP11_MAPPING
-        id = communicator->stringToIdentity("does not exist");
+        id = Ice::stringToIdentity("does not exist");
         shared_ptr<ThrowerPrx> thrower2 = Ice::uncheckedCast<ThrowerPrx>(thrower->ice_identity(id));
         auto f = thrower2->throwAasAAsync(1);
         try
@@ -1584,7 +1584,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(false);
         }
 #else
-        id = communicator->stringToIdentity("does not exist");
+        id = Ice::stringToIdentity("does not exist");
         ThrowerPrx thrower2 = ThrowerPrx::uncheckedCast(thrower->ice_identity(id));
         CallbackPtr cb = new Callback(communicator);
         Callback_Thrower_throwAasAPtr callback =

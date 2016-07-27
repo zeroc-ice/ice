@@ -27,10 +27,10 @@ run(id<ICECommunicator> communicator)
 
     ICEObject* object = [TestDispatcherTestIntfI testIntf];
 
-    [adapter add:object identity:[communicator stringToIdentity:@"test"]];
+    [adapter add:object identity:[ICEUtil stringToIdentity:@"test"]];
     //[adapter activate]; // Don't activate OA to ensure collocation is used.
 
-    [adapter2 add:testController identity:[communicator stringToIdentity:@"testController"]];
+    [adapter2 add:testController identity:[ICEUtil stringToIdentity:@"testController"]];
     //[adapter2 activate]; // Don't activate OA to ensure collocation is used.
 
     TestDispatcherTestIntfPrx* dispatcherAllTests(id<ICECommunicator>);

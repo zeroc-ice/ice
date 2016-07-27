@@ -356,13 +356,15 @@ function twoways($communicator, $p)
     }
 
     {
+        $stringToIdentity = $NS ? "Ice\\stringToIdentity" : "Ice_stringToIdentity";
+
         $r = $p->opMyClass($p, $c1, $c2);
         test(Ice_proxyIdentityAndFacetEqual($c1, $p));
         test(!Ice_proxyIdentityAndFacetEqual($c2, $p));
         test(Ice_proxyIdentityAndFacetEqual($r, $p));
-        test($c1->ice_getIdentity() == $communicator->stringToIdentity("test"));
-        test($c2->ice_getIdentity() == $communicator->stringToIdentity("noSuchIdentity"));
-        test($r->ice_getIdentity() == $communicator->stringToIdentity("test"));
+        test($c1->ice_getIdentity() == $stringToIdentity("test"));
+        test($c2->ice_getIdentity() == $stringToIdentity("noSuchIdentity"));
+        test($r->ice_getIdentity() == $stringToIdentity("test"));
         $r->opVoid();
         $c1->opVoid();
         try

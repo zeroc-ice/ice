@@ -116,7 +116,7 @@ def allTests(communicator):
     init.properties.setProperty("Ice.Admin.Enabled", "1")
     com = Ice.initialize(init)
     test(com.getAdmin() == None)
-    identity = com.stringToIdentity("test-admin")
+    identity = Ice.stringToIdentity("test-admin")
     try:
         com.createAdmin(None, identity)
         test(False)

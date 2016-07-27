@@ -19,10 +19,10 @@ run(id<ICECommunicator> communicator)
     ICEObject* d = [TestFacetsDI d];
     ICEObject* f = [TestFacetsFI f];
     ICEObject* h = [TestFacetsHI h];
-    [adapter add:d identity:[communicator stringToIdentity:@"d"]];
-    [adapter addFacet:d identity:[communicator stringToIdentity:@"d"] facet:@"facetABCD"];
-    [adapter addFacet:f identity:[communicator stringToIdentity:@"d"] facet:@"facetEF"];
-    [adapter addFacet:h identity:[communicator stringToIdentity:@"d"] facet:@"facetGH"];
+    [adapter add:d identity:[ICEUtil stringToIdentity:@"d"]];
+    [adapter addFacet:d identity:[ICEUtil stringToIdentity:@"d"] facet:@"facetABCD"];
+    [adapter addFacet:f identity:[ICEUtil stringToIdentity:@"d"] facet:@"facetEF"];
+    [adapter addFacet:h identity:[ICEUtil stringToIdentity:@"d"] facet:@"facetGH"];
 
     id<TestFacetsGPrx> facetsAllTests(id<ICECommunicator>);
     facetsAllTests(communicator);

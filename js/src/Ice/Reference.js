@@ -178,7 +178,7 @@ var ReferenceFactory = Class({
         //
         // Parsing the identity may raise IdentityParseException.
         //
-        var ident = this._instance.stringToIdentity(idstr);
+        var ident = Ice.stringToIdentity(idstr);
 
         if(ident.name.length === 0)
         {
@@ -1239,7 +1239,7 @@ var Reference = Class({
         // the reference parser uses as separators, then we enclose
         // the identity string in quotes.
         //
-        var id = this._instance.identityToString(this._identity);
+        var id = Ice.identityToString(this._identity);
         if(id.search(/[ :@]/) != -1)
         {
             s.push('"');

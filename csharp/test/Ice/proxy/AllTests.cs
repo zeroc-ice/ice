@@ -254,11 +254,11 @@ public class AllTests : TestCommon.TestApp
         // Test for bug ICE-5543: escaped escapes in stringToIdentity
         //
         Ice.Identity id = new Ice.Identity("test", ",X2QNUAzSBcJ_e$AV;E\\");
-        Ice.Identity id2 = communicator.stringToIdentity(communicator.identityToString(id));
+        Ice.Identity id2 = Ice.Util.stringToIdentity(Ice.Util.identityToString(id));
         test(id.Equals(id2));
 
         id = new Ice.Identity("test", ",X2QNUAz\\SB\\/cJ_e$AV;E\\\\");
-        id2 = communicator.stringToIdentity(communicator.identityToString(id));
+        id2 = Ice.Util.stringToIdentity(Ice.Util.identityToString(id));
         test(id.Equals(id2));
 
         WriteLine("ok");
@@ -450,8 +450,14 @@ public class AllTests : TestCommon.TestApp
         WriteLine("ok");
 
         Write("testing proxy methods... ");
+
+// Disable Obsolete warning/error
+#pragma warning disable 612, 618
         test(communicator.identityToString(
                  baseProxy.ice_identity(communicator.stringToIdentity("other")).ice_getIdentity()).Equals("other"));
+#pragma warning restore 612, 618
+        test(Ice.Util.identityToString(
+                 baseProxy.ice_identity(Ice.Util.stringToIdentity("other")).ice_getIdentity()).Equals("other"));
         test(baseProxy.ice_facet("facet").ice_getFacet().Equals("facet"));
         test(baseProxy.ice_adapterId("id").ice_getAdapterId().Equals("id"));
         test(baseProxy.ice_twoway().ice_isTwoway());

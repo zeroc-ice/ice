@@ -97,8 +97,7 @@
 {
     *p2 = p1;
     *p3 = [TestOperationsMyClassPrx uncheckedCast:[current.adapter
-                                           createProxy:[[current.adapter getCommunicator]
-                                                           stringToIdentity:@"noSuchIdentity"]]];
+                                           createProxy:[ICEUtil stringToIdentity:@"noSuchIdentity"]]];
     return [TestOperationsMyClassPrx uncheckedCast:[current.adapter createProxy:[current id_]]];
 }
 

@@ -55,7 +55,7 @@ TransientTopicManagerImpl::create(const string& name, const Ice::Current&)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicMgrCat);
         out << "creating new topic \"" << name << "\". id: "
-            << _instance->communicator()->identityToString(id);
+            << identityToString(id);
     }
 
     //

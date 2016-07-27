@@ -2100,7 +2100,7 @@ Parser::removeObject(const list<string>& args)
 
     try
     {
-        _admin->removeObject(_communicator->stringToIdentity((*(args.begin()))));
+        _admin->removeObject(stringToIdentity((*(args.begin()))));
     }
     catch(const Ice::Exception& ex)
     {
@@ -2148,7 +2148,7 @@ Parser::describeObject(const list<string>& args)
             string arg = *(args.begin());
             if(arg.find('*') == string::npos)
             {
-                ObjectInfo info = _admin->getObjectInfo(_communicator->stringToIdentity(arg));
+                ObjectInfo info = _admin->getObjectInfo(stringToIdentity(arg));
                 cout << "proxy = `" << _communicator->proxyToString(info.proxy) << "'" << endl;
                 cout << "type = `" << info.type << "'" << endl;
                 return;
@@ -2198,7 +2198,7 @@ Parser::listObject(const list<string>& args)
 
         for(ObjectInfoSeq::const_iterator p = objects.begin(); p != objects.end(); ++p)
         {
-            cout << _communicator->identityToString(p->proxy->ice_getIdentity()) << endl;
+            cout << identityToString(p->proxy->ice_getIdentity()) << endl;
         }
     }
     catch(const Ice::Exception& ex)
@@ -2957,11 +2957,11 @@ Parser::exception(const Ice::Exception& ex)
     }
     catch(const ObjectNotRegisteredException& ex)
     {
-        error("couldn't find object `" + _communicator->identityToString(ex.id) + "'");
+        error("couldn't find object `" + identityToString(ex.id) + "'");
     }
     catch(const ObjectExistsException& ex)
     {
-        error("object `" + _communicator->identityToString(ex.id) + "' already exists");
+        error("object `" + identityToString(ex.id) + "' already exists");
     }
     catch(const DeploymentException& ex)
     {

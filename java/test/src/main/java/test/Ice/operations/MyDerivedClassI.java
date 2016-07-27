@@ -262,7 +262,7 @@ public final class MyDerivedClassI extends MyDerivedClass
     {
         p2.value = p1;
         p3.value = MyClassPrxHelper.uncheckedCast(
-                current.adapter.createProxy(current.adapter.getCommunicator().stringToIdentity("noSuchIdentity")));
+                current.adapter.createProxy(Ice.Util.stringToIdentity("noSuchIdentity")));
         return MyClassPrxHelper.uncheckedCast(current.adapter.createProxy(current.id));
     }
 

@@ -351,9 +351,9 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& p)
         test(Ice::proxyIdentityAndFacetEqual(c1, p));
         test(!Ice::proxyIdentityAndFacetEqual(c2, p));
         test(Ice::proxyIdentityAndFacetEqual(r, p));
-        test(c1->ice_getIdentity() == communicator->stringToIdentity("test"));
-        test(c2->ice_getIdentity() == communicator->stringToIdentity("noSuchIdentity"));
-        test(r->ice_getIdentity() == communicator->stringToIdentity("test"));
+        test(c1->ice_getIdentity() == Ice::stringToIdentity("test"));
+        test(c2->ice_getIdentity() == Ice::stringToIdentity("noSuchIdentity"));
+        test(r->ice_getIdentity() == Ice::stringToIdentity("test"));
         r->opVoid();
         c1->opVoid();
         try

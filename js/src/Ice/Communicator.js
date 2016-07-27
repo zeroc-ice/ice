@@ -70,11 +70,11 @@ var Communicator = Ice.Class({
     },
     stringToIdentity: function(s)
     {
-        return this._instance.stringToIdentity(s);
+        return Ice.stringToIdentity(s);
     },
     identityToString: function(ident)
     {
-        return this._instance.identityToString(ident);
+        return Ice.identityToString(ident);
     },
     createObjectAdapter: function(name)
     {

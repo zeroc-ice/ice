@@ -79,13 +79,13 @@ def testtypes():
 def run(args, communicator):
     communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010:udp")
     adapter = communicator.createObjectAdapter("TestAdapter")
-    adapter.add(execI(), communicator.stringToIdentity("test"))
+    adapter.add(execI(), Ice.stringToIdentity("test"))
     adapter.activate()
 
     sys.stdout.write("Testing operation name... ")
     sys.stdout.flush()
     p = _and.execPrx.uncheckedCast(
-        adapter.createProxy(communicator.stringToIdentity("test")));
+        adapter.createProxy(Ice.stringToIdentity("test")));
     p._finally();
     print("ok")
 

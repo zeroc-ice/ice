@@ -16,7 +16,7 @@ public class Server extends test.Util.Application
     {
         communicator().getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-        adapter.add(new InitialI(), communicator().stringToIdentity("initial"));
+        adapter.add(new InitialI(), Ice.Util.stringToIdentity("initial"));
         adapter.activate();
         return WAIT;
     }

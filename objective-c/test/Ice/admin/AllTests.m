@@ -254,7 +254,7 @@ adminAllTests(id<ICECommunicator> communicator)
         id<ICECommunicator> com = [ICEUtil createCommunicator:init];
         test([com getAdmin] == nil);
 
-        ICEIdentity* ident = [com stringToIdentity:@"test-admin"];
+        ICEIdentity* ident = [ICEUtil stringToIdentity:@"test-admin"];
         @try
         {
             [com createAdmin:nil adminId:ident];

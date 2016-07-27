@@ -17,8 +17,8 @@ public class Server extends test.Util.Application
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
         adapter.addServantLocator(new ServantLocatorI("category"), "category");
         adapter.addServantLocator(new ServantLocatorI(""), "");
-        adapter.add(new TestI(), communicator().stringToIdentity("asm"));
-        adapter.add(new TestActivationI(), communicator().stringToIdentity("test/activation"));
+        adapter.add(new TestI(), Ice.Util.stringToIdentity("asm"));
+        adapter.add(new TestActivationI(), Ice.Util.stringToIdentity("test/activation"));
         adapter.activate();
         return WAIT;
     }

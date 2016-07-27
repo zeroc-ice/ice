@@ -268,9 +268,9 @@ twoways(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         test([c1 compareIdentityAndFacet:p] == NSOrderedSame);
         test([c2 compareIdentityAndFacet:p] != NSOrderedSame);
         test([r compareIdentityAndFacet:p] == NSOrderedSame);
-        test([[c1 ice_getIdentity] isEqual:[communicator stringToIdentity:@"test"]]);
-        test([[c2 ice_getIdentity]isEqual:[communicator stringToIdentity:@"noSuchIdentity"]]);
-        test([[r ice_getIdentity] isEqual:[communicator stringToIdentity:@"test"]]);
+        test([[c1 ice_getIdentity] isEqual:[ICEUtil stringToIdentity:@"test"]]);
+        test([[c2 ice_getIdentity]isEqual:[ICEUtil stringToIdentity:@"noSuchIdentity"]]);
+        test([[r ice_getIdentity] isEqual:[ICEUtil stringToIdentity:@"test"]]);
         [r opVoid];
         [c1 opVoid];
         @try

@@ -364,7 +364,7 @@ Parser::subscribers(const list<string>& args)
             IdentitySeq subscribers = topic->getSubscribers();
             for(IdentitySeq::const_iterator j = subscribers.begin(); j != subscribers.end(); ++j)
             {
-                cout << "\t" << _communicator->identityToString(*j) << endl;
+                cout << "\t" << identityToString(*j) << endl;
             }
         }
     }
@@ -379,7 +379,7 @@ Parser::current(const list<string>& args)
 {
     if(args.empty())
     {
-        cout << _communicator->identityToString(_defaultManager->ice_getIdentity()) << endl;
+        cout << identityToString(_defaultManager->ice_getIdentity()) << endl;
         return;
     }
     else if(args.size() > 1)
@@ -618,7 +618,7 @@ Parser::parse(const std::string& commands, bool debug)
 TopicManagerPrx
 Parser::findManagerById(const string& full, string& arg) const
 {
-    Ice::Identity id = _communicator->stringToIdentity(full);
+    Ice::Identity id = stringToIdentity(full);
     arg = id.name;
     if(id.category.empty())
     {

@@ -449,7 +449,7 @@ Client::run(StringSeq& originalArgs)
         ObjectAdapterPtr adapter =
             communicator()->createObjectAdapterWithEndpoints("FileParser", "tcp -h localhost");
         adapter->activate();
-        ObjectPrx proxy = adapter->add(new FileParserI, communicator()->stringToIdentity("FileParser"));
+        ObjectPrx proxy = adapter->add(new FileParserI, stringToIdentity("FileParser"));
         cout << proxy << endl;
 
         communicator()->waitForShutdown();

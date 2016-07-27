@@ -27,10 +27,10 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
 
     TestIntfControllerIPtr testController = ICE_MAKE_SHARED(TestIntfControllerI, adapter);
 
-    adapter->add(ICE_MAKE_SHARED(TestIntfI), communicator->stringToIdentity("test"));
+    adapter->add(ICE_MAKE_SHARED(TestIntfI), Ice::stringToIdentity("test"));
     //adapter->activate(); // Collocated test doesn't need to activate the OA
 
-    adapter2->add(testController, communicator->stringToIdentity("testController"));
+    adapter2->add(testController, Ice::stringToIdentity("testController"));
     //adapter2->activate(); // Collocated test doesn't need to activate the OA
 
     void allTests(const Ice::CommunicatorPtr&, bool);

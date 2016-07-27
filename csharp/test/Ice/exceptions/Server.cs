@@ -53,9 +53,9 @@ public class Server
         Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("TestAdapter2");
         Ice.ObjectAdapter adapter3 = communicator.createObjectAdapter("TestAdapter3");
         Ice.Object obj = new ThrowerI();
-        adapter.add(obj, communicator.stringToIdentity("thrower"));
-        adapter2.add(obj, communicator.stringToIdentity("thrower"));
-        adapter3.add(obj, communicator.stringToIdentity("thrower"));
+        adapter.add(obj, Ice.Util.stringToIdentity("thrower"));
+        adapter2.add(obj, Ice.Util.stringToIdentity("thrower"));
+        adapter3.add(obj, Ice.Util.stringToIdentity("thrower"));
         adapter.activate();
         adapter2.activate();
         adapter3.activate();

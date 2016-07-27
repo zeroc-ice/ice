@@ -194,7 +194,7 @@ var LocatorInfo = Class({
         else
         {
             s.push("object = ");
-            s.push(ref.getInstance().identityToString(ref.getIdentity()));
+            s.push(Ice.identityToString(ref.getIdentity()));
             s.push("\n");
         }
 
@@ -245,13 +245,13 @@ var LocatorInfo = Class({
                     s = [];
                     s.push("object not found\n");
                     s.push("object = ");
-                    s.push(instance.identityToString(ref.getIdentity()));
+                    s.push(Ice.identityToString(ref.getIdentity()));
                     instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.join(""));
                 }
 
                 e = new Ice.NotRegisteredException();
                 e.kindOfObject = "object";
-                e.id = instance.identityToString(ref.getIdentity());
+                e.id = Ice.identityToString(ref.getIdentity());
                 throw e;
             }
             else if(ex instanceof Ice.NotRegisteredException)
@@ -273,7 +273,7 @@ var LocatorInfo = Class({
                     else
                     {
                         s.push("object = ");
-                        s.push(instance.identityToString(ref.getIdentity()));
+                        s.push(Ice.identityToString(ref.getIdentity()));
                         s.push("\n");
                     }
                     s.push("reason = " + ex.toString());
@@ -316,7 +316,7 @@ var LocatorInfo = Class({
             {
                 s.push("object\n");
                 s.push("object = ");
-                s.push(instance.identityToString(ref.getIdentity()));
+                s.push(Ice.identityToString(ref.getIdentity()));
                 s.push("\n");
             }
             instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.join(""));
@@ -351,7 +351,7 @@ var LocatorInfo = Class({
             var s = [];
             s.push("searching for object by id\n");
             s.push("object = ");
-            s.push(instance.identityToString(ref.getIdentity()));
+            s.push(Ice.identityToString(ref.getIdentity()));
             instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.join(""));
         }
 

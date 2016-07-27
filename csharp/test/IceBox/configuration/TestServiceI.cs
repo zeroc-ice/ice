@@ -15,7 +15,7 @@ class TestServiceI : IceBox.Service
     start(string name, Ice.Communicator communicator, string[] args)
     {
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter(name + "OA");
-        adapter.add(new TestI(args), communicator.stringToIdentity("test"));
+        adapter.add(new TestI(args), Ice.Util.stringToIdentity("test"));
         adapter.activate();
     }
 

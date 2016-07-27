@@ -258,9 +258,9 @@ class Twoways
             test(Util.proxyIdentityAndFacetCompare(c1.value, p) == 0);
             test(Util.proxyIdentityAndFacetCompare(c2.value, p) != 0);
             test(Util.proxyIdentityAndFacetCompare(r, p) == 0);
-            test(c1.value.ice_getIdentity().equals(communicator.stringToIdentity("test")));
-            test(c2.value.ice_getIdentity().equals(communicator.stringToIdentity("noSuchIdentity")));
-            test(r.ice_getIdentity().equals(communicator.stringToIdentity("test")));
+            test(c1.value.ice_getIdentity().equals(Ice.Util.stringToIdentity("test")));
+            test(c2.value.ice_getIdentity().equals(Ice.Util.stringToIdentity("noSuchIdentity")));
+            test(r.ice_getIdentity().equals(Ice.Util.stringToIdentity("test")));
             r.opVoid();
             c1.value.opVoid();
             try

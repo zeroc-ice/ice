@@ -21,7 +21,7 @@ public class Collocated
     private static void setupObjectAdapter(Ice.Communicator communicator)
     {
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("");
-        adapter.add(new RetryI(), communicator.stringToIdentity("retry"));
+        adapter.add(new RetryI(), Ice.Util.stringToIdentity("retry"));
     }
 
     public static int run(string[] args, Ice.Communicator communicator, Ice.Communicator communicator2)

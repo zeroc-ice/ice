@@ -50,21 +50,21 @@
             function(adapter)
             {
                 var obj = new EmptyI();
-                adapter.add(obj, communicator.stringToIdentity("d"));
-                adapter.addFacet(obj, communicator.stringToIdentity("d"), "facetABCD");
+                adapter.add(obj, Ice.stringToIdentity("d"));
+                adapter.addFacet(obj, Ice.stringToIdentity("d"), "facetABCD");
                 try
                 {
-                    adapter.addFacet(obj, communicator.stringToIdentity("d"), "facetABCD");
+                    adapter.addFacet(obj, Ice.stringToIdentity("d"), "facetABCD");
                     test(false);
                 }
                 catch(ex)
                 {
                     test(ex instanceof Ice.AlreadyRegisteredException);
                 }
-                adapter.removeFacet(communicator.stringToIdentity("d"), "facetABCD");
+                adapter.removeFacet(Ice.stringToIdentity("d"), "facetABCD");
                 try
                 {
-                    adapter.removeFacet(communicator.stringToIdentity("d"), "facetABCD");
+                    adapter.removeFacet(Ice.stringToIdentity("d"), "facetABCD");
                     test(false);
                 }
                 catch(ex)
@@ -76,26 +76,26 @@
                 out.write("testing removeAllFacets... ");
                 var obj1 = new EmptyI();
                 var obj2 = new EmptyI();
-                adapter.addFacet(obj1, communicator.stringToIdentity("id1"), "f1");
-                adapter.addFacet(obj2, communicator.stringToIdentity("id1"), "f2");
+                adapter.addFacet(obj1, Ice.stringToIdentity("id1"), "f1");
+                adapter.addFacet(obj2, Ice.stringToIdentity("id1"), "f2");
                 var obj3 = new EmptyI();
-                adapter.addFacet(obj1, communicator.stringToIdentity("id2"), "f1");
-                adapter.addFacet(obj2, communicator.stringToIdentity("id2"), "f2");
-                adapter.addFacet(obj3, communicator.stringToIdentity("id2"), "");
-                var fm = adapter.removeAllFacets(communicator.stringToIdentity("id1"));
+                adapter.addFacet(obj1, Ice.stringToIdentity("id2"), "f1");
+                adapter.addFacet(obj2, Ice.stringToIdentity("id2"), "f2");
+                adapter.addFacet(obj3, Ice.stringToIdentity("id2"), "");
+                var fm = adapter.removeAllFacets(Ice.stringToIdentity("id1"));
                 test(fm.size === 2);
                 test(fm.get("f1") === obj1);
                 test(fm.get("f2") === obj2);
                 try
                 {
-                    adapter.removeAllFacets(communicator.stringToIdentity("id1"));
+                    adapter.removeAllFacets(Ice.stringToIdentity("id1"));
                     test(false);
                 }
                 catch(ex)
                 {
                     test(ex instanceof Ice.NotRegisteredException);
                 }
-                fm = adapter.removeAllFacets(communicator.stringToIdentity("id2"));
+                fm = adapter.removeAllFacets(Ice.stringToIdentity("id2"));
                 test(fm.size == 3);
                 test(fm.get("f1") === obj1);
                 test(fm.get("f2") === obj2);
@@ -113,12 +113,12 @@
             function(adapter)
             {
                 var di = new DI();
-                adapter.add(di, communicator.stringToIdentity("d"));
-                adapter.addFacet(di, communicator.stringToIdentity("d"), "facetABCD");
+                adapter.add(di, Ice.stringToIdentity("d"));
+                adapter.addFacet(di, Ice.stringToIdentity("d"), "facetABCD");
                 var fi = new FI();
-                adapter.addFacet(fi, communicator.stringToIdentity("d"), "facetEF");
+                adapter.addFacet(fi, Ice.stringToIdentity("d"), "facetEF");
                 var hi = new HI();
-                adapter.addFacet(hi, communicator.stringToIdentity("d"), "facetGH");
+                adapter.addFacet(hi, Ice.stringToIdentity("d"), "facetGH");
 
                 var prx = Ice.ObjectPrx.uncheckedCast(communicator.stringToProxy("d:default -p 12010"));
                 return prx.ice_getConnection().then(

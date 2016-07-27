@@ -650,11 +650,11 @@ Ice::Identity
 Resolver::operator()(const Ice::Identity& value, const string& name) const
 {
     assert(_communicator);
-    string str = asId(_communicator->identityToString(value), name, false);
-    Ice::Identity id = _communicator->stringToIdentity(str);
+    string str = asId(identityToString(value), name, false);
+    Ice::Identity id = Ice::stringToIdentity(str);
     if(id.name.empty())
     {
-        exception("invalid object identity `" + _communicator->identityToString(value) + "': name empty");
+        exception("invalid object identity `" + identityToString(value) + "': name empty");
     }
     return id;
 }
@@ -1387,7 +1387,7 @@ CommunicatorHelper::printObjectAdapter(const Ice::CommunicatorPtr& communicator,
     {
         out << nl << "well-known object";
         out << sb;
-        out << nl << "identity = `" << communicator->identityToString(p->id) << "' ";
+        out << nl << "identity = `" << identityToString(p->id) << "' ";
         if(!p->type.empty())
         {
             out << nl << "type = `" << p->type << "'";
@@ -1402,7 +1402,7 @@ CommunicatorHelper::printObjectAdapter(const Ice::CommunicatorPtr& communicator,
     {
         out << nl << "allocatable";
         out << sb;
-        out << nl << "identity = `" << communicator->identityToString(p->id) << "' ";
+        out << nl << "identity = `" << identityToString(p->id) << "' ";
         if(!p->type.empty())
         {
             out << nl << "type = `" << p->type << "'";
@@ -2825,7 +2825,7 @@ ApplicationHelper::ApplicationHelper(const Ice::CommunicatorPtr& communicator,
         {
             if(objectIds.count(*o) > 1)
             {
-                resolve.exception("duplicate object `" + _communicator->identityToString(*o) + "'");
+                resolve.exception("duplicate object `" + identityToString(*o) + "'");
             }
         }
     }

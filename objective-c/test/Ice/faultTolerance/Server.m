@@ -54,7 +54,7 @@ run(int argc, char** argv, id<ICECommunicator> communicator)
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAdapter"];
 
     ICEObject* object = [TestI testIntf];
-    [adapter add:object identity:[communicator stringToIdentity:@"test"]];
+    [adapter add:object identity:[ICEUtil stringToIdentity:@"test"]];
     [adapter activate];
     [communicator waitForShutdown];
     return EXIT_SUCCESS;

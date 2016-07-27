@@ -104,7 +104,7 @@ RemoteCommunicatorI::shutdown(const Ice::Current& current)
 RemoteObjectAdapterI::RemoteObjectAdapterI(const Ice::ObjectAdapterPtr& adapter) :
     _adapter(adapter),
     _testIntf(ICE_UNCHECKED_CAST(TestIntfPrx, _adapter->add(ICE_MAKE_SHARED(TestI),
-                                         adapter->getCommunicator()->stringToIdentity("test"))))
+                                         stringToIdentity("test"))))
 {
     _adapter->activate();
 }

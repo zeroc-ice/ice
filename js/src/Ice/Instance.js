@@ -237,15 +237,6 @@ var Instance = Ice.Class({
     {
         return this._implicitContext;
     },
-    stringToIdentity: function(s)
-    {
-        return Ice.stringToIdentity(s);
-    },
-    identityToString: function(ident)
-    {
-        return Ice.identityToString(ident);
-    },
-
     setDefaultLocator: function(locator)
     {
         if(this._state == StateDestroyed)

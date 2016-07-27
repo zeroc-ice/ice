@@ -16,7 +16,7 @@ run(id<ICECommunicator> communicator)
 {
     [[communicator getProperties] setProperty:@"TestAdapter.Endpoints" value:@"default -p 12010"];
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAdapter"];
-    [adapter add:[TestAdapterDeactivationI testIntf] identity:[communicator stringToIdentity:@"test"]];
+    [adapter add:[TestAdapterDeactivationI testIntf] identity:[ICEUtil stringToIdentity:@"test"]];
 
     id<TestAdapterDeactivationTestIntfPrx> adapterDeactivationAllTests(id<ICECommunicator>);
     adapterDeactivationAllTests(communicator);

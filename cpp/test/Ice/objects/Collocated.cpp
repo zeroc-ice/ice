@@ -134,9 +134,9 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
 
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(communicator, 0));
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    adapter->add(ICE_MAKE_SHARED(InitialI, adapter), communicator->stringToIdentity("initial"));
-    adapter->add(ICE_MAKE_SHARED(TestIntfI), communicator->stringToIdentity("test"));
-    adapter->add(ICE_MAKE_SHARED(UnexpectedObjectExceptionTestI), communicator->stringToIdentity("uoet"));
+    adapter->add(ICE_MAKE_SHARED(InitialI, adapter), Ice::stringToIdentity("initial"));
+    adapter->add(ICE_MAKE_SHARED(TestIntfI), Ice::stringToIdentity("test"));
+    adapter->add(ICE_MAKE_SHARED(UnexpectedObjectExceptionTestI), Ice::stringToIdentity("uoet"));
     InitialPrxPtr allTests(const Ice::CommunicatorPtr&);
     InitialPrxPtr initial = allTests(communicator);
     // We must call shutdown even in the collocated case for cyclic dependency cleanup

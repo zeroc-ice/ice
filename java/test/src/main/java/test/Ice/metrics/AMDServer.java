@@ -16,12 +16,12 @@ public class AMDServer extends test.Util.Application
     {
         Ice.Communicator communicator = communicator();
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        adapter.add(new AMDMetricsI(), communicator.stringToIdentity("metrics"));
+        adapter.add(new AMDMetricsI(), Ice.Util.stringToIdentity("metrics"));
         adapter.activate();
         
         communicator.getProperties().setProperty("ControllerAdapter.Endpoints", "default -p 12011");
         Ice.ObjectAdapter controllerAdapter = communicator.createObjectAdapter("ControllerAdapter");
-        controllerAdapter.add(new ControllerI(adapter), communicator.stringToIdentity("controller"));
+        controllerAdapter.add(new ControllerI(adapter), Ice.Util.stringToIdentity("controller"));
         controllerAdapter.activate();
 
         return WAIT;

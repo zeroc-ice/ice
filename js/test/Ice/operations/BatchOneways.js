@@ -124,7 +124,7 @@
         ).then(
             function()
             {
-                var identity = communicator.stringToIdentity("invalid");
+                var identity = Ice.stringToIdentity("invalid");
                 batch3 = batch.ice_identity(identity);
                 return batch3.ice_ping();
             }

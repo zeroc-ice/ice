@@ -161,13 +161,13 @@ public class Client
     run(String[] args, Ice.Communicator communicator)
     {
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        adapter.add(new defaultI(), communicator.stringToIdentity("test"));
+        adapter.add(new defaultI(), Ice.Util.stringToIdentity("test"));
         adapter.activate();
 
         System.out.print("Testing operation name... ");
         System.out.flush();
         defaultPrx p = defaultPrxHelper.uncheckedCast(
-            adapter.createProxy(communicator.stringToIdentity("test")));
+            adapter.createProxy(Ice.Util.stringToIdentity("test")));
         p._do();
         System.out.println("ok");
 

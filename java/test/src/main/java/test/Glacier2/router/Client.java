@@ -305,7 +305,7 @@ public class Client extends test.Util.Application
             java.util.Map<String, String> context = new java.util.HashMap<String, String>();
             context.put("_fwd", "t");
             CallbackPrx otherCategoryTwoway = CallbackPrxHelper.uncheckedCast(
-                twoway.ice_identity(communicator().stringToIdentity("c2/callback")));
+                twoway.ice_identity(Ice.Util.stringToIdentity("c2/callback")));
             otherCategoryTwoway.initiateCallback(twowayR, context);
             callbackReceiverImpl.callbackOK();
             out.println("ok");
@@ -319,7 +319,7 @@ public class Client extends test.Util.Application
             try
             {
                 CallbackPrx otherCategoryTwoway = CallbackPrxHelper.uncheckedCast(
-                    twoway.ice_identity(communicator().stringToIdentity("c3/callback")));
+                    twoway.ice_identity(Ice.Util.stringToIdentity("c3/callback")));
                 otherCategoryTwoway.initiateCallback(twowayR, context);
                 test(false);
             }
@@ -335,7 +335,7 @@ public class Client extends test.Util.Application
             java.util.Map<String, String> context = new java.util.HashMap<String, String>();
             context.put("_fwd", "t");
             CallbackPrx otherCategoryTwoway = CallbackPrxHelper.uncheckedCast(
-                twoway.ice_identity(communicator().stringToIdentity("_userid/callback")));
+                twoway.ice_identity(Ice.Util.stringToIdentity("_userid/callback")));
             otherCategoryTwoway.initiateCallback(twowayR, context);
             callbackReceiverImpl.callbackOK();
             out.println("ok");

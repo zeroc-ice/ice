@@ -65,9 +65,9 @@ public class ServerManagerI extends _ServerManagerDisp
         adapter2.setLocator(Ice.LocatorPrxHelper.uncheckedCast(locator));
 
         Ice.Object object = new TestI(adapter, adapter2, _registry);
-        _registry.addObject(adapter.add(object, serverCommunicator.stringToIdentity("test")));
-        _registry.addObject(adapter.add(object, serverCommunicator.stringToIdentity("test2")));
-        adapter.add(object, serverCommunicator.stringToIdentity("test3"));
+        _registry.addObject(adapter.add(object, Ice.Util.stringToIdentity("test")));
+        _registry.addObject(adapter.add(object, Ice.Util.stringToIdentity("test2")));
+        adapter.add(object, Ice.Util.stringToIdentity("test3"));
         
         adapter.activate();
         adapter2.activate();

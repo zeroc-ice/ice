@@ -116,7 +116,7 @@ Client::run(int argc, char* argv[])
                 return EXIT_FAILURE;
             }
 
-            managerProxy = "\"" + communicator()->identityToString(managerIdentity) + "\" :" + managerEndpoints;
+            managerProxy = "\"" + identityToString(managerIdentity) + "\" :" + managerEndpoints;
         }
         else
         {
@@ -127,7 +127,7 @@ Client::run(int argc, char* argv[])
                 return EXIT_FAILURE;
             }
 
-            managerProxy = "\"" + communicator()->identityToString(managerIdentity) + "\" @" + managerAdapterId;
+            managerProxy = "\"" + identityToString(managerIdentity) + "\" @" + managerAdapterId;
         }
 
         base = communicator()->stringToProxy(managerProxy);

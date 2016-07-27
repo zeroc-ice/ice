@@ -25,11 +25,11 @@
             {
                 if(amd)
                 {
-                    adapter.add(new AMDMyDerivedClassI(), communicator.stringToIdentity("test"));
+                    adapter.add(new AMDMyDerivedClassI(), Ice.stringToIdentity("test"));
                 }
                 else
                 {
-                    adapter.add(new MyDerivedClassI(), communicator.stringToIdentity("test"));
+                    adapter.add(new MyDerivedClassI(), Ice.stringToIdentity("test"));
                 }
                 var base = communicator.stringToProxy("test:default -p 12010");
                 return base.ice_getConnection().then(

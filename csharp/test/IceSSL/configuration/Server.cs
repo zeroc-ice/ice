@@ -22,7 +22,7 @@ public class Server
     {
         communicator.getProperties().setProperty("TestAdapter.Endpoints", "tcp -p 12010");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        Ice.Identity id = communicator.stringToIdentity("factory");
+        Ice.Identity id = Ice.Util.stringToIdentity("factory");
         adapter.add(new ServerFactoryI(), id);
         adapter.activate();
 

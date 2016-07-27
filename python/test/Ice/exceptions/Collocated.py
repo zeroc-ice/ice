@@ -25,7 +25,7 @@ def run(args, communicator):
     properties.setProperty("TestAdapter.Endpoints", "default -p 12010")
     adapter = communicator.createObjectAdapter("TestAdapter")
     object = TestI.ThrowerI()
-    adapter.add(object, communicator.stringToIdentity("thrower"))
+    adapter.add(object, Ice.stringToIdentity("thrower"))
     #adapter.activate() // Don't activate OA to ensure collocation is used.
 
     thrower = AllTests.allTests(communicator)

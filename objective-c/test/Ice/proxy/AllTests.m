@@ -413,6 +413,8 @@ proxyAllTests(id<ICECommunicator> communicator)
     tprintf("testing proxy methods... ");
     test([[communicator identityToString:[[base ice_identity:[communicator stringToIdentity:@"other"]] ice_getIdentity]]
              isEqualToString:@"other"]);
+    test([[ICEUtil identityToString:[[base ice_identity:[ICEUtil stringToIdentity:@"other"]] ice_getIdentity]]
+             isEqualToString:@"other"]);
     test([[[base ice_facet:@"facet"] ice_getFacet] isEqualToString:@"facet"]);
     test([[[base ice_adapterId:@"id"] ice_getAdapterId] isEqualToString:@"id"]);
     test([[base ice_twoway] ice_isTwoway]);

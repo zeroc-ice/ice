@@ -27,7 +27,7 @@ public class Server
         {
             _controller.checkCallPause(current);
             Ice.Communicator communicator = current.adapter.getCommunicator();
-            response(current.adapter.createDirectProxy(communicator.stringToIdentity("dummy")));
+            response(current.adapter.createDirectProxy(Ice.Util.stringToIdentity("dummy")));
         }
 
         public override void
@@ -100,12 +100,12 @@ public class Server
 
         BackgroundControllerI backgroundController = new BackgroundControllerI(adapter);
 
-        adapter.add(new BackgroundI(backgroundController), communicator.stringToIdentity("background"));
-        adapter.add(new LocatorI(backgroundController), communicator.stringToIdentity("locator"));
-        adapter.add(new RouterI(backgroundController), communicator.stringToIdentity("router"));
+        adapter.add(new BackgroundI(backgroundController), Ice.Util.stringToIdentity("background"));
+        adapter.add(new LocatorI(backgroundController), Ice.Util.stringToIdentity("locator"));
+        adapter.add(new RouterI(backgroundController), Ice.Util.stringToIdentity("router"));
         adapter.activate();
 
-        adapter2.add(backgroundController, communicator.stringToIdentity("backgroundController"));
+        adapter2.add(backgroundController, Ice.Util.stringToIdentity("backgroundController"));
         adapter2.activate();
 
         communicator.waitForShutdown();

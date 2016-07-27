@@ -426,9 +426,9 @@ class TwowaysAMI
         @Override
         public void response(MyClassPrx r, MyClassPrx c1, MyClassPrx c2)
         {
-            test(c1.ice_getIdentity().equals(_communicator.stringToIdentity("test")));
-            test(c2.ice_getIdentity().equals(_communicator.stringToIdentity("noSuchIdentity")));
-            test(r.ice_getIdentity().equals(_communicator.stringToIdentity("test")));
+            test(c1.ice_getIdentity().equals(Ice.Util.stringToIdentity("test")));
+            test(c2.ice_getIdentity().equals(Ice.Util.stringToIdentity("noSuchIdentity")));
+            test(r.ice_getIdentity().equals(Ice.Util.stringToIdentity("test")));
             // We can't do the callbacks below in connection serialization mode.
             if(_communicator.getProperties().getPropertyAsInt("Ice.ThreadPool.Client.Serialize") == 0)
             {

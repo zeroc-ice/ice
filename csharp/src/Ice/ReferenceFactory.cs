@@ -134,7 +134,7 @@ namespace IceInternal
             //
             // Parsing the identity may raise IdentityParseException.
             //
-            Ice.Identity ident = instance_.stringToIdentity(idstr);
+            Ice.Identity ident = Ice.Util.stringToIdentity(idstr);
 
             if(ident.name.Length == 0)
             {

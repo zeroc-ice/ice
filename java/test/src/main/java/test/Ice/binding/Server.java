@@ -17,7 +17,7 @@ public class Server extends test.Util.Application
     {
         Ice.Communicator communicator = communicator();
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        Ice.Identity id = communicator.stringToIdentity("communicator");
+        Ice.Identity id = Ice.Util.stringToIdentity("communicator");
         adapter.add(new RemoteCommunicatorI(), id);
         adapter.activate();
 

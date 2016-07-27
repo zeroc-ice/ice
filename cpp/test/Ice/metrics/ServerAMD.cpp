@@ -20,12 +20,12 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    adapter->add(ICE_MAKE_SHARED(MetricsI), communicator->stringToIdentity("metrics"));
+    adapter->add(ICE_MAKE_SHARED(MetricsI), Ice::stringToIdentity("metrics"));
     adapter->activate();
 
     communicator->getProperties()->setProperty("ControllerAdapter.Endpoints", "default -p 12011");
     Ice::ObjectAdapterPtr controllerAdapter = communicator->createObjectAdapter("ControllerAdapter");
-    controllerAdapter->add(ICE_MAKE_SHARED(ControllerI, adapter), communicator->stringToIdentity("controller"));
+    controllerAdapter->add(ICE_MAKE_SHARED(ControllerI, adapter), Ice::stringToIdentity("controller"));
     controllerAdapter->activate();
 
     TEST_READY

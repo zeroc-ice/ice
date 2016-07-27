@@ -309,9 +309,9 @@
         ).then(
             function(retval, p2, p3)
             {
-                test(p2.ice_getIdentity().equals(communicator.stringToIdentity("test")));
-                test(p3.ice_getIdentity().equals(communicator.stringToIdentity("noSuchIdentity")));
-                test(retval.ice_getIdentity().equals(communicator.stringToIdentity("test")));
+                test(p2.ice_getIdentity().equals(Ice.stringToIdentity("test")));
+                test(p3.ice_getIdentity().equals(Ice.stringToIdentity("noSuchIdentity")));
+                test(retval.ice_getIdentity().equals(Ice.stringToIdentity("test")));
 
                 si1 = new Test.Structure();
                 si1.p = prx;

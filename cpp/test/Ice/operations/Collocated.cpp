@@ -21,7 +21,7 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(communicator, 0));
     communicator->getProperties()->setProperty("TestAdapter.AdapterId", "test");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    Ice::ObjectPrxPtr prx = adapter->add(ICE_MAKE_SHARED(MyDerivedClassI), communicator->stringToIdentity("test"));
+    Ice::ObjectPrxPtr prx = adapter->add(ICE_MAKE_SHARED(MyDerivedClassI), Ice::stringToIdentity("test"));
     //adapter->activate(); // Don't activate OA to ensure collocation is used.
 
     test(!prx->ice_getConnection());

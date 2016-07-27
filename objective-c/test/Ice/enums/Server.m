@@ -16,7 +16,7 @@ run(id<ICECommunicator> communicator)
 {
     [[communicator getProperties] setProperty:@"TestAdapter.Endpoints" value:@"default -p 12010:udp"];
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAdapter"];
-    [adapter add:[TestEnumTestIntfI testIntf] identity:[communicator stringToIdentity:@"test"]];
+    [adapter add:[TestEnumTestIntfI testIntf] identity:[ICEUtil stringToIdentity:@"test"]];
     [adapter activate];
 
     serverReady(communicator);

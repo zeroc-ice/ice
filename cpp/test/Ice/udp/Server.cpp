@@ -26,14 +26,14 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     os << "tcp -p " << (12010 + num);
     properties->setProperty("ControlAdapter.Endpoints", os.str());
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("ControlAdapter");
-    adapter->add(ICE_MAKE_SHARED(TestIntfI), communicator->stringToIdentity("control"));
+    adapter->add(ICE_MAKE_SHARED(TestIntfI), Ice::stringToIdentity("control"));
     adapter->activate();
 
     if(num == 0)
     {
         properties->setProperty("TestAdapter.Endpoints", "udp -p 12010");
         Ice::ObjectAdapterPtr adapter2 = communicator->createObjectAdapter("TestAdapter");
-        adapter2->add(ICE_MAKE_SHARED(TestIntfI), communicator->stringToIdentity("test"));
+        adapter2->add(ICE_MAKE_SHARED(TestIntfI), Ice::stringToIdentity("test"));
         adapter2->activate();
     }
 
@@ -52,7 +52,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     }
     properties->setProperty("McastTestAdapter.Endpoints", endpoint);
     Ice::ObjectAdapterPtr mcastAdapter = communicator->createObjectAdapter("McastTestAdapter");
-    mcastAdapter->add(ICE_MAKE_SHARED(TestIntfI), communicator->stringToIdentity("test"));
+    mcastAdapter->add(ICE_MAKE_SHARED(TestIntfI), Ice::stringToIdentity("test"));
     mcastAdapter->activate();
 
     TEST_READY

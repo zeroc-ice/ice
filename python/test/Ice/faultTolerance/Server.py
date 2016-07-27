@@ -54,7 +54,7 @@ def run(args, communicator):
     communicator.getProperties().setProperty("TestAdapter.Endpoints", endpts)
     adapter = communicator.createObjectAdapter("TestAdapter")
     object = TestI()
-    adapter.add(object, communicator.stringToIdentity("test"))
+    adapter.add(object, Ice.stringToIdentity("test"))
     adapter.activate()
     communicator.waitForShutdown()
     return True

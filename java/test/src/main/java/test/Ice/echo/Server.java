@@ -46,7 +46,7 @@ public class Server extends test.Util.Application
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
         BlobjectI blob = new BlobjectI();
         adapter.addDefaultServant(blob, "");
-        adapter.add(new EchoI(blob), communicator().stringToIdentity("__echo"));
+        adapter.add(new EchoI(blob), Ice.Util.stringToIdentity("__echo"));
         adapter.activate();
         return WAIT;
     }

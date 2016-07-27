@@ -24,9 +24,9 @@ run(id<ICECommunicator> communicator)
     id<ICEObjectAdapter> adapter2 = [communicator createObjectAdapter:@"TestAdapter2"];
     id<ICEObjectAdapter> adapter3 = [communicator createObjectAdapter:@"TestAdapter3"];
     ICEObject* object = [ThrowerI thrower];
-    [adapter add:object identity:[communicator stringToIdentity:@"thrower"]];
-    [adapter2 add:object identity:[communicator stringToIdentity:@"thrower"]];
-    [adapter3 add:object identity:[communicator stringToIdentity:@"thrower"]];
+    [adapter add:object identity:[ICEUtil stringToIdentity:@"thrower"]];
+    [adapter2 add:object identity:[ICEUtil stringToIdentity:@"thrower"]];
+    [adapter3 add:object identity:[ICEUtil stringToIdentity:@"thrower"]];
     [adapter activate];
     [adapter2 activate];
     [adapter3 activate];

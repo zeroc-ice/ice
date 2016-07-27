@@ -470,7 +470,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     // for the server and server adapter. It also takes care of installing the
     // evictors and object factories necessary to store these objects.
     //
-    Identity id = communicator()->stringToIdentity(instanceName + "/Node-" + name);
+    Identity id = stringToIdentity(instanceName + "/Node-" + name);
     NodePrx nodeProxy = NodePrx::uncheckedCast(_adapter->createProxy(id));
     _node = new NodeI(_adapter, *_sessions, _activator, _timer, traceLevels, nodeProxy, name, mapper, instanceName);
     _adapter->add(_node, nodeProxy->ice_getIdentity());

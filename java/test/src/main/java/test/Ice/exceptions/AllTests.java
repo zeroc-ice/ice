@@ -142,7 +142,7 @@ public class AllTests
             }
             catch(Ice.ObjectNotExistException ex)
             {
-                Ice.Identity id = _communicator.stringToIdentity("does not exist");
+                Ice.Identity id = Ice.Util.stringToIdentity("does not exist");
                 test(ex.id.equals(id));
             }
             catch(Throwable ex)
@@ -765,10 +765,10 @@ public class AllTests
             communicator.getProperties().setProperty("TestAdapter1.Endpoints", "default");
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter1");
             Ice.Object obj = new EmptyI();
-            adapter.add(obj, communicator.stringToIdentity("x"));
+            adapter.add(obj, Ice.Util.stringToIdentity("x"));
             try
             {
-                adapter.add(obj, communicator.stringToIdentity("x"));
+                adapter.add(obj, Ice.Util.stringToIdentity("x"));
                 test(false);
             }
             catch(Ice.AlreadyRegisteredException ex)
@@ -777,7 +777,7 @@ public class AllTests
 
             try
             {
-                adapter.add(obj, communicator.stringToIdentity(""));
+                adapter.add(obj, Ice.Util.stringToIdentity(""));
                 test(false);
             }
             catch(Ice.IllegalIdentityException ex)
@@ -786,17 +786,17 @@ public class AllTests
             }
             try
             {
-                adapter.add(null, communicator.stringToIdentity("x"));
+                adapter.add(null, Ice.Util.stringToIdentity("x"));
                 test(false);
             }
             catch(Ice.IllegalServantException ex)
             {
             }
 
-            adapter.remove(communicator.stringToIdentity("x"));
+            adapter.remove(Ice.Util.stringToIdentity("x"));
             try
             {
-                adapter.remove(communicator.stringToIdentity("x"));
+                adapter.remove(Ice.Util.stringToIdentity("x"));
                 test(false);
             }
             catch(Ice.NotRegisteredException ex)
@@ -1166,7 +1166,7 @@ public class AllTests
         out.flush();
 
         {
-            Ice.Identity id = communicator.stringToIdentity("does not exist");
+            Ice.Identity id = Ice.Util.stringToIdentity("does not exist");
             try
             {
                 ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(thrower.ice_identity(id));
@@ -1423,7 +1423,7 @@ public class AllTests
         out.flush();
 
         {
-            Ice.Identity id = communicator.stringToIdentity("does not exist");
+            Ice.Identity id = Ice.Util.stringToIdentity("does not exist");
             ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(thrower.ice_identity(id));
             Callback_Thrower_throwAasAObjectNotExistI cb = new Callback_Thrower_throwAasAObjectNotExistI(communicator);
             thrower2.begin_throwAasA(1, cb);

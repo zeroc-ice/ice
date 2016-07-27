@@ -27,9 +27,9 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
     Ice::ObjectAdapterPtr adapter2 = communicator->createObjectAdapter("TestAdapter2");
     Ice::ObjectAdapterPtr adapter3 = communicator->createObjectAdapter("TestAdapter3");
     Ice::ObjectPtr object = ICE_MAKE_SHARED(ThrowerI);
-    adapter->add(object, communicator->stringToIdentity("thrower"));
-    adapter2->add(object, communicator->stringToIdentity("thrower"));
-    adapter3->add(object, communicator->stringToIdentity("thrower"));
+    adapter->add(object, Ice::stringToIdentity("thrower"));
+    adapter2->add(object, Ice::stringToIdentity("thrower"));
+    adapter3->add(object, Ice::stringToIdentity("thrower"));
     adapter->activate();
     adapter2->activate();
     adapter3->activate();

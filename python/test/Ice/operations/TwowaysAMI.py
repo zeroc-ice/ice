@@ -90,9 +90,9 @@ class Callback(CallbackBase):
         self.called()
 
     def opMyClass(self, r, c1, c2):
-        test(c1.ice_getIdentity() == self._communicator.stringToIdentity("test"))
-        test(c2.ice_getIdentity() == self._communicator.stringToIdentity("noSuchIdentity"))
-        test(r.ice_getIdentity() == self._communicator.stringToIdentity("test"))
+        test(c1.ice_getIdentity() == Ice.stringToIdentity("test"))
+        test(c2.ice_getIdentity() == Ice.stringToIdentity("noSuchIdentity"))
+        test(r.ice_getIdentity() == Ice.stringToIdentity("test"))
         # We can't do the callbacks below in serialize mode
         if self._communicator.getProperties().getPropertyAsInt("Ice.Client.ThreadPool.Serialize") == 0:
             r.opVoid()

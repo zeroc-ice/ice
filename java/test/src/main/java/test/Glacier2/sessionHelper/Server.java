@@ -19,7 +19,7 @@ public class Server extends test.Util.Application
 
         communicator().getProperties().setProperty("CallbackAdapter.Endpoints", "default -p 12010");
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("CallbackAdapter");
-        adapter.add(new CallbackI(), communicator().stringToIdentity("callback"));
+        adapter.add(new CallbackI(), Ice.Util.stringToIdentity("callback"));
         adapter.activate();
         communicator().waitForShutdown();
         return 0;

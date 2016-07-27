@@ -44,7 +44,7 @@ CallbackServer::run(int, char**)
 {
     communicator()->getProperties()->setProperty("CallbackAdapter.Endpoints", "tcp -p 12010");
     ObjectAdapterPtr adapter = communicator()->createObjectAdapter("CallbackAdapter");
-    adapter->add(new CallbackI(), communicator()->stringToIdentity("c/callback"));
+    adapter->add(new CallbackI(), Ice::stringToIdentity("c/callback"));
     adapter->activate();
     communicator()->waitForShutdown();
     return EXIT_SUCCESS;

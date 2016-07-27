@@ -184,7 +184,7 @@ function printIdentityFacetOperation(s, stream)
 {
     var identity = new Identity();
     identity.__read(stream);
-    s.push("\nidentity = " + stream.instance.identityToString(identity));
+    s.push("\nidentity = " + Ice.identityToString(identity));
 
     var facet = Ice.StringSeqHelper.read(stream);
     s.push("\nfacet = ");

@@ -29,10 +29,10 @@ def run(args, communicator):
 
     testController = TestI.TestIntfControllerI(adapter)
 
-    adapter.add(TestI.TestIntfI(), communicator.stringToIdentity("test"))
+    adapter.add(TestI.TestIntfI(), Ice.stringToIdentity("test"))
     #adapter.activate() # Collocated test doesn't need to active the OA
     
-    adapter2.add(testController, communicator.stringToIdentity("testController"))
+    adapter2.add(testController, Ice.stringToIdentity("testController"))
     #adapter2.activate() # Collocated test doesn't need to active the OA
 
     AllTests.allTests(communicator, True)

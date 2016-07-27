@@ -314,17 +314,17 @@ allTests(const Ice::CommunicatorPtr& comm)
         Ice::EndpointSeq endpoints;
         ObjectInfo info;
 
-        info = masterAdmin->getObjectInfo(comm->stringToIdentity("RepTestIceGrid/Locator"));
-        ObjectInfo info1 = slave1Admin->getObjectInfo(comm->stringToIdentity("RepTestIceGrid/Locator"));
-        test(slave1Admin->getObjectInfo(comm->stringToIdentity("RepTestIceGrid/Locator")) == info);
+        info = masterAdmin->getObjectInfo(Ice::stringToIdentity("RepTestIceGrid/Locator"));
+        ObjectInfo info1 = slave1Admin->getObjectInfo(Ice::stringToIdentity("RepTestIceGrid/Locator"));
+        test(slave1Admin->getObjectInfo(Ice::stringToIdentity("RepTestIceGrid/Locator")) == info);
         test(info.type == Ice::Locator::ice_staticId());
         endpoints = info.proxy->ice_getEndpoints();
         test(endpoints.size() == 2);
         test(endpoints[0]->toString().find("-p 12050") != string::npos);
         test(endpoints[1]->toString().find("-p 12051") != string::npos);
 
-        info = masterAdmin->getObjectInfo(comm->stringToIdentity("RepTestIceGrid/Query"));
-        test(slave1Admin->getObjectInfo(comm->stringToIdentity("RepTestIceGrid/Query")) == info);
+        info = masterAdmin->getObjectInfo(Ice::stringToIdentity("RepTestIceGrid/Query"));
+        test(slave1Admin->getObjectInfo(Ice::stringToIdentity("RepTestIceGrid/Query")) == info);
         test(info.type == IceGrid::Query::ice_staticId());
         endpoints = info.proxy->ice_getEndpoints();
         test(endpoints.size() == 2);
@@ -334,15 +334,15 @@ allTests(const Ice::CommunicatorPtr& comm)
         admin->startServer("Slave2");
         slave2Admin = createAdminSession(slave2Locator, "Slave2");
 
-        info = masterAdmin->getObjectInfo(comm->stringToIdentity("RepTestIceGrid/Locator"));
+        info = masterAdmin->getObjectInfo(Ice::stringToIdentity("RepTestIceGrid/Locator"));
         // We eventually need to wait here for the update of the replicated objects to propagate to the replica.
         int nRetry = 0;
-        while(slave1Admin->getObjectInfo(comm->stringToIdentity("RepTestIceGrid/Locator")) != info && nRetry < maxRetry)
+        while(slave1Admin->getObjectInfo(Ice::stringToIdentity("RepTestIceGrid/Locator")) != info && nRetry < maxRetry)
         {
             IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(sleepTime));
             ++nRetry;
         }
-        test(slave2Admin->getObjectInfo(comm->stringToIdentity("RepTestIceGrid/Locator")) == info);
+        test(slave2Admin->getObjectInfo(Ice::stringToIdentity("RepTestIceGrid/Locator")) == info);
         test(info.type == Ice::Locator::ice_staticId());
         endpoints = info.proxy->ice_getEndpoints();
         test(endpoints.size() == 3);
@@ -350,15 +350,15 @@ allTests(const Ice::CommunicatorPtr& comm)
         test(endpoints[1]->toString().find("-p 12051") != string::npos);
         test(endpoints[2]->toString().find("-p 12052") != string::npos);
 
-        info = masterAdmin->getObjectInfo(comm->stringToIdentity("RepTestIceGrid/Query"));
+        info = masterAdmin->getObjectInfo(Ice::stringToIdentity("RepTestIceGrid/Query"));
         // We eventually need to wait here for the update of the replicated objects to propagate to the replica.
         nRetry = 0;
-        while(slave1Admin->getObjectInfo(comm->stringToIdentity("RepTestIceGrid/Query")) != info && nRetry < maxRetry)
+        while(slave1Admin->getObjectInfo(Ice::stringToIdentity("RepTestIceGrid/Query")) != info && nRetry < maxRetry)
         {
             IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(sleepTime));
             ++nRetry;
         }
-        test(slave2Admin->getObjectInfo(comm->stringToIdentity("RepTestIceGrid/Query")) == info);
+        test(slave2Admin->getObjectInfo(Ice::stringToIdentity("RepTestIceGrid/Query")) == info);
         test(info.type == IceGrid::Query::ice_staticId());
         endpoints = info.proxy->ice_getEndpoints();
         test(endpoints.size() == 3);
@@ -369,29 +369,29 @@ allTests(const Ice::CommunicatorPtr& comm)
         slave2Admin->shutdown();
         waitForServerState(admin, "Slave2", false);
 
-        info = masterAdmin->getObjectInfo(comm->stringToIdentity("RepTestIceGrid/Locator"));
+        info = masterAdmin->getObjectInfo(Ice::stringToIdentity("RepTestIceGrid/Locator"));
         // We eventually need to wait here for the update of the replicated objects to propagate to the replica.
         nRetry = 0;
-        while(slave1Admin->getObjectInfo(comm->stringToIdentity("RepTestIceGrid/Locator")) != info && nRetry < maxRetry)
+        while(slave1Admin->getObjectInfo(Ice::stringToIdentity("RepTestIceGrid/Locator")) != info && nRetry < maxRetry)
         {
             IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(sleepTime));
             ++nRetry;
         }
-        test(slave1Admin->getObjectInfo(comm->stringToIdentity("RepTestIceGrid/Locator")) == info);
+        test(slave1Admin->getObjectInfo(Ice::stringToIdentity("RepTestIceGrid/Locator")) == info);
         test(info.type == Ice::Locator::ice_staticId());
         endpoints = info.proxy->ice_getEndpoints();
         test(endpoints.size() == 2);
         test(endpoints[0]->toString().find("-p 12050") != string::npos);
         test(endpoints[1]->toString().find("-p 12051") != string::npos);
 
-        info = masterAdmin->getObjectInfo(comm->stringToIdentity("RepTestIceGrid/Query"));
+        info = masterAdmin->getObjectInfo(Ice::stringToIdentity("RepTestIceGrid/Query"));
         nRetry = 0;
-        while(slave1Admin->getObjectInfo(comm->stringToIdentity("RepTestIceGrid/Query")) != info && nRetry < maxRetry)
+        while(slave1Admin->getObjectInfo(Ice::stringToIdentity("RepTestIceGrid/Query")) != info && nRetry < maxRetry)
         {
             IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(sleepTime));
             ++nRetry;
         }
-        test(slave1Admin->getObjectInfo(comm->stringToIdentity("RepTestIceGrid/Query")) == info);
+        test(slave1Admin->getObjectInfo(Ice::stringToIdentity("RepTestIceGrid/Query")) == info);
         test(info.type == IceGrid::Query::ice_staticId());
         endpoints = info.proxy->ice_getEndpoints();
         test(endpoints.size() == 2);
@@ -948,7 +948,7 @@ allTests(const Ice::CommunicatorPtr& comm)
         property.value = "test";
         server->propertySet.properties.push_back(property);
         ObjectDescriptor object;
-        object.id = comm->stringToIdentity("test");
+        object.id = Ice::stringToIdentity("test");
         object.type = "::Test::TestIntf";
         adapter.objects.push_back(object);
         server->adapters.push_back(adapter);
@@ -1175,7 +1175,7 @@ allTests(const Ice::CommunicatorPtr& comm)
         property.value = "test";
         server->propertySet.properties.push_back(property);
         ObjectDescriptor object;
-        object.id = comm->stringToIdentity("test");
+        object.id = Ice::stringToIdentity("test");
         object.type = "::Test::TestIntf";
         adapter.objects.push_back(object);
         server->adapters.push_back(adapter);
@@ -1315,7 +1315,7 @@ allTests(const Ice::CommunicatorPtr& comm)
         property.value = "test";
         server->propertySet.properties.push_back(property);
         ObjectDescriptor object;
-        object.id = comm->stringToIdentity("test");
+        object.id = Ice::stringToIdentity("test");
         object.type = "::Test::TestIntf";
         adapter.objects.push_back(object);
         server->adapters.push_back(adapter);

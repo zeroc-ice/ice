@@ -82,7 +82,7 @@ ObjectCache::add(const ObjectInfo& info, const string& application)
     if(getImpl(id))
     {
         Ice::Error out(_communicator->getLogger());
-        out << "can't add duplicate object `" << _communicator->identityToString(id) << "'";
+        out << "can't add duplicate object `" << identityToString(id) << "'";
         return;
     }
 
@@ -99,8 +99,8 @@ ObjectCache::add(const ObjectInfo& info, const string& application)
     if(_traceLevels && _traceLevels->object > 0)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
-        out << "added object `" << _communicator->identityToString(id) << "'";  
-    }    
+        out << "added object `" << identityToString(id) << "'";
+    }
 }
 
 ObjectEntryPtr
@@ -123,7 +123,7 @@ ObjectCache::remove(const Ice::Identity& id)
     if(!entry)
     {
         Ice::Error out(_communicator->getLogger());
-        out << "can't remove unknown object `" << _communicator->identityToString(id) << "'";
+        out << "can't remove unknown object `" << identityToString(id) << "'";
         return;
     }
     removeImpl(id);
@@ -131,15 +131,15 @@ ObjectCache::remove(const Ice::Identity& id)
     map<string, TypeEntry>::iterator p = _types.find(entry->getType());
     assert(p != _types.end());
     if(p->second.remove(entry))
-    {   
+    {
         _types.erase(p);
     }
 
     if(_traceLevels && _traceLevels->object > 0)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
-        out << "removed object `" << _communicator->identityToString(id) << "'";        
-    }    
+        out << "removed object `" << identityToString(id) << "'";
+    }
 }
 
 Ice::ObjectProxySeq
@@ -167,7 +167,7 @@ ObjectCache::getAll(const string& expression)
     ObjectInfoSeq infos;
     for(map<Ice::Identity, ObjectEntryPtr>::const_iterator p = _entries.begin(); p != _entries.end(); ++p)
     {
-        if(expression.empty() || IceUtilInternal::match(_communicator->identityToString(p->first), expression, true))
+        if(expression.empty() || IceUtilInternal::match(identityToString(p->first), expression, true))
         {
             infos.push_back(p->second->getObjectInfo());
         }
@@ -229,4 +229,3 @@ ObjectEntry::canRemove()
 {
     return true;
 }
-

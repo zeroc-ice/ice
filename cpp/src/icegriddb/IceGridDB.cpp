@@ -372,7 +372,7 @@ Client::run(int argc, char* argv[])
                 {
                     if(debug)
                     {
-                        cout << "  NAME = " << communicator()->identityToString(p->proxy->ice_getIdentity()) << endl;
+                        cout << "  NAME = " << identityToString(p->proxy->ice_getIdentity()) << endl;
                     }
                     objs.put(txn, p->proxy->ice_getIdentity(), *p);
                 }
@@ -390,7 +390,7 @@ Client::run(int argc, char* argv[])
                 {
                     if(debug)
                     {
-                        cout << "  NAME = " << communicator()->identityToString(p->proxy->ice_getIdentity()) << endl;
+                        cout << "  NAME = " << identityToString(p->proxy->ice_getIdentity()) << endl;
                     }
                     internalObjs.put(txn, p->proxy->ice_getIdentity(), *p);
                 }
@@ -483,7 +483,7 @@ Client::run(int argc, char* argv[])
                 {
                     if(debug)
                     {
-                        cout << "  IDENTITY = " << communicator()->identityToString(id) << endl;
+                        cout << "  IDENTITY = " << identityToString(id) << endl;
                     }
                     data.objects.push_back(object);
                 }
@@ -503,7 +503,7 @@ Client::run(int argc, char* argv[])
                 {
                     if(debug)
                     {
-                        cout << "  IDENTITY = " << communicator()->identityToString(id) << endl;
+                        cout << "  IDENTITY = " << identityToString(id) << endl;
                     }
                     data.internalObjects.push_back(object);
                 }

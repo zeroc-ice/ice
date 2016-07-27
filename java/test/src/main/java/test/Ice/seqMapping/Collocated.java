@@ -17,7 +17,7 @@ public class Collocated extends test.Util.Application
     {
         java.io.PrintWriter out = getWriter();
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-        adapter.add(new MyClassI(), communicator().stringToIdentity("test"));
+        adapter.add(new MyClassI(), Ice.Util.stringToIdentity("test"));
         //adapter.activate(); // Don't activate OA to ensure collocation is used.
 
         AllTests.allTests(communicator(), true, out);

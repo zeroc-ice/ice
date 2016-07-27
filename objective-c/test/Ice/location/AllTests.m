@@ -463,7 +463,7 @@ locationAllTests(id<ICECommunicator> communicator, NSString* ref)
 //     @try
 //     {
 //         id<TestLocationHelloPrx> helloPrx = [TestLocationHelloPrx checkedCast:[communicator stringToProxy:
-//                                                                                 [communicator identityToString:ident]]];
+//                                                                                 [ICEUtil identityToString:ident]]];
 //         [helloPrx ice_getConnection];
 //         test(NO);
 //     }

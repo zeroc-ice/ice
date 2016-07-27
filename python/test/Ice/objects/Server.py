@@ -32,9 +32,9 @@ def run(args, communicator):
     communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010")
     adapter = communicator.createObjectAdapter("TestAdapter")
     initial = TestI.InitialI(adapter)
-    adapter.add(initial, communicator.stringToIdentity("initial"))
+    adapter.add(initial, Ice.stringToIdentity("initial"))
     uoet = TestI.UnexpectedObjectExceptionTestI()
-    adapter.add(uoet, communicator.stringToIdentity("uoet"))
+    adapter.add(uoet, Ice.stringToIdentity("uoet"))
     adapter.activate()
     communicator.waitForShutdown()
     return True

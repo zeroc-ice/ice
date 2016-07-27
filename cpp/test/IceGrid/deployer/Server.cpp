@@ -42,7 +42,7 @@ Server::run(int argc, char* argv[])
     
     adapter = communicator()->createObjectAdapter("Server");
     Ice::ObjectPtr object = new TestI(properties);
-    adapter->add(object, communicator()->stringToIdentity(name));
+    adapter->add(object, Ice::stringToIdentity(name));
     shutdownOnInterrupt();
     try
     {

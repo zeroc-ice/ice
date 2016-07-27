@@ -109,9 +109,9 @@ class ServerManagerI(Test.ServerManager):
         adapter2.setLocator(Ice.LocatorPrx.uncheckedCast(locator))
 
         object = TestI(adapter, adapter2, self._registry)
-        self._registry.addObject(adapter.add(object, communicator.stringToIdentity("test")))
-        self._registry.addObject(adapter.add(object, communicator.stringToIdentity("test2")))
-        adapter.add(object, communicator.stringToIdentity("test3"))
+        self._registry.addObject(adapter.add(object, Ice.stringToIdentity("test")))
+        self._registry.addObject(adapter.add(object, Ice.stringToIdentity("test2")))
+        adapter.add(object, Ice.stringToIdentity("test3"))
 
         adapter.activate()
         adapter2.activate()
@@ -130,19 +130,19 @@ class TestI(Test.TestIntf):
         self._adapter1 = adapter
         self._adapter2 = adapter2
         self._registry = registry
-        self._registry.addObject(self._adapter1.add(HelloI(), communicator.stringToIdentity("hello")))
+        self._registry.addObject(self._adapter1.add(HelloI(), Ice.stringToIdentity("hello")))
 
     def shutdown(self, current=None):
         self._adapter1.getCommunicator().shutdown()
 
     def getHello(self, current=None):
-        return Test.HelloPrx.uncheckedCast(self._adapter1.createIndirectProxy(communicator.stringToIdentity("hello")))
+        return Test.HelloPrx.uncheckedCast(self._adapter1.createIndirectProxy(Ice.stringToIdentity("hello")))
 
     def getReplicatedHello(self, current=None):
-        return Test.HelloPrx.uncheckedCast(self._adapter1.createProxy(communicator.stringToIdentity("hello")))
+        return Test.HelloPrx.uncheckedCast(self._adapter1.createProxy(Ice.stringToIdentity("hello")))
 
     def migrateHello(self, current=None):
-        id = communicator.stringToIdentity("hello")
+        id = Ice.stringToIdentity("hello")
         try:
             self._registry.addObject(self._adapter2.add(self._adapter1.remove(id), id))
         except Ice.NotRegisteredException:
@@ -166,14 +166,14 @@ def run(args, communicator, initData):
     # 'servers' created with the server manager interface.
     #
     registry = ServerLocatorRegistry()
-    registry.addObject(adapter.createProxy(communicator.stringToIdentity("ServerManager")))
+    registry.addObject(adapter.createProxy(Ice.stringToIdentity("ServerManager")))
     object = ServerManagerI(registry, initData)
-    adapter.add(object, communicator.stringToIdentity("ServerManager"))
+    adapter.add(object, Ice.stringToIdentity("ServerManager"))
 
-    registryPrx = Ice.LocatorRegistryPrx.uncheckedCast(adapter.add(registry, communicator.stringToIdentity("registry")))
+    registryPrx = Ice.LocatorRegistryPrx.uncheckedCast(adapter.add(registry, Ice.stringToIdentity("registry")))
 
     locator = ServerLocator(registry, registryPrx)
-    adapter.add(locator, communicator.stringToIdentity("locator"))
+    adapter.add(locator, Ice.stringToIdentity("locator"))
 
     adapter.activate()
     communicator.waitForShutdown()

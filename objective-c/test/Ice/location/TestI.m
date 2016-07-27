@@ -70,9 +70,9 @@
     [adapter2 setLocator:[ICELocatorPrx uncheckedCast:locator]];
 
     ICEObject* object = ICE_AUTORELEASE([[TestLocationI alloc] init:adapter adapter2:adapter2 registry:registry_]);
-    [registry_ addObject:[adapter add:object identity:[serverCommunicator stringToIdentity:@"test"]]];
-    [registry_ addObject:[adapter add:object identity:[serverCommunicator stringToIdentity:@"test2"]]];
-    [adapter add:object identity:[serverCommunicator stringToIdentity:@"test3"]];
+    [registry_ addObject:[adapter add:object identity:[ICEUtil stringToIdentity:@"test"]]];
+    [registry_ addObject:[adapter add:object identity:[ICEUtil stringToIdentity:@"test2"]]];
+    [adapter add:object identity:[ICEUtil stringToIdentity:@"test3"]];
 
     [adapter activate];
     [adapter2 activate];
@@ -111,7 +111,7 @@
     adapter1_ = ICE_RETAIN(adapter);
     adapter2_ = ICE_RETAIN(adapter2);
     registry_ = registry;
-    [registry_ addObject:[adapter1_ add:[HelloI hello] identity:[[adapter1_ getCommunicator] stringToIdentity:@"hello"]]];
+    [registry_ addObject:[adapter1_ add:[HelloI hello] identity:[ICEUtil stringToIdentity:@"hello"]]];
     return self;
 }
 
@@ -131,18 +131,17 @@
 
 -(id<TestLocationHelloPrx>) getHello:(ICECurrent*)current
 {
-    return [TestLocationHelloPrx uncheckedCast:[adapter1_ createIndirectProxy:[[adapter1_ getCommunicator]
-                                                                          stringToIdentity:@"hello"]]];
+    return [TestLocationHelloPrx uncheckedCast:[adapter1_ createIndirectProxy:[ICEUtil stringToIdentity:@"hello"]]];
 }
 
 -(id<TestLocationHelloPrx>) getReplicatedHello:(ICECurrent*)current
 {
-    return [TestLocationHelloPrx uncheckedCast:[adapter1_ createProxy:[[adapter1_ getCommunicator] stringToIdentity:@"hello"]]];
+    return [TestLocationHelloPrx uncheckedCast:[adapter1_ createProxy:[ICEUtil stringToIdentity:@"hello"]]];
 }
 
 -(void) migrateHello:(ICECurrent*)current
 {
-    ICEIdentity* ident = [[adapter1_ getCommunicator] stringToIdentity:@"hello"];
+    ICEIdentity* ident = [ICEUtil stringToIdentity:@"hello"];
     @try
     {
         [registry_ addObject:[adapter2_ add:[adapter1_ remove:ident] identity:ident]];

@@ -288,7 +288,7 @@ def allTests(communicator)
     print "catching object not exist exception... "
     STDOUT.flush
 
-    id = communicator.stringToIdentity("does not exist")
+    id = Ice::stringToIdentity("does not exist")
     begin
         thrower2 = Test::ThrowerPrx::uncheckedCast(thrower.ice_identity(id))
         thrower2.throwAasA(1)

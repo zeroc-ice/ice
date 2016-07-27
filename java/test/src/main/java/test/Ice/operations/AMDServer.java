@@ -16,7 +16,7 @@ public class AMDServer extends test.Util.Application
     {
         communicator().getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-        adapter.add(new AMDMyDerivedClassI(), communicator().stringToIdentity("test"));
+        adapter.add(new AMDMyDerivedClassI(), Ice.Util.stringToIdentity("test"));
         adapter.activate();
         return WAIT;
     }

@@ -18,7 +18,7 @@ public class TieServer extends test.Util.Application
     {
         communicator().getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-        adapter.add(new _MyDerivedClassTie(new TieMyDerivedClassI()), communicator().stringToIdentity("test"));
+        adapter.add(new _MyDerivedClassTie(new TieMyDerivedClassI()), Ice.Util.stringToIdentity("test"));
         adapter.activate();
         return WAIT;
     }

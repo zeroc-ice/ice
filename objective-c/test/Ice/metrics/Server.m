@@ -18,14 +18,14 @@ run(id<ICECommunicator> communicator)
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAdapter"];
 
     ICEObject* object = [MetricsI metrics];
-    [adapter add:object identity:[communicator stringToIdentity:@"metrics"]];
+    [adapter add:object identity:[ICEUtil stringToIdentity:@"metrics"]];
     [adapter activate];
 
     [[communicator getProperties] setProperty:@"ControllerAdapter.Endpoints" value:@"default -p 12011"];
     id<ICEObjectAdapter> controllerAdapter = [communicator createObjectAdapter:@"ControllerAdapter"];
 
     ICEObject* controller = ICE_AUTORELEASE([[ControllerI alloc] init:adapter]);
-    [controllerAdapter add:controller identity:[communicator stringToIdentity:@"controller"]];
+    [controllerAdapter add:controller identity:[ICEUtil stringToIdentity:@"controller"]];
     [controllerAdapter activate];
 
     serverReady(communicator);

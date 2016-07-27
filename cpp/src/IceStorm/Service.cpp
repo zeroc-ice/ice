@@ -403,7 +403,7 @@ ServiceI::start(
     }
 
     topicAdapter->add(new FinderI(TopicManagerPrx::uncheckedCast(topicAdapter->createProxy(topicManagerId))),
-                      communicator->stringToIdentity("IceStorm/Finder"));
+                      stringToIdentity("IceStorm/Finder"));
 
     topicAdapter->activate();
     publishAdapter->activate();

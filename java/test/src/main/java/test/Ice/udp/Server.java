@@ -26,21 +26,21 @@ public class Server extends test.Util.Application
         }
         properties.setProperty("ControlAdapter.Endpoints", "tcp -p " + port);
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("ControlAdapter");
-        adapter.add(new TestIntfI(), communicator().stringToIdentity("control"));
+        adapter.add(new TestIntfI(), Ice.Util.stringToIdentity("control"));
         adapter.activate();
 
         if(port == 12010)
         {
             properties.setProperty("TestAdapter.Endpoints", "udp -p 12010");
             Ice.ObjectAdapter adapter2 = communicator().createObjectAdapter("TestAdapter");
-            adapter2.add(new TestIntfI(), communicator().stringToIdentity("test"));
+            adapter2.add(new TestIntfI(), Ice.Util.stringToIdentity("test"));
             adapter2.activate();
         }
 
         if(!isAndroid())
         {
             Ice.ObjectAdapter mcastAdapter = communicator().createObjectAdapter("McastTestAdapter");
-            mcastAdapter.add(new TestIntfI(), communicator().stringToIdentity("test"));
+            mcastAdapter.add(new TestIntfI(), Ice.Util.stringToIdentity("test"));
             mcastAdapter.activate();
         }
 

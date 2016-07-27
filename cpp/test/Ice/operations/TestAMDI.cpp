@@ -210,7 +210,7 @@ MyDerivedClassI::opMyClassAsync(shared_ptr<Test::MyClassPrx> p1,
 {
     auto p2 = p1;
     auto p3 = uncheckedCast<Test::MyClassPrx>(current.adapter->createProxy(
-                                                  current.adapter->getCommunicator()->stringToIdentity("noSuchIdentity")));
+                                                  stringToIdentity("noSuchIdentity")));
     response(uncheckedCast<Test::MyClassPrx>(current.adapter->createProxy(current.id)), p2, p3);
 }
 
@@ -1126,7 +1126,7 @@ MyDerivedClassI::opMyClass_async(const Test::AMD_MyClass_opMyClassPtr& cb,
     Test::MyClassPrxPtr p2 = p1;
     Test::MyClassPrxPtr p3 = ICE_UNCHECKED_CAST(
         Test::MyClassPrx, current.adapter->createProxy(
-            current.adapter->getCommunicator()->stringToIdentity("noSuchIdentity")));
+            stringToIdentity("noSuchIdentity")));
     cb->ice_response(ICE_UNCHECKED_CAST(Test::MyClassPrx, current.adapter->createProxy(current.id)), p2, p3);
 }
 

@@ -30,11 +30,11 @@
                     {
                         if(amd)
                         {
-                            adapter.add(new AMDThrowerI(), communicator.stringToIdentity("thrower"));
+                            adapter.add(new AMDThrowerI(), Ice.stringToIdentity("thrower"));
                         }
                         else
                         {
-                            adapter.add(new ThrowerI(), communicator.stringToIdentity("thrower"));
+                            adapter.add(new ThrowerI(), Ice.stringToIdentity("thrower"));
                         }
                         var base = communicator.stringToProxy("thrower:default -p 12010");
                         return base.ice_getConnection().then(

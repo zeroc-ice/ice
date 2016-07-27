@@ -28,10 +28,10 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
 
     TestIntfControllerIPtr testController = ICE_MAKE_SHARED(TestIntfControllerI, adapter);
 
-    adapter->add(ICE_MAKE_SHARED(TestIntfI), communicator->stringToIdentity("test"));
+    adapter->add(ICE_MAKE_SHARED(TestIntfI), Ice::stringToIdentity("test"));
     //adapter->activate(); // Don't activate OA to ensure collocation is used.
 
-    adapter2->add(testController, communicator->stringToIdentity("testController"));
+    adapter2->add(testController, Ice::stringToIdentity("testController"));
     //adapter2->activate(); // Don't activate OA to ensure collocation is used.
 
     void allTests(const Ice::CommunicatorPtr&);

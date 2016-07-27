@@ -269,7 +269,7 @@ public:
         Lock sync(*this);
         this->objects.erase(id);
         updated(updateSerial(0, "object removed `" +
-                             current.adapter->getCommunicator()->identityToString(id) + "'"));
+                             identityToString(id) + "'"));
     }
 
     int serial;
@@ -1641,20 +1641,20 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
             admin->addObjectWithType(obj, "::Dummy");
             objectObs1->waitForUpdate(__FILE__, __LINE__);
-            test(objectObs1->objects.find(communicator->stringToIdentity("dummy")) != objectObs1->objects.end());
-            test(objectObs1->objects[communicator->stringToIdentity("dummy")].type == "::Dummy");
-            test(objectObs1->objects[communicator->stringToIdentity("dummy")].proxy == obj);
+            test(objectObs1->objects.find(Ice::stringToIdentity("dummy")) != objectObs1->objects.end());
+            test(objectObs1->objects[Ice::stringToIdentity("dummy")].type == "::Dummy");
+            test(objectObs1->objects[Ice::stringToIdentity("dummy")].proxy == obj);
 
             obj = communicator->stringToProxy("dummy:tcp -p 10000 -h localhost");
             admin->updateObject(obj);
             objectObs1->waitForUpdate(__FILE__, __LINE__);
-            test(objectObs1->objects.find(communicator->stringToIdentity("dummy")) != objectObs1->objects.end());
-            test(objectObs1->objects[communicator->stringToIdentity("dummy")].type == "::Dummy");
-            test(objectObs1->objects[communicator->stringToIdentity("dummy")].proxy == obj);
+            test(objectObs1->objects.find(Ice::stringToIdentity("dummy")) != objectObs1->objects.end());
+            test(objectObs1->objects[Ice::stringToIdentity("dummy")].type == "::Dummy");
+            test(objectObs1->objects[Ice::stringToIdentity("dummy")].proxy == obj);
 
             admin->removeObject(obj->ice_getIdentity());
             objectObs1->waitForUpdate(__FILE__, __LINE__);
-            test(objectObs1->objects.find(communicator->stringToIdentity("dummy")) == objectObs1->objects.end());
+            test(objectObs1->objects.find(Ice::stringToIdentity("dummy")) == objectObs1->objects.end());
         }
         catch(const Ice::UserException& ex)
         {

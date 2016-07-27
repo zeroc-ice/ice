@@ -1,4 +1,3 @@
-
 // **********************************************************************
 //
 // Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
@@ -1151,7 +1150,7 @@ SessionRouterI::getRouterImpl(const ConnectionPtr& connection, const Ice::Identi
         {
             Trace out(_instance->logger(), "Glacier2");
             out << "rejecting request. no session is associated with the connection.\n";
-            out << "identity: " << _instance->communicator()->identityToString(id);
+            out << "identity: " << identityToString(id);
         }
         connection->close(true);
         throw ObjectNotExistException(__FILE__, __LINE__);

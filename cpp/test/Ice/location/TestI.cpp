@@ -69,9 +69,9 @@ ServerManagerI::startServer(const Ice::Current&)
     adapter2->setLocator(ICE_UNCHECKED_CAST(Ice::LocatorPrx, locator));
 
     Ice::ObjectPtr object = ICE_MAKE_SHARED(TestI, adapter, adapter2, _registry);
-    _registry->addObject(adapter->add(object, serverCommunicator->stringToIdentity("test")));
-    _registry->addObject(adapter->add(object, serverCommunicator->stringToIdentity("test2")));
-    adapter->add(object, serverCommunicator->stringToIdentity("test3"));
+    _registry->addObject(adapter->add(object, Ice::stringToIdentity("test")));
+    _registry->addObject(adapter->add(object, Ice::stringToIdentity("test2")));
+    adapter->add(object, Ice::stringToIdentity("test3"));
 
     adapter->activate();
     adapter2->activate();
@@ -93,7 +93,7 @@ TestI::TestI(const Ice::ObjectAdapterPtr& adapter,
              const ServerLocatorRegistryPtr& registry) :
     _adapter1(adapter), _adapter2(adapter2), _registry(registry)
 {
-    _registry->addObject(_adapter1->add(ICE_MAKE_SHARED(HelloI), _adapter1->getCommunicator()->stringToIdentity("hello")));
+    _registry->addObject(_adapter1->add(ICE_MAKE_SHARED(HelloI), Ice::stringToIdentity("hello")));
 }
 
 void
@@ -106,19 +106,19 @@ HelloPrxPtr
 TestI::getHello(const Ice::Current&)
 {
     return ICE_UNCHECKED_CAST(HelloPrx, _adapter1->createIndirectProxy(
-                                            _adapter1->getCommunicator()->stringToIdentity("hello")));
+                                            Ice::stringToIdentity("hello")));
 }
 
 HelloPrxPtr
 TestI::getReplicatedHello(const Ice::Current&)
 {
-    return ICE_UNCHECKED_CAST(HelloPrx, _adapter1->createProxy(_adapter1->getCommunicator()->stringToIdentity("hello")));
+    return ICE_UNCHECKED_CAST(HelloPrx, _adapter1->createProxy(Ice::stringToIdentity("hello")));
 }
 
 void
 TestI::migrateHello(const Ice::Current&)
 {
-    const Ice::Identity id = _adapter1->getCommunicator()->stringToIdentity("hello");
+    const Ice::Identity id = Ice::stringToIdentity("hello");
     try
     {
         _registry->addObject(_adapter2->add(_adapter1->remove(id), id));

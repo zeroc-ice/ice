@@ -53,7 +53,7 @@ var ServantManager = Ice.Class({
             if(m.has(facet))
             {
                 var ex = new Ice.AlreadyRegisteredException();
-                ex.id = this._instance.identityToString(ident);
+                ex.id = Ice.identityToString(ident);
                 ex.kindOfObject = "servant";
                 if(facet.length > 0)
                 {
@@ -93,7 +93,7 @@ var ServantManager = Ice.Class({
         if(m === undefined || !m.has(facet))
         {
             var ex = new Ice.NotRegisteredException();
-            ex.id = this._instance.identityToString(ident);
+            ex.id = Ice.identityToString(ident);
             ex.kindOfObject = "servant";
             if(facet.length > 0)
             {
@@ -136,7 +136,7 @@ var ServantManager = Ice.Class({
         if(m === undefined)
         {
             var ex = new Ice.NotRegisteredException();
-            ex.id = this._instance.identityToString(ident);
+            ex.id = Ice.identityToString(ident);
             ex.kindOfObject = "servant";
             throw ex;
         }

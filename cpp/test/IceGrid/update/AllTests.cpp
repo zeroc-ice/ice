@@ -106,7 +106,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         adapter.serverLifetime = false;
         addProperty(server, "Server.Endpoints", "default");
         ObjectDescriptor object;
-        object.id = communicator->stringToIdentity("test");
+        object.id = Ice::stringToIdentity("test");
         object.type = "::Test::TestIntf";
         adapter.objects.push_back(object);
         server->adapters.push_back(adapter);
@@ -145,7 +145,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(false);
         }
 
-        update.nodes[0].servers[0]->adapters[0].objects[0].id = communicator->stringToIdentity("test2");
+        update.nodes[0].servers[0]->adapters[0].objects[0].id = Ice::stringToIdentity("test2");
         try
         {
             admin->updateApplication(update);
@@ -173,7 +173,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         adapter.serverLifetime = false;
         addProperty(server, "Server.Endpoints", "default");
         object = ObjectDescriptor();
-        object.id = communicator->stringToIdentity("${server}");
+        object.id = Ice::stringToIdentity("${server}");
         object.type = "::Test::TestIntf";
         adapter.objects.push_back(object);
         server->adapters.push_back(adapter);
@@ -400,7 +400,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         adapter.serverLifetime = false;
         adapter.registerProcess = false;
         object = ObjectDescriptor();
-        object.id = communicator->stringToIdentity("test");
+        object.id = Ice::stringToIdentity("test");
         adapter.objects.push_back(object);
         info.descriptor->adapters.push_back(adapter);
         update = empty;
@@ -423,7 +423,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         info = admin->getServerInfo("Server");
         test(info.descriptor);
         object = ObjectDescriptor();
-        object.id = communicator->stringToIdentity("test");
+        object.id = Ice::stringToIdentity("test");
         info.descriptor->adapters[0].objects.push_back(object);
         update = empty;
         update.nodes[0].servers.push_back(info.descriptor);
@@ -445,7 +445,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         info = admin->getServerInfo("Server");
         test(info.descriptor);
         object = ObjectDescriptor();
-        object.id = communicator->stringToIdentity("test1");
+        object.id = Ice::stringToIdentity("test1");
         info.descriptor->adapters[0].allocatables.push_back(object);
         update = empty;
         update.nodes[0].servers.push_back(info.descriptor);
@@ -463,7 +463,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         info = admin->getServerInfo("Server");
         test(info.descriptor);
         object = ObjectDescriptor();
-        object.id = communicator->stringToIdentity("test1");
+        object.id = Ice::stringToIdentity("test1");
         info.descriptor->adapters[0].allocatables.push_back(object);
         update = empty;
         update.nodes[0].servers.push_back(info.descriptor);
@@ -485,7 +485,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         info = admin->getServerInfo("Server");
         test(info.descriptor);
         object = ObjectDescriptor();
-        object.id = communicator->stringToIdentity("test");
+        object.id = Ice::stringToIdentity("test");
         info.descriptor->adapters[0].allocatables.push_back(object);
         update = empty;
         update.nodes[0].servers.push_back(info.descriptor);
@@ -503,7 +503,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         info = admin->getServerInfo("Server");
         test(info.descriptor);
         object = ObjectDescriptor();
-        object.id = communicator->stringToIdentity("test");
+        object.id = Ice::stringToIdentity("test");
         info.descriptor->adapters[0].allocatables.push_back(object);
         update = empty;
         update.nodes[0].servers.push_back(info.descriptor);

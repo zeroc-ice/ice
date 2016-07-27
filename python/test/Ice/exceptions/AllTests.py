@@ -172,7 +172,7 @@ class Callback(CallbackBase):
         try:
             raise ex
         except Ice.ObjectNotExistException as ex:
-            id = self._communicator.stringToIdentity("does not exist")
+            id = Ice.stringToIdentity("does not exist")
             test(ex.id == id)
         except:
             test(False)
@@ -222,29 +222,29 @@ def allTests(communicator):
     communicator.getProperties().setProperty("TestAdapter1.Endpoints", "default")
     adapter = communicator.createObjectAdapter("TestAdapter1")
     obj = EmptyI()
-    adapter.add(obj, communicator.stringToIdentity("x"))
+    adapter.add(obj, Ice.stringToIdentity("x"))
     try:
-        adapter.add(obj, communicator.stringToIdentity("x"))
+        adapter.add(obj, Ice.stringToIdentity("x"))
         test(false)
     except Ice.AlreadyRegisteredException:
         pass
 
     try:
-        adapter.add(obj, communicator.stringToIdentity(""))
+        adapter.add(obj, Ice.stringToIdentity(""))
         test(false)
     except Ice.IllegalIdentityException as ex:
         test(ex.id.name == "")
 
     try:
-        adapter.add(None, communicator.stringToIdentity("x"))
+        adapter.add(None, Ice.stringToIdentity("x"))
         test(false)
     except Ice.IllegalServantException:
         pass
 
 
-    adapter.remove(communicator.stringToIdentity("x"))
+    adapter.remove(Ice.stringToIdentity("x"))
     try:
-        adapter.remove(communicator.stringToIdentity("x"))
+        adapter.remove(Ice.stringToIdentity("x"))
         test(false)
     except Ice.NotRegisteredException:
         pass
@@ -495,7 +495,7 @@ def allTests(communicator):
     sys.stdout.write("catching object not exist exception... ")
     sys.stdout.flush()
 
-    id = communicator.stringToIdentity("does not exist")
+    id = Ice.stringToIdentity("does not exist")
     try:
         thrower2 = Test.ThrowerPrx.uncheckedCast(thrower.ice_identity(id))
         thrower2.throwAasA(1)
@@ -664,7 +664,7 @@ def allTests(communicator):
     sys.stdout.write("catching object not exist exception with AMI mapping... ")
     sys.stdout.flush()
 
-    id = communicator.stringToIdentity("does not exist")
+    id = Ice.stringToIdentity("does not exist")
     thrower2 = Test.ThrowerPrx.uncheckedCast(thrower.ice_identity(id))
     cb = Callback(communicator)
     thrower2.begin_throwAasA(1, cb.response, cb.exception_AasAObjectNotExist)

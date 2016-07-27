@@ -27,9 +27,9 @@ public class Server
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("ControllerAdapter");
 
-        adapter.add(new TestI(), communicator.stringToIdentity("test"));
+        adapter.add(new TestI(), Ice.Util.stringToIdentity("test"));
         adapter.activate();
-        adapter2.add(new TestControllerI(adapter), communicator.stringToIdentity("testController"));
+        adapter2.add(new TestControllerI(adapter), Ice.Util.stringToIdentity("testController"));
         adapter2.activate();
 
         communicator.waitForShutdown();

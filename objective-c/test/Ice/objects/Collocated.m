@@ -89,10 +89,10 @@ run(id<ICECommunicator> communicator)
     [[communicator getProperties] setProperty:@"TestAdapter.Endpoints" value:@"default -p 12010"];
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAdapter"];
     TestObjectsInitialI* initial = [TestObjectsInitialI initial];
-    [adapter add:initial identity:[communicator stringToIdentity:@"initial"]];
+    [adapter add:initial identity:[ICEUtil stringToIdentity:@"initial"]];
 
     ICEObject* uoet = ICE_AUTORELEASE([[UnexpectedObjectExceptionTestI alloc] init]);
-    [adapter add:uoet identity:[communicator stringToIdentity:@"uoet"]];
+    [adapter add:uoet identity:[ICEUtil stringToIdentity:@"uoet"]];
 
     id<TestObjectsInitialPrx> objectsAllTests(id<ICECommunicator>, bool);
     objectsAllTests(communicator, NO);

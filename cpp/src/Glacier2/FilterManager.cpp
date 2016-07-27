@@ -61,7 +61,7 @@ stringToSeq(const CommunicatorPtr& comm, const string& str, vector<Identity>& se
                     //
                     // TODO: should this be an unmatched quote error?
                     //
-                    seq.push_back(comm->stringToIdentity(str.substr(current)));
+                    seq.push_back(stringToIdentity(str.substr(current)));
                     break;
                 }
 
@@ -76,7 +76,7 @@ stringToSeq(const CommunicatorPtr& comm, const string& str, vector<Identity>& se
                 if(markString)
                 {
                     ++current;
-                    seq.push_back(comm->stringToIdentity(str.substr(current, end-current)));
+                    seq.push_back(stringToIdentity(str.substr(current, end-current)));
                     break;
                 }
                 else
@@ -95,7 +95,7 @@ stringToSeq(const CommunicatorPtr& comm, const string& str, vector<Identity>& se
         {
             end = str.find_first_of(ws, current);
             string::size_type len = (end == string::npos) ? string::npos : end - current;
-            seq.push_back(comm->stringToIdentity(str.substr(current, len)));
+            seq.push_back(stringToIdentity(str.substr(current, len)));
             break;
         }
         }

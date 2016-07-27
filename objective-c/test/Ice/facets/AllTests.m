@@ -45,20 +45,20 @@ facetsAllTests(id<ICECommunicator> communicator)
     [[communicator getProperties] setProperty:@"FacetExceptionTestAdapter.Endpoints" value:@"default"];
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"FacetExceptionTestAdapter"];
     ICEObject* obj = [FacetsEmptyI empty];
-    [adapter add:obj identity:[communicator stringToIdentity:@"d"]];
-    [adapter addFacet:obj identity:[communicator stringToIdentity:@"d"] facet:@"facetABCD"];
+    [adapter add:obj identity:[ICEUtil stringToIdentity:@"d"]];
+    [adapter addFacet:obj identity:[ICEUtil stringToIdentity:@"d"] facet:@"facetABCD"];
     @try
     {
-        [adapter addFacet:obj identity:[communicator stringToIdentity:@"d"] facet:@"facetABCD"];
+        [adapter addFacet:obj identity:[ICEUtil stringToIdentity:@"d"] facet:@"facetABCD"];
         test(NO);
     }
     @catch(ICEAlreadyRegisteredException*)
     {
     }
-    [adapter removeFacet:[communicator stringToIdentity:@"d"] facet:@"facetABCD"];
+    [adapter removeFacet:[ICEUtil stringToIdentity:@"d"] facet:@"facetABCD"];
     @try
     {
-        [adapter removeFacet:[communicator stringToIdentity:@"d"] facet:@"facetABCD"];
+        [adapter removeFacet:[ICEUtil stringToIdentity:@"d"] facet:@"facetABCD"];
         test(NO);
     }
     @catch(ICENotRegisteredException*)
@@ -70,27 +70,27 @@ facetsAllTests(id<ICECommunicator> communicator)
     ICEObject* obj1 = [FacetsEmptyI empty];
     ICEObject* obj2 = [FacetsEmptyI empty];
 
-    [adapter addFacet:obj1 identity:[communicator stringToIdentity:@"id1"] facet:@"f1"];
-    [adapter addFacet:obj2 identity:[communicator stringToIdentity:@"id1"] facet:@"f2"];
+    [adapter addFacet:obj1 identity:[ICEUtil stringToIdentity:@"id1"] facet:@"f1"];
+    [adapter addFacet:obj2 identity:[ICEUtil stringToIdentity:@"id1"] facet:@"f2"];
 
     ICEObject* obj3 = [FacetsEmptyI empty];
 
-    [adapter addFacet:obj1 identity:[communicator stringToIdentity:@"id2"] facet:@"f1"];
-    [adapter addFacet:obj2 identity:[communicator stringToIdentity:@"id2"] facet:@"f2"];
-    [adapter addFacet:obj3 identity:[communicator stringToIdentity:@"id2"] facet:@""];
-    NSDictionary* fm = [adapter removeAllFacets:[communicator stringToIdentity:@"id1"]];
+    [adapter addFacet:obj1 identity:[ICEUtil stringToIdentity:@"id2"] facet:@"f1"];
+    [adapter addFacet:obj2 identity:[ICEUtil stringToIdentity:@"id2"] facet:@"f2"];
+    [adapter addFacet:obj3 identity:[ICEUtil stringToIdentity:@"id2"] facet:@""];
+    NSDictionary* fm = [adapter removeAllFacets:[ICEUtil stringToIdentity:@"id1"]];
     test([fm count] == 2);
     test([fm objectForKey:@"f1"] == obj1);
     test([fm objectForKey:@"f2"] == obj2);
     @try
     {
-        [adapter removeAllFacets:[communicator stringToIdentity:@"id1"]];
+        [adapter removeAllFacets:[ICEUtil stringToIdentity:@"id1"]];
         test(NO);
     }
     @catch(ICENotRegisteredException*)
     {
     }
-    fm = [adapter removeAllFacets:[communicator stringToIdentity:@"id2"]];
+    fm = [adapter removeAllFacets:[ICEUtil stringToIdentity:@"id2"]];
     test([fm count] == 3);
     test([fm objectForKey:@"f1"] == obj1);
     test([fm objectForKey:@"f2"] == obj2);

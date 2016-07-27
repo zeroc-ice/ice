@@ -16,7 +16,7 @@ run(id<ICECommunicator> communicator)
 {
     [[communicator getProperties] setProperty:@"TestAdapter.Endpoints" value:@"default -p 12010:udp"];
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAdapter"];
-    [adapter add:[RemoteCommunicatorI remoteCommunicator] identity:[communicator stringToIdentity:@"communicator"]];
+    [adapter add:[RemoteCommunicatorI remoteCommunicator] identity:[ICEUtil stringToIdentity:@"communicator"]];
     [adapter activate];
 
     // Disable ready print for further adapters.

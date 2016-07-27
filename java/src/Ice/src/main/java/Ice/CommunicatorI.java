@@ -71,14 +71,14 @@ public final class CommunicatorI implements Communicator
     public Ice.Identity
     stringToIdentity(String s)
     {
-        return _instance.stringToIdentity(s);
+        return Ice.Util.stringToIdentity(s);
     }
 
     @Override
     public String
     identityToString(Ice.Identity ident)
     {
-        return _instance.identityToString(ident);
+        return Ice.Util.identityToString(ident);
     }
 
     @Override

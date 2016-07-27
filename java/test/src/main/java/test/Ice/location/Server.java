@@ -31,15 +31,15 @@ public class Server extends test.Util.Application
         // 'servers' created with the server manager interface.
         //
         ServerLocatorRegistry registry = new ServerLocatorRegistry();
-        registry.addObject(adapter.createProxy(communicator.stringToIdentity("ServerManager")));
+        registry.addObject(adapter.createProxy(Ice.Util.stringToIdentity("ServerManager")));
         Ice.Object object = new ServerManagerI(registry, _initData, this);
-        adapter.add(object, communicator.stringToIdentity("ServerManager"));
+        adapter.add(object, Ice.Util.stringToIdentity("ServerManager"));
 
         Ice.LocatorRegistryPrx registryPrx = Ice.LocatorRegistryPrxHelper.uncheckedCast(adapter.add(registry,
-                communicator.stringToIdentity("registry")));
+                Ice.Util.stringToIdentity("registry")));
 
         ServerLocator locator = new ServerLocator(registry, registryPrx);
-        adapter.add(locator, communicator.stringToIdentity("locator"));
+        adapter.add(locator, Ice.Util.stringToIdentity("locator"));
 
         adapter.activate();
 

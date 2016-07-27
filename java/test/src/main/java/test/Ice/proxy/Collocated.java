@@ -17,7 +17,7 @@ public class Collocated extends test.Util.Application
         Ice.Communicator communicator = communicator();
         communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        adapter.add(new MyDerivedClassI(), communicator.stringToIdentity("test"));
+        adapter.add(new MyDerivedClassI(), Ice.Util.stringToIdentity("test"));
         //adapter.activate(); // Don't activate OA to ensure collocation is used.
 
         AllTests.allTests(communicator, getWriter());

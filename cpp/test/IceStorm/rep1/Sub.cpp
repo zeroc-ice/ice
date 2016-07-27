@@ -74,7 +74,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
         return EXIT_FAILURE;
     }
 
-    Ice::ObjectPrx prx = adapter->add(new SingleI(), communicator->stringToIdentity(opts.optArg("id")));
+    Ice::ObjectPrx prx = adapter->add(new SingleI(), stringToIdentity(opts.optArg("id")));
     if(opts.isSet("unsub"))
     {
         topic->unsubscribe(prx);

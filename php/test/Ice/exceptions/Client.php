@@ -309,7 +309,8 @@ function allTests($communicator)
     echo "catching object not exist exception... ";
     flush();
 
-    $id = $communicator->stringToIdentity("does not exist");
+    $stringToIdentity = $NS ? "Ice\\stringToIdentity" : "Ice_stringToIdentity";
+    $id = $stringToIdentity("does not exist");
     try
     {
         $thrower2 = $thrower->ice_identity($id)->ice_uncheckedCast("::Test::Thrower");

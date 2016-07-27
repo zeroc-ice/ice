@@ -33,15 +33,15 @@ run(id<ICECommunicator> communicator, ICEInitializationData* initData)
     ServerLocatorRegistry* registry = ICE_AUTORELEASE([[ServerLocatorRegistry alloc] init]);
     ServerManagerI* serverManager = ICE_AUTORELEASE([[ServerManagerI alloc] init:registry initData:initData]);
 
-    [registry addObject:[adapter createProxy:[communicator stringToIdentity:@"ServerManager"]]];
-    [adapter add:serverManager identity:[communicator stringToIdentity:@"ServerManager"]];
+    [registry addObject:[adapter createProxy:[ICEUtil stringToIdentity:@"ServerManager"]]];
+    [adapter add:serverManager identity:[ICEUtil stringToIdentity:@"ServerManager"]];
 
     id<ICELocatorRegistryPrx> registryPrx =
         [ICELocatorRegistryPrx uncheckedCast:[adapter add:registry
-                                                      identity:[communicator stringToIdentity:@"registry"]]];
+                                                      identity:[ICEUtil stringToIdentity:@"registry"]]];
 
     ServerLocator* locator = ICE_AUTORELEASE([[ServerLocator alloc] init:registry proxy:registryPrx]);
-    [adapter add:locator identity:[communicator stringToIdentity:@"locator"]];
+    [adapter add:locator identity:[ICEUtil stringToIdentity:@"locator"]];
 
     [adapter activate];
 

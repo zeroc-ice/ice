@@ -40,7 +40,7 @@ class MyDerivedClassI(Test.MyDerivedClass):
 def run(args, communicator):
     communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010:udp")
     adapter = communicator.createObjectAdapter("TestAdapter")
-    adapter.add(MyDerivedClassI(), communicator.stringToIdentity("test"))
+    adapter.add(MyDerivedClassI(), Ice.stringToIdentity("test"))
     adapter.activate()
     communicator.waitForShutdown()
     return True

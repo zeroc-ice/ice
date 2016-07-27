@@ -170,9 +170,9 @@ public:
 
     void opMyClass(const Test::MyClassPrxPtr& r, const Test::MyClassPrxPtr& c1, const Test::MyClassPrxPtr& c2)
     {
-        test(c1->ice_getIdentity() == _communicator->stringToIdentity("test"));
-        test(c2->ice_getIdentity() == _communicator->stringToIdentity("noSuchIdentity"));
-        test(r->ice_getIdentity() == _communicator->stringToIdentity("test"));
+        test(c1->ice_getIdentity() == Ice::stringToIdentity("test"));
+        test(c2->ice_getIdentity() == Ice::stringToIdentity("noSuchIdentity"));
+        test(r->ice_getIdentity() == Ice::stringToIdentity("test"));
 
         //
         // We can't do the callbacks below in connection serialization mode.

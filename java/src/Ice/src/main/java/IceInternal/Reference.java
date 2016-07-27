@@ -311,7 +311,7 @@ public abstract class Reference implements Cloneable
         // the reference parser uses as separators, then we enclose
         // the identity string in quotes.
         //
-        String id = _instance.identityToString(_identity);
+        String id = Ice.Util.identityToString(_identity);
         if(IceUtilInternal.StringUtil.findFirstOf(id, " :@") != -1)
         {
             s.append('"');

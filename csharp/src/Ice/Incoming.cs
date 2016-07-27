@@ -222,7 +222,7 @@ namespace IceInternal
                 IceUtilInternal.OutputBase output = new IceUtilInternal.OutputBase(sw);
                 output.setUseTab(false);
                 output.print("dispatch exception:");
-                output.print("\nidentity: " + instance_.identityToString(current_.id));
+                output.print("\nidentity: " + Ice.Util.identityToString(current_.id));
                 output.print("\nfacet: " + IceUtilInternal.StringUtil.escapeString(current_.facet, ""));
                 output.print("\noperation: " + current_.operation);
                 if(current_.con != null)

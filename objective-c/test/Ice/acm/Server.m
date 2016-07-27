@@ -18,7 +18,7 @@ run(id<ICECommunicator> communicator)
     [[communicator getProperties] setProperty:@"TestAdapter.ACM.Timeout" value:@"0"];
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAdapter"];
     [adapter add:[RemoteCommunicatorI remoteCommunicator]
-        identity:[communicator stringToIdentity:@"communicator"]];
+        identity:[ICEUtil stringToIdentity:@"communicator"]];
     [adapter activate];
 
     // Disable ready print for further adapters.

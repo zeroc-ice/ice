@@ -23,7 +23,7 @@ public class Collocated
         communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.Object obj = new ThrowerI();
-        adapter.add(obj, communicator.stringToIdentity("thrower"));
+        adapter.add(obj, Ice.Util.stringToIdentity("thrower"));
         AllTests.allTests(communicator);
         return 0;
     }

@@ -29,8 +29,8 @@ run(id<ICECommunicator> communicator)
     [[communicator getProperties] setProperty:@"TestAdapter2.ThreadPool.Serialize" value:@"1"];
     id<ICEObjectAdapter> adapter2 = [communicator createObjectAdapter:@"TestAdapter2"];
 
-    [adapter1 add:[HoldI hold] identity:[communicator stringToIdentity:@"hold"]];
-    [adapter2 add:[HoldI hold] identity:[communicator stringToIdentity:@"hold"]];
+    [adapter1 add:[HoldI hold] identity:[ICEUtil stringToIdentity:@"hold"]];
+    [adapter2 add:[HoldI hold] identity:[ICEUtil stringToIdentity:@"hold"]];
 
     [adapter1 activate];
     [adapter2 activate];

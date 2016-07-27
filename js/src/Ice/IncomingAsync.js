@@ -136,7 +136,7 @@ var IncomingAsync = Ice.Class({
 
         var s = [];
         s.push("dispatch exception:");
-        s.push("\nidentity: " + this._instance.identityToString(this._current.id));
+        s.push("\nidentity: " + Ice.identityToString(this._current.id));
         s.push("\nfacet: " + StringUtil.escapeString(this._current.facet, ""));
         s.push("\noperation: " + this._current.operation);
         if(this._connection !== null)

@@ -933,7 +933,7 @@ public class AllTests
                     continue; // IP version not supported.
                 }
 
-                String strPrx = oa.createProxy(serverCommunicator.stringToIdentity("dummy")).toString();
+                String strPrx = oa.createProxy(Ice.Util.stringToIdentity("dummy")).toString();
                 for(Ice.Properties q : clientProps)
                 {
                     Ice.InitializationData clientInitData = app.createInitializationData();

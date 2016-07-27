@@ -248,7 +248,7 @@ def allTests(communicator, ref):
     registry.addObject(adapter.add(HelloI(), id));
     adapter.activate();
 
-    helloPrx = Test.HelloPrx.checkedCast(communicator.stringToProxy(communicator.identityToString(id)));
+    helloPrx = Test.HelloPrx.checkedCast(communicator.stringToProxy(Ice.identityToString(id)));
     test(not helloPrx.ice_getConnection());
 
     adapter.deactivate();

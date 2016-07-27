@@ -359,17 +359,6 @@ namespace IceInternal
             return _implicitContext;
         }
 
-        public Ice.Identity stringToIdentity(string s)
-        {
-            return Ice.Util.stringToIdentity(s);
-        }
-
-        public string identityToString(Ice.Identity ident)
-        {
-            return Ice.Util.identityToString(ident);
-        }
-
-
         public Ice.ObjectPrx
         createAdmin(Ice.ObjectAdapter adminAdapter, Ice.Identity adminIdentity)
         {

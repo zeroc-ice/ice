@@ -172,12 +172,12 @@ run(const Ice::CommunicatorPtr& communicator)
 {
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    adapter->add(ICE_MAKE_SHARED(charI), communicator->stringToIdentity("test"));
+    adapter->add(ICE_MAKE_SHARED(charI), Ice::stringToIdentity("test"));
     adapter->activate();
 
     cout << "Testing operation name... " << flush;
     _cpp_and::charPrxPtr p = ICE_UNCHECKED_CAST(_cpp_and::charPrx,
-        adapter->createProxy(communicator->stringToIdentity("test")));
+        adapter->createProxy(Ice::stringToIdentity("test")));
     p->_cpp_explicit();
     cout << "ok" << endl;
 

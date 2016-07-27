@@ -237,32 +237,12 @@
 
 -(ICEIdentity*) stringToIdentity:(NSString*)str
 {
-    NSException* nsex = nil;
-    try
-    {
-        return [ICEIdentity identityWithIdentity:COMMUNICATOR->stringToIdentity(fromNSString(str))];
-    }
-    catch(const std::exception& ex)
-    {
-        nsex = toObjCException(ex);
-    }
-    @throw nsex;
-    return nil; // Keep the compiler happy.
+    return [ICEUtil stringToIdentity:str];
 }
 
 -(NSMutableString*) identityToString:(ICEIdentity*)ident
 {
-    NSException* nsex = nil;
-    try
-    {
-        return [toNSMutableString(COMMUNICATOR->identityToString([ident identity])) autorelease];
-    }
-    catch(const std::exception& ex)
-    {
-        nsex = toObjCException(ex);
-    }
-    @throw nsex;
-    return nil; // Keep the compiler happy.
+    return [ICEUtil identityToString:ident];
 }
 
 -(id<ICEObjectAdapter>) createObjectAdapter:(NSString*)name;

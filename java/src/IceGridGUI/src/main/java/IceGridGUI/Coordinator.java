@@ -2079,7 +2079,7 @@ public class Coordinator
 
                                 cb.setRegistry(RegistryPrxHelper.
                                     uncheckedCast(_communicator.stringToProxy(
-                                                    "\"" + _communicator.identityToString(masterRegistryId) + "\"")));
+                                                    "\"" + Ice.Util.identityToString(masterRegistryId) + "\"")));
                             }
 
                             //

@@ -40,7 +40,7 @@ Glacier2::RouterI::RouterI(const InstancePtr& instance, const ConnectionPtr& con
     if(_instance->properties()->getPropertyAsInt("Glacier2.ReturnClientProxy") > 0)
     {
         const_cast<Ice::ObjectPrx&>(_clientProxy) = 
-            _instance->clientObjectAdapter()->createProxy(_instance->communicator()->stringToIdentity("dummy"));
+            _instance->clientObjectAdapter()->createProxy(stringToIdentity("dummy"));
     }
 
     if(_instance->serverObjectAdapter())

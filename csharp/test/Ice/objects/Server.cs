@@ -46,9 +46,9 @@ public class Server
         communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.Object @object = new InitialI(adapter);
-        adapter.add(@object, communicator.stringToIdentity("initial"));
+        adapter.add(@object, Ice.Util.stringToIdentity("initial"));
         @object = new UnexpectedObjectExceptionTestI();
-        adapter.add(@object, communicator.stringToIdentity("uoet"));
+        adapter.add(@object, Ice.Util.stringToIdentity("uoet"));
         adapter.activate();
         communicator.waitForShutdown();
         return 0;

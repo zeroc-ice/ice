@@ -28,10 +28,10 @@ def run(args, communicator):
 
     testController = TestI.TestIntfControllerI(adapter)
 
-    adapter.add(TestI.TestIntfI(), communicator.stringToIdentity("test"))
+    adapter.add(TestI.TestIntfI(), Ice.stringToIdentity("test"))
     adapter.activate()
 
-    adapter2.add(testController, communicator.stringToIdentity("testController"))
+    adapter2.add(testController, Ice.stringToIdentity("testController"))
     adapter2.activate()
 
     communicator.waitForShutdown()

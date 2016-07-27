@@ -163,9 +163,9 @@
 
 -(void) opMyClassResponse:(id<TestOperationsMyClassPrx>)r p2:(id<TestOperationsMyClassPrx>)c1 p3:(id<TestOperationsMyClassPrx>)c2
 {
-    test([[c1 ice_getIdentity] isEqual:[[c1 ice_getCommunicator] stringToIdentity:@"test"]]);
-    test([[c2 ice_getIdentity] isEqual:[[c1 ice_getCommunicator] stringToIdentity:@"noSuchIdentity"]]);
-    test([[r ice_getIdentity] isEqual:[[c1 ice_getCommunicator] stringToIdentity:@"test"]]);
+    test([[c1 ice_getIdentity] isEqual:[ICEUtil stringToIdentity:@"test"]]);
+    test([[c2 ice_getIdentity] isEqual:[ICEUtil stringToIdentity:@"noSuchIdentity"]]);
+    test([[r ice_getIdentity] isEqual:[ICEUtil stringToIdentity:@"test"]]);
     // We can't do the callbacks below in connection serialization mode.
     if([[[c1 ice_getCommunicator] getProperties] getPropertyAsInt:@"Ice.ThreadPool.Client.Serialize"])
     {

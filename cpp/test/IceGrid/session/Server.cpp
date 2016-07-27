@@ -66,8 +66,8 @@ Server::run(int, char**)
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Server");
     if(communicator()->getProperties()->getPropertyAsInt("AddPermissionsVerifiers") > 0)
     {
-        adapter->add(new ClientPermissionsVerifierI(), communicator()->stringToIdentity("ClientPermissionsVerifier"));
-        adapter->add(new SSLPermissionsVerifierI(), communicator()->stringToIdentity("SSLPermissionsVerifier"));
+        adapter->add(new ClientPermissionsVerifierI(), Ice::stringToIdentity("ClientPermissionsVerifier"));
+        adapter->add(new SSLPermissionsVerifierI(), Ice::stringToIdentity("SSLPermissionsVerifier"));
     }
     adapter->activate();
 

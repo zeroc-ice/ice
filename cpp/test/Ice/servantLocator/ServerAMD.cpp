@@ -96,8 +96,8 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
 
     adapter->addServantLocator(ICE_MAKE_SHARED(ServantLocatorAMDI, ""), "");
     adapter->addServantLocator(ICE_MAKE_SHARED(ServantLocatorAMDI, "category"), "category");
-    adapter->add(ICE_MAKE_SHARED(TestAMDI), communicator->stringToIdentity("asm"));
-    adapter->add(ICE_MAKE_SHARED(TestActivationI), communicator->stringToIdentity("test/activation"));
+    adapter->add(ICE_MAKE_SHARED(TestAMDI), Ice::stringToIdentity("asm"));
+    adapter->add(ICE_MAKE_SHARED(TestActivationI), Ice::stringToIdentity("test/activation"));
     adapter->activate();
     TEST_READY
     adapter->waitForDeactivate();

@@ -326,11 +326,11 @@
                 // Test for bug ICE-5543: escaped escapes in stringToIdentity
                 //
                 var id = new Ice.Identity("test", ",X2QNUAzSBcJ_e$AV;E\\");
-                var id2 = communicator.stringToIdentity(communicator.identityToString(id));
+                var id2 = Ice.stringToIdentity(Ice.identityToString(id));
                 test(id.equals(id2));
 
                 id = new Ice.Identity("test", ",X2QNUAz\\SB\\/cJ_e$AV;E\\\\");
-                id2 = communicator.stringToIdentity(communicator.identityToString(id));
+                id2 = Ice.stringToIdentity(Ice.identityToString(id));
                 test(id.equals(id2));
 
                 out.writeLine("ok");
@@ -488,7 +488,9 @@
 
                 out.write("testing proxy methods... ");
                 test(communicator.identityToString(
-                        base.ice_identity(communicator.stringToIdentity("other")).ice_getIdentity()) === "other");
+                        base.ice_identity(Ice.stringToIdentity("other")).ice_getIdentity()) === "other");
+                test(Ice.identityToString(
+                    base.ice_identity(Ice.stringToIdentity("other")).ice_getIdentity()) === "other");
                 test(base.ice_facet("facet").ice_getFacet() === "facet");
                 test(base.ice_adapterId("id").ice_getAdapterId() === "id");
                 test(base.ice_twoway().ice_isTwoway());

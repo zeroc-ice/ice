@@ -37,7 +37,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     {
         ostringstream os;
         os << "controller" << num;
-        adapter->add(ICE_MAKE_SHARED(ControllerI), communicator->stringToIdentity(os.str()));
+        adapter->add(ICE_MAKE_SHARED(ControllerI), Ice::stringToIdentity(os.str()));
     }
     adapter->activate();
 

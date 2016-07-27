@@ -17,7 +17,7 @@ run(id<ICECommunicator> communicator)
     [[communicator getProperties] setProperty:@"TestAdapter.Endpoints" value:@"default -p 12010"];
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAdapter"];
     ICEObject* object = [TestRetryRetryI retry];
-    [adapter add:object identity:[communicator stringToIdentity:@"retry"]];
+    [adapter add:object identity:[ICEUtil stringToIdentity:@"retry"]];
     //[adapter activate]; // Don't activate OA to ensure collocation is used.
 
     TestRetryRetryPrx* retryAllTests(id<ICECommunicator>);

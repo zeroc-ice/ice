@@ -51,7 +51,7 @@ class TimeoutI(Test.Timeout):
 def run(args, communicator):
     communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010:udp")
     adapter = communicator.createObjectAdapter("TestAdapter")
-    adapter.add(TimeoutI(), communicator.stringToIdentity("timeout"))
+    adapter.add(TimeoutI(), Ice.stringToIdentity("timeout"))
     adapter.activate()
     communicator.waitForShutdown()
     return True

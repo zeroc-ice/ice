@@ -22,9 +22,9 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(communicator, 0));
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    adapter->add(ICE_MAKE_SHARED(TestIntfI, communicator), communicator->stringToIdentity("test"));
-    adapter->add(ICE_MAKE_SHARED(Test1::WstringClassI), communicator->stringToIdentity("wstring1"));
-    adapter->add(ICE_MAKE_SHARED(Test2::WstringClassI), communicator->stringToIdentity("wstring2"));
+    adapter->add(ICE_MAKE_SHARED(TestIntfI, communicator), Ice::stringToIdentity("test"));
+    adapter->add(ICE_MAKE_SHARED(Test1::WstringClassI), Ice::stringToIdentity("wstring1"));
+    adapter->add(ICE_MAKE_SHARED(Test2::WstringClassI), Ice::stringToIdentity("wstring2"));
 
     adapter->activate();
     TEST_READY

@@ -30,7 +30,7 @@ public:
     virtual int run(int, char*[])
     {
         Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("PermissionsVerifier");
-        adapter->add(new PermissionsVerifierI, communicator()->stringToIdentity("PermissionsVerifier"));
+        adapter->add(new PermissionsVerifierI, Ice::stringToIdentity("PermissionsVerifier"));
         adapter->activate();
         communicator()->waitForShutdown();
         return EXIT_SUCCESS;

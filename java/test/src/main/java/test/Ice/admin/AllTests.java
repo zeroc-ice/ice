@@ -147,7 +147,7 @@ public class AllTests
             Ice.Communicator com = Ice.Util.initialize(init);
 
             test(com.getAdmin() == null);
-            Ice.Identity id = com.stringToIdentity("test-admin");
+            Ice.Identity id = Ice.Util.stringToIdentity("test-admin");
             try
             {
                 com.createAdmin(null, id);

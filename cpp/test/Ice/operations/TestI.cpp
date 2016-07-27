@@ -164,7 +164,7 @@ MyDerivedClassI::opMyClass(ICE_IN(Test::MyClassPrxPtr) p1,
     p2 = p1;
     p3 = ICE_UNCHECKED_CAST(Test::MyClassPrx,
                             current.adapter->createProxy(
-                                current.adapter->getCommunicator()->stringToIdentity("noSuchIdentity")));
+                                stringToIdentity("noSuchIdentity")));
     return ICE_UNCHECKED_CAST(Test::MyClassPrx, current.adapter->createProxy(current.id));
 }
 

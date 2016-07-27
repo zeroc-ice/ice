@@ -225,7 +225,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         Ice::CommunicatorPtr com = Ice::initialize(init);
         test(!com->getAdmin());
 
-        Ice::Identity id = com->stringToIdentity("test-admin");
+        Ice::Identity id = stringToIdentity("test-admin");
         try
         {
             com->createAdmin(0, id);

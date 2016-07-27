@@ -17,7 +17,7 @@ run(id<ICECommunicator> communicator)
     [[communicator getProperties] setProperty:@"TestAdapter.Endpoints" value:@"default -p 12010:udp"];
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAdapter"];
     ICEObject* object = [TestRetryRetryI retry];
-    [adapter add:object identity:[communicator stringToIdentity:@"retry"]];
+    [adapter add:object identity:[ICEUtil stringToIdentity:@"retry"]];
     [adapter activate];
 
     serverReady(communicator);

@@ -164,7 +164,7 @@ def run(args, communicator):
     communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010:udp")
     adapter = communicator.createObjectAdapter("TestAdapter")
     initial = InitialI()
-    adapter.add(initial, communicator.stringToIdentity("initial"))
+    adapter.add(initial, Ice.stringToIdentity("initial"))
     adapter.activate()
 
     communicator.waitForShutdown()

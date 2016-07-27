@@ -22,7 +22,7 @@ void
 setupObjectAdapter(const Ice::CommunicatorPtr& communicator)
 {
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("");
-    adapter->add(ICE_MAKE_SHARED(RetryI), communicator->stringToIdentity("retry"));
+    adapter->add(ICE_MAKE_SHARED(RetryI), Ice::stringToIdentity("retry"));
     //adapter->activate(); // Don't activate OA to ensure collocation is used.
 }
 

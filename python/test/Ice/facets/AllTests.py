@@ -45,16 +45,16 @@ def allTests(communicator):
     communicator.getProperties().setProperty("FacetExceptionTestAdapter.Endpoints", "default")
     adapter = communicator.createObjectAdapter("FacetExceptionTestAdapter")
     obj = EmptyI()
-    adapter.add(obj, communicator.stringToIdentity("d"))
-    adapter.addFacet(obj, communicator.stringToIdentity("d"), "facetABCD")
+    adapter.add(obj, Ice.stringToIdentity("d"))
+    adapter.addFacet(obj, Ice.stringToIdentity("d"), "facetABCD")
     try:
-        adapter.addFacet(obj, communicator.stringToIdentity("d"), "facetABCD")
+        adapter.addFacet(obj, Ice.stringToIdentity("d"), "facetABCD")
         test(false)
     except Ice.AlreadyRegisteredException:
         pass
-    adapter.removeFacet(communicator.stringToIdentity("d"), "facetABCD")
+    adapter.removeFacet(Ice.stringToIdentity("d"), "facetABCD")
     try:
-        adapter.removeFacet(communicator.stringToIdentity("d"), "facetABCD")
+        adapter.removeFacet(Ice.stringToIdentity("d"), "facetABCD")
         test(false)
     except Ice.NotRegisteredException:
         pass
@@ -64,22 +64,22 @@ def allTests(communicator):
     sys.stdout.flush()
     obj1 = EmptyI()
     obj2 = EmptyI()
-    adapter.addFacet(obj1, communicator.stringToIdentity("id1"), "f1")
-    adapter.addFacet(obj2, communicator.stringToIdentity("id1"), "f2")
+    adapter.addFacet(obj1, Ice.stringToIdentity("id1"), "f1")
+    adapter.addFacet(obj2, Ice.stringToIdentity("id1"), "f2")
     obj3 = EmptyI()
-    adapter.addFacet(obj1, communicator.stringToIdentity("id2"), "f1")
-    adapter.addFacet(obj2, communicator.stringToIdentity("id2"), "f2")
-    adapter.addFacet(obj3, communicator.stringToIdentity("id2"), "")
-    fm = adapter.removeAllFacets(communicator.stringToIdentity("id1"))
+    adapter.addFacet(obj1, Ice.stringToIdentity("id2"), "f1")
+    adapter.addFacet(obj2, Ice.stringToIdentity("id2"), "f2")
+    adapter.addFacet(obj3, Ice.stringToIdentity("id2"), "")
+    fm = adapter.removeAllFacets(Ice.stringToIdentity("id1"))
     test(len(fm) == 2)
     test(fm["f1"] == obj1)
     test(fm["f2"] == obj2)
     try:
-        adapter.removeAllFacets(communicator.stringToIdentity("id1"))
+        adapter.removeAllFacets(Ice.stringToIdentity("id1"))
         test(false)
     except Ice.NotRegisteredException:
         pass
-    fm = adapter.removeAllFacets(communicator.stringToIdentity("id2"))
+    fm = adapter.removeAllFacets(Ice.stringToIdentity("id2"))
     test(len(fm) == 3)
     test(fm["f1"] == obj1)
     test(fm["f2"] == obj2)
