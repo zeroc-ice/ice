@@ -198,8 +198,8 @@ local interface Communicator
      * @see #identityToString
      *
      **/
-     ["cpp:const", "deprecate:stringToIdentity() is deprecated, use the static stringToIdentity() method instead."]
-     Identity stringToIdentity(string str);
+    ["cpp:const", "deprecate:stringToIdentity() is deprecated, use the static stringToIdentity() method instead."]
+    Identity stringToIdentity(string str);
 
     /**
      *
@@ -212,8 +212,8 @@ local interface Communicator
      * @see #stringToIdentity
      *
      **/
-     ["cpp:const", "deprecate:identityToString() is deprecated, use the static identityToString() method instead."]
-     string identityToString(Identity ident);
+    ["cpp:const", "deprecate:identityToString() is deprecated, use the static identityToString() method instead."]
+    string identityToString(Identity ident);
 
     /**
      *
