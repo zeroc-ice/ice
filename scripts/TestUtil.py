@@ -634,7 +634,12 @@ def run(tests, root = False):
             cross = ["cpp", "java", "js", "php", "python", "ruby"]
             if isWin32():
                 cross.append("csharp")
-                # TODO/XXX: we're currently not building Ruby on Windows
+
+                # TODO: PHP only builds against VC140
+                if getCppCompiler() != "VC140":
+                    cross.remove('php')
+
+                # TODO: We're currently not building Ruby on Windows
                 cross.remove('ruby')
             if isDarwin():
                 cross.append("objective-c")
