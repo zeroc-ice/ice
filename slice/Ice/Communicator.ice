@@ -330,6 +330,7 @@ local interface Communicator
      *
      * @see #findObjectFactory
      * @see ObjectFactory
+     * @see ValueFactoryManager#add
      *
      **/
     ["deprecate:addObjectFactory() is deprecated, use ValueFactoryManager::add() instead."]
@@ -347,9 +348,10 @@ local interface Communicator
      *
      * @see #addObjectFactory
      * @see ObjectFactory
+     * @see ValueFactoryManager#find
      *
      **/
-    ["cpp:const", "deprecate:findObjectFactory() is deprecated, use findValueFactory() instead."]
+    ["cpp:const", "deprecate:findObjectFactory() is deprecated, use ValueFactoryManager::find() instead."]
     ObjectFactory findObjectFactory(string id);
 
     /**
