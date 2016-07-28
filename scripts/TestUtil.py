@@ -635,9 +635,10 @@ def run(tests, root = False):
             if isWin32():
                 cross.append("csharp")
 
-                # TODO: PHP only builds against VC140
+                # PHP/Python only build with VC140
                 if getCppCompiler() != "VC140":
                     cross.remove('php')
+                    cross.remove('python')
 
                 # TODO: We're currently not building Ruby on Windows
                 cross.remove('ruby')
