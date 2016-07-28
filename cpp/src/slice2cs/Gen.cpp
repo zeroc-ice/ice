@@ -420,7 +420,7 @@ Slice::CsVisitor::writeInheritedOperations(const ClassDefPtr& p)
             else
             {
                 _out << sp << nl << "public abstract " << typeToString((*i)->returnType(), (*i)->returnIsOptional()) << ' '
-                     << fixId((*i)->name(), DotNet::ICloneable, true) << spar << getParams(*i) 
+                     << fixId((*i)->name(), DotNet::ICloneable, true) << spar << getParams(*i)
                      << (containingClass->isLocal() ? "" : "Ice.Current current__ = null") << epar << ";";
             }
         }
@@ -458,7 +458,7 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
     {
         emitGeneratedCodeAttribute();
     }
-    
+
     _out << nl << "public static new readonly string[] ids__ = ";
     _out << sb;
     {
@@ -966,9 +966,7 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
     ids.merge(other);
     ids.unique();
 
-    StringList::const_iterator firstIter = ids.begin();
-    StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), scoped);
-    assert(scopedIter != ids.end());
+    assert(find(ids.begin(), ids.end(), scoped) != ids.end());
 
     //
     // Marshalling support
@@ -2847,12 +2845,12 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         _out << sb;
         _out << nl << "return static_id__;";
         _out << eb;
-        
+
         _out << nl << "public override string ice_id()";
         _out << sb;
         _out << nl << "return static_id__;";
         _out << eb;
-        
+
         writeMarshaling(p);
     }
 
